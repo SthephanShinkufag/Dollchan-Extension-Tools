@@ -1,5 +1,5 @@
-// Bender Sage Fighter
-// 2084-05-11 version
+// Dollchan Sage Fighter
+// 2009-06-07 version, Stephan Shinkufag @ Free Dollchan 
 // Copyright (C) 2084, Bender Bending Rodríguez 
 // (some parts were shamefully stolen from internet)
 //
@@ -21,28 +21,64 @@
 // --------------------------------------------------------------------
 //
 // ==UserScript==
-// @name          Bender Sage Fighter
-// @namespace     Bender
-// @description   Hides specific posts in threads
-// @include       http://0chan.ru/*/res/*
-// @include       http://www.0chan.ru/*/res/*
+// @name          Dollchan Sage Fighter
+// @namespace     Free Dollchan
+// @include       http://2-ch.ru/*/res/*
+// @include       http://www.2-ch.ru/*/res/*
+// @include       http://2-ch.ru/*/*.html
+// @include       http://www.2-ch.ru/*/*.html
 // ==/UserScript==
 
 HIDE=1
 UNHIDE=0
 
-// config
-operaCfg = new Array();
-function getConfigValue(name) 
-{
-    if(navigator.appName == "Opera") { return operaCfg[name]; }
-    return GM_getValue(name);
+
+function setCookie ( cookieName, cookieValue, lifeTime ) {
+    if( !cookieName ) { return; }
+    if( lifeTime == "delete" ) { lifeTime = -10; } else { lifeTime = 31536000; }
+        document.cookie = escape( cookieName ) + "=" + escape( cookieValue ) +
+        ";expires=" + ( new Date( ( new Date() ).getTime() + ( 1000 * lifeTime ) ) ).toGMTString() + ";path=/";
 }
+
+
+function getCookie ( cookieName, oDefault ) {
+    var cookieJar = document.cookie.split( "; " );
+    for( var x = 0; x < cookieJar.length; x++ ) {
+        var oneCookie = cookieJar[x].split( "=" );
+        if( oneCookie[0] == escape( cookieName ) ) {
+            try {
+                eval('var footm = "'+unescape( oneCookie[1] )+'"');
+            } catch(e) { return oDefault; }
+            return footm;
+        }
+    }
+    return oDefault;
+}
+
+
+// config
+function getConfigValue(name)
+{
+    if(navigator.appName == "Opera") {
+        name = getCookie(name);
+        if(name == "true")
+            name = true;
+        if(name == "false")
+            name = false;
+        return name;
+    }
+
+    else
+        return GM_getValue(name);
+}
+
 
 function setConfigValue(name,value) 
 {
-    if(navigator.appName == "Opera") { operaCfg[name]=value; return }
-	GM_setValue(name, value);
+    if(navigator.appName == "Opera")
+        setCookie(name, value);
+    else
+        GM_setValue(name, value);
 }
 
 
@@ -51,8 +87,9 @@ function gensym(name,post)
 {
     if(post == undefined)
         post = "";
-    return "BENDER_SAGE_FIGHTER_"+name+"_"+board+"_"+post;
+    return "SAGE_FIGHTER_"+name+"_"+board+"_"+post;
 }
+
 
 //visibility
 visibility = new Array();
@@ -66,6 +103,7 @@ function getVisibility(post)
     return null;
 }
 
+
 var DELAY =  2 * 24 * 60 * 60 * 1000;
 
 // every time we need to reread visibility
@@ -77,24 +115,26 @@ function setVisibilityCheap(post,stat)
     expires[board+post] = now + DELAY;
 }
 
+
 function readVisibility()
 {
     visibility = new Array();
     vs=getConfigValue(gensym('VISIBILITY'));
-    if(vs == undefined){
+    if(vs == undefined) {
         return;
     }
     entries = vs.split('|');
     entries.pop();
     now = (new Date()).getTime();
-    for(var i = 0; i < entries.length; i++){
+    for(var i = 0; i < entries.length; i++) {
         [key,value,exp]=entries[i].split('=');
-        if(now < exp){
+        if(now < exp) {
             visibility[key] = value;
             expires[key] = exp;
         }
     }
 }
+
 
 function storeVisibility()
 {
@@ -114,6 +154,7 @@ function modVisibility(node,stat)
         node.style.display = "block";
 }
 
+
 //toggle visibility status of all children with given classname 
 function modChildrenByClass(node,clas,vis)
 {
@@ -121,6 +162,7 @@ function modChildrenByClass(node,clas,vis)
     for(var i=0; i<els.length; i++)
         modVisibility(els[i],vis);
 }
+
 
 //toggle visibility status of all children with given tagname 
 function modChildrenByTag(node,tag,vis)
@@ -130,6 +172,7 @@ function modChildrenByTag(node,tag,vis)
         modVisibility(els[i],vis);
 }
 
+
 function invertStatus(stat)
 {
     if(stat == UNHIDE)
@@ -137,29 +180,36 @@ function invertStatus(stat)
     return UNHIDE;
 }
 
+
+function modPostVisibility(postNode, stat)
+{
+    modChildrenByTag(postNode,'br', stat);
+    modChildrenByTag(postNode,'blockquote', stat);
+    modChildrenByTag(postNode,'img', stat);
+    modChildrenByClass(postNode,'filesize', stat);
+}
+
+
 // hide/unhide post
 function togglePostVisibility(postNode,postNum)
 {
     var button = hideButton(postNum);
     var oldStat = getVisibility(postNum);
     var stat = UNHIDE;
-    if(!button){
+    if(!button) {
         alert("no button for post "+postNum+" in " + postNode);
         return;
     }
-    if(oldStat == UNHIDE){
+    if(oldStat == UNHIDE) {
         stat = HIDE;
-        button.value='unhide';
-    } else if(oldStat == HIDE){
+        button.value='+';
+    } else if(oldStat == HIDE) {
         stat = UNHIDE;
-        button.value='hide';
+        button.value='_';
     }
     
+    modPostVisibility(postNode, stat);
 
-    modChildrenByTag(postNode,'br', stat);
-    modChildrenByTag(postNode,'blockquote', stat);
-    modChildrenByTag(postNode,'img', stat);
-    modChildrenByClass(postNode,'filesize', stat);
     setVisibilityCheap(postNum,stat);
 }
 
@@ -173,6 +223,7 @@ function incc(arr,w)
         arr[w] = 1;
 }
 
+
 function assert(cond, message)
 {
     if(cond)
@@ -180,27 +231,32 @@ function assert(cond, message)
     throw message;
 }
 
+
 function truncStr(str)
 {
     var maxlen = 20;
     return (str.length < maxlen) ? str : str.substr(0,maxlen-2) + "..";
 }
-function max(a,b){ return b > a ? b : a; }
-function min(a,b){ return b < a ? b : a; }
-function regexpSym() {return gensym("regexp");}
-function hideSageSym() { return gensym("hide_sage"); }
-function hideSageBox(){ return  document.getElementById(hideSageSym()); }
+
+
+function max(a,b) { return b > a ? b : a; }
+function min(a,b) { return b < a ? b : a; }
 function hideButtonSym(postNum){ return gensym('hider', postNum); }
-function hideButton(postNum){ return document.getElementById(hideButtonSym(postNum)); }
-function removeNode(node){if(node) node.parentNode.removeChild(node);}
-function createInput(type, value)
+function hideButton(postNum) { return document.getElementById(hideButtonSym(postNum)); }
+function removeNode(node) {if(node) node.parentNode.removeChild(node); }
+function isDefined(v) { return v!=undefined && v != null; }
+
+function createInput(type, value, id)
 {
     var input = document.createElement('INPUT');
     input.type = type;
-    if(value != undefined)
+    if(isDefined(value))
         input.value = value;
+    if(isDefined(id))
+        input.id = id;
     return input;
 }
+
 
 // Wipe detectors
 function getTextImpl(node)
@@ -211,7 +267,7 @@ function getTextImpl(node)
         return "\n";
 
     var text = "";
-    for(var i = 0; i < node.childNodes.length; i++ ){
+    for(var i = 0; i < node.childNodes.length; i++ ) {
         text += getTextImpl(node.childNodes[i]);
     }
     return text;
@@ -231,7 +287,7 @@ function detectWipe_alnum(text)
         return null;
 
     var wrds = 0;
-    for(var i = 0; i < words.length; ++i ){
+    for(var i = 0; i < words.length; ++i ) {
         word = words[i].length;
         if(word.length <= 6)
             continue;
@@ -239,7 +295,7 @@ function detectWipe_alnum(text)
         nmc=0;
 
         //TODO:rewrite someday
-        for(var j = 0; j < word.length; ++j){
+        for(var j = 0; j < word.length; ++j) {
             if(al.exec(word[j]) != null)
                 alc += 1;
             if(num.exec(word[j]) != null)
@@ -268,7 +324,7 @@ function detectWipe_caseSage(text)
 
     var wrds = 0;
     var ttl = 0;
-    for(var i = 0; i < words.length; ++i ){
+    for(var i = 0; i < words.length; ++i ) {
         if(words[i].length < 5)
             continue;
         ttl += 1;
@@ -279,7 +335,7 @@ function detectWipe_caseSage(text)
         lw = word.toLowerCase();
         upc=0;
         lwc=0;
-        for(var j = 0; j < word.length; ++j){
+        for(var j = 0; j < word.length; ++j) {
             //TODO: надо бы разобраться как русские буквы хранятся внтри. Но мне лень. 
             //Potomu uzaetsa translit
             if(up.charAt(j) == lw.charAt(j))
@@ -310,15 +366,15 @@ function detectWipe_sameLines(text)
 
     var count = new Array(); 
     all = 0;
-    for(var i = 0; i < lines.length; ++i ){
+    for(var i = 0; i < lines.length; ++i ) {
         if(lines[i].length == 0)
             continue;
         all += 1;
         incc(count,lines[i]);
     }
-    for(var it in count){
-        if((count[it] > all/2 - count[it]) && count[it] >= 5){
-            return "line:" + truncStr(it) + "x" + count[it];
+    for(var it in count) {
+        if((count[it] > all/2 - count[it]) && count[it] >= 5) {
+            return "same line: '" + truncStr(it) + "' x" + count[it];
         }
     }
     return null;
@@ -339,7 +395,7 @@ function detectWipe_sameWords(text)
     var count = new Array(); 
 
     var wrds = 0;
-    for(var i = 0; i < words.length; ++i ){
+    for(var i = 0; i < words.length; ++i ) {
         if(words[i].length <= 2)
             continue;
         wrds += 1;
@@ -350,49 +406,21 @@ function detectWipe_sameWords(text)
     keys=0; //TODO: get number of keys in more proper way
     pop="";
     mpop = -1;
-    for(var it in count){
+    for(var it in count) {
         keys += 1;
-        if(count[it] > mpop){
+        if(count[it] > mpop) {
             mpop = count[it];
             pop = it;
         }
-        if(count[it] > (wrds / 3)){
-            return "word:" + truncStr(it) + " x" + count[it];
+        if(count[it] > (wrds / 3)) {
+            return "same word: '" + truncStr(it) + "' x" + count[it];
         }
     }
     pop = truncStr(pop);
     if(wrds > 100 && keys <= 15)
-        return "word2: "+pop+" ttl:" + wrds  + ", dif:" + keys;
+        return "same word2: "+pop+" ttl:" + wrds  + ", dif:" + keys;
     if(wrds / keys > 10)
-        return "word3: "+pop+" ttl:" + wrds  + ", dif:" + keys;
-    return null;
-}
-
-
-
-function detectWipe_nonAlnum(text)
-{
-    text = text.replace(/\n/g, " ");
-    text = text.toUpperCase();
-    var alnum = /[0-9A-Z]/g;
-    var words = text.split(" ");
-    var garbage = 0;
-    var bytes = 0;
-    var longest="";
-    for(var i = 0; i<words.length; ++i){
-        var word = words[i];
-        if(word.length < 3)
-            continue;
-        bytes += word.length;
-        var w = word.replace(alnum, "");
-        if(w.length > 3)
-            garbage += w.length;
-        if(w.length > longest.length)
-            longest = w;
-    }
-    garbPerc = garbage * 1.0 / bytes;
-    if(garbPerc >= 0.4)
-        return "nonalnum:"+truncStr(longest)+"/g%="+parseInt(garbPerc * 100);
+        return "same word3: "+pop+" ttl:" + wrds  + ", dif:" + keys;
     return null;
 }
 
@@ -405,22 +433,73 @@ function detectWipe_longWords(text)
     var longWords = 0;
     var words = text.split(" ");
     var longest="";
-    if(words.length < 3)
-        return null;
-    len = 0;
-    for(var i = 0; i<words.length; ++i){
+    var len = 0;
+    var wordsNum = words.length - 3;
+    for(var i = 0; i<words.length; ++i) {
+        if(words[i].length == 1)
+            wordsNum--;
         longest = words[i].length > longest.length ? words[i] : longest;
         len += (words[i].length);
     }
-    lws = len * 1.0 / words.length;
-    if(lws > 14)
-        return "longwords: "+truncStr(longest)+" lws "+parseInt(100*lws)/100.0;
+    if(wordsNum == 0)
+        wordsNum = (words.length - 3);
+    lws = len / wordsNum;
+    if(wordsNum == 1 && longest.length > 80)
+//        return "longword: "+truncStr(longest)+" length="+longest.length;
+        return "long word";
+    if((wordsNum > 1) && (wordsNum <6 ) && (lws > 11))
+//        return "longwords: "+truncStr(longest)+" lws="+parseInt(100*lws)/100.0+" words="+wordsNum+" len="+len;
+        return "long words";
+    if(wordsNum >= 6 && lws > 10)
+        return "long words";
     return null;
 }
 
+
+function detectWipe_specialSymbols(text)
+{
+    text = text.replace(/\n/g, " ");
+    text = text.replace(/\//g, " ");
+    var wholeText = text; 
+    var wholetextLen = 0;
+    for(var i = 0; i<wholeText.length; ++i) {
+        wholetextLen += (wholeText[i].length);
+    }
+    text = text.replace(/[0-9A-Z]/g, ""); 
+    text = text.replace(/[a-z]/g, "");
+    text = text.replace(/!?./g, "");
+    var specsymText = text;
+    var specsymtextLen = 0;
+    for(var i = 0; i<specsymText.length; ++i) {
+        specsymtextLen += (specsymText[i].length);
+    }
+    var specsym = wholetextLen / specsymtextLen;
+    if(wholetextLen > 25 && specsym < 1.8)
+//        return "spec symbols: "+specsymtextLen;
+    return "special symbols";
+    return null;
+}
+
+
+function detectWipe_columns(text)
+{
+    var rows = text.split(/\n/g);
+    var rowsNum = 0;
+    for(var i = 0; i<rows.length; ++i) {
+        if(rows[i].length < 9)
+            rowsNum++;
+        else return null;
+    }
+    if(rowsNum - 3 > 4)
+        return "columns wipe x"+ (rowsNum - 3);
+    return null;
+
+}
+
+
 function translit(_text)
 {
-    //TODO: переписать нафиг
+    //TODO: переписать нафиг. или replace'ы быстрее? лень замерить
     var text = _text.replace(/й/g,'i').replace(/ц/g,'s').replace(/у/g,'y').replace(/к/g,'k').replace(/е/g,'e').replace(/н/g,'n');
     text = text.replace(/ё/g,'e').replace(/г/g,'g').replace(/ш/g,'s').replace(/щ/g,'s').replace(/з/g,'z').replace(/х/g,'x');
     text = text.replace(/ъ/g,'t').replace(/ф/g,'f').replace(/ы/g,'i').replace(/в/g,'v').replace(/а/g,'a').replace(/п/g,'p');
@@ -453,7 +532,7 @@ function getText(postNode)
     node = nodes[0];
     return getTextImpl(node);
 }
-zzz=undefined;
+
 
 // main wipe detection
 function detectWipe(postNode)
@@ -464,122 +543,22 @@ function detectWipe(postNode)
         detectWipe_sameWords,
         detectWipe_sameLines,
         detectWipe_longWords,
-        detectWipe_nonAlnum,
-        detectWipe_alnum,  
+        detectWipe_specialSymbols,
+        detectWipe_alnum,
+        detectWipe_columns,
         detectWipe_caseSage
     ];
 
-
-    for (var i = 0; i < detectors.length; ++i){
+    for (var i = 0; i < detectors.length; ++i) {
         var detector = detectors[i];
         var sage =  detector(txt);
-        if(sage != null){
+        if(sage != null) {
             return sage; 
         }
     }
     return null;
 }
 
-
-
-function toggleSage()
-{
-    setConfigValue( hideSageSym(), hideSageBox().checked );
-    if(hideSageBox().checked)
-        forEachReply( hideSagePosts );
-    else
-        forEachReply( unhideSagePosts );
-    forEachReply( actuallyHideHiddenPosts );
-    storeVisibility();
-}
-
-function preventEnter(e)
-{
-    if(e.which == 13){
-        e.preventDefault();
-        e.stopPropagation();
-    }
-}
-
-function modifyByRegexp(newStatus)
-{
-    var field = document.getElementById(regexpSym());
-    if(field.value == "")
-    {
-        alert("Введите регулярное выражение");
-        return;
-    }
-
-
-    var field = document.getElementById(regexpSym());
-    var re = new RegExp(translit(field.value.toUpperCase()));
-
-    functor = function(postNode, postNum){
-        if(getVisibility(postNum) == newStatus)
-            return;
-        var text = translit(getText(postNode).toUpperCase()).replace(/\n/g," ");;
-        if(re.exec(text)){
-            togglePostVisibility(postNode, postNum);
-            notice = document.getElementById(gensym('notice', postNum));
-            removeNode(notice);
-            makeNotice(postNode, 'regexp matched: '+field.value, 'notice', postNum);
-        }
-    };
-
-    forEachReply(functor);
-    storeVisibility();
-}
-
-function addConfig()
-{
-    postform = document.getElementById("postform");
-    if(!postform){
-        alert("ineternal error: cannot find postform");
-        return;
-    }
-    
-    // create button
-    var box = createInput('checkbox');
-    box.id = hideSageSym();
-    box.addEventListener("click", toggleSage, false);
-    box.checked = getConfigValue(hideSageSym());
-
-    // append button
-    tbodies = postform.getElementsByTagName('tbody');
-    tbody = tbodies[0];
-
-    insertRow = function(title){
-        var row = tbody.insertRow(-1);
-        var cell = row.insertCell(-1);
-        cell.className = "postblock";
-        cell.appendChild(document.createTextNode(title));
-        return row;
-    };
-    
-    row = insertRow('Antisage');
-    
-    cell = row.insertCell(-1);
-    cell.appendChild(box);
-    cell.appendChild(document.createTextNode('(прятать sage сообщения)'));
-
-    // append regexp hider
-    row = insertRow('Regexp');
-    
-    var field = createInput('text', '');
-    field.id = regexpSym();
-    field.addEventListener("keypress", preventEnter, false);
-    
-    cell = row.insertCell(-1);
-    cell.appendChild(field);
-
-    var button = createInput('button', 'hide');
-    button.addEventListener("click", function(){modifyByRegexp(HIDE);}, false);
-    cell.appendChild(button);
-    
-    button = createInput('button','unhide');
-    button.addEventListener("click", function(){modifyByRegexp(UNHIDE);}, false);
-    cell.appendChild(button);
-}
 
 function getPostHeader(node)
 {
@@ -589,14 +568,16 @@ function getPostHeader(node)
     return n[0];
 }
 
+
 function makeNotice(node, text, id, postNum)
 {
     header = getPostHeader(node);
     var link = document.createElement('a');
+    link.setAttribute('style', 'font-size:12px;font-style:italic;');
     if(id)
         link.id = gensym(id, postNum);
     link.appendChild(document.createTextNode(text));
-    link.addEventListener("click", (function(lnk){return function() { removeNode(lnk);}})(link), false);
+    link.addEventListener("click", (function(lnk) {return function() { removeNode(lnk);}})(link), false);
     header.appendChild(link);
 }
 
@@ -605,10 +586,11 @@ function forEachReply(lambda)
 {
     // prepare re for extractin post numbers
     var re_reply = new RegExp("reply(.*)");
-    for(var i=0; i<replies.length; i++){
+    var pcount = 0;
+    for(var i=0; i<replies.length; i++) {
         var postNode = replies[i];
         var reply = postNode.getElementsByClassName("reply");
-
+        pcount++;
         // get post number of reply
         if(reply.length == 0)
             continue;   //OP has no reply-id
@@ -618,52 +600,39 @@ function forEachReply(lambda)
         var header = getPostHeader(postNode);
         if(!header)
             continue;
-        lambda(postNode, postNum);
+        lambda(postNode, postNum, pcount);
     }
 }
-function isSagePost(postNode)
-{
-    posterNames = postNode.getElementsByClassName("postername");
-    if(posterNames.length == 0)
-        return false;
-    var posterName = posterNames[0];
-    var tags = posterName.getElementsByTagName('a');
-    if(tags.length == 0)
-        return false;
-    var tag = tags[0];
-    if(tag.href != "mailto:sage")
-        return false;
-    return true;
-}
 
-
-//
-// forEachReply-compatable functions
-//
-function debugAlert(postNode, postNum)
-{
-    var txt="";
-    alert(txt);
-}
 
 // inject "hide post" button after each post
 function injectHidePostButton(postNode, postNum)
 {
-    var button = createInput('button', 'hide');
+    var button = createInput('button', '_');
+    button.setAttribute("style", "width:18px;font-size:9px");
     button.id = hideButtonSym(postNum);
-    button.addEventListener("click", (function(node,thrd){return function() {
+    button.addEventListener("click", (function(node,thrd) {return function() {
             togglePostVisibility(node,thrd); 
             storeVisibility();
         }}) (postNode,postNum), false);
     getPostHeader(postNode).appendChild(button);
-
-    if(getConfigValue("BENDER_debug")){
-        button = createInput('button', 'DEBUG');
-        button.id = gensym('debug', postNum);
-        button.addEventListener("mousedown", function() {alert('haha2');}, false);
-        getPostHeader(postNode).appendChild(button);
-    }
 }
+
+
+// inject post counter after each post
+function createPostCounter(postNode, postNum, pcount)
+{
+    header = getPostHeader(postNode);
+    var postcount = document.createElement('a');
+        if(pcount >= 500)
+            postcount.setAttribute('style', 'font-style:italic;color:#c41e3a');
+        else
+            postcount.setAttribute('style', 'font-style:italic;color:#4f7942');
+    postcount.appendChild(document.createTextNode(' '+pcount+' '));
+    header.appendChild(postcount);
+    return postcount;
+}
+
 
 // if post is detected as sage - hide it 
 function actuallyHideHiddenPosts(postNode, postNum)
@@ -685,53 +654,18 @@ function detectWipePosts(postNode, postNum)
         return;
 
     var sage = detectWipe(postNode);
-    if(sage == null){
+    if(sage == null) {
         setVisibilityCheap(postNum,UNHIDE);
         return;
     }
 
     setVisibilityCheap(postNum,HIDE);
-    makeNotice(postNode, 'AUTO-HIDDEN: '+sage, 'notice', postNum);
+    makeNotice(postNode, ' autohide: '+sage, 'notice', postNum);
 }
 
-
-function hideSagePosts(postNode, postNum)
-{
-    if(!isSagePost(postNode))
-        return;
-
-
-    notice = document.getElementById(gensym('notice', postNum));
-    removeNode(notice);
-
-    if(getVisibility(postNum) != HIDE)
-        makeNotice(postNode, 'AUTO-HIDDEN: Sage(не поднимать этот тред)', 'notice', postNum);
-    setVisibilityCheap(postNum,HIDE);
-}
-function unhideSagePosts(postNode, postNum)
-{
-    if(!isSagePost(postNode))
-        return;
-
-    // unhide sage post
-    setVisibilityCheap(postNum,HIDE); //dirty hack: mark post as hidden
-    togglePostVisibility(postNode, postNum);
-
-    // remove notice
-    notice = document.getElementById(gensym('notice', postNum));
-    removeNode(notice);
-
-    //detect wipe post
-    detectWipePosts(postNode, postNum);
-}
-
-
-//
-// MAIN
-//
 
 // extract board & thread
-var re = new RegExp("0chan.ru/(.*)/res/(.*).html");
+var re = new RegExp("2-ch.ru/(.*)/res/(.*).html");
 var match = re.exec(location.href);
 assert(match != null, 'internal error: can not parse url'); 
 
@@ -740,22 +674,19 @@ var opThreadNum = match[2];
 var thread = document.getElementById("thread"+opThreadNum+board);
 assert(thread != null, 'internal error: thread not found'); 
 
-
 readVisibility();
-addConfig();
 
 // find posts
-var replies = thread.getElementsByClassName("postnode");
+var replies = thread.getElementsByClassName("reply");
 assert(replies != null, 'internal error: posts not found'); 
 
 
 // run some nice algorithms
 forEachReply( injectHidePostButton );
+forEachReply( createPostCounter );
 forEachReply( detectWipePosts );
-if(hideSageBox().checked)
-    forEachReply( hideSagePosts );
 forEachReply( actuallyHideHiddenPosts );
 
 
-// store changed visibility
+// store changed visibility[for thread mode only]
 storeVisibility();
