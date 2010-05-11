@@ -3,7 +3,7 @@
 // copyright (C) 2084, Bender Bending Rodríguez
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version		2010-05-06
+// @version		2010-05-11
 // @description	Doing some extended profit for russian AIB
 // @namespace		http://freedollchan.org/scripts
 // @include		*0chan.ru*
@@ -12,6 +12,7 @@
 // @include		*dobrochan.ru*
 // @include		*wakachan.org*
 // @include		*nowere.net*
+// @include		*uchan.org.ua*
 // ==/UserScript==
 
 (function() {
@@ -534,7 +535,7 @@ function addControls() {
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-05-06, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-05-11, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -700,11 +701,13 @@ function forceCaptcha(e) {
 function sageBtnFunc(mail, form) {
 	var sage = $x('.//span[@id="sage_btn"]', form);
 	if(Cfg[32] == 0) {
-		sage.innerHTML = 'без сажи';
+		sage.innerHTML = '<i>(без сажи)</i>';
+		sage.style.color = '';
 		if(mail.type == 'text') mail.value = '';
 		else mail.checked = false;
 	} else {
-		sage.innerHTML = '<span class="sage_icn" style="vertical-align:middle"></span> SAGE';
+		sage.innerHTML = '&nbsp;<span class="sage_icn" style="vertical-align:middle"></span><b>SAGE</b>';
+		sage.style.color = 'red';
 		if(mail.type == 'text') mail.value = 'sage';
 		else mail.checked = true;
 	}
@@ -713,12 +716,13 @@ function sageBtnFunc(mail, form) {
 function sageBtnEvent(e) {
 	toggleCfg(32);
 	sageBtnFunc(Rmail, postform);
-	if(QR) sageBtnFunc($prev(e.target), QR);
+	if(QR) sageBtnFunc($prev($x('.//span[@id="sage_btn"]', QR)), QR);
 	e.preventDefault();
 	e.stopPropagation();
 }
 
 function textareaResizer(form) {
+	$del($x('.//img[@id="resizer"]', form));
 	var node = $x('.//textarea', form);
 	$event(node, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
@@ -730,16 +734,14 @@ function textareaResizer(form) {
 	};
 	var resstop = function() {
 		$revent(doc.body, {'mousemove': resmove, 'mouseup': resstop});
-		if(form.id != 'quick_reply') {
-			saveCfg(30, parseInt(node.style.width));
-			saveCfg(31, parseInt(node.style.height));
-		}
+		saveCfg(30, parseInt(node.style.width));
+		saveCfg(31, parseInt(node.style.height));
 	};
-	var x = !ch._0ch ? 14 : 19;
+	var x = (!ch._0ch && !ch._410) ? 14 : 19;
 	var y = (nav.Opera) ? 9 : (nav.Chrome ? 2 : 6);
 	node.style.cssText = 'width:' + Cfg[30] + 'px; height:' + Cfg[31] + 'px';
 	$up(node).appendChild($new('img', {
-		'id': 'txt_resizer',
+		'id': 'resizer',
 		'src': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAABlBMVEUAAAAAAAClZ7nPAAAAAWJLR0QAiAUdSAAAAAF0Uk5TAEDm2GYAAAAWSURBVHjaY2BAAYyMDMNagBENYAgAABMoAD3fBUDWAAAAAElFTkSuQmCC',
 		'style': 'position:relative;left:-' + x + 'px;top:' + y + 'px;cursor:se-resize'}, {
 		'mousedown': function(e) {
@@ -766,12 +768,15 @@ function toggleUserPassw() {
 }
 
 function changePostForm() {
-	if(!main) doc.title = '/' + board + '/ - ' + getTitle(oPosts[0]).substring(0, 50);
+	doc.title = !main
+		? board + '/' + getTitle(oPosts[0]).substring(0, 50)
+		: doc.title.split(/\s/)[0] + ' - /' + board + '/';
+	if(ch.ua) toggleDisp($up($x('.//div[@class="gbBlock"]')));
 	if(!postform) return;
 	textFormatPanel(postform);
 	textareaResizer(postform);
 	if(wakaba && !main)
-		$before($next($x('.//a[text()="Назад" or text()="Return"]')), [
+		$before($next($x('.//a[text()="Назад" or text()="Вернуться" or text()="Return"]')), [
 			$new('span', {'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})]);
 	$each($X('.//input[@type="text"]', postform), function(el) {el.size = 35});
 	if(captcha) {
@@ -799,7 +804,7 @@ function changePostForm() {
 	}
 	if(Cfg[29] == 1 && !main)
 		$after(delform, [$x('.//div[@class="theader" or @class="replymode"]', b), postarea, hr]);
-	if(captcha && wakaba) {
+	if(captcha && wakaba && !ch._410) {
 		var td = $x('./ancestor::td', captcha);
 		var img = $x('.//img', td);
 		if(ch._2ch) {
@@ -859,16 +864,17 @@ function tfBtn(title, wk, bb, txt, src) {
 }
 
 function textFormatPanel(form) {
+	var pre = 'R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm92';
 	$after($x('.//input[@type="submit"]', form), [$New('span', [
-		tfBtn('Жирный', '**', 'b', 'B','R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm922hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWTYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIazjIYbmEQII95E3JZD530ZzyajtwbUJHYjzekhPLc8LRE5/NZa+azXCTqdWDet1W46sQc20NhIRbhQ2HhXQOiIleiFSIdAuOioaQhQs9lZF5TI6bDJ2Ff02ODaKkqKyanK2whKqxsJsjKLi4Kgq8vb6/viIhADs='),
-		tfBtn('Наклонный', '*', 'i', '<i>i</i>','R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm922hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAV5YBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0TI4XcsKpk9ZBHKcCSuWKwym3X0rFztIXz1VskJJQRtBofV7G9jTp8r6/g2nn7fz80Lfmp+cws9gXt9hIYMiHiKfoyOhIuHlJeSl5SGIyienioKoqOkpaQiIQA7'),
-		$if(!ch.dc, tfBtn('Подчеркнутый', '__', 'u', '<u>U</u>','R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm926CgoGhoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABIALAAAAAAXABYAAAWPoCQtZGmepjg+bOu+7iIxD2LfeI4/DK3/Op4PSEQIazjIIbnMHXNKZrCHvEWtzV3Pkeh2IwdvAizuOrZlslctPjO4YvY4XHbD1/Rv3mtv+P1gEH9gf399hWARigeMhX5uC44NYIwQSpILPZGSnI6ZDJudop+hDYynqI1/pKKtrK2dmSMotLQqCri5uru6IiEAOw==')),
-		tfBtn('Зачеркнутый', '', 's', 'S','R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm922hoaE1NTf///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABIALAAAAAAXABYAAAWNoCQtZGmepjg+bOu+7iIxD2LfeI4/DK3/Op4PSEQIazrIYQn5HXXL6KGZe+KUkIQWW+05tOAlWCseO7zjBDbNPjO+aog8Kq/XtW54en5g470NgYKDWIOBeYNLhoqGbguEU4KFhgs9j4lSBxGGgZUMl5BMnJ2Wo6aDnqCno6mrp5UjKLKyKgq2t7i5uCIhADs='),
-		tfBtn('Спойлер', '%%', 'spoiler', '%','R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm922hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAV7YBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg0XZoOp9Q2xIBqVqvWGnPkUhgv9euY9sFm8Vkr/mLZnDV63Bi7G404lg73WGH+p96PQt2hIWGhguCh4uHiQyDjJENjpCSi5SWjJiZjQwjKKCgKgqkpaanpiIhADs='),
-		tfBtn('Код', "`", 'code', 'C','R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm922hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWGYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg8Qc5OCGQYA+Jazqv0V3Pkeh2rd4ENJxwbMlNsrp8DjvXZDOD6z7Aw3JHY7938v+AeYBNgIUNcguDfnxQgAs9iYpXT46QhlYHjZUMkYaee4+cn6OhnaOFjyMoq6sqCq+wsbKxIiEAOw=='),
+		tfBtn('Жирный', '**', 'b', 'B', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWTYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIazjIYbmEQII95E3JZD530ZzyajtwbUJHYjzekhPLc8LRE5/NZa+azXCTqdWDet1W46sQc20NhIRbhQ2HhXQOiIleiFSIdAuOioaQhQs9lZF5TI6bDJ2Ff02ODaKkqKyanK2whKqxsJsjKLi4Kgq8vb6/viIhADs='),
+		tfBtn('Наклонный', '*', 'i', '<i>i</i>', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAV5YBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0TI4XcsKpk9ZBHKcCSuWKwym3X0rFztIXz1VskJJQRtBofV7G9jTp8r6/g2nn7fz80Lfmp+cws9gXt9hIYMiHiKfoyOhIuHlJeSl5SGIyienioKoqOkpaQiIQA7'),
+		$if(!ch.dc && !ch._410, tfBtn('Подчеркнутый', '__', 'u', '<u>U</u>', pre +'6CgoGhoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABIALAAAAAAXABYAAAWPoCQtZGmepjg+bOu+7iIxD2LfeI4/DK3/Op4PSEQIazjIIbnMHXNKZrCHvEWtzV3Pkeh2IwdvAizuOrZlslctPjO4YvY4XHbD1/Rv3mtv+P1gEH9gf399hWARigeMhX5uC44NYIwQSpILPZGSnI6ZDJudop+hDYynqI1/pKKtrK2dmSMotLQqCri5uru6IiEAOw==')),
+		tfBtn('Зачеркнутый', '', 's', 'S', pre +'2hoaE1NTf///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABIALAAAAAAXABYAAAWNoCQtZGmepjg+bOu+7iIxD2LfeI4/DK3/Op4PSEQIazrIYQn5HXXL6KGZe+KUkIQWW+05tOAlWCseO7zjBDbNPjO+aog8Kq/XtW54en5g470NgYKDWIOBeYNLhoqGbguEU4KFhgs9j4lSBxGGgZUMl5BMnJ2Wo6aDnqCno6mrp5UjKLKyKgq2t7i5uCIhADs='),
+		tfBtn('Спойлер', '%%', 'spoiler', '%', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAV7YBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg0XZoOp9Q2xIBqVqvWGnPkUhgv9euY9sFm8Vkr/mLZnDV63Bi7G404lg73WGH+p96PQt2hIWGhguCh4uHiQyDjJENjpCSi5SWjJiZjQwjKKCgKgqkpaanpiIhADs='),
+		tfBtn('Код', "`", 'code', 'C', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWGYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg8Qc5OCGQYA+Jazqv0V3Pkeh2rd4ENJxwbMlNsrp8DjvXZDOD6z7Aw3JHY7938v+AeYBNgIUNcguDfnxQgAs9iYpXT46QhlYHjZUMkYaee4+cn6OhnaOFjyMoq6sqCq+wsbKxIiEAOw=='),
 		$new('span', {
 			'title': 'Цитировать выделенное',
-			'style': (Cfg[18] == 0 ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm922hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWEYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa7jDoWg75iAQZdGpg0p/Qkdiy+VaD92to6cNh7/dMaNsPke5anabq4TAyY28ft+oQ/ZxfHt+gmoLgn0HUIgNCz2Hg4p/jI2PfIuUeY4MkJmIm52efKCinwwjKKmpKgqtrq+wryIhADs=) no-repeat' : ''),
+			'style': (Cfg[18] == 0 ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWEYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa7jDoWg75iAQZdGpg0p/Qkdiy+VaD92to6cNh7/dMaNsPke5anabq4TAyY28ft+oQ/ZxfHt+gmoLgn0HUIgNCz2Hg4p/jI2PfIuUeY4MkJmIm52efKCinwwjKKmpKgqtrq+wryIhADs=) no-repeat' : ''),
 			'html': (Cfg[18] == 1 ? '<b>|<a>&gt;</a>|</b>' : '')}, {
 			'mouseover': function() {quotetxt = txtSelection()},
 			'click': function() {InsertInto($x('.//textarea', form), '>' + quotetxt.replace(/\n/gm, '\n>') + '\n')}})
@@ -887,21 +893,21 @@ function quickReply(post) {
 	if(!QR) {
 		var first = true;
 		QR = postform.cloneNode(true);
-		$attr(QR, {'class': 'reply', 'id': 'quick_reply'});
-		$del($x('.//img[@id="txt_resizer"]', QR));
+		$attr(QR, {'class': 'reply'});
 		$del($x('.//span[@id="txt_btns"]', QR));
 		textareaResizer(QR);
 		textFormatPanel(QR);
 		$x('.//textarea', QR).value = '';
 		var sage = $x('.//span[@id="sage_btn"]', QR);
 		if(sage) $event(sage, {'click': sageBtnEvent});
-		if(ch._0ch && captcha) {
+		if(ch.ua || ch._410 || ch._0ch) $del($x('.//small', QR));
+		if(captcha && (ch._0ch || ch._410)) {
 			captcha.value = ' ';
-			var a = $up($x('.//img[@id="captchaimage"]', QR));
+			var a = $up($x('.//img[@id="captchaimage" or @id="faptchaimage"]', QR));
 			$before(a, [$new('img', {
-				'src': 'http://www.0chan.ru/captcha.php?' + Math.random(),
+				'src': 'http://' + domain + (ch._0ch ? '/captcha.php?' + Math.random() : '/faptcha.php?board=' + board),
 				'style': 'cursor:pointer'}, {
-				'click': function(e) {this.src = this.src.replace(/\?[^?]+$|$/, '?' + Math.random())}})]);
+				'click': function(e) {this.src = this.src.replace(/\?[^?]+$|$/, (!ch._410 ? '?' : '?board=' + board + '&') + Math.random())}})]);
 			$del(a);
 		}
 	}
@@ -909,7 +915,7 @@ function quickReply(post) {
 	$after(post, [QR]);
 	QR.style.display = 'block';
 	if(main) {
-		if(wakaba) {
+		if(wakaba && !ch._410) {
 			if(first) $before(
 				$x('.//div[@class="trap" or @class="its_a_tarp"]', QR) ||
 				$x('.//input[@name="name" or @name="akane"]', QR),
@@ -917,25 +923,21 @@ function quickReply(post) {
 			else $id('thr_id').value = tNum;
 		}
 		if(ch.dc) $x('.//input[@name="thread_id"]', QR).value = tNum;
-		if(ch._0ch) {
-			$x('.//input[@name="replythread"]', QR).value = tNum;
-			$x('.//span[@id="posttypeindicator"]', QR).textContent = 'ответ на ' + tNum;
-		}
+		if(ch._0ch || ch._410) $x('.//input[@name="replythread"]', QR).value = tNum;
 	}
 	var cap = $x('.//input[@name="captcha"]', QR);
 	if(cap) $event(cap, {'keypress': forceCaptcha});
 	if(cap && wakaba) {
 		if(ch._2ch) {
-			$each($X('.//img[@id="imgcaptcha"]', QR),
-				function(img) {$del(img)});
+			$each($X('.//img[@id="imgcaptcha"]', QR), function(img) {$del(img)});
 			for(var i = 0; i < Cfg[20]; i++)
 				$up(cap).appendChild(getCaptcha(false, tNum));
 		} else {
 			var img = $x('.//img', $up(cap));
+			var key = '?key=res' + tNum + '&amp;dummy=' + rand10();
 			$event(img, {'click': function(e) {capRefresh(this)}});
+			img.src = (ch.iich ? '/cgi-bin/captcha.pl/' + board + '/' : '/' + board + '/captcha.pl') + key;
 		}
-		if(ch.iich) img.src = '/cgi-bin/captcha.pl/' + board + '/?key=res' + tNum + '&amp;dummy=' + rand10();
-		if(ch.unyl || ch.nowr) img.src = '/' + board + '/captcha.pl?key=res' + tNum + '&amp;dummy=' + rand10();
 	}
 	var ms = Rmess.value.trim();
 	InsertInto($x('.//textarea', QR), ((first && ms != '') ? ms + '\n' : '') + '>>' + pNum + '\n');
@@ -947,15 +949,14 @@ function quickReply(post) {
 function iframeLoad(e) {
 	var frame = (e.srcElement || e.originalTarget).contentDocument;
 	if(!frame.body || frame.location == 'about:blank' || !frame.body.innerHTML) return;
-	var err = frame.getElementsByTagName('H2')[0] || frame.getElementsByTagName('H1')[0];
+	var err = frame.getElementsByTagName('h2')[0] || frame.getElementsByTagName('h1')[0];
 	if(!ch.dc && (err || !frame.getElementById('delform'))) {
-		if(!err) err = 'Ошибка:\n' + frame.innerHTML;
-		alert(err.firstChild.textContent);
+		alert(!err ? 'Ошибка:\n' + frame.innerHTML : (err.firstChild || err).textContent);
 		frame.location.replace('about:blank');
 		return;
 	}
 	if(/error/.test(frame.location.pathname)) {
-		var nodes = frame.getElementsByTagName('TD');
+		var nodes = frame.getElementsByTagName('td');
 		for(var node, i = 0; node = nodes[i++];)
 			if(node.className == 'post-error') alert('Ошибка: ' + node.textContent);
 		frame.location.replace('about:blank');
@@ -989,18 +990,19 @@ function submitCheck() {
 
 function scriptStyles() {
 	var icn = function(nm, src) {return nm + ' {padding-left:18px; cursor:pointer; background:url(data:image/gif;base64,' + src + ') no-repeat} '};
+	var pre = 'R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAAR';
 	var txt =
-		icn('.hide_icn','R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAARU0MlJq7o4X7dQ+mCILAuohOdHfgpQJguQLowSA+7tKkxt4wgEbnHpkWhCAIJxNJIYyWWTSQMmqUYGDtBobJmMxhOAJZO6LM3l0/WE3oiGo0uv0x0RADs=')+
-		icn('.unhide_icn','R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAARN0MlJq7o4X7dQ+mCILEuYMIxJfheDIMz1LTHGAEDd1uidozsaAvciMmhHF3EIgCFJPVwPeiTRpFZaI+tyWhsN1g7zAXtMooYDzG6zHREAOw==')+
-		icn('.rep_icn','R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAARO0MlJq7o4X7dQ+mCILAt4hSD5LQCghgtzsa27YIys0LV75SRGr4VgxIyxIaB4DPYQiEYQ2SBGpUFsA9rAkhZdUFejSHQ9KFHD0W27244IADs=')+
+		icn('.hide_icn', pre + 'U0MlJq7o4X7dQ+mCILAuohOdHfgpQJguQLowSA+7tKkxt4wgEbnHpkWhCAIJxNJIYyWWTSQMmqUYGDtBobJmMxhOAJZO6LM3l0/WE3oiGo0uv0x0RADs=') +
+		icn('.unhide_icn', pre + 'N0MlJq7o4X7dQ+mCILEuYMIxJfheDIMz1LTHGAEDd1uidozsaAvciMmhHF3EIgCFJPVwPeiTRpFZaI+tyWhsN1g7zAXtMooYDzG6zHREAOw==') +
+		icn('.rep_icn', pre + 'O0MlJq7o4X7dQ+mCILAt4hSD5LQCghgtzsa27YIys0LV75SRGr4VgxIyxIaB4DPYQiEYQ2SBGpUFsA9rAkhZdUFejSHQ9KFHD0W27244IADs=') +
 		icn('.sage_icn','R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAO7u7oCAgGBgYEtLS////wAAAAAAAAAAACH5BAEAAAwALAAAAAAOAA8AAARBkMlJq7o4X6aS/6B3fVonmomCrAiqLNiyeHIMXwuL3K/sz4mfUKYbCmnGxUG3OvwwS9bBlolObSfF4WpaMJI/RgQAOw==')+
-		icn('.expthr_icn','R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAARP0MlJq7o4X7dQ+gsALF+CLCSIiGeJqiKbLkzGIEiNMfp15zYGCtXANYY04bCIOA55SKYTBV0akQxnMQZoEhulbRf8aRTDIrKp4TC7325HBAA7')+
-		icn('.fav_icn','R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAART0MlJq7o4X7dQ+skFJsiyjAqCKKOJAgALLoxpInBpMzUM4D8frcbwGQHEGi1hTCh5puLxWWswAY0GLNGgdbVYE/hr5ZY/WXTDM2ojGo6sfC53RAAAOw==')+
+		icn('.expthr_icn', pre + 'P0MlJq7o4X7dQ+gsALF+CLCSIiGeJqiKbLkzGIEiNMfp15zYGCtXANYY04bCIOA55SKYTBV0akQxnMQZoEhulbRf8aRTDIrKp4TC7325HBAA7') +
+		icn('.fav_icn', pre + 'T0MlJq7o4X7dQ+skFJsiyjAqCKKOJAgALLoxpInBpMzUM4D8frcbwGQHEGi1hTCh5puLxWWswAY0GLNGgdbVYE/hr5ZY/WXTDM2ojGo6sfC53RAAAOw==') +
 	'td.reply {width:auto} .pcount {font-size:13px;font-weight:bold;cursor:default;color:#4f7942} .pcountb {font-size:13px;font-weight:bold;cursor:default;color:#c41e3a} ';
 	if((ch._2ch && getCookie('wakabastyle') != 'Futaba') || ch._0ch)
 		txt += '.postblock {background:#bbb} '; // gray postform color
 	if(Cfg[39] == 1) txt += '.spoiler {background:#888 !important; color:#CCC !important} '; // open spoilers
-	if(Cfg[25] == 1) txt += 'blockquote {max-height:100% !important}'; // no scroller
+	if(Cfg[25] == 1) txt += 'blockquote {max-height:100% !important; overflow:visible !important}'; // no scroller
 	$x('.//head').appendChild($new('style', {'type': 'text/css', 'text': txt}));
 	if(nav.Chrome) toggleDisp(delform);
 }
@@ -1073,7 +1075,6 @@ function isSagePost(post) {
 /*----------------------------------Posts buttons----------------------------*/
 
 function addHideThreadBtn(post) {
-	if(ch._0ch) $del($x('.//span[starts-with(@id,"hide")]', post));
 	var x = $new('span', {
 		'id': 'phide_' + post.Num}, {
 		'click': function() {hideThread(post); storeThreadVisib(post, HIDE)}});
@@ -1084,10 +1085,6 @@ function addHideThreadBtn(post) {
 }
 
 function addExpandThreadBtn(post) {
-	if(ch._0ch) {
-		var old = $x('.//img[@class="expandthread"]', post);
-		if(old) $del($up(old));
-	}
 	var x = $new('span', {
 		'id': 'expthrd_' + post.Num}, {
 		'click': function() {ajaxExpandThread(post, 1)}});
@@ -1149,7 +1146,8 @@ function addNote(post, text) {
 function addPostButtons(post) {
 	var div = $new('span');
 	var x = [], i = 0, C = Cfg;
-	if(ch.dc) div.innerHTML = '&nbsp;';
+	if(ch.dc || ch._410) div.innerHTML = '&nbsp;';
+	if(ch._410 || ch._0ch) $del($x('.//span[@class="extrabtns"]', post));
 	if(!post.isOp) {
 		div.className = 'reflink';
 		if(!main || post.isLoad) x[i++] = addPostCounter(post);
@@ -1273,7 +1271,7 @@ function refMap(post) {
 
 function doPostPrewiev(e) {
 	e.preventDefault(); e.stopPropagation();
-	if(ch._0ch) $del($x('.//div[starts-with(@id,"preview")]'));
+	$del($x('.//div[starts-with(@id,"preview")]'));
 	var tNum = this.pathname.substring(this.pathname.lastIndexOf('/')).match(/\d+/);
 	var pNum = this.hash.match(/\d+/) || tNum;
 	var b = this.pathname;
@@ -1344,11 +1342,7 @@ function delPrewievClones() {
 =============================================================================*/
 
 function getpNum(x) {
-	return parseInt((x.match(/(?:<input[^\d]+)(\d+)(?:[^>]+>)/) || x.match(/(?:<a name="i)(\d+)(?:">)/))[1]);
-}
-
-function getpHtml(x) {
-	return x.substring((!/<\/td/.test(x) && /filesize">/.test(x)) ? x.indexOf('filesize">') - 13 : x.indexOf('<label'), /<\/td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts">/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13)));
+	return parseInt((x.match(/(?:<input type="ch[^\d]+)(\d+)(?:[^>]+>)/) || x.match(/(?:<a name="i)(\d+)(?:">)/))[1]);
 }
 
 function parsePage(x) {
@@ -1359,10 +1353,10 @@ function parsePage(x) {
 		ajaxThrds[i] = tNum;
 		ajaxPosts[tNum] = {keys: []};
 		for(var j = 0, pLen = posts.length; j < pLen; j++) {
-			var post = posts[j];
-			var pNum = getpNum(post);
+			var x = posts[j];
+			var pNum = getpNum(x);
 			ajaxPosts[tNum].keys.push(pNum);
-			ajaxPosts[tNum][pNum] = getpHtml(post);
+			ajaxPosts[tNum][pNum] = x.substring((!/<\/td/.test(x) && /filesize">/.test(x)) ? x.indexOf('filesize">') - 13 : x.indexOf('<label'), /<\/td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts">/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13)));
 		}
 	}
 }
@@ -1474,9 +1468,9 @@ function initNewPosts() {
 			'click': ajaxNewPosts});
 		if(ch._0ch) $before($x('.//span[@style="float: right;"]', thread), [x]);
 		else thread.appendChild(x);
-		setInterval(function() {AJAX('thr', board, tNum, function() {$id('newpst_btn').innerHTML = txt + parseInt(ajaxPosts[tNum].keys.length - Posts.length - 1) + ']'})}, 40000);
+		setInterval(function() {AJAX('thr', board, tNum, function() {$id('newpst_btn').innerHTML = txt + parseInt(ajaxPosts[tNum].keys.length - Posts.length - 1) + ']'})}, 60000);
 	}
-	if(Cfg[37] == 2) setInterval(ajaxNewPosts, 40000);
+	if(Cfg[37] == 2) setInterval(ajaxNewPosts, 60000);
 }
 
 function ajaxPages(len) {
@@ -2079,7 +2073,6 @@ function detectWipe_caseSage(text) {
 =============================================================================*/
 
 function initBoard() {
-
 	var ua = navigator.userAgent;
 	nav = {
 		Firefox : /firefox|minefield/i.test(ua),
@@ -2097,21 +2090,22 @@ function initBoard() {
 		iich: dm == 'iichan.ru',
 		dc: dm == 'dobrochan.ru',
 		unyl: dm == 'wakachan.org',
-		nowr: dm == 'nowere.net'};
+		nowr: dm == 'nowere.net',
+		_410: dm == '410chan.ru',
+		ua: dm == 'uchan.org.ua'};
 	domain = dm;
 	wakaba = !(ch.dc || ch._0ch);
 	var path = location.pathname;
 	main = !/\/res\//.test(path);
 	arch = /\/arch/.test(path);
 	board = path.substr(1).split('/')[0];
-
 	delform = !ch.dc ? $id('delform') : $x('.//form[contains(@action, "delete")]');
 	if(!delform) throw 'stop';
 	ndelform = $next(delform);
 	Rname = Rmail = Rgoto_tr = Rpass = Rrules = QR = undefined;
 	postform = $id('postform');
 	if(!postform) return;
-	captcha = $n('captcha');
+	captcha = $n('captcha') || $n('faptcha');
 	Rsubm = $x('.//input[@type="submit"]', postform);
 	Rrules = $x('.//div[@class="rules"]|.//td[@class="rules"]');
 	Rgoto_tr = $id('trgetback');
@@ -2123,13 +2117,13 @@ function initBoard() {
 		Rmess = $n('shampoo');
 		Rfile = $n('file');
 	}
-	if(ch._0ch) {
+	if(ch._0ch || ch._410) {
 		Rname = $n('name');
 		Rmail = $n('em');
 		Rtitle = $n('subject');
 		Rmess = $n('message');
 		Rfile = $n('imagefile');
-		Rgoto_tr = $up($n('gotothread'), 3);
+		if(ch._0ch) Rgoto_tr = $up($n('gotothread'), 3);
 	}
 	if(ch.iich) {
 		Rname = $n('nya1');
@@ -2146,16 +2140,18 @@ function initBoard() {
 		Rmess = $n('message');
 		Rfile = $n('file_1');
 	}
-	if(ch.unyl || ch.nowr) {
+	if(ch.unyl || ch.nowr || ch.ua) {
 		Rname = $n('field1');
 		Rmail = $n('dont_bump') || $n('field2');
 		Rtitle = $n('field3');
 		Rmess = $n('field4');
 		Rfile = $n('file');
 	}
+}
 
+function initDelform() {
 	if(nav.Chrome) toggleDisp(delform);
-	if(wakaba && !ch.iich) {
+	if(wakaba && !ch.iich && !ch._410) {
 		var thrd_re = /<br clear="left"[<\/p>]*<hr>/i;
 		var tNum_re = /(?:<a name=")(\d+)(?:">)/i;
 		var threads = delform.innerHTML.split(thrd_re);
@@ -2174,7 +2170,7 @@ function initBoard() {
 	} 
 	else $each($X('./div[starts-with(@id, "thread")]', delform), function(thread) {
 			$attr(thread, {'id': $prev($x('.//label', thread)).name, 'class': 'thread'})})
-	if(ch.iich) {
+	if(ch.iich || ch._410) {
 		$each($X('.//td[@class="reply"]', delform), function(reply) {
 			$attr($up(reply, 3), {'class': 'replypost', 'id': 'post_' + reply.id.match(/\d+/)})});
 		$each($X('./div[@class="thread"]', delform), function(thread) {
@@ -2182,7 +2178,7 @@ function initBoard() {
 			var nodes = thread.childNodes;
 			var arr = [], x = 0;
 			for(var node, j = 1; node = nodes[j++];) {
-				if(node.tagName == 'TABLE') break;
+				if(node.tagName == 'TABLE' || node.tagName == 'DIV') break;
 				arr[x++] = node;
 			}
 			for(var node, j = 0; node = arr[j++];)
@@ -2246,6 +2242,7 @@ function doScript() {
 	const initTime = (new Date()).getTime();
 	oldTime = initTime; timeLog = '';
 	initBoard();					Log('initBoard');
+	initDelform();					Log('initDelform');
 	initCfg();						Log('initCfg');
 	readThreadsVisib();				Log('readThreadsVisib');
 	readPostsVisib();				Log('readPostsVisib');
@@ -2266,7 +2263,8 @@ function doScript() {
 		forPosts(mergeHidden);		Log('mergeHidden')}
 	if(Cfg[23] == 1 && wakaba) {
 		forAll(expandHandleImg);
-		if(!main) allImgExpander();	Log('expandHandleImg')}
+		if(!main && !ch._410)
+			allImgExpander();		Log('expandHandleImg')}
 	if(Cfg[24] == 1 && main && wakaba) {
 		forAll(ajaxExpandPost);		Log('ajaxExpandPost')}
 	if(Cfg[28] == 1) {
