@@ -3,7 +3,7 @@
 // copyright (C) 2084, Bender Bending Rodríguez
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version		2010-05-11
+// @version		2010-05-13
 // @description	Doing some extended profit for russian AIB
 // @namespace		http://freedollchan.org/scripts
 // @include		*0chan.ru*
@@ -208,6 +208,7 @@ String.prototype.trim = function() {
 function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
+var jsonParse = function() {var u={'"':'"','/':'/','\\':'\\','b':'\b','f':'\f','n':'\n','r':'\r','t':'\t'};function v(h,j,e){return j?u[j]:String.fromCharCode(parseInt(e,16))}var w=new String(""),x=Object.hasOwnProperty;return function(h,j){h=h.match(new RegExp('(?:false|true|null|[\\{\\}\\[\\]]|(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)|(?:\"(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))*\"))','g'));var e,c=h[0],l=false;if("{"===c)e={};else if("["===c)e=[];else{e=[];l=true}for(var b,d=[e],m=1-l,y=h.length;m<y;++m){c=h[m];var a;switch(c.charCodeAt(0)){default:a=d[0];a[b||a.length]=+c;b=void 0;break;case 34:c=c.substring(1,c.length-1);if(c.indexOf('\\')!==-1)c=c.replace(new RegExp('\\\\(?:([^u])|u(.{4}))','g'),v);a=d[0];if(!b)if(a instanceof Array)b=a.length;else{b=c||w;break}a[b]=c;b=void 0;break;case 91:a=d[0];d.unshift(a[b||a.length]=[]);b=void 0;break;case 93:d.shift();break;case 102:a=d[0];a[b||a.length]=false;b=void 0;break;case 110:a=d[0];a[b||a.length]=null;b=void 0;break;case 116:a=d[0];a[b||a.length]=true;b=void 0;break;case 123:a=d[0];d.unshift(a[b||a.length]={});b=void 0;break;case 125:d.shift();break}}if(l){if(d.length!==1)throw new Error;e=e[0]}else if(d.length)throw new Error;if(j){var p=function(n,o){var f=n[o];if(f&&typeof f==="object"){var i=null;for(var g in f)if(x.call(f,g)&&f!==n){var q=p(f,g);if(q!==void 0)f[g]=q;else{i||(i=[]);i.push(g)}}if(i)for(g=i.length;--g>=0;)delete f[i[g]]}return j.call(n,o,f)};e=p({"":e},"")}return e}}();
 
 
 /*=============================================================================
@@ -535,7 +536,7 @@ function addControls() {
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-05-11, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-05-13, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -1199,7 +1200,7 @@ function addYouTube(post) {
 
 function addMP3(post) {
 	var links = $X('.//a[contains(@href,".mp3") or contains(@href,".wav")]', post);
-	if(!links) return;
+	if(links.snapshotLength == 0) return;
 	var msg = post.Msg;
 	var mp3 = $new('div');
 	$before(msg.firstChild, [mp3]);
@@ -1341,38 +1342,60 @@ function delPrewievClones() {
 							AJAX FUNCTIONS
 =============================================================================*/
 
-function getpNum(x) {
-	return parseInt((x.match(/(?:<input type="ch[^\d]+)(\d+)(?:[^>]+>)/) || x.match(/(?:<a name="i)(\d+)(?:">)/))[1]);
-}
-
-function parsePage(x) {
+function parseHTMLdata(x) {
 	var threads = x.substring(x.search(/<form[^>]+del/) + x.match(/<form[^>]+del[^>]+>/).toString().length, /userdelete">/.test(x) ? x.indexOf('userdelete">') - 13 : (/deletebuttons/.test(x) ? x.indexOf('deletebuttons') - 70 : x.lastIndexOf('<form') - 5)).split(/<br clear="left"[\s<\/p>]*<h[r\s\/]*>/i);
 	for(var i = 0, tLen = threads.length - 1; i < tLen; i++) {
-		var tNum = getpNum(threads[i]);
+		var tNum = parseInt(threads[i].match(/(?:<input type="ch[^\d]+)(\d+)(?:[^>]+>)/)[1]);
 		var posts = threads[i].split(/<table[^>]*>/);
 		ajaxThrds[i] = tNum;
 		ajaxPosts[tNum] = {keys: []};
 		for(var j = 0, pLen = posts.length; j < pLen; j++) {
 			var x = posts[j];
-			var pNum = getpNum(x);
+			var pNum = parseInt(x.match(/(?:<input type="ch[^\d]+)(\d+)(?:[^>]+>)/)[1]);
 			ajaxPosts[tNum].keys.push(pNum);
 			ajaxPosts[tNum][pNum] = x.substring((!/<\/td/.test(x) && /filesize">/.test(x)) ? x.indexOf('filesize">') - 13 : x.indexOf('<label'), /<\/td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts">/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13)));
 		}
 	}
 }
 
-function AJAX(mod, b, addr, callback) {
+function parseJSONdata(x) { // Ох уж этот доброчан, едрен батон
+	var threads = jsonParse(x.substring(x.indexOf('threads') - 2, x.lastIndexOf('events') - 3)).threads;
+	for(var i = 0, tLen = threads.length; i < tLen; i++) {
+		var tNum = threads[i].display_id;
+		var posts = threads[i].posts;
+		ajaxThrds[i] = tNum;
+		ajaxPosts[tNum] = {keys: []};
+		for(var j = 0, pLen = posts.length; j < pLen; j++) {
+			var x = posts[j];
+			var pNum = x.display_id;
+			ajaxPosts[tNum].keys.push(pNum);
+			var farr = [];
+			for(var f = 0, fLen = x.files.length; f < fLen; f++) {
+				var fl = x.files[f];
+				farr[farr.length] = '<div class="file"><div class="fileinfo">Файл: <a href="/' + fl.src + '" target="_blank">' + fl.thumb.substr(fl.thumb.lastIndexOf('/') + 1) + '</a><br><em>' + fl.src.substr(fl.src.indexOf('.') + 1) + ', ' + fl.size + ' KB</em><br></div><a href="/' + fl.src + '" target="_blank"><img src="/' + fl.thumb + '" class="thumb" alt="/' + fl.src + '"></a></div>';
+			}
+			ajaxPosts[tNum][pNum] = '<label><a class="delete icon"><img src="/images/blank.png" title="К удалению" alt="Удалить"></a>' + (x.sage ? '<img src="/images/sage-carbon.png" alt="Сажа" title="Сажа">' : '') + (x.subject ? '<span class="replytitle">' + x.subject + '</span>' : '') + '<span class="postername">' + x.name + '</span> ' + x.date + ' </label><span class="reflink"><a href="/' + board + '/res/' + pNum + '.xhtml#i' + pNum + '">No.' + pNum + '</a></span><br>' + (x.files.length > 0 ? farr.join('') + (x.files.length > 1 ? '<br style="clear: both">' : '') : '') + '<div class="postbody"><div class="message">' + x.message.replace(/(>>\d+)/ig, '<a href="/' + board + '/res/' + tNum + '.xhtml#i$1">$1</a>').replace(/\n/g, '<br>') + '</div></div>';
+		}
+	}
+}
+
+function AJAX(mod, b, id, callback) {
 	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = function() {
+	xhr.onreadystatechange = function(mod) {return function() {
 		if(xhr.readyState == 4) {
 			if(xhr.status == 200) {
-				parsePage(xhr.responseText);
+				if(ch.dc) parseJSONdata(xhr.responseText);
+				else parseHTMLdata(xhr.responseText);
 				callback(null);
 			} else callback('HTTP ' + xhr.status + ' ' + xhr.statusText);
 		}
-	};
-	if(mod == 'thr') xhr.open('GET', '/' + b + '/res/' + addr + '.html', true);
-	if(mod == 'brd') xhr.open('GET', '/' + b + '/' + addr, true);
+	}}(mod);
+	var path = mod == 'thr'
+		? (ch.dc
+			? '/api/thread/new/' + b + '/' + id + '.json?last_post=0'
+			: '/' + b + '/res/' + id + '.html')
+		: '/' + b + '/' + (id != '' ? id : (ch.dc ? 'index' : '')) + (ch.dc ? '.json?last_post=0' : '');
+	xhr.open('GET', path, true);
 	xhr.send(false);
 }
 
@@ -1477,7 +1500,7 @@ function ajaxPages(len) {
 	delChilds(delform);
 	Posts = []; oPosts = [];
 	for(var p = 0; p < len; p++) {
-		AJAX('brd', board, (p == 0) ? '' : p + (ch.dc ? '.xhtml' : '.html'), function() {
+		AJAX('brd', board, p == 0 ? '' : p, function() {
 			for(var i = 0, tLen = ajaxThrds.length; i < tLen; i++) {
 				var tNum = ajaxThrds[i];
 				var thread = $new('div', {'class': 'thread', 'id': tNum});
