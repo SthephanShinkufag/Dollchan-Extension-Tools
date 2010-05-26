@@ -2,10 +2,10 @@
 // by Sthephan Shinkufag @ FreeDollChan
 // copyright (C) 2084, Bender Bending Rodríguez
 // ==UserScript==
-// @name			Dollchan Extension Tools
-// @version		2010-05-13
+// @name		Dollchan Extension Tools
+// @version		2010-05-26
 // @description	Doing some extended profit for russian AIB
-// @namespace		http://freedollchan.org/scripts
+// @namespace	http://freedollchan.org/scripts
 // @include		*0chan.ru*
 // @include		*2-ch.ru*
 // @include		*iichan.ru*
@@ -13,42 +13,43 @@
 // @include		*wakachan.org*
 // @include		*nowere.net*
 // @include		*uchan.org.ua*
+// @include		*sibirchan.ru*
 // ==/UserScript==
 
 (function() {
 var defaultCfg = [
-	1,		// 0		anti-wipe detectors
-	0,		// 1		hide posts with sage
-	0,		// 2		hide posts with theme
-	0,		// 3		hide posts without text
-	0,		// 4		hide posts without img
-	0,		// 5		-
-	0,		// 6		-
-	1,		// 7		enable text format buttons
-	0,		// 8		hide posts by text size
+	1,		// 0	anti-wipe detectors
+	0,		// 1	hide posts with sage
+	0,		// 2	hide posts with theme
+	0,		// 3	hide posts without text
+	0,		// 4	hide posts without img
+	0,		// 5	-
+	0,		// 6	-
+	1,		// 7	text format btns
+	0,		// 8	hide posts by text size
 	500,	// 9		text size in symbols
-	0,		// 10	hide by regexp
+	0,		// 10	hide posts by regexp
 	1,		// 11	additional hider menu
 	0,		// 12	process hidden posts (0=no, 1=merge, 2=full hide)
 	1,		// 13	apply filter to threads
-	1,		// 14	fast preview of hidden posts
+	1,		// 14	fast hidden posts preview
 	1,		// 15	>>links map
-	1,		// 16	'quick reply' buttons
-	1,		// 17	'add to favorities' buttons	
-	0,		// 18	show buttons as text
+	1,		// 16	'quick reply' btns
+	1,		// 17	'add to favorities' btns
+	0,		// 18	show btns as text
 	1,		// 19	show SAGE in posts
-	2,		// 20	multi captcha
-	1,		// 21	don't show board rules
-	1,		// 22	don't show gotothread
-	1,		// 23	expand images by click
+	2,		// 20	multi captcha (2-ch)
+	1,		// 21	hide board rules
+	1,		// 22	hide 'goto' field
+	1,		// 23	expand imgs by click
 	1,		// 24	expand shorted posts
-	1,		// 25	hide posts overflow scrollers
+	1,		// 25	hide scrollers in posts
 	1,		// 26	>>links preview
 	1,		// 27	YouTube player
 	1,		// 28	mp3 player
-	0,		// 29	move postform down
-	530,	// 30	postform textarea width
-	140,	// 31	postform textarea height
+	0,		// 29	move replyform down
+	530,	// 30	textarea width
+	140,	// 31	textarea height
 	0,		// 32	reply with SAGE
 	0,		// 33	apply user password
 	'',		// 34		user password value
@@ -57,8 +58,8 @@ var defaultCfg = [
 	2,		// 37	upload new posts (0=no, 1=by click, 2=auto)
 	1,		// 38	reply without reload (verify on submit)
 	1,		// 39	open spoilers
-	1,		// 40	don't show password field
-	1		// 41	convert email to sage field
+	1,		// 40	hide password field
+	1		// 41	email field -> sage btn
 ],
 
 Cfg = [],
@@ -75,7 +76,7 @@ UNHIDE = 0,
 STORAGE_LIFE = 259200000; // 3 days
 
 /*=============================================================================
-								UTILS
+									UTILS
 =============================================================================*/
 
 function $X(path, rootNode) {
@@ -123,6 +124,7 @@ function $attr(el, attr) {
 		if(key == 'value') {el.value = attr[key]; continue}
 		el.setAttribute(key, attr[key]);
 	}
+	return el;
 }
 function $event(el, events) {
 	for(var key in events)
@@ -208,11 +210,17 @@ String.prototype.trim = function() {
 function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
+
 var jsonParse = function() {var u={'"':'"','/':'/','\\':'\\','b':'\b','f':'\f','n':'\n','r':'\r','t':'\t'};function v(h,j,e){return j?u[j]:String.fromCharCode(parseInt(e,16))}var w=new String(""),x=Object.hasOwnProperty;return function(h,j){h=h.match(new RegExp('(?:false|true|null|[\\{\\}\\[\\]]|(?:-?\\b(?:0|[1-9][0-9]*)(?:\\.[0-9]+)?(?:[eE][+-]?[0-9]+)?\\b)|(?:\"(?:[^\\0-\\x08\\x0a-\\x1f\"\\\\]|\\\\(?:[\"/\\\\bfnrt]|u[0-9A-Fa-f]{4}))*\"))','g'));var e,c=h[0],l=false;if("{"===c)e={};else if("["===c)e=[];else{e=[];l=true}for(var b,d=[e],m=1-l,y=h.length;m<y;++m){c=h[m];var a;switch(c.charCodeAt(0)){default:a=d[0];a[b||a.length]=+c;b=void 0;break;case 34:c=c.substring(1,c.length-1);if(c.indexOf('\\')!==-1)c=c.replace(new RegExp('\\\\(?:([^u])|u(.{4}))','g'),v);a=d[0];if(!b)if(a instanceof Array)b=a.length;else{b=c||w;break}a[b]=c;b=void 0;break;case 91:a=d[0];d.unshift(a[b||a.length]=[]);b=void 0;break;case 93:d.shift();break;case 102:a=d[0];a[b||a.length]=false;b=void 0;break;case 110:a=d[0];a[b||a.length]=null;b=void 0;break;case 116:a=d[0];a[b||a.length]=true;b=void 0;break;case 123:a=d[0];d.unshift(a[b||a.length]={});b=void 0;break;case 125:d.shift();break}}if(l){if(d.length!==1)throw new Error;e=e[0]}else if(d.length)throw new Error;if(j){var p=function(n,o){var f=n[o];if(f&&typeof f==="object"){var i=null;for(var g in f)if(x.call(f,g)&&f!==n){var q=p(f,g);if(q!==void 0)f[g]=q;else{i||(i=[]);i.push(g)}}if(i)for(g=i.length;--g>=0;)delete f[i[g]]}return j.call(n,o,f)};e=p({"":e},"")}return e}}();
 
+function Log(txt) {
+	var newTime = (new Date()).getTime();
+	timeLog += '\n' + txt + ': ' + (newTime - oldTime).toString() + 'ms';
+	oldTime = newTime;
+}
 
 /*=============================================================================
-							STORAGE / CONFIG
+								STORAGE / CONFIG
 =============================================================================*/
 
 function setCookie(name, value, life) {
@@ -378,7 +386,7 @@ function storeFavorities(post) {
 	if(sav.cookie && arr.length/4 > 25) return;
 	for(var i = 0; i < arr.length/4; i++)
 		if(arr[i*4 + 1] == board && arr[i*4 + 2] == pNum) return;
-	arr[arr.length] = domain + '|' + board + (arch ? '/arch|' : '|') + pNum + '|' + txt;
+	arr[arr.length] = domain + '|' + board + (/\/arch/.test(location.pathname) ? '/arch|' : '|') + pNum + '|' + txt;
 	setStored('DESU_Favorities', arr.join('|'));
 }
 
@@ -395,7 +403,7 @@ function removeFavorities(node) {
 
 
 /*=============================================================================
-						CONTROLS / COMMON CHANGES
+							CONTROLS / COMMON CHANGES
 =============================================================================*/
 
 function addControls() {
@@ -431,10 +439,11 @@ function addControls() {
 			arr[i] = '<option value="' + i + '">' + arr[i] + '</option>';
 		return $new('select', {'id': id, 'html': arr.join('')}, {'change': fn});
 	};
+	if(ch.iich || ch.sib || ch.dc) Cfg[19] = 0;
 	$append(table, [$New('tbody', [
 		trBox(0, 'Анти-вайп детекторы'),
-		$if(!ch.iich, trBox(1, 'Скрывать sage посты', toggleSage, 'sage_hider')),
-		trBox(2, 'Скрывать посты с полем "Тема"', toggleTitle),
+		$if(!(ch.iich || ch.sib), trBox(1, 'Скрывать sage посты', toggleSage, 'sage_hider')),
+		$if(!ch.sib, trBox(2, 'Скрывать посты с полем "Тема"', toggleTitle)),
 		trBox(3, 'Скрывать посты без текста', toggleNotext, 'notext_hider'),
 		trBox(4, 'Скрывать посты без изображений', toggleNoimage, 'noimage_hider'),
 		$New('tr', [
@@ -454,7 +463,7 @@ function addControls() {
 			$new('span', {
 				'html': '[<a>?</a>]',
 				'style': 'cursor:pointer'}, {
-				'click': function() {alert('Поиск в тексте/теме поста:\nвыраж.1\nвыраж.2\n...\n\nРегулярные выражения: $exp выраж.\n$exp /[bб].[tт]+[hх].[rр][tт]/i\n$exp /кукл[оа]([её]б|бляд|быдл)/i\n\nКартинки: $img [<,>,=][вес в кб][@ширxвыс]\n$img <35@640x480\n$img >@640x480\n$img =35\n\nИмя/трипкод: $name [имя][!трипкод][!!трипкод]\n$name Sthephan!ihLBsDA91M\n$name !!PCb++jGu\nЛюбой трипкод: $alltrip')}}),
+				'click': function() {alert('Поиск в тексте/теме поста:\nвыраж.1\nвыраж.2\n...\n\nРегулярные выражения: $exp выраж.\n$exp /[bб].[tт]+[hх].[rр][tт]/i\n$exp /кукл[оа]([её]б|бляд|быдл)/i\n\nКартинки: $img [<,>,=][вес][@ширxвыс]\n$img <35@640x480\n$img >@640x480\n$img =35\n\nИмя/трипкод: $name [имя][!трипкод][!!трипкод]\n$name Sthephan!ihLBsDA91M\n$name !!PCb++jGu\nЛюбой трипкод: $alltrip')}}),
 			$new('input', {
 				'type': 'button',
 				'value': 'Применить',
@@ -486,15 +495,15 @@ function addControls() {
 		trBox(26, 'Просмотр постов по >>ссылкам*'),
 		$if(postform, trBox(16, 'Кнопки быстрого ответа*')),
 		trBox(17, 'Кнопки добавления в избранное*'),
-		$if(!ch.iich && !ch.dc,
+		$if(!(ch.iich || ch.sib || ch.dc),
 			trBox(19, 'Индикатор сажи в постах*')),
 		trBox(18, 'Отображать кнопки в виде текста*'),
 		trBox(7, 'Кнопки форматирования текста', function() {
 			toggleCfg(7);
 			$each($X('.//span[@id="txt_btns"]'), function(div) {toggleDisp(div)});
 		}),
-		$if(wakaba, trBox(23, 'Раскрывать изображения по клику*')),
-		$if(wakaba, trBox(24, 'Раскрывать сокращенные посты*')),
+		$if(wk, trBox(23, 'Раскрывать изображения по клику*')),
+		$if(wk, trBox(24, 'Раскрывать сокращенные посты*')),
 		$if(ch._2ch, trBox(25, 'Убирать прокрутку в постах*')),
 		trBox(27, 'Плейер к YouTube ссылкам*'),
 		trBox(28, 'Плейер к mp3 ссылкам*'),
@@ -536,7 +545,7 @@ function addControls() {
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-05-13, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-05-26, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -559,11 +568,10 @@ function hiddenPostsPreview() {
 	div.appendChild(table);
 	for(var post, i = 0; post = Posts[i++];) {
 		if(post.Vis != HIDE) continue;
-		var clone = post.cloneNode(true);
+		var clone = $attr(post.cloneNode(true), {'style': 'display:block', 'align': 'left'});
 		clones[clones.length] = clone;
 		clone.pst = post;
 		clone.vis = HIDE;
-		$attr(clone, {'style': 'display:block', 'align': 'left'});
 		var btn = $x('.//span[@id="phide_' + post.Num + '"]', clone);
 		btn.removeAttribute('id');
 		$event(btn, {
@@ -587,7 +595,8 @@ function hiddenPostsPreview() {
 					this.value = 'Раскрыть все';
 					for(var clone, i = 0; clone = clones[i++];)
 						setPostVisib(clone.pst, clone.vis);
-				}}}),
+				}
+			}}),
 		$new('input', {
 			'type': 'button',
 			'value': 'OK'}, {
@@ -595,7 +604,8 @@ function hiddenPostsPreview() {
 				for(var clone, i = 0; clone = clones[i++];)
 					if(clone.vis != HIDE) setPostVisib(clone.pst, UNHIDE);
 				storePostsVisib();
-				delChilds(div)}})
+				delChilds(div);
+			}})
 	]);
 }
 
@@ -626,7 +636,7 @@ function addSelMenu(id, dx, dy, arr) {
 	$before(delform, [$new('div', {
 		'class': 'reply',
 		'id': 'sel_menu',
-		'style': 'position:absolute; left:' + (getOffset($id(id), 'offsetLeft') + dx).toString() + 'px; top:' + (getOffset($id(id), 'offsetTop') + dy).toString() + 'px; z-index:250; cursor:pointer; width:auto',
+		'style': 'position:absolute; left:' + (getOffset($id(id), 'offsetLeft') + dx).toString() + 'px; top:' + (getOffset($id(id), 'offsetTop') + dy).toString() + 'px; z-index:250; cursor:pointer; width:auto; border:solid 1px #575763; padding:0 5px 0 5px',
 		'html': '<a>' + arr.join('</a><br><a>') + '</a>'}, {
 		'mouseout': function(e) {removeSelMenu(e.relatedTarget)}})]);
 	return $X('.//a', $id('sel_menu'));
@@ -687,7 +697,7 @@ function forceCaptcha(e) {
 	var en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 	var chr = String.fromCharCode(code).toLowerCase();
 	var i = en.length;
-	if(wakaba) {
+	if(wk) {
 		if(code < 0x0410 || code > 0x04FF) return;
 		while(i--) if(chr == ru[i]) chr = en[i];
 	}
@@ -738,7 +748,7 @@ function textareaResizer(form) {
 		saveCfg(30, parseInt(node.style.width));
 		saveCfg(31, parseInt(node.style.height));
 	};
-	var x = (!ch._0ch && !ch._410) ? 14 : 19;
+	var x = !(ch._0ch || ks) ? 14 : 19;
 	var y = (nav.Opera) ? 9 : (nav.Chrome ? 2 : 6);
 	node.style.cssText = 'width:' + Cfg[30] + 'px; height:' + Cfg[31] + 'px';
 	$up(node).appendChild($new('img', {
@@ -756,7 +766,7 @@ function toggleUserName() {
 	saveCfg(36, $id('usrname_field').value);
 	var val = ($id('usrname_box').checked) ? Cfg[36] : '';
 	Rname.value = val;
-	if(QR) ($x('.//input[@name="nya1"]', QR) || $x('.//input[@name="akane"]', QR) || $x('.//input[@name="name"]', QR)).value = val;
+	if(QR) ($x('.//input[@name="nya1" or @name="akane" or @name="field1"]', QR) || $x('.//input[@name="name"]', QR)).value = val;
 }
 
 function toggleUserPassw() {
@@ -765,25 +775,30 @@ function toggleUserPassw() {
 	var val = $id('usrpass_box').checked ? Cfg[34] : rand10().substring(0, 8);
 	Rpass.value = val;
 	del_passw.value = val;
-	if(QR) ($x('.//input[@name="password"]', QR) || $x('.//input[@name="postpassword"]', QR)).value = val;
+	if(QR) $x('.//input[@type="password"]', QR).value = val;
 }
 
-function changePostForm() {
+function doChanges() {
 	doc.title = !main
 		? board + '/' + getTitle(oPosts[0]).substring(0, 50)
 		: doc.title.split(/\s/)[0] + ' - /' + board + '/';
 	if(ch.ua) toggleDisp($up($x('.//div[@class="gbBlock"]')));
+	if(!main) {
+		if(wakaba) allImgExpander();
+		$before($x('.//div[@class="theader" or @class="replymode"]'), [
+			$if(!ch._0ch, $new('span', {
+				'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})),
+			$if(Posts.length > 50 && !ks, $new('span', {
+				'html': ' [<a href="#">Последние 50</a>]'}, {
+				'click': showlast50}))]);
+	}
 	if(!postform) return;
 	textFormatPanel(postform);
 	textareaResizer(postform);
-	if(wakaba && !main)
-		$before($next($x('.//a[text()="Назад" or text()="Вернуться" or text()="Return"]')), [
-			$new('span', {'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})]);
 	$each($X('.//input[@type="text"]', postform), function(el) {el.size = 35});
 	if(captcha) {
 		if(Cfg[20] == 0) toggleDisp($up(captcha, 2));
-		$attr(captcha, {'autocomplete': 'off'});
-		$event(captcha, {'keypress': forceCaptcha});
+		$event($attr(captcha, {'autocomplete': 'off'}), {'keypress': forceCaptcha});
 	}
 	if(Cfg[21] == 1) toggleDisp(Rrules);
 	if(Cfg[40] == 1 && Rpass) toggleDisp($up(Rpass, 2));
@@ -805,7 +820,7 @@ function changePostForm() {
 	}
 	if(Cfg[29] == 1 && !main)
 		$after(delform, [$x('.//div[@class="theader" or @class="replymode"]', b), postarea, hr]);
-	if(captcha && wakaba && !ch._410) {
+	if(captcha && wakaba) {
 		var td = $x('./ancestor::td', captcha);
 		var img = $x('.//img', td);
 		if(ch._2ch) {
@@ -834,34 +849,38 @@ function changePostForm() {
 		$append($up(Rmail), [$txt(' '), $new('span', {'id': 'sage_btn', 'style': 'cursor:pointer'}, {'click': sageBtnEvent})]);
 		sageBtnFunc(Rmail, postform);
 	}
+	if(Cfg[38] == 1) {
+		$x('.//body').appendChild($new('div', {'html': '<iframe name="submitcheck" id="submitcheck" src="about:blank" style="visibility:hidden; width:0px; height:0px; border:none"></iframe>'}));
+		$attr(postform, {'target': 'submitcheck'});
+		if(nav.Opera) $event(window, {'DOMFrameContentLoaded': iframeLoad});
+		else $event($id('submitcheck'), {'load': iframeLoad});
+	}
 }
 
 /*----------------------------Text formatting buttons------------------------*/
 
 function insertTags(node, tag1, tag2) {
-	var x = $x('.//textarea', $x('ancestor::form', node));
+	var x = $x('ancestor::form//textarea', node);
 	var start = x.selectionStart, end = x.selectionEnd;
-	if(tag1 == '' && tag2 == '')
-		for(var i = 0; i < (end - start); i++)
-			tag2 += '^H';
-	var text = x.value.substring(start, end);
-	var before = x.value.substr(0, start);
-	var after = x.value.substr(end);
-	if(text == '') {
-		text = x.value;
-		before = after = '';
+	if(tag1 == '' && tag2 == '') {
+		var i = (end - start);
+		while(i--) tag2 += '^H';
 	}
-	x.value = before + tag1 + text + tag2 + after;
+	var text = x.value.substring(start, end);
+	x.value = (text != '')
+		? x.value.substr(0, start) + tag1 + text + tag2 + x.value.substr(end)
+		: tag1 + x.value + tag2;
 }
 
-function tfBtn(title, wk, bb, txt, src) {
+function tfBtn(title, tag, bb, txt, src) {
 	return $new('span', {
 		'title': title,
 		'style': (Cfg[18] == 0 ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + src + ') no-repeat' : ''),
 		'html': (Cfg[18] == 1 ? '<b>|<a>' + txt + '</a>|</b>' : '')}, {
 		'click': function() {
-			if(!ch._0ch) insertTags(this, wk, wk);
-			else insertTags(this, '[' + bb + ']', '[/' + bb + ']')}});
+			if(ch._0ch || ch.sib) insertTags(this, '[' + bb + ']', '[/' + bb + ']');
+			else insertTags(this, tag, tag);
+		}});
 }
 
 function textFormatPanel(form) {
@@ -874,7 +893,7 @@ function textFormatPanel(form) {
 		tfBtn('Спойлер', '%%', 'spoiler', '%', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAV7YBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg0XZoOp9Q2xIBqVqvWGnPkUhgv9euY9sFm8Vkr/mLZnDV63Bi7G404lg73WGH+p96PQt2hIWGhguCh4uHiQyDjJENjpCSi5SWjJiZjQwjKKCgKgqkpaanpiIhADs='),
 		tfBtn('Код', "`", 'code', 'C', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWGYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg8Qc5OCGQYA+Jazqv0V3Pkeh2rd4ENJxwbMlNsrp8DjvXZDOD6z7Aw3JHY7938v+AeYBNgIUNcguDfnxQgAs9iYpXT46QhlYHjZUMkYaee4+cn6OhnaOFjyMoq6sqCq+wsbKxIiEAOw=='),
 		$new('span', {
-			'title': 'Цитировать выделенное',
+			'title': 'Цитировать',
 			'style': (Cfg[18] == 0 ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWEYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa7jDoWg75iAQZdGpg0p/Qkdiy+VaD92to6cNh7/dMaNsPke5anabq4TAyY28ft+oQ/ZxfHt+gmoLgn0HUIgNCz2Hg4p/jI2PfIuUeY4MkJmIm52efKCinwwjKKmpKgqtrq+wryIhADs=) no-repeat' : ''),
 			'html': (Cfg[18] == 1 ? '<b>|<a>&gt;</a>|</b>' : '')}, {
 			'mouseover': function() {quotetxt = txtSelection()},
@@ -893,8 +912,7 @@ function quickReply(post) {
 	var pNum = post.Num;
 	if(!QR) {
 		var first = true;
-		QR = postform.cloneNode(true);
-		$attr(QR, {'class': 'reply'});
+		QR = $attr(postform.cloneNode(true), {'class': 'reply'});
 		$del($x('.//span[@id="txt_btns"]', QR));
 		textareaResizer(QR);
 		textFormatPanel(QR);
@@ -902,11 +920,11 @@ function quickReply(post) {
 		var sage = $x('.//span[@id="sage_btn"]', QR);
 		if(sage) $event(sage, {'click': sageBtnEvent});
 		if(ch.ua || ch._410 || ch._0ch) $del($x('.//small', QR));
-		if(captcha && (ch._0ch || ch._410)) {
+		if(captcha && (ch._0ch || ks)) {
 			captcha.value = ' ';
 			var a = $up($x('.//img[@id="captchaimage" or @id="faptchaimage"]', QR));
 			$before(a, [$new('img', {
-				'src': 'http://' + domain + (ch._0ch ? '/captcha.php?' + Math.random() : '/faptcha.php?board=' + board),
+				'src': 'http://' + domain + (!ch._410 ? '/captcha.php?' + Math.random() : '/faptcha.php?board=' + board),
 				'style': 'cursor:pointer'}, {
 				'click': function(e) {this.src = this.src.replace(/\?[^?]+$|$/, (!ch._410 ? '?' : '?board=' + board + '&') + Math.random())}})]);
 			$del(a);
@@ -916,19 +934,16 @@ function quickReply(post) {
 	$after(post, [QR]);
 	QR.style.display = 'block';
 	if(main) {
-		if(wakaba && !ch._410) {
+		if(wakaba) {
 			if(first) $before(
-				$x('.//div[@class="trap" or @class="its_a_tarp"]', QR) ||
-				$x('.//input[@name="name" or @name="akane"]', QR),
+				$x('.//div[@class="trap" or @class="its_a_tarp"]|.//input[@name="name" or @name="akane"]', QR),
 				[$new('input', {'type': 'hidden', 'id': 'thr_id', 'name': 'parent', 'value': tNum})]);
 			else $id('thr_id').value = tNum;
-		}
-		if(ch.dc) $x('.//input[@name="thread_id"]', QR).value = tNum;
-		if(ch._0ch || ch._410) $x('.//input[@name="replythread"]', QR).value = tNum;
+		} else $x('.//input[@name="thread_id"]|.//input[@name="replythread"]', QR).value = tNum;
 	}
 	var cap = $x('.//input[@name="captcha"]', QR);
 	if(cap) $event(cap, {'keypress': forceCaptcha});
-	if(cap && wakaba) {
+	if(cap && wk) {
 		if(ch._2ch) {
 			$each($X('.//img[@id="imgcaptcha"]', QR), function(img) {$del(img)});
 			for(var i = 0; i < Cfg[20]; i++)
@@ -941,7 +956,7 @@ function quickReply(post) {
 		}
 	}
 	var ms = Rmess.value.trim();
-	InsertInto($x('.//textarea', QR), ((first && ms != '') ? ms + '\n' : '') + '>>' + pNum + '\n');
+	InsertInto($x('.//textarea', QR), (first && ms != '' ? ms + '\n' : '') + '>>' + pNum + '\n' + (quotetxt != '' ? '>' + quotetxt.replace(/\n/gm, '\n>') + '\n' : ''));
 	$event($x('.//input[@type="submit"]', QR), {'click': function() {Rmess.value = $x('.//textarea', QR).value}});
 }
 
@@ -970,21 +985,13 @@ function iframeLoad(e) {
 		else {$del(QR); ajaxNewPosts()}
 		QR = undefined;
 		if(captcha) captcha.value = '';
-		if(wakaba && captcha) {
+		if(wk && captcha) {
 			var img = $x('.//img', $x('./ancestor::td', captcha));
 			if(ch._2ch) capRefresh_2ch(img);
 			else capRefresh(img);
 		}
 	} else window.location = frame.location;
 	frame.location.replace('about:blank');
-}
-
-function submitCheck() {
-	if(!postform) return;
-	$x('.//body').appendChild($new('div', {'html': '<iframe name="submitcheck" id="submitcheck" src="about:blank" style="visibility:hidden; width:0px; height:0px; border:none"></iframe>'}));
-	$attr(postform, {'target': 'submitcheck'});
-	if(nav.Opera) $event(window, {'DOMFrameContentLoaded': iframeLoad});
-	else $event($id('submitcheck'), {'load': iframeLoad});
 }
 
 /*---------------------------Append styles for elements----------------------*/
@@ -1010,7 +1017,7 @@ function scriptStyles() {
 
 
 /*=============================================================================
-						FOR POSTS AND THREADS
+							FOR POSTS AND THREADS
 =============================================================================*/
 
 function forPosts(fn) {
@@ -1033,8 +1040,8 @@ function getThread(node) {
 
 function getPost(node) {
 	return !ch._0ch
-		? $x('ancestor::table', node)
-		: $x('./ancestor::div[@class="postnode"]', node) || $x('./ancestor::table[@class="replypost"]', node);
+		? $x('./ancestor::table', node)
+		: $x('./ancestor::div[@class="postnode"]|./ancestor::table[@class="replypost"]', node);
 }
 
 function getTitle(post) {
@@ -1045,9 +1052,10 @@ function getTitle(post) {
 }
 
 function getPostMsg(post) {
-	return wakaba ? $x('.//blockquote', post) 
+	return wk ? $x('.//blockquote', post) 
 		: (ch._0ch ? $x('.//div[@class="postmessage"]', post)
-		: (ch.dc ? $x('.//div[@class="message"]', post) || $x('.//div[@class="postbody"]', post) : null));
+		: (ch.dc ? $x('.//div[@class="message"]|.//div[@class="postbody"]', post)
+		: null));
 }
 
 function getText(node) {
@@ -1063,13 +1071,13 @@ function getText(node) {
 }
 
 function isSagePost(post) {
-	if(ch.iich) return false;
-	if(wakaba) {
+	if(ch.iich || ch.sib) return false;
+	if(wk) {
 		var a = $x('.//a[starts-with(@href,"mailto")]', post);
 		return a && /mailto:sage/i.test(a.href);
 	}
 	if(ch.dc && $x('.//img[@alt="Сажа"]', post)) return true;
-	if(ch._0ch && $x('.//span[@class="postername"]/a[@href="mailto:sage"]', post)) return true;
+	if(ch._0ch && $x('.//a[@href="mailto:sage"]', post)) return true;
 	return false;
 }
 
@@ -1117,6 +1125,7 @@ function addQuickRepBtn(post) {
 	if(ch.dc) $del($x('.//a[@class="reply_ icon"]', post));
 	var x = $new('span', {
 		'title': 'Быстрый ответ'}, {
+		'mouseover': function() {quotetxt = txtSelection()},
 		'click': function() {quickReply(post)}});
 	if(!(Cfg[18] == 1 && post.isOp)) x.className = 'rep_icn';
 	else {x.innerHTML = '[<a>Быстрый ответ</a>] '; x.style.cursor = 'pointer'}
@@ -1147,8 +1156,8 @@ function addNote(post, text) {
 function addPostButtons(post) {
 	var div = $new('span');
 	var x = [], i = 0, C = Cfg;
-	if(ch.dc || ch._410) div.innerHTML = '&nbsp;';
-	if(ch._410 || ch._0ch) $del($x('.//span[@class="extrabtns"]', post));
+	if(ch.dc || ks) div.innerHTML = '&nbsp;';
+	if(ch._0ch || ks) $del($x('.//span[@class="extrabtns"]', post));
 	if(!post.isOp) {
 		div.className = 'reflink';
 		if(!main || post.isLoad) x[i++] = addPostCounter(post);
@@ -1216,15 +1225,40 @@ function searchMP3() {
 
 /*--------------------------------Expand images------------------------------*/
 
-function expandImg(a) {
-	toggleDisp($x('.//img[@class="thumb"]', a));
+function expandImg(a, post) {
+	var img = $x('.//img[@class="thumb"]', a);
+	var pre = $x('.//img[@id="pre_img"]', a);
 	var full = $x('.//img[@id="full_img"]', a);
-	if(full) toggleDisp(full);
-	else a.appendChild($new('img', {'class': 'thumb', 'id': 'full_img', 'alt': 'Image..', 'src': a.href}));
+	toggleDisp(img);
+	if(pre) {toggleDisp(pre); return}
+	if(full) {toggleDisp(full); return}
+	var maxw = doc.body.clientWidth - getOffset(a, 'offsetLeft') - 20;
+	var sz = getImgSize(post).split(/[x|×]/);
+	var r = sz[0]/sz[1];
+	var w = sz[0] < maxw ? sz[0] : maxw;
+	var h = w/r;
+	$append(a, [
+		$attr(img.cloneNode(false), {
+			'id': 'pre_img',
+			'width': w,
+			'height': h,
+			'style': 'display:block'}),
+		$new('img', {
+			'class': 'thumb',
+			'id': 'full_img',
+			'src': a.href,
+			'width': w,
+			'height': h,
+			'style': 'display:none'}, {
+			'load': function() {
+				$del($prev(this));
+				if(img.style.display == 'none') toggleDisp(this);
+			}})
+	]);
 }
 
 function expandHandleImg(post) {
-	if(post.Img) $event($up(post.Img), {'click': function(e) {e.preventDefault(); expandImg(this)}});
+	if(post.Img) $event($up(post.Img, (ks ? 2 : 1)), {'click': function(e) {e.preventDefault(); expandImg(this, post)}});
 }
 
 function allImgExpander() {
@@ -1234,7 +1268,7 @@ function allImgExpander() {
 		'style': 'cursor:pointer',
 		'html': '[<a>Раскрыть изображения</a>]'}, {
 		'click': function() {
-			forPosts(function(post) {if(post.Img && post.Vis != HIDE) expandImg($up(post.Img))});
+			forPosts(function(post) {if(post.Img && post.Vis != HIDE) expandImg($up(post.Img), post)});
 			var btn = $id('expimgs_btn');
 			btn.innerHTML = /Раскрыть/.test(btn.innerHTML) ? '[<a>Свернуть изображения</a>]' : '[<a>Раскрыть изображения</a>]';
 		}}));
@@ -1244,13 +1278,12 @@ function allImgExpander() {
 
 function refMap(post) {
 	var arr = [];
-	var mod = Boolean(post);
-	$each($X('.//a[starts-with(text(),">>")]', (mod ? post.Msg : delform)), function(link) {
+	$each($X('.//a[starts-with(text(),">>")]', (post ? post.Msg : delform)), function(link) {
 		if(!/\//.test(link.textContent)) {
 			var rNum = link.hash.match(/\d+/) || link.pathname.substring(link.pathname.lastIndexOf('/')).match(/\d+/);
-			var post = getPost(link);
-			if(postByNum[rNum] && post) {
-				var pNum = post.id.match(/\d+/);
+			var pst = getPost(link);
+			if(postByNum[rNum] && pst) {
+				var pNum = pst.id.match(/\d+/);
 				if(!arr[rNum]) arr[rNum] = pNum;
 				else if(arr[rNum].indexOf(pNum) == -1) arr[rNum] = pNum + ', ' + arr[rNum];
 			}
@@ -1258,7 +1291,7 @@ function refMap(post) {
 	});
 	for(var rNum in arr) {
 		var ref = arr[rNum].toString().replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>');
-		var map = !mod ? undefined : $id('rfmap_' + rNum);
+		var map = post ? $id('rfmap_' + rNum) : undefined;
 		if(!map) {
 			map = $new('small', {'id': 'rfmap_' + rNum, 'html': '<i><br>Ответы: ' + ref + '</i>'});
 			refPrewiev(map);
@@ -1270,9 +1303,8 @@ function refMap(post) {
 
 /*---------------------------Posts preview by reflinks-----------------------*/
 
-function doPostPrewiev(e) {
-	e.preventDefault(); e.stopPropagation();
-	$del($x('.//div[starts-with(@id,"preview")]'));
+function doPostPreview(e) {
+	setTimeout(function() {$del($x('.//div[starts-with(@id,"preview")]'))}, 5);
 	var tNum = this.pathname.substring(this.pathname.lastIndexOf('/')).match(/\d+/);
 	var pNum = this.hash.match(/\d+/) || tNum;
 	var b = this.pathname;
@@ -1296,18 +1328,16 @@ function doPostPrewiev(e) {
 		}});
 	var functor = function(clone, html) {
 		clone.innerHTML = html;
-		refPrewiev(clone);
 		clone.Img = $x('.//img[@class="thumb"]', clone);
+		refPrewiev(clone);
 		expandHandleImg(clone);
 	};
 	if(b == board) var post = postByNum[pNum];
+	var aj = ajaxPosts[tNum];
 	if(post) {
-		var td = $x('.//td[@class="reply"]', post);
-		var p = td ? td : post;
-		functor(clone, p.innerHTML);
+		functor(clone, ($x('.//td[@class="reply"]', post) || post).innerHTML);
 		if(post.Vis == HIDE) modPostDisp(clone);
-	}
-	else if(ajaxPosts[tNum] && ajaxPosts[tNum][pNum]) functor(clone, ajaxPosts[tNum][pNum]);
+	} else if(aj && aj[pNum]) functor(clone, aj[pNum]);
 	else {
 		clone.innerHTML = 'Загрузка...';
 		AJAX('thr', b, tNum, function(err) {
@@ -1326,7 +1356,7 @@ function refPrewiev(node) {
 			else if(link.onmouseover) link.onmouseover = '';
 		}
 		$event(link, {
-			'mouseover': doPostPrewiev,
+			'mouseover': doPostPreview,
 			'mouseout': function(e) {
 				if(!$x('ancestor-or-self::*[starts-with(@id,"pstprew")]', e.relatedTarget))
 					delPrewievClones();
@@ -1338,8 +1368,9 @@ function delPrewievClones() {
 	$each($X('.//div[starts-with(@id,"pstprew")]'), function(clone) {$del(clone)});
 }
 
+
 /*=============================================================================
-							AJAX FUNCTIONS
+								AJAX FUNCTIONS
 =============================================================================*/
 
 function parseHTMLdata(x) {
@@ -1353,12 +1384,12 @@ function parseHTMLdata(x) {
 			var x = posts[j];
 			var pNum = parseInt(x.match(/(?:<input type="ch[^\d]+)(\d+)(?:[^>]+>)/)[1]);
 			ajaxPosts[tNum].keys.push(pNum);
-			ajaxPosts[tNum][pNum] = x.substring((!/<\/td/.test(x) && /filesize">/.test(x)) ? x.indexOf('filesize">') - 13 : x.indexOf('<label'), /<\/td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts">/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13)));
+			ajaxPosts[tNum][pNum] = x.substring((!/<\/td/.test(x) && /filesize">/.test(x)) ? x.indexOf('filesize">') - 13 : x.indexOf('<label'), /<\/td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts">/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && !ks ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13)));
 		}
 	}
 }
 
-function parseJSONdata(x) { // Ох уж этот доброчан, едрен батон
+function parseJSONdata(x) {
 	var threads = jsonParse(x.substring(x.indexOf('threads') - 2, x.lastIndexOf('events') - 3)).threads;
 	for(var i = 0, tLen = threads.length; i < tLen; i++) {
 		var tNum = threads[i].display_id;
@@ -1372,30 +1403,31 @@ function parseJSONdata(x) { // Ох уж этот доброчан, едрен �
 			var farr = [];
 			for(var f = 0, fLen = x.files.length; f < fLen; f++) {
 				var fl = x.files[f];
-				farr[farr.length] = '<div class="file"><div class="fileinfo">Файл: <a href="/' + fl.src + '" target="_blank">' + fl.thumb.substr(fl.thumb.lastIndexOf('/') + 1) + '</a><br><em>' + fl.src.substr(fl.src.indexOf('.') + 1) + ', ' + fl.size + ' KB</em><br></div><a href="/' + fl.src + '" target="_blank"><img src="/' + fl.thumb + '" class="thumb" alt="/' + fl.src + '"></a></div>';
+				farr[farr.length] = '<div class="file"><div class="fileinfo">Файл: <a href="/' + fl.src + '" target="_blank">' + fl.thumb.substr(fl.thumb.lastIndexOf('/') + 1) + '</a><br><em>' + fl.src.substr(fl.src.indexOf('.') + 1) + ', ' + (fl.size/1024).toFixed(2) + ' KB</em><br></div><a href="/' + fl.src + '" target="_blank"><img src="/' + fl.thumb + '" class="thumb" alt="/' + fl.src + '"></a></div>';
 			}
-			ajaxPosts[tNum][pNum] = '<label><a class="delete icon"><img src="/images/blank.png" title="К удалению" alt="Удалить"></a>' + (x.sage ? '<img src="/images/sage-carbon.png" alt="Сажа" title="Сажа">' : '') + (x.subject ? '<span class="replytitle">' + x.subject + '</span>' : '') + '<span class="postername">' + x.name + '</span> ' + x.date + ' </label><span class="reflink"><a href="/' + board + '/res/' + pNum + '.xhtml#i' + pNum + '">No.' + pNum + '</a></span><br>' + (x.files.length > 0 ? farr.join('') + (x.files.length > 1 ? '<br style="clear: both">' : '') : '') + '<div class="postbody"><div class="message">' + x.message.replace(/(>>\d+)/ig, '<a href="/' + board + '/res/' + tNum + '.xhtml#i$1">$1</a>').replace(/\n/g, '<br>') + '</div></div>';
+			ajaxPosts[tNum][pNum] = '<label><a class="delete icon"><img src="/images/blank.png"></a>' + (x.sage ? '<img src="/images/sage-carbon.png" alt="Сажа" title="Сажа">' : '') + (x.subject ? '<span class="replytitle">' + x.subject + '</span>' : '') + '<span class="postername">' + x.name + '</span> ' + x.date + ' </label><span class="reflink"><a href="/' + board + '/res/' + tNum + '.xhtml#i' + pNum + '">No.' + pNum + '</a></span>' + (j == 0 ? '<span class="cpanel">[<a href="/' + board + '/res/' + tNum + '.xhtml">Открыть тред</a>]</span>' : '') + '<br>' + (x.files.length > 0 ? farr.join('') + (x.files.length > 1 ? '<br style="clear: both">' : '') : '') + '<div class="postbody"><div class="message">' + x.message.replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/\n/g, '<br>').replace(/(&gt;&gt;)(\d+)/g, '<a href="/' + board + '/res/' + tNum + '.xhtml#i$2">&gt;&gt;$2</a>').replace(/(http:\/\/.*?)(\s)/ig, '<a href="$1">$1</a>$2').replace(/(\*\*)(.*?)(\*\*)/g, '<b>$2</b>').replace(/(\*)(.*?)(\*)/g, '<i>$2</i>').replace(/(%%)(.*?)(%%)/g, '<span class="spoiler">$2</span>') + '</div></div>';
 		}
 	}
 }
 
 function AJAX(mod, b, id, callback) {
 	var xhr = new XMLHttpRequest();
-	xhr.onreadystatechange = function(mod) {return function() {
-		if(xhr.readyState == 4) {
-			if(xhr.status == 200) {
-				if(ch.dc) parseJSONdata(xhr.responseText);
-				else parseHTMLdata(xhr.responseText);
-				callback(null);
-			} else callback('HTTP ' + xhr.status + ' ' + xhr.statusText);
-		}
-	}}(mod);
-	var path = mod == 'thr'
-		? (ch.dc
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState != 4) return;
+		if(xhr.status == 200) {
+			if(ch.dc) parseJSONdata(xhr.responseText);
+			else parseHTMLdata(xhr.responseText);
+			callback(null);
+		} else callback('HTTP ' + xhr.status + ' ' + xhr.statusText);
+	};
+	xhr.open('GET', (mod == 'thr'
+		? (ch.dc 
 			? '/api/thread/new/' + b + '/' + id + '.json?last_post=0'
 			: '/' + b + '/res/' + id + '.html')
-		: '/' + b + '/' + (id != '' ? id : (ch.dc ? 'index' : '')) + (ch.dc ? '.json?last_post=0' : '');
-	xhr.open('GET', path, true);
+		: ('/' + b + '/' + (ch.dc
+			? ((id != '' ? id : 'index') + '.json?last_post=0')
+			: (id != '' ? id + '.html' : ''))))
+	, true);
 	xhr.send(false);
 }
 
@@ -1424,7 +1456,7 @@ function addPostFunc(post, pNum, count, isLoad) {
 	if(post.Vis == HIDE) setPostVisib(post, HIDE);
 	if(Cfg[12] == 1) mergeHidden(post);
 	if(Cfg[15] == 1) refMap(post);
-	if(Cfg[23] == 1 && wakaba) expandHandleImg(post);
+	if(Cfg[23] == 1 && wk) expandHandleImg(post);
 	if(Cfg[26] == 1) refPrewiev(post.Msg);
 	if(Cfg[27] == 1) addYouTube(post);
 	if(Cfg[28] == 1) addMP3(post);
@@ -1446,9 +1478,9 @@ function ajaxExpandPost(post) {
 function ajaxExpandThread(post, last) {
 	var thread = getThread(post);
 	var tNum = post.Num;
-	$del($x('.//span[@class="omittedposts"]', thread) || $x('.//div[@class="abbrev"]', thread));
+	$del($x('.//span[@class="omittedposts"]|.//div[@class="abbrev"]', thread));
 	$del($id('rfmap_' + tNum));
-	if(Cfg[24] == 1 && wakaba) ajaxExpandPost(post);
+	if(Cfg[24] == 1 && wk) ajaxExpandPost(post);
 	delNexts(post);
 	AJAX('thr', board, tNum, function() {
 		var len = ajaxPosts[tNum].keys.length;
@@ -1483,7 +1515,7 @@ function initNewPosts() {
 	if(Cfg[37] == 1) {
 		var thread = $x('.//div[@class="thread"]');
 		var tNum = oPosts[0].Num;
-		var txt = '[<i><a>Новые посты:</a></i> '
+		var txt = '[<i><a>Новые посты:</a></i> ';
 		var x = $new('span', {
 			'id': 'newpst_btn',
 			'style': 'cursor:pointer',
@@ -1510,7 +1542,7 @@ function ajaxPages(len) {
 					var post = getNewPost(pNum, ajaxPosts[tNum][pNum], j);
 					thread.appendChild(post);
 					addPostFunc(post, pNum, j + 1, false);
-					if(Cfg[24] == 1 && wakaba) ajaxExpandPost(post);
+					if(Cfg[24] == 1 && wk) ajaxExpandPost(post);
 				}
 			}
 			if(!sav.cookie) storeHiddenPosts();
@@ -1520,7 +1552,7 @@ function ajaxPages(len) {
 
 
 /*=============================================================================
-							HIDERS / FILTERS
+								HIDERS / FILTERS
 =============================================================================*/
 
 function hideThread(post, note) {
@@ -1615,7 +1647,7 @@ function modPostDisp(post, vis) {
 		x[i++] = './/div[@class="file"]';
 		x[i++] = './/div[@class="fileinfo"]';
 	}
-	if(wakaba) {
+	if(wk) {
 		$del($x('.//img[@id="full_img"]', post));
 		x[i++] = './/span[@class="thumbnailmsg"]';
 	}
@@ -1655,6 +1687,17 @@ function processHidden(newCfg, oldCfg) {
 		});
 	if(newCfg == 1) forAll(mergeHidden);
 	saveCfg(12, newCfg);
+}
+
+function showlast50() {
+	var div = $id('last50');
+	if(div) toggleDisp(div);
+	else {
+		div = $new('div', {'id': 'last50', 'style': 'display:none'});
+		$before(Posts[0], [div]);
+		for(var i = 0; i < Posts.length - 50; i++)
+			div.appendChild(Posts[i]);
+	}
 }
 
 /*-----------------------------------Filters---------------------------------*/
@@ -1794,8 +1837,8 @@ function doRegexp(post) {
 			x = x.split(' ')[1];
 			var nm = x.split(/!+/)[0];
 			var tr = x.split(/!+/)[1];
-			if(pname && nm != '' && pname.textContent.indexOf(nm) > -1) return x;
-			if(ptrip && tr != '' && ptrip.textContent.indexOf(tr) > -1) return x;
+			if(pname && nm != '' && pname.textContent.indexOf(nm) > -1 ||
+				ptrip && tr != '' && ptrip.textContent.indexOf(tr) > -1) return x;
 		}
 		if(/\$exp /.test(x)) {
 			x = x.split(' ')[1];
@@ -1826,10 +1869,10 @@ function doImgRegExp(post, expr) {
 		else return null;
 	}
 	if(s[1]) {
-		var x = s[1].split(/[x|X|х|Х|×]/);
+		var x = s[1].split(/[x|×]/);
 		var expW = x[0], expH = x[1];
 		var sz = getImgSize(post).split(/[x|×]/);
-		var imgW = parseInt(sz[0]), imgH = parseInt(sz[1]);
+		var imgW = sz[0], imgH = sz[1];
 		if((stat == '<' && imgW < expW && imgH < expH) ||
 			(stat == '>' && imgW > expW && imgH > expH) ||
 			(stat == '=' && (imgW == expW && imgH == expH)))
@@ -1839,27 +1882,15 @@ function doImgRegExp(post, expr) {
 }
 
 function getImgWeight(post) {
-	var w = 0;
-	if(wakaba) {
-		w = parseInt($x('.//em', post).textContent.split(',')[0]);
-		if(ch.nowr) w = Math.round(w/1000);
-	}
-	if(ch._0ch) {
-		var inf = $x('.//span[@class="filesize"]', post).textContent.split('(')[1].split(',')[0];
-		if(inf.split('.')[1]) w = parseInt(inf.split('.')[0]) + parseInt(inf.split('.')[1].match(/\d+/))*0.01;
-		if(inf.match('MB')) w = w*1000;
-	}
-	if(ch.dc) {
-		var inf = $x('.//em', post).textContent.split(',')[1];
-		w = parseInt(inf.split('.')[0].match(/\d+/)) + parseInt(inf.split('.')[1].match(/\d+/))*0.01;
-	}
+	var inf = $x('.//em|.//span[@class="filesize"]', post).textContent.match(/\d+[\.\d\s|m|k]*b/i)[0];
+	var w = parseFloat(inf.match(/[\d|\.]+/));
+	if(/MB/.test(inf)) w = w*1000;
+	if(/\d[\s]*B/.test(inf)) w = (w/1000).toFixed(2);
 	return w;
 }
 
 function getImgSize(post) {
-	if(wakaba) return $x('.//em', post).textContent.split(',')[1].trim();
-	if(ch._0ch) return $x('.//span[@class="filesize"]', post).textContent.split('(')[1].split(',')[1];
-	if(ch.dc) return $x('.//em', post).textContent.split(',')[2];
+	return $x('.//em|.//span[@class="filesize"]', post).textContent.match(/\d+[x|×]\d+/)[0];
 }
 
 /*-------------------------Hide posts with similar text----------------------*/
@@ -1940,7 +1971,7 @@ function findSameImages(post, origPost, origVis, iData) {
 
 
 /*=============================================================================
-							WIPE DETECTORS
+								WIPE DETECTORS
 =============================================================================*/
 
 function detectWipe(post) {
@@ -2092,35 +2123,40 @@ function detectWipe_caseSage(text) {
 
 
 /*=============================================================================
-							INITIALIZATION
+								INITIALIZATION
 =============================================================================*/
 
 function initBoard() {
 	var ua = navigator.userAgent;
 	nav = {
-		Firefox : /firefox|minefield/i.test(ua),
-		Opera : /opera/i.test(ua),
-		Chrome : /chrome/i.test(ua)};
+		Firefox: /firefox|minefield/i.test(ua),
+		Opera: /opera/i.test(ua),
+		Chrome: /chrome/i.test(ua)
+	};
 	var ls = !nav.Firefox && typeof localStorage === 'object' && localStorage != null;
 	sav = {
-		GM : nav.Firefox,
-		local : ls,
-		cookie : !ls && !nav.Firefox};
+		GM: nav.Firefox,
+		local: ls,
+		cookie: !ls && !nav.Firefox
+	};
 	var dm = location.host.match(/(?:(?:[^.]+\.)(?=org\.))?[^.]+\.[^.]+$/)
 	ch = {
-		_2ch: dm == '2-ch.ru',
 		_0ch: dm == '0chan.ru',
+		_2ch: dm == '2-ch.ru',
 		iich: dm == 'iichan.ru',
 		dc: dm == 'dobrochan.ru',
 		unyl: dm == 'wakachan.org',
 		nowr: dm == 'nowere.net',
 		_410: dm == '410chan.ru',
-		ua: dm == 'uchan.org.ua'};
+		ua: dm == 'uchan.org.ua',
+		sib: dm == 'sibirchan.ru'
+	};
 	domain = dm;
-	wakaba = !(ch.dc || ch._0ch);
+	wk = !ch.dc && !ch._0ch;
+	ks = ch._410 || ch.sib;
+	wakaba = wk && !ks;
 	var path = location.pathname;
 	main = !/\/res\//.test(path);
-	arch = /\/arch/.test(path);
 	board = path.substr(1).split('/')[0];
 	delform = !ch.dc ? $id('delform') : $x('.//form[contains(@action, "delete")]');
 	if(!delform) throw 'stop';
@@ -2140,7 +2176,7 @@ function initBoard() {
 		Rmess = $n('shampoo');
 		Rfile = $n('file');
 	}
-	if(ch._0ch || ch._410) {
+	if(ch._0ch || ks) {
 		Rname = $n('name');
 		Rmail = $n('em');
 		Rtitle = $n('subject');
@@ -2174,13 +2210,13 @@ function initBoard() {
 
 function initDelform() {
 	if(nav.Chrome) toggleDisp(delform);
-	if(wakaba && !ch.iich && !ch._410) {
-		var thrd_re = /<br clear="left"[<\/p>]*<hr>/i;
+	if(wakaba && !ch.iich || (ch.sib && !main)) {
+		var thrd_re = /<br clear="left"[<\/p>\s]*<hr>/i;
 		var tNum_re = /(?:<a name=")(\d+)(?:">)/i;
 		var threads = delform.innerHTML.split(thrd_re);
 		var i = threads.length - 1;
 		while(i--) {
-			var posts = threads[i].split(/<table>/i);
+			var posts = threads[i].split(/<table[^>]*>/i);
 			var j = posts.length;
 			while(j-- > 1) posts[j] = '<table class="replypost" id="post_' + posts[j].match(tNum_re)[1] + '">' + posts[j];
 			var tNum = posts[0].match(tNum_re)[1];
@@ -2193,15 +2229,15 @@ function initDelform() {
 	} 
 	else $each($X('./div[starts-with(@id, "thread")]', delform), function(thread) {
 			$attr(thread, {'id': $prev($x('.//label', thread)).name, 'class': 'thread'})})
-	if(ch.iich || ch._410) {
+	if(ch.iich || ch._410 || (ch.sib && main)) {
 		$each($X('.//td[@class="reply"]', delform), function(reply) {
 			$attr($up(reply, 3), {'class': 'replypost', 'id': 'post_' + reply.id.match(/\d+/)})});
-		$each($X('./div[@class="thread"]', delform), function(thread) {
+		$each($X('.//div[@class="thread" or starts-with(@id, "thread")]', delform), function(thread) {
 			var op = $new('div', {'class': 'oppost', 'id': 'post_' + thread.id.match(/\d+/)});
 			var nodes = thread.childNodes;
 			var arr = [], x = 0;
 			for(var node, j = 1; node = nodes[j++];) {
-				if(node.tagName == 'TABLE' || node.tagName == 'DIV') break;
+				if(node.tagName == 'TABLE' || $x('self::div[starts-with(@id,"replies")]', node)) break;
 				arr[x++] = node;
 			}
 			for(var node, j = 0; node = arr[j++];)
@@ -2216,7 +2252,7 @@ function initDelform() {
 		});
 
 	var px, opx;
-	if(wakaba) {
+	if(wk) {
 		px = './/table[@class="replypost"]';
 		opx = './/div[@class="oppost"]';
 	}
@@ -2252,14 +2288,8 @@ function initDelform() {
 
 
 /*=============================================================================
-								MAIN
+									MAIN
 =============================================================================*/
-
-function Log(txt) {
-	var newTime = (new Date()).getTime();
-	timeLog += '\n' + txt + ': ' + (newTime - oldTime).toString() + 'ms';
-	oldTime = newTime;
-}
 
 function doScript() {
 	const initTime = (new Date()).getTime();
@@ -2277,18 +2307,14 @@ function doScript() {
 		refMap();					Log('refMap')}
 	forAll(doPostFilters);			Log('doPostFilters');
 	storeHiddenPosts();				Log('storeHiddenPosts');
-	changePostForm();				Log('changePostForm');
-	if(Cfg[38] == 1) {
-		submitCheck();				Log('submitCheck')}
+	doChanges();					Log('doChanges');
 	if(Cfg[37] != 0 && !main) {
 		initNewPosts();				Log('initNewPosts')}
 	if(Cfg[12] == 1) {
 		forPosts(mergeHidden);		Log('mergeHidden')}
-	if(Cfg[23] == 1 && wakaba) {
-		forAll(expandHandleImg);
-		if(!main && !ch._410)
-			allImgExpander();		Log('expandHandleImg')}
-	if(Cfg[24] == 1 && main && wakaba) {
+	if(Cfg[23] == 1 && wk) {
+		forAll(expandHandleImg);	Log('expandHandleImg')}
+	if(Cfg[24] == 1 && main && wk) {
 		forAll(ajaxExpandPost);		Log('ajaxExpandPost')}
 	if(Cfg[28] == 1) {
 		searchMP3();				Log('addMP3')}
