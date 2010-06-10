@@ -3,7 +3,7 @@
 // copyright (C) 2084, Bender Bending Rodríguez
 // ==UserScript==
 // @name		Dollchan Extension Tools
-// @version		2010-05-26
+// @version		2010-06-10
 // @description	Doing some extended profit for russian AIB
 // @namespace	http://freedollchan.org/scripts
 // @include		*0chan.ru*
@@ -24,7 +24,7 @@ var defaultCfg = [
 	0,		// 3	hide posts without text
 	0,		// 4	hide posts without img
 	0,		// 5	-
-	0,		// 6	-
+	0,		// 6	hide post names
 	1,		// 7	text format btns
 	0,		// 8	hide posts by text size
 	500,	// 9		text size in symbols
@@ -38,7 +38,7 @@ var defaultCfg = [
 	1,		// 17	'add to favorities' btns
 	0,		// 18	show btns as text
 	1,		// 19	show SAGE in posts
-	2,		// 20	multi captcha (2-ch)
+	2,		// 20	2-ch captchas (0,1,2)
 	1,		// 21	hide board rules
 	1,		// 22	hide 'goto' field
 	1,		// 23	expand imgs by click
@@ -300,16 +300,6 @@ function getVisib(pNum) {
 	return null;
 }
 
-function applyPostVisib(post, vis) {
-	var pNum = post.Num;
-	if(!sav.cookie) {
-		Visib[board + pNum] = vis;
-		Expires[board + pNum] = (new Date()).getTime() + STORAGE_LIFE;
-	} else Visib[post.Count] = vis;
-	post.Vis = vis;
-	if(Cfg[12] == 2) post.style.display = (vis == HIDE) ? 'none' : '';
-}
-
 function readPostsVisib() {
 	if(!sav.cookie) {
 		var data = getStored(ID('Posts'));
@@ -346,9 +336,24 @@ function storePostsVisib() {
 	}
 }
 
+function readThreadsVisib() {
+	var data = getStored(ID('Threads'));
+	if(!data) return;
+	var arr = data.split('-');
+	var ar = [];
+	var i = arr.length;
+	while(i--) ar[arr[i]] = 1;
+	forOP(function(post) {
+		if(board + post.Num in ar) {
+			hideThread(post);
+			post.Vis = HIDE;
+		}
+	});
+}
+
 function storeThreadVisib(post, vis) {
-	if(post.Visibl == vis) return;
-	post.Visibl = vis;
+	if(post.Vis == vis) return;
+	post.Vis = vis;
 	var key = board + post.Num;
 	var data = getStored(ID('Threads'));
 	var arr = data ? data.split('-') : [];
@@ -360,21 +365,6 @@ function storeThreadVisib(post, vis) {
 		while(i--) if(arr[i] == key) arr.splice(i, 1);
 	}
 	setStored(ID('Threads'), arr.join('-'));
-}
-
-function readThreadsVisib() {
-	var data = getStored(ID('Threads'));
-	if(!data) return;
-	var arr = data.split('-');
-	var ar = [];
-	var i = arr.length;
-	while(i--) ar[arr[i]] = 1;
-	forOP(function(post) {
-		if(board + post.Num in ar) {
-			hideThread(post);
-			post.Visibl = HIDE;
-		}
-	});
 }
 
 function storeFavorities(post) {
@@ -397,7 +387,7 @@ function removeFavorities(node) {
 		if(arr[i*4] == key[0] && arr[i*4 + 1].split('/')[0] == key[1] && arr[i*4 + 2] == key[2])
 			arr.splice(i*4, 4);
 	$del($up(node));
-	if(arr.length == 0) $id('favorities_div').appendChild($txt(' [Избранные треды отсутствуют]'));
+	if(arr.length == 0) $id('favorities_div').firstChild.innerHTML = '<b>Избранные треды отсутствуют...</b>';
 	setStored('DESU_Favorities', arr.join('|'));
 }
 
@@ -407,23 +397,6 @@ function removeFavorities(node) {
 =============================================================================*/
 
 function addControls() {
-	var postarea = $x('.//div[@class="postarea" or @align="center"]') || delform;
-	var txt = '<input type="button" value="';
-	var tools = $new('div', {'html': txt+'Настройки"> '+txt+'Скрытые посты"> '+txt+'Избранное"> '+txt+'Обновить" id="refresh_btn"> ' + ((main && postform) ? txt+'Создать тред">' : '') + '<div class="reply" style="font-size:small; width:370px; border:1px solid grey; margin:8px; display:none; overflow:hidden"><div style="width:100%; text-align:center; font-weight:bold; font-family:sans-serif">Dollchan Extension Tools</div><table style="padding:5px; overflow:hidden"></table></div><div id="hiddenposts_div"></div><div id="favorities_div"></div>'});
-	var table = $x('.//table', tools);
-	var btn = $X('.//input', tools);
-	$event(btn.snapshotItem(0), {'click': function() {toggleDisp($up(table))}});
-	$event(btn.snapshotItem(1), {'click': hiddenPostsPreview});
-	$event(btn.snapshotItem(2), {'click': favorThrdsPreview});
-	$event(btn.snapshotItem(3), {
-		'click': function(e) {window.location.reload(); e.stopPropagation(); e.preventDefault()}});
-	if(main) eventSelMenu(btn.snapshotItem(3), selectAjaxPages);
-	if(main && postform) $event(btn.snapshotItem(4), {'click': function() {
-		toggleDisp($x('.//div[@class="postarea"]', $up(delform)));
-		toggleDisp($prev(delform));
-	}});
-	$before(postarea, [tools, $new('div', {'class': 'logo'}), $new('hr')]);
-	
 	var chkBox = function(num, fn, id) {
 		if(!fn) fn = toggleCfg;
 		var box = $new('input', {'type': 'checkbox'}, {'click': function() {fn(num)}});
@@ -439,8 +412,32 @@ function addControls() {
 			arr[i] = '<option value="' + i + '">' + arr[i] + '</option>';
 		return $new('select', {'id': id, 'html': arr.join('')}, {'change': fn});
 	};
-	if(ch.iich || ch.sib || ch.dc) Cfg[19] = 0;
-	$append(table, [$New('tbody', [
+	
+	var postarea = $x('.//div[@class="postarea" or @align="center"]') || delform;
+	var txt = '<input type="button" value="';
+	var tools = $new('div', {'html': txt+'Настройки"> '+txt+'Скрытое"> '+txt+'Избранное"> '+txt+'Обновить" id="refresh_btn"> ' + (main && postform ? txt+'Создать тред"> ' : '') + '<div><table class="reply" id="controls_div" style="display:none; overflow:hidden; width:370px; min-width:0; border:1px solid grey; margin:5px 0px 5px 20px; padding:5px; font-size:small"><tbody></tbody></table></div> <div id="hiddenposts_div"></div> <div id="favorities_div"></div>'});
+	var btn = $X('.//input', tools);
+	$event(btn.snapshotItem(0), {'click': function() {
+		delChilds($id('hiddenposts_div'));
+		delChilds($id('favorities_div'));
+		toggleDisp($id('controls_div'));
+	}});
+	$event(btn.snapshotItem(1), {'click': hiddenPostsPreview});
+	$event(btn.snapshotItem(2), {'click': favorThrdsPreview});
+	$event(btn.snapshotItem(3), {'click': function(e) {
+		window.location.reload();
+		e.stopPropagation();
+		e.preventDefault();
+	}});
+	if(main) eventSelMenu(btn.snapshotItem(3), selectAjaxPages);
+	if(main && postform) $event(btn.snapshotItem(4), {'click': function() {
+		toggleDisp($x('.//div[@class="postarea"]', $up(delform)));
+		toggleDisp($prev(delform));
+	}});
+	$before(postarea, [tools, $new('div', {'class': 'logo'}), $new('hr')]);
+	
+	$append($x('.//tbody', tools), [
+		$new('tr', {'text': 'Dollchan Extension Tools', 'style': 'width:100%; text-align:center; font-weight:bold; font-family:sans-serif'}),
 		trBox(0, 'Анти-вайп детекторы'),
 		$if(!(ch.iich || ch.sib), trBox(1, 'Скрывать sage посты', toggleSage, 'sage_hider')),
 		$if(!ch.sib, trBox(2, 'Скрывать посты с полем "Тема"', toggleTitle)),
@@ -504,10 +501,11 @@ function addControls() {
 		}),
 		$if(wk, trBox(23, 'Раскрывать изображения по клику*')),
 		$if(wk, trBox(24, 'Раскрывать сокращенные посты*')),
-		$if(ch._2ch, trBox(25, 'Убирать прокрутку в постах*')),
+		$if(ch._2ch, trBox(25, 'Убирать прокрутку в постах', function() {toggleCfg(25); scriptStyles()})),
+		trBox(6, 'Скрывать имена в постах', function() {toggleCfg(6); scriptStyles()}),
+		trBox(39, 'Раскрывать спойлеры', function() {toggleCfg(39); scriptStyles()}),
 		trBox(27, 'Плейер к YouTube ссылкам*'),
 		trBox(28, 'Плейер к mp3 ссылкам*'),
-		trBox(39, 'Раскрывать спойлеры*'),
 		$if(Rmail, trBox(41, 'Sage вместо поля E-mail*')),
 		$if(postform, trBox(29, 'Форма ответа внизу*')),
 		$if(Rname, $New('tr', [
@@ -545,7 +543,7 @@ function addControls() {
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-05-26, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-06-10, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -554,34 +552,56 @@ function addControls() {
 				'style': 'float:right'}, {
 				'click': function() {setDefaultCfg(); window.location.reload()}})
 		])
-	])]);
+	]);
 	$id('upload_sel').selectedIndex = Cfg[37];
 	$id('prochidden_sel').selectedIndex = Cfg[12];
 	if(ch._2ch) $id('capnum_sel').selectedIndex = Cfg[20];
 }
 
 function hiddenPostsPreview() {
+	delChilds($id('favorities_div'));
+	$id('controls_div').style.display = 'none';
 	var div = $id('hiddenposts_div');
 	if(div.hasChildNodes()) {delChilds(div); return}
-	var table = $new('table', {'align': 'left'});
-	var clones = [];
-	div.appendChild(table);
-	for(var post, i = 0; post = Posts[i++];) {
-		if(post.Vis != HIDE) continue;
-		var clone = $attr(post.cloneNode(true), {'style': 'display:block', 'align': 'left'});
+	div.innerHTML = '<table style="margin:5px 0px 5px 20px"><tbody></tbody></table>'
+	var table = $x('.//tbody', div);
+	var clones = [], tcnt = 0, pcnt = 0;
+	forAll(function(post) {if(post.Vis == HIDE) {
+		var pp = !post.isOp;
+		var clone = $attr(($x('.//span[@id="hiddenthr_' + post.Num + '"]') || post).cloneNode(true), {'id': '', 'style': 'cursor:default'});
 		clones[clones.length] = clone;
 		clone.pst = post;
 		clone.vis = HIDE;
-		var btn = $x('.//span[@id="phide_' + post.Num + '"]', clone);
-		btn.removeAttribute('id');
-		$event(btn, {
+		$event(pp ? $attr($x('.//span[@id="phide_' + post.Num + '"]', clone), {'id': ''}) : $x('.//a', clone), {
 			'click': function(node) {return function() {
 				node.vis = (node.vis == HIDE) ? UNHIDE : HIDE;
-				modPostDisp(node, node.vis);
+				if(pp) modPostDisp(node, node.vis);
+				else if(node.vis == HIDE) toggleDisp($next(node));
 			}}(clone)});
-		table.insertRow(-1).appendChild(clone);
-	};
-	if(!table.hasChildNodes()) {div.appendChild($txt(' [Скрытые посты отсутствуют]')); return}
+		$event($x('.//span[@class="reflink"]', clone) || $x('.//a', clone), {
+			'mouseover': function(node) {return function() {
+				if(node.vis == HIDE) {
+					if(pp) modPostDisp(node, UNHIDE);
+					else $next(node).style.display = 'block';
+				}
+			}}(clone),
+			'mouseout': function(node) {return function() {
+				if(node.vis == HIDE) {
+					if(pp) modPostDisp(node, HIDE);
+					else $next(node).style.display = 'none';
+				}
+			}}(clone)
+		});
+		$append(table, [
+			$if(!pp && tcnt == 0, $new('tr', {'html': '<b>Скрытые треды:<b>'})),
+			$if(pp && pcnt == 0, $new('tr', {'html': '<b>Скрытые посты:<b>'})),
+			$New('tr', [clone, $if(!pp, $attr(post.cloneNode(true), {'class': 'reply', 'style': 'display:none'}))])
+		]);
+		if(!pp) {modPostDisp($next(clone), UNHIDE); tcnt++}
+		else pcnt++;
+		refPrewiev(clone);
+	}});
+	if(!table.hasChildNodes()) {table.innerHTML = '<b>Скрытое отсутствует...</b>'; return}
 	$append(table.insertRow(-1), [
 		$new('input', {
 			'type': 'button',
@@ -610,19 +630,27 @@ function hiddenPostsPreview() {
 }
 
 function favorThrdsPreview() {
+	delChilds($id('hiddenposts_div'));
+	$id('controls_div').style.display = 'none';
 	var div = $id('favorities_div');
 	if(div.hasChildNodes()) {delChilds(div); return}
 	var data = getStored('DESU_Favorities');
-	if(!data) {div.appendChild($txt(' [Избранные треды отсутствуют]')); return}
-	var arr = data.split('|');
-	var table = $new('table', {'align': 'left'});
+	var table = $new('table', {'style': 'margin:5px 0px 5px 20px'});
 	div.appendChild(table);
+	if(!data) {table.innerHTML = '<b>Избранные треды отсутствуют...</b>'; return}
+	else table.insertRow(-1).appendChild($new('b', {'text': 'Избранные треды:'}));
+	table = table.firstChild;
+	var arr = data.split('|');
 	for(var i = 0; i < arr.length/4; i++) {
 		var url = arr[i*4] + '/' + arr[i*4 + 1] + '/res/' + arr[i*4 + 2];
 		var title = arr[i*4 + 3];
 		if((!sav.cookie && title.length >= 70) || (sav.cookie && title.length >= 25)) title += '..';
-		$append(table, [$new('tr', {'html': parseInt(i + 1) + '. ' + '<span class="hide_icn" id="fav_' + i + '" style="vertical-align:middle"></span><a href="http://' + url + '.html">' + url + '</a> - ' + title})]);
-		$event($id('fav_' + i), {'click': function() {removeFavorities($next(this))}});
+		$append(table, [$new('tr', {
+			'class': 'reply',
+			'id': 'favnote_' + i,
+			'style': 'cursor:default',
+			'html': '&nbsp;<span class="hide_icn" style="vertical-align:middle"></span> <a href="http://' + url + (arr[i*4] != 'dobrochan.ru' ? '.html">' : '.xhtml">') + url + '</a> - ' + title})]);
+		$event($x('.//tr[@id="favnote_' + i + '"]/span'), {'click': function() {removeFavorities($next(this))}});
 	}
 }
 
@@ -636,7 +664,7 @@ function addSelMenu(id, dx, dy, arr) {
 	$before(delform, [$new('div', {
 		'class': 'reply',
 		'id': 'sel_menu',
-		'style': 'position:absolute; left:' + (getOffset($id(id), 'offsetLeft') + dx).toString() + 'px; top:' + (getOffset($id(id), 'offsetTop') + dy).toString() + 'px; z-index:250; cursor:pointer; width:auto; border:solid 1px #575763; padding:0 5px 0 5px',
+		'style': 'position:absolute; left:' + (getOffset($id(id), 'offsetLeft') + dx).toString() + 'px; top:' + (getOffset($id(id), 'offsetTop') + dy).toString() + 'px; z-index:250; cursor:pointer; width:auto; min-width:0; border:solid 1px #575763; padding:0 5px 0 5px',
 		'html': '<a>' + arr.join('</a><br><a>') + '</a>'}, {
 		'mouseout': function(e) {removeSelMenu(e.relatedTarget)}})]);
 	return $X('.//a', $id('sel_menu'));
@@ -648,12 +676,13 @@ function eventSelMenu(el, fn) {
 
 function selectPostHider(post) {
 	if(Cfg[11] == 0 || (Cfg[13] == 0 && post.isOp)) return;
-	var a = addSelMenu('phide_' + post.Num, 0, 14, ['Скрывать выделенное', 'Скрыть схожий текст', 'Скрыть схожие изобр.']);
+	var a = addSelMenu('phide_' + post.Num, 0, 14, ['Скрывать выделенное', 'Скрывать изображение', 'Скрыть схожий текст', 'Скрыть схожие изобр.']);
 	$event(a.snapshotItem(0), {
 			'mouseover': function() {quotetxt = txtSelection().trim()},
-			'click': function() {if(quotetxt != '') {$id('regexp_field').value += '\n' + quotetxt; applyRegExp()}}});
-	$event(a.snapshotItem(1), {'click': function() {hideBySameText(post)}});
-	$event(a.snapshotItem(2), {'click': function() {hideBySameImage(post)}});
+			'click': function() {applyRegExp(quotetxt)}});
+	$event(a.snapshotItem(1), {'click': function() {regExpImage(post)}});
+	$event(a.snapshotItem(2), {'click': function() {hideBySameText(post)}});
+	$event(a.snapshotItem(3), {'click': function() {hideBySameImage(post)}});
 }
 
 function selectExpandThread(post) {
@@ -780,7 +809,7 @@ function toggleUserPassw() {
 
 function doChanges() {
 	doc.title = !main
-		? board + '/' + getTitle(oPosts[0]).substring(0, 50)
+		? board + ' - ' + getTitle(oPosts[0]).substring(0, 50)
 		: doc.title.split(/\s/)[0] + ' - /' + board + '/';
 	if(ch.ua) toggleDisp($up($x('.//div[@class="gbBlock"]')));
 	if(!main) {
@@ -790,8 +819,9 @@ function doChanges() {
 				'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})),
 			$if(Posts.length > 50 && !ks, $new('span', {
 				'html': ' [<a href="#">Последние 50</a>]'}, {
-				'click': showlast50}))]);
+				'click': showLast50}))]);
 	}
+	if(ch.iich || ch.sib || ch.dc) Cfg[19] = 0;
 	if(!postform) return;
 	textFormatPanel(postform);
 	textareaResizer(postform);
@@ -1010,9 +1040,12 @@ function scriptStyles() {
 	if((ch._2ch && getCookie('wakabastyle') != 'Futaba') || ch._0ch)
 		txt += '.postblock {background:#bbb} '; // gray postform color
 	if(Cfg[39] == 1) txt += '.spoiler {background:#888 !important; color:#CCC !important} '; // open spoilers
-	if(Cfg[25] == 1) txt += 'blockquote {max-height:100% !important; overflow:visible !important}'; // no scroller
-	$x('.//head').appendChild($new('style', {'type': 'text/css', 'text': txt}));
-	if(nav.Chrome) toggleDisp(delform);
+	if(Cfg[25] == 1) txt += 'blockquote {max-height:100% !important; overflow:visible !important} '; // no scroller
+	if(Cfg[6] == 1) txt += '.commentpostername, .postername, .postertrip {display:none}'; // no post names
+	if(!$id('desustyle')) {
+		$x('.//head').appendChild($new('style', {'id': 'desustyle', 'type': 'text/css', 'text': txt}));
+		if(nav.Chrome) toggleDisp(delform);
+	} else $id('desustyle').textContent = txt;
 }
 
 
@@ -1031,7 +1064,7 @@ function forOP(fn) {
 }
 
 function forAll(fn) {
-	forPosts(fn); forOP(fn);
+	forOP(fn); forPosts(fn);
 }
 
 function getThread(node) {
@@ -1316,7 +1349,7 @@ function doPostPreview(e) {
 	var clone = $new('div', {
 		'class': 'reply',
 		'id': 'pstprew_' + pNum,
-		'style': 'width:auto; position:absolute; z-index:900; border:solid 1px #575763; ' +
+		'style': 'width:auto; min-width:0; position:absolute; z-index:900; border:solid 1px #575763; ' +
 			((x < doc.body.clientWidth/2)
 				? 'left:' + x + 'px;'
 				: 'right:' + parseInt(doc.body.clientWidth - x - 80) + 'px;') +
@@ -1556,37 +1589,44 @@ function ajaxPages(len) {
 =============================================================================*/
 
 function hideThread(post, note) {
-	if(post.Visibl == HIDE) return;
-	var thread = $up(post);
-	var txt = !note ? getTitle(post).substring(0, 50) : 'autohide: ' + note;
-	toggleDisp(thread);
+	if(post.Vis == HIDE) return;
+	modPostDisp(post, HIDE);
 	var x = $new('span', {
 		'class': 'reply',
 		'id': 'hiddenthr_' + post.Num,
 		'style': 'display:inline; cursor:default',
-		'html': 'Тред <a>№' + post.Num + '</a> скрыт <i>(' + txt + ')' + '</i>'});
+		'html': 'Тред <a style="cursor:pointer">№' + post.Num + '</a> скрыт <i>(' + (!note ? getTitle(post).substring(0, 50) : 'autohide: ' + note) + ')' + '</i>'});
 	$event($x('.//a', x), {'click': function() {unhideThread(post)}});
-	$after(thread, [x]);
+	$after($up(post), [x]);
+	if(Cfg[12] == 2) {toggleDisp(x); toggleDisp($next(x)); toggleDisp($next($next(x)))}
 }
 
 function unhideThread(post) {
-	if(post.Visibl == UNHIDE) return;
-	toggleDisp($up(post));
+	if(post.Vis == UNHIDE) return;
+	modPostDisp(post, UNHIDE);
 	$del($id('hiddenthr_' + post.Num));
 	storeThreadVisib(post, UNHIDE);
-}
-
-function filterThread(post, note) {
-	if(Cfg[13] == 1) {
-		hideThread(post, note);
-		storeThreadVisib(post, HIDE);
-	}
 }
 
 function prevHidden(e) {modPostDisp(getPost(this), UNHIDE)}
 function unprevHidden(e) {modPostDisp(getPost(this), HIDE)}
 
+function applyPostVisib(post, vis) {
+	if(post.isOp) return;
+	if(!sav.cookie) {
+		Visib[board + post.Num] = vis;
+		Expires[board + post.Num] = (new Date()).getTime() + STORAGE_LIFE;
+	} else Visib[post.Count] = vis;
+	post.Vis = vis;
+	if(Cfg[12] == 2) post.style.display = (vis == HIDE) ? 'none' : '';
+}
+
 function setPostVisib(post, vis) {
+	if(post.isOp) {
+		if(vis == HIDE) hideThread(post);
+		else unhideThread(post);
+		return;
+	}
 	var reflink = post.Btns.previousSibling;
 	post.Btns.firstChild.className = (vis == HIDE) ? 'unhide_icn' : 'hide_icn';
 	modPostDisp(post, vis);
@@ -1606,26 +1646,26 @@ function hidePost(post, note) {
 	if(!post.isOp) {
 		if(post.Vis != HIDE) addNote(post, ' autohide: ' + note + ' ');
 		applyPostVisib(post, HIDE);
-	} else filterThread(post, note);
+	} else if(Cfg[13] == 1) {
+		hideThread(post, note);
+		storeThreadVisib(post, HIDE);
+	}
 }
 
 function unhidePost(post) {
-	if(post.isOp) {if(Cfg[13] == 1) unhideThread(post); return}
-	if(detectWipe(post) != null) return;
-	setPostVisib(post, UNHIDE);
-	$del($id('note_' + post.Num));
-	hideByWipe(post);
+	if(!post.isOp) {
+		if(detectWipe(post) != null) return;
+		setPostVisib(post, UNHIDE);
+		$del($id('note_' + post.Num));
+		hideByWipe(post);
+	} else if(Cfg[13] == 1) unhideThread(post);
 }
 
 function toggleSamePost(post, vis, expr, note) {
 	if(!expr) return;
 	$del($id('note_' + post.Num));
-	if(vis == UNHIDE) {
-		if(!post.isOp) {
-			addNote(post, note);
-			applyPostVisib(post, HIDE);
-		} else filterThread(post, note);
-	} else unhidePost(post);
+	if(vis == UNHIDE) hidePost(post, note);
+	else unhidePost(post);
 }
 
 function storeHiddenPosts() {
@@ -1635,23 +1675,28 @@ function storeHiddenPosts() {
 
 function modPostDisp(post, vis) {
 	var x = [], i = 0;
-	x[i++] = './/br';
-	x[i++] = './/small[@id="rfmap_' + post.Num + '"]';
+	x[i++] = 'br';
+	x[i++] = 'small';
 	if(!ch.dc) {
-		x[i++] = './/blockquote';
-		x[i++] = './/img[starts-with(@class,"thumb")]';
-		x[i++] = './/span[@class="filesize"]';
-		x[i++] = './/div[@class="nothumb"]'; 
+		x[i++] = 'blockquote';
+		x[i++] = 'img[starts-with(@class,"thumb")]';
+		x[i++] = 'span[@class="filesize"]';
+		x[i++] = 'div[@class="nothumb"]'; 
 	} else {
-		x[i++] = './/div[@class="postbody"]';
-		x[i++] = './/div[@class="file"]';
-		x[i++] = './/div[@class="fileinfo"]';
+		x[i++] = 'div[@class="postbody"]';
+		x[i++] = 'div[@class="file"]';
+		x[i++] = 'div[@class="fileinfo"]';
 	}
 	if(wk) {
 		$del($x('.//img[@id="full_img"]', post));
-		x[i++] = './/span[@class="thumbnailmsg"]';
+		x[i++] = 'span[@class="thumbnailmsg"]';
 	}
-	while(i--) $each($X(x[i], post),
+	if(post.isOp) {
+		x[i++] = 'span[@class="omittedposts"]';
+		x[i++] = 'div[@class="abbrev"]';
+		toggleDisp($up(post));
+	}
+	while(i--) $each($X('.//' + x[i], post),
 		function(node) {node.style.display = (vis == HIDE) ? 'none' : ''});
 }
 
@@ -1675,8 +1720,11 @@ function mergeHidden(post) {
 }
 
 function processHidden(newCfg, oldCfg) {
-	if(newCfg == 2 || oldCfg == 2)
+	if(newCfg == 2 || oldCfg == 2) {
 		forPosts(function(post) {if(post.Vis == HIDE) toggleDisp(post)});
+		if(Cfg[13] == 1) $each($X('.//span[starts-with(@id,"hiddenthr_")]'), function(x) {
+			toggleDisp(x); toggleDisp($next(x)); toggleDisp($next($next(x)))});
+	}
 	if(oldCfg == 1) 
 		$each($X('.//div[starts-with(@id,"merged_")]'), function(div) {
 			var px = div.childNodes;
@@ -1689,15 +1737,14 @@ function processHidden(newCfg, oldCfg) {
 	saveCfg(12, newCfg);
 }
 
-function showlast50() {
+function showLast50() {
 	var div = $id('last50');
-	if(div) toggleDisp(div);
-	else {
+	if(!div) {
 		div = $new('div', {'id': 'last50', 'style': 'display:none'});
 		$before(Posts[0], [div]);
 		for(var i = 0; i < Posts.length - 50; i++)
 			div.appendChild(Posts[i]);
-	}
+	} else toggleDisp(div);
 }
 
 /*-----------------------------------Filters---------------------------------*/
@@ -1765,15 +1812,15 @@ function hideByMaxtext(post) {
 		hidePost(post, 'text n=' + len + ' > max');
 }
 function toggleMaxtext() {
-	var field = $id('maxtext_field');
-	if(isNaN(field.value)) {
+	var fld = $id('maxtext_field');
+	if(isNaN(fld.value)) {
 		$id('maxtext_hider').checked = false;
 		saveCfg(8, 0);
 		alert('введите число знаков');
 		return;
 	}
 	toggleCfg(8);
-	saveCfg(9, field.value);
+	saveCfg(9, fld.value);
 	if(Cfg[8] == 1) forAll(hideByMaxtext);
 	else forAll(function(post) {
 		if(post.Text.replace(/\n/g, '').length >= parseInt(Cfg[9]))
@@ -1786,13 +1833,20 @@ function toggleMaxtext() {
 
 function hideByRegexp(post) {
 	var exp = doRegexp(post);
-	if(exp != null) hidePost(post, 'match ' + exp.substring(0, 20) + '..');
+	if(exp) hidePost(post, 'match ' + exp.substring(0, 20) + '..');
 }
 
-function applyRegExp() {
-	var field = $id('regexp_field');
-	var val = field.value.trim();
-	field.value = val;
+function applyRegExp(txt) {
+	var fld = $id('regexp_field');
+	var val = fld.value.trim();
+	if(txt) {
+		if(txt.trim() == '') return;
+		toggleRegexp();
+		var nval = '\n' + val;
+		var ntxt = '\n' + txt;
+		val = (nval.indexOf(ntxt) > -1 ? nval.split(ntxt).join('') : val + ntxt).trim();
+	}
+	fld.value = val;
 	setStored(ID('RegExpr'), val);
 	$id('regexp_hider').checked = val != '';
 	if(val != '') {
@@ -1803,16 +1857,12 @@ function applyRegExp() {
 }
 
 function toggleRegexp() {
-	var field = $id('regexp_field');
-	var val = field.value.trim();
+	var val = $id('regexp_field').value.trim();
 	setStored(ID('RegExpr'), val);
 	if(val != '') {
 		toggleCfg(10);
 		if(Cfg[10] == 1) forAll(hideByRegexp);
-		else forAll(function(post) {
-			var exp = doRegexp(post);
-			if(exp != null) unhidePost(post);
-		})
+		else forAll(function(post) {if(doRegexp(post)) unhidePost(post)})
 		storeHiddenPosts();
 	} else {
 		$id('regexp_hider').checked = false;
@@ -1822,7 +1872,7 @@ function toggleRegexp() {
 
 function doRegexp(post) {
 	var expr = getStored(ID('RegExpr')).split('\n');
-	var pname = $x('.//span[@class="commentpostername"]', post);
+	var pname = $x('.//span[@class="commentpostername" or @class="postername"]', post);
 	var ptrip = $x('.//span[@class="postertrip"]', post);
 	var ptitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
 	var i = expr.length;
@@ -1855,6 +1905,13 @@ function doRegexp(post) {
 	return null;
 }
 
+function regExpImage(post) {
+	if(!post.Img) {
+		toggleNoimage();
+		toggleChk($id('noimage_hider'));
+	} else applyRegExp('$img =' + getImgWeight(post) + '@' + getImgSize(post));
+}
+
 function doImgRegExp(post, expr) {
 	if(expr == '') return null;
 	var s = expr.split('@');
@@ -1882,7 +1939,7 @@ function doImgRegExp(post, expr) {
 }
 
 function getImgWeight(post) {
-	var inf = $x('.//em|.//span[@class="filesize"]', post).textContent.match(/\d+[\.\d\s|m|k]*b/i)[0];
+	var inf = $x('.//em|.//span[@class="filesize"]', post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0];
 	var w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) w = w*1000;
 	if(/\d[\s]*B/.test(inf)) w = (w/1000).toFixed(2);
@@ -1978,11 +2035,11 @@ function detectWipe(post) {
 	var detectors = [
 		detectWipe_sameLines,
 		detectWipe_sameWords,
-		detectWipe_specialSymbols,
+		detectWipe_specSymbols,
 		detectWipe_longColumn,
 		detectWipe_longWords,
 		detectWipe_numbers,
-		detectWipe_caseSage
+		detectWipe_caseWords
 	];
 	for(var i = 0; i < detectors.length; i++) {
 		var detect = detectors[i](post.Text);
@@ -1993,131 +2050,120 @@ function detectWipe(post) {
 
 function hideByWipe(post) {
 	if(post.Vis == HIDE || post.Vis == UNHIDE) return;
-	var wipe = detectWipe(post);
-	if(wipe != null) {
-		if(!post.isOp) {
-			applyPostVisib(post, HIDE);
-			addNote(post, ' autohide: ' + wipe);
-		} else filterThread(post, wipe);
-	} else applyPostVisib(post, UNHIDE);
+	var note = detectWipe(post);
+	if(note != null) hidePost(post, note);
+	else applyPostVisib(post, UNHIDE);
 }
 
-function detectWipe_longColumn(text) {
-	var shortrows = 0;
-	var rows = text.split('\n');
+function detectWipe_longColumn(txt) {
+	var n = 0;
+	var rows = txt.split('\n');
 	var len = rows.length;
 	for(var i = 0; i < len; i++) {
-		if(rows[i].length < 9) shortrows++;
+		if(rows[i].length < 9) n++;
 		else return null;
 	}
-	if(len > 45) return 'looong post x' + len;
-	if(shortrows > 5) return 'column wipe x' + shortrows;
+	if(len > 45) return 'long text x' + len;
+	if(n > 5) return 'columns x' + n;
 	return null;
 }
 
-function detectWipe_sameLines(text) {
-	var lines = text.replace(/(> )/g, '').split('\n');
+function detectWipe_sameLines(txt) {
+	var lines = txt.replace(/(> )/g, '').split('\n');
 	var len = lines.length;
 	if(len < 5) return null;
-	var count = [], all = 0;
-	for(var i = 0; i < len; i++) {
-		if(lines[i].length == 0) continue;
-		all++;
-		incc(count, lines[i]);
-	}
-	for(var it in count) {
-		if((count[it] > all/2 - count[it]) && count[it] >= 5)
-			return 'same line: "' + it.substr(0, 20) + '" x' + count[it];
-	}
+	var arr = [], n = 0;
+	for(var i = 0; i < len; i++)
+		if(lines[i].length > 0) {n++; incc(arr, lines[i])}
+	for(var x in arr)
+		if(arr[x] > n/4 && arr[x] >= 5)
+			return 'same lines: "' + x.substr(0, 20) + '" x' + parseInt(arr[x] + 1);
 	return null;
 }
 
-function detectWipe_sameWords(text) {
-	text = text.replace(/[\.\?\!,>]/g, ' ').replace(/\s+/g, ' ').toUpperCase();
-	var words = text.split(' ');
+function detectWipe_sameWords(txt) {
+	txt = txt.replace(/[\.\?\!,>]/g, ' ').replace(/\s+/g, ' ').toUpperCase();
+	var words = txt.split(' ');
 	var len = words.length;
-	if(len <= 15) return null;
-	var count = [], wrds = 0;
-	for(var i = 0; i < len; i++) {
-		if(words[i].length <= 1) continue;
-		wrds++;
-		incc(count, words[i])
-	}
-	if(wrds <= 10) return null;
+	if(len <= 13) return null;
+	var arr = [], n = 0;
+	for(var i = 0; i < len; i++)
+		if(words[i].length > 1) {n++; incc(arr, words[i])}
+	if(n <= 10) return null;
 	var keys = 0, pop = '', mpop = -1;
-	for(var it in count) {
+	for(var x in arr) {
 		keys++;
-		if(count[it] > mpop) {
-			mpop = count[it];
-			pop = it;
-		}
-		if(wrds > 25 && count[it] > (wrds / 3.5))
-			return 'word: ' + it.substr(0, 20) + ' x' + count[it];
+		if(arr[x] > mpop) {mpop = arr[x]; pop = x}
+		if(n > 25 && arr[x] > n/3.5)
+			return 'same words: "' + x.substr(0, 20) + '" x' + arr[x];
 	}
 	pop = pop.substr(0, 20);
-	if(wrds > 80 && keys <= 20) return 'same words ' + ' total=' + wrds + ', words=' + keys;
-	if(wrds / keys > 7) return 'same words ' + pop + ' total=' + wrds + ', words=' + keys;
+	if((n > 80 && keys <= 20) || n/keys > 7)
+		return 'same words: "' + pop + '" x' + mpop;
 	return null;
 }
 
-function detectWipe_specialSymbols(text) {
-	text = text.replace(/\s+/g, '');
-	var wholeText = text; 
-	text = text.replace(/[0-9A-Za-zА-Яа-я]/g, '').replace(/[\.\?!,]/g, '');
-	var specsym = text.length / wholeText.length;
-	if(wholeText.length > 30 && specsym > 0.40)
-		return 'special symbols: ' + parseInt(specsym * 100) + '%';
+function detectWipe_longWords(txt) {
+	txt = txt.replace(/http:\/\/.*?(\s|$)/g, '').replace(/[\.\?!,>:;-]/g, ' ').replace(/\s+/g, ' ');
+	var words = txt.split(' ');
+	var n = 0, all = '', lng = '';
+	for(var i = 0, len = words.length; i < len; i++)
+		if(words[i].length > 1) {
+			n++;
+			all += words[i];
+			lng = words[i].length > lng.length ? words[i] : lng;
+		}
+	if((n == 1 && lng.length > 70) || (n > 1 && all.length/n > 12))
+		return 'long words: "' + lng.substr(0, 20) + '.."';
 	return null;
 }
 
-function detectWipe_longWords(text) {
-	text = text.replace(/http:\/\/.*?(\s|$)/g, '').replace(/[\.\?!,>]/g, ' ').replace(/\s+/g, ' ');
-	var totalText = '', longest = '', wordsNum = 0;
-	var words = text.split(' ');
-	for(var i = 0, len = words.length; i < len; i++) {
-		if(words[i].length <= 1) continue;
-		wordsNum++;
-		totalText += words[i];
-		longest = words[i].length > longest.length ? words[i] : longest;
-	}
-	if(wordsNum == 0) return null;
-	var lws = totalText.length / wordsNum;
-	if(wordsNum == 1 && longest.length > 70)
-		return 'long word:' + longest.substr(0, 20);
-	if( ((wordsNum > 1) && (wordsNum < 5) && (lws > 13)) || (wordsNum >= 5 && lws > 11) )
-		return 'long words:' + longest.substr(0, 20);
-	return null;
-}
-
-function detectWipe_numbers(text) {
-	text = text.replace(/\s+/g, ' ').replace(/(>>)(\d+)/g, '').replace(/http:\/\/.*?(\s|$)/g, '');
-	var numProcent = (text.length - text.replace(/[0-9]/g, '').length) / text.length;
-	if(text.length > 30 && numProcent > 0.4) return 'numbers: ' + parseInt(numProcent * 100) + '%';
-}
-
-function detectWipe_caseSage(text) {
-	text = text.replace(/[\.\?!,-]/g, ' ').replace(/\s+/g, ' ');
-	var words = text.split(' ');
+function detectWipe_caseWords(txt) {
+	txt = txt.replace(/[\.\?!,-]/g, ' ').replace(/\s+/g, ' ');
+	var words = txt.split(' ');
 	var len = words.length;
 	if(len <= 4) return null;
-	var wrds = 0, ttl = 0;
+	var n = 0, all = 0, caps = 0;
 	for(var i = 0; i < len; i++) {
 		if(words[i].length < 5) continue;
-		ttl++;
+		all++;
 		var word = words[i];
 		var up = word.toUpperCase();
 		var lw = word.toLowerCase();
 		var upc = 0, lwc = 0;
+		var cap = word.match(/[a-zа-я]/ig);
+		if(cap) {
+			cap = cap.toString().trim();
+			if(cap != '' && cap.toUpperCase() == cap) caps++;
+		}
 		for(var j = 0; j < word.length; j++) {
 			if(up.charAt(j) == lw.charAt(j)) continue;
 			if(word.charAt(j) == up.charAt(j)) upc++;
 			else if(word.charAt(j) == lw.charAt(j)) lwc++;
 		}
 		var min = upc < lwc ? upc : lwc;
-		if(min >= 2 && lwc + upc >= 5) wrds++;
+		if(min >= 2 && lwc + upc >= 5) n++;
 	}
-	var caseProcent = wrds/ttl;
-	if(caseProcent >= 0.3 && ttl > 8) return 'cAsEwOrDs: ' + parseInt(caseProcent*100) + '%';
+	if(n/all >= 0.3 && all > 8) return 'cAsE words: ' + parseInt(n/len*100) + '%';
+	if(caps/all >= 0.3 && all > 5) return 'CAPSLOCK';
+	return null;
+}
+
+function detectWipe_specSymbols(txt) {
+	txt = txt.replace(/\s+/g, '');
+	var all = txt; 
+	txt = txt.replace(/[0-9A-Za-zА-Яа-я\.\?!,]/g, '');
+	var proc = txt.length/all.length;
+	if(all.length > 30 && proc > 0.40)
+		return 'specsymbols: ' + parseInt(proc*100) + '%';
+	return null;
+}
+
+function detectWipe_numbers(txt) {
+	txt = txt.replace(/\s+/g, ' ').replace(/(>>)(\d+)/g, '').replace(/http:\/\/.*?(\s|$)/g, '');
+	var len = txt.length;
+	var proc = (len - txt.replace(/[0-9]/g, '').length)/len;
+	if(len > 30 && proc > 0.4) return 'numbers: ' + parseInt(proc*100) + '%';
 	return null;
 }
 
@@ -2297,8 +2343,8 @@ function doScript() {
 	initBoard();					Log('initBoard');
 	initDelform();					Log('initDelform');
 	initCfg();						Log('initCfg');
-	readThreadsVisib();				Log('readThreadsVisib');
 	readPostsVisib();				Log('readPostsVisib');
+	readThreadsVisib();				Log('readThreadsVisib');
 	addControls();					Log('addControls');
 	forAll(addPostButtons);			Log('addPostButtons');
 	if(Cfg[26] == 1) {
