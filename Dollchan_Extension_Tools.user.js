@@ -3,7 +3,7 @@
 // copyright (C) 2084, Bender Bending Rodríguez
 // ==UserScript==
 // @name		Dollchan Extension Tools
-// @version		2010-06-10
+// @version		2010-06-11
 // @description	Doing some extended profit for russian AIB
 // @namespace	http://freedollchan.org/scripts
 // @include		*0chan.ru*
@@ -41,7 +41,7 @@ var defaultCfg = [
 	2,		// 20	2-ch captchas (0,1,2)
 	1,		// 21	hide board rules
 	1,		// 22	hide 'goto' field
-	1,		// 23	expand imgs by click
+	2,		// 23	expand images (0=no, 1=simple, 2=+preview)
 	1,		// 24	expand shorted posts
 	1,		// 25	hide scrollers in posts
 	1,		// 26	>>links preview
@@ -407,10 +407,12 @@ function addControls() {
 	trBox = function(num, txt, fn, id) {
 		return $New('tr', [chkBox(num, fn, id), $txt(' ' + txt)]);
 	},
-	optSel = function(id, arr, fn) {
+	optSel = function(id, arr, num, fn) {
 		for(var i = 0; i < arr.length; i++)
 			arr[i] = '<option value="' + i + '">' + arr[i] + '</option>';
-		return $new('select', {'id': id, 'html': arr.join('')}, {'change': fn});
+		var x = $new('select', {'id': id, 'html': arr.join('')}, {'change': fn});
+		x.selectedIndex = Cfg[num];
+		return x;
 	};
 	
 	var postarea = $x('.//div[@class="postarea" or @align="center"]') || delform;
@@ -474,7 +476,7 @@ function addControls() {
 				'cols': nav.Opera ? 47 : 41})
 		]),
 		$New('tr', [
-			optSel('prochidden_sel', ['Не изменять', 'Объединять', 'Удалять'],
+			optSel('prochidden_sel', ['Не изменять', 'Объединять', 'Удалять'], 12,
 				function() {processHidden(this.selectedIndex, Cfg[12])}),
 			$txt(' скрытые посты')
 		]),
@@ -483,7 +485,7 @@ function addControls() {
 		trBox(13, 'Применять фильтры к тредам'),
 		$new('hr'),
 		$New('tr', [
-			optSel('upload_sel', ['Отключена', 'По клику', 'Авто'],
+			optSel('upload_sel', ['Отключена', 'По клику', 'Авто'], 37,
 				function() {saveCfg(37, this.selectedIndex)}),
 			$txt(' подгрузка новых постов в треде*')
 		]),
@@ -499,7 +501,11 @@ function addControls() {
 			toggleCfg(7);
 			$each($X('.//span[@id="txt_btns"]'), function(div) {toggleDisp(div)});
 		}),
-		$if(wk, trBox(23, 'Раскрывать изображения по клику*')),
+		$if(wk, $New('tr', [
+			optSel('imgexpand_sel', ['Не', 'Обычно', 'С превью'], 23,
+				function() {saveCfg(23, this.selectedIndex)}),
+			$txt(' раскрывать изображения')
+		])),
 		$if(wk, trBox(24, 'Раскрывать сокращенные посты*')),
 		$if(ch._2ch, trBox(25, 'Убирать прокрутку в постах', function() {toggleCfg(25); scriptStyles()})),
 		trBox(6, 'Скрывать имена в постах', function() {toggleCfg(6); scriptStyles()}),
@@ -537,13 +543,13 @@ function addControls() {
 		]),
 		$if(ch._2ch, $New('tr', [
 			$txt(' Количество отображаемых капч* '),
-			optSel('capnum_sel', [0, 1, 2], function() {saveCfg(20, this.selectedIndex)})
+			optSel('capnum_sel', [0, 1, 2], 20, function() {saveCfg(20, this.selectedIndex)})
 		])),
 		$new('hr'),
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-06-10, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-06-11, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -553,9 +559,6 @@ function addControls() {
 				'click': function() {setDefaultCfg(); window.location.reload()}})
 		])
 	]);
-	$id('upload_sel').selectedIndex = Cfg[37];
-	$id('prochidden_sel').selectedIndex = Cfg[12];
-	if(ch._2ch) $id('capnum_sel').selectedIndex = Cfg[20];
 }
 
 function hiddenPostsPreview() {
@@ -739,18 +742,12 @@ function forceCaptcha(e) {
 }
 
 function sageBtnFunc(mail, form) {
+	var s = Cfg[32] == 1;
 	var sage = $x('.//span[@id="sage_btn"]', form);
-	if(Cfg[32] == 0) {
-		sage.innerHTML = '<i>(без сажи)</i>';
-		sage.style.color = '';
-		if(mail.type == 'text') mail.value = '';
-		else mail.checked = false;
-	} else {
-		sage.innerHTML = '&nbsp;<span class="sage_icn" style="vertical-align:middle"></span><b>SAGE</b>';
-		sage.style.color = 'red';
-		if(mail.type == 'text') mail.value = 'sage';
-		else mail.checked = true;
-	}
+	sage.innerHTML = s ? '&nbsp;<span class="sage_icn" style="vertical-align:middle"></span><b>SAGE</b>' : '<i>(без сажи)</i>';
+	sage.style.color = s ? 'red' : '';
+	if(mail.type == 'text') mail.value = s ? 'sage' : '';
+	else mail.checked = s ? false : true;
 }
 
 function sageBtnEvent(e) {
@@ -953,10 +950,7 @@ function quickReply(post) {
 		if(captcha && (ch._0ch || ks)) {
 			captcha.value = ' ';
 			var a = $up($x('.//img[@id="captchaimage" or @id="faptchaimage"]', QR));
-			$before(a, [$new('img', {
-				'src': 'http://' + domain + (!ch._410 ? '/captcha.php?' + Math.random() : '/faptcha.php?board=' + board),
-				'style': 'cursor:pointer'}, {
-				'click': function(e) {this.src = this.src.replace(/\?[^?]+$|$/, (!ch._410 ? '?' : '?board=' + board + '&') + Math.random())}})]);
+			$before(a, [$new('img', {'src': 'http://' + domain + (!ch._410 ? '/captcha.php?' + Math.random() : '/faptcha.php?board=' + board), 'style': 'cursor:pointer'}, {'click': function(e) {this.src = this.src.replace(/\?[^?]+$|$/, (!ch._410 ? '?' : '?board=' + board + '&') + Math.random())}})]);
 			$del(a);
 		}
 	}
@@ -1037,8 +1031,7 @@ function scriptStyles() {
 		icn('.expthr_icn', pre + 'P0MlJq7o4X7dQ+gsALF+CLCSIiGeJqiKbLkzGIEiNMfp15zYGCtXANYY04bCIOA55SKYTBV0akQxnMQZoEhulbRf8aRTDIrKp4TC7325HBAA7') +
 		icn('.fav_icn', pre + 'T0MlJq7o4X7dQ+skFJsiyjAqCKKOJAgALLoxpInBpMzUM4D8frcbwGQHEGi1hTCh5puLxWWswAY0GLNGgdbVYE/hr5ZY/WXTDM2ojGo6sfC53RAAAOw==') +
 	'td.reply {width:auto} .pcount {font-size:13px;font-weight:bold;cursor:default;color:#4f7942} .pcountb {font-size:13px;font-weight:bold;cursor:default;color:#c41e3a} ';
-	if((ch._2ch && getCookie('wakabastyle') != 'Futaba') || ch._0ch)
-		txt += '.postblock {background:#bbb} '; // gray postform color
+	if((ch._2ch && getCookie('wakabastyle') != 'Futaba') || ch._0ch) txt += '.postblock {background:#bbb} '; // gray postform color
 	if(Cfg[39] == 1) txt += '.spoiler {background:#888 !important; color:#CCC !important} '; // open spoilers
 	if(Cfg[25] == 1) txt += 'blockquote {max-height:100% !important; overflow:visible !important} '; // no scroller
 	if(Cfg[6] == 1) txt += '.commentpostername, .postername, .postertrip {display:none}'; // no post names
@@ -1271,11 +1264,11 @@ function expandImg(a, post) {
 	var w = sz[0] < maxw ? sz[0] : maxw;
 	var h = w/r;
 	$append(a, [
-		$attr(img.cloneNode(false), {
+		$if(Cfg[23] == 2, $attr(img.cloneNode(false), {
 			'id': 'pre_img',
 			'width': w,
 			'height': h,
-			'style': 'display:block'}),
+			'style': 'display:block'})),
 		$new('img', {
 			'class': 'thumb',
 			'id': 'full_img',
@@ -1284,26 +1277,29 @@ function expandImg(a, post) {
 			'height': h,
 			'style': 'display:none'}, {
 			'load': function() {
-				$del($prev(this));
+				$del($x('.//img[@id="pre_img"]', $up(this)));
 				if(img.style.display == 'none') toggleDisp(this);
 			}})
 	]);
 }
 
 function expandHandleImg(post) {
-	if(post.Img) $event($up(post.Img, (ks ? 2 : 1)), {'click': function(e) {e.preventDefault(); expandImg(this, post)}});
+	if(post.Img) $event($up(post.Img, (ks ? 2 : 1)), {'click': function(e) {
+		if(Cfg[23] != 0) {e.preventDefault(); expandImg(this, post);
+	}}});
 }
 
 function allImgExpander() {
 	if($X('.//img[@class="thumb"]', delform).snapshotLength <= 1) return;
+	var txt = '[<a>Раскрыть изображения</a>]';
 	oPosts[0].appendChild($new('div', {
 		'id': 'expimgs_btn',
 		'style': 'cursor:pointer',
-		'html': '[<a>Раскрыть изображения</a>]'}, {
+		'html': txt}, {
 		'click': function() {
 			forPosts(function(post) {if(post.Img && post.Vis != HIDE) expandImg($up(post.Img), post)});
 			var btn = $id('expimgs_btn');
-			btn.innerHTML = /Раскрыть/.test(btn.innerHTML) ? '[<a>Свернуть изображения</a>]' : '[<a>Раскрыть изображения</a>]';
+			btn.innerHTML = /Раскрыть/.test(btn.innerHTML) ? '[<a>Свернуть изображения</a>]' : txt;
 		}}));
 }
 
@@ -1489,7 +1485,7 @@ function addPostFunc(post, pNum, count, isLoad) {
 	if(post.Vis == HIDE) setPostVisib(post, HIDE);
 	if(Cfg[12] == 1) mergeHidden(post);
 	if(Cfg[15] == 1) refMap(post);
-	if(Cfg[23] == 1 && wk) expandHandleImg(post);
+	if(Cfg[23] != 0 && wk) expandHandleImg(post);
 	if(Cfg[26] == 1) refPrewiev(post.Msg);
 	if(Cfg[27] == 1) addYouTube(post);
 	if(Cfg[28] == 1) addMP3(post);
@@ -2358,7 +2354,7 @@ function doScript() {
 		initNewPosts();				Log('initNewPosts')}
 	if(Cfg[12] == 1) {
 		forPosts(mergeHidden);		Log('mergeHidden')}
-	if(Cfg[23] == 1 && wk) {
+	if(Cfg[23] != 0 && wk) {
 		forAll(expandHandleImg);	Log('expandHandleImg')}
 	if(Cfg[24] == 1 && main && wk) {
 		forAll(ajaxExpandPost);		Log('ajaxExpandPost')}
