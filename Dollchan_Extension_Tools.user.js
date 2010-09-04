@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		Dollchan Extension Tools
-// @version		2010-09-03
+// @version		2010-09-04
 // @namespace	http://freedollchan.org/scripts
 // @author		Sthephan Shinkufag @ FreeDollChan
 // @copyright	(C)2084, Bender Bending Rodríguez
@@ -415,7 +415,7 @@ function addControls() {
 		return x;
 	};
 	var txt = '<input type="button" value="';
-	var tools = $new('div', {'html': txt + 'Настройки"> ' + txt + 'Скрытое"> ' + txt + 'Избранное"> ' + txt + 'Обновить" id="refresh_btn"> ' + (main && pForm ? txt + 'Создать тред"> ' : '') + '<div><table class="reply" id="controls_div" style="display:none; overflow:hidden; width:370px; min-width:0; border:1px solid grey; margin:5px 0px 5px 20px; padding:5px; font-size:small"><tbody></tbody></table></div> <div id="hiddenposts_div"></div> <div id="favorities_div"></div>'});
+	var tools = $new('div', {'id': 'DESU_panel', 'html': txt + 'Настройки"> ' + txt + 'Скрытое"> ' + txt + 'Избранное"> ' + txt + 'Обновить" id="refresh_btn"> ' + (main && pForm ? txt + 'Создать тред"> ' : '') + '<div><table class="reply" id="controls_div" style="display:none; overflow:hidden; width:370px; min-width:0; border:1px solid grey; margin:5px 0px 5px 20px; padding:5px; font-size:small"><tbody></tbody></table></div> <div id="hiddenposts_div"></div> <div id="favorities_div"></div>'});
 	var btn = $X('.//input', tools);
 	$event(btn.snapshotItem(0), {'click': function() {
 		delChilds($id('hiddenposts_div'));
@@ -437,7 +437,7 @@ function addControls() {
 			$disp($x('.//div[@class="postarea"]'));
 			$disp($prev(dForm));
 		}});
-	$before($x('.//div[@class="postarea" or @align="center"]'), [tools, $new('hr')]);
+	$before($x('.//div[@class="postarea"]') || dForm, [tools, $new('hr')]);
 	$append($x('.//tbody', tools), [
 		$new('tr', {
 			'text': 'Dollchan Extension Tools',
@@ -579,7 +579,7 @@ function addControls() {
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-09-03, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-09-04, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -629,7 +629,7 @@ function hiddenPostsPreview() {
 		$append(table, [
 			$if(((!pp && tcnt == 0) || (pp && pcnt == 0)), $new('tr', {
 				'html': '<th align="left"><b>Скрытые ' + (pp ? 'посты' : 'треды') + ':</b></th>'})),
-			$New('tr', [cln, $if(!pp, $attr(post.cloneNode(true), {'class': 'reply', 'style': 'display:none'}))])
+			$New('tr', [cln, $if(!pp, $attr(post.cloneNode(true), {'class': 'reply', 'style': 'display:none; overflow:hidden'}))])
 		]);
 		if(!pp) {togglePost($next(cln), 1); tcnt++}
 		else pcnt++;
@@ -691,7 +691,7 @@ function favorThrdsPreview() {
 					'class': 'expthr_icn'}, {
 					'click': function(b, tNum) {return function() {loadFavorThread($up(this, 2), b, tNum, 5)}}(b, tNum)}),
 				$new('a', {
-					'href': 'http://' + dm + '/' + b + '/res/' + tNum + (dm != 'dobrochan.ru' ? '.html' : '.xhtml'),
+					'href': 'http://referer.us/http://' + dm + '/' + b + '/res/' + tNum + (dm != 'dobrochan.ru' ? '.html' : '.xhtml'),
 					'html': dm + '/' + b + '/' + tNum}),
 				$txt(' - ' + title)
 				], {
@@ -828,39 +828,40 @@ function textareaResizer(form) {
 }
 
 function doChanges() {
+	if(ch._2ch || ch._0ch) 
+		$event(window, {'load': function() {setTimeout(function() {
+			$each($X('.//small|.//div[@class="replieslist"]', dForm), function(el) {$del(el)});
+			if(ch._0ch && pForm) {
+				$before($1($up(pfTxt, !nav.Chrome ? 2 : 1)), [pfTxt]);
+				delNexts(pfTxt);
+				textareaResizer(pForm);
+			}
+		}, 10)}});
 	if(!main) {
-		if(ch._0ch) $after(dForm, [$x('.//span[@style="float: right;"]')]);
 		doc.title = board + ' - ' + getTitle(oPosts[0]).substring(0, 50);
-		$before($x('.//div[@class="theader" or @class="replymode"]') || $attr($next($x('.//table')), {'style': ''}), [
-			$if(!ch._0ch, $new('span', {
-				'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})),
-			$if(Posts.length > 50 && !ks, $new('span', {
-				'html': ' [<a href="#">Последние 50</a>]'}, {'click': showLast50}))
+		$before($x('.//div[@class="theader" or @class="replymode"]') || $prev($x('.//div[@id="DESU_panel"]')), [
+			$if(!ch._0ch, $new('span', {'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})),
+			$if(Posts.length > 50 && !ks, $new('span', {'html': ' [<a href="#">Последние 50</a>]'}, {'click': showLast50}))
 		]);
-	}
-	if(ch._2ch || ch._0ch) $event(window, {'load': function() {
-		$each($X('.//small|.//div[@class="replieslist"]', dForm), function(el) {$del(el)});
-		if(ch._0ch && pForm) {
-			$before($1($up(pfTxt, 2)), [pfTxt]);
-			delNexts(pfTxt);
-			textareaResizer(pForm);
+		if(ch._0ch) {
+			$disp($x('.//div[@id="newposts_get"]'));
+			$after($x('.//div[@class="thread"]'), [$x('.//span[@style="float: right;"]')]);
 		}
-	}})
-	var adbar = $x('.//div[@class="adminbar"]|.//span[@id="navtop"]');
-	var rm = ' <a href="http://archives.freedollchan.org/redirect-to/';
-	$html(adbar, '[RMT:' + rm + '2-ch">2-ch</a> /' + rm + '0ch">0chan</a>] - ' + adbar.innerHTML);
+	}
+	//var adbar = $x('.//div[@class="adminbar"]|.//span[@id="navtop"]');
+	//var rm = ' <a href="http://archives.freedollchan.org/redirect-to/';
+	//$html(adbar, '[RMT:' + rm + '2-ch">2-ch</a> /' + rm + '0ch">0chan</a>] - ' + adbar.innerHTML);
 	if(!pForm) return;
 	textFormatPanel(pForm);
-	if(!ch._0ch) textareaResizer(pForm);
+	textareaResizer(pForm);
+	if(ch._410 || ch._0ch) $disp($x('.//small', qForm));
 	$each($X('.//input[@type="text"]', pForm), function(el) {el.size = 35});
-	if(pfCap) {
-		if(Cfg[33] == 0) $disp($up(pfCap, 2));
-		$event($attr(pfCap, {'autocomplete': 'off'}), {'keypress': forceCap});
-	}
+	if(pfCap) $event($attr(pfCap, {'autocomplete': 'off'}), {'keypress': forceCap});
 	if(Cfg[38] == 1) $disp(pfRules);
+	if(Cfg[39] == 1 && pfGoto) $disp(pfGoto);
+	if(Cfg[33] == 0 && pfCap) $disp($up(pfCap, 2));
 	if(Cfg[40] == 1 && pfPass) $disp($up(pfPass, 2));
 	if(Cfg[34] == 1 && pfName) setTimeout(function() {pfName.value = Cfg[35]} , 10);
-	if(Cfg[39] == 1 && pfGoto) $disp(pfGoto);
 	del_passw = $X('.//input[@type="password"]').snapshotItem(1);
 	if(del_passw) setTimeout(function() {
 		if(Cfg[36] == 1) {
@@ -882,6 +883,9 @@ function doChanges() {
 		$del($next(x));
 		$del($next(x));
 		x = $next($next(postarea));
+		$del($next(x));
+		$del($next(x));
+		x = $attr($next($x('.//table')), {'style': ''});
 		$del($next(x));
 		$del($next(x));
 	}
@@ -915,10 +919,11 @@ function doChanges() {
 		sageBtnFunc(pForm);
 	}
 	if(Cfg[23] == 1 && !ch._4ch) {
-		$x('.//body').appendChild($new('div', {'html': '<iframe name="submitcheck" id="submitcheck" src="about:blank" style="visibility:hidden; width:0px; height:0px; border:none"></iframe>'}));
+		$x('.//body').appendChild($new('div', {'html':
+			'<iframe name="submitcheck" id="submitcheck" src="about:blank" style="visibility:hidden; width:0px; height:0px; border:none"></iframe>'}));
 		$attr(pForm, {'target': 'submitcheck'});
-		if(nav.Opera) $event(window, {'DOMFrameContentLoaded': iframeLoad});
-		else $event($id('submitcheck'), {'load': iframeLoad});
+		var load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
+		$event($id('submitcheck'), {load: iframeLoad});
 	}
 }
 
@@ -985,7 +990,6 @@ function quickReply(post) {
 		$x('.//textarea', qForm).value = '';
 		var sage = $x('.//span[@id="sage_btn"]', qForm);
 		if(sage) $event(sage, {'click': sageBtnEvent});
-		if(ch._410 || ch._0ch) $del($x('.//small', qForm));
 		if(pfCap && (ch._0ch || ks)) {
 			pfCap.value = ' ';
 			var a = $up($x('.//img[@id="captchaimage" or @id="faptchaimage"]', qForm));
@@ -1024,18 +1028,27 @@ function quickReply(post) {
 /*----------------------Check for correct reply submit-----------------------*/
 
 function iframeLoad(e) {
-	var frame = (e.srcElement || e.originalTarget).contentDocument;
-	if(!frame.body || frame.location == 'about:blank' || !frame.body.innerHTML) return;
-	var err = frame.evaluate('.//h2|.//h1', frame, null, 8, null).singleNodeValue;
-	if(!ch.dc && err) {
-		alert((ch._2ch ? frame.getElementsByTagName('font')[0] : $1(err) || err).textContent);
-		frame.location.replace('about:blank');
+	var frm = (e.srcElement || e.originalTarget).contentDocument;
+	if(!frm.body || frm.location == 'about:blank' || !frm.body.innerHTML) return;
+	var err;
+	if(ch._2ch) err = './/font[@size="5"]';
+	if(ch.dc && /error/.test(frm.location.pathname)) err = './/td[@class="post-error"]';
+	if(!wakaba && !ch.dc) err = './/h1|.//h2';
+	if(err) {
+		err = frm.evaluate(err, frm, null, 6, null);
+		var txt = '';
+		$each(err, function(el) {txt += getText(el) + '\n'});
+		alert(txt);
+		frm.location.replace('about:blank');
 		return;
 	}
-	if(ch.dc && /error/.test(frame.location.pathname)) {;
-		alert('Ошибка: ' + frame.evaluate('.//td[@class="post-error"]', frame, null, 8, null).singleNodeValue.textContent);
-		frame.location.replace('about:blank');
-		return;
+	if(wakaba) {
+		err = frm.getElementsByTagName('h1')[0] || frm.getElementsByTagName('h1')[0];
+		if(err || !frm.getElementById('delform')) {
+			alert(!err ? 'Ошибка:\n' + frm.innerHTML : (err.firstChild || err).textContent);
+			frm.location.replace('about:blank');
+			return;
+		}
 	}
 	pfTxt.value = '';
 	if(pfFile) pfFile.value = '';
@@ -1045,8 +1058,8 @@ function iframeLoad(e) {
 		qForm = undefined;
 		if(pfCap) pfCap.value = '';
 		if(pfCap && wk) refreshCap($x('.//img', $x('./ancestor::td', pfCap)));
-	} else window.location = frame.location;
-	frame.location.replace('about:blank');
+	} else window.location = frm.location;
+	frm.location.replace('about:blank');
 }
 
 /*-------------------------Append styles for elements------------------------*/
@@ -1544,7 +1557,7 @@ function loadFavorThread(parent, b, tNum, last) {
 	thread = parent.appendChild($new('div', {
 		'class': 'thread',
 		'id': tNum,
-		'style': 'padding-left:15px',
+		'style': 'padding-left:15px; border:solid 1px #575763',
 		'text': 'Загрузка...'}));
 	AJAX(true, b, tNum, function(err) {
 		delChilds(thread);
@@ -1701,7 +1714,7 @@ function storeHiddenPosts() {
 function togglePost(post, vis) {
 	if(wk) $del($x('.//img[@id="full_img"]', post));
 	if(post.isOp) $disp($up(post));
-	$each($X('.//br|.//small' + (!ch.dc ? '|.//blockquote|.//a[@target="_blank"]|.//span[@class="filesize"]|.//div[@class="nothumb"]' : '|.//div[@class="postbody" or @class="file" or @class="fileinfo"]') + (wk ? '|.//span[@class="thumbnailmsg"]' : '') + (post.isOp ? '|.//span[@class="omittedposts"]|.//div[@class="abbrev"]' : ''), post), function(el) {el.style.display = (vis == 0) ? 'none' : ''});
+	$each($X('.//br|.//small|.//div[starts-with(@id,"rfmap")]' + (!ch.dc ? '|.//blockquote|.//a[@target="_blank"]|.//span[@class="filesize"]|.//div[@class="nothumb"]' : '|.//div[@class="postbody" or @class="file" or @class="fileinfo"]') + (wk ? '|.//span[@class="thumbnailmsg"]' : '') + (post.isOp ? '|.//span[@class="omittedposts"]|.//div[@class="abbrev"]' : ''), post), function(el) {el.style.display = (vis == 0) ? 'none' : ''});
 }
 
 function mergeHidden(post) {
