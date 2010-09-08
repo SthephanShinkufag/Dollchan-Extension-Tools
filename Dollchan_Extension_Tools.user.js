@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name		Dollchan Extension Tools
-// @version		2010-09-05
+// @version		2010-09-07
 // @namespace	http://freedollchan.org/scripts
 // @author		Sthephan Shinkufag @ FreeDollChan
 // @copyright	(C)2084, Bender Bending Rodríguez
@@ -13,6 +13,7 @@
 // @include		*wakachan.org*
 // @include		*nowere.net*
 // @include		*sibirchan.ru*
+// @include		*samechan.ru*
 // @include		*4chan.org*
 // ==/UserScript==
 
@@ -38,7 +39,7 @@ var defaultCfg = [
 	1,		// 17	additional hider menu
 	1,		// 18	apply filter to threads
 	2,		// 19	upload new posts (0=off, 1=by click, 2=auto)
-	1,		// 20	text format buttons(0=off, 1=graph, 2=as text)
+	3,		// 20	text format buttons(0=off, 1,3=graph, 2,4=as text)
 	1,		// 21	expand images (0=off, 1=simple, 2=+preview)
 	2,		// 22	>>links navigation (0=off, 1=no map, 2=+refmap)
 	1,		// 23	reply without reload (verify on submit)
@@ -59,8 +60,8 @@ var defaultCfg = [
 	1,		// 38	hide board rules
 	1,		// 39	hide 'goto' field
 	1,		// 40	hide password field
-	530,	// 41	textarea width
-	140,	// 42	textarea height
+	335,	// 41	textarea width
+	80,		// 42	textarea height
 	1		// 43	auto upload interval
 ],
 Cfg = [],
@@ -485,7 +486,7 @@ function addControls() {
 				'type': 'button',
 				'value': 'Применить',
 				'style': 'float:right'}, {
-				'click': applyRegExp}),
+				'click': function() {applyRegExp();}}),
 			$new('br'),
 			$new('textarea', {
 				'id': 'regexp_field',
@@ -509,7 +510,7 @@ function addControls() {
 			$txt('мин*')
 		]),
 		$if(pForm, $New('tr', [
-			optSel('txtbtn_sel', ['Откл.', 'Обычные', 'Упрощ.'], 20, function() {
+			optSel('txtbtn_sel', ['Откл.', 'Обычные', 'Упрощ.', '*Обычн.', '*Упрощ.'], 20, function() {
 				saveCfg(20, this.selectedIndex);
 				$each($X('.//span[@id="txt_btns"]'), function(div) {$del(div)});
 				if(Cfg[20] != 0) {
@@ -534,7 +535,7 @@ function addControls() {
 		trBox(27, 'Скрывать имена в постах', function() {toggleCfg(27); scriptStyles()}),
 		$if(ch._2ch, trBox(28, 'Убирать прокрутку в постах', function() {toggleCfg(28); scriptStyles()})),
 		trBox(29, 'Раскрывать спойлеры', function() {toggleCfg(29); scriptStyles()}),
-		$if(pfMail, trBox(30, 'Sage вместо поля E-mail*')),
+		$if(pfMail && hasSage, trBox(30, 'Sage вместо поля E-mail*')),
 		$if(pForm, trBox(32, 'Форма ответа внизу*')),
 		$if(ch._2ch, $New('tr', [
 			$txt(' Количество капч* '),
@@ -579,7 +580,7 @@ function addControls() {
 		$New('tr', [
 			$new('span', {
 				'id': 'process_time',
-				'title': 'v.2010-09-05, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
+				'title': 'v.2010-09-07, storage: ' + (sav.GM ? 'greasemonkey' : (sav.local ? 'localstorage' : 'cookies')),
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {alert(timeLog)}}),
 			$new('input', {
@@ -838,7 +839,7 @@ function doChanges() {
 	if(!main) {
 		doc.title = board + ' - ' + getTitle(oPosts[0]).substring(0, 50);
 		$before($x('.//div[@class="theader" or @class="replymode"]') || $prev($x('.//div[@id="DESU_panel"]')), [
-			$if(!ch._0ch, $new('span', {'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})),
+			$if(!(ch._0ch || ch.same), $new('span', {'html': '[<a href="' + window.location + '" target="_blank">В новой вкладке</a>]'})),
 			$if(Posts.length > 50 && !ks, $new('span', {'html': ' [<a href="#">Последние 50</a>]'}, {'click': showLast50}))
 		]);
 		if(ch._0ch) {
@@ -849,11 +850,11 @@ function doChanges() {
 	if(!pForm) return;
 	if(ch._0ch) {
 		$attr(pfTxt, {'id': '', 'name': ''});
-		$event($x('.//input[@type="submit"]'), {'click': function() {$attr(pfTxt, {'id': 'message', 'name': 'message'})}});
+		$event(pfSubm, {'click': function() {$attr(pfTxt, {'id': 'message', 'name': 'message'})}});
 	}
+	if(ch._0ch || (ks && !ch.sib)) delNexts(pfSubm);
 	textFormatPanel(pForm);
 	textareaResizer(pForm);
-	if(ch._410 || ch._0ch) $disp($x('.//small', qForm));
 	$each($X('.//input[@type="text"]', pForm), function(el) {el.size = 35});
 	if(pfCap) $event($attr(pfCap, {'autocomplete': 'off'}), {'keypress': forceCap});
 	if(Cfg[38] == 1) $disp(pfRules);
@@ -907,7 +908,7 @@ function doChanges() {
 			img.style.display = 'block';
 		}
 	}
-	if(Cfg[30] == 1 && pfMail) {
+	if(Cfg[30] == 1 && pfMail && hasSage) {
 		$disp(pfMail);
 		if(pfName && pfName.type != 'hidden') {
 			delNexts(pfName);
@@ -946,10 +947,11 @@ function insertTags(el, tag1, tag2) {
 }
 
 function tfBtn(title, tag, bb, txt, src) {
+	var tx = Cfg[20] == 2 || Cfg[20] == 4;
 	return $new('span', {
 		'title': title,
-		'style': (Cfg[20] == 1 ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + src + ') no-repeat' : ''),
-		'html': (Cfg[20] == 2 ? ' <a>' + txt + '</a> /' : '')}, {
+		'style': (!tx ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + src + ') no-repeat' : ''),
+		'html': (tx ? ' <a>' + txt + '</a> /' : '')}, {
 		'click': function() {
 			if(ch._0ch || ch.sib) insertTags(this, '[' + bb + ']', '[/' + bb + ']');
 			else insertTags(this, tag, tag);
@@ -958,9 +960,12 @@ function tfBtn(title, tag, bb, txt, src) {
 
 function textFormatPanel(form) {
 	$del($x('.//span[@id="txt_btns"]', form));
+	if(Cfg[20] == 0) return;
+	var up = Cfg[20] == 1 || Cfg[20] == 2;
+	var tx = Cfg[20] == 2 || Cfg[20] == 4;
 	var pre = 'R0lGODlhFwAWAMQAAP//////AP8A//8AAAD//wD/AAAA/wAAAPb2+Onq7Bc/e053qitemNXZ3Wmdypm92';
-	if(Cfg[20] != 0) $after($x('.//input[@type="submit"]', form), [$New('span', [
-		$if(Cfg[20] == 2, $txt('[')),
+	var btns = $New('span', [
+		$if(tx, $txt('[')),
 		tfBtn('Жирный', '**', 'b', 'B', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWTYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIazjIYbmEQII95E3JZD530ZzyajtwbUJHYjzekhPLc8LRE5/NZa+azXCTqdWDet1W46sQc20NhIRbhQ2HhXQOiIleiFSIdAuOioaQhQs9lZF5TI6bDJ2Ff02ODaKkqKyanK2whKqxsJsjKLi4Kgq8vb6/viIhADs='),
 		tfBtn('Наклонный', '*', 'i', '<i>i</i>', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAV5YBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0TI4XcsKpk9ZBHKcCSuWKwym3X0rFztIXz1VskJJQRtBofV7G9jTp8r6/g2nn7fz80Lfmp+cws9gXt9hIYMiHiKfoyOhIuHlJeSl5SGIyienioKoqOkpaQiIQA7'),
 		$if(!ch.dc && !ch._410, tfBtn('Подчеркнутый', '__', 'u', '<u>U</u>', pre +'6CgoGhoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABIALAAAAAAXABYAAAWPoCQtZGmepjg+bOu+7iIxD2LfeI4/DK3/Op4PSEQIazjIIbnMHXNKZrCHvEWtzV3Pkeh2IwdvAizuOrZlslctPjO4YvY4XHbD1/Rv3mtv+P1gEH9gf399hWARigeMhX5uC44NYIwQSpILPZGSnI6ZDJudop+hDYynqI1/pKKtrK2dmSMotLQqCri5uru6IiEAOw==')),
@@ -969,16 +974,18 @@ function textFormatPanel(form) {
 		tfBtn('Код', "`", 'code', 'C', pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWGYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa0Xg8Qc5OCGQYA+Jazqv0V3Pkeh2rd4ENJxwbMlNsrp8DjvXZDOD6z7Aw3JHY7938v+AeYBNgIUNcguDfnxQgAs9iYpXT46QhlYHjZUMkYaee4+cn6OhnaOFjyMoq6sqCq+wsbKxIiEAOw=='),
 		$new('span', {
 			'title': 'Цитировать',
-			'style': (Cfg[20] == 1 ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWEYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa7jDoWg75iAQZdGpg0p/Qkdiy+VaD92to6cNh7/dMaNsPke5anabq4TAyY28ft+oQ/ZxfHt+gmoLgn0HUIgNCz2Hg4p/jI2PfIuUeY4MkJmIm52efKCinwwjKKmpKgqtrq+wryIhADs=) no-repeat' : ''),
-			'html': (Cfg[20] == 2 ? ' <a>&gt;</a> ' : '')}, {
+			'style': (!tx ? 'padding:0 27px 27px 0; background:url(data:image/gif;base64,' + pre +'2hoaP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACH5BAEAABEALAAAAAAXABYAAAWEYBQtZGmepjg+bOu+7hIxD2LfeI4/DK3/Op4PSEQIa7jDoWg75iAQZdGpg0p/Qkdiy+VaD92to6cNh7/dMaNsPke5anabq4TAyY28ft+oQ/ZxfHt+gmoLgn0HUIgNCz2Hg4p/jI2PfIuUeY4MkJmIm52efKCinwwjKKmpKgqtrq+wryIhADs=) no-repeat' : ''),
+			'html': (tx ? ' <a>&gt;</a> ' : '')}, {
 			'mouseover': function() {quotetxt = txtSelection()},
 			'click': function() {InsertInto($x('.//textarea', form), '>' + quotetxt.replace(/\n/gm, '\n>') + '\n')}}),
-		$if(Cfg[20] == 2, $txt(']')),
+		$if(tx, $txt(']')),
 		], {
 		'id': 'txt_btns',
 		'html': '&nbsp;',
-		'style': 'padding:0 0 2px 0; cursor:pointer; width:195px; font-weight:bold'}
-	)]);
+		'style': 'padding:0 0 2px 0; cursor:pointer; width:195px; font-weight:bold;' + (!up ? ' display:block' : '')}
+	);
+	if(up) $after($x('.//input[@type="submit"]', form), [btns]);
+	else $before($x('.//textarea', form), [btns]);
 }
 
 /*-----------------------------Quick Reply under post------------------------*/
@@ -1165,7 +1172,7 @@ function getText(el) {
 }
 
 function isSage(post) {
-	if(ch.iich || ch.sib) return false;
+	if(!hasSage) return false;
 	if(!ch.dc) {
 		var a = $x('.//a[starts-with(@href,"mailto:")]', post);
 		return a && /sage/i.test(a.href);
@@ -1247,10 +1254,10 @@ function addPostButtons(post, isCount) {
 	if(ch._4ch) $X('.//a[@class="quotejs"]', post).snapshotItem(1).textContent = post.Num;
 	if(!post.isOp) {
 		if(!main || isCount) x[i++] = addPostCounter(post);
-		if(hasSage && isSage(post)) x[i++] = addSageMarker();
+		if(isSage(post)) x[i++] = addSageMarker();
 		if(pForm) x[i++] = addQuickRepBtn(post);
 	} else {
-		if(hasSage && isSage(post)) x[i++] = addSageMarker();
+		if(isSage(post)) x[i++] = addSageMarker();
 		x[i++] = addFavorBtn(post);
 		if(pForm) x[i++] = addQuickRepBtn(post);
 		if(main) x[i++] = addExpandThreadBtn(post);
@@ -1341,7 +1348,7 @@ function expandImg(a, post) {
 }
 
 function expandHandleImg(post) {
-	if(post.Img) $event($up(post.Img, (ks ? 2 : 1)), {'click': function(e) {
+	if(post.Img && !ch.same) $event($up(post.Img, (ks ? 2 : 1)), {'click': function(e) {
 		if(Cfg[21] != 0) {e.preventDefault(); expandImg(this, post);
 	}}});
 }
@@ -1887,6 +1894,7 @@ function applyRegExp(txt) {
 		val = (nval.indexOf(ntxt) > -1 ? nval.split(ntxt).join('') : val + ntxt).trim();
 	}
 	fld.value = val;
+	forAll(function(post) {if(doRegexp(post)) unhidePost(post)})
 	setStored(ID('RegExpr'), val);
 	$id('regexp_hider').checked = val != '';
 	if(val != '') {
@@ -2182,20 +2190,22 @@ function initBoard() {
 		nowr: dm == 'nowere.net',
 		_410: dm == '410chan.ru',
 		sib: dm == 'sibirchan.ru',
+		same: dm == 'samechan.ru',
 		_4ch: dm == '4chan.org'
 	};
 	domain = dm;
 	wk = !ch.dc && !ch._0ch;
-	ks = ch._410 || ch.sib;
+	ks = ch._410 || ch.sib || ch.same;
 	wakaba = wk && !ks;
 	main = !/\/res\//.test(location.pathname);
 	board = location.pathname.substr(1).split('/')[0];
-	hasSage = !(ch.iich || ch.sib || ch.dc);
+	hasSage = !(ch.iich || ch.sib);
 	dForm = $id('delform') || $n('delform') || $x('.//form[contains(@action, "delete")]');
 	pForm = $id('postform') || $n('post');
 	qForm = pfName = pfMail = pfSubj = pfPass = pfGoto = pfRules = undefined;
 	if(!dForm) throw 'stop';
 	if(!pForm) return;
+	pfSubm = $x('.//input[@type="submit"]');
 	pfCap = $n('captcha') || $n('faptcha');
 	pfTxt = $x('.//textarea', pForm);
 	pfFile = $x('.//input[@type="file"]', pForm);
@@ -2257,7 +2267,7 @@ function initDelform() {
 	}
 	else $each($X('./div[starts-with(@id, "thread")]', dForm), function(thread) {
 			$attr(thread, {'id': $prev($x('.//label', thread)).name, 'class': 'thread'})})
-	if(ch.iich || ch._410 || (ch.sib && main)) {
+	if(ch.iich || (ks && !(ch.sib && !main))) {
 		$each($X('.//td[@class="reply"]', dForm), function(reply) {
 			$attr($up(reply, 3), {'class': 'replypost', 'id': 'post_' + reply.id.match(/\d+/)})});
 		$each($X('.//div[@class="thread" or starts-with(@id, "thread")]', dForm), function(thread) {
