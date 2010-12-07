@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2010-12-02
+// @version			2010-12-06
 // @namespace		http://freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -489,7 +489,7 @@ function addControls() {
 			], {'style': 'float:right'}))
 			], {
 			'id': 'DESU_panel',
-			'style': 'width:100%'
+			'style': 'width:100%; text-align:left'
 		}),
 		$New('div', [
 			$New('div', [$New('table', [tools])], {
@@ -501,7 +501,8 @@ function addControls() {
 			$new('div', {'id': 'DESU_hidden'}),
 			$new('div', {'id': 'DESU_favor'})
 			], {
-			'id': 'DESU_content'
+			'id': 'DESU_content',
+			'style':  'text-align:left'
 		}),
 		$new('hr')
 	]);
@@ -656,7 +657,7 @@ function addControls() {
 				'id': 'process_time',
 				'style': 'font-style:italic; cursor:pointer'}, {
 				'click': function() {
-					$alert('Версия: 2010-12-02\nХранение: ' + (sav.GM ? 'Mozilla config' : (sav.local ? 'LocalStorage' : (sav.script ? 'Opera ScriptStorage' : 'Cookies'))) + '\n' + timeLog);
+					$alert('Версия: 2010-12-06\nХранение: ' + (sav.GM ? 'Mozilla config' : (sav.local ? 'LocalStorage' : (sav.script ? 'Opera ScriptStorage' : 'Cookies'))) + '\n' + timeLog);
 				}
 			}),
 			$attr($btn('Сброс', function() {
@@ -1019,6 +1020,7 @@ function formSubmit(form) {
 			if(ch.krau) {
 				if(form == qForm && main) $del(pForm);
 				setTimeout(function() {
+					pfSubm.disabled = false;
 					var err = $x('.//div[@class="postform_info_error"]');
 					if(err) {
 						$close($id('DESU_alert_wait'));
@@ -1037,7 +1039,7 @@ function formSubmit(form) {
 
 function iframeLoad(e) {
 	try {
-		var frm = (e.srcElement || e.originalTarget).contentDocument;
+		var frm = e.target.contentDocument;
 		if(!frm || !frm.body || frm.location == 'about:blank' || !frm.body.innerHTML) return;
 	} catch(er) {
 		$close($id('DESU_alert_wait'));
@@ -1083,7 +1085,7 @@ function doChanges() {
 			$each($X('.//div[@class="replieslist"]', dForm), function(el) {$del(el)});
 		}, 10)}});
 		if(!main) {
-			delNexts(Posts[Posts.length - 1]);
+			delNexts(Posts[Posts.length - 1] || oPosts[0]);
 			$del($id('newposts_get'));
 			$del($id('newposts_load'));
 		}
@@ -1118,7 +1120,7 @@ function doChanges() {
 		$each($X('.//script'), function(el) {$del(el)})
 		pfCap = $x('.//input[@id="recaptcha_response_field"]');
 		pForm.style.paddingLeft = '0px';
-		$del($prev($x('.//table', pForm)));
+		$del($x('preceding-sibling::div', $x('.//table', pForm)));
 		$del($next(logo));
 		$del($next(logo));
 	}
@@ -1223,9 +1225,7 @@ function quickReply(post) {
 		} else {
 			var img = $x('.//img', $up(cap));
 			$event(img, {'click': function(e) {refreshCap(this)}});
-			img.src = 
-				(ch.iich ? '/cgi-bin/captcha.pl/' + brd + '/' : '/' + brd + '/captcha.pl')
-				+ '?key=res' + tNum + '&amp;dummy=' + rand10();
+			img.src = img.src.replace(/mainpage|res\d+/ig, 'res' + tNum).replace(/dummy=$/, 'dummy=' + rand10());
 		}
 	}
 	if(ch._4ch && first) $each($X('.//a[@id="recaptcha_reload_btn"]'), function(btn) {
@@ -1246,7 +1246,7 @@ function quickReply(post) {
 /*----------------------------Text formatting buttons------------------------*/
 
 function insertTags(el, tag1, tag2) {
-	var x = $x('ancestor::form[1]//textarea', el);
+	var x = $x(txtarea, $x('ancestor::form[1]', el));
 	var start = x.selectionStart, end = x.selectionEnd, scrtop = x.scrollTop;
 	var text = x.value.substring(start, end);
 	var i;
@@ -1280,7 +1280,7 @@ function tfBtn(title, wktag, bbtag, val, style, src, form) {
 	});
 	if(val != '&gt;') $event(btn, {
 		'click': function() {
-			if(ch._0ch || ch.sib || ch._2ch || ch.zadr)
+			if(ch._0ch || ch.sib || ch._2ch || ch.zadr || ch.krau)
 				insertTags(this, '[' + bbtag + ']', '[/' + bbtag + ']');
 			else insertTags(this, wktag, wktag);
 		}
@@ -1553,7 +1553,8 @@ function addYouTube(post) {
 
 function addMP3(post) {
 	if(Cfg[25] == 0) return;
-	$each($X('.//a[contains(@href,".mp3") or contains(@href,".wav")]', post || dForm), function(link) {
+	$each($X('.//a[contains(@href,".mp3")]', post || dForm), function(link) {
+		if(!(link.target == '_blank' || link.rel == 'nofollow')) return;
 		var pst = post || getPost(link);
 		var el = $x('.//div[@id="mp3_div"]', pst);
 		if(!el) {
@@ -1617,8 +1618,8 @@ function expandHandleImg(post) {
 
 function allImgExpander() {
 	if(Cfg[21] == 0 || main || (ks && !ch._0ch)) return;
-	if(ch._0ch) $del($next(oPosts[0]));
 	if($X(thumb, dForm).snapshotLength <= 1) return;
+	if(ch._0ch) $del($next(oPosts[0]));
 	var txt = '[<a>Раскрыть изображения</a>]';
 	oPosts[0].appendChild($new('span', {
 		'id': 'expimgs_btn',
@@ -2096,12 +2097,12 @@ function storeHiddenPosts() {
 
 function togglePost(post, vis) {
 	if(post.isOp) $disp($up(post));
-	$each($X('.//br|.//small|.//div[starts-with(@id,"rfmap")]'
-		+ (!ch.dc
-			? '|.//blockquote|.//a[@target="_blank"]|.//span[@class="filesize" or @class="thumbnailmsg"]|.//div[@class="nothumb"]'
-			: '|.//div[@class="postbody" or @class="file" or @class="fileinfo"]')
-		+ (post.isOp ? '|.//span[@class="omittedposts"]|.//div[@class="abbrev"]' : '')
-	, post), function(el) {el.style.display = (vis == 0) ? 'none' : ''});
+	var txt = './/br|.//small|.//div[starts-with(@id,"rfmap")]';
+	if(ch.dc) txt += '|.//div[@class="postbody" or @class="file" or @class="fileinfo"]';
+	if(ch.krau) txt += '|.//div[@class="file_reply"]|.//blockquote';
+	if(!(ch.dc || ch.krau)) txt += '|.//blockquote|.//a[@target="_blank"]|.//span[@class="filesize" or @class="thumbnailmsg"]|.//div[@class="nothumb"]';
+	if(post.isOp) txt += '|.//span[@class="omittedposts"]|.//div[@class="abbrev"]'
+	$each($X(txt, post), function(el) {el.style.display = (vis == 0) ? 'none' : ''});
 }
 
 function mergeHidden(post) {
