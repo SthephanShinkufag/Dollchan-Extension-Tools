@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-01-01
+// @version			2011-01-02
 // @namespace		http://freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-01-01',	//script version
+	'2011-01-02',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -144,17 +144,17 @@ function $revent(el, events) {
 	for(var key in events)
 		el.removeEventListener(key, events[key], false);
 }
-function $append(el, childs) {
-	for(var i = 0, len = childs.length; i < len; i++)
-		if(childs[i]) el.appendChild(childs[i]);
+function $append(el, nodes) {
+	for(var i = 0, len = nodes.length; i < len; i++)
+		if(nodes[i]) el.appendChild(nodes[i]);
 }
-function $before(el, inserts) {
-	for(var i = 0, len = inserts.length; i < len; i++)
-		if(inserts[i]) el.parentNode.insertBefore(inserts[i], el);
+function $before(el, nodes) {
+	for(var i = 0, len = nodes.length; i < len; i++)
+		if(nodes[i]) el.parentNode.insertBefore(nodes[i], el);
 }
-function $after(el, inserts) {
-	var i = inserts.length;
-	while(i--) if(inserts[i]) el.parentNode.insertBefore(inserts[i], el.nextSibling);
+function $after(el, nodes) {
+	var i = nodes.length;
+	while(i--) if(nodes[i]) el.parentNode.insertBefore(nodes[i], el.nextSibling);
 }
 function $new(tag, attr, events) {
 	var el = doc.createElement(tag);
@@ -162,9 +162,9 @@ function $new(tag, attr, events) {
 	if(events) $event(el, events);
 	return el;
 }
-function $New(tag, childs, attr, events) {
+function $New(tag, nodes, attr, events) {
 	var el = $new(tag, attr, events);
-	$append(el, childs);
+	$append(el, nodes);
 	return el;
 }
 function $txt(el) {
@@ -404,8 +404,8 @@ function storeFavorities(post) {
 	if(sav.cookie && arr.length/4 > 25) return;
 	for(var i = 0; i < arr.length/4; i++)
 		if(arr[i*4 + 1] == brd && arr[i*4 + 2] == post.Num) return;
-	arr[arr.length] = location.hostname + '|' + brd
-		+ (/\/arch/.test(location.pathname) ? '/arch|' : '|') + post.Num + '|'
+	arr[arr.length] = window.location.hostname + '|' + brd
+		+ (/\/arch/.test(window.location.pathname) ? '/arch|' : '|') + post.Num + '|'
 		+ getTitle(post).replace(/\|/g, '').substring(0, !sav.cookie ? 70 : 25);
 	setStored('DESU_Favorities', arr.join('|'));
 }
@@ -431,7 +431,7 @@ function addControls() {
 	var chBox = function(num, txt, fn, id) {
 		var x = $new('input', {
 			'type': 'checkbox'}, {
-			'click': function() {toggleCfg(num); if(fn) fn()}
+			'click': function() {fn ? fn() : toggleCfg(num)}
 		});
 		x.checked = Cfg[num] == 1;
 		if(id) x.id = id;
@@ -478,7 +478,7 @@ function addControls() {
 			}),
 			$if(isMain && pr.on, $btn('Создать тред', function() {$disp(pr.area)})),
 			$if(!isMain, $new('span', {
-				'html': '[<a href="http://' + location.hostname + '/' + brd + '/">Назад</a>]',
+				'html': '[<a href="http://' + window.location.hostname + '/' + brd + '/">Назад</a>]',
 				'style': 'float:right'
 			}))
 			], {
@@ -502,7 +502,7 @@ function addControls() {
 			'id': 'DESU_content',
 			'style': 'width:100%; text-align:left; cursor:default'
 		}),
-		$new('hr', {'style': 'clear:both; margin:5px 0'})
+		$new('hr', {'style': 'clear:both'})
 	]);
 	$append($id('DESU_controls'), [
 		$new('div', {
@@ -561,7 +561,7 @@ function addControls() {
 		divBox(19, 'Применять фильтры к тредам'),
 		divBox(18, 'Дополнительное меню по кнопке скрытия'),
 		divBox(17, 'Просмотр скрытого по наведению на номер'),
-		$new('hr', {'style': 'margin:5px 0'}),
+		$new('hr'),
 		optSel('upload_sel', ['Откл.', 'Авто', 'Счет+клик', 'По клику'], 20),
 		$txt(' подгрузка постов в треде*, T='),
 		optSel('upload_int', [0.5, 1, 1.5, 2, 5, 15, 30], 21),
@@ -599,16 +599,18 @@ function addControls() {
 			optSel('txtbtn_sel', ['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], 22, function() {
 				saveCfg(22, this.selectedIndex);
 				$Del('.//div[@id="txt_btns"]');
-				if(Cfg[22] != 0) {textFormatPanel(pr); if(qr.on) textFormatPanel(qr)}
+				if(Cfg[22] != 0) {textFormatPanel(pr); textFormatPanel(qr)}
 			}), 
 			$txt(' кнопки форматирования '),
 			chBox(23, 'внизу ', function() {
-				if(Cfg[22] != 0) {textFormatPanel(pr); if(qr.on) textFormatPanel(qr)}
+				toggleCfg(23);
+				if(Cfg[22] != 0) {textFormatPanel(pr); textFormatPanel(qr)}
 			})
 		])),
 		$if(pr.name, $New('div', [
 			$new('input', {'type': 'text', 'id': 'usrname_field', 'value': Cfg[44], 'size': 20}),
 			chBox(43, ' Постоянное имя', function() {
+				toggleCfg(43);
 				saveCfg(44, $id('usrname_field').value.replace(/\|/g, ''));
 				var val = ($id('usrname_box').checked) ? Cfg[44] : '';
 				pr.name.value = val;
@@ -618,6 +620,7 @@ function addControls() {
 		$if(pr.passw, $New('div', [
 			$new('input', {'type': 'text', 'id': 'usrpass_field', 'value': Cfg[46], 'size': 20}),
 			chBox(45, ' Постоянный пароль', function () {
+				toggleCfg(45);
 				saveCfg(46, $id('usrpass_field').value.replace(/\|/g, ''));
 				var val = $id('usrpass_box').checked ? Cfg[46] : rand10().substring(0, 8);
 				pr.passw.value = val;
@@ -627,12 +630,12 @@ function addControls() {
 		])),
 		$if(pr.on, $txt('Не отображать: ')),
 		$if(pr.rules, chBox(47, 'правила ',
-			function() {$disp(pr.rules); if(qr.on) $disp(qr.rules)})),
+			function() {toggleCfg(47); $disp(pr.rules); if(qr.on) $disp(qr.rules)})),
 		$if(pr.gothr, chBox(48, 'поле goto ',
-			function() {$disp(pr.gothr); if(qr.on) $disp(qr.gothr)})),
+			function() {toggleCfg(48); $disp(pr.gothr); if(qr.on) $disp(qr.gothr)})),
 		$if(pr.passw, chBox(49, 'пароль ',
-			function() {$disp($up(pr.passw, 2)); if(qr.on) $disp($up(qr.passw, 2))})),
-		$new('hr', {'style': 'margin:5px 0'}),
+			function() {toggleCfg(49); $disp($up(pr.passw, 2)); if(qr.on) $disp($up(qr.passw, 2))})),
+		$new('hr'),
 		$new('i', {
 			'id': 'process_time',
 			'style': 'cursor:pointer'}, {
@@ -666,6 +669,7 @@ function hiddenPostsPreview() {
 		var pp = !post.isOp;
 		var cln = $attr(($id('hiddenthr_' + post.Num) || post).cloneNode(true), {'id': ''});
 		clones.push(cln);
+		cln.style.display = '';
 		cln.pst = post;
 		cln.vis = 0;
 		$event(pp
@@ -753,7 +757,7 @@ function favorThrdsPreview() {
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {'type': 'checkbox'}),
-					$if(host == location.hostname, $new('span', {
+					$if(host == window.location.hostname, $new('span', {
 						'class': 'expthr_icn',
 						'title': 'Просмотреть',
 						'html': (Cfg[29] == 1 ? ' [e] ' : '')}, {
@@ -895,7 +899,7 @@ function iframeLoad(e) {
 	} catch(er) {
 		$close($id('DESU_alert_wait'));
 		if(ks) {
-			var lh = location.href;
+			var lh = window.location.href;
 			if(/www\./.test(lh)) lh = lh.replace('www.', '');
 			else lh = lh.replace(/http:\/\//, 'http://www.');
 			$alert('Iframe error. Попробуйте <a href="' + lh + '">' + lh + '</a>', null, true);
@@ -1014,8 +1018,9 @@ function sageBtnEvent(e) {
 }
 
 function textareaResizer(obj) {
-	$del($x('.//img[@id="resizer"]', obj.form));
 	var el = obj.txta;
+	if(!el) return;
+	$del($x('.//img[@id="resizer"]', obj.form));
 	$event(el, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
 		if((code == 33 || code == 34) && e.which == 0) {e.target.blur(); window.focus()}
@@ -1251,6 +1256,7 @@ function tfBtn(title, wktag, bbtag, val, style, src, x) {
 }
 
 function textFormatPanel(obj) {
+	if(!obj.txta) return;
 	$del($x('.//div[@id="txt_btns"]', obj.form));
 	var tx = obj.txta;
 	if(Cfg[22] == 0 || !tx) return;
@@ -1789,7 +1795,7 @@ function parseJSONdata(x) {
 
 function AJAX(isThrd, b, id, fn) {
 	b = b != '' ? b + '/' : '';
-	var xhr = new XMLHttpRequest();
+	var xhr = new window.XMLHttpRequest();
 	xhr.onreadystatechange = function() {
 		if(xhr.readyState != 4) return;
 		if(xhr.status == 200) {
@@ -2600,7 +2606,7 @@ function replyForm(x) {
 
 function initBoard() {
 	if(window.location == 'about:blank') return false;
-	dm = location.hostname.replace(/^www\./, '');
+	dm = window.location.hostname.replace(/^www\./, '');
 	ch = {
 		_4ch: /4chan\.org/.test(dm),
 		krau: dm == 'krautchan.net',
@@ -2615,7 +2621,7 @@ function initBoard() {
 	ks = Boolean($x('.//script[contains(@src, "kusaba")]'));
 	wk = Boolean($x('.//script[contains(@src, "wakaba")]')) || ch._4ch;
 	if(!ks && !wk && !ch.dc && !ch.krau) return false;
-	var ua = navigator.userAgent;
+	var ua = window.navigator.userAgent;
 	nav = {
 		Firefox: /firefox|minefield/i.test(ua),
 		Opera: /opera/i.test(ua),
@@ -2643,11 +2649,11 @@ function initBoard() {
 	dForm = $x('.//form[@id="delform" or @name="delform" or contains(@action, "delete")]');
 	if(!dForm || $id('DESU_panel')) return false;
 	ks0 = ch._0ch || dm == 'xchan.ru';
-	brd = location.pathname.substr(1).split('/')[0];
+	brd = window.location.pathname.substr(1).split('/')[0];
 	if(/\.html$|^res$/.test(brd)) brd = '';
 	if(dm == 'chuck.dfwk.ru' && brd == '') brd = 'df';
 	res = ch.krau ? 'thread-' : 'res/';
-	isMain = location.pathname.indexOf('/' + res) < 0;
+	isMain = window.location.pathname.indexOf('/' + res) < 0;
 	postClass = ch.krau ? 'postreply' : 'reply';
 	postRef = './/span[' + (
 		ch.krau ? '@class="postnumber"]' : (
