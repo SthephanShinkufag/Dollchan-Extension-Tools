@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-01-02
+// @version			2011-01-03
 // @namespace		http://freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-01-02',	//script version
+	'2011-01-03',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -957,7 +957,7 @@ function refreshCapSrc(src, tNum) {
 function refreshCapImg(obj, tNum) {
 	var img = !obj.recap
 		? $x('.//img', $x('ancestor::tr[1]', obj.cap))
-		: $x('.//a[@id="recaptcha_reload_btn"]', obj.form);
+		: $x('.//div[@id="recaptcha_image"]', obj.form);
 	if(!ch.dc && !obj.recap) {
 		var src = img.src;
 		img.src = '';
@@ -1124,9 +1124,12 @@ function doChanges() {
 		}
 	}
 	if(pr.recap) {
-		$rattr($attr($x('.//a[@id="recaptcha_reload_btn"]', pr.form),
-			{'onclick': 'Recaptcha.reload()', 'style': 'cursor:pointer'}), 'href');
-		$disp($id('recaptcha_switch_audio_btn'));
+		$attr($x('.//div[@id="recaptcha_image"]', pr.form), {
+			'onclick': 'Recaptcha.reload()',
+			'style': 'cursor:pointer'
+		});
+		var x = $id('recaptcha_reload_btn');
+		if(x) $disp($up(x));
 	}
 	if(Cfg[38] == 1 && hasSage) {
 		$disp(pr.mail);
@@ -1167,12 +1170,12 @@ function refreshRecap(old) {
 		if(old == val) {refreshRecap(old); return}
 		img.src = val;
 		x = './/a[@target="_blank"]';
-		$x(x, qtb).href = $x(x, ptb).href;
+		if($x(x, qtb)) $x(x, qtb).href = $x(x, ptb).href;
 		x = './/input[@id="recaptcha_challenge_field"]';
-		$x(x, qtb).value = $x(x, ptb).value;
+		if($x(x, qtb)) $x(x, qtb).value = $x(x, ptb).value;
 		$disp(pr.cap);
 		qr.cap.focus();
-	}, 50);
+	}, 200);
 }
 
 function quickReply(post) {
@@ -1190,7 +1193,7 @@ function quickReply(post) {
 			if(!qr.recap) $event($x('ancestor::tr[1]//img', qr.cap), {'click': function() {
 				refreshCapImg(qr, tNum);
 			}});
-			else $event($x('.//a[@id="recaptcha_reload_btn"]', qr.form), {'click': function() {
+			else $event($x('.//div[@id="recaptcha_image"]', qr.form), {'click': function() {
 				$disp(pr.cap);
 				refreshRecap();
 			}});
@@ -2665,10 +2668,8 @@ function initBoard() {
 }
 
 function initDelform() {
-	if(ch._2ch) {
-		$del($x('.//script[contains(text(),"www.liveinternet.ru")]'));
-		$Del('.//a[@class="highslide"]', dForm);
-	}
+	$Del('.//script');
+	if(ch._2ch) $Del('.//a[@class="highslide"]', dForm);
 	$disp(dForm);
 	try {
 		var html;
