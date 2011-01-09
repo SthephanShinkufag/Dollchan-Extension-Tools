@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-01-03
+// @version			2011-01-09
 // @namespace		http://freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-01-03',	//script version
+	'2011-01-09',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -240,7 +240,9 @@ function insertInto(x, text) {
 	x.scrollTop = scrtop;
 }
 String.prototype.trim = function() {
-	return this.replace(/^(\s|\u00A0)+|(\s|\u00A0)+$/g, '') || '';
+    var str = (this || '').replace(/^\s\s*/, ''), s = /\s/, i = str.length;
+    while(s.test(str.charAt(--i)));
+    return str.slice(0, i + 1);
 };
 function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
@@ -374,27 +376,29 @@ function readThreadsVisib() {
 	var data = getStored(ID('Threads'));
 	if(!data) return;
 	var arr = data.split('-');
-	var ar = [];
 	var i = arr.length;
-	while(i--) ar[arr[i]] = 1;
-	forOP(function(post) {
-		if(brd + post.Num in ar) {hideThread(post); post.Vis = 0}
-	});
+	while(i--) {
+		var key = arr[i];
+		var pNum = parseInt(key.substring(0, key.length - 1));
+		if(typeof postByNum[pNum] === 'object') {
+			var vis = key[key.length - 1];
+			var post = postByNum[pNum];
+			if(vis == 0) hideThread(post);
+			post.Vis = vis;
+		}
+	}
 }
 
 function storeThreadVisib(post, vis) {
 	if(post.Vis == vis) return;
 	post.Vis = vis;
-	var key = brd + post.Num;
 	var data = getStored(ID('Threads'));
 	var arr = data ? data.split('-') : [];
-	if(vis == 0) {
-		if(sav.cookie && arr.length > 80) arr.splice(0, 1);
-		arr[arr.length] = key;
-	} else {
-		var i = arr.length;
-		while(i--) if(arr[i] == key) arr.splice(i, 1);
-	}
+	var i = arr.length;
+	while(i--)
+		if(arr[i].substring(0, arr[i].length - 1) == post.Num) arr.splice(i, 1);
+	if(arr.length > 300) arr.shift();
+	arr.push(post.Num + vis);
 	setStored(ID('Threads'), arr.join('-'));
 }
 
@@ -1070,7 +1074,7 @@ function doChanges() {
 			'focus' : function() {activeTab = true; if(Cfg[20] == 1) doc.title = docTitle}
 		});
 	}
-	if(ch._2ch) $Del('.//small', dForm);
+	if(ch._2ch) $Del('.//small|.//span[contains(@id,"_display")]', dForm);
 	if(ks0) {
 		$event(window, {'load': function() {setTimeout(function() {
 			$Del('.//div[@class="replieslist"]', dForm);
@@ -1291,7 +1295,7 @@ function textFormatPanel(obj) {
 function scriptStyles() {
 	var icn = function(nm, src) {return (Cfg[29] == 0 ? nm + ' {vertical-align:middle; padding-left:18px; background:url(data:image/gif;base64,' + src + ') no-repeat !important;' : nm + ' {font-weight:bold;') + ' cursor:pointer} '};
 	var pre = 'R0lGODlhDgAPALMAAP//////AP8A//8AAAD//wD/AAAA/wAAAN3d3cDAwJmZmYCAgGBgYEtLS////wAAACH5BAEAAA4ALAAAAAAOAA8AAAR';
-	var txt = 'td.reply {width:auto} .pcount, .pcountb {font-size:13px;font-weight:bold;cursor:default} .pcount {color:#4f7942} .pcountb {color:#c41e3a} .rfmap {font-size:70%; font-style:italic} .thumb {float:left; border:none; margin:2px 10px; cursor:pointer} '
+	var txt = 'td.reply {width:auto} .pcount, .pcountb {font-size:13px;font-weight:bold;cursor:default} .pcount {color:#4f7942} .pcountb {color:#c41e3a} .rfmap {font-size:70%; font-style:italic} #pre_img, #full_img {border:none; margin:2px 20px; cursor:pointer} '
  	+ '.wait_icn {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}'
 	+ icn('.hide_icn', pre + 'U0MlJq7o4X7dQ+mCILAuohOdHfgpQJguQLowSA+7tKkxt4wgEbnHpkWhCAIJxNJIYyWWTSQMmqUYGDtBobJmMxhOAJZO6LM3l0/WE3oiGo0uv0x0RADs=')
 	+ icn('.unhide_icn', pre + 'N0MlJq7o4X7dQ+mCILEuYMIxJfheDIMz1LTHGAEDd1uidozsaAvciMmhHF3EIgCFJPVwPeiTRpFZaI+tyWhsN1g7zAXtMooYDzG6zHREAOw==')
@@ -1340,13 +1344,17 @@ function getTitle(post) {
 	var t = $x('.//span[@class="filetitle" or @class="replytitle"]', post);
 	if(t) t = t.textContent.trim();
 	if(!t || t == '') t = post.Text.trim();
-	return t.replace(/\s/g, ' ');
+	return t.replace(/\s+/g, ' ');
+}
+
+function getImages(post) {
+	return $X('.//img[contains(@src,"/thumb")]', post);
 }
 
 function getText(el) {
 	var n = el.nodeName;
 	if(n == '#text') return el.data;
-	if(n == 'BR' && !ch.dc) return '\n';
+	if(n == 'BR') return '\n';
 	var t = [];
 	if(n == 'P' || n == 'BLOCKQUOTE' || n == 'LI') t[t.length] = '\n';
 	var arr = el.childNodes;
@@ -1484,39 +1492,53 @@ function addPostButtons(post, isCount) {
 
 /*----------------------------------Players----------------------------------*/
 
-function insertYouTube(link, el) {
-	if($x('.//embed[@src="' + link + '"]', el)) $delCh($1(el));
-	else $html($1(el), '<embed src="' + link +
-		'" type="application/x-shockwave-flash" wmode="transparent" width="320" height="262" />');
-}
-
 function addYouTube(post) {
+	var pattern = /https*:\/\/(www\.)?youtube\.com\/(watch\?v=|v\/)([^&]+).*$/;
+	$each($X('.//embed', post || dForm), function(el) {
+		if(!pattern.test(el.src)) return;
+		var src = 'http://www.youtube.com/watch?v=' + el.src.match(pattern)[3];
+		$append($x(postMsg, post || getPost(el)), [$new('p', {
+			'html': '<a href="' + src + '">' + src + '</a>'
+		})]);
+		$del($up(el));
+	});
 	if(Cfg[30] == 0) return;
-	var pattern = /http:\/\/(www\.)?youtube\.com\/watch\?v=([^&]+).*$/;
-	$each($X('.//a[contains(@href,"youtube")]', post || dForm), function(link, i) {
-		if(!pattern.test(link.href)) return;
+	var links = $X('.//a[contains(@href,"youtube")]', post || dForm);
+	for(var i = 0, len = links.snapshotLength; i < len; i++) {
+		var link = links.snapshotItem(i);
+		if(!pattern.test(link.href)) continue;
 		var pst = post || getPost(link);
 		var el = $x('.//div[@id="ytube_div"]', pst);
+		var src = 'http://www.youtube.com/v/' + link.href.match(pattern)[3];
 		if(!el) {
 			var msg = $x(postMsg, pst);
-			el = $New('div', [$new('span')], {'id': 'ytube_div'});
+			el = $new('div', {
+				'id': 'ytube_div',
+				'html': '<embed type="application/x-shockwave-flash" src="' + src
+					+ '" wmode="transparent" width="320" height="262" />'
+			});
 			$before($1(msg), [el]);
 			msg.style.minWidth = '570px';
 		}
-		var path = 'http://www.youtube.com/v/' + link.href.match(pattern)[2] + '&hl=en_US&fs=1&';
 		$after(link, [$new('span', {
 			'id': 'ytube_btn',
 			'html': '<b style="cursor:pointer"> ' + unescape('%u25BA') + '</b>'}, {
-			'click': function(path, el) {return function() {insertYouTube(path, el)}}(path, el)
+			'click': function(src, obj) {return function() {
+				if(obj.src != src) {
+					obj.src = src;
+					obj.style.display = '';
+				} else $disp(obj);
+			}}(src, $1(el))
 		})]);
-		insertYouTube(path, el);
-	});
+	};
 }
 
 function addMP3(post) {
 	if(Cfg[31] == 0) return;
-	$each($X('.//a[contains(@href,".mp3")]', post || dForm), function(link) {
-		if(!(link.target == '_blank' || link.rel == 'nofollow')) return;
+	var links = $X('.//a[contains(@href,".mp3")]', post || dForm);
+	for(var i = 0, len = links.snapshotLength; i < len; i++) {
+		var link = links.snapshotItem(i);
+		if(!(link.target == '_blank' || link.rel == 'nofollow')) continue;
 		var src = link.href;
 		src = src.substr(link.href.lastIndexOf('http://')); 
 		var pst = post || getPost(link);
@@ -1525,8 +1547,9 @@ function addMP3(post) {
 			el = $new('div', {'id': 'mp3_div'});
 			$before($1($x(postMsg, pst)), [el]);
 		}
-		if(!$x('.//param[contains(@value,"' + src + '")]', el)) $html(el, el.innerHTML + '<object data="http://junglebook2007.narod.ru/audio/player.swf" wmode="transparent" type="application/x-shockwave-flash" width="220" height="16"><param value="http://junglebook2007.narod.ru/audio/player.swf" name="movie"><param value="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '" name="FlashVars"><param value="high" name="quality"><param value="true" name="menu"><param value="transparent" name="wmode"></object><br>  ');
-	});
+		if(!$x('.//object[contains(@FlashVars,"' + src + '")]', el))
+			$html(el, el.innerHTML + '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16"  FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"></object><br>');
+	};
 }
 
 function addImages(post) {
@@ -1535,7 +1558,6 @@ function addImages(post) {
 		var src = link.href.substr(link.href.lastIndexOf('http://'));
 		if(!$x('ancestor::small', link)) $before(link, [$new('img', {
 			'id': 'pre_img',
-			'class': 'thumb',
 			'src': src, 'title': src, 'alt': src,
 			'style': 'display:none'}, {
 			'load': function() {
@@ -1558,6 +1580,7 @@ function addImages(post) {
 /*--------------------------------Expand images------------------------------*/
 
 function expandImg(a, post) {
+	if(!/\.jpg|\.png|.\gif/i.test(a.href)) return;
 	var img = $x('.//img', a);
 	var pre = $x('.//img[@id="pre_img"]', a);
 	var full = $x('.//img[@id="full_img"]', a);
@@ -1571,10 +1594,9 @@ function expandImg(a, post) {
 	var src = a.href;
 	$append(a, [
 		$if(Cfg[26] == 2, $attr(img.cloneNode(false), {
-			'class': 'thumb', 'id': 'pre_img', 'width': w, 'height': h
+			'id': 'pre_img', 'width': w, 'height': h, 'style': 'display:'
 		})),
 		$new('img', {
-			'class': 'thumb',
 			'id': 'full_img',
 			'src': src, 'title': src, 'alt': src,
 			'width': w, 'height': h,
@@ -1673,7 +1695,7 @@ function delPostPreview(e) {
 	setTimeout(function() {
 		if(!cPrev) $Del('.//div[starts-with(@id,"pstview")]');
 		else $delNx(cPrev);
-	}, Cfg[25] == 0 ? 0 : 400);
+	}, Cfg[25] == 0 ? 0 : 600);
 }
 
 function showPostPreview(e) {
@@ -1708,8 +1730,7 @@ function showPostPreview(e) {
 		if(!isAjax) $Del('.//img[@id="pre_img" or @id="full_img"]|.//span[@id="ytube_btn"]'
 				+ '|.//div[@id="ytube_div"]', cln);
 		addYouTube(cln);
-		if(ch._2ch) $del($x('.//a[@class="highslide"]', cln));
-		cln.Img = $X('.//a//img', cln);
+		cln.Img = getImages(cln);
 		$each(cln.Img, function(img) {img.style.display = ''});
 		expandHandleImg(cln);
 		addImages(cln);
@@ -1760,7 +1781,7 @@ function parseHTMLdata(x) {
 			var x = posts[j];
 			var pNum = getpNum(x);
 			ajaxPosts[tNum].keys.push(pNum);
-			ajaxPosts[tNum][pNum] = x.substring((!/<\/td/.test(x) && /"filesize"[^>]*>/.test(x)) ? x.search( /"filesize"[^>]*>/ ) - 13 : (/<label/.test(x) ? x.indexOf('<label') : x.indexOf('<input')), /<\/td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts">/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && (!ks || ks0) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13))).replace(/(href="#)(\d+")/g, 'href="' + tNum + '#$2');
+			ajaxPosts[tNum][pNum] = x.substring((!/<td/.test(x) && /filesize[^>]*>/.test(x)) ? x.search(/filesize[^>]*>/) - 13 : (/<label/.test(x) ? x.indexOf('<label') : x.indexOf('<input')), /<td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts[^>]*>/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && !ch._2ch && (!ks || ks0) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13))).replace(/(href="#)(\d+")/g, 'href="' + tNum + '#$2');
 			x = ajaxPosts[tNum][pNum];
 			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12).match(/&gt;&gt;\d+/g), pNum)
 		}
@@ -1819,6 +1840,18 @@ function AJAX(isThrd, b, id, fn) {
 	xhr.send(false);
 }
 
+function addPostFunc(post) {
+	post.Text = getText(post.Msg).trim();
+	doPostFilters(post);
+	if(post.Vis == 0) setPostVisib(post, 0);
+	if(Cfg[16] == 1) mergeHidden(post);
+	doRefMap(post);
+	doRefPreview(post.Msg);
+	addMP3(post);
+	addYouTube(post);
+	addImages(post);
+}
+
 function newPost(thr, tNum, i, isCount) {
 	var pNum = ajaxPosts[tNum].keys[i];
 	var html = htmlReplace(ajaxPosts[tNum][pNum]);
@@ -1834,35 +1867,29 @@ function newPost(thr, tNum, i, isCount) {
 	post.Count = i + 1;
 	if(!(sav.cookie && isMain)) post.Vis = getVisib(pNum);
 	post.Msg = $x(postMsg, post);
-	post.Text = getText(post.Msg).trim();
-	if(ch._2ch) $del($x('.//a[@class="highslide"]', post));
-	post.Img = $X('.//a//img', post);
+	post.Img = getImages(post);
 	post.isOp = i == 0;
 	addPostButtons(post, isCount);
-	doPostFilters(post);
-	if(post.Vis == 0) setPostVisib(post, 0);
-	if(Cfg[16] == 1) mergeHidden(post);
-	doRefMap(post);
 	if(Cfg[26] != 0) expandHandleImg(post);
-	doRefPreview(post.Msg);
-	addMP3(post);
-	addYouTube(post);
-	addImages(post);
+	addPostFunc(post);
 	return post;
 }
 
 function expandPost(post) {
-	if(post.Vis == 0 || !$x('.//div[@class="abbrev"]|.//span[@class="abbr"]', post)) return;
-	var tNum = getThread(post).id.match(/\d+/);
-	AJAX(true, brd, tNum, function(err) {
-		if(err) return;
-		var txt = htmlReplace(ajaxPosts[tNum][post.Num]);
-		post.Msg = $html(post.Msg, txt.substring(txt.indexOf('<blockq') + 12, txt.lastIndexOf('</blockq')));
-		post.Text = getText(post.Msg);
-		doRefPreview(post.Msg);
-		addMP3(post);
-		addYouTube(post);
-		addImages(post);
+	if(post.Vis == 0) return;
+	var a = $x(!ch.krau
+		? './/div[@class="abbrev"]|.//span[@class="abbr" or @class="omittedposts"]'
+		: './/p[starts-with(@id,"post_truncated")]'
+	, post);
+	if(!a || !(/long|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
+ 	var tNum = getThread(post).id.match(/\d+/);
+ 	AJAX(true, brd, tNum, function(err) {
+ 		if(err) return;
+		try {var m = $x(postMsg, $new('div', {'html': htmlReplace(ajaxPosts[tNum][post.Num])}))}
+		catch(e) {return}
+		$del(a);
+		post.Msg = $html(post.Msg, m.innerHTML);
+		addPostFunc(post);
 	});
 }
 
@@ -1887,8 +1914,7 @@ function loadThread(post, last) {
 			$close($id('DESU_alert_wait'));
 			$alert(err);
 		} else {
-			$del($x('.//span[@class="omittedposts" or @class="abbr" or @class="omittedinfo"]|.//div[@class="abbrev"]', thr));
-			$del($id('rfmap_' + tNum));
+			$delNx(post.Msg);
 			$delNx(post);
 			expandThread(thr, tNum, last);
 			var inp = $x('.//input', post);
@@ -2000,7 +2026,7 @@ function loadPages(len) {
 				$append(dForm, [thr, $new('br', {'clear': 'left'}), $new('hr')]);
 				for(var j = 0, pLen = ajaxPosts[tNum].keys.length; j < pLen; j++) {
 					var post = newPost(thr, tNum, j);
-					if(Cfg[33] == 1 && !ch.dc) expandPost(post);
+					if(Cfg[33] == 1) expandPost(post);
 				}
 			}
 			if(!sav.cookie) storeHiddenPosts();
@@ -2238,9 +2264,9 @@ function htmlReplace(txt) {
 	exp = exp.split('\n');
 	var i = exp.length;
 	while(i--) {
-		var x = exp[i].trim();
+		var x = exp[i];
 		if(/\$rep /.test(x)) {
-			var re = x.split(' ')[1];
+			var re = x.match(/\/.*[^\\]\/[ig]*/)[0];
 			var l = re.lastIndexOf('/');
 			var wrd = x.substr(x.indexOf(re) + re.length + 1);
 			re = new RegExp(re.substr(1, l - 1), re.substr(l + 1));
@@ -2251,11 +2277,11 @@ function htmlReplace(txt) {
 }
 
 function wrongRegExp(txt) {
-	txt = (txt || '').trim().split('\n');
+	txt = txt.split('\n');
 	var i = txt.length;
 	while(i--)
-		if(/\$exp\s|\$rep\s/.test(txt[i])) try {
-			x = txt[i].split(' ')[1].trim();
+		if(/\$exp |\$rep /.test(txt[i])) try {
+			x = txt[i].match(/\/.*[^\\]\/[ig]*/)[0];
 			var l = x.lastIndexOf('/');
 			new RegExp(x.substr(1, l - 1), x.substr(l + 1));
 		} catch(e) {return txt[i]}
@@ -2264,19 +2290,20 @@ function wrongRegExp(txt) {
 
 function hideByRegexp(post) {
 	var exp = doRegexp(post);
-	if(exp) hidePost(post, 'match ' + exp.substring(0, 20) + '..');
+	if(exp) hidePost(post, 'match ' + exp.substring(0, 30) + '..');
 }
 
 function applyRegExp(txt) {
 	var fld = $id('regexp_field');
-	var val = fld.value.trim();
+	var val = fld.value;
 	if(txt) {
 		if(txt.trim() == '') return;
 		toggleRegexp();
 		var nval = '\n' + val;
 		var ntxt = '\n' + txt;
-		val = (nval.indexOf(ntxt) > -1 ? nval.split(ntxt).join('') : val + ntxt).trim();
+		val = nval.indexOf(ntxt) > -1 ? nval.split(ntxt).join('') : val + ntxt;
 	}
+	val = val.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	var wrong = wrongRegExp(val);
 	if(wrong) {$alert('Ошибка в ' + wrong); return}
 	fld.value = val;
@@ -2291,10 +2318,12 @@ function applyRegExp(txt) {
 }
 
 function toggleRegexp() {
-	var val = $id('regexp_field').value.trim();
+	var fld = $id('regexp_field');
+	var val = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	var wrong = wrongRegExp(val);
 	if(!wrong) setStored(ID('RegExpr'), val);
 	if(val != '' && !wrong) {
+		fld.value = val;
 		toggleCfg(13);
 		if(Cfg[13] == 1) forAll(hideByRegexp);
 		else forAll(function(post) {if(doRegexp(post)) unhidePost(post)})
@@ -2307,32 +2336,36 @@ function toggleRegexp() {
 }
 
 function doRegexp(post) {
-	var exp = getStored(ID('RegExpr')).split('\n');
-	var pname = $x('.//span[@class="commentpostername" or @class="postername"]', post);
-	var ptrip = $x('.//span[@class="postertrip"]', post);
+	var exp = getStored(ID('RegExpr'));
+	if(/\$name /.test(exp)) {
+		var pname = $x('.//span[@class="commentpostername" or @class="postername"]', post);
+		var ptrip = $x('.//span[@class="postertrip"]', post);
+	}
 	var ptitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
-	var i = exp.length;
+	exp = exp.split('\n');
+	var i = exp.length, x;
 	while(i--) {
-		var x = exp[i].trim();
-		if(/\$rep /.test(x)) continue;
-		if(/\$img /.test(x)) {
+		x = exp[i];
+		if(/^\$rep /.test(x)) continue;
+		if(/^\$img /.test(x)) {
 			if(post.Img.snapshotLength == 0) continue;
-			var img = doImgRegExp(post, x.split(' ')[1]);
-			if(img != null) return img; else continue;
+			x = doImgRegExp(post, x.substr(5));
+			if(x) return x;
+			continue;
 		}
-		if(/\$name /.test(x)) {
-			x = x.split(' ')[1];
-			var nm = x.split(/!+/)[0];
-			var tr = x.split(/!+/)[1];
-			if(pname && nm != '' && pname.textContent.indexOf(nm) > -1 ||
-				ptrip && tr != '' && ptrip.textContent.indexOf(tr) > -1) return x;
+		if(/^\$name /.test(x)) {
+			x = x.substr(6).split('!!');
+			if(pname && x[0] != '' && pname.textContent.indexOf(x[0]) > -1 ||
+				ptrip && x[1] != '' && ptrip.textContent.indexOf(x[1]) > -1) return exp[i];
+			continue;
 		}
-		if(/\$exp /.test(x)) {
-			x = x.split(' ')[1];
+		if(/^\$exp /.test(x)) {
+			x = x.substr(5).match(/\/.*[^\\]\/[ig]*/)[0];
 			var l = x.lastIndexOf('/');
 			var re = new RegExp(x.substr(1, l - 1), x.substr(l + 1));
-			if(post.Text.match(re)) return x;
-			if(post.innerHTML.match(re)) return x;
+			if(post.Text.match(re)) return exp[i];
+			if(post.innerHTML.match(re)) return exp[i];
+			continue;
 		}
 		if(x == '$alltrip' && ptrip) return x;
 		x = x.toLowerCase();
@@ -2419,10 +2452,7 @@ function findSameText(post, origPost, origVis, origWords) {
 	else unhidePost(post);
 }
 
-
-/*=============================================================================
-								WIPE DETECTORS
-=============================================================================*/
+/*--------------------------------Wipe detectors-----------------------------*/
 
 function detectWipe(post) {
 	var detectors = [
@@ -2449,7 +2479,7 @@ function hideByWipe(post) {
 
 function detectWipe_sameLines(txt) {
 	if(Cfg[2] == 0) return;
-	var lines = txt.replace(/> /g, '').split('\n');
+	var lines = txt.replace(/> /g, '').split(/[\s]*[\n][\s]*/);
 	var len = lines.length;
 	if(len < 5) return;
 	var arr = [], n = 0;
@@ -2507,11 +2537,10 @@ function detectWipe_specSymbols(txt) {
 function detectWipe_longColumn(txt) {
 	if(Cfg[5] == 0) return;
 	var n = 0;
-	var rows = txt.split('\n');
+	var rows = txt.split(/[\s]*[\n][\s]*/);
 	var len = rows.length;
 	if(len > 50) return 'long text x' + len;
 	for(var i = 0; i < len; i++) {
-		if(rows[i].trim() == '') continue;
 		if(rows[i].length < 9) n++;
 		else return;
 	}
@@ -2637,7 +2666,7 @@ function initBoard() {
 		GM: gs,
 		local: ls && !ss && !gs,
 		script: ss,
-		cookie: !ls && !ss && !nav.Firefox
+		cookie: !ls && !ss && !gs
 	};
 	if(/^sys\.4chan/.test(dm)) {
 		var re = getStored('DESU_4chan_cache');
@@ -2651,7 +2680,7 @@ function initBoard() {
 	if(/submitcheck/.test(window.name)) return false;
 	dForm = $x('.//form[@id="delform" or @name="delform" or contains(@action, "delete")]');
 	if(!dForm || $id('DESU_panel')) return false;
-	ks0 = ch._0ch || dm == 'xchan.ru';
+	ks0 = ch._0ch;
 	brd = window.location.pathname.substr(1).split('/')[0];
 	if(/\.html$|^res$/.test(brd)) brd = '';
 	if(dm == 'chuck.dfwk.ru' && brd == '') brd = 'df';
@@ -2669,14 +2698,12 @@ function initBoard() {
 
 function initDelform() {
 	$Del('.//script');
-	if(ch._2ch) $Del('.//a[@class="highslide"]', dForm);
 	$disp(dForm);
 	try {
-		var html;
-		var thrdivs = $X('.//div[starts-with(@id, "thread")]', dForm);
+		var thrdivs = $X(ch._2ch ? './/div[starts-with(@id, "t") and not(contains(@id,"_info"))]' : (
+			ch.sib ? './/div[not(@*)]' : './/div[starts-with(@id, "thread")]'), dForm);
 		if(thrdivs.snapshotLength == 0) {
-			html = dForm.innerHTML;
-			if(ch.sib) html = html.replace(/<[\/]*div[^>]*>/ig, '');
+			var html = dForm.innerHTML;
 			if(ch.wak) html = html.replace(/<p><\/p>/ig, '');
 			var thrds = html.split(/<br[^>]+left[^>]*>\s*<hr[^>]*>/i);
 			var i = thrds.length - 1;
@@ -2690,33 +2717,29 @@ function initDelform() {
 			}
 			dForm = $html(dForm, htmlReplace(thrds.join('<br clear="left"><hr>')));
 		} else {
-			if(wk || ks) $each(thrdivs, function(thr) {
-				$attr(thr, {'id': 'thread_' + $prev($x('.//label', thr)).name, 'class': 'thread'});
+			if(!ch.dc) $each(thrdivs, function(thr) {
+				var tNum = thr.id.match(/\d+/) || $prev($x('.//label', thr)).name;
+				if(!ch.krau) $attr(thr, {'id': 'thread_' + tNum, 'class': 'thread'});
+				if(!ks0) {
+					var op = $new('div', {'id': 'oppost_' + tNum});
+					var end = $x('.//table|.//div[starts-with(@id,"replies")]', thr);
+					var el = thr.firstChild;
+					while(el != end) {op.appendChild(el); el = thr.firstChild}
+					if(el) {
+						$each($X('.//td[@class="' + postClass + '"]', thr), function(el) {
+							$attr($up(el, 3), {'id': 'post_' + el.id.match(/\d+/)});
+						});
+						$before($1(thr), [op]);
+					} else thr.appendChild(op);
+				}
 			});
-			if(!ks0 && !ch.dc) {
-				$each($X('.//td[@class="' + postClass + '"]', dForm), function(el) {
-					$attr($up(el, 3), {'id': 'post_' + el.id.match(/\d+/)});
-				});
-				$each($X('.//div[@class="thread"]', dForm), function(thr) {
-					var op = $new('div', {'id': 'oppost_' + thr.id.match(/\d+/)});
-					var nodes = thr.childNodes;
-					var arr = [], x = 0;
-					for(var el, j = 1; el = nodes[j++];) {
-						if(el.tagName == 'TABLE' || /^replies/.test(el.id)) break;
-						arr[x++] = el;
-					}
-					for(var el, j = 0; el = arr[j++];)
-						op.appendChild(el);
-					$before($1(thr), [op]);
-				});
-			}
 			if(ks0) $each($X('.//div[@class="postnode"]', dForm), function(post) {
 				var el = $x('.//td[@class="reply"]', post);
 				post.id = el ? 'post_' + el.id.match(/\d+/) : 'oppost_' + $up(post).id.match(/\d+/);
 			});
-			html = dForm.innerHTML;
-			var htm = htmlReplace(html);
-			if(html != htm) dForm = $html(dForm, htm);
+			var exp = getStored(ID('RegExpr'));
+			if(ch._4ch || ch.krau || (Cfg[13] == 1 && exp && /\$rep /.test(exp)))
+				dForm = $html(dForm, htmlReplace(dForm.innerHTML));
 		}
 	} catch(e) {$disp(dForm); return false}
 	if(!nav.Chrome) $disp(dForm);
@@ -2734,7 +2757,7 @@ function initDelform() {
 		post.Msg = $x(postMsg, post);
 		post.Num = post.id.match(/\d+/);
 		post.Text = getText(post.Msg).trim();
-		post.Img = $X('.//a//img', post);
+		post.Img = getImages(post);
 		postByNum[post.Num] = post;
 	});
 	return true;
@@ -2766,7 +2789,7 @@ function doScript() {
 	if(Cfg[26] != 0) {
 		allImgExpander();
 		forAll(expandHandleImg);	Log('expandImg')}
-	if(Cfg[33] == 1 && isMain && !ch.dc) {
+	if(Cfg[33] == 1 && isMain) {
 		forAll(expandPost);			Log('expandPost')}
 	addMP3();						Log('addMP3');
 	addYouTube();					Log('addYouTube');
