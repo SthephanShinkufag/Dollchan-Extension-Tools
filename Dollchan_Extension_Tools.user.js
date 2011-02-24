@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-02-23
+// @version			2011-02-24
 // @namespace		http://freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-02-23',	//script version
+	'2011-02-24',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -1947,17 +1947,18 @@ function loadThread(post, last) {
 
 function loadFavorThread(el, b, tNum) {
 	var thr = $x('.//div[@class="thread"]', el);
-	if(postByNum[tNum]) {
+	if(postByNum[tNum] && !$x('ancestor::div[@id="DESU_favor"]', postByNum[tNum])) {
 		window.scrollTo(0, getOffset(postByNum[tNum], 'offsetTop'));
 		return;
 	}
-	if(thr.style.display != 'none') {$disp(thr); $delCh(thr); return}
+	if(thr.style.display != 'none') {$disp(thr); return}
 	$alert('Загрузка...', 'wait');
 	AJAX(true, b, tNum, function(err) {
 		if(err) {
 			$close($id('DESU_alert_wait'));
 			$alert(err);
 		} else {
+			$delCh(thr);
 			newPost(thr, tNum, 0, true);
 			expandThread(thr, tNum, 5, true);
 			$disp(thr);
