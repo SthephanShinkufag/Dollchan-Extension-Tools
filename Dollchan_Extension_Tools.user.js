@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-02-24
+// @version			2011-03-04
 // @namespace		http://freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-02-24',	//script version
+	'2011-03-04',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -52,7 +52,7 @@ var defaultCfg = [
 	0,		// 39		reply with SAGE
 	0,		// 40	move postform down
 	1,		// 41	force captcha input(0=off, 1=en, 2=ru)
-	0,		// 42	-
+	1,		// 42	favicon blinking, if new posts detected
 	0,		// 43	apply user name:
 	'',		// 44		user name value
 	0,		// 45	apply user password:
@@ -74,12 +74,12 @@ Expires = [],
 postByNum = [],
 ajaxThrds = [],
 ajaxPosts = {},
-ajaxInterval,
+ajaxInterval, favIcnInterval,
 doc = document,
 activeTab = false,
 STORAGE_LIFE = 259200000, // 3 days
 nav = sav = ch = pr = qr = {},
-dm, ks, ks0, wk, brd, res, isMain, hasSage, docTitle, postClass, postRef, postMsg, cPrev, dForm;
+dm, ks, ks0, wk, brd, res, isMain, hasSage, docTitle, favIcn, postClass, postRef, postMsg, cPrev, dForm;
 
 
 /*=============================================================================
@@ -409,7 +409,7 @@ function removeFavorities(key) {
 	for(var i = 0; i < Favor.length; i++)
 		if(Favor[i].replace(/\//g, '|').indexOf(key) > -1) {
 			var post = postByNum[Favor[i].split('|')[2]];
-			if(post) $x('.//a[@class="favset_icn"]', post.Btns).className = 'fav_icn';
+			if(post) $x('.//a[@class="favset_icn" or @class="fav_icn"]', post.Btns).className = 'fav_icn';
 			Favor.splice(i, 1);
 		}
 	setStored('DESU_Favorities', Favor.join('|'));
@@ -435,6 +435,7 @@ function storeFavorities(post, btn) {
 		return;
 	}
 	Favor[Favor.length] = key + '|' + getTitle(post).replace(/\|/g, '').substring(0, !sav.cookie ? 70 : 25);
+	Favor.sort();
 	if(sav.cookie && encodeURIComponent(Favor.join('%7C')).length > 4095)
 		$alert('Превышен лимит cookies (4kb)');
 	else {
@@ -583,6 +584,7 @@ function addControls() {
 		divBox(18, 'Дополнительное меню по кнопке скрытия'),
 		divBox(17, 'Просмотр скрытого по наведению на номер'),
 		$new('hr'),
+		$if(nav.Firefox, divBox(42, 'Мигание favicon\'а при новых постах*')),
 		optSel('upload_sel', ['Откл.', 'Авто', 'Счет+клик', 'По клику'], 20),
 		$txt(' подгрузка постов в треде*, T='),
 		optSel('upload_int', [0.5, 1, 1.5, 2, 5, 15, 30], 21),
@@ -762,31 +764,37 @@ function favorThrdsPreview() {
 	var data = getStored('DESU_Favorities');
 	if(!data) table.innerHTML = '<tr><th>Избранные треды отсутствуют...</th></tr>';
 	else {
-		table.appendChild($new('tr', {'html': '<th><b>Избранные треды:</b></th>'}));
 		var arr = data.split('|');
+		var host, b, tNum, url, title, oldh, oldb;
 		for(var i = 0; i < arr.length/4; i++) {
-			var host = arr[i*4];
-			var b = arr[i*4 + 1];
-			var tNum = arr[i*4 + 2];
-			var title = arr[i*4 + 3];
+			host = arr[i*4];
+			b = arr[i*4 + 1];
+			tNum = arr[i*4 + 2];
+			url = 'http://' + host + '/' + (b != '' ? b + '/' : '')
+				+ (host != 'krautchan.net' ? 'res/' : 'thread-') + tNum
+				+ (host != 'dobrochan.ru' ? '.html' : '.xhtml');
+			title = arr[i*4 + 3];
+			if(host != oldh || b != oldb)
+				table.appendChild($New('tr', [$new('b', {'html': host + '/' + b})]));
+			oldh = host;
+			oldb = b;
 			if(title.length >= sav.cookie ? 25 : 70) title += '..';
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {'type': 'checkbox'}),
-					$if(host == window.location.hostname, $new('span', {
+					$if(host == window.location.hostname || sav.GM, $new('span', {
 						'class': 'expthr_icn',
 						'title': 'Просмотреть',
 						'style': 'font-size:13px',
 						'html': (Cfg[29] == 1 ? ' [e] ' : '')}, {
-						'click': function(b, tNum) {return function() {
-							loadFavorThread($up(this, 2), b, tNum);
-						}}(b, tNum)
+						'click': function(b, tNum, url) {return function() {
+							loadFavorThread($up(this, 2), b, tNum, url);
+						}}(b, tNum, host != window.location.hostname ? url : null)
 					})),
 					$new('a', {
-						'href': 'http://' + host + '/' + (b != '' ? b + '/' : '')
-							+ (host != 'krautchan.net' ? 'res/' : 'thread-') + tNum
-							+ (host != 'dobrochan.ru' ? '.html' : '.xhtml'),
-						'text': host + '/' + b + '/' + tNum,
+						'id': host + '|' + b + '|' + tNum,
+						'href': url,
+						'text': '№' + tNum,
 						'style': 'text-decoration:none'
 					}),
 					$txt(' - ' + title)
@@ -809,9 +817,8 @@ function favorThrdsPreview() {
 			$new('hr'),
 			$btn('Удалить', function() {
 				$each($X('.//tr[@id="DESU_favornote"]', table), function(el) {
-					$delCh($x('.//div[@class="thread"]', el));
 					if($x('.//input', el).checked)
-						removeFavorities($x('.//a[@href]' , el).textContent.replace(/\//g, '|'));
+						removeFavorities($x('.//a[@href]' , el).id);
 					$delCh($id('DESU_favor'));
 					favorThrdsPreview();
 				});
@@ -1075,7 +1082,14 @@ function textareaResizer(obj) {
 }
 
 function formSubmit(obj) {
-	$event($attr(obj.subm, {'value': 'Отправить'}), {'click': function() {
+	$event($attr(obj.subm, {'value': 'Отправить'}), {'click': function(e) {
+		if(obj.cap && obj.cap.value.trim() == '') {
+			e.preventDefault();
+			e.stopPropagation();
+			obj.cap.focus();
+			$alert('Вы не набрали капчу.');
+			return;
+		}
 		if(Cfg[27] == 1) {
 			if(ch._4ch && (sav.GM || sav.script)) setStored('DESU_4chan_cache', 're');
 			$alert('Проверка...', 'wait');
@@ -1087,11 +1101,21 @@ function formSubmit(obj) {
 
 function doChanges() {
 	docTitle = '/' + brd + ' - ' + getTitle(oPosts[0]).substring(0, 50);
+	favIcn = $x('.//head//link').href;
 	if(!isMain) {
 		doc.title = docTitle;
 		$event(window, {
 			'blur' : function() {activeTab = false},
-			'focus' : function() {activeTab = true; if(Cfg[20] == 1) doc.title = docTitle}
+			'focus' : function() {
+				activeTab = true;
+				if(Cfg[42] == 1 && nav.Firefox) {
+					clearInterval(favIcnInterval);
+					var head = $x('.//head');
+					$Del('.//link[@rel="shortcut icon"]', head);
+					head.appendChild($new('link', {'href': favIcn, 'rel': 'shortcut icon'}));
+				}
+				if(Cfg[20] == 1) setTimeout(function() {doc.title = docTitle}, 10);
+			}
 		});
 	}
 	if(ch._2ch) $Del('.//small|.//span[contains(@id,"_display")]', dForm);
@@ -1318,16 +1342,16 @@ function textFormatPanel(obj) {
 
 function scriptStyles() {
 	var pIcn = function(nm, src) {return nm + ' {cursor:pointer; margin-right:4px; ' + (Cfg[29] == 0 ? 'padding-right:14px; background:url(data:image/gif;base64,' + src + ') no-repeat !important} ' : '} ')};
-	var pre = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AQAI';
+	var pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 	var txt = 'td.reply {width:auto} .DESU_pcount {color:#4f7942; cursor:default} .DESU_pcountb {color:#c41e3a; cursor:default} .DESU_refmap {font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; margin:2px 20px; cursor:pointer} .DESU_postpanel {margin-left:4px; font-weight:bold; font-size:13px} .DESU_postnote {font-size:12px; font-style:italic; color:inherit; cursor:pointer}'
  	+ '.wait_icn {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}'
-	+ pIcn('.hide_icn', pre + 'dVI55huCvDgwz2ovTA5i3DFLatTldpUxoGDCZUAAAOw==')
-	+ pIcn('.unhide_icn', pre + 'aVI55pgAKg4u0WuRyrvP601khpGnc80GMJRQAOw==')
-	+ pIcn('.rep_icn', pre + 'aVI55huCu0ou0WvsyBbdH7mXgJo4S5FXMJRQAOw==')
+	+ pIcn('.hide_icn', pre + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=')
+	+ pIcn('.unhide_icn', pre + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=')
+	+ pIcn('.rep_icn', pre + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==')
 	+ pIcn('.sage_icn','R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7')
-	+ pIcn('.expthr_icn', pre + 'cVI55pgDanIS0Imfvy3LnH3QfNnpUR1YpwmRCAQA7')
-	+ pIcn('.fav_icn', pre + 'cVI55huCv0gOxWkntnNHhC37VtnWlmUGhwoBCAQA7')
-	+ pIcn('.favset_icn', 'R0lGODlhDgAOAJEAAP//QIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AQAIcVI55huCv0gOxWkntnNHhC37VtnWlmUGhwoBCAQA7');
+	+ pIcn('.expthr_icn', pre + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==')
+	+ pIcn('.fav_icn', pre + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=')
+	+ pIcn('.favset_icn', 'R0lGODlhDgAOAKIAAP/dQKCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	if(Cfg[35] == 1) txt += '.commentpostername, .postername, .postertrip {display:none} ';
 	if(Cfg[36] == 1) txt += 'blockquote {max-height:100% !important; overflow:visible !important} ';
 	if(Cfg[37] == 1) txt += '.spoiler {background:#888 !important; color:#CCC !important} .hide {color:#AAA !important; opacity:1 !important}';
@@ -1366,7 +1390,7 @@ function getPost(el) {
 }
 
 function getTitle(post) {
-	var t = $x('.//span[@class="filetitle" or @class="replytitle"]', post);
+	var t = $x('.//span[@class="filetitle" or @class="replytitle" or @class="postsubject"]', post);
 	if(t) t = t.textContent.trim();
 	if(!t || t == '') t = post.Text.trim();
 	return t.replace(/\s+/g, ' ');
@@ -1836,6 +1860,18 @@ function parseJSONdata(x) {
 }
 
 function AJAX(isThrd, b, id, fn) {
+	if(/http:\/\//.test(id)) {
+		GM_xmlhttpRequest({
+			method: 'GET',
+			url: id,
+			onload: function(xhr) {
+				if(xhr.readyState != 4) return;
+				if(xhr.status == 200) {ajaxThrds[0] = xhr.responseText; fn()}
+				else fn('HTTP ' + xhr.status + ' ' + xhr.statusText);
+			}
+		});
+		return;
+	}
 	b = b != '' ? '/' + b + '/' : '/';
 	var xhr = new window.XMLHttpRequest();
 	xhr.onreadystatechange = function() {
@@ -1883,7 +1919,7 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	if(i == 0) oPosts[oPosts.length] = post;
 	else Posts[Posts.length] = post;
 	if(isDel) post.isDel = true;
-	else postByNum[pNum] = post;
+	postByNum[pNum] = post;
 	post.Num = pNum;
 	post.Count = i + 1;
 	if(!(sav.cookie && isMain)) post.Vis = getVisib(pNum);
@@ -1945,22 +1981,24 @@ function loadThread(post, last) {
 	});
 }
 
-function loadFavorThread(el, b, tNum) {
+function loadFavorThread(el, b, tNum, url) {
 	var thr = $x('.//div[@class="thread"]', el);
-	if(postByNum[tNum] && !$x('ancestor::div[@id="DESU_favor"]', postByNum[tNum])) {
-		window.scrollTo(0, getOffset(postByNum[tNum], 'offsetTop'));
-		return;
-	}
-	if(thr.style.display != 'none') {$disp(thr); return}
+	if(thr.style.display != 'none') {$disp(thr); $delCh(thr); return}
+	var hh = getOffset(postByNum[tNum], 'offsetTop');
+	if(hh > 0) {window.scrollTo(0, hh); return}
 	$alert('Загрузка...', 'wait');
-	AJAX(true, b, tNum, function(err) {
+	AJAX(true, b, url || tNum, function(err) {
 		if(err) {
 			$close($id('DESU_alert_wait'));
 			$alert(err);
 		} else {
-			$delCh(thr);
-			newPost(thr, tNum, 0, true);
-			expandThread(thr, tNum, 5, true);
+			if(!url) {
+				newPost(thr, tNum, 0, true);
+				expandThread(thr, tNum, 5, true);
+			} else {
+				thr.innerHTML = ajaxThrds[0].split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0].replace(/(href="|src=")([^h][^"]+)/g, '$1http://' + url.split('/')[2] + '$2');
+				$close($id('DESU_alert_wait'));
+			}
 			$disp(thr);
 		}
 	});
@@ -2000,6 +2038,15 @@ function infoNewPosts(err, del) {
 		if(activeTab) return;
 		var old = doc.title.match(/^\[\d+\]/);
 		if(old) inf += parseInt(old[0].match(/\d+/));
+	}
+	if(Cfg[42] == 1 && nav.Firefox) {
+		clearInterval(favIcnInterval);
+		if(inf > 0) favIcnInterval = setInterval(function() {
+			var head = $x('.//head');
+			var none = Boolean($x('.//link[@href="' + favIcn + '"]', head));
+			$Del('.//link[@rel="shortcut icon"]', head);
+			head.appendChild($new('link', {'href': (!none ? favIcn : ''), 'rel': 'shortcut icon'}));
+		}, 800);
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 }
