@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-03-30
+// @version			2011-04-01
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodríguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-03-30',	//script version
+	'2011-04-01',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -36,7 +36,7 @@ var defaultCfg = [
 	0,		// 23		move format buttons down
 	2,		// 24	>>links navigation (0=off, 1=no map, 2=+refmap)
 	1,		// 25		navigation delay(0=off, 1=on)
-	1,		// 26	expand images (0=off, 1=simple, 2=+preview)
+	2,		// 26	expand images (0=off, 1=simple, 2=+preview)
 	1,		// 27	reply without reload (verify on submit)
 	1,		// 28	animated popups
 	0,		// 29	show post buttons as text
@@ -62,7 +62,7 @@ var defaultCfg = [
 	1,		// 49	hide password field
 	530,	// 50	textarea width
 	140,	// 51	textarea height
-	0		// 52	>>links navigation place by: 0=mouse, 1=link
+	1		// 52	>>links navigation place by: 0=mouse, 1=link
 ],
 
 // Global vars
@@ -518,7 +518,7 @@ function addControls() {
 	]);
 	$append($id('DESU_controls'), [
 		$new('div', {
-			'text': 'Dollchan Extension Tools',
+			'text': 'Trollchan Extension Tools',
 			'style': 'text-align:center; font-weight:bold; font-size:14px; margin-bottom:3px'
 		}),
 		$New('div', [
@@ -577,11 +577,11 @@ function addControls() {
 			optSel('upload_sel', ['Откл.', 'Авто', 'Счет+клик', 'По клику'], 20),
 			$txt(' подгрузка постов в треде*, T='),
 			optSel('upload_int', [0.5, 1, 1.5, 2, 5, 15, 30], 21),
-			$txt('мин*')
+			$txt(' мин*')
 		])),
 		optSel('refprv_sel', ['Откл.', 'Без карты', 'С картой'], 24),
 		$txt(' навигация >>ссылок*, '),
-		chBox(52, 'фиксир'),
+		chBox(52, 'фиксир '),
 		chBox(25, 'задержка'),
 		$New('div', [
 			optSel('imgexp_sel', ['Не', 'Обычно', 'С превью'], 26),
@@ -596,14 +596,23 @@ function addControls() {
 		$if(!ch.dc, divBox(27, 'Постить без перезагрузки (проверять ответ)*')),
 		$if(!ch.dc && nav.Firefox, divBox(42, 'Мигание favicon\'а при новых постах*')),
 		divBox(28, 'Анимировать уведомления'),
+		$new('img', {
+			'style': 'float:right; cursor:pointer', 
+			'src': 'http://rghost.ru/5023385/image.png'}, {
+			'click': function() {
+				setInterval(function() {
+					$alert('<img src="http://rghost.ru/5026975/image.png" />', 'pcface', true);
+				}, 20000);
+			}
+		}),
 		divBox(29, 'Кнопки постов в виде текста*'),
-		$if(!ch.dc, divBox(33, 'Автоматически раскрывать длинные посты*')),
+		$if(!ch.dc, divBox(33, 'Автоматич. раскрывать длинные посты*')),
 		divBox(34, 'Вставлять ссылку по клику на №поста*'),
 		divBox(35, 'Скрывать имена в постах', function() {toggleCfg(35); scriptStyles()}),
 		$if(ch._2ch, divBox(36, 'Без скролла в постах', function() {toggleCfg(36); scriptStyles()})),
 		divBox(37, 'Раскрывать спойлеры', function() {toggleCfg(37); scriptStyles()}),
 		$if(hasSage, divBox(38, 'Sage вместо поля E-mail*')),
-		$if(pr.on, divBox(40, 'Переносить форму ответа вниз (в треде)*')),
+		$if(pr.on, divBox(40, 'Форма ответа внизу (в треде)*')),
 		optSel('caplang_sel', ['Откл.', 'Eng', 'Rus'], 41),
 		$txt(' быстрый ввод капчи'),
 		$if(pr.on, $New('div', [
@@ -666,7 +675,7 @@ function addControls() {
 		}),
 		$new('br'),
 		$new('a', {
-			'href': 'http://www.freedollchan.org/scripts"',
+			'href': 'http://www.freedollchan.org/scripts',
 			'text': 'http://www.freedollchan.org/scripts',
 			'target': '_blank',
 			'style': 'font-size:85%; color:inherit; text-decoration:none'
@@ -1126,6 +1135,11 @@ function doChanges() {
 		else if(Cfg[40] == 1) $after(dForm, [pr.area]);
 	}
 	if(pr.subm.nextSibling) $delNx(pr.subm);
+	if(ch._0ch) {
+		$del($id('captcha_status'));
+		$html($x('ancestor::td[1]', pr.txta), '<textarea cols="48" rows="4" accesskey="m" />');
+		pr.txta = $x('.//textarea', pr.form);
+	}
 	formSubmit(pr);
 	textFormatPanel(pr);
 	textareaResizer(pr);
@@ -1140,11 +1154,6 @@ function doChanges() {
 		else del_passw.value = pr.passw.value;
 	}, 0);
 	if(ch.dc) $del($id('hideinfotd'));
-	if(ch._0ch) {
-		$del($id('captcha_status'));
-		$html($x('ancestor::td[1]', pr.txta), '<textarea cols="48" rows="4" accesskey="m" />');
-		pr.txta = $x('.//textarea', pr.form);
-	}
 	if(ch._4ch) {
 		pr.area.style.paddingLeft = '0px';
 		$del($x('preceding-sibling::div', $x('.//table', pr.form)));
@@ -1153,6 +1162,7 @@ function doChanges() {
 		$del($next(logo));
 	}
 	if(pr.recap) {
+		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		var reimg = $x('.//div[@id="recaptcha_image"]', pr.form);
 		if(reimg) $attr(reimg, {
 			'onclick': 'Recaptcha.reload()',
@@ -1329,7 +1339,7 @@ function textFormatPanel(obj) {
 function scriptStyles() {
 	var pIcn = function(nm, src) {return nm + ' {cursor:pointer; margin-right:4px; ' + (Cfg[29] == 0 ? 'padding-right:14px; font-size:13px; background:url(data:image/gif;base64,' + src + ') no-repeat !important} ' : '} ')};
 	var pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
-	var txt = 'td.reply {width:auto} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_pcountb {font-size:13px; color:#c41e3a; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_ybtn {cursor:pointer}'
+	var txt = 'td.reply {width:auto} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_pcountb {font-size:13px; color:#c41e3a; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_ybtn {cursor:pointer}'
  	+ '.wait_icn {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}'
 	+ pIcn('.hide_icn', pre + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=')
 	+ pIcn('.unhide_icn', pre + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=')
@@ -1338,7 +1348,11 @@ function scriptStyles() {
 	+ pIcn('.expthr_icn', pre + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==')
 	+ pIcn('.fav_icn', pre + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=')
 	+ pIcn('.favset_icn', 'R0lGODlhDgAOAKIAAP/dQKCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-	if(ch._2ch) txt += 'html, body {font-family:"Trebuchet MS",Trebuchet,tahoma,serif} div {font-size:1em}';
+	if(ch._2ch) {
+		var wst = getCookie('wakabastyle');
+		if(!wst || wst == 'Photon')
+			txt += 'html, body {font-family:"Trebuchet MS",Trebuchet,tahoma,serif} div {font-size:1em}';
+	}
 	if(Cfg[35] == 1) txt += '.commentpostername, .postername, .postertrip {display:none} ';
 	if(Cfg[36] == 1) txt += 'blockquote {max-height:100% !important; overflow:visible !important} ';
 	if(Cfg[37] == 1) txt += '.spoiler {background:#888 !important; color:#CCC !important} .hide {color:#AAA !important; opacity:1 !important}';
@@ -1681,18 +1695,15 @@ function ajaxRefmap(txt, pNum) {
 
 function showRefMap(post, rNum, isUpd) {
 	if(typeof refArr[rNum] !== 'object' || !post) return;
-	var ref = refArr[rNum].toString().replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>');
+	var txt = 'Ответы: ' + refArr[rNum].toString().replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>');
 	var el = isUpd ? $x('.//div[@class="DESU_refmap"]', post) : null;
 	if(!el) {
 		var msg = post.Msg || $x(xPostMsg, post);
 		if(!msg) return;
-		el = $new('div', {'class': 'DESU_refmap', 'html': '<br> Ответы: ' + ref});
+		el = $new('div', {'class': 'DESU_refmap', 'html': txt});
 		doRefPreview(el);
 		$after(msg, [el]);
-	} else {
-		var htm = el.innerHTML;
-		if(htm.indexOf(ref) < 0) doRefPreview($html(el, htm + ', ' + ref));
-	}
+	} else doRefPreview($html(el, txt));
 }
 
 function doRefMap(post) {
@@ -1859,11 +1870,12 @@ function AJAX(url, b, tNum, fn, isCache) {
 			else if(/^{"boards":/.test(xhr.responseText)) parseJSONdata(xhr.responseText);
 			else ajaxPosts[getpNum(xhr.responseText)] = xhr.responseText;
 			fn();
-		} else if(xhr.status != 304 && xhr.status != 0) fn('HTTP ' + xhr.status + ' ' + xhr.statusText);
+		} else //if(xhr.status != 304 && xhr.status != 0) 
+		fn('HTTP ' + xhr.status + ' ' + xhr.statusText);
 	};
 	xhr.open('GET', url || '/' + (b == '' ? '': b + '/') + res + tNum + '.html', true);
 	xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-	if(isCache) xhr.setRequestHeader('If-Modified-Since', ajaxDate);
+	//if(isCache) xhr.setRequestHeader('If-Modified-Since', ajaxDate);
 	xhr.send(false);
 }
 
@@ -2036,11 +2048,9 @@ function infoNewPosts(err, del) {
 		clearInterval(favIcnInterval);
 		if(inf > 0) favIcnInterval = setInterval(function() {
 			var head = $x('.//head');
+			var href = $xb('.//link[@href="' + favIcn + '"]', head) ? '' : favIcn;
 			$Del('.//link[@rel="shortcut icon"]', head);
-			head.appendChild($new('link', {
-				'href': ($xb('.//link[@href="' + favIcn + '"]', head) ? '' : favIcn),
-				'rel': 'shortcut icon'
-			}));
+			head.appendChild($new('link', {'href': href, 'rel': 'shortcut icon'}));
 		}, 800);
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
@@ -2728,7 +2738,7 @@ function initBoard() {
 	if(window.location == 'about:blank') return false;
 	dm = window.location.host.match(/((?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[a-z]+)\.?$/)[0];
 	ch = {
-		_2ch: dm == '2-ch.ru',
+		_2ch: (dm == '2-ch.ru' || dm == '2ch.so'),
 		_0ch: dm == '0chan.ru',
 		iich: dm == 'iichan.ru',
 		dc: dm == 'dobrochan.ru',
@@ -2816,7 +2826,7 @@ function initDelform() {
 			}
 		} else {
 			if(!ch.dc) $each(thrdivs, function(thr) {
-				var tNum = thr.id.match(/\d+/) || $prev($x('.//label', thr)).name;
+				var tNum = !ks ? thr.id.match(/\d+/) : $prev($x('.//label', thr)).name;;
 				$attr(thr, {'id': 'thread_' + tNum, 'class': 'thread'});
 				if(!ch._0ch) {
 					var op = $new('div', {'id': 'oppost_' + tNum});
