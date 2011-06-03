@@ -50,7 +50,7 @@ var defaultCfg = [
 	1,		// 37	open spoilers
 	1,		// 38	email field -> sage btn
 	0,		// 39		reply with SAGE
-	0,		// 40	move postform to bottom
+	0,		// 40	postform at (0=top, 1=bottom, 2=hidden)
 	1,		// 41	force captcha input(0=off, 1=en, 2=ru)
 	1,		// 42	favicon blinking, if new posts detected
 	0,		// 43	apply user name:
@@ -68,7 +68,8 @@ var defaultCfg = [
 	0,		// 55	script language (0=ru, 1=en)
 	0,		// 56	show main panel
 	0,		// 57	mark viewed posts
-	0		// 58	attach main panel
+	0,		// 58	attach main panel
+	0		// 59	attach other panels
 ],
 
 LngArray = {
@@ -129,6 +130,7 @@ LngArray = {
 	graphButtons:	['Кнопки постов в виде графики*', 'Graphical post buttons*'],
 	animatePopup:	['Анимировать уведомления', 'Animated popups'],
 	attachPanel:	['Прикрепить главную панель', 'Attach main panel to bottom'],
+	attachOtherPanels:	['Прикрепить остальные панели', 'Attach other panels to bottom'],
 	images:			['Изображения: ', 'Images: '],
 	selImgExpand:	[
 		['Откл.', 'В посте', 'По центру'],
@@ -145,7 +147,11 @@ LngArray = {
 	replyCheck:		['Постить без перезагрузки (проверять ответ)*', 'Reply without reload (check on submit)*'],
 	addToFav:		['Добавлять в избранное при ответе', 'Add thread to favorites on reply'],
 	mailToSage:		['Sage вместо поля E-mail*', 'Sage button instead of E-mail field*'],
-	replyBottom:	['Форма ответа внизу треда*', 'Move reply form to bottom*'],
+	replyMove:	['форма ответа*', 'Reply form*'],
+	selReplyMove:	[
+		['Сверху', 'Снизу', 'Скрытая'],
+		['At top', 'At bottom', 'Hidden']
+	],
 	selFastInput:	[
 		['Откл.', 'Eng', 'Rus'],
 		['Disable', 'Eng', 'Rus']
@@ -609,7 +615,7 @@ function addPanel() {
 		$del(el);
 		if(el.tagName == 'HR') break;
 	}
-	var functor = function() {if(Cfg[58] == 1) $focus($id('DESU_content'))};
+	var functor = function() {if(Cfg[58] == 1 && Cfg[59] == 0) $focus($id('DESU_content'))};
 	$before(node, [
 		$new('div', {'style': 'clear:both'}),
 		$New('div', [
@@ -691,11 +697,11 @@ function addSettings() {
 		el.selectedIndex = Cfg[num];
 		return $New('span', [el, $txt(' ' + txt)]);
 	};
-	div.appendChild($add('<hr style="clear:both">'));
+	if (Cfg[59] == 0) div.appendChild($add('<hr style="clear:both">'));
 	div = div.appendChild($new('div', {
 		'class': pClass,
 		'style': 'float:left; overflow:hidden; width:auto; min-width:0; ' +
-			'padding:7px; margin:5px 20px; border:1px solid grey; font:13px sans-serif'
+			'padding:7px; ' + (Cfg[59] == 0 ? 'margin:5px 20px; ' : 'margin:5px; ') + 'border:1px solid grey; font:13px sans-serif'
 	}));
 	$append(div, [
 		$add('<center><b style="font-size:14px; margin:3px">Dollchan Extension Tools</b></center>'),
@@ -783,7 +789,10 @@ function addSettings() {
 		divBox(34, Lng.insertLink),
 		divBox(29, Lng.graphButtons),
 		divBox(28, Lng.animatePopup),
-		divBox(58, Lng.attachPanel, scriptCSS),
+		$New('div', [
+			spBox(58, Lng.attachPanel, scriptCSS),
+			spBox(59, Lng.attachOtherPanels, scriptCSS)
+		]),
 		$New('div', [
 			$txt('CSS: '),
 			spBox(35, Lng.hideNames, scriptCSS),
@@ -800,7 +809,9 @@ function addSettings() {
 		$if(!ch.dc, divBox(27, Lng.replyCheck)),
 		divBox(53, Lng.addToFav),
 		$if(pr.mail, divBox(38, Lng.mailToSage)),
-		$if(pr.on, divBox(40, Lng.replyBottom)),
+		$if(pr.on, $New('div', [
+			optSel(40, Lng.selReplyMove, Lng.replyMove, 'replymove_sel')
+		])),
 		$New('div', [
 			optSel(41, Lng.selFastInput, Lng.fastInput, 'fastcap_sel')
 		]),
@@ -880,7 +891,7 @@ function hiddenPostsPreview() {
 	$delCh($id('DESU_settings'));
 	var div = $id('DESU_hidden');
 	if(div.hasChildNodes()) {$delCh(div); return}
-	div.innerHTML = '<hr style="clear:both"><table style="margin:5px 20px"><tbody align="left"></tbody></table>';
+	div.innerHTML = (Cfg[59] == 0 ? '<hr style="clear:both"><table style="margin:5px 20px">' : '<table class="' + pClass + '" style="margin:5px; border:1px solid grey;">') + '<tbody align="left"></tbody></table>';
 	var table = $x('.//tbody', div);
 	var clones = [], tcnt = 0, pcnt = 0;
 	forAll(function(post) {if(post.Vis == 0) {
@@ -955,7 +966,7 @@ function favorThrdsPreview() {
 	$delCh($id('DESU_settings'));
 	var div = $id('DESU_favor');
 	if(div.hasChildNodes()) {$delCh(div); return}
-	div.innerHTML = '<hr style="clear:both"><table style="margin:5px 20px"><tbody align="left"></tbody></table>';
+	div.innerHTML = (Cfg[59] == 0 ? '<hr style="clear:both"><table style="margin:5px 20px">' : '<table class="' + pClass + '" style="margin:5px; border:1px solid grey;">') + '<tbody align="left"></tbody></table>';
 	var table = $x('.//tbody', div);
 	var data = getStored('DESU_Favorities');
 	if(!data) table.innerHTML = '<tr><th>' + Lng.noFavorites + '</th></tr>';
@@ -1055,6 +1066,7 @@ function favorThrdsPreview() {
 }
 
 function $alert(txt, id) {
+	if(txt.search('HTTP 0') > -1) return;
 	var el, nid = 'DESU_alert';
 	if(id) {nid += '_' + id; el = $id(nid)}
 	if(!el) {
@@ -1255,7 +1267,7 @@ function doChanges() {
 	// Postform changes
 	var hr = $x('following-sibling::hr', pr.area);
 	if(hr) pr.area.appendChild(hr);
-	if(isMain) $disp(pr.area);
+	if(isMain || Cfg[40] == 2) $disp(pr.area);
 	else {
 		if(!$xb('preceding-sibling::div[@id="DESU_panel"]', dForm)) $before(dForm, [
 			$id('DESU_panel'),
@@ -1507,7 +1519,7 @@ function addTextPanel(obj) {
 
 function scriptCSS() {
 	var x = [];
-	x.push('td.reply {width:auto} #DESU_content {width:100%; text-align:left} #DESU_panel {' + (Cfg[58] == 1 ? 'position:fixed; bottom:0; right:0;' : 'float:right;') + ' z-index:99999999; height:25px; background-color:grey; ' + cssFix + 'border-radius:15px 0 0 0} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; cursor:default; font:14px sans-serif} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit; cursor:pointer} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_pcountb {font-size:13px; color:#c41e3a; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px;}');
+	x.push('td.reply {width:auto} #DESU_content {text-align:left; ' + (Cfg[59] == 1 ? 'position:fixed; right:0; bottom:25px; max-height: 90%; overflow: auto; ' : 'width:100%; ') + '} #DESU_panel {' + (Cfg[58] == 1 ? 'position:fixed; bottom:0; right:0;' : 'float:right;') + ' z-index:99999999; height:25px; background-color:grey; ' + cssFix + 'border-radius:15px 0 0 0} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; cursor:default; font:14px sans-serif} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit; cursor:pointer} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_pcountb {font-size:13px; color:#c41e3a; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px;}');
 	
 	// waiting animation
  	x.push('.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}');
@@ -1769,6 +1781,7 @@ function addFullImg(a, fullW, fullH) {
 	var full = $x('.//img[@id="DESU_fullimg"]', a);
 	if(Cfg[26] == 1) $disp(img);
 	if(full) {$del(full); return}
+	if(Cfg[26] == 2) $del($x('//img[@id="DESU_fullimg"]'));
 	var scrW = doc.body.clientWidth;
 	var scrH = window.innerHeight;
 	if(Cfg[26] == 1) scrW -= $offset(a, 'offsetLeft') + 30;
@@ -1781,7 +1794,7 @@ function addFullImg(a, fullW, fullH) {
 	var full = $new('img', {
 		'id': 'DESU_fullimg',
 		'src': a.href, 'title': a.href, 'alt': a.href, 'width': newW, 'height': newH,
-		'style': 'display:block;' + (Cfg[26] == 2 ? ' position:fixed; z-index:5000; left:'
+		'style': 'display:block;' + (Cfg[26] == 2 ? ' position:fixed; z-index:5000; border: 1px solid black; left:'
 			+ parseInt((scrW - newW)/2) + 'px; top:' + parseInt((scrH - newH)/2) + 'px' : '')
 	});
 	if(Cfg[26] == 2)
