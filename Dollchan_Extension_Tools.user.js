@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-09-15
+// @version			2011-09-16
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-09-15',	//script version
+	'2011-09-16',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -36,11 +36,11 @@ var defaultCfg = [
 	0,		// 23	no hidden posts in refmap
 	2,		// 24	>>links navigation (0=off, 1=no map, 2=+refmap)
 	1,		// 25		navigation delay(0=off, 1=on)
-	2,		// 26	expand images by click(0=off, 1=in post, 2=by center)
+	2,		// 26	expand images by click (0=off, 1=in post, 2=by center)
 	1,		// 27	reply without reload (check on submit)
 	1,		// 28	animated popups
 	1,		// 29	post buttons (0=off, 1=graph, 2=text)
-	1,		// 30	YouTube player by links(0=off, 1=btns only, 2=add flash)
+	2,		// 30	YouTube player by links (0=off, 1=on btn, 2=flash, 3=thumbs)
 	1,		// 31	mp3 player by links
 	1,		// 32	add images by links
 	2,		// 33	expand shorted posts (0=off, 1=auto, 2=on click)
@@ -144,6 +144,10 @@ LngArray = {
 	noScroll:		['без скролла', 'no scroll'],
 	toLinks:		['К ссылкам: ', 'To links: '],
 	mp3:			['плейер mp3* ', 'mp3 player* '],
+	selYouTube:		[
+		['Откл.', 'По кнопке', '+Флеш', '+Превью'],
+		['Disable', 'On btn', '+Flash', '+Thumbs']
+	],
 	pics:			['картинки*', 'images*'],
 	replyCheck:		['Постить без перезагрузки (проверять ответ)*', 'Reply without reload (check on submit)*'],
 	addToFav:		['Добавлять в избранное при ответе', 'Add thread to favorites on reply'],
@@ -827,7 +831,7 @@ function addSettings() {
 		$New('div', [
 			$txt(Lng.toLinks),
 			spBox(31, Lng.mp3),
-			optSel(30, Lng.selClickAuto, 'YouTube* ', 'ytube_sel'),
+			optSel(30, Lng.selYouTube, 'YouTube* ', 'ytube_sel'),
 			spBox(32, Lng.pics)
 		]),
 		$new('hr'),
@@ -1781,11 +1785,15 @@ function addLinkTube(post) {
 		if(!pattern.test(link.href)) continue;
 		var pst = post || getPost(link);
 		var el = $x('.//div[@id="DESU_ytube"]', pst);
-		htm = '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/'
-			+ link.href.match(pattern)[1] + '" wmode="transparent" width="320" height="262" />';
+		var yid = link.href.match(pattern)[1];
+		htm = Cfg[30] == 3
+			? '<a target="_blank" href="' + link.href + '"><img src="http://i.ytimg.com/vi/'
+				+ yid + '/0.jpg" width="320" height="262" /></a>'
+			: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/'
+				+ yid + '" wmode="transparent" width="320" height="262" />';
 		if(!el) {
 			el = $new('div', {'id': 'DESU_ytube'});
-			if(Cfg[30] == 1) el.innerHTML = htm;
+			if(Cfg[30] != 1) el.innerHTML = htm;
 			var msg = pst.Msg || $x(xPostMsg, pst);
 			if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
@@ -2349,7 +2357,7 @@ function infoNewPosts(err, del) {
 	if(Cfg[20] == 1) {
 		if(isActiveTab) return;
 		var old = doc.title.match(/^\[\d+\]/);
-		if(old) inf += parseInt(old.match(/\d+/));
+		if(old) inf += parseInt(old[0].match(/\d+/));
 	}
 	if(Cfg[42] == 1 && favIcon) {
 		clearInterval(favIconInt);
@@ -3042,7 +3050,7 @@ function initBoard() {
 	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/$/)) - 1);
 	if(dm == 'dfwk.ru' && brd == '') brd = 'df';
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
-	favIcon = $x('.//head//link');
+	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
 	pClass = ch.krau ? 'postreply' : 'reply';
 	xPostRef = $case([
