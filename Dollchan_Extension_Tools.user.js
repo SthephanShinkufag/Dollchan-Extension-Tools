@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-09-16
+// @version			2011-09-20
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-09-16',	//script version
+	'2011-09-20',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -175,6 +175,7 @@ LngArray = {
 	gotoField:		['поле goto ', 'goto field '],
 	passw:			['пароль', 'password'],
 	save:			['Сохранить', 'Save'],
+	load:			['Загрузить', 'Load'],
 	reset:			['Сброс', 'Reset'],
 	version:		['Версия: ', 'Version: '],
 	storage:		['Хранение: ', 'Storage: '],
@@ -483,14 +484,20 @@ function saveCfg(num, val) {
 
 function readCfg() {
 	var data = getStored('DESU_Config_' + dm);
-	if(!data) setDefaultCfg();
+	if(!isValidCfg(data) && sav.isGlobal) data = getStored('DESU_GlobalCfg');
+	if(!isValidCfg(data)) {setDefaultCfg(); setStored('DESU_GlobalCfg', '')}
 	else Cfg = data.split('|');
-	if(Cfg[0] != defaultCfg[0]) setDefaultCfg();
 	if(ch.dc) Cfg[20] = Cfg[27] = Cfg[33] = Cfg[42] = 0;
 	if(ch.so) setCookie('script_state', 'false');
 	if(nav.Chrome) Cfg[42] = 0;
 	for(var key in LngArray) {Lng[key] = Cfg[55] == 0 ? LngArray[key][0] : LngArray[key][1]}
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
+}
+
+function isValidCfg(data) {
+	if(!data) return false;
+	var config = data.split('|', 2);
+	return config[0] == defaultCfg[0];
 }
 
 function toggleCfg(num) {
@@ -600,8 +607,7 @@ function removeFavorities(key) {
 }
 
 function getFavorKey(post) {
-	return host + '|' + brd
-		+ (/\/arch/.test(window.location.pathname) ? '/arch' : '') + '|' + post.Num;
+	return host + '|' + brd + '|' + post.Num;
 }
 
 function storeFavorities(post, btn) {
@@ -758,7 +764,7 @@ function addSettings() {
 					'href': homePage + 'spells'
 				})
 			], {'style': 'float:right'}),
-			$new('br', {'style': 'clear:both'}),
+			$new('br', {'style': 'clear:left'}),
 			$new('textarea', {
 				'id': 'DESU_spellist',
 				'value': spellsList.join('\n'),
@@ -884,15 +890,23 @@ function addSettings() {
 				function() {$disp($up(pr.passw, 2)); if(qr.on) $disp($up(qr.passw, 2))}))
 		]),
 		$new('hr'),
-		$new('a', {
-			'href': homePage, 'text': homePage, 'target': '_blank',
-			'style': 'font-weight:bold; color:inherit; text-decoration:none'
-		}),
 		$New('div', [
 			optSel(55, ['Ru', 'En'], '', 'lang_sel', function() {
 				saveCfg(55, this.selectedIndex);
 				window.location.reload();
 			}),
+			$if(sav.isGlobal && isValidCfg(getStored('DESU_GlobalCfg')),
+				$btn(Lng.load, function() {
+					setStored('DESU_Config_' + dm, '');
+					readCfg();
+					window.location.reload();
+				})
+			),
+			$if(sav.isGlobal, $btn(Lng.save, function() {
+				setStored('DESU_GlobalCfg', Cfg.join('|'));
+				addSettings();
+				addSettings();
+			})),
 			$btn(Lng.reset, function() {
 				setDefaultCfg();
 				setStored('DESU_Favorities', '');
@@ -1703,7 +1717,7 @@ function isSage(post) {
 	if(ch.dc) return $xb('.//img[@alt="Сажа"]', post);
 	else if(ch.krau) return $xb('.//span[@class="sage"]', post);
 	else {
-		var a = $x('.//a[starts-with(@href,"mailto:")]', post);
+		var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
 		return a && /sage/i.test(a.href);
 	}
 	return false;
@@ -2134,7 +2148,8 @@ function parseDCdata(x) {
 }
 
 function build2CHpost(x, b) {
-	ajaxPosts[x.num] = '<label><input type="checkbox" value="' + x.num + '" name="delete"><span class="replytitle">' + x.subject + '</span>&nbsp;<span class="postername">' + (x.email ? '<a href="' + x.email + '">' + x.name + '</a>' : x.name) + '</span>' + (x.trip ? '<span class="postertrip">' + x.trip + '</span>' : '') + '&nbsp;&nbsp;' + x.date + '</label>&nbsp;<span class="reflink"><a href="/' + b + '/' + res + x.parent + '.html#i' + x.num + '">№' + x.num + '</a></span>&nbsp;' + (x.parent == 0 ? '[<a href="/' + b + '/' + res + x.num + '.html">Ответ</a>]' : '') + '<br>' + (x.image ? '<span class="filesize"><a target="_blank" href="/' + b + '/' + x.image + '">' + x.image + '</a>(<em>' + x.size + 'Кб, ' + x.width + 'x' + x.height + '</em>)</span>&nbsp;<span class="thumbnailmsg">Показана уменьшенная копия, оригинал по клику.</span><br><span id="exlink_' + x.num + '"><a href="/' + b + '/' + x.image + '"><img src="/' + b + '/' + x.thumbnail + '" alt="11" class="img" height="' + x.tn_height + '" width="' + x.tn_width + '"></a></span>' : '') + (x.video != '' ? '<div style="float:left; margin:5px 5px 5px 10px">' + x.video + '</div>' : '') + '<blockquote>' + x.comment + '</blockquote>';
+	ajaxPosts[x.num] = '<label><input type="checkbox" value="' + x.num + '" name="delete"><span class="replytitle">' + x.subject + '</span>&nbsp;<span class="postername">' + (x.email ? '<a href="' + x.email + '">' + x.name + '</a>' : x.name) + '</span>' + (x.trip ? '<span class="postertrip">' + x.trip + '</span>' : '') + '&nbsp;&nbsp;' + x.date + '</label>&nbsp;<span class="reflink"><a href="/' + b + '/' + res + x.parent + '.html#i' + x.num + '">№' + x.num + '</a></span>&nbsp;' + (x.parent == 0 ? '[<a href="/' + b + '/' + res + x.num + '.html">Ответ</a>]' : '') + '<br>' + (x.image ? '<span class="filesize"><a target="_blank" href="/' + b + '/' + x.image + '">' + x.image + '</a>(<em>' + x.size + 'Кб, ' + x.width + 'x' + x.height + '</em>)</span>&nbsp;<span class="thumbnailmsg">Показана уменьшенная копия, оригинал по клику.</span><br><span id="exlink_' + x.num + '"><a href="/' + b + '/' + x.image + '"><img src="/' + b + '/' + x.thumbnail + '" alt="11" class="img" height="' + x.tn_height + '" width="' + x.tn_width + '"></a></span>' : '') + (x.video && x.video != '' ? '<div style="float:left; margin:5px 5px 5px 10px">' + x.video + '</div>' : '') + '<blockquote>' + x.comment + '</blockquote>';
+	ajaxRefmap(x.comment, x.num);
 }
 
 function parse2CHdata(x, b) {
@@ -3042,7 +3057,8 @@ function initBoard() {
 		GM: gs,
 		local: ls && !ss && !gs,
 		script: ss,
-		cookie: !ls && !ss && !gs
+		cookie: !ls && !ss && !gs,
+		isGlobal: gs || ss
 	};
 	var url = window.location.pathname || '';
 	res = ch.krau ? 'thread-' : 'res/';
