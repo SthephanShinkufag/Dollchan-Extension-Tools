@@ -3023,7 +3023,6 @@ function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
-	try {doc.domain = dm} catch(e) {dm = doc.domain}
 	ch = {
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
