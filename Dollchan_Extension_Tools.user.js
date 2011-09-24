@@ -1403,6 +1403,7 @@ function doPostformChanges() {
 		$html($x('ancestor::td[1]', pr.txta), '<textarea cols="48" rows="4" accesskey="m" />');
 		pr.txta = $x('.//textarea', pr.form);
 	}
+	if (ch.fst) $del($x('.//tr[td/div/@id="box"]', pr.form));
 	$each($X('.//input[@type="text"]', pr.form), function(el) {el.size = 35});
 	eventSubmit(pr);
 	addTextPanel(pr);
@@ -3109,7 +3110,7 @@ function initBoard() {
 		_5ch: dm == '5channel.net',
 		fst: dm == 'firstchan.ru'
 	};
-	ks = $xb('.//script[contains(@src, "kusaba")]');
+	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
 	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if (ch.fch) doc.domain = dm;
 	if(/DESU_iframe/.test(window.name)) return false;
