@@ -3076,6 +3076,7 @@ function initBoard() {
 	};
 	ks = $xb('.//script[contains(@src, "kusaba")]');
 	wk = $xb('.//script[contains(@src, "wakaba")]');
+	if (ch.fch) doc.domain = dm;
 	if(/DESU_iframe/.test(window.name)) return false;
 	dForm = $x('.//form[' + $case([
 		ch.dc || ch.krau, 'contains(@action, "delete")]'
