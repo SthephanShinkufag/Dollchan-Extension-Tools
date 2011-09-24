@@ -3102,6 +3102,7 @@ function initBoard() {
 	isMain = url.indexOf('/' + res) < 0;
 	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/$/)) - 1);
 	if(dm == 'dfwk.ru' && brd == '') brd = 'df';
+	if (ch.fch && brd == '') brd = url.split('/')[1];
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
