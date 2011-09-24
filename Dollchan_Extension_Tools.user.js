@@ -332,7 +332,7 @@ function $if(cond, el) {
 	return cond ? el : null;
 }
 function $disp(el) {
-	el.style.display = el.style.display == 'none' ? '' : 'none';
+	if(el) el.style.display = el.style.display == 'none' ? '' : 'none';
 }
 function $del(el) {
 	if(el) el.parentNode.removeChild(el);
@@ -650,7 +650,7 @@ function storeViewedPosts(post) {
 
 function addPanel() {
 	var node = pr.area || dForm;
-	while(1) {
+	while(!(ks && pr.oek)) {
 		var el = node.previousSibling;
 		if(el.className == 'logo' || el.tagName == 'FORM') break;
 		$del(el);
@@ -684,7 +684,7 @@ function addPanel() {
 				$if(isMain && pr.on, $new('a', {'id': 'DESU_btn_newthr', 'title': Lng.newThread}, {
 					'click': function() {$disp(pr.area); $focus(pr.area)}
 				})),
-				$if(pr.file, $new('a', {'id': 'DESU_btn_expimg', 'title': Lng.expImages}, {
+				$if(pr.file || pr.oek, $new('a', {'id': 'DESU_btn_expimg', 'title': Lng.expImages}, {
 					'click': function() {
 						Cfg[26] = 1;
 						forAll(function(post) {$each(post.Img, function(img) {
@@ -692,7 +692,7 @@ function addPanel() {
 						})});
 					}
 				})),
-				$if(pr.file, $new('a', {'id': 'DESU_btn_maskimg', 'title': Lng.maskImages}, {
+				$if(pr.file || pr.oek, $new('a', {'id': 'DESU_btn_maskimg', 'title': Lng.maskImages}, {
 					'click': function() {toggleCfg(54); scriptCSS()}
 				})),
 				$if(!isMain && (Cfg[20] == 1 || Cfg[20] == 2), $new('a', {
@@ -897,8 +897,11 @@ function addSettings() {
 		])),
 		$New('div', [
 			$if(pr.on, $txt(Lng.dontShow)),
-			$if(pr.rules, spBox(47, Lng.rules,
-				function() {$disp(pr.rules); if(qr.on) $disp(qr.rules)})),
+			$if(pr.rules, spBox(47, Lng.rules, function() {
+				$disp(pr.rules);
+				if(qr.on) $disp(qr.rules);
+				if (pr.oek) toggleOekakiRules();
+			})),
 			$if(pr.gothr, spBox(48, Lng.gotoField,
 				function() {$disp(pr.gothr); if(qr.on) $disp(qr.gothr)})),
 			$if(pr.passw, spBox(49, Lng.passw,
@@ -1353,11 +1356,32 @@ function doChanges() {
 		if(ch.nul) $Del('.//div[@class="replieslist"]', dForm);
 		else $Del('.//small[starts-with(@id,"rfmap")]|.//i[@class="abbrev"]', dForm);
 	}, 0)}});
-	if(!pr.on) return;
+	if (pr.oek && Cfg[47] == 1) toggleOekakiRules();
 	// Postform changes
+	if (!pr.on && pr.oek) {
+		AJAX(null, brd, oPosts[0].Num, function() { doPostformChanges(); });
+	}
+	if(pr.on)
+		doPostformChanges();
+}
+
+function toggleOekakiRules() {
+	$disp($x('.//div[@class="rules"]'));
+	$disp($x('.//div[@class="postarea"]/following-sibling::hr'));
+}
+
+function doPostformChanges() {
 	var hr = $x('following-sibling::hr', pr.area);
 	if(hr) pr.area.appendChild(hr);
-	if(isMain || Cfg[40] == 2) $disp(pr.area);
+	if(isMain || Cfg[40] == 2) {
+		if (pr.oek) {
+			$disp($x('.//form[@id="postform"]'));
+			$disp($x('.//form[@id="postform"]/preceding-sibling::hr'));
+			$disp($x('.//form[@id="postform"]/following-sibling::hr'));
+		}
+		else
+			$disp(pr.area);
+	}
 	if(!isMain) {
 		$before(dForm, [
 			$id('DESU_panel'),
@@ -1755,7 +1779,7 @@ function addPostButtons(post, isCount) {
 		'mouseover': function() {selectPostHider(post)},
 		'mouseout': removeSelMenu
 	});
-	if(pr.on) {
+	if(pr.on || pr.oek) {
 		el = el.nextSibling;
 		$event(el, {
 			'mouseover': function() {quotetxt = txtSelection()},
@@ -2120,8 +2144,8 @@ function getpNum(x) {
 	return (x.match(/<input[^>]+checkbox[^>]+>/i) || x.match(/<a\s+name="\d+">/i))[0].match(/\d+/);
 }
 
-function parseHTMLdata(x) {
-	x = x.split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0];
+function parseHTMLdata(html) {
+	var x = html.split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0];
 	var thrds = x.substring(0, x.lastIndexOf(!ch.krau ? x.match(/<br[^>]+left/) : '<div style="clear: both">')).split(!ch.krau ? /<br[^>]+left[^>]*>[<>\/p\s]*<hr[^>]*>/ : /<\/div>\s+<div[^>]+class="thread"[^>]*>/);
 	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
 		var tNum = getpNum(thrds[i]);
@@ -2135,6 +2159,10 @@ function parseHTMLdata(x) {
 			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12), pNum);
 			ajaxPosts[pNum] = x;
 		}
+	}
+	if (!pr.on && pr.oek) {
+		pr = new replyForm($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
+		pr.oek = true;
 	}
 }
 
@@ -3039,6 +3067,7 @@ function detectWipe_caseWords(txt) {
 function replyForm(f) {
 	var x = $x('ancestor::div[' + (ch.dc ? 2 : 1) + ']', f) || f;
 	this.area = x;
+	this.oek = $xb('.//select[@name="oek_painter" or @name="applet"]');
 	if(!f) return;
 	this.on = true;
 	this.form = f;
@@ -3184,7 +3213,7 @@ function initDelform() {
 function initPosts() {
 	pPanel = $New('span', [
 		$new('a', {'class': 'DESU_icn_hide', 'text': (Cfg[29] == 2 ? 'x' : '')}),
-		$if(pr.on, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg[29] == 2 ? 'a' : '')}))
+		$if(pr.on || pr.oek, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg[29] == 2 ? 'a' : '')}))
 	], {'class': 'DESU_postpanel'});
 	opPanel = pPanel.cloneNode(true);
 	$append(opPanel, [
@@ -3209,7 +3238,6 @@ function initPosts() {
 		pByNum[post.Num] = post;
 	});
 }
-
 
 /*=============================================================================
 									MAIN
