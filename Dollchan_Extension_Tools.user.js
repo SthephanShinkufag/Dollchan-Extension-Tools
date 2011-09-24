@@ -474,7 +474,7 @@ function saveSpells(val) {
 
 function setDefaultCfg() {
 	Cfg = defaultCfg;
-	if(ch.dc || ch.nul) Cfg[41] = 2;
+	fixCaptchaLanguage();
 	setStored('DESU_Config_' + dm, defaultCfg.join('|'));
 }
 
@@ -485,14 +485,20 @@ function saveCfg(num, val) {
 
 function readCfg() {
 	var data = getStored('DESU_Config_' + dm);
-	if(!isValidCfg(data) && sav.isGlobal) data = getStored('DESU_GlobalCfg');
-	if(!isValidCfg(data)) {setDefaultCfg(); setStored('DESU_GlobalCfg', '')}
+	var globalConfigLoaded = false;
+	if(!isValidCfg(data) && sav.isGlobal) { data = getStored('DESU_GlobalCfg'); globalConfigLoaded = true; }
+	if(!isValidCfg(data)) {setDefaultCfg(); setStored('DESU_GlobalCfg', ''); }
 	else Cfg = data.split('|');
 	if(ch.dc) Cfg[20] = Cfg[27] = Cfg[33] = Cfg[42] = 0;
 	if(ch.so) setCookie('script_state', 'false');
 	if(nav.Chrome) Cfg[42] = 0;
 	for(var key in LngArray) {Lng[key] = Cfg[55] == 0 ? LngArray[key][0] : LngArray[key][1]}
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
+	if (globalConfigLoaded) { fixCaptchaLanguage(); setStored('DESU_Config_' + dm, Cfg.join('|')); }
+}
+
+function fixCaptchaLanguage() {
+	if(ch.dc || ch.nul) Cfg[41] = 2;
 }
 
 function isValidCfg(data) {
