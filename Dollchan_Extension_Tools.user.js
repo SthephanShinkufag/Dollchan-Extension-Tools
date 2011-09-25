@@ -637,7 +637,7 @@ function storeFavorities(post, btn) {
 }
 
 function readViewedPosts() {
-	if (!sessionStorage || !sessionStorage.viewedPosts) return;
+	if (typeof(sessionStorage) !== 'object' || !sessionStorage.viewedPosts) return;
 	viewedPosts = sessionStorage.viewedPosts.split(',');
 	for (var i in viewedPosts) {
 		markViewedPost(viewedPosts[i]);
@@ -645,7 +645,7 @@ function readViewedPosts() {
 }
 
 function storeViewedPosts(post) {
-	if (!sessionStorage) return;
+	if (typeof(sessionStorage) !== 'object') return;
 	if (post) viewedPosts.push(post);
 	sessionStorage.viewedPosts = viewedPosts;
 }
