@@ -3093,6 +3093,10 @@ function replyForm(f) {
 	this.mail = $x(pre + '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]', f);
 }
 
+function fixDomain() {
+	try { doc.domain = dm; } catch(e) { dm = doc.domain; }
+}
+
 function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
@@ -3112,12 +3116,12 @@ function initBoard() {
 	};
 	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
 	wk = $xb('.//script[contains(@src, "wakaba")]');
-	if (ch.fch) doc.domain = dm;
-	if(/DESU_iframe/.test(window.name)) return false;
+	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	dForm = $x('.//form[' + $case([
 		ch.dc || ch.krau, 'contains(@action, "delete")]'
 	], '@id="delform" or @name="delform"]'));
 	if(!dForm || $id('DESU_panel')) return false;
+	fixDomain();
 	var ua = window.navigator.userAgent;
 	nav = {
 		Firefox: /firefox|minefield/i.test(ua),
