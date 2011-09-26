@@ -3099,7 +3099,7 @@ function initBoard() {
 	var url = window.location.pathname || '';
 	res = ch.krau ? 'thread-' : 'res/';
 	isMain = url.indexOf('/' + res) < 0;
-	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/$/)) - 1);
+	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/\d*$/)) - 1);
 	if(dm == 'dfwk.ru' && brd == '') brd = 'df';
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
