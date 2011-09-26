@@ -216,6 +216,7 @@ LngArray = {
 	quote:			['Цитировать выделеное', 'Quote selected'],
 	replies:		['Ответы: ', 'Replies: '],
 	postNotFound:	['Пост не найден', 'Post not found'],
+	noConnect:		['Ошибка подключения', 'Connection failed'],
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
 	deleted:		['удалён', 'deleted'],
 	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
@@ -1628,10 +1629,10 @@ function scriptCSS() {
 	bIcn('#DESU_btn_goback', bPre + 'K4yPqZsADJuLtNoLnd5c4w+G4iYG3elVT8m27mutZRqiKGPfGT3L8A+EFAAAOw==) center');
 	bIcn('#DESU_btn_newthr', bPre + 'MoyPqRvgD0GDLFrLst683i8toNOV3BiaqoJiYkut8kx7YC2j02PDaeLjvYI9GG6jO24KADs=) center');
 	bIcn('#DESU_btn_expimg', bPre + 'PYyPqRsA5+Bjy9lnqd68VxRBXpeNpgROpHGF6hamJ1XO9o0z7Uvyja+TiTiTHauHYgF1r0tOuTTVcLHnoQAAOw==) center');
-	bIcn('#DESU_btn_maskimg', bPre + 'UIyPqRsA90xsbSYHs6ys+w8y2EZSo+Kk6pqGLsrG7YJNNmQhtUZJOd4L2n6vovEIksU6MyGOyHGSTpfTzQcdXXtUnZXXrJau3SfYLFKukJ8CADs=) center'),
-	bIcn('#DESU_btn_updon','R0lGODlhGQAZAJEAADL/MvDw8ICAgAAAACwAAAAAGQAZAEACRJSPqXthAaMTkzWJq928+zsB4gg80Iem6tOkEglIXGTApja36873/l7BdTKY4QkmopwYNAGypBQiZKOoNDEhsn7cLqMAADs=) center'),
-	bIcn('#DESU_btn_updoff','R0lGODlhGQAZAJEAAP8yMvDw8ICAgAAAACwAAAAAGQAZAEACRJSPqXthAaMTkzWJq928+zsB4gg80Iem6tOkEglIXGTApja36873/l7BdTKY4QkmopwYNAGypBQiZKOoNDEhsn7cLqMAADs=) center')
-	;
+	bIcn('#DESU_btn_maskimg', bPre + 'UIyPqRsA90xsbSYHs6ys+w8y2EZSo+Kk6pqGLsrG7YJNNmQhtUZJOd4L2n6vovEIksU6MyGOyHGSTpfTzQcdXXtUnZXXrJau3SfYLFKukJ8CADs=) center');
+	bIcn('#DESU_btn_updon','R0lGODlhGQAZAJEAADL/MvDw8ICAgAAAACwAAAAAGQAZAEACRJSPqXthAaMTkzWJq928+zsB4gg80Iem6tOkEglIXGTApja36873/l7BdTKY4QkmopwYNAGypBQiZKOoNDEhsn7cLqMAADs=) center');
+	bIcn('#DESU_btn_updoff','R0lGODlhGQAZAJEAAP8yMvDw8ICAgAAAACwAAAAAGQAZAEACRJSPqXthAaMTkzWJq928+zsB4gg80Iem6tOkEglIXGTApja36873/l7BdTKY4QkmopwYNAGypBQiZKOoNDEhsn7cLqMAADs=) center');
+	bIcn('#DESU_btn_updwarn','R0lGODlhGQAZAJEAAP//MvDw8ICAgAAAACwAAAAAGQAZAEACRJSPqXthAaMTkzWJq928+zsB4gg80Iem6tOkEglIXGTApja36873/l7BdTKY4QkmopwYNAGypBQiZKOoNDEhsn7cLqMAADs=) center');
 	x.push('#DESU_btn_br {display:inline-block; padding:0 3px 25px 0; margin:0 3px 0 3px; background:url(data:image/gif;base64,R0lGODlhAwAZAIAAAP///4CAgCwAAAAAAwAZAEACD4wDlse755RkFM1oM36hAAA7)}');
 	
 	// text format buttons
@@ -2188,6 +2189,7 @@ function AJAX(url, b, tNum, fn) {
 		GM_xmlhttpRequest({method: 'GET', url: url, onload: function(xhr) {
 			if(xhr.readyState != 4) return;
 			if(xhr.status == 200) {ajaxPosts[0] = xhr.responseText; fn()}
+			else if(xhr.status == 0) fn(Lng.noConnect);
 			else fn('HTTP ' + xhr.status + ' ' + xhr.statusText);
 		}});
 		return;
@@ -2201,7 +2203,8 @@ function AJAX(url, b, tNum, fn) {
 				if(ch.dc) parseDCdata(xhr.responseText);
 				else parseHTMLdata(xhr.responseText);
 			} else res = parse2CHdata(xhr.responseText, b);
-		} else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
+		} else if(xhr.status == 0) res = Lng.noConnect;
+		else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
 		fn(res);
 	};
 	xhr.open('GET', url, true);
@@ -2359,14 +2362,23 @@ function getDelPosts(err) {
 	return del;
 }
 
+function setUpdButtonState(state) {
+	$x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+}
+
 function endPostsUpdate() {
-	$id('DESU_btn_updon').id = 'DESU_btn_updoff';
+	setUpdButtonState('off');
 	clearInterval(ajaxInt);
 	ajaxInt = undefined;
 }
 
 function infoNewPosts(err, del) {
-	if(err) {$alert(Lng.thrdNotFound + TNum + '): \n' + err); endPostsUpdate(); return}
+	if(err) {
+		if(err == Lng.noConnect) setUpdButtonState('warn');
+		else {$alert(Lng.thrdNotFound + TNum + '): \n' + err); endPostsUpdate()}
+		return;
+	}
+	setUpdButtonState('on');
 	if(Cfg[20] == 3) return;
 	var inf = parseInt(ajaxThrds[TNum].keys.length - Posts.length + del - 1);
 	if(Cfg[20] == 1) {
