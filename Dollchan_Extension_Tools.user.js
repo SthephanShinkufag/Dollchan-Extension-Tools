@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-09-26
+// @version			2011-09-27
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-09-26',	//script version
+	'2011-09-27',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -683,7 +683,7 @@ function addPanel() {
 				$if(isMain && pr.on, $new('a', {'id': 'DESU_btn_newthr', 'title': Lng.newThread}, {
 					'click': function() {$disp(pr.area); $focus(pr.area)}
 				})),
-				$if(pr.file, $new('a', {'id': 'DESU_btn_expimg', 'title': Lng.expImages}, {
+				$if(pr.file || pr.oek, $new('a', {'id': 'DESU_btn_expimg', 'title': Lng.expImages}, {
 					'click': function() {
 						Cfg[26] = 1;
 						forAll(function(post) {$each(post.Img, function(img) {
@@ -691,7 +691,7 @@ function addPanel() {
 						})});
 					}
 				})),
-				$if(pr.file, $new('a', {'id': 'DESU_btn_maskimg', 'title': Lng.maskImages}, {
+				$if(pr.file || pr.oek, $new('a', {'id': 'DESU_btn_maskimg', 'title': Lng.maskImages}, {
 					'click': function() {toggleCfg(54); scriptCSS()}
 				})),
 				$if(!isMain && (Cfg[20] == 1 || Cfg[20] == 2), $new('a', {
@@ -896,8 +896,7 @@ function addSettings() {
 		])),
 		$New('div', [
 			$if(pr.on, $txt(Lng.dontShow)),
-			$if(pr.rules, spBox(47, Lng.rules,
-				function() {$disp(pr.rules); if(qr.on) $disp(qr.rules)})),
+			spBox(47, Lng.rules, toggleRules),
 			$if(pr.gothr, spBox(48, Lng.gotoField,
 				function() {$disp(pr.gothr); if(qr.on) $disp(qr.gothr)})),
 			$if(pr.passw, spBox(49, Lng.passw,
@@ -1320,6 +1319,12 @@ function addTextResizer(obj) {
 	})]);
 }
 
+function toggleRules(obj) {
+	$each($X('.//*[@class="rules"]', obj), function(el) {
+		el.style.display = Cfg[47] == 1 ? 'none' : ''
+	});
+}
+
 function doChanges() {
 	// Common changes
 	if(!isMain) {
@@ -1352,17 +1357,22 @@ function doChanges() {
 		if(ch.nul) $Del('.//div[@class="replieslist"]', dForm);
 		else $Del('.//small[starts-with(@id,"rfmap")]|.//i[@class="abbrev"]', dForm);
 	}, 0)}});
-	if(!pr.on) return;
 	// Postform changes
+	if(pr.on) doPostformChanges();
+	if(pr.oek) {
+		if(!pr.on) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
+		var cnt = $New('center', [pr.oek, $new('hr')]);
+		if(Cfg[40] == 1 && !isMain) $after(dForm, [cnt]);
+		else $before(dForm, [cnt]);
+	}
+}
+
+function doPostformChanges() {
 	var hr = $x('following-sibling::hr', pr.area);
 	if(hr) pr.area.appendChild(hr);
 	if(isMain || Cfg[40] == 2) $disp(pr.area);
 	if(!isMain) {
-		$before(dForm, [
-			$id('DESU_panel'),
-			$id('DESU_content'),
-			$prev(pr.area),
-		]);
+		$before(dForm, [$id('DESU_panel'), $id('DESU_content'), $prev(pr.area)]);
 		if(Cfg[40] == 0) $before(dForm, [pr.area]);
 		if(Cfg[40] == 1) $after(dForm, [pr.area]);
 	}
@@ -1376,7 +1386,7 @@ function doChanges() {
 	eventSubmit(pr);
 	addTextPanel(pr);
 	addTextResizer(pr);
-	if(Cfg[47] == 1 && pr.rules) $disp(pr.rules);
+	toggleRules();
 	if(Cfg[48] == 1 && pr.gothr) $disp(pr.gothr);
 	if(Cfg[49] == 1 && pr.passw) $disp($x(pr.tr, pr.passw));
 	if(Cfg[43] == 1 && pr.name) setTimeout(function() {pr.name.value = Cfg[44]} , 0);
@@ -1514,6 +1524,7 @@ function addQuickReplyForm(e) {
 		addTextResizer(qr);
 		eventSageBtn(qr);
 		eventSubmit(qr);
+		toggleRules(qr.form);
 		if(qr.cap) {
 			$event(qr.cap, {'keypress': forceCap});
 			if(qr.recap) {
@@ -1753,7 +1764,7 @@ function addPostButtons(post, isCount) {
 		'mouseover': function() {selectPostHider(post)},
 		'mouseout': removeSelMenu
 	});
-	if(pr.on) {
+	if(pr.on || pr.oek) {
 		el = el.nextSibling;
 		$event(el, {
 			'mouseover': function() {quotetxt = txtSelection()},
@@ -2119,8 +2130,8 @@ function getpNum(x) {
 	return (x.match(/<input[^>]+checkbox[^>]+>/i) || x.match(/<a\s+name="\d+">/i))[0].match(/\d+/);
 }
 
-function parseHTMLdata(x) {
-	x = x.split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0];
+function parseHTMLdata(html) {
+	var x = html.split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0];
 	var thrds = x.substring(0, x.lastIndexOf(!ch.krau ? x.match(/<br[^>]+left/) : '<div style="clear: both">')).split(!ch.krau ? /<br[^>]+left[^>]*>[<>\/p\s]*<hr[^>]*>/ : /<\/div>\s+<div[^>]+class="thread"[^>]*>/);
 	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
 		var tNum = getpNum(thrds[i]);
@@ -2134,6 +2145,10 @@ function parseHTMLdata(x) {
 			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12), pNum);
 			ajaxPosts[pNum] = x;
 		}
+	}
+	if(!pr.on && pr.oek) {
+		pr = new replyForm($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
+		pr.oek = true;
 	}
 }
 
@@ -3031,7 +3046,8 @@ function detectWipe_caseWords(txt) {
 
 function replyForm(f) {
 	var x = $x('ancestor::div[' + (ch.dc ? 2 : 1) + ']', f) || f;
-	this.area = x;
+	this.area = x || $x('.//div[@class="postarea"]');
+	this.oek = $x('.//form[contains(@action,"paint")]');
 	if(!f) return;
 	this.on = true;
 	this.form = f;
@@ -3042,7 +3058,6 @@ function replyForm(f) {
 	this.subm = $x('.//tr//input[@type="submit"]', f);
 	this.file = $x('.//tr//input[@type="file"]', f);
 	this.passw = $x('.//tr//input[@type="password"]', f);
-	this.rules = $x('.//td[@class="rules"]|.//div[@class="rules"]', x);
 	this.gothr = $x('.//tr[@id="trgetback"]', f)
 		|| $x(this.tr, $x('.//tr//input[@type="radio" or @name="gotothread"]', f));
 	var pre = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
@@ -3117,7 +3132,7 @@ function initBoard() {
 	if(ch.krau && pr.on) {
 		pr.area = $new('div', {'class': 'postarea'});
 		$before(pr.form, [pr.area]);
-		$append(pr.area, [pr.form, $x('.//form[@action="/paint"]'), $x('.//hr', dForm)]);
+		$append(pr.area, [pr.form, $x('.//hr', dForm)]);
 	}
 	return true;
 }
@@ -3181,7 +3196,7 @@ function initDelform() {
 function initPosts() {
 	pPanel = $New('span', [
 		$new('a', {'class': 'DESU_icn_hide', 'text': (Cfg[29] == 2 ? 'x' : '')}),
-		$if(pr.on, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg[29] == 2 ? 'a' : '')}))
+		$if(pr.on || pr.oek, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg[29] == 2 ? 'a' : '')}))
 	], {'class': 'DESU_postpanel'});
 	opPanel = pPanel.cloneNode(true);
 	$append(opPanel, [
