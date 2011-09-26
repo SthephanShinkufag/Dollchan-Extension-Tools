@@ -1663,7 +1663,7 @@ function scriptCSS() {
 	if(Cfg[35] == 1) x.push('.commentpostername, .postername, .postertrip {display:none}');
 	if(Cfg[36] == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
 	if(Cfg[37] == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
-	if(Cfg[54] == 1) x.push('img[src*="thumb"], img[src*="spoiler"] {opacity:0.07 !important} img[src*="thumb"]:hover, img[src*="spoiler"]:hover {opacity:1 !important}');
+	if(Cfg[54] == 1) x.push('img[src*="thumb"], img[src*="spoiler"], #DESU_ytube, img[id="DESU_preimg"] {opacity:0.07 !important} img[src*="thumb"]:hover, img[src*="spoiler"]:hover, #DESU_ytube:hover, img[id="DESU_preimg"]:hover {opacity:1 !important}');
 	if(Cfg[57] == 1) x.push('.viewed, .viewed .reply {color:#888 !important}');
 	if(ch.so) x.push('html, body {font-family:"Trebuchet MS",Trebuchet,tahoma,serif} form {font-size:1em}');
 	
