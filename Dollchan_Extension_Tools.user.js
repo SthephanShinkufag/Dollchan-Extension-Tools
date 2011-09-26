@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-09-20
+// @version			2011-09-26
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -10,7 +10,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = [
-	'2011-09-20',	//script version
+	'2011-09-26',	//script version
 	1,		// 1	antiwipe detectors:
 	1,		// 2		same lines
 	1,		// 3		same words
@@ -3019,6 +3019,10 @@ function replyForm(f) {
 	this.mail = $x(pre + '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]', f);
 }
 
+function fixDomain() {
+	try {doc.domain = dm} catch(e) {dm = doc.domain}
+}
+
 function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
@@ -3039,11 +3043,12 @@ function initBoard() {
 	};
 	ks = $xb('.//script[contains(@src, "kusaba")]');
 	wk = $xb('.//script[contains(@src, "wakaba")]');
-	if(/DESU_iframe/.test(window.name)) return false;
+	if(/DESU_iframe/.test(window.name)) {fixDomain(); return false}
 	dForm = $x('.//form[' + $case([
 		ch.dc || ch.krau, 'contains(@action, "delete")]'
 	], '@id="delform" or @name="delform"]'));
 	if(!dForm || $id('DESU_panel')) return false;
+	fixDomain();
 	var ua = window.navigator.userAgent;
 	nav = {
 		Firefox: /firefox|minefield/i.test(ua),
