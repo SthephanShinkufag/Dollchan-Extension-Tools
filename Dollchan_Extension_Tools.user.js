@@ -226,7 +226,7 @@ LngArray = {
 },
 
 // Global vars
-Cfg = [], Visib = [], Expires = [], Favor = [], Posts = [], oPosts = [], pByNum = [], refMap = [], Spells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, Lng = {}, nav = sav = ch = pr = qr = {}, ks, wk, host, dm, brd, res, isMain, TNum, xPostRef, xPostMsg, pClass, cssFix, dForm, doc = document, isActiveTab = false, docTitle, favIcon, favIconInt, pView, pPanel, opPanel, dummy, quotetxt = '', oldTime, endTime, timeLog = '', stoargeLife = 3*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
+Cfg = [], Visib = [], Expires = [], Favor = [], Posts = [], oPosts = [], pByNum = [], refMap = [], viewedPosts = [], Spells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, Lng = {}, nav = sav = ch = pr = qr = {}, ks, wk, host, dm, brd, res, isMain, TNum, xPostRef, xPostMsg, pClass, cssFix, dForm, doc = document, isActiveTab = false, docTitle, favIcon, favIconInt, pView, pPanel, opPanel, dummy, quotetxt = '', oldTime, endTime, timeLog = '', stoargeLife = 3*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
 
 /*=============================================================================
 									UTILS
@@ -628,6 +628,19 @@ function storeFavorities(post, btn) {
 	setStored('DESU_Favorities', Favor.join('|'));
 	var div = $id('DESU_favor');
 	if(div.hasChildNodes()) {$delCh(div); favorThrdsTable()}
+}
+
+function readViewedPosts() {
+	if(typeof(sessionStorage) !== 'object' || !sessionStorage.viewedPosts) return;
+	viewedPosts = sessionStorage.viewedPosts.split(',');
+	for(var i in viewedPosts)
+		markViewedPost(viewedPosts[i]);
+}
+
+function storeViewedPosts(post) {
+	if(typeof(sessionStorage) !== 'object') return;
+	if(post) viewedPosts.push(post);
+	sessionStorage.viewedPosts = viewedPosts;
 }
 
 /*=============================================================================
@@ -2037,6 +2050,11 @@ function funcPostPreview(htm) {
 	if(Cfg[24] == 2) showRefMap(pView, pView.id.match(/\d+/), false);
 }
 
+function markViewedPost(pNum) {
+	if(pByNum[pNum] && (pByNum[pNum].className).indexOf('viewed') == -1)
+		pByNum[pNum].className += ' viewed';
+}
+
 function showPostPreview(e) {
 	if(Cfg[24] == 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2080,7 +2098,8 @@ function showPostPreview(e) {
 	$del($id(pView.id));
 	doc.body.appendChild(pView);
 	if(Cfg[57] == 1) pView.marker = setTimeout(function() {
-		if((pByNum[pNum].className).indexOf('viewed') == -1) pByNum[pNum].className += ' viewed';
+		markViewedPost(pNum);
+		storeViewedPosts(pNum);
 	}, 2000);
 }
 
@@ -3226,6 +3245,9 @@ function doScript() {
 	addLinkTube();					Log('addLinkTube');
 	addLinkImg();					Log('addLinkImg');
 	scriptCSS();					Log('scriptCSS');
+	if(Cfg[57] == 1) {
+		readViewedPosts();			Log('readViewedPosts');
+	}
 	endTime = oldTime - initTime;
 	if(pr.recap) refreshCapImg(pr);
 	if(pr.cap) $rattr(pr.cap, 'onclick');
