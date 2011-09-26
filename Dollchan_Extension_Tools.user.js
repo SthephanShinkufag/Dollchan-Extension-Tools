@@ -1225,7 +1225,7 @@ function makeCapImg(tNum) {
 	if(ks) src = $case([
 		ch._410, '/faptcha.php?board=' + brd,
 		ch.fst, '/securimage/securimage_show.php?' + Math.random()
-	], '/captcha.php?' + Math.random());
+	], '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random());
 	else {
 		var img = $x(pr.tr + '//img', pr.cap);
 		src = img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + rand10();
