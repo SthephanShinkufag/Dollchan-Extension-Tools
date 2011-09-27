@@ -226,7 +226,7 @@ LngArray = {
 },
 
 // Global vars
-Cfg = [], Visib = [], Expires = [], Favor = [], Posts = [], oPosts = [], pByNum = [], refMap = [], viewedPosts = [], Spells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, Lng = {}, nav = sav = ch = pr = qr = {}, ks, wk, host, dm, brd, res, isMain, TNum, xPostRef, xPostMsg, pClass, cssFix, dForm, doc = document, isActiveTab = false, docTitle, favIcon, favIconInt, pView, pPanel, opPanel, dummy, quotetxt = '', oldTime, endTime, timeLog = '', stoargeLife = 3*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
+Cfg = [], Visib = [], Expires = [], Favor = [], Posts = [], oPosts = [], pByNum = [], refMap = [], viewedPosts = [], Spells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, Lng = {}, nav = sav = ch = pr = qr = {}, ks, wk, host, dm, brd, res, isMain, TNum, xPostRef, xPostMsg, pClass, cssFix, dForm, oeForm, pArea, doc = document, isActiveTab = false, docTitle, favIcon, favIconInt, pView, pPanel, opPanel, dummy, quotetxt = '', oldTime, endTime, timeLog = '', stoargeLife = 3*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
 
 /*=============================================================================
 									UTILS
@@ -648,14 +648,7 @@ function storeViewedPosts(post) {
 =============================================================================*/
 
 function addPanel() {
-	var node = pr.area || dForm;
-	while(1) {
-		var el = node.previousSibling;
-		if(el.className == 'logo' || el.tagName == 'FORM') break;
-		$del(el);
-		if(el.tagName == 'HR') break;
-	}
-	$before(node, [
+	$before(dForm, [
 		$new('div', {'style': 'clear:both'}),
 		$New('div', [
 			$new('span', {'id': 'DESU_btn_logo'}, {
@@ -680,10 +673,14 @@ function addPanel() {
 				$if(!isMain, $new('a', {'id': 'DESU_btn_goback', 'title': Lng.goBack,
 					'href': 'http://' + host + '/' + brd + '/'
 				})),
-				$if(isMain && pr.on, $new('a', {'id': 'DESU_btn_newthr', 'title': Lng.newThread}, {
-					'click': function() {$disp(pr.area); $focus(pr.area)}
+				$if(isMain && (pr.on || oeForm), $new('a', {
+					'id': 'DESU_btn_newthr',
+					'title': Lng.newThread}, {
+					'click': function() {togglePostForm(); $focus(pArea)}
 				})),
-				$if(pr.file || pr.oek, $new('a', {'id': 'DESU_btn_expimg', 'title': Lng.expImages}, {
+				$if(pr.file || oeForm, $new('a', {
+					'id': 'DESU_btn_expimg',
+					'title': Lng.expImages}, {
 					'click': function() {
 						Cfg[26] = 1;
 						forAll(function(post) {$each(post.Img, function(img) {
@@ -691,7 +688,9 @@ function addPanel() {
 						})});
 					}
 				})),
-				$if(pr.file || pr.oek, $new('a', {'id': 'DESU_btn_maskimg', 'title': Lng.maskImages}, {
+				$if(pr.file || oeForm, $new('a', {
+					'id': 'DESU_btn_maskimg',
+					'title': Lng.maskImages}, {
 					'click': function() {toggleCfg(54); scriptCSS()}
 				})),
 				$if(!isMain && (Cfg[20] == 1 || Cfg[20] == 2), $new('a', {
@@ -1325,6 +1324,11 @@ function toggleRules(obj) {
 	});
 }
 
+function togglePostForm() {
+	if(isMain) $disp(pArea);
+	else if(pr.on) {$disp(pr.form); $disp(pr.form.nextSibling)}
+}
+
 function doChanges() {
 	// Common changes
 	if(!isMain) {
@@ -1357,25 +1361,18 @@ function doChanges() {
 		if(ch.nul) $Del('.//div[@class="replieslist"]', dForm);
 		else $Del('.//small[starts-with(@id,"rfmap")]|.//i[@class="abbrev"]', dForm);
 	}, 0)}});
+	
 	// Postform changes
+	if(isMain || Cfg[40] == 2) togglePostForm();
+	if(!isMain && Cfg[40] == 1) {
+		$after(dForm, [pArea]);
+		$before($1(pArea), [$new('hr', {'style': 'clear:both'})]);
+	} else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
-	if(pr.oek) {
-		if(!pr.on) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
-		var cnt = $New('center', [pr.oek, $new('hr')]);
-		if(Cfg[40] == 1 && !isMain) $after(dForm, [cnt]);
-		else $before(dForm, [cnt]);
-	}
+	else if(oeForm) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
 }
 
 function doPostformChanges() {
-	var hr = $x('following-sibling::hr', pr.area);
-	if(hr) pr.area.appendChild(hr);
-	if(isMain || Cfg[40] == 2) $disp(pr.area);
-	if(!isMain) {
-		$before(dForm, [$id('DESU_panel'), $id('DESU_content'), $prev(pr.area)]);
-		if(Cfg[40] == 0) $before(dForm, [pr.area]);
-		if(Cfg[40] == 1) $after(dForm, [pr.area]);
-	}
 	if(!ch.fch && pr.subm.nextSibling) $delNx(pr.subm);
 	if(ch.nul || ch.fst) {
 		$del($id('captcha_status'));
@@ -1558,8 +1555,8 @@ function insertRefLink(e) {
 	if(Cfg[34] == 0 || !pr.on || /Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); e.preventDefault();
 	var el = !qr.on || qr.form.style.display == 'none' ? pr : qr;
-	if(el == pr && pr.area.style.display == 'none') {
-		if(isMain) $disp(pr.area);
+	if(el == pr && pArea.style.display == 'none') {
+		if(isMain) togglePostForm();
 		else {addQuickReplyForm(e); return}
 	}
 	insertInto(el.txta, '>>' + getPost(e.target).id.match(/\d+/));
@@ -1765,7 +1762,7 @@ function addPostButtons(post, isCount) {
 		'mouseover': function() {selectPostHider(post)},
 		'mouseout': removeSelMenu
 	});
-	if(pr.on || pr.oek) {
+	if(pr.on || oeForm) {
 		el = el.nextSibling;
 		$event(el, {
 			'mouseover': function() {quotetxt = txtSelection()},
@@ -2132,6 +2129,7 @@ function getpNum(x) {
 }
 
 function parseHTMLdata(html) {
+	if(!pr.on && oeForm) pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 	var x = html.split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0];
 	var thrds = x.substring(0, x.lastIndexOf(!ch.krau ? x.match(/<br[^>]+left/) : '<div style="clear: both">')).split(!ch.krau ? /<br[^>]+left[^>]*>[<>\/p\s]*<hr[^>]*>/ : /<\/div>\s+<div[^>]+class="thread"[^>]*>/);
 	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
@@ -2146,10 +2144,6 @@ function parseHTMLdata(html) {
 			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12), pNum);
 			ajaxPosts[pNum] = x;
 		}
-	}
-	if(!pr.on && pr.oek) {
-		pr = new replyForm($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
-		pr.oek = true;
 	}
 }
 
@@ -3046,9 +3040,6 @@ function detectWipe_caseWords(txt) {
 =============================================================================*/
 
 function replyForm(f) {
-	var x = $x('ancestor::div[' + (ch.dc ? 2 : 1) + ']', f) || f;
-	this.area = x || $x('.//div[@class="postarea"]');
-	this.oek = $x('.//form[contains(@action,"paint")]');
 	if(!f) return;
 	this.on = true;
 	this.form = f;
@@ -3074,11 +3065,10 @@ function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
-	try {doc.domain = dm} catch(e) {dm = doc.domain}
 	ch = {
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
-		dc: dm == 'dobrochan.ru',
+		dc: /dobrochan/.test(dm),
 		fch: dm == '4chan.org',
 		krau: dm == 'krautchan.net',
 		_410: dm == '410chan.ru',
@@ -3130,11 +3120,16 @@ function initBoard() {
 	cssFix = $case([nav.Firefox, '-moz-', nav.Chrome, '-webkit-'], '');
 	dummy = $new('div');
 	pr = new replyForm($x('.//textarea/ancestor::form[1]'));
-	if(ch.krau && pr.on) {
-		pr.area = $new('div', {'class': 'postarea'});
-		$before(pr.form, [pr.area]);
-		$append(pr.area, [pr.form, $x('.//hr', dForm)]);
+	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]');
+	pArea = $new('div', {'class': 'postarea', 'align': 'center'});
+	$append(pArea, [pr.form, $if(pr.on, $new('hr')), oeForm, $if(oeForm, $new('hr'))]);
+	while(1) {
+		var el = dForm.previousSibling;
+		if($xb('descendant-or-self::div[@class="logo"]|descendant-or-self::form|descendant-or-self::h1', el))
+			break;
+		$del(el);
 	}
+	if(ch.krau) {$del($x('.//hr', dForm)); $del($x('.//hr', $prev(dForm)))}
 	return true;
 }
 
@@ -3197,7 +3192,7 @@ function initDelform() {
 function initPosts() {
 	pPanel = $New('span', [
 		$new('a', {'class': 'DESU_icn_hide', 'text': (Cfg[29] == 2 ? 'x' : '')}),
-		$if(pr.on || pr.oek, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg[29] == 2 ? 'a' : '')}))
+		$if(pr.on || oeForm, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg[29] == 2 ? 'a' : '')}))
 	], {'class': 'DESU_postpanel'});
 	opPanel = pPanel.cloneNode(true);
 	$append(opPanel, [
