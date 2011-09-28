@@ -498,7 +498,7 @@ function readCfg() {
 }
 
 function fixCaptchaLanguage() {
-	if(ch.dc || ch.nul) Cfg[41] = 2;
+	Cfg[41] = (ch.dc || ch.nul) ? 2 : 1;
 }
 
 function isValidCfg(data) {
@@ -3056,7 +3056,7 @@ function replyForm(f) {
 	this.form = f;
 	this.tr = 'ancestor::tr[1]';
 	this.recap = $x('.//input[@id="recaptcha_response_field"]', f);
-	this.cap = $x('.//input[contains(@name, "aptcha")]', f) || this.recap;
+	this.cap = $x('.//input[contains(@name, "aptcha") and not(@name="recaptcha_challenge_field")]', f) || this.recap;
 	this.txta = $x('.//tr//textarea' + (ch.krau ? '[@name="internal_t"]' : '[last()]'), f);
 	this.subm = $x('.//tr//input[@type="submit"]', f);
 	this.file = $x('.//tr//input[@type="file"]', f);
