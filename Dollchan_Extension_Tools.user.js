@@ -1715,7 +1715,7 @@ function getThread(el) {
 }
 
 function getPost(el) {
-	return $x('ancestor::*[starts-with(@id,"post-") or starts-with(@id,"oppost-")]', el);
+	return $x('ancestor::*[starts-with(@id,"post-") or starts-with(@id,"oppost-") or starts-with(@id,"DESU_preview_")]', el);
 }
 
 function getTitle(post) {
@@ -2050,7 +2050,7 @@ function delPostPreview(e) {
 	else functor();
 }
 
-function funcPostPreview(htm) {
+function funcPostPreview(htm, parentPostId) {
 	if(!pView) return;
 	pView.innerHTML = htmlReplace(htm);
 	eventRefLink(pView);
@@ -2062,7 +2062,11 @@ function funcPostPreview(htm) {
 	$each(pView.Img, function(img) {img.style.display = ''});
 	eventPostImg(pView);
 	addLinkImg(pView);
-	if(Cfg[24] == 2) showRefMap(pView, pView.id.match(/\d+/), false);
+	if(Cfg[24] == 2) {
+		showRefMap(pView, pView.id.match(/\d+/), false);
+		var backRefLink = $x('.//a[contains(@href, "#' + parentPostId + '") or contains(@href, "#i' + parentPostId + '") or contains(@href, "/' + parentPostId + '") and not(contains(@href, "#"))]', pView);
+		if(backRefLink) backRefLink.style.fontWeight = 'bold';
+	}
 }
 
 function markViewedPost(pNum) {
@@ -2100,15 +2104,16 @@ function showPostPreview(e) {
 		'mouseover': function() {if(!pView) pView = this}
 	});
 	if(b == brd) var post = pByNum[pNum];
+	var parentPostId = getPost(e.target).id.match(/\d+/);
 	if(post) {
-		funcPostPreview(($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML);
+		funcPostPreview(($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML, parentPostId);
 		if(post.Vis == 0) togglePost(pView);
-	} else if(ajaxPosts[pNum]) funcPostPreview(ajaxPosts[pNum]);
+	} else if(ajaxPosts[pNum]) funcPostPreview(ajaxPosts[pNum], parentPostId);
 	else {
 		pView.innerHTML = '<span class="DESU_icn_wait">&nbsp;</span>&nbsp;' + Lng.loading;
 		var url;
 		if(ch.dc) url = '/api/post/ref/' + b + '/' + tNum + '/' + pNum + '.xhtml';
-		AJAX(url, b, tNum, function(err) {funcPostPreview(err || ajaxPosts[pNum] || Lng.postNotFound)});
+		AJAX(url, b, tNum, function(err) {funcPostPreview(err || ajaxPosts[pNum] || Lng.postNotFound, parentPostId)});
 	}
 	$del($id(pView.id));
 	doc.body.appendChild(pView);
