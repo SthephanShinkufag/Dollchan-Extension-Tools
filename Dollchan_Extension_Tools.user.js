@@ -470,12 +470,12 @@ function saveSpells(val) {
 function setDefaultCfg() {
 	Cfg = defaultCfg;
 	fixCapLang();
-	setStored('DESU_Config_' + dm, JSON.stringify(defaultCfg));
+	setStored('DESU_Config_' + dm, uneval(defaultCfg));
 }
 
 function saveCfg(name, val) {
 	Cfg[name] = val;
-	setStored('DESU_Config_' + dm, JSON.stringify(Cfg));
+	setStored('DESU_Config_' + dm, uneval(Cfg));
 }
 
 function toggleCfg(name) {
@@ -483,7 +483,7 @@ function toggleCfg(name) {
 }
 
 function isValidCfg(data) {
-	try{if(eval('(' + data + ')').version) return true}
+	try{if(eval(data).version) return true}
 	catch(e) {return false}
 }
 
@@ -492,13 +492,13 @@ function readCfg() {
 	var global = false;
 	if(!isValidCfg(data) && sav.isGlobal) {data = getStored('DESU_GlobalCfg'); global = true}
 	if(!isValidCfg(data)) {setDefaultCfg(); setStored('DESU_GlobalCfg', '')}
-	else Cfg = eval('(' + data + ')');
+	else Cfg = eval(data);
 	if(ch.dc) Cfg.updthr = Cfg.updfav = Cfg.verify = Cfg.expost = 0;
 	if(ch.so) setCookie('script_state', 'false');
 	if(nav.Chrome) Cfg.updfav = 0;
 	for(var key in LngArray) {Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1]}
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
-	if(global) {fixCapLang(); setStored('DESU_Config_' + dm, JSON.stringify(Cfg))}
+	if(global) {fixCapLang(); setStored('DESU_Config_' + dm, uneval(Cfg))}
 }
 
 function fixCapLang() {
@@ -915,7 +915,7 @@ function addSettings() {
 				})
 			),
 			$if(sav.isGlobal, $btn(Lng.save, function() {
-				setStored('DESU_GlobalCfg', JSON.stringify(Cfg));
+				setStored('DESU_GlobalCfg', uneval(Cfg));
 				addSettings();
 				addSettings();
 			})),
@@ -1379,7 +1379,7 @@ function doPostformChanges() {
 		$html($x('ancestor::td[1]', pr.txta), '<textarea cols="48" rows="4" accesskey="m" />');
 		pr.txta = $x('.//textarea', pr.form);
 	}
-	if(ch.fst) $del($x('.//form//div[@id="box"]'));
+	if(ch.fst) $del($x('.//tr[td/div/@id="box"]', pr.form));
 	$each($X('.//input[@type="text"]', pr.form), function(el) {el.size = 35});
 	eventSubmit(pr);
 	addTextPanel(pr);
@@ -3068,6 +3068,10 @@ function fixDomain() {
 	try {doc.domain = dm} catch(e) {dm = doc.domain}
 }
 
+function fixUneval() {
+	try{eval("uneval")}catch(e){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"};uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}};
+}
+
 function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
@@ -3093,6 +3097,7 @@ function initBoard() {
 	], '@id="delform" or @name="delform"]'));
 	if(!dForm || $id('DESU_panel')) return false;
 	fixDomain();
+	fixUneval();
 	var ua = window.navigator.userAgent;
 	nav = {
 		Firefox: /firefox|minefield/i.test(ua),
