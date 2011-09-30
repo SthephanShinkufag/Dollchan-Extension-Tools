@@ -2394,7 +2394,7 @@ function getDelPosts(err) {
 }
 
 function setUpdButtonState(state) {
-	$x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+	if(Cfg.updthr != 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
 }
 
 function endPostsUpdate() {
@@ -2405,13 +2405,13 @@ function endPostsUpdate() {
 
 function infoNewPosts(err, del) {
 	if(err) {
-		if(err == Lng.noConnect) {setUpdButtonState('warn'); $alert(Lng.noConnect, 'warn')}
+		if(err == Lng.noConnect) {$alert(Lng.noConnect, 'warn'); setUpdButtonState('warn')}
 		else {$alert(Lng.thrdNotFound + TNum + '): \n' + err); endPostsUpdate()}
 		return;
 	}
+	if(Cfg.updthr == 3) return;
 	setUpdButtonState('on');
 	$close($id('DESU_alert_warn'));
-	if(Cfg.updthr == 3) return;
 	var inf = parseInt(ajaxThrds[TNum].keys.length - Posts.length + del - 1);
 	if(Cfg.updthr == 1) {
 		if(isActiveTab) return;
