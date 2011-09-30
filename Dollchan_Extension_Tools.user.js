@@ -87,12 +87,6 @@ LngArray = {
 	longWords:		['Длинные слова', 'Long words'],
 	numbers:		['Числа', 'Numbers'],
 	caps:			['КАПС/реГисТР', 'CAPS/cAsE'],
-	hideLongText:	['Скрывать с текстом более ', 'Hide text longer than '],
-	symbols:		[' символов', ' symbols'],
-	withSage:		['С сажей ', 'with sage '],
-	withTitle:		['С темой ', 'with title '],
-	noText:			['Без текста ', 'without text '],
-	noImg:			['Без картинок', 'without pics'],
 	spells:			['Заклинания: ', 'Magic spells: '],
 	add:			['Добавить', 'Add'],
 	apply:			['Применить', 'Apply'],
@@ -483,7 +477,7 @@ function toggleCfg(name) {
 }
 
 function isValidCfg(data) {
-	try{if(eval(data).version) return true}
+	try {if(eval(data).version) return true}
 	catch(e) {return false}
 }
 
@@ -1153,7 +1147,7 @@ function addSelMenu(el, arr) {
 }
 
 function selectSpell(e) {
-	$each(addSelMenu(e.target, ['#b/', '#b/itt', '#exp ', '#exph ', '#img ', '#name ', '#noimg', '#notext', '#num ', '#rep ', '#sage', '#skip ', '#tmax ', '#trip']),
+	$each(addSelMenu(e.target, ['#b/', '#b/itt', '#exp ', '#exph ', '#img ', '#name ', '#noimg', '#notxt', '#num ', '#outrep', '#rep ', '#sage', '#skip ', '#tmax ', '#trip']),
 		function(a) {$event(a, {'click': function() {
 			var exp = this.textContent;
 			if(exp == '#b/') exp = '#' + brd + '/ ';
@@ -1287,6 +1281,7 @@ function eventSubmit(obj) {
 			var btn = $x('.//a[@class="DESU_icn_favor"]', post);
 			if(btn) storeFavorities(post, btn);
 		}
+		obj.txta.value = outReplace(obj.txta.value);
 		if(Cfg.sign == 1 && Cfg.sigval != '') obj.txta.value += '\n' + Cfg.sigval;
 	}});
 }
@@ -2639,7 +2634,7 @@ function processHidden(newCfg, oldCfg) {
 function initSpells() {
 	Spells = {
 		words: [], rep: [], exp: [], exph: [], img: [], name: [], tmax: [], skip: [], num: [],
-		sage: false, notext: false, noimg: false, trip: false
+		sage: false, notxt: false, noimg: false, trip: false, outrep: []
 	};
 	var i = spellsList.length;
 	var x, t, b, n;
@@ -2682,26 +2677,40 @@ function initSpells() {
 		if(t == '#notxt') Spells.notxt = true;
 		if(t == '#noimg') Spells.noimg = true;
 		if(t == '#trip') Spells.trip = true;
+		if(t == '#outrep') Spells.outrep.push(x.substr(8));
 	}
+}
+
+function doReplace(arr, txt) {
+	var i = arr.length;
+	while(i--) {
+		var re = strToRegexp(arr[i]);
+		txt = txt.replace(re, arr[i].substr(re.toString().length + 1));
+	}
+	return txt;
+}
+
+function outReplace(txt) {
+	if(Cfg.spells == 0 || !Spells.outrep[0]) return txt;
+	return doReplace(Spells.outrep, txt);
 }
 
 function htmlReplace(txt) {
 	if(ch.fch || ch.krau)
 		txt = txt.replace(/(^|>|\s)(https*:\/\/.*?)($|<|\s)/ig, '$1<a href="$2">$2</a>$3');
 	if(Cfg.spells == 0 || !Spells.rep[0]) return txt;
-	var i = Spells.rep.length;
-	while(i--) {
-		var re = strToRegexp(Spells.rep[i]);
-		txt = txt.replace(re, Spells.rep[i].substr(re.toString().length + 1));
-	}
-	return txt;
+	return doReplace(Spells.rep, txt);
 }
 
 function verifyRegExp(txt) {
 	txt = txt.split('\n');
 	var i = txt.length;
-	while(i--) if(/#exp |#exph |#rep /.test(txt[i]))
-		try {strToRegexp(txt[i])} catch(e) {return txt[i]}
+	var re = /#exp |#exph |#rep |#outrep /;
+	while(i--) {
+		var t = txt[i];
+		var rep = t.match(re);
+		if(rep) try {strToRegexp(t.substr(t.indexOf(rep)))} catch(e) {return t}
+	}
 	return null;
 }
 
