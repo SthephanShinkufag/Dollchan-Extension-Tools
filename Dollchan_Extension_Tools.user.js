@@ -2410,6 +2410,7 @@ function infoNewPosts(err, del) {
 		return;
 	}
 	setUpdButtonState('on');
+	$close($id('DESU_alert_warn'));
 	if(Cfg.updthr == 3) return;
 	var inf = parseInt(ajaxThrds[TNum].keys.length - Posts.length + del - 1);
 	if(Cfg.updthr == 1) {
