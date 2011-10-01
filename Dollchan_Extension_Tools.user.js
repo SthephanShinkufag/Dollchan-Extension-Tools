@@ -217,6 +217,26 @@ LngArray = {
 // Global vars
 Cfg = [], Visib = [], Expires = [], Favor = [], Posts = [], oPosts = [], pByNum = [], refMap = [], viewedPosts = [], Spells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, Lng = {}, nav = sav = ch = pr = qr = {}, ks, wk, host, dm, brd, res, isMain, TNum, xPostRef, xPostMsg, pClass, cssFix, dForm, oeForm, pArea, doc = document, isActiveTab = false, docTitle, favIcon, favIconInt, pView, pPanel, opPanel, dummy, quotetxt = '', oldTime, endTime, timeLog = '', stoargeLife = 3*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
 
+// Opera support
+try {
+	GM_log;
+}
+catch(e) {
+	GM_log = function() {};
+}
+try {
+	GM_xmlhttpRequest;
+}
+catch(e) {
+	GM_xmlhttpRequest = function(obj) {
+		var xhr = new window.XMLHttpRequest();
+		xhr.onreadystatechange = function() { obj['onload'](xhr); };
+		xhr.open(obj['method'], obj['url'], true);
+		xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
+		xhr.send(false);
+	}
+}
+
 /*=============================================================================
 									UTILS
 =============================================================================*/
@@ -3300,6 +3320,6 @@ function doScript() {
 	if(pr.cap) $rattr(pr.cap, 'onclick');
 }
 
-if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
+if(window.opera) addEventListener('load', doScript, false);
 else doScript();
 })(window.opera ? window.opera.scriptStorage : null);
