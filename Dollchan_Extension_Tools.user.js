@@ -602,7 +602,7 @@ function removeFavorities(key) {
 }
 
 function getFavorKey(post) {
-	return host + '|' + brd + '|' + post.Num;
+	return host + '|' + brd + '|' + post.Num + '|';
 }
 
 function storeFavorities(post, btn) {
@@ -612,7 +612,7 @@ function storeFavorities(post, btn) {
 		removeFavorities(key);
 		btn.className = 'DESU_icn_favor';
 	} else {
-		Favor[Favor.length] = key + '|'
+		Favor[Favor.length] = key
 			+ getTitle(post).replace(/\|/g, '').substring(0, !sav.cookie ? 70 : 25);
 		Favor.sort();
 		if(sav.cookie && encodeURIComponent(Favor.join('%7C')).length > 4095)
