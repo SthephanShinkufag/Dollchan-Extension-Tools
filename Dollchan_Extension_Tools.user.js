@@ -1568,7 +1568,8 @@ function tfBtn(id, title, wktag, bbtag, val, x) {
 	if(Cfg.txtbtn == 2) btn.innerHTML = '<a>' + val + '</a>' + (val != '&gt;' ? ' / ' : '');
 	if(val != '&gt;') $event(btn, {'click': function() {
 		var tag1, tag2;
-		if(ch.nul || ch.so || ch.krau || ch.sib || dm == 'zadraw.ch' || (ch.fch && wktag == '%%')) {
+		if(ch.hiddenchan && bbtag in {'code':0, 'u':0, 's':0, 'spoiler':0} || ch.nul || ch.so
+			|| ch.krau || ch.sib || dm == 'zadraw.ch' || (ch.fch && wktag == '%%')) {
 			tag1 = '[' + bbtag + ']';
 			tag2 = '[/' + bbtag + ']';
 		} else tag1 = tag2 = wktag;
@@ -3090,6 +3091,7 @@ function initBoard() {
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
 	ch = {
+		hiddenchan: dm == 'hiddenchan.i2p',
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
 		dc: /dobrochan/.test(dm),
