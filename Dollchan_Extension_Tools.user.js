@@ -2229,22 +2229,21 @@ function AJAX(url, b, tNum, fn) {
 		}});
 		return;
 	}
-	var xhr = new window.XMLHttpRequest();
-	xhr.onreadystatechange = function() {
-		if(xhr.readyState != 4) return;
-		var res;
-		if(xhr.status == 200) {
-			if(!ch.so) {
-				if(ch.dc) parseDCdata(xhr.responseText);
-				else parseHTMLdata(xhr.responseText);
-			} else res = parse2CHdata(xhr.responseText, b);
-		} else if(xhr.status == 0) res = Lng.noConnect;
-		else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
-		fn(res);
-	};
-	xhr.open('GET', url, true);
-	xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-	xhr.send(false);
+	GM_xmlhttpRequest({
+		method: 'GET',
+		url: url,
+		onload: function(xhr) {
+			if(xhr.readyState != 4) return;
+			var res;
+			if(xhr.status == 200) {
+				if(!ch.so) {
+					if(ch.dc) parseDCdata(xhr.responseText);
+					else parseHTMLdata(xhr.responseText);
+				} else res = parse2CHdata(xhr.responseText, b);
+			} else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
+			fn(res);
+		}
+	});
 }
 
 function addPostFunc(post) {
