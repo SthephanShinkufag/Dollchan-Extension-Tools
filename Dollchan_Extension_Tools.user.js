@@ -625,7 +625,11 @@ function storeFavorities(post, btn) {
 }
 
 function readViewedPosts() {
-	if(typeof(sessionStorage) !== 'object' || !sessionStorage.viewedPosts) return;
+	try {
+		if(typeof(sessionStorage) !== 'object' || !sessionStorage.viewedPosts) return;
+	} catch(e) {
+		return;
+	}
 	viewedPosts = sessionStorage.viewedPosts.split(',');
 	for(var i in viewedPosts)
 		markViewedPost(viewedPosts[i]);
@@ -3115,7 +3119,11 @@ function initBoard() {
 		Chrome: /chrome/i.test(ua)
 	};
 	var gs = nav.Firefox && GM_setValue != null;
-	var ls = typeof localStorage === 'object' && localStorage != null;
+	var ls = false;
+	try {
+		ls = typeof localStorage === 'object' && localStorage != null;
+	} catch(e) {
+	}
 	var ss = nav.Opera && scriptStorage != null;
 	sav = {
 		GM: gs,
