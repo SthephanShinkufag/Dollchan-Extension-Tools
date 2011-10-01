@@ -2595,6 +2595,9 @@ function togglePost(post, vis) {
 function mergeHidden(post) {
 	if(post.Vis != 0) return;
 	var el = $prev(post);
+	if (!el) return; // Quick and dirty fix.  We would get an exception at the next line,
+			// if our post has no previous one.
+			// FIXME: Handle this situation properly.
 	if(!/merged/.test(el.id)) {
 		el = $new('span', {'id': 'DESU_merged_' + post.Num, 'style': 'display:none'});
 		$before(post, [$new('span', {
