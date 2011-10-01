@@ -3108,6 +3108,7 @@ function initBoard() {
 		_5ch: dm == '5channel.net',
 		fst: dm == 'firstchan.ru'
 	};
+	if (ch.hiddenchan) setTimeout = function(func) { func(); };
 	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
 	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if(/DESU_iframe/.test(window.name)) {fixDomain(); return false}
