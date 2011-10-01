@@ -2857,7 +2857,7 @@ function getImgSpell(post, exp) {
 	var stat = s[0].substring(0, 1);
 	var expK = s[0].substring(1);
 	if(expK != '') {
-		var imgK = parseInt(getImgWeight(post));
+		var imgK = getImgWeight(post);
 		if((stat == '<' && imgK < expK) ||
 			(stat == '>' && imgK > expK) ||
 			(stat == '=' && imgK == expK))
