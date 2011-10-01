@@ -1220,6 +1220,7 @@ function refreshCapImg(obj, tNum) {
 function makeCapImg(tNum) {
 	var src;
 	if(ks) src = $case([
+		ch.hiddenchan, '/securimage/securimage_show.php?' + Math.random(),
 		ch._410, '/faptcha.php?board=' + brd,
 		ch.fst, '/securimage/securimage_show.php?' + Math.random()
 	], '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random());
