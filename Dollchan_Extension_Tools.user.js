@@ -217,25 +217,6 @@ LngArray = {
 // Global vars
 Cfg = [], Visib = [], Expires = [], Favor = [], Posts = [], oPosts = [], pByNum = [], refMap = [], viewedPosts = [], Spells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, Lng = {}, nav = sav = ch = pr = qr = {}, ks, wk, host, dm, brd, res, isMain, TNum, xPostRef, xPostMsg, pClass, cssFix, dForm, oeForm, pArea, doc = document, isActiveTab = false, docTitle, favIcon, favIconInt, pView, pPanel, opPanel, dummy, quotetxt = '', oldTime, endTime, timeLog = '', stoargeLife = 3*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
 
-// Opera support
-try {
-	GM_log;
-}
-catch(e) {
-	GM_log = function() {};
-}
-try {
-	GM_xmlhttpRequest;
-}
-catch(e) {
-	GM_xmlhttpRequest = function(obj) {
-		var xhr = new window.XMLHttpRequest();
-		xhr.onreadystatechange = function() { obj['onload'](xhr); };
-		xhr.open(obj['method'], obj['url'], true);
-		xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-		xhr.send(false);
-	}
-}
 
 /*=============================================================================
 									UTILS
@@ -647,9 +628,7 @@ function storeFavorities(post, btn) {
 function readViewedPosts() {
 	try {
 		if(typeof(sessionStorage) !== 'object' || !sessionStorage.viewedPosts) return;
-	} catch(e) {
-		return;
-	}
+	} catch(e) {return}
 	viewedPosts = sessionStorage.viewedPosts.split(',');
 	for(var i in viewedPosts)
 		markViewedPost(viewedPosts[i]);
@@ -1247,9 +1226,8 @@ function refreshCapImg(obj, tNum) {
 function makeCapImg(tNum) {
 	var src;
 	if(ks) src = $case([
-		ch.hiddenchan, '/securimage/securimage_show.php?' + Math.random(),
 		ch._410, '/faptcha.php?board=' + brd,
-		ch.fst, '/securimage/securimage_show.php?' + Math.random()
+		ch.fst || ch.hid, '/securimage/securimage_show.php?' + Math.random()
 	], '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random());
 	else {
 		var img = $x(pr.tr + '//img', pr.cap);
@@ -1596,7 +1574,7 @@ function tfBtn(id, title, wktag, bbtag, val, x) {
 	if(Cfg.txtbtn == 2) btn.innerHTML = '<a>' + val + '</a>' + (val != '&gt;' ? ' / ' : '');
 	if(val != '&gt;') $event(btn, {'click': function() {
 		var tag1, tag2;
-		if(ch.hiddenchan && bbtag in {'code':0, 'u':0, 's':0, 'spoiler':0} || ch.nul || ch.so
+		if(ch.hid && bbtag in {'code':0, 'u':0, 's':0, 'spoiler':0} || ch.nul || ch.so
 			|| ch.krau || ch.sib || dm == 'zadraw.ch' || (ch.fch && wktag == '%%')) {
 			tag1 = '[' + bbtag + ']';
 			tag2 = '[/' + bbtag + ']';
@@ -3120,12 +3098,23 @@ function fixUneval() {
 	try{eval("uneval")}catch(e){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"};uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}};
 }
 
+function fixGM() {
+	try {GM_log} catch(e) {GM_log = function() {}}
+	try {GM_xmlhttpRequest}
+	catch(e) {GM_xmlhttpRequest = function(obj) {
+		var xhr = new window.XMLHttpRequest();
+		xhr.onreadystatechange = function() {obj['onload'](xhr)};
+		xhr.open(obj['method'], obj['url'], true);
+		xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
+		xhr.send(false);
+	}}
+}
+
 function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
 	ch = {
-		hiddenchan: dm == 'hiddenchan.i2p',
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
 		dc: /dobrochan/.test(dm),
@@ -3136,9 +3125,9 @@ function initBoard() {
 		wak: dm == 'wakachan.org',
 		tire: dm == '2--ch.ru',
 		_5ch: dm == '5channel.net',
-		fst: dm == 'firstchan.ru'
+		fst: dm == 'firstchan.ru',
+		hid: dm == 'hiddenchan.i2p'
 	};
-	if (ch.hiddenchan) setTimeout = function(func) { func(); };
 	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
 	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if(/DESU_iframe/.test(window.name)) {fixDomain(); return false}
@@ -3146,8 +3135,10 @@ function initBoard() {
 		ch.dc || ch.krau, 'contains(@action, "delete")]'
 	], '@id="delform" or @name="delform"]'));
 	if(!dForm || $id('DESU_panel')) return false;
+	if(ch.hid) setTimeout = function(func) { func(); };
 	fixDomain();
 	fixUneval();
+	fixGM();
 	var ua = window.navigator.userAgent;
 	nav = {
 		Firefox: /firefox|minefield/i.test(ua),
@@ -3156,10 +3147,7 @@ function initBoard() {
 	};
 	var gs = nav.Firefox && GM_setValue != null;
 	var ls = false;
-	try {
-		ls = typeof localStorage === 'object' && localStorage != null;
-	} catch(e) {
-	}
+	try {ls = typeof localStorage === 'object' && localStorage != null} catch(e) {}
 	var ss = nav.Opera && scriptStorage != null;
 	sav = {
 		GM: gs,
@@ -3258,23 +3246,31 @@ function initDelform() {
 function initPosts() {
 	pPanel = $New('span', [
 		$new('a', {'class': 'DESU_icn_hide', 'text': (Cfg.pstbtn == 2 ? 'x' : ''), 'href': '#'}),
-		$if(pr.on || oeForm, $new('a', {'class': 'DESU_icn_rep', 'text': (Cfg.pstbtn == 2 ? 'a' : ''), 'href': '#'}))
+		$if(pr.on || oeForm, $new('a', {
+			'class': 'DESU_icn_rep',
+			'text': (Cfg.pstbtn == 2 ? 'a' : ''),
+			'href': '#'
+		}))
 	], {'class': 'DESU_postpanel'});
 	opPanel = pPanel.cloneNode(true);
 	$append(opPanel, [
-		$if(isMain, $new('a', {'class': 'DESU_icn_expthr', 'text': (Cfg.pstbtn == 2 ? 'e' : ''), 'href': '#'})),
-		$new('a', {'class': 'DESU_icn_favor', 'text': (Cfg.pstbtn == 2 ? 'f' : ''), 'href': '#'})
+		$if(isMain, $new('a', {
+			'class': 'DESU_icn_expthr',
+			'text': (Cfg.pstbtn == 2 ? 'e' : ''),
+			'href': '#'
+		})),
+		$new('a', {
+			'class': 'DESU_icn_favor',
+			'text': (Cfg.pstbtn == 2 ? 'f' : ''),
+			'href': '#'
+		})
 	]);
-	$each($X('.//table[starts-with(@id,"post-")]|.//div[starts-with(@id,"post-")]', dForm), function(post, i) {
-		Posts[i] = post;
-		post.isOp = false;
-		post.Count = i + 2;
-	});
-	$each($X('.//div[starts-with(@id,"oppost-")]', dForm), function(post, i) {
-		oPosts[i] = post;
-		post.isOp = true;
-		post.Count = 1;
-	});
+	$each($X('.//table[starts-with(@id,"post-")]|.//div[starts-with(@id,"post-")]', dForm),
+		function(post, i) {Posts[i] = post; post.isOp = false; post.Count = i + 2}
+	);
+	$each($X('.//div[starts-with(@id,"oppost-")]', dForm),
+		function(post, i) {oPosts[i] = post; post.isOp = true; post.Count = 1}
+	);
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
 		post.Num = post.id.match(/\d+/);
@@ -3330,6 +3326,6 @@ function doScript() {
 	if(pr.cap) $rattr(pr.cap, 'onclick');
 }
 
-if(window.opera) addEventListener('load', doScript, false);
+if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
 else doScript();
 })(window.opera ? window.opera.scriptStorage : null);
