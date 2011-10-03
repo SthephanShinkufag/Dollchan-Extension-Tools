@@ -953,6 +953,11 @@ function addSettings() {
 				addSettings();
 				addSettings();
 			})),
+			$btn(Lng.edit, function() {
+				var el = $id('DESU_cfgedit');
+				el.value = getStored('DESU_Config_' + dm);
+				$disp($up(el));
+			}),
 			$btn(Lng.reset, function() {
 				setDefaultCfg();
 				setStored('DESU_Favorities', '');
@@ -960,7 +965,20 @@ function addSettings() {
 				window.location.reload();
 			})
 		], {'style': 'float:right'}),
-		$new('br', {'style': 'clear:both'})
+		$new('br', {'style': 'clear:both'}),
+		$New('div', [
+			$new('textarea', {
+				'id': 'DESU_cfgedit',
+				'value': getStored('DESU_Config_' + dm) || '',
+				'rows': 7,
+				'cols': 55,
+				'style': 'display:block; font:12px courier new; word-wrap:break-word'
+			}),
+			$btn(Lng.save, function() {
+				setStored('DESU_Config_' + dm, $id('DESU_cfgedit').value.trim());
+				window.location.reload();
+			})
+		], {'style': 'display:none'})
 	]);
 }
 
