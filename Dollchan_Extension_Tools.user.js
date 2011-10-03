@@ -2518,7 +2518,7 @@ function hideThread(post, note) {
 	if(post.Vis == 0) return;
 	togglePost(post, 0);
 	var x = $add('<span class="' + pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
-		+ Lng.hiddenThread + ' <a style="cursor:pointer">№' + post.Num + '</a><i> ('
+		+ Lng.hiddenThread + ' <a style="cursor:pointer" href="#">№' + post.Num + '</a><i> ('
 		+ (!note ? getTitle(post).substring(0, 50) : 'autohide: ' + note) + ')</i></span>');
 	$event($x('.//a', x), {'click': function() {unhideThread(post)}});
 	$before($up(post), [x]);
