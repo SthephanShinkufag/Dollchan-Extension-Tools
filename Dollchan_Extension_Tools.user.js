@@ -902,29 +902,29 @@ function addSettings() {
 			})
 		])),
 		$if(pr.name, $New('div', [
-			$new('input', {'type': 'text', 'id': 'DESU_fixedname', 'value': Cfg.namval, 'size': 20}),
-			spBox('name', Lng.fixedName, function() {
+			$new('input', {'type': 'text', 'id': 'DESU_fixedname', 'value': Cfg.namval, 'size': 20}, {'keyup': function() {
 				saveCfg('namval', $id('DESU_fixedname').value.replace(/\|/g, ''));
 				var val = $id('DESU_fixedname_ch').checked ? Cfg.namval : '';
 				pr.name.value = val;
 				if(qr.on) qr.name.value = val;
-			}, 'DESU_fixedname_ch')
+			}}),
+			spBox('name', Lng.fixedName, null, 'DESU_fixedname_ch')
 		])),
 		$if(pr.passw, $New('div', [
-			$new('input', {'type': 'text', 'id': 'DESU_fixedpass', 'value': Cfg.pasval, 'size': 20}),
-			spBox('passw', Lng.fixedPass, function () {
+			$new('input', {'type': 'text', 'id': 'DESU_fixedpass', 'value': Cfg.pasval, 'size': 20}, {'keyup': function() {
 				saveCfg('pasval', $id('DESU_fixedpass').value.replace(/\|/g, ''));
 				var val = $id('DESU_fixedpass_ch').checked ? Cfg.pasval : rand10().substring(0, 8);
 				pr.passw.value = val;
 				del_passw.value = val;
 				if(qr.on) qr.passw.value = val;
-			}, 'DESU_fixedpass_ch')
+			}}),
+			spBox('passw', Lng.fixedPass, null, 'DESU_fixedpass_ch')
 		])),
 		$if(pr.txta, $New('div', [
-			$new('input', {'type': 'text', 'id': 'DESU_fixedsign', 'value': Cfg.sigval, 'size': 20}),
-			spBox('sign', Lng.fixedSign, function () {
+			$new('input', {'type': 'text', 'id': 'DESU_fixedsign', 'value': Cfg.sigval, 'size': 20}, {'keyup': function() {
 				saveCfg('sigval', $id('DESU_fixedsign').value.replace(/\|/g, ''));
-			})
+			}}),
+			spBox('sign', Lng.fixedSign)
 		])),
 		$New('div', [
 			$if(pr.on, $txt(Lng.dontShow)),
