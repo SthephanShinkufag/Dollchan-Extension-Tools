@@ -658,7 +658,9 @@ function readViewedPosts() {
 function storeViewedPosts(post) {
 	if(typeof(sessionStorage) !== 'object') return;
 	if(post) viewedPosts.push(post);
-	sessionStorage.viewedPosts = viewedPosts;
+	try {
+		sessionStorage.viewedPosts = viewedPosts;
+	} catch(e) {}
 }
 
 /*=============================================================================
