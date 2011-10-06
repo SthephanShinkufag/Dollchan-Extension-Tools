@@ -2588,7 +2588,17 @@ function loadPages(len) {
 
 function doPostFilters(post) {
 	hidePostsByWipe(post);
-	if(post.Vis != 0 && Cfg.spells == 1) hidePostsBySpells(post);
+	if (Cfg.spells == 1)
+		if (post.Vis != 0)
+			hidePostsBySpells(post);
+		else
+			unhideIfSkipped(post);
+}
+
+function unhideIfSkipped(post) {
+	if (isMain) return;
+	var skipped = isSkipped(post);
+	if (skipped) unhidePost(post);
 }
 
 function hideThread(post, note) {
@@ -2856,20 +2866,23 @@ function toggleSpells() {
 	}
 }
 
-function getSpells(post) {
-	var pName, pTrip, pTitle, pHtm, x, t, i;
+function isSkipped(post) {
 	var x = Spells;
-	post.noHide = false;
 	if(x.skip[0]) {
 		i = x.skip.length;
 		while(i--) {
 			t = x.skip[i].split('-');
-			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1])) {
-				post.noHide = true;
-				return;
-			}
+			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1]))
+				return true;
 		}
 	}
+	return false;
+}
+
+function getSpells(post) {
+	var pName, pTrip, pTitle, pHtm, x, t, i;
+	var x = Spells;
+	post.noHide = isSkipped(post);
 	if(x.words[0]) {
 		pTitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
 		i = x.words.length;
