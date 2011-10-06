@@ -3240,7 +3240,7 @@ function initBoard() {
 	fixGM();
 	var ua = window.navigator.userAgent;
 	nav = {
-		Firefox: /firefox|minefield/i.test(ua),
+		Firefox: /firefox|minefield|icecat/i.test(ua),
 		Opera: /opera/i.test(ua),
 		Chrome: /chrome/i.test(ua)
 	};
