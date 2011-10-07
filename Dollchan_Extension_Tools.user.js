@@ -78,7 +78,7 @@ var LngArray = {
 	goBack:			['Назад', 'Return'],
 	expImages:		['Раскрыть картинки', 'Expand images'],
 	maskImages:		['Маскировать картинки', 'Mask images'],
-	autoupd:		['Автообовление треда', 'Thread autoupdate'],
+	autoupd:		['Автообновление треда', 'Thread autoupdate'],
 	antiWipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
 	sameLines:		['Повтор строк', 'Same lines'],
 	sameWords:		['Повтор слов', 'Same words'],
@@ -208,7 +208,7 @@ var LngArray = {
 	strike:			['Зачеркнутый', 'Strike'],
 	spoiler:		['Спойлер', 'Spoiler'],
 	code:			['Код', 'Code'],
-	quote:			['Цитировать выделеное', 'Quote selected'],
+	quote:			['Цитировать выделенное', 'Quote selected'],
 	replies:		['Ответы: ', 'Replies: '],
 	postNotFound:	['Пост не найден', 'Post not found'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
@@ -658,7 +658,9 @@ function readViewedPosts() {
 function storeViewedPosts(post) {
 	if(typeof(sessionStorage) !== 'object') return;
 	if(post) viewedPosts.push(post);
-	sessionStorage.viewedPosts = viewedPosts;
+	try {
+		sessionStorage.viewedPosts = viewedPosts;
+	} catch(e) {}
 }
 
 /*=============================================================================
@@ -902,29 +904,29 @@ function addSettings() {
 			})
 		])),
 		$if(pr.name, $New('div', [
-			$new('input', {'type': 'text', 'id': 'DESU_fixedname', 'value': Cfg.namval, 'size': 20}),
-			spBox('name', Lng.fixedName, function() {
+			$new('input', {'type': 'text', 'id': 'DESU_fixedname', 'value': Cfg.namval, 'size': 20}, {'keyup': function() {
 				saveCfg('namval', $id('DESU_fixedname').value.replace(/\|/g, ''));
 				var val = $id('DESU_fixedname_ch').checked ? Cfg.namval : '';
 				pr.name.value = val;
 				if(qr.on) qr.name.value = val;
-			}, 'DESU_fixedname_ch')
+			}}),
+			spBox('name', Lng.fixedName, null, 'DESU_fixedname_ch')
 		])),
 		$if(pr.passw, $New('div', [
-			$new('input', {'type': 'text', 'id': 'DESU_fixedpass', 'value': Cfg.pasval, 'size': 20}),
-			spBox('passw', Lng.fixedPass, function () {
+			$new('input', {'type': 'text', 'id': 'DESU_fixedpass', 'value': Cfg.pasval, 'size': 20}, {'keyup': function() {
 				saveCfg('pasval', $id('DESU_fixedpass').value.replace(/\|/g, ''));
 				var val = $id('DESU_fixedpass_ch').checked ? Cfg.pasval : rand10().substring(0, 8);
 				pr.passw.value = val;
 				del_passw.value = val;
 				if(qr.on) qr.passw.value = val;
-			}, 'DESU_fixedpass_ch')
+			}}),
+			spBox('passw', Lng.fixedPass, null, 'DESU_fixedpass_ch')
 		])),
 		$if(pr.txta, $New('div', [
-			$new('input', {'type': 'text', 'id': 'DESU_fixedsign', 'value': Cfg.sigval, 'size': 20}),
-			spBox('sign', Lng.fixedSign, function () {
+			$new('input', {'type': 'text', 'id': 'DESU_fixedsign', 'value': Cfg.sigval, 'size': 20}, {'keyup': function() {
 				saveCfg('sigval', $id('DESU_fixedsign').value.replace(/\|/g, ''));
-			})
+			}}),
+			spBox('sign', Lng.fixedSign)
 		])),
 		$New('div', [
 			$if(pr.on, $txt(Lng.dontShow)),
@@ -2586,7 +2588,17 @@ function loadPages(len) {
 
 function doPostFilters(post) {
 	hidePostsByWipe(post);
-	if(post.Vis != 0 && Cfg.spells == 1) hidePostsBySpells(post);
+	if (Cfg.spells == 1)
+		if (post.Vis != 0)
+			hidePostsBySpells(post);
+		else
+			unhideIfSkipped(post);
+}
+
+function unhideIfSkipped(post) {
+	if (isMain) return;
+	var skipped = isSkipped(post);
+	if (skipped) unhidePost(post);
 }
 
 function hideThread(post, note) {
@@ -2854,20 +2866,23 @@ function toggleSpells() {
 	}
 }
 
-function getSpells(post) {
-	var pName, pTrip, pTitle, pHtm, x, t, i;
+function isSkipped(post) {
 	var x = Spells;
-	post.noHide = false;
 	if(x.skip[0]) {
 		i = x.skip.length;
 		while(i--) {
 			t = x.skip[i].split('-');
-			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1])) {
-				post.noHide = true;
-				return;
-			}
+			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1]))
+				return true;
 		}
 	}
+	return false;
+}
+
+function getSpells(post) {
+	var pName, pTrip, pTitle, pHtm, x, t, i;
+	var x = Spells;
+	post.noHide = isSkipped(post);
 	if(x.words[0]) {
 		pTitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
 		i = x.words.length;
@@ -3186,8 +3201,8 @@ function fixGM() {
 	catch(e) {
 		GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
-			xhr.onreadystatechange = function() { obj['onload'](xhr); };
-			xhr.open(obj['method'], obj['url'], true);
+			xhr.onreadystatechange = function() { obj.onload(xhr); };
+			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 			xhr.send(false);
 		};
@@ -3225,7 +3240,7 @@ function initBoard() {
 	fixGM();
 	var ua = window.navigator.userAgent;
 	nav = {
-		Firefox: /firefox|minefield/i.test(ua),
+		Firefox: /firefox|minefield|icecat/i.test(ua),
 		Opera: /opera/i.test(ua),
 		Chrome: /chrome/i.test(ua)
 	};
