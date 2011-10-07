@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-10-03
+// @version			2011-10-07
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -11,7 +11,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-03',
+	version:	'2011-10-07',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -225,13 +225,12 @@ var Cfg = [], Lng = {};
 var doc = document;
 var Posts = [], oPosts = [], pByNum = [];
 var Visib = [], Expires = [], Favor = [], refMap = [];
-var pView, viewedPosts = [];
 var Spells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var pr = {}, qr = {};
 var nav = {}, sav = {}, ch = {};
 var ks, wk, host, dm, brd, res, isMain, TNum, pClass, cssFix, xPostRef, xPostMsg;
-var dForm, oeForm, pArea, pPanel, opPanel, dummy;
+var dForm, oeForm, pArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false;
 var oldTime, endTime, timeLog = '';
@@ -499,8 +498,7 @@ function toggleCfg(name) {
 }
 
 function isValidCfg(data) {
-	try { if(eval(data).version) return true; }
-	catch(e) { return false; }
+	try { if(eval(data).version) return true; } catch(e) { return false; }
 }
 
 function readCfg() {
@@ -509,13 +507,17 @@ function readCfg() {
 	if(!isValidCfg(data) && sav.isGlobal) { data = getStored('DESU_GlobalCfg'); global = true; }
 	if(!isValidCfg(data)) setDefaultCfg();
 	else Cfg = eval(data);
+	Cfg.version = defaultCfg.version;
+	for(var key in defaultCfg)
+		if(Cfg[key] == null) Cfg[key] = defaultCfg[key];
+	if(global) fixCapLang();
 	if(ch.dc) Cfg.updthr = Cfg.updfav = Cfg.verify = Cfg.expost = 0;
 	if(ch.so) setCookie('script_state', 'false');
 	if(nav.Chrome) Cfg.updfav = 0;
+	setStored('DESU_Config_' + dm, uneval(Cfg));
 	for(var key in LngArray)
 		Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
-	if(global) { fixCapLang(); setStored('DESU_Config_' + dm, uneval(Cfg)); }
 }
 
 function fixCapLang() {
@@ -647,20 +649,17 @@ function storeFavorities(post, btn) {
 }
 
 function readViewedPosts() {
-	try {
-		if(typeof(sessionStorage) !== 'object' || !sessionStorage.viewedPosts) return;
-	} catch(e) { return; }
-	viewedPosts = sessionStorage.viewedPosts.split(',');
-	for(var i in viewedPosts)
-		markViewedPost(viewedPosts[i]);
+	if(!sav.session) return;
+	var arr = (sessionStorage.viewedPosts || '').split(',');
+	for(var i in arr)
+		markViewedPost(arr[i]);
 }
 
-function storeViewedPosts(post) {
-	if(typeof(sessionStorage) !== 'object') return;
-	if(post) viewedPosts.push(post);
-	try {
-		sessionStorage.viewedPosts = viewedPosts;
-	} catch(e) {}
+function storeViewedPosts(pNum) {
+	if(!sav.session) return;
+	var arr = (sessionStorage.viewedPosts || '').split(',');
+	arr.push(pNum);
+	sessionStorage.viewedPosts = arr;
 }
 
 /*=============================================================================
@@ -1719,7 +1718,7 @@ function scriptCSS() {
 	pIcn('.DESU_icn_favset', 'R0lGODlhDgAOAKIAAP/dQKCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	
 	// main panel buttons
-	var bIcn = function(nm, src) { x.push(nm + ' {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; ' + cssFix + 'border-radius:5px; background:url(data:image/gif;base64,' + src + '}'); };
+	var bIcn = function(nm, src) { x.push(nm + ' {display:inline-block; cursor:pointer; padding:0 25px 25px 0; margin:0 1px 0 1px; ' + cssFix + 'border-radius:5px; background:url(data:image/gif;base64,' + src + '}'); };
 	var bPre = 'R0lGODlhGQAZAIAAAPDw8ICAgCwAAAAAGQAZAEAC';
 	bIcn('#DESU_btn_logo', bPre + 'OYyPqcsBD1qCCEaJs97Teit9IsWVzPhwoLY6ZNa25kzXNHqx7yzreL749Sqpw/BUNByDwqWyCbQdCgA7); ' + cssFix + 'border-radius:15px 0 0 0');
 	bIcn('#DESU_btn_settings', bPre + 'QIyPqWvgDyNDL9WJs94WLokBxxWI3DmZpTNyZMOGngJ+0f2i+s7ruVaR/GjCWirWUdmQRGZzCSzOZCKpz9nLFAAAOw==) center');
@@ -2588,17 +2587,7 @@ function loadPages(len) {
 
 function doPostFilters(post) {
 	hidePostsByWipe(post);
-	if (Cfg.spells == 1)
-		if (post.Vis != 0)
-			hidePostsBySpells(post);
-		else
-			unhideIfSkipped(post);
-}
-
-function unhideIfSkipped(post) {
-	if (isMain) return;
-	var skipped = isSkipped(post);
-	if (skipped) unhidePost(post);
+	if(Cfg.spells == 1) hidePostsBySpells(post);
 }
 
 function hideThread(post, note) {
@@ -2823,7 +2812,9 @@ function verifyRegExp(txt) {
 
 function hidePostsBySpells(post) {
 	var exp = getSpells(post);
-	if(exp) hidePost(post, exp.substring(0, 30));
+	if(post.Vis == 0) {
+		if(post.noHide) unhidePost(post);
+	} else if(exp) hidePost(post, exp.substring(0, 30));
 }
 
 function applySpells(txt) {
@@ -2866,23 +2857,20 @@ function toggleSpells() {
 	}
 }
 
-function isSkipped(post) {
-	var x = Spells;
-	if(x.skip[0]) {
-		i = x.skip.length;
-		while(i--) {
-			t = x.skip[i].split('-');
-			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1]))
-				return true;
-		}
-	}
-	return false;
-}
-
 function getSpells(post) {
 	var pName, pTrip, pTitle, pHtm, x, t, i;
 	var x = Spells;
-	post.noHide = isSkipped(post);
+	post.noHide = false;
+	if(x.skip[0] && !isMain) {
+		i = x.skip.length;
+		while(i--) {
+			t = x.skip[i].split('-');
+			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1])) {
+				post.noHide = true;
+				return;
+			}
+		}
+	}
 	if(x.words[0]) {
 		pTitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
 		i = x.words.length;
@@ -3245,14 +3233,17 @@ function initBoard() {
 		Chrome: /chrome/i.test(ua)
 	};
 	var gs = nav.Firefox && GM_setValue != null;
+	var ss = nav.Opera && scriptStorage != null;
 	var ls = false;
 	try { ls = typeof localStorage === 'object' && localStorage != null; } catch(e) {}
-	var ss = nav.Opera && scriptStorage != null;
+	var se = false;
+	try { se = typeof sessionStorage === 'object' && sessionStorage != null; } catch(e) {}
 	sav = {
 		GM: gs,
-		local: ls && !ss && !gs,
 		script: ss,
 		cookie: !ls && !ss && !gs,
+		local: ls && !ss && !gs,
+		session: se,
 		isGlobal: gs || ss
 	};
 	var url = window.location.pathname || '';
