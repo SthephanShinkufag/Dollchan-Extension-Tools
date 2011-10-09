@@ -3237,7 +3237,7 @@ function initBoard() {
 	var ls = false;
 	try { ls = typeof localStorage === 'object' && localStorage != null; } catch(e) {}
 	var se = false;
-	try { se = typeof sessionStorage === 'object' && sessionStorage != null; } catch(e) {}
+	try { se = typeof sessionStorage === 'object' && sessionStorage != null && (sessionStorage.test = 1); } catch(e) {}
 	sav = {
 		GM: gs,
 		script: ss,
