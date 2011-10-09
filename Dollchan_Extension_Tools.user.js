@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-10-07
+// @version			2011-10-09
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -11,7 +11,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-07',
+	version:	'2011-10-09',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -1436,12 +1436,11 @@ function doChanges() {
 			else $Del('.//small[starts-with(@id,"rfmap")]|.//i[@class="abbrev"]', dForm);
 		}, 0);
 	}});
-	
 	// Postform changes
 	if(isMain || Cfg.pform == 2) togglePostForm();
 	if(!isMain && Cfg.pform == 1) {
 		$after(dForm, [pArea]);
-		$before($1(pArea), [$new('hr', {'style': 'clear:both'})]);
+		if(pr.on) $before($1(pArea), [$new('hr', {'style': 'clear:both'})]);
 	} else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
 	else if(oeForm) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
