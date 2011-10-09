@@ -1096,10 +1096,16 @@ function favorThrdsTable() {
 			url = 'http://' + h + '/' + (b == '' ? '' : b + '/')
 				+ (/krautchan\.net/.test(h) ? 'thread-' : 'res/') + tNum
 				+ (/dobrochan\.ru/.test(h) ? '.xhtml' : '.html');
-			if(h != oldh || b != oldb) table.insertRow(-1).appendChild($add(
-				'<b><a target="_blank" href="http://' + h + '/' + b
-				+ '" style="text-decoration:none; color:inherit">' + h + '/' + b + '</a></b>'
-			));
+			if(h != oldh || b != oldb) $append(table.insertRow(-1), [
+				$new('input', {'type': 'checkbox', 'id': h}, {'click': function() {
+					var inp = this;
+					$each($X('.//tr[starts-with(@id,"' + inp.id + '|")]//input'), function(el) {
+						el.checked = inp.checked;
+					});
+				}}),
+				$add('<b><a target="_blank" href="http://' + h + '/' + b
+					+ '" style="text-decoration:none; color:inherit">' + h + '/' + b + '</a></b>')
+			]);
 			oldh = h;
 			oldb = b;
 			if(txt.length >= (sav.cookie ? 25 : 70)) txt += '..';
@@ -1706,7 +1712,7 @@ function scriptCSS() {
 	x.push('.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}');
 	
 	// post butttons
-	var pIcn = function(nm, src) { x.push(nm + ' {margin:0 4px 0 0 !important;' + (Cfg.pstbtn == 1 ? ' padding-right:14px; font-size:13px; background:url(data:image/gif;base64,' + src + ') no-repeat !important}' : '}')); };
+	var pIcn = function(nm, src) { x.push(nm + ' {margin:0 4px 0 0 !important; cursor:pointer;' + (Cfg.pstbtn == 1 ? ' padding-right:14px; font-size:13px; background:url(data:image/gif;base64,' + src + ') no-repeat !important}' : '}')); };
 	var pPre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 	pIcn('.DESU_icn_hide', pPre + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
 	pIcn('.DESU_icn_unhide', pPre + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
