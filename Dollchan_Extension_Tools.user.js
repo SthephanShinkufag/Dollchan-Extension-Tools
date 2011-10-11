@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-10-09
+// @version			2011-10-11
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -11,7 +11,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-09',
+	version:	'2011-10-11',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -254,6 +254,9 @@ function $xb(path, root) {
 function $id(id) {
 	return doc.getElementById(id);
 }
+function $t(id, root) {
+	return (root || doc).getElementsByTagName(id)[0];
+}
 function $next(el) {
 	do el = el.nextSibling;
 	while(el && el.nodeType != 1);
@@ -276,6 +279,13 @@ function $each(list, fn) {
 	if(!list) return;
 	var i = list.snapshotLength;
 	while(i--) fn(list.snapshotItem(i), i);
+}
+function $each_(list, fn) {
+	if(!list) return;
+	var k = list.snapshotLength;
+	if(nav.Firefox) for(var i = 0; i < k; i++) fn(list.snapshotItem(i), i);
+	else while(k--) fn(list.snapshotItem(k), k);
+	
 }
 function $html(el, htm) {
 	var cln = el.cloneNode(false);
@@ -619,8 +629,7 @@ function removeFavorities(key) {
 		if(Favor[i].indexOf(key) > -1) {
 			var post = pByNum[Favor[i].split('|')[2]];
 			if(post && Cfg.pstbtn != 0)
-				$x('.//a[starts-with(@class,"DESU_icn_fav")]', post.Btns
-				).className = 'DESU_icn_favor';
+				$x('.//a[starts-with(@class,"DESU_icn_fav")]', post.Btns).className = 'DESU_icn_favor';
 			Favor.splice(i, 1);
 		}
 }
@@ -987,9 +996,9 @@ function addContentTable(el) {
 	el.innerHTML = (Cfg.attach == 0
 		? '<hr style="clear:both"><table style="margin:5px 20px">'
 		: '<table style="border:1px solid grey; padding:5px 10px; background-color:'
-			+ getStyle($x('.//body'), 'background-color') +'">')
+			+ getStyle($t('body'), 'background-color') +'">')
 		+ '<tbody align="left"></tbody></table>';
-	return $x('.//tbody', el);
+	return $t('tbody', el);
 }
 
 function hiddenPostsTable() {
@@ -1138,7 +1147,7 @@ function favorThrdsTable() {
 			$new('hr'),
 			$btn(Lng.remove, function() {
 				$each($X('.//tr[@class="DESU_favornote"]', table), function(el) {
-					if($x('.//input', el).checked) removeFavorities(el.id);
+					if($t('input', el).checked) removeFavorities(el.id);
 				});
 				setStored('DESU_Favorities', Favor.join('|'));
 				$delCh($id('DESU_favor'));
@@ -1266,7 +1275,7 @@ function selectExpandThread(post) {
 }
 
 function selectAjaxPages() {
-	$each(addSelMenu($x('.//a[@id="DESU_btn_refresh"]'), Lng.selAjaxPages),
+	$each(addSelMenu($id('DESU_btn_refresh'), Lng.selAjaxPages),
 		function(a, i) {$event(a, {'click': function(e) { $pD(e); loadPages(i + 1); }})}
 	);
 }
@@ -1285,7 +1294,7 @@ function refreshCapSrc(src, tNum) {
 
 function refreshCapImg(obj, tNum) {
 	var img = !obj.recap
-		? $x('.//img', $x(obj.tr, obj.cap))
+		? $x(obj.tr + '//img', obj.cap)
 		: $x('.//div[@id="recaptcha_image"]', obj.form) || obj.cap;
 	if(!ch.dc && !obj.recap) {
 		var src = refreshCapSrc(img.getAttribute('src'), tNum);
@@ -1419,7 +1428,7 @@ function doChanges() {
 				isActiveTab = true;
 				if(Cfg.updfav == 1 && favIcon) {
 					clearInterval(favIconInt);
-					var head = $x('.//head');
+					var head = $t('head');
 					$Del('.//link[@rel="shortcut icon"]', head);
 					head.appendChild($new('link', {'href': favIcon, 'rel': 'shortcut icon'}));
 				}
@@ -1457,7 +1466,7 @@ function doPostformChanges() {
 	if(ch.nul || ch.fst) {
 		$del($id('captcha_status'));
 		$html($x('ancestor::td[1]', pr.txta), '<textarea cols="48" rows="4" accesskey="m" />');
-		pr.txta = $x('.//textarea', pr.form);
+		pr.txta = $t('textarea', pr.form);
 	}
 	if(ch.fst) $del($x('.//tr[td/div/@id="box"]', pr.form));
 	$each($X('.//input[@type="text"]', pr.form), function(el) { el.size = 35; });
@@ -1540,7 +1549,7 @@ function iframeLoad(e) {
 		if(!ch.fch && !ch.dc && !ch.krau && !frm.getElementById('delform')) { 
 			if(ch.so) xp = './/font[@size="5"]';
 			else if(ks) xp = './/h1|.//h2|.//div[contains(@style, "1.25em")]';
-			else err = frm.getElementsByTagName('h2')[0] || frm.getElementsByTagName('h1')[0];
+			else err = $t('h2', frm) || $t('h1', frm);
 		}
 		if(ch._5ch && err.textContent.indexOf('Обновление') >= 0) err = undefined;
 		if(xp) err = frm.evaluate(xp, frm, null, 6, null);
@@ -1562,7 +1571,7 @@ function iframeLoad(e) {
 				if(pr.cap) { pr.cap.value = ''; refreshCapImg(pr, oPosts[0].Num); }
 			} else window.location = !ch.fch
 				? frm.location
-				: frm.getElementsByTagName('meta')[0].content.match(/http:\/\/[^"]+/)[0];
+				: $t('meta', frm).content.match(/http:\/\/[^"]+/)[0];
 		}
 		frm.location.replace('about:blank');
 	}}(e.target), 500);
@@ -1623,8 +1632,7 @@ function addQuickReplyForm(e) {
 	qr.form.style.width = '100%';
 	if(qr.cap && !qr.recap && !ks) refreshCapImg(qr, tNum);
 	if(isMain)
-		$x('.//input[@id="thr_id" or @name="thread_id" or @name="replythread"]', qr.form).value
-			= tNum;
+		$x('.//input[@id="thr_id" or @name="thread_id" or @name="replythread"]', qr.form).value = tNum;
 		if(dm == 'ponychan.net') $x('.//input[@name="quickreply"]', qr.form).value = tNum;
 	insertInto(qr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n>$2') + '\n');
 }
@@ -1633,7 +1641,7 @@ function insertRefLink(e) {
 	if(Cfg.insnum == 0 || !pr.on || /Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	var el = !qr.on || qr.form.style.display == 'none' ? pr : qr;
-	if(el == pr && pArea.style.display == 'none') {
+	if(el == pr && (Cfg.pform == 2 || pArea.style.display == 'none')) {
 		if(isMain) togglePostForm();
 		else { addQuickReplyForm(e); return; }
 	}
@@ -1760,7 +1768,7 @@ function scriptCSS() {
 	
 	// append CSS
 	if(!$id('DESU_css')) {
-		$x('.//head').appendChild($new('style', {
+		$t('head').appendChild($new('style', {
 			'id': 'DESU_css',
 			'type': 'text/css',
 			'text': x.join(' ')
@@ -1983,9 +1991,8 @@ function resizeImg(e) {
 }
 
 function addFullImg(a, fullW, fullH) {
-	var img = $x('.//img', a);
 	var full = $x('.//img[@id="DESU_fullimg"]', a);
-	if(Cfg.expimg == 1) $disp(img);
+	if(Cfg.expimg == 1) $disp($t('img', a));
 	if(full) {
 		if(!full.moved) { $disp(full); setTimeout(function() { $del(full); }, 0); }
 		else full.moved = false;
@@ -1993,7 +2000,7 @@ function addFullImg(a, fullW, fullH) {
 	}
 	full = $new('img');
 	if(Cfg.expimg == 2) {
-		$del($x('//img[@id="DESU_fullimg"]'));
+		$del($id('DESU_fullimg'));
 		full.addEventListener(nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
 			resizeImg, false
 		);
@@ -2423,7 +2430,7 @@ function loadThread(post, last) {
 		else {
 			$delNx(post.Msg);
 			$delNx(post);
-			if(ch.krau) $del($x('.//span[@class="omittedinfo"]'));
+			if(ch.krau) $del($x('.//span[@class="omittedinfo"]', post));
 			expandThread(thr, tNum, last);
 			$focus(pByNum[tNum]);
 			if(last > 5 || last == 1) thr.appendChild($add(
@@ -2511,7 +2518,7 @@ function infoNewPosts(err, del) {
 	if(Cfg.updfav == 1 && favIcon) {
 		clearInterval(favIconInt);
 		if(inf > 0) favIconInt = setInterval(function() {
-			var head = $x('.//head');
+			var head = $t('head');
 			var href = $xb('.//link[@href="' + favIcon + '"]', head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : favIcon;
 			$Del('.//link[@rel="shortcut icon"]', head);
 			head.appendChild($new('link', {'href': href, 'rel': 'shortcut icon'}));
@@ -2598,10 +2605,10 @@ function doPostFilters(post) {
 function hideThread(post, note) {
 	if(post.Vis == 0) return;
 	togglePost(post, 0);
-	var x = $add('<span class="' + pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
+	var x = $add('<div class="' + pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
 		+ Lng.hiddenThread + ' <a href="#">№' + post.Num + '</a><i> ('
-		+ (!note ? getTitle(post).substring(0, 50) : 'autohide: ' + note) + ')</i></span>');
-	$event($x('.//a', x), {'click': function(e) { $pD(e); unhideThread(post); }});
+		+ (!note ? getTitle(post).substring(0, 50) : 'autohide: ' + note) + ')</i></div>');
+	$event($t('a', x), {'click': function(e) { $pD(e); unhideThread(post); }});
 	$before($up(post), [x]);
 	if(Cfg.delhd == 2) { $disp(x); $disp($next($next(x))); $disp($next($next($next(x)))); }
 }
@@ -3218,13 +3225,15 @@ function initBoard() {
 		tire: dm == '2--ch.ru',
 		_5ch: dm == '5channel.net',
 		fst: dm == 'firstchan.ru',
-		hid: dm == 'hiddenchan.i2p'
+		hid: dm == 'hiddenchan.i2p',
+		tiny: dm == 'tinyboard.org'
 	};
 	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
 	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	dForm = $x('.//form[' + $case([
-		ch.dc || ch.krau, 'contains(@action, "delete")]'
+		ch.dc || ch.krau, 'contains(@action, "delete")]',
+		ch.tiny, '@name="postcontrols"]'
 	], '@id="delform" or @name="delform"]'));
 	if(!dForm || $id('DESU_panel')) return false;
 	if(ch.hid) setTimeout = function(func) { func(); };
@@ -3259,26 +3268,29 @@ function initBoard() {
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
-	pClass = ch.krau ? 'postreply' : 'reply';
+	pClass = $case([
+		ch.krau, 'postreply',
+		ch.tiny, 'post reply'
+	], 'reply');
 	xPostRef = $case([
 		ch.krau, './/span[@class="postnumber"]',
 		ch.fch, './/span[starts-with(@id,"no")]',
-		ch.sib, './/span[@class="reflink" or @class="filesize"]'
+		ch.sib, './/span[@class="reflink" or @class="filesize"]',
+		ch.tiny, './/p[@class="intro"]'
 	], './/span[@class="reflink"]');
-	xPostMsg = ch.dc ? './/div[@class="postbody"]' : './/blockquote';
+	xPostMsg = $case([
+		ch.dc, './/div[@class="postbody"]',
+		ch.tiny, './/p[@class="body"]'
+	], './/blockquote');
 	cssFix = $case([nav.Firefox, '-moz-', nav.Chrome, '-webkit-'], '');
 	dummy = $new('div');
 	pr = new replyForm($x('.//textarea/ancestor::form[1]'));
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]');
 	pArea = $new('div', {'class': 'postarea', 'align': 'center'});
 	$append(pArea, [pr.form, $if(pr.on, $new('hr')), oeForm, $if(oeForm, $new('hr'))]);
-	while(1) {
-		var el = dForm.previousSibling;
-		if($xb('descendant-or-self::div[@class="logo"]|descendant-or-self::form|'
-			+ 'descendant-or-self::h1', el)) break;
-		$del(el);
-	}
-	if(ch.krau) { $del($x('.//hr', dForm)); $del($x('.//hr', $prev(dForm))); }
+	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*['
+		+ 'self::div[@class="logo"] or self::form or self::h1]]]', dForm);
+	if(ch.krau) { $del($t('hr', dForm)); $del($t('hr', $prev(dForm))); }
 	return true;
 }
 
@@ -3286,56 +3298,49 @@ function initDelform() {
 	$Del('.//script');
 	$disp(dForm);
 	try {
-		var thrdivs = $X('.//div[' + $case([
-			ch.so, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
+		var threads = $X('.//div[' + $case([
+			ch.so || ch.tire, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
 			ch.sib, 'not(@*)'
 		], 'starts-with(@id, "thread")') + ']', dForm);
-		if(thrdivs.snapshotLength == 0) {
-			var htm = dForm.innerHTML;
-			if(ch.wak) htm = htm.replace(/<p>[<\/hrp>]*>/ig, '<hr>');
-			var thrds = htm.split(/<br[^>]+left[^>]*>\s*<hr[^>]*>/i);
-			var re = ch.tire || ch.fch ? '<table>' : /<table[^>]*>/;
-			var i = thrds.length - 1;
-			while(i--) {
-				var posts = thrds[i].split(re);
-				var j = posts.length;
-				while(j-- > 1) posts[j] = '<table id="post-' + getpNum(posts[j]) + '">' + posts[j];
-				var tNum = getpNum(posts[0]);
-				posts[0] = '<div id="oppost-' + tNum + '">' + posts[0] + '</div>';
-				thrds[i] = '<div class="thread" id="thread-' + tNum + '">'
-					+ posts.join('') + '</div>';
-			}
-			dForm = $html(dForm, htmlReplace(thrds.join('<br clear="left"><hr>')));
-			if(ch.fch && isMain) {
-				var pg = $x(
-					'.//table[@class="pages"]',
-					$add('<div>' + thrds[thrds.length - 1] + '</div>')
+		if(threads.snapshotLength == 0) {
+			var brList = $X('.//hr/preceding-sibling::br[1]', dForm);
+			var brLen = brList.snapshotLength;
+			var br, thrd;
+			for(var i = 0; i < brLen; i++) {
+				thrd = $new('div', {'class': 'thread'});
+				br = brList.snapshotItem(i);
+				$each_($X('preceding-sibling::node()'
+					+ '[not(self::div[@class="thread"] or self::hr or self::br[@*])]', br),
+					function(el) { thrd.appendChild(el); }
 				);
-				dForm.replaceChild(pg, $x('.//table[@class="pages"]'));
-				$each($X('.//form', pg), function(el) {
-					$next(el).appendChild($attr(el, {'style': 'margin-bottom:0'}));
-					el.appendChild($prev(el));
-				});
+				$before(br, [thrd]);
 			}
-		} else {
-			$each(thrdivs, function(thr) {
-				var tNum = !ks ? thr.id.match(/\d+/) : $prev($x('.//label', thr)).name;
-				$attr(thr, {'id': 'thread-' + tNum, 'class': 'thread'});
-				var op = $new('div', {'id': 'oppost-' + tNum});
-				var el = thr.firstChild;
-				while( el &&
-					!$xb('self::table|self::div//table|self::div[starts-with(@id,"repl")]', el)
-				) { op.appendChild(el); el = thr.firstChild; }
-				if(el) {
-					$each($X('.//td[@class="' + pClass + '"]', thr), function(el) {
-						$up(el, ch.nul ? 4 : 3).id = 'post-' + el.id.match(/\d+/);
-					});
-					$before($1(thr), [op]);
-				} else thr.appendChild(op);
-			});
-			if(ch.fch || ch.krau || (Cfg.spells == 1 && /#rep /.test(spellsList.toString())))
-				dForm = $html(dForm, htmlReplace(dForm.innerHTML));
+			threads = $X('.//div[@class="thread"]', dForm);
 		}
+		var tNum, op, opEnd;
+		var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
+		$each(threads, function(thr) {
+			if(ch.fch || ch.tiny) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
+			else {
+				var a = $x('.//a[@name]' + (ks ? '[2]' : ''), thr);
+				if(a) tNum = a.name;
+				else tNum = thr.id.match(/\d+/);
+			}
+			$attr(thr, {'id': 'thread-' + tNum, 'class': 'thread'});
+			op = $new('div', {'id': 'oppost-' + tNum});
+			opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
+			$each_(opEnd ? $X('preceding-sibling::node()', opEnd) : $X('node()', thr),
+				function(el) { op.appendChild(el); }
+			);
+			if(opEnd) {
+				$each($X('.//' + table + '|div[@class="' + pClass + '"]', thr), function(el) {
+					el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id).match(/\d+/);
+				});
+				$before($1(thr), [op]);
+			} else thr.appendChild(op);
+		});
+		if(ch.fch || ch.krau || (Cfg.spells == 1 && /#rep /.test(spellsList.toString())))
+			dForm = $html(dForm, htmlReplace(dForm.innerHTML));
 	} catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
