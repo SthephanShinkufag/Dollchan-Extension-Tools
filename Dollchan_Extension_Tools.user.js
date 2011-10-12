@@ -1801,7 +1801,7 @@ function getTitle(post) {
 }
 
 function getImages(post) {
-	return $X('.//img[contains(@src,"/thumb") or contains(@src,"/spoiler")]', post);
+	return $X('.//img[contains(@src,"thumb") or contains(@src,"/spoiler")]', post);
 }
 
 function getText(el) {
@@ -2300,7 +2300,7 @@ function AJAX(url, b, tNum, fn) {
 			url = '/' + (b == '' ? '': b + '/') + res + tNum + '.html';
 		} else url = '/' + b + '/wakaba.pl?task=api&code=getthread&id=' + tNum;
 	} else if(/^http:\/\//.test(url)) {
-		GM_xmlhttpRequest({method: 'GET', url: url, onload: function(xhr) {
+		GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 			if(xhr.readyState != 4) return;
 			if(xhr.status == 200) { ajaxPosts[0] = xhr.responseText; fn(); }
 			else if(xhr.status == 0) fn(Lng.noConnect);
@@ -2308,21 +2308,18 @@ function AJAX(url, b, tNum, fn) {
 		}});
 		return;
 	}
-	GM_xmlhttpRequest({
-		method: 'GET',
-		url: url,
-		onload: function(xhr) {
-			if(xhr.readyState != 4) return;
-			var res;
-			if(xhr.status == 200) {
-				if(!ch.so) {
-					if(ch.dc) parseDCdata(xhr.responseText);
-					else parseHTMLdata(xhr.responseText);
-				} else res = parse2CHdata(xhr.responseText, b);
-			} else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
-			fn(res);
-		}
-	});
+	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
+		if(xhr.readyState != 4) return;
+		var res;
+		if(xhr.status == 200) {
+			if(!ch.so) {
+				if(ch.dc) parseDCdata(xhr.responseText);
+				else parseHTMLdata(xhr.responseText);
+			} else res = parse2CHdata(xhr.responseText, b);
+		} else if(xhr.status == 0) res = Lng.noConnect;
+		else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
+		fn(res);
+	}});
 }
 
 function addPostFunc(post) {
@@ -3189,7 +3186,7 @@ function fixGM() {
 	catch(e) {
 		GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
-			xhr.onreadystatechange = function() { obj.onload(xhr); };
+			xhr.onreadystatechange = function() { obj.onreadystatechange(xhr); };
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 			xhr.send(false);
