@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-10-11
+// @version			2011-10-13
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -11,7 +11,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-11',
+	version:	'2011-10-13',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -2151,9 +2151,10 @@ function showPostPreview(e) {
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	var tNum = this.pathname.substring(this.pathname.lastIndexOf('/')).match(/\d+/);
+	var url = this.pathname;
+	var tNum = url.substring(url.lastIndexOf('/')).match(/\d+/);
 	var pNum = this.hash.match(/\d+/) || tNum;
-	var b = this.pathname.match(/[^\/]+/);
+	var b = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/\d*$/)) - 1);
 	var x, y;
 	if(!b || /\.html$|^res$/.test(b)) b = '';
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight;
@@ -2227,6 +2228,24 @@ function parseHTMLdata(html) {
 			ajaxThrds[tNum].keys.push(pNum);
 			x = x.substring((!/<td/.test(x) && /filesize[^>]*>/.test(x)) ? x.search(/filesize[^>]*>/) - 13 : (/<label/.test(x) ? x.indexOf('<label') : x.indexOf('<input')), /<td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts[^>]*>/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && !ch.so && (!ks || ch.nul) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13))).replace(/(href="#)(\d+")/g, 'href="' + tNum + '#$2');
 			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12), pNum);
+			ajaxPosts[pNum] = x;
+		}
+	}
+}
+
+function parseTinyIBdata(x) {
+	x = x.split(/<form[^>]+postcontrols[^>]+>/)[1].split('</form>')[0];
+	var thrds = x.substring(0, x.indexOf('<div class="delete">')).split(/div[^>]+thread[^>]+>/);
+	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
+		var tNum = getpNum(thrds[i]);
+		var posts = thrds[i].split(/<div[^>]+reply[^>]+>/);
+		ajaxThrds[tNum] = {keys: []};
+		for(var j = 0, pLen = posts.length; j < pLen; j++) {
+			var x = posts[j];
+			var pNum = getpNum(x);
+			ajaxThrds[tNum].keys.push(pNum);
+			x = x.substring(0, x.lastIndexOf('</p>') + 4);
+			ajaxRefmap(x.substr(x.indexOf(/p[^>]+body[^>]*/)), pNum);
 			ajaxPosts[pNum] = x;
 		}
 	}
@@ -2312,10 +2331,12 @@ function AJAX(url, b, tNum, fn) {
 		if(xhr.readyState != 4) return;
 		var res;
 		if(xhr.status == 200) {
+			var txt = xhr.responseText;
 			if(!ch.so) {
-				if(ch.dc) parseDCdata(xhr.responseText);
-				else parseHTMLdata(xhr.responseText);
-			} else res = parse2CHdata(xhr.responseText, b);
+				if(ch.dc) parseDCdata(txt);
+				else if(ch.tiny) parseTinyIBdata(txt);
+				else parseHTMLdata(txt);
+			} else res = parse2CHdata(txt, b);
 		} else if(xhr.status == 0) res = Lng.noConnect;
 		else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
 		fn(res);
@@ -2339,8 +2360,10 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	if(ch.dc && isCount) i += ajaxThrds[tNum].pcount - ajaxThrds[tNum].keys.length;
 	var htm = htmlReplace(ajaxPosts[pNum]);
 	var post = $add(i > 0
-		? '<table id="post-' + pNum + '"><tbody><tr><td class="doubledash">&gt;&gt;</td><td class="'
+		? (!ch.tiny
+			? '<table id="post-' + pNum + '"><tbody><tr><td class="doubledash">&gt;&gt;</td><td class="'
 			+ pClass + '" id="reply' + pNum + '">' + htm + '</td></tr></tbody></table>'
+			: '<div id="post-' + pNum + '" class="' + pClass + '">' + htm + '</div>')
 		: '<div id="oppost-' + pNum + '">' + htm + '</div>');
 	$Del('.//script', post);
 	if(i == 0) oPosts[oPosts.length] = post;
@@ -2358,6 +2381,7 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
 	thr.appendChild(post);
+	if(ch.tiny) thr.appendChild($new('br'));
 	return post;
 }
 
@@ -2668,7 +2692,10 @@ function togglePost(post, vis) {
 	if(post.isOp) $disp(getThread(post));
 	$each(
 		$X('following-sibling::*',
-			$x(!ch.krau ? './/span[@class="DESU_postpanel"]' : './/div[@class="postheader"]', post)
+			$x($case([
+				ch.krau, './/div[@class="postheader"]',
+				ch.tiny, './/p[@class="intro"]'
+			], './/span[@class="DESU_postpanel"]'), post)
 		), function(el) {
 			el.style.display = (vis == 0) ? 'none' : '';
 		}
@@ -2922,7 +2949,7 @@ function getSpells(post) {
 }
 
 function getImgInfo(post) {
-	return $x('.//em|.//span[@class="filesize" or @class="fileinfo"]', post).textContent;
+	return $x('.//em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]', post).textContent;
 }
 
 function getImgWeight(post) {
@@ -3261,7 +3288,7 @@ function initBoard() {
 		ch.krau, './/span[@class="postnumber"]',
 		ch.fch, './/span[starts-with(@id,"no")]',
 		ch.sib, './/span[@class="reflink" or @class="filesize"]',
-		ch.tiny, './/p[@class="intro"]'
+		ch.tiny, './/a[@class="post_no"][2]'
 	], './/span[@class="reflink"]');
 	xPostMsg = $case([
 		ch.dc, './/div[@class="postbody"]',
@@ -3305,6 +3332,7 @@ function initDelform() {
 		var tNum, op, opEnd;
 		var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
 		$each(threads, function(thr) {
+			if(ch.tiny) $after(thr, [$new('hr')]);
 			if(ch.fch || ch.tiny) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
 			else {
 				var a = $x('.//a[@name]' + (ks ? '[2]' : ''), thr);
