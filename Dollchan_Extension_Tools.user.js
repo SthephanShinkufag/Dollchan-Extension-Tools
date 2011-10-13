@@ -3186,7 +3186,7 @@ function fixGM() {
 	catch(e) {
 		GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
-			xhr.onreadystatechange = function() { obj.onreadystatechange(xhr); };
+			xhr.onreadystatechange = obj.onreadystatechange;
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 			xhr.send(false);
