@@ -1432,7 +1432,7 @@ function doChanges() {
 	}
 	if(ks) $Del('.//span[@class="extrabtns"]', dForm);
 	if(ch.dc) $Del('.//a[@class="reply_ icon"]', dForm);
-	if(ch.so) $Del('.//small[starts-with(@id,"rfmap")]|.//span[contains(@id,"_display")]', dForm);
+	if(ch.so) $Del('.//*[starts-with(@id,"ABU_")]|.//span[@class="postpanel"]', dForm);
 	$event(window, {'load': function() {
 		setTimeout(function() {
 			if(ch.nul) $Del('.//div[@class="replieslist"]', dForm);
