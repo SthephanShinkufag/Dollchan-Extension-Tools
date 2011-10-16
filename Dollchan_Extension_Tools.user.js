@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-13',
+	version:	'2011-10-16',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -33,8 +33,8 @@ var defaultCfg = {
 	navig:		2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
 	navdel:		1,		//		delay [0=off, 1=on]
 	navfix:		1,		//		previews placed by [0=mouse, 1=link]
-	navmrk:		1,		//		mark viewed posts
-	navhid:		1,		//		no hidden posts in refmap
+	navmrk:		0,		//		mark viewed posts
+	navhid:		0,		//		no hidden posts in refmap
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
 	expost:		2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	pstbtn:		1,		// post buttons [0=off, 1=graph, 2=text]
@@ -523,7 +523,6 @@ function readCfg() {
 		if(Cfg[key] == null) Cfg[key] = defaultCfg[key];
 	if(global) fixCapLang();
 	if(ch.dc) Cfg.updthr = Cfg.updfav = Cfg.verify = Cfg.expost = 0;
-	if(ch.so) setCookie('script_state', 'false');
 	if(nav.Chrome) Cfg.updfav = 0;
 	setStored('DESU_Config_' + dm, uneval(Cfg));
 	for(var key in LngArray)
@@ -1431,10 +1430,8 @@ function doChanges() {
 		}
 		$del($x('.//a[starts-with(text(),"Развернуть все")]', dForm));
 	}
-	if(ks) $Del('.//span[@class="extrabtns"]', dForm);
-	if(ch.dc) $Del('.//a[@class="reply_ icon"]', dForm);
-	if(ch.so) $Del('.//*[starts-with(@id,"ABU_")]|.//span[@class="postpanel"]', dForm);
-	$event(window, {'load': function() {
+	if(ch.so) $Del('.//*[starts-with(@id,"ABU_")]', dForm);
+	else $event(window, {'load': function() {
 		setTimeout(function() {
 			if(ch.nul) $Del('.//div[@class="replieslist"]', dForm);
 			else $Del('.//small[starts-with(@id,"rfmap")]|.//i[@class="abbrev"]', dForm);
@@ -1753,15 +1750,17 @@ function scriptCSS() {
 	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
 	if(Cfg.mask == 1) x.push('img[src*="thumb"], img[src*="spoiler"], #DESU_ytube, img[id="DESU_preimg"] {opacity:0.07 !important} img[src*="thumb"]:hover, img[src*="spoiler"]:hover, #DESU_ytube:hover, img[id="DESU_preimg"]:hover {opacity:1 !important}');
 	if(Cfg.navmrk == 1) x.push('.viewed, .viewed .reply {color:#888 !important}');
-	if(ch.so) x.push('html, body {font-family:"Trebuchet MS",Trebuchet,tahoma,serif} form {font-size:1em}');
+	
+	// CSS by chan
+	if(ks) x.push('.extrabtns {display:none}');
+	if(ch.dc) x.push('.reply_ icon {display:none}');
+	if(ch.so) x.push('.postpanel {display:none}');
+	if(ch.so && getCookie('wakabastyle') == 'Photon')
+		x.push('#DESU_content, div[id^="DESU_preview"] {font-size:0.9em}');
 	
 	// append CSS
 	if(!$id('DESU_css')) {
-		$t('head').appendChild($new('style', {
-			'id': 'DESU_css',
-			'type': 'text/css',
-			'text': x.join(' ')
-		}));
+		$t('head').appendChild($new('style', {'id': 'DESU_css', 'type': 'text/css', 'text': x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
 	} else $id('DESU_css').textContent = x.join(' ');
 }
@@ -2227,7 +2226,7 @@ function parseHTMLdata(html) {
 			var x = posts[j];
 			var pNum = getpNum(x);
 			ajaxThrds[tNum].keys.push(pNum);
-			x = x.substring((!/<td/.test(x) && /filesize[^>]*>/.test(x)) ? x.search(/filesize[^>]*>/) - 13 : (/<label/.test(x) ? x.indexOf('<label') : x.indexOf('<input')), /<td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts[^>]*>/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && !ch.so && (!ks || ch.nul) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13))).replace(/(href="#)(\d+")/g, 'href="' + tNum + '#$2');
+			x = x.substring((!/<td/.test(x) && /filesize[^>]*>/.test(x)) ? x.search(/filesize[^>]*>/) - 13 : (/<label/.test(x) ? x.indexOf('<label') : x.indexOf('<input')), /<td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts[^>]*>/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && !ch.so && (!ks || ch.nul) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13))).replace(/(href="#)(\d+")/g, 'href="' + res + tNum + '.html#$2');
 			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12), pNum);
 			ajaxPosts[pNum] = x;
 		}
@@ -2282,43 +2281,10 @@ function parseDCdata(x) {
 	}
 }
 
-function build2CHpost(x, b) {
-	ajaxPosts[x.num] = '<label><input type="checkbox" value="' + x.num + '" name="delete"><span class="replytitle">' + x.subject + '</span>&nbsp;<span class="postername">' + (x.email ? '<a href="' + x.email + '">' + x.name + '</a>' : x.name) + '</span>' + (x.trip ? '<span class="postertrip">' + x.trip + '</span>' : '') + '&nbsp;&nbsp;' + x.date + '</label>&nbsp;<span class="reflink"><a href="/' + b + '/' + res + x.parent + '.html#i' + x.num + '">№' + x.num + '</a></span>&nbsp;' + (x.parent == 0 ? '[<a href="/' + b + '/' + res + x.num + '.html">Ответ</a>]' : '') + '<br>' + (x.image ? '<span class="filesize"><a target="_blank" href="/' + b + '/' + x.image + '">' + x.image + '</a>(<em>' + x.size + 'Кб, ' + x.width + 'x' + x.height + '</em>)</span>&nbsp;<span class="thumbnailmsg">Показана уменьшенная копия, оригинал по клику.</span><br><span id="exlink_' + x.num + '"><a href="/' + b + '/' + x.image + '"><img src="/' + b + '/' + x.thumbnail + '" alt="11" class="img" height="' + x.tn_height + '" width="' + x.tn_width + '"></a></span>' : '') + (x.video && x.video != '' ? '<div style="float:left; margin:5px 5px 5px 10px">' + x.video + '</div>' : '') + '<blockquote>' + x.comment + '</blockquote>';
-	ajaxRefmap(x.comment, x.num);
-}
-
-function parse2CHdata(x, b) {
-	var json = eval('(' + x + ')');
-	if(json.type == 'error') return 'JSON API [' + json.code + '] ' + json.reason;
-	if(json.type == 'getpost') build2CHpost(json.post, b);
-	if(json.type == 'getthread') {
-		var posts = json.thread;
-		var tNum = posts[0].num;
-		ajaxThrds[tNum] = {keys: [], pcount: json.count};
-		for(var i = 0, tLen = posts.length; i < tLen; i++) {
-			var x = posts[i];
-			ajaxThrds[tNum].keys.push(x.num);
-			build2CHpost(x, b);
-		}
-	}
-	if(json.type == 'threads') {
-		var thrds = json.threads;
-		for(var i = 0, tLen = thrds.length; i < tLen; i++) {
-			var x = thrds[i];
-			var tNum = x.num;
-			ajaxThrds[tNum] = {keys: [], pcount: json.count};
-			ajaxThrds[tNum].keys.push(x.num);
-			build2CHpost(x, b);
-		}
-	}
-}
-
 function AJAX(url, b, tNum, fn) {
 	if(!url) {
-		if(!ch.so) {
-			if(ch.dc) return;
-			url = '/' + (b == '' ? '': b + '/') + res + tNum + '.html';
-		} else url = '/' + b + '/wakaba.pl?task=api&code=getthread&id=' + tNum;
+		if(ch.dc) return;
+		else url = '/' + (b == '' ? '': b + '/') + res + tNum + '.html';
 	} else if(/^http:\/\//.test(url)) {
 		GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 			if(xhr.readyState != 4) return;
@@ -2333,11 +2299,9 @@ function AJAX(url, b, tNum, fn) {
 		var res;
 		if(xhr.status == 200) {
 			var txt = xhr.responseText;
-			if(!ch.so) {
-				if(ch.dc) parseDCdata(txt);
-				else if(ch.tiny) parseTinyIBdata(txt);
-				else parseHTMLdata(txt);
-			} else res = parse2CHdata(txt, b);
+			if(ch.dc) parseDCdata(txt);
+			else if(ch.tiny) parseTinyIBdata(txt);
+			else parseHTMLdata(txt);
 		} else if(xhr.status == 0) res = Lng.noConnect;
 		else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
 		fn(res);
@@ -2378,7 +2342,6 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	post.Img = getImages(post);
 	post.isOp = i == 0;
 	addPostButtons(post, isCount);
-	if(ks) $del($x('.//span[@class="extrabtns"]', post));
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
 	thr.appendChild(post);
@@ -2387,16 +2350,10 @@ function newPost(thr, tNum, i, isCount, isDel) {
 }
 
 function getFullMsg(post, tNum, a) {
-	var url;
-	if(ch.so) url = '/' + brd + '/wakaba.pl?task=api&code=getpost&id=' + post.Num;
-	AJAX(url, brd, tNum, function(err) {
+	AJAX(null, brd, tNum, function(err) {
 		if(err) return;
-		try {
-			var m = $x(
-				xPostMsg,
-				$add('<div>' + htmlReplace(ajaxPosts[post.Num]) + '</div>')
-			).innerHTML;
-		} catch(e) { return; }
+		try { var m = $x(xPostMsg, $add('<div>' + htmlReplace(ajaxPosts[post.Num]) + '</div>')).innerHTML; }
+		catch(e) { return; }
 		$del(a);
 		post.Msg = $html(post.Msg, m);
 		addPostFunc(post);
@@ -2581,9 +2538,7 @@ function loadPages(len) {
 			$new('hr'),
 			$new('div', {'id': 'DESU_page' + p})
 		]);
-		var url;
-		if(ch.so) url = '/' + brd + '/wakaba.pl?task=api&code=getthreads&page=' + p;
-		else url = '/' + (brd == '' ? '' : brd + '/') + (ch.dc
+		var url = '/' + (brd == '' ? '' : brd + '/') + (ch.dc
 			? ((p > 0 ? p : 'index') + '.json')
 			: (p > 0 ? p + '.html' : ''))
 		AJAX(url, brd, null, function(p, len) { return function() {
@@ -3302,7 +3257,7 @@ function initBoard() {
 	pArea = $new('div', {'class': 'postarea', 'align': 'center'});
 	$append(pArea, [pr.form, $if(pr.on, $new('hr')), oeForm, $if(oeForm, $new('hr'))]);
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*['
-		+ 'self::div[@class="logo"] or self::form or self::h1]]]', dForm);
+		+ (ch.so ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]', dForm);
 	if(ch.krau) { $del($t('hr', dForm)); $del($t('hr', $prev(dForm))); }
 	return true;
 }
@@ -3312,7 +3267,7 @@ function initDelform() {
 	$disp(dForm);
 	try {
 		var threads = $X('.//div[' + $case([
-			ch.so || ch.tire, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
+			ch.tire, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
 			ch.sib, 'not(@*)'
 		], 'starts-with(@id, "thread")') + ']', dForm);
 		if(threads.snapshotLength == 0) {
