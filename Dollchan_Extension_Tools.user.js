@@ -1754,7 +1754,7 @@ function scriptCSS() {
 	// CSS by chan
 	if(ks) x.push('.extrabtns {display:none}');
 	if(ch.dc) x.push('.reply_ icon {display:none}');
-	if(ch.so) x.push('.postpanel {display:none}');
+	if(ch.so) x.push('.postbtn_hide, .postbtn_rep, .postbtn_exp {display:none}');
 	if(ch.so && getCookie('wakabastyle') == 'Photon')
 		x.push('#DESU_content, div[id^="DESU_preview"] {font-size:0.9em}');
 	
