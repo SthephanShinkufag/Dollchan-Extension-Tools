@@ -276,17 +276,11 @@ function $up(el, i) {
 function $1(el) {
 	return el.firstChild;
 }
-function $each(list, fn) {
-	if(!list) return;
-	var i = list.snapshotLength;
-	while(i--) fn(list.snapshotItem(i), i);
-}
-function $each_(list, fn) {
+function $each(list, fn, dir) {
 	if(!list) return;
 	var k = list.snapshotLength;
-	if(nav.Firefox) for(var i = 0; i < k; i++) fn(list.snapshotItem(i), i);
+	if(dir) for(var i = 0; i < k; i++) fn(list.snapshotItem(i), i);
 	else while(k--) fn(list.snapshotItem(k), k);
-	
 }
 function $html(el, htm) {
 	var cln = el.cloneNode(false);
@@ -1753,7 +1747,7 @@ function scriptCSS() {
 	
 	// CSS by chan
 	if(ks) x.push('.extrabtns {display:none}');
-	if(ch.dc) x.push('.reply_ icon {display:none}');
+	if(ch.dc) x.push('.reply_ {display:none}');
 	if(ch.so) x.push('.postbtn_hide, .postbtn_rep, .postbtn_exp {display:none}');
 	if(ch.so && getCookie('wakabastyle') == 'Photon')
 		x.push('#DESU_content, div[id^="DESU_preview"] {font-size:0.9em}');
@@ -2067,10 +2061,10 @@ function getRefMap(pNum, rNum) {
 	if((',' + refMap[rNum].toString() + ',').indexOf(',' + pNum + ',') < 0) refMap[rNum].push(pNum);
 }
 
-function ajaxRefmap(txt, pNum) {
-	var x = txt.match(/&gt;&gt;\d+/g);
-	if(x) for(var i = 0; rLen = x.length, i < rLen; i++)
-		getRefMap(pNum, x[i].match(/\d+/g));
+function ajaxRefmap(post, pNum) {
+	$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post), function(link) {
+		getRefMap(pNum, link.textContent.match(/\d+/));
+	});
 }
 
 function showRefMap(post, rNum, isUpd) {
@@ -2121,9 +2115,9 @@ function delPostPreview(e) {
 	else functor();
 }
 
-function funcPostPreview(htm, parentId) {
+function funcPostPreview(post, parentId, msg) {
 	if(!pView) return;
-	pView.innerHTML = htmlReplace(htm);
+	pView.innerHTML = post ? ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML : msg;
 	eventRefLink(pView);
 	$Del('.//img[@id="DESU_fullimg"]|.//span[@id="DESU_ybtn"]|'
 		+ './/div[@id="DESU_ytube" or @class="DESU_refmap"]', pView);
@@ -2151,12 +2145,11 @@ function showPostPreview(e) {
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	var url = this.pathname;
-	var tNum = url.substring(url.lastIndexOf('/')).match(/\d+/);
+	var path = this.pathname;
+	var b = path.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1];
+	var tNum = path.match(/[^\/]+\/(.*?)$/)[1].match(/\d+/);
 	var pNum = this.hash.match(/\d+/) || tNum;
-	var b = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/\d*$/)) - 1);
 	var x, y;
-	if(!b || /\.html$|^res$/.test(b)) b = '';
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight;
 	var docel = doc.documentElement || doc.body;
 	if(Cfg.navfix == 0 || (Cfg.attach == 1 && $xb('ancestor::div[@id="DESU_content"]', e.target))) {
@@ -2176,18 +2169,15 @@ function showPostPreview(e) {
 		'mouseout': delPostPreview,
 		'mouseover': function() { if(!pView) pView = this; }
 	});
-	if(b == brd) var post = pByNum[pNum];
 	var parentId = getPost(e.target).id.match(/\d+/);
+	var post = pByNum[pNum] || ajaxPosts[pNum];
 	if(post) {
-		funcPostPreview(($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML, parentId);
+		funcPostPreview(post, parentId);
 		if(post.Vis == 0) togglePost(pView);
-	} else if(ajaxPosts[pNum]) funcPostPreview(ajaxPosts[pNum], parentId);
-	else {
-		pView.innerHTML = '<span class="DESU_icn_wait">&nbsp;</span>&nbsp;' + Lng.loading;
-		var url;
-		if(ch.dc) url = '/api/post/ref/' + b + '/' + tNum + '/' + pNum + '.xhtml';
-		AJAX(url, b, tNum, function(err) {
-			funcPostPreview(err || ajaxPosts[pNum] || Lng.postNotFound, parentId);
+	} else {
+		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
+		AJAX(null, b, tNum, function(err) {
+			funcPostPreview(ajaxPosts[pNum], parentId, err || Lng.postNotFound);
 		});
 	}
 	$del($id(pView.id));
@@ -2210,101 +2200,37 @@ function eventRefLink(el) {
 								AJAX FUNCTIONS
 =============================================================================*/
 
-function getpNum(x) {
-	return (x.match(/<input[^>]+checkbox[^>]+>/i) || x.match(/<a\s+name="\d+">/i))[0].match(/\d+/);
-}
-
 function parseHTMLdata(html) {
 	if(!pr.on && oeForm) pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
-	var x = html.split(/<form[^>]+del[^>]+>/)[1].split('</form>')[0];
-	var thrds = x.substring(0, x.lastIndexOf(!ch.krau ? x.match(/<br[^>]+left/) : '<div style="clear: both">')).split(!ch.krau ? /<br[^>]+left[^>]*>[<>\/p\s]*<hr[^>]*>/ : /<\/div>\s+<div[^>]+class="thread"[^>]*>/);
-	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
-		var tNum = getpNum(thrds[i]);
-		var posts = thrds[i].split(ch.tire || ch.fch ? '<table>' : /<table[^>]*>/);
+	var form = $up($add(!ch.dc ? html : '<div class="thread">' + html + '</div>'));
+	parseDelform(form);
+	$each($X('.//div[@class="thread"]', form), function(thrd) {
+		var tNum = thrd.id.match(/\d+/);
 		ajaxThrds[tNum] = {keys: []};
-		for(var j = 0, pLen = posts.length; j < pLen; j++) {
-			var x = posts[j];
-			var pNum = getpNum(x);
+		$each($X('.//*[starts-with(@id,"post-") or starts-with(@id,"oppost-")][self::table or self::div]', thrd), function(post) {
+			var pNum = post.id.match(/\d+/);
 			ajaxThrds[tNum].keys.push(pNum);
-			x = x.substring((!/<td/.test(x) && /filesize[^>]*>/.test(x)) ? x.search(/filesize[^>]*>/) - 13 : (/<label/.test(x) ? x.indexOf('<label') : x.indexOf('<input')), /<td/.test(x) ? x.lastIndexOf('</td') : (/omittedposts[^>]*>/.test(x) ? x.lastIndexOf('</span') + 7 : (/<\/div/.test(x) && !ch.so && (!ks || ch.nul) ? x.lastIndexOf('</div') + 6 : x.lastIndexOf('</blockquote') + 13))).replace(/(href="#)(\d+")/g, 'href="' + res + tNum + '.html#$2');
-			ajaxRefmap(x.substr(x.indexOf('<blockquote>') + 12), pNum);
-			ajaxPosts[pNum] = x;
-		}
-	}
-}
-
-function parseTinyIBdata(x) {
-	x = x.split(/<form[^>]+postcontrols[^>]+>/)[1].split('</form>')[0];
-	var thrds = x.substring(0, x.indexOf('<div class="delete">')).split(/div[^>]+thread[^>]+>/);
-	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
-		var tNum = getpNum(thrds[i]);
-		var posts = thrds[i].split(/<div[^>]+reply[^>]+>/);
-		ajaxThrds[tNum] = {keys: []};
-		for(var j = 0, pLen = posts.length; j < pLen; j++) {
-			var x = posts[j];
-			var pNum = getpNum(x);
-			ajaxThrds[tNum].keys.push(pNum);
-			x = x.substring(0, x.lastIndexOf('</p>') + 4);
-			ajaxRefmap(x.substr(x.indexOf(/p[^>]+body[^>]*/)), pNum);
-			ajaxPosts[pNum] = x;
-		}
-	}
-}
-
-function parseDCdata(x) {
-	if(!/^{"boards":/.test(x)) { ajaxPosts[getpNum(x)] = x; return; }
-	var thrds = eval('(' + x.substring(x.indexOf('threads') - 2, x.lastIndexOf('events') - 4) + ')').threads;
-	for(var i = 0, tLen = thrds.length; i < tLen; i++) {
-		var tNum = thrds[i].display_id;
-		var posts = thrds[i].posts;
-		ajaxThrds[tNum] = {keys: [], pcount: thrds[i].posts_count};
-		for(var j = 0, pLen = posts.length; j < pLen; j++) {
-			var x = posts[j];
-			var pNum = x.display_id;
-			ajaxThrds[tNum].keys.push(pNum);
-			var files = [];
-			for(var f = 0, fLen = x.files.length; f < fLen; f++) {
-				var fl = x.files[f];
-				var m = fl.metadata;
-				var a = '<a href="/' + fl.src + '" target="_blank">';
-				files.push('<div class="file"><div class="fileinfo">Файл: ' + a + fl.src.split('/')[3] + '</a><br><em>' + fl.thumb.split('/')[1] + ', ' + (fl.size/1024).toFixed(2) + ' KB, ' + (fl.type == 'image' ? m.width + '×' + m.height : Math.floor(m.length/60).toString() + ':' + Math.floor(m.length - Math.floor(m.length/60)*60).toString() + ' m @ ' + Math.floor(m.bitrate/1000) + 'kbps<br>' + m.artist + ' — ' + m.album + ' / ' + m.title) + '</em><br></div>' + a + '<img src="/' + fl.thumb + '" class="thumb" alt="/' + fl.src + '"></a></div>');
-			}
-			var txt = (x.message || '').split('\r\n');
-			for(var r = 0, rLen = txt.length; r < rLen; r++) {
-				if(/^\s{4}/.test(txt[r])) txt[r] = '<code>' + txt[r].substr(4) + '</code>';
-				else txt[r] = txt[r].replace(/>/g, '&gt;').replace(/</g, '&lt;').replace(/(&gt;&gt;)(\d+)/g, '<a href="/' + brd + '/' + res + tNum + '.xhtml#i$2">$1$2</a>').replace(/(https*:\/\/.+?)(?:\s|&gt;|$)/ig, '<a href="$1">$1</a>').replace(/(\*\*)(.+?)(\*\*)/g, '<b>$2</b>').replace(/(\*)(.+?)(\*)/g, '<i>$2</i>').replace(/(__)(.+?)(__)/g, '<b>$2</b>').replace(/(`)(.+?)(`)/g, '<code>$2</code>').replace(/(%%)(.+?)(%%)/g, '<span class="spoiler">$2</span>');
-			}
-			txt = txt.join('<br>').replace(/(^|<br>)(%%<br>)(.+?)(<br>%%)/g, '<div class="spoiler">$3</div>').replace(/(^|<br>)(``<br>)(.+?)(<br>``)/g, '<pre>$3</pre>').replace(/(^|<br>)(((&gt;.*?)(<br>|$))+)/g, '<blockquote depth="0">$2</blockquote>');
-			ajaxPosts[pNum] = '<label><a class="delete icon"><img src="/images/blank.png"></a>' + (x.sage ? '<img src="/images/sage-carbon.png" alt="Сажа" title="Сажа">' : '') + (x.subject ? '<span class="replytitle">' + x.subject + '</span>' : '') + ' <span class="postername">' + x.name + '</span> ' + x.date + ' </label><span class="reflink"><a href="/' + brd + '/' + res + tNum + '.xhtml#i' + pNum + '">No.' + pNum + '</a></span>' + (thrds[i].posts_count - pLen + j == 0 ? '<span class="cpanel">[<a href="/' + brd + '/' + res + tNum + '.xhtml">Открыть тред</a>]</span>' : '') + '<br>' + (x.files.length > 0 ? files.join('') + (x.files.length > 1 ? '<br style="clear: both">' : '') : '') + '<div class="postbody"><div class="message">' + txt + '</div></div>' + (x.op == true ? '<div class="abbrev">' + 'Всего ' + thrds[i].posts_count + ' постов, из них ' + thrds[i].files_count + ' с файлами</div>' : '');
-			ajaxRefmap(txt, pNum);
-		}
-	}
+			ajaxPosts[pNum] = post;
+			ajaxRefmap(post, pNum);
+		}, true);
+	}, true);
+	
 }
 
 function AJAX(url, b, tNum, fn) {
 	if(!url) {
-		if(ch.dc) return;
+		if(ch.dc) url = '/api/thread/expand/' + b + '/' + tNum;
 		else url = '/' + (b == '' ? '': b + '/') + res + tNum + '.html';
-	} else if(/^http:\/\//.test(url)) {
-		GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
-			if(xhr.readyState != 4) return;
-			if(xhr.status == 200) { ajaxPosts[0] = xhr.responseText; fn(); }
-			else if(xhr.status == 0) fn(Lng.noConnect);
-			else fn('HTTP ' + xhr.status + ' ' + xhr.statusText);
-		}});
-		return;
 	}
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState != 4) return;
-		var res;
 		if(xhr.status == 200) {
-			var txt = xhr.responseText;
-			if(ch.dc) parseDCdata(txt);
-			else if(ch.tiny) parseTinyIBdata(txt);
-			else parseHTMLdata(txt);
-		} else if(xhr.status == 0) res = Lng.noConnect;
-		else res = 'HTTP [' + xhr.status + '] ' + xhr.statusText;
-		fn(res);
+			if(!/^http:\/\//.test(url)) parseHTMLdata(xhr.responseText);
+			else ajaxPosts[0] = xhr.responseText;
+			fn();
+		}
+		else if(xhr.status == 0) fn(Lng.noConnect);
+		else fn('HTTP [' + xhr.status + '] ' + xhr.statusText);
 	}});
 }
 
@@ -2322,19 +2248,10 @@ function addPostFunc(post) {
 
 function newPost(thr, tNum, i, isCount, isDel) {
 	var pNum = ajaxThrds[tNum].keys[i];
-	if(ch.dc && isCount) i += ajaxThrds[tNum].pcount - ajaxThrds[tNum].keys.length;
-	var htm = htmlReplace(ajaxPosts[pNum]);
-	var post = $add(i > 0
-		? (!ch.tiny
-			? '<table id="post-' + pNum + '"><tbody><tr><td class="doubledash">&gt;&gt;</td><td class="'
-			+ pClass + '" id="reply' + pNum + '">' + htm + '</td></tr></tbody></table>'
-			: '<div id="post-' + pNum + '" class="' + pClass + '">' + htm + '</div>')
-		: '<div id="oppost-' + pNum + '">' + htm + '</div>');
-	$Del('.//script', post);
+	var post = ajaxPosts[pNum];
 	if(i == 0) oPosts[oPosts.length] = post;
 	else Posts[Posts.length] = post;
 	if(isDel) post.isDel = true;
-	pByNum[pNum] = post;
 	post.Num = pNum;
 	post.Count = i + 1;
 	if(!(sav.cookie && isMain)) post.Vis = getVisib(pNum);
@@ -2352,10 +2269,8 @@ function newPost(thr, tNum, i, isCount, isDel) {
 function getFullMsg(post, tNum, a) {
 	AJAX(null, brd, tNum, function(err) {
 		if(err) return;
-		try { var m = $x(xPostMsg, $add('<div>' + htmlReplace(ajaxPosts[post.Num]) + '</div>')).innerHTML; }
-		catch(e) { return; }
 		$del(a);
-		post.Msg = $html(post.Msg, m);
+		post.Msg = $html(post.Msg, $x(xPostMsg, ajaxPosts[post.Num]).innerHTML);
 		addPostFunc(post);
 	});
 }
@@ -2374,10 +2289,8 @@ function expandPost(post) {
 
 function expandThread(thr, tNum, last, isDel) {
 	var len = ajaxThrds[tNum].keys.length;
-	if(!ch.dc) {
-		if(last != 1) last = len - last;
-		if(last <= 0) last = 1;
-	} else last = 0;
+	if(last != 1) last = len - last;
+	if(last <= 0) last = 1;
 	for(var i = last; i < len; i++)
 		newPost(thr, tNum, i, true, isDel);
 	if(!sav.cookie) storeHiddenPosts();
@@ -2388,11 +2301,7 @@ function loadThread(post, last) {
 	$alert(Lng.loading, 'wait');
 	var thr = getThread(post);
 	var tNum = post.Num;
-	var url;
-	if(ch.dc) url = last > 1
-		? '/api/thread/last/' + brd + '/' + tNum + '.json?count=' + last
-		: '/api/thread/new/' + brd + '/' + tNum + '.json?last_post=' + post.Num;
-	AJAX(url, brd, tNum, function(err) {
+	AJAX(null, brd, tNum, function(err) {
 		if(err) { $close($id('DESU_alert_wait')); $alert(err); }
 		else {
 			$delNx(post.Msg);
@@ -2416,9 +2325,7 @@ function loadFavorThread(e) {
 	var arr = el.id.split('|');
 	var tNum = arr[2];
 	var b = arr[1];
-	var url;
-	if(arr[0] != host) url = $next(this).href;
-	else { if(ch.dc) url = '/api/thread/last/' + b + '/' + tNum + '.json?count=' + 5; }
+	var url = arr[0] != host ? $next(this).href : null;
 	var hh = $offset(pByNum[tNum], 'offsetTop');
 	if(hh > 0) { window.scrollTo(0, hh); return; }
 	$alert(Lng.loading, 'wait');
@@ -2428,10 +2335,7 @@ function loadFavorThread(e) {
 			thr.innerHTML = ajaxPosts[0].split(/<form[^>]+del[^>]+>/)[1].split('</form>'
 				)[0].replace(/(href="|src=")([^h][^"]+)/g, '$1http://' + url.split('/')[2] + '$2');
 			$close($id('DESU_alert_wait'));
-		} else {
-			if(!ch.dc) newPost(thr, tNum, 0, true);
-			expandThread(thr, tNum, 5, true);
-		}
+		} else { newPost(thr, tNum, 0, true); expandThread(thr, tNum, 5, true); }
 		$disp(thr);
 	});
 }
@@ -2539,7 +2443,7 @@ function loadPages(len) {
 			$new('div', {'id': 'DESU_page' + p})
 		]);
 		var url = '/' + (brd == '' ? '' : brd + '/') + (ch.dc
-			? ((p > 0 ? p : 'index') + '.json')
+			? ((p > 0 ? p : 'index') + '.html')
 			: (p > 0 ? p + '.html' : ''))
 		AJAX(url, brd, null, function(p, len) { return function() {
 			var page = $id('DESU_page' + p);
@@ -3169,7 +3073,7 @@ function fixGM() {
 	catch(e) {
 		GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
-			xhr.onreadystatechange = obj.onreadystatechange;
+			xhr.onreadystatechange = function() { obj.onreadystatechange(xhr); };
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 			xhr.send(false);
@@ -3262,55 +3166,57 @@ function initBoard() {
 	return true;
 }
 
-function initDelform() {
-	$Del('.//script');
-	$disp(dForm);
-	try {
-		var threads = $X('.//div[' + $case([
-			ch.tire, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
-			ch.sib, 'not(@*)'
-		], 'starts-with(@id, "thread")') + ']', dForm);
-		if(threads.snapshotLength == 0) {
-			var brList = $X('.//hr/preceding-sibling::br[1]', dForm);
-			var brLen = brList.snapshotLength;
-			var br, thrd;
-			for(var i = 0; i < brLen; i++) {
-				thrd = $new('div', {'class': 'thread'});
-				br = brList.snapshotItem(i);
-				$each_($X('preceding-sibling::node()'
-					+ '[not(self::div[@class="thread"] or self::hr or self::br[@*])]', br),
-					function(el) { thrd.appendChild(el); }
-				);
-				$before(br, [thrd]);
-			}
-			threads = $X('.//div[@class="thread"]', dForm);
+function parseDelform(node) {
+	$Del('.//script', node);
+	var threads = $X('.//div[' + $case([
+		ch.tire, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
+		ch.sib, 'not(@*)'
+	], 'starts-with(@id, "thread")') + ']', node);
+	if(threads.snapshotLength == 0) {
+		var brList = $X('.//hr/preceding-sibling::br[1]', node);
+		var brLen = brList.snapshotLength;
+		var br, thrd;
+		for(var i = 0; i < brLen; i++) {
+			thrd = $new('div', {'class': 'thread'});
+			br = brList.snapshotItem(i);
+			$each($X('preceding-sibling::node()'
+				+ '[not(self::div[@class="thread"] or self::hr or self::br[@*])]', br),
+				function(el) { thrd.appendChild(el); }
+			, nav.Firefox);
+			$before(br, [thrd]);
 		}
-		var tNum, op, opEnd;
-		var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
-		$each(threads, function(thr) {
-			if(ch.tiny) $after(thr, [$new('hr')]);
-			if(ch.fch || ch.tiny) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
-			else {
-				var a = $x('.//a[@name]' + (ks ? '[2]' : ''), thr);
-				if(a) tNum = a.name;
-				else tNum = thr.id.match(/\d+/);
-			}
-			$attr(thr, {'id': 'thread-' + tNum, 'class': 'thread'});
-			op = $new('div', {'id': 'oppost-' + tNum});
-			opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
-			$each_(opEnd ? $X('preceding-sibling::node()', opEnd) : $X('node()', thr),
-				function(el) { op.appendChild(el); }
-			);
-			if(opEnd) {
-				$each($X('.//' + table + '|div[@class="' + pClass + '"]', thr), function(el) {
-					el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id).match(/\d+/);
-				});
-				$before($1(thr), [op]);
-			} else thr.appendChild(op);
-		});
-		if(ch.fch || ch.krau || (Cfg.spells == 1 && /#rep /.test(spellsList.toString())))
-			dForm = $html(dForm, htmlReplace(dForm.innerHTML));
-	} catch(e) { $disp(dForm); return false; }
+		threads = $X('.//div[@class="thread"]', node);
+	}
+	var tNum, op, opEnd;
+	var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
+	$each(threads, function(thr) {
+		if(ch.tiny) $after(thr, [$new('hr')]);
+		if(ch.fch || ch.tiny) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
+		else {
+			var a = $x('.//a[@name]' + (ks ? '[2]' : ''), thr);
+			if(a) tNum = a.name;
+			else tNum = thr.id.match(/\d+/);
+		}
+		$attr(thr, {'id': 'thread-' + tNum, 'class': 'thread'});
+		op = $new('div', {'id': 'oppost-' + tNum});
+		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
+		$each(opEnd ? $X('preceding-sibling::node()', opEnd) : $X('node()', thr),
+			function(el) { op.appendChild(el); }
+		, !opEnd || nav.Firefox);
+		if(opEnd) {
+			$each($X('.//' + table + '|div[@class="' + pClass + '"]', thr), function(el) {
+				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id).match(/\d+/);
+			});
+			$before($1(thr), [op]);
+		} else thr.appendChild(op);
+	});
+	if(ch.fch || ch.krau || (Cfg.spells == 1 && /#rep /.test(spellsList.toString())))
+		node.innerHMTL = htmlReplace(node.innerHTML);
+}
+
+function initDelform() {
+	$disp(dForm);
+	try { parseDelform(dForm); } catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }

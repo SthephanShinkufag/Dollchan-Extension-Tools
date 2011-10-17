@@ -92,7 +92,8 @@
 		<code style="color:green">#exp /(>>\d+\s*){8}/</code> - скрыть вайп >>ссылками<br />
 		<code style="color:green">#exp /[оа]н[ие]м[еэу][^а-я]/i</code> - аниме, Аниму, ОНЕМЭ, и т.д.<br />
 		<code style="color:green">#exp /кукл[оа]([её]б|бляд|быдл)/i</code><br />
-		<code style="color:green">#exp /(new|old)fags can.*t/i</code>
+		<code style="color:green">#exp /(new|old)fags can.*t/i</code><br />
+		<code style="color:green">#exp /^[^A-ZА-Я\.]+$/g</code> - скрыть посты без заглавных букв и точек
 	</p>
 	<p>
 		Важно! Перед использованием #exp, подумайте о целесообразности его использования, если вместо этого можно воспользоваться более быстрым простым поиском. Например, вместо <code style="color:green">#exp /ололо/i</code> и <code style="color:green">#exp /!!!1/</code> гораздо более логичным было бы ввести строки <code style="color:green">ололо</code> и <code style="color:green">!!!1</code>, соответственно.
@@ -116,6 +117,13 @@
 		<code style="width:100%; color:green">#rep /(г[оа]вн|школ|ху[ийеёя]|пизд|пид.?р|п[еи]ту[хш]|сперм|параш|[^\s]бляд|бугурт|б.т+х.рт|сосн|с[ьъ]еб|еба[лнт]|тро[ль]+|ололо)[а-я]*/ig ко-ко-ко-ко</code> - "Милости прошу к нашему шалашу!"<br />
 		<code style="width:100%; color:green">#s/ #rep /([^a-zа-я])(?:(?:GNU|ЖМУ|ГНУ).?)?(?:linu(?:x|ks)|лин[еуа](?:[кп]с|х)(?:а|е|о[мв]|у)?|debian|gentoo|arch|fedora|slackware|(?:open)?suse|red ?hat|RHEL|[a-z]?ubuntu|(?:[а-я]?убунт|(?:г|дж)ент|федор|слак)(?:а|у|ой|е)|(?:дебиан|арч)(?:[ое]м|ч?ик|е|а|у)?|сус(?:я|ю|ей))/ig $1ПитухОС</code> - автозамена для /s<br />
 		<code style="color:green">#rep /&lt;span[^&gt;]+color[^&gt;]+&gt;сосницкий&lt;\/span&gt;/ig школьник</code> - исправление автозамены на 2ch.so<br />
+	</p>
+	<p>
+		Оператор автозамены <b><i>#outrep [выражение] [замена]</i></b> позволяет изменять текст сообщения при его отправке на сервер, и будет полезен, например, при обходе автозамены. Примеры использования:
+	</p>
+	<p style="margin-left: 40px; text-indent: 0;">
+		<code style="color:green">#outrep /быдло/ig б*ы*дло</code><br />
+		<code style="color:green">#b/ #outrep /школьник/ig школь[b][/b]ник</code>
 	</p>
 	Далее будет.<br />
 	<a href="mailto:straiister@yandex.ru" style="text-decoration:none;color:rgb(120, 63, 4)">Sthephan Shinkufag</a>, 2011
