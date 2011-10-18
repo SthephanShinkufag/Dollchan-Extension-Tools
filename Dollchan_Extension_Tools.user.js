@@ -230,7 +230,7 @@ var Spells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var pr = {}, qr = {};
 var nav = {}, sav = {}, ch = {};
-var ks, wk, host, dm, brd, res, isMain, TNum, pClass, cssFix, xPostRef, xPostMsg;
+var ks, wk, host, dm, brd, res, isMain, TNum, pClass, cssFix, xDelForm, xPostRef, xPostMsg;
 var dForm, oeForm, pArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false;
@@ -2061,12 +2061,6 @@ function getRefMap(pNum, rNum) {
 	if((',' + refMap[rNum].toString() + ',').indexOf(',' + pNum + ',') < 0) refMap[rNum].push(pNum);
 }
 
-function ajaxRefmap(post, pNum) {
-	$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post), function(link) {
-		getRefMap(pNum, link.textContent.match(/\d+/));
-	});
-}
-
 function showRefMap(post, rNum, isUpd) {
 	if(typeof refMap[rNum] !== 'object' || !post) return;
 	var txt = Lng.replies
@@ -2202,7 +2196,9 @@ function eventRefLink(el) {
 
 function parseHTMLdata(html) {
 	if(!pr.on && oeForm) pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
-	var form = $up($add(!ch.dc ? html : '<div class="thread">' + html + '</div>'));
+	var form = !ch.dc
+		? $x(xDelForm, $up($add(html)))
+		: $up($add('<div class="thread">' + html + '</div>'));
 	parseDelform(form);
 	$each($X('.//div[@class="thread"]', form), function(thrd) {
 		var tNum = thrd.id.match(/\d+/);
@@ -2211,10 +2207,11 @@ function parseHTMLdata(html) {
 			var pNum = post.id.match(/\d+/);
 			ajaxThrds[tNum].keys.push(pNum);
 			ajaxPosts[pNum] = post;
-			ajaxRefmap(post, pNum);
+			$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post), function(link) {
+				getRefMap(pNum, link.textContent.match(/\d+/));
+			});
 		}, true);
 	}, true);
-	
 }
 
 function AJAX(url, b, tNum, fn) {
@@ -2252,6 +2249,7 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	if(i == 0) oPosts[oPosts.length] = post;
 	else Posts[Posts.length] = post;
 	if(isDel) post.isDel = true;
+	pByNum[pNum] = post;
 	post.Num = pNum;
 	post.Count = i + 1;
 	if(!(sav.cookie && isMain)) post.Vis = getVisib(pNum);
@@ -3103,10 +3101,11 @@ function initBoard() {
 	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
 	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
-	dForm = $x('.//form[' + $case([
+	xDelForm = './/form[' + $case([
 		ch.dc || ch.krau, 'contains(@action, "delete")]',
 		ch.tiny, '@name="postcontrols"]'
-	], '@id="delform" or @name="delform"]'));
+	], '@id="delform" or @name="delform"]');
+	dForm = $x(xDelForm);
 	if(!dForm || $id('DESU_panel')) return false;
 	if(ch.hid) setTimeout = function(func) { func(); };
 	fixDomain();
