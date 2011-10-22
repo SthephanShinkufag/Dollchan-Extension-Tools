@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-10-19
+// @version			2011-10-22
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-19',
+	version:	'2011-10-22',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -1086,7 +1086,7 @@ function favorThrdsTable() {
 			txt = arr[i*4 + 3];
 			url = 'http://' + h + '/' + (b == '' ? '' : b + '/')
 				+ (/krautchan\.net/.test(h) ? 'thread-' : 'res/') + tNum
-				+ (/dobrochan\.ru/.test(h) ? '.xhtml' : '.html');
+				+ (/dobrochan\./.test(h) ? '.xhtml' : '.html');
 			if(h != oldh || b != oldb) $append(table.insertRow(-1), [
 				$new('input', {'type': 'checkbox', 'id': h}, {'click': function() {
 					var inp = this;
@@ -2082,26 +2082,31 @@ function addRefMap(post) {
 
 /*----------------------->>RefLinks posts preview functions------------------*/
 
-function delPostPreview(e) {
+function delPostPreview() {
+	if(pView) $delNx(pView);
+	else {
+		var xp = './/div[starts-with(@id,"DESU_preview")]';
+		var cln = $x(xp);
+		if(cln) clearTimeout(cln.marker);
+		$Del(xp);
+	}
+}
+
+function checkPostPreview(e) {
+	if(Cfg.navdel == 1) {
+		clearTimeout(pView.close);
+		pView.close = setTimeout(delPostPreview, 1000);
+	}
 	pView = $x('ancestor-or-self::div[starts-with(@id,"DESU_preview")]', e.relatedTarget);
-	var functor = function() {
-		if(!pView) {
-			var cln = $x('.//div[starts-with(@id,"DESU_preview")]');
-			if(!!cln && !!cln.marker) clearTimeout(cln.marker);
-			$Del('.//div[starts-with(@id,"DESU_preview")]');
-		} else $delNx(pView);
-	};
-	if(Cfg.navdel == 1) setTimeout(functor, 800);
-	else functor();
+	if(Cfg.navdel == 0) delPostPreview();
 }
 
 function funcPostPreview(post, parentId, msg) {
 	if(!pView) return;
-	pView.innerHTML = post ? ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML : msg;
+	if(!post) { pView.innerHTML = msg; return; }
+	pView.innerHTML = ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML;
+	$Del('.//*[starts-with(@id,"DESU_") or starts-with(@class,"DESU_")]', pView);
 	eventRefLink(pView);
-	$Del('.//img[@id="DESU_fullimg"]|.//span[@id="DESU_ybtn"]|'
-		+ './/div[@id="DESU_ytube" or @class="DESU_refmap"]', pView);
-	$Del('ancestor::a', $x('.//img[@id="DESU_preimg"]', pView));
 	addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
@@ -2109,9 +2114,8 @@ function funcPostPreview(post, parentId, msg) {
 	addLinkImg(pView);
 	if(Cfg.navig == 2) {
 		showRefMap(pView, pView.id.match(/\d+/), false);
-		var backRef =
-			$x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
-		if(backRef) backRef.style.fontWeight = 'bold';
+		var el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
+		if(el) el.style.fontWeight = 'bold';
 	}
 }
 
@@ -2146,7 +2150,7 @@ function showPostPreview(e) {
 		'style': 'position:absolute; z-index:9999; width:auto; min-width:0; border:1px solid grey; '
 			+ (x < scrW/2 ? 'left:' + x : 'right:' + parseInt(scrW - x + 2)) + 'px; '
 			+ (e.clientY < scrH*0.75 ? 'top:' + y : 'bottom:' + parseInt(scrH - y - 4)) + 'px'}, {
-		'mouseout': delPostPreview,
+		'mouseout': checkPostPreview,
 		'mouseover': function() { if(!pView) pView = this; }
 	});
 	var parentId = getPost(e.target).id.match(/\d+/);
@@ -2160,8 +2164,7 @@ function showPostPreview(e) {
 			funcPostPreview(ajaxPosts[pNum], parentId, err || Lng.postNotFound);
 		});
 	}
-	$del($id(pView.id));
-	doc.body.appendChild(pView);
+	dForm.appendChild(pView);
 	if(Cfg.navmrk == 1) pView.marker = setTimeout(function() {
 		markViewedPost(pNum);
 		storeViewedPosts(pNum);
@@ -2172,7 +2175,7 @@ function eventRefLink(el) {
 	if(Cfg.navig != 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 		$rattr(link, 'onmouseover');
 		$rattr(link, 'onmouseout');
-		$event(link, {'mouseover': showPostPreview, 'mouseout': delPostPreview});
+		$event(link, {'mouseover': showPostPreview, 'mouseout': checkPostPreview});
 	});
 }
 
