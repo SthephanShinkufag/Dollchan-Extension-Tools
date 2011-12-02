@@ -213,7 +213,7 @@ var LngArray = {
 	spoiler:		['Спойлер', 'Spoiler'],
 	code:			['Код', 'Code'],
 	quote:			['Цитировать выделенное', 'Quote selected'],
-	replies:		['Ответы: ', 'Replies: '],
+	replies:		['Ответы:&nbsp;', 'Replies:&nbsp;'],
 	postNotFound:	['Пост не найден', 'Post not found'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
