@@ -53,6 +53,7 @@ var defaultCfg = {
 	sagebt:		1,		// email field -> sage btn
 	issage:		0,		// reply with SAGE
 	pform:		2,		// postform is [0=at top, 1=at bottom, 2=hidden]
+	tform:		1,		// hide thread-creating form
 	forcap:		1,		// force captcha input [0=off, 1=en, 2=ru]
 	txtbtn:		1,		// text format buttons [0=off, 1=graph, 2=text]
 	name:		0,		// user name
@@ -148,6 +149,7 @@ var LngArray = {
 	],
 	addToFav:		['Добавлять в избранное при ответе', 'Add thread to favorites on reply'],
 	mailToSage:		['Sage вместо поля E-mail*', 'Sage button instead of E-mail field*'],
+	noThrForm:		['Прятать форму создания треда', 'Hide thread-creating form'],
 	replyForm:      ['форма ответа в треде*', 'reply form in thread*'],
 	selReplyForm:   [
 		['Сверху', 'Внизу', 'Скрытая'],
@@ -899,6 +901,9 @@ function addSettings() {
 		divBox('verify', Lng.replyCheck),
 		divBox('addfav', Lng.addToFav),
 		$if(pr.mail, divBox('sagebt', Lng.mailToSage)),
+		$if(pr.on, divBox('tform', Lng.noThrForm, function() {
+			if(isMain) pArea.style.display = Cfg.tform ? 'none' : '';
+		})),
 		$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
 		$New('div', [optSel('forcap', Lng.selFastInput, Lng.fastInput)]),
 		$if(pr.on, $New('div', [
@@ -936,7 +941,7 @@ function addSettings() {
 			lBox('sign', Lng.fixedSign)
 		])),
 		$New('div', [
-			$if(pr.on, $txt(Lng.dontShow)),
+			$if(pr.on || oeForm, $txt(Lng.dontShow)),
 			lBox('norule', Lng.rules, toggleRules),
 			$if(pr.gothr, lBox('nogoto', Lng.gotoField,
 				function() { $disp(pr.gothr); if(qr.on) $disp(qr.gothr); }
@@ -1445,7 +1450,7 @@ function doChanges() {
 		}, 0);
 	}});
 	// Postform changes
-	if(isMain || Cfg.pform == 2) togglePostForm();
+	if((isMain && Cfg.tform == 1) || (!isMain && Cfg.pform == 2)) togglePostForm();
 	if(!isMain && Cfg.pform == 1) {
 		$after(dForm, [pArea]);
 		if(pr.on) $before($1(pArea), [$new('hr', {'style': 'clear:both'})]);
