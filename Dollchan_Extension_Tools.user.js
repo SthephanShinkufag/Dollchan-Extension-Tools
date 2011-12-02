@@ -766,20 +766,17 @@ function addSettings() {
 	initSpells();
 	var div = $id('DESU_settings');
 	if(div.hasChildNodes()) { $delCh(div); return; }
-	var newBox = function(name, fn, id) {
+	var lBox = function(name, txt, fn, id) {
 		var el = $new('input', {
 			'type': 'checkbox'}, {
 			'click': function() { toggleCfg(name); if(fn) fn(); }
 		});
 		el.checked = Cfg[name] == 1;
 		if(id) el.id = id;
-		return el;
-	}
-	var spBox = function(name, txt, fn, id) {
-		return $New('span', [newBox(name, fn, id), $txt(' ' + txt)]);
+		return $New('label', [el, $txt(' ' + txt)]);
 	};
 	var divBox = function(name, txt, fn, id) {
-		return $New('div', [newBox(name, fn, id), $txt(' ' + txt)]);
+		return $New('div', [lBox(name, txt, fn, id)]);
 	};
 	var optSel = function(name, arr, txt, fn) {
 		var opt = [];
@@ -789,7 +786,7 @@ function addSettings() {
 			'change': (fn ? fn : function() { saveCfg(name, this.selectedIndex); })
 		});
 		el.selectedIndex = Cfg[name];
-		return $New('span', [el, $txt(' ' + txt)]);
+		return $New('label', [el, $txt(' ' + txt)]);
 	};
 	$append(div, [
 		$if(Cfg.attach == 0, $add('<hr style="clear:both">')),
@@ -813,7 +810,7 @@ function addSettings() {
 	]);
 	$append($id('DESU_sett_main'), [
 		$New('div', [
-			spBox('spells', Lng.spells, toggleSpells, 'DESU_spellist_ch'),
+			lBox('spells', Lng.spells, toggleSpells, 'DESU_spellist_ch'),
 			$New('span', [
 				$new('a', {'class': 'DESU_btn', 'text': Lng.add, 'href': '#'}, {
 					'click': function(e) { $pD(e); },
@@ -844,7 +841,7 @@ function addSettings() {
 			})
 		]),
 		$New('div', [
-			spBox('awipe', Lng.antiWipe),
+			lBox('awipe', Lng.antiWipe),
 			$attr($btn('>', function() { $disp($id('DESU_wipebox')); }), {'style': 'width:20px'})
 		]),
 		$New('div', [
@@ -860,20 +857,20 @@ function addSettings() {
 			'style': 'display:none; padding-left:15px'
 		}),
 		$New('div', [
-			spBox('menuhd', Lng.hiderMenu),
-			spBox('viewhd', Lng.viewHidden),
+			lBox('menuhd', Lng.hiderMenu),
+			lBox('viewhd', Lng.viewHidden),
 		]),
 		$New('div', [
 			optSel('delhd', Lng.selHiddenPosts, Lng.hiddenPosts, function() {
 				processHidden(this.selectedIndex, Cfg.delhd);
 			}),
-			spBox('filthr', Lng.filterThreads)
+			lBox('filthr', Lng.filterThreads)
 		]),
 		$new('hr'),
 		$if(!ch.dc, $New('div', [
 			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
-			$if(!nav.Chrome, spBox('updfav', Lng.indication)),
+			$if(!nav.Chrome, lBox('updfav', Lng.indication)),
 		])),
 		$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
 		divBox('navfix', Lng.fixedPreview),
@@ -888,15 +885,15 @@ function addSettings() {
 		divBox('attach', Lng.attachPanel, function() { $delCh($id('DESU_settings')); scriptCSS(); }),
 		$New('div', [
 			$txt('CSS: '),
-			spBox('noname', Lng.hideNames, scriptCSS),
-			spBox('ospoil', Lng.openSpoilers, scriptCSS),
-			$if(ch.so, spBox('noscrl', Lng.noScroll, scriptCSS))
+			lBox('noname', Lng.hideNames, scriptCSS),
+			lBox('ospoil', Lng.openSpoilers, scriptCSS),
+			$if(ch.so, lBox('noscrl', Lng.noScroll, scriptCSS))
 		]),
 		$New('div', [
 			$txt(Lng.toLinks),
-			spBox('mp3', Lng.mp3),
+			lBox('mp3', Lng.mp3),
 			optSel('ytube', Lng.selYouTube, 'YouTube* '),
-			spBox('addimg', Lng.pics)
+			lBox('addimg', Lng.pics)
 		]),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
@@ -920,7 +917,7 @@ function addSettings() {
 				pr.name.value = val;
 				if(qr.on) qr.name.value = val;
 			}}),
-			spBox('name', Lng.fixedName, null, 'DESU_fixedname_ch')
+			lBox('name', Lng.fixedName, null, 'DESU_fixedname_ch')
 		])),
 		$if(pr.passw, $New('div', [
 			$new('input', {'type': 'text', 'id': 'DESU_fixedpass', 'value': Cfg.pasval, 'size': 20}, {'keyup': function() {
@@ -930,21 +927,21 @@ function addSettings() {
 				del_passw.value = val;
 				if(qr.on) qr.passw.value = val;
 			}}),
-			spBox('passw', Lng.fixedPass, null, 'DESU_fixedpass_ch')
+			lBox('passw', Lng.fixedPass, null, 'DESU_fixedpass_ch')
 		])),
 		$if(pr.txta, $New('div', [
 			$new('input', {'type': 'text', 'id': 'DESU_fixedsign', 'value': Cfg.sigval, 'size': 20}, {'keyup': function() {
 				saveCfg('sigval', $id('DESU_fixedsign').value.replace(/\|/g, ''));
 			}}),
-			spBox('sign', Lng.fixedSign)
+			lBox('sign', Lng.fixedSign)
 		])),
 		$New('div', [
 			$if(pr.on, $txt(Lng.dontShow)),
-			spBox('norule', Lng.rules, toggleRules),
-			$if(pr.gothr, spBox('nogoto', Lng.gotoField,
+			lBox('norule', Lng.rules, toggleRules),
+			$if(pr.gothr, lBox('nogoto', Lng.gotoField,
 				function() { $disp(pr.gothr); if(qr.on) $disp(qr.gothr); }
 			)),
-			$if(pr.passw, spBox('nopass', Lng.passw,
+			$if(pr.passw, lBox('nopass', Lng.passw,
 				function() { $disp($up(pr.passw, 2)); if(qr.on) $disp($up(qr.passw, 2)); }
 			))
 		]),
