@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-10-22
+// @version			2011-12-02
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-10-22',
+	version:	'2011-12-02',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -174,8 +174,11 @@ var LngArray = {
 	load:			['Загрузить', 'Load'],
 	reset:			['Сброс', 'Reset'],
 	version:		['Версия: ', 'Version: '],
-	storage:		['Хранение: ', 'Storage: '],
-	total:			['Всего: ', 'Total: '],
+	storage:		['\nХранение: ', '\nStorage: '],
+	thrViewed:		['\n\nТредов просмотрено: ', '\n\nThreads viewed: '],
+	thrCreated:		['\nТредов создано: ', '\nThreads created: '],
+	pstSended:		['\nПостов отправлено: ', '\nPosts sended: '],
+	total:			['\nВсего: ', '\nTotal: '],
 	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
 	hiddenThreads:	['Скрытые треды', 'Hidden threads'],
 	hiddenOnBoard:	['Скрытые треды этой доски', 'Hidden threads on this board'],
@@ -222,7 +225,7 @@ var LngArray = {
 };
 
 // Global vars
-var Cfg = [], Lng = {};
+var Cfg = [], Lng = {}, Stat = {};
 var doc = document;
 var Posts = [], oPosts = [], pByNum = [];
 var Visib = [], Expires = [], Favor = [], refMap = [];
@@ -436,7 +439,7 @@ function $show(el) {
 }
 function Log(txt) {
 	var newTime = (new Date()).getTime();
-	timeLog += '\n' + txt + ': ' + (newTime - oldTime).toString() + 'ms';
+	timeLog += txt + ': ' + (newTime - oldTime).toString() + 'ms\n';
 	oldTime = newTime;
 }
 
@@ -522,10 +525,22 @@ function readCfg() {
 	for(var key in LngArray)
 		Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
+	readStat();
 }
 
 function fixCapLang() {
 	Cfg.forcap = (ch.dc || ch.nul) ? 2 : 1;
+}
+
+function isValidStat(data) {
+	try { if(eval(data).view) return true; } catch(e) { return false; }
+}
+
+function readStat() {
+	var data = getStored('DESU_Stat_' + dm);
+	Stat = isValidStat(data) ? eval(data) : {view: 0, op: 0, reply: 0};
+	if(!isMain) Stat.view = parseInt(Stat.view) + 1;
+	setStored('DESU_Stat_' + dm, uneval(Stat));
 }
 
 function getVisib(pNum) {
@@ -535,7 +550,7 @@ function getVisib(pNum) {
 
 function readPostsVisib() {
 	var data;
-	var id = 'DESU_Posts_' + dm + '_' + brd;
+	var id = 'DESU_Posts_' + dm;
 	if(!sav.cookie) {
 		data = getStored(id);
 		if(!data) return;
@@ -556,7 +571,7 @@ function readPostsVisib() {
 }
 
 function storePostsVisib() {
-	var id = 'DESU_Posts_' + dm + '_' + brd;
+	var id = 'DESU_Posts_' + dm;
 	if(!sav.cookie) {
 		var arr = [];
 		for(var key in Visib) {
@@ -781,11 +796,16 @@ function addSettings() {
 		$New('div', [
 			$new('div', {'id': 'DESU_sett_head', 'text': 'Dollchan Extension Tools'}, {
 				'click': function() {
-					$alert('<b>' + Lng.version + Cfg.version + '</b>\n' + Lng.storage + $case([
+					$alert('<table><tbody valign="top"><tr><td style="padding-right:5px">'
+					+ Lng.version + Cfg.version + Lng.storage + $case([
 						sav.GM, 'Mozilla config',
 						sav.local, 'Local Storage',
 						sav.script, 'Opera ScriptStorage'
-					], 'Cookies') + '\n' + timeLog + '\n\n' + Lng.total + endTime + 'ms');
+					], 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated
+					+ Stat.op + Lng.pstSended + Stat.reply
+					+ '</td><td style="padding-left:5px; border-left:1px solid grey">'
+					+ timeLog + Lng.total + endTime + 'ms</td></tr></tbody></table>'
+					+ '<a href="' + homePage  +'" target="_blank">' + homePage + '</a>');
 				}
 			}),
 			$new('div', {'id': 'DESU_sett_main'})
@@ -1351,6 +1371,9 @@ function eventSubmit(obj) {
 		}
 		obj.txta.value = outReplace(obj.txta.value);
 		if(Cfg.sign == 1 && Cfg.sigval != '') obj.txta.value += '\n' + Cfg.sigval;
+		if(isMain && obj == pr) Stat.op = parseInt(Stat.op) + 1;
+		else Stat.reply = parseInt(Stat.reply) + 1;
+		setStored('DESU_Stat_' + dm, uneval(Stat));
 	}});
 }
 
@@ -1515,11 +1538,11 @@ function iframeLoad(e) {
 		} catch(e) { $alert('Iframe error:\n' + e); $close($id('DESU_alert_wait')); return; }
 		if(ch.fch && /sys/.test(frm.location.hostname) && frm.title != 'Post successful!')
 			xp = './/table//font/b';
-		else if(ch.dc && /error/.test(frm.location.pathname))
+		if(ch.dc && /error/.test(frm.location.pathname))
 			xp = './/td[@class="post-error"]';
-		else if(ch.krau && frm.location.pathname == '/post')
+		if(ch.krau && frm.location.pathname == '/post')
 			xp = './/td[starts-with(@class,"message_text")]';
-		else if(!frm.getElementById('delform')) {
+		if(!ch.fch && !ch.dc && !ch.krau && !frm.getElementById('delform')) {
 			if(ch.so) xp = './/font[@size="5"]';
 			else if(ks) xp = './/h1|.//h2|.//div[contains(@style, "1.25em")]';
 			else err = $t('h2', frm) || $t('h1', frm);
@@ -2105,7 +2128,7 @@ function funcPostPreview(post, parentId, msg) {
 	if(!pView) return;
 	if(!post) { pView.innerHTML = msg; return; }
 	pView.innerHTML = ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML;
-	$Del('.//*[starts-with(@id,"DESU_") or starts-with(@class,"DESU_")]', pView);
+	$Del('.//*[(starts-with(@id,"DESU_") or starts-with(@class,"DESU_")) and not(@class="DESU_postpanel")]', pView);
 	eventRefLink(pView);
 	addLinkTube(pView);
 	pView.Img = getImages(pView);
@@ -2153,7 +2176,8 @@ function showPostPreview(e) {
 		'mouseout': checkPostPreview,
 		'mouseover': function() { if(!pView) pView = this; }
 	});
-	var parentId = getPost(e.target).id.match(/\d+/);
+	var parent = getPost(e.target);
+	var parentId = parent ? parent.id.match(/\d+/) : null;
 	var post = pByNum[pNum] || ajaxPosts[pNum];
 	if(post) {
 		funcPostPreview(post, parentId);
@@ -2287,7 +2311,6 @@ function expandThread(thr, tNum, last, isDel) {
 
 function loadThread(post, last) {
 	$alert(Lng.loading, 'wait');
-	var thr = getThread(post);
 	var tNum = post.Num;
 	AJAX(null, brd, tNum, function(err) {
 		if(err) { $close($id('DESU_alert_wait')); $alert(err); }
@@ -2295,9 +2318,9 @@ function loadThread(post, last) {
 			$delNx(post.Msg);
 			$delNx(post);
 			if(ch.krau) $del($x('.//span[@class="omittedinfo"]', post));
-			expandThread(thr, tNum, last);
+			expandThread($up(post), tNum, last);
 			$focus(pByNum[tNum]);
-			if(last > 5 || last == 1) thr.appendChild($add(
+			if(last > 5 || last == 1) $up(post).appendChild($add(
 				'<span>[<a href="#">' + Lng.collapseThrd + '</a>]</span>', {
 				'click': function(e) { $pD(e); loadThread(post, 5); }
 			}));
@@ -3182,6 +3205,7 @@ function parseDelform(node) {
 			else tNum = thr.id.match(/\d+/);
 		}
 		$attr(thr, {'id': 'thread-' + tNum, 'class': 'thread'});
+		if(ch.krau) thr = $x('.//div[@class="thread_body"]', thr);
 		op = $new('div', {'id': 'oppost-' + tNum});
 		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
 		$each(opEnd ? $X('preceding-sibling::node()', opEnd) : $X('node()', thr), function(el) {
