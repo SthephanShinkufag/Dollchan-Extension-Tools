@@ -1700,7 +1700,7 @@ function addTextPanel(obj) {
 		tfBtn('DESU_btn_under', Lng.underlined, '__', 'u', '<u>U</u>', x),
 		tfBtn('DESU_btn_strike', Lng.strike, !ch._410 ? '' : '^^', 's', 'S', x),
 		tfBtn('DESU_btn_spoiler', Lng.spoiler, '%%', 'spoiler', '%', x),
-		tfBtn('DESU_btn_code', Lng.code, '`', 'code', 'C', x),
+		tfBtn('DESU_btn_code', Lng.code, '`', !ch.krau ? 'code' : 'aa', 'C', x),
 		tfBtn('DESU_btn_quote', Lng.quote, '', '', '&gt;', x),
 		$if(Cfg.txtbtn == 2, $txt(' ]'))
 	], {'id': 'DESU_textpanel', 'style': 'height:23px'})]);
