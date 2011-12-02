@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name  		Dollchan Extension Tools
-// @version			2011-10-22
+// @version			2011-12-02
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
