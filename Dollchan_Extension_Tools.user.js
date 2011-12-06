@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-12-02
+// @version			2011-12-06
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-12-02',
+	version:	'2011-12-06',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -81,6 +81,7 @@ var LngArray = {
 	expImages:		['Раскрыть картинки', 'Expand images'],
 	maskImages:		['Маскировать картинки', 'Mask images'],
 	autoupd:		['Автообновление треда', 'Thread autoupdate'],
+	postsImages:	['Постов/Изображений в треде', 'Posts/Images in thread'],
 	antiWipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
 	sameLines:		['Повтор строк', 'Same lines'],
 	sameWords:		['Повтор слов', 'Same words'],
@@ -127,7 +128,6 @@ var LngArray = {
 	],
 	animatePopup:	['Анимировать уведомления', 'Animated popups'],
 	attachPanel:	['Прикрепить главную панель', 'Attach main panel'],
-	images:			['Изображения: ', 'Images: '],
 	imgExpand:		['раскрывать изображения ', 'expand images '],
 	selImgExpand:	[
 		['Откл.', 'В посте', 'По центру'],
@@ -749,7 +749,14 @@ function addPanel() {
 						if(ajaxInt) endPostsUpdate();
 						else { this.id = 'DESU_btn_updon'; initPostsUpdate(); }
 					}
-				}))
+				})),
+				$new('span', {'id': 'DESU_btn_br'}),
+				$if(!isMain, $new('span', {
+					'id': 'DESU_imgcount',
+					'title': Lng.postsImages,
+					'style': 'color:#fff; vertical-align:top; padding:0 3px; font-size:18px',
+					'text': parseInt(Posts.length + 1) + '/' + getImages(dForm).snapshotLength
+				})),
 			], {
 				'id': 'DESU_panelbtns',
 				'style': (Cfg.showmp == 0 ? 'display:none' : '')
@@ -1712,7 +1719,7 @@ function addTextPanel(obj) {
 
 function scriptCSS() {
 	var x = [];
-	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; cursor:default; font:14px sans-serif} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px}');
+	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px}');
 	
 	// waiting animation
 	x.push('.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}');
@@ -1729,7 +1736,7 @@ function scriptCSS() {
 	pIcn('.DESU_icn_favset', 'R0lGODlhDgAOAKIAAP/dQKCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	
 	// main panel buttons
-	var bIcn = function(nm, src) { x.push(nm + ' {display:inline-block; cursor:pointer; padding:0 25px 25px 0; margin:0 1px 0 1px; ' + cssFix + 'border-radius:5px; background:url(data:image/gif;base64,' + src + '}'); };
+	var bIcn = function(nm, src) { x.push(nm + ' {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; ' + cssFix + 'border-radius:5px; background:url(data:image/gif;base64,' + src + '}'); };
 	var bPre = 'R0lGODlhGQAZAIAAAPDw8ICAgCwAAAAAGQAZAEAC';
 	bIcn('#DESU_btn_logo', bPre + 'OYyPqcsBD1qCCEaJs97Teit9IsWVzPhwoLY6ZNa25kzXNHqx7yzreL749Sqpw/BUNByDwqWyCbQdCgA7); ' + cssFix + 'border-radius:15px 0 0 0');
 	bIcn('#DESU_btn_settings', bPre + 'QIyPqWvgDyNDL9WJs94WLokBxxWI3DmZpTNyZMOGngJ+0f2i+s7ruVaR/GjCWirWUdmQRGZzCSzOZCKpz9nLFAAAOw==) center');
@@ -2417,9 +2424,11 @@ function loadNewPosts(inf) {
 		var del = getDelPosts(err);
 		if(!inf) infoNewPosts(err, del);
 		if(!err) {
-			for(var i = Posts.length - del + 1, len = ajaxThrds[TNum].keys.length; i < len; i++)
+			var len = ajaxThrds[TNum].keys.length;
+			for(var i = Posts.length - del + 1; i < len; i++)
 				newPost($x('.//div[@class="thread"]', dForm), TNum, i, true);
 			storeHiddenPosts();
+			$id('DESU_imgcount').textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
 		if(inf) { $close($id('DESU_alert_wait')); infoNewPosts(err, del); }
 	}, true);
