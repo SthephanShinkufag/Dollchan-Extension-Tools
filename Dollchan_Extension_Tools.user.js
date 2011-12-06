@@ -41,6 +41,7 @@ var defaultCfg = {
 	insnum:		1,		// insert >>link on postnumber click
 	animp:		1,		// animated popups
 	attach:		0,		// attach main panel
+	icount:		1,		// show posts/images counter
 	showmp:		0,		// show full main panel
 	noname:		0,		// hide post names
 	noscrl:		1,		// hide scrollers in posts
@@ -127,7 +128,8 @@ var LngArray = {
 		'Insert >>link on №postnumber click*'
 	],
 	animatePopup:	['Анимировать уведомления', 'Animated popups'],
-	attachPanel:	['Прикрепить главную панель', 'Attach main panel'],
+	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
+	showImgCount:	['Счетчик постов/изображений', 'Posts/images counter'],
 	imgExpand:		['раскрывать изображения ', 'expand images '],
 	selImgExpand:	[
 		['Откл.', 'В посте', 'По центру'],
@@ -750,13 +752,14 @@ function addPanel() {
 						else { this.id = 'DESU_btn_updon'; initPostsUpdate(); }
 					}
 				})),
-				$new('span', {'id': 'DESU_btn_br'}),
-				$if(!isMain, $new('span', {
-					'id': 'DESU_imgcount',
-					'title': Lng.postsImages,
-					'style': 'color:#fff; vertical-align:top; padding:0 3px; font-size:18px',
-					'text': parseInt(Posts.length + 1) + '/' + getImages(dForm).snapshotLength
-				})),
+				$if(!isMain, $New('span', [
+					$new('span', {'id': 'DESU_btn_br'}),
+					$new('span', {
+						'id': 'DESU_imgcount',
+						'title': Lng.postsImages,
+						'text': parseInt(Posts.length + 1) + '/' + getImages(dForm).snapshotLength
+					})
+				], {'id': 'DESU_panelinfo'}))
 			], {
 				'id': 'DESU_panelbtns',
 				'style': (Cfg.showmp == 0 ? 'display:none' : '')
@@ -891,7 +894,10 @@ function addSettings() {
 		$New('div', [optSel('pstbtn', Lng.selBtns, Lng.postBtns)]),
 		divBox('insnum', Lng.insertLink),
 		divBox('animp', Lng.animatePopup),
-		divBox('attach', Lng.attachPanel, function() { $delCh($id('DESU_settings')); scriptCSS(); }),
+		$New('div', [
+			lBox('attach', Lng.attachPanel, function() { $delCh($id('DESU_settings')); scriptCSS(); }),
+			lBox('icount', Lng.showImgCount, scriptCSS)
+		]),
 		$New('div', [
 			$txt('CSS: '),
 			lBox('noname', Lng.hideNames, scriptCSS),
@@ -1719,7 +1725,7 @@ function addTextPanel(obj) {
 
 function scriptCSS() {
 	var x = [];
-	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px}');
+	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} ' + (Cfg.icount == 0 ? '#DESU_panelinfo {display:none} ' : '') + '#DESU_imgcount {color:#fff; vertical-align:top; padding:0 3px; font-size:18px} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px}');
 	
 	// waiting animation
 	x.push('.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}');
