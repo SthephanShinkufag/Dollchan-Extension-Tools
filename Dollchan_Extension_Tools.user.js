@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-12-06
+// @version			2011-12-08
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1321,7 +1321,7 @@ function makeCapImg(tNum) {
 	var src;
 	if(ks) src = $case([
 		ch._410, '/faptcha.php?board=' + brd,
-		ch.fst || ch.hid, '/securimage/securimage_show.php?' + Math.random()
+		ch.hid, '/securimage/securimage_show.php?' + Math.random()
 	], '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random());
 	else {
 		var img = $x(pr.tr + '//img', pr.cap);
@@ -1377,7 +1377,6 @@ function eventSubmit(obj) {
 	$event($attr(obj.subm, {'value': Lng.submit}), {'click': function(e) {
 		if(Cfg.verify == 1) $alert(Lng.checking, 'wait');
 		else if(obj == qr && pr.cap) pr.cap.value = ' ';
-		if(ch.nul || ch.fst) $attr(obj.txta, {'id': 'message', 'name': 'message'});
 		if(obj == qr) pr.txta.value = qr.txta.value;
 		if(Cfg.addfav == 1 && !(isMain && obj == pr)) {
 			var post = pByNum[TNum || getThread(obj.form).id.match(/\d+/)];
@@ -1474,20 +1473,23 @@ function doChanges() {
 
 function doPostformChanges() {
 	if(!ch.fch && pr.subm.nextSibling) $delNx(pr.subm);
-	if(ch.nul || ch.fst) {
+	if(ch.nul || ch._7ch) {
 		$del($id('captcha_status'));
-		$html($x('ancestor::td[1]', pr.txta), '<textarea cols="48" rows="4" accesskey="m" />');
-		pr.txta = $t('textarea', pr.form);
-	}
-	if(ch.fst) $del($x('.//tr[td/div/@id="box"]', pr.form));
+		var uptx = $up(pr.txta);
+		$del(pr.txta);
+		setTimeout(function() {
+			pr.txta = $new('textarea', {'name': 'message', 'cols': 48, 'accesskey': 'm'});
+			uptx.appendChild(pr.txta);
+			addTextResizer(pr);
+		}, 0)
+	} else addTextResizer(pr);
 	$each($X('.//input[@type="text"]', pr.form), function(el) { el.size = 35; });
 	eventSubmit(pr);
 	addTextPanel(pr);
-	addTextResizer(pr);
 	toggleRules();
 	if(Cfg.nogoto == 1 && pr.gothr) $disp(pr.gothr);
 	if(Cfg.nopass == 1 && pr.passw) $disp($x(pr.tr, pr.passw));
-	if(Cfg.name == 1 && pr.name) setTimeout(function() { pr.name.value = Cfg.namval; } , 0);
+	if(Cfg.name == 1 && pr.name) setTimeout(function() { pr.name.value = Cfg.namval; }, 0);
 	del_passw = $X('.//input[@type="password"]').snapshotItem(1);
 	if(del_passw) setTimeout(function() {
 		if(Cfg.passw == 1) pr.passw.value = del_passw.value = Cfg.pasval;
@@ -1782,6 +1784,7 @@ function scriptCSS() {
 	if(ch.so) x.push('.postbtn_hide, .postbtn_rep, .postbtn_exp {display:none}');
 	if(ch.so && getCookie('wakabastyle') == 'Photon')
 		x.push('#DESU_content, div[id^="DESU_preview"] {font-size:0.9em}');
+	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	
 	// append CSS
 	if(!$id('DESU_css')) {
@@ -3066,17 +3069,18 @@ function replyForm(f) {
 	if(!f) return;
 	this.on = true;
 	this.form = f;
-	this.tr = 'ancestor::tr[1]';
+	var tr = $xb('.//tr', f) ? 'tr' : 'li';
+	this.tr = 'ancestor::' + tr + '[1]';
 	this.recap = $x('.//input[@id="recaptcha_response_field"]', f);
 	this.cap = $x('.//input[contains(@name, "aptcha") and '
 		+ 'not(@name="recaptcha_challenge_field")]', f) || this.recap;
-	this.txta = $x('.//tr//textarea' + (ch.krau ? '[@name="internal_t"]' : '[last()]'), f);
-	this.subm = $x('.//tr//input[@type="submit"]', f);
-	this.file = $x('.//tr//input[@type="file"]', f);
-	this.passw = $x('.//tr//input[@type="password"]', f);
+	this.txta = $x('.//' + tr + '//textarea' + (ch.krau ? '[@name="internal_t"]' : '[last()]'), f);
+	this.subm = $x('.//' + tr + '//input[@type="submit"]', f);
+	this.file = $x('.//' + tr + '//input[@type="file"]', f);
+	this.passw = $x('.//' + tr + '//input[@type="password"]', f);
 	this.gothr = $x('.//tr[@id="trgetback"]', f)
 		|| $x(this.tr, $x('.//tr//input[@type="radio" or @name="gotothread"]', f));
-	var pre = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
+	var pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1"'
 		+ ' or @name="akane")]', f);
 	this.mail = $x(pre + '(@name="field2" or @name="em" or @name="sage" or @name="email"'
@@ -3119,14 +3123,14 @@ function initBoard() {
 		sib: dm == 'sibirchan.ru',
 		tire: dm == '2--ch.ru',
 		_5ch: dm == '5channel.net',
-		fst: dm == 'firstchan.ru',
 		hid: dm == 'hiddenchan.i2p',
 		tiny: dm == 'tinyboard.org',
 		dfwk: dm == 'dfwk.ru',
 		pony: dm == 'ponychan.net',
-		zadr: dm == 'zadraw.ch'
+		zadr: dm == 'zadraw.ch',
+		_7ch: dm == '7chan.org'
 	};
-	ks = $xb('.//script[contains(@src, "kusaba")]') || ch.fst;
+	ks = $xb('.//script[contains(@src, "kusaba")]');
 	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	xDelForm = './/form[' + $case([
@@ -3179,7 +3183,8 @@ function initBoard() {
 	], './/span[@class="reflink"]');
 	xPostMsg = $case([
 		ch.dc, './/div[@class="postbody"]',
-		ch.tiny, './/p[@class="body"]'
+		ch.tiny, './/p[@class="body"]',
+		ch._7ch, './/p[@class="message"]'
 	], './/blockquote');
 	cssFix = $case([nav.Firefox, '-moz-', nav.Chrome, '-webkit-'], '');
 	dummy = $new('div');
@@ -3198,7 +3203,8 @@ function parseDelform(node) {
 	var it = $xb('div[contains(@id,"_info") and contains(@style,"float")]', node);
 	var threads = $X('.//div[' + $case([
 		it, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
-		ch.sib, 'not(@*)'
+		ch.sib, 'not(@*)',
+		ch._7ch, 'starts-with(@id, "thread") and not(@id="thread_controls")' 
 	], 'starts-with(@id, "thread")') + ']', node);
 	if(threads.snapshotLength == 0) {
 		$each($X('.//hr/preceding-sibling::br[1]', node), function(br) {
@@ -3229,7 +3235,7 @@ function parseDelform(node) {
 			op.appendChild(el);
 		}, !opEnd || nav.Firefox);
 		if(opEnd) {
-			$each($X('.//' + table + '|div[@class="' + pClass + '"]', thr), function(el) {
+			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr), function(el) {
 				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id).match(/\d+/);
 			});
 			$before($1(thr), [op]);
