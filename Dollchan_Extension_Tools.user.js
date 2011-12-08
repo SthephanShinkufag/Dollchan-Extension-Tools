@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-12-06',
+	version:	'2011-12-08',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -1224,16 +1224,16 @@ function removeSelMenu(e) {
 
 function addSelMenu(el, arr) {
 	var x, y, pos;
-	x = 'left:' + $offset(el, 'offsetLeft').toString();
+	x = 'right:' + (doc.body.clientWidth - $offset(el, 'offsetLeft') - el.offsetWidth).toString();
 	if(Cfg.attach == 1 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
 		if(el.id == 'DESU_btn_refresh') y = 'bottom:25';
 		else y = 'top:' + (
-			$offset(el, 'offsetTop') - $offset(el, 'scrollTop') + el.offsetHeight - 1
+			$offset(el, 'offsetTop') - $offset(el, 'scrollTop') + el.offsetHeight
 		).toString();
 	} else {
 		pos = 'absolute';
-		y = 'top:' + ($offset(el, 'offsetTop') + el.offsetHeight - 1).toString();
+		y = 'top:' + ($offset(el, 'offsetTop') + el.offsetHeight).toString();
 	}
 	doc.body.appendChild($add('<div class="' + pClass + '" id="DESU_select" style="position:' + pos
 		+ '; ' + x + 'px; ' + y + 'px; z-index:9999; width:auto; min-width:0; border:1px solid grey;'
@@ -2018,8 +2018,7 @@ function addFullImg(a, fullW, fullH) {
 		);
 		makeMoveable(full);
 	}
-	var scrW = doc.body.clientWidth;
-	var scrH = window.innerHeight;
+	var scrW = doc.body.clientWidth, scrH = window.innerHeight;
 	if(Cfg.expimg == 1) scrW -= $offset(a, 'offsetLeft') + 30;
 	var newW = fullW < scrW ? fullW : scrW;
 	var newH = newW*fullH/fullW;
@@ -3113,10 +3112,12 @@ function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
+	ks = $xb('.//script[contains(@src, "kusaba")]');
+	wk = $xb('.//script[contains(@src, "wakaba")]');
 	ch = {
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
-		dc: /dobrochan/.test(dm),
+		dc: $xb('.//script[contains(@src, "hanabira")]'),
 		fch: dm == '4chan.org',
 		krau: dm == 'krautchan.net',
 		_410: dm == '410chan.ru',
@@ -3130,8 +3131,6 @@ function initBoard() {
 		zadr: dm == 'zadraw.ch',
 		_7ch: dm == '7chan.org'
 	};
-	ks = $xb('.//script[contains(@src, "kusaba")]');
-	wk = $xb('.//script[contains(@src, "wakaba")]');
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	xDelForm = './/form[' + $case([
 		ch.dc || ch.krau, 'contains(@action, "delete")]',
