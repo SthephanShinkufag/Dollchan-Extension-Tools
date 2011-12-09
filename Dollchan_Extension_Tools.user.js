@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-12-08
+// @version			2011-12-09
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-12-08',
+	version:	'2011-12-09',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -217,7 +217,7 @@ var LngArray = {
 	spoiler:		['Спойлер', 'Spoiler'],
 	code:			['Код', 'Code'],
 	quote:			['Цитировать выделенное', 'Quote selected'],
-	replies:		['Ответы:&nbsp;', 'Replies:&nbsp;'],
+	replies:		['Ответы:', 'Replies:'],
 	postNotFound:	['Пост не найден', 'Post not found'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
@@ -2093,7 +2093,7 @@ function getRefMap(pNum, rNum) {
 function showRefMap(post, rNum, isUpd) {
 	if(typeof refMap[rNum] !== 'object' || !post) return;
 	var txt = Lng.replies
-		+ refMap[rNum].toString().replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>');
+		+ refMap[rNum].toString().replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	var el = isUpd ? $x('.//div[@class="DESU_refmap"]', post) : null;
 	if(!el) {
 		var msg = post.Msg || $x(xPostMsg, post);
