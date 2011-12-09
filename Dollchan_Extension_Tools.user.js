@@ -57,8 +57,7 @@ var defaultCfg = {
 	tform:		1,		// hide thread-creating form
 	forcap:		1,		// force captcha input [0=off, 1=en, 2=ru]
 	txtbtn:		1,		// text format buttons [0=off, 1=graph, 2=text]
-	txtpos:		0,		//		position at [0=submit button, 1=textarea]
-	txbtps:		0,		// text format buttons position
+	txtpos:		0,		//		position at [0=top, 1=bottom]
 	name:		0,		// user name
 	namval:		'',		//		value
 	passw:		0,		// user password
@@ -167,7 +166,7 @@ var LngArray = {
 		['Откл.', 'Eng', 'Rus'],
 		['Disable', 'Eng', 'Rus']
 	],
-	formatBtns:		['кнопки форматирования текста', 'text format buttons '],
+	formatBtns:		['кнопки форматирования текста ', 'text format buttons '],
 	selBtns:		[
 		['Откл.', 'Графич.', 'Упрощ.'],
 		['Disable', 'As images', 'As text']
