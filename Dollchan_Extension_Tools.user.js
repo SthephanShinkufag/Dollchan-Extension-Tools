@@ -78,7 +78,10 @@ var LngArray = {
 	favorites:		['Избранное', 'Favorites'],
 	refresh:		['Обновить', 'Refresh'],
 	newThread:		['Создать тред', 'New thread'],
-	goBack:			['Назад', 'Return'],
+	goBack:			['Назад', 'Go back'],
+	goNext:			['Следующая', 'Next'],
+	goUp:			['Наверх', 'To the top'],
+	goDown:			['В конец', 'To the bottom'],
 	expImages:		['Раскрыть картинки', 'Expand images'],
 	maskImages:		['Маскировать картинки', 'Mask images'],
 	autoupd:		['Автообновление треда', 'Thread autoupdate'],
@@ -237,7 +240,8 @@ var Spells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var pr = {}, qr = {};
 var nav = {}, sav = {}, ch = {};
-var ks, wk, host, dm, brd, res, isMain, TNum, pClass, cssFix, xDelForm, xPostRef, xPostMsg;
+var ks, wk, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
+var cssFix, xDelForm, xPostRef, xPostMsg;
 var dForm, oeForm, pArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false;
@@ -711,11 +715,24 @@ function addPanel() {
 					'mouseover': function() { if(isMain) selectAjaxPages(); },
 					'mouseout': removeSelMenu
 				}),
-				$if(!isMain, $new('a', {
+				$new('a', {
 					'id': 'DESU_btn_goback',
 					'title': Lng.goBack,
 					'href': 'http://' + host + '/' + brd + '/'
+						+ (pageNum > 1 ? ((pageNum - 1).toString() + docExt) : '')
+				}),
+				$if(isMain, $new('a', {
+					'id': 'DESU_btn_gonext',
+					'title': Lng.goNext,
+					'href': 'http://' + host + '/' + brd + '/'
+						+ (pageNum > 0 ? (pageNum + 1).toString() : 1) + docExt
 				})),
+				$new('a', {'id': 'DESU_btn_goup', 'title': Lng.goUp, 'href': '#'}, {
+					'click': function(e) { $pD(e); window.scrollTo(0, 0); }
+				}),
+				$new('a', {'id': 'DESU_btn_godown', 'title': Lng.goDown, 'href': '#'}, {
+					'click': function(e) { $pD(e); window.scrollTo(0, doc.body.offsetHeight); }
+				}),
 				$if(isMain && (pr.on || oeForm), $new('a', {
 					'id': 'DESU_btn_newthr',
 					'title': Lng.newThread,
@@ -1035,8 +1052,8 @@ function hiddenPostsTable() {
 					if(pByNum[pNum]) unhideThread(pByNum[pNum]);
 					storeThreadVisib(pByNum[pNum] || {Num: pNum, Vis: 0}, 1);
 				}}),
-				$add('<a href="http://' + dm + '/' + brd + '/' + res + hThr[i]
-					+ '.html" target="_blank">&gt;&gt;' + hThr[i] + '</a>')
+				$add('<a href="http://' + dm + '/' + brd + '/' + res + hThr[i] + docExt
+					+ '" target="_blank">&gt;&gt;' + hThr[i] + '</a>')
 			]);
 		table.insertRow(-1).appendChild($new('hr'));
 	}
@@ -1119,9 +1136,8 @@ function favorThrdsTable() {
 			b = arr[i*4 + 1];
 			tNum = arr[i*4 + 2];
 			txt = arr[i*4 + 3];
-			url = 'http://' + h + '/' + (b == '' ? '' : b + '/')
-				+ (/krautchan\.net/.test(h) ? 'thread-' : 'res/') + tNum
-				+ (/dobrochan\./.test(h) ? '.xhtml' : '.html');
+			url = 'http://' + h + '/' + b + '/' + (/krautchan\.net/.test(h) ? 'thread-' : 'res/')
+				+ tNum + (/dobrochan\./.test(h) ? '.xhtml' : '.html');
 			if(h != oldh || b != oldb) $append(table.insertRow(-1), [
 				$new('input', {'type': 'checkbox', 'id': h}, {'click': function() {
 					var inp = this;
@@ -1727,7 +1743,7 @@ function addTextPanel(obj) {
 
 function scriptCSS() {
 	var x = [];
-	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} ' + (Cfg.icount == 0 ? '#DESU_panelinfo {display:none} ' : '') + '#DESU_imgcount {color:#fff; vertical-align:top; padding:0 3px; font-size:18px} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px}');
+	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_imgcount {color:#fff; vertical-align:top; padding:0 3px; font-size:18px} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px}');
 	
 	// waiting animation
 	x.push('.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}');
@@ -1752,6 +1768,9 @@ function scriptCSS() {
 	bIcn('#DESU_btn_favor', bPre + 'M4yPqcvgDI2bNNqL86G829cA2niJJMKd3aSxKHjG8pyZsxun2MrDYd/iBVm6j29zpCkVBQA7) center');
 	bIcn('#DESU_btn_refresh', bPre + 'QIyPqXvgHx5kRi5Ls968zftR0tiVm4VpaVSFyfq6MUqa9o3nTgSLtKyo8YRBYGsHAqiQRWZTySAOndGR9NTLUQoAOw==) center');
 	bIcn('#DESU_btn_goback', bPre + 'K4yPqZsADJuLtNoLnd5c4w+G4iYG3elVT8m27mutZRqiKGPfGT3L8A+EFAAAOw==) center');
+	bIcn('#DESU_btn_gonext', bPre + 'K4yPqcsI0KJ7storn95c4w+GYrNF3emJ0Mi27mutbUqiZ213Kh1S8A9EFAAAOw==) center');
+	bIcn('#DESU_btn_goup', bPre + 'LIyPqZvg75g0cNqLs626vQ5inAaVXzeGaci2Lgm4Jmiu4snacNTqmX/jvS4FADs=) center');
+	bIcn('#DESU_btn_godown', bPre + 'LYyPqbvgwOKbNNqLM566vQ52XHiMZGCC1He27nuloayyJy3aJB6verZyOWCaAgA7) center');
 	bIcn('#DESU_btn_newthr', bPre + 'MoyPqRvgD0GDLFrLst683i8toNOV3BiaqoJiYkut8kx7YC2j02PDaeLjvYI9GG6jO24KADs=) center');
 	bIcn('#DESU_btn_expimg', bPre + 'PYyPqRsA5+Bjy9lnqd68VxRBXpeNpgROpHGF6hamJ1XO9o0z7Uvyja+TiTiTHauHYgF1r0tOuTTVcLHnoQAAOw==) center');
 	bIcn('#DESU_btn_maskimg', bPre + 'UIyPqRsA90xsbSYHs6ys+w8y2EZSo+Kk6pqGLsrG7YJNNmQhtUZJOd4L2n6vovEIksU6MyGOyHGSTpfTzQcdXXtUnZXXrJau3SfYLFKukJ8CADs=) center');
@@ -1777,6 +1796,8 @@ function scriptCSS() {
 	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
 	if(Cfg.mask == 1) x.push('img[src*="thumb"], img[src*="spoiler"], #DESU_ytube, img[id="DESU_preimg"] {opacity:0.07 !important} img[src*="thumb"]:hover, img[src*="spoiler"]:hover, #DESU_ytube:hover, img[id="DESU_preimg"]:hover {opacity:1 !important}');
 	if(Cfg.navmrk == 1) x.push('.viewed, .viewed .reply {color:#888 !important}');
+	if(Cfg.attach == 0) x.push('#DESU_btn_goup, #DESU_btn_godown {display:none}');
+	if(Cfg.icount == 0) x.push('#DESU_panelinfo {display:none}');
 	
 	// CSS by chan
 	if(ks) x.push('.extrabtns {display:none}');
@@ -2476,9 +2497,7 @@ function loadPages(len) {
 			$new('hr'),
 			$new('div', {'id': 'DESU_page' + p})
 		]);
-		var url = '/' + (brd == '' ? '' : brd + '/') + (ch.dc
-			? ((p > 0 ? p : 'index') + '.html')
-			: (p > 0 ? p + '.html' : ''))
+		var url = '/' + (brd == '' ? '' : brd + '/') + (p > 0 ? p : 'index') + docExt;
 		AJAX(url, brd, null, function(p, len) { return function() {
 			var page = $id('DESU_page' + p);
 			for(var tNum in ajaxThrds) {
@@ -3172,6 +3191,8 @@ function initBoard() {
 	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/\d*$/)) - 1);
 	if(ch.dfwk && brd == '') brd = 'df';
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
+	pageNum = parseInt(isMain ? url.match(/(\d*)(?:\.x?html)?$/)[1] || 0 : 0);
+	docExt = ch.dc ? '.xhtml' : '.html';
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
 	pClass = $case([
