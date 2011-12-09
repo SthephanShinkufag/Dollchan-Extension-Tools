@@ -2402,7 +2402,11 @@ function endPostsUpdate() {
 function infoNewPosts(err, del) {
 	if(err) {
 		if(err == Lng.noConnect) { $alert(Lng.noConnect, 'warn'); setUpdButtonState('warn'); }
-		else { $alert(Lng.thrdNotFound + TNum + '): \n' + err); endPostsUpdate(); }
+		else {
+			$alert(Lng.thrdNotFound + TNum + '): \n' + err);
+			doc.title = '{' + err.match(/(?:\[)(\d+)(?:\])/)[1] + '} ' + doc.title;
+			endPostsUpdate();
+		}
 		return;
 	}
 	if(Cfg.updthr == 3) return;
