@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-12-09
+// @version			2011-12-10
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-12-09',
+	version:	'2011-12-10',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -2879,7 +2879,9 @@ function getSpells(post) {
 }
 
 function getImgInfo(post) {
-	return $x('.//em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]', post).textContent;
+	var xp = './/em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]';
+	if(ch.same) xp = './/div[@class="file_thread"]/span|.//div[@class="file_reply"]/span[2]';
+	return $x(xp, post).textContent;
 }
 
 function getImgWeight(post) {
@@ -3166,6 +3168,7 @@ function initBoard() {
 		krau: dm == 'krautchan.net',
 		_410: dm == '410chan.ru',
 		sib: dm == 'sibirchan.ru',
+		same: dm == 'samechan.org',
 		tire: dm == '2--ch.ru',
 		_5ch: dm == '5channel.net',
 		hid: dm == 'hiddenchan.i2p',
