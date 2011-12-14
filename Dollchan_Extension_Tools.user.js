@@ -240,7 +240,7 @@ var Spells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var pr = {}, qr = {};
 var nav = {}, sav = {}, ch = {};
-var kusaba, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
+var kusaba, hanab, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
 var cssFix, xDelForm, xPostRef, xPostMsg;
 var dForm, oeForm, pArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
@@ -527,7 +527,7 @@ function readCfg() {
 	for(var key in defaultCfg)
 		if(Cfg[key] == null) Cfg[key] = defaultCfg[key];
 	if(global) fixCapLang();
-	if(ch.dc) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
+	if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 	if(nav.Chrome) Cfg.updfav = 0;
 	setStored('DESU_Config_' + dm, uneval(Cfg));
 	for(var key in LngArray)
@@ -537,7 +537,7 @@ function readCfg() {
 }
 
 function fixCapLang() {
-	Cfg.forcap = ch.dc ? 2 : 1;
+	Cfg.forcap = hanab ? 2 : 1;
 }
 
 function isValidStat(data) {
@@ -896,7 +896,7 @@ function addSettings() {
 			lBox('filthr', Lng.filterThreads)
 		]),
 		$new('hr'),
-		$if(!ch.dc, $New('div', [
+		$if(!hanab, $New('div', [
 			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
 			$if(!nav.Chrome, lBox('updfav', Lng.indication)),
@@ -907,7 +907,7 @@ function addSettings() {
 		divBox('navmrk', Lng.markViewed),
 		divBox('navhid', Lng.hidRefmap),
 		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
-		$if(!ch.dc, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
+		$if(!hanab, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
 		$New('div', [optSel('pstbtn', Lng.selBtns, Lng.postBtns)]),
 		divBox('insnum', Lng.insertLink),
 		divBox('animp', Lng.animatePopup),
@@ -1340,7 +1340,7 @@ function refreshCapImg(obj, tNum) {
 	var img = !obj.recap
 		? $x(obj.tr + '//img', obj.cap)
 		: $x('.//div[@id="recaptcha_image"]', obj.form) || obj.cap;
-	if(!ch.dc && !obj.recap) {
+	if(!hanab && !obj.recap) {
 		var src = refreshCapSrc(img.getAttribute('src'), tNum);
 		img.src = '';
 		img.src = src;
@@ -1519,7 +1519,7 @@ function doPostformChanges() {
 		if(Cfg.passw == 1) pr.passw.value = del_passw.value = Cfg.pasval;
 		else del_passw.value = pr.passw.value;
 	}, 0);
-	if(ch.dc) $del($id('hideinfotd'));
+	if(hanab) $del($id('hideinfotd'));
 	if(pr.recap) {
 		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		var reimg = $x('.//div[@id="recaptcha_image"]', pr.form);
@@ -1534,7 +1534,7 @@ function doPostformChanges() {
 		$rattr(pr.cap, 'onfocus');
 		$rattr(pr.cap, 'onkeypress');
 		$event($attr(pr.cap, {'autocomplete': 'off'}), {'keypress': forceCap});
-		if(!ch.dc && !pr.recap) {
+		if(!hanab && !pr.recap) {
 			var img = $x('.//a|.//img', $x(pr.tr, pr.cap));
 			var _img = makeCapImg(isMain ? 0 : TNum);
 			if(img) $up(img).replaceChild(_img, img);
@@ -1577,13 +1577,13 @@ function iframeLoad(e) {
 			frm = frm.contentDocument;
 			if(!frm || !frm.body || !frm.body.innerHTML) return;
 		} catch(e) { $alert('Iframe error:\n' + e); $close($id('DESU_alert_wait')); return; }
+		if(hanab && /error/.test(frm.location.pathname))
+			xp = './/td[@class="post-error"]';
 		if(ch.fch && /sys/.test(frm.location.hostname) && frm.title != 'Post successful!')
 			xp = './/table//font/b';
-		if(ch.dc && /error/.test(frm.location.pathname))
-			xp = './/td[@class="post-error"]';
 		if(ch.krau && frm.location.pathname == '/post')
 			xp = './/td[starts-with(@class,"message_text")]';
-		if(!ch.fch && !ch.dc && !ch.krau && !$t('form', frm)) {
+		if(!hanab && !ch.fch && !ch.krau && !$t('form', frm)) {
 			if(kusaba) xp = './/h1|.//h2|.//div[contains(@style, "1.25em")]';
 			else err = $t('h2', frm) || $t('h1', frm);
 		}
@@ -1591,7 +1591,7 @@ function iframeLoad(e) {
 		if(xp) err = frm.evaluate(xp, frm, null, 6, null);
 		if(err) {
 			var txt = '';
-			if(kusaba || ch.fch || ch.dc || ch.krau)
+			if(kusaba || hanab || ch.fch || ch.krau)
 				$each(err, function(el) { txt += el.innerHTML + '\n'; });
 			else txt = err.innerHTML.replace(/<br.*/ig, '');
 			$close($id('DESU_alert_wait'));
@@ -1654,11 +1654,11 @@ function addQuickReplyForm(e) {
 				refreshCapImg(qr, tNum);
 			}});
 		}
-		if(isMain && !kusaba && !ch.dc) {
+		if(isMain && !kusaba && !hanab) {
 			$del($x('.//input[@name="parent" or name="resto"]', qr.form));
 			$before($1(qr.form), [$add(
 				'<input type="hidden" id="thr_id" value="' + tNum + '" name="'
-				+ $case([ch.fch, 'resto', ch.tiny, 'thread'], 'parent') + '">'
+				+ $case([ch.fch, 'resto', tinyb, 'thread'], 'parent') + '">'
 			)]);
 		}
 	}
@@ -1807,8 +1807,8 @@ function scriptCSS() {
 	
 	// CSS by chan
 	if(kusaba) x.push('.extrabtns, .ui-resizable-handle {display:none !important} .ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}');
+	if(hanab) x.push('.reply_ {display:none}');
 	if(ch.nul) x.push('#postform nobr {display:none}');
-	if(ch.dc) x.push('.reply_ {display:none}');
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	
 	// append CSS
@@ -1871,7 +1871,7 @@ function getText(el) {
 
 function isSage(post) {
 	if(!pr.mail) return false;
-	if(ch.dc) return $xb('.//img[@alt="Сажа"]', post);
+	if(hanab) return $xb('.//img[@alt="Сажа"]', post);
 	else if(ch.krau) return $xb('.//span[@class="sage"]', post);
 	else {
 		var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
@@ -2254,7 +2254,7 @@ function eventRefLink(el) {
 
 function parseHTMLdata(html) {
 	if(!pr.on && oeForm) pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
-	var form = !ch.dc
+	var form = !hanab
 		? $x(xDelForm, $up($add(html)))
 		: $up($add('<div class="thread">' + html + '</div>'));
 	parseDelform(form);
@@ -2275,7 +2275,7 @@ function parseHTMLdata(html) {
 
 function AJAX(url, b, tNum, fn) {
 	if(!url) {
-		if(ch.dc) url = '/api/thread/expand/' + b + '/' + tNum;
+		if(hanab) url = '/api/thread/expand/' + b + '/' + tNum;
 		else url = '/' + (b == '' ? '': b + '/') + res + tNum + '.html';
 	}
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
@@ -2319,7 +2319,7 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
 	thr.appendChild(post);
-	if(ch.tiny) thr.appendChild($new('br'));
+	if(tinyb) thr.appendChild($new('br'));
 	return post;
 }
 
@@ -2611,7 +2611,7 @@ function togglePost(post, vis) {
 	if(post.isOp) $disp(getThread(post));
 	$each($X('following-sibling::*', $x($case([
 		ch.krau, './/div[@class="postheader"]',
-		ch.tiny, './/p[@class="intro"]'
+		tinyb, './/p[@class="intro"]'
 	], './/span[@class="DESU_postpanel"]'), post)), function(el) {
 		el.style.display = (vis == 0) ? 'none' : '';
 	});
@@ -3144,10 +3144,11 @@ function initBoard() {
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
 	kusaba = $xb('.//script[contains(@src, "kusaba")]');
+	hanab = $xb('.//script[contains(@src, "hanabira")]');
+	tinyb = $xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]');
 	ch = {
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
-		dc: $xb('.//script[contains(@src, "hanabira")]'),
 		fch: dm == '4chan.org',
 		krau: dm == 'krautchan.net',
 		_410: dm == '410chan.ru',
@@ -3156,7 +3157,6 @@ function initBoard() {
 		tire: dm == '2--ch.ru',
 		_5ch: dm == '5channel.net',
 		hid: dm == 'hiddenchan.i2p',
-		tiny: /tinyboard\.org|4chon\.net/.test(dm),
 		dfwk: dm == 'dfwk.ru',
 		pony: dm == 'ponychan.net',
 		zadr: dm == 'zadraw.ch',
@@ -3164,8 +3164,8 @@ function initBoard() {
 	};
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	xDelForm = './/form[' + $case([
-		ch.dc || ch.krau, 'contains(@action, "delete")]',
-		ch.tiny, '@name="postcontrols"]'
+		hanab || ch.krau, 'contains(@action, "delete")]',
+		tinyb, '@name="postcontrols"]'
 	], '@id="delform" or @name="delform"]');
 	dForm = $x(xDelForm);
 	if(!dForm || $id('DESU_panel') || ch.so) return false;
@@ -3200,22 +3200,22 @@ function initBoard() {
 	if(ch.dfwk && brd == '') brd = 'df';
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
 	pageNum = parseInt(isMain ? url.match(/(\d*)(?:\.x?html)?$/)[1] || 0 : 0);
-	docExt = ch.dc ? '.xhtml' : '.html';
+	docExt = hanab ? '.xhtml' : '.html';
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
 	pClass = $case([
 		ch.krau, 'postreply',
-		ch.tiny, 'post reply'
+		tinyb, 'post reply'
 	], 'reply');
 	xPostRef = $case([
 		ch.krau, './/span[@class="postnumber"]',
 		ch.fch, './/span[starts-with(@id,"no")]',
 		ch.sib, './/span[@class="reflink" or @class="filesize"]',
-		ch.tiny, './/a[@class="post_no"][2]'
+		tinyb, './/a[@class="post_no"][2]'
 	], './/span[@class="reflink"]');
 	xPostMsg = $case([
-		ch.dc, './/div[@class="postbody"]',
-		ch.tiny, './/p[@class="body"]',
+		hanab, './/div[@class="postbody"]',
+		tinyb, './/p[@class="body"]',
 		ch._7ch, './/p[@class="message"]'
 	], './/blockquote');
 	cssFix = $case([nav.Firefox, '-moz-', nav.Chrome, '-webkit-'], '');
@@ -3237,7 +3237,7 @@ function parseDelform(node) {
 		it, 'starts-with(@id, "t") and not(contains(@id,"_info"))',
 		ch.sib, 'not(@*)',
 		ch._7ch, 'starts-with(@id, "thread") and not(@id="thread_controls")',
-		ch.tiny, 'starts-with(@id, "thread") and @itemid'
+		tinyb, 'starts-with(@id, "thread") and @itemid'
 	], 'starts-with(@id, "thread")') + ']', node);
 	if(threads.snapshotLength == 0) {
 		$each($X('.//hr/preceding-sibling::br[1]', node), function(br) {
@@ -3253,8 +3253,8 @@ function parseDelform(node) {
 	var tNum, op, opEnd;
 	var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
 	$each(threads, function(thr) {
-		if(ch.tiny) $after(thr, [$new('hr')]);
-		if(ch.fch || ch.tiny) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
+		if(tinyb) $after(thr, [$new('hr')]);
+		if(ch.fch || tinyb) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
 		else {
 			var a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr);
 			tNum = a ? a.name : thr.id.match(/\d+/);
