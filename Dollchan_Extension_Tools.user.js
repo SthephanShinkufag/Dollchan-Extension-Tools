@@ -1213,6 +1213,23 @@ function favorThrdsTable() {
 					});
 				});
 			}),
+			$btn(Lng.clear, function() {
+				$each($X('.//tr[@class="DESU_favornote"]', table), function(el) {
+					var arr = el.id.split('|');
+					var url = 'http://' + arr[0] + '/' + arr[1] + '/'
+						+ (/krautchan\.net/.test(h) ? 'thread-' : 'res/') + arr[2]
+						+ (/dobrochan\./.test(h) ? '.xhtml' : '.html');
+					AJAX(url, null, null, function(err) {
+						var tr = $id(arr[0] + '|' + arr[1] + '|' + arr[2]);
+						if(!tr || !err) return;
+						$x('.//input', tr).checked = true;
+						removeFavorities(tr.id);
+						setStored('DESU_Favorities', Favor.join('|'));
+						$delCh($id('DESU_favor'));
+						favorThrdsTable();
+					});
+				});
+			})
 		]),
 		$New('tr', [
 			$new('textarea', {
