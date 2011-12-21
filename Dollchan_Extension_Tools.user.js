@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			2011-12-19
+// @version			2011-12-21
 // @namespace		http://www.freedollchan.org/scripts
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2011-12-19',
+	version:	'2011-12-21',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -223,6 +223,7 @@ var LngArray = {
 	replies:		['Ответы:', 'Replies:'],
 	postNotFound:	['Пост не найден', 'Post not found'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
+	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
 	deleted:		['удалён', 'deleted'],
 	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
@@ -1705,7 +1706,10 @@ function addTextPanel() {
 
 function scriptCSS() {
 	var x = [];
-	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_imgcount {color:#fff; vertical-align:top; padding:0 3px; font-size:18px} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} .DESU_postpanel {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_pcount {font-size:13px; color:#4f7942; cursor:default} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px} #DESU_textpanel {height:23px; display:' + (Cfg.txtpos == 0 ? 'inline' : 'block') + '}');
+	x.push('td.reply {width:auto} a[href="#"] {text-decoration:none !important; outline:none} #DESU_content {text-align:left; ' + (Cfg.attach == 0 ? 'width:100%' : 'position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto') + '} #DESU_panel {' + (Cfg.attach == 0 ? 'float:right' : 'position:fixed; bottom:0; right:0') + '; z-index:9999; height:25px; background:grey; ' + cssFix + 'border-radius:15px 0 0 0; cursor:default} #DESU_panelbtns a {border:none; padding:0 25px 25px 0} #DESU_panelbtns a:hover {border:2px solid #444; padding:0 21px 21px 0 !important} #DESU_imgcount {color:#fff; vertical-align:top; padding:0 3px; font-size:18px} #DESU_sett_body {float:left; overflow:hidden; width:auto; min-width:0; padding:0; margin:5px 20px; border:1px solid #666; ' + cssFix + 'border-radius:10px 10px 0 0} #DESU_sett_head {width:100%; padding:3px; text-align:center; font:bold 14px arial; color:#fff; background:#666; cursor:pointer} #DESU_sett_main {padding:7px; font:13px sans-serif} #DESU_alertbox {position:fixed; top:0; right:0; z-index:9999; font:14px sans-serif; cursor:default} #DESU_select {padding:0 !important; margin:0 !important} #DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space: nowrap} #DESU_select a:hover {background:#666; color: #fff} .DESU_btn {padding:0 10px; text-align:center} span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold} .DESU_postnote {font-size:12px; font-style:italic; color:inherit} .DESU_favpcount {float:right; font-weight:bold} .DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic} #DESU_preimg, #DESU_fullimg {border:none; outline:none; margin:2px 20px; cursor:pointer} #DESU_mp3, #DESU_ytube {margin:5px 20px} #DESU_sagebtn, #DESU_ybtn {cursor:pointer} .DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; cursor:se-resize; border-bottom:2px solid #555; border-right:2px solid #444; margin:0 0 -'+ (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px} #DESU_textpanel {height:23px; display:' + (Cfg.txtpos == 0 ? 'inline' : 'block') + '}');
+	
+	// posts counter
+	if(!isMain) x.push('form div.thread {counter-reset:i 1} form .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); color:#4f7942; font:italic bold 13px serif; cursor:default} .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}');
 	
 	// waiting animation
 	x.push('.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}');
@@ -1841,7 +1845,7 @@ function isTitled(post) {
 
 /*-------------------------------Post buttons--------------------------------*/
 
-function addPostButtons(post, isCount) {
+function addPostButtons(post) {
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	var el = post.Btns.firstChild;
 	$event(el, {
@@ -1876,8 +1880,6 @@ function addPostButtons(post, isCount) {
 		if(Cfg.pstbtn == 2) el.textContent = 'sage';
 		post.Btns.appendChild(el);
 	}
-	if(!post.isOp && (!isMain || isCount))
-		post.Btns.appendChild($new('i', {'class': 'DESU_pcount', 'text': post.Count}));
 	var ref = $x(xPostRef, post);
 	$after(ref, [post.Btns]);
 	if(ch.fch) $X('.//a[@class="quotejs"]', post).snapshotItem(1).textContent = post.Num;
@@ -2124,7 +2126,7 @@ function funcPostPreview(post, parentId, msg) {
 	if(!post) { pView.innerHTML = msg; return; }
 	pView.innerHTML = ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML;
 	$Del('.//*[(starts-with(@id,"DESU_") or starts-with(@class,"DESU_")) and '
-		+ 'not(@class="DESU_postpanel")]|.//img[@id="DESU_preimg"]/ancestor::a', pView);
+		+ 'not(starts-with(@class,"DESU_postpanel"))]|.//img[@id="DESU_preimg"]/ancestor::a', pView);
 	eventRefLink(pView);
 	addLinkTube(pView);
 	pView.Img = getImages(pView);
@@ -2255,7 +2257,7 @@ function addPostFunc(post) {
 	addLinkImg(post);
 }
 
-function newPost(thr, tNum, i, isCount, isDel) {
+function newPost(thr, tNum, i, isDel) {
 	var pNum = ajaxThrds[tNum].keys[i];
 	var post = ajaxPosts[pNum];
 	if(i == 0) oPosts[oPosts.length] = post;
@@ -2268,7 +2270,7 @@ function newPost(thr, tNum, i, isCount, isDel) {
 	post.Msg = $x(xPostMsg, post);
 	post.Img = getImages(post);
 	post.isOp = i == 0;
-	addPostButtons(post, isCount);
+	addPostButtons(post);
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
 	thr.appendChild(post);
@@ -2300,8 +2302,12 @@ function expandThread(thr, tNum, last, isDel) {
 	var len = ajaxThrds[tNum].keys.length;
 	if(last != 1) last = len - last;
 	if(last <= 0) last = 1;
+	if(last > 1) thr.appendChild($new('span', {
+		'class': 'omittedposts',
+		'text': Lng.postsOmitted + parseInt(last - 1)
+	}));
 	for(var i = last; i < len; i++)
-		newPost(thr, tNum, i, true, isDel);
+		newPost(thr, tNum, i, isDel);
 	if(!sav.cookie) storeHiddenPosts();
 	$close($id('DESU_alert_wait'));
 }
@@ -2343,27 +2349,20 @@ function loadFavorThread(e) {
 			thr.innerHTML = ajaxPosts[0].split(/<form[^>]+del[^>]+>/)[1].split('</form>'
 				)[0].replace(/(href="|src=")([^h][^"]+)/g, '$1http://' + url.split('/')[2] + '$2');
 			$close($id('DESU_alert_wait'));
-		} else { newPost(thr, tNum, 0, true); expandThread(thr, tNum, 5, true); }
+		} else { newPost(thr, tNum, 0); expandThread(thr, tNum, 5, true); }
 		$disp(thr);
 	});
 }
 
 function getDelPosts(err) {
 	if(err) return;
-	var j = 1, del = 0, isDel = false;
+	var j = 1, del = 0;
 	for(var i = 0, len = Posts.length; i < len; i++) {
 		var post = Posts[i];
 		if(ajaxThrds[TNum].keys[j] != parseInt(post.Num)) {
-			if(!post.isDel) $attr($x('.//i[@class="DESU_pcount"]', post), {
-				'style': 'color:#727579',
-				'text': Lng.deleted
-			});
+			if(!post.isDel) post.Btns.className += '_del';
 			post.isDel = true;
-			isDel = true;
-		} else if(!post.isDel) {
-			if(isDel) $x('.//i[@class="DESU_pcount"]', post).textContent = j + 1;
-			j++;
-		}
+		} else if(!post.isDel) j++;
 		if(post.isDel) del++;
 	}
 	return del;
@@ -2418,7 +2417,7 @@ function loadNewPosts(inf) {
 		if(!err) {
 			var len = ajaxThrds[TNum].keys.length;
 			for(var i = Posts.length - del + 1; i < len; i++)
-				newPost($x('.//div[@class="thread"]', dForm), TNum, i, true);
+				newPost($x('.//div[@class="thread"]', dForm), TNum, i);
 			storeHiddenPosts();
 			$id('DESU_imgcount').textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
@@ -2565,7 +2564,7 @@ function togglePost(post, vis) {
 	$each($X('following-sibling::*', $x($case([
 		ch.krau, './/div[@class="postheader"]',
 		tinyb, './/p[@class="intro"]'
-	], './/span[@class="DESU_postpanel"]'), post)), function(el) {
+	], './/span[starts-with(@class,"DESU_postpanel")]'), post)), function(el) {
 		el.style.display = (vis == 0) ? 'none' : '';
 	});
 }
@@ -3237,6 +3236,7 @@ function initPosts() {
 		}))
 	], {'class': 'DESU_postpanel'});
 	opPanel = pPanel.cloneNode(true);
+	opPanel.className += '_op';
 	$append(opPanel, [
 		$if(isMain, $new('a', {'class': 'DESU_icn_expthr', 'href': '#',
 			'text': (Cfg.pstbtn == 2 ? 'e' : '')
