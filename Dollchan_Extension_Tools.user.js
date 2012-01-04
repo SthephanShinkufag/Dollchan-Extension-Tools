@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.3
+// @version			0.20120104.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -146,6 +146,7 @@ var LngArray = {
 	],
 	hideNames:		['скрывать имена ', 'hide names '],
 	openSpoilers:	['открыть спойлеры ', 'open spoilers '],
+	noScroll:		['без скролла', 'no scroll'],
 	toLinks:		['К ссылкам: ', 'To links: '],
 	mp3:			['плейер mp3* ', 'mp3 player* '],
 	selYouTube:		[
@@ -1378,7 +1379,11 @@ function doChanges() {
 			}
 		});
 	}
-	if(ch.so) $Del('.//*[starts-with(@id,"ABU_")]', dForm);
+	if(ch.so) {
+		$Del('.//*[starts-with(@id,"ABU_")]', dForm);
+		var el = $id('linkThreadUpdate');
+		if(el) { $del(el.previousSibling); $del(el.nextSibling); $del(el); }
+	}
 	else $event(window, {'load': function() {
 		setTimeout(function() {
 			if(ch.nul) $Del('.//div[@class="replieslist"]', dForm);
@@ -1799,7 +1804,7 @@ function scriptCSS() {
 		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
 	);
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
-	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
+	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none !important}');
 	if(ch.nul) x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(!$id('DESU_css')) {
