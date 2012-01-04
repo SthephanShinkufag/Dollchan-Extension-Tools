@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104
+// @version			0.20120104.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -778,7 +778,7 @@ function addPanel() {
 				$if(!isMain, $New('span', [
 					$new('span', {'id': 'DESU_btn_br'}),
 					$new('span', {
-						'id': 'DESU_panel_info',
+						'id': 'DESU_btn_info',
 						'title': Lng.postsImages,
 						'text': parseInt(Posts.length + 1) + '/' + getImages(dForm).snapshotLength
 					})
@@ -1170,8 +1170,8 @@ function favorThrdsTable() {
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {'type': 'checkbox'}),
-					$if(h == host || sav.GM, $add('<span class="DESU_icn_expthr">'
-						+ (Cfg.pstbtn == 2 ? ' <a href="#">e</a> ' : '') + '</span>', {
+					$if(h == host || sav.GM, $add('<span> <a class="DESU_icn_expthr" href="#">'
+						+ (Cfg.pstbtn == 1 ? '' : 'e') + '</a> </span>', {
 						'click': loadFavorThread
 					})),
 					$add('<a href="' + url + '" target="_blank" style="text-decoration:none">№'
@@ -1701,13 +1701,13 @@ function scriptCSS() {
 	var pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ';
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px sans-serif; cursor:default}\
+		#DESU_btn_info {vertical-align:top; padding:0 3px; color:#fff; font:18px arial}\
 		#DESU_cfgedit, #DESU_favoredit, #DESU_spelledit {display:block; font:12px courier new}\
 		#DESU_content {text-align:left}\
 		#DESU_mp3, #DESU_ytube {margin:5px 20px}\
-		#DESU_panel {z-index:9999; ' + pre + cssFix + 'border-radius:15px 0 0 0; cursor:default}\
+		#DESU_panel {height:25px; z-index:9999; ' + pre + cssFix + 'border-radius:15px 0 0 0; cursor:default}\
 		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + cssFix + 'border-radius:5px}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #a0a0a0}\
-		#DESU_panel_info {vertical-align:top; padding:0 3px; color:#fff; font-size:18px}\
 		#DESU_sett_body {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
 		#DESU_sett_head {padding:3px; ' + pre + cssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
 		#DESU_sett_main {padding:7px; border:1px solid grey; font:13px sans-serif}\
@@ -2448,7 +2448,7 @@ function loadNewPosts(inf) {
 			for(var i = Posts.length - del + 1; i < len; i++)
 				newPost($x('.//div[@class="thread"]', dForm), TNum, i);
 			storeHiddenPosts();
-			$id('DESU_panel_info').textContent = len + '/' + getImages(dForm).snapshotLength;
+			$id('DESU_btn_info').textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
 		if(inf) { $close($id('DESU_alert_wait')); infoNewPosts(err, del); }
 	}, true);
