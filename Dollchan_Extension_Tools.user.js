@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.5
+// @version			0.20120104.6
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -250,7 +250,7 @@ var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
 var kusaba, hanab, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
 var cssFix, xDelForm, xPostRef, xPostMsg;
-var pr = {}, dForm, oeForm, pArea, pPanel, opPanel, pView, dummy;
+var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false;
 var oldTime, endTime, timeLog = '';
@@ -933,7 +933,7 @@ function addSettings() {
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm),
 			lBox('tform', Lng.noThrForm, function() {
-				if(isMain) $1(pArea).style.display = Cfg.tform ? 'none' : '';
+				if(isMain) pArea.style.display = Cfg.tform ? 'none' : '';
 			})
 		])),
 		$New('div', [optSel('forcap', Lng.selFastInput, Lng.fastInput)]),
@@ -1391,25 +1391,20 @@ function doChanges() {
 		}, 0);
 	}});
 	// Postform changes
-	qArea = $new('div', {'id': 'DESU_quickreply', 'class': 'reply', 'style': 'display:none'});
+	qArea = $new('div', {'id': 'DESU_qarea', 'class': 'reply', 'style': 'display:none'});
 	pArea = $New('div', [
-		$New('div', [
-			$New('center', [
-				$txt('['),
-				$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': toggleMainReply}),
-				$txt(']')
-			], {'id': 'DESU_togglereply', 'style': 'display:none'}),
-			pr.form,
-			$new('hr')
-		]),
-		oeForm,
-		$if(oeForm, $new('hr'))
-	], {'class': 'postarea', 'align': 'center'});
-	if(!pr.on || isMain && Cfg.tform == 1 || !isMain && Cfg.pform == 2) $disp($1(pArea));
-	if(!isMain && Cfg.pform == 1) {
-		$after(dForm, [pArea]);
-		if(pr.on) $before($1(pArea), [$new('hr', {'style': 'clear:both'})]);
-	} else $before(dForm, [pArea]);
+		$New('center', [
+			$txt('['),
+			$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': toggleMainReply}),
+			$txt(']')
+		], {'id': 'DESU_togglereply', 'style': 'display:none'}),
+		$New('div', [pr.form, $if(oeForm, $new('hr')), oeForm], {'id': 'DESU_pform'}),
+		$new('hr'),
+		qArea
+	], {'id': 'DESU_parea', 'align': 'center'});
+	if(!isMain && Cfg.pform == 2 || isMain && Cfg.tform == 1) $disp(pArea);
+	if(!isMain && Cfg.pform == 1) $after(dForm, [pArea]);
+	else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
 	else if(oeForm) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
 }
@@ -1593,7 +1588,7 @@ function showQuickReply(post) {
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
-		qArea.appendChild(pr.form);
+		qArea.appendChild($id('DESU_pform'));
 		$disp($id('DESU_togglereply'));
 		$disp(qArea);
 		if(isMain && !kusaba && !hanab) {
@@ -1605,7 +1600,7 @@ function showQuickReply(post) {
 		}
 	} else if($next(post) == qArea) { $disp(qArea); return; }
 	$after(post, [qArea]);
-	if(isMain && Cfg.tform == 1) $1(pArea).style.display = 'none';
+	if(isMain && Cfg.tform == 1) pArea.style.display = 'none';
 	qArea.style.display = 'block';
 	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !kusaba) refreshCapImg(pr, tNum);
@@ -1620,22 +1615,22 @@ function showMainReply() {
 	pr.isQuick = false;
 	if(isMain) $del($x('.//input[@id="thr_id"]', pr.form));
 	var el = $id('DESU_togglereply');
-	$after(el, [pr.form]);
 	$disp(el);
+	$after(el, [$id('DESU_pform')]);
 	qArea.style.display = 'none';
 }
 
 function toggleMainReply(e) {
 	$pD(e);
-	if(pr.isQuick) { $1(pArea).style.display = ''; showMainReply(); $focus(pArea); }
-	else $disp($1(pArea));
+	if(pr.isQuick) { pArea.style.display = ''; showMainReply(); $focus(pArea); }
+	else $disp(pArea);
 }
 
 function insertRefLink(e) {
 	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	var pNum = getPost(e.target).id.match(/\d+/)
-	if(isMain && Cfg.tform == 1 && !pr.isQuick) $1(pArea).style.display = '';
+	if(isMain && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
 	if(!isMain && Cfg.pform == 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
 	else insertInto(pr.txta, '>>' + pNum);
 }
@@ -2251,7 +2246,10 @@ function eventRefLink(el) {
 =============================================================================*/
 
 function parseHTMLdata(html) {
-	if(!pr.on && oeForm) pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
+	if(!pr.on && oeForm) {
+		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
+		$before($1($id('DESU_pform')), [pr.form]);
+	}
 	var form = !hanab
 		? $x(xDelForm, $up($add(html)))
 		: $up($add('<div class="thread">' + html + '</div>'));
