@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.2
+// @version			0.20120104.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -46,6 +46,7 @@ var defaultCfg = {
 	showmp:		0,		// show full main panel
 	noname:		0,		// hide post names
 	ospoil:		1,		// open spoilers
+	noscrl:		1,		// hide scrollers in posts (2ch.so)
 	mp3:		1,		// mp3 player by links
 	ytube:		2,		// YouTube player by links [0=off, 1=on btn, 2=flash, 3=thumbs]
 	addimg:		1,		// add images by links
@@ -915,7 +916,8 @@ function addSettings() {
 		$New('div', [
 			$txt('CSS: '),
 			lBox('noname', Lng.hideNames, scriptCSS),
-			lBox('ospoil', Lng.openSpoilers, scriptCSS)
+			lBox('ospoil', Lng.openSpoilers, scriptCSS),
+			lBox('noscrl', Lng.noScroll, scriptCSS)
 		]),
 		$New('div', [
 			$txt(Lng.toLinks),
@@ -1786,6 +1788,7 @@ function scriptCSS() {
 	if(Cfg.showmp == 0) x.push('#DESU_panel_btns {display:none}');
 	if(Cfg.noname == 1) x.push('.commentpostername, .postername, .postertrip {display:none}');
 	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
+	if(Cfg.noscrl == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
 	if(Cfg.norule == 1) x.push('.rules {display:none}');
 	if(Cfg.mask == 1) x.push(
 		'#DESU_ytube, img[id="DESU_preimg"], img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
@@ -3194,7 +3197,7 @@ function initBoard() {
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]');
 	$Del('preceding-sibling::node()' + (ch.fch ? '[not(self::center)]' : '')
 		+ '[preceding-sibling::*[descendant-or-self::*['
-		+ 'self::div[@class="logo"] or self::h1]]]', dForm);
+		+ (ch.so ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]', dForm);
 	if(ch.krau) { $del($t('hr', dForm)); $del($t('hr', $prev(dForm))); }
 	return true;
 }
