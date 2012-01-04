@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.7
+// @version			0.20120104.8
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1403,7 +1403,7 @@ function doChanges() {
 		qArea
 	], {'id': 'DESU_parea', 'align': 'center'});
 	if(!isMain && Cfg.pform == 2 || isMain && Cfg.tform == 1) $disp(pArea);
-	if(!isMain && Cfg.pform == 1) $after(dForm, [pArea]);
+	if(!isMain && Cfg.pform == 1) $after($x('.//hr', dForm) || dForm, [pArea]);
 	else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
 	else if(oeForm) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
