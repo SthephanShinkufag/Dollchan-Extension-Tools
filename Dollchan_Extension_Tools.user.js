@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.1
+// @version			0.20120104.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1605,7 +1605,7 @@ function showQuickReply(post) {
 	if(pr.cap && !pr.recap && !kusaba) refreshCapImg(pr, tNum);
 	if(isMain)
 		$x('.//input[@id="thr_id" or @name="thread_id" or @name="replythread"]', pr.form).value = tNum;
-		if(ch.pony) $x('.//input[@name="quickreply"]', pr.form).value = tNum;
+	if(ch.pony) $x('.//input[@name="quickreply"]', pr.form).value = tNum;
 	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n>$2') + '\n');
 }
 
@@ -1621,12 +1621,12 @@ function showMainReply() {
 }
 
 function insertRefLink(e) {
-	if(Cfg.insnum == 0 || !pr.on || /Reply|Ответ/.test(e.target.textContent)) return;
+	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	var pNum = getPost(e.target).id.match(/\d+/)
 	if(isMain && Cfg.tform == 1 && !pr.isQuick) $1(pArea).style.display = '';
 	if(!isMain && Cfg.pform == 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
-	insertInto(pr.txta, '>>' + pNum);
+	else insertInto(pr.txta, '>>' + pNum);
 }
 
 /*----------------------------Text formatting buttons------------------------*/
@@ -1911,7 +1911,10 @@ function addPostButtons(post) {
 	var ref = $x(xPostRef, post);
 	$after(ref, [post.Btns]);
 	if(ch.fch) $X('.//a[@class="quotejs"]', post).snapshotItem(1).textContent = post.Num;
-	if(Cfg.insnum == 1) $event(ref, {'click': insertRefLink});
+	if(pr.on && Cfg.insnum == 1) {
+		$each($X('.//a'), function(el) { $rattr(el, 'onclick'); });
+		$event(ref, {'click': insertRefLink});
+	}
 	if(Cfg.viewhd == 1) $event(ref, {
 		'mouseover': function() { if(post.Vis == 0) togglePost(post, 1); },
 		'mouseout': function() { if(post.Vis == 0) togglePost(post, 0); }
