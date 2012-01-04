@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.4
+// @version			0.20120104.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -745,7 +745,7 @@ function addPanel() {
 					'id': 'DESU_btn_newthr',
 					'title': Lng.newThread,
 					'href': '#'}, {
-					'click': function(e) { $pD(e); showMainReply(); $focus(pArea); }
+					'click': toggleMainReply
 				})),
 				$if(pr.file || oeForm, $new('a', {
 					'id': 'DESU_btn_expimg',
@@ -1396,9 +1396,7 @@ function doChanges() {
 		$New('div', [
 			$New('center', [
 				$txt('['),
-				$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': function(e) {
-					$pD(e); showMainReply();
-				}}),
+				$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': toggleMainReply}),
 				$txt(']')
 			], {'id': 'DESU_togglereply', 'style': 'display:none'}),
 			pr.form,
@@ -1607,6 +1605,7 @@ function showQuickReply(post) {
 		}
 	} else if($next(post) == qArea) { $disp(qArea); return; }
 	$after(post, [qArea]);
+	if(isMain && Cfg.tform == 1) $1(pArea).style.display = 'none';
 	qArea.style.display = 'block';
 	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !kusaba) refreshCapImg(pr, tNum);
@@ -1617,14 +1616,19 @@ function showQuickReply(post) {
 }
 
 function showMainReply() {
-	$1(pArea).style.display = '';
 	if(!pr.isQuick) return;
 	pr.isQuick = false;
 	if(isMain) $del($x('.//input[@id="thr_id"]', pr.form));
 	var el = $id('DESU_togglereply');
 	$after(el, [pr.form]);
 	$disp(el);
-	$disp(qArea);
+	qArea.style.display = 'none';
+}
+
+function toggleMainReply(e) {
+	$pD(e);
+	if(pr.isQuick) { $1(pArea).style.display = ''; showMainReply(); $focus(pArea); }
+	else $disp($1(pArea));
 }
 
 function insertRefLink(e) {
@@ -1804,7 +1808,7 @@ function scriptCSS() {
 		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
 	);
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
-	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none !important}');
+	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(ch.nul) x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(!$id('DESU_css')) {
