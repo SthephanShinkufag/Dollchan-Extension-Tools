@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.6
+// @version			0.20120104.7
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1793,7 +1793,7 @@ function scriptCSS() {
 	if(Cfg.noname == 1) x.push('.commentpostername, .postername, .postertrip {display:none}');
 	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
 	if(Cfg.noscrl == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
-	if(Cfg.norule == 1) x.push('.rules {display:none}');
+	if(Cfg.norule == 1) x.push((ch.krau ? 'td ul' : '.rules') + ' {display:none}');
 	if(Cfg.mask == 1) x.push(
 		'#DESU_ytube, img[id="DESU_preimg"], img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
 		#DESU_ytube:hover, img[id="DESU_preimg"]:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
