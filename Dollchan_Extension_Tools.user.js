@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.5.1
+// @version			12.1.5.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -46,7 +46,7 @@ var defaultCfg = {
 	showmp:		0,		// show full main panel
 	noname:		0,		// hide post names
 	ospoil:		1,		// open spoilers
-	noscrl:		1,		// hide scrollers in posts (2ch.so)
+	noscrl:		1,		// hide scrollers in posts
 	mp3:		1,		// mp3 player by links
 	ytube:		2,		// YouTube player by links [0=off, 1=on btn, 2=flash, 3=thumbs]
 	addimg:		1,		// add images by links
@@ -545,7 +545,7 @@ function readCfg() {
 }
 
 function fixCapLang() {
-	Cfg.forcap = hanab ? 2 : (ch.nul ? 0 : 1);
+	Cfg.forcap = (hanab || ch.tire || ch.up4k || ch._02 || ch._5ch) ? 2 : 1;
 }
 
 function isValidStat(data) {
@@ -3140,7 +3140,9 @@ function initBoard() {
 		dfwk: dm == 'dfwk.ru',
 		pony: dm == 'ponychan.net',
 		zadr: dm == 'zadraw.ch',
-		_7ch: dm == '7chan.org'
+		_7ch: dm == '7chan.org',
+		up4k: dm == 'vombatov.net',
+		_02: dm == '02ch.org' || dm == '02ch.net'
 	};
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
