@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.5.0
+// @version			12.1.5.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3125,7 +3125,7 @@ function fixGM() {
 function initBoard() {
 	if(window.location == 'about:blank') return false;
 	host = window.location.hostname;
-	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$/)[0];
+	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|localhost/)[0];
 	ch = {
 		so: dm == '2ch.so',
 		nul: dm == '0chan.ru',
