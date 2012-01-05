@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			0.20120104.8
+// @version			0.20120104.9
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1391,16 +1391,15 @@ function doChanges() {
 		}, 0);
 	}});
 	// Postform changes
-	qArea = $new('div', {'id': 'DESU_qarea', 'class': 'reply', 'style': 'display:none'});
+	qArea = $new('div', {'id': 'DESU_qarea', 'class': pClass, 'style': 'display:none'});
 	pArea = $New('div', [
 		$New('center', [
 			$txt('['),
 			$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': toggleMainReply}),
 			$txt(']')
 		], {'id': 'DESU_togglereply', 'style': 'display:none'}),
-		$New('div', [pr.form, $if(oeForm, $new('hr')), oeForm], {'id': 'DESU_pform'}),
-		$new('hr'),
-		qArea
+		$New('div', [pr.form, oeForm], {'id': 'DESU_pform'}),
+		$new('hr')
 	], {'id': 'DESU_parea', 'align': 'center'});
 	if(!isMain && Cfg.pform == 2 || isMain && Cfg.tform == 1) $disp(pArea);
 	if(!isMain && Cfg.pform == 1) $after($x('.//hr', dForm) || dForm, [pArea]);
@@ -1707,7 +1706,7 @@ function scriptCSS() {
 	var pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ';
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px sans-serif; cursor:default}\
-		#DESU_btn_info {vertical-align:top; padding:0 3px; color:#fff; font:18px arial}\
+		#DESU_btn_info {vertical-align:top; padding:0 3px; color:#eef; font:18px sans-serif}\
 		#DESU_cfgedit, #DESU_favoredit, #DESU_spelledit {display:block; font:12px courier new}\
 		#DESU_content {text-align:left}\
 		#DESU_mp3, #DESU_ytube {margin:5px 20px}\
@@ -1724,6 +1723,7 @@ function scriptCSS() {
 		#DESU_preimg, #DESU_fullimg {margin:2px 20px; border:none; outline:none; cursor:pointer}\
 		#DESU_sagebtn, #DESU_ybtn {cursor:pointer}\
 		#DESU_textpanel {display:' + (Cfg.txtpos == 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
+		#DESU_qarea {width:100%; padding:5px; margin:2px}\
 		.DESU_favpcount {float:right; font-weight:bold}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
 		.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
@@ -1919,7 +1919,7 @@ function addPostButtons(post) {
 	$after(ref, [post.Btns]);
 	if(ch.fch) $X('.//a[@class="quotejs"]', post).snapshotItem(1).textContent = post.Num;
 	if(pr.on && Cfg.insnum == 1) {
-		$each($X('.//a'), function(el) { $rattr(el, 'onclick'); });
+		$each($X('.//a', ref), function(el) { $rattr(el, 'onclick'); });
 		$event(ref, {'click': insertRefLink});
 	}
 	if(Cfg.viewhd == 1) $event(ref, {
