@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.5.2
+// @version			12.1.5.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -252,7 +252,7 @@ var kusaba, hanab, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pCl
 var cssFix, xDelForm, xPostRef, xPostMsg;
 var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
-var docTitle, favIcon, favIconInt, isActiveTab = false;
+var docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false;
 var oldTime, endTime, timeLog = '';
 var stoargeLife = 5*24*3600*1000;
 var homePage = 'http://www.freedollchan.org/scripts/';
@@ -747,20 +747,17 @@ function addPanel() {
 					'href': '#'}, {
 					'click': toggleMainReply
 				})),
-				$if(pr.file || oeForm, $new('a', {
+				$new('a', {
 					'id': 'DESU_btn_expimg',
 					'title': Lng.expImages,
 					'href': '#'}, {
 					'click': function(e) {
 						$pD(e);
 						Cfg.expimg = 1;
-						forAll(function(post) {
-							$each(post.Img, function(img) {
-								expandPostImg($x('ancestor::a[1]', img), post);
-							});
-						});
+						isExpImg = !isExpImg;
+						forAll(function(post) { expandAllPostImg(post, isExpImg); });
 					}
-				})),
+				}),
 				$if(pr.file || oeForm, $new('a', {
 					'id': 'DESU_btn_maskimg',
 					'title': Lng.maskImages,
@@ -1380,7 +1377,7 @@ function doChanges() {
 		});
 	}
 	if(ch.so) {
-		$Del('.//*[starts-with(@id,"ABU_")]', dForm);
+		$Del('.//*[starts-with(@id,"ABU_")]|.//small[starts-with(@id,"rfmap")]', dForm);
 		var el = $id('linkThreadUpdate');
 		if(el) { $del(el.previousSibling); $del(el.nextSibling); $del(el); }
 	}
@@ -2020,9 +2017,10 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT)) + 'px';
 }
 
-function addFullImg(a, fullW, fullH) {
+function addFullImg(a, fullW, fullH, isExp) {
 	var full = $x('.//img[@id="DESU_fullimg"]', a);
-	if(Cfg.expimg == 1) $disp($t('img', a));
+	if(full && isExp || !full && isExp === false) return;
+	if(Cfg.expimg == 1 && !$xb('img[contains(@style,"fixed")]', a)) $disp($t('img', a));
 	if(full) {
 		if(!full.moved) { $disp(full); setTimeout(function() { $del(full); }, 0); }
 		else full.moved = false;
@@ -2083,10 +2081,16 @@ function addLinkImg(post) {
 	});
 }
 
-function expandPostImg(a, post) {
+function expandPostImg(a, post, isExp) {
 	if(!/\.jpg|\.jpeg|\.png|.\gif/i.test(a.href)) return;
 	var sz = getImgSize(post.Img.snapshotLength > 1 ? $x('ancestor::div[1]', a) : post);
-	addFullImg(a, parseInt(sz[0]), parseInt(sz[1]));
+	addFullImg(a, parseInt(sz[0]), parseInt(sz[1]), isExp);
+}
+
+function expandAllPostImg(post, isExp) {
+	$each(post.Img, function(img) {
+		expandPostImg($x('ancestor::a[1]', img), post, isExp);
+	});
 }
 
 function eventPostImg(post) {
@@ -2297,6 +2301,7 @@ function addPostFunc(post) {
 	addLinkMP3(post);
 	addLinkTube(post);
 	addLinkImg(post);
+	if(isExpImg) expandAllPostImg(post);
 }
 
 function newPost(thr, tNum, i, isDel) {
