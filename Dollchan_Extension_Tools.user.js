@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.5.3
+// @version			12.1.6.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -948,12 +948,9 @@ function addSettings() {
 				'id': 'DESU_fixedname',
 				'value': Cfg.namval,
 				'size': 20}, {
-				'keyup': function() {
-					saveCfg('namval', $id('DESU_fixedname').value.replace(/\|/g, ''));
-					pr.name.value = $id('DESU_fixedname_ch').checked ? Cfg.namval : '';
-				}
+				'keyup': setUserName
 			}),
-			lBox('name', Lng.fixedName, null, 'DESU_fixedname_ch')
+			lBox('name', Lng.fixedName, setUserName, 'DESU_fixedname_ch')
 		])),
 		$if(pr.passw, $New('div', [
 			$new('input', {
@@ -961,13 +958,9 @@ function addSettings() {
 				'id': 'DESU_fixedpass',
 				'value': Cfg.pasval,
 				'size': 20}, {
-				'keyup': function() {
-					saveCfg('pasval', $id('DESU_fixedpass').value.replace(/\|/g, ''));
-					pr.passw.value = del_passw.value =
-						$id('DESU_fixedpass_ch').checked ? Cfg.pasval : rand10().substring(0, 8);
-				}
+				'keyup': setUserPassw
 			}),
-			lBox('passw', Lng.fixedPass, null, 'DESU_fixedpass_ch')
+			lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixedpass_ch')
 		])),
 		$if(pr.txta, $New('div', [
 			$new('input', {
@@ -1357,6 +1350,20 @@ function doSageBtn() {
 	else pr.mail.checked = c;
 }
 
+function setUserName() {
+	saveCfg('namval', $id('DESU_fixedname').value.replace(/\|/g, ''));
+	pr.name.value = $id('DESU_fixedname_ch').checked ? Cfg.namval : '';
+}
+
+function setUserPassw() {
+	var el = $id('DESU_fixedpass');
+	if(el) saveCfg('pasval', el.value.replace(/\|/g, ''));
+	var val = Cfg.passw == 1 ? Cfg.pasval : rand10().substring(0, 8);
+	el = $X('.//input[@type="password"]').snapshotItem(1);
+	if(el) el.value = val;
+	pr.passw.value = val;
+}
+
 function doChanges() {
 	// Common changes
 	if(!isMain) {
@@ -1444,11 +1451,7 @@ function doPostformChanges() {
 	if(Cfg.nogoto == 1 && pr.gothr) $disp(pr.gothr);
 	if(Cfg.nopass == 1 && pr.passw) $disp($x(pr.tr, pr.passw));
 	if(Cfg.name == 1 && pr.name) setTimeout(function() { pr.name.value = Cfg.namval; }, 0);
-	del_passw = $X('.//input[@type="password"]').snapshotItem(1);
-	if(del_passw) setTimeout(function() {
-		if(Cfg.passw == 1) pr.passw.value = del_passw.value = Cfg.pasval;
-		else del_passw.value = pr.passw.value;
-	}, 0);
+	setTimeout(setUserPassw, 0);
 	if(pr.recap) {
 		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		var reimg = $x('.//div[@id="recaptcha_image"]', pr.form);
@@ -1728,7 +1731,7 @@ function scriptCSS() {
 		.DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic}\
 		.reply {width:auto}\
 		a[href="#"] {text-decoration:none !important; outline:none}\
-		a[class^="DESU_icn"] {margin:0 4px 0 0 !important}\
+		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}'
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
@@ -1754,15 +1757,15 @@ function scriptCSS() {
 		form div.thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}'
 	);
 	if(Cfg.pstbtn == 1) {
-		x.push('a[class^="DESU_icn"] {padding:0 14px 0 0}');
-		pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
+		x.push('a[class^="DESU_icn"] {display:inline-block; padding:0 14px 14px 0}');
+		pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 		gif('.DESU_icn_hide', pre + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
 		gif('.DESU_icn_unhide', pre + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
 		gif('.DESU_icn_rep', pre + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
-		gif('.DESU_icn_sage','R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
 		gif('.DESU_icn_expthr', pre + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
 		gif('.DESU_icn_favor', pre + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-		gif('.DESU_icn_favset', 'R0lGODlhDgAOAKIAAP/dQKCgoICAgFhYWP///wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.DESU_icn_favset', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.DESU_icn_sage','R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
 	}
 	if(Cfg.txtbtn == 1) {
 		x.push('#DESU_textpanel span {padding:4px 27px 4px 0}');
@@ -1914,9 +1917,8 @@ function addPostButtons(post) {
 	}
 	var ref = $x(xPostRef, post);
 	$after(ref, [post.Btns]);
-	if(ch.fch) $X('.//a[@class="quotejs"]', post).snapshotItem(1).textContent = post.Num;
 	if(pr.on && Cfg.insnum == 1) {
-		$each($X('.//a', ref), function(el) { $rattr(el, 'onclick'); });
+		if(ch.nul) $each($X('.//a', ref), function(el) { $rattr(el, 'onclick'); });
 		$event(ref, {'click': insertRefLink});
 	}
 	if(Cfg.viewhd == 1) $event(ref, {
@@ -3235,19 +3237,17 @@ function parseDelform(node) {
 		}, true);
 		threads = $X('.//div[@class="thread"]', node);
 	}
-	var tNum, op, opEnd;
 	var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
 	$each(threads, function(thr) {
 		if(tinyb) $after(thr, [$new('hr')]);
-		if(ch.fch || tinyb) tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
-		else {
+		if(!ch.fch) {
 			var a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr);
 			tNum = a ? a.name : thr.id.match(/\d+/);
-		}
+		} else tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
 		$attr(thr, {'id': 'thread-' + tNum, 'class': 'thread'});
-		if(ch.krau) thr = $x('.//div[@class="thread_body"]', thr);
-		op = $new('div', {'id': 'oppost-' + tNum});
-		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
+		if(ch.krau) thr = $x('div[@class="thread_body"]', thr);
+		var op = $new('div', {'id': 'oppost-' + tNum});
+		var opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
 		var list = opEnd ? $X('preceding-sibling::node()', opEnd) : $X('node()', thr);
 		$each(list, function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
 		if(opEnd) {
