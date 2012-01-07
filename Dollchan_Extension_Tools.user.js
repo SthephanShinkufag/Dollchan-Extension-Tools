@@ -1268,7 +1268,7 @@ function addSelMenu(el, arr) {
 }
 
 function selectSpell(e) {
-	$each(addSelMenu(e.target, ['#b/', '#b/itt', '#exp ', '#exph ', '#img ', '#name ', '#noimg',
+	$each(addSelMenu(e.target, ['#b/', '#b/itt', '#exp ', '#exph ', '#img ', '#imgn ', '#name ', '#noimg',
 		'#notxt', '#num ', '#outrep', '#rep ', '#sage', '#skip ', '#tmax ', '#trip']), function(a) {
 		$event(a, {'click': function(e) {
 			$pD(e);
@@ -2669,7 +2669,7 @@ function processHidden(newCfg, oldCfg) {
 
 function initSpells() {
 	Spells = {
-		words: [], rep: [], exp: [], exph: [], img: [], name: [], tmax: [], skip: [], num: [],
+		words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [], skip: [], num: [],
 		sage: false, notxt: false, noimg: false, trip: false, outrep: []
 	};
 	var i = spellsList.length;
@@ -2708,6 +2708,7 @@ function initSpells() {
 		if(t == '#exp') Spells.exp.push(strToRegexp(x.substr(5)));
 		if(t == '#exph') Spells.exph.push(strToRegexp(x.substr(6)));
 		if(t == '#img') Spells.img.push(x.substr(5));
+		if(t == '#imgn') Spells.imgn.push(strToRegexp(x.substr(6)));
 		if(t == '#name') Spells.name.push(x.substr(6));
 		if(t == '#tmax') Spells.tmax.push(x.substr(6));
 		if(t == '#sage') Spells.sage = true;
@@ -2737,7 +2738,7 @@ function htmlReplace(txt) {
 function verifyRegExp(txt) {
 	txt = txt.split('\n');
 	var i = txt.length;
-	var re = /#exp |#exph |#rep |#outrep /;
+	var re = /#exp |#exph |#rep |#outrep |#imgn /;
 	while(i--) {
 		var t = txt[i];
 		var rep = t.match(re);
@@ -2843,6 +2844,10 @@ function getSpells(post) {
 		i = x.img.length;
 		while(i--) if(getImgSpell(post, x.img[i])) return '#img ' + x.img[i];
 	}
+	if(x.imgn[0] && post.Img.snapshotLength > 0) {
+		i = x.imgn.length;
+		while(i--) if(getImgName(post).match(x.imgn[i])) return '#imgn ' + x.imgn[i];
+	}
 	if(x.num[0]) {
 		i = x.num.length;
 		while(i--) {
@@ -2862,6 +2867,14 @@ function getSpells(post) {
 
 function getImgInfo(post) {
 	return $x('.//em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]', post);
+}
+
+function getImgName(post) {
+	if(!ch.fch) return "";
+	var xp = './/span[@class="filesize"]/span';
+	var name = $x(xp, post);
+	if(name == null) return "";
+	return name.title;
 }
 
 function getImgWeight(post) {
