@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.6.0
+// @version			12.1.7.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,14 +13,14 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-05',
+	version:	'2012-01-07',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
 	samew:		1,		//		same words
-	specs:		1,		//		special symbols
+	specs:		0,		//		special symbols
 	longp:		1,		//		long posts
-	longw:		1,		//		long words
+	longw:		0,		//		long words
 	nums:		1,		//		numbers
 	caps:		0,		//		cAsE, CAPS
 	spells:		0,		// hide posts by magic spells
@@ -545,7 +545,7 @@ function readCfg() {
 }
 
 function fixCapLang() {
-	Cfg.forcap = (hanab || ch.tire || ch.up4k || ch._02 || ch._5ch) ? 2 : 1;
+	Cfg.forcap = (hanab || ch.tire || ch.vomb || ch.ment || ch._5ch) ? 2 : 1;
 }
 
 function isValidStat(data) {
@@ -1121,7 +1121,7 @@ function hiddenPostsTable() {
 
 function getFavorUrl(h, b, tNum) {
 	return 'http://' + h + '/' + b + '/' + (/krautchan\.net/.test(h) ? 'thread-' : 'res/')
-		+ tNum + (/dobrochan\./.test(h) ? '.xhtml' : '.html');
+		+ tNum + (/dobrochan\./.test(h) ? '.xhtml' : (/2chan\.net/.test(h) ? '.htm' : '.html'));
 }
 
 function rebuildFavor(val) {
@@ -1344,7 +1344,7 @@ function refreshCapImg(obj, tNum) {
 function doSageBtn() {
 	var c = Cfg.issage == 1;
 	$x('.//span[@id="DESU_sagebtn"]', pr.form).innerHTML = '&nbsp;' + (c
-		? '<span class="DESU_icn_sage" style="font-size:13px"></span><b style="color:red">SAGE</b>'
+		? '<a class="DESU_icn_sage" href="#"></a><b style="color:red">SAGE</b>'
 		: '<i>(no&nbsp;sage)</i>');
 	if(pr.mail.type == 'text') pr.mail.value = c ? 'sage' : (ch.fch ? 'noko' : '');
 	else pr.mail.checked = c;
@@ -1536,36 +1536,33 @@ function doPostformChanges() {
 
 function iframeLoad(e) {
 	setTimeout(function(frm) { return function() {
-		var err, xp;
 		try {
 			frm = frm.contentDocument;
 			if(!frm || !frm.body || !frm.body.innerHTML) return;
-		} catch(e) { $alert('Iframe error:\n' + e); $close($id('DESU_alert_wait')); return; }
-		if(hanab && /error/.test(frm.location.pathname))
-			xp = './/td[@class="post-error"]';
-		if(ch.fch && /sys/.test(frm.location.hostname) && frm.title != 'Post successful!')
-			xp = './/table//font/b';
-		if(ch.krau && frm.location.pathname == '/post')
-			xp = './/td[starts-with(@class,"message_text")]';
-		if(ch.so && !frm.getElementById('delform'))
-			xp = './/font[@size="5"]';
-		if(!hanab && !ch.fch && !ch.krau && !ch.so && !$t('form', frm)) {
-			if(kusaba) xp = './/h1|.//h2|.//div[contains(@style,"1.25em")]';
-			else err = $t('h2', frm) || $t('h1', frm);
-		}
-		if(ch._5ch && err.textContent.indexOf('Обновление') >= 0) err = undefined;
-		if(xp) err = frm.evaluate(xp, frm, null, 6, null);
-		if(err) {
+		} catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
+		var xp, err, path = frm.location.pathname, host = frm.location.hostname;
+		if(hanab && /error/.test(path)) xp = './/td[@class="post-error"]';
+		if(ch.fch && /sys/.test(host) && frm.title != 'Post successful!') xp = './/table//font/b';
+		if(ch.krau && path == '/post') xp = './/td[starts-with(@class,"message_text")]';
+		if(ch.so && !frm.getElementById('delform')) xp = './/font[@size="5"]';
+		if(xp || !$t('form', frm)) {
 			var txt = '';
-			if(kusaba || hanab || ch.fch || ch.krau || ch.so)
-				$each(err, function(el) { txt += el.innerHTML + '\n'; });
-			else txt = err.innerHTML.replace(/<br.*/ig, '');
-			$close($id('DESU_alert_wait'));
-			$alert(txt || Lng.error + '\n' + (frm.body || frm).innerHTML);
-		} else {
+			if(kusaba) xp = './/h1|.//h2|.//div[contains(@style,"1.25em")]';
+			if(ch.gazo) xp = './/font[@size="5"]';
+			if(xp) $each(frm.evaluate(xp, frm, null, 6, null), function(el) {
+				txt += el.innerHTML + '\n';
+			});
+			else {
+				xp = $t('h2', frm) || $t('h1', frm);
+				if(xp) txt = xp.innerHTML.replace(/<br.*/i, '');
+			}
+			err = txt !== '' ? txt : Lng.error + '\n' + frm.body.innerHTML;
+			if(ch._5ch && err.indexOf('Обновление') >= 0) err = undefined;
+		}
+		if(!err) {
 			pr.txta.value = '';
-			if(pr.file) pr.file =
-				$x('.//input[@type="file"]', $html($up(pr.file), $up(pr.file).innerHTML));
+			if(pr.file)
+				pr.file = $x('.//input[@type="file"]', $html($up(pr.file), $up(pr.file).innerHTML));
 			if(pr.tNum) {
 				var tNum = pr.tNum;
 				showMainReply();
@@ -1575,7 +1572,7 @@ function iframeLoad(e) {
 			} else window.location = !ch.fch
 				? frm.location
 				: $t('meta', frm).content.match(/http:\/\/[^"]+/)[0];
-		}
+		} else { $close($id('DESU_alert_wait')); $alert(err); }
 		frm.location.replace('about:blank');
 	}}(e.target), 500);
 }
@@ -1594,7 +1591,7 @@ function showQuickReply(post) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
 			$before($1(pr.form), [$add(
 				'<input type="hidden" id="thr_id" value="' + tNum + '" name="'
-				+ $case([ch.fch, 'resto', tinyb, 'thread'], 'parent') + '">'
+				+ $case([ch.fch || ch.gazo, 'resto', tinyb, 'thread'], 'parent') + '">'
 			)]);
 		}
 	} else if($next(post) == qArea) { $disp(qArea); return; }
@@ -1705,17 +1702,17 @@ function scriptCSS() {
 	var gif = function(nm, src) { x.push(nm + ' {background:url(data:image/gif;base64,' + src + ') no-repeat center !important}') }
 	var pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ';
 	x.push(
-		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px sans-serif; cursor:default}\
-		#DESU_btn_info {vertical-align:top; padding:0 3px; color:#eef; font:18px sans-serif}\
+		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; cursor:default}\
+		#DESU_btn_info {vertical-align:top; padding:0 3px; color:#eef; font:18px arial}\
 		#DESU_cfgedit, #DESU_favoredit, #DESU_spelledit {display:block; font:12px courier new}\
-		#DESU_content {text-align:left}\
+		#DESU_content {text-align:left; font-family:arial}\
 		#DESU_mp3, #DESU_ytube {margin:5px 20px}\
 		#DESU_panel {height:25px; z-index:9999; ' + pre + cssFix + 'border-radius:15px 0 0 0; cursor:default}\
 		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + cssFix + 'border-radius:5px}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #a0a0a0}\
 		#DESU_sett_body {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
 		#DESU_sett_head {padding:3px; ' + pre + cssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
-		#DESU_sett_main {padding:7px; border:1px solid grey; font:13px sans-serif}\
+		#DESU_sett_main {padding:7px; border:1px solid grey; font-size:13px}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding: 3px 10px; color:inherit; font:13px arial; white-space:nowrap}\
 		#DESU_select a:hover {background-color:#1b345e; color: #fff}\
@@ -1727,8 +1724,8 @@ function scriptCSS() {
 		.DESU_favpcount {float:right; font-weight:bold}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
 		.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
-		.DESU_postnote {color:inherit; font-size:12px; font-style:italic}\
-		.DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic}\
+		.DESU_postnote {color:inherit; font:italic 12px arial}\
+		.DESU_refmap {margin:10px 4px 4px 4px; font:italic 11px arial}\
 		.reply {width:auto}\
 		a[href="#"] {text-decoration:none !important; outline:none}\
 		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
@@ -1753,8 +1750,8 @@ function scriptCSS() {
 	x.push('#DESU_btn_br {display:inline-block; padding:0 3px 25px 0; margin:0 3px 0 3px; background:url(data:image/gif;base64,R0lGODlhAwAZAIAAAPDw8P///yH5BAEAAAEALAAAAAADABkAQAIPjAOWx7vnlGQUzWgzfqEAADs=)}');
 	if(!isMain) x.push(
 		'form div.thread {counter-reset:i 1}\
-		form div.thread .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); color:#4f7942; font:italic bold 13px serif; cursor:default}\
-		form div.thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}'
+		form div.thread .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); color:#4f7942; font:italic bold 13px arial; cursor:default}\
+		form div.thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px arial; cursor:default}'
 	);
 	if(Cfg.pstbtn == 1) {
 		x.push('a[class^="DESU_icn"] {display:inline-block; padding:0 14px 14px 0}');
@@ -1793,19 +1790,20 @@ function scriptCSS() {
 	if(Cfg.noname == 1) x.push('.commentpostername, .postername, .postertrip {display:none}');
 	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
 	if(Cfg.noscrl == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
-	if(Cfg.norule == 1) x.push((ch.krau ? 'td ul' : '.rules') + ' {display:none}');
+	if(Cfg.norule == 1) x.push($case([ch.krau, 'td ul', ch.gazo, '.chui'], '.rules') + ' {display:none}');
 	if(Cfg.mask == 1) x.push(
 		'#DESU_ytube, img[id="DESU_preimg"], img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
 		#DESU_ytube:hover, img[id="DESU_preimg"]:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
 	);
 	if(kusaba) x.push(
-		'.extrabtns, .ui-resizable-handle {display:none !important}\
+		'.extrabtns, .ui-resizable-handle, div[id*=oppost] a[onclick]:not([target]) {display:none !important}\
 		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
 	);
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
 	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(ch.nul) x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
+	if(ch.gazo) x.push('.ftbl {width:auto; margin:0} .reply {background: #f0e0d6}');
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {'id': 'DESU_css', 'type': 'text/css', 'text': x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
@@ -2038,9 +2036,12 @@ function addFullImg(a, fullW, fullH, isExp) {
 	}
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight;
 	if(Cfg.expimg == 1) scrW -= $offset(a, 'offsetLeft') + 30;
-	var newW = fullW < scrW ? fullW : scrW;
-	var newH = newW*fullH/fullW;
-	if(Cfg.expimg == 2 && newH > scrH) { newH = scrH; newW = newH*fullW/fullH; }
+	var newW = '', newH = '';
+	if(fullW && fullH) {
+		newW = fullW < scrW ? fullW : scrW;
+		newH = newW*fullH/fullW;
+		if(Cfg.expimg == 2 && newH > scrH) { newH = scrH; newW = newH*fullW/fullH; }
+	}
 	a.appendChild($attr(full, {
 		'id': 'DESU_fullimg',
 		'src': a.href, 'alt': a.href, 'width': newW, 'height': newH,
@@ -2279,7 +2280,7 @@ function parseHTMLdata(html) {
 function AJAX(url, b, tNum, fn) {
 	if(!url) {
 		if(hanab) url = '/api/thread/expand/' + b + '/' + tNum;
-		else url = '/' + (b == '' ? '': b + '/') + res + tNum + '.html';
+		else url = '/' + (b == '' ? '': b + '/') + res + tNum + docExt;
 	}
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState != 4) return;
@@ -2859,13 +2860,11 @@ function getSpells(post) {
 }
 
 function getImgInfo(post) {
-	var xp = './/em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]';
-	if(ch.same) xp = './/div[@class="file_thread"]/span|.//div[@class="file_reply"]/span[2]';
-	return $x(xp, post).textContent;
+	return $x('.//em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]', post);
 }
 
 function getImgWeight(post) {
-	var inf = getImgInfo(post).match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0];
+	var inf = getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0];
 	var w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) w = w*1000;
 	if(/\d[\s]*B/.test(inf)) w = (w/1000).toFixed(2);
@@ -2873,7 +2872,9 @@ function getImgWeight(post) {
 }
 
 function getImgSize(post) {
-	return getImgInfo(post).match(/\d+[x×]\d+/)[0].split(/[x×]/);
+	var el = getImgInfo(post)
+	if(el) return el.textContent.match(/\d+[x×]\d+/)[0].split(/[x×]/);
+	return [null, null];
 }
 
 function getImgSpell(post, exp) {
@@ -3134,30 +3135,31 @@ function initBoard() {
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|localhost/)[0];
 	ch = {
-		so: dm == '2ch.so',
-		nul: dm == '0chan.ru',
-		fch: dm == '4chan.org',
-		krau: dm == 'krautchan.net',
-		_410: dm == '410chan.ru',
-		sib: dm == 'sibirchan.ru',
-		same: dm == 'samechan.org',
-		tire: dm == '2--ch.ru',
-		_5ch: dm == '5channel.net',
-		hid: dm == 'hiddenchan.i2p',
-		dfwk: dm == 'dfwk.ru',
-		pony: dm == 'ponychan.net',
-		zadr: dm == 'zadraw.ch',
-		_7ch: dm == '7chan.org',
-		up4k: dm == 'vombatov.net',
-		_02: dm == '02ch.org' || dm == '02ch.net'
+		krau:	dm == 'krautchan.net',
+		fch:	dm == '4chan.org',
+		gazo:	dm == '2chan.net',
+		nul:	dm == '0chan.ru',
+		so:		dm == '2ch.so',
+		_7ch:	dm == '7chan.org',
+		_410:	dm == '410chan.ru',
+		sib:	dm == 'sibirchan.ru',
+		_5ch:	dm == '5channel.net',
+		hid:	dm == 'hiddenchan.i2p',
+		tire:	dm == '2--ch.ru',
+		dfwk:	dm == 'dfwk.ru',
+		pony:	dm == 'ponychan.net',
+		zadr:	dm == 'zadraw.ch',
+		vomb:	dm == 'vombatov.net',
+		ment:	dm == '02ch.org' || dm == '02ch.net'
 	};
-	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
+	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	tinyb = $xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]');
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	xDelForm = './/form[' + $case([
 		hanab || ch.krau, 'contains(@action,"delete")]',
-		tinyb, '@name="postcontrols"]'
+		tinyb, '@name="postcontrols"]',
+		ch.gazo, '2]'
 	], '@id="delform" or @name="delform"]');
 	dForm = $x(xDelForm);
 	if(!dForm || $id('DESU_panel')) return false;
@@ -3188,19 +3190,20 @@ function initBoard() {
 	var url = window.location.pathname || '';
 	res = ch.krau ? 'thread-' : 'res/';
 	isMain = url.indexOf('/' + res) < 0;
-	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html|\/res|\/thread-|\/*\d*$/)) - 1);
+	brd = url.substr(1, url.lastIndexOf(url.match(/\/[^\/]+html?|\/res|\/thread-|\/*\d*$/)) - 1);
 	if(ch.dfwk && brd == '') brd = 'df';
 	if(!isMain) TNum = url.substr(url.indexOf(brd) + brd.length).match(/\d+/);
-	pageNum = parseInt(isMain ? url.match(/(\d*)(?:\.x?html)?$/)[1] || 0 : 0);
-	docExt = hanab ? '.xhtml' : '.html';
+	pageNum = parseInt(isMain ? url.match(/(\d*)(?:\.x?html?)?$/)[1] || 0 : 0);
+	docExt = $case([hanab, '.xhtml', ch.gazo, '.htm'], '.html');
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
 	pClass = $case([ch.krau, 'postreply', tinyb, 'post reply'], 'reply');
 	xPostRef = $case([
+		tinyb, './/a[@class="post_no"][2]',
 		ch.krau, './/span[@class="postnumber"]',
 		ch.fch, './/span[starts-with(@id,"no")]',
 		ch.sib, './/span[@class="reflink" or @class="filesize"]',
-		tinyb, './/a[@class="post_no"][2]'
+		ch.gazo, './/a[@class="del"]'
 	], './/span[@class="reflink"]');
 	xPostMsg = $case([
 		hanab, './/div[@class="postbody"]',
@@ -3228,19 +3231,20 @@ function parseDelform(node) {
 		tinyb, 'starts-with(@id,"thread") and @itemid'
 	], 'starts-with(@id,"thread")') + ']', node);
 	if(threads.snapshotLength == 0) {
-		$each($X('.//hr/preceding-sibling::br[1]', node), function(br) {
+		var br = !ch.gazo ? 'br[@*]' : 'div[@style="clear:left"]'
+		$each($X('.//hr/preceding-sibling::' + br, node), function(el) {
 			var thrd = $new('div', {'class': 'thread'});
 			var list = $X('preceding-sibling::node()[not(self::div[@class="thread"] '
-				+ 'or self::hr or self::br[@*])]', br);
+				+ 'or self::hr or self::' + br + ')]', el);
 			$each(list, function(el) { thrd.appendChild(el); }, nav.Firefox);
-			$before(br, [thrd]);
+			$before(el, [thrd]);
 		}, true);
 		threads = $X('.//div[@class="thread"]', node);
 	}
 	var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
 	$each(threads, function(thr) {
 		if(tinyb) $after(thr, [$new('hr')]);
-		if(!ch.fch) {
+		if(!(ch.fch || ch.gazo)) {
 			var a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr);
 			tNum = a ? a.name : thr.id.match(/\d+/);
 		} else tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
@@ -3252,7 +3256,8 @@ function parseDelform(node) {
 		$each(list, function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
 		if(opEnd) {
 			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr), function(el) {
-				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id).match(/\d+/);
+				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id
+					|| el.getElementsByTagName('input')[0].name).match(/\d+/);
 			});
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
