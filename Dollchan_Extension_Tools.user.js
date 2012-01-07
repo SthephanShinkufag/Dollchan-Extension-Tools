@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.7.0
+// @version			12.1.7.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3241,7 +3241,10 @@ function parseDelform(node) {
 		}, true);
 		threads = $X('.//div[@class="thread"]', node);
 	}
-	var table = !ch.tire ? 'table' : 'table[not(@class="postfiles")]';
+	var table = $case([
+		ch.fch, 'table[not(@class="exif")]',
+		ch.tire, 'table[not(@class="postfiles")]'
+	], 'table');
 	$each(threads, function(thr) {
 		if(tinyb) $after(thr, [$new('hr')]);
 		if(!(ch.fch || ch.gazo)) {
