@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.9.0
+// @version			12.1.9.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1796,7 +1796,11 @@ function scriptCSS() {
 	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(ch.nul) x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
-	if(ch.gazo) x.push('.ftbl {width:auto; margin:0} .reply {background: #f0e0d6}');
+	if(ch.gazo) x.push(
+		'#DESU_content, #DESU_sett_main {font-family:arial}\
+		.ftbl {width:auto; margin:0}\
+		.reply {background: #f0e0d6}'
+	);
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {'id': 'DESU_css', 'type': 'text/css', 'text': x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
