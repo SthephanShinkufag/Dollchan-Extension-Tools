@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.9.2
+// @version			12.1.9.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2260,12 +2260,16 @@ function parseHTMLdata(html) {
 	$each($X('.//div[@class="thread"]', form), function(thrd) {
 		var tNum = thrd.id.match(/\d+/);
 		ajaxThrds[tNum] = {keys: []};
-		var list = $X('.//*[starts-with(@id,"post-") or starts-with(@id,"oppost-")]'
+		var list = $X('.//node()[starts-with(@id,"post-") or starts-with(@id,"oppost-")]'
 			+ '[self::table or self::div]', thrd);
-		$each(list, function(post) {
+		$each(list, function(post, i) {
 			var pNum = post.id.match(/\d+/);
 			ajaxThrds[tNum].keys.push(pNum);
 			ajaxPosts[pNum] = post;
+			if(i == 0 && kusaba) {
+				var om = $x('.//span[@class="omittedposts"]', thrd);
+				if(om) post.appendChild(om);
+			}
 			$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post), function(link) {
 				getRefMap(pNum, link.textContent.match(/\d+/));
 			});
