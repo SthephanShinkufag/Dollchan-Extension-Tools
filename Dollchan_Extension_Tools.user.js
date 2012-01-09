@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.9.3
+// @version			12.1.9.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1385,8 +1385,8 @@ function doChanges() {
 	}});
 	// Postform changes
 	qArea = $new('div', {'id': 'DESU_qarea', 'class': pClass, 'style': 'display:none'});
-	pArea = $New('div', [
-		$New('center', [
+	pArea = $New('center', [
+		$New('div', [
 			$txt('['),
 			$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': toggleMainReply}),
 			$txt(']')
