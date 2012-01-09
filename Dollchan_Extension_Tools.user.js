@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.9.1
+// @version			12.1.9.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2500,7 +2500,8 @@ function loadPages(len) {
 			$new('hr'),
 			$new('div', {'id': 'DESU_page' + p})
 		]);
-		var url = '/' + (brd == '' ? '' : brd + '/') + (p > 0 ? p : 'index') + docExt;
+		var url = '/' + (brd == '' ? '' : brd + '/')
+			+ (p > 0 ? p + docExt : (hanab ? 'index' + docExt : ''));
 		AJAX(url, brd, null, function(p, len) { return function() {
 			var page = $id('DESU_page' + p);
 			for(var tNum in ajaxThrds) {
