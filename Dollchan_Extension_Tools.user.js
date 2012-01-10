@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.9.5
+// @version			12.1.10.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-09',
+	version:	'2012-01-10',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -53,7 +53,8 @@ var defaultCfg = {
 	verify:		1,		// reply without reload (verify on submit)
 	addfav:		1,		// add thread to favorites on reply
 	sagebt:		1,		// email field -> sage btn
-	issage:		0,		// reply with SAGE
+	svsage:		0,		//	remember sage
+	issage:		0,		//	reply with sage
 	pform:		2,		// postform is [0=at top, 1=at bottom, 2=hidden]
 	tform:		1,		// hide thread-creating form
 	forcap:		1,		// force captcha input [0=off, 1=en, 2=ru]
@@ -160,7 +161,8 @@ var LngArray = {
 	],
 	addToFav:		['Добавлять в избранное при ответе', 'Add thread to favorites on reply'],
 	mailToSage:		['Sage вместо поля E-mail*', 'Sage button instead of E-mail field*'],
-	replyForm:      ['форма ответа в треде* ', 'reply form in thread* '],
+	saveSage:		['запоминать сажу', 'remember sage'],
+	replyForm:		['форма ответа в треде* ', 'reply form in thread* '],
 	noThrForm:		['Прятать форму на доске', 'Hide form on board'],
 	selReplyForm:   [
 		['Сверху', 'Внизу', 'Скрытая'],
@@ -250,7 +252,7 @@ var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
 var kusaba, hanab, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
 var cssFix, xDelForm, xPostRef, xPostMsg;
-var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
+var pr = {}, dForm, oeForm, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false;
 var oldTime, endTime, timeLog = '';
@@ -539,6 +541,7 @@ function readCfg() {
 	if(global) fixCapLang();
 	if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 	if(nav.Chrome) Cfg.updfav = 0;
+	if(Cfg.svsage == 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, uneval(Cfg));
 	for(var key in LngArray)
 		Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
@@ -917,11 +920,14 @@ function addSettings() {
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
 		divBox('addfav', Lng.addToFav),
-		$if(pr.mail, divBox('sagebt', Lng.mailToSage)),
+		$if(pr.mail, $New('div', [
+			lBox('sagebt', Lng.mailToSage),
+			lBox('svsage', Lng.saveSage),
+		])),
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm),
 			lBox('tform', Lng.noThrForm, function() {
-				if(isMain) pArea.style.display = Cfg.tform ? 'none' : '';
+				if(isMain) $id('DESU_parea').style.display = Cfg.tform ? 'none' : '';
 			})
 		])),
 		$New('div', [optSel('forcap', Lng.selFastInput, Lng.fastInput)]),
@@ -1384,15 +1390,15 @@ function doChanges() {
 		}, 0);
 	}});
 	// Postform changes
-	qArea = $new('div', {'id': 'DESU_qarea', 'class': pClass, 'style': 'display:none'});
-	pArea = $New('center', [
+	var pArea = $New('center', [
 		$New('div', [
 			$txt('['),
 			$new('a', {'text': Lng.expandForm, 'href': '#'}, {'click': toggleMainReply}),
 			$txt(']')
 		], {'id': 'DESU_togglereply', 'style': 'display:none'}),
 		$New('div', [pr.form, oeForm], {'id': 'DESU_pform'}),
-		$new('hr')
+		$new('hr'),
+		$new('div', {'id': 'DESU_qarea', 'class': pClass, 'style': 'display:none'})
 	], {'id': 'DESU_parea'});
 	if(!isMain && Cfg.pform == 2 || isMain && Cfg.tform == 1) $disp(pArea);
 	if(!isMain && Cfg.pform == 1) $after($x('.//hr', dForm) || dForm, [pArea]);
@@ -1407,12 +1413,11 @@ function doPostformChanges() {
 	$event(pr.subm, {'click': function(e) {
 		if(Cfg.verify == 1) $alert(Lng.checking, 'wait');
 		if(Cfg.addfav == 1 && pr.tNum) {
-			var post = pByNum[TNum || getThread(pr.form).id.match(/\d+/)];
-			var btn = $x('.//a[@class="DESU_icn_favor"]', post);
-			if(btn) storeFavorities(post, btn);
+			var btn = $x('.//a[@class="DESU_icn_favor"]', pByNum[pr.tNum]);
+			if(btn) storeFavorities(pByNum[pr.tNum], btn);
 		}
 		var txt = pr.txta.value;
-		pr.txta.value = Cfg.spells == 0 || !Spells.outrep[0] ? txt : doReplace(Spells.outrep, txt)
+		pr.txta.value = (Cfg.spells == 0 || !Spells.outrep[0] ? txt : doReplace(Spells.outrep, txt))
 			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
 		if(pr.tNum) Stat.reply = parseInt(Stat.reply) + 1;
 		else Stat.op = parseInt(Stat.op) + 1;
@@ -1440,7 +1445,7 @@ function doPostformChanges() {
 	if(Cfg.nogoto == 1 && pr.gothr) $disp(pr.gothr);
 	if(Cfg.nopass == 1 && pr.passw) $disp($x(pr.tr, pr.passw));
 	if(Cfg.name == 1 && pr.name) setTimeout(function() { pr.name.value = Cfg.namval; }, 0);
-	setTimeout(setUserPassw, 0);
+	if(pr.passw) setTimeout(setUserPassw, 0);
 	if(pr.recap) {
 		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		var reimg = $x('.//div[@id="recaptcha_image"]', pr.form);
@@ -1570,6 +1575,7 @@ function iframeLoad(e) {
 
 function showQuickReply(post) {
 	var tNum = getThread(post).id.match(/\d+/);
+	var qArea = $id('DESU_qarea');
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
@@ -1585,7 +1591,7 @@ function showQuickReply(post) {
 		}
 	} else if($next(post) == qArea) { $disp(qArea); return; }
 	$after(post, [qArea]);
-	if(isMain && Cfg.tform == 1) pArea.style.display = 'none';
+	if(isMain && Cfg.tform == 1) $id('DESU_parea').style.display = 'none';
 	qArea.style.display = 'block';
 	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !kusaba) refreshCapImg(pr, tNum);
@@ -1600,13 +1606,15 @@ function showMainReply() {
 	pr.isQuick = false;
 	if(isMain) $del($x('.//input[@id="thr_id"]', pr.form));
 	var el = $id('DESU_togglereply');
+	var qArea = $id('DESU_qarea');
 	$disp(el);
-	$after(el, [$id('DESU_pform')]);
 	qArea.style.display = 'none';
+	$after(el, [$id('DESU_pform'), qArea]);
 }
 
 function toggleMainReply(e) {
 	$pD(e);
+	var pArea = $id('DESU_parea');
 	if(pr.isQuick) { pArea.style.display = ''; showMainReply(); }
 	else $disp(pArea);
 	$focus(pArea);
@@ -1616,7 +1624,7 @@ function insertRefLink(e) {
 	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	var pNum = getPost(e.target).id.match(/\d+/)
-	if(isMain && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
+	if(isMain && Cfg.tform == 1 && !pr.isQuick) $id('DESU_parea').style.display = '';
 	if(!isMain && Cfg.pform == 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
 	else insertInto(pr.txta, '>>' + pNum);
 }
@@ -1633,8 +1641,7 @@ function tfBtn(id, title, wktag, bbtag, val) {
 	if(val != '&gt;') $event(btn, {'click': function(e) {
 		$pD(e);
 		var tag1, tag2;
-		if(ch.so || ch.nul || ch.krau || ch.sib || ch.zadr || ch.fch && wktag == '%%'
-			|| ch.hid && bbtag in {'code':0, 'u':0, 's':0, 'spoiler':0}) {
+		if(kusaba || ch.so || ch.krau || ch.fch && wktag == '%%') {
 			tag1 = '[' + bbtag + ']';
 			tag2 = '[/' + bbtag + ']';
 		} else tag1 = tag2 = wktag;
@@ -3254,10 +3261,8 @@ function parseDelform(node) {
 		}, true);
 		threads = $X('.//div[@class="thread"]', node);
 	}
-	var table = $case([
-		ch.fch, 'table[not(@class="exif")]',
-		ch.tire, 'table[not(@class="postfiles")]'
-	], 'table');
+	var table = 'table' +
+		$case([ch.fch, '[not(@class="exif")]', ch.tire, '[not(@class="postfiles")]'], '');
 	$each(threads, function(thr) {
 		if(tinyb) $after(thr, [$new('hr')]);
 		if(!(ch.fch || ch.gazo)) {
