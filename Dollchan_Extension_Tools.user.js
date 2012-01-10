@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.10.1
+// @version			12.1.10.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2847,13 +2847,15 @@ function getSpells(post) {
 		i = x.exph.length;
 		while(i--) if(pHtm.match(x.exph[i])) return '#exph ' + x.exph[i].toString();
 	}
-	if(x.img[0] && post.Img.snapshotLength > 0) {
-		i = x.img.length;
-		while(i--) if(getImgSpell(post, x.img[i])) return '#img ' + x.img[i];
-	}
-	if(x.imgn[0] && post.Img.snapshotLength > 0) {
-		i = x.imgn.length;
-		while(i--) if(getImgName(post).match(x.imgn[i])) return '#imgn ' + x.imgn[i];
+	if(post.Img.snapshotLength > 0) {
+		if(x.img[0]) {
+			i = x.img.length;
+			while(i--) if(getImgSpell(post, x.img[i])) return '#img ' + x.img[i];
+		}
+		if(x.imgn[0]) {
+			i = x.imgn.length;
+			while(i--) if(getImgName(post).match(x.imgn[i])) return '#imgn ' + x.imgn[i];
+		}
 	}
 	if(x.num[0]) {
 		i = x.num.length;
@@ -2873,14 +2875,11 @@ function getSpells(post) {
 }
 
 function getImgInfo(post) {
-	return $x('.//em|.//span[@class="filesize" or @class="fileinfo"]|.//p[@class="fileinfo"]', post);
+	return $x('.//em|.//span[@class="filesize"]|.//p[@class="fileinfo"]', post);
 }
 
 function getImgName(post) {
-	var xp;
-	if(ch.fch) xp = './/span[@class="filesize"]/span';
-	if(tinyb) xp = './/p[@class="fileinfo"]/span';
-	var name = $x(xp, post);
+	var name = $x('.//span[@class="filesize"]|.//node()[@class="fileinfo"]', post);
 	return name ? name.textContent : '';
 }
 
