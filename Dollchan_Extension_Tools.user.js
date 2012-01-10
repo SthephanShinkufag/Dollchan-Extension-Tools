@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.10.0
+// @version			12.1.10.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -53,8 +53,8 @@ var defaultCfg = {
 	verify:		1,		// reply without reload (verify on submit)
 	addfav:		1,		// add thread to favorites on reply
 	sagebt:		1,		// email field -> sage btn
-	svsage:		0,		//	remember sage
-	issage:		0,		//	reply with sage
+	svsage:		1,		//		remember sage
+	issage:		0,		//		reply with sage
 	pform:		2,		// postform is [0=at top, 1=at bottom, 2=hidden]
 	tform:		1,		// hide thread-creating form
 	forcap:		1,		// force captcha input [0=off, 1=en, 2=ru]
@@ -160,7 +160,7 @@ var LngArray = {
 		'Reply without reload (check on submit)*'
 	],
 	addToFav:		['Добавлять в избранное при ответе', 'Add thread to favorites on reply'],
-	mailToSage:		['Sage вместо поля E-mail*', 'Sage button instead of E-mail field*'],
+	mailToSage:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
 	saveSage:		['запоминать сажу', 'remember sage'],
 	replyForm:		['форма ответа в треде* ', 'reply form in thread* '],
 	noThrForm:		['Прятать форму на доске', 'Hide form on board'],
@@ -1512,7 +1512,7 @@ function doPostformChanges() {
 			toggleCfg('issage');
 			doSageBtn();
 		}}));
-		doSageBtn();
+		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify == 1) {
 		var load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
@@ -1551,12 +1551,12 @@ function iframeLoad(e) {
 				if(xp) txt = xp.innerHTML.replace(/<br.*/i, '');
 			}
 			err = txt !== '' ? txt : Lng.error + '\n' + frm.body.innerHTML;
-			if(ch._5ch && err.indexOf('Обновление') >= 0) err = undefined;
+			if(/обновл/i.test(err)) err = undefined;
 		}
 		if(!err) {
 			pr.txta.value = '';
-			if(pr.file)
-				pr.file = $x('.//input[@type="file"]', $html($up(pr.file), $up(pr.file).innerHTML));
+			if(pr.file) pr.file = $x('.//input[@type="file"]',
+				$html($x(pr.tr, pr.file), $x(pr.tr, pr.file).innerHTML));
 			if(pr.tNum) {
 				var tNum = pr.tNum;
 				showMainReply();
@@ -2106,6 +2106,7 @@ function eventPostImg(post) {
 		if(a) {
 			$rattr(a, 'onclick');
 			$rattr(img, 'onclick');
+			if(ch.dfwk) $rattr(img.parentNode, 'onclick');
 			a.addEventListener('click', function(e) {
 				if(Cfg.expimg != 0 && e.button != 1) { $pD(e); expandPostImg(this, post); }
 			}, false);
@@ -3126,6 +3127,7 @@ function replyForm(f) {
 	var pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', f);
 	this.mail = $x(pre + '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]', f);
+	if(ch.futr) this.mail = $id('email');
 }
 
 function fixDomain() {
@@ -3170,7 +3172,8 @@ function initBoard() {
 		pony:	dm == 'ponychan.net',
 		zadr:	dm == 'zadraw.ch',
 		vomb:	dm == 'vombatov.net',
-		ment:	dm == '02ch.org' || dm == '02ch.net'
+		ment:	dm == '02ch.org' || dm == '02ch.net',
+		futr:	dm == '2chan.su'
 	};
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
