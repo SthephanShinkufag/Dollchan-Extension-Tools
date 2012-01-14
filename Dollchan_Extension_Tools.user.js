@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.14.0
+// @version			12.1.14.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-13',
+	version:	'2012-01-14',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -1661,8 +1661,8 @@ function tfBtn(id, title, wktag, bbtag, val) {
 		'click': function(e) {
 			$pD(e);
 			var start = x.selectionStart, end = x.selectionEnd;
-			insertInto(x, '>' + (start == end
-				? quotetxt : x.value.substring(start, end)).replace(/\n/gm, '\n>'));
+			insertInto(x, '> ' + (start == end
+				? quotetxt : x.value.substring(start, end)).replace(/\n/gm, '\n> '));
 		}
 	});
 	return btn;
