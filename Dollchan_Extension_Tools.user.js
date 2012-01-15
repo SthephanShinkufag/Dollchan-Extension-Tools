@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.14.1
+// @version			12.1.15.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -48,8 +48,10 @@ var defaultCfg = {
 	ospoil:		1,		// open spoilers
 	noscrl:		1,		// hide scrollers in posts
 	mp3:		1,		// mp3 player by links
-	ytube:		2,		// YouTube player by links [0=off, 1=on btn, 2=flash, 3=thumbs]
 	addimg:		1,		// add images by links
+	ytube:		3,		// YouTube links embedder [0=off, 1=on bttn, 2=no preview, 3=+preview]
+	yhtml5:		0,		//		player type [0=flash, 1=html5]
+	ytitle:		0,		//		convert links to titles
 	verify:		1,		// reply without reload (verify on submit)
 	addfav:		1,		// add thread to favorites on reply
 	sagebt:		1,		// email field -> sage btn
@@ -137,7 +139,7 @@ var LngArray = {
 		'Вставлять >>ссылку по клику на №поста*',
 		'Insert >>link on №postnumber click*'
 	],
-	animatePopup:	['Анимировать уведомления', 'Animated popups'],
+	animatePopup:	['Анимировать всплывающие уведомления', 'Animate popup messages'],
 	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
 	showImgCount:	['Счетчик постов/изображений', 'Posts/images counter'],
 	imgExpand:		['раскрывать изображения ', 'expand images '],
@@ -149,12 +151,14 @@ var LngArray = {
 	openSpoilers:	['открыть спойлеры ', 'open spoilers '],
 	noScroll:		['без скролла', 'no scroll'],
 	toLinks:		['К ссылкам: ', 'To links: '],
-	mp3:			['плейер mp3* ', 'mp3 player* '],
+	mp3Embed:		['добавлять плейер mp3* ', 'mp3-links embedder* '],
+	imgEmbed:		['превью картинок*', 'image-links embedder*'],
 	selYouTube:		[
-		['Откл.', 'По кнопке', '+Флеш', '+Превью'],
-		['Disable', 'On btn', '+Flash', '+Thumbs']
+		['Откл.', 'По кнопке', 'Без превью', '+Превью'],
+		['Disable', 'On button', 'No preview', '+Preview']
 	],
-	pics:			['картинки*', 'images*'],
+	html5YouTube:	['html5* ', 'html5* '],
+	titleYouTube:	['название в ссылке*', 'add title in link*'],
 	replyCheck:		[
 		'Постить без перезагрузки (проверять ответ)*',
 		'Reply without reload (check on submit)*'
@@ -931,9 +935,13 @@ function addSettings() {
 		]),
 		$New('div', [
 			$txt(Lng.toLinks),
-			lBox('mp3', Lng.mp3),
-			optSel('ytube', Lng.selYouTube, 'YouTube* '),
-			lBox('addimg', Lng.pics)
+			lBox('mp3', Lng.mp3Embed),
+			lBox('addimg', Lng.imgEmbed)
+		]),
+		$New('div', [
+			optSel('ytube', Lng.selYouTube, 'YouTube* '),,
+			lBox('yhtml5', Lng.html5YouTube),
+			$if(!nav.Opera, lBox('ytitle', Lng.titleYouTube))
 		]),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
@@ -1697,7 +1705,6 @@ function scriptCSS() {
 		#DESU_btn_info {vertical-align:6px; padding:0 3px; color:#eef; font:18px serif}\
 		#DESU_cfgedit, #DESU_favoredit, #DESU_spelledit {display:block; margin:2px 0; font:12px courier new}\
 		#DESU_content {text-align:left}\
-		#DESU_mp3, #DESU_ytube {margin:5px 20px}\
 		#DESU_panel {height:25px; z-index:9999; ' + pre + cssFix + 'border-radius:15px 0 0 0; cursor:default}\
 		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + cssFix + 'border-radius:5px}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #a0a0a0}\
@@ -1710,12 +1717,15 @@ function scriptCSS() {
 		#DESU_spellpanel {margin:0 0 0 40px}\
 		#DESU_spellpanel a {padding:0 10px; text-align:center}\
 		#DESU_preimg, #DESU_fullimg {margin:' + (ch.krau ? 0 : '2px 10px') + '; border:none; outline:none; cursor:pointer}\
-		#DESU_sagebtn, #DESU_ybtn {cursor:pointer}\
+		#DESU_sagebtn {cursor:pointer}\
 		#DESU_textpanel {display:' + (Cfg.txtpos == 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
 		#DESU_qarea {width:100%; padding:3px 0 3px 3px; margin:2px 0}\
 		.DESU_favpcount {float:right; font-weight:bold}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
 		.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
+		.DESU_mp3, .DESU_ytube {margin:5px 20px}\
+		.DESU_ytlink:before {content:""; padding:0 16px 16px 0; margin:0 4px; background:url( data:image/gif;base64,R0lGODlhEAAQAJEAAP8pDf///wAAAP///yH5BAEAAAMALAAAAAAQABAAQAI4XHShywML4pN0oYQynIH7qAjiMWrMiW7d+ihtR8Vya6bnpdVWWI7bHIPBJEMZ6/giJiEQBzA2KAAAOw== ) no-repeat}\
+		.DESU_ytube > img {cursor:pointer}\
 		.DESU_postnote {color:inherit; font-size:12px; font-style:italic}\
 		.DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic}\
 		.reply {width:auto}\
@@ -1785,8 +1795,8 @@ function scriptCSS() {
 	if(Cfg.noscrl == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
 	if(Cfg.norule == 1) x.push($case([ch.krau, 'td ul', ch.gazo, '.chui'], '.rules') + ' {display:none}');
 	if(Cfg.mask == 1) x.push(
-		'#DESU_ytube, img[id="DESU_preimg"], img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
-		#DESU_ytube:hover, img[id="DESU_preimg"]:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
+		'.DESU_ytube, img[id="DESU_preimg"], img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
+		.DESU_ytube:hover, img[id="DESU_preimg"]:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
 	);
 	if(kusaba) x.push(
 		'.extrabtns, .ui-resizable-handle, div[id*=oppost] > a[onclick]:not([target]) {display:none !important}\
@@ -1928,6 +1938,31 @@ function addPostButtons(post) {
 
 /*----------------------------HTML links players-----------------------------*/
 
+function addYouTubeEmbed(el, id) {
+	el.innerHTML = Cfg.yhtml5 == 1
+		? '<iframe type="text/html" src="http://www.youtube.com/embed/'
+			+ id + '" frameborder="0" width="320" height="240" />'
+		: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/'
+			+ id + '" wmode="transparent" width="320" height="240" />';
+}
+
+function addYouTubePreview(el, id) {
+	el.innerHTML = '<img src="http://i.ytimg.com/vi/' + id + '/0.jpg" width="320" height="240" />';
+	$event($1(el), {'click': function() { addYouTubeEmbed($up(this), id); }});
+}
+
+function clickYouTubeLink(e) {
+	$pD(e);
+	var el = $x('.//div[@class="DESU_ytube"]', getPost(this));
+	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?v=|v\/)|\.be\/)([^&]+).*$/;
+	var id = this.href.match(pattern)[1];
+	if($xb('.//node()[self::embed or self::iframe][contains(@src,"' + id + '")]', el))
+		el.innerHTML = '';
+	else if(Cfg.ytube == 3 && !$xb('.//img[contains(@src,"' + id + '")]', el))
+		addYouTubePreview(el, id);
+	else addYouTubeEmbed(el, id);
+}
+
 function addLinkTube(post) {
 	if(Cfg.ytube == 0) return;
 	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?v=|v\/)|\.be\/)([^&]+).*$/;
@@ -1941,28 +1976,26 @@ function addLinkTube(post) {
 	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
 		if(!pattern.test(link.href)) return;
+		var id = link.href.match(pattern)[1];
 		var pst = post || getPost(link);
-		var el = $x('.//div[@id="DESU_ytube"]', pst);
-		var yid = link.href.match(pattern)[1];
-		var htm = Cfg.ytube == 3
-			? '<a href="' + link.href + '" target="_blank"><img src="http://i.ytimg.com/vi/'
-				+ yid + '/0.jpg" width="320" height="240" /></a>'
-			: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/'
-				+ yid + '" wmode="transparent" width="320" height="240" />';
+		var el = $x('.//div[@class="DESU_ytube"]', pst);
 		if(!el) {
-			el = $new('div', {'id': 'DESU_ytube'});
-			if(Cfg.ytube != 1) el.innerHTML = htm;
+			el = $new('div', {'class': 'DESU_ytube'});
+			if(Cfg.ytube == 3) addYouTubePreview(el, id);
+			if(Cfg.ytube == 2) addYouTubeEmbed(el, id);
 			var msg = pst.Msg || $x(xPostMsg, pst);
 			if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
-		$after(link, [$add('<span id="DESU_ybtn"><b> ' + unescape('%u25BA') + '</b></span>', {
-			'click': function(htm, obj) { return function() {
-				var el = $1(obj);
-				if(el && el.src == htm.match(/(?:src=")([^"]+)(?:")/)[1]) $del(el);
-				else obj.innerHTML = htm;
-			}}(htm, el)
-		})]);
+		link.className = 'DESU_ytlink';
+		$event(link, {'click': clickYouTubeLink});
+		if(!nav.Opera && Cfg.ytitle == 1) AJAX('https://gdata.youtube.com/feeds/api/videos/' + id
+			+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
+			null, null, function() {
+				//$alert(ajaxPosts[0]);
+				link.textContent = JSON.parse(ajaxPosts[0]).entry.title.$t;
+			}
+		);
 	}, true);
 }
 
@@ -1972,9 +2005,9 @@ function addLinkMP3(post) {
 		if(!(link.target == '_blank' || link.rel == 'nofollow')) return;
 		var src = link.href;
 		var pst = post || getPost(link);
-		var el = $x('.//div[@id="DESU_mp3"]', pst);
+		var el = $x('.//div[@class="DESU_mp3"]', pst);
 		if(!el) {
-			el = $new('div', {'id': 'DESU_mp3'});
+			el = $new('div', {'class': 'DESU_mp3'});
 			var msg = pst.Msg || $x(xPostMsg, pst);
 			if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
@@ -2290,7 +2323,7 @@ function AJAX(url, b, tNum, fn) {
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState != 4) return;
 		if(xhr.status == 200) {
-			if(!/^http:\/\//.test(url)) parseHTMLdata(xhr.responseText);
+			if(!/^https?:\/\//.test(url)) parseHTMLdata(xhr.responseText);
 			else ajaxPosts[0] = xhr.responseText;
 			fn();
 		}
