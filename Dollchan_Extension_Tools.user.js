@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.18.0
+// @version			12.1.18.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1804,7 +1804,7 @@ function getImages(post) {
 }
 
 function getImgInfo(post) {
-	return $x('.//span[@class="filesize"]|.//node()[@class="fileinfo"]', post);
+	return $x('.//em|.//span[@class="filesize"]|.//node()[@class="fileinfo"]', post);
 }
 
 function getText(el) {
@@ -1873,7 +1873,7 @@ function addPostButtons(post) {
 	var ref = $x(xPostRef, post);
 	$after(ref, [post.Btns]);
 	if(pr.on && Cfg.insnum == 1) {
-		if(ch.nul) $each($X('.//a', ref), function(el) { $rattr(el, 'onclick'); });
+		if(ch.nul || ch.futr) $each($X('.//a', ref), function(el) { $rattr(el, 'onclick'); });
 		$event(ref, {'click': insertRefLink});
 	}
 	if(Cfg.viewhd == 1) $event(ref, {
@@ -2062,7 +2062,8 @@ function addLinkImg(post) {
 
 function expandPostImg(a, post, isExp) {
 	if(!/\.jpg|\.jpeg|\.png|.\gif/i.test(a.href)) return;
-	var sz = getImgSize(post.Img.snapshotLength > 1 ? $x('ancestor::div[1]', a) : post);
+	var sz = getImgSize(post.Img.snapshotLength > 1
+		? $x('ancestor::node()[self::div or self::td][1]', a) : post);
 	addFullImg(a, parseInt(sz[0]), parseInt(sz[1]), isExp);
 }
 
