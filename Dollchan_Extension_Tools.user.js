@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.18.2
+// @version			12.1.18.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -250,7 +250,7 @@ var Visib = [], Expires = [], Favor = [], refMap = [];
 var Spells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
-var kusaba, hanab, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
+var kusaba, hanab, abu, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
 var cssFix, xDelForm, xPostRef, xPostMsg;
 var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
@@ -909,7 +909,7 @@ function addSettings() {
 		$New('div', [
 			lBox('ospoil', Lng.openSpoilers, scriptCSS),
 			lBox('noname', Lng.hideNames, scriptCSS),
-			$if(ch.so, lBox('noscrl', Lng.noScroll, scriptCSS))
+			$if(abu, lBox('noscrl', Lng.noScroll, scriptCSS))
 		]),
 		$New('div', [lBox('mp3', Lng.mp3Embed), lBox('addimg', Lng.imgEmbed)]),
 		$New('div', [
@@ -1322,7 +1322,7 @@ function doChanges() {
 			}
 		});
 	} else window.scrollTo(0, 0);
-	if(ch.so) {
+	if(abu) {
 		$Del('.//*[starts-with(@id,"ABU_")]|.//small[starts-with(@id,"rfmap")]', dForm);
 		var el = $id('linkThreadUpdate');
 		if(el) { $del(el.previousSibling); $del(el.nextSibling); $del(el); }
@@ -1486,7 +1486,7 @@ function iframeLoad(e) {
 		var xp, err, path = frm.location.pathname, host = frm.location.hostname;
 		if(hanab && /error/.test(path)) xp = './/td[@class="post-error"]';
 		if(ch.krau && path == '/post') xp = './/td[starts-with(@class,"message_text")]';
-		if(ch.so && !frm.getElementById('delform')) xp = './/font[@size="5"]';
+		if(abu && !frm.getElementById('delform')) xp = './/font[@size="5"]';
 		if(xp || !$t('form', frm)) {
 			var txt = '';
 			if(kusaba) xp = './/h1|.//h2|.//div[contains(@style,"1.25em")]';
@@ -1593,7 +1593,7 @@ function tfBtn(id, title, wktag, bbtag, val) {
 	if(val != '&gt;') $event(btn, {'click': function(e) {
 		$pD(e);
 		var tag1, tag2;
-		if(kusaba || ch.so || ch.krau || ch.fch && wktag == '%%') {
+		if(kusaba || abu || ch.krau || ch.fch && wktag == '%%') {
 			tag1 = '[' + bbtag + ']';
 			tag2 = '[/' + bbtag + ']';
 		} else tag1 = tag2 = wktag;
@@ -1752,7 +1752,7 @@ function scriptCSS() {
 		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
 	);
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
-	if(ch.so) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
+	if(abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(ch.nul) x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(ch.gazo) x.push(
@@ -3122,7 +3122,6 @@ function initBoard() {
 		fch:	dm == '4chan.org',
 		gazo:	dm == '2chan.net',
 		nul:	dm == '0chan.ru',
-		so:		dm == '2ch.so',
 		_7ch:	dm == '7chan.org',
 		_410:	dm == '410chan.ru',
 		sib:	dm == 'sibirchan.ru',
@@ -3136,8 +3135,9 @@ function initBoard() {
 		ment:	dm == '02ch.org' || dm == '02ch.net',
 		futr:	dm == '2chan.su'
 	};
-	hanab = $xb('.//script[contains(@src,"hanabira")]');
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
+	hanab = $xb('.//script[contains(@src,"hanabira")]');
+	abu = $xb('.//script[contains(@src,"wakaba_new.js")]');
 	tinyb = $xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]');
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	xDelForm = './/form[' + $case([
@@ -3200,7 +3200,7 @@ function initBoard() {
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]');
 	$Del('preceding-sibling::node()' + (ch.fch ? '[not(self::center)]' : '')
 		+ '[preceding-sibling::*[descendant-or-self::*['
-		+ (ch.so ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]', dForm);
+		+ (abu ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]', dForm);
 	if(ch.krau) { $del($t('hr', dForm)); $del($t('hr', $prev(dForm))); }
 	return true;
 }
