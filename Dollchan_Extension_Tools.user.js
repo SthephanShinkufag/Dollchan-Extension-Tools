@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.19.1
+// @version			12.1.19.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1451,10 +1451,9 @@ function doPostformChanges() {
 		var sageBtn = $new('span', {'id': 'DESU_sagebtn'}, {
 			'click': function(e) { e.stopPropagation(); $pD(e); toggleCfg('issage'); doSageBtn(); }
 		});
-		var lb = $x('ancestor::label', pr.mail);
-		if(lb) { $disp(lb); $after(lb, [sageBtn]); }
-		else if(pr.name) { $disp($x(pr.tr, pr.mail)); $after(pr.name, [sageBtn]); }
-		else { $disp(pr.mail); $after(pr.mail, [sageBtn]); }
+		var m = $x('ancestor::label', pr.mail) || pr.mail;
+		if($next(m) || $prev(m)) { $disp(m); $after(m, [sageBtn]); }
+		else { $disp($x(pr.tr, pr.mail)); $after(pr.name || pr.file, [sageBtn]); }
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify == 1) {
@@ -1737,7 +1736,7 @@ function scriptCSS() {
 	if(Cfg.noname == 1) x.push('.commentpostername, .postername, .postertrip {display:none}');
 	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
 	if(Cfg.noscrl == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
-	if(Cfg.norule == 1) x.push($case([ch.krau, 'td ul', ch.gazo, '.chui'], '.rules') + ' {display:none}');
+	if(Cfg.norule == 1) x.push((ch.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' {display:none}');
 	if(Cfg.mask == 1) x.push(
 		'.DESU_preimg, .DESU_ytube, img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
 		.DESU_preimg:hover, .DESU_ytube:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
@@ -3130,7 +3129,6 @@ function initBoard() {
 		tire:	dm == '2--ch.ru',
 		dfwk:	dm == 'dfwk.ru',
 		pony:	dm == 'ponychan.net',
-		zadr:	dm == 'zadraw.ch',
 		vomb:	dm == 'vombatov.net',
 		ment:	dm == '02ch.org' || dm == '02ch.net',
 		futr:	dm == '2chan.su'
@@ -3252,7 +3250,7 @@ function parseDelform(node) {
 }
 
 function initDelform() {
-	if(!ch.nul) dForm.id = '';
+	dForm.id = '';
 	$disp(dForm);
 	try { parseDelform(dForm); } catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
