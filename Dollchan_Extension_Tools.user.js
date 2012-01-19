@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.18.3
+// @version			12.1.19.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-18',
+	version:	'2012-01-19',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -1448,19 +1448,13 @@ function doPostformChanges() {
 		}
 	}
 	if(Cfg.sagebt == 1 && pr.mail) {
-		$disp(pr.mail);
-		if(pr.name) {
-			$delNx(pr.name);
-			var mail_tr = $x(pr.tr, pr.mail);
-			$after(pr.name, [pr.mail]);
-			$del(mail_tr);
-		}
-		$delNx(pr.mail);
-		$up(pr.mail).appendChild($new('span', {'id': 'DESU_sagebtn'}, {'click': function(e) {
-			e.stopPropagation(); $pD(e);
-			toggleCfg('issage');
-			doSageBtn();
-		}}));
+		var sageBtn = $new('span', {'id': 'DESU_sagebtn'}, {
+			'click': function(e) { e.stopPropagation(); $pD(e); toggleCfg('issage'); doSageBtn(); }
+		});
+		var lb = $x('ancestor::label', pr.mail);
+		if(lb) { $disp(lb); $after(lb, [sageBtn]); }
+		else if(pr.name) { $disp($x(pr.tr, pr.mail)); $after(pr.name, [sageBtn]); }
+		else { $disp(pr.mail); $after(pr.mail, [sageBtn]); }
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify == 1) {
@@ -1823,6 +1817,8 @@ function isSage(post) {
 	if(!pr.mail) return false;
 	if(hanab) return $xb('.//img[@alt="Сажа"]', post);
 	else if(ch.krau) return $xb('.//span[@class="sage"]', post);
+	else if(ch._410) return $xb('.//span[@class="filetitle" and contains(text(),"'
+		+ unescape('%u21E9') + '")]', post);
 	else {
 		var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
 		return a && /sage/i.test(a.href);
@@ -3087,8 +3083,10 @@ function replyForm(f) {
 	this.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', f);
 	var pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', f);
-	this.mail = $x(pre + '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]', f);
-	if(ch.futr) this.mail = $id('email');
+	this.mail = $x(pre + $case([
+		ch._410, '@name="sage"]',
+		ch.futr, '@name="denshimeru"]',
+	], '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'), f);
 }
 
 function fixDomain() {
