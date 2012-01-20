@@ -247,7 +247,7 @@ var Cfg = [], Lng = {}, Stat = {};
 var doc = document;
 var Posts = [], oPosts = [], pByNum = [];
 var Visib = [], Expires = [], Favor = [], refMap = [];
-var pSpells = {}, tSpells = {}, spellsList = [];
+var pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
 var kusaba, hanab, abu, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
@@ -1365,7 +1365,7 @@ function doPostformChanges() {
 			if(btn) storeFavorities(pByNum[pr.tNum], btn);
 		}
 		var txt = pr.txta.value;
-		pr.txta.value = (Cfg.spells == 0 || !pSpells.outrep[0] ? txt : doReplace(pSpells.outrep, txt))
+		pr.txta.value = (Cfg.spells == 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
 		if(pr.tNum) Stat.reply = parseInt(Stat.reply) + 1;
 		else Stat.op = parseInt(Stat.op) + 1;
@@ -2650,13 +2650,14 @@ function processHidden(newCfg, oldCfg) {
 
 function initSpells() {
 	pSpells = {
-		words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [], skip: [],
-		num: [], sage: false, notxt: false, noimg: false, trip: false, outrep: []
+		words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
+		sage: false, notxt: false, noimg: false, trip: false
 	};
+	oSpells = { skip: [], num: [], outrep: [] };
 	if (isMain) {
 		tSpells = {
-			words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [], skip: [],
-			num: [], sage: false, notxt: false, noimg: false, trip: false, outrep: []
+			words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
+			sage: false, notxt: false, noimg: false, trip: false
 		};
 	}
 	var i = spellsList.length;
@@ -2687,7 +2688,7 @@ function initSpells() {
 				var j = s.length;
 				while(j--) {
 					if(s[j].indexOf('-') < 0) s[j] += '-' + s[j];
-					Spells.skip.push(s[j]);
+					oSpells.skip.push(s[j]);
 				}
 			}
 			if(t == '#num') {
@@ -2695,7 +2696,7 @@ function initSpells() {
 				var j = s.length;
 				while(j--) {
 					if(s[j].indexOf('-') < 0) s[j] += '-' + s[j];
-					Spells.num.push(s[j]);
+					oSpells.num.push(s[j]);
 				}
 			}
 		}
@@ -2710,7 +2711,7 @@ function initSpells() {
 		if(t == '#notxt') Spells.notxt = true;
 		if(t == '#noimg') Spells.noimg = true;
 		if(t == '#trip') Spells.trip = true;
-		if(t == '#outrep') Spells.outrep.push(x.substr(8));
+		if(t == '#outrep') oSpells.outrep.push(x.substr(8));
 	}
 }
 
@@ -2802,13 +2803,13 @@ function toggleSpells() {
 }
 
 function getSpells(Spells, post) {
-	var pName, pTrip, pTitle, pHtm, x, t, i;
+	var pName, pTrip, pTitle, pHtm, t, i;
 	var x = Spells;
 	post.noHide = false;
-	if(x.skip[0] && !isMain) {
-		i = x.skip.length;
+	if(oSpells.skip[0] && !isMain) {
+		i = oSpells.skip.length;
 		while(i--) {
-			t = x.skip[i].split('-');
+			t = oSpells.skip[i].split('-');
 			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1])) {
 				post.noHide = true;
 				return;
@@ -2860,12 +2861,12 @@ function getSpells(Spells, post) {
 			}
 		}
 	}
-	if(x.num[0]) {
-		i = x.num.length;
+	if(oSpells.num[0]) {
+		i = oSpells.num.length;
 		while(i--) {
-			t = x.num[i].split('-');
+			t = oSpells.num[i].split('-');
 			if(post.Count >= parseInt(t[0]) && post.Count <= parseInt(t[1]))
-				return '#num ' + x.num[i];
+				return '#num ' + oSpells.num[i];
 		}
 	}
 	if(x.tmax[0]) {
