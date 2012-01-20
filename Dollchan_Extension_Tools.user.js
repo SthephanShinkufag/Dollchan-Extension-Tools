@@ -2650,13 +2650,13 @@ function processHidden(newCfg, oldCfg) {
 
 function initSpells() {
 	pSpells = {
-		words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
+		words: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
 		sage: false, notxt: false, noimg: false, trip: false
 	};
-	oSpells = { skip: [], num: [], outrep: [] };
+	oSpells = { rep: [], skip: [], num: [], outrep: [] };
 	if (isMain) {
 		tSpells = {
-			words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
+			words: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
 			sage: false, notxt: false, noimg: false, trip: false
 		};
 	}
@@ -2700,7 +2700,7 @@ function initSpells() {
 				}
 			}
 		}
-		if(t == '#rep') Spells.rep.push(x.substr(5));
+		if(t == '#rep') oSpells.rep.push(x.substr(5));
 		if(t == '#exp') Spells.exp.push(strToRegexp(x.substr(5)));
 		if(t == '#exph') Spells.exph.push(strToRegexp(x.substr(6)));
 		if(t == '#img') Spells.img.push(x.substr(5));
@@ -2727,8 +2727,8 @@ function doReplace(arr, txt) {
 function htmlReplace(txt) {
 	if(ch.fch || ch.krau)
 		txt = txt.replace(/(^|>|\s)(https*:\/\/.*?)($|<|\s)/ig, '$1<a href="$2">$2</a>$3');
-	if(Cfg.spells == 0 || !pSpells.rep[0]) return txt;
-	return doReplace(pSpells.rep, txt);
+	if(Cfg.spells == 0 || !oSpells.rep[0]) return txt;
+	return doReplace(oSpells.rep, txt);
 }
 
 function verifyRegExp(txt) {
