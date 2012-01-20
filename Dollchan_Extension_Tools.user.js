@@ -247,7 +247,7 @@ var Cfg = [], Lng = {}, Stat = {};
 var doc = document;
 var Posts = [], oPosts = [], pByNum = [];
 var Visib = [], Expires = [], Favor = [], refMap = [];
-var Spells = {}, spellsList = [];
+var pSpells = {}, tSpells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
 var kusaba, hanab, abu, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
@@ -1771,10 +1771,14 @@ function forPosts(fn) {
 		fn(post);
 }
 
-function forAll(fn) {
-	forPosts(fn);
+function forThreads(fn) {
 	for(var post, i = 0; post = oPosts[i++];)
 		fn(post);
+}
+
+function forAll(fn) {
+	forPosts(fn);
+	forThreads(fn);
 }
 
 function getThread(el) {
@@ -2509,8 +2513,13 @@ function loadPages(len) {
 =============================================================================*/
 
 function doPostFilters(post) {
-	hidePostsByWipe(post);
-	if(Cfg.spells == 1) hidePostsBySpells(post);
+	hidePostByWipe(post);
+	if(Cfg.spells == 1) hidePostBySpells(post);
+}
+
+function doPostsFilters() {
+	hidePostsByWipe();
+	if(Cfg.spells == 1) hidePostsBySpells();
 }
 
 function hideThread(post, note) {
@@ -2576,7 +2585,7 @@ function unhidePost(post) {
 		if(detectWipe(post) != null) return;
 		setPostVisib(post, 1);
 		$del($x('.//a[@class="DESU_postnote"]', post));
-		hidePostsByWipe(post);
+		hidePostByWipe(post);
 	} else if(Cfg.filthr == 1) unhideThread(post);
 }
 
@@ -2640,13 +2649,21 @@ function processHidden(newCfg, oldCfg) {
 /*----------------------Hide/change posts by expressions---------------------*/
 
 function initSpells() {
-	Spells = {
+	pSpells = {
 		words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [], skip: [],
 		num: [], sage: false, notxt: false, noimg: false, trip: false, outrep: []
 	};
+	if (isMain) {
+		tSpells = {
+			words: [], rep: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [], skip: [],
+			num: [], sage: false, notxt: false, noimg: false, trip: false, outrep: []
+		};
+	}
 	var i = spellsList.length;
 	var x, t, b, n;
+	var Spells;
 	while(i--) {
+		Spells = pSpells;
 		x = spellsList[i].toString();
 		if(/^#(?:[^\s]+\/)?(?:\d+)? /.test(x)) {
 			b = x.match(/^#([^\/]+)\//);
@@ -2655,6 +2672,12 @@ function initSpells() {
 				|| !isMain && !b && n && n[1] == TNum || b && !n && b[1] == brd)
 				x = x.replace(/^#[^\s]+ /, '');
 			else continue;
+		}
+		if(/^#op /.test(x)) {
+			if(isMain) {
+				Spells = tSpells;
+				x = x.substr(4);
+			} else continue;
 		}
 		if(!/^#/.test(x)) { Spells.words.push(x); continue; }
 		t = x.split(' ')[0];
@@ -2703,8 +2726,8 @@ function doReplace(arr, txt) {
 function htmlReplace(txt) {
 	if(ch.fch || ch.krau)
 		txt = txt.replace(/(^|>|\s)(https*:\/\/.*?)($|<|\s)/ig, '$1<a href="$2">$2</a>$3');
-	if(Cfg.spells == 0 || !Spells.rep[0]) return txt;
-	return doReplace(Spells.rep, txt);
+	if(Cfg.spells == 0 || !pSpells.rep[0]) return txt;
+	return doReplace(pSpells.rep, txt);
 }
 
 function verifyRegExp(txt) {
@@ -2719,11 +2742,17 @@ function verifyRegExp(txt) {
 	return null;
 }
 
-function hidePostsBySpells(post) {
-	var exp = getSpells(post);
+function hidePostBySpells(Spells, post) {
+	var exp = getSpells(Spells, post);
 	if(post.Vis == 0) {
 		if(post.noHide) unhidePost(post);
 	} else if(exp) hidePost(post, exp.substring(0, 30));
+}
+
+function hidePostsBySpells() {
+	if(isMain)
+		forThreads(function(post) { hidePostBySpells(tSpells, post); });
+	forAll(function(post) { hidePostBySpells(pSpells, post); });
 }
 
 function applySpells(txt) {
@@ -2741,9 +2770,11 @@ function applySpells(txt) {
 	var wrong = verifyRegExp(val);
 	if(wrong) { $alert(Lng.error + ' ' + wrong); return; }
 	if(fld) { fld.value = val; $id('DESU_spelledit_ch').checked = val != ''; }
-	forAll(function(post) { if(getSpells(post)) unhidePost(post); })
+	if(isMain)
+		forThreads(function(post) { if(getSpells(tSpells, post)) unhidePost(post); })
+	forAll(function(post) { if(getSpells(pSpells, post)) unhidePost(post); })
 	saveSpells(val);
-	if(val != '') { saveCfg('spells', 1); forAll(hidePostsBySpells); }
+	if(val != '') { saveCfg('spells', 1); hidePostsBySpells(); }
 	else saveCfg('spells', 0);
 	storeHiddenPosts();
 }
@@ -2756,8 +2787,12 @@ function toggleSpells() {
 	if(!wrong) saveSpells(val);
 	if(val != '' && !wrong) {
 		if(fld) fld.value = val;
-		if(Cfg.spells == 1) forAll(hidePostsBySpells);
-		else forAll(function(post) { if(getSpells(post)) unhidePost(post); })
+		if(Cfg.spells == 1) hidePostsBySpells();
+		else {
+			if(isMain)
+				forThreads(function(post) { if(getSpells(tSpells, post)) unhidePost(post); })
+			forAll(function(post) { if(getSpells(pSpells, post)) unhidePost(post); })
+		}
 		storeHiddenPosts();
 	} else {
 		if(wrong) $alert(Lng.error + ' ' + wrong);
@@ -2766,7 +2801,7 @@ function toggleSpells() {
 	}
 }
 
-function getSpells(post) {
+function getSpells(Spells, post) {
 	var pName, pTrip, pTitle, pHtm, x, t, i;
 	var x = Spells;
 	post.noHide = false;
@@ -2934,11 +2969,15 @@ function detectWipe(post) {
 	}
 }
 
-function hidePostsByWipe(post) {
+function hidePostByWipe(post) {
 	if(post.Vis == 0 || post.Vis == 1) return;
 	var note = detectWipe(post);
 	if(note != null) hidePost(post, note);
 	else applyPostVisib(post, 1);
+}
+
+function hidePostsByWipe() {
+	forAll(hidePostByWipe);
 }
 
 function detectWipe_sameLines(txt) {
@@ -3304,7 +3343,7 @@ function doScript() {
 	forAll(addPostButtons);			Log('addPostButtons');
 	eventRefLink();					Log('eventRefLink');
 	addRefMap();					Log('addRefMap');
-	forAll(doPostFilters);			Log('doPostFilters');
+	doPostsFilters();				Log('doPostFilters');
 	storeHiddenPosts();				Log('storeHiddenPosts');
 	initNewPosts();					Log('initNewPosts');
 	if(Cfg.delhd == 1)
