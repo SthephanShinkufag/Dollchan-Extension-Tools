@@ -1365,7 +1365,7 @@ function doPostformChanges() {
 			if(btn) storeFavorities(pByNum[pr.tNum], btn);
 		}
 		var txt = pr.txta.value;
-		pr.txta.value = (Cfg.spells == 0 || !Spells.outrep[0] ? txt : doReplace(Spells.outrep, txt))
+		pr.txta.value = (Cfg.spells == 0 || !pSpells.outrep[0] ? txt : doReplace(pSpells.outrep, txt))
 			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
 		if(pr.tNum) Stat.reply = parseInt(Stat.reply) + 1;
 		else Stat.op = parseInt(Stat.op) + 1;
