@@ -2514,7 +2514,7 @@ function loadPages(len) {
 
 function doPostFilters(post) {
 	hidePostByWipe(post);
-	if(Cfg.spells == 1) hidePostBySpells(post);
+	if(Cfg.spells == 1) hidePostBySpells(pSpells, post);
 }
 
 function doPostsFilters() {
