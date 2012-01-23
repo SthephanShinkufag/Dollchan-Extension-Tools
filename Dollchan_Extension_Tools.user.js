@@ -2091,7 +2091,7 @@ function eventPostImg(post) {
 
 function getRefMap(pNum, rNum) {
 	if(!refMap[rNum]) refMap[rNum] = [];
-	if((',' + refMap[rNum].toString() + ',').indexOf(',' + pNum + ',') < 0) refMap[rNum].push(pNum);
+	if(refMap[rNum].indexOf(pNum) < 0) refMap[rNum].push(pNum);
 }
 
 function showRefMap(post, rNum, isUpd) {
