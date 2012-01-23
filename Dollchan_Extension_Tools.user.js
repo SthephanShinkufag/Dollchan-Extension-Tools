@@ -36,6 +36,7 @@ var defaultCfg = {
 	navfix:		1,		//		previews placed by [0=mouse, 1=link]
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		no hidden posts in refmap
+	navstr:		0,		//		strike hidden posts in refmap
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
 	expost:		2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	insnum:		1,		// insert >>link on postnumber click
@@ -127,6 +128,7 @@ var LngArray = {
 	delayPreview:	['Задержка пропадания превью', 'Delay disappearance'],
 	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 	hidRefmap:		['Без скрытых постов в карте ответов*', 'No hidden posts in refmap*'],
+	strRefmap:		['Зачёркивать скрытые посты в карте ответов*', 'Strike hidden posts in refmap*'],
 	expandPosts:	['загрузка сокращенных постов*', 'upload of shorted posts*'],
 	selClickAuto:	[
 		['Откл.', 'Авто', 'По клику'],
@@ -896,7 +898,8 @@ function addSettings() {
 			divBox('navfix', Lng.fixedPreview),
 			divBox('navdel', Lng.delayPreview),
 			divBox('navmrk', Lng.markViewed),
-			divBox('navhid', Lng.hidRefmap)
+			divBox('navhid', Lng.hidRefmap),
+			divBox('navstr', Lng.strRefmap)
 		], {'id': 'DESU_pviewbox', 'style': 'display:none; padding-left:15px'}),
 		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
 		$if(!hanab, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
@@ -2088,7 +2091,7 @@ function eventPostImg(post) {
 
 function getRefMap(pNum, rNum) {
 	if(!refMap[rNum]) refMap[rNum] = [];
-	if((',' + refMap[rNum].toString() + ',').indexOf(',' + pNum + ',') < 0) refMap[rNum].push(pNum);
+	if(refMap[rNum].indexOf(pNum) < 0) refMap[rNum].push(pNum);
 }
 
 function showRefMap(post, rNum, isUpd) {
@@ -2113,6 +2116,7 @@ function addRefMap(post) {
 		if(pByNum[rNum] && pst) {
 			var pNum = pst.id.match(/\d+/);
 			if(Cfg.navhid == 1 && pByNum[pNum].Vis == 0) return;
+			if(Cfg.navstr == 1 && pByNum[pNum].Vis == 0) pNum = '<s>' + pNum + '</s>';
 			getRefMap(pNum, rNum);
 		}
 	}, true);
