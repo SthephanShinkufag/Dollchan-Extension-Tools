@@ -36,6 +36,7 @@ var defaultCfg = {
 	navfix:		1,		//		previews placed by [0=mouse, 1=link]
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		no hidden posts in refmap
+	navstr:		0,		//		strike hidden posts in refmap
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
 	expost:		2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	insnum:		1,		// insert >>link on postnumber click
@@ -127,6 +128,7 @@ var LngArray = {
 	delayPreview:	['Задержка пропадания превью', 'Delay disappearance'],
 	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 	hidRefmap:		['Без скрытых постов в карте ответов*', 'No hidden posts in refmap*'],
+	strRefmap:		['Зачёркивать скрытые посты в карте ответов*', 'Strike hidden posts in refmap*'],
 	expandPosts:	['загрузка сокращенных постов*', 'upload of shorted posts*'],
 	selClickAuto:	[
 		['Откл.', 'Авто', 'По клику'],
@@ -896,7 +898,8 @@ function addSettings() {
 			divBox('navfix', Lng.fixedPreview),
 			divBox('navdel', Lng.delayPreview),
 			divBox('navmrk', Lng.markViewed),
-			divBox('navhid', Lng.hidRefmap)
+			divBox('navhid', Lng.hidRefmap),
+			divBox('navstr', Lng.strRefmap)
 		], {'id': 'DESU_pviewbox', 'style': 'display:none; padding-left:15px'}),
 		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
 		$if(!hanab, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
@@ -2117,6 +2120,7 @@ function addRefMap(post) {
 		if(pByNum[rNum] && pst) {
 			var pNum = pst.id.match(/\d+/);
 			if(Cfg.navhid == 1 && pByNum[pNum].Vis == 0) return;
+			if(Cfg.navstr == 1 && pByNum[pNum].Vis == 0) pNum = '<s>' + pNum + '</s>';
 			getRefMap(pNum, rNum);
 		}
 	}, true);
@@ -2555,6 +2559,14 @@ function setPostVisib(post, vis) {
 		else unhideThread(post);
 	} else {
 		$1(post.Btns).className = (vis == 0) ? 'DESU_icn_unhide' : 'DESU_icn_hide';
+		if(post.Vis == 1 && Cfg.navstr == 1)
+			for(var rNum in refMap) {
+				var i = refMap[rNum].indexOf('<s>' + post.Num + '</s>');
+				if(i >= 0) {
+					refMap[rNum][i] = post.Num;
+					showRefMap(pByNum[rNum], rNum, true);
+				}
+			}
 		togglePost(post, vis);
 		applyPostVisib(post, vis);
 	}
