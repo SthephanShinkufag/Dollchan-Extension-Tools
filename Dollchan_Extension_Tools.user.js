@@ -1622,9 +1622,9 @@ function scriptCSS() {
 		#DESU_iframe {display:none; width:0px; height:0px; border:none}\
 		#DESU_panel {height:25px; z-index:9999; ' + pre + cssFix + 'border-radius:15px 0 0 0; cursor:default}\
 		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + cssFix + 'border-radius:5px}\
-		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid #68b}\
-		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #a0a0a0}\
-		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid #68b; color:#fff; font:18px serif}\
+		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid #79c}\
+		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #9be}\
+		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid #79c; color:#fff; font:18px serif}\
 		#DESU_sett_body {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
 		#DESU_sett_head {padding:3px; ' + pre + cssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
 		#DESU_sett_main {padding:7px; margin:0; border:1px solid grey; font:13px sans-serif}\
