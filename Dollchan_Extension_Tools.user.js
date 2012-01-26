@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.26.1
+// @version			12.1.26.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1435,9 +1435,7 @@ function doPostformChanges() {
 		var load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 		$after($id('DESU_content'), [
 			$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
-				load: function(e) {
-					setTimeout(function(frm) { return function() { iframeLoad(frm); }}(e.target), 500);
-				}
+				load: function() { setTimeout(iframeLoad, 500); }
 			}
 		)]);
 		$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
@@ -1447,8 +1445,8 @@ function doPostformChanges() {
 
 /*------------------------------Onsubmit reply check-------------------------*/
 
-function iframeLoad(frm) {
-	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
+function iframeLoad() {
+	try { frm = $id('DESU_iframe').contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
 	var xp, err, path = frm.location.pathname, host = frm.location.hostname;
 	if(hanab && /error/.test(path)) xp = './/td[@class="post-error"]';
