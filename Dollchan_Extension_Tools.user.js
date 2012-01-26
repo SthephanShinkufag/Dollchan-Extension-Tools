@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.26.2
+// @version			12.1.26.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1446,7 +1446,8 @@ function doPostformChanges() {
 /*------------------------------Onsubmit reply check-------------------------*/
 
 function iframeLoad() {
-	try { frm = $id('DESU_iframe').contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
+	var frm = $id('DESU_iframe');
+	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
 	var xp, err, path = frm.location.pathname, host = frm.location.hostname;
 	if(hanab && /error/.test(path)) xp = './/td[@class="post-error"]';
