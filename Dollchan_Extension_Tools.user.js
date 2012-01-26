@@ -249,7 +249,7 @@ var Visib = [], Expires = [], Favor = [], refMap = [];
 var pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
-var kusaba, hanab, abu, tinyb, host, dm, brd, res, isMain, TNum, pageNum, docExt, pClass;
+var kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass;
 var cssFix, xDelForm, xPostRef, xPostMsg;
 var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
@@ -556,7 +556,7 @@ function isValidStat(data) {
 function readStat() {
 	var data = getStored('DESU_Stat_' + dm);
 	Stat = isValidStat(data) ? eval(data) : {view: 0, op: 0, reply: 0};
-	if(!isMain) Stat.view = parseInt(Stat.view) + 1;
+	if(TNum) Stat.view = parseInt(Stat.view) + 1;
 	setStored('DESU_Stat_' + dm, uneval(Stat));
 }
 
@@ -578,7 +578,7 @@ function readPostsVisib() {
 				Visib[arr[i*3]] = arr[i*3 + 1];
 				Expires[arr[i*3]] = arr[i*3 + 2];
 			} else setStored(id, arr.splice(i*3, 3).join('-'));
-	} else if(!isMain) {
+	} else if(TNum) {
 		data = getStored(id + '_' + TNum);
 		if(!data) return;
 		for(var i = 0, len = data.length; i < len; i++)
@@ -596,7 +596,7 @@ function storePostsVisib() {
 			arr[arr.length] = key + '-' + Visib[key] + '-' + Expires[key];
 		}
 		setStored(id, arr.join('-'));
-	} else if(!isMain) {
+	} else if(TNum) {
 		id += '_' + TNum;
 		if(!getStored(id)) turnCookies(id);
 		setStored(id, Visib.join(''));
@@ -640,11 +640,6 @@ function storeThreadVisib(post, vis) {
 
 function getFavorKey(post) {
 	return host + '|' + brd + '|' + post.Num + '|';
-}
-
-function getFavorUrl(h, b, tNum) {
-	return 'http://' + h + '/' + b + '/' + (/krautchan\.net/.test(h) ? 'thread-' : 'res/')
-		+ tNum + (/dobrochan\./.test(h) ? '.xhtml' : (/2chan\.net/.test(h) ? '.htm' : '.html'));
 }
 
 function rebuildFavor(val) {
@@ -726,14 +721,14 @@ function addPanel() {
 				}),
 				$new('a', {'id': 'DESU_btn_refresh', 'title': Lng.refresh, 'href': '#'}, {
 					'click': function(e) { $pD(e); window.location.reload(); },
-					'mouseover': function() { if(isMain) selectAjaxPages(); },
+					'mouseover': function() { if(!TNum) selectAjaxPages(); },
 					'mouseout': removeSelMenu
 				}),
 				$new('a', {'id': 'DESU_btn_goback', 'title': Lng.goBack,
 					'href': 'http://' + host + '/' + brd + '/'
 						+ (pageNum > 1 ? ((pageNum - 1).toString() + docExt) : '')
 				}),
-				$if(isMain, $new('a', {'id': 'DESU_btn_gonext', 'title': Lng.goNext,
+				$if(!TNum, $new('a', {'id': 'DESU_btn_gonext', 'title': Lng.goNext,
 					'href': 'http://' + host + '/' + brd + '/'
 						+ (pageNum > 0 ? (pageNum + 1).toString() : 1) + docExt
 				})),
@@ -743,7 +738,7 @@ function addPanel() {
 				$new('a', {'id': 'DESU_btn_godown', 'title': Lng.goDown, 'href': '#'}, {
 					'click': function(e) { $pD(e); window.scrollTo(0, doc.body.offsetHeight); }
 				}),
-				$if(isMain && (pr.on || oeForm), $new('a', {
+				$if(!TNum && (pr.on || oeForm), $new('a', {
 					'id': 'DESU_btn_newthr', 'title': Lng.newThread, 'href': '#'}, {
 					'click': toggleMainReply
 				})),
@@ -760,7 +755,7 @@ function addPanel() {
 					'id': 'DESU_btn_maskimg', 'title': Lng.maskImages, 'href': '#'}, {
 					'click': function(e) { $pD(e); toggleCfg('mask'); scriptCSS(); }
 				})),
-				$if(!isMain && (Cfg.updthr == 1 || Cfg.updthr == 2), $new('a', {
+				$if(TNum && (Cfg.updthr == 1 || Cfg.updthr == 2), $new('a', {
 					'id': 'DESU_btn_updon', 'title': Lng.autoupd, 'href': '#'}, {
 					'click': function(e) {
 						$pD(e);
@@ -769,7 +764,7 @@ function addPanel() {
 					}
 				}))
 			], {'id': 'DESU_panel_btns'}),
-			$if(!isMain, $New('div', [$new('span', {'title': Lng.postsImages,
+			$if(TNum, $New('div', [$new('span', {'title': Lng.postsImages,
 				'text': parseInt(Posts.length + 1) + '/' + imgLen
 			})], {'id': 'DESU_panel_info'}))
 		], {'id': 'DESU_panel'}),
@@ -928,7 +923,7 @@ function addSettings() {
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm),
 			lBox('tform', Lng.noThrForm, function() {
-				if(isMain) pArea.style.display = Cfg.tform ? 'none' : '';
+				if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
 			})
 		])),
 		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
@@ -1007,7 +1002,7 @@ function addHiddenTable() {
 					if(pByNum[pNum]) unhideThread(pByNum[pNum]);
 					storeThreadVisib(pByNum[pNum] || {Num: pNum, Vis: 0}, 1);
 				}}),
-				$add('<a href="http://' + dm + '/' + brd + '/' + res + hThr[i] + docExt
+				$add('<a href="' + getThrdUrl(dm, brd, hThr[i])
 					+ '" target="_blank">&gt;&gt;' + hThr[i] + '</a>')
 			]);
 		table.insertRow(-1).appendChild($new('hr'));
@@ -1087,7 +1082,7 @@ function addFavoritesTable() {
 			b = arr[i*4 + 1];
 			tNum = arr[i*4 + 2];
 			txt = arr[i*4 + 3];
-			url = getFavorUrl(h, b, tNum);
+			url = getThrdUrl(h, b, tNum);
 			if(h != oldh || b != oldb) $append(table.insertRow(-1), [
 				$new('input', {'type': 'checkbox', 'id': h}, {'click': function() {
 					var inp = this;
@@ -1143,7 +1138,7 @@ function addFavoritesTable() {
 			$btn(Lng.clear, function() {
 				$each(list, function(el) {
 					var arr = el.id.split('|');
-					AJAX(getFavorUrl(arr[0], arr[1], arr[2]), null, null, function(err) {
+					AJAX(getThrdUrl(arr[0], arr[1], arr[2]), null, null, function(err) {
 						if(!err) return;
 						removeFavorities(arr[0] + '|' + arr[1] + '|' + arr[2]);
 						rebuildFavor(Favor.join('|'));
@@ -1208,7 +1203,7 @@ function selectSpell(e) {
 				var exp = this.textContent;
 				if(exp == '#b/') exp = '#' + brd + '/ ';
 				if(exp == '#b/itt') {
-					if(!isMain) exp = '#' + brd + '/' + TNum + ' ';
+					if(TNum) exp = '#' + brd + '/' + TNum + ' ';
 					else return;
 				}
 				insertInto($id('DESU_spelledit'), exp);
@@ -1293,7 +1288,7 @@ function setUserPassw() {
 }
 
 function doChanges() {
-	if(!isMain) {
+	if(TNum) {
 		docTitle = '/' + brd + ' - ' + getTitle(oPosts[0]).substring(0, 77);
 		doc.title = docTitle;
 		$event(window, {
@@ -1320,7 +1315,7 @@ function doChanges() {
 			else $Del('.//small[starts-with(@id,"rfmap")]|.//i[@class="abbrev"]', dForm);
 		}, 0);
 	}});
-	if(ch.fch && isMain) $each($X('.//table[@class="pages"]//form'), function(el) {
+	if(ch.fch && !TNum) $each($X('.//table[@class="pages"]//form'), function(el) {
 		$next(el).appendChild($attr(el, {'style': 'margin-bottom:0'}));
 		el.appendChild($prev(el));
 	});
@@ -1334,8 +1329,8 @@ function doChanges() {
 		$New('div', [pr.form, oeForm], {'id': 'DESU_pform'}),
 		$new('hr')
 	], {'id': 'DESU_parea'});
-	if(!isMain && Cfg.pform == 2 || isMain && Cfg.tform == 1) $disp(pArea);
-	if(!isMain && Cfg.pform == 1) $after($t('hr', dForm) || dForm, [pArea]);
+	if(TNum && Cfg.pform == 2 || !TNum && Cfg.tform == 1) $disp(pArea);
+	if(TNum && Cfg.pform == 1) $after($t('hr', dForm) || dForm, [pArea]);
 	else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
 	else if(oeForm) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
@@ -1483,7 +1478,7 @@ function iframeLoad(frm) {
 		if(pr.tNum) {
 			var tNum = pr.tNum;
 			showMainReply();
-			if(isMain) loadThread(pByNum[tNum], 5);
+			if(!TNum) loadThread(pByNum[tNum], 5);
 			else loadNewPosts(true);
 			if(pr.cap) { pr.cap.value = ''; refreshCapImg(tNum); }
 		} else window.location = !ch.fch
@@ -1506,7 +1501,7 @@ function showQuickReply(post) {
 		qArea.appendChild($id('DESU_pform'));
 		$disp($id('DESU_togglereply'));
 		$disp(qArea);
-		if(isMain && !kusaba && !hanab) {
+		if(!TNum && !kusaba && !hanab) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
 			$before($1(pr.form), [$add(
 				'<input type="hidden" id="thr_id" value="' + tNum + '" name="'
@@ -1515,18 +1510,18 @@ function showQuickReply(post) {
 		}
 	} else if($next(post) == qArea) { $disp(qArea); return; }
 	$after(post, [qArea]);
-	if(isMain && Cfg.tform == 1) pArea.style.display = 'none';
+	if(!TNum && Cfg.tform == 1) pArea.style.display = 'none';
 	qArea.style.display = 'block';
 	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !kusaba) refreshCapImg(tNum);
-	if(isMain) toggleQuickReply(tNum);
+	if(!TNum) toggleQuickReply(tNum);
 	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n>$2') + '\n');
 }
 
 function showMainReply() {
 	if(!pr.isQuick) return;
 	pr.isQuick = false;
-	if(isMain) { toggleQuickReply(); $del($x('.//input[@id="thr_id"]', pr.form)); }
+	if(!TNum) { toggleQuickReply(); $del($x('.//input[@id="thr_id"]', pr.form)); }
 	var el = $id('DESU_togglereply');
 	$disp(el);
 	qArea.style.display = 'none';
@@ -1549,8 +1544,8 @@ function insertRefLink(e) {
 	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	var pNum = getPost(e.target).id.match(/\d+/)
-	if(isMain && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
-	if(!isMain && Cfg.pform == 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
+	if(!TNum && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
+	if(TNum && Cfg.pform == 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
 	else insertInto(pr.txta, '>>' + pNum);
 }
 
@@ -1682,7 +1677,7 @@ function scriptCSS() {
 	gif('#DESU_btn_updon','R0lGODlhGQAZAJEAADL/Mv' + pre);
 	gif('#DESU_btn_updoff','R0lGODlhGQAZAJEAAP8yMv' + pre);
 	gif('#DESU_btn_updwarn','R0lGODlhGQAZAJEAAP/0Qf' + pre);
-	if(!isMain) x.push(
+	if(TNum) x.push(
 		'form div.thread {counter-reset:i 1}\
 		form div.thread .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); vertical-align:1px; color:#4f7942; font:italic bold 13px serif; cursor:default}\
 		form div.thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}'
@@ -1844,7 +1839,7 @@ function addPostButtons(post) {
 		});
 	}
 	if(post.isOp){
-		if(isMain) {
+		if(!TNum) {
 			el = el.nextSibling;
 			$event(el, {
 				'click': function(e) { $pD(e); loadThread(post, 1); },
@@ -2226,7 +2221,7 @@ function showPostPreview(e) {
 		'mouseover': function() { if(!pView) pView = this; }
 	});
 	var parent = getPost(e.target);
-	var parentId = $if(parent, parent.id.match(/\d+/));
+	var parentId = parent ? parent.id.match(/\d+/) : null;
 	var post = pByNum[pNum] || ajaxPosts[pNum];
 	if(post) {
 		funcPostPreview(post, parentId);
@@ -2289,7 +2284,7 @@ function parseHTMLdata(html) {
 function AJAX(url, b, tNum, fn) {
 	if(!url) {
 		if(hanab) url = '/api/thread/expand/' + b + '/' + tNum;
-		else url = '/' + (b == '' ? '': b + '/') + res + tNum + docExt;
+		else url = '/' + (b == '' ? '': b + '/') + res + tNum + (!ch.tire ? docExt : '.html');
 	}
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState != 4) return;
@@ -2325,7 +2320,7 @@ function newPost(thr, tNum, i, isDel) {
 	pByNum[pNum] = post;
 	post.Num = pNum;
 	post.Count = i + 1;
-	if(!(sav.cookie && isMain)) post.Vis = getVisib(pNum);
+	if(!(sav.cookie && !TNum)) post.Vis = getVisib(pNum);
 	post.Msg = $x(xPostMsg, post);
 	post.Img = getImages(post);
 	post.isOp = i == 0;
@@ -2497,7 +2492,7 @@ function initPostsUpdate() {
 }
 
 function initNewPosts() {
-	if(isMain) return;
+	if(!TNum) return;
 	initPostsUpdate();
 	if(Cfg.updthr == 2 || Cfg.updthr == 3)
 		$after($x('.//div[@class="thread"]'), [
@@ -2696,18 +2691,18 @@ function initSpells() {
 		if(/^#(?:[^\s]+\/)?(?:\d+)? /.test(x)) {
 			b = x.match(/^#([^\/]+)\//);
 			n = x.match(/(\d+)\s/);
-			if(!isMain && b && n && b[1] == brd && n[1] == TNum
-				|| !isMain && !b && n && n[1] == TNum || b && !n && b[1] == brd)
+			if(TNum && b && n && b[1] == brd && n[1] == TNum
+				|| TNum && !b && n && n[1] == TNum || b && !n && b[1] == brd)
 				x = x.replace(/^#[^\s]+ /, '');
 			else continue;
 		}
 		if(/^#op /.test(x)) {
-			if(isMain) { Spells = tSpells; x = x.substr(4); }
+			if(!TNum) { Spells = tSpells; x = x.substr(4); }
 			else continue;
 		}
 		if(!/^#/.test(x)) { Spells.words.push(x); continue; }
 		t = x.split(' ')[0];
-		if(!isMain) {
+		if(TNum) {
 			if(t == '#skip') {
 				var s = x.substr(6).split(', ');
 				var j = s.length;
@@ -2779,7 +2774,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 function getSpells(x, post) {
 	var pName, pTrip, pTitle, inf, t, i;
 	post.noHide = false;
-	if(oSpells.skip[0] && !isMain) {
+	if(oSpells.skip[0] && TNum) {
 		inf = post.Count;
 		i = oSpells.skip.length;
 		while(i--) {
@@ -2858,7 +2853,7 @@ function getSpells(x, post) {
 }
 
 function checkSpells(post) {
-	if(isMain && post.isOp) return getSpells(tSpells, post) || getSpells(pSpells, post);
+	if(!TNum && post.isOp) return getSpells(tSpells, post) || getSpells(pSpells, post);
 	return getSpells(pSpells, post);
 }
 
@@ -2903,7 +2898,7 @@ function applySpells(txt) {
 	var val = fld ? fld.value : spellsList.join('\n');
 	if(txt) {
 		if(txt.trim() == '') return;
-		if(!isMain) txt = '#' + brd + '/' + TNum + ' ' + txt;
+		if(TNum) txt = '#' + brd + '/' + TNum + ' ' + txt;
 		toggleSpells();
 		var nval = '\n' + val;
 		var ntxt = '\n' + txt;
@@ -3130,6 +3125,11 @@ function replyForm(f) {
 	], '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'), f);
 }
 
+function getThrdUrl(h, b, tNum) {
+	return 'http://' + h + '/' + b + '/' + (/krautchan\.net/.test(h) ? 'thread-' : 'res/')
+		+ tNum + (/dobrochan\./.test(h) ? '.xhtml' : (/2chan\.net/.test(h) ? '.htm' : '.html'));
+}
+
 function fixDomain() {
 	try { doc.domain = dm; } catch(e) { dm = doc.domain; }
 }
@@ -3211,13 +3211,12 @@ function initBoard() {
 		isGlobal: gs || ss
 	};
 	var url = window.location.pathname || '';
-	res = ch.krau ? 'thread-' : 'res/';
 	var a = url.match(/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index)?(\.[xme]*html?)?$/);
 	brd = a[1] || (ch.dfwk ? 'df' : '');
-	isMain = !a[2];
-	if(!isMain) TNum = a[3];
-	pageNum = a[3] && isMain ? parseInt(a[3]) || 0 : 0;
-	docExt = a[4] || '.html';
+	res = ch.krau ? 'thread-' : 'res/';
+	TNum = a[2] ? a[3] : false;
+	pageNum = a[3] && !TNum ? parseInt(a[3]) || 0 : 0;
+	docExt = a[4] || (ch.gazo ? '.htm' : '.html');
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
 	pClass = $case([ch.krau, 'postreply', tinyb, 'post reply'], 'reply');
@@ -3306,7 +3305,7 @@ function initPosts() {
 	opPanel = pPanel.cloneNode(true);
 	opPanel.className += '_op';
 	$append(opPanel, [
-		$if(isMain, $new('a', {'class': 'DESU_icn_expthr', 'href': '#'})),
+		$if(!TNum, $new('a', {'class': 'DESU_icn_expthr', 'href': '#'})),
 		$new('a', {'class': 'DESU_icn_favor', 'href': '#'})
 	]);
 	$each($X('.//table[starts-with(@id,"post-")]|.//div[starts-with(@id,"post-")]', dForm),
@@ -3352,7 +3351,7 @@ function doScript() {
 		{ forPosts(mergeHidden);	Log('mergeHidden'); }
 	if(Cfg.expimg != 0)
 		{ forAll(eventPostImg);		Log('eventPostImg'); }
-	if(Cfg.expost != 0 && isMain)
+	if(Cfg.expost != 0 && !TNum)
 		{ forAll(expandPost);		Log('expandPost'); }
 	addLinkMP3();					Log('addLinkMP3');
 	addLinkTube();					Log('addLinkTube');
