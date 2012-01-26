@@ -979,7 +979,7 @@ function addSettings() {
 		$new('br', {'style': 'clear:both'}),
 		$New('div', [
 			$new('textarea', {'id': 'DESU_cfgedit', 'rows': 10, 'cols': 56,
-				'value': getStored('DESU_Config_' + dm) || ''
+				'value': getStored('DESU_Config_' + dm)
 			}),
 			$btn(Lng.save, function() {
 				setStored('DESU_Config_' + dm, $id('DESU_cfgedit').value.trim());
@@ -1121,9 +1121,7 @@ function addFavoritesTable() {
 				$each(list, function(el) { if($t('input', el).checked) removeFavorities(el.id); });
 				rebuildFavor(Favor.join('|'));
 			}),
-			$btn(Lng.edit, function() {
-				$disp($up($attr($id('DESU_favoredit'), {'value': getStored('DESU_Favorities')})));
-			}),
+			$btn(Lng.edit, function() { $disp($up($id('DESU_favoredit'))); }),
 			$btn(Lng.info, function() {
 				$each(list, function(el) {
 					var arr = el.id.split('|');
@@ -1147,9 +1145,7 @@ function addFavoritesTable() {
 			})
 		]),
 		$New('tr', [
-			$new('textarea', {'id': 'DESU_favoredit', 'rows': 9, 'cols': 70,
-				'value': getStored('DESU_Favorities') || ''
-			}),
+			$new('textarea', {'id': 'DESU_favoredit', 'rows': 9, 'cols': 70, 'value': data || ''}),
 			$btn(Lng.save, function() { rebuildFavor($id('DESU_favoredit').value.trim()); })
 		], {'style': 'display:none'})
 	]);
