@@ -3212,11 +3212,11 @@ function initBoard() {
 	};
 	var url = window.location.pathname || '';
 	res = ch.krau ? 'thread-' : 'res/';
-	var a = url.match(/^\/?(?:(.*?)\/*)?(?:(\d+|index))?(?:(?:res\/|thread-)(\d+))?(\.[xme]*html?)?$/);
-	brd = a[1] || ch.dfwk ? 'df' : '';
-	isMain = !a[3];
+	var a = url.match(/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index)?(\.[xme]*html?)?$/);
+	brd = a[1] || (ch.dfwk ? 'df' : '');
+	isMain = !a[2];
 	if(!isMain) TNum = a[3];
-	pageNum = a[2] ? parseInt(a[2]) || 0 : 0;
+	pageNum = a[3] && isMain ? parseInt(a[3]) || 0 : 0;
 	docExt = a[4] || '.html';
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
