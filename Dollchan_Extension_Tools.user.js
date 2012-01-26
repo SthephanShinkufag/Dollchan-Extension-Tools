@@ -1444,7 +1444,7 @@ function doPostformChanges() {
 		var load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 		$after($id('DESU_content'), [
 			$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
-				load: function(e) { setTimeout(iframeLoad(e.target), 0); }
+				load: function(e) { setTimeout(function() { iframeLoad(e.target); }, 0); }
 			}
 		)]);
 		$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
