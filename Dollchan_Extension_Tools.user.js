@@ -1734,7 +1734,8 @@ function scriptCSS() {
 	if(abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(tinyb) x.push('form, form table {margin:0}');
 	if(ch.nul) {
-		x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
+		x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}\
+			.voiceplay {float: none}');
 		gif('#DESU_btn_catalog','R0lGODlhGQAZAAAAACH5BAEAAAAALAAAAAAZABkAoAEAAP///wI2hI+py+0PowsBUFuvztxsDH6fBImdCYbnqpIli44x3LkT3cr4bN/5XvkJR70FjzcEFpfMZrEAADs=');
 	}
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
