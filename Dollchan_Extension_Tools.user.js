@@ -239,7 +239,7 @@ var LngArray = {
 	page:			[' страница', ' page'],
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
 	expandForm:		['Раскрыть форму', 'Expand form'],
-	goCatalog:		['Каталог', 'Catalog'],
+	goCatalog:		['Каталог', 'Catalog']
 };
 
 // Global vars
