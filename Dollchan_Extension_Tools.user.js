@@ -238,7 +238,8 @@ var LngArray = {
 	getNewPosts:	['Получить новые посты', 'Get new posts'],
 	page:			[' страница', ' page'],
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
-	expandForm:		['Раскрыть форму', 'Expand form']
+	expandForm:		['Раскрыть форму', 'Expand form'],
+	goCatalog:		['Каталог', 'Catalog'],
 };
 
 // Global vars
@@ -762,6 +763,12 @@ function addPanel() {
 						if(ajaxInt) endPostsUpdate();
 						else { this.id = 'DESU_btn_updon'; initPostsUpdate(); }
 					}
+				})),
+				$if(ch.nul, $new('a', {
+					'id': 'DESU_btn_catalog',
+					'title': Lng.goCatalog,
+					'href': 'http://0chan.ru/' + brd +'/catalog.html',
+					'target': '_blank'
 				}))
 			], {'id': 'DESU_panel_btns'}),
 			$if(TNum, $New('div', [$new('span', {'title': Lng.postsImages,
@@ -1726,7 +1733,10 @@ function scriptCSS() {
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
 	if(abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(tinyb) x.push('form, form table {margin:0}');
-	if(ch.nul) x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
+	if(ch.nul) {
+		x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}');
+		gif('#DESU_btn_catalog','R0lGODlhGQAZAAAAACH5BAEAAAAALAAAAAAZABkAoAEAAP///wI2hI+py+0PowsBUFuvztxsDH6fBImdCYbnqpIli44x3LkT3cr4bN/5XvkJR70FjzcEFpfMZrEAADs=');
+	}
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(ch.gazo) x.push(
 		'#DESU_content, #DESU_sett_main {font-family:arial}\
