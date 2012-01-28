@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.26.3
+// @version			12.1.28.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-26',
+	version:	'2012-01-28',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -243,10 +243,10 @@ var LngArray = {
 };
 
 // Global vars
-var Cfg = [], Lng = {}, Stat = {};
+var Cfg = [], Lng = {}, Favor = {}, Stat = {};
 var doc = document;
 var Posts = [], oPosts = [], pByNum = [];
-var Visib = [], Expires = [], Favor = [], refMap = [];
+var Visib = [], Expires = [], refMap = [];
 var pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [];
 var ajaxThrds = {}, ajaxPosts = [], ajaxInt;
 var nav = {}, sav = {}, ch = {};
@@ -363,7 +363,7 @@ function $txt(el) {
 }
 function $btn(val, fn) {
 	return $new('input', {'type': 'button', 'value': val}, {'click': fn});
-};
+}
 function $if(cond, el) {
 	return cond ? el : null;
 }
@@ -543,22 +543,14 @@ function readCfg() {
 	for(var key in LngArray)
 		Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
-	readStat();
+	var data = getStored('DESU_Stat_' + dm);
+	try { if(eval(data).view) Stat = eval(data); } catch(e) { Stat = {view: 0, op: 0, reply: 0}; }
+	if(TNum) Stat.view = parseInt(Stat.view) + 1;
+	setStored('DESU_Stat_' + dm, uneval(Stat));
 }
 
 function fixCapLang() {
 	Cfg.forcap = (hanab || ch.tire || ch.vomb || ch.ment || ch._5ch) ? 2 : 1;
-}
-
-function isValidStat(data) {
-	try { if(eval(data).view) return true; } catch(e) { return false; }
-}
-
-function readStat() {
-	var data = getStored('DESU_Stat_' + dm);
-	Stat = isValidStat(data) ? eval(data) : {view: 0, op: 0, reply: 0};
-	if(TNum) Stat.view = parseInt(Stat.view) + 1;
-	setStored('DESU_Stat_' + dm, uneval(Stat));
 }
 
 function getVisib(pNum) {
@@ -639,49 +631,39 @@ function storeThreadVisib(post, vis) {
 	toggleContent('hidd', true);
 }
 
-function getFavorKey(post) {
-	return host + '|' + brd + '|' + post.Num + '|';
+function readFavorities() {
+	var data = getStored('DESU_Favorities');
+	try { Favor = eval(data); } catch(e) { Favor = {}; }
 }
 
-function rebuildFavor(val) {
-	setStored('DESU_Favorities', val);
+function storeFavorities(txt) {
+	setStored('DESU_Favorities', txt || uneval(Favor));
 	toggleContent('fav', true);
 }
 
-function readFavorities() {
-	var data = getStored('DESU_Favorities');
-	var arr = data ? data.split('|') : [];
-	for(var i = 0; i < arr.length/4; i++)
-		Favor[i] = [arr[i*4], arr[i*4 + 1], arr[i*4 + 2], arr[i*4 + 3]].join('|');
+function removeFavorities(h, b, tNum) {
+	delete Favor[h][b][tNum];
+	if(pByNum[tNum]) $x('.//a[starts-with(@class,"DESU_icn_fav")]', pByNum[tNum].Btns).className
+		= 'DESU_icn_favor';
 }
 
-function removeFavorities(key) {
-	var i = Favor.length;
-	while(i--)
-		if(Favor[i].indexOf(key) > -1) {
-			var post = pByNum[Favor[i].split('|')[2]];
-			if(post) $x('.//a[starts-with(@class,"DESU_icn_fav")]', post.Btns).className
-				= 'DESU_icn_favor';
-			Favor.splice(i, 1);
-		}
-}
-
-function storeFavorities(post, btn) {
+function toggleFavorities(post, btn) {
 	if(!btn) return;
 	readFavorities();
-	var key = getFavorKey(post);
-	if(Favor.join('|').indexOf(key) > -1) {
-		removeFavorities(key);
-		btn.className = 'DESU_icn_favor';
-	} else {
-		Favor[Favor.length] =
-			key + getTitle(post).replace(/\|/g, '').substring(0, !sav.cookie ? 70 : 25);
-		Favor.sort();
-		if(sav.cookie && encodeURIComponent(Favor.join('%7C')).length > 4095)
-			{ $alert(Lng.cookiesLimit); Favor.pop(); return; }
+	var h = host, b = brd, tNum = post.Num;
+	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) removeFavorities(h, b, tNum);
+	else {
+		if(!Favor[h]) Favor[h] = {};
+		if(!Favor[h][b]) Favor[h][b] = {};
+		Favor[h][b][tNum] = {
+			'cnt': getPstCount(getThread(post)),
+			'txt': getTitle(post).substring(0, !sav.cookie ? 70 : 25)
+		};
+		if(sav.cookie && encodeURIComponent(uneval(Favor)).length > 4095)
+			{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
 		btn.className = 'DESU_icn_favset';
 	}
-	rebuildFavor(Favor.join('|'));
+	storeFavorities();
 }
 
 function readViewedPosts() {
@@ -1010,7 +992,8 @@ function addHiddenTable() {
 					storeThreadVisib(pByNum[pNum] || {Num: pNum, Vis: 0}, 1);
 				}}),
 				$add('<a href="' + getThrdUrl(dm, brd, hThr[i])
-					+ '" target="_blank">&gt;&gt;' + hThr[i] + '</a>')
+					+ '" target="_blank">&gt;&gt;' + hThr[i] + '</a>'
+				)
 			]);
 		table.insertRow(-1).appendChild($new('hr'));
 	}
@@ -1079,81 +1062,80 @@ function addHiddenTable() {
 
 function addFavoritesTable() {
 	var table = $x('.//div[@id="DESU_content"]//tbody');
-	var data = getStored('DESU_Favorities');
-	if(!data) table.insertRow(-1).appendChild($add('<b>' + Lng.noFavorites + '</b>'));
-	else {
-		var arr = data.split('|');
-		var h, b, tNum, url, txt, oldh, oldb;
-		for(var i = 0; i < arr.length/4; i++) {
-			h = arr[i*4];
-			b = arr[i*4 + 1];
-			tNum = arr[i*4 + 2];
-			txt = arr[i*4 + 3];
-			url = getThrdUrl(h, b, tNum);
-			if(h != oldh || b != oldb) $append(table.insertRow(-1), [
-				$new('input', {'type': 'checkbox', 'id': h}, {'click': function() {
-					var inp = this;
-					$each($X('.//tr[starts-with(@id,"' + inp.id + '|")]//input'), function(el) {
-						el.checked = inp.checked;
-					});
-				}}),
-				$add('<b><a target="_blank" href="http://' + h + '/' + b
-					+ '" style="color:inherit; text-decoration:none">' + h + '/' + b + '</a></b>')
-			]);
-			oldh = h;
-			oldb = b;
-			if(txt.length >= (sav.cookie ? 25 : 70)) txt += '..';
-			$append(table, [$New('tr', [
-				$New('div', [
-					$new('input', {'type': 'checkbox', 'style': 'margin-right:6px'}),
-					$if(h == host || sav.GM, $new('a', {'class': 'DESU_icn_expthr', 'href': '#"'}, {
-						'click': loadFavorThread
-					})),
-					$add('<a href="' + url + '" target="_blank" style="text-decoration:none">№'
-						+ tNum + '</a>'),
-					$txt(' - ' + txt + ' '),
-					$new('span', {'class': 'DESU_favpcount'})
-				], {'class': pClass}),
-				$new('div', {'id': tNum, 'class': 'thread',
-					'style': 'display:none; padding-left:15px; border:1px solid grey'
-				})
-			], {'class': 'DESU_favornote', 'id': h + '|' + b + '|' + tNum})]);
-		}
+	readFavorities();
+	var cnt, txt, url, oldh, oldb;
+	for(var h in Favor) for(var b in Favor[h]) for(var tNum in Favor[h][b]) {
+		cnt = Favor[h][b][tNum].cnt;
+		txt = Favor[h][b][tNum].txt;
+		url = getThrdUrl(h, b, tNum);
+		if(h != oldh || b != oldb) $append(table, [$New('tr', [
+			$new('input', {'type': 'checkbox'}, {'click': function() {
+				var inp = this;
+				$each($X('.//tr[contains(@id,"_' + $up(inp).id.substr(13) + '|")]/div/input', table),
+					function(el) { el.checked = inp.checked; }
+				);
+			}}),
+			$add('<a href="http://' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
+		], {'class': 'DESU_favhead', 'id': 'DESU_favhead_' + h + '|' + b})]);
+		oldh = h; oldb = b;
+		$append(table, [$New('tr', [
+			$New('div', [
+				$new('input', {'type': 'checkbox'}),
+				$if(h == host || sav.GM, $new('a', {'class': 'DESU_icn_expthr', 'href': '#"'}, {
+					'click': loadFavorThread
+				})),
+				$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
+				$txt(' - ' + txt),
+				$add('<span class="DESU_favpcount">[<span>' + cnt + '</span>]</span>')
+			], {'class': pClass}),
+			$new('div', {'id': tNum, 'class': 'thread', 'style': 'display:none'})
+		], {'class': 'DESU_favdata', 'id': 'DESU_favdata_' + h + '|' + b + '|' + tNum})]);
 	}
-	var list = $X('.//tr[@class="DESU_favornote"]', table);
+	if(!$1(table)) table.insertRow(-1).appendChild($add('<b>' + Lng.noFavorites + '</b>'));
+	var list = $X('.//tr[@class="DESU_favdata"]', table);
 	$append(table, [
 		$New('tr', [
 			$new('hr'),
-			$btn(Lng.remove, function() {
-				$each(list, function(el) { if($t('input', el).checked) removeFavorities(el.id); });
-				rebuildFavor(Favor.join('|'));
-			}),
 			$btn(Lng.edit, function() { $disp($up($id('DESU_favoredit'))); }),
 			$btn(Lng.info, function() {
 				$each(list, function(el) {
-					var arr = el.id.split('|');
+					var arr = el.id.substr(13).split('|');
 					if(host != arr[0]) return;
-					var c = $x('.//span[@class="DESU_favpcount"]', el);
-					c.innerHTML = '&nbsp;[<span class="DESU_icn_wait">&nbsp;</span>]';
+					var c = $x('.//span[@class="DESU_favpcount"]/span', el);
+					$attr(c, {'class': 'DESU_icn_wait', 'text': ''});
 					AJAX(null, arr[1], arr[2], function(err) {
-						$html(c, '&nbsp;[' + (err || ajaxThrds[arr[2]].keys.length) + ']');
+						var cnt = err || ajaxThrds[arr[2]].keys.length;
+						$attr(c, {'class': '', 'text': cnt});
+						if(!err) {
+							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
+							setStored('DESU_Favorities', uneval(Favor));
+						}
 					});
 				});
 			}),
 			$btn(Lng.clear, function() {
 				$each(list, function(el) {
-					var arr = el.id.split('|');
+					var arr = el.id.substr(13).split('|');
 					AJAX(getThrdUrl(arr[0], arr[1], arr[2]), null, null, function(err) {
 						if(!err) return;
-						removeFavorities(arr[0] + '|' + arr[1] + '|' + arr[2]);
-						rebuildFavor(Favor.join('|'));
+						removeFavorities(arr[0], arr[1], arr[2]);
+						storeFavorities();
 					});
 				});
+			}),
+			$btn(Lng.remove, function() {
+				$each(list, function(el) {
+					if($t('input', el).checked) {
+						var arr = el.id.substr(13).split('|');
+						removeFavorities(arr[0], arr[1], arr[2]);
+					}
+				});
+				storeFavorities();
 			})
 		]),
 		$New('tr', [
-			$new('textarea', {'id': 'DESU_favoredit', 'rows': 9, 'cols': 70, 'value': data || ''}),
-			$btn(Lng.save, function() { rebuildFavor($id('DESU_favoredit').value.trim()); })
+			$new('textarea', {'id': 'DESU_favoredit', 'rows': 9, 'cols': 70, 'value': uneval(Favor)}),
+			$btn(Lng.save, function() { storeFavorities($id('DESU_favoredit').value); })
 		], {'style': 'display:none'})
 	]);
 }
@@ -1165,7 +1147,8 @@ function $alert(txt, id) {
 		el = $add('<div class="' + pClass + '" id="' + nid + '" style="opacity:0">' + (id == 'wait'
 			? '<span class="DESU_icn_wait">&nbsp;</span>'
 			: '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>')
-			+ '<div style="display:inline-block; margin-top:4px"></div></div>');
+			+ '<div style="display:inline-block; margin-top:4px"></div></div>'
+		);
 		$event($1(el), {'click': function(e) { $pD(e); $close($up(this)); }});
 		$show($id('DESU_alertbox').appendChild(el));
 	}
@@ -1345,7 +1328,7 @@ function doPostformChanges() {
 	$event(pr.subm, {'click': function(e) {
 		if(Cfg.verify == 1) $alert(Lng.checking, 'wait');
 		if(Cfg.addfav == 1 && pr.tNum)
-			storeFavorities(pByNum[pr.tNum], $x('.//a[@class="DESU_icn_favor"]', pByNum[pr.tNum]));
+			toggleFavorities(pByNum[pr.tNum], $x('.//a[@class="DESU_icn_favor"]', pByNum[pr.tNum]));
 		var txt = pr.txta.value;
 		pr.txta.value = (Cfg.spells == 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
@@ -1456,7 +1439,7 @@ function iframeLoad() {
 	var frm = $id('DESU_iframe');
 	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
-	var xp, err, path = frm.location.pathname, host = frm.location.hostname;
+	var xp, err, path = frm.location.pathname;
 	if(hanab && /error/.test(path)) xp = './/td[@class="post-error"]';
 	if(ch.krau && path == '/post') xp = './/td[starts-with(@class,"message_text")]';
 	if(abu && !frm.getElementById('delform')) xp = './/font[@size="5"]';
@@ -1645,7 +1628,12 @@ function scriptCSS() {
 		#DESU_sagebtn {cursor:pointer}\
 		#DESU_textpanel {display:' + (Cfg.txtpos == 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
 		#DESU_qarea {float:none; clear:left; width:100%; padding:3px 0 3px 3px; margin:2px 0}\
-		.DESU_favpcount {float:right; font-weight:bold}\
+		.DESU_favdata .thread {padding-left:15px; border:1px solid grey}\
+		.DESU_favdata a {text-decoration:none}\
+		.DESU_favdata input {margin-right:6px}\
+		.DESU_favhead a {color:inherit; font-weight:bold}\
+		.DESU_favpcount {float:right; margin:0 5px 0 15px; font:bold 16px serif}\
+		.DESU_favpcount span {color:#4f7942}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : (nav.Chrome ? 2 : 5)) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
 		.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
 		.DESU_mp3, .DESU_ytube {margin:5px 20px}\
@@ -1734,9 +1722,11 @@ function scriptCSS() {
 	if(abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
 	if(tinyb) x.push('form, form table {margin:0}');
 	if(ch.nul) {
-		x.push('#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}\
-			.voiceplay {float: none}');
-		gif('#DESU_btn_catalog','R0lGODlhGQAZAAAAACH5BAEAAAAALAAAAAAZABkAoAEAAP///wI2hI+py+0PowsBUFuvztxsDH6fBImdCYbnqpIli44x3LkT3cr4bN/5XvkJR70FjzcEFpfMZrEAADs=');
+		gif('#DESU_btn_catalog','R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
+		x.push(
+			'#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}\
+			.voiceplay {float:none}'
+		);
 	}
 	if(ch._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(ch.gazo) x.push(
@@ -1773,6 +1763,13 @@ function getThread(el) {
 function getPost(el) {
 	return $x('ancestor::*[starts-with(@id,"post-") or starts-with(@id,"oppost-")'
 		+ ' or starts-with(@id,"DESU_preview_")]', el);
+}
+
+function getPstCount(thrd) {
+	var count = $X('.//node()[@class="' + pClass + '"]', thrd).snapshotLength + 1;
+	var om = $x('.//span[@class="omittedposts"]|.//div[@class="DESU_omitted"]', thrd);
+	if(om) count += parseInt(om.textContent.match(/\d+/)[0]);
+	return count;
 }
 
 function getTitle(post) {
@@ -1856,8 +1853,12 @@ function addPostButtons(post) {
 			});
 		}
 		el = el.nextSibling;
-		$event(el, {'click': function(e) { $pD(e); storeFavorities(post, this); }});
-		if(Favor.join('|').indexOf(getFavorKey(post)) > -1) el.className = 'DESU_icn_favset';
+		$event(el, {'click': function(e) { $pD(e); toggleFavorities(post, this); }});
+		if(Favor[host] && Favor[host][brd] && Favor[host][brd][post.Num]) {
+			el.className = 'DESU_icn_favset';
+			Favor[host][brd][post.Num].cnt = getPstCount(getThread(post));
+			setStored('DESU_Favorities', uneval(Favor));
+		}
 	}
 	if(isSage(post))
 		post.Btns.appendChild($new('a', {'class': 'DESU_icn_sage', 'title': 'SAGE', 'href': '#'}, {
@@ -2398,10 +2399,10 @@ function loadFavorThread(e) {
 	var el = $up(this, 2);
 	var thr = $x('.//div[@class="thread"]', el);
 	if(thr.style.display != 'none') { $disp(thr); thr.innerHTML = ''; return; }
-	var arr = el.id.split('|');
-	var tNum = arr[2];
-	var b = arr[1];
+	var arr = el.id.substr(13).split('|');
 	var url = $if(arr[0] != host, $next(this).href);
+	var b = arr[1];
+	var tNum = arr[2];
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	$alert(Lng.loading, 'wait');
 	AJAX(url, b, tNum, function(err) {
@@ -2410,7 +2411,13 @@ function loadFavorThread(e) {
 			thr.innerHTML = ajaxPosts[0].split(/<form[^>]+del[^>]+>/)[1].split('</form>'
 				)[0].replace(/(href="|src=")([^h][^"]+)/g, '$1http://' + url.split('/')[2] + '$2');
 			$close($id('DESU_alert_wait'));
-		} else { newPost(thr, tNum, 0); expandThread(thr, tNum, 5, true); }
+		} else {
+			newPost(thr, tNum, 0);
+			expandThread(thr, tNum, 5, true);
+			$x('.//tr[@id="DESU_favdata_' + host + '|' + b + '|' + tNum
+				+ '"]//span[@class="DESU_favpcount"]/span').textContent = getPstCount(thr);
+			setStored('DESU_Favorities', uneval(Favor));
+		}
 		$disp(thr);
 	});
 }
@@ -2553,7 +2560,8 @@ function hideThread(post, note) {
 	togglePost(post, 0);
 	var x = $add('<div class="' + pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
 		+ Lng.hiddenThrd + ' <a href="#">№' + post.Num + '</a><i> ('
-		+ (!note ? getTitle(post).substring(0, 70) : 'autohide: ' + note) + ')</i></div>');
+		+ (!note ? getTitle(post).substring(0, 70) : 'autohide: ' + note) + ')</i></div>'
+	);
 	$event($t('a', x), {'click': function(e) { $pD(e); unhideThread(post); }});
 	$before($up(post), [x]);
 	if(Cfg.delhd == 2) { $disp(x); $disp($next($next(x))); $disp($next($next($next(x)))); }
@@ -3194,7 +3202,7 @@ function initBoard() {
 	], '@id="delform" or @name="delform"]');
 	dForm = $x(xDelForm);
 	if(!dForm || $id('DESU_panel')) return false;
-	if(ch.hid) setTimeout = function(func) { func(); };
+	if(ch.hid) setTimeout = function(fn) { fn(); };
 	fixDomain();
 	fixUneval();
 	fixGM();
