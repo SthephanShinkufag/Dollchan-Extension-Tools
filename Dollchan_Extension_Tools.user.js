@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.28.0
+// @version			12.1.28.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -507,19 +507,14 @@ function saveSpells(val) {
 	initSpells();
 }
 
+function fixCapLang() {
+	Cfg.forcap = (hanab || ch.tire || ch.vomb || ch.ment || ch._5ch) ? 2 : 1;
+}
+
 function setDefaultCfg() {
 	Cfg = defaultCfg;
 	fixCapLang();
 	setStored('DESU_Config_' + dm, uneval(defaultCfg));
-}
-
-function saveCfg(name, val) {
-	Cfg[name] = val;
-	setStored('DESU_Config_' + dm, uneval(Cfg));
-}
-
-function toggleCfg(name) {
-	saveCfg(name, Cfg[name] == 0 ? 1 : 0);
 }
 
 function isValidCfg(data) {
@@ -549,8 +544,13 @@ function readCfg() {
 	setStored('DESU_Stat_' + dm, uneval(Stat));
 }
 
-function fixCapLang() {
-	Cfg.forcap = (hanab || ch.tire || ch.vomb || ch.ment || ch._5ch) ? 2 : 1;
+function saveCfg(name, val) {
+	Cfg[name] = val;
+	setStored('DESU_Config_' + dm, uneval(Cfg));
+}
+
+function toggleCfg(name) {
+	saveCfg(name, Cfg[name] == 0 ? 1 : 0);
 }
 
 function getVisib(pNum) {
@@ -580,7 +580,7 @@ function readPostsVisib() {
 	forAll(function(post) { post.Vis = getVisib(post.Num); });
 }
 
-function storePostsVisib() {
+function savePostsVisib() {
 	var id = 'DESU_Posts_' + dm;
 	if(!sav.cookie) {
 		var arr = [];
@@ -608,8 +608,8 @@ function readThreadsVisib() {
 		var vis = key[key.length - 1];
 		var pNum = parseInt(key.substring(0, key.length - 1));
 		if(vis == 0) _arr.push(pNum);
-		if(typeof pByNum[pNum] === 'object') {
-			var post = pByNum[pNum];
+		var post = pByNum[pNum];
+		if(typeof post === 'object') {
 			if(vis == 0) hideThread(post);
 			post.Vis = vis;
 		}
@@ -617,7 +617,7 @@ function readThreadsVisib() {
 	return _arr;
 }
 
-function storeThreadVisib(post, vis) {
+function saveThreadVisib(post, vis) {
 	if(post.Vis == vis) return;
 	post.Vis = vis;
 	var id = 'DESU_Threads_' + dm + '_' + brd;
@@ -631,27 +631,26 @@ function storeThreadVisib(post, vis) {
 	toggleContent('hidd', true);
 }
 
-function readFavorities() {
-	var data = getStored('DESU_Favorities');
-	try { Favor = eval(data); } catch(e) { Favor = {}; }
+function readFavorites() {
+	try { Favor = eval(getStored('DESU_Favorites')) || {}; } catch(e) { Favor = {}; }
 }
 
-function storeFavorities(txt) {
-	setStored('DESU_Favorities', txt || uneval(Favor));
+function saveFavorites(txt) {
+	setStored('DESU_Favorites', txt || uneval(Favor));
 	toggleContent('fav', true);
 }
 
-function removeFavorities(h, b, tNum) {
+function removeFavorites(h, b, tNum) {
 	delete Favor[h][b][tNum];
 	if(pByNum[tNum]) $x('.//a[starts-with(@class,"DESU_icn_fav")]', pByNum[tNum].Btns).className
 		= 'DESU_icn_favor';
 }
 
-function toggleFavorities(post, btn) {
+function toggleFavorites(post, btn) {
 	if(!btn) return;
-	readFavorities();
+	readFavorites();
 	var h = host, b = brd, tNum = post.Num;
-	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) removeFavorities(h, b, tNum);
+	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) removeFavorites(h, b, tNum);
 	else {
 		if(!Favor[h]) Favor[h] = {};
 		if(!Favor[h][b]) Favor[h][b] = {};
@@ -663,7 +662,12 @@ function toggleFavorities(post, btn) {
 			{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
 		btn.className = 'DESU_icn_favset';
 	}
-	storeFavorities();
+	saveFavorites();
+}
+
+function markViewedPost(pNum) {
+	var post = pByNum[pNum];
+	if(post && (post.className).indexOf('viewed') == -1) post.className += ' viewed';
 }
 
 function readViewedPosts() {
@@ -673,7 +677,7 @@ function readViewedPosts() {
 		markViewedPost(arr[i]);
 }
 
-function storeViewedPosts(pNum) {
+function saveViewedPosts(pNum) {
 	if(!sav.session) return;
 	var arr = (sessionStorage.viewedPosts || '').split(',');
 	arr.push(pNum);
@@ -960,7 +964,7 @@ function addSettings() {
 			}),
 			$btn(Lng.reset, function() {
 				setDefaultCfg();
-				setStored('DESU_Favorities', '');
+				setStored('DESU_Favorites', '');
 				saveSpells('');
 				window.location.reload();
 			})
@@ -987,9 +991,9 @@ function addHiddenTable() {
 			$append(table.insertRow(-1), [
 				$new('a', {'class': 'DESU_icn_hide', 'href': '#'}, {'click': function(e) {
 					$pD(e);
-					var pNum = $next(this).textContent.match(/\d+/)
+					var pNum = $next(this).textContent.match(/\d+/);
 					if(pByNum[pNum]) unhideThread(pByNum[pNum]);
-					storeThreadVisib(pByNum[pNum] || {Num: pNum, Vis: 0}, 1);
+					saveThreadVisib(pByNum[pNum] || {Num: pNum, Vis: 0}, 1);
 				}}),
 				$add('<a href="' + getThrdUrl(dm, brd, hThr[i])
 					+ '" target="_blank">&gt;&gt;' + hThr[i] + '</a>'
@@ -1054,7 +1058,7 @@ function addHiddenTable() {
 		$btn(Lng.save, function() {
 			for(var cln, i = 0; cln = clones[i++];)
 				if(cln.vis != 0) setPostVisib(cln.pst, 1);
-			storePostsVisib();
+			savePostsVisib();
 		})
 	]);
 	eventRefLink(table);
@@ -1062,7 +1066,7 @@ function addHiddenTable() {
 
 function addFavoritesTable() {
 	var table = $x('.//div[@id="DESU_content"]//tbody');
-	readFavorities();
+	readFavorites();
 	var cnt, txt, url, oldh, oldb;
 	for(var h in Favor) for(var b in Favor[h]) for(var tNum in Favor[h][b]) {
 		cnt = Favor[h][b][tNum].cnt;
@@ -1108,7 +1112,7 @@ function addFavoritesTable() {
 						$attr(c, {'class': '', 'text': cnt});
 						if(!err) {
 							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
-							setStored('DESU_Favorities', uneval(Favor));
+							setStored('DESU_Favorites', uneval(Favor));
 						}
 					});
 				});
@@ -1118,8 +1122,8 @@ function addFavoritesTable() {
 					var arr = el.id.substr(13).split('|');
 					AJAX(getThrdUrl(arr[0], arr[1], arr[2]), null, null, function(err) {
 						if(!err) return;
-						removeFavorities(arr[0], arr[1], arr[2]);
-						storeFavorities();
+						removeFavorites(arr[0], arr[1], arr[2]);
+						saveFavorites();
 					});
 				});
 			}),
@@ -1127,15 +1131,15 @@ function addFavoritesTable() {
 				$each(list, function(el) {
 					if($t('input', el).checked) {
 						var arr = el.id.substr(13).split('|');
-						removeFavorities(arr[0], arr[1], arr[2]);
+						removeFavorites(arr[0], arr[1], arr[2]);
 					}
 				});
-				storeFavorities();
+				saveFavorites();
 			})
 		]),
 		$New('tr', [
 			$new('textarea', {'id': 'DESU_favoredit', 'rows': 9, 'cols': 70, 'value': uneval(Favor)}),
-			$btn(Lng.save, function() { storeFavorities($id('DESU_favoredit').value); })
+			$btn(Lng.save, function() { saveFavorites($id('DESU_favoredit').value); })
 		], {'style': 'display:none'})
 	]);
 }
@@ -1328,7 +1332,7 @@ function doPostformChanges() {
 	$event(pr.subm, {'click': function(e) {
 		if(Cfg.verify == 1) $alert(Lng.checking, 'wait');
 		if(Cfg.addfav == 1 && pr.tNum)
-			toggleFavorities(pByNum[pr.tNum], $x('.//a[@class="DESU_icn_favor"]', pByNum[pr.tNum]));
+			toggleFavorites(pByNum[pr.tNum], $x('.//a[@class="DESU_icn_favor"]', pByNum[pr.tNum]));
 		var txt = pr.txta.value;
 		pr.txta.value = (Cfg.spells == 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
@@ -1766,9 +1770,15 @@ function getPost(el) {
 }
 
 function getPstCount(thrd) {
-	var count = $X('.//node()[@class="' + pClass + '"]', thrd).snapshotLength + 1;
-	var om = $x('.//span[@class="omittedposts"]|.//div[@class="DESU_omitted"]', thrd);
-	if(om) count += parseInt(om.textContent.match(/\d+/)[0]);
+	var count = $X('.//table[starts-with(@id,"post-")]'
+		+ '|.//div[starts-with(@id,"post-")]', thrd).snapshotLength + 1;
+	var om = $x($case([
+		hanab, './/div[@class="abbrev"]',
+		ch.krau, './/span[@class="omittedinfo"]',
+		ch.gazo, './/font[@color="#707070"]'
+	], './/span[@class="omittedposts"]|.//div[@class="DESU_omitted"]'), thrd);
+	if(om) om = om.textContent;
+	if(om) count += parseInt(om.match(/\d+/)[0]);
 	return count;
 }
 
@@ -1853,11 +1863,11 @@ function addPostButtons(post) {
 			});
 		}
 		el = el.nextSibling;
-		$event(el, {'click': function(e) { $pD(e); toggleFavorities(post, this); }});
+		$event(el, {'click': function(e) { $pD(e); toggleFavorites(post, this); }});
 		if(Favor[host] && Favor[host][brd] && Favor[host][brd][post.Num]) {
 			el.className = 'DESU_icn_favset';
 			Favor[host][brd][post.Num].cnt = getPstCount(getThread(post));
-			setStored('DESU_Favorities', uneval(Favor));
+			setStored('DESU_Favorites', uneval(Favor));
 		}
 	}
 	if(isSage(post))
@@ -2196,11 +2206,6 @@ function funcPostPreview(post, parentId, msg) {
 	}
 }
 
-function markViewedPost(pNum) {
-	if(pByNum[pNum] && (pByNum[pNum].className).indexOf('viewed') == -1)
-		pByNum[pNum].className += ' viewed';
-}
-
 function showPostPreview(e) {
 	if(Cfg.navig == 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2243,10 +2248,8 @@ function showPostPreview(e) {
 	}
 	$del($id(pView.id));
 	dForm.appendChild(pView);
-	if(Cfg.navmrk == 1) pView.marker = setTimeout(function() {
-		markViewedPost(pNum);
-		storeViewedPosts(pNum);
-	}, 2000);
+	if(Cfg.navmrk == 1)
+		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 2000);
 }
 
 function eventRefLink(el) {
@@ -2371,7 +2374,7 @@ function expandThread(thr, tNum, last, isDel) {
 	}));
 	for(var i = last; i < len; i++)
 		newPost(thr, tNum, i, isDel);
-	if(!sav.cookie) storeHiddenPosts();
+	if(!sav.cookie) saveHiddenPosts();
 	$close($id('DESU_alert_wait'));
 }
 
@@ -2416,7 +2419,7 @@ function loadFavorThread(e) {
 			expandThread(thr, tNum, 5, true);
 			$x('.//tr[@id="DESU_favdata_' + host + '|' + b + '|' + tNum
 				+ '"]//span[@class="DESU_favpcount"]/span').textContent = getPstCount(thr);
-			setStored('DESU_Favorities', uneval(Favor));
+			setStored('DESU_Favorites', uneval(Favor));
 		}
 		$disp(thr);
 	});
@@ -2490,7 +2493,7 @@ function loadNewPosts(inf) {
 			var len = ajaxThrds[TNum].keys.length;
 			for(var i = Posts.length - del + 1; i < len; i++)
 				newPost($x('.//div[@class="thread"]', dForm), TNum, i);
-			storeHiddenPosts();
+			saveHiddenPosts();
 			$1($id('DESU_panel_info')).textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
 		if(inf) { $close($id('DESU_alert_wait')); infoNewPosts(err, del); }
@@ -2538,7 +2541,7 @@ function loadPages(len) {
 					newPost(thr, tNum, i);
 				delete ajaxThrds[tNum];
 			}
-			if(!sav.cookie) storeHiddenPosts();
+			if(!sav.cookie) saveHiddenPosts();
 			readThreadsVisib();
 			if(p == len - 1) $close($id('DESU_alert_wait'));
 		}}(p, len));
@@ -2570,7 +2573,7 @@ function hideThread(post, note) {
 function unhideThread(post) {
 	if(post.Vis == 1) return;
 	togglePost(post, 1);
-	storeThreadVisib(post, 1);
+	saveThreadVisib(post, 1);
 	$del($id('DESU_hiddenthr_' + post.Num));
 }
 
@@ -2600,12 +2603,8 @@ function setPostVisib(post, vis) {
 }
 
 function togglePostVisib(post) {
-	if(post.isOp) { hideThread(post); storeThreadVisib(post, 0); }
-	else {
-		post.Vis = (post.Vis == 1) ? 0 : 1;
-		setPostVisib(post, post.Vis);
-		storePostsVisib();
-	}
+	if(post.isOp) { hideThread(post); saveThreadVisib(post, 0); }
+	else { post.Vis = (post.Vis == 1) ? 0 : 1; setPostVisib(post, post.Vis); savePostsVisib(); }
 }
 
 function hidePost(post, note) {
@@ -2616,7 +2615,7 @@ function hidePost(post, note) {
 			'click': function(e) { $pD(e); $del(this); }
 		}));
 		applyPostVisib(post, 0);
-	} else if(Cfg.filthr == 1) { hideThread(post, note); storeThreadVisib(post, 0); }
+	} else if(Cfg.filthr == 1) { hideThread(post, note); saveThreadVisib(post, 0); }
 }
 
 function unhidePost(post) {
@@ -2628,9 +2627,9 @@ function unhidePost(post) {
 	} else if(Cfg.filthr == 1) unhideThread(post);
 }
 
-function storeHiddenPosts() {
+function saveHiddenPosts() {
 	forPosts(function(post) { if(post.Vis == 0) setPostVisib(post, 0); });
-	storePostsVisib();
+	savePostsVisib();
 }
 
 function togglePost(post, vis) {
@@ -2901,7 +2900,7 @@ function toggleSpells() {
 		if(fld) fld.value = val;
 		if(Cfg.spells == 1) forAll(hideBySpells);
 		else forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
-		storeHiddenPosts();
+		saveHiddenPosts();
 	} else {
 		if(wrong) $alert(Lng.error + ' ' + wrong);
 		if(fld) $id('DESU_spelledit_ch').checked = false;
@@ -2928,7 +2927,7 @@ function applySpells(txt) {
 	saveSpells(val);
 	if(val != '') { saveCfg('spells', 1); forAll(hideBySpells); }
 	else saveCfg('spells', 0);
-	storeHiddenPosts();
+	saveHiddenPosts();
 }
 
 /*-------------------------Hide posts with similar text----------------------*/
@@ -2943,7 +2942,7 @@ function hideBySameText(post) {
 	else {
 		var vis = post.Vis;
 		forAll(function(target) { findSameText(target, post, vis, getWrds(post)); });
-		storeHiddenPosts();
+		saveHiddenPosts();
 	}
 }
 
@@ -3354,14 +3353,14 @@ function doScript() {
 	readPostsVisib();
 	readThreadsVisib();
 	readViewedPosts();
-	readFavorities();				Log('readData');
+	readFavorites();				Log('readData');
 	addPanel();						Log('addPanel');
 	doChanges();					Log('doChanges');
 	forAll(addPostButtons);			Log('addPostButtons');
 	eventRefLink();					Log('eventRefLink');
 	addRefMap();					Log('addRefMap');
 	forAll(doPostFilters);			Log('doPostFilters');
-	storeHiddenPosts();				Log('storeHiddenPosts');
+	saveHiddenPosts();				Log('saveHiddenPosts');
 	initNewPosts();					Log('initNewPosts');
 	if(Cfg.delhd == 1)
 		{ forPosts(mergeHidden);	Log('mergeHidden'); }
