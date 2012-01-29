@@ -75,7 +75,10 @@ var defaultCfg = {
 	nopass:		1,		// hide password field
 	mask:		0,		// mask images
 	texw:		530,	// textarea width
-	texh:		140		// textarea height
+	texh:		140,	// textarea height
+	timeOffset:	'',
+	timePattern: '',
+	uTime:		0
 };
 
 var LngArray = {
@@ -239,7 +242,11 @@ var LngArray = {
 	page:			[' страница', ' page'],
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
 	expandForm:		['Раскрыть форму', 'Expand form'],
-	goCatalog:		['Каталог', 'Catalog']
+	goCatalog:		['Каталог', 'Catalog'],
+	cTime:			['Корректировать время*', 'Correct time*'],
+	cTimeError:		['Неправильно введена разница во времени', 'Invalid time difference'],
+	cTimeOffset:	['Разница во времени', 'Time difference'],
+	cTimePattern:	['Шаблон замены', 'Replace pattern']
 };
 
 // Global vars
@@ -255,6 +262,7 @@ var cssFix, xDelForm, xPostRef, xPostMsg;
 var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false;
+var timePattern = '', timeRegex;
 var oldTime, endTime, timeLog = '';
 var stoargeLife = 5*24*3600*1000;
 var homePage = 'http://www.freedollchan.org/scripts/';
@@ -920,6 +928,15 @@ function addSettings() {
 			})
 		])),
 		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
+		$New('div', [
+			lBox('uTime', Lng.cTime, toogleTimeSettings),
+			$btn('>', function() { $disp($id('DESU_uTimeBox')); })
+		]),
+		$New('div', [
+			$New('div', [inpTxt('timeOffset', 3, setTimeOffset), $new('span', {'text' : Lng.cTimeOffset })]),
+			$New('div', [inpTxt('timePattern', 20, setTimePattern),
+				$new('a', {'text': Lng.cTimePattern, 'href': '#', 'target': '_blank'})])
+		], {'id': 'DESU_uTimeBox', 'style': 'display:none; padding-left:15px'}),
 		$if(pr.on, $New('div', [
 			optSel('txtbtn', Lng.selFormatBtns, Lng.formatBtns, function() {
 				saveCfg('txtbtn', this.selectedIndex);
@@ -1744,6 +1761,125 @@ function scriptCSS() {
 	} else $id('DESU_css').textContent = x.join(' ');
 }
 
+/*--------------------------------Time correctors-----------------------------*/
+
+function setTimeOffset() {
+	var el = $id('DESU_timeOffset');
+	if(el) saveCfg('timeOffset', el.value);
+}
+
+function setTimePattern() {
+	var el = $id('DESU_timePattern');
+	if(el) saveCfg('timePattern', el.value);
+}
+
+function toogleTimeSettings() {
+	var el = $id('DESU_timeOffset');
+	if(uTime && el) {
+		var timeOffset = el.value.match(/^[+-][0-9]{1,2}$/);
+		if(!timeOffset || !parseTimePattern()) {
+			$alert(Lng.cTimeError);
+			saveCfg('uTime', 0);
+			return;
+		}
+	}
+}
+
+function fixTimeForThreads(node) {
+	if(ch.fch) $each($X('.//span[(@class="posttime")]', node), fixTime);
+	else if(ch.krau) $each($X('.//div[starts-with(@id,"oppost-")]/div/span[(@class="postdate")]', node), fixTime);
+	else $each($X('.//div['
+		+ $case([abu, '(@class="oppost")',
+			hanab, '(@class="oppost post")'],
+			'starts-with(@id,"oppost-") or (@class="postnode")')
+		+ ']/label', node), fixTime);
+}
+
+function fixTimeForPosts(node) {
+	if(ch.fch) $each($X('.//td[(@class="reply")]', node), fixTime);
+	else if(ch.krau) $each($X('.//td[starts-with(@id,"post-")]/div/span[(@class="postdate")]', node), fixTime);
+	else $each($X('.//td[starts-with(@id,"reply")]/label', node), fixTime);
+}
+
+function parseTimePattern() {
+	var val = Cfg.timePattern;
+	var regex = '', first = '', patternValid = true, isHereM = false;;
+	for(var i = 0; i < val.length && patternValid; i++) {
+		switch(val[i]) {
+		case '?':
+			regex += '?';
+			break;
+		case 'c':
+			if(first != '') { regex += ')'; first = ''; }
+			regex += '.';
+			break;
+		case 's':
+		case 'i':
+		case 'h':
+		case 'd':
+		case 'n':
+		case 'y':
+			if(timePattern.indexOf(val[i]) == -1) timePattern += val[i];
+			if(first != '' && first != val[i]) regex += ')(';
+			else if(first == '') regex += '(';
+			regex += '[0-9]'; first = val[i];
+			break;
+		case 'm':
+			if(first != '') regex += ')';
+			if(isHereM) { patternValid = false; break; }
+			timePattern += 'm';
+			regex += '([a-zA-Zа-яА-Я]+)'; first = ''; isHereM = true;
+			break;
+		default:
+			patternValid = false;
+			break;
+		}
+	}
+	if(first != '') regex += ')';
+	if(patternValid) {
+		timeRegex = regex;
+		return true;
+	}
+	return false;
+}
+
+function fixTime(label, i) {
+	if(!timeRegex) return;
+	var a, month, year, day, hour, minute, second, begin, end;
+	a = label.innerHTML.match(new RegExp('^((?:.|\n|\r)*?)' + timeRegex + '((?:.|\n|\r)*)?$'));
+	if(a && a.length == timePattern.length + 3) {
+		begin = a[1] ? a[1] : '';
+		end = a[a.length - 1] ? a[a.length - 1] : '';
+		for(var i = 0; i < timePattern.length; i++) {
+			switch(timePattern[i]) {
+			case 's': second = a[i + 2]; break;
+			case 'i': minute = a[i + 2]; break;
+			case 'h': hour   = a[i + 2]; break;
+			case 'd': day    = a[i + 2]; break;
+			case 'n': month  = a[i + 2]; break;
+			case 'y': year   = a[i + 2]; break;
+			case 'm':
+				a[i + 2] = a[i + 2].toLowerCase();
+				if     (a[i + 2].indexOf("янв") > -1 || a[i + 2].indexOf("jan") > -1) month = 0;
+				else if(a[i + 2].indexOf("фев") > -1 || a[i + 2].indexOf("feb") > -1) month = 1;
+				else if(a[i + 2].indexOf("мар") > -1 || a[i + 2].indexOf("mar") > -1) month = 2;
+				else if(a[i + 2].indexOf("апр") > -1 || a[i + 2].indexOf("apr") > -1) month = 3;
+				else if(a[i + 2].indexOf("май") > -1 || a[i + 2].indexOf("may") > -1) month = 4;
+				else if(a[i + 2].indexOf("июн") > -1 || a[i + 2].indexOf("jun") > -1) month = 5;
+				else if(a[i + 2].indexOf("июл") > -1 || a[i + 2].indexOf("jul") > -1) month = 6;
+				else if(a[i + 2].indexOf("авг") > -1 || a[i + 2].indexOf("aug") > -1) month = 7;
+				else if(a[i + 2].indexOf("сен") > -1 || a[i + 2].indexOf("sep") > -1) month = 8;
+				else if(a[i + 2].indexOf("окт") > -1 || a[i + 2].indexOf("oct") > -1) month = 9;
+				else if(a[i + 2].indexOf("ноя") > -1 || a[i + 2].indexOf("nov") > -1) month = 10;
+				else if(a[i + 2].indexOf("дек") > -1 || a[i + 2].indexOf("dec") > -1) month = 11;
+			}
+		}
+		var dtime = new Date(year, month, day, hour, minute, second);
+		dtime.setHours(dtime.getHours() + parseInt(Cfg.timeOffset));
+		label.innerHTML = begin + dtime.toString() + end;
+	}
+}
+
 
 /*=============================================================================
 							FOR POSTS AND THREADS
@@ -2340,6 +2476,7 @@ function newPost(thr, tNum, i, isDel) {
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
 	expandPost(post);
+	if(Cfg.uTime) fixTimeForPosts(post);
 	thr.appendChild(post);
 	if(tinyb) thr.appendChild($new('br'));
 	return post;
@@ -3329,6 +3466,9 @@ function initPosts() {
 	$each($X('.//div[starts-with(@id,"oppost-")]', dForm),
 		function(post, i) { oPosts[i] = post; post.isOp = true; post.Count = 1; }
 	);
+	if(Cfg.uTime) {
+		setTimeout(function() { fixTimeForThreads(dForm); fixTimeForPosts(dForm); }, 0);
+	}
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
 		post.Num = post.id.match(/\d+/);
@@ -3348,6 +3488,8 @@ function doScript() {
 	oldTime = initTime;
 	if(!initBoard()) return;		Log('initBoard');
 	readCfg();						Log('readCfg');
+	if(Cfg.uTime)
+		{ parseTimePattern();		Log('parseTimePattern'); }
 	if(!initDelform()) return;		Log('initDelform');
 	initPosts();					Log('initPosts');
 	readPostsVisib();
