@@ -262,7 +262,7 @@ var cssFix, xDelForm, xPostRef, xPostMsg;
 var pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy;
 var quotetxt = '';
 var docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false;
-var timePattern = '', timeRegex;
+var timePattern, timeRegex;
 var oldTime, endTime, timeLog = '';
 var stoargeLife = 5*24*3600*1000;
 var homePage = 'http://www.freedollchan.org/scripts/';
@@ -1803,7 +1803,8 @@ function fixTimeForPosts(node) {
 
 function parseTimePattern() {
 	var val = Cfg.timePattern;
-	var regex = '', first = '', patternValid = true, isHereM = false;;
+	var regex = '', first = '', patternValid = true, isHereM = false;
+	timePattern = '';
 	for(var i = 0; i < val.length && patternValid; i++) {
 		switch(val[i]) {
 		case '?':
