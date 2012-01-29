@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.28.1
+// @version			12.1.29.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-28',
+	version:	'2012-01-29',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -2595,10 +2595,10 @@ function setPostVisib(post, vis) {
 		togglePost(post, vis);
 		applyPostVisib(post, vis);
 		if(Cfg.navhid == 1) setTimeout(function() {
-			$each($X('.//div[@class="DESU_refmap"]/a[@href="#' + post.Num + '"]'), function(el) {
-				el.className = vis == 0 ? 'DESU_refhid' : '';
-			}
-		)}, 0);
+			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm),
+				function(el) { el.className = vis == 0 ? 'DESU_refhid' : ''; }
+			)
+		}, 0);
 	}
 }
 
