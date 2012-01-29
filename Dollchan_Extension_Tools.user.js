@@ -1796,10 +1796,12 @@ function fixTimeForThreads(node) {
 		+ ']/label', node), fixTime);
 }
 
-function fixTimeForPosts(node) {
-	if(ch.fch) $each($X('.//td[(@class="reply")]', node), fixTime);
-	else if(ch.krau) $each($X('.//td[starts-with(@id,"post-")]/div/span[(@class="postdate")]', node), fixTime);
-	else $each($X('.//td[starts-with(@id,"reply")]/label', node), fixTime);
+function fixTimeForPosts(node, customParentNode) {
+	var myNode;
+	if(ch.fch) myNode = customParentNode ? customParentNode : './/td[(@class="reply")]';
+	else if(ch.krau) myNode = (customParentNode ? customParentNode : './/td[starts-with(@id,"post-")]') + '/div/span[(@class="postdate")]';
+	else myNode = (customParentNode ? customParentNode : './/td[starts-with(@id,"reply")]') + '/label';
+	$each($X(myNode, node), fixTime);
 }
 
 function parseTimePattern() {
@@ -1879,7 +1881,7 @@ function fixTime(label, i) {
 		if(year.length == 2) year = '20' + year;
 		var dtime = new Date(year, month, day, hour, minute, second);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg.timeOffset));
-		label.innerHTML = begin + dtime.toString() + end;
+		label.innerHTML = begin + dtime.toString().replace(/GMT.*$/, '') + end;
 	}
 }
 
@@ -2334,6 +2336,7 @@ function funcPostPreview(post, parentId, msg) {
 		+ '|.//div[@class="DESU_refmap" or @class="DESU_ytube" or @class="DESU_mp3"]', pView);
 	eventRefLink(pView);
 	addLinkTube(pView);
+	if(Cfg.uTime) fixTimeForPosts(pView, '.');
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
