@@ -1860,7 +1860,7 @@ function fixTime(label, i) {
 			case 'i': minute = a[i + 2]; break;
 			case 'h': hour   = a[i + 2]; break;
 			case 'd': day    = a[i + 2]; break;
-			case 'n': month  = a[i + 2]; break;
+			case 'n': month  = a[i + 2] - 1; break;
 			case 'y': year   = a[i + 2]; break;
 			case 'm':
 				a[i + 2] = a[i + 2].toLowerCase();
@@ -3473,7 +3473,8 @@ function initPosts() {
 		function(post, i) { oPosts[i] = post; post.isOp = true; post.Count = 1; }
 	);
 	if(Cfg.uTime) {
-		setTimeout(function() { fixTimeForThreads(dForm); fixTimeForPosts(dForm); }, 0);
+		if(ch.fch) { fixTimeForThreads(dForm); fixTimeForPosts(dForm); }
+		else setTimeout(function() { fixTimeForThreads(dForm); fixTimeForPosts(dForm); }, 0);
 	}
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
