@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.29.0
+// @version			12.1.29.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -126,7 +126,7 @@ var LngArray = {
 	fixedPreview:	['Фиксировать превью под ссылкой', 'Fixed preview under link'],
 	delayPreview:	['Задержка пропадания превью', 'Delay disappearance'],
 	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
-	hidRefmap:		['Зачеркивать скрытые посты в карте ответов*', 'Strike hidden posts in refmap*'],
+	hidRefmap:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
 	expandPosts:	['загрузка сокращенных постов*', 'upload of shorted posts*'],
 	selClickAuto:	[
 		['Откл.', 'Авто', 'По клику'],
