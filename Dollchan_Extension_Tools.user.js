@@ -929,7 +929,7 @@ function addSettings() {
 		])),
 		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
 		$New('div', [
-			lBox('uTime', Lng.cTime, toogleTimeSettings),
+			lBox('uTime', Lng.cTime, toggleTimeSettings, 'DESU_uTime'),
 			$btn('>', function() { $disp($id('DESU_uTimeBox')); })
 		]),
 		$New('div', [
@@ -1773,12 +1773,14 @@ function setTimePattern() {
 	if(el) saveCfg('timePattern', el.value);
 }
 
-function toogleTimeSettings() {
-	if(uTime) {
+function toggleTimeSettings() {
+	var el = $id('DESU_uTime');
+	if(el.checked) {
 		var timeOffset = Cfg.timeOffset.match(/^[+-][0-9]{1,2}$/);
 		if(!timeOffset || !parseTimePattern()) {
 			$alert(Lng.cTimeError);
 			saveCfg('uTime', 0);
+			el.checked = false;
 			return;
 		}
 	}
@@ -1874,6 +1876,7 @@ function fixTime(label, i) {
 				else if(a[i + 2].indexOf("дек") > -1 || a[i + 2].indexOf("dec") > -1) month = 11;
 			}
 		}
+		if(year.length == 2) year = '20' + year;
 		var dtime = new Date(year, month, day, hour, minute, second);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg.timeOffset));
 		label.innerHTML = begin + dtime.toString() + end;
