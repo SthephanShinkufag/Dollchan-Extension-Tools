@@ -1876,6 +1876,7 @@ function fixTime(label, i) {
 				else if(a[i + 2].indexOf("дек") > -1 || a[i + 2].indexOf("dec") > -1) month = 11;
 			}
 		}
+		if(year.length == 2) year = '20' + year;
 		var dtime = new Date(year, month, day, hour, minute, second);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg.timeOffset));
 		label.innerHTML = begin + dtime.toString() + end;
