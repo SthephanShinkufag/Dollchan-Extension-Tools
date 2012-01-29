@@ -929,7 +929,7 @@ function addSettings() {
 		])),
 		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
 		$New('div', [
-			lBox('uTime', Lng.cTime, toogleTimeSettings),
+			lBox('uTime', Lng.cTime, toggleTimeSettings, 'DESU_uTime'),
 			$btn('>', function() { $disp($id('DESU_uTimeBox')); })
 		]),
 		$New('div', [
@@ -1773,12 +1773,14 @@ function setTimePattern() {
 	if(el) saveCfg('timePattern', el.value);
 }
 
-function toogleTimeSettings() {
-	if(uTime) {
+function toggleTimeSettings() {
+	var el = $id('DESU_uTime');
+	if(el.checked) {
 		var timeOffset = Cfg.timeOffset.match(/^[+-][0-9]{1,2}$/);
 		if(!timeOffset || !parseTimePattern()) {
 			$alert(Lng.cTimeError);
 			saveCfg('uTime', 0);
+			el.checked = false;
 			return;
 		}
 	}
