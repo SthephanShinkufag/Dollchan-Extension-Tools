@@ -1774,9 +1774,8 @@ function setTimePattern() {
 }
 
 function toogleTimeSettings() {
-	var el = $id('DESU_timeOffset');
-	if(uTime && el) {
-		var timeOffset = el.value.match(/^[+-][0-9]{1,2}$/);
+	if(uTime) {
+		var timeOffset = Cfg.timeOffset.match(/^[+-][0-9]{1,2}$/);
 		if(!timeOffset || !parseTimePattern()) {
 			$alert(Lng.cTimeError);
 			saveCfg('uTime', 0);
