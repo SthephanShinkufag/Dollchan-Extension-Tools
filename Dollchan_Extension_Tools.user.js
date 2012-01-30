@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.1.29.1
+// @version			12.1.30.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 
 var defaultCfg = {
-	version:	'2012-01-29',
+	version:	'2012-01-30',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -1337,7 +1337,7 @@ function doChanges() {
 		$new('hr')
 	], {'id': 'DESU_parea'});
 	if(TNum && Cfg.pform == 2 || !TNum && Cfg.tform == 1) $disp(pArea);
-	if(TNum && Cfg.pform == 1) $after($t('hr', dForm) || dForm, [pArea]);
+	if(TNum && Cfg.pform == 1) $after(!ch.fch ? dForm : $t('hr', dForm), [pArea]);
 	else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
 	else if(oeForm) AJAX(null, brd, oPosts[0].Num, doPostformChanges);
