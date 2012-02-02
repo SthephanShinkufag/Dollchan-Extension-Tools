@@ -1884,7 +1884,7 @@ function fixTime(label, i) {
 			case 'i': minute = a[i + 2]; break;
 			case 'h': hour   = a[i + 2]; break;
 			case 'd': day    = a[i + 2]; break;
-			case 'n': month  = a[i + 2]; break;
+			case 'n': month  = a[i + 2] - 1; break;
 			case 'y': year   = a[i + 2]; break;
 			case 'm':
 				a[i + 2] = a[i + 2].toLowerCase();
@@ -2362,11 +2362,11 @@ function funcPostPreview(post, parentId, msg) {
 	if(!pView) return;
 	if(!post) { pView.innerHTML = msg; return; }
 	pView.innerHTML = ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML;
+	if(Cfg.uTime) fixTimeForPosts(pView, '.');
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
 		+ '|.//div[@class="DESU_refmap" or @class="DESU_ytube" or @class="DESU_mp3"]', pView);
 	eventRefLink(pView);
 	addLinkTube(pView);
-	if(Cfg.uTime) fixTimeForPosts(pView, '.');
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
@@ -2498,6 +2498,7 @@ function addPostFunc(post) {
 function newPost(thr, tNum, i, isDel) {
 	var pNum = ajaxThrds[tNum].keys[i];
 	var post = ajaxPosts[pNum];
+	if(Cfg.uTime) fixTimeForPosts(post);
 	if(i == 0) oPosts[oPosts.length] = post;
 	else Posts[Posts.length] = post;
 	if(isDel) post.isDel = true;
@@ -2512,7 +2513,6 @@ function newPost(thr, tNum, i, isDel) {
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
 	expandPost(post);
-	if(Cfg.uTime) fixTimeForPosts(post);
 	thr.appendChild(post);
 	if(tinyb) thr.appendChild($new('br'));
 	return post;
@@ -3502,9 +3502,6 @@ function initPosts() {
 	$each($X('.//div[starts-with(@id,"oppost-")]', dForm),
 		function(post, i) { oPosts[i] = post; post.isOp = true; post.Count = 1; }
 	);
-	if(Cfg.uTime) {
-		setTimeout(function() { fixTimeForThreads(dForm); fixTimeForPosts(dForm); }, 0);
-	}
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
 		post.Num = post.id.match(/\d+/);
@@ -3535,7 +3532,13 @@ function doScript() {
 	addPanel();						Log('addPanel');
 	doChanges();					Log('doChanges');
 	forAll(addPostButtons);			Log('addPostButtons');
-	eventRefLink();					Log('eventRefLink');
+	setTimeout(function() {
+		if(Cfg.uTime) {
+			fixTimeForThreads(dForm);
+			fixTimeForPosts(dForm);
+		}
+		eventRefLink();
+	}, 0);							//Log('eventRefLink');
 	addRefMap();					Log('addRefMap');
 	forAll(doPostFilters);			Log('doPostFilters');
 	saveHiddenPosts();				Log('saveHiddenPosts');
