@@ -10,8 +10,8 @@
 // @include			*
 // ==/UserScript==
 
-(function(scriptStorage) {
-
+(function (scriptStorage) {
+"use strict";  
 var defaultCfg = {
 	version:	'2012-02-02',
 	lang:		0,		// script language [0=ru, 1=en]
@@ -491,6 +491,7 @@ function getCookie(name) {
 		var one = arr[i].split('=');
 		if(one[0] == escape(name)) return unescape(one[1]);
 	}
+	return false;
 }
 
 function turnCookies(name) {
@@ -536,7 +537,8 @@ function setDefaultCfg() {
 }
 
 function isValidCfg(data) {
-	try { if(eval(data).version) return true; } catch(e) { return false; }
+	try { if(eval(data).version) return true; } catch(e) {}
+	return false;
 }
 
 function readCfg() {
@@ -572,6 +574,7 @@ function toggleCfg(name) {
 function getVisib(pNum) {
 	var key = !sav.cookie ? brd + pNum : pByNum[pNum].Count;
 	if(key in Visib) return Visib[key];
+	return null;
 }
 
 function readPostsVisib() {
@@ -1871,7 +1874,7 @@ function parseTimePattern() {
 	return false;
 }
 
-function fixTime(label, i) {
+function fixTime(label, index) {
 	if(!timeRegex) return;
 	var a, month, year, day, hour, minute, second, begin, end;
 	a = label.innerHTML.match(new RegExp('^((?:.|\n|\r)*?)' + timeRegex + '((?:.|\n|\r)*)?$'));
@@ -2599,7 +2602,7 @@ function loadFavorThread(e) {
 }
 
 function getDelPosts(err) {
-	if(err) return;
+	if(err) return false;
 	var j = 1, del = 0;
 	for(var i = 0, len = Posts.length; i < len; i++) {
 		var post = Posts[i];
@@ -2793,7 +2796,7 @@ function hidePost(post, note) {
 
 function unhidePost(post) {
 	if(!post.isOp) {
-		if(detectWipe(post) != null) return;
+		if(detectWipe(post)) return;
 		setPostVisib(post, 1);
 		$del($x('.//a[@class="DESU_postnote"]', post));
 		hideByWipe(post);
@@ -2940,14 +2943,14 @@ function htmlReplace(txt) {
 }
 
 function getImgSpell(imgW, imgH, imgK, exp) {
-	if(exp == '') return;
+	if(exp == '') return false;
 	var s = exp.split('@');
 	var stat = s[0].substring(0, 1);
 	var expK = s[0].substring(1);
 	if(expK != '') {
 		if(stat == '<' && imgK < expK || stat == '>' && imgK > expK || stat == '=' && imgK == expK)
 			{ if(!s[1]) return 'image ' + exp; }
-		else return;
+		else return false;
 	}
 	if(s[1]) {
 		var x = s[1].split(/[x×]/);
@@ -2957,6 +2960,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 			stat == '=' && imgW == expW && imgH == expH)
 			return 'image ' + exp;
 	}
+	return false;
 }
 
 function getSpells(x, post) {
@@ -2967,7 +2971,7 @@ function getSpells(x, post) {
 		i = oSpells.skip.length;
 		while(i--) {
 			t = oSpells.skip[i].split('-');
-			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) { post.noHide = true; return; }
+			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) { post.noHide = true; return false; }
 		}
 	}
 	if(x.words[0]) {
@@ -3038,6 +3042,7 @@ function getSpells(x, post) {
 	if(x.sage && isSage(post)) return '#sage';
 	if(x.notxt && post.Text == '') return '#no text';
 	if(x.noimg && post.Img.snapshotLength == 0) return '#no image';
+	return false;
 }
 
 function checkSpells(post) {
@@ -3141,7 +3146,7 @@ function findSameText(post, origPost, origVis, origWords) {
 /*--------------------------------Wipe detectors-----------------------------*/
 
 function detectWipe(post) {
-	if(Cfg.awipe == 0) return null;
+	if(Cfg.awipe == 0) return false;
 	var detectors = [
 		detectWipe_sameLines,
 		detectWipe_sameWords,
@@ -3155,20 +3160,21 @@ function detectWipe(post) {
 		var detect = detectors[i](post.Text);
 		if(detect) return detect;
 	}
+	return false;
 }
 
 function hideByWipe(post) {
 	if(post.Vis == 0 || post.Vis == 1) return;
 	var note = detectWipe(post);
-	if(note != null) hidePost(post, note);
+	if(note) hidePost(post, note);
 	else applyPostVisib(post, 1);
 }
 
 function detectWipe_sameLines(txt) {
-	if(Cfg.samel == 0) return;
+	if(Cfg.samel == 0) return false;
 	var lines = txt.replace(/> /g, '').split(/[\s]*[\n][\s]*/);
 	var len = lines.length;
-	if(len < 5) return;
+	if(len < 5) return false;
 	var arr = [], n = 0;
 	for(var i = 0; i < len; i++) {
 		var w = lines[i];
@@ -3181,14 +3187,15 @@ function detectWipe_sameLines(txt) {
 	for(var x in arr)
 		if(arr[x] > n/4 && arr[x] >= 5)
 			return 'same lines: "' + x.substr(0, 20) + '" x' + parseInt(arr[x] + 1);
+	return false;
 }
 
 function detectWipe_sameWords(txt) {
-	if(Cfg.samew == 0) return;
+	if(Cfg.samew == 0) return false;
 	txt = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase();
 	var words = txt.split(' ');
 	var len = words.length;
-	if(len <= 13) return;
+	if(len <= 13) return false;
 	var arr = [], n = 0;
 	for(var i = 0; i < len; i++) {
 		var w = words[i];
@@ -3198,7 +3205,7 @@ function detectWipe_sameWords(txt) {
 			n++;
 		}
 	}
-	if(n <= 10) return;
+	if(n <= 10) return false;
 	var keys = 0, pop = '', mpop = -1;
 	for(var x in arr) {
 		keys++;
@@ -3207,32 +3214,35 @@ function detectWipe_sameWords(txt) {
 	}
 	pop = pop.substr(0, 20);
 	if(n > 80 && keys <= 20 || n/keys > 7) return 'same words: "' + pop + '" x' + mpop;
+	return false;
 }
 
 function detectWipe_specSymbols(txt) {
-	if(Cfg.specs == 0) return;
+	if(Cfg.specs == 0) return false;
 	txt = txt.replace(/\s+/g, '');
 	var all = txt; 
 	txt = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '');
 	var proc = txt.length/all.length;
 	if(all.length > 30 && proc > 0.4) return 'specsymbols: ' + parseInt(proc*100) + '%';
+	return false;
 }
 
 function detectWipe_longColumn(txt) {
-	if(Cfg.longp == 0) return;
+	if(Cfg.longp == 0) return false;
 	var n = 0;
 	var rows = txt.split(/[\s]*[\n][\s]*/);
 	var len = rows.length;
 	if(len > 50) return 'long text x' + len;
 	for(var i = 0; i < len; i++) {
 		if(rows[i].length < 9) n++;
-		else return;
+		else return false;
 	}
 	if(n > 5) return 'columns x' + n;
+	return false;
 }
 
 function detectWipe_longWords(txt) {
-	if(Cfg.longw == 0) return;
+	if(Cfg.longw == 0) return false;
 	txt = txt.replace(/(https*:\/\/.*?)(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ');
 	var words = txt.split(' ');
 	var n = 0, all = '', lng = '';
@@ -3244,22 +3254,24 @@ function detectWipe_longWords(txt) {
 		}
 	if(n == 1 && lng.length > 70 || n > 1 && all.length/n > 12)
 		return 'long words: "' + lng.substr(0, 20) + '.."';
+	return false;
 }
 
 function detectWipe_numbers(txt) {
-	if(Cfg.nums == 0) return;
+	if(Cfg.nums == 0) return false;;
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	var len = txt.length;
 	var proc = (len - txt.replace(/[0-9]/g, '').length)/len;
 	if(len > 30 && proc > 0.4) return 'numbers: ' + parseInt(proc*100) + '%';
+	return false;
 }
 
 function detectWipe_caseWords(txt) {
-	if(Cfg.caps == 0) return;
+	if(Cfg.caps == 0) return false;
 	txt = txt.replace(/[\s+\.\?!,-]+/g, ' ');
 	var words = txt.split(' ');
 	var len = words.length;
-	if(len <= 4) return;
+	if(len <= 4) return false;
 	var n = 0, all = 0, caps = 0;
 	for(var i = 0; i < len; i++) {
 		if(words[i].length < 5) continue;
@@ -3283,6 +3295,7 @@ function detectWipe_caseWords(txt) {
 	}
 	if(n/all >= 0.3 && all > 8) return 'cAsE words: ' + parseInt(n/len*100) + '%';
 	if(caps/all >= 0.3 && all > 5) return 'CAPSLOCK';
+	return false;
 }
 
 
@@ -3323,7 +3336,7 @@ function fixDomain() {
 }
 
 function fixUneval() {
-	try{eval("uneval")}catch(e){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"};uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}};
+	try{eval("uneval")}catch(e){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"},uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});window.uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}};
 }
 
 function fixGM() {
@@ -3455,6 +3468,7 @@ function parseDelform(node) {
 		$case([ch.fch, '[not(@class="exif")]', ch.tire, '[not(@class="postfiles")]'], '');
 	$each(threads, function(thr) {
 		if(tinyb) $after(thr, [$new('hr')]);
+		var tNum;
 		if(!(tinyb || ch.fch || ch.gazo)) {
 			var a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr);
 			tNum = a ? a.name : thr.id.match(/\d+/);
