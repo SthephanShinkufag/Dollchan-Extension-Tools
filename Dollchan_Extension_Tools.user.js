@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.2.0
+// @version			12.2.4.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 "use strict";  
 var defaultCfg = {
-	version:	'2012-02-02',
+	version:	'2012-02-04',
 	lang:		0,		// script language [0=ru, 1=en]
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -661,7 +661,8 @@ function removeFavorites(h, b, tNum) {
 	delete Favor[h][b][tNum];
 	if(isEmptyObj(Favor[h][b])) delete Favor[h][b];
 	if(isEmptyObj(Favor[h])) delete Favor[h];
-	if(pByNum[tNum]) $x('a[4]', pByNum[tNum].Btns).className = 'DESU_icn_favor';
+	if(pByNum[tNum]) $x('.//a[starts-with(@class,"DESU_icn_fav")]', pByNum[tNum].Btns).className
+		= 'DESU_icn_favor';
 }
 
 function toggleFavorites(post, btn) {
@@ -1377,7 +1378,7 @@ function doPostformChanges() {
 	$event(pr.subm, {'click': function(e) {
 		if(Cfg.verify == 1) $alert(Lng.checking, 'wait');
 		if(Cfg.addfav == 1 && pr.tNum)
-			toggleFavorites(pByNum[pr.tNum], $x('a[4]', pByNum[pr.tNum]));
+			toggleFavorites(pByNum[pr.tNum], $x('a[@class="DESU_icn_favor"]', pByNum[pr.tNum].Btns));
 		var txt = pr.txta.value;
 		pr.txta.value = (Cfg.spells == 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
