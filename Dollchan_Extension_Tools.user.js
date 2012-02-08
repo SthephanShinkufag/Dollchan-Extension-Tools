@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.8.0
+// @version			12.2.8.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -906,7 +906,7 @@ function addSettings() {
 		$if(!hanab, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
 		$New('div', [
 			lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime'),
-			$btn('>', function() { $disp($id('DESU_ctimeBox')); })
+			$btn('>', function() { $disp($id('DESU_ctimebox')); })
 		]),
 		$New('div', [
 			$New('div', [inpTxt('ctmofs', 3), $new('span', {'text': Lng.cTimeOffset})]),
@@ -914,10 +914,10 @@ function addSettings() {
 				inpTxt('ctmpat', 30),
 				$txt(' '),
 				$new('a', {'text': Lng.cTimePattern, 'href': '#'}, {
-					'click': function(e) { $pD; $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\niichan.ru: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss"'); }
+					'click': function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\niichan.ru: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss"'); }
 				})
 			])
-		], {'id': 'DESU_ctimeBox', 'style': 'display:none; padding-left:15px'}),
+		], {'id': 'DESU_ctimebox', 'style': 'display:none; padding-left:15px'}),
 		divBox('insnum', Lng.insertLink),
 		divBox('animp', Lng.animatePopup),
 		$New('div', [
@@ -1346,6 +1346,12 @@ function doChanges() {
 				if(Cfg.updthr == 1) setTimeout(function() { doc.title = docTitle; }, 0);
 			}
 		});
+		initPostsUpdate();
+		if(Cfg.updthr == 2 || Cfg.updthr == 3) $after($x('.//div[@class="thread"]'), [
+			$add('<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
+				'click': function(e) { $pD(e); loadNewPosts(true); }
+			})
+		]);
 	} else window.scrollTo(0, 0);
 	if(abu) {
 		$Del('.//*[starts-with(@id,"ABU_")]|.//small[starts-with(@id,"rfmap")]', dForm);
@@ -1427,6 +1433,7 @@ function doPostformChanges() {
 		if(el) $disp($up(el));
 	}
 	if(pr.cap) {
+		setTimeout(function() { if(abu) refreshCapImg(); $rattr(pr.cap, 'onclick'); }, 0);
 		$rattr(pr.cap, 'onfocus');
 		$rattr(pr.cap, 'onkeypress');
 		$event($attr(pr.cap, {'autocomplete': 'off'}), {'keypress': function(e) {
@@ -2449,7 +2456,7 @@ function newPost(thr, tNum, i, isDel) {
 	addPostButtons(post);
 	if(Cfg.expimg != 0) eventPostImg(post);
 	addPostFunc(post);
-	expandPost(post);
+	if(Cfg.expost != 0 && !TNum) expandPost(post);
 	thr.appendChild(post);
 	if(tinyb) thr.appendChild($new('br'));
 	return post;
@@ -2617,17 +2624,6 @@ function initPostsUpdate() {
 	if(Cfg.updthr == 2) ajaxInt = setInterval(function() {
 		AJAX(null, brd, TNum, function(err) { infoNewPosts(err, getDelPosts(err)); }, true);
 	}, t);
-}
-
-function initNewPosts() {
-	if(!TNum) return;
-	initPostsUpdate();
-	if(Cfg.updthr == 2 || Cfg.updthr == 3)
-		$after($x('.//div[@class="thread"]'), [
-			$add('<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
-				'click': function(e) { $pD(e); loadNewPosts(true); }
-			})
-		]);
 }
 
 function loadPages(len) {
@@ -3472,8 +3468,8 @@ function doScript() {
 	initPosts();					Log('initPosts');
 	readPostsVisib();
 	readHiddenThreads();
-	readViewedPosts();
-	readFavorites();				Log('readData');
+	readFavorites();
+	readViewedPosts();				Log('readData');
 	addPanel();						Log('addPanel');
 	doChanges();					Log('doChanges');
 	forAll(addPostButtons);			Log('addPostButtons');
@@ -3481,7 +3477,6 @@ function doScript() {
 	addRefMap();					Log('addRefMap');
 	forAll(doPostFilters);			Log('doPostFilters');
 	saveHiddenPosts();				Log('saveHiddenPosts');
-	initNewPosts();					Log('initNewPosts');
 	if(Cfg.delhd == 1)
 		{ forPosts(mergeHidden);	Log('mergeHidden'); }
 	if(Cfg.expimg != 0)
@@ -3493,8 +3488,6 @@ function doScript() {
 	addLinkImg();					Log('addLinkImg');
 	scriptCSS();					Log('scriptCSS');
 	endTime = oldTime - initTime;
-	if(pr.recap) refreshCapImg();
-	if(pr.cap) $rattr(pr.cap, 'onclick');
 }
 
 if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
