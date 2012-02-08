@@ -1693,7 +1693,7 @@ function fixTime(txt) {
 			else if(t == 'i') minute = a;
 			else if(t == 'h') hour = a;
 			else if(t == 'd') day = a;
-			else if(t == 'n') month = a;
+			else if(t == 'n') month = a - 1;
 			else if(t == 'y') year = a;
 			else if(t == 'm') {
 				if(/янв|jan/i.test(a)) month = 0;
