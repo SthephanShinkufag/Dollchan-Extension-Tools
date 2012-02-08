@@ -11,7 +11,6 @@
 // ==/UserScript==
 
 (function (scriptStorage) {
-"use strict";  
 var defaultCfg = {
 	version:	'2012-02-08',
 	lang:		0,		// script language [0=ru, 1=en]
