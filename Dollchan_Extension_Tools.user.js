@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.8.1
+// @version			12.2.8.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2103,7 +2103,9 @@ function addLinkTube(post) {
 			method: 'GET',
 			url: 'https://gdata.youtube.com/feeds/api/videos/' + id
 				+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
-			onload: function(xhr) { link.textContent = JSON.parse(xhr.responseText).entry.title.$t; }
+			onload: function(xhr) {
+				try { link.textContent = JSON.parse(xhr.responseText).entry.title.$t; } catch(e) {};
+			}
 		});
 	}, true);
 }
