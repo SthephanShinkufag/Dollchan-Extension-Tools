@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.8.2
+// @version			12.2.8.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -14,6 +14,7 @@
 var defaultCfg = {
 	version:	'2012-02-08',
 	lang:		0,		// script language [0=ru, 1=en]
+	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
 	samew:		1,		//		same words
@@ -22,17 +23,16 @@ var defaultCfg = {
 	longw:		0,		//		long words
 	nums:		1,		//		numbers
 	caps:		0,		//		cAsE, CAPS
-	spells:		0,		// hide posts by magic spells
-	filthr:		1,		// filter threads
 	menuhd:		1,		// menu on hide button
 	viewhd:		1,		// view hidden on postnumber
 	delhd:		0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
+	filthr:		1,		// filter threads
 	updthr:		1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
 	updint:		2,		//		threads update interval
 	updfav:		1,		//		favicon blinking, if new posts detected
 	navig:		2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
-	navdel:		1,		//		delay [0=off, 1=on]
 	navfix:		1,		//		previews placed by [0=mouse, 1=link]
+	navdel:		1,		//		delay [0=off, 1=on]
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		strike hidden posts in refmap
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
@@ -42,19 +42,20 @@ var defaultCfg = {
 	ctmpat:		'',		//		pattern
 	insnum:		1,		// insert >>link on postnumber click
 	animp:		1,		// animated popups
+	rtitle:		1,		// replace page title in threads
 	attach:		1,		// attach main panel
 	icount:		1,		// show posts/images counter
 	showmp:		0,		// show full main panel
-	noname:		0,		// hide post names
 	ospoil:		1,		// open spoilers
+	noname:		0,		// hide post names
 	noscrl:		1,		// hide scrollers in posts
 	mp3:		1,		// mp3 player by links
 	addimg:		1,		// add images by links
 	ytube:		3,		// YouTube links embedder [0=off, 1=on click, 2=player, 3=preview+player, 4=only preview]
-	ywidth:		360,	//		player height
-	yheigh:		270,	//		player width
-	yhdvid:		0,		//		hd video quality
 	yptype:		0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
+	ywidth:		360,	//		player width
+	yheigh:		270,	//		player height
+	yhdvid:		0,		//		hd video quality
 	ytitle:		0,		//		convert links to titles
 	verify:		1,		// reply without reload (verify on submit)
 	addfav:		1,		// add thread to favorites on reply
@@ -139,6 +140,7 @@ var LngArray = {
 		'Insert >>link on №postnumber click*'
 	],
 	animatePopup:	['Анимировать всплывающие уведомления', 'Animate popup messages'],
+	replaceTitle:	['Заменять title страницы в тредах*', 'Replace page title in threads*'],
 	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
 	showImgCount:	['Счетчик постов/изображений', 'Posts/images counter'],
 	imgExpand:		['раскрывать изображения ', 'expand images '],
@@ -913,12 +915,13 @@ function addSettings() {
 				inpTxt('ctmpat', 30),
 				$txt(' '),
 				$new('a', {'text': Lng.cTimePattern, 'href': '#'}, {
-					'click': function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\niichan.ru: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
+					'click': function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
 				})
 			])
 		], {'id': 'DESU_ctimebox', 'style': 'display:none; padding-left:15px'}),
 		divBox('insnum', Lng.insertLink),
 		divBox('animp', Lng.animatePopup),
+		divBox('rtitle', Lng.replaceTitle),
 		$New('div', [
 			lBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
 			lBox('icount', Lng.showImgCount, scriptCSS)
@@ -1330,8 +1333,10 @@ function setUserPassw() {
 
 function doChanges() {
 	if(TNum) {
-		docTitle = '/' + brd + ' - ' + getTitle(oPosts[0]).substring(0, 77);
-		doc.title = docTitle;
+		if(Cfg.rtitle == 1) {
+			docTitle = '/' + brd + ' - ' + getTitle(oPosts[0]).substring(0, 70);
+			doc.title = docTitle;
+		} else docTitle = doc.title;
 		$event(window, {
 			'blur': function() { isActiveTab = false; },
 			'focus': function() {
