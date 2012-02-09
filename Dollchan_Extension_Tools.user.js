@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.9.1
+// @version			12.2.9.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1995,7 +1995,7 @@ function addPostButtons(post) {
 			setStored('DESU_Favorites', uneval(Favor));
 		}
 		if(hThrds[b])
-			if(sav.cookie && hThrds[b].indexOf(tNum) >= 0 || !sav.cookie && hThrds[b][tNum])
+			if(sav.cookie && hThrds[b].indexOf(tNum) >= 0 || !sav.cookie && hThrds[b][tNum] != undefined)
 				setPostVisib(post, 0);
 	}
 	if(isSage(post))
