@@ -600,7 +600,7 @@ function readPostsVisib() {
 	forAll(function(post) {
 		post.Vis = getVisib(post.Num);
 		if(post.isOp && post.Vis == 0 && !sav.cookie)
-			if(!hThrds[brd] || hThrds[brd] && !hThrds[brd][post.Num]) {
+			if(!hThrds[brd] || hThrds[brd] && hThrds[brd][post.Num] == undefined) {
 				Visib[brd + post.Num] = null;
 				post.Vis = null;
 			}
