@@ -3419,7 +3419,7 @@ function parseDelform(node) {
 	if(ch.fch || ch.krau || Cfg.ctime && timeRegex || Cfg.spells == 1 && oSpells.rep[0]) {
 		var txt = node.innerHTML;
 		if(ch.fch || ch.krau)
-			txt = txt.replace(/(^|>|\s)(https*:\/\/.*?)($|<|\s)/ig, '$1<a href="$2">$2</a>$3');
+			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
 		if(Cfg.ctime && timeRegex) txt = fixTime(txt);
 		if(Cfg.spells == 1 && oSpells.rep[0]) txt = doReplace(oSpells.rep, txt);
 		node.innerHTML = txt;
