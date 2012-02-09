@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.9.0
+// @version			12.2.9.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2966,6 +2966,7 @@ function checkSpells(post) {
 }
 
 function hideBySpells(post) {
+	if(Cfg.filthr == 0 && post.isOp) return;
 	var exp = checkSpells(post);
 	if(post.Vis == 0) { if(post.noHide) unhidePost(post); } 
 	else if(exp) hidePost(post, exp.substring(0, 70));
@@ -3079,6 +3080,7 @@ function detectWipe(post) {
 }
 
 function hideByWipe(post) {
+	if(Cfg.filthr == 0 && post.isOp) return;
 	if(post.Vis == 0 || post.Vis == 1) return;
 	var note = detectWipe(post);
 	if(note) hidePost(post, note);
