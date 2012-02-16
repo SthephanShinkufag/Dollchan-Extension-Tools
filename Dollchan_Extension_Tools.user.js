@@ -2077,7 +2077,7 @@ function addTubePreview(el, id) {
 function clickTubeLink(e) {
 	$pD(e);
 	var el = $x('.//div[@class="DESU_ytube"]', getPost(this));
-	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?v=|v\/)|\.be\/)([^&]+).*$/;
+	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&]+).*$/;
 	var id = this.href.match(pattern)[1];
 	if($xb('node()[contains(@src,"' + id + '")]|video[contains(@poster,"' + id + '")]', el))
 		el.innerHTML = '';
@@ -2087,7 +2087,7 @@ function clickTubeLink(e) {
 
 function addLinkTube(post) {
 	if(Cfg.ytube == 0) return;
-	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?v=|v\/)|\.be\/)([^&]+).*$/;
+	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&]+).*$/;
 	$each($X('.//embed', post || dForm), function(el) {
 		if(!pattern.test(el.src)) return;
 		var src = 'http://www.youtube.com/watch?v=' + el.src.match(pattern)[1];
