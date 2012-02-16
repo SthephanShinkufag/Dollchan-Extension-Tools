@@ -2103,6 +2103,7 @@ function addLinkTube(post) {
 		var el = $x('.//div[@class="DESU_ytube"]', pst);
 		if(!el) {
 			el = $new('div', {'class': 'DESU_ytube'});
+			if(pst.Vis == 0) el.style.display = 'none';
 			if(Cfg.ytube > 2) addTubePreview(el, id);
 			else if(Cfg.ytube == 2) addTubePlayer(el, id);
 			var msg = pst.Msg || $x(xPostMsg, pst);
