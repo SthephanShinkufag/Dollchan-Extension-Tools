@@ -2047,23 +2047,26 @@ function getTubeVideoLinks(id, fn) {
 	}});
 }
 
-function addTubeEmbed(el, id) {
+function addTubeEmbed(el, id, startTime) {
 	var wh = ' width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
 	el.innerHTML = Cfg.yptype == 1
 		? '<iframe type="text/html" src="http://www.youtube.com/embed/'
-			+ id + (Cfg.yhdvid == 1 ? '?hd=1&' : '?') + 'html5=1" frameborder="0"' + wh
+			+ id + (Cfg.yhdvid == 1 ? '?hd=1&' : '?') + 'start=' + startTime + '&html5=1" frameborder="0"' + wh
 		: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/'
-			+ id + (Cfg.yhdvid == 1 ? '?hd=1' : '') + '" wmode="transparent"' + wh;
+			+ id + (Cfg.yhdvid == 1 ? '?hd=1&' : '?') + 'start=' + startTime + '" wmode="transparent"' + wh;
 }
 
-function addTubePlayer(el, id) {
-	if(Cfg.yptype != 2) addTubeEmbed(el, id);
+function addTubePlayer(el, id, startTime) {
+	if(Cfg.yptype != 2) addTubeEmbed(el, id, startTime);
 	else getTubeVideoLinks(id, function(url) {
 		var src = url ? (Cfg.yhdvid == 0 ? url[43] : url[45] || url[44] || url[43]) : null;
-		if(!src) addTubeEmbed(el, id);
-		else el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
-			+ 'controls="controls" preload="none" src="' + src + '&' + Math.random()
-			+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
+		if(!src) addTubeEmbed(el, id, startTime);
+		else {
+			el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
+				+ 'controls="controls" preload="none" src="' + src + '&' + Math.random()
+				+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
+			if(startTime != 0) $event($x('.//video', el), {'loadedmetadata': function() {this.currentTime = startTime;}});
+		}
 	});
 }
 
@@ -2078,20 +2081,23 @@ function addTubePreview(el, id) {
 function clickTubeLink(e) {
 	$pD(e);
 	var el = $x('.//div[@class="DESU_ytube"]', getPost(this));
-	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&]+).*$/;
-	var id = this.href.match(pattern)[1];
+	var pattern = /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:([0-9]+)h)?(?:([0-9]+)m)?(?:([0-9]+)s)?)?$/;
+	var m = this.href.match(pattern);
+	var id = m[1], sTime = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
 	if($xb('node()[contains(@src,"' + id + '")]|video[contains(@poster,"' + id + '")]', el))
 		el.innerHTML = '';
 	else if(Cfg.ytube > 2 && !$xb('a[contains(@href,"' + id + '")]', el)) addTubePreview(el, id);
-	else addTubePlayer(el, id);
+	else addTubePlayer(el, id, sTime);
 }
 
 function addLinkTube(post) {
 	if(Cfg.ytube == 0) return;
-	var pattern = /http:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&]+).*$/;
+	var pattern = /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:([0-9]+)h)?(?:([0-9]+)m)?(?:([0-9]+)s)?)?$/;
 	$each($X('.//embed', post || dForm), function(el) {
 		if(!pattern.test(el.src)) return;
-		var src = 'http://www.youtube.com/watch?v=' + el.src.match(pattern)[1];
+		var m = el.src.match(pattern);
+		var src = 'http://www.youtube.com/watch?v=' + m[1];
+		if(m[4] || m[3] || m[2]) src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		$x(xPostMsg, post || getPost(el)).appendChild(
 			$add('<p><a href="' + src + '">' + src + '</a></p>')
 		);
@@ -2099,14 +2105,15 @@ function addLinkTube(post) {
 	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
 		if(!pattern.test(link.href)) return;
-		var id = link.href.match(pattern)[1];
+		var m = link.href.match(pattern);
+		var id = m[1], sTime = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
 		var pst = post || getPost(link);
 		var el = $x('.//div[@class="DESU_ytube"]', pst);
 		if(!el) {
 			el = $new('div', {'class': 'DESU_ytube'});
 			if(pst.Vis == 0) el.style.display = 'none';
 			if(Cfg.ytube > 2) addTubePreview(el, id);
-			else if(Cfg.ytube == 2) addTubePlayer(el, id);
+			else if(Cfg.ytube == 2) addTubePlayer(el, id, sTime);
 			var msg = pst.Msg || $x(xPostMsg, pst);
 			if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
