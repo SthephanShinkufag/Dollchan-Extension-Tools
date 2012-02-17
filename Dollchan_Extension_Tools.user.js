@@ -2061,10 +2061,12 @@ function addTubePlayer(el, id, startTime) {
 	else getTubeVideoLinks(id, function(url) {
 		var src = url ? (Cfg.yhdvid == 0 ? url[43] : url[45] || url[44] || url[43]) : null;
 		if(!src) addTubeEmbed(el, id, startTime);
-		else el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
-			+ 'controls="controls" preload="none" src="' + src + '&' + Math.random()
-			+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
-		if(startTime != 0) $event($x('.//video', el), {'loadedmetadata': function() {this.currentTime = startTime;}});
+		else {
+			el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
+				+ 'controls="controls" preload="none" src="' + src + '&' + Math.random()
+				+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
+			if(startTime != 0) $event($x('.//video', el), {'loadedmetadata': function() {this.currentTime = startTime;}});
+		}
 	});
 }
 
