@@ -1932,7 +1932,8 @@ function getImgWeight(post) {
 
 function getImgSize(post) {
 	var el = getImgInfo(post)
-	return el ? el.textContent.match(/\d+[x×]\d+/)[0].split(/[x×]/) : [null, null];
+	var m = el ? el.textContent.match(/\d+[x×]\d+/) : null;
+	return m ? m[0].split(/[x×]/) : [null, null];
 }
 
 function getText(el) {
