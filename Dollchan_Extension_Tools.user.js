@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.18.0
+// @version			12.2.18.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1481,7 +1481,7 @@ function doPostformChanges() {
 			}
 		)]);
 		$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
-		if(ch.nul) pr.form.action = 'http://www.0chan.ru/board.php?dir=b';
+		if(ch.nul) pr.form.action = 'https://www.0chan.ru/board.php?dir=b';
 	}
 }
 
