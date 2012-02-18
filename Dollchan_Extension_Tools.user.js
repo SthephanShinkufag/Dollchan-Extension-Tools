@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.17.0
+// @version			12.2.17.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -287,18 +287,15 @@ function $t(id, root) {
 	return (root || doc).getElementsByTagName(id)[0];
 }
 function $next(el) {
-	do el = el.nextSibling;
-	while(el && el.nodeType != 1);
+	while((el = el.nextSibling) && el.nodeType != 1);
 	return el;
 }
 function $prev(el) {
-	do el = el.previousSibling;
-	while(el && el.nodeType != 1);
+	while((el = el.previousSibling) && el.nodeType != 1);
 	return el;
 }
 function $up(el, i) {
-	i = i || 1;
-	while(i--) el = el.parentNode;
+	for(i = i || 1; i--;) el = el.parentNode;
 	return el;
 }
 function $1(el) {
@@ -2749,13 +2746,13 @@ function getSpellObj() {
 }
 
 function initSpells() {
-	var x, b, n, t, p, j, i = spellsList.length, Spells = {};
+	var i, x, b, n, t, p, j, Spells;
 	pSpells = new getSpellObj();
 	tSpells = new getSpellObj();
 	oSpells = {rep: [], skip: [], num: [], outrep: []};
-	while(i--) {
+	for(i = 0; x = spellsList[i++];) {
 		Spells = pSpells;
-		x = spellsList[i].toString();
+		x = x.toString();
 		if(/^#(?:[^\s]+\/)?(?:\d+)? /.test(x)) {
 			b = x.match(/^#([^\/]+)\//);
 			n = x.match(/(\d+)\s/);
@@ -2827,24 +2824,22 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 }
 
 function getSpells(x, post) {
-	var inf, i, t, pTitle, pName, pTrip, sz, imgW, imgH, imgK;
+	var inf, i, t, _t, pTitle, pName, pTrip, sz, imgW, imgH, imgK;
 	post.noHide = false;
 	if(oSpells.skip[0] && TNum) {
-		inf = post.Count;
-		i = oSpells.skip.length;
-		while(i--) {
-			t = oSpells.skip[i].split('-');
+		inf = post.Count - 1;
+		for(i = 0; t = oSpells.skip[i++];) {
+			t = t.split('-');
 			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) { post.noHide = true; return false; }
 		}
 	}
 	if(x.words[0]) {
 		pTitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
 		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
-		inf = post.Text.toLowerCase();
-		i = x.words.length;
-		while(i--) {
-			t = x.words[i].toLowerCase();
-			if(inf.indexOf(t) > -1 || pTitle.indexOf(t) > -1) return x.words[i];
+		for(i = 0, inf = post.Text.toLowerCase(); t = x.words[i++];) {
+			_t = t;
+			t = t.toLowerCase();
+			if(inf.indexOf(t) > -1 || pTitle.indexOf(t) > -1) return _t;
 		}
 	}
 	if(x.name[0] || x.trip) {
@@ -2855,54 +2850,43 @@ function getSpells(x, post) {
 	if(x.name[0]) {
 		pName = pName ? pName.textContent : '';
 		pTrip = pTrip ? pTrip.textContent : '';
-		i = x.name.length;
-		while(i--) {
-			t = x.name[i].split(/!+/);
+		for(i = 0; t = x.name[i++];) {
+			_t = t;
+			t = t.split(/!+/);
 			if(t[0] != '' && pName.indexOf(t[0]) > -1 || t[1] != '' && pTrip.indexOf(t[1]) > -1)
-				return '#name' + x.name[i];
+				return '#name ' + _t;
 		}
 	}
-	if(x.exp[0]) {
-		inf = post.Text;
-		i = x.exp.length;
-		while(i--) if(inf.match(x.exp[i])) return '#exp ' + x.exp[i].toString();
-	}
-	if(x.exph[0]) {
-		inf = post.innerHTML;
-		i = x.exph.length;
-		while(i--) if(inf.match(x.exph[i])) return '#exph ' + x.exph[i].toString();
-	}
+	if(x.exp[0])
+		for(i = 0, inf = post.Text; t = x.exp[i++];)
+			if(t.test(inf)) return '#exp ' + t.toString();
+	if(x.exph[0])
+		for(i = 0, inf = post.innerHTML; t = x.exph[i++];)
+			if(t.test(inf)) return '#exph ' + t.toString();
 	if(post.Img.snapshotLength > 0) {
 		if(x.img[0]) {
 			sz = getImgSize(post);
 			imgW = parseInt(sz[0]);
 			imgH = parseInt(sz[1]);
 			imgK = getImgWeight(post);
-			i = x.img.length;
-			while(i--) if(getImgSpell(imgW, imgH, imgK, x.img[i])) return '#img ' + x.img[i];
+			for(i = 0; t = x.img[i++];) if(getImgSpell(imgW, imgH, imgK, t)) return '#img ' + t;
 		}
 		if(x.imgn[0]) {
 			inf = getImgInfo(post);
-			if(inf) {
-				inf = inf.textContent;
-				i = x.imgn.length;
-				while(i--) if(inf.match(x.imgn[i])) return '#imgn ' + x.imgn[i];
-			}
+			if(inf)
+				for(i = 0, inf = inf.textContent; t = x.imgn[i++];)
+					if(t.test(inf)) return '#imgn ' + t;
 		}
 	}
-	if(oSpells.num[0]) {
-		inf = post.Count;
-		i = oSpells.num.length;
-		while(i--) {
-			t = oSpells.num[i].split('-');
-			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) return '#num ' + oSpells.num[i];
+	if(oSpells.num[0])
+		for(i = 0, inf = post.Count - 1; t = oSpells.num[i++];) {
+			_t = t;
+			t = t.split('-');
+			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) return '#num ' + _t;
 		}
-	}
-	if(x.tmax[0]) {
-		inf = post.Text.replace(/\n/g, '').length;
-		i = x.tmax.length;
-		while(i--) if(inf >= x.tmax[i]) return '#tmax ' + x.tmax[i];
-	}
+	if(x.tmax[0])
+		for(i = 0, inf = post.Text.replace(/\n/g, '').length; t = x.tmax[i++];)
+			if(inf >= t) return '#tmax ' + t;
 	if(x.sage && isSage(post)) return '#sage';
 	if(x.notxt && post.Text == '') return '#no text';
 	if(x.noimg && post.Img.snapshotLength == 0) return '#no image';
