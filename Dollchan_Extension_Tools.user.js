@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.17.1
+// @version			12.2.18.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function (scriptStorage) {
 var defaultCfg = {
-	version:	'2012-02-17',
+	version:	'2012-02-18',
 	lang:		0,		// script language [0=ru, 1=en]
 	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
@@ -2991,37 +2991,39 @@ function hideBySameText(post) {
 /*--------------------------------Wipe detectors-----------------------------*/
 
 function detectWipe_sameLines(txt) {
-	var lines, len, i, x, arr = [], n = 0;
+	var lines, i, x, arr = [], n = 0;
 	if(Cfg.samel == 0) return false;
-	lines = txt.replace(/> /g, '').split(/[\s]*[\n][\s]*/);
-	len = lines.length;
-	if(len < 5) return false;
-	for(i = 0; i < len; i++) {
+	lines = txt.replace(/> /g, '').split(/\s*\n\s*/);
+	i = lines.length;
+	if(i < 6) return false;
+	while(i--) {
 		x = lines[i];
 		if(x.length == 0)  continue;
 		if(arr[x]) arr[x]++;
 		else arr[x] = 1;
 		n++;
 	}
-	for(x in arr) if(arr[x] > n/4 && arr[x] >= 5)
-		return 'same lines: "' + x.substr(0, 20) + '" x' + parseInt(arr[x] + 1);
+	n = n/4;
+	for(x in arr)
+		if(arr[x] > n && arr[x] > 4)
+			return 'same lines: "' + x.substr(0, 20) + '" x' + parseInt(arr[x] + 1);
 	return false;
 }
 
 function detectWipe_sameWords(txt) {
-	var words, len, i, x, arr = [], n = 0, keys = 0, pop = '', mpop = -1;
+	var words, i, x, arr = [], n = 0, keys = 0, pop = '', mpop = -1;
 	if(Cfg.samew == 0) return false;
 	words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-	len = words.length;
-	if(len <= 13) return false;
-	for(i = 0; i < len; i++) {
+	i = words.length;
+	if(i <= 13) return false;
+	while(i--) {
 		x = words[i];
 		if(x.length < 2) continue;
 		if(arr[x]) arr[x]++;
 		else arr[x] = 1;
 		n++;
 	}
-	if(n <= 10) return false;
+	if(n < 10) return false;
 	for(x in arr) {
 		keys++;
 		if(arr[x] > mpop) { mpop = arr[x]; pop = x; }
@@ -3032,22 +3034,23 @@ function detectWipe_sameWords(txt) {
 }
 
 function detectWipe_longColumn(txt) {
-	var rows, len, i, n = 0;
+	var rows, i, n = 0;
 	if(Cfg.longp == 0) return false;
-	rows = txt.split(/[\s]*[\n][\s]*/);
-	len = rows.length;
-	if(len > 50) return 'long text x' + len;
-	for(i = 0; i < len; i++)
+	rows = txt.split(/\s*\n\s*/);
+	i = rows.length;
+	if(i > 50) return 'long text x' + i;
+	while(i--)
 		if(rows[i].length < 9) n++;
 		else return false;
 	return n > 5 ? 'columns x' + n : false;
 }
 
 function detectWipe_longWords(txt) {
-	var words, len, i, x, all = '', longest = '', n = 0;
+	var words, i, x, all = '', longest = '', n = 0;
 	if(Cfg.longw == 0) return false;
-	words = txt.replace(/(https*:\/\/.*?)(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-	for(i = 0, len = words.length; i < len; i++) {
+	words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+	i = words.length;
+	while(i--) {
 		x = words[i];
 		if(x.length < 2) continue;
 		all += x;
@@ -3059,12 +3062,12 @@ function detectWipe_longWords(txt) {
 }
 
 function detectWipe_caseWords(txt) {
-	var words, len, i, x, cap, up, lw, upc, lwc, j, wlen, capsw = 0, casew = 0, n = 0;
+	var words, i, x, cap, up, lw, upc, lwc, j, capsw = 0, casew = 0, n = 0;
 	if(Cfg.caps == 0) return false;
 	words = txt.replace(/[\s+\.\?!,-]+/g, ' ').split(' ');
-	len = words.length;
-	if(len <= 4) return false;
-	for(i = 0; i < len; i++) {
+	i = words.length;
+	if(i <= 4) return false;
+	while(i--) {
 		x = words[i];
 		if(x.length < 5) continue;
 		cap = x.match(/[a-zа-я]/ig);
@@ -3076,7 +3079,8 @@ function detectWipe_caseWords(txt) {
 		lw = x.toLowerCase();
 		upc = 0;
 		lwc = 0;
-		for(j = 0, wlen = x.length; j < wlen; j++) {
+		j = x.length;
+		while(j--) {
 			if(up.charAt(j) == lw.charAt(j)) continue;
 			if(x.charAt(j) == up.charAt(j)) upc++;
 			else if(x.charAt(j) == lw.charAt(j)) lwc++;
@@ -3084,7 +3088,7 @@ function detectWipe_caseWords(txt) {
 		if((upc < lwc ? upc : lwc) >= 2 && lwc + upc >= 5) casew++;
 		n++;
 	}
-	return (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/len*100) + '%')
+	return (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100) + '%')
 		: (capsw/n >= 0.3 && n > 5) ? 'CAPSLOCK'
 		: false;
 }
@@ -3108,7 +3112,7 @@ function detectWipe_numbers(txt) {
 }
 
 function detectWipe(post) {
-	var arr, i, len, x;
+	var arr, i, x;
 	if(Cfg.awipe == 0) return false;
 	arr = [
 		detectWipe_sameLines,
@@ -3119,7 +3123,7 @@ function detectWipe(post) {
 		detectWipe_specSymbols,
 		detectWipe_numbers
 	];
-	for(i = 0, len = arr.length; i < len; i++) { x = arr[i](post.Text); if(x) return x; }
+	for(i = 0; i < 7; i++) { x = arr[i](post.Text); if(x) return x; }
 	return false;
 }
 
