@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.18.2
+// @version			12.2.19.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2488,12 +2488,13 @@ function loadFavorThread(e) {
 		thr = $x('.//div[@class="thread"]', el),
 		arr = el.id.substr(13).split('|'),
 		url = $if(arr[0] != host, $next(this).href),
+		b = arr[1],
 		tNum = arr[2];
 	$pD(e);
 	if(thr.style.display != 'none') { $disp(thr); thr.innerHTML = ''; return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	$alert(Lng.loading, 'wait');
-	AJAX(url, arr[1], tNum, function(err) {
+	AJAX(url, b, tNum, function(err) {
 		if(err) { $close($id('DESU_alert_wait')); $alert(err); return; }
 		if(url && /^http:\/\//.test(url)) {
 			thr.innerHTML = ajaxPosts[0].split(/<form[^>]+del[^>]+>/)[1].split('</form>'
