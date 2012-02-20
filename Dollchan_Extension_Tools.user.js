@@ -744,7 +744,7 @@ function addPanel() {
 					id: 'DESU_btn_maskimg', title: Lng.maskImages, href: '#'}, {
 					click: function(e) { $pD(e); toggleCfg('mask'); scriptCSS(); }
 				})),
-				$if(TNum && (Cfg.updthr == 1 || Cfg.updthr == 2), $new('a', {
+				$if(TNum && Cfg.updthr != 3, $new('a', {
 					id: 'DESU_btn_updon', title: Lng.autoupd, href: '#'}, {
 					click: function(e) {
 						$pD(e);
@@ -1648,7 +1648,7 @@ function addTextPanel() {
 
 function toggleTimeSettings() {
 	var el = $id('DESU_ctime');
-	if(el.checked && (!/^[+-][0-9]{1,2}$/.test(Cfg.ctmofs) || !parseTimePattern())) {
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.ctmofs) || !parseTimePattern())) {
 		$alert(Lng.cTimeError);
 		saveCfg('ctime', 0);
 		el.checked = false;
@@ -1658,7 +1658,7 @@ function toggleTimeSettings() {
 function parseTimePattern() {
 	if(/[^\?\-sihdmny]|mm/.test(Cfg.ctmpat)) return false;
 	timeRegex = Cfg.ctmpat.replace(/\-/g, '[^<]').replace(
-		/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '[0-9]').replace(/\m/g, '([a-zA-Zа-яА-Я]+)');
+		/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/\m/g, '([a-zA-Zа-яА-Я]+)');
 	timePattern = Cfg.ctmpat.replace(/[\?\-]+/g, '').replace(/([a-z])\1+/g, '$1');
 	return true;
 }
@@ -1831,6 +1831,8 @@ function scriptCSS() {
 		.ftbl {width:auto; margin:0}\
 		.reply {background: #f0e0d6}'
 	);
+	if(ch.krau) x.push('div[id^="Wz"] {z-index:10000 !important;}\
+		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}');
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
@@ -1889,7 +1891,7 @@ function getImgWeight(post) {
 }
 
 function getImgSize(post) {
-	var el = getImgInfo(post), m = el ? el.textContent.match(/\d+[x×]\d+/) : null;
+	var el = getImgInfo(post), m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
 	return m ? m[0].split(/[x×]/) : [null, null];
 }
 
@@ -1976,7 +1978,7 @@ function getTubeVideoLinks(id, fn) {
 		var i, group, len, elem, result1, result2, src,
 			sep1 = '%2C', sep2 = '%26', sep3 = '%3D', url = [],
 			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/);
-		if(!formats) { fn(null); return; }
+		if(!formats) { fn(false); return; }
 		formats = formats[1];
 		if(formats.indexOf(',') > -1) { 
 			sep1 = ',';
@@ -2010,7 +2012,7 @@ function addTubePlayer(el, m) {
 	var id = m[1], time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
 	if(Cfg.yptype != 2) addTubeEmbed(el, id, time);
 	else getTubeVideoLinks(id, function(url) {
-		var src = url ? (Cfg.yhdvid == 0 ? url[43] : url[45] || url[44] || url[43]) : null;
+		var src = url ? (Cfg.yhdvid == 0 ? url[43] : url[45] || url[44] || url[43]) : false;
 		if(!src) addTubeEmbed(el, id, time);
 		else {
 			el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
@@ -2032,7 +2034,7 @@ function addTubePreview(el, m) {
 }
 
 function getTubePattern() {
-	return /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:([0-9]+)h)?(?:([0-9]+)m)?(?:([0-9]+)s)?)?$/;
+	return /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?)?$/;
 }
 
 function clickTubeLink(e) {
@@ -2245,7 +2247,7 @@ function showRefMap(post, rNum, isUpd) {
 }
 
 function addRefMap(post) {
-	var rNum, pxt;
+	var rNum, pst;
 	if(Cfg.navig != 2) return;
 	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) return;
@@ -2525,7 +2527,7 @@ function getDelPosts(err) {
 }
 
 function setUpdButtonState(state) {
-	if(Cfg.updthr != 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+	if(TNum && Cfg.updthr != 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
 }
 
 function endPostsUpdate() {
@@ -2637,7 +2639,9 @@ function togglePostVisib(post) {
 }
 
 function togglePost(post, vis) {
-	if(post.isOp) getThread(post).style.display = vis == 0 ? 'none' : '';
+	if(post.isOp)
+		if(!ch.krau) getThread(post).style.display = vis == 0 ? 'none' : '';
+		else $x('.//div[@class="thread_body"]', getThread(post)).style.display = vis == 0 ? 'none' : '';
 	$each($X('following-sibling::*', $x(
 		ch.krau ? './/div[@class="postheader"]'
 		: tinyb ? './/p[@class="intro"]'
@@ -3107,7 +3111,7 @@ function detectWipe_numbers(txt) {
 	if(Cfg.nums == 0) return false;;
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	len = txt.length;
-	proc = (len - txt.replace(/[0-9]/g, '').length)/len;
+	proc = (len - txt.replace(/\d/g, '').length)/len;
 	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc*100) + '%' : false;
 }
 
