@@ -592,11 +592,12 @@ function readPostsVisib(callback) {
 			forAll(function(post) {
 				post.Vis = getVisib(post.Num);
 				if(post.isOp)
-					if(post.Vis == 0 && !sav.cookie &&
-						(!hThrds[brd] || (hThrds[brd] && hThrds[brd][post.Num] === undefined))) {
+					if(hThrds[brd] && ((sav.cookie && hThrds[brd].indexOf(tNum) !== -1) || (!sav.cookie && hThrds[brd][tNum] !== undefined))) {
+						if(post.Visib == 1) setPostVisib(post, 0);
+					} else if(post.Visib == 0) {
 						Visib[brd + post.Num] = null;
 						post.Vis = null;
-					} else if(hThrds[brd] && hThrds[brd][post.Num]) setPostVisib(post, 0);
+					}
 			});
 			callback();
 		});
