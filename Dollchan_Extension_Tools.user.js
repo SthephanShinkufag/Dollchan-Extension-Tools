@@ -569,25 +569,31 @@ function getVisib(pNum) {
 }
 
 function readPostsVisib(callback) {
-	var arr, i, j, len, data, id = 'DESU_Posts_' + dm;
-	getStored(id, function(data) { 
-		if(!sav.cookie) {		
-			if(!data) return;
-			arr = data.split('-');
-			i = arr.length/3;
-			while(i--) {
-				j = i*3;
-				if((new Date()).getTime() < arr[j + 2]) {
-					Visib[arr[j]] = arr[j + 1];
-					Expires[arr[j]] = arr[j + 2];
-				} else setStored(id, arr.splice(j, 3).join('-'));
+	var arr, i, j, len, id = 'DESU_Posts_' + dm;
+	if(!sav.cookie)	
+		getStored(id, function(data) { 
+			if(data) {
+				arr = data.split('-');
+				i = arr.length/3;
+				while(i--) {
+					j = i*3;
+					if((new Date()).getTime() < arr[j + 2]) {
+						Visib[arr[j]] = arr[j + 1];
+						Expires[arr[j]] = arr[j + 2];
+					} else arr.splice(j, 3);
+				}
 			}
-		} else if(TNum) {
-			data = getStored(id + '_' + TNum);
-			if(!data) return;
-			i = data.length;
-			while(i--) Visib[i + 1] = data[i];
-		}
+			readThreadVisib();
+		});
+	else if(TNum)
+		getStored(id + '_' + TNum, function(data) {
+			if(data) {
+				i = data.length;
+				while(i--) Visib[i + 1] = data[i];
+			}
+			readThreadVisib();
+		});
+	function readThreadVisib() {
 		readHiddenThreads(function() {
 			forAll(function(post) {
 				post.Vis = getVisib(post.Num);
@@ -601,7 +607,7 @@ function readPostsVisib(callback) {
 			});
 			callback();
 		});
-	});
+	}
 }
 
 function savePostsVisib() {
