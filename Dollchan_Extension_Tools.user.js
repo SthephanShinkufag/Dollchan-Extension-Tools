@@ -569,14 +569,14 @@ function getVisib(pNum) {
 }
 
 function readPostsVisib(callback) {
-	var arr, i, id = 'DESU_Posts_' + dm;
+	var arr, i, id = 'DESU_Posts_' + dm, currTime = (new Date()).getTime();
 	if(!sav.cookie)	
 		getStored(id, function(data) { 
 			if(data) {
 				arr = data.split('-');
 				i = arr.length;
 				while((i -= 3) >= 0)
-					if((new Date()).getTime() < arr[i + 2]) {
+					if(currTime < arr[i + 2]) {
 						Visib[arr[i]] = arr[i + 1];
 						Expires[arr[i]] = arr[i + 2];
 					}
