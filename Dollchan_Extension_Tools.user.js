@@ -592,7 +592,7 @@ function readPostsVisib(callback) {
 			forAll(function(post) {
 				post.Vis = getVisib(post.Num);
 				if(post.isOp)
-					if(hThrds[brd] && ((sav.cookie && hThrds[brd].indexOf(tNum) !== -1) || (!sav.cookie && hThrds[brd][tNum] !== undefined))) {
+					if(hThrds[brd] && ((sav.cookie && hThrds[brd].indexOf(post.Num) !== -1) || (!sav.cookie && hThrds[brd][post.Num] !== undefined))) {
 						if(post.Visib == 1) setPostVisib(post, 0);
 					} else if(post.Visib == 0) {
 						Visib[brd + post.Num] = null;
