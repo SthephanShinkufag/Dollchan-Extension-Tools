@@ -580,7 +580,7 @@ function readPostsVisib(callback) {
 					if((new Date()).getTime() < arr[j + 2]) {
 						Visib[arr[j]] = arr[j + 1];
 						Expires[arr[j]] = arr[j + 2];
-					} else arr.splice(j, 3);
+					}
 				}
 			}
 			readThreadVisib();
