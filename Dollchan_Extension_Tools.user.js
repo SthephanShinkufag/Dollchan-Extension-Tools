@@ -569,7 +569,7 @@ function getVisib(pNum) {
 }
 
 function readPostsVisib(callback) {
-	var arr, i, len, id = 'DESU_Posts_' + dm;
+	var arr, i, id = 'DESU_Posts_' + dm;
 	if(!sav.cookie)	
 		getStored(id, function(data) { 
 			if(data) {
