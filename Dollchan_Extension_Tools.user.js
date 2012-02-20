@@ -2276,7 +2276,7 @@ function showRefMap(post, rNum, isUpd) {
 }
 
 function addRefMap(post) {
-	var rNum, pxt;
+	var rNum, pst;
 	if(Cfg.navig != 2) return;
 	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) return;
@@ -2556,7 +2556,7 @@ function getDelPosts(err) {
 }
 
 function setUpdButtonState(state) {
-	if(Cfg.updthr != 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+	if(TNum && Cfg.updthr != 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
 }
 
 function endPostsUpdate() {
