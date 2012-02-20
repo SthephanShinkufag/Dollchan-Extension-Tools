@@ -574,14 +574,12 @@ function readPostsVisib(callback) {
 		getStored(id, function(data) { 
 			if(data) {
 				arr = data.split('-');
-				i = arr.length/3;
-				while(i--) {
-					j = i*3;
-					if((new Date()).getTime() < arr[j + 2]) {
-						Visib[arr[j]] = arr[j + 1];
-						Expires[arr[j]] = arr[j + 2];
+				i = arr.length;
+				while((i -= 3) >= 0)
+					if((new Date()).getTime() < arr[i + 2]) {
+						Visib[arr[i]] = arr[i + 1];
+						Expires[arr[i]] = arr[i + 2];
 					}
-				}
 			}
 			readThreadVisib();
 		});
