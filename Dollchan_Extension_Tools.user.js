@@ -628,7 +628,7 @@ function savePostsVisib() {
 }
 
 function readHiddenThreads(callback) {
-	getStoredObj('DESU_Threads_' + dm, {}, function(data) { hThrds = data; alert(hThrds[brd]); callback(); });
+	getStoredObj('DESU_Threads_' + dm, {}, function(data) { hThrds = data; callback(); });
 }
 
 function saveHiddenThreads(txt) {
