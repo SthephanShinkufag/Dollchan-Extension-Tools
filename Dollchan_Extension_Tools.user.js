@@ -2248,9 +2248,9 @@ function eventPostImg(post) {
 
 /*--------------------------->>RefLinks map functions------------------------*/
 
-function getRefMap(pNums, rNum) {
-	if(!refMap[rNum]) refMap[rNum] = [];
-	for(var i = 0; i < pNums.length; i++) if(refMap[rNum].indexOf(pNums[i]) === -1) refMap[rNum].push(pNums[i]);
+function getRefMap(pNum, rNum) {
+	if(!refMap[rNum]) refMap[rNum] = [pNum];
+	if(refMap[rNum].indexOf(pNum) === -1) refMap[rNum].push(pNum);
 }
 
 function showRefMap(post, rNum) {
@@ -2272,9 +2272,9 @@ function addRefMap(post) {
 		if(/\//.test(link.textContent)) return;
 		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/);
 		pst = post || getPost(link);
-		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/), rNum);
+		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/)[0], rNum);
 	}, true);
-	for(rNum in refMap) showRefMap(pByNum[rNum], rNum);
+	for(var rNum in refMap) showRefMap(pByNum[rNum], rNum);
 }
 
 /*----------------------->>RefLinks posts preview functions------------------*/
