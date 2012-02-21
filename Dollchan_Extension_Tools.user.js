@@ -1906,6 +1906,12 @@ function getImages(post) {
 	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler")]', post);
 }
 
+function getText(el) {
+	var txt;
+	try { txt = el.innerText; } catch(e) {}
+	return txt ? txt : el.innerHTML.replace(/<br[^>]*?>|<\/?p[^>]*?>/gi,'\n').replace(/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+}
+
 function getImgInfo(post) {
 	return $x('.//em|.//span[@class="filesize"]|.//node()[@class="fileinfo"]', post);
 }
@@ -2416,7 +2422,7 @@ function AJAX(url, b, tNum, fn) {
 }
 
 function addPostFunc(post) {
-	post.Text = post.Msg.textContent.trim();
+	post.Text = getText(post.Msg).trim();
 	doPostFilters(post);
 	addRefMap(post);
 	eventRefLink(post);
@@ -3387,7 +3393,7 @@ function initPosts() {
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
 		post.Num = post.id.match(/\d+/);
-		post.Text = post.Msg.textContent.trim();
+		post.Text = getText(post.Msg).trim();
 		post.Img = getImages(post);
 		pByNum[post.Num] = post;
 	});
