@@ -1907,8 +1907,7 @@ function getImages(post) {
 }
 
 function getText(el) {
-	var txt;
-	try { txt = el.innerText; } catch(e) {}
+	var txt = el.innerText;
 	return txt ? txt : el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
 }
 
