@@ -2417,7 +2417,7 @@ function AJAX(url, b, tNum, fn) {
 }
 
 function addPostFunc(post) {
-	post.Text = getText(post.Msg).trim();
+	post.Text = post.Msg.textContent.trim();
 	doPostFilters(post);
 	addRefMap(post);
 	updateRefMap();
