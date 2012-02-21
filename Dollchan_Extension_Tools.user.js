@@ -2248,9 +2248,9 @@ function eventPostImg(post) {
 
 /*--------------------------->>RefLinks map functions------------------------*/
 
-function getRefMap(pNum, rNum) {
-	if(!refMap[rNum]) refMap[rNum] = [pNum];
-	else if(refMap[rNum].indexOf(pNum) === -1) refMap[rNum].push(pNum);
+function getRefMap(pNums, rNum) {
+	if(!refMap[rNum]) refMap[rNum] = [];
+	else for(var i = 0; i < pNums.length; i++) if(refMap[rNum].indexOf(pNums[i]) === -1) refMap[rNum].push(pNums[i]);
 }
 
 function showRefMap(post, rNum) {
@@ -2262,7 +2262,7 @@ function showRefMap(post, rNum) {
 		msg = post.Msg || $x(xPostMsg, post);
 		if(!msg) return;
 		$after(msg, [$add('<div class="DESU_refmap">' + txt + '</div>')]);
-	} else el.innerHTML = txt;
+	} else { el.innerHTML = txt; eventRefLink(el); }
 }
 
 function addRefMap(post) {
