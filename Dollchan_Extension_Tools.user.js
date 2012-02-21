@@ -2250,7 +2250,7 @@ function eventPostImg(post) {
 
 function getRefMap(pNums, rNum) {
 	if(!refMap[rNum]) refMap[rNum] = [];
-	else for(var i = 0; i < pNums.length; i++) if(refMap[rNum].indexOf(pNums[i]) === -1) refMap[rNum].push(pNums[i]);
+	for(var i = 0; i < pNums.length; i++) if(refMap[rNum].indexOf(pNums[i]) === -1) refMap[rNum].push(pNums[i]);
 }
 
 function showRefMap(post, rNum) {
