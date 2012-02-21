@@ -417,11 +417,11 @@ function isEmptyObj(obj) {
 	for(var i in obj) return false;
 	return true;
 }
-String.prototype.trim = function() {
-    var str = (this || '').replace(/^\s\s*/, ''), s = /\s/, i = str.length;
-    while(s.test(str.charAt(--i)));
-    return str.slice(0, i + 1);
-};
+if(!String.prototype.trim) {
+	String.prototype.trim = function () {
+		return this.replace(/^\s+|\s+$/g,'');
+	};
+}
 function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
@@ -1897,7 +1897,7 @@ function getPstCount(thrd) {
 function getTitle(post) {
 	var t = $x('.//span[@class="filetitle" or @class="replytitle" or @class="postsubject"'
 		+ ' or @class="subject"]', post);
-	return (t && t.textContent.trim() || post.Text.trim()).replace(/\s+/g, ' ')
+	return (t && t.textContent.trim() || post.Text).replace(/\s+/g, ' ')
 }
 
 function getImages(post) {
@@ -1919,16 +1919,6 @@ function getImgWeight(post) {
 function getImgSize(post) {
 	var el = getImgInfo(post), m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
 	return m ? m[0].split(/[x×]/) : [null, null];
-}
-
-function getText(el) {
-	var t, i, arr, x, n = el.nodeName;
-	if(n == '#text') return el.data;
-	if(n == 'BR') return '\n';
-	t = [];
-	if(n == 'P' || n == 'BLOCKQUOTE' || n == 'LI') t[t.length] = '\n';
-	for(i = 0, arr = el.childNodes; x = arr[i++];) t[t.length] = getText(x);
-	return t.join('');
 }
 
 function isSage(post) {
@@ -2251,34 +2241,35 @@ function eventPostImg(post) {
 /*--------------------------->>RefLinks map functions------------------------*/
 
 function getRefMap(pNum, rNum) {
-	if(!refMap[rNum]) refMap[rNum] = [];
-	if((',' + refMap[rNum].toString() + ',').indexOf(',' + pNum + ',') < 0) refMap[rNum].push(pNum);
+	if(!refMap[rNum]) refMap[rNum] = [pNum];
+	else if(refMap[rNum].indexOf(pNum) === -1) refMap[rNum].push(pNum);
 }
 
-function showRefMap(post, rNum, isUpd) {
-	var txt, el, msg;
-	if(typeof refMap[rNum] !== 'object' || !post) return;
+function showRefMap(post, rNum) {
+	var el, msg, txt;
+	if(!refMap[rNum] || !post) return;
+	el = $x('.//div[@class="DESU_refmap"]', post);
 	txt = refMap[rNum].toString().replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
-	el = $if(isUpd, $x('.//div[@class="DESU_refmap"]', post));
 	if(!el) {
 		msg = post.Msg || $x(xPostMsg, post);
 		if(!msg) return;
-		el = $add('<div class="DESU_refmap">' + txt + '</div>');
-		eventRefLink(el);
-		$after(msg, [el]);
-	} else eventRefLink($html(el, txt));
+		$after(msg, [$add('<div class="DESU_refmap">' + txt + '</div>')]);
+	} else el.innerHTML = txt;
 }
 
 function addRefMap(post) {
-	var rNum, pst;
-	if(Cfg.navig != 2) return;
-	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
+	var rNum;
+	if(Cfg.navig !== 2) return;
+	$each($X('.//a[starts-with(text(),">>")]', post.Msg), function(link) {
 		if(/\//.test(link.textContent)) return;
 		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/);
-		pst = post || getPost(link);
-		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/), rNum);
+		if(pByNum[rNum] && post) getRefMap(post.id.match(/\d+/), rNum);
 	}, true);
-	for(rNum in refMap) showRefMap(pByNum[rNum], rNum, Boolean(post));
+}
+
+function updateRefMap() {
+	if(Cfg.navig === 2)
+		for(var rNum in refMap) showRefMap(pByNum[rNum], rNum);
 }
 
 /*----------------------->>RefLinks posts preview functions------------------*/
@@ -2310,17 +2301,17 @@ function funcPostPreview(post, parentId, msg) {
 	pView.innerHTML = ($x('.//td[@class="' + pClass + '"]', post) || post).innerHTML;
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
 		+ '|.//div[@class="DESU_refmap" or @class="DESU_ytube" or @class="DESU_mp3"]', pView);
-	eventRefLink(pView);
 	addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
 	addLinkImg(pView);
 	if(Cfg.navig == 2) {
-		showRefMap(pView, pView.id.match(/\d+/), false);
+		showRefMap(pView, pView.id.match(/\d+/));
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
 	}
+	eventRefLink(pView);
 }
 
 function showPostPreview(e) {
@@ -2428,13 +2419,14 @@ function AJAX(url, b, tNum, fn) {
 function addPostFunc(post) {
 	post.Text = getText(post.Msg).trim();
 	doPostFilters(post);
-	if(post.Vis == 0) setPostVisib(post, 0);
-	if(Cfg.delhd == 1) mergeHidden(post);
 	addRefMap(post);
-	eventRefLink(post.Msg);
+	updateRefMap();
+	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
 	addLinkImg(post);
+	if(post.Vis == 0) setPostVisib(post, 0);
+	if(Cfg.delhd == 1) mergeHidden(post);
 	if(isExpImg) expandAllPostImg(post);
 }
 
@@ -2869,6 +2861,12 @@ function getSpells(x, post) {
 			if(inf.indexOf(t) > -1 || pTitle.indexOf(t) > -1) return _t;
 		}
 	}
+	if(x.exp[0])
+		for(i = 0, inf = post.Text; t = x.exp[i++];)
+			if(t.test(inf)) return '#exp ' + t.toString();
+	if(x.exph[0])
+		for(i = 0, inf = post.innerHTML; t = x.exph[i++];)
+			if(t.test(inf)) return '#exph ' + t.toString();
 	if(x.name[0] || x.trip) {
 		pName = $x('.//span[@class="commentpostername" or @class="postername"]', post);
 		pTrip = $x('.//span[@class="postertrip"]', post);
@@ -2884,12 +2882,6 @@ function getSpells(x, post) {
 				return '#name ' + _t;
 		}
 	}
-	if(x.exp[0])
-		for(i = 0, inf = post.Text; t = x.exp[i++];)
-			if(t.test(inf)) return '#exp ' + t.toString();
-	if(x.exph[0])
-		for(i = 0, inf = post.innerHTML; t = x.exph[i++];)
-			if(t.test(inf)) return '#exph ' + t.toString();
 	if(post.Img.snapshotLength > 0) {
 		if(x.img[0]) {
 			sz = getImgSize(post);
@@ -3397,7 +3389,7 @@ function initPosts() {
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
 		post.Num = post.id.match(/\d+/);
-		post.Text = getText(post.Msg).trim();
+		post.Text = post.Msg.textContent.trim();
 		post.Img = getImages(post);
 		pByNum[post.Num] = post;
 	});
@@ -3417,24 +3409,26 @@ function doScript() {
 	Log('initDelform');
 	readCfg(function() {
 		Log();
-		replaceDelform(dForm);
-		Log('replaceDelform');
 		initPosts();
 		Log('initPosts');
 		addPanel();
-		Log('addPanel');
-		addRefMap();
-		if(Cfg.navig == 2) Log('addRefMap');
-		eventRefLink();
-		if(Cfg.navig != 0) Log('eventRefLink');
-		scriptCSS();
-		Log('scriptCSS');
 		readFavorites(function() {
 			Log();
-			forAll(addPostButtons);
-			Log('addPostButtons');
+			forAll(function(post) {
+				replaceDelform(post);
+				post.Msg = $x(xPostMsg, post);
+				addPostButtons(post)
+				addRefMap(post);
+			});
+			Log('postsChanges');
 			doChanges();
 			Log('doChanges');
+			updateRefMap();
+			if(Cfg.navig === 2) Log('updateRefMap');
+			eventRefLink();
+			if(Cfg.navig != 0) Log('eventRefLink');
+			scriptCSS();
+			Log('scriptCSS');
 		});
 		readPostsVisib(function() {
 			Log();
