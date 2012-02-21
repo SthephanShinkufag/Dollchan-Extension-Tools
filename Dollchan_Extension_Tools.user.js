@@ -2258,18 +2258,15 @@ function showRefMap(post, rNum) {
 }
 
 function addRefMap(post) {
-	var rNum;
+	var rNum, pst;
 	if(Cfg.navig !== 2) return;
-	$each($X('.//a[starts-with(text(),">>")]', post.Msg), function(link) {
+	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) return;
 		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/);
-		if(pByNum[rNum] && post) getRefMap(post.id.match(/\d+/), rNum);
+		pst = post || getPost(link);
+		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/), rNum);
 	}, true);
-}
-
-function updateRefMap() {
-	if(Cfg.navig === 2)
-		for(var rNum in refMap) showRefMap(pByNum[rNum], rNum);
+	for(rNum in refMap) showRefMap(pByNum[rNum], rNum);
 }
 
 /*----------------------->>RefLinks posts preview functions------------------*/
@@ -2420,7 +2417,6 @@ function addPostFunc(post) {
 	post.Text = post.Msg.textContent.trim();
 	doPostFilters(post);
 	addRefMap(post);
-	updateRefMap();
 	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
@@ -3419,17 +3415,8 @@ function doScript() {
 			Log();
 			doChanges();
 			Log('doChanges');
-			forAll(function(post) {
-				addPostButtons(post)
-				addRefMap(post);
-			});
-			Log('postsChanges');
-			updateRefMap();
-			if(Cfg.navig === 2) Log('updateRefMap');
-			eventRefLink();
-			if(Cfg.navig != 0) Log('eventRefLink');
-			scriptCSS();
-			Log('scriptCSS');
+			forAll(addPostButtons);
+			Log('addPostButtons');
 		});
 		readPostsVisib(function() {
 			Log();
@@ -3449,6 +3436,12 @@ function doScript() {
 			saveHiddenPosts();
 			Log('saveHiddenPosts');
 		});
+		addRefMap();
+		if(Cfg.navig === 2) Log('addRefMap');
+		eventRefLink();
+		if(Cfg.navig != 0) Log('eventRefLink');
+		scriptCSS();
+		Log('scriptCSS');
 	});
 }
 
