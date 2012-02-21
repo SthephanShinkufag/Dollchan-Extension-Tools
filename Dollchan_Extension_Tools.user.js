@@ -3412,6 +3412,7 @@ function doScript() {
 		initPosts();
 		Log('initPosts');
 		addPanel();
+		Log('addPanel');
 		readFavorites(function() {
 			Log();
 			forAll(function(post) {
