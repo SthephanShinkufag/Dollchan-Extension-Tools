@@ -1691,7 +1691,7 @@ function parseTimePattern() {
 
 function fixTime(txt) {
 	var a, t, second, minute, hour, day, month, year, dtime;
-	return txt.replace(new RegExp(timeRegex, 'g'), function(str, a1, a2, a3, a4, a5, a6) {
+	return txt.replace(new RegExp(timeRegex, ''), function(str, a1, a2, a3, a4, a5, a6) {
 		for(var i = 0, arr = [a1, a2, a3, a4, a5, a6]; i < 6; i++) {
 			a = arr[i];
 			t = timePattern[i];
@@ -3354,9 +3354,9 @@ function replaceDelform(node) {
 	var txt;
 	if(ch.fch || ch.krau || Cfg.ctime && timeRegex || Cfg.spells == 1 && oSpells.rep[0]) {
 		txt = node.innerHTML;
+		if(Cfg.ctime && timeRegex) txt = fixTime(txt);
 		if(ch.fch || ch.krau)
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
-		if(Cfg.ctime && timeRegex) txt = fixTime(txt);
 		if(Cfg.spells == 1 && oSpells.rep[0]) txt = doReplace(oSpells.rep, txt);
 		node.innerHTML = txt;
 	}
