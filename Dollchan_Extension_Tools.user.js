@@ -2262,7 +2262,7 @@ function showRefMap(post, rNum) {
 		msg = post.Msg || $x(xPostMsg, post);
 		if(!msg) return;
 		$after(msg, [$add('<div class="DESU_refmap">' + txt + '</div>')]);
-	} else { el.innerHTML = txt; eventRefLink(el); }
+	} else eventRefLink($html(el, txt));
 }
 
 function addRefMap(post) {
