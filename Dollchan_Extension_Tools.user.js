@@ -2249,7 +2249,7 @@ function eventPostImg(post) {
 
 function getRefMap(pNum, rNum) {
 	if(!refMap[rNum]) refMap[rNum] = [pNum];
-	if(refMap[rNum].indexOf(pNum) === -1) refMap[rNum].push(pNum);
+	else if(refMap[rNum].indexOf(pNum) === -1) refMap[rNum].push(pNum);
 }
 
 function showRefMap(post, rNum) {
@@ -2273,7 +2273,7 @@ function addRefMap(post) {
 		pst = post || getPost(link);
 		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/)[0], rNum);
 	}, true);
-	for(var rNum in refMap) showRefMap(pByNum[rNum], rNum);
+	for(rNum in refMap) showRefMap(pByNum[rNum], rNum);
 }
 
 /*----------------------->>RefLinks posts preview functions------------------*/
@@ -2397,7 +2397,7 @@ function parseHTMLdata(html) {
 				if(om) post.appendChild(om);
 			}
 			$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post), function(link) {
-				getRefMap(pNum, link.textContent.match(/\d+/));
+				getRefMap(pNum, link.textContent.match(/\d+/)[0]);
 			});
 		}, true);
 	}, true);
