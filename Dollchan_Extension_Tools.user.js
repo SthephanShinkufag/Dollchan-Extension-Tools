@@ -3415,6 +3415,8 @@ function doScript() {
 		Log('addPanel');
 		readFavorites(function() {
 			Log();
+			doChanges();
+			Log('doChanges');
 			forAll(function(post) {
 				replaceDelform(post);
 				post.Msg = $x(xPostMsg, post);
@@ -3422,8 +3424,6 @@ function doScript() {
 				addRefMap(post);
 			});
 			Log('postsChanges');
-			doChanges();
-			Log('doChanges');
 			updateRefMap();
 			if(Cfg.navig === 2) Log('updateRefMap');
 			eventRefLink();
