@@ -419,7 +419,9 @@ function isEmptyObj(obj) {
 }
 if(!String.prototype.trim) {
 	String.prototype.trim = function () {
-		return this.replace(/^\s+|\s+$/g,'');
+		var str = this.replace(/^\s\s*/, ''), s = /\s/, i = str.length;
+		while(s.test(str.charAt(--i)));
+		return str.slice(0, i + 1);
 	};
 }
 function txtSelection() {
