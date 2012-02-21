@@ -2249,7 +2249,7 @@ function getRefMap(pNum, rNum) {
 
 function showRefMap(post, rNum) {
 	var el, msg, txt;
-	if(!refMap[rNum] || !post) return;
+	if(typeof refMap[rNum] !== 'object' || !post) return;
 	el = $x('.//div[@class="DESU_refmap"]', post);
 	txt = refMap[rNum].toString().replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	if(!el) {
