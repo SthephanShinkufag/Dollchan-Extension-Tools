@@ -1691,7 +1691,7 @@ function parseTimePattern() {
 
 function fixTime(txt) {
 	var a, t, second, minute, hour, day, month, year, dtime;
-	return txt.replace(new RegExp(timeRegex, ''), function(str, a1, a2, a3, a4, a5, a6) {
+	return txt.replace(new RegExp(timeRegex, 'g'), function(str, a1, a2, a3, a4, a5, a6) {
 		for(var i = 0, arr = [a1, a2, a3, a4, a5, a6]; i < 6; i++) {
 			a = arr[i];
 			t = timePattern[i];
@@ -3409,6 +3409,8 @@ function doScript() {
 	Log('initDelform');
 	readCfg(function() {
 		Log();
+		replaceDelform(dForm);
+		Log('replaceDelform');
 		initPosts();
 		Log('initPosts');
 		addPanel();
@@ -3418,8 +3420,6 @@ function doScript() {
 			doChanges();
 			Log('doChanges');
 			forAll(function(post) {
-				replaceDelform(post);
-				post.Msg = $x(xPostMsg, post);
 				addPostButtons(post)
 				addRefMap(post);
 			});
