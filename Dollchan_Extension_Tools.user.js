@@ -502,7 +502,7 @@ function setStored(name, value) {
 }
 
 function getStoredObj(name, def, callback) {
-	try { getStored(name, function(data) { callback(eval(data) || def || {}); }); } catch(e) { callback(def || {}); }
+	try { getStored(name, function(data) { callback(eval(data) || def); }); } catch(e) { callback(def); }
 }
 
 function saveSpells(val) {
@@ -597,7 +597,7 @@ function readPostsVisib(callback) {
 			forAll(function(post) {
 				post.Vis = getVisib(post.Num);
 				if(post.isOp)
-					if(hThrds[brd] && ((sav.cookie && hThrds[brd].indexOf(post.Num) !== -1) || (!sav.cookie && hThrds[brd][post.Num] !== undefined))) {
+					if(hThrds[brd] && ((sav.cookie && hThrds[brd].indexOf(Number(post.Num)) !== -1) || (!sav.cookie && hThrds[brd][post.Num] !== undefined))) {
 						if(post.Vis == 1) setPostVisib(post, 0);
 					} else if(post.Vis == 0) {
 						Visib[brd + post.Num] = null;
@@ -628,7 +628,7 @@ function savePostsVisib() {
 }
 
 function readHiddenThreads(callback) {
-	getStoredObj('DESU_Threads_' + dm, null, function(data) {hThrds = data; callback(); });
+	getStoredObj('DESU_Threads_' + dm, {}, function(data) { hThrds = data; alert(hThrds[brd]); callback(); });
 }
 
 function saveHiddenThreads(txt) {
@@ -653,7 +653,7 @@ function toggleHiddenThread(post, vis) {
 }
 
 function readFavorites(callback) {
-	getStoredObj('DESU_Favorites', null, function(data) {Favor = data; callback(); });
+	getStoredObj('DESU_Favorites', {}, function(data) {Favor = data; callback(); });
 }
 
 function saveFavorites(txt) {
