@@ -3417,10 +3417,10 @@ function doScript() {
 		Log('initPosts');
 		addPanel();
 		Log('addPanel');
+		doChanges();
+		Log('doChanges');
 		readFavorites(function() {
 			Log();
-			doChanges();
-			Log('doChanges');
 			forAll(addPostButtons);
 			Log('addPostButtons');
 		});
