@@ -199,6 +199,7 @@ LngArray = {
 	thrViewed:		['\n\nТредов просмотрено: ', '\n\nThreads viewed: '],
 	thrCreated:		['\nТредов создано: ', '\nThreads created: '],
 	pstSended:		['\nПостов отправлено: ', '\nPosts sended: '],
+	total:			['\nВсего: ', '\nTotal: '],
 	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
 	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
 	onPage:			[' на странице', ' on page'],
@@ -262,7 +263,7 @@ pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy,
 quotetxt = '',
 docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false,
 timePattern, timeRegex,
-oldTime, timeLog = '',
+oldTime, endTime, timeLog = '',
 stoargeLife = 5*24*3600*1000,
 homePage = 'http://www.freedollchan.org/scripts/';
 
@@ -458,7 +459,7 @@ function $show(el) {
 }
 function Log(txt) {
 	var newTime = (new Date()).getTime();
-	if(txt) timeLog += txt + ': ' + (newTime - oldTime).toString() + 'ms\n';
+	timeLog += txt + ': ' + (newTime - oldTime).toString() + 'ms\n';
 	oldTime = newTime;
 }
 
@@ -486,25 +487,21 @@ function turnCookies(name) {
 }
 
 function getStored(name, fn) {
-	setTimeout(function() {
-		if(sav.GM) fn(GM_getValue(name));
-		else if(sav.script) fn(scriptStorage.getItem(name));
-		else if(sav.local) fn(localStorage.getItem(name));
-		else fn(getCookie(name));
-	}, 0);
+	if(sav.GM) return GM_getValue(name);
+	else if(sav.script) return scriptStorage.getItem(name);
+	else if(sav.local) return localStorage.getItem(name);
+	else return getCookie(name);
 }
 
 function setStored(name, value) {
-	setTimeout(function() {
-		if(sav.GM) GM_setValue(name, value);
-		else if(sav.script) scriptStorage.setItem(name, value);
-		else if(sav.local) localStorage.setItem(name, value);
-		else setCookie(name, value);
-	}, 0);
+	if(sav.GM) GM_setValue(name, value);
+	else if(sav.script) scriptStorage.setItem(name, value);
+	else if(sav.local) localStorage.setItem(name, value);
+	else setCookie(name, value);
 }
 
 function getStoredObj(name, def, fn) {
-	try { getStored(name, function(data) { fn(eval(data) || def); }); } catch(e) { fn(def); }
+	try { return eval(getStored(name)) || def; } catch(e) { return def; }
 }
 
 function saveSpells(val) {
@@ -528,32 +525,24 @@ function isValidCfg(data) {
 	return false;
 }
 
-function readCfg(fn) {
-	var global = false,
-	onRead = function(data) {
-		var key;
-		if(!isValidCfg(data)) setDefaultCfg();
-		else Cfg = eval(data);
-		Cfg.version = defaultCfg.version;
-		for(key in defaultCfg) if(Cfg[key] === undefined) Cfg[key] = defaultCfg[key];
-		if(global) fixGlobalCfg();
-		if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
-		if(nav.Chrome) Cfg.updfav = 0;
-		if(Cfg.svsage == 0) Cfg.issage = 0;
-		setStored('DESU_Config_' + dm, uneval(Cfg));
-		for(key in LngArray) Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
-		getStoredObj('DESU_Stat_' + dm, {view: 0, op: 0, reply: 0}, function(obj) {
-			Stat = obj;
-			if(TNum) Stat.view = parseInt(Stat.view) + 1;
-			setStored('DESU_Stat_' + dm, uneval(Stat));
-		});
-		if(Cfg.ctime) parseTimePattern();
-		getStored('DESU_Spells_' + dm, function(data) { saveSpells(data || ''); fn(); });
-	};
-	getStored('DESU_Config_' + dm, function(data) {
-		if(!sav.isGlobal || isValidCfg(data)) onRead(data);
-		else getStored('DESU_GlobalCfg', function(data) { global = true; onRead(data); });
-	});
+function readCfg() {
+	var global = false, key, data = getStored('DESU_Config_' + dm);
+	if(sav.isGlobal && !isValidCfg(data)) { data = getStored('DESU_GlobalCfg'); global = true; }
+	if(!isValidCfg(data)) setDefaultCfg();
+	else Cfg = eval(data);
+	Cfg.version = defaultCfg.version;
+	for(key in defaultCfg) if(Cfg[key] === undefined) Cfg[key] = defaultCfg[key];
+	if(global) fixGlobalCfg();
+	if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
+	if(nav.Chrome) Cfg.updfav = 0;
+	if(Cfg.svsage == 0) Cfg.issage = 0;
+	setStored('DESU_Config_' + dm, uneval(Cfg));
+	for(key in LngArray) Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
+	Stat = getStoredObj('DESU_Stat_' + dm, {view: 0, op: 0, reply: 0});
+	if(TNum) Stat.view = parseInt(Stat.view) + 1;
+	setStored('DESU_Stat_' + dm, uneval(Stat));
+	if(Cfg.ctime) parseTimePattern();
+	saveSpells(getStored('DESU_Spells_' + dm) || '');
 }
 
 function saveCfg(name, val) {
@@ -570,41 +559,34 @@ function getVisib(pNum) {
 	return key in Visib ? Visib[key] : null;
 }
 
-function readPostsVisib(fn) {
-	var onRead = function() {
-		forAll(function(post) {
-			var pNum = parseInt(post.Num);
-			post.Vis = getVisib(pNum);
-			if(post.isOp) {
-				if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) > -1
-					|| !sav.cookie && hThrds[brd][pNum] !== undefined))
-					setPostVisib(post, 0);
-				else if(post.Vis == 0) { Visib[brd + pNum] = null; post.Vis = null; }
-			}
-		});
-		fn();
-	};
-	if(!sav.cookie)
-		getStored('DESU_Posts_' + dm, function(data) {
-			var i, arr, currTime = (new Date()).getTime();
-			if(data) {
-				arr = data.split('-');
-				i = arr.length;
-				while((i -= 3) >= 0)
-					if(currTime < arr[i + 2]) {
-						Visib[arr[i]] = arr[i + 1];
-						Expires[arr[i]] = arr[i + 2];
-					}
-			}
-			readHiddenThreads(onRead);
-		});
-	else if(TNum)
-		getStored('DESU_Posts_' + dm + '_' + TNum, function(data) {
-			var i;
-			if(data) { i = data.length; while(i--) Visib[i] = data[i]; }
-			readHiddenThreads(onRead);
-		});
-	else readHiddenThreads(onRead);
+function readPostsVisib() {
+	var i, arr, data, pNum, currTime = (new Date()).getTime();
+	if(!sav.cookie) {
+		data = getStored('DESU_Posts_' + dm);
+		if(data) {
+			arr = data.split('-');
+			i = arr.length;
+			while((i -= 3) >= 0)
+				if(currTime < arr[i + 2]) {
+					Visib[arr[i]] = arr[i + 1];
+					Expires[arr[i]] = arr[i + 2];
+				}
+		}
+	} else if(TNum) {
+		data = getStored('DESU_Posts_' + dm + '_' + TNum);
+		if(data) { i = data.length; while(i--) Visib[i] = data[i]; }
+	}
+	readHiddenThreads();
+	forAll(function(post) {
+		pNum = parseInt(post.Num);
+		post.Vis = getVisib(pNum);
+		if(post.isOp) {
+			if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) > -1
+				|| !sav.cookie && hThrds[brd][pNum] !== undefined))
+				setPostVisib(post, 0);
+			else if(post.Vis == 0) { Visib[brd + pNum] = null; post.Vis = null; }
+		}
+	});
 }
 
 function savePostsVisib() {
@@ -617,16 +599,14 @@ function savePostsVisib() {
 		setStored(id, arr.join('-'));
 	} else if(TNum) {
 		id += '_' + TNum;
-		getStored(id, function(data) {
-			if(!data) turnCookies(id);
-			setStored(id, Visib.join(''));
-		});
+		if(!getStored(id)) turnCookies(id);
+		setStored(id, Visib.join(''));
 	}
 	toggleContent('hidd', true);
 }
 
-function readHiddenThreads(fn) {
-	getStoredObj('DESU_Threads_' + dm, {}, function(data) {hThrds = data; fn(); });
+function readHiddenThreads() {
+	hThrds = getStoredObj('DESU_Threads_' + dm, {});
 }
 
 function saveHiddenThreads(txt) {
@@ -649,8 +629,8 @@ function toggleHiddenThread(post, vis) {
 	saveHiddenThreads();
 }
 
-function readFavorites(fn) {
-	getStoredObj('DESU_Favorites', {}, function(data) {Favor = data; fn(); });
+function readFavorites() {
+	Favor = getStoredObj('DESU_Favorites', {});
 }
 
 function saveFavorites(txt) {
@@ -669,21 +649,20 @@ function removeFavorites(h, b, tNum) {
 function toggleFavorites(post, btn) {
 	var h = host, b = brd, tNum = post.Num;
 	if(!btn) return;
-	readFavorites(function() {
-		if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) removeFavorites(h, b, tNum);
-		else {
-			if(!Favor[h]) Favor[h] = {};
-			if(!Favor[h][b]) Favor[h][b] = {};
-			Favor[h][b][tNum] = {
-				cnt: getPstCount(getThread(post)),
-				txt: getTitle(post).substring(0, sav.cookie ? 25 : 70)
-			};
-			if(sav.cookie && encodeURIComponent(uneval(Favor)).length > 4095)
-				{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
-			btn.className = 'DESU_icn_favset';
-		}
-		saveFavorites();
-	});
+	readFavorites();
+	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) removeFavorites(h, b, tNum);
+	else {
+		if(!Favor[h]) Favor[h] = {};
+		if(!Favor[h][b]) Favor[h][b] = {};
+		Favor[h][b][tNum] = {
+			cnt: getPstCount(getThread(post)),
+			txt: getTitle(post).substring(0, sav.cookie ? 25 : 70)
+		};
+		if(sav.cookie && encodeURIComponent(uneval(Favor)).length > 4095)
+			{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
+		btn.className = 'DESU_icn_favset';
+	}
+	saveFavorites();
 }
 
 function markViewedPost(pNum) {
@@ -801,14 +780,14 @@ function toggleContent(name, isUpd) {
 		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
 		if(Cfg.attach == 1)
 			$t('table', el).style.backgroundColor = getStyle($t('body'), 'background-color');
-		if(name == 'hidd') readHiddenThreads(addHiddenTable);
-		if(name == 'fav') readFavorites(addFavoritesTable);
-	} else getStored('DESU_Spells_' + dm, function(data) {
-		spellsList = data.split('\n');
+		if(name == 'hidd') { readHiddenThreads(); addHiddenTable(); }
+		if(name == 'fav') { readFavorites(); addFavoritesTable(); }
+	} else {
+		spellsList = getStored('DESU_Spells_' + dm).split('\n');
 		initSpells();
 		addSettings();
-		$id('DESU_spelledit').value = data;
-	});
+		$id('DESU_spelledit').value = spellsList.join('\n');
+	}
 }
 
 function addSettings() {
@@ -843,7 +822,7 @@ function addSettings() {
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}, {
-				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + '</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
+				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.local ? 'Local Storage' : sav.script ? 'Opera ScriptStorage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
 			}),
 			$new('div', {Class: pClass, id: 'DESU_sett_main'})
 		], {id: 'DESU_sett_body'})
@@ -986,21 +965,17 @@ function addSettings() {
 				window.location.reload();
 			}),
 			$if(sav.isGlobal, $btn(Lng.load, function() {
-				getStored('DESU_GlobalCfg', function(data) {
-					if(isValidCfg(data)) {
-						setStored('DESU_Config_' + dm, '');
-						window.location.reload();
-					} else $alert(Lng.noGlobalCfg);
-				});
+				if(isValidCfg(getStored('DESU_GlobalCfg'))) {
+					setStored('DESU_Config_' + dm, '');
+					window.location.reload();
+				} else $alert(Lng.noGlobalCfg);
 			})),
 			$if(sav.isGlobal, $btn(Lng.save, function() {
 				setStored('DESU_GlobalCfg', uneval(Cfg));
 				toggleContent('sett', true);
 			})),
 			$btn(Lng.edit, function() {
-				getStored('DESU_Config_' + dm, function(val) {
-					$disp($up($attr($id('DESU_cfgedit'), {value: val})));
-				});
+				$disp($up($attr($id('DESU_cfgedit'), {value: getStored('DESU_Config_' + dm)})));
 			}),
 			$btn(Lng.reset, function() {
 				setDefaultCfg();
@@ -2633,7 +2608,7 @@ function loadPages(len) {
 				delete ajaxThrds[tNum];
 			}
 			savePostsVisib();
-			readHiddenThreads(function() {});
+			readHiddenThreads();
 			if(p == len - 1) $close($id('DESU_alert_wait'));
 		}}(p, len));
 	}
@@ -3405,50 +3380,29 @@ function initPosts() {
 function doScript() {
 	var initTime = (new Date()).getTime();
 	oldTime = initTime;
-	if(!initBoard()) return;
-	Log('initBoard');
-	if(!initDelform()) return;
-	Log('initDelform');
-	readCfg(function() {
-		Log();
-		replaceDelform(dForm);
-		Log('replaceDelform');
-		initPosts();
-		Log('initPosts');
-		addPanel();
-		Log('addPanel');
-		doChanges();
-		Log('doChanges');
-		readFavorites(function() {
-			Log();
-			forAll(addPostButtons);
-			Log('addPostButtons');
-		});
-		readPostsVisib(function() {
-			Log();
-			readViewedPosts();
-			if(Cfg.navmrk != 0) Log('readViewedPosts');
-			forAll(doPostFilters);
-			Log('doPostFilters');
-			if(Cfg.delhd == 1) { forAll(mergeHidden); Log('mergeHidden'); }
-			if(Cfg.expimg != 0) { forAll(eventPostImg); Log('eventPostImg'); }
-			if(Cfg.expost != 0 && !TNum) { forAll(expandPost); Log('expandPost'); }
-			addLinkMP3();
-			if(Cfg.mp3 != 0) Log('addLinkMP3');
-			addLinkTube();
-			if(Cfg.ytube != 0) Log('addLinkTube');
-			addLinkImg();
-			if(Cfg.addimg != 0) Log('addLinkImg');
-			saveHiddenPosts();
-			Log('saveHiddenPosts');
-		});
-		addRefMap();
-		if(Cfg.navig === 2) Log('addRefMap');
-		eventRefLink();
-		if(Cfg.navig != 0) Log('eventRefLink');
-		scriptCSS();
-		Log('scriptCSS');
-	});
+	if(!initBoard()) return;							 Log('initBoard');
+	if(!initDelform()) return;							 Log('initDelform');
+	readCfg();											 Log('readCfg');
+	replaceDelform(dForm);								 Log('replaceDelform');
+	initPosts();										 Log('initPosts');
+	addPanel();											 Log('addPanel');
+	doChanges();										 Log('doChanges');
+	readFavorites();									 Log('readFavorites');
+	forAll(addPostButtons);								 Log('addPostButtons');
+	readPostsVisib();									 Log('readPostsVisib');
+	readViewedPosts();				if(Cfg.navmrk !== 0) Log('readViewedPosts');
+	forAll(doPostFilters);								 Log('doPostFilters');
+	if(Cfg.delhd  === 1) { forAll(mergeHidden);			 Log('mergeHidden');  }
+	if(Cfg.expimg !== 0) { forAll(eventPostImg);		 Log('eventPostImg'); }
+	if(Cfg.expost !== 0 && !TNum) { forAll(expandPost);  Log('expandPost');   }
+	addLinkMP3();					if(Cfg.mp3 !== 0)    Log('addLinkMP3');
+	addLinkTube();					if(Cfg.ytube !== 0)  Log('addLinkTube');
+	addLinkImg();					if(Cfg.addimg !== 0) Log('addLinkImg');
+	saveHiddenPosts();									 Log('saveHiddenPosts');
+	addRefMap();					if(Cfg.navig === 2)  Log('addRefMap');
+	eventRefLink();					if(Cfg.navig !== 0)  Log('eventRefLink');
+	scriptCSS();										 Log('scriptCSS');
+	endTime = (new Date()).getTime() - initTime;
 }
 
 if(window.opera) $event(doc, {DOMContentLoaded: doScript});
