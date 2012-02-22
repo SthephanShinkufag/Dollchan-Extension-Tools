@@ -3403,7 +3403,8 @@ function initPosts() {
 =============================================================================*/
 
 function doScript() {
-	var initTime = (new Date()).getTime();
+	var initTime = (new Date()).getTime(),
+		readyCSS = 0, startCSS = function() { if(++readyCSS === 3) scriptCSS(); };
 	oldTime = initTime;
 	if(!initBoard()) return;
 	Log('initBoard');
@@ -3423,6 +3424,7 @@ function doScript() {
 			Log();
 			forAll(addPostButtons);
 			Log('addPostButtons');
+			startCSS();
 		});
 		readPostsVisib(function() {
 			Log();
@@ -3441,13 +3443,13 @@ function doScript() {
 			if(Cfg.addimg != 0) Log('addLinkImg');
 			saveHiddenPosts();
 			Log('saveHiddenPosts');
+			startCSS();
 		});
 		addRefMap();
 		if(Cfg.navig === 2) Log('addRefMap');
 		eventRefLink();
 		if(Cfg.navig != 0) Log('eventRefLink');
-		scriptCSS();
-		Log('scriptCSS');
+		startCSS();
 	});
 }
 
