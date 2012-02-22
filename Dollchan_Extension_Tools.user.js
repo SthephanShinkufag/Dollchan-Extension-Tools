@@ -1824,10 +1824,9 @@ function initCSS() {
 }
 
 function scriptCSS() {
-	var x = new myCSS('DESU_css');
+	var x = new myCSS('DESU_css'), pre = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
 	if(Cfg.txtbtn == 1) {
 		x.push('#DESU_textpanel span {padding:4px 27px 4px 0}');
-		pre = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
 		x.gif('#DESU_btn_bold', pre + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
 		x.gif('#DESU_btn_italic', pre + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
 		x.gif('#DESU_btn_under', pre + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
@@ -1856,11 +1855,10 @@ function scriptCSS() {
 }
 
 function cssButtons() {
-	var x = new myCSS();
+	var x = new myCSS(), pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 	x.push('a[class^="DESU_icn"] {margin:0 4px -1px 0 !important; display:inline-block; padding:0 14px 14px 0}\
 		#DESU_sagebtn {cursor:pointer}\
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}');
-	pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 	x.gif('.DESU_icn_hide', pre + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
 	x.gif('.DESU_icn_unhide', pre + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
 	x.gif('.DESU_icn_rep', pre + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
