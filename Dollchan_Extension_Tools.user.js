@@ -1558,7 +1558,7 @@ function iframeLoad() {
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
-	var tNum = getThread(post).id.match(/\d+/)[0];
+	var tNum = getThread(post).Num;
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
@@ -1605,7 +1605,7 @@ function toggleMainReply(e) {
 }
 
 function insertRefLink(e) {
-	var pNum = getPost(e.target).id.match(/\d+/)[0];
+	var pNum = getPost(e.target).Num;
 	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	if(!TNum && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
@@ -2324,7 +2324,7 @@ function showPostPreview(e) {
 		pNum = this.hash.match(/\d+/)[0] || tNum,
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		parentId = parent ? parent.id.match(/\d+/)[0] : null,
+		parentId = parent ? parent.Num : null,
 		post = pByNum[pNum] || ajaxPosts[pNum];
 	if(Cfg.navig == 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2467,7 +2467,7 @@ function expandPost(post) {
 	a = $x(ch.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
 			+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
-	tNum = getThread(post).id.match(/\d+/)[0];
+	tNum = getThread(post).Num;
 	if(Cfg.expost == 1) getFullMsg(post, tNum, a);
 	else $event(a, {click: function(e) { $pD(e); getFullMsg(post, tNum, e.target); }});
 }
@@ -2569,8 +2569,8 @@ function infoNewPosts(err, del) {
 	inf = parseInt(ajaxThrds[TNum].keys.length - Posts.length + del);
 	if(Cfg.updthr == 1) {
 		if(isActiveTab) return;
-		old = doc.title.match(/^\[\d+\]/);
-		if(old) inf += parseInt(old[0].match(/\d+/)[0]);
+		old = doc.title.match(/^\[(\d+)\]/);
+		if(old) inf += parseInt(old[1]);
 	}
 	if(Cfg.updfav == 1 && favIcon) {
 		clearInterval(favIconInt);
@@ -2738,7 +2738,7 @@ function mergeHidden(post) {
 	}
 	el.appendChild(post);
 	next = $next(post);
-	if(!next || getVisib(next.id.match(/\d+/)[0]) == 1)
+	if(!next || getVisib(next.Num) == 1)
 		$prev(el).innerHTML = unescape('%u25B2') + '[<i><a href="#">'
 			+ Lng.hiddenPosts + '</a>:&nbsp;' + el.childNodes.length + '</i>]';
 }
