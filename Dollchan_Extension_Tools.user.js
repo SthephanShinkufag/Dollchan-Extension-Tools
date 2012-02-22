@@ -1777,9 +1777,7 @@ function initCSS() {
 		.DESU_postnote {color:inherit; font-size:12px; font-style:italic}\
 		.DESU_refhid {text-decoration:line-through !important}\
 		.reply {width:auto}\
-		a[href="#"] {text-decoration:none !important; outline:none}\
-		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}to{opacity:1;}}\
-		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}'
+		a[href="#"] {text-decoration:none !important; outline:none}'
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	x.gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
@@ -3458,6 +3456,7 @@ function doScript() {
 			forAll(addPostButtons);
 			Log('addPostButtons');
 			cssButtons();
+			Log('cssButtons');
 		});
 		readPostsVisib(function() {
 			Log();
