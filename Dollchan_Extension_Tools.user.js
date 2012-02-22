@@ -1558,7 +1558,7 @@ function iframeLoad() {
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
-	var tNum = getThread(post).Num;
+	var tNum = getThread(post).id.match(/\d+/)[0];
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
@@ -2467,7 +2467,7 @@ function expandPost(post) {
 	a = $x(ch.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
 			+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
-	tNum = getThread(post).Num;
+	tNum = getThread(post).id.match(/\d+/)[0];
 	if(Cfg.expost == 1) getFullMsg(post, tNum, a);
 	else $event(a, {click: function(e) { $pD(e); getFullMsg(post, tNum, e.target); }});
 }
