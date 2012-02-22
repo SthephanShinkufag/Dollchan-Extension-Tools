@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.21.0
+// @version			12.2.22.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function (scriptStorage) {
 var defaultCfg = {
-	version:	'2012-02-21',
+	version:	'2012-02-22',
 	lang:		0,		// script language [0=ru, 1=en]
 	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
@@ -535,7 +535,7 @@ function readCfg(fn) {
 		if(!isValidCfg(data)) setDefaultCfg();
 		else Cfg = eval(data);
 		Cfg.version = defaultCfg.version;
-		for(key in defaultCfg) if(Cfg[key] == null) Cfg[key] = defaultCfg[key];
+		for(key in defaultCfg) if(Cfg[key] === undefined) Cfg[key] = defaultCfg[key];
 		if(global) fixGlobalCfg();
 		if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 		if(nav.Chrome) Cfg.updfav = 0;
@@ -843,7 +843,7 @@ function addSettings() {
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}, {
-				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.local ? 'Local Storage' : sav.script ? 'Opera ScriptStorage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + '</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
+				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + '</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
 			}),
 			$new('div', {Class: pClass, id: 'DESU_sett_main'})
 		], {id: 'DESU_sett_body'})
@@ -2936,7 +2936,7 @@ function verifyRegExp(txt) {
 		rep = t.match(re);
 		if(rep) try { strToRegexp(t.substr(t.indexOf(rep))); } catch(e) { return t; }
 	}
-	return null;
+	return false;
 }
 
 function toggleSpells() {
@@ -3258,15 +3258,15 @@ function initBoard() {
 		Opera: /opera/i.test(ua),
 		Chrome: /chrome/i.test(ua)
 	};
-	gs = nav.Firefox && GM_setValue != null;
-	ss = nav.Opera && scriptStorage != null;
-	try { ls = typeof localStorage === 'object' && localStorage != null; } catch(e) {}
-	try { se = typeof sessionStorage === 'object' && (sessionStorage.test = 1); } catch(e) {}
+	gs = nav.Firefox && typeof GM_setValue === 'function';
+	ss = nav.Opera && typeof scriptStorage === 'object';
+	ls = 'localStorage' in window && typeof localStorage === 'object';
+	se = 'sessionStorage' in window && (sessionStorage.test = 1) === 1;
 	sav = {
 		GM: gs,
 		script: ss,
+		local: ls,
 		cookie: !ls && !ss && !gs,
-		local: ls && !ss && !gs,
 		session: se,
 		isGlobal: gs || ss
 	};
