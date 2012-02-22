@@ -428,33 +428,16 @@ function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
 function $close(el) {
-	var h, closing, i = 8;
-	if(Cfg.animp == 0) $del(el);
 	if(!el) return;
-	h = el.clientHeight - 18;
-	el.style.height = h + 'px';
-	closing = setInterval(function() {
-		var s, hh;
-		if(!el || i-- < 0) { clearInterval(closing); $del(el); return; }
-		s = el.style;
-		hh = parseInt(s.height) - h/10;
-		s.opacity = i/10;
-		s.paddingTop = parseInt(s.paddingTop) - 1 + 'px';
-		s.paddingBottom = parseInt(s.paddingBottom) - 1 + 'px';
-		s.height = (hh < 0 ? 0 : hh) + 'px';
-	}, 35);
+	if(Cfg.animp == 0) $del(el);
+	else {
+		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function(){$del(el)}, false);
+		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
+	}
 }
 function $show(el) {
-	var showing, i = 0;
-	if(Cfg.animp == 0) { el.style.opacity = 1; el.style.padding = '10px'; return; }
-	showing = setInterval(function() {
-		var s;
-		if(!el || i++ > 8) { clearInterval(showing); return; }
-		s = el.style;
-		s.opacity = i/10;
-		s.paddingTop = parseInt(s.paddingTop) + 1 + 'px';
-		s.paddingBottom = parseInt(s.paddingBottom) + 1 + 'px';
-	}, 35);
+	if(Cfg.animp == 0) el.style.opacity = 1;
+	else el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
 }
 function Log(txt) {
 	var newTime = (new Date()).getTime();
@@ -539,6 +522,7 @@ function readCfg(fn) {
 		if(global) fixGlobalCfg();
 		if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 		if(nav.Chrome) Cfg.updfav = 0;
+		if(nav.Opera || (nav.Firefox && nav.Firefox < 5)) Cfg.animp = 0;
 		if(Cfg.svsage == 0) Cfg.issage = 0;
 		setStored('DESU_Config_' + dm, uneval(Cfg));
 		for(key in LngArray) Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
@@ -920,7 +904,7 @@ function addSettings() {
 			])
 		], {id: 'DESU_ctimebox', style: 'display:none; padding-left:15px'}),
 		divBox('insnum', Lng.insertLink),
-		divBox('animp', Lng.animatePopup),
+		$if(!nav.Opera && (!nav.Firefox || nav.Firefox >= 5), divBox('animp', Lng.animatePopup)),
 		divBox('rtitle', Lng.replaceTitle),
 		$New('div', [
 			lBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
@@ -1774,7 +1758,9 @@ function scriptCSS() {
 		a[href="#"] {text-decoration:none !important; outline:none}\
 		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}\
-		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}'
+		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
+		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}to{opacity:1;}}\
+		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}'
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
@@ -3253,8 +3239,9 @@ function initBoard() {
 	fixUneval();
 	fixGM();
 	ua = window.navigator.userAgent;
+	res = ua.match(/(?:firefox|minefield|icecat)\/(\d+)/i);
 	nav = {
-		Firefox: /firefox|minefield|icecat/i.test(ua),
+		Firefox: res ? res[1] : false,
 		Opera: /opera/i.test(ua),
 		Chrome: /chrome/i.test(ua)
 	};
