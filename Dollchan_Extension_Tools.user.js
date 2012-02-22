@@ -2320,7 +2320,7 @@ function funcPostPreview(post, parentId, msg) {
 function showPostPreview(e) {
 	var x, y,
 		b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
-		tNum = this.pathname.match(/[^\/]+\/(.*?)$/)[1].match(/\d+/)[0],
+		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [])[1],
 		pNum = this.hash.match(/\d+/)[0] || tNum,
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
