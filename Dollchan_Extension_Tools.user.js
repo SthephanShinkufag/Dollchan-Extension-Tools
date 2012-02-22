@@ -1558,7 +1558,7 @@ function iframeLoad() {
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
-	var tNum = getThread(post).id.match(/\d+/);
+	var tNum = getThread(post).id.match(/\d+/)[0];
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
@@ -1605,7 +1605,7 @@ function toggleMainReply(e) {
 }
 
 function insertRefLink(e) {
-	var pNum = getPost(e.target).id.match(/\d+/);
+	var pNum = getPost(e.target).id.match(/\d+/)[0];
 	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
 	if(!TNum && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
@@ -1907,8 +1907,7 @@ function getImages(post) {
 }
 
 function getText(el) {
-	var txt = el.innerText;
-	return txt ? txt : el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+	return el.innerText || el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
 }
 
 function getImgInfo(post) {
@@ -2256,7 +2255,7 @@ function showRefMap(post, rNum) {
 	var el, msg, txt;
 	if(typeof refMap[rNum] !== 'object' || !post) return;
 	el = $x('.//div[@class="DESU_refmap"]', post);
-	txt = refMap[rNum].toString().replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
+	txt = refMap[rNum].join(',').replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	if(!el) {
 		msg = post.Msg || $x(xPostMsg, post);
 		if(!msg) return;
@@ -2269,7 +2268,7 @@ function addRefMap(post) {
 	if(Cfg.navig !== 2) return;
 	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) return;
-		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/);
+		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/)[0];
 		pst = post || getPost(link);
 		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/)[0], rNum);
 	}, true);
@@ -2311,7 +2310,7 @@ function funcPostPreview(post, parentId, msg) {
 	eventPostImg(pView);
 	addLinkImg(pView);
 	if(Cfg.navig == 2) {
-		showRefMap(pView, pView.id.match(/\d+/));
+		showRefMap(pView, pView.id.match(/\d+/)[0]);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
 	}
@@ -2321,11 +2320,11 @@ function funcPostPreview(post, parentId, msg) {
 function showPostPreview(e) {
 	var x, y,
 		b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
-		tNum = this.pathname.match(/[^\/]+\/(.*?)$/)[1].match(/\d+/),
-		pNum = this.hash.match(/\d+/) || tNum,
+		tNum = this.pathname.match(/[^\/]+\/(.*?)$/)[1].match(/\d+/)[0],
+		pNum = this.hash.match(/\d+/)[0] || tNum,
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		parentId = parent ? parent.id.match(/\d+/) : null,
+		parentId = parent ? parent.id.match(/\d+/)[0] : null,
 		post = pByNum[pNum] || ajaxPosts[pNum];
 	if(Cfg.navig == 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2385,11 +2384,11 @@ function parseHTMLdata(html) {
 			!hanab ? $x(xDelForm, $up($add(html)))
 			: $up($add('<div class="thread">' + html + '</div>'))
 		)), function(thrd) {
-		var tNum = thrd.id.match(/\d+/);
+		var tNum = thrd.id.match(/\d+/)[0];
 		ajaxThrds[tNum] = {keys: []};
 		$each($X('.//node()[starts-with(@id,"post-") or starts-with(@id,"oppost-")]'
 			+ '[self::table or self::div]', thrd), function(post, i) {
-			var om, pNum = post.id.match(/\d+/);
+			var om, pNum = post.id.match(/\d+/)[0];
 			ajaxThrds[tNum].keys.push(pNum);
 			ajaxPosts[pNum] = post;
 			if(i == 0 && kusaba) {
@@ -2468,7 +2467,7 @@ function expandPost(post) {
 	a = $x(ch.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
 			+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
-	tNum = getThread(post).id.match(/\d+/);
+	tNum = getThread(post).id.match(/\d+/)[0];
 	if(Cfg.expost == 1) getFullMsg(post, tNum, a);
 	else $event(a, {click: function(e) { $pD(e); getFullMsg(post, tNum, e.target); }});
 }
@@ -2571,7 +2570,7 @@ function infoNewPosts(err, del) {
 	if(Cfg.updthr == 1) {
 		if(isActiveTab) return;
 		old = doc.title.match(/^\[\d+\]/);
-		if(old) inf += parseInt(old[0].match(/\d+/));
+		if(old) inf += parseInt(old[0].match(/\d+/)[0]);
 	}
 	if(Cfg.updfav == 1 && favIcon) {
 		clearInterval(favIconInt);
@@ -2739,7 +2738,7 @@ function mergeHidden(post) {
 	}
 	el.appendChild(post);
 	next = $next(post);
-	if(!next || getVisib(next.id.match(/\d+/)) == 1)
+	if(!next || getVisib(next.id.match(/\d+/)[0]) == 1)
 		$prev(el).innerHTML = unescape('%u25B2') + '[<i><a href="#">'
 			+ Lng.hiddenPosts + '</a>:&nbsp;' + el.childNodes.length + '</i>]';
 }
@@ -3333,8 +3332,8 @@ function parseDelform(node) {
 		if(tinyb) $after(thr, [$new('hr')]);
 		if(!tinyb && !ch.fch && !ch.gazo) {
 			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr);
-			tNum = a ? a.name : thr.id.match(/\d+/);
-		} else tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/);
+			tNum = a ? a.name : thr.id.match(/\d+/)[0];
+		} else tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/)[0];
 		$attr(thr, {id: 'thread-' + tNum, Class: 'thread'});
 		if(ch.krau) thr = $x('div[@class="thread_body"]', thr);
 		op = $new('div', {id: 'oppost-' + tNum});
@@ -3344,7 +3343,7 @@ function parseDelform(node) {
 		if(opEnd) {
 			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr), function(el) {
 				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id
-					|| el.getElementsByTagName('input')[0].name).match(/\d+/);
+					|| el.getElementsByTagName('input')[0].name).match(/\d+/)[0];
 			});
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
@@ -3391,7 +3390,7 @@ function initPosts() {
 	, true);
 	forAll(function(post) {
 		post.Msg = $x(xPostMsg, post);
-		post.Num = post.id.match(/\d+/);
+		post.Num = post.id.match(/\d+/)[0];
 		post.Text = getText(post.Msg).trim();
 		post.Img = getImages(post);
 		pByNum[post.Num] = post;
