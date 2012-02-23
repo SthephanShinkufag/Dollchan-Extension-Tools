@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.1
+// @version			12.2.23.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2296,7 +2296,7 @@ function showPostPreview(e) {
 	var x, y,
 		b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [])[1],
-		pNum = this.hash.match(/\d+/) || tNum,
+		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
 		parentId = parent ? parent.Num : null,
