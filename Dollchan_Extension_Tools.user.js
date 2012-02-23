@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.22.0
+// @version			12.2.23.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3390,17 +3390,17 @@ function doScript() {
 	readFavorites();									 Log('readFavorites');
 	forAll(addPostButtons);								 Log('addPostButtons');
 	readPostsVisib();									 Log('readPostsVisib');
-	readViewedPosts();				if(Cfg.navmrk !== 0) Log('readViewedPosts');
+	if(Cfg.navmrk !== 0) { readViewedPosts();			 Log('readViewedPosts'); }
 	forAll(doPostFilters);								 Log('doPostFilters');
-	if(Cfg.delhd  === 1) { forAll(mergeHidden);			 Log('mergeHidden');  }
+	if(Cfg.delhd === 1) { forAll(mergeHidden);			 Log('mergeHidden'); }
 	if(Cfg.expimg !== 0) { forAll(eventPostImg);		 Log('eventPostImg'); }
-	if(Cfg.expost !== 0 && !TNum) { forAll(expandPost);  Log('expandPost');   }
-	addLinkMP3();					if(Cfg.mp3 !== 0)    Log('addLinkMP3');
-	addLinkTube();					if(Cfg.ytube !== 0)  Log('addLinkTube');
-	addLinkImg();					if(Cfg.addimg !== 0) Log('addLinkImg');
+	if(Cfg.expost !== 0 && !TNum) { forAll(expandPost);	 Log('expandPost'); }
+	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
+	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
+	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
 	saveHiddenPosts();									 Log('saveHiddenPosts');
-	addRefMap();					if(Cfg.navig === 2)  Log('addRefMap');
-	eventRefLink();					if(Cfg.navig !== 0)  Log('eventRefLink');
+	if(Cfg.navig === 2) { addRefMap();					 Log('addRefMap'); }
+	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	scriptCSS();										 Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
 }
