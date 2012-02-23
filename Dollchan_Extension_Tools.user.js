@@ -2380,6 +2380,11 @@ function eventRefLink(el) {
 =============================================================================*/
 
 function parseHTMLdata(html) {
+	if(!pr.on && oeForm) {
+		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
+		$before($1($id('DESU_pform')), [pr.form]);
+	}
+	if(hanab) html = '<html><head></head><body><div class="thread">' + html + '</div></body></html>';
 	var aD = HTMLtoDOM(html);
 	parseDelform($x(xDelForm, aD, aD), aD);
 	$each($X('.//div[@class="thread"]', aD, aD), function(thrd) {
