@@ -273,14 +273,14 @@ homePage = 'http://www.freedollchan.org/scripts/';
 									UTILS
 =============================================================================*/
 
-function $X(path, root) {
-	return doc.evaluate(path, root || doc, null, 6, null);
+function $X(path, root, dc) {
+	return (dc || doc).evaluate(path, root || dc || doc, null, 6, null);
 }
-function $x(path, root) {
-	return doc.evaluate(path, root || doc, null, 8, null).singleNodeValue;
+function $x(path, root, dc) {
+	return (dc || doc).evaluate(path, root || dc || doc, null, 8, null).singleNodeValue;
 }
-function $xb(path, root) {
-	return doc.evaluate(path, root || doc, null, 3, null).booleanValue;
+function $xb(path, root, dc) {
+	return (dc || doc).evaluate(path, root || dc || doc, null, 3, null).booleanValue;
 }
 function $id(id) {
 	return doc.getElementById(id);
@@ -351,8 +351,8 @@ function $add(htm, events) {
 	if(events) $event(el, events);
 	return el;
 }
-function $new(tag, attr, events) {
-	var el = doc.createElement(tag);
+function $new(tag, attr, events, dc) {
+	var el = (dc || doc).createElement(tag);
 	if(attr) $attr(el, attr);
 	if(events) $event(el, events);
 	return el;
@@ -401,6 +401,9 @@ function $focus(el) {
 function $pD(e) {
 	e.preventDefault();
 }
+function $din(node) {
+	return doc.importNode(node, true);
+}
 function rand10() {
 	return Math.floor(Math.random()*1e10).toString(10);
 }
@@ -425,6 +428,19 @@ if(!String.prototype.trim)
 		while(s.test(str.charAt(--i)));
 		return str.slice(0, i + 1);
 	};
+function HTMLtoDOM(html) {
+	var myDoc, doc_elt, first_elt;
+	try { myDoc = (new DOMParser()).parseFromString(html, 'text/html'); } catch (e) {}
+	if(!myDoc) {
+		myDoc = document.implementation.createHTMLDocument('');
+		doc_elt = myDoc.documentElement;
+		doc_elt.innerHTML = html;
+		first_elt = doc_elt.firstElementChild;
+		if (doc_elt.childElementCount === 1 && first_elt.localName.toLowerCase() === 'html')
+			myDoc.replaceChild(first_elt, doc_elt);
+	}
+	return myDoc;
+}
 function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
@@ -2312,8 +2328,8 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		parentId = parent ? parent.Num : null,
-		post = pByNum[pNum] || ajaxPosts[pNum];
+		parentId = parent ? parent.id.match(/\d+/)[0] : null,
+		post = pByNum[pNum] || (ajaxPosts[pNum] ? $din(ajaxPosts[pNum]) : false);
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2341,7 +2357,7 @@ function showPostPreview(e) {
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		AJAX(null, b, tNum, function(err) {
-			funcPostPreview(ajaxPosts[pNum], parentId, err || Lng.postNotFound);
+			funcPostPreview($din(ajaxPosts[pNum]), parentId, err || Lng.postNotFound);
 		});
 	}
 	$del($id(pView.id));
@@ -2368,22 +2384,22 @@ function parseHTMLdata(html) {
 		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
-	$each($X('.//div[@class="thread"]', parseDelform(
-			!hanab ? $x(xDelForm, $up($add(html)))
-			: $up($add('<div class="thread">' + html + '</div>'))
-		)), function(thrd) {
+	if(hanab) html = '<html><head></head><body><div class="thread">' + html + '</div></body></html>';
+	var aD = HTMLtoDOM(html);
+	parseDelform($x(!hanab ? xDelForm : false, aD, aD), aD);
+	$each($X('.//div[@class="thread"]', aD, aD), function(thrd) {
 		var tNum = thrd.id.match(/\d+/)[0];
 		ajaxThrds[tNum] = {keys: []};
 		$each($X('.//node()[starts-with(@id,"post-") or starts-with(@id,"oppost-")]'
-			+ '[self::table or self::div]', thrd), function(post, i) {
+			+ '[self::table or self::div]', thrd, aD), function(post, i) {
 			var om, pNum = post.id.match(/\d+/)[0];
 			ajaxThrds[tNum].keys.push(pNum);
 			ajaxPosts[pNum] = post;
 			if(i === 0 && kusaba) {
-				om = $x('.//span[@class="omittedposts"]', thrd);
+				om = $x('.//span[@class="omittedposts"]', thrd, aD);
 				if(om) post.appendChild(om);
 			}
-			$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post), function(link) {
+			$each($X(xPostMsg + '//a[starts-with(text(),">>")]', post, aD), function(link) {
 				getRefMap(pNum, link.textContent.match(/\d+/)[0]);
 			});
 		}, true);
@@ -2421,7 +2437,7 @@ function addPostFunc(post) {
 }
 
 function newPost(thr, tNum, i, isDel) {
-	var pNum = ajaxThrds[tNum].keys[i], post = ajaxPosts[pNum];
+	var pNum = ajaxThrds[tNum].keys[i], post = $din(ajaxPosts[pNum]);
 	Posts[Posts.length] = post;
 	if(isDel) post.isDel = true;
 	pByNum[pNum] = post;
@@ -2444,7 +2460,7 @@ function getFullMsg(post, tNum, a) {
 	AJAX(null, brd, tNum, function(err) {
 		if(err) return;
 		$del(a);
-		post.Msg = $html(post.Msg, $x(xPostMsg, ajaxPosts[post.Num]).innerHTML);
+		post.Msg = $html(post.Msg, $x(xPostMsg, $din(ajaxPosts[post.Num])).innerHTML);
 		addPostFunc(post);
 	});
 }
@@ -3276,52 +3292,53 @@ function initBoard() {
 	return true;
 }
 
-function parseDelform(node) {
+function parseDelform(node, dc) {
 	var br = ch.gazo ? 'div[@style="clear:left"]' : 'br[@*]',
 		table = 
 			ch.fch ? 'table[not(@class="exif")]'
 			: ch.tire ? 'table[not(@class="postfiles")]'
 			: 'table',
 		threads = $X('.//div[' + (
-			$xb('div[contains(@id,"_info") and contains(@style,"float")]', node)
+			$xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc)
 				? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
 			: ch.sib ? 'not(@*)'
 			: ch._7ch ? 'starts-with(@id,"thread") and not(@id="thread_controls")'
 			: tinyb ? 'starts-with(@id,"thread") and @itemid'
 			: 'starts-with(@id,"thread")'
-		) + ']', node);
-	$Del('.//script', node);
+		) + ']', node, dc);
+	if(dc === doc) $Del('.//script', node);
 	if(threads.snapshotLength === 0) {
-		$each($X('.//hr/preceding-sibling::' + br, node), function(el) {
-			var thr = $new('div', {Class: 'thread'});
+		$each($X('.//hr/preceding-sibling::' + br, node, dc), function(el) {
+			var thr = $new('div', {Class: 'thread'}, dc);
 			$each($X('preceding-sibling::node()[not(self::div[@class="thread"] or self::hr '
-				+ 'or self::' + br + ')]', el), function(el) { thr.appendChild(el); }, nav.Firefox);
+				+ 'or self::' + br + ')]', el, dc), function(el) { thr.appendChild(el); }, nav.Firefox);
 			$before(el, [thr]);
 		}, true);
-		threads = $X('.//div[@class="thread"]', node);
+		threads = $X('.//div[@class="thread"]', node, dc);
 	}
 	$each(threads, function(thr) {
 		var a, tNum, op, opEnd;
-		if(tinyb) $after(thr, [$new('hr')]);
+		if(tinyb && dc === doc) $after(thr, [$new('hr')]);
 		if(!tinyb && !ch.fch && !ch.gazo) {
-			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr);
+			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr, dc);
 			tNum = a ? a.name : thr.id.match(/\d+/)[0];
-		} else tNum = $x('.//input[@type="checkbox"]', thr).name.match(/\d+/)[0];
+		} else tNum = $x('.//input[@type="checkbox"]', thr, dc).name.match(/\d+/)[0];
+		
 		$attr(thr, {id: 'thread-' + tNum, Class: 'thread'});
-		if(ch.krau) thr = $x('div[@class="thread_body"]', thr);
-		op = $new('div', {id: 'oppost-' + tNum});
-		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr);
-		$each(opEnd ? $X('preceding-sibling::node()', opEnd) : $X('node()', thr),
+		if(ch.krau) thr = $x('div[@class="thread_body"]', thr, dc);
+		op = $new('div', {id: 'oppost-' + tNum}, {}, dc);
+		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr, dc);
+		$each(opEnd ? $X('preceding-sibling::node()', opEnd, dc) : $X('node()', thr, dc),
 			function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
 		if(opEnd) {
-			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr), function(el) {
+			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr, dc), function(el) {
 				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id
 					|| el.getElementsByTagName('input')[0].name).match(/\d+/)[0];
 			});
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 	});
-	if(node !== dForm) replaceDelform(node);
+	if(dc !== doc) replaceDelform(node);
 	return node;
 }
 
@@ -3339,7 +3356,7 @@ function replaceDelform(node) {
 
 function initDelform() {
 	dForm.id = '';
-	try { $disp(parseDelform(dForm)); } catch(e) { return false; }
+	try { $disp(parseDelform(dForm, doc)); } catch(e) { return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }
