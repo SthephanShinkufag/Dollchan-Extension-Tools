@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.2
+// @version			12.2.23.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -264,7 +264,7 @@ quotetxt = '',
 docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false,
 timePattern, timeRegex,
 oldTime, endTime, timeLog = '',
-stoargeLife = 5*24*3600*1000,
+storageLife = 5*24*3600*1000,
 homePage = 'http://www.freedollchan.org/scripts/';
 
 
@@ -288,11 +288,11 @@ function $t(id, root) {
 	return (root || doc).getElementsByTagName(id)[0];
 }
 function $next(el) {
-	while((el = el.nextSibling) && el.nodeType != 1);
+	while((el = el.nextSibling) && el.nodeType !== 1);
 	return el;
 }
 function $prev(el) {
-	while((el = el.previousSibling) && el.nodeType != 1);
+	while((el = el.previousSibling) && el.nodeType !== 1);
 	return el;
 }
 function $up(el, i) {
@@ -316,9 +316,9 @@ function $html(el, htm) {
 }
 function $attr(el, attr) {
 	for(var key in attr)
-		key == 'Class' ? el.className = attr[key]
-		: key == 'text' ? el.textContent = attr[key]
-		: key == 'value' ? el.value = attr[key]
+		key === 'Class' ? el.className = attr[key]
+		: key === 'text' ? el.textContent = attr[key]
+		: key === 'value' ? el.value = attr[key]
 		: el.setAttribute(key, attr[key]);
 	return el;
 }
@@ -371,7 +371,7 @@ function $if(cond, el) {
 	return cond ? el : null;
 }
 function $disp(el) {
-	el.style.display = el.style.display == 'none' ? '' : 'none';
+	el.style.display = el.style.display === 'none' ? '' : 'none';
 }
 function $del(el) {
 	if(el) el.parentNode.removeChild(el);
@@ -430,7 +430,7 @@ function txtSelection() {
 }
 function $close(el) {
 	var h, closing, i = 8;
-	if(Cfg.animp == 0) $del(el);
+	if(Cfg.animp === 0) $del(el);
 	if(!el) return;
 	h = el.clientHeight - 18;
 	el.style.height = h + 'px';
@@ -447,7 +447,7 @@ function $close(el) {
 }
 function $show(el) {
 	var showing, i = 0;
-	if(Cfg.animp == 0) { el.style.opacity = 1; el.style.padding = '10px'; return; }
+	if(Cfg.animp === 0) { el.style.opacity = 1; el.style.padding = '10px'; return; }
 	showing = setInterval(function() {
 		var s;
 		if(!el || i++ > 8) { clearInterval(showing); return; }
@@ -459,7 +459,7 @@ function $show(el) {
 }
 function Log(txt) {
 	var newTime = (new Date()).getTime();
-	timeLog += txt + ': ' + (newTime - oldTime).toString() + 'ms\n';
+	timeLog += txt + ': ' + (newTime - oldTime) + 'ms\n';
 	oldTime = newTime;
 }
 
@@ -470,12 +470,12 @@ function Log(txt) {
 function setCookie(name, value, life) {
 	if(name) doc.cookie = escape(name) + '=' + escape(value) + ';expires=' 
 		+ (new Date((new Date()).getTime()
-		+ (life == 'delete' ? -10 : stoargeLife))).toGMTString() + ';path=/';
+		+ (life === 'delete' ? -10 : storageLife))).toGMTString() + ';path=/';
 }
 
 function getCookie(name) {
 	var one, arr = doc.cookie.split('; '), i = arr.length;
-	while(i--) { one = arr[i].split('='); if(one[0] == escape(name)) return unescape(one[1]); }
+	while(i--) { one = arr[i].split('='); if(one[0] === escape(name)) return unescape(one[1]); }
 	return false;
 }
 
@@ -535,11 +535,11 @@ function readCfg() {
 	if(global) fixGlobalCfg();
 	if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 	if(nav.Chrome) Cfg.updfav = 0;
-	if(Cfg.svsage == 0) Cfg.issage = 0;
+	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, uneval(Cfg));
-	for(key in LngArray) Lng[key] = Cfg.lang == 0 ? LngArray[key][0] : LngArray[key][1];
+	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
 	Stat = getStoredObj('DESU_Stat_' + dm, {view: 0, op: 0, reply: 0});
-	if(TNum) Stat.view = parseInt(Stat.view) + 1;
+	if(TNum) Stat.view = Number(Stat.view) + 1;
 	setStored('DESU_Stat_' + dm, uneval(Stat));
 	if(Cfg.ctime) parseTimePattern();
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
@@ -551,7 +551,7 @@ function saveCfg(name, val) {
 }
 
 function toggleCfg(name) {
-	saveCfg(name, Cfg[name] == 0 ? 1 : 0);
+	saveCfg(name, Cfg[name] === 0 ? 1 : 0);
 }
 
 function getVisib(pNum) {
@@ -560,31 +560,31 @@ function getVisib(pNum) {
 }
 
 function readPostsVisib() {
-	var i, arr, data, pNum, currTime = (new Date()).getTime();
+	var i, arr, data, currTime = (new Date()).getTime();
 	if(!sav.cookie) {
 		data = getStored('DESU_Posts_' + dm);
 		if(data) {
 			arr = data.split('-');
 			i = arr.length;
 			while((i -= 3) >= 0)
-				if(currTime < arr[i + 2]) {
-					Visib[arr[i]] = arr[i + 1];
-					Expires[arr[i]] = arr[i + 2];
+				if(currTime < Number(arr[i + 2])) {
+					Visib[arr[i]] = Number(arr[i + 1]);
+					Expires[arr[i]] = Number(arr[i + 2]);
 				}
 		}
 	} else if(TNum) {
 		data = getStored('DESU_Posts_' + dm + '_' + TNum);
-		if(data) { i = data.length; while(i--) Visib[i] = data[i]; }
+		if(data) { i = data.length; while(i--) Visib[i] = Number(data[i]); }
 	}
 	readHiddenThreads();
 	forAll(function(post) {
-		pNum = parseInt(post.Num);
+		var pNum = post.Num;
 		post.Vis = getVisib(pNum);
 		if(post.isOp) {
-			if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) > -1
+			if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) >= 0
 				|| !sav.cookie && hThrds[brd][pNum] !== undefined))
 				setPostVisib(post, 0);
-			else if(post.Vis == 0) { Visib[brd + pNum] = null; post.Vis = null; }
+			else if(post.Vis === 0) { Visib[brd + pNum] = null; post.Vis = null; }
 		}
 	});
 }
@@ -614,16 +614,16 @@ function saveHiddenThreads(txt) {
 }
 
 function toggleHiddenThread(post, vis) {
-	var i, b = brd, tNum = parseInt(post.Num);
+	var i, b = brd, tNum = post.Num;
 	if(sav.cookie) {
 		if(!hThrds[b]) hThrds[b] = [];
 		i = hThrds[b].indexOf(tNum);
-		if(vis == 0 && i < 0) hThrds[b].push(tNum);
-		if(vis == 1 && i >= 0) hThrds[b].splice(i, 1);
+		if(vis === 0 && i < 0) hThrds[b].push(tNum);
+		if(vis === 1 && i >= 0) hThrds[b].splice(i, 1);
 		if(encodeURIComponent(uneval(Favor)).length > 4095) hThrds[b].shift();
 	} else {
 		if(!hThrds[b]) hThrds[b] = {};
-		if(vis == 0) hThrds[b][tNum] = getTitle(post).substring(0, 70);
+		if(vis === 0) hThrds[b][tNum] = getTitle(post).substring(0, 70);
 		else { delete hThrds[b][tNum]; if(isEmptyObj(hThrds[b])) delete hThrds[b]; }
 	}
 	saveHiddenThreads();
@@ -672,7 +672,7 @@ function markViewedPost(pNum) {
 
 function readViewedPosts() {
 	var arr, i;
-	if(Cfg.navmrk == 0 || !sav.session) return;
+	if(Cfg.navmrk === 0 || !sav.session) return;
 	arr = (sessionStorage.viewedPosts || '').split(',');
 	for(i in arr) markViewedPost(arr[i]);
 }
@@ -714,11 +714,11 @@ function addPanel() {
 				}),
 				$new('a', {
 					id: 'DESU_btn_goback', title: Lng.goBack, href: 'http://' + host + '/' + brd
-						+ '/' + (pageNum > 1 ? (pageNum - 1).toString() + docExt : '')
+						+ '/' + (pageNum > 1 ? (pageNum - 1) + docExt : '')
 				}),
 				$if(!TNum, $new('a', {
 					id: 'DESU_btn_gonext', title: Lng.goNext, href: 'http://' + host + '/' + brd
-						+ '/' + (pageNum > 0 ? (pageNum + 1).toString() : 1) + docExt
+						+ '/' + (pageNum > 0 ? (pageNum + 1) : 1) + docExt
 				})),
 				$new('a', {id: 'DESU_btn_goup', title: Lng.goUp, href: '#'}, {
 					click: function(e) { $pD(e); window.scrollTo(0, 0); }
@@ -746,7 +746,7 @@ function addPanel() {
 					id: 'DESU_btn_maskimg', title: Lng.maskImages, href: '#'}, {
 					click: function(e) { $pD(e); toggleCfg('mask'); scriptCSS(); }
 				})),
-				$if(TNum && Cfg.updthr != 3, $new('a', {
+				$if(TNum && Cfg.updthr !== 3, $new('a', {
 					id: 'DESU_btn_updon', title: Lng.autoupd, href: '#'}, {
 					click: function(e) {
 						$pD(e);
@@ -771,17 +771,17 @@ function addPanel() {
 
 function toggleContent(name, isUpd) {
 	var el = $id('DESU_content'), id = 'DESU_content_' + name;
-	if(isUpd && el.className != id) return;
+	if(isUpd && el.className !== id) return;
 	el.innerHTML = '';
-	if(!isUpd && el.className == id) { el.className = 'DESU_content'; return; }
+	if(!isUpd && el.className === id) { el.className = 'DESU_content'; return; }
 	el.className = id;
-	if(Cfg.attach == 0) el.appendChild($new('hr', {style: 'clear:both'}));
-	if(name != 'sett') {
+	if(Cfg.attach === 0) el.appendChild($new('hr', {style: 'clear:both'}));
+	if(name !== 'sett') {
 		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
-		if(Cfg.attach == 1)
+		if(Cfg.attach !== 0)
 			$t('table', el).style.backgroundColor = getStyle($t('body'), 'background-color');
-		if(name == 'hidd') { readHiddenThreads(); addHiddenTable(); }
-		if(name == 'fav') { readFavorites(); addFavoritesTable(); }
+		if(name === 'hidd') { readHiddenThreads(); addHiddenTable(); }
+		if(name === 'fav') { readFavorites(); addFavoritesTable(); }
 	} else {
 		spellsList = getStored('DESU_Spells_' + dm).split('\n');
 		initSpells();
@@ -795,7 +795,7 @@ function addSettings() {
 			var el = $new('input', {type: 'checkbox'}, {
 				click: function() { toggleCfg(name); if(fn) fn(); }
 			});
-			el.checked = Cfg[name] == 1;
+			el.checked = Cfg[name] !== 0;
 			if(id) el.id = id;
 			return $New('label', [el, $txt(' ' + txt)]);
 		},
@@ -1002,7 +1002,7 @@ function addSettings() {
 function addHiddenTable() {
 	var cln, i, b, tNum, url, clones = [], tcnt = 0, pcnt = 0,
 		table = $x('.//div[@id="DESU_content"]//tbody');
-	forAll(function(post) { if(post.Vis == 0) {
+	forAll(function(post) { if(post.Vis === 0) {
 		var pp = !post.isOp;
 		cln = $attr(($id('DESU_hiddenthr_' + post.Num) || post).cloneNode(true), {id: ''});
 		clones.push(cln);
@@ -1012,27 +1012,27 @@ function addHiddenTable() {
 		$event($x(pp ? './/a[@class="DESU_icn_unhide"]' : './/a', cln), {
 			click: function(el) { return function(e) {
 				$pD(e);
-				el.vis = el.vis == 0 ? 1 : 0;
+				el.vis = el.vis === 0 ? 1 : 0;
 				if(pp) togglePost(el, el.vis);
-				else $next(el).style.display = el.vis == 1 ? '' : 'none';
+				else $next(el).style.display = el.vis === 1 ? '' : 'none';
 			}}(cln)
 		});
-		if(Cfg.attach == 0) $event($x(xPostRef, cln) || $x('.//a', cln), {
+		if(Cfg.attach === 0) $event($x(xPostRef, cln) || $x('.//a', cln), {
 			mouseover: function(el) { return function() {
-				if(el.vis == 0) {
+				if(el.vis === 0) {
 					if(pp) togglePost(el, 1);
 					else $next(el).style.display = '';
 				}
 			}}(cln),
 			mouseout: function(el) { return function() {
-				if(el.vis == 0) {
+				if(el.vis === 0) {
 					if(pp) togglePost(el, 0);
 					else $next(el).style.display = 'none';
 				}
 			}}(cln)
 		});
 		$append(table, [
-			$if(!pp && tcnt++ == 0 || pp && pcnt++ == 0, $New('tr', [
+			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', [
 				$add('<b>' + (pp ? Lng.hiddenPosts : Lng.hiddenThrds) + Lng.onPage + ':</b>')
 			])),
 			$New('tr', [cln, $if(!pp, $attr(post.cloneNode(true), {
@@ -1041,10 +1041,10 @@ function addHiddenTable() {
 		]);
 		if(!pp) togglePost($next(cln), 1);
 	}});
-	if(pcnt + tcnt == 0) table.insertRow(-1).appendChild($add('<b>' + Lng.noHidOnPage + '</b>'));
+	if(pcnt + tcnt === 0) table.insertRow(-1).appendChild($add('<b>' + Lng.noHidOnPage + '</b>'));
 	else $append(table.insertRow(-1), [
 		$btn(Lng.expandAll, function() {
-			if(this.value == Lng.expandAll) {
+			if(this.value === Lng.expandAll) {
 				this.value = Lng.undo;
 				for(i = 0; cln = clones[i++];) setPostVisib(cln.pst, 1);
 			} else {
@@ -1053,7 +1053,7 @@ function addHiddenTable() {
 			}
 		}),
 		$btn(Lng.save, function() {
-			for(i = 0; cln = clones[i++];) if(cln.vis != 0) setPostVisib(cln.pst, 1);
+			for(i = 0; cln = clones[i++];) if(cln.vis !== 0) setPostVisib(cln.pst, 1);
 			savePostsVisib();
 		})
 	]);
@@ -1088,7 +1088,7 @@ function addHiddenTable() {
 			$btn(Lng.edit, function() { $disp($up($id('DESU_hthredit'))); }),
 			$btn(Lng.remove, function() {
 				$each($X('.//tr[@class="DESU_hthrdata"]', table), function(el) {
-					var i, arr = el.id.substr(14).split('|'), b = arr[0], tNum = parseInt(arr[1]);
+					var i, arr = el.id.substr(14).split('|'), b = arr[0], tNum = arr[1];
 					if(!$t('input', el).checked) return;
 					if(pByNum[tNum]) setPostVisib(pByNum[tNum], 1);
 					else if(sav.cookie) {
@@ -1127,7 +1127,7 @@ function addFavoritesTable() {
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {type: 'checkbox'}),
-					$if(h == host || sav.GM, $new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {
+					$if(h === host || sav.GM, $new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {
 						click: loadFavorThread
 					})),
 					$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
@@ -1147,7 +1147,7 @@ function addFavoritesTable() {
 			$btn(Lng.info, function() {
 				$each(list, function(el) {
 					var c, arr = el.id.substr(13).split('|');
-					if(host != arr[0]) return;
+					if(host !== arr[0]) return;
 					c = $x('.//span[@class="DESU_favpcount"]/span', el);
 					$attr(c, {Class: 'DESU_icn_wait', text: ''});
 					AJAX(null, arr[1], arr[2], function(err) {
@@ -1190,7 +1190,7 @@ function $alert(txt, id) {
 	if(id) { nid += '_' + id; el = $id(nid); }
 	if(!el) {
 		el = $add('<div class="' + pClass + '" id="' + nid + '" style="opacity:0">' + (
-			id == 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>'
+			id === 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>'
 			: '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>'
 		) + '<div style="display:inline-block; margin-top:4px"></div></div>');
 		$event($1(el), {click: function(e) { $pD(e); $close($up(this)); }});
@@ -1207,14 +1207,14 @@ function removeSelMenu(e) {
 
 function addSelMenu(el, arr) {
 	var x, y, pos;
-	x = 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth).toString();
-	if(Cfg.attach == 1 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
+	x = 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
+	if(Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
-		if(el.id == 'DESU_btn_refresh') y = 'bottom:25';
-		else y = 'top:' + (el.getBoundingClientRect().top + el.offsetHeight).toString();
+		if(el.id === 'DESU_btn_refresh') y = 'bottom:25';
+		else y = 'top:' + (el.getBoundingClientRect().top + el.offsetHeight);
 	} else {
 		pos = 'absolute';
-		y = 'top:' + ($offset(el).top + el.offsetHeight).toString();
+		y = 'top:' + ($offset(el).top + el.offsetHeight);
 	}
 	doc.body.appendChild($add('<div class="' + pClass + '" id="DESU_select" style="position:' + pos
 		+ '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; padding:2px 5px;'
@@ -1230,8 +1230,8 @@ function selectSpell(e) {
 			$event(a, {click: function(e) {
 				var exp = this.textContent;
 				$pD(e);
-				if(exp == '#b/') exp = '#' + brd + '/ ';
-				if(exp == '#b/itt') {
+				if(exp === '#b/') exp = '#' + brd + '/ ';
+				if(exp === '#b/itt') {
 					if(TNum) exp = '#' + brd + '/' + TNum + ' ';
 					else return;
 				}
@@ -1243,7 +1243,7 @@ function selectSpell(e) {
 
 function selectPostHider(post) {
 	var a;
-	if(Cfg.menuhd == 0 || Cfg.filthr == 0 && post.isOp) return;
+	if(Cfg.menuhd === 0 || Cfg.filthr === 0 && post.isOp) return;
 	a = addSelMenu($1(post.Btns), Lng.selHiderMenu);
 	$event(a.snapshotItem(0), {
 		click: function(e) { $pD(e); applySpells(quotetxt); },
@@ -1251,7 +1251,7 @@ function selectPostHider(post) {
 	});
 	$event(a.snapshotItem(1), {click: function(e) {
 		$pD(e);
-		applySpells(post.Img.snapshotLength == 0
+		applySpells(post.Img.snapshotLength === 0
 			? '#noimg' : '#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x'))
 	}});
 	$event(a.snapshotItem(2), {click: function(e) { $pD(e); hideBySameText(post); }});
@@ -1295,12 +1295,12 @@ function refreshCapImg(tNum) {
 }
 
 function doSageBtn() {
-	var c = Cfg.issage == 1;
+	var c = Cfg.issage !== 0;
 	$id('DESU_sagebtn').innerHTML = '&nbsp;' + (
 		c ? '<a class="DESU_icn_sage" href="#"></a><b style="color:red">SAGE</b>'
 		: '<i>(no&nbsp;sage)</i>'
 	);
-	if(pr.mail.type == 'text') pr.mail.value = c ? 'sage' : ch.fch ? 'noko' : '';
+	if(pr.mail.type === 'text') pr.mail.value = c ? 'sage' : ch.fch ? 'noko' : '';
 	else pr.mail.checked = c;
 }
 
@@ -1312,7 +1312,7 @@ function setUserName() {
 function setUserPassw() {
 	var val, el = $id('DESU_fixedpass');
 	if(el) saveCfg('pasval', el.value.replace(/\|/g, ''));
-	val = Cfg.passw == 1 ? Cfg.pasval : rand10().substring(0, 8);
+	val = Cfg.passw !== 0 ? Cfg.pasval : rand10().substring(0, 8);
 	el = $X('.//input[@type="password"]').snapshotItem(1);
 	if(el) el.value = val;
 	pr.passw.value = val;
@@ -1321,7 +1321,7 @@ function setUserPassw() {
 function doChanges() {
 	var el;
 	if(TNum) {
-		if(Cfg.rtitle == 1) {
+		if(Cfg.rtitle !== 0) {
 			docTitle = '/' + brd + ' - ' + getTitle(pByNum[TNum]).substring(0, 70);
 			doc.title = docTitle;
 		} else docTitle = doc.title;
@@ -1329,16 +1329,16 @@ function doChanges() {
 			blur: function() { isActiveTab = false; },
 			focus: function() {
 				isActiveTab = true;
-				if(Cfg.updfav == 1 && favIcon) {
+				if(Cfg.updfav !== 0 && favIcon) {
 					clearInterval(favIconInt);
 					$Del('.//link[@rel="shortcut icon"]', $t('head'));
 					$t('head').appendChild($new('link', {href: favIcon, rel: 'shortcut icon'}));
 				}
-				if(Cfg.updthr == 1) setTimeout(function() { doc.title = docTitle; }, 0);
+				if(Cfg.updthr === 1) setTimeout(function() { doc.title = docTitle; }, 0);
 			}
 		});
 		initPostsUpdate();
-		if(Cfg.updthr == 2 || Cfg.updthr == 3) $after($x('.//div[@class="thread"]'), [
+		if(Cfg.updthr === 2 || Cfg.updthr === 3) $after($x('.//div[@class="thread"]'), [
 			$add('<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
 				click: function(e) { $pD(e); loadNewPosts(true); }
 			})
@@ -1368,8 +1368,8 @@ function doChanges() {
 		$New('div', [pr.form, oeForm], {id: 'DESU_pform'}),
 		$new('hr')
 	], {id: 'DESU_parea'});
-	if(TNum && Cfg.pform == 2 || !TNum && Cfg.tform == 1) $disp(pArea);
-	if(TNum && Cfg.pform == 1) $after(ch.fch ? $t('hr', dForm) : dForm, [pArea]);
+	if(TNum && Cfg.pform === 2 || !TNum && Cfg.tform !== 0) $disp(pArea);
+	if(TNum && Cfg.pform === 1) $after(ch.fch ? $t('hr', dForm) : dForm, [pArea]);
 	else $before(dForm, [pArea]);
 	if(pr.on) doPostformChanges();
 	else if(oeForm) AJAX(null, brd, Posts[0].Num, doPostformChanges);
@@ -1394,18 +1394,18 @@ function doPostformChanges() {
 	el.style.cssText = 'width:' + Cfg.texw + 'px; height:' + Cfg.texh + 'px';
 	$event(el, {keypress: function(e) {
 		var code = e.charCode || e.keyCode;
-		if((code == 33 || code == 34) && e.which == 0) { e.target.blur(); window.focus(); }
+		if((code === 33 || code === 34) && e.which === 0) { e.target.blur(); window.focus(); }
 	}});
 	$event(pr.subm, {click: function(e) {
 		var txt = pr.txta.value;
 		pr.txta.value =
-			(Cfg.spells == 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
-			+ (Cfg.sign == 1 && Cfg.sigval != '' ? '\n' + Cfg.sigval : '');
-		if(Cfg.verify == 1) $alert(Lng.checking, 'wait');
-		if(Cfg.addfav == 1 && pr.tNum)
+			(Cfg.spells === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
+			+ (Cfg.sign !== 0 && Cfg.sigval !== '' ? '\n' + Cfg.sigval : '');
+		if(Cfg.verify !== 0) $alert(Lng.checking, 'wait');
+		if(Cfg.addfav !== 0 && pr.tNum)
 			toggleFavorites(pByNum[pr.tNum], $x('a[@class="DESU_icn_favor"]', pByNum[pr.tNum].Btns));
-		if(pr.tNum) Stat.reply = parseInt(Stat.reply) + 1;
-		else Stat.op = parseInt(Stat.op) + 1;
+		if(pr.tNum) Stat.reply = Number(Stat.reply) + 1;
+		else Stat.op = Number(Stat.op) + 1;
 		setStored('DESU_Stat_' + dm, uneval(Stat));
 		if(ch.nul && pr.isQuick) {
 			$disp(qArea);
@@ -1413,9 +1413,9 @@ function doPostformChanges() {
 		} 
 	}});
 	$each($X('.//input[@type="text"]', pr.form), function(el) { el.size = 35; });
-	if(Cfg.nogoto == 1 && pr.gothr) $disp(pr.gothr);
-	if(Cfg.nopass == 1 && pr.passw) $disp($x(pr.tr, pr.passw));
-	if(Cfg.name == 1 && pr.name) setTimeout(function() { pr.name.value = Cfg.namval; }, 0);
+	if(Cfg.nogoto !== 0 && pr.gothr) $disp(pr.gothr);
+	if(Cfg.nopass !== 0 && pr.passw) $disp($x(pr.tr, pr.passw));
+	if(Cfg.name !== 0 && pr.name) setTimeout(function() { pr.name.value = Cfg.namval; }, 0);
 	if(pr.passw) setTimeout(setUserPassw, 0);
 	if(pr.recap) {
 		$attr(pr.subm, {onclick: 'Recaptcha.focus_response_field = function() {}'});
@@ -1434,13 +1434,13 @@ function doPostformChanges() {
 				ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`',
 				i = en.length;
-			if(Cfg.forcap == 0 || e.which == 0) return;
-			if(Cfg.forcap == 1) {
+			if(Cfg.forcap === 0 || e.which === 0) return;
+			if(Cfg.forcap === 1) {
 				if(code < 0x0410 || code > 0x04FF) return;
-				while(i--) if(chr == ru[i]) chr = en[i];
+				while(i--) if(chr === ru[i]) chr = en[i];
 			} else {
 				if(code < 0x0021 || code > 0x007A) return;
-				while(i--) if(chr == en[i]) chr = ru[i];
+				while(i--) if(chr === en[i]) chr = ru[i];
 			}
 			$pD(e);
 			insertInto(e.target, chr);
@@ -1467,7 +1467,7 @@ function doPostformChanges() {
 			else { $delNx(pr.cap); $after(pr.cap, [_img]); }
 		}
 	}
-	if(Cfg.sagebt == 1 && pr.mail) {
+	if(Cfg.sagebt !== 0 && pr.mail) {
 		sageBtn = $new('span', {id: 'DESU_sagebtn'}, {
 			click: function(e) { e.stopPropagation(); $pD(e); toggleCfg('issage'); doSageBtn(); }
 		});
@@ -1476,7 +1476,7 @@ function doPostformChanges() {
 		else { $disp($x(pr.tr, pr.mail)); $after(pr.name || pr.file, [sageBtn]); }
 		setTimeout(doSageBtn, 0);
 	}
-	if(Cfg.verify == 1) {
+	if(Cfg.verify !== 0) {
 		load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 		$after($id('DESU_content'), [
 			$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
@@ -1494,7 +1494,7 @@ function iframeLoad() {
 	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
 	if(hanab && /error/.test(frm.location.pathname)) xp = './/td[@class="post-error"]';
-	if(ch.krau && frm.location.pathname == '/post') xp = './/td[starts-with(@class,"message_text")]';
+	if(ch.krau && frm.location.pathname === '/post') xp = './/td[starts-with(@class,"message_text")]';
 	if(abu && !frm.getElementById('delform')) xp = './/font[@size="5"]';
 	if(xp || !$t('form', frm)) {
 		if(kusaba) xp = './/h1|.//h2|.//div[contains(@style,"1.25em")]';
@@ -1547,9 +1547,9 @@ function showQuickReply(post) {
 				+ (ch.fch || ch.gazo ? 'resto' : tinyb ? 'thread' : 'parent') + '">'
 			)]);
 		}
-	} else if($next(post) == qArea) { $disp(qArea); return; }
+	} else if($next(post) === qArea) { $disp(qArea); return; }
 	$after(post, [qArea]);
-	if(!TNum && Cfg.tform == 1) pArea.style.display = 'none';
+	if(!TNum && Cfg.tform !== 0) pArea.style.display = 'none';
 	qArea.style.display = 'block';
 	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !kusaba) refreshCapImg(tNum);
@@ -1583,8 +1583,8 @@ function insertRefLink(e) {
 	var pNum = getPost(e.target).Num;
 	if(/Reply|Ответ/.test(e.target.textContent)) return;
 	e.stopPropagation(); $pD(e);
-	if(!TNum && Cfg.tform == 1 && !pr.isQuick) pArea.style.display = '';
-	if(TNum && Cfg.pform == 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
+	if(!TNum && Cfg.tform !== 0 && !pr.isQuick) pArea.style.display = '';
+	if(TNum && Cfg.pform === 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
 	else insertInto(pr.txta, '>>' + pNum);
 }
 
@@ -1592,22 +1592,22 @@ function insertRefLink(e) {
 
 function tfBtn(id, title, wktag, bbtag, val) {
 	var x = pr.txta, btn = $new('span', {id: id, title: title});
-	if(Cfg.txtbtn == 2)
-		btn.innerHTML = '<a href="#">' + val + '</a>' + (val != '&gt;' ? ' / ' : '');
-	if(Cfg.txtbtn == 3)
+	if(Cfg.txtbtn === 2)
+		btn.innerHTML = '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : '');
+	if(Cfg.txtbtn === 3)
 		btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight:bold" />';
-	if(val != '&gt;') $event(btn, {click: function(e) {
+	if(val !== '&gt;') $event(btn, {click: function(e) {
 		var tag1, tag2, j, len,
 			start = x.selectionStart, end = x.selectionEnd, scrtop = x.scrollTop,
 			text = x.value.substring(start, end).split('\n'),
 			i = text.length;
 		$pD(e);
-		if(kusaba || abu || ch.krau || ch.fch && wktag == '%%') {
+		if(kusaba || abu || ch.krau || ch.fch && wktag === '%%') {
 			tag1 = '[' + bbtag + ']';
 			tag2 = '[/' + bbtag + ']';
 		} else tag1 = tag2 = wktag;
 		while(i--) {
-			if(tag1 == '') { j = text[i].trim().length; while(j--) tag2 += '^H'; }
+			if(tag1 === '') { j = text[i].trim().length; while(j--) tag2 += '^H'; }
 			len = end + tag1.length + tag2.length;
 			if(text[i].match(/^\s+/)) tag1 = text[i].match(/^\s+/)[0] + tag1;
 			if(text[i].match(/\s+$/)) tag2 += text[i].match(/\s+$/)[0];
@@ -1623,7 +1623,7 @@ function tfBtn(id, title, wktag, bbtag, val) {
 		click: function(e) {
 			var start = x.selectionStart, end = x.selectionEnd;
 			$pD(e);
-			insertInto(x, '> ' + (start == end
+			insertInto(x, '> ' + (start === end
 				? quotetxt : x.value.substring(start, end)).replace(/\n/gm, '\n> '));
 		}
 	});
@@ -1632,10 +1632,10 @@ function tfBtn(id, title, wktag, bbtag, val) {
 
 function addTextPanel() {
 	$del($id('DESU_textpanel'));
-	if(Cfg.txtbtn == 0 || !pr.txta) return;
+	if(Cfg.txtbtn === 0 || !pr.txta) return;
 	$after(pr.subm, [$New('span', [
 		$txt(unescape('%u00A0')),
-		$if(Cfg.txtbtn == 2, $txt('[ ')),
+		$if(Cfg.txtbtn === 2, $txt('[ ')),
 		tfBtn('DESU_btn_bold', Lng.bold, '**', 'b', 'B'),
 		tfBtn('DESU_btn_italic', Lng.italic, '*', 'i', 'i'),
 		tfBtn('DESU_btn_under', Lng.underlined, '__', 'u', 'U'),
@@ -1643,7 +1643,7 @@ function addTextPanel() {
 		tfBtn('DESU_btn_spoiler', Lng.spoiler, '%%', 'spoiler', '%'),
 		tfBtn('DESU_btn_code', Lng.code, '`', ch.krau ? 'aa' : 'code', 'C'),
 		tfBtn('DESU_btn_quote', Lng.quote, '', '', '&gt;'),
-		$if(Cfg.txtbtn == 2, $txt(' ]'))
+		$if(Cfg.txtbtn === 2, $txt(' ]'))
 	], {id: 'DESU_textpanel'})]);
 }
 
@@ -1672,13 +1672,13 @@ function fixTime(txt) {
 		for(var i = 0, arr = [a1, a2, a3, a4, a5, a6]; i < 6; i++) {
 			a = arr[i];
 			t = timePattern[i];
-			t == 's' ? second = a
-			: t == 'i' ? minute = a
-			: t == 'h' ? hour = a
-			: t == 'd' ? day = a
-			: t == 'n' ? month = a - 1
-			: t == 'y' ? year = a
-			: t == 'm' && (month = 
+			t === 's' ? second = a
+			: t === 'i' ? minute = a
+			: t === 'h' ? hour = a
+			: t === 'd' ? day = a
+			: t === 'n' ? month = a - 1
+			: t === 'y' ? year = a
+			: t === 'm' && (month = 
 				/янв|jan/i.test(a) ? 0
 				: /фев|feb/i.test(a) ? 1
 				: /мар|mar/i.test(a) ? 2
@@ -1693,7 +1693,7 @@ function fixTime(txt) {
 				: /дек|dec/i.test(a) && 11
 			);
 		}
-		dtime = new Date(year.length == 2 ? '20' + year : year, month, day, hour, minute, second);
+		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg.ctmofs));
 		return dtime.toString().replace(/GMT.*$/, '');
 	});
@@ -1726,7 +1726,7 @@ function scriptCSS() {
 		#DESU_spellpanel {margin:0 0 0 40px}\
 		#DESU_spellpanel a {padding:0 10px; text-align:center}\
 		#DESU_sagebtn {cursor:pointer}\
-		#DESU_textpanel {display:' + (Cfg.txtpos == 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
+		#DESU_textpanel {display:' + (Cfg.txtpos === 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
 		#DESU_qarea {float:none; clear:left; width:100%; padding:3px 0 3px 3px; margin:2px 0}\
 		.DESU_favdata .thread {padding-left:15px; border:1px solid grey}\
 		.DESU_favdata a, .DESU_hthrdata a {text-decoration:none}\
@@ -1782,7 +1782,7 @@ function scriptCSS() {
 	gif('.DESU_icn_favor', pre + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	gif('.DESU_icn_favset', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	gif('.DESU_icn_sage','R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
-	if(Cfg.txtbtn == 1) {
+	if(Cfg.txtbtn === 1) {
 		x.push('#DESU_textpanel span {padding:4px 27px 4px 0}');
 		pre = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
 		gif('#DESU_btn_bold', pre + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
@@ -1794,7 +1794,7 @@ function scriptCSS() {
 		gif('#DESU_btn_quote', pre + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 	}
 	x.push(
-		Cfg.attach == 0 ? '#DESU_content {width:100%}\
+		Cfg.attach === 0 ? '#DESU_content {width:100%}\
 			#DESU_content > table {margin:5px 20px; font-size:16px}\
 			#DESU_panel {float:right}\
 			#DESU_btn_godown, #DESU_btn_goup {display:none}'
@@ -1802,15 +1802,15 @@ function scriptCSS() {
 			#DESU_content > table {padding:5px 10px; border:1px solid grey; font-size:16px}\
 			#DESU_panel {position:fixed; right:0; bottom:0}'
 	);
-	if(Cfg.delhd == 2) x.push('div[id^=DESU_hiddenthr_], div[id^=DESU_hiddenthr_] + div + br, div[id^=DESU_hiddenthr_] + div + br + hr {display:none}');
-	if(Cfg.navmrk == 1) x.push('.viewed, .viewed .reply {color:#888 !important}');
-	if(Cfg.icount == 0) x.push('#DESU_panel_info {display:none}');
-	if(Cfg.showmp == 0) x.push('#DESU_panel_btns, #DESU_panel_info {display:none}');
-	if(Cfg.noname == 1) x.push('.commentpostername, .postername, .postertrip {display:none}');
-	if(Cfg.ospoil == 1) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
-	if(Cfg.noscrl == 1) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
-	if(Cfg.norule == 1) x.push((ch.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' {display:none}');
-	if(Cfg.mask == 1) x.push(
+	if(Cfg.delhd === 2) x.push('div[id^=DESU_hiddenthr_], div[id^=DESU_hiddenthr_] + div + br, div[id^=DESU_hiddenthr_] + div + br + hr {display:none}');
+	if(Cfg.navmrk !== 0) x.push('.viewed, .viewed .reply {color:#888 !important}');
+	if(Cfg.icount === 0) x.push('#DESU_panel_info {display:none}');
+	if(Cfg.showmp === 0) x.push('#DESU_panel_btns, #DESU_panel_info {display:none}');
+	if(Cfg.noname !== 0) x.push('.commentpostername, .postername, .postertrip {display:none}');
+	if(Cfg.ospoil !== 0) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
+	if(Cfg.noscrl !== 0) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
+	if(Cfg.norule !== 0) x.push((ch.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' {display:none}');
+	if(Cfg.mask !== 0) x.push(
 		'.DESU_preimg, .DESU_ytube, img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
 		.DESU_preimg:hover, .DESU_ytube:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
 	);
@@ -1868,7 +1868,7 @@ function getPstCount(thrd) {
 		, thrd);
 	return $X('.//table[starts-with(@id,"post-")]'
 		+ '|.//div[starts-with(@id,"post-")]', thrd).snapshotLength + 1
-		+ (om && (om = om.textContent) ? parseInt(om.match(/\d+/)[0]) : 0);
+		+ (om && (om = om.textContent) ? Number(om.match(/\d+/)[0]) : 0);
 }
 
 function getTitle(post) {
@@ -1894,7 +1894,7 @@ function getImgWeight(post) {
 		w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) w = w*1e3;
 	if(/\d[\s]*B/.test(inf)) w = (w/1e3).toFixed(2);
-	return w;
+	return Number(w);
 }
 
 function getImgSize(post) {
@@ -1916,7 +1916,7 @@ function isSage(post) {
 /*-------------------------------Post buttons--------------------------------*/
 
 function addPostButtons(post) {
-	var el, tNum, ref = $x(xPostRef, post);
+	var el, ref = $x(xPostRef, post);
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	el = post.Btns.firstChild;
 	$event(el, {
@@ -1942,10 +1942,9 @@ function addPostButtons(post) {
 		}
 		el = el.nextSibling;
 		$event(el, {click: function(e) { $pD(e); toggleFavorites(post, this); }});
-		tNum = parseInt(post.Num);
-		if(Favor[host] && Favor[host][brd] && Favor[host][brd][tNum]) {
+		if(Favor[host] && Favor[host][brd] && Favor[host][brd][post.Num]) {
 			el.className = 'DESU_icn_favset';
-			Favor[host][brd][tNum].cnt = getPstCount(getThread(post));
+			Favor[host][brd][post.Num].cnt = getPstCount(getThread(post));
 			setStored('DESU_Favorites', uneval(Favor));
 		}
 	}
@@ -1954,13 +1953,13 @@ function addPostButtons(post) {
 			click: function(e) { $pD(e); applySpells('#sage'); }
 		}));
 	$after(ref, [post.Btns]);
-	if(pr.on && Cfg.insnum == 1) {
+	if(pr.on && Cfg.insnum !== 0) {
 		if(ch.nul || ch.futr) $each($X('.//a', ref), function(el) { $rattr(el, 'onclick'); });
 		$event(ref, {click: insertRefLink});
 	}
-	if(Cfg.viewhd == 1) $event(ref, {
-		mouseover: function() { if(post.Vis == 0) togglePost(post, 1); },
-		mouseout: function() { if(post.Vis == 0) togglePost(post, 0); }
+	if(Cfg.viewhd !== 0) $event(ref, {
+		mouseover: function() { if(post.Vis === 0) togglePost(post, 1); },
+		mouseout: function() { if(post.Vis === 0) togglePost(post, 0); }
 	});
 }
 
@@ -1974,9 +1973,9 @@ function getTubeVideoLinks(id, fn) {
 			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/);
 		if(!formats) { fn(false); return; }
 		formats = formats[1];
-		if(formats.indexOf(',') > -1) { 
+		if(formats.indexOf(',') >= 0) { 
 			sep1 = ',';
-			sep2 = formats.indexOf('&') > -1 ? '&' : '\\u0026';
+			sep2 = formats.indexOf('&') >= 0 ? '&' : '\\u0026';
 			sep3 = '=';
 		}
 		for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
@@ -1987,7 +1986,7 @@ function getTubeVideoLinks(id, fn) {
 			src = unescape(unescape(result1[1])).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
 			result2 = elem[4].split(sep3);
 			if(result2.length < 2) continue;
-			if(src.toLowerCase().indexOf('http') == 0) url[result2[1]] = src;
+			if(src.toLowerCase().indexOf('http') === 0) url[result2[1]] = src;
 		}
 		fn(url);
 	}});
@@ -1996,23 +1995,23 @@ function getTubeVideoLinks(id, fn) {
 function addTubeEmbed(el, id, time) {
 	var wh = ' width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
 	el.innerHTML =
-		Cfg.yptype == 1 ? '<iframe type="text/html" src="http://www.youtube.com/embed/' + id 
-			+ (Cfg.yhdvid == 1 ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh
+		Cfg.yptype === 1 ? '<iframe type="text/html" src="http://www.youtube.com/embed/' + id 
+			+ (Cfg.yhdvid !== 0 ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh
 		: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/' + id
-			+ (Cfg.yhdvid == 1 ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
+			+ (Cfg.yhdvid !== 0 ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
 }
 
 function addTubePlayer(el, m) {
 	var id = m[1], time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
-	if(Cfg.yptype != 2) addTubeEmbed(el, id, time);
+	if(Cfg.yptype !== 2) addTubeEmbed(el, id, time);
 	else getTubeVideoLinks(id, function(url) {
-		var src = url ? (Cfg.yhdvid == 0 ? url[43] : url[45] || url[44] || url[43]) : false;
+		var src = url ? (Cfg.yhdvid === 0 ? url[43] : url[45] || url[44] || url[43]) : false;
 		if(!src) addTubeEmbed(el, id, time);
 		else {
 			el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
 				+ 'controls="controls" preload="none" src="' + src + '&' + Math.random()
 				+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
-			if(time != 0) $event($x('.//video', el), {
+			if(time !== 0) $event($x('.//video', el), {
 				'loadedmetadata': function() { this.currentTime = time; }
 			});
 		}
@@ -2023,7 +2022,7 @@ function addTubePreview(el, m) {
 	el.innerHTML = '<a href="http://www.youtube.com/watch?v=' + m[1] + '" target="_blank">'
 		+ '<img src="http://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270" /></a>';
 	$event($1(el), {click: function(e) {
-		if(Cfg.ytube != 4) { $pD(e); addTubePlayer($up(this), m); }
+		if(Cfg.ytube !== 4) { $pD(e); addTubePlayer($up(this), m); }
 	}});
 }
 
@@ -2042,7 +2041,7 @@ function clickTubeLink(e) {
 }
 
 function addLinkTube(post) {
-	if(Cfg.ytube == 0) return;
+	if(Cfg.ytube === 0) return;
 	$each($X('.//embed', post || dForm), function(el) {
 		var src, m = el.src.match(getTubePattern());
 		if(!m) return;
@@ -2062,14 +2061,14 @@ function addLinkTube(post) {
 		if(!el) {
 			el = $new('div', {Class: 'DESU_ytube'});
 			if(Cfg.ytube > 2) addTubePreview(el, m);
-			else if(Cfg.ytube == 2) addTubePlayer(el, m);
+			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(xPostMsg, pst);
 			if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
 		link.className = 'DESU_ytlink';
 		$event(link, {click: clickTubeLink});
-		if(!nav.Opera && Cfg.ytitle == 1) GM_xmlhttpRequest({
+		if(!nav.Opera && Cfg.ytitle !== 0) GM_xmlhttpRequest({
 			method: 'GET',
 			url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1]
 				+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
@@ -2081,10 +2080,10 @@ function addLinkTube(post) {
 }
 
 function addLinkMP3(post) {
-	if(Cfg.mp3 == 0) return;
+	if(Cfg.mp3 === 0) return;
 	$each($X('.//a[contains(@href,".mp3")]', post || dForm), function(link) {
 		var pst, el, msg;
-		if(!(link.target == '_blank' || link.rel == 'nofollow')) return;
+		if(!(link.target === '_blank' || link.rel === 'nofollow')) return;
 		pst = post || getPost(link);
 		el = $x('.//div[@class="DESU_mp3"]', pst);
 		if(!el) {
@@ -2130,40 +2129,40 @@ function resizeImg(e) {
 
 function addFullImg(a, sz, isExp) {
 	var newW = '', newH = '',
-		fullW = parseInt(sz[0]), fullH = parseInt(sz[1]),
+		fullW = Number(sz[0]), fullH = Number(sz[1]),
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		full = $x('.//img[@class="DESU_fullimg"]', a);
 	if(full && isExp || !full && isExp === false) return;
-	if(Cfg.expimg == 1 && !$xb('img[contains(@style,"fixed")]', a)) $disp($t('img', a));
+	if(Cfg.expimg === 1 && !$xb('img[contains(@style,"fixed")]', a)) $disp($t('img', a));
 	if(full) {
 		if(!full.moved) { $disp(full); setTimeout(function() { $del(full); }, 0); }
 		else full.moved = false;
 		return;
 	}
 	full = $new('img');
-	if(Cfg.expimg == 2) {
+	if(Cfg.expimg === 2) {
 		$del($x('.//img[@class="DESU_fullimg"]'));
 		full.addEventListener(
 			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll', resizeImg, false
 		);
 		makeMoveable(full);
 	}
-	if(Cfg.expimg == 1) scrW -= $offset(a).left + 25;
+	if(Cfg.expimg === 1) scrW -= $offset(a).left + 25;
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
 		newH = newW*fullH/fullW;
-		if(Cfg.expimg == 2 && newH > scrH) { newH = scrH; newW = newH*fullW/fullH; }
+		if(Cfg.expimg === 2 && newH > scrH) { newH = scrH; newW = newH*fullW/fullH; }
 	}
 	a.appendChild($attr(full, {
 		Class: 'DESU_fullimg',
 		src: a.href, alt: a.href, width: newW, height: newH,
-		style: (Cfg.expimg == 2 ? 'position:fixed; z-index:5000; border:1px solid black; left:'
+		style: (Cfg.expimg === 2 ? 'position:fixed; z-index:5000; border:1px solid black; left:'
 			+ parseInt((scrW - newW)/2) + 'px; top:' + parseInt((scrH - newH)/2) + 'px' : '')
 	}));
 }
 
 function addLinkImg(post) {
-	if(Cfg.addimg == 0) return;
+	if(Cfg.addimg === 0) return;
 	$each($X(xPostMsg + '//a[contains(@href,".jpg") or contains(@href,".png")'
 		+ ' or contains(@href,".gif")]', post || dForm), function(link) {
 		var a;
@@ -2185,7 +2184,7 @@ function addLinkImg(post) {
 			}
 		}));
 		$event(a, {click: function(e) {
-			if(Cfg.expimg != 0 && e.button != 1) {
+			if(Cfg.expimg !== 0 && e.button !== 1) {
 				$pD(e);
 				addFullImg(this, $1(this).title.split('x'));
 			}
@@ -2213,7 +2212,7 @@ function eventPostImg(post) {
 			$rattr(img, 'onclick');
 			if(ch.dfwk) $rattr($up(img), 'onclick');
 			a.addEventListener('click', function(e) {
-				if(Cfg.expimg != 0 && e.button != 1) { $pD(e); expandPostImg(this, post); }
+				if(Cfg.expimg !== 0 && e.button !== 1) { $pD(e); expandPostImg(this, post); }
 			}, false);
 		}
 	});
@@ -2223,7 +2222,7 @@ function eventPostImg(post) {
 
 function getRefMap(pNum, rNum) {
 	if(!refMap[rNum]) refMap[rNum] = [pNum];
-	else if(refMap[rNum].indexOf(pNum) === -1) refMap[rNum].push(pNum);
+	else if(refMap[rNum].indexOf(pNum) < 0) refMap[rNum].push(pNum);
 }
 
 function showRefMap(post, rNum) {
@@ -2264,12 +2263,12 @@ function delPostPreview() {
 }
 
 function checkPostPreview(e) {
-	if(Cfg.navdel == 1 && pView) {
+	if(Cfg.navdel !== 0 && pView) {
 		clearTimeout(pView.close);
 		pView.close = setTimeout(delPostPreview, 1e3);
 	}
 	pView = $x('ancestor-or-self::div[starts-with(@id,"DESU_preview")]', e.relatedTarget);
-	if(Cfg.navdel == 0) delPostPreview();
+	if(Cfg.navdel === 0) delPostPreview();
 }
 
 function funcPostPreview(post, parentId, msg) {
@@ -2284,7 +2283,7 @@ function funcPostPreview(post, parentId, msg) {
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
 	addLinkImg(pView);
-	if(Cfg.navig == 2) {
+	if(Cfg.navig === 2) {
 		showRefMap(pView, pView.id.match(/\d+/)[0]);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
@@ -2301,11 +2300,11 @@ function showPostPreview(e) {
 		parent = getPost(e.target),
 		parentId = parent ? parent.Num : null,
 		post = pByNum[pNum] || ajaxPosts[pNum];
-	if(Cfg.navig == 0 || /^>>$/.test(this.textContent)) return;
+	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	if(Cfg.navfix == 0 || Cfg.attach == 1 && $xb('ancestor::div[@id="DESU_content"]', e.target)) {
+	if(Cfg.navfix === 0 || Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content"]', e.target)) {
 		x = e.clientX + window.pageXOffset + 2;
 		y = e.clientY + window.pageYOffset;
 	} else {
@@ -2317,14 +2316,14 @@ function showPostPreview(e) {
 		id: 'DESU_preview_' + pNum,
 		Class: pClass,
 		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
-			+ (x < scrW/2 ? 'left:' + x : 'right:' + parseInt(scrW - x + 2)) + 'px; '
-			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + parseInt(scrH - y - 4)) + 'px'}, {
+			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
+			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}, {
 		mouseout: checkPostPreview,
 		mouseover: function() { if(!pView) pView = this; }
 	});
 	if(post) {
 		funcPostPreview(post, parentId);
-		if(post.Vis == 0) togglePost(pView);
+		if(post.Vis === 0) togglePost(pView);
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		AJAX(null, b, tNum, function(err) {
@@ -2333,12 +2332,12 @@ function showPostPreview(e) {
 	}
 	$del($id(pView.id));
 	dForm.appendChild(pView);
-	if(Cfg.navmrk == 1)
+	if(Cfg.navmrk !== 0)
 		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 2e3);
 }
 
 function eventRefLink(el) {
-	if(Cfg.navig != 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
+	if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 		$rattr(link, 'onmouseover');
 		$rattr(link, 'onmouseout');
 		$event(link, {mouseover: showPostPreview, mouseout: checkPostPreview});
@@ -2366,7 +2365,7 @@ function parseHTMLdata(html) {
 			var om, pNum = post.id.match(/\d+/)[0];
 			ajaxThrds[tNum].keys.push(pNum);
 			ajaxPosts[pNum] = post;
-			if(i == 0 && kusaba) {
+			if(i === 0 && kusaba) {
 				om = $x('.//span[@class="omittedposts"]', thrd);
 				if(om) post.appendChild(om);
 			}
@@ -2380,16 +2379,16 @@ function parseHTMLdata(html) {
 function AJAX(url, b, tNum, fn) {
 	if(!url) {
 		if(hanab) url = '/api/thread/expand/' + b + '/' + tNum;
-		else url = '/' + (b == '' ? '': b + '/') + res + tNum + (ch.tire ? '.html' : docExt);
+		else url = '/' + (b === '' ? '': b + '/') + res + tNum + (ch.tire ? '.html' : docExt);
 	}
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
-		if(xhr.readyState != 4) return;
-		if(xhr.status == 200) {
+		if(xhr.readyState !== 4) return;
+		if(xhr.status === 200) {
 			if(!/^https?:\/\//.test(url)) parseHTMLdata(xhr.responseText);
 			else ajaxPosts[0] = xhr.responseText;
 			fn();
 		}
-		else if(xhr.status == 0) fn(Lng.noConnect);
+		else if(xhr.status === 0) fn(Lng.noConnect);
 		else fn('HTTP [' + xhr.status + '] ' + xhr.statusText);
 	}});
 }
@@ -2402,8 +2401,8 @@ function addPostFunc(post) {
 	addLinkMP3(post);
 	addLinkTube(post);
 	addLinkImg(post);
-	if(post.Vis == 0) setPostVisib(post, 0);
-	if(Cfg.delhd == 1) mergeHidden(post);
+	if(post.Vis === 0) setPostVisib(post, 0);
+	if(Cfg.delhd === 1) mergeHidden(post);
 	if(isExpImg) expandAllPostImg(post);
 }
 
@@ -2417,11 +2416,11 @@ function newPost(thr, tNum, i, isDel) {
 	post.Vis = getVisib(pNum);
 	post.Msg = $x(xPostMsg, post);
 	post.Img = getImages(post);
-	post.isOp = i == 0;
+	post.isOp = i === 0;
 	addPostButtons(post);
-	if(Cfg.expimg != 0) eventPostImg(post);
+	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
-	if(Cfg.expost != 0 && !TNum) expandPost(post);
+	if(Cfg.expost !== 0 && !TNum) expandPost(post);
 	thr.appendChild(post);
 	if(tinyb) thr.appendChild($new('br'));
 	return post;
@@ -2438,21 +2437,21 @@ function getFullMsg(post, tNum, a) {
 
 function expandPost(post) {
 	var a, tNum;
-	if(post.Vis == 0) return;
+	if(post.Vis === 0) return;
 	a = $x(ch.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
-			+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
+		+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
 	tNum = getThread(post).id.match(/\d+/)[0];
-	if(Cfg.expost == 1) getFullMsg(post, tNum, a);
+	if(Cfg.expost === 1) getFullMsg(post, tNum, a);
 	else $event(a, {click: function(e) { $pD(e); getFullMsg(post, tNum, e.target); }});
 }
 
 function expandThread(thr, tNum, last, isDel) {
 	var i, len = ajaxThrds[tNum].keys.length;
-	if(last != 1) last = len - last;
-	if(last <= 0) last = 1;
+	if(last !== 1) last = len - last;
+	if(last < 1) last = 1;
 	if(last > 1) thr.appendChild($new('div', {
-		Class: 'DESU_omitted', text: Lng.postsOmitted + parseInt(last - 1)
+		Class: 'DESU_omitted', text: Lng.postsOmitted + (last - 1)
 	}));
 	for(i = last; i < len; i++) newPost(thr, tNum, i, isDel);
 	savePostsVisib();
@@ -2469,7 +2468,7 @@ function loadThread(post, last) {
 			if(ch.krau) $del($x('.//span[@class="omittedinfo"]', post));
 			expandThread($up(post), post.Num, last);
 			$focus(pByNum[post.Num]);
-			if(last > 5 || last == 1) $up(post).appendChild($add(
+			if(last > 5 || last === 1) $up(post).appendChild($add(
 				'<span>[<a href="#">' + Lng.collapseThrd + '</a>]</span>', {
 				click: function(e) { $pD(e); loadThread(post, 5); }
 			}));
@@ -2481,11 +2480,11 @@ function loadFavorThread(e) {
 	var el = $up(this, 2),
 		thr = $x('.//div[@class="thread"]', el),
 		arr = el.id.substr(13).split('|'),
-		url = $if(arr[0] != host, $next(this).href),
+		url = $if(arr[0] !== host, $next(this).href),
 		b = arr[1],
 		tNum = arr[2];
 	$pD(e);
-	if(thr.style.display != 'none') { $disp(thr); thr.innerHTML = ''; return; }
+	if(thr.style.display !== 'none') { $disp(thr); thr.innerHTML = ''; return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	$alert(Lng.loading, 'wait');
 	AJAX(url, b, tNum, function(err) {
@@ -2509,7 +2508,7 @@ function getDelPosts(err) {
 	var j = 0, del = 0;
 	if(err) return false;
 	forAll(function(post) {
-		if(ajaxThrds[TNum].keys[j] != parseInt(post.Num)) {
+		if(ajaxThrds[TNum].keys[j] !== post.Num) {
 			if(!post.isDel) post.Btns.className += '_del';
 			post.isDel = true;
 		} else if(!post.isDel) j++;
@@ -2519,7 +2518,7 @@ function getDelPosts(err) {
 }
 
 function setUpdButtonState(state) {
-	if(TNum && Cfg.updthr != 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+	if(TNum && Cfg.updthr !== 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
 }
 
 function endPostsUpdate() {
@@ -2531,23 +2530,23 @@ function endPostsUpdate() {
 function infoNewPosts(err, del) {
 	var inf, old;
 	if(err) {
-		if(err != Lng.noConnect) {
+		if(err !== Lng.noConnect) {
 			$alert(Lng.thrdNotFound + TNum + '): \n' + err);
 			doc.title = '{' + err.match(/(?:\[)(\d+)(?:\])/)[1] + '} ' + doc.title;
 			endPostsUpdate();
 		} else { $alert(Lng.noConnect, 'warn'); setUpdButtonState('warn'); }
 		return;
 	}
-	if(Cfg.updthr == 3) return;
+	if(Cfg.updthr === 3) return;
 	setUpdButtonState('on');
 	$close($id('DESU_alert_warn'));
-	inf = parseInt(ajaxThrds[TNum].keys.length - Posts.length + del);
-	if(Cfg.updthr == 1) {
+	inf = ajaxThrds[TNum].keys.length - Posts.length + del;
+	if(Cfg.updthr === 1) {
 		if(isActiveTab) return;
 		old = doc.title.match(/^\[(\d+)\]/);
-		if(old) inf += parseInt(old[1]);
+		if(old) inf += Number(old[1]);
 	}
-	if(Cfg.updfav == 1 && favIcon) {
+	if(Cfg.updfav !== 0 && favIcon) {
 		clearInterval(favIconInt);
 		if(inf > 0) favIconInt = setInterval(function() {
 			var head = $t('head'),
@@ -2580,9 +2579,9 @@ function loadNewPosts(inf) {
 
 function initPostsUpdate() {
 	var C = Cfg.updint,
-		t = 6e4*(C == 0 ? 0.5 : C == 1 ? 1 : C == 2 ? 1.5 : C == 3 ? 2 : C == 4 ? 5 : C == 5 ? 15 : 30);
-	if(Cfg.updthr == 1) ajaxInt = setInterval(function() { loadNewPosts(); }, t);
-	if(Cfg.updthr == 2) ajaxInt = setInterval(function() {
+		t = 6e4*(C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
+	if(Cfg.updthr === 1) ajaxInt = setInterval(function() { loadNewPosts(); }, t);
+	if(Cfg.updthr === 2) ajaxInt = setInterval(function() {
 		AJAX(null, brd, TNum, function(err) { infoNewPosts(err, getDelPosts(err)); }, true);
 	}, t);
 }
@@ -2597,7 +2596,7 @@ function loadPages(len) {
 			$new('hr'),
 			$new('div', {id: 'DESU_page' + p})
 		]);
-		url = '/' + (brd == '' ? '' : brd + '/')
+		url = '/' + (brd === '' ? '' : brd + '/')
 			+ (p > 0 ? p + docExt : hanab ? 'index' + docExt : '');
 		AJAX(url, brd, null, function(p, len) { return function() {
 			var tNum, thr, i, pLen, page = $id('DESU_page' + p);
@@ -2609,7 +2608,7 @@ function loadPages(len) {
 			}
 			savePostsVisib();
 			readHiddenThreads();
-			if(p == len - 1) $close($id('DESU_alert_wait'));
+			if(p === len - 1) $close($id('DESU_alert_wait'));
 		}}(p, len));
 	}
 }
@@ -2621,32 +2620,32 @@ function loadPages(len) {
 
 function doPostFilters(post) {
 	hideByWipe(post);
-	if(Cfg.spells == 1) hideBySpells(post);
+	if(Cfg.spells !== 0) hideBySpells(post);
 }
 
 function togglePostVisib(post) {
-	post.Vis = post.Vis == 1 ? 0 : 1;
+	post.Vis = post.Vis === 1 ? 0 : 1;
 	setPostVisib(post, post.Vis);
 	savePostsVisib();
 }
 
 function togglePost(post, vis) {
 	if(post.isOp)
-		if(!ch.krau) getThread(post).style.display = vis == 0 ? 'none' : '';
-		else $x('.//div[@class="thread_body"]', getThread(post)).style.display = vis == 0 ? 'none' : '';
+		if(!ch.krau) getThread(post).style.display = vis === 0 ? 'none' : '';
+		else $x('.//div[@class="thread_body"]', getThread(post)).style.display = vis === 0 ? 'none' : '';
 	$each($X('following-sibling::*', $x(
 		ch.krau ? './/div[@class="postheader"]'
 		: tinyb ? './/p[@class="intro"]'
 		: './/span[starts-with(@class,"DESU_postpanel")]'
-	, post)), function(el) { el.style.display = vis == 0 ? 'none' : ''; });
+	, post)), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
 }
 
 function applyPostVisib(post, vis, note) {
 	var el, pNum = post.Num;
 	if(post.isOp) {
 		el = $id('DESU_hiddenthr_' + pNum);
-		if(vis == 1 && el) { $del(el); toggleHiddenThread(post, 1); }
-		if(vis == 0 && !el) {
+		if(vis === 1 && el) { $del(el); toggleHiddenThread(post, 1); }
+		if(vis === 0 && !el) {
 			el = $add('<div class="' + pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
 				+ Lng.hiddenThrd + ' <a href="#">№' + pNum + '</a><i> ('
 				+ (note ? 'autohide: ' + note : getTitle(post).substring(0, 70)) + ')</i></div>'
@@ -2655,28 +2654,28 @@ function applyPostVisib(post, vis, note) {
 			$before($up(post), [el]);
 			toggleHiddenThread(post, 0);
 		}
-	} else if(Cfg.delhd == 2) post.style.display = vis == 0 ? 'none' : '';
+	} else if(Cfg.delhd === 2) post.style.display = vis === 0 ? 'none' : '';
 	if(!sav.cookie) {
 		Visib[brd + pNum] = vis;
-		Expires[brd + pNum] = (new Date()).getTime() + stoargeLife;
+		Expires[brd + pNum] = (new Date()).getTime() + storageLife;
 	} else if(TNum) Visib[post.Count] = vis;
 	post.Vis = vis;
 }
 
 function setPostVisib(post, vis) {
-	$1(post.Btns).className = vis == 0 ? 'DESU_icn_unhide' : 'DESU_icn_hide';
+	$1(post.Btns).className = vis === 0 ? 'DESU_icn_unhide' : 'DESU_icn_hide';
 	togglePost(post, vis);
 	applyPostVisib(post, vis);
-	if(Cfg.navhid == 1) setTimeout(function() {
+	if(Cfg.navhid !== 0) setTimeout(function() {
 		$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
-			el.className = vis == 0 ? 'DESU_refhid' : '';
+			el.className = vis === 0 ? 'DESU_refhid' : '';
 		});
 	}, 0);
 }
 
 function hidePost(post, note) {
 	if(post.noHide) return;
-	if(post.Vis != 0) post.Btns.appendChild($new('a', {
+	if(post.Vis !== 0) post.Btns.appendChild($new('a', {
 		Class: 'DESU_postnote', text: ' autohide: ' + note + ' ', href: '#'}, {
 		click: function(e) { $pD(e); $del(this); }
 	}));
@@ -2691,13 +2690,13 @@ function unhidePost(post) {
 }
 
 function saveHiddenPosts() {
-	forAll(function(post) { if(post.Vis == 0) setPostVisib(post, 0); });
+	forAll(function(post) { if(post.Vis === 0) setPostVisib(post, 0); });
 	savePostsVisib();
 }
 
 function mergeHidden(post) {
 	var el, next;
-	if(post.Vis != 0 || post.isOp) return;
+	if(post.Vis !== 0 || post.isOp) return;
 	el = $prev(post);
 	if(!el) return;
 	if(!/merged/.test(el.id)) {
@@ -2706,28 +2705,28 @@ function mergeHidden(post) {
 			var hDiv = $id('DESU_merged_' + post.Num);
 			$pD(e);
 			$prev(hDiv).innerHTML =
-				unescape(hDiv.style.display == 'none' ? '%u25BC' : '%u25B2') + '[<i><a href="#">'
+				unescape(hDiv.style.display === 'none' ? '%u25BC' : '%u25B2') + '[<i><a href="#">'
 					+ Lng.hiddenPosts + '</a>:&nbsp;' + hDiv.childNodes.length + '</i>]';
 			$disp(hDiv);
 		}}), el]);
 	}
 	el.appendChild(post);
 	next = $next(post);
-	if(!next || getVisib(next.Num) == 1)
+	if(!next || getVisib(next.Num) === 1)
 		$prev(el).innerHTML = unescape('%u25B2') + '[<i><a href="#">'
 			+ Lng.hiddenPosts + '</a>:&nbsp;' + el.childNodes.length + '</i>]';
 }
 
 function processHidden(newCfg, oldCfg) {
-	if(newCfg == 2 || oldCfg == 2)
-		forAll(function(post) { if(post.Vis == 0 && !post.isOp) $disp(post); });
-	if(oldCfg == 1) $each($X('.//span[starts-with(@id,"DESU_merged")]'), function(el) {
+	if(newCfg === 2 || oldCfg === 2)
+		forAll(function(post) { if(post.Vis === 0 && !post.isOp) $disp(post); });
+	if(oldCfg === 1) $each($X('.//span[starts-with(@id,"DESU_merged")]'), function(el) {
 		var px = el.childNodes, i = px.length;
 		while(i--) $after(el, [px[i]]);
 		$del($prev(el));
 		$del(el);
 	});
-	if(newCfg == 1) forAll(mergeHidden);
+	if(newCfg === 1) forAll(mergeHidden);
 	saveCfg('delhd', newCfg);
 	scriptCSS();
 }
@@ -2752,8 +2751,8 @@ function initSpells() {
 		if(/^#(?:[^\s]+\/)?(?:\d+)? /.test(x)) {
 			b = x.match(/^#([^\/]+)\//);
 			n = x.match(/(\d+)\s/);
-			if(TNum && b && n && b[1] == brd && n[1] == TNum
-				|| TNum && !b && n && n[1] == TNum || b && !n && b[1] == brd)
+			if(TNum && b && n && b[1] === brd && n[1] === TNum
+				|| TNum && !b && n && n[1] === TNum || b && !n && b[1] === brd)
 				x = x.replace(/^#[^\s]+ /, '');
 			else continue;
 		}
@@ -2764,26 +2763,26 @@ function initSpells() {
 		if(!/^#/.test(x)) { Spells.words.push(x); continue; }
 		t = x.split(' ')[0];
 		p = x.replace(/^#[^\s]+ /, '');
-		if(TNum && (t == '#skip' || t == '#num')) {
+		if(TNum && (t === '#skip' || t === '#num')) {
 			p = p.split(', ');
 			j = p.length;
 			while(j--) {
 				if(p[j].indexOf('-') < 0) p[j] += '-' + p[j];
-				t == '#num' ? oSpells.num.push(p[j]) : oSpells.skip.push(p[j]);
+				t === '#num' ? oSpells.num.push(p[j]) : oSpells.skip.push(p[j]);
 			}
 		}
-		t == '#rep' ? oSpells.rep.push(p)
-		: t == '#exp' ? Spells.exp.push(strToRegexp(p))
-		: t == '#exph' ? Spells.exph.push(strToRegexp(p))
-		: t == '#img' ? Spells.img.push(p)
-		: t == '#imgn' ? Spells.imgn.push(strToRegexp(p))
-		: t == '#name' ? Spells.name.push(p)
-		: t == '#tmax' ? Spells.tmax.push(p)
-		: t == '#sage' ? Spells.sage = true
-		: t == '#notxt' ? Spells.notxt = true
-		: t == '#noimg' ? Spells.noimg = true
-		: t == '#trip' ? Spells.trip = true
-		: t == '#outrep' && oSpells.outrep.push(p);
+		t === '#rep' ? oSpells.rep.push(p)
+		: t === '#exp' ? Spells.exp.push(strToRegexp(p))
+		: t === '#exph' ? Spells.exph.push(strToRegexp(p))
+		: t === '#img' ? Spells.img.push(p)
+		: t === '#imgn' ? Spells.imgn.push(strToRegexp(p))
+		: t === '#name' ? Spells.name.push(p)
+		: t === '#tmax' ? Spells.tmax.push(p)
+		: t === '#sage' ? Spells.sage = true
+		: t === '#notxt' ? Spells.notxt = true
+		: t === '#noimg' ? Spells.noimg = true
+		: t === '#trip' ? Spells.trip = true
+		: t === '#outrep' && oSpells.outrep.push(p);
 	}
 }
 
@@ -2798,22 +2797,22 @@ function doReplace(arr, txt) {
 
 function getImgSpell(imgW, imgH, imgK, exp) {
 	var s, stat, expK, x, expW;
-	if(exp == '') return false;
+	if(exp === '') return false;
 	s = exp.split('@');
 	stat = s[0][0];
-	expK = s[0].substr(1);
-	if(expK != '') {
-		if(stat == '<' && imgK < expK || stat == '>' && imgK > expK || stat == '=' && imgK == expK)
+	expK = Number(s[0].substr(1));
+	if(expK !== '') {
+		if(stat === '<' && imgK < expK || stat === '>' && imgK > expK || stat === '=' && imgK === expK)
 			{ if(!s[1]) return 'image ' + exp; }
 		else return false;
 	}
 	if(s[1]) {
 		x = s[1].split(/[x×]/);
-		expW = x[0];
-		expH = x[1];
-		if(stat == '<' && imgW < expW && imgH < expH ||
-			stat == '>' && imgW > expW && imgH > expH ||
-			stat == '=' && imgW == expW && imgH == expH)
+		expW = Number(x[0]);
+		expH = Number(x[1]);
+		if(stat === '<' && imgW < expW && imgH < expH ||
+			stat === '>' && imgW > expW && imgH > expH ||
+			stat === '=' && imgW === expW && imgH === expH)
 			return 'image ' + exp;
 	}
 	return false;
@@ -2823,10 +2822,10 @@ function getSpells(x, post) {
 	var inf, i, t, _t, pTitle, pName, pTrip, sz, imgW, imgH, imgK;
 	post.noHide = false;
 	if(oSpells.skip[0] && TNum) {
-		inf = post.Count;
+		inf = post.Count + 1;
 		for(i = 0; t = oSpells.skip[i++];) {
 			t = t.split('-');
-			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) { post.noHide = true; return false; }
+			if(inf >= Number(t[0]) && inf <= Number(t[1])) { post.noHide = true; return false; }
 		}
 	}
 	if(x.words[0]) {
@@ -2835,7 +2834,7 @@ function getSpells(x, post) {
 		for(i = 0, inf = post.Text.toLowerCase(); t = x.words[i++];) {
 			_t = t;
 			t = t.toLowerCase();
-			if(inf.indexOf(t) > -1 || pTitle.indexOf(t) > -1) return _t;
+			if(inf.indexOf(t) >= 0 || pTitle.indexOf(t) >= 0) return _t;
 		}
 	}
 	if(x.exp[0])
@@ -2855,15 +2854,15 @@ function getSpells(x, post) {
 		for(i = 0; t = x.name[i++];) {
 			_t = t;
 			t = t.split(/!+/);
-			if(t[0] != '' && pName.indexOf(t[0]) > -1 || t[1] != '' && pTrip.indexOf(t[1]) > -1)
+			if(t[0] !== '' && pName.indexOf(t[0]) >= 0 || t[1] !== '' && pTrip.indexOf(t[1]) >= 0)
 				return '#name ' + _t;
 		}
 	}
 	if(post.Img.snapshotLength > 0) {
 		if(x.img[0]) {
 			sz = getImgSize(post);
-			imgW = parseInt(sz[0]);
-			imgH = parseInt(sz[1]);
+			imgW = Number(sz[0]);
+			imgH = Number(sz[1]);
 			imgK = getImgWeight(post);
 			for(i = 0; t = x.img[i++];) if(getImgSpell(imgW, imgH, imgK, t)) return '#img ' + t;
 		}
@@ -2875,17 +2874,17 @@ function getSpells(x, post) {
 		}
 	}
 	if(oSpells.num[0])
-		for(i = 0, inf = post.Count; t = oSpells.num[i++];) {
+		for(i = 0, inf = post.Count + 1; t = oSpells.num[i++];) {
 			_t = t;
 			t = t.split('-');
-			if(inf >= parseInt(t[0]) && inf <= parseInt(t[1])) return '#num ' + _t;
+			if(inf >= Number(t[0]) && inf <= Number(t[1])) return '#num ' + _t;
 		}
 	if(x.tmax[0])
 		for(i = 0, inf = post.Text.replace(/\n/g, '').length; t = x.tmax[i++];)
 			if(inf >= t) return '#tmax ' + t;
 	if(x.sage && isSage(post)) return '#sage';
-	if(x.notxt && post.Text == '') return '#no text';
-	if(x.noimg && post.Img.snapshotLength == 0) return '#no image';
+	if(x.notxt && post.Text === '') return '#no text';
+	if(x.noimg && post.Img.snapshotLength === 0) return '#no image';
 	return false;
 }
 
@@ -2896,9 +2895,9 @@ function checkSpells(post) {
 
 function hideBySpells(post) {
 	var exp;
-	if(Cfg.filthr == 0 && post.isOp) return;
+	if(Cfg.filthr === 0 && post.isOp) return;
 	exp = checkSpells(post);
-	if(post.Vis == 0) { if(post.noHide) unhidePost(post); } 
+	if(post.Vis === 0) { if(post.noHide) unhidePost(post); } 
 	else if(exp) hidePost(post, exp.substring(0, 70));
 }
 
@@ -2920,9 +2919,9 @@ function toggleSpells() {
 			/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
 		wrong = verifyRegExp(val);
 	if(!wrong) saveSpells(val);
-	if(val != '' && !wrong) {
+	if(val !== '' && !wrong) {
 		if(fld) fld.value = val;
-		if(Cfg.spells == 1) forAll(hideBySpells);
+		if(Cfg.spells !== 0) forAll(hideBySpells);
 		else forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
 		saveHiddenPosts();
 	} else {
@@ -2936,20 +2935,20 @@ function applySpells(txt) {
 	var nval, ntxt, wrong,
 		fld = $id('DESU_spelledit'), val = fld ? fld.value : spellsList.join('\n');
 	if(txt) {
-		if(txt.trim() == '') return;
+		if(txt.trim() === '') return;
 		if(TNum) txt = '#' + brd + '/' + TNum + ' ' + txt;
 		toggleSpells();
 		nval = '\n' + val;
 		ntxt = '\n' + txt;
-		val = nval.indexOf(ntxt) > -1 ? nval.split(ntxt).join('') : val + ntxt;
+		val = nval.indexOf(ntxt) >= 0 ? nval.split(ntxt).join('') : val + ntxt;
 	}
 	val = val.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	wrong = verifyRegExp(val);
 	if(wrong) { $alert(Lng.error + ' ' + wrong); return; }
-	if(fld) { fld.value = val; $id('DESU_spelledit_ch').checked = val != ''; }
+	if(fld) { fld.value = val; $id('DESU_spelledit_ch').checked = val !== ''; }
 	forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
 	saveSpells(val);
-	if(val != '') { saveCfg('spells', 1); forAll(hideBySpells); }
+	if(val !== '') { saveCfg('spells', 1); forAll(hideBySpells); }
 	else saveCfg('spells', 0);
 	saveHiddenPosts();
 }
@@ -2968,17 +2967,17 @@ function findSameText(post, oNum, oVis, oWords) {
 		if(olen > 6 && oWords[i].length < 3) { _olen--; continue; }
 		j = len;
 		while(j--)
-			if(words[j] == oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) n++;
+			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) n++;
 	}
 	if(n < _olen*0.4 || len > _olen*3) return;
 	$del($x('.//a[@class="DESU_postnote"]', post));
-	if(oVis != 0) hidePost(post, 'similar to >>' + oNum);
+	if(oVis !== 0) hidePost(post, 'similar to >>' + oNum);
 	else unhidePost(post);
 }
 
 function hideBySameText(post) {
 	var vis = post.Vis;
-	if(post.Text != '') {
+	if(post.Text !== '') {
 		forAll(function(target) { findSameText(target, post.Num, vis, getWrds(post)); });
 		saveHiddenPosts();
 	} else applySpells('#notxt');
@@ -2988,13 +2987,13 @@ function hideBySameText(post) {
 
 function detectWipe_sameLines(txt) {
 	var lines, i, x, arr = [], n = 0;
-	if(Cfg.samel == 0) return false;
+	if(Cfg.samel === 0) return false;
 	lines = txt.replace(/> /g, '').split(/\s*\n\s*/);
 	i = lines.length;
 	if(i < 6) return false;
 	while(i--) {
 		x = lines[i];
-		if(x.length == 0)  continue;
+		if(x.length === 0)  continue;
 		if(arr[x]) arr[x]++;
 		else arr[x] = 1;
 		n++;
@@ -3002,13 +3001,13 @@ function detectWipe_sameLines(txt) {
 	n = n/4;
 	for(x in arr)
 		if(arr[x] > n && arr[x] > 4)
-			return 'same lines: "' + x.substr(0, 20) + '" x' + parseInt(arr[x] + 1);
+			return 'same lines: "' + x.substr(0, 20) + '" x' + (arr[x] + 1);
 	return false;
 }
 
 function detectWipe_sameWords(txt) {
 	var words, i, x, arr = [], n = 0, keys = 0, pop = '', mpop = -1;
-	if(Cfg.samew == 0) return false;
+	if(Cfg.samew === 0) return false;
 	words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
 	i = words.length;
 	if(i <= 13) return false;
@@ -3031,7 +3030,7 @@ function detectWipe_sameWords(txt) {
 
 function detectWipe_longColumn(txt) {
 	var rows, i, n = 0;
-	if(Cfg.longp == 0) return false;
+	if(Cfg.longp === 0) return false;
 	rows = txt.split(/\s*\n\s*/);
 	i = rows.length;
 	if(i > 50) return 'long text x' + i;
@@ -3043,7 +3042,7 @@ function detectWipe_longColumn(txt) {
 
 function detectWipe_longWords(txt) {
 	var words, i, x, all = '', longest = '', n = 0;
-	if(Cfg.longw == 0) return false;
+	if(Cfg.longw === 0) return false;
 	words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 	i = words.length;
 	while(i--) {
@@ -3053,13 +3052,13 @@ function detectWipe_longWords(txt) {
 		longest = x.length > longest.length ? x : longest;
 		n++;
 	}
-	return n == 1 && longest.length > 70 || n > 1 && all.length/n > 12
+	return n === 1 && longest.length > 70 || n > 1 && all.length/n > 12
 		? 'long words: "' + longest.substr(0, 20) + '.."' : false;
 }
 
 function detectWipe_caseWords(txt) {
 	var words, i, x, cap, up, lw, upc, lwc, j, capsw = 0, casew = 0, n = 0;
-	if(Cfg.caps == 0) return false;
+	if(Cfg.caps === 0) return false;
 	words = txt.replace(/[\s+\.\?!,-]+/g, ' ').split(' ');
 	i = words.length;
 	if(i <= 4) return false;
@@ -3069,7 +3068,7 @@ function detectWipe_caseWords(txt) {
 		cap = x.match(/[a-zа-я]/ig);
 		if(cap) {
 			cap = cap.toString().trim();
-			if(cap != '' && cap.toUpperCase() == cap) capsw++;
+			if(cap !== '' && cap.toUpperCase() === cap) capsw++;
 		}
 		up = x.toUpperCase();
 		lw = x.toLowerCase();
@@ -3077,9 +3076,9 @@ function detectWipe_caseWords(txt) {
 		lwc = 0;
 		j = x.length;
 		while(j--) {
-			if(up.charAt(j) == lw.charAt(j)) continue;
-			if(x.charAt(j) == up.charAt(j)) upc++;
-			else if(x.charAt(j) == lw.charAt(j)) lwc++;
+			if(up.charAt(j) === lw.charAt(j)) continue;
+			if(x.charAt(j) === up.charAt(j)) upc++;
+			else if(x.charAt(j) === lw.charAt(j)) lwc++;
 		}
 		if((upc < lwc ? upc : lwc) >= 2 && lwc + upc >= 5) casew++;
 		n++;
@@ -3091,7 +3090,7 @@ function detectWipe_caseWords(txt) {
 
 function detectWipe_specSymbols(txt) {
 	var len, proc;
-	if(Cfg.specs == 0) return false;
+	if(Cfg.specs === 0) return false;
 	txt = txt.replace(/\s+/g, '');
 	len = txt.length;
 	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length/len;
@@ -3100,7 +3099,7 @@ function detectWipe_specSymbols(txt) {
 
 function detectWipe_numbers(txt) {
 	var len, proc;
-	if(Cfg.nums == 0) return false;;
+	if(Cfg.nums === 0) return false;;
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	len = txt.length;
 	proc = (len - txt.replace(/\d/g, '').length)/len;
@@ -3109,7 +3108,7 @@ function detectWipe_numbers(txt) {
 
 function detectWipe(post) {
 	var arr, i, x;
-	if(Cfg.awipe == 0) return false;
+	if(Cfg.awipe === 0) return false;
 	arr = [
 		detectWipe_sameLines,
 		detectWipe_sameWords,
@@ -3125,7 +3124,7 @@ function detectWipe(post) {
 
 function hideByWipe(post) {
 	var note;
-	if(Cfg.filthr == 0 && post.isOp || post.Vis == 0 || post.Vis == 1) return;
+	if(Cfg.filthr === 0 && post.isOp || post.Vis === 0 || post.Vis === 1) return;
 	note = detectWipe(post);
 	if(note) hidePost(post, note);
 	else applyPostVisib(post, 1);
@@ -3190,25 +3189,25 @@ function fixGM() {
 
 function initBoard() {
 	var ua, gs, ss, url, ls = false, se = false;
-	if(window.location == 'about:blank') return false;
+	if(window.location === 'about:blank') return false;
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|localhost/)[0];
 	ch = {
-		krau:	dm == 'krautchan.net',
-		fch:	dm == '4chan.org',
-		gazo:	dm == '2chan.net',
-		nul:	dm == '0chan.ru',
-		_7ch:	dm == '7chan.org',
-		_410:	dm == '410chan.ru',
-		sib:	dm == 'sibirchan.ru',
-		_5ch:	dm == '5channel.net',
-		hid:	dm == 'hiddenchan.i2p',
-		tire:	dm == '2--ch.ru',
-		dfwk:	dm == 'dfwk.ru',
-		pony:	dm == 'ponychan.net',
-		vomb:	dm == 'vombatov.net',
-		ment:	dm == '02ch.org' || dm == '02ch.net',
-		futr:	dm == '2chan.su'
+		krau:	dm === 'krautchan.net',
+		fch:	dm === '4chan.org',
+		gazo:	dm === '2chan.net',
+		nul:	dm === '0chan.ru',
+		_7ch:	dm === '7chan.org',
+		_410:	dm === '410chan.ru',
+		sib:	dm === 'sibirchan.ru',
+		_5ch:	dm === '5channel.net',
+		hid:	dm === 'hiddenchan.i2p',
+		tire:	dm === '2--ch.ru',
+		dfwk:	dm === 'dfwk.ru',
+		pony:	dm === 'ponychan.net',
+		vomb:	dm === 'vombatov.net',
+		ment:	dm === '02ch.org' || dm === '02ch.net',
+		futr:	dm === '2chan.su'
 	};
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
@@ -3250,7 +3249,7 @@ function initBoard() {
 	brd = url[1] || (ch.dfwk ? 'df' : '');
 	res = ch.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
-	pageNum = url[3] && !TNum ? parseInt(url[3]) || 0 : 0;
+	pageNum = url[3] && !TNum ? Number(url[3]) || 0 : 0;
 	docExt = url[4] || (ch.gazo ? '.htm' : '.html');
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
@@ -3293,7 +3292,7 @@ function parseDelform(node) {
 			: 'starts-with(@id,"thread")'
 		) + ']', node);
 	$Del('.//script', node);
-	if(threads.snapshotLength == 0) {
+	if(threads.snapshotLength === 0) {
 		$each($X('.//hr/preceding-sibling::' + br, node), function(el) {
 			var thr = $new('div', {Class: 'thread'});
 			$each($X('preceding-sibling::node()[not(self::div[@class="thread"] or self::hr '
@@ -3323,18 +3322,18 @@ function parseDelform(node) {
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 	});
-	if(node != dForm) replaceDelform(node);
+	if(node !== dForm) replaceDelform(node);
 	return node;
 }
 
 function replaceDelform(node) {
 	var txt;
-	if(ch.fch || ch.krau || Cfg.ctime && timeRegex || Cfg.spells == 1 && oSpells.rep[0]) {
+	if(ch.fch || ch.krau || Cfg.ctime && timeRegex || Cfg.spells !== 0 && oSpells.rep[0]) {
 		txt = node.innerHTML;
 		if(Cfg.ctime && timeRegex) txt = fixTime(txt);
 		if(ch.fch || ch.krau)
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
-		if(Cfg.spells == 1 && oSpells.rep[0]) txt = doReplace(oSpells.rep, txt);
+		if(Cfg.spells !== 0 && oSpells.rep[0]) txt = doReplace(oSpells.rep, txt);
 		node.innerHTML = txt;
 	}
 }
