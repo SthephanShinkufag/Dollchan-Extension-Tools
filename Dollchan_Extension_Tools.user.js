@@ -3333,7 +3333,7 @@ function parseDelform(node, dc) {
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 	});
-	if(dc !== doc) replaceDelform();
+	if(dc !== doc) replaceDelform(node);
 	return node;
 }
 
