@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.6
+// @version			12.2.23.7
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -423,13 +423,15 @@ function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
 function $close(el) {
+	var i, h, closing;
 	if(!el) return;
 	if(Cfg.animp === 0) $del(el);
 	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function(){$del(el)}, false);
 		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
 	} else {
-		let h = el.clientHeight - 18, i = 8, closing;
+		i = 8;
+		h = el.clientHeight - 18;
 		el.style.height = h + 'px';
 		closing = setInterval(function() {
 			var s, hh;
@@ -444,11 +446,13 @@ function $close(el) {
 	}
 }
 function $show(el) {
+	var i, showing;
 	if(Cfg.animp === 0) el.style.opacity = 1;
 	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
 		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
 	} else {
-		let i, showing = setInterval(function() {
+		i = 0;
+		showing = setInterval(function() {
 			var s;
 			if(!el || i++ > 8) { clearInterval(showing); return; }
 			s = el.style;
