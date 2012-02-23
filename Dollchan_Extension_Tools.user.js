@@ -431,7 +431,7 @@ function txtSelection() {
 function $close(el) {
 	if(!el) return;
 	if(Cfg.animp === 0) $del(el);
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4) && Cfg.animp === 1) {
+	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function(){$del(el)}, false);
 		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
 	} else {
@@ -451,7 +451,7 @@ function $close(el) {
 }
 function $show(el) {
 	if(Cfg.animp === 0) el.style.opacity = 1;
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4) && Cfg.animp === 1) {
+	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
 		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
 	} else {
 		let i, showing = setInterval(function() {
