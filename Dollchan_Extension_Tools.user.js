@@ -2455,7 +2455,7 @@ function getFullMsg(post, tNum, a) {
 	AJAX(null, brd, tNum, function(err) {
 		if(err) return;
 		$del(a);
-		post.Msg = $html(post.Msg, $x(xPostMsg, din(ajaxPosts[post.Num])).innerHTML);
+		post.Msg = $html(post.Msg, $x(xPostMsg, $din(ajaxPosts[post.Num])).innerHTML);
 		addPostFunc(post);
 	});
 }
