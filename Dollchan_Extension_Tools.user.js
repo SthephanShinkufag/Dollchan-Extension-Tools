@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.4
+// @version			12.2.23.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -718,7 +718,7 @@ function addPanel() {
 				}),
 				$if(!TNum, $new('a', {
 					id: 'DESU_btn_gonext', title: Lng.goNext, href: 'http://' + host + '/' + brd
-						+ '/' + (pageNum > 0 ? (pageNum + 1) : 1) + docExt
+						+ '/' + (pageNum > 0 ? pageNum + 1 : 1) + docExt
 				})),
 				$new('a', {id: 'DESU_btn_goup', title: Lng.goUp, href: '#'}, {
 					click: function(e) { $pD(e); window.scrollTo(0, 0); }
@@ -3057,34 +3057,17 @@ function detectWipe_longWords(txt) {
 }
 
 function detectWipe_caseWords(txt) {
-	var words, i, x, cap, up, lw, upc, lwc, j, capsw = 0, casew = 0, n = 0;
+	var words, i, x, capsw = 0, casew = 0, n = 0;
 	if(Cfg.caps === 0) return false;
-	words = txt.replace(/[\s+\.\?!,-]+/g, ' ').split(' ');
-	i = words.length;
-	if(i <= 4) return false;
-	while(i--) {
-		x = words[i];
-		if(x.length < 5) continue;
-		cap = x.match(/[a-zа-я]/ig);
-		if(cap) {
-			cap = cap.toString().trim();
-			if(cap !== '' && cap.toUpperCase() === cap) capsw++;
-		}
-		up = x.toUpperCase();
-		lw = x.toLowerCase();
-		upc = 0;
-		lwc = 0;
-		j = x.length;
-		while(j--) {
-			if(up.charAt(j) === lw.charAt(j)) continue;
-			if(x.charAt(j) === up.charAt(j)) upc++;
-			else if(x.charAt(j) === lw.charAt(j)) lwc++;
-		}
-		if((upc < lwc ? upc : lwc) >= 2 && lwc + upc >= 5) casew++;
+	words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+	for(i = 0; x = words[i++];) {
+		if((x.match(/[a-zа-я]/ig) || []).length < 5) continue;
+		if((x.match(/[A-ZА-Я]/g) || []).length > 2) casew++;
+		if(x === x.toUpperCase()) capsw++;
 		n++;
 	}
-	return (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100) + '%')
-		: (capsw/n >= 0.3 && n > 5) ? 'CAPSLOCK'
+	return (capsw/n >= 0.3 && n > 5) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100) + '%')
+		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100) + '%')
 		: false;
 }
 
@@ -3398,8 +3381,8 @@ function doScript() {
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
 	if(Cfg.navig === 2) { addRefMap();					 Log('addRefMap'); }
-	saveHiddenPosts();									 Log('saveHiddenPosts');
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
+	saveHiddenPosts();									 Log('saveHiddenPosts');
 	scriptCSS();										 Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
 }
