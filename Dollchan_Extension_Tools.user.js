@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.3
+// @version			12.2.23.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3397,8 +3397,8 @@ function doScript() {
 	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
-	saveHiddenPosts();									 Log('saveHiddenPosts');
 	if(Cfg.navig === 2) { addRefMap();					 Log('addRefMap'); }
+	saveHiddenPosts();									 Log('saveHiddenPosts');
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	scriptCSS();										 Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
