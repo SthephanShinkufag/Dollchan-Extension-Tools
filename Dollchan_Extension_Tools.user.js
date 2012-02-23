@@ -401,6 +401,9 @@ function $focus(el) {
 function $pD(e) {
 	e.preventDefault();
 }
+function $din(node) {
+	return doc.importNode(node, true);
+}
 function rand10() {
 	return Math.floor(Math.random()*1e10).toString(10);
 }
@@ -2326,7 +2329,7 @@ function showPostPreview(e) {
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
 		parentId = parent ? parent.id.match(/\d+/)[0] : null,
-		post = pByNum[pNum] || (ajaxPosts[pNum] ? doc.importNode(ajaxPosts[pNum], true) : false);
+		post = pByNum[pNum] || (ajaxPosts[pNum] ? $din(ajaxPosts[pNum]) : false);
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2354,7 +2357,7 @@ function showPostPreview(e) {
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		AJAX(null, b, tNum, function(err) {
-			funcPostPreview(doc.importNode(ajaxPosts[pNum], true), parentId, err || Lng.postNotFound);
+			funcPostPreview($din(ajaxPosts[pNum]), parentId, err || Lng.postNotFound);
 		});
 	}
 	$del($id(pView.id));
@@ -2429,7 +2432,7 @@ function addPostFunc(post) {
 }
 
 function newPost(thr, tNum, i, isDel) {
-	var pNum = ajaxThrds[tNum].keys[i], post = doc.importNode(ajaxPosts[pNum], true);
+	var pNum = ajaxThrds[tNum].keys[i], post = $din(ajaxPosts[pNum]);
 	Posts[Posts.length] = post;
 	if(isDel) post.isDel = true;
 	pByNum[pNum] = post;
@@ -2452,7 +2455,7 @@ function getFullMsg(post, tNum, a) {
 	AJAX(null, brd, tNum, function(err) {
 		if(err) return;
 		$del(a);
-		post.Msg = $html(post.Msg, $x(xPostMsg, doc.importNode(ajaxPosts[post.Num], true)).innerHTML);
+		post.Msg = $html(post.Msg, $x(xPostMsg, din(ajaxPosts[post.Num])).innerHTML);
 		addPostFunc(post);
 	});
 }
@@ -3348,7 +3351,7 @@ function replaceDelform(node) {
 
 function initDelform() {
 	dForm.id = '';
-	try { $disp(parseDelform(dForm)); } catch(e) { return false; }
+	try { $disp(parseDelform(dForm, doc)); } catch(e) { return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }
