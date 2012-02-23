@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.5
+// @version			12.2.23.6
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -11,6 +11,7 @@
 // ==/UserScript==
 
 (function (scriptStorage) {
+'use strict';
 var defaultCfg = {
 	version:	'2012-02-23',
 	lang:		0,		// script language [0=ru, 1=en]
@@ -418,13 +419,6 @@ function isEmptyObj(obj) {
 	for(var i in obj) return false;
 	return true;
 }
-if(!String.prototype.trim) {
-	String.prototype.trim = function () {
-		var str = this.replace(/^\s\s*/, ''), s = /\s/, i = str.length;
-		while(s.test(str.charAt(--i)));
-		return str.slice(0, i + 1);
-	};
-}
 function txtSelection() {
 	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
@@ -462,6 +456,26 @@ function Log(txt) {
 	timeLog += txt + ': ' + (newTime - oldTime) + 'ms\n';
 	oldTime = newTime;
 }
+
+if(!String.prototype.trim)
+	String.prototype.trim = function () {
+		var str = this.replace(/^\s\s*/, ''), s = /\s/, i = str.length;
+		while(s.test(str.charAt(--i)));
+		return str.slice(0, i + 1);
+	};
+if(typeof GM_log !== 'function') var GM_log = function() {};
+if(typeof GM_xmlhttpRequest !== 'function')
+	var GM_xmlhttpRequest = function(obj) {
+		var xhr = new window.XMLHttpRequest();
+		xhr.onreadystatechange = function() { obj.onreadystatechange(xhr); };
+		xhr.onload = function() { obj.onload(xhr); };
+		xhr.open(obj.method, obj.url, true);
+		xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
+		xhr.send(false);
+	};
+if(typeof uneval !== 'function')
+	(function(){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"},uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});window.uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}})()
+
 
 /*=============================================================================
 								STORAGE / CONFIG
@@ -822,7 +836,7 @@ function addSettings() {
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}, {
-				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.local ? 'Local Storage' : sav.script ? 'Opera ScriptStorage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
+				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
 			}),
 			$new('div', {Class: pClass, id: 'DESU_sett_main'})
 		], {id: 'DESU_sett_body'})
@@ -3060,13 +3074,14 @@ function detectWipe_caseWords(txt) {
 	var words, i, x, capsw = 0, casew = 0, n = 0;
 	if(Cfg.caps === 0) return false;
 	words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+	if(words.length < 5) return false;
 	for(i = 0; x = words[i++];) {
 		if((x.match(/[a-zа-я]/ig) || []).length < 5) continue;
 		if((x.match(/[A-ZА-Я]/g) || []).length > 2) casew++;
 		if(x === x.toUpperCase()) capsw++;
 		n++;
 	}
-	return (capsw/n >= 0.3 && n > 5) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100) + '%')
+	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100) + '%')
 		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100) + '%')
 		: false;
 }
@@ -3151,25 +3166,6 @@ function fixDomain() {
 	try { doc.domain = dm; } catch(e) { dm = doc.domain; }
 }
 
-function fixUneval() {
-	try{eval("uneval")}catch(e){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"},uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});window.uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}};
-}
-
-function fixGM() {
-	try { GM_log; } catch(e) { GM_log = function() {} }
-	try { GM_xmlhttpRequest; }
-	catch(e) {
-		GM_xmlhttpRequest = function(obj) {
-			var xhr = new window.XMLHttpRequest();
-			xhr.onreadystatechange = function() { obj.onreadystatechange(xhr); };
-			xhr.onload = function() { obj.onload(xhr); };
-			xhr.open(obj.method, obj.url, true);
-			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-			xhr.send(false);
-		};
-	}
-}
-
 function initBoard() {
 	var ua, gs, ss, url, ls = false, se = false;
 	if(window.location === 'about:blank') return false;
@@ -3207,8 +3203,6 @@ function initBoard() {
 	if(!dForm || $id('DESU_panel')) return false;
 	if(ch.hid) setTimeout = function(fn) { fn(); };
 	fixDomain();
-	fixUneval();
-	fixGM();
 	ua = window.navigator.userAgent;
 	nav = {
 		Firefox: /firefox|minefield|icecat/i.test(ua),
