@@ -2386,7 +2386,7 @@ function parseHTMLdata(html) {
 	}
 	if(hanab) html = '<html><head></head><body><div class="thread">' + html + '</div></body></html>';
 	var aD = HTMLtoDOM(html);
-	parseDelform($x(xDelForm, aD, aD), aD);
+	parseDelform($x(hanab ? xDelForm : false, aD, aD), aD);
 	$each($X('.//div[@class="thread"]', aD, aD), function(thrd) {
 		var tNum = thrd.id.match(/\d+/)[0];
 		ajaxThrds[tNum] = {keys: []};
