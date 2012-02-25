@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.25.1
+// @version			12.2.25.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3191,7 +3191,7 @@ function fixGM() {
 		window.GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
 			xhr.onreadystatechange = function() { obj.onreadystatechange(xhr); };
-			xhr.onload = function() { obj.onload(xhr); };
+			xhr.onload = function() { try{ obj.onload(xhr); } catch(e) {} };
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 			xhr.send(false);
