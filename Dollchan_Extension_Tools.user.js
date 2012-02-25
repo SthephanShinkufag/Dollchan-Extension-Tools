@@ -3318,7 +3318,7 @@ function parseDelform(node, dc) {
 			ch.fch ? 'table[not(@class="exif")]'
 			: ch.tire ? 'table[not(@class="postfiles")]'
 			: 'table';
-	$Del('.//script', node);
+	if(dc === doc) $Del('.//script', node);
 	replaceDelform(node);
 	threads = $X('.//div[' + (
 		$xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc)
