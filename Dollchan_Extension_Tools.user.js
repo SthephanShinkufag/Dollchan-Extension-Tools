@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.25.0
+// @version			12.2.25.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -479,8 +479,8 @@ function $show(el) {
 			if(!el || i++ > 8) { clearInterval(showing); return; }
 			s = el.style;
 			s.opacity = i/10;
-			s.paddingTop = (parseInt(s.paddingTop) + 1) + 'px';
-			s.paddingBottom = (parseInt(s.paddingBottom) + 1) + 'px';
+			s.paddingTop = parseInt(s.paddingTop) + 1 + 'px';
+			s.paddingBottom = parseInt(s.paddingBottom) + 1 + 'px';
 		}, 25);
 	}
 }
@@ -3353,7 +3353,8 @@ function replaceDelform(node) {
 
 function initDelform() {
 	dForm.id = '';
-	try { $disp(parseDelform(dForm, doc)); } catch(e) { return false; }
+	$disp(dForm);
+	try { parseDelform(dForm, doc); } catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }
