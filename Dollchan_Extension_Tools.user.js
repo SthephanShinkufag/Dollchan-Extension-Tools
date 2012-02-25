@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.23.8
+// @version			12.2.25.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -479,8 +479,8 @@ function $show(el) {
 			if(!el || i++ > 8) { clearInterval(showing); return; }
 			s = el.style;
 			s.opacity = i/10;
-			s.paddingTop = parseInt(s.paddingTop) + 1 + 'px';
-			s.paddingBottom = parseInt(s.paddingBottom) + 1 + 'px';
+			s.paddingTop = (parseInt(s.paddingTop) + 1) + 'px';
+			s.paddingBottom = (parseInt(s.paddingBottom) + 1) + 'px';
 		}, 25);
 	}
 }
@@ -1217,10 +1217,7 @@ function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += '_' + id; el = $id(nid); }
 	if(!el) {
-		el = $add('<div class="' + pClass + '" id="' + nid + '" style="opacity:0">' + (
-			id === 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>'
-			: '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>'
-		) + '<div style="display:inline-block; margin-top:4px"></div></div>');
+		el = $add('<div class="' + pClass + '" id="' + nid + '" style="opacity:0; padding:0 10px 5px 10px">' + (id === 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>' : '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>') + '<div style="display:inline-block; margin-top:4px"></div></div>');
 		$event($1(el), {click: function(e) { $pD(e); $close($up(this)); }});
 		$show($id('DESU_alertbox').appendChild(el));
 	}
@@ -1735,7 +1732,7 @@ function scriptCSS() {
 		pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ';
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px arial; cursor:default}\
-		#DESU_alertbox > div {float:right; clear:both; width:auto; min-width:0pt; padding:10px; margin:1px; border:1px solid grey; white-space:pre-wrap}\
+		#DESU_alertbox > div {float:right; clear:both; width:auto; min-width:0pt; margin:1px; border:1px solid grey; white-space:pre-wrap}\
 		#DESU_cfgedit, #DESU_favoredit, #DESU_hthredit, #DESU_spelledit {display:block; margin:2px 0; font:12px courier new}\
 		#DESU_content {text-align:left}\
 		#DESU_iframe {display:none; width:0px; height:0px; border:none}\
