@@ -2356,7 +2356,7 @@ function showPostPreview(e) {
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		AJAX(null, b, tNum, function(err) {
-			funcPostPreview($din(ajaxPosts[pNum]), parentId, err || Lng.postNotFound);
+			funcPostPreview(ajaxPosts[pNum] ? $din(ajaxPosts[pNum]) : false, parentId, err || Lng.postNotFound);
 		});
 	}
 	$del($id(pView.id));
