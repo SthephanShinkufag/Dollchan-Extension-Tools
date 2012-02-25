@@ -2532,14 +2532,14 @@ function loadFavorThread(e) {
 }
 
 function getDelPosts(err) {
-	var j = 0, del = 0;
+	var del = 0;
 	if(err) return false;
 	forAll(function(post) {
-		if(ajaxThrds[TNum].keys[j] !== post.Num) {
-			if(!post.isDel) post.Btns.className += '_del';
+		if(ajaxThrds[TNum].keys.indexOf(post.Num) === -1 && !post.isDel) {
+			post.Btns.className += '_del';
 			post.isDel = true;
-		} else if(!post.isDel) j++;
-		if(post.isDel) del++;
+			del++;
+		}
 	});
 	return del;
 }
@@ -3286,24 +3286,46 @@ function initBoard() {
 		+ '[preceding-sibling::*[descendant-or-self::*['
 		+ (abu ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]', dForm);
 	if(ch.krau) { $del($t('hr', dForm)); $del($t('hr', $prev(dForm))); }
+	pPanel = $New('span', [
+		$new('a', {Class: 'DESU_icn_hide', href: '#'}),
+		$if(pr.on || oeForm, $new('a', {Class: 'DESU_icn_rep', href: '#'}))
+	], {Class: 'DESU_postpanel'});
+	opPanel = pPanel.cloneNode(true);
+	opPanel.className += '_op';
+	$append(opPanel, [
+		$if(!TNum, $new('a', {Class: 'DESU_icn_expthr', href: '#'})),
+		$new('a', {Class: 'DESU_icn_favor', href: '#'})
+	]);
 	return true;
 }
 
+function pushPost(post, id, isOp, cnt) {
+	Posts.push(post);
+	post.isOp = isOp;
+	post.Count = cnt;
+	post.Msg = $x(xPostMsg, post);
+	post.Num = id;
+	post.Text = getText(post.Msg).trim();
+	post.Img = getImages(post);
+	pByNum[id] = post;
+}
+
 function parseDelform(node, dc) {
-	var br = ch.gazo ? 'div[@style="clear:left"]' : 'br[@*]',
+	var threads, br = ch.gazo ? 'div[@style="clear:left"]' : 'br[@*]',
 		table = 
 			ch.fch ? 'table[not(@class="exif")]'
 			: ch.tire ? 'table[not(@class="postfiles")]'
-			: 'table',
-		threads = $X('.//div[' + (
-			$xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc)
-				? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
-			: ch.sib ? 'not(@*)'
-			: ch._7ch ? 'starts-with(@id,"thread") and not(@id="thread_controls")'
-			: tinyb ? 'starts-with(@id,"thread") and @itemid'
-			: 'starts-with(@id,"thread")'
-		) + ']', node, dc);
-	if(dc === doc) $Del('.//script', node);
+			: 'table';
+	$Del('.//script', node);
+	replaceDelform(node);
+	threads = $X('.//div[' + (
+		$xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc)
+			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
+		: ch.sib ? 'not(@*)'
+		: ch._7ch ? 'starts-with(@id,"thread") and not(@id="thread_controls")'
+		: tinyb ? 'starts-with(@id,"thread") and @itemid'
+		: 'starts-with(@id,"thread")'
+	) + ']', node, dc);
 	if(threads.snapshotLength === 0) {
 		$each($X('.//hr/preceding-sibling::' + br, node, dc), function(el) {
 			var thr = $new('div', {Class: 'thread'}, dc);
@@ -3314,7 +3336,7 @@ function parseDelform(node, dc) {
 		threads = $X('.//div[@class="thread"]', node, dc);
 	}
 	$each(threads, function(thr) {
-		var a, tNum, op, opEnd;
+		var a, tNum, op, opEnd, id, i = 0;
 		if(tinyb && dc === doc) $after(thr, [$new('hr')]);
 		if(!tinyb && !ch.fch && !ch.gazo) {
 			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr, dc);
@@ -3329,13 +3351,15 @@ function parseDelform(node, dc) {
 			function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
 		if(opEnd) {
 			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr, dc), function(el) {
-				el.id = 'post-' + (el.id || el.getElementsByTagName('td')[1].id
+				id = (el.id || el.getElementsByTagName('td')[1].id
 					|| el.getElementsByTagName('input')[0].name).match(/\d+/)[0];
-			});
+				el.id = 'post-' + id;
+				if(dc === doc) pushPost(el, id, false, ++i);
+			}, true);
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
+		if(dc === doc) pushPost(op, tNum, true, 0);
 	});
-	if(dc !== doc) replaceDelform(node);
 	return node;
 }
 
@@ -3359,33 +3383,6 @@ function initDelform() {
 	return true;
 }
 
-function initPosts() {
-	pPanel = $New('span', [
-		$new('a', {Class: 'DESU_icn_hide', href: '#'}),
-		$if(pr.on || oeForm, $new('a', {Class: 'DESU_icn_rep', href: '#'}))
-	], {Class: 'DESU_postpanel'});
-	opPanel = pPanel.cloneNode(true);
-	opPanel.className += '_op';
-	$append(opPanel, [
-		$if(!TNum, $new('a', {Class: 'DESU_icn_expthr', href: '#'})),
-		$new('a', {Class: 'DESU_icn_favor', href: '#'})
-	]);
-	$each($X('.//div[starts-with(@id,"oppost-")]', dForm),
-		function(post, i) { Posts[Posts.length] = post; post.isOp = true; post.Count = 0; }
-	, true);
-	$each($X('.//table[starts-with(@id,"post-")]|.//div[starts-with(@id,"post-")]', dForm),
-		function(post, i) { Posts[Posts.length] = post; post.isOp = false; post.Count = i + 1; }
-	, true);
-	forAll(function(post) {
-		post.Msg = $x(xPostMsg, post);
-		post.Num = post.id.match(/\d+/)[0];
-		post.Text = getText(post.Msg).trim();
-		post.Img = getImages(post);
-		pByNum[post.Num] = post;
-	});
-}
-
-
 /*=============================================================================
 									MAIN
 =============================================================================*/
@@ -3394,10 +3391,8 @@ function doScript() {
 	var initTime = (new Date()).getTime();
 	oldTime = initTime;
 	if(!initBoard()) return;							 Log('initBoard');
-	if(!initDelform()) return;							 Log('initDelform');
 	readCfg();											 Log('readCfg');
-	replaceDelform(dForm);								 Log('replaceDelform');
-	initPosts();										 Log('initPosts');
+	if(!initDelform()) return;							 Log('initDelform');
 	addPanel();											 Log('addPanel');
 	doChanges();										 Log('doChanges');
 	readFavorites();									 Log('readFavorites');
