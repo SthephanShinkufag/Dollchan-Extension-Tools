@@ -2252,7 +2252,7 @@ function getRefMap(pNum, rNum) {
 	else if(refMap[rNum].indexOf(pNum) < 0) refMap[rNum].push(pNum);
 }
 
-function showRefMap(post, rNum) {
+function showRefMap(post, rNum, uEv) {
 	var el, msg, txt;
 	if(typeof refMap[rNum] !== 'object' || !post) return;
 	el = $x('.//div[@class="DESU_refmap"]', post);
@@ -2260,11 +2260,13 @@ function showRefMap(post, rNum) {
 	if(!el) {
 		msg = post.Msg || $x(xPostMsg, post);
 		if(!msg) return;
-		$after(msg, [$add('<div class="DESU_refmap">' + txt + '</div>')]);
+		el = $add('<div class="DESU_refmap">' + txt + '</div>');
+		if(uEv) eventRefLink(el);
+		$after(msg, [el]);
 	} else eventRefLink($html(el, txt));
 }
 
-function addRefMap(post) {
+function addRefMap(post, uEv) {
 	var rNum, pst;
 	if(Cfg.navig !== 2) return;
 	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
@@ -2273,7 +2275,7 @@ function addRefMap(post) {
 		pst = post || getPost(link);
 		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/)[0], rNum);
 	}, true);
-	for(rNum in refMap) showRefMap(pByNum[rNum], rNum);
+	for(rNum in refMap) showRefMap(pByNum[rNum], rNum, uEv);
 }
 
 /*----------------------->>RefLinks posts preview functions------------------*/
@@ -2311,7 +2313,7 @@ function funcPostPreview(post, parentId, msg) {
 	eventPostImg(pView);
 	addLinkImg(pView);
 	if(Cfg.navig === 2) {
-		showRefMap(pView, pView.id.match(/\d+/)[0]);
+		showRefMap(pView, pView.id.match(/\d+/)[0], false);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
 	}
@@ -2423,7 +2425,7 @@ function AJAX(url, b, tNum, fn) {
 function addPostFunc(post) {
 	post.Text = getText(post.Msg).trim();
 	doPostFilters(post);
-	addRefMap(post);
+	addRefMap(post, true);
 	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
@@ -3406,7 +3408,7 @@ function doScript() {
 	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
-	if(Cfg.navig === 2) { addRefMap();					 Log('addRefMap'); }
+	if(Cfg.navig === 2) { addRefMap(false, false);		 Log('addRefMap'); }
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	saveHiddenPosts();									 Log('saveHiddenPosts');
 	scriptCSS();										 Log('scriptCSS');
