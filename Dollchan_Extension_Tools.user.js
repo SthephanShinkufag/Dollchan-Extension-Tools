@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.2.25.3
+// @version			12.3.1.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-02-25',
+	version:	'2012-03-01',
 	lang:		0,		// script language [0=ru, 1=en]
 	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
@@ -3331,7 +3331,7 @@ function parseDelform(node, dc) {
 	) + ']', node, dc);
 	if(threads.snapshotLength === 0) {
 		$each($X('.//hr/preceding-sibling::' + br, node, dc), function(el) {
-			var thr = $new('div', {Class: 'thread'}, dc);
+			var thr = $new('div', {Class: 'thread'}, {}, dc);
 			$each($X('preceding-sibling::node()[not(self::div[@class="thread"] or self::hr '
 				+ 'or self::' + br + ')]', el, dc), function(el) { thr.appendChild(el); }, nav.Firefox);
 			$before(el, [thr]);
@@ -3340,7 +3340,7 @@ function parseDelform(node, dc) {
 	}
 	$each(threads, function(thr) {
 		var a, tNum, op, opEnd, id, i = 0;
-		if(tinyb && dc === doc) $after(thr, [$new('hr')]);
+		if(tinyb && dc === doc) $after(thr, [$new('hr', {}, {}, dc)]);
 		if(!tinyb && !ch.fch && !ch.gazo) {
 			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr, dc);
 			tNum = a ? a.name : thr.id.match(/\d+/)[0];
