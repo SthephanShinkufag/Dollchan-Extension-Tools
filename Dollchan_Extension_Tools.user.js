@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.1.0
+// @version			12.3.1.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -436,7 +436,7 @@ function HTMLtoDOM(html) {
 		doc_elt = myDoc.documentElement;
 		doc_elt.innerHTML = html;
 		first_elt = doc_elt.firstElementChild;
-		if (doc_elt.childElementCount === 1 && first_elt.localName.toLowerCase() === 'html')
+		if(doc_elt.childElementCount === 1 && first_elt.localName.toLowerCase() === 'html')
 			myDoc.replaceChild(first_elt, doc_elt);
 	}
 	return myDoc;
@@ -1730,7 +1730,7 @@ function scriptCSS() {
 	var x = [],
 		gif = function(nm, src) { x.push(nm + ' {background:url(data:image/gif;base64,' + src + ') no-repeat center !important}') },
 		pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ',
-		brCssFix = !nav.Firefox || nav.Firefox < 13 ? cssFix : '';
+		brCssFix = !nav.Firefox || nav.Firefox < 4 ? cssFix : '';
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px arial; cursor:default}\
 		#DESU_alertbox > div {float:right; clear:both; width:auto; min-width:0pt; padding:10px; margin:1px; border:1px solid grey; white-space:pre-wrap}\
@@ -2380,12 +2380,13 @@ function eventRefLink(el) {
 =============================================================================*/
 
 function parseHTMLdata(html) {
+	var aD;
 	if(!pr.on && oeForm) {
 		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
 	if(hanab) html = '<html><head></head><body><div class="thread">' + html + '</div></body></html>';
-	var aD = HTMLtoDOM(html);
+	aD = HTMLtoDOM(html);
 	parseDelform($x(!hanab ? xDelForm : false, aD, aD), aD);
 	$each($X('.//div[@class="thread"]', aD, aD), function(thrd) {
 		var tNum = thrd.id.match(/\d+/)[0];
@@ -3206,7 +3207,7 @@ function initBoard() {
 	var ua, gs, ss, url, ls = false, se = false;
 	if(window.location === 'about:blank') return false;
 	host = window.location.hostname;
-	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|localhost/)[0];
+	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	ch = {
 		krau:	dm === 'krautchan.net',
 		fch:	dm === '4chan.org',
@@ -3217,7 +3218,7 @@ function initBoard() {
 		sib:	dm === 'sibirchan.ru',
 		_5ch:	dm === '5channel.net',
 		hid:	dm === 'hiddenchan.i2p',
-		tire:	dm === '2--ch.ru',
+		tire:	dm === '2--ch.ru' || dm === '78.108.183.53',
 		dfwk:	dm === 'dfwk.ru',
 		pony:	dm === 'ponychan.net',
 		vomb:	dm === 'vombatov.net',
