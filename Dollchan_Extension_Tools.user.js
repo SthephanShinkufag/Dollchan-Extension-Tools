@@ -1729,20 +1729,21 @@ function fixTime(txt) {
 function scriptCSS() {
 	var x = [],
 		gif = function(nm, src) { x.push(nm + ' {background:url(data:image/gif;base64,' + src + ') no-repeat center !important}') },
-		pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ';
+		pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ',
+		brCssFix = !nav.Firefox || nav.Firefox < 13 ? cssFix : '';
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px arial; cursor:default}\
 		#DESU_alertbox > div {float:right; clear:both; width:auto; min-width:0pt; padding:10px; margin:1px; border:1px solid grey; white-space:pre-wrap}\
 		#DESU_cfgedit, #DESU_favoredit, #DESU_hthredit, #DESU_spelledit {display:block; margin:2px 0; font:12px courier new}\
 		#DESU_content {text-align:left}\
 		#DESU_iframe {display:none; width:0px; height:0px; border:none}\
-		#DESU_panel {height:25px; z-index:9999; ' + pre + cssFix + 'border-radius:15px 0 0 0; cursor:default}\
-		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + cssFix + 'border-radius:5px}\
+		#DESU_panel {height:25px; z-index:9999; ' + pre + brCssFix + 'border-radius:15px 0 0 0; cursor:default}\
+		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + brCssFix + 'border-radius:5px}\
 		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid #79c}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #9be}\
 		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid #79c; color:#fff; font:18px serif}\
 		#DESU_sett_body {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
-		#DESU_sett_head {padding:3px; ' + pre + cssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
+		#DESU_sett_head {padding:3px; ' + pre + brCssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
 		#DESU_sett_main {padding:7px; margin:0; border:1px solid grey; font:13px sans-serif}\
 		#DESU_sett_main input[value=">"] {width:20px}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
