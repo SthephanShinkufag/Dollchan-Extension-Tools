@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.1.1
+// @version			12.3.1.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -33,7 +33,7 @@ var defaultCfg = {
 	updfav:		1,		//		favicon blinking, if new posts detected
 	navig:		2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
 	navfix:		1,		//		previews placed by [0=mouse, 1=link]
-	navdel:		1,		//		delay [0=off, 1=on]
+	navdel:		'1000',	//		delay [0=off, 1=on]
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		strike hidden posts in refmap
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
@@ -905,8 +905,8 @@ function addSettings() {
 			$btn('>', function() { $disp($id('DESU_pviewbox')); })
 		]),
 		$New('div', [
+			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
 			divBox('navfix', Lng.fixedPreview),
-			divBox('navdel', Lng.delayPreview),
 			divBox('navmrk', Lng.markViewed),
 			divBox('navhid', Lng.hidRefmap)
 		], {id: 'DESU_pviewbox', style: 'display:none; padding-left:15px'}),
@@ -2293,12 +2293,12 @@ function delPostPreview() {
 }
 
 function checkPostPreview(e) {
-	if(Cfg.navdel !== 0 && pView) {
+	if(Cfg.navdel !== '0' && pView) {
 		clearTimeout(pView.close);
-		pView.close = setTimeout(delPostPreview, 1e3);
+		pView.close = setTimeout(delPostPreview, Cfg.navdel);
 	}
 	pView = $x('ancestor-or-self::div[starts-with(@id,"DESU_preview")]', e.relatedTarget);
-	if(Cfg.navdel === 0) delPostPreview();
+	if(Cfg.navdel === '0') delPostPreview();
 }
 
 function funcPostPreview(post, parentId, msg) {
