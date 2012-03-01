@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.1.3
+// @version			12.3.1.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -33,7 +33,7 @@ var defaultCfg = {
 	updfav:		1,		//		favicon blinking, if new posts detected
 	navig:		2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
 	navfix:		1,		//		previews placed by [0=mouse, 1=link]
-	navdel:		'1000',	//		delay [0=off, 1=on]
+	navdel:		'2000',	//		delay in ms
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		strike hidden posts in refmap
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
@@ -128,7 +128,7 @@ LngArray = {
 		['Disable', 'No map', 'With map']
 	],
 	fixedPreview:	['Фиксировать превью под ссылкой', 'Fixed preview under link'],
-	delayPreview:	['Задержка пропадания превью', 'Delay disappearance'],
+	delayPreview:	[' задержка пропадания (мс)', ' delay disappearance (ms)'],
 	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 	hidRefmap:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
 	expandPosts:	['загрузка сокращенных постов*', 'upload of shorted posts*'],
@@ -1933,6 +1933,7 @@ function getImgSize(post) {
 function isSage(post) {
 	var a;
 	return !pr.mail ? false
+		: abu ? $xb('.//span[@class="postername" and contains(text(),"Heaven")]', post)
 		: hanab ? $xb('.//img[@alt="Сажа"]', post)
 		: ch.krau ? $xb('.//span[@class="sage"]', post)
 		: ch._410 ? $xb('.//span[@class="filetitle" and contains(text(),"'
