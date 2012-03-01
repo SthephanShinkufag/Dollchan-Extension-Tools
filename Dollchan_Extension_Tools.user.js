@@ -365,6 +365,9 @@ function $New(tag, nodes, attr, events) {
 function $txt(el) {
 	return doc.createTextNode(el);
 }
+function $din(node) {
+	return doc.importNode(node, true);
+}
 function $btn(val, fn) {
 	return $new('input', {type: 'button', value: val}, {click: fn});
 }
@@ -391,9 +394,8 @@ function $offset(el) {
 	};
 }
 function getStyle(el, prop) {
-	if(doc.defaultView && doc.defaultView.getComputedStyle)
-		return doc.defaultView.getComputedStyle(el, '').getPropertyValue(prop);
-	return '';
+	return doc.defaultView && doc.defaultView.getComputedStyle
+		? doc.defaultView.getComputedStyle(el, '').getPropertyValue(prop) : '';
 }
 function $focus(el) {
 	window.scrollTo(0, $offset(el).top);
@@ -401,18 +403,18 @@ function $focus(el) {
 function $pD(e) {
 	e.preventDefault();
 }
-function $din(node) {
-	return doc.importNode(node, true);
-}
-function rand10() {
+function $rnd() {
 	return Math.floor(Math.random()*1e10).toString(10);
 }
-function insertInto(el, text) {
+function insertInto(el, txt) {
 	var scrtop = el.scrollTop, start = el.selectionStart, end = el.selectionEnd;
-	el.value = el.value.substr(0, start) + text + el.value.substr(end);
-	el.setSelectionRange(start + text.length, start + text.length);
+	el.value = el.value.substr(0, start) + txt + el.value.substr(end);
+	el.setSelectionRange(start + txt.length, start + txt.length);
 	el.focus();
 	el.scrollTop = scrtop;
+}
+function txtSelection() {
+	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
 }
 function strToRegexp(str) {
 	var t = str.match(/\/.*?[^\\]\/[ig]*/)[0], l = t.lastIndexOf('/');
@@ -429,60 +431,17 @@ if(!String.prototype.trim)
 		return str.slice(0, i + 1);
 	};
 function HTMLtoDOM(html) {
-	var myDoc, doc_elt, first_elt;
+	var myDoc, el, first;
 	try { myDoc = (new DOMParser()).parseFromString(html, 'text/html'); } catch (e) {}
 	if(!myDoc) {
 		myDoc = document.implementation.createHTMLDocument('');
-		doc_elt = myDoc.documentElement;
-		doc_elt.innerHTML = html;
-		first_elt = doc_elt.firstElementChild;
-		if(doc_elt.childElementCount === 1 && first_elt.localName.toLowerCase() === 'html')
-			myDoc.replaceChild(first_elt, doc_elt);
+		el = myDoc.documentElement;
+		el.innerHTML = html;
+		first = el.firstElementChild;
+		if(el.childElementCount === 1 && first.localName.toLowerCase() === 'html')
+			myDoc.replaceChild(first, el);
 	}
 	return myDoc;
-}
-function txtSelection() {
-	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
-}
-function $close(el) {
-	var i, h, closing;
-	if(!el) return;
-	if(Cfg.animp === 0) $del(el);
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
-		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function(){$del(el)}, false);
-		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
-	} else {
-		i = 8;
-		h = el.clientHeight - 18;
-		el.style.height = h + 'px';
-		closing = setInterval(function() {
-			var s, hh;
-			if(!el || i-- < 0) { clearInterval(closing); $del(el); return; }
-			s = el.style;
-			hh = parseInt(s.height) - h/10;
-			s.opacity = i/10;
-			s.paddingTop = parseInt(s.paddingTop) - 1 + 'px';
-			s.paddingBottom = parseInt(s.paddingBottom) - 1 + 'px';
-			s.height = (hh < 0 ? 0 : hh) + 'px';
-		}, 25);
-	}
-}
-function $show(el) {
-	var i, showing;
-	if(Cfg.animp === 0) el.style.opacity = 1;
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
-		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
-	} else {
-		i = 0;
-		showing = setInterval(function() {
-			var s;
-			if(!el || i++ > 8) { clearInterval(showing); return; }
-			s = el.style;
-			s.opacity = i/10;
-			s.paddingTop = parseInt(s.paddingTop) + 1 + 'px';
-			s.paddingBottom = parseInt(s.paddingBottom) + 1 + 'px';
-		}, 25);
-	}
 }
 function Log(txt) {
 	var newTime = (new Date()).getTime();
@@ -922,7 +881,7 @@ function addSettings() {
 				inpTxt('ctmpat', 30),
 				$txt(' '),
 				$new('a', {text: Lng.cTimePattern, href: '#'}, {
-					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
+					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
 				})
 			])
 		], {id: 'DESU_ctimebox', style: 'display:none; padding-left:15px'}),
@@ -1213,6 +1172,50 @@ function addFavoritesTable() {
 	]);
 }
 
+/*----------------------------Popup alert messages---------------------------*/
+
+function $show(el) {
+	var i, showing;
+	if(Cfg.animp === 0) el.style.opacity = 1;
+	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
+		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
+	} else {
+		i = 0;
+		showing = setInterval(function() {
+			var s;
+			if(!el || i++ > 8) { clearInterval(showing); return; }
+			s = el.style;
+			s.opacity = i/10;
+			s.paddingTop = parseInt(s.paddingTop) + 1 + 'px';
+			s.paddingBottom = parseInt(s.paddingBottom) + 1 + 'px';
+		}, 25);
+	}
+}
+
+function $close(el) {
+	var i, h, closing;
+	if(!el) return;
+	if(Cfg.animp === 0) $del(el);
+	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
+		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function(){$del(el)}, false);
+		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
+	} else {
+		i = 8;
+		h = el.clientHeight - 18;
+		el.style.height = h + 'px';
+		closing = setInterval(function() {
+			var s, hh;
+			if(!el || i-- < 0) { clearInterval(closing); $del(el); return; }
+			s = el.style;
+			hh = parseInt(s.height) - h/10;
+			s.opacity = i/10;
+			s.paddingTop = parseInt(s.paddingTop) - 1 + 'px';
+			s.paddingBottom = parseInt(s.paddingBottom) - 1 + 'px';
+			s.height = (hh < 0 ? 0 : hh) + 'px';
+		}, 25);
+	}
+}
+
 function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += '_' + id; el = $id(nid); }
@@ -1301,7 +1304,7 @@ function refreshCapSrc(src, tNum) {
 		src = src.replace(/\?[^?]+$|$/, (ch._410 ? '?board=' + brd + '&' : '?') + Math.random());
 	else {
 		if(tNum > 0) src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
-		src = src.replace(/dummy=\d*/, 'dummy=' + rand10());
+		src = src.replace(/dummy=\d*/, 'dummy=' + $rnd());
 	}
 	return src;
 }
@@ -1337,7 +1340,7 @@ function setUserName() {
 function setUserPassw() {
 	var val, el = $id('DESU_fixedpass');
 	if(el) saveCfg('pasval', el.value.replace(/\|/g, ''));
-	val = Cfg.passw !== 0 ? Cfg.pasval : rand10().substring(0, 8);
+	val = Cfg.passw !== 0 ? Cfg.pasval : $rnd().substring(0, 8);
 	el = $X('.//input[@type="password"]').snapshotItem(1);
 	if(el) el.value = val;
 	pr.passw.value = val;
@@ -1479,7 +1482,7 @@ function doPostformChanges() {
 					: '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random();
 			} else {
 				img = $x(pr.tr + '//img', pr.cap);
-				src = img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + rand10();
+				src = img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + $rnd();
 			}
 			_img = $new('img', {
 				alt: Lng.loading,
