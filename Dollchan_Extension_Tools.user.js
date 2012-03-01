@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.1.2
+// @version			12.3.1.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2440,7 +2440,6 @@ function addPostFunc(post) {
 function newPost(thr, tNum, i, isDel) {
 	var pNum = ajaxThrds[tNum].keys[i], post = $din(ajaxPosts[pNum]);
 	Posts[Posts.length] = post;
-	if(isDel) post.isDel = true;
 	pByNum[pNum] = post;
 	post.Num = pNum;
 	post.Count = i;
@@ -2448,13 +2447,13 @@ function newPost(thr, tNum, i, isDel) {
 	post.Msg = $x(xPostMsg, post);
 	post.Img = getImages(post);
 	post.isOp = i === 0;
+	post.isDel = isDel;
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
 	if(Cfg.expost !== 0 && !TNum) expandPost(post);
 	thr.appendChild(post);
 	if(tinyb) thr.appendChild($new('br'));
-	return post;
 }
 
 function getFullMsg(post, tNum, a) {
@@ -2525,7 +2524,7 @@ function loadFavorThread(e) {
 				)[0].replace(/(href="|src=")([^h][^"]+)/g, '$1http://' + url.split('/')[2] + '$2');
 			$close($id('DESU_alert_wait'));
 		} else {
-			newPost(thr, tNum, 0);
+			newPost(thr, tNum, 0, true);
 			expandThread(thr, tNum, 5, true);
 			$x('.//tr[@id="DESU_favdata_' + host + '|' + b + '|' + tNum
 				+ '"]//span[@class="DESU_favpcount"]/span').textContent = getPstCount(thr);
@@ -2539,9 +2538,8 @@ function getDelPosts(err) {
 	var del = 0;
 	if(err) return false;
 	forAll(function(post) {
-		if(ajaxThrds[TNum].keys.indexOf(post.Num) === -1 && !post.isDel) {
-			post.Btns.className += '_del';
-			post.isDel = true;
+		if(ajaxThrds[TNum].keys.indexOf(post.Num) === -1) {
+			if(!post.isDel) { post.Btns.className += '_del'; post.isDel = true; }
 			del++;
 		}
 	});
@@ -2600,7 +2598,7 @@ function loadNewPosts(inf) {
 		if(!inf) infoNewPosts(err, del);
 		if(!err) {
 			for(i = Posts.length - del, len = ajaxThrds[TNum].keys.length; i < len; i++)
-				newPost($x('.//div[@class="thread"]', dForm), TNum, i);
+				newPost($x('.//div[@class="thread"]', dForm), TNum, i, false);
 			savePostsVisib();
 			$1($id('DESU_panel_info')).textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
@@ -2634,7 +2632,8 @@ function loadPages(len) {
 			for(tNum in ajaxThrds) {
 				thr = $new('div', {Class: 'thread', id: 'thread-' + tNum});
 				$append(page, [thr, $new('br', {clear: 'left'}), $new('hr')]);
-				for(i = 0, pLen = ajaxThrds[tNum].keys.length; i < pLen; i++) newPost(thr, tNum, i);
+				for(i = 0, pLen = ajaxThrds[tNum].keys.length; i < pLen; i++)
+					newPost(thr, tNum, i, false);
 				delete ajaxThrds[tNum];
 			}
 			savePostsVisib();
