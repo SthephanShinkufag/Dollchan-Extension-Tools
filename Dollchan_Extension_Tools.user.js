@@ -2830,7 +2830,7 @@ function doReplace(arr, txt) {
 }
 
 function getImgSpell(imgW, imgH, imgK, exp) {
-	var s, stat, expK, x, expW;
+	var s, stat, expK, x, expW, expH;
 	if(exp === '') return false;
 	s = exp.split('@');
 	stat = s[0][0];
