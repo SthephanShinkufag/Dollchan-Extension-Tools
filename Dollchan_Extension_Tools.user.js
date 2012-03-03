@@ -265,6 +265,7 @@ quotetxt = '',
 docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false,
 timePattern, timeRegex,
 oldTime, endTime, timeLog = '',
+tubeHidTimeout,
 storageLife = 5*24*3600*1000,
 homePage = 'http://www.freedollchan.org/scripts/';
 
@@ -2112,7 +2113,7 @@ function addLinkTube(post) {
 }
 
 function filterTextTube(post, text) {
-	var fHide = (function(a){if(a) return hidePost; else return function(b,c){}})(Cfg.spells), i = 0, t;
+	var fHide = (function(a){if(a) return hidePost; else return function(b,c){}})(Cfg.spells === 1), i = 0, t, post;
 	for(;t = oSpells.video[i++];)
 		if(strToRegexp(t).test(text)) {
 			fHide(post, '#video ' + t);
