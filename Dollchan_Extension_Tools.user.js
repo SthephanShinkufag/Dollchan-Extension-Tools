@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.4.0
+// @version			12.3.4.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3346,10 +3346,10 @@ function initBoard() {
 	return true;
 }
 
-function pushPost(post, id, isOp, cnt) {
+function pushPost(post, id, isOp, i) {
 	Posts.push(post);
 	post.isOp = isOp;
-	post.Count = cnt;
+	post.Count = i;
 	post.Msg = $x(xPostMsg, post);
 	post.Num = id;
 	post.Text = getText(post.Msg).trim();
@@ -3387,9 +3387,8 @@ function parseDelform(node, dc) {
 		if(tinyb && dc === doc) $after(thr, [$new('hr', {}, {}, dc)]);
 		if(!tinyb && !ch.fch && !ch.gazo) {
 			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr, dc);
-			tNum = a ? a.name : thr.id.match(/\d+/)[0];
+			tNum = (a ? a.name : thr.id).match(/\d+/)[0];
 		} else tNum = $x('.//input[@type="checkbox"]', thr, dc).name.match(/\d+/)[0];
-		
 		$attr(thr, {id: 'thread-' + tNum, Class: 'thread'});
 		if(ch.krau) thr = $x('div[@class="thread_body"]', thr, dc);
 		op = $new('div', {id: 'oppost-' + tNum}, {}, dc);
