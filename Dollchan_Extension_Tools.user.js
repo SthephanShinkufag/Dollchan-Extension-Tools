@@ -2112,7 +2112,6 @@ function addLinkTube(post) {
 }
 
 function filterTextTube(post, text) {
-	if(Cfg.ytitle === 0) return;
 	var fHide = (function(a){if(a) return hidePost; else return function(b,c){}})(Cfg.spells), i = 0, t;
 	for(;t = oSpells.video[i++];)
 		if(strToRegexp(t).test(text)) {
@@ -2125,7 +2124,6 @@ function filterTextTube(post, text) {
 }
 
 function unHideTextTube() {
-	if(Cfg.ytitle === 0) return;
 	forAll(function(post) { if(post.tHide === 1) { unhidePost(post); post.tHide = 0; }});
 }
 
