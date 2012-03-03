@@ -265,6 +265,7 @@ quotetxt = '',
 docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false,
 timePattern, timeRegex,
 oldTime, endTime, timeLog = '',
+tubeHidTimeout,
 storageLife = 5*24*3600*1000,
 homePage = 'http://www.freedollchan.org/scripts/';
 
@@ -1254,7 +1255,7 @@ function addSelMenu(el, arr) {
 
 function selectSpell(e) {
 	$each(addSelMenu(e.target, ('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,'
-		+ '#op,#outrep,#rep ,#sage,#skip ,#tmax ,#trip').split(',')), function(a) {
+		+ '#op,#outrep,#rep ,#sage,#skip ,#tmax ,#trip,#video ').split(',')), function(a) {
 			$event(a, {click: function(e) {
 				var exp = this.textContent;
 				$pD(e);
@@ -2105,10 +2106,39 @@ function addLinkTube(post) {
 			url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1]
 				+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
 			onload: function(xhr) {
-				try { link.textContent = JSON.parse(xhr.responseText).entry.title.$t; } catch(e) {};
+				try { link.textContent = JSON.parse(xhr.responseText).entry.title.$t; filterTextTube(pst, link.textContent); } catch(e) {};
 			}
 		});
 	}, true);
+}
+
+function filterTextTube(post, text) {
+	var fHide = (function(a){if(a) return hidePost; else return function(b,c){}})(Cfg.spells === 1), i = 0, t, post;
+	for(;t = oSpells.video[i++];)
+		if(strToRegexp(t).test(text)) {
+			fHide(post, '#video ' + t);
+			post.tHide = 1;
+			if(tubeHidTimeout) clearTimeout(tubeHidTimeout);
+			tubeHidTimeout = setTimeout(saveHiddenPosts, 500);
+			return;
+		}
+}
+
+function unHideTextTube() {
+	forAll(function(post) { if(post.tHide === 1) { unhidePost(post); post.tHide = 0; }});
+}
+
+function hideTextTube() {
+	if(Cfg.ytitle === 0) return;
+	$each($X('.//a[contains(@href,"youtu")]', dForm), function(link) {
+		for(var i = 0, t, post; t = oSpells.video[i++];)
+			if(strToRegexp(t).test(link.textContent)) {
+				post = getPost(link);
+				hidePost(post, '#video ' + t);
+				post.tHide = 1;
+				break;
+			}
+	});
 }
 
 function addLinkMP3(post) {
@@ -2778,7 +2808,7 @@ function initSpells() {
 	var i, x, b, n, t, p, j, Spells;
 	pSpells = new getSpellObj();
 	tSpells = new getSpellObj();
-	oSpells = {rep: [], skip: [], num: [], outrep: []};
+	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
 	for(i = 0; x = spellsList[i++];) {
 		Spells = pSpells;
 		x = x.toString();
@@ -2816,7 +2846,8 @@ function initSpells() {
 		: t === '#notxt' ? Spells.notxt = true
 		: t === '#noimg' ? Spells.noimg = true
 		: t === '#trip' ? Spells.trip = true
-		: t === '#outrep' && oSpells.outrep.push(p);
+		: t === '#outrep' ? oSpells.outrep.push(p)
+		: t === '#video' && oSpells.video.push(p);
 	}
 }
 
@@ -2936,7 +2967,7 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
-	var i, t, rep, re = /#exp |#exph |#rep |#outrep |#imgn /;
+	var i, t, rep, re = /#exp |#exph |#rep |#outrep |#imgn |#video /;
 	txt = txt.split('\n');
 	i = txt.length;
 	while(i--) {
@@ -2955,8 +2986,13 @@ function toggleSpells() {
 	if(!wrong) saveSpells(val);
 	if(val !== '' && !wrong) {
 		if(fld) fld.value = val;
-		if(Cfg.spells !== 0) forAll(hideBySpells);
-		else forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
+		if(Cfg.spells !== 0) {
+			forAll(hideBySpells);
+			hideTextTube();
+		} else {
+			unHideTextTube();
+			forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
+		}
 		saveHiddenPosts();
 	} else {
 		if(wrong) $alert(Lng.error + ' ' + wrong);
@@ -2981,8 +3017,9 @@ function applySpells(txt) {
 	if(wrong) { $alert(Lng.error + ' ' + wrong); return; }
 	if(fld) { fld.value = val; $id('DESU_spelledit_ch').checked = val !== ''; }
 	forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
+	unHideTextTube();
 	saveSpells(val);
-	if(val !== '') { saveCfg('spells', 1); forAll(hideBySpells); }
+	if(val !== '') { saveCfg('spells', 1); forAll(hideBySpells); hideTextTube(); }
 	else saveCfg('spells', 0);
 	saveHiddenPosts();
 }
