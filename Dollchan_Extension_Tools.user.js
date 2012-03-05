@@ -2691,8 +2691,7 @@ function doPostFilters(post) {
 }
 
 function togglePostVisib(post) {
-	post.Vis = post.Vis !== 0 ? 0 : 1;
-	setPostVisib(post, post.Vis);
+	setPostVisib(post, post.Vis !== 0 ? 0 : 1);
 	savePostsVisib();
 }
 
