@@ -1761,7 +1761,7 @@ function scriptCSS() {
 		#DESU_sagebtn {cursor:pointer}\
 		#DESU_textpanel {display:' + (Cfg.txtpos === 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
 		#DESU_qarea {float:none; clear:left; width:100%; padding:3px 0 3px 3px; margin:2px 0}\
-		.DESU_favdata .thread {padding-left:15px; border:1px solid grey}\
+		.DESU_favdata .DESU_thread {padding-left:15px; border:1px solid grey}\
 		.DESU_favdata a, .DESU_hthrdata a {text-decoration:none}\
 		.DESU_favhead a {color:inherit; font-weight:bold}\
 		.DESU_favpcount {float:right; margin:0 5px 0 15px; font:bold 16px serif}\
@@ -1804,9 +1804,9 @@ function scriptCSS() {
 	gif('#DESU_btn_updoff','R0lGODlhGQAZAJEAAP8yMv' + pre);
 	gif('#DESU_btn_updwarn','R0lGODlhGQAZAJEAAP/0Qf' + pre);
 	if(TNum) x.push(
-		'form div.thread {counter-reset:i 1}\
-		form div.thread .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); vertical-align:1px; color:#4f7942; font:italic bold 13px serif; cursor:default}\
-		form div.thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}'
+		'form div.DESU_thread {counter-reset:i 1}\
+		form div.DESU_thread .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); vertical-align:1px; color:#4f7942; font:italic bold 13px serif; cursor:default}\
+		form div.DESU_thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}'
 	);
 	x.push('a[class^="DESU_icn"] {display:inline-block; padding:0 14px 14px 0}');
 	pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
@@ -1859,7 +1859,7 @@ function scriptCSS() {
 	if(ch.nul) {
 		gif('#DESU_btn_catalog','R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 		x.push(
-			'#newposts_get, #postform nobr, .thread span[style="float: right;"] {display:none}\
+			'#newposts_get, #postform nobr, .DESU_thread span[style="float: right;"] {display:none}\
 			.voiceplay {float:none}'
 		);
 	}
