@@ -1579,7 +1579,7 @@ function showQuickReply(post) {
 				+ (ch.fch || ch.gazo ? 'resto' : tinyb ? 'thread' : 'parent') + '">'
 			)]);
 		}
-	} else if($next(post) === qArea) { $disp(qArea); return; }
+	} else if($next(post) === qArea) { $disp(qArea); showMainReply(); return; }
 	$after(post, [qArea]);
 	if(!TNum && Cfg.tform !== 0) pArea.style.display = 'none';
 	qArea.style.display = 'block';
