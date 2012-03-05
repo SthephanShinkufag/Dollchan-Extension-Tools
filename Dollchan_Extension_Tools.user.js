@@ -2691,15 +2691,13 @@ function doPostFilters(post) {
 }
 
 function togglePostVisib(post) {
-	post.Vis = post.Vis === 1 ? 0 : 1;
+	post.Vis = post.Vis !== 0 ? 0 : 1;
 	setPostVisib(post, post.Vis);
 	savePostsVisib();
 }
 
 function togglePost(post, vis) {
-	if(post.isOp)
-		if(!ch.krau) getThread(post).style.display = vis === 0 ? 'none' : '';
-		else $x('.//div[@class="thread_body"]', getThread(post)).style.display = vis === 0 ? 'none' : '';
+	if(post.isOp) getThread(post).style.display = vis === 0 ? 'none' : '';
 	$each($X('following-sibling::*', $x(
 		ch.krau ? './/div[@class="postheader"]'
 		: tinyb ? './/p[@class="intro"]'
@@ -3388,9 +3386,9 @@ function parseDelform(node, dc) {
 			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr, dc);
 			tNum = (a ? a.name : thr.id).match(/\d+/)[0];
 		} else tNum = $x('.//input[@type="checkbox"]', thr, dc).name.match(/\d+/)[0];
+		if(ch.krau) thr = $x('div[@class="thread_body"]', thr, dc);
 		thr.className += ' DESU_thread';
 		thr.Num = tNum;
-		if(ch.krau) thr = $x('div[@class="thread_body"]', thr, dc);
 		op = $new('div', {Class: 'DESU_oppost'}, {}, dc);
 		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr, dc);
 		$each(opEnd ? $X('preceding-sibling::node()', opEnd, dc) : $X('node()', thr, dc),
