@@ -1125,7 +1125,7 @@ function addFavoritesTable() {
 					$txt(' - ' + fav.txt),
 					$add('<span class="DESU_favpcount">[<span>' + fav.cnt + '</span>]</span>')
 				], {Class: pClass}),
-				$new('div', {id: tNum, Class: 'thread', style: 'display:none'})
+				$new('div', {id: tNum, Class: ' DESU_thread', style: 'display:none'})
 			], {Class: 'DESU_favdata', id: 'DESU_favdata_' + h + '|' + b + '|' + tNum})]);
 		}
 	}
@@ -1370,7 +1370,7 @@ function doChanges() {
 			}
 		});
 		initPostsUpdate();
-		if(Cfg.updthr === 2 || Cfg.updthr === 3) $after($x('.//div[@class="thread"]'), [
+		if(Cfg.updthr === 2 || Cfg.updthr === 3) $after($x('.//div[contains(@class," DESU_thread")]'), [
 			$add('<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
 				click: function(e) { $pD(e); loadNewPosts(true); }
 			})
@@ -1565,7 +1565,7 @@ function iframeLoad() {
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
-	var tNum = getThread(post).id.match(/\d+/)[0];
+	var tNum = getThread(post).Num;
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
@@ -1886,12 +1886,11 @@ function forAll(fn) {
 }
 
 function getThread(el) {
-	return $x('ancestor::div[@class="thread"]', el);
+	return $x('ancestor::div[contains(@class," DESU_thread")]', el);
 }
 
 function getPost(el) {
-	return $x('ancestor::*[starts-with(@id,"post-") or starts-with(@id,"oppost-")'
-		+ ' or starts-with(@id,"DESU_preview_")]', el);
+	return $x('ancestor::*[contains(@class," DESU_post") or @class="DESU_oppost"]', el);
 }
 
 function getPstCount(thrd) {
@@ -1901,8 +1900,8 @@ function getPstCount(thrd) {
 			: ch.gazo ? './/font[@color="#707070"]'
 			: './/span[@class="omittedposts"]|.//div[@class="DESU_omitted"]'
 		, thrd);
-	return $X('.//table[starts-with(@id,"post-")]'
-		+ '|.//div[starts-with(@id,"post-")]', thrd).snapshotLength + 1
+	return $X('.//table[contains(@class," DESU_post")]'
+		+ '|.//div[contains(@class," DESU_post")]', thrd).snapshotLength + 1
 		+ (om && (om = om.textContent) ? Number(om.match(/\d+/)[0]) : 0);
 }
 
@@ -2311,7 +2310,7 @@ function addRefMap(post, uEv) {
 		if(/\//.test(link.textContent)) return;
 		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/)[0];
 		pst = post || getPost(link);
-		if(pByNum[rNum] && pst) getRefMap(pst.id.match(/\d+/)[0], rNum);
+		if(pByNum[rNum] && pst) getRefMap(pst.Num, rNum);
 	}, true);
 	for(rNum in refMap) showRefMap(pByNum[rNum], rNum, uEv);
 }
@@ -2351,7 +2350,7 @@ function funcPostPreview(post, parentId, msg) {
 	eventPostImg(pView);
 	addLinkImg(pView);
 	if(Cfg.navig === 2) {
-		showRefMap(pView, pView.id.match(/\d+/)[0], false);
+		showRefMap(pView, pView.Num, false);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
 	}
@@ -2365,7 +2364,7 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		parentId = parent ? parent.id.match(/\d+/)[0] : null,
+		parentId = parent ? parent.Num : null,
 		post = pByNum[pNum] || (ajaxPosts[pNum] ? $din(ajaxPosts[pNum]) : false);
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2381,13 +2380,14 @@ function showPostPreview(e) {
 	}
 	pView = $new('div', {
 		id: 'DESU_preview_' + pNum,
-		Class: pClass,
+		Class: pClass + ' DESU_post',
 		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
 			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
 			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}, {
 		mouseout: checkPostPreview,
 		mouseover: function() { if(!pView) pView = this; }
 	});
+	pView.Num = pNum;
 	if(post) {
 		funcPostPreview(post, parentId);
 		if(post.Vis === 0) togglePost(pView);
@@ -2422,15 +2422,15 @@ function parseHTMLdata(html) {
 		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
-	if(hanab) html = '<html><head></head><body><div class="thread">' + html + '</div></body></html>';
+	if(hanab) html = '<html><head></head><body><div class=" DESU_thread">' + html + '</div></body></html>';
 	aD = HTMLtoDOM(html);
 	parseDelform($x(!hanab ? xDelForm : false, aD, aD), aD);
-	$each($X('.//div[@class="thread"]', aD, aD), function(thrd) {
-		var tNum = thrd.id.match(/\d+/)[0];
+	$each($X('.//div[contains(@class," DESU_thread")]', aD, aD), function(thrd) {
+		var tNum = thrd.Num;
 		ajaxThrds[tNum] = {keys: []};
-		$each($X('.//node()[starts-with(@id,"post-") or starts-with(@id,"oppost-")]'
+		$each($X('.//node()[contains(@class," DESU_post") or @class="DESU_oppost"]'
 			+ '[self::table or self::div]', thrd, aD), function(post, i) {
-			var om, pNum = post.id.match(/\d+/)[0];
+			var om, pNum = post.Num;
 			ajaxThrds[tNum].keys.push(pNum);
 			ajaxPosts[pNum] = post;
 			if(i === 0 && kusaba) {
@@ -2508,7 +2508,7 @@ function expandPost(post) {
 	a = $x(ch.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
 		+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
-	tNum = getThread(post).id.match(/\d+/)[0];
+	tNum = getThread(post).Num;
 	if(Cfg.expost === 1) getFullMsg(post, tNum, a);
 	else $event(a, {click: function(e) { $pD(e); getFullMsg(post, tNum, e.target); }});
 }
@@ -2545,7 +2545,7 @@ function loadThread(post, last) {
 
 function loadFavorThread(e) {
 	var el = $up(this, 2),
-		thr = $x('.//div[@class="thread"]', el),
+		thr = $x('.//div[contains(@class," DESU_thread")]', el),
 		arr = el.id.substr(13).split('|'),
 		url = $if(arr[0] !== host, $next(this).href),
 		b = arr[1],
@@ -2635,7 +2635,7 @@ function loadNewPosts(inf) {
 		if(!inf) infoNewPosts(err, del);
 		if(!err) {
 			for(i = Posts.length - del, len = ajaxThrds[TNum].keys.length; i < len; i++)
-				newPost($x('.//div[@class="thread"]', dForm), TNum, i, false);
+				newPost($x('.//div[contains(@class," DESU_thread")]', dForm), TNum, i, false);
 			savePostsVisib();
 			$1($id('DESU_panel_info')).textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
@@ -3351,7 +3351,6 @@ function pushPost(post, id, isOp, i) {
 	post.isOp = isOp;
 	post.Count = i;
 	post.Msg = $x(xPostMsg, post);
-	post.Num = id;
 	post.Text = getText(post.Msg).trim();
 	post.Img = getImages(post);
 	pByNum[id] = post;
@@ -3389,9 +3388,10 @@ function parseDelform(node, dc) {
 			a = $x('.//a[@name]' + (kusaba ? '[2]' : ''), thr, dc);
 			tNum = (a ? a.name : thr.id).match(/\d+/)[0];
 		} else tNum = $x('.//input[@type="checkbox"]', thr, dc).name.match(/\d+/)[0];
-		$attr(thr, {id: 'thread-' + tNum, Class: 'thread'});
+		thr.className += ' DESU_thread';
+		thr.Num = tNum;
 		if(ch.krau) thr = $x('div[@class="thread_body"]', thr, dc);
-		op = $new('div', {id: 'oppost-' + tNum}, {}, dc);
+		op = $new('div', {Class: 'DESU_oppost'}, {}, dc);
 		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr, dc);
 		$each(opEnd ? $X('preceding-sibling::node()', opEnd, dc) : $X('node()', thr, dc),
 			function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
@@ -3399,12 +3399,14 @@ function parseDelform(node, dc) {
 			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr, dc), function(el) {
 				id = (el.id || el.getElementsByTagName('td')[1].id
 					|| el.getElementsByTagName('input')[0].name).match(/\d+/)[0];
-				el.id = 'post-' + id;
+				el.className += ' DESU_post';
+				el.Num = id;
 				if(dc === doc) pushPost(el, id, false, ++i);
 			}, true);
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 		if(dc === doc) pushPost(op, tNum, true, 0);
+		op.Num = tNum;
 	});
 	return node;
 }
