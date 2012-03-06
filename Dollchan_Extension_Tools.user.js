@@ -480,9 +480,9 @@ function turnCookies(name) {
 
 function getStored(name, fn) {
 	if(sav.GM) return GM_getValue(name);
-	else if(sav.script) return scriptStorage.getItem(name);
-	else if(sav.local) return localStorage.getItem(name);
-	else return getCookie(name);
+	if(sav.script) return scriptStorage.getItem(name);
+	if(sav.local) return localStorage.getItem(name);
+	return getCookie(name);
 }
 
 function setStored(name, value) {
@@ -984,7 +984,7 @@ function addHiddenTable() {
 		$event($x(pp ? './/a[@class="DESU_icn_unhide"]' : './/a', cln), {
 			click: function(el) { return function(e) {
 				$pD(e);
-				el.vis = el.vis === 0 ? 1 : 0;
+				el.vis = +!el.vis;
 				if(pp) togglePost(el, el.vis);
 				else $next(el).style.display = el.vis === 1 ? '' : 'none';
 			}}(cln)
@@ -1026,7 +1026,7 @@ function addHiddenTable() {
 		}),
 		$btn(Lng.save, function() {
 			for(i = 0; cln = clones[i++];) if(cln.vis !== 0) setPostVisib(cln.pst, 1);
-			savePostsVisib();
+			saveVisib();
 		})
 	]);
 	$append(table, [$New('tr', [
@@ -1065,19 +1065,16 @@ function addHiddenTable() {
 					var i, arr = el.id.substr(14).split('|'), b = arr[0], tNum = arr[1];
 					if(!$t('input', el).checked) return;
 					if(pByNum[tNum]) setPostVisib(pByNum[tNum], 1);
-					else if(sav.cookie) {
-						i = hThrds[b].indexOf(tNum);
-						if(i >= 0) hThrds[b].splice(i, 1);
-					} else { Visib[b + tNum] = 1; delete hThrds[b][tNum]; }
-					if(isEmptyObj(hThrds[b])) delete hThrds[b];
+					else if(sav.cookie) hThrds[b][tNum] = 1;
+					else { hThrds[b][tNum][0] = 1; hThrds[b][tNum][1] = ''; }
 				});
 				setStored('DESU_Threads_' + dm, $uneval(hThrds));
-				savePostsVisib();
+				saveVisib();
 			})
 		]),
 		$New('tr', [
 			$new('textarea', {id: 'DESU_hthredit', rows: 9, cols: 70, value: $uneval(hThrds)}),
-			$btn(Lng.save, function() { saveHiddenThreads($id('DESU_hthredit').value); })
+			$btn(Lng.save, function() { setStored('DESU_Threads_' + dm, $id('DESU_hthredit').value); })
 		], {style: 'display:none'})
 	]);
 	eventRefLink(table);
@@ -2691,7 +2688,7 @@ function applyPostVisib(post, vis, note) {
 	var el, pNum = post.Num;
 	if(post.isOp) {
 		el = $id('DESU_hiddenthr_' + pNum);
-		if(vis && el) { $del(el); post.hNote = ''; }
+		if(vis && el) { post.uVis = vis; $del(el); post.hNote = ''; }
 		if(!vis && !el) {
 			post.uVis = vis;
 			post.hNote = note ? 'autohide: ' + note : getTitle(post).substring(0, 70);
@@ -2702,8 +2699,11 @@ function applyPostVisib(post, vis, note) {
 			$event($t('a', el), {click: function(e) { $pD(e); togglePostVisib(post); }});
 			$before($up(post), [el]);
 		}
-	} else if(Cfg.delhd === 2) post.style.display = !vis ? 'none' : '';
-	pFiltered[post.Count] = post.Vis = vis;
+	} else {
+		if(Cfg.delhd === 2) post.style.display = !vis ? 'none' : '';
+		pFiltered[post.Count] = vis;
+	}
+	post.Vis = vis
 }
 
 function setPostVisib(post, vis) {
