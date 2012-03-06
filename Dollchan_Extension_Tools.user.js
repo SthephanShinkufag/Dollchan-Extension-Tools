@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.6.0
+// @version			12.3.6.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -611,7 +611,7 @@ function toggleHiddenThread(post, vis) {
 		i = hThrds[b].indexOf(tNum);
 		if(vis === 0 && i < 0) hThrds[b].push(tNum);
 		if(vis === 1 && i >= 0) hThrds[b].splice(i, 1);
-		if(encodeURIComponent($uneval(Favor)).length > 4095) hThrds[b].shift();
+		if(escape(uneval(hThrds)).length > 4095) hThrds[b].shift();
 	} else {
 		if(!hThrds[b]) hThrds[b] = {};
 		if(vis === 0) hThrds[b][tNum] = getTitle(post).substring(0, 70);
@@ -649,7 +649,7 @@ function toggleFavorites(post, btn) {
 			cnt: getPstCount(getThread(post)),
 			txt: getTitle(post).substring(0, sav.cookie ? 25 : 70)
 		};
-		if(sav.cookie && encodeURIComponent($uneval(Favor)).length > 4095)
+		if(sav.cookie && escape(uneval(Favor)).length > 4095)
 			{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
 		btn.className = 'DESU_icn_favset';
 	}
