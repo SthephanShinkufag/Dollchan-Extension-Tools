@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.4.1
+// @version			12.3.6.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-04',
+	version:	'2012-03-06',
 	lang:		0,		// script language [0=ru, 1=en]
 	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
@@ -437,7 +437,7 @@ if(!String.prototype.trim)
 function HTMLtoDOM(html) {
 	var myDoc, el, first;
 	try { myDoc = (new DOMParser()).parseFromString(html, 'text/html'); } catch (e) {}
-	if(!myDoc) {
+	if(!myDoc || !myDoc.body) {
 		myDoc = document.implementation.createHTMLDocument('');
 		el = myDoc.documentElement;
 		el.innerHTML = html;
