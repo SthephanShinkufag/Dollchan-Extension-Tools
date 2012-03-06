@@ -593,10 +593,11 @@ function saveVisib() {
 	save('DESU_Posts_' + dm, false);
 	save('DESU_Threads_' + dm, true);
 	if(TNum) {
-		fPosts = (getStored('DESU_Filtered_' + dm) || '').split('-');
+		fPosts = getStored('DESU_Filtered_' + dm);
+		fPosts = fPosts ? fPosts.split('-') : [];
 		if(i = fPosts.indexOf(brd + TNum) + 1) fPosts[i] = pFiltered.join('');
 		else fPosts.push(brd + TNum, pFiltered.join(''));
-		if((i = fPosts.join('-')) > 4095) i = fPosts.slice(3).join('-');
+		if((i = fPosts.join('-')) > 4095) i = fPosts.slice(2).join('-');
 		setStored('DESU_Filtered_' + dm, i);
 	}
 }
