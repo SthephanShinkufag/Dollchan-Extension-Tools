@@ -255,7 +255,7 @@ LngArray = {
 doc = document,
 Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {},
 Posts = [], pByNum = [], refMap = [],
-actualPosts = Math.round(Math.random() * 1e6), actualThreads = Math.round(Math.random() * 1e6), pFiltered = [], aFilters = false,
+actualPosts = Math.round(Math.random() * 1e10), actualThreads = Math.round(Math.random() * 1e10), pFiltered = [], aFilters = false,
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 ajaxThrds = {}, ajaxPosts = [], ajaxInt,
 nav = {}, sav = {}, ch = {},
@@ -569,6 +569,7 @@ function readVisib() {
 	}
 	read(actualThreads, 'DESU_Threads_' + dm, true);
 	read(actualPosts, 'DESU_Posts_' + dm, false);
+	if(TNum) pFiltered = (new Array(Posts.length + 1)).join('1').split('');
 }
 
 function saveVisib() {
