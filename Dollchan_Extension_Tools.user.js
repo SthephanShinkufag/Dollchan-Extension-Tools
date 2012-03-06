@@ -254,7 +254,8 @@ LngArray = {
 
 doc = document,
 Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {},
-Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [],
+Posts = [], pByNum = [], refMap = [],
+actualPosts = Math.round(Math.random() * 1e6), actualThreads = Math.round(Math.random() * 1e6), pFiltered = [], aFilters = false,
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 ajaxThrds = {}, ajaxPosts = [], ajaxInt,
 nav = {}, sav = {}, ch = {},
@@ -405,7 +406,7 @@ function $pD(e) {
 	e.preventDefault();
 }
 function $rnd() {
-	return Math.floor(Math.random()*1e10).toString(10);
+	return Math.round(Math.random()*1e10).toString(10);
 }
 function insertInto(el, txt) {
 	var scrtop = el.scrollTop, start = el.selectionStart, end = el.selectionEnd;
@@ -422,7 +423,7 @@ function strToRegexp(str) {
 	return new RegExp(t.substr(1, l - 1), t.substr(l + 1));
 }
 function isEmptyObj(obj) {
-	for(var i in obj) return false;
+	for(var i in obj) if(i != 'act') return false;
 	return true;
 }
 function $uneval(obj) {
@@ -545,79 +546,58 @@ function toggleCfg(name) {
 	saveCfg(name, Cfg[name] === 0 ? 1 : 0);
 }
 
-function getVisib(pNum) {
-	var key = sav.cookie ? pByNum[pNum].Count : brd + pNum;
-	return key in Visib ? Visib[key] : null;
-}
-
-function readPostsVisib() {
-	var i, arr, data, currTime = (new Date()).getTime();
-	if(!sav.cookie) {
-		data = getStored('DESU_Posts_' + dm);
-		if(data) {
-			arr = data.split('-');
-			i = arr.length;
-			while((i -= 3) >= 0)
-				if(currTime < Number(arr[i + 2])) {
-					Visib[arr[i]] = Number(arr[i + 1]);
-					Expires[arr[i]] = Number(arr[i + 2]);
+function readVisib() {
+	var obj, i, fPosts, read = function(actual, id, isOp) {
+		obj = getStoredObj(id, {});
+		if(obj.act === actual) return;
+		if(obj[brd]) {
+			forAll(function(post) {
+				if(post.isOp !== isOp) return;
+				if(sav.cookies) post.uVis =  obj[brd][post.Num];
+				else {
+					post.uVis = (obj[brd][post.Num] || [])[0];
+					post.hNote = (obj[brd][post.Num] || [])[1];
 				}
-		}
-	} else if(TNum) {
-		data = getStored('DESU_Posts_' + dm + '_' + TNum);
-		if(data) { i = data.length; while(i--) Visib[i] = Number(data[i]); }
+				post.Vis = post.uVis !== undefined ? post.uVis : +(pFiltered[post.Count] || 1);
+			});
+		} else forAll(function(post) { if(post.isOp === isOp) post.Vis = +(pFiltered[post.Count] || 1); });
+	};
+	if(TNum && !pFiltered.length) {
+		fPosts = (getStored('DESU_Filtered_' + dm) || '').split('-');
+		if(!(i = fPosts.indexOf(brd + TNum) + 1) || Posts.length - (pFiltered = fPosts[i].split('')).length !== 0)
+			aFilters = true
 	}
-	readHiddenThreads();
-	forAll(function(post) {
-		var pNum = post.Num;
-		post.Vis = getVisib(pNum);
-		if(post.isOp) {
-			if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) >= 0
-				|| !sav.cookie && hThrds[brd][pNum] !== undefined))
-				setPostVisib(post, 0);
-			else if(post.Vis === 0) { Visib[brd + pNum] = null; post.Vis = null; }
-		}
-	});
+	read(actualThreads, 'DESU_Threads_' + dm, true);
+	read(actualPosts, 'DESU_Posts_' + dm, false);
 }
 
-function savePostsVisib() {
-	var key, arr = [], id = 'DESU_Posts_' + dm;
-	if(!sav.cookie) {
-		for(key in Visib) {
-			if(!/^\d$/.test(Visib[key])) break;
-			arr[arr.length] = key + '-' + Visib[key] + '-' + Expires[key];
-		}
-		setStored(id, arr.join('-'));
-	} else if(TNum) {
-		id += '_' + TNum;
-		if(!getStored(id)) turnCookies(id);
-		setStored(id, Visib.join(''));
+function saveVisib() {
+	var obj, i, fPosts, save = function(id, isOp) {
+		obj = getStoredObj(id, {});
+		obj.act = Math.round(Math.random() * 1e10);
+		forAll(function(post) {
+			if(post.isOp !== isOp || post.uVis === undefined) return;
+			if(!obj[brd]) obj[brd] = {};
+			if(!obj[brd][post.Num]) obj[brd][post.Num] = sav.cookies ? post.Vis : [post.uVis, post.hNote || ''];
+			else if(sav.cookies) obj[brd][post.Num] = post.uVis;
+			else {
+				obj[brd][post.Num][0] = post.uVis;
+				obj[brd][post.Num][1] = post.hNote || '';
+			}
+			if($uneval(obj).length > 4095) obj[brd].shift();
+		});
+		setStored(id, $uneval(obj));
+		if(!isOp) toggleContent('hidd', true);
+	};
+	save('DESU_Posts_' + dm, false);
+	save('DESU_Threads_' + dm, true);
+	if(TNum) {
+		fPosts = (getStored('DESU_Filtered_' + dm) || '').split('-');
+		if(i = fPosts.indexOf(brd + TNum) + 1) fPosts[i] = pFiltered.join('');
+		else fPosts.push(brd + TNum, pFiltered.join(''));
+		if((i = fPosts.join('-')) > 4095) i = fPosts.slice(3).join('-');
+		setStored('DESU_Filtered_' + dm, i);
 	}
-	toggleContent('hidd', true);
-}
-
-function readHiddenThreads() {
-	hThrds = getStoredObj('DESU_Threads_' + dm, {});
-}
-
-function saveHiddenThreads(txt) {
-	setStored('DESU_Threads_' + dm, txt || $uneval(hThrds));
-}
-
-function toggleHiddenThread(post, vis) {
-	var i, b = brd, tNum = post.Num;
-	if(sav.cookie) {
-		if(!hThrds[b]) hThrds[b] = [];
-		i = hThrds[b].indexOf(tNum);
-		if(vis === 0 && i < 0) hThrds[b].push(tNum);
-		if(vis === 1 && i >= 0) hThrds[b].splice(i, 1);
-		if(encodeURIComponent($uneval(Favor)).length > 4095) hThrds[b].shift();
-	} else {
-		if(!hThrds[b]) hThrds[b] = {};
-		if(vis === 0) hThrds[b][tNum] = getTitle(post).substring(0, 70);
-		else { delete hThrds[b][tNum]; if(isEmptyObj(hThrds[b])) delete hThrds[b]; }
-	}
-	saveHiddenThreads();
 }
 
 function readFavorites() {
@@ -771,7 +751,7 @@ function toggleContent(name, isUpd) {
 		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
 		if(Cfg.attach !== 0)
 			$t('table', el).style.backgroundColor = getStyle($t('body'), 'background-color');
-		if(name === 'hidd') { readHiddenThreads(); addHiddenTable(); }
+		if(name === 'hidd') addHiddenTable();
 		if(name === 'fav') { readFavorites(); addFavoritesTable(); }
 	} else {
 		spellsList = getStored('DESU_Spells_' + dm).split('\n');
@@ -992,7 +972,7 @@ function addSettings() {
 
 function addHiddenTable() {
 	var cln, i, b, tNum, url, clones = [], tcnt = 0, pcnt = 0,
-		table = $x('.//div[@id="DESU_content"]//tbody');
+		table = $x('.//div[@id="DESU_content"]//tbody'), hThrds = getStoredObj('DESU_Threads_' + dm);
 	forAll(function(post) { if(post.Vis === 0) {
 		var pp = !post.isOp;
 		cln = $attr(($id('DESU_hiddenthr_' + post.Num) || post).cloneNode(true), {id: ''});
@@ -1053,6 +1033,7 @@ function addHiddenTable() {
 		$add('<b>' + (isEmptyObj(hThrds) ? Lng.noHidThrds : Lng.hiddenThrds) + '</b>')
 	])]);
 	if(!isEmptyObj(hThrds)) for(b in hThrds) {
+		if(b == 'act') continue;
 		$append(table, [$New('tr', [
 			$new('input', {type: 'checkbox'}, {click: function() {
 				var inp = this;
@@ -1063,15 +1044,16 @@ function addHiddenTable() {
 			$add('<b>' + b + '</b>')
 		], {Class: 'DESU_hthrhead', id: 'DESU_hthrhead_' + b})]);
 		for(tNum in hThrds[b]) {
-			if(sav.cookie) tNum = hThrds[b][tNum];
 			url = getThrdUrl(host, b, tNum);
-			$append(table, [$New('tr', [
-				$New('div', [
-					$new('input', {type: 'checkbox'}),
-					$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
-					$if(!sav.cookie, $txt(' - ' + hThrds[b][tNum]))
-				], {Class: pClass})
-			], {Class: 'DESU_hthrdata', id: 'DESU_hthrdata_' + b + '|' + tNum})]);
+			if((sav.cookie && hThrds[b][tNum] === 0) || (!sav.cookie && hThrds[b][tNum][0] === 0)) {
+				$append(table, [$New('tr', [
+					$New('div', [
+						$new('input', {type: 'checkbox'}),
+						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
+						$if(!sav.cookie, $txt(' - ' + hThrds[b][tNum][1]))
+					], {Class: pClass})
+				], {Class: 'DESU_hthrdata', id: 'DESU_hthrdata_' + b + '|' + tNum})]);
+			}
 		}
 	}
 	$append(table, [
@@ -1993,8 +1975,8 @@ function addPostButtons(post) {
 		$event(ref, {click: insertRefLink});
 	}
 	if(Cfg.viewhd !== 0) $event(ref, {
-		mouseover: function() { if(post.Vis === 0) togglePost(post, 1); },
-		mouseout: function() { if(post.Vis === 0) togglePost(post, 0); }
+		mouseover: function() { if(!post.Vis) togglePost(post, 1); },
+		mouseout: function() { if(!post.Vis) togglePost(post, 0); }
 	});
 }
 
@@ -2390,7 +2372,7 @@ function showPostPreview(e) {
 	pView.Num = pNum;
 	if(post) {
 		funcPostPreview(post, parentId);
-		if(post.Vis === 0) togglePost(pView);
+		if(!post.Vis) togglePost(pView);
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		AJAX(null, b, tNum, function(err) {
@@ -2469,7 +2451,7 @@ function addPostFunc(post) {
 	addLinkMP3(post);
 	addLinkTube(post);
 	addLinkImg(post);
-	if(post.Vis === 0) setPostVisib(post, 0);
+	if(!post.Vis) setPostVisib(post, 0);
 	if(Cfg.delhd === 1) mergeHidden(post);
 	if(isExpImg) expandAllPostImg(post);
 }
@@ -2480,11 +2462,11 @@ function newPost(thr, tNum, i, isDel) {
 	pByNum[pNum] = post;
 	post.Num = pNum;
 	post.Count = i;
-	post.Vis = getVisib(pNum);
 	post.Msg = $x(xPostMsg, post);
 	post.Img = getImages(post);
 	post.isOp = i === 0;
 	post.isDel = isDel;
+	readVisib();
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
@@ -2504,7 +2486,7 @@ function getFullMsg(post, tNum, a) {
 
 function expandPost(post) {
 	var a, tNum;
-	if(post.Vis === 0) return;
+	if(!post.Vis) return;
 	a = $x(ch.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
 		+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
@@ -2521,7 +2503,7 @@ function expandThread(thr, tNum, last, isDel) {
 		Class: 'DESU_omitted', text: Lng.postsOmitted + (last - 1)
 	}));
 	for(i = last; i < len; i++) newPost(thr, tNum, i, isDel);
-	savePostsVisib();
+	saveVisib();
 	$close($id('DESU_alert_wait'));
 }
 
@@ -2636,7 +2618,7 @@ function loadNewPosts(inf) {
 		if(!err) {
 			for(i = Posts.length - del, len = ajaxThrds[TNum].keys.length; i < len; i++)
 				newPost($x('.//div[contains(@class," DESU_thread")]', dForm), TNum, i, false);
-			savePostsVisib();
+			saveVisib();
 			$1($id('DESU_panel_info')).textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
 		if(inf) { $close($id('DESU_alert_wait')); infoNewPosts(err, del); }
@@ -2673,7 +2655,7 @@ function loadPages(len) {
 					newPost(thr, tNum, i, false);
 				delete ajaxThrds[tNum];
 			}
-			savePostsVisib();
+			saveVisib();
 			readHiddenThreads();
 			if(p === len - 1) $close($id('DESU_alert_wait'));
 		}}(p, len));
@@ -2691,55 +2673,52 @@ function doPostFilters(post) {
 }
 
 function togglePostVisib(post) {
-	setPostVisib(post, post.Vis !== 0 ? 0 : 1);
-	savePostsVisib();
+	setPostVisib(post, post.uVis = +!post.Vis);
+	saveVisib();
 }
 
 function togglePost(post, vis) {
-	if(post.isOp) getThread(post).style.display = vis === 0 ? 'none' : '';
+	if(post.isOp) getThread(post).style.display = !vis ? 'none' : '';
 	$each($X('following-sibling::*', $x(
 		ch.krau ? './/div[@class="postheader"]'
 		: tinyb ? './/p[@class="intro"]'
 		: './/span[starts-with(@class,"DESU_postpanel")]'
-	, post)), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
+	, post)), function(el) { el.style.display = !vis ? 'none' : ''; });
 }
 
 function applyPostVisib(post, vis, note) {
 	var el, pNum = post.Num;
 	if(post.isOp) {
 		el = $id('DESU_hiddenthr_' + pNum);
-		if(vis === 1 && el) { $del(el); toggleHiddenThread(post, 1); }
-		if(vis === 0 && !el) {
+		if(vis && el) { $del(el); post.hNote = ''; }
+		if(!vis && !el) {
+			post.uVis = vis;
+			post.hNote = note ? 'autohide: ' + note : getTitle(post).substring(0, 70);
 			el = $add('<div class="' + pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
 				+ Lng.hiddenThrd + ' <a href="#">№' + pNum + '</a><i> ('
-				+ (note ? 'autohide: ' + note : getTitle(post).substring(0, 70)) + ')</i></div>'
+				+ post.hNote + ')</i></div>'
 			);
 			$event($t('a', el), {click: function(e) { $pD(e); togglePostVisib(post); }});
 			$before($up(post), [el]);
-			toggleHiddenThread(post, 0);
 		}
-	} else if(Cfg.delhd === 2) post.style.display = vis === 0 ? 'none' : '';
-	if(!sav.cookie) {
-		Visib[brd + pNum] = vis;
-		Expires[brd + pNum] = (new Date()).getTime() + storageLife;
-	} else if(TNum) Visib[post.Count] = vis;
-	post.Vis = vis;
+	} else if(Cfg.delhd === 2) post.style.display = !vis ? 'none' : '';
+	pFiltered[post.Count] = post.Vis = vis;
 }
 
 function setPostVisib(post, vis) {
-	$1(post.Btns).className = vis === 0 ? 'DESU_icn_unhide' : 'DESU_icn_hide';
+	$1(post.Btns).className = !vis ? 'DESU_icn_unhide' : 'DESU_icn_hide';
 	togglePost(post, vis);
 	applyPostVisib(post, vis);
 	if(Cfg.navhid !== 0) setTimeout(function() {
 		$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
-			el.className = vis === 0 ? 'DESU_refhid' : '';
+			el.className = !vis ? 'DESU_refhid' : '';
 		});
 	}, 0);
 }
 
 function hidePost(post, note) {
-	if(post.noHide) return;
-	if(post.Vis !== 0) post.Btns.appendChild($new('a', {
+	if(post.noHide || post.uVis !== undefined) return;
+	post.Btns.appendChild($new('a', {
 		Class: 'DESU_postnote', text: ' autohide: ' + note + ' ', href: '#'}, {
 		click: function(e) { $pD(e); $del(this); }
 	}));
@@ -2754,13 +2733,13 @@ function unhidePost(post) {
 }
 
 function saveHiddenPosts() {
-	forAll(function(post) { if(post.Vis === 0) setPostVisib(post, 0); });
-	savePostsVisib();
+	forAll(function(post) { if(!post.Vis) setPostVisib(post, 0); });
+	saveVisib();
 }
 
 function mergeHidden(post) {
 	var el, next;
-	if(post.Vis !== 0 || post.isOp) return;
+	if(post.Vis || post.isOp) return;
 	el = $prev(post);
 	if(!el) return;
 	if(!/merged/.test(el.id)) {
@@ -2776,14 +2755,14 @@ function mergeHidden(post) {
 	}
 	el.appendChild(post);
 	next = $next(post);
-	if(!next || getVisib(next.Num) === 1)
+	if(!next || pByNum[next.Num].Vis)
 		$prev(el).innerHTML = unescape('%u25B2') + '[<i><a href="#">'
 			+ Lng.hiddenPosts + '</a>:&nbsp;' + el.childNodes.length + '</i>]';
 }
 
 function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2)
-		forAll(function(post) { if(post.Vis === 0 && !post.isOp) $disp(post); });
+		forAll(function(post) { if(!post.Vis && !post.isOp) $disp(post); });
 	if(oldCfg === 1) $each($X('.//span[starts-with(@id,"DESU_merged")]'), function(el) {
 		var px = el.childNodes, i = px.length;
 		while(i--) $after(el, [px[i]]);
@@ -2962,7 +2941,7 @@ function hideBySpells(post) {
 	var exp;
 	if(Cfg.filthr === 0 && post.isOp) return;
 	exp = checkSpells(post);
-	if(post.Vis === 0) { if(post.noHide) unhidePost(post); } 
+	if(!post.Vis) { if(post.noHide) unhidePost(post); } 
 	else if(exp) hidePost(post, exp.substring(0, 70));
 }
 
@@ -3179,7 +3158,7 @@ function detectWipe(post) {
 
 function hideByWipe(post) {
 	var note;
-	if(Cfg.filthr === 0 && post.isOp || post.Vis === 0 || post.Vis === 1) return;
+	if(Cfg.filthr === 0 && post.isOp || !post.Vis || post.uVis !== undefined) return;
 	note = detectWipe(post);
 	if(note) hidePost(post, note);
 	else applyPostVisib(post, 1);
@@ -3442,9 +3421,9 @@ function doScript() {
 	doChanges();										 Log('doChanges');
 	readFavorites();									 Log('readFavorites');
 	forAll(addPostButtons);								 Log('addPostButtons');
-	readPostsVisib();									 Log('readPostsVisib');
+	readVisib();										 Log('readVisib');
 	if(Cfg.navmrk !== 0) { readViewedPosts();			 Log('readViewedPosts'); }
-	forAll(doPostFilters);								 Log('doPostFilters');
+	if(aFilters) { forAll(doPostFilters);				 Log('doPostFilters'); }
 	if(Cfg.delhd === 1) { forAll(mergeHidden);			 Log('mergeHidden'); }
 	if(Cfg.expimg !== 0) { forAll(eventPostImg);		 Log('eventPostImg'); }
 	if(Cfg.expost !== 0 && !TNum) { forAll(expandPost);	 Log('expandPost'); }
