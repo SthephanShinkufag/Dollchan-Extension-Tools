@@ -2371,7 +2371,7 @@ function showPostPreview(e) {
 	pView.Num = pNum;
 	if(post) {
 		funcPostPreview(post, parentId);
-		if(!post.Vis) togglePost(pView);
+		if(post.Vis === 0) togglePost(pView);
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		AJAX(null, b, tNum, function(err) {
