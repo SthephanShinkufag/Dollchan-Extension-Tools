@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.7.0
+// @version			12.3.7.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3305,7 +3305,7 @@ function initBoard() {
 		isGlobal: gs || ss
 	};
 	url = (window.location.pathname || '').match(
-		/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index)?(\.[xme]*html?)?$/);
+		/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index|wakaba)?(\.[xme]*html?)?$/);
 	brd = url[1] || (ch.dfwk ? 'df' : '');
 	res = ch.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
