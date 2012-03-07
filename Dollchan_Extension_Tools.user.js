@@ -1871,11 +1871,8 @@ function scriptCSS() {
 	);
 	if(ch.krau) x.push('div[id^="Wz"] {z-index:10000 !important;}\
 		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}\
-		.DESU_oppost > .postbody, td[id^="post-"] > .file_reply + div:not(.file_reply), td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) {display:inline;}\
-		td[id^="post-"] :last-child + div[style="clear: both"], .DESU_oppost :last-child + div[style="clear: both"] {clear:none !important;}\
-		.DESU_oppost > div:not(.postheader) + div > .DESU_ytube, td[id^="post-"] > div:not(.postheader) + div > .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
-		.DESU_oppost > div:not(.postheader) + div > .DESU_ytube + blockquote, td[id^="post-"] > div:not(.postheader) + div > .DESU_ytube + blockquote, td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) > blockquote {clear:both;}'
-	);
+		.file_reply + .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
+		.DESU_ytube + div:not(.file_reply) {clear:both;}');
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
@@ -2103,7 +2100,8 @@ function addLinkTube(post) {
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(xPostMsg, pst);
-			if(msg) $before(msg, [el]);
+			if(ch.krau) $before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
+			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
 		link.className = 'DESU_ytlink';
