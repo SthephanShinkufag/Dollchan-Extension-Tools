@@ -1850,7 +1850,7 @@ function scriptCSS() {
 		.DESU_preimg:hover, .DESU_ytube:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
 	);
 	if(kusaba) x.push(
-		'.extrabtns, .ui-resizable-handle, div[id*=oppost] > a[onclick]:not([target]) {display:none !important}\
+		'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) {display:none !important}\
 		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
 	);
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
@@ -1870,7 +1870,12 @@ function scriptCSS() {
 		.reply {background: #f0e0d6}'
 	);
 	if(ch.krau) x.push('div[id^="Wz"] {z-index:10000 !important;}\
-		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}');
+		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}\
+		.DESU_oppost > .postbody, td[id^="post-"] > .file_reply + div:not(.file_reply), td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) {display:inline;}\
+		td[id^="post-"] :last-child + div[style="clear: both"], .DESU_oppost :last-child + div[style="clear: both"] {clear:none !important;}\
+		div:not(.postheader) + div > .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
+		div:not(.postheader) + div > .DESU_ytube + blockquote, td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) > blockquote {clear:both;}'
+	);
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
