@@ -1873,8 +1873,8 @@ function scriptCSS() {
 		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}\
 		.DESU_oppost > .postbody, td[id^="post-"] > .file_reply + div:not(.file_reply), td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) {display:inline;}\
 		td[id^="post-"] :last-child + div[style="clear: both"], .DESU_oppost :last-child + div[style="clear: both"] {clear:none !important;}\
-		div:not(.postheader) + div > .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
-		div:not(.postheader) + div > .DESU_ytube + blockquote, td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) > blockquote {clear:both;}'
+		.DESU_oppost > div:not(.postheader) + div > .DESU_ytube, td[id^="post-"] > div:not(.postheader) + div > .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
+		.DESU_oppost > div:not(.postheader) + div > .DESU_ytube + blockquote, td[id^="post-"] > div:not(.postheader) + div > .DESU_ytube + blockquote, td[id^="post-"] > div[style="clear: both"] + div:not(.file_reply) > blockquote {clear:both;}'
 	);
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
