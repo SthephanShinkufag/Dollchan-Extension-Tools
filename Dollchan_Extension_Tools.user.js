@@ -274,8 +274,8 @@ homePage = 'http://www.freedollchan.org/scripts/', $x, $X, $xb;
 									UTILS
 =============================================================================*/
 
-function resolver(prefix) {
-    return prefix === 'x' ? 'http://www.w3.org/1999/xhtml' : null;
+function resolver() {
+    return 'http://www.w3.org/1999/xhtml';
 }
 function $id(id) {
 	return doc.getElementById(id);
