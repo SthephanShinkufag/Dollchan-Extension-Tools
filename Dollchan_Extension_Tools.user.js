@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.6.1
+// @version			12.3.7.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-06',
+	version:	'2012-03-07',
 	lang:		0,		// script language [0=ru, 1=en]
 	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
@@ -2308,7 +2308,8 @@ function addRefMap(post, uEv) {
 	if(Cfg.navig !== 2) return;
 	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) return;
-		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/)[0];
+		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))
+			|| link.textContent).match(/\d+/)[0];
 		pst = post || getPost(link);
 		if(pByNum[rNum] && pst) getRefMap(pst.Num, rNum);
 	}, true);
@@ -3394,8 +3395,8 @@ function parseDelform(node, dc) {
 			function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
 		if(opEnd) {
 			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr, dc), function(el) {
-				id = (el.id || el.getElementsByTagName('td')[1].id
-					|| el.getElementsByTagName('input')[0].name).match(/\d+/)[0];
+				id = (el.id || (el.getElementsByTagName('td')[1] || $t('td', el)).id
+					|| $t('input', el).name).match(/\d+/)[0];
 				el.className += ' DESU_post';
 				el.Num = id;
 				if(dc === doc) pushPost(el, id, false, ++i);
