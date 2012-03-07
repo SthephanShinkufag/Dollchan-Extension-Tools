@@ -1850,7 +1850,7 @@ function scriptCSS() {
 		.DESU_preimg:hover, .DESU_ytube:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
 	);
 	if(kusaba) x.push(
-		'.extrabtns, .ui-resizable-handle, div[id*=oppost] > a[onclick]:not([target]) {display:none !important}\
+		'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) {display:none !important}\
 		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
 	);
 	if(hanab) x.push('#hideinfotd, .reply_ {display:none}');
@@ -1870,7 +1870,9 @@ function scriptCSS() {
 		.reply {background: #f0e0d6}'
 	);
 	if(ch.krau) x.push('div[id^="Wz"] {z-index:10000 !important;}\
-		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}');
+		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}\
+		.file_reply + .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
+		.DESU_ytube + div:not(.file_reply) {clear:both;}');
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
@@ -2098,7 +2100,8 @@ function addLinkTube(post) {
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(xPostMsg, pst);
-			if(msg) $before(msg, [el]);
+			if(ch.krau) $before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
+			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
 		link.className = 'DESU_ytlink';
