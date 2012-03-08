@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.7.1
+// @version			12.3.8.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -15,6 +15,7 @@
 var defaultCfg = {
 	version:	'2012-03-07',
 	lang:		0,		// script language [0=ru, 1=en]
+	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
 	awipe:		1,		// antiwipe detectors:
 	samel:		1,		//		same lines
@@ -136,6 +137,7 @@ LngArray = {
 		['Откл.', 'Авто', 'По клику'],
 		['Disable', 'Auto', 'On click']
 	],
+	scriptStyle:	[' стиль скрипта', ' script style'],
 	insertLink:		[
 		'Вставлять >>ссылку по клику на №поста*',
 		'Insert >>link on №postnumber click*'
@@ -875,6 +877,9 @@ function addSettings() {
 		], {id: 'DESU_pviewbox', style: 'display:none; padding-left:15px'}),
 		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
 		$if(!hanab, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
+		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
+			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
+		)]),
 		$New('div', [
 			lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime'),
 			$btn('>', function() { $disp($id('DESU_ctimebox')); })
@@ -1736,7 +1741,7 @@ function fixTime(txt) {
 function scriptCSS() {
 	var x = [],
 		gif = function(nm, src) { x.push(nm + ' {background:url(data:image/gif;base64,' + src + ') no-repeat center !important}') },
-		pre = 'background:url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7); ',
+		pre = 'background:' + (Cfg.sstyle === 0 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)' : '#777') + '; ',
 		brCssFix = !nav.Firefox || nav.Firefox < 4 ? cssFix : '';
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px arial; cursor:default}\
@@ -1746,16 +1751,16 @@ function scriptCSS() {
 		#DESU_iframe {display:none; width:0px; height:0px; border:none}\
 		#DESU_panel {height:25px; z-index:9999; ' + pre + brCssFix + 'border-radius:15px 0 0 0; cursor:default}\
 		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + brCssFix + 'border-radius:5px}\
-		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid #79c}\
-		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid #9be}\
-		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid #79c; color:#fff; font:18px serif}\
+		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '}\
+		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '}\
+		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
 		#DESU_sett_body {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
 		#DESU_sett_head {padding:3px; ' + pre + brCssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
 		#DESU_sett_main {padding:7px; margin:0; border:1px solid grey; font:13px sans-serif}\
 		#DESU_sett_main input[value=">"] {width:20px}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding:3px 10px; color:inherit; font:13px arial; white-space:nowrap}\
-		#DESU_select a:hover {background-color:#1b345e; color: #fff}\
+		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
 		#DESU_spellpanel {margin:0 0 0 40px}\
 		#DESU_spellpanel a {padding:0 10px; text-align:center}\
 		#DESU_sagebtn {cursor:pointer}\
