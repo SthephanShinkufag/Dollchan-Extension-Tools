@@ -3264,7 +3264,7 @@ function initBoard() {
 		futr:	dm === '2chan.su',
 		be3:	dm === 'be3hornm.ru'
 	};
-	rPattern = /([^a-z]|^)(script|div|input|form|a|p|link|head|textarea|h1|tr|hr|br|table|blockquote|img|label|span|small|i)(?![a-z])/g;
+	rPattern = /([^a-z]|^)(script|div|input|form|a|p|link|head|textarea|h1|h2|tr|hr|br|table|blockquote|img|label|span|small|i|td|tbody|video|em|font)(?![a-z])/g;
 	$x = (function(xHtml) {
 		return xHtml ? function(path, root, dc) {
 			return (dc || doc).evaluate(path.replace(rPattern, '$1x:$2'), root || dc || doc, resolver, 8, null).singleNodeValue;
