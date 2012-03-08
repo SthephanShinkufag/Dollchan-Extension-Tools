@@ -1514,7 +1514,8 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(nav.Opera || nav.Firefox < 4) {
+		if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
+		if(nav.Opera || (nav.Firefox && nav.Firefox < 4)) {
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 			$after($id('DESU_content'), [
 				$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
@@ -1522,7 +1523,6 @@ function doPostformChanges() {
 				})
 			]);
 			$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
-			if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
 		} else {
 			pr.form.onsubmit = function(e) {
 				$pD(e);
