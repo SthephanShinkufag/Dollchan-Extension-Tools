@@ -265,23 +265,17 @@ quotetxt = '',
 docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false,
 timePattern, timeRegex,
 oldTime, endTime, timeLog = '',
-tubeHidTimeout,
+tubeHidTimeout, rPattern,
 storageLife = 5*24*3600*1000,
-homePage = 'http://www.freedollchan.org/scripts/';
+homePage = 'http://www.freedollchan.org/scripts/', $x, $X, $xb;
 
 
 /*=============================================================================
 									UTILS
 =============================================================================*/
 
-function $X(path, root, dc) {
-	return (dc || doc).evaluate(path, root || dc || doc, null, 6, null);
-}
-function $x(path, root, dc) {
-	return (dc || doc).evaluate(path, root || dc || doc, null, 8, null).singleNodeValue;
-}
-function $xb(path, root, dc) {
-	return (dc || doc).evaluate(path, root || dc || doc, null, 3, null).booleanValue;
+function resolver() {
+    return 'http://www.w3.org/1999/xhtml';
 }
 function $id(id) {
 	return doc.getElementById(id);
@@ -3267,8 +3261,31 @@ function initBoard() {
 		pony:	dm === 'ponychan.net',
 		vomb:	dm === 'vombatov.net',
 		ment:	dm === '02ch.org' || dm === '02ch.net',
-		futr:	dm === '2chan.su'
+		futr:	dm === '2chan.su',
+		be3:	dm === 'be3hornm.ru'
 	};
+	rPattern = /([^a-z]|^)(script|div|input|form|a|p|link|head|textarea|h1|h2|tr|hr|br|table|blockquote|img|label|span|small|i|td|tbody|video|em|font)(?![a-z])/g;
+	$x = (function(xHtml) {
+		return xHtml ? function(path, root, dc) {
+			return (dc || doc).evaluate(path.replace(rPattern, '$1x:$2'), root || dc || doc, resolver, 8, null).singleNodeValue;
+		} : function (path, root, dc) {
+			return (dc || doc).evaluate(path, root || dc || doc, null, 8, null).singleNodeValue;
+		};
+	})(ch.be3);
+	$X = (function(xHtml) {
+		return xHtml ? function(path, root, dc) {
+			return (dc || doc).evaluate(path.replace(rPattern, '$1x:$2'), root || dc || doc, resolver, 6, null);
+		} : function (path, root, dc) {
+			return (dc || doc).evaluate(path, root || dc || doc, null, 6, null);
+		};
+	})(ch.be3);
+	$xb = (function(xHtml) {
+		return xHtml ? function(path, root, dc) {
+			return (dc || doc).evaluate(path.replace(rPattern, '$1x:$2'), root || dc || doc, resolver, 3, null).booleanValue;
+		} : function (path, root, dc) {
+			return (dc || doc).evaluate(path, root || dc || doc, null, 3, null).booleanValue;
+		};
+	})(ch.be3);
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
 	abu = $xb('.//script[contains(@src,"wakaba_new.js")]');
