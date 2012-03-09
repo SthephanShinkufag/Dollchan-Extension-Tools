@@ -80,7 +80,8 @@ var defaultCfg = {
 	nopass:		1,		// hide password field
 	mask:		0,		// mask images
 	texw:		530,	// textarea width
-	texh:		140		// textarea height
+	texh:		140,	// textarea height
+	mImages:	0
 },
 
 LngArray = {
@@ -252,7 +253,8 @@ LngArray = {
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cTimeOffset:	[' Разница во времени', ' Time difference'],
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
-	succDeleted:	['Пост удалён', 'Post have been deleted']
+	succDeleted:	['Пост удалён', 'Post have been deleted'],
+	mImages:		['Добавлять случайный байт в изображение', 'Add random byte into image']
 },
 
 doc = document,
@@ -923,6 +925,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
+		$if(!(nav.Opera || (nav.Firefox && nav.Firefox < 4) || (!nav.Firefox && ch.fch)), divBox('mImages', Lng.mImages)),
 		divBox('addfav', Lng.addToFav),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
@@ -1606,6 +1609,7 @@ function checkDeleted(dc) {
 }
 
 function prepareData(fn) {
+	if(!Cfg.mImages) { fn(new FormData(pr.form)); return; }
 	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
 		cb = function() { if(done && ready === rNeeded) fn(fd);};
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
@@ -1621,7 +1625,7 @@ function prepareData(fn) {
 function prepareFiles(el, fn) {
 	window.BlobBuilder = nav.Firefox ? MozBlobBuilder : WebKitBlobBuilder;
 	var oFReader = new FileReader();
-	if(ch.nul || el.files.length === 0 || !/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
+	if(el.files.length === 0 || !/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
 	oFReader.readAsArrayBuffer(pr.file.files[0]);
 	oFReader.onload = function(e) {
 		var bb = new BlobBuilder(), oBlob, arr = new Uint8Array(e.target.result.byteLength + 1)
