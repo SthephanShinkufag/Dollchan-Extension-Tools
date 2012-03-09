@@ -1526,7 +1526,7 @@ function doPostformChanges() {
 			$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
 		} else {
 			pr.form.onsubmit = function(e) { $pD(e); prepareData(function(fd) {XHRLoad(pr.form, fd, checkUpload);}); };
-			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
+			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, new FormData(dForm), checkDeleted); };
 		}
 	}
 }
@@ -1537,7 +1537,7 @@ function XHRLoad(form, fd, fn) {
 	if(nav.Firefox) {
 		GM_xmlhttpRequest({
 			method: form.method,
-			data: fd || new FormData(form),
+			data: fd,
 			url: form.action,
 			onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
 			onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
@@ -1549,7 +1549,7 @@ function XHRLoad(form, fd, fn) {
 			if(oXHR.status == 200) fn(HTMLtoDOM(oXHR.responseText), form.action);
 			else { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText); }
 		};
-		oXHR.send(fd || new FormData(form));
+		oXHR.send(fd);
 	}
 }
 
