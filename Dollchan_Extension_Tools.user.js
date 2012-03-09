@@ -1614,7 +1614,7 @@ function prepareData(fn) {
 		cb = function() { if(done && ready === rNeeded) fn(fd);};
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
 		if(el.type === 'file') {
-			prepareFiles(el, function(blob) {fd.append(el.name, blob); ready++; cb();});
+			prepareFiles(el, function(blob, bName) {fd.append(el.name, blob, bName); ready++; cb();});
 			rNeeded++;
 		} else fd.append(el.name, el.value);
 	});
@@ -1628,13 +1628,11 @@ function prepareFiles(el, fn) {
 	if(el.files.length === 0 || !/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
 	oFReader.readAsArrayBuffer(pr.file.files[0]);
 	oFReader.onload = function(e) {
-		var bb = new BlobBuilder(), oBlob, arr = new Uint8Array(e.target.result.byteLength + 1)
+		var bb = new BlobBuilder(), arr = new Uint8Array(e.target.result.byteLength + 1);
 		arr.set(e.target.result);
 		arr[arr.length - 1] = Math.round(Math.random() * 1000) % 255;
 		bb.append(arr.buffer);
-		oBlob = bb.getBlob(pr.file.files[0].type);
-		oBlob.name = pr.file.files[0].name;
-		fn(oBlob);
+		fn(bb.getBlob(pr.file.files[0].type), pr.file.files[0].name);
 	};
 }
 
