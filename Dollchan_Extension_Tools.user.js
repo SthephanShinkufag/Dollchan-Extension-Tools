@@ -1538,7 +1538,7 @@ function XHRLoad(form, fn) {
 		method: form.method,
 		data: new FormData(form),
 		url: form.action,
-		onload: function(res) { fn(HTMLtoDOM(res.responseText)); },
+		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
 		onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
 	});
 }
@@ -1547,14 +1547,14 @@ function iframeLoad() {
 	var frm = $id('DESU_iframe');
 	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
-	checkUpload(frm);
+	checkUpload(frm, frm.location);
 	frm.location.replace('about:blank');
 }
 
-function checkUpload(dc) {
-	var xp, err, tNum, txt = '';
-	if(hanab && /error/.test(dc.location.pathname)) xp = './/td[@class="post-error"]';
-	if(ch.krau && dc.location.pathname === '/post') xp = './/td[starts-with(@class,"message_text")]';
+function checkUpload(dc, url) {
+	var xp, err, tNum, txt = '', pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5];
+	if(hanab && /error/.test(pathname)) xp = './/td[@class="post-error"]';
+	if(ch.krau && pathname === '/post') xp = './/td[starts-with(@class,"message_text")]';
 	if(abu && !dc.getElementById('delform')) xp = './/font[@size="5"]';
 	if(xp || !$t('form', dc)) {
 		if(kusaba) xp = './/h1|.//h2|.//div[contains(@style,"1.25em")]';
@@ -1581,7 +1581,7 @@ function checkUpload(dc) {
 			else loadNewPosts(true);
 			if(pr.cap) { pr.cap.value = ''; refreshCapImg(tNum); }
 		} else window.location = !ch.fch
-			? dc.location : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
+			? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 	} else {
 		if(ch.nul && pr.isQuick) { $disp(qArea); qArea.appendChild($id('DESU_pform')); }
 		$close($id('DESU_alert_wait'));
