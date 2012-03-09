@@ -251,7 +251,8 @@ LngArray = {
 	cTime:			['Корректировать время в постах* ', 'Correct time in posts* '],
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cTimeOffset:	[' Разница во времени', ' Time difference'],
-	cTimePattern:	['Шаблон замены', 'Replace pattern']
+	cTimePattern:	['Шаблон замены', 'Replace pattern'],
+	succDeleted:	['Пост удалён', 'Post have been deleted']
 },
 
 doc = document,
@@ -1526,24 +1527,33 @@ function doPostformChanges() {
 		} else {
 			pr.form.onsubmit = function(e) {
 				$pD(e);
-				var formData = new FormData(pr.form), oXHR = new XMLHttpRequest(), mD;
-				oXHR.open('POST', pr.form.action, true);
-				oXHR.onload = function(oE) {  
-					if(oXHR.status == 200) {
-						mD = HTMLtoDOM(oXHR.responseText);
-						if(!mD) { $close($id('DESU_alert_wait')); $alert("XHR error:\nCan't parse document"); return; }
-						checkUpload(mD);
-					} else {
-						$close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText);
-					}
-				};
-				oXHR.send(formData);
+				XHRLoad(pr.form, checkUpload);
+			};
+			dForm.onsubmit = function(e) {
+				$pD(e);
+				$alert(Lng.loading, 'wait');
+				XHRLoad(dForm, checkDeleted);
 			};
 		}
 	}
 }
 
 /*------------------------------Onsubmit reply check-------------------------*/
+
+function XHRLoad(form, fn) {
+	var oXHR = new XMLHttpRequest(), mD;
+	oXHR.open(form.method, form.action, true);
+	oXHR.onload = function(oE) {  
+		if(oXHR.status == 200) {
+			mD = HTMLtoDOM(oXHR.responseText);
+			if(!mD) { $close($id('DESU_alert_wait')); $alert("XHR error:\nCan't parse document"); return; }
+			fn(mD);
+		} else {
+			$close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText);
+		}
+	};
+	oXHR.send(new FormData(form));
+}
 
 function iframeLoad() {
 	var frm = $id('DESU_iframe');
@@ -1591,6 +1601,11 @@ function checkUpload(dc) {
 	}
 }
 
+function checkDeleted(dc) {
+	//TODO: проверка - удалён ли пост или нет
+	$close($id('DESU_alert_wait'));
+	$alert(Lng.succDeleted);
+}
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
