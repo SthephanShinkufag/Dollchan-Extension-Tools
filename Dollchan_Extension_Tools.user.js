@@ -1543,7 +1543,7 @@ function XHRLoad(form, fd, fn) {
 			onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
 		});
 	} else {
-		var oXHR = new XMLHttpRequest(), mD;
+		var oXHR = new XMLHttpRequest();
 		oXHR.open(form.method, form.action, true);
 		oXHR.onload = function(oE) {  
 			if(oXHR.status == 200) fn(HTMLtoDOM(oXHR.responseText), form.action);
