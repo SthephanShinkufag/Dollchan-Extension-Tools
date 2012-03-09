@@ -1516,7 +1516,7 @@ function doPostformChanges() {
 	}
 	if(Cfg.verify !== 0) {
 		if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
-		if(+nav.Firefox < 4) {
+		if(nav.Opera || (nav.Firefox && nav.Firefox < 4) || (!nav.Firefox && ch.fch)) {
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 			$after($id('DESU_content'), [
 				$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
@@ -1525,7 +1525,7 @@ function doPostformChanges() {
 			]);
 			$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
 		} else {
-			pr.form.onsubmit = function(e) { $pD(e); XHRLoad(pr.form, checkUpload); };
+			pr.form.onsubmit = function(e) { $pD(e); prepareData(function(fd) {XHRLoad(pr.form, fd, checkUpload);}); };
 			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
 		}
 	}
@@ -1533,14 +1533,24 @@ function doPostformChanges() {
 
 /*------------------------------Onsubmit reply check-------------------------*/
 
-function XHRLoad(form, fn) {
-	GM_xmlhttpRequest({
-		method: form.method,
-		data: new FormData(form),
-		url: form.action,
-		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
-		onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
-	});
+function XHRLoad(form, fd, fn) {
+	if(nav.Firefox) {
+		GM_xmlhttpRequest({
+			method: form.method,
+			data: fd || new FormData(form),
+			url: form.action,
+			onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
+			onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
+		});
+	} else {
+		var oXHR = new XMLHttpRequest(), mD;
+		oXHR.open(form.method, form.action, true);
+		oXHR.onload = function(oE) {  
+			if(oXHR.status == 200) fn(HTMLtoDOM(oXHR.responseText), form.action);
+			else { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText); }
+		};
+		oXHR.send(fd || new FormData(form));
+	}
 }
 
 function iframeLoad() {
@@ -1594,6 +1604,33 @@ function checkDeleted(dc) {
 	$close($id('DESU_alert_wait'));
 	$alert(Lng.succDeleted);
 }
+
+function prepareData(fn) {
+	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
+		cb = function() { if(done && ready === rNeeded) fn(fd);};
+	$each($X('.//input[not(@type="submit")]', pr.form), function(el) {
+		if(el.type === 'file') {
+			prepareFiles(el, function(blob) {fd.append(el.name, blob); ready++; cb();});
+			rNeeded++;
+		} else fd.append(el.name, el.value);
+	});
+	done = true;
+	cb();
+}
+
+function prepareFiles(el, fn) {
+	window.BlobBuilder = nav.Firefox ? MozBlobBuilder : WebKitBlobBuilder;
+	var oFReader = new FileReader();
+	if(el.files.length === 0) return;
+	oFReader.readAsArrayBuffer(pr.file.files[0]);
+	oFReader.onload = function(e) {
+		var bb = new BlobBuilder();
+		bb.append(e.target.result);
+		bb.append(String(Math.random()));
+		fn(bb.getBlob());
+	};
+}
+
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
