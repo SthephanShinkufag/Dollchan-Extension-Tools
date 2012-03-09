@@ -1622,12 +1622,16 @@ function prepareFiles(el, fn) {
 	window.BlobBuilder = nav.Firefox ? MozBlobBuilder : WebKitBlobBuilder;
 	var oFReader = new FileReader();
 	if(el.files.length === 0) return;
+	if(!/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
 	oFReader.readAsArrayBuffer(pr.file.files[0]);
 	oFReader.onload = function(e) {
-		var bb = new BlobBuilder();
+		var bb = new BlobBuilder(), oBlob;
 		bb.append(e.target.result);
 		bb.append(String(Math.random()));
-		fn(bb.getBlob());
+		oBlob = bb.getBlob();
+		oBlob.name = pr.file.files[0].name;
+		oBlob.fileName = pr.file.files[0].fileName;
+		fn(oBlob);
 	};
 }
 
