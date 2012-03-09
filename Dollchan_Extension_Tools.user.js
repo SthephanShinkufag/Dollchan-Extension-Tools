@@ -1516,7 +1516,7 @@ function doPostformChanges() {
 	}
 	if(Cfg.verify !== 0) {
 		if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
-		if(nav.Opera || (nav.Firefox && nav.Firefox < 4)) {
+		if(+nav.Firefox < 4) {
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 			$after($id('DESU_content'), [
 				$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
@@ -1525,15 +1525,8 @@ function doPostformChanges() {
 			]);
 			$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
 		} else {
-			pr.form.onsubmit = function(e) {
-				$pD(e);
-				XHRLoad(pr.form, checkUpload);
-			};
-			dForm.onsubmit = function(e) {
-				$pD(e);
-				$alert(Lng.loading, 'wait');
-				XHRLoad(dForm, checkDeleted);
-			};
+			pr.form.onsubmit = function(e) { $pD(e); XHRLoad(pr.form, checkUpload); };
+			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
 		}
 	}
 }
@@ -1541,18 +1534,13 @@ function doPostformChanges() {
 /*------------------------------Onsubmit reply check-------------------------*/
 
 function XHRLoad(form, fn) {
-	var oXHR = new XMLHttpRequest(), mD;
-	oXHR.open(form.method, form.action, true);
-	oXHR.onload = function(oE) {  
-		if(oXHR.status == 200) {
-			mD = HTMLtoDOM(oXHR.responseText);
-			if(!mD) { $close($id('DESU_alert_wait')); $alert("XHR error:\nCan't parse document"); return; }
-			fn(mD);
-		} else {
-			$close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText);
-		}
-	};
-	oXHR.send(new FormData(form));
+	GM_xmlhttpRequest({
+		method: form.method,
+		data: new FormData(form),
+		url: form.action,
+		onload: function(res) { fn(HTMLtoDOM(res.responseText)); },
+		onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
+	});
 }
 
 function iframeLoad() {
