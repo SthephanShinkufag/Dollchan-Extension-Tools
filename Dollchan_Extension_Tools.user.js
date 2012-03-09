@@ -1608,7 +1608,7 @@ function checkDeleted(dc) {
 function prepareData(fn) {
 	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
 		cb = function() { if(done && ready === rNeeded) fn(fd);};
-	$each($X('.//input[not(@type="submit")]', pr.form), function(el) {
+	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
 		if(el.type === 'file') {
 			prepareFiles(el, function(blob) {fd.append(el.name, blob); ready++; cb();});
 			rNeeded++;
@@ -1621,8 +1621,7 @@ function prepareData(fn) {
 function prepareFiles(el, fn) {
 	window.BlobBuilder = nav.Firefox ? MozBlobBuilder : WebKitBlobBuilder;
 	var oFReader = new FileReader();
-	if(el.files.length === 0) return;
-	if(!/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
+	if(el.files.length === 0 || !/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
 	oFReader.readAsArrayBuffer(pr.file.files[0]);
 	oFReader.onload = function(e) {
 		var bb = new BlobBuilder(), oBlob;
