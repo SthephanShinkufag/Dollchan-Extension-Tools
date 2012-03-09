@@ -1621,15 +1621,15 @@ function prepareData(fn) {
 function prepareFiles(el, fn) {
 	window.BlobBuilder = nav.Firefox ? MozBlobBuilder : WebKitBlobBuilder;
 	var oFReader = new FileReader();
-	if(el.files.length === 0 || !/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
+	if(ch.nul || el.files.length === 0 || !/^image\/(?:png|jpeg|gif)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
 	oFReader.readAsArrayBuffer(pr.file.files[0]);
 	oFReader.onload = function(e) {
-		var bb = new BlobBuilder(), oBlob;
-		bb.append(e.target.result);
-		bb.append(String(Math.random()));
-		oBlob = bb.getBlob();
+		var bb = new BlobBuilder(), oBlob, arr = new Uint8Array(e.target.result.byteLength + 1)
+		arr.set(e.target.result);
+		arr[arr.length - 1] = Math.round(Math.random() * 1000) % 255;
+		bb.append(arr.buffer);
+		oBlob = bb.getBlob(pr.file.files[0].type);
 		oBlob.name = pr.file.files[0].name;
-		oBlob.fileName = pr.file.files[0].fileName;
 		fn(oBlob);
 	};
 }
