@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.8.0
+// @version			12.3.10.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-07',
+	version:	'2012-03-10',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -3253,7 +3253,7 @@ function fixGM() {
 }
 
 function initBoard() {
-	var ua, gs, ss, url, ls = false, se = false;
+	var ua, gs, ss, ls, se, url;
 	if(window.location === 'about:blank') return false;
 	host = window.location.hostname;
 	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
@@ -3298,7 +3298,7 @@ function initBoard() {
 		Chrome: /chrome/i.test(ua)
 	};
 	gs = nav.Firefox && typeof GM_setValue === 'function';
-	ss = nav.Opera && typeof scriptStorage === 'object';
+	try { ss = nav.Opera && typeof scriptStorage === 'object'; } catch(e) {};
 	ls = 'localStorage' in window && typeof localStorage === 'object';
 	se = 'sessionStorage' in window && (sessionStorage.test = 1) === 1;
 	sav = {
