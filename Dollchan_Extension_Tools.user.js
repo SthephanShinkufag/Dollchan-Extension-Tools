@@ -251,7 +251,8 @@ LngArray = {
 	cTime:			['Корректировать время в постах* ', 'Correct time in posts* '],
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cTimeOffset:	[' Разница во времени', ' Time difference'],
-	cTimePattern:	['Шаблон замены', 'Replace pattern']
+	cTimePattern:	['Шаблон замены', 'Replace pattern'],
+	succDeleted:	['Пост удалён', 'Post deleted']
 },
 
 doc = document,
@@ -1514,37 +1515,71 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
-		$after($id('DESU_content'), [
-			$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
-				load: function() { setTimeout(iframeLoad, 500); }
-			}
-		)]);
-		$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
+		if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
+		if(nav.Opera || (nav.Firefox && nav.Firefox < 4) || (!nav.Firefox && ch.fch)) {
+			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
+			$after($id('DESU_content'), [
+				$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
+					load: function() { setTimeout(iframeLoad, 500); }
+				})
+			]);
+			$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
+		} else {
+			pr.form.onsubmit = function(e) { $pD(e); XHRLoad(pr.form, checkUpload); };
+			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
+		}
 	}
 }
 
 /*------------------------------Onsubmit reply check-------------------------*/
 
+function XHRLoad(form, fn) {
+	if(nav.Firefox) {
+		GM_xmlhttpRequest({
+			method: form.method,
+			headers: {'Referer': ''+doc.location},
+			data: new FormData(form),
+			url: form.action,
+			onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
+			onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
+		});
+	} else {
+		var oXHR = new XMLHttpRequest();
+		oXHR.open(form.method, form.action, true);
+		oXHR.onload = function(oE) {  
+			if(oXHR.status == 200) fn(HTMLtoDOM(oXHR.responseText), form.action);
+			else { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText); }
+		};
+		oXHR.setRequestHeader('Referer', ''+doc.location)
+		oXHR.send(new FormData(form));
+	}
+}
+
 function iframeLoad() {
-	var xp, err, tNum, txt = '', frm = $id('DESU_iframe');
+	var frm = $id('DESU_iframe');
 	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
-	if(hanab && /error/.test(frm.location.pathname)) xp = './/td[@class="post-error"]';
-	if(ch.krau && frm.location.pathname === '/post') xp = './/td[starts-with(@class,"message_text")]';
-	if(abu && !frm.getElementById('delform')) xp = './/font[@size="5"]';
-	if(xp || !$t('form', frm)) {
+	checkUpload(frm, frm.location);
+	frm.location.replace('about:blank');
+}
+
+function checkUpload(dc, url) {
+	var xp, err, tNum, txt = '', pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5];
+	if(hanab && /error/.test(pathname)) xp = './/td[@class="post-error"]';
+	if(ch.krau && pathname === '/post') xp = './/td[starts-with(@class,"message_text")]';
+	if(abu && !dc.getElementById('delform')) xp = './/font[@size="5"]';
+	if(xp || !$t('form', dc)) {
 		if(kusaba) xp = './/h1|.//h2|.//div[contains(@style,"1.25em")]';
 		if(ch.fch) xp = './/table//font/b';
 		if(ch.gazo) xp = './/font[@size="5"]';
-		if(xp) $each(frm.evaluate(xp, frm, null, 6, null), function(el) {
+		if(xp) $each(dc.evaluate(xp, dc, null, 6, null), function(el) {
 			txt += el.innerHTML + '\n';
 		});
 		else {
-			xp = $t('h2', frm) || $t('h1', frm);
+			xp = $t('h2', dc) || $t('h1', dc);
 			if(xp) txt = xp.innerHTML.replace(/<br.*/i, '');
 		}
-		err = txt !== '' ? txt : Lng.error + '\n' + frm.body.innerHTML;
+		err = txt !== '' ? txt : Lng.error + '\n' + dc.body.innerHTML;
 		if(/обновл|successful!|uploaded!/i.test(err)) err = undefined;
 	}
 	if(!err) {
@@ -1558,13 +1593,18 @@ function iframeLoad() {
 			else loadNewPosts(true);
 			if(pr.cap) { pr.cap.value = ''; refreshCapImg(tNum); }
 		} else window.location = !ch.fch
-			? frm.location : $t('meta', frm).content.match(/http:\/\/[^"]+/)[0];
+			? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 	} else {
 		if(ch.nul && pr.isQuick) { $disp(qArea); qArea.appendChild($id('DESU_pform')); }
 		$close($id('DESU_alert_wait'));
 		$alert(err);
 	}
-	frm.location.replace('about:blank');
+}
+
+function checkDeleted(dc) {
+	//TODO: проверка - удалён ли пост или нет
+	$close($id('DESU_alert_wait'));
+	$alert(Lng.succDeleted);
 }
 
 /*-----------------------------Quick Reply under post------------------------*/
