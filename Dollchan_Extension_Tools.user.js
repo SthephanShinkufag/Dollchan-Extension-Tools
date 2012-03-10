@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.10.2
+// @version			12.3.10.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1510,7 +1510,7 @@ function doPostformChanges() {
 		});
 		m = $x('ancestor::label', pr.mail) || pr.mail;
 		if($next(m) || $prev(m)) { $disp(m); $after(m, [sageBtn]); }
-		else { $disp($x(pr.tr, pr.mail)); $after(pr.name || pr.file, [sageBtn]); }
+		else { $disp($x(pr.tr, pr.mail)); $after(pr.name || pr.subm, [sageBtn]); }
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
@@ -1551,6 +1551,7 @@ function iframeLoad() {
 		pr.txta.value = '';
 		if(pr.file) pr.file = $x('.//input[@type="file"]',
 			$html($x(pr.tr, pr.file), $x(pr.tr, pr.file).innerHTML));
+		
 		if(pr.tNum) {
 			tNum = pr.tNum;
 			showMainReply();
