@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.10.0
+// @version			12.3.10.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1909,7 +1909,7 @@ function getPstCount(thrd) {
 		, thrd);
 	return $X('.//table[contains(@class," DESU_post")]'
 		+ '|.//div[contains(@class," DESU_post")]', thrd).snapshotLength + 1
-		+ (om && (om = om.textContent) ? Number(om.match(/\d+/)[0]) : 0);
+		+ (om && (om = om.textContent) && /\d+/.test(om) ? Number(om.match(/\d+/)[0]) : 0);
 }
 
 function getTitle(post) {
