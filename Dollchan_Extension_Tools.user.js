@@ -1622,7 +1622,7 @@ function prepareFiles(el, fn) {
 		var bb = new MozBlobBuilder();
 		bb.append(e.target.result);
 		bb.append(String(Math.round(Math.random() * 1000)));
-		fn(bb.getBlob(pr.file.files[0].type));
+		fn(bb.getBlob(file.type));
 	};
 }
 
