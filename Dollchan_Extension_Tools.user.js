@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.11.5
+// @version			12.3.11.6
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -267,7 +267,7 @@ kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass,
 cssFix, xDelForm, xPostRef, xPostMsg,
 pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy,
 quotetxt = '',
-docTitle, favIcon, favIconInt, isActiveTab = false, isExpImg = false,
+docTitle, favIcon, favIconInt, isExpImg = false,
 timePattern, timeRegex,
 oldTime, endTime, timeLog = '',
 tubeHidTimeout,
@@ -1373,18 +1373,16 @@ function doChanges() {
 			docTitle = '/' + brd + ' - ' + getTitle(pByNum[TNum]).substring(0, 70);
 			doc.title = docTitle;
 		} else docTitle = doc.title;
-		$event(window, {
-			blur: function() { isActiveTab = false; },
-			focus: function() {
-				isActiveTab = true;
-				if(Cfg.updfav !== 0 && favIcon) {
-					clearInterval(favIconInt);
-					$Del('.//link[@rel="shortcut icon"]', $t('head'));
-					$t('head').appendChild($new('link', {href: favIcon, rel: 'shortcut icon'}));
-				}
-				if(Cfg.updthr === 1) setTimeout(function() { doc.title = docTitle; }, 0);
+		window.onblur = function() { doc.body.className = 'blurred'; };
+		window.onfocus = function() {
+			doc.body.className = 'focused';
+			if(Cfg.updfav !== 0 && favIcon) {
+				clearInterval(favIconInt);
+				$Del('.//link[@rel="shortcut icon"]', $t('head'));
+				$t('head').appendChild($new('link', {href: favIcon, rel: 'shortcut icon'}));
 			}
-		});
+			if(Cfg.updthr === 1) setTimeout(function() { doc.title = docTitle; }, 0);
+		}
 		initPostsUpdate();
 		if(Cfg.updthr === 2 || Cfg.updthr === 3)
 			$after($x('.//div[contains(@class," DESU_thread")]'), [$add(
@@ -2703,7 +2701,7 @@ function infoNewPosts(err, del) {
 	$close($id('DESU_alert_warn'));
 	inf = ajaxThrds[TNum].keys.length - Posts.length + del;
 	if(Cfg.updthr === 1) {
-		if(isActiveTab) return;
+		if(doc.body.className === 'focused') return;
 		old = doc.title.match(/^\[(\d+)\]/);
 		if(old) inf += +old[1];
 	}
