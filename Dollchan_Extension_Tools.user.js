@@ -2876,19 +2876,22 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 	if(exp === '') return false;
 	s = exp.split('@');
 	stat = s[0][0];
-	expK = Number(s[0].substr(1));
-	if(expK !== '') {
-		if(stat === '<' && imgK < expK || stat === '>' && imgK > expK || stat === '=' && imgK === expK)
+	expK = s[0].substr(1).split('-');
+	if(!expK[1]) expK[1] = expK[0];
+	if(expK[0] !== '') {
+		if((stat === '<' && imgK < +expK[0]) || (stat === '>' && imgK > +expK[0]) || (stat === '=' && imgK >= +expK[0] && imgK <= +expK[1]))
 			{ if(!s[1]) return 'image ' + exp; }
 		else return false;
 	}
 	if(s[1]) {
 		x = s[1].split(/[x×]/);
-		expW = Number(x[0]);
-		expH = Number(x[1]);
-		if(stat === '<' && imgW < expW && imgH < expH ||
-			stat === '>' && imgW > expW && imgH > expH ||
-			stat === '=' && imgW === expW && imgH === expH)
+		expW = x[0].split('-');
+		expH = x[1].split('-');
+		if(!expW[1]) expW[1] = expW[0];
+		if(!expH[1]) expH[1] = expH[0];
+		if((stat === '<' && imgW < +expW[0] && imgH < +expH[0]) ||
+			(stat === '>' && imgW > +expW[0] && imgH > +expH[0]) ||
+			(stat === '=' && imgW >= +expW[0] && imgW <= +expW[1] && imgH >= +expH[0] && imgH <= +expH[1]))
 			return 'image ' + exp;
 	}
 	return false;
