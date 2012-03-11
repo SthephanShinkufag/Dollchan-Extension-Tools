@@ -1515,8 +1515,8 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
-		if(nav.Opera || (nav.Firefox && nav.Firefox < 4) || (!nav.Firefox && ch.fch)) {
+		if(ch.nul || +nav.Firefox < 4) {
+			if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 			$after($id('DESU_content'), [
 				$add('<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
@@ -1534,25 +1534,14 @@ function doPostformChanges() {
 /*------------------------------Onsubmit reply check-------------------------*/
 
 function XHRLoad(form, fn) {
-	if(nav.Firefox) {
-		GM_xmlhttpRequest({
-			method: form.method,
-			headers: {'Referer': ''+doc.location},
-			data: new FormData(form),
-			url: form.action,
-			onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
-			onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
-		});
-	} else {
-		var oXHR = new XMLHttpRequest();
-		oXHR.open(form.method, form.action, true);
-		oXHR.onload = function(oE) {  
-			if(oXHR.status == 200) fn(HTMLtoDOM(oXHR.responseText), form.action);
-			else { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + oXHR.statusText); }
-		};
-		oXHR.setRequestHeader('Referer', ''+doc.location)
-		oXHR.send(new FormData(form));
-	}
+	GM_xmlhttpRequest({
+		method: form.method,
+		headers: {'Referer': ''+doc.location},
+		data: new FormData(form),
+		url: form.action,
+		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
+		onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
+	});
 }
 
 function iframeLoad() {
