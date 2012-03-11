@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.11.4
+// @version			12.3.11.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -538,7 +538,7 @@ function readCfg() {
 	setStored('DESU_Config_' + dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
 	Stat = getStoredObj('DESU_Stat_' + dm, {view: 0, op: 0, reply: 0});
-	if(TNum) Stat.view = Number(Stat.view) + 1;
+	if(TNum) Stat.view = +Stat.view + 1;
 	setStored('DESU_Stat_' + dm, $uneval(Stat));
 	if(Cfg.ctime) parseTimePattern();
 	saveSpells(getStored('DESU_Spells_' + dm) || '');
@@ -566,14 +566,14 @@ function readPostsVisib() {
 			arr = data.split('-');
 			i = arr.length;
 			while((i -= 3) >= 0)
-				if(currTime < Number(arr[i + 2])) {
-					Visib[arr[i]] = Number(arr[i + 1]);
-					Expires[arr[i]] = Number(arr[i + 2]);
+				if(currTime < +arr[i + 2]) {
+					Visib[arr[i]] = +arr[i + 1];
+					Expires[arr[i]] = +arr[i + 2];
 				}
 		}
 	} else if(TNum) {
 		data = getStored('DESU_Posts_' + dm + '_' + TNum);
-		if(data) { i = data.length; while(i--) Visib[i] = Number(data[i]); }
+		if(data) { i = data.length; while(i--) Visib[i] = +data[i]; }
 	}
 	readHiddenThreads();
 	forAll(function(post) {
@@ -1448,8 +1448,8 @@ function doPostformChanges() {
 		if(Cfg.verify !== 0) $alert(Lng.checking, 'wait');
 		if(Cfg.addfav !== 0 && pr.tNum)
 			toggleFavorites(pByNum[pr.tNum], $x('a[@class="DESU_icn_favor"]', pByNum[pr.tNum].Btns));
-		if(pr.tNum) Stat.reply = Number(Stat.reply) + 1;
-		else Stat.op = Number(Stat.op) + 1;
+		if(pr.tNum) Stat.reply = +Stat.reply + 1;
+		else Stat.op = +Stat.op + 1;
 		setStored('DESU_Stat_' + dm, $uneval(Stat));
 		if(ch.nul && pr.isQuick) {
 			$disp(qArea);
@@ -1971,7 +1971,7 @@ function getPstCount(thrd) {
 		, thrd);
 	return $X('.//table[contains(@class," DESU_post")]'
 		+ '|.//div[contains(@class," DESU_post")]', thrd).snapshotLength + 1
-		+ (om && (om = om.textContent) && /\d+/.test(om) ? Number(om.match(/\d+/)[0]) : 0);
+		+ (om && (om = om.textContent) ? +(om.match(/\d+/) || [0])[0] : 0);
 }
 
 function getTitle(post) {
@@ -1997,7 +1997,7 @@ function getImgWeight(post) {
 		w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) w = w*1e3;
 	if(/\d[\s]*B/.test(inf)) w = (w/1e3).toFixed(2);
-	return Number(w);
+	return +w;
 }
 
 function getImgSize(post) {
@@ -2262,8 +2262,7 @@ function resizeImg(e) {
 }
 
 function addFullImg(a, sz, isExp) {
-	var newW = '', newH = '',
-		fullW = Number(sz[0]), fullH = Number(sz[1]),
+	var newW = '', newH = '', fullW = +sz[0], fullH = +sz[1],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		full = $x('.//img[@class="DESU_fullimg"]', a);
 	if(full && isExp || !full && isExp === false) return;
@@ -2683,7 +2682,7 @@ function infoNewPosts(err, del) {
 	if(Cfg.updthr === 1) {
 		if(isActiveTab) return;
 		old = doc.title.match(/^\[(\d+)\]/);
-		if(old) inf += Number(old[1]);
+		if(old) inf += +old[1];
 	}
 	if(Cfg.updfav !== 0 && favIcon) {
 		clearInterval(favIconInt);
@@ -2966,7 +2965,7 @@ function getSpells(x, post) {
 		inf = post.Count + 1;
 		for(i = 0; t = oSpells.skip[i++];) {
 			t = t.split('-');
-			if(inf >= Number(t[0]) && inf <= Number(t[1])) { post.noHide = true; return false; }
+			if(inf >= +t[0] && inf <= +t[1]) { post.noHide = true; return false; }
 		}
 	}
 	if(x.words[0]) {
@@ -3002,8 +3001,8 @@ function getSpells(x, post) {
 	if(post.Img.snapshotLength > 0) {
 		if(x.img[0]) {
 			sz = getImgSize(post);
-			imgW = Number(sz[0]);
-			imgH = Number(sz[1]);
+			imgW = +sz[0];
+			imgH = +sz[1];
 			imgK = getImgWeight(post);
 			for(i = 0; t = x.img[i++];) if(getImgSpell(imgW, imgH, imgK, t)) return '#img ' + t;
 		}
@@ -3018,7 +3017,7 @@ function getSpells(x, post) {
 		for(i = 0, inf = post.Count + 1; t = oSpells.num[i++];) {
 			_t = t;
 			t = t.split('-');
-			if(inf >= Number(t[0]) && inf <= Number(t[1])) return '#num ' + _t;
+			if(inf >= +t[0] && inf <= +t[1]) return '#num ' + _t;
 		}
 	if(x.tmax[0])
 		for(i = 0, inf = post.Text.replace(/\n/g, '').length; t = x.tmax[i++];)
@@ -3381,7 +3380,7 @@ function initBoard() {
 	brd = url[1] || (ch.dfwk ? 'df' : '');
 	res = ch.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
-	pageNum = url[3] && !TNum ? Number(url[3]) || 0 : 0;
+	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	docExt = url[4] || (ch.gazo ? '.htm' : '.html');
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
