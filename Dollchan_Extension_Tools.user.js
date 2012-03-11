@@ -80,7 +80,8 @@ var defaultCfg = {
 	nopass:		1,		// hide password field
 	mask:		0,		// mask images
 	texw:		530,	// textarea width
-	texh:		140		// textarea height
+	texh:		140,	// textarea height
+	mImages:	0		// add random byte into image
 },
 
 LngArray = {
@@ -252,7 +253,8 @@ LngArray = {
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cTimeOffset:	[' Разница во времени', ' Time difference'],
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
-	succDeleted:	['Пост удалён', 'Post deleted']
+	succDeleted:	['Пост удалён', 'Post deleted'],
+	mImages:    ['Добавлять случайный байт в изображение', 'Add random byte into image']
 },
 
 doc = document,
@@ -923,6 +925,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
+		$if(nav.Firefox && nav.Firefox > 4, divBox('mImages', Lng.mImages)),
 		divBox('addfav', Lng.addToFav),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
@@ -1516,8 +1519,8 @@ function doPostformChanges() {
 	}
 	if(Cfg.verify !== 0) {
 		if(nav.Firefox && nav.Firefox >= 4 && !ch.nul) {
-			pr.form.onsubmit = function(e) { $pD(e); XHRLoad(pr.form, checkUpload); };
-			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
+			pr.form.onsubmit = function(e) { $pD(e); prepareData(function(fd) {XHRLoad(pr.form, fd, checkUpload)}); };
+			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, new FormData(dForm), checkDeleted); };
 		} else {
 			if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
@@ -1533,11 +1536,11 @@ function doPostformChanges() {
 
 /*------------------------------Onsubmit reply check-------------------------*/
 
-function XHRLoad(form, fn) {
+function XHRLoad(form, fd, fn) {
 	GM_xmlhttpRequest({
 		method: form.method,
 		headers: {'Referer': '' + doc.location},
-		data: new FormData(form),
+		data: fd,
 		url: form.action,
 		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
 		onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
@@ -1595,6 +1598,32 @@ function checkDeleted(dc) {
 	//TODO: проверка - удалён ли пост или нет
 	$close($id('DESU_alert_wait'));
 	$alert(Lng.succDeleted);
+}
+
+function prepareData(fn) {
+	if(!Cfg.mImages) { fn(new FormData(pr.form)); return; }
+	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
+		cb = function() { if(done && ready === rNeeded) fn(fd);};
+	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
+		if(el.type === 'file') {
+			prepareFiles(el, function(blob) {fd.append(el.name, blob); ready++; cb();});
+			rNeeded++;
+		} else fd.append(el.name, el.value);
+	});
+	done = true;
+	cb();
+}
+
+function prepareFiles(el, fn) {
+	var oFReader = new FileReader();
+	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
+	oFReader.readAsArrayBuffer(pr.file.files[0]);
+	oFReader.onload = function(e) {
+		var bb = new MozBlobBuilder();
+		bb.append(e.target.result);
+		bb.append(String(Math.round(Math.random() * 1000)));
+		fn(bb.getBlob(pr.file.files[0].type));
+	};
 }
 
 /*-----------------------------Quick Reply under post------------------------*/
