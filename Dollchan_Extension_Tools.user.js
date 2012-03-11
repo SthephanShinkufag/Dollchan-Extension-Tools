@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.11.3
+// @version			12.3.11.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -529,8 +529,11 @@ function readCfg() {
 	Cfg.version = defaultCfg.version;
 	for(key in defaultCfg) if(Cfg[key] === undefined) Cfg[key] = defaultCfg[key];
 	if(global) fixGlobalCfg();
+	if(!abu) Cfg.noscrl = 0;
 	if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 	if(nav.Chrome) Cfg.updfav = 0;
+	if(nav.Opera) Cfg.ytitle = 0;
+	if(nav.Firefox < 7) Cfg.rndimg = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
