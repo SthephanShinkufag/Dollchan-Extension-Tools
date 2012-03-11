@@ -803,7 +803,8 @@ function addSettings() {
 		},
 		inpTxt = function(name, size, fn) {
 			return $new('input', {
-				type: 'text', id: 'DESU_' + name, size: size, value: Cfg[name]}, {keyup: function() {
+				type: 'text', id: 'DESU_' + name, size: size, value: Cfg[name]}, {
+				keyup: function() {
 					saveCfg(name, $id('DESU_' + name).value.replace(/\|/g, ''));
 					if(fn) fn(); 
 				}
@@ -1213,7 +1214,10 @@ function $close(el) {
 	if(!el) return;
 	if(Cfg.animp === 0) $del(el);
 	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
-		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function(){$del(el)}, false);
+		el.addEventListener(
+			nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+			function(){ $del(el); }
+		, false);
 		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
 	} else {
 		i = 8;
@@ -1382,11 +1386,11 @@ function doChanges() {
 			}
 		});
 		initPostsUpdate();
-		if(Cfg.updthr === 2 || Cfg.updthr === 3) $after($x('.//div[contains(@class," DESU_thread")]'), [
-			$add('<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
+		if(Cfg.updthr === 2 || Cfg.updthr === 3)
+			$after($x('.//div[contains(@class," DESU_thread")]'), [$add(
+				'<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
 				click: function(e) { $pD(e); loadNewPosts(true); }
-			})
-		]);
+			})]);
 	} else window.scrollTo(0, 0);
 	if(abu) {
 		$Del('.//*[starts-with(@id,"ABU_")]|.//small[starts-with(@id,"rfmap")]', dForm);
@@ -1522,8 +1526,15 @@ function doPostformChanges() {
 	}
 	if(Cfg.verify !== 0) {
 		if(nav.Firefox > 3 && !ch.nul) {
-			pr.form.onsubmit = function(e) { $pD(e); prepareData(function(fd) {XHRLoad(pr.form, fd, checkUpload)}); };
-			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, new FormData(dForm), checkDeleted); };
+			pr.form.onsubmit = function(e) {
+				$pD(e);
+				prepareData(function(fd) { XHRLoad(pr.form, fd, checkUpload); });
+			};
+			dForm.onsubmit = function(e) {
+				$pD(e);
+				$alert(Lng.loading, 'wait');
+				XHRLoad(dForm, new FormData(dForm), checkDeleted);
+			};
 		} else {
 			if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
@@ -1542,11 +1553,14 @@ function doPostformChanges() {
 function XHRLoad(form, fd, fn) {
 	GM_xmlhttpRequest({
 		method: form.method,
-		headers: {'Referer': '' + doc.location},
+		headers: {Referer: '' + doc.location},
 		data: fd,
 		url: form.action,
 		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
-		onerror: function(res) { $close($id('DESU_alert_wait')); $alert('XHR error:\n' + res.statusText); }
+		onerror: function(res) {
+			$close($id('DESU_alert_wait'));
+			$alert('XHR error:\n' + res.statusText);
+		}
 	});
 }
 
@@ -1559,7 +1573,8 @@ function iframeLoad() {
 }
 
 function checkUpload(dc, url) {
-	var xp, err, tNum, txt = '', pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5];
+	var xp, err, tNum, txt = '',
+		pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5];
 	if(hanab && /error/.test(pathname)) xp = './/td[@class="post-error"]';
 	if(ch.krau && pathname === '/post') xp = './/td[starts-with(@class,"message_text")]';
 	if(abu && !dc.getElementById('delform')) xp = './/font[@size="5"]';
@@ -1581,7 +1596,6 @@ function checkUpload(dc, url) {
 		pr.txta.value = '';
 		if(pr.file) pr.file = $x('.//input[@type="file"]',
 			$html($x(pr.tr, pr.file), $x(pr.tr, pr.file).innerHTML));
-		
 		if(pr.tNum) {
 			tNum = pr.tNum;
 			showMainReply();
@@ -1606,10 +1620,10 @@ function checkDeleted(dc) {
 function prepareData(fn) {
 	if(!Cfg.rndimg) { fn(new FormData(pr.form)); return; }
 	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
-		cb = function() { if(done && ready === rNeeded) fn(fd);};
+		cb = function() { if(done && ready === rNeeded) fn(fd); };
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
 		if(el.type === 'file') {
-			prepareFiles(el, function(blob) {fd.append(el.name, blob); ready++; cb();});
+			prepareFiles(el, function(blob) { fd.append(el.name, blob); ready++; cb(); });
 			rNeeded++;
 		} else fd.append(el.name, el.value);
 	});
@@ -1985,7 +1999,8 @@ function getImages(post) {
 }
 
 function getText(el) {
-	return el.innerText || el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+	return el.innerText || el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(
+		/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
 }
 
 function getImgInfo(post) {
@@ -2167,7 +2182,8 @@ function addLinkTube(post) {
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(xPostMsg, pst);
-			if(ch.krau) $before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
+			if(ch.krau)
+				$before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
 			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
@@ -2178,14 +2194,18 @@ function addLinkTube(post) {
 			url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1]
 				+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
 			onload: function(xhr) {
-				try { link.textContent = JSON.parse(xhr.responseText).entry.title.$t; filterTextTube(pst, link.textContent); } catch(e) {};
+				try {
+					link.textContent = JSON.parse(xhr.responseText).entry.title.$t;
+					filterTextTube(pst, link.textContent);
+				} catch(e) {};
 			}
 		});
 	}, true);
 }
 
 function filterTextTube(post, text) {
-	var fHide = (function(a){if(a) return hidePost; else return function(b,c){}})(Cfg.spells === 1), i = 0, t, post;
+	var i = 0, t, post,
+		fHide = (function(a){if(a) return hidePost; else return function(b,c){}})(Cfg.spells === 1);
 	for(;t = oSpells.video[i++];)
 		if(strToRegexp(t).test(text)) {
 			fHide(post, '#video ' + t);
@@ -2465,9 +2485,10 @@ function showPostPreview(e) {
 		if(post.Vis === 0) togglePost(pView);
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
-		AJAX(null, b, tNum, function(err) {
-			funcPostPreview(ajaxPosts[pNum] ? $din(ajaxPosts[pNum]) : false, parentId, err || Lng.postNotFound);
-		});
+		AJAX(null, b, tNum, function(err) { funcPostPreview(
+			ajaxPosts[pNum] ? $din(ajaxPosts[pNum]) : false,
+			parentId, err || Lng.postNotFound
+		)});
 	}
 	$del($id(pView.id));
 	dForm.appendChild(pView);
@@ -2494,7 +2515,8 @@ function parseHTMLdata(html) {
 		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
-	if(hanab) html = '<html><head></head><body><div class=" DESU_thread">' + html + '</div></body></html>';
+	if(hanab)
+		html = '<html><head></head><body><div class=" DESU_thread">' + html + '</div></body></html>';
 	aD = HTMLtoDOM(html);
 	parseDelform($x(!hanab ? xDelForm : false, aD, aD), aD);
 	$each($X('.//div[contains(@class," DESU_thread")]', aD, aD), function(thrd) {
@@ -2647,7 +2669,7 @@ function getDelPosts(err) {
 	var del = 0;
 	if(err) return false;
 	forAll(function(post) {
-		if(ajaxThrds[TNum].keys.indexOf(post.Num) === -1) {
+		if(ajaxThrds[TNum].keys.indexOf(post.Num) < 0) {
 			if(!post.isDel) { post.Btns.className += '_del'; post.isDel = true; }
 			del++;
 		}
@@ -2656,7 +2678,8 @@ function getDelPosts(err) {
 }
 
 function setUpdButtonState(state) {
-	if(TNum && Cfg.updthr !== 3) $x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+	if(TNum && Cfg.updthr !== 3)
+		x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
 }
 
 function endPostsUpdate() {
@@ -2940,7 +2963,9 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 	expK = s[0].substr(1).split('-');
 	if(!expK[1]) expK[1] = expK[0];
 	if(expK[0] !== '') {
-		if((stat === '<' && imgK < +expK[0]) || (stat === '>' && imgK > +expK[0]) || (stat === '=' && imgK >= +expK[0] && imgK <= +expK[1]))
+		if((stat === '<' && imgK < +expK[0])
+			|| (stat === '>' && imgK > +expK[0])
+			|| (stat === '=' && imgK >= +expK[0] && imgK <= +expK[1]))
 			{ if(!s[1]) return 'image ' + exp; }
 		else return false;
 	}
@@ -2952,7 +2977,8 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 		if(!expH[1]) expH[1] = expH[0];
 		if((stat === '<' && imgW < +expW[0] && imgH < +expH[0]) ||
 			(stat === '>' && imgW > +expW[0] && imgH > +expH[0]) ||
-			(stat === '=' && imgW >= +expW[0] && imgW <= +expW[1] && imgH >= +expH[0] && imgH <= +expH[1]))
+			(stat === '=' && imgW >= +expW[0] && imgW <= +expW[1]
+				&& imgH >= +expH[0] && imgH <= +expH[1]))
 			return 'image ' + exp;
 	}
 	return false;
@@ -3447,8 +3473,8 @@ function parseDelform(node, dc) {
 	if(threads.snapshotLength === 0) {
 		$each($X('.//hr/preceding-sibling::' + br, node, dc), function(el) {
 			var thr = $new('div', {Class: 'thread'}, {}, dc);
-			$each($X('preceding-sibling::node()[not(self::div[@class="thread"] or self::hr '
-				+ 'or self::' + br + ')]', el, dc), function(el) { thr.appendChild(el); }, nav.Firefox);
+			$each($X('preceding-sibling::node()[not(self::div[@class="thread"] or self::hr or self::'
+				+ br + ')]', el, dc), function(el) { thr.appendChild(el); }, nav.Firefox);
 			$before(el, [thr]);
 		}, true);
 		threads = $X('.//div[@class="thread"]', node, dc);
