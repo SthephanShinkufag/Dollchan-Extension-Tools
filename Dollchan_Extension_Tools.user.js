@@ -2679,7 +2679,7 @@ function getDelPosts(err) {
 
 function setUpdButtonState(state) {
 	if(TNum && Cfg.updthr !== 3)
-		x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+		$x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
 }
 
 function endPostsUpdate() {
