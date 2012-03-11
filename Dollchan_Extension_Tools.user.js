@@ -925,7 +925,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
-		$if(nav.Firefox && nav.Firefox > 4, divBox('mImages', Lng.mImages)),
+		$if(nav.Firefox && nav.Firefox >= 7, divBox('mImages', Lng.mImages)),
 		divBox('addfav', Lng.addToFav),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
