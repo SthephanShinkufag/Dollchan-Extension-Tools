@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.11.1
+// @version			12.3.11.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -81,7 +81,7 @@ var defaultCfg = {
 	mask:		0,		// mask images
 	texw:		530,	// textarea width
 	texh:		140,	// textarea height
-	mImages:	0		// add random byte into image
+	rndimg:		0		// add random byte into image
 },
 
 LngArray = {
@@ -253,8 +253,8 @@ LngArray = {
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cTimeOffset:	[' Разница во времени', ' Time difference'],
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
-	succDeleted:	['Пост удалён', 'Post deleted'],
-	mImages:    ['Добавлять случайный байт в изображение', 'Add random byte into image']
+	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
+	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image']
 },
 
 doc = document,
@@ -925,7 +925,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
-		$if(nav.Firefox && nav.Firefox >= 7, divBox('mImages', Lng.mImages)),
+		$if(nav.Firefox > 6, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
@@ -1190,9 +1190,9 @@ function addFavoritesTable() {
 function $show(el) {
 	var i, showing;
 	if(Cfg.animp === 0) el.style.opacity = 1;
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
+	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4))
 		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
-	} else {
+	else {
 		i = 0;
 		showing = setInterval(function() {
 			var s;
@@ -1518,7 +1518,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(nav.Firefox && nav.Firefox >= 4 && !ch.nul) {
+		if(nav.Firefox > 3 && !ch.nul) {
 			pr.form.onsubmit = function(e) { $pD(e); prepareData(function(fd) {XHRLoad(pr.form, fd, checkUpload)}); };
 			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, new FormData(dForm), checkDeleted); };
 		} else {
@@ -1601,7 +1601,7 @@ function checkDeleted(dc) {
 }
 
 function prepareData(fn) {
-	if(!Cfg.mImages) { fn(new FormData(pr.form)); return; }
+	if(!Cfg.rndimg) { fn(new FormData(pr.form)); return; }
 	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
 		cb = function() { if(done && ready === rNeeded) fn(fd);};
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
@@ -1801,7 +1801,7 @@ function scriptCSS() {
 	var x = [],
 		gif = function(nm, src) { x.push(nm + ' {background:url(data:image/gif;base64,' + src + ') no-repeat center !important}') },
 		pre = 'background:' + (Cfg.sstyle === 0 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)' : '#777') + '; ',
-		brCssFix = !nav.Firefox || nav.Firefox < 4 ? cssFix : '';
+		brCssFix = nav.Firefox > 3 ? '' : cssFix;
 	x.push(
 		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px arial; cursor:default}\
 		#DESU_alertbox > div {float:right; clear:both; width:auto; min-width:0pt; padding:10px; margin:1px; border:1px solid grey; white-space:pre-wrap}\
@@ -3357,22 +3357,24 @@ function initBoard() {
 	fixGM();
 	ua = window.navigator.userAgent;
 	nav = {
-		Firefox: (ua.match(/(?:firefox|minefield|icecat)\/(\d+)/i) || [])[1],
+		Firefox: +(ua.match(/(?:firefox|minefield|icecat)\/(\d+)/i) || [0, 0])[1],
 		Opera: /opera/i.test(ua),
 		Chrome: /chrome/i.test(ua)
 	};
+	alert(uneval(nav));
 	gs = nav.Firefox && typeof GM_setValue === 'function';
-	ss = nav.Opera && scriptStorage != null;
+	ss = nav.Opera && !!scriptStorage;
 	ls = 'localStorage' in window && typeof localStorage === 'object';
 	se = 'sessionStorage' in window && (sessionStorage.test = 1) === 1;
 	sav = {
-		GM: gs,
+		GM: !!gs,
 		script: ss,
 		local: ls,
 		cookie: !ls && !ss && !gs,
 		session: se,
 		isGlobal: gs || ss
 	};
+	alert(uneval(sav));
 	url = (window.location.pathname || '').match(
 		/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index|wakaba)?(\.[xme]*html?)?$/);
 	brd = url[1] || (ch.dfwk ? 'df' : '');
