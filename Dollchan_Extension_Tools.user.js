@@ -1615,9 +1615,9 @@ function prepareData(fn) {
 }
 
 function prepareFiles(el, fn) {
-	var oFReader = new FileReader();
-	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(pr.file.files[0].type)) { fn(pr.file.files[0]); return; }
-	oFReader.readAsArrayBuffer(pr.file.files[0]);
+	var oFReader = new FileReader(), file = el.files[0];
+	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
+	oFReader.readAsArrayBuffer(file);
 	oFReader.onload = function(e) {
 		var bb = new MozBlobBuilder();
 		bb.append(e.target.result);
