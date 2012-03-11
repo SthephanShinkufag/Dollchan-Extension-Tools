@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.10.3
+// @version			12.3.11.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-10',
+	version:	'2012-03-11',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -1515,7 +1515,10 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(ch.nul || +nav.Firefox < 4) {
+		if(nav.Firefox && nav.Firefox >= 4 && !ch.nul) {
+			pr.form.onsubmit = function(e) { $pD(e); XHRLoad(pr.form, checkUpload); };
+			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
+		} else {
 			if(ch.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
 			$after($id('DESU_content'), [
@@ -1524,9 +1527,6 @@ function doPostformChanges() {
 				})
 			]);
 			$rattr($attr(pr.form, {target: 'DESU_iframe'}), 'onsubmit');
-		} else {
-			pr.form.onsubmit = function(e) { $pD(e); XHRLoad(pr.form, checkUpload); };
-			dForm.onsubmit = function(e) { $pD(e); $alert(Lng.loading, 'wait'); XHRLoad(dForm, checkDeleted); };
 		}
 	}
 }
@@ -1536,7 +1536,7 @@ function doPostformChanges() {
 function XHRLoad(form, fn) {
 	GM_xmlhttpRequest({
 		method: form.method,
-		headers: {'Referer': ''+doc.location},
+		headers: {'Referer': '' + doc.location},
 		data: new FormData(form),
 		url: form.action,
 		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
@@ -1548,7 +1548,7 @@ function iframeLoad() {
 	var frm = $id('DESU_iframe');
 	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
 	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe error:\n' + e); return; }
-	checkUpload(frm, frm.location);
+	checkUpload(frm, '' + frm.location);
 	frm.location.replace('about:blank');
 }
 
