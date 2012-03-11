@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.11.2
+// @version			12.3.11.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3361,7 +3361,6 @@ function initBoard() {
 		Opera: /opera/i.test(ua),
 		Chrome: /chrome/i.test(ua)
 	};
-	alert(uneval(nav));
 	gs = nav.Firefox && typeof GM_setValue === 'function';
 	ss = nav.Opera && !!scriptStorage;
 	ls = 'localStorage' in window && typeof localStorage === 'object';
@@ -3374,7 +3373,6 @@ function initBoard() {
 		session: se,
 		isGlobal: gs || ss
 	};
-	alert(uneval(sav));
 	url = (window.location.pathname || '').match(
 		/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index|wakaba)?(\.[xme]*html?)?$/);
 	brd = url[1] || (ch.dfwk ? 'df' : '');
