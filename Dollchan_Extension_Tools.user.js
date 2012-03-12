@@ -1325,9 +1325,9 @@ function selectAjaxPages() {
 
 function initKeyNavig() {
 	(pr.name || []).onfocus = (pr.subj || []).onfocus = pr.txta.onfocus = (pr.mail || []).onfocus =
-		pr.passw.onfocus = pr.cap.onfocus = function() {kIgnore = true;};
+		(pr.passw || []).onfocus = pr.cap.onfocus = function() {kIgnore = true;};
 	(pr.name || []).onblur = (pr.subj || []).onblur = (pr.mail || []).onblur = pr.txta.onblur =
-		pr.passw.onblur = pr.cap.onblur = function() {kIgnore = false;};
+		(pr.passw || []).onblur = pr.cap.onblur = function() {kIgnore = false;};
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
 	document.onkeydown = function (e) {
 		if(window.event) e = window.event;
@@ -1345,15 +1345,13 @@ function initKeyNavig() {
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
 			else {
-				if(--cTIndex >= 0) scrollToPost(tByCnt[cTIndex], true, true);
-				else cTIndex++;
+				scrollToPost(tByCnt[cTIndex = cTIndex < 0 ? 0 : cTIndex - 1], true, true);
 				scrollT = true;
 			}
 		} else if(kc === 75) {
 			if(TNum) scrollDownToPost();
 			else {
-				if(++cTIndex < tByCnt.length) scrollToPost(tByCnt[cTIndex], true, true);
-				else cTIndex--;
+				scrollToPost(tByCnt[cTIndex = cTIndex >= tByCnt.length - 1 ? tByCnt.length - 1 : cTIndex + 1], true, true);
 				scrollT = true;
 			}
 		} else if(!TNum && kc === 78) scrollUpToPost();
@@ -1368,14 +1366,13 @@ function findCurrPost(posts) {
 }
 
 function scrollDownToPost() {
-	if(++cPIndex < pByCnt.length) scrollToPost(pByCnt[cPIndex], pByCnt[cPIndex].isOP || pByCnt[cPIndex].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex].clientHeight / 2, false);
-	else cPIndex--;
+	scrollToPost(pByCnt[cPIndex = cPIndex >= pByCnt.length - 1 ? pByCnt.length - 1 : cPIndex + 1],
+		pByCnt[cPIndex].isOP || pByCnt[cPIndex].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex].clientHeight / 2, false);
 	scrollP = true;
 }
 
 function scrollUpToPost() {
-	if(--cPIndex >= 0) scrollToPost(pByCnt[cPIndex], true, false);
-	else cPIndex++;
+	scrollToPost(pByCnt[cPIndex = cPIndex < 0 ? 0 : cPIndex - 1], true, false);
 	scrollP = true;
 }
 
