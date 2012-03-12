@@ -1331,13 +1331,11 @@ function initKeyNavig() {
 		});
 	}, eT, oAm = function(e) {
 		if(eT) clearTimeout(eT);
-		eT = setTimeout(addEvents, 500);
+		eT = setTimeout(addEvents, 200);
 	};
 	if(ch.nul) {
-		if(!nav.Chrome) {
-			if(pr.form.addEventListener) pr.form.addEventListener('DOMAttrModified', oAm, false);
-			if(pr.form.attachEvent) pr.form.attachEvent('onpropertychange', oAm);
-		} else setTimeout(addEvents, 3000);
+		if(nav.Opera) pr.form.attachEvent('onpropertychange', oAm);
+		else pr.form.addEventListener('DOMSubtreeModified', oAm, false);
 	} else addEvents();
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
 	document.onkeydown = function (e) {
