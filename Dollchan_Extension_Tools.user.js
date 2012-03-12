@@ -3379,14 +3379,14 @@ function replyForm(f) {
 	this.mail = $x(pre + (
 		ch._410 ? '@name="sage"]'
 		: ch.futr ? '@name="denshimeru"]'
-		: '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
+		: '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump" or @name="nya2")]'
 	), f);
-	this.theme = $x(pre + '(@name="nya3")]', f); //TODO: find theme-field in all boards
+	this.subj = $x(pre + '(@name="kasumi" or @name="nya3" or @name="internal_s" or @name="subject" or @name="field3" or @name="sub")]', f);
 	if(Cfg.keyNavig) {
 		this.txta.onfocus = this.cap.onfocus = this.passw.onfocus = (this.name || []).onfocus =
-			this.mail.onfocus = this.theme.onfocus = function() {kIgnore = true;}
+			this.mail.onfocus = (this.subj || []).onfocus = function() {kIgnore = true;}
 		this.txta.onblur = this.cap.onblur = this.passw.onblur = (this.name || []).onblur =
-			this.mail.onblur = this.theme.onblur = function() {kIgnore = false;}
+			this.mail.onblur = (this.subj || []).onblur = function() {kIgnore = false;}
 	}
 }
 
