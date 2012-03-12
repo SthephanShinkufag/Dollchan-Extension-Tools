@@ -1324,10 +1324,21 @@ function selectAjaxPages() {
 /*---------------------------Init navigation with keyboard-------------------*/
 
 function initKeyNavig() {
-	$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
-		el.onfocus = function() {kIgnore = true;};
-		el.onblur = function() {kIgnore = false;};
-	});
+	var to, addEvents = function() {
+		$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
+			el.onfocus = function() {kIgnore = true;};
+			el.onblur = function() {kIgnore = false;};
+		});
+	}, eT, oAm = function(e) {
+		if(eT) clearTimeout(eT);
+		eT = setTimeout(addEvents, 500);
+	};
+	if(ch.nul) {
+		if(!nav.Chrome) {
+			if(pr.form.addEventListener) pr.form.addEventListener('DOMAttrModified', oAm, false);
+			if(pr.form.attachEvent) pr.form.attachEvent('onpropertychange', oAm);
+		} else setTimeout(addEvents, 3000);
+	} else addEvents();
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
 	document.onkeydown = function (e) {
 		if(window.event) e = window.event;
