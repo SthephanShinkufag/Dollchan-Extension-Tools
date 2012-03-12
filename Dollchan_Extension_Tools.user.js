@@ -1324,10 +1324,10 @@ function selectAjaxPages() {
 /*---------------------------Init navigation with keyboard-------------------*/
 
 function initKeyNavig() {
-	(pr.name || []).onfocus = (pr.subj || []).onfocus = pr.txta.onfocus = (pr.mail || []).onfocus =
-		(pr.passw || []).onfocus = pr.cap.onfocus = function() {kIgnore = true;};
-	(pr.name || []).onblur = (pr.subj || []).onblur = (pr.mail || []).onblur = pr.txta.onblur =
-		(pr.passw || []).onblur = pr.cap.onblur = function() {kIgnore = false;};
+	$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
+		el.onfocus = function() {kIgnore = true;};
+		el.onblur = function() {kIgnore = false;};
+	});
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
 	document.onkeydown = function (e) {
 		if(window.event) e = window.event;
