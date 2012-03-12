@@ -256,7 +256,7 @@ LngArray = {
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
-	keyNavig:		['Навигация с помощью клавиатуры', 'Navigation with keyboard']
+	keyNavig:		['Навигация с помощью клавиатуры*', 'Navigation with keyboard*']
 },
 
 doc = document,
@@ -1932,7 +1932,7 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}to{opacity:1;}}\
 		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}\
-		.DESU_selected { box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }'
+		.DESU_selected { ' + brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }'
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
