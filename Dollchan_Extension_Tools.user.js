@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.11.6
+// @version			12.3.13.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-11',
+	version:	'2012-03-13',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -3467,8 +3467,8 @@ function initBoard() {
 	fixGM();
 	ua = window.navigator.userAgent;
 	nav = {
-		Firefox: +(ua.match(/(?:firefox|minefield|icecat)\/(\d+)/i) || [0, 0])[1],
-		Opera: (ua.match(/(?:opera)\/([\d.]+)/i) || [0, 0])[1],
+		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1],
+		Opera: +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1],
 		Chrome: /chrome/i.test(ua)
 	};
 	gs = nav.Firefox && typeof GM_setValue === 'function';
