@@ -1334,7 +1334,7 @@ function initKeyNavig() {
 		eT = setTimeout(addEvents, 200);
 	};
 	if(ch.nul) {
-		if(nav.Opera) pr.form.attachEvent('onpropertychange', oAm);
+		if(nav.Opera) pr.form.addEventListener('DOMAttrModified', oAm, false);
 		else pr.form.addEventListener('DOMSubtreeModified', oAm, false);
 	} else addEvents();
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
