@@ -537,6 +537,7 @@ function readCfg() {
 	if(nav.Chrome) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
 	if(nav.Firefox < 7) Cfg.rndimg = 0;
+	if(ch.nul && nav.Opera > 0 && nav.Opera < 10) Cfg.keyNavig = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
@@ -934,7 +935,7 @@ function addSettings() {
 		divBox('verify', Lng.replyCheck),
 		$if(nav.Firefox > 6, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
-		divBox('keyNavig', Lng.keyNavig),
+		$if(!ch.nul || (ch.nul && (!nav.Opera || nav.Opera >= 10)), divBox('keyNavig', Lng.keyNavig)),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm),
@@ -1941,8 +1942,9 @@ function scriptCSS() {
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}\
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}to{opacity:1;}}\
-		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}\
-		.DESU_selected { ' + brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }'
+		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}' +
+		(false && (!nav.Opera || nav.Opera > 9) ? '.DESU_selected { ' + brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }' :
+		'.DESU_selected { border-left:4px solid red;  border-right:4px solid red; }')
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
@@ -3465,7 +3467,7 @@ function initBoard() {
 	ua = window.navigator.userAgent;
 	nav = {
 		Firefox: +(ua.match(/(?:firefox|minefield|icecat)\/(\d+)/i) || [0, 0])[1],
-		Opera: /opera/i.test(ua),
+		Opera: (ua.match(/(?:opera)\/([\d.]+)/i) || [0, 0])[1],
 		Chrome: /chrome/i.test(ua)
 	};
 	gs = nav.Firefox && typeof GM_setValue === 'function';
