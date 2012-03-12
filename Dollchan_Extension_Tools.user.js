@@ -1377,9 +1377,10 @@ function scrollUpToPost() {
 
 function scrollToPost(post) {
 	var thr, to = post.isOp ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
-	window.scrollTo(0, to);
-	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
 	if(post.isOp) post = getThread(post);
+	else if(post.getBoundingClientRect().top < window.innerHeight / 2 - post.clientHeight / 2) to = null;
+	if(to !== null) window.scrollTo(0, to);
+	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
 	post.sel = true;
 	post.oldClassName = post.className;
 	post.className += ' DESU_selected';
