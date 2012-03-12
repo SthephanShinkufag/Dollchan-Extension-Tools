@@ -1330,13 +1330,13 @@ function initKeyNavig() {
 		var kc = e.keyCode;
 		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey || (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
 		$pD(e);
+		if(scrollT) { cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt); scrollT = false; }
+		if(scrollP) { cTIndex = !scrollT && (pByCnt[cPIndex] || []).isOp ? tByCnt.indexOf(pByCnt[cPIndex]) : findCurrPost(tByCnt); scrollP = false; }
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
 			else window.open(getThrdUrl(host, brd, tByCnt[cTIndex].Num), '_blank');
 			return;
 		}
-		if(scrollT) { cPIndex = findCurrPost(pByCnt); scrollT = false; }
-		if(scrollP) { cTIndex = findCurrPost(tByCnt); scrollP = false; }
 		scrScroll = true;
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
@@ -1357,10 +1357,10 @@ function initKeyNavig() {
 	};
 }
 
-function findCurrPost(posts, offset) {
+function findCurrPost(posts) {
 	var i, scrolled = window.pageYOffset;
 	for(i = 0; i < posts.length; i++) if($offset(posts[i]).top > scrolled) break;
-	return --i;
+	return i === 0 ? 0 : i - 1;
 }
 
 function scrollDownToPost() {
