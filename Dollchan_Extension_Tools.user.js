@@ -1334,7 +1334,7 @@ function initKeyNavig() {
 		if(scrollP) { cTIndex = (pByCnt[cPIndex] || []).isOp ? tByCnt.indexOf(pByCnt[cPIndex]) : findCurrPost(tByCnt); scrollP = false; }
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
-			else window.open(getThrdUrl(host, brd, tByCnt[cTIndex].Num), '_blank');
+			else window.open(getThrdUrl(host, brd, tByCnt[cTIndex < 0 ? 0 : cTIndex].Num), '_blank');
 			return;
 		}
 		scrScroll = true;
@@ -1360,7 +1360,7 @@ function initKeyNavig() {
 function findCurrPost(posts) {
 	var i, scrolled = window.pageYOffset;
 	for(i = 0; i < posts.length; i++) if($offset(posts[i]).top > scrolled) break;
-	return i === 0 ? 0 : i - 1;
+	return i - 1;
 }
 
 function scrollDownToPost() {
