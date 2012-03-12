@@ -1943,7 +1943,7 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}to{opacity:1;}}\
 		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}' +
-		(false && (!nav.Opera || nav.Opera > 9) ? '.DESU_selected { ' + brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }' :
+		(!nav.Opera || nav.Opera >= 10 ? '.DESU_selected { ' + brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }' :
 		'.DESU_selected { border-left:4px solid red;  border-right:4px solid red; }')
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
