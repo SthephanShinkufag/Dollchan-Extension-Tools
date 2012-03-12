@@ -1393,7 +1393,7 @@ function scrollToPost(posts, idx, up, scroll, toTop) {
 	post.sel = true;
 	post.oldClassName = post.className;
 	post.className += ' DESU_selected';
-	return idx;
+	return mIdx;
 }
 
 /*-------------------------------Changes in postform-------------------------*/
