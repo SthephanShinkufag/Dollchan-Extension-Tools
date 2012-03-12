@@ -1324,6 +1324,10 @@ function selectAjaxPages() {
 /*---------------------------Init navigation with keyboard-------------------*/
 
 function initKeyNavig() {
+	(pr.name || []).onfocus = (pr.subj || []).onfocus = pr.txta.onfocus = (pr.mail || []).onfocus =
+		pr.passw.onfocus = pr.cap.onfocus = function() { GM_log('focus'); kIgnore = true;};
+	(pr.name || []).onblur = (pr.subj || []).onblur = (pr.mail || []).onblur = pr.txta.onblur =
+		pr.passw.onblur = pr.cap.onblur = function() { GM_log('blur'); kIgnore = false;};
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
 	document.onkeydown = function (e) {
 		if(window.event) e = window.event;
@@ -3379,15 +3383,9 @@ function replyForm(f) {
 	this.mail = $x(pre + (
 		ch._410 ? '@name="sage"]'
 		: ch.futr ? '@name="denshimeru"]'
-		: '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump" or @name="nya2")]'
+		: '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
 	), f);
 	this.subj = $x(pre + '(@name="kasumi" or @name="nya3" or @name="internal_s" or @name="subject" or @name="field3" or @name="sub")]', f);
-	if(Cfg.keyNavig) {
-		this.txta.onfocus = this.cap.onfocus = this.passw.onfocus = (this.name || []).onfocus =
-			this.mail.onfocus = (this.subj || []).onfocus = function() {kIgnore = true;}
-		this.txta.onblur = this.cap.onblur = this.passw.onblur = (this.name || []).onblur =
-			this.mail.onblur = (this.subj || []).onblur = function() {kIgnore = false;}
-	}
 }
 
 function getThrdUrl(h, b, tNum) {
