@@ -1360,7 +1360,7 @@ function initKeyNavig() {
 function findCurrPost(posts, offset) {
 	var i, scrolled = window.pageYOffset;
 	for(i = 0; i < posts.length; i++) if($offset(posts[i]).top > scrolled) break;
-	return i;
+	return --i;
 }
 
 function scrollDownToPost() {
