@@ -1341,14 +1341,14 @@ function initKeyNavig() {
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
 			else {
-				if(--cTIndex >= 0) scrollToPost(tByCnt[cTIndex]);
+				if(--cTIndex >= 0) scrollToPost(tByCnt[cTIndex], true);
 				else cTIndex++;
 				scrollT = true;
 			}
 		} else if(kc === 75) {
 			if(TNum) scrollDownToPost();
 			else {
-				if(++cTIndex < tByCnt.length) scrollToPost(tByCnt[cTIndex]);
+				if(++cTIndex < tByCnt.length) scrollToPost(tByCnt[cTIndex], true);
 				else cTIndex--;
 				scrollT = true;
 			}
@@ -1364,22 +1364,21 @@ function findCurrPost(posts, offset) {
 }
 
 function scrollDownToPost() {
-	if(++cPIndex < pByCnt.length) scrollToPost(pByCnt[cPIndex]);
+	if(++cPIndex < pByCnt.length) scrollToPost(pByCnt[cPIndex], pByCnt[cPIndex].isOP || pByCnt[cPIndex].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex].clientHeight / 2);
 	else cPIndex--;
 	scrollP = true;
 }
 
 function scrollUpToPost() {
-	if(--cPIndex >= 0) scrollToPost(pByCnt[cPIndex]);
+	if(--cPIndex >= 0) scrollToPost(pByCnt[cPIndex], true);
 	else cPIndex++;
 	scrollP = true;
 }
 
-function scrollToPost(post) {
+function scrollToPost(post, scroll) {
 	var to = post.isOp ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
 	if(post.isOp) post = getThread(post);
-	else if(post.getBoundingClientRect().top < window.innerHeight / 2 - post.clientHeight / 2) to = null;
-	if(to !== null) window.scrollTo(0, to);
+	if(scroll) window.scrollTo(0, to);
 	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
 	post.sel = true;
 	post.oldClassName = post.className;
