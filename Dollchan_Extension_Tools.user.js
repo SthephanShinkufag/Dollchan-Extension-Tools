@@ -1325,9 +1325,9 @@ function selectAjaxPages() {
 
 function initKeyNavig() {
 	(pr.name || []).onfocus = (pr.subj || []).onfocus = pr.txta.onfocus = (pr.mail || []).onfocus =
-		pr.passw.onfocus = pr.cap.onfocus = function() { GM_log('focus'); kIgnore = true;};
+		pr.passw.onfocus = pr.cap.onfocus = function() {kIgnore = true;};
 	(pr.name || []).onblur = (pr.subj || []).onblur = (pr.mail || []).onblur = pr.txta.onblur =
-		pr.passw.onblur = pr.cap.onblur = function() { GM_log('blur'); kIgnore = false;};
+		pr.passw.onblur = pr.cap.onblur = function() {kIgnore = false;};
 	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
 	document.onkeydown = function (e) {
 		if(window.event) e = window.event;
