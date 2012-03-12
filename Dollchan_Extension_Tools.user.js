@@ -1382,12 +1382,12 @@ function scrollUpToPost() {
 }
 
 function scrollToPost(posts, idx, up, scroll, toTop) {
-	var to, post;
+	var to, post, mIdx = idx;
 	up = up ? -1 : 1;
-	if(posts[idx].Vis === 0 || getThread(posts[idx]).Vis === 0) while(getThread(posts[idx]).Vis === 0 || posts[idx].Vis === 0) idx += up;
-	post = posts[idx];
+	if(posts[mIdx].Vis === 0 || getThread(posts[mIdx]).Vis === 0) while(getThread(posts[mIdx]).Vis === 0 || posts[mIdx].Vis === 0) mIdx += up;
+	post = posts[mIdx];
 	to = toTop ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
-	if(scroll) window.scrollTo(0, to);
+	if(mIdx !== idx || scroll) window.scrollTo(0, to);
 	if(post.isOp) post = getThread(post);
 	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
 	post.sel = true;
