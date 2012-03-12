@@ -1354,16 +1354,12 @@ function initKeyNavig() {
 		scrScroll = true;
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
-			else {
-				try { cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, true, true, true); } catch(e) {}
-				scrollT = true;
-			}
+			else try { cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, true, true, true); scrollT = true;} catch(e) {}
 		} else if(kc === 75) {
 			if(TNum) scrollDownToPost();
 			else {
 				if(cTIndex === tByCnt.length - 1) return;
-				try { cTIndex = scrollToPost(tByCnt, cTIndex + 1, false, true, true); } catch(e) {}
-				scrollT = true;
+				try { cTIndex = scrollToPost(tByCnt, cTIndex + 1, false, true, true); scrollT = true;} catch(e) {}
 			}
 		} else if(!TNum && kc === 78) scrollUpToPost();
 		else if(!TNum && kc === 77) scrollDownToPost();
