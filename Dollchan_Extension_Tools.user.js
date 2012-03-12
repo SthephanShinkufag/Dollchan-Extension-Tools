@@ -1355,13 +1355,14 @@ function initKeyNavig() {
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
 			else {
-				scrollToPost(tByCnt[cTIndex = cTIndex < 0 ? 0 : cTIndex - 1], true, true);
+				try { cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, true, true, true); } catch(e) {}
 				scrollT = true;
 			}
 		} else if(kc === 75) {
 			if(TNum) scrollDownToPost();
 			else {
-				scrollToPost(tByCnt[cTIndex = cTIndex >= tByCnt.length - 1 ? tByCnt.length - 1 : cTIndex + 1], true, true);
+				if(cTIndex === tByCnt.length - 1) return;
+				try { cTIndex = scrollToPost(tByCnt, cTIndex + 1, false, true, true); } catch(e) {}
 				scrollT = true;
 			}
 		} else if(!TNum && kc === 78) scrollUpToPost();
@@ -1376,24 +1377,27 @@ function findCurrPost(posts) {
 }
 
 function scrollDownToPost() {
-	scrollToPost(pByCnt[cPIndex = cPIndex >= pByCnt.length - 1 ? pByCnt.length - 1 : cPIndex + 1],
-		pByCnt[cPIndex].isOP || pByCnt[cPIndex].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex].clientHeight / 2, false);
-	scrollP = true;
+	if(cPIndex !== pByCnt.length - 1)
+		try { cPIndex = scrollToPost(pByCnt, cPIndex + 1, false, pByCnt[cPIndex + 1].isOP || pByCnt[cPIndex + 1].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex + 1].clientHeight / 2, false); scrollP = true;} catch(e) {}
 }
 
 function scrollUpToPost() {
-	scrollToPost(pByCnt[cPIndex = cPIndex < 0 ? 0 : cPIndex - 1], true, false);
-	scrollP = true;
+	try { cPIndex = scrollToPost(pByCnt, cPIndex <= 0 ? 0 : cPIndex - 1, true, true, false); scrollP = true; } catch(e) {}
 }
 
-function scrollToPost(post, scroll, toTop) {
-	var to = toTop ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
-	if(post.isOp) post = getThread(post);
+function scrollToPost(posts, idx, up, scroll, toTop) {
+	var to, post;
+	up = up ? -1 : 1;
+	if(posts[idx].Vis === 0 || getThread(posts[idx]).Vis === 0) while(getThread(posts[idx]).Vis === 0 || posts[idx].Vis === 0) idx += up;
+	post = posts[idx];
+	to = toTop ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
 	if(scroll) window.scrollTo(0, to);
+	if(post.isOp) post = getThread(post);
 	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
 	post.sel = true;
 	post.oldClassName = post.className;
 	post.className += ' DESU_selected';
+	return idx;
 }
 
 /*-------------------------------Changes in postform-------------------------*/
@@ -2892,6 +2896,7 @@ function applyPostVisib(post, vis, note) {
 			$event($t('a', el), {click: function(e) { $pD(e); togglePostVisib(post); }});
 			$before($up(post), [el]);
 			toggleHiddenThread(post, 0);
+			getThread(post).Vis = vis;
 		}
 	} else if(Cfg.delhd === 2) post.style.display = vis === 0 ? 'none' : '';
 	if(!sav.cookie) {
