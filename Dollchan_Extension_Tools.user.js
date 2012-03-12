@@ -1341,14 +1341,14 @@ function initKeyNavig() {
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
 			else {
-				if(--cTIndex >= 0) scrollToPost(tByCnt[cTIndex], true);
+				if(--cTIndex >= 0) scrollToPost(tByCnt[cTIndex], true, true);
 				else cTIndex++;
 				scrollT = true;
 			}
 		} else if(kc === 75) {
 			if(TNum) scrollDownToPost();
 			else {
-				if(++cTIndex < tByCnt.length) scrollToPost(tByCnt[cTIndex], true);
+				if(++cTIndex < tByCnt.length) scrollToPost(tByCnt[cTIndex], true, true);
 				else cTIndex--;
 				scrollT = true;
 			}
@@ -1364,19 +1364,19 @@ function findCurrPost(posts, offset) {
 }
 
 function scrollDownToPost() {
-	if(++cPIndex < pByCnt.length) scrollToPost(pByCnt[cPIndex], pByCnt[cPIndex].isOP || pByCnt[cPIndex].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex].clientHeight / 2);
+	if(++cPIndex < pByCnt.length) scrollToPost(pByCnt[cPIndex], pByCnt[cPIndex].isOP || pByCnt[cPIndex].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex].clientHeight / 2, false);
 	else cPIndex--;
 	scrollP = true;
 }
 
 function scrollUpToPost() {
-	if(--cPIndex >= 0) scrollToPost(pByCnt[cPIndex], true);
+	if(--cPIndex >= 0) scrollToPost(pByCnt[cPIndex], true, false);
 	else cPIndex++;
 	scrollP = true;
 }
 
-function scrollToPost(post, scroll) {
-	var to = post.isOp ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
+function scrollToPost(post, scroll, toTop) {
+	var to = toTop ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
 	if(post.isOp) post = getThread(post);
 	if(scroll) window.scrollTo(0, to);
 	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
