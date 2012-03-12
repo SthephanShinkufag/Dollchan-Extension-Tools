@@ -273,7 +273,7 @@ docTitle, favIcon, favIconInt, isExpImg = false,
 timePattern, timeRegex,
 oldTime, endTime, timeLog = '',
 tubeHidTimeout,
-pByCnt = [], tByCnt = [], cPIndex, cTIndex, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false,
+pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false,
 storageLife = 5*24*3600*1000,
 homePage = 'http://www.freedollchan.org/scripts/';
 
@@ -1332,7 +1332,7 @@ function initKeyNavig() {
 		$pD(e);
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
-			else window.location.href = getThrdUrl(host, brd, tByCnt[cTIndex].Num);
+			else window.open(getThrdUrl(host, brd, tByCnt[cTIndex].Num), '_blank');
 			return;
 		}
 		if(scrollT) { cPIndex = findCurrPost(pByCnt); scrollT = false; }
