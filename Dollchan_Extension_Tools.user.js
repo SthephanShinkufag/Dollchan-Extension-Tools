@@ -2444,7 +2444,7 @@ function addImgSearch(post) {
 	if(!Cfg.imgSearch) return;
 	$each($X((
 		ch.gazo || ch.foch ? '.'
-		: ch.tenh ? './/div[@class="fileinfo"]'
+		: hanab ? './/div[starts-with(@class,"fileinfo")]'
 		: './/span[@class="' + (ch.krau ? 'filename' : 'filesize') + '"]'
 		) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]' + (ch.nul || ch.gazo || ch.foch ? '[1]' : ''), post), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
@@ -3480,8 +3480,7 @@ function initBoard() {
 		vomb:	dm === 'vombatov.net',
 		ment:	dm === '02ch.org' || dm === '02ch.net',
 		futr:	dm === '2chan.su',
-		foch:	dm === '4chon.net',
-		tenh:	dm === 'tenhou.ru'
+		foch:	dm === '4chon.net'
 	};
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
