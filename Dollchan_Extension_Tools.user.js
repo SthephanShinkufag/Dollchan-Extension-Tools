@@ -1333,10 +1333,10 @@ function initKeyNavig() {
 		if(scrollT) cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt);
 		if(!TNum && scrollP) {
 			if((pByCnt[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
-			else {
-				for(curTh = cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--);
+			else if(scrollT) {
+				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--);
 				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh])
-			}
+			} else curTh = cTIndex;
 		} else curTh = cTIndex;
 		scrollP = scrollT = false;
 		if(kc === 86) {
