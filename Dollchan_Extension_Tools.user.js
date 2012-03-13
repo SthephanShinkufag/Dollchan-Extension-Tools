@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.2
+// @version			12.3.13.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1347,7 +1347,7 @@ function initKeyNavig() {
 			if((pByCnt[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
 			else if(scrollT) {
 				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--);
-				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh])
+				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh]);
 			} else curTh = cTIndex;
 		} else curTh = cTIndex;
 		scrollP = scrollT = false;
@@ -2083,8 +2083,8 @@ function getPstCount(thrd) {
 			hanab ? './/div[@class="abbrev"]'
 			: ch.krau ? './/span[@class="omittedinfo"]'
 			: ch.gazo ? './/font[@color="#707070"]'
-			: './/span[@class="omittedposts"]|.//div[@class="DESU_omitted"]'
-		, thrd);
+			: './/span[@class="omittedposts"]|.//div[@class="DESU_omitted"]', thrd
+		);
 	return $X('.//table[contains(@class," DESU_post")]'
 		+ '|.//div[contains(@class," DESU_post")]', thrd).snapshotLength + 1
 		+ (om && (om = om.textContent) ? +(om.match(/\d+/) || [0])[0] : 0);
@@ -2451,16 +2451,23 @@ function addLinkImg(post) {
 function addImgSearch(post) {
 	if(!Cfg.imgsrc) return;
 	$each($X((
-		ch.gazo || tinyb ? '.'
+		ch.gazo ? '.'
+		: tinyb ? './/p[@class="fileinfo"]'
 		: hanab ? './/div[starts-with(@class,"fileinfo")]'
 		: './/span[@class="' + (ch.krau ? 'filename' : 'filesize') + '"]'
-		) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]' + (ch.nul || ch.gazo || tinyb ? '[1]' : ''), post), function(link) {
-		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
-		if(link.innerHTML.indexOf('<') !== -1) return;
+	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")][1]',
+	post || dForm), function(link) {
+		var href = escape(link.href);
 		$before(link, [
-			$new('a', {href:'http://iqdb.org/?url=' + escape(link.href), target:'_blank', Class:'DESU_searchIqdb', title:Lng.search + 'IQDB'}),
-			$new('a', {href:'http://www.tineye.com/search/?url=' + escape(link.href), target:'_blank', Class:'DESU_searchTineye', title:Lng.search + 'TinEye'}),
-			$new('a', {href:'http://google.ru/searchbyimage?image_url=' + escape(link.href), target:'_blank', Class:'DESU_searchGoogle', title:Lng.search + 'Google'})
+			$new('a', {Class: 'DESU_searchIqdb', title: Lng.search + 'IQDB', target: '_blank',
+				href: 'http://iqdb.org/?url=' + href
+			}),
+			$new('a', {Class: 'DESU_searchTineye', title: Lng.search + 'TinEye', target: '_blank',
+				href: 'http://www.tineye.com/search/?url=' + href
+			}),
+			$new('a', {Class: 'DESU_searchGoogle', title: Lng.search + 'Google', target: '_blank',
+				href: 'http://google.ru/searchbyimage?image_url=' + href
+			})
 		]);
 	});
 }
@@ -2916,8 +2923,8 @@ function togglePost(post, vis) {
 	$each($X('following-sibling::*', $x(
 		ch.krau ? './/div[@class="postheader"]'
 		: tinyb ? './/p[@class="intro"]'
-		: './/span[starts-with(@class,"DESU_postpanel")]'
-	, post)), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
+		: './/span[starts-with(@class,"DESU_postpanel")]', post
+	)), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
 }
 
 function applyPostVisib(post, vis, note) {
@@ -3680,7 +3687,7 @@ function doScript() {
 	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
-	if(Cfg.imgsrc !== 0) { forAll(addImgSearch);		 Log('addImgSearch'); }
+	if(Cfg.imgsrc !== 0) { addImgSearch();				 Log('addImgSearch'); }
 	if(Cfg.navig === 2) { addRefMap(false, false);		 Log('addRefMap'); }
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	saveHiddenPosts();									 Log('saveHiddenPosts');
