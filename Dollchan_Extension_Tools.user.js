@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.6
+// @version			12.3.13.7
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2461,7 +2461,7 @@ function addImgSearch(post) {
 	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
 	+ (ch.nul ? '[1]' : ''), post || dForm), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
-		if(link.innerHTML.indexOf('<') > 0) return;
+		if(link.innerHTML.indexOf('<') >= 0) return;
 		var href = escape(link.href);
 		$before(link, [
 			$new('a', {Class: 'DESU_searchIqdb', title: Lng.search + 'IQDB', target: '_blank',
