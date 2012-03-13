@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.7
+// @version			12.3.13.8
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -2715,8 +2715,8 @@ function newPost(thr, tNum, i, isDel) {
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
-	if(Cfg.expost !== 0 && !TNum) expandPost(post);
 	thr.appendChild(post);
+	if(Cfg.expost !== 0 && !TNum) expandPost(post);
 	if(tinyb) thr.appendChild($new('br'));
 }
 
@@ -2895,7 +2895,7 @@ function loadPages(len) {
 		AJAX(url, brd, null, function(p, len) { return function() {
 			var tNum, thr, i, pLen, page = $id('DESU_page' + p);
 			for(tNum in ajaxThrds) {
-				thr = $new('div', {Class: 'thread', id: 'thread-' + tNum});
+				thr = $new('div', {Class: ' DESU_thread', id: 'thread-' + tNum});
 				$append(page, [thr, $new('br', {clear: 'left'}), $new('hr')]);
 				for(i = 0, pLen = ajaxThrds[tNum].keys.length; i < pLen; i++)
 					newPost(thr, tNum, i, false);
@@ -3676,7 +3676,7 @@ function doScript() {
 	if(!initBoard()) return;							 Log('initBoard');
 	readCfg();											 Log('readCfg');
 	if(!initDelform()) return;							 Log('initDelform');
-	if(Cfg.keynav) { initKeyNavig();					 Log('initKeyNavig'); }
+	if(Cfg.keynav !== 0) { initKeyNavig();				 Log('initKeyNavig'); }
 	addPanel();											 Log('addPanel');
 	doChanges();										 Log('doChanges');
 	readFavorites();									 Log('readFavorites');
