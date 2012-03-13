@@ -1308,7 +1308,7 @@ function selectAjaxPages() {
 /*---------------------------Init navigation with keyboard-------------------*/
 
 function initKeyNavig() {
-	var to, eT,
+	var eT,
 		addEvents = function() {
 			$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
 				el.onfocus = function() { kIgnore = true; };
