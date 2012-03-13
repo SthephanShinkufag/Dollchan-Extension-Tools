@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.0
+// @version			12.3.13.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -259,23 +259,8 @@ LngArray = {
 	keyNavig:		['Навигация с помощью клавиатуры*', 'Navigation with keyboard*']
 },
 
-doc = document,
-Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {},
-Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [],
-pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
-ajaxThrds = {}, ajaxPosts = [], ajaxInt,
-nav = {}, sav = {}, ch = {},
-kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass,
-cssFix, xDelForm, xPostRef, xPostMsg,
-pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy,
-quotetxt = '',
-docTitle, favIcon, favIconInt, isExpImg = false,
-timePattern, timeRegex,
-oldTime, endTime, timeLog = '',
-tubeHidTimeout,
-pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false,
-storageLife = 5*24*3600*1000,
-homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, nav = {}, sav = {}, ch = {}, kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass, cssFix, xDelForm, xPostRef, xPostMsg,
+pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -446,7 +431,7 @@ function HTMLtoDOM(html) {
 	var myDoc, el, first;
 	try { myDoc = (new DOMParser()).parseFromString(html, 'text/html'); } catch (e) {}
 	if(!myDoc || !myDoc.body) {
-		myDoc = document.implementation.createHTMLDocument('');
+		myDoc = doc.implementation.createHTMLDocument('');
 		el = myDoc.documentElement;
 		el.innerHTML = html;
 		first = el.firstElementChild;
@@ -537,7 +522,7 @@ function readCfg() {
 	if(nav.Chrome) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
 	if(nav.Firefox < 7) Cfg.rndimg = 0;
-	if(ch.nul && nav.Opera > 0 && nav.Opera < 10) Cfg.keyNavig = 0;
+	if(ch.nul && nav.Opera && nav.Opera < 10) Cfg.keyNavig = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
@@ -935,7 +920,7 @@ function addSettings() {
 		divBox('verify', Lng.replyCheck),
 		$if(nav.Firefox > 6, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
-		$if(!ch.nul || (ch.nul && (!nav.Opera || nav.Opera >= 10)), divBox('keyNavig', Lng.keyNavig)),
+		$if(!(ch.nul && nav.Opera && nav.Opera < 10), divBox('keyNavig', Lng.keyNavig)),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm),
@@ -1219,10 +1204,9 @@ function $close(el) {
 	if(!el) return;
 	if(Cfg.animp === 0) $del(el);
 	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
-		el.addEventListener(
-			nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
-			function(){ $del(el); }
-		, false);
+		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function() {
+			$del(el);
+		}, false);
 		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
 	} else {
 		i = 8;
@@ -1325,27 +1309,37 @@ function selectAjaxPages() {
 /*---------------------------Init navigation with keyboard-------------------*/
 
 function initKeyNavig() {
-	var to, addEvents = function() {
-		$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
-			el.onfocus = function() {kIgnore = true;};
-			el.onblur = function() {kIgnore = false;};
-		});
-	}, eT, oAm = function(e) {
+	var to, eT,
+		addEvents = function() {
+			$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
+				el.onfocus = function() { kIgnore = true; };
+				el.onblur = function() { kIgnore = false; };
+			});
+		};
+	if(!ch.nul) addEvents();
+	else pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified', function(e) {
 		if(eT) clearTimeout(eT);
 		eT = setTimeout(addEvents, 200);
+	}, false);
+	window.onscroll = function() {
+		if(!scrScroll) { scrollP = true; scrollT = true; }
+		else scrScroll = false;
 	};
-	if(ch.nul) {
-		if(nav.Opera) pr.form.addEventListener('DOMAttrModified', oAm, false);
-		else pr.form.addEventListener('DOMSubtreeModified', oAm, false);
-	} else addEvents();
-	window.onscroll = function() { if(!scrScroll) {scrollP = true; scrollT = true;} else scrScroll = false; };
-	document.onkeydown = function (e) {
-		if(window.event) e = window.event;
+	doc.onkeydown = function (e) {
+		if(!e) e = window.event;
 		var kc = e.keyCode;
-		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey || (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
+		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey
+			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
 		$pD(e);
-		if(scrollT) { cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt); scrollT = false; }
-		if(scrollP) { cTIndex = (pByCnt[cPIndex] || []).isOp ? tByCnt.indexOf(pByCnt[cPIndex]) : findCurrPost(tByCnt); scrollP = false; }
+		if(scrollT) {
+			cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt);
+			scrollT = false;
+		}
+		if(scrollP) {
+			cTIndex = (pByCnt[cPIndex] || []).isOp
+				? tByCnt.indexOf(pByCnt[cPIndex]) : findCurrPost(tByCnt);
+			scrollP = false;
+		}
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
 			else window.open(getThrdUrl(host, brd, tByCnt[cTIndex < 0 ? 0 : cTIndex].Num), '_blank');
@@ -1354,42 +1348,54 @@ function initKeyNavig() {
 		scrScroll = true;
 		if(kc === 74) {
 			if(TNum) scrollUpToPost();
-			else try { cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, true, true, true); scrollT = true;} catch(e) {}
+			else try {
+				cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, -1, true, true);
+				scrollT = true;
+			} catch(e) {};
 		} else if(kc === 75) {
 			if(TNum) scrollDownToPost();
-			else {
-				if(cTIndex === tByCnt.length - 1) return;
-				try { cTIndex = scrollToPost(tByCnt, cTIndex + 1, false, true, true); scrollT = true;} catch(e) {}
-			}
+			else if(cTIndex !== tByCnt.length - 1) try {
+				cTIndex = scrollToPost(tByCnt, cTIndex + 1, 1, true, true);
+				scrollT = true;
+			} catch(e) {};
 		} else if(!TNum && kc === 78) scrollUpToPost();
 		else if(!TNum && kc === 77) scrollDownToPost();
 	};
 }
 
 function findCurrPost(posts) {
-	var i, scrolled = window.pageYOffset;
-	for(i = 0; i < posts.length; i++) if($offset(posts[i]).top > scrolled) break;
-	return i - 1;
+	for(var i = 0, scrolled = window.pageYOffset; i < posts.length; i++)
+		if($offset(posts[i]).top > scrolled) return i - 1;
 }
 
 function scrollDownToPost() {
-	if(cPIndex !== pByCnt.length - 1)
-		try { cPIndex = scrollToPost(pByCnt, cPIndex + 1, false, pByCnt[cPIndex + 1].isOP || pByCnt[cPIndex + 1].getBoundingClientRect().top > window.innerHeight / 2 - pByCnt[cPIndex + 1].clientHeight / 2, false); scrollP = true;} catch(e) {}
+	if(cPIndex !== pByCnt.length - 1) try {
+		cPIndex = scrollToPost(pByCnt, cPIndex + 1, 1, pByCnt[cPIndex + 1].isOP
+			|| pByCnt[cPIndex + 1].getBoundingClientRect().top
+				> window.innerHeight/2 - pByCnt[cPIndex + 1].clientHeight/2, false);
+		scrollP = true;
+	} catch(e) {};
 }
 
 function scrollUpToPost() {
-	try { cPIndex = scrollToPost(pByCnt, cPIndex <= 0 ? 0 : cPIndex - 1, true, true, false); scrollP = true; } catch(e) {}
+	try {
+		cPIndex = scrollToPost(pByCnt, cPIndex <= 0 ? 0 : cPIndex - 1, -1, true, false);
+		scrollP = true;
+	} catch(e) {};
 }
 
-function scrollToPost(posts, idx, up, scroll, toTop) {
-	var to, post, mIdx = idx;
-	up = up ? -1 : 1;
-	if(posts[mIdx].Vis === 0 || getThread(posts[mIdx]).Vis === 0) while(getThread(posts[mIdx]).Vis === 0 || posts[mIdx].Vis === 0) mIdx += up;
+function scrollToPost(posts, idx, dir, scroll, toTop) {
+	var post, mIdx = idx;
+	while(posts[mIdx].Vis === 0 || getThread(posts[mIdx]).Vis === 0) mIdx += dir;
 	post = posts[mIdx];
-	to = toTop ? $offset(post).top : $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2;
-	if(mIdx !== idx || scroll) window.scrollTo(0, to);
+	if(mIdx !== idx || scroll)
+		window.scrollTo(0, toTop ? $offset(post).top
+			: $offset(post).top - window.innerHeight/2 + post.clientHeight/2);
 	if(post.isOp) post = getThread(post);
-	forAll(function(post) { if(post.isOp) post = getThread(post); if(post.sel) {post.sel = false; post.className = post.oldClassName;}});
+	forAll(function(post) {
+		if(post.isOp) post = getThread(post);
+		if(post.sel) { post.sel = false; post.className = post.oldClassName; }
+	});
 	post.sel = true;
 	post.oldClassName = post.className;
 	post.className += ' DESU_selected';
@@ -1941,10 +1947,12 @@ function scriptCSS() {
 		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}\
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
-		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}to{opacity:1;}}\
-		@' + cssFix + 'keyframes DESU_aClose  {to{' + cssFix + 'transform:scaleY(0);' + cssFix + 'transform-origin:0 -100%;opacity:0;}}' +
-		(!nav.Opera || nav.Opera >= 10 ? '.DESU_selected { ' + brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }' :
-		'.DESU_selected { border-left:4px solid red;  border-right:4px solid red; }')
+		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0}}\
+		.DESU_selected {' + (
+			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
+			: brCssFix + 'box-shadow:6px 0 2px -2px red, -6px 0 2px -2px red}'
+		)
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
