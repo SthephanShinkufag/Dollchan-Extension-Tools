@@ -2459,9 +2459,9 @@ function addImgSearch(post) {
 		: hanab ? './/div[starts-with(@class,"fileinfo")]'
 		: './/span[@class="' + (ch.krau ? 'filename' : 'filesize') + '"]'
 	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
-	+ (ch.nul || ch.gazo || tinyb ? '[1]' : ''), post || dForm), function(link) {
+	+ (ch.nul ? '[1]' : ''), post || dForm), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
-		if(link.innerHTML.indexOf('<') !== -1) return;
+		if(link.innerHTML.indexOf('<') > 0) return;
 		var href = escape(link.href);
 		$before(link, [
 			$new('a', {Class: 'DESU_searchIqdb', title: Lng.search + 'IQDB', target: '_blank',
