@@ -1331,13 +1331,13 @@ function initKeyNavig() {
 			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
 		$pD(e);
 		if(scrollT) cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt);
-		if(scrollP) {
-			if(!scrollT && pByCnt[cPIndex].isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
+		if(!TNum && scrollP) {
+			if((pByCnt[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
 			else {
-				cTIndex = findCurrPost(tByCnt);
-				curTh = cTIndex + 1;
+				for(curTh = cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--);
+				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh])
 			}
-		}
+		} else curTh = cTIndex;
 		scrollP = scrollT = false;
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
