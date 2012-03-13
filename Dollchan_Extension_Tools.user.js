@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.4
+// @version			12.3.13.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -531,7 +531,7 @@ function readCfg() {
 	if(hanab) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 	if(nav.Chrome) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
-	if(nav.Firefox < 7) Cfg.rndimg = 0;
+	if((nav.Firefox < 7 && !nav.Chrome) || ch.nul) Cfg.rndimg = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
@@ -927,7 +927,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
-		$if(nav.Firefox > 6, divBox('rndimg', Lng.rndImages)),
+		$if((nav.Firefox > 6 || nav.Chrome) && !ch.nul, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
 		$New('div', [
 			lBox('keynav', Lng.keyNavig),
@@ -1622,7 +1622,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(nav.Firefox > 3 && !ch.nul) {
+		if((nav.Firefox > 3 || nav.Chrome) && !ch.nul) {
 			pr.form.onsubmit = function(e) {
 				$pD(e);
 				prepareData(function(fd) { XHRLoad(pr.form, fd, checkUpload); });
@@ -1729,13 +1729,13 @@ function prepareData(fn) {
 }
 
 function prepareFiles(el, fn) {
-	var oFReader = new FileReader(), file = el.files[0];
+	var fr = new FileReader(), file = el.files[0];
 	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
-	oFReader.readAsArrayBuffer(file);
-	oFReader.onload = function(e) {
-		var bb = new MozBlobBuilder();
-		bb.append(e.target.result);
-		bb.append(String(Math.round(Math.random() * 1000)));
+	fr.readAsArrayBuffer(file);
+	fr.onload = function() {
+		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
+		bb.append(this.result);
+		bb.append(String(Math.round(Math.random()*1e3)));
 		fn(bb.getBlob(file.type));
 	};
 }
@@ -3691,7 +3691,7 @@ function doScript() {
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
 	if(Cfg.imgsrc !== 0) { addImgSearch();				 Log('addImgSearch'); }
-	if(Cfg.navig === 2) { addRefMap(false, false);		 Log('addRefMap'); }
+	if(Cfg.navig === 2) { addRefMap();					 Log('addRefMap'); }
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	saveHiddenPosts();									 Log('saveHiddenPosts');
 	scriptCSS();										 Log('scriptCSS');
