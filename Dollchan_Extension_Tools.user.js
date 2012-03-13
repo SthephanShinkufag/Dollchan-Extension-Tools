@@ -259,8 +259,7 @@ LngArray = {
 	keyNavig:		['Навигация с помощью клавиатуры*', 'Navigation with keyboard*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, nav = {}, sav = {}, ch = {}, kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass, cssFix, xDelForm, xPostRef, xPostMsg,
-pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, nav = {}, sav = {}, ch = {}, kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass, cssFix, xDelForm, xPostRef, xPostMsg, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
