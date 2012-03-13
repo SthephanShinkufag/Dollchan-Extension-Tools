@@ -82,7 +82,8 @@ var defaultCfg = {
 	texw:		530,	// textarea width
 	texh:		140,	// textarea height
 	rndimg:		0,		// add random byte into image
-	keyNavig:	0		// keyboard navigation
+	keyNavig:	0,		// keyboard navigation
+	imgSearch:	1		// image search
 },
 
 LngArray = {
@@ -256,7 +257,9 @@ LngArray = {
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
-	keyNavig:		['Навигация с помощью клавиатуры*', 'Navigation with keyboard*']
+	keyNavig:		['Навигация с помощью клавиатуры*', 'Navigation with keyboard*'],
+	search:			['Искать картинку в ', 'Search image in '],
+	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
 doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxThrds = {}, ajaxPosts = [], ajaxInt, nav = {}, sav = {}, ch = {}, kusaba, hanab, abu, tinyb, host, dm, brd, res, TNum, pageNum, docExt, pClass, cssFix, xDelForm, xPostRef, xPostMsg, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
@@ -902,6 +905,7 @@ function addSettings() {
 			$if(abu, lBox('noscrl', Lng.noScroll, scriptCSS))
 		]),
 		$New('div', [lBox('mp3', Lng.mp3Embed), lBox('addimg', Lng.imgEmbed)]),
+		divBox('imgSearch', Lng.imgSearch),
 		$New('div', [
 			optSel('ytube', Lng.selYTembed, Lng.YTembed),
 			$btn('>', function() { $disp($id('DESU_ytubebox')); })
@@ -1308,7 +1312,7 @@ function selectAjaxPages() {
 /*---------------------------Init navigation with keyboard-------------------*/
 
 function initKeyNavig() {
-	var to, eT,
+	var eT,
 		addEvents = function() {
 			$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
 				el.onfocus = function() { kIgnore = true; };
@@ -1948,6 +1952,10 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0} to {opacity:1}}\
 		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0}}\
+		a[class^=DESU_search] { width:16px; height:16px; display: inline-block; margin: 0px 3px -3px 0px; }\
+		.DESU_searchGoogle { background:url(http://www.google.ru/favicon.ico); }\
+		.DESU_searchTineye { background:url(http://www.tineye.com/favicon.ico); }\
+		.DESU_searchIqdb { background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size: cover; }\
 		.DESU_selected {' + (
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
 			: brCssFix + 'box-shadow:6px 0 2px -2px red, -6px 0 2px -2px red}'
@@ -2432,6 +2440,23 @@ function addLinkImg(post) {
 	});
 }
 
+function addImgSearch(post) {
+	if(!Cfg.imgSearch) return;
+	$each($X((
+		ch.gazo || ch.foch ? '.'
+		: hanab ? './/div[starts-with(@class,"fileinfo")]'
+		: './/span[@class="' + (ch.krau ? 'filename' : 'filesize') + '"]'
+		) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]' + (ch.nul || ch.gazo || ch.foch ? '[1]' : ''), post), function(link) {
+		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
+		if(link.innerHTML.indexOf('<') !== -1) return;
+		$before(link, [
+			$new('a', {href:'http://iqdb.org/?url=' + escape(link.href), target:'_blank', Class:'DESU_searchIqdb', title:Lng.search + 'IQDB'}),
+			$new('a', {href:'http://www.tineye.com/search/?url=' + escape(link.href), target:'_blank', Class:'DESU_searchTineye', title:Lng.search + 'TinEye'}),
+			$new('a', {href:'http://google.ru/searchbyimage?image_url=' + escape(link.href), target:'_blank', Class:'DESU_searchGoogle', title:Lng.search + 'Google'})
+		]);
+	});
+}
+
 function expandPostImg(a, post, isExp) {
 	if(!/\.jpg|\.jpeg|\.png|.\gif/i.test(a.href)) return;
 	addFullImg(a, getImgSize(
@@ -2649,6 +2674,7 @@ function addPostFunc(post) {
 	addLinkMP3(post);
 	addLinkTube(post);
 	addLinkImg(post);
+	addImgSearch(post);
 	if(post.Vis === 0) setPostVisib(post, 0);
 	if(Cfg.delhd === 1) mergeHidden(post);
 	if(isExpImg) expandAllPostImg(post);
@@ -3453,7 +3479,8 @@ function initBoard() {
 		pony:	dm === 'ponychan.net',
 		vomb:	dm === 'vombatov.net',
 		ment:	dm === '02ch.org' || dm === '02ch.net',
-		futr:	dm === '2chan.su'
+		futr:	dm === '2chan.su',
+		foch:	dm === '4chon.net'
 	};
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
@@ -3646,6 +3673,7 @@ function doScript() {
 	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
+	if(Cfg.imgSearch !== 0) { forAll(addImgSearch);		 Log('addImgSearch'); }
 	if(Cfg.navig === 2) { addRefMap(false, false);		 Log('addRefMap'); }
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	saveHiddenPosts();									 Log('saveHiddenPosts');
