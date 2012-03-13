@@ -1326,22 +1326,22 @@ function initKeyNavig() {
 	};
 	doc.onkeydown = function (e) {
 		if(!e) e = window.event;
-		var kc = e.keyCode;
+		var kc = e.keyCode, curTh;
 		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey
 			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
 		$pD(e);
-		if(scrollT) {
-			cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt);
-			scrollT = false;
-		}
-		if(scrollP) {
-			cTIndex = (pByCnt[cPIndex] || []).isOp
-				? tByCnt.indexOf(pByCnt[cPIndex]) : findCurrPost(tByCnt);
-			scrollP = false;
-		}
+		if(scrollT) cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt);
+		if(!TNum && scrollP) {
+			if((pByCnt[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
+			else if(scrollT) {
+				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--);
+				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh])
+			} else curTh = cTIndex;
+		} else curTh = cTIndex;
+		scrollP = scrollT = false;
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
-			else window.open(getThrdUrl(host, brd, tByCnt[cTIndex < 0 ? 0 : cTIndex].Num), '_blank');
+			else window.open(getThrdUrl(host, brd, tByCnt[curTh].Num), '_blank');
 			return;
 		}
 		scrScroll = true;
