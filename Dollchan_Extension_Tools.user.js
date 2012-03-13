@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.3
+// @version			12.3.13.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -259,8 +259,12 @@ LngArray = {
 	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
 	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
 	keyNavHelp:		[
-		'На доске:\n"J" - тред выше,\n"K" - тред ниже,\n"N" - пост выше,\n"M" - пост ниже,\n"V" - вход в тред (Firefox: разрешите всплывающие окна)\n\nВ треде:\n"J" - пост выше,\n"K" - пост ниже,\n"V" - быстрый ответ',
-		'On board:\n"J" - thread above,\n"K" - thread below,\n"N" - post above,\n"M" - post below,\n"V" - enter a thread (Firefox: allow pop-up windows)\n\nIn thread:\n"J" - post above,\n"K" - post below,\n"V" - quick reply'
+		'На доске:\n"J" - тред выше,\n"K" - тред ниже,\n"N" - пост выше,\n"M" - пост ниже,'
+			+ '\n"V" - вход в тред (Firefox: разрешите всплывающие окна)\n\nВ треде:'
+			+ '\n"J" - пост выше,\n"K" - пост ниже,\n"V" - быстрый ответ',
+		'On board:\n"J" - thread above,\n"K" - thread below,\n"N" - post above,\n"M" - post below,'
+			+ '\n"V" - enter a thread (Firefox: allow pop-up windows)\n\nIn thread:'
+			+ '\n"J" - post above,\n"K" - post below,\n"V" - quick reply'
 	],
 	search:			['Искать картинку в ', 'Search image in '],
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
@@ -575,8 +579,7 @@ function readPostsVisib() {
 		post.Vis = getVisib(pNum);
 		if(post.isOp) {
 			if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) >= 0
-				|| !sav.cookie && hThrds[brd][pNum] !== undefined))
-				setPostVisib(post, 0);
+				|| !sav.cookie && hThrds[brd][pNum] !== undefined)) setPostVisib(post, 0);
 			else if(post.Vis === 0) { Visib[brd + pNum] = null; post.Vis = null; }
 		}
 	});
@@ -2455,8 +2458,10 @@ function addImgSearch(post) {
 		: tinyb ? './/p[@class="fileinfo"]'
 		: hanab ? './/div[starts-with(@class,"fileinfo")]'
 		: './/span[@class="' + (ch.krau ? 'filename' : 'filesize') + '"]'
-	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")][1]',
-	post || dForm), function(link) {
+	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
+	+ (ch.nul || ch.gazo || tinyb ? '[1]' : ''), post || dForm), function(link) {
+		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
+		if(link.innerHTML.indexOf('<') !== -1) return;
 		var href = escape(link.href);
 		$before(link, [
 			$new('a', {Class: 'DESU_searchIqdb', title: Lng.search + 'IQDB', target: '_blank',
@@ -3478,7 +3483,8 @@ function initBoard() {
 	var ua, gs, ss, ls, se, url;
 	if(window.location === 'about:blank') return false;
 	host = window.location.hostname;
-	dm = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	dm = host.match(
+		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	ch = {
 		krau:	dm === 'krautchan.net',
 		fch:	dm === '4chan.org',
@@ -3624,10 +3630,7 @@ function parseDelform(node, dc) {
 		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr, dc);
 		$each(opEnd ? $X('preceding-sibling::node()', opEnd, dc) : $X('node()', thr, dc),
 			function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
-		if(dc === doc) {
-			pushPost(op, tNum, true, 0);
-			tByCnt.push(op);
-		}
+		if(dc === doc) { pushPost(op, tNum, true, 0); tByCnt.push(op); }
 		op.Num = tNum;
 		if(opEnd) {
 			$each($X('.//' + table + '|.//div[@class="' + pClass + '"]', thr, dc), function(el) {
