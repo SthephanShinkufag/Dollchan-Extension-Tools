@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.13.1
+// @version			12.3.13.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -53,6 +53,7 @@ var defaultCfg = {
 	noscrl:		1,		// hide scrollers in posts
 	mp3:		1,		// mp3 player by links
 	addimg:		1,		// add images by links
+	imgsrc:		1,		// image search
 	ytube:		3,		// YouTube links embedder [0=off, 1=on click, 2=player, 3=preview+player, 4=only preview]
 	yptype:		0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
 	ywidth:		360,	//		player width
@@ -60,7 +61,9 @@ var defaultCfg = {
 	yhdvid:		0,		//		hd video quality
 	ytitle:		0,		//		convert links to titles
 	verify:		1,		// reply without reload (verify on submit)
+	rndimg:		0,		// add random byte into image
 	addfav:		1,		// add thread to favorites on reply
+	keynav:		0,		// keyboard navigation
 	sagebt:		1,		// email field -> sage btn
 	svsage:		1,		//		remember sage
 	issage:		0,		//		reply with sage
@@ -80,10 +83,7 @@ var defaultCfg = {
 	nopass:		1,		// hide password field
 	mask:		0,		// mask images
 	texw:		530,	// textarea width
-	texh:		140,	// textarea height
-	rndimg:		0,		// add random byte into image
-	keyNavig:	0,		// keyboard navigation
-	imgSearch:	1		// image search
+	texh:		140		// textarea height
 },
 
 LngArray = {
@@ -257,7 +257,11 @@ LngArray = {
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
-	keyNavig:		['Навигация с помощью клавиатуры*', 'Navigation with keyboard*'],
+	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+	keyNavHelp:		[
+		'На доске:\n"J" - тред выше,\n"K" - тред ниже,\n"N" - пост выше,\n"M" - пост ниже,\n"V" - вход в тред (Firefox: разрешите всплывающие окна)\n\nВ треде:\n"J" - пост выше,\n"K" - пост ниже,\n"V" - быстрый ответ',
+		'On board:\n"J" - thread above,\n"K" - thread below,\n"N" - post above,\n"M" - post below,\n"V" - enter a thread (Firefox: allow pop-up windows)\n\nIn thread:\n"J" - post above,\n"K" - post below,\n"V" - quick reply'
+	],
 	search:			['Искать картинку в ', 'Search image in '],
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
@@ -524,7 +528,6 @@ function readCfg() {
 	if(nav.Chrome) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
 	if(nav.Firefox < 7) Cfg.rndimg = 0;
-	if(ch.nul && nav.Opera && nav.Opera < 10) Cfg.keyNavig = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
@@ -905,7 +908,7 @@ function addSettings() {
 			$if(abu, lBox('noscrl', Lng.noScroll, scriptCSS))
 		]),
 		$New('div', [lBox('mp3', Lng.mp3Embed), lBox('addimg', Lng.imgEmbed)]),
-		divBox('imgSearch', Lng.imgSearch),
+		divBox('imgsrc', Lng.imgSearch),
 		$New('div', [
 			optSel('ytube', Lng.selYTembed, Lng.YTembed),
 			$btn('>', function() { $disp($id('DESU_ytubebox')); })
@@ -923,7 +926,12 @@ function addSettings() {
 		divBox('verify', Lng.replyCheck),
 		$if(nav.Firefox > 6, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
-		$if(!(ch.nul && nav.Opera && nav.Opera < 10), divBox('keyNavig', Lng.keyNavig)),
+		$New('div', [
+			lBox('keynav', Lng.keyNavig),
+			$new('a', {text: '?', href: '#'}, {
+				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
+			})
+		]),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm),
@@ -2441,12 +2449,12 @@ function addLinkImg(post) {
 }
 
 function addImgSearch(post) {
-	if(!Cfg.imgSearch) return;
+	if(!Cfg.imgsrc) return;
 	$each($X((
-		ch.gazo || ch.foch ? '.'
+		ch.gazo || tinyb ? '.'
 		: hanab ? './/div[starts-with(@class,"fileinfo")]'
 		: './/span[@class="' + (ch.krau ? 'filename' : 'filesize') + '"]'
-		) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]' + (ch.nul || ch.gazo || ch.foch ? '[1]' : ''), post), function(link) {
+		) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]' + (ch.nul || ch.gazo || tinyb ? '[1]' : ''), post), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
 		if(link.innerHTML.indexOf('<') !== -1) return;
 		$before(link, [
@@ -3479,8 +3487,7 @@ function initBoard() {
 		pony:	dm === 'ponychan.net',
 		vomb:	dm === 'vombatov.net',
 		ment:	dm === '02ch.org' || dm === '02ch.net',
-		futr:	dm === '2chan.su',
-		foch:	dm === '4chon.net'
+		futr:	dm === '2chan.su'
 	};
 	kusaba = $xb('.//script[contains(@src,"kusaba")]');
 	hanab = $xb('.//script[contains(@src,"hanabira")]');
@@ -3659,7 +3666,7 @@ function doScript() {
 	if(!initBoard()) return;							 Log('initBoard');
 	readCfg();											 Log('readCfg');
 	if(!initDelform()) return;							 Log('initDelform');
-	if(Cfg.keyNavig) { initKeyNavig();					 Log('initKeyNavig'); }
+	if(Cfg.keynav) { initKeyNavig();					 Log('initKeyNavig'); }
 	addPanel();											 Log('addPanel');
 	doChanges();										 Log('doChanges');
 	readFavorites();									 Log('readFavorites');
@@ -3673,7 +3680,7 @@ function doScript() {
 	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
 	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
-	if(Cfg.imgSearch !== 0) { forAll(addImgSearch);		 Log('addImgSearch'); }
+	if(Cfg.imgsrc !== 0) { forAll(addImgSearch);		 Log('addImgSearch'); }
 	if(Cfg.navig === 2) { addRefMap(false, false);		 Log('addRefMap'); }
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
 	saveHiddenPosts();									 Log('saveHiddenPosts');
