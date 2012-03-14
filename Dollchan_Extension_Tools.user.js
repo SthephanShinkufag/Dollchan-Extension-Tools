@@ -2283,7 +2283,7 @@ function addLinkTube(post, source) {
 		pst = post || getPost(link);
 		el = $x('.//div[@class="DESU_ytube"]', pst);
 		if(!el) {
-			if(!source || (el = $x('.//div[@class="DESU_ytube"]', source)) === null) {
+			if(!source || !(el = $x('.//div[@class="DESU_ytube"]', source))) {
 				el = $new('div', {Class: 'DESU_ytube'});
 				if(Cfg.ytube > 2) addTubePreview(el, m);
 				else if(Cfg.ytube === 2) addTubePlayer(el, m);
