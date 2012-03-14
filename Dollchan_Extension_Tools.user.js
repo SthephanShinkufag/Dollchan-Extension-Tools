@@ -2264,7 +2264,7 @@ function clickTubeLink(e) {
 	else addTubePlayer(el, m);
 }
 
-function addLinkTube(post) {
+function addLinkTube(post, source) {
 	if(Cfg.ytube === 0) return;
 	$each($X('.//embed', post || dForm), function(el) {
 		var src, m = el.src.match(getTubePattern());
@@ -2284,8 +2284,11 @@ function addLinkTube(post) {
 		el = $x('.//div[@class="DESU_ytube"]', pst);
 		if(!el) {
 			el = $new('div', {Class: 'DESU_ytube'});
-			if(Cfg.ytube > 2) addTubePreview(el, m);
-			else if(Cfg.ytube === 2) addTubePlayer(el, m);
+			if(source && (msg = $x('.//div[@class="DESU_ytube"]/node()', source)) && Cfg.ytube === 2) el.appendChild(msg.cloneNode(true));
+			else {
+				if(Cfg.ytube > 2) addTubePreview(el, m);
+				else if(Cfg.ytube === 2) addTubePlayer(el, m);
+			}
 			msg = pst.Msg || $x(xPostMsg, pst);
 			if(ch.krau)
 				$before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
@@ -2567,7 +2570,7 @@ function funcPostPreview(post, parentId, msg) {
 		+ '|.//div[@class="DESU_refmap" or @class="DESU_ytube" or @class="DESU_mp3"]'
 		+ '|.//span[starts-with(@class,"DESU_postpanel")]', pView);
 	addPostButtons(pView);
-	addLinkTube(pView);
+	addLinkTube(pView, post);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
