@@ -3587,6 +3587,7 @@ function pushPost(post, i) {
 	post.Img = getImages(post);
 	pByNum[post.Num] = post;
 	pByCnt.push(post);
+	if(i === 0) tByCnt.push(post);
 }
 
 function parseDelform(node, dc, tFn, pFn) {
@@ -3660,11 +3661,7 @@ function replaceDelform(node) {
 function initDelform() {
 	dForm.id = '';
 	$disp(dForm);
-	try {
-		parseDelform(dForm, doc, function(a){}, function(post, i) {
-			pushPost(post, i); if(i === 0) tByCnt.push(post);
-		});
-	} catch(e) { $disp(dForm); return false; }
+	try { parseDelform(dForm, doc, function(a){}, pushPost);} catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }
