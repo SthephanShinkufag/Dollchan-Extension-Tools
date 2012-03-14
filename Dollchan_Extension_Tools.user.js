@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.14.1
+// @version			12.3.14.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1280,7 +1280,7 @@ function addSelMenu(el, arr) {
 
 function selectSpell(e) {
 	$each(addSelMenu(e.target, ('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,'
-		+ '#op,#outrep,#rep ,#sage,#skip ,#tmax ,#trip,#video ').split(',')), function(a) {
+		+ '#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ').split(',')), function(a) {
 			$event(a, {click: function(e) {
 				var exp = this.textContent;
 				$pD(e);
@@ -2678,7 +2678,7 @@ function ajaxGetPosts(url, b, tNum, fn) {
 		if(xhr.readyState !== 4) return;
 		if(xhr.status === 200) {
 			if(!/^https?:\/\//.test(url)) parseHTMLdata(xhr.responseText, b);
-			//else ajaxPosts[0] = xhr.responseText;
+			// else TODO: crossboard thread display
 			fn();
 		}
 		else if(xhr.status === 0) fn(Lng.noConnect);
@@ -2784,8 +2784,7 @@ function loadFavorThread(e) {
 	ajaxGetPosts(url, b, tNum, function(err) {
 		if(err) { $close($id('DESU_alert_wait')); $alert(err); return; }
 		if(url && /^http:\/\//.test(url)) {
-			//thr.innerHTML = ajaxPosts[0].split(/<form[^>]+del[^>]+>/)[1].split('</form>'
-			//	)[0].replace(/(href="|src=")([^h][^"]+)/g, '$1http://' + url.split('/')[2] + '$2');
+			//TODO: crossboard thread display
 			$close($id('DESU_alert_wait'));
 		} else {
 			newPost(thr, b, tNum, 0, true);
@@ -3027,7 +3026,7 @@ function processHidden(newCfg, oldCfg) {
 
 function getSpellObj() {
 	return {
-		words: [], exp: [], exph: [], img: [], imgn: [], name: [], tmax: [],
+		words: [], exp: [], exph: [], img: [], imgn: [], name: [], theme: [], tmax: [],
 		sage: false, notxt: false, noimg: false, trip: false
 	};
 }
@@ -3069,6 +3068,7 @@ function initSpells() {
 		: t === '#img' ? Spells.img.push(p)
 		: t === '#imgn' ? Spells.imgn.push(strToRegexp(p))
 		: t === '#name' ? Spells.name.push(p)
+		: t === '#theme' ? Spells.theme.push(strToRegexp(p))
 		: t === '#tmax' ? Spells.tmax.push(p)
 		: t === '#sage' ? Spells.sage = true
 		: t === '#notxt' ? Spells.notxt = true
@@ -3127,15 +3127,18 @@ function getSpells(x, post) {
 			if(inf >= +t[0] && inf <= +t[1]) { post.noHide = true; return false; }
 		}
 	}
-	if(x.words[0]) {
+	if(x.words[0] || x.theme[0]) {
 		pTitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
 		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
+	}
+	if(x.words[0])
 		for(i = 0, inf = post.Text.toLowerCase(); t = x.words[i++];) {
 			_t = t;
 			t = t.toLowerCase();
 			if(inf.indexOf(t) >= 0 || pTitle.indexOf(t) >= 0) return _t;
 		}
-	}
+	if(x.theme[0])
+		for(i = 0; t = x.theme[i++];) if(t.test(pTitle)) return '#theme ' + t.toString();
 	if(x.exp[0])
 		for(i = 0, inf = post.Text; t = x.exp[i++];)
 			if(t.test(inf)) return '#exp ' + t.toString();
@@ -3201,7 +3204,7 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
-	var i, t, rep, re = /#exp |#exph |#rep |#outrep |#imgn |#video /;
+	var i, t, rep, re = /#exp |#exph |#rep |#outrep |#imgn |#video |#theme /;
 	txt = txt.split('\n');
 	i = txt.length;
 	while(i--) {
