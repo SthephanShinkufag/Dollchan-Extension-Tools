@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.14.0
+// @version			12.3.14.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -293,11 +293,11 @@ function $t(id, root) {
 	return (root || doc).getElementsByTagName(id)[0];
 }
 function $next(el) {
-	while((el = el.nextSibling) && el.nodeType !== 1);
+	while((el = el.nextSibling) && el.nodeType !== 1) {};
 	return el;
 }
 function $prev(el) {
-	while((el = el.previousSibling) && el.nodeType !== 1);
+	while((el = el.previousSibling) && el.nodeType !== 1) {};
 	return el;
 }
 function $up(el, i) {
@@ -434,7 +434,7 @@ function $uneval(obj) {
 if(!String.prototype.trim)
 	String.prototype.trim = function () {
 		var str = this.replace(/^\s\s*/, ''), s = /\s/, i = str.length;
-		while(s.test(str.charAt(--i)));
+		while(s.test(str.charAt(--i))) {};
 		return str.slice(0, i + 1);
 	};
 function HTMLtoDOM(html) {
@@ -1135,9 +1135,9 @@ function addFavoritesTable() {
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {type: 'checkbox'}),
-					$if(h === aib.host || sav.GM, $new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {
-						click: loadFavorThread
-					})),
+					$if(h === aib.host || sav.GM,
+						$new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {click: loadFavorThread})
+					),
 					$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 					$txt(' - ' + fav.txt),
 					$add('<span class="DESU_favpcount">[<span>' + fav.cnt + '</span>]</span>')
@@ -1218,9 +1218,8 @@ function $close(el) {
 	if(!el) return;
 	if(Cfg.animp === 0) $del(el);
 	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
-		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function() {
-			$del(el);
-		}, false);
+		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+			function() { $del(el); }, false);
 		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
 	} else {
 		i = 8;
@@ -1243,7 +1242,11 @@ function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += '_' + id; el = $id(nid); }
 	if(!el) {
-		el = $add('<div class="' + aib.pClass + '" id="' + nid + '" style="opacity:0; padding:0 10px 5px 10px">' + (id === 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>' : '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>') + '<div style="display:inline-block; margin-top:4px"></div></div>');
+		el = $add('<div class="' + aib.pClass + '" id="' + nid
+			+ '" style="opacity:0; padding:0 10px 5px 10px">' + (
+				id === 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>'
+				: '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>'
+			) + '<div style="display:inline-block; margin-top:4px"></div></div>');
 		$event($1(el), {click: function(e) { $pD(e); $close($up(this)); }});
 		$show($id('DESU_alertbox').appendChild(el));
 	}
@@ -1331,10 +1334,8 @@ function initKeyNavig() {
 			});
 		};
 	if(!aib.nul) addEvents();
-	else pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified', function(e) {
-		if(eT) clearTimeout(eT);
-		eT = setTimeout(addEvents, 200);
-	}, false);
+	else pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified',
+		function(e) { if(eT) clearTimeout(eT); eT = setTimeout(addEvents, 200); }, false);
 	window.onscroll = function() {
 		if(!scrScroll) { scrollP = true; scrollT = true; }
 		else scrScroll = false;
@@ -1349,7 +1350,7 @@ function initKeyNavig() {
 		if(!TNum && scrollP) {
 			if((pByCnt[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
 			else if(scrollT) {
-				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--);
+				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--) {};
 				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh]);
 			} else curTh = cTIndex;
 		} else curTh = cTIndex;
@@ -2090,7 +2091,7 @@ function getPstCount(thrd) {
 		);
 	return $X('.//table[contains(@class," DESU_post")]'
 		+ '|.//div[contains(@class," DESU_post")]', thrd).snapshotLength + 1
-		+ (om && (om = om.textContent) ? +(om.match(/\d+/) || [0])[0] : 0);
+		+ (om && (om = om.textContent) ? +(om.match(/\d+/) || 0)[0] : 0);
 }
 
 function getTitle(post) {
@@ -2578,7 +2579,7 @@ function funcPostPreview(post, parentId, msg) {
 	eventPostImg(pView);
 	addLinkImg(pView);
 	if(Cfg.navig === 2) {
-		showRefMap(pView, pView.Num, false);
+		showRefMap(pView, pView.Num);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
 	}
@@ -2646,36 +2647,33 @@ function eventRefLink(el) {
 =============================================================================*/
 
 function parseHTMLdata(html, b) {
-	var aD, thrd, pNum;
+	var dc, thrd, pNum, om;
 	if(!pr.on && oeForm) {
 		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
-	if(aib.hana)
-		html = '<html><head></head><body><div class="thread">' + html + '</div></body></html>';
-	aD = HTMLtoDOM(html);
-	parseDelform($x(!aib.hana ? aib.xDForm : false, aD, aD), aD, function(thr) {
+	dc = HTMLtoDOM(aib.hana
+		? '<html><head></head><body><div class="thread">' + html + '</div></body></html>' : html);
+	parseDelform($x(!aib.hana ? aib.xDForm : false, dc, dc), dc, function(thr) {
 		thrd = thr;
 		if(!ajThrds[b]) { ajThrds[b] = {}; ajPosts[b] = {}; }
 		ajThrds[b][thr.Num] = [];
 	}, function(post, i) {
-		var om;
-		if(i === 0 && aib.kus && (om = $x('.//span[@class="omittedposts"]', thrd, aD)))
+		if(i === 0 && aib.kus && (om = $x('.//span[@class="omittedposts"]', thrd, dc)))
 			post.appendChild(om);
 		pNum = post.Num;
 		ajThrds[b][thrd.Num].push(pNum);
 		ajPosts[b][pNum] = post;
-		$each($X(aib.xMsg + '//a[starts-with(text(),">>")]', post, aD), function(link) {
+		$each($X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
 			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
 		});
 	});
 }
 
 function ajaxGetPosts(url, b, tNum, fn) {
-	if(!url) {
-		if(aib.hana) url = '/api/thread/expand/' + b + '/' + tNum;
-		else url = '/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt);
-	}
+	if(!url) url =
+		aib.hana ? '/api/thread/expand/' + b + '/' + tNum
+		: '/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt);
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState !== 4) return;
 		if(xhr.status === 200) {
@@ -2804,10 +2802,9 @@ function getDelPosts(err) {
 	var del = 0;
 	if(err) return false;
 	forAll(function(post) {
-		if(ajThrds[brd][TNum].indexOf(post.Num) < 0) {
-			if(!post.isDel) { post.Btns.className += '_del'; post.isDel = true; }
-			del++;
-		}
+		if(ajThrds[brd][TNum].indexOf(post.Num) >= 0) return;
+		if(!post.isDel) { post.Btns.className += '_del'; post.isDel = true; }
+		del++;
 	});
 	return del;
 }
@@ -3437,19 +3434,24 @@ function replyForm(f) {
 	this.form = f;
 	this.tr = 'ancestor::' + tr + '[1]';
 	this.recap = $x('.//input[@id="recaptcha_response_field"]', f);
-	this.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', f) || this.recap;
+	this.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', f)
+		|| this.recap;
 	this.txta = $x('.//' + tr + '//textarea' + (aib.krau ? '[@name="internal_t"]' : '[last()]'), f);
 	this.subm = $x('.//' + tr + '//input[@type="submit"]', f);
 	this.file = $x('.//' + tr + '//input[@type="file"]', f);
 	this.passw = $x('.//' + tr + '//input[@type="password"]', f);
-	this.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', f);
-	this.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', f);
+	this.gothr = $x('.//tr[@id="trgetback"]'
+		+ '|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', f);
+	this.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1"'
+		+ ' or @name="akane")]', f);
 	this.mail = $x(pre + (
 		aib._410 ? '@name="sage"]'
 		: aib.futr ? '@name="denshimeru"]'
-		: '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
+		: '(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki"'
+			+ ' or @name="dont_bump")]'
 	), f);
-	this.subj = $x(pre + '(@name="kasumi" or @name="nya3" or @name="internal_s" or @name="subject" or @name="field3" or @name="sub")]', f);
+	this.subj = $x(pre + '(@name="kasumi" or @name="nya3" or @name="internal_s" or @name="subject"'
+		+ ' or @name="field3" or @name="sub")]', f);
 }
 
 function aibDetector(host, dc) {
