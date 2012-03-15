@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.14.2
+// @version			12.3.15.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-13',
+	version:	'2012-03-15',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -1136,9 +1136,7 @@ function addFavoritesTable() {
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {type: 'checkbox'}),
-					$if(h === aib.host || sav.GM,
-						$new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {click: loadFavorThread})
-					),
+					$new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {click: loadFavorThread}),
 					$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 					$txt(' - ' + fav.txt),
 					$add('<span class="DESU_favpcount">[<span>' + fav.cnt + '</span>]</span>')
@@ -2679,11 +2677,7 @@ function ajaxGetPosts(url, b, tNum, fn) {
 		: '/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt);
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState !== 4) return;
-		if(xhr.status === 200) {
-			if(!/^https?:\/\//.test(url)) parseHTMLdata(xhr.responseText, b);
-			// else TODO: crossboard thread display
-			fn();
-		}
+		if(xhr.status === 200) { parseHTMLdata(xhr.responseText, b); fn(); }
 		else if(xhr.status === 0) fn(Lng.noConnect);
 		else fn('HTTP [' + xhr.status + '] ' + xhr.statusText);
 	}});
@@ -2781,21 +2775,22 @@ function loadFavorThread(e) {
 		b = arr[1],
 		tNum = arr[2];
 	$pD(e);
-	if(thr.style.display !== 'none') { $disp(thr); thr.removeChild($x('./iframe[@class="DESU_favIframe"]')); return; }
+	if(thr.style.display !== 'none')
+		{ $disp(thr); $del($x('.//iframe[@class="DESU_favIframe"]')); return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
+	if(url) {
+		thr.appendChild($new('iframe', {name: 'DESU_favIframe', Class: 'DESU_favIframe', src: url}));
+		$disp(thr);
+		return;
+	}
 	$alert(Lng.loading, 'wait');
-	ajaxGetPosts(url, b, tNum, function(err) {
+	ajaxGetPosts(null, b, tNum, function(err) {
 		if(err) { $close($id('DESU_alert_wait')); $alert(err); return; }
-		if(url && /^http:\/\//.test(url)) {
-			thr.appendChild($new('iframe', {name: 'DESU_favIframe', Class: 'DESU_favIframe', src: url}));
-			$close($id('DESU_alert_wait'));
-		} else {
-			newPost(thr, b, tNum, 0, true);
-			expandThread(thr, b, tNum, 5, true);
-			$x('.//tr[@id="DESU_favdata_' + aib.host + '|' + b + '|' + tNum
-				+ '"]//span[@class="DESU_favpcount"]/span').textContent = getPstCount(thr);
-			setStored('DESU_Favorites', $uneval(Favor));
-		}
+		newPost(thr, b, tNum, 0, true);
+		expandThread(thr, b, tNum, 5, true);
+		$x('.//tr[@id="DESU_favdata_' + aib.host + '|' + b + '|' + tNum
+			+ '"]//span[@class="DESU_favpcount"]/span').textContent = getPstCount(thr);
+		setStored('DESU_Favorites', $uneval(Favor));
 		$disp(thr);
 	});
 }
@@ -3539,7 +3534,7 @@ function initBoard() {
 	if(window.location === 'about:blank') return false;
 	aib = new aibDetector(window.location.hostname, doc);
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
-	if(/DESU_favIframe/.test(window.name)) { liteMode = true; }
+	if(/DESU_favIframe/.test(window.name)) liteMode = true;
 	dForm = $x(aib.xDForm);
 	if(!dForm || $id('DESU_panel')) return false;
 	if(aib.hid) setTimeout = function(fn) { fn(); };
@@ -3659,10 +3654,9 @@ function parseDelform(node, dc, tFn, pFn) {
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 	}, true);
-	if(liteMode) {
-		$each($X('preceding-sibling::node()', dForm, dc), function(el) { $del(el); });
-		$each($X('following-sibling::node()', dForm, dc), function(el) { $del(el); });
-	}
+	if(liteMode) $each($X('preceding-sibling::node()|following-sibling::node()', dForm, dc),
+		function(el) { $del(el); }
+	);
 	return node;
 }
 
