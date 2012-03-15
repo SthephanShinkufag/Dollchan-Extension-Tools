@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.15.0
+// @version			12.3.15.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -259,12 +259,12 @@ LngArray = {
 	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
 	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
 	keyNavHelp:		[
-		'На доске:\n"J" - тред выше,\n"K" - тред ниже,\n"N" - пост выше,\n"M" - пост ниже,'
+		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,'
 			+ '\n"V" - вход в тред (Firefox: разрешите всплывающие окна)\n\nВ треде:'
-			+ '\n"J" - пост выше,\n"K" - пост ниже,\n"V" - быстрый ответ',
-		'On board:\n"J" - thread above,\n"K" - thread below,\n"N" - post above,\n"M" - post below,'
+			+ '\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
+		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,'
 			+ '\n"V" - enter a thread (Firefox: allow pop-up windows)\n\nIn thread:'
-			+ '\n"J" - post above,\n"K" - post below,\n"V" - quick reply'
+			+ '\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
 	],
 	search:			['Искать картинку в ', 'Search image in '],
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
@@ -1360,20 +1360,20 @@ function initKeyNavig() {
 			return;
 		}
 		scrScroll = true;
-		if(kc === 74) {
+		if(kc === 75) {
 			if(TNum) scrollUpToPost();
 			else try {
 				cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, -1, true, true);
 				scrollT = true;
 			} catch(e) {};
-		} else if(kc === 75) {
+		} else if(kc === 74) {
 			if(TNum) scrollDownToPost();
 			else if(cTIndex !== tByCnt.length - 1) try {
 				cTIndex = scrollToPost(tByCnt, cTIndex + 1, 1, true, true);
 				scrollT = true;
 			} catch(e) {};
-		} else if(!TNum && kc === 78) scrollUpToPost();
-		else if(!TNum && kc === 77) scrollDownToPost();
+		} else if(!TNum && kc === 77) scrollUpToPost();
+		else if(!TNum && kc === 78) scrollDownToPost();
 	};
 }
 
