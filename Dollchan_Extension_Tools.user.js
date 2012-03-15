@@ -270,7 +270,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -766,6 +766,7 @@ function addPanel() {
 }
 
 function toggleContent(name, isUpd) {
+	if(liteMode) return;
 	var el = $id('DESU_content'), id = 'DESU_content_' + name;
 	if(isUpd && el.className !== id) return;
 	el.innerHTML = '';
@@ -1968,6 +1969,7 @@ function scriptCSS() {
 		.DESU_searchGoogle { background:url(http://www.google.ru/favicon.ico); }\
 		.DESU_searchTineye { background:url(http://www.tineye.com/favicon.ico); }\
 		.DESU_searchIqdb { background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size: cover; }\
+		.DESU_favIframe {border: none; width: ' + (document.body.offsetWidth - 65) + 'px; height: ' + (window.innerHeight - 100) + 'px; }\
 		.DESU_selected {' + (
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
 			: brCssFix + 'box-shadow:6px 0 2px -2px red, -6px 0 2px -2px red}'
@@ -2056,7 +2058,8 @@ function scriptCSS() {
 		.ftbl {width:auto; margin:0}\
 		.reply {background: #f0e0d6}'
 	);
-	if(aib.krau) x.push('div[id^="Wz"] {z-index:10000 !important;}\
+	if(aib.krau) x.push('div[id^=disclaimer] {display: none !important;}\
+		div[id^="Wz"] {z-index:10000 !important;}\
 		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}\
 		.file_reply + .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
 		.DESU_ytube + div:not(.file_reply) {clear:both;}');
@@ -2778,13 +2781,13 @@ function loadFavorThread(e) {
 		b = arr[1],
 		tNum = arr[2];
 	$pD(e);
-	if(thr.style.display !== 'none') { $disp(thr); thr.innerHTML = ''; return; }
+	if(thr.style.display !== 'none') { $disp(thr); thr.removeChild($x('./iframe[@class="DESU_favIframe"]')); return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	$alert(Lng.loading, 'wait');
 	ajaxGetPosts(url, b, tNum, function(err) {
 		if(err) { $close($id('DESU_alert_wait')); $alert(err); return; }
 		if(url && /^http:\/\//.test(url)) {
-			//TODO: crossboard thread display
+			thr.appendChild($new('iframe', {name: 'DESU_favIframe', Class: 'DESU_favIframe', src: url}));
 			$close($id('DESU_alert_wait'));
 		} else {
 			newPost(thr, b, tNum, 0, true);
@@ -3536,6 +3539,7 @@ function initBoard() {
 	if(window.location === 'about:blank') return false;
 	aib = new aibDetector(window.location.hostname, doc);
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
+	if(/DESU_favIframe/.test(window.name)) { liteMode = true; }
 	dForm = $x(aib.xDForm);
 	if(!dForm || $id('DESU_panel')) return false;
 	if(aib.hid) setTimeout = function(fn) { fn(); };
@@ -3655,6 +3659,10 @@ function parseDelform(node, dc, tFn, pFn) {
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 	}, true);
+	if(liteMode) {
+		$each($X('preceding-sibling::node()', dForm, dc), function(el) { $del(el); });
+		$each($X('following-sibling::node()', dForm, dc), function(el) { $del(el); });
+	}
 	return node;
 }
 
@@ -3690,9 +3698,9 @@ function doScript() {
 	readCfg();											 Log('readCfg');
 	if(!initDelform()) return;							 Log('initDelform');
 	if(Cfg.keynav !== 0) { initKeyNavig();				 Log('initKeyNavig'); }
-	addPanel();											 Log('addPanel');
+	if(!liteMode) { addPanel();							 Log('addPanel'); }
 	doChanges();										 Log('doChanges');
-	readFavorites();									 Log('readFavorites');
+	if(!liteMode) { readFavorites();					 Log('readFavorites'); }
 	forAll(addPostButtons);								 Log('addPostButtons');
 	readPostsVisib();									 Log('readPostsVisib');
 	if(Cfg.navmrk !== 0) { readViewedPosts();			 Log('readViewedPosts'); }
