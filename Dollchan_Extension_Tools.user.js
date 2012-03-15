@@ -1730,7 +1730,7 @@ function prepareData(fn) {
 
 function prepareFiles(el, fn) {
 	var fr = new FileReader(), file = el.files[0];
-	if((Cfg.rndimg && aib.nul) || el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
+	if((!Cfg.rndimg && aib.nul) || el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
