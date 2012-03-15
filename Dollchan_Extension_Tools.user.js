@@ -531,7 +531,7 @@ function readCfg() {
 	if(aib.hana) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
 	if(nav.Chrome) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
-	if(nav.Firefox < 7 && !nav.Chrome) Cfg.rndimg = 0;
+	if((nav.Firefox < 7 && !nav.Chrome) || aib.nul) Cfg.rndimg = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
@@ -928,7 +928,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
-		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
+		$if((nav.Firefox > 6 || nav.Chrome) && !aib.nul, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
 		$New('div', [
 			lBox('keynav', Lng.keyNavig),
@@ -1622,7 +1622,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(nav.Firefox > 3 || nav.Chrome) {
+		if((nav.Firefox > 3 || nav.Chrome) && !aib.nul) {
 			pr.form.onsubmit = function(e) {
 				$pD(e);
 				prepareData(function(fd) { ajaxCheckSubmit(pr.form, fd, checkUpload); });
@@ -1715,7 +1715,7 @@ function checkDeleted(dc) {
 }
 
 function prepareData(fn) {
-	if(!Cfg.rndimg && !aib.nul) { fn(new FormData(pr.form)); return; }
+	if(!Cfg.rndimg) { fn(new FormData(pr.form)); return; }
 	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
 		cb = function() { if(done && ready === rNeeded) fn(fd); };
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
@@ -1730,7 +1730,7 @@ function prepareData(fn) {
 
 function prepareFiles(el, fn) {
 	var fr = new FileReader(), file = el.files[0];
-	if((!Cfg.rndimg && aib.nul) || el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
+	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
