@@ -270,7 +270,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, pTimeOutUnMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -2555,27 +2555,82 @@ function addRefMap(post, uEv) {
 
 /*----------------------->>RefLinks posts preview functions------------------*/
 
-function delPostPreview() {
-	var xp, cln;
-	if(pView) $delNx(pView);
-	else {
-		xp = './/div[starts-with(@id,"DESU_preview")]';
-		cln = $x(xp);
-		if(cln) clearTimeout(cln.marker);
-		$Del(xp);
+function addNodeIntoTree(pNode, node) {
+	var nNode;
+	if(pViews == null) { pViews = node; return; }
+	if(pNode !== null && pNode.kid === null) {
+		node.parent = pNode;
+		pNode.kid = node;
+		return;
+	}
+	for(nNode = pNode !== null ? pNode.kid : pViews; nNode.nextSibling !== null; nNode = nNode.nextSibling);
+	node.prevSibling = nNode;
+	node.parent = pNode;
+	nNode.nextSibling = node;
+}
+
+function traverseTree(node, allTree, fn) {
+	if(node === null) return;
+	var kNode = node.kid, sNode;
+	while(kNode !== null) {
+		for(sNode = kNode.nextSibling; sNode !== null; sNode = sNode.nextSibling) traverseTree(sNode, false, fn);
+		fn(kNode);
+		kNode = kNode.kid;
+	}
+	fn(node);
+	if(allTree) {
+		for(sNode = node.nextSibling; sNode !== null; sNode = sNode.nextSibling) traverseTree(sNode, false, fn);
+		for(sNode = node.prevSibling; sNode !== null; sNode = sNode.prevSibling) traverseTree(sNode, false, fn);
 	}
 }
 
-function checkPostPreview(e) {
-	if(Cfg.navdel !== '0' && pView) {
-		clearTimeout(pView.close);
-		pView.close = setTimeout(delPostPreview, Cfg.navdel);
-	}
-	pView = $x('ancestor-or-self::div[starts-with(@id,"DESU_preview")]', e.relatedTarget);
-	if(Cfg.navdel === '0') delPostPreview();
+function markForDelete() {
+	traverseTree(pViews, true, function(node) { node.forDel = true; });
+	pTimeOutMark = setTimeout(deleteOldNodes, +Cfg.navdel);
 }
 
-function funcPostPreview(post, parentId, msg) {
+function unMarkForDelete(node) {
+	if(this) node = this._node;
+	clearTimeout(pTimeOutMark);
+	clearTimeout(pTimeOutUnMark);
+	traverseTree(pViews, true, function(node) { node.forDel = true; });
+	do {node.forDel = false;}
+	while((node = node.parent) !== null);
+	pTimeOutUnMark = setTimeout(deleteOldNodes, +Cfg.navdel);
+}
+
+function deleteOldNodes() {
+	var nNode = pViews, kNode, sNode;
+	while(nNode !== null) {
+		if(nNode.forDel) deleteTree(nNode);
+		else {
+			if(pViews === null) pViews = nNode;
+			for(kNode = nNode.kid; kNode !== null; kNode = kNode.kid) {
+				for(sNode = kNode.nextSibling; sNode !== null; sNode = sNode.nextSibling)
+					if(sNode.forDel) deleteTree(sNode);
+				if(kNode.forDel) deleteTree(kNode);
+			}
+		}
+		nNode = nNode.nextSibling
+	}
+}
+
+function deleteTree(node) {
+	traverseTree(node, false, function(node) { clearTimeout(node.post.marker); $del(node.post); });
+	if(node.prevSibling !== null) node.prevSibling.nextSibling = node.nextSibling;
+	if(node.nextSibling !== null) node.nextSibling.prevSibling = node.prevSibling;
+	if(node.parent !== null) node.parent.kid = null;
+	if(pViews === node) pViews = null;
+}
+
+function findNode(node, num) {
+	if(node.Num === num) return node;
+	for(var sNode = node.nextSibling; sNode !== null; sNode = sNode.nextSibling) if(sNode.Num === num) return sNode;
+	for(sNode = node.prevSibling; sNode !== null; sNode = sNode.prevSibling) if(sNode.Num === num) return sNode;
+	return false;
+}
+
+function funcPostPreview(pView, post, parentId, msg) {
 	var el, postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
 	if(!pView) return;
 	if(!post) { pView.appendChild($new('span', {Class: 'DESU_info', html: msg})); return }
@@ -2605,9 +2660,9 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		parentId = parent ? parent.Num : null,
-		post = pByNum[pNum] || (ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false);
+		post = pByNum[pNum] || (ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
+	if(parent._node && parent._node.kid && (pView = findNode(parent._node.kid, pNum))) return unMarkForDelete(pView);
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
@@ -2620,26 +2675,27 @@ function showPostPreview(e) {
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
 	pView = $new('div', {
-		id: 'DESU_preview_' + pNum,
 		Class: aib.pClass + ' DESU_post',
 		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
 			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
-			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}, {
-		mouseout: checkPostPreview,
-		mouseover: function() { if(!pView) pView = this; }
-	});
+			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}
+	);
 	pView.Num = pNum;
+	pView._node = {nextSibling: null, prevSibling: null, kid: null, parent: null, Num: pNum, forDel: false, post: pView};
+	addNodeIntoTree(parent._node ? parent._node : null, pView._node);
+	pView.addEventListener('mouseover', unMarkForDelete, true);
+	pView.addEventListener('mouseout', markForDelete, true);
+	unMarkForDelete(pView._node);
 	if(post) {
-		funcPostPreview(post, parentId);
+		funcPostPreview(pView, post, parent.Num);
 		if(post.Vis === 0) togglePost(pView);
 	} else {
-		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
+		funcPostPreview(pView, null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
 			if(!impNodes[pNum]) impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false;
-			funcPostPreview(impNodes[pNum], parentId, err || Lng.postNotFound);
+			funcPostPreview(pView, impNodes[pNum], parent.Num, err || Lng.postNotFound);
 		});
 	}
-	$del($id(pView.id));
 	dForm.appendChild(pView);
 	if(Cfg.navmrk !== 0)
 		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 2e3);
@@ -2649,7 +2705,8 @@ function eventRefLink(el) {
 	if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 		$rattr(link, 'onmouseover');
 		$rattr(link, 'onmouseout');
-		$event(link, {mouseover: showPostPreview, mouseout: checkPostPreview});
+		link.addEventListener('mouseover', showPostPreview, true);
+		link.addEventListener('mouseout', markForDelete, true);
 	});
 }
 
