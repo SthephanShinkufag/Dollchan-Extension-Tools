@@ -260,10 +260,10 @@ LngArray = {
 	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
 	keyNavHelp:		[
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,'
-			+ '\n"V" - вход в тред (Firefox: разрешите всплывающие окна)\n\nВ треде:'
+			+ '\n"V" - вход в тред\n\nВ треде:'
 			+ '\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,'
-			+ '\n"V" - enter a thread (Firefox: allow pop-up windows)\n\nIn thread:'
+			+ '\n"V" - enter a thread\n\nIn thread:'
 			+ '\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
 	],
 	search:			['Искать в ', 'Search in '],
@@ -1376,7 +1376,10 @@ function initKeyNavig() {
 		scrollP = scrollT = false;
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
-			else window.open(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), '_blank');
+			else {
+				if(nav.Firefox) GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
+				else window.open(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), '_blank');
+			}
 			return;
 		}
 		scrScroll = true;
