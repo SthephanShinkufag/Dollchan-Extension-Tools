@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.15.1
+// @version			12.3.16.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1954,7 +1954,7 @@ function scriptCSS() {
 		.DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic}\
 		.DESU_refmap:before {content:"' + Lng.replies + '"}\
 		.DESU_refmap a {text-decoration:none}\
-		.DESU_ytlink:before {content:""; padding:0 16px 0 0; margin:0 4px; background:url( data:image/gif;base64,R0lGODlhEAAQAJEAAP8pDf///wAAAP///yH5BAEAAAMALAAAAAAQABAAQAI4XHShywML4pN0oYQynIH7qAjiMWrMiW7d+ihtR8Vya6bnpdVWWI7bHIPBJEMZ6/giJiEQBzA2KAAAOw== ) no-repeat}\
+		.DESU_ytlink:before {content:""; padding:0 16px 0 0; margin:0 4px; background:url(http://youtube.com/favicon.ico) no-repeat}\
 		.DESU_ytube > img {cursor:pointer}\
 		.reply {width:auto}\
 		a[href="#"] {text-decoration:none !important; outline:none}\
@@ -1963,11 +1963,12 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0} to {opacity:1}}\
 		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0}}\
-		a[class^=DESU_search] { width:16px; height:16px; display: inline-block; margin: 0px 3px -3px 0px; }\
-		.DESU_searchGoogle { background:url(http://www.google.ru/favicon.ico); }\
-		.DESU_searchTineye { background:url(http://www.tineye.com/favicon.ico); }\
-		.DESU_searchIqdb { background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size: cover; }\
-		.DESU_favIframe {border: none; width: ' + (document.body.offsetWidth - 65) + 'px; height: ' + (window.innerHeight - 100) + 'px; }\
+		a[class^=DESU_search] {width:16px; height:16px; display: inline-block; margin: 0px 3px -3px 0px}\
+		.DESU_searchGoogle {background:url(http://www.google.ru/favicon.ico)}\
+		.DESU_searchTineye {background:url(http://www.tineye.com/favicon.ico)}\
+		.DESU_searchIqdb {background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size:cover}\
+		.DESU_searchSaucenao {background:url(http://saucenao.com/favicon.ico)}\
+		.DESU_favIframe {border:none; width:' + (document.body.offsetWidth - 65) + 'px; height:' + (window.innerHeight - 100) + 'px}\
 		.DESU_selected {' + (
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
 			: brCssFix + 'box-shadow:6px 0 2px -2px red, -6px 0 2px -2px red}'
@@ -2479,6 +2480,9 @@ function addImgSearch(post) {
 			}),
 			$new('a', {Class: 'DESU_searchGoogle', title: Lng.search + 'Google', target: '_blank',
 				href: 'http://google.ru/searchbyimage?image_url=' + href
+			}),
+			$new('a', {Class: 'DESU_searchSaucenao', title: Lng.search + 'SauceNAO', target: '_blank',
+				href: 'http://saucenao.com/search.php?url=' + href
 			})
 		]);
 	});
