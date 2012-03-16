@@ -2619,7 +2619,7 @@ function deleteTree(node) {
 	traverseTree(node, false, function(node) { clearTimeout(node.post.marker); $del(node.post); });
 	if(node.prevSibling !== null) node.prevSibling.nextSibling = node.nextSibling;
 	if(node.nextSibling !== null) node.nextSibling.prevSibling = node.prevSibling;
-	if(node.parent !== null) node.parent.kid = null;
+	if(node.parent !== null && node.parent.kid === node) node.parent.kid = node.nextSibling;
 	if(pViews === node) pViews = null;
 }
 
