@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.16.1
+// @version			12.3.16.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -266,7 +266,7 @@ LngArray = {
 			+ '\n"V" - enter a thread (Firefox: allow pop-up windows)\n\nIn thread:'
 			+ '\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
 	],
-	search:			['Искать картинку в ', 'Search image in '],
+	search:			['Искать в ', 'Search in '],
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
@@ -1258,9 +1258,10 @@ function removeSelMenu(e) {
 	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) $del($id('DESU_select'));
 }
 
-function addSelMenu(el, arr) {
-	var x, y, pos;
-	x = 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
+function addSelMenu(el, html) {
+	var y, pos, x =
+		el.className === 'DESU_icn_imgsrc' ? 'left:' + $offset(el).left
+		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
 	if(Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
 		if(el.id === 'DESU_btn_refresh') y = 'bottom:25';
@@ -1270,16 +1271,18 @@ function addSelMenu(el, arr) {
 		y = 'top:' + ($offset(el).top + el.offsetHeight);
 	}
 	doc.body.appendChild($add('<div class="' + aib.pClass + '" id="DESU_select" style="position:'
-		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; padding:2px 5px;'
-		+ ' border:1px solid grey"><a href="#">' + arr.join('</a><a href="#">') + '</a></div>', {
+		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; '
+		+ 'padding:2px 5px; border:1px solid grey">' + html + '</div>', {
 		mouseout: removeSelMenu
 	}));
 	return $X('.//div[@id="DESU_select"]/a');
 }
 
 function selectSpell(e) {
-	$each(addSelMenu(e.target, ('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,'
-		+ '#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ').split(',')), function(a) {
+	$each(addSelMenu(e.target, '<a href="#">' + (
+		'#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,#op,'
+		+ '#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video '
+	).split(',').join('</a><a href="#">') + '</a>'), function(a) {
 			$event(a, {click: function(e) {
 				var exp = this.textContent;
 				$pD(e);
@@ -1295,9 +1298,9 @@ function selectSpell(e) {
 }
 
 function selectPostHider(post) {
-	var a;
 	if(Cfg.menuhd === 0 || Cfg.filthr === 0 && post.isOp) return;
-	a = addSelMenu($1(post.Btns), Lng.selHiderMenu);
+	var a = addSelMenu($1(post.Btns),
+		'<a href="#">' + Lng.selHiderMenu.join('</a><a href="#">') + '</a>');
 	$event(a.snapshotItem(0), {
 		click: function(e) { $pD(e); applySpells(quotetxt); },
 		mouseover: function() { quotetxt = txtSelection().trim(); }
@@ -1311,15 +1314,32 @@ function selectPostHider(post) {
 }
 
 function selectExpandThread(post) {
-	$each(addSelMenu($x('a[3]', post.Btns), Lng.selExpandThrd), function(a) {
+	$each(addSelMenu($x('a[3]', post.Btns),
+		'<a href="#">' + Lng.selExpandThrd.join('</a><a href="#">') + '</a>'
+	), function(a) {
 		$event(a, {click: function(e) { $pD(e); loadThread(post, parseInt(this.textContent)); }});
 	});
 }
 
 function selectAjaxPages() {
-	$each(addSelMenu($id('DESU_btn_refresh'), Lng.selAjaxPages), function(a, i) {
+	$each(addSelMenu($id('DESU_btn_refresh'),
+		'<a href="#">' + Lng.selAjaxPages.join('</a><a href="#">') + '</a>'
+	), function(a, i) {
 		$event(a, {click: function(e) { $pD(e); loadPages(i + 1); }});
 	});
+}
+
+function selectImgSearch(btn, href) {
+	addSelMenu(btn,
+		'<a class="DESU_srcIqdb" href="http://iqdb.org/?url=' + href
+			+ '" target="_blank">' + Lng.search + 'IQDB</a>'
+		+ '<a class="DESU_srcTineye" href="http://tineye.com/search/?url=' + href
+			+ '" target="_blank">' + Lng.search + 'TinEye</a>'
+		+ '<a class="DESU_srcGoogle" href="http://google.ru/searchbyimage?image_url=' + href
+			+ '" target="_blank">' + Lng.search + 'Google</a>'
+		+ '<a class="DESU_srcSaucenao" href="http://saucenao.com/search.php?url=' + href
+			+ '" target="_blank">' + Lng.search + 'SauceNAO</a>'
+	);
 }
 
 /*---------------------------Init navigation with keyboard-------------------*/
@@ -1932,7 +1952,7 @@ function scriptCSS() {
 		#DESU_sett_main {padding:7px; margin:0; border:1px solid grey; font:13px sans-serif}\
 		#DESU_sett_main input[value=">"] {width:20px}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
-		#DESU_select a {display:block; padding:3px 10px; color:inherit; font:13px arial; white-space:nowrap}\
+		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
 		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
 		#DESU_spellpanel {margin:0 0 0 40px}\
 		#DESU_spellpanel a {padding:0 10px; text-align:center}\
@@ -1963,11 +1983,12 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0} to {opacity:1}}\
 		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0}}\
-		a[class^=DESU_src] {width:16px; height:16px; display: inline-block; margin: 0px 3px -3px 0px}\
-		.DESU_srcGoogle {background:url(http://google.ru/favicon.ico)}\
-		.DESU_srcTineye {background:url(http://tineye.com/favicon.ico)}\
-		.DESU_srcIqdb {background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size:cover}\
-		.DESU_srcSaucenao {background:url(http://saucenao.com/favicon.ico)}\
+		a[class^=DESU_src]:before {content:""; padding:0 16px 0 0; margin:0 4px}\
+		.DESU_icn_imgsrc {padding:0 16px 0 0; background:url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor:pointer}\
+		.DESU_srcGoogle:before {background:url(http://google.ru/favicon.ico)}\
+		.DESU_srcTineye:before {background:url(http://tineye.com/favicon.ico)}\
+		.DESU_srcIqdb:before {background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size:cover}\
+		.DESU_srcSaucenao:before {background:url(http://saucenao.com/favicon.ico)}\
 		.DESU_favIframe {border:none; width:' + (document.body.offsetWidth - 65) + 'px; height:' + (window.innerHeight - 100) + 'px}\
 		.DESU_selected {' + (
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
@@ -2470,21 +2491,11 @@ function addImgSearch(post) {
 	+ (aib.nul ? '[1]' : ''), post || dForm), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
 		if(link.innerHTML.indexOf('<') >= 0) return;
-		var href = escape(link.href);
-		$before(link, [
-			$new('a', {Class: 'DESU_srcIqdb', title: Lng.search + 'IQDB', target: '_blank',
-				href: 'http://iqdb.org/?url=' + href
-			}),
-			$new('a', {Class: 'DESU_srcTineye', title: Lng.search + 'TinEye', target: '_blank',
-				href: 'http://tineye.com/search/?url=' + href
-			}),
-			$new('a', {Class: 'DESU_srcGoogle', title: Lng.search + 'Google', target: '_blank',
-				href: 'http://google.ru/searchbyimage?image_url=' + href
-			}),
-			$new('a', {Class: 'DESU_srcSaucenao', title: Lng.search + 'SauceNAO', target: '_blank',
-				href: 'http://saucenao.com/search.php?url=' + href
-			})
-		]);
+		$before(link, [$new('a', {
+			Class: 'DESU_icn_imgsrc'}, {
+			mouseover: function() { selectImgSearch(this, escape(link.href)); },
+			mouseout: removeSelMenu
+		})]);
 	});
 }
 
