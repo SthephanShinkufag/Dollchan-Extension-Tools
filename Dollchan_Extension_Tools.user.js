@@ -1967,6 +1967,7 @@ function scriptCSS() {
 		.DESU_searchGoogle { background:url(http://www.google.ru/favicon.ico); }\
 		.DESU_searchTineye { background:url(http://www.tineye.com/favicon.ico); }\
 		.DESU_searchIqdb { background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size: cover; }\
+		.DESU_searchSNAO { background:url(http://saucenao.com/favicon.ico); }\
 		.DESU_favIframe {border: none; width: ' + (document.body.offsetWidth - 65) + 'px; height: ' + (window.innerHeight - 100) + 'px; }\
 		.DESU_selected {' + (
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
@@ -2471,6 +2472,9 @@ function addImgSearch(post) {
 		if(link.innerHTML.indexOf('<') >= 0) return;
 		var href = escape(link.href);
 		$before(link, [
+			$new('a', {Class: 'DESU_searchSNAO', title: Lng.search + 'SauceNAO', target: '_blank',
+				href: 'http://saucenao.com/search.php?db=999&url=' + href
+			}),
 			$new('a', {Class: 'DESU_searchIqdb', title: Lng.search + 'IQDB', target: '_blank',
 				href: 'http://iqdb.org/?url=' + href
 			}),
