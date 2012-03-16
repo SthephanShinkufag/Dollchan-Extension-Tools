@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.16.0
+// @version			12.3.16.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1963,11 +1963,11 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0} to {opacity:1}}\
 		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0}}\
-		a[class^=DESU_search] {width:16px; height:16px; display: inline-block; margin: 0px 3px -3px 0px}\
-		.DESU_searchGoogle {background:url(http://www.google.ru/favicon.ico)}\
-		.DESU_searchTineye {background:url(http://www.tineye.com/favicon.ico)}\
-		.DESU_searchIqdb {background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size:cover}\
-		.DESU_searchSaucenao {background:url(http://saucenao.com/favicon.ico)}\
+		a[class^=DESU_src] {width:16px; height:16px; display: inline-block; margin: 0px 3px -3px 0px}\
+		.DESU_srcGoogle {background:url(http://google.ru/favicon.ico)}\
+		.DESU_srcTineye {background:url(http://tineye.com/favicon.ico)}\
+		.DESU_srcIqdb {background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size:cover}\
+		.DESU_srcSaucenao {background:url(http://saucenao.com/favicon.ico)}\
 		.DESU_favIframe {border:none; width:' + (document.body.offsetWidth - 65) + 'px; height:' + (window.innerHeight - 100) + 'px}\
 		.DESU_selected {' + (
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
@@ -2472,16 +2472,16 @@ function addImgSearch(post) {
 		if(link.innerHTML.indexOf('<') >= 0) return;
 		var href = escape(link.href);
 		$before(link, [
-			$new('a', {Class: 'DESU_searchIqdb', title: Lng.search + 'IQDB', target: '_blank',
+			$new('a', {Class: 'DESU_srcIqdb', title: Lng.search + 'IQDB', target: '_blank',
 				href: 'http://iqdb.org/?url=' + href
 			}),
-			$new('a', {Class: 'DESU_searchTineye', title: Lng.search + 'TinEye', target: '_blank',
-				href: 'http://www.tineye.com/search/?url=' + href
+			$new('a', {Class: 'DESU_srcTineye', title: Lng.search + 'TinEye', target: '_blank',
+				href: 'http://tineye.com/search/?url=' + href
 			}),
-			$new('a', {Class: 'DESU_searchGoogle', title: Lng.search + 'Google', target: '_blank',
+			$new('a', {Class: 'DESU_srcGoogle', title: Lng.search + 'Google', target: '_blank',
 				href: 'http://google.ru/searchbyimage?image_url=' + href
 			}),
-			$new('a', {Class: 'DESU_searchSaucenao', title: Lng.search + 'SauceNAO', target: '_blank',
+			$new('a', {Class: 'DESU_srcSaucenao', title: Lng.search + 'SauceNAO', target: '_blank',
 				href: 'http://saucenao.com/search.php?url=' + href
 			})
 		]);
