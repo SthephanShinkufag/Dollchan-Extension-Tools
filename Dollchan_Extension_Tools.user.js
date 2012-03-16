@@ -2623,13 +2623,6 @@ function deleteTree(node) {
 	if(pViews === node) pViews = null;
 }
 
-function findNode(node, num) {
-	if(node.Num === num) return node;
-	for(var sNode = node.nextSibling; sNode !== null; sNode = sNode.nextSibling) if(sNode.Num === num) return sNode;
-	for(sNode = node.prevSibling; sNode !== null; sNode = sNode.prevSibling) if(sNode.Num === num) return sNode;
-	return false;
-}
-
 function funcPostPreview(pView, post, parentId, msg) {
 	var el, postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
 	if(!pView) return;
@@ -2660,9 +2653,8 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
-	if(parent._node && parent._node.kid && (pView = findNode(parent._node.kid, pNum))) return unMarkForDelete(pView);
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
