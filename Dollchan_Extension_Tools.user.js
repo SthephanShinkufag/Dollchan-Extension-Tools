@@ -270,7 +270,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -323,6 +323,7 @@ function $attr(el, attr) {
 	for(var key in attr)
 		key === 'Class' ? el.className = attr[key]
 		: key === 'text' ? el.textContent = attr[key]
+		: key === 'html' ? el.innerHTML = attr[key]
 		: key === 'value' ? el.value = attr[key]
 		: el.setAttribute(key, attr[key]);
 	return el;
@@ -1197,7 +1198,7 @@ function addFavoritesTable() {
 function $show(el) {
 	var i, showing;
 	if(Cfg.animp === 0) el.style.opacity = 1;
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4))
+	else if(nav.Firefox > 4 || nav.Chrome)
 		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
 	else {
 		i = 0;
@@ -1216,7 +1217,7 @@ function $close(el) {
 	var i, h, closing;
 	if(!el) return;
 	if(Cfg.animp === 0) $del(el);
-	else if(!nav.Opera && (!nav.Firefox || nav.Firefox > 4)) {
+	else if(nav.Firefox > 4 || nav.Chrome) {
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
 			function() { $del(el); }, false);
 		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
@@ -1241,15 +1242,13 @@ function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += '_' + id; el = $id(nid); }
 	if(!el) {
-		el = $add('<div class="' + aib.pClass + '" id="' + nid
-			+ '" style="opacity:0; padding:0 10px 5px 10px">' + (
-				id === 'wait' ? '<span class="DESU_icn_wait">&nbsp;</span>'
-				: '<a href="#" style="display:inline-block; vertical-align:top; font-size:150%">× </a>'
-			) + '<div style="display:inline-block; margin-top:4px"></div></div>');
-		$event($1(el), {click: function(e) { $pD(e); $close($up(this)); }});
-		$show($id('DESU_alertbox').appendChild(el));
-	}
-	$html($next($1(el)), txt.trim());
+		el = $New('div', [
+			$if(id !== 'wait', $new('a', {href: '#', style: 'display:inline-block; vertical-align:top; font-size:150%', text: '× '},
+				{click: function(e) { $pD(e); $close($up(this)); }})),
+			$new('div', {Style: 'display:inline-block; margin-top:4px', Class: nid, html: txt.trim()})
+		], {Class: aib.pClass, id: nid, style: 'opacity:0; padding:0 10px 5px 10px'});
+	} else $x('./div[@class="' + nid + '"]', el).innerHTML = txt.trim();
+	$show($id('DESU_alertbox').appendChild(el));
 }
 
 /*-----------------------------Dropdown select menus-------------------------*/
@@ -1965,7 +1964,7 @@ function scriptCSS() {
 		.DESU_favpcount {float:right; margin:0 5px 0 15px; font:bold 16px serif}\
 		.DESU_favpcount span {color:#4f7942}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
-		.DESU_icn_wait {padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
+		.DESU_icn_wait, .DESU_alert_wait:before {content:" "; padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
 		.DESU_mp3, .DESU_ytube {margin:5px 20px}\
 		.DESU_omitted {color:grey; font-style:italic}\
 		.DESU_postnote {color:inherit; font-size:12px; font-style:italic}\
@@ -2289,7 +2288,7 @@ function clickTubeLink(e) {
 	else addTubePlayer(el, m);
 }
 
-function addLinkTube(post, source) {
+function addLinkTube(post) {
 	if(Cfg.ytube === 0) return;
 	$each($X('.//embed', post || dForm), function(el) {
 		var src, m = el.src.match(getTubePattern());
@@ -2309,12 +2308,8 @@ function addLinkTube(post, source) {
 		el = $x('.//div[@class="DESU_ytube"]', pst);
 		if(!el) {
 			el = $new('div', {Class: 'DESU_ytube'});
-			if(source && (msg = $x('.//div[@class="DESU_ytube"]/node()', source)) && Cfg.ytube === 2)
-				el.appendChild(msg.cloneNode(true));
-			else {
-				if(Cfg.ytube > 2) addTubePreview(el, m);
-				else if(Cfg.ytube === 2) addTubePlayer(el, m);
-			}
+			if(Cfg.ytube > 2) addTubePreview(el, m);
+			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(aib.xMsg, pst);
 			if(aib.krau)
 				$before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
@@ -2581,15 +2576,16 @@ function checkPostPreview(e) {
 }
 
 function funcPostPreview(post, parentId, msg) {
-	var el;
+	var el, postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
 	if(!pView) return;
-	if(!post) { pView.innerHTML = msg; return; }
-	pView.innerHTML = ($x('.//td[@class="' + aib.pClass + '"]', post) || post).innerHTML;
+	if(!post) { pView.appendChild($new('span', {Class: 'DESU_info', html: msg})); return }
+	else if(el = $x('./span[@class="DESU_info"]', pView)) pView.replaceChild(postEl(), el);
+	else pView.appendChild(postEl());
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
-		+ '|.//div[@class="DESU_refmap" or @class="DESU_ytube" or @class="DESU_mp3"]'
+		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '') + ' or @class="DESU_mp3"]'
 		+ '|.//span[starts-with(@class,"DESU_postpanel")]', pView);
 	addPostButtons(pView);
-	addLinkTube(pView, post);
+	if(!pByNum[pView.Num] || Cfg.ytube !== 2) addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
@@ -2639,8 +2635,8 @@ function showPostPreview(e) {
 	} else {
 		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
-			funcPostPreview(ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false,
-				parentId, err || Lng.postNotFound);
+			if(!impNodes[pNum]) impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false;
+			funcPostPreview(impNodes[pNum], parentId, err || Lng.postNotFound);
 		});
 	}
 	$del($id(pView.id));
