@@ -2600,11 +2600,11 @@ function deleteNodes(node) {
 }
 
 function showPreview(el) {
-	if(Cfg.animp !== 0 && !nav.Opera) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +  ' 0.2s 1 ease-out';
+	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +  ' 0.2s 1 ease-out';
 }
 
 function closePreview(el) {
-	if(Cfg.animp === 0 || nav.Opera) $del(el);
+	if(Cfg.animp === 0 || nav.Opera || nav.Firefox < 5) $del(el);
 	else {
 		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
