@@ -1254,13 +1254,15 @@ function $alert(txt, id) {
 /*-----------------------------Dropdown select menus-------------------------*/
 
 function removeSelMenu(e) {
+	var pst = getPost(e.relatedTarget);
 	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) $del($id('DESU_select'));
+	if(pst && pst._node) markForDelete(pst._node);
 }
 
 function addSelMenu(el, html) {
 	var y, pos, x =
 		el.className === 'DESU_icn_imgsrc' ? 'left:' + $offset(el).left
-		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
+		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth), pst = getPost(el);
 	if(Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
 		if(el.id === 'DESU_btn_refresh') y = 'bottom:25';
@@ -1272,7 +1274,8 @@ function addSelMenu(el, html) {
 	doc.body.appendChild($add('<div class="' + aib.pClass + '" id="DESU_select" style="position:'
 		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; '
 		+ 'padding:2px 5px; border:1px solid grey">' + html + '</div>', {
-		mouseout: removeSelMenu
+		mouseout: removeSelMenu,
+		mouseover: function() { if(pst._node) unMarkForDelete(pst._node); }
 	}));
 	return $X('.//div[@id="DESU_select"]/a');
 }
