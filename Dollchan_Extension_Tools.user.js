@@ -529,8 +529,8 @@ function readCfg() {
 	for(key in defaultCfg) if(Cfg[key] === undefined) Cfg[key] = defaultCfg[key];
 	if(global) fixGlobalCfg();
 	if(!aib.abu) Cfg.noscrl = 0;
-	if(aib.hana) Cfg.updthr = Cfg.updfav = Cfg.expost = 0;
-	if(nav.Chrome) Cfg.updfav = 0;
+	if(aib.hana) Cfg.updthr = Cfg.expost = 0;
+	if(!nav.Firefox || aib.hana) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
 	if((nav.Firefox < 7 && !nav.Chrome) || aib.nul) Cfg.rndimg = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
@@ -869,7 +869,7 @@ function addSettings() {
 		$if(!aib.hana, $New('div', [
 			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
-			$if(!nav.Chrome, lBox('updfav', Lng.indication))
+			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication))
 		])),
 		$New('div', [
 			optSel('navig', Lng.selNavigation, Lng.navigation),
