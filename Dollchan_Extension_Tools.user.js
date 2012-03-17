@@ -1744,7 +1744,8 @@ function prepareData(fn) {
 		if(el.type === 'file') {
 			prepareFiles(el, function(blob) { if(blob != null) fd.append(el.name, blob); ready++; cb(); });
 			rNeeded++;
-		} else fd.append(el.name, el.value);
+		} else if(el.type === 'checkbox' && el.name === 'sage') { if(el.checked) fd.append(el.name, el.value); }
+		else fd.append(el.name, el.value);
 	});
 	done = true;
 	cb();
