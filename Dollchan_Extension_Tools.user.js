@@ -2646,7 +2646,8 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false),
+		pView, left = false, right = false, top = false, bottom = false;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2659,13 +2660,20 @@ function showPostPreview(e) {
 		y = $offset(this).top;
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
-	pView = $new('div', {
-		Class: aib.pClass + ' DESU_post',
-		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
-			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
-			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}, {
-			mouseover: unMarkForDelete, mouseout: markForDelete
-	});
+	if(x < scrW/2) left = x + 'px'; else right = (scrW - x + 2) + 'px';
+	if(e.clientY < scrH*0.8) top = y + 'px'; else bottom = (scrH - y - 4) + 'px';
+	if(parent.kid && parent.kid.Num === pNum) { pView = parent.kid.post; x = false; }
+	else if(pViews && pViews.Num === pNum) { pView = pViews.post; x = false; }
+	else {
+		pView = $new('div', {
+			Class: aib.pClass + ' DESU_post',
+			style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey;'},
+			{ mouseover: unMarkForDelete, mouseout: markForDelete}
+		);
+	}
+	pView.style.left = left; pView.style.right = right;
+	pView.style.top = top; pView.style.bottom = bottom;
+	if(x === false) { unMarkForDelete(pView._node); return; }
 	pView.Num = pNum;
 	pView._node = {kid: null, parent: null, Num: pNum, forDel: false, post: pView};
 	addNode(parent._node ? parent._node : null, pView._node);
