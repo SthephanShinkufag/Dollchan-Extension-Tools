@@ -2623,6 +2623,22 @@ function deleteTree(node) {
 	if(pViews === node) pViews = null;
 }
 
+function moveToFront(parent, num) {
+	var retVal = false;
+	if(!parent._node) parent = pViews;
+	else if(parent._node.kid === null) return false;
+	else parent = parent._node.kid;
+	for(var sNode = parent; sNode !== null; sNode = sNode.nextSibling) {
+		if(sNode.Num !== num) sNode.post.style.zIndex = 9998;
+		else {
+			sNode.post.style.zIndex = 9999;
+			unMarkForDelete(sNode);
+			retVal = true;
+		}
+	}
+	return retVal;
+}
+
 function funcPostPreview(pView, post, parentId, msg) {
 	var el, postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
 	if(!pView) return;
@@ -2631,13 +2647,15 @@ function funcPostPreview(pView, post, parentId, msg) {
 	else pView.appendChild(postEl());
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
 		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '') + ' or @class="DESU_mp3"]'
-		+ '|.//span[starts-with(@class,"DESU_postpanel")]', pView);
+		+ '|.//span[starts-with(@class,"DESU_postpanel")]'
+		+ '|.//a[@class="DESU_icn_imgsrc"]', pView);
 	addPostButtons(pView);
 	if(!pByNum[pView.Num] || Cfg.ytube !== 2) addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
 	addLinkImg(pView);
+	addImgSearch(pView);
 	if(Cfg.navig === 2) {
 		showRefMap(pView, pView.Num);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
@@ -2655,6 +2673,7 @@ function showPostPreview(e) {
 		parent = getPost(e.target),
 		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
+	if(moveToFront(parent, pNum)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
