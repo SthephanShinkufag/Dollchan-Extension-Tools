@@ -2569,10 +2569,7 @@ function addNode(pNode, node) {
 }
 
 function traverseNodes(node, fn) {
-	if(node === null) return;
-	var kNode = node.kid;
-	while(kNode !== null) { fn(kNode); kNode = kNode.kid; }
-	fn(node);
+	while(node !== null) { fn(node); node = node.kid; }
 }
 
 function markForDelete() {
@@ -2599,10 +2596,11 @@ function deleteNodes(node) {
 }
 
 function funcPostPreview(pView, post, parentId, msg) {
-	var el, postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
+	var el = $x('./span[@class="DESU_info"]', pView),
+		postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
 	if(!pView) return;
-	if(!post) { pView.appendChild($new('span', {Class: 'DESU_info', html: msg})); return }
-	else if(el = $x('./span[@class="DESU_info"]', pView)) pView.replaceChild(postEl(), el);
+	if(!post) { if(el) el.innerHTML = msg; else pView.appendChild($new('span', {Class: 'DESU_info', html: msg})); return }
+	else if(el) pView.replaceChild(postEl(), el);
 	else pView.appendChild(postEl());
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
 		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '') + ' or @class="DESU_mp3"]'
