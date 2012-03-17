@@ -270,7 +270,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, pTimeOutUnMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -2558,89 +2558,63 @@ function addRefMap(post, uEv) {
 function addNodeIntoTree(pNode, node) {
 	var nNode;
 	if(pViews === null) { pViews = node; return; }
-	if(pNode !== null && pNode.kid === null) {
+	if(pNode !== null) {
+		if(pNode.kid !== null) deleteTree(pNode.kid);
 		node.parent = pNode;
 		pNode.kid = node;
 		return;
+	} else {
+		deleteTree(pViews);
+		pViews = node;
 	}
-	for(nNode = pNode !== null ? pNode.kid : pViews; nNode.nextSibling !== null; nNode = nNode.nextSibling);
-	node.prevSibling = nNode;
-	node.parent = pNode;
-	nNode.nextSibling = node;
 }
 
-function traverseTree(node, allTree, fn) {
+function traverseTree(node, fn) {
 	if(node === null) return;
-	var kNode = node.kid, sNode;
+	var kNode = node.kid;
 	while(kNode !== null) {
-		for(sNode = kNode.nextSibling; sNode !== null; sNode = sNode.nextSibling) traverseTree(sNode, false, fn);
 		fn(kNode);
 		kNode = kNode.kid;
 	}
 	fn(node);
-	if(allTree) {
-		for(sNode = node.nextSibling; sNode !== null; sNode = sNode.nextSibling) traverseTree(sNode, false, fn);
-		for(sNode = node.prevSibling; sNode !== null; sNode = sNode.prevSibling) traverseTree(sNode, false, fn);
-	}
 }
 
 function markForDelete() {
-	traverseTree(pViews, true, function(node) { node.forDel = true; });
+	traverseTree(pViews, function(node) { node.forDel = true; });
 	pTimeOutMark = setTimeout(deleteOldNodes, +Cfg.navdel);
 }
 
 function unMarkForDelete(node) {
 	if(this) node = this._node;
 	clearTimeout(pTimeOutMark);
-	clearTimeout(pTimeOutUnMark);
-	traverseTree(pViews, true, function(node) { node.forDel = true; });
 	do {node.forDel = false;}
 	while((node = node.parent) !== null);
-	pTimeOutUnMark = setTimeout(deleteOldNodes, +Cfg.navdel);
 }
 
 function deleteOldNodes() {
-	var nNode = pViews, kNode, sNode;
-	while(nNode !== null) {
-		if(nNode.forDel) deleteTree(nNode);
-		else {
-			if(pViews === null) pViews = nNode;
-			for(kNode = nNode.kid; kNode !== null; kNode = kNode.kid) {
-				for(sNode = kNode.nextSibling; sNode !== null; sNode = sNode.nextSibling)
-					if(sNode.forDel) deleteTree(sNode);
-				if(kNode.forDel) deleteTree(kNode);
-			}
-		}
-		nNode = nNode.nextSibling
-	}
+	if(pViews === null) return;
+	for(var node = pViews; node !== null; node = node.kid) if(node.forDel) { deleteTree(node); return; }
 }
 
 function deleteTree(node) {
-	traverseTree(node, false, function(node) { clearTimeout(node.post.marker); $del(node.post); });
-	if(node.prevSibling !== null) node.prevSibling.nextSibling = node.nextSibling;
-	if(node.nextSibling !== null) node.nextSibling.prevSibling = node.prevSibling;
-	if(node.parent !== null && node.parent.kid === node) node.parent.kid = node.nextSibling;
+	traverseTree(node, function(node) { clearTimeout(node.post.marker); $del(node.post); });
+	if(node.parent !== null && node.parent.kid === node) node.parent.kid = null;
 	if(pViews === node) pViews = null;
 }
 
 function moveToFront(parent, num, left, right, top, bottom) {
-	var retVal = false;
 	if(!parent._node) parent = pViews;
 	else if(parent._node.kid === null) return false;
 	else parent = parent._node.kid;
-	for(var sNode = parent; sNode !== null; sNode = sNode.nextSibling) {
-		if(sNode.Num !== num) sNode.post.style.zIndex = 9998;
-		else {
-			sNode.post.style.zIndex = 9999;
-			if(left) sNode.post.style.left = left;
-			if(right) sNode.post.style.right = right;
-			if(top) sNode.post.style.top = top;
-			if(bottom) sNode.post.style.bottom = bottom;
-			unMarkForDelete(sNode);
-			retVal = true;
-		}
+	if(parent !== null && parent.Num === num) {
+		if(left) parent.post.style.left = left;
+		if(right) parent.post.style.right = right;
+		if(top) parent.post.style.top = top;
+		if(bottom) parent.post.style.bottom = bottom;
+		unMarkForDelete(parent);
+		return true;
 	}
-	return retVal;
+	return false;
 }
 
 function funcPostPreview(pView, post, parentId, msg) {
@@ -2696,13 +2670,12 @@ function showPostPreview(e) {
 		Class: aib.pClass + ' DESU_post',
 		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey'
 			+ (left ? ';left:' + left : '') + (right ? ';right:' + right : '')
-			+ (top ? ';top:' + top : '') + (bottom ? ';bottom:' + bottom : '')
+			+ (top ? ';top:' + top : '') + (bottom ? ';bottom:' + bottom : '')}, {
+			mouseover: unMarkForDelete, mouseout: markForDelete
 	});
 	pView.Num = pNum;
-	pView._node = {nextSibling: null, prevSibling: null, kid: null, parent: null, Num: pNum, forDel: false, post: pView};
+	pView._node = {kid: null, parent: null, Num: pNum, forDel: false, post: pView};
 	addNodeIntoTree(parent._node ? parent._node : null, pView._node);
-	pView.addEventListener('mouseover', unMarkForDelete, true);
-	pView.addEventListener('mouseout', markForDelete, true);
 	unMarkForDelete(pView._node);
 	if(post) {
 		funcPostPreview(pView, post, parent.Num);
@@ -2723,8 +2696,7 @@ function eventRefLink(el) {
 	if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 		$rattr(link, 'onmouseover');
 		$rattr(link, 'onmouseout');
-		link.addEventListener('mouseover', showPostPreview, true);
-		link.addEventListener('mouseout', markForDelete, true);
+		$event(link, {mouseover: showPostPreview, mouseout: markForDelete});
 	});
 }
 
