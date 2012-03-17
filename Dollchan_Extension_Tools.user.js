@@ -270,7 +270,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pView, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -1254,13 +1254,15 @@ function $alert(txt, id) {
 /*-----------------------------Dropdown select menus-------------------------*/
 
 function removeSelMenu(e) {
+	var pst = getPost(e.relatedTarget);
 	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) $del($id('DESU_select'));
+	if(pst && pst._node) markForDelete(pst._node);
 }
 
 function addSelMenu(el, html) {
 	var y, pos, x =
 		el.className === 'DESU_icn_imgsrc' ? 'left:' + $offset(el).left
-		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
+		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth), pst = getPost(el);
 	if(Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
 		if(el.id === 'DESU_btn_refresh') y = 'bottom:25';
@@ -1272,7 +1274,8 @@ function addSelMenu(el, html) {
 	doc.body.appendChild($add('<div class="' + aib.pClass + '" id="DESU_select" style="position:'
 		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; '
 		+ 'padding:2px 5px; border:1px solid grey">' + html + '</div>', {
-		mouseout: removeSelMenu
+		mouseout: removeSelMenu,
+		mouseover: function() { if(pst._node) unMarkForDelete(pst._node); }
 	}));
 	return $X('.//div[@id="DESU_select"]/a');
 }
@@ -2558,27 +2561,47 @@ function addRefMap(post, uEv) {
 
 /*----------------------->>RefLinks posts preview functions------------------*/
 
-function delPostPreview() {
-	var xp, cln;
-	if(pView) $delNx(pView);
-	else {
-		xp = './/div[starts-with(@id,"DESU_preview")]';
-		cln = $x(xp);
-		if(cln) clearTimeout(cln.marker);
-		$Del(xp);
-	}
+function addNode(pNode, node) {
+	if(pViews === null) { pViews = node; return; }
+	if(pNode !== null) {
+		if(pNode.kid !== null) deleteNodes(pNode.kid);
+		node.parent = pNode;
+		pNode.kid = node;
+		return;
+	} else { deleteNodes(pViews); pViews = node; }
 }
 
-function checkPostPreview(e) {
-	if(Cfg.navdel !== '0' && pView) {
-		clearTimeout(pView.close);
-		pView.close = setTimeout(delPostPreview, Cfg.navdel);
-	}
-	pView = $x('ancestor-or-self::div[starts-with(@id,"DESU_preview")]', e.relatedTarget);
-	if(Cfg.navdel === '0') delPostPreview();
+function traverseNodes(node, fn) {
+	if(node === null) return;
+	var kNode = node.kid;
+	while(kNode !== null) { fn(kNode); kNode = kNode.kid; }
+	fn(node);
 }
 
-function funcPostPreview(post, parentId, msg) {
+function markForDelete() {
+	traverseNodes(pViews, function(node) { node.forDel = true; });
+	pTimeOutMark = setTimeout(deleteOldNodes, +Cfg.navdel);
+}
+
+function unMarkForDelete(node) {
+	if(this) node = this._node;
+	clearTimeout(pTimeOutMark);
+	do {node.forDel = false;}
+	while((node = node.parent) !== null);
+}
+
+function deleteOldNodes() {
+	if(pViews === null) return;
+	for(var node = pViews; node !== null; node = node.kid) if(node.forDel) { deleteNodes(node); return; }
+}
+
+function deleteNodes(node) {
+	traverseNodes(node, function(node) { clearTimeout(node.post.marker); $del(node.post); });
+	if(node.parent !== null && node.parent.kid === node) node.parent.kid = null;
+	if(pViews === node) pViews = null;
+}
+
+function funcPostPreview(pView, post, parentId, msg) {
 	var el, postEl = function() {return ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true); };
 	if(!pView) return;
 	if(!post) { pView.appendChild($new('span', {Class: 'DESU_info', html: msg})); return }
@@ -2586,13 +2609,15 @@ function funcPostPreview(post, parentId, msg) {
 	else pView.appendChild(postEl());
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
 		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '') + ' or @class="DESU_mp3"]'
-		+ '|.//span[starts-with(@class,"DESU_postpanel")]', pView);
+		+ '|.//span[starts-with(@class,"DESU_postpanel")]'
+		+ '|.//a[@class="DESU_icn_imgsrc"]', pView);
 	addPostButtons(pView);
 	if(!pByNum[pView.Num] || Cfg.ytube !== 2) addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
 	addLinkImg(pView);
+	addImgSearch(pView);
 	if(Cfg.navig === 2) {
 		showRefMap(pView, pView.Num);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parentId + '")]', pView);
@@ -2608,8 +2633,7 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		parentId = parent ? parent.Num : null,
-		post = pByNum[pNum] || (ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false);
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2623,26 +2647,26 @@ function showPostPreview(e) {
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
 	pView = $new('div', {
-		id: 'DESU_preview_' + pNum,
 		Class: aib.pClass + ' DESU_post',
 		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
 			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
 			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}, {
-		mouseout: checkPostPreview,
-		mouseover: function() { if(!pView) pView = this; }
+			mouseover: unMarkForDelete, mouseout: markForDelete
 	});
 	pView.Num = pNum;
+	pView._node = {kid: null, parent: null, Num: pNum, forDel: false, post: pView};
+	addNode(parent._node ? parent._node : null, pView._node);
+	unMarkForDelete(pView._node);
 	if(post) {
-		funcPostPreview(post, parentId);
+		funcPostPreview(pView, post, parent.Num);
 		if(post.Vis === 0) togglePost(pView);
 	} else {
-		funcPostPreview(null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
+		funcPostPreview(pView, null, null, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
 			if(!impNodes[pNum]) impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false;
-			funcPostPreview(impNodes[pNum], parentId, err || Lng.postNotFound);
+			funcPostPreview(pView, impNodes[pNum], parent.Num, err || Lng.postNotFound);
 		});
 	}
-	$del($id(pView.id));
 	dForm.appendChild(pView);
 	if(Cfg.navmrk !== 0)
 		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 2e3);
@@ -2652,7 +2676,7 @@ function eventRefLink(el) {
 	if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 		$rattr(link, 'onmouseover');
 		$rattr(link, 'onmouseout');
-		$event(link, {mouseover: showPostPreview, mouseout: checkPostPreview});
+		$event(link, {mouseover: showPostPreview, mouseout: markForDelete});
 	});
 }
 
