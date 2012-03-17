@@ -2647,7 +2647,7 @@ function showPostPreview(e) {
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
 		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false),
-		pView, left = false, right = false, top = false, bottom = false;
+		pView, left = '', right = '', top = '', bottom = '';
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
