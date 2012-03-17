@@ -2659,7 +2659,7 @@ function showPostPreview(e) {
 		y = $offset(this).top;
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
-	if(parent._node && parent._node.kid && parent._node.kid.Num === pNum) { pView = parent_node.kid.post; x = false; }
+	if(parent._node && parent._node.kid && parent._node.kid.Num === pNum) { pView = parent._node.kid.post; x = false; }
 	else if(!parent._node && pViews && pViews.Num === pNum) { pView = pViews.post; x = false; }
 	if(!pView) {
 		pView = $new('div', {
