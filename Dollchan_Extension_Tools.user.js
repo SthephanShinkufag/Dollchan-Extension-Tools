@@ -2555,18 +2555,17 @@ function addRefMap(post, uEv) {
 
 /*----------------------->>RefLinks posts preview functions------------------*/
 
-function addNodeIntoTree(pNode, node) {
-	var nNode;
+function addNode(pNode, node) {
 	if(pViews === null) { pViews = node; return; }
 	if(pNode !== null) {
-		if(pNode.kid !== null) deleteTree(pNode.kid);
+		if(pNode.kid !== null) deleteNodes(pNode.kid);
 		node.parent = pNode;
 		pNode.kid = node;
 		return;
-	} else { deleteTree(pViews); pViews = node; }
+	} else { deleteNodes(pViews); pViews = node; }
 }
 
-function traverseTree(node, fn) {
+function traverseNodes(node, fn) {
 	if(node === null) return;
 	var kNode = node.kid;
 	while(kNode !== null) { fn(kNode); kNode = kNode.kid; }
@@ -2574,7 +2573,7 @@ function traverseTree(node, fn) {
 }
 
 function markForDelete() {
-	traverseTree(pViews, function(node) { node.forDel = true; });
+	traverseNodes(pViews, function(node) { node.forDel = true; });
 	pTimeOutMark = setTimeout(deleteOldNodes, +Cfg.navdel);
 }
 
@@ -2587,11 +2586,11 @@ function unMarkForDelete(node) {
 
 function deleteOldNodes() {
 	if(pViews === null) return;
-	for(var node = pViews; node !== null; node = node.kid) if(node.forDel) { deleteTree(node); return; }
+	for(var node = pViews; node !== null; node = node.kid) if(node.forDel) { deleteNodes(node); return; }
 }
 
-function deleteTree(node) {
-	traverseTree(node, function(node) { clearTimeout(node.post.marker); $del(node.post); });
+function deleteNodes(node) {
+	traverseNodes(node, function(node) { clearTimeout(node.post.marker); $del(node.post); });
 	if(node.parent !== null && node.parent.kid === node) node.parent.kid = null;
 	if(pViews === node) pViews = null;
 }
@@ -2650,7 +2649,7 @@ function showPostPreview(e) {
 	});
 	pView.Num = pNum;
 	pView._node = {kid: null, parent: null, Num: pNum, forDel: false, post: pView};
-	addNodeIntoTree(parent._node ? parent._node : null, pView._node);
+	addNode(parent._node ? parent._node : null, pView._node);
 	unMarkForDelete(pView._node);
 	if(post) {
 		funcPostPreview(pView, post, parent.Num);
