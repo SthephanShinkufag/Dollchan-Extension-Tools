@@ -1988,10 +1988,14 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen  {from{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0} to {opacity:1}}\
 		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0}}\
-		@' + cssFix + 'keyframes DESU_pOpenT  {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenB  {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pCloseT {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseB {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pOpenTL {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenBL {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenTR {from{' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenBR {from{' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pCloseTL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseBL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseTR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseBR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0;}}\
 		a[class^=DESU_src]:before {content:""; padding:0 16px 0 0; margin:0 4px}\
 		.DESU_icn_imgsrc {padding:0 16px 0 0; background:url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor:pointer}\
 		.DESU_srcGoogle:before {background:url(http://google.ru/favicon.ico)}\
@@ -2603,16 +2607,20 @@ function deleteNodes(node) {
 }
 
 function showPreview(el) {
-	if(Cfg.animp !== 0 && !nav.Opera) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +  ' 0.2s 1 ease-out';
+	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+		(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
+		(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
 }
 
 function closePreview(el) {
-	if(Cfg.animp === 0 || nav.Opera) $del(el);
+	if(Cfg.animp === 0 || nav.Opera || nav.Firefox < 5) $del(el);
 	else {
 		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
 			function() { $del(el); }, false);
-		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +  ' 0.2s 1 ease-in';
+		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+			(el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +
+			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-in';
 	}
 }
 
@@ -2649,7 +2657,8 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false),
+		pView, pExists = false, left = '', right = '', top = '', bottom = '';
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2662,8 +2671,12 @@ function showPostPreview(e) {
 		y = $offset(this).top;
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
-	if(parent._node && parent._node.kid && parent._node.kid.Num === pNum) { pView = parent._node.kid.post; x = false; }
-	else if(!parent._node && pViews && pViews.Num === pNum) { pView = pViews.post; x = false; }
+	if(x < scrW/2) left = x + 'px';
+	else right = (scrW - x + 2) + 'px';
+	if(e.clientY < scrH*0.8) top = y + 'px';
+	else bottom = (scrH - y - 4) + 'px';
+	if(parent._node && parent._node.kid && parent._node.kid.Num === pNum) { pView = parent._node.kid.post; pExists = true; }
+	else if(!parent._node && pViews && pViews.Num === pNum) { pView = pViews.post; pExists = true; }
 	if(!pView) {
 		pView = $new('div', {
 			Class: aib.pClass + ' DESU_post',
@@ -2671,11 +2684,9 @@ function showPostPreview(e) {
 			{ mouseover: unMarkForDelete, mouseout: markForDelete}
 		);
 	}
-	if(x < scrW/2) pView.style.left = x + 'px';
-	else pView.style.righ = (scrW - x + 2) + 'px';
-	if(e.clientY < scrH*0.8) pView.style.top = y + 'px';
-	else pView.style.bottom = (scrH - y - 4) + 'px';
-	if(x === false) { unMarkForDelete(pView._node); return; }
+	pView.style.left = left; pView.style.right = right;
+	pView.style.top = top; pView.style.bottom = bottom;
+	if(pExists) { unMarkForDelete(pView._node); return; }
 	pView.Num = pNum;
 	pView._node = {kid: null, parent: null, Num: pNum, forDel: false, post: pView};
 	addNode(parent._node ? parent._node : null, pView._node);
