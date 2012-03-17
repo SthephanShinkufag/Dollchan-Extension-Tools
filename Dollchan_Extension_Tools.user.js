@@ -1985,10 +1985,14 @@ function scriptCSS() {
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
 		@' + cssFix + 'keyframes DESU_aOpen  {from{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0} to {opacity:1}}\
 		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0}}\
-		@' + cssFix + 'keyframes DESU_pOpenT  {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenB  {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pCloseT {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseB {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pOpenTL {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenBL {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenTR {from{' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenBR {from{' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pCloseTL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseBL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseTR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseBR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0;}}\
 		a[class^=DESU_src]:before {content:""; padding:0 16px 0 0; margin:0 4px}\
 		.DESU_icn_imgsrc {padding:0 16px 0 0; background:url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor:pointer}\
 		.DESU_srcGoogle:before {background:url(http://google.ru/favicon.ico)}\
@@ -2600,7 +2604,9 @@ function deleteNodes(node) {
 }
 
 function showPreview(el) {
-	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +  ' 0.2s 1 ease-out';
+	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+		(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
+		(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
 }
 
 function closePreview(el) {
@@ -2609,7 +2615,9 @@ function closePreview(el) {
 		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
 			function() { $del(el); }, false);
-		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +  ' 0.2s 1 ease-in';
+		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+			(el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +
+			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-in';
 	}
 }
 
