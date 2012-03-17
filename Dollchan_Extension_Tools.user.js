@@ -1199,7 +1199,7 @@ function $show(el) {
 	var i, showing;
 	if(Cfg.animp === 0) el.style.opacity = 1;
 	else if(nav.Firefox > 4 || nav.Chrome)
-		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.3s 1 ease-out;';
+		el.style.cssText = cssFix + 'animation: DESU_aOpen 0.2s 1 ease-out;';
 	else {
 		i = 0;
 		showing = setInterval(function() {
@@ -1220,7 +1220,7 @@ function $close(el) {
 	else if(nav.Firefox > 4 || nav.Chrome) {
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
 			function() { $del(el); }, false);
-		el.style.cssText = cssFix + 'animation: DESU_aClose 0.3s 1 ease-in;';
+		el.style.cssText = cssFix + 'animation: DESU_aClose 0.2s 1 ease-in;';
 	} else {
 		i = 8;
 		h = el.clientHeight - 18;
@@ -1983,8 +1983,12 @@ function scriptCSS() {
 		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}\
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
-		@' + cssFix + 'keyframes DESU_aOpen {from{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform:scaleY(0); ' + cssFix + 'transform-origin:0 -100%; opacity:0}}\
+		@' + cssFix + 'keyframes DESU_aOpen  {from{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0}}\
+		@' + cssFix + 'keyframes DESU_pOpenT  {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenB  {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pCloseT {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseB {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
 		a[class^=DESU_src]:before {content:""; padding:0 16px 0 0; margin:0 4px}\
 		.DESU_icn_imgsrc {padding:0 16px 0 0; background:url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor:pointer}\
 		.DESU_srcGoogle:before {background:url(http://google.ru/favicon.ico)}\
@@ -2590,9 +2594,23 @@ function deleteOldNodes() {
 }
 
 function deleteNodes(node) {
-	traverseNodes(node, function(node) { clearTimeout(node.post.marker); $del(node.post); });
+	traverseNodes(node, function(node) { clearTimeout(node.post.marker); closePreview(node.post); });
 	if(node.parent !== null && node.parent.kid === node) node.parent.kid = null;
 	if(pViews === node) pViews = null;
+}
+
+function showPreview(el) {
+	if(Cfg.animp !== 0 && !nav.Opera) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +  ' 0.2s 1 ease-out';
+}
+
+function closePreview(el) {
+	if(Cfg.animp === 0 || nav.Opera) $del(el);
+	else {
+		el.style.opacity = 0;
+		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+			function() { $del(el); }, false);
+		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = (el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +  ' 0.2s 1 ease-in';
+	}
 }
 
 function funcPostPreview(pView, post, parentId, msg) {
@@ -2662,7 +2680,7 @@ function showPostPreview(e) {
 			funcPostPreview(pView, impNodes[pNum], parent.Num, err || Lng.postNotFound);
 		});
 	}
-	dForm.appendChild(pView);
+	showPreview(dForm.appendChild(pView));
 	if(Cfg.navmrk !== 0)
 		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 2e3);
 }
