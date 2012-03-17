@@ -2563,19 +2563,13 @@ function addNodeIntoTree(pNode, node) {
 		node.parent = pNode;
 		pNode.kid = node;
 		return;
-	} else {
-		deleteTree(pViews);
-		pViews = node;
-	}
+	} else { deleteTree(pViews); pViews = node; }
 }
 
 function traverseTree(node, fn) {
 	if(node === null) return;
 	var kNode = node.kid;
-	while(kNode !== null) {
-		fn(kNode);
-		kNode = kNode.kid;
-	}
+	while(kNode !== null) { fn(kNode); kNode = kNode.kid; }
 	fn(node);
 }
 
@@ -2600,21 +2594,6 @@ function deleteTree(node) {
 	traverseTree(node, function(node) { clearTimeout(node.post.marker); $del(node.post); });
 	if(node.parent !== null && node.parent.kid === node) node.parent.kid = null;
 	if(pViews === node) pViews = null;
-}
-
-function moveToFront(parent, num, left, right, top, bottom) {
-	if(!parent._node) parent = pViews;
-	else if(parent._node.kid === null) return false;
-	else parent = parent._node.kid;
-	if(parent !== null && parent.Num === num) {
-		if(left) parent.post.style.left = left;
-		if(right) parent.post.style.right = right;
-		if(top) parent.post.style.top = top;
-		if(bottom) parent.post.style.bottom = bottom;
-		unMarkForDelete(parent);
-		return true;
-	}
-	return false;
 }
 
 function funcPostPreview(pView, post, parentId, msg) {
@@ -2649,8 +2628,7 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView,
-		left = false, right = false, top = false, bottom = false;
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2663,14 +2641,11 @@ function showPostPreview(e) {
 		y = $offset(this).top;
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
-	if(x < scrW/2) left = x + 'px'; else right = (scrW - x + 2) + 'px';
-	if(e.clientY < scrH*0.8) top = y + 'px'; else bottom = (scrH - y - 4) + 'px';
-	if(moveToFront(parent, pNum, left, right, top, bottom)) return;
 	pView = $new('div', {
 		Class: aib.pClass + ' DESU_post',
-		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey'
-			+ (left ? ';left:' + left : '') + (right ? ';right:' + right : '')
-			+ (top ? ';top:' + top : '') + (bottom ? ';bottom:' + bottom : '')}, {
+		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
+			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
+			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}, {
 			mouseover: unMarkForDelete, mouseout: markForDelete
 	});
 	pView.Num = pNum;
