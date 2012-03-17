@@ -2646,8 +2646,7 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false),
-		pView, left = '', right = '', top = '', bottom = '';
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
@@ -2660,8 +2659,6 @@ function showPostPreview(e) {
 		y = $offset(this).top;
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
-	if(x < scrW/2) left = x + 'px'; else right = (scrW - x + 2) + 'px';
-	if(e.clientY < scrH*0.8) top = y + 'px'; else bottom = (scrH - y - 4) + 'px';
 	if(parent.kid && parent.kid.Num === pNum) { pView = parent.kid.post; x = false; }
 	else if(pViews && pViews.Num === pNum) { pView = pViews.post; x = false; }
 	else {
@@ -2671,8 +2668,10 @@ function showPostPreview(e) {
 			{ mouseover: unMarkForDelete, mouseout: markForDelete}
 		);
 	}
-	pView.style.left = left; pView.style.right = right;
-	pView.style.top = top; pView.style.bottom = bottom;
+	if(x < scrW/2) pView.style.left = x + 'px';
+	else pView.style.righ = (scrW - x + 2) + 'px';
+	if(e.clientY < scrH*0.8) pView.style.top = y + 'px';
+	else pView.style.bottom = (scrH - y - 4) + 'px';
 	if(x === false) { unMarkForDelete(pView._node); return; }
 	pView.Num = pNum;
 	pView._node = {kid: null, parent: null, Num: pNum, forDel: false, post: pView};
