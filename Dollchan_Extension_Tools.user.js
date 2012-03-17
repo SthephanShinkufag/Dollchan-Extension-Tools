@@ -2557,7 +2557,7 @@ function addRefMap(post, uEv) {
 
 function addNodeIntoTree(pNode, node) {
 	var nNode;
-	if(pViews == null) { pViews = node; return; }
+	if(pViews === null) { pViews = node; return; }
 	if(pNode !== null && pNode.kid === null) {
 		node.parent = pNode;
 		pNode.kid = node;
@@ -2623,7 +2623,7 @@ function deleteTree(node) {
 	if(pViews === node) pViews = null;
 }
 
-function moveToFront(parent, num) {
+function moveToFront(parent, num, left, right, top, bottom) {
 	var retVal = false;
 	if(!parent._node) parent = pViews;
 	else if(parent._node.kid === null) return false;
@@ -2632,6 +2632,10 @@ function moveToFront(parent, num) {
 		if(sNode.Num !== num) sNode.post.style.zIndex = 9998;
 		else {
 			sNode.post.style.zIndex = 9999;
+			if(left) sNode.post.style.left = left;
+			if(right) sNode.post.style.right = right;
+			if(top) sNode.post.style.top = top;
+			if(bottom) sNode.post.style.bottom = bottom;
 			unMarkForDelete(sNode);
 			retVal = true;
 		}
@@ -2671,9 +2675,9 @@ function showPostPreview(e) {
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView;
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false), pView,
+		left = false, right = false, top = false, bottom = false;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
-	if(moveToFront(parent, pNum)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
@@ -2685,12 +2689,15 @@ function showPostPreview(e) {
 		y = $offset(this).top;
 		if(e.clientY < scrH*0.8) y += this.offsetHeight;
 	}
+	if(x < scrW/2) left = x + 'px'; else right = (scrW - x + 2) + 'px';
+	if(e.clientY < scrH*0.8) top = y + 'px'; else bottom = (scrH - y - 4) + 'px';
+	if(moveToFront(parent, pNum, left, right, top, bottom)) return;
 	pView = $new('div', {
 		Class: aib.pClass + ' DESU_post',
-		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey; '
-			+ (x < scrW/2 ? 'left:' + x : 'right:' + (scrW - x + 2)) + 'px; '
-			+ (e.clientY < scrH*0.8 ? 'top:' + y : 'bottom:' + (scrH - y - 4)) + 'px'}
-	);
+		style: 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey'
+			+ (left ? ';left:' + left : '') + (right ? ';right:' + right : '')
+			+ (top ? ';top:' + top : '') + (bottom ? ';bottom:' + bottom : '')
+	});
 	pView.Num = pNum;
 	pView._node = {nextSibling: null, prevSibling: null, kid: null, parent: null, Num: pNum, forDel: false, post: pView};
 	addNodeIntoTree(parent._node ? parent._node : null, pView._node);
