@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.17.1
+// @version			12.3.18.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1987,16 +1987,6 @@ function scriptCSS() {
 		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
 		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}\
 		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
-		@' + cssFix + 'keyframes DESU_aOpen  {from{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0}}\
-		@' + cssFix + 'keyframes DESU_pOpenTL {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenBL {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenTR {from{' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenBR {from{' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pCloseTL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseBL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseTR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseBR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0;}}\
 		a[class^=DESU_src]:before {content:""; padding:0 16px 0 0; margin:0 4px}\
 		.DESU_icn_imgsrc {padding:0 16px 0 0; background:url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor:pointer}\
 		.DESU_srcGoogle:before {background:url(http://google.ru/favicon.ico)}\
@@ -2008,6 +1998,18 @@ function scriptCSS() {
 			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
 			: brCssFix + 'box-shadow:6px 0 2px -2px red, -6px 0 2px -2px red}'
 		)
+	);
+	if(!nav.Opera) x.push(
+		'@' + cssFix + 'keyframes DESU_aOpen  {from{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0}}\
+		@' + cssFix + 'keyframes DESU_pOpenTL {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenBL {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenTR {from{' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pOpenBR {from{' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0} to {opacity:1}}\
+		@' + cssFix + 'keyframes DESU_pCloseTL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseBL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseTR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0;}}\
+		@' + cssFix + 'keyframes DESU_pCloseBR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0;}}'
 	);
 	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
