@@ -1759,10 +1759,12 @@ function prepareFiles(el, fn) {
 	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
-		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
-		bb.append(this.result);
-		bb.append(String(Math.round(Math.random()*1e3)));
-		fn(bb.getBlob(file.type));
+		if(nav.Firefox < 13) {
+			var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
+			bb.append(this.result);
+			bb.append(String(Math.round(Math.random()*1e6)));
+			fn(bb.getBlob(file.type));
+		} else fn(new Blob([this.result, String(Math.round(Math.random()*1e6))], {type: file.type}));
 	};
 }
 
