@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.18.0
+// @version			12.3.19.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-17',
+	version:	'2012-03-19',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -2605,6 +2605,7 @@ function markForDelete() {
 
 function unMarkForDelete(node) {
 	if(this) node = this._node;
+	if(!node) return;
 	clearTimeout(pTimeOutMark);
 	do {node.forDel = false;}
 	while(node = node.parent);
