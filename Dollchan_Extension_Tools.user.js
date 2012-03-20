@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.20.0
+// @version			12.3.20.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -268,7 +268,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, impNodes = {}, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -367,12 +367,6 @@ function $New(tag, nodes, attr, events) {
 }
 function $txt(el) {
 	return doc.createTextNode(el);
-}
-function $din(b, pNum) {
-	if(!ajPosts[b] || !ajPosts[b][pNum]) return false;
-	var nNode = doc.importNode(ajPosts[b][pNum], true);
-	nNode.Num = pNum;
-	return nNode;
 }
 function $btn(val, fn) {
 	return $new('input', {type: 'button', value: val}, {click: fn});
@@ -1241,13 +1235,16 @@ function $close(el) {
 function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += '_' + id; el = $id(nid); }
-	if(!el) {
-		el = $New('div', [
-			$if(id !== 'wait', $new('a', {href: '#', style: 'display:inline-block; vertical-align:top; font-size:150%', text: '× '},
-				{click: function(e) { $pD(e); $close($up(this)); }})),
-			$new('div', {Style: 'display:inline-block; margin-top:4px', Class: nid, html: txt.trim()})
-		], {Class: aib.pClass, id: nid, style: 'opacity:0; padding:0 10px 5px 10px'});
-	} else $x('./div[@class="' + nid + '"]', el).innerHTML = txt.trim();
+	if(el) $x('./div[@class="' + nid + '"]', el).innerHTML = txt.trim();
+	else el = $New('div', [
+		$if(id !== 'wait', $new('a', {
+			href: '#',
+			style: 'display:inline-block; vertical-align:top; font-size:150%', text: '× '}, {
+			click: function(e) { $pD(e); $close($up(this)); }})),
+		$new('div', {
+			style: 'display:inline-block; margin-top:4px', Class: nid, html: txt.trim()
+		})
+	], {Class: aib.pClass, id: nid, style: 'opacity:0; padding:0 10px 5px 10px'});
 	$show($id('DESU_alertbox').appendChild(el));
 }
 
@@ -1379,7 +1376,8 @@ function initKeyNavig() {
 		if(kc === 86) {
 			if(TNum) showQuickReply(pByCnt[cPIndex]);
 			else {
-				if(nav.Firefox) GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
+				if(nav.Firefox)
+					GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
 				else window.open(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), '_blank');
 			}
 			return;
@@ -1657,7 +1655,9 @@ function doPostformChanges() {
 			dForm.onsubmit = function(e) {
 				$pD(e);
 				$alert(Lng.loading, 'wait');
-				ajaxCheckSubmit(dForm, new FormData(dForm), checkDeleted);
+				ajaxCheckSubmit(dForm, new FormData(dForm),
+					function() { $close($id('DESU_alert_wait')); $alert(Lng.succDeleted); }
+				);
 			};
 		} else {
 			if(aib.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
@@ -1733,12 +1733,6 @@ function checkUpload(dc, url) {
 		$close($id('DESU_alert_wait'));
 		$alert(err);
 	}
-}
-
-function checkDeleted(dc) {
-	//TODO: проверка - удалён ли пост или нет
-	$close($id('DESU_alert_wait'));
-	$alert(Lng.succDeleted);
 }
 
 function prepareData(fn) {
@@ -2278,7 +2272,8 @@ function addTubePlayer(el, m) {
 		if(!src) addTubeEmbed(el, id, time);
 		else {
 			el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
-				+ 'controls="controls" preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '')
+				+ 'controls="controls" preload="none" src="' + src
+				+ (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '')
 				+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
 			if(time !== 0) $event($x('.//video', el), {
 				'loadedmetadata': function() { this.currentTime = time; }
@@ -2578,17 +2573,15 @@ function addRefMap(post, uEv) {
 
 function addNode(pNode, pView, e) {
 	var node = pView._node = {parent: null, kid: null, Num: pView.Num, post: pView};
-	pView.style.cssText = 'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey;';
+	pView.style.cssText =
+		'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey';
 	setPreviewPostion(e, pView);
-	$event(pView, { mouseover: unMarkForDelete, mouseout: markForDelete});
+	$event(pView, {mouseover: unMarkForDelete, mouseout: markForDelete});
 	if(pViews && pNode) {
 		if(pNode.kid) deleteNodes(pNode.kid);
 		node.parent = pNode;
 		pNode.kid = node;
-	} else {
-		deleteNodes(pViews);
-		pViews = node;
-	}
+	} else { deleteNodes(pViews); pViews = node; }
 	unMarkForDelete(node);
 	showPreview(pView);
 	return node;
@@ -2609,8 +2602,7 @@ function unMarkForDelete(node) {
 	if(this) node = this._node;
 	if(!node) return;
 	clearTimeout(pTimeOutMark);
-	do {node.forDel = false;}
-	while(node = node.parent);
+	do { node.forDel = false; } while(node = node.parent);
 }
 
 function deleteNodes(node) {
@@ -2622,41 +2614,44 @@ function deleteNodes(node) {
 
 function showPreview(el) {
 	dForm.appendChild(el);
-	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
-		(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
-		(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
+	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4)
+		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+			(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
+			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
 }
 
 function closePreview(el) {
-	if(Cfg.animp === 0 || nav.Opera || nav.Firefox < 5) $del(el);
-	else {
+	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) {
 		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
 			function() { $del(el); }, false);
 		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
 			(el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +
 			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-in';
-	}
+	} else $del(el);
 }
 
 function setPreviewPostion(e, pView) {
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		x = $offset(e.target).left + e.target.offsetWidth/2,
 		y = $offset(e.target).top + (e.clientY < scrH*0.8 ? e.target.offsetHeight : 0);
-	if(x < scrW/2) pView.style.left = x + 'px';
-	else pView.style.right = (scrW - x + 2) + 'px';
-	if(e.clientY < scrH*0.8) pView.style.top = y + 'px';
-	else pView.style.bottom = (scrH - y - 4) + 'px';
+	pView.style.left = x < scrW/2 ? x + 'px' : '';
+	pView.style.right = x >= scrW/2 ? (scrW - x + 2) + 'px' : '';
+	pView.style.top = e.clientY < scrH*0.8 ? y + 'px' : '';
+	pView.style.bottom = e.clientY >= scrH*0.8 ? (scrH - y - 4) + 'px' : '';
 }
 
 function funcPostPreview(post, parent, e, msg) {
-	if(!post) return addNode(parent._node, $new('span', {Class: aib.pClass + ' DESU_info', html: msg}), e);
+	if(!post) return addNode(parent._node, $new('span', {
+		Class: aib.pClass + ' DESU_info', html: msg
+	}), e);
 	var el, pView = ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true);
 	if(post.Vis === 0) togglePost(pView);
 	pView.className += ' DESU_post ' + (post.isOp ? aib.pClass : '');
 	pView.Num = post.Num;
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
-		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '') + ' or @class="DESU_mp3"]'
+		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '')
+			+ ' or @class="DESU_mp3"]'
 		+ '|.//span[starts-with(@class,"DESU_postpanel")]'
 		+ '|.//a[@class="DESU_icn_imgsrc"]', pView);
 	addPostButtons(pView);
@@ -2678,12 +2673,11 @@ function funcPostPreview(post, parent, e, msg) {
 }
 
 function showPostPreview(e) {
-	var x, y,
-		b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
+	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [0, 0])[1],
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = $din(b, pNum)),
+		post = pByNum[pNum] || importPost(b, pNum),
 		node = parent._node ? parent._node.kid : pViews;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2696,10 +2690,11 @@ function showPostPreview(e) {
 	}
 	if(post) funcPostPreview(post, parent, e);
 	else {
-		node = funcPostPreview(null, parent, e, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
+		node = funcPostPreview(null, parent, e,
+			'<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
-			impNodes[pNum] = $din(b, pNum);
-			if(node && !node.forDel) funcPostPreview(impNodes[pNum], parent, e, err || Lng.postNotFound);
+			if(node && !node.forDel)
+				funcPostPreview(importPost(b, pNum), parent, e, err || Lng.postNotFound);
 		});
 	}
 }
@@ -2767,8 +2762,15 @@ function addPostFunc(post) {
 	if(isExpImg) expandAllPostImg(post);
 }
 
+function importPost(b, pNum) {
+	if(!ajPosts[b] || !ajPosts[b][pNum]) return false;
+	var nNode = doc.importNode(ajPosts[b][pNum], true);
+	nNode.Num = pNum;
+	return nNode;
+}
+
 function newPost(thr, b, tNum, i, isDel) {
-	var pNum = ajThrds[b][tNum][i], post = $din(b, pNum);
+	var pNum = ajThrds[b][tNum][i], post = importPost(b, pNum);
 	Posts[Posts.length] = post;
 	pByNum[pNum] = post;
 	pByCnt.push(post);
@@ -2790,7 +2792,7 @@ function getFullMsg(post, tNum, a) {
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(err) return;
 		$del(a);
-		post.Msg = $html(post.Msg, $x(aib.xMsg, $din(brd, post.Num)).innerHTML);
+		post.Msg = $html(post.Msg, $x(aib.xMsg, importPost(brd, post.Num)).innerHTML);
 		addPostFunc(post);
 	});
 }
