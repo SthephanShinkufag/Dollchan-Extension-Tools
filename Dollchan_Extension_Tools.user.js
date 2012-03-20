@@ -532,7 +532,7 @@ function readCfg() {
 	if(aib.hana) Cfg.updthr = Cfg.expost = 0;
 	if(!nav.Firefox || aib.hana) Cfg.updfav = 0;
 	if(nav.Opera) Cfg.ytitle = 0;
-	if((nav.Firefox < 7 && !nav.Chrome) || aib.nul) Cfg.rndimg = 0;
+	if(nav.Firefox < 7 && !nav.Chrome) Cfg.rndimg = 0;
 	if(Cfg.svsage === 0) Cfg.issage = 0;
 	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
 	for(key in LngArray) Lng[key] = Cfg.lang === 0 ? LngArray[key][0] : LngArray[key][1];
@@ -929,7 +929,7 @@ function addSettings() {
 		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
 		$new('hr'),
 		divBox('verify', Lng.replyCheck),
-		$if((nav.Firefox > 6 || nav.Chrome) && !aib.nul, divBox('rndimg', Lng.rndImages)),
+		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
 		$New('div', [
 			lBox('keynav', Lng.keyNavig),
@@ -1647,10 +1647,12 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if((nav.Firefox > 3 || nav.Chrome) && !aib.nul) {
+		if(nav.Firefox > 3 || nav.Chrome) {
 			pr.form.onsubmit = function(e) {
 				$pD(e);
-				prepareData(function(fd) { ajaxCheckSubmit(pr.form, fd, checkUpload); });
+				setTimeout(function() {
+					prepareData(function(fd) { ajaxCheckSubmit(pr.form, fd, checkUpload); });
+				}, 1e3);
 			};
 			dForm.onsubmit = function(e) {
 				$pD(e);
