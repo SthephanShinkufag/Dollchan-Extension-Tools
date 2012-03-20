@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.20.1
+// @version			12.3.20.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -268,7 +268,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, pViews = null, pTimeOutMark, dummy, quotetxt = '', docTitle, favIcon, favIconInt, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -1253,7 +1253,7 @@ function $alert(txt, id) {
 function removeSelMenu(e) {
 	var pst = getPost(e.relatedTarget);
 	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) $del($id('DESU_select'));
-	if(pst && pst._node) markForDelete(pst._node);
+	if(pst && pst.node) markForDelete(pst.node);
 }
 
 function addSelMenu(el, html) {
@@ -1272,7 +1272,7 @@ function addSelMenu(el, html) {
 		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; '
 		+ 'padding:2px 5px; border:1px solid grey">' + html + '</div>', {
 		mouseout: removeSelMenu,
-		mouseover: function() { if(pst._node) unMarkForDelete(pst._node); }
+		mouseover: function() { if(pst.node) unMarkForDelete(pst.node); }
 	}));
 	return $X('.//div[@id="DESU_select"]/a');
 }
@@ -1499,7 +1499,7 @@ function doChanges() {
 		window.onfocus = function() {
 			doc.body.className = 'focused';
 			if(Cfg.updfav !== 0 && favIcon) {
-				clearInterval(favIconInt);
+				clearInterval(favIconTimeout);
 				$Del('.//link[@rel="shortcut icon"]', $t('head'));
 				$t('head').appendChild($new('link', {href: favIcon, rel: 'shortcut icon'}));
 			}
@@ -2571,45 +2571,46 @@ function addRefMap(post, uEv) {
 
 /*----------------------->>RefLinks posts preview functions------------------*/
 
-function addNode(pNode, pView, e) {
-	var node = pView._node = {parent: null, kid: null, Num: pView.Num, post: pView};
+function addNode(parent, pView, e) {
+	var el = pView.node = {parent: null, kid: null, Num: pView.Num, post: pView};
+	parent = parent.node;
 	pView.style.cssText =
 		'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey';
 	setPreviewPostion(e, pView);
 	$event(pView, {mouseover: unMarkForDelete, mouseout: markForDelete});
-	if(pViews && pNode) {
-		if(pNode.kid) deleteNodes(pNode.kid);
-		node.parent = pNode;
-		pNode.kid = node;
-	} else { deleteNodes(pViews); pViews = node; }
-	unMarkForDelete(node);
+	if(curView && parent) {
+		if(parent.kid) deleteNodes(parent.kid);
+		el.parent = parent;
+		parent.kid = el;
+	} else { deleteNodes(curView); curView = el; }
+	unMarkForDelete(el);
 	showPreview(pView);
-	return node;
+	return el;
 }
 
-function traverseNodes(node, fn) {
-	while(node) { fn(node); node = node.kid; }
+function traverseNodes(el, fn) {
+	while(el) { fn(el); el = el.kid; }
 }
 
 function markForDelete() {
-	traverseNodes(pViews, function(node) { node.forDel = true; });
-	pTimeOutMark = setTimeout(function() {
-		for(var node = pViews; node; node = node.kid) if(node.forDel) return deleteNodes(node);
+	traverseNodes(curView, function(el) { el.forDel = true; });
+	pViewTimeout = setTimeout(function() {
+		for(var el = curView; el; el = el.kid) if(el.forDel) return deleteNodes(el);
 	}, +Cfg.navdel);
 }
 
-function unMarkForDelete(node) {
-	if(this) node = this._node;
-	if(!node) return;
-	clearTimeout(pTimeOutMark);
-	do { node.forDel = false; } while(node = node.parent);
+function unMarkForDelete(el) {
+	if(this) el = this.node;
+	if(!el) return;
+	clearTimeout(pViewTimeout);
+	do { el.forDel = false; } while(el = el.parent);
 }
 
-function deleteNodes(node) {
-	if(!node) return;
-	traverseNodes(node, function(node) { clearTimeout(node.post.marker); closePreview(node.post); });
-	if(node.parent && node.parent.kid) node.parent.kid = null;
-	if(pViews === node) pViews = null;
+function deleteNodes(el) {
+	if(!el) return;
+	traverseNodes(el, function(el) { clearTimeout(el.post.marker); closePreview(el.post); });
+	if(el.parent && el.parent.kid) el.parent.kid = null;
+	if(curView === el) curView = null;
 }
 
 function showPreview(el) {
@@ -2641,62 +2642,56 @@ function setPreviewPostion(e, pView) {
 	pView.style.bottom = e.clientY >= scrH*0.8 ? (scrH - y - 4) + 'px' : '';
 }
 
-function funcPostPreview(post, parent, e, msg) {
-	if(!post) return addNode(parent._node, $new('span', {
-		Class: aib.pClass + ' DESU_info', html: msg
-	}), e);
-	var el, pView = ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true);
+function funcPostPreview(post, parent, e, txt) {
+	if(!post) return addNode(parent, $new('span', {Class: aib.pClass + ' DESU_info', html: txt}), e);
+	var el, pNum = post.Num,
+		pView = ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true);
 	if(post.Vis === 0) togglePost(pView);
-	pView.className += ' DESU_post ' + (post.isOp ? aib.pClass : '');
-	pView.Num = post.Num;
+	pView.className += ' DESU_post ' + aib.pClass;
+	pView.Num = pNum;
 	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
 		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '')
 			+ ' or @class="DESU_mp3"]'
 		+ '|.//span[starts-with(@class,"DESU_postpanel")]'
 		+ '|.//a[@class="DESU_icn_imgsrc"]', pView);
 	addPostButtons(pView);
-	if(!pByNum[pView.Num] || Cfg.ytube !== 2) addLinkTube(pView);
+	if(!pByNum[pNum] || Cfg.ytube !== 2) addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
 	addLinkImg(pView);
 	addImgSearch(pView);
 	if(Cfg.navig === 2) {
-		showRefMap(pView, pView.Num);
+		showRefMap(pView, pNum);
 		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parent.Num + '")]', pView);
 		if(el) el.style.fontWeight = 'bold';
 	}
 	eventRefLink(pView);
 	if(Cfg.navmrk !== 0)
-		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 2e3);
-	return addNode(parent._node, pView, e);
+		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 3e3);
+	return addNode(parent, pView, e);
 }
 
 function showPostPreview(e) {
 	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [0, 0])[1],
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
-		parent = getPost(e.target),
 		post = pByNum[pNum] || importPost(b, pNum),
-		node = parent._node ? parent._node.kid : pViews;
+		parent = getPost(e.target),
+		el = parent.node ? parent.node.kid : curView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	if(node && node.Num === pNum) {
-		setPreviewPostion(e, node.post);
-		unMarkForDelete(node);
-		return;
-	}
-	if(post) funcPostPreview(post, parent, e);
-	else {
-		node = funcPostPreview(null, parent, e,
+	if(el && el.Num === pNum) { setPreviewPostion(e, el.post); unMarkForDelete(el); }
+	else if(!post) {
+		el = funcPostPreview(null, parent, e,
 			'<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
-			if(node && !node.forDel)
+			if(el && !el.forDel)
 				funcPostPreview(importPost(b, pNum), parent, e, err || Lng.postNotFound);
 		});
-	}
+	} else funcPostPreview(post, parent, e);
 }
 
 function eventRefLink(el) {
@@ -2908,8 +2903,8 @@ function infoNewPosts(err, del) {
 		if(old) inf += +old[1];
 	}
 	if(Cfg.updfav !== 0 && favIcon) {
-		clearInterval(favIconInt);
-		if(inf > 0) favIconInt = setInterval(function() {
+		clearInterval(favIconTimeout);
+		if(inf > 0) favIconTimeout = setInterval(function() {
 			var head = $t('head'),
 				href = $xb('.//link[@href="' + favIcon + '"]', head)
 					? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJ'
