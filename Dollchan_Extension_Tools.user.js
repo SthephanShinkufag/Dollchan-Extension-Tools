@@ -2278,7 +2278,7 @@ function addTubePlayer(el, m) {
 		if(!src) addTubeEmbed(el, id, time);
 		else {
 			el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id + '/0.jpg" '
-				+ 'controls="controls" preload="none" src="' + src + '&' + Math.random()
+				+ 'controls="controls" preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '')
 				+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
 			if(time !== 0) $event($x('.//video', el), {
 				'loadedmetadata': function() { this.currentTime = time; }
@@ -2296,7 +2296,7 @@ function addTubePreview(el, m) {
 }
 
 function getTubePattern() {
-	return /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?)?$/;
+	return /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?)?$/;
 }
 
 function clickTubeLink(e) {
@@ -2333,7 +2333,7 @@ function addLinkTube(post) {
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(aib.xMsg, pst);
 			if(aib.krau)
-				$before($x('.//div[not(@class)]', pst) || $x('.//div[@class="postbody"]', pst), [el]);
+				$before($x('.//div[@class="postbody"]', pst) || $x('.//div[not(@class)]', pst), [el]);
 			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
