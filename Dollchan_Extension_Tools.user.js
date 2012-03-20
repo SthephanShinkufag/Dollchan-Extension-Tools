@@ -370,8 +370,11 @@ function $New(tag, nodes, attr, events) {
 function $txt(el) {
 	return doc.createTextNode(el);
 }
-function $din(node) {
-	return doc.importNode(node, true);
+function $din(b, pNum) {
+	if(!ajPosts[b] || !ajPosts[b][pNum]) return false;
+	var nNode = doc.importNode(ajPosts[b][pNum], true);
+	nNode.Num = pNum;
+	return nNode;
 }
 function $btn(val, fn) {
 	return $new('input', {type: 'button', value: val}, {click: fn});
@@ -2692,7 +2695,7 @@ function showPostPreview(e) {
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [0, 0])[1],
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		parent = getPost(e.target),
-		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false),
+		post = pByNum[pNum] || (impNodes[pNum] ? impNodes[pNum] : impNodes[pNum] = $din(b, pNum)),
 		node = parent._node ? parent._node.kid : pViews;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
 	setTimeout(function() {
@@ -2707,7 +2710,7 @@ function showPostPreview(e) {
 	else {
 		node = funcPostPreview(null, parent, e, '<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
-			impNodes[pNum] = ajPosts[b] && ajPosts[b][pNum] ? $din(ajPosts[b][pNum]) : false;
+			impNodes[pNum] = $din(b, pNum);
 			if(node && !node.forDel) funcPostPreview(impNodes[pNum], parent, e, err || Lng.postNotFound);
 		});
 	}
@@ -2777,11 +2780,10 @@ function addPostFunc(post) {
 }
 
 function newPost(thr, b, tNum, i, isDel) {
-	var pNum = ajThrds[b][tNum][i], post = $din(ajPosts[b][pNum]);
+	var pNum = ajThrds[b][tNum][i], post = $din(b, pNum);
 	Posts[Posts.length] = post;
 	pByNum[pNum] = post;
 	pByCnt.push(post);
-	post.Num = pNum;
 	post.Count = i;
 	post.Vis = getVisib(pNum);
 	post.Msg = $x(aib.xMsg, post);
@@ -2800,7 +2802,7 @@ function getFullMsg(post, tNum, a) {
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(err) return;
 		$del(a);
-		post.Msg = $html(post.Msg, $x(aib.xMsg, $din(ajPosts[brd][post.Num])).innerHTML);
+		post.Msg = $html(post.Msg, $x(aib.xMsg, $din(brd, post.Num)).innerHTML);
 		addPostFunc(post);
 	});
 }
