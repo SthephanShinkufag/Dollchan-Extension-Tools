@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.19.0
+// @version			12.3.20.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-19',
+	version:	'2012-03-20',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -33,7 +33,6 @@ var defaultCfg = {
 	updint:		2,		//		threads update interval
 	updfav:		1,		//		favicon blinking, if new posts detected
 	navig:		2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
-	navfix:		1,		//		previews placed by [0=mouse, 1=link]
 	navdel:		'2000',	//		delay in ms
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		strike hidden posts in refmap
@@ -131,7 +130,6 @@ LngArray = {
 		['Откл.', 'Без карты', 'С картой'],
 		['Disable', 'No map', 'With map']
 	],
-	fixedPreview:	['Фиксировать превью под ссылкой', 'Fixed preview under link'],
 	delayPreview:	[' задержка пропадания (мс)', ' delay disappearance (ms)'],
 	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 	hidRefmap:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
@@ -880,7 +878,6 @@ function addSettings() {
 		]),
 		$New('div', [
 			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
-			divBox('navfix', Lng.fixedPreview),
 			divBox('navmrk', Lng.markViewed),
 			divBox('navhid', Lng.hidRefmap)
 		], {id: 'DESU_pviewbox', style: 'display:none; padding-left:15px'}),
@@ -2644,21 +2641,12 @@ function closePreview(el) {
 
 function setPreviewPostion(e, pView) {
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight,
-		x, y, left = '', right = '', top = '', bottom = '';
-	if(Cfg.navfix === 0 || Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content"]', e.target)) {
-		x = e.clientX + window.pageXOffset + 2;
-		y = e.clientY + window.pageYOffset;
-	} else {
-		x = $offset(e.target).left + e.target.offsetWidth/2;
-		y = $offset(e.target).top;
-		if(e.clientY < scrH*0.8) y += e.target.offsetHeight;
-	}
-	if(x < scrW/2) left = x + 'px';
-	else right = (scrW - x + 2) + 'px';
-	if(e.clientY < scrH*0.8) top = y + 'px';
-	else bottom = (scrH - y - 4) + 'px';
-	pView.style.left = left; pView.style.right = right;
-	pView.style.top = top; pView.style.bottom = bottom;
+		x = $offset(e.target).left + e.target.offsetWidth/2,
+		y = $offset(e.target).top + (e.clientY < scrH*0.8 ? e.target.offsetHeight : 0);
+	if(x < scrW/2) pView.style.left = x + 'px';
+	else pView.style.right = (scrW - x + 2) + 'px';
+	if(e.clientY < scrH*0.8) pView.style.top = y + 'px';
+	else pView.style.bottom = (scrH - y - 4) + 'px';
 }
 
 function funcPostPreview(post, parent, e, msg) {
