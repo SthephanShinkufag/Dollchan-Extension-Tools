@@ -861,7 +861,7 @@ function addSettings() {
 					processHidden(this.selectedIndex, Cfg.delhd);
 				})
 			])
-		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bFilters'}),
+		], {Class: 'DESU_sBody', id: 'DESU_sett_bFilters'}),
 		sPosts = $New('div', [
 			$if(!aib.hana, $New('div', [
 				optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
@@ -893,7 +893,7 @@ function addSettings() {
 					})
 				])
 			], {style: 'padding-left:25px'})
-		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bPosts'}),
+		], {Class: 'DESU_sBody', id: 'DESU_sett_bPosts'}),
 		sLinks = $New('div', [
 			$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
 			$New('div', [
@@ -914,7 +914,7 @@ function addSettings() {
 				]),
 				$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
 			], {style: 'padding-left:25px'})
-		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bLinks'}),
+		], {Class: 'DESU_sBody', id: 'DESU_sett_bLinks'}),
 		sForm = $New('div', [
 			$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
 			$if(pr.on, divBox('tform', Lng.noThrForm, function() {
@@ -948,7 +948,7 @@ function addSettings() {
 				$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
 				$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
 			])
-		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bForm'}),
+		], {Class: 'DESU_sBody', id: 'DESU_sett_bForm'}),
 		sCommon = $New('div', [
 			$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
 				function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
@@ -957,10 +957,10 @@ function addSettings() {
 			divBox('icount', Lng.showImgCount, scriptCSS),
 			divBox('animp', Lng.animatePopup),
 			divBox('rtitle', Lng.replaceTitle),
-		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bCommon'}),
+		], {Class: 'DESU_sBody', id: 'DESU_sett_bCommon'}),
 		sInfo = $New('div', [
 			$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
-		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bInfo'}),
+		], {Class: 'DESU_sBody', id: 'DESU_sett_bInfo'}),
 		openTab = function(el, name) {
 			var sWin = $id('DESU_sett_window'), el1 = $x('./div[starts-with(@id,"DESU_sett_b")]', sWin),
 				el2 = eval(name);
