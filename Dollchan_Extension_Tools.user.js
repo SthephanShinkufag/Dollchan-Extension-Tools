@@ -974,15 +974,14 @@ function addSettings() {
 		$New('div', [
 			$new('div', {id: 'DESU_cfgHead', text: 'Dollchan Extension Tools'}),
 			$New('div', [
-				$new('div', {Class: 'DESU_cfgTab_sel', text: Lng.filters}, {click: function(e) { openTab(this, 'sFilters');}}),
-				$new('div', {Class: 'DESU_cfgTab', text: Lng.posts}, {click: function(e) { openTab(this, 'sPosts'); }}),
-				$new('div', {Class: 'DESU_cfgTab', text: Lng.links}, {click: function(e) { openTab(this, 'sLinks'); }}),
-				$new('div', {Class: 'DESU_cfgTab', text: Lng.form}, {click: function(e) { openTab(this, 'sForm'); }}),
-				$new('div', {Class: 'DESU_cfgTab', text: Lng.common}, {click: function(e) { openTab(this, 'sCommon'); }}),
-				$new('div', {Class: 'DESU_cfgTab', text: Lng.info}, {click: function(e) { openTab(this, 'sInfo'); }}),
+				$New('div', [$new('div', {Class: 'DESU_cfgTab_sel', text: Lng.filters}, {click: function(e) { openTab(this, 'sFilters');}})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
+				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.posts}, {click: function(e) { openTab(this, 'sPosts'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
+				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.links}, {click: function(e) { openTab(this, 'sLinks'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
+				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.form}, {click: function(e) { openTab(this, 'sForm'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
+				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.common}, {click: function(e) { openTab(this, 'sCommon'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
+				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.info}, {click: function(e) { openTab(this, 'sInfo'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'})
 			], {id: 'DESU_cfgBar'}),
 			sFilters,
-			$new('hr'),
 			$New('div', [
 				$New('div', [
 					optSel('lang', ['Ru', 'En'], '', function() {
@@ -1980,12 +1979,15 @@ function scriptCSS() {
 		#DESU_cfgHead {padding:3px; ' + pre + 'color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
 		.DESU_cfgBody {display:table; padding:7px; margin:0; width:420px; font:13px sans-serif; float:none;}\
 		.DESU_cfgBody input[value=">"] {width:20px}\
-		#DESU_cfgBar {height:25px; margin-bottom:5px; padding-top:5px; width: 100%; display:table;}\
+		.DESU_cfgBody, #DESU_cfgBtns {border-left:1px solid rgba(0,0,0,.6); border-right:1px solid rgba(0,0,0,.6); border-bottom:1px solid rgba(0,0,0,.6);}\
+		#DESU_cfgBtns {padding-top:7px}\
+		#DESU_cfgBar {height:25px; padding-top:5px; width: 100%; display:table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + ';}\
 		#DESU_cfgInfo, #DESU_cfgFilters {margin:0 auto}\
-		.DESU_cfgTab, .DESU_cfgTab_sel {cursor:default; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; opacity:.6; display:table-cell; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
+		.DESU_cfgTab, .DESU_cfgTab_sel {cursor:default; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
+		.DESU_cfgTabBack {display:table-cell; float:none; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
 		.DESU_cfgTab {background-color: rgba(0,0,0,.2)}\
-		.DESU_cfgTab:hover {opacity:.8}\
-		.DESU_cfgTab_sel {opacity:1 !important; border-bottom:none;}\
+		.DESU_cfgTab:hover {background-color: rgba(0,0,0,.3)}\
+		.DESU_cfgTab_sel {border-bottom:none;}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
 		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
