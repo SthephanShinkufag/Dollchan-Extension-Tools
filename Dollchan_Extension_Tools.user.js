@@ -1982,7 +1982,7 @@ function scriptCSS() {
 		.DESU_sBody input[value=">"] {width:20px}\
 		#DESU_sett_tabs {height:25px; margin-bottom:5px; padding-top:5px; width: 100%; display:table;}\
 		#DESU_sett_bInfo, #DESU_sett_bFilters {margin:0 auto}\
-		.DESU_sTab {cursor: pointer; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font-weight:bold; opacity:.6; display:table-cell;' + brCssFix + 'border-radius:4px 4px 0 0;}\
+		.DESU_sTab {cursor: pointer; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; opacity:.6; display:table-cell;' + brCssFix + 'border-radius:4px 4px 0 0;}\
 		.DESU_sTab:not(.DESU_sTSel) {background-color: rgba(0,0,0,.2)}\
 		.DESU_sTab:hover {opacity:.8;}\
 		.DESU_sTSel {opacity:1 !important; border-bottom: none; cursor: default;}\
