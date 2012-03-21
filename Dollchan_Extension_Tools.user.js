@@ -821,222 +821,208 @@ function addSettings() {
 			el.selectedIndex = Cfg[name];
 			return $New('label', [el, $txt(' ' + txt)]);
 		},
-		changeSettTab = function(e) {
-			$pD(e);
-			$x('.//div[@class="DESU_sett_on"]').className = 'DESU_sett_off';
-			$id(this.id.replace(/_tab_/, '_cont_')).className = 'DESU_sett_on';
+		sFilters = $New('div', [
+			$New('div', [
+				lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
+				$New('span', [
+					$new('a', {text: Lng.add, href: '#'}, {
+						click: $pD,
+						mouseover: selectSpell,
+						mouseout: removeSelMenu
+					}),
+					$new('a', {text: Lng.apply, href: '#'}, {
+						click: function(e) { $pD(e); applySpells(); }
+					}),
+					$new('a', {text: Lng.clear, href: '#'}, {
+						click: function(e) { $pD(e); $id('DESU_spelledit').value = ''; applySpells(); }
+					}),
+					$new('a', {text: '?', target: '_blank', href: homePage + 'spells'})
+				], {id: 'DESU_spellpanel'}),
+				$new('textarea', {id: 'DESU_spelledit', rows: 7, cols: 56})
+			]),
+			$New('div', [
+				lBox('awipe', Lng.antiWipe),
+				$btn('>', function() { $disp($id('DESU_wipebox')); })
+			]),
+			$New('div', [
+				divBox('samel', Lng.sameLines),
+				divBox('samew', Lng.sameWords),
+				divBox('longp', Lng.longPosts),
+				divBox('longw', Lng.longWords),
+				divBox('caps', Lng.caps),
+				divBox('specs', Lng.specSymbols),
+				divBox('nums', Lng.numbers)
+			], {id: 'DESU_wipebox', style: 'display:none; padding-left:25px'}),
+			divBox('filthr', Lng.filterThreads),
+			divBox('menuhd', Lng.hiderMenu),
+			divBox('viewhd', Lng.viewHidden),
+			$New('div', [
+				optSel('delhd', Lng.selHiddenPosts, Lng.hiddenPosts, function() {
+					processHidden(this.selectedIndex, Cfg.delhd);
+				})
+			])
+		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bFilters'}),
+		sPosts = $New('div', [
+			$if(!aib.hana, $New('div', [
+				optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
+				optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
+				$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication))
+			])),
+			$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
+			$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
+			divBox('imgsrc', Lng.imgSearch),
+			$New('div', [
+				lBox('ospoil', Lng.openSpoilers, scriptCSS),
+				lBox('noname', Lng.hideNames, scriptCSS),
+				$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
+			]),
+			$New('div', [
+				lBox('keynav', Lng.keyNavig),
+				$new('a', {text: '?', href: '#'}, {
+					click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
+				})
+			]),
+			$New('div', [lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime')]),
+			$New('div', [
+				$New('div', [inpTxt('ctmofs', 3), $new('span', {text: Lng.cTimeOffset})]),
+				$New('div', [
+					inpTxt('ctmpat', 30),
+					$txt(' '),
+					$new('a', {text: Lng.cTimePattern, href: '#'}, {
+						click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
+					})
+				])
+			], {style: 'padding-left:25px'})
+		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bPosts'}),
+		sLinks = $New('div', [
+			$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
+			$New('div', [
+				$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
+				divBox('navmrk', Lng.markViewed),
+				divBox('navhid', Lng.hidRefmap)
+			], {style: 'padding-left:25px'}),
+			divBox('insnum', Lng.insertLink),
+			divBox('mp3', Lng.mp3Embed),
+			divBox('addimg', Lng.imgEmbed),
+			$New('div', [optSel('ytube', Lng.selYTembed, Lng.YTembed)]),
+			$New('div', [
+				$New('div', [
+					optSel('yptype', !nav.Opera 
+						? ['Flash', 'HTML5 iframe', 'HTML5 video'] : ['Flash', 'HTML5 iframe'], ' '),
+					inpTxt('ywidth', 6), $txt('×'), inpTxt('yheigh', 6), $txt(' '),
+					lBox('yhdvid', 'HD ')
+				]),
+				$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
+			], {style: 'padding-left:25px'})
+		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bLinks'}),
+		sForm = $New('div', [
+			$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
+			$if(pr.on, divBox('tform', Lng.noThrForm, function() {
+				if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
+			})),
+			divBox('verify', Lng.replyCheck),
+			divBox('addfav', Lng.addToFav),
+			$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
+			$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
+			$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
+			$if(pr.on, $New('div', [
+				optSel('txtbtn', Lng.selFormatBtns, Lng.formatBtns, function() {
+					saveCfg('txtbtn', this.selectedIndex);
+					addTextPanel();
+					scriptCSS();
+				}),
+				lBox('txtpos', Lng.atBottom, scriptCSS)
+			])),
+			$if(pr.name, $New('div', [
+				inpTxt('namval', 20, setUserName),
+				lBox('name', Lng.fixedName, setUserName, 'DESU_fixedname_ch')
+			])),
+			$if(pr.passw, $New('div', [
+				inpTxt('pasval', 20, setUserPassw),
+				lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixedpass_ch')
+			])),
+			$if(pr.txta, $New('div', [inpTxt('sigval', 20), lBox('sign', Lng.fixedSign)])),
+			$New('div', [
+				$if(pr.on || oeForm, $txt(Lng.dontShow)),
+				lBox('norule', Lng.rules, scriptCSS),
+				$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
+				$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
+			])
+		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bForm'}),
+		sCommon = $New('div', [
+			$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
+				function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
+			)]),
+			divBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
+			divBox('icount', Lng.showImgCount, scriptCSS),
+			divBox('animp', Lng.animatePopup),
+			divBox('rtitle', Lng.replaceTitle),
+		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bCommon'}),
+		sInfo = $New('div', [
+			$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
+		], {Class: aib.pClass + ' DESU_sBody', id: 'DESU_sett_bInfo'}),
+		openTab = function(el, name) {
+			var sWin = $id('DESU_sett_window'), el1 = $x('./div[starts-with(@id,"DESU_sett_b")]', sWin),
+				el2 = eval(name);
+			if(el1 === el2) return;
+			sWin.replaceChild(el2, el1);
+			$x('.//div[contains(@class,"DESU_sTSel")]', sWin).className = 'DESU_sTab';
+			el.className += ' DESU_sTSel';
 		};
-	
+
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}),
 			$New('div', [
-				$new('div', {id: 'DESU_sett_tabs'}),
-				$new('div', {id: 'DESU_sett_cont_filters', Class: 'DESU_sett_on'}),
-				$new('div', {id: 'DESU_sett_cont_posts', Class: 'DESU_sett_off'}),
-				$new('div', {id: 'DESU_sett_cont_links', Class: 'DESU_sett_off'}),
-				$new('div', {id: 'DESU_sett_cont_form', Class: 'DESU_sett_off'}),
-				$new('div', {id: 'DESU_sett_cont_common', Class: 'DESU_sett_off'}),
-				$new('div', {id: 'DESU_sett_cont_info', Class: 'DESU_sett_off'}),
-				$new('hr'),
-				$new('div', {id: 'DESU_sett_btns'})
-			], {Class: aib.pClass, id: 'DESU_sett_body'})
-		], {id: 'DESU_sett_window'}),
-	]);
-	
-	$append($id('DESU_sett_tabs'), [
-		$new('a', {id: 'DESU_sett_tab_filters', text: Lng.filters, href: '#'}, {click: changeSettTab}),
-		$new('a', {id: 'DESU_sett_tab_posts', text: Lng.posts, href: '#'}, {click: changeSettTab}),
-		$new('a', {id: 'DESU_sett_tab_links', text: Lng.links, href: '#'}, {click: changeSettTab}),
-		$new('a', {id: 'DESU_sett_tab_form', text: Lng.form, href: '#'}, {click: changeSettTab}),
-		$new('a', {id: 'DESU_sett_tab_common', text: Lng.common, href: '#'}, {click: changeSettTab}),
-		$new('a', {id: 'DESU_sett_tab_info', text: Lng.info, href: '#'}, {click: changeSettTab}),
-	]);
-	
-	$append($id('DESU_sett_cont_filters'), [
-		$New('div', [
-			lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
-			$New('span', [
-				$new('a', {text: Lng.add, href: '#'}, {
-					click: $pD,
-					mouseover: selectSpell,
-					mouseout: removeSelMenu
-				}),
-				$new('a', {text: Lng.apply, href: '#'}, {
-					click: function(e) { $pD(e); applySpells(); }
-				}),
-				$new('a', {text: Lng.clear, href: '#'}, {
-					click: function(e) { $pD(e); $id('DESU_spelledit').value = ''; applySpells(); }
-				}),
-				$new('a', {text: '?', target: '_blank', href: homePage + 'spells'})
-			], {id: 'DESU_spellpanel'}),
-			$new('textarea', {id: 'DESU_spelledit', rows: 7, cols: 56})
-		]),
-		$New('div', [
-			lBox('awipe', Lng.antiWipe),
-			$btn('>', function() { $disp($id('DESU_wipebox')); })
-		]),
-		$New('div', [
-			divBox('samel', Lng.sameLines),
-			divBox('samew', Lng.sameWords),
-			divBox('longp', Lng.longPosts),
-			divBox('longw', Lng.longWords),
-			divBox('caps', Lng.caps),
-			divBox('specs', Lng.specSymbols),
-			divBox('nums', Lng.numbers)
-		], {id: 'DESU_wipebox', style: 'display:none; padding-left:25px'}),
-		divBox('filthr', Lng.filterThreads),
-		divBox('menuhd', Lng.hiderMenu),
-		divBox('viewhd', Lng.viewHidden),
-		$New('div', [
-			optSel('delhd', Lng.selHiddenPosts, Lng.hiddenPosts, function() {
-				processHidden(this.selectedIndex, Cfg.delhd);
-			})
-		])
-	]);
-	
-	$append($id('DESU_sett_cont_posts'), [
-		$if(!aib.hana, $New('div', [
-			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
-			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
-			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication))
-		])),
-		$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
-		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
-		divBox('imgsrc', Lng.imgSearch),
-		$New('div', [
-			lBox('ospoil', Lng.openSpoilers, scriptCSS),
-			lBox('noname', Lng.hideNames, scriptCSS),
-			$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
-		]),
-		$New('div', [
-			lBox('keynav', Lng.keyNavig),
-			$new('a', {text: '?', href: '#'}, {
-				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
-			})
-		]),
-		$New('div', [lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime')]),
-		$New('div', [
-			$New('div', [inpTxt('ctmofs', 3), $new('span', {text: Lng.cTimeOffset})]),
+				$new('div', {Class: 'DESU_sTab DESU_sTSel', text: Lng.filters}, {click: function(e) { openTab(this, 'sFilters');}}),
+				$new('div', {Class: 'DESU_sTab', text: Lng.posts}, {click: function(e) { openTab(this, 'sPosts'); }}),
+				$new('div', {Class: 'DESU_sTab', text: Lng.links}, {click: function(e) { openTab(this, 'sLinks'); }}),
+				$new('div', {Class: 'DESU_sTab', text: Lng.form}, {click: function(e) { openTab(this, 'sForm'); }}),
+				$new('div', {Class: 'DESU_sTab', text: Lng.common}, {click: function(e) { openTab(this, 'sCommon'); }}),
+				$new('div', {Class: 'DESU_sTab', text: Lng.info}, {click: function(e) { openTab(this, 'sInfo'); }}),
+			], {id: 'DESU_sett_tabs'}),
+			sFilters,
+			$new('hr'),
 			$New('div', [
-				inpTxt('ctmpat', 30),
-				$txt(' '),
-				$new('a', {text: Lng.cTimePattern, href: '#'}, {
-					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
-				})
-			])
-		], {style: 'padding-left:25px'})
-	]);
-	
-	$append($id('DESU_sett_cont_links'), [
-		$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
-		$New('div', [
-			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
-			divBox('navmrk', Lng.markViewed),
-			divBox('navhid', Lng.hidRefmap)
-		], {style: 'padding-left:25px'}),
-		divBox('insnum', Lng.insertLink),
-		divBox('mp3', Lng.mp3Embed),
-		divBox('addimg', Lng.imgEmbed),
-		$New('div', [optSel('ytube', Lng.selYTembed, Lng.YTembed)]),
-		$New('div', [
-			$New('div', [
-				optSel('yptype', !nav.Opera 
-					? ['Flash', 'HTML5 iframe', 'HTML5 video'] : ['Flash', 'HTML5 iframe'], ' '),
-				inpTxt('ywidth', 6), $txt('×'), inpTxt('yheigh', 6), $txt(' '),
-				lBox('yhdvid', 'HD ')
-			]),
-			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
-		], {style: 'padding-left:25px'})
-	]);
-	
-	$append($id('DESU_sett_cont_form'), [
-		$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
-		$if(pr.on, divBox('tform', Lng.noThrForm, function() {
-			if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
-		})),
-		divBox('verify', Lng.replyCheck),
-		divBox('addfav', Lng.addToFav),
-		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
-		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
-		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
-		$if(pr.on, $New('div', [
-			optSel('txtbtn', Lng.selFormatBtns, Lng.formatBtns, function() {
-				saveCfg('txtbtn', this.selectedIndex);
-				addTextPanel();
-				scriptCSS();
-			}),
-			lBox('txtpos', Lng.atBottom, scriptCSS)
-		])),
-		$if(pr.name, $New('div', [
-			inpTxt('namval', 20, setUserName),
-			lBox('name', Lng.fixedName, setUserName, 'DESU_fixedname_ch')
-		])),
-		$if(pr.passw, $New('div', [
-			inpTxt('pasval', 20, setUserPassw),
-			lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixedpass_ch')
-		])),
-		$if(pr.txta, $New('div', [inpTxt('sigval', 20), lBox('sign', Lng.fixedSign)])),
-		$New('div', [
-			$if(pr.on || oeForm, $txt(Lng.dontShow)),
-			lBox('norule', Lng.rules, scriptCSS),
-			$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
-			$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
-		])
-	]);
-	
-	$append($id('DESU_sett_cont_common'), [
-		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
-			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
-		)]),
-		divBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
-		divBox('icount', Lng.showImgCount, scriptCSS),
-		divBox('animp', Lng.animatePopup),
-		divBox('rtitle', Lng.replaceTitle),
-	]);
-	
-	$append($id('DESU_sett_cont_info'), [
-		$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
-	]);
-	
-	$append($id('DESU_sett_btns'), [
-		$New('div', [
-			optSel('lang', ['Ru', 'En'], '', function() {
-				saveCfg('lang', this.selectedIndex);
-				window.location.reload();
-			}),
-			$if(sav.isGlobal, $btn(Lng.load, function() {
-				if(isValidCfg(getStored('DESU_GlobalCfg'))) {
-					setStored('DESU_Config_' + aib.dm, '');
-					window.location.reload();
-				} else $alert(Lng.noGlobalCfg);
-			})),
-			$if(sav.isGlobal, $btn(Lng.save, function() {
-				setStored('DESU_GlobalCfg', $uneval(Cfg));
-				toggleContent('sett', true);
-			})),
-			$btn(Lng.edit, function() {
-				$disp($up($attr($id('DESU_cfgedit'), {value: getStored('DESU_Config_' + aib.dm)})));
-			}),
-			$btn(Lng.reset, function() {
-				setDefaultCfg();
-				setStored('DESU_Stat_' + aib.dm, '');
-				setStored('DESU_Favorites', '');
-				setStored('DESU_Threads_' + aib.dm, '');
-				saveSpells('');
-				window.location.reload();
-			})
-		], {style: 'float:right'}),
-		$new('br', {style: 'clear:both'}),
-		$New('div', [
-			$new('textarea', {
-				id: 'DESU_cfgedit', rows: 10, cols: 56, value: ''
-			}),
-			$btn(Lng.save, function() {
-				setStored('DESU_Config_' + aib.dm, $id('DESU_cfgedit').value.trim());
-				window.location.reload();
-			})
-		], {style: 'display:none'})
+				$New('div', [
+					optSel('lang', ['Ru', 'En'], '', function() {
+						saveCfg('lang', this.selectedIndex);
+						window.location.reload();
+					}),
+					$if(sav.isGlobal, $btn(Lng.load, function() {
+						if(isValidCfg(getStored('DESU_GlobalCfg'))) {
+							setStored('DESU_Config_' + aib.dm, '');
+							window.location.reload();
+						} else $alert(Lng.noGlobalCfg);
+					})),
+					$if(sav.isGlobal, $btn(Lng.save, function() {
+						setStored('DESU_GlobalCfg', $uneval(Cfg));
+						toggleContent('sett', true);
+					})),
+					$btn(Lng.edit, function() {
+						$disp($up($attr($id('DESU_cfgedit'), {value: getStored('DESU_Config_' + aib.dm)})));
+					}),
+					$btn(Lng.reset, function() {
+						setDefaultCfg();
+						setStored('DESU_Stat_' + aib.dm, '');
+						setStored('DESU_Favorites', '');
+						setStored('DESU_Threads_' + aib.dm, '');
+						saveSpells('');
+						window.location.reload();
+					})
+				], {style: 'float:right'}),
+				$new('br', {style: 'clear:both'}),
+				$New('div', [
+					$new('textarea', {
+						id: 'DESU_cfgedit', rows: 10, cols: 56, value: ''
+					}),
+					$btn(Lng.save, function() {
+						setStored('DESU_Config_' + aib.dm, $id('DESU_cfgedit').value.trim());
+						window.location.reload();
+					})
+				], {style: 'display:none'})
+			], {id: 'DESU_sett_buttons'})
+		], {Class: aib.pClass, id: 'DESU_sett_window'})
 	]);
 }
 
@@ -1990,12 +1976,16 @@ function scriptCSS() {
 		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '}\
 		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
-		#DESU_sett_window {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
-		#DESU_sett_head {padding:3px; ' + pre + brCssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
-		#DESU_sett_body {padding:7px; margin:0; width:420px; border:1px solid grey; font:13px sans-serif}\
-		#DESU_sett_body input[value=">"] {width:20px}\
-		#DESU_sett_tabs {height:25px; margin-bottom:5px; border-bottom:1px solid grey}\
-		#DESU_sett_tabs a {float:left; padding:4px 10px; border:1px solid grey; color:inherit; text-align:center; font-weight:bold}\
+		#DESU_sett_window {float:left; ' + brCssFix + 'border-radius:10px 10px 0 0; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden;}\
+		#DESU_sett_head {padding:3px; ' + pre + 'color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
+		.DESU_sBody {display:table; padding:7px; margin:0; width:420px; font:13px sans-serif; float:none;}\
+		.DESU_sBody input[value=">"] {width:20px}\
+		#DESU_sett_tabs {height:25px; margin-bottom:5px; padding-top:5px; width: 100%; display:table;}\
+		#DESU_sett_bInfo, #DESU_sett_bFilters {margin:0 auto}\
+		.DESU_sTab {cursor: pointer; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font-weight:bold; opacity:.6; display:table-cell;' + brCssFix + 'border-radius:4px 4px 0 0;}\
+		.DESU_sTab:not(.DESU_sTSel) {background-color: rgba(0,0,0,.2)}\
+		.DESU_sTab:hover {opacity:.8;}\
+		.DESU_sTSel {opacity:1 !important; border-bottom: none; cursor: default;}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
 		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
