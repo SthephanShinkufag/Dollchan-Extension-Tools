@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.20.2
+// @version			12.3.21.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-20',
+	version:	'2012-03-21',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -116,8 +116,8 @@ LngArray = {
 		['Не изменять', 'Объединять', 'Удалять'],
 		['Skip', 'Merge', 'Delete']
 	],
-	filterThreads:	['Фильтровать треды', 'Filter threads'],
-	hiderMenu:		['Меню кнопки скрытия ', 'Hider menu '],
+	filterThreads:	['Применять фильтры к тредам', 'Apply filters to threads'],
+	hiderMenu:		['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 	viewHidden:		['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
 	threadUpd:		['подгрузка треда* T=', 'thread update* T='],
 	selThreadUpd:	[
@@ -143,10 +143,10 @@ LngArray = {
 		'Вставлять >>ссылку по клику на №поста*',
 		'Insert >>link on №postnumber click*'
 	],
-	animatePopup:	['Анимировать всплывающие уведомления', 'Animate popup messages'],
-	replaceTitle:	['Заменять title страницы в тредах*', 'Replace page title in threads*'],
+	animatePopup:	['Анимация уведомлений и превью постов', 'Animation of popups and post preview'],
+	replaceTitle:	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
 	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
-	showImgCount:	['Счетчик постов/изображений', 'Posts/images counter'],
+	showImgCount:	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
 	imgExpand:		['раскрывать изображения ', 'expand images '],
 	selImgExpand:	[
 		['Откл.', 'В посте', 'По центру'],
@@ -164,14 +164,14 @@ LngArray = {
 	],
 	YTtitle:		['Загружать название к ссылкам*', 'Load video title to links*'],
 	replyCheck:		[
-		'Постить без перезагрузки (проверять ответ)*',
-		'Reply without reload (check on submit)*'
+		'Постить без перезагрузки (проверять ответ при отправке)*',
+		'Posting without reload (check reply on submit)*'
 	],
-	addToFav:		['Добавлять в избранное при ответе', 'Add thread to favorites on reply'],
+	addToFav:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 	mailToSage:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
 	saveSage:		['запоминать сажу', 'remember sage'],
 	replyForm:		['форма ответа в треде* ', 'reply form in thread* '],
-	noThrForm:		['Прятать форму на доске', 'Hide form on board'],
+	noThrForm:		['Прятать форму создания треда', 'Hide thread creating form'],
 	selReplyForm:   [
 		['Сверху', 'Внизу', 'Скрытая'],
 		['At top', 'At bottom', 'Hidden']
@@ -265,7 +265,11 @@ LngArray = {
 			+ '\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
 	],
 	search:			['Искать в ', 'Search in '],
-	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*']
+	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
+	filters:		['Фильтры', 'Filters'],
+	posts:			['Посты', 'Posts'],
+	form:			['Форма', 'Form'],
+	common:			['Общее', 'Common'],
 },
 
 doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
@@ -812,16 +816,35 @@ function addSettings() {
 			});
 			el.selectedIndex = Cfg[name];
 			return $New('label', [el, $txt(' ' + txt)]);
+		},
+		changeSettTab = function(e) {
+			$pD(e);
+			$x('.//div[@class="DESU_sett_on"]').className = 'DESU_sett_off';
+			$id(this.id.replace(/_tab_/, '_cont_')).className = 'DESU_sett_on';
 		};
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}, {
 				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
 			}),
-			$new('div', {Class: aib.pClass, id: 'DESU_sett_main'})
-		], {id: 'DESU_sett_body'})
+			$New('div', [
+				$new('div', {id: 'DESU_sett_tabs'}),
+				$new('div', {id: 'DESU_sett_cont_filters', Class: 'DESU_sett_on'}),
+				$new('div', {id: 'DESU_sett_cont_posts', Class: 'DESU_sett_off'}),
+				$new('div', {id: 'DESU_sett_cont_form', Class: 'DESU_sett_off'}),
+				$new('div', {id: 'DESU_sett_cont_common', Class: 'DESU_sett_off'}),
+				$new('hr'),
+				$new('div', {id: 'DESU_sett_btns'})
+			], {Class: aib.pClass, id: 'DESU_sett_body'})
+		], {id: 'DESU_sett_window'}),
 	]);
-	$append($id('DESU_sett_main'), [
+	$append($id('DESU_sett_tabs'), [
+		$new('a', {id: 'DESU_sett_tab_filters', text: Lng.filters, href: '#'}, {click: changeSettTab}),
+		$new('a', {id: 'DESU_sett_tab_posts', text: Lng.posts, href: '#'}, {click: changeSettTab}),
+		$new('a', {id: 'DESU_sett_tab_form', text: Lng.form, href: '#'}, {click: changeSettTab}),
+		$new('a', {id: 'DESU_sett_tab_common', text: Lng.common, href: '#'}, {click: changeSettTab})
+	]);
+	$append($id('DESU_sett_cont_filters'), [
 		$New('div', [
 			lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
 			$New('span', [
@@ -853,19 +876,23 @@ function addSettings() {
 			divBox('specs', Lng.specSymbols),
 			divBox('nums', Lng.numbers)
 		], {id: 'DESU_wipebox', style: 'display:none; padding-left:15px'}),
-		$New('div', [lBox('menuhd', Lng.hiderMenu), lBox('viewhd', Lng.viewHidden)]),
+		divBox('filthr', Lng.filterThreads),
+		divBox('menuhd', Lng.hiderMenu),
+		divBox('viewhd', Lng.viewHidden),
 		$New('div', [
 			optSel('delhd', Lng.selHiddenPosts, Lng.hiddenPosts, function() {
 				processHidden(this.selectedIndex, Cfg.delhd);
-			}),
-			lBox('filthr', Lng.filterThreads)
-		]),
-		$new('hr'),
+			})
+		])
+	]);
+	$append($id('DESU_sett_cont_posts'), [
 		$if(!aib.hana, $New('div', [
 			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
 			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication))
 		])),
+		$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
+		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
 		$New('div', [
 			optSel('navig', Lng.selNavigation, Lng.navigation),
 			$btn('>', function() { $disp($id('DESU_pviewbox')); })
@@ -875,11 +902,7 @@ function addSettings() {
 			divBox('navmrk', Lng.markViewed),
 			divBox('navhid', Lng.hidRefmap)
 		], {id: 'DESU_pviewbox', style: 'display:none; padding-left:15px'}),
-		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
-		$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
-		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
-			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
-		)]),
+		divBox('insnum', Lng.insertLink),
 		$New('div', [
 			lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime'),
 			$btn('>', function() { $disp($id('DESU_ctimebox')); })
@@ -894,20 +917,20 @@ function addSettings() {
 				})
 			])
 		], {id: 'DESU_ctimebox', style: 'display:none; padding-left:15px'}),
-		divBox('insnum', Lng.insertLink),
-		divBox('animp', Lng.animatePopup),
-		divBox('rtitle', Lng.replaceTitle),
 		$New('div', [
-			lBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
-			lBox('icount', Lng.showImgCount, scriptCSS)
+			lBox('keynav', Lng.keyNavig),
+			$new('a', {text: '?', href: '#'}, {
+				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
+			})
 		]),
 		$New('div', [
 			lBox('ospoil', Lng.openSpoilers, scriptCSS),
 			lBox('noname', Lng.hideNames, scriptCSS),
 			$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
 		]),
-		$New('div', [lBox('mp3', Lng.mp3Embed), lBox('addimg', Lng.imgEmbed)]),
 		divBox('imgsrc', Lng.imgSearch),
+		divBox('mp3', Lng.mp3Embed),
+		divBox('addimg', Lng.imgEmbed),
 		$New('div', [
 			optSel('ytube', Lng.selYTembed, Lng.YTembed),
 			$btn('>', function() { $disp($id('DESU_ytubebox')); })
@@ -920,24 +943,17 @@ function addSettings() {
 				lBox('yhdvid', 'HD ')
 			]),
 			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
-		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'}),
-		$new('hr'),
+		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'})
+	]);
+	$append($id('DESU_sett_cont_form'), [
+		$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
+		$if(pr.on, divBox('tform', Lng.noThrForm, function() {
+			if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
+		})),
 		divBox('verify', Lng.replyCheck),
-		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
 		divBox('addfav', Lng.addToFav),
-		$New('div', [
-			lBox('keynav', Lng.keyNavig),
-			$new('a', {text: '?', href: '#'}, {
-				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
-			})
-		]),
+		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
 		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
-		$if(pr.on, $New('div', [
-			optSel('pform', Lng.selReplyForm, Lng.replyForm),
-			lBox('tform', Lng.noThrForm, function() {
-				if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
-			})
-		])),
 		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
 		$if(pr.on, $New('div', [
 			optSel('txtbtn', Lng.selFormatBtns, Lng.formatBtns, function() {
@@ -961,8 +977,18 @@ function addSettings() {
 			lBox('norule', Lng.rules, scriptCSS),
 			$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
 			$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
-		]),
-		$new('hr'),
+		])
+	]);
+	$append($id('DESU_sett_cont_common'), [
+		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
+			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
+		)]),
+		divBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
+		divBox('icount', Lng.showImgCount, scriptCSS),
+		divBox('animp', Lng.animatePopup),
+		divBox('rtitle', Lng.replaceTitle),
+	]);
+	$append($id('DESU_sett_btns'), [
 		$New('div', [
 			optSel('lang', ['Ru', 'En'], '', function() {
 				saveCfg('lang', this.selectedIndex);
@@ -1257,9 +1283,9 @@ function removeSelMenu(e) {
 }
 
 function addSelMenu(el, html) {
-	var y, pos, x =
+	var y, pos, pst = getPost(el), x =
 		el.className === 'DESU_icn_imgsrc' ? 'left:' + $offset(el).left
-		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth), pst = getPost(el);
+		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
 	if(Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
 		if(el.id === 'DESU_btn_refresh') y = 'bottom:25';
@@ -1272,16 +1298,18 @@ function addSelMenu(el, html) {
 		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; '
 		+ 'padding:2px 5px; border:1px solid grey">' + html + '</div>', {
 		mouseout: removeSelMenu,
-		mouseover: function() { if(pst.node) unMarkForDelete(pst.node); }
+		mouseover: function() { if(pst && pst.node) unMarkForDelete(pst.node); }
 	}));
 	return $X('.//div[@id="DESU_select"]/a');
 }
 
 function selectSpell(e) {
-	$each(addSelMenu(e.target, '<a href="#">' + (
-		'#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,#op,'
-		+ '#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video '
-	).split(',').join('</a><a href="#">') + '</a>'), function(a) {
+	$each(addSelMenu(e.target,
+		'<div style="display:inline-block; border-right:1px solid grey"><a href="#">'
+		+ ('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,').split(',').join(
+		'</a><a href="#">') + '</a></div><div style="display:inline-block"><a href="#">'
+		+ ('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ').split(',').join(
+		'</a><a href="#">') + '</a></div>'), function(a) {
 			$event(a, {click: function(e) {
 				var exp = this.textContent;
 				$pD(e);
@@ -1951,10 +1979,12 @@ function scriptCSS() {
 		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '}\
 		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
-		#DESU_sett_body {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
+		#DESU_sett_window {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
 		#DESU_sett_head {padding:3px; ' + pre + brCssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
-		#DESU_sett_main {padding:7px; margin:0; border:1px solid grey; font:13px sans-serif}\
-		#DESU_sett_main input[value=">"] {width:20px}\
+		#DESU_sett_body {padding:7px; margin:0; width:420px; border:1px solid grey; font:13px sans-serif}\
+		#DESU_sett_body input[value=">"] {width:20px}\
+		#DESU_sett_tabs {height:25px; margin-bottom:3px; border-bottom:1px solid grey}\
+		#DESU_sett_tabs a {float:left; padding:4px 10px; border:1px solid grey; color:inherit; text-align:center; font-weight:bold}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
 		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
@@ -1968,6 +1998,8 @@ function scriptCSS() {
 		.DESU_favhead a {color:inherit; font-weight:bold}\
 		.DESU_favpcount {float:right; margin:0 5px 0 15px; font:bold 16px serif}\
 		.DESU_favpcount span {color:#4f7942}\
+		.DESU_sett_on {display:block}\
+		.DESU_sett_off {display:none}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
 		.DESU_icn_wait, .DESU_alert_wait:before {content:" "; padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
 		.DESU_mp3, .DESU_ytube {margin:5px 20px}\
@@ -2088,7 +2120,7 @@ function scriptCSS() {
 	}
 	if(aib._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(aib.gazo) x.push(
-		'#DESU_content, #DESU_sett_main {font-family:arial}\
+		'#DESU_content, #DESU_sett_body {font-family:arial}\
 		.ftbl {width:auto; margin:0}\
 		.reply {background: #f0e0d6}'
 	);
