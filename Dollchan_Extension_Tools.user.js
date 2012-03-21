@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.21.0
+// @version			12.3.21.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -199,11 +199,11 @@ LngArray = {
 	load:			['Загрузить', 'Load'],
 	reset:			['Сброс', 'Reset'],
 	version:		['Версия: ', 'Version: '],
-	storage:		['\nХранение: ', '\nStorage: '],
-	thrViewed:		['\n\nТредов просмотрено: ', '\n\nThreads viewed: '],
-	thrCreated:		['\nТредов создано: ', '\nThreads created: '],
-	pstSended:		['\nПостов отправлено: ', '\nPosts sended: '],
-	total:			['\nВсего: ', '\nTotal: '],
+	storage:		['Хранение: ', 'Storage: '],
+	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
+	thrCreated:		['Тредов создано: ', 'Threads created: '],
+	pstSended:		['Постов отправлено: ', 'Posts sended: '],
+	total:			['Всего: ', 'Total: '],
 	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
 	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
 	onPage:			[' на странице', ' on page'],
@@ -824,15 +824,14 @@ function addSettings() {
 		};
 	$append($id('DESU_content'), [
 		$New('div', [
-			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}, {
-				click: function() { $alert('<div style="display:inline-block; vertical-align:top; padding:0 10px 0 0">' + Lng.version + Cfg.version + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + Lng.thrViewed + Stat.view + Lng.thrCreated + Stat.op + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 10px; border-left:1px solid grey">' + timeLog + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div>'); }
-			}),
+			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}),
 			$New('div', [
 				$new('div', {id: 'DESU_sett_tabs'}),
 				$new('div', {id: 'DESU_sett_cont_filters', Class: 'DESU_sett_on'}),
 				$new('div', {id: 'DESU_sett_cont_posts', Class: 'DESU_sett_off'}),
 				$new('div', {id: 'DESU_sett_cont_form', Class: 'DESU_sett_off'}),
 				$new('div', {id: 'DESU_sett_cont_common', Class: 'DESU_sett_off'}),
+				$new('div', {id: 'DESU_sett_cont_info', Class: 'DESU_sett_off'}),
 				$new('hr'),
 				$new('div', {id: 'DESU_sett_btns'})
 			], {Class: aib.pClass, id: 'DESU_sett_body'})
@@ -842,7 +841,8 @@ function addSettings() {
 		$new('a', {id: 'DESU_sett_tab_filters', text: Lng.filters, href: '#'}, {click: changeSettTab}),
 		$new('a', {id: 'DESU_sett_tab_posts', text: Lng.posts, href: '#'}, {click: changeSettTab}),
 		$new('a', {id: 'DESU_sett_tab_form', text: Lng.form, href: '#'}, {click: changeSettTab}),
-		$new('a', {id: 'DESU_sett_tab_common', text: Lng.common, href: '#'}, {click: changeSettTab})
+		$new('a', {id: 'DESU_sett_tab_common', text: Lng.common, href: '#'}, {click: changeSettTab}),
+		$new('a', {id: 'DESU_sett_tab_info', text: Lng.info, href: '#'}, {click: changeSettTab}),
 	]);
 	$append($id('DESU_sett_cont_filters'), [
 		$New('div', [
@@ -1026,6 +1026,9 @@ function addSettings() {
 				window.location.reload();
 			})
 		], {style: 'display:none'})
+	]);
+	$append($id('DESU_sett_cont_info'), [
+		$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
 	]);
 }
 
@@ -1980,10 +1983,10 @@ function scriptCSS() {
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '}\
 		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
 		#DESU_sett_window {float:left; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden}\
-		#DESU_sett_head {padding:3px; ' + pre + brCssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:pointer}\
+		#DESU_sett_head {padding:3px; ' + pre + brCssFix + 'border-radius:10px 10px 0 0; color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
 		#DESU_sett_body {padding:7px; margin:0; width:420px; border:1px solid grey; font:13px sans-serif}\
 		#DESU_sett_body input[value=">"] {width:20px}\
-		#DESU_sett_tabs {height:25px; margin-bottom:3px; border-bottom:1px solid grey}\
+		#DESU_sett_tabs {height:25px; margin-bottom:5px; border-bottom:1px solid grey}\
 		#DESU_sett_tabs a {float:left; padding:4px 10px; border:1px solid grey; color:inherit; text-align:center; font-weight:bold}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
