@@ -962,7 +962,7 @@ function addSettings() {
 			$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
 		], {Class: 'DESU_sBody', id: 'DESU_sett_bInfo'}),
 		openTab = function(el, name) {
-			var sWin = $id('DESU_sett_window'), el1 = $x('./div[starts-with(@id,"DESU_sett_b")]', sWin),
+			var sWin = $id('DESU_sett_window'), el1 = $x('./div[@class="DESU_sBody"]', sWin),
 				el2 = eval(name);
 			if(el1 === el2) return;
 			sWin.replaceChild(el2, el1);
