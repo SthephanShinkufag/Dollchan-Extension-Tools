@@ -1982,7 +1982,6 @@ function scriptCSS() {
 		.DESU_cfgBody, #DESU_cfgBtns {border-left:1px solid rgba(0,0,0,.6); border-right:1px solid rgba(0,0,0,.6); border-bottom:1px solid rgba(0,0,0,.6);}\
 		#DESU_cfgBtns {padding-top:7px}\
 		#DESU_cfgBar {height:25px; padding-top:5px; width: 100%; display:table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + ';}\
-		#DESU_cfgInfo, #DESU_cfgFilters {margin:0 auto}\
 		.DESU_cfgTab, .DESU_cfgTab_sel {cursor:default; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
 		.DESU_cfgTabBack {display:table-cell; float:none; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
 		.DESU_cfgTab {background-color: rgba(0,0,0,.2)}\
