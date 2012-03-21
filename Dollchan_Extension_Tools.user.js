@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.21.4
+// @version			12.3.21.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -783,12 +783,7 @@ function toggleContent(name, isUpd) {
 			$t('table', el).style.backgroundColor = getStyle($t('body'), 'background-color');
 		if(name === 'hidd') { readHiddenThreads(); addHiddenTable(); }
 		if(name === 'fav') { readFavorites(); addFavoritesTable(); }
-	} else {
-		spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
-		initSpells();
-		addSettings();
-		$id('DESU_spelledit').value = spellsList.join('\n');
-	}
+	} else addSettings();
 }
 
 function addSettings() {
@@ -965,7 +960,14 @@ function addSettings() {
 		return $New('div', [
 			$new('div', {
 				Class: 'DESU_cfgTab' + (isSel ? '_sel' : ''), text: txt}, {
-				click: function() { openTab(this, name); }
+				click: function() {
+					openTab(this, name);
+					if(name === 'cfgFilters') {
+						spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
+						initSpells();
+						$id('DESU_spelledit').value = spellsList.join('\n');
+					}
+				}
 			})
 		], {Class: aib.pClass + ' DESU_cfgTabBack'})
 	},
@@ -1984,7 +1986,7 @@ function scriptCSS() {
 		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
 		#DESU_cfgWindow {float:left; ' + brCssFix + 'border-radius:10px 10px 0 0; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden;}\
 		#DESU_cfgHead {padding:3px; ' + pre + 'color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
-		.DESU_cfgBody {display:table; padding:7px; margin:0; width:420px; font:13px sans-serif; float:none;}\
+		.DESU_cfgBody {display:table; padding:10px; margin:0; width:420px; height:250px; font:13px sans-serif; float:none;}\
 		.DESU_cfgBody input[value=">"] {width:20px}\
 		.DESU_cfgBody, #DESU_cfgBtns {border-left:1px solid rgba(0,0,0,.6); border-right:1px solid rgba(0,0,0,.6); border-bottom:1px solid rgba(0,0,0,.6);}\
 		#DESU_cfgBtns {padding-top:7px}\
