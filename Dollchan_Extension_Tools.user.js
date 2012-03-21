@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.21.2
+// @version			12.3.21.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -861,7 +861,7 @@ function addSettings() {
 					processHidden(this.selectedIndex, Cfg.delhd);
 				})
 			])
-		], {Class: 'DESU_sBody', id: 'DESU_sett_bFilters'}),
+		], {Class: 'DESU_cfgBody', id: 'DESU_cfgFilters'}),
 		sPosts = $New('div', [
 			$if(!aib.hana, $New('div', [
 				optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
@@ -893,7 +893,7 @@ function addSettings() {
 					})
 				])
 			], {style: 'padding-left:25px'})
-		], {Class: 'DESU_sBody', id: 'DESU_sett_bPosts'}),
+		], {Class: 'DESU_cfgBody', id: 'DESU_cfgPosts'}),
 		sLinks = $New('div', [
 			$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
 			$New('div', [
@@ -914,7 +914,7 @@ function addSettings() {
 				]),
 				$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
 			], {style: 'padding-left:25px'})
-		], {Class: 'DESU_sBody', id: 'DESU_sett_bLinks'}),
+		], {Class: 'DESU_cfgBody', id: 'DESU_cfgLinks'}),
 		sForm = $New('div', [
 			$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
 			$if(pr.on, divBox('tform', Lng.noThrForm, function() {
@@ -948,7 +948,7 @@ function addSettings() {
 				$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
 				$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
 			])
-		], {Class: 'DESU_sBody', id: 'DESU_sett_bForm'}),
+		], {Class: 'DESU_cfgBody', id: 'DESU_cfgForm'}),
 		sCommon = $New('div', [
 			$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
 				function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
@@ -957,30 +957,30 @@ function addSettings() {
 			divBox('icount', Lng.showImgCount, scriptCSS),
 			divBox('animp', Lng.animatePopup),
 			divBox('rtitle', Lng.replaceTitle),
-		], {Class: 'DESU_sBody', id: 'DESU_sett_bCommon'}),
+		], {Class: 'DESU_cfgBody', id: 'DESU_cfgCommon'}),
 		sInfo = $New('div', [
 			$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
-		], {Class: 'DESU_sBody', id: 'DESU_sett_bInfo'}),
+		], {Class: 'DESU_cfgBody', id: 'DESU_cfgInfo'}),
 		openTab = function(el, name) {
-			var sWin = $id('DESU_sett_window'), el1 = $x('./div[@class="DESU_sBody"]', sWin),
+			var sWin = $id('DESU_cfgWindow'), el1 = $x('./div[@class="DESU_cfgBody"]', sWin),
 				el2 = eval(name);
 			if(el1 === el2) return;
 			sWin.replaceChild(el2, el1);
-			$x('.//div[contains(@class,"DESU_sTSel")]', sWin).className = 'DESU_sTab';
-			el.className += ' DESU_sTSel';
+			$x('.//div[@class="DESU_cfgTab_sel"]', sWin).className = 'DESU_cfgTab';
+			el.className = 'DESU_cfgTab_sel';
 		};
 
 	$append($id('DESU_content'), [
 		$New('div', [
-			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}),
+			$new('div', {id: 'DESU_cfgHead', text: 'Dollchan Extension Tools'}),
 			$New('div', [
-				$new('div', {Class: 'DESU_sTab DESU_sTSel', text: Lng.filters}, {click: function(e) { openTab(this, 'sFilters');}}),
-				$new('div', {Class: 'DESU_sTab', text: Lng.posts}, {click: function(e) { openTab(this, 'sPosts'); }}),
-				$new('div', {Class: 'DESU_sTab', text: Lng.links}, {click: function(e) { openTab(this, 'sLinks'); }}),
-				$new('div', {Class: 'DESU_sTab', text: Lng.form}, {click: function(e) { openTab(this, 'sForm'); }}),
-				$new('div', {Class: 'DESU_sTab', text: Lng.common}, {click: function(e) { openTab(this, 'sCommon'); }}),
-				$new('div', {Class: 'DESU_sTab', text: Lng.info}, {click: function(e) { openTab(this, 'sInfo'); }}),
-			], {id: 'DESU_sett_tabs'}),
+				$new('div', {Class: 'DESU_cfgTab_sel', text: Lng.filters}, {click: function(e) { openTab(this, 'sFilters');}}),
+				$new('div', {Class: 'DESU_cfgTab', text: Lng.posts}, {click: function(e) { openTab(this, 'sPosts'); }}),
+				$new('div', {Class: 'DESU_cfgTab', text: Lng.links}, {click: function(e) { openTab(this, 'sLinks'); }}),
+				$new('div', {Class: 'DESU_cfgTab', text: Lng.form}, {click: function(e) { openTab(this, 'sForm'); }}),
+				$new('div', {Class: 'DESU_cfgTab', text: Lng.common}, {click: function(e) { openTab(this, 'sCommon'); }}),
+				$new('div', {Class: 'DESU_cfgTab', text: Lng.info}, {click: function(e) { openTab(this, 'sInfo'); }}),
+			], {id: 'DESU_cfgBar'}),
 			sFilters,
 			$new('hr'),
 			$New('div', [
@@ -1021,8 +1021,8 @@ function addSettings() {
 						window.location.reload();
 					})
 				], {style: 'display:none'})
-			], {id: 'DESU_sett_buttons'})
-		], {Class: aib.pClass, id: 'DESU_sett_window'})
+			], {id: 'DESU_cfgBtns'})
+		], {Class: aib.pClass, id: 'DESU_cfgWindow'})
 	]);
 }
 
@@ -1976,16 +1976,16 @@ function scriptCSS() {
 		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '}\
 		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '}\
 		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
-		#DESU_sett_window {float:left; ' + brCssFix + 'border-radius:10px 10px 0 0; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden;}\
-		#DESU_sett_head {padding:3px; ' + pre + 'color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
-		.DESU_sBody {display:table; padding:7px; margin:0; width:420px; font:13px sans-serif; float:none;}\
-		.DESU_sBody input[value=">"] {width:20px}\
-		#DESU_sett_tabs {height:25px; margin-bottom:5px; padding-top:5px; width: 100%; display:table;}\
-		#DESU_sett_bInfo, #DESU_sett_bFilters {margin:0 auto}\
-		.DESU_sTab {cursor:default; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; opacity:.6; display:table-cell; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
-		.DESU_sTab:not(.DESU_sTSel) {background-color: rgba(0,0,0,.2)}\
-		.DESU_sTab:hover {opacity:.8}\
-		.DESU_sTSel {opacity:1 !important; border-bottom:none;}\
+		#DESU_cfgWindow {float:left; ' + brCssFix + 'border-radius:10px 10px 0 0; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden;}\
+		#DESU_cfgHead {padding:3px; ' + pre + 'color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
+		.DESU_cfgBody {display:table; padding:7px; margin:0; width:420px; font:13px sans-serif; float:none;}\
+		.DESU_cfgBody input[value=">"] {width:20px}\
+		#DESU_cfgBar {height:25px; margin-bottom:5px; padding-top:5px; width: 100%; display:table;}\
+		#DESU_cfgInfo, #DESU_cfgFilters {margin:0 auto}\
+		.DESU_cfgTab, .DESU_cfgTab_sel {cursor:default; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; opacity:.6; display:table-cell; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
+		.DESU_cfgTab {background-color: rgba(0,0,0,.2)}\
+		.DESU_cfgTab:hover {opacity:.8}\
+		.DESU_cfgTab_sel {opacity:1 !important; border-bottom:none;}\
 		#DESU_select {padding:0 !important; margin:0 !important}\
 		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
 		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
@@ -1999,8 +1999,6 @@ function scriptCSS() {
 		.DESU_favhead a {color:inherit; font-weight:bold}\
 		.DESU_favpcount {float:right; margin:0 5px 0 15px; font:bold 16px serif}\
 		.DESU_favpcount span {color:#4f7942}\
-		.DESU_sett_on {display:block}\
-		.DESU_sett_off {display:none}\
 		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
 		.DESU_icn_wait, .DESU_alert_wait:before {content:" "; padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
 		.DESU_mp3, .DESU_ytube {margin:5px 20px}\
@@ -2121,7 +2119,7 @@ function scriptCSS() {
 	}
 	if(aib._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
 	if(aib.gazo) x.push(
-		'#DESU_content, #DESU_sett_body {font-family:arial}\
+		'#DESU_content, #DESU_cfgBody {font-family:arial}\
 		.ftbl {width:auto; margin:0}\
 		.reply {background: #f0e0d6}'
 	);
