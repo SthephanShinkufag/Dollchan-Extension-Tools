@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.21.1
+// @version			12.3.21.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -125,7 +125,7 @@ LngArray = {
 		['Disable', 'Auto', 'Count+click', 'On click']
 	],
 	indication:		['индикация*', 'indication*'],
-	navigation:		['навигация >>ссылок* ', '>>links navigation* '],
+	navigation:		['навигация по >>ссылкам* ', 'navigation by >>links* '],
 	selNavigation:	[
 		['Откл.', 'Без карты', 'С картой'],
 		['Disable', 'No map', 'With map']
@@ -155,14 +155,17 @@ LngArray = {
 	hideNames:		['Скрывать имена ', 'Hide names '],
 	openSpoilers:	['Открыть спойлеры ', 'Open spoilers '],
 	noScroll:		['Без скролла', 'No scroll'],
-	mp3Embed:		['Плейер к mp3 ссылкам* ', 'MP3-links embedder* '],
-	imgEmbed:		['Превью картинок по ссылкам*', 'Image-links embedder*'],
-	YTembed:		['к YouTube ссылкам* ', 'to YouTube links* '],
+	mp3Embed:		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
+	imgEmbed:		[
+		'Загружать изображения к .jpg-, .png-, .gif-ссылкам*',
+		'Load images to .jpg-, .png-, .gif-links*'
+	],
+	YTembed:		['к YouTube-ссылкам* ', 'to YouTube-links* '],
 	selYTembed:	[
 		['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'],
 		['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
 	],
-	YTtitle:		['Загружать название к ссылкам*', 'Load video title to links*'],
+	YTtitle:		['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 	replyCheck:		[
 		'Постить без перезагрузки (проверять ответ при отправке)*',
 		'Posting without reload (check reply on submit)*'
@@ -268,6 +271,7 @@ LngArray = {
 	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 	filters:		['Фильтры', 'Filters'],
 	posts:			['Посты', 'Posts'],
+	links:			['Ссылки', 'Links'],
 	form:			['Форма', 'Form'],
 	common:			['Общее', 'Common'],
 },
@@ -822,6 +826,7 @@ function addSettings() {
 			$x('.//div[@class="DESU_sett_on"]').className = 'DESU_sett_off';
 			$id(this.id.replace(/_tab_/, '_cont_')).className = 'DESU_sett_on';
 		};
+	
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_sett_head', text: 'Dollchan Extension Tools'}),
@@ -829,6 +834,7 @@ function addSettings() {
 				$new('div', {id: 'DESU_sett_tabs'}),
 				$new('div', {id: 'DESU_sett_cont_filters', Class: 'DESU_sett_on'}),
 				$new('div', {id: 'DESU_sett_cont_posts', Class: 'DESU_sett_off'}),
+				$new('div', {id: 'DESU_sett_cont_links', Class: 'DESU_sett_off'}),
 				$new('div', {id: 'DESU_sett_cont_form', Class: 'DESU_sett_off'}),
 				$new('div', {id: 'DESU_sett_cont_common', Class: 'DESU_sett_off'}),
 				$new('div', {id: 'DESU_sett_cont_info', Class: 'DESU_sett_off'}),
@@ -837,13 +843,16 @@ function addSettings() {
 			], {Class: aib.pClass, id: 'DESU_sett_body'})
 		], {id: 'DESU_sett_window'}),
 	]);
+	
 	$append($id('DESU_sett_tabs'), [
 		$new('a', {id: 'DESU_sett_tab_filters', text: Lng.filters, href: '#'}, {click: changeSettTab}),
 		$new('a', {id: 'DESU_sett_tab_posts', text: Lng.posts, href: '#'}, {click: changeSettTab}),
+		$new('a', {id: 'DESU_sett_tab_links', text: Lng.links, href: '#'}, {click: changeSettTab}),
 		$new('a', {id: 'DESU_sett_tab_form', text: Lng.form, href: '#'}, {click: changeSettTab}),
 		$new('a', {id: 'DESU_sett_tab_common', text: Lng.common, href: '#'}, {click: changeSettTab}),
 		$new('a', {id: 'DESU_sett_tab_info', text: Lng.info, href: '#'}, {click: changeSettTab}),
 	]);
+	
 	$append($id('DESU_sett_cont_filters'), [
 		$New('div', [
 			lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
@@ -875,7 +884,7 @@ function addSettings() {
 			divBox('caps', Lng.caps),
 			divBox('specs', Lng.specSymbols),
 			divBox('nums', Lng.numbers)
-		], {id: 'DESU_wipebox', style: 'display:none; padding-left:15px'}),
+		], {id: 'DESU_wipebox', style: 'display:none; padding-left:25px'}),
 		divBox('filthr', Lng.filterThreads),
 		divBox('menuhd', Lng.hiderMenu),
 		divBox('viewhd', Lng.viewHidden),
@@ -885,6 +894,7 @@ function addSettings() {
 			})
 		])
 	]);
+	
 	$append($id('DESU_sett_cont_posts'), [
 		$if(!aib.hana, $New('div', [
 			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
@@ -893,20 +903,19 @@ function addSettings() {
 		])),
 		$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
 		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
+		divBox('imgsrc', Lng.imgSearch),
 		$New('div', [
-			optSel('navig', Lng.selNavigation, Lng.navigation),
-			$btn('>', function() { $disp($id('DESU_pviewbox')); })
+			lBox('ospoil', Lng.openSpoilers, scriptCSS),
+			lBox('noname', Lng.hideNames, scriptCSS),
+			$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
 		]),
 		$New('div', [
-			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
-			divBox('navmrk', Lng.markViewed),
-			divBox('navhid', Lng.hidRefmap)
-		], {id: 'DESU_pviewbox', style: 'display:none; padding-left:15px'}),
-		divBox('insnum', Lng.insertLink),
-		$New('div', [
-			lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime'),
-			$btn('>', function() { $disp($id('DESU_ctimebox')); })
+			lBox('keynav', Lng.keyNavig),
+			$new('a', {text: '?', href: '#'}, {
+				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
+			})
 		]),
+		$New('div', [lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime')]),
 		$New('div', [
 			$New('div', [inpTxt('ctmofs', 3), $new('span', {text: Lng.cTimeOffset})]),
 			$New('div', [
@@ -916,25 +925,20 @@ function addSettings() {
 					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
 				})
 			])
-		], {id: 'DESU_ctimebox', style: 'display:none; padding-left:15px'}),
+		], {style: 'padding-left:25px'})
+	]);
+	
+	$append($id('DESU_sett_cont_links'), [
+		$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
 		$New('div', [
-			lBox('keynav', Lng.keyNavig),
-			$new('a', {text: '?', href: '#'}, {
-				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
-			})
-		]),
-		$New('div', [
-			lBox('ospoil', Lng.openSpoilers, scriptCSS),
-			lBox('noname', Lng.hideNames, scriptCSS),
-			$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
-		]),
-		divBox('imgsrc', Lng.imgSearch),
+			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
+			divBox('navmrk', Lng.markViewed),
+			divBox('navhid', Lng.hidRefmap)
+		], {style: 'padding-left:25px'}),
+		divBox('insnum', Lng.insertLink),
 		divBox('mp3', Lng.mp3Embed),
 		divBox('addimg', Lng.imgEmbed),
-		$New('div', [
-			optSel('ytube', Lng.selYTembed, Lng.YTembed),
-			$btn('>', function() { $disp($id('DESU_ytubebox')); })
-		]),
+		$New('div', [optSel('ytube', Lng.selYTembed, Lng.YTembed)]),
 		$New('div', [
 			$New('div', [
 				optSel('yptype', !nav.Opera 
@@ -943,8 +947,9 @@ function addSettings() {
 				lBox('yhdvid', 'HD ')
 			]),
 			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
-		], {id: 'DESU_ytubebox', style: 'display:none; padding-left:15px'})
+		], {style: 'padding-left:25px'})
 	]);
+	
 	$append($id('DESU_sett_cont_form'), [
 		$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
 		$if(pr.on, divBox('tform', Lng.noThrForm, function() {
@@ -979,6 +984,7 @@ function addSettings() {
 			$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
 		])
 	]);
+	
 	$append($id('DESU_sett_cont_common'), [
 		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
 			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
@@ -988,6 +994,11 @@ function addSettings() {
 		divBox('animp', Lng.animatePopup),
 		divBox('rtitle', Lng.replaceTitle),
 	]);
+	
+	$append($id('DESU_sett_cont_info'), [
+		$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
+	]);
+	
 	$append($id('DESU_sett_btns'), [
 		$New('div', [
 			optSel('lang', ['Ru', 'En'], '', function() {
@@ -1026,9 +1037,6 @@ function addSettings() {
 				window.location.reload();
 			})
 		], {style: 'display:none'})
-	]);
-	$append($id('DESU_sett_cont_info'), [
-		$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
 	]);
 }
 
