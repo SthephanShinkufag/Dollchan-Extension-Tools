@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.21.3
+// @version			12.3.21.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -793,195 +793,202 @@ function toggleContent(name, isUpd) {
 
 function addSettings() {
 	var lBox = function(name, txt, fn, id) {
-			var el = $new('input', {type: 'checkbox'}, {
-				click: function() { toggleCfg(name); if(fn) fn(); }
-			});
-			el.checked = Cfg[name] !== 0;
-			if(id) el.id = id;
-			return $New('label', [el, $txt(' ' + txt)]);
-		},
-		divBox = function(name, txt, fn, id) {
-			return $New('div', [lBox(name, txt, fn, id)]);
-		},
-		inpTxt = function(name, size, fn) {
-			return $new('input', {
-				type: 'text', id: 'DESU_' + name, size: size, value: Cfg[name]}, {
-				keyup: function() {
-					saveCfg(name, $id('DESU_' + name).value.replace(/\|/g, ''));
-					if(fn) fn(); 
-				}
-			})
-		},
-		optSel = function(name, arr, txt, fn) {
-			for(var i = 0, len = arr.length, el, opt = []; i < len; i++)
-				opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
-			el = $add('<select id="' + name + '_sel">' + opt.join('') + '</select>', {
-				change: (fn ? fn : function() { saveCfg(name, this.selectedIndex); })
-			});
-			el.selectedIndex = Cfg[name];
-			return $New('label', [el, $txt(' ' + txt)]);
-		},
-		sFilters = $New('div', [
-			$New('div', [
-				lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
-				$New('span', [
-					$new('a', {text: Lng.add, href: '#'}, {
-						click: $pD,
-						mouseover: selectSpell,
-						mouseout: removeSelMenu
-					}),
-					$new('a', {text: Lng.apply, href: '#'}, {
-						click: function(e) { $pD(e); applySpells(); }
-					}),
-					$new('a', {text: Lng.clear, href: '#'}, {
-						click: function(e) { $pD(e); $id('DESU_spelledit').value = ''; applySpells(); }
-					}),
-					$new('a', {text: '?', target: '_blank', href: homePage + 'spells'})
-				], {id: 'DESU_spellpanel'}),
-				$new('textarea', {id: 'DESU_spelledit', rows: 7, cols: 56})
-			]),
-			$New('div', [
-				lBox('awipe', Lng.antiWipe),
-				$btn('>', function() { $disp($id('DESU_wipebox')); })
-			]),
-			$New('div', [
-				divBox('samel', Lng.sameLines),
-				divBox('samew', Lng.sameWords),
-				divBox('longp', Lng.longPosts),
-				divBox('longw', Lng.longWords),
-				divBox('caps', Lng.caps),
-				divBox('specs', Lng.specSymbols),
-				divBox('nums', Lng.numbers)
-			], {id: 'DESU_wipebox', style: 'display:none; padding-left:25px'}),
-			divBox('filthr', Lng.filterThreads),
-			divBox('menuhd', Lng.hiderMenu),
-			divBox('viewhd', Lng.viewHidden),
-			$New('div', [
-				optSel('delhd', Lng.selHiddenPosts, Lng.hiddenPosts, function() {
-					processHidden(this.selectedIndex, Cfg.delhd);
-				})
-			])
-		], {Class: 'DESU_cfgBody', id: 'DESU_cfgFilters'}),
-		sPosts = $New('div', [
-			$if(!aib.hana, $New('div', [
-				optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
-				optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
-				$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication))
-			])),
-			$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
-			$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
-			divBox('imgsrc', Lng.imgSearch),
-			$New('div', [
-				lBox('ospoil', Lng.openSpoilers, scriptCSS),
-				lBox('noname', Lng.hideNames, scriptCSS),
-				$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
-			]),
-			$New('div', [
-				lBox('keynav', Lng.keyNavig),
-				$new('a', {text: '?', href: '#'}, {
-					click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
-				})
-			]),
-			$New('div', [lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime')]),
-			$New('div', [
-				$New('div', [inpTxt('ctmofs', 3), $new('span', {text: Lng.cTimeOffset})]),
-				$New('div', [
-					inpTxt('ctmpat', 30),
-					$txt(' '),
-					$new('a', {text: Lng.cTimePattern, href: '#'}, {
-						click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
-					})
-				])
-			], {style: 'padding-left:25px'})
-		], {Class: 'DESU_cfgBody', id: 'DESU_cfgPosts'}),
-		sLinks = $New('div', [
-			$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
-			$New('div', [
-				$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
-				divBox('navmrk', Lng.markViewed),
-				divBox('navhid', Lng.hidRefmap)
-			], {style: 'padding-left:25px'}),
-			divBox('insnum', Lng.insertLink),
-			divBox('mp3', Lng.mp3Embed),
-			divBox('addimg', Lng.imgEmbed),
-			$New('div', [optSel('ytube', Lng.selYTembed, Lng.YTembed)]),
-			$New('div', [
-				$New('div', [
-					optSel('yptype', !nav.Opera 
-						? ['Flash', 'HTML5 iframe', 'HTML5 video'] : ['Flash', 'HTML5 iframe'], ' '),
-					inpTxt('ywidth', 6), $txt('×'), inpTxt('yheigh', 6), $txt(' '),
-					lBox('yhdvid', 'HD ')
-				]),
-				$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
-			], {style: 'padding-left:25px'})
-		], {Class: 'DESU_cfgBody', id: 'DESU_cfgLinks'}),
-		sForm = $New('div', [
-			$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
-			$if(pr.on, divBox('tform', Lng.noThrForm, function() {
-				if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
-			})),
-			divBox('verify', Lng.replyCheck),
-			divBox('addfav', Lng.addToFav),
-			$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
-			$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
-			$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
-			$if(pr.on, $New('div', [
-				optSel('txtbtn', Lng.selFormatBtns, Lng.formatBtns, function() {
-					saveCfg('txtbtn', this.selectedIndex);
-					addTextPanel();
-					scriptCSS();
+		var el = $new('input', {type: 'checkbox'}, {
+			click: function() { toggleCfg(name); if(fn) fn(); }
+		});
+		el.checked = Cfg[name] !== 0;
+		if(id) el.id = id;
+		return $New('label', [el, $txt(' ' + txt)]);
+	},
+	divBox = function(name, txt, fn, id) {
+		return $New('div', [lBox(name, txt, fn, id)]);
+	},
+	inpTxt = function(name, size, fn) {
+		return $new('input', {
+			type: 'text', id: 'DESU_' + name, size: size, value: Cfg[name]}, {
+			keyup: function() {
+				saveCfg(name, $id('DESU_' + name).value.replace(/\|/g, ''));
+				if(fn) fn(); 
+			}
+		})
+	},
+	optSel = function(name, arr, txt, fn) {
+		for(var i = 0, len = arr.length, el, opt = []; i < len; i++)
+			opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
+		el = $add('<select id="' + name + '_sel">' + opt.join('') + '</select>', {
+			change: (fn ? fn : function() { saveCfg(name, this.selectedIndex); })
+		});
+		el.selectedIndex = Cfg[name];
+		return $New('label', [el, $txt(' ' + txt)]);
+	},
+	cfgFilters = $New('div', [
+		$New('div', [
+			lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
+			$New('span', [
+				$new('a', {text: Lng.add, href: '#'}, {
+					click: $pD,
+					mouseover: selectSpell,
+					mouseout: removeSelMenu
 				}),
-				lBox('txtpos', Lng.atBottom, scriptCSS)
-			])),
-			$if(pr.name, $New('div', [
-				inpTxt('namval', 20, setUserName),
-				lBox('name', Lng.fixedName, setUserName, 'DESU_fixedname_ch')
-			])),
-			$if(pr.passw, $New('div', [
-				inpTxt('pasval', 20, setUserPassw),
-				lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixedpass_ch')
-			])),
-			$if(pr.txta, $New('div', [inpTxt('sigval', 20), lBox('sign', Lng.fixedSign)])),
+				$new('a', {text: Lng.apply, href: '#'}, {
+					click: function(e) { $pD(e); applySpells(); }
+				}),
+				$new('a', {text: Lng.clear, href: '#'}, {
+					click: function(e) { $pD(e); $id('DESU_spelledit').value = ''; applySpells(); }
+				}),
+				$new('a', {text: '?', target: '_blank', href: homePage + 'spells'})
+			], {id: 'DESU_spellpanel'}),
+			$new('textarea', {id: 'DESU_spelledit', rows: 7, cols: 56})
+		]),
+		$New('div', [
+			lBox('awipe', Lng.antiWipe),
+			$btn('>', function() { $disp($id('DESU_wipebox')); })
+		]),
+		$New('div', [
+			divBox('samel', Lng.sameLines),
+			divBox('samew', Lng.sameWords),
+			divBox('longp', Lng.longPosts),
+			divBox('longw', Lng.longWords),
+			divBox('caps', Lng.caps),
+			divBox('specs', Lng.specSymbols),
+			divBox('nums', Lng.numbers)
+		], {id: 'DESU_wipebox', style: 'display:none; padding-left:25px'}),
+		divBox('filthr', Lng.filterThreads),
+		divBox('menuhd', Lng.hiderMenu),
+		divBox('viewhd', Lng.viewHidden),
+		$New('div', [
+			optSel('delhd', Lng.selHiddenPosts, Lng.hiddenPosts, function() {
+				processHidden(this.selectedIndex, Cfg.delhd);
+			})
+		])
+	], {Class: 'DESU_cfgBody', id: 'DESU_cfgFilters'}),
+	cfgPosts = $New('div', [
+		$if(!aib.hana, $New('div', [
+			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
+			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
+			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication))
+		])),
+		$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
+		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
+		divBox('imgsrc', Lng.imgSearch),
+		$New('div', [
+			lBox('ospoil', Lng.openSpoilers, scriptCSS),
+			lBox('noname', Lng.hideNames, scriptCSS),
+			$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
+		]),
+		$New('div', [
+			lBox('keynav', Lng.keyNavig),
+			$new('a', {text: '?', href: '#'}, {
+				click: function(e) { $pD(e); $alert(Lng.keyNavHelp); }
+			})
+		]),
+		$New('div', [lBox('ctime', Lng.cTime, toggleTimeSettings, 'DESU_ctime')]),
+		$New('div', [
+			$New('div', [inpTxt('ctmofs', 3), $new('span', {text: Lng.cTimeOffset})]),
 			$New('div', [
-				$if(pr.on || oeForm, $txt(Lng.dontShow)),
-				lBox('norule', Lng.rules, scriptCSS),
-				$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
-				$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
+				inpTxt('ctmpat', 30),
+				$txt(' '),
+				$new('a', {text: Lng.cTimePattern, href: '#'}, {
+					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
+				})
 			])
-		], {Class: 'DESU_cfgBody', id: 'DESU_cfgForm'}),
-		sCommon = $New('div', [
-			$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
-				function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
-			)]),
-			divBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
-			divBox('icount', Lng.showImgCount, scriptCSS),
-			divBox('animp', Lng.animatePopup),
-			divBox('rtitle', Lng.replaceTitle),
-		], {Class: 'DESU_cfgBody', id: 'DESU_cfgCommon'}),
-		sInfo = $New('div', [
-			$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
-		], {Class: 'DESU_cfgBody', id: 'DESU_cfgInfo'}),
-		openTab = function(el, name) {
-			var sWin = $id('DESU_cfgWindow'), el1 = $x('./div[@class="DESU_cfgBody"]', sWin),
-				el2 = eval(name);
-			if(el1 === el2) return;
-			sWin.replaceChild(el2, el1);
-			$x('.//div[@class="DESU_cfgTab_sel"]', sWin).className = 'DESU_cfgTab';
-			el.className = 'DESU_cfgTab_sel';
-		};
-
+		], {style: 'padding-left:25px'})
+	], {Class: 'DESU_cfgBody', id: 'DESU_cfgPosts'}),
+	cfgLinks = $New('div', [
+		$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
+		$New('div', [
+			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
+			divBox('navmrk', Lng.markViewed),
+			divBox('navhid', Lng.hidRefmap)
+		], {style: 'padding-left:25px'}),
+		divBox('insnum', Lng.insertLink),
+		divBox('mp3', Lng.mp3Embed),
+		divBox('addimg', Lng.imgEmbed),
+		$New('div', [optSel('ytube', Lng.selYTembed, Lng.YTembed)]),
+		$New('div', [
+			$New('div', [
+				optSel('yptype', !nav.Opera 
+					? ['Flash', 'HTML5 iframe', 'HTML5 video'] : ['Flash', 'HTML5 iframe'], ' '),
+				inpTxt('ywidth', 6), $txt('×'), inpTxt('yheigh', 6), $txt(' '),
+				lBox('yhdvid', 'HD ')
+			]),
+			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
+		], {style: 'padding-left:25px'})
+	], {Class: 'DESU_cfgBody', id: 'DESU_cfgLinks'}),
+	cfgForm = $New('div', [
+		$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
+		$if(pr.on, divBox('tform', Lng.noThrForm, function() {
+			if(!TNum) pArea.style.display = Cfg.tform ? 'none' : '';
+		})),
+		divBox('verify', Lng.replyCheck),
+		divBox('addfav', Lng.addToFav),
+		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages)),
+		$if(pr.mail, $New('div', [lBox('sagebt', Lng.mailToSage), lBox('svsage', Lng.saveSage)])),
+		$New('div', [optSel('forcap', Lng.selCapInput, Lng.capInput)]),
+		$if(pr.on, $New('div', [
+			optSel('txtbtn', Lng.selFormatBtns, Lng.formatBtns, function() {
+				saveCfg('txtbtn', this.selectedIndex);
+				addTextPanel();
+				scriptCSS();
+			}),
+			lBox('txtpos', Lng.atBottom, scriptCSS)
+		])),
+		$if(pr.name, $New('div', [
+			inpTxt('namval', 20, setUserName),
+			lBox('name', Lng.fixedName, setUserName, 'DESU_fixedname_ch')
+		])),
+		$if(pr.passw, $New('div', [
+			inpTxt('pasval', 20, setUserPassw),
+			lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixedpass_ch')
+		])),
+		$if(pr.txta, $New('div', [inpTxt('sigval', 20), lBox('sign', Lng.fixedSign)])),
+		$New('div', [
+			$if(pr.on || oeForm, $txt(Lng.dontShow)),
+			lBox('norule', Lng.rules, scriptCSS),
+			$if(pr.gothr, lBox('nogoto', Lng.gotoField, function() { $disp(pr.gothr); })),
+			$if(pr.passw, lBox('nopass', Lng.passw, function() { $disp($up(pr.passw, 2)); }))
+		])
+	], {Class: 'DESU_cfgBody', id: 'DESU_cfgForm'}),
+	cfgCommon = $New('div', [
+		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
+			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
+		)]),
+		divBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
+		divBox('icount', Lng.showImgCount, scriptCSS),
+		divBox('animp', Lng.animatePopup),
+		divBox('rtitle', Lng.replaceTitle),
+	], {Class: 'DESU_cfgBody', id: 'DESU_cfgCommon'}),
+	cfgInfo = $New('div', [
+		$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
+	], {Class: 'DESU_cfgBody', id: 'DESU_cfgInfo'}),
+	cfgTab = function(txt, name, isSel) {
+		return $New('div', [
+			$new('div', {
+				Class: 'DESU_cfgTab' + (isSel ? '_sel' : ''), text: txt}, {
+				click: function() { openTab(this, name); }
+			})
+		], {Class: aib.pClass + ' DESU_cfgTabBack'})
+	},
+	openTab = function(tab, name) {
+		if(tab.className == 'DESU_cfgTab_sel') return;
+		var oldEl = $x('.//div[@class="DESU_cfgBody"]');
+		oldEl.parentNode.replaceChild(eval(name), oldEl);
+		$x('.//div[@class="DESU_cfgTab_sel"]').className = 'DESU_cfgTab';
+		tab.className = 'DESU_cfgTab_sel';
+	};
+	
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_cfgHead', text: 'Dollchan Extension Tools'}),
 			$New('div', [
-				$New('div', [$new('div', {Class: 'DESU_cfgTab_sel', text: Lng.filters}, {click: function(e) { openTab(this, 'sFilters');}})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
-				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.posts}, {click: function(e) { openTab(this, 'sPosts'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
-				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.links}, {click: function(e) { openTab(this, 'sLinks'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
-				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.form}, {click: function(e) { openTab(this, 'sForm'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
-				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.common}, {click: function(e) { openTab(this, 'sCommon'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'}),
-				$New('div', [$new('div', {Class: 'DESU_cfgTab', text: Lng.info}, {click: function(e) { openTab(this, 'sInfo'); }})], {Class: aib.pClass + ' DESU_cfgTabBack'})
+				cfgTab(Lng.filters, 'cfgFilters', true),
+				cfgTab(Lng.posts, 'cfgPosts'),
+				cfgTab(Lng.links, 'cfgLinks'),
+				cfgTab(Lng.form, 'cfgForm'),
+				cfgTab(Lng.common, 'cfgCommon'),
+				cfgTab(Lng.info, 'cfgInfo'),
 			], {id: 'DESU_cfgBar'}),
-			sFilters,
+			cfgFilters,
 			$New('div', [
 				$New('div', [
 					optSel('lang', ['Ru', 'En'], '', function() {
