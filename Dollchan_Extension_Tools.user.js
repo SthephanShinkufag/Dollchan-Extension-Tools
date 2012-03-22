@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.21.5
+// @version			12.3.22.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-21',
+	version:	'2012-03-22',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -602,7 +602,7 @@ function savePostsVisib() {
 		if(!getStored(id)) turnCookies(id);
 		setStored(id, Visib.join(''));
 	}
-	toggleContent('hidd', true);
+	toggleContent('Hid', true);
 }
 
 function readHiddenThreads() {
@@ -635,15 +635,15 @@ function readFavorites() {
 
 function saveFavorites(txt) {
 	setStored('DESU_Favorites', txt || $uneval(Favor));
-	toggleContent('fav', true);
+	toggleContent('Fav', true);
 }
 
 function removeFavorites(h, b, tNum) {
 	delete Favor[h][b][tNum];
 	if(isEmptyObj(Favor[h][b])) delete Favor[h][b];
 	if(isEmptyObj(Favor[h])) delete Favor[h];
-	if(pByNum[tNum]) $x('.//a[starts-with(@class,"DESU_icn_fav")]', pByNum[tNum].Btns).className
-		= 'DESU_icn_favor';
+	if(pByNum[tNum]) $x('.//a[starts-with(@class,"DESU_btnFav")]', pByNum[tNum].Btns).className
+		= 'DESU_btnFav';
 }
 
 function toggleFavorites(post, btn) {
@@ -660,14 +660,14 @@ function toggleFavorites(post, btn) {
 		};
 		if(sav.cookie && escape(uneval(Favor)).length > 4095)
 			{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
-		btn.className = 'DESU_icn_favset';
+		btn.className = 'DESU_btnFavSel';
 	}
 	saveFavorites();
 }
 
 function markViewedPost(pNum) {
 	var post = pByNum[pNum];
-	if(post && (post.className).indexOf('viewed') < 0) post.className += ' viewed';
+	if(post && (post.className).indexOf('DESU_viewed') < 0) post.className += ' DESU_viewed';
 }
 
 function readViewedPosts() {
@@ -692,49 +692,49 @@ function saveViewedPosts(pNum) {
 function addPanel() {
 	var imgLen = getImages(dForm).snapshotLength;
 	$before(dForm, [
-		$new('div', {style: 'clear:both'}),
+		$new('div', {style: 'clear: both;'}),
 		$New('div', [
-			$new('a', {id: 'DESU_btn_logo', href: '#'}, {
+			$new('a', {id: 'DESU_btnLogo', href: '#'}, {
 				click: function(e) { $pD(e); toggleCfg('showmp'); scriptCSS(); }
 			}),
 			$New('div', [
-				$new('a', {id: 'DESU_btn_settings', title: Lng.settings, href: '#'}, {
-					click: function(e) { $pD(e); toggleContent('sett'); }
+				$new('a', {id: 'DESU_btnSettings', title: Lng.settings, href: '#'}, {
+					click: function(e) { $pD(e); toggleContent('Cfg'); }
 				}),
-				$new('a', {id: 'DESU_btn_hidden', title: Lng.hidden, href: '#'}, {
-					click: function(e) { $pD(e); toggleContent('hidd'); }
+				$new('a', {id: 'DESU_btnHidden', title: Lng.hidden, href: '#'}, {
+					click: function(e) { $pD(e); toggleContent('Hid'); }
 				}),
-				$new('a', {id: 'DESU_btn_favor', title: Lng.favorites, href: '#'}, {
-					click: function(e) { $pD(e); toggleContent('fav'); }
+				$new('a', {id: 'DESU_btnFavor', title: Lng.favorites, href: '#'}, {
+					click: function(e) { $pD(e); toggleContent('Fav'); }
 				}),
-				$new('a', {id: 'DESU_btn_refresh', title: Lng.refresh, href: '#'}, {
+				$new('a', {id: 'DESU_btnRefresh', title: Lng.refresh, href: '#'}, {
 					click: function(e) { $pD(e); window.location.reload(); },
 					mouseover: function() { if(!TNum) selectAjaxPages(); },
 					mouseout: removeSelMenu
 				}),
 				$new('a', {
-					id: 'DESU_btn_goback', title: Lng.goBack, href: 'http://' + aib.host + '/' + brd
+					id: 'DESU_btnGoback', title: Lng.goBack, href: 'http://' + aib.host + '/' + brd
 						+ '/' + (pageNum > 1 ? (pageNum - 1) + docExt : '')
 				}),
 				$if(!TNum, $new('a', {
-					id: 'DESU_btn_gonext', title: Lng.goNext, href: 'http://' + aib.host + '/' + brd
+					id: 'DESU_btnGonext', title: Lng.goNext, href: 'http://' + aib.host + '/' + brd
 						+ '/' + (pageNum > 0 ? pageNum + 1 : 1) + docExt
 				})),
-				$new('a', {id: 'DESU_btn_goup', title: Lng.goUp, href: '#'}, {
+				$new('a', {id: 'DESU_btnGoup', title: Lng.goUp, href: '#'}, {
 					click: function(e) { $pD(e); window.scrollTo(0, 0); }
 				}),
-				$new('a', {id: 'DESU_btn_godown', title: Lng.goDown, href: '#'}, {
+				$new('a', {id: 'DESU_btnGodown', title: Lng.goDown, href: '#'}, {
 					click: function(e) {
 						$pD(e);
 						window.scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
 					}
 				}),
 				$if(!TNum && (pr.on || oeForm), $new('a', {
-					id: 'DESU_btn_newthr', title: Lng.newThread, href: '#'}, {
+					id: 'DESU_btnNewthr', title: Lng.newThread, href: '#'}, {
 					click: toggleMainReply
 				})),
 				$if(imgLen > 0, $new('a', {
-					id: 'DESU_btn_expimg', title: Lng.expImages, href: '#'}, {
+					id: 'DESU_btnExpimg', title: Lng.expImages, href: '#'}, {
 					click: function(e) {
 						$pD(e);
 						Cfg.expimg = 1;
@@ -743,46 +743,46 @@ function addPanel() {
 					}
 				})),
 				$if(pr.file || oeForm, $new('a', {
-					id: 'DESU_btn_maskimg', title: Lng.maskImages, href: '#'}, {
+					id: 'DESU_btnMaskimg', title: Lng.maskImages, href: '#'}, {
 					click: function(e) { $pD(e); toggleCfg('mask'); scriptCSS(); }
 				})),
 				$if(TNum && Cfg.updthr !== 3, $new('a', {
-					id: 'DESU_btn_updon', title: Lng.autoupd, href: '#'}, {
+					id: 'DESU_btnUpdOn', title: Lng.autoupd, href: '#'}, {
 					click: function(e) {
 						$pD(e);
 						if(ajaxInt) endPostsUpdate();
-						else { this.id = 'DESU_btn_updon'; initPostsUpdate(); }
+						else { this.id = 'DESU_btnUpdOn'; initPostsUpdate(); }
 					}
 				})),
 				$if(aib.nul, $new('a', {
-					id: 'DESU_btn_catalog', title: Lng.goCatalog, target: '_blank',
+					id: 'DESU_btnCatalog', title: Lng.goCatalog, target: '_blank',
 					href: 'http://0chan.ru/' + brd +'/catalog.html'
 				}))
-			], {id: 'DESU_panel_btns'}),
+			], {id: 'DESU_panelBtns'}),
 			$if(TNum, $New('div', [$new('span', {
 				title: Lng.postsImages, text: Posts.length + '/' + imgLen
-			})], {id: 'DESU_panel_info'}))
+			})], {id: 'DESU_panelInfo'}))
 		], {id: 'DESU_panel'}),
 		$new('div', {id: 'DESU_content'}),
-		$new('div', {id: 'DESU_alertbox'}),
-		$new('hr', {style: 'clear:both'})
+		$new('div', {id: 'DESU_alertBox'}),
+		$new('hr', {style: 'clear: both;'})
 	]);
 }
 
 function toggleContent(name, isUpd) {
 	if(liteMode) return;
-	var el = $id('DESU_content'), id = 'DESU_content_' + name;
+	var el = $id('DESU_content'), id = 'DESU_content' + name;
 	if(isUpd && el.className !== id) return;
 	el.innerHTML = '';
 	if(!isUpd && el.className === id) { el.className = 'DESU_content'; return; }
 	el.className = id;
-	if(Cfg.attach === 0) el.appendChild($new('hr', {style: 'clear:both'}));
-	if(name !== 'sett') {
+	if(Cfg.attach === 0) el.appendChild($new('hr', {style: 'clear: both;'}));
+	if(name !== 'Cfg') {
 		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
 		if(Cfg.attach !== 0)
 			$t('table', el).style.backgroundColor = getStyle($t('body'), 'background-color');
-		if(name === 'hidd') { readHiddenThreads(); addHiddenTable(); }
-		if(name === 'fav') { readFavorites(); addFavoritesTable(); }
+		if(name === 'Hid') { readHiddenThreads(); addHiddenTable(); }
+		if(name === 'Fav') { readFavorites(); addFavoritesTable(); }
 	} else addSettings();
 }
 
@@ -818,7 +818,7 @@ function addSettings() {
 	},
 	cfgFilters = $New('div', [
 		$New('div', [
-			lBox('spells', Lng.spells, toggleSpells, 'DESU_spelledit_ch'),
+			lBox('spells', Lng.spells, toggleSpells, 'DESU_spellChk'),
 			$New('span', [
 				$new('a', {text: Lng.add, href: '#'}, {
 					click: $pD,
@@ -829,15 +829,15 @@ function addSettings() {
 					click: function(e) { $pD(e); applySpells(); }
 				}),
 				$new('a', {text: Lng.clear, href: '#'}, {
-					click: function(e) { $pD(e); $id('DESU_spelledit').value = ''; applySpells(); }
+					click: function(e) { $pD(e); $id('DESU_spellEdit').value = ''; applySpells(); }
 				}),
 				$new('a', {text: '?', target: '_blank', href: homePage + 'spells'})
-			], {id: 'DESU_spellpanel'}),
-			$new('textarea', {id: 'DESU_spelledit', rows: 7, cols: 56})
+			], {id: 'DESU_spellPanel'}),
+			$new('textarea', {id: 'DESU_spellEdit', rows: 7, cols: 56})
 		]),
 		$New('div', [
 			lBox('awipe', Lng.antiWipe),
-			$btn('>', function() { $disp($id('DESU_wipebox')); })
+			$btn('>', function() { $disp($id('DESU_cfgWipe')); })
 		]),
 		$New('div', [
 			divBox('samel', Lng.sameLines),
@@ -847,7 +847,7 @@ function addSettings() {
 			divBox('caps', Lng.caps),
 			divBox('specs', Lng.specSymbols),
 			divBox('nums', Lng.numbers)
-		], {id: 'DESU_wipebox', style: 'display:none; padding-left:25px'}),
+		], {id: 'DESU_cfgWipe', style: 'display: none; padding-left: 25px;'}),
 		divBox('filthr', Lng.filterThreads),
 		divBox('menuhd', Lng.hiderMenu),
 		divBox('viewhd', Lng.viewHidden),
@@ -887,7 +887,7 @@ function addSettings() {
 					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
 				})
 			])
-		], {style: 'padding-left:25px'})
+		], {style: 'padding-left: 25px;'})
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgPosts'}),
 	cfgLinks = $New('div', [
 		$New('div', [optSel('navig', Lng.selNavigation, Lng.navigation)]),
@@ -895,7 +895,7 @@ function addSettings() {
 			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
 			divBox('navmrk', Lng.markViewed),
 			divBox('navhid', Lng.hidRefmap)
-		], {style: 'padding-left:25px'}),
+		], {style: 'padding-left: 25px;'}),
 		divBox('insnum', Lng.insertLink),
 		divBox('mp3', Lng.mp3Embed),
 		divBox('addimg', Lng.imgEmbed),
@@ -908,7 +908,7 @@ function addSettings() {
 				lBox('yhdvid', 'HD ')
 			]),
 			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle))
-		], {style: 'padding-left:25px'})
+		], {style: 'padding-left: 25px;'})
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgLinks'}),
 	cfgForm = $New('div', [
 		$if(pr.on, $New('div', [optSel('pform', Lng.selReplyForm, Lng.replyForm)])),
@@ -930,11 +930,11 @@ function addSettings() {
 		])),
 		$if(pr.name, $New('div', [
 			inpTxt('namval', 20, setUserName),
-			lBox('name', Lng.fixedName, setUserName, 'DESU_fixedname_ch')
+			lBox('name', Lng.fixedName, setUserName, 'DESU_fixNameChk')
 		])),
 		$if(pr.passw, $New('div', [
 			inpTxt('pasval', 20, setUserPassw),
-			lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixedpass_ch')
+			lBox('passw', Lng.fixedPass, setUserPassw, 'DESU_fixPassChk')
 		])),
 		$if(pr.txta, $New('div', [inpTxt('sigval', 20), lBox('sign', Lng.fixedSign)])),
 		$New('div', [
@@ -948,49 +948,48 @@ function addSettings() {
 		$New('div', [optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle,
 			function() { saveCfg('sstyle', this.selectedIndex); scriptCSS(); }
 		)]),
-		divBox('attach', Lng.attachPanel, function() { toggleContent('sett'); scriptCSS(); }),
+		divBox('attach', Lng.attachPanel, function() { toggleContent('Cfg'); scriptCSS(); }),
 		divBox('icount', Lng.showImgCount, scriptCSS),
 		divBox('animp', Lng.animatePopup),
 		divBox('rtitle', Lng.replaceTitle),
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgCommon'}),
 	cfgInfo = $New('div', [
-		$add('<div style="padding-left:10px"><div style="display:inline-block; vertical-align:top; width:200px"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display:inline-block; vertical-align:top; padding:0 0 0 15px; border-left:1px solid grey">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align:center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
+		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding: 0 0 0 15px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgInfo'}),
-	cfgTab = function(txt, name, isSel) {
+	cfgTab = function(txt, name) {
 		return $New('div', [
 			$new('div', {
-				Class: 'DESU_cfgTab' + (isSel ? '_sel' : ''), text: txt}, {
-				click: function() {
-					openTab(this, name);
-					if(name === 'cfgFilters') {
-						spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
-						initSpells();
-						$id('DESU_spelledit').value = spellsList.join('\n');
-					}
-				}
+				Class: 'DESU_cfgTab', text: txt}, {
+				click: function() { openTab(this, name); }
 			})
 		], {Class: aib.pClass + ' DESU_cfgTabBack'})
 	},
 	openTab = function(tab, name) {
 		if(tab.className == 'DESU_cfgTab_sel') return;
 		var oldEl = $x('.//div[@class="DESU_cfgBody"]');
-		oldEl.parentNode.replaceChild(eval(name), oldEl);
-		$x('.//div[@class="DESU_cfgTab_sel"]').className = 'DESU_cfgTab';
+		if(oldEl) {
+			oldEl.parentNode.replaceChild(eval(name), oldEl);
+			$x('.//div[@class="DESU_cfgTab_sel"]').className = 'DESU_cfgTab';
+		} else $after($id('DESU_cfgBar'), [eval(name)]);
 		tab.className = 'DESU_cfgTab_sel';
+		if(name === 'cfgFilters') {
+			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
+			initSpells();
+			$id('DESU_spellEdit').value = spellsList.join('\n');
+		}
 	};
 	
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_cfgHead', text: 'Dollchan Extension Tools'}),
 			$New('div', [
-				cfgTab(Lng.filters, 'cfgFilters', true),
+				cfgTab(Lng.filters, 'cfgFilters'),
 				cfgTab(Lng.posts, 'cfgPosts'),
 				cfgTab(Lng.links, 'cfgLinks'),
 				cfgTab(Lng.form, 'cfgForm'),
 				cfgTab(Lng.common, 'cfgCommon'),
 				cfgTab(Lng.info, 'cfgInfo'),
 			], {id: 'DESU_cfgBar'}),
-			cfgFilters,
 			$New('div', [
 				$New('div', [
 					optSel('lang', ['Ru', 'En'], '', function() {
@@ -1005,10 +1004,10 @@ function addSettings() {
 					})),
 					$if(sav.isGlobal, $btn(Lng.save, function() {
 						setStored('DESU_GlobalCfg', $uneval(Cfg));
-						toggleContent('sett', true);
+						toggleContent('Cfg', true);
 					})),
 					$btn(Lng.edit, function() {
-						$disp($up($attr($id('DESU_cfgedit'), {value: getStored('DESU_Config_' + aib.dm)})));
+						$disp($up($attr($id('DESU_cfgEdit'), {value: getStored('DESU_Config_' + aib.dm)})));
 					}),
 					$btn(Lng.reset, function() {
 						setDefaultCfg();
@@ -1018,20 +1017,21 @@ function addSettings() {
 						saveSpells('');
 						window.location.reload();
 					})
-				], {style: 'float:right'}),
-				$new('br', {style: 'clear:both'}),
+				], {style: 'float: right;'}),
+				$new('br', {style: 'clear: both;'}),
 				$New('div', [
 					$new('textarea', {
-						id: 'DESU_cfgedit', rows: 10, cols: 56, value: ''
+						id: 'DESU_cfgEdit', rows: 10, cols: 56, value: ''
 					}),
 					$btn(Lng.save, function() {
-						setStored('DESU_Config_' + aib.dm, $id('DESU_cfgedit').value.trim());
+						setStored('DESU_Config_' + aib.dm, $id('DESU_cfgEdit').value.trim());
 						window.location.reload();
 					})
-				], {style: 'display:none'})
+				], {style: 'display: none;'})
 			], {id: 'DESU_cfgBtns'})
 		], {Class: aib.pClass, id: 'DESU_cfgWindow'})
 	]);
+	openTab($x('.//div[@class="DESU_cfgTab"]'), 'cfgFilters');
 }
 
 function addHiddenTable() {
@@ -1039,12 +1039,12 @@ function addHiddenTable() {
 		table = $x('.//div[@id="DESU_content"]//tbody');
 	forAll(function(post) { if(post.Vis === 0) {
 		var pp = !post.isOp;
-		cln = $attr(($id('DESU_hiddenthr_' + post.Num) || post).cloneNode(true), {id: ''});
+		cln = $attr(($id('DESU_hidThr_' + post.Num) || post).cloneNode(true), {id: ''});
 		clones.push(cln);
 		cln.style.display = '';
 		cln.pst = post;
 		cln.vis = 0;
-		$event($x(pp ? './/a[@class="DESU_icn_unhide"]' : './/a', cln), {
+		$event($x(pp ? './/a[@class="DESU_btnUnhide"]' : './/a', cln), {
 			click: function(el) { return function(e) {
 				$pD(e);
 				el.vis = el.vis === 0 ? 1 : 0;
@@ -1071,7 +1071,7 @@ function addHiddenTable() {
 				$add('<b>' + (pp ? Lng.hiddenPosts : Lng.hiddenThrds) + Lng.onPage + ':</b>')
 			])),
 			$New('tr', [cln, $if(!pp, $attr(post.cloneNode(true), {
-				style: 'display:none; padding-left:15px; overflow:hidden; border:1px solid grey'
+				style: 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
 			}))])
 		]);
 		if(!pp) togglePost($next(cln), 1);
@@ -1105,7 +1105,7 @@ function addHiddenTable() {
 				);
 			}}),
 			$add('<b>' + b + '</b>')
-		], {Class: 'DESU_hthrhead', id: 'DESU_hthrhead_' + b})]);
+		], {Class: 'DESU_hidTHead', id: 'DESU_hidTHead_' + b})]);
 		for(tNum in hThrds[b]) {
 			if(sav.cookie) tNum = hThrds[b][tNum];
 			url = getThrdUrl(aib.host, b, tNum);
@@ -1115,14 +1115,14 @@ function addHiddenTable() {
 					$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 					$if(!sav.cookie, $txt(' - ' + hThrds[b][tNum]))
 				], {Class: aib.pClass})
-			], {Class: 'DESU_hthrdata', id: 'DESU_hthrdata_' + b + '|' + tNum})]);
+			], {Class: 'DESU_hidTData', id: 'DESU_hidTData_' + b + '|' + tNum})]);
 		}
 	}
 	$append(table, [
 		$New('tr', [
-			$btn(Lng.edit, function() { $disp($up($id('DESU_hthredit'))); }),
+			$btn(Lng.edit, function() { $disp($up($id('DESU_hidTEdit'))); }),
 			$btn(Lng.remove, function() {
-				$each($X('.//tr[@class="DESU_hthrdata"]', table), function(el) {
+				$each($X('.//tr[@class="DESU_hidTData"]', table), function(el) {
 					var i, arr = el.id.substr(14).split('|'), b = arr[0], tNum = arr[1];
 					if(!$t('input', el).checked) return;
 					if(pByNum[tNum]) setPostVisib(pByNum[tNum], 1);
@@ -1137,9 +1137,9 @@ function addHiddenTable() {
 			})
 		]),
 		$New('tr', [
-			$new('textarea', {id: 'DESU_hthredit', rows: 9, cols: 70, value: $uneval(hThrds)}),
-			$btn(Lng.save, function() { saveHiddenThreads($id('DESU_hthredit').value); })
-		], {style: 'display:none'})
+			$new('textarea', {id: 'DESU_hidTEdit', rows: 9, cols: 70, value: $uneval(hThrds)}),
+			$btn(Lng.save, function() { saveHiddenThreads($id('DESU_hidTEdit').value); })
+		], {style: 'display: none;'})
 	]);
 	eventRefLink(table);
 }
@@ -1155,34 +1155,34 @@ function addFavoritesTable() {
 				);
 			}}),
 			$add('<a href="http://' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
-		], {Class: 'DESU_favhead', id: 'DESU_favhead_' + h + '|' + b})]);
+		], {Class: 'DESU_favHead', id: 'DESU_favHead_' + h + '|' + b})]);
 		for(tNum in Favor[h][b]) {
 			url = getThrdUrl(h, b, tNum);
 			fav = Favor[h][b][tNum];
 			$append(table, [$New('tr', [
 				$New('div', [
 					$new('input', {type: 'checkbox'}),
-					$new('a', {Class: 'DESU_icn_expthr', href: '#"'}, {click: loadFavorThread}),
+					$new('a', {Class: 'DESU_btnExpthr', href: '#"'}, {click: loadFavorThread}),
 					$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 					$txt(' - ' + fav.txt),
-					$add('<span class="DESU_favpcount">[<span>' + fav.cnt + '</span>]</span>')
+					$add('<span class="DESU_favPCount">[<span>' + fav.cnt + '</span>]</span>')
 				], {Class: aib.pClass}),
-				$new('div', {id: tNum, Class: ' DESU_thread', style: 'display:none'})
-			], {Class: 'DESU_favdata', id: 'DESU_favdata_' + h + '|' + b + '|' + tNum})]);
+				$new('div', {id: tNum, Class: ' DESU_thread', style: 'display: none;'})
+			], {Class: 'DESU_favData', id: 'DESU_favData_' + h + '|' + b + '|' + tNum})]);
 		}
 	}
 	if(!$1(table)) table.insertRow(-1).appendChild($add('<b>' + Lng.noFavorites + '</b>'));
-	list = $X('.//tr[@class="DESU_favdata"]', table);
+	list = $X('.//tr[@class="DESU_favData"]', table);
 	$append(table, [
 		$New('tr', [
 			$new('hr'),
-			$btn(Lng.edit, function() { $disp($up($id('DESU_favoredit'))); }),
+			$btn(Lng.edit, function() { $disp($up($id('DESU_favEdit'))); }),
 			$btn(Lng.info, function() {
 				$each(list, function(el) {
 					var c, arr = el.id.substr(13).split('|');
 					if(aib.host !== arr[0]) return;
-					c = $x('.//span[@class="DESU_favpcount"]/span', el);
-					$attr(c, {Class: 'DESU_icn_wait', text: ''});
+					c = $x('.//span[@class="DESU_favPCount"]/span', el);
+					$attr(c, {Class: 'DESU_icnWait', text: ''});
 					ajaxGetPosts(null, arr[1], arr[2], function(err) {
 						var cnt = err || ajThrds[arr[1]][arr[2]].length;
 						$attr(c, {Class: '', text: cnt});
@@ -1212,9 +1212,9 @@ function addFavoritesTable() {
 			})
 		]),
 		$New('tr', [
-			$new('textarea', {id: 'DESU_favoredit', rows: 9, cols: 70, value: $uneval(Favor)}),
-			$btn(Lng.save, function() { saveFavorites($id('DESU_favoredit').value); })
-		], {style: 'display:none'})
+			$new('textarea', {id: 'DESU_favEdit', rows: 9, cols: 70, value: $uneval(Favor)}),
+			$btn(Lng.save, function() { saveFavorites($id('DESU_favEdit').value); })
+		], {style: 'display: none;'})
 	]);
 }
 
@@ -1265,18 +1265,18 @@ function $close(el) {
 
 function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
-	if(id) { nid += '_' + id; el = $id(nid); }
+	if(id) { nid += id; el = $id(nid); }
 	if(el) $x('./div[@class="' + nid + '"]', el).innerHTML = txt.trim();
 	else el = $New('div', [
-		$if(id !== 'wait', $new('a', {
+		$if(id !== 'Wait', $new('a', {
 			href: '#',
-			style: 'display:inline-block; vertical-align:top; font-size:150%', text: '× '}, {
+			style: 'display: inline-block; vertical-align: top; font-size: 150%;', text: '× '}, {
 			click: function(e) { $pD(e); $close($up(this)); }})),
 		$new('div', {
-			style: 'display:inline-block; margin-top:4px', Class: nid, html: txt.trim()
+			style: 'display: inline-block; margin-top: 4px;', Class: nid, html: txt.trim()
 		})
-	], {Class: aib.pClass, id: nid, style: 'opacity:0; padding:0 10px 5px 10px'});
-	$show($id('DESU_alertbox').appendChild(el));
+	], {Class: aib.pClass, id: nid, style: 'opacity: 0; padding: 0 10px 5px 10px;'});
+	$show($id('DESU_alertBox').appendChild(el));
 }
 
 /*-----------------------------Dropdown select menus-------------------------*/
@@ -1289,30 +1289,30 @@ function removeSelMenu(e) {
 
 function addSelMenu(el, html) {
 	var y, pos, pst = getPost(el), x =
-		el.className === 'DESU_icn_imgsrc' ? 'left:' + $offset(el).left
-		: 'right:' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
+		el.className === 'DESU_btnSrc' ? 'left: ' + $offset(el).left
+		: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
 	if(Cfg.attach !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
-		if(el.id === 'DESU_btn_refresh') y = 'bottom:25';
-		else y = 'top:' + (el.getBoundingClientRect().top + el.offsetHeight);
+		if(el.id === 'DESU_btnRefresh') y = 'bottom: 25';
+		else y = 'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
 	} else {
 		pos = 'absolute';
-		y = 'top:' + ($offset(el).top + el.offsetHeight);
+		y = 'top: ' + ($offset(el).top + el.offsetHeight);
 	}
-	doc.body.appendChild($add('<div class="' + aib.pClass + '" id="DESU_select" style="position:'
-		+ pos + '; width:auto; min-width:0; ' + x + 'px; ' + y + 'px; z-index:9999; '
-		+ 'padding:2px 5px; border:1px solid grey">' + html + '</div>', {
+	doc.body.appendChild($add('<div class="' + aib.pClass + '" id="DESU_select" style="position: '
+		+ pos + '; width: auto; min-width: 0; ' + x + 'px; ' + y + 'px; z-index: 9999; '
+		+ 'padding: 2px 5px; border: 1px solid grey;">' + html + '</div>', {
 		mouseout: removeSelMenu,
 		mouseover: function() { if(pst && pst.node) unMarkForDelete(pst.node); }
 	}));
-	return $X('.//div[@id="DESU_select"]/a');
+	return $X('.//div[@id="DESU_select"]//a');
 }
 
 function selectSpell(e) {
 	$each(addSelMenu(e.target,
-		'<div style="display:inline-block; border-right:1px solid grey"><a href="#">'
+		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">'
 		+ ('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,').split(',').join(
-		'</a><a href="#">') + '</a></div><div style="display:inline-block"><a href="#">'
+		'</a><a href="#">') + '</a></div><div style="display: inline-block;"><a href="#">'
 		+ ('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ').split(',').join(
 		'</a><a href="#">') + '</a></div>'), function(a) {
 			$event(a, {click: function(e) {
@@ -1323,7 +1323,7 @@ function selectSpell(e) {
 					if(TNum) exp = '#' + brd + '/' + TNum + ' ';
 					else return;
 				}
-				insertInto($id('DESU_spelledit'), exp);
+				insertInto($id('DESU_spellEdit'), exp);
 			}});
 		}
 	);
@@ -1354,7 +1354,7 @@ function selectExpandThread(post) {
 }
 
 function selectAjaxPages() {
-	$each(addSelMenu($id('DESU_btn_refresh'),
+	$each(addSelMenu($id('DESU_btnRefresh'),
 		'<a href="#">' + Lng.selAjaxPages.join('</a><a href="#">') + '</a>'
 	), function(a, i) {
 		$event(a, {click: function(e) { $pD(e); loadPages(i + 1); }});
@@ -1499,8 +1499,8 @@ function refreshCapImg(tNum) {
 
 function doSageBtn() {
 	var c = Cfg.issage !== 0;
-	$id('DESU_sagebtn').innerHTML = '&nbsp;' + (
-		c ? '<a class="DESU_icn_sage" href="#"></a><b style="color:red">SAGE</b>'
+	$id('DESU_sageBtn').innerHTML = '&nbsp;' + (
+		c ? '<a class="DESU_btnSage" href="#"></a><b style="color: red;">SAGE</b>'
 		: '<i>(no&nbsp;sage)</i>'
 	);
 	if(pr.mail.type === 'text') pr.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
@@ -1508,12 +1508,12 @@ function doSageBtn() {
 }
 
 function setUserName() {
-	saveCfg('namval', $id('DESU_fixedname').value.replace(/\|/g, ''));
-	pr.name.value = $id('DESU_fixedname_ch').checked ? Cfg.namval : '';
+	saveCfg('namval', $id('DESU_fixName').value.replace(/\|/g, ''));
+	pr.name.value = $id('DESU_fixNameChk').checked ? Cfg.namval : '';
 }
 
 function setUserPassw() {
-	var val, el = $id('DESU_fixedpass');
+	var val, el = $id('DESU_fixPass');
 	if(el) saveCfg('pasval', el.value.replace(/\|/g, ''));
 	val = Cfg.passw !== 0 ? Cfg.pasval : $rnd().substring(0, 8);
 	el = $X('.//input[@type="password"]').snapshotItem(1);
@@ -1541,7 +1541,7 @@ function doChanges() {
 		initPostsUpdate();
 		if(Cfg.updthr === 2 || Cfg.updthr === 3)
 			$after($x('.//div[contains(@class," DESU_thread")]'), [$add(
-				'<span id="DESU_getnewposts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
+				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
 				click: function(e) { $pD(e); loadNewPosts(true); }
 			})]);
 	} else window.scrollTo(0, 0);
@@ -1556,16 +1556,16 @@ function doChanges() {
 		}, 0);
 	}});
 	if(aib.fch && !TNum) $each($X('.//table[@class="pages"]//form'), function(el) {
-		$next(el).appendChild($attr(el, {style: 'margin-bottom:0'}));
+		$next(el).appendChild($attr(el, {style: 'margin-bottom: 0;'}));
 		el.appendChild($prev(el));
 	});
-	qArea = $new('div', {id: 'DESU_qarea', Class: aib.pClass, style: 'display:none'});
+	qArea = $new('div', {id: 'DESU_qarea', Class: aib.pClass, style: 'display: none;'});
 	pArea = $New('center', [
 		$New('div', [
 			$txt('['),
 			$new('a', {text: Lng.expandForm, href: '#'}, {click: toggleMainReply}),
 			$txt(']')
-		], {id: 'DESU_togglereply', style: 'display:none'}),
+		], {id: 'DESU_toggleReply', style: 'display: none;'}),
 		$New('div', [pr.form, oeForm], {id: 'DESU_pform'}),
 		$new('hr')
 	], {id: 'DESU_parea'});
@@ -1589,10 +1589,10 @@ function doPostformChanges() {
 		};
 	if(!aib.fch && pr.subm.nextSibling) $delNx(pr.subm);
 	addTextPanel();
-	$after(el, [$new('div', {Class: 'DESU_txtresizer'}, {mousedown: function(e) {
+	$after(el, [$new('div', {id: 'DESU_txtResizer'}, {mousedown: function(e) {
 		$pD(e); $event(doc.body, {mousemove: resMove, mouseup: resStop});
 	}})]);
-	el.style.cssText = 'width:' + Cfg.texw + 'px; height:' + Cfg.texh + 'px';
+	el.style.cssText = 'width: ' + Cfg.texw + 'px; height: ' + Cfg.texh + 'px;';
 	$event(el, {keypress: function(e) {
 		var code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) { e.target.blur(); window.focus(); }
@@ -1602,15 +1602,15 @@ function doPostformChanges() {
 		pr.txta.value =
 			(Cfg.spells === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 			+ (Cfg.sign !== 0 && Cfg.sigval !== '' ? '\n' + Cfg.sigval : '');
-		if(Cfg.verify !== 0) $alert(Lng.checking, 'wait');
+		if(Cfg.verify !== 0) $alert(Lng.checking, 'Wait');
 		if(Cfg.addfav !== 0 && pr.tNum)
-			toggleFavorites(pByNum[pr.tNum], $x('a[@class="DESU_icn_favor"]', pByNum[pr.tNum].Btns));
+			toggleFavorites(pByNum[pr.tNum], $x('a[@class="DESU_btnFav"]', pByNum[pr.tNum].Btns));
 		if(pr.tNum) Stat.reply = +Stat.reply + 1;
 		else Stat.op = +Stat.op + 1;
 		setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
 		if(aib.nul && pr.isQuick) {
 			$disp(qArea);
-			$after($id('DESU_togglereply'), [$id('DESU_pform')]);
+			$after($id('DESU_toggleReply'), [$id('DESU_pform')]);
 		} 
 	}});
 	$each($X('.//input[@type="text"]', pr.form), function(el) { el.size = 35; });
@@ -1621,7 +1621,7 @@ function doPostformChanges() {
 	if(pr.recap) {
 		$attr(pr.subm, {onclick: 'Recaptcha.focus_response_field = function() {}'});
 		el = $id('recaptcha_image');
-		if(el) $attr(el, {onclick: 'Recaptcha.reload()', style: 'width:300px; cursor:pointer'});
+		if(el) $attr(el, {onclick: 'Recaptcha.reload()', style: 'width: 300px; cursor: pointer;'});
 		el = $id('recaptcha_reload_btn');
 		if(el) $disp($up(el));
 	}
@@ -1660,7 +1660,7 @@ function doPostformChanges() {
 			_img = $new('img', {
 				alt: Lng.loading,
 				title: Lng.refresh,
-				style: 'display:block; border:none; cursor:pointer',
+				style: 'display: block; border: none; cursor: pointer;',
 				src: refreshCapSrc(src, TNum || 0)}, {
 				click: function() { refreshCapImg(TNum || 0); }
 			});
@@ -1669,7 +1669,7 @@ function doPostformChanges() {
 		}
 	}
 	if(Cfg.sagebt !== 0 && pr.mail) {
-		sageBtn = $new('span', {id: 'DESU_sagebtn'}, {
+		sageBtn = $new('span', {id: 'DESU_sageBtn'}, {
 			click: function(e) { e.stopPropagation(); $pD(e); toggleCfg('issage'); doSageBtn(); }
 		});
 		m = $x('ancestor::label', pr.mail) || pr.mail;
@@ -1687,9 +1687,9 @@ function doPostformChanges() {
 			};
 			dForm.onsubmit = function(e) {
 				$pD(e);
-				$alert(Lng.loading, 'wait');
+				$alert(Lng.loading, 'Wait');
 				ajaxCheckSubmit(dForm, new FormData(dForm),
-					function() { $close($id('DESU_alert_wait')); $alert(Lng.succDeleted); }
+					function() { $close($id('DESU_alertWait')); $alert(Lng.succDeleted); }
 				);
 			};
 		} else {
@@ -1715,7 +1715,7 @@ function ajaxCheckSubmit(form, fd, fn) {
 		url: form.action,
 		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
 		onerror: function(res) {
-			$close($id('DESU_alert_wait'));
+			$close($id('DESU_alertWait'));
 			$alert('XHR load error:\n' + res.statusText);
 		}
 	});
@@ -1724,7 +1724,7 @@ function ajaxCheckSubmit(form, fd, fn) {
 function iframeCheckSubmit() {
 	var frm = $id('DESU_iframe');
 	try { frm = frm.contentDocument; if(!frm || !frm.body || !frm.body.innerHTML) return; }
-	catch(e) { $close($id('DESU_alert_wait')); $alert('Iframe load error:\n' + e); return; }
+	catch(e) { $close($id('DESU_alertWait')); $alert('Iframe load error:\n' + e); return; }
 	checkUpload(frm, '' + frm.location);
 	frm.location.replace('about:blank');
 }
@@ -1763,7 +1763,7 @@ function checkUpload(dc, url) {
 			? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 	} else {
 		if(aib.nul && pr.isQuick) { $disp(qArea); qArea.appendChild($id('DESU_pform')); }
-		$close($id('DESU_alert_wait'));
+		$close($id('DESU_alertWait'));
 		$alert(err);
 	}
 }
@@ -1805,7 +1805,7 @@ function showQuickReply(post) {
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
 		qArea.appendChild($id('DESU_pform'));
-		$disp($id('DESU_togglereply'));
+		$disp($id('DESU_toggleReply'));
 		$disp(qArea);
 		if(!TNum && !aib.kus && !aib.hana) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
@@ -1825,7 +1825,7 @@ function showQuickReply(post) {
 }
 
 function showMainReply() {
-	var el = $id('DESU_togglereply');
+	var el = $id('DESU_toggleReply');
 	if(!pr.isQuick) return;
 	pr.isQuick = false;
 	if(!TNum) { toggleQuickReply(); $del($x('.//input[@id="thr_id"]', pr.form)); }
@@ -1862,7 +1862,7 @@ function tfBtn(id, title, wktag, bbtag, val) {
 	if(Cfg.txtbtn === 2)
 		btn.innerHTML = '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : '');
 	if(Cfg.txtbtn === 3)
-		btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight:bold" />';
+		btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
 	if(val !== '&gt;') $event(btn, {click: function(e) {
 		var tag1, tag2, j, len,
 			start = x.selectionStart, end = x.selectionEnd, scrtop = x.scrollTop,
@@ -1898,20 +1898,20 @@ function tfBtn(id, title, wktag, bbtag, val) {
 }
 
 function addTextPanel() {
-	$del($id('DESU_textpanel'));
+	$del($id('DESU_txtPanel'));
 	if(Cfg.txtbtn === 0 || !pr.txta) return;
 	$after(pr.subm, [$New('span', [
 		$txt(unescape('%u00A0')),
 		$if(Cfg.txtbtn === 2, $txt('[ ')),
-		tfBtn('DESU_btn_bold', Lng.bold, '**', 'b', 'B'),
-		tfBtn('DESU_btn_italic', Lng.italic, '*', 'i', 'i'),
-		tfBtn('DESU_btn_under', Lng.underlined, '__', 'u', 'U'),
-		tfBtn('DESU_btn_strike', Lng.strike, aib._410 ? '^^' : '', 's', 'S'),
-		tfBtn('DESU_btn_spoiler', Lng.spoiler, '%%', 'spoiler', '%'),
-		tfBtn('DESU_btn_code', Lng.code, '`', aib.krau ? 'aa' : 'code', 'C'),
-		tfBtn('DESU_btn_quote', Lng.quote, '', '', '&gt;'),
+		tfBtn('DESU_btnBold', Lng.bold, '**', 'b', 'B'),
+		tfBtn('DESU_btnItalic', Lng.italic, '*', 'i', 'i'),
+		tfBtn('DESU_btnUnder', Lng.underlined, '__', 'u', 'U'),
+		tfBtn('DESU_btnStrike', Lng.strike, aib._410 ? '^^' : '', 's', 'S'),
+		tfBtn('DESU_btnSpoiler', Lng.spoiler, '%%', 'spoiler', '%'),
+		tfBtn('DESU_btnCode', Lng.code, '`', aib.krau ? 'aa' : 'code', 'C'),
+		tfBtn('DESU_btnQuote', Lng.quote, '', '', '&gt;'),
 		$if(Cfg.txtbtn === 2, $txt(' ]'))
-	], {id: 'DESU_textpanel'})]);
+	], {id: 'DESU_txtPanel'})]);
 }
 
 /*--------------------------------Time correction-----------------------------*/
@@ -1970,174 +1970,190 @@ function fixTime(txt) {
 
 function scriptCSS() {
 	var x = [],
-		gif = function(nm, src) { x.push(nm + ' {background:url(data:image/gif;base64,' + src + ') no-repeat center !important}') },
-		pre = 'background:' + (Cfg.sstyle === 0 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)' : '#777') + '; ',
+		p = 'background: ' + (Cfg.sstyle === 0 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)' : '#777') + '; ',
+		gif = function(nm, src) { x.push(nm + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }') },
 		brCssFix = nav.Firefox > 3 ? '' : cssFix;
+	
+	// Settings window
 	x.push(
-		'#DESU_alertbox {position:fixed; right:0; top:0; z-index:9999; font:14px arial; cursor:default}\
-		#DESU_alertbox > div {float:right; clear:both; width:auto; min-width:0pt; padding:10px; margin:1px; border:1px solid grey; white-space:pre-wrap}\
-		#DESU_cfgedit, #DESU_favoredit, #DESU_hthredit, #DESU_spelledit {display:block; margin:2px 0; font:12px courier new}\
-		#DESU_content {text-align:left}\
-		#DESU_iframe {display:none; width:0px; height:0px; border:none}\
-		#DESU_panel {height:25px; z-index:9999; ' + pre + brCssFix + 'border-radius:15px 0 0 0; cursor:default}\
-		#DESU_panel a {display:inline-block; padding:0 25px 25px 0; margin:0 1px 0 1px; border:none; ' + brCssFix + 'border-radius:5px}\
-		#DESU_panel_btns {display:inline-block; padding:0 3px; margin-left:4px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '}\
-		#DESU_panel_btns a:hover {padding:0 21px 21px 0 !important; border:2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '}\
-		#DESU_panel_info {display:inline-block; height:25px; vertical-align:top; padding:2px 4px 0 6px; border-left:1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color:#fff; font:18px serif}\
-		#DESU_cfgWindow {float:left; ' + brCssFix + 'border-radius:10px 10px 0 0; width:auto; min-width:0; padding:0; margin:5px 20px; overflow:hidden;}\
-		#DESU_cfgHead {padding:3px; ' + pre + 'color:#fff; text-align:center; font:bold 14px arial; cursor:default}\
-		.DESU_cfgBody {display:table; padding:10px; margin:0; width:420px; height:250px; font:13px sans-serif; float:none;}\
-		.DESU_cfgBody input[value=">"] {width:20px}\
-		.DESU_cfgBody, #DESU_cfgBtns {border-left:1px solid rgba(0,0,0,.6); border-right:1px solid rgba(0,0,0,.6); border-bottom:1px solid rgba(0,0,0,.6);}\
-		#DESU_cfgBtns {padding-top:7px}\
-		#DESU_cfgBar {height:25px; padding-top:5px; width: 100%; display:table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + ';}\
-		.DESU_cfgTab, .DESU_cfgTab_sel {cursor:default; padding:4px 10px; border:1px solid rgba(0,0,0,.6); color:inherit; text-align:center; font:bold 14px arial; ' + brCssFix + 'border-radius:4px 4px 0 0;}\
-		.DESU_cfgTabBack {display:table-cell !important; float:none !important; ' + brCssFix + 'border-radius:4px 4px 0 0; border:none !important; margin:0 !important; padding:0 !important;}\
-		.DESU_cfgTab {background-color: rgba(0,0,0,.2)}\
-		.DESU_cfgTab:hover {background-color: rgba(0,0,0,.3)}\
-		.DESU_cfgTab_sel {border-bottom:none;}\
-		#DESU_select {padding:0 !important; margin:0 !important}\
-		#DESU_select a {display:block; padding:3px 10px; color:inherit; text-decoration:none; font:13px arial; white-space:nowrap}\
-		#DESU_select a:hover {background-color:' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color:#fff}\
-		#DESU_spellpanel {margin:0 0 0 40px}\
-		#DESU_spellpanel a {padding:0 10px; text-align:center}\
-		#DESU_sagebtn {cursor:pointer}\
-		#DESU_textpanel {display:' + (Cfg.txtpos === 0 ? 'inline' : 'block') + '; font-weight:bold; cursor:pointer}\
-		#DESU_qarea {float:none; clear:left; width:100%; padding:3px 0 3px 3px; margin:2px 0}\
-		.DESU_favdata .DESU_thread {padding-left:15px; border:1px solid grey}\
-		.DESU_favdata a, .DESU_hthrdata a {text-decoration:none}\
-		.DESU_favhead a {color:inherit; font-weight:bold}\
-		.DESU_favpcount {float:right; margin:0 5px 0 15px; font:bold 16px serif}\
-		.DESU_favpcount span {color:#4f7942}\
-		.DESU_txtresizer {display:inline-block !important; float:none !important; padding:5px; margin:0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom:2px solid #555; border-right:2px solid #444; cursor:se-resize}\
-		.DESU_icn_wait, .DESU_alert_wait:before {content:" "; padding:0 16px 16px 0; background:url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat}\
-		.DESU_mp3, .DESU_ytube {margin:5px 20px}\
-		.DESU_omitted {color:grey; font-style:italic}\
-		.DESU_postnote {color:inherit; font-size:12px; font-style:italic}\
-		.DESU_preimg, .DESU_fullimg {display:block; margin:' + (aib.krau ? 0 : '2px 10px') + '; border:none; outline:none; cursor:pointer}\
-		.DESU_refhid {text-decoration:line-through !important}\
-		.DESU_refmap {margin:10px 4px 4px 4px; font-size:70%; font-style:italic}\
-		.DESU_refmap:before {content:"' + Lng.replies + '"}\
-		.DESU_refmap a {text-decoration:none}\
-		.DESU_ytlink:before {content:""; padding:0 16px 0 0; margin:0 4px; background:url(http://youtube.com/favicon.ico) no-repeat}\
-		.DESU_ytube > img {cursor:pointer}\
-		.reply {width:auto}\
-		a[href="#"] {text-decoration:none !important; outline:none}\
-		a[class^="DESU_icn"] {margin:0 4px -1px 0 !important}\
-		span[class^="DESU_postpanel"] {margin-left:4px; font-weight:bold}\
-		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytube {display:inline}\
-		a[class^=DESU_src]:before {content:""; padding:0 16px 0 0; margin:0 4px}\
-		.DESU_icn_imgsrc {padding:0 16px 0 0; background:url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor:pointer}\
-		.DESU_srcGoogle:before {background:url(http://google.ru/favicon.ico)}\
-		.DESU_srcTineye:before {background:url(http://tineye.com/favicon.ico)}\
-		.DESU_srcIqdb:before {background:url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size:cover}\
-		.DESU_srcSaucenao:before {background:url(http://saucenao.com/favicon.ico)}\
-		.DESU_favIframe {border:none; width:' + (document.body.offsetWidth - 65) + 'px; height:' + (window.innerHeight - 100) + 'px}\
-		.DESU_selected {' + (
-			nav.Opera ? 'border-left:4px solid red; border-right:4px solid red}'
-			: brCssFix + 'box-shadow:6px 0 2px -2px red, -6px 0 2px -2px red}'
-		)
+		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		.DESU_cfgBody { display: table; padding: 10px; margin: 0; width: 420px; height: 250px; font: 13px sans-serif; float: none; }\
+		.DESU_cfgBody input[value=">"] { width: 20px; }\
+		.DESU_cfgBody, #DESU_cfgBtns { border-left: 1px solid rgba(0,0,0,.6); border-right: 1px solid rgba(0,0,0,.6); border-bottom: 1px solid rgba(0,0,0,.6); }\
+		#DESU_cfgBtns { padding-top: 7px; }\
+		#DESU_cfgBar { height: 25px; padding-top: 5px; width: 100%; display: table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + '; }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { cursor: default; padding: 4px 10px; border: 1px solid rgba(0,0,0,.6); color: inherit; text-align: center; font: bold 14px arial; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
+		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
+		.DESU_cfgTab:hover { background-color: rgba(0,0,0,.3); }\
+		.DESU_cfgTab_sel { border-bottom: none; }\
+		.DESU_cfgTabBack { display: table-cell !important; float: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; border: none !important; margin: 0 !important; padding: 0 !important; }\
+		#DESU_spellPanel { margin: 0 0 0 40px; }\
+		#DESU_spellPanel a { padding: 0 10px; text-align: center; }'
 	);
-	if(!nav.Opera) x.push(
-		'@' + cssFix + 'keyframes DESU_aOpen  {from{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_aClose {to{' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity:0}}\
-		@' + cssFix + 'keyframes DESU_pOpenTL {from{' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenBL {from{' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenTR {from{' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pOpenBR {from{' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0} to {opacity:1}}\
-		@' + cssFix + 'keyframes DESU_pCloseTL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseBL {from{opacity:1} to {' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseTR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity:0;}}\
-		@' + cssFix + 'keyframes DESU_pCloseBR {from{opacity:1} to {' + cssFix + 'transform: translate(50%,50%) scale(0); opacity:0;}}'
+	
+	// Main panel
+	x.push(
+		'#DESU_panel { ' + (Cfg.attach === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + brCssFix + 'border-radius: 15px 0 0 0; cursor: default; }\
+		#DESU_panel a { display: inline-block; padding: 0 25px 25px 0; margin: 0 1px 0 1px; border: none; ' + brCssFix + 'border-radius: 5px; }\
+		#DESU_panelBtns { display: inline-block; padding: 0 3px; margin-left: 4px; border-left: 1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; }\
+		#DESU_panelBtns a:hover { padding: 0 21px 21px 0 !important; border: 2px solid ' + (Cfg.sstyle === 0 ? '#9be' : '#444') + '; }\
+		#DESU_panelInfo { display: inline-block; height: 25px; vertical-align: top; padding: 2px 4px 0 6px; border-left: 1px solid ' + (Cfg.sstyle === 0 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
 	);
-	pre = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
-	gif('#DESU_btn_logo', pre + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
-	gif('#DESU_btn_settings', pre + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
-	gif('#DESU_btn_hidden', pre + 'I5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
-	gif('#DESU_btn_favor', pre + 'IzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
-	gif('#DESU_btn_refresh', pre + 'JAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
-	gif('#DESU_btn_goback', pre + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
-	gif('#DESU_btn_gonext', pre + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
-	gif('#DESU_btn_goup', pre + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
-	gif('#DESU_btn_godown', pre + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
-	gif('#DESU_btn_newthr', pre + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
-	gif('#DESU_btn_expimg', pre + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
-	gif('#DESU_btn_maskimg', pre + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
-	pre = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
-	gif('#DESU_btn_updon','R0lGODlhGQAZAJEAADL/Mv' + pre);
-	gif('#DESU_btn_updoff','R0lGODlhGQAZAJEAAP8yMv' + pre);
-	gif('#DESU_btn_updwarn','R0lGODlhGQAZAJEAAP/0Qf' + pre);
+	if(Cfg.icount === 0) x.push('#DESU_panelInfo { display: none; }');
+	if(Cfg.showmp === 0) x.push('#DESU_panelBtns, #DESU_panelInfo { display: none; }');
+	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
+	gif('#DESU_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
+	gif('#DESU_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
+	gif('#DESU_btnHidden', p + 'I5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
+	gif('#DESU_btnFavor', p + 'IzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
+	gif('#DESU_btnRefresh', p + 'JAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
+	gif('#DESU_btnGoback', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
+	gif('#DESU_btnGonext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
+	gif('#DESU_btnGoup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
+	gif('#DESU_btnGodown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
+	gif('#DESU_btnNewthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
+	gif('#DESU_btnExpimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
+	gif('#DESU_btnMaskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
+	if(aib.nul) gif('#DESU_btnCatalog', 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=')
+	p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
+	gif('#DESU_btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
+	gif('#DESU_btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
+	gif('#DESU_btnUpdWarn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
+	
+	// Post buttons
+	x.push(
+		'a[class^="DESU_btn"] { display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -1px 0 !important; }\
+		span[class^="DESU_postPanel"] { margin-left: 4px; font-weight: bold; }'
+	);
+	p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
+	gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+	gif('.DESU_btnUnhide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+	gif('.DESU_btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
+	gif('.DESU_btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
+	gif('.DESU_btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+	gif('.DESU_btnFavSel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+	gif('.DESU_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+	
+	// Search images buttons
+	x.push(
+		'.DESU_btnSrc { padding: 0 16px 0 0; background: url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor: pointer; }\
+		a[class^=DESU_src]:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; }\
+		.DESU_srcGoogle:before { background: url(http://google.ru/favicon.ico); }\
+		.DESU_srcTineye:before { background: url(http://tineye.com/favicon.ico); }\
+		.DESU_srcIqdb:before { background: url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size: cover; }\
+		.DESU_srcSaucenao:before { background: url(http://saucenao.com/favicon.ico); }'
+	);
+	
+	// Posts counter
 	if(TNum) x.push(
-		'form div.DESU_thread {counter-reset:i 1}\
-		form div.DESU_thread .DESU_postpanel:after {counter-increment:i 1; content:counter(i, decimal); vertical-align:1px; color:#4f7942; font:italic bold 13px serif; cursor:default}\
-		form div.DESU_thread .DESU_postpanel_del:after {content:"' + Lng.deleted + '"; color:#727579; font:italic bold 13px serif; cursor:default}'
+		'form div.DESU_thread { counter-reset: i 1; }\
+		form div.DESU_thread .DESU_postPanel:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+		form div.DESU_thread .DESU_postPanel_del:after { content: "' + Lng.deleted + '"; color: #727579; font: italic bold 13px serif; cursor: default; }'
 	);
-	x.push('a[class^="DESU_icn"] {display:inline-block; padding:0 14px 14px 0}');
-	pre = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
-	gif('.DESU_icn_hide', pre + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-	gif('.DESU_icn_unhide', pre + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
-	gif('.DESU_icn_rep', pre + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
-	gif('.DESU_icn_expthr', pre + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
-	gif('.DESU_icn_favor', pre + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-	gif('.DESU_icn_favset', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-	gif('.DESU_icn_sage','R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+	
+	// text format buttons
+	x.push('#DESU_txtPanel { display: ' + (Cfg.txtpos === 0 ? 'inline' : 'block') + '; font-weight: bold; cursor: pointer; }');
 	if(Cfg.txtbtn === 1) {
-		x.push('#DESU_textpanel span {padding:4px 27px 4px 0}');
-		pre = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
-		gif('#DESU_btn_bold', pre + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
-		gif('#DESU_btn_italic', pre + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
-		gif('#DESU_btn_under', pre + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
-		gif('#DESU_btn_strike', pre + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
-		gif('#DESU_btn_spoiler', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
-		gif('#DESU_btn_code', pre + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
-		gif('#DESU_btn_quote', pre + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
+		x.push('#DESU_txtPanel span { padding: 4px 27px 4px 0; }');
+		p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
+		gif('#DESU_btnBold', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
+		gif('#DESU_btnItalic', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
+		gif('#DESU_btnUnder', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
+		gif('#DESU_btnStrike', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
+		gif('#DESU_btnSpoiler', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
+		gif('#DESU_btnCode', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+		gif('#DESU_btnQuote', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 	}
+	
+	// Show/close animation
+	if(!nav.Opera && Cfg.animp !== 0) x.push(
+		'@' + cssFix + 'keyframes DESU_aOpen { from { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } to { opacity: 1; } }\
+		@' + cssFix + 'keyframes DESU_aClose { to { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
+		@' + cssFix + 'keyframes DESU_pOpenTL { from { ' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
+		@' + cssFix + 'keyframes DESU_pOpenBL { from { ' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } to { opacity: 1; } }\
+		@' + cssFix + 'keyframes DESU_pOpenTR { from { ' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
+		@' + cssFix + 'keyframes DESU_pOpenBR { from { ' + cssFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } to { opacity: 1; } }\
+		@' + cssFix + 'keyframes DESU_pCloseTL { from { opacity: 1; } to { ' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+		@' + cssFix + 'keyframes DESU_pCloseBL { from { opacity: 1; } to { ' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+		@' + cssFix + 'keyframes DESU_pCloseTR { from { opacity: 1; } to { ' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+		@' + cssFix + 'keyframes DESU_pCloseBR { from { opacity: 1; } to { ' + cssFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }'
+	);
+	
+	// Embedders
 	x.push(
-		Cfg.attach === 0 ? '#DESU_content {width:100%}\
-			#DESU_content > table {margin:5px 20px; font-size:16px}\
-			#DESU_panel {float:right}\
-			#DESU_btn_godown, #DESU_btn_goup {display:none}'
-		: '#DESU_content {position:fixed; right:0; bottom:25px; z-index:9999; max-height:95%; overflow:auto}\
-			#DESU_content > table {padding:5px 10px; border:1px solid grey; font-size:16px}\
-			#DESU_panel {position:fixed; right:0; bottom:0}'
+		'.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
+		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
+		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytObj { display: inline; }\
+		.DESU_ytLink:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(http://youtube.com/favicon.ico) no-repeat; }\
+		.DESU_ytObj > img { cursor: pointer; }'
 	);
-	if(Cfg.delhd === 2) x.push('div[id^=DESU_hiddenthr_], div[id^=DESU_hiddenthr_] + div + br, div[id^=DESU_hiddenthr_] + div + br + hr {display:none}');
-	if(Cfg.navmrk !== 0) x.push('.viewed, .viewed .reply {color:#888 !important}');
-	if(Cfg.icount === 0) x.push('#DESU_panel_info {display:none}');
-	if(Cfg.showmp === 0) x.push('#DESU_panel_btns, #DESU_panel_info {display:none}');
-	if(Cfg.noname !== 0) x.push('.commentpostername, .postername, .postertrip {display:none}');
-	if(Cfg.ospoil !== 0) x.push('.spoiler {background:#888 !important; color:#CCC !important}');
-	if(Cfg.noscrl !== 0) x.push('blockquote {max-height:100% !important; overflow:visible !important}');
-	if(Cfg.norule !== 0) x.push((aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' {display:none}');
 	if(Cfg.mask !== 0) x.push(
-		'.DESU_preimg, .DESU_ytube, img[src*="spoiler"], img[src*="thumb"] {opacity:0.07 !important}\
-		.DESU_preimg:hover, .DESU_ytube:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover {opacity:1 !important}'
+		'.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
+		.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }'
 	);
+	
+	// Other
+	x.push(
+		'.DESU_alertWait:before, .DESU_icnWait { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
+		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
+		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
+		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
+		#DESU_content { ' + (Cfg.attach === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' text-align: left; }\
+		#DESU_content > table { ' + (Cfg.attach === 0 ? 'margin: 5px 20px; font-size: 16px;' : 'padding: 5px 10px; border: 1px solid grey; font-size: 16px;') + ' }\
+		.DESU_favData .DESU_thread { padding-left: 15px; border: 1px solid grey; }\
+		.DESU_favData a, .DESU_hidTData a { text-decoration: none; }\
+		.DESU_favHead a { color: inherit; font-weight: bold; }\
+		.DESU_favPCount { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
+		.DESU_favPCount span { color: #4f7942; }\
+		#DESU_iframe { display: none; width: 0px; height: 0px; border: none; }\
+		.DESU_omitted { color: grey; font-style: italic; }\
+		.DESU_postNote { color: inherit; font-size: 12px; font-style: italic; }\
+		#DESU_qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
+		.DESU_refHid { text-decoration: line-through !important; }\
+		.DESU_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
+		.DESU_refMap:before { content: "' + Lng.replies + '"; }\
+		.DESU_refMap a { text-decoration: none; }\
+		#DESU_sageBtn { cursor: pointer; }\
+		#DESU_select { padding: 0 !important; margin: 0 !important; }\
+		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
+		#DESU_select a:hover { background-color: ' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color: #fff; }\
+		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		.DESU_viewed, .DESU_viewed .reply { color: #888 !important; }\
+		.reply { width: auto; }\
+		a[href="#"] { text-decoration: none !important; outline: none; }'
+	);
+	if(Cfg.delhd === 2) x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
+	if(Cfg.noname !== 0) x.push('.commentpostername, .postername, .postertrip { display: none; }');
+	if(Cfg.ospoil !== 0) x.push('.spoiler { background: #888 !important; color: #ccc !important; }');
+	if(Cfg.noscrl !== 0) x.push('blockquote { max-height: 100% !important; overflow: visible !important; }');
+	if(Cfg.norule !== 0) x.push((aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }');
 	if(aib.kus) x.push(
-		'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) {display:none !important}\
-		.ui-wrapper {display:inline-block; width:auto !important; height:auto !important; padding:0 !important}'
+		'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
+		.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }'
 	);
-	if(aib.hana) x.push('#hideinfotd, .reply_ {display:none}');
-	if(aib.abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep {display:none}');
-	if(aib.tiny) x.push('form, form table {margin:0}');
-	if(aib.nul) {
-		gif('#DESU_btn_catalog','R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
-		x.push(
-			'#newposts_get, #postform nobr, .DESU_thread span[style="float: right;"] {display:none}\
-			.voiceplay {float:none}'
-		);
-	}
-	if(aib._7ch) x.push('.reply {background-color:' + getStyle($t('body'), 'background-color') + '}');
+	if(aib.hana) x.push('#hideinfotd, .reply_ { display: none; }');
+	if(aib.abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep { display: none; }');
+	if(aib.tiny) x.push('form, form table { margin: 0; }');
+	if(aib.nul) x.push(
+		'#newposts_get, #postform nobr, .DESU_thread span[style="float: right;"] { display: none; }\
+		.voiceplay { float: none; }'
+	);
+	if(aib._7ch) x.push('.reply { background-color: ' + getStyle($t('body'), 'background-color') + '; }');
 	if(aib.gazo) x.push(
-		'#DESU_content, #DESU_cfgBody {font-family:arial}\
-		.ftbl {width:auto; margin:0}\
-		.reply {background: #f0e0d6}'
+		'#DESU_content, #DESU_cfgBody { font-family: arial; }\
+		.ftbl { width: auto; margin: 0; }\
+		.reply { background: #f0e0d6; }'
 	);
-	if(aib.krau) x.push('div[id^=disclaimer] {display: none !important;}\
-		div[id^="Wz"] {z-index:10000 !important;}\
-		div[id^="DESU_hiddenthr_"] {margin-bottom:' + (!TNum ? '7' : '2') + 'px;}\
-		.file_reply + .DESU_ytube {float:left; margin: 5px 20px 5px 5px;}\
-		.DESU_ytube + div:not(.file_reply) {clear:both;}');
+	if(aib.krau) x.push(
+		'div[id^=disclaimer] { display: none !important; }\
+		div[id^="Wz"] { z-index: 10000 !important; }\
+		div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
+		.file_reply + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
+		.DESU_ytObj + div:not(.file_reply) { clear: both; }'
+	);
+	
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
@@ -2247,13 +2263,13 @@ function addPostButtons(post) {
 		$event(el, {click: function(e) { $pD(e); toggleFavorites(post, this); }});
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			el.className = 'DESU_icn_favset';
+			el.className = 'DESU_btnFavSel';
 			Favor[h][brd][post.Num].cnt = getPstCount(getThread(post));
 			setStored('DESU_Favorites', $uneval(Favor));
 		}
 	}
 	if(isSage(post))
-		post.Btns.appendChild($new('a', {Class: 'DESU_icn_sage', title: 'SAGE', href: '#'}, {
+		post.Btns.appendChild($new('a', {Class: 'DESU_btnSage', title: 'SAGE', href: '#'}, {
 			click: function(e) { $pD(e); applySpells('#sage'); }
 		}));
 	$after(ref, [post.Btns]);
@@ -2337,7 +2353,7 @@ function getTubePattern() {
 
 function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
-		el = $x('.//div[@class="DESU_ytube"]', getPost(this));
+		el = $x('.//div[@class="DESU_ytObj"]', getPost(this));
 	$pD(e);
 	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el))
 		el.innerHTML = '';
@@ -2362,9 +2378,9 @@ function addLinkTube(post) {
 		var pst, el, msg, m = link.href.match(getTubePattern());
 		if(!m) return;
 		pst = post || getPost(link);
-		el = $x('.//div[@class="DESU_ytube"]', pst);
+		el = $x('.//div[@class="DESU_ytObj"]', pst);
 		if(!el) {
-			el = $new('div', {Class: 'DESU_ytube'});
+			el = $new('div', {Class: 'DESU_ytObj'});
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(aib.xMsg, pst);
@@ -2373,7 +2389,7 @@ function addLinkTube(post) {
 			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
-		link.className = 'DESU_ytlink';
+		link.className = 'DESU_ytLink';
 		$event(link, {click: clickTubeLink});
 		if(!nav.Opera && Cfg.ytitle !== 0) GM_xmlhttpRequest({
 			method: 'GET',
@@ -2470,7 +2486,7 @@ function resizeImg(e) {
 function addFullImg(a, sz, isExp) {
 	var newW = '', newH = '', fullW = +sz[0], fullH = +sz[1],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
-		full = $x('.//img[@class="DESU_fullimg"]', a);
+		full = $x('.//img[@class="DESU_fullImg"]', a);
 	if(full && isExp || !full && isExp === false) return;
 	if(Cfg.expimg === 1 && !$xb('img[contains(@style,"fixed")]', a)) $disp($t('img', a));
 	if(full) {
@@ -2480,7 +2496,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	full = $new('img');
 	if(Cfg.expimg === 2) {
-		$del($x('.//img[@class="DESU_fullimg"]'));
+		$del($x('.//img[@class="DESU_fullImg"]'));
 		full.addEventListener(
 			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll', resizeImg, false
 		);
@@ -2493,10 +2509,10 @@ function addFullImg(a, sz, isExp) {
 		if(Cfg.expimg === 2 && newH > scrH) { newH = scrH; newW = newH*fullW/fullH; }
 	}
 	a.appendChild($attr(full, {
-		Class: 'DESU_fullimg',
+		Class: 'DESU_fullImg',
 		src: a.href, alt: a.href, width: newW, height: newH,
-		style: (Cfg.expimg === 2 ? 'position:fixed; z-index:5000; border:1px solid black; left:'
-			+ parseInt((scrW - newW)/2) + 'px; top:' + parseInt((scrH - newH)/2) + 'px' : '')
+		style: (Cfg.expimg === 2 ? 'position: fixed; z-index: 5000; border: 1px solid black; left: '
+			+ parseInt((scrW - newW)/2) + 'px; top: ' + parseInt((scrH - newH)/2) + 'px;' : '')
 	}));
 }
 
@@ -2509,7 +2525,7 @@ function addLinkImg(post) {
 		a = link.cloneNode(false);
 		a.target = '_blank';
 		$disp(a);
-		a.appendChild($new('img', {Class: 'DESU_preimg', src: a.href, alt: a.href}, {
+		a.appendChild($new('img', {Class: 'DESU_preImg', src: a.href, alt: a.href}, {
 			load: function() {
 				var fullW, fullH, k;
 				$disp(a);
@@ -2544,7 +2560,7 @@ function addImgSearch(post) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) { $del(link); return; }
 		if(link.innerHTML.indexOf('<') >= 0) return;
 		$before(link, [$new('a', {
-			Class: 'DESU_icn_imgsrc'}, {
+			Class: 'DESU_btnSrc'}, {
 			mouseover: function() { selectImgSearch(this, escape(link.href)); },
 			mouseout: removeSelMenu
 		})]);
@@ -2586,12 +2602,12 @@ function getRefMap(pNum, rNum) {
 function showRefMap(post, rNum, uEv) {
 	var el, msg, txt;
 	if(typeof refMap[rNum] !== 'object' || !post) return;
-	el = $x('.//div[@class="DESU_refmap"]', post);
+	el = $x('.//div[@class="DESU_refMap"]', post);
 	txt = refMap[rNum].join(',').replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	if(!el) {
 		msg = post.Msg || $x(aib.xMsg, post);
 		if(!msg) return;
-		el = $add('<div class="DESU_refmap">' + txt + '</div>');
+		el = $add('<div class="DESU_refMap">' + txt + '</div>');
 		if(uEv) eventRefLink(el);
 		$after(msg, [el]);
 	} else eventRefLink($html(el, txt));
@@ -2616,7 +2632,7 @@ function addNode(parent, pView, e) {
 	var el = pView.node = {parent: null, kid: null, Num: pView.Num, post: pView};
 	parent = parent.node;
 	pView.style.cssText =
-		'position:absolute; width:auto; min-width:0; z-index:9999; border:1px solid grey';
+		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;';
 	setPreviewPostion(e, pView);
 	$event(pView, {mouseover: unMarkForDelete, mouseout: markForDelete});
 	if(curView && parent) {
@@ -2690,11 +2706,11 @@ function funcPostPreview(post, parent, e, txt) {
 	if(post.Vis === 0) togglePost(pView);
 	pView.className += ' DESU_post ' + aib.pClass;
 	pView.Num = pNum;
-	$Del('.//img[@class="DESU_preimg"]/ancestor::a|.//img[@class="DESU_fullimg"]'
-		+ '|.//div[@class="DESU_refmap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytube"' : '')
+	$Del('.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]'
+		+ '|.//div[@class="DESU_refMap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytObj"' : '')
 			+ ' or @class="DESU_mp3"]'
-		+ '|.//span[starts-with(@class,"DESU_postpanel")]'
-		+ '|.//a[@class="DESU_icn_imgsrc"]', pView);
+		+ '|.//span[starts-with(@class,"DESU_postPanel")]'
+		+ '|.//a[@class="DESU_btnSrc"]', pView);
 	addPostButtons(pView);
 	if(!pByNum[pNum] || Cfg.ytube !== 2) addLinkTube(pView);
 	pView.Img = getImages(pView);
@@ -2727,7 +2743,7 @@ function showPostPreview(e) {
 	if(el && el.Num === pNum) { setPreviewPostion(e, el.post); unMarkForDelete(el); }
 	else if(!post) {
 		el = funcPostPreview(null, parent, e,
-			'<span class="DESU_icn_wait">&nbsp;</span>' + Lng.loading);
+			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
 			if(el && !el.forDel)
 				funcPostPreview(importPost(b, pNum), parent, e, err || Lng.postNotFound);
@@ -2853,13 +2869,13 @@ function expandThread(thr, b, tNum, last, isDel) {
 	}));
 	for(i = last; i < len; i++) newPost(thr, b, tNum, i, isDel);
 	savePostsVisib();
-	$close($id('DESU_alert_wait'));
+	$close($id('DESU_alertWait'));
 }
 
 function loadThread(post, last) {
-	$alert(Lng.loading, 'wait');
+	$alert(Lng.loading, 'Wait');
 	ajaxGetPosts(null, brd, post.Num, function(err) {
-		if(err) { $close($id('DESU_alert_wait')); $alert(err); }
+		if(err) { $close($id('DESU_alertWait')); $alert(err); }
 		else {
 			$delNx(post.Msg);
 			$delNx(post);
@@ -2886,17 +2902,21 @@ function loadFavorThread(e) {
 		{ $disp(thr); $del($x('.//iframe[@class="DESU_favIframe"]')); return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	if(url) {
-		thr.appendChild($new('iframe', {name: 'DESU_favIframe', Class: 'DESU_favIframe', src: url}));
+		thr.appendChild($new('iframe', {
+			name: 'DESU_favIframe', Class: 'DESU_favIframe', src: url,
+			style: 'border: none; width: ' + (document.body.clientWidth - 65)
+				+ 'px; height: ' + (window.innerHeight - 100) + 'px;'
+		}));
 		$disp(thr);
 		return;
 	}
-	$alert(Lng.loading, 'wait');
+	$alert(Lng.loading, 'Wait');
 	ajaxGetPosts(null, b, tNum, function(err) {
-		if(err) { $close($id('DESU_alert_wait')); $alert(err); return; }
+		if(err) { $close($id('DESU_alertWait')); $alert(err); return; }
 		newPost(thr, b, tNum, 0, true);
 		expandThread(thr, b, tNum, 5, true);
-		$x('.//tr[@id="DESU_favdata_' + aib.host + '|' + b + '|' + tNum
-			+ '"]//span[@class="DESU_favpcount"]/span').textContent = getPstCount(thr);
+		$x('.//tr[@id="DESU_favData_' + aib.host + '|' + b + '|' + tNum
+			+ '"]//span[@class="DESU_favPCount"]/span').textContent = getPstCount(thr);
 		setStored('DESU_Favorites', $uneval(Favor));
 		$disp(thr);
 	});
@@ -2915,11 +2935,11 @@ function getDelPosts(err) {
 
 function setUpdButtonState(state) {
 	if(TNum && Cfg.updthr !== 3)
-		$x('.//a[starts-with(@id,"DESU_btn_upd")]').id = 'DESU_btn_upd' + state;
+		$x('.//a[starts-with(@id,"DESU_btnUpd")]').id = 'DESU_btnUpd' + state;
 }
 
 function endPostsUpdate() {
-	setUpdButtonState('off');
+	setUpdButtonState('Off');
 	clearInterval(ajaxInt);
 	ajaxInt = undefined;
 }
@@ -2931,12 +2951,12 @@ function infoNewPosts(err, del) {
 			$alert(Lng.thrdNotFound + TNum + '): \n' + err);
 			doc.title = '{' + err.match(/(?:\[)(\d+)(?:\])/)[1] + '} ' + doc.title;
 			endPostsUpdate();
-		} else { $alert(Lng.noConnect, 'warn'); setUpdButtonState('warn'); }
+		} else { $alert(Lng.noConnect, 'Warn'); setUpdButtonState('Warn'); }
 		return;
 	}
 	if(Cfg.updthr === 3) return;
-	setUpdButtonState('on');
-	$close($id('DESU_alert_warn'));
+	setUpdButtonState('On');
+	$close($id('DESU_alertWarn'));
 	inf = ajThrds[brd][TNum].length - Posts.length + del;
 	if(Cfg.updthr === 1) {
 		if(doc.body.className === 'focused') return;
@@ -2960,7 +2980,7 @@ function infoNewPosts(err, del) {
 }
 
 function loadNewPosts(inf) {
-	if(inf) $alert(Lng.loading, 'wait');
+	if(inf) $alert(Lng.loading, 'Wait');
 	ajaxGetPosts(null, brd, TNum, function(err) {
 		var i, len, del = getDelPosts(err);
 		if(!inf) infoNewPosts(err, del);
@@ -2968,9 +2988,9 @@ function loadNewPosts(inf) {
 			for(i = Posts.length - del, len = ajThrds[brd][TNum].length; i < len; i++)
 				newPost($x('.//div[contains(@class," DESU_thread")]', dForm), brd, TNum, i, false);
 			savePostsVisib();
-			$1($id('DESU_panel_info')).textContent = len + '/' + getImages(dForm).snapshotLength;
+			$1($id('DESU_panelInfo')).textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
-		if(inf) { $close($id('DESU_alert_wait')); infoNewPosts(err, del); }
+		if(inf) { $close($id('DESU_alertWait')); infoNewPosts(err, del); }
 	}, true);
 }
 
@@ -2985,11 +3005,11 @@ function initPostsUpdate() {
 
 function loadPages(len) {
 	var p, url;
-	$alert(Lng.loading, 'wait');
+	$alert(Lng.loading, 'Wait');
 	dForm.innerHTML = '';
 	for(p = 0, Posts = [], refMap = [], ajPosts[brd] = {}, ajThrds[brd] = {}; p < len; p++) {
 		$append(dForm, [
-			$new('center', {text: p + Lng.page, style: 'font-size:2em'}),
+			$new('center', {text: p + Lng.page, style: 'font-size: 2em;'}),
 			$new('hr'),
 			$new('div', {id: 'DESU_page' + p})
 		]);
@@ -3006,7 +3026,7 @@ function loadPages(len) {
 			}
 			savePostsVisib();
 			readHiddenThreads();
-			if(p === len - 1) $close($id('DESU_alert_wait'));
+			if(p === len - 1) $close($id('DESU_alertWait'));
 		}}(p, len));
 	}
 }
@@ -3031,17 +3051,17 @@ function togglePost(post, vis) {
 	$each($X('following-sibling::*', $x(
 		aib.krau ? './/div[@class="postheader"]'
 		: aib.tiny ? './/p[@class="intro"]'
-		: './/span[starts-with(@class,"DESU_postpanel")]', post
+		: './/span[starts-with(@class,"DESU_postPanel")]', post
 	)), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
 }
 
 function applyPostVisib(post, vis, note) {
 	var el, pNum = post.Num;
 	if(post.isOp) {
-		el = $id('DESU_hiddenthr_' + pNum);
+		el = $id('DESU_hidThr_' + pNum);
 		if(vis === 1 && el) { $del(el); toggleHiddenThread(post, 1); }
 		if(vis === 0 && !el) {
-			el = $add('<div class="' + aib.pClass + '" id="DESU_hiddenthr_' + post.Num + '">'
+			el = $add('<div class="' + aib.pClass + '" id="DESU_hidThr_' + post.Num + '">'
 				+ Lng.hiddenThrd + ' <a href="#">№' + pNum + '</a><i> ('
 				+ (note ? 'autohide: ' + note : getTitle(post).substring(0, 70)) + ')</i></div>'
 			);
@@ -3059,12 +3079,12 @@ function applyPostVisib(post, vis, note) {
 }
 
 function setPostVisib(post, vis) {
-	$1(post.Btns).className = vis === 0 ? 'DESU_icn_unhide' : 'DESU_icn_hide';
+	$1(post.Btns).className = vis === 0 ? 'DESU_btnUnhide' : 'DESU_btnHide';
 	togglePost(post, vis);
 	applyPostVisib(post, vis);
 	if(Cfg.navhid !== 0) setTimeout(function() {
 		$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
-			el.className = vis === 0 ? 'DESU_refhid' : '';
+			el.className = vis === 0 ? 'DESU_refHid' : '';
 		});
 	}, 0);
 }
@@ -3072,7 +3092,7 @@ function setPostVisib(post, vis) {
 function hidePost(post, note) {
 	if(post.noHide) return;
 	if(post.Vis !== 0) post.Btns.appendChild($new('a', {
-		Class: 'DESU_postnote', text: ' autohide: ' + note + ' ', href: '#'}, {
+		Class: 'DESU_postNote', text: ' autohide: ' + note + ' ', href: '#'}, {
 		click: function(e) { $pD(e); $del(this); }
 	}));
 	applyPostVisib(post, 0, note);
@@ -3081,7 +3101,7 @@ function hidePost(post, note) {
 function unhidePost(post) {
 	if(detectWipe(post)) return;
 	setPostVisib(post, 1);
-	$del($x('.//a[@class="DESU_postnote"]', post));
+	$del($x('.//a[@class="DESU_postNote"]', post));
 	hideByWipe(post);
 }
 
@@ -3096,8 +3116,8 @@ function mergeHidden(post) {
 	el = $prev(post);
 	if(!el) return;
 	if(!/merged/.test(el.id)) {
-		el = $new('span', {id: 'DESU_merged_' + post.Num, style: 'display:none'});
-		$before(post, [$new('span', {style: 'display:; cursor:pointer'}, {click: function(e) {
+		el = $new('span', {id: 'DESU_merged_' + post.Num, style: 'display: none;'});
+		$before(post, [$new('span', {style: 'display: ; cursor: pointer;'}, {click: function(e) {
 			var hDiv = $id('DESU_merged_' + post.Num);
 			$pD(e);
 			$prev(hDiv).innerHTML =
@@ -3321,7 +3341,7 @@ function verifyRegExp(txt) {
 }
 
 function toggleSpells() {
-	var fld = $id('DESU_spelledit'),
+	var fld = $id('DESU_spellEdit'),
 		val = (fld ? fld.value : spellsList.join('\n')).replace(
 			/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
 		wrong = verifyRegExp(val);
@@ -3338,14 +3358,14 @@ function toggleSpells() {
 		saveHiddenPosts();
 	} else {
 		if(wrong) $alert(Lng.error + ' ' + wrong);
-		if(fld) $id('DESU_spelledit_ch').checked = false;
+		if(fld) $id('DESU_spellChk').checked = false;
 		saveCfg('spells', 0);
 	}
 }
 
 function applySpells(txt) {
 	var nval, ntxt, wrong,
-		fld = $id('DESU_spelledit'), val = fld ? fld.value : spellsList.join('\n');
+		fld = $id('DESU_spellEdit'), val = fld ? fld.value : spellsList.join('\n');
 	if(txt) {
 		if(txt.trim() === '') return;
 		if(TNum) txt = '#' + brd + '/' + TNum + ' ' + txt;
@@ -3357,7 +3377,7 @@ function applySpells(txt) {
 	val = val.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	wrong = verifyRegExp(val);
 	if(wrong) { $alert(Lng.error + ' ' + wrong); return; }
-	if(fld) { fld.value = val; $id('DESU_spelledit_ch').checked = val !== ''; }
+	if(fld) { fld.value = val; $id('DESU_spellChk').checked = val !== ''; }
 	forAll(function(post) { if(checkSpells(post)) unhidePost(post); })
 	unHideTextTube();
 	saveSpells(val);
@@ -3383,7 +3403,7 @@ function findSameText(post, oNum, oVis, oWords) {
 			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) n++;
 	}
 	if(n < _olen*0.4 || len > _olen*3) return;
-	$del($x('.//a[@class="DESU_postnote"]', post));
+	$del($x('.//a[@class="DESU_postNote"]', post));
 	if(oVis !== 0) hidePost(post, 'similar to >>' + oNum);
 	else unhidePost(post);
 }
@@ -3684,14 +3704,14 @@ function initBoard() {
 		+ (aib.abu ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]', dForm);
 	if(aib.krau) { $del($t('hr', dForm)); $del($t('hr', $prev(dForm))); }
 	pPanel = $New('span', [
-		$new('a', {Class: 'DESU_icn_hide', href: '#'}),
-		$if(pr.on || oeForm, $new('a', {Class: 'DESU_icn_rep', href: '#'}))
-	], {Class: 'DESU_postpanel'});
+		$new('a', {Class: 'DESU_btnHide', href: '#'}),
+		$if(pr.on || oeForm, $new('a', {Class: 'DESU_btnRep', href: '#'}))
+	], {Class: 'DESU_postPanel'});
 	opPanel = pPanel.cloneNode(true);
 	opPanel.className += '_op';
 	$append(opPanel, [
-		$if(!TNum, $new('a', {Class: 'DESU_icn_expthr', href: '#'})),
-		$new('a', {Class: 'DESU_icn_favor', href: '#'})
+		$if(!TNum, $new('a', {Class: 'DESU_btnExpthr', href: '#'})),
+		$new('a', {Class: 'DESU_btnFav', href: '#'})
 	]);
 	return true;
 }
