@@ -2067,7 +2067,7 @@ function scriptCSS() {
 	}
 	
 	// Show/close animation
-	if(!nav.Opera && Cfg.animp !== 0) x.push(
+	if(!nav.Opera) x.push(
 		'@' + cssFix + 'keyframes DESU_aOpen { from { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } to { opacity: 1; } }\
 		@' + cssFix + 'keyframes DESU_aClose { to { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
 		@' + cssFix + 'keyframes DESU_pOpenTL { from { ' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
@@ -2645,14 +2645,10 @@ function addNode(parent, pView, e) {
 	return el;
 }
 
-function traverseNodes(el, fn) {
-	while(el) { fn(el); el = el.kid; }
-}
-
 function markForDelete() {
-	traverseNodes(curView, function(el) { el.forDel = true; });
+	for(var el = curView; el; el = el.kid) el.forDel = true;
 	pViewTimeout = setTimeout(function() {
-		for(var el = curView; el; el = el.kid) if(el.forDel) return deleteNodes(el);
+		for(el = curView; el; el = el.kid) if(el.forDel) return deleteNodes(el);
 	}, +Cfg.navdel);
 }
 
@@ -2665,21 +2661,21 @@ function unMarkForDelete(el) {
 
 function deleteNodes(el) {
 	if(!el) return;
-	traverseNodes(el, function(el) { clearTimeout(el.post.marker); closePreview(el.post); });
-	if(el.parent && el.parent.kid) el.parent.kid = null;
-	if(curView === el) curView = null;
+	if(el.parent) el.parent.kid = null;
+	else curView = null;
+	for(; el; el = el.kid) { clearTimeout(el.post.marker); closePreview(el.post); }
 }
 
 function showPreview(el) {
 	dForm.appendChild(el);
-	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4)
+	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4))
 		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
 			(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
 			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
 }
 
 function closePreview(el) {
-	if(Cfg.animp !== 0 && !nav.Opera && nav.Firefox > 4) {
+	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4)) {
 		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
 			function() { $del(el); }, false);
@@ -2700,7 +2696,7 @@ function setPreviewPostion(e, pView) {
 }
 
 function funcPostPreview(post, parent, e, txt) {
-	if(!post) return addNode(parent, $new('span', {Class: aib.pClass + ' DESU_info', html: txt}), e);
+	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info', html: txt}), e);
 	var el, pNum = post.Num,
 		pView = ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true);
 	if(post.Vis === 0) togglePost(pView);
@@ -2708,10 +2704,10 @@ function funcPostPreview(post, parent, e, txt) {
 	pView.Num = pNum;
 	$Del('.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]'
 		+ '|.//div[@class="DESU_refMap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytObj"' : '')
-			+ ' or @class="DESU_mp3"]'
-		+ '|.//span[starts-with(@class,"DESU_postPanel")]'
+		+ ']|.//span[starts-with(@class,"DESU_postPanel")]'
 		+ '|.//a[@class="DESU_btnSrc"]', pView);
 	addPostButtons(pView);
+	if(!pByNum[pNum]) addLinkMP3();
 	if(!pByNum[pNum] || Cfg.ytube !== 2) addLinkTube(pView);
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
@@ -2752,13 +2748,22 @@ function showPostPreview(e) {
 }
 
 function eventRefLink(el) {
-	if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
-		$rattr(link, 'onmouseover');
-		$rattr(link, 'onmouseout');
-		$event(link, {mouseover: showPostPreview, mouseout: markForDelete});
-	});
+	var lnk, erf = function() {
+		if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
+			if(aib.tiny) {
+				$before(link, [lnk = link.cloneNode(true)]);
+				$del(link);
+				link = lnk;
+			} else {
+				$rattr(link, 'onmouseover');
+				$rattr(link, 'onmouseout');
+			}
+			$event(link, {mouseover: showPostPreview, mouseout: markForDelete});
+		});
+	};
+	if(aib.tiny) setTimeout(erf, 500);
+	else erf();
 }
-
 
 /*=============================================================================
 								AJAX FUNCTIONS
