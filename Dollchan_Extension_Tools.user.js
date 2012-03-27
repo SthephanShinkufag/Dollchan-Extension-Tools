@@ -2122,7 +2122,8 @@ function scriptCSS() {
 		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed, .DESU_viewed .reply { color: #888 !important; }\
 		.reply { width: auto; }\
-		a[href="#"] { text-decoration: none !important; outline: none; }'
+		a[href="#"] { text-decoration: none !important; outline: none; }\
+		.DESU_pPost { font-weight: bold; }'
 	);
 	if(Cfg.delhd === 2) x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
 	if(Cfg.noname !== 0) x.push('.commentpostername, .postername, .postertrip { display: none; }');
@@ -2695,6 +2696,11 @@ function setPreviewPostion(e, pView) {
 	pView.style.bottom = e.clientY >= scrH*0.8 ? (scrH - y - 4) + 'px' : '';
 }
 
+function markRefMap(pView, pNum) {
+	($x('.//a[@class="DESU_pPost"]', pView) || {}).className = '';
+	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView) || {}).className = 'DESU_pPost';
+}
+
 function funcPostPreview(post, parent, e, txt) {
 	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info', html: txt}), e);
 	var el, pNum = post.Num,
@@ -2716,8 +2722,7 @@ function funcPostPreview(post, parent, e, txt) {
 	addImgSearch(pView);
 	if(Cfg.navig === 2) {
 		showRefMap(pView, pNum);
-		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parent.Num + '")]', pView);
-		if(el) el.style.fontWeight = 'bold';
+		markRefMap(pView, parent.Num);
 	}
 	eventRefLink(pView);
 	if(Cfg.navmrk !== 0)
@@ -2736,7 +2741,11 @@ function showPostPreview(e) {
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	if(el && el.Num === pNum) { setPreviewPostion(e, el.post); unMarkForDelete(el); }
+	if(el && el.Num === pNum) {
+		setPreviewPostion(e, el.post);
+		markRefMap(el.post, parent.Num);
+		unMarkForDelete(el);
+	}
 	else if(!post) {
 		el = funcPostPreview(null, parent, e,
 			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
