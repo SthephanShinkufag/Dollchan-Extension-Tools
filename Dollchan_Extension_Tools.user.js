@@ -1778,7 +1778,7 @@ function prepareData(fn) {
 			rNeeded++;
 		} else if(el.type === 'checkbox') { if(el.checked) fd.append(el.name, el.value); }
 		else fd.append(el.name, el.value);
-	});
+	}, true);
 	done = true;
 	cb();
 }
@@ -1978,16 +1978,16 @@ function scriptCSS() {
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		.DESU_cfgBody { display: table; width: 408px; height: 250px; padding: 10px 7px 7px; font: 13px sans-serif; }\
+		.DESU_cfgBody { display: table; width: 408px; height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
 		#DESU_cfgBar { height: 25px; padding-top: 3px; width: 100%; display: table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + '; }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid #555; ' + brCssFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; cursor: default; }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid #555; ' + brCssFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
 		.DESU_cfgTab:hover { background-color: rgba(0,0,0,.3); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
-		.DESU_cfgTabBack { display: table-cell !important; min-width: 0; padding: 0 !important; border: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
+		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; border: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel a { padding: 0 7px; text-align: center; }'
 	);
@@ -2122,7 +2122,8 @@ function scriptCSS() {
 		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed, .DESU_viewed .reply { color: #888 !important; }\
 		.reply { width: auto; }\
-		a[href="#"] { text-decoration: none !important; outline: none; }'
+		a[href="#"] { text-decoration: none !important; outline: none; }\
+		.DESU_pPost { font-weight: bold; }'
 	);
 	if(Cfg.delhd === 2) x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
 	if(Cfg.noname !== 0) x.push('.commentpostername, .postername, .postertrip { display: none; }');
@@ -2695,6 +2696,11 @@ function setPreviewPostion(e, pView) {
 	pView.style.bottom = e.clientY >= scrH*0.8 ? (scrH - y - 4) + 'px' : '';
 }
 
+function markRefMap(pView, pNum) {
+	($x('.//a[@class="DESU_pPost"]', pView) || {}).className = '';
+	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView) || {}).className = 'DESU_pPost';
+}
+
 function funcPostPreview(post, parent, e, txt) {
 	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info', html: txt}), e);
 	var el, pNum = post.Num,
@@ -2716,8 +2722,7 @@ function funcPostPreview(post, parent, e, txt) {
 	addImgSearch(pView);
 	if(Cfg.navig === 2) {
 		showRefMap(pView, pNum);
-		el = $x('.//a[starts-with(text(),">>") and contains(text(),"' + parent.Num + '")]', pView);
-		if(el) el.style.fontWeight = 'bold';
+		markRefMap(pView, parent.Num);
 	}
 	eventRefLink(pView);
 	if(Cfg.navmrk !== 0)
@@ -2736,8 +2741,11 @@ function showPostPreview(e) {
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	if(el && el.Num === pNum) { setPreviewPostion(e, el.post); unMarkForDelete(el); }
-	else if(!post) {
+	if(el && el.Num === pNum) {
+		setPreviewPostion(e, el.post);
+		markRefMap(el.post, parent.Num);
+		unMarkForDelete(el);
+	} else if(!post) {
 		el = funcPostPreview(null, parent, e,
 			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
