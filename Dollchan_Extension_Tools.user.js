@@ -2745,8 +2745,7 @@ function showPostPreview(e) {
 		setPreviewPostion(e, el.post);
 		markRefMap(el.post, parent.Num);
 		unMarkForDelete(el);
-	}
-	else if(!post) {
+	} else if(!post) {
 		el = funcPostPreview(null, parent, e,
 			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
