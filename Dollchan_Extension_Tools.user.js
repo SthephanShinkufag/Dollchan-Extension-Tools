@@ -1978,7 +1978,7 @@ function scriptCSS() {
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		.DESU_cfgBody { display: table; width: 408px; height: 250px; padding: 10px 7px 7px; font: 13px sans-serif; }\
+		.DESU_cfgBody { display: table; width: 408px; height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
