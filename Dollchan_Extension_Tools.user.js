@@ -964,11 +964,12 @@ function addSettings() {
 	},
 	openTab = function(tab, name) {
 		if(tab.className == 'DESU_cfgTab_sel') return;
-		var oldEl = $x('.//div[@class="DESU_cfgBody"]');
+		var oldEl = $x('.//div[@class="DESU_cfgBody"]'), newEl = eval(name);
 		if(oldEl) {
-			oldEl.parentNode.replaceChild(eval(name), oldEl);
+			oldEl.parentNode.replaceChild(newEl, oldEl);
 			$x('.//div[@class="DESU_cfgTab_sel"]').className = 'DESU_cfgTab';
-		} else $after($id('DESU_cfgBar'), [eval(name)]);
+		} else $after($id('DESU_cfgBar'), [newEl]);
+		if(Cfg.keynav !== 0) addEvents(newEl);
 		tab.className = 'DESU_cfgTab_sel';
 		if(name === 'cfgFilters') {
 			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
@@ -1374,23 +1375,24 @@ function selectImgSearch(btn, href) {
 
 /*---------------------------Init navigation with keyboard-------------------*/
 
+function addEvents(node) {
+	$each($X('.//input[@type="text" or @type="password"]|.//textarea', node), function(el) {
+		el.onfocus = function() { kIgnore = true; };
+		el.onblur = function() { kIgnore = false; };
+	});
+}
+
 function initKeyNavig() {
-	var eT,
-		addEvents = function() {
-			$each($X('.//input[@type="text"]|.//textarea', pr.form), function(el) {
-				el.onfocus = function() { kIgnore = true; };
-				el.onblur = function() { kIgnore = false; };
-			});
-		};
-	if(!aib.nul) addEvents();
+	var eT;
+	if(!aib.nul) addEvents(pr.form);
 	else pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified',
-		function(e) { if(eT) clearTimeout(eT); eT = setTimeout(addEvents, 200); }, false);
+		function(e) { if(eT) clearTimeout(eT); eT = setTimeout(function() { addEvents(pr.form); }, 200); }, false);
+	addEvents(dForm);
 	window.onscroll = function() {
 		if(!scrScroll) { scrollP = true; scrollT = true; }
 		else scrScroll = false;
 	};
 	doc.onkeydown = function (e) {
-		if(!e) e = window.event;
 		var kc = e.keyCode, curTh;
 		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey
 			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
@@ -3778,9 +3780,7 @@ function parseDelform(node, dc, tFn, pFn) {
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
 	}, true);
-	if(liteMode) $each($X('preceding-sibling::node()|following-sibling::node()', dForm, dc),
-		function(el) { $del(el); }
-	);
+	if(liteMode) $Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	return node;
 }
 
