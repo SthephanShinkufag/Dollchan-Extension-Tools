@@ -1778,7 +1778,7 @@ function prepareData(fn) {
 			rNeeded++;
 		} else if(el.type === 'checkbox') { if(el.checked) fd.append(el.name, el.value); }
 		else fd.append(el.name, el.value);
-	});
+	}, true);
 	done = true;
 	cb();
 }
