@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.22.0
+// @version			12.3.27.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-22',
+	version:	'2012-03-27',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -152,9 +152,9 @@ LngArray = {
 		['Откл.', 'В посте', 'По центру'],
 		['Disable', 'In post', 'By center']
 	],
-	hideNames:		['Скрывать имена ', 'Hide names '],
-	openSpoilers:	['Открыть спойлеры ', 'Open spoilers '],
-	noScroll:		['Без скролла', 'No scroll'],
+	hideNames:		['Скрывать имена в постах', 'Hide names in posts'],
+	openSpoilers:	['Открывать спойлеры', 'Open spoilers'],
+	noScroll:		['Без скролла в постах', 'No scroll in posts'],
 	mp3Embed:		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
 	imgEmbed:		[
 		'Загружать изображения к .jpg-, .png-, .gif-ссылкам*',
@@ -818,7 +818,6 @@ function addSettings() {
 	},
 	cfgFilters = $New('div', [
 		$New('div', [
-			lBox('spells', Lng.spells, toggleSpells, 'DESU_spellChk'),
 			$New('span', [
 				$new('a', {text: Lng.add, href: '#'}, {
 					click: $pD,
@@ -833,7 +832,8 @@ function addSettings() {
 				}),
 				$new('a', {text: '?', target: '_blank', href: homePage + 'spells'})
 			], {id: 'DESU_spellPanel'}),
-			$new('textarea', {id: 'DESU_spellEdit', rows: 7, cols: 56})
+			lBox('spells', Lng.spells, toggleSpells, 'DESU_spellChk'),
+			$new('textarea', {id: 'DESU_spellEdit', rows: 7, cols: 55})
 		]),
 		$New('div', [
 			lBox('awipe', Lng.antiWipe),
@@ -866,11 +866,9 @@ function addSettings() {
 		$if(!aib.hana, $New('div', [optSel('expost', Lng.selClickAuto, Lng.expandPosts)])),
 		$New('div', [optSel('expimg', Lng.selImgExpand, Lng.imgExpand)]),
 		divBox('imgsrc', Lng.imgSearch),
-		$New('div', [
-			lBox('ospoil', Lng.openSpoilers, scriptCSS),
-			lBox('noname', Lng.hideNames, scriptCSS),
-			$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS))
-		]),
+		divBox('ospoil', Lng.openSpoilers, scriptCSS),
+		divBox('noname', Lng.hideNames, scriptCSS),
+		$if(aib.abu, lBox('noscrl', Lng.noScroll, scriptCSS)),
 		$New('div', [
 			lBox('keynav', Lng.keyNavig),
 			$new('a', {text: '?', href: '#'}, {
@@ -954,7 +952,7 @@ function addSettings() {
 		divBox('rtitle', Lng.replaceTitle),
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgCommon'}),
 	cfgInfo = $New('div', [
-		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding: 0 0 0 15px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
+		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgInfo'}),
 	cfgTab = function(txt, name) {
 		return $New('div', [
@@ -1978,18 +1976,18 @@ function scriptCSS() {
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		.DESU_cfgBody { display: table; padding: 10px; margin: 0; width: 420px; height: 250px; font: 13px sans-serif; float: none; }\
+		.DESU_cfgBody { display: table; width: 408px; height: 250px; padding: 10px 7px 7px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
-		.DESU_cfgBody, #DESU_cfgBtns { border-left: 1px solid rgba(0,0,0,.6); border-right: 1px solid rgba(0,0,0,.6); border-bottom: 1px solid rgba(0,0,0,.6); }\
-		#DESU_cfgBtns { padding-top: 7px; }\
-		#DESU_cfgBar { height: 25px; padding-top: 5px; width: 100%; display: table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + '; }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { cursor: default; padding: 4px 10px; border: 1px solid rgba(0,0,0,.6); color: inherit; text-align: center; font: bold 14px arial; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
+		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
+		#DESU_cfgBtns { padding: 7px 2px 2px; }\
+		#DESU_cfgBar { height: 25px; padding-top: 3px; width: 100%; display: table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + '; }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid #555; ' + brCssFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; cursor: default; }\
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
 		.DESU_cfgTab:hover { background-color: rgba(0,0,0,.3); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
-		.DESU_cfgTabBack { display: table-cell !important; float: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; border: none !important; margin: 0 !important; padding: 0 !important; }\
-		#DESU_spellPanel { margin: 0 0 0 40px; }\
-		#DESU_spellPanel a { padding: 0 10px; text-align: center; }'
+		.DESU_cfgTabBack { display: table-cell !important; min-width: 0; padding: 0 !important; border: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
+		#DESU_spellPanel { float: right; }\
+		#DESU_spellPanel a { padding: 0 7px; text-align: center; }'
 	);
 	
 	// Main panel
@@ -2015,7 +2013,7 @@ function scriptCSS() {
 	gif('#DESU_btnNewthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
 	gif('#DESU_btnExpimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
 	gif('#DESU_btnMaskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
-	if(aib.nul) gif('#DESU_btnCatalog', 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=')
+	if(aib.nul) gif('#DESU_btnCatalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
 	gif('#DESU_btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
 	gif('#DESU_btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
@@ -2750,14 +2748,8 @@ function showPostPreview(e) {
 function eventRefLink(el) {
 	var lnk, erf = function() {
 		if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
-			if(aib.tiny) {
-				$before(link, [lnk = link.cloneNode(true)]);
-				$del(link);
-				link = lnk;
-			} else {
-				$rattr(link, 'onmouseover');
-				$rattr(link, 'onmouseout');
-			}
+			if(aib.tiny) { $before(link, [lnk = link.cloneNode(true)]); $del(link); link = lnk; }
+			else { $rattr(link, 'onmouseover'); $rattr(link, 'onmouseout'); }
 			$event(link, {mouseover: showPostPreview, mouseout: markForDelete});
 		});
 	};
