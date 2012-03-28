@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.28.0
+// @version			12.3.28.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -42,7 +42,8 @@ var defaultCfg = {
 	ctmofs:		'-2',	//		offset
 	ctmpat:		'',		//		pattern
 	insnum:		1,		// insert >>link on postnumber click
-	animp:		1,		// animated popups
+	animp:		1,		// animated popups and post previews
+	aclose:		0,		// auto-close popups
 	rtitle:		1,		// replace page title in threads
 	attach:		1,		// attach main panel
 	icount:		1,		// show posts/images counter
@@ -144,6 +145,7 @@ LngArray = {
 		'Insert >>link on №postnumber click*'
 	],
 	animatePopup:	['Анимация уведомлений и превью постов', 'Animation of popups and post preview'],
+	autoClose:		['Автоматически закрывать уведомления', 'Close popups automatically'],
 	replaceTitle:	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
 	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
 	showImgCount:	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
@@ -958,8 +960,9 @@ function addSettings() {
 		)]),
 		divBox('attach', Lng.attachPanel, function() { toggleContent('Cfg'); scriptCSS(); }),
 		divBox('icount', Lng.showImgCount, scriptCSS),
-		divBox('animp', Lng.animatePopup),
 		divBox('rtitle', Lng.replaceTitle),
+		divBox('animp', Lng.animatePopup),
+		divBox('aclose', Lng.autoClose)
 	], {Class: 'DESU_cfgBody', id: 'DESU_cfgCommon'}),
 	cfgInfo = $New('div', [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
@@ -1289,6 +1292,7 @@ function $alert(txt, id) {
 		})
 	], {Class: aib.pClass, id: nid, style: 'opacity: 0; padding: 0 10px 5px 10px;'});
 	$show($id('DESU_alertBox').appendChild(el));
+	if(Cfg.aclose !== 0 && id !== 'Wait') setTimeout(function() { $close(el) }, 4e3);
 }
 
 /*-----------------------------Dropdown select menus-------------------------*/
