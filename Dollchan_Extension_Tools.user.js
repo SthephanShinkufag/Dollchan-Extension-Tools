@@ -2007,14 +2007,14 @@ function scriptCSS() {
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		.DESU_cfgBody { display: table; width: 408px; height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
 		#DESU_cfgBar { height: 25px; padding-top: 3px; width: 100%; display: table; background-color: ' + (Cfg.sstyle === 0 ? '#0c1626' : '#777') + '; }\
 		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid #555; ' + brCssFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:hover { background-color: rgba(0,0,0,.3); }\
+		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; border: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
 		#DESU_spellPanel { float: right; }\
