@@ -1785,34 +1785,40 @@ function checkUpload(dc, url) {
 
 function prepareData(fn) {
 	if(!Cfg.rndimg) { fn(new FormData(pr.form)); return; }
-	var fd = new FormData(), done = false, ready = 0, rNeeded = 0,
-		cb = function() { if(done && ready === rNeeded) fn(fd); };
+	var fd = new FormData(), done = false, ready = 0, rNeeded = 0, i = 0, arr = [],
+		cb = function() {
+			if(done && ready === rNeeded) {
+				for(ready = i, i = 0; i < ready; i++) if(arr[i]) fd.append(arr[i].name, arr[i].val);
+				fn(fd);
+			}
+		};
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
 		if(el.type === 'file') {
-			prepareFiles(el, function(blob) {
-				if(blob != null) fd.append(el.name, blob);
+			prepareFiles(el, function(idx, blob) {
+				if(blob != null) arr[idx] = {name: el.name, val: blob};
 				ready++;
 				cb();
-			});
+			}, i);
 			rNeeded++;
-		} else if(el.type === 'checkbox') { if(el.checked) fd.append(el.name, el.value); }
-		else fd.append(el.name, el.value);
+		} else if(el.type === 'checkbox') { if(el.checked) arr[i] = {name: el.name, val: el.value}; }
+		else arr[i] = {name: el.name, val: el.value};
+		i++;
 	}, true);
 	done = true;
 	cb();
 }
 
-function prepareFiles(el, fn) {
+function prepareFiles(el, fn, i) {
 	var fr = new FileReader(), file = el.files[0];
-	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(file); return; }
+	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) { fn(i, file); return; }
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		if(nav.Firefox < 13) {
 			var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
 			bb.append(this.result);
 			bb.append(String(Math.round(Math.random()*1e6)));
-			fn(bb.getBlob(file.type));
-		} else fn(new Blob([this.result, String(Math.round(Math.random()*1e6))], {type: file.type}));
+			fn(i, bb.getBlob(file.type));
+		} else fn(i, new Blob([this.result, String(Math.round(Math.random()*1e6))], {type: file.type}));
 	};
 }
 
@@ -2219,8 +2225,8 @@ function getImages(post) {
 }
 
 function getText(el) {
-	return el.innerText || el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(
-		/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+	return (el.innerText || el.innerHTML.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n').replace(
+		/<[^>]+?>/g,'').replace(/&gt;/g, '>').replace(/&lt;/g, '<')).trim();
 }
 
 function getImgInfo(post) {
@@ -2825,7 +2831,7 @@ function ajaxGetPosts(url, b, tNum, fn) {
 }
 
 function addPostFunc(post) {
-	post.Text = getText(post.Msg).trim();
+	post.Text = getText(post.Msg);
 	doPostFilters(post);
 	addRefMap(post, true);
 	eventRefLink(post);
@@ -3745,7 +3751,7 @@ function pushPost(post, i) {
 	post.isOp = i === 0;
 	post.Count = i;
 	post.Msg = $x(aib.xMsg, post);
-	post.Text = getText(post.Msg).trim();
+	post.Text = getText(post.Msg);
 	post.Img = getImages(post);
 	pByNum[post.Num] = post;
 	pByCnt.push(post);
