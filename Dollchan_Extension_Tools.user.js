@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.3.27.0
+// @version			12.3.28.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-03-27',
+	version:	'2012-03-28',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -274,6 +274,16 @@ LngArray = {
 	links:			['Ссылки', 'Links'],
 	form:			['Форма', 'Form'],
 	common:			['Общее', 'Common'],
+	showMore:		['Показать подробнее', 'Show more'],
+	loadGlobal:		['Загрузить глобальные настройки', 'Load global settings'],
+	saveGlobal:		['Сохранить настройки как глобальные', 'Save settings as global'],
+	editCfg:		['Редактировать настройки в текстовом формате', 'Edit settings in text format'],
+	resetCfg:		['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
+	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
+	editNotes:		['Правка в текстовом формате', 'Edit notes in text format'],
+	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
+	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
+	clrSelected:	['Удалить выделенные записи', 'Remove selected notes']
 },
 
 doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
@@ -376,8 +386,8 @@ function $New(tag, nodes, attr, events) {
 function $txt(el) {
 	return doc.createTextNode(el);
 }
-function $btn(val, fn) {
-	return $new('input', {type: 'button', value: val}, {click: fn});
+function $btn(val, ttl, fn) {
+	return $new('input', {type: 'button', value: val, title: ttl}, {click: fn});
 }
 function $if(cond, el) {
 	return cond ? el : null;
@@ -837,7 +847,7 @@ function addSettings() {
 		]),
 		$New('div', [
 			lBox('awipe', Lng.antiWipe),
-			$btn('>', function() { $disp($id('DESU_cfgWipe')); })
+			$btn('>', Lng.showMore, function() { $disp($id('DESU_cfgWipe')); })
 		]),
 		$New('div', [
 			divBox('samel', Lng.sameLines),
@@ -995,20 +1005,22 @@ function addSettings() {
 						saveCfg('lang', this.selectedIndex);
 						window.location.reload();
 					}),
-					$if(sav.isGlobal, $btn(Lng.load, function() {
+					$if(sav.isGlobal, $btn(Lng.load, Lng.loadGlobal, function() {
 						if(isValidCfg(getStored('DESU_GlobalCfg'))) {
 							setStored('DESU_Config_' + aib.dm, '');
 							window.location.reload();
 						} else $alert(Lng.noGlobalCfg);
 					})),
-					$if(sav.isGlobal, $btn(Lng.save, function() {
+					$if(sav.isGlobal, $btn(Lng.save, Lng.saveGlobal, function() {
 						setStored('DESU_GlobalCfg', $uneval(Cfg));
 						toggleContent('Cfg', true);
 					})),
-					$btn(Lng.edit, function() {
-						$disp($up($attr($id('DESU_cfgEdit'), {value: getStored('DESU_Config_' + aib.dm)})));
+					$btn(Lng.edit, Lng.editCfg, function() {
+						$disp($up($attr($id('DESU_cfgEdit'), {
+							value: getStored('DESU_Config_' + aib.dm)
+						})));
 					}),
-					$btn(Lng.reset, function() {
+					$btn(Lng.reset, Lng.resetCfg, function() {
 						setDefaultCfg();
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
@@ -1022,7 +1034,7 @@ function addSettings() {
 					$new('textarea', {
 						id: 'DESU_cfgEdit', rows: 10, cols: 56, value: ''
 					}),
-					$btn(Lng.save, function() {
+					$btn(Lng.save, Lng.saveChanges, function() {
 						setStored('DESU_Config_' + aib.dm, $id('DESU_cfgEdit').value.trim());
 						window.location.reload();
 					})
@@ -1077,7 +1089,7 @@ function addHiddenTable() {
 	}});
 	if(pcnt + tcnt === 0) table.insertRow(-1).appendChild($add('<b>' + Lng.noHidOnPage + '</b>'));
 	else $append(table.insertRow(-1), [
-		$btn(Lng.expandAll, function() {
+		$btn(Lng.expandAll, '', function() {
 			if(this.value === Lng.expandAll) {
 				this.value = Lng.undo;
 				for(i = 0; cln = clones[i++];) setPostVisib(cln.pst, 1);
@@ -1086,7 +1098,7 @@ function addHiddenTable() {
 				for(i = 0; cln = clones[i++];) setPostVisib(cln.pst, cln.vis);
 			}
 		}),
-		$btn(Lng.save, function() {
+		$btn(Lng.save, '', function() {
 			for(i = 0; cln = clones[i++];) if(cln.vis !== 0) setPostVisib(cln.pst, 1);
 			savePostsVisib();
 		})
@@ -1119,8 +1131,8 @@ function addHiddenTable() {
 	}
 	$append(table, [
 		$New('tr', [
-			$btn(Lng.edit, function() { $disp($up($id('DESU_hidTEdit'))); }),
-			$btn(Lng.remove, function() {
+			$btn(Lng.edit, Lng.editNotes, function() { $disp($up($id('DESU_hidTEdit'))); }),
+			$btn(Lng.remove, Lng.clrSelected, function() {
 				$each($X('.//tr[@class="DESU_hidTData"]', table), function(el) {
 					var i, arr = el.id.substr(14).split('|'), b = arr[0], tNum = arr[1];
 					if(!$t('input', el).checked) return;
@@ -1137,7 +1149,8 @@ function addHiddenTable() {
 		]),
 		$New('tr', [
 			$new('textarea', {id: 'DESU_hidTEdit', rows: 9, cols: 70, value: $uneval(hThrds)}),
-			$btn(Lng.save, function() { saveHiddenThreads($id('DESU_hidTEdit').value); })
+			$btn(Lng.save, Lng.saveChanges,
+				function() { saveHiddenThreads($id('DESU_hidTEdit').value); })
 		], {style: 'display: none;'})
 	]);
 	eventRefLink(table);
@@ -1175,8 +1188,8 @@ function addFavoritesTable() {
 	$append(table, [
 		$New('tr', [
 			$new('hr'),
-			$btn(Lng.edit, function() { $disp($up($id('DESU_favEdit'))); }),
-			$btn(Lng.info, function() {
+			$btn(Lng.edit, Lng.editNotes, function() { $disp($up($id('DESU_favEdit'))); }),
+			$btn(Lng.info, Lng.infoCount, function() {
 				$each(list, function(el) {
 					var c, arr = el.id.substr(13).split('|');
 					if(aib.host !== arr[0]) return;
@@ -1192,7 +1205,7 @@ function addFavoritesTable() {
 					});
 				});
 			}),
-			$btn(Lng.clear, function() {
+			$btn(Lng.clear, Lng.clrDeleted, function() {
 				$each(list, function(el) {
 					var arr = el.id.substr(13).split('|');
 					ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, function(err) {
@@ -1202,7 +1215,7 @@ function addFavoritesTable() {
 					});
 				});
 			}),
-			$btn(Lng.remove, function() {
+			$btn(Lng.remove, Lng.clrSelected, function() {
 				$each(list, function(el) {
 					var arr = el.id.substr(13).split('|');
 					if($t('input', el).checked) removeFavorites(arr[0], arr[1], arr[2]);
@@ -1212,7 +1225,7 @@ function addFavoritesTable() {
 		]),
 		$New('tr', [
 			$new('textarea', {id: 'DESU_favEdit', rows: 9, cols: 70, value: $uneval(Favor)}),
-			$btn(Lng.save, function() { saveFavorites($id('DESU_favEdit').value); })
+			$btn(Lng.save, Lng.saveChanges, function() { saveFavorites($id('DESU_favEdit').value); })
 		], {style: 'display: none;'})
 	]);
 }
@@ -1385,8 +1398,10 @@ function addEvents(node) {
 function initKeyNavig() {
 	var eT;
 	if(!aib.nul) addEvents(pr.form);
-	else pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified',
-		function(e) { if(eT) clearTimeout(eT); eT = setTimeout(function() { addEvents(pr.form); }, 200); }, false);
+	else pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified', function(e) {
+		if(eT) clearTimeout(eT);
+		eT = setTimeout(function() { addEvents(pr.form); }, 200);
+	}, false);
 	addEvents(dForm);
 	window.onscroll = function() {
 		if(!scrScroll) { scrollP = true; scrollT = true; }
@@ -1774,7 +1789,11 @@ function prepareData(fn) {
 		cb = function() { if(done && ready === rNeeded) fn(fd); };
 	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
 		if(el.type === 'file') {
-			prepareFiles(el, function(blob) { if(blob != null) fd.append(el.name, blob); ready++; cb(); });
+			prepareFiles(el, function(blob) {
+				if(blob != null) fd.append(el.name, blob);
+				ready++;
+				cb();
+			});
 			rNeeded++;
 		} else if(el.type === 'checkbox') { if(el.checked) fd.append(el.name, el.value); }
 		else fd.append(el.name, el.value);
@@ -2698,7 +2717,8 @@ function setPreviewPostion(e, pView) {
 
 function markRefMap(pView, pNum) {
 	($x('.//a[@class="DESU_pPost"]', pView) || {}).className = '';
-	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView) || {}).className = 'DESU_pPost';
+	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView)
+		|| {}).className = 'DESU_pPost';
 }
 
 function funcPostPreview(post, parent, e, txt) {
@@ -2720,10 +2740,7 @@ function funcPostPreview(post, parent, e, txt) {
 	eventPostImg(pView);
 	addLinkImg(pView);
 	addImgSearch(pView);
-	if(Cfg.navig === 2) {
-		showRefMap(pView, pNum);
-		markRefMap(pView, parent.Num);
-	}
+	if(Cfg.navig === 2) { showRefMap(pView, pNum); markRefMap(pView, parent.Num); }
 	eventRefLink(pView);
 	if(Cfg.navmrk !== 0)
 		pView.marker = setTimeout(function() { markViewedPost(pNum); saveViewedPosts(pNum); }, 3e3);
