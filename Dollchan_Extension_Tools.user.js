@@ -2702,7 +2702,8 @@ function deleteNodes(el) {
 }
 
 function waitForAnim(pView, fn) {
-	var it = setInterval(function() { if(!pView.inUse) { fn(); clearInterval(it); } }, 20);
+	if(!pView.inUse) fn();
+	else var it = setInterval(function() { if(!pView.inUse) { fn(); clearInterval(it); } }, 20);
 }
 
 function showPreview(el) {
@@ -2740,7 +2741,7 @@ function setPreviewPostion(e, pView, anim) {
 	else { left = (x - pView.offsetWidth) + 'px'; pView.aLeft = false; }
 	if(top + pView.offsetHeight < scrH - 10 || top - pView.offsetHeight < 10) { top = (y + e.target.offsetHeight) + 'px'; pView.aTop = true; }
 	else { top = (y - pView.offsetHeight) + 'px'; pView.aTop = false; }
-	if(Cfg.animp === 0 || !anim) setPos();
+	if(Cfg.animp === 0 || !anim || aib.hid) setPos();
 	else {
 		waitForAnim(pView, function() {
 			if(left === pView.style.left && top === pView.style.top) return;
