@@ -2803,9 +2803,10 @@ function showPostPreview(e) {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
 	if(el && el.post.Num === pNum) {
+		unMarkForDelete(el);
+		deleteNodes(el.kid);
 		setPreviewPostion(e, el.post, true);
 		markRefMap(el.post, parent.Num);
-		unMarkForDelete(el);
 	} else if(!post) {
 		el = funcPostPreview(null, parent, e,
 			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
