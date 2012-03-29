@@ -2695,10 +2695,10 @@ function unMarkForDelete(el) {
 function deleteNodes(el) {
 	if(!el) return;
 	var lk = curView.lastkid || curView;
-	do { clearTimeout(lk.post.marker); closePreview(lk.post); }
-	while((lk = lk.parent) !== el.parent);
 	if(el.parent) { el.parent.kid = null; curView.lastkid = el.parent; }
 	else curView = null;
+	do { clearTimeout(lk.post.marker); closePreview(lk.post); }
+	while((lk = lk.parent) !== el.parent);
 }
 
 function waitForAnim(pView, fn) {
