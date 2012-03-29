@@ -1729,7 +1729,7 @@ function doPostformChanges() {
 function ajaxCheckSubmit(form, fd, fn) {
 	GM_xmlhttpRequest({
 		method: form.method,
-		headers: {Referer: '' + doc.location},
+		headers: nav.Firefox ? {Referer: '' + doc.location} : null,
 		data: fd,
 		url: form.action,
 		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
@@ -2662,7 +2662,7 @@ function addNode(parent, pView, e) {
 	var el = pView.node = {parent: null, kid: null, Num: pView.Num, post: pView};
 	parent = parent.node;
 	pView.style.cssText =
-		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;';
+		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; opacity: 0;';
 	setPreviewPostion(e, pView);
 	$event(pView, {mouseover: unMarkForDelete, mouseout: markForDelete});
 	if(curView && parent) {
@@ -2698,17 +2698,19 @@ function deleteNodes(el) {
 
 function showPreview(el) {
 	dForm.appendChild(el);
-	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4))
+	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4)) {
+		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+			function() { el.style.opacity = 1; }, false);
 		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
 			(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
 			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
+	} else el.style.opacity = 1;
 }
 
 function closePreview(el) {
 	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4)) {
-		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
-			function() { $del(el); }, false);
+			function() { el.style.opacity = 0; $del(el); }, false);
 		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
 			(el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +
 			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-in';
