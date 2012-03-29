@@ -1298,9 +1298,7 @@ function $alert(txt, id) {
 /*-----------------------------Dropdown select menus-------------------------*/
 
 function removeSelMenu(e) {
-	var pst = getPost(e.relatedTarget);
 	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) $del($id('DESU_select'));
-	if(pst && pst.node) markForDelete(pst.node);
 }
 
 function addSelMenu(el, html) {
@@ -1319,7 +1317,7 @@ function addSelMenu(el, html) {
 		+ pos + '; width: auto; min-width: 0; ' + x + 'px; ' + y + 'px; z-index: 9999; '
 		+ 'padding: 2px 5px; border: 1px solid grey;">' + html + '</div>', {
 		mouseout: removeSelMenu,
-		mouseover: function() { if(pst && pst.node) unMarkForDelete(pst.node); }
+		mouseover: function() { if(pst && pst.node) markPost(pst.node, false); }
 	}));
 	return $X('.//div[@id="DESU_select"]//a');
 }
