@@ -2691,7 +2691,7 @@ function deleteNodes(el) {
 	if(el.parent) { el.parent.kid = null; curView.lastkid = el.parent; }
 	else curView = null;
 	do { clearTimeout(lk.post.marker); closePreview(lk.post); }
-	while((lk = lk.parent) !== el.parent);
+	while((lk = lk.parent) !== el.parent && lk);
 }
 
 function waitForAnim(pView, fn) {
