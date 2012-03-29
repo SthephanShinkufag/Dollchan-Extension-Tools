@@ -2665,31 +2665,24 @@ function addNode(parent, pView, e) {
 		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; opacity: 0;';
 	dForm.appendChild(pView);
 	setPreviewPostion(e, pView);
-	$event(pView, {mouseover: unMarkForDelete, mouseout: markForDelete});
+	$event(pView, {mouseover: function() { markPost(this.node, false); }, mouseout: function() { markPost(curView.lastkid || curView, true); }});
 	if(curView && parent) {
 		if(parent.kid) deleteNodes(parent.kid);
 		el.parent = parent;
 		curView.lastkid = parent.kid = el;
 	} else { deleteNodes(curView); curView = el; }
-	unMarkForDelete(el);
+	markPost(el, false);
 	showPreview(pView);
 	return el;
 }
 
-function markForDelete() {
-	if(!curView) return;
-	var el = curView.lastkid || curView;
-	do { el.forDel = true; } while(el = el.parent);
+function markPost(el, forDel) {
+	if(!el) return;
+	clearTimeout(pViewTimeout);
+	do { el.forDel = forDel; } while(el = el.parent);
 	pViewTimeout = setTimeout(function() {
 		for(el = curView; el; el = el.kid) if(el.forDel) return deleteNodes(el);
 	}, +Cfg.navdel);
-}
-
-function unMarkForDelete(el) {
-	if(this) el = this.node;
-	if(!el) return;
-	clearTimeout(pViewTimeout);
-	do { el.forDel = false; } while(el = el.parent);
 }
 
 function deleteNodes(el) {
@@ -2803,7 +2796,7 @@ function showPostPreview(e) {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
 	if(el && el.post.Num === pNum) {
-		unMarkForDelete(el);
+		markPost(el, false);
 		deleteNodes(el.kid);
 		setPreviewPostion(e, el.post, true);
 		markRefMap(el.post, parent.Num);
@@ -2822,7 +2815,7 @@ function eventRefLink(el) {
 		if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 			if(aib.tiny) { $before(link, [lnk = link.cloneNode(true)]); $del(link); link = lnk; }
 			else { $rattr(link, 'onmouseover'); $rattr(link, 'onmouseout'); }
-			$event(link, {mouseover: showPostPreview, mouseout: markForDelete});
+			$event(link, {mouseover: showPostPreview, mouseout: function() { markPost(curView.lastkid || curView, true); }});
 		});
 	};
 	if(aib.tiny) setTimeout(erf, 500);
