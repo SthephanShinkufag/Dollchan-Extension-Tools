@@ -2659,16 +2659,17 @@ function addRefMap(post, uEv) {
 /*----------------------->>RefLinks posts preview functions------------------*/
 
 function addNode(parent, pView, e) {
-	var el = pView.node = {parent: null, kid: null, Num: pView.Num, post: pView};
+	var el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
 	parent = parent.node;
 	pView.style.cssText =
 		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; opacity: 0;';
+	dForm.appendChild(pView);
 	setPreviewPostion(e, pView);
 	$event(pView, {mouseover: unMarkForDelete, mouseout: markForDelete});
 	if(curView && parent) {
 		if(parent.kid) deleteNodes(parent.kid);
 		el.parent = parent;
-		parent.kid = el;
+		curView.lastkid = parent.kid = el;
 	} else { deleteNodes(curView); curView = el; }
 	unMarkForDelete(el);
 	showPreview(pView);
@@ -2676,7 +2677,9 @@ function addNode(parent, pView, e) {
 }
 
 function markForDelete() {
-	for(var el = curView; el; el = el.kid) el.forDel = true;
+	if(!curView) return;
+	var el = curView.lastkid || curView;
+	do { el.forDel = true; } while(el = el.parent);
 	pViewTimeout = setTimeout(function() {
 		for(el = curView; el; el = el.kid) if(el.forDel) return deleteNodes(el);
 	}, +Cfg.navdel);
@@ -2691,40 +2694,68 @@ function unMarkForDelete(el) {
 
 function deleteNodes(el) {
 	if(!el) return;
-	if(el.parent) el.parent.kid = null;
+	var lk = curView.lastkid || curView;
+	do { clearTimeout(lk.post.marker); closePreview(lk.post); }
+	while((lk = lk.parent) !== el.parent);
+	if(el.parent) { el.parent.kid = null; curView.lastkid = el.parent; }
 	else curView = null;
-	for(; el; el = el.kid) { clearTimeout(el.post.marker); closePreview(el.post); }
+}
+
+function waitForAnim(pView, fn) {
+	var it = setInterval(function() { if(!pView.inUse) { fn(); clearInterval(it); } }, 20);
 }
 
 function showPreview(el) {
-	dForm.appendChild(el);
 	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4)) {
-		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
-			function() { el.style.opacity = 1; }, false);
-		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
-			(el.style.top === '' ? 'DESU_pOpenB' : 'DESU_pOpenT') +
-			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-out';
+		waitForAnim(el, function() {
+			el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+				function() { el.style.opacity = 1; }, false);
+			el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+				(el.aTop ? 'DESU_pOpenT' : 'DESU_pOpenB') +
+				(el.aLeft ? 'L' : 'R') + ' 0.2s 1 ease-out';
+		});
 	} else el.style.opacity = 1;
 }
 
 function closePreview(el) {
 	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4)) {
-		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
-			function() { el.style.opacity = 0; $del(el); }, false);
-		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
-			(el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +
-			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-in';
+		waitForAnim(el, function() {
+			el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+				function() { el.style.opacity = 0; $del(el); }, false);
+			el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
+				(el.aTop ? 'DESU_pCloseT' : 'DESU_pCloseB') +
+				(el.aLeft ? 'L' : 'R') + ' 0.2s 1 ease-in';
+		});
 	} else $del(el);
 }
 
-function setPreviewPostion(e, pView) {
+function setPreviewPostion(e, pView, anim) {
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		x = $offset(e.target).left + e.target.offsetWidth/2,
-		y = $offset(e.target).top + (e.clientY < scrH*0.8 ? e.target.offsetHeight : 0);
-	pView.style.left = x < scrW/2 ? x + 'px' : '';
-	pView.style.right = x >= scrW/2 ? (scrW - x + 2) + 'px' : '';
-	pView.style.top = e.clientY < scrH*0.8 ? y + 'px' : '';
-	pView.style.bottom = e.clientY >= scrH*0.8 ? (scrH - y - 4) + 'px' : '';
+		y = $offset(e.target).top,
+		left, top = e.target.getBoundingClientRect().top,
+		uId, setPos = function() { pView.style.left = left; pView.style.top = top; },
+		getNum = function(s) { return +s.substring(0, s.length - 2); };
+	if(x < scrW/2) { left = x + 'px'; pView.aLeft = true; }
+	else { left = (x - pView.offsetWidth) + 'px'; pView.aLeft = false; }
+	if(top + pView.offsetHeight < scrH - 10 || top - pView.offsetHeight < 10) { top = (y + e.target.offsetHeight) + 'px'; pView.aTop = true; }
+	else { top = (y - pView.offsetHeight) + 'px'; pView.aTop = false; }
+	if(Cfg.animp === 0 || !anim) setPos();
+	else {
+		waitForAnim(pView, function() {
+			if(left === pView.style.left && top === pView.style.top) return;
+			pView.inUse = true;
+			uId = 'DESU_mCSS' + Math.round(Math.random()*1e3);
+			doc.head.appendChild($new('style', {id: uId, type: 'text/css',
+				text: '@' + cssFix + 'keyframes ' + uId + ' { to { left: ' + left + '; top: ' + top + '; } }'}));
+			pView.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+				function() { setPos(); pView.inUse = false; $del($id(uId)); }, false);
+			pView.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] = uId + ' ' + (
+				Math.log(Math.sqrt(Math.pow(getNum(left) - getNum(pView.style.left), 2) +
+				Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22
+			) + 's 1 ease-in-out';
+		});
+	}
 }
 
 function markRefMap(pView, pNum) {
@@ -2770,8 +2801,8 @@ function showPostPreview(e) {
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	if(el && el.Num === pNum) {
-		setPreviewPostion(e, el.post);
+	if(el && el.post.Num === pNum) {
+		setPreviewPostion(e, el.post, true);
 		markRefMap(el.post, parent.Num);
 		unMarkForDelete(el);
 	} else if(!post) {
