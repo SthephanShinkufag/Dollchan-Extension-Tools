@@ -2709,9 +2709,8 @@ function showPreview(el) {
 
 function closePreview(el) {
 	if(Cfg.animp !== 0 && (nav.Chrome || nav.Firefox > 4)) {
-		el.style.opacity = 0;
 		el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
-			function() { $del(el); }, false);
+			function() { el.style.opacity = 0; $del(el); }, false);
 		el.style[(nav.Firefox ? 'Moz' : 'webkit') + 'Animation'] =
 			(el.style.top === '' ? 'DESU_pCloseB' : 'DESU_pCloseT') +
 			(el.style.left === '' ? 'R' : 'L') + ' 0.2s 1 ease-in';
