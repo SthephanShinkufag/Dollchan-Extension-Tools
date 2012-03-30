@@ -2725,13 +2725,14 @@ function setPreviewPostion(e, pView, anim) {
 	var scrW = doc.body.clientWidth, scrH = window.innerHeight,
 		x = $offset(e.target).left + e.target.offsetWidth/2,
 		y = $offset(e.target).top,
-		left, top = e.target.getBoundingClientRect().top,
+		left, top = e.target.getBoundingClientRect().top + e.target.offsetHeight, width = 'auto',
 		uId, setPos = function() { pView.style.left = left; pView.style.top = top; },
 		getNum = function(s) { return +s.substring(0, s.length - 2); };
-	if(x < scrW/2) { left = x + 'px'; pView.aLeft = true; }
-	else { left = (x - pView.offsetWidth) + 'px'; pView.aLeft = false; }
-	if(top + pView.offsetHeight < scrH - 10 || top - pView.offsetHeight < 10) { top = (y + e.target.offsetHeight) + 'px'; pView.aTop = true; }
-	else { top = (y - pView.offsetHeight) + 'px'; pView.aTop = false; }
+	if(x < scrW/2) { left = x; pView.aLeft = true; if(left + pView.offsetWidth >= scrW - 10) width = (scrW - left - 10) + 'px';}
+	else { left = x - pView.offsetWidth; pView.aLeft = false; if(left < 10) { left = '10'; width = (x - 10) + 'px'; } }
+	left += 'px'; pView.style.width = width; uId = pView.offsetHeight;
+	if(top + uId < scrH - 10 || top - uId < 10) { top = (y + e.target.offsetHeight) + 'px'; pView.aTop = true; }
+	else { top = (y - uId) + 'px'; pView.aTop = false; }
 	if(Cfg.animp === 0 || !anim || aib.hid) setPos();
 	else {
 		waitForAnim(pView, function() {
