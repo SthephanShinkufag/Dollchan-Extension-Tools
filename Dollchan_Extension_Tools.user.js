@@ -478,7 +478,7 @@ function Log(txt) {
 =============================================================================*/
 
 function setCookie(name, value, life) {
-	if(name) doc.cookie = escape(name) + '=' + escape(value) + ';expires=' 
+	if(name) doc.cookie = escape(name) + '=' + escape(value) + ';expires='
 		+ (new Date((new Date()).getTime()
 		+ (life === 'delete' ? -10 : storageLife))).toGMTString() + ';path=/';
 }
@@ -815,7 +815,7 @@ function addSettings() {
 			type: 'text', id: 'DESU_' + name, size: size, value: Cfg[name]}, {
 			keyup: function() {
 				saveCfg(name, $id('DESU_' + name).value.replace(/\|/g, ''));
-				if(fn) fn(); 
+				if(fn) fn();
 			}
 		})
 	},
@@ -912,7 +912,7 @@ function addSettings() {
 		$New('div', [optSel('ytube', Lng.selYTembed, Lng.YTembed)]),
 		$New('div', [
 			$New('div', [
-				optSel('yptype', !nav.Opera 
+				optSel('yptype', !nav.Opera
 					? ['Flash', 'HTML5 iframe', 'HTML5 video'] : ['Flash', 'HTML5 iframe'], ' '),
 				inpTxt('ywidth', 6), $txt('×'), inpTxt('yheigh', 6), $txt(' '),
 				lBox('yhdvid', 'HD ')
@@ -990,7 +990,7 @@ function addSettings() {
 			$id('DESU_spellEdit').value = spellsList.join('\n');
 		}
 	};
-	
+
 	$append($id('DESU_content'), [
 		$New('div', [
 			$new('div', {id: 'DESU_cfgHead', text: 'Dollchan Extension Tools'}),
@@ -1628,7 +1628,7 @@ function doPostformChanges() {
 		if(aib.nul && pr.isQuick) {
 			$disp(qArea);
 			$after($id('DESU_toggleReply'), [$id('DESU_pform')]);
-		} 
+		}
 	}});
 	$each($X('.//input[@type="text"]', pr.form), function(el) { el.size = 35; });
 	if(Cfg.nogoto !== 0 && pr.gothr) $disp(pr.gothr);
@@ -1972,7 +1972,7 @@ function fixTime(txt) {
 			: t === 'd' ? day = a
 			: t === 'n' ? month = a - 1
 			: t === 'y' ? year = a
-			: t === 'm' && (month = 
+			: t === 'm' && (month =
 				/янв|jan/i.test(a) ? 0
 				: /фев|feb/i.test(a) ? 1
 				: /мар|mar/i.test(a) ? 2
@@ -2000,7 +2000,7 @@ function scriptCSS() {
 		p = 'background: ' + (Cfg.sstyle === 0 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)' : '#777') + '; ',
 		gif = function(nm, src) { x.push(nm + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }') },
 		brCssFix = nav.Firefox > 3 ? '' : cssFix;
-	
+
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
@@ -2018,7 +2018,7 @@ function scriptCSS() {
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel a { padding: 0 7px; text-align: center; }'
 	);
-	
+
 	// Main panel
 	x.push(
 		'#DESU_panel { ' + (Cfg.attach === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + brCssFix + 'border-radius: 15px 0 0 0; cursor: default; }\
@@ -2047,7 +2047,7 @@ function scriptCSS() {
 	gif('#DESU_btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
 	gif('#DESU_btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
 	gif('#DESU_btnUpdWarn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
-	
+
 	// Post buttons
 	x.push(
 		'a[class^="DESU_btn"] { display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -1px 0 !important; }\
@@ -2061,7 +2061,7 @@ function scriptCSS() {
 	gif('.DESU_btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	gif('.DESU_btnFavSel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
 	gif('.DESU_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
-	
+
 	// Search images buttons
 	x.push(
 		'.DESU_btnSrc { padding: 0 16px 0 0; background: url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor: pointer; }\
@@ -2071,14 +2071,14 @@ function scriptCSS() {
 		.DESU_srcIqdb:before { background: url(http://iqdb.org/favicon.ico); ' + brCssFix + 'background-size: cover; }\
 		.DESU_srcSaucenao:before { background: url(http://saucenao.com/favicon.ico); }'
 	);
-	
+
 	// Posts counter
 	if(TNum) x.push(
 		'form div.DESU_thread { counter-reset: i 1; }\
 		form div.DESU_thread .DESU_postPanel:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		form div.DESU_thread .DESU_postPanel_del:after { content: "' + Lng.deleted + '"; color: #727579; font: italic bold 13px serif; cursor: default; }'
 	);
-	
+
 	// text format buttons
 	x.push('#DESU_txtPanel { display: ' + (Cfg.txtpos === 0 ? 'inline' : 'block') + '; font-weight: bold; cursor: pointer; }');
 	if(Cfg.txtbtn === 1) {
@@ -2092,7 +2092,7 @@ function scriptCSS() {
 		gif('#DESU_btnCode', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
 		gif('#DESU_btnQuote', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 	}
-	
+
 	// Show/close animation
 	if(!nav.Opera) x.push(
 		'@' + cssFix + 'keyframes DESU_aOpen { from { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } to { opacity: 1; } }\
@@ -2106,12 +2106,12 @@ function scriptCSS() {
 		@' + cssFix + 'keyframes DESU_pCloseTR { from { opacity: 1; } to { ' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 		@' + cssFix + 'keyframes DESU_pCloseBR { from { opacity: 1; } to { ' + cssFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }'
 	);
-	
+
 	// Embedders
 	x.push(
 		'.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
-		td[id^="reply"] a + .DESU_mp3, td[id^="reply"] a + .DESU_ytObj { display: inline; }\
+		td.reply a + .DESU_mp3, td.reply a + .DESU_ytObj { display: inline; }\
 		.DESU_ytLink:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(http://youtube.com/favicon.ico) no-repeat; }\
 		.DESU_ytObj > img { cursor: pointer; }'
 	);
@@ -2119,7 +2119,7 @@ function scriptCSS() {
 		'.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
 		.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }'
 	);
-	
+
 	// Other
 	x.push(
 		'.DESU_alertWait:before, .DESU_icnWait { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
@@ -2146,7 +2146,7 @@ function scriptCSS() {
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#DESU_select a:hover { background-color: ' + (Cfg.sstyle === 0 ? '#1b345e' : '#444') + '; color: #fff; }\
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : brCssFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 5) + 'px -11px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed, .DESU_viewed .reply { color: #888 !important; }\
 		.reply { width: auto; }\
 		a[href="#"] { text-decoration: none !important; outline: none; }\
@@ -2162,7 +2162,7 @@ function scriptCSS() {
 		.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }'
 	);
 	if(aib.hana) x.push('#hideinfotd, .reply_ { display: none; }');
-	if(aib.abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep { display: none; }');
+	if(aib.abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep, div[id^=post_video] { display: none; }');
 	if(aib.tiny) x.push('form, form table { margin: 0; }');
 	if(aib.nul) x.push(
 		'#newposts_get, #postform nobr, .DESU_thread span[style="float: right;"] { display: none; }\
@@ -2181,7 +2181,7 @@ function scriptCSS() {
 		.file_reply + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
 		.DESU_ytObj + div:not(.file_reply) { clear: both; }'
 	);
-	
+
 	if(!$id('DESU_css')) {
 		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
@@ -2321,7 +2321,7 @@ function getTubeVideoLinks(id, fn) {
 			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/);
 		if(!formats) { fn(false); return; }
 		formats = formats[1];
-		if(formats.indexOf(',') >= 0) { 
+		if(formats.indexOf(',') >= 0) {
 			sep1 = ',';
 			sep2 = formats.indexOf('&') >= 0 ? '&' : '\\u0026';
 			sep3 = '=';
@@ -2343,7 +2343,7 @@ function getTubeVideoLinks(id, fn) {
 function addTubeEmbed(el, id, time) {
 	var wh = ' width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
 	el.innerHTML =
-		Cfg.yptype === 1 ? '<iframe type="text/html" src="http://www.youtube.com/embed/' + id 
+		Cfg.yptype === 1 ? '<iframe type="text/html" src="http://www.youtube.com/embed/' + id
 			+ (Cfg.yhdvid !== 0 ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh
 		: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/' + id
 			+ (Cfg.yhdvid !== 0 ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
@@ -3385,7 +3385,7 @@ function hideBySpells(post) {
 	var exp;
 	if(Cfg.filthr === 0 && post.isOp) return;
 	exp = checkSpells(post);
-	if(post.Vis === 0) { if(post.noHide) unhidePost(post); } 
+	if(post.Vis === 0) { if(post.noHide) unhidePost(post); }
 	else if(exp) hidePost(post, exp.substring(0, 70));
 }
 
@@ -3791,7 +3791,7 @@ function pushPost(post, i) {
 
 function parseDelform(node, dc, tFn, pFn) {
 	var threads, br = aib.gazo ? 'div[@style="clear:left"]' : 'br[@*]',
-		table = 
+		table =
 			aib.fch ? 'table[not(@class="exif")]'
 			: aib.tire ? 'table[not(@class="postfiles")]'
 			: 'table';
@@ -3861,7 +3861,7 @@ function replaceDelform(node) {
 function initDelform() {
 	dForm.id = '';
 	$disp(dForm);
-	try { parseDelform(dForm, doc, function(a){}, pushPost); } 
+	try { parseDelform(dForm, doc, function(a){}, pushPost); }
 	catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
