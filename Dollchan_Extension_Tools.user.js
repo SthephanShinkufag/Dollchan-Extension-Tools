@@ -2413,7 +2413,7 @@ function addLinkTube(post) {
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || $x(aib.xMsg, pst);
 			if(aib.krau)
-				$before($x('.//div[@class="postbody"]', pst) || $x('.//div[not(@class)]', pst), [el]);
+				$after($x('.//div[@class="file_thread" or @class="file_reply"][last()]', pst) || $x('.//div[@class="postheader"]', pst), [el]);
 			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
