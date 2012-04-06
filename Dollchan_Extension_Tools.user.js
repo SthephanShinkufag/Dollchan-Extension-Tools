@@ -1731,10 +1731,13 @@ function ajaxCheckSubmit(form, fd, fn) {
 		headers: nav.Firefox ? {Referer: '' + doc.location} : null,
 		data: fd,
 		url: form.action,
-		onload: function(res) { fn(HTMLtoDOM(res.responseText), res.finalUrl); },
-		onerror: function(res) {
-			$close($id('DESU_alertWait'));
-			$alert('XHR load error:\n' + res.statusText);
+		onreadystatechange: function(xhr) {
+			if(xhr.readyState !== 4) return;
+			if(xhr.status === 200) fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
+			else {
+				$close($id('DESU_alertWait'));
+				$alert(xhr.status === 0 ? Lng.noConnect : 'HTTP [' + xhr.status + '] ' + xhr.statusText);
+			}
 		}
 	});
 }
