@@ -3696,6 +3696,7 @@ function aibDetector(host, dc) {
 		: this._7ch ? 'message'
 		: false;
 	this.pClass = this.krau ? 'postreply' : this.tiny ? 'post reply' : 'reply';
+	this.tClass = this.krau ? 'thread_body' : 'thread';
 	this.getMsg = this.cMsg ? function(el) { return $class(this.cMsg, el); }
 		: function(el) { return $t('blockquote', el); };
 	this.getRef = this.xRef ? function(el) { return $x(this.xRef, el); }
@@ -3803,38 +3804,48 @@ function pushPost(post, i) {
 	if(i === 0) tByCnt.push(post);
 }
 
+function forEachThread(node, dc, fn) {
+	var threads, el, tEl, pThr = false;
+	if((threads = node.getElementsByClassName(aib.tClass)).length === 0) {
+		el = $xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc);
+		if(nav.Opera && nav.Opera < 10) {
+			threads = $X('.//div[' + (
+				el ? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
+				: 'starts-with(@id,"thread")' + (aib._7ch ? 'and not(@id="thread_controls")' : '')
+			) + ']', node, dc);
+			if(threads.snapshotLength > 0) { $each(threads, fn, true); return; }
+			else threads.length = 0;
+		} else threads = node.querySelectorAll(el ? 'div[id^="t"]:not([id$="_info"])' 
+			: 'div[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : ''));
+		if(threads.length === 0) {
+			el = node.firstChild;
+			while(1) {
+				threads = $new('div', {}, {}, dc);
+				while(el && (tEl = el.nextSibling) && tEl.tagName !== 'HR') {
+					threads.appendChild(el); el = tEl;
+				}
+				if(pThr) $after(pThr, [threads]);
+				else $before($1(node), [threads]);
+				if(!el || !tEl) return;
+				if(threads.childElementCount) fn(threads);
+				pThr = tEl; el = tEl.nextSibling;
+			}
+		}
+	}
+	for(el = 0, tEl = threads.length; el < tEl; el++) fn(threads[el]);
+}
+
 function parseDelform(node, dc, tFn, pFn) {
-	var threads, br = aib.gazo ? 'div[@style="clear:left"]' : 'br[@*]',
-		table =
+	var table =
 			aib.fch ? 'table[not(@class="exif")]'
 			: aib.tire ? 'table[not(@class="postfiles")]'
 			: 'table';
 	$Del('.//script', node, dc);
-	threads = $X('.//div[' + (
-		$xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc)
-			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
-		: aib.sib ? 'not(@*)'
-		: aib._7ch ? 'starts-with(@id,"thread") and not(@id="thread_controls")'
-		: aib.tiny ? 'starts-with(@id,"thread") and @itemid'
-		: 'starts-with(@id,"thread")'
-	) + ']', node, dc);
-	if(threads.snapshotLength === 0) {
-		$each($X('.//hr/preceding-sibling::' + br, node, dc), function(el) {
-			var thr = $new('div', {Class: 'thread'}, {}, dc);
-			$each($X('preceding-sibling::node()[not(self::div[@class="thread"] or self::hr or self::'
-				+ br + ')]', el, dc), function(el) { thr.appendChild(el); }, nav.Firefox);
-			$before(el, [thr]);
-		}, true);
-		threads = $X('.//div[@class="thread"]', node, dc);
-	}
-	$each(threads, function(thr) {
-		var a, tNum, op, opEnd, id, i = 0;
+	forEachThread(node, dc, function(thr) {
+		var a, op, opEnd, id, i = 0,
+			tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
+			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(/\d+/)[0];
 		if(aib.tiny) $after(thr, [$new('hr', {}, {}, dc)]);
-		if(!aib.tiny && !aib.fch && !aib.gazo) {
-			a = $x('.//a[@name]' + (aib.kus ? '[2]' : ''), thr, dc);
-			tNum = (a ? a.name : thr.id).match(/\d+/)[0];
-		} else tNum = $x('.//input[@type="checkbox"]', thr, dc).name.match(/\d+/)[0];
-		if(aib.krau) thr = $x('div[@class="thread_body"]', thr, dc);
 		thr.className += ' DESU_thread';
 		thr.Num = tNum;
 		tFn(thr);
@@ -3854,7 +3865,7 @@ function parseDelform(node, dc, tFn, pFn) {
 			}, true);
 			$before($1(thr), [op]);
 		} else thr.appendChild(op);
-	}, true);
+	});
 	if(liteMode) $Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	return node;
 }
