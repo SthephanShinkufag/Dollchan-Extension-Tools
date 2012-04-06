@@ -2644,7 +2644,7 @@ function addNode(parent, pView, e) {
 		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; opacity: 0;';
 	dForm.appendChild(pView);
 	setPreviewPostion(e, pView);
-	$event(pView, {mouseover: function() { markPost(this.node, false); }, mouseout: function() { markPost(curView.lastkid || curView, true); }});
+	$event(pView, {mouseover: function() { markPost(this.node, false); }, mouseout: markDelete});
 	if(curView && parent) {
 		if(parent.kid) deleteNodes(parent.kid);
 		el.parent = parent;
@@ -2653,6 +2653,10 @@ function addNode(parent, pView, e) {
 	markPost(el, false);
 	showPreview(pView);
 	return el;
+}
+
+function markDelete() {
+	if(curView) markPost(curView.lastkid || curView, true);
 }
 
 function markPost(el, forDel) {
@@ -2798,7 +2802,7 @@ function eventRefLink(el) {
 		if(Cfg.navig !== 0) $each($X('.//a[starts-with(text(),">>")]', el || dForm), function(link) {
 			if(aib.tiny) { $before(link, [lnk = link.cloneNode(true)]); $del(link); link = lnk; }
 			else { $rattr(link, 'onmouseover'); $rattr(link, 'onmouseout'); }
-			$event(link, {mouseover: showPostPreview, mouseout: function() { markPost(curView.lastkid || curView, true); }});
+			$event(link, {mouseover: showPostPreview, mouseout: markDelete});
 		});
 	};
 	if(aib.tiny) setTimeout(erf, 500);
