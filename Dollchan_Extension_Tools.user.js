@@ -1069,7 +1069,7 @@ function addHiddenTable() {
 				else $next(el).style.display = el.vis === 1 ? '' : 'none';
 			}}(cln)
 		});
-		if(Cfg.attach === 0) $event($x(aib.xRef, cln) || $x('.//a', cln), {
+		if(Cfg.attach === 0) $event(aib.getRef(cln) || $x('.//a', cln), {
 			mouseover: function(el) { return function() {
 				if(el.vis === 0) {
 					if(pp) togglePost(el, 1);
@@ -2263,7 +2263,7 @@ function isSage(post) {
 /*-------------------------------Post buttons--------------------------------*/
 
 function addPostButtons(post) {
-	var el, h, ref = $x(aib.xRef, post);
+	var el, h, ref = aib.getRef(post);
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	el = post.Btns.firstChild;
 	$event(el, {
@@ -2397,7 +2397,7 @@ function addLinkTube(post) {
 		src = 'http://www.youtube.com/watch?v=' + m[1];
 		if(m[4] || m[3] || m[2]) src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '')
 			+ (m[4] ? m[4] + 's' : '');
-		$x(aib.xMsg, post || getPost(el)).appendChild(
+		aib.getMsg(post || getPost(el)).appendChild(
 			$add('<p><a href="' + src + '">' + src + '</a></p>')
 		);
 		$del($up(el));
@@ -2410,7 +2410,7 @@ function addLinkTube(post) {
 			el = $new('div', {Class: 'DESU_ytObj'});
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
-			msg = pst.Msg || $x(aib.xMsg, pst);
+			msg = pst.Msg || aib.getMsg(pst);
 			if(aib.krau)
 				$before($x('.//div[@class="postbody"]', pst) || $x('.//div[not(@class)]', pst), [el]);
 			else if(msg) $before(msg, [el]);
@@ -2471,7 +2471,7 @@ function addLinkMP3(post) {
 		el = $class('DESU_mp3', pst);
 		if(!el) {
 			el = $new('div', {Class: 'DESU_mp3'});
-			msg = pst.Msg || $x(aib.xMsg, pst);
+			msg = pst.Msg || aib.getMsg(pst);
 			if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
@@ -2632,7 +2632,7 @@ function showRefMap(post, rNum, uEv) {
 	el = $class('DESU_refMap', post);
 	txt = refMap[rNum].join(',').replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	if(!el) {
-		msg = post.Msg || $x(aib.xMsg, post);
+		msg = post.Msg || aib.getMsg(post);
 		if(!msg) return;
 		el = $add('<div class="DESU_refMap">' + txt + '</div>');
 		if(uEv) eventRefLink(el);
@@ -2893,7 +2893,7 @@ function newPost(thr, b, tNum, i, isDel) {
 	pByNum[pNum] = post;
 	post.Count = i;
 	post.Vis = getVisib(pNum);
-	post.Msg = $x(aib.xMsg, post);
+	post.Msg = aib.getMsg(post);
 	post.Img = getImages(post);
 	post.isOp = i === 0;
 	post.isDel = isDel;
@@ -2909,7 +2909,7 @@ function getFullMsg(post, tNum, a) {
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(err) return;
 		$del(a);
-		post.Msg = $html(post.Msg, $x(aib.xMsg, importPost(brd, post.Num)).innerHTML);
+		post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
 		addPostFunc(post);
 	});
 }
@@ -3678,18 +3678,29 @@ function aibDetector(host, dc) {
 		: '@id="delform" or @name="delform"]'
 	);
 	this.xRef =
-		this.tiny ? './/a[@class="post_no"][2]'
-		: this.krau ? './/span[@class="postnumber"]'
-		: this.fch ? './/span[starts-with(@id,"no")]'
-		: this.sib ? './/span[@class="reflink" or @class="filesize"]'
-		: this.gazo ? './/a[@class="del"]'
-		: './/span[@class="reflink"]';
+		this.tiny ? 'p[@class="intro"]/a[@class="post_no"][2]|div/p[@class="intro"]/a[@class="post_no"][2]'
+		: this.fch ? 'span[starts-with(@id,"no")]'
+		: false;
+	this.cRef =
+		this.krau ? 'postnumber'
+		: this.gazo ? 'del'
+		: 'reflink';
 	this.xMsg =
 		this.hana ? './/div[@class="postbody"]'
 		: this.tiny ? './/p[@class="body"]'
 		: this._7ch ? './/p[@class="message"]'
 		: './/blockquote';
+	this.cMsg =
+		this.hana ? 'postbody'
+		: this.tiny ? 'body'
+		: this._7ch ? 'message'
+		: false;
 	this.pClass = this.krau ? 'postreply' : this.tiny ? 'post reply' : 'reply';
+	this.getMsg = this.cMsg ? function(el) { return $class(this.cMsg, el); }
+		: function(el) { return $t('blockquote', el); };
+	this.getRef = this.xRef ? function(el) { return $x(this.xRef, el); }
+		: this.sib ? function(el) { return $class(this.cRef, el) || $class('filesize', el); }
+		: function(el) { return $class(this.cRef, el); };
 }
 
 function getThrdUrl(h, b, tNum) {
@@ -3785,7 +3796,7 @@ function pushPost(post, i) {
 	Posts.push(post);
 	post.isOp = i === 0;
 	post.Count = i;
-	post.Msg = $x(aib.xMsg, post);
+	post.Msg = aib.getMsg(post);
 	post.Text = getText(post.Msg);
 	post.Img = getImages(post);
 	pByNum[post.Num] = post;
