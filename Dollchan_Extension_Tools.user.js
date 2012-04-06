@@ -288,7 +288,7 @@ LngArray = {
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, pByCnt = [], tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -1417,17 +1417,17 @@ function initKeyNavig() {
 		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey
 			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) return;
 		$pD(e);
-		if(scrollT) cPIndex = !scrollP ? pByCnt.indexOf(tByCnt[cTIndex]) : findCurrPost(pByCnt);
+		if(scrollT) cPIndex = !scrollP ? Posts.indexOf(tByCnt[cTIndex]) : findCurrPost(Posts);
 		if(!TNum && scrollP) {
-			if((pByCnt[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(pByCnt[cPIndex]);
+			if((Posts[cPIndex] || {}).isOp) cTIndex = curTh = tByCnt.indexOf(Posts[cPIndex]);
 			else if(scrollT) {
-				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !pByCnt[curTh].isOp; curTh--) {};
-				cTIndex = curTh = tByCnt.indexOf(pByCnt[curTh]);
+				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !Posts[curTh].isOp; curTh--) {};
+				cTIndex = curTh = tByCnt.indexOf(Posts[curTh]);
 			} else curTh = cTIndex;
 		} else curTh = cTIndex;
 		scrollP = scrollT = false;
 		if(kc === 86) {
-			if(TNum) showQuickReply(pByCnt[cPIndex]);
+			if(TNum) showQuickReply(Posts[cPIndex]);
 			else {
 				if(nav.Firefox)
 					GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
@@ -1459,17 +1459,17 @@ function findCurrPost(posts) {
 }
 
 function scrollDownToPost() {
-	if(cPIndex !== pByCnt.length - 1) try {
-		cPIndex = scrollToPost(pByCnt, cPIndex + 1, 1, pByCnt[cPIndex + 1].isOP
-			|| pByCnt[cPIndex + 1].getBoundingClientRect().top
-				> window.innerHeight/2 - pByCnt[cPIndex + 1].clientHeight/2, false);
+	if(cPIndex !== Posts.length - 1) try {
+		cPIndex = scrollToPost(Posts, cPIndex + 1, 1, Posts[cPIndex + 1].isOP
+			|| Posts[cPIndex + 1].getBoundingClientRect().top
+				> window.innerHeight/2 - Posts[cPIndex + 1].clientHeight/2, false);
 		scrollP = true;
 	} catch(e) {};
 }
 
 function scrollUpToPost() {
 	try {
-		cPIndex = scrollToPost(pByCnt, cPIndex <= 0 ? 0 : cPIndex - 1, -1, true, false);
+		cPIndex = scrollToPost(Posts, cPIndex <= 0 ? 0 : cPIndex - 1, -1, true, false);
 		scrollP = true;
 	} catch(e) {};
 }
@@ -2883,9 +2883,8 @@ function importPost(b, pNum) {
 
 function newPost(thr, b, tNum, i, isDel) {
 	var pNum = ajThrds[b][tNum][i], post = importPost(b, pNum);
-	Posts[Posts.length] = post;
+	Posts.push(post);
 	pByNum[pNum] = post;
-	pByCnt.push(post);
 	post.Count = i;
 	post.Vis = getVisib(pNum);
 	post.Msg = $x(aib.xMsg, post);
@@ -3784,7 +3783,6 @@ function pushPost(post, i) {
 	post.Text = getText(post.Msg);
 	post.Img = getImages(post);
 	pByNum[post.Num] = post;
-	pByCnt.push(post);
 	if(i === 0) tByCnt.push(post);
 }
 
