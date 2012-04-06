@@ -638,7 +638,7 @@ function toggleHiddenThread(post, vis) {
 		if(escape(uneval(hThrds)).length > 4095) hThrds[b].shift();
 	} else {
 		if(!hThrds[b]) hThrds[b] = {};
-		if(vis === 0) hThrds[b][tNum] = getTitle(post).substring(0, 70);
+		if(vis === 0) hThrds[b][tNum] = post.thr.dTitle;
 		else { delete hThrds[b][tNum]; if(isEmptyObj(hThrds[b])) delete hThrds[b]; }
 	}
 	saveHiddenThreads();
@@ -670,8 +670,9 @@ function toggleFavorites(post, btn) {
 		if(!Favor[h]) Favor[h] = {};
 		if(!Favor[h][b]) Favor[h][b] = {};
 		Favor[h][b][tNum] = {
-			cnt: getPstCount(getThread(post)),
-			txt: getTitle(post).substring(0, sav.cookie ? 25 : 70)
+			cnt: post.thr.pCount,
+			txt: sav.cookie ? post.thr.dTitle.substring(0, 25)
+							: post.thr.dTitle
 		};
 		if(sav.cookie && escape(uneval(Favor)).length > 4095)
 			{ $alert(Lng.cookiesLimit); delete Favor[h][b][tNum]; return; }
@@ -1476,14 +1477,14 @@ function scrollUpToPost() {
 
 function scrollToPost(posts, idx, dir, scroll, toTop) {
 	var post, mIdx = idx;
-	while(posts[mIdx].Vis === 0 || getThread(posts[mIdx]).Vis === 0) mIdx += dir;
+	while(posts[mIdx].Vis === 0 || posts[mIdx].thr.Vis === 0) mIdx += dir;
 	post = posts[mIdx];
 	if(mIdx !== idx || scroll)
 		window.scrollTo(0, toTop ? $offset(post).top
 			: $offset(post).top - window.innerHeight/2 + post.clientHeight/2);
 	idx = $class('DESU_selected');
 	if(idx) idx.className = idx.oldClassName;
-	if(post.isOp) post = getThread(post);
+	if(post.isOp) post = post.thr;
 	post.oldClassName = post.className;
 	post.className += ' DESU_selected';
 	return mIdx;
@@ -1542,7 +1543,7 @@ function doChanges() {
 	var el;
 	if(TNum) {
 		if(Cfg.rtitle !== 0) {
-			docTitle = '/' + brd + ' - ' + getTitle(pByNum[TNum]).substring(0, 70);
+			docTitle = '/' + brd + ' - ' + pByNum[TNum].thr.dTitle;
 			doc.title = docTitle;
 		} else docTitle = doc.title;
 		window.onblur = function() { doc.body.className = 'blurred'; };
@@ -1827,7 +1828,7 @@ function prepareFiles(el, fn, i) {
 /*-----------------------------Quick Reply under post------------------------*/
 
 function showQuickReply(post) {
-	var tNum = getThread(post).Num;
+	var tNum = post.thr.Num;
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(!qArea.hasChildNodes()) {
@@ -2196,30 +2197,8 @@ function forAll(fn) {
 	for(var post, i = 0; post = Posts[i++];) fn(post);
 }
 
-function getThread(el) {
-	return $x('ancestor::div[contains(@class," DESU_thread")]', el);
-}
-
 function getPost(el) {
 	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
-}
-
-function getPstCount(thrd) {
-	var om = $x(
-			aib.hana ? './/div[@class="abbrev"]'
-			: aib.krau ? './/span[@class="omittedinfo"]'
-			: aib.gazo ? './/font[@color="#707070"]'
-			: './/span[@class="omittedposts"]|.//div[@class="DESU_omitted"]', thrd
-		);
-	return $X('.//table[contains(@class," DESU_post")]'
-		+ '|.//div[contains(@class," DESU_post")]', thrd).snapshotLength + 1
-		+ (om && (om = om.textContent) ? +(om.match(/\d+/) || 0)[0] : 0);
-}
-
-function getTitle(post) {
-	var t = $x('.//span[@class="filetitle" or @class="replytitle" or @class="postsubject"'
-		+ ' or @class="subject"]', post);
-	return (t && t.textContent.trim() || post.Text).replace(/\s+/g, ' ')
 }
 
 function getImages(post) {
@@ -2292,7 +2271,7 @@ function addPostButtons(post) {
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
 			el.className = 'DESU_btnFavSel';
-			Favor[h][brd][post.Num].cnt = getPstCount(getThread(post));
+			Favor[h][brd][post.Num].cnt = post.thr.pCount;
 			setStored('DESU_Favorites', $uneval(Favor));
 		}
 	}
@@ -2835,7 +2814,7 @@ function parseHTMLdata(html, b) {
 	}
 	dc = HTMLtoDOM(aib.hana
 		? '<html><head></head><body><div class="thread">' + html + '</div></body></html>' : html);
-	parseDelform($x(!aib.hana ? aib.xDForm : false, dc, dc), dc, function(thr) {
+	parseDelform(!aib.hana ? $x(aib.xDForm, dc, dc) : false, dc, function(thr) {
 		thrd = thr;
 		if(!ajThrds[b]) { ajThrds[b] = {}; ajPosts[b] = {}; }
 		ajThrds[b][thr.Num] = [];
@@ -2900,6 +2879,8 @@ function newPost(thr, b, tNum, i, isDel) {
 	post.Img = getImages(post);
 	post.isOp = i === 0;
 	post.isDel = isDel;
+	thr.pCount++;
+	post.thr = thr;
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
@@ -2933,7 +2914,7 @@ function expandPost(post) {
 	a = $x(aib.krau ? './/p[starts-with(@id,"post_truncated")]' : './/div[@class="abbrev"]|'
 		+ './/span[@class="abbr" or @class="omittedposts" or @class="shortened"]', post);
 	if(!a || !(/long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent))) return;
-	tNum = getThread(post).Num;
+	tNum = post.thr.Num;
 	if(Cfg.expost === 1) getFullMsg(post, tNum, a);
 	else $event(a, {click: function(e) { $pD(e); getFullMsg(post, tNum, e.target); }});
 }
@@ -2994,7 +2975,7 @@ function loadFavorThread(e) {
 		newPost(thr, b, tNum, 0, true);
 		expandThread(thr, b, tNum, 5, true);
 		$x('.//tr[@id="DESU_favData_' + aib.host + '|' + b + '|' + tNum
-			+ '"]//span[@class="DESU_favPCount"]/span').textContent = getPstCount(thr);
+			+ '"]//span[@class="DESU_favPCount"]/span').textContent = thr.pCount;
 		setStored('DESU_Favorites', $uneval(Favor));
 		$disp(thr);
 	});
@@ -3125,7 +3106,7 @@ function togglePostVisib(post) {
 }
 
 function togglePost(post, vis) {
-	if(post.isOp) getThread(post).style.display = vis === 0 ? 'none' : '';
+	if(post.isOp) post.thr.style.display = vis === 0 ? 'none' : '';
 	$each($X('following-sibling::*',
 		aib.krau ? $class('postheader', post)
 		: aib.tiny ? $class('intro', post)
@@ -3141,12 +3122,12 @@ function applyPostVisib(post, vis, note) {
 		if(vis === 0 && !el) {
 			el = $add('<div class="' + aib.pClass + '" id="DESU_hidThr_' + post.Num + '">'
 				+ Lng.hiddenThrd + ' <a href="#">№' + pNum + '</a><i> ('
-				+ (note ? 'autohide: ' + note : getTitle(post).substring(0, 70)) + ')</i></div>'
+				+ (note ? 'autohide: ' + note : post.thr.dTitle) + ')</i></div>'
 			);
 			$event($t('a', el), {click: function(e) { $pD(e); togglePostVisib(post); }});
 			$before($up(post), [el]);
 			toggleHiddenThread(post, 0);
-			getThread(post).Vis = vis;
+			post.thr.Vis = vis;
 		}
 	} else if(Cfg.delhd === 2) post.style.display = vis === 0 ? 'none' : '';
 	if(!sav.cookie) {
@@ -3708,6 +3689,9 @@ function aibDetector(host, dc) {
 		: this.tiny ? 'body'
 		: this._7ch ? 'message'
 		: false;
+	this.cOPosts = this.krau ? 'omittedinfo' : this.hana ? 'abbrev' : 'omittedposts';
+	this.cTitle = this.krau ? 'postsubject' : this.tiny ? 'subject'
+		: this.hana ? 'replytitle' : 'filetitle';
 	this.pClass = this.krau ? 'postreply' : this.tiny ? 'post reply' : 'reply';
 	this.tClass = this.krau ? 'thread_body' : 'thread';
 	this.getMsg = this.cMsg ? function(el) { return $class(this.cMsg, el); }
@@ -3715,6 +3699,8 @@ function aibDetector(host, dc) {
 	this.getRef = this.xRef ? function(el) { return $x(this.xRef, el); }
 		: this.sib ? function(el) { return $class(this.cRef, el) || $class('filesize', el); }
 		: function(el) { return $class(this.cRef, el); };
+	this.getOmPosts = this.gazo ? function(el, dc) { return $x('.//font[@color="#707070"]', el, dc); }
+		: function(el) { return $class(this.cOPosts, el); };
 }
 
 function getThrdUrl(h, b, tNum) {
@@ -3878,16 +3864,21 @@ function parseDelform(node, dc, tFn, pFn) {
 		}
 		op.className += ' DESU_oppost';
 		op.Num = tNum;
+		op.thr = thr;
 		pFn(op, 0);
 		if(aib.gazo) $each($X('table/tbody/tr/td[2]', thr, dc), function(el) { el.className = aib.pClass; });
 		psts = thr.getElementsByClassName(aib.pClass);
-		if(psts.length > 0) {
+		if((thr.pCount = psts.length) > 0) {
 			for(i = 0, len = psts.length; i < len; i++) {
-				opEnd = psts[i];
+				opEnd = psts[i]; opEnd.thr = thr;
 				opEnd.className += ' DESU_post';
 				opEnd.Num = (opEnd.id || $t('a', opEnd).name || $t('input', opEnd).id).match(/\d+/)[0];
 				pFn(opEnd, i + 1);
 			}
+		}
+		if(!tFn) {
+			if(!TNum) thr.pCount += (i = aib.getOmPosts(thr, dc)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
+			thr.dTitle = ((i = $class(aib.cTitle, op)) && i.textContent.trim() || op.Text).substring(0, 70).replace(/\s+/g, ' ');
 		}
 	});
 	if(liteMode) $Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
