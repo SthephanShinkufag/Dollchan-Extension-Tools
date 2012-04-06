@@ -304,6 +304,9 @@ function $x(path, root, dc) {
 function $xb(path, root, dc) {
 	return (dc || doc).evaluate(path, root || dc || doc, null, 3, null).booleanValue;
 }
+function $class(id, root) {
+	return (root || doc).getElementsByClassName(id)[0];
+}
 function $id(id) {
 	return doc.getElementById(id);
 }
@@ -977,10 +980,10 @@ function addSettings() {
 	},
 	openTab = function(tab, name) {
 		if(tab.className == 'DESU_cfgTab_sel') return;
-		var oldEl = $x('.//div[@class="DESU_cfgBody"]'), newEl = eval(name);
+		var oldEl = $class('DESU_cfgBody'), newEl = eval(name);
 		if(oldEl) {
 			oldEl.parentNode.replaceChild(newEl, oldEl);
-			$x('.//div[@class="DESU_cfgTab_sel"]').className = 'DESU_cfgTab';
+			$class('DESU_cfgTab_sel').className = 'DESU_cfgTab';
 		} else $after($id('DESU_cfgBar'), [newEl]);
 		if(Cfg.keynav !== 0) addEvents(newEl);
 		tab.className = 'DESU_cfgTab_sel';
@@ -1045,12 +1048,12 @@ function addSettings() {
 			], {id: 'DESU_cfgBtns'})
 		], {Class: aib.pClass, id: 'DESU_cfgWindow'})
 	]);
-	openTab($x('.//div[@class="DESU_cfgTab"]'), 'cfgFilters');
+	openTab($class('DESU_cfgTab'), 'cfgFilters');
 }
 
 function addHiddenTable() {
 	var cln, i, b, tNum, url, clones = [], tcnt = 0, pcnt = 0,
-		table = $x('.//div[@id="DESU_content"]//tbody');
+		table = $t('tbody', $id('DESU_content'));
 	forAll(function(post) { if(post.Vis === 0) {
 		var pp = !post.isOp;
 		cln = $attr(($id('DESU_hidThr_' + post.Num) || post).cloneNode(true), {id: ''});
@@ -1058,7 +1061,7 @@ function addHiddenTable() {
 		cln.style.display = '';
 		cln.pst = post;
 		cln.vis = 0;
-		$event($x(pp ? './/a[@class="DESU_btnUnhide"]' : './/a', cln), {
+		$event(pp ? $class('DESU_btnUnhide') : $x('.//a', cln), {
 			click: function(el) { return function(e) {
 				$pD(e);
 				el.vis = el.vis === 0 ? 1 : 0;
@@ -1196,7 +1199,7 @@ function addFavoritesTable() {
 				$each(list, function(el) {
 					var c, arr = el.id.substr(13).split('|');
 					if(aib.host !== arr[0]) return;
-					c = $x('.//span[@class="DESU_favPCount"]/span', el);
+					c = $t('span', $class('DESU_favPCount', el));
 					$attr(c, {Class: 'DESU_icnWait', text: ''});
 					ajaxGetPosts(null, arr[1], arr[2], function(err) {
 						var cnt = err || ajThrds[arr[1]][arr[2]].length;
@@ -1281,7 +1284,7 @@ function $close(el) {
 function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += id; el = $id(nid); }
-	if(el) $x('./div[@class="' + nid + '"]', el).innerHTML = txt.trim();
+	if(el) $class(nid, el).innerHTML = txt.trim();
 	else el = $New('div', [
 		$if(id !== 'Wait', $new('a', {
 			href: '#',
@@ -1478,12 +1481,9 @@ function scrollToPost(posts, idx, dir, scroll, toTop) {
 	if(mIdx !== idx || scroll)
 		window.scrollTo(0, toTop ? $offset(post).top
 			: $offset(post).top - window.innerHeight/2 + post.clientHeight/2);
+	idx = $class('DESU_selected');
+	if(idx) idx.className = idx.oldClassName;
 	if(post.isOp) post = getThread(post);
-	forAll(function(post) {
-		if(post.isOp) post = getThread(post);
-		if(post.sel) { post.sel = false; post.className = post.oldClassName; }
-	});
-	post.sel = true;
 	post.oldClassName = post.className;
 	post.className += ' DESU_selected';
 	return mIdx;
@@ -1621,7 +1621,7 @@ function doPostformChanges() {
 			+ (Cfg.sign !== 0 && Cfg.sigval !== '' ? '\n' + Cfg.sigval : '');
 		if(Cfg.verify !== 0) $alert(Lng.checking, 'Wait');
 		if(Cfg.addfav !== 0 && pr.tNum)
-			toggleFavorites(pByNum[pr.tNum], $x('a[@class="DESU_btnFav"]', pByNum[pr.tNum].Btns));
+			toggleFavorites(pByNum[pr.tNum], $class('DESU_btnFav', pByNum[pr.tNum].Btns));
 		if(pr.tNum) Stat.reply = +Stat.reply + 1;
 		else Stat.op = +Stat.op + 1;
 		setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
@@ -2232,7 +2232,7 @@ function getText(el) {
 }
 
 function getImgInfo(post) {
-	return $x('.//em|.//span[@class="filesize"]|.//node()[@class="fileinfo"]', post);
+	return $t('em', post) || $class('filesize', post) || $class('fileinfo', post);
 }
 
 function getImgWeight(post) {
@@ -2253,7 +2253,7 @@ function isSage(post) {
 	return !pr.mail ? false
 		: aib.abu ? $xb('.//span[@class="postername" and contains(text(),"Heaven")]', post)
 		: aib.hana ? $xb('.//img[@alt="Сажа"]', post)
-		: aib.krau ? $xb('.//span[@class="sage"]', post)
+		: aib.krau ? $class('sage', post)
 		: aib._410 ? $xb('.//span[@class="filetitle" and contains(text(),"'
 			+ unescape('%u21E9') + '")]', post)
 		: (a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post))
@@ -2381,7 +2381,7 @@ function getTubePattern() {
 
 function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
-		el = $x('.//div[@class="DESU_ytObj"]', getPost(this));
+		el = $class('DESU_ytObj', getPost(this));
 	$pD(e);
 	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el))
 		el.innerHTML = '';
@@ -2406,8 +2406,7 @@ function addLinkTube(post) {
 		var pst, el, msg, m = link.href.match(getTubePattern());
 		if(!m) return;
 		pst = post || getPost(link);
-		el = $x('.//div[@class="DESU_ytObj"]', pst);
-		if(!el) {
+		if(!(el = $class('DESU_ytObj', pst))) {
 			el = $new('div', {Class: 'DESU_ytObj'});
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
@@ -2469,7 +2468,7 @@ function addLinkMP3(post) {
 		var pst, el, msg;
 		if(!(link.target === '_blank' || link.rel === 'nofollow')) return;
 		pst = post || getPost(link);
-		el = $x('.//div[@class="DESU_mp3"]', pst);
+		el = $class('DESU_mp3', pst);
 		if(!el) {
 			el = $new('div', {Class: 'DESU_mp3'});
 			msg = pst.Msg || $x(aib.xMsg, pst);
@@ -2514,7 +2513,7 @@ function resizeImg(e) {
 function addFullImg(a, sz, isExp) {
 	var newW = '', newH = '', fullW = +sz[0], fullH = +sz[1],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
-		full = $x('.//img[@class="DESU_fullImg"]', a);
+		full = $class('DESU_fullImg', a);
 	if(full && isExp || !full && isExp === false) return;
 	if(Cfg.expimg === 1 && !$xb('img[contains(@style,"fixed")]', a)) $disp($t('img', a));
 	if(full) {
@@ -2524,7 +2523,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	full = $new('img');
 	if(Cfg.expimg === 2) {
-		$del($x('.//img[@class="DESU_fullImg"]'));
+		$del($class('DESU_fullImg'));
 		full.addEventListener(
 			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll', resizeImg, false
 		);
@@ -2630,7 +2629,7 @@ function getRefMap(pNum, rNum) {
 function showRefMap(post, rNum, uEv) {
 	var el, msg, txt;
 	if(typeof refMap[rNum] !== 'object' || !post) return;
-	el = $x('.//div[@class="DESU_refMap"]', post);
+	el = $class('DESU_refMap', post);
 	txt = refMap[rNum].join(',').replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	if(!el) {
 		msg = post.Msg || $x(aib.xMsg, post);
@@ -2752,7 +2751,7 @@ function setPreviewPostion(e, pView, anim) {
 }
 
 function markRefMap(pView, pNum) {
-	($x('.//a[@class="DESU_pPost"]', pView) || {}).className = '';
+	($class('DESU_pPost', pView) || {}).className = '';
 	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView)
 		|| {}).className = 'DESU_pPost';
 }
@@ -2838,7 +2837,7 @@ function parseHTMLdata(html, b) {
 		if(!ajThrds[b]) { ajThrds[b] = {}; ajPosts[b] = {}; }
 		ajThrds[b][thr.Num] = [];
 	}, function(post, i) {
-		if(i === 0 && aib.kus && (om = $x('.//span[@class="omittedposts"]', thrd, dc)))
+		if(i === 0 && aib.kus && $class('omittedposts', thrd))
 			post.appendChild(om);
 		pNum = post.Num;
 		ajThrds[b][thrd.Num].push(pNum);
@@ -2940,7 +2939,7 @@ function loadThread(post, last) {
 		else {
 			$delNx(post.Msg);
 			$delNx(post);
-			if(aib.krau) $del($x('.//span[@class="omittedinfo"]', post));
+			if(aib.krau) $del($class('omittedinfo', post));
 			expandThread($up(post), brd, post.Num, last);
 			$focus(pByNum[post.Num]);
 			if(last > 5 || last === 1) $up(post).appendChild($add(
@@ -2960,7 +2959,7 @@ function loadFavorThread(e) {
 		tNum = arr[2];
 	$pD(e);
 	if(thr.style.display !== 'none')
-		{ $disp(thr); $del($x('.//iframe[@class="DESU_favIframe"]')); return; }
+		{ $disp(thr); $del($class('DESU_favIframe')); return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	if(url) {
 		thr.appendChild($new('iframe', {
@@ -3109,11 +3108,11 @@ function togglePostVisib(post) {
 
 function togglePost(post, vis) {
 	if(post.isOp) getThread(post).style.display = vis === 0 ? 'none' : '';
-	$each($X('following-sibling::*', $x(
-		aib.krau ? './/div[@class="postheader"]'
-		: aib.tiny ? './/p[@class="intro"]'
-		: './/span[starts-with(@class,"DESU_postPanel")]', post
-	)), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
+	$each($X('following-sibling::*',
+		aib.krau ? $class('postheader', post)
+		: aib.tiny ? $class('intro', post)
+		: $class('DESU_postPanel', post)
+	), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
 }
 
 function applyPostVisib(post, vis, note) {
@@ -3162,7 +3161,7 @@ function hidePost(post, note) {
 function unhidePost(post) {
 	if(detectWipe(post)) return;
 	setPostVisib(post, 1);
-	$del($x('.//a[@class="DESU_postNote"]', post));
+	$del($class('DESU_postNote', post));
 	hideByWipe(post);
 }
 
@@ -3314,7 +3313,7 @@ function getSpells(x, post) {
 		}
 	}
 	if(x.words[0] || x.theme[0]) {
-		pTitle = $x('.//span[@class="replytitle" or @class="filetitle"]', post);
+		pTitle = $class('replytitle', post) || $class('filetitle', post);
 		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
 	}
 	if(x.words[0])
@@ -3332,8 +3331,8 @@ function getSpells(x, post) {
 		for(i = 0, inf = post.innerHTML; t = x.exph[i++];)
 			if(t.test(inf)) return '#exph ' + t.toString();
 	if(x.name[0] || x.trip) {
-		pName = $x('.//span[@class="commentpostername" or @class="postername"]', post);
-		pTrip = $x('.//span[@class="postertrip"]', post);
+		pName = $class('commentpostername', post) || $class('postername', post);
+		pTrip = $class('postertrip', post);
 	}
 	if(x.trip && pTrip) return '#trip';
 	if(x.name[0]) {
@@ -3464,7 +3463,7 @@ function findSameText(post, oNum, oVis, oWords) {
 			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) n++;
 	}
 	if(n < _olen*0.4 || len > _olen*3) return;
-	$del($x('.//a[@class="DESU_postNote"]', post));
+	$del($class('DESU_postNote', post));
 	if(oVis !== 0) hidePost(post, 'similar to >>' + oNum);
 	else unhidePost(post);
 }
