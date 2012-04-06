@@ -897,7 +897,7 @@ function addSettings() {
 				inpTxt('ctmpat', 30),
 				$txt(' '),
 				$new('a', {text: Lng.cTimePattern, href: '#'}, {
-					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "----yyyy-m-dd-hh-ii-ss"\niichan.ru, 2ch.so: "----dd-m-yyyy-hh-ii-ss"\ndobrochan.ru: "dd-m-?-?-?-?-?-yyyy-------hh-ii-?s?s?"\n410chan.org: "dd-nn-yyyy-------hh-ii-ss"\n4chan.org: "nn-dd-yy-----hh-ii-?s?s?"\n4chon.net: "nn-dd-yy-------hh-ii-ss"\nkrautchan.net: "yyyy-nn-dd-hh-ii-ss---?-?-?-?-?"'); }
+					click: function(e) { $pD(e); $alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "++++yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "++++dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy+++++++hh+ii+?s?s?"\n410chan.org: "dd+nn+yyyy+++++++hh+ii+ss"\n4chan.org: "nn+dd+yy+++++hh+ii+?s?s?"\n4chon.net: "nn+dd+yy+++++++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"'); }
 				})
 			])
 		], {style: 'padding-left: 25px;'})
@@ -1953,10 +1953,10 @@ function toggleTimeSettings() {
 }
 
 function parseTimePattern() {
-	if(/[^\?\-sihdmny]|mm/.test(Cfg.ctmpat)) return false;
-	timeRegex = Cfg.ctmpat.replace(/\-/g, '[^<]').replace(
+	if(/[^\?\-\+sihdmny]|mm/.test(Cfg.ctmpat)) return false;
+	timeRegex = Cfg.ctmpat.replace(/\-/g, '[^<]').replace(/\+/g, '[^0-9]').replace(
 		/([sihdny]+)/g, '($1)').replace(/[sihdny]/g, '\\d').replace(/\m/g, '([a-zA-Zа-яА-Я]+)');
-	timePattern = Cfg.ctmpat.replace(/[\?\-]+/g, '').replace(/([a-z])\1+/g, '$1');
+	timePattern = Cfg.ctmpat.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 	return true;
 }
 
