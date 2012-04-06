@@ -2394,7 +2394,7 @@ function addLinkTube(post) {
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || aib.getMsg(pst);
 			if(aib.krau)
-				$before($x('.//div[@class="postbody"]', pst) || $x('.//div[not(@class)]', pst), [el]);
+				$after($x('div[@class="file_thread" or @class="file_reply"][last()]', pst) || $class('postheader', pst), [el]);
 			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
@@ -2627,8 +2627,8 @@ function addRefMap(post, uEv) {
 	if(Cfg.navig !== 2) return;
 	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) return;
-		rNum = (link.hash || link.pathname.substring(link.pathname.lastIndexOf('/'))
-			|| link.textContent).match(/\d+/)[0];
+		rNum = (link.hash || link.textContent
+			|| link.pathname.substring(link.pathname.lastIndexOf('/'))).match(/\d+/)[0];
 		pst = post || getPost(link);
 		if(pByNum[rNum] && pst) getRefMap(pst.Num, rNum);
 	}, true);
@@ -3113,7 +3113,7 @@ function togglePostVisib(post) {
 }
 
 function togglePost(post, vis) {
-	if(post.isOp) post.thr.style.display = vis === 0 ? 'none' : '';
+	if(post.isOp) { post.thr.style.display = vis === 0 ? 'none' : ''; return; }
 	$each($X('following-sibling::*',
 		aib.krau ? $class('postheader', post)
 		: aib.tiny ? $class('intro', post)
@@ -3741,7 +3741,7 @@ function fixGM() {
 
 function initBoard() {
 	var ua, gs, ss, ls, se, url;
-	if(window.location === 'about:blank') return false;
+	if(/^(?:about|chrome|opera|res)/i.test(window.location)) return false;
 	aib = new aibDetector(window.location.hostname, doc);
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	if(/DESU_favIframe/.test(window.name)) liteMode = true;
