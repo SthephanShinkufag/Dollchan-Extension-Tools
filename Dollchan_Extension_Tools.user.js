@@ -2878,6 +2878,7 @@ function importPost(b, pNum) {
 	if(!ajPosts[b] || !ajPosts[b][pNum]) return false;
 	var nNode = doc.importNode(ajPosts[b][pNum], true);
 	nNode.Num = pNum;
+	replaceDelform(nNode);
 	return nNode;
 }
 
@@ -3793,7 +3794,6 @@ function parseDelform(node, dc, tFn, pFn) {
 			: aib.tire ? 'table[not(@class="postfiles")]'
 			: 'table';
 	$Del('.//script', node, dc);
-	replaceDelform(node);
 	threads = $X('.//div[' + (
 		$xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
@@ -3873,6 +3873,7 @@ function doScript() {
 	oldTime = initTime;
 	if(!initBoard()) return;							 Log('initBoard');
 	readCfg();											 Log('readCfg');
+	replaceDelform(dForm);								 Log('replaceDelform');
 	if(!initDelform()) return;							 Log('initDelform');
 	if(Cfg.keynav !== 0) { initKeyNavig();				 Log('initKeyNavig'); }
 	if(!liteMode) { addPanel();							 Log('addPanel'); }
