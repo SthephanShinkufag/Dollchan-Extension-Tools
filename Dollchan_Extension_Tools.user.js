@@ -288,7 +288,7 @@ LngArray = {
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -1842,7 +1842,7 @@ function showQuickReply(post) {
 			)]);
 		}
 	} else if($next(post) === qArea) { $disp(qArea); showMainReply(); return; }
-	$after(post, [qArea]);
+	$after($x('ancestor::table', post) || post, [qArea]);
 	if(!TNum && Cfg.tform !== 0) pArea.style.display = 'none';
 	qArea.style.display = 'block';
 	pr.form.style.width = '100%';
@@ -2201,7 +2201,7 @@ function getThread(el) {
 }
 
 function getPost(el) {
-	return $x('ancestor::*[contains(@class," DESU_post") or @class="DESU_oppost"]', el);
+	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
 }
 
 function getPstCount(thrd) {
@@ -2758,10 +2758,13 @@ function markRefMap(pView, pNum) {
 
 function funcPostPreview(post, parent, e, txt) {
 	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info', html: txt}), e);
-	var el, pNum = post.Num,
-		pView = ($x('.//td[@class="' + aib.pClass + '"]', post) || post).cloneNode(true);
+	var el, pNum = post.Num, pView = post.cloneNode(true);
 	if(post.Vis === 0) togglePost(pView);
 	pView.className += ' DESU_post ' + aib.pClass;
+	if(aib._7ch) {
+		pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
+		$del($class('doubledash', pView));
+	}
 	pView.Num = pNum;
 	$Del('.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]'
 		+ '|.//div[@class="DESU_refMap"' + (Cfg.ytube !== 2 ? 'or @class="DESU_ytObj"' : '')
@@ -2784,7 +2787,7 @@ function funcPostPreview(post, parent, e, txt) {
 
 function showPostPreview(e) {
 	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
-		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [0, 0])[1],
+		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		post = pByNum[pNum] || importPost(b, pNum),
 		parent = getPost(e.target),
@@ -2900,9 +2903,19 @@ function newPost(thr, b, tNum, i, isDel) {
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
-	thr.appendChild(post);
+	insertPost(thr, post);
 	if(Cfg.expost !== 0 && !TNum) expandPost(post);
 	if(aib.tiny) thr.appendChild($new('br'));
+}
+
+function insertPost(thr, post) {
+	var pst, el;
+	if(postWrapper) {
+		el = $class('DESU_post', pst = postWrapper.cloneNode(true));
+		if(el) el.parentNode.replaceChild(post, el);
+		else pst = post;
+	} else pst = post;
+	thr.appendChild(pst);
 }
 
 function getFullMsg(post, tNum, a) {
@@ -3836,37 +3849,52 @@ function forEachThread(node, dc, fn) {
 }
 
 function parseDelform(node, dc, tFn, pFn) {
-	var table =
-			aib.fch ? 'table[not(@class="exif")]'
+	var i, len, op, opEnd, psts, tNum,
+		table = aib.fch ? 'table[not(@class="exif")]'
 			: aib.tire ? 'table[not(@class="postfiles")]'
+			: aib.kus ? 'table|div/table'
 			: 'table';
-	$Del('.//script', node, dc);
+	for(i = node.getElementsByTagName('script'), len = i.length; len--;) $del(i[len]);
 	forEachThread(node, dc, function(thr) {
-		var a, op, opEnd, id, i = 0,
-			tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
+		tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
 			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(/\d+/)[0];
-		if(aib.tiny) $after(thr, [$new('hr', {}, {}, dc)]);
+		if(aib.tiny) $after(thr, [thr.lastElementChild]);
 		thr.className += ' DESU_thread';
 		thr.Num = tNum;
-		tFn(thr);
-		op = $new('div', {Class: 'DESU_oppost'}, {}, dc);
-		opEnd = $x(table + '|div[descendant::table]|div[starts-with(@id,"repl")]', thr, dc);
-		$each(opEnd ? $X('preceding-sibling::node()', opEnd, dc) : $X('node()', thr, dc),
-			function(el) { op.appendChild(el); }, !opEnd || nav.Firefox);
+		if(tFn) tFn(thr);
+		if(aib.abu || aib.hana || aib.kus) op = $class(aib.kus ? 'postnode' : 'oppost', thr);
+		else op = false;
+		if(!op) {
+			op = $new('div', {}, {}, dc);
+			opEnd = $x(table + '|div[starts-with(@id,"repl")]', thr, dc);
+			i = thr.firstChild;
+			while(i !== opEnd) { len = i.nextSibling; op.appendChild(i); i = len; }
+			if(aib._7ch) {
+				(i = $new('div', {}, {}, dc)).appendChild(op);
+				op.className = 'post'; op = i;
+			}
+			if(thr.childElementCount) $before($1(thr), [op]);
+			else thr.appendChild(op);
+		}
+		op.className += ' DESU_oppost';
 		op.Num = tNum;
 		pFn(op, 0);
-		if(opEnd) {
-			$each($X('.//' + table + '|.//div[@class="' + aib.pClass + '"]', thr, dc), function(el) {
-				id = (el.id || (el.getElementsByTagName('td')[1] || $t('td', el)).id
-					|| $t('input', el).name).match(/\d+/)[0];
-				el.className += ' DESU_post';
-				el.Num = id;
-				pFn(el, ++i);
-			}, true);
-			$before($1(thr), [op]);
-		} else thr.appendChild(op);
+		if(aib.gazo) $each($X('table/tbody/tr/td[2]', thr, dc), function(el) { el.className = aib.pClass; });
+		psts = thr.getElementsByClassName(aib.pClass);
+		if(psts.length > 0) {
+			for(i = 0, len = psts.length; i < len; i++) {
+				opEnd = psts[i];
+				opEnd.className += ' DESU_post';
+				opEnd.Num = (opEnd.id || $t('a', opEnd).name || $t('input', opEnd).id).match(/\d+/)[0];
+				pFn(opEnd, i + 1);
+			}
+		}
 	});
 	if(liteMode) $Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
+	if(!aib._7ch && !aib.tiny && !postWrapper) {
+		postWrapper = $x('.//div[contains(@class," DESU_thread")]/' + table, node, dc);
+		if(dc !== doc) postWrapper = doc.importNode(postWrapper, true);
+	}
 	return node;
 }
 
@@ -3885,7 +3913,7 @@ function replaceDelform(node) {
 function initDelform() {
 	dForm.id = '';
 	$disp(dForm);
-	try { parseDelform(dForm, doc, function(a){}, pushPost); }
+	try { parseDelform(dForm, doc, false, pushPost); }
 	catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
