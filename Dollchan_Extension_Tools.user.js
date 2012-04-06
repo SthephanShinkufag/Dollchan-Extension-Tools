@@ -2813,15 +2813,15 @@ function eventRefLink(el) {
 								AJAX FUNCTIONS
 =============================================================================*/
 
-function parseHTMLdata(html, b) {
+function parseHTMLdata(html, b, tNum) {
 	var dc, thrd, pNum, om;
 	if(!pr.on && oeForm) {
 		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
 	dc = HTMLtoDOM(aib.hana
-		? '<html><head></head><body><div class="thread">' + html + '</div></body></html>' : html);
-	parseDelform(!aib.hana ? $x(aib.xDForm, dc, dc) : false, dc, function(thr) {
+		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>' : html);
+	parseDelform(!aib.hana ? $x(aib.xDForm, dc, dc) : dc, dc, function(thr) {
 		thrd = thr;
 		if(!ajThrds[b]) { ajThrds[b] = {}; ajPosts[b] = {}; }
 		ajThrds[b][thr.Num] = [];
@@ -2843,7 +2843,7 @@ function ajaxGetPosts(url, b, tNum, fn) {
 		: '/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt);
 	GM_xmlhttpRequest({method: 'GET', url: url, onreadystatechange: function(xhr) {
 		if(xhr.readyState !== 4) return;
-		if(xhr.status === 200) { parseHTMLdata(xhr.responseText, b); fn(); }
+		if(xhr.status === 200) { parseHTMLdata(xhr.responseText, b, tNum); fn(); }
 		else if(xhr.status === 0) fn(Lng.noConnect);
 		else fn('HTTP [' + xhr.status + '] ' + xhr.statusText);
 	}});
@@ -3890,8 +3890,8 @@ function parseDelform(node, dc, tFn, pFn) {
 	});
 	if(liteMode) $Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	if(!aib._7ch && !aib.tiny && !postWrapper) {
-		postWrapper = $x('.//div[contains(@class," DESU_thread")]/' + table, node, dc);
-		if(dc !== doc) postWrapper = doc.importNode(postWrapper, true);
+		postWrapper = $x('.//div[contains(@class," DESU_thread")]//' + table, node, dc);
+		if(dc !== doc && postWrapper) postWrapper = doc.importNode(postWrapper, true);
 	}
 	return node;
 }
