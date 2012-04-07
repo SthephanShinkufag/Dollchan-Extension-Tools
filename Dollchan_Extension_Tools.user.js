@@ -3873,8 +3873,10 @@ function parseDelform(node, dc, tFn, pFn) {
 		op.Num = tNum;
 		op.thr = thr;
 		pFn(op, 0);
-		if(aib.gazo) $each($X('table/tbody/tr/td[2]', thr, dc), function(el) { el.className = aib.pClass; });
-		psts = thr.getElementsByClassName(aib.pClass);
+		if(aib.gazo) {
+			psts = [];
+			$each($X('table/tbody/tr/td[2]', thr, dc), function(el) { psts.push(el); }, true);
+		} else psts = thr.getElementsByClassName(aib.pClass);
 		if((thr.pCount = psts.length) > 0) {
 			for(i = 0, len = psts.length; i < len; i++) {
 				opEnd = psts[i]; opEnd.thr = thr;
