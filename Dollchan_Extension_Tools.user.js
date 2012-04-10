@@ -234,6 +234,7 @@ LngArray = {
 	],
 	loading:		['Загрузка...', 'Loading...'],
 	checking:		['Проверка...', 'Checking...'],
+	deleting:		['Удаление...', 'Deleting...'],
 	error:			['Ошибка:', 'Error:'],
 	bold:			['Жирный', 'Bold'],
 	italic:			['Наклонный', 'Italic'],
@@ -259,6 +260,7 @@ LngArray = {
 	cTimeOffset:	[' Разница во времени', ' Time difference'],
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
+	errDelete:		['Не могу удалить пост(ы)!', 'Can\'t delete post(s)!'],
 	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
 	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
 	keyNavHelp:		[
@@ -1705,10 +1707,8 @@ function doPostformChanges() {
 			};
 			dForm.onsubmit = function(e) {
 				$pD(e);
-				$alert(Lng.loading, 'Wait');
-				ajaxCheckSubmit(dForm, new FormData(dForm),
-					function() { $close($id('DESU_alertWait')); $alert(Lng.succDeleted); }
-				);
+				$alert(Lng.deleting, 'Wait');
+				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
 			};
 		} else {
 			if(aib.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
@@ -1787,6 +1787,20 @@ function checkUpload(dc, url) {
 		$close($id('DESU_alertWait'));
 		$alert(err);
 	}
+}
+
+function checkDelete(dc, url) {
+	var allDel = true, cbFunc = function() {
+		$each($X('.//input[@type="checkbox"]', dForm), function(el) {
+			if(el.checked && !getPost(el).isDel) allDel = false;
+			el.checked = false;
+		});
+		$alert(allDel ? Lng.succDeleted : Lng.errDelete);
+	};
+	if(pr.tNum) {
+		if(!TNum) loadThread(pByNum[pr.tNum], 5, cbFunc);
+		else loadNewPosts(true, cbFunc);
+	} else $close($id('DESU_alertWait'));
 }
 
 function prepareData(fn) {
@@ -2938,7 +2952,7 @@ function expandThread(thr, b, tNum, last, isDel) {
 	$close($id('DESU_alertWait'));
 }
 
-function loadThread(post, last) {
+function loadThread(post, last, fn) {
 	$alert(Lng.loading, 'Wait');
 	ajaxGetPosts(null, brd, post.Num, function(err) {
 		if(err) { $close($id('DESU_alertWait')); $alert(err); }
@@ -2953,6 +2967,7 @@ function loadThread(post, last) {
 				click: function(e) { $pD(e); loadThread(post, 5); }
 			}));
 		}
+		if(fn) fn();
 	});
 }
 
@@ -3045,7 +3060,7 @@ function infoNewPosts(err, del) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 }
 
-function loadNewPosts(inf) {
+function loadNewPosts(inf, fn) {
 	if(inf) $alert(Lng.loading, 'Wait');
 	ajaxGetPosts(null, brd, TNum, function(err) {
 		var i, len, del = getDelPosts(err);
@@ -3057,6 +3072,7 @@ function loadNewPosts(inf) {
 			$1($id('DESU_panelInfo')).textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
 		if(inf) { $close($id('DESU_alertWait')); infoNewPosts(err, del); }
+		if(fn) fn();
 	}, true);
 }
 
