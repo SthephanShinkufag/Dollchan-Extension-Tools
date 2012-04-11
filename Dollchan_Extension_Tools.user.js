@@ -2900,13 +2900,8 @@ function importPost(b, pNum) {
 
 function newPost(thr, b, tNum, i, isDel) {
 	var pNum = ajThrds[b][tNum][i], post = importPost(b, pNum);
-	Posts.push(post);
-	pByNum[pNum] = post;
-	post.Count = i;
+	pushPost(post, i);
 	post.Vis = getVisib(pNum);
-	post.Msg = aib.getMsg(post);
-	post.Img = getImages(post);
-	post.isOp = i === 0;
 	post.isDel = isDel;
 	thr.pCount++;
 	post.thr = thr;
