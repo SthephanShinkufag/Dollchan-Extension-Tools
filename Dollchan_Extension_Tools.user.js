@@ -1866,6 +1866,7 @@ function showQuickReply(post) {
 	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !aib.kus) refreshCapImg(tNum);
 	if(!TNum) toggleQuickReply(tNum);
+	if(aib._420 && pr.txta.value === 'Comment') pr.txta.value = '';
 	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n>$2') + '\n');
 }
 
@@ -1897,7 +1898,10 @@ function insertRefLink(e) {
 	e.stopPropagation(); $pD(e);
 	if(!TNum && Cfg.tform !== 0 && !pr.isQuick) pArea.style.display = '';
 	if(TNum && Cfg.pform === 2 && !pr.isQuick) showQuickReply(pByNum[pNum]);
-	else insertInto(pr.txta, '>>' + pNum);
+	else {
+		if(aib._420 && pr.txta.value === 'Comment') pr.txta.value = '';
+		insertInto(pr.txta, '>>' + pNum);
+	}
 }
 
 /*----------------------------Text formatting buttons------------------------*/
@@ -1914,7 +1918,7 @@ function tfBtn(id, title, wktag, bbtag, val) {
 			text = x.value.substring(start, end).split('\n'),
 			i = text.length;
 		$pD(e);
-		if(aib.kus || aib.abu || aib.krau || aib.fch && wktag === '%%') {
+		if(aib.kus || aib.abu || aib.krau || aib._420 || aib.fch && wktag === '%%') {
 			tag1 = '[' + bbtag + ']';
 			tag2 = '[/' + bbtag + ']';
 		} else tag1 = tag2 = wktag;
@@ -1945,15 +1949,15 @@ function tfBtn(id, title, wktag, bbtag, val) {
 function addTextPanel() {
 	$del($id('DESU_txtPanel'));
 	if(Cfg.txtbtn === 0 || !pr.txta) return;
-	$after(pr.subm, [$New('span', [
+	$after(aib._420 ? $class('popup', pr.form) : pr.subm, [$New('span', [
 		$txt(unescape('%u00A0')),
 		$if(Cfg.txtbtn === 2, $txt('[ ')),
-		tfBtn('DESU_btnBold', Lng.bold, '**', 'b', 'B'),
-		tfBtn('DESU_btnItalic', Lng.italic, '*', 'i', 'i'),
-		tfBtn('DESU_btnUnder', Lng.underlined, '__', 'u', 'U'),
-		tfBtn('DESU_btnStrike', Lng.strike, aib._410 ? '^^' : '', 's', 'S'),
-		tfBtn('DESU_btnSpoiler', Lng.spoiler, '%%', 'spoiler', '%'),
-		tfBtn('DESU_btnCode', Lng.code, '`', aib.krau ? 'aa' : 'code', 'C'),
+		tfBtn('DESU_btnBold', Lng.bold, '**', aib._420 ? '**' : 'b', 'B'),
+		tfBtn('DESU_btnItalic', Lng.italic, '*', aib._420 ? '*' : 'i', 'i'),
+		$if(!aib._420, tfBtn('DESU_btnUnder', Lng.underlined, '__', 'u', 'U')),
+		$if(!aib._420, tfBtn('DESU_btnStrike', Lng.strike, aib._410 ? '^^' : '', 's', 'S')),
+		tfBtn('DESU_btnSpoiler', Lng.spoiler, '%%', aib._420 ? '%' : 'spoiler', '%'),
+		tfBtn('DESU_btnCode', Lng.code, '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
 		tfBtn('DESU_btnQuote', Lng.quote, '', '', '&gt;'),
 		$if(Cfg.txtbtn === 2, $txt(' ]'))
 	], {id: 'DESU_txtPanel'})]);
@@ -2198,6 +2202,10 @@ function scriptCSS() {
 		div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 		.file_reply + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
 		.DESU_ytObj + div:not(.file_reply) { clear: both; }'
+	);
+	if(aib._420) x.push(
+		'.opqrbtn, .qrbtn, .ignorebtn, .hidethread { display: none; }\
+		div[id^="DESU_hidThr_"] { margin-top: 1.2em; }'
 	);
 
 	if(!$id('DESU_css')) {
@@ -3133,6 +3141,7 @@ function togglePost(post, vis) {
 	$each($X('following-sibling::*',
 		aib.krau ? $class('postheader', post)
 		: aib.tiny ? $class('intro', post)
+		: aib._420 ? $class('replyheader', post)
 		: $class('DESU_postPanel', post)
 	), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
 }
@@ -3688,6 +3697,7 @@ function aibDetector(host, dc) {
 	this.vomb = h === 'vombatov.net';
 	this.ment = h === '02ch.org' || h === '02ch.net';
 	this.futr = h === '2chan.su';
+	this._420 = h === '420chan.org';
 	this.xDForm = './/form[' + (
 		this.hana || this.krau ? 'contains(@action,"delete")]'
 		: this.tiny ? '@name="postcontrols"]'
@@ -3786,12 +3796,12 @@ function initBoard() {
 		isGlobal: gs || ss
 	};
 	url = (window.location.pathname || '').match(
-		/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index|wakaba)?(\.[xme]*html?)?$/);
+		/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	res = aib.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
 	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
-	docExt = url[4] || (aib.gazo ? '.htm' : '.html');
+	docExt = url[4] || (aib.gazo ? '.htm' : aib._420 ? '.php' : '.html');
 	favIcon = $x('.//head//link[@rel="shortcut icon"]');
 	if(favIcon) favIcon = favIcon.href;
 	cssFix = nav.Firefox ? '-moz-' : nav.Chrome ? '-webkit-' : '';
@@ -3833,11 +3843,13 @@ function forEachThread(node, dc, fn) {
 		if(nav.Opera && nav.Opera < 10) {
 			threads = $X('.//div[' + (
 				el ? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
+				: aib._420 ? 'contains(@id,"thread")'
 				: 'starts-with(@id,"thread")' + (aib._7ch ? 'and not(@id="thread_controls")' : '')
 			) + ']', node, dc);
 			if(threads.snapshotLength > 0) { $each(threads, fn, true); return; }
 			else threads.length = 0;
 		} else threads = node.querySelectorAll(el ? 'div[id^="t"]:not([id$="_info"])' 
+			: aib._420 ? 'div[id*="thread"]'
 			: 'div[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : ''));
 		if(threads.length === 0) {
 			el = node.firstChild;
@@ -3866,8 +3878,8 @@ function parseDelform(node, dc, tFn, pFn) {
 	for(i = node.getElementsByTagName('script'), len = i.length; len--;) $del(i[len]);
 	forEachThread(node, dc, function(thr) {
 		tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
-			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(/\d+/)[0];
-		if(aib.tiny) $after(thr, [thr.lastElementChild]);
+			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(/\d+$/)[0];
+		if(aib.tiny || aib._420) $after(thr, [thr.lastElementChild]);
 		thr.className += ' DESU_thread';
 		thr.Num = tNum;
 		if(tFn) tFn(thr);
