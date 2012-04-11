@@ -2875,7 +2875,6 @@ function ajaxGetPosts(url, b, tNum, fn) {
 }
 
 function addPostFunc(post) {
-	post.Text = getText(post.Msg);
 	doPostFilters(post);
 	addRefMap(post, true);
 	eventRefLink(post);
@@ -2931,6 +2930,7 @@ function getFullMsg(post, tNum, a) {
 		if(err) return;
 		$del(a);
 		post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
+		post.Text = getText(post.Msg);
 		addPostFunc(post);
 	});
 }
