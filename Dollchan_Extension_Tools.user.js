@@ -2172,7 +2172,9 @@ function scriptCSS() {
 		.DESU_viewed, .DESU_viewed .reply { color: #888 !important; }\
 		.reply { width: auto; }\
 		a[href="#"] { text-decoration: none !important; outline: none; }\
-		.DESU_pPost { font-weight: bold; }'
+		.DESU_pPost { font-weight: bold; }\
+		.DESU_info { padding: 3px 6px !important; }\
+		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; opacity: 0; border: 1px solid grey; }'
 	);
 	if(Cfg.delhd === 2) x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
 	if(Cfg.noname !== 0) x.push('.commentpostername, .postername, .postertrip { display: none; }');
@@ -2662,8 +2664,6 @@ function addRefMap(post, uEv) {
 function addNode(parent, pView, e) {
 	var el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
 	parent = parent.node;
-	pView.style.cssText =
-		'position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; opacity: 0;';
 	dForm.appendChild(pView);
 	setPreviewPostion(e, pView);
 	$event(pView, {mouseover: function() { markPost(this.node, false); }, mouseout: markDelete});
@@ -2765,10 +2765,10 @@ function markRefMap(pView, pNum) {
 }
 
 function funcPostPreview(post, parent, e, txt) {
-	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info', html: txt}), e);
+	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info DESU_pView', html: txt}), e);
 	var el, pNum = post.Num, pView = post.cloneNode(true);
 	if(post.Vis === 0) togglePost(pView);
-	pView.className += ' DESU_post ' + aib.pClass;
+	pView.className += ' DESU_post DESU_pView ' + aib.pClass;
 	if(aib._7ch) {
 		pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 		$del($class('doubledash', pView));
