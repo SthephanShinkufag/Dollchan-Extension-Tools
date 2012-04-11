@@ -36,6 +36,7 @@ var defaultCfg = {
 	navdel:		'2000',	//		delay in ms
 	navmrk:		0,		//		mark viewed posts
 	navhid:		0,		//		strike hidden posts in refmap
+	navdis:		0,		//		don't show hidden posts
 	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
 	expost:		2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	ctime:		0,		// correct time in posts
@@ -134,6 +135,7 @@ LngArray = {
 	delayPreview:	[' задержка пропадания (мс)', ' delay disappearance (ms)'],
 	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 	hidRefmap:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
+	disHidPview:	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 	expandPosts:	['загрузка сокращенных постов*', 'upload of shorted posts*'],
 	selClickAuto:	[
 		['Откл.', 'Авто', 'По клику'],
@@ -910,7 +912,8 @@ function addSettings() {
 		$New('div', [
 			$New('div', [inpTxt('navdel', 8), $txt(Lng.delayPreview)]),
 			divBox('navmrk', Lng.markViewed),
-			divBox('navhid', Lng.hidRefmap)
+			divBox('navhid', Lng.hidRefmap),
+			divBox('navdis', Lng.disHidPview)
 		], {style: 'padding-left: 25px;'}),
 		divBox('insnum', Lng.insertLink),
 		divBox('mp3', Lng.mp3Embed),
@@ -2800,7 +2803,7 @@ function showPostPreview(e) {
 		post = pByNum[pNum] || importPost(b, pNum),
 		parent = getPost(e.target),
 		el = parent.node ? parent.node.kid : curView;
-	if(Cfg.navig === 0 || /^>>$/.test(this.textContent)) return;
+	if(Cfg.navig === 0 || /^>>$/.test(this.textContent) || (Cfg.navdis === 1 && post && post.Vis === 0)) return;
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
