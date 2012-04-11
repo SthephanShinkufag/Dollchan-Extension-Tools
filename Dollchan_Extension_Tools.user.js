@@ -2552,7 +2552,7 @@ function addFullImg(a, sz, isExp) {
 	}));
 }
 
-function addLinkImg(post) {
+function addLinkImg(addBr, post) {
 	if(Cfg.addimg === 0) return;
 	$each($X(aib.xMsg + '//a[contains(@href,".jpg") or contains(@href,".png")'
 		+ ' or contains(@href,".gif")]', post || dForm), function(link) {
@@ -2580,7 +2580,7 @@ function addLinkImg(post) {
 				addFullImg(this, $1(this).title.split('x'));
 			}
 		}});
-		$before(link, [a, $new('br')]);
+		$before(link, [a, $if(addBr, $new('br'))]);
 	});
 }
 
@@ -2787,7 +2787,7 @@ function funcPostPreview(post, parent, e, txt) {
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) { img.style.display = ''; });
 	eventPostImg(pView);
-	addLinkImg(pView);
+	addLinkImg(false, pView);
 	addImgSearch(pView);
 	if(Cfg.navig === 2) { showRefMap(pView, pNum); markRefMap(pView, parent.Num); }
 	eventRefLink(pView);
@@ -2881,7 +2881,7 @@ function addPostFunc(post) {
 	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
-	addLinkImg(post);
+	addLinkImg(true, post);
 	addImgSearch(post);
 	if(post.Vis === 0) setPostVisib(post, 0);
 	if(Cfg.delhd === 1) mergeHidden(post);
@@ -3969,7 +3969,7 @@ function doScript() {
 	if(Cfg.expost !== 0 && !TNum) { forAll(expandPost);	 Log('expandPost'); }
 	if(Cfg.mp3 !== 0) { addLinkMP3();					 Log('addLinkMP3'); }
 	if(Cfg.ytube !== 0) { addLinkTube();				 Log('addLinkTube'); }
-	if(Cfg.addimg !== 0) { addLinkImg();				 Log('addLinkImg'); }
+	if(Cfg.addimg !== 0) { addLinkImg(true);			 Log('addLinkImg'); }
 	if(Cfg.imgsrc !== 0) { addImgSearch();				 Log('addImgSearch'); }
 	if(Cfg.navig === 2) { addRefMap();					 Log('addRefMap'); }
 	if(Cfg.navig !== 0) { eventRefLink();				 Log('eventRefLink'); }
