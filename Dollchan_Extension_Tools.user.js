@@ -2039,7 +2039,7 @@ function scriptCSS() {
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
 		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
-		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; border: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
+		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; ' + brCssFix + 'border-radius: 4px 4px 0 0; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel a { padding: 0 7px; text-align: center; }'
 	);
@@ -2189,7 +2189,10 @@ function scriptCSS() {
 		.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }'
 	);
 	if(aib.hana) x.push('#hideinfotd, .reply_ { display: none; }');
-	if(aib.abu) x.push('.postbtn_exp, .postbtn_hide, .postbtn_rep, div[id^=post_video] { display: none; }');
+	if(aib.abu) x.push(
+		'.postbtn_exp, .postbtn_hide, .postbtn_rep, div[id^=post_video] { display: none; }\
+		a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
+	);
 	if(aib.tiny) x.push('form, form table { margin: 0; }');
 	if(aib.nul) x.push(
 		'#newposts_get, #postform nobr, .DESU_thread span[style="float: right;"] { display: none; }\
