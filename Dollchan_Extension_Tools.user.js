@@ -3841,14 +3841,14 @@ function forEachThread(node, dc, fn) {
 		if(nav.Opera && nav.Opera < 10) {
 			threads = $X('.//div[' + (
 				el ? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
-				: aib._420 ? 'contains(@id,"thread")'
-				: 'starts-with(@id,"thread")' + (aib._7ch ? 'and not(@id="thread_controls")' : '')
+				: 'starts-with(@id,"' + (aib._420 ? brd : '') + 'thread")'
+				  + (aib._7ch ? 'and not(@id="thread_controls")' : '')
 			) + ']', node, dc);
 			if(threads.snapshotLength > 0) { $each(threads, fn, true); return; }
 			else threads.length = 0;
-		} else threads = node.querySelectorAll(el ? 'div[id^="t"]:not([id$="_info"])' 
-			: aib._420 ? 'div[id*="thread"]'
-			: 'div[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : ''));
+		} else threads = node.querySelectorAll(el ? 'div[id^="t"]:not([id$="_info"])'
+			: 'div[id^="' + (aib._420 ? brd : '') + 'thread"]'
+			  + (aib._7ch ? ':not(#thread_controls)' : ''));
 		if(threads.length === 0) {
 			el = node.firstChild;
 			while(1) {
@@ -3878,7 +3878,7 @@ function parseDelform(node, dc, tFn, pFn) {
 	forEachThread(node, dc, function(thr) {
 		tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
 			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(regexp)[0];
-		if(aib.tiny || aib._420) $after(thr, [thr.lastElementChild]);
+		if(aib.tiny || aib._420) $after(thr, [thr.lastChild]);
 		thr.className += ' DESU_thread';
 		thr.Num = tNum;
 		if(tFn) tFn(thr);
