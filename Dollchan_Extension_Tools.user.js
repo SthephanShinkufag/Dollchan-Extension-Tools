@@ -2209,7 +2209,7 @@ function scriptCSS() {
 		.DESU_ytObj + div:not(.file_reply) { clear: both; }'
 	);
 	if(aib._420) x.push(
-		'.opqrbtn, .qrbtn, .ignorebtn, .hidethread { display: none; }\
+		'.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
 		div[id^="DESU_hidThr_"] { margin-top: 1.2em; }'
 	);
 
@@ -3735,8 +3735,8 @@ function aibDetector(host, dc) {
 }
 
 function getThrdUrl(h, b, tNum) {
-	return 'http://' + h + '/' + b + '/' + (/krautchan\.net/.test(h) ? 'thread-' : 'res/')
-		+ tNum + (/dobrochan\./.test(h) ? '.xhtml' : /2chan\.net/.test(h) ? '.htm' : '.html');
+	return 'http://' + h + '/' + b + '/' + ((h.indexOf('krautchan.net') + 1) ? 'thread-' : 'res/')
+		+ tNum + ((h.indexOf('dobrochan.') + 1) ? '.xhtml' : (h.indexOf('2chan.net') + 1) ? '.htm' : (h.indexOf('420chan.org') + 1) ? '.php' : '.html');
 }
 
 function fixDomain() {
@@ -3872,11 +3872,12 @@ function parseDelform(node, dc, tFn, pFn) {
 		table = aib.fch ? 'table[not(@class="exif")]'
 			: aib.tire ? 'table[not(@class="postfiles")]'
 			: aib.kus ? 'table|div/table'
-			: 'table';
+			: 'table',
+		regexp = new RegExp('\\d+' + (aib._420 ? '$' : ''));
 	for(i = node.getElementsByTagName('script'), len = i.length; len--;) $del(i[len]);
 	forEachThread(node, dc, function(thr) {
 		tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
-			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(/\d+$/)[0];
+			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(regexp)[0];
 		if(aib.tiny || aib._420) $after(thr, [thr.lastElementChild]);
 		thr.className += ' DESU_thread';
 		thr.Num = tNum;
