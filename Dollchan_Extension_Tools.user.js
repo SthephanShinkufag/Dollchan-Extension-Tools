@@ -3925,6 +3925,8 @@ function parseDelform(node, dc, tFn, pFn) {
 			thr.dTitle = ((i = $class(aib.cTitle, op)) && i.textContent.trim() || op.Text).substring(0, 70).replace(/\s+/g, ' ');
 		}
 	});
+	if(window.location.hash && (post = pByNum[window.location.hash.substring(1)]))
+		$event(window, {'load': function() { setTimeout(function() { post.className += ' DESU_post'; }, 1e3); }});
 	if(liteMode) $Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	if(!aib._7ch && !aib.tiny && !postWrapper) {
 		postWrapper = $x('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
