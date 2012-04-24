@@ -3696,6 +3696,12 @@ function aibDetector(host, dc) {
 	this.ment = h === '02ch.org' || h === '02ch.net';
 	this.futr = h === '2chan.su';
 	this._420 = h === '420chan.org';
+	this.xThreads = this.sib ? 'div' : ('.//div[' + (
+		$xb('div[contains(@id,"_info") and contains(@style,"float")]', dc, dc) ?
+		  'starts-with(@id,"t") and not(contains(@id,"_info"))'
+		: this._420 ? 'contains(@id,"thread")'
+		: 'starts-with(@id,"thread")' + (this._7ch ? 'and not(@id="thread_controls")' : '')
+	) + ']');
 	this.xDForm = './/form[' + (
 		this.hana || this.krau ? 'contains(@action,"delete")]'
 		: this.tiny ? '@name="postcontrols"]'
@@ -3837,19 +3843,9 @@ function pushPost(post, i) {
 function forEachThread(node, dc, fn) {
 	var threads, el, tEl, pThr = false;
 	if((threads = node.getElementsByClassName(aib.tClass)).length === 0) {
-		el = $xb('div[contains(@id,"_info") and contains(@style,"float")]', node, dc);
-		if(nav.Opera && nav.Opera < 10) {
-			threads = $X('.//div[' + (
-				el ? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
-				: 'starts-with(@id,"' + (aib._420 ? brd : '') + 'thread")'
-				  + (aib._7ch ? 'and not(@id="thread_controls")' : '')
-			) + ']', node, dc);
-			if(threads.snapshotLength > 0) { $each(threads, fn, true); return; }
-			else threads.length = 0;
-		} else threads = node.querySelectorAll(el ? 'div[id^="t"]:not([id$="_info"])'
-			: 'div[id^="' + (aib._420 ? brd : '') + 'thread"]'
-			  + (aib._7ch ? ':not(#thread_controls)' : ''));
-		if(threads.length === 0) {
+		threads = $X(aib.xThreads, node, dc);
+		if(threads.snapshotLength !== 0) $each(threads, fn, true);
+		else {
 			el = node.firstChild;
 			while(1) {
 				threads = $new('div', {}, {}, dc);
@@ -3863,8 +3859,7 @@ function forEachThread(node, dc, fn) {
 				pThr = tEl; el = tEl.nextSibling;
 			}
 		}
-	}
-	for(el = 0, tEl = threads.length; el < tEl; el++) fn(threads[el]);
+	} else for(el = 0, tEl = threads.length; el < tEl; el++) fn(threads[el]);
 }
 
 function parseDelform(node, dc, tFn, pFn) {
