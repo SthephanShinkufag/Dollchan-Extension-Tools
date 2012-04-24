@@ -292,7 +292,7 @@ LngArray = {
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes']
 },
 
-doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*=============================================================================
@@ -2769,9 +2769,12 @@ function markRefMap(pView, pNum) {
 		|| {}).className = 'DESU_pPost';
 }
 
-function funcPostPreview(post, parent, e, txt) {
-	if(!post) return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info DESU_pView', html: txt}), e);
-	var el, pNum = post.Num, pView = post.cloneNode(true);
+function funcPostPreview(post, pNum, parent, e, txt) {
+	if(!post) {
+		if(!txt) pDel[pNum] = true;
+		return addNode(parent, $new('div', {Class: aib.pClass + ' DESU_info DESU_pView', html: txt || Lng.postNotFound}), e);
+	}
+	var el, pView = post.cloneNode(true);
 	if(post.Vis === 0) togglePost(pView);
 	pView.className += ' DESU_post DESU_pView ' + aib.pClass;
 	if(aib._7ch) {
@@ -2809,19 +2812,20 @@ function showPostPreview(e) {
 	setTimeout(function() {
 		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
 	}, 0);
-	if(el && el.post.Num === pNum) {
+	if(pDel[pNum]) funcPostPreview(null, pNum, parent, e, Lng.postNotFound);
+	else if(el && el.post.Num === pNum) {
 		markPost(el, false);
 		deleteNodes(el.kid);
 		setPreviewPostion(e, el.post, true);
 		markRefMap(el.post, parent.Num);
 	} else if(!post) {
-		el = funcPostPreview(null, parent, e,
+		el = funcPostPreview(null, pNum, parent, e,
 			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
 			if(el && !el.forDel)
-				funcPostPreview(importPreview(b, pNum), parent, e, err || Lng.postNotFound);
+				funcPostPreview(importPreview(b, pNum), pNum, parent, e, err);
 		});
-	} else funcPostPreview(post, parent, e);
+	} else funcPostPreview(post, pNum, parent, e);
 }
 
 function eventRefLink(el) {
