@@ -3683,88 +3683,89 @@ function replyForm(f) {
 
 function aibDetector(host, dc) {
 	var h = host.match(
-		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-	this.host = host;
-	this.dm = h;
-	this.kus = $xb('.//script[contains(@src,"kusaba")]', dc, dc);
-	this.hana = $xb('.//script[contains(@src,"hanabira")]', dc, dc);
-	this.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
-	this.tiny = $xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
-	this.krau = h === 'krautchan.net';
-	this.fch = h === '4chan.org';
-	this.gazo = h === '2chan.net';
-	this.nul = h === '0chan.ru';
-	this._7ch = h === '7chan.org';
-	this._410 = h === '410chan.ru';
-	this.sib = h === 'sibirchan.ru';
-	this._5ch = h === '5channel.net';
-	this.hid = h === 'hiddenchan.i2p';
-	this.tire = h === '2--ch.ru' || h === '78.108.183.53';
-	this.dfwk = h === 'dfwk.ru';
-	this.pony = h === 'ponychan.net';
-	this.vomb = h === 'vombatov.net';
-	this.ment = h === '02ch.org' || h === '02ch.net';
-	this.futr = h === '2chan.su';
-	this._420 = h === '420chan.org';
-	this.xThreads = this.sib ? 'div' : ('.//div[' + (
-		$xb('div[contains(@id,"_info") and contains(@style,"float")]', dc, dc) ?
-		  'starts-with(@id,"t") and not(contains(@id,"_info"))'
-		: this._420 ? 'contains(@id,"thread")'
-		: 'starts-with(@id,"thread")' + (this._7ch ? 'and not(@id="thread_controls")' : '')
-	) + ']');
-	this.waka = $xb('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]') || !$xb(this.xThreads, dc, dc);
-	this.xDForm = './/form[' + (
-		this.hana || this.krau ? 'contains(@action,"delete")]'
-		: this.tiny ? '@name="postcontrols"]'
-		: this.gazo ? '2]'
+		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0], ai = {};
+	ai.hana = $xb('.//script[contains(@src,"hanabira")]', dc, dc);
+	ai.krau = h === 'krautchan.net';
+	ai.tiny = $xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
+	ai.gazo = h === '2chan.net';
+	ai.xDForm = './/form[' + (
+		ai.hana || ai.krau ? 'contains(@action,"delete")]'
+		: ai.tiny ? '@name="postcontrols"]'
+		: ai.gazo ? '2]'
 		: '@id="delform" or @name="delform"]'
 	);
-	this.xRef =
-		this.tiny ? 'p[@class="intro"]/a[@class="post_no"][2]|div/p[@class="intro"]/a[@class="post_no"][2]'
-		: this.fch ? 'span[starts-with(@id,"no")]'
+	if(dc === doc && !(dForm = $x(ai.xDForm))) return false;
+	ai.host = host;
+	ai.dm = h;
+	ai.kus = $xb('.//script[contains(@src,"kusaba")]', dc, dc);
+	ai.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
+	ai.fch = h === '4chan.org';
+	ai.nul = h === '0chan.ru';
+	ai._7ch = h === '7chan.org';
+	ai._410 = h === '410chan.ru';
+	ai.sib = h === 'sibirchan.ru';
+	ai._5ch = h === '5channel.net';
+	ai.hid = h === 'hiddenchan.i2p';
+	ai.tire = h === '2--ch.ru' || h === '78.108.183.53';
+	ai.dfwk = h === 'dfwk.ru';
+	ai.pony = h === 'ponychan.net';
+	ai.vomb = h === 'vombatov.net';
+	ai.ment = h === '02ch.org' || h === '02ch.net';
+	ai.futr = h === '2chan.su';
+	ai._420 = h === '420chan.org';
+	ai.xThreads = ai.sib ? 'div' : ('.//div[' + (
+		$xb('div[contains(@id,"_info") and contains(@style,"float")]', dc, dc) ?
+		  'starts-with(@id,"t") and not(contains(@id,"_info"))'
+		: ai._420 ? 'contains(@id,"thread")'
+		: 'starts-with(@id,"thread")' + (ai._7ch ? 'and not(@id="thread_controls")' : '')
+	) + ']');
+	ai.waka = $xb('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]') || !$xb(ai.xThreads, dc, dc);
+	ai.xRef =
+		ai.tiny ? 'p[@class="intro"]/a[@class="post_no"][2]|div/p[@class="intro"]/a[@class="post_no"][2]'
+		: ai.fch ? 'span[starts-with(@id,"no")]'
 		: false;
-	this.cRef =
-		this.krau ? 'postnumber'
-		: this.gazo ? 'del'
+	ai.cRef =
+		ai.krau ? 'postnumber'
+		: ai.gazo ? 'del'
 		: 'reflink';
-	this.xMsg =
-		this.hana ? './/div[@class="postbody"]'
-		: this.tiny ? './/p[@class="body"]'
-		: this._7ch ? './/p[@class="message"]'
+	ai.xMsg =
+		ai.hana ? './/div[@class="postbody"]'
+		: ai.tiny ? './/p[@class="body"]'
+		: ai._7ch ? './/p[@class="message"]'
 		: './/blockquote';
-	this.cMsg =
-		this.hana ? 'postbody'
-		: this.tiny ? 'body'
-		: this._7ch ? 'message'
+	ai.cMsg =
+		ai.hana ? 'postbody'
+		: ai.tiny ? 'body'
+		: ai._7ch ? 'message'
 		: false;
-	this.cOPosts = this.krau ? 'omittedinfo' : this.hana ? 'abbrev' : 'omittedposts';
-	this.cTitle = this.krau ? 'postsubject' : this.tiny ? 'subject'
-		: this.hana ? 'replytitle' : 'filetitle';
-	this.pClass = this.krau ? 'postreply' : this.tiny ? 'post reply' : 'reply';
-	this.tClass = this.krau ? 'thread_body' : 'thread';
-	this.xTNum = this.gazo || this.fch ? 'input[@type="checkbox"]' : 'a[@name]' + (this.sib ? '[2]' : '');
-	this.rTNum = '\\d+' + (this._420 ? '$' : '');
-	this.table = this.fch ? 'table[not(@class="exif")]'
-			: this.tire ? 'table[not(@class="postfiles")]'
-			: this.kus ? 'table|div/table'
+	ai.cOPosts = ai.krau ? 'omittedinfo' : ai.hana ? 'abbrev' : 'omittedposts';
+	ai.cTitle = ai.krau ? 'postsubject' : ai.tiny ? 'subject'
+		: ai.hana ? 'replytitle' : 'filetitle';
+	ai.pClass = ai.krau ? 'postreply' : ai.tiny ? 'post reply' : 'reply';
+	ai.tClass = ai.krau ? 'thread_body' : 'thread';
+	ai.xTNum = ai.gazo || ai.fch ? 'input[@type="checkbox"]' : 'a[@name]' + (ai.sib ? '[2]' : '');
+	ai.rTNum = '\\d+' + (ai._420 ? '$' : '');
+	ai.table = ai.fch ? 'table[not(@class="exif")]'
+			: ai.tire ? 'table[not(@class="postfiles")]'
+			: ai.kus ? 'table|div/table'
 			: 'table'
-	this.opClass = aib.kus ? 'postnode' : 'oppost';
-	this.getMsg = this.cMsg ? function(el) { return $class(this.cMsg, el); }
+	ai.opClass = ai.kus ? 'postnode' : 'oppost';
+	ai.getMsg = ai.cMsg ? function(el) { return $class(ai.cMsg, el); }
 		: function(el) { return $t('blockquote', el); };
-	this.getRef = this.xRef ? function(el) { return $x(this.xRef, el); }
-		: this.sib ? function(el) { return $class(this.cRef, el) || $class('filesize', el); }
-		: function(el) { return $class(this.cRef, el); };
-	this.getOmPosts = this.gazo ? function(el, dc) { return $x('.//font[@color="#707070"]', el, dc); }
-		: function(el) { return $class(this.cOPosts, el); };
-	this.getTNum = this.fch || this.gazo || this.sib || (this.waka && !this.abu) ?
-		  function(op, dc) { return ($x(this.xTNum, op, dc).name).match(/\d+/)[0]; }
-		: this.krau ? function(op, dc) { return op.parentNode.previousElementSibling.name; }
-		: function(op, dc) { return op.parentNode.id.match(this.rTNum)[0]; };
-	this.getOp = (aib.abu || aib.hana || aib.kus) && $class(this.opClass) ? function(thr, dc) { return $class(this.opClass, thr); }
+	ai.getRef = ai.xRef ? function(el) { return $x(ai.xRef, el); }
+		: ai.sib ? function(el) { return $class(ai.cRef, el) || $class('filesize', el); }
+		: function(el) { return $class(ai.cRef, el); };
+	ai.getOmPosts = ai.gazo ? function(el, dc) { return $x('.//font[@color="#707070"]', el, dc); }
+		: function(el) { return $class(ai.cOPosts, el); };
+	ai.getTNum = ai.fch || ai.gazo || ai.sib || (ai.waka && !ai.abu) ?
+		  function(op, dc) { return ($x(ai.xTNum, op, dc).name).match(/\d+/)[0]; }
+		: ai.krau ? function(op, dc) { return op.parentNode.previousElementSibling.name; }
+		: function(op, dc) { return op.parentNode.id.match(ai.rTNum)[0]; };
+	ai.getOp = (ai.abu || ai.hana || ai.kus) && $class(ai.opClass) ? function(thr, dc) { return $class(ai.opClass, thr); }
 		: function(thr, dc) {
-			var op = $new('div', {}, {}, dc), opEnd = $x(this.table + '|div[starts-with(@id,"repl")]', thr, dc), i;
+			var op = $new('div', {}, {}, dc), opEnd = $x(ai.table + '|div[starts-with(@id,"repl")]', thr, dc), i;
 			while((i = thr.firstChild) !== opEnd) op.appendChild(i);
-			if(this._7ch) {
+			if(ai._7ch) {
 				(i = $new('div', {}, {}, dc)).appendChild(op);
 				op.className = 'post'; op = i;
 			}
@@ -3772,6 +3773,7 @@ function aibDetector(host, dc) {
 			else thr.appendChild(op);
 			return op;
 		};
+	return ai;
 }
 
 function getThrdUrl(h, b, tNum) {
@@ -3806,11 +3808,10 @@ function fixGM() {
 function initBoard() {
 	var ua, gs, ss, ls, se, url;
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) return false;
-	aib = new aibDetector(window.location.hostname, doc);
 	if(/DESU_iframe/.test(window.name)) { fixDomain(); return false; }
 	if(/DESU_favIframe/.test(window.name)) liteMode = true;
-	dForm = $x(aib.xDForm);
-	if(!dForm || $id('DESU_panel')) return false;
+	aib = aibDetector(window.location.hostname, doc);
+	if(!aib || $id('DESU_panel')) return false;
 	if(aib.hid) setTimeout = function(fn) { fn(); };
 	fixDomain();
 	fixUneval();
