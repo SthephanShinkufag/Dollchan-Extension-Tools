@@ -1535,10 +1535,10 @@ function setUserName() {
 }
 
 function setUserPassw() {
-	var val, el = $id('DESU_fixPass');
+	var val, el = $id('DESU_pasval');
 	if(el) saveCfg('pasval', el.value.replace(/\|/g, ''));
 	val = Cfg.passw !== 0 ? Cfg.pasval : $rnd().substring(0, 8);
-	el = $X('.//input[@type="password"]').snapshotItem(1);
+	el = $x('.//input[@type="password"]', dForm);
 	if(el) el.value = val;
 	pr.passw.value = val;
 }
