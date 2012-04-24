@@ -2802,7 +2802,7 @@ function showPostPreview(e) {
 	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
-		post = pByNum[pNum] || importPost(b, pNum),
+		post = pByNum[pNum] || importPreview(b, pNum),
 		parent = getPost(e.target),
 		el = parent.node ? parent.node.kid : curView;
 	if(Cfg.navig === 0 || /^>>$/.test(this.textContent) || (Cfg.navdis === 1 && post && post.Vis === 0)) return;
@@ -2819,7 +2819,7 @@ function showPostPreview(e) {
 			'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading);
 		ajaxGetPosts(null, b, tNum, function(err) {
 			if(el && !el.forDel)
-				funcPostPreview(importPost(b, pNum), parent, e, err || Lng.postNotFound);
+				funcPostPreview(importPreview(b, pNum), parent, e, err || Lng.postNotFound);
 		});
 	} else funcPostPreview(post, parent, e);
 }
@@ -2889,16 +2889,19 @@ function addPostFunc(post) {
 	if(isExpImg) expandAllPostImg(post);
 }
 
-function importPost(b, pNum) {
+function importPreview(b, pNum) {
 	var nNode;
-	if(!ajPosts[b] || !ajPosts[b][pNum]) return false;
 	if(!imPosts[b]) imPosts[b] = {};
-	if(!(nNode = imPosts[b][pNum])) {
-		nNode = doc.importNode(ajPosts[b][pNum], true);
-		nNode.Num = pNum;
-		replaceDelform(nNode);
-		imPosts[b][pNum] = nNode;
-	}
+	if(!(nNode = imPosts[b][pNum]))
+		imPosts[b][pNum] = nNode = importPost(b, pNum);
+	return nNode;
+}
+
+function importPost(b, pNum) {
+	if(!ajPosts[b] || !ajPosts[b][pNum]) return false;
+	var nNode = doc.importNode(ajPosts[b][pNum], true);
+	nNode.Num = pNum;
+	replaceDelform(nNode);
 	return nNode;
 }
 
@@ -2909,10 +2912,10 @@ function newPost(thr, b, tNum, i, isDel) {
 	post.isDel = isDel;
 	thr.pCount++;
 	post.thr = thr;
+	insertPost(thr, post);
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) eventPostImg(post);
 	addPostFunc(post);
-	insertPost(thr, post);
 	if(Cfg.expost !== 0 && !TNum) expandPost(post);
 	if(aib.tiny) thr.appendChild($new('br'));
 }
@@ -2933,6 +2936,7 @@ function getFullMsg(post, tNum, a) {
 		$del(a);
 		post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
 		post.Text = getText(post.Msg);
+		$del($class('DESU_btnSrc', post));
 		addPostFunc(post);
 	});
 }
@@ -2968,7 +2972,7 @@ function loadThread(post, last, fn) {
 			$delNx(post.Msg);
 			$delNx(post);
 			if(aib.krau) $del($class('omittedinfo', post));
-			expandThread($up(post), brd, post.Num, last);
+			expandThread(post.thr, brd, post.Num, last);
 			$focus(pByNum[post.Num]);
 			if(last > 5 || last === 1) $up(post).appendChild($add(
 				'<span>[<a href="#">' + Lng.collapseThrd + '</a>]</span>', {
