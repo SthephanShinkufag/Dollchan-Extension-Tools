@@ -2163,7 +2163,7 @@ function scriptCSS() {
 		#DESU_qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		.DESU_refHid { text-decoration: line-through !important; }\
 		.DESU_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
-		.DESU_refMap:before { content: "' + Lng.replies + '"; }\
+		.DESU_refMap:before { content: "' + Lng.replies + ' "; }\
 		.DESU_refMap a { text-decoration: none; }\
 		#DESU_sageBtn { cursor: pointer; }\
 		#DESU_select { padding: 0 !important; margin: 0 !important; }\
@@ -2189,7 +2189,7 @@ function scriptCSS() {
 	);
 	if(aib.hana) x.push('#hideinfotd, .reply_ { display: none; }');
 	if(aib.abu) x.push(
-		'.postbtn_exp, .postbtn_hide, .postbtn_rep, div[id^=post_video] { display: none; }\
+		'.postpanel, .highslide, div[id^="post_video"], a[onclick^="window.open"] { display: none; }\
 		a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
 	);
 	if(aib.tiny) x.push('form, form table { margin: 0; }');
@@ -2204,19 +2204,19 @@ function scriptCSS() {
 		.reply { background: #f0e0d6; }'
 	);
 	if(aib.krau) x.push(
-		(liteMode ? 'div[id^=disclaimer] { display: none !important; }' : '') +
-		'div[id^="Wz"] { z-index: 10000 !important; }\
+		'img[id^="translate_button"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+		div[id^="Wz"] { z-index: 10000 !important; }\
 		div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 		.file_reply + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
 		.DESU_ytObj + div:not(.file_reply) { clear: both; }'
 	);
 	if(aib._420) x.push(
 		'.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
-		div[id^="DESU_hidThr_"] { margin-top: 1.2em; }'
+		div[id^="DESU_hidThr_"] { margin: 1em 0; }'
 	);
 
 	if(!$id('DESU_css')) {
-		$t('head').appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
+		doc.head.appendChild($new('style', {id: 'DESU_css', type: 'text/css', text: x.join(' ')}));
 		if(nav.Chrome) $disp(dForm);
 	} else $id('DESU_css').textContent = x.join(' ');
 }
