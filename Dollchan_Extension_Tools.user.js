@@ -3702,6 +3702,7 @@ function aibDetector(host, dc) {
 		: this._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (this._7ch ? 'and not(@id="thread_controls")' : '')
 	) + ']');
+	this.waka = $xb('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]') || !$xb(this.xThreads, dc, dc);
 	this.xDForm = './/form[' + (
 		this.hana || this.krau ? 'contains(@action,"delete")]'
 		: this.tiny ? '@name="postcontrols"]'
@@ -3731,6 +3732,8 @@ function aibDetector(host, dc) {
 		: this.hana ? 'replytitle' : 'filetitle';
 	this.pClass = this.krau ? 'postreply' : this.tiny ? 'post reply' : 'reply';
 	this.tClass = this.krau ? 'thread_body' : 'thread';
+	this.xTNum = this.gazo || this.fch ? 'input[@type="checkbox"]' : 'a[@name]' + (this.sib ? '[2]' : '');
+	this.rTNum = '\\d+' + (this._420 ? '$' : '');
 	this.getMsg = this.cMsg ? function(el) { return $class(this.cMsg, el); }
 		: function(el) { return $t('blockquote', el); };
 	this.getRef = this.xRef ? function(el) { return $x(this.xRef, el); }
@@ -3738,6 +3741,10 @@ function aibDetector(host, dc) {
 		: function(el) { return $class(this.cRef, el); };
 	this.getOmPosts = this.gazo ? function(el, dc) { return $x('.//font[@color="#707070"]', el, dc); }
 		: function(el) { return $class(this.cOPosts, el); };
+	this.getTNum = this.fch || this.gazo || this.sib || (this.waka && !this.abu) ?
+		  function(op, dc) { return ($x(this.xTNum, op, dc).name).match(/\d+/)[0]; }
+		: this.krau ? function(op, dc) { return op.parentNode.previousElementSibling.name; }
+		: function(op, dc) { return op.parentNode.id.match(this.rTNum)[0]; };
 }
 
 function getThrdUrl(h, b, tNum) {
@@ -3863,20 +3870,15 @@ function forEachThread(node, dc, fn) {
 }
 
 function parseDelform(node, dc, tFn, pFn) {
-	var i, len, op, opEnd, psts, tNum,
+	var i, len, op, opEnd, psts,
 		table = aib.fch ? 'table[not(@class="exif")]'
 			: aib.tire ? 'table[not(@class="postfiles")]'
 			: aib.kus ? 'table|div/table'
-			: 'table',
-		regexp = new RegExp('\\d+' + (aib._420 ? '$' : ''));
+			: 'table';
 	for(i = node.getElementsByTagName('script'), len = i.length; len--;) $del(i[len]);
 	forEachThread(node, dc, function(thr) {
-		tNum = (thr.id || ($x((aib.krau ? 'div/' : '') + 'input[@type="checkbox"]', thr, dc) ||
-			$x('a[@name]' + (aib.kus ? '[2]' : ''), thr, dc)).name).match(regexp)[0];
 		if(aib.tiny || aib._420) $after(thr, thr.lastChild);
 		thr.className += ' DESU_thread';
-		thr.Num = tNum;
-		if(tFn) tFn(thr);
 		if(aib.abu || aib.hana || aib.kus) op = $class(aib.kus ? 'postnode' : 'oppost', thr);
 		else op = false;
 		if(!op) {
@@ -3892,8 +3894,9 @@ function parseDelform(node, dc, tFn, pFn) {
 			else thr.appendChild(op);
 		}
 		op.className += ' DESU_oppost';
-		op.Num = tNum;
+		op.Num = thr.Num = aib.getTNum(op, dc);
 		op.thr = thr;
+		if(tFn) tFn(thr);
 		pFn(op, 0);
 		if(aib.gazo) {
 			psts = [];
@@ -3936,7 +3939,7 @@ function initDelform() {
 	dForm.id = '';
 	$disp(dForm);
 	try { parseDelform(dForm, doc, false, pushPost); }
-	catch(e) { $disp(dForm); return false; }
+	catch(e) { $disp(dForm); throw e; return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }
