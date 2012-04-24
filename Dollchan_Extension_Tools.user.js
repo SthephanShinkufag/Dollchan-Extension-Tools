@@ -1566,11 +1566,13 @@ function doChanges() {
 				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts + '</a>]</span>', {
 				click: function(e) { $pD(e); loadNewPosts(true); }
 			}));
-	} else window.scrollTo(0, 0);
+	} else setTimeout(function() { window.scrollTo(0, 0); }, 50);
 	if(aib.abu) {
-		$Del('.//*[starts-with(@id,"ABU_")]|.//small[starts-with(@id,"rfmap")]', dForm);
-		el = $id('linkThreadUpdate');
-		if(el) { $del(el.previousSibling); $del(el.nextSibling); $del(el); }
+		$Del('.//div[@class="ABU_refmap"]', dForm);
+		if(TNum && (el = $class('DESU_thread', dForm))) {
+			$Del('following-sibling::node()', el); $after(el, $new('hr'));
+		}
+		if(el = $x('.//input[@name="makewatermark"]', pr.form)) { el.checked = false; el.style.display = 'none'; }
 	} else $event(window, {load: function() {
 		setTimeout(function() {
 			if(aib.nul) $Del('.//div[@class="replieslist"]', dForm);
