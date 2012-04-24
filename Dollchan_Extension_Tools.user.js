@@ -3941,7 +3941,7 @@ function initDelform() {
 	dForm.id = '';
 	$disp(dForm);
 	try { parseDelform(dForm, doc, false, pushPost); }
-	catch(e) { $disp(dForm); throw e; return false; }
+	catch(e) { $disp(dForm); return false; }
 	if(!nav.Chrome) $disp(dForm);
 	return true;
 }
