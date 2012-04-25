@@ -3714,7 +3714,7 @@ function aibDetector(host, dc) {
 	ai.futr = h === '2chan.su';
 	ai._420 = h === '420chan.org';
 	ai.xThreads = ai.sib ? 'div' : ('.//div[' + (
-		$xb('div[contains(@id,"_info") and contains(@style,"float")]', dc, dc) ?
+		$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc) ?
 		  'starts-with(@id,"t") and not(contains(@id,"_info"))'
 		: ai._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (ai._7ch ? 'and not(@id="thread_controls")' : '')
@@ -3773,6 +3773,8 @@ function aibDetector(host, dc) {
 			else thr.appendChild(op);
 			return op;
 		};
+	ai.getPNum = ai.gazo ? function(post) { return $t('input', post).name; }
+		: function(post) { return post.id.match(/\d+/)[0]; };
 	return ai;
 }
 
@@ -3917,7 +3919,7 @@ function parseDelform(node, dc, tFn, pFn) {
 			for(i = 0, len = psts.length; i < len; i++) {
 				post = psts[i]; post.thr = thr;
 				post.className += ' DESU_post';
-				post.Num = (post.id || $t('a', post).name || $t('input', post).id).match(/\d+/)[0];
+				post.Num = aib.getPNum(post);
 				pFn(post, i + 1);
 			}
 		}
