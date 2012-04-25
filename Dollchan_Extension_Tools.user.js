@@ -1712,6 +1712,7 @@ function doPostformChanges() {
 			dForm.onsubmit = function(e) {
 				$pD(e);
 				$alert(Lng.deleting, 'Wait');
+				$each($X('.//input[@type="checkbox"]', dForm), function(el) { el.disabled = 'disabled'; });
 				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
 			};
 		} else {
@@ -1795,7 +1796,7 @@ function checkDelete(dc, url) {
 	var allDel = true, cbFunc = function() {
 		$each($X('.//input[@type="checkbox"]', dForm), function(el) {
 			if(el.checked && !getPost(el).isDel) allDel = false;
-			el.checked = false;
+			el.checked = false; el.disabled = '';
 		});
 		$alert(allDel ? Lng.succDeleted : Lng.errDelete);
 	};
