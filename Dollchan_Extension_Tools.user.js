@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.13.0
+// @version			12.4.26.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-04-13',
+	version:	'2012-04-26',
 	lang:		0,		// script language [0=ru, 1=en]
 	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
 	spells:		0,		// hide posts by magic spells
@@ -2915,7 +2915,7 @@ function newPost(thr, b, tNum, i, isDel) {
 	pushPost(post, i);
 	post.Vis = getVisib(pNum);
 	post.isDel = isDel;
-	thr.pCount++;
+	thr.pCount = ajThrds[b][tNum].length;
 	post.thr = thr;
 	insertPost(thr, post);
 	addPostButtons(post);
