@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.26.0
+// @version			12.4.26.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -308,7 +308,7 @@ function $x(path, root, dc) {
 function $xb(path, root, dc) {
 	return (dc || doc).evaluate(path, root || dc || doc, null, 3, null).booleanValue;
 }
-function $class(id, root) {
+function $c(id, root) {
 	return (root || doc).getElementsByClassName(id)[0];
 }
 function $id(id) {
@@ -985,10 +985,10 @@ function addSettings() {
 	},
 	openTab = function(tab, name) {
 		if(tab.className == 'DESU_cfgTab_sel') return;
-		var oldEl = $class('DESU_cfgBody'), newEl = eval(name);
+		var oldEl = $c('DESU_cfgBody'), newEl = eval(name);
 		if(oldEl) {
 			oldEl.parentNode.replaceChild(newEl, oldEl);
-			$class('DESU_cfgTab_sel').className = 'DESU_cfgTab';
+			$c('DESU_cfgTab_sel').className = 'DESU_cfgTab';
 		} else $after($id('DESU_cfgBar'), newEl);
 		if(Cfg.keynav !== 0) addEvents(newEl);
 		tab.className = 'DESU_cfgTab_sel';
@@ -1053,7 +1053,7 @@ function addSettings() {
 			], {id: 'DESU_cfgBtns'})
 		], {Class: aib.pClass, id: 'DESU_cfgWindow'})
 	]);
-	openTab($class('DESU_cfgTab'), 'cfgFilters');
+	openTab($c('DESU_cfgTab'), 'cfgFilters');
 }
 
 function addHiddenTable() {
@@ -1066,7 +1066,7 @@ function addHiddenTable() {
 		cln.style.display = '';
 		cln.pst = post;
 		cln.vis = 0;
-		$event(pp ? $class('DESU_btnUnhide') : $x('.//a', cln), {
+		$event(pp ? $c('DESU_btnUnhide') : $x('.//a', cln), {
 			click: function(el) { return function(e) {
 				$pD(e);
 				el.vis = el.vis === 0 ? 1 : 0;
@@ -1204,7 +1204,7 @@ function addFavoritesTable() {
 				$each(list, function(el) {
 					var c, arr = el.id.substr(13).split('|');
 					if(aib.host !== arr[0]) return;
-					c = $t('span', $class('DESU_favPCount', el));
+					c = $t('span', $c('DESU_favPCount', el));
 					$attr(c, {Class: 'DESU_icnWait', text: ''});
 					ajaxGetPosts(null, arr[1], arr[2], function(err) {
 						var cnt = err || ajThrds[arr[1]][arr[2]].length;
@@ -1289,7 +1289,7 @@ function $close(el) {
 function $alert(txt, id) {
 	var el, nid = 'DESU_alert';
 	if(id) { nid += id; el = $id(nid); }
-	if(el) $class(nid, el).innerHTML = txt.trim();
+	if(el) $c(nid, el).innerHTML = txt.trim();
 	else el = $New('div', [
 		$if(id !== 'Wait', $new('a', {
 			href: '#',
@@ -1486,7 +1486,7 @@ function scrollToPost(posts, idx, dir, scroll, toTop) {
 	if(mIdx !== idx || scroll)
 		window.scrollTo(0, toTop ? $offset(post).top
 			: $offset(post).top - window.innerHeight/2 + post.clientHeight/2);
-	idx = $class('DESU_selected');
+	idx = $c('DESU_selected');
 	if(idx) idx.className = idx.oldClassName;
 	if(post.isOp) post = post.thr;
 	post.oldClassName = post.className;
@@ -1569,7 +1569,7 @@ function doChanges() {
 	} else setTimeout(function() { window.scrollTo(0, 0); }, 50);
 	if(aib.abu) {
 		$Del('.//div[@class="ABU_refmap"]', dForm);
-		if(TNum && (el = $class('DESU_thread', dForm))) {
+		if(TNum && (el = $c('DESU_thread', dForm))) {
 			$Del('following-sibling::node()', el); $after(el, $new('hr'));
 		}
 		if(el = $x('.//input[@name="makewatermark"]', pr.form)) { el.checked = false; el.style.display = 'none'; }
@@ -1628,7 +1628,7 @@ function doPostformChanges() {
 			+ (Cfg.sign !== 0 && Cfg.sigval !== '' ? '\n' + Cfg.sigval : '');
 		if(Cfg.verify !== 0) $alert(Lng.checking, 'Wait');
 		if(Cfg.addfav !== 0 && pr.tNum)
-			toggleFavorites(pByNum[pr.tNum], $class('DESU_btnFav', pByNum[pr.tNum].Btns));
+			toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
 		if(pr.tNum) Stat.reply = +Stat.reply + 1;
 		else Stat.op = +Stat.op + 1;
 		setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
@@ -1952,7 +1952,7 @@ function tfBtn(id, title, wktag, bbtag, val) {
 function addTextPanel() {
 	$del($id('DESU_txtPanel'));
 	if(Cfg.txtbtn === 0 || !pr.txta) return;
-	$after(aib._420 ? $class('popup', pr.form) : pr.subm, $New('span', [
+	$after(aib._420 ? $c('popup', pr.form) : pr.subm, $New('span', [
 		$txt(unescape('%u00A0')),
 		$if(Cfg.txtbtn === 2, $txt('[ ')),
 		tfBtn('DESU_btnBold', Lng.bold, '**', aib._420 ? '**' : 'b', 'B'),
@@ -2244,7 +2244,7 @@ function getText(el) {
 }
 
 function getImgInfo(post) {
-	return $t('em', post) || $class('filesize', post) || $class('fileinfo', post);
+	return $t('em', post) || $c('filesize', post) || $c('fileinfo', post);
 }
 
 function getImgWeight(post) {
@@ -2265,7 +2265,7 @@ function isSage(post) {
 	return !pr.mail ? false
 		: aib.abu ? $xb('.//span[@class="postername" and contains(text(),"Heaven")]', post)
 		: aib.hana ? $xb('.//img[@alt="Сажа"]', post)
-		: aib.krau ? $class('sage', post)
+		: aib.krau ? $c('sage', post)
 		: aib._410 ? $xb('.//span[@class="filetitle" and contains(text(),"'
 			+ unescape('%u21E9') + '")]', post)
 		: (a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post))
@@ -2393,7 +2393,7 @@ function getTubePattern() {
 
 function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
-		el = $class('DESU_ytObj', getPost(this));
+		el = $c('DESU_ytObj', getPost(this));
 	$pD(e);
 	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el))
 		el.innerHTML = '';
@@ -2418,13 +2418,13 @@ function addLinkTube(post) {
 		var pst, el, msg, m = link.href.match(getTubePattern());
 		if(!m) return;
 		pst = post || getPost(link);
-		if(!(el = $class('DESU_ytObj', pst))) {
+		if(!(el = $c('DESU_ytObj', pst))) {
 			el = $new('div', {Class: 'DESU_ytObj'});
 			if(Cfg.ytube > 2) addTubePreview(el, m);
 			else if(Cfg.ytube === 2) addTubePlayer(el, m);
 			msg = pst.Msg || aib.getMsg(pst);
 			if(aib.krau)
-				$after($x('div[@class="file_thread" or @class="file_reply"][last()]', pst) || $class('postheader', pst), el);
+				$after($x('div[@class="file_thread" or @class="file_reply"][last()]', pst) || $c('postheader', pst), el);
 			else if(msg) $before(msg, [el]);
 			else pst.appendChild(el);
 		}
@@ -2480,7 +2480,7 @@ function addLinkMP3(post) {
 		var pst, el, msg;
 		if(!(link.target === '_blank' || link.rel === 'nofollow')) return;
 		pst = post || getPost(link);
-		el = $class('DESU_mp3', pst);
+		el = $c('DESU_mp3', pst);
 		if(!el) {
 			el = $new('div', {Class: 'DESU_mp3'});
 			msg = pst.Msg || aib.getMsg(pst);
@@ -2525,7 +2525,7 @@ function resizeImg(e) {
 function addFullImg(a, sz, isExp) {
 	var newW = '', newH = '', fullW = +sz[0], fullH = +sz[1],
 		scrW = doc.body.clientWidth, scrH = window.innerHeight,
-		full = $class('DESU_fullImg', a);
+		full = $c('DESU_fullImg', a);
 	if(full && isExp || !full && isExp === false) return;
 	if(Cfg.expimg === 1 && !$xb('img[contains(@style,"fixed")]', a)) $disp($t('img', a));
 	if(full) {
@@ -2535,7 +2535,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	full = $new('img');
 	if(Cfg.expimg === 2) {
-		$del($class('DESU_fullImg'));
+		$del($c('DESU_fullImg'));
 		full.addEventListener(
 			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll', resizeImg, false
 		);
@@ -2641,7 +2641,7 @@ function getRefMap(pNum, rNum) {
 function showRefMap(post, rNum, uEv) {
 	var el, msg, txt;
 	if(typeof refMap[rNum] !== 'object' || !post) return;
-	el = $class('DESU_refMap', post);
+	el = $c('DESU_refMap', post);
 	txt = refMap[rNum].join(',').replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
 	if(!el) {
 		msg = post.Msg || aib.getMsg(post);
@@ -2765,7 +2765,7 @@ function setPreviewPostion(e, pView, anim) {
 }
 
 function markRefMap(pView, pNum) {
-	($class('DESU_pPost', pView) || {}).className = '';
+	($c('DESU_pPost', pView) || {}).className = '';
 	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView)
 		|| {}).className = 'DESU_pPost';
 }
@@ -2780,7 +2780,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 	pView.className += ' DESU_post DESU_pView ' + aib.pClass;
 	if(aib._7ch) {
 		pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
-		$del($class('doubledash', pView));
+		$del($c('doubledash', pView));
 	}
 	pView.Num = pNum;
 	$Del('.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]'
@@ -2858,7 +2858,7 @@ function parseHTMLdata(html, b, tNum) {
 		if(!ajThrds[b]) { ajThrds[b] = {}; ajPosts[b] = {}; }
 		ajThrds[b][thr.Num] = [];
 	}, function(post, i) {
-		if(i === 0 && aib.kus && $class('omittedposts', thrd))
+		if(i === 0 && aib.kus && $c('omittedposts', thrd))
 			post.appendChild(om);
 		pNum = post.Num;
 		ajThrds[b][thrd.Num].push(pNum);
@@ -2928,7 +2928,7 @@ function newPost(thr, b, tNum, i, isDel) {
 function insertPost(thr, post) {
 	var pst, el;
 	if(postWrapper) {
-		el = $class('DESU_post', pst = postWrapper.cloneNode(true));
+		el = $c('DESU_post', pst = postWrapper.cloneNode(true));
 		if(el) el.parentNode.replaceChild(post, el);
 		else pst = post;
 	} else pst = post;
@@ -2941,7 +2941,7 @@ function getFullMsg(post, tNum, a) {
 		$del(a);
 		post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
 		post.Text = getText(post.Msg);
-		$del($class('DESU_btnSrc', post));
+		$del($c('DESU_btnSrc', post));
 		addPostFunc(post);
 	});
 }
@@ -2976,7 +2976,7 @@ function loadThread(post, last, fn) {
 		else {
 			$delNx(post.Msg);
 			$delNx(post);
-			if(aib.krau) $del($class('omittedinfo', post));
+			if(aib.krau) $del($c('omittedinfo', post));
 			expandThread(post.thr, brd, post.Num, last);
 			$focus(pByNum[post.Num]);
 			if(last > 5 || last === 1) $up(post).appendChild($add(
@@ -2997,7 +2997,7 @@ function loadFavorThread(e) {
 		tNum = arr[2];
 	$pD(e);
 	if(thr.style.display !== 'none')
-		{ $disp(thr); $del($class('DESU_favIframe')); return; }
+		{ $disp(thr); $del($c('DESU_favIframe')); return; }
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) { $focus(pByNum[tNum]); return; }
 	if(url) {
 		thr.appendChild($new('iframe', {
@@ -3148,10 +3148,10 @@ function togglePostVisib(post) {
 function togglePost(post, vis) {
 	if(post.isOp) { post.thr.style.display = vis === 0 ? 'none' : ''; return; }
 	$each($X('following-sibling::*',
-		aib.krau ? $class('postheader', post)
-		: aib.tiny ? $class('intro', post)
-		: aib._420 ? $class('replyheader', post)
-		: $class('DESU_postPanel', post)
+		aib.krau ? $c('postheader', post)
+		: aib.tiny ? $c('intro', post)
+		: aib._420 ? $c('replyheader', post)
+		: $c('DESU_postPanel', post)
 	), function(el) { el.style.display = vis === 0 ? 'none' : ''; });
 }
 
@@ -3201,7 +3201,7 @@ function hidePost(post, note) {
 function unhidePost(post) {
 	if(detectWipe(post)) return;
 	setPostVisib(post, 1);
-	$del($class('DESU_postNote', post));
+	$del($c('DESU_postNote', post));
 	hideByWipe(post);
 }
 
@@ -3353,7 +3353,7 @@ function getSpells(x, post) {
 		}
 	}
 	if(x.words[0] || x.theme[0]) {
-		pTitle = $class('replytitle', post) || $class('filetitle', post);
+		pTitle = $c('replytitle', post) || $c('filetitle', post);
 		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
 	}
 	if(x.words[0])
@@ -3371,8 +3371,8 @@ function getSpells(x, post) {
 		for(i = 0, inf = post.innerHTML; t = x.exph[i++];)
 			if(t.test(inf)) return '#exph ' + t.toString();
 	if(x.name[0] || x.trip) {
-		pName = $class('commentpostername', post) || $class('postername', post);
-		pTrip = $class('postertrip', post);
+		pName = $c('commentpostername', post) || $c('postername', post);
+		pTrip = $c('postertrip', post);
 	}
 	if(x.trip && pTrip) return '#trip';
 	if(x.name[0]) {
@@ -3503,7 +3503,7 @@ function findSameText(post, oNum, oVis, oWords) {
 			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) n++;
 	}
 	if(n < _olen*0.4 || len > _olen*3) return;
-	$del($class('DESU_postNote', post));
+	$del($c('DESU_postNote', post));
 	if(oVis !== 0) hidePost(post, 'similar to >>' + oNum);
 	else unhidePost(post);
 }
@@ -3751,18 +3751,18 @@ function aibDetector(host, dc) {
 			: ai.kus ? 'table|div/table'
 			: 'table'
 	ai.opClass = ai.kus ? 'postnode' : 'oppost';
-	ai.getMsg = ai.cMsg ? function(el) { return $class(ai.cMsg, el); }
+	ai.getMsg = ai.cMsg ? function(el) { return $c(ai.cMsg, el); }
 		: function(el) { return $t('blockquote', el); };
 	ai.getRef = ai.xRef ? function(el) { return $x(ai.xRef, el); }
-		: ai.sib ? function(el) { return $class(ai.cRef, el) || $class('filesize', el); }
-		: function(el) { return $class(ai.cRef, el); };
+		: ai.sib ? function(el) { return $c(ai.cRef, el) || $c('filesize', el); }
+		: function(el) { return $c(ai.cRef, el); };
 	ai.getOmPosts = ai.gazo ? function(el, dc) { return $x('.//font[@color="#707070"]', el, dc); }
-		: function(el) { return $class(ai.cOPosts, el); };
+		: function(el) { return $c(ai.cOPosts, el); };
 	ai.getTNum = ai.fch || ai.gazo || ai.sib || (ai.waka && !ai.abu) ?
 		  function(op, dc) { return ($x(ai.xTNum, op, dc).name).match(/\d+/)[0]; }
 		: ai.krau ? function(op, dc) { return op.parentNode.previousElementSibling.name; }
 		: function(op, dc) { return op.parentNode.id.match(ai.rTNum)[0]; };
-	ai.getOp = (ai.abu || ai.hana || ai.kus) && $class(ai.opClass) ? function(thr, dc) { return $class(ai.opClass, thr); }
+	ai.getOp = (ai.abu || ai.hana || ai.kus) && $c(ai.opClass) ? function(thr, dc) { return $c(ai.opClass, thr); }
 		: function(thr, dc) {
 			var op = $new('div', {}, {}, dc), opEnd = $x(ai.table + '|div[starts-with(@id,"repl")]', thr, dc), i;
 			while((i = thr.firstChild) !== opEnd) op.appendChild(i);
@@ -3926,7 +3926,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		}
 		if(!tFn) {
 			if(!TNum) thr.pCount += (i = aib.getOmPosts(thr, dc)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
-			thr.dTitle = ((i = $class(aib.cTitle, op)) && i.textContent.trim() || op.Text).substring(0, 70).replace(/\s+/g, ' ');
+			thr.dTitle = ((i = $c(aib.cTitle, op)) && i.textContent.trim() || op.Text).substring(0, 70).replace(/\s+/g, ' ');
 		}
 	});
 	if(window.location.hash && (post = pByNum[window.location.hash.substring(1)]))
