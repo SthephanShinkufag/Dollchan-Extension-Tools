@@ -1703,18 +1703,18 @@ function doPostformChanges() {
 	}
 	if(Cfg.verify !== 0) {
 		if(nav.Firefox > 3 || nav.Chrome) {
-			pr.form.onsubmit = function(e) {
+			$event(pr.form, {submit: function(e) {
 				$pD(e);
 				setTimeout(function() {
 					prepareData(function(fd) { ajaxCheckSubmit(pr.form, fd, checkUpload); });
 				}, 1e3);
-			};
-			dForm.onsubmit = function(e) {
+			}});
+			$event(dForm, {submit: function(e) {
 				$pD(e);
 				$alert(Lng.deleting, 'Wait');
 				$each($X('.//input[@type="checkbox"]', dForm), function(el) {el.onclick = function() {return false;}});
 				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
-			};
+			}});
 		} else {
 			if(aib.nul) pr.form.action = pr.form.action.replace(/https/, 'http');
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
