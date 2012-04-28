@@ -31,10 +31,20 @@ var localStorage = {}, sessionStorage = {};
  */
 function GM_log(text) {};
 /**
+ * @param {String} text
+ * @return {undefined}
+ */
+Window.GM_log = function(text) {};
+/**
  * @param {Object} obj
  * @return {undefined}
  */
 function GM_xmlhttpRequest(obj) {};
+/**
+ * @param {Object} obj
+ * @return {undefined}
+ */
+Window.GM_xmlhttpRequest = function(obj) {};
 /**
  * @param {String} name
  * @param {String} value
