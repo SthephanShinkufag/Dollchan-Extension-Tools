@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.7
+// @version			12.4.28.8
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -446,7 +446,7 @@ function $new(tag, attr, events) {
 }
 
 function $New(tag, attr, nodes) {
-	var el = $new(tag, attr, {});
+	var el = $new(tag, attr, null);
 	$append(el, nodes);
 	return el;
 }
@@ -1139,11 +1139,11 @@ function addSettings() {
 		if(id) {
 			el.id = id;
 		}
-		return $New('label', {}, [el, $txt(' ' + txt)]);
+		return $New('label', null, [el, $txt(' ' + txt)]);
 	},
 	
 	divBox = function(name, txt, fn, id) {
-		return $New('div', {}, [lBox(name, txt, fn, id)]);
+		return $New('div', null, [lBox(name, txt, fn, id)]);
 	},
 	
 	inpTxt = function(name, size, fn) {
@@ -1171,7 +1171,7 @@ function addSettings() {
 			})
 		});
 		el.selectedIndex = Cfg[name];
-		return $New('label', {}, [el, $txt(' ' + txt)]);
+		return $New('label', null, [el, $txt(' ' + txt)]);
 	}, 
 	
 	cfgTab = function(txt, name) {
@@ -1214,7 +1214,7 @@ function addSettings() {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgFilters'
 	}, [
-		$New('div', {}, [
+		$New('div', null, [
 			$New('span', {id: 'DESU_spellPanel'}, [
 				$new('a', {
 					text: Lng.add[lCode],
@@ -1253,7 +1253,7 @@ function addSettings() {
 				cols: 55
 			})
 		]),
-		$New('div', {}, [
+		$New('div', null, [
 			lBox('awipe', Lng.antiWipe[lCode]),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
@@ -1274,7 +1274,7 @@ function addSettings() {
 		divBox('filthr', Lng.filterThreads[lCode]),
 		divBox('menuhd', Lng.hiderMenu[lCode]),
 		divBox('viewhd', Lng.viewHidden[lCode]),
-		$New('div', {}, [
+		$New('div', null, [
 			optSel('delhd', Lng.selHiddenPosts[lCode], Lng.hiddenPosts[lCode], function() {
 				processHidden(this.selectedIndex, Cfg.delhd);
 			})
@@ -1285,22 +1285,22 @@ function addSettings() {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgPosts'
 	}, [
-		$if(!aib.hana, $New('div', {}, [
+		$if(!aib.hana, $New('div', null, [
 			optSel('updthr', Lng.selThreadUpd[lCode], Lng.threadUpd[lCode]),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
 			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication[lCode]))
 		])),
-		$if(!aib.hana, $New('div', {}, [
+		$if(!aib.hana, $New('div', null, [
 			optSel('expost', Lng.selClickAuto[lCode], Lng.expandPosts[lCode])
 		])),
-		$New('div', {}, [
+		$New('div', null, [
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode])
 		]),
 		divBox('imgsrc', Lng.imgSearch[lCode]),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
 		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS)),
-		$New('div', {}, [
+		$New('div', null, [
 			lBox('keynav', Lng.keyNavig[lCode]),
 			$new('a', {
 				text: '?',
@@ -1311,15 +1311,15 @@ function addSettings() {
 				}
 			})
 		]),
-		$New('div', {}, [
+		$New('div', null, [
 			lBox('ctime', Lng.cTime[lCode], toggleTimeSettings, 'DESU_ctime')
 		]),
 		$New('div', {style: 'padding-left: 25px;'}, [
-			$New('div', {}, [
+			$New('div', null, [
 				inpTxt('ctmofs', 3),
 				$new('span', {text: Lng.cTimeOffset[lCode]})
 			]),
-			$New('div', {}, [
+			$New('div', null, [
 				inpTxt('ctmpat', 30),
 				$txt(' '),
 				$new('a', {
@@ -1338,11 +1338,11 @@ function addSettings() {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgLinks'
 	}, [
-		$New('div', {}, [
+		$New('div', null, [
 			optSel('navig', Lng.selNavigation[lCode], Lng.navigation[lCode])
 		]),
 		$New('div', {style: 'padding-left: 25px;'}, [
-			$New('div', {}, [
+			$New('div', null, [
 				inpTxt('navdel', 8),
 				$txt(Lng.delayPreview[lCode])
 			]),
@@ -1353,11 +1353,11 @@ function addSettings() {
 		divBox('insnum', Lng.insertLink[lCode]),
 		divBox('mp3', Lng.mp3Embed[lCode]),
 		divBox('addimg', Lng.imgEmbed[lCode]),
-		$New('div', {}, [
+		$New('div', null, [
 			optSel('ytube', Lng.selYTembed[lCode], Lng.YTembed[lCode])
 		]),
 		$New('div', {style: 'padding-left: 25px;'}, [
-			$New('div', {}, [
+			$New('div', null, [
 				optSel('yptype', ['Flash', 'HTML5 iframe', nav.Opera ? null : 'HTML5 video'], ' '),
 				inpTxt('ywidth', 6),
 				$txt('×'),
@@ -1372,7 +1372,7 @@ function addSettings() {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgForm'
 	}, [
-		$if(pr.on, $New('div', {}, [
+		$if(pr.on, $New('div', null, [
 			optSel('pform', Lng.selReplyForm[lCode], Lng.replyForm[lCode])
 		])),
 		$if(pr.on, divBox('tform', Lng.noThrForm[lCode], function() {
@@ -1383,14 +1383,14 @@ function addSettings() {
 		divBox('verify', Lng.replyCheck[lCode]),
 		divBox('addfav', Lng.addToFav[lCode]),
 		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages[lCode])),
-		$if(pr.mail, $New('div', {}, [
+		$if(pr.mail, $New('div', null, [
 			lBox('sagebt', Lng.mailToSage[lCode]),
 			lBox('svsage', Lng.saveSage[lCode])
 		])),
-		$New('div', {}, [
+		$New('div', null, [
 			optSel('forcap', Lng.selCapInput[lCode], Lng.capInput[lCode])
 		]),
-		$if(pr.on, $New('div', {}, [
+		$if(pr.on, $New('div', null, [
 			optSel('txtbtn', Lng.selFormatBtns[lCode], Lng.formatBtns[lCode], function() {
 				saveCfg('txtbtn', this.selectedIndex);
 				addTextPanel();
@@ -1398,19 +1398,19 @@ function addSettings() {
 			}),
 			lBox('txtpos', Lng.atBottom[lCode], scriptCSS)
 		])),
-		$if(pr.name, $New('div', {}, [
+		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
 			lBox('name', Lng.fixedName[lCode], setUserName, 'DESU_fixNameChk')
 		])),
-		$if(pr.passw, $New('div', {}, [
+		$if(pr.passw, $New('div', null, [
 			inpTxt('pasval', 20, setUserPassw),
 			lBox('passw', Lng.fixedPass[lCode], setUserPassw, 'DESU_fixPassChk')
 		])),
-		$if(pr.txta, $New('div', {}, [
+		$if(pr.txta, $New('div', null, [
 			inpTxt('sigval', 20),
 			lBox('sign', Lng.fixedSign[lCode])
 		])),
-		$New('div', {}, [
+		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
 			lBox('norule', Lng.rules[lCode], scriptCSS),
 			$if(pr.gothr, lBox('nogoto', Lng.gotoField[lCode], function() {
@@ -1426,7 +1426,7 @@ function addSettings() {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgCommon'
 	}, [
-		$New('div', {}, [
+		$New('div', null, [
 			optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle[lCode], function() {
 				saveCfg('sstyle', this.selectedIndex);
 				scriptCSS();
@@ -1573,10 +1573,10 @@ function addHiddenTable() {
 			});
 		}
 		$append(table, [
-			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', {}, [
+			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', null, [
 				$add('<b>' + (pp ? Lng.hiddenPosts[lCode] : Lng.hiddenThrds[lCode]) + Lng.onPage[lCode] + ':</b>')
 			])),
-			$New('tr', {}, [
+			$New('tr', null, [
 				cln,
 				$if(!pp, $attr(post.cloneNode(true), {
 					style: 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
@@ -1615,7 +1615,7 @@ function addHiddenTable() {
 		]);
 	}
 	$append(table, [
-		$New('tr', {}, [
+		$New('tr', null, [
 			$new('hr'),
 			$add('<b>' + (isEmptyObj(hThrds) ? Lng.noHidThrds[lCode] : Lng.hiddenThrds[lCode]) + '</b>')
 		])
@@ -1663,7 +1663,7 @@ function addHiddenTable() {
 		}
 	}
 	$append(table, [
-		$New('tr', {}, [
+		$New('tr', null, [
 			$btn(Lng.edit[lCode], Lng.editNotes[lCode], function() {
 				$disp($up($id('DESU_hidTEdit')));
 			}),
@@ -1768,7 +1768,7 @@ function addFavoritesTable() {
 	}
 	list = $X('.//tr[@class="DESU_favData"]', table);
 	$append(table, [
-		$New('tr', {}, [
+		$New('tr', null, [
 			$new('hr'),
 			$btn(Lng.edit[lCode], Lng.editNotes[lCode], function() {
 				$disp($up($id('DESU_favEdit')));
