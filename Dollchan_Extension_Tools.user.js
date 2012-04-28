@@ -1109,7 +1109,8 @@ function toggleContent(name, isUpd) {
 }
 
 function addSettings() {
-	var lBox = function(name, txt, fn, id) {
+	var cfgTabs = {},
+	lBox = function(name, txt, fn, id) {
 		var el = $new('input', {
 			type: 'checkbox'}, {
 			click: function() {
@@ -1156,9 +1157,45 @@ function addSettings() {
 		});
 		el.selectedIndex = Cfg[name];
 		return $New('label', [el, $txt(' ' + txt)]);
+	}, 
+	
+	cfgTab = function(txt, name) {
+		return $New('div', [
+			$new('div', {
+				Class: 'DESU_cfgTab',
+				text: txt}, {
+				click: function() {
+					openTab(this, name);
+				}
+			})
+		], {Class: aib.pClass + ' DESU_cfgTabBack'})
 	},
 	
-	cfgFilters = $New('div', [
+	openTab = function(tab, name) {
+		var oldEl, newEl;
+		if(tab.className == 'DESU_cfgTab_sel') {
+			return;
+		}
+		oldEl = $c('DESU_cfgBody');
+		newEl = cfgTabs[name];
+		if(oldEl) {
+			oldEl.parentNode.replaceChild(newEl, oldEl);
+			$c('DESU_cfgTab_sel').className = 'DESU_cfgTab';
+		} else {
+			$after($id('DESU_cfgBar'), newEl);
+		}
+		if(Cfg.keynav !== 0) {
+			addEvents(newEl);
+		}
+		tab.className = 'DESU_cfgTab_sel';
+		if(name === 'cfgFilters') {
+			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
+			initSpells();
+			$id('DESU_spellEdit').value = spellsList.join('\n');
+		}
+	};
+	
+	cfgTabs.cfgFilters = $New('div', [
 		$New('div', [
 			$New('span', [
 				$new('a', {
@@ -1227,9 +1264,9 @@ function addSettings() {
 	], {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgFilters'
-	}),
+	});
 	
-	cfgPosts = $New('div', [
+	cfgTabs.cfgPosts = $New('div', [
 		$if(!aib.hana, $New('div', [
 			optSel('updthr', Lng.selThreadUpd, Lng.threadUpd),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
@@ -1280,9 +1317,9 @@ function addSettings() {
 	], {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgPosts'
-	}),
+	});
 	
-	cfgLinks = $New('div', [
+	cfgTabs.cfgLinks = $New('div', [
 		$New('div', [
 			optSel('navig', Lng.selNavigation, Lng.navigation)
 		]),
@@ -1314,9 +1351,9 @@ function addSettings() {
 	], {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgLinks'
-	}),
+	});
 	
-	cfgForm = $New('div', [
+	cfgTabs.cfgForm = $New('div', [
 		$if(pr.on, $New('div', [
 			optSel('pform', Lng.selReplyForm, Lng.replyForm)
 		])),
@@ -1368,9 +1405,9 @@ function addSettings() {
 	], {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgForm'
-	}),
+	});
 	
-	cfgCommon = $New('div', [
+	cfgTabs.cfgCommon = $New('div', [
 		$New('div', [
 			optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle, function() {
 				saveCfg('sstyle', this.selectedIndex);
@@ -1388,50 +1425,14 @@ function addSettings() {
 	], {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgCommon'
-	}),
+	});
 	
-	cfgInfo = $New('div', [
+	cfgTabs.cfgInfo = $New('div', [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version + Cfg.version + '</b><br><br>' + Lng.storage + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed + Stat.view + '<br>' + Lng.thrCreated + Stat.op + '<br>' + Lng.pstSended + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
 	], {
 		Class: 'DESU_cfgBody',
 		id: 'DESU_cfgInfo'
-	}),
-	
-	cfgTab = function(txt, name) {
-		return $New('div', [
-			$new('div', {
-				Class: 'DESU_cfgTab',
-				text: txt}, {
-				click: function() {
-					openTab(this, name);
-				}
-			})
-		], {Class: aib.pClass + ' DESU_cfgTabBack'})
-	},
-	
-	openTab = function(tab, name) {
-		var oldEl, newEl;
-		if(tab.className == 'DESU_cfgTab_sel') {
-			return;
-		}
-		oldEl = $c('DESU_cfgBody');
-		newEl = eval(name);
-		if(oldEl) {
-			oldEl.parentNode.replaceChild(newEl, oldEl);
-			$c('DESU_cfgTab_sel').className = 'DESU_cfgTab';
-		} else {
-			$after($id('DESU_cfgBar'), newEl);
-		}
-		if(Cfg.keynav !== 0) {
-			addEvents(newEl);
-		}
-		tab.className = 'DESU_cfgTab_sel';
-		if(name === 'cfgFilters') {
-			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
-			initSpells();
-			$id('DESU_spellEdit').value = spellsList.join('\n');
-		}
-	};
+	});
 	
 	$append($id('DESU_content'), [
 		$New('div', [
