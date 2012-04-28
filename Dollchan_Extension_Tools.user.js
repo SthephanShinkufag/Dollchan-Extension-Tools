@@ -1124,8 +1124,7 @@ function toggleContent(name, isUpd) {
 }
 
 function addSettings() {
-	var cfgTabs = {},
-	lBox = function(name, txt, fn, id) {
+	var lBox = function(name, txt, fn, id) {
 		var el = $new('input', {
 			'type': 'checkbox'}, {
 			'click': function() {
@@ -1174,43 +1173,41 @@ function addSettings() {
 		return $New('label', null, [el, $txt(' ' + txt)]);
 	}, 
 	
-	cfgTab = function(txt, name) {
+	cfgTab = function(txt, el) {
 		return $New('div', {'Class': aib.pClass + ' DESU_cfgTabBack'}, [
 			$new('div', {
 				'Class': 'DESU_cfgTab',
 				'text': txt}, {
 				'click': function() {
-					openTab(this, name);
+					openTab(this, el);
 				}
 			})
 		])
 	},
 	
-	openTab = function(tab, name) {
-		var oldEl, newEl;
+	openTab = function(tab, el) {
 		if(tab.className == 'DESU_cfgTab_sel') {
 			return;
 		}
-		oldEl = $c('DESU_cfgBody');
-		newEl = cfgTabs[name];
+		var oldEl = $c('DESU_cfgBody');
 		if(oldEl) {
-			oldEl.parentNode.replaceChild(newEl, oldEl);
+			oldEl.parentNode.replaceChild(el, oldEl);
 			$c('DESU_cfgTab_sel').className = 'DESU_cfgTab';
 		} else {
-			$after($id('DESU_cfgBar'), newEl);
+			$after($id('DESU_cfgBar'), el);
 		}
 		if(Cfg.keynav !== 0) {
-			addEvents(newEl);
+			addEvents(el);
 		}
 		tab.className = 'DESU_cfgTab_sel';
-		if(name === 'cfgFilters') {
+		if(el === cfgFilters) {
 			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
 			initSpells();
 			$id('DESU_spellEdit').value = spellsList.join('\n');
 		}
-	};
+	},
 	
-	cfgTabs.cfgFilters = $New('div', {
+	cfgFilters = $New('div', {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgFilters'
 	}, [
@@ -1279,9 +1276,9 @@ function addSettings() {
 				processHidden(this.selectedIndex, Cfg.delhd);
 			})
 		])
-	]);
+	]),
 	
-	cfgTabs.cfgPosts = $New('div', {
+	cfgPosts = $New('div', {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
 	}, [
@@ -1332,9 +1329,9 @@ function addSettings() {
 				})
 			])
 		])
-	]);
+	]),
 	
-	cfgTabs.cfgLinks = $New('div', {
+	cfgLinks = $New('div', {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgLinks'
 	}, [
@@ -1366,9 +1363,9 @@ function addSettings() {
 			]),
 			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle[lCode]))
 		])
-	]);
+	]),
 	
-	cfgTabs.cfgForm = $New('div', {
+	cfgForm = $New('div', {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgForm'
 	}, [
@@ -1420,9 +1417,9 @@ function addSettings() {
 				$disp($up(pr.passw, 2));
 			}))
 		])
-	]);
+	]),
 	
-	cfgTabs.cfgCommon = $New('div', {
+	cfgCommon = $New('div', {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgCommon'
 	}, [
@@ -1440,9 +1437,9 @@ function addSettings() {
 		divBox('rtitle', Lng.replaceTitle[lCode]),
 		divBox('animp', Lng.animatePopup[lCode]),
 		divBox('aclose', Lng.autoClose[lCode])
-	]);
+	]),
 	
-	cfgTabs.cfgInfo = $New('div', {
+	cfgInfo = $New('div', {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
@@ -1459,12 +1456,12 @@ function addSettings() {
 				'text': 'Dollchan Extension Tools'
 			}, null),
 			$New('div', {'id': 'DESU_cfgBar'}, [
-				cfgTab(Lng.filters[lCode], 'cfgFilters'),
-				cfgTab(Lng.posts[lCode], 'cfgPosts'),
-				cfgTab(Lng.links[lCode], 'cfgLinks'),
-				cfgTab(Lng.form[lCode], 'cfgForm'),
-				cfgTab(Lng.common[lCode], 'cfgCommon'),
-				cfgTab(Lng.info[lCode], 'cfgInfo')
+				cfgTab(Lng.filters[lCode], cfgFilters),
+				cfgTab(Lng.posts[lCode], cfgPosts),
+				cfgTab(Lng.links[lCode], cfgLinks),
+				cfgTab(Lng.form[lCode], cfgForm),
+				cfgTab(Lng.common[lCode], cfgCommon),
+				cfgTab(Lng.info[lCode], cfgInfo)
 			]),
 			$New('div', {'id': 'DESU_cfgBtns'}, [
 				$New('div', {'style': 'float: right;'}, [
@@ -1514,7 +1511,7 @@ function addSettings() {
 			])
 		])
 	]);
-	openTab($c('DESU_cfgTab'), 'cfgFilters');
+	openTab($c('DESU_cfgTab'), cfgFilters);
 }
 
 function addHiddenTable() {
