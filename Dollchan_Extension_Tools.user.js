@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.2
+// @version			12.4.28.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -592,8 +592,7 @@ function Log(txt) {
 function setCookie(name, value, life) {
 	if(name) {
 		doc.cookie = escape(name) + '=' + escape(value) + ';expires='
-			+ (new Date((new Date()).getTime() + (life === 'delete' ? -10 : storageLife)))
-			.toGMTString() + ';path=/';
+			+ (new Date((new Date()).getTime() + life)).toGMTString() + ';path=/';
 	}
 }
 
@@ -616,10 +615,10 @@ function turnCookies(name) {
 		arr = data ? data.split('|') : [];
 	arr[arr.length] = name;
 	if(arr.length > 13) {
-		setCookie(arr[0], '', 'delete');
+		setCookie(arr[0], '', -10);
 		arr.splice(0, 1);
 	}
-	setCookie('DESU_Cookies', arr.join('|'));
+	setCookie('DESU_Cookies', arr.join('|'), storageLife);
 }
 
 function getStored(name, fn) {
@@ -643,7 +642,7 @@ function setStored(name, value) {
 	} else if(sav.local) {
 		localStorage.setItem(name, value);
 	} else {
-		setCookie(name, value);
+		setCookie(name, value, storageLife);
 	}
 }
 
