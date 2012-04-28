@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.10
+// @version			12.4.28.11
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -383,6 +383,7 @@ function $event(el, events) {
 	for(var key in events) {
 		el.addEventListener(key, events[key], false);
 	}
+	return el;
 }
 
 function $rattr(el, attr) {
@@ -421,13 +422,8 @@ function $after(el, node) {
 }
 
 function $add(htm, events) {
-	var el;
 	dummy.innerHTML = htm;
-	el = dummy.firstChild;
-	if(events) {
-		$event(el, events);
-	}
-	return el;
+	return dummy.firstChild;
 }
 
 function $$new(tag, attr, events, dc) {
@@ -1164,7 +1160,7 @@ function addSettings() {
 		for(var i = 0, len = arr.length, el, opt = []; i < len; i++) {
 			opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
 		}
-		el = $add('<select id="' + name + '_sel">' + opt.join('') + '</select>', {
+		el = $event($add('<select id="' + name + '_sel">' + opt.join('') + '</select>'), {
 			change: (fn ? fn : function() {
 				saveCfg(name, this.selectedIndex);
 			})
@@ -1952,10 +1948,11 @@ function addSelMenu(el, html) {
 		pos = 'absolute';
 		y = 'top: ' + ($offset(el).top + el.offsetHeight);
 	}
-	doc.body.appendChild($add(
+	doc.body.appendChild($event($add(
 		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos
 			+ '; width: auto; min-width: 0; ' + x + 'px; ' + y
-			+ 'px; z-index: 9999; padding: 2px 5px; border: 1px solid grey;">' + html + '</div>', {
+			+ 'px; z-index: 9999; padding: 2px 5px; border: 1px solid grey;">' + html + '</div>'
+	), {
 		mouseout: removeSelMenu,
 		mouseover: function() {
 			if(pst && pst.node) {
@@ -2303,8 +2300,9 @@ function doChanges() {
 		};
 		initPostsUpdate();
 		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
-			$after($x('.//div[contains(@class," DESU_thread")]'), $add(
-				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>', {
+			$after($x('.//div[contains(@class," DESU_thread")]'), $event($add(
+				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
+			), {
 				click: function(e) {
 					$pd(e);
 					loadNewPosts(true, null);
@@ -2587,8 +2585,9 @@ function doPostformChanges() {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
 			}
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
-			$after($id('DESU_content'), $add(
-				'<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />', {
+			$after($id('DESU_content'), $event($add(
+				'<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />'
+			), {
 				load: function() {
 					setTimeout(iframeCheckSubmit, 500);
 				}
@@ -4421,7 +4420,9 @@ function loadThread(post, last, fn) {
 			expandThread(post.thr, brd, post.Num, last, false);
 			$focus(pByNum[post.Num]);
 			if(last > 5 || last === 1) {
-				$up(post).appendChild($add('<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>', {
+				$up(post).appendChild($event($add(
+					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
+				), {
 					click: function(e) {
 						$pd(e);
 						loadThread(post, 5, null);
