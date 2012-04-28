@@ -3,8 +3,8 @@
  */
 
 /** @return {String} */ Document.prototype.getSelection = function() {};
-/** @type {Object} */ Window.prototype.opera;
-/** @type {Object} */ Window.prototype.opera.scriptStorage; 
+/** @type {Object} */ Window.opera;
+/** @type {Object} */ Window.opera.scriptStorage; 
 
 /**
  * @param {String} html
@@ -12,44 +12,49 @@
  */
 Document.prototype.implementation.createHTMLDocument = function(html) {};
 /**
- * @param {Array.<String>} blb
- * @param {Object} par
- * @return {!Blob}
+ * @constructor
+ * @return {Object}
+ * @nosideeffects
  */
-Document.prototype.Blob = function(blb,par) {};
+function MozBlobBuilder() {};
+/**
+ * @param {Object} obj
+ * @return {String}
+ */
+function uneval(obj) {};
 /** @type {String} */ XMLHttpRequest.prototype.finalUrl; 
+var localStorage = {}, sessionStorage = {};
 
 /**
  * @param {String} text
  * @return {undefined}
  */
-Window.prototype.GM_log = function(text) {};
+function GM_log(text) {};
 /**
  * @param {Object} obj
  * @return {undefined}
  */
-Window.prototype.GM_xmlhttpRequest = function (obj) {};
+function GM_xmlhttpRequest(obj) {};
 /**
  * @param {String} name
  * @param {String} value
  * @return {undefined}
  */
-Window.prototype.GM_setValue = function(name, value) {};
+function GM_setValue(name, value) {};
 /**
  * @param {String} name
  * @return {String}
  */
-Window.prototype.GM_getValue = function(name) {};
+function GM_getValue(name) {};
 /**
  * @param {String} url
  * @param {Boolean} loadInBackground
  * @param {Boolean} reuseTab
  * @return {undefined}
  */
-Window.prototype.GM_openInTab = function(url, loadInBackground, reuseTab) {};
+function GM_openInTab(url, loadInBackground, reuseTab) {};
 
-var Cfg = {};
-var defaultCfg = {};
+var Cfg = {}, defaultCfg = {};
 
 /** @type {String} */ Cfg.version;
 /** @type {String} */ defaultCfg.version;
