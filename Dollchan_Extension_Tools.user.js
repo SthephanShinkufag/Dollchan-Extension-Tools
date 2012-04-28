@@ -2753,11 +2753,7 @@ function prepareData(fn) {
 			}, i);
 			rNeeded++;
 		} else {
-			if(el.type === 'checkbox') {
-				if(el.checked) {
-					arr[i] = {name: el.name, val: el.value};
-				}
-			} else {
+			if(!(el.type === 'checkbox' && !el.checked)) {
 				arr[i] = {name: el.name, val: el.value};
 			}
 		}
