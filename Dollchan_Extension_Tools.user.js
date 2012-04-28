@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.13
+// @version			12.4.28.14
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1131,14 +1131,14 @@ function addSettings() {
 			}
 		});
 		el.checked = Cfg[name] !== 0;
-		if(id) {
+		if(id !== '') {
 			el.id = id;
 		}
 		return $New('label', null, [el, $txt(' ' + txt)]);
 	},
 	
-	divBox = function(name, txt, fn, id) {
-		return $New('div', null, [lBox(name, txt, fn, id)]);
+	divBox = function(name, txt, fn) {
+		return $New('div', null, [lBox(name, txt, fn, '')]);
 	},
 	
 	inpTxt = function(name, size, fn) {
@@ -1247,7 +1247,7 @@ function addSettings() {
 			}, null)
 		]),
 		$New('div', null, [
-			lBox('awipe', Lng.antiWipe[lCode]),
+			lBox('awipe', Lng.antiWipe[lCode], null, ''),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
 			})
@@ -1256,17 +1256,17 @@ function addSettings() {
 			'id': 'DESU_cfgWipe',
 			'style': 'display: none; padding-left: 25px;'
 		}, [
-			divBox('samel', Lng.sameLines[lCode]),
-			divBox('samew', Lng.sameWords[lCode]),
-			divBox('longp', Lng.longPosts[lCode]),
-			divBox('longw', Lng.longWords[lCode]),
-			divBox('caps', Lng.caps[lCode]),
-			divBox('specs', Lng.specSymbols[lCode]),
-			divBox('nums', Lng.numbers[lCode])
+			divBox('samel', Lng.sameLines[lCode], null),
+			divBox('samew', Lng.sameWords[lCode], null),
+			divBox('longp', Lng.longPosts[lCode], null),
+			divBox('longw', Lng.longWords[lCode], null),
+			divBox('caps', Lng.caps[lCode], null),
+			divBox('specs', Lng.specSymbols[lCode], null),
+			divBox('nums', Lng.numbers[lCode], null)
 		]),
-		divBox('filthr', Lng.filterThreads[lCode]),
-		divBox('menuhd', Lng.hiderMenu[lCode]),
-		divBox('viewhd', Lng.viewHidden[lCode]),
+		divBox('filthr', Lng.filterThreads[lCode], null),
+		divBox('menuhd', Lng.hiderMenu[lCode], null),
+		divBox('viewhd', Lng.viewHidden[lCode], null),
 		$New('div', null, [
 			optSel('delhd', Lng.selHiddenPosts[lCode], Lng.hiddenPosts[lCode], function() {
 				processHidden(this.selectedIndex, Cfg.delhd);
@@ -1279,22 +1279,22 @@ function addSettings() {
 		'id': 'DESU_cfgPosts'
 	}, [
 		$if(!aib.hana, $New('div', null, [
-			optSel('updthr', Lng.selThreadUpd[lCode], Lng.threadUpd[lCode]),
-			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* '),
-			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication[lCode]))
+			optSel('updthr', Lng.selThreadUpd[lCode], Lng.threadUpd[lCode], null),
+			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* ', null),
+			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication[lCode], null, ''))
 		])),
 		$if(!aib.hana, $New('div', null, [
-			optSel('expost', Lng.selClickAuto[lCode], Lng.expandPosts[lCode])
+			optSel('expost', Lng.selClickAuto[lCode], Lng.expandPosts[lCode], null)
 		])),
 		$New('div', null, [
-			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode])
+			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
-		divBox('imgsrc', Lng.imgSearch[lCode]),
+		divBox('imgsrc', Lng.imgSearch[lCode], null),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
-		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS)),
+		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS, '')),
 		$New('div', null, [
-			lBox('keynav', Lng.keyNavig[lCode]),
+			lBox('keynav', Lng.keyNavig[lCode], null, ''),
 			$new('a', {
 				'text': '?',
 				'href': '#'}, {
@@ -1309,11 +1309,11 @@ function addSettings() {
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				inpTxt('ctmofs', 3),
+				inpTxt('ctmofs', 3, null),
 				$new('span', {text: Lng.cTimeOffset[lCode]}, null)
 			]),
 			$New('div', null, [
-				inpTxt('ctmpat', 30),
+				inpTxt('ctmpat', 30, null),
 				$txt(' '),
 				$new('a', {
 					'text': Lng.cTimePattern[lCode],
@@ -1332,32 +1332,32 @@ function addSettings() {
 		'id': 'DESU_cfgLinks'
 	}, [
 		$New('div', null, [
-			optSel('navig', Lng.selNavigation[lCode], Lng.navigation[lCode])
+			optSel('navig', Lng.selNavigation[lCode], Lng.navigation[lCode], null)
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				inpTxt('navdel', 8),
+				inpTxt('navdel', 8, null),
 				$txt(Lng.delayPreview[lCode])
 			]),
-			divBox('navmrk', Lng.markViewed[lCode]),
-			divBox('navhid', Lng.hidRefmap[lCode]),
-			divBox('navdis', Lng.disHidPview[lCode])
+			divBox('navmrk', Lng.markViewed[lCode], null),
+			divBox('navhid', Lng.hidRefmap[lCode], null),
+			divBox('navdis', Lng.disHidPview[lCode], null)
 		]),
-		divBox('insnum', Lng.insertLink[lCode]),
-		divBox('mp3', Lng.mp3Embed[lCode]),
-		divBox('addimg', Lng.imgEmbed[lCode]),
+		divBox('insnum', Lng.insertLink[lCode], null),
+		divBox('mp3', Lng.mp3Embed[lCode], null),
+		divBox('addimg', Lng.imgEmbed[lCode], null),
 		$New('div', null, [
-			optSel('ytube', Lng.selYTembed[lCode], Lng.YTembed[lCode])
+			optSel('ytube', Lng.selYTembed[lCode], Lng.YTembed[lCode], null)
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel('yptype', ['Flash', 'HTML5 iframe', nav.Opera ? null : 'HTML5 video'], ' '),
-				inpTxt('ywidth', 6),
+				optSel('yptype', ['Flash', 'HTML5 iframe', nav.Opera ? null : 'HTML5 video'], ' ', null),
+				inpTxt('ywidth', 6, null),
 				$txt('×'),
-				inpTxt('yheigh', 6), $txt(' '),
-				lBox('yhdvid', 'HD ')
+				inpTxt('yheigh', 6, null), $txt(' '),
+				lBox('yhdvid', 'HD ', null, '')
 			]),
-			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle[lCode]))
+			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle[lCode], null, ''))
 		])
 	]),
 	
@@ -1366,22 +1366,22 @@ function addSettings() {
 		'id': 'DESU_cfgForm'
 	}, [
 		$if(pr.on, $New('div', null, [
-			optSel('pform', Lng.selReplyForm[lCode], Lng.replyForm[lCode])
+			optSel('pform', Lng.selReplyForm[lCode], Lng.replyForm[lCode], null)
 		])),
 		$if(pr.on, divBox('tform', Lng.noThrForm[lCode], function() {
 			if(!TNum) {
 				pArea.style.display = Cfg.tform ? 'none' : '';
 			}
 		})),
-		divBox('verify', Lng.replyCheck[lCode]),
-		divBox('addfav', Lng.addToFav[lCode]),
-		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages[lCode])),
+		divBox('verify', Lng.replyCheck[lCode], null),
+		divBox('addfav', Lng.addToFav[lCode], null),
+		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages[lCode], null)),
 		$if(pr.mail, $New('div', null, [
-			lBox('sagebt', Lng.mailToSage[lCode]),
-			lBox('svsage', Lng.saveSage[lCode])
+			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
+			lBox('svsage', Lng.saveSage[lCode], null, '')
 		])),
 		$New('div', null, [
-			optSel('forcap', Lng.selCapInput[lCode], Lng.capInput[lCode])
+			optSel('forcap', Lng.selCapInput[lCode], Lng.capInput[lCode], null)
 		]),
 		$if(pr.on, $New('div', null, [
 			optSel('txtbtn', Lng.selFormatBtns[lCode], Lng.formatBtns[lCode], function() {
@@ -1389,7 +1389,7 @@ function addSettings() {
 				addTextPanel();
 				scriptCSS();
 			}),
-			lBox('txtpos', Lng.atBottom[lCode], scriptCSS)
+			lBox('txtpos', Lng.atBottom[lCode], scriptCSS, '')
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
@@ -1400,18 +1400,18 @@ function addSettings() {
 			lBox('passw', Lng.fixedPass[lCode], setUserPassw, 'DESU_fixPassChk')
 		])),
 		$if(pr.txta, $New('div', null, [
-			inpTxt('sigval', 20),
-			lBox('sign', Lng.fixedSign[lCode])
+			inpTxt('sigval', 20, null),
+			lBox('sign', Lng.fixedSign[lCode], null, '')
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('norule', Lng.rules[lCode], scriptCSS),
+			lBox('norule', Lng.rules[lCode], scriptCSS, ''),
 			$if(pr.gothr, lBox('nogoto', Lng.gotoField[lCode], function() {
 				$disp(pr.gothr);
-			})),
+			}, '')),
 			$if(pr.passw, lBox('nopass', Lng.passw[lCode], function() {
 				$disp($up(pr.passw, 2));
-			}))
+			}, ''))
 		])
 	]),
 	
@@ -1430,9 +1430,9 @@ function addSettings() {
 			scriptCSS();
 		}),
 		divBox('icount', Lng.showImgCount[lCode], scriptCSS),
-		divBox('rtitle', Lng.replaceTitle[lCode]),
-		divBox('animp', Lng.animatePopup[lCode]),
-		divBox('aclose', Lng.autoClose[lCode])
+		divBox('rtitle', Lng.replaceTitle[lCode], null),
+		divBox('animp', Lng.animatePopup[lCode], null),
+		divBox('aclose', Lng.autoClose[lCode], null)
 	]),
 	
 	cfgInfo = $New('div', {
