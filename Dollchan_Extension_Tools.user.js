@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.17
+// @version			12.4.28.18
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1693,7 +1693,7 @@ function addHiddenTable() {
 
 function addFavoritesTable() {
 	var h, b, tNum, url, fav, list,
-		table = $x('.//div[@id="DESU_content"]//tbody');
+		table = $x('.//div[@id="DESU_content"]//tbody', doc);
 	for(h in Favor) {
 		for(b in Favor[h]) {
 			$append(table, [
@@ -1949,7 +1949,7 @@ function addSelMenu(el, html) {
 			}
 		}
 	}));
-	return $X('.//div[@id="DESU_select"]//a');
+	return $X('.//div[@id="DESU_select"]//a', doc);
 }
 
 function selectSpell(e) {
@@ -2289,7 +2289,7 @@ function doChanges() {
 		};
 		initPostsUpdate();
 		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
-			$after($x('.//div[contains(@class," DESU_thread")]'), $event($add(
+			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
 				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
 			), {
 				'click': function(e) {
@@ -2327,7 +2327,7 @@ function doChanges() {
 		});
 	}
 	if(aib.fch && !TNum) {
-		$each($X('.//table[@class="pages"]//form'), function(el) {
+		$each($X('.//table[@class="pages"]//form', doc), function(el) {
 			$next(el).appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
 			el.appendChild($prev(el));
 		}, false);
@@ -4153,7 +4153,7 @@ function showPostPreview(e) {
 		return;
 	}
 	setTimeout(function() {
-		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]'));
+		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]', doc));
 	}, 0);
 	if(pDel[pNum]) {
 		funcPostPreview(null, pNum, parent, e, Lng.postNotFound[lCode]);
@@ -4463,7 +4463,7 @@ function loadFavorThread(e) {
 		newPost(thr, b, tNum, 0, true);
 		expandThread(thr, b, tNum, 5, true);
 		$x('.//tr[@id="DESU_favData_' + aib.host + '|' + b + '|' + tNum
-			+ '"]//span[@class="DESU_favPCount"]/span').textContent = thr.pCount;
+			+ '"]//span[@class="DESU_favPCount"]/span', doc).textContent = thr.pCount;
 		setStored('DESU_Favorites', $uneval(Favor));
 		$disp(thr);
 	});
@@ -4488,7 +4488,7 @@ function getDelPosts(err) {
 
 function setUpdButtonState(state) {
 	if(TNum && Cfg.updthr !== 3) {
-		$x('.//a[starts-with(@id,"DESU_btnUpd")]').id = 'DESU_btnUpd' + state;
+		$x('.//a[starts-with(@id,"DESU_btnUpd")]', doc).id = 'DESU_btnUpd' + state;
 	}
 }
 
@@ -4798,7 +4798,7 @@ function processHidden(newCfg, oldCfg) {
 		});
 	}
 	if(oldCfg === 1) {
-		$each($X('.//span[starts-with(@id,"DESU_merged")]'), function(el) {
+		$each($X('.//span[starts-with(@id,"DESU_merged")]', doc), function(el) {
 			var px = el.childNodes,
 				i = px.length;
 			while(i--) {
@@ -5441,7 +5441,8 @@ function hideByWipe(post) {
 ==============================================================================*/
 
 function replyForm(f) {
-	var tr = aib._7ch ? 'li' : 'tr', rf = {},
+	var rf = {},
+		tr = aib._7ch ? 'li' : 'tr',
 		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	if(!f) {
 		return;
@@ -5485,7 +5486,7 @@ function aibDetector(host, dc) {
 		: ai.gazo ? '2]'
 		: '@id="delform" or @name="delform"]'
 	);
-	if(dc === doc && !(dForm = $x(ai.xDForm))) {
+	if(dc === doc && !(dForm = $x(ai.xDForm, doc))) {
 		return false;
 	}
 	ai.host = host;
@@ -5721,7 +5722,7 @@ function initBoard() {
 		: aib._420 ? '.php'
 		: '.html'
 	);
-	favIcon = $x('.//head//link[@rel="shortcut icon"]');
+	favIcon = $x('.//head//link[@rel="shortcut icon"]', doc);
 	if(favIcon) {
 		favIcon = favIcon.href;
 	}
@@ -5730,8 +5731,8 @@ function initBoard() {
 		: nav.Chrome ? '-webkit-'
 		: '';
 	dummy = $new('div', null, null);
-	pr = replyForm($x('.//textarea/ancestor::form[1]'));
-	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]');
+	pr = replyForm($x('.//textarea/ancestor::form[1]', doc));
+	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
 	$Del(
 		'preceding-sibling::node()' + (aib.fch ? '[not(self::center)]' : '')
 			+ '[preceding-sibling::*[descendant-or-self::*['
