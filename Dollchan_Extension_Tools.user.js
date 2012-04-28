@@ -3566,7 +3566,7 @@ function addLinkTube(post) {
 					+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
 				onload: function(xhr) {
 					try {
-						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+						link.textContent = window.JSON.parse(xhr.responseText)['entry']['title']['$t'];
 						filterTextTube(pst, link.textContent);
 					} catch(e) {}
 				}
