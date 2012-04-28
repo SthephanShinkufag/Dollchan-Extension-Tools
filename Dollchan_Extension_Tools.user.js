@@ -289,16 +289,28 @@ doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, P
 									UTILS
 ==============================================================================*/
 
-function $X(path, root, dc) {
-	return (dc || doc).evaluate(path, root || dc || doc, null, 6, null);
+function $$X(path, root, dc) {
+	return dc.evaluate(path, root || dc, null, 6, null);
 }
 
-function $x(path, root, dc) {
-	return (dc || doc).evaluate(path, root || dc || doc, null, 8, null).singleNodeValue;
+function $X(path, root) {
+	return $$X(path, root, doc);
 }
 
-function $xb(path, root, dc) {
-	return (dc || doc).evaluate(path, root || dc || doc, null, 3, null).booleanValue;
+function $$x(path, root, dc) {
+	return dc.evaluate(path, root || dc, null, 8, null).singleNodeValue;
+}
+
+function $x(path, root) {
+	return $$x(path, root, doc);
+}
+
+function $xbd(path, root, dc) {
+	return dc.evaluate(path, root || dc, null, 3, null).booleanValue;
+}
+
+function $xb(path, root) {
+	return $xbd(path, root, doc);
 }
 
 function $c(id, root) {
@@ -418,8 +430,8 @@ function $add(htm, events) {
 	return el;
 }
 
-function $new(tag, attr, events, dc) {
-	var el = (dc || doc).createElement(tag);
+function $$new(tag, attr, events, dc) {
+	var el = dc.createElement(tag);
 	if(attr) {
 		$attr(el, attr);
 	}
@@ -427,6 +439,10 @@ function $new(tag, attr, events, dc) {
 		$event(el, events);
 	}
 	return el;
+}
+
+function $new(tag, attr, events) {
+	return $$new(tag, attr, events, doc);
 }
 
 function $New(tag, nodes, attr, events) {
@@ -462,10 +478,14 @@ function $del(el) {
 	}
 }
 
-function $Del(path, root, dc) {
-	$each($X(path, root, dc), function(el) {
+function $$Del(path, root, dc) {
+	$each($$X(path, root, dc), function(el) {
 		$del(el);
 	});
+}
+
+function $Del(path, root) {
+	$$Del(path, root, doc)
 }
 
 function $delNx(el) {
@@ -4217,7 +4237,7 @@ function parseHTMLdata(html, b, tNum) {
 		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
 		: html
 	);
-	parseDelform(!aib.hana ? $x(aib.xDForm, dc, dc) : dc, dc, function(thr) {
+	parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(thr) {
 		thrd = thr;
 		if(!ajThrds[b]) {
 			ajThrds[b] = {};
@@ -4231,7 +4251,7 @@ function parseHTMLdata(html, b, tNum) {
 		pNum = post.Num;
 		ajThrds[b][thrd.Num].push(pNum);
 		ajPosts[b][pNum] = post;
-		$each($X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
+		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
 			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
 		});
 	});
@@ -5470,9 +5490,9 @@ function replyForm(f) {
 function aibDetector(host, dc) {
 	var h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0],
 		ai = {};
-	ai.hana = $xb('.//script[contains(@src,"hanabira")]', dc, dc);
+	ai.hana = $xbd('.//script[contains(@src,"hanabira")]', dc, dc);
 	ai.krau = h === 'krautchan.net';
-	ai.tiny = $xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
+	ai.tiny = $xbd('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
 	ai.gazo = h === '2chan.net';
 	ai.xDForm = './/form[' + (
 		ai.hana || ai.krau ? 'contains(@action,"delete")]'
@@ -5485,8 +5505,8 @@ function aibDetector(host, dc) {
 	}
 	ai.host = host;
 	ai.dm = h;
-	ai.kus = $xb('.//script[contains(@src,"kusaba")]', dc, dc);
-	ai.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
+	ai.kus = $xbd('.//script[contains(@src,"kusaba")]', dc, dc);
+	ai.abu = $xbd('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
 	ai.fch = h === '4chan.org';
 	ai.nul = h === '0chan.ru';
 	ai._7ch = h === '7chan.org';
@@ -5502,13 +5522,13 @@ function aibDetector(host, dc) {
 	ai.futr = h === '2chan.su';
 	ai._420 = h === '420chan.org';
 	ai.xThreads = ai.sib ? 'div' : ('.//div[' + (
-		$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
+		$xbd('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
 		: ai._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (ai._7ch ? 'and not(@id="thread_controls")' : '')
 	) + ']');
-	ai.waka = $xb('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]')
-		|| !$xb(ai.xThreads, dc, dc);
+	ai.waka = $xbd('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]', dc, dc)
+		|| !$xbd(ai.xThreads, dc, dc);
 	ai.xRef =
 		ai.tiny ? 'p[@class="intro"]/a[@class="post_no"][2]|div/p[@class="intro"]/a[@class="post_no"][2]'
 		: ai.fch ? 'span[starts-with(@id,"no")]'
@@ -5568,14 +5588,14 @@ function aibDetector(host, dc) {
 		};
 	ai.getOmPosts = ai.gazo
 		? function(el, dc) {
-			return $x('.//font[@color="#707070"]', el, dc);
+			return $$x('.//font[@color="#707070"]', el, dc);
 		}
 		: function(el) {
 			return $c(ai.cOPosts, el);
 		};
 	ai.getTNum =
 		ai.fch || ai.gazo || ai.sib || (ai.waka && !ai.abu) ? function(op, dc) {
-			return ($x(ai.xTNum, op, dc).name).match(/\d+/)[0];
+			return ($$x(ai.xTNum, op, dc).name).match(/\d+/)[0];
 		}
 		: ai.krau ? function(op, dc) {
 			return op.parentNode.previousElementSibling.name;
@@ -5589,13 +5609,13 @@ function aibDetector(host, dc) {
 		}
 		: function(thr, dc) {
 			var i,
-				op = $new('div', {}, {}, dc),
-				opEnd = $x(ai.table + '|div[starts-with(@id,"repl")]', thr, dc);
+				op = $$new('div', {}, {}, dc),
+				opEnd = $$x(ai.table + '|div[starts-with(@id,"repl")]', thr, dc);
 			while((i = thr.firstChild) !== opEnd) {
 				op.appendChild(i);
 			}
 			if(ai._7ch) {
-				(i = $new('div', {}, {}, dc)).appendChild(op);
+				(i = $$new('div', {}, {}, dc)).appendChild(op);
 				op.className = 'post'; op = i;
 			}
 			if(thr.childElementCount) {
@@ -5777,13 +5797,13 @@ function forEachThread(node, dc, fn) {
 	var threads, el, tEl,
 		pThr = false;
 	if((threads = node.getElementsByClassName(aib.tClass)).length === 0) {
-		threads = $X(aib.xThreads, node, dc);
+		threads = $$X(aib.xThreads, node, dc);
 		if(threads.snapshotLength !== 0) {
 			$each(threads, fn, true);
 		} else {
 			el = node.firstChild;
 			while(1) {
-				threads = $new('div', {}, {}, dc);
+				threads = $$new('div', {}, {}, dc);
 				while(el && (tEl = el.nextSibling) && tEl.tagName !== 'HR') {
 					threads.appendChild(el); el = tEl;
 				}
@@ -5828,7 +5848,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		pFn(op, 0);
 		if(aib.gazo) {
 			psts = [];
-			$each($X('table/tbody/tr/td[2]', thr, dc), function(el) {
+			$each($$X('table/tbody/tr/td[2]', thr, dc), function(el) {
 				psts.push(el);
 			}, true);
 		} else {
@@ -5862,10 +5882,10 @@ function parseDelform(node, dc, tFn, pFn) {
 		});
 	}
 	if(liteMode) {
-		$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
+		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
 	if(!aib._7ch && !aib.tiny && !postWrapper) {
-		postWrapper = $x('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
+		postWrapper = $$x('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
 		if(dc !== doc && postWrapper) {
 			postWrapper = doc.importNode(postWrapper, true);
 		}
