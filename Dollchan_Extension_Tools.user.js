@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.11
+// @version			12.4.28.12
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -322,7 +322,7 @@ function $id(id) {
 }
 
 function $t(id, root) {
-	return (root || doc).getElementsByTagName(id)[0];
+	return root.getElementsByTagName(id)[0];
 }
 
 function $next(el) {
@@ -421,7 +421,7 @@ function $after(el, node) {
 	el.parentNode.insertBefore(node, el.nextSibling);
 }
 
-function $add(htm, events) {
+function $add(htm) {
 	dummy.innerHTML = htm;
 	return dummy.firstChild;
 }
@@ -1107,7 +1107,7 @@ function toggleContent(name, isUpd) {
 	}
 	el.appendChild($add('<table><tbody align="left"></tbody></table>'));
 	if(Cfg.attach !== 0) {
-		$t('table', el).style.backgroundColor = getStyle($t('body'), 'background-color');
+		$t('table', el).style.backgroundColor = getStyle(doc.body, 'background-color');
 	}
 	if(name === 'Hid') {
 		readHiddenThreads();
@@ -2286,8 +2286,8 @@ function doChanges() {
 			doc.body.className = 'focused';
 			if(Cfg.updfav !== 0 && favIcon) {
 				clearInterval(favIconTimeout);
-				$Del('.//link[@rel="shortcut icon"]', $t('head'));
-				$t('head').appendChild($new('link', {
+				$Del('.//link[@rel="shortcut icon"]', doc.head);
+				doc.head.appendChild($new('link', {
 					'href': favIcon,
 					'rel': 'shortcut icon'
 				}, null));
@@ -3228,7 +3228,7 @@ function scriptCSS() {
 		);
 	}
 	if(aib._7ch) {
-		x.push('.reply { background-color: ' + getStyle($t('body'), 'background-color') + '; }');
+		x.push('.reply { background-color: ' + getStyle(doc.body, 'background-color') + '; }');
 	}
 	if(aib.gazo) {
 		x.push(
@@ -4458,7 +4458,7 @@ function loadFavorThread(e) {
 			'name': 'DESU_favIframe',
 			'Class': 'DESU_favIframe',
 			'src': url,
-			'style': 'border: none; width: ' + (document.body.clientWidth - 65)
+			'style': 'border: none; width: ' + (doc.body.clientWidth - 65)
 				+ 'px; height: ' + (window.innerHeight - 100) + 'px;'
 		}, null));
 		$disp(thr);
@@ -4541,12 +4541,11 @@ function infoNewPosts(err, del) {
 		clearInterval(favIconTimeout);
 		if(inf > 0) {
 			favIconTimeout = setInterval(function() {
-				var head = $t('head'),
-					href = $xb('.//link[@href="' + favIcon + '"]', head)
+				var href = $xb('.//link[@href="' + favIcon + '"]', doc.head)
 						? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII='
 						: favIcon;
-				$Del('.//link[@rel="shortcut icon"]', head);
-				head.appendChild($new('link', {
+				$Del('.//link[@rel="shortcut icon"]', doc.head);
+				doc.head.appendChild($new('link', {
 					'href': href,
 					'rel': 'shortcut icon'
 				}, null));
