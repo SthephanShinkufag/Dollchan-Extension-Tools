@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.12
+// @version			12.4.28.13
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -314,7 +314,7 @@ function $xb(path, root) {
 }
 
 function $c(id, root) {
-	return (root || doc).getElementsByClassName(id)[0];
+	return root.getElementsByClassName(id)[0];
 }
 
 function $id(id) {
@@ -1185,10 +1185,10 @@ function addSettings() {
 		if(tab.className == 'DESU_cfgTab_sel') {
 			return;
 		}
-		var oldEl = $c('DESU_cfgBody');
+		var oldEl = $c('DESU_cfgBody', doc);
 		if(oldEl) {
 			oldEl.parentNode.replaceChild(el, oldEl);
-			$c('DESU_cfgTab_sel').className = 'DESU_cfgTab';
+			$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
 		} else {
 			$after($id('DESU_cfgBar'), el);
 		}
@@ -1507,7 +1507,7 @@ function addSettings() {
 			])
 		])
 	]);
-	openTab($c('DESU_cfgTab'), cfgFilters);
+	openTab($c('DESU_cfgTab', doc), cfgFilters);
 }
 
 function addHiddenTable() {
@@ -1526,7 +1526,7 @@ function addHiddenTable() {
 		cln.style.display = '';
 		cln.pst = post;
 		cln.vis = 0;
-		$event(pp ? $c('DESU_btnUnhide') : $x('.//a', cln), {
+		$event(pp ? $c('DESU_btnUnhide', doc) : $x('.//a', cln), {
 			'click': function(el) {
 				return function(e) {
 					$pd(e);
@@ -2200,7 +2200,7 @@ function scrollToPost(posts, idx, dir, scroll, toTop) {
 			: $offset(post).top - window.innerHeight/2 + post.clientHeight/2
 		);
 	}
-	idx = $c('DESU_selected');
+	idx = $c('DESU_selected', doc);
 	if(idx) {
 		idx.className = idx.oldClassName;
 	}
@@ -3724,7 +3724,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	full = $new('img', null, null);
 	if(Cfg.expimg === 2) {
-		$del($c('DESU_fullImg'));
+		$del($c('DESU_fullImg', doc));
 		full.addEventListener(nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll', resizeImg, false);
 		makeMoveable(full);
 	}
@@ -4446,7 +4446,7 @@ function loadFavorThread(e) {
 	$pd(e);
 	if(thr.style.display !== 'none') {
 		$disp(thr);
-		$del($c('DESU_favIframe'));
+		$del($c('DESU_favIframe', doc));
 		return;
 	}
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) {
@@ -4668,13 +4668,13 @@ function togglePost(post, vis) {
 		post.thr.style.display = vis === 0 ? 'none' : '';
 		return;
 	}
-	$each($X(
-		'following-sibling::*',
-		aib.krau ? $c('postheader', post)
-		: aib.tiny ? $c('intro', post)
-		: aib._420 ? $c('replyheader', post)
-		: $c('DESU_postPanel', post)
-	), function(el) {
+	$each($X('following-sibling::*', $c(
+		aib.krau ? 'postheader'
+		: aib.tiny ? 'intro'
+		: aib._420 ? 'replyheader'
+		: 'DESU_postPanel',
+		post
+	)), function(el) {
 		el.style.display = vis === 0 ? 'none' : '';
 	}, false);
 }
@@ -5599,7 +5599,7 @@ function aibDetector(host, dc) {
 		: function(op, dc) {
 			return op.parentNode.id.match(ai.rTNum)[0];
 		};
-	ai.getOp = (ai.abu || ai.hana || ai.kus) && $c(ai.opClass)
+	ai.getOp = (ai.abu || ai.hana || ai.kus) && $c(ai.opClass, doc)
 		? function(thr, dc) {
 			return $c(ai.opClass, thr);
 		}
