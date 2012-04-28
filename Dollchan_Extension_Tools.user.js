@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.5
+// @version			12.4.28.6
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -3794,7 +3794,7 @@ function addLinkImg(addBr, node) {
 			click: function(e) {
 				if(Cfg.expimg !== 0 && e.button !== 1) {
 					$pd(e);
-					addFullImg(this, $1(this).title.split('x'), false);
+					addFullImg(this, $1(this).title.split('x'), null);
 				}
 			}
 		});
@@ -3860,7 +3860,7 @@ function eventPostImg(post) {
 			a.addEventListener('click', function(e) {
 				if(Cfg.expimg !== 0 && e.button !== 1) {
 					$pd(e);
-					expandPostImg(this, post, false);
+					expandPostImg(this, post, null);
 				}
 			}, false);
 		}
@@ -4105,7 +4105,7 @@ function markRefMap(pView, pNum) {
 function funcPostPreview(post, pNum, parent, e, txt) {
 	var el, pView;
 	if(!post) {
-		if(txt === '') {
+		if(!txt) {
 			pDel[pNum] = true;
 		}
 		return addNode(parent, $new('div', {
