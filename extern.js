@@ -22,6 +22,15 @@ function MozBlobBuilder() {};
  * @return {String}
  */
 function uneval(obj) {};
+
+Window.JSON = {};
+/**
+ * @param {string} text
+ * @param {(function(string, *) : *)=} opt_reviver
+ * @return {*}
+ */
+Window.JSON.parse = function(text, opt_reviver) {};
+
 /** @type {String} */ XMLHttpRequest.prototype.finalUrl; 
 var localStorage = {}, sessionStorage = {};
 
