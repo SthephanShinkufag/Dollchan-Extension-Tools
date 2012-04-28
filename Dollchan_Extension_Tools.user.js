@@ -4107,7 +4107,7 @@ function markRefMap(pView, pNum) {
 function funcPostPreview(post, pNum, parent, e, txt) {
 	var el, pView;
 	if(!post) {
-		if(txt !== '') {
+		if(txt === '') {
 			pDel[pNum] = true;
 		}
 		return addNode(parent, $new('div', {
