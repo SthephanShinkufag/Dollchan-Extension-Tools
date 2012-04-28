@@ -2148,7 +2148,7 @@ function initKeyNavig() {
 				try {
 					cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, -1, true, true);
 					scrollT = true;
-				} catch(e) {}
+				} catch(er) {}
 			}
 		} else if(kc === 74) {
 			if(TNum) {
@@ -2157,7 +2157,7 @@ function initKeyNavig() {
 				try {
 					cTIndex = scrollToPost(tByCnt, cTIndex + 1, 1, true, true);
 					scrollT = true;
-				} catch(e) {}
+				} catch(er) {}
 			}
 		} else if(!TNum && kc === 77) {
 			scrollUpToPost();
@@ -3581,7 +3581,7 @@ function addLinkTube(post) {
 					+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
 				onload: function(xhr) {
 					try {
-						link.textContent = JSON.parse(xhr.responseText).entry.title.$t;
+						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 						filterTextTube(pst, link.textContent);
 					} catch(e) {}
 				}
@@ -3591,7 +3591,7 @@ function addLinkTube(post) {
 }
 
 function filterTextTube(post, text) {
-	var t, post,
+	var t,
 		i = 0,
 		fHide = (function(a) {
 			return a ? hidePost : function(b, c) {};
@@ -4228,7 +4228,7 @@ function eventRefLink(node) {
 function parseHTMLdata(html, b, tNum) {
 	var dc, thrd, pNum, om;
 	if(!pr.on && oeForm) {
-		pr = new replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
+		pr = replyForm($x('.//textarea/ancestor::form[1]'));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
 	dc = HTMLtoDOM(aib.hana
@@ -4840,8 +4840,8 @@ function getSpellObj() {
 
 function initSpells() {
 	var i, x, b, n, t, p, j, Spells;
-	pSpells = new getSpellObj();
-	tSpells = new getSpellObj();
+	pSpells = getSpellObj();
+	tSpells = getSpellObj();
 	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
 	for(i = 0; x = spellsList[i++];) {
 		Spells = pSpells;
@@ -5455,34 +5455,35 @@ function hideByWipe(post) {
 ==============================================================================*/
 
 function replyForm(f) {
-	var tr = aib._7ch ? 'li' : 'tr',
+	var tr = aib._7ch ? 'li' : 'tr', rf = {};
 		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	if(!f) {
 		return;
 	}
-	this.on = true;
-	this.isQuick = false;
-	this.tNum = TNum;
-	this.form = f;
-	this.tr = 'ancestor::' + tr + '[1]';
-	this.recap = $x('.//input[@id="recaptcha_response_field"]', f);
-	this.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', f)
-		|| this.recap;
-	this.txta = $x('.//' + tr + '//textarea' + (aib.krau ? '[@name="internal_t"]' : '[last()]'), f);
-	this.subm = $x('.//' + tr + '//input[@type="submit"]', f);
-	this.file = $x('.//' + tr + '//input[@type="file"]', f);
-	this.passw = $x('.//' + tr + '//input[@type="password"]', f);
-	this.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', f);
-	this.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" '
+	rf.on = true;
+	rf.isQuick = false;
+	rf.tNum = TNum;
+	rf.form = f;
+	rf.tr = 'ancestor::' + tr + '[1]';
+	rf.recap = $x('.//input[@id="recaptcha_response_field"]', f);
+	rf.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', f)
+		|| rf.recap;
+	rf.txta = $x('.//' + tr + '//textarea' + (aib.krau ? '[@name="internal_t"]' : '[last()]'), f);
+	rf.subm = $x('.//' + tr + '//input[@type="submit"]', f);
+	rf.file = $x('.//' + tr + '//input[@type="file"]', f);
+	rf.passw = $x('.//' + tr + '//input[@type="password"]', f);
+	rf.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', f);
+	rf.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" '
 		+ 'or @name="nya1" or @name="akane")]', f);
-	this.mail = $x(pre + (
+	rf.mail = $x(pre + (
 		aib._410 ? '@name="sage"]'
 		: aib.futr ? '@name="denshimeru"]'
 		: '(@name="field2" or @name="em" or @name="sage" '
 			+ 'or @name="email" or @name="nabiki" or @name="dont_bump")]'
 	), f);
-	this.subj = $x(pre + '(@name="kasumi" or @name="nya3" or @name="internal_s" '
+	rf.subj = $x(pre + '(@name="kasumi" or @name="nya3" or @name="internal_s" '
 		+ 'or @name="subject" or @name="field3" or @name="sub")]', f);
+	return rf;
 }
 
 function aibDetector(host, dc) {
@@ -5674,7 +5675,8 @@ function fixGM() {
 			};
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-			xhr.send(false);
+			xhr.finalUrl = obj.url;
+			xhr.send(null);
 		};
 	}
 }
@@ -5696,8 +5698,9 @@ function initBoard() {
 		return false;
 	}
 	if(aib.hid) {
-		setTimeout = function(fn) {
-			fn();
+		window.setTimeout = function(fn, num) {
+			if(typeof fn === 'function') fn();
+			return 1;
 		};
 	}
 	fixDomain();
@@ -5741,7 +5744,7 @@ function initBoard() {
 		: nav.Chrome ? '-webkit-'
 		: '';
 	dummy = $new('div');
-	pr = new replyForm($x('.//textarea/ancestor::form[1]'));
+	pr = replyForm($x('.//textarea/ancestor::form[1]'));
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]');
 	$Del(
 		'preceding-sibling::node()' + (aib.fch ? '[not(self::center)]' : '')
