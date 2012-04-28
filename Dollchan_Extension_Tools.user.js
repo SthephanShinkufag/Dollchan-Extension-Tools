@@ -305,12 +305,12 @@ function $x(path, root) {
 	return $$x(path, root, doc);
 }
 
-function $xbd(path, root, dc) {
+function $$xb(path, root, dc) {
 	return dc.evaluate(path, root || dc, null, 3, null).booleanValue;
 }
 
 function $xb(path, root) {
-	return $xbd(path, root, doc);
+	return $$xb(path, root, doc);
 }
 
 function $c(id, root) {
@@ -5490,9 +5490,9 @@ function replyForm(f) {
 function aibDetector(host, dc) {
 	var h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0],
 		ai = {};
-	ai.hana = $xbd('.//script[contains(@src,"hanabira")]', dc, dc);
+	ai.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
 	ai.krau = h === 'krautchan.net';
-	ai.tiny = $xbd('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
+	ai.tiny = $$xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
 	ai.gazo = h === '2chan.net';
 	ai.xDForm = './/form[' + (
 		ai.hana || ai.krau ? 'contains(@action,"delete")]'
@@ -5505,8 +5505,8 @@ function aibDetector(host, dc) {
 	}
 	ai.host = host;
 	ai.dm = h;
-	ai.kus = $xbd('.//script[contains(@src,"kusaba")]', dc, dc);
-	ai.abu = $xbd('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
+	ai.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
+	ai.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
 	ai.fch = h === '4chan.org';
 	ai.nul = h === '0chan.ru';
 	ai._7ch = h === '7chan.org';
@@ -5522,13 +5522,13 @@ function aibDetector(host, dc) {
 	ai.futr = h === '2chan.su';
 	ai._420 = h === '420chan.org';
 	ai.xThreads = ai.sib ? 'div' : ('.//div[' + (
-		$xbd('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
+		$$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
 		: ai._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (ai._7ch ? 'and not(@id="thread_controls")' : '')
 	) + ']');
-	ai.waka = $xbd('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]', dc, dc)
-		|| !$xbd(ai.xThreads, dc, dc);
+	ai.waka = $$xb('.//p[@class="footer"]/a[@href="http://wakaba.c3.cx/"]|.//a[starts-with(@href,"wakaba.pl")]', dc, dc)
+		|| !$$xb(ai.xThreads, dc, dc);
 	ai.xRef =
 		ai.tiny ? 'p[@class="intro"]/a[@class="post_no"][2]|div/p[@class="intro"]/a[@class="post_no"][2]'
 		: ai.fch ? 'span[starts-with(@id,"no")]'
