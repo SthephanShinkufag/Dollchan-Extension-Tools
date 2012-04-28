@@ -5455,7 +5455,7 @@ function hideByWipe(post) {
 ==============================================================================*/
 
 function replyForm(f) {
-	var tr = aib._7ch ? 'li' : 'tr', rf = {};
+	var tr = aib._7ch ? 'li' : 'tr', rf = {},
 		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	if(!f) {
 		return;
