@@ -2178,7 +2178,7 @@ function findCurrPost(posts) {
 function scrollDownToPost() {
 	if(cPIndex !== Posts.length - 1) {
 		try {
-			cPIndex = scrollToPost(Posts, cPIndex + 1, 1, Posts[cPIndex + 1].isOP
+			cPIndex = scrollToPost(Posts, cPIndex + 1, 1, Posts[cPIndex + 1].isOp
 				|| Posts[cPIndex + 1].getBoundingClientRect().top > window.innerHeight/2
 					- Posts[cPIndex + 1].clientHeight/2, false);
 			scrollP = true;
