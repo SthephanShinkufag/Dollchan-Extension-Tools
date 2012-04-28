@@ -900,7 +900,7 @@ function toggleFavorites(post, btn) {
 		txt: sav.cookie ? post.thr.dTitle.substring(0, 25) : post.thr.dTitle
 	};
 	if(sav.cookie && escape(uneval(Favor)).length > 4095) {
-		$alert(Lng.cookiesLimit[lCode][lCode], '');
+		$alert(Lng.cookiesLimit[lCode], '');
 		delete Favor[h][b][tNum];
 		return;
 	}
@@ -955,7 +955,7 @@ function addPanel() {
 			$New('div', [
 				$new('a', {
 					id: 'DESU_btnSettings',
-					title: Lng.settings[lCode][lCode],
+					title: Lng.settings[lCode],
 					href: '#'}, {
 					click: function(e) {
 						$pd(e);
