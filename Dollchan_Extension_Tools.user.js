@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.0
+// @version			12.4.28.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -783,11 +783,9 @@ function readPostsVisib() {
 			if(hThrds[brd] && (sav.cookie && hThrds[brd].indexOf(pNum) >= 0
 				|| !sav.cookie && hThrds[brd][pNum] !== undefined)) {
 				setPostVisib(post, 0);
-			} else {
-				if(post.Vis === 0) {
-					Visib[brd + pNum] = null;
-					post.Vis = null;
-				}
+			} else if(post.Vis === 0) {
+				Visib[brd + pNum] = null;
+				post.Vis = null;
 			}
 		}
 	});
@@ -1681,16 +1679,14 @@ function addHiddenTable() {
 					if($t('input', el).checked) {
 						if(pByNum[tNum]) {
 							setPostVisib(pByNum[tNum], 1);
-						} else {
-							if(sav.cookie) {
-								i = hThrds[b].indexOf(tNum);
-								if(i >= 0) {
-									hThrds[b].splice(i, 1);
-								}
-							} else {
-								Visib[b + tNum] = 1;
-								delete hThrds[b][tNum];
+						} else if(sav.cookie) {
+							i = hThrds[b].indexOf(tNum);
+							if(i >= 0) {
+								hThrds[b].splice(i, 1);
 							}
+						} else {
+							Visib[b + tNum] = 1;
+							delete hThrds[b][tNum];
 						}
 						if(isEmptyObj(hThrds[b])) {
 							delete hThrds[b];
@@ -2127,13 +2123,11 @@ function initKeyNavig() {
 		if(!TNum && scrollP) {
 			if((Posts[cPIndex] || {}).isOp) {
 				cTIndex = curTh = tByCnt.indexOf(Posts[cPIndex]);
+			} else if(scrollT) {
+				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !Posts[curTh].isOp; curTh--) {}
+				cTIndex = curTh = tByCnt.indexOf(Posts[curTh]);
 			} else {
-				if(scrollT) {
-					for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !Posts[curTh].isOp; curTh--) {}
-					cTIndex = curTh = tByCnt.indexOf(Posts[curTh]);
-				} else {
-					curTh = cTIndex;
-				}
+				curTh = cTIndex;
 			}
 		} else {
 			curTh = cTIndex;
@@ -2142,12 +2136,10 @@ function initKeyNavig() {
 		if(kc === 86) {
 			if(TNum) {
 				showQuickReply(Posts[cPIndex]);
+			} else if(nav.Firefox) {
+				GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
 			} else {
-				if(nav.Firefox) {
-					GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
-				} else {
-					window.open(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), '_blank');
-				}
+				window.open(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), '_blank');
 			}
 			return;
 		}
@@ -2161,27 +2153,19 @@ function initKeyNavig() {
 					scrollT = true;
 				} catch(e) {}
 			}
-		} else {
-			if(kc === 74) {
-				if(TNum) {
-					scrollDownToPost();
-				} else {
-					if(cTIndex !== tByCnt.length - 1) {
-						try {
-							cTIndex = scrollToPost(tByCnt, cTIndex + 1, 1, true, true);
-							scrollT = true;
-						} catch(e) {}
-					}
-				}
-			} else {
-				if(!TNum && kc === 77) {
-					scrollUpToPost();
-				} else {
-					if(!TNum && kc === 78) {
-						scrollDownToPost();
-					}
-				}
+		} else if(kc === 74) {
+			if(TNum) {
+				scrollDownToPost();
+			} else if(cTIndex !== tByCnt.length - 1) {
+				try {
+					cTIndex = scrollToPost(tByCnt, cTIndex + 1, 1, true, true);
+					scrollT = true;
+				} catch(e) {}
 			}
+		} else if(!TNum && kc === 77) {
+			scrollUpToPost();
+		} else if(!TNum && kc === 78) {
+			scrollDownToPost();
 		}
 	};
 }
@@ -2397,10 +2381,8 @@ function doChanges() {
 	}
 	if(pr.on) {
 		doPostformChanges();
-	} else {
-		if(oeForm) {
-			ajaxGetPosts(null, brd, Posts[0].Num, doPostformChanges);
-		}
+	} else if(oeForm) {
+		ajaxGetPosts(null, brd, Posts[0].Num, doPostformChanges);
 	}
 }
 
@@ -2773,10 +2755,8 @@ function prepareData(fn) {
 				cb();
 			}, i);
 			rNeeded++;
-		} else {
-			if(!(el.type === 'checkbox' && !el.checked)) {
-				arr[i] = {name: el.name, val: el.value};
-			}
+		} else if(!(el.type === 'checkbox' && !el.checked)) {
+			arr[i] = {name: el.name, val: el.value};
 		}
 		i++;
 	}, true);
@@ -3546,12 +3526,10 @@ function clickTubeLink(e) {
 	$pd(e);
 	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
 		el.innerHTML = '';
+	} else if(Cfg.ytube > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
+		addTubePreview(el, m);
 	} else {
-		if(Cfg.ytube > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
-			addTubePreview(el, m);
-		} else {
-			addTubePlayer(el, m);
-		}
+		addTubePlayer(el, m);
 	}
 }
 
@@ -3583,21 +3561,17 @@ function addLinkTube(post) {
 			el = $new('div', {Class: 'DESU_ytObj'});
 			if(Cfg.ytube > 2) {
 				addTubePreview(el, m);
-			} else {
-				if(Cfg.ytube === 2) {
-					addTubePlayer(el, m);
-				}
+			} else if(Cfg.ytube === 2) {
+				addTubePlayer(el, m);
 			}
 			msg = pst.Msg || aib.getMsg(pst);
 			if(aib.krau) {
 				$after($x('div[@class="file_thread" or @class="file_reply"][last()]', pst)
 					|| $c('postheader', pst), el);
+			} else if(msg) {
+				$before(msg, [el]);
 			} else {
-				if(msg) {
-					$before(msg, [el]);
-				} else {
-					pst.appendChild(el);
-				}
+				pst.appendChild(el);
 			}
 		}
 		link.className = 'DESU_ytLink';
@@ -4735,18 +4709,14 @@ function applyPostVisib(post, vis, note) {
 			toggleHiddenThread(post, 0);
 			post.thr.Vis = vis;
 		}
-	} else {
-		if(Cfg.delhd === 2) {
-			post.style.display = vis === 0 ? 'none' : '';
-		}
+	} else if(Cfg.delhd === 2) {
+		post.style.display = vis === 0 ? 'none' : '';
 	}
 	if(!sav.cookie) {
 		Visib[brd + pNum] = vis;
 		Expires[brd + pNum] = (new Date()).getTime() + storageLife;
-	} else {
-		if(TNum) {
-			Visib[post.Count] = vis;
-		}
+	} else if(TNum) {
+		Visib[post.Count] = vis;
 	}
 	post.Vis = vis;
 }
@@ -5114,10 +5084,8 @@ function hideBySpells(post) {
 		if(post.noHide) {
 			unhidePost(post);
 		}
-	} else {
-		if(exp) {
-			hidePost(post, exp.substring(0, 70));
-		}
+	} else if(exp) {
+		hidePost(post, exp.substring(0, 70));
 	}
 }
 
