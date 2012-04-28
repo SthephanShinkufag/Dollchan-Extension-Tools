@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.15
+// @version			12.4.28.16
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1154,7 +1154,7 @@ function addSettings() {
 			opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
 		}
 		el = $event($add('<select id="' + name + '_sel">' + opt.join('') + '</select>'), {
-			change: (fn ? fn : function() {
+			'change': (fn ? fn : function() {
 				saveCfg(name, this.selectedIndex);
 			})
 		});
@@ -1946,8 +1946,8 @@ function addSelMenu(el, html) {
 			+ '; width: auto; min-width: 0; ' + x + 'px; ' + y
 			+ 'px; z-index: 9999; padding: 2px 5px; border: 1px solid grey;">' + html + '</div>'
 	), {
-		mouseout: removeSelMenu,
-		mouseover: function() {
+		'mouseout': removeSelMenu,
+		'mouseover': function() {
 			if(pst && pst.node) {
 				markPost(pst.node, false);
 			}
@@ -2296,7 +2296,7 @@ function doChanges() {
 			$after($x('.//div[contains(@class," DESU_thread")]'), $event($add(
 				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
 			), {
-				click: function(e) {
+				'click': function(e) {
 					$pd(e);
 					loadNewPosts(true, null);
 				}
@@ -2379,7 +2379,7 @@ function doPostformChanges() {
 			el.style.height = e.pageY - $offset(el).top + 'px';
 		},
 		resStop = function() {
-			$revent(doc.body, {mousemove: resMove, mouseup: resStop});
+			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
 			saveCfg('texw', parseInt(el.style.width, 10));
 			saveCfg('texh', parseInt(el.style.height, 10));
 		};
@@ -3658,7 +3658,7 @@ function makeMoveable(el) {
 			el.moved = true;
 		},
 		elStop = function() {
-			$revent(doc.body, {mousemove: elMove, mouseup: elStop});
+			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 		};
 	$event(el, {
 		'mousedown': function(e) {
@@ -4416,7 +4416,7 @@ function loadThread(post, last, fn) {
 				post.parentNode.appendChild($event($add(
 					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
 				), {
-					click: function(e) {
+					'click': function(e) {
 						$pd(e);
 						loadThread(post, 5, null);
 					}
