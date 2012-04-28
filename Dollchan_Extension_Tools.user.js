@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.9
+// @version			12.4.28.10
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -1853,8 +1853,8 @@ function $show(el) {
 		}
 		s = el.style;
 		s.opacity = i/10;
-		s.paddingTop = parseInt(s.paddingTop) + 1 + 'px';
-		s.paddingBottom = parseInt(s.paddingBottom) + 1 + 'px';
+		s.paddingTop = parseInt(s.paddingTop, 10) + 1 + 'px';
+		s.paddingBottom = parseInt(s.paddingBottom, 10) + 1 + 'px';
 	}, 25);
 }
 
@@ -1885,10 +1885,10 @@ function $close(el) {
 			return;
 		}
 		s = el.style;
-		hh = parseInt(s.height) - h/10;
+		hh = parseInt(s.height, 10) - h/10;
 		s.opacity = i/10;
-		s.paddingTop = parseInt(s.paddingTop) - 1 + 'px';
-		s.paddingBottom = parseInt(s.paddingBottom) - 1 + 'px';
+		s.paddingTop = parseInt(s.paddingTop, 10) - 1 + 'px';
+		s.paddingBottom = parseInt(s.paddingBottom, 10) - 1 + 'px';
 		s.height = (hh < 0 ? 0 : hh) + 'px';
 	}, 25);
 }
@@ -2037,7 +2037,7 @@ function selectExpandThread(post) {
 		$event(a, {
 			click: function(e) {
 				$pd(e);
-				loadThread(post, parseInt(this.textContent), null);
+				loadThread(post, parseInt(this.textContent, 10), null);
 			}
 		});
 	}, false);
@@ -2392,8 +2392,8 @@ function doPostformChanges() {
 		},
 		resStop = function() {
 			$revent(doc.body, {mousemove: resMove, mouseup: resStop});
-			saveCfg('texw', parseInt(el.style.width));
-			saveCfg('texh', parseInt(el.style.height));
+			saveCfg('texw', parseInt(el.style.width, 10));
+			saveCfg('texh', parseInt(el.style.height, 10));
 		};
 	if(!aib.fch && pr.subm.nextSibling) {
 		$delNx(pr.subm);
@@ -3011,7 +3011,7 @@ function fixTime(txt) {
 			);
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second);
-		dtime.setHours(dtime.getHours() + parseInt(Cfg.ctmofs));
+		dtime.setHours(dtime.getHours() + parseInt(Cfg.ctmofs, 10));
 		return dtime.toString().replace(/GMT.*$/, '');
 	});
 }
@@ -3674,8 +3674,8 @@ function makeMoveable(el) {
 	$event(el, {
 		mousedown: function(e) {
 			$pd(e);
-			el.curX = e.clientX - parseInt(el.style.left);
-			el.curY = e.clientY - parseInt(el.style.top);
+			el.curX = e.clientX - parseInt(el.style.left, 10);
+			el.curY = e.clientY - parseInt(el.style.top, 10);
 			$event(doc.body, {
 				mousemove: elMove,
 				mouseup: elStop
@@ -3687,18 +3687,18 @@ function makeMoveable(el) {
 function resizeImg(e) {
 	var curX = e.clientX,
 		curY = e.clientY,
-		oldL = parseInt(this.style.left),
-		oldT = parseInt(this.style.top),
+		oldL = parseInt(this.style.left, 10),
+		oldT = parseInt(this.style.top, 10),
 		oldW = this.width,
 		oldH = this.height,
 		d = nav.Opera || nav.Chrome ? e.wheelDelta : -e.detail,
-		newW = parseInt(this.width*(d > 0 ? 1.25 : 0.8)),
-		newH = parseInt(this.height*(d > 0 ? 1.25 : 0.8));
+		newW = parseInt(this.width*(d > 0 ? 1.25 : 0.8), 10),
+		newH = parseInt(this.height*(d > 0 ? 1.25 : 0.8), 10);
 	$pd(e);
 	this.width = newW;
 	this.height = newH;
-	this.style.left = parseInt(curX - (newW/oldW)*(curX - oldL)) + 'px';
-	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT)) + 'px';
+	this.style.left = parseInt(curX - (newW/oldW)*(curX - oldL), 10) + 'px';
+	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
 function addFullImg(a, sz, isExp) {
@@ -3751,7 +3751,7 @@ function addFullImg(a, sz, isExp) {
 		height: newH,
 		style: (Cfg.expimg === 2
 			? 'position: fixed; z-index: 5000; border: 1px solid black; left: '
-				+ parseInt((scrW - newW)/2) + 'px; top: ' + parseInt((scrH - newH)/2) + 'px;'
+				+ parseInt((scrW - newW)/2, 10) + 'px; top: ' + parseInt((scrH - newH)/2, 10) + 'px;'
 			: ''
 		)
 	}));
@@ -5386,8 +5386,8 @@ function detectWipe_caseWords(txt) {
 		}
 		n++;
 	}
-	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100) + '%')
-		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100) + '%')
+	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100, 10) + '%')
+		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100, 10) + '%')
 		: false;
 }
 
@@ -5399,7 +5399,7 @@ function detectWipe_specSymbols(txt) {
 	txt = txt.replace(/\s+/g, '');
 	len = txt.length;
 	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length/len;
-	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc*100) + '%' : false;
+	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc*100, 10) + '%' : false;
 }
 
 function detectWipe_numbers(txt) {
@@ -5410,7 +5410,7 @@ function detectWipe_numbers(txt) {
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	len = txt.length;
 	proc = (len - txt.replace(/\d/g, '').length)/len;
-	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc*100) + '%' : false;
+	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc*100, 10) + '%' : false;
 }
 
 function detectWipe(post) {
