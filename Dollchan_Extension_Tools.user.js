@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.14
+// @version			12.4.28.15
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -332,13 +332,6 @@ function $next(el) {
 
 function $prev(el) {
 	while((el = el.previousSibling) && el.nodeType !== 1) {}
-	return el;
-}
-
-function $up(el, i) {
-	for(i = i || 1; i--;) {
-		el = el.parentNode;
-	}
 	return el;
 }
 
@@ -1410,7 +1403,7 @@ function addSettings() {
 				$disp(pr.gothr);
 			}, '')),
 			$if(pr.passw, lBox('nopass', Lng.passw[lCode], function() {
-				$disp($up(pr.passw, 2));
+				$disp(pr.passw.parentNode.parentNode);
 			}, ''))
 		])
 	]),
@@ -1478,9 +1471,9 @@ function addSettings() {
 						toggleContent('Cfg', true);
 					})),
 					$btn(Lng.edit[lCode], Lng.editCfg[lCode], function() {
-						$disp($up($attr($id('DESU_cfgEdit'), {
+						$disp($attr($id('DESU_cfgEdit'), {
 							'value': getStored('DESU_Config_' + aib.dm)
-						})));
+						}).parentNode);
 					}),
 					$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
 						setDefaultCfg();
@@ -1625,7 +1618,7 @@ function addHiddenTable() {
 						'click': function() {
 							var inp = this;
 							$each($X(
-								'.//tr[contains(@id,"_' + $up(inp).id.substr(14) + '|")]/div/input',
+								'.//tr[contains(@id,"_' + inp.parentNode.id.substr(14) + '|")]/div/input',
 								table
 							), function(el) {
 								el.checked = inp.checked;
@@ -1658,7 +1651,7 @@ function addHiddenTable() {
 	$append(table, [
 		$New('tr', null, [
 			$btn(Lng.edit[lCode], Lng.editNotes[lCode], function() {
-				$disp($up($id('DESU_hidTEdit')));
+				$disp($id('DESU_hidTEdit').parentNode);
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
 				$each($X('.//tr[@class="DESU_hidTData"]', table), function(el) {
@@ -1717,7 +1710,7 @@ function addFavoritesTable() {
 						'click': function() {
 							var inp = this;
 							$each($X(
-								'.//tr[contains(@id,"_' + $up(inp).id.substr(13) + '|")]/div/input',
+								'.//tr[contains(@id,"_' + inp.parentNode.id.substr(13) + '|")]/div/input',
 								table
 							), function(el) {
 								el.checked = inp.checked;
@@ -1764,7 +1757,7 @@ function addFavoritesTable() {
 		$New('tr', null, [
 			$new('hr', null, null),
 			$btn(Lng.edit[lCode], Lng.editNotes[lCode], function() {
-				$disp($up($id('DESU_favEdit')));
+				$disp($id('DESU_favEdit').parentNode);
 			}),
 			$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
 				$each(list, function(el) {
@@ -1907,7 +1900,7 @@ function $alert(txt, id) {
 				'text': '× '}, {
 				'click': function(e) {
 					$pd(e);
-					$close($up(this));
+					$close(this.parentNode);
 				}
 			})),
 			$new('div', {
@@ -2466,7 +2459,7 @@ function doPostformChanges() {
 		}
 		el = $id('recaptcha_reload_btn');
 		if(el) {
-			$disp($up(el));
+			$disp(el.parentNode);
 		}
 	}
 	if(pr.cap) {
@@ -2533,7 +2526,7 @@ function doPostformChanges() {
 				}
 			});
 			if(img) {
-				$up(img).replaceChild(_img, img);
+				img.parentNode.replaceChild(_img, img);
 			} else {
 				$delNx(pr.cap);
 				$after(pr.cap, _img);
@@ -3504,7 +3497,7 @@ function addTubePreview(el, m) {
 		'click': function(e) {
 			if(Cfg.ytube !== 4) {
 				$pd(e);
-				addTubePlayer($up(this), m);
+				addTubePlayer(this.parentNode, m);
 			}
 		}
 	});
@@ -3542,7 +3535,7 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		aib.getMsg(post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
-		$del($up(el));
+		$del(el.parentNode);
 	}, false);
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
 		var pst, el, msg,
@@ -3851,7 +3844,7 @@ function eventPostImg(post) {
 			$rattr(a, 'onclick');
 			$rattr(img, 'onclick');
 			if(aib.dfwk) {
-				$rattr($up(img), 'onclick');
+				$rattr(img.parentNode, 'onclick');
 			}
 			a.addEventListener('click', function(e) {
 				if(Cfg.expimg !== 0 && e.button !== 1) {
@@ -4224,7 +4217,7 @@ function eventRefLink(node) {
 function parseHTMLdata(html, b, tNum) {
 	var dc, thrd, pNum, om;
 	if(!pr.on && oeForm) {
-		pr = replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
+		pr = replyForm($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
 	dc = HTMLtoDOM(aib.hana
@@ -4420,7 +4413,7 @@ function loadThread(post, last, fn) {
 			expandThread(post.thr, brd, post.Num, last, false);
 			$focus(pByNum[post.Num]);
 			if(last > 5 || last === 1) {
-				$up(post).appendChild($event($add(
+				post.parentNode.appendChild($event($add(
 					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
 				), {
 					click: function(e) {
@@ -4437,7 +4430,7 @@ function loadThread(post, last, fn) {
 }
 
 function loadFavorThread(e) {
-	var el = $up(this, 2),
+	var el = this.parentNode.parentNode,
 		thr = $x('.//div[contains(@class," DESU_thread")]', el),
 		arr = el.id.substr(13).split('|'),
 		url = $if(arr[0] !== aib.host, $next(this).href),
@@ -4700,7 +4693,7 @@ function applyPostVisib(post, vis, note) {
 					togglePostVisib(post);
 				}
 			});
-			$before($up(post), [el]);
+			$before(post.parentNode, [el]);
 			toggleHiddenThread(post, 0);
 			post.thr.Vis = vis;
 		}
