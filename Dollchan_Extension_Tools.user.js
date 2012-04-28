@@ -4228,7 +4228,7 @@ function eventRefLink(node) {
 function parseHTMLdata(html, b, tNum) {
 	var dc, thrd, pNum, om;
 	if(!pr.on && oeForm) {
-		pr = replyForm($x('.//textarea/ancestor::form[1]'));
+		pr = replyForm($x('.//textarea/ancestor::form[1]', $up($add(html))));
 		$before($1($id('DESU_pform')), [pr.form]);
 	}
 	dc = HTMLtoDOM(aib.hana
