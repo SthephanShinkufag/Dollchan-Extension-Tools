@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.1
+// @version			12.4.28.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -481,7 +481,7 @@ function $del(el) {
 function $$Del(path, root, dc) {
 	$each($$X(path, root, dc), function(el) {
 		$del(el);
-	});
+	}, false);
 }
 
 function $Del(path, root) {
@@ -1636,7 +1636,7 @@ function addHiddenTable() {
 								table
 							), function(el) {
 								el.checked = inp.checked;
-							});
+							}, false);
 						}
 					}),
 					$add('<b>' + b + '</b>')
@@ -1692,7 +1692,7 @@ function addHiddenTable() {
 							delete hThrds[b];
 						}
 					}
-				});
+				}, false);
 				setStored('DESU_Threads_' + aib.dm, $uneval(hThrds));
 				savePostsVisib();
 			})
@@ -1728,7 +1728,7 @@ function addFavoritesTable() {
 								table
 							), function(el) {
 								el.checked = inp.checked;
-							});
+							}, false);
 						}
 					}),
 					$add('<a href="http://' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
@@ -1798,7 +1798,7 @@ function addFavoritesTable() {
 							}
 						});
 					}
-				});
+				}, false);
 			}),
 			$btn(Lng.clear, Lng.clrDeleted, function() {
 				$each(list, function(el) {
@@ -1809,7 +1809,7 @@ function addFavoritesTable() {
 							saveFavorites();
 						}
 					});
-				});
+				}, false);
 			}),
 			$btn(Lng.remove, Lng.clrSelected, function() {
 				$each(list, function(el) {
@@ -1817,7 +1817,7 @@ function addFavoritesTable() {
 					if($t('input', el).checked) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 					}
-				});
+				}, false);
 				saveFavorites();
 			})
 		]),
@@ -1998,7 +1998,7 @@ function selectSpell(e) {
 				insertInto($id('DESU_spellEdit'), exp);
 			}
 		});
-	});
+	}, false);
 }
 
 function selectPostHider(post) {
@@ -2043,7 +2043,7 @@ function selectExpandThread(post) {
 				loadThread(post, parseInt(this.textContent));
 			}
 		});
-	});
+	}, false);
 }
 
 function selectAjaxPages() {
@@ -2057,7 +2057,7 @@ function selectAjaxPages() {
 				loadPages(i + 1);
 			}
 		});
-	});
+	}, false);
 }
 
 function selectImgSearch(btn, href) {
@@ -2083,7 +2083,7 @@ function addEvents(node) {
 		el.onblur = function() {
 			kIgnore = false;
 		};
-	});
+	}, false);
 }
 
 function initKeyNavig() {
@@ -2349,7 +2349,7 @@ function doChanges() {
 		$each($X('.//table[@class="pages"]//form'), function(el) {
 			$next(el).appendChild($attr(el, {style: 'margin-bottom: 0;'}));
 			el.appendChild($prev(el));
-		});
+		}, false);
 	}
 	qArea = $new('div', {
 		id: 'DESU_qarea',
@@ -2448,7 +2448,7 @@ function doPostformChanges() {
 	});
 	$each($X('.//input[@type="text"]', pr.form), function(el) {
 		el.size = 35;
-	});
+	}, false);
 	if(Cfg.nogoto !== 0 && pr.gothr) {
 		$disp(pr.gothr);
 	}
@@ -2584,7 +2584,7 @@ function doPostformChanges() {
 					el.onclick = function() {
 						return false;
 					}
-				});
+				}, false);
 				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
 			};
 		} else {
@@ -2660,7 +2660,7 @@ function checkUpload(dc, url) {
 		if(xp) {
 			$each(dc.evaluate(xp, dc, null, 6, null), function(el) {
 				txt += el.innerHTML + '\n';
-			});
+			}, false);
 		} else {
 			xp = $t('h2', dc) || $t('h1', dc);
 			if(xp) {
@@ -2710,7 +2710,7 @@ function checkDelete(dc, url) {
 					allDel = false;
 				}
 				el.checked = false; el.onclick = null;
-			});
+			}, false);
 			$alert(allDel ? Lng.succDeleted : Lng.errDelete);
 		};
 	if(pr.tNum) {
@@ -3403,7 +3403,7 @@ function addPostButtons(post) {
 		if(aib.nul || aib.futr) {
 			$each($X('.//a', ref), function(el) {
 				$rattr(el, 'onclick');
-			});
+			}, false);
 		}
 		$event(ref, {click: insertRefLink});
 	}
@@ -3549,7 +3549,7 @@ function addLinkTube(post) {
 		}
 		aib.getMsg(post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
 		$del($up(el));
-	});
+	}, false);
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
 		var pst, el, msg,
 			m = link.href.match(getTubePattern());
@@ -3633,7 +3633,7 @@ function hideTextTube() {
 				break;
 			}
 		}
-	});
+	}, false);
 }
 
 function addLinkMP3(post) {
@@ -3801,7 +3801,7 @@ function addLinkImg(addBr, post) {
 			}
 		});
 		$before(link, [a, $if(addBr, $new('br'))]);
-	});
+	}, false);
 }
 
 function addImgSearch(post) {
@@ -3833,7 +3833,7 @@ function addImgSearch(post) {
 				mouseout: removeSelMenu
 			})
 		]);
-	});
+	}, false);
 }
 
 function expandPostImg(a, post, isExp) {
@@ -3847,7 +3847,7 @@ function expandPostImg(a, post, isExp) {
 function expandAllPostImg(post, isExp) {
 	$each(post.Img, function(img) {
 		expandPostImg($x('ancestor::a[1]', img), post, isExp);
-	});
+	}, false);
 }
 
 function eventPostImg(post) {
@@ -3866,7 +3866,7 @@ function eventPostImg(post) {
 				}
 			}, false);
 		}
-	});
+	}, false);
 }
 
 /*---------------------------->>RefLinks map functions------------------------*/
@@ -4141,7 +4141,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) {
 		img.style.display = '';
-	});
+	}, false);
 	eventPostImg(pView);
 	addLinkImg(false, pView);
 	addImgSearch(pView);
@@ -4214,7 +4214,7 @@ function eventRefLink(el) {
 					mouseover: showPostPreview,
 					mouseout: markDelete
 				});
-			});
+			}, false);
 		};
 	if(aib.tiny) {
 		setTimeout(erf, 500);
@@ -4253,7 +4253,7 @@ function parseHTMLdata(html, b, tNum) {
 		ajPosts[b][pNum] = post;
 		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
 			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
-		});
+		}, false);
 	});
 }
 
@@ -4681,7 +4681,7 @@ function togglePost(post, vis) {
 		: $c('DESU_postPanel', post)
 	), function(el) {
 		el.style.display = vis === 0 ? 'none' : '';
-	});
+	}, false);
 }
 
 function applyPostVisib(post, vis, note) {
@@ -4729,7 +4729,7 @@ function setPostVisib(post, vis) {
 		setTimeout(function() {
 			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
 				el.className = vis === 0 ? 'DESU_refHid' : '';
-			});
+			}, false);
 		}, 0);
 	}
 }
@@ -4822,7 +4822,7 @@ function processHidden(newCfg, oldCfg) {
 			}
 			$del($prev(el));
 			$del(el);
-		});
+		}, false);
 	}
 	if(newCfg === 1) {
 		forAll(mergeHidden);
