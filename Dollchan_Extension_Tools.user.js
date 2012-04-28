@@ -605,32 +605,25 @@ function turnCookies(name) {
 function getStored(name, fn) {
 	if(sav.GM) {
 		return GM_getValue(name);
-	} else {
-		if(sav.script) {
-			return scriptStorage.getItem(name);
-		} else {
-			if(sav.local) {
-				return localStorage.getItem(name);
-			} else {
-				return getCookie(name);
-			}
-		}
 	}
+	if(sav.script) {
+		return scriptStorage.getItem(name);
+	}
+	if(sav.local) {
+		return localStorage.getItem(name);
+	}
+	return getCookie(name);
 }
 
 function setStored(name, value) {
 	if(sav.GM) {
 		GM_setValue(name, value);
+	} else if(sav.script) {
+		scriptStorage.setItem(name, value);
+	} else if(sav.local) {
+		localStorage.setItem(name, value);
 	} else {
-		if(sav.script) {
-			scriptStorage.setItem(name, value);
-		} else {
-			if(sav.local) {
-				localStorage.setItem(name, value);
-			} else {
-				setCookie(name, value);
-			}
-		}
+		setCookie(name, value);
 	}
 }
 
@@ -5678,14 +5671,10 @@ function fixUneval() {
 }
 
 function fixGM() {
-	try {
-		GM_log;
-	} catch(e) {
+	if(!('GM_log' in window)) {
 		window.GM_log = function() {};
 	}
-	try {
-		GM_xmlhttpRequest;
-	} catch(e) {
+	if(!('GM_xmlhttpRequest' in window)) {
 		window.GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
 			xhr.onreadystatechange = function() {
