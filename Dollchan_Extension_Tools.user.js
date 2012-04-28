@@ -13,78 +13,78 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	version:	'2012-04-28',
-	lang:		0,		// script language [0=ru, 1=en]
-	sstyle:		0,		// script elements style [0=gradient blue, 1=solid grey]
-	spells:		0,		// hide posts by magic spells
-	awipe:		1,		// antiwipe detectors:
-	samel:		1,		//		same lines
-	samew:		1,		//		same words
-	longp:		1,		//		long posts
-	longw:		0,		//		long words
-	caps:		0,		//		cAsE, CAPS
-	specs:		0,		//		special symbols
-	nums:		1,		//		numbers
-	menuhd:		1,		// menu on hide button
-	viewhd:		1,		// view hidden on postnumber
-	delhd:		0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
-	filthr:		1,		// filter threads
-	updthr:		1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
-	updint:		2,		//		threads update interval
-	updfav:		1,		//		favicon blinking, if new posts detected
-	navig:		2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
-	navdel:		'2000',	//		delay in ms
-	navmrk:		0,		//		mark viewed posts
-	navhid:		0,		//		strike hidden posts in refmap
-	navdis:		0,		//		don't show hidden posts
-	expimg:		2,		// expand images by click [0=off, 1=in post, 2=by center]
-	expost:		2,		// expand shorted posts [0=off, 1=auto, 2=on click]
-	ctime:		0,		// correct time in posts
-	ctmofs:		'-2',	//		offset
-	ctmpat:		'',		//		pattern
-	insnum:		1,		// insert >>link on postnumber click
-	animp:		1,		// animated popups and post previews
-	aclose:		0,		// auto-close popups
-	rtitle:		1,		// replace page title in threads
-	attach:		1,		// attach main panel
-	icount:		1,		// show posts/images counter
-	showmp:		0,		// show full main panel
-	ospoil:		1,		// open spoilers
-	noname:		0,		// hide post names
-	noscrl:		1,		// hide scrollers in posts
-	mp3:		1,		// mp3 player by links
-	addimg:		1,		// add images by links
-	imgsrc:		1,		// image search
-	ytube:		3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
-	yptype:		0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
-	ywidth:		360,	//		player width
-	yheigh:		270,	//		player height
-	yhdvid:		0,		//		hd video quality
-	ytitle:		0,		//		convert links to titles
-	verify:		1,		// reply without reload (verify on submit)
-	rndimg:		0,		// add random byte into image
-	addfav:		1,		// add thread to favorites on reply
-	keynav:		0,		// keyboard navigation
-	sagebt:		1,		// email field -> sage btn
-	svsage:		1,		//		remember sage
-	issage:		0,		//		reply with sage
-	pform:		2,		// postform is [0=at top, 1=at bottom, 2=hidden]
-	tform:		1,		// hide thread-creating form
-	forcap:		1,		// language input in captcha [0=off, 1=en, 2=ru]
-	txtbtn:		1,		// text format buttons [0=off, 1=graph, 2=text, 3=usual]
-	txtpos:		0,		//		position at [0=top, 1=bottom]
-	name:		0,		// user name
-	namval:		'',		//		value
-	passw:		0,		// user password
-	pasval:		'',		//		value
-	sign:		0,		// user signature
-	sigval:		'',		//		value
-	norule:		1,		// hide board rules
-	nogoto:		1,		// hide goto field
-	nopass:		1,		// hide password field
-	mask:		0,		// mask images
-	texw:		530,	// textarea width
-	texh:		140		// textarea height
+	'version':	'2012-04-28',
+	'lang':		0,		// script language [0=ru, 1=en]
+	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
+	'spells':	0,		// hide posts by magic spells
+	'awipe':	1,		// antiwipe detectors:
+	'samel':	1,		//		same lines
+	'samew':	1,		//		same words
+	'longp':	1,		//		long posts
+	'longw':	0,		//		long words
+	'caps':		0,		//		cAsE, CAPS
+	'specs':	0,		//		special symbols
+	'nums':		1,		//		numbers
+	'menuhd':	1,		// menu on hide button
+	'viewhd':	1,		// view hidden on postnumber
+	'delhd':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
+	'filthr':	1,		// filter threads
+	'updthr':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
+	'updint':	2,		//		threads update interval
+	'updfav':	1,		//		favicon blinking, if new posts detected
+	'navig':	2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
+	'navdel':	'2000',	//		delay in ms
+	'navmrk':	0,		//		mark viewed posts
+	'navhid':	0,		//		strike hidden posts in refmap
+	'navdis':	0,		//		don't show hidden posts
+	'expimg':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'expost':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
+	'ctime':	0,		// correct time in posts
+	'ctmofs':	'-2',	//		offset
+	'ctmpat':	'',		//		pattern
+	'insnum':	1,		// insert >>link on postnumber click
+	'animp':	1,		// animated popups and post previews
+	'aclose':	0,		// auto-close popups
+	'rtitle':	1,		// replace page title in threads
+	'attach':	1,		// attach main panel
+	'icount':	1,		// show posts/images counter
+	'showmp':	0,		// show full main panel
+	'ospoil':	1,		// open spoilers
+	'noname':	0,		// hide post names
+	'noscrl':	1,		// hide scrollers in posts
+	'mp3':		1,		// mp3 player by links
+	'addimg':	1,		// add images by links
+	'imgsrc':	1,		// image search
+	'ytube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
+	'yptype':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
+	'ywidth':	360,	//		player width
+	'yheigh':	270,	//		player height
+	'yhdvid':	0,		//		hd video quality
+	'ytitle':	0,		//		convert links to titles
+	'verify':	1,		// reply without reload (verify on submit)
+	'rndimg':	0,		// add random byte into image
+	'addfav':	1,		// add thread to favorites on reply
+	'keynav':	0,		// keyboard navigation
+	'sagebt':	1,		// email field -> sage btn
+	'svsage':	1,		//		remember sage
+	'issage':	0,		//		reply with sage
+	'pform':	2,		// postform is [0=at top, 1=at bottom, 2=hidden]
+	'tform':	1,		// hide thread-creating form
+	'forcap':	1,		// language input in captcha [0=off, 1=en, 2=ru]
+	'txtbtn':	1,		// text format buttons [0=off, 1=graph, 2=text, 3=usual]
+	'txtpos':	0,		//		position at [0=top, 1=bottom]
+	'name':		0,		// user name
+	'namval':	'',		//		value
+	'passw':	0,		// user password
+	'pasval':	'',		//		value
+	'sign':		0,		// user signature
+	'sigval':	'',		//		value
+	'norule':	1,		// hide board rules
+	'nogoto':	1,		// hide goto field
+	'nopass':	1,		// hide password field
+	'mask':		0,		// mask images
+	'texw':		530,	// textarea width
+	'texh':		140		// textarea height
 },
 
 Lng = {
@@ -3566,7 +3566,7 @@ function addLinkTube(post) {
 					+ '?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
 				onload: function(xhr) {
 					try {
-						link.textContent = window.JSON.parse(xhr.responseText)['entry']['title']['$t'];
+						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 						filterTextTube(pst, link.textContent);
 					} catch(e) {}
 				}
