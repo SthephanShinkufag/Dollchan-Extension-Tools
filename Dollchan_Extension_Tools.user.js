@@ -289,20 +289,20 @@ doc = window.document, Cfg = {}, Lng = {}, Favor = {}, hThrds = {}, Stat = {}, P
 									UTILS
 ==============================================================================*/
 
-function $Xd(path, root, dc) {
+function $$X(path, root, dc) {
 	return dc.evaluate(path, root || dc, null, 6, null);
 }
 
 function $X(path, root) {
-	return $Xd(path, root, doc);
+	return $$X(path, root, doc);
 }
 
-function $xd(path, root, dc) {
+function $$x(path, root, dc) {
 	return dc.evaluate(path, root || dc, null, 8, null).singleNodeValue;
 }
 
 function $x(path, root) {
-	return $xd(path, root, doc);
+	return $$x(path, root, doc);
 }
 
 function $xbd(path, root, dc) {
@@ -430,7 +430,7 @@ function $add(htm, events) {
 	return el;
 }
 
-function $newd(tag, attr, events, dc) {
+function $$new(tag, attr, events, dc) {
 	var el = dc.createElement(tag);
 	if(attr) {
 		$attr(el, attr);
@@ -442,7 +442,7 @@ function $newd(tag, attr, events, dc) {
 }
 
 function $new(tag, attr, events) {
-	return $newd(tag, attr, events, doc);
+	return $$new(tag, attr, events, doc);
 }
 
 function $New(tag, nodes, attr, events) {
@@ -478,14 +478,14 @@ function $del(el) {
 	}
 }
 
-function $Deld(path, root, dc) {
-	$each($Xd(path, root, dc), function(el) {
+function $$Del(path, root, dc) {
+	$each($$X(path, root, dc), function(el) {
 		$del(el);
 	});
 }
 
 function $Del(path, root) {
-	$Deld(path, root, doc)
+	$$Del(path, root, doc)
 }
 
 function $delNx(el) {
@@ -4237,7 +4237,7 @@ function parseHTMLdata(html, b, tNum) {
 		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
 		: html
 	);
-	parseDelform(!aib.hana ? $xd(aib.xDForm, dc, dc) : dc, dc, function(thr) {
+	parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(thr) {
 		thrd = thr;
 		if(!ajThrds[b]) {
 			ajThrds[b] = {};
@@ -4251,7 +4251,7 @@ function parseHTMLdata(html, b, tNum) {
 		pNum = post.Num;
 		ajThrds[b][thrd.Num].push(pNum);
 		ajPosts[b][pNum] = post;
-		$each($Xd(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
+		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
 			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
 		});
 	});
@@ -5588,14 +5588,14 @@ function aibDetector(host, dc) {
 		};
 	ai.getOmPosts = ai.gazo
 		? function(el, dc) {
-			return $xd('.//font[@color="#707070"]', el, dc);
+			return $$x('.//font[@color="#707070"]', el, dc);
 		}
 		: function(el) {
 			return $c(ai.cOPosts, el);
 		};
 	ai.getTNum =
 		ai.fch || ai.gazo || ai.sib || (ai.waka && !ai.abu) ? function(op, dc) {
-			return ($xd(ai.xTNum, op, dc).name).match(/\d+/)[0];
+			return ($$x(ai.xTNum, op, dc).name).match(/\d+/)[0];
 		}
 		: ai.krau ? function(op, dc) {
 			return op.parentNode.previousElementSibling.name;
@@ -5609,13 +5609,13 @@ function aibDetector(host, dc) {
 		}
 		: function(thr, dc) {
 			var i,
-				op = $newd('div', {}, {}, dc),
-				opEnd = $xd(ai.table + '|div[starts-with(@id,"repl")]', thr, dc);
+				op = $$new('div', {}, {}, dc),
+				opEnd = $$x(ai.table + '|div[starts-with(@id,"repl")]', thr, dc);
 			while((i = thr.firstChild) !== opEnd) {
 				op.appendChild(i);
 			}
 			if(ai._7ch) {
-				(i = $newd('div', {}, {}, dc)).appendChild(op);
+				(i = $$new('div', {}, {}, dc)).appendChild(op);
 				op.className = 'post'; op = i;
 			}
 			if(thr.childElementCount) {
@@ -5797,13 +5797,13 @@ function forEachThread(node, dc, fn) {
 	var threads, el, tEl,
 		pThr = false;
 	if((threads = node.getElementsByClassName(aib.tClass)).length === 0) {
-		threads = $Xd(aib.xThreads, node, dc);
+		threads = $$X(aib.xThreads, node, dc);
 		if(threads.snapshotLength !== 0) {
 			$each(threads, fn, true);
 		} else {
 			el = node.firstChild;
 			while(1) {
-				threads = $newd('div', {}, {}, dc);
+				threads = $$new('div', {}, {}, dc);
 				while(el && (tEl = el.nextSibling) && tEl.tagName !== 'HR') {
 					threads.appendChild(el); el = tEl;
 				}
@@ -5848,7 +5848,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		pFn(op, 0);
 		if(aib.gazo) {
 			psts = [];
-			$each($Xd('table/tbody/tr/td[2]', thr, dc), function(el) {
+			$each($$X('table/tbody/tr/td[2]', thr, dc), function(el) {
 				psts.push(el);
 			}, true);
 		} else {
@@ -5882,10 +5882,10 @@ function parseDelform(node, dc, tFn, pFn) {
 		});
 	}
 	if(liteMode) {
-		$Deld('preceding-sibling::node()|following-sibling::node()', dForm, dc);
+		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
 	if(!aib._7ch && !aib.tiny && !postWrapper) {
-		postWrapper = $xd('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
+		postWrapper = $$x('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
 		if(dc !== doc && postWrapper) {
 			postWrapper = doc.importNode(postWrapper, true);
 		}
