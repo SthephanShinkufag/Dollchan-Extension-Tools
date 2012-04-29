@@ -1085,6 +1085,23 @@ function toggleContent(name, isUpd) {
 	if(isUpd && el.className !== id) {
 		return;
 	}
+	if(el.childElementCount) {
+		if(Cfg.animp !== 0 && (nav.Firefox > 4 || nav.Chrome)) {
+			el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function clEvent() {
+				el.style.display = 'none';
+				this.removeEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', clEvent, false);
+				showContent(el, id, name, isUpd);
+			}, false);
+			el.style.cssText = cssFix + 'animation: DESU_cfgClose 0.1s 1 ease-in;';
+		} else {
+			showContent(el, id, name, isUpd)
+		}
+	} else {
+		showContent(el, id, name, isUpd)
+	}
+}
+
+function showContent(el, id, name, isUpd) {
 	el.innerHTML = '';
 	if(!isUpd && el.className === id) {
 		el.className = 'DESU_content';
@@ -1096,19 +1113,24 @@ function toggleContent(name, isUpd) {
 	}
 	if(name === 'Cfg') {
 		addSettings();
-		return;
+	} else {
+		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
+		if(Cfg.attach !== 0) {
+			$t('table', el).style.backgroundColor = getStyle(doc.body, 'background-color');
+		}
+		if(name === 'Hid') {
+			readHiddenThreads();
+			addHiddenTable();
+		}
+		if(name === 'Fav') {
+			readFavorites();
+			addFavoritesTable();
+		}
 	}
-	el.appendChild($add('<table><tbody align="left"></tbody></table>'));
-	if(Cfg.attach !== 0) {
-		$t('table', el).style.backgroundColor = getStyle(doc.body, 'background-color');
-	}
-	if(name === 'Hid') {
-		readHiddenThreads();
-		addHiddenTable();
-	}
-	if(name === 'Fav') {
-		readFavorites();
-		addFavoritesTable();
+	if(Cfg.animp !== 0 && (nav.Firefox > 4 || nav.Chrome)) {
+		el.style.cssText = cssFix + 'animation: DESU_cfgOpen 0.1s 1 ease-out;';
+	} else {
+		el.style.display = '';
 	}
 }
 
@@ -3150,6 +3172,8 @@ function scriptCSS() {
 		x.push(
 			'@' + cssFix + 'keyframes DESU_aOpen { from { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } to { opacity: 1; } }\
 			@' + cssFix + 'keyframes DESU_aClose { to { ' + cssFix + 'transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
+			@' + cssFix + 'keyframes DESU_cfgOpen { from { ' + cssFix + 'transform: translate(0,50%) scaleY(0); opacity: 0; } to { opacity: 1; } }\
+			@' + cssFix + 'keyframes DESU_cfgClose { to { ' + cssFix + 'transform: translate(0,50%) scaleY(0); opacity: 0; } }\
 			@' + cssFix + 'keyframes DESU_pOpenTL { from { ' + cssFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
 			@' + cssFix + 'keyframes DESU_pOpenBL { from { ' + cssFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } to { opacity: 1; } }\
 			@' + cssFix + 'keyframes DESU_pOpenTR { from { ' + cssFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
