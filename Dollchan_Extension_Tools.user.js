@@ -290,7 +290,7 @@ doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Post
 ==============================================================================*/
 
 function $$X(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 6, null);
+	return dc.evaluate(path, root || dc, null, 7, null);
 }
 
 function $X(path, root) {
@@ -325,17 +325,11 @@ function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
 }
 
-function $each(list, fn, dir) {
-	var i, el;
+function $each(list, fn) {
+	var i = 0, el;
 	if(list) {
-		if(dir) {
-			for(i = 0; el = list.snapshotItem(i++);) {
-				fn(el, i - 1);
-			}
-		} else {
-			for(i = list.snapshotLength - 1; el = list.snapshotItem(i--);) {
-				fn(el, i + 1);
-			}
+		while(el = list.snapshotItem(i++)) {
+			fn(el, i - 1);
 		}
 	}
 }
@@ -456,7 +450,7 @@ function $del(el) {
 function $$Del(path, root, dc) {
 	$each($$X(path, root, dc), function(el) {
 		$del(el);
-	}, false);
+	});
 }
 
 function $Del(path, root) {
@@ -492,7 +486,7 @@ function $pd(e) {
 }
 
 function $rnd() {
-	return Math.floor(Math.random()*1e10).toString(10);
+	return Math.round(Math.random()*1e10).toString(10);
 }
 
 function insertInto(el, txt) {
@@ -1608,7 +1602,7 @@ function addHiddenTable() {
 								table
 							), function(el) {
 								el.checked = inp.checked;
-							}, false);
+							});
 						}
 					}),
 					$add('<b>' + b + '</b>')
@@ -1661,7 +1655,7 @@ function addHiddenTable() {
 							delete hThrds[b];
 						}
 					}
-				}, false);
+				});
 				setStored('DESU_Threads_' + aib.dm, $uneval(hThrds));
 				savePostsVisib();
 			})
@@ -1700,7 +1694,7 @@ function addFavoritesTable() {
 								table
 							), function(el) {
 								el.checked = inp.checked;
-							}, false);
+							});
 						}
 					}),
 					$add('<a href="http://' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
@@ -1767,7 +1761,7 @@ function addFavoritesTable() {
 							}
 						});
 					}
-				}, false);
+				});
 			}),
 			$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
 				$each(list, function(el) {
@@ -1778,7 +1772,7 @@ function addFavoritesTable() {
 							saveFavorites($uneval(Favor));
 						}
 					});
-				}, false);
+				});
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
 				$each(list, function(el) {
@@ -1786,7 +1780,7 @@ function addFavoritesTable() {
 					if($t('input', el).checked) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 					}
-				}, false);
+				});
 				saveFavorites($uneval(Favor));
 			})
 		]),
@@ -1968,7 +1962,7 @@ function selectSpell(e) {
 				insertInto($id('DESU_spellEdit'), exp);
 			}
 		});
-	}, false);
+	});
 }
 
 function selectPostHider(post) {
@@ -2013,7 +2007,7 @@ function selectExpandThread(post) {
 				loadThread(post, parseInt(this.textContent, 10), null);
 			}
 		});
-	}, false);
+	});
 }
 
 function selectAjaxPages() {
@@ -2027,7 +2021,7 @@ function selectAjaxPages() {
 				loadPages(i + 1);
 			}
 		});
-	}, false);
+	});
 }
 
 function selectImgSearch(btn, href) {
@@ -2053,7 +2047,7 @@ function addEvents(node) {
 		el.onblur = function() {
 			kIgnore = false;
 		};
-	}, false);
+	});
 }
 
 function initKeyNavig() {
@@ -2320,7 +2314,7 @@ function doChanges() {
 		$each($X('.//table[@class="pages"]//form', doc), function(el) {
 			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
 			el.appendChild(el.previousElementSibling);
-		}, false);
+		});
 	}
 	qArea = $new('div', {
 		'id': 'DESU_qarea',
@@ -2419,7 +2413,7 @@ function doPostformChanges() {
 	});
 	$each($X('.//input[@type="text"]', pr.form), function(el) {
 		el.size = 35;
-	}, false);
+	});
 	if(Cfg.nogoto !== 0 && pr.gothr) {
 		$disp(pr.gothr);
 	}
@@ -2556,7 +2550,7 @@ function doPostformChanges() {
 					el.onclick = function() {
 						return false;
 					}
-				}, false);
+				});
 				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
 			};
 		} else {
@@ -2633,7 +2627,7 @@ function checkUpload(dc, url) {
 		if(xp) {
 			$each(dc.evaluate(xp, dc, null, 6, null), function(el) {
 				txt += el.innerHTML + '\n';
-			}, false);
+			});
 		} else {
 			xp = $t('h2', dc) || $t('h1', dc);
 			if(xp) {
@@ -2683,7 +2677,7 @@ function checkDelete(dc, url) {
 					allDel = false;
 				}
 				el.checked = false; el.onclick = null;
-			}, false);
+			});
 			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], '');
 		};
 	if(pr.tNum) {
@@ -2732,7 +2726,7 @@ function prepareData(fn) {
 			arr[i] = {name: el.name, val: el.value};
 		}
 		i++;
-	}, true);
+	});
 	done = true;
 	cb();
 }
@@ -3376,7 +3370,7 @@ function addPostButtons(post) {
 		if(aib.nul || aib.futr) {
 			$each($X('.//a', ref), function(el) {
 				$rattr(el, 'onclick');
-			}, false);
+			});
 		}
 		$event(ref, {'click': insertRefLink});
 	}
@@ -3522,7 +3516,7 @@ function addLinkTube(post) {
 		}
 		aib.getMsg(post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
 		$del(el.parentNode);
-	}, false);
+	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
 		var pst, el, msg,
 			m = link.href.match(getTubePattern());
@@ -3562,7 +3556,7 @@ function addLinkTube(post) {
 				}
 			});
 		}
-	}, true);
+	});
 }
 
 function filterTextTube(post, text) {
@@ -3606,7 +3600,7 @@ function hideTextTube() {
 				break;
 			}
 		}
-	}, false);
+	});
 }
 
 function addLinkMP3(post) {
@@ -3632,7 +3626,7 @@ function addLinkMP3(post) {
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
 			$html(el, el.innerHTML + '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16"  FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
 		}
-	}, true);
+	});
 }
 
 /*------------------------------Image view functions--------------------------*/
@@ -3774,7 +3768,7 @@ function addLinkImg(addBr, node) {
 			}
 		});
 		$before(link, [a, $if(addBr, $new('br', null, null))]);
-	}, false);
+	});
 }
 
 function addImgSearch(node) {
@@ -3806,7 +3800,7 @@ function addImgSearch(node) {
 				'mouseout': removeSelMenu
 			})
 		]);
-	}, false);
+	});
 }
 
 function expandPostImg(a, post, isExp) {
@@ -3820,7 +3814,7 @@ function expandPostImg(a, post, isExp) {
 function expandAllPostImg(post, isExp) {
 	$each(post.Img, function(img) {
 		expandPostImg($x('ancestor::a[1]', img), post, isExp);
-	}, false);
+	});
 }
 
 function eventPostImg(post) {
@@ -3839,7 +3833,7 @@ function eventPostImg(post) {
 				}
 			}, false);
 		}
-	}, false);
+	});
 }
 
 /*---------------------------->>RefLinks map functions------------------------*/
@@ -3891,7 +3885,7 @@ function addRefMap(post, uEv) {
 		if(pByNum[rNum] && pst) {
 			getRefMap(pst.Num, rNum);
 		}
-	}, true);
+	});
 	for(rNum in refMap) {
 		showRefMap(pByNum[rNum], rNum, uEv);
 	}
@@ -4114,7 +4108,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) {
 		img.style.display = '';
-	}, false);
+	});
 	eventPostImg(pView);
 	addLinkImg(false, pView);
 	addImgSearch(pView);
@@ -4187,7 +4181,7 @@ function eventRefLink(node) {
 					'mouseover': showPostPreview,
 					'mouseout': markDelete
 				});
-			}, false);
+			});
 		};
 	if(aib.tiny) {
 		setTimeout(erf, 500);
@@ -4226,7 +4220,7 @@ function parseHTMLdata(html, b, tNum) {
 		ajPosts[b][pNum] = post;
 		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
 			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
-		}, false);
+		});
 	});
 }
 
@@ -4655,7 +4649,7 @@ function togglePost(post, vis) {
 		post
 	)), function(el) {
 		el.style.display = vis === 0 ? 'none' : '';
-	}, false);
+	});
 }
 
 function applyPostVisib(post, vis, note) {
@@ -4703,7 +4697,7 @@ function setPostVisib(post, vis) {
 		setTimeout(function() {
 			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
 				el.className = vis === 0 ? 'DESU_refHid' : '';
-			}, false);
+			});
 		}, 0);
 	}
 }
@@ -4796,7 +4790,7 @@ function processHidden(newCfg, oldCfg) {
 			}
 			$del(el.previousElementSibling);
 			$del(el);
-		}, false);
+		});
 	}
 	if(newCfg === 1) {
 		forAll(mergeHidden);
@@ -5777,7 +5771,7 @@ function forEachThread(node, dc, fn) {
 	if((threads = node.getElementsByClassName(aib.tClass)).length === 0) {
 		threads = $$X(aib.xThreads, node, dc);
 		if(threads.snapshotLength !== 0) {
-			$each(threads, fn, true);
+			$each(threads, fn);
 		} else {
 			el = node.firstChild;
 			while(1) {
@@ -5828,7 +5822,7 @@ function parseDelform(node, dc, tFn, pFn) {
 			psts = [];
 			$each($$X('table/tbody/tr/td[2]', thr, dc), function(el) {
 				psts.push(el);
-			}, true);
+			});
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
 		}
