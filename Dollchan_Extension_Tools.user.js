@@ -325,16 +325,6 @@ function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
 }
 
-function $next(el) {
-	while((el = el.nextSibling) && el.nodeType !== 1) {}
-	return el;
-}
-
-function $prev(el) {
-	while((el = el.previousSibling) && el.nodeType !== 1) {}
-	return el;
-}
-
 function $each(list, fn, dir) {
 	var i, el;
 	if(list) {
@@ -1523,7 +1513,7 @@ function addHiddenTable() {
 					if(pp) {
 						togglePost(el, el.vis);
 					} else {
-						$next(el).style.display = el.vis === 1 ? '' : 'none';
+						el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
 					}
 				}
 			}(cln)
@@ -1536,7 +1526,7 @@ function addHiddenTable() {
 							if(pp) {
 								togglePost(el, 1);
 							} else {
-								$next(el).style.display = '';
+								el.nextElementSibling.style.display = '';
 							}
 						}
 					}
@@ -1547,7 +1537,7 @@ function addHiddenTable() {
 							if(pp) {
 								togglePost(el, 0);
 							} else {
-								$next(el).style.display = 'none';
+								el.nextElementSibling.style.display = 'none';
 							}
 						}
 					}
@@ -1566,7 +1556,7 @@ function addHiddenTable() {
 			])
 		]);
 		if(!pp) {
-			togglePost($next(cln), 1);
+			togglePost(cln.nextElementSibling, 1);
 		}
 	});
 	if(pcnt + tcnt === 0) {
@@ -2328,8 +2318,8 @@ function doChanges() {
 	}
 	if(aib.fch && !TNum) {
 		$each($X('.//table[@class="pages"]//form', doc), function(el) {
-			$next(el).appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
-			el.appendChild($prev(el));
+			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
+			el.appendChild(el.previousElementSibling);
 		}, false);
 	}
 	qArea = $new('div', {
@@ -2540,7 +2530,7 @@ function doPostformChanges() {
 			}
 		});
 		m = $x('ancestor::label', pr.mail) || pr.mail;
-		if($next(m) || $prev(m)) {
+		if(m.nextElementSibling || m.previousElementSibling) {
 			$disp(m);
 			$after(m, sageBtn);
 		} else {
@@ -2774,7 +2764,7 @@ function showQuickReply(post) {
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(qArea.hasChildNodes()) {
-		if($next(post) === qArea) {
+		if(post.nextElementSibling === qArea) {
 			$disp(qArea);
 			showMainReply();
 			return;
@@ -4429,7 +4419,7 @@ function loadFavorThread(e) {
 	var el = this.parentNode.parentNode,
 		thr = $x('.//div[contains(@class," DESU_thread")]', el),
 		arr = el.id.substr(13).split('|'),
-		url = $if(arr[0] !== aib.host, $next(this).href),
+		url = $if(arr[0] !== aib.host, this.nextElementSibling.href),
 		b = arr[1],
 		tNum = arr[2];
 	$pd(e);
@@ -4757,7 +4747,7 @@ function mergeHidden(post) {
 	if(post.Vis !== 0 || post.isOp) {
 		return;
 	}
-	el = $prev(post);
+	el = post.previousElementSibling;
 	if(!el) {
 		return;
 	}
@@ -4772,7 +4762,7 @@ function mergeHidden(post) {
 				'click': function(e) {
 					var hDiv = $id('DESU_merged_' + post.Num);
 					$pd(e);
-					$prev(hDiv).innerHTML =
+					hDiv.previousElementSibling.innerHTML =
 						unescape(hDiv.style.display === 'none' ? '%u25BC' : '%u25B2') + '[<i><a href="#">'
 						+ Lng.hiddenPosts[lCode] + '</a>:&nbsp;' + hDiv.childNodes.length + '</i>]';
 					$disp(hDiv);
@@ -4782,9 +4772,9 @@ function mergeHidden(post) {
 		]);
 	}
 	el.appendChild(post);
-	next = $next(post);
+	next = post.nextElementSibling;
 	if(!next || getVisib(next.Num) === 1) {
-		$prev(el).innerHTML = unescape('%u25B2') + '[<i><a href="#">' + Lng.hiddenPosts[lCode] + '</a>:&nbsp;'
+		el.previousElementSibling.innerHTML = unescape('%u25B2') + '[<i><a href="#">' + Lng.hiddenPosts[lCode] + '</a>:&nbsp;'
 			+ el.childNodes.length + '</i>]';
 	}
 }
@@ -4804,7 +4794,7 @@ function processHidden(newCfg, oldCfg) {
 			while(i--) {
 				$after(el, px[i]);
 			}
-			$del($prev(el));
+			$del(el.previousElementSibling);
 			$del(el);
 		}, false);
 	}
@@ -5741,7 +5731,7 @@ function initBoard() {
 	);
 	if(aib.krau) {
 		$del($t('hr', dForm));
-		$del($t('hr', $prev(dForm)));
+		$del($t('hr', dForm.previousElementSibling));
 	}
 	pPanel = $New('span', {'Class': 'DESU_postPanel'}, [
 		$new('a', {
