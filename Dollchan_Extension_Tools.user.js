@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.18
+// @version			12.4.29.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012-04-28-18',
+	'version':	'2012.04.29.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -1344,7 +1344,10 @@ function addSettings() {
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel('yptype', ['Flash', 'HTML5 iframe', nav.Opera ? null : 'HTML5 video'], ' ', null),
+				optSel('yptype', nav.Opera
+					? ['Flash', 'HTML5 iframe']
+					: ['Flash', 'HTML5 iframe', 'HTML5 video'], ' ', null
+				),
 				inpTxt('ywidth', 6, null),
 				$txt('×'),
 				inpTxt('yheigh', 6, null), $txt(' '),
@@ -2408,6 +2411,8 @@ function doPostformChanges() {
 			saveCfg('texw', parseInt(el.style.width, 10));
 			saveCfg('texh', parseInt(el.style.height, 10));
 		};
+	pr.form.style.display = 'inline-block';
+	pr.form.style.textAlign = 'left';
 	if(!aib.fch && pr.subm.nextSibling) {
 		$delNx(pr.subm);
 	}
@@ -2828,7 +2833,6 @@ function showQuickReply(post) {
 		pArea.style.display = 'none';
 	}
 	qArea.style.display = 'block';
-	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !aib.kus) {
 		refreshCapImg(tNum);
 	}
@@ -3335,7 +3339,6 @@ function getImgSize(post) {
 function isSage(post) {
 	var a;
 	return !pr.mail ? false
-		: aib.abu ? $xb('.//span[@class="postername" and contains(text(),"Heaven")]', post)
 		: aib.hana ? $xb('.//img[@alt="Сажа"]', post)
 		: aib.krau ? $c('sage', post)
 		: aib._410 ? $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post)
@@ -5504,7 +5507,7 @@ function checkForUpdates(force, onlyIfNew, fn) {
 				if(xhr.readyState === 4) {
 					if(xhr.status === 200) {
 						var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
-							cVer = Cfg.version.substring(2).split('-'),
+							cVer = Cfg.version.substring(2).split('.'),
 							len = cVer.length > dVer.length ? cVer.length : dVer.length,
 							i = 0, upd = false;
 						if(!dVer) {
