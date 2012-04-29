@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012-04-28',
+	'version':	'2012-04-28-18',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -84,7 +84,11 @@ var defaultCfg = {
 	'nopass':	1,		// hide password field
 	'mask':		0,		// mask images
 	'texw':		530,	// textarea width
-	'texh':		140		// textarea height
+	'texh':		140,	// textarea height
+	'enupd':	1,		// check for script's update
+	'betaupd':	0,		// check for beta-version
+	'lupdchk':	0,		// last update check
+	'supdint':	2		// update interval in days (0 - every page load, -1 - never)
 },
 
 Lng = {
@@ -279,7 +283,22 @@ Lng = {
 	editNotes:		['Правка в текстовом формате', 'Edit notes in text format'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
-	clrSelected:	['Удалить выделенные записи', 'Remove selected notes']
+	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
+	upd:	[
+		['Всегда', 'Always'],
+		['Каждый день', 'Every Day'],
+		['Каждые 2 дня', 'Every 2 Day'],
+		['Каждую неделю', 'Every Week'],
+		['Каждые 2 недели', 'Every 2 Week'],
+		['Каждый месяц', 'Every Month'],
+		['Никогда', 'Never'],
+		['Интервал проверки', 'Check interval'],
+		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
+		['Проверять обновления для beta-версии', 'Check updates for beta-version'],
+		['Проверить сейчас', 'Check now'],
+		['Доступно обновление!', 'Update avaiable!'],
+		['У вас стоит самая последняя версия!', 'You have latest version!']
+	]
 },
 
 doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
@@ -290,7 +309,7 @@ doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Post
 ==============================================================================*/
 
 function $$X(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 6, null);
+	return dc.evaluate(path, root || dc, null, 7, null);
 }
 
 function $X(path, root) {
@@ -325,27 +344,11 @@ function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
 }
 
-function $next(el) {
-	while((el = el.nextSibling) && el.nodeType !== 1) {}
-	return el;
-}
-
-function $prev(el) {
-	while((el = el.previousSibling) && el.nodeType !== 1) {}
-	return el;
-}
-
-function $each(list, fn, dir) {
-	var i, el;
+function $each(list, fn) {
+	var i = 0, el;
 	if(list) {
-		if(dir) {
-			for(i = 0; el = list.snapshotItem(i++);) {
-				fn(el, i - 1);
-			}
-		} else {
-			for(i = list.snapshotLength - 1; el = list.snapshotItem(i--);) {
-				fn(el, i + 1);
-			}
+		while(el = list.snapshotItem(i++)) {
+			fn(el, i - 1);
 		}
 	}
 }
@@ -466,7 +469,7 @@ function $del(el) {
 function $$Del(path, root, dc) {
 	$each($$X(path, root, dc), function(el) {
 		$del(el);
-	}, false);
+	});
 }
 
 function $Del(path, root) {
@@ -502,7 +505,7 @@ function $pd(e) {
 }
 
 function $rnd() {
-	return Math.floor(Math.random()*1e10).toString(10);
+	return Math.round(Math.random()*1e10).toString(10);
 }
 
 function insertInto(el, txt) {
@@ -674,14 +677,14 @@ function readCfg() {
 	}
 	if(isValidCfg(data)) {
 		Cfg = eval(data);
+		Cfg.version = defaultCfg.version;
+		for(key in defaultCfg) {
+			if(Cfg[key] === undefined) {
+				Cfg[key] = defaultCfg[key];
+			}
+		}
 	} else {
 		setDefaultCfg();
-	}
-	Cfg.version = defaultCfg.version;
-	for(key in defaultCfg) {
-		if(Cfg[key] === undefined) {
-			Cfg[key] = defaultCfg[key];
-		}
 	}
 	if(global) {
 		fixGlobalCfg();
@@ -697,6 +700,7 @@ function readCfg() {
 	}
 	if(nav.Opera) {
 		Cfg.ytitle = 0;
+		Cfg.enupd = 0;
 	}
 	if(nav.Firefox < 7 && !nav.Chrome) {
 		Cfg.rndimg = 0;
@@ -1421,7 +1425,32 @@ function addSettings() {
 		divBox('icount', Lng.showImgCount[lCode], scriptCSS),
 		divBox('rtitle', Lng.replaceTitle[lCode], null),
 		divBox('animp', Lng.animatePopup[lCode], null),
-		divBox('aclose', Lng.autoClose[lCode], null)
+		divBox('aclose', Lng.autoClose[lCode], null),
+		$if(!nav.Opera, $New('div', null, [
+			divBox('enupd', Lng.upd[8][lCode], null),
+			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
+				optSel('supdint', [
+					Lng.upd[0][lCode], // Always
+					Lng.upd[1][lCode], // Every Day
+					Lng.upd[2][lCode], // Every 2 Day
+					Lng.upd[3][lCode], // Every Week
+					Lng.upd[4][lCode], // Every 2 Week
+					Lng.upd[5][lCode], // Every Month
+					Lng.upd[6][lCode]  // Never
+				], Lng.upd[7][lCode], function() {
+					saveCfg('supdint', this.selectedIndex);
+				}),
+				divBox('betaupd', Lng.upd[9][lCode], null),
+				$btn(Lng.upd[10][lCode], '', function() {
+					var el = $id('DESU_updRes', doc);
+					el.innerHTML = '<div id="DESU_updRes_check">' + Lng.checking[lCode] + '</div>';
+					checkForUpdates(true, false, function(html) {
+						el.innerHTML = html;
+					});
+				})
+			]),
+			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
+		]))
 	]),
 	
 	cfgInfo = $New('div', {
@@ -1523,7 +1552,7 @@ function addHiddenTable() {
 					if(pp) {
 						togglePost(el, el.vis);
 					} else {
-						$next(el).style.display = el.vis === 1 ? '' : 'none';
+						el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
 					}
 				}
 			}(cln)
@@ -1536,7 +1565,7 @@ function addHiddenTable() {
 							if(pp) {
 								togglePost(el, 1);
 							} else {
-								$next(el).style.display = '';
+								el.nextElementSibling.style.display = '';
 							}
 						}
 					}
@@ -1547,7 +1576,7 @@ function addHiddenTable() {
 							if(pp) {
 								togglePost(el, 0);
 							} else {
-								$next(el).style.display = 'none';
+								el.nextElementSibling.style.display = 'none';
 							}
 						}
 					}
@@ -1566,7 +1595,7 @@ function addHiddenTable() {
 			])
 		]);
 		if(!pp) {
-			togglePost($next(cln), 1);
+			togglePost(cln.nextElementSibling, 1);
 		}
 	});
 	if(pcnt + tcnt === 0) {
@@ -1618,7 +1647,7 @@ function addHiddenTable() {
 								table
 							), function(el) {
 								el.checked = inp.checked;
-							}, false);
+							});
 						}
 					}),
 					$add('<b>' + b + '</b>')
@@ -1671,7 +1700,7 @@ function addHiddenTable() {
 							delete hThrds[b];
 						}
 					}
-				}, false);
+				});
 				setStored('DESU_Threads_' + aib.dm, $uneval(hThrds));
 				savePostsVisib();
 			})
@@ -1710,7 +1739,7 @@ function addFavoritesTable() {
 								table
 							), function(el) {
 								el.checked = inp.checked;
-							}, false);
+							});
 						}
 					}),
 					$add('<a href="http://' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
@@ -1777,7 +1806,7 @@ function addFavoritesTable() {
 							}
 						});
 					}
-				}, false);
+				});
 			}),
 			$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
 				$each(list, function(el) {
@@ -1788,7 +1817,7 @@ function addFavoritesTable() {
 							saveFavorites($uneval(Favor));
 						}
 					});
-				}, false);
+				});
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
 				$each(list, function(el) {
@@ -1796,7 +1825,7 @@ function addFavoritesTable() {
 					if($t('input', el).checked) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 					}
-				}, false);
+				});
 				saveFavorites($uneval(Favor));
 			})
 		]),
@@ -1978,7 +2007,7 @@ function selectSpell(e) {
 				insertInto($id('DESU_spellEdit'), exp);
 			}
 		});
-	}, false);
+	});
 }
 
 function selectPostHider(post) {
@@ -2023,7 +2052,7 @@ function selectExpandThread(post) {
 				loadThread(post, parseInt(this.textContent, 10), null);
 			}
 		});
-	}, false);
+	});
 }
 
 function selectAjaxPages() {
@@ -2037,7 +2066,7 @@ function selectAjaxPages() {
 				loadPages(i + 1);
 			}
 		});
-	}, false);
+	});
 }
 
 function selectImgSearch(btn, href) {
@@ -2063,7 +2092,7 @@ function addEvents(node) {
 		el.onblur = function() {
 			kIgnore = false;
 		};
-	}, false);
+	});
 }
 
 function initKeyNavig() {
@@ -2328,9 +2357,9 @@ function doChanges() {
 	}
 	if(aib.fch && !TNum) {
 		$each($X('.//table[@class="pages"]//form', doc), function(el) {
-			$next(el).appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
-			el.appendChild($prev(el));
-		}, false);
+			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
+			el.appendChild(el.previousElementSibling);
+		});
 	}
 	qArea = $new('div', {
 		'id': 'DESU_qarea',
@@ -2429,7 +2458,7 @@ function doPostformChanges() {
 	});
 	$each($X('.//input[@type="text"]', pr.form), function(el) {
 		el.size = 35;
-	}, false);
+	});
 	if(Cfg.nogoto !== 0 && pr.gothr) {
 		$disp(pr.gothr);
 	}
@@ -2540,7 +2569,7 @@ function doPostformChanges() {
 			}
 		});
 		m = $x('ancestor::label', pr.mail) || pr.mail;
-		if($next(m) || $prev(m)) {
+		if(m.nextElementSibling || m.previousElementSibling) {
 			$disp(m);
 			$after(m, sageBtn);
 		} else {
@@ -2566,7 +2595,7 @@ function doPostformChanges() {
 					el.onclick = function() {
 						return false;
 					}
-				}, false);
+				});
 				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
 			};
 		} else {
@@ -2643,7 +2672,7 @@ function checkUpload(dc, url) {
 		if(xp) {
 			$each(dc.evaluate(xp, dc, null, 6, null), function(el) {
 				txt += el.innerHTML + '\n';
-			}, false);
+			});
 		} else {
 			xp = $t('h2', dc) || $t('h1', dc);
 			if(xp) {
@@ -2693,7 +2722,7 @@ function checkDelete(dc, url) {
 					allDel = false;
 				}
 				el.checked = false; el.onclick = null;
-			}, false);
+			});
 			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], '');
 		};
 	if(pr.tNum) {
@@ -2742,7 +2771,7 @@ function prepareData(fn) {
 			arr[i] = {name: el.name, val: el.value};
 		}
 		i++;
-	}, true);
+	});
 	done = true;
 	cb();
 }
@@ -2774,7 +2803,7 @@ function showQuickReply(post) {
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(qArea.hasChildNodes()) {
-		if($next(post) === qArea) {
+		if(post.nextElementSibling === qArea) {
 			$disp(qArea);
 			showMainReply();
 			return;
@@ -3145,7 +3174,7 @@ function scriptCSS() {
 
 	// Other
 	x.push(
-		'.DESU_alertWait:before, .DESU_icnWait { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
+		'.DESU_alertWait:before, .DESU_icnWait, #DESU_updRes_check:before { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
@@ -3386,7 +3415,7 @@ function addPostButtons(post) {
 		if(aib.nul || aib.futr) {
 			$each($X('.//a', ref), function(el) {
 				$rattr(el, 'onclick');
-			}, false);
+			});
 		}
 		$event(ref, {'click': insertRefLink});
 	}
@@ -3532,7 +3561,7 @@ function addLinkTube(post) {
 		}
 		aib.getMsg(post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
 		$del(el.parentNode);
-	}, false);
+	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
 		var pst, el, msg,
 			m = link.href.match(getTubePattern());
@@ -3572,7 +3601,7 @@ function addLinkTube(post) {
 				}
 			});
 		}
-	}, true);
+	});
 }
 
 function filterTextTube(post, text) {
@@ -3616,7 +3645,7 @@ function hideTextTube() {
 				break;
 			}
 		}
-	}, false);
+	});
 }
 
 function addLinkMP3(post) {
@@ -3642,7 +3671,7 @@ function addLinkMP3(post) {
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
 			$html(el, el.innerHTML + '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16"  FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
 		}
-	}, true);
+	});
 }
 
 /*------------------------------Image view functions--------------------------*/
@@ -3784,7 +3813,7 @@ function addLinkImg(addBr, node) {
 			}
 		});
 		$before(link, [a, $if(addBr, $new('br', null, null))]);
-	}, false);
+	});
 }
 
 function addImgSearch(node) {
@@ -3816,7 +3845,7 @@ function addImgSearch(node) {
 				'mouseout': removeSelMenu
 			})
 		]);
-	}, false);
+	});
 }
 
 function expandPostImg(a, post, isExp) {
@@ -3830,7 +3859,7 @@ function expandPostImg(a, post, isExp) {
 function expandAllPostImg(post, isExp) {
 	$each(post.Img, function(img) {
 		expandPostImg($x('ancestor::a[1]', img), post, isExp);
-	}, false);
+	});
 }
 
 function eventPostImg(post) {
@@ -3849,7 +3878,7 @@ function eventPostImg(post) {
 				}
 			}, false);
 		}
-	}, false);
+	});
 }
 
 /*---------------------------->>RefLinks map functions------------------------*/
@@ -3901,7 +3930,7 @@ function addRefMap(post, uEv) {
 		if(pByNum[rNum] && pst) {
 			getRefMap(pst.Num, rNum);
 		}
-	}, true);
+	});
 	for(rNum in refMap) {
 		showRefMap(pByNum[rNum], rNum, uEv);
 	}
@@ -4124,7 +4153,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 	pView.Img = getImages(pView);
 	$each(pView.Img, function(img) {
 		img.style.display = '';
-	}, false);
+	});
 	eventPostImg(pView);
 	addLinkImg(false, pView);
 	addImgSearch(pView);
@@ -4197,7 +4226,7 @@ function eventRefLink(node) {
 					'mouseover': showPostPreview,
 					'mouseout': markDelete
 				});
-			}, false);
+			});
 		};
 	if(aib.tiny) {
 		setTimeout(erf, 500);
@@ -4236,7 +4265,7 @@ function parseHTMLdata(html, b, tNum) {
 		ajPosts[b][pNum] = post;
 		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
 			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
-		}, false);
+		});
 	});
 }
 
@@ -4429,7 +4458,7 @@ function loadFavorThread(e) {
 	var el = this.parentNode.parentNode,
 		thr = $x('.//div[contains(@class," DESU_thread")]', el),
 		arr = el.id.substr(13).split('|'),
-		url = $if(arr[0] !== aib.host, $next(this).href),
+		url = $if(arr[0] !== aib.host, this.nextElementSibling.href),
 		b = arr[1],
 		tNum = arr[2];
 	$pd(e);
@@ -4665,7 +4694,7 @@ function togglePost(post, vis) {
 		post
 	)), function(el) {
 		el.style.display = vis === 0 ? 'none' : '';
-	}, false);
+	});
 }
 
 function applyPostVisib(post, vis, note) {
@@ -4713,7 +4742,7 @@ function setPostVisib(post, vis) {
 		setTimeout(function() {
 			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
 				el.className = vis === 0 ? 'DESU_refHid' : '';
-			}, false);
+			});
 		}, 0);
 	}
 }
@@ -4757,7 +4786,7 @@ function mergeHidden(post) {
 	if(post.Vis !== 0 || post.isOp) {
 		return;
 	}
-	el = $prev(post);
+	el = post.previousElementSibling;
 	if(!el) {
 		return;
 	}
@@ -4772,7 +4801,7 @@ function mergeHidden(post) {
 				'click': function(e) {
 					var hDiv = $id('DESU_merged_' + post.Num);
 					$pd(e);
-					$prev(hDiv).innerHTML =
+					hDiv.previousElementSibling.innerHTML =
 						unescape(hDiv.style.display === 'none' ? '%u25BC' : '%u25B2') + '[<i><a href="#">'
 						+ Lng.hiddenPosts[lCode] + '</a>:&nbsp;' + hDiv.childNodes.length + '</i>]';
 					$disp(hDiv);
@@ -4782,9 +4811,9 @@ function mergeHidden(post) {
 		]);
 	}
 	el.appendChild(post);
-	next = $next(post);
+	next = post.nextElementSibling;
 	if(!next || getVisib(next.Num) === 1) {
-		$prev(el).innerHTML = unescape('%u25B2') + '[<i><a href="#">' + Lng.hiddenPosts[lCode] + '</a>:&nbsp;'
+		el.previousElementSibling.innerHTML = unescape('%u25B2') + '[<i><a href="#">' + Lng.hiddenPosts[lCode] + '</a>:&nbsp;'
 			+ el.childNodes.length + '</i>]';
 	}
 }
@@ -4804,9 +4833,9 @@ function processHidden(newCfg, oldCfg) {
 			while(i--) {
 				$after(el, px[i]);
 			}
-			$del($prev(el));
+			$del(el.previousElementSibling);
 			$del(el);
-		}, false);
+		});
 	}
 	if(newCfg === 1) {
 		forAll(mergeHidden);
@@ -5437,6 +5466,79 @@ function hideByWipe(post) {
 
 
 /*==============================================================================
+									UPDATING
+==============================================================================*/
+
+function checkForUpdates(force, onlyIfNew, fn) {
+	if(Cfg.supdint === 6) return;
+	var t = +(new Date()).getTime(), updInt, day = 2*1000*60*60*24;
+	switch(Cfg.supdint) {
+	case 0:
+		updInt = 0;
+		break;
+	case 1:
+		updInt = day;
+		break;
+	case 2:
+		updInt = day * 2;
+		break;
+	case 3:
+		updInt = day * 7;
+		break;
+	case 4:
+		updInt = day * 14;
+		break;
+	case 5:
+		updInt = day * 30;
+		break;
+	}	
+	if(force || t - +Cfg.lupdchk >= updInt) {
+		GM_xmlhttpRequest({
+			method: 'GET',
+			url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' + 
+				(Cfg.betaupd ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
+			headers: {
+				'Content-Type': 'text/plain'
+			},
+			onreadystatechange: function(xhr) {
+				if(xhr.readyState === 4) {
+					if(xhr.status === 200) {
+						var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
+							cVer = Cfg.version.substring(2).split('-'),
+							len = cVer.length > dVer.length ? cVer.length : dVer.length,
+							i = 0, upd = false;
+						if(!dVer) {
+							if(!onlyIfNew) {
+								fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lCode] + '</div>');
+							}
+							return;
+						}
+						Cfg.lupdchk = t;
+						while(i < len) {
+							if((+dVer[i] || 0) > (+cVer[i] || 0)) {
+								upd = true;
+								break;
+							}
+							i++;
+						}
+						if(upd) {
+							fn('<a style="color: blue; font-weight: bold;" href="' +
+								'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' + 
+								(Cfg.betaupd ? 'master' : 'stable') + '/Dollchan_Extension_Tools.user.js">' +
+								Lng.upd[11][lCode] + '</a>');
+						} else if(!onlyIfNew) {
+							fn(Lng.upd[12][lCode]);
+						}
+					} else if(!onlyIfNew) {
+						fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lCode] + '</div>');
+					}
+				}
+			}
+		});
+	}
+}
+
+/*==============================================================================
 								INITIALIZATION
 ==============================================================================*/
 
@@ -5741,7 +5843,7 @@ function initBoard() {
 	);
 	if(aib.krau) {
 		$del($t('hr', dForm));
-		$del($t('hr', $prev(dForm)));
+		$del($t('hr', dForm.previousElementSibling));
 	}
 	pPanel = $New('span', {'Class': 'DESU_postPanel'}, [
 		$new('a', {
@@ -5787,7 +5889,7 @@ function forEachThread(node, dc, fn) {
 	if((threads = node.getElementsByClassName(aib.tClass)).length === 0) {
 		threads = $$X(aib.xThreads, node, dc);
 		if(threads.snapshotLength !== 0) {
-			$each(threads, fn, true);
+			$each(threads, fn);
 		} else {
 			el = node.firstChild;
 			while(1) {
@@ -5838,7 +5940,7 @@ function parseDelform(node, dc, tFn, pFn) {
 			psts = [];
 			$each($$X('table/tbody/tr/td[2]', thr, dc), function(el) {
 				psts.push(el);
-			}, true);
+			});
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
 		}
@@ -5997,6 +6099,11 @@ function doScript() {
 	scriptCSS();
 	Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
+	if(Cfg.enupd !== 0) {
+		checkForUpdates(false, true, function(html) {
+			$alert(html);
+		});
+	}
 }
 
 if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
