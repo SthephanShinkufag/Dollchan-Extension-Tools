@@ -147,3 +147,7 @@ var Cfg = {};
 /** @type {Number} */ Cfg.mask;
 /** @type {Number} */ Cfg.texw;
 /** @type {Number} */ Cfg.texh;
+/** @type {Number} */ Cfg.enupd;
+/** @type {Number} */ Cfg.betaupd;
+/** @type {Number} */ Cfg.lupdchk;
+/** @type {Number} */ Cfg.supdint;

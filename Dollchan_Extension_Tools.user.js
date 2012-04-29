@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012-04-28',
+	'version':	'2012-04-28-18',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -84,7 +84,11 @@ var defaultCfg = {
 	'nopass':	1,		// hide password field
 	'mask':		0,		// mask images
 	'texw':		530,	// textarea width
-	'texh':		140		// textarea height
+	'texh':		140,	// textarea height
+	'enupd':	1,		// check for script's update
+	'betaupd':	0,		// check for beta-version
+	'lupdchk':	0,		// last update check
+	'supdint':	2		// update interval in days (0 - every page load, -1 - never)
 },
 
 Lng = {
@@ -279,7 +283,22 @@ Lng = {
 	editNotes:		['Правка в текстовом формате', 'Edit notes in text format'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
-	clrSelected:	['Удалить выделенные записи', 'Remove selected notes']
+	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
+	upd:	[
+		['Всегда', 'Always'],
+		['Каждый день', 'Every Day'],
+		['Каждые 2 дня', 'Every 2 Day'],
+		['Каждую неделю', 'Every Week'],
+		['Каждые 2 недели', 'Every 2 Week'],
+		['Каждый месяц', 'Every Month'],
+		['Никогда', 'Never'],
+		['Интервал проверки', 'Check interval'],
+		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
+		['Проверять обновления для beta-версии', 'Check updates for beta-version'],
+		['Проверить сейчас', 'Check now'],
+		['Доступно обновление!', 'Update avaiable!'],
+		['У вас стоит самая последняя версия!', 'You have latest version!']
+	]
 },
 
 doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
@@ -681,6 +700,7 @@ function readCfg() {
 	}
 	if(nav.Opera) {
 		Cfg.ytitle = 0;
+		Cfg.enupd = 0;
 	}
 	if(nav.Firefox < 7 && !nav.Chrome) {
 		Cfg.rndimg = 0;
@@ -1405,7 +1425,32 @@ function addSettings() {
 		divBox('icount', Lng.showImgCount[lCode], scriptCSS),
 		divBox('rtitle', Lng.replaceTitle[lCode], null),
 		divBox('animp', Lng.animatePopup[lCode], null),
-		divBox('aclose', Lng.autoClose[lCode], null)
+		divBox('aclose', Lng.autoClose[lCode], null),
+		$if(!nav.Opera, $New('div', null, [
+			divBox('enupd', Lng.upd[8][lCode], null),
+			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
+				optSel('update', [
+					Lng.upd[0][lCode], // Always
+					Lng.upd[1][lCode], // Every Day
+					Lng.upd[2][lCode], // Every 2 Day
+					Lng.upd[3][lCode], // Every Week
+					Lng.upd[4][lCode], // Every 2 Week
+					Lng.upd[5][lCode], // Every Month
+					Lng.upd[6][lCode]  // Never
+				], Lng.upd[7][lCode], function() {
+					saveCfg('supdint', this.selectedIndex);
+				}),
+				divBox('betaupd', Lng.upd[9][lCode], null),
+				$btn(Lng.upd[10][lCode], '', function() {
+					var el = $id('DESU_updRes', doc);
+					el.innerHTML = '<div id="DESU_updRes_check">' + Lng.checking[lCode] + '</div>';
+					checkForUpdates(true, false, function(html) {
+						el.innerHTML = html;
+					});
+				})
+			]),
+			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
+		]))
 	]),
 	
 	cfgInfo = $New('div', {
@@ -3129,7 +3174,7 @@ function scriptCSS() {
 
 	// Other
 	x.push(
-		'.DESU_alertWait:before, .DESU_icnWait { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
+		'.DESU_alertWait:before, .DESU_icnWait, #DESU_updRes_check:before { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
@@ -5421,6 +5466,79 @@ function hideByWipe(post) {
 
 
 /*==============================================================================
+									UPDATING
+==============================================================================*/
+
+function checkForUpdates(force, onlyIfNew, fn) {
+	if(Cfg.supdint === 6) return;
+	var t = +(new Date()).getTime(), updInt, day = 2*1000*60*60*24;
+	switch(Cfg.supdint) {
+	case 0:
+		updInt = 0;
+		break;
+	case 1:
+		updInt = day;
+		break;
+	case 2:
+		updInt = day * 2;
+		break;
+	case 3:
+		updInt = day * 7;
+		break;
+	case 4:
+		updInt = day * 14;
+		break;
+	case 5:
+		updInt = day * 30;
+		break;
+	}	
+	if(force || t - +Cfg.lupdchk >= updInt) {
+		GM_xmlhttpRequest({
+			method: 'GET',
+			url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' + 
+				(Cfg.betaupd ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
+			headers: {
+				'Content-Type': 'text/plain'
+			},
+			onreadystatechange: function(xhr) {
+				if(xhr.readyState === 4) {
+					if(xhr.status === 200) {
+						var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
+							cVer = Cfg.version.substring(2).split('-'),
+							len = cVer.length > dVer.length ? cVer.length : dVer.length,
+							i = 0, upd = false;
+						if(!dVer) {
+							if(!onlyIfNew) {
+								fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lCode] + '</div>');
+							}
+							return;
+						}
+						Cfg.lupdchk = t;
+						while(i < len) {
+							if((+dVer[i] || 0) > (+cVer[i] || 0)) {
+								upd = true;
+								break;
+							}
+							i++;
+						}
+						if(upd) {
+							fn('<a style="color: blue; font-weight: bold;" href="' +
+								'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' + 
+								(Cfg.betaupd ? 'master' : 'stable') + '/Dollchan_Extension_Tools.user.js">' +
+								Lng.upd[11][lCode] + '</a>');
+						} else if(!onlyIfNew) {
+							fn(Lng.upd[12][lCode]);
+						}
+					} else if(!onlyIfNew) {
+						fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lCode] + '</div>');
+					}
+				}
+			}
+		});
+	}
+}
+
+/*==============================================================================
 								INITIALIZATION
 ==============================================================================*/
 
@@ -5981,6 +6099,11 @@ function doScript() {
 	scriptCSS();
 	Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
+	if(Cfg.enupd !== 0) {
+		checkForUpdates(false, true, function(html) {
+			$alert(html);
+		});
+	}
 }
 
 if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
