@@ -1429,7 +1429,7 @@ function addSettings() {
 		$if(!nav.Opera, $New('div', null, [
 			divBox('enupd', Lng.upd[8][lCode], null),
 			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('update', [
+				optSel('supdint', [
 					Lng.upd[0][lCode], // Always
 					Lng.upd[1][lCode], // Every Day
 					Lng.upd[2][lCode], // Every 2 Day
