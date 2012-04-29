@@ -658,14 +658,14 @@ function readCfg() {
 	}
 	if(isValidCfg(data)) {
 		Cfg = eval(data);
+		Cfg.version = defaultCfg.version;
+		for(key in defaultCfg) {
+			if(Cfg[key] === undefined) {
+				Cfg[key] = defaultCfg[key];
+			}
+		}
 	} else {
 		setDefaultCfg();
-	}
-	Cfg.version = defaultCfg.version;
-	for(key in defaultCfg) {
-		if(Cfg[key] === undefined) {
-			Cfg[key] = defaultCfg[key];
-		}
 	}
 	if(global) {
 		fixGlobalCfg();
