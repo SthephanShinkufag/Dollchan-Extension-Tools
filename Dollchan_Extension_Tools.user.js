@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.29.1
+// @version			12.4.29.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012.04.29.1',
+	'version':	'2012.04.29.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2411,6 +2411,8 @@ function doPostformChanges() {
 			saveCfg('texw', parseInt(el.style.width, 10));
 			saveCfg('texh', parseInt(el.style.height, 10));
 		};
+	pr.form.style.display = 'inline-block';
+	pr.form.style.textAlign = 'left';
 	if(!aib.fch && pr.subm.nextSibling) {
 		$delNx(pr.subm);
 	}
@@ -2831,7 +2833,6 @@ function showQuickReply(post) {
 		pArea.style.display = 'none';
 	}
 	qArea.style.display = 'block';
-	pr.form.style.width = '100%';
 	if(pr.cap && !pr.recap && !aib.kus) {
 		refreshCapImg(tNum);
 	}
