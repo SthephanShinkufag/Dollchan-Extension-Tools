@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.28.18
+// @version			12.4.29.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012-04-28-18',
+	'version':	'2012-04-29-0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -3335,7 +3335,6 @@ function getImgSize(post) {
 function isSage(post) {
 	var a;
 	return !pr.mail ? false
-		: aib.abu ? $xb('.//span[@class="postername" and contains(text(),"Heaven")]', post)
 		: aib.hana ? $xb('.//img[@alt="Сажа"]', post)
 		: aib.krau ? $c('sage', post)
 		: aib._410 ? $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post)
