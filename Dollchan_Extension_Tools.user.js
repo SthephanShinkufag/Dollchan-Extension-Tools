@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.29.0
+// @version			12.4.29.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012-04-29-0',
+	'version':	'2012.04.29.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -1344,7 +1344,10 @@ function addSettings() {
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel('yptype', ['Flash', 'HTML5 iframe', nav.Opera ? null : 'HTML5 video'], ' ', null),
+				optSel('yptype', nav.Opera
+					? ['Flash', 'HTML5 iframe']
+					: ['Flash', 'HTML5 iframe', 'HTML5 video'], ' ', null
+				),
 				inpTxt('ywidth', 6, null),
 				$txt('×'),
 				inpTxt('yheigh', 6, null), $txt(' '),
@@ -5503,7 +5506,7 @@ function checkForUpdates(force, onlyIfNew, fn) {
 				if(xhr.readyState === 4) {
 					if(xhr.status === 200) {
 						var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
-							cVer = Cfg.version.substring(2).split('-'),
+							cVer = Cfg.version.substring(2).split('.'),
 							len = cVer.length > dVer.length ? cVer.length : dVer.length,
 							i = 0, upd = false;
 						if(!dVer) {
