@@ -5581,6 +5581,7 @@ function replyForm(f) {
 function aibDetector(host, dc) {
 	var h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0],
 		ai = {};
+	ai.dm = h;
 	ai.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
 	ai.krau = h === 'krautchan.net';
 	ai.tiny = $$xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
@@ -5592,10 +5593,9 @@ function aibDetector(host, dc) {
 		: '@id="delform" or @name="delform"]'
 	);
 	if(dc === doc && !(dForm = $x(ai.xDForm, doc))) {
-		return false;
+		return ai;
 	}
 	ai.host = host;
-	ai.dm = h;
 	ai.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
 	ai.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
 	ai.fch = h === '4chan.org';
@@ -5778,6 +5778,7 @@ function initBoard() {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
+	aib = aibDetector(window.location.hostname, doc);
 	if(/DESU_iframe/.test(window.name)) {
 		fixDomain();
 		return false;
@@ -5785,8 +5786,7 @@ function initBoard() {
 	if(/DESU_favIframe/.test(window.name)) {
 		liteMode = true;
 	}
-	aib = aibDetector(window.location.hostname, doc);
-	if(!aib || $id('DESU_panel')) {
+	if(!dForm || $id('DESU_panel')) {
 		return false;
 	}
 	if(aib.hid) {
