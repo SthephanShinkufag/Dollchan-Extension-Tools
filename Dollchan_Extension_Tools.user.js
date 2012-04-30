@@ -6073,7 +6073,7 @@ function initDelform() {
 	try {
 		parseDelform(dForm, doc, false, pushPost);
 	} catch(e) {
-		$disp(dForm); throw e;
+		$disp(dForm);
 		return false;
 	}
 	if(!nav.Chrome) {
