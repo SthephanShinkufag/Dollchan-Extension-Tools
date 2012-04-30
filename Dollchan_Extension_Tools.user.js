@@ -5703,9 +5703,10 @@ function aibDetector(host, dc) {
 	ai.table =
 		ai.fch ? 'table[not(@class="exif")]'
 		: ai.tire ? 'table[not(@class="postfiles")]'
-		: ai.kus ? 'table|div/table'
-		: ai.brit ? 'div/table'
-		: 'table'
+		: 'table';
+	ai.xWrapper =
+		ai.brit ? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
+		: './/div[contains(@class," DESU_thread")]//' + ai.table;
 	ai.opClass =
 		ai.kus ? 'postnode'
 		: ai.brit ? 'originalpost'
@@ -6031,7 +6032,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
 	if(!aib._7ch && !aib.tiny && !postWrapper) {
-		postWrapper = $$x('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
+		postWrapper = $$x(aib.xWrapper, node, dc);
 		if(dc !== doc && postWrapper) {
 			postWrapper = doc.importNode(postWrapper, true);
 		}
