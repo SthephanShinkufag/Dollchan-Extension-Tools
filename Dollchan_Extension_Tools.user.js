@@ -2653,7 +2653,7 @@ function doPostformChanges() {
 function ajaxCheckSubmit(form, fd, fn) {
 	GM_xmlhttpRequest({
 		method: form.method,
-		headers: nav.Firefox ? {Referer: '' + doc.location} : null,
+		headers: nav.Firefox ? {'Referer': '' + doc.location} : null,
 		data: fd,
 		url: form.action,
 		onreadystatechange: function(xhr) {
@@ -4664,10 +4664,10 @@ function getHanaFile(file, pId) {
 	}
 	
 	return $New('div', {'class': 'file'}, [
-		$New('div', {'class': 'fileInfo'}, [
+		$New('div', {'class': 'fileinfo'}, [
 			$txt('Файл: '),
 			$new('a', {
-				'href': file['src'],
+				'href': '/' + file['src'],
 				'target': '_blank',
 				'text': filename
 			}, null),
@@ -4698,7 +4698,7 @@ function getHanaFile(file, pId) {
 				}, null)
 			]),
 			$New('a', {
-				'class': 'search_google icon',
+				'class': 'search_iqdb icon',
 				'href': 'http://iqdb.org/?url=http://dobrochan.ru/' + file['src'],
 			}, [
 				$new('img', {
@@ -4714,7 +4714,7 @@ function getHanaFile(file, pId) {
 		}, [
 			$new('img', {
 				'class': 'thumb',
-				'src': thumb,
+				'src': '/' + thumb,
 				'width': thumb_w,
 				'height': thumb_h
 			}, null)
@@ -4777,7 +4777,7 @@ function getHanaPost(postJson) {
 		post.appendChild(getHanaFile(files[i], pId));
 	}
 	$append(post, [
-		$new('div', {'style': 'clear: both;'}, null),
+		$if(len > 1, $new('div', {'style': 'clear: both;'}, null)),
 		$new('div', {
 			'class': 'postbody',
 			'html': postJson['message_html']
@@ -4795,10 +4795,13 @@ function loadNewPosts(inf, fn) {
 	if(aib.hana) {
 		GM_xmlhttpRequest({
 			method: 'GET',
+			headers: aib.modSince ? {'If-Modified-Since': aib.modSince} : null,
 			url: 'http://dobrochan.ru/api/thread/' + brd + '/' + TNum + '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
 			onreadystatechange: function(xhr) {
 				if(xhr.readyState === 4) {
 					if(xhr.status === 200) {
+						aib.modSince = (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1];
+						GM_log(aib.modSince);
 						var json = JSON.parse(xhr.responseText);
 						if(json['error']) {
 							if(inf) {
@@ -6011,15 +6014,20 @@ function fixGM() {
 		window.GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
 			xhr.onreadystatechange = function() {
+				xhr.responseHeaders = xhr.getAllResponseHeaders();
 				obj.onreadystatechange(xhr);
 			};
 			xhr.onload = function() {
 				try{
+					xhr.responseHeaders = xhr.getAllResponseHeaders();
 					obj.onload(xhr);
 				} catch(e) {}
 			};
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
+			for(var h in obj.headers) {
+				xhr.setRequestHeader(h, obj[h]);
+			}
 			xhr.finalUrl = obj.url;
 			xhr.send(null);
 		};
