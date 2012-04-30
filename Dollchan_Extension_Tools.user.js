@@ -4813,7 +4813,7 @@ function loadNewPosts(inf, fn) {
 									del = getHanaPost(el[i]);
 									replaceDelform(del);
 									del.Num = el[i]['display_id'];
-									newPost(thr, {post: del, pNum: del.Num, pCount: thr.pCount + el.length}, brd, TNum, i, false);
+									newPost(thr, {post: del, pNum: del.Num, pCount: thr.pCount + el.length}, brd, TNum, thr.pCount + i, false);
 								}
 							}
 							if(inf) {
