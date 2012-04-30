@@ -4748,12 +4748,18 @@ function getHanaPost(postJson) {
 					'class': 'postername',
 					'text': postJson['name']
 				}, null),
-				$txt(' ' + postJson['date'] + ' ')
+				$txt(' ' + postJson['date'].replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/, function(str, y, mo, d, h, m, s) {
+					var dtime = new Date(y, mo, d, h, m, s);
+					if(Cfg.ctime && timeRegex) {
+						dtime.setHours(dtime.getHours() + parseInt(Cfg.ctmofs, 10));
+					}
+					return dtime.toString().replace(/GMT.*$/, '');
+				}) + ' ')
 			]),
 			$New('span', {'class': 'reflink'}, [
 				$new('a', {
 					'onclick': 'Highlight(0, ' + pId + ')',
-					'href': '/mad/res/' + TNum +'.xhtml#i' + pId,
+					'href': '/' + brd + '/res/' + TNum +'.xhtml#i' + pId,
 					'text': 'No.' + pId
 				}, null)
 			]),
@@ -4808,7 +4814,7 @@ function loadNewPosts(inf, fn) {
 							}
 							infoNewPosts(json['message'], null, 0);
 						} else {
-							el = json['result']['posts'];
+							el = (json['result'] || {})['posts'];
 							if(el && el.length > 0) {
 								thr = $x('.//div[contains(@class," DESU_thread")]', dForm)
 								for(i = 0, len = el.length; i < len; i++) {
