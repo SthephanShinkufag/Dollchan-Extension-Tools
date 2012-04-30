@@ -4589,7 +4589,7 @@ function infoNewPosts(err, nPosts, del) {
 	}
 	setUpdButtonState('On');
 	$close($id('DESU_alertWarn'));
-	if(nPosts != null) {
+	if(nPosts !== null) {
 		inf = nPosts;
 	} else {
 		inf = ajThrds[brd][TNum].length - Posts.length + del;
@@ -4827,6 +4827,9 @@ function loadNewPosts(inf, fn) {
 						}
 						infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : xhr.statusText, null, 0);
 					}
+					if(fn) {
+						fn();
+					}
 				}
 			}
 		});
@@ -4834,6 +4837,9 @@ function loadNewPosts(inf, fn) {
 	}
 	ajaxGetPosts(null, brd, TNum, function(err) {
 		del = getDelPosts(err);
+		if(!inf) {
+			infoNewPosts(err, null, del);
+		}
 		if(!err) {
 			el = $x('.//div[contains(@class," DESU_thread")]', dForm);
 			for(i = Posts.length - del, len = ajThrds[brd][TNum].length; i < len; i++) {
@@ -4844,8 +4850,8 @@ function loadNewPosts(inf, fn) {
 		}
 		if(inf) {
 			$close($id('DESU_alertWait'));
+			infoNewPosts(err, null, del);
 		}
-		infoNewPosts(err, null, del);
 		if(fn) {
 			fn();
 		}
