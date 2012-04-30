@@ -4821,9 +4821,11 @@ function loadNewPosts(inf, fn) {
 							}
 							infoNewPosts(null, el ? el.length : 0, 0);
 						}
-					} else if(inf) {
-						$close($id('DESU_alertWait'));
-						infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText, null, 0);
+					} else {
+						if(inf) {
+							$close($id('DESU_alertWait'));
+						}
+						infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : xhr.statusText, null, 0);
 					}
 				}
 			}
