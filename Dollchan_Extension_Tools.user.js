@@ -2366,6 +2366,14 @@ function doChanges() {
 			el.style.display = 'none';
 		}
 	} else {
+		if(aib.brit) {
+			$each($X('.//span[@class="reflink"]', dForm), function(el) {
+				var a = el.firstChild;
+				$rattr(a, 'onclick');
+				a.href = getThrdUrl(aib.host, brd, a.textContent);
+				a.target = '_blank';
+			});
+		}
 		$event(window, {
 			'load': function() {
 				setTimeout(function() {
@@ -3122,7 +3130,7 @@ function scriptCSS() {
 
 	// Post buttons
 	x.push(
-		'a[class^="DESU_btn"] { display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -1px 0 !important; }\
+		'a[class^="DESU_btn"] { display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -2px 0 !important; }\
 		span[class^="DESU_postPanel"] { margin-left: 4px; font-weight: bold; }'
 	);
 	p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
@@ -3296,6 +3304,13 @@ function scriptCSS() {
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }'
 		);
 	}
+	if(aib.brit) {
+		x.push(
+			'.DESU_postPanel, .DESU_postPanel_op { float: left; margin-top: 0.4em; }\
+			.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
+			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; ' + brCssFix + 'background-size: cover; }'
+		);
+	}
 
 	if(!$id('DESU_css')) {
 		doc.head.appendChild($new('style', {
@@ -3442,7 +3457,7 @@ function addPostButtons(post) {
 				$rattr(el, 'onclick');
 			});
 		}
-		$event(ref, {'click': insertRefLink});
+		if(!aib.brit) $event(ref, {'click': insertRefLink});
 	}
 	if(Cfg.viewhd !== 0) {
 		$event(ref, {
@@ -3846,13 +3861,17 @@ function addImgSearch(node) {
 		return;
 	}
 	$each($X((
-			aib.gazo ? '.'
-			: aib.tiny ? './/p[@class="fileinfo"]'
-			: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
-			: './/span[@class="' + (aib.krau ? 'filename' : 'filesize') + '"]'
-		) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
-		+ (aib.nul ? '[1]' : ''),
-		node
+			aib.brit ? './/a[@class="fileinfo"]'
+			: (
+				(
+					aib.gazo ? '.'
+					: aib.tiny ? './/p[@class="fileinfo"]'
+					: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
+					: './/span[@class="' + (aib.krau ? 'filename' : 'filesize') + '"]'
+				) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
+				+ (aib.nul ? '[1]' : '')
+			)
+		), node
 	), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -5598,12 +5617,15 @@ function aibDetector(host, dc) {
 	ai.krau = h === 'krautchan.net';
 	ai.tiny = $$xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
 	ai.gazo = h === '2chan.net';
-	ai.xDForm = './/form[' + (
-		ai.hana || ai.krau ? 'contains(@action,"delete")]'
-		: ai.tiny ? '@name="postcontrols"]'
-		: ai.gazo ? '2]'
-		: '@id="delform" or @name="delform"]'
-	);
+	ai.brit = h === 'britfa.gs';
+	ai.xDForm =
+		ai.brit ? './/div[@class="threadz"]'
+		: './/form[' + (
+			ai.hana || ai.krau ? 'contains(@action,"delete")]'
+			: ai.tiny ? '@name="postcontrols"]'
+			: ai.gazo ? '2]'
+			: '@id="delform" or @name="delform"]'
+		);
 	if(dc === doc && !(dForm = $x(ai.xDForm, doc))) {
 		return ai;
 	}
@@ -5669,9 +5691,14 @@ function aibDetector(host, dc) {
 	ai.table =
 		ai.fch ? 'table[not(@class="exif")]'
 		: ai.tire ? 'table[not(@class="postfiles")]'
-		: ai.kus ? 'table|div/table'
-		: 'table'
-	ai.opClass = ai.kus ? 'postnode' : 'oppost';
+		: 'table';
+	ai.xWrapper =
+		ai.brit ? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
+		: './/div[contains(@class," DESU_thread")]//' + ai.table;
+	ai.opClass =
+		ai.kus ? 'postnode'
+		: ai.brit ? 'originalpost'
+		: 'oppost';
 	ai.getMsg = ai.cMsg
 		? function(el) {
 			return $c(ai.cMsg, el);
@@ -5697,7 +5724,7 @@ function aibDetector(host, dc) {
 			return $c(ai.cOPosts, el);
 		};
 	ai.getTNum =
-		ai.fch || ai.gazo || ai.sib || (ai.waka && !ai.abu) ? function(op, dc) {
+		ai.fch || ai.gazo || ai.sib || ai.brit || (ai.waka && !ai.abu) ? function(op, dc) {
 			return ($$x(ai.xTNum, op, dc).name).match(/\d+/)[0];
 		}
 		: ai.krau ? function(op, dc) {
@@ -5706,7 +5733,7 @@ function aibDetector(host, dc) {
 		: function(op, dc) {
 			return op.parentNode.id.match(ai.rTNum)[0];
 		};
-	ai.getOp = (ai.abu || ai.hana || ai.kus) && $c(ai.opClass, doc)
+	ai.getOp = (ai.abu || ai.hana || ai.kus || ai.brit) && $c(ai.opClass, doc)
 		? function(thr, dc) {
 			return $c(ai.opClass, thr);
 		}
@@ -5943,6 +5970,19 @@ function parseDelform(node, dc, tFn, pFn) {
 			$after(thr, thr.lastChild);
 		}
 		op = aib.getOp(thr, dc);
+		if(aib.brit) {
+			$before($t('blockquote', op), [$new('div', null, null), post = $new('br', null, null)]);
+			while((i = thr.firstChild).tagName !== 'TABLE') {
+				$after(post, i);
+				post = i;
+			}
+			$before(thr.firstChild, [len = $new('div', null, null)]);
+			$each($$X('node()', op, dc), function(el) {
+				len.appendChild(el);
+			});
+			$del($t('table', thr));
+			op = len;
+		}
 		thr.className += ' DESU_thread';
 		op.className += ' DESU_oppost';
 		op.Num = thr.Num = aib.getTNum(op, dc);
@@ -5990,7 +6030,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
 	if(!aib._7ch && !aib.tiny && !postWrapper) {
-		postWrapper = $$x('.//div[contains(@class," DESU_thread")]//' + aib.table, node, dc);
+		postWrapper = $$x(aib.xWrapper, node, dc);
 		if(dc !== doc && postWrapper) {
 			postWrapper = doc.importNode(postWrapper, true);
 		}
