@@ -4801,7 +4801,6 @@ function loadNewPosts(inf, fn) {
 				if(xhr.readyState === 4) {
 					if(xhr.status === 200) {
 						aib.modSince = (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1];
-						GM_log(aib.modSince);
 						var json = JSON.parse(xhr.responseText);
 						if(json['error']) {
 							if(inf) {
