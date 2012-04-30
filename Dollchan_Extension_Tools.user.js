@@ -4771,9 +4771,9 @@ function getHanaPost(postJson) {
 				])
 			]),
 			$new('br', null, null)
-		]), files = postJson['files'], i = 0, len = files.length;
+		]), files = postJson['files'], i, len = files.length;
 
-	while(i-- < len) {
+	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], pId));
 	}
 	$append(post, [
