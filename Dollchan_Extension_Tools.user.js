@@ -692,9 +692,9 @@ function readCfg() {
 		Cfg.noscrl = 0;
 	}
 	if(aib.hana) {
-		Cfg.updthr = Cfg.expost = 0;
+		Cfg.expost = 0;
 	}
-	if(!nav.Firefox || aib.hana) {
+	if(!nav.Firefox) {
 		Cfg.updfav = 0;
 	}
 	if(nav.Opera) {
@@ -1292,11 +1292,11 @@ function addSettings() {
 		'Class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
 	}, [
-		$if(!aib.hana, $New('div', null, [
+		$New('div', null, [
 			optSel('updthr', Lng.selThreadUpd[lCode], Lng.threadUpd[lCode], null),
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* ', null),
-			$if(nav.Firefox && !aib.hana, lBox('updfav', Lng.indication[lCode], null, ''))
-		])),
+			$if(nav.Firefox, lBox('updfav', Lng.indication[lCode], null, ''))
+		]),
 		$if(!aib.hana, $New('div', null, [
 			optSel('expost', Lng.selClickAuto[lCode], Lng.expandPosts[lCode], null)
 		])),
@@ -4372,13 +4372,13 @@ function importPost(b, pNum) {
 	return false;
 }
 
-function newPost(thr, b, tNum, i, isDel) {
-	var pNum = ajThrds[b][tNum][i],
-		post = importPost(b, pNum);
+function newPost(thr, pInfo, b, tNum, i, isDel) {
+	var pNum = pInfo ? pInfo.pNum : ajThrds[b][tNum][i],
+		post = pInfo ? pInfo.post : importPost(b, pNum);
 	pushPost(post, i);
 	post.Vis = getVisib(pNum);
 	post.isDel = isDel;
-	thr.pCount = ajThrds[b][tNum].length;
+	thr.pCount = pInfo ? pInfo.pCount : ajThrds[b][tNum].length;
 	post.thr = thr;
 	insertPost(thr, post);
 	addPostButtons(post);
@@ -4461,7 +4461,7 @@ function expandThread(thr, b, tNum, last, isDel) {
 		}, null));
 	}
 	for(i = last; i < len; i++) {
-		newPost(thr, b, tNum, i, isDel);
+		newPost(thr, null, b, tNum, i, isDel);
 	}
 	savePostsVisib();
 	$close($id('DESU_alertWait'));
@@ -4533,7 +4533,7 @@ function loadFavorThread(e) {
 			$alert(err, '');
 			return;
 		}
-		newPost(thr, b, tNum, 0, true);
+		newPost(thr, null, b, tNum, 0, true);
 		expandThread(thr, b, tNum, 5, true);
 		$x('.//tr[@id="DESU_favData_' + aib.host + '|' + b + '|' + tNum
 			+ '"]//span[@class="DESU_favPCount"]/span', doc).textContent = thr.pCount;
@@ -4571,7 +4571,7 @@ function endPostsUpdate() {
 	ajaxInt = undefined;
 }
 
-function infoNewPosts(err, del) {
+function infoNewPosts(err, nPosts, del) {
 	var inf, old;
 	if(err) {
 		if(err !== Lng.noConnect[lCode]) {
@@ -4589,7 +4589,11 @@ function infoNewPosts(err, del) {
 	}
 	setUpdButtonState('On');
 	$close($id('DESU_alertWarn'));
-	inf = ajThrds[brd][TNum].length - Posts.length + del;
+	if(nPosts != null) {
+		inf = nPosts;
+	} else {
+		inf = ajThrds[brd][TNum].length - Posts.length + del;
+	}
 	if(Cfg.updthr === 1) {
 		if(doc.body.className === 'focused') {
 			return;
@@ -4617,27 +4621,229 @@ function infoNewPosts(err, del) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 }
 
+function getHanaFile(file, pId) {
+	var filename, size_str,
+		thumb = file['thumb'],
+		thumb_w = file['thumb_width'],
+		thumb_h = file['thumb_height'],
+		bytes = file['size'],
+		max_rating = 'r15',
+		kb = 1024, mb = 1048576, gb = 1073741824;
+	if (brd == 'b' || brd == 'rf') {
+		filename = file['thumb'].substring(file['thumb'].lastIndexOf("/") + 1);
+	} else {
+		filename = file['src'].substring(file['src'].lastIndexOf("/") + 1);
+		if(filename.length > 17)
+		filename = filename.substring(0,17) + '...';
+	}
+	if(file['rating'] === 'r-18g' && max_rating !== "r-18g") {
+		thumb = "images/r-18g.png";
+		thumb_w = 200;
+		thumb_h = 200;
+	} else if(file['rating'] === 'r-18' && (max_rating !== 'r-18g' || max_rating !== 'r-18')) {
+		thumb = "images/r-18.png";
+		thumb_w = 200;
+		thumb_h = 200;
+	} else if(file['rating'] === 'r-15' && max_rating == 'sfw') {
+		thumb = "images/r-15.png";
+		thumb_w = 200;
+		thumb_h = 200;
+	} else if(file['rating'] === 'illegal') {
+		thumb = "images/illegal.png";
+		thumb_w = 200;
+		thumb_h = 200;
+	}
+	if (bytes < kb) {
+		size_str = bytes + ' B';
+	} else if (bytes < mb) {
+		size_str = (bytes / kb).toFixed(2) + ' KB';
+	} else if (bytes < gb) {
+		size_str = (bytes / mb).toFixed(2) + ' MB';
+	} else {
+		size_str = (bytes / gb).toFixed(2) + ' GB';
+	}
+	
+	return $New('div', {'class': 'file'}, [
+		$New('div', {'class': 'fileInfo'}, [
+			$txt('Файл: '),
+			$new('a', {
+				'href': file['src'],
+				'target': '_blank',
+				'text': filename
+			}, null),
+			$new('br', null, null),
+			$new('em', {
+				'text': file['thumb'].substring(file.thumb.lastIndexOf('.') + 1) +
+				', ' + size_str + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height']
+			}, null),
+			$new('br', null, null),
+			$New('a', {
+				'class': 'edit_ icon',
+				'href': '/utils/image/edit/' + file['file_id'] + '/' + pId
+			}, [
+				$new('img', {
+					'title': 'edit',
+					'alt': 'edit',
+					'src': '/images/blank.png'
+				}, null)
+			]),
+			$New('a', {
+				'class': 'search_google icon',
+				'href': 'http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + file['src'],
+			}, [
+				$new('img', {
+					'title': 'edit',
+					'alt': 'edit',
+					'src': '/images/blank.png'
+				}, null)
+			]),
+			$New('a', {
+				'class': 'search_google icon',
+				'href': 'http://iqdb.org/?url=http://dobrochan.ru/' + file['src'],
+			}, [
+				$new('img', {
+					'title': 'edit',
+					'alt': 'edit',
+					'src': '/images/blank.png'
+				}, null)
+			])
+		]),
+		$New('a', {
+			'href': '/' + file['src'],
+			'target': '_blank'
+		}, [
+			$new('img', {
+				'class': 'thumb',
+				'src': thumb,
+				'width': thumb_w,
+				'height': thumb_h
+			}, null)
+		])
+	]);
+}
+
+function getHanaPost(postJson) {
+	var pId = postJson['display_id'],
+		post = $New('td', {
+			'id': 'reply' + pId,
+			'class': 'reply DESU_post'
+		}, [
+			$new('a', {'name': 'i' + pId}, null),
+			$New('label', null, [
+				$New('a', {'class': 'delete icon'}, [
+					$new('input', {
+						'type': 'checkbox',
+						'id': 'delbox_' + pId,
+						'class': 'delete_checkbox',
+						'value': postJson['post_id'],
+						'name': pId
+					}, null),
+					$new('img', {
+						'alt': 'Удалить',
+						'title': 'Mark to delete',
+						'src': '/images/blank.png'
+					}, null)
+				]),
+				$new('span', {
+					'class': 'postername',
+					'text': postJson['name']
+				}, null),
+				$txt(' ' + postJson['date'] + ' ')
+			]),
+			$New('span', {'class': 'reflink'}, [
+				$new('a', {
+					'onclick': 'Highlight(0, ' + pId + ')',
+					'href': '/mad/res/' + TNum +'.xhtml#i' + pId,
+					'text': 'No.' + pId
+				}, null)
+			]),
+			$New('span', {'class': 'cpanel'}, [
+				$New('a', {
+					'onclick': 'GetReplyForm(event, \'' + brd + '\', ' + TNum + ', ' + pId + ')',
+					'class': 'reply_icon'
+				}, [
+					$new('img', {
+						'alt': 'Ответ',
+						'title': 'Ответ',
+						'style': 'vertical-align:sub;',
+						'src': '/images/blank-double.png'
+					}, null)
+				])
+			]),
+			$new('br', null, null)
+		]), files = postJson['files'], i = 0, len = files.length;
+
+	while(i-- < len) {
+		post.appendChild(getHanaFile(files[i], pId));
+	}
+	$append(post, [
+		$new('div', {'style': 'clear: both;'}, null),
+		$new('div', {
+			'class': 'postbody',
+			'html': postJson['message_html']
+		}),
+		$new('div', {'class': 'abbrev'}, null)
+	]);
+	return post;
+}
+
 function loadNewPosts(inf, fn) {
+	var el, i, len, del, thr;
 	if(inf) {
 		$alert(Lng.loading[lCode], 'Wait');
 	}
+	if(aib.hana) {
+		GM_xmlhttpRequest({
+			method: 'GET',
+			url: 'http://dobrochan.ru/api/thread/' + brd + '/' + TNum + '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
+			onreadystatechange: function(xhr) {
+				if(xhr.readyState === 4) {
+					if(xhr.status === 200) {
+						var json = JSON.parse(xhr.responseText);
+						if(json['error']) {
+							if(inf) {
+								$close($id('DESU_alertWait'));
+							}
+							infoNewPosts(json['message'], null, 0);
+						} else {
+							el = json['result']['posts'];
+							if(el && el.length > 0) {
+								thr = $x('.//div[contains(@class," DESU_thread")]', dForm)
+								for(i = 0, len = el.length; i < len; i++) {
+									del = getHanaPost(el[i]);
+									replaceDelform(del);
+									del.Num = el[i]['display_id'];
+									newPost(thr, {post: del, pNum: del.Num, pCount: thr.pCount + el.length}, brd, TNum, i, false);
+								}
+							}
+							if(inf) {
+								$close($id('DESU_alertWait'));
+							}
+							infoNewPosts(null, el ? el.length : 0, 0);
+						}
+					} else if(inf) {
+						$close($id('DESU_alertWait'));
+						infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText, null, 0);
+					}
+				}
+			}
+		});
+		return;
+	}
 	ajaxGetPosts(null, brd, TNum, function(err) {
-		var i, len,
-			del = getDelPosts(err);
-		if(!inf) {
-			infoNewPosts(err, del);
-		}
+		del = getDelPosts(err);
 		if(!err) {
+			el = $x('.//div[contains(@class," DESU_thread")]', dForm);
 			for(i = Posts.length - del, len = ajThrds[brd][TNum].length; i < len; i++) {
-				newPost($x('.//div[contains(@class," DESU_thread")]', dForm), brd, TNum, i, false);
+				newPost(el, null, brd, TNum, i, false);
 			}
 			savePostsVisib();
 			$id('DESU_panelInfo').firstChild.textContent = len + '/' + getImages(dForm).snapshotLength;
 		}
 		if(inf) {
 			$close($id('DESU_alertWait'));
-			infoNewPosts(err, del);
 		}
+		infoNewPosts(err, null, del);
 		if(fn) {
 			fn();
 		}
@@ -4655,7 +4861,7 @@ function initPostsUpdate() {
 	if(Cfg.updthr === 2) {
 		ajaxInt = setInterval(function() {
 			ajaxGetPosts(null, brd, TNum, function(err) {
-				infoNewPosts(err, getDelPosts(err));
+				infoNewPosts(err, null, getDelPosts(err));
 			});
 		}, t);
 	}
@@ -4694,7 +4900,7 @@ function loadPages(len) {
 						$new('hr', null, null)
 					]);
 					for(i = 0, pLen = ajThrds[brd][tNum].length; i < pLen; i++) {
-						newPost(thr, brd, tNum, i, false);
+						newPost(thr, null, brd, tNum, i, false);
 					}
 					delete ajThrds[brd][tNum];
 				}
