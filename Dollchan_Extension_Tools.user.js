@@ -5736,11 +5736,8 @@ function aibDetector(host, dc) {
 			return $c(ai.cOPosts, el);
 		};
 	ai.getTNum =
-		ai.fch || ai.gazo || ai.sib || (ai.waka && !ai.abu) ? function(op, dc) {
+		ai.fch || ai.gazo || ai.sib || ai.brit || (ai.waka && !ai.abu) ? function(op, dc) {
 			return ($$x(ai.xTNum, op, dc).name).match(/\d+/)[0];
-		}
-		: ai.brit ? function(op, dc) {
-			return op.id.match(ai.rTNum)[0];;
 		}
 		: ai.krau ? function(op, dc) {
 			return op.parentNode.previousElementSibling.name;
@@ -5985,6 +5982,19 @@ function parseDelform(node, dc, tFn, pFn) {
 			$after(thr, thr.lastChild);
 		}
 		op = aib.getOp(thr, dc);
+		if(aib.brit) {
+			$before($t('blockquote', op), [$new('div', null, null), post = $new('br', null, null)]);
+			while((i = thr.firstChild).tagName !== 'TABLE') {
+				$after(post, i);
+				post = i;
+			}
+			$before(thr.firstChild, [len = $new('div', null, null)]);
+			$each($$X('node()', op, dc), function(el) {
+				len.appendChild(el);
+			});
+			$del($t('table', thr));
+			op = len;
+		}
 		thr.className += ' DESU_thread';
 		op.className += ' DESU_oppost';
 		op.Num = thr.Num = aib.getTNum(op, dc);
@@ -6063,7 +6073,7 @@ function initDelform() {
 	try {
 		parseDelform(dForm, doc, false, pushPost);
 	} catch(e) {
-		$disp(dForm);
+		$disp(dForm); throw e;
 		return false;
 	}
 	if(!nav.Chrome) {
