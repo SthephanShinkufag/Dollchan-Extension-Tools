@@ -5545,6 +5545,8 @@ function checkForUpdates(force, onlyIfNew, fn) {
 							if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 								upd = true;
 								break;
+							} else if((+dVer[i] || 0) < (+cVer[i] || 0)) {
+								break;
 							}
 							i++;
 						}
