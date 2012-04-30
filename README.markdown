@@ -1,48 +1,25 @@
-**Назначение:**
+![dE](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/Icon.png)
 
-Куклоскрипт - это пользовательский скрипт, совмещающий в себе множество 
-функций, облегчающих и делающих более удобным посещение имиджбордов. В
-перечень поддерживаемых сайтов входят проекты, основанные на движках
-wakaba/kusaba, и аналогичных. Скрипт ориентирован на русскоязычные имиджборды
-и русскоязычных пользователей.
+**-Ru-**
 
-**Поддерживаемые браузеры:**
+**Dollchan Extension Tools** (называемый также "куклоскрипт") - это пользовательский скрипт,
+совмещающий в себе множество разнообразных функций, облегчающих и делающих более удобным посещение имиджбордов.
+Скрипт имеет кроссбраузерную и кроссбордовую область действия.
+В перечень поддерживаемых сайтов входят имиджборды, основанные на движках wakaba/kusaba, и аналогичных.
 
-![][1] _Mozilla Firefox_ (версии 3.0 и выше). Для работы скрипта вам
-необходим [Greasemonkey][2] либо [Scriptish][3] (Firefox 4+). При 
-использовании Scriptish доступно автоматическое обновление скрипта. Удаление 
-настроек - набрать в адресной строке "about:config", сделать поиск по "DESU", 
-и сбросить найденное.
+Перейдите на **[Wiki-страницы](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
+либо на **[вебсайт проекта](http://www.freedollchan.org/scripts)**
+для ознакомления с подробным описанием скрипта и перечнем доступных для скачивания версий.
 
-![][4] _Opera_ (версии 9.5 и выше). Установка: изменить расширение скрипта с
-".user.js" на ".js", указать путь к скрипту в свойствах страницы выбранного
-ресурса. Для версий выше 10.60 введите в адресную строку  "opera:config", и
-установите "User JS Storage Quota" (находится по поиску) равным 102400. Для
-работы скрипта на https ресурсах: "opera:config" -> "User JavaScript on
-HTTPS". Удаление настроек - для Opera 10.50 и выше – удалить записи для
-посещаемых борд, введя в адресной строке "opera:webstorage", для более ранних
-версий – удалить cookies.
+***
 
-![][5] _Google Chrome_ (версии 5.0 и выше), желательно с поддержкой
-преобразования юзерскриптов в расширение (доступно [здесь][6]). Удаление
-настроек - Ctrl+Shift+I (или "Просмотр кода элемента" в контекстном меню
-страницы) -> Storage -> удалить из Local Storage найденные DESU записи.
+**-En-**
 
-Скрипт предоставляется с открытым незашифрованным кодом. Пользователь сам
-несет ответственность за использование скрипта.
+**Dollchan Extension Tools** (also called "dollscript") is a userscript that
+combines many various features, which make your spending time on imageboards more easier and convenient.
+Userscript have crossbrowser and crossboard working scope.
+List of supported sites includes imageboards based on wakaba/kusaba engines, and other similar.
 
-Домашняя страничка скрипта: [freedollchan.org][7].
-Текущий тред с комментариями, вопросами, предложениями, репортами, доступен
-на [iichan.ru][8].
-
-По различным вопросам, пишите на почтовый ящик: [straiister@yandex.ru][9]
-
-   [1]: http://www.freedollchan.org/_/rsrc/1292779097376/scripts/Firefox_icn.png?height=17&width=17
-   [2]: https://addons.mozilla.org/ru/firefox/addon/greasemonkey/
-   [3]: https://addons.mozilla.org/en-US/firefox/addon/scriptish/
-   [4]: http://www.freedollchan.org/_/rsrc/1292779097377/scripts/Opera_icn.png?height=17&width=17
-   [5]: http://www.freedollchan.org/_/rsrc/1292779097369/scripts/Chrome_icn%20-%20%D0%BA%D0%BE%D0%BF%D0%B8%D1%8F.png?height=17&width=17
-   [6]: http://www.google.com/chrome/eula.html?extra=betachannel
-   [7]: http://www.freedollchan.org/scripts/
-   [8]: http://iichan.ru/b/res/2209938.html
-   [9]: mailto:straiister@yandex.ru
+Go to **[Wiki-pages] (https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki)**
+or to **[project website] (http://www.freedollchan.org/scripts)**
+for a detailed description and list of versions available for download (only in russian so far).
