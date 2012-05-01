@@ -4236,9 +4236,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 			$del(a);
 			post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
 			post.Text = getText(post.Msg);
-			if(addFunc) {
-				processFullMsg(post);
-			}
+			processFullMsg(post);
 		}
 	});
 }
