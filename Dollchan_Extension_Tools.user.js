@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.30.4
+// @version			12.4.30.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012.04.30.4',
+	'version':	'2012.04.30.5',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5876,7 +5876,7 @@ function replyForm(f) {
 		tr = aib._7ch ? 'li' : 'tr',
 		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	if(!f) {
-		return;
+		return rf;
 	}
 	rf.on = true;
 	rf.isQuick = false;
