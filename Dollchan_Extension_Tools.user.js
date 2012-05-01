@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.1.0
+// @version			12.5.1.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.1.0',
+	'version':	'12.5.1.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -361,9 +361,7 @@ function $html(el, htm) {
 
 function $attr(el, attr) {
 	for(var key in attr) {
-		key === 'Class' ? el.className = attr[key]
-		: key === 'text' ? el.textContent = attr[key]
-		: key === 'html' ? el.innerHTML = attr[key]
+		key === 'text' ? el.textContent = attr[key]
 		: key === 'value' ? el.value = attr[key]
 		: el.setAttribute(key, attr[key]);
 	}
@@ -1186,9 +1184,9 @@ function addSettings() {
 	}, 
 	
 	cfgTab = function(txt, el) {
-		return $New('div', {'Class': aib.pClass + ' DESU_cfgTabBack'}, [
+		return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack'}, [
 			$new('div', {
-				'Class': 'DESU_cfgTab',
+				'class': 'DESU_cfgTab',
 				'text': txt}, {
 				'click': function() {
 					openTab(this, el);
@@ -1220,7 +1218,7 @@ function addSettings() {
 	},
 	
 	cfgFilters = $New('div', {
-		'Class': 'DESU_cfgBody',
+		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgFilters'
 	}, [
 		$New('div', null, [
@@ -1291,7 +1289,7 @@ function addSettings() {
 	]),
 	
 	cfgPosts = $New('div', {
-		'Class': 'DESU_cfgBody',
+		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
 	}, [
 		$New('div', null, [
@@ -1344,7 +1342,7 @@ function addSettings() {
 	]),
 	
 	cfgLinks = $New('div', {
-		'Class': 'DESU_cfgBody',
+		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgLinks'
 	}, [
 		$New('div', null, [
@@ -1381,7 +1379,7 @@ function addSettings() {
 	]),
 	
 	cfgForm = $New('div', {
-		'Class': 'DESU_cfgBody',
+		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgForm'
 	}, [
 		$if(pr.on, $New('div', null, [
@@ -1435,7 +1433,7 @@ function addSettings() {
 	]),
 	
 	cfgCommon = $New('div', {
-		'Class': 'DESU_cfgBody',
+		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgCommon'
 	}, [
 		$New('div', null, [
@@ -1479,7 +1477,7 @@ function addSettings() {
 	]),
 	
 	cfgInfo = $New('div', {
-		'Class': 'DESU_cfgBody',
+		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg.version + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
@@ -1487,7 +1485,7 @@ function addSettings() {
 	
 	$append($id('DESU_content'), [
 		$New('div', {
-			'Class': aib.pClass,
+			'class': aib.pClass,
 			'id': 'DESU_cfgWindow'
 		}, [
 			$new('div', {
@@ -1665,7 +1663,7 @@ function addHiddenTable() {
 		for(b in hThrds) {
 			$append(table, [
 				$New('tr', {
-					'Class': 'DESU_hidTHead',
+					'class': 'DESU_hidTHead',
 					'id': 'DESU_hidTHead_' + b
 				}, [
 					$new('input', {
@@ -1690,10 +1688,10 @@ function addHiddenTable() {
 				url = getThrdUrl(aib.host, b, tNum);
 				$append(table, [
 					$New('tr', {
-						'Class': 'DESU_hidTData',
+						'class': 'DESU_hidTData',
 						'id': 'DESU_hidTData_' + b + '|' + tNum
 					}, [
-						$New('div', {'Class': aib.pClass}, [
+						$New('div', {'class': aib.pClass}, [
 							$new('input', {'type': 'checkbox'}, null),
 							$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 							$if(!sav.cookie, $txt(' - ' + hThrds[b][tNum]))
@@ -1762,7 +1760,7 @@ function addFavoritesTable() {
 		for(b in Favor[h]) {
 			$append(table, [
 				$New('tr', {
-					'Class': 'DESU_favHead',
+					'class': 'DESU_favHead',
 					'id': 'DESU_favHead_' + h + '|' + b
 				}, [
 					$new('input', {
@@ -1785,13 +1783,13 @@ function addFavoritesTable() {
 				fav = Favor[h][b][tNum];
 				$append(table, [
 					$New('tr', {
-						'Class': 'DESU_favData',
+						'class': 'DESU_favData',
 						'id': 'DESU_favData_' + h + '|' + b + '|' + tNum
 					}, [
-						$New('div', {'Class': aib.pClass}, [
+						$New('div', {'class': aib.pClass}, [
 							$new('input', {'type': 'checkbox'}, null),
 							$new('a', {
-								'Class': 'DESU_btnExpthr',
+								'class': 'DESU_btnExpthr',
 								'href': '#"'}, {
 								'click': loadFavorThread
 							}),
@@ -1801,7 +1799,7 @@ function addFavoritesTable() {
 						]),
 						$new('div', {
 							'id': tNum,
-							'Class': ' DESU_thread',
+							'class': ' DESU_thread',
 							'style': 'display: none;'
 						}, null)
 					])
@@ -1826,13 +1824,13 @@ function addFavoritesTable() {
 					if(aib.host === arr[0]) {
 						c = $t('span', $c('DESU_favPCount', el));
 						$attr(c, {
-							'Class': 'DESU_icnWait',
+							'class': 'DESU_icnWait',
 							'text': ''
 						});
 						ajaxGetPosts(null, arr[1], arr[2], function(err) {
 							var cnt = err || ajThrds[arr[1]][arr[2]].length;
 							$attr(c, {
-								'Class': '',
+								'class': '',
 								'text': cnt
 							});
 							if(!err) {
@@ -1953,7 +1951,7 @@ function $alert(txt, id) {
 		$c(nid, el).innerHTML = txt.trim();
 	} else {
 		el = $New('div', {
-			'Class': aib.pClass,
+			'class': aib.pClass,
 			'id': nid,
 			'style': 'opacity: 0; padding: 0 10px 5px 10px;'
 		}, [
@@ -1966,11 +1964,8 @@ function $alert(txt, id) {
 					$close(this.parentNode);
 				}
 			})),
-			$new('div', {
-				'style': 'display: inline-block; margin-top: 4px;',
-				'Class': nid,
-				'html': txt.trim()
-			}, null)
+			$add('<div class="' + nid + '" style="display: inline-block; margin-top: 4px;">'
+				+ txt.trim() + '</div>')
 		]);
 	}
 	$show($id('DESU_alertBox').appendChild(el));
@@ -2423,7 +2418,7 @@ function doChanges() {
 	}
 	qArea = $new('div', {
 		'id': 'DESU_qarea',
-		'Class': aib.pClass,
+		'class': aib.pClass,
 		'style': 'display: none;'
 	}, null);
 	pArea = $New('center', {'id': 'DESU_parea'}, [
@@ -3162,7 +3157,7 @@ function addPostButtons(post) {
 	}
 	if(isSage(post)) {
 		post.Btns.appendChild($new('a', {
-			'Class': 'DESU_btnSage',
+			'class': 'DESU_btnSage',
 			'title': 'SAGE',
 			'href': '#'}, {
 			'click': function(e) {
@@ -3388,7 +3383,7 @@ function addLinkTube(post) {
 		}
 		pst = post || getPost(link);
 		if(!(el = $c('DESU_ytObj', pst))) {
-			el = $new('div', {'Class': 'DESU_ytObj'}, null);
+			el = $new('div', {'class': 'DESU_ytObj'}, null);
 			if(Cfg.ytube > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg.ytube === 2) {
@@ -3478,7 +3473,7 @@ function addLinkMP3(post) {
 		pst = post || getPost(link);
 		el = $c('DESU_mp3', pst);
 		if(!el) {
-			el = $new('div', {'Class': 'DESU_mp3'}, null);
+			el = $new('div', {'class': 'DESU_mp3'}, null);
 			msg = pst.Msg || aib.getMsg(pst);
 			if(msg) {
 				$before(msg, [el]);
@@ -3579,7 +3574,7 @@ function addFullImg(a, sz, isExp) {
 		}
 	}
 	a.appendChild($attr(full, {
-		'Class': 'DESU_fullImg',
+		'class': 'DESU_fullImg',
 		'src': a.href,
 		'alt': a.href,
 		'width': newW,
@@ -3608,7 +3603,7 @@ function addLinkImg(node, addBr) {
 		a.target = '_blank';
 		$disp(a);
 		a.appendChild($new('img', {
-			'Class': 'DESU_preImg',
+			'class': 'DESU_preImg',
 			'src': a.href,
 			'alt': a.href}, {
 			'load': function() {
@@ -3663,7 +3658,7 @@ function addImgSearch(node) {
 		}
 		$before(link, [
 			$new('a', {
-				'Class': 'DESU_btnSrc'}, {
+				'class': 'DESU_btnSrc'}, {
 				'mouseover': function() {
 					selectImgSearch(this, escape(link.href));
 				},
@@ -3953,10 +3948,9 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 		if(!txt) {
 			pDel[pNum] = true;
 		}
-		return addNode(parent, $new('div', {
-			'Class': aib.pClass + ' DESU_info DESU_pView',
-			'html': txt || Lng.postNotFound[lCode]
-		}, null), e);
+		return addNode(parent, $add(
+			'<div class="' + aib.pClass + ' DESU_info DESU_pView">' + txt || Lng.postNotFound[lCode] +'</div>'
+		), e);
 	}
 	pView = post.cloneNode(true);
 	if(post.Vis === 0) {
@@ -4216,13 +4210,16 @@ function newPost(thr, b, tNum, i, isDel, pInfo) {
 }
 
 function getFullMsg(post, tNum, a, addFunc) {
+	var msg = post.Msg;
 	if(aib.hana) {
 		$del(a.nextSibling);
 		$del(a.previousSibling);
 		$del(a);
-		tNum = post.Msg;
-		tNum.replaceChild($x('div[@class="postbody alternate"]', post).firstElementChild, tNum.firstElementChild);
-		post.Text = getText(tNum);
+		msg.replaceChild(
+			$x('div[@class="postbody alternate"]', post).firstElementChild,
+			msg.firstElementChild
+		);
+		post.Text = getText(msg);
 		if(addFunc) {
 			processFullMsg(post);
 		}
@@ -4231,7 +4228,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(!err) {
 			$del(a);
-			post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
+			post.Msg = $html(msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
 			post.Text = getText(post.Msg);
 			processFullMsg(post);
 		}
@@ -4282,7 +4279,7 @@ function expandThread(thr, b, tNum, last, isDel) {
 	}
 	if(last > 1) {
 		thr.appendChild($new('div', {
-			'Class': 'DESU_omitted',
+			'class': 'DESU_omitted',
 			'text': Lng.postsOmitted[lCode] + (last - 1)
 		}, null));
 	}
@@ -4347,7 +4344,7 @@ function loadFavorThread(e) {
 	if(url) {
 		thr.appendChild($new('iframe', {
 			'name': 'DESU_favIframe',
-			'Class': 'DESU_favIframe',
+			'class': 'DESU_favIframe',
 			'src': url,
 			'style': 'border: none; width: ' + (doc.body.clientWidth - 65)
 				+ 'px; height: ' + (window.innerHeight - 100) + 'px;'
@@ -4394,7 +4391,7 @@ function loadPages(len) {
 					page = $id('DESU_page' + p);
 				for(tNum in ajThrds[brd]) {
 					thr = $new('div', {
-						'Class': ' DESU_thread',
+						'class': ' DESU_thread',
 						'id': 'thread-' + tNum
 					}, null);
 					$append(page, [
@@ -4657,10 +4654,7 @@ function getHanaPost(postJson) {
 	}
 	$append(post, [
 		$if(len > 1, $new('div', {'style': 'clear: both;'}, null)),
-		$new('div', {
-			'class': 'postbody',
-			'html': postJson['message_html']
-		}),
+		$add('<div class="postbody">' + postJson['message_html'] + '</div>'),
 		$new('div', {'class': 'abbrev'}, null)
 	]);
 	return post;
@@ -4840,7 +4834,7 @@ function hidePost(post, note) {
 	if(!post.noHide) {
 		if(post.Vis !== 0) {
 			post.Btns.appendChild($new('a', {
-				'Class': 'DESU_postNote',
+				'class': 'DESU_postNote',
 				'text': ' autohide: ' + note + ' ',
 				'href': '#'}, {
 				'click': function(e) {
@@ -6214,13 +6208,13 @@ function initBoard() {
 		$del($t('hr', dForm));
 		$del($t('hr', dForm.previousElementSibling));
 	}
-	pPanel = $New('span', {'Class': 'DESU_postPanel'}, [
+	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
 		$new('a', {
-			'Class': 'DESU_btnHide',
+			'class': 'DESU_btnHide',
 			'href': '#'
 		}, null),
 		$if(pr.on || oeForm, $new('a', {
-			'Class': 'DESU_btnRep',
+			'class': 'DESU_btnRep',
 			'href': '#'
 		}, null))
 	]);
@@ -6228,11 +6222,11 @@ function initBoard() {
 	opPanel.className += '_op';
 	$append(opPanel, [
 		$if(!TNum, $new('a', {
-			'Class': 'DESU_btnExpthr',
+			'class': 'DESU_btnExpthr',
 			'href': '#'
 		}, null)),
 		$new('a', {
-			'Class': 'DESU_btnFav',
+			'class': 'DESU_btnFav',
 			'href': '#'
 		}, null)
 	]);
