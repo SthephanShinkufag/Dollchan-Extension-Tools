@@ -4217,30 +4217,28 @@ function newPost(thr, b, tNum, i, isDel, pInfo) {
 
 function getFullMsg(post, tNum, a) {
 	if(aib.hana) {
-		getJSON('http://dobrochan.ru/api/post/' + brd + '/' + tNum + '.json?new_format&message_html',
-			null, function(status, lmod, json) {
-				if(status === 200 && !json['error']) {
-					$del(a.nextSibling);
-					$del(a.previousSibling);
-					$del(a);
-					post.Msg.innerHTML = json['result']['message_html'];
-					post.Text = getText(post.Msg);
-					$del($c('DESU_btnSrc', post));
-					addPostFunc(post);
-				}
-			}
-		);
+		$del(a.nextSibling);
+		$del(a.previousSibling);
+		$del(a);
+		post.Msg.innerHTML = $x('div[@class="postbody alternate"]/div', post).innerHTML;
+		processFullMsg(post);
 		return;
 	}
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(!err) {
 			$del(a);
 			post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
-			post.Text = getText(post.Msg);
-			$del($c('DESU_btnSrc', post));
-			addPostFunc(post);
+			processFullMsg(post);
 		}
 	});
+}
+
+function processFullMsg(post) {
+	post.Text = getText(post.Msg);
+	$each($X('.//a[@class="DESU_btnSrc"]', post), function(el) {
+		del(el);
+	});
+	addPostFunc(post);
 }
 
 function expandPost(post) {
