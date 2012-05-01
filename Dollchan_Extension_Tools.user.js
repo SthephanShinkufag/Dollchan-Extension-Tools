@@ -4127,12 +4127,10 @@ function getJSON(url, ifmodsince, fn) {
 		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
-			var json;
-			if(xhr.readyState !== 4) {
-				return;
+			if(xhr.readyState === 4) {
+				fn(xhr.status, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
+					JSON.parse(xhr.responseText));
 			}
-			json = JSON.parse(xhr.responseText);
-			fn(xhr.status, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1], json);
 		}
 	});
 }
