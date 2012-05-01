@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.1.2
+// @version			12.5.1.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -696,7 +696,7 @@ function readCfg() {
 		Cfg.ytitle = 0;
 		Cfg.enupd = 0;
 	}
-	if(nav.Firefox < 7 && !nav.Chrome) {
+	if(nav.Firefox < 7 && !nav.Chrome || aib.tiny) {
 		Cfg.rndimg = 0;
 	}
 	if(Cfg.svsage === 0) {
@@ -1392,7 +1392,7 @@ function addSettings() {
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
 		divBox('addfav', Lng.addToFav[lCode], null),
-		$if(nav.Firefox > 6 || nav.Chrome, divBox('rndimg', Lng.rndImages[lCode], null)),
+		$if((nav.Firefox > 6 || nav.Chrome) && !aib.tiny, divBox('rndimg', Lng.rndImages[lCode], null)),
 		$if(pr.mail, $New('div', null, [
 			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
 			lBox('svsage', Lng.saveSage[lCode], null, '')
@@ -2636,7 +2636,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(nav.Firefox > 3 || nav.Chrome) {
+		if((nav.Firefox > 3 || nav.Chrome) && !aib.tiny) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
@@ -5907,7 +5907,11 @@ function replyForm(f) {
 	rf.recap = $x('.//input[@id="recaptcha_response_field"]', f);
 	rf.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', f)
 		|| rf.recap;
-	rf.txta = $x('.//' + tr + '//textarea' + (aib.krau ? '[@name="internal_t"]' : '[last()]'), f);
+	rf.txta = $x('.//' + tr + '//textarea' + (
+		aib.krau ? '[@name="internal_t"]'
+		: aib.tiny ? '[@id="body"]'
+		: '[last()]'
+	), f);
 	rf.subm = $x('.//' + tr + '//input[@type="submit"]', f);
 	rf.file = $x('.//' + tr + '//input[@type="file"]', f);
 	rf.passw = $x('.//' + tr + '//input[@type="password"]', f);
@@ -5931,7 +5935,7 @@ function aibDetector(host, dc) {
 	ai.dm = h;
 	ai.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
 	ai.krau = h === 'krautchan.net';
-	ai.tiny = $$xb('.//form[@name="postcontrols"]', dc, dc);
+	ai.tiny = $$xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
 	ai.gazo = h === '2chan.net';
 	ai.brit = h === 'britfa.gs';
 	ai.xDForm =
@@ -6285,13 +6289,8 @@ function forEachThread(node, dc, fn) {
 
 function parseDelform(node, dc, tFn, pFn) {
 	var i, len, op, post, psts;
-	for(i = node.getElementsByTagName('script'), len = i.length; len--;) {
-		$del(i[len]);
-	}
+	$$Del('.//script', node, dc);
 	forEachThread(node, dc, function(thr) {
-		if(aib.tiny || aib._420) {
-			$after(thr, thr.lastChild);
-		}
 		op = aib.getOp(thr, dc);
 		if(aib.brit) {
 			$before($t('blockquote', op), [$new('div', null, null), post = $new('br', null, null)]);
