@@ -4221,11 +4221,8 @@ function getFullMsg(post, tNum, a, addFunc) {
 		$del(a.previousSibling);
 		$del(a);
 		tNum = post.Msg;
-		a = tNum.nextElementSibling;
-		a.className = tNum.className;
-		tNum.parentNode.replaceChild(a, tNum);
-		post.Msg = a;
-		post.Text = getText(post.Msg);
+		tNum.replaceChild($x('div[@class="postbody alternate"]', post).firstElementChild, tNum.firstElementChild);
+		post.Text = getText(tNum);
 		if(addFunc) {
 			processFullMsg(post);
 		}
