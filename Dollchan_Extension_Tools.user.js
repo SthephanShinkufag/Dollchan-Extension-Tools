@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.30.2
+// @version			12.4.30.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012.04.30.2',
+	'version':	'2012.04.30.3',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -33,7 +33,7 @@ var defaultCfg = {
 	'updint':	2,		//		threads update interval
 	'updfav':	1,		//		favicon blinking, if new posts detected
 	'navig':	2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
-	'navdel':	'2000',	//		delay in ms
+	'navdel':	'1000',	//		delay in ms
 	'navmrk':	0,		//		mark viewed posts
 	'navhid':	0,		//		strike hidden posts in refmap
 	'navdis':	0,		//		don't show hidden posts
@@ -1050,7 +1050,7 @@ function addPanel() {
 							endPostsUpdate();
 						} else {
 							this.id = 'DESU_btnUpdOn';
-							initPostsUpdate();
+							initThreadsUpdater();
 						}
 					}
 				})),
@@ -2339,7 +2339,7 @@ function doChanges() {
 				}, 0);
 			}
 		};
-		initPostsUpdate();
+		initThreadsUpdater();
 		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
 			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
 				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
@@ -3980,7 +3980,10 @@ function addRefMap(post, uEv) {
 	}
 }
 
-/*------------------------>>RefLinks posts preview functions------------------*/
+
+/*==============================================================================
+							POST PREVIEW FUNCTIONS
+==============================================================================*/
 
 function addNode(parent, pView, e) {
 	var el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
@@ -4216,7 +4219,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 }
 
 function showPostPreview(e) {
-	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|$)/)[1],
+	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|index|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (this.hash.match(/\d+/) || [tNum])[0],
 		post = pByNum[pNum] || importPreview(b, pNum),
@@ -4550,6 +4553,54 @@ function loadFavorThread(e) {
 	});
 }
 
+function loadPages(len) {
+	var p;
+	$alert(Lng.loading[lCode], 'Wait');
+	dForm.innerHTML = '';
+	for(p = 0, Posts = [], refMap = [], ajPosts[brd] = {}, ajThrds[brd] = {}; p < len; p++) {
+		$append(dForm, [
+			$new('center', {
+				'text': p + Lng.page[lCode],
+				'style': 'font-size: 2em;'
+			}, null),
+			$new('hr', null, null),
+			$new('div', {'id': 'DESU_page' + p}, null)
+		]);
+		ajaxGetPosts('/' + (brd === '' ? '' : brd + '/') + (
+			p > 0 ? p + docExt
+			: aib.hana ? 'index' + docExt
+			: ''
+		), brd, null, function(p, len) {
+			return function() {
+				var tNum, thr, i, pLen,
+					page = $id('DESU_page' + p);
+				for(tNum in ajThrds[brd]) {
+					thr = $new('div', {
+						'Class': ' DESU_thread',
+						'id': 'thread-' + tNum
+					}, null);
+					$append(page, [
+						thr,
+						$new('br', {'clear': 'left'}, null),
+						$new('hr', null, null)
+					]);
+					for(i = 0, pLen = ajThrds[brd][tNum].length; i < pLen; i++) {
+						newPost(thr, brd, tNum, i, false, null);
+					}
+					delete ajThrds[brd][tNum];
+				}
+				savePostsVisib();
+				readHiddenThreads();
+				if(p === len - 1) {
+					$close($id('DESU_alertWait'));
+				}
+			}
+		}(p, len));
+	}
+}
+
+/*-------------------------------Threads updater------------------------------*/
+
 function getDelPosts(err) {
 	var del = 0;
 	if(!err) {
@@ -4875,7 +4926,7 @@ function loadNewPosts(inf, fn) {
 	});
 }
 
-function initPostsUpdate() {
+function initThreadsUpdater() {
 	var C = Cfg.updint,
 		t = 6e4*(C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
 	if(Cfg.updthr === 1) {
@@ -4892,55 +4943,9 @@ function initPostsUpdate() {
 	}
 }
 
-function loadPages(len) {
-	var p;
-	$alert(Lng.loading[lCode], 'Wait');
-	dForm.innerHTML = '';
-	for(p = 0, Posts = [], refMap = [], ajPosts[brd] = {}, ajThrds[brd] = {}; p < len; p++) {
-		$append(dForm, [
-			$new('center', {
-				'text': p + Lng.page[lCode],
-				'style': 'font-size: 2em;'
-			}, null),
-			$new('hr', null, null),
-			$new('div', {'id': 'DESU_page' + p}, null)
-		]);
-		ajaxGetPosts('/' + (brd === '' ? '' : brd + '/') + (
-			p > 0 ? p + docExt
-			: aib.hana ? 'index' + docExt
-			: ''
-		), brd, null, function(p, len) {
-			return function() {
-				var tNum, thr, i, pLen,
-					page = $id('DESU_page' + p);
-				for(tNum in ajThrds[brd]) {
-					thr = $new('div', {
-						'Class': ' DESU_thread',
-						'id': 'thread-' + tNum
-					}, null);
-					$append(page, [
-						thr,
-						$new('br', {'clear': 'left'}, null),
-						$new('hr', null, null)
-					]);
-					for(i = 0, pLen = ajThrds[brd][tNum].length; i < pLen; i++) {
-						newPost(thr, brd, tNum, i, false, null);
-					}
-					delete ajThrds[brd][tNum];
-				}
-				savePostsVisib();
-				readHiddenThreads();
-				if(p === len - 1) {
-					$close($id('DESU_alertWait'));
-				}
-			}
-		}(p, len));
-	}
-}
-
 
 /*==============================================================================
-								HIDERS / FILTERS
+								POST/THREAD HIDERS
 ==============================================================================*/
 
 function doPostFilters(post) {
@@ -5087,7 +5092,8 @@ function mergeHidden(post) {
 	el.appendChild(post);
 	next = post.nextElementSibling;
 	if(!next || getVisib(next.Num) === 1) {
-		el.previousElementSibling.innerHTML = unescape('%u25B2') + '[<i><a href="#">' + Lng.hiddenPosts[lCode] + '</a>:&nbsp;'
+		el.previousElementSibling.innerHTML =
+			unescape('%u25B2') + '[<i><a href="#">' + Lng.hiddenPosts[lCode] + '</a>:&nbsp;'
 			+ el.childNodes.length + '</i>]';
 	}
 }
@@ -5118,7 +5124,64 @@ function processHidden(newCfg, oldCfg) {
 	scriptCSS();
 }
 
-/*-----------------------Hide/change posts by expressions---------------------*/
+/*--------------------------Hide posts with similar text----------------------*/
+
+function getWrds(post) {
+	return post.Text.replace(/\s+/g, ' ')
+		.replace(/[\?\.\\\/\+\*\$\^\(\)\|\{\}\[\]!@#%_=:;<,-]/g, '')
+		.substring(0, 800).split(' ');
+}
+
+function findSameText(post, oNum, oVis, oWords) {
+	var j,
+		words = getWrds(post),
+		len = words.length,
+		i = oWords.length,
+		olen = i,
+		_olen = i,
+		n = 0;
+	if(len < olen*0.4 || len > olen*3) {
+		return;
+	}
+	while(i--) {
+		if(olen > 6 && oWords[i].length < 3) {
+			_olen--;
+			continue;
+		}
+		j = len;
+		while(j--) {
+			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
+				n++;
+			}
+		}
+	}
+	if(n < _olen*0.4 || len > _olen*3) {
+		return;
+	}
+	$del($c('DESU_postNote', post));
+	if(oVis !== 0) {
+		hidePost(post, 'similar to >>' + oNum);
+	} else {
+		unhidePost(post);
+	}
+}
+
+function hideBySameText(post) {
+	var vis = post.Vis;
+	if(post.Text !== '') {
+		forAll(function(target) {
+			findSameText(target, post.Num, vis, getWrds(post));
+		});
+		saveHiddenPosts();
+	} else {
+		applySpells('#notxt');
+	}
+}
+
+
+/*==============================================================================
+							SPELL AND EXPRESSIONS
+==============================================================================*/
 
 function getSpellObj() {
 	return {
@@ -5472,61 +5535,10 @@ function applySpells(txt) {
 	saveHiddenPosts();
 }
 
-/*--------------------------Hide posts with similar text----------------------*/
 
-function getWrds(post) {
-	return post.Text.replace(/\s+/g, ' ')
-		.replace(/[\?\.\\\/\+\*\$\^\(\)\|\{\}\[\]!@#%_=:;<,-]/g, '')
-		.substring(0, 800).split(' ');
-}
-
-function findSameText(post, oNum, oVis, oWords) {
-	var j,
-		words = getWrds(post),
-		len = words.length,
-		i = oWords.length,
-		olen = i,
-		_olen = i,
-		n = 0;
-	if(len < olen*0.4 || len > olen*3) {
-		return;
-	}
-	while(i--) {
-		if(olen > 6 && oWords[i].length < 3) {
-			_olen--;
-			continue;
-		}
-		j = len;
-		while(j--) {
-			if(words[j] === oWords[i] || oWords[i].match(/>>\d+/) && words[j].match(/>>\d+/)) {
-				n++;
-			}
-		}
-	}
-	if(n < _olen*0.4 || len > _olen*3) {
-		return;
-	}
-	$del($c('DESU_postNote', post));
-	if(oVis !== 0) {
-		hidePost(post, 'similar to >>' + oNum);
-	} else {
-		unhidePost(post);
-	}
-}
-
-function hideBySameText(post) {
-	var vis = post.Vis;
-	if(post.Text !== '') {
-		forAll(function(target) {
-			findSameText(target, post.Num, vis, getWrds(post));
-		});
-		saveHiddenPosts();
-	} else {
-		applySpells('#notxt');
-	}
-}
-
-/*---------------------------------Wipe detectors-----------------------------*/
+/*==============================================================================
+								WIPE DETECTORS
+==============================================================================*/
 
 function detectWipe_sameLines(txt) {
 	var lines, i, x,
@@ -5740,7 +5752,7 @@ function hideByWipe(post) {
 
 
 /*==============================================================================
-									UPDATING
+								SCRIPT UPDATING
 ==============================================================================*/
 
 function checkForUpdates(force, fn) {
@@ -5803,6 +5815,7 @@ function checkForUpdates(force, fn) {
 		}
 	});
 }
+
 
 /*==============================================================================
 								INITIALIZATION
@@ -6306,6 +6319,7 @@ function initDelform() {
 	}
 	return true;
 }
+
 
 /*==============================================================================
 									MAIN
