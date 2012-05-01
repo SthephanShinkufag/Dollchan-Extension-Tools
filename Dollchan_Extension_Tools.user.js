@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.1.1
+// @version			12.5.1.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.1.1',
+	'version':	'12.5.1.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5931,7 +5931,7 @@ function aibDetector(host, dc) {
 	ai.dm = h;
 	ai.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
 	ai.krau = h === 'krautchan.net';
-	ai.tiny = $$xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
+	ai.tiny = $$xb('.//form[@name="postcontrols"]', dc, dc);
 	ai.gazo = h === '2chan.net';
 	ai.brit = h === 'britfa.gs';
 	ai.xDForm =
@@ -6002,7 +6002,9 @@ function aibDetector(host, dc) {
 		: ai.tiny ? 'post reply'
 		: 'reply';
 	ai.tClass = ai.krau ? 'thread_body' : 'thread';
-	ai.xTNum = ai.gazo || ai.fch ? 'input[@type="checkbox"]' : 'a[@name]' + (ai.sib ? '[2]' : '');
+	ai.xTNum = ai.gazo || ai.fch || ai.tiny
+		? './/input[@type="checkbox"]'
+		: 'a[@name]' + (ai.sib ? '[2]' : '');
 	ai.rTNum = '\\d+' + (ai._420 ? '$' : '');
 	ai.table =
 		ai.fch ? 'table[not(@class="exif")]'
@@ -6040,7 +6042,7 @@ function aibDetector(host, dc) {
 			return $c(ai.cOPosts, el);
 		};
 	ai.getTNum =
-		ai.fch || ai.gazo || ai.sib || ai.brit || (ai.waka && !ai.abu) ? function(op, dc) {
+		ai.fch || ai.gazo || ai.sib || ai.brit || (ai.waka && !ai.abu) || ai.tiny ? function(op, dc) {
 			return ($$x(ai.xTNum, op, dc).name).match(/\d+/)[0];
 		}
 		: ai.krau ? function(op, dc) {
