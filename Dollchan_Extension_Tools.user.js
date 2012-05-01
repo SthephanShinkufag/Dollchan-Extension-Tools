@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.4.30.5
+// @version			12.5.1.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'2012.04.30.5',
+	'version':	'12.5.1.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -4191,7 +4191,7 @@ function newPost(thr, b, tNum, i, isDel, pInfo) {
 		eventPostImg(post);
 	}
 	addPostFunc(post);
-	if(Cfg.expost !== 0 && !TNum) {
+	if((Cfg.expost !== 0 || aib.hana) && !TNum) {
 		expandPost(post);
 	}
 	if(aib.tiny) {
@@ -4212,21 +4212,28 @@ function getFullMsg(post, tNum, a) {
 }
 
 function expandPost(post) {
-	var a, tNum;
 	if(post.Vis === 0) {
 		return;
 	}
-	a = $x(aib.krau
-		? './/p[starts-with(@id,"post_truncated")]'
-		: './/div[@class="abbrev"]|.//span[@class="abbr" or @class="omittedposts" or @class="shortened"]',
-		post
-	);
-	if(a && /long|full comment|gekürzt|слишком|длинн|мног/i.test(a.textContent)) {
-		tNum = post.thr.Num;
-		if(Cfg.expost === 1) {
-			getFullMsg(post, tNum, a);
+	var tNum = post.thr.Num,
+		el = $x(aib.krau
+			? './/p[starts-with(@id,"post_truncated")]'
+			: './/div[@class="abbrev"]|.//span[@class="abbr" or @class="omittedposts" or @class="shortened"]',
+			post
+		);
+	if(el && /long|full comment|gekürzt|слишком|длинн|мног/i.test(el.textContent)) {
+		if(aib.hana) {
+			$event(el, {
+				'click': function(e) {
+					setTimeout(function() {
+						addPostFunc(post);
+					}, 0);
+				}
+			});
+		} else if(Cfg.expost === 1) {
+			getFullMsg(post, tNum, el);
 		} else {
-			$event(a, {
+			$event(el, {
 				'click': function(e) {
 					$pd(e);
 					getFullMsg(post, tNum, e.target);
@@ -6422,7 +6429,7 @@ function doScript() {
 		forAll(eventPostImg);
 		Log('eventPostImg');
 	}
-	if(Cfg.expost !== 0 && !TNum) {
+	if((Cfg.expost !== 0 || aib.hana) && !TNum) {
 		forAll(expandPost);
 		Log('expandPost');
 	}
