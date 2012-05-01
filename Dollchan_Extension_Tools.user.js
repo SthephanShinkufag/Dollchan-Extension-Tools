@@ -4206,35 +4206,42 @@ function newPost(thr, b, tNum, i, isDel, pInfo) {
 	if(Cfg.expimg !== 0) {
 		eventPostImg(post);
 	}
-	addPostFunc(post);
 	if(Cfg.expost !== 0 && !TNum) {
 		expandPost(post);
 	}
+	addPostFunc(post);
 	if(aib.tiny) {
 		thr.appendChild($new('br', null, null));
 	}
 }
 
-function getFullMsg(post, tNum, a) {
+function getFullMsg(post, tNum, a, addFunc) {
 	if(aib.hana) {
 		$del(a.nextSibling);
 		$del(a.previousSibling);
 		$del(a);
-		post.Msg.innerHTML = $x('div[@class="postbody alternate"]/div', post).innerHTML;
-		processFullMsg(post);
+		tNum = post.Msg;
+		a = tNum.nextElementSibling;
+		a.className = tNum.className;
+		tNum.parentNode.replaceChild(a, tNum);
+		post.Msg = a;
+		post.Text = getText(post.Msg);
+		if(addFunc) {
+			processFullMsg(post);
+		}
 		return;
 	}
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(!err) {
 			$del(a);
 			post.Msg = $html(post.Msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
+			post.Text = getText(post.Msg);
 			processFullMsg(post);
 		}
 	});
 }
 
 function processFullMsg(post) {
-	post.Text = getText(post.Msg);
 	$each($X('.//a[@class="DESU_btnSrc"]', post), function(el) {
 		del(el);
 	});
@@ -4254,13 +4261,13 @@ function expandPost(post) {
 		);
 	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 		if(Cfg.expost === 1) {
-			getFullMsg(post, tNum, el);
+			getFullMsg(post, tNum, el, false);
 		} else {
 			$rattr(el, 'onclick');
 			$event(el, {
 				'click': function(e) {
 					$pd(e);
-					getFullMsg(post, tNum, e.target);
+					getFullMsg(post, tNum, e.target, true);
 				}
 			});
 		}
