@@ -4243,7 +4243,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 
 function processFullMsg(post) {
 	$each($X('.//a[@class="DESU_btnSrc"]', post), function(el) {
-		del(el);
+		$del(el);
 	});
 	addPostFunc(post);
 }
