@@ -691,9 +691,6 @@ function readCfg() {
 	if(!aib.abu) {
 		Cfg.noscrl = 0;
 	}
-	if(aib.hana) {
-		Cfg.expost = 0;
-	}
 	if(!nav.Firefox) {
 		Cfg.updfav = 0;
 	}
@@ -1302,9 +1299,9 @@ function addSettings() {
 			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* ', null),
 			$if(nav.Firefox, lBox('updfav', Lng.indication[lCode], null, ''))
 		]),
-		$if(!aib.hana, $New('div', null, [
+		$New('div', null, [
 			optSel('expost', Lng.selClickAuto[lCode], Lng.expandPosts[lCode], null)
-		])),
+		]),
 		$New('div', null, [
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
@@ -2399,6 +2396,11 @@ function doChanges() {
 				$rattr(a, 'onclick');
 				a.href = getThrdUrl(aib.host, brd, a.textContent);
 				a.target = '_blank';
+			});
+		} else if(aib.hana) {
+			$each($X('.//div[@class="abbrev"]/span/a[starts-with(@onclick,"ExpandThread")]', dForm), function(el) {
+				$del(el.nextSibling);
+				$del(el);
 			});
 		}
 		$event(window, {
@@ -4119,6 +4121,20 @@ function ajaxGetPosts(url, b, tNum, fn) {
 	});
 }
 
+function getJSON(url, ifmodsince, fn) {
+	GM_xmlhttpRequest({
+		method: 'GET',
+		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
+		url: url,
+		onreadystatechange: function(xhr) {
+			if(xhr.readyState === 4) {
+				fn(xhr.status, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
+					JSON.parse(xhr.responseText));
+			}
+		}
+	});
+}
+
 function importPreview(b, pNum) {
 	var el;
 	if(!imPosts[b]) {
@@ -4191,7 +4207,7 @@ function newPost(thr, b, tNum, i, isDel, pInfo) {
 		eventPostImg(post);
 	}
 	addPostFunc(post);
-	if((Cfg.expost !== 0 || aib.hana) && !TNum) {
+	if(Cfg.expost !== 0 && !TNum) {
 		expandPost(post);
 	}
 	if(aib.tiny) {
@@ -4200,6 +4216,22 @@ function newPost(thr, b, tNum, i, isDel, pInfo) {
 }
 
 function getFullMsg(post, tNum, a) {
+	if(aib.hana) {
+		getJSON('http://dobrochan.ru/api/post/' + brd + '/' + tNum + '.json?new_format&message_html',
+			null, function(status, lmod, json) {
+				if(status === 200 && !json['error']) {
+					$del(a.nextSibling);
+					$del(a.previousSibling);
+					$del(a);
+					post.Msg.innerHTML = json['result']['message_html'];
+					post.Text = getText(post.Msg);
+					$del($c('DESU_btnSrc', post));
+					addPostFunc(post);
+				}
+			}
+		);
+		return;
+	}
 	ajaxGetPosts(null, brd, tNum, function(err) {
 		if(!err) {
 			$del(a);
@@ -4218,21 +4250,15 @@ function expandPost(post) {
 	var tNum = post.thr.Num,
 		el = $x(aib.krau
 			? './/p[starts-with(@id,"post_truncated")]'
+			: aib.hana ? './/div[@class="abbrev"]/span/a'
 			: './/div[@class="abbrev"]|.//span[@class="abbr" or @class="omittedposts" or @class="shortened"]',
 			post
 		);
-	if(el && /long|full comment|gekürzt|слишком|длинн|мног/i.test(el.textContent)) {
-		if(aib.hana) {
-			$event(el, {
-				'click': function(e) {
-					setTimeout(function() {
-						addPostFunc(post);
-					}, 0);
-				}
-			});
-		} else if(Cfg.expost === 1) {
+	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+		if(Cfg.expost === 1) {
 			getFullMsg(post, tNum, el);
 		} else {
+			$rattr(el, 'onclick');
 			$event(el, {
 				'click': function(e) {
 					$pd(e);
@@ -4644,19 +4670,11 @@ function loadNewPosts(inf, fn) {
 		$alert(Lng.loading[lCode], 'Wait');
 	}
 	if(aib.hana) {
-		GM_xmlhttpRequest({
-			method: 'GET',
-			headers: aib.modSince ? {'If-Modified-Since': aib.modSince} : null,
-			url: 'http://dobrochan.ru/api/thread/' + brd + '/' + TNum
-				+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
-			onreadystatechange: function(xhr) {
-				var json;
-				if(xhr.readyState !== 4) {
-					return;
-				}
-				if(xhr.status === 200) {
-					aib.modSince = (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1];
-					json = JSON.parse(xhr.responseText);
+		getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum
+			+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
+			aib.modSince, function(status, lmod, json) {
+				if(status === 200) {
+					aib.modSince = lmod;
 					if(json['error']) {
 						if(inf) {
 							$close($id('DESU_alertWait'));
@@ -4690,7 +4708,7 @@ function loadNewPosts(inf, fn) {
 					fn();
 				}
 			}
-		});
+		);
 		return;
 	}
 	ajaxGetPosts(null, brd, TNum, function(err) {
@@ -6429,7 +6447,7 @@ function doScript() {
 		forAll(eventPostImg);
 		Log('eventPostImg');
 	}
-	if((Cfg.expost !== 0 || aib.hana) && !TNum) {
+	if(Cfg.expost !== 0 && !TNum) {
 		forAll(expandPost);
 		Log('expandPost');
 	}
