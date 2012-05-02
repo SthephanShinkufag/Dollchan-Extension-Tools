@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.2.0
+// @version			12.5.2.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.2.0',
+	'version':	'12.5.2.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -6036,7 +6036,7 @@ function aibDetector(host, dc) {
 		return obj;
 	}
 	obj.host = host;
-	obj.waka = $$xb('.//script[contains(@src,"wakaba.js")]', dc, dc);
+	obj.waka = $$xb('.//script[contains(@src,"wakaba")]', dc, dc);
 	obj.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
 	obj.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
 	obj.fch = h === '4chan.org';
@@ -6126,7 +6126,7 @@ function aibDetector(host, dc) {
 		(obj.abu || obj.hana || obj.kus) && $c(obj.opClass, doc) ? function(thr, dc) {
 			return $c(obj.opClass, thr);
 		}
-		: obj.brit && $c(obj.opClass, doc) ? function(thr, dc) {
+		: obj.brit ? function(thr, dc) {
 			var el,
 				post = $new('br', null, null),
 				op = $c(obj.opClass, thr);
