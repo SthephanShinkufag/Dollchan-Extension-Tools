@@ -2630,7 +2630,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(nav.Firefox > 6 || nav.Chrome || nav.Opera >= 11.1) {
+		if(!aib.nul && (nav.Firefox > 6 || nav.Chrome || nav.Opera >= 11.1)) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
