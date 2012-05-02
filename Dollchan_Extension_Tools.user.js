@@ -2819,8 +2819,8 @@ function prepareData(form, fn) {
 		};
 	$each($X('.//input[not(@type="submit")]|.//textarea', form), function(el) {
 		if(el.type === 'file') {
-			if(el = el.files[0]) {
-				prepareFiles(el, function(idx, blob, name, type) {
+			if(el.files.length > 0) {
+				prepareFiles(el.files[0], function(idx, blob, name, type) {
 					if(blob != null) {
 						arr[idx] = {name: el.name, type: el.type, val: blob, fName: name, fType: type};
 					}
