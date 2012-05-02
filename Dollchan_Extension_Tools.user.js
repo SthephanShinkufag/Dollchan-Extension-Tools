@@ -2820,7 +2820,7 @@ function prepareData(form, fn) {
 				fd.getResult(fn);
 			}
 		};
-	$each($X('.//input[not(@type="submit")]|.//textarea', form), function(el) {
+	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
 		if(el.type === 'file') {
 			if(el.files.length > 0) {
 				prepareFiles(el.files[0], function(idx, blob, name, type) {
@@ -2841,13 +2841,12 @@ function prepareData(form, fn) {
 	cb();
 }
 
-
 /**
  * @constructor
  */
 function dataForm() {
-	this.boundary = '---------------------------' + Math.round(Math.random() * 10000000000000);
-	this.data = ['\r\n'];
+	this.boundary = '---------------------------' + Math.round(Math.random() * 100000000000);
+	this.data = [];
 }
 
 /**
@@ -2863,8 +2862,7 @@ dataForm.prototype.append = function(name, val, isFile, fileName, fileType) {
 		'Content-Disposition: form-data; name="' + name + '"';
 	if(isFile) {
 		data += '; filename="' + fileName + '"\r\n' + 
-			'Content-type: ' + fileType + '\r\n' +
-			'Content-Transfer-Encoding: binary\r\n\r\n';
+			'Content-type: ' + fileType + '\r\n\r\n';
 	} else {
 		data += '\r\n\r\n';
 	}
