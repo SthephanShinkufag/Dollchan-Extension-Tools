@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.2.3
+// @version			12.5.2.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.2.3',
+	'version':	'12.5.2.4',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5930,7 +5930,7 @@ function checkForUpdates(force, fn) {
 			}
 			if(xhr.status === 200) {
 				var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
-					cVer = Cfg.version.substring(2).split('.'),
+					cVer = Cfg.version.split('.'),
 					len = cVer.length > dVer.length ? cVer.length : dVer.length,
 					i = 0,
 					upd = false;
@@ -6512,7 +6512,7 @@ function doScript() {
 	scriptCSS();
 	Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
-	if(false && Cfg.enupd !== 0) {
+	if(Cfg.enupd !== 0) {
 		checkForUpdates(false, function(html) {
 			$alert(html);
 		});
