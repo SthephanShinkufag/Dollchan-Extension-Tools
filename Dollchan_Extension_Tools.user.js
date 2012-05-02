@@ -3608,7 +3608,7 @@ function resizeImg(e) {
 function getImgSrc(href) {
 	var data = 'data:image/',
 		bin = fullImgs[href],
-		i, bs, t = (new Date).getTime();
+		i, bs;
 	if(Cfg.pimgs === 0 || !bin) {
 		return href;
 	}
@@ -3627,7 +3627,6 @@ function getImgSrc(href) {
 		bs[i] = String.fromCharCode(bin[i]);
 	}
 	data += ';base64,' + btoa(bs.join(''));
-	GM_log((new Date).getTime() - t);
 	return data;
 }
 
@@ -3831,6 +3830,12 @@ function $preloadImages(el) {
 						}
 					}});
 				});
+				if(aib.krau) {
+					$each(getImages(el), function(img) {
+						var e = img.parentNode;
+						e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
+					});
+				}
 			}
 			return;
 		}
