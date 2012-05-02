@@ -87,7 +87,8 @@ var defaultCfg = {
 	'enupd':	1,		// check for script's update
 	'betaupd':	0,		// check for beta-version
 	'lupdchk':	0,		// last update check
-	'supdint':	2		// update interval in days (0=on page load)
+	'supdint':	2,		// update interval in days (0=on page load)
+	'pimgs':	0		// preload images
 },
 
 Lng = {
@@ -293,10 +294,11 @@ Lng = {
 		checkNow:	['Проверить сейчас', 'Check now'],
 		available:	['Доступно обновление!', 'Update available!'],
 		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
-	}
+	},
+	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, fullImgs = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -717,6 +719,9 @@ function readCfg() {
 	}
 	if(global) {
 		fixGlobalCfg();
+	}
+	if(nav.Firefox < 6 && !nav.Chrome) {
+		Cfg.pimgs = 0;
 	}
 	if(!aib.abu) {
 		Cfg.noscrl = 0;
@@ -1332,6 +1337,7 @@ function addSettings() {
 		$New('div', null, [
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
+		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', Lng.pImages[lCode], null)),
 		divBox('imgsrc', Lng.imgSearch[lCode], null),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
@@ -3599,6 +3605,31 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
+function getImgSrc(href) {
+	var data = 'data:image/',
+		bin = fullImgs[href],
+		i, bs;
+	if(Cfg.pimgs === 0 || !bin) {
+		return href;
+	}
+	if(/.jpe?g$/i.test(href)) {
+		data += 'jpeg';
+	} else if(/.png$/i.test(href)) {
+		data += 'png';
+	} else if(/.gif$/i.test(href)) {
+		data += 'gif';
+	} else {
+		return href;
+	}
+	i = bin.length;
+	bs = new Array(i);
+	while(i--) {
+		bs[i] = String.fromCharCode(bin[i]);
+	}
+	data += ';base64,' + btoa(bs.join(''));
+	return data;
+}
+
 function addFullImg(a, sz, isExp) {
 	var newW = '',
 		newH = '',
@@ -3643,7 +3674,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	a.appendChild($attr(full, {
 		'class': 'DESU_fullImg',
-		'src': a.href,
+		'src': getImgSrc(a.href),
 		'alt': a.href,
 		'width': newW,
 		'height': newH,
@@ -3700,23 +3731,26 @@ function addLinkImg(node, addBr) {
 	});
 }
 
+function forAllImages(node, fn) {
+	$each($X(
+		aib.brit ? './/a[@class="fileinfo"]'
+		: (
+			(
+				aib.gazo ? '.'
+				: aib.tiny ? './/p[@class="fileinfo"]'
+				: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
+				: './/span[@class="' + (aib.krau ? 'filename' : 'filesize') + '"]'
+			) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
+			+ (aib.nul ? '[1]' : '')
+		)
+	, node), fn);
+}
+
 function addImgSearch(node) {
 	if(!Cfg.imgsrc) {
 		return;
 	}
-	$each($X((
-			aib.brit ? './/a[@class="fileinfo"]'
-			: (
-				(
-					aib.gazo ? '.'
-					: aib.tiny ? './/p[@class="fileinfo"]'
-					: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
-					: './/span[@class="' + (aib.krau ? 'filename' : 'filesize') + '"]'
-				) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
-				+ (aib.nul ? '[1]' : '')
-			)
-		), node
-	), function(link) {
+	forAllImages(node, function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			return;
@@ -3767,6 +3801,63 @@ function eventPostImg(post) {
 			}, false);
 		}
 	});
+}
+
+function preloadImages(el) {
+	setTimeout(function() { $preloadImages(el); }, 16);
+}
+
+function $preloadImages(el) {
+	var mReqs = 4, 
+		cReq = 0,
+		aA = [],
+		i, j;
+	forAllImages(el, function(a) {
+		aA.push(a.href);
+		$event(a, {'click': function(e) {
+			$pd(e);
+			if(nav.Firefox) {
+				GM_openInTab(getImgSrc(this.href), false, true);
+			} else {
+				window.open(getImgSrc(this.href), '_blank');
+			}
+		}});
+	});
+	if(aib.krau) {
+		$each(getImages(el), function(img) {
+			var e = img.parentNode;
+			e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
+		});
+	}
+	function loadFunc(idx) {
+		var req;
+		if(idx >= aA.length) {
+			return;
+		}
+		if(!/(?:.jpe?g|.png|.gif)$/i.test(aA[idx])) {
+			loadFunc(i++);
+			return;
+		}
+		if(cReq === mReqs) {
+			setTimeout(function() { loadFunc(idx); }, 200);
+			return;
+		}
+		cReq++;
+		req = new XMLHttpRequest();
+		req.open('GET', aA[idx], true);
+		req.responseType = 'arraybuffer';
+		req.onload = function(e) {
+			if (this.status == 200) {
+				fullImgs[aA[idx]] = new Uint8Array(this.response);
+			}
+			cReq--;
+			loadFunc(i++);
+		};
+		req.send();
+	}
+	for(i = j = 0; j < mReqs; j++) {
+		loadFunc(i++);
+	}
 }
 
 
@@ -4245,6 +4336,9 @@ function addPostFunc(post) {
 	addLinkTube(post);
 	addLinkImg(post, true);
 	addImgSearch(post);
+	if(Cfg.pimgs !== 0) {
+		preloadImages(post);
+	}
 	if(post.Vis === 0) {
 		setPostVisib(post, 0);
 	}
@@ -6504,6 +6598,10 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
+	if(Cfg.pimgs !== 0) {
+		preloadImages(dForm);
+		Log('preloadImages');
+	}
 	endTime = (new Date()).getTime() - initTime;
 	if(Cfg.enupd !== 0) {
 		checkForUpdates(false, function(html) {
