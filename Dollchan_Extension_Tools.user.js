@@ -2877,7 +2877,7 @@ dataForm.prototype.getResult = function(fn) {
 		arr = this.data,
 		len = arr.length + 1,
 		dF = this;
-	this.data.push('--' + this.boundary + '--\r\n');
+	arr.push('--' + this.boundary + '--\r\n');
 	f.onload = function(e) {
 		fn(dF.boundary, e.target.result);
 	}
