@@ -3811,32 +3811,27 @@ function $preloadImages(el) {
 	var mReqs = 4, 
 		cReq = 0,
 		aA = [],
-		i, j, once = true;
+		i, j;
 	forAllImages(el, function(a) {
 		aA.push(a.href);
+		$event(a, {'click': function(e) {
+			$pd(e);
+			if(nav.Firefox) {
+				GM_openInTab(getImgSrc(this.href), false, true);
+			} else {
+				window.open(getImgSrc(this.href), '_blank');
+			}
+		}});
 	});
+	if(aib.krau) {
+		$each(getImages(el), function(img) {
+			var e = img.parentNode;
+			e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
+		});
+	}
 	function loadFunc(idx) {
 		var req;
 		if(idx >= aA.length) {
-			if(once) {
-				once = false;
-				forAllImages(el, function(a) {
-					$event(a, {'click': function(e) {
-						$pd(e);
-						if(nav.Firefox) {
-							GM_openInTab(getImgSrc(this.href), false, true);
-						} else {
-							window.open(getImgSrc(this.href), '_blank');
-						}
-					}});
-				});
-				if(aib.krau) {
-					$each(getImages(el), function(img) {
-						var e = img.parentNode;
-						e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
-					});
-				}
-			}
 			return;
 		}
 		if(!/(?:.jpe?g|.png|.gif)$/i.test(aA[idx])) {
