@@ -3785,13 +3785,13 @@ function preloadImages(el) {
 function $preloadImages(el) {
 	var mReqs = 4, 
 		cReq = 0,
-		req,
 		aA = [],
 		i, j;
 	forAllImages(el, function(a) {
 		aA.push(a);
 	});
 	function loadFunc(idx) {
+		var req;
 		if(idx >= aA.length) return;
 		if(cReq === mReqs) {
 			setTimeout(function() { loadFunc(idx); }, 200);
