@@ -2717,11 +2717,11 @@ function ajaxCheckSubmit(form, by, data, fn) {
 		headers['Referer'] = '' + doc.location;
 	}
 	GM_xmlhttpRequest({
-		method: form.method,
-		headers: headers,
-		data: data,
-		url: form.action,
-		onreadystatechange: function(xhr) {
+		'method': form.method,
+		'headers': headers,
+		'data': data,
+		'url': form.action,
+		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
 					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
@@ -2895,22 +2895,17 @@ dataForm.prototype.append = function(name, val, type, fileName, fileType) {
 
 dataForm.prototype.getResult = function(fn) {
 	var bb, i,
-		f = new FileReader(),
 		arr = this.data,
-		len = arr.length + 1,
-		dF = this;
+		len = arr.length + 1;
 	arr.push('--' + this.boundary + '--\r\n');
-	f.onload = function(e) {
-		fn(dF.boundary, e.target.result);
-	}
 	if(nav.Firefox < 13) {
 		bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
 		for(i = 0; i < len; i++) {
 			bb.append(arr[i]);
 		}
-		f.readAsArrayBuffer(bb.getBlob());
+		fn(this.boundary, bb.getBlob());
 	} else {
-		f.readAsArrayBuffer(new Blob(arr));
+		fn(this.boundary, new Blob(arr));
 	}
 };
 
