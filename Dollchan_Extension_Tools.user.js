@@ -2305,15 +2305,18 @@ function scrollToPost(posts, idx, dir, scroll, toTop) {
 ==============================================================================*/
 
 function refreshCapSrc(src, tNum) {
-	return aib.kus || aib._5ch
-		? src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random())
-		: tNum > 0 ? src.replace(/mainpage|res\d+/ig, 'res' + tNum)
-		: src.replace(/dummy=\d*/, 'dummy=' + $rnd());
+	if(aib.kus || aib._5ch) {
+		return src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random())
+	}
+	if(tNum > 0) {
+		src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
+	}
+	return src.replace(/dummy=\d*/, 'dummy=' + $rnd());
 }
 
 function refreshCapImg(tNum) {
 	var src, e,
-		img = pr.recap ? $id('recaptcha_image') || pr.cap : $x(pr.tr + '//img', pr.cap);
+		img = pr.recap ? $id('recaptcha_image') || pr.recap : $x(pr.tr + '//img', pr.cap);
 	if(aib.hana || pr.recap) {
 		e = doc.createEvent('MouseEvents');
 		e.initEvent('click', true, true);
@@ -6509,7 +6512,7 @@ function doScript() {
 	scriptCSS();
 	Log('scriptCSS');
 	endTime = (new Date()).getTime() - initTime;
-	if(Cfg.enupd !== 0) {
+	if(false && Cfg.enupd !== 0) {
 		checkForUpdates(false, function(html) {
 			$alert(html);
 		});
