@@ -2875,7 +2875,7 @@ dataForm.prototype.getResult = function(fn) {
 	var bb, i,
 		f = new FileReader(),
 		arr = this.data,
-		len = arr.length,
+		len = arr.length + 1,
 		dF = this;
 	this.data.push('--' + this.boundary + '--\r\n');
 	f.onload = function(e) {
