@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения', 'Preload images']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, fullImgs = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -3605,6 +3605,32 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
+function getImgSrc(href) {
+	var data = 'data:image/',
+		bin = fullImgs[href],
+		i, bs, t = (new Date).getTime();
+	if(Cfg.pimgs === 0 || !bin) {
+		return href;
+	}
+	if(/.jpe?g$/i.test(href)) {
+		data += 'jpeg';
+	} else if(/.png$/i.test(href)) {
+		data += 'png';
+	} else if(/.gif$/i.test(href)) {
+		data += 'gif';
+	} else {
+		return href;
+	}
+	i = bin.length;
+	bs = new Array(i);
+	while(i--) {
+		bs[i] = String.fromCharCode(bin[i]);
+	}
+	data += ';base64,' + btoa(bs.join(''));
+	GM_log((new Date).getTime() - t);
+	return data;
+}
+
 function addFullImg(a, sz, isExp) {
 	var newW = '',
 		newH = '',
@@ -3649,7 +3675,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	a.appendChild($attr(full, {
 		'class': 'DESU_fullImg',
-		'src': a.href,
+		'src': getImgSrc(a.href),
 		'alt': a.href,
 		'width': newW,
 		'height': newH,
@@ -3786,13 +3812,32 @@ function $preloadImages(el) {
 	var mReqs = 4, 
 		cReq = 0,
 		aA = [],
-		i, j;
+		i, j, once = true;
 	forAllImages(el, function(a) {
 		aA.push(a);
 	});
 	function loadFunc(idx) {
 		var req;
-		if(idx >= aA.length) return;
+		if(idx >= aA.length) {
+			if(once) {
+				once = false;
+				forAllImages(el, function(a) {
+					$event(a, {'click': function(e) {
+						$pd(e);
+						if(nav.Firefox) {
+							GM_openInTab(getImgSrc(this.href), false, true);
+						} else {
+							window.open(getImgSrc(this.href), '_blank');
+						}
+					}});
+				});
+			}
+			return;
+		}
+		if(!/(?:.jpe?g|.png|.gif)$/i.test(aA[idx])) {
+			loadFunc(i++);
+			return;
+		}
 		if(cReq === mReqs) {
 			setTimeout(function() { loadFunc(idx); }, 200);
 			return;
@@ -3803,7 +3848,7 @@ function $preloadImages(el) {
 		req.responseType = 'arraybuffer';
 		req.onload = function(e) {
 			if (this.status == 200) {
-				//new Uint8Array(this.response);
+				fullImgs[aA[idx]] = new Uint8Array(this.response);
 			}
 			cReq--;
 			loadFunc(i++);
