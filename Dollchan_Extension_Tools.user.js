@@ -1337,7 +1337,7 @@ function addSettings() {
 		$New('div', null, [
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
-		$if(nav.Firefox > 6 || nav.Chrome, divBox('pimgs', Lng.pImages[lCode], null)),
+		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', Lng.pImages[lCode], null)),
 		divBox('imgsrc', Lng.imgSearch[lCode], null),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
