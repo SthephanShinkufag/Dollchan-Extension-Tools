@@ -6291,6 +6291,9 @@ function parseDelform(node, dc, tFn, pFn) {
 	var i, len, op, post, psts;
 	$$Del('.//script', node, dc);
 	forEachThread(node, dc, function(thr) {
+		if(aib._420 || (aib.tiny && !TNum)) {
+			$after(thr, thr.lastChild);
+		}
 		op = aib.getOp(thr, dc);
 		if(aib.brit) {
 			$before($t('blockquote', op), [$new('div', null, null), post = $new('br', null, null)]);
