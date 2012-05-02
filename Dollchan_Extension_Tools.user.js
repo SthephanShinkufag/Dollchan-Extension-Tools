@@ -2768,6 +2768,9 @@ function checkUpload(dc, url) {
 				pr.cap.value = '';
 				refreshCapImg(tNum);
 			}
+			if(aib.abu) {
+				($x('.//input[@name="makewatermark"]', pr.form) || {}).checked = false;
+			}
 		} else {
 			window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 		}
