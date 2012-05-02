@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.2.6
+// @version			12.5.2.7
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.2.6',
+	'version':	'12.5.2.7',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5942,10 +5942,12 @@ function checkForUpdates(force, fn) {
 					i++;
 				}
 				if(upd) {
-					fn('<a style="color: blue; font-weight: bold;" '
-						+ 'href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Versions">'
-						+ Lng.upd.available[lCode] + '</a>'
-					);
+					fn('<a style="color: blue; font-weight: bold;" href="' + (
+						Cfg.betaupd
+							? 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
+								+ 'master/Dollchan_Extension_Tools.user.js'
+							: 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Versions'
+					)+ '">' + Lng.upd.available[lCode] + '</a>');
 				} else if(force) {
 					fn(Lng.upd.haveLatest[lCode]);
 				}
