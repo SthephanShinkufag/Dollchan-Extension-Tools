@@ -3792,7 +3792,7 @@ function $preloadImages(el) {
 		aA.push(a);
 	});
 	function loadFunc(idx) {
-		if(i >= aA.length) return;
+		if(idx >= aA.length) return;
 		if(cReq === mReqs) {
 			setTimeout(function() { loadFunc(idx); }, 200);
 			return;
