@@ -2668,7 +2668,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(!aib.nul && (nav.Firefox > 6 || nav.Chrome)) {
+		if(!aib.nul && !aib.tiny && (nav.Firefox > 6 || nav.Chrome)) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
