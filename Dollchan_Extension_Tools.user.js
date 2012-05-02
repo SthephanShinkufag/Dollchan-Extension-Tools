@@ -2668,7 +2668,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(!aib.nul && (nav.Firefox > 6 || nav.Chrome || nav.Opera >= 11.1)) {
+		if(!aib.nul && !aib.tiny && (nav.Firefox > 6 || nav.Chrome)) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
@@ -2717,11 +2717,11 @@ function ajaxCheckSubmit(form, by, data, fn) {
 		headers['Referer'] = '' + doc.location;
 	}
 	GM_xmlhttpRequest({
-		method: form.method,
-		headers: headers,
-		data: data,
-		url: form.action,
-		onreadystatechange: function(xhr) {
+		'method': form.method,
+		'headers': headers,
+		'data': data,
+		'url': form.action,
+		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
 					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
@@ -2848,11 +2848,7 @@ function prepareData(form, fn) {
 			if(done && ready === rNeeded) {
 				for(ready = i, i = 0; i < ready; i++) {
 					if(arr[i]) {
-						if(arr[i].type === 'file') {
-							fd.append(arr[i].name, arr[i].val, true, arr[i].fName, arr[i].fType);
-						} else {
-							fd.append(arr[i].name, arr[i].val, false);
-						}
+						fd.append(arr[i].name, arr[i].val, arr[i].type, arr[i].fName, arr[i].fType);
 					}
 				}
 				fd.getResult(fn);
@@ -2879,26 +2875,16 @@ function prepareData(form, fn) {
 	cb();
 }
 
-/**
- * @constructor
- */
+/** @constructor */
 function dataForm() {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 100000000000);
 	this.data = [];
 }
 
-/**
- * @param {String} name
- * @param {String|Blob} val
- * @param {Boolean} isFile
- * @param {?String} fileName
- * @param {?String} fileType
- * @return {undefined}
- */
-dataForm.prototype.append = function(name, val, isFile, fileName, fileType) {
+dataForm.prototype.append = function(name, val, type, fileName, fileType) {
 	var data = '--' + this.boundary + '\r\n' +
 		'Content-Disposition: form-data; name="' + name + '"';
-	if(isFile) {
+	if(type === 'file') {
 		data += '; filename="' + fileName + '"\r\n' + 
 			'Content-type: ' + fileType + '\r\n\r\n';
 	} else {
@@ -2909,28 +2895,23 @@ dataForm.prototype.append = function(name, val, isFile, fileName, fileType) {
 
 dataForm.prototype.getResult = function(fn) {
 	var bb, i,
-		f = new FileReader(),
 		arr = this.data,
-		len = arr.length + 1,
-		dF = this;
+		len = arr.length + 1;
 	arr.push('--' + this.boundary + '--\r\n');
-	f.onload = function(e) {
-		fn(dF.boundary, e.target.result);
-	}
 	if(nav.Firefox < 13) {
 		bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
 		for(i = 0; i < len; i++) {
 			bb.append(arr[i]);
 		}
-		f.readAsArrayBuffer(bb.getBlob());
+		fn(this.boundary, bb.getBlob());
 	} else {
-		f.readAsArrayBuffer(new Blob(arr));
+		fn(this.boundary, new Blob(arr));
 	}
 };
 
 function prepareFiles(file, fn, i) {
 	var fr = new FileReader();
-	if((nav.Firefox < 7 && !nav.Chrome) || !/^image\/(?:png|jpeg)$/.test(file.type)) {
+	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 		fn(i, file, file.name, file.type);
 		return;
 	}
