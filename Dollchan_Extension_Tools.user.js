@@ -2316,7 +2316,7 @@ function refreshCapSrc(src, tNum) {
 
 function refreshCapImg(tNum) {
 	var src, e,
-		img = pr.recap ? $id('recaptcha_image') || pr.recap : $t('img', pr.cap.parentNode);
+		img = pr.recap ? $id('recaptcha_image') || pr.recap : $x(pr.tr + '//img', pr.cap);
 	if(aib.hana || pr.recap) {
 		e = doc.createEvent('MouseEvents');
 		e.initEvent('click', true, true);
@@ -2630,7 +2630,7 @@ function doPostformChanges() {
 					: aib.hid ? ('/securimage/securimage_show.php?' + Math.random())
 					: '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random();
 			} else {
-				img = $t('img', pr.cap.parentNode);
+				img = $x(pr.tr + '//img', pr.cap);
 				src = img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + $rnd();
 			}
 			_img = $new('img', {
