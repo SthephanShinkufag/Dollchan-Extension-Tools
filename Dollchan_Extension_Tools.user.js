@@ -3813,7 +3813,7 @@ function $preloadImages(el) {
 		aA = [],
 		i, j, once = true;
 	forAllImages(el, function(a) {
-		aA.push(a);
+		aA.push(a.href);
 	});
 	function loadFunc(idx) {
 		var req;
