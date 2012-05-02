@@ -3797,6 +3797,7 @@ function $preloadImages(el) {
 			setTimeout(function() { loadFunc(idx); }, 200);
 			return;
 		}
+		cReq++;
 		req = new XMLHttpRequest();
 		req.open('GET', aA[idx], true);
 		req.responseType = 'arraybuffer';
