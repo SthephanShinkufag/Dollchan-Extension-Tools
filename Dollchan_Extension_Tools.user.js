@@ -62,7 +62,6 @@ var defaultCfg = {
 	'yhdvid':	0,		//		hd video quality
 	'ytitle':	0,		//		convert links to titles
 	'verify':	1,		// reply without reload (verify on submit)
-	'rndimg':	0,		// add random byte into image
 	'addfav':	1,		// add thread to favorites on reply
 	'keynav':	0,		// keyboard navigation
 	'sagebt':	1,		// email field -> sage btn
@@ -264,7 +263,6 @@ Lng = {
 	cTimePattern:	['Шаблон замены', 'Replace pattern'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	errDelete:		['Не могу удалить пост(ы)!', 'Can\'t delete post(s)!'],
-	rndImages:		['Добавлять случайный байт в изображение', 'Add random byte into image'],
 	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
 	keyNavHelp:		['На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ', 'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'],
 	search:			['Искать в ', 'Search in '],
@@ -695,9 +693,6 @@ function readCfg() {
 	if(nav.Opera) {
 		Cfg.ytitle = 0;
 		Cfg.enupd = 0;
-	}
-	if(nav.Firefox < 7 && !nav.Chrome || aib.tiny) {
-		Cfg.rndimg = 0;
 	}
 	if(Cfg.svsage === 0) {
 		Cfg.issage = 0;
@@ -1392,7 +1387,6 @@ function addSettings() {
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
 		divBox('addfav', Lng.addToFav[lCode], null),
-		$if((nav.Firefox > 6 || nav.Chrome) && !aib.tiny, divBox('rndimg', Lng.rndImages[lCode], null)),
 		$if(pr.mail, $New('div', null, [
 			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
 			lBox('svsage', Lng.saveSage[lCode], null, '')
@@ -2636,12 +2630,12 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if((nav.Firefox > 3 || nav.Chrome) && !aib.tiny) {
+		if(!aib.nul && (nav.Firefox > 6 || nav.Chrome || nav.Opera >= 11.1)) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
-					prepareData(function(fd) {
-						ajaxCheckSubmit(pr.form, fd, checkUpload);
+					prepareData(pr.form, function(by, data) {
+						ajaxCheckSubmit(pr.form, by, data, checkUpload);
 					});
 				}, 1e3);
 			};
@@ -2653,7 +2647,9 @@ function doPostformChanges() {
 						return false;
 					}
 				});
-				ajaxCheckSubmit(dForm, new FormData(dForm), checkDelete);
+				prepareData(dForm, function(by, data) {
+					ajaxCheckSubmit(dForm, by, data, checkDelete);
+				});
 			};
 		} else {
 			if(aib.nul) {
@@ -2677,11 +2673,15 @@ function doPostformChanges() {
 							ONSUBMIT REPLY / DELETE CHECK
 ==============================================================================*/
 
-function ajaxCheckSubmit(form, fd, fn) {
+function ajaxCheckSubmit(form, by, data, fn) {
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + by};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
 	GM_xmlhttpRequest({
 		method: form.method,
-		headers: nav.Firefox ? {'Referer': '' + doc.location} : null,
-		data: fd,
+		headers: headers,
+		data: data,
 		url: form.action,
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
@@ -2768,6 +2768,9 @@ function checkUpload(dc, url) {
 				pr.cap.value = '';
 				refreshCapImg(tNum);
 			}
+			if(aib.abu) {
+				($x('.//input[@name="makewatermark"]', pr.form) || {}).checked = false;
+			}
 		} else {
 			window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 		}
@@ -2796,12 +2799,8 @@ function checkDelete(dc, url) {
 	}
 }
 
-function prepareData(fn) {
-	if(!Cfg.rndimg) {
-		fn(new FormData(pr.form));
-		return;
-	}
-	var fd = new FormData(),
+function prepareData(form, fn) {
+	var fd = new dataForm(),
 		done = false,
 		ready = 0,
 		rNeeded = 0,
@@ -2811,24 +2810,30 @@ function prepareData(fn) {
 			if(done && ready === rNeeded) {
 				for(ready = i, i = 0; i < ready; i++) {
 					if(arr[i]) {
-						fd.append(arr[i].name, arr[i].val);
+						if(arr[i].type === 'file') {
+							fd.append(arr[i].name, arr[i].val, true, arr[i].fName, arr[i].fType);
+						} else {
+							fd.append(arr[i].name, arr[i].val, false);
+						}
 					}
 				}
-				fn(fd);
+				fd.getResult(fn);
 			}
 		};
-	$each($X('.//input[not(@type="submit")]|.//textarea', pr.form), function(el) {
+	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
 		if(el.type === 'file') {
-			prepareFiles(el, function(idx, blob) {
-				if(blob != null) {
-					arr[idx] = {name: el.name, val: blob};
-				}
-				ready++;
-				cb();
-			}, i);
-			rNeeded++;
+			if(el.files.length > 0) {
+				prepareFiles(el.files[0], function(idx, blob, name, type) {
+					if(blob != null) {
+						arr[idx] = {name: el.name, type: el.type, val: blob, fName: name, fType: type};
+					}
+					ready++;
+					cb();
+				}, i);
+				rNeeded++;
+			}
 		} else if(!(el.type === 'checkbox' && !el.checked)) {
-			arr[i] = {name: el.name, val: el.value};
+			arr[i] = {name: el.name, type: el.type, val: el.value};
 		}
 		i++;
 	});
@@ -2836,11 +2841,59 @@ function prepareData(fn) {
 	cb();
 }
 
-function prepareFiles(el, fn, i) {
-	var fr = new FileReader(),
-		file = el.files[0];
-	if(el.files.length === 0 || !/^image\/(?:png|jpeg)$/.test(file.type)) {
-		fn(i, file);
+/**
+ * @constructor
+ */
+function dataForm() {
+	this.boundary = '---------------------------' + Math.round(Math.random() * 100000000000);
+	this.data = [];
+}
+
+/**
+ * @param {String} name
+ * @param {String|Blob} val
+ * @param {Boolean} isFile
+ * @param {?String} fileName
+ * @param {?String} fileType
+ * @return {undefined}
+ */
+dataForm.prototype.append = function(name, val, isFile, fileName, fileType) {
+	var data = '--' + this.boundary + '\r\n' +
+		'Content-Disposition: form-data; name="' + name + '"';
+	if(isFile) {
+		data += '; filename="' + fileName + '"\r\n' + 
+			'Content-type: ' + fileType + '\r\n\r\n';
+	} else {
+		data += '\r\n\r\n';
+	}
+	this.data.push(data, val, '\r\n');
+};
+
+dataForm.prototype.getResult = function(fn) {
+	var bb, i,
+		f = new FileReader(),
+		arr = this.data,
+		len = arr.length + 1,
+		dF = this;
+	arr.push('--' + this.boundary + '--\r\n');
+	f.onload = function(e) {
+		fn(dF.boundary, e.target.result);
+	}
+	if(nav.Firefox < 13) {
+		bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
+		for(i = 0; i < len; i++) {
+			bb.append(arr[i]);
+		}
+		f.readAsArrayBuffer(bb.getBlob());
+	} else {
+		f.readAsArrayBuffer(new Blob(arr));
+	}
+};
+
+function prepareFiles(file, fn, i) {
+	var fr = new FileReader();
+	if((nav.Firefox < 7 && !nav.Chrome) || !/^image\/(?:png|jpeg)$/.test(file.type)) {
+		fn(i, file, file.name, file.type);
 		return;
 	}
 	fr.readAsArrayBuffer(file);
@@ -2849,9 +2902,9 @@ function prepareFiles(el, fn, i) {
 			var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
 			bb.append(this.result);
 			bb.append(String(Math.round(Math.random()*1e6)));
-			fn(i, bb.getBlob(file.type));
+			fn(i, bb.getBlob(file.type), file.name, file.type);
 		} else {
-			fn(i, new Blob([this.result, String(Math.round(Math.random()*1e6))], {type: file.type}));
+			fn(i, new Blob([this.result, String(Math.round(Math.random()*1e6))], {type: file.type}), file.name, file.type);
 		}
 	};
 }
@@ -6291,6 +6344,9 @@ function parseDelform(node, dc, tFn, pFn) {
 	var i, len, op, post, psts;
 	$$Del('.//script', node, dc);
 	forEachThread(node, dc, function(thr) {
+		if(aib._420 || (aib.tiny && !TNum)) {
+			$after(thr, thr.lastChild);
+		}
 		op = aib.getOp(thr, dc);
 		if(aib.brit) {
 			$before($t('blockquote', op), [$new('div', null, null), post = $new('br', null, null)]);
