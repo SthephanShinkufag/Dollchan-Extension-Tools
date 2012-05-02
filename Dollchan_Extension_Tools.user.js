@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.2.4
+// @version			12.5.2.5
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.2.4',
+	'version':	'12.5.2.5',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -283,17 +283,15 @@ Lng = {
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
 	upd:	{
-		always:		['Всегда', 'Always'],
-		everyDay:	['Каждый день', 'Every Day'],
-		every2D:	['Каждые 2 дня', 'Every 2 Day'],
-		everyWeek:	['Каждую неделю', 'Every Week'],
-		every2W:	['Каждые 2 недели', 'Every 2 Week'],
-		everyMonth:	['Каждый месяц', 'Every Month'],
+		select:		[
+			['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
+			['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']
+		],
 		interval:	['Интервал проверки', 'Check interval'],
 		enable:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
 		beta:		['Проверять обновления для beta-версии', 'Check updates for beta-version'],
 		checkNow:	['Проверить сейчас', 'Check now'],
-		available:	['Доступно обновление!', 'Update avaiable!'],
+		available:	['Доступно обновление!', 'Update available!'],
 		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
 	}
 },
@@ -1483,14 +1481,7 @@ function addSettings() {
 		$if(!nav.Opera, $New('div', null, [
 			divBox('enupd', Lng.upd.enable[lCode], null),
 			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('supdint', [
-					Lng.upd.always[lCode],
-					Lng.upd.everyDay[lCode],
-					Lng.upd.every2D[lCode],
-					Lng.upd.everyWeek[lCode],
-					Lng.upd.every2W[lCode],
-					Lng.upd.everyMonth[lCode]
-				], Lng.upd.interval[lCode], function() {
+				optSel('supdint', Lng.upd.select[lCode], Lng.upd.interval[lCode], function() {
 					saveCfg('supdint', this.selectedIndex);
 				}),
 				divBox('betaupd', Lng.upd.beta[lCode], null),
