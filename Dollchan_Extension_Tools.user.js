@@ -2668,7 +2668,7 @@ function doPostformChanges() {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(!aib.nul && (nav.Firefox > 6 || nav.Chrome || nav.Opera >= 11.1)) {
+		if(!aib.nul && (nav.Firefox > 6 || nav.Chrome)) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
@@ -2848,11 +2848,7 @@ function prepareData(form, fn) {
 			if(done && ready === rNeeded) {
 				for(ready = i, i = 0; i < ready; i++) {
 					if(arr[i]) {
-						if(arr[i].type === 'file') {
-							fd.append(arr[i].name, arr[i].val, true, arr[i].fName, arr[i].fType);
-						} else {
-							fd.append(arr[i].name, arr[i].val, false);
-						}
+						fd.append(arr[i].name, arr[i].val, arr[i].type, arr[i].fName, arr[i].fType);
 					}
 				}
 				fd.getResult(fn);
@@ -2879,26 +2875,16 @@ function prepareData(form, fn) {
 	cb();
 }
 
-/**
- * @constructor
- */
+/** @constructor */
 function dataForm() {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 100000000000);
 	this.data = [];
 }
 
-/**
- * @param {String} name
- * @param {String|Blob} val
- * @param {Boolean} isFile
- * @param {?String} fileName
- * @param {?String} fileType
- * @return {undefined}
- */
-dataForm.prototype.append = function(name, val, isFile, fileName, fileType) {
+dataForm.prototype.append = function(name, val, type, fileName, fileType) {
 	var data = '--' + this.boundary + '\r\n' +
 		'Content-Disposition: form-data; name="' + name + '"';
-	if(isFile) {
+	if(type === 'file') {
 		data += '; filename="' + fileName + '"\r\n' + 
 			'Content-type: ' + fileType + '\r\n\r\n';
 	} else {
@@ -2930,7 +2916,7 @@ dataForm.prototype.getResult = function(fn) {
 
 function prepareFiles(file, fn, i) {
 	var fr = new FileReader();
-	if((nav.Firefox < 7 && !nav.Chrome) || !/^image\/(?:png|jpeg)$/.test(file.type)) {
+	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 		fn(i, file, file.name, file.type);
 		return;
 	}
