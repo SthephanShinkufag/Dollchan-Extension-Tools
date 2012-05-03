@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, fullImgs = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -3610,10 +3610,14 @@ function resizeImg(e) {
 
 function getImgSrc(href) {
 	var data = 'data:image/',
-		bin = fullImgs[href],
-		i, bs;
-	if(Cfg.pimgs === 0 || !bin) {
+		bin = base64.fImgs[href],
+		bs = base64.cached[href],
+		i, j, len, off;
+	if(Cfg.pimgs === 0 || (!bin && !bs)) {
 		return href;
+	}
+	if(bs) {
+		return bs;
 	}
 	if(/.jpe?g$/i.test(href)) {
 		data += 'jpeg';
@@ -3624,13 +3628,24 @@ function getImgSrc(href) {
 	} else {
 		return href;
 	}
-	i = bin.length;
-	bs = new Array(i);
-	while(i--) {
-		bs[i] = String.fromCharCode(bin[i]);
+	bin = new Uint8Array(bin);
+	len = bin.length
+	off = len % 3;
+	bs = new Array(Math.round((len / 3) * 4) + off);
+	for(i = 0, j = 0; i < len; i += 3, j += 4) {
+		bs[j] = base64.table[bin[i] >> 2];
+		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
+		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
+		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
 	}
-	data += ';base64,' + btoa(bs.join(''));
-	return data;
+	if(off === 2) {
+		bs[j - 1] = '='
+	} else if(off === 1) {
+		bs[j - 2] = '=';
+		bs[j - 1] = '=';
+	}
+	delete base64.fImgs[href];
+	return base64.cached[href] = data + ';base64,' + bs.join('');
 }
 
 function addFullImg(a, sz, isExp) {
@@ -3832,6 +3847,15 @@ function $preloadImages(el) {
 			e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
 		});
 	}
+	if(!base64.fImgs) {
+		base64.fImgs = {};
+	}
+	if(!base64.cached) {
+		base64.cached = {};
+	}
+	if(!base64.table) {
+		base64.table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	}
 	function loadFunc(idx) {
 		var req;
 		if(idx >= aA.length) {
@@ -3851,7 +3875,7 @@ function $preloadImages(el) {
 		req.responseType = 'arraybuffer';
 		req.onload = function(e) {
 			if (this.status == 200) {
-				fullImgs[aA[idx]] = new Uint8Array(this.response);
+				base64.fImgs[aA[idx]] = this.response;
 			}
 			cReq--;
 			loadFunc(i++);
@@ -6146,12 +6170,18 @@ function aibDetector(host, dc) {
 			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
 		) + ']');
 	obj.xTable =
-		obj.fch ? 'table[not(@class="exif")]'
-		: obj.tire ? 'table[not(@class="postfiles")]'
-		: 'table';
+		$t('table', dForm) ? (
+			obj.fch ? 'table[not(@class="exif")]'
+			: obj.tire ? 'table[not(@class="postfiles")]'
+			: 'table'
+		) : false;
+	obj.xPost =
+		(obj.xTable || obj.gazo) ? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
+		: './/div[contains(@class,"' + obj.pClass + '")]';
 	obj.xWrapper = obj.brit
 		? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
-		: './/div[contains(@class," DESU_thread")]//' + obj.xTable;
+		: obj.xTable ? './/div[contains(@class," DESU_thread")]//' + obj.xTable
+		: false;
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: obj.fch ? 'span[starts-with(@id,"no")]'
@@ -6422,6 +6452,13 @@ function forEachThread(node, dc, fn) {
 	}
 }
 
+function processPost(post, thr, pFn, i) {
+	post.thr = thr;
+	post.className += ' DESU_post';
+	post.Num = aib.getPNum(post);
+	pFn(post, i + 1);
+}
+
 function parseDelform(node, dc, tFn, pFn) {
 	var i, len, op, post, psts;
 	$$Del('.//script', node, dc);
@@ -6438,20 +6475,17 @@ function parseDelform(node, dc, tFn, pFn) {
 			tFn(thr);
 		}
 		pFn(op, 0);
-		if(aib.gazo) {
-			psts = [];
-			$each($$X('table/tbody/tr/td[2]', thr, dc), function(el) {
-				psts.push(el);
+		if(!nav.Firefox || aib.gazo) {
+			thr.pCount = 0;
+			$each($$X(aib.xPost, thr, dc), function(el) {
+				processPost(el, thr, pFn, thr.pCount++);
 			});
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
-		}
-		thr.pCount = psts.length;
-		for(i = 0, len = psts.length; i < len; i++) {
-			post = psts[i]; post.thr = thr;
-			post.className += ' DESU_post';
-			post.Num = aib.getPNum(post);
-			pFn(post, i + 1);
+			thr.pCount = psts.length;
+			for(var i = 0, len = psts.length; i < len; i++) {
+				processPost(psts[i], thr, pFn, i);
+			}
 		}
 		if(!tFn) {
 			if(!TNum) {
@@ -6476,7 +6510,7 @@ function parseDelform(node, dc, tFn, pFn) {
 	if(liteMode) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
-	if(!aib._7ch && !aib.tiny && !postWrapper) {
+	if(aib.xWrapper && !postWrapper) {
 		postWrapper = $$x(aib.xWrapper, node, dc);
 		if(dc !== doc && postWrapper) {
 			postWrapper = doc.importNode(postWrapper, true);
