@@ -2531,6 +2531,7 @@ function doPostformChanges() {
 				(Cfg.spells === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 				+ (Cfg.sign !== 0 && Cfg.sigval !== '' ? '\n' + Cfg.sigval : '');
 			if(Cfg.verify !== 0) {
+				$close($id('DESU_alertUpErr'));
 				$alert(Lng.checking[lCode], 'Wait');
 			}
 			if(Cfg.addfav !== 0 && pr.tNum) {
@@ -2792,7 +2793,7 @@ function checkUpload(dc, url) {
 			qArea.appendChild($id('DESU_pform'));
 		}
 		$close($id('DESU_alertWait'));
-		$alert(err, '');
+		$alert(err, 'UpErr');
 	} else {
 		pr.txta.value = '';
 		if(pr.file) {
