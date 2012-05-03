@@ -6454,8 +6454,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		if(!nav.Firefox || aib.gazo) {
 			thr.pCount = 0;
 			$each($$X(aib.xPost, thr, dc), function(el) {
-				thr.pCount++;
-				processPost(el, thr, pFn, thr.pCount);
+				processPost(el, thr, pFn, thr.pCount++);
 			});
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
