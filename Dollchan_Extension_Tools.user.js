@@ -3613,7 +3613,7 @@ function getImgSrc(href) {
 		bin = base64.fImgs[href],
 		bs = base64.cached[href],
 		i, j, len, off;
-	if(Cfg.pimgs === 0 || !bin) {
+	if(Cfg.pimgs === 0 || (!bin && !bs)) {
 		return href;
 	}
 	if(bs) {
@@ -3643,6 +3643,7 @@ function getImgSrc(href) {
 		bs[j - 2] = '=';
 		bs[j - 1] = '=';
 	}
+	delete base64.fImgs[href];
 	return base64.cached[href] = data + ';base64,' + bs.join('');
 }
 
