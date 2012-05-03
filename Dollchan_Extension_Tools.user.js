@@ -2531,6 +2531,7 @@ function doPostformChanges() {
 				(Cfg.spells === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 				+ (Cfg.sign !== 0 && Cfg.sigval !== '' ? '\n' + Cfg.sigval : '');
 			if(Cfg.verify !== 0) {
+				$close($id('DESU_alertUpErr'));
 				$alert(Lng.checking[lCode], 'Wait');
 			}
 			if(Cfg.addfav !== 0 && pr.tNum) {
@@ -2792,7 +2793,7 @@ function checkUpload(dc, url) {
 			qArea.appendChild($id('DESU_pform'));
 		}
 		$close($id('DESU_alertWait'));
-		$alert(err, '');
+		$alert(err, 'UpErr');
 	} else {
 		pr.txta.value = '';
 		if(pr.file) {
@@ -2879,6 +2880,19 @@ function prepareData(form, fn) {
 	cb();
 }
 
+function arrToBlob(arr) {
+	if(nav.Firefox < 13) {
+		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
+			i = 0, len = arr.length;
+		for(; i < len; i++) {
+			bb.append(arr[i]);
+		}
+		return bb.getBlob();
+	} else {
+		return new Blob(arr);
+	}
+}
+
 /** @constructor */
 function dataForm() {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 100000000000);
@@ -2898,19 +2912,9 @@ dataForm.prototype.append = function(name, val, type, fileName, fileType) {
 };
 
 dataForm.prototype.getResult = function(fn) {
-	var bb, i,
-		arr = this.data,
-		len = arr.length + 1;
+	var arr = this.data;
 	arr.push('--' + this.boundary + '--\r\n');
-	if(nav.Firefox < 13) {
-		bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
-		for(i = 0; i < len; i++) {
-			bb.append(arr[i]);
-		}
-		fn(this.boundary, bb.getBlob());
-	} else {
-		fn(this.boundary, new Blob(arr));
-	}
+	fn(this.boundary, arrToBlob(arr));
 };
 
 function prepareFiles(file, fn, i) {
@@ -2921,14 +2925,7 @@ function prepareFiles(file, fn, i) {
 	}
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
-		if(nav.Firefox < 13) {
-			var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder();
-			bb.append(this.result);
-			bb.append(String(Math.round(Math.random()*1e6)));
-			fn(i, bb.getBlob(file.type), file.name, file.type);
-		} else {
-			fn(i, new Blob([this.result, String(Math.round(Math.random()*1e6))], {type: file.type}), file.name, file.type);
-		}
+		fn(i, arrToBlob([this.result, String(Math.round(Math.random()*1e6))]), file.name, file.type);
 	};
 }
 
@@ -3612,7 +3609,7 @@ function getImgSrc(href) {
 	var data = 'data:image/',
 		bin = base64.fImgs[href],
 		bs = base64.cached[href],
-		i, j, len, off;
+		i, j, len, mod;
 	if(Cfg.pimgs === 0 || (!bin && !bs)) {
 		return href;
 	}
@@ -3629,20 +3626,23 @@ function getImgSrc(href) {
 		return href;
 	}
 	bin = new Uint8Array(bin);
-	len = bin.length
-	off = len % 3;
-	bs = new Array(Math.round((len / 3) * 4) + off);
+	len = bin.length;
+	bs = new Array(Math.ceil(len * 4 / 3));
+	mod = len % 3;
+	if(mod !== 0) {
+		len -= 3;
+	}
 	for(i = 0, j = 0; i < len; i += 3, j += 4) {
 		bs[j] = base64.table[bin[i] >> 2];
 		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
 		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
 		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
 	}
-	if(off === 2) {
-		bs[j - 1] = '='
-	} else if(off === 1) {
-		bs[j - 2] = '=';
-		bs[j - 1] = '=';
+	if(mod !== 0) {
+		bs[j] = base64.table[bin[i] >> 2];
+		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
+		bs[j + 2] = mod === 1 ? '=' : base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
+		bs[j + 3] = '=';
 	}
 	delete base64.fImgs[href];
 	return base64.cached[href] = data + ';base64,' + bs.join('');
