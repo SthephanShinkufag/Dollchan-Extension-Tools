@@ -3628,6 +3628,7 @@ function getImgSrc(href) {
 	} else {
 		return href;
 	}
+	bin = new Uint8Array(bin);
 	len = bin.length
 	off = len % 3;
 	bs = new Array(Math.round((len / 3) * 4) + off);
@@ -3874,7 +3875,7 @@ function $preloadImages(el) {
 		req.responseType = 'arraybuffer';
 		req.onload = function(e) {
 			if (this.status == 200) {
-				base64.fImgs[aA[idx]] = new Uint8Array(this.response);
+				base64.fImgs[aA[idx]] = this.response;
 			}
 			cReq--;
 			loadFunc(i++);
