@@ -6146,7 +6146,7 @@ function aibDetector(host, dc) {
 			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
 		) + ']');
 	obj.xTable =
-		$x('table|div/table', dForm, dc) ? (
+		$t('table', dForm) ? (
 			obj.fch ? 'table[not(@class="exif")]'
 			: obj.tire ? 'table[not(@class="postfiles")]'
 			: 'table'
