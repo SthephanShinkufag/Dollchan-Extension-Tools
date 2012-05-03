@@ -3609,7 +3609,7 @@ function getImgSrc(href) {
 	var data = 'data:image/',
 		bin = base64.fImgs[href],
 		bs = base64.cached[href],
-		i, j, len;
+		i, j, len, mod;
 	if(Cfg.pimgs === 0 || (!bin && !bs)) {
 		return href;
 	}
@@ -3626,19 +3626,22 @@ function getImgSrc(href) {
 		return href;
 	}
 	bin = new Uint8Array(bin);
-	len = bin.length - 3;
-	bs = new Array(Math.ceil(len * 4 / 3) + 4);
+	len = bin.length;
+	bs = new Array(Math.ceil(len * 4 / 3));
+	mod = len % 3;
+	if(mod !== 0) {
+		len -= 3;
+	}
 	for(i = 0, j = 0; i < len; i += 3, j += 4) {
 		bs[j] = base64.table[bin[i] >> 2];
 		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
 		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
 		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
 	}
-	len = len % 3;
-	if(len !== 0) {
+	if(mod !== 0) {
 		bs[j] = base64.table[bin[i] >> 2];
 		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
-		bs[j + 2] = len === 1 ? '=' : base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
+		bs[j + 2] = mod === 1 ? '=' : base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
 		bs[j + 3] = '=';
 	}
 	delete base64.fImgs[href];
