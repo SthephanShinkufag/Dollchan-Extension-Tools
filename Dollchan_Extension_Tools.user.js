@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.2.8
+// @version			12.5.2.6
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.2.8',
+	'version':	'12.5.2.6',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -558,9 +558,6 @@ function Log(txt) {
 }
 
 function fixFunctions() {
-	if(!('head' in doc)) {
-		doc.head = $t('head', doc);
-	}
 	if(aib.hid) {
 		window.setTimeout = function(fn, num) {
 			if(typeof fn === 'function') fn();
@@ -4655,7 +4652,7 @@ function infoNewPosts(err, nPosts, del) {
 			}, 800);
 		}
 	}
-	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
+	doc.title =  (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 }
 
 function getHanaFile(file, pId) {
@@ -6039,12 +6036,10 @@ function checkForUpdates(force, fn) {
 					i++;
 				}
 				if(upd) {
-					fn('<a style="color: blue; font-weight: bold;" href="' + (
-						Cfg.betaupd
-							? 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
-								+ 'master/Dollchan_Extension_Tools.user.js'
-							: 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Versions'
-					)+ '">' + Lng.upd.available[lCode] + '</a>');
+					fn('<a style="color: blue; font-weight: bold;" '
+						+ 'href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Versions">'
+						+ Lng.upd.available[lCode] + '</a>'
+					);
 				} else if(force) {
 					fn(Lng.upd.haveLatest[lCode]);
 				}
@@ -6146,12 +6141,18 @@ function aibDetector(host, dc) {
 			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
 		) + ']');
 	obj.xTable =
-		obj.fch ? 'table[not(@class="exif")]'
-		: obj.tire ? 'table[not(@class="postfiles")]'
-		: 'table';
+		$x('table|div/table', dForm, dc) ? (
+			obj.fch ? 'table[not(@class="exif")]'
+			: obj.tire ? 'table[not(@class="postfiles")]'
+			: 'table'
+		) : false;
+	obj.xPost =
+		(obj.xTable || obj.gazo) ? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
+		: './/div[contains(@class,"' + obj.pClass + '")]';
 	obj.xWrapper = obj.brit
 		? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
-		: './/div[contains(@class," DESU_thread")]//' + obj.xTable;
+		: obj.xTable ? './/div[contains(@class," DESU_thread")]//' + obj.xTable
+		: false;
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: obj.fch ? 'span[starts-with(@id,"no")]'
@@ -6422,6 +6423,13 @@ function forEachThread(node, dc, fn) {
 	}
 }
 
+function processPost(post, thr, pFn, i) {
+	post.thr = thr;
+	post.className += ' DESU_post';
+	post.Num = aib.getPNum(post);
+	pFn(post, i + 1);
+}
+
 function parseDelform(node, dc, tFn, pFn) {
 	var i, len, op, post, psts;
 	$$Del('.//script', node, dc);
@@ -6438,20 +6446,18 @@ function parseDelform(node, dc, tFn, pFn) {
 			tFn(thr);
 		}
 		pFn(op, 0);
-		if(aib.gazo) {
-			psts = [];
-			$each($$X('table/tbody/tr/td[2]', thr, dc), function(el) {
-				psts.push(el);
+		if(!nav.Firefox || aib.gazo) {
+			thr.pCount = 0;
+			$each($$X(aib.xPost, thr, dc), function(el) {
+				thr.pCount++;
+				processPost(el, thr, pFn, thr.pCount);
 			});
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
-		}
-		thr.pCount = psts.length;
-		for(i = 0, len = psts.length; i < len; i++) {
-			post = psts[i]; post.thr = thr;
-			post.className += ' DESU_post';
-			post.Num = aib.getPNum(post);
-			pFn(post, i + 1);
+			thr.pCount = psts.length;
+			for(var i = 0, len = psts.length; i < len; i++) {
+				processPost(psts[i], thr, pFn, i);
+			}
 		}
 		if(!tFn) {
 			if(!TNum) {
@@ -6476,7 +6482,7 @@ function parseDelform(node, dc, tFn, pFn) {
 	if(liteMode) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
-	if(!aib._7ch && !aib.tiny && !postWrapper) {
+	if(aib.xWrapper && !postWrapper) {
 		postWrapper = $$x(aib.xWrapper, node, dc);
 		if(dc !== doc && postWrapper) {
 			postWrapper = doc.importNode(postWrapper, true);
@@ -6508,7 +6514,7 @@ function initDelform() {
 	try {
 		parseDelform(dForm, doc, false, pushPost);
 	} catch(e) {
-		$disp(dForm);
+		$disp(dForm); throw e;
 		return false;
 	}
 	if(!nav.Chrome) {
