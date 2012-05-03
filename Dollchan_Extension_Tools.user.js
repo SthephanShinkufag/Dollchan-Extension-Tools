@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, fullImgs = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -3610,10 +3610,14 @@ function resizeImg(e) {
 
 function getImgSrc(href) {
 	var data = 'data:image/',
-		bin = fullImgs[href],
-		i, bs;
+		bin = base64.fImgs[href],
+		bs = base64.cached[href],
+		i, j, len, off;
 	if(Cfg.pimgs === 0 || !bin) {
 		return href;
+	}
+	if(bs) {
+		return bs;
 	}
 	if(/.jpe?g$/i.test(href)) {
 		data += 'jpeg';
@@ -3624,13 +3628,22 @@ function getImgSrc(href) {
 	} else {
 		return href;
 	}
-	i = bin.length;
-	bs = new Array(i);
-	while(i--) {
-		bs[i] = String.fromCharCode(bin[i]);
+	len = bin.length
+	off = len % 3;
+	bs = new Array(Math.round((len / 3) * 4) + off);
+	for(i = 0, j = 0; i < len; i += 3, j += 4) {
+		bs[j] = base64.table[bin[i] >> 2];
+		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
+		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
+		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
 	}
-	data += ';base64,' + btoa(bs.join(''));
-	return data;
+	if(off == 2) {
+		bs[j - 1] = '='
+	} else {
+		bs[j - 2] = '=';
+		bs[j - 1] = '=';
+	}
+	return base64.cached[href] = data + ';base64,' + bs.join('');
 }
 
 function addFullImg(a, sz, isExp) {
@@ -3832,6 +3845,15 @@ function $preloadImages(el) {
 			e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
 		});
 	}
+	if(!base64.fImgs) {
+		base64.fImgs = {};
+	}
+	if(!base64.cached) {
+		base64.cached = {};
+	}
+	if(!base64.table) {
+		base64.table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+	}
 	function loadFunc(idx) {
 		var req;
 		if(idx >= aA.length) {
@@ -3851,7 +3873,7 @@ function $preloadImages(el) {
 		req.responseType = 'arraybuffer';
 		req.onload = function(e) {
 			if (this.status == 200) {
-				fullImgs[aA[idx]] = new Uint8Array(this.response);
+				base64.fImgs[aA[idx]] = new Uint8Array(this.response);
 			}
 			cReq--;
 			loadFunc(i++);
