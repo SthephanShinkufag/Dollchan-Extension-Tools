@@ -3637,9 +3637,9 @@ function getImgSrc(href) {
 		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
 		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
 	}
-	if(off == 2) {
+	if(off === 2) {
 		bs[j - 1] = '='
-	} else {
+	} else if(off === 1) {
 		bs[j - 2] = '=';
 		bs[j - 1] = '=';
 	}
