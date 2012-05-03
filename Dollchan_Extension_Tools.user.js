@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.4.0
+// @version			12.5.4.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.4.0',
+	'version':	'12.5.4.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5754,7 +5754,7 @@ function scriptCSS() {
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead { padding: 3px; border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
