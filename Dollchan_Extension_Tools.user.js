@@ -2704,7 +2704,8 @@ function checkUpload(dc, url) {
 	} else {
 		pr.txta.value = '';
 		if(pr.file) {
-			pr.file = $x('.//input[@type="file"]', $html($x(pr.tr, pr.file), $x(pr.tr, pr.file).innerHTML));
+			err = pr.file.parentNode;
+			pr.file = $x('input[@type="file"]', $html(err, err.innerHTML));
 		}
 		if(pr.tNum) {
 			tNum = pr.tNum;
