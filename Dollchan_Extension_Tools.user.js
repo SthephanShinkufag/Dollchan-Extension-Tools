@@ -2421,6 +2421,13 @@ function doChanges() {
 				$del(el.nextSibling);
 				$del(el);
 			});
+		} else if(aib.ylil) {
+			el = $t('iframe', dForm);
+			if(el) {
+				$del(el.nextElementSibling);
+				$del(el.nextElementSibling);
+				$del(el);
+			}
 		}
 		$event(window, {
 			'load': function() {
@@ -3608,7 +3615,7 @@ function getImgSrc(href) {
 	var data = 'data:image/',
 		bin = base64.fImgs[href],
 		bs = base64.cached[href],
-		i, j, len, mod;
+		i, j, len;
 	if(Cfg.pimgs === 0 || (!bin && !bs)) {
 		return href;
 	}
@@ -3625,24 +3632,19 @@ function getImgSrc(href) {
 		return href;
 	}
 	bin = new Uint8Array(bin);
-	len = bin.length;
-	bs = new Array(Math.ceil(len * 4 / 3));
-	mod = len % 3;
-	if(mod !== 0) {
-		len -= 3;
-	}
+	len = bin.length - 3;
+	bs = new Array(Math.ceil(len * 4 / 3) + 4);
 	for(i = 0, j = 0; i < len; i += 3, j += 4) {
 		bs[j] = base64.table[bin[i] >> 2];
 		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
 		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
 		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
 	}
-	if(mod !== 0) {
-		bs[j] = base64.table[bin[i] >> 2];
-		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
-		bs[j + 2] = mod === 1 ? '=' : base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
-		bs[j + 3] = '=';
-	}
+	len = len % 3;
+	bs[j] = base64.table[bin[i] >> 2];
+	bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
+	bs[j + 2] = len === 1 ? '=' : base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
+	bs[j + 3] = len !== 0 ? '=' : base64.table[bin[i + 2] & 0x3F];
 	delete base64.fImgs[href];
 	return base64.cached[href] = data + ';base64,' + bs.join('');
 }
@@ -3754,7 +3756,7 @@ function forAllImages(node, fn) {
 		: (
 			(
 				aib.gazo ? '.'
-				: aib.tiny ? './/p[@class="fileinfo"]'
+				: aib.tiny || aib.ylil ? './/p[@class="fileinfo"]'
 				: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
 				: './/span[@class="' + (aib.krau ? 'filename' : 'filesize') + '"]'
 			) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
@@ -4217,7 +4219,7 @@ function eventRefLink(node) {
 			if(Cfg.navig === 0) {
 				return;
 			}
-			$each($X('.//a[starts-with(text(),">>")]', node), function(link) {
+			$each($X('.//a[starts-with(text(),">>")]' + (aib.ylil ? '[not(@class)]' : ''), node), function(link) {
 				if(aib.tiny) {
 					lnk = link.cloneNode(true);
 					$before(link, [lnk]);
@@ -4954,6 +4956,7 @@ function togglePost(post, vis) {
 	}
 	$each($X('following-sibling::*', $c(
 		aib.krau ? 'postheader'
+		: aib.ylil ? 'postinfo'
 		: aib.tiny ? 'intro'
 		: aib._420 ? 'replyheader'
 		: 'DESU_postPanel',
@@ -5758,6 +5761,7 @@ function scriptCSS() {
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 3px; border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
@@ -5989,6 +5993,9 @@ function scriptCSS() {
 			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; ' + brCssFix + 'background-size: cover; }'
 		);
 	}
+	if(aib.ylil) {
+		x.push('.threadbuttons, .expandall { display: none; }');
+	}
 
 	if(!$id('DESU_css')) {
 		doc.head.appendChild($new('style', {
@@ -6106,6 +6113,22 @@ function replyForm(form) {
 	return obj;
 }
 
+function postDetector(obj, node) {
+	obj.xTable =
+		$t('table', node) ? (
+			obj.fch ? 'table[not(@class="exif")]'
+			: obj.tire ? 'table[not(@class="postfiles")]'
+			: 'table'
+		) : false;
+	obj.xPost =
+		(obj.xTable || obj.gazo) ? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
+		: './/div[contains(@class,"' + obj.pClass + '")]';
+	obj.xWrapper = obj.brit
+		? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
+		: obj.xTable ? './/div[contains(@class," DESU_thread")]//' + obj.xTable
+		: false;
+}
+
 function aibDetector(host, dc) {
 	var obj = {},
 		h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
@@ -6115,10 +6138,11 @@ function aibDetector(host, dc) {
 	obj.krau = h === 'krautchan.net';
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
+	obj.ylil = h === 'ylilauta.fi';
 	obj.xDForm =
 		obj.brit ? './/div[@class="threadz"]'
 		: './/form[' + (
-			obj.hana || obj.krau ? 'contains(@action,"delete")]'
+			obj.hana || obj.krau || obj.ylil ? 'contains(@action,"delete")]'
 			: obj.tiny ? '@name="postcontrols"]'
 			: obj.gazo ? '2]'
 			: '@id="delform" or @name="delform"]'
@@ -6147,6 +6171,7 @@ function aibDetector(host, dc) {
 	obj._420 = h === '420chan.org';
 	obj.pClass =
 		obj.krau ? 'postreply'
+		: obj.ylil ? 'answer'
 		: obj.tiny ? 'post reply'
 		: 'reply';
 	obj.opClass =
@@ -6162,44 +6187,35 @@ function aibDetector(host, dc) {
 			: obj._420 ? 'contains(@id,"thread")'
 			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
 		) + ']');
-	obj.xTable =
-		$t('table', dForm) ? (
-			obj.fch ? 'table[not(@class="exif")]'
-			: obj.tire ? 'table[not(@class="postfiles")]'
-			: 'table'
-		) : false;
-	obj.xPost =
-		(obj.xTable || obj.gazo) ? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
-		: './/div[contains(@class,"' + obj.pClass + '")]';
-	obj.xWrapper = obj.brit
-		? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
-		: obj.xTable ? './/div[contains(@class," DESU_thread")]//' + obj.xTable
-		: false;
+	postDetector(obj, dForm);
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: obj.fch ? 'span[starts-with(@id,"no")]'
 		: false;
 	obj.cRef =
-		obj.krau ? 'postnumber'
+		obj.krau || obj.ylil? 'postnumber'
 		: obj.gazo ? 'del'
 		: 'reflink';
 	obj.xMsg =
 		obj.hana ? './/div[@class="postbody"]'
+		: obj.ylil ? './/div[@class="post"]'
 		: obj.tiny ? './/p[@class="body"]'
 		: obj._7ch ? './/p[@class="message"]'
 		: './/blockquote';
 	obj.cMsg =
 		obj.hana ? 'postbody'
+		: obj.ylil ? 'post'
 		: obj.tiny ? 'body'
 		: obj._7ch ? 'message'
 		: false;
 	obj.cTitle =
-		obj.krau ? 'postsubject'
+		obj.krau || obj.ylil ? 'postsubject'
 		: obj.tiny ? 'subject'
 		: obj.hana ? 'replytitle'
 		: 'filetitle';
 	obj.cOmPosts =
 		obj.krau ? 'omittedinfo'
+		: obj.ylil ? 'omitted'
 		: obj.hana ? 'abbrev'
 		: 'omittedposts';
 	
@@ -6223,6 +6239,9 @@ function aibDetector(host, dc) {
 	obj.getOp =
 		(obj.abu || obj.hana || obj.kus) && $c(obj.opClass, doc) ? function(thr, dc) {
 			return $c(obj.opClass, thr);
+		}
+		: obj.ylil ? function(thr, dc) {
+			return thr.firstElementChild;
 		}
 		: obj.brit ? function(thr, dc) {
 			var el,
@@ -6453,8 +6472,21 @@ function processPost(post, thr, pFn, i) {
 }
 
 function parseDelform(node, dc, tFn, pFn) {
-	var i, len, op, post, psts;
+	var i, len, op, psts;
 	$$Del('.//script', node, dc);
+	if(aib.ylil) {
+		$each($$X('.//a[@data-embedcode]', node, dc), function(el) {
+			$del(el.parentNode);
+		});
+		$each($$X('.//div[@class="postinfo"]', node, dc), function(el) {
+			if(el.previousElementSibling) {
+				$before(el.parentNode.firstChild, [el]);
+			}
+		});
+	}
+	if(TNum && dc !== doc && Posts.length < 2) {
+		postDetector(aib, node);
+	}
 	forEachThread(node, dc, function(thr) {
 		if(aib._420 || (aib.tiny && !TNum)) {
 			$after(thr, thr.lastChild);
@@ -6476,7 +6508,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
 			thr.pCount = psts.length;
-			for(var i = 0, len = psts.length; i < len; i++) {
+			for(i = 0, len = psts.length; i < len; i++) {
 				processPost(psts[i], thr, pFn, i);
 			}
 		}
@@ -6490,12 +6522,12 @@ function parseDelform(node, dc, tFn, pFn) {
 				.substring(0, 70).replace(/\s+/g, ' ');
 		}
 	});
-	post = pByNum[window.location.hash.substring(1)];
-	if(window.location.hash && post) {
+	op = pByNum[window.location.hash.substring(1)];
+	if(window.location.hash && op) {
 		$event(window, {
 			'load': function() {
 				setTimeout(function() {
-					post.className += ' DESU_post';
+					op.className += ' DESU_post';
 				}, 1e3);
 			}
 		});
