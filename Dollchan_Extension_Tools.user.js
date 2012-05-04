@@ -6187,7 +6187,6 @@ function aibDetector(host, dc) {
 			: obj._420 ? 'contains(@id,"thread")'
 			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
 		) + ']');
-	postDetector(obj, dForm);
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: obj.fch ? 'span[starts-with(@id,"no")]'
@@ -6484,7 +6483,7 @@ function parseDelform(node, dc, tFn, pFn) {
 			}
 		});
 	}
-	if(TNum && dc !== doc && Posts.length < 2) {
+	if(Posts.length < 2) {
 		postDetector(aib, node);
 	}
 	forEachThread(node, dc, function(thr) {
