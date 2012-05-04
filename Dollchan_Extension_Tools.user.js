@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.2.8
+// @version			12.5.4.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.2.8',
+	'version':	'12.5.4.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2391,17 +2391,6 @@ function doChanges() {
 				}, 0);
 			}
 		};
-		initThreadsUpdater();
-		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
-			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
-				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
-			), {
-				'click': function(e) {
-					$pd(e);
-					loadNewPosts(true, null);
-				}
-			}));
-		}
 	} else {
 		setTimeout(function() {
 			window.scrollTo(0, 0);
@@ -2451,6 +2440,19 @@ function doChanges() {
 				}, 0);
 			}
 		});
+	}
+	if(TNum) {
+		initThreadsUpdater();
+		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
+			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
+				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
+			), {
+				'click': function(e) {
+					$pd(e);
+					loadNewPosts(true, null);
+				}
+			}));
+		}
 	}
 	if(aib.fch && !TNum) {
 		$each($X('.//table[@class="pages"]//form', doc), function(el) {
@@ -2507,9 +2509,6 @@ function doPostformChanges() {
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	if(!aib.fch && pr.subm.nextSibling) {
-		$delNx(pr.subm);
-	}
 	addTextPanel();
 	$after(el, $new('div', {
 		'id': 'DESU_txtResizer'}, {
@@ -5760,7 +5759,7 @@ function scriptCSS() {
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + brCssFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 3px; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead { padding: 3px; border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
