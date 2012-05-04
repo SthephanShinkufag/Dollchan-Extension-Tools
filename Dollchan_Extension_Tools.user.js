@@ -3392,13 +3392,14 @@ function addTubePlayer(el, m) {
 			addTubeEmbed(el, id, time);
 			return;
 		}
-		src = src.replace(/^http:/, 'https:');
 		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id
 			+ '/0.jpg" controls="controls" preload="none" src="' + src
 			+ (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '')
-			+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
+			+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '"></video>';
+		el = el.firstChild;
+		addTubeEmbed(el, id, time);
 		if(time !== 0) {
-			$event($x('.//video', el), {
+			$event(el, {
 				'loadedmetadata': function() {
 					this.currentTime = time;
 				}
