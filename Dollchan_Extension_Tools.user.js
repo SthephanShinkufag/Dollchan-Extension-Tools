@@ -3373,9 +3373,9 @@ function getTubeVideoLinks(id, fn) {
 function addTubeEmbed(el, id, time) {
 	var wh = ' width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
 	el.innerHTML = Cfg.yptype === 1
-		? '<iframe type="text/html" src="http://www.youtube.com/embed/' + id
+		? '<iframe type="text/html" src="https://www.youtube.com/embed/' + id
 			+ (Cfg.yhdvid !== 0 ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh
-		: '<embed type="application/x-shockwave-flash" src="http://www.youtube.com/v/' + id
+		: '<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id
 			+ (Cfg.yhdvid !== 0 ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
 }
 
@@ -3392,7 +3392,8 @@ function addTubePlayer(el, m) {
 			addTubeEmbed(el, id, time);
 			return;
 		}
-		el.innerHTML = '<video poster="http://i.ytimg.com/vi/' + id
+		src = src.replace(/^http:/, 'https:');
+		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id
 			+ '/0.jpg" controls="controls" preload="none" src="' + src
 			+ (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '')
 			+ '" width="' + Cfg.ywidth + '" height="' + Cfg.yheigh + '" />';
@@ -3407,8 +3408,8 @@ function addTubePlayer(el, m) {
 }
 
 function addTubePreview(el, m) {
-	el.innerHTML = '<a href="http://www.youtube.com/watch?v=' + m[1]
-		+ '" target="_blank"><img src="http://i.ytimg.com/vi/' + m[1]
+	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1]
+		+ '" target="_blank"><img src="https://i.ytimg.com/vi/' + m[1]
 		+ '/0.jpg" width="360" height="270" /></a>';
 	$event(el.firstChild, {
 		'click': function(e) {
@@ -3421,7 +3422,7 @@ function addTubePreview(el, m) {
 }
 
 function getTubePattern() {
-	return /https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?)?$/;
+	return /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?)?$/;
 }
 
 function clickTubeLink(e) {
@@ -3447,7 +3448,7 @@ function addLinkTube(post) {
 		if(!m) {
 			return;
 		}
-		src = 'http://www.youtube.com/watch?v=' + m[1];
+		src = 'https://www.youtube.com/watch?v=' + m[1];
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
@@ -3460,6 +3461,7 @@ function addLinkTube(post) {
 		if(!m) {
 			return;
 		}
+		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
 		el = $c('DESU_ytObj', pst);
 		if(!el) {
