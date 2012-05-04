@@ -6487,7 +6487,7 @@ function doChanges() {
 			$Del('following-sibling::node()', el);
 			$after(el, $new('hr', null, null));
 		}
-		$Del('.//input[@name="makewatermark"]', pr.form);
+		$del($x('.//input[@name="makewatermark"]', pr.form));
 	} else {
 		if(aib.brit) {
 			$each($X('.//span[@class="reflink"]', dForm), function(el) {
