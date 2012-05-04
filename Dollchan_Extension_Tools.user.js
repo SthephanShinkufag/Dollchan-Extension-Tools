@@ -1107,28 +1107,25 @@ function addPanel() {
 }
 
 function toggleContent(name, isUpd) {
-	var el, id;
 	if(liteMode) {
 		return;
 	}
+	var el, id,
+		event = nav.Firefox ? 'animationend' : 'webkitAnimationEnd',
+		fn = function() {
+			el.style.display = 'none';
+			this.removeEventListener(event, fn, false);
+			showContent(el, id, name, isUpd);
+		};
 	el = $id('DESU_content');
 	id = 'DESU_content' + name;
-	if(isUpd && el.className !== id) {
-		return;
-	}
-	if(el.childElementCount) {
-		if(Cfg.animp !== 0 && (nav.Firefox > 4 || nav.Chrome)) {
-			el.addEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', function clEvent() {
-				el.style.display = 'none';
-				this.removeEventListener(nav.Firefox ? 'animationend' : 'webkitAnimationEnd', clEvent, false);
-				showContent(el, id, name, isUpd);
-			}, false);
+	if(!isUpd || el.className === id) {
+		if(el.childElementCount && Cfg.animp !== 0 && (nav.Firefox > 4 || nav.Chrome)) {
+			el.addEventListener(event, fn, false);
 			el.style.cssText = cssFix + 'animation: DESU_cfgClose 0.1s 1 ease-in;';
 		} else {
-			showContent(el, id, name, isUpd)
+			showContent(el, id, name, isUpd);
 		}
-	} else {
-		showContent(el, id, name, isUpd)
 	}
 }
 
@@ -5992,14 +5989,13 @@ function replyForm(form) {
 }
 
 function postDetector(obj, el) {
-	obj.xTable =
-		$t('table', el) ? (
-			obj.fch ? 'table[not(@class="exif")]'
-			: obj.tire ? 'table[not(@class="postfiles")]'
-			: 'table'
-		) : false;
-	obj.xPost =
-		(obj.xTable || obj.gazo) ? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
+	obj.xTable = $t('table', el) ? (
+		obj.fch ? 'table[not(@class="exif")]'
+		: obj.tire ? 'table[not(@class="postfiles")]'
+		: 'table'
+	) : false;
+	obj.xPost = (obj.xTable || obj.gazo)
+		? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
 		: './/div[contains(@class,"' + obj.pClass + '")]';
 	obj.xWrapper = obj.brit
 		? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
@@ -6017,14 +6013,12 @@ function aibDetector(host, dc) {
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
 	obj.ylil = h === 'ylilauta.fi';
-	obj.xDForm =
-		obj.brit ? './/div[@class="threadz"]'
-		: './/form[' + (
-			obj.hana || obj.krau || obj.ylil ? 'contains(@action,"delete")]'
-			: obj.tiny ? '@name="postcontrols"]'
-			: obj.gazo ? '2]'
-			: '@id="delform" or @name="delform"]'
-		);
+	obj.xDForm = obj.brit ? './/div[@class="threadz"]' : './/form[' + (
+		obj.hana || obj.krau || obj.ylil ? 'contains(@action,"delete")]'
+		: obj.tiny ? '@name="postcontrols"]'
+		: obj.gazo ? '2]'
+		: '@id="delform" or @name="delform"]'
+	);
 	dForm = $x(obj.xDForm, doc);
 	if(dc === doc && !dForm) {
 		return obj;
@@ -6057,14 +6051,12 @@ function aibDetector(host, dc) {
 		: obj.brit ? 'originalpost'
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
-	obj.xThreads =
-		obj.sib ? 'div'
-		: ('.//div[' + (
-			$$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
-				? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
-			: obj._420 ? 'contains(@id,"thread")'
-			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
-		) + ']');
+	obj.xThreads = obj.sib ? 'div' : ('.//div[' + (
+		$$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
+			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
+		: obj._420 ? 'contains(@id,"thread")'
+		: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
+	) + ']');
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: obj.fch ? 'span[starts-with(@id,"no")]'
@@ -6085,17 +6077,13 @@ function aibDetector(host, dc) {
 		: obj.tiny ? 'body'
 		: obj._7ch ? 'message'
 		: false;
-	obj.xImages =
-		obj.brit ? './/a[@class="fileinfo"]'
-		: (
-			(
-				obj.gazo ? '.'
-				: obj.tiny || obj.ylil ? './/p[@class="fileinfo"]'
-				: obj.hana ? './/div[starts-with(@class,"fileinfo")]'
-				: './/span[@class="' + (obj.krau ? 'filename' : 'filesize') + '"]'
-			) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
-			+ (obj.nul ? '[1]' : '')
-		);
+	obj.xImages = obj.brit ? './/a[@class="fileinfo"]' : (
+		obj.gazo ? '.'
+		: obj.tiny || obj.ylil ? './/p[@class="fileinfo"]'
+		: obj.hana ? './/div[starts-with(@class,"fileinfo")]'
+		: './/span[@class="' + (obj.krau ? 'filename' : 'filesize') + '"]'
+	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
+		+ (obj.nul ? '[1]' : '');
 	obj.cTitle =
 		obj.krau || obj.ylil ? 'postsubject'
 		: obj.tiny ? 'subject'
