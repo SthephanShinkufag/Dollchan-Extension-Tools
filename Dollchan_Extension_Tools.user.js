@@ -6113,12 +6113,12 @@ function replyForm(form) {
 	return obj;
 }
 
-function postDetector(obj) {
+function postDetector(obj, node) {
 	if(obj.pDetected) {
 		return;
 	}
 	obj.xTable =
-		$t('table', dForm) ? (
+		$t('table', node) ? (
 			obj.fch ? 'table[not(@class="exif")]'
 			: obj.tire ? 'table[not(@class="postfiles")]'
 			: 'table'
@@ -6190,7 +6190,7 @@ function aibDetector(host, dc) {
 			: obj._420 ? 'contains(@id,"thread")'
 			: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
 		) + ']');
-	postDetector(obj);
+	postDetector(obj, dForm);
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: obj.fch ? 'span[starts-with(@id,"no")]'
@@ -6537,7 +6537,7 @@ function parseDelform(node, dc, tFn, pFn) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
 	if(TNum && dc !== doc && len > 0) {
-		postDetector(aib);
+		postDetector(aib, node);
 		aib.pDetected = true;
 	}
 	if(aib.xWrapper && !postWrapper) {
