@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.4.1
+// @version			12.5.4.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.4.1',
+	'version':	'12.5.4.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2391,17 +2391,6 @@ function doChanges() {
 				}, 0);
 			}
 		};
-		initThreadsUpdater();
-		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
-			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
-				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
-			), {
-				'click': function(e) {
-					$pd(e);
-					loadNewPosts(true, null);
-				}
-			}));
-		}
 	} else {
 		setTimeout(function() {
 			window.scrollTo(0, 0);
@@ -2444,6 +2433,19 @@ function doChanges() {
 				}, 0);
 			}
 		});
+	}
+	if(TNum) {
+		initThreadsUpdater();
+		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
+			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
+				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
+			), {
+				'click': function(e) {
+					$pd(e);
+					loadNewPosts(true, null);
+				}
+			}));
+		}
 	}
 	if(aib.fch && !TNum) {
 		$each($X('.//table[@class="pages"]//form', doc), function(el) {
