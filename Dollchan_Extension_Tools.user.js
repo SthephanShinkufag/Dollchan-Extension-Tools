@@ -6472,7 +6472,7 @@ function processPost(post, thr, pFn, i) {
 }
 
 function parseDelform(node, dc, tFn, pFn) {
-	var i, len, op, post, psts;
+	var i, len, op, psts;
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
 		$each($$X('.//a[@data-embedcode]', node, dc), function(el) {
@@ -6505,11 +6505,10 @@ function parseDelform(node, dc, tFn, pFn) {
 			$each($$X(aib.xPost, thr, dc), function(el) {
 				processPost(el, thr, pFn, thr.pCount++);
 			});
-			len = thr.pCount;
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
 			thr.pCount = psts.length;
-			for(var i = 0, len = psts.length; i < len; i++) {
+			for(i = 0, len = psts.length; i < len; i++) {
 				processPost(psts[i], thr, pFn, i);
 			}
 		}
@@ -6523,12 +6522,12 @@ function parseDelform(node, dc, tFn, pFn) {
 				.substring(0, 70).replace(/\s+/g, ' ');
 		}
 	});
-	post = pByNum[window.location.hash.substring(1)];
-	if(window.location.hash && post) {
+	op = pByNum[window.location.hash.substring(1)];
+	if(window.location.hash && op) {
 		$event(window, {
 			'load': function() {
 				setTimeout(function() {
-					post.className += ' DESU_post';
+					op.className += ' DESU_post';
 				}, 1e3);
 			}
 		});
