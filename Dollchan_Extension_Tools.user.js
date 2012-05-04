@@ -1492,7 +1492,7 @@ function addSettings() {
 				}),
 				divBox('betaupd', Lng.upd.beta[lCode], null),
 				$btn(Lng.upd.checkNow[lCode], '', function() {
-					var el = $id('DESU_updRes', doc);
+					var el = $id('DESU_updRes');
 					el.innerHTML = '<div id="DESU_updRes_check">' + Lng.checking[lCode] + '</div>';
 					checkForUpdates(true, function(html) {
 						el.innerHTML = html;
@@ -6526,7 +6526,7 @@ function doChanges() {
 	}
 	if(Cfg.enupd !== 0) {
 		checkForUpdates(false, function(html) {
-			$alert(html);
+			$alert(html, '');
 		});
 	}
 }
