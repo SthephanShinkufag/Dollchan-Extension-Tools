@@ -2721,9 +2721,6 @@ function checkUpload(dc, url) {
 				pr.cap.value = '';
 				refreshCapImg(tNum);
 			}
-			if(aib.abu) {
-				($x('.//input[@name="makewatermark"]', pr.form) || {}).checked = false;
-			}
 		} else {
 			window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 		}
@@ -6518,11 +6515,7 @@ function doChanges() {
 			$Del('following-sibling::node()', el);
 			$after(el, $new('hr', null, null));
 		}
-		el = $x('.//input[@name="makewatermark"]', pr.form);
-		if(el) {
-			el.checked = false;
-			el.style.display = 'none';
-		}
+		$Del('.//input[@name="makewatermark"]', pr.form);
 	} else {
 		if(aib.brit) {
 			$each($X('.//span[@class="reflink"]', dForm), function(el) {
