@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.4.2
+// @version			12.5.4.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.4.2',
+	'version':	'12.5.4.3',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2363,92 +2363,7 @@ function setUserPassw() {
 	pr.passw.value = val;
 }
 
-function doChanges() {
-	var el;
-	if(TNum) {
-		if(Cfg.rtitle === 0) {
-			docTitle = doc.title;
-		} else {
-			docTitle = '/' + brd + ' - ' + pByNum[TNum].thr.dTitle;
-			doc.title = docTitle;
-		}
-		window.onblur = function() {
-			doc.body.className = 'blurred';
-		};
-		window.onfocus = function() {
-			doc.body.className = 'focused';
-			if(Cfg.updfav !== 0 && favIcon) {
-				clearInterval(favIconTimeout);
-				$Del('.//link[@rel="shortcut icon"]', doc.head);
-				doc.head.appendChild($new('link', {
-					'href': favIcon,
-					'rel': 'shortcut icon'
-				}, null));
-			}
-			if(Cfg.updthr === 1) {
-				setTimeout(function() {
-					doc.title = docTitle;
-				}, 0);
-			}
-		};
-	} else {
-		setTimeout(function() {
-			window.scrollTo(0, 0);
-		}, 50);
-	}
-	if(aib.abu) {
-		$Del('.//div[@class="ABU_refmap"]', dForm);
-		el = $c('DESU_thread', dForm);
-		if(TNum && el) {
-			$Del('following-sibling::node()', el);
-			$after(el, $new('hr', null, null));
-		}
-		el = $x('.//input[@name="makewatermark"]', pr.form);
-		if(el) {
-			el.checked = false;
-			el.style.display = 'none';
-		}
-	} else {
-		if(aib.brit) {
-			$each($X('.//span[@class="reflink"]', dForm), function(el) {
-				var a = el.firstChild;
-				$rattr(a, 'onclick');
-				a.href = getThrdUrl(aib.host, brd, a.textContent);
-				a.target = '_blank';
-			});
-		} else if(aib.hana) {
-			$each($X('.//div[@class="abbrev"]/span/a[starts-with(@onclick,"ExpandThread")]', dForm), function(el) {
-				$del(el.nextSibling);
-				$del(el);
-			});
-		} else if(aib.ylil) {
-			el = $t('iframe', dForm);
-			if(el) {
-				$del(el.nextElementSibling);
-				$del(el.nextElementSibling);
-				$del(el);
-			}
-		}
-	}
-	if(TNum) {
-		initThreadsUpdater();
-		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
-			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
-				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
-			), {
-				'click': function(e) {
-					$pd(e);
-					loadNewPosts(true, null);
-				}
-			}));
-		}
-	}
-	if(aib.fch && !TNum) {
-		$each($X('.//table[@class="pages"]//form', doc), function(el) {
-			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
-			el.appendChild(el.previousElementSibling);
-		});
-	}
+function initPostform() {
 	qArea = $new('div', {
 		'id': 'DESU_qarea',
 		'class': aib.pClass,
@@ -6570,6 +6485,94 @@ function initDelform() {
 	return true;
 }
 
+function doChanges() {
+	var el;
+	if(TNum) {
+		if(Cfg.rtitle === 0) {
+			docTitle = doc.title;
+		} else {
+			docTitle = '/' + brd + ' - ' + pByNum[TNum].thr.dTitle;
+			doc.title = docTitle;
+		}
+		window.onblur = function() {
+			doc.body.className = 'blurred';
+		};
+		window.onfocus = function() {
+			doc.body.className = 'focused';
+			if(Cfg.updfav !== 0 && favIcon) {
+				clearInterval(favIconTimeout);
+				$Del('.//link[@rel="shortcut icon"]', doc.head);
+				doc.head.appendChild($new('link', {
+					'href': favIcon,
+					'rel': 'shortcut icon'
+				}, null));
+			}
+			if(Cfg.updthr === 1) {
+				setTimeout(function() {
+					doc.title = docTitle;
+				}, 0);
+			}
+		};
+	} else {
+		setTimeout(function() {
+			window.scrollTo(0, 0);
+		}, 50);
+	}
+	if(aib.abu) {
+		$Del('.//div[@class="ABU_refmap"]', dForm);
+		el = $c('DESU_thread', dForm);
+		if(TNum && el) {
+			$Del('following-sibling::node()', el);
+			$after(el, $new('hr', null, null));
+		}
+		el = $x('.//input[@name="makewatermark"]', pr.form);
+		if(el) {
+			el.checked = false;
+			el.style.display = 'none';
+		}
+	} else {
+		if(aib.brit) {
+			$each($X('.//span[@class="reflink"]', dForm), function(el) {
+				var a = el.firstChild;
+				$rattr(a, 'onclick');
+				a.href = getThrdUrl(aib.host, brd, a.textContent);
+				a.target = '_blank';
+			});
+		} else if(aib.hana) {
+			$each($X('.//div[@class="abbrev"]/span/a[starts-with(@onclick,"ExpandThread")]', dForm), function(el) {
+				$del(el.nextSibling);
+				$del(el);
+			});
+		} else if(aib.ylil) {
+			el = $t('iframe', dForm);
+			if(el) {
+				$del(el.nextElementSibling);
+				$del(el.nextElementSibling);
+				$del(el);
+			}
+		}
+	}
+	if(TNum) {
+		initThreadsUpdater();
+		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
+			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
+				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
+			), {
+				'click': function(e) {
+					$pd(e);
+					loadNewPosts(true, null);
+				}
+			}));
+		}
+	}
+	if(aib.fch && !TNum) {
+		$each($X('.//table[@class="pages"]//form', doc), function(el) {
+			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
+			el.appendChild(el.previousElementSibling);
+		});
+	}
+}
+
 
 /*==============================================================================
 										MAIN
@@ -6597,21 +6600,20 @@ function doScript() {
 	if(!liteMode) {
 		addPanel();
 		Log('addPanel');
-	}
-	doChanges();
-	Log('doChanges');
-	if(!liteMode) {
 		readFavorites();
 		Log('readFavorites');
 	}
+	doChanges();
+	Log('doChanges');
+	initPostform();
+	Log('initPostform');
 	forAll(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
-	Log('readPostsVisib');
 	if(Cfg.navmrk !== 0) {
 		readViewedPosts();
-		Log('readViewedPosts');
 	}
+	Log('readPosts');
 	forAll(doPostFilters);
 	Log('doPostFilters');
 	if(Cfg.delhd === 1) {
