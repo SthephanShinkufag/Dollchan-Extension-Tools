@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.4.3
+// @version			12.5.4.4
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.4.3',
+	'version':	'12.5.4.4',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5826,7 +5826,7 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; opacity: 0; border: 1px solid grey; }\
-		.abbrev, small[id^="rfmap"] { display: none !important; }'
+		small[id^="rfmap"] { display: none !important; }'
 	);
 	if(Cfg.delhd === 2) {
 		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
@@ -6530,11 +6530,6 @@ function doChanges() {
 				$rattr(a, 'onclick');
 				a.href = getThrdUrl(aib.host, brd, a.textContent);
 				a.target = '_blank';
-			});
-		} else if(aib.hana) {
-			$each($X('.//div[@class="abbrev"]/span/a[starts-with(@onclick,"ExpandThread")]', dForm), function(el) {
-				$del(el.nextSibling);
-				$del(el);
 			});
 		} else if(aib.ylil) {
 			el = $t('iframe', dForm);
