@@ -3732,10 +3732,6 @@ function eventPostImg(post) {
 }
 
 function preloadImages(el) {
-	setTimeout(function() { $preloadImages(el); }, 16);
-}
-
-function $preloadImages(el) {
 	var mReqs = 4, 
 		cReq = 0,
 		aA = [],
@@ -5830,7 +5826,7 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; opacity: 0; border: 1px solid grey; }\
-		.replieslist, .abbrev, small[id^="rfmap"] { display: none !important; }'
+		.abbrev, small[id^="rfmap"] { display: none !important; }'
 	);
 	if(Cfg.delhd === 2) {
 		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
@@ -6637,6 +6633,10 @@ function doScript() {
 		addLinkImg(dForm, true);
 		Log('addLinkImg');
 	}
+	if(Cfg.pimgs !== 0) {
+		preloadImages(dForm);
+		Log('preloadImages');
+	}
 	if(Cfg.imgsrc !== 0) {
 		addImgSearch(dForm);
 		Log('addImgSearch');
@@ -6653,16 +6653,12 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
-	if(Cfg.pimgs !== 0) {
-		preloadImages(dForm);
-		Log('preloadImages');
-	}
-	endTime = (new Date()).getTime() - initTime;
 	if(Cfg.enupd !== 0) {
 		checkForUpdates(false, function(html) {
 			$alert(html);
 		});
 	}
+	endTime = (new Date()).getTime() - initTime;
 }
 
 if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
