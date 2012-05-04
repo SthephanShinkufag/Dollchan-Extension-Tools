@@ -3929,7 +3929,7 @@ function addRefMap(post, uEv) {
 	if(Cfg.navig !== 2) {
 		return;
 	}
-	$each($X('.//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
+	$each($X((!post ? aib.xMsg : '.') + '//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
 		if(/\//.test(link.textContent)) {
 			return;
 		}
