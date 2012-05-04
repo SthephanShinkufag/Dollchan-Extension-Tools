@@ -2704,7 +2704,8 @@ function checkUpload(dc, url) {
 	} else {
 		pr.txta.value = '';
 		if(pr.file) {
-			pr.file = $x('.//input[@type="file"]', $html($x(pr.tr, pr.file), $x(pr.tr, pr.file).innerHTML));
+			err = pr.file.parentNode;
+			pr.file = $x('input[@type="file"]', $html(err, err.innerHTML));
 		}
 		if(pr.tNum) {
 			tNum = pr.tNum;
@@ -2717,9 +2718,6 @@ function checkUpload(dc, url) {
 			if(pr.cap) {
 				pr.cap.value = '';
 				refreshCapImg(tNum);
-			}
-			if(aib.abu) {
-				($x('.//input[@name="makewatermark"]', pr.form) || {}).checked = false;
 			}
 		} else {
 			window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
@@ -6489,11 +6487,7 @@ function doChanges() {
 			$Del('following-sibling::node()', el);
 			$after(el, $new('hr', null, null));
 		}
-		el = $x('.//input[@name="makewatermark"]', pr.form);
-		if(el) {
-			el.checked = false;
-			el.style.display = 'none';
-		}
+		$del($x('.//input[@name="makewatermark"]', pr.form));
 	} else {
 		if(aib.brit) {
 			$each($X('.//span[@class="reflink"]', dForm), function(el) {
