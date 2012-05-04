@@ -3734,8 +3734,8 @@ function eventPostImg(post) {
 function preloadImages(el) {
 	var mReqs = 4, 
 		cReq = 0,
-		aA = [],
-		i, j;
+		i = 0,
+		aA = [];
 	forAllImages(el, function(a) {
 		aA.push(a.href);
 		$event(a, {'click': function(e) {
@@ -3780,9 +3780,9 @@ function preloadImages(el) {
 			cReq--;
 			loadFunc(i++);
 		};
-		req.send();
+		req.send(null);
 	}
-	for(i = j = 0; j < mReqs; j++) {
+	while(i < mReqs) {
 		loadFunc(i++);
 	}
 }
