@@ -4723,19 +4723,6 @@ function getHanaPost(postJson) {
 					'text': 'No.' + id
 				}, null)
 			]),
-			$New('span', {'class': 'cpanel'}, [
-				$New('a', {
-					'onclick': 'GetReplyForm(event, \'' + brd + '\', ' + TNum + ', ' + id + ')',
-					'class': 'reply_icon'
-				}, [
-					$new('img', {
-						'alt': 'Ответ',
-						'title': 'Ответ',
-						'style': 'vertical-align:sub;',
-						'src': '/images/blank-double.png'
-					}, null)
-				])
-			]),
 			$new('br', null, null)
 		]);
 	
@@ -6540,6 +6527,12 @@ function doChanges() {
 			}
 		}
 	}
+	if(aib.fch && !TNum) {
+		$each($X('.//table[@class="pages"]//form', doc), function(el) {
+			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
+			el.appendChild(el.previousElementSibling);
+		});
+	}
 	if(TNum) {
 		initThreadsUpdater();
 		if(Cfg.updthr === 2 || Cfg.updthr === 3) {
@@ -6553,10 +6546,9 @@ function doChanges() {
 			}));
 		}
 	}
-	if(aib.fch && !TNum) {
-		$each($X('.//table[@class="pages"]//form', doc), function(el) {
-			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
-			el.appendChild(el.previousElementSibling);
+	if(Cfg.enupd !== 0) {
+		checkForUpdates(false, function(html) {
+			$alert(html);
 		});
 	}
 }
@@ -6648,11 +6640,6 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
-	if(Cfg.enupd !== 0) {
-		checkForUpdates(false, function(html) {
-			$alert(html);
-		});
-	}
 	endTime = (new Date()).getTime() - initTime;
 }
 
