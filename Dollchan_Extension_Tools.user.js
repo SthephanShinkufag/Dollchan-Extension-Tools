@@ -5858,7 +5858,7 @@ function scriptCSS() {
 	}
 	if(aib.abu) {
 		x.push(
-			'.postpanel, .highslide, div[id^="post_video"], a[onclick^="window.open"] { display: none; }\
+			'.ABU_refmap, .postpanel, .highslide, div[id^="post_video"], a[onclick^="window.open"] { display: none !important; }\
 			a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
 		);
 	}
@@ -5867,7 +5867,7 @@ function scriptCSS() {
 	}
 	if(aib.nul) {
 		x.push(
-			'#newposts_get, #postform nobr, .DESU_thread span[style="float: right;"] { display: none; }\
+			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
 			.voiceplay { float: none; }'
 		);
 	}
@@ -6384,9 +6384,7 @@ function parseDelform(node, dc, tFn, pFn) {
 	var i, len, op, psts;
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
-		$each($$X('.//a[@data-embedcode]', node, dc), function(el) {
-			$del(el.parentNode);
-		});
+		$$Del('.//a[@data-embedcode]', node, dc);
 		$each($$X('.//div[@class="postinfo"]', node, dc), function(el) {
 			if(el.previousElementSibling) {
 				$before(el.parentNode.firstChild, [el]);
@@ -6519,7 +6517,6 @@ function doChanges() {
 		}, 50);
 	}
 	if(aib.abu) {
-		$Del('.//div[@class="ABU_refmap"]', dForm);
 		el = $c('DESU_thread', dForm);
 		if(TNum && el) {
 			$Del('following-sibling::node()', el);
