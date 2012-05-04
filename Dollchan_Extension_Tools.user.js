@@ -6114,9 +6114,6 @@ function replyForm(form) {
 }
 
 function postDetector(obj, node) {
-	if(obj.pDetected) {
-		return;
-	}
 	obj.xTable =
 		$t('table', node) ? (
 			obj.fch ? 'table[not(@class="exif")]'
@@ -6487,6 +6484,9 @@ function parseDelform(node, dc, tFn, pFn) {
 			}
 		});
 	}
+	if(TNum && dc !== doc && Posts.length < 2) {
+		postDetector(aib, node);
+	}
 	forEachThread(node, dc, function(thr) {
 		if(aib._420 || (aib.tiny && !TNum)) {
 			$after(thr, thr.lastChild);
@@ -6535,10 +6535,6 @@ function parseDelform(node, dc, tFn, pFn) {
 	}
 	if(liteMode) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
-	}
-	if(TNum && dc !== doc && len > 0) {
-		postDetector(aib, node);
-		aib.pDetected = true;
 	}
 	if(aib.xWrapper && !postWrapper) {
 		postWrapper = $$x(aib.xWrapper, node, dc);
