@@ -3495,6 +3495,8 @@ function addLinkTube(post) {
 					} catch(e) {}
 				}
 			});
+		} else {
+			link.textContent = link.textContent.replace(/^http:/, 'https:');
 		}
 	});
 }
