@@ -3614,13 +3614,13 @@ function addFullImg(a, sz, isExp) {
 	}));
 }
 
-function addLinkImg(node, addBr) {
+function addLinkImg(el, addBr) {
 	if(Cfg.addimg === 0) {
 		return;
 	}
 	$each($X(
 		aib.xMsg + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]',
-		node
+		el
 	), function(link) {
 		var a;
 		if($xb('ancestor::small', link)) {
@@ -3659,26 +3659,11 @@ function addLinkImg(node, addBr) {
 	});
 }
 
-function forAllImages(node, fn) {
-	$each($X(
-		aib.brit ? './/a[@class="fileinfo"]'
-		: (
-			(
-				aib.gazo ? '.'
-				: aib.tiny || aib.ylil ? './/p[@class="fileinfo"]'
-				: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
-				: './/span[@class="' + (aib.krau ? 'filename' : 'filesize') + '"]'
-			) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
-			+ (aib.nul ? '[1]' : '')
-		)
-	, node), fn);
-}
-
-function addImgSearch(node) {
+function addImgSearch(el) {
 	if(!Cfg.imgsrc) {
 		return;
 	}
-	forAllImages(node, function(link) {
+	$each($X(aib.xImages, el), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			return;
@@ -3736,7 +3721,7 @@ function preloadImages(el) {
 		cReq = 0,
 		i = 0,
 		aA = [];
-	forAllImages(el, function(a) {
+	$each($X(aib.xImages, el), function(a) {
 		aA.push(a.href);
 		$event(a, {'click': function(e) {
 			$pd(e);
@@ -4118,13 +4103,13 @@ function showPostPreview(e) {
 	});
 }
 
-function eventRefLink(node) {
+function eventRefLink(el) {
 	var lnk,
 		erf = function() {
 			if(Cfg.navig === 0) {
 				return;
 			}
-			$each($X('.//a[starts-with(text(),">>")]' + (aib.ylil ? '[not(@class)]' : ''), node), function(link) {
+			$each($X('.//a[starts-with(text(),">>")]' + (aib.ylil ? '[not(@class)]' : ''), el), function(link) {
 				if(aib.tiny) {
 					lnk = link.cloneNode(true);
 					$before(link, [lnk]);
@@ -6006,9 +5991,9 @@ function replyForm(form) {
 	return obj;
 }
 
-function postDetector(obj, node) {
+function postDetector(obj, el) {
 	obj.xTable =
-		$t('table', node) ? (
+		$t('table', el) ? (
 			obj.fch ? 'table[not(@class="exif")]'
 			: obj.tire ? 'table[not(@class="postfiles")]'
 			: 'table'
@@ -6100,6 +6085,17 @@ function aibDetector(host, dc) {
 		: obj.tiny ? 'body'
 		: obj._7ch ? 'message'
 		: false;
+	obj.xImages =
+		obj.brit ? './/a[@class="fileinfo"]'
+		: (
+			(
+				obj.gazo ? '.'
+				: obj.tiny || obj.ylil ? './/p[@class="fileinfo"]'
+				: obj.hana ? './/div[starts-with(@class,"fileinfo")]'
+				: './/span[@class="' + (obj.krau ? 'filename' : 'filesize') + '"]'
+			) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
+			+ (obj.nul ? '[1]' : '')
+		);
 	obj.cTitle =
 		obj.krau || obj.ylil ? 'postsubject'
 		: obj.tiny ? 'subject'
@@ -6146,8 +6142,8 @@ function aibDetector(host, dc) {
 			}
 			el = $new('div', null, null);
 			$before(thr.firstChild, [el]);
-			$each($$X('node()', op, dc), function(node) {
-				el.appendChild(node);
+			$each($$X('node()', op, dc), function(el) {
+				el.appendChild(el);
 			});
 			$del($t('table', thr));
 			return el;
@@ -6434,10 +6430,10 @@ function parseDelform(node, dc, tFn, pFn) {
 	return node;
 }
 
-function replaceDelform(node) {
+function replaceDelform(el) {
 	var txt;
 	if(aib.fch || aib.krau || Cfg.ctime && timeRegex || Cfg.spells !== 0 && oSpells.rep[0]) {
-		txt = node.innerHTML;
+		txt = el.innerHTML;
 		if(Cfg.ctime && timeRegex) {
 			txt = fixTime(txt);
 		}
@@ -6447,7 +6443,7 @@ function replaceDelform(node) {
 		if(Cfg.spells !== 0 && oSpells.rep[0]) {
 			txt = doReplace(oSpells.rep, txt);
 		}
-		node.innerHTML = txt;
+		el.innerHTML = txt;
 	}
 }
 
