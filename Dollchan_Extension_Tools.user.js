@@ -1857,7 +1857,6 @@ function addFavoritesTable() {
 						});
 						ajaxGetPosts(null, arr[1], arr[2], function(dc, post, j) {
 							cnt++;
-							return true;
 						}, function(err) {
 							$attr(c, {
 								'class': '',
@@ -4102,7 +4101,6 @@ function showPostPreview(e) {
 		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', pst, dc), function(link) {
 			getRefMap(post, link.textContent.match(/\d+/)[0]);
 		});
-		return true;
 	}, function(err) {
 		if(el && !el.forDel) {
 			funcPostPreview(importPreview(b, pNum), pNum, parent, e, err);
@@ -4162,9 +4160,7 @@ function parseHTMLdata(html, b, tNum, pFn) {
 				: html
 			);
 			parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
-				if(!pFn(dc, post, i)) {
-					throw '';
-				}
+				pFn(dc, post, i);
 			});
 		} catch(e) {}
 	}
@@ -4300,7 +4296,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 		post.Msg = doc.importNode(aib.getMsg(post), true);
 		post.Text = getText(post.Msg);
 		processFullMsg(post);
-		return false;
+		throw '';
 	}, function(err) {});
 }
 
@@ -4343,7 +4339,6 @@ function loadThread(post, last, fn) {
 	$alert(Lng.loading[lCode], 'Wait');
 	ajaxGetPosts(null, brd, post.Num, function(dc, post, j) {
 		psts.push(importPost(post));
-		return true;
 	}, function(err) {
 		$close($id('DESU_alertWait'));
 		if(err) {
@@ -4429,7 +4424,6 @@ function loadPage(p, tClass, len) {
 			]);
 		}
 		newPost(thr, importPost(post), i);
-		return true;
 	}, function(err) {
 		if(p === len - 1) {
 			$close($id('DESU_alertWait'));
@@ -4733,7 +4727,6 @@ function loadNewPosts(inf, fn) {
 			len++;
 		}
 		i++;
-		return true;
 	}, function(err) {
 		if(inf) {
 			$close($id('DESU_alertWait'));
@@ -4774,7 +4767,6 @@ function initThreadsUpdater() {
 			} else {
 				ajaxGetPosts(null, brd, TNum, function(dc, pst, i) {
 					cnt++;
-					return true;
 				}, function(err) {
 					infoNewPosts(err, cnt - Posts.length);
 				});
