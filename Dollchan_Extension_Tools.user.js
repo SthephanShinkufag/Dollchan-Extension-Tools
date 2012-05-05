@@ -1826,7 +1826,7 @@ function addFavoritesTable() {
 						]),
 						$new('div', {
 							'id': tNum,
-							'class': ' DESU_thread',
+							'class': 'DESU_favThr',
 							'style': 'display: none;'
 						}, null)
 					])
@@ -4400,17 +4400,15 @@ function loadThread(post, last, fn) {
 
 function loadFavorThread(e) {
 	var el = this.parentNode.parentNode,
-		thr = $x('.//div[contains(@class," DESU_thread")]', el),
-		arr = el.id.substr(13).split('|'),
-		url = $if(arr[0] !== aib.host, this.nextElementSibling.href),
-		b = arr[1],
-		tNum = arr[2];
+		favt = $c('DESU_favThr', el),
+		url = this.nextElementSibling.href,
+		tNum = el.id.substr(13).split('|')[2];
 	$pd(e);
-	if(thr.style.display !== 'none') {
-		while(thr.firstChild) {
-			$del(thr.firstChild);
+	if(favt.style.display !== 'none') {
+		while(favt.firstChild) {
+			$del(favt.firstChild);
 		}
-		$disp(thr);
+		$disp(favt);
 		$del($c('DESU_favIframe', doc));
 		return;
 	}
@@ -4418,31 +4416,14 @@ function loadFavorThread(e) {
 		$focus(pByNum[tNum]);
 		return;
 	}
-	if(url) {
-		thr.appendChild($new('iframe', {
-			'name': 'DESU_favIframe',
-			'class': 'DESU_favIframe',
-			'src': url,
-			'style': 'border: none; width: ' + (doc.body.clientWidth - 65)
-				+ 'px; height: ' + (window.innerHeight - 100) + 'px;'
-		}, null));
-		$disp(thr);
-		return;
-	}
-	$alert(Lng.loading[lCode], 'Wait');
-	ajaxGetPosts(null, b, tNum, function(err) {
-		if(err) {
-			$close($id('DESU_alertWait'));
-			$alert(err, '');
-			return;
-		}
-		newPost(thr, b, tNum, 0, true, null);
-		expandThread(thr, b, tNum, 5, true);
-		$x('.//tr[@id="DESU_favData_' + aib.host + '|' + b + '|' + tNum
-			+ '"]//span[@class="DESU_favPCount"]/span', doc).textContent = thr.pCount;
-		setStored('DESU_Favorites', $uneval(Favor));
-		$disp(thr);
-	});
+	favt.appendChild($new('iframe', {
+		'name': 'DESU_favIframe',
+		'class': 'DESU_favIframe',
+		'src': url,
+		'style': 'border: none; width: ' + (doc.body.clientWidth - 65)
+			+ 'px; height: ' + (window.innerHeight - 100) + 'px;'
+	}, null));
+	$disp(favt);
 }
 
 function loadPages(len) {
