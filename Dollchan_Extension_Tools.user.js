@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.4.4
+// @version			12.5.5.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.4.4',
+	'version':	'12.5.5.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -4063,9 +4063,11 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 }
 
 function showPostPreview(e) {
-	var b = this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|index|\d+|$)/)[1],
+	var b = aib.ylil
+		? this['data-boardurl']
+		: this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
-		pNum = (this.hash.match(/\d+/) || [tNum])[0],
+		pNum = (this.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || importPreview(b, pNum),
 		parent = getPost(e.target),
 		el = parent.node ? parent.node.kid : curView;
@@ -4099,31 +4101,36 @@ function showPostPreview(e) {
 }
 
 function eventRefLink(el) {
-	var lnk,
-		erf = function() {
-			if(Cfg.navig === 0) {
-				return;
+	if(Cfg.navig === 0) {
+		return;
+	}
+	var list = $X('.//a[starts-with(text(),">>")]', el),
+		clear =
+			aib.tiny || aib.ylil ? function(link) {
+				var lnk = link.cloneNode(true);
+				link.parentNode.replaceChild(lnk, link);
+				return lnk;
 			}
-			$each($X('.//a[starts-with(text(),">>")]' + (aib.ylil ? '[not(@class)]' : ''), el), function(link) {
-				if(aib.tiny) {
-					lnk = link.cloneNode(true);
-					$before(link, [lnk]);
-					$del(link);
-					link = lnk;
-				} else {
-					$rattr(link, 'onmouseover');
-					$rattr(link, 'onmouseout');
-				}
-				$event(link, {
+			: list.snapshotItem(0).onmouseover ? function(link) {
+				$rattr(link, 'onmouseover');
+				$rattr(link, 'onmouseout');
+				return link;
+			}
+			: function(link) {
+				return link;
+			},
+		fn = function() {
+			$each(list, function(link) {
+				$event(clear(link), {
 					'mouseover': showPostPreview,
 					'mouseout': markDelete
 				});
 			});
 		};
-	if(aib.tiny) {
-		setTimeout(erf, 500);
+	if(aib.ylil) {
+		setTimeout(fn, 0);
 	} else {
-		erf();
+		fn();
 	}
 }
 
