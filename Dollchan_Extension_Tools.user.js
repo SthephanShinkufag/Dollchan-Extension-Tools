@@ -4772,7 +4772,7 @@ function initThreadsUpdater() {
 					infoNewPosts(err, cnt - Posts.length);
 				});
 			}
-		});
+		}, t);
 	}
 }
 
@@ -5958,21 +5958,6 @@ function replyForm(form) {
 	return obj;
 }
 
-function postDetector(obj, el) {
-	obj.xTable = $t('table', el) ? (
-		obj.fch ? 'table[not(@class="exif")]'
-		: obj.tire ? 'table[not(@class="postfiles")]'
-		: 'table'
-	) : false;
-	obj.xPost = (obj.xTable || obj.gazo)
-		? './/table/tbody/tr/td' + (obj.gazo ? '[2]' : '[contains(@class,"' + obj.pClass + '")]')
-		: './/div[contains(@class,"' + obj.pClass + '")]';
-	obj.xWrapper = obj.brit
-		? 'div[contains(@class,"DESU_thread")]/table[2]|div[contains(@class,"DESU_thread")]/div/table'
-		: obj.xTable ? './/div[contains(@class," DESU_thread")]//' + obj.xTable
-		: false;
-}
-
 function aibDetector(host, dc) {
 	var obj = {},
 		h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
@@ -6329,7 +6314,20 @@ function parseDelform(node, dc, pFn) {
 		});
 	}
 	if(Posts.length < 2) {
-		postDetector(aib, node);
+		aib.xTable = $t('table', node) ? (
+			aib.fch ? 'table[not(@class="exif")]'
+			: aib.tire ? 'table[not(@class="postfiles")]'
+			: 'table'
+		) : false;
+		aib.xPost = (aib.xTable || aib.gazo)
+			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
+			: './/div[contains(@class,"' + aib.pClass + '")]';
+		if(aib.xTable) {
+			postWrapper = $$x('.//' + aib.xTable + '[last()]', node, dc);
+			if(dc !== doc && postWrapper) {
+				postWrapper = doc.importNode(postWrapper, true);
+			}
+		}
 	}
 	forEachThread(node, dc, function(thr) {
 		if(aib._420 || (aib.tiny && !TNum)) {
@@ -6375,12 +6373,6 @@ function parseDelform(node, dc, pFn) {
 	}
 	if(liteMode) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
-	}
-	if(aib.xWrapper && !postWrapper) {
-		postWrapper = $$x(aib.xWrapper, node, dc);
-		if(dc !== doc && postWrapper) {
-			postWrapper = doc.importNode(postWrapper, true);
-		}
 	}
 	return node;
 }
