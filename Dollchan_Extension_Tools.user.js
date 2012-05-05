@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPosts = {}, ajThrds = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, imPosts = {}, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {fImgs: {}, cached: {}}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {fImgs: {}, cached: {}}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -1847,18 +1847,20 @@ function addFavoritesTable() {
 			$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
 				$each(list, function(el) {
 					var c,
-						arr = el.id.substr(13).split('|');
+						arr = el.id.substr(13).split('|'),
+						cnt = 0;
 					if(aib.host === arr[0]) {
 						c = $t('span', $c('DESU_favPCount', el));
 						$attr(c, {
 							'class': 'DESU_icnWait',
 							'text': ''
 						});
-						ajaxGetPosts(null, arr[1], arr[2], function(err) {
-							var cnt = err || ajThrds[arr[1]][arr[2]].length;
+						ajaxGetPosts(null, arr[1], arr[2], function(dc, post, j) {
+							cnt++;
+						}, function(err) {
 							$attr(c, {
 								'class': '',
-								'text': cnt
+								'text': err || cnt
 							});
 							if(!err) {
 								Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
@@ -1871,7 +1873,7 @@ function addFavoritesTable() {
 			$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
 				$each(list, function(el) {
 					var arr = el.id.substr(13).split('|');
-					ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, function(err) {
+					ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, null, function(err) {
 						if(err) {
 							removeFavorites(arr[0], arr[1], arr[2]);
 							saveFavorites($uneval(Favor));
@@ -2390,13 +2392,13 @@ function initPostform() {
 		$before(dForm, [pArea]);
 	}
 	if(pr.on) {
-		doPostformChanges();
+		doPostformChanges(null);
 	} else if(oeForm) {
-		ajaxGetPosts(null, brd, Posts[0].Num, doPostformChanges);
+		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges);
 	}
 }
 
-function doPostformChanges() {
+function doPostformChanges(a) {
 	var img, src, _img, sageBtn, m, load,
 		el = pr.txta,
 		resMove = function(e) {
@@ -4093,7 +4095,13 @@ function showPostPreview(e) {
 		return;
 	}
 	el = funcPostPreview(null, pNum, parent, e, '<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading[lCode]);
-	ajaxGetPosts(null, b, tNum, function(err) {
+	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
+		post = pst.Num;
+		ajPviews[b][post] = pst;
+		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', pst, dc), function(link) {
+			getRefMap(post, link.textContent.match(/\d+/)[0]);
+		});
+	}, function(err) {
 		if(el && !el.forDel) {
 			funcPostPreview(importPreview(b, pNum), pNum, parent, e, err);
 		}
@@ -4111,7 +4119,7 @@ function eventRefLink(el) {
 				link.parentNode.replaceChild(lnk, link);
 				return lnk;
 			}
-			: list.snapshotItem(0).onmouseover ? function(link) {
+			: (list.snapshotItem(0) || {}).onmouseover ? function(link) {
 				$rattr(link, 'onmouseover');
 				$rattr(link, 'onmouseout');
 				return link;
@@ -4139,50 +4147,34 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function parseHTMLdata(html, b, tNum) {
-	var dc, thrd, pNum, om;
+function parseHTMLdata(html, b, tNum, pFn) {
+	var dc;
 	if(!pr.on && oeForm) {
 		pr = replyForm($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
 		$before($id('DESU_pform').firstChild, [pr.form]);
 	}
-	dc = HTMLtoDOM(aib.hana
-		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
-		: html
-	);
-	parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(thr) {
-		thrd = thr;
-		if(!ajThrds[b]) {
-			ajThrds[b] = {};
-			ajPosts[b] = {};
-		}
-		ajThrds[b][thr.Num] = [];
-	}, function(post, i) {
-		if(i === 0 && aib.kus && $c('omittedposts', thrd)) {
-			post.appendChild(om);
-		}
-		pNum = post.Num;
-		ajThrds[b][thrd.Num].push(pNum);
-		ajPosts[b][pNum] = post;
-		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', post, dc), function(link) {
-			getRefMap(pNum, link.textContent.match(/\d+/)[0]);
+	if(pFn) {
+		dc = HTMLtoDOM(aib.hana
+			? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
+			: html
+		);
+		parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
+			pFn(dc, post, i);
 		});
-	});
+	}
 }
 
-function ajaxGetPosts(url, b, tNum, fn) {
+function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: url || (
-			aib.hana
-				? '/api/thread/expand/' + b + '/' + tNum
-				: '/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt)
-		), onreadystatechange: function(xhr) {
+		url: url || ('/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt)),
+		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
-					parseHTMLdata(xhr.responseText, b, tNum);
-					fn();
+					parseHTMLdata(xhr.responseText, b, tNum, pFn);
+					fFn();
 				} else {
-					fn(xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText);
+					fFn(xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText);
 				}
 			}
 		}
@@ -4204,31 +4196,26 @@ function getJSON(url, ifmodsince, fn) {
 }
 
 function importPreview(b, pNum) {
-	var el;
-	if(!imPosts[b]) {
-		imPosts[b] = {};
+	if(!ajPviews[b]) {
+		ajPviews[b] = {};
 	}
-	el = imPosts[b][pNum];
-	if(!el) {
-		imPosts[b][pNum] = el = importPost(b, pNum);
+	var el = ajPviews[b][pNum];
+	if(el && el.ownerDocument !== doc) {
+		el = importPost(el);
 	}
 	return el;
 }
 
-function importPost(b, pNum) {
-	var el;
-	if(ajPosts[b] && ajPosts[b][pNum]) {
-		el = doc.importNode(ajPosts[b][pNum], true);
-		el.Num = pNum;
-		replaceDelform(el);
-		return el;
-	}
-	return null;
+function importPost(post) {
+	var el = doc.importNode(post, true);
+	el.Num = post.Num;
+	replaceDelform(el);
+	return el;
 }
 
 function insertPost(thr, post) {
 	var pst, el;
-	if(postWrapper) {
+	if(postWrapper && post.Count !== 0) {
 		pst = postWrapper.cloneNode(true);
 		el = $c('DESU_post', pst);
 		if(el) {
@@ -4264,13 +4251,9 @@ function addPostFunc(post) {
 	}
 }
 
-function newPost(thr, b, tNum, i, isDel, pInfo) {
-	var pNum = pInfo ? pInfo.pNum : ajThrds[b][tNum][i],
-		post = pInfo ? pInfo.post : importPost(b, pNum);
+function newPost(thr, post, i) {
 	pushPost(post, i);
-	post.Vis = getVisib(pNum);
-	post.isDel = isDel;
-	thr.pCount = pInfo ? pInfo.pCount : ajThrds[b][tNum].length;
+	post.Vis = getVisib(post.Num);
 	post.thr = thr;
 	insertPost(thr, post);
 	addPostButtons(post);
@@ -4302,17 +4285,18 @@ function getFullMsg(post, tNum, a, addFunc) {
 		}
 		return;
 	}
-	ajaxGetPosts(null, brd, tNum, function(err) {
-		if(!err) {
+	ajaxGetPosts(null, brd, tNum, function(dc, post, i) {
+		if(i === 0) {
 			$del(a);
-			post.Msg = $html(msg, aib.getMsg(importPost(brd, post.Num)).innerHTML);
+			post.Msg = doc.importNode(aib.getMsg(post), true);
 			post.Text = getText(post.Msg);
 			processFullMsg(post);
 		}
-	});
+	}, function(err) {});
 }
 
 function processFullMsg(post) {
+	replaceDelform(post);
 	$each($X('.//a[@class="DESU_btnSrc"]', post), function(el) {
 		$del(el);
 	});
@@ -4345,33 +4329,14 @@ function expandPost(post) {
 	}
 }
 
-function expandThread(thr, b, tNum, last, isDel) {
-	var i,
-		len = ajThrds[b][tNum].length;
-	if(last !== 1) {
-		last = len - last;
-	}
-	if(last < 1) {
-		last = 1;
-	}
-	if(last > 1) {
-		thr.appendChild($new('div', {
-			'class': 'DESU_omitted',
-			'text': Lng.postsOmitted[lCode] + (last - 1)
-		}, null));
-	}
-	for(i = last; i < len; i++) {
-		newPost(thr, b, tNum, i, isDel, null);
-	}
-	savePostsVisib();
-	$close($id('DESU_alertWait'));
-}
-
 function loadThread(post, last, fn) {
+	var psts = [], thr = post.thr, i;
 	$alert(Lng.loading[lCode], 'Wait');
-	ajaxGetPosts(null, brd, post.Num, function(err) {
+	ajaxGetPosts(null, brd, post.Num, function(dc, post, j) {
+		psts.push(importPost(post));
+	}, function(err) {
+		$close($id('DESU_alertWait'));
 		if(err) {
-			$close($id('DESU_alertWait'));
 			$alert(err, '');
 		} else {
 			$delNx(post.Msg);
@@ -4379,18 +4344,19 @@ function loadThread(post, last, fn) {
 			if(aib.krau) {
 				$del($c('omittedinfo', post));
 			}
-			expandThread(post.thr, brd, post.Num, last, false);
-			$focus(pByNum[post.Num]);
-			if(last > 5 || last === 1) {
-				post.parentNode.appendChild($event($add(
-					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
-				), {
-					'click': function(e) {
-						$pd(e);
-						loadThread(post, 5, null);
-					}
-				}));
+			if(last === 1 || last >= psts.length - 1) {
+				i = 1;
+			} else {
+				i = psts.length - last;
+				thr.appendChild($new('div', {
+					'class': 'DESU_omitted',
+					'text': Lng.postsOmitted[lCode] + (psts.length - last - 1)
+				}, null));
 			}
+			while(i < psts.length) {
+				newPost(thr, psts[i], i++);
+			}
+			thr.pCount = psts.length;
 		}
 		if(fn) {
 			fn();
@@ -4426,49 +4392,48 @@ function loadFavorThread(e) {
 	$disp(favt);
 }
 
+function loadPage(p, tClass, len) {
+	var thr, page;
+	$append(dForm, [
+		$new('center', {
+			'text': p + Lng.page[lCode],
+			'style': 'font-size: 2em;'
+		}, null),
+		$new('hr', null, null),
+		page = $new('div', {'id': 'DESU_page' + p}, null)
+	]);
+	ajaxGetPosts('/' + (brd === '' ? '' : brd + '/') + (
+		p > 0 ? p + docExt
+		: aib.hana ? 'index' + docExt
+		: ''
+	), null, null, function(dc, post, i) {
+		if(i === 0) {
+			thr = $new('div', {
+				'class': tClass
+			}, null);
+			thr.Num = post.Num;
+			$append(page, [
+				thr,
+				$new('br', {'clear': 'left'}, null),
+				$new('hr', null, null)
+			]);
+		}
+		newPost(thr, importPost(post), i);
+	}, function(err) {
+		savePostsVisib();
+		readHiddenThreads();
+		if(p === len - 1) {
+			$close($id('DESU_alertWait'));
+		}
+	});
+}
+
 function loadPages(len) {
-	var p;
+	var p, tClass = $c('DESU_thread', dForm).className;
 	$alert(Lng.loading[lCode], 'Wait');
 	dForm.innerHTML = '';
-	for(p = 0, Posts = [], refMap = [], ajPosts[brd] = {}, ajThrds[brd] = {}; p < len; p++) {
-		$append(dForm, [
-			$new('center', {
-				'text': p + Lng.page[lCode],
-				'style': 'font-size: 2em;'
-			}, null),
-			$new('hr', null, null),
-			$new('div', {'id': 'DESU_page' + p}, null)
-		]);
-		ajaxGetPosts('/' + (brd === '' ? '' : brd + '/') + (
-			p > 0 ? p + docExt
-			: aib.hana ? 'index' + docExt
-			: ''
-		), brd, null, function(p, len) {
-			return function() {
-				var tNum, thr, i, pLen,
-					page = $id('DESU_page' + p);
-				for(tNum in ajThrds[brd]) {
-					thr = $new('div', {
-						'class': ' DESU_thread',
-						'id': 'thread-' + tNum
-					}, null);
-					$append(page, [
-						thr,
-						$new('br', {'clear': 'left'}, null),
-						$new('hr', null, null)
-					]);
-					for(i = 0, pLen = ajThrds[brd][tNum].length; i < pLen; i++) {
-						newPost(thr, brd, tNum, i, false, null);
-					}
-					delete ajThrds[brd][tNum];
-				}
-				savePostsVisib();
-				readHiddenThreads();
-				if(p === len - 1) {
-					$close($id('DESU_alertWait'));
-				}
-			}
-		}(p, len));
+	for(p = 0, Posts = [], refMap = []; p < len; p++) {
+		loadPage(p, tClass, len);
 	}
 }
 
@@ -4502,8 +4467,8 @@ function endPostsUpdate() {
 	ajaxInt = undefined;
 }
 
-function infoNewPosts(err, nPosts, del) {
-	var inf, old;
+function infoNewPosts(err, inf) {
+	var old;
 	if(err) {
 		if(err !== Lng.noConnect[lCode]) {
 			$alert(Lng.thrdNotFound[lCode] + TNum + '): \n' + err, '');
@@ -4520,7 +4485,6 @@ function infoNewPosts(err, nPosts, del) {
 	}
 	setUpdButtonState('On');
 	$close($id('DESU_alertWarn'));
-	inf = nPosts !== null ? nPosts : ajThrds[brd][TNum].length - Posts.length + del;
 	if(Cfg.updthr === 1) {
 		if(doc.body.className === 'focused') {
 			return;
@@ -4706,7 +4670,10 @@ function getHanaPost(postJson) {
 }
 
 function loadNewPosts(inf, fn) {
-	var el, i, len, del, thr;
+	var el, del, 
+		i = 0,
+		len = 0,
+		thr = $x('.//div[contains(@class," DESU_thread")]', dForm);
 	if(inf) {
 		$alert(Lng.loading[lCode], 'Wait');
 	}
@@ -4720,30 +4687,28 @@ function loadNewPosts(inf, fn) {
 						if(inf) {
 							$close($id('DESU_alertWait'));
 						}
-						infoNewPosts(json['message'], null, 0);
+						infoNewPosts(json['message'], null);
 					} else {
 						el = (json['result'] || {})['posts'];
-						if(el && el.length > 0) {
-							thr = $x('.//div[contains(@class," DESU_thread")]', dForm)
+						if(el && el.length > 0 && Cfg.updthr === 1) {
 							for(i = 0, len = el.length; i < len; i++) {
 								del = getHanaPost(el[i]);
 								replaceDelform(del);
 								del.Num = el[i]['display_id'];
-								newPost(thr, brd, TNum, thr.pCount + i, false,
-									{post: del, pNum: del.Num, pCount: thr.pCount + el.length}
-								);
+								newPost(thr, del, thr.pCount + i);
 							}
+							thr.pCount += el.length;
 						}
 						if(inf) {
 							$close($id('DESU_alertWait'));
 						}
-						infoNewPosts(null, el ? el.length : 0, 0);
+						infoNewPosts(null, el ? el.length : 0);
 					}
 				} else {
 					if(inf) {
 						$close($id('DESU_alertWait'));
 					}
-					infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : xhr.statusText, null, 0);
+					infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : xhr.statusText, null);
 				}
 				if(fn) {
 					fn();
@@ -4752,22 +4717,29 @@ function loadNewPosts(inf, fn) {
 		);
 		return;
 	}
-	ajaxGetPosts(null, brd, TNum, function(err) {
-		del = getDelPosts(err);
-		if(!inf) {
-			infoNewPosts(err, null, del);
+	ajaxGetPosts(null, brd, TNum, function(dc, post, j) {
+		el = Posts[i];
+		while(el && el.Num !== post.Num) {
+			el.isDel = true;
+			el.Btns.className += '_del';
+			el = Posts[++i];
 		}
-		if(!err) {
-			el = $x('.//div[contains(@class," DESU_thread")]', dForm);
-			for(i = Posts.length - del, len = ajThrds[brd][TNum].length; i < len; i++) {
-				newPost(el, brd, TNum, i, false, null);
+		if(!el) {
+			if(Cfg.updthr === 1) {
+				newPost(thr, importPost(post), i);
 			}
-			savePostsVisib();
-			$id('DESU_panelInfo').firstChild.textContent = len + '/' + getImages(dForm).snapshotLength;
+			len++;
 		}
+		i++;
+	}, function(err) {
 		if(inf) {
 			$close($id('DESU_alertWait'));
-			infoNewPosts(err, null, del);
+		}
+		infoNewPosts(err, len);
+		if(!err && Cfg.updthr === 1) {
+			thr.pCount = i - 1;
+			savePostsVisib();
+			$id('DESU_panelInfo').firstChild.textContent = i + '/' + getImages(dForm).snapshotLength;
 		}
 		if(fn) {
 			fn();
@@ -4778,16 +4750,9 @@ function loadNewPosts(inf, fn) {
 function initThreadsUpdater() {
 	var C = Cfg.updint,
 		t = 6e4*(C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
-	if(Cfg.updthr === 1) {
+	if(Cfg.updthr === 1 || Cfg.updthr === 2) {
 		ajaxInt = setInterval(function() {
-			loadNewPosts(false, null);
-		}, t);
-	}
-	if(Cfg.updthr === 2) {
-		ajaxInt = setInterval(function() {
-			ajaxGetPosts(null, brd, TNum, function(err) {
-				infoNewPosts(err, null, getDelPosts(err));
-			});
+			loadNewPosts(Cfg.updthr === 2, null);
 		}, t);
 	}
 }
@@ -6333,7 +6298,7 @@ function processPost(post, thr, pFn, i) {
 	pFn(post, i + 1);
 }
 
-function parseDelform(node, dc, tFn, pFn) {
+function parseDelform(node, dc, pFn) {
 	var i, len, op, psts;
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
@@ -6356,9 +6321,6 @@ function parseDelform(node, dc, tFn, pFn) {
 		op.className += ' DESU_oppost';
 		op.Num = thr.Num = aib.getTNum(op, dc);
 		op.thr = thr;
-		if(tFn) {
-			tFn(thr);
-		}
 		pFn(op, 0);
 		if(!nav.Firefox || aib.gazo) {
 			thr.pCount = 0;
@@ -6372,7 +6334,7 @@ function parseDelform(node, dc, tFn, pFn) {
 				processPost(psts[i], thr, pFn, i);
 			}
 		}
-		if(!tFn) {
+		if(dc === doc) {
 			if(!TNum) {
 				thr.pCount += (i = aib.getOmPosts(thr, dc)) && (i = i.textContent)
 					? +(i.match(/\d+/) || [0])[0]
@@ -6425,7 +6387,7 @@ function initDelform() {
 	dForm.id = '';
 	$disp(dForm);
 	try {
-		parseDelform(dForm, doc, false, pushPost);
+		parseDelform(dForm, doc, pushPost);
 	} catch(e) {
 		$disp(dForm);
 		return false;
