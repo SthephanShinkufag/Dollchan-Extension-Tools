@@ -4188,8 +4188,12 @@ function getJSON(url, ifmodsince, fn) {
 		url: url,
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
-				fn(xhr.status, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
-					JSON.parse(xhr.responseText));
+				try {
+					fn(xhr.status, xhr.statusText, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
+						JSON.parse(xhr.responseText));
+				} catch(e) {
+					fn(1, e.toString(), null, null);
+				}
 			}
 		}
 	});
@@ -4680,35 +4684,28 @@ function loadNewPosts(inf, fn) {
 	if(aib.hana) {
 		getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum
 			+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
-			aib.modSince, function(status, lmod, json) {
-				if(status === 200) {
-					aib.modSince = lmod;
-					if(json['error']) {
-						if(inf) {
-							$close($id('DESU_alertWait'));
-						}
-						infoNewPosts(json['message'], null);
-					} else {
-						el = (json['result'] || {})['posts'];
-						if(el && el.length > 0) {
-							for(i = 0, len = el.length; i < len; i++) {
-								del = getHanaPost(el[i]);
-								replaceDelform(del);
-								del.Num = el[i]['display_id'];
-								newPost(thr, del, thr.pCount + i);
-							}
-							thr.pCount += el.length;
-						}
-						if(inf) {
-							$close($id('DESU_alertWait'));
-						}
-						infoNewPosts(null, el ? el.length : 0);
-					}
-				} else {
+			aib.modSince, function(status, sText, lmod, json) {
+				if(status !== 200 || json['error']) {
 					if(inf) {
 						$close($id('DESU_alertWait'));
 					}
-					infoNewPosts(xhr.status === 0 ? Lng.noConnect[lCode] : xhr.statusText, null);
+					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
+				} else {
+					aib.modSince = lmod;
+					el = (json['result'] || {})['posts'];
+					if(el && el.length > 0) {
+						for(i = 0, len = el.length; i < len; i++) {
+							del = getHanaPost(el[i]);
+							replaceDelform(del);
+							del.Num = el[i]['display_id'];
+							newPost(thr, del, thr.pCount + i);
+						}
+						thr.pCount += el.length;
+					}
+					if(inf) {
+						$close($id('DESU_alertWait'));
+					}
+					infoNewPosts(null, el ? el.length : 0);
 				}
 				if(fn) {
 					fn();
@@ -4748,10 +4745,32 @@ function loadNewPosts(inf, fn) {
 function initThreadsUpdater() {
 	var C = Cfg.updint,
 		t = 6e4*(C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
-	if(Cfg.updthr === 1 || Cfg.updthr === 2) {
+	if(Cfg.updthr === 1) {
 		ajaxInt = setInterval(function() {
-			loadNewPosts(Cfg.updthr === 2, null);
+			loadNewPosts(false, null);
 		}, t);
+	} else if(Cfg.updthr === 2) {
+		ajaxInt = setInterval(function() {
+			var cnt = 0;
+			if(aib.hana) {
+				getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
+					aib.modSince, function(status, sText, lmod, json) {
+						if(status !== 200 || json['error']) {
+							infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
+						} else {
+							aib.modSince = lmod;
+							infoNewPosts(json['result']['posts_count'] - Posts.length, null);
+						}
+					}
+				);
+			} else {
+				ajaxGetPosts(null, brd, TNum, function(dc, pst, i) {
+					cnt++;
+				}, function(err) {
+					infoNewPosts(err, cnt - Posts.length);
+				});
+			}
+		});
 	}
 }
 
