@@ -4292,12 +4292,14 @@ function getFullMsg(post, tNum, a, addFunc) {
 		return;
 	}
 	ajaxGetPosts(null, brd, tNum, function(dc, pst, i) {
-		$del(a);
-		msg.parentNode.replaceChild(doc.importNode(aib.getMsg(pst), true), msg);
-		post.Msg = aib.getMsg(post);
-		post.Text = getText(post.Msg);
-		processFullMsg(post);
-		throw '';
+		if(pst.Num === post.Num) {
+			$del(a);
+			msg.parentNode.replaceChild(doc.importNode(aib.getMsg(pst), true), msg);
+			post.Msg = aib.getMsg(post);
+			post.Text = getText(post.Msg);
+			processFullMsg(post);
+			throw '';
+		}
 	}, function(err) {});
 }
 
