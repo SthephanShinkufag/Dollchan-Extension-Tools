@@ -6085,8 +6085,8 @@ function aibDetector(host, dc) {
 			}
 			el = $new('div', null, null);
 			$before(thr.firstChild, [el]);
-			$each($$X('node()', op, dc), function(el) {
-				el.appendChild(el);
+			$each($$X('node()', op, dc), function(e) {
+				el.appendChild(e);
 			});
 			$del($t('table', thr));
 			return el;
@@ -6323,7 +6323,8 @@ function parseDelform(node, dc, pFn) {
 			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
 			: './/div[contains(@class,"' + aib.pClass + '")]';
 		if(aib.xTable) {
-			postWrapper = $$x('.//' + aib.xTable + '[last()]', node, dc);
+			postWrapper = $$x(aib.brit ? './/div[starts-with(@id,"replies")]/table'
+				: './/' + aib.xTable, node, dc);
 			if(dc !== doc && postWrapper) {
 				postWrapper = doc.importNode(postWrapper, true);
 			}
