@@ -4420,10 +4420,10 @@ function loadPage(p, tClass, len) {
 		}
 		newPost(thr, importPost(post), i);
 	}, function(err) {
-		savePostsVisib();
-		readHiddenThreads();
 		if(p === len - 1) {
 			$close($id('DESU_alertWait'));
+			savePostsVisib();
+			readHiddenThreads();
 		}
 	});
 }
@@ -4690,7 +4690,7 @@ function loadNewPosts(inf, fn) {
 						infoNewPosts(json['message'], null);
 					} else {
 						el = (json['result'] || {})['posts'];
-						if(el && el.length > 0 && Cfg.updthr === 1) {
+						if(el && el.length > 0) {
 							for(i = 0, len = el.length; i < len; i++) {
 								del = getHanaPost(el[i]);
 								replaceDelform(del);
@@ -4725,9 +4725,7 @@ function loadNewPosts(inf, fn) {
 			el = Posts[++i];
 		}
 		if(!el) {
-			if(Cfg.updthr === 1) {
-				newPost(thr, importPost(post), i);
-			}
+			newPost(thr, importPost(post), i);
 			len++;
 		}
 		i++;
@@ -4736,7 +4734,7 @@ function loadNewPosts(inf, fn) {
 			$close($id('DESU_alertWait'));
 		}
 		infoNewPosts(err, len);
-		if(!err && Cfg.updthr === 1) {
+		if(!err) {
 			thr.pCount = i - 1;
 			savePostsVisib();
 			$id('DESU_panelInfo').firstChild.textContent = i + '/' + getImages(dForm).snapshotLength;
