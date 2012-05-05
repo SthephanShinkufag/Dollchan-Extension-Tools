@@ -6588,7 +6588,7 @@ function doScript() {
 	scriptCSS();
 	Log('scriptCSS');
 	if(liteMode) {
-		window.top.postMessage('' + document.body.offsetHeight, '*');
+		window.top.postMessage('' + (document.body.offsetHeight + 20), '*');
 	}
 	endTime = (new Date()).getTime() - initTime;
 }
