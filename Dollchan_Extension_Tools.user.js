@@ -4759,7 +4759,7 @@ function initThreadsUpdater() {
 							infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 						} else {
 							aib.modSince = lmod;
-							infoNewPosts(json['result']['posts_count'] - Posts.length, null);
+							infoNewPosts(null, json['result']['posts_count'] - Posts.length);
 						}
 					}
 				);
