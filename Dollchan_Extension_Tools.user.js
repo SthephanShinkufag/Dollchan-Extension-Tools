@@ -4390,6 +4390,9 @@ function loadFavorThread(e) {
 		$focus(pByNum[tNum]);
 		return;
 	}
+	window.onmessage = function(e) {
+		$c('DESU_favIframe', favt).style.height = e.data + 'px';
+	}
 	favt.appendChild($new('iframe', {
 		'name': 'DESU_favIframe',
 		'class': 'DESU_favIframe',
@@ -6584,6 +6587,9 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
+	if(liteMode) {
+		window.top.postMessage('' + document.body.offsetHeight, '*');
+	}
 	endTime = (new Date()).getTime() - initTime;
 }
 
