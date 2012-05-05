@@ -4166,7 +4166,7 @@ function parseHTMLdata(html, b, tNum, pFn) {
 					throw '';
 				}
 			});
-		catch(e) {}
+		} catch(e) {}
 	}
 }
 
