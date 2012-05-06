@@ -4454,22 +4454,6 @@ function loadPages(len) {
 
 /*-------------------------------Threads updater------------------------------*/
 
-function getDelPosts(err) {
-	var del = 0;
-	if(!err) {
-		forAll(function(post) {
-			if(ajThrds[brd][TNum].indexOf(post.Num) < 0) {
-				if(!post.isDel) {
-					post.Btns.className += '_del';
-					post.isDel = true;
-				}
-				del++;
-			}
-		});
-	}
-	return del;
-}
-
 function setUpdButtonState(state) {
 	if(TNum && Cfg.updthr !== 3) {
 		$x('.//a[starts-with(@id,"DESU_btnUpd")]', doc).id = 'DESU_btnUpd' + state;
