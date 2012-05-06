@@ -1827,7 +1827,7 @@ function addFavoritesTable() {
 						$new('div', {
 							'id': tNum,
 							'class': 'DESU_favThr',
-							'style': 'display: none; width: 100%;'
+							'style': 'display: none;'
 						}, null)
 					])
 				]);
