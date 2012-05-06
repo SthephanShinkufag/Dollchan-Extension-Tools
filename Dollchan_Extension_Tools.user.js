@@ -4627,7 +4627,7 @@ function getHanaPost(postJson) {
 				}, null),
 				$txt(' ' + postJson['date'].replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
 					function(str, y, mo, d, h, m, s) {
-						var dtime = new Date(y, mo, d, h, m, s);
+						var dtime = new Date(y, mo - 1, d, h, m, s);
 						if(Cfg.ctime && timeRegex) {
 							dtime.setHours(dtime.getHours() + parseInt(Cfg.ctmofs, 10));
 						}
