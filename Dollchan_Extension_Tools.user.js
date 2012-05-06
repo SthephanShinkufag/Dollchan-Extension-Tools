@@ -1827,7 +1827,7 @@ function addFavoritesTable() {
 						$new('div', {
 							'id': tNum,
 							'class': 'DESU_favThr',
-							'style': 'display: none;'
+							'style': 'display: none; width: 100%;'
 						}, null)
 					])
 				]);
@@ -4394,14 +4394,13 @@ function loadFavorThread(e) {
 		$c('DESU_alertWait', favt).style.display = 'none';
 		favt = $c('DESU_favIframe', favt);
 		favt.style.height = e.data + 'px';
-		favt.style.width = (doc.body.clientWidth - 55) + 'px';
 	}
 	$append(favt, [
 		$new('iframe', {
 			'name': 'DESU_favIframe',
 			'class': 'DESU_favIframe',
 			'src': url,
-			'style': 'border: none; width: 0px; height: 0px;'
+			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
 		}, null),
 		$add('<div class="DESU_alertWait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lCode] + '</div>')
 	]);
