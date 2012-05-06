@@ -4391,15 +4391,19 @@ function loadFavorThread(e) {
 		return;
 	}
 	window.onmessage = function(e) {
-		$c('DESU_favIframe', favt).style.height = e.data + 'px';
+		$c('DESU_alertWait', favt).style.display = 'none';
+		favt = $c('DESU_favIframe', favt);
+		favt.style.height = e.data + 'px';
 	}
-	favt.appendChild($new('iframe', {
-		'name': 'DESU_favIframe',
-		'class': 'DESU_favIframe',
-		'src': url,
-		'style': 'border: none; width: ' + (doc.body.clientWidth - 65)
-			+ 'px; height: ' + (window.innerHeight - 100) + 'px;'
-	}, null));
+	$append(favt, [
+		$new('iframe', {
+			'name': 'DESU_favIframe',
+			'class': 'DESU_favIframe',
+			'src': url,
+			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
+		}, null),
+		$add('<div class="DESU_alertWait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lCode] + '</div>')
+	]);
 	$disp(favt);
 }
 
@@ -6170,6 +6174,11 @@ function initBoard() {
 	}
 	if(/DESU_favIframe/.test(window.name)) {
 		liteMode = true;
+		$event(window, {
+			'load': function(e) {
+				window.top.postMessage('' + (document.body.offsetHeight + 20), '*');
+			}
+		});
 	}
 	if(!dForm || $id('DESU_panel')) {
 		return false;
@@ -6587,9 +6596,6 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
-	if(liteMode) {
-		window.top.postMessage('' + (document.body.offsetHeight + 20), '*');
-	}
 	endTime = (new Date()).getTime() - initTime;
 }
 
