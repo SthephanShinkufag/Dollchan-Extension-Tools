@@ -4580,26 +4580,6 @@ function getHanaFile(file, pId) {
 					'alt': 'edit',
 					'src': '/images/blank.png'
 				}, null)
-			]),
-			$New('a', {
-				'class': 'search_google icon',
-				'href': 'http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + src
-			}, [
-				$new('img', {
-					'title': 'edit',
-					'alt': 'edit',
-					'src': '/images/blank.png'
-				}, null)
-			]),
-			$New('a', {
-				'class': 'search_iqdb icon',
-				'href': 'http://iqdb.org/?url=http://dobrochan.ru/' + src
-			}, [
-				$new('img', {
-					'title': 'edit',
-					'alt': 'edit',
-					'src': '/images/blank.png'
-				}, null)
 			])
 		]),
 		$New('a', {
