@@ -4513,6 +4513,14 @@ function infoNewPosts(err, inf) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 }
 
+function setHanaRating() {
+	$event($x('.//input[@type="button"]', doc), {
+		'click': function(e) {
+			setCookie('DESU_rating', $id('rating').value, 1e12);
+		}
+	});
+}
+
 function getHanaFile(file, pId) {
 	var name,
 		src = file['src'],
@@ -4521,7 +4529,7 @@ function getHanaFile(file, pId) {
 		thumbH = file['thumb_height'],
 		size = file['size'],
 		rating = file['rating'],
-		maxRating = 'r15',
+		maxRating = getCookie('DESU_rating') || 'r-15',
 		kb = 1024,
 		mb = 1048576,
 		gb = 1073741824;
@@ -4719,6 +4727,11 @@ function loadNewPosts(inf, fn) {
 		if(!el) {
 			newPost(thr, importPost(post), i);
 			len++;
+		} else if(aib.xBan) {
+			del = $$x(aib.xBan, post, dc);
+			if(del) {
+				el.Msg.appendChild(doc.importNode(del, true));
+			}
 		}
 		i++;
 	}, function(err) {
@@ -6042,6 +6055,8 @@ function aibDetector(host, dc) {
 		: obj.ylil ? 'omitted'
 		: obj.hana ? 'abbrev'
 		: 'omittedposts';
+	obj.xBan = obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
+		: false;
 	
 	obj.getMsg = obj.cMsg
 		? function(el) {
@@ -6163,6 +6178,10 @@ function initBoard() {
 				window.top.postMessage('' + (document.body.offsetHeight + 20), '*');
 			}
 		});
+	}
+	if(aib.hana && window.location.pathname === '/settings') {
+		setHanaRating();
+		return false;
 	}
 	if(!dForm || $id('DESU_panel')) {
 		return false;
