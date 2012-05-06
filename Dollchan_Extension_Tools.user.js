@@ -4189,7 +4189,7 @@ function getJSON(url, ifmodsince, fn) {
 		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
-			if(xhr.readyState === 4) {
+			if(xhr.readyState === 4 && xhr.status !== 304) {
 				try {
 					fn(xhr.status, xhr.statusText, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
 						JSON.parse(xhr.responseText));
@@ -4580,26 +4580,6 @@ function getHanaFile(file, pId) {
 					'alt': 'edit',
 					'src': '/images/blank.png'
 				}, null)
-			]),
-			$New('a', {
-				'class': 'search_google icon',
-				'href': 'http://www.google.com/searchbyimage?image_url=http://dobrochan.ru/' + src
-			}, [
-				$new('img', {
-					'title': 'edit',
-					'alt': 'edit',
-					'src': '/images/blank.png'
-				}, null)
-			]),
-			$New('a', {
-				'class': 'search_iqdb icon',
-				'href': 'http://iqdb.org/?url=http://dobrochan.ru/' + src
-			}, [
-				$new('img', {
-					'title': 'edit',
-					'alt': 'edit',
-					'src': '/images/blank.png'
-				}, null)
 			])
 		]),
 		$New('a', {
@@ -4647,7 +4627,7 @@ function getHanaPost(postJson) {
 				}, null),
 				$txt(' ' + postJson['date'].replace(/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
 					function(str, y, mo, d, h, m, s) {
-						var dtime = new Date(y, mo, d, h, m, s);
+						var dtime = new Date(y, mo - 1, d, h, m, s);
 						if(Cfg.ctime && timeRegex) {
 							dtime.setHours(dtime.getHours() + parseInt(Cfg.ctmofs, 10));
 						}
@@ -4732,12 +4712,22 @@ function loadNewPosts(inf, fn) {
 		} else if(aib.xBan && !el.isBan) {
 			del = $$x(aib.xBan, post, dc);
 			if(del) {
-				el.Msg.appendChild(doc.importNode(del, true));
+				if(!$xb(aib.xBan, el)) {
+					el.Msg.appendChild(doc.importNode(del, true));
+				}
 				el.isBan = true;
 			}
 		}
 		i++;
 	}, function(err) {
+		del = Posts.length;
+		while(i < del) {
+			el = Posts[i++];
+			if(!el.isDel) {
+				el.isDel = true;
+				el.Btns.className += '_del';
+			}
+		}
 		if(inf) {
 			$close($id('DESU_alertWait'));
 		}
@@ -5798,11 +5788,15 @@ function scriptCSS() {
 		);
 	}
 	if(aib.hana) {
-		x.push('#hideinfotd, .reply_ { display: none; }');
+		x.push(
+			'#hideinfotd, .reply_, .delete > img { display: none; }\
+			.delete_checkbox { position: static !important; }'
+		);
 	}
 	if(aib.abu) {
 		x.push(
-			'.ABU_refmap, .postpanel, .highslide, div[id^="post_video"], a[onclick^="window.open"] { display: none !important; }\
+			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"]' +
+				(Cfg.ytube === 0 ? '' : ', div[id^="post_video"]') + ' { display: none !important; }\
 			a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
 		);
 	}
