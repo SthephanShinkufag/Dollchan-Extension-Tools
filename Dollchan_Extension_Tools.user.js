@@ -5788,7 +5788,10 @@ function scriptCSS() {
 		);
 	}
 	if(aib.hana) {
-		x.push('#hideinfotd, .reply_ { display: none; }');
+		x.push(
+			'#hideinfotd, .reply_, .delete > img { display: none; }\
+			.delete_checkbox { position: static !important; }'
+		);
 	}
 	if(aib.abu) {
 		x.push(
