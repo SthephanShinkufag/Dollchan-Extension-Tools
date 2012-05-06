@@ -5795,7 +5795,8 @@ function scriptCSS() {
 	}
 	if(aib.abu) {
 		x.push(
-			'.ABU_refmap, .postpanel, .highslide, div[id^="post_video"], a[onclick^="window.open"] { display: none !important; }\
+			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"]' +
+				(Cfg.ytube === 0 ? '' : ', div[id^="post_video"]') + ' { display: none !important; }\
 			a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
 		);
 	}
