@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.6.1
+// @version			12.5.6.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.6.1',
+	'version':	'12.5.6.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -3069,15 +3069,6 @@ function getImgSize(post) {
 	return m ? m[0].split(/[x×]/) : [null, null];
 }
 
-function isSage(post) {
-	var a;
-	return !pr.mail ? false
-		: aib.hana ? $xb('.//img[@alt="Сажа"]', post)
-		: aib.krau ? $c('sage', post)
-		: aib._410 ? $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post)
-		: (a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post)) && /sage/i.test(a.href);
-}
-
 /*--------------------------------Post buttons--------------------------------*/
 
 function addPostButtons(post) {
@@ -3135,7 +3126,7 @@ function addPostButtons(post) {
 			setStored('DESU_Favorites', $uneval(Favor));
 		}
 	}
-	if(isSage(post)) {
+	if(aib.getSage(post)) {
 		post.Btns.appendChild($new('a', {
 			'class': 'DESU_btnSage',
 			'title': 'SAGE',
@@ -5238,7 +5229,7 @@ function getSpells(x, post) {
 			}
 		}
 	}
-	if(x.sage && isSage(post)) {
+	if(x.sage && aib.getSage(post)) {
 		return '#sage';
 	}
 	if(x.notxt && post.Text === '') {
@@ -6137,6 +6128,17 @@ function aibDetector(host, dc) {
 		: function(el) {
 			return $c(obj.cOmPosts, el);
 		};
+	obj.getSage =
+		obj.krau ? function(post) {
+			return !!$c('sage', post);
+		}
+		: obj._410 ? function(post) {
+			return $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
+		}
+		: function(post) {
+			var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
+			return a && /sage/i.test(a.href);
+		}
 	return obj;
 }
 
@@ -6224,6 +6226,11 @@ function initBoard() {
 		: '';
 	dummy = $new('div', null, null);
 	pr = replyForm($x('.//textarea/ancestor::form[1]', doc));
+	if(!pr.mail) {
+		aib.getSage = function(post) {
+			return false;
+		}
+	}
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
 	$Del(
 		'preceding-sibling::node()' + (aib.fch ? '[not(self::center)]' : '')
