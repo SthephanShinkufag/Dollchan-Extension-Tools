@@ -4729,10 +4729,11 @@ function loadNewPosts(inf, fn) {
 		if(!el) {
 			newPost(thr, importPost(post), i);
 			len++;
-		} else if(aib.xBan) {
+		} else if(aib.xBan && !el.isBan) {
 			del = $$x(aib.xBan, post, dc);
 			if(del) {
 				el.Msg.appendChild(doc.importNode(del, true));
+				el.isBan = true;
 			}
 		}
 		i++;
