@@ -4189,7 +4189,7 @@ function getJSON(url, ifmodsince, fn) {
 		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
-			if(xhr.readyState === 4) {
+			if(xhr.readyState === 4 && xhr.status !== 304) {
 				try {
 					fn(xhr.status, xhr.statusText, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
 						JSON.parse(xhr.responseText));
