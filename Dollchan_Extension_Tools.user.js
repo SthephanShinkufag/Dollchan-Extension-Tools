@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.5.0
+// @version			12.5.6.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.5.0',
+	'version':	'12.5.6.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -3131,7 +3131,7 @@ function addPostButtons(post) {
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
 			el.className = 'DESU_btnFavSel';
-			Favor[h][brd][post.Num].cnt = post.thr.pCount;
+			Favor[h][brd][post.Num].cnt = post.thr.pCount + 1;
 			setStored('DESU_Favorites', $uneval(Favor));
 		}
 	}
