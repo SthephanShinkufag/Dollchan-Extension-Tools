@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.6.0
+// @version			12.5.6.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.6.0',
+	'version':	'12.5.6.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -4720,8 +4720,10 @@ function loadNewPosts(inf, fn) {
 	ajaxGetPosts(null, brd, TNum, function(dc, post, j) {
 		el = Posts[i];
 		while(el && el.Num !== post.Num) {
-			el.isDel = true;
-			el.Btns.className += '_del';
+			if(!el.isDel) {
+				el.isDel = true;
+				el.Btns.className += '_del';
+			}
 			el = Posts[++i];
 		}
 		if(!el) {
