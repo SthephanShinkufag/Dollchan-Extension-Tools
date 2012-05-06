@@ -4732,7 +4732,9 @@ function loadNewPosts(inf, fn) {
 		} else if(aib.xBan && !el.isBan) {
 			del = $$x(aib.xBan, post, dc);
 			if(del) {
-				el.Msg.appendChild(doc.importNode(del, true));
+				if(!$xb(aib.xBan, el)) {
+					el.Msg.appendChild(doc.importNode(del, true));
+				}
 				el.isBan = true;
 			}
 		}
