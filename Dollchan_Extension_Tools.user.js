@@ -4223,7 +4223,7 @@ function insertPost(thr, post) {
 	var pst, el;
 	if(postWrapper && post.Count !== 0) {
 		pst = postWrapper.cloneNode(true);
-		el = $c('DESU_post', pst);
+		el = $x(aib.xWrap, pst);
 		if(el) {
 			el.parentNode.replaceChild(post, el);
 		} else {
@@ -6336,6 +6336,7 @@ function parseDelform(node, dc, pFn) {
 		aib.xPost = (aib.xTable || aib.gazo)
 			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
 			: './/div[contains(@class,"' + aib.pClass + '")]';
+		aib.xWrap = './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
 		if(aib.xTable) {
 			postWrapper = $$x(aib.brit ? './/div[starts-with(@id,"replies")]/table'
 				: './/' + aib.xTable, node, dc);
