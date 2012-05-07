@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {fImgs: {}, cached: {}}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, fImgs = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -3508,48 +3508,24 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
-function base64encode(bin, href) {
-	var data = 'data:image/',
-		i, j, len, bs;
-	if(/.jpe?g$/i.test(href)) {
-		data += 'jpeg';
-	} else if(/.png$/i.test(href)) {
-		data += 'png';
-	} else if(/.gif$/i.test(href)) {
-		data += 'gif';
-	} else {
-		return href;
-	}
-	bin = new Uint8Array(bin);
-	len = bin.length - 3;
-	bs = new Array(Math.ceil(len * 4 / 3) + 4);
-	for(i = 0, j = 0; i < len; i += 3, j += 4) {
-		bs[j] = base64.table[bin[i] >> 2];
-		bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
-		bs[j + 2] = base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
-		bs[j + 3] = base64.table[bin[i + 2] & 0x3F];
-	}
-	len = len % 3;
-	bs[j] = base64.table[bin[i] >> 2];
-	bs[j + 1] = base64.table[((bin[i] & 0x03) << 4) + (bin[i + 1] >> 4)];
-	bs[j + 2] = len === 1 ? '=' : base64.table[((bin[i + 1] & 0x0F) << 2) + (bin[i + 2] >> 6)];
-	bs[j + 3] = len !== 0 ? '=' : base64.table[bin[i + 2] & 0x3F];
-	delete base64.fImgs[href];
-	return base64.cached[href] = data + ';base64,' + bs.join('');
-}
-
 function getImgSrc(href) {
-	var bin = base64.fImgs[href],
-		bs = base64.cached[href];
-	if(Cfg.pimgs === 0 || (!bin && !bs)) {
-		return href;
+	var bUrl = fImgs[href],
+		img = $c('DESU_fullImg', doc);
+	if(Cfg.pimgs === 0 || !bUrl) {
+		img.src = href;
+		return;
 	}
 	if(nav.Firefox) {
-		return bin;
-	} else if(bs) {
-		return bs;
+		img.src = bUrl;
 	} else {
-		return base64encode(bin, href);
+		$del($id('DESU_script'));
+		img = doc.createElement('script');
+		img.type = 'text/javascript';
+		img.id = 'DESU_script';
+		img.innerHTML = '(function() {\
+			document.getElementsByClassName("DESU_fullImg")[0].src = "' + bUrl + '";\
+		})();';
+		doc.head.appendChild(img);
 	}
 }
 
@@ -3597,7 +3573,6 @@ function addFullImg(a, sz, isExp) {
 	}
 	a.appendChild($attr(full, {
 		'class': 'DESU_fullImg',
-		'src': getImgSrc(a.href),
 		'alt': a.href,
 		'width': newW,
 		'height': newH,
@@ -3607,6 +3582,7 @@ function addFullImg(a, sz, isExp) {
 			: ''
 		)
 	}));
+	getImgSrc(a.href);
 }
 
 function addLinkImg(el, addBr) {
@@ -3679,7 +3655,7 @@ function addImgSearch(el) {
 }
 
 function expandPostImg(a, post, isExp) {
-	if(/\.jpg|\.jpeg|\.png|.\gif/i.test(a.href)) {
+	if(/\.jpe?g|\.png|.\gif/i.test(a.href)) {
 		addFullImg(a, getImgSize(
 			post.Img.snapshotLength > 1 ? $x('ancestor::node()[self::div or self::td][1]', a) : post
 		), isExp);
@@ -3722,9 +3698,9 @@ function preloadImages(el) {
 		$event(a, {'click': function(e) {
 			$pd(e);
 			if(nav.Firefox) {
-				GM_openInTab(getImgSrc(this.href), false, true);
+				GM_openInTab(fImgs[this.href], false, true);
 			} else {
-				window.open(getImgSrc(this.href), '_blank');
+				window.open(fImgs[this.href], '_blank');
 			}
 		}});
 	});
@@ -3734,15 +3710,18 @@ function preloadImages(el) {
 			e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
 		});
 	}
-	if(!base64.table) {
-		base64.table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
-	}
 	function loadFunc(idx) {
-		var req;
 		if(idx >= aA.length) {
 			return;
 		}
-		if(!/(?:.jpe?g|.png|.gif)$/i.test(aA[idx])) {
+		var req, bb, type = 'image/', a = aA[idx];
+		if(/\.jpe?g$/i.test(a)) {
+			type += 'jpeg';
+		} else if(/\.png$/i.test(a)) {
+			type += 'png';
+		} else if(/\.gif$/i.test(a)) {
+			type += 'gif';
+		} else {
 			loadFunc(i++);
 			return;
 		}
@@ -3752,14 +3731,16 @@ function preloadImages(el) {
 		}
 		cReq++;
 		req = new XMLHttpRequest();
-		req.open('GET', aA[idx], true);
+		req.open('GET', a, true);
 		req.responseType = rType;
 		req.onload = function(e) {
 			if (this.status == 200) {
 				if(nav.Firefox) {
-					base64.fImgs[aA[idx]] = window.URL.createObjectURL(this.response);
+					fImgs[a] = window.URL.createObjectURL(this.response);
 				} else {
-					base64.fImgs[aA[idx]] = this.response;
+					bb = new WebKitBlobBuilder();
+					bb.append(this.response);
+					fImgs[a] = window.webkitURL.createObjectURL(bb.getBlob(type));
 				}
 			}
 			cReq--;
