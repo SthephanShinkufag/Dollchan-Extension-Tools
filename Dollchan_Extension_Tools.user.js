@@ -3508,7 +3508,7 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
-function base64encode(bin) {
+function base64encode(bin, href) {
 	var data = 'data:image/',
 		i, j, len, bs;
 	if(/.jpe?g$/i.test(href)) {
@@ -3549,7 +3549,7 @@ function getImgSrc(href) {
 	} else if(bs) {
 		return bs;
 	} else {
-		return base64encode(bin);
+		return base64encode(bin, href);
 	}
 }
 
