@@ -3698,9 +3698,9 @@ function preloadImages(el) {
 		$event(a, {'click': function(e) {
 			$pd(e);
 			if(nav.Firefox) {
-				GM_openInTab(fImgs[this.href], false, true);
+				GM_openInTab(fImgs[this.href] || this.href, false, true);
 			} else {
-				window.open(fImgs[this.href], '_blank');
+				window.open(fImgs[this.href] || this.href, '_blank');
 			}
 		}});
 	});
