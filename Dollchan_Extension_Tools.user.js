@@ -1156,9 +1156,9 @@ function showContent(el, id, name, isUpd) {
 		}
 	}
 	if(Cfg.animp !== 0 && nav.Anim) {
-		el.style.opacity = 1;
 		el.oclassName = el.className;
 		el.className += ' DESU_cfgOpen';
+		el.style.opacity = 1;
 	}
 }
 
