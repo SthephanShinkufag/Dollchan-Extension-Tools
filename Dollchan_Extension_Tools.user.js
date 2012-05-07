@@ -3508,17 +3508,9 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
-function getImgSrc(href) {
+function base64encode(bin) {
 	var data = 'data:image/',
-		bin = base64.fImgs[href],
-		bs = base64.cached[href],
-		i, j, len;
-	if(Cfg.pimgs === 0 || (!bin && !bs)) {
-		return href;
-	}
-	if(bs) {
-		return bs;
-	}
+		i, j, len, bs;
 	if(/.jpe?g$/i.test(href)) {
 		data += 'jpeg';
 	} else if(/.png$/i.test(href)) {
@@ -3544,6 +3536,21 @@ function getImgSrc(href) {
 	bs[j + 3] = len !== 0 ? '=' : base64.table[bin[i + 2] & 0x3F];
 	delete base64.fImgs[href];
 	return base64.cached[href] = data + ';base64,' + bs.join('');
+}
+
+function getImgSrc(href) {
+	var bin = base64.fImgs[href],
+		bs = base64.cached[href];
+	if(Cfg.pimgs === 0 || (!bin && !bs)) {
+		return href;
+	}
+	if(nav.Firefox) {
+		return bin;
+	} else if(bs) {
+		return bs;
+	} else {
+		return base64encode(bin);
+	}
 }
 
 function addFullImg(a, sz, isExp) {
@@ -3708,7 +3715,8 @@ function preloadImages(el) {
 	var mReqs = 4, 
 		cReq = 0,
 		i = 0,
-		aA = [];
+		aA = [],
+		rType = nav.Firefox ? 'blob' : 'arraybuffer';
 	$each($X(aib.xImages, el), function(a) {
 		aA.push(a.href);
 		$event(a, {'click': function(e) {
@@ -3745,10 +3753,14 @@ function preloadImages(el) {
 		cReq++;
 		req = new XMLHttpRequest();
 		req.open('GET', aA[idx], true);
-		req.responseType = 'arraybuffer';
+		req.responseType = rType;
 		req.onload = function(e) {
 			if (this.status == 200) {
-				base64.fImgs[aA[idx]] = this.response;
+				if(nav.Firefox) {
+					base64.fImgs[aA[idx]] = window.URL.createObjectURL(this.response);
+				} else {
+					base64.fImgs[aA[idx]] = this.response;
+				}
 			}
 			cReq--;
 			loadFunc(i++);
