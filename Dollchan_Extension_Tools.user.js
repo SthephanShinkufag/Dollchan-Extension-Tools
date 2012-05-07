@@ -5690,7 +5690,7 @@ function scriptCSS() {
 			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
 			.DESU_pOpenTR { ' + nav.aCFix + 'animation-name: DESU_pOpenTR; }\
 			.DESU_pOpenBR { ' + nav.aCFix + 'animation-name: DESU_pOpenBR; }\
-			.DESU_pClose { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
+			.DESU_pClose { ' + nav.aCFix + 'animation-timing-function: ease-in; }\
 			.DESU_pCloseTL { ' + nav.aCFix + 'animation-name: DESU_pCloseTL; }\
 			.DESU_pCloseBL { ' + nav.aCFix + 'animation-name: DESU_pCloseBL; }\
 			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
