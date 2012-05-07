@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, fImgs = {}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
 
 
 /*==============================================================================
@@ -3508,27 +3508,6 @@ function resizeImg(e) {
 	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
 }
 
-function getImgSrc(href) {
-	var bUrl = fImgs[href],
-		img = $c('DESU_fullImg', doc);
-	if(Cfg.pimgs === 0 || !bUrl) {
-		img.src = href;
-		return;
-	}
-	if(nav.Firefox) {
-		img.src = bUrl;
-	} else {
-		$del($id('DESU_script'));
-		img = doc.createElement('script');
-		img.type = 'text/javascript';
-		img.id = 'DESU_script';
-		img.innerHTML = '(function() {\
-			document.getElementsByClassName("DESU_fullImg")[0].src = "' + bUrl + '";\
-		})();';
-		doc.head.appendChild(img);
-	}
-}
-
 function addFullImg(a, sz, isExp) {
 	var newW = '',
 		newH = '',
@@ -3573,6 +3552,7 @@ function addFullImg(a, sz, isExp) {
 	}
 	a.appendChild($attr(full, {
 		'class': 'DESU_fullImg',
+		'src': a.href,
 		'alt': a.href,
 		'width': newW,
 		'height': newH,
@@ -3582,7 +3562,6 @@ function addFullImg(a, sz, isExp) {
 			: ''
 		)
 	}));
-	getImgSrc(a.href);
 }
 
 function addLinkImg(el, addBr) {
@@ -3646,7 +3625,7 @@ function addImgSearch(el) {
 			$new('a', {
 				'class': 'DESU_btnSrc'}, {
 				'mouseover': function() {
-					selectImgSearch(this, escape(link.href));
+					selectImgSearch(this, escape(link.altHref || link.href));
 				},
 				'mouseout': removeSelMenu
 			})
@@ -3655,7 +3634,7 @@ function addImgSearch(el) {
 }
 
 function expandPostImg(a, post, isExp) {
-	if(/\.jpe?g|\.png|.\gif/i.test(a.href)) {
+	if(/\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
 		addFullImg(a, getImgSize(
 			post.Img.snapshotLength > 1 ? $x('ancestor::node()[self::div or self::td][1]', a) : post
 		), isExp);
@@ -3694,27 +3673,21 @@ function preloadImages(el) {
 		aA = [],
 		rType = nav.Firefox ? 'blob' : 'arraybuffer';
 	$each($X(aib.xImages, el), function(a) {
-		aA.push(a.href);
-		$event(a, {'click': function(e) {
-			$pd(e);
-			if(nav.Firefox) {
-				GM_openInTab(fImgs[this.href] || this.href, false, true);
-			} else {
-				window.open(fImgs[this.href] || this.href, '_blank');
-			}
-		}});
+		aA.push(a);
+		a.altHref = a.href;
 	});
-	if(aib.krau) {
-		$each(getImages(el), function(img) {
-			var e = img.parentNode;
-			e.href = $x('span[@class="filename"]/a[not(@class)]', e.parentNode).href;
-		});
-	}
 	function loadFunc(idx) {
 		if(idx >= aA.length) {
+			$each(getImages(el), function(img) {
+				var e = img.parentNode;
+				e.href = $x('span[@class="filename" or @class="filesize"]/a[not(@class)]', e.parentNode).href;
+			});
 			return;
 		}
-		var req, bb, type = 'image/', a = aA[idx];
+		var req, bb,
+			type = 'image/',
+			a_ = aA[idx],
+			a = a_.href;
 		if(/\.jpe?g$/i.test(a)) {
 			type += 'jpeg';
 		} else if(/\.png$/i.test(a)) {
@@ -3736,11 +3709,11 @@ function preloadImages(el) {
 		req.onload = function(e) {
 			if (this.status == 200) {
 				if(nav.Firefox) {
-					fImgs[a] = window.URL.createObjectURL(this.response);
+					a_.href = window.URL.createObjectURL(this.response);
 				} else {
 					bb = new WebKitBlobBuilder();
 					bb.append(this.response);
-					fImgs[a] = window.webkitURL.createObjectURL(bb.getBlob(type));
+					a_.href = window.webkitURL.createObjectURL(bb.getBlob(type));
 				}
 			}
 			cReq--;
@@ -6577,13 +6550,13 @@ function doScript() {
 		addLinkImg(dForm, true);
 		Log('addLinkImg');
 	}
-	if(Cfg.pimgs !== 0) {
-		preloadImages(dForm);
-		Log('preloadImages');
-	}
 	if(Cfg.imgsrc !== 0) {
 		addImgSearch(dForm);
 		Log('addImgSearch');
+	}
+	if(Cfg.pimgs !== 0) {
+		preloadImages(dForm);
+		Log('preloadImages');
 	}
 	if(Cfg.navig === 2) {
 		addRefMap(null, false);
