@@ -4223,7 +4223,6 @@ function newPost(thr, post, i) {
 	pushPost(post, i);
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
-	insertPost(thr, post);
 	addPostButtons(post);
 	if(Cfg.expimg !== 0) {
 		eventPostImg(post);
@@ -4232,6 +4231,7 @@ function newPost(thr, post, i) {
 		expandPost(post);
 	}
 	addPostFunc(post);
+	insertPost(thr, post);
 	if(aib.tiny) {
 		thr.appendChild($new('br', null, null));
 	}
@@ -4314,6 +4314,11 @@ function loadThread(post, last, fn) {
 			if(aib.krau) {
 				$del($c('omittedinfo', post));
 			}
+			i = pByNum[thr.Num];
+			i.Msg.parentNode.replaceChild(aib.getMsg(psts[0]), i.Msg);
+			i.Msg = aib.getMsg(i);
+			i.Text = getText(i.Msg);
+			processFullMsg(i);
 			if(last === 1 || last >= psts.length - 1) {
 				i = 1;
 			} else {
@@ -4325,6 +4330,15 @@ function loadThread(post, last, fn) {
 			}
 			while(i < psts.length) {
 				newPost(thr, psts[i], i++);
+			}
+			if(last > 5 || last === 1) {
+				thr.appendChild($event($add(
+					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
+				), {
+					'click': function(e) {
+						$pd(e);
+						loadThread(post, 5, null);
+				}}));
 			}
 			thr.pCount = psts.length;
 		}
