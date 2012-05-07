@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.6.2
+// @version			12.5.6.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.6.2',
+	'version':	'12.5.6.3',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -298,7 +298,7 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {fImgs: {}, cached: {}}, storageLife = 5*24*3600*1000, liteMode = false, homePage = 'http://www.freedollchan.org/scripts/';
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, cssFix, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, base64 = {fImgs: {}, cached: {}}, storageLife = 5*24*3600*1000, liteMode = false;
 
 
 /*==============================================================================
@@ -683,7 +683,7 @@ function saveSpells(val) {
 }
 
 function fixGlobalCfg() {
-	Cfg.forcap = aib.hana || aib.tire || aib.vomb || aib.ment || aib._5ch ? 2 : 1;
+	Cfg.forcap = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
 }
 
 function setDefaultCfg() {
@@ -793,7 +793,7 @@ function readPostsVisib() {
 		}
 	}
 	readHiddenThreads();
-	forAll(function(post) {
+	forEachPost(function(post) {
 		var pNum = post.Num;
 		post.Vis = getVisib(pNum);
 		if(post.isOp) {
@@ -1057,7 +1057,7 @@ function addPanel() {
 						$pd(e);
 						Cfg.expimg = 1;
 						isExpImg = !isExpImg;
-						forAll(function(post) {
+						forEachPost(function(post) {
 							expandAllPostImg(post, isExpImg);
 						});
 					}
@@ -1284,7 +1284,7 @@ function addSettings() {
 				$new('a', {
 					'text': '?',
 					'target': '_blank',
-					'href': homePage + 'spells'
+					'href': 'http://www.freedollchan.org/scripts/spells'
 				}, null)
 			]),
 			lBox('spells', Lng.spells[lCode], toggleSpells, 'DESU_spellChk'),
@@ -1507,7 +1507,7 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
-		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg.version + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="' + homePage + '" target="_blank">' + homePage + '</a></div></div>')
+		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg.version + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="http://www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 	
 	$append($id('DESU_content'), [
@@ -1589,7 +1589,7 @@ function addHiddenTable() {
 		tcnt = 0,
 		pcnt = 0,
 		table = $t('tbody', $id('DESU_content'));
-	forAll(function(post) {
+	forEachPost(function(post) {
 		if(post.Vis !== 0) {
 			return;
 		}
@@ -2304,7 +2304,7 @@ function scrollToPost(posts, idx, dir, scroll, toTop) {
 ==============================================================================*/
 
 function refreshCapSrc(src, tNum) {
-	if(aib.kus || aib._5ch) {
+	if(aib.kus || aib.tinyIb) {
 		return src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random())
 	}
 	if(tNum > 0) {
@@ -3026,7 +3026,7 @@ function addTextPanel() {
 								FOR POSTS AND THREADS
 ==============================================================================*/
 
-function forAll(fn) {
+function forEachPost(fn) {
 	for(var post, i = 0; post = Posts[i++];) {
 		fn(post);
 	}
@@ -3414,7 +3414,7 @@ function filterTextTube(post, text) {
 }
 
 function unHideTextTube() {
-	forAll(function(post) {
+	forEachPost(function(post) {
 		if(post.tHide === 1) {
 			unhidePost(post);
 			post.tHide = 0;
@@ -3595,7 +3595,7 @@ function addFullImg(a, sz, isExp) {
 		'width': newW,
 		'height': newH,
 		'style': (Cfg.expimg === 2
-			? 'position: fixed; z-index: 5000; border: 1px solid black; left: '
+			? 'position: fixed; z-index: 9999; border: 1px solid black; left: '
 				+ parseInt((scrW - newW)/2, 10) + 'px; top: ' + parseInt((scrH - newH)/2, 10) + 'px;'
 			: ''
 		)
@@ -4182,8 +4182,10 @@ function getJSON(url, ifmodsince, fn) {
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4 && xhr.status !== 304) {
 				try {
-					fn(xhr.status, xhr.statusText, (xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
-						JSON.parse(xhr.responseText));
+					fn(xhr.status, xhr.statusText,
+						(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
+						JSON.parse(xhr.responseText)
+					);
 				} catch(e) {
 					fn(1, e.toString(), null, null);
 				}
@@ -4296,9 +4298,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 
 function processFullMsg(post) {
 	replaceDelform(post);
-	$each($X('.//a[@class="DESU_btnSrc"]', post), function(el) {
-		$del(el);
-	});
+	$Del('.//a[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
 
@@ -4329,7 +4329,9 @@ function expandPost(post) {
 }
 
 function loadThread(post, last, fn) {
-	var psts = [], thr = post.thr, i;
+	var i,
+		psts = [],
+		thr = post.thr;
 	$alert(Lng.loading[lCode], 'Wait');
 	ajaxGetPosts(null, brd, post.Num, function(dc, post, j) {
 		psts.push(importPost(post));
@@ -4414,9 +4416,7 @@ function loadPage(p, tClass, len) {
 		: ''
 	), null, null, function(dc, post, i) {
 		if(i === 0) {
-			thr = $new('div', {
-				'class': tClass
-			}, null);
+			thr = $new('div', {'class': tClass}, null);
 			thr.Num = post.Num;
 			$append(page, [
 				thr,
@@ -4435,7 +4435,8 @@ function loadPage(p, tClass, len) {
 }
 
 function loadPages(len) {
-	var p, tClass = $c('DESU_thread', dForm).className;
+	var p,
+		tClass = $c('DESU_thread', dForm).className;
 	$alert(Lng.loading[lCode], 'Wait');
 	dForm.innerHTML = '';
 	for(p = 0, Posts = [], refMap = []; p < len; p++) {
@@ -4876,7 +4877,7 @@ function unhidePost(post) {
 }
 
 function saveHiddenPosts() {
-	forAll(function(post) {
+	forEachPost(function(post) {
 		if(post.Vis === 0) {
 			setPostVisib(post, 0);
 		}
@@ -4924,7 +4925,7 @@ function mergeHidden(post) {
 
 function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2) {
-		forAll(function(post) {
+		forEachPost(function(post) {
 			if(post.Vis === 0 && !post.isOp) {
 				$disp(post);
 			}
@@ -4942,7 +4943,7 @@ function processHidden(newCfg, oldCfg) {
 		});
 	}
 	if(newCfg === 1) {
-		forAll(mergeHidden);
+		forEachPost(mergeHidden);
 	}
 	saveCfg('delhd', newCfg);
 	scriptCSS();
@@ -4993,7 +4994,7 @@ function findSameText(post, oNum, oVis, oWords) {
 function hideBySameText(post) {
 	var vis = post.Vis;
 	if(post.Text !== '') {
-		forAll(function(target) {
+		forEachPost(function(target) {
 			findSameText(target, post.Num, vis, getWrds(post));
 		});
 		saveHiddenPosts();
@@ -5294,11 +5295,11 @@ function toggleSpells() {
 			fld.value = val;
 		}
 		if(Cfg.spells !== 0) {
-			forAll(hideBySpells);
+			forEachPost(hideBySpells);
 			hideTextTube();
 		} else {
 			unHideTextTube();
-			forAll(function(post) {
+			forEachPost(function(post) {
 				if(checkSpells(post)) {
 					unhidePost(post);
 				}
@@ -5342,7 +5343,7 @@ function applySpells(txt) {
 		fld.value = val;
 		$id('DESU_spellChk').checked = val !== '';
 	}
-	forAll(function(post) {
+	forEachPost(function(post) {
 		if(checkSpells(post)) {
 			unhidePost(post);
 		}
@@ -5351,7 +5352,7 @@ function applySpells(txt) {
 	saveSpells(val);
 	if(val !== '') {
 		saveCfg('spells', 1);
-		forAll(hideBySpells);
+		forEachPost(hideBySpells);
 		hideTextTube();
 	} else {
 		saveCfg('spells', 0);
@@ -5973,7 +5974,8 @@ function aibDetector(host, dc) {
 		return obj;
 	}
 	obj.host = host;
-	obj.waka = $$xb('.//script[contains(@src,"wakaba")]', dc, dc);
+	obj.waka = $$xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', dc, dc);
+	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php")]', dc, dc);
 	obj.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
 	obj.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
 	obj.fch = h === '4chan.org';
@@ -5981,7 +5983,6 @@ function aibDetector(host, dc) {
 	obj._7ch = h === '7chan.org';
 	obj._410 = h === '410chan.ru';
 	obj.sib = h === 'sibirchan.ru';
-	obj._5ch = h === '5channel.net';
 	obj.hid = h === 'hiddenchan.i2p';
 	obj.tire = h === '2--ch.ru';
 	obj.dfwk = h === 'dfwk.ru';
@@ -6101,12 +6102,15 @@ function aibDetector(host, dc) {
 			}
 			return op;
 		};
+	obj.xTNum =
+		obj.fch || obj.gazo || obj.tiny ? './/input[@type="checkbox"]'
+		: (obj.waka && !obj.abu) || obj.brit || obj.tinyIb ? './/a[@name]'
+		: obj.kus ? 'a[@name][2]'
+		: false;
+	
 	obj.getTNum =
-		obj.fch || obj.gazo || obj.tiny ? function(op, dc) {
-			return $$x('.//input[@type="checkbox"]', op, dc).name.match(/\d+/)[0];
-		}
-		: obj.kus || obj.brit || (obj.waka && !obj.abu) ? function(op, dc) {
-			return $$x('a[@name]' + (obj.kus ? '[2]' : ''), op, dc).name.match(/\d+/)[0];
+		obj.xTNum ? function(op, dc) {
+			return $$x(obj.xTNum, op, dc).name.match(/\d+/)[0];
 		}
 		: obj.krau ? function(op, dc) {
 			return op.parentNode.previousElementSibling.name;
@@ -6289,11 +6293,12 @@ function forEachThread(node, dc, fn) {
 		if(threads.snapshotLength !== 0) {
 			$each(threads, fn);
 		} else {
-			el = node.firstChild;
+			el = $t('hr', node).parentNode.firstChild;
 			while(1) {
 				threads = $$new('div', null, null, dc);
 				while(el && (tEl = el.nextSibling) && tEl.tagName !== 'HR') {
-					threads.appendChild(el); el = tEl;
+					threads.appendChild(el);
+					el = tEl;
 				}
 				if(pThr) {
 					$after(pThr, threads);
@@ -6306,7 +6311,8 @@ function forEachThread(node, dc, fn) {
 				if(threads.childElementCount) {
 					fn(threads);
 				}
-				pThr = tEl; el = tEl.nextSibling;
+				pThr = tEl;
+				el = tEl.nextSibling;
 			}
 		}
 	} else {
@@ -6551,25 +6557,25 @@ function doScript() {
 	Log('doChanges');
 	initPostform();
 	Log('initPostform');
-	forAll(addPostButtons);
+	forEachPost(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
 	if(Cfg.navmrk !== 0) {
 		readViewedPosts();
 	}
 	Log('readPosts');
-	forAll(doPostFilters);
+	forEachPost(doPostFilters);
 	Log('doPostFilters');
 	if(Cfg.delhd === 1) {
-		forAll(mergeHidden);
+		forEachPost(mergeHidden);
 		Log('mergeHidden');
 	}
 	if(Cfg.expimg !== 0) {
-		forAll(eventPostImg);
+		forEachPost(eventPostImg);
 		Log('eventPostImg');
 	}
 	if(Cfg.expost !== 0 && !TNum) {
-		forAll(expandPost);
+		forEachPost(expandPost);
 		Log('expandPost');
 	}
 	if(Cfg.mp3 !== 0) {
