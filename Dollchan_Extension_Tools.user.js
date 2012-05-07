@@ -43,7 +43,7 @@ var defaultCfg = {
 	'ctmofs':	'-2',	//		offset
 	'ctmpat':	'',		//		pattern
 	'insnum':	1,		// insert >>link on postnumber click
-	'animp':	1,		// animated popups and post previews
+	'animp':	1,		// animation in script
 	'aclose':	0,		// auto-close popups
 	'rtitle':	1,		// replace page title in threads
 	'attach':	1,		// attach main panel
@@ -85,9 +85,9 @@ var defaultCfg = {
 	'texw':		530,	// textarea width
 	'texh':		140,	// textarea height
 	'enupd':	1,		// check for script's update
-	'betaupd':	0,		// check for beta-version
-	'lupdchk':	0,		// last update check
-	'supdint':	2,		// update interval in days (0=on page load)
+	'betaupd':	0,		// 		check for beta-version
+	'lupdchk':	0,		// 		last update check
+	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0		// preload images
 },
 
@@ -147,7 +147,7 @@ Lng = {
 	],
 	scriptStyle:	[' стиль скрипта', ' script style'],
 	insertLink:		['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-	animatePopup:	['Анимация уведомлений и превью постов', 'Animation of popups and post preview'],
+	animation:		['Включить анимацию в скрипте', 'Enable animation in script'],
 	autoClose:		['Автоматически закрывать уведомления', 'Close popups automatically'],
 	replaceTitle:	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
 	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
@@ -1482,7 +1482,7 @@ function addSettings() {
 		}),
 		divBox('icount', Lng.showImgCount[lCode], scriptCSS),
 		divBox('rtitle', Lng.replaceTitle[lCode], null),
-		divBox('animp', Lng.animatePopup[lCode], null),
+		divBox('animp', Lng.animation[lCode], null),
 		divBox('aclose', Lng.autoClose[lCode], null),
 		$if(!nav.Opera, $New('div', null, [
 			divBox('enupd', Lng.upd.enable[lCode], null),
