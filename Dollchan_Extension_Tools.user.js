@@ -4695,19 +4695,19 @@ function loadNewPosts(inf, fn) {
 		}
 		i++;
 	}, function(err) {
-		del = Posts.length;
-		while(i < del) {
-			el = Posts[i++];
-			if(!el.isDel) {
-				el.isDel = true;
-				el.Btns.className += '_del';
-			}
-		}
 		if(inf) {
 			$close($id('DESU_alertWait'));
 		}
 		infoNewPosts(err, len);
 		if(!err) {
+			del = Posts.length;
+			while(i < del) {
+				el = Posts[i++];
+				if(!el.isDel) {
+					el.isDel = true;
+					el.Btns.className += '_del';
+				}
+			}
 			thr.pCount = i - 1;
 			savePostsVisib();
 			$id('DESU_panelInfo').firstChild.textContent = i + '/' + getImages(dForm).snapshotLength;
