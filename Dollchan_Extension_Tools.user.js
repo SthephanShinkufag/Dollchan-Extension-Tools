@@ -3625,7 +3625,7 @@ function addImgSearch(el) {
 			$new('a', {
 				'class': 'DESU_btnSrc'}, {
 				'mouseover': function() {
-					selectImgSearch(this, escape(link.altHref || link.href));
+					selectImgSearch(this, escape(link.href));
 				},
 				'mouseout': removeSelMenu
 			})
@@ -3672,16 +3672,11 @@ function preloadImages(el) {
 		i = 0,
 		aA = [],
 		rType = nav.Firefox ? 'blob' : 'arraybuffer';
-	$each($X(aib.xImages, el), function(a) {
-		aA.push(a);
-		a.altHref = a.href;
+	$each(getImages(el), function(img) {
+		aA.push($x('ancestor::a[1]', img));
 	});
 	function loadFunc(idx) {
 		if(idx >= aA.length) {
-			$each(getImages(el), function(img) {
-				var e = img.parentNode;
-				e.href = $x('span[@class="filename" or @class="filesize"]/a[not(@class)]', e.parentNode).href;
-			});
 			return;
 		}
 		var req, bb,
@@ -6550,13 +6545,13 @@ function doScript() {
 		addLinkImg(dForm, true);
 		Log('addLinkImg');
 	}
-	if(Cfg.imgsrc !== 0) {
-		addImgSearch(dForm);
-		Log('addImgSearch');
-	}
 	if(Cfg.pimgs !== 0) {
 		preloadImages(dForm);
 		Log('preloadImages');
+	}
+	if(Cfg.imgsrc !== 0) {
+		addImgSearch(dForm);
+		Log('addImgSearch');
 	}
 	if(Cfg.navig === 2) {
 		addRefMap(null, false);
