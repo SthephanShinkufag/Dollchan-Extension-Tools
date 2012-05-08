@@ -152,3 +152,5 @@ var Cfg = {};
 /** @type {Number} */ Cfg.betaupd;
 /** @type {Number} */ Cfg.lupdchk;
 /** @type {Number} */ Cfg.supdint;
+/** @type {Number} */ Cfg.pimgs;
+/** @type {Number} */ Cfg.rExif;

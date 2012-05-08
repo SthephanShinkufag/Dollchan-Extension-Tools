@@ -88,7 +88,8 @@ var defaultCfg = {
 	'betaupd':	0,		// 		check for beta-version
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
-	'pimgs':	0		// preload images
+	'pimgs':	0,		// preload images
+	'rExif':	1		// remove EXIF data from JPEGs
 },
 
 Lng = {
@@ -295,7 +296,8 @@ Lng = {
 		available:	['Доступно обновление!', 'Update available!'],
 		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
 	},
-	pImages:		['Предварительно загружать изображения*', 'Preload images*']
+	pImages:		['Предварительно загружать изображения*', 'Preload images*'],
+	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images']
 },
 
 doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false;
@@ -1426,6 +1428,7 @@ function addSettings() {
 			}
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
+		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
 		divBox('addfav', Lng.addToFav[lCode], null),
 		$if(pr.mail, $New('div', null, [
 			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
@@ -2584,7 +2587,7 @@ function doPostformChanges(a) {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg.verify !== 0) {
-		if(!aib.nul && !aib.tiny && (nav.Firefox > 6 || nav.Chrome)) {
+		if(!aib.nul && !aib.tiny && nav.h5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
@@ -2827,6 +2830,30 @@ dataForm.prototype.getResult = function(fn) {
 	fn(this.boundary, arrToBlob(arr));
 };
 
+function removeExif(dat) {
+	dat = new Uint8Array(dat);
+	var i = 0,
+		j = 0,
+		len = dat.length - 1,
+		out;
+	for(; i < len; i++, j++) {
+		if(dat[i] === 0xFF && (dat[i + 1] >> 4) === 0xE && dat[i + 1] !== 0xE0) {
+			i += 1 + (dat[i + 2] << 8) + dat[i + 3];
+			j--;
+		} else if(j !== i){
+			dat[j] = dat[i];
+		}
+	}
+	if(j !== i){
+		dat[j++] = dat[i];
+	}
+	out = new Uint8Array(j);
+	for(i = 0; i < j; i++) {
+		out[i] = dat[i];
+	}
+	return out.buffer;
+}
+
 function prepareFiles(file, fn, i) {
 	var fr = new FileReader();
 	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
@@ -2835,7 +2862,13 @@ function prepareFiles(file, fn, i) {
 	}
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
-		fn(i, arrToBlob([this.result, String(Math.round(Math.random()*1e6))]), file.name, file.type);
+		var dat;
+		if(Cfg.rExif !== 0 && file.type === 'image/jpeg') {
+			dat = removeExif(this.result);
+		} else {
+			dat = this.result;
+		}
+		fn(i, arrToBlob([dat, String(Math.round(Math.random()*1e6))]), file.name, file.type);
 	};
 }
 
@@ -6206,6 +6239,7 @@ function getBFunctions() {
 			: nav.Chrome ? 'webkitAnimationEnd'
 			: '';
 	}
+	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
 }
 
 function initBoard() {
