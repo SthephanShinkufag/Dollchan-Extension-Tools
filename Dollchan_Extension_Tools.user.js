@@ -3784,6 +3784,7 @@ function addRefMap(post, uEv) {
 function addNode(parent, pView, e) {
 	var el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
 	parent = parent.node;
+	pView.style.display = '';
 	dForm.appendChild(pView);
 	setPreviewPostion(e, pView, false);
 	$event(pView, {
@@ -4804,7 +4805,7 @@ function applyPostVisib(post, vis, note) {
 			post.thr.Vis = vis;
 		}
 	} else if(Cfg['delhd'] === 2) {
-		post.style.display = vis === 0 ? 'none' : '';
+		(aib.xTable ? $x('ancestor::table[1]', post) : post).style.display = vis === 0 ? 'none' : '';
 	}
 	if(!sav.cookie) {
 		Visib[brd + pNum] = vis;
@@ -4904,7 +4905,7 @@ function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2) {
 		forEachPost(function(post) {
 			if(post.Vis === 0 && !post.isOp) {
-				$disp(post);
+				$disp(aib.xTable ? $x('ancestor::table[1]', post) : post);
 			}
 		});
 	}
