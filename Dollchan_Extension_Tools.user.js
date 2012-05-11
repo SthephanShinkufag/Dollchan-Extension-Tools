@@ -89,7 +89,8 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
-	'rExif':	1		// remove EXIF data from JPEGs
+	'rExif':	1,		// remove EXIF data from JPEGs
+	'sImgs':	1		// ability to post same images
 },
 
 Lng = {
@@ -297,7 +298,8 @@ Lng = {
 		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
 	},
 	pImages:		['Предварительно загружать изображения*', 'Preload images*'],
-	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images']
+	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images']
 },
 
 doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false;
@@ -1386,6 +1388,7 @@ function addSettings() {
 			}
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
+		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('sImgs', Lng.sameImgs[lCode], null)),
 		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
 		divBox('addfav', Lng.addToFav[lCode], null),
 		$if(pr.mail, $New('div', null, [
@@ -2826,7 +2829,7 @@ function prepareFiles(file, fn, i) {
 		} else {
 			dat = this.result;
 		}
-		fn(i, arrToBlob([dat, String(Math.round(Math.random()*1e6))]), file.name, file.type);
+		fn(i, Cfg['sImgs'] !== 0 ? arrToBlob([dat, String(Math.round(Math.random()*1e6))]) : dat, file.name, file.type);
 	};
 }
 
