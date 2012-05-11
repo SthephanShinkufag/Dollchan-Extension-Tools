@@ -15,7 +15,7 @@
 var defaultCfg = {
 	'version':	'12.5.6.4',
 	'lang':		0,		// script language [0=ru, 1=en]
-	'sstyle':	0,		// script elements style [0=gradient blue, 1=solid grey]
+	'sstyle':	0,		// script elements style [0=glass, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
 	'awipe':	1,		// antiwipe detectors:
 	'samel':	1,		//		same lines
@@ -725,6 +725,9 @@ function readCfg() {
 	if(global) {
 		fixGlobalCfg();
 	}
+	if(nav.Opera && nav.Opera < 11.1 && Cfg['sstyle'] === 0) {
+		Cfg['sstyle'] = 1;
+	}
 	if(nav.Firefox < 6 && !nav.Chrome) {
 		Cfg['pimgs'] = 0;
 	}
@@ -961,7 +964,21 @@ function saveViewedPosts(pNum) {
 ==============================================================================*/
 
 function addPanel() {
-	var imgLen = getImages(dForm).snapshotLength;
+	var imgLen = getImages(dForm).snapshotLength,
+		pButton = function(bName, bTitle, bClick, bHref, bOver, bOut) {
+			return $New('li', null, [
+				$new('a', {
+					'id': 'DESU_btn' + bName,
+					'title': bTitle,
+					'href': bHref ? bHref : '#'
+				}, {
+					'click': bClick,
+					'mouseover': bOver,
+					'mouseout': bOut
+				})
+			]);
+		};
+
 	$before(dForm, [
 		$new('div', {'style': 'clear: both;'}, null),
 		$New('div', {'id': 'DESU_panel'}, [
@@ -974,126 +991,67 @@ function addPanel() {
 					scriptCSS();
 				}
 			}),
-			$New('div', {'id': 'DESU_panelBtns'}, [
-				$new('a', {
-					'id': 'DESU_btnSettings',
-					'title': Lng.settings[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						toggleContent('Cfg', false);
+			$New('ul', {'id': 'DESU_panelBtns'}, [
+				pButton('Settings', Lng.settings[lCode], function(e) {
+					$pd(e);
+					toggleContent('Cfg', false);
+				}, null, null, null),
+				pButton('Hidden', Lng.hidden[lCode], function(e) {
+					$pd(e);
+					toggleContent('Hid', false);
+				}, null, null, null),
+				pButton('Favor', Lng.favorites[lCode], function(e) {
+					$pd(e);
+					toggleContent('Fav', false);
+				}, null, null, null),
+				pButton('Refresh', Lng.refresh[lCode], function(e) {
+					$pd(e);
+					window.location.reload();
+				}, null, function() {
+					if(!TNum) {
+						selectAjaxPages();
 					}
-				}),
-				$new('a', {
-					'id': 'DESU_btnHidden',
-					'title': Lng.hidden[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						toggleContent('Hid', false);
+				}, removeSelMenu),
+				pButton('Goback', Lng.goBack[lCode], null,
+					'http://' + aib.host + '/' + brd + '/' + (pageNum > 1 ? (pageNum - 1) + docExt : ''), null, null
+				),
+				$if(!TNum, pButton('Gonext', Lng.goNext[lCode], null,
+					'http://' + aib.host + '/' + brd + '/' + (pageNum > 0 ? pageNum + 1 : 1) + docExt, null, null
+				)),
+				pButton('Goup', Lng.goUp[lCode], function(e) {
+					$pd(e);
+					window.scrollTo(0, 0);
+				}, null, null, null),
+				pButton('Godown', Lng.goDown[lCode], function(e) {
+					$pd(e);
+					window.scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
+				}, null, null, null),
+				$if(!TNum && (pr.on || oeForm), pButton('Newthr', Lng.newThread[lCode], toggleMainReply, null, null, null)),
+				$if(imgLen > 0, pButton('Expimg', Lng.expImages[lCode], function(e) {
+					$pd(e);
+					Cfg['expimg'] = 1;
+					isExpImg = !isExpImg;
+					forEachPost(function(post) {
+						expandAllPostImg(post, isExpImg);
+					});
+				}, null, null, null)),
+				$if(pr.file || oeForm, pButton('Maskimg', Lng.maskImages[lCode], function(e) {
+					$pd(e);
+					toggleCfg('mask');
+					scriptCSS();
+				}, null, null, null)),
+				$if(TNum && Cfg['updthr'] !== 3, pButton('UpdOn', Lng.autoupd[lCode], function(e) {
+					$pd(e);
+					if(ajaxInt) {
+						endPostsUpdate();
+					} else {
+						this.id = 'DESU_btnUpdOn';
+						initThreadsUpdater();
 					}
-				}),
-				$new('a', {
-					'id': 'DESU_btnFavor',
-					'title': Lng.favorites[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						toggleContent('Fav', false);
-					}
-				}),
-				$new('a', {
-					'id': 'DESU_btnRefresh',
-					'title': Lng.refresh[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						window.location.reload();
-					},
-					'mouseover': function() {
-						if(!TNum) {
-							selectAjaxPages();
-						}
-					},
-					'mouseout': removeSelMenu
-				}),
-				$new('a', {
-					'id': 'DESU_btnGoback',
-					'title': Lng.goBack[lCode],
-					'href': 'http://' + aib.host + '/' + brd + '/' + (pageNum > 1 ? (pageNum - 1) + docExt : '')
-				}, null),
-				$if(!TNum, $new('a', {
-					'id': 'DESU_btnGonext',
-					'title': Lng.goNext[lCode],
-					'href': 'http://' + aib.host + '/' + brd + '/' + (pageNum > 0 ? pageNum + 1 : 1) + docExt
-				}, null)),
-				$new('a', {
-					'id': 'DESU_btnGoup',
-					'title': Lng.goUp[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						window.scrollTo(0, 0);
-					}
-				}),
-				$new('a', {
-					'id': 'DESU_btnGodown',
-					'title': Lng.goDown[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						window.scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
-					}
-				}),
-				$if(!TNum && (pr.on || oeForm), $new('a', {
-					'id': 'DESU_btnNewthr',
-					'title': Lng.newThread[lCode],
-					'href': '#'}, {
-					'click': toggleMainReply
-				})),
-				$if(imgLen > 0, $new('a', {
-					'id': 'DESU_btnExpimg',
-					'title': Lng.expImages[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						Cfg['expimg'] = 1;
-						isExpImg = !isExpImg;
-						forEachPost(function(post) {
-							expandAllPostImg(post, isExpImg);
-						});
-					}
-				})),
-				$if(pr.file || oeForm, $new('a', {
-					'id': 'DESU_btnMaskimg',
-					'title': Lng.maskImages[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						toggleCfg('mask');
-						scriptCSS();
-					}
-				})),
-				$if(TNum && Cfg['updthr'] !== 3, $new('a', {
-					'id': 'DESU_btnUpdOn',
-					'title': Lng.autoupd[lCode],
-					'href': '#'}, {
-					'click': function(e) {
-						$pd(e);
-						if(ajaxInt) {
-							endPostsUpdate();
-						} else {
-							this.id = 'DESU_btnUpdOn';
-							initThreadsUpdater();
-						}
-					}
-				})),
-				$if(aib.nul, $new('a', {
-					'id': 'DESU_btnCatalog',
-					'title': Lng.goCatalog[lCode],
-					'target': '_blank',
-					'href': 'http://0chan.ru/' + brd +'/catalog.html'
-				}, null))
+				}, null, null, null)),
+				$if(aib.nul,
+					pButton('Catalog', Lng.goCatalog[lCode], null, 'http://0chan.ru/' + brd +'/catalog.html', null, null)
+				)
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
 				$new('span', {
@@ -1474,7 +1432,7 @@ function addSettings() {
 		'id': 'DESU_cfgCommon'
 	}, [
 		$New('div', null, [
-			optSel('sstyle', ['Gradient blue', 'Solid grey'], Lng.scriptStyle[lCode], function() {
+			optSel('sstyle', ['Glass', 'Gradient blue', 'Solid grey'], Lng.scriptStyle[lCode], function() {
 				saveCfg('sstyle', this.selectedIndex);
 				scriptCSS();
 			})
@@ -5599,7 +5557,9 @@ function hideByWipe(post) {
 function scriptCSS() {
 	var x = [],
 		p = 'background: ' + (Cfg['sstyle'] === 0
-			? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)'
+			? nav.aCFix + 'linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%)'
+			: Cfg['sstyle'] === 1 ?
+				'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)'
 			: '#777'
 		) + '; ',
 		gif = function(nm, src) {
@@ -5609,30 +5569,44 @@ function scriptCSS() {
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + nav.cFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 3px; border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead { padding: ' + (Cfg['sstyle'] === 1 ? '3' : '5') + 'px; border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
-		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #555; border-top: none; }\
+		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
-		#DESU_cfgBar { height: 25px; padding-top: 3px; width: 100%; display: table; background-color: ' + (Cfg['sstyle'] === 0 ? '#0c1626' : '#777') + '; }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid #555; ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
-		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
+		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: ' + (Cfg['sstyle'] === 0 ? '#325f9e;' : Cfg['sstyle'] === 1 ? '#0c1626; padding-top: 3px;' : '#777;') + ' }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid #183d77; ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.DESU_cfgTab { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%);' : 'background-color: rgba(0,0,0,.2);') + ' }\
+		.DESU_cfgTab:hover { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%);' : 'background-color: rgba(99,99,99,.2);') + ' }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
-		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; ' + nav.cFix + 'border-radius: 4px 4px 0 0; }\
+		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; ' + nav.cFix + 'box-shadow: none !important; border: none !important; ' + nav.cFix + 'border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel a { padding: 0 7px; text-align: center; }'
 	);
 
 	// Main panel
 	x.push(
-		'#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default; }\
-		#DESU_panel a { display: inline-block; padding: 0 25px 25px 0; margin: 0 1px 0 1px; border: none; ' + nav.cFix + 'border-radius: 5px; }\
-		#DESU_panelBtns { display: inline-block; padding: 0 3px; margin-left: 4px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#79c' : '#ccc') + '; }\
-		#DESU_panelBtns a:hover { padding: 0 21px 21px 0 !important; border: 2px solid ' + (Cfg['sstyle'] === 0 ? '#9be' : '#444') + '; }\
-		#DESU_panelInfo { display: inline-block; height: 25px; vertical-align: top; padding: 2px 4px 0 6px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
+		'#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
+		#DESU_panelBtns { display: inline-block; padding: 0; margin: 0; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; }\
+		#DESU_btnLogo { margin-right: 4px; }\
+		#DESU_panelInfo { display: inline-block; height: 25px; vertical-align: top; padding: 2px 4px 0 6px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
 	);
+	if(Cfg['sstyle'] === 0) {
+		x.push(
+			'#DESU_panelBtns > li { margin: 0 1px; ' + nav.aCFix + 'transition: all 0.3s ease; }\
+			#DESU_panelBtns > li:hover { background-color: rgba(255,255,255,.15); ' + nav.cFix + 'box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+			#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }'
+		);
+	} else {
+		x.push(
+			'#DESU_panelBtns > li > a { margin: 0 1px; ' + nav.cFix + 'border-radius: 5px; }\
+			#DESU_panelBtns > li > a:hover { padding: 0 21px 21px 0 !important; border: 2px solid ' + (Cfg['sstyle'] === 1 ? '#9be' : '#444') + ' }\
+			#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; }\
+			#DESU_panelBtns > li > a, #DESU_btnLogo { padding: 0 25px 25px 0; }'
+		);
+	}
+
 	if(Cfg['icount'] === 0) {
 		x.push('#DESU_panelInfo { display: none; }');
 	}
