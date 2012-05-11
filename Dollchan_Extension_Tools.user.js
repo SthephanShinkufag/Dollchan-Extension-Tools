@@ -6421,7 +6421,7 @@ function parseDelform(node, dc, pFn) {
 					: 0;
 			}
 			thr.dTitle = ((i = $c(aib.cTitle, op)) && i.textContent.trim() || op.Text)
-				.substring(0, 70).replace(/\s+/g, ' ');
+				.substring(0, 70).replace(/\s+/g, ' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 		}
 	});
 	op = pByNum[window.location.hash.substring(1)];
