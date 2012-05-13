@@ -6515,6 +6515,10 @@ function doChanges() {
 			$after(el, $new('hr', null, null));
 		}
 		$del($x('.//input[@name="makewatermark"]', pr.form));
+		if(!TNum) {
+			$del(dForm.nextElementSibling);
+			$del(dForm.nextElementSibling);
+		}
 	} else {
 		if(aib.brit) {
 			$each($X('.//span[@class="reflink"]', dForm), function(el) {
