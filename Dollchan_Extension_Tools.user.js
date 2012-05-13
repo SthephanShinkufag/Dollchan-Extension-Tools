@@ -4770,6 +4770,7 @@ function togglePost(post, vis) {
 	$each($X('following-sibling::*', $c(
 		aib.krau ? 'postheader'
 		: aib.ylil ? 'postinfo'
+		: aib.fch ? 'postInfo'
 		: aib.tiny ? 'intro'
 		: aib._420 ? 'replyheader'
 		: 'DESU_postPanel',
@@ -4800,7 +4801,7 @@ function applyPostVisib(post, vis, note) {
 					togglePostVisib(post);
 				}
 			});
-			$before(post.parentNode, [el]);
+			$before(post.thr, [el]);
 			toggleHiddenThread(post, 0);
 			post.thr.Vis = vis;
 		}
@@ -5991,11 +5992,11 @@ function aibDetector(host, dc) {
 		return obj;
 	}
 	obj.host = host;
+	obj.fch = h === '4chan.org';
 	obj.waka = $$xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', dc, dc);
-	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php")]', dc, dc);
+	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php")]', dc, dc) && !obj.fch;
 	obj.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
 	obj.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
-	obj.fch = h === '4chan.org';
 	obj.nul = h === '0chan.ru';
 	obj._7ch = h === '7chan.org';
 	obj._410 = h === '410chan.ru';
@@ -6016,6 +6017,7 @@ function aibDetector(host, dc) {
 	obj.opClass =
 		obj.kus ? 'postnode'
 		: obj.brit ? 'originalpost'
+		: obj.fch ? 'post op'
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
 	obj.xThreads = obj.sib ? 'div' : ('.//div[' + (
@@ -6026,10 +6028,10 @@ function aibDetector(host, dc) {
 	) + ']');
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
-		: obj.fch ? 'span[starts-with(@id,"no")]'
+		: obj.fch ? 'div[@class="postInfo"]/span[last()]'
 		: false;
 	obj.cRef =
-		obj.krau || obj.ylil? 'postnumber'
+		obj.krau || obj.ylil ? 'postnumber'
 		: obj.gazo ? 'del'
 		: 'reflink';
 	obj.xMsg =
@@ -6048,20 +6050,22 @@ function aibDetector(host, dc) {
 		obj.gazo ? '.'
 		: obj.tiny || obj.ylil ? './/p[@class="fileinfo"]'
 		: obj.hana ? './/div[starts-with(@class,"fileinfo")]'
-		: './/span[@class="' + (obj.krau ? 'filename' : 'filesize') + '"]'
+		: './/span[@class="' + (obj.krau ? 'filename' : obj.fch ? 'fileText' : 'filesize') + '"]'
 	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
 		+ (obj.nul ? '[1]' : '');
 	obj.cTitle =
 		obj.krau || obj.ylil ? 'postsubject'
-		: obj.tiny ? 'subject'
+		: obj.tiny || obj.fch ? 'subject'
 		: obj.hana ? 'replytitle'
 		: 'filetitle';
 	obj.cOmPosts =
 		obj.krau ? 'omittedinfo'
 		: obj.ylil ? 'omitted'
 		: obj.hana ? 'abbrev'
+		: obj.fch ? 'summary desktop'
 		: 'omittedposts';
 	obj.xBan = obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
+		: obj.fch ? './/strong[@style="color: red;"]'
 		: false;
 	
 	obj.getMsg = obj.cMsg
@@ -6082,7 +6086,7 @@ function aibDetector(host, dc) {
 			return $c(obj.cRef, el);
 		};
 	obj.getOp =
-		(obj.abu || obj.hana || obj.kus) && $c(obj.opClass, doc) ? function(thr, dc) {
+		(obj.abu || obj.hana || obj.kus || obj.fch) && $c(obj.opClass, doc) ? function(thr, dc) {
 			return $c(obj.opClass, thr);
 		}
 		: obj.ylil ? function(thr, dc) {
@@ -6120,7 +6124,7 @@ function aibDetector(host, dc) {
 			return op;
 		};
 	obj.xTNum =
-		obj.fch || obj.gazo || obj.tiny ? './/input[@type="checkbox"]'
+		obj.gazo || obj.tiny ? './/input[@type="checkbox"]'
 		: (obj.waka && !obj.abu) || obj.brit || obj.tinyIb ? './/a[@name]'
 		: obj.kus ? 'a[@name][2]'
 		: false;
@@ -6272,8 +6276,7 @@ function initBoard() {
 	}
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
 	$Del(
-		'preceding-sibling::node()' + (aib.fch ? '[not(self::center)]' : '')
-			+ '[preceding-sibling::*[descendant-or-self::*['
+		'preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*['
 			+ (aib.abu ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]',
 		dForm
 	);
@@ -6377,8 +6380,7 @@ function parseDelform(node, dc, pFn) {
 	}
 	if(Posts.length < 2) {
 		aib.xTable = $t('table', node) ? (
-			aib.fch ? 'table[not(@class="exif")]'
-			: aib.tire ? 'table[not(@class="postfiles")]'
+			aib.tire ? 'table[not(@class="postfiles")]'
 			: 'table'
 		) : false;
 		aib.xPost = (aib.xTable || aib.gazo)
@@ -6445,6 +6447,7 @@ function parseDelform(node, dc, pFn) {
 
 function replaceDelform(el) {
 	var txt;
+	//??? aib.fch
 	if(aib.fch || aib.krau || Cfg['ctime'] && timeRegex || Cfg['spells'] !== 0 && oSpells.rep[0]) {
 		txt = el.innerHTML;
 		if(Cfg['ctime'] && timeRegex) {
@@ -6535,12 +6538,6 @@ function doChanges() {
 				$del(el);
 			}
 		}
-	}
-	if(aib.fch && !TNum) {
-		$each($X('.//table[@class="pages"]//form', doc), function(el) {
-			el.nextElementSibling.appendChild($attr(el, {'style': 'margin-bottom: 0;'}));
-			el.appendChild(el.previousElementSibling);
-		});
 	}
 	if(TNum) {
 		initThreadsUpdater();
