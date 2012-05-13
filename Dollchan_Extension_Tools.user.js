@@ -2843,7 +2843,7 @@ function showQuickReply(post) {
 	pr.isQuick = true;
 	pr.tNum = tNum;
 	if(qArea.hasChildNodes()) {
-		if(post.nextElementSibling === qArea) {
+		if(aib.getPost(post).nextElementSibling === qArea) {
 			$disp(qArea);
 			showMainReply();
 			return;
@@ -2863,7 +2863,7 @@ function showQuickReply(post) {
 			]);
 		}
 	}
-	$after($x('ancestor::table[1]', post) || post, qArea);
+	$after(aib.getPost(post), qArea);
 	if(!TNum && Cfg['tform'] !== 0) {
 		pArea.style.display = 'none';
 	}
@@ -4805,7 +4805,7 @@ function applyPostVisib(post, vis, note) {
 			post.thr.Vis = vis;
 		}
 	} else if(Cfg['delhd'] === 2) {
-		(aib.xTable ? $x('ancestor::table[1]', post) : post).style.display = vis === 0 ? 'none' : '';
+		aib.getPost(post).style.display = vis === 0 ? 'none' : '';
 	}
 	if(!sav.cookie) {
 		Visib[brd + pNum] = vis;
@@ -4905,7 +4905,7 @@ function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2) {
 		forEachPost(function(post) {
 			if(post.Vis === 0 && !post.isOp) {
-				$disp(aib.xTable ? $x('ancestor::table[1]', post) : post);
+				$disp(aib.getPost(post));
 			}
 		});
 	}
@@ -6385,6 +6385,8 @@ function parseDelform(node, dc, pFn) {
 			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
 			: './/div[contains(@class,"' + aib.pClass + '")]';
 		aib.xWrap = './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
+		aib.getPost = aib.xTable ? function(post) { return $x('ancestor::table[1]', post); }
+			: function(post) { return post; };
 		if(aib.xTable) {
 			postWrapper = $$x(aib.brit ? './/div[starts-with(@id,"replies")]/table'
 				: './/' + aib.xTable, node, dc);
