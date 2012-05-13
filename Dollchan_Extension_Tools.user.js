@@ -6028,7 +6028,6 @@ function aibDetector(host, dc) {
 	) + ']');
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
-		: obj.fch ? 'div[@class="postInfo"]/span[last()]'
 		: false;
 	obj.cRef =
 		obj.krau || obj.ylil ? 'postnumber'
@@ -6078,6 +6077,9 @@ function aibDetector(host, dc) {
 	obj.getRef =
 		obj.xRef ? function(el) {
 			return $x(obj.xRef, el);
+		}
+		: obj.fch ? function(el) {
+			return $c('postInfo', el).lastElementChild;
 		}
 		: obj.sib ? function(el) {
 			return $c(obj.cRef, el) || $c('filesize', el);
@@ -6447,7 +6449,6 @@ function parseDelform(node, dc, pFn) {
 
 function replaceDelform(el) {
 	var txt;
-	//??? aib.fch
 	if(aib.fch || aib.krau || Cfg['ctime'] && timeRegex || Cfg['spells'] !== 0 && oSpells.rep[0]) {
 		txt = el.innerHTML;
 		if(Cfg['ctime'] && timeRegex) {
