@@ -299,7 +299,8 @@ Lng = {
 	},
 	pImages:		['Предварительно загружать изображения*', 'Preload images*'],
 	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
-	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images']
+	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
+	reply:			['Ответ', 'Reply']
 },
 
 doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false;
@@ -4300,16 +4301,13 @@ function loadThread(post, last, fn) {
 		if(err) {
 			$alert(err, '');
 		} else {
-			$delNx(post.Msg);
-			$delNx(post);
-			if(aib.krau) {
-				$del($c('omittedinfo', post));
-			}
-			i = pByNum[thr.Num];
-			i.Msg.parentNode.replaceChild(aib.getMsg(psts[0]), i.Msg);
-			i.Msg = aib.getMsg(i);
-			i.Text = getText(i.Msg);
-			processFullMsg(i);
+			i = post.parentNode;
+			thr = i.cloneNode(false);
+			i.parentNode.replaceChild(thr, i);
+			post = psts[0];
+			newPost(thr, post, 0);
+			$after(post.Btns, $add('<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, post.Num) + '">'
+				+ Lng.reply[lCode] + '</a>]</span>'))
 			if(last === 1 || last >= psts.length - 1) {
 				i = 1;
 			} else {
@@ -4333,6 +4331,7 @@ function loadThread(post, last, fn) {
 			}
 			thr.pCount = psts.length;
 		}
+		$focus(post);
 		if(fn) {
 			fn();
 		}
