@@ -476,12 +476,6 @@ function $Del(path, root) {
 	$$Del(path, root, doc)
 }
 
-function $delNx(el) {
-	while(el.nextSibling) {
-		$del(el.nextSibling);
-	}
-}
-
 function $offset(el) {
 	var box = el.getBoundingClientRect();
 	return {
@@ -2523,7 +2517,9 @@ function doPostformChanges(a) {
 			if(img) {
 				img.parentNode.replaceChild(_img, img);
 			} else {
-				$delNx(pr.cap);
+				while(pr.cap.nextSibling) {
+					$del(pr.cap.nextSibling);
+				}
 				$after(pr.cap, _img);
 			}
 		}
