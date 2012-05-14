@@ -15,7 +15,7 @@
 var defaultCfg = {
 	'version':	'12.5.6.4',
 	'lang':		0,		// script language [0=ru, 1=en]
-	'sstyle':	0,		// script elements style [0=glass, 1=gradient blue, 2=solid grey]
+	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
 	'awipe':	1,		// antiwipe detectors:
 	'samel':	1,		//		same lines
@@ -1435,10 +1435,13 @@ function addSettings() {
 		'id': 'DESU_cfgCommon'
 	}, [
 		$New('div', null, [
-			optSel('sstyle', ['Glass', 'Gradient blue', 'Solid grey'], Lng.scriptStyle[lCode], function() {
-				saveCfg('sstyle', this.selectedIndex);
-				scriptCSS();
-			})
+			optSel('sstyle',
+				['Glass blue', 'Gradient blue', 'Solid grey'],
+				Lng.scriptStyle[lCode], function() {
+					saveCfg('sstyle', this.selectedIndex);
+					scriptCSS();
+				}
+			)
 		]),
 		divBox('attach', Lng.attachPanel[lCode], function() {
 			toggleContent('Cfg', false);
@@ -6056,7 +6059,8 @@ function aibDetector(host, dc) {
 		: obj.hana ? 'abbrev'
 		: obj.fch ? 'summary desktop'
 		: 'omittedposts';
-	obj.xBan = obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
+	obj.xBan =
+		obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
 		: obj.fch ? './/strong[@style="color: red;"]'
 		: false;
 	
@@ -6081,8 +6085,11 @@ function aibDetector(host, dc) {
 			return $c(obj.cRef, el);
 		};
 	obj.getOp =
-		(obj.abu || obj.hana || obj.kus || obj.fch) && $c(obj.opClass, doc) ? function(thr, dc) {
+		(obj.abu || obj.hana || obj.kus) && $c(obj.opClass, doc) ? function(thr, dc) {
 			return $c(obj.opClass, thr);
+		}
+		: obj.fch ? function(thr, dc) {
+			return $c('opContainer', thr);
 		}
 		: obj.ylil ? function(thr, dc) {
 			return thr.firstElementChild;
