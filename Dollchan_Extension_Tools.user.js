@@ -5967,7 +5967,7 @@ function aibDetector(host, dc) {
 		h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	obj.dm = h;
 	obj.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
-	obj.tiny = $$xb('.//p[@class="unimportant"]/a[@href="http://tinyboard.org/"]', dc, dc);
+	obj.tiny = $$xb('.//form[@name="postcontrols"]', dc, dc);
 	obj.krau = h === 'krautchan.net';
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
@@ -5983,15 +5983,14 @@ function aibDetector(host, dc) {
 		return obj;
 	}
 	obj.host = host;
-	obj.fch = h === '4chan.org';
 	obj.waka = $$xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', dc, dc);
-	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php")]', dc, dc) && !obj.fch;
+	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php?delete")]', dc, dc);
 	obj.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
 	obj.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
+	obj.fch = h === '4chan.org';
 	obj.nul = h === '0chan.ru';
 	obj._7ch = h === '7chan.org';
 	obj._410 = h === '410chan.ru';
-	obj.sib = h === 'sibirchan.ru';
 	obj.hid = h === 'hiddenchan.i2p';
 	obj.tire = h === '2--ch.ru';
 	obj.dfwk = h === 'dfwk.ru';
@@ -6011,12 +6010,12 @@ function aibDetector(host, dc) {
 		: obj.fch ? 'post op'
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
-	obj.xThreads = obj.sib ? 'div' : ('.//div[' + (
+	obj.xThreads = './/div[' + (
 		$$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
 		: obj._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
-	) + ']');
+	) + ']';
 	obj.xRef =
 		obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]'
 		: false;
@@ -6072,9 +6071,6 @@ function aibDetector(host, dc) {
 		}
 		: obj.fch ? function(el) {
 			return $c('postInfo', el).lastElementChild;
-		}
-		: obj.sib ? function(el) {
-			return $c(obj.cRef, el) || $c('filesize', el);
 		}
 		: function(el) {
 			return $c(obj.cRef, el);
@@ -6375,7 +6371,7 @@ function processPost(post, thr, pFn, i) {
 }
 
 function parseDelform(node, dc, pFn) {
-	var i, len, op, psts;
+	var op;
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
 		$$Del('.//a[@data-embedcode]', node, dc);
@@ -6386,18 +6382,19 @@ function parseDelform(node, dc, pFn) {
 		});
 	}
 	if(Posts.length < 2) {
-		aib.xTable = $t('table', node) ? (
-			aib.tire ? 'table[not(@class="postfiles")]'
-			: 'table'
-		) : false;
+		aib.xTable = $t('table', node)
+			? (aib.tire ? 'table[not(@class="postfiles")]' : 'table')
+			: false;
 		aib.xPost = (aib.xTable || aib.gazo)
 			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
 			: './/div[contains(@class,"' + aib.pClass + '")]';
 		aib.xWrap = './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
-		aib.getPost = aib.xTable ? function(post) { return $x('ancestor::table[1]', post); }
+		aib.getPost = aib.xTable
+			? function(post) { return $x('ancestor::table[1]', post); }
 			: function(post) { return post; };
 		if(aib.xTable) {
-			postWrapper = $$x(aib.brit ? './/div[starts-with(@id,"replies")]/table'
+			postWrapper = $$x(aib.brit
+				? './/div[starts-with(@id,"replies")]/table'
 				: './/' + aib.xTable, node, dc);
 			if(dc !== doc && postWrapper) {
 				postWrapper = doc.importNode(postWrapper, true);
@@ -6405,6 +6402,7 @@ function parseDelform(node, dc, pFn) {
 		}
 	}
 	forEachThread(node, dc, function(thr) {
+		var i, len, psts;
 		if(aib._420 || (aib.tiny && !TNum)) {
 			$after(thr, thr.lastChild);
 		}
@@ -6528,21 +6526,19 @@ function doChanges() {
 			$del(dForm.nextElementSibling);
 			$del(dForm.nextElementSibling);
 		}
-	} else {
-		if(aib.brit) {
-			$each($X('.//span[@class="reflink"]', dForm), function(el) {
-				var a = el.firstChild;
-				$rattr(a, 'onclick');
-				a.href = getThrdUrl(aib.host, brd, a.textContent);
-				a.target = '_blank';
-			});
-		} else if(aib.ylil) {
-			el = $t('iframe', dForm);
-			if(el) {
-				$del(el.nextElementSibling);
-				$del(el.nextElementSibling);
-				$del(el);
-			}
+	} else if(aib.brit) {
+		$each($X('.//span[@class="reflink"]', dForm), function(el) {
+			var a = el.firstChild;
+			$rattr(a, 'onclick');
+			a.href = getThrdUrl(aib.host, brd, a.textContent);
+			a.target = '_blank';
+		});
+	} else if(aib.ylil) {
+		el = $t('iframe', dForm);
+		if(el) {
+			$del(el.nextElementSibling);
+			$del(el.nextElementSibling);
+			$del(el);
 		}
 	}
 	if(TNum) {
