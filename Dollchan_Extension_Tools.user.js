@@ -6119,7 +6119,7 @@ function aibDetector(host, dc) {
 	obj.xTNum =
 		obj.gazo || obj.tiny ? './/input[@type="checkbox"]'
 		: (obj.waka && !obj.abu) || obj.brit || obj.tinyIb ? './/a[@name]'
-		: obj.kus ? 'a[@name][2]'
+		: obj.kus && !obj._7ch ? 'a[@name][2]'
 		: false;
 	
 	obj.getTNum =
