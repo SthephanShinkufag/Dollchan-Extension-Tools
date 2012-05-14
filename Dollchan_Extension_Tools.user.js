@@ -2301,10 +2301,7 @@ function doSageBtn() {
 		: '<i>(no&nbsp;sage)</i>'
 	);
 	if(pr.mail.type === 'text') {
-		pr.mail.value =
-			c ? 'sage'
-			: aib.fch ? 'noko'
-			: '';
+		pr.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
 	} else {
 		pr.mail.checked = c;
 	}
@@ -6281,8 +6278,11 @@ function initBoard() {
 	}
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
 	$Del(
-		'preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*['
-			+ (aib.abu ? 'self::form' : 'self::div[@class="logo"]') + ' or self::h1]]]',
+		'preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
+			aib.abu ? 'self::form' 
+			: aib.fch ? 'self::div[@class="boardBanner"]'
+			: 'self::div[@class="logo"]'
+		) + ' or self::h1]]]',
 		dForm
 	);
 	if(aib.krau) {
