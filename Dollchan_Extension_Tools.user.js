@@ -3044,12 +3044,8 @@ function getText(el) {
 	).trim();
 }
 
-function getImgInfo(post) {
-	return $t('em', post) || $c('filesize', post) || $c('fileinfo', post);
-}
-
 function getImgWeight(post) {
-	var inf = getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
+	var inf = aib.getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
 		w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) {
 		w = w*1e3;
@@ -3061,7 +3057,7 @@ function getImgWeight(post) {
 }
 
 function getImgSize(post) {
-	var el = getImgInfo(post),
+	var el = aib.getImgInfo(post),
 		m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
 	return m ? m[0].split(/[x×]/) : [null, null];
 }
@@ -5183,7 +5179,7 @@ function getSpells(x, post) {
 			}
 		}
 		if(x.imgn[0]) {
-			inf = getImgInfo(post);
+			inf = aib.getImgInfo(post);
 			if(inf) {
 				for(i = 0, inf = inf.textContent; t = x.imgn[i++];) {
 					if(t.test(inf)) {
@@ -6165,6 +6161,13 @@ function aibDetector(host, dc) {
 		: function(post) {
 			var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
 			return a && /sage/i.test(a.href);
+		}
+	obj.getImgInfo = obj.fch
+		? function(post) {
+			return $c('fileText', post);
+		}
+		: function (post) {
+			return $t('em', post) || $c('filesize', post) || $c('fileinfo', post);
 		}
 	return obj;
 }
