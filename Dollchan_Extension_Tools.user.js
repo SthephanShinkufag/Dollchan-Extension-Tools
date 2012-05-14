@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.6.4
+// @version			12.5.15.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.6.4',
+	'version':	'12.5.15.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -1010,10 +1010,10 @@ function addPanel() {
 					}
 				}, removeSelMenu),
 				pButton('Goback', Lng.goBack[lCode], null,
-					'http://' + aib.host + '/' + brd + '/' + (pageNum > 1 ? (pageNum - 1) + docExt : ''), null, null
+					'http://' + aib.host + getBrd(brd) + (pageNum > 1 ? (pageNum - 1) + docExt : ''), null, null
 				),
 				$if(!TNum, pButton('Gonext', Lng.goNext[lCode], null,
-					'http://' + aib.host + '/' + brd + '/' + (pageNum > 0 ? pageNum + 1 : 1) + docExt, null, null
+					'http://' + aib.host + getBrd(brd) + (pageNum > 0 ? pageNum + 1 : 1) + docExt, null, null
 				)),
 				pButton('Goup', Lng.goUp[lCode], function(e) {
 					$pd(e);
@@ -1047,7 +1047,7 @@ function addPanel() {
 					}
 				}, null, null, null)),
 				$if(aib.nul,
-					pButton('Catalog', Lng.goCatalog[lCode], null, 'http://0chan.ru/' + brd +'/catalog.html', null, null)
+					pButton('Catalog', Lng.goCatalog[lCode], null, 'http://0chan.ru/' + brd + '/catalog.html', null, null)
 				)
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
@@ -4015,7 +4015,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 function showPostPreview(e) {
 	var b = aib.ylil
 		? this['data-boardurl']
-		: this.pathname.match(/^\/*(.*?)\/*(?:res|thread-|index|\d+|$)/)[1],
+		: this.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (this.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || importPreview(b, pNum),
@@ -4117,7 +4117,7 @@ function parseHTMLdata(html, b, tNum, pFn) {
 function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: url || ('/' + (b === '' ? '': b + '/') + res + tNum + (aib.tire ? '.html' : docExt)),
+		url: url || (getBrd(b) + res + tNum + (aib.tire ? '.html' : docExt)),
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
@@ -4379,9 +4379,9 @@ function loadPage(p, tClass, len) {
 		$new('hr', null, null),
 		page = $new('div', {'id': 'DESU_page' + p}, null)
 	]);
-	ajaxGetPosts('/' + (brd === '' ? '' : brd + '/') + (
-		p > 0 ? p + docExt
-		: aib.hana ? 'index' + docExt
+	ajaxGetPosts(getBrd(brd) + (
+		p > 0 ? (p + docExt)
+		: aib.hana ? ('index' + docExt)
 		: ''
 	), null, null, function(dc, post, i) {
 		if(i === 0) {
@@ -6167,8 +6167,12 @@ function aibDetector(host, dc) {
 	return obj;
 }
 
+function getBrd(b) {
+	return '/' + (b === '' ? '' : b + '/');
+}
+
 function getThrdUrl(h, b, tNum) {
-	return 'http://' + h + '/' + b + '/'
+	return 'http://' + h + getBrd(b)
 		+ ((h.indexOf('krautchan.net') + 1) ? 'thread-' : 'res/') + tNum + (
 			(h.indexOf('dobrochan.') + 1) ? '.xhtml'
 			: (h.indexOf('2chan.net') + 1) ? '.htm'
@@ -6253,7 +6257,7 @@ function initBoard() {
 	fixFunctions();
 	getBFunctions();
 	url = (window.location.pathname || '')
-		.match(/^\/?(?:(.*?)\/*)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
+		.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	res = aib.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
@@ -6388,15 +6392,16 @@ function parseDelform(node, dc, pFn) {
 		aib.xPost = (aib.xTable || aib.gazo)
 			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
 			: './/div[contains(@class,"' + aib.pClass + '")]';
-		aib.xWrap = aib.fch ? 'div[2]'
+		aib.xWrap = aib.fch
+			? 'div[2]'
 			: './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
 		aib.getPost =
 			aib.xTable ? function(post) { return $x('ancestor::table[1]', post) || post; }
 			: aib.fch ? function(post) { return post.parentNode; }
 			: function(post) { return post; };
 		if(aib.xTable || aib.fch) {
-			postWrapper = $$x(aib.brit
-				? './/div[starts-with(@id,"replies")]/table'
+			postWrapper = $$x(
+				aib.brit ? './/div[starts-with(@id,"replies")]/table'
 				: aib.fch ? './/div[@class="postContainer replyContainer"]'
 				: './/' + aib.xTable, node, dc);
 			if(dc !== doc && postWrapper) {
