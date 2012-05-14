@@ -15,7 +15,7 @@
 var defaultCfg = {
 	'version':	'12.5.6.4',
 	'lang':		0,		// script language [0=ru, 1=en]
-	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
+	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
 	'awipe':	1,		// antiwipe detectors:
 	'samel':	1,		//		same lines
@@ -6007,7 +6007,7 @@ function aibDetector(host, dc) {
 	obj.pClass =
 		obj.krau ? 'postreply'
 		: obj.ylil ? 'answer'
-		: obj.tiny ? 'post reply'
+		: obj.tiny || obj.fch ? 'post reply'
 		: 'reply';
 	obj.opClass =
 		obj.kus ? 'postnode'
