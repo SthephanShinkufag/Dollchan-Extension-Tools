@@ -89,7 +89,7 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
-	'rExif':	1,		// remove EXIF data from JPEGs
+	'rExif':	0,		// remove EXIF data from JPEGs
 	'sImgs':	1		// ability to post same images
 },
 
