@@ -89,7 +89,7 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
-	'rExif':	1,		// remove EXIF data from JPEGs
+	'rExif':	0,		// remove EXIF data from JPEGs
 	'sImgs':	1		// ability to post same images
 },
 
@@ -6388,13 +6388,16 @@ function parseDelform(node, dc, pFn) {
 		aib.xPost = (aib.xTable || aib.gazo)
 			? './/table/tbody/tr/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]')
 			: './/div[contains(@class,"' + aib.pClass + '")]';
-		aib.xWrap = './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
-		aib.getPost = aib.xTable
-			? function(post) { return $x('ancestor::table[1]', post); }
+		aib.xWrap = aib.fch ? 'div[2]'
+			: './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
+		aib.getPost =
+			aib.xTable ? function(post) { return $x('ancestor::table[1]', post) || post; }
+			: aib.fch ? function(post) { return post.parentNode; }
 			: function(post) { return post; };
-		if(aib.xTable) {
+		if(aib.xTable || aib.fch) {
 			postWrapper = $$x(aib.brit
 				? './/div[starts-with(@id,"replies")]/table'
+				: aib.fch ? './/div[@class="postContainer replyContainer"]'
 				: './/' + aib.xTable, node, dc);
 			if(dc !== doc && postWrapper) {
 				postWrapper = doc.importNode(postWrapper, true);
