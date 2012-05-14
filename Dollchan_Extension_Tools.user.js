@@ -6391,7 +6391,7 @@ function parseDelform(node, dc, pFn) {
 		aib.xWrap = aib.fch ? 'div[2]'
 			: './/td' + (aib.gazo ? '[2]' : '[contains(@class,"' + aib.pClass + '")]');
 		aib.getPost =
-			aib.xTable ? function(post) { return $x('ancestor::table[1]', post); }
+			aib.xTable ? function(post) { return $x('ancestor::table[1]', post) || post; }
 			: aib.fch ? function(post) { return post.parentNode; }
 			: function(post) { return post; };
 		if(aib.xTable || aib.fch) {
