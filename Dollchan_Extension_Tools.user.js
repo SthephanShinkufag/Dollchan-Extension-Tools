@@ -2892,7 +2892,10 @@ function showMainReply() {
 }
 
 function toggleQuickReply(tNum) {
-	$x('.//input[@id="thr_id" or @name="thread_id" or @name="replythread"]', pr.form).value = tNum;
+	$x(aib.ylil
+		? './/input[@name="thread"]'
+		: './/input[@id="thr_id" or @name="thread_id" or @name="replythread"]', pr.form
+	).value = tNum;
 	if(aib.pony) {
 		$x('.//input[@name="quickreply"]', pr.form).value = tNum || '';
 	}
@@ -6069,7 +6072,9 @@ function getPostform(form) {
 	obj.form = form;
 	obj.tr = 'ancestor::' + tr + '[1]';
 	obj.recap = $x('.//input[@id="recaptcha_response_field"]', form);
-	obj.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || obj.recap;
+	if(!aib.ylil) {
+		obj.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || obj.recap;
+	}
 	obj.txta = $x('.//' + tr + '[not(contains(@style,"none"))]//textarea[not(contains(@style,"none"))]', form);
 	obj.subm = $x('.//' + tr + '//input[@type="submit"]', form);
 	obj.file = $x('.//' + tr + '//input[@type="file"]', form);
