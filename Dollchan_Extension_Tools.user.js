@@ -1010,10 +1010,10 @@ function addPanel() {
 					}
 				}, removeSelMenu),
 				pButton('Goback', Lng.goBack[lCode], null,
-					'http://' + aib.host + fixBrd(brd) + (pageNum > 1 ? (pageNum - 1) + docExt : ''), null, null
+					'http://' + aib.host + getPageUrl(brd, pageNum - 1, docExt), null, null
 				),
 				$if(!TNum, pButton('Gonext', Lng.goNext[lCode], null,
-					'http://' + aib.host + fixBrd(brd) + (pageNum > 0 ? pageNum + 1 : 1) + docExt, null, null
+					'http://' + aib.host + getPageUrl(brd, pageNum + 1, docExt), null, null
 				)),
 				pButton('Goup', Lng.goUp[lCode], function(e) {
 					$pd(e);
@@ -4379,11 +4379,7 @@ function loadPage(p, tClass, len) {
 		$new('hr', null, null),
 		page = $new('div', {'id': 'DESU_page' + p}, null)
 	]);
-	ajaxGetPosts(fixBrd(brd) + (
-		p > 0 ? (p + docExt)
-		: aib.hana ? ('index' + docExt)
-		: ''
-	), null, null, function(dc, post, i) {
+	ajaxGetPosts(getPageUrl(brd, p, docExt), null, null, function(dc, post, i) {
 		if(i === 0) {
 			thr = $new('div', {'class': tClass}, null);
 			thr.Num = post.Num;
@@ -6014,7 +6010,7 @@ function getPage() {
 		brd = url[1].split('-')[0];
 		res = '';
 		TNum = url[2];
-		pageNum = (url[1].split('-') || [0, 0])[1];
+		pageNum = +url[1].split('-')[1] || 1;
 		docExt = '';
 	} else {
 		url = url.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
@@ -6037,12 +6033,27 @@ function fixBrd(b) {
 
 function getThrdUrl(h, b, tNum) {
 	return 'http://' + h + fixBrd(b)
-		+ ((h.indexOf('krautchan.net') + 1) ? 'thread-' : 'res/') + tNum + (
+		+ (
+			(h.indexOf('krautchan.net') + 1) ? 'thread-'
+			: (h.indexOf('ylilauta.fi') + 1) ? ''
+			: 'res/'
+		) + tNum + (
 			(h.indexOf('dobrochan.') + 1) ? '.xhtml'
 			: (h.indexOf('2chan.net') + 1) ? '.htm'
 			: (h.indexOf('420chan.org') + 1) ? '.php'
+			: (h.indexOf('ylilauta.fi') + 1) ? ''
 			: '.html'
 		);
+}
+
+function getPageUrl(b, page, ext) {
+	return aib.ylil
+		? ('/' + b + (page === 1 ? '/' : '-' + page))
+		: (fixBrd(b) + (
+			page > 0 ? (page + ext)
+			: aib.hana ? ('index' + ext)
+			: ''
+		));
 }
 
 function getPostform(form) {
