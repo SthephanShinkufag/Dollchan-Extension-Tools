@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.15.0
+// @version			12.5.15.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.15.0',
+	'version':	'12.5.15.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2572,7 +2572,7 @@ function doPostformChanges(a) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
 			}
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
-			$after($id('DESU_contentFav'), $event($add(
+			$after($c('DESU_content', doc), $event($add(
 				'<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />'
 			), {
 				load: function() {
@@ -2673,6 +2673,9 @@ function checkUpload(dc, url) {
 		if(pr.file) {
 			err = pr.file.parentNode;
 			pr.file = $x('input[@type="file"]', $html(err, err.innerHTML));
+		}
+		if(pr.video) {
+			pr.video.value = '';
 		}
 		if(pr.tNum) {
 			tNum = pr.tNum;
@@ -6085,6 +6088,7 @@ function getPostform(form) {
 		: '(@name="field2" or @name="em" or @name="sage" '
 			+ 'or @name="email" or @name="nabiki" or @name="dont_bump")]'
 	), form);
+	obj.video = $x('.//' + tr + '//input[@name="video" or @name="embed"]', form);
 	return obj;
 }
 
