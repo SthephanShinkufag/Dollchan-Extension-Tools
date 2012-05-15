@@ -1742,7 +1742,7 @@ function addHiddenTable() {
 
 function addFavoritesTable() {
 	var h, b, tNum, url, fav, list,
-		table = $x('.//div[@id="DESU_contentFav"]//tbody', doc);
+		table = $t('tbody', $id('DESU_contentFav'));
 	for(h in Favor) {
 		for(b in Favor[h]) {
 			$append(table, [
@@ -1979,13 +1979,13 @@ function removeSelMenu(e) {
 	}
 }
 
-function addSelMenu(el, html) {
+function addSelMenu(el, fPanel, html) {
 	var y, pos,
 		pst = getPost(el),
 		x = el.className === 'DESU_btnSrc'
 			? 'left: ' + $offset(el).left
 			: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
-	if(Cfg['attach'] !== 0 && $xb('ancestor::div[contains(@class,"DESU_content") or @id="DESU_panel"]', el)) {
+	if(Cfg['attach'] !== 0 && fPanel) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
 			? 'bottom: 25'
@@ -2012,6 +2012,7 @@ function addSelMenu(el, html) {
 function selectSpell(e) {
 	$each(addSelMenu(
 		e.target,
+		true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">'
 			+ ('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,').split(',')
 				.join('</a><a href="#">') + '</a></div><div style="display: inline-block;"><a href="#">'
@@ -2042,7 +2043,7 @@ function selectPostHider(post) {
 	if(Cfg['menuhd'] === 0 || Cfg['filthr'] === 0 && post.isOp) {
 		return;
 	}
-	var a = addSelMenu(post.Btns.firstChild, '<a href="#">' + Lng.selHiderMenu[lCode].join('</a><a href="#">') + '</a>');
+	var a = addSelMenu(post.Btns.firstChild, false, '<a href="#">' + Lng.selHiderMenu[lCode].join('</a><a href="#">') + '</a>');
 	$event(a.snapshotItem(0), {
 		'click': function(e) {
 			$pd(e);
@@ -2072,6 +2073,7 @@ function selectPostHider(post) {
 function selectExpandThread(post) {
 	$each(addSelMenu(
 		$x('a[3]', post.Btns),
+		false,
 		'<a href="#">' + Lng.selExpandThrd[lCode].join('</a><a href="#">') + '</a>'
 	), function(a) {
 		$event(a, {
@@ -2086,6 +2088,7 @@ function selectExpandThread(post) {
 function selectAjaxPages() {
 	$each(addSelMenu(
 		$id('DESU_btnRefresh'),
+		true,
 		'<a href="#">' + Lng.selAjaxPages[lCode].join('</a><a href="#">') + '</a>'
 	), function(a, i) {
 		$event(a, {
@@ -2098,7 +2101,7 @@ function selectAjaxPages() {
 }
 
 function selectImgSearch(btn, href) {
-	addSelMenu(btn,
+	addSelMenu(btn, false,
 		'<a class="DESU_srcIqdb" href="http://iqdb.org/?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'IQDB</a>'
 		+ '<a class="DESU_srcTineye" href="http://tineye.com/search/?url=' + href
