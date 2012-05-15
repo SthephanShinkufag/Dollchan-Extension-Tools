@@ -1057,7 +1057,7 @@ function addPanel() {
 				}, null)
 			]))
 		]),
-		$new('div', {'id': 'DESU_content'}, null),
+		$new('div', {'class': 'DESU_content'}, null),
 		$new('div', {'id': 'DESU_alertBox'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
 	]);
@@ -1069,16 +1069,15 @@ function toggleContent(name, isUpd) {
 	}
 	var el, id,
 		fn = function(e) {
-			el.className = el.oclassName;
 			showContent(el, id, name, isUpd);
 			this.removeEventListener(nav.aEvent, fn, false);
 		};
-	el = $id('DESU_content');
+	el = $c('DESU_content', doc);
 	id = 'DESU_content' + name;
-	if(!isUpd || el.className === id) {
+	if(!isUpd || el.id === id) {
 		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
 			el.addEventListener(nav.aEvent, fn, false);
-			el.className = el.oclassName + ' DESU_cfgClose';
+			el.className = 'DESU_content DESU_cfgClose';
 			el.style.opacity = 0;
 		} else {
 			showContent(el, id, name, isUpd);
@@ -1088,11 +1087,11 @@ function toggleContent(name, isUpd) {
 
 function showContent(el, id, name, isUpd) {
 	el.innerHTML = '';
-	if(!isUpd && el.className === id) {
-		el.className = 'DESU_content';
+	if(!isUpd && el.id === id) {
+		el.id = '';
 		return;
 	}
-	el.className = id;
+	el.id = id;
 	if(Cfg['attach'] === 0) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
@@ -1113,8 +1112,7 @@ function showContent(el, id, name, isUpd) {
 		}
 	}
 	if(Cfg['animp'] !== 0 && nav.Anim) {
-		el.oclassName = el.className;
-		el.className += ' DESU_cfgOpen';
+		el.className = 'DESU_content DESU_cfgOpen';
 		el.style.opacity = 1;
 	}
 }
@@ -1472,7 +1470,7 @@ function addSettings() {
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="http://www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 	
-	$append($id('DESU_content'), [
+	$append($id('DESU_contentCfg'), [
 		$New('div', {
 			'class': aib.pClass,
 			'id': 'DESU_cfgWindow'
@@ -1550,7 +1548,7 @@ function addHiddenTable() {
 		clones = [],
 		tcnt = 0,
 		pcnt = 0,
-		table = $t('tbody', $id('DESU_content'));
+		table = $t('tbody', $id('DESU_contentHid'));
 	forEachPost(function(post) {
 		if(post.Vis !== 0) {
 			return;
@@ -1744,7 +1742,7 @@ function addHiddenTable() {
 
 function addFavoritesTable() {
 	var h, b, tNum, url, fav, list,
-		table = $x('.//div[@id="DESU_content"]//tbody', doc);
+		table = $x('.//div[@id="DESU_contentFav"]//tbody', doc);
 	for(h in Favor) {
 		for(b in Favor[h]) {
 			$append(table, [
@@ -1987,7 +1985,7 @@ function addSelMenu(el, html) {
 		x = el.className === 'DESU_btnSrc'
 			? 'left: ' + $offset(el).left
 			: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
-	if(Cfg['attach'] !== 0 && $xb('ancestor::div[@id="DESU_content" or @id="DESU_panel"]', el)) {
+	if(Cfg['attach'] !== 0 && $xb('ancestor::div[contains(@class,"DESU_content") or @id="DESU_panel"]', el)) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
 			? 'bottom: 25'
@@ -2571,7 +2569,7 @@ function doPostformChanges(a) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
 			}
 			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
-			$after($id('DESU_content'), $event($add(
+			$after($id('DESU_contentFav'), $event($add(
 				'<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />'
 			), {
 				load: function() {
@@ -5734,8 +5732,8 @@ function scriptCSS() {
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
-		#DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' text-align: left; }\
-		#DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px; font-size: 16px;' : 'padding: 5px 10px; border: 1px solid grey; font-size: 16px;') + ' }\
+		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' text-align: left; }\
+		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px; font-size: 16px;' : 'padding: 5px 10px; border: 1px solid grey; font-size: 16px;') + ' }\
 		.DESU_favData .DESU_thread { padding-left: 15px; border: 1px solid grey; }\
 		.DESU_favData a, .DESU_hidTData a { text-decoration: none; }\
 		.DESU_favHead a { color: inherit; font-weight: bold; }\
@@ -5811,7 +5809,7 @@ function scriptCSS() {
 	}
 	if(aib.gazo) {
 		x.push(
-			'#DESU_content, #DESU_cfgBody { font-family: arial; }\
+			'.DESU_content, #DESU_cfgBody { font-family: arial; }\
 			.ftbl { width: auto; margin: 0; }\
 			.reply { background: #f0e0d6; }'
 		);
