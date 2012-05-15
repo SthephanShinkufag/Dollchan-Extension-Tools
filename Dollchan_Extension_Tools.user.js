@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.15.1
+// @version			12.5.15.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -4207,7 +4207,7 @@ function addPostFunc(post) {
 		mergeHidden(post);
 	}
 	if(isExpImg) {
-		expandAllPostImg(post, false);
+		expandAllPostImg(post, null);
 	}
 }
 
