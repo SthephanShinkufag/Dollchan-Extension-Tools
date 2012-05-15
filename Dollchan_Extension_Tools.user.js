@@ -1010,10 +1010,10 @@ function addPanel() {
 					}
 				}, removeSelMenu),
 				pButton('Goback', Lng.goBack[lCode], null,
-					'http://' + aib.host + getPageUrl(brd, pageNum - 1, docExt), null, null
+					'http://' + aib.host + getPageUrl(pageNum - 1), null, null
 				),
 				$if(!TNum, pButton('Gonext', Lng.goNext[lCode], null,
-					'http://' + aib.host + getPageUrl(brd, pageNum + 1, docExt), null, null
+					'http://' + aib.host + getPageUrl(pageNum + 1), null, null
 				)),
 				pButton('Goup', Lng.goUp[lCode], function(e) {
 					$pd(e);
@@ -4379,7 +4379,7 @@ function loadPage(p, tClass, len) {
 		$new('hr', null, null),
 		page = $new('div', {'id': 'DESU_page' + p}, null)
 	]);
-	ajaxGetPosts(getPageUrl(brd, p, docExt), null, null, function(dc, post, i) {
+	ajaxGetPosts(getPageUrl(p), null, null, function(dc, post, i) {
 		if(i === 0) {
 			thr = $new('div', {'class': tClass}, null);
 			thr.Num = post.Num;
@@ -6046,12 +6046,12 @@ function getThrdUrl(h, b, tNum) {
 		);
 }
 
-function getPageUrl(b, page, ext) {
+function getPageUrl(p) {
 	return aib.ylil
-		? ('/' + b + (page === 1 ? '/' : '-' + page))
-		: (fixBrd(b) + (
-			page > 0 ? (page + ext)
-			: aib.hana ? ('index' + ext)
+		? ('/' + brd + (p === 1 ? '/' : '-' + p))
+		: (fixBrd(brd) + (
+			p > 0 ? (p + docExt)
+			: aib.hana ? ('index' + docExt)
 			: ''
 		));
 }
