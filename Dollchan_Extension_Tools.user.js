@@ -6008,17 +6008,26 @@ function getNavigator() {
 }
 
 function getPage() {
-	var url = (window.location.pathname || '')
-		.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
-	brd = url[1] || (aib.dfwk ? 'df' : '');
-	res = aib.krau ? 'thread-' : 'res/';
-	TNum = url[2] ? url[3] : false;
-	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
-	docExt = url[4] || (
-		aib.gazo ? '.htm'
-		: aib._420 ? '.php'
-		: '.html'
-	);
+	var url = (window.location.pathname || '');
+	if(aib.ylil) {
+		url = url.match(/^\/?(.*?)\/(\d+)?$/);
+		brd = url[1].split('-')[0];
+		res = '';
+		TNum = url[2];
+		pageNum = (url[1].split('-') || [0, 0])[1];
+		docExt = '';
+	} else {
+		url = url.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
+		brd = url[1] || (aib.dfwk ? 'df' : '');
+		res = aib.krau ? 'thread-' : 'res/';
+		TNum = url[2] ? url[3] : false;
+		pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
+		docExt = url[4] || (
+			aib.gazo ? '.htm'
+			: aib._420 ? '.php'
+			: '.html'
+		);
+	}
 	favIcon = ($x('.//head//link[@rel="shortcut icon"]', doc) || {}).href;
 }
 
@@ -6408,7 +6417,7 @@ function parseDelform(node, dc, pFn) {
 	return node;
 }
 
-function initDelform() {
+function tryToParse() {
 	dForm.id = '';
 	$disp(dForm);
 	try {
@@ -6580,22 +6589,22 @@ function doScript() {
 	Log('readCfg');
 	replaceDelform(dForm);
 	Log('replaceDelform');
-	if(!initDelform()) {
+	if(!tryToParse()) {
 		return;
 	}
-	Log('initDelform');
+	Log('parseDelform');
 	if(Cfg['keynav'] !== 0) {
 		initKeyNavig();
 		Log('initKeyNavig');
 	}
 	preparePage();
+	Log('preparePage');
 	if(!liteMode) {
 		addPanel();
 		Log('addPanel');
 		readFavorites();
 		Log('readFavorites');
 	}
-	Log('preparePage');
 	initPostform();
 	Log('initPostform');
 	forEachPost(addPostButtons);
