@@ -2849,7 +2849,7 @@ function showQuickReply(post) {
 		qArea.appendChild($id('DESU_pform'));
 		$disp($id('DESU_toggleReply'));
 		$disp(qArea);
-		if(!TNum && !aib.kus && !aib.hana) {
+		if(!TNum && !aib.kus && !aib.hana && !aib.ylil) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
 			$before(pr.form.firstChild, [
 				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
@@ -2892,10 +2892,7 @@ function showMainReply() {
 }
 
 function toggleQuickReply(tNum) {
-	$x(aib.ylil
-		? './/input[@name="thread"]'
-		: './/input[@id="thr_id" or @name="thread_id" or @name="replythread"]', pr.form
-	).value = tNum;
+	$x('.//input[@id="thr_id" or contains(@name,"thread")]', pr.form).value = tNum;
 	if(aib.pony) {
 		$x('.//input[@name="quickreply"]', pr.form).value = tNum || '';
 	}
