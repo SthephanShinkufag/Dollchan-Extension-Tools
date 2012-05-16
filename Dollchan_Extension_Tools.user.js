@@ -3939,7 +3939,7 @@ function setPreviewPostion(e, pView, anim) {
 				.' + uId + ' { ' + nav.aCFix + 'animation-name: ' + uId + '; ' + nav.aCFix + 'animation-duration: ' +
 				(Math.log(Math.sqrt(Math.pow(getNum(left) - getNum(pView.style.left), 2)
 					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's; ' +
-				nav.aCFix + 'animation-timing-function: ease-in-out; opacity: 1 !important; }'
+				nav.aCFix + 'animation-timing-function: ease-in-out; }'
 		}, null));
 		pView.addEventListener(nav.aEvent, function() {
 			pView.inUse = false;
