@@ -1078,7 +1078,6 @@ function toggleContent(name, isUpd) {
 		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
 			el.addEventListener(nav.aEvent, fn, false);
 			el.className = 'DESU_content DESU_cfgClose';
-			el.style.opacity = 0;
 		} else {
 			showContent(el, id, name, isUpd);
 		}
@@ -1113,7 +1112,6 @@ function showContent(el, id, name, isUpd) {
 	}
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		el.className = 'DESU_content DESU_cfgOpen';
-		el.style.opacity = 1;
 	}
 }
 
@@ -1879,7 +1877,6 @@ function $show(el) {
 	if(nav.Anim) {
 		el.oclassName = el.className;
 		el.className += ' DESU_aOpen';
-		el.style.opacity = 1;
 		return;
 	}
 	i = 0;
@@ -1910,7 +1907,6 @@ function $close(el) {
 			$del(el);
 		}, false);
 		el.className = el.oclassName + ' DESU_aClose';
-		el.style.opacity = 0;
 		return;
 	}
 	i = 8;
@@ -3868,7 +3864,6 @@ function showPreview(el) {
 		el.oclassName = el.className;
 		el.className += ' DESU_pOpen DESU_pOpen' +
 			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
-		el.style.opacity = 1;
 	});
 }
 
@@ -3883,7 +3878,6 @@ function closePreview(el) {
 		}, false);
 		el.className = el.oclassName + ' DESU_pClose DESU_pClose' +
 			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
-		el.style.opacity = 0;
 	});
 }
 
@@ -5699,10 +5693,10 @@ function scriptCSS() {
 			@' + nav.aCFix + 'keyframes DESU_pCloseBL { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseTR { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseBR { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			.DESU_aOpen { ' + nav.aCFix + 'animation-name: DESU_aOpen; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-out; }\
+			.DESU_aOpen { ' + nav.aCFix + 'animation-name: DESU_aOpen; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
 			.DESU_aClose { ' + nav.aCFix + 'animation-name: DESU_aClose; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-in; }\
 			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; }\
-			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
+			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
 			.DESU_pOpenTL { ' + nav.aCFix + 'animation-name: DESU_pOpenTL; }\
 			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
 			.DESU_pOpenTR { ' + nav.aCFix + 'animation-name: DESU_pOpenTR; }\
@@ -5712,7 +5706,7 @@ function scriptCSS() {
 			.DESU_pCloseBL { ' + nav.aCFix + 'animation-name: DESU_pCloseBL; }\
 			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
 			.DESU_pCloseBR { ' + nav.aCFix + 'animation-name: DESU_pCloseBR; }\
-			.DESU_cfgOpen { ' + nav.aCFix + 'animation-name: DESU_cfgOpen; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-out; }\
+			.DESU_cfgOpen { ' + nav.aCFix + 'animation-name: DESU_cfgOpen; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
 			.DESU_cfgClose { ' + nav.aCFix + 'animation-name: DESU_cfgClose; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-in; }'
 		);
 	}
