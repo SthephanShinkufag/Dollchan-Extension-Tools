@@ -1078,7 +1078,6 @@ function toggleContent(name, isUpd) {
 		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
 			el.addEventListener(nav.aEvent, fn, false);
 			el.className = 'DESU_content DESU_cfgClose';
-			el.style.opacity = 0;
 		} else {
 			showContent(el, id, name, isUpd);
 		}
@@ -1112,8 +1111,7 @@ function showContent(el, id, name, isUpd) {
 		}
 	}
 	if(Cfg['animp'] !== 0 && nav.Anim) {
-		el.className = 'DESU_content DESU_cfgOpen';
-		el.style.opacity = 1;
+		el.className = 'DESU_content DESU_cfgOpen DESU_aOpened';
 	}
 }
 
@@ -1878,8 +1876,7 @@ function $show(el) {
 	}
 	if(nav.Anim) {
 		el.oclassName = el.className;
-		el.className += ' DESU_aOpen';
-		el.style.opacity = 1;
+		el.className += ' DESU_aOpen DESU_aOpened';
 		return;
 	}
 	i = 0;
@@ -1910,7 +1907,6 @@ function $close(el) {
 			$del(el);
 		}, false);
 		el.className = el.oclassName + ' DESU_aClose';
-		el.style.opacity = 0;
 		return;
 	}
 	i = 8;
@@ -3866,9 +3862,8 @@ function showPreview(el) {
 	}
 	waitForAnim(el, function() {
 		el.oclassName = el.className;
-		el.className += ' DESU_pOpen DESU_pOpen' +
+		el.className += ' DESU_pOpen DESU_aOpened DESU_pOpen' +
 			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
-		el.style.opacity = 1;
 	});
 }
 
@@ -3883,7 +3878,6 @@ function closePreview(el) {
 		}, false);
 		el.className = el.oclassName + ' DESU_pClose DESU_pClose' +
 			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
-		el.style.opacity = 0;
 	});
 }
 
@@ -3951,7 +3945,7 @@ function setPreviewPostion(e, pView, anim) {
 			pView.inUse = false;
 			$del($id(uId));
 		}, false);
-		pView.className = pView.oclassName + ' ' + uId;
+		pView.className = pView.oclassName + ' DESU_aOpened ' + uId;
 		setPos();
 	});
 }
@@ -3976,7 +3970,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 	if(post.Vis === 0) {
 		togglePost(pView, 1);
 	}
-	pView.className += ' DESU_post DESU_pView ' + aib.pClass;
+	pView.className = aib.pClass + ' DESU_post DESU_pView';
 	if(aib._7ch) {
 		pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 		$del($c('doubledash', pView));
@@ -5713,7 +5707,8 @@ function scriptCSS() {
 			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
 			.DESU_pCloseBR { ' + nav.aCFix + 'animation-name: DESU_pCloseBR; }\
 			.DESU_cfgOpen { ' + nav.aCFix + 'animation-name: DESU_cfgOpen; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-out; }\
-			.DESU_cfgClose { ' + nav.aCFix + 'animation-name: DESU_cfgClose; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-in; }'
+			.DESU_cfgClose { ' + nav.aCFix + 'animation-name: DESU_cfgClose; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-in; }\
+			.DESU_aOpened { opacity: 1 !important; }'
 		);
 	}
 
