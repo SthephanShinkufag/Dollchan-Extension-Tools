@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.15.2
+// @version			12.5.16.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.15.1',
+	'version':	'12.5.16.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5987,13 +5987,13 @@ function getNavigator() {
 		(nav.Firefox && nav.Firefox < 4) ? '-moz-'
 		: nav.Chrome ? '-webkit-'
 		: '';
+	nav.aCFix =
+		nav.Firefox ? '-moz-'
+		: nav.Chrome ? '-webkit-'
+		: nav.Opera ? '-o-'
+		: '';
 	if(nav.Firefox > 4 || nav.Chrome || nav.Opera >= 12) {
 		nav.Anim = true;
-		nav.aCFix =
-			nav.Firefox ? '-moz-'
-			: nav.Chrome ? '-webkit-'
-			: nav.Opera ? '-o-'
-			: '';
 		nav.aEvent =
 			(nav.Firefox || nav.Opera) ? 'animationend'
 			: nav.Chrome ? 'webkitAnimationEnd'
