@@ -3970,7 +3970,7 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 	if(post.Vis === 0) {
 		togglePost(pView, 1);
 	}
-	pView.className += ' DESU_post DESU_pView ' + aib.pClass;
+	pView.className += ' DESU_pView';
 	if(aib._7ch) {
 		pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 		$del($c('doubledash', pView));
