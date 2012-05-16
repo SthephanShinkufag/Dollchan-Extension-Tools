@@ -3863,7 +3863,7 @@ function showPreview(el) {
 	waitForAnim(el, function() {
 		el.oclassName = el.className;
 		el.className += ' DESU_pOpen DESU_pOpen' +
-			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R') + ' DESU_aMoved';
 	});
 }
 
@@ -5696,7 +5696,7 @@ function scriptCSS() {
 			.DESU_aOpen { ' + nav.aCFix + 'animation-name: DESU_aOpen; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
 			.DESU_aClose { ' + nav.aCFix + 'animation-name: DESU_aClose; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-in; }\
 			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; }\
-			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
+			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
 			.DESU_pOpenTL { ' + nav.aCFix + 'animation-name: DESU_pOpenTL; }\
 			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
 			.DESU_pOpenTR { ' + nav.aCFix + 'animation-name: DESU_pOpenTR; }\
