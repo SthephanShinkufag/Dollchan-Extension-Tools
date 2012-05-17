@@ -4017,9 +4017,6 @@ function showPostPreview(e) {
 	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent) || (Cfg['navdis'] === 1 && post && post.Vis === 0)) {
 		return;
 	}
-	setTimeout(function() {
-		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]', doc));
-	}, 0);
 	if(pDel[pNum]) {
 		funcPostPreview(null, pNum, parent, e, Lng.postNotFound[lCode]);
 		return;
@@ -5741,7 +5738,7 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
-		small[id^="rfmap"] { display: none !important; }'
+		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }'
 	);
 	if(Cfg['delhd'] === 2) {
 		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
