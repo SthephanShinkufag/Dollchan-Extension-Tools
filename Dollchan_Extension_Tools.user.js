@@ -3859,7 +3859,7 @@ function showPreview(el) {
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		waitForAnim(el, function() {
 			el.oclassName = el.className;
-			el.className += ' DESU_pOpen DESU_pOpen' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+			el.className += ' DESU_pOpen' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 		});
 	}
 }
@@ -3873,7 +3873,7 @@ function closePreview(el) {
 		el.addEventListener(nav.aEvent, function() {
 			$del(el);
 		}, false);
-		el.className = el.oclassName + ' DESU_pClose DESU_pClose' +
+		el.className = el.oclassName + ' DESU_pClose' +
 			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 	});
 }
@@ -3930,20 +3930,18 @@ function setPreviewPostion(e, pView, anim) {
 			'type': 'text/css',
 			'text':
 				'@' + nav.aCFix + 'keyframes ' + uId + ' {\
-					from { left: ' + pView.style.left + '; top: ' + pView.style.top + '; }\
 					to { left: ' + left + '; top: ' + top + '; }\
 				}\
-				.' + uId + ' { ' + nav.aCFix + 'animation-name: ' + uId + '; ' + nav.aCFix + 'animation-duration: ' +
+				.' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' ' +
 				(Math.log(Math.sqrt(Math.pow(getNum(left) - getNum(pView.style.left), 2)
-					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's; ' +
-				nav.aCFix + 'animation-timing-function: ease-in-out; }'
+					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's ease-in-out both; }'
 		}, null));
 		pView.addEventListener(nav.aEvent, function() {
+			setPos();
 			pView.inUse = false;
 			$del($id(uId));
 		}, false);
 		pView.className = pView.oclassName + ' ' + uId;
-		setPos();
 	});
 }
 
@@ -4019,9 +4017,6 @@ function showPostPreview(e) {
 	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent) || (Cfg['navdis'] === 1 && post && post.Vis === 0)) {
 		return;
 	}
-	setTimeout(function() {
-		$del($x('.//div[starts-with(@id,"preview") or starts-with(@id,"pstprev")]', doc));
-	}, 0);
 	if(pDel[pNum]) {
 		funcPostPreview(null, pNum, parent, e, Lng.postNotFound[lCode]);
 		return;
@@ -4057,32 +4052,20 @@ function eventRefLink(el) {
 	}
 	var list = $X('.//a[starts-with(text(),">>")]', el),
 		clear =
-			aib.tiny || aib.ylil ? function(link) {
-				var lnk = link.cloneNode(true);
-				link.parentNode.replaceChild(lnk, link);
-				return lnk;
-			}
-			: (list.snapshotItem(0) || {}).onmouseover ? function(link) {
+			(list.snapshotItem(0) || {}).onmouseover ? function(link) {
 				$rattr(link, 'onmouseover');
 				$rattr(link, 'onmouseout');
 				return link;
 			}
 			: function(link) {
 				return link;
-			},
-		fn = function() {
-			$each(list, function(link) {
-				$event(clear(link), {
-					'mouseover': showPostPreview,
-					'mouseout': markDelete
-				});
-			});
-		};
-	if(aib.ylil) {
-		setTimeout(fn, 0);
-	} else {
-		fn();
-	}
+			};
+	$each(list, function(link) {
+		$event(clear(link), {
+			'mouseover': showPostPreview,
+			'mouseout': markDelete
+		});
+	});
 }
 
 
@@ -4132,14 +4115,18 @@ function getJSON(url, ifmodsince, fn) {
 		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
-			if(xhr.readyState === 4 && xhr.status !== 304) {
-				try {
-					fn(xhr.status, xhr.statusText,
-						(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
-						JSON.parse(xhr.responseText)
-					);
-				} catch(e) {
-					fn(1, e.toString(), null, null);
+			if(xhr.readyState === 4) {
+				if(xhr.status === 304) {
+					$close($id('DESU_alertWait'));
+				} else {
+					try {
+						fn(xhr.status, xhr.statusText,
+							(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
+							JSON.parse(xhr.responseText)
+						);
+					} catch(e) {
+						fn(1, e.toString(), null, null);
+					}
 				}
 			}
 		}
@@ -4619,14 +4606,12 @@ function loadNewPosts(inf, fn) {
 	if(aib.hana) {
 		getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum
 			+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
-			aib.modSince, function(status, sText, lmod, json) {
+			aib.pModSince, function(status, sText, lmod, json) {
 				if(status !== 200 || json['error']) {
-					if(inf) {
-						$close($id('DESU_alertWait'));
-					}
+					$close($id('DESU_alertWait'));
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					aib.modSince = lmod;
+					aib.pModSince = lmod;
 					el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
@@ -4637,9 +4622,7 @@ function loadNewPosts(inf, fn) {
 						}
 						thr.pCount += el.length;
 					}
-					if(inf) {
-						$close($id('DESU_alertWait'));
-					}
+					$close($id('DESU_alertWait'));
 					infoNewPosts(null, el ? el.length : 0);
 				}
 				if(fn) {
@@ -4672,9 +4655,7 @@ function loadNewPosts(inf, fn) {
 		}
 		i++;
 	}, function(err) {
-		if(inf) {
-			$close($id('DESU_alertWait'));
-		}
+		$close($id('DESU_alertWait'));
 		infoNewPosts(err, len);
 		if(!err) {
 			del = Posts.length;
@@ -4707,11 +4688,11 @@ function initThreadsUpdater() {
 			var cnt = 0;
 			if(aib.hana) {
 				getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
-					aib.modSince, function(status, sText, lmod, json) {
+					aib.cModSince, function(status, sText, lmod, json) {
 						if(status !== 200 || json['error']) {
 							infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 						} else {
-							aib.modSince = lmod;
+							aib.cModSince = lmod;
 							infoNewPosts(null, json['result']['posts_count'] - Posts.length);
 						}
 					}
@@ -5665,38 +5646,35 @@ function scriptCSS() {
 				0% { ' + nav.aCFix + 'transform: translateY(-1500px); opacity: 0; }\
 				40% { ' + nav.aCFix + 'transform: translateY(30px); opacity: 1; }\
 				70% { ' + nav.aCFix + 'transform: translateY(-10px); }\
-				100% { ' + nav.aCFix + 'transform: translateY(0); }\
+				100% { ' + nav.aCFix + 'transform: translateY(0); opacity: 1; }\
 			}\
 			@' + nav.aCFix + 'keyframes DESU_aClose {\
 				0% { ' + nav.aCFix + 'transform: translateY(0); opacity: 1; }\
 				20% { ' + nav.aCFix + 'transform: translateY(20px); }\
 				100% { ' + nav.aCFix + 'transform: translateY(-4000px);  opacity: 0; }\
 			}\
-			@' + nav.aCFix + 'keyframes DESU_cfgOpen { from { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); visibility: hidden; } to {} }\
-			@' + nav.aCFix + 'keyframes DESU_cfgClose { from {} to { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); } }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenTL { from { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); visibility: hidden; } to {} }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenBL { from { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); visibility: hidden; } to {} }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenTR { from { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); visibility: hidden; } to {} }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenBR { from { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); visibility: hidden; } to {} }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseTL { from {} to { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseBL { from {} to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseTR { from {} to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseBR { from {} to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); } }\
-			.DESU_aOpen { ' + nav.aCFix + 'animation-name: DESU_aOpen; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
-			.DESU_aClose { ' + nav.aCFix + 'animation-name: DESU_aClose; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-in; }\
-			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; }\
-			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
-			.DESU_pOpenTL { ' + nav.aCFix + 'animation-name: DESU_pOpenTL; }\
-			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
-			.DESU_pOpenTR { ' + nav.aCFix + 'animation-name: DESU_pOpenTR; }\
-			.DESU_pOpenBR { ' + nav.aCFix + 'animation-name: DESU_pOpenBR; }\
-			.DESU_pClose { ' + nav.aCFix + 'animation-timing-function: ease-in; }\
-			.DESU_pCloseTL { ' + nav.aCFix + 'animation-name: DESU_pCloseTL; }\
-			.DESU_pCloseBL { ' + nav.aCFix + 'animation-name: DESU_pCloseBL; }\
-			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
-			.DESU_pCloseBR { ' + nav.aCFix + 'animation-name: DESU_pCloseBR; }\
-			.DESU_cfgOpen { ' + nav.aCFix + 'animation-name: DESU_cfgOpen; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-out; }\
-			.DESU_cfgClose { ' + nav.aCFix + 'animation-name: DESU_cfgClose; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-in; }'
+			@' + nav.aCFix + 'keyframes DESU_cfgOpen { from { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_cfgClose { to { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenTL { from { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenBL { from { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenTR { from { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenBR { from { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseTL { to { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseBL { to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseTR { to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseBR { to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
+			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen .7s ease-out both; }\
+			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose .7s ease-in both; }\
+			.DESU_pOpenTL { ' + nav.aCFix + 'animation: DESU_pOpenTL .2s ease-out both; }\
+			.DESU_pOpenBL { ' + nav.aCFix + 'animation: DESU_pOpenBL .2s ease-out both; }\
+			.DESU_pOpenTR { ' + nav.aCFix + 'animation: DESU_pOpenTR .2s ease-out both; }\
+			.DESU_pOpenBR { ' + nav.aCFix + 'animation: DESU_pOpenBR .2s ease-out both; }\
+			.DESU_pCloseTL { ' + nav.aCFix + 'animation: DESU_pCloseTL .2s ease-in both; }\
+			.DESU_pCloseBL { ' + nav.aCFix + 'animation: DESU_pCloseBL .2s ease-in both; }\
+			.DESU_pCloseTR { ' + nav.aCFix + 'animation: DESU_pCloseTR .2s ease-in both; }\
+			.DESU_pCloseBR { ' + nav.aCFix + 'animation: DESU_pCloseBR .2s ease-in both; }\
+			.DESU_cfgOpen { ' + nav.aCFix + 'animation: DESU_cfgOpen .2s ease-out both; }\
+			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose .2s ease-in both; }'
 		);
 	}
 
@@ -5748,7 +5726,7 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
-		small[id^="rfmap"] { display: none !important; }'
+		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }'
 	);
 	if(Cfg['delhd'] === 2) {
 		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
@@ -5785,7 +5763,10 @@ function scriptCSS() {
 		);
 	}
 	if(aib.tiny) {
-		x.push('form, form table { margin: 0; }');
+		x.push(
+			'form, form table { margin: 0; }\
+			.post-hover { display: none !important; }'
+		);
 	}
 	if(aib.nul) {
 		x.push(
@@ -5826,7 +5807,7 @@ function scriptCSS() {
 		);
 	}
 	if(aib.ylil) {
-		x.push('.threadbuttons, .expandall { display: none; }');
+		x.push('.threadbuttons, .expandall, .tooltip { display: none !important; }');
 	}
 
 	if(!$id('DESU_css')) {
@@ -6084,7 +6065,7 @@ function getImageboard(host, dc) {
 	obj.krau = h === 'krautchan.net';
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
-	obj.ylil = h === 'ylilauta.fi';
+	obj.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
 	obj.xDForm = obj.brit ? './/div[@class="threadz"]' : './/form[' + (
 		obj.hana || obj.krau || obj.ylil ? 'contains(@action,"delete")]'
 		: obj.tiny ? '@name="postcontrols"]'
