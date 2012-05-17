@@ -3930,20 +3930,18 @@ function setPreviewPostion(e, pView, anim) {
 			'type': 'text/css',
 			'text':
 				'@' + nav.aCFix + 'keyframes ' + uId + ' {\
-					from { left: ' + pView.style.left + '; top: ' + pView.style.top + '; }\
 					to { left: ' + left + '; top: ' + top + '; }\
 				}\
-				.' + uId + ' { ' + nav.aCFix + 'animation-name: ' + uId + '; ' + nav.aCFix + 'animation-duration: ' +
+				.' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' ' +
 				(Math.log(Math.sqrt(Math.pow(getNum(left) - getNum(pView.style.left), 2)
-					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's; ' +
-				nav.aCFix + 'animation-timing-function: ease-in-out; }'
+					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's linear both; }'
 		}, null));
 		pView.addEventListener(nav.aEvent, function() {
+			setPos();
 			pView.inUse = false;
 			$del($id(uId));
 		}, false);
 		pView.className = pView.oclassName + ' ' + uId;
-		setPos();
 	});
 }
 
