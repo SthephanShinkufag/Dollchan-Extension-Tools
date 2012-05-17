@@ -3856,15 +3856,12 @@ function waitForAnim(pView, fn) {
 }
 
 function showPreview(el) {
-	if(Cfg['animp'] === 0 || !nav.Anim) {
-		el.style.opacity = 1;
-		return;
+	if(Cfg['animp'] !== 0 && nav.Anim) {
+		waitForAnim(el, function() {
+			el.oclassName = el.className;
+			el.className += ' DESU_pOpen DESU_pOpen' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+		});
 	}
-	waitForAnim(el, function() {
-		el.oclassName = el.className;
-		el.className += ' DESU_pOpen DESU_pOpen' +
-			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R') + ' DESU_aMoved';
-	});
 }
 
 function closePreview(el) {
@@ -3945,7 +3942,7 @@ function setPreviewPostion(e, pView, anim) {
 			pView.inUse = false;
 			$del($id(uId));
 		}, false);
-		pView.className = pView.oclassName + ' DESU_aMoved ' + uId;
+		pView.className = pView.oclassName + ' ' + uId;
 		setPos();
 	});
 }
@@ -5558,7 +5555,7 @@ function scriptCSS() {
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + nav.cFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 5px; border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead { padding: 5px; ' + nav.cFix + 'border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
@@ -5576,17 +5573,18 @@ function scriptCSS() {
 
 	// Main panel
 	x.push(
-		'#DESU_btnLogo { margin-right: 4px; }\
+		'#DESU_btnLogo { margin-right: 3px; }\
 		#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
-		#DESU_panelBtns { display: inline-block; padding: 0; margin: 0 3px; height:25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; }\
-		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; margin: 0 1px; width: 25px; height: 25px; }'
+		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height:25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; }\
+		#DESU_panelBtns > li { margin: 0 1px; }\
+		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }'
 		+ (Cfg['sstyle'] === 0
 			? '#DESU_panelBtns > li { ' + nav.aCFix + 'transition: all 0.3s ease; }\
 			#DESU_panelBtns > li:hover { background-color: rgba(255,255,255,.15); ' + nav.cFix + 'box-shadow: 0 0 3px rgba(143,187,237,.5); }'
 			: '#DESU_panelBtns > li > a { ' + nav.cFix + 'border-radius: 5px; }\
 			#DESU_panelBtns > li > a:hover { width: 21px; height: 21px; border: 2px solid ' + (Cfg['sstyle'] === 1 ? '#9be' : '#444') + ' }'
 		) + '\
-		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 2px 4px 0 6px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
+		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
 	);
 	if(Cfg['icount'] === 0) {
 		x.push('#DESU_panelInfo { display: none; }');
@@ -5674,16 +5672,16 @@ function scriptCSS() {
 				20% { ' + nav.aCFix + 'transform: translateY(20px); }\
 				100% { ' + nav.aCFix + 'transform: translateY(-4000px);  opacity: 0; }\
 			}\
-			@' + nav.aCFix + 'keyframes DESU_cfgOpen { from { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); opacity: 0; } to { opacity: 1; } }\
-			@' + nav.aCFix + 'keyframes DESU_cfgClose { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenTL { from { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenBL { from { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } to { opacity: 1; } }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenTR { from { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } to { opacity: 1; } }\
-			@' + nav.aCFix + 'keyframes DESU_pOpenBR { from { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } to { opacity: 1; } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseTL { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseBL { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseTR { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-			@' + nav.aCFix + 'keyframes DESU_pCloseBR { from { opacity: 1; } to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
+			@' + nav.aCFix + 'keyframes DESU_cfgOpen { from { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); visibility: hidden; } to {} }\
+			@' + nav.aCFix + 'keyframes DESU_cfgClose { from {} to { ' + nav.aCFix + 'transform: translate(0,50%) scaleY(0); } }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenTL { from { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); visibility: hidden; } to {} }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenBL { from { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); visibility: hidden; } to {} }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenTR { from { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); visibility: hidden; } to {} }\
+			@' + nav.aCFix + 'keyframes DESU_pOpenBR { from { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); visibility: hidden; } to {} }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseTL { from {} to { ' + nav.aCFix + 'transform: translate(-50%,-50%) scale(0); } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseBL { from {} to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseTR { from {} to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); } }\
+			@' + nav.aCFix + 'keyframes DESU_pCloseBR { from {} to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); } }\
 			.DESU_aOpen { ' + nav.aCFix + 'animation-name: DESU_aOpen; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
 			.DESU_aClose { ' + nav.aCFix + 'animation-name: DESU_aClose; ' + nav.aCFix + 'animation-duration: 0.7s; ' + nav.aCFix + 'animation-timing-function: ease-in; }\
 			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; }\
@@ -5697,9 +5695,8 @@ function scriptCSS() {
 			.DESU_pCloseBL { ' + nav.aCFix + 'animation-name: DESU_pCloseBL; }\
 			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
 			.DESU_pCloseBR { ' + nav.aCFix + 'animation-name: DESU_pCloseBR; }\
-			.DESU_cfgOpen { ' + nav.aCFix + 'animation-name: DESU_cfgOpen; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-out; opacity: 1 !important; }\
-			.DESU_cfgClose { ' + nav.aCFix + 'animation-name: DESU_cfgClose; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-in; }\
-			.DESU_aMoved { opacity: 1 !important; }'
+			.DESU_cfgOpen { ' + nav.aCFix + 'animation-name: DESU_cfgOpen; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-out; }\
+			.DESU_cfgClose { ' + nav.aCFix + 'animation-name: DESU_cfgClose; ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-timing-function: ease-in; }'
 		);
 	}
 
@@ -5750,7 +5747,7 @@ function scriptCSS() {
 		a[href="#"] { text-decoration: none !important; outline: none; }\
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
-		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; opacity: 0; border: 1px solid grey; }\
+		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
 		small[id^="rfmap"] { display: none !important; }'
 	);
 	if(Cfg['delhd'] === 2) {
