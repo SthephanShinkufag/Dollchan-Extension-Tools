@@ -3934,7 +3934,7 @@ function setPreviewPostion(e, pView, anim) {
 				}\
 				.' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' ' +
 				(Math.log(Math.sqrt(Math.pow(getNum(left) - getNum(pView.style.left), 2)
-					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's linear both; }'
+					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's ease-in-out both; }'
 		}, null));
 		pView.addEventListener(nav.aEvent, function() {
 			setPos();
@@ -4130,14 +4130,18 @@ function getJSON(url, ifmodsince, fn) {
 		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
-			if(xhr.readyState === 4 && xhr.status !== 304) {
-				try {
-					fn(xhr.status, xhr.statusText,
-						(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
-						JSON.parse(xhr.responseText)
-					);
-				} catch(e) {
-					fn(1, e.toString(), null, null);
+			if(xhr.readyState === 4) {
+				if(xhr.status === 304) {
+					$close($id('DESU_alertWait'));
+				} else {
+					try {
+						fn(xhr.status, xhr.statusText,
+							(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
+							JSON.parse(xhr.responseText)
+						);
+					} catch(e) {
+						fn(1, e.toString(), null, null);
+					}
 				}
 			}
 		}
@@ -4617,14 +4621,12 @@ function loadNewPosts(inf, fn) {
 	if(aib.hana) {
 		getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum
 			+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
-			aib.modSince, function(status, sText, lmod, json) {
+			aib.pModSince, function(status, sText, lmod, json) {
 				if(status !== 200 || json['error']) {
-					if(inf) {
-						$close($id('DESU_alertWait'));
-					}
+					$close($id('DESU_alertWait'));
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					aib.modSince = lmod;
+					aib.pModSince = lmod;
 					el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
@@ -4635,9 +4637,7 @@ function loadNewPosts(inf, fn) {
 						}
 						thr.pCount += el.length;
 					}
-					if(inf) {
-						$close($id('DESU_alertWait'));
-					}
+					$close($id('DESU_alertWait'));
 					infoNewPosts(null, el ? el.length : 0);
 				}
 				if(fn) {
@@ -4670,9 +4670,7 @@ function loadNewPosts(inf, fn) {
 		}
 		i++;
 	}, function(err) {
-		if(inf) {
-			$close($id('DESU_alertWait'));
-		}
+		$close($id('DESU_alertWait'));
 		infoNewPosts(err, len);
 		if(!err) {
 			del = Posts.length;
@@ -4705,11 +4703,11 @@ function initThreadsUpdater() {
 			var cnt = 0;
 			if(aib.hana) {
 				getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
-					aib.modSince, function(status, sText, lmod, json) {
+					aib.cModSince, function(status, sText, lmod, json) {
 						if(status !== 200 || json['error']) {
 							infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 						} else {
-							aib.modSince = lmod;
+							aib.cModSince = lmod;
 							infoNewPosts(null, json['result']['posts_count'] - Posts.length);
 						}
 					}
@@ -6079,7 +6077,7 @@ function getImageboard(host, dc) {
 	obj.krau = h === 'krautchan.net';
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
-	obj.ylil = h === 'ylilauta.fi';
+	obj.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
 	obj.xDForm = obj.brit ? './/div[@class="threadz"]' : './/form[' + (
 		obj.hana || obj.krau || obj.ylil ? 'contains(@action,"delete")]'
 		: obj.tiny ? '@name="postcontrols"]'
