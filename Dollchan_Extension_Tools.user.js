@@ -5682,10 +5682,9 @@ function scriptCSS() {
 			@' + nav.aCFix + 'keyframes DESU_pCloseBL { to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseTR { to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseBR { to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			#DESU_alert, .DESU_pView, .DESU_content { ' + nav.aCFix + 'animation-fill-mode: both; }\
-			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen 0.7s ease-out; }\
-			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose 0.7s ease-in; }\
-			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; }\
+			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen 0.7s ease-out both; }\
+			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose 0.7s ease-in both; }\
+			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-fill-mode: both; }\
 			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
 			.DESU_pOpenTL { ' + nav.aCFix + 'animation-name: DESU_pOpenTL; }\
 			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
@@ -5696,8 +5695,8 @@ function scriptCSS() {
 			.DESU_pCloseBL { ' + nav.aCFix + 'animation-name: DESU_pCloseBL; }\
 			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
 			.DESU_pCloseBR { ' + nav.aCFix + 'animation-name: DESU_pCloseBR; }\
-			.DESU_cfgOpen { ' + nav.aCFix + 'animation: DESU_cfgOpen 0.2s ease-out; }\
-			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose 0.2s ease-in; }'
+			.DESU_cfgOpen { ' + nav.aCFix + 'animation: DESU_cfgOpen 0.2s ease-out both; }\
+			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose 0.2s ease-in both; }'
 		);
 	}
 
