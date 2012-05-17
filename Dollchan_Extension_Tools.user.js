@@ -4052,32 +4052,20 @@ function eventRefLink(el) {
 	}
 	var list = $X('.//a[starts-with(text(),">>")]', el),
 		clear =
-			aib.tiny || aib.ylil ? function(link) {
-				var lnk = link.cloneNode(true);
-				link.parentNode.replaceChild(lnk, link);
-				return lnk;
-			}
-			: (list.snapshotItem(0) || {}).onmouseover ? function(link) {
+			(list.snapshotItem(0) || {}).onmouseover ? function(link) {
 				$rattr(link, 'onmouseover');
 				$rattr(link, 'onmouseout');
 				return link;
 			}
 			: function(link) {
 				return link;
-			},
-		fn = function() {
-			$each(list, function(link) {
-				$event(clear(link), {
-					'mouseover': showPostPreview,
-					'mouseout': markDelete
-				});
-			});
-		};
-	if(aib.ylil) {
-		setTimeout(fn, 0);
-	} else {
-		fn();
-	}
+			};
+	$each(list, function(link) {
+		$event(clear(link), {
+			'mouseover': showPostPreview,
+			'mouseout': markDelete
+		});
+	});
 }
 
 
@@ -5775,7 +5763,10 @@ function scriptCSS() {
 		);
 	}
 	if(aib.tiny) {
-		x.push('form, form table { margin: 0; }');
+		x.push(
+			'form, form table { margin: 0; }\
+			.post-hover { display: none !important; }'
+		);
 	}
 	if(aib.nul) {
 		x.push(
@@ -5816,7 +5807,7 @@ function scriptCSS() {
 		);
 	}
 	if(aib.ylil) {
-		x.push('.threadbuttons, .expandall { display: none; }');
+		x.push('.threadbuttons, .expandall, .tooltip { display: none !important; }');
 	}
 
 	if(!$id('DESU_css')) {
