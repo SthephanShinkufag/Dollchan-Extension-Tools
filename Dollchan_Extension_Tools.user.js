@@ -5685,7 +5685,7 @@ function scriptCSS() {
 			#DESU_alert, .DESU_pView, .DESU_content { ' + nav.aCFix + 'animation-fill-mode: both; }\
 			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen 0.7s ease-out; }\
 			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose 0.7s ease-in; }\
-			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.25s; }\
+			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; }\
 			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
 			.DESU_pOpenTL { ' + nav.aCFix + 'animation-name: DESU_pOpenTL; }\
 			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
