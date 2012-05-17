@@ -3859,7 +3859,7 @@ function showPreview(el) {
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		waitForAnim(el, function() {
 			el.oclassName = el.className;
-			el.className += ' DESU_pOpen DESU_pOpen' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+			el.className += ' DESU_pOpen' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 		});
 	}
 }
@@ -3873,7 +3873,7 @@ function closePreview(el) {
 		el.addEventListener(nav.aEvent, function() {
 			$del(el);
 		}, false);
-		el.className = el.oclassName + ' DESU_pClose DESU_pClose' +
+		el.className = el.oclassName + ' DESU_pClose' +
 			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 	});
 }
@@ -5682,21 +5682,18 @@ function scriptCSS() {
 			@' + nav.aCFix + 'keyframes DESU_pCloseBL { to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseTR { to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseBR { to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen 0.7s ease-out both; }\
-			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose 0.7s ease-in both; }\
-			.DESU_pView { ' + nav.aCFix + 'animation-duration: 0.2s; ' + nav.aCFix + 'animation-fill-mode: both; }\
-			.DESU_pOpen { ' + nav.aCFix + 'animation-timing-function: ease-out; }\
-			.DESU_pOpenTL { ' + nav.aCFix + 'animation-name: DESU_pOpenTL; }\
-			.DESU_pOpenBL { ' + nav.aCFix + 'animation-name: DESU_pOpenBL; }\
-			.DESU_pOpenTR { ' + nav.aCFix + 'animation-name: DESU_pOpenTR; }\
-			.DESU_pOpenBR { ' + nav.aCFix + 'animation-name: DESU_pOpenBR; }\
-			.DESU_pClose { ' + nav.aCFix + 'animation-timing-function: ease-in; }\
-			.DESU_pCloseTL { ' + nav.aCFix + 'animation-name: DESU_pCloseTL; }\
-			.DESU_pCloseBL { ' + nav.aCFix + 'animation-name: DESU_pCloseBL; }\
-			.DESU_pCloseTR { ' + nav.aCFix + 'animation-name: DESU_pCloseTR; }\
-			.DESU_pCloseBR { ' + nav.aCFix + 'animation-name: DESU_pCloseBR; }\
-			.DESU_cfgOpen { ' + nav.aCFix + 'animation: DESU_cfgOpen 0.2s ease-out both; }\
-			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose 0.2s ease-in both; }'
+			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen .7s ease-out both; }\
+			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose .7s ease-in both; }\
+			.DESU_pOpenTL { ' + nav.aCFix + 'animation: DESU_pOpenTL .2s ease-out both; }\
+			.DESU_pOpenBL { ' + nav.aCFix + 'animation: DESU_pOpenBL .2s ease-out both; }\
+			.DESU_pOpenTR { ' + nav.aCFix + 'animation: DESU_pOpenTR .2s ease-out both; }\
+			.DESU_pOpenBR { ' + nav.aCFix + 'animation: DESU_pOpenBR .2s ease-out both; }\
+			.DESU_pCloseTL { ' + nav.aCFix + 'animation: DESU_pCloseTL .2s ease-in both; }\
+			.DESU_pCloseBL { ' + nav.aCFix + 'animation: DESU_pCloseBL .2s ease-in both; }\
+			.DESU_pCloseTR { ' + nav.aCFix + 'animation: DESU_pCloseTR .2s ease-in both; }\
+			.DESU_pCloseBR { ' + nav.aCFix + 'animation: DESU_pCloseBR .2s ease-in both; }\
+			.DESU_cfgOpen { ' + nav.aCFix + 'animation: DESU_cfgOpen .2s ease-out both; }\
+			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose .2s ease-in both; }'
 		);
 	}
 
