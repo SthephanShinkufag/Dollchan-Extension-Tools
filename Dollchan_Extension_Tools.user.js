@@ -5751,7 +5751,8 @@ function scriptCSS() {
 	}
 	if(aib.hana) {
 		x.push(
-			'#hideinfotd, .reply_, .delete > img { display: none; }\
+			'#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
+			.delete { background: none; }\
 			.delete_checkbox { position: static !important; }'
 		);
 	}
