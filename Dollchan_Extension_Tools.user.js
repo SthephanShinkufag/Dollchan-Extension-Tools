@@ -3897,9 +3897,6 @@ function setPreviewPostion(e, pView, anim) {
 		setPos = function() {
 			pView.style.left = left;
 			pView.style.top = top;
-		},
-		getNum = function(s) {
-			return +s.substring(0, s.length - 2);
 		};
 	if(x < scrW/2) {
 		left = x;
@@ -3940,9 +3937,7 @@ function setPreviewPostion(e, pView, anim) {
 				'@' + nav.aCFix + 'keyframes ' + uId + ' {\
 					to { left: ' + left + '; top: ' + top + '; }\
 				}\
-				.' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' ' +
-				(Math.log(Math.sqrt(Math.pow(getNum(left) - getNum(pView.style.left), 2)
-					+ Math.pow(getNum(top) - getNum(pView.style.top), 2))) / 22) + 's ease-in-out both; }'
+				.' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both; }'
 		}, null));
 		pView.addEventListener(nav.aEvent, function() {
 			setPos();
