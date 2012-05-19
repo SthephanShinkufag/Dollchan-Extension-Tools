@@ -2711,10 +2711,11 @@ function checkDelete(dc, url) {
 			});
 			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
 		};
-	if(!TNum) {
-		loadThread(pByNum[pr.tNum], 5, cbFunc);
-	} else {
+	if(TNum) {
 		loadNewPosts(false, cbFunc);
+	} else {
+		//TODO: add !TNum delete checking
+		cbFunc();
 	}
 }
 
