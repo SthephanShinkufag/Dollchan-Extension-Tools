@@ -2407,7 +2407,6 @@ function doPostformChanges(a) {
 				(Cfg['spells'] === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
 				+ (Cfg['sign'] !== 0 && Cfg['sigval'] !== '' ? '\n' + Cfg['sigval'] : '');
 			if(Cfg['verify'] !== 0) {
-				$close($id('DESU_alertUpErr'));
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
 			if(Cfg['addfav'] !== 0 && pr.tNum) {
@@ -2608,8 +2607,7 @@ function ajaxCheckSubmit(form, by, data, fn) {
 				if(xhr.status === 200) {
 					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
 				} else {
-					$close($id('DESU_alertUpload'));
-					$alert(xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText, 'ErrNoCon', false);
+					$alert(xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText, 'Upload', false);
 				}
 			}
 		}
@@ -2624,8 +2622,7 @@ function iframeCheckSubmit() {
 			return;
 		}
 	} catch(e) {
-		$close($id('DESU_alertUpload'));
-		$alert('Iframe load error:\n' + e, 'ErrIframe', false);
+		$alert('Iframe load error:\n' + e, 'Upload', false);
 		return;
 	}
 	checkUpload(frm, '' + frm.location);
@@ -2665,14 +2662,14 @@ function checkUpload(dc, url) {
 			err = undefined;
 		}
 	}
-	$close($id('DESU_alertUpload'));
 	if(err) {
 		if(aib.nul && pr.isQuick) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
 		}
-		$alert(err, 'UpErr', false);
+		$alert(err, 'Upload', false);
 	} else {
+		$close($id('DESU_alertUpload'));
 		pr.txta.value = '';
 		if(pr.file) {
 			err = $x(pr.tr, pr.file);
@@ -2708,7 +2705,7 @@ function checkDelete(dc, url) {
 				}
 				el.checked = false; el.onclick = null;
 			});
-			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'DelRes', false);
+			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
 		};
 	if(pr.tNum) {
 		if(!TNum) {
@@ -4120,7 +4117,7 @@ function getJSON(url, ifmodsince, fn) {
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 304) {
-					$close($id('DESU_alertLoadNPosts'));
+					$close($id('DESU_alertNewP'));
 				} else {
 					try {
 						fn(xhr.status, xhr.statusText,
@@ -4278,9 +4275,8 @@ function loadThread(post, last, fn) {
 	ajaxGetPosts(null, brd, post.Num, function(dc, post, j) {
 		psts.push(importPost(post));
 	}, function(err) {
-		$close($id('DESU_alertLoadThr'));
 		if(err) {
-			$alert(err, 'LoadThrErr', false);
+			$alert(err, 'LoadThr', false);
 		} else {
 			i = post.parentNode;
 			thr = i.cloneNode(false);
@@ -4311,6 +4307,7 @@ function loadThread(post, last, fn) {
 				}}));
 			}
 			thr.pCount = psts.length;
+			$close($id('DESU_alertLoadThr'));
 		}
 		$focus(post);
 		if(fn) {
@@ -4412,20 +4409,20 @@ function infoNewPosts(err, inf) {
 	var old;
 	if(err) {
 		if(err !== Lng.noConnect[lCode]) {
-			$alert(Lng.thrdNotFound[lCode] + TNum + '): \n' + err, 'Err404', false);
+			$alert(Lng.thrdNotFound[lCode] + TNum + '): \n' + err, 'NewP', false);
 			doc.title = '{' + err.match(/(?:\[)(\d+)(?:\])/)[1] + '} ' + doc.title;
 			endPostsUpdate();
 		} else {
-			$alert(Lng.noConnect[lCode], 'ErrNoCon', false);
+			$alert(Lng.noConnect[lCode], 'NewP', false);
 			setUpdButtonState('Warn');
 		}
 		return;
 	}
+	$close($id('DESU_alertNewP'));
 	if(Cfg['updthr'] === 3) {
 		return;
 	}
 	setUpdButtonState('On');
-	$close($id('DESU_alertErrNoCon'));
 	if(Cfg['updthr'] === 1) {
 		if(doc.body.className === 'focused') {
 			return;
@@ -4604,14 +4601,13 @@ function loadNewPosts(inf, fn) {
 		len = 0,
 		thr = $x('.//div[contains(@class," DESU_thread")]', dForm);
 	if(inf) {
-		$alert(Lng.loading[lCode], 'LoadNPosts', true);
+		$alert(Lng.loading[lCode], 'NewP', true);
 	}
 	if(aib.hana) {
 		getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum
 			+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
 			aib.pModSince, function(status, sText, lmod, json) {
 				if(status !== 200 || json['error']) {
-					$close($id('DESU_alertLoadNPosts'));
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
 					aib.pModSince = lmod;
@@ -4625,7 +4621,6 @@ function loadNewPosts(inf, fn) {
 						}
 						thr.pCount += el.length;
 					}
-					$close($id('DESU_alertLoadNPosts'));
 					infoNewPosts(null, el ? el.length : 0);
 				}
 				if(fn) {
@@ -4658,7 +4653,6 @@ function loadNewPosts(inf, fn) {
 		}
 		i++;
 	}, function(err) {
-		$close($id('DESU_alertLoadNPosts'));
 		infoNewPosts(err, len);
 		if(!err) {
 			del = Posts.length;
