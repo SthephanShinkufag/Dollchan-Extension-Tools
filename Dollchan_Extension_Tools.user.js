@@ -865,7 +865,7 @@ function toggleHiddenThread(post, vis) {
 			hThrds[b] = {};
 		}
 		if(vis === 0) {
-			hThrds[b][tNum] = post.thr.dTitle;
+			hThrds[b][tNum] = post.dTitle;
 		} else {
 			delete hThrds[b][tNum];
 			if(isEmptyObj(hThrds[b])) {
@@ -919,7 +919,7 @@ function toggleFavorites(post, btn) {
 	}
 	Favor[h][b][tNum] = {
 		cnt: post.thr.pCount,
-		txt: sav.cookie ? post.thr.dTitle.substring(0, 25) : post.thr.dTitle
+		txt: sav.cookie ? post.dTitle.substring(0, 25) : post.dTitle
 	};
 	if(sav.cookie && escape(uneval(Favor)).length > 4095) {
 		$alert(Lng.cookiesLimit[lCode], 'CookieErr', false);
@@ -4756,7 +4756,7 @@ function applyPostVisib(post, vis, note) {
 			el = $add(
 				'<div class="' + aib.pClass + '" id="DESU_hidThr_' + post.Num + '">'
 					+ Lng.hiddenThrd[lCode] + ' <a href="#">№' + pNum + '</a><i> ('
-					+ (note !== '' ? 'autohide: ' + note : post.thr.dTitle) + ')</i></div>'
+					+ (note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')) + ')</i></div>'
 			);
 			$event($t('a', el), {
 				'click': function(e) {
@@ -4783,7 +4783,7 @@ function applyPostVisib(post, vis, note) {
 function setPostVisib(post, vis) {
 	post.Btns.firstChild.className = vis === 0 ? 'DESU_btnUnhide' : 'DESU_btnHide';
 	togglePost(post, vis);
-	applyPostVisib(post, vis, '');
+	applyPostVisib(post, vis, false);
 	if(Cfg['navhid'] !== 0) {
 		setTimeout(function() {
 			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
@@ -5513,7 +5513,7 @@ function hideByWipe(post) {
 	if(note) {
 		hidePost(post, note);
 	} else {
-		applyPostVisib(post, 1, '');
+		applyPostVisib(post, 1, false);
 	}
 }
 
@@ -6389,8 +6389,8 @@ function parseDelform(node, dc, pFn) {
 					? +(i.match(/\d+/) || [0])[0]
 					: 0;
 			}
-			thr.dTitle = ((i = $c(aib.cTitle, op)) && i.textContent.trim() || op.Text)
-				.substring(0, 70).replace(/\s+/g, ' ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+			op.dTitle = ((i = $c(aib.cTitle, op)) && i.textContent.trim() || op.Text)
+				.substring(0, 70).replace(/\s+/g, ' ');
 		}
 	});
 	el = pByNum[window.location.hash.substring(1)];
@@ -6485,7 +6485,7 @@ function preparePage() {
 		if(Cfg['rtitle'] === 0) {
 			docTitle = doc.title;
 		} else {
-			docTitle = '/' + brd + ' - ' + pByNum[TNum].thr.dTitle;
+			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
 		window.onblur = function() {
