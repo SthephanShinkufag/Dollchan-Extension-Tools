@@ -5744,7 +5744,7 @@ function scriptCSS() {
 		x.push('.commentpostername, .postername, .postertrip { display: none; }');
 	}
 	if(Cfg['ospoil'] !== 0) {
-		x.push('.spoiler { background: #888 !important; color: #ccc !important; }');
+		x.push('.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }');
 	}
 	if(Cfg['noscrl'] !== 0) {
 		x.push('blockquote { max-height: 100% !important; overflow: visible !important; }');
@@ -5757,44 +5757,37 @@ function scriptCSS() {
 			'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }'
 		);
-	}
-	if(aib.hana) {
+	} else if(aib.hana) {
 		x.push(
 			'#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 			.delete { background: none; }\
 			.delete_checkbox { position: static !important; }'
 		);
-	}
-	if(aib.abu) {
+	} else if(aib.abu) {
 		x.push(
 			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"]' +
 				(Cfg['ytube'] === 0 ? '' : ', div[id^="post_video"]') + ' { display: none !important; }\
 			a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
 		);
-	}
-	if(aib.tiny) {
+	} else if(aib.tiny) {
 		x.push(
 			'form, form table { margin: 0; }\
 			.post-hover { display: none !important; }'
 		);
-	}
-	if(aib.nul) {
+	} else if(aib.nul) {
 		x.push(
 			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
 			.voiceplay { float: none; }'
 		);
-	}
-	if(aib._7ch) {
+	} else if(aib._7ch) {
 		x.push('.reply { background-color: ' + getStyle(doc.body, 'background-color') + '; }');
-	}
-	if(aib.gazo) {
+	} else if(aib.gazo) {
 		x.push(
 			'.DESU_content, #DESU_cfgBody { font-family: arial; }\
 			.ftbl { width: auto; margin: 0; }\
 			.reply { background: #f0e0d6; }'
 		);
-	}
-	if(aib.krau) {
+	} else if(aib.krau) {
 		x.push(
 			'img[id^="translate_button"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
@@ -5802,22 +5795,21 @@ function scriptCSS() {
 			.file_reply + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
 			.DESU_ytObj + div:not(.file_reply) { clear: both; }'
 		);
-	}
-	if(aib._420) {
+	} else if(aib._420) {
 		x.push(
 			'.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }'
 		);
-	}
-	if(aib.brit) {
+	} else if(aib.brit) {
 		x.push(
 			'.DESU_postPanel, .DESU_postPanel_op { float: left; margin-top: 0.4em; }\
 			.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
 			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; ' + nav.cFix + 'background-size: cover; }'
 		);
-	}
-	if(aib.ylil) {
+	} else if(aib.ylil) {
 		x.push('.threadbuttons, .expandall, .tooltip { display: none !important; }');
+	} else if(aib.fch) {
+		x.push('.DESU_spoiler { color: #000; background-color: #000; }');
 	}
 
 	if(!$id('DESU_css')) {
@@ -6537,6 +6529,10 @@ function preparePage() {
 			$del(el.nextElementSibling);
 			$del(el);
 		}
+	} else if(aib.fch) {
+		$each($X('.//span[@class="spoiler"]', dForm), function(el) {
+			el.className = 'DESU_spoiler';
+		});
 	}
 	if(TNum) {
 		initThreadsUpdater();
