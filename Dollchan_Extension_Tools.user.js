@@ -2675,7 +2675,7 @@ function checkUpload(dc, url) {
 	} else {
 		pr.txta.value = '';
 		if(pr.file) {
-			err = pr.file.parentNode;
+			err = $x(pr.tr, pr.file);
 			pr.file = $x('input[@type="file"]', $html(err, err.innerHTML));
 		}
 		if(pr.video) {
