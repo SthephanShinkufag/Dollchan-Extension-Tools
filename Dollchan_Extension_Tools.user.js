@@ -2665,12 +2665,12 @@ function checkUpload(dc, url) {
 			err = undefined;
 		}
 	}
+	$close($id('DESU_alertUpload'));
 	if(err) {
 		if(aib.nul && pr.isQuick) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
 		}
-		$close($id('DESU_alertUpload'));
 		$alert(err, 'UpErr', false);
 	} else {
 		pr.txta.value = '';
