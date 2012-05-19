@@ -1941,9 +1941,12 @@ function $blink(el) {
 
 function $alert(txt, id, wait) {
 	var nid = 'DESU_alert' + id,
-		el = $id(nid);
+		el = $id(nid),
+		ncn = 'DESU_alert' + (wait ? ' DESU_alertWait' : '');
 	if(el) {
-		$c('DESU_alert', el).innerHTML = txt.trim();
+		nid = $t('div', el);
+		nid.innerHTML = txt.trim();
+		nid.className = nid.previousSibling.className = ncn;
 		$blink(el);
 		return;
 	}
@@ -1952,17 +1955,16 @@ function $alert(txt, id, wait) {
 		'id': nid,
 		'style': 'opacity: 0;'
 	}, [
-		$if(!wait, $new('a', {
+		$new('a', {
 			'href': '#',
-			'style': 'display: inline-block; vertical-align: top; font-size: 150%;',
+			'class': ncn,
 			'text': '× '}, {
 			'click': function(e) {
 				$pd(e);
 				$close(this.parentNode);
 			}
-		})),
-		$add('<div class="DESU_alert ' + (wait ? ' DESU_alertWait' : '') + '" >'
-			+ txt.trim() + '</div>')
+		}),
+		$add('<div class="' + ncn + '" >' + txt.trim() + '</div>')
 	]);
 	$show($id('DESU_alertBox').appendChild(el));
 	if(Cfg['aclose'] !== 0 && !wait) {
@@ -2637,7 +2639,10 @@ function checkUpload(dc, url) {
 			aib.hana && /error/.test(pathname) ? './/td[@class="post-error"]'
 			: aib.krau && pathname === '/post' ? './/td[starts-with(@class,"message_text")]'
 			: aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]'
-			: '';
+			: '',
+		lFunc = function() {
+			$close($id('DESU_alertUpload'));
+		};
 	if(xp || !$t('form', dc)) {
 		if(!xp) {
 			xp =
@@ -2669,7 +2674,6 @@ function checkUpload(dc, url) {
 		}
 		$alert(err, 'Upload', false);
 	} else {
-		$close($id('DESU_alertUpload'));
 		pr.txta.value = '';
 		if(pr.file) {
 			err = $x(pr.tr, pr.file);
@@ -2682,9 +2686,9 @@ function checkUpload(dc, url) {
 			tNum = pr.tNum;
 			showMainReply();
 			if(!TNum) {
-				loadThread(pByNum[tNum], 5, null);
+				loadThread(pByNum[tNum], 5, lFunc);
 			} else {
-				loadNewPosts(true, null);
+				loadNewPosts(false, lFunc);
 			}
 			if(pr.cap) {
 				pr.cap.value = '';
@@ -2707,14 +2711,10 @@ function checkDelete(dc, url) {
 			});
 			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
 		};
-	if(pr.tNum) {
-		if(!TNum) {
-			loadThread(pByNum[pr.tNum], 5, cbFunc);
-		} else {
-			loadNewPosts(true, cbFunc);
-		}
+	if(!TNum) {
+		loadThread(pByNum[pr.tNum], 5, cbFunc);
 	} else {
-		$close($id('DESU_alertDeleting'));
+		loadNewPosts(false, cbFunc);
 	}
 }
 
@@ -4271,7 +4271,9 @@ function loadThread(post, last, fn) {
 	var i,
 		psts = [],
 		thr = post.thr;
-	$alert(Lng.loading[lCode], 'LoadThr', true);
+	if(!fn) {
+		$alert(Lng.loading[lCode], 'LoadThr', true);
+	}
 	ajaxGetPosts(null, brd, post.Num, function(dc, post, j) {
 		psts.push(importPost(post));
 	}, function(err) {
@@ -5698,8 +5700,10 @@ function scriptCSS() {
 
 	// Other
 	x.push(
-		'.DESU_alertWait:before, .DESU_icnWait, #DESU_updRes_check:before { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
-		.DESU_alert { display: inline-block; margin-top: .25em; }\
+		'div.DESU_alertWait:before, .DESU_icnWait, #DESU_updRes_check:before { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
+		div.DESU_alert { display: inline-block; margin-top: .25em; }\
+		a.DESU_alert { display: inline-block; vertical-align: top; font-size: 150%; }\
+		a.DESU_alertWait { display: none; }\
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
