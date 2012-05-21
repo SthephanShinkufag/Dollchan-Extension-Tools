@@ -968,6 +968,7 @@ function addPanel() {
 			return $New('li', null, [
 				$new('a', {
 					'id': 'DESU_btn' + bName,
+					'class': 'DESU_aBtn',
 					'title': bTitle,
 					'href': bHref ? bHref : '#'
 				}, {
@@ -981,9 +982,9 @@ function addPanel() {
 	$before(dForm, [
 		$new('div', {'style': 'clear: both;'}, null),
 		$New('div', {'id': 'DESU_panel'}, [
-			$new('a', {
+			$new('span', {
 				'id': 'DESU_btnLogo',
-				'href': '#'}, {
+				'style': 'cursor: pointer'}, {
 				'click': function(e) {
 					$pd(e);
 					toggleCfg('showmp');
@@ -1012,10 +1013,10 @@ function addPanel() {
 					}
 				}, removeSelMenu),
 				pButton('Goback', Lng.goBack[lCode], null,
-					'http://' + aib.host + getPageUrl(pageNum - 1), null, null
+					'//' + aib.host + getPageUrl(pageNum - 1), null, null
 				),
 				$if(!TNum, pButton('Gonext', Lng.goNext[lCode], null,
-					'http://' + aib.host + getPageUrl(pageNum + 1), null, null
+					'//' + aib.host + getPageUrl(pageNum + 1), null, null
 				)),
 				pButton('Goup', Lng.goUp[lCode], function(e) {
 					$pd(e);
@@ -1049,7 +1050,7 @@ function addPanel() {
 					}
 				}, null, null, null)),
 				$if(aib.nul,
-					pButton('Catalog', Lng.goCatalog[lCode], null, 'http://0chan.ru/' + brd + '/catalog.html', null, null)
+					pButton('Catalog', Lng.goCatalog[lCode], null, '//0chan.ru/' + brd + '/catalog.html', null, null)
 				)
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
@@ -1214,14 +1215,16 @@ function addSettings() {
 			$New('span', {'id': 'DESU_spellPanel'}, [
 				$new('a', {
 					'text': Lng.add[lCode],
-					'href': '#'}, {
+					'href': '#',
+					'class': 'DESU_aBtn'}, {
 					'click': $pd,
 					'mouseover': selectSpell,
 					'mouseout': removeSelMenu
 				}),
 				$new('a', {
 					'text': Lng.apply[lCode],
-					'href': '#'}, {
+					'href': '#',
+					'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						applySpells('');
@@ -1229,7 +1232,8 @@ function addSettings() {
 				}),
 				$new('a', {
 					'text': Lng.clear[lCode],
-					'href': '#'}, {
+					'href': '#',
+					'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$id('DESU_spellEdit').value = '';
@@ -1239,7 +1243,7 @@ function addSettings() {
 				$new('a', {
 					'text': '?',
 					'target': '_blank',
-					'href': 'http://www.freedollchan.org/scripts/spells'
+					'href': '//www.freedollchan.org/scripts/spells'
 				}, null)
 			]),
 			lBox('spells', Lng.spells[lCode], toggleSpells, 'DESU_spellChk'),
@@ -1301,7 +1305,8 @@ function addSettings() {
 			lBox('keynav', Lng.keyNavig[lCode], null, ''),
 			$new('a', {
 				'text': '?',
-				'href': '#'}, {
+				'href': '#',
+				'class': 'DESU_aBtn'}, {
 				'click': function(e) {
 					$pd(e);
 					$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
@@ -1321,7 +1326,8 @@ function addSettings() {
 				$txt(' '),
 				$new('a', {
 					'text': Lng.cTimePattern[lCode],
-					'href': '#'}, {
+					'href': '#',
+					'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "++++yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "++++dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy+++++++hh+ii+?s?s?"\n410chan.org: "dd+nn+yyyy+++++++hh+ii+ss"\n4chan.org: "nn+dd+yy+++++hh+ii+?s?s?"\n4chon.net: "nn+dd+yy+++++++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'TRepHlp', false);
@@ -1471,7 +1477,7 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
-		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="http://www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
+		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 	
 	$append($id('DESU_contentCfg'), [
@@ -1766,7 +1772,7 @@ function addFavoritesTable() {
 							});
 						}
 					}),
-					$add('<a href="http://' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
+					$add('<a href="//' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
 				])
 			]);
 			for(tNum in Favor[h][b]) {
@@ -1779,9 +1785,8 @@ function addFavoritesTable() {
 					}, [
 						$New('div', {'class': aib.pClass}, [
 							$new('input', {'type': 'checkbox'}, null),
-							$new('a', {
-								'class': 'DESU_btnExpthr',
-								'href': '#"'}, {
+							$new('span', {
+								'class': 'DESU_btnExpthr'}, {
 								'click': loadFavorThread
 							}),
 							$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
@@ -1968,8 +1973,7 @@ function $alert(txt, id, wait) {
 		'class': aib.pClass,
 		'id': 'DESU_alert' + id
 	}, [
-		$new('a', {
-			'href': '#',
+		$new('span', {
 			'class': cn,
 			'text': '× '}, {
 			'click': function(e) {
@@ -2121,13 +2125,13 @@ function selectAjaxPages() {
 
 function selectImgSearch(btn, href) {
 	addSelMenu(btn, false,
-		'<a class="DESU_srcIqdb" href="http://iqdb.org/?url=' + href
+		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'IQDB</a>'
-		+ '<a class="DESU_srcTineye" href="http://tineye.com/search/?url=' + href
+		+ '<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'TinEye</a>'
-		+ '<a class="DESU_srcGoogle" href="http://google.ru/searchbyimage?image_url=' + href
+		+ '<a class="DESU_srcGoogle" href="//google.ru/searchbyimage?image_url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'Google</a>'
-		+ '<a class="DESU_srcSaucenao" href="http://saucenao.com/search.php?url=' + href
+		+ '<a class="DESU_srcSaucenao" href="//saucenao.com/search.php?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'SauceNAO</a>'
 	);
 }
@@ -2357,7 +2361,9 @@ function initPostform() {
 		}, [
 			$txt('['),
 			$new('a', {
-				'text': Lng.expandForm[lCode], href: '#'}, {
+				'text': Lng.expandForm[lCode],
+				'href': '#',
+				'class': 'DESU_aBtn'}, {
 				'click': toggleMainReply
 			}),
 			$txt(']')
@@ -3136,10 +3142,9 @@ function addPostButtons(post) {
 		}
 	}
 	if(aib.getSage(post)) {
-		post.Btns.appendChild($new('a', {
+		post.Btns.appendChild($new('span', {
 			'class': 'DESU_btnSage',
-			'title': 'SAGE',
-			'href': '#'}, {
+			'title': 'SAGE'}, {
 			'click': function(e) {
 				$pd(e);
 				applySpells('#sage');
@@ -3231,7 +3236,7 @@ function fixTime(txt) {
 ==============================================================================*/
 
 function getTubeVideoLinks(id, fn) {
-	id = 'http://www.youtube.com/watch?v=' + id;
+	id = '//www.youtube.com/watch?v=' + id;
 	GM_xmlhttpRequest({method: 'GET', url: id, onload: function(xhr) {
 		var i, group, len, elem, result1, result2, src,
 			sep1 = '%2C',
@@ -3468,7 +3473,7 @@ function addLinkMP3(post) {
 			}
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
-			$html(el, el.innerHTML + '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16"  FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
+			$html(el, el.innerHTML + '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16"  FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
 		}
 	});
 }
@@ -4646,7 +4651,7 @@ function loadNewPosts(inf, fn) {
 		$alert(Lng.loading[lCode], 'NewP', true);
 	}
 	if(aib.hana) {
-		getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum
+		getJSON('//dobrochan.ru/api/thread/' + brd + '/' + TNum
 			+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
 			aib.pModSince, function(status, sText, lmod, json) {
 				if(status !== 200 || json['error']) {
@@ -4726,7 +4731,7 @@ function initThreadsUpdater() {
 		ajaxInt = setInterval(function() {
 			var cnt = 0;
 			if(aib.hana) {
-				getJSON('http://dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
+				getJSON('//dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
 					aib.cModSince, function(status, sText, lmod, json) {
 						if(status !== 200 || json['error']) {
 							infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
@@ -4836,7 +4841,7 @@ function hidePost(post, note) {
 	if(!post.noHide) {
 		if(post.Vis !== 0) {
 			post.Btns.appendChild($new('a', {
-				'class': 'DESU_postNote',
+				'class': 'DESU_postNote DESU_aBtn',
 				'text': ' autohide: ' + note + ' ',
 				'href': '#'}, {
 				'click': function(e) {
@@ -5588,7 +5593,7 @@ function scriptCSS() {
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; ' + nav.cFix + 'box-shadow: none !important; border: none !important; ' + nav.cFix + 'border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
-		#DESU_spellPanel a { padding: 0 7px; text-align: center; }'
+		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }'
 	);
 
 	// Main panel
@@ -5635,8 +5640,9 @@ function scriptCSS() {
 
 	// Post buttons
 	x.push(
-		'a[class^="DESU_btn"] { display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -2px 0 !important; }\
-		span[class^="DESU_postPanel"] { margin-left: 4px; font-weight: bold; }'
+		'.DESU_btnHide, .DESU_btnUnhide, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc\
+			{ display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -2px 0 !important; cursor: pointer; }\
+		.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; font-weight: bold; }'
 	);
 	p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 	gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
@@ -5649,12 +5655,11 @@ function scriptCSS() {
 
 	// Search images buttons
 	x.push(
-		'.DESU_btnSrc { padding: 0 16px 0 0; background: url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor: pointer; }\
-		a[class^=DESU_src]:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; }\
-		.DESU_srcGoogle:before { background: url(http://google.ru/favicon.ico); }\
-		.DESU_srcTineye:before { background: url(http://tineye.com/favicon.ico); }\
-		.DESU_srcIqdb:before { background: url(http://iqdb.org/favicon.ico); ' + nav.cFix + 'background-size: cover; }\
-		.DESU_srcSaucenao:before { background: url(http://saucenao.com/favicon.ico); }'
+		'.DESU_btnSrc { background: url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor: pointer; }\
+		.DESU_srcGoogle:before { background: url(//google.ru/favicon.ico); }\
+		.DESU_srcTineye:before { background: url(//tineye.com/favicon.ico); }\
+		.DESU_srcIqdb:before { background: url(//iqdb.org/favicon.ico); ' + nav.cFix + 'background-size: cover; }\
+		.DESU_srcSaucenao:before { background: url(//saucenao.com/favicon.ico); }'
 	);
 
 	// Posts counter
@@ -5727,8 +5732,8 @@ function scriptCSS() {
 	x.push(
 		'.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
-		.DESU_post a + .DESU_mp3, .DESU_post a + .DESU_ytObj { display: inline; }\
-		.DESU_ytLink:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(http://youtube.com/favicon.ico) no-repeat; }\
+		.DESU_post .DESU_mp3, .DESU_post .DESU_ytObj { display: inline; }\
+		.DESU_ytLink:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(//youtube.com/favicon.ico) no-repeat; }\
 		.DESU_ytObj > img { cursor: pointer; }'
 	);
 	if(Cfg['mask'] !== 0) {
@@ -5742,8 +5747,8 @@ function scriptCSS() {
 	x.push(
 		'div.DESU_alertWait:before, .DESU_icnWait, #DESU_updRes_check:before { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
 		div.DESU_alert { display: inline-block; margin-top: .25em; }\
-		a.DESU_alert { display: inline-block; vertical-align: top; font-size: 150%; }\
-		a.DESU_alertWait { display: none; }\
+		span.DESU_alert { display: inline-block; vertical-align: top; font-size: 150%; color: green; cursor: pointer;}\
+		span.DESU_alertWait { display: none; }\
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
@@ -5769,8 +5774,8 @@ function scriptCSS() {
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : nav.cFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed { color: #888 !important; }\
-		.reply { width: auto; }\
-		a[href="#"] { text-decoration: none !important; outline: none; }\
+		.DESU_post { width: auto; }\
+		.DESU_aBtn { text-decoration: none !important; outline: none; }\
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
@@ -5812,7 +5817,7 @@ function scriptCSS() {
 		x.push(
 			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"]' +
 				(Cfg['ytube'] === 0 ? '' : ', div[id^="post_video"]') + ' { display: none !important; }\
-			a[id^="DESU_"] { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
+			.DESU_aBtn { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
 		);
 	} else if(aib.tiny) {
 		x.push(
@@ -5832,8 +5837,8 @@ function scriptCSS() {
 			'img[id^="translate_button"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
-			.file_reply + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
-			.DESU_ytObj + div:not(.file_reply) { clear: both; }'
+			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
+			.DESU_ytObj + div:not(.file_reply):not(.file_thread) { clear: both; }'
 		);
 	} else if(aib._420) {
 		x.push(
@@ -6042,7 +6047,7 @@ function fixBrd(b) {
 }
 
 function getThrdUrl(h, b, tNum) {
-	return 'http://' + h + fixBrd(b)
+	return '//' + h + fixBrd(b)
 		+ (
 			(h.indexOf('krautchan.net') + 1) ? 'thread-'
 			: (h.indexOf('ylilauta.fi') + 1) ? ''
@@ -6492,25 +6497,21 @@ function preparePage() {
 		$del($t('hr', dForm.previousElementSibling));
 	}
 	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$new('a', {
-			'class': 'DESU_btnHide',
-			'href': '#'
+		$new('span', {
+			'class': 'DESU_btnHide'
 		}, null),
-		$if(pr.on || oeForm, $new('a', {
-			'class': 'DESU_btnRep',
-			'href': '#'
+		$if(pr.on || oeForm, $new('span', {
+			'class': 'DESU_btnRep'
 		}, null))
 	]);
 	opPanel = pPanel.cloneNode(true);
 	opPanel.className += '_op';
 	$append(opPanel, [
-		$if(!TNum, $new('a', {
-			'class': 'DESU_btnExpthr',
-			'href': '#'
+		$if(!TNum, $new('span', {
+			'class': 'DESU_btnExpthr'
 		}, null)),
-		$new('a', {
-			'class': 'DESU_btnFav',
-			'href': '#'
+		$new('span', {
+			'class': 'DESU_btnFav'
 		}, null)
 	]);
 	if(TNum) {
