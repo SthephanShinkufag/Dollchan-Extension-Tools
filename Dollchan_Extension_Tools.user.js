@@ -34,6 +34,7 @@ var defaultCfg = {
 	'updfav':	1,		//		favicon blinking, if new posts detected
 	'navig':	2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
 	'navdel':	'1000',	//		delay in ms
+	'nashow':	'100',	//		show timeout
 	'navmrk':	0,		//		mark viewed posts
 	'navhid':	0,		//		strike hidden posts in refmap
 	'navdis':	0,		//		don't show hidden posts
@@ -300,10 +301,11 @@ Lng = {
 	pImages:		['Предварительно загружать изображения*', 'Preload images*'],
 	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
 	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-	reply:			['Ответ', 'Reply']
+	reply:			['Ответ', 'Reply'],
+	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajPviews = {}, ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, curView = null, pViewTimeout, pDel = {}, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false;
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, pViews = {cur: null, TO: null, del: {}, ajax: {}};
 
 
 /*==============================================================================
@@ -1340,6 +1342,10 @@ function addSettings() {
 			$New('div', null, [
 				inpTxt('navdel', 8, null),
 				$txt(Lng.delayPreview[lCode])
+			]),
+			$New('div', null, [
+				inpTxt('nashow', 8, null),
+				$txt(Lng.pShowDelay[lCode])
 			]),
 			divBox('navmrk', Lng.markViewed[lCode], null),
 			divBox('navhid', Lng.hidRefmap[lCode], null),
@@ -3787,72 +3793,76 @@ function addRefMap(post, uEv) {
 							ON >>REFLINKS POSTS PREVIEW
 ==============================================================================*/
 
-function addNode(parent, pView, e) {
+pViews.addNode = function(parent, pView, link) {
 	var el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
 	parent = parent.node;
 	pView.style.display = '';
 	dForm.appendChild(pView);
-	setPreviewPostion(e, pView, false);
+	setPreviewPostion(link, pView, false);
 	$event(pView, {
 		'mouseover': function() {
-			markPost(this.node, false);
+			pViews.markPost(this.node, false);
 		},
-		'mouseout': markDelete
+		'mouseout': outLink
 	});
-	if(curView && parent) {
+	if(this.cur && parent) {
 		if(parent.kid) {
-			deleteNodes(parent.kid);
+			this.deleteNodes(parent.kid);
 		}
 		el.parent = parent;
-		curView.lastkid = parent.kid = el;
+		this.cur.lastkid = parent.kid = el;
 	} else {
-		deleteNodes(curView);
-		curView = el;
+		this.deleteNodes(this.cur);
+		this.cur = el;
 	}
-	markPost(el, false);
+	this.markPost(el, false);
 	showPreview(pView);
 	return el;
-}
+};
 
-function markDelete() {
-	if(curView) {
-		markPost(curView.lastkid || curView, true);
+pViews.markDelete = function() {
+	if(this.cur) {
+		this.markPost(this.cur.lastkid || this.cur, true);
 	}
-}
+};
 
-function markPost(el, forDel) {
-	if(el) {
-		clearTimeout(pViewTimeout);
-		do {
-			el.forDel = forDel;
-		} while(el = el.parent);
-		pViewTimeout = setTimeout(function() {
-			for(el = curView; el; el = el.kid) {
-				if(el.forDel) {
-					return deleteNodes(el);
-				}
+pViews.markPost = function(el, forDel) {
+	if(!el) {
+		return;
+	}
+	clearTimeout(this.TO);
+	do {
+		el.forDel = forDel;
+	} while(el = el.parent);
+	this.TO = setTimeout(function() {
+		for(el = pViews.cur; el; el = el.kid) {
+			if(el.forDel) {
+				return pViews.deleteNodes(el);
 			}
-		}, +Cfg['navdel']);
-	}
-}
+		}
+	}, +Cfg['navdel']);
+};
 
-function deleteNodes(el) {
+pViews.deleteNodes = function(el) {
 	var lk;
 	if(!el) {
 		return;
 	}
-	lk = curView.lastkid || curView;
+	lk = this.cur.lastkid || this.cur;
 	if(el.parent) {
 		el.parent.kid = null;
-		curView.lastkid = el.parent;
+		this.cur.lastkid = el.parent;
 	} else {
-		curView = null;
+		this.cur = null;
 	}
 	do {
 		clearTimeout(lk.post.marker);
 		closePreview(lk.post);
 	} while((lk = lk.parent) !== el.parent && lk);
-}
+	if(!lk) {
+		this.active = false;
+	}
+};
 
 function waitForAnim(pView, fn) {
 	var it;
@@ -3891,19 +3901,14 @@ function closePreview(el) {
 	});
 }
 
-function setPreviewPostion(e, pView, anim) {
+function setPreviewPostion(link, pView, anim) {
 	var scrW = doc.body.clientWidth,
 		scrH = window.innerHeight,
-		x = $offset(e.target).left + e.target.offsetWidth/2,
-		y = $offset(e.target).top,
-		left,
-		top = e.target.getBoundingClientRect().top + e.target.offsetHeight, width = 'auto',
-		uId,
-		setPos = function() {
-			pView.style.left = left;
-			pView.style.top = top;
-		};
-	if(x < scrW/2) {
+		x = $offset(link).left + link.offsetWidth/2,
+		y = $offset(link).top,
+		top = link.getBoundingClientRect().top + link.offsetHeight, width = 'auto',
+		left, uId;
+	if(x < scrW / 2) {
 		left = x;
 		pView.aLeft = true;
 		if(left + pView.offsetWidth >= scrW - 10) {
@@ -3917,16 +3922,19 @@ function setPreviewPostion(e, pView, anim) {
 			width = (x - 10) + 'px';
 		}
 	}
-	left += 'px'; pView.style.width = width; uId = pView.offsetHeight;
+	left += 'px';
+	pView.style.width = width;
+	uId = pView.offsetHeight;
 	if(top + uId < scrH - 10 || top - uId < 10) {
-		top = (y + e.target.offsetHeight) + 'px';
+		top = (y + link.offsetHeight) + 'px';
 		pView.aTop = true;
 	} else {
 		top = (y - uId) + 'px';
 		pView.aTop = false;
 	}
 	if(Cfg['animp'] === 0 || !anim || aib.hid) {
-		setPos();
+		pView.style.left = left;
+		pView.style.top = top;
 		return;
 	}
 	waitForAnim(pView, function() {
@@ -3945,7 +3953,8 @@ function setPreviewPostion(e, pView, anim) {
 				.' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both; }'
 		}, null));
 		pView.addEventListener(nav.aEvent, function() {
-			setPos();
+			pView.style.left = left;
+			pView.style.top = top;
 			pView.inUse = false;
 			$del($id(uId));
 		}, false);
@@ -3959,15 +3968,15 @@ function markRefMap(pView, pNum) {
 		'DESU_pPost';
 }
 
-function funcPostPreview(post, pNum, parent, e, txt) {
+function funcPostPreview(post, pNum, parent, link, txt) {
 	var el, pView;
 	if(!post) {
 		if(!txt) {
-			pDel[pNum] = true;
+			pViews.del[pNum] = true;
 		}
-		return addNode(parent, $add(
+		return pViews.addNode(parent, $add(
 			'<div class="' + aib.pClass + ' DESU_info DESU_pView">' + txt || Lng.postNotFound[lCode] +'</div>'
-		), e);
+		), link);
 	}
 	pView = post.cloneNode(true);
 	if(post.Vis === 0) {
@@ -4013,48 +4022,78 @@ function funcPostPreview(post, pNum, parent, e, txt) {
 			saveViewedPosts(pNum);
 		}, 2e3);
 	}
-	return addNode(parent, pView, e);
+	return pViews.addNode(parent, pView, link);
 }
 
-function showPostPreview(e) {
+pViews.imp = function(b, pNum) {
+	if(!this.ajax[b]) {
+		this.ajax[b] = {};
+	}
+	b = this.ajax[b][pNum];
+	if(b && b.ownerDocument !== doc) {
+		b = importPost(b);
+	}
+	return b;
+};
+
+pViews.showPostPreview = function(link) {
 	var b = aib.ylil
-		? this['data-boardurl']
-		: this.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
-		tNum = (this.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
-		pNum = (this.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || importPreview(b, pNum),
-		parent = getPost(e.target),
-		el = parent.node ? parent.node.kid : curView;
-	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent) || (Cfg['navdis'] === 1 && post && post.Vis === 0)) {
+		? link['data-boardurl']
+		: link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
+		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
+		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
+		post = pByNum[pNum] || this.imp(b, pNum),
+		parent = getPost(link),
+		el = parent.node ? parent.node.kid : this.cur;
+	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
 		return;
 	}
-	if(pDel[pNum]) {
-		funcPostPreview(null, pNum, parent, e, Lng.postNotFound[lCode]);
+	if(this.del[pNum]) {
+		funcPostPreview(null, pNum, parent, link, Lng.postNotFound[lCode]);
 		return;
 	}
 	if(el && el.post.Num === pNum) {
-		markPost(el, false);
-		deleteNodes(el.kid);
-		setPreviewPostion(e, el.post, true);
+		this.markPost(el, false);
+		this.deleteNodes(el.kid);
+		setPreviewPostion(link, el.post, true);
 		markRefMap(el.post, parent.Num);
 		return;
 	}
 	if(post) {
-		funcPostPreview(post, pNum, parent, e, '');
+		funcPostPreview(post, pNum, parent, link, '');
 		return;
 	}
-	el = funcPostPreview(null, pNum, parent, e, '<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading[lCode]);
+	el = funcPostPreview(null, pNum, parent, link, '<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading[lCode]);
 	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
 		post = pst.Num;
-		ajPviews[b][post] = pst;
-		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', pst, dc), function(link) {
-			getRefMap(post, link.textContent.match(/\d+/)[0]);
+		pViews.ajax[b][post] = pst;
+		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', pst, dc), function(lnk) {
+			getRefMap(post, lnk.textContent.match(/\d+/)[0]);
 		});
 	}, function(err) {
 		if(el && !el.forDel) {
-			funcPostPreview(importPreview(b, pNum), pNum, parent, e, err);
+			funcPostPreview(pViews.imp(b, pNum), pNum, parent, link, err);
 		}
 	});
+};
+
+function overLink(e) {
+	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent)) {
+		return;
+	}
+	if(!pViews.active) {
+		pViews.sTO = setTimeout(function() {
+			pViews.showPostPreview(e.target);
+			pViews.active = true;
+		}, +Cfg['nashow']);
+	} else {
+		pViews.showPostPreview(this);
+	}
+}
+
+function outLink() {
+	clearTimeout(pViews.sTO);
+	pViews.markDelete();
 }
 
 function eventRefLink(el) {
@@ -4073,8 +4112,8 @@ function eventRefLink(el) {
 			};
 	$each(list, function(link) {
 		$event(clear(link), {
-			'mouseover': showPostPreview,
-			'mouseout': markDelete
+			'mouseover': overLink,
+			'mouseout': outLink
 		});
 	});
 }
@@ -4142,17 +4181,6 @@ function getJSON(url, ifmodsince, fn) {
 			}
 		}
 	});
-}
-
-function importPreview(b, pNum) {
-	if(!ajPviews[b]) {
-		ajPviews[b] = {};
-	}
-	var el = ajPviews[b][pNum];
-	if(el && el.ownerDocument !== doc) {
-		el = importPost(el);
-	}
-	return el;
 }
 
 function importPost(post) {
