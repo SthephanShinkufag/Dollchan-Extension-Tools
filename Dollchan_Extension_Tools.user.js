@@ -4046,6 +4046,7 @@ pViews.showPostPreview = function(link) {
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : this.cur;
 	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
+		pViews.active = false;
 		return;
 	}
 	if(this.del[pNum]) {
@@ -4083,8 +4084,8 @@ function overLink(e) {
 	}
 	if(!pViews.active) {
 		pViews.sTO = setTimeout(function() {
-			pViews.showPostPreview(e.target);
 			pViews.active = true;
+			pViews.showPostPreview(e.target);
 		}, +Cfg['nashow']);
 	} else {
 		pViews.showPostPreview(this);
