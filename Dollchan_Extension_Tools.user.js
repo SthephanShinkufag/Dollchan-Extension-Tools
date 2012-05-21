@@ -5732,7 +5732,7 @@ function scriptCSS() {
 	x.push(
 		'.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
-		.DESU_post .DESU_mp3, .DESU_post .DESU_ytObj { display: inline; }\
+		.DESU_post > a + .DESU_mp3, .DESU_post > a + .DESU_ytObj { display: inline-block; }\
 		.DESU_ytLink:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(//youtube.com/favicon.ico) no-repeat; }\
 		.DESU_ytObj > img { cursor: pointer; }'
 	);
