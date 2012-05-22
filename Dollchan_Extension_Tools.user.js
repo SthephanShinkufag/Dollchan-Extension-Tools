@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.21.0
+// @version			12.5.22.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.21.0',
+	'version':	'12.5.22.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2025,7 +2025,7 @@ function addSelMenu(el, fPanel, html) {
 		'mouseout': removeSelMenu,
 		'mouseover': function() {
 			if(pst && pst.node) {
-				markPost(pst.node, false);
+				pViews.markPost(pst.node, false);
 			}
 		}
 	}));
