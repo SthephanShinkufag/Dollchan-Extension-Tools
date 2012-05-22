@@ -3744,15 +3744,13 @@ function preloadImages(el) {
 
 function getRefMap(post, pNum, refMap) {
 	var els = post.Msg.getElementsByTagName('a'),
-		rNum, link;
+		rNum;
 	for(var i = 0, len = els.length; i < len; i++) {
-		link = els[i];
-		rNum = link.textContent;
-		if(link.rel || rNum.indexOf('/') + 1 || !(link = (link.hash || rNum || link.pathname.substring(link.pathname.lastIndexOf('/')))
-			.match(/\d+/))) {
+		rNum = els[i].textContent.match(/^>>(\d+)$/);
+		if(!rNum) {
 			continue;
 		}
-		rNum = link[0];
+		rNum = rNum[1];
 		if(refMap[rNum]) {
 			if(refMap[rNum].indexOf(pNum) < 0) {
 				refMap[rNum].push(pNum);
