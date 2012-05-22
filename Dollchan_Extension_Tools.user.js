@@ -305,7 +305,9 @@ Lng = {
 	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, pViews = {cur: null, TO: null, del: {}, ajax: {}};
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false,
+
+Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null};
 
 
 /*==============================================================================
@@ -2025,7 +2027,7 @@ function addSelMenu(el, fPanel, html) {
 		'mouseout': removeSelMenu,
 		'mouseover': function() {
 			if(pst && pst.node) {
-				pViews.markPost(pst.node, false);
+				markPviewToDel(pst.node, false);
 			}
 		}
 	}));
@@ -3798,101 +3800,20 @@ function addRefMap(post, uEv) {
 							ON >>REFLINKS POSTS PREVIEW
 ==============================================================================*/
 
-pViews.addNode = function(parent, pView, link) {
-	var el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
-	parent = parent.node;
-	pView.style.display = '';
-	dForm.appendChild(pView);
-	setPreviewPostion(link, pView, false);
-	$event(pView, {
-		'mouseover': function() {
-			pViews.markPost(this.node, false);
-		},
-		'mouseout': outLink
-	});
-	if(this.cur && parent) {
-		if(parent.kid) {
-			this.deleteNodes(parent.kid);
-		}
-		el.parent = parent;
-		this.cur.lastkid = parent.kid = el;
-	} else {
-		this.deleteNodes(this.cur);
-		this.cur = el;
-	}
-	this.markPost(el, false);
-	showPreview(pView);
-	return el;
-};
-
-pViews.markDelete = function() {
-	if(this.cur) {
-		this.markPost(this.cur.lastkid || this.cur, true);
-	}
-};
-
-pViews.markPost = function(el, forDel) {
-	if(!el) {
-		return;
-	}
-	clearTimeout(this.TO);
-	do {
-		el.forDel = forDel;
-	} while(el = el.parent);
-	this.TO = setTimeout(function() {
-		for(el = pViews.cur; el; el = el.kid) {
-			if(el.forDel) {
-				return pViews.deleteNodes(el);
-			}
-		}
-	}, +Cfg['navdel']);
-};
-
-pViews.deleteNodes = function(el) {
-	var lk;
-	if(!el) {
-		return;
-	}
-	lk = this.cur.lastkid || this.cur;
-	if(el.parent) {
-		el.parent.kid = null;
-		this.cur.lastkid = el.parent;
-	} else {
-		this.cur = null;
-	}
-	do {
-		clearTimeout(lk.post.marker);
-		closePreview(lk.post);
-	} while((lk = lk.parent) !== el.parent && lk);
-	if(!lk) {
-		this.active = false;
-	}
-};
-
 function waitForAnim(pView, fn) {
-	var it;
 	if(!pView.inUse) {
 		fn();
 		return;
 	}
-	it = setInterval(function() {
+	var waitDelay = setInterval(function() {
 		if(!pView.inUse) {
 			fn();
-			clearInterval(it);
+			clearInterval(waitDelay);
 		}
 	}, 20);
 }
 
-function showPreview(el) {
-	if(Cfg['animp'] !== 0 && nav.Anim) {
-		waitForAnim(el, function() {
-			el.oclassName = el.className;
-			el.className += ' DESU_pOpen' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
-		});
-	}
-}
-
-function closePreview(el) {
+function closePview(el) {
 	if(Cfg['animp'] === 0 || !nav.Anim) {
 		$del(el);
 		return;
@@ -3906,13 +3827,51 @@ function closePreview(el) {
 	});
 }
 
-function setPreviewPostion(link, pView, anim) {
-	var scrW = doc.body.clientWidth,
+function delPviews(el) {
+	if(!el) {
+		return;
+	}
+	var lk = Pviews.current.lastkid || Pviews.current;
+	if(el.parent) {
+		el.parent.kid = null;
+		Pviews.current.lastkid = el.parent;
+	} else {
+		Pviews.current = null;
+	}
+	do {
+		clearTimeout(lk.post.readDelay);
+		closePview(lk.post);
+	} while((lk = lk.parent) !== el.parent && lk);
+	if(!lk) {
+		Pviews.isActive = false;
+	}
+};
+
+function markPviewToDel(el, forDel) {
+	if(!el) {
+		return;
+	}
+	clearTimeout(Pviews.outDelay);
+	do {
+		el.forDel = forDel;
+	} while(el = el.parent);
+	Pviews.outDelay = setTimeout(function() {
+		for(el = Pviews.current; el; el = el.kid) {
+			if(el.forDel) {
+				return delPviews(el);
+			}
+		}
+	}, +Cfg['navdel']);
+};
+
+function setPviewPostion(link, pView, anim) {
+	var left, uId,
+		scrW = doc.body.clientWidth,
 		scrH = window.innerHeight,
 		x = $offset(link).left + link.offsetWidth/2,
 		y = $offset(link).top,
-		top = link.getBoundingClientRect().top + link.offsetHeight, width = 'auto',
-		left, uId;
+		top = link.getBoundingClientRect().top + link.offsetHeight,
+		width = 'auto';
 	if(x < scrW / 2) {
 		left = x;
 		pView.aLeft = true;
@@ -3977,91 +3936,120 @@ function funcPostPreview(post, pNum, parent, link, txt) {
 	var el, pView;
 	if(!post) {
 		if(!txt) {
-			pViews.del[pNum] = true;
+			Pviews.deleted[pNum] = true;
 		}
-		return pViews.addNode(parent, $add(
+		pView = $add(
 			'<div class="' + aib.pClass + ' DESU_info DESU_pView">' + txt || Lng.postNotFound[lCode] +'</div>'
-		), link);
+		);
+	} else {
+		pView = post.cloneNode(true);
+		if(post.Vis === 0) {
+			togglePost(pView, 1);
+		}
+		if(post.isOp) {
+			pView.className = aib.pClass + ' DESU_post';
+		}
+		pView.className += ' DESU_pView';
+		if(aib._7ch) {
+			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
+			$del($c('doubledash', pView));
+		}
+		pView.Num = pNum;
+		$Del(
+			'.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]|.//div[@class="DESU_refMap"'
+				+ (Cfg['ytube'] !== 2 ? 'or @class="DESU_ytObj"' : '')
+				+ ']|.//span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
+			pView
+		);
+		addPostButtons(pView);
+		if(!pByNum[pNum]) {
+			addLinkMP3(pView);
+		}
+		if(!pByNum[pNum] || Cfg['ytube'] !== 2) {
+			addLinkTube(pView);
+		}
+		pView.Img = getImages(pView);
+		$each(pView.Img, function(img) {
+			img.style.display = '';
+		});
+		eventPostImg(pView);
+		addLinkImg(pView, false);
+		addImgSearch(pView);
+		if(Cfg['navig'] === 2) {
+			showRefMap(pView, pNum, null);
+			markRefMap(pView, parent.Num);
+		}
+		eventRefLink(pView);
+		if(Cfg['navmrk'] !== 0) {
+			pView.readDelay = setTimeout(function() {
+				markViewedPost(pNum);
+				saveViewedPosts(pNum);
+			}, 2e3);
+		}
 	}
-	pView = post.cloneNode(true);
-	if(post.Vis === 0) {
-		togglePost(pView, 1);
-	}
-	if(post.isOp) {
-		pView.className = aib.pClass + ' DESU_post';
-	}
-	pView.className += ' DESU_pView';
-	if(aib._7ch) {
-		pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
-		$del($c('doubledash', pView));
-	}
-	pView.Num = pNum;
-	$Del(
-		'.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]|.//div[@class="DESU_refMap"'
-			+ (Cfg['ytube'] !== 2 ? 'or @class="DESU_ytObj"' : '')
-			+ ']|.//span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
-		pView
-	);
-	addPostButtons(pView);
-	if(!pByNum[pNum]) {
-		addLinkMP3(pView);
-	}
-	if(!pByNum[pNum] || Cfg['ytube'] !== 2) {
-		addLinkTube(pView);
-	}
-	pView.Img = getImages(pView);
-	$each(pView.Img, function(img) {
-		img.style.display = '';
+	el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
+	parent = parent.node;
+	pView.style.display = '';
+	dForm.appendChild(pView);
+	setPviewPostion(link, pView, false);
+	$event(pView, {
+		'mouseover': function() {
+			markPviewToDel(this.node, false);
+		},
+		'mouseout': outLink
 	});
-	eventPostImg(pView);
-	addLinkImg(pView, false);
-	addImgSearch(pView);
-	if(Cfg['navig'] === 2) {
-		showRefMap(pView, pNum, null);
-		markRefMap(pView, parent.Num);
+	if(Pviews.current && parent) {
+		if(parent.kid) {
+			delPviews(parent.kid);
+		}
+		el.parent = parent;
+		Pviews.current.lastkid = parent.kid = el;
+	} else {
+		delPviews(Pviews.current);
+		Pviews.current = el;
 	}
-	eventRefLink(pView);
-	if(Cfg['navmrk'] !== 0) {
-		pView.marker = setTimeout(function() {
-			markViewedPost(pNum);
-			saveViewedPosts(pNum);
-		}, 2e3);
+	markPviewToDel(el, false);
+	if(Cfg['animp'] !== 0 && nav.Anim) {
+		waitForAnim(pView, function() {
+			pView.oclassName = pView.className;
+			pView.className += ' DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
+		});
 	}
-	return pViews.addNode(parent, pView, link);
+	return el;
 }
 
-pViews.imp = function(b, pNum) {
-	if(!this.ajax[b]) {
-		this.ajax[b] = {};
+function importPview(b, pNum) {
+	if(!Pviews.ajaxed[b]) {
+		Pviews.ajaxed[b] = {};
 	}
-	b = this.ajax[b][pNum];
+	b = Pviews.ajaxed[b][pNum];
 	if(b && b.ownerDocument !== doc) {
 		b = importPost(b);
 	}
 	return b;
 };
 
-pViews.showPostPreview = function(link) {
+function showPview(link) {
 	var b = aib.ylil
 		? link['data-boardurl']
 		: link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || this.imp(b, pNum),
+		post = pByNum[pNum] || importPview(b, pNum),
 		parent = getPost(link),
-		el = parent.node ? parent.node.kid : this.cur;
+		el = parent.node ? parent.node.kid : Pviews.current;
 	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
-		pViews.active = false;
+		Pviews.isActive = false;
 		return;
 	}
-	if(this.del[pNum]) {
+	if(Pviews.deleted[pNum]) {
 		funcPostPreview(null, pNum, parent, link, Lng.postNotFound[lCode]);
 		return;
 	}
 	if(el && el.post.Num === pNum) {
-		this.markPost(el, false);
-		this.deleteNodes(el.kid);
-		setPreviewPostion(link, el.post, true);
+		markPviewToDel(el, false);
+		delPviews(el.kid);
+		setPviewPostion(link, el.post, true);
 		markRefMap(el.post, parent.Num);
 		return;
 	}
@@ -4072,13 +4060,13 @@ pViews.showPostPreview = function(link) {
 	el = funcPostPreview(null, pNum, parent, link, '<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading[lCode]);
 	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
 		post = pst.Num;
-		pViews.ajax[b][post] = pst;
+		Pviews.ajaxed[b][post] = pst;
 		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', pst, dc), function(lnk) {
 			getRefMap(post, lnk.textContent.match(/\d+/)[0]);
 		});
 	}, function(err) {
 		if(el && !el.forDel) {
-			funcPostPreview(pViews.imp(b, pNum), pNum, parent, link, err);
+			funcPostPreview(importPview(b, pNum), pNum, parent, link, err);
 		}
 	});
 };
@@ -4087,19 +4075,25 @@ function overLink(e) {
 	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent)) {
 		return;
 	}
-	if(!pViews.active) {
-		pViews.sTO = setTimeout(function() {
-			pViews.active = true;
-			pViews.showPostPreview(e.target);
+	if(!Pviews.isActive) {
+		Pviews.isActive = true;
+		Pviews.overDelay = setTimeout(function() {
+			if(Pviews.isActive) {
+				showPview(e.target);
+			}
 		}, +Cfg['nashow']);
 	} else {
-		pViews.showPostPreview(this);
+		showPview(this);
 	}
 }
 
 function outLink() {
-	clearTimeout(pViews.sTO);
-	pViews.markDelete();
+	clearTimeout(Pviews.overDelay);
+	if(Pviews.current) {
+		markPviewToDel(Pviews.current.lastkid || Pviews.current, true);
+	} else {
+		Pviews.isActive = false;
+	}
 }
 
 function eventRefLink(el) {
