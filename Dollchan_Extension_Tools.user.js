@@ -3965,7 +3965,6 @@ function funcPostPreview(post, pNum, parent, link, txt) {
 				+ './/span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
 			pView
 		);
-		addPostButtons(pView);
 		if(!pByNum[pNum]) {
 			addLinkMP3(pView);
 		}
