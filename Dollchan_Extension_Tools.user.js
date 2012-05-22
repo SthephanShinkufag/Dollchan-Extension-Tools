@@ -305,7 +305,7 @@ Lng = {
 	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], refMap = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false,
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false,
 
 Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null};
 
@@ -3361,7 +3361,7 @@ function addLinkTube(post) {
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
-		aib.getMsg(post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
+		aib.getMsg(post || getPost(el)).appendChild($add('<p><a rel="nofollow" href="' + src + '">' + src + '</a></p>'));
 		$del(el.parentNode);
 	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
@@ -3742,57 +3742,61 @@ function preloadImages(el) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRefMap(pNum, rNum) {
-	if(refMap[rNum]) {
-		if(refMap[rNum].indexOf(pNum) < 0) {
-			refMap[rNum].push(pNum);
+function getRefMap(post, pNum, refMap) {
+	var els = post.Msg.getElementsByTagName('a'),
+		rNum;
+	for(var i = 0, len = els.length; i < len; i++) {
+		rNum = els[i].textContent.match(/^>>(\d+)$/);
+		if(!rNum) {
+			continue;
 		}
-	} else {
-		refMap[rNum] = [pNum];
+		rNum = rNum[1];
+		if(refMap[rNum]) {
+			if(refMap[rNum].indexOf(pNum) < 0) {
+				refMap[rNum].push(pNum);
+			}
+		} else {
+			refMap[rNum] = [pNum];
+		}
 	}
 }
 
-function showRefMap(post, rNum, uEv) {
-	var el, msg, txt;
-	if(typeof refMap[rNum] !== 'object' || !post) {
-		return;
-	}
-	el = $c('DESU_refMap', post);
-	txt = refMap[rNum].join(',').replace(/(\d+)/g, ' <a href="#$1">&gt;&gt;$1</a>');
-	if(!el) {
-		msg = post.Msg || aib.getMsg(post);
-		if(!msg) {
-			return;
+function genRefMap(pBn, dOld) {
+	var pNum, post, refMap = [];
+	if(dOld) {
+		for(pNum in pBn) {
+			post = pBn[pNum].ownerDocument;
+			$$Del('.//div[@class="DESU_refMap"]', post, post);
+			break;
 		}
-		el = $add('<div class="DESU_refMap">' + txt + '</div>');
-		if(uEv) {
+	}
+	for(pNum in pBn) {
+		getRefMap(pBn[pNum], pNum, refMap);
+	}
+	for(pNum in refMap) {
+		if(post = pBn[pNum]) {
+			$after(post.Msg, $add('<div class="DESU_refMap">' + refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>') + '</div>'));
+		}
+	}
+	refMap = null;
+}
+
+function updRefMap(post) {
+	var pNum, pst, el, refMap = [];
+	getRefMap(post, post.Num, refMap);
+	for(pNum in refMap) {
+		if(pst = pByNum[pNum]) {
+			el = $c('DESU_refMap', pst);
+			if(!el) {
+				$after(pst.Msg, el = $new('div', {'class': 'DESU_refMap'}, null));
+			} else {
+				el.appendChild($txt(', '));
+			}
+			el.appendChild($add(refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')));
 			eventRefLink(el);
 		}
-		$after(msg, el);
-	} else {
-		eventRefLink($html(el, txt));
 	}
-}
-
-function addRefMap(post, uEv) {
-	var rNum, pst;
-	if(Cfg['navig'] !== 2) {
-		return;
-	}
-	$each($X((!post ? aib.xMsg : '.') + '//a[starts-with(text(),">>")]', post ? post.Msg : dForm), function(link) {
-		if(/\//.test(link.textContent)) {
-			return;
-		}
-		rNum = (link.hash || link.textContent || link.pathname.substring(link.pathname.lastIndexOf('/')))
-			.match(/\d+/)[0];
-		pst = post || getPost(link);
-		if(pByNum[rNum] && pst) {
-			getRefMap(pst.Num, rNum);
-		}
-	});
-	for(rNum in refMap) {
-		showRefMap(pByNum[rNum], rNum, uEv);
-	}
+	refMap = null;
 }
 
 
@@ -3956,9 +3960,9 @@ function funcPostPreview(post, pNum, parent, link, txt) {
 		}
 		pView.Num = pNum;
 		$Del(
-			'.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]|.//div[@class="DESU_refMap"'
-				+ (Cfg['ytube'] !== 2 ? 'or @class="DESU_ytObj"' : '')
-				+ ']|.//span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
+			'.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]|'
+				+ (Cfg['ytube'] !== 2 ? 'div[@class="DESU_ytObj"]|' : '')
+				+ './/span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
 			pView
 		);
 		addPostButtons(pView);
@@ -3976,7 +3980,6 @@ function funcPostPreview(post, pNum, parent, link, txt) {
 		addLinkImg(pView, false);
 		addImgSearch(pView);
 		if(Cfg['navig'] === 2) {
-			showRefMap(pView, pNum, null);
 			markRefMap(pView, parent.Num);
 		}
 		eventRefLink(pView);
@@ -4061,10 +4064,8 @@ function showPview(link) {
 	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
 		post = pst.Num;
 		Pviews.ajaxed[b][post] = pst;
-		$each($$X(aib.xMsg + '//a[starts-with(text(),">>")]', pst, dc), function(lnk) {
-			getRefMap(post, lnk.textContent.match(/\d+/)[0]);
-		});
 	}, function(err) {
+		genRefMap(Pviews.ajaxed[b], true);
 		if(el && !el.forDel) {
 			funcPostPreview(importPview(b, pNum), pNum, parent, link, err);
 		}
@@ -4124,21 +4125,23 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function parseHTMLdata(html, b, tNum, pFn) {
-	var dc;
 	if(!pr.on && oeForm) {
 		pr = getPostform($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
 		$before($id('DESU_pform').firstChild, [pr.form]);
 	}
 	if(pFn) {
 		try {
-			dc = HTMLtoDOM(aib.hana
+			var dc = HTMLtoDOM(aib.hana
 				? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
 				: html
 			);
 			parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
 				pFn(dc, post, i);
 			});
-		} catch(e) {}
+			dc = null;
+		} catch(e) {
+			dc = null;
+		}
 	}
 }
 
@@ -4208,7 +4211,7 @@ function insertPost(thr, post) {
 
 function addPostFunc(post) {
 	doPostFilters(post);
-	addRefMap(post, true);
+	updRefMap(post);
 	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
@@ -4229,6 +4232,7 @@ function addPostFunc(post) {
 }
 
 function newPost(thr, post, i) {
+	post.Msg = aib.getMsg(post);
 	pushPost(post, i);
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
@@ -4427,7 +4431,7 @@ function loadPages(len) {
 		tClass = $c('DESU_thread', dForm).className;
 	$alert(Lng.loading[lCode], 'LPages', true);
 	dForm.innerHTML = '';
-	for(p = 0, Posts = [], refMap = []; p < len; p++) {
+	for(p = 0, Posts = []; p < len; p++) {
 		loadPage(p, tClass, len);
 	}
 }
@@ -5760,7 +5764,7 @@ function scriptCSS() {
 		.DESU_refHid { text-decoration: line-through !important; }\
 		.DESU_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.DESU_refMap:before { content: "' + Lng.replies[lCode] + ' "; }\
-		.DESU_refMap a { text-decoration: none; }\
+		.DESU_refMap > a { text-decoration: none; }\
 		#DESU_sageBtn { cursor: pointer; }\
 		#DESU_select { padding: 0 !important; margin: 0 !important; }\
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
@@ -6302,7 +6306,6 @@ function pushPost(post, i) {
 	Posts.push(post);
 	post.isOp = i === 0;
 	post.Count = i;
-	post.Msg = aib.getMsg(post);
 	post.Text = getText(post.Msg);
 	post.Img = getImages(post);
 	pByNum[post.Num] = post;
@@ -6315,6 +6318,7 @@ function processPost(post, thr, pFn, i) {
 	post.thr = thr;
 	post.className += ' DESU_post';
 	post.Num = aib.getPNum(post);
+	post.Msg = aib.getMsg(post);
 	pFn(post, i + 1);
 }
 
@@ -6400,6 +6404,7 @@ function parseDelform(node, dc, pFn) {
 		thr.className += ' DESU_thread';
 		op.className += ' DESU_oppost';
 		op.Num = thr.Num = aib.getTNum(op, dc);
+		op.Msg = aib.getMsg(op);
 		op.thr = thr;
 		pFn(op, 0);
 		if(!nav.Firefox || aib.gazo) {
@@ -6672,8 +6677,8 @@ function doScript() {
 		Log('addImgSearch');
 	}
 	if(Cfg['navig'] === 2) {
-		addRefMap(null, false);
-		Log('addRefMap');
+		genRefMap(pByNum, false);
+		Log('genRefMap');
 	}
 	if(Cfg['navig'] !== 0) {
 		eventRefLink(dForm);
