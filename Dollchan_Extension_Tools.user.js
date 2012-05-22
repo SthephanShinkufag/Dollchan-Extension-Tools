@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.22.0
+// @version			12.5.22.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.22.0',
+	'version':	'12.5.22.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -305,9 +305,7 @@ Lng = {
 	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)']
 },
 
-doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Visib = [], Expires = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, tByCnt = [], cPIndex, cTIndex = 0, scrScroll = false, scrollP = true, scrollT = true, kIgnore = false, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false,
-
-Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null};
+doc = window.document, Cfg = {}, lCode, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [], pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [], ajaxInt, nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, quotetxt = '', docTitle, favIcon, favIconTimeout, isExpImg = false, timePattern, timeRegex, oldTime, endTime, timeLog = '', tubeHidTimeout, postWrapper = false, storageLife = 5*24*3600*1000, liteMode = false, isKeyNav = true, Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null};
 
 
 /*==============================================================================
@@ -1199,7 +1197,7 @@ function addSettings() {
 			$after($id('DESU_cfgBar'), el);
 		}
 		if(Cfg['keynav'] !== 0) {
-			addEvents(el);
+			keyNavTrigger(el);
 		}
 		tab.className = 'DESU_cfgTab_sel';
 		if(el === cfgFilters) {
@@ -2143,67 +2141,120 @@ function selectImgSearch(btn, href) {
 								KEYBOARD NAVIGATION
 ==============================================================================*/
 
-function addEvents(node) {
+function keyNavTrigger(node) {
 	$each($X('.//input[@type="text" or @type="password"]|.//textarea', node), function(el) {
 		el.onfocus = function() {
-			kIgnore = true;
+			isKeyNav = false;
 		};
 		el.onblur = function() {
-			kIgnore = false;
+			isKeyNav = true;
 		};
 	});
 }
 
 function initKeyNavig() {
-	var eT;
+	var eT, pIndex,
+		tIndex = 0,
+		scrScroll = false,
+		pScroll = true,
+		tScroll = true,
+		findCurrPost = function(posts) {
+			for(var i = 0, scrolled = window.pageYOffset; i < posts.length; i++) {
+				if($offset(posts[i]).top > scrolled) {
+					return i - 1;
+				}
+			}
+		},
+		scrollToPost = function(posts, idx, dir, scroll, toTop) {
+			var post,
+				mIdx = idx;
+			while(posts[mIdx].Vis === 0 || posts[mIdx].thr.Vis === 0) {
+				mIdx += dir;
+			}
+			post = posts[mIdx];
+			if(mIdx !== idx || scroll) {
+				window.scrollTo(0, toTop
+					? $offset(post).top
+					: $offset(post).top - window.innerHeight/2 + post.clientHeight/2
+				);
+			}
+			idx = $c('DESU_selected', doc);
+			if(idx) {
+				idx.className = idx.oldClassName;
+			}
+			if(post.isOp) {
+				post = post.thr;
+			}
+			post.oldClassName = post.className;
+			post.className += ' DESU_selected';
+			return mIdx;
+		},
+		scrollDownToPost = function() {
+			if(pIndex !== Posts.length - 1) {
+				try {
+					pIndex = scrollToPost(Posts, pIndex + 1, 1, Posts[pIndex + 1].isOp
+						|| Posts[pIndex + 1].getBoundingClientRect().top > window.innerHeight/2
+							- Posts[pIndex + 1].clientHeight/2, false);
+					pScroll = true;
+				} catch(e) {}
+			}
+		},
+		scrollUpToPost = function() {
+			try {
+				pIndex = scrollToPost(Posts, pIndex <= 0 ? 0 : pIndex - 1, -1, true, false);
+				pScroll = true;
+			} catch(e) {}
+		};
+	
 	if(!aib.nul) {
-		addEvents(pr.form);
+		keyNavTrigger(pr.form);
 	} else {
 		pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified', function(e) {
 			if(eT) {
 				clearTimeout(eT);
 			}
 			eT = setTimeout(function() {
-				addEvents(pr.form);
+				keyNavTrigger(pr.form);
 			}, 200);
 		}, false);
 	}
-	addEvents(dForm);
+	
 	window.onscroll = function() {
 		if(!scrScroll) {
-			scrollP = true;
-			scrollT = true;
+			pScroll = true;
+			tScroll = true;
 		} else {
 			scrScroll = false;
 		}
 	};
+	
 	doc.onkeydown = function (e) {
 		var curTh,
 			kc = e.keyCode;
-		if(kIgnore || e.ctrlKey || e.altKey || e.shiftKey 
+		if(!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey 
 			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)) {
 			return;
 		}
 		$pd(e);
-		if(scrollT) {
-			cPIndex = !scrollP ? Posts.indexOf(tByCnt[cTIndex]) : findCurrPost(Posts);
+		if(tScroll) {
+			pIndex = !pScroll ? Posts.indexOf(tByCnt[tIndex]) : findCurrPost(Posts);
 		}
-		if(!TNum && scrollP) {
-			if((Posts[cPIndex] || {}).isOp) {
-				cTIndex = curTh = tByCnt.indexOf(Posts[cPIndex]);
-			} else if(scrollT) {
-				for(curTh = cPIndex <= 0 ? 0 : cPIndex; curTh > 0 && !Posts[curTh].isOp; curTh--) {}
-				cTIndex = curTh = tByCnt.indexOf(Posts[curTh]);
+		if(!TNum && pScroll) {
+			if((Posts[pIndex] || {}).isOp) {
+				tIndex = curTh = tByCnt.indexOf(Posts[pIndex]);
+			} else if(tScroll) {
+				for(curTh = pIndex <= 0 ? 0 : pIndex; curTh > 0 && !Posts[curTh].isOp; curTh--) {}
+				tIndex = curTh = tByCnt.indexOf(Posts[curTh]);
 			} else {
-				curTh = cTIndex;
+				curTh = tIndex;
 			}
 		} else {
-			curTh = cTIndex;
+			curTh = tIndex;
 		}
-		scrollP = scrollT = false;
+		pScroll = tScroll = false;
 		if(kc === 86) {
 			if(TNum) {
-				showQuickReply(Posts[cPIndex]);
+				showQuickReply(Posts[pIndex]);
 			} else if(nav.Firefox) {
 				GM_openInTab(getThrdUrl(aib.host, brd, tByCnt[curTh].Num), false, true);
 			} else {
@@ -2217,17 +2268,17 @@ function initKeyNavig() {
 				scrollUpToPost();
 			} else {
 				try {
-					cTIndex = scrollToPost(tByCnt, cTIndex <= 0 ? 0 : cTIndex - 1, -1, true, true);
-					scrollT = true;
+					tIndex = scrollToPost(tByCnt, tIndex <= 0 ? 0 : tIndex - 1, -1, true, true);
+					tScroll = true;
 				} catch(er) {}
 			}
 		} else if(kc === 74) {
 			if(TNum) {
 				scrollDownToPost();
-			} else if(cTIndex !== tByCnt.length - 1) {
+			} else if(tIndex !== tByCnt.length - 1) {
 				try {
-					cTIndex = scrollToPost(tByCnt, cTIndex + 1, 1, true, true);
-					scrollT = true;
+					tIndex = scrollToPost(tByCnt, tIndex + 1, 1, true, true);
+					tScroll = true;
 				} catch(er) {}
 			}
 		} else if(!TNum && kc === 77) {
@@ -2236,57 +2287,6 @@ function initKeyNavig() {
 			scrollDownToPost();
 		}
 	};
-}
-
-function findCurrPost(posts) {
-	for(var i = 0, scrolled = window.pageYOffset; i < posts.length; i++) {
-		if($offset(posts[i]).top > scrolled) {
-			return i - 1;
-		}
-	}
-}
-
-function scrollDownToPost() {
-	if(cPIndex !== Posts.length - 1) {
-		try {
-			cPIndex = scrollToPost(Posts, cPIndex + 1, 1, Posts[cPIndex + 1].isOp
-				|| Posts[cPIndex + 1].getBoundingClientRect().top > window.innerHeight/2
-					- Posts[cPIndex + 1].clientHeight/2, false);
-			scrollP = true;
-		} catch(e) {}
-	}
-}
-
-function scrollUpToPost() {
-	try {
-		cPIndex = scrollToPost(Posts, cPIndex <= 0 ? 0 : cPIndex - 1, -1, true, false);
-		scrollP = true;
-	} catch(e) {}
-}
-
-function scrollToPost(posts, idx, dir, scroll, toTop) {
-	var post,
-		mIdx = idx;
-	while(posts[mIdx].Vis === 0 || posts[mIdx].thr.Vis === 0) {
-		mIdx += dir;
-	}
-	post = posts[mIdx];
-	if(mIdx !== idx || scroll) {
-		window.scrollTo(0, toTop
-			? $offset(post).top
-			: $offset(post).top - window.innerHeight/2 + post.clientHeight/2
-		);
-	}
-	idx = $c('DESU_selected', doc);
-	if(idx) {
-		idx.className = idx.oldClassName;
-	}
-	if(post.isOp) {
-		post = post.thr;
-	}
-	post.oldClassName = post.className;
-	post.className += ' DESU_selected';
-	return mIdx;
 }
 
 
