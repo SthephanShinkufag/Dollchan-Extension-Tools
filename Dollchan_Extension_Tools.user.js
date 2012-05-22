@@ -3361,7 +3361,7 @@ function addLinkTube(post) {
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
-		aib.getMsg(post || getPost(el)).appendChild($add('<p><a rel="nofollow" href="' + src + '">' + src + '</a></p>'));
+		aib.getMsg(post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
 		$del(el.parentNode);
 	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
@@ -3965,7 +3965,6 @@ function funcPostPreview(post, pNum, parent, link, txt) {
 				+ './/span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
 			pView
 		);
-		addPostButtons(pView);
 		if(!pByNum[pNum]) {
 			addLinkMP3(pView);
 		}
