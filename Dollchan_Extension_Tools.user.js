@@ -4431,7 +4431,7 @@ function loadPages(len) {
 		tClass = $c('DESU_thread', dForm).className;
 	$alert(Lng.loading[lCode], 'LPages', true);
 	dForm.innerHTML = '';
-	for(p = 0, Posts = [], refMap = []; p < len; p++) {
+	for(p = 0, Posts = []; p < len; p++) {
 		loadPage(p, tClass, len);
 	}
 }
