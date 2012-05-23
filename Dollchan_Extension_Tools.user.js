@@ -3984,9 +3984,7 @@ function setPviewPostion(link, pView, anim) {
 		pView.aTop = false;
 	}
 	if(Cfg['animp'] === 0 || !anim || aib.hid) {
-		pView.style.left = left;
-		pView.style.top = top;
-		pView.style.width = width;
+		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
 		return;
 	}
 	animatePview(pView, function() {
