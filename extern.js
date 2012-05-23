@@ -32,7 +32,6 @@ Window.JSON = {};
 Window.JSON.parse = function(text, opt_reviver) {};
 
 /** @type {String} */ XMLHttpRequest.prototype.finalUrl;
-/** @type {String} */ XMLHttpRequest.prototype.responseHeaders; 
 var localStorage = {}, sessionStorage = {};
 
 /**
