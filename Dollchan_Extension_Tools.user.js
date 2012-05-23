@@ -3438,7 +3438,7 @@ function addLinkTube(post) {
 		$del(el.parentNode);
 	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
-		var pst, el, msg,
+		var pst, el, msg, pWrap,
 			m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
@@ -3454,12 +3454,9 @@ function addLinkTube(post) {
 				addTubePlayer(el, m);
 			}
 			msg = pst.Msg || aib.getMsg(pst);
-			if(aib.krau) {
-				$after(
-					$x('div[@class="file_thread" or @class="file_reply"][last()]', pst)
-						|| $c('postheader', pst),
-					el
-				);
+			pWrap = aib.picWrap && $x('div[' + aib.picWrap + '][last()]', pst);
+			if(pWrap) {
+				$after(pWrap, el);
 			} else if(msg) {
 				$before(msg, [el]);
 			} else {
@@ -5932,7 +5929,9 @@ function scriptCSS() {
 		x.push(
 			'#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 			.delete { background: none; }\
-			.delete_checkbox { position: static !important; }'
+			.delete_checkbox { position: static !important; }\
+			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
+			.DESU_ytObj + div { clear: left; }'
 		);
 	} else if(aib.abu) {
 		x.push(
@@ -5959,7 +5958,7 @@ function scriptCSS() {
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
-			.DESU_ytObj + div:not(.file_reply):not(.file_thread) { clear: both; }'
+			.DESU_ytObj + div { clear: left; }'
 		);
 	} else if(aib._420) {
 		x.push(
@@ -6336,6 +6335,10 @@ function getImageboard(host, dc) {
 	obj.xBan =
 		obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
 		: obj.fch ? './/strong[@style="color: red;"]'
+		: false;
+	obj.picWrap =
+		obj.krau ? '@class="file_thread" or @class="file_reply"'
+		: obj.hana ? '@class="file"'
 		: false;
 	obj.getMsg = obj.cMsg
 		? function(el) {
