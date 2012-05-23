@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.22.2
+// @version			12.5.22.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.22.2',
+	'version':	'12.5.22.3',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -1258,7 +1258,8 @@ function addSettings() {
 				$new('a', {
 					'text': '?',
 					'target': '_blank',
-					'href': '//www.freedollchan.org/scripts/spells'
+					'href': '//www.freedollchan.org/scripts/spells',
+					'class': 'DESU_aBtn'
 				}, null)
 			]),
 			lBox('spells', Lng.spells[lCode], toggleSpells, 'DESU_spellChk'),
@@ -3712,7 +3713,7 @@ function addImgSearch(el) {
 			return;
 		}
 		$before(link, [
-			$new('a', {
+			$new('span', {
 				'class': 'DESU_btnSrc'}, {
 				'mouseover': function() {
 					selectImgSearch(this, escape(link.href));
@@ -4042,7 +4043,7 @@ function getPview(post, pNum, parent, link, txt) {
 		$Del(
 			'.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]|'
 				+ (Cfg['ytube'] !== 2 ? 'div[@class="DESU_ytObj"]|' : '')
-				+ './/span[starts-with(@class,"DESU_postPanel")]|.//a[@class="DESU_btnSrc"]',
+				+ './/span[starts-with(@class,"DESU_postPanel") or @class="DESU_btnSrc"]',
 			pView
 		);
 		if(!pByNum[pNum]) {
@@ -4364,7 +4365,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 
 function processFullMsg(post) {
 	replaceDelform(post);
-	$Del('.//a[@class="DESU_btnSrc"]', post);
+	$Del('.//span[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
 
@@ -5765,12 +5766,13 @@ function scriptCSS() {
 	gif('.DESU_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
 
 	// Search images buttons
+	p = ':before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(//';
 	x.push(
 		'.DESU_btnSrc { background: url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor: pointer; }\
-		.DESU_srcGoogle:before { background: url(//google.ru/favicon.ico); }\
-		.DESU_srcTineye:before { background: url(//tineye.com/favicon.ico); }\
-		.DESU_srcIqdb:before { background: url(//iqdb.org/favicon.ico); ' + nav.cFix + 'background-size: cover; }\
-		.DESU_srcSaucenao:before { background: url(//saucenao.com/favicon.ico); }'
+		.DESU_srcGoogle' + p + 'google.ru/favicon.ico); }\
+		.DESU_srcTineye' + p + 'tineye.com/favicon.ico); }\
+		.DESU_srcIqdb' + p + 'iqdb.org/favicon.ico); ' + nav.cFix + 'background-size: cover; }\
+		.DESU_srcSaucenao' + p + 'saucenao.com/favicon.ico); }'
 	);
 
 	// Posts counter
