@@ -599,12 +599,10 @@ function fixFunctions() {
 		window.GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
 			xhr.onreadystatechange = function() {
-				xhr.responseHeaders = xhr.getAllResponseHeaders();
 				obj.onreadystatechange(xhr);
 			};
 			xhr.onload = function() {
 				try{
-					xhr.responseHeaders = xhr.getAllResponseHeaders();
 					obj.onload(xhr);
 				} catch(e) {}
 			};
@@ -4262,10 +4260,9 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	});
 }
 
-function getJSON(url, ifmodsince, fn) {
+function getJSON(url, fn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
@@ -4273,13 +4270,9 @@ function getJSON(url, ifmodsince, fn) {
 					closeAlert($id('DESU_alertNewP'));
 				} else {
 					try {
-						fn(
-							xhr.status, xhr.statusText,
-							(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
-							JSON.parse(xhr.responseText)
-						);
+						fn(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
 					} catch(e) {
-						fn(1, e.toString(), null, null);
+						fn(1, e.toString(), null);
 					}
 				}
 			}
@@ -4760,15 +4753,13 @@ function loadNewPosts(inf, fn) {
 		getJSON(
 			'//dobrochan.ru/api/thread/' + brd + '/' + TNum
 				+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
-			aib.pModSince,
-			function(status, sText, lmod, json) {
+			function(status, sText, json) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(
 						status === 0 ? Lng.noConnect[lCode] : (sText || json['message']),
 						null
 					);
 				} else {
-					aib.pModSince = lmod;
 					el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
@@ -4845,15 +4836,13 @@ function initThreadsUpdater() {
 			if(aib.hana) {
 				getJSON(
 					'//dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
-					aib.cModSince,
-					function(status, sText, lmod, json) {
+					function(status, sText, json) {
 						if(status !== 200 || json['error']) {
 							infoNewPosts(
 								status === 0 ? Lng.noConnect[lCode] : (sText || json['message']),
 								null
 							);
 						} else {
-							aib.cModSince = lmod;
 							infoNewPosts(null, json['result']['posts_count'] - Posts.length);
 						}
 					}
