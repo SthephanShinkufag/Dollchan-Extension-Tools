@@ -6151,6 +6151,17 @@ function getNavigator() {
 			: nav.Chrome ? 'webkitAnimationEnd'
 			: '';
 	}
+	if(typeof doc.hidden !== "undefined") {
+		nav.hidden = "hidden";
+		nav.vChange = "visibilitychange";
+	} else if(typeof doc.mozHidden !== "undefined") {
+		nav.hidden = "mozHidden";  
+		nav.vChange = "mozvisibilitychange";
+	} else if(typeof doc.webkitHidden !== "undefined") {  
+		nav.hidden = "webkitHidden";  
+		nav.vChange = "webkitvisibilitychange";  
+	}
+	nav.vis = nav.hidden && nav.vChange;
 	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
 }
 
@@ -6662,16 +6673,10 @@ function preparePage() {
 		}, null)
 	]);
 	if(TNum) {
-		if(Cfg['rtitle'] === 0) {
-			docTitle = doc.title;
-		} else {
-			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
-			doc.title = docTitle;
-		}
-		window.onblur = function() {
+		var onhid = function() {
 			doc.body.className = 'blurred';
-		};
-		window.onfocus = function() {
+		},
+		onvis = function() {
 			doc.body.className = 'focused';
 			if(Cfg['updfav'] !== 0 && favIcon) {
 				clearInterval(favIconInterval);
@@ -6687,6 +6692,25 @@ function preparePage() {
 				}, 0);
 			}
 		};
+
+		if(Cfg['rtitle'] === 0) {
+			docTitle = doc.title;
+		} else {
+			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
+			doc.title = docTitle;
+		}
+		if(nav.vis) {
+			doc.addEventListener(nav.vChange, function(e) {
+				if(doc[nav.hidden]) {
+					onhid();
+				} else {
+					onvis();
+				}
+			}, false);
+		} else {
+			window.onblur = onhid;
+			window.onfocus = onvis;
+		}
 	} else {
 		setTimeout(function() {
 			window.scrollTo(0, 0);
