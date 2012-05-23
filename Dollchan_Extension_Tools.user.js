@@ -1088,16 +1088,13 @@ function toggleContent(name, isUpd) {
 	if(liteMode) {
 		return;
 	}
-	var el, id,
-		fn = function(e) {
-			showContent(el, id, name, isUpd);
-			this.removeEventListener(nav.aEvent, fn, false);
-		};
-	el = $c('DESU_content', doc);
-	id = 'DESU_content' + name;
+	var el = $c('DESU_content', doc),
+		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
 		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
-			el.addEventListener(nav.aEvent, fn, false);
+			nav.aEvent(el, function() {
+				showContent(el, id, name, isUpd);
+			});
 			el.className = 'DESU_content DESU_cfgClose';
 		} else {
 			showContent(el, id, name, isUpd);
@@ -1939,9 +1936,9 @@ function closeAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		el.addEventListener(nav.aEvent, function() {
+		nav.aEvent(el, function() {
 			$del(el);
-		}, false);
+		});
 		el.className = el.oclassName + ' DESU_aClose';
 		return;
 	}
@@ -1968,10 +1965,9 @@ function blinkAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		el.addEventListener(nav.aEvent, function rBlink() {
+		nav.aEvent(el, function() {
 			el.className = el.oclassName;
-			this.removeEventListener(nav.aEvent, rBlink, false);
-		}, false);
+		});
 		el.className = el.oclassName + ' DESU_aBlink';
 		return;
 	}
@@ -3912,11 +3908,10 @@ function closePview(el) {
 		return;
 	}
 	animatePview(el, function() {
-		el.addEventListener(nav.aEvent, function() {
+		nav.aEvent(el, function() {
 			$del(el);
-		}, false);
-		el.className = el.oclassName + ' DESU_pClose' +
-			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+		});
+		el.className += ' DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 	});
 }
 
@@ -4008,13 +4003,14 @@ function setPviewPostion(link, pView, anim) {
 					to { left: ' + left + '; top: ' + top + '; }\
 				} .' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both; }'
 		}, null));
-		pView.addEventListener(nav.aEvent, function() {
+		nav.aEvent(pView, function() {
 			pView.style.left = left;
 			pView.style.top = top;
+			pView.className = pView.oclassName;
 			pView.inUse = false;
 			$del($id(uId));
-		}, false);
-		pView.className = pView.oclassName + ' ' + uId;
+		});
+		pView.className += ' ' + uId;
 	});
 }
 
@@ -4102,6 +4098,9 @@ function getPview(post, pNum, parent, link, txt) {
 	markPviewToDel(el, false);
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		animatePview(pView, function() {
+			nav.aEvent(pView, function() {
+				pView.className = pView.oclassName;
+			});
 			pView.oclassName = pView.className;
 			pView.className += ' DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 		});
@@ -5954,7 +5953,8 @@ function scriptCSS() {
 		);
 	} else if(aib.krau) {
 		x.push(
-			'img[id^="translate_button"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+			'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]'
+				+ (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
@@ -6130,14 +6130,16 @@ function getNavigator() {
 	nav.aCFix =
 		nav.Firefox ? '-moz-'
 		: nav.Chrome ? '-webkit-'
-		: nav.Opera ? '-o-'
-		: '';
+		: '-o-';
 	if(nav.Firefox > 4 || nav.Chrome || nav.Opera >= 12) {
 		nav.Anim = true;
-		nav.aEvent =
-			(nav.Firefox || nav.Opera) ? 'animationend'
-			: nav.Chrome ? 'webkitAnimationEnd'
-			: '';
+		nav.nEvent = nav.Chrome ? 'webkitAnimationEnd' : 'animationend';
+		nav.aEvent = function(el, fn) {
+			el.addEventListener(nav.nEvent, function aEvent(e) {
+				this.removeEventListener(nav.nEvent, aEvent, false);
+				fn();
+			}, false);
+		}
 	}
 	if(typeof doc.hidden !== "undefined") {
 		nav.hidden = "hidden";
