@@ -6145,7 +6145,7 @@ function getImageboard(host, dc) {
 	obj.opClass =
 		obj.kus ? 'postnode'
 		: obj.brit ? 'originalpost'
-		: obj.fch ? 'post op'
+		: obj.fch ? 'op'
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
 	obj.xThreads = './/div[' + (
@@ -6216,11 +6216,8 @@ function getImageboard(host, dc) {
 			return $c(obj.cRef, el);
 		};
 	obj.getOp =
-		(obj.abu || obj.hana || obj.kus) && $c(obj.opClass, doc) ? function(thr, dc) {
+		(obj.abu || obj.hana || obj.kus || obj.fch) && $c(obj.opClass, doc) ? function(thr, dc) {
 			return $c(obj.opClass, thr);
-		}
-		: obj.fch ? function(thr, dc) {
-			return $c('opContainer', thr);
 		}
 		: obj.ylil ? function(thr, dc) {
 			return thr.firstElementChild;
