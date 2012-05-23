@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.22.1
+// @version			12.5.22.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.22.1',
+	'version':	'12.5.22.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2121,7 +2121,7 @@ function selectPostHider(post) {
 
 function selectExpandThread(post) {
 	$each(addSelMenu(
-		$x('a[3]', post.Btns), false,
+		$x('span[3]', post.Btns), false,
 		'<a href="#">' + Lng.selExpandThrd[lCode].join('</a><a href="#">') + '</a>'
 	), function(a) {
 		$event(a, {
