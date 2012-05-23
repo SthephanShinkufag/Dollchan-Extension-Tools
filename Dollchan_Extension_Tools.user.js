@@ -599,12 +599,10 @@ function fixFunctions() {
 		window.GM_xmlhttpRequest = function(obj) {
 			var xhr = new window.XMLHttpRequest();
 			xhr.onreadystatechange = function() {
-				xhr.responseHeaders = xhr.getAllResponseHeaders();
 				obj.onreadystatechange(xhr);
 			};
 			xhr.onload = function() {
 				try{
-					xhr.responseHeaders = xhr.getAllResponseHeaders();
 					obj.onload(xhr);
 				} catch(e) {}
 			};
@@ -1090,16 +1088,13 @@ function toggleContent(name, isUpd) {
 	if(liteMode) {
 		return;
 	}
-	var el, id,
-		fn = function(e) {
-			showContent(el, id, name, isUpd);
-			this.removeEventListener(nav.aEvent, fn, false);
-		};
-	el = $c('DESU_content', doc);
-	id = 'DESU_content' + name;
+	var el = $c('DESU_content', doc),
+		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
 		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
-			el.addEventListener(nav.aEvent, fn, false);
+			nav.aEvent(el, function() {
+				showContent(el, id, name, isUpd);
+			});
 			el.className = 'DESU_content DESU_cfgClose';
 		} else {
 			showContent(el, id, name, isUpd);
@@ -1941,9 +1936,9 @@ function closeAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		el.addEventListener(nav.aEvent, function() {
+		nav.aEvent(el, function() {
 			$del(el);
-		}, false);
+		});
 		el.className = el.oclassName + ' DESU_aClose';
 		return;
 	}
@@ -1970,10 +1965,9 @@ function blinkAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		el.addEventListener(nav.aEvent, function rBlink() {
+		nav.aEvent(el, function() {
 			el.className = el.oclassName;
-			this.removeEventListener(nav.aEvent, rBlink, false);
-		}, false);
+		});
 		el.className = el.oclassName + ' DESU_aBlink';
 		return;
 	}
@@ -3440,7 +3434,7 @@ function addLinkTube(post) {
 		$del(el.parentNode);
 	});
 	$each($X('.//a[contains(@href,"youtu")]', post || dForm), function(link) {
-		var pst, el, msg,
+		var pst, el, msg, pWrap,
 			m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
@@ -3456,12 +3450,9 @@ function addLinkTube(post) {
 				addTubePlayer(el, m);
 			}
 			msg = pst.Msg || aib.getMsg(pst);
-			if(aib.krau) {
-				$after(
-					$x('div[@class="file_thread" or @class="file_reply"][last()]', pst)
-						|| $c('postheader', pst),
-					el
-				);
+			pWrap = aib.picWrap && $x('div[' + aib.picWrap + '][last()]', pst);
+			if(pWrap) {
+				$after(pWrap, el);
 			} else if(msg) {
 				$before(msg, [el]);
 			} else {
@@ -3917,11 +3908,10 @@ function closePview(el) {
 		return;
 	}
 	animatePview(el, function() {
-		el.addEventListener(nav.aEvent, function() {
+		nav.aEvent(el, function() {
 			$del(el);
-		}, false);
-		el.className = el.oclassName + ' DESU_pClose' +
-			(el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+		});
+		el.className += ' DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 	});
 }
 
@@ -4013,13 +4003,14 @@ function setPviewPostion(link, pView, anim) {
 					to { left: ' + left + '; top: ' + top + '; }\
 				} .' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both; }'
 		}, null));
-		pView.addEventListener(nav.aEvent, function() {
+		nav.aEvent(pView, function() {
 			pView.style.left = left;
 			pView.style.top = top;
+			pView.className = pView.oclassName;
 			pView.inUse = false;
 			$del($id(uId));
-		}, false);
-		pView.className = pView.oclassName + ' ' + uId;
+		});
+		pView.className += ' ' + uId;
 	});
 }
 
@@ -4107,6 +4098,9 @@ function getPview(post, pNum, parent, link, txt) {
 	markPviewToDel(el, false);
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		animatePview(pView, function() {
+			nav.aEvent(pView, function() {
+				pView.className = pView.oclassName;
+			});
 			pView.oclassName = pView.className;
 			pView.className += ' DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 		});
@@ -4262,10 +4256,9 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	});
 }
 
-function getJSON(url, ifmodsince, fn) {
+function getJSON(url, fn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		headers: ifmodsince ? {'If-Modified-Since': ifmodsince} : null,
 		url: url,
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
@@ -4273,13 +4266,9 @@ function getJSON(url, ifmodsince, fn) {
 					closeAlert($id('DESU_alertNewP'));
 				} else {
 					try {
-						fn(
-							xhr.status, xhr.statusText,
-							(xhr.responseHeaders.match(/Last-Modified: ([^\n\r]+)/) || {})[1],
-							JSON.parse(xhr.responseText)
-						);
+						fn(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
 					} catch(e) {
-						fn(1, e.toString(), null, null);
+						fn(1, e.toString(), null);
 					}
 				}
 			}
@@ -4760,15 +4749,13 @@ function loadNewPosts(inf, fn) {
 		getJSON(
 			'//dobrochan.ru/api/thread/' + brd + '/' + TNum
 				+ '/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
-			aib.pModSince,
-			function(status, sText, lmod, json) {
+			function(status, sText, json) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(
 						status === 0 ? Lng.noConnect[lCode] : (sText || json['message']),
 						null
 					);
 				} else {
-					aib.pModSince = lmod;
 					el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
@@ -4845,15 +4832,13 @@ function initThreadsUpdater() {
 			if(aib.hana) {
 				getJSON(
 					'//dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
-					aib.cModSince,
-					function(status, sText, lmod, json) {
+					function(status, sText, json) {
 						if(status !== 200 || json['error']) {
 							infoNewPosts(
 								status === 0 ? Lng.noConnect[lCode] : (sText || json['message']),
 								null
 							);
 						} else {
-							aib.cModSince = lmod;
 							infoNewPosts(null, json['result']['posts_count'] - Posts.length);
 						}
 					}
@@ -5943,7 +5928,9 @@ function scriptCSS() {
 		x.push(
 			'#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 			.delete { background: none; }\
-			.delete_checkbox { position: static !important; }'
+			.delete_checkbox { position: static !important; }\
+			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
+			.DESU_ytObj + div { clear: left; }'
 		);
 	} else if(aib.abu) {
 		x.push(
@@ -5966,11 +5953,12 @@ function scriptCSS() {
 		);
 	} else if(aib.krau) {
 		x.push(
-			'img[id^="translate_button"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+			'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]'
+				+ (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
-			.DESU_ytObj + div:not(.file_reply):not(.file_thread) { clear: both; }'
+			.DESU_ytObj + div { clear: left; }'
 		);
 	} else if(aib._420) {
 		x.push(
@@ -6142,15 +6130,28 @@ function getNavigator() {
 	nav.aCFix =
 		nav.Firefox ? '-moz-'
 		: nav.Chrome ? '-webkit-'
-		: nav.Opera ? '-o-'
-		: '';
+		: '-o-';
 	if(nav.Firefox > 4 || nav.Chrome || nav.Opera >= 12) {
 		nav.Anim = true;
-		nav.aEvent =
-			(nav.Firefox || nav.Opera) ? 'animationend'
-			: nav.Chrome ? 'webkitAnimationEnd'
-			: '';
+		nav.nEvent = nav.Chrome ? 'webkitAnimationEnd' : 'animationend';
+		nav.aEvent = function(el, fn) {
+			el.addEventListener(nav.nEvent, function aEvent(e) {
+				this.removeEventListener(nav.nEvent, aEvent, false);
+				fn();
+			}, false);
+		}
 	}
+	if(typeof doc.hidden !== "undefined") {
+		nav.hidden = "hidden";
+		nav.vChange = "visibilitychange";
+	} else if(typeof doc.mozHidden !== "undefined") {
+		nav.hidden = "mozHidden";  
+		nav.vChange = "mozvisibilitychange";
+	} else if(typeof doc.webkitHidden !== "undefined") {  
+		nav.hidden = "webkitHidden";  
+		nav.vChange = "webkitvisibilitychange";  
+	}
+	nav.vis = nav.hidden && nav.vChange;
 	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
 }
 
@@ -6284,7 +6285,7 @@ function getImageboard(host, dc) {
 	obj.opClass =
 		obj.kus ? 'postnode'
 		: obj.brit ? 'originalpost'
-		: obj.fch ? 'post op'
+		: obj.fch ? 'op'
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
 	obj.xThreads = './/div[' + (
@@ -6337,6 +6338,10 @@ function getImageboard(host, dc) {
 		obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
 		: obj.fch ? './/strong[@style="color: red;"]'
 		: false;
+	obj.picWrap =
+		obj.krau ? '@class="file_thread" or @class="file_reply"'
+		: obj.hana ? '@class="file"'
+		: false;
 	obj.getMsg = obj.cMsg
 		? function(el) {
 			return $c(obj.cMsg, el);
@@ -6355,11 +6360,8 @@ function getImageboard(host, dc) {
 			return $c(obj.cRef, el);
 		};
 	obj.getOp =
-		(obj.abu || obj.hana || obj.kus) && $c(obj.opClass, doc) ? function(thr, dc) {
+		(obj.abu || obj.hana || obj.kus || obj.fch) && $c(obj.opClass, doc) ? function(thr, dc) {
 			return $c(obj.opClass, thr);
-		}
-		: obj.fch ? function(thr, dc) {
-			return $c('opContainer', thr);
 		}
 		: obj.ylil ? function(thr, dc) {
 			return thr.firstElementChild;
@@ -6665,16 +6667,10 @@ function preparePage() {
 		}, null)
 	]);
 	if(TNum) {
-		if(Cfg['rtitle'] === 0) {
-			docTitle = doc.title;
-		} else {
-			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
-			doc.title = docTitle;
-		}
-		window.onblur = function() {
+		var onhid = function() {
 			doc.body.className = 'blurred';
-		};
-		window.onfocus = function() {
+		},
+		onvis = function() {
 			doc.body.className = 'focused';
 			if(Cfg['updfav'] !== 0 && favIcon) {
 				clearInterval(favIconInterval);
@@ -6690,6 +6686,25 @@ function preparePage() {
 				}, 0);
 			}
 		};
+
+		if(Cfg['rtitle'] === 0) {
+			docTitle = doc.title;
+		} else {
+			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
+			doc.title = docTitle;
+		}
+		if(nav.vis) {
+			doc.addEventListener(nav.vChange, function(e) {
+				if(doc[nav.hidden]) {
+					onhid();
+				} else {
+					onvis();
+				}
+			}, false);
+		} else {
+			window.onblur = onhid;
+			window.onfocus = onvis;
+		}
 	} else {
 		setTimeout(function() {
 			window.scrollTo(0, 0);
