@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.22.1
+// @version			12.5.23.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.22.1',
+	'version':	'12.5.23.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -197,7 +197,7 @@ Lng = {
 		['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'],
 		['Disable', 'As images', 'As text', 'Standard']
 	],
-	atBottom:		['внизу', 'at bottom'],
+	atBottom:		['внизу*', 'at bottom*'],
 	fixedName:		['Постоянное имя', 'Fixed name'],
 	fixedPass:		['Постоянный пароль', 'Fixed password'],
 	fixedSign:		['Постоянная подпись', 'Fixed signature'],
@@ -1407,7 +1407,7 @@ function addSettings() {
 				addTextPanel();
 				scriptCSS();
 			}),
-			lBox('txtpos', Lng.atBottom[lCode], scriptCSS, '')
+			lBox('txtpos', Lng.atBottom[lCode], null, '')
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
@@ -2402,7 +2402,6 @@ function doPostformChanges(a) {
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	addTextPanel();
 	$after(el, $new('div', {
 		'id': 'DESU_txtResizer'}, {
 		'mousedown': function(e) {
@@ -2413,6 +2412,7 @@ function doPostformChanges(a) {
 			});
 		}
 	}));
+	addTextPanel();
 	el.style.cssText = 'width: ' + Cfg['texw'] + 'px; height: ' + Cfg['texh'] + 'px;';
 	$event(el, {
 		'keypress': function(e) {
@@ -3027,18 +3027,25 @@ function tfBtn(id, title, wktag, bbtag, val) {
 function addTextPanel() {
 	$del($id('DESU_txtPanel'));
 	if(Cfg['txtbtn'] !== 0 && pr.txta) {
-		$after(aib._420 ? $c('popup', pr.form) : pr.subm, $New('span', {'id': 'DESU_txtPanel'}, [
-			$txt(unescape('%u00A0')),
-			$if(Cfg['txtbtn'] === 2, $txt('[ ')),
-			tfBtn('DESU_btnBold', Lng.bold[lCode], '**', aib._420 ? '**' : 'b', 'B'),
-			tfBtn('DESU_btnItalic', Lng.italic[lCode], '*', aib._420 ? '*' : 'i', 'i'),
-			$if(!aib._420, tfBtn('DESU_btnUnder', Lng.underlined[lCode], '__', 'u', 'U')),
-			$if(!aib._420, tfBtn('DESU_btnStrike', Lng.strike[lCode], aib._410 ? '^^' : '', 's', 'S')),
-			tfBtn('DESU_btnSpoiler', Lng.spoiler[lCode], '%%', aib._420 ? '%' : 'spoiler', '%'),
-			tfBtn('DESU_btnCode', Lng.code[lCode], '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
-			tfBtn('DESU_btnQuote', Lng.quote[lCode], '', '', '&gt;'),
-			$if(Cfg['txtbtn'] === 2, $txt(' ]'))
-		]));
+		$after(
+			Cfg['txtpos'] === 0 ? (
+				aib.abu ? $id('hideUserFlds')
+				: aib._420 ? $c('popup', pr.form)
+				: pr.subm
+			) : $id('DESU_txtResizer'),
+			$New('span', {'id': 'DESU_txtPanel'}, [
+				$txt(unescape('%u00A0')),
+				$if(Cfg['txtbtn'] === 2, $txt('[ ')),
+				tfBtn('DESU_btnBold', Lng.bold[lCode], '**', aib._420 ? '**' : 'b', 'B'),
+				tfBtn('DESU_btnItalic', Lng.italic[lCode], '*', aib._420 ? '*' : 'i', 'i'),
+				$if(!aib._420, tfBtn('DESU_btnUnder', Lng.underlined[lCode], '__', 'u', 'U')),
+				$if(!aib._420, tfBtn('DESU_btnStrike', Lng.strike[lCode], aib._410 ? '^^' : '', 's', 'S')),
+				tfBtn('DESU_btnSpoiler', Lng.spoiler[lCode], '%%', aib._420 ? '%' : 'spoiler', '%'),
+				tfBtn('DESU_btnCode', Lng.code[lCode], '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
+				tfBtn('DESU_btnQuote', Lng.quote[lCode], '', '', '&gt;'),
+				$if(Cfg['txtbtn'] === 2, $txt(' ]'))
+			])
+		);
 	}
 }
 
@@ -5667,9 +5674,9 @@ function scriptCSS() {
 	);
 
 	// text format buttons
-	x.push('#DESU_txtPanel { display: ' + (Cfg['txtpos'] === 0 ? 'inline' : 'block') + '; font-weight: bold; cursor: pointer; }');
+	x.push('#DESU_txtPanel { ' + (Cfg['txtpos'] === 0 ? 'float: right;' : '') + ' display: block; height: 23px; font-weight: bold; cursor: pointer; }');
 	if(Cfg['txtbtn'] === 1) {
-		x.push('#DESU_txtPanel span { padding: 4px 27px 4px 0; }');
+		x.push('#DESU_txtPanel span { display: inline-block; width: 27px; height: 23px }');
 		p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
 		gif('#DESU_btnBold', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
 		gif('#DESU_btnItalic', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
