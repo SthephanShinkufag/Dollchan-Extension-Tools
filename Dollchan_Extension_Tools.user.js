@@ -3879,8 +3879,8 @@ function updRefMap(post) {
 		if(pst) {
 			el = $c('DESU_refMap', pst);
 			if(!el) {
-				el = $new('div', {'class': 'DESU_refMap'};
-				$after(pst.Msg, el, null));
+				el = $new('div', {'class': 'DESU_refMap'}, null);
+				$after(pst.Msg, el);
 			} else {
 				el.appendChild($txt(', '));
 			}
