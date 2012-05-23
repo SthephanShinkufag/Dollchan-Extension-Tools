@@ -5766,10 +5766,10 @@ function scriptCSS() {
 	gif('.DESU_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
 
 	// Search images buttons
+	gif('.DESU_btnSrc', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	p = ':before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(//';
 	x.push(
-		'.DESU_btnSrc { background: url(data:image/gif;base64,R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7) no-repeat; cursor: pointer; }\
-		.DESU_srcGoogle' + p + 'google.ru/favicon.ico); }\
+		'.DESU_srcGoogle' + p + 'google.ru/favicon.ico); }\
 		.DESU_srcTineye' + p + 'tineye.com/favicon.ico); }\
 		.DESU_srcIqdb' + p + 'iqdb.org/favicon.ico); ' + nav.cFix + 'background-size: cover; }\
 		.DESU_srcSaucenao' + p + 'saucenao.com/favicon.ico); }'
