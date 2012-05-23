@@ -3911,7 +3911,7 @@ function closePview(el) {
 		nav.aEvent(el, function() {
 			$del(el);
 		});
-		el.className += ' DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+		el.style[nav.aName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 	});
 }
 
@@ -3975,7 +3975,6 @@ function setPviewPostion(link, pView, anim) {
 		}
 	}
 	left += 'px';
-	pView.style.width = width;
 	uId = pView.offsetHeight;
 	if(top + uId < scrH - 10 || top - uId < 10) {
 		top = (y + link.offsetHeight) + 'px';
@@ -3987,6 +3986,7 @@ function setPviewPostion(link, pView, anim) {
 	if(Cfg['animp'] === 0 || !anim || aib.hid) {
 		pView.style.left = left;
 		pView.style.top = top;
+		pView.style.width = width;
 		return;
 	}
 	animatePview(pView, function() {
@@ -3998,19 +3998,16 @@ function setPviewPostion(link, pView, anim) {
 		doc.head.appendChild($new('style', {
 			'id': uId,
 			'type': 'text/css',
-			'text':
-				'@' + nav.aCFix + 'keyframes ' + uId + ' {\
-					to { left: ' + left + '; top: ' + top + '; }\
-				} .' + uId + ' { ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both; }'
+			'text': '@' + nav.aCFix + 'keyframes ' + uId + ' {\
+				to { left: ' + left + '; top: ' + top + '; width: ' + width + '; }\
+			}'
 		}, null));
 		nav.aEvent(pView, function() {
-			pView.style.left = left;
-			pView.style.top = top;
-			pView.className = pView.oclassName;
+			pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
 			pView.inUse = false;
 			$del($id(uId));
 		});
-		pView.className += ' ' + uId;
+		pView.style.cssText += ' ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both;';
 	});
 }
 
@@ -4099,10 +4096,9 @@ function getPview(post, pNum, parent, link, txt) {
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		animatePview(pView, function() {
 			nav.aEvent(pView, function() {
-				pView.className = pView.oclassName;
+				pView.style[nav.aName] = '';
 			});
-			pView.oclassName = pView.className;
-			pView.className += ' DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
+			pView.style[nav.aName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 		});
 	}
 	return el;
@@ -5829,19 +5825,12 @@ function scriptCSS() {
 			@' + nav.aCFix + 'keyframes DESU_pCloseBL { to { ' + nav.aCFix + 'transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseTR { to { ' + nav.aCFix + 'transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@' + nav.aCFix + 'keyframes DESU_pCloseBR { to { ' + nav.aCFix + 'transform: translate(50%,50%) scale(0); opacity: 0; } }\
+			.DESU_pView { ' + nav.aCFix + 'animation-duration: .2s; ' + nav.aCFix + 'animation-timing-function: ease-in-out; ' + nav.aCFix + 'animation-fill-mode: both; }\
 			.DESU_aOpen { ' + nav.aCFix + 'animation: DESU_aOpen .7s ease-out both; }\
 			.DESU_aClose { ' + nav.aCFix + 'animation: DESU_aClose .7s ease-in both; }\
 			.DESU_aBlink { ' + nav.aCFix + 'animation: DESU_aBlink .7s ease-in-out both; }\
 			.DESU_cfgOpen { ' + nav.aCFix + 'animation: DESU_cfgOpen .2s ease-out both; }\
-			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose .2s ease-in both; }\
-			.DESU_pOpenTL { ' + nav.aCFix + 'animation: DESU_pOpenTL .2s ease-out both; }\
-			.DESU_pOpenBL { ' + nav.aCFix + 'animation: DESU_pOpenBL .2s ease-out both; }\
-			.DESU_pOpenTR { ' + nav.aCFix + 'animation: DESU_pOpenTR .2s ease-out both; }\
-			.DESU_pOpenBR { ' + nav.aCFix + 'animation: DESU_pOpenBR .2s ease-out both; }\
-			.DESU_pCloseTL { ' + nav.aCFix + 'animation: DESU_pCloseTL .2s ease-in both; }\
-			.DESU_pCloseBL { ' + nav.aCFix + 'animation: DESU_pCloseBL .2s ease-in both; }\
-			.DESU_pCloseTR { ' + nav.aCFix + 'animation: DESU_pCloseTR .2s ease-in both; }\
-			.DESU_pCloseBR { ' + nav.aCFix + 'animation: DESU_pCloseBR .2s ease-in both; }'
+			.DESU_cfgClose { ' + nav.aCFix + 'animation: DESU_cfgClose .2s ease-in both; }'
 		);
 	}
 
@@ -6133,6 +6122,10 @@ function getNavigator() {
 		: '-o-';
 	if(nav.Firefox > 4 || nav.Chrome || nav.Opera >= 12) {
 		nav.Anim = true;
+		nav.aName =
+			nav.Firefox ? 'MozAnimationName'
+			: nav.Chrome ? 'webkitAnimationName'
+			: 'OAnimationName';
 		nav.nEvent = nav.Chrome ? 'webkitAnimationEnd' : 'animationend';
 		nav.aEvent = function(el, fn) {
 			el.addEventListener(nav.nEvent, function aEvent(e) {
