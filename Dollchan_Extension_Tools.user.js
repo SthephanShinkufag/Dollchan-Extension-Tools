@@ -2736,7 +2736,7 @@ function checkUpload(dc, url) {
 		pr.txta.value = '';
 		if(pr.file) {
 			err = $x(pr.tr, pr.file);
-			pr.file = $x('input[@type="file"]', $html(err, err.innerHTML));
+			pr.file = $x('.//input[@type="file"]', $html(err, err.innerHTML));
 		}
 		if(pr.video) {
 			pr.video.value = '';
