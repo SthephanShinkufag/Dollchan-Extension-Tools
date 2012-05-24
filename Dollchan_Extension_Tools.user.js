@@ -908,7 +908,7 @@ function removeFavorites(h, b, tNum) {
 		delete Favor[h];
 	}
 	if(pByNum[tNum]) {
-		$x('.//a[starts-with(@class,"DESU_btnFav")]', pByNum[tNum].Btns).className = 'DESU_btnFav';
+		$x('.//span[starts-with(@class,"DESU_btnFav")]', pByNum[tNum].Btns).className = 'DESU_btnFav';
 	}
 }
 
@@ -2354,7 +2354,7 @@ function refreshCapImg(tNum) {
 function doSageBtn() {
 	var c = Cfg['issage'] !== 0;
 	$id('DESU_sageBtn').innerHTML = '&nbsp;' + (
-		c ? '<a class="DESU_btnSage" href="#"></a><b style="color: red;">SAGE</b>'
+		c ? '<span class="DESU_btnSage"></span><b style="color: red;">SAGE</b>'
 		: '<i>(no&nbsp;sage)</i>'
 	);
 	if(pr.mail.type === 'text') {
