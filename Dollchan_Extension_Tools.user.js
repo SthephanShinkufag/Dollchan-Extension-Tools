@@ -998,7 +998,6 @@ function addPanel() {
 				'id': 'DESU_btnLogo',
 				'style': 'cursor: pointer'}, {
 				'click': function(e) {
-					$pd(e);
 					toggleCfg('showmp');
 					scriptCSS();
 				}
@@ -2003,7 +2002,6 @@ function $alert(txt, id, wait) {
 			'class': 'DESU_alertBtn',
 			'text': tBtn}, {
 			'click': function(e) {
-				$pd(e);
 				closeAlert(this.parentNode);
 			}
 		}),
@@ -2989,7 +2987,8 @@ function toggleMainReply(e) {
 function insertRefLink(e) {
 	var pNum = getPost(e.target).Num;
 	if(!/Reply|Ответ/.test(e.target.textContent)) {
-		e.stopPropagation(); $pd(e);
+		e.stopPropagation();
+		$pd(e);
 		if(!TNum && Cfg['tform'] !== 0 && !pr.isQuick) {
 			pArea.style.display = '';
 		}
@@ -3156,7 +3155,6 @@ function addPostButtons(post) {
 	el = post.Btns.firstChild;
 	$event(el, {
 		'click': function(e) {
-			$pd(e);
 			togglePostVisib(post);
 		},
 		'mouseover': function() {
@@ -3168,7 +3166,6 @@ function addPostButtons(post) {
 		el = el.nextSibling;
 		$event(el, {
 			'click': function(e) {
-				$pd(e);
 				showQuickReply(post);
 			},
 			'mouseover': function() {
@@ -3181,7 +3178,6 @@ function addPostButtons(post) {
 			el = el.nextSibling;
 			$event(el, {
 				'click': function(e) {
-					$pd(e);
 					loadThread(post, 1, null);
 				},
 				'mouseover': function() {
@@ -3193,7 +3189,6 @@ function addPostButtons(post) {
 		el = el.nextSibling;
 		$event(el, {
 			'click': function(e) {
-				$pd(e);
 				toggleFavorites(post, this);
 			}
 		});
@@ -3209,7 +3204,6 @@ function addPostButtons(post) {
 			'class': 'DESU_btnSage',
 			'title': 'SAGE'}, {
 			'click': function(e) {
-				$pd(e);
 				applySpells('#sage');
 			}
 		}));
@@ -4451,12 +4445,11 @@ function loadThread(post, last, fn) {
 	});
 }
 
-function loadFavorThread(e) {
+function loadFavorThread() {
 	var el = this.parentNode.parentNode,
 		favt = $c('DESU_favThr', el),
 		url = this.nextElementSibling.href,
 		tNum = el.id.substr(13).split('|')[2];
-	$pd(e);
 	if(favt.style.display !== 'none') {
 		while(favt.firstChild) {
 			$del(favt.firstChild);
