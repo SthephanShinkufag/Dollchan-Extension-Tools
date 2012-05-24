@@ -5691,7 +5691,7 @@ function scriptCSS() {
 			x.push(name + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }');
 		},
 		cont = function(name, src) {
-			x.push(name + ':before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(' + src + '); }');
+			x.push(name + ':before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(' + src + ') no-repeat center; }');
 		};
 
 	// Settings window
