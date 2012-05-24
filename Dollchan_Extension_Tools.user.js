@@ -3117,6 +3117,11 @@ function getImages(post) {
 	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler")]', post);
 }
 
+function getTitle(post) {
+	var title = $c(aib.cTitle, post);
+	return title && title.textContent.trim() || post.Text.substring(0, 70).replace(/\s+/g, ' ');
+}
+
 function getText(el) {
 	return (
 		el.innerText
@@ -4436,6 +4441,7 @@ function loadThread(post, last, fn) {
 				}}));
 			}
 			thr.pCount = psts.length;
+			post.dTitle = getTitle(post);
 			closeAlert($id('DESU_alertLoadThr'));
 		}
 		$focus(post);
@@ -6562,11 +6568,9 @@ function parseDelform(node, dc, pFn) {
 		if(dc === doc) {
 			if(!TNum) {
 				thr.pCount += (i = aib.getOmPosts(thr, dc)) && (i = i.textContent)
-					? +(i.match(/\d+/) || [0])[0]
-					: 0;
+					? +(i.match(/\d+/) || [0])[0] : 0;
 			}
-			op.dTitle = ((i = $c(aib.cTitle, op)) && i.textContent.trim() || op.Text)
-				.substring(0, 70).replace(/\s+/g, ' ');
+			op.dTitle = getTitle(op);
 		}
 	});
 	el = pByNum[window.location.hash.substring(1)];
