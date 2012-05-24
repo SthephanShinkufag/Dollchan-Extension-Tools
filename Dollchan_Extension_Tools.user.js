@@ -1480,7 +1480,7 @@ function addSettings() {
 				divBox('betaupd', Lng.upd.beta[lCode], null),
 				$btn(Lng.upd.checkNow[lCode], '', function() {
 					var el = $id('DESU_updRes');
-					el.innerHTML = '<div id="DESU_updRes_check">' + Lng.checking[lCode] + '</div>';
+					el.innerHTML = '<span class="DESU_wait">' + Lng.checking[lCode] + '</div>';
 					checkForUpdates(true, function(html) {
 						el.innerHTML = html;
 					});
@@ -1843,7 +1843,7 @@ function addFavoritesTable() {
 					if(aib.host === arr[0]) {
 						c = $t('span', $c('DESU_favPCount', el));
 						$attr(c, {
-							'class': 'DESU_icnWait',
+							'class': 'DESU_wait',
 							'text': ''
 						});
 						ajaxGetPosts(null, arr[1], arr[2], function(dc, post, j) {
@@ -1985,11 +1985,13 @@ function blinkAlert(el) {
 function $alert(txt, id, wait) {
 	var node,
 		el = $id('DESU_alert' + id),
-		cn = 'DESU_alert' + (wait ? ' DESU_alertWait' : '');
+		cMsg = 'DESU_alertMsg' + (wait ? ' DESU_wait' : ''),
+		tBtn = wait ? '' : '× ';
 	if(el) {
 		node = $t('div', el);
 		node.innerHTML = txt.trim();
-		node.className = node.previousSibling.className = cn;
+		node.className = cMsg;
+		$t('span', el).textContent = tBtn;
 		blinkAlert(el);
 		return;
 	}
@@ -1998,14 +2000,14 @@ function $alert(txt, id, wait) {
 		'id': 'DESU_alert' + id
 	}, [
 		$new('span', {
-			'class': cn,
-			'text': '× '}, {
+			'class': 'DESU_alertBtn',
+			'text': tBtn}, {
 			'click': function(e) {
 				$pd(e);
 				closeAlert(this.parentNode);
 			}
 		}),
-		$add('<div class="' + cn + '">' + txt.trim() + '</div>')
+		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
 	if(Cfg['aclose'] !== 0 && !wait) {
@@ -4144,7 +4146,7 @@ function showPview(link) {
 	}
 	el = getPview(
 		null, pNum, parent, link,
-		'<span class="DESU_icnWait">&nbsp;</span>' + Lng.loading[lCode]
+		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
 	ajaxGetPosts(null, b, tNum, function(dc, post, i) {
 		Pviews.ajaxed[b][post.Num] = post;
@@ -4468,7 +4470,7 @@ function loadFavorThread(e) {
 		return;
 	}
 	window.onmessage = function(e) {
-		$c('DESU_alertWait', favt).style.display = 'none';
+		$c('DESU_wait', favt).style.display = 'none';
 		favt = $c('DESU_favIframe', favt);
 		favt.style.height = e.data + 'px';
 	}
@@ -4480,7 +4482,7 @@ function loadFavorThread(e) {
 			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
 		}, null),
 		$add(
-			'<div class="DESU_alertWait" style="font-size: 1.1em; text-align: center">'
+			'<div class="DESU_wait" style="font-size: 1.1em; text-align: center">'
 				+ Lng.loading[lCode] + '</div>'
 		)
 	]);
@@ -5685,8 +5687,11 @@ function scriptCSS() {
 			: Cfg['sstyle'] === 1 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)'
 			: '#777'
 		) + '; ',
-		gif = function(nm, src) {
-			x.push(nm + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }');
+		gif = function(name, src) {
+			x.push(name + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }');
+		},
+		cont = function(name, src) {
+			x.push(name + ':before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(' + src + '); }');
 		};
 
 	// Settings window
@@ -5767,13 +5772,10 @@ function scriptCSS() {
 
 	// Search images buttons
 	gif('.DESU_btnSrc', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
-	p = ':before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(//';
-	x.push(
-		'.DESU_srcGoogle' + p + 'google.ru/favicon.ico); }\
-		.DESU_srcTineye' + p + 'tineye.com/favicon.ico); }\
-		.DESU_srcIqdb' + p + 'iqdb.org/favicon.ico); ' + nav.cFix + 'background-size: cover; }\
-		.DESU_srcSaucenao' + p + 'saucenao.com/favicon.ico); }'
-	);
+	cont('.DESU_srcGoogle', '//google.ru/favicon.ico');
+	cont('.DESU_srcTineye', '//tineye.com/favicon.ico');
+	cont('.DESU_srcIqdb', '//iqdb.org/favicon.ico');
+	cont('.DESU_srcSaucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
 	if(TNum) x.push(
@@ -5835,11 +5837,11 @@ function scriptCSS() {
 	}
 
 	// Embedders
+	cont('.DESU_ytLink', '//youtube.com/favicon.ico');
 	x.push(
 		'.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
 		.DESU_post > a + .DESU_mp3, .DESU_post > a + .DESU_ytObj { display: inline-block; }\
-		.DESU_ytLink:before { content: ""; padding: 0 16px 0 0; margin: 0 4px; background: url(//youtube.com/favicon.ico) no-repeat; }\
 		.DESU_ytObj > img { cursor: pointer; }'
 	);
 	if(Cfg['mask'] !== 0) {
@@ -5850,11 +5852,10 @@ function scriptCSS() {
 	}
 
 	// Other
+	cont('.DESU_wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
 	x.push(
-		'div.DESU_alertWait:before, .DESU_icnWait, #DESU_updRes_check:before { content: " "; padding: 0 16px 16px 0; background: url( data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7) no-repeat; }\
-		div.DESU_alert { display: inline-block; margin-top: .25em; }\
-		span.DESU_alert { display: inline-block; vertical-align: top; font-size: 150%; color: green; cursor: pointer;}\
-		span.DESU_alertWait { display: none; }\
+		'.DESU_alertBtn { display: inline-block; vertical-align: top; font-size: 150%; color: green; cursor: pointer; }\
+		.DESU_alertMsg { display: inline-block; margin-top: .25em; }\
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
