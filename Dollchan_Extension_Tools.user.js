@@ -5910,12 +5910,12 @@ function scriptCSS() {
 			'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }'
 		);
-		if(aib.nul) {
-			x.push(
-				'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
-				.voiceplay { float: none; }'
-			);
-		}
+	}
+	if(aib.nul) {
+		x.push(
+			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
+			.voiceplay { float: none; }'
+		);
 	} else if(aib.hana) {
 		x.push(
 			'#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
