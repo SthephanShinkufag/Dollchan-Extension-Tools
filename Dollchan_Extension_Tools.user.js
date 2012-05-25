@@ -4129,7 +4129,7 @@ function showPview(link) {
 	if(el && el.post.Num === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
-		setPviewPostion(link, el.post, true);
+		setPviewPostion(link, el.post, nav.Anim);
 		markRefMap(el.post, parent.Num);
 		return;
 	}
