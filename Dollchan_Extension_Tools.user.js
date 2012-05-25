@@ -4914,7 +4914,7 @@ function applyPostVisib(post, vis, note) {
 			post.thr.Vis = vis;
 		}
 	} else if(Cfg['delhd'] === 2) {
-		aib.getWrap(post).style.display = vis === 0 ? 'none' : '';
+		(aib.getWrap(post) || post).style.display = vis === 0 ? 'none' : '';
 	}
 	if(!sav.cookie) {
 		Visib[brd + pNum] = vis;
