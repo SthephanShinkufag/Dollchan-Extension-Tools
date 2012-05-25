@@ -3844,15 +3844,8 @@ function getRefMap(post, pNum, refMap) {
 	}
 }
 
-function genRefMap(pBn, dOld) {
+function genRefMap(pBn) {
 	var pNum, post, refMap = [];
-	if(dOld) {
-		for(pNum in pBn) {
-			post = pBn[pNum].ownerDocument;
-			$$Del('.//div[@class="DESU_refMap"]', post, post);
-			break;
-		}
-	}
 	for(pNum in pBn) {
 		getRefMap(pBn[pNum], pNum, refMap);
 	}
@@ -3925,7 +3918,7 @@ function delPviews(el) {
 	if(!lk) {
 		Pviews.isActive = false;
 	}
-};
+}
 
 function markPviewToDel(el, forDel) {
 	if(!el) {
@@ -3942,7 +3935,7 @@ function markPviewToDel(el, forDel) {
 			}
 		}
 	}, +Cfg['navdel']);
-};
+}
 
 function setPviewPostion(link, pView, anim) {
 	var left, uId,
@@ -4024,7 +4017,11 @@ function getPview(post, pNum, parent, link, txt) {
 				+ txt || Lng.postNotFound[lCode] + '</div>'
 		);
 	} else {
-		pView = post.cloneNode(true);
+		if(post.ownerDocument === doc) {
+			pView = post.cloneNode(true);
+		} else {
+			pView = importPost(post);
+		}
 		if(post.Vis === 0) {
 			togglePost(pView, 1);
 		}
@@ -4098,24 +4095,13 @@ function getPview(post, pNum, parent, link, txt) {
 	return el;
 }
 
-function importPview(b, pNum) {
-	if(!Pviews.ajaxed[b]) {
-		Pviews.ajaxed[b] = {};
-	}
-	b = Pviews.ajaxed[b][pNum];
-	if(b && b.ownerDocument !== doc) {
-		b = importPost(b);
-	}
-	return b;
-};
-
 function showPview(link) {
 	var b = aib.ylil
 			? link['data-boardurl']
 			: link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || importPview(b, pNum),
+		post = pByNum[pNum] || (Pviews.ajaxed[b] || [])[pNum],
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : Pviews.current;
 	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
@@ -4134,22 +4120,23 @@ function showPview(link) {
 		return;
 	}
 	if(post) {
-		getPview(post, pNum, parent, link, '');
+		getPview(post, pNum, parent, link, null);
 		return;
 	}
 	el = getPview(
 		null, pNum, parent, link,
 		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
+	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, function(dc, post, i) {
 		Pviews.ajaxed[b][post.Num] = post;
 	}, function(err) {
-		genRefMap(Pviews.ajaxed[b], true);
+		genRefMap(Pviews.ajaxed[b]);
 		if(el && !el.forDel) {
-			getPview(importPview(b, pNum), pNum, parent, link, err);
+			getPview(Pviews.ajaxed[b][pNum], pNum, parent, link, err);
 		}
 	});
-};
+}
 
 function overRefLink(e) {
 	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent)) {
