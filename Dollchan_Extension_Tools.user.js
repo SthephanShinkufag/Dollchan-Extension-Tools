@@ -3896,30 +3896,15 @@ function updRefMap(post) {
 							ON >>REFLINKS POSTS PREVIEW
 ==============================================================================*/
 
-function animatePview(pView, fn) {
-	if(!pView.inUse) {
-		fn();
-		return;
-	}
-	var waitDelay = setInterval(function() {
-		if(!pView.inUse) {
-			fn();
-			clearInterval(waitDelay);
-		}
-	}, 20);
-}
-
 function closePview(el) {
 	if(Cfg['animp'] === 0 || !nav.Anim) {
 		$del(el);
 		return;
 	}
-	animatePview(el, function() {
-		nav.aEvent(el, function() {
-			$del(el);
-		});
-		el.style[nav.aName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+	nav.aEvent(el, function() {
+		$del(el);
 	});
+	el.style[nav.aName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
 
 function delPviews(el) {
@@ -3966,7 +3951,15 @@ function setPviewPostion(link, pView, anim) {
 		x = $offset(link).left + link.offsetWidth/2,
 		y = $offset(link).top,
 		top = link.getBoundingClientRect().top + link.offsetHeight,
-		width = 'auto';
+		width = 'auto',
+		moved = function(e) {
+			if(this.style[nav.aName]) {
+				this.style.cssText = this.newPos;
+				this.newPos = false;
+				$Del('style[@class="DESU_moveCSS"]', doc.head);
+				this.removeEventListener(nav.nEvent, moved, false);
+			}
+		};
 	if(x < scrW / 2) {
 		left = x;
 		pView.aLeft = true;
@@ -3990,30 +3983,28 @@ function setPviewPostion(link, pView, anim) {
 		top = (y - uId) + 'px';
 		pView.aTop = false;
 	}
-	if(Cfg['animp'] === 0 || !anim || aib.hid) {
+	if(left === pView.style.left && top === pView.style.top) {
+		return;
+	}
+	if(Cfg['animp'] === 0 || !anim) {
 		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
 		return;
 	}
-	animatePview(pView, function() {
-		if(left === pView.style.left && top === pView.style.top) {
-			return;
-		}
-		pView.inUse = true;
-		uId = 'DESU_mCSS' + Math.round(Math.random()*1e3);
-		doc.head.appendChild($new('style', {
-			'id': uId,
-			'type': 'text/css',
-			'text': '@' + nav.aCFix + 'keyframes ' + uId + ' {\
-				to { left: ' + left + '; top: ' + top + '; width: ' + width + '; }\
-			}'
-		}, null));
-		nav.aEvent(pView, function() {
-			pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
-			pView.inUse = false;
-			$del($id(uId));
-		});
-		pView.style.cssText += ' ' + nav.aCFix + 'animation: ' + uId + ' .3s ease-in-out both;';
-	});
+	uId = 'DESU_mCSS' + Math.round(Math.random()*1e3);
+	doc.head.appendChild($new('style', {
+		'class': 'DESU_moveCSS',
+		'type': 'text/css',
+		'text': '@' + nav.aCFix + 'keyframes ' + uId + ' {\
+			to { left: ' + left + '; top: ' + top + '; width: ' + width + '; }\
+		}'
+	}, null));
+	if(pView.newPos) {
+		pView.style.cssText = pView.newPos;
+		pView.removeEventListener(nav.nEvent, moved, false);
+	}
+	pView.newPos = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';';
+	pView.addEventListener(nav.nEvent, moved, false);
+	pView.style[nav.aName] = uId;
 }
 
 function markRefMap(pView, pNum) {
@@ -4099,12 +4090,10 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	markPviewToDel(el, false);
 	if(Cfg['animp'] !== 0 && nav.Anim) {
-		animatePview(pView, function() {
-			nav.aEvent(pView, function() {
-				pView.style[nav.aName] = '';
-			});
-			pView.style[nav.aName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
+		nav.aEvent(pView, function() {
+			pView.style[nav.aName] = '';
 		});
+		pView.style[nav.aName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
 	return el;
 }
