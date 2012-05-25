@@ -4040,6 +4040,7 @@ function getPview(post, pNum, parent, link, txt) {
 		}
 		pView.className += ' DESU_pView';
 		if(aib._7ch) {
+			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
 		}
 		pView.Num = pNum;
@@ -5909,12 +5910,12 @@ function scriptCSS() {
 			'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }'
 		);
-	}
-	if(aib.nul) {
-		x.push(
-			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
-			.voiceplay { float: none; }'
-		);
+		if(aib.nul) {
+			x.push(
+				'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
+				.voiceplay { float: none; }'
+			);
+		}
 	} else if(aib.hana) {
 		x.push(
 			'#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
@@ -5935,11 +5936,7 @@ function scriptCSS() {
 			.post-hover { display: none !important; }'
 		);
 	} else if(aib._7ch) {
-		x.push(
-			'.DESU_oppost .DESU_postPanel { display: none; }\
-			.DESU_pView { background: rgb(230, 235, 250) !important; }\
-			.DESU_pView > .message { margin-left: 20px; }'
-		);
+		x.push('.reply { background-color: ' + getStyle(doc.body, 'background-color') + '; }');
 	} else if(aib.gazo) {
 		x.push(
 			'.DESU_content, #DESU_cfgBody { font-family: arial; }\
@@ -6280,7 +6277,6 @@ function getImageboard(host, dc) {
 		obj.krau ? 'postreply'
 		: obj.ylil ? 'answer'
 		: obj.tiny || obj.fch ? 'post reply'
-		: obj._7ch ? 'post'
 		: 'reply';
 	obj.opClass =
 		obj.kus ? 'postnode'
