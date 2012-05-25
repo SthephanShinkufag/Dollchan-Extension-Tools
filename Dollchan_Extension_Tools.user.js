@@ -3820,11 +3820,12 @@ function preloadImages(el) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRefMap(msg, pNum, refMap) {
-	if(!msg) {
+function getRefMap(post, pNum, refMap) {
+	var els = post.Msg, rNum;
+	if(!els) {
 		return;
 	}
-	var els = msg.getElementsByTagName('a'), rNum;
+	els = els.getElementsByTagName('a');
 	for(var i = 0, len = els.length; i < len; i++) {
 		rNum = els[i].textContent.match(/^>>(\d+)$/);
 		if(!rNum) {
@@ -3851,12 +3852,12 @@ function genRefMap(pBn, dOld) {
 		}
 	}
 	for(pNum in pBn) {
-		getRefMap(pBn[pNum].Msg, pNum, refMap);
+		getRefMap(pBn[pNum], pNum, refMap);
 	}
 	for(pNum in refMap) {
 		post = pBn[pNum];
 		if(post) {
-			post.appendChild($add(
+			$after(post.Msg, $add(
 				'<div class="DESU_refMap">'
 					+ refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
 					+ '</div>'
@@ -3868,14 +3869,14 @@ function genRefMap(pBn, dOld) {
 
 function updRefMap(post) {
 	var pNum, pst, el, refMap = [];
-	getRefMap(post.Msg, post.Num, refMap);
+	getRefMap(post, post.Num, refMap);
 	for(pNum in refMap) {
 		pst = pByNum[pNum];
 		if(pst) {
 			el = $c('DESU_refMap', pst);
 			if(!el) {
 				el = $new('div', {'class': 'DESU_refMap'}, null);
-				post.appendChild(el);
+				$after(pst.Msg, el);
 			} else {
 				el.appendChild($txt(', '));
 			}
