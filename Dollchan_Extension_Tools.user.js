@@ -2424,9 +2424,12 @@ function initPostform() {
 function doPostformChanges(a) {
 	var img, src, _img, sageBtn, m, load,
 		el = pr.txta,
+		reply = $id('DESU_pform'),
 		resMove = function(e) {
-			el.style.width = e.pageX - $offset(el).left + 'px';
-			el.style.height = e.pageY - $offset(el).top + 'px';
+			var p = $offset(el);
+			el.style.width = e.pageX - p.left + 'px';
+			el.style.height = e.pageY - p.top + 'px';
+			qArea.style.height = (reply.offsetHeight + 8) + 'px';
 		},
 		resStop = function() {
 			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
@@ -2474,10 +2477,6 @@ function doPostformChanges(a) {
 				Stat.op = +Stat.op + 1;
 			}
 			setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
-			if(aib.nul && pr.isQuick) {
-				$disp(qArea);
-				$after($id('DESU_toggleReply'), $id('DESU_pform'));
-			}
 		}
 	});
 	$each($X('.//input[@type="text"]', pr.form), function(el) {
@@ -2727,10 +2726,6 @@ function checkUpload(dc, url) {
 		}
 	}
 	if(err) {
-		if(aib.nul && pr.isQuick) {
-			$disp(qArea);
-			qArea.appendChild($id('DESU_pform'));
-		}
 		$alert(err, 'Upload', false);
 	} else {
 		pr.txta.value = '';
@@ -2911,19 +2906,24 @@ function prepareFiles(file, fn, i) {
 ==============================================================================*/
 
 function showQuickReply(post) {
-	var tNum = post.thr.Num;
-	pr.isQuick = true;
+	var tNum = post.thr.Num,
+		reply = $id('DESU_pform');
 	pr.tNum = tNum;
-	if(qArea.hasChildNodes()) {
+	if(pr.isQuick) {
 		if(aib.getWrap(post).nextElementSibling === qArea) {
 			$disp(qArea);
 			showMainReply();
 			return;
 		}
 	} else {
-		qArea.appendChild($id('DESU_pform'));
+		pr.isQuick = true;
 		$disp($id('DESU_toggleReply'));
 		$disp(qArea);
+		reply.oldCss = reply.style.cssText;
+		reply.style.position = 'absolute';
+		pArea.oldDisplay = pArea.style.display;
+		pArea.style.display = '';
+		qArea.style.display = 'block';
 		if(!TNum && !aib.kus && !aib.hana && !aib.ylil) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
 			$before(pr.form.firstChild, [
@@ -2936,10 +2936,10 @@ function showQuickReply(post) {
 		}
 	}
 	$after(aib.getWrap(post), qArea);
-	if(!TNum && Cfg['tform'] !== 0) {
-		pArea.style.display = 'none';
-	}
-	qArea.style.display = 'block';
+	qArea.style.height = (reply.offsetHeight + 8) + 'px';
+	var p = $offset(qArea);
+	reply.style.top = (p.top + 4) + 'px';
+	reply.style.left = (p.left + 4) + 'px';
 	if(pr.cap && !pr.recap && !aib.kus) {
 		refreshCapImg(tNum);
 	}
@@ -2953,14 +2953,16 @@ function showQuickReply(post) {
 }
 
 function showMainReply() {
-	var el = $id('DESU_toggleReply');
 	if(pr.isQuick) {
+		var el = $id('DESU_toggleReply'), reply = $id('DESU_pform');
 		pr.isQuick = false;
 		if(!TNum) {
 			toggleQuickReply(0);
 			$del($x('.//input[@id="thr_id"]', pr.form));
 		}
 		$disp(el);
+		pArea.style.display = pArea.oldDisplay;
+		reply.style.cssText = reply.oldCss;
 		qArea.style.display = 'none';
 		$after(el, $id('DESU_pform'));
 	}
