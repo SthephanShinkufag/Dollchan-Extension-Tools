@@ -2925,7 +2925,7 @@ function showQuickReply(post) {
 		pArea.style.display = '';
 		qArea.style.display = 'block';
 		if(!TNum && (!aib.kus || aib.nul) && !aib.hana && !aib.ylil) {
-			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
+			$del($x('.//input[@id="thr_id" or @name="parent" or @name="replythread"]', pr.form));
 			$before(pr.form.firstChild, [
 				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
 					aib.fch || aib.gazo ? 'resto'
