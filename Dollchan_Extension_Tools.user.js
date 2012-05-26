@@ -2924,12 +2924,13 @@ function showQuickReply(post) {
 		pArea.oldDisplay = pArea.style.display;
 		pArea.style.display = '';
 		qArea.style.display = 'block';
-		if(!TNum && !aib.kus && !aib.hana && !aib.ylil) {
+		if(!TNum && (!aib.kus || aib.nul) && !aib.hana && !aib.ylil) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
 			$before(pr.form.firstChild, [
 				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
 					aib.fch || aib.gazo ? 'resto'
 					: aib.tiny ? 'thread'
+					: aib.nul ? 'replythread'
 					: 'parent'
 				) + '">')
 			]);
