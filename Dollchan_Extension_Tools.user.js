@@ -5867,7 +5867,8 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
-		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }'
+		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
+		textarea { resize: none !important; }'
 	);
 	if(Cfg['delhd'] === 2) {
 		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
@@ -5893,6 +5894,8 @@ function scriptCSS() {
 	if(aib.nul) {
 		x.push(
 			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
+			.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
+			.ui-resizable { display: inline !important; }\
 			.voiceplay { float: none; }'
 		);
 	} else if(aib.hana) {
