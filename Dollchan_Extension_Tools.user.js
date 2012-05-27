@@ -90,7 +90,7 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
-	'rExif':	0,		// remove EXIF data from JPEGs
+	'rExif':	1,		// remove EXIF data from JPEGs
 	'sImgs':	1		// ability to post same images
 },
 
@@ -2640,6 +2640,13 @@ function doPostformChanges(a) {
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
 	}
+	if(aib.nul) {
+		el = $id('posttypeindicator');
+		if(el) {
+			$del(el.parentNode);
+		}
+		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
+	}
 }
 
 
@@ -2871,7 +2878,7 @@ function removeExif(dat) {
 	if(j !== i){
 		dat[j++] = dat[i];
 	}
-	out = new Uint8Array(j);
+	out = new Uint8Array(++j);
 	for(i = 0; i < j; i++) {
 		out[i] = dat[i];
 	}
@@ -5892,7 +5899,7 @@ function scriptCSS() {
 	}
 	if(aib.nul) {
 		x.push(
-			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
+			'#newposts_get, #postform nobr, .replieslist, #captcha_status, .DESU_thread span[style="float: right;"] { display: none !important; }\
 			.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 			.ui-resizable { display: inline !important; }\
 			.voiceplay { float: none; }'
