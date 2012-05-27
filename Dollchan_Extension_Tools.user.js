@@ -2422,23 +2422,23 @@ function initPostform() {
 }
 
 function doPostformChanges(a) {
-	var img, src, _img, sageBtn, m, load,
-		el = pr.txta,
+	var img, src, _img, sageBtn, m, load, el,
+		pTxt = pr.txta,
 		reply = $id('DESU_pform'),
 		resMove = function(e) {
-			var p = $offset(el);
-			el.style.width = e.pageX - p.left + 'px';
-			el.style.height = e.pageY - p.top + 'px';
+			var p = $offset(pTxt);
+			pTxt.style.width = e.pageX - p.left + 'px';
+			pTxt.style.height = e.pageY - p.top + 'px';
 			qArea.style.height = (reply.offsetHeight + 8) + 'px';
 		},
 		resStop = function() {
 			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-			saveCfg('texw', parseInt(el.style.width, 10));
-			saveCfg('texh', parseInt(el.style.height, 10));
+			saveCfg('texw', parseInt(pTxt.style.width, 10));
+			saveCfg('texh', parseInt(pTxt.style.height, 10));
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	$after(el, $new('div', {
+	$after(pTxt, $new('div', {
 		'id': 'DESU_txtResizer'}, {
 		'mousedown': function(e) {
 			$pd(e);
@@ -2449,8 +2449,8 @@ function doPostformChanges(a) {
 		}
 	}));
 	addTextPanel();
-	el.style.cssText = 'width: ' + Cfg['texw'] + 'px; height: ' + Cfg['texh'] + 'px;';
-	$event(el, {
+	pTxt.style.cssText = 'width: ' + Cfg['texw'] + 'px; height: ' + Cfg['texh'] + 'px;';
+	$event(pTxt, {
 		'keypress': function(e) {
 			var code = e.charCode || e.keyCode;
 			if((code === 33 || code === 34) && e.which === 0) {
