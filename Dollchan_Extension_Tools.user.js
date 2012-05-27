@@ -90,7 +90,7 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
-	'rExif':	0,		// remove EXIF data from JPEGs
+	'rExif':	1,		// remove EXIF data from JPEGs
 	'sImgs':	1		// ability to post same images
 },
 
@@ -2871,7 +2871,7 @@ function removeExif(dat) {
 	if(j !== i){
 		dat[j++] = dat[i];
 	}
-	out = new Uint8Array(j);
+	out = new Uint8Array(++j);
 	for(i = 0; i < j; i++) {
 		out[i] = dat[i];
 	}
