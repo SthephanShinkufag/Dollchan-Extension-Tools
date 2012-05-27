@@ -2640,6 +2640,13 @@ function doPostformChanges(a) {
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
 	}
+	if(aib.nul) {
+		el = $id('posttypeindicator');
+		if(el) {
+			$del(el.parentNode);
+		}
+		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
+	}
 }
 
 
@@ -5892,7 +5899,7 @@ function scriptCSS() {
 	}
 	if(aib.nul) {
 		x.push(
-			'#newposts_get, #postform nobr, .replieslist, .DESU_thread span[style="float: right;"] { display: none !important; }\
+			'#newposts_get, #postform nobr, .replieslist, #captcha_status, .DESU_thread span[style="float: right;"] { display: none !important; }\
 			.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 			.ui-resizable { display: inline !important; }\
 			.voiceplay { float: none; }'
