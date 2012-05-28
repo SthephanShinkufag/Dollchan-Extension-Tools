@@ -4402,6 +4402,7 @@ function loadThread(op, last, fn) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
+			$del($id('DESU_select'));
 			i = thr;
 			thr = i.cloneNode(false);
 			i.parentNode.replaceChild(thr, i);
