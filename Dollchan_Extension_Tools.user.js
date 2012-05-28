@@ -4398,7 +4398,7 @@ function loadThread(post, last, fn) {
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
-			i = post.parentNode;
+			i = thr;
 			thr = i.cloneNode(false);
 			i.parentNode.replaceChild(thr, i);
 			post = psts[0];
