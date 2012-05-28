@@ -5953,9 +5953,10 @@ function scriptCSS() {
 		);
 	} else if(aib.brit) {
 		x.push(
-			'.DESU_postPanel, .DESU_postPanel_op { float: left; margin-top: 0.4em; }\
+			'.DESU_postPanel, .DESU_postPanel_op { float: left; margin-top: 0.45em; }\
+			a + .threadlinktext { position: relative; top: 17px; }\
 			.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
-			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; ' + nav.cFix + 'background-size: cover; }'
+			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; ' + nav.cFix + 'background-size: cover !important; }'
 		);
 	} else if(aib.ylil) {
 		x.push('.threadbuttons, .expandall, .tooltip { display: none !important; }');
@@ -6358,20 +6359,20 @@ function getImageboard(host, dc) {
 		}
 		: obj.brit ? function(thr, dc) {
 			var el,
-				post = $new('br', null, null),
+				post = $$new('div', {'style': 'clear: left;'}, null, dc),
 				op = $c(obj.opClass, thr);
-			$before($t('blockquote', op), [$new('div', null, null), post]);
+			$after($c('postmenu', op), post);
 			while((el = thr.firstChild).tagName !== 'TABLE') {
 				$after(post, el);
 				post = el;
 			}
-			el = $new('div', null, null);
-			$before(thr.firstChild, [el]);
-			$each($$X('node()', op, dc), function(e) {
-				el.appendChild(e);
-			});
+			post = $$new('div', null, null, dc);
+			$before(thr.firstChild, [post]);
+			while(el = op.firstChild) {
+				post.appendChild(el);
+			}
 			$del($t('table', thr));
-			return el;
+			return post;
 		}
 		: function(thr, dc) {
 			var i,
