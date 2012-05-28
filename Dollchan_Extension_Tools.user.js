@@ -6437,7 +6437,6 @@ function getImageboard(host, dc) {
 
 function pushPost(post, i) {
 	Posts.push(post);
-	post.isOp = i === 0;
 	post.Count = i;
 	post.Text = getText(post.Msg);
 	post.Img = getImages(post);
@@ -6549,6 +6548,7 @@ function parseDelform(node, dc, pFn) {
 		op.Num = thr.Num = aib.getTNum(op, dc);
 		op.Msg = aib.getMsg(op);
 		op.thr = thr;
+		op.isOp = true;
 		pFn(op, 0);
 		if(!nav.Firefox || aib.gazo) {
 			thr.pCount = 0;
