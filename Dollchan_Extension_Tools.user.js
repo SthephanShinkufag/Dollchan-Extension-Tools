@@ -312,7 +312,7 @@ Lng = {
 doc = window.document,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
-pr = {}, dForm, oeForm, pArea, qArea, pPanel, opPanel, dummy, postWrapper = false,
+pr = {}, dForm, oeForm, pPanel, opPanel, dummy, postWrapper = false,
 Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
@@ -1403,7 +1403,7 @@ function addSettings() {
 		])),
 		$if(pr.on, divBox('tform', Lng.noThrForm[lCode], function() {
 			if(!TNum) {
-				pArea.style.display = Cfg['tform'] ? 'none' : '';
+				$id('DESU_parea').style.display = Cfg['tform'] ? 'none' : '';
 			}
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
@@ -2384,12 +2384,7 @@ function setUserPassw() {
 }
 
 function initPostform() {
-	qArea = $new('div', {
-		'id': 'DESU_qarea',
-		'class': aib.pClass,
-		'style': 'display: none;'
-	}, null);
-	pArea = $New('center', {'id': 'DESU_parea'}, [
+	var pArea = $New('center', {'id': 'DESU_parea'}, [
 		$New('div', {
 			'id': 'DESU_toggleReply',
 			'style': 'display: none;'
@@ -2406,14 +2401,19 @@ function initPostform() {
 		$New('div', {'id': 'DESU_pform'}, [pr.form, oeForm]),
 		$new('hr', null, null)
 	]);
-	if(TNum && Cfg['pform'] === 2 || !TNum && Cfg['tform'] !== 0) {
-		$disp(pArea);
-	}
 	if(TNum && Cfg['pform'] === 1) {
 		$after(aib.fch ? $t('hr', dForm) : dForm, pArea);
 	} else {
 		$before(dForm, [pArea]);
 	}
+	if(TNum && Cfg['pform'] === 2 || !TNum && Cfg['tform'] !== 0) {
+		$disp(pArea);
+	}
+	$after(pArea, $new('div', {
+		'id': 'DESU_qarea',
+		'class': aib.pClass,
+		'style': 'display: none;'
+	}, null))
 	if(pr.on) {
 		doPostformChanges(null);
 	} else if(oeForm) {
@@ -2424,12 +2424,10 @@ function initPostform() {
 function doPostformChanges(a) {
 	var img, src, _img, sageBtn, m, load, el,
 		pTxt = pr.txta,
-		reply = $id('DESU_pform'),
 		resMove = function(e) {
 			var p = $offset(pTxt);
 			pTxt.style.width = e.pageX - p.left + 'px';
 			pTxt.style.height = e.pageY - p.top + 'px';
-			qArea.style.height = (reply.offsetHeight + 8) + 'px';
 		},
 		resStop = function() {
 			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
@@ -2477,6 +2475,10 @@ function doPostformChanges(a) {
 				Stat.op = +Stat.op + 1;
 			}
 			setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
+			if(pr.isQuick) {
+				$disp($id('DESU_qarea'));
+				$after($id('DESU_toggleReply'), $id('DESU_pform'));
+			}
 		}
 	});
 	$each($X('.//input[@type="text"]', pr.form), function(el) {
@@ -2699,6 +2701,7 @@ function iframeCheckSubmit() {
 function checkUpload(dc, url) {
 	var err, tNum,
 		txt = '',
+		qArea = $id('DESU_qarea'),
 		pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5],
 		xp =
 			aib.hana && /error/.test(pathname) ? './/td[@class="post-error"]'
@@ -2733,6 +2736,10 @@ function checkUpload(dc, url) {
 		}
 	}
 	if(err) {
+		if(pr.isQuick) {
+			$disp(qArea);
+			qArea.appendChild($id('DESU_pform'));
+		}
 		$alert(err, 'Upload', false);
 	} else {
 		pr.txta.value = '';
@@ -2914,7 +2921,7 @@ function prepareFiles(file, fn, i) {
 
 function showQuickReply(post) {
 	var tNum = post.thr.Num,
-		reply = $id('DESU_pform');
+		qArea = $id('DESU_qarea');
 	pr.tNum = tNum;
 	if(pr.isQuick) {
 		if(aib.getWrap(post).nextElementSibling === qArea) {
@@ -2924,13 +2931,8 @@ function showQuickReply(post) {
 		}
 	} else {
 		pr.isQuick = true;
+		qArea.appendChild($id('DESU_pform'));
 		$disp($id('DESU_toggleReply'));
-		$disp(qArea);
-		reply.oldCss = reply.style.cssText;
-		reply.style.position = 'absolute';
-		pArea.oldDisplay = pArea.style.display;
-		pArea.style.display = '';
-		qArea.style.display = 'block';
 		if(!TNum && !aib.kus && !aib.hana && !aib.ylil) {
 			$del($x('.//input[@id="thr_id" or @name="parent"]', pr.form));
 			$before(pr.form.firstChild, [
@@ -2943,15 +2945,15 @@ function showQuickReply(post) {
 		}
 	}
 	$after(aib.getWrap(post), qArea);
-	qArea.style.height = (reply.offsetHeight + 8) + 'px';
-	var p = $offset(qArea);
-	reply.style.top = (p.top + 4) + 'px';
-	reply.style.left = (p.left + 4) + 'px';
-	if(pr.cap && !pr.recap && !aib.kus) {
-		refreshCapImg(tNum);
-	}
+	qArea.style.display = '';
 	if(!TNum) {
 		toggleQuickReply(tNum);
+		if(Cfg['tform'] !== 0) {
+			$id('DESU_parea').style.display = 'none';
+		}
+	}
+	if(pr.cap && !pr.recap && !aib.kus) {
+		refreshCapImg(tNum);
 	}
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
@@ -2961,16 +2963,16 @@ function showQuickReply(post) {
 
 function showMainReply() {
 	if(pr.isQuick) {
-		var el = $id('DESU_toggleReply'), reply = $id('DESU_pform');
+		var el = $id('DESU_toggleReply'),
+			qArea = $id('DESU_qarea');
 		pr.isQuick = false;
 		if(!TNum) {
 			toggleQuickReply(0);
 			$del($x('.//input[@id="thr_id"]', pr.form));
 		}
 		$disp(el);
-		pArea.style.display = pArea.oldDisplay;
-		reply.style.cssText = reply.oldCss;
 		qArea.style.display = 'none';
+		$after($id('DESU_parea'), qArea);
 		$after(el, $id('DESU_pform'));
 	}
 }
@@ -2984,6 +2986,7 @@ function toggleQuickReply(tNum) {
 
 function toggleMainReply(e) {
 	$pd(e);
+	var pArea = $id('DESU_parea');
 	if(pr.isQuick) {
 		pArea.style.display = '';
 		showMainReply();
@@ -2999,7 +3002,7 @@ function insertRefLink(e) {
 		e.stopPropagation();
 		$pd(e);
 		if(!TNum && Cfg['tform'] !== 0 && !pr.isQuick) {
-			pArea.style.display = '';
+			$id('DESU_parea').style.display = '';
 		}
 		if(TNum && Cfg['pform'] === 2 && !pr.isQuick) {
 			showQuickReply(pByNum[pNum]);
@@ -4200,7 +4203,7 @@ function eventRefLink(el) {
 function parseHTMLdata(html, b, tNum, pFn) {
 	if(!pr.on && oeForm) {
 		pr = getPostform($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
-		$before($id('DESU_pform').firstChild, [pr.form]);
+		$before($id('DESU_toggleReply'), [pr.form]);
 	}
 	if(!pFn) {
 		return;
@@ -4385,26 +4388,27 @@ function expandPost(post) {
 	}
 }
 
-function loadThread(post, last, fn) {
+function loadThread(op, last, fn) {
 	var i,
 		psts = [],
-		thr = post.thr;
+		thr = op.thr;
 	if(!fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
-	ajaxGetPosts(null, brd, post.Num, function(dc, post, j) {
+	ajaxGetPosts(null, brd, op.Num, function(dc, post, j) {
 		psts.push(importPost(post));
 	}, function(err) {
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
+			showMainReply();
 			i = thr;
 			thr = i.cloneNode(false);
 			i.parentNode.replaceChild(thr, i);
-			post = psts[0];
-			newPost(thr, post, 0);
-			$after(post.Btns, $add(
-				'<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, post.Num) + '">'
+			op = psts[0];
+			newPost(thr, op, 0);
+			$after(op.Btns, $add(
+				'<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, op.Num) + '">'
 					+ Lng.reply[lCode] + '</a>]</span>'
 			))
 			if(last === 1 || last >= psts.length - 1) {
@@ -4425,14 +4429,15 @@ function loadThread(post, last, fn) {
 				), {
 					'click': function(e) {
 						$pd(e);
-						loadThread(post, 5, null);
+						loadThread(op, 5, null);
 				}}));
 			}
 			thr.pCount = psts.length;
-			post.dTitle = getTitle(post);
+			thr.Num = op.Num
+			op.dTitle = getTitle(op);
 			closeAlert($id('DESU_alertLoadThr'));
 		}
-		$focus(post);
+		$focus(op);
 		if(fn) {
 			fn();
 		}
