@@ -6208,7 +6208,7 @@ function getPostform(form) {
 	if(!aib.ylil) {
 		obj.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || obj.recap;
 	}
-	obj.txta = $x('.//' + tr + '[not(contains(@style,"none"))]//textarea[not(contains(@style,"none"))]', form);
+	obj.txta = $x('.//' + tr + '[not(contains(@style,"none"))]//textarea[not(contains(@style,"display: none"))]', form);
 	obj.subm = $x('.//' + tr + '//input[@type="submit"]', form);
 	obj.file = $x('.//' + tr + '//input[@type="file"]', form);
 	obj.passw = $x('.//' + tr + '//input[@type="password"]', form);
@@ -6263,7 +6263,7 @@ function getImageboard(host, dc) {
 	obj._420 = h === '420chan.org';
 	obj.pClass =
 		obj.krau ? 'postreply'
-		: obj.ylil ? 'answer'
+		: obj.ylil ? ' answer'
 		: obj.tiny || obj.fch ? 'post reply'
 		: 'reply';
 	obj.opClass =
