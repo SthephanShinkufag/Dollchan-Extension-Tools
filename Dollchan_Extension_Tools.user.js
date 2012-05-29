@@ -4266,6 +4266,7 @@ function getJSON(url, fn) {
 function importPost(post) {
 	var el = doc.importNode(post, true);
 	el.Num = post.Num;
+	el.isOp = post.isOp;
 	replaceDelform(el);
 	return el;
 }
