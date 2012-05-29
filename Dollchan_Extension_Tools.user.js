@@ -15,13 +15,13 @@
 var defaultCfg = {
 	'version':	'12.5.30.2',
 	'lang':		0,		// script language [0=ru, 1=en]
-	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
+	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
 	'awipe':	1,		// antiwipe detectors:
 	'samel':	1,		//		same lines
 	'samew':	1,		//		same words
 	'longp':	1,		//		long posts
-	'longw':	0,		//		long words
+	'longw':	1,		//		long words
 	'caps':		0,		//		cAsE, CAPS
 	'specs':	0,		//		special symbols
 	'nums':		1,		//		numbers
@@ -33,7 +33,7 @@ var defaultCfg = {
 	'updint':	2,		//		threads update interval
 	'updfav':	1,		//		favicon blinking, if new posts detected
 	'navig':	2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
-	'navdel':	'1000',	//		delay in ms
+	'navdel':	'1500',	//		delay in ms
 	'nashow':	'100',	//		show timeout
 	'navmrk':	0,		//		mark viewed posts
 	'navhid':	0,		//		strike hidden posts in refmap
