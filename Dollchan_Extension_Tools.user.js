@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.30.0
+// @version			12.5.30.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.30.0',
+	'version':	'12.5.30.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -6128,13 +6128,6 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	if(typeof doc.hidden !== "undefined") {
-		nav.hidden = "hidden";
-		nav.vChange = "visibilitychange";
-	} else if(typeof doc.mozHidden !== "undefined") {
-		nav.hidden = "mozHidden";  
-		nav.vChange = "mozvisibilitychange";
-	}
 	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
 }
 
@@ -6612,7 +6605,7 @@ function replaceDelform(el) {
 }
 
 function preparePage() {
-	var el;
+	var el, onhid, onvis;
 	pr = getPostform($x('.//textarea/ancestor::form[1]', doc));
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
 	if(!pr.mail) {
@@ -6648,9 +6641,9 @@ function preparePage() {
 		}, null)
 	]);
 	if(TNum) {
-		var onhid = function() {
+		onhid = function() {
 			doc.body.className = 'blurred';
-		},
+		};
 		onvis = function() {
 			doc.body.className = 'focused';
 			if(Cfg['updfav'] !== 0 && favIcon) {
@@ -6673,9 +6666,9 @@ function preparePage() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.hidden && nav.vChange) {
-			doc.addEventListener(nav.vChange, function(e) {
-				if(doc[nav.hidden]) {
+		if(nav.Firefox > 4) {
+			doc.addEventListener('mozvisibilitychange', function(e) {
+				if(doc.mozHidden) {
 					onhid();
 				} else {
 					onvis();
