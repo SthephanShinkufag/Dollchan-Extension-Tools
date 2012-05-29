@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.24.0
+// @version			12.5.30.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.24.0',
+	'version':	'12.5.30.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -6134,11 +6134,7 @@ function getNavigator() {
 	} else if(typeof doc.mozHidden !== "undefined") {
 		nav.hidden = "mozHidden";  
 		nav.vChange = "mozvisibilitychange";
-	} else if(typeof doc.webkitHidden !== "undefined") {  
-		nav.hidden = "webkitHidden";  
-		nav.vChange = "webkitvisibilitychange";  
 	}
-	nav.vis = nav.hidden && nav.vChange;
 	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
 }
 
@@ -6671,14 +6667,13 @@ function preparePage() {
 				}, 0);
 			}
 		};
-
 		if(Cfg['rtitle'] === 0) {
 			docTitle = doc.title;
 		} else {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.vis) {
+		if(nav.hidden && nav.vChange) {
 			doc.addEventListener(nav.vChange, function(e) {
 				if(doc[nav.hidden]) {
 					onhid();
