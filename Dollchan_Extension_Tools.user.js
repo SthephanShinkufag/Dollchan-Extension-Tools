@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.30.1
+// @version			12.5.30.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.30.1',
+	'version':	'12.5.30.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	1,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -2705,7 +2705,7 @@ function checkUpload(dc, url) {
 		pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5],
 		xp =
 			aib.hana && /error/.test(pathname) ? './/td[@class="post-error"]'
-			: aib.krau && pathname === '/post' ? './/td[starts-with(@class,"message_text")]'
+			: aib.krau && !$t('form', dc) ? './/td[starts-with(@class,"message_text")]'
 			: aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]'
 			: '',
 		lFunc = function() {
@@ -6666,7 +6666,7 @@ function preparePage() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.Firefox > 4) {
+		if(nav.Firefox > 10) {
 			doc.addEventListener('mozvisibilitychange', function(e) {
 				if(doc.mozHidden) {
 					onhid();
