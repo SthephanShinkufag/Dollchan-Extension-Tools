@@ -6816,7 +6816,7 @@ function doScript() {
 		Log('addImgSearch');
 	}
 	if(Cfg['navig'] === 2) {
-		genRefMap(pByNum, false);
+		genRefMap(pByNum);
 		Log('genRefMap');
 	}
 	if(Cfg['navig'] !== 0) {
