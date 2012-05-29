@@ -3632,17 +3632,10 @@ function addFullImg(a, sz, isExp) {
 		}
 		return;
 	}
-	full = $new('img', null, null);
-	if(Cfg['expimg'] === 2) {
-		$del($c('DESU_fullImg', doc));
-		full.addEventListener(
-			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
-			resizeImg, false
-		);
-		makeMoveable(full);
-	}
 	if(Cfg['expimg'] === 1) {
 		scrW -= $offset(a).left + 25;
+	} else {
+		$del($c('DESU_fullImg', doc));
 	}
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
@@ -3652,20 +3645,22 @@ function addFullImg(a, sz, isExp) {
 			newW = newH*fullW/fullH;
 		}
 	}
-	a.appendChild($attr(full, {
-		'class': 'DESU_fullImg',
-		'src': a.href,
-		'alt': a.href,
-		'width': newW,
-		'height': newH,
-		'style': (
-			Cfg['expimg'] === 2
-				? 'position: fixed; z-index: 9999; border: 1px solid black; left: '
-					+ parseInt((scrW - newW)/2, 10) + 'px; top: '
-					+ parseInt((scrH - newH)/2, 10) + 'px;'
-				: ''
-		)
-	}));
+	full = a.appendChild($add('<img class="DESU_fullImg" src="' + a.href +
+		'" alt="' + a.href + '" width="' + newW + '" height="' + newH +
+		'"' + (Cfg['expimg'] === 2
+			? 'style="position: fixed; z-index: 9999; border: 1px solid black; left: '
+				+ parseInt((scrW - newW)/2, 10) + 'px; top: '
+				+ parseInt((scrH - newH)/2, 10) + 'px;"'
+			: ''
+		) + '/>'
+	));
+	if(Cfg['expimg'] === 2) {
+		full.addEventListener(
+			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
+			resizeImg, false
+		);
+		makeMoveable(full);
+	}
 }
 
 function addLinkImg(el, addBr) {
