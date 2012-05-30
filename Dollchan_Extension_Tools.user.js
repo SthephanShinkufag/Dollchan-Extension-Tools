@@ -2942,6 +2942,12 @@ function showQuickReply(post) {
 					: 'parent'
 				) + '">')
 			]);
+			if(oeForm) {
+				$del($x('.//input[@name="oek_parent"]', oeForm));
+				$before(oeForm.firstChild, [
+					$add('<input type="hidden" value="' + tNum + '" name="oek_parent">')
+				]);
+			}
 		}
 	}
 	$after(aib.getWrap(post), qArea);
@@ -2979,6 +2985,9 @@ function showMainReply() {
 
 function toggleQuickReply(tNum) {
 	$x('.//input[@id="thr_id" or contains(@name,"thread")]', pr.form).value = tNum;
+	if(oeForm) {
+		$x('.//input[@name="oek_parent" or @name="replyto"]', oeForm).value = tNum;
+	}
 	if(aib.pony) {
 		$x('.//input[@name="quickreply"]', pr.form).value = tNum || '';
 	}
