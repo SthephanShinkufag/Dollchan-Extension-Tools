@@ -326,7 +326,7 @@ storageLife = 5*24*3600*1000;
 ==============================================================================*/
 
 function $$X(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 7, null);
+	return dc.evaluate(path, root, null, 7, null);
 }
 
 function $X(path, root) {
@@ -334,19 +334,15 @@ function $X(path, root) {
 }
 
 function $$x(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 8, null).singleNodeValue;
+	return dc.evaluate(path, root, null, 8, null).singleNodeValue;
 }
 
 function $x(path, root) {
 	return $$x(path, root, doc);
 }
 
-function $$xb(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 3, null).booleanValue;
-}
-
 function $xb(path, root) {
-	return $$xb(path, root, doc);
+	return doc.evaluate(path, root, null, 3, null).booleanValue;
 }
 
 function $c(id, root) {
@@ -742,6 +738,9 @@ function readCfg() {
 	}
 	if(!aib.abu) {
 		Cfg['noscrl'] = 0;
+	}
+	if(aib.nul) {
+		Cfg['keynav'] = 0;
 	}
 	if(!nav.Firefox) {
 		Cfg['updfav'] = 0;
@@ -1316,7 +1315,7 @@ function addSettings() {
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
 		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS, '')),
-		$New('div', null, [
+		$if(!aib.nul, $New('div', null, [
 			lBox('keynav', Lng.keyNavig[lCode], null, ''),
 			$new('a', {
 				'text': '?',
@@ -1327,7 +1326,7 @@ function addSettings() {
 					$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
 				}
 			})
-		]),
+		])),
 		$New('div', null, [
 			lBox('ctime', Lng.cTime[lCode], toggleTimeSettings, 'DESU_ctime')
 		]),
@@ -2168,6 +2167,9 @@ function selectImgSearch(btn, href) {
 ==============================================================================*/
 
 function keyNavTrigger(node) {
+	if(!node) {
+		return;
+	}
 	$each($X('.//input[@type="text" or @type="password"]|.//textarea', node), function(el) {
 		el.onfocus = function() {
 			isKeyNav = false;
@@ -2179,7 +2181,7 @@ function keyNavTrigger(node) {
 }
 
 function initKeyNavig() {
-	var eT, pIndex,
+	var pIndex,
 		tIndex = 0,
 		scrScroll = false,
 		pScroll = true,
@@ -2236,20 +2238,9 @@ function initKeyNavig() {
 				pScroll = true;
 			} catch(e) {}
 		};
-	
-	if(!aib.nul) {
-		keyNavTrigger(pr.form);
-	} else {
-		pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified', function(e) {
-			if(eT) {
-				clearTimeout(eT);
-			}
-			eT = setTimeout(function() {
-				keyNavTrigger(pr.form);
-			}, 200);
-		}, false);
-	}
-	
+
+	keyNavTrigger(pr.form);
+
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
