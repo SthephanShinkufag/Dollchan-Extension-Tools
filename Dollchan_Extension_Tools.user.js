@@ -2868,12 +2868,15 @@ dataForm.prototype.getResult = function(fn) {
 	fn(this.boundary, arrToBlob(arr));
 };
 
-function removeExif(dat) {
-	dat = new Uint8Array(dat);
+function removeExif(arr) {
 	var i = 0,
 		j = 0,
+		dat = new Uint8Array(arr),
 		len = dat.length - 1,
 		out;
+	if(dat[0] !== 0xFF || dat[1] !== 0xD8) {
+		return arr;
+	}
 	for(; i < len; i++, j++) {
 		if(dat[i] === 0xFF && (dat[i + 1] >> 4) === 0xE && dat[i + 1] !== 0xE0) {
 			i += 1 + (dat[i + 2] << 8) + dat[i + 3];
@@ -3644,7 +3647,7 @@ function addFullImg(a, sz, isExp) {
 	if(Cfg['expimg'] === 1) {
 		scrW -= $offset(a).left + 25;
 	} else {
-		$del($c('DESU_fullImg', doc));
+		$del($c('DESU_cFullImg', doc));
 	}
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
@@ -3655,15 +3658,11 @@ function addFullImg(a, sz, isExp) {
 		}
 	}
 	full = a.appendChild($add('<img class="DESU_fullImg" src="' + a.href +
-		'" alt="' + a.href + '" width="' + newW + '" height="' + newH +
-		'"' + (Cfg['expimg'] === 2
-			? 'style="position: fixed; z-index: 9999; border: 1px solid black; left: '
-				+ parseInt((scrW - newW)/2, 10) + 'px; top: '
-				+ parseInt((scrH - newH)/2, 10) + 'px;"'
-			: ''
-		) + '/>'
+		'" alt="' + a.href + '" width="' + newW + '" height="' + newH + '"/>'
 	));
 	if(Cfg['expimg'] === 2) {
+		full.className += ' DESU_cFullImg';
+		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
 			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
 			resizeImg, false
@@ -3849,7 +3848,7 @@ function getRefMap(post, pNum, refMap) {
 		}
 		rNum = rNum[1];
 		if(refMap[rNum]) {
-			if(refMap[rNum].indexOf(pNum) < 0) {
+			if(refMap[rNum].indexOf(pNum) === -1) {
 				refMap[rNum].push(pNum);
 			}
 		} else {
@@ -4205,24 +4204,21 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function parseHTMLdata(html, b, tNum, pFn) {
+	var dc = HTMLtoDOM(aib.hana
+		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
+		: html
+	);
 	if(!pr.on && oeForm) {
-		pr = getPostform($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
+		pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
 		$before(oeForm, [pr.form]);
 	}
-	if(!pFn) {
-		return;
+	if(pFn) {
+		try {
+			parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
+				pFn(dc, post, i);
+			});
+		} catch(e) {}
 	}
-	try {
-		var dc = HTMLtoDOM(
-			aib.hana
-				? '<html><head></head><body><div id="' + tNum + '" class="thread">'
-					+ html + '</div></body></html>'
-				: html
-		);
-		parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
-			pFn(dc, post, i);
-		});
-	} catch(e) {}
 	dc = null;
 }
 
@@ -5884,6 +5880,7 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
+		.DESU_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }'
 	);
@@ -6105,8 +6102,8 @@ function getNavigator() {
 	};
 	gs = nav.Firefox && typeof GM_setValue === 'function';
 	ss = nav.Opera && !!scriptStorage;
-	ls = 'localStorage' in window && typeof localStorage === 'object';
-	se = 'sessionStorage' in window && (sessionStorage.test = 1) === 1;
+	ls = window.localStorage && typeof localStorage === 'object';
+	se = window.sessionStorage && (sessionStorage.test = 1) === 1;
 	sav = {
 		GM: !!gs,
 		script: ss,
