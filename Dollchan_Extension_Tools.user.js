@@ -4205,24 +4205,21 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function parseHTMLdata(html, b, tNum, pFn) {
+	var dc = HTMLtoDOM(aib.hana
+		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
+		: html
+	);
 	if(!pr.on && oeForm) {
-		pr = getPostform($x('.//textarea/ancestor::form[1]', $add(html).parentNode));
+		pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
 		$before(oeForm, [pr.form]);
 	}
-	if(!pFn) {
-		return;
+	if(pFn) {
+		try {
+			parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
+				pFn(dc, post, i);
+			});
+		} catch(e) {}
 	}
-	try {
-		var dc = HTMLtoDOM(
-			aib.hana
-				? '<html><head></head><body><div id="' + tNum + '" class="thread">'
-					+ html + '</div></body></html>'
-				: html
-		);
-		parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
-			pFn(dc, post, i);
-		});
-	} catch(e) {}
 	dc = null;
 }
 
