@@ -2167,9 +2167,6 @@ function selectImgSearch(btn, href) {
 ==============================================================================*/
 
 function keyNavTrigger(node) {
-	if(!node) {
-		return;
-	}
 	$each($X('.//input[@type="text" or @type="password"]|.//textarea', node), function(el) {
 		el.onfocus = function() {
 			isKeyNav = false;
@@ -2239,7 +2236,7 @@ function initKeyNavig() {
 			} catch(e) {}
 		};
 
-	keyNavTrigger(pr.form);
+	keyNavTrigger(doc);
 
 	window.onscroll = function() {
 		if(!scrScroll) {
