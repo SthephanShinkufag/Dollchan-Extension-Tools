@@ -3647,7 +3647,7 @@ function addFullImg(a, sz, isExp) {
 	if(Cfg['expimg'] === 1) {
 		scrW -= $offset(a).left + 25;
 	} else {
-		$del($c('DESU_fullImg', doc));
+		$del($c('DESU_cFullImg', doc));
 	}
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
@@ -3658,15 +3658,11 @@ function addFullImg(a, sz, isExp) {
 		}
 	}
 	full = a.appendChild($add('<img class="DESU_fullImg" src="' + a.href +
-		'" alt="' + a.href + '" width="' + newW + '" height="' + newH +
-		'"' + (Cfg['expimg'] === 2
-			? 'style="position: fixed; z-index: 9999; border: 1px solid black; left: '
-				+ parseInt((scrW - newW)/2, 10) + 'px; top: '
-				+ parseInt((scrH - newH)/2, 10) + 'px;"'
-			: ''
-		) + '/>'
+		'" alt="' + a.href + '" width="' + newW + '" height="' + newH + '"/>'
 	));
 	if(Cfg['expimg'] === 2) {
+		full.className += ' DESU_cFullImg';
+		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
 			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
 			resizeImg, false
@@ -5884,6 +5880,7 @@ function scriptCSS() {
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
+		.DESU_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }'
 	);
