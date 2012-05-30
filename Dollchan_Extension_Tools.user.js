@@ -3918,15 +3918,12 @@ function delPviews(el) {
 		el.parent.kid = null;
 		Pviews.current.lastkid = el.parent;
 	} else {
-		Pviews.current = null;
+		Pviews.current = Pviews.isActive = false;
 	}
 	do {
 		clearTimeout(lk.post.readDelay);
 		closePview(lk.post);
 	} while((lk = lk.parent) !== el.parent && lk);
-	if(!lk) {
-		Pviews.isActive = false;
-	}
 }
 
 function markPviewToDel(el, forDel) {
@@ -4167,8 +4164,6 @@ function outRefLink() {
 	clearTimeout(Pviews.overDelay);
 	if(Pviews.current) {
 		markPviewToDel(Pviews.current.lastkid || Pviews.current, true);
-	} else {
-		Pviews.isActive = false;
 	}
 }
 
@@ -4176,17 +4171,16 @@ function eventRefLink(el) {
 	if(Cfg['navig'] === 0) {
 		return;
 	}
-	var list = $X('.//a[starts-with(text(),">>")]', el),
-		clear = (list.snapshotItem(0) || {}).onmouseover
-			? function(link) {
-				$rattr(link, 'onmouseover');
-				$rattr(link, 'onmouseout');
-				return link;
-			}
-			: function(link) {
-				return link;
-			};
-	$each(list, function(link) {
+	var clear = $x(aib.xMsg + '//a[starts-with(text(),">>")]', el).onmouseover
+		? function(link) {
+			$rattr(link, 'onmouseover');
+			$rattr(link, 'onmouseout');
+			return link;
+		}
+		: function(link) {
+			return link;
+		};
+	$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
 		$event(clear(link), {
 			'mouseover': overRefLink,
 			'mouseout': outRefLink
