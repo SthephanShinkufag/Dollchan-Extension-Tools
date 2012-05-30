@@ -3848,7 +3848,7 @@ function getRefMap(post, pNum, refMap) {
 		}
 		rNum = rNum[1];
 		if(refMap[rNum]) {
-			if(refMap[rNum].indexOf(pNum) < 0) {
+			if(refMap[rNum].indexOf(pNum) === -1) {
 				refMap[rNum].push(pNum);
 			}
 		} else {
