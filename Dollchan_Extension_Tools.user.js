@@ -6051,7 +6051,7 @@ function isCompatible() {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
-	aib = getImageboard(window.location.hostname, doc);
+	aib = getImageboard();
 	if(/DESU_iframe/.test(window.name)) {
 		fixDomain();
 		return false;
@@ -6212,12 +6212,12 @@ function getPostform(form) {
 	return obj;
 }
 
-function getImageboard(host, dc) {
-	var obj = {},
-		h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+function getImageboard() {
+	var h = window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0],
+		obj = {};
 	obj.dm = h;
-	obj.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
-	obj.tiny = $$xb('.//form[@name="postcontrols"]', dc, dc);
+	obj.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
+	obj.tiny = $xb('.//form[@name="postcontrols"]', doc);
 	obj.krau = h === 'krautchan.net';
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
@@ -6229,14 +6229,14 @@ function getImageboard(host, dc) {
 		: '@id="delform" or @name="delform"]'
 	);
 	dForm = $x(obj.xDForm, doc);
-	if(dc === doc && !dForm) {
+	if(!dForm) {
 		return obj;
 	}
-	obj.host = host;
-	obj.waka = $$xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', dc, dc);
-	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php?delete")]', dc, dc);
-	obj.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
-	obj.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
+	obj.host = window.location.hostname;
+	obj.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
+	obj.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
+	obj.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	obj.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
 	obj.fch = h === '4chan.org';
 	obj.nul = h === '0chan.ru';
 	obj._7ch = h === '7chan.org';
@@ -6261,7 +6261,7 @@ function getImageboard(host, dc) {
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
 	obj.xThreads = './/div[' + (
-		$$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
+		$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', doc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
 		: obj._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
@@ -6390,7 +6390,7 @@ function getImageboard(host, dc) {
 		? function(el, dc) {
 			return $$x('.//font[@color="#707070"]', el, dc);
 		}
-		: function(el) {
+		: function(el, dc) {
 			return $c(obj.cOmPosts, el);
 		};
 	obj.getSage =
