@@ -326,7 +326,7 @@ storageLife = 5*24*3600*1000;
 ==============================================================================*/
 
 function $$X(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 7, null);
+	return dc.evaluate(path, root, null, 7, null);
 }
 
 function $X(path, root) {
@@ -334,19 +334,15 @@ function $X(path, root) {
 }
 
 function $$x(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 8, null).singleNodeValue;
+	return dc.evaluate(path, root, null, 8, null).singleNodeValue;
 }
 
 function $x(path, root) {
 	return $$x(path, root, doc);
 }
 
-function $$xb(path, root, dc) {
-	return dc.evaluate(path, root || dc, null, 3, null).booleanValue;
-}
-
 function $xb(path, root) {
-	return $$xb(path, root, doc);
+	return doc.evaluate(path, root, null, 3, null).booleanValue;
 }
 
 function $c(id, root) {
@@ -742,6 +738,9 @@ function readCfg() {
 	}
 	if(!aib.abu) {
 		Cfg['noscrl'] = 0;
+	}
+	if(aib.nul) {
+		Cfg['keynav'] = 0;
 	}
 	if(!nav.Firefox) {
 		Cfg['updfav'] = 0;
@@ -1316,7 +1315,7 @@ function addSettings() {
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
 		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS, '')),
-		$New('div', null, [
+		$if(!aib.nul, $New('div', null, [
 			lBox('keynav', Lng.keyNavig[lCode], null, ''),
 			$new('a', {
 				'text': '?',
@@ -1327,7 +1326,7 @@ function addSettings() {
 					$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
 				}
 			})
-		]),
+		])),
 		$New('div', null, [
 			lBox('ctime', Lng.cTime[lCode], toggleTimeSettings, 'DESU_ctime')
 		]),
@@ -2179,7 +2178,7 @@ function keyNavTrigger(node) {
 }
 
 function initKeyNavig() {
-	var eT, pIndex,
+	var pIndex,
 		tIndex = 0,
 		scrScroll = false,
 		pScroll = true,
@@ -2236,20 +2235,9 @@ function initKeyNavig() {
 				pScroll = true;
 			} catch(e) {}
 		};
-	
-	if(!aib.nul) {
-		keyNavTrigger(pr.form);
-	} else {
-		pr.form.addEventListener(nav.Opera ? 'DOMAttrModified' : 'DOMSubtreeModified', function(e) {
-			if(eT) {
-				clearTimeout(eT);
-			}
-			eT = setTimeout(function() {
-				keyNavTrigger(pr.form);
-			}, 200);
-		}, false);
-	}
-	
+
+	keyNavTrigger(doc);
+
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
@@ -3836,12 +3824,8 @@ function preloadImages(el) {
 ==============================================================================*/
 
 function getRefMap(post, pNum, refMap) {
-	var els = post.Msg, rNum;
-	if(!els) {
-		return;
-	}
-	els = els.getElementsByTagName('a');
-	for(var i = 0, len = els.length; i < len; i++) {
+	var els = post.Msg.getElementsByTagName('a'), rNum;
+	for(var i = els.length - 1; i >= 0; i--) {
 		rNum = els[i].textContent.match(/^>>(\d+)$/);
 		if(!rNum) {
 			continue;
@@ -3922,15 +3906,12 @@ function delPviews(el) {
 		el.parent.kid = null;
 		Pviews.current.lastkid = el.parent;
 	} else {
-		Pviews.current = null;
+		Pviews.current = Pviews.isActive = false;
 	}
 	do {
 		clearTimeout(lk.post.readDelay);
 		closePview(lk.post);
 	} while((lk = lk.parent) !== el.parent && lk);
-	if(!lk) {
-		Pviews.isActive = false;
-	}
 }
 
 function markPviewToDel(el, forDel) {
@@ -4171,8 +4152,6 @@ function outRefLink() {
 	clearTimeout(Pviews.overDelay);
 	if(Pviews.current) {
 		markPviewToDel(Pviews.current.lastkid || Pviews.current, true);
-	} else {
-		Pviews.isActive = false;
 	}
 }
 
@@ -4180,17 +4159,16 @@ function eventRefLink(el) {
 	if(Cfg['navig'] === 0) {
 		return;
 	}
-	var list = $X('.//a[starts-with(text(),">>")]', el),
-		clear = (list.snapshotItem(0) || {}).onmouseover
-			? function(link) {
-				$rattr(link, 'onmouseover');
-				$rattr(link, 'onmouseout');
-				return link;
-			}
-			: function(link) {
-				return link;
-			};
-	$each(list, function(link) {
+	var clear = ($x(aib.xMsg + '//a[starts-with(text(),">>")]', el) || {}).onmouseover
+		? function(link) {
+			$rattr(link, 'onmouseover');
+			$rattr(link, 'onmouseout');
+			return link;
+		}
+		: function(link) {
+			return link;
+		};
+	$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
 		$event(clear(link), {
 			'mouseover': overRefLink,
 			'mouseout': outRefLink
@@ -6061,7 +6039,7 @@ function isCompatible() {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
-	aib = getImageboard(window.location.hostname, doc);
+	aib = getImageboard();
 	if(/DESU_iframe/.test(window.name)) {
 		fixDomain();
 		return false;
@@ -6222,12 +6200,12 @@ function getPostform(form) {
 	return obj;
 }
 
-function getImageboard(host, dc) {
-	var obj = {},
-		h = host.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+function getImageboard() {
+	var h = window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0],
+		obj = {};
 	obj.dm = h;
-	obj.hana = $$xb('.//script[contains(@src,"hanabira")]', dc, dc);
-	obj.tiny = $$xb('.//form[@name="postcontrols"]', dc, dc);
+	obj.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
+	obj.tiny = $xb('.//form[@name="postcontrols"]', doc);
 	obj.krau = h === 'krautchan.net';
 	obj.gazo = h === '2chan.net';
 	obj.brit = h === 'britfa.gs';
@@ -6239,14 +6217,14 @@ function getImageboard(host, dc) {
 		: '@id="delform" or @name="delform"]'
 	);
 	dForm = $x(obj.xDForm, doc);
-	if(dc === doc && !dForm) {
+	if(!dForm) {
 		return obj;
 	}
-	obj.host = host;
-	obj.waka = $$xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', dc, dc);
-	obj.tinyIb = $$xb('.//form[contains(@action,"imgboard.php?delete")]', dc, dc);
-	obj.kus = $$xb('.//script[contains(@src,"kusaba")]', dc, dc);
-	obj.abu = $$xb('.//script[contains(@src,"wakaba_new.js")]', dc, dc);
+	obj.host = window.location.hostname;
+	obj.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
+	obj.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
+	obj.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	obj.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
 	obj.fch = h === '4chan.org';
 	obj.nul = h === '0chan.ru';
 	obj._7ch = h === '7chan.org';
@@ -6271,7 +6249,7 @@ function getImageboard(host, dc) {
 		: 'oppost';
 	obj.tClass = obj.krau ? 'thread_body' : 'thread';
 	obj.xThreads = './/div[' + (
-		$$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', dc, dc)
+		$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', doc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
 		: obj._420 ? 'contains(@id,"thread")'
 		: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
@@ -6400,7 +6378,7 @@ function getImageboard(host, dc) {
 		? function(el, dc) {
 			return $$x('.//font[@color="#707070"]', el, dc);
 		}
-		: function(el) {
+		: function(el, dc) {
 			return $c(obj.cOmPosts, el);
 		};
 	obj.getSage =
