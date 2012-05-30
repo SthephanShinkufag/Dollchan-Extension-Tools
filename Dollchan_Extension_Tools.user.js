@@ -2868,12 +2868,15 @@ dataForm.prototype.getResult = function(fn) {
 	fn(this.boundary, arrToBlob(arr));
 };
 
-function removeExif(dat) {
-	dat = new Uint8Array(dat);
+function removeExif(arr) {
 	var i = 0,
 		j = 0,
+		dat = new Uint8Array(arr),
 		len = dat.length - 1,
 		out;
+	if(dat[0] !== 0xFF || dat[1] !== 0xD8) {
+		return arr;
+	}
 	for(; i < len; i++, j++) {
 		if(dat[i] === 0xFF && (dat[i + 1] >> 4) === 0xE && dat[i + 1] !== 0xE0) {
 			i += 1 + (dat[i + 2] << 8) + dat[i + 3];
