@@ -3836,12 +3836,8 @@ function preloadImages(el) {
 ==============================================================================*/
 
 function getRefMap(post, pNum, refMap) {
-	var els = post.Msg, rNum;
-	if(!els) {
-		return;
-	}
-	els = els.getElementsByTagName('a');
-	for(var i = 0, len = els.length; i < len; i++) {
+	var els = post.Msg.getElementsByTagName('a'), rNum;
+	for(var i = els.length - 1; i >= 0; i--) {
 		rNum = els[i].textContent.match(/^>>(\d+)$/);
 		if(!rNum) {
 			continue;
