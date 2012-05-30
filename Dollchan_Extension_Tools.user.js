@@ -4171,7 +4171,7 @@ function eventRefLink(el) {
 	if(Cfg['navig'] === 0) {
 		return;
 	}
-	var clear = $x(aib.xMsg + '//a[starts-with(text(),">>")]', el).onmouseover
+	var clear = ($x(aib.xMsg + '//a[starts-with(text(),">>")]', el) || {}).onmouseover
 		? function(link) {
 			$rattr(link, 'onmouseover');
 			$rattr(link, 'onmouseout');
