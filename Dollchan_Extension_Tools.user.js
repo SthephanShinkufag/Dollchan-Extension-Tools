@@ -6102,8 +6102,8 @@ function getNavigator() {
 	};
 	gs = nav.Firefox && typeof GM_setValue === 'function';
 	ss = nav.Opera && !!scriptStorage;
-	ls = 'localStorage' in window && typeof localStorage === 'object';
-	se = 'sessionStorage' in window && (sessionStorage.test = 1) === 1;
+	ls = window.localStorage && typeof localStorage === 'object';
+	se = window.sessionStorage && (sessionStorage.test = 1) === 1;
 	sav = {
 		GM: !!gs,
 		script: ss,
