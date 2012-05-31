@@ -309,7 +309,7 @@ Lng = {
 	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 	reply:			['Ответ', 'Reply'],
 	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)'],
-	wait:			[' Wait', ' Ждите'],
+	wait:			['Ждите', 'Wait'],
 	makeRjpeg:		['Сделать Rarjpeg', 'Make Rarjpeg']
 },
 
