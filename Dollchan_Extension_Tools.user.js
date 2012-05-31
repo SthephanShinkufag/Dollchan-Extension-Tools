@@ -2633,6 +2633,9 @@ function doPostformChanges(a) {
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
 	}
+	if(pr.file) {
+		eventFiles($x(pr.tr, pr.file));
+	}
 	if(aib.nul) {
 		el = $id('posttypeindicator');
 		if(el) {
@@ -2640,6 +2643,30 @@ function doPostformChanges(a) {
 		}
 		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
 	}
+}
+
+function eventFiles(tr) {
+	$each($X('.//input[@type="file"]', tr), function(el) {
+		$event(el, {'change': processInput});
+	});
+}
+
+function processInput(e) {
+	var el = e.target;
+	eventFiles($x(pr.tr, el));
+	if(el.haveBtns) {
+		return;
+	}
+	el.haveBtns = true;
+	$after(el, $event($add('<button class="DESU_button">' + Lng.clear[lCode] + '</button>'), {'click': clearInput}));
+}
+
+function clearInput(e) {
+	$pd(e);
+	var pn = this.parentNode;
+	$del(this);
+	pr.file = $x('input[@type="file"]', $html(pn, pn.innerHTML));
+	$event(pr.file, {'change': processInput});
 }
 
 
@@ -2737,6 +2764,9 @@ function checkUpload(dc, url) {
 		if(pr.file) {
 			err = $x(pr.tr, pr.file);
 			pr.file = $x('.//input[@type="file"]', $html(err, err.innerHTML));
+			err = $x(pr.tr, pr.file);
+			$Del('.//button[@class="DESU_button"]', err);
+			eventFiles(err)
 		}
 		if(pr.video) {
 			pr.video.value = '';
