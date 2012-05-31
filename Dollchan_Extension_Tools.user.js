@@ -2696,20 +2696,21 @@ function makeRarjpeg(e) {
 		}, null));
 	}
 	el.onchange = function(e) {
-		readArch(inp, btn, el);
+		$del(btn);
+		readArch(inp, el.files[0]);
 	};
 	el.click();
 }
 
-function readArch(inp, btn, file) {
+function readArch(inp, file) {
 	var fr = new FileReader(),
 		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>' + Lng.wait[lCode] + '</span>');
-	$del(btn);
 	$after(inp, el);
-	fr.readAsArrayBuffer(file.files[0]);
+	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		if(inp.nextSibling === el) {
-			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;">Rarjpeg</span>'));
+			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;" title="'
+				+ inp.files[0].name + ' + ' + file.name + '">Rarjpeg</span>'));
 			inp.rarJPEG = this.result;
 			$del(el);
 		}
