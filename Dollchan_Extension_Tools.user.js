@@ -90,7 +90,7 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
-	'rarjpeg':	1,		// detect rarjpegs
+	'rarjpeg':	0,		// detect rarjpegs
 	'rExif':	1,		// remove EXIF data from JPEGs
 	'sImgs':	1		// ability to post same images
 },
@@ -1312,8 +1312,8 @@ function addSettings() {
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
 		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', Lng.pImages[lCode], null)),
-		$if(nav.Firefox >= 6 || nav.Chrome, divBox('rarjpeg', Lng.detectRJ[lCode], null)),
 		divBox('imgsrc', Lng.imgSearch[lCode], null),
+		$if(nav.Firefox >= 6 || nav.Chrome, divBox('rarjpeg', Lng.detectRJ[lCode], null)),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
 		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS, '')),
@@ -3762,12 +3762,13 @@ function eventPostImg(post) {
 }
 
 function parseImg(a, ab) {
-	if(Cfg['rarjpeg'] !== 1) {
+	if(Cfg['rarjpeg'] !== 1 || Cfg['imgsrc'] !== 1) {
 		return;
 	}
 	var dat = new Uint8Array(ab),
 		i = 0,
-		len = dat.length;
+		len = dat.length,
+		arch = false;
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0; i < len - 1; i++) {
 			if(dat[i] === 0xFF && dat[i + 1] === 0xD9) {
@@ -3775,7 +3776,6 @@ function parseImg(a, ab) {
 				break;
 			}
 		}
-		console.log('JPEG: ' + a.href + '\nLength: ' + len + '\nTrueLength: ' + i);
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(i = 0; i < len - 7; i++) {
 			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
@@ -3783,7 +3783,6 @@ function parseImg(a, ab) {
 				break;
 			}
 		}
-		console.log('PNG: ' + a.href + '\nLength: ' + len + '\nTrueLength: ' + i);
 	} else {
 		return;
 	}
@@ -3793,14 +3792,20 @@ function parseImg(a, ab) {
 	len = i + 50;
 	for(;i < len - 1; i++) {
 		if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
-			console.log('Contains 7zip');
+			arch = true;
 			break;
 		} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
-			console.log('Contains zip');
+			arch = true;
 			break;
 		} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
-			console.log('Contains rar');
+			arch = true;
 			break;
+		}
+	}
+	if(arch) {
+		i = $c('DESU_btnSrc', a.parentNode);
+		if(i) {
+			i.nextSibling.className += ' DESU_archive';
 		}
 	}
 }
@@ -5897,6 +5902,7 @@ function scriptCSS() {
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
 		.DESU_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
+		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAYAAACgu+4kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAuhJREFUeNosk91rW2Ucxz/POc85yZMlbRrbLO2atdNtjG2tY0rpFDZkYooKjg0EL5wMNwa7G955Ifo3eCEyEBy+9EJn7UC0w4nSdE7rKmPMLmUtTWybpkuz05e89Lx51vhcPvD7fn/fl598/ZWhP/Xy6jO7nwWlBLN3Q/g1DSO0hG3X8XgaX3iAz5Pn+z4le/Pahu+c19HQ3/vgyosL8zODbVWpBk49VNHuRVWZiyvNblGR6LTytxwVFl3KECgZcJhCV3E9dHTT20rXfGdUDhw52AiFLzP51WfY1zMcai2za6fCWU9Qk8eYa/kYZ+MxB8wzRDQj2AA0obHub7777coNT/499dPzLw+9xfqjBfqsTnZUPTSvHS2h0bBPMKHK5Fa+IOmd47mOkzje1rYUUzcoYZ2V07nFYmrXOD2pFNnsMOljc+TvHQ5YI2i6zrRRYr4aZa0+xqK1gh0AiADAEAbF6kJDDr16tnBrYozV0n2yf40RnTVwH+fBBTuw8KU3z7CvK0P211+YuvMlpiYDO/3APi2QSFFiF5JDmTf4/Op99P0Xuf2wlTUv4JCCaG2NgfU8P1/9HiO8g9vuO9hGB9tGoNPp3DP13t6e9wcH+3c23BTT+TZee2EZa+kEyuun1UiSiNygUpnCdtuDrS6RCB+lTe4hLg8T0yua7N178tbIyPV+04gxO56lox5Y86DExoYKBAgmK1tkjpQZ+X031tpNdN1u9sE1cRO5huw71N3+70Kc4eEPcZKzfFN8hL13Yrs3wjeIxRy6o4p6ehLLGA/+moVCiCc+LMnRHz45ePHcR+SKGZYvfEp7S4yZWgnXX0XoJioXJnxNJ/x2AXXcRW80571wEOVvkR759eiVU/HW+I/JdM+e5Zt/cHrfU9QLDpYdwZUeTkkjX44QnRHYwbDuNAF86RMqmKboO54O4MT+dNeB7+YX73aGTEHV1dhufxCGaXmossVmKoYbMf5PoHkZIaH9858AAwAKPy+SN0JI+AAAAABJRU5ErkJggg==) no-repeat center; }\
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }'
 	);
@@ -6833,13 +6839,13 @@ function doScript() {
 		addLinkImg(dForm, true);
 		Log('addLinkImg');
 	}
-	if(Cfg['pimgs'] !== 0) {
-		preloadImages(dForm);
-		Log('preloadImages');
-	}
 	if(Cfg['imgsrc'] !== 0) {
 		addImgSearch(dForm);
 		Log('addImgSearch');
+	}
+	if(Cfg['pimgs'] !== 0) {
+		preloadImages(dForm);
+		Log('preloadImages');
 	}
 	if(Cfg['navig'] === 2) {
 		genRefMap(pByNum);
