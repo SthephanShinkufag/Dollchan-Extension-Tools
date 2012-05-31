@@ -2636,9 +2636,9 @@ function doPostformChanges(a) {
 			}));
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
-	}
-	if(pr.file) {
-		eventFiles($x(pr.tr, pr.file));
+		if(pr.file) {
+			eventFiles($x(pr.tr, pr.file));
+		}
 	}
 	if(aib.nul) {
 		el = $id('posttypeindicator');
