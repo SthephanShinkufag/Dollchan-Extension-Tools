@@ -2622,6 +2622,7 @@ function doPostformChanges(a) {
 					ajaxCheckSubmit(dForm, by, data, checkDelete);
 				});
 			};
+			aib.rJpeg = true;
 		} else {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
@@ -2636,9 +2637,9 @@ function doPostformChanges(a) {
 			}));
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
-		if(pr.file) {
-			eventFiles($x(pr.tr, pr.file));
-		}
+	}
+	if(pr.file) {
+		eventFiles($x(pr.tr, pr.file));
 	}
 	if(aib.nul) {
 		el = $id('posttypeindicator');
@@ -2664,10 +2665,12 @@ function processInput(e) {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
 	}
-	$del($c('DESU_delFile', this.parentNode));
-	if(nav.h5Rep && /^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-		$after(this.nextSibling, $event($add('<button class="DESU_fileUtil DESU_delFile">'
-			+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
+	if(aib.rJpeg) {
+		$del($c('DESU_delFile', this.parentNode));
+		 if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+			$after(this.nextSibling, $event($add('<button class="DESU_fileUtil DESU_delFile">'
+				+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
+		}
 	}
 	eventFiles($x(pr.tr, this));
 }
