@@ -2688,7 +2688,11 @@ function makeRarjpeg(e) {
 		inp = $x('input[@type="file"]', this.parentNode),
 		btn = this;
 	if(!el) {
-		el = doc.body.appendChild($new('input', {'type': 'file', 'style': 'display: none'}, null));
+		el = doc.body.appendChild($new('input', {
+			'id': 'DESU_arInput',
+			'type': 'file',
+			'style': 'display: none'
+		}, null));
 	}
 	el.onchange = function(e) {
 		readArch(inp, btn, el);
