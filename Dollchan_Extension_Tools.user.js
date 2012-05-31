@@ -1410,8 +1410,8 @@ function addSettings() {
 			}
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
-		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('sImgs', Lng.sameImgs[lCode], null)),
-		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
+		$if(nav.h5Rep, divBox('sImgs', Lng.sameImgs[lCode], null)),
+		$if(nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
 		divBox('addfav', Lng.addToFav[lCode], null),
 		$if(pr.mail, $New('div', null, [
 			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
@@ -2599,7 +2599,7 @@ function doPostformChanges(a) {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg['verify'] !== 0) {
-		if(!aib.nul && !aib.tiny && nav.h5Rep) {
+		if(nav.h5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
@@ -6188,7 +6188,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
+	nav.h5Rep = (nav.Firefox > 6 || nav.Chrome) && !aib.nul && !aib.tiny;
 	if(nav.Chrome) {
 		window.URL = window.webkitURL;
 	}
