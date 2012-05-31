@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.31.0
+// @version			12.5.31.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.31.0',
+	'version':	'12.5.31.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -303,8 +303,8 @@ Lng = {
 		available:	['Доступно обновление!', 'Update available!'],
 		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
 	},
-	pImages:		['Предварительно загружать изображения*', 'Preload images*'],
-	detectRJ:		['Распознавать rarjpeg\'и', 'Detect rarjpegs'],
+	pImages:		['Предзагрузка изображений*', 'Preload images*'],
+	detectRJ:		['Распознавать rarjpeg\'и*', 'Detect rarjpegs*'],
 	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
 	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 	reply:			['Ответ', 'Reply'],
@@ -1311,9 +1311,11 @@ function addSettings() {
 		$New('div', null, [
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
-		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', Lng.pImages[lCode], null)),
+		$if(nav.Firefox >= 6 || nav.Chrome, $New('div', null, [
+			lBox('pimgs', Lng.pImages[lCode], null),
+			lBox('rarjpeg', Lng.detectRJ[lCode], null)
+		])),
 		divBox('imgsrc', Lng.imgSearch[lCode], null),
-		$if(nav.Firefox >= 6 || nav.Chrome, divBox('rarjpeg', Lng.detectRJ[lCode], null)),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
 		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS, '')),
