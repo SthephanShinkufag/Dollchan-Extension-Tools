@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.30.3
+// @version			12.5.31.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.30.3',
+	'version':	'12.5.31.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -5902,7 +5902,7 @@ function scriptCSS() {
 		.DESU_info { padding: 3px 6px !important; }\
 		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; }\
 		.DESU_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
-		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAANCAYAAACgu+4kAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAuhJREFUeNosk91rW2Ucxz/POc85yZMlbRrbLO2atdNtjG2tY0rpFDZkYooKjg0EL5wMNwa7G955Ifo3eCEyEBy+9EJn7UC0w4nSdE7rKmPMLmUtTWybpkuz05e89Lx51vhcPvD7fn/fl598/ZWhP/Xy6jO7nwWlBLN3Q/g1DSO0hG3X8XgaX3iAz5Pn+z4le/Pahu+c19HQ3/vgyosL8zODbVWpBk49VNHuRVWZiyvNblGR6LTytxwVFl3KECgZcJhCV3E9dHTT20rXfGdUDhw52AiFLzP51WfY1zMcai2za6fCWU9Qk8eYa/kYZ+MxB8wzRDQj2AA0obHub7777coNT/499dPzLw+9xfqjBfqsTnZUPTSvHS2h0bBPMKHK5Fa+IOmd47mOkzje1rYUUzcoYZ2V07nFYmrXOD2pFNnsMOljc+TvHQ5YI2i6zrRRYr4aZa0+xqK1gh0AiADAEAbF6kJDDr16tnBrYozV0n2yf40RnTVwH+fBBTuw8KU3z7CvK0P211+YuvMlpiYDO/3APi2QSFFiF5JDmTf4/Op99P0Xuf2wlTUv4JCCaG2NgfU8P1/9HiO8g9vuO9hGB9tGoNPp3DP13t6e9wcH+3c23BTT+TZee2EZa+kEyuun1UiSiNygUpnCdtuDrS6RCB+lTe4hLg8T0yua7N178tbIyPV+04gxO56lox5Y86DExoYKBAgmK1tkjpQZ+X031tpNdN1u9sE1cRO5huw71N3+70Kc4eEPcZKzfFN8hL13Yrs3wjeIxRy6o4p6ehLLGA/+moVCiCc+LMnRHz45ePHcR+SKGZYvfEp7S4yZWgnXX0XoJioXJnxNJ/x2AXXcRW80571wEOVvkR759eiVU/HW+I/JdM+e5Zt/cHrfU9QLDpYdwZUeTkkjX44QnRHYwbDuNAF86RMqmKboO54O4MT+dNeB7+YX73aGTEHV1dhufxCGaXmossVmKoYbMf5PoHkZIaH9858AAwAKPy+SN0JI+AAAAABJRU5ErkJggg==) no-repeat center; }\
+		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }'
 	);
