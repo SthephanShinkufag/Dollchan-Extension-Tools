@@ -183,7 +183,7 @@ Lng = {
 	saveSage:		['запоминать сажу', 'remember sage'],
 	replyForm:		['форма ответа в треде* ', 'reply form in thread* '],
 	noThrForm:		['Прятать форму создания треда', 'Hide thread creating form'],
-	selReplyForm:   [
+	selReplyForm:	[
 		['Сверху', 'Внизу', 'Скрытая'],
 		['At top', 'At bottom', 'Hidden']
 	],
@@ -514,9 +514,8 @@ function $rnd() {
 
 function insertInto(el, txt) {
 	var scrtop = el.scrollTop,
-		start = el.selectionStart,
-		end = el.selectionEnd;
-	el.value = el.value.substr(0, start) + txt + el.value.substr(end);
+		start = el.selectionStart;
+	el.value = el.value.substr(0, start) + txt + el.value.substr(el.selectionEnd);
 	el.setSelectionRange(start + txt.length, start + txt.length);
 	el.focus();
 	el.scrollTop = scrtop;
@@ -593,7 +592,8 @@ function fixFunctions() {
 	}
 	if(!('GM_xmlhttpRequest' in window)) {
 		window.GM_xmlhttpRequest = function(obj) {
-			var xhr = new window.XMLHttpRequest();
+			var h,
+				xhr = new window.XMLHttpRequest();
 			xhr.onreadystatechange = function() {
 				obj.onreadystatechange(xhr);
 			};
@@ -604,7 +604,7 @@ function fixFunctions() {
 			};
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-			for(var h in obj.headers) {
+			for(h in obj.headers) {
 				xhr.setRequestHeader(h, obj[h]);
 			}
 			xhr.finalUrl = obj.url;
@@ -961,9 +961,8 @@ function readViewedPosts() {
 }
 
 function saveViewedPosts(pNum) {
-	var arr;
 	if(sav.session) {
-		arr = (sessionStorage.viewedPosts || '').split(',');
+		var arr = (sessionStorage.viewedPosts || '').split(',');
 		arr.push(pNum);
 		sessionStorage.viewedPosts = arr;
 	}
@@ -1569,7 +1568,7 @@ function addSettings() {
 ==============================================================================*/
 
 function addHiddenTable() {
-	var pp, cln, i, b, tNum, url,
+	var pp, cln, b, tNum, url,
 		clones = [],
 		tcnt = 0,
 		pcnt = 0,
@@ -1646,6 +1645,7 @@ function addHiddenTable() {
 	} else {
 		$append(table.insertRow(-1), [
 			$btn(Lng.expandAll[lCode], '', function() {
+				var i;
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					for(i = 0; cln = clones[i++];) {
@@ -1659,6 +1659,7 @@ function addHiddenTable() {
 				}
 			}),
 			$btn(Lng.save[lCode], '', function() {
+				var i;
 				for(i = 0; cln = clones[i++];) {
 					if(cln.vis !== 0) {
 						setPostVisib(cln.pst, 1);
@@ -2027,10 +2028,7 @@ function removeSelMenu(e) {
 
 function addSelMenu(el, fPanel, html) {
 	var y, pos,
-		pst = getPost(el),
-		x = el.className === 'DESU_btnSrc'
-			? 'left: ' + $offset(el).left
-			: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth);
+		pst = getPost(el);
 	if(Cfg['attach'] !== 0 && fPanel) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
@@ -2041,9 +2039,11 @@ function addSelMenu(el, fPanel, html) {
 		y = 'top: ' + ($offset(el).top + el.offsetHeight);
 	}
 	doc.body.appendChild($event($add(
-		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos
-			+ '; width: auto; min-width: 0; ' + x + 'px; ' + y
-			+ 'px; z-index: 9999; padding: 2px 5px; border: 1px solid grey;">' + html + '</div>'
+		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos + '; ' + (
+			el.className === 'DESU_btnSrc'
+				? 'left: ' + $offset(el).left
+				: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
+		) + 'px; ' + y + 'px;">' + html + '</div>'
 	), {
 		'mouseout': removeSelMenu,
 		'mouseover': function() {
@@ -2235,9 +2235,9 @@ function initKeyNavig() {
 				pScroll = true;
 			} catch(e) {}
 		};
-
+	
 	keyNavTrigger(doc);
-
+	
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
@@ -2782,11 +2782,13 @@ function prepareData(form, fn) {
 		rNeeded = 0,
 		i = 0,
 		arr = [],
+		el,
 		cb = function() {
 			if(done && ready === rNeeded) {
 				for(ready = i, i = 0; i < ready; i++) {
-					if(arr[i]) {
-						fd.append(arr[i].name, arr[i].val, arr[i].type, arr[i].fName, arr[i].fType);
+					el = arr[i];
+					if(el) {
+						fd.append(el.name, el.val, el.type, el.fName, el.fType);
 					}
 				}
 				fd.getResult(fn);
@@ -2822,7 +2824,8 @@ function prepareData(form, fn) {
 function arrToBlob(arr) {
 	if(nav.Firefox < 13) {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
-			i = 0, len = arr.length;
+			i = 0,
+			len = arr.length;
 		for(; i < len; i++) {
 			bb.append(arr[i]);
 		}
@@ -2839,15 +2842,13 @@ function dataForm() {
 }
 
 dataForm.prototype.append = function(name, val, type, fileName, fileType) {
-	var data = '--' + this.boundary + '\r\n' +
-		'Content-Disposition: form-data; name="' + name + '"';
-	if(type === 'file') {
-		data += '; filename="' + fileName + '"\r\n' + 
-			'Content-type: ' + fileType + '\r\n\r\n';
-	} else {
-		data += '\r\n\r\n';
-	}
-	this.data.push(data, val, '\r\n');
+	this.data.push(
+		'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' + name + '"' + (
+			type === 'file'
+				? ('; filename="' + fileName + '"\r\n' + 'Content-type: ' + fileType + '\r\n\r\n')
+				: '\r\n\r\n'
+		), val, '\r\n'
+	);
 };
 
 dataForm.prototype.getResult = function(fn) {
@@ -2891,12 +2892,9 @@ function prepareFiles(file, fn, i) {
 	}
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
-		var dat;
-		if(Cfg['rExif'] !== 0 && file.type === 'image/jpeg') {
-			dat = removeExif(this.result);
-		} else {
-			dat = this.result;
-		}
+		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
+			? removeExif(this.result)
+			: this.result;
 		fn(
 			i,
 			Cfg['sImgs'] !== 0 ? arrToBlob([dat, String(Math.round(Math.random()*1e6))]) : dat,
@@ -2985,8 +2983,8 @@ function toggleQuickReply(tNum) {
 }
 
 function toggleMainReply(e) {
-	$pd(e);
 	var pArea = $id('DESU_parea');
+	$pd(e);
 	if(pr.isQuick) {
 		pArea.style.display = '';
 		showMainReply();
@@ -3558,7 +3556,7 @@ function addLinkMP3(post) {
 			}
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
-			$html(el, el.innerHTML + '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16"  FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
+			$html(el, el.innerHTML + '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
 		}
 	});
 }
@@ -3570,7 +3568,7 @@ function addLinkMP3(post) {
 
 function makeMoveable(el) {
 	var elMove = function(e) {
-			el.style.left = e.clientX - el.curX  + 'px';
+			el.style.left = e.clientX - el.curX + 'px';
 			el.style.top = e.clientY - el.curY + 'px';
 			el.moved = true;
 		},
@@ -3667,11 +3665,10 @@ function addLinkImg(el, addBr) {
 		aib.xMsg + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]',
 		el
 	), function(link) {
-		var a;
 		if($xb('ancestor::small', link)) {
 			return;
 		}
-		a = link.cloneNode(false);
+		var a = link.cloneNode(false);
 		a.target = '_blank';
 		$disp(a);
 		a.appendChild($new('img', {
@@ -3762,57 +3759,56 @@ function eventPostImg(post) {
 }
 
 function preloadImages(el) {
-	var mReqs = 4, 
+	var mReqs = 4,
 		cReq = 0,
 		i = 0,
-		aA = [],
-		rType = nav.Firefox ? 'blob' : 'arraybuffer';
-	$each(getImages(el), function(img) {
-		aA.push($x('ancestor::a[1]', img));
-	});
-	function loadFunc(idx) {
-		if(idx >= aA.length) {
-			return;
-		}
-		var req, bb,
-			type = 'image/',
-			a_ = aA[idx],
-			a = a_.href;
-		if(/\.jpe?g$/i.test(a)) {
-			type += 'jpeg';
-		} else if(/\.png$/i.test(a)) {
-			type += 'png';
-		} else if(/\.gif$/i.test(a)) {
-			type += 'gif';
-		} else {
-			loadFunc(i++);
-			return;
-		}
-		if(cReq === mReqs) {
-			setTimeout(function() {
-				loadFunc(idx);
-			}, 200);
-			return;
-		}
-		cReq++;
-		req = new XMLHttpRequest();
-		req.open('GET', a, true);
-		req.responseType = rType;
-		req.onload = function(e) {
-			if (this.status == 200) {
-				if(nav.Firefox) {
-					a_.href = window.URL.createObjectURL(this.response);
-				} else {
-					bb = new WebKitBlobBuilder();
-					bb.append(this.response);
-					a_.href = window.webkitURL.createObjectURL(bb.getBlob(type));
-				}
+		arr = [],
+		loadFunc = function(idx) {
+			if(idx >= arr.length) {
+				return;
 			}
-			cReq--;
-			loadFunc(i++);
+			var req, bb,
+				type = 'image/',
+				a_ = arr[idx],
+				a = a_.href;
+			if(/\.jpe?g$/i.test(a)) {
+				type += 'jpeg';
+			} else if(/\.png$/i.test(a)) {
+				type += 'png';
+			} else if(/\.gif$/i.test(a)) {
+				type += 'gif';
+			} else {
+				loadFunc(i++);
+				return;
+			}
+			if(cReq === mReqs) {
+				setTimeout(function() {
+					loadFunc(idx);
+				}, 200);
+				return;
+			}
+			cReq++;
+			req = new XMLHttpRequest();
+			req.open('GET', a, true);
+			req.responseType = nav.Firefox ? 'blob' : 'arraybuffer';
+			req.onload = function(e) {
+				if(this.status == 200) {
+					if(nav.Firefox) {
+						a_.href = window.URL.createObjectURL(this.response);
+					} else {
+						bb = new WebKitBlobBuilder();
+						bb.append(this.response);
+						a_.href = window.webkitURL.createObjectURL(bb.getBlob(type));
+					}
+				}
+				cReq--;
+				loadFunc(i++);
+			};
+			req.send(null);
 		};
-		req.send(null);
-	}
+	$each(getImages(el), function(img) {
+		arr.push($x('ancestor::a[1]', img));
+	});
 	while(i < mReqs) {
 		loadFunc(i++);
 	}
@@ -3824,25 +3820,24 @@ function preloadImages(el) {
 ==============================================================================*/
 
 function getRefMap(post, pNum, refMap) {
-	var els = post.Msg.getElementsByTagName('a'), rNum;
-	for(var i = els.length - 1; i >= 0; i--) {
+	for(var rNum, els = post.Msg.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
 		rNum = els[i].textContent.match(/^>>(\d+)$/);
-		if(!rNum) {
-			continue;
-		}
-		rNum = rNum[1];
-		if(refMap[rNum]) {
-			if(refMap[rNum].indexOf(pNum) === -1) {
-				refMap[rNum].push(pNum);
+		if(rNum) {
+			rNum = rNum[1];
+			if(refMap[rNum]) {
+				if(refMap[rNum].indexOf(pNum) === -1) {
+					refMap[rNum].push(pNum);
+				}
+			} else {
+				refMap[rNum] = [pNum];
 			}
-		} else {
-			refMap[rNum] = [pNum];
 		}
 	}
 }
 
 function genRefMap(pBn) {
-	var pNum, post, refMap = [];
+	var pNum, post,
+		refMap = [];
 	for(pNum in pBn) {
 		getRefMap(pBn[pNum], pNum, refMap);
 	}
@@ -3860,7 +3855,8 @@ function genRefMap(pBn) {
 }
 
 function updRefMap(post) {
-	var pNum, pst, el, refMap = [];
+	var pNum, pst, el,
+		refMap = [];
 	getRefMap(post, post.Num, refMap);
 	for(pNum in refMap) {
 		pst = pByNum[pNum];
@@ -5847,7 +5843,7 @@ function scriptCSS() {
 		.DESU_refMap:before { content: "' + Lng.replies[lCode] + ' "; }\
 		.DESU_refMap > a { text-decoration: none; }\
 		#DESU_sageBtn { cursor: pointer; }\
-		#DESU_select { padding: 0 !important; margin: 0 !important; }\
+		#DESU_select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#DESU_select a:hover { background-color: ' + (Cfg['sstyle'] === 0 ? '#1b345e' : '#444') + '; color: #fff; }\
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : nav.cFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
@@ -6201,7 +6197,9 @@ function getPostform(form) {
 }
 
 function getImageboard() {
-	var h = window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0],
+	var h = window.location.hostname.match(
+			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
+		)[0],
 		obj = {};
 	obj.dm = h;
 	obj.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
@@ -6344,11 +6342,11 @@ function getImageboard() {
 			return post;
 		}
 		: function(thr, dc) {
-			var i,
+			var el,
 				op = $$new('div', null, null, dc),
 				opEnd = $$x(obj.xTable + '|div[starts-with(@id,"repl")]', thr, dc);
-			while((i = thr.firstChild) !== opEnd) {
-				op.appendChild(i);
+			while((el = thr.firstChild) !== opEnd) {
+				op.appendChild(el);
 			}
 			if(thr.childElementCount) {
 				$before(thr.firstChild, [op]);
@@ -6427,37 +6425,37 @@ function processPost(post, thr, pFn, i) {
 function parseThread(node, dc, fn) {
 	var el, tEl,
 		pThr = false,
-		threads = node.getElementsByClassName(aib.tClass);
-	if(threads.length === 0) {
-		threads = $$X(aib.xThreads, node, dc);
-		if(threads.snapshotLength !== 0) {
-			$each(threads, fn);
+		thrds = node.getElementsByClassName(aib.tClass);
+	if(thrds.length === 0) {
+		thrds = $$X(aib.xThreads, node, dc);
+		if(thrds.snapshotLength !== 0) {
+			$each(thrds, fn);
 		} else {
 			el = $t('hr', node).parentNode.firstChild;
 			while(1) {
-				threads = $$new('div', null, null, dc);
+				thrds = $$new('div', null, null, dc);
 				while(el && (tEl = el.nextSibling) && tEl.tagName !== 'HR') {
-					threads.appendChild(el);
+					thrds.appendChild(el);
 					el = tEl;
 				}
 				if(pThr) {
-					$after(pThr, threads);
+					$after(pThr, thrds);
 				} else {
-					$before(node.firstChild, [threads]);
+					$before(node.firstChild, [thrds]);
 				}
 				if(!el || !tEl) {
 					return;
 				}
-				if(threads.childElementCount) {
-					fn(threads);
+				if(thrds.childElementCount) {
+					fn(thrds);
 				}
 				pThr = tEl;
 				el = tEl.nextSibling;
 			}
 		}
 	} else {
-		for(el = 0, tEl = threads.length; el < tEl; el++) {
-			fn(threads[el]);
+		for(el = 0, tEl = thrds.length; el < tEl; el++) {
+			fn(thrds[el]);
 		}
 	}
 }
@@ -6534,8 +6532,8 @@ function parseDelform(node, dc, pFn) {
 		}
 		if(dc === doc) {
 			if(!TNum) {
-				thr.pCount += (i = aib.getOmPosts(thr, dc)) && (i = i.textContent)
-					? +(i.match(/\d+/) || [0])[0] : 0;
+				thr.pCount += (el = aib.getOmPosts(thr, dc)) && (el = el.textContent)
+					? +(el.match(/\d+/) || [0])[0] : 0;
 			}
 			op.dTitle = getTitle(op);
 		}
@@ -6572,9 +6570,8 @@ function tryToParse() {
 }
 
 function replaceDelform(el) {
-	var txt;
 	if(aib.fch || aib.krau || Cfg['ctime'] && timeRegex || Cfg['spells'] !== 0 && oSpells.rep[0]) {
-		txt = el.innerHTML;
+		var txt = el.innerHTML;
 		if(Cfg['ctime'] && timeRegex) {
 			txt = fixTime(txt);
 		}
