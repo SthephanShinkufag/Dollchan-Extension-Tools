@@ -308,7 +308,9 @@ Lng = {
 	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
 	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 	reply:			['Ответ', 'Reply'],
-	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)']
+	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)'],
+	wait:			[' Wait', ' Ждите'],
+	makeRjpeg:		['Сделать Rarjpeg', 'Make Rarjpeg']
 },
 
 doc = window.document,
@@ -2657,18 +2659,56 @@ function processInput(e) {
 	var el = e.target;
 	eventFiles($x(pr.tr, el));
 	if(el.haveBtns) {
-		return;
+		if(el.rarJPEG) {
+			el.rarJPEG = null;
+			$del(el.nextSibling);
+		} else {
+			return;
+		}
+	} else {
+		el.haveBtns = true;
+		$after(el, $event($add('<button class="DESU_fileUtil">' + Lng.clear[lCode] + '</button>'), {'click': clearInput}));
 	}
-	el.haveBtns = true;
-	$after(el, $event($add('<button class="DESU_button">' + Lng.clear[lCode] + '</button>'), {'click': clearInput}));
+	if(nav.h5Rep && /^image\/(?:png|jpeg)$/.test(el.files[0].type)) {
+		$after(el.nextSibling, $event($add('<button class="DESU_fileUtil">' + Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
+	}
 }
 
 function clearInput(e) {
 	$pd(e);
 	var pn = this.parentNode;
-	$del(this);
+	$Del('*[@class="DESU_fileUtil"]', pn);
 	pr.file = $x('input[@type="file"]', $html(pn, pn.innerHTML));
 	$event(pr.file, {'change': processInput});
+}
+
+function makeRarjpeg(e) {
+	$pd(e);
+	var el = $id('DESU_arInput'),
+		inp = $x('input[@type="file"]', this.parentNode),
+		btn = this;
+	if(!el) {
+		el = doc.body.appendChild($new('input', {'type': 'file', 'style': 'display: none'}, null));
+	}
+	el.onchange = function(e) {
+		readArch(inp, btn, el);
+	};
+	el.click();
+}
+
+function readArch(inp, btn, file) {
+	var fr = new FileReader(),
+		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>' + Lng.wait[lCode] + '</span>');
+	$del(btn);
+	$after(inp, el);
+	fr.readAsArrayBuffer(file.files[0]);
+	fr.onload = function() {
+		if(inp.nextSibling === el) {
+			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;">Rarjpeg</span>'));
+			inp.rarJPEG = this.result;
+			$del(el);
+		}
+	};
 }
 
 
@@ -2767,7 +2807,7 @@ function checkUpload(dc, url) {
 			err = $x(pr.tr, pr.file);
 			pr.file = $x('.//input[@type="file"]', $html(err, err.innerHTML));
 			err = $x(pr.tr, pr.file);
-			$Del('.//button[@class="DESU_button"]', err);
+			$Del('.//*[@class="DESU_fileUtil"]', err);
 			eventFiles(err)
 		}
 		if(pr.video) {
@@ -2832,7 +2872,7 @@ function prepareData(form, fn) {
 	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
 		if(el.type === 'file') {
 			if(el.files.length > 0) {
-				prepareFiles(el.files[0], function(idx, blob, name, type) {
+				prepareFiles(el, function(idx, blob, name, type) {
 					if(blob != null) {
 						arr[idx] = {
 							name: el.name,
@@ -2919,8 +2959,9 @@ function removeExif(arr) {
 	return out.buffer;
 }
 
-function prepareFiles(file, fn, i) {
-	var fr = new FileReader();
+function prepareFiles(el, fn, i) {
+	var file = el.files[0],
+		fr = new FileReader();
 	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 		fn(i, file, file.name, file.type);
 		return;
@@ -2928,13 +2969,15 @@ function prepareFiles(file, fn, i) {
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
-			? removeExif(this.result)
-			: this.result;
-		fn(
-			i,
-			Cfg['sImgs'] !== 0 ? arrToBlob([dat, String(Math.round(Math.random()*1e6))]) : dat,
-			file.name, file.type
-		);
+			? [removeExif(this.result)]
+			: [this.result];
+		if(el.rarJPEG) {
+			dat.push(el.rarJPEG);
+		}
+		if(Cfg['sImgs'] !== 0) {
+			dat.push(String(Math.round(Math.random()*1e6)));
+		}
+		fn(i,arrToBlob(dat), file.name, file.type);
 	};
 }
 
