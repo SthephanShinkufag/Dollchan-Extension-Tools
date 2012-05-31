@@ -2656,28 +2656,26 @@ function eventFiles(tr) {
 }
 
 function processInput(e) {
-	var el = e.target;
-	eventFiles($x(pr.tr, el));
-	if(el.haveBtns) {
-		if(el.rarJPEG) {
-			el.rarJPEG = null;
-			$del(el.nextSibling);
-		} else {
-			return;
-		}
-	} else {
-		el.haveBtns = true;
-		$after(el, $event($add('<button class="DESU_fileUtil">' + Lng.clear[lCode] + '</button>'), {'click': clearInput}));
+	if(!this.haveBtns) {
+		this.haveBtns = true;
+		$after(this, $event($add('<button class="DESU_fileUtil">'
+			+ Lng.clear[lCode] + '</button>'), {'click': clearInput}));
+	} else if(this.rarJPEG) {
+		this.rarJPEG = null;
+		$del(this.nextSibling);
 	}
-	if(nav.h5Rep && /^image\/(?:png|jpeg)$/.test(el.files[0].type)) {
-		$after(el.nextSibling, $event($add('<button class="DESU_fileUtil">' + Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
+	$del($c('DESU_delFile', this.parentNode));
+	if(nav.h5Rep && /^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+		$after(this.nextSibling, $event($add('<button class="DESU_fileUtil DESU_delFile">'
+			+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
 	}
+	eventFiles($x(pr.tr, this));
 }
 
 function clearInput(e) {
 	$pd(e);
 	var pn = this.parentNode;
-	$Del('*[@class="DESU_fileUtil"]', pn);
+	delFileUtils(pn);
 	pr.file = $x('input[@type="file"]', $html(pn, pn.innerHTML));
 	$event(pr.file, {'change': processInput});
 }
@@ -2713,6 +2711,14 @@ function readArch(inp, btn, file) {
 			$del(el);
 		}
 	};
+}
+
+function delFileUtils(el) {
+	var els = el.getElementsByClassName('DESU_fileUtil'),
+		i = els.length - 1;
+	for(; i >= 0; i--) {
+		$del(els[i]);
+	}
 }
 
 
@@ -2811,7 +2817,7 @@ function checkUpload(dc, url) {
 			err = $x(pr.tr, pr.file);
 			pr.file = $x('.//input[@type="file"]', $html(err, err.innerHTML));
 			err = $x(pr.tr, pr.file);
-			$Del('.//*[@class="DESU_fileUtil"]', err);
+			delFileUtils(err);
 			eventFiles(err)
 		}
 		if(pr.video) {
