@@ -90,6 +90,7 @@ var defaultCfg = {
 	'lupdchk':	0,		// 		last update check
 	'supdint':	2,		// 		update interval in days (0=on page load)
 	'pimgs':	0,		// preload images
+	'rarjpeg':	1,		// detect rarjpegs
 	'rExif':	1,		// remove EXIF data from JPEGs
 	'sImgs':	1		// ability to post same images
 },
@@ -303,6 +304,7 @@ Lng = {
 		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
 	},
 	pImages:		['Предварительно загружать изображения*', 'Preload images*'],
+	detectRJ:		['Распознавать rarjpeg\'и', 'Detect rarjpegs'],
 	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
 	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 	reply:			['Ответ', 'Reply'],
@@ -1310,6 +1312,7 @@ function addSettings() {
 			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
 		]),
 		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', Lng.pImages[lCode], null)),
+		$if(nav.Firefox >= 6 || nav.Chrome, divBox('rarjpeg', Lng.detectRJ[lCode], null)),
 		divBox('imgsrc', Lng.imgSearch[lCode], null),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
 		divBox('noname', Lng.hideNames[lCode], scriptCSS),
@@ -3758,6 +3761,50 @@ function eventPostImg(post) {
 	});
 }
 
+function parseImg(a, ab) {
+	if(Cfg['rarjpeg'] !== 1) {
+		return;
+	}
+	var dat = new Uint8Array(ab),
+		i = 0,
+		len = dat.length;
+	if(dat[0] === 0xFF && dat[1] === 0xD8) {
+		for(i = 0; i < len - 1; i++) {
+			if(dat[i] === 0xFF && dat[i + 1] === 0xD9) {
+				i += 2;
+				break;
+			}
+		}
+		console.log('JPEG: ' + a.href + '\nLength: ' + len + '\nTrueLength: ' + i);
+	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+		for(i = 0; i < len - 7; i++) {
+			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+				i += 8;
+				break;
+			}
+		}
+		console.log('PNG: ' + a.href + '\nLength: ' + len + '\nTrueLength: ' + i);
+	} else {
+		return;
+	}
+	if(i === len || len - i < 60) {
+		return;
+	}
+	len = i + 50;
+	for(;i < len - 1; i++) {
+		if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
+			console.log('Contains 7zip');
+			break;
+		} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
+			console.log('Contains zip');
+			break;
+		} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
+			console.log('Contains rar');
+			break;
+		}
+	}
+}
+
 function preloadImages(el) {
 	var mReqs = 4,
 		cReq = 0,
@@ -3790,16 +3837,11 @@ function preloadImages(el) {
 			cReq++;
 			req = new XMLHttpRequest();
 			req.open('GET', a, true);
-			req.responseType = nav.Firefox ? 'blob' : 'arraybuffer';
+			req.responseType = 'arraybuffer';
 			req.onload = function(e) {
 				if(this.status == 200) {
-					if(nav.Firefox) {
-						a_.href = window.URL.createObjectURL(this.response);
-					} else {
-						bb = new WebKitBlobBuilder();
-						bb.append(this.response);
-						a_.href = window.webkitURL.createObjectURL(bb.getBlob(type));
-					}
+					a_.href = window.URL.createObjectURL(arrToBlob([this.response]));
+					parseImg(a_, this.response);
 				}
 				cReq--;
 				loadFunc(i++);
@@ -6109,6 +6151,9 @@ function getNavigator() {
 		}
 	}
 	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
+	if(nav.Chrome) {
+		window.URL = window.webkitURL;
+	}
 }
 
 function getPage() {
