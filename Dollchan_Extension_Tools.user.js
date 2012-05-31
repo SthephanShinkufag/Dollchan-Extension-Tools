@@ -2704,7 +2704,8 @@ function makeRarjpeg(e) {
 
 function readArch(inp, file) {
 	var fr = new FileReader(),
-		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>' + Lng.wait[lCode] + '</span>');
+		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>'
+			+ Lng.wait[lCode] + '</span>');
 	$after(inp, el);
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
@@ -2723,6 +2724,9 @@ function delFileUtils(el) {
 	for(; i >= 0; i--) {
 		$del(els[i]);
 	}
+	$each($X('.//input[@type="file"]', el), function(elm) {
+		elm.rarJPEG = null;
+	});
 }
 
 
@@ -2819,9 +2823,9 @@ function checkUpload(dc, url) {
 		pr.txta.value = '';
 		if(pr.file) {
 			err = $x(pr.tr, pr.file);
-			pr.file = $x('.//input[@type="file"]', $html(err, err.innerHTML));
-			err = $x(pr.tr, pr.file);
 			delFileUtils(err);
+			err = $html(err, err.innerHTML);
+			pr.file = $x('.//input[@type="file"]', err);
 			eventFiles(err)
 		}
 		if(pr.video) {
@@ -2991,7 +2995,7 @@ function prepareFiles(el, fn, i) {
 		if(Cfg['sImgs'] !== 0) {
 			dat.push(String(Math.round(Math.random()*1e6)));
 		}
-		fn(i,arrToBlob(dat), file.name, file.type);
+		fn(i, arrToBlob(dat), file.name, file.type);
 	};
 }
 
