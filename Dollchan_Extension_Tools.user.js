@@ -3854,13 +3854,12 @@ function eventPostImg(post) {
 }
 
 function parseImg(a, ab) {
-	if(Cfg['rarjpeg'] !== 1 || Cfg['imgsrc'] !== 1) {
+	if(Cfg['rarjpeg'] !== 1) {
 		return;
 	}
 	var dat = new Uint8Array(ab),
 		i = 0,
-		len = dat.length,
-		arch = false;
+		len = dat.length;
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0; i < len - 1; i++) {
 			if(dat[i] === 0xFF && dat[i + 1] === 0xD9) {
@@ -3881,23 +3880,12 @@ function parseImg(a, ab) {
 	if(i === len || len - i < 60) {
 		return;
 	}
-	len = i + 50;
-	for(;i < len - 1; i++) {
-		if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
-			arch = true;
+	for(len = i + 50; i < len; i++) {
+		if((dat[i] === 0x37 && dat[i + 1] === 0x7A) ||
+			(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
+			(dat[i] === 0x52 && dat[i + 1] === 0x61)) {
+			$x(aib.xImages, a.parentNode).className += ' DESU_archive';
 			break;
-		} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
-			arch = true;
-			break;
-		} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
-			arch = true;
-			break;
-		}
-	}
-	if(arch) {
-		i = $c('DESU_btnSrc', a.parentNode);
-		if(i) {
-			i.nextSibling.className += ' DESU_archive';
 		}
 	}
 }
