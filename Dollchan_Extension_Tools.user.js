@@ -746,6 +746,9 @@ function readCfg() {
 	if(aib.nul) {
 		Cfg['keynav'] = 0;
 	}
+	if(aib.fch) {
+		Cfg['rarjpeg'] = 0;
+	}
 	if(!nav.Firefox) {
 		Cfg['updfav'] = 0;
 	}
@@ -1315,7 +1318,7 @@ function addSettings() {
 		]),
 		$if(nav.Firefox >= 6 || nav.Chrome, $New('div', null, [
 			lBox('pimgs', Lng.pImages[lCode], null),
-			lBox('rarjpeg', Lng.detectRJ[lCode], null)
+			$if(!aib.fch, lBox('rarjpeg', Lng.detectRJ[lCode], null))
 		])),
 		divBox('imgsrc', Lng.imgSearch[lCode], null),
 		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
@@ -2622,7 +2625,7 @@ function doPostformChanges(a) {
 					ajaxCheckSubmit(dForm, by, data, checkDelete);
 				});
 			};
-			aib.rJpeg = true;
+			aib.rJpeg = !aib.fch;
 		} else {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
