@@ -3884,7 +3884,7 @@ function parseImg(a, ab) {
 		if((dat[i] === 0x37 && dat[i + 1] === 0x7A) ||
 			(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
 			(dat[i] === 0x52 && dat[i + 1] === 0x61)) {
-			$x(aib.xImages, a.parentNode).className += ' DESU_archive';
+			$x(aib.xImages, aib.abu ? getPost(a) : a.parentNode).className += ' DESU_archive';
 			break;
 		}
 	}
