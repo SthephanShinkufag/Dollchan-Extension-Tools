@@ -1156,11 +1156,11 @@ function addSettings() {
 		}
 		return $New('label', null, [el, $txt(' ' + txt)]);
 	},
-	
+
 	divBox = function(name, txt, fn) {
 		return $New('div', null, [lBox(name, txt, fn, '')]);
 	},
-	
+
 	inpTxt = function(name, size, fn) {
 		return $new('input', {
 			'type': 'text',
@@ -1175,7 +1175,7 @@ function addSettings() {
 			}
 		})
 	},
-	
+
 	optSel = function(name, arr, txt, fn) {
 		for(var i = 0, len = arr.length, el, opt = []; i < len; i++) {
 			opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
@@ -1187,8 +1187,8 @@ function addSettings() {
 		});
 		el.selectedIndex = Cfg[name];
 		return $New('label', null, [el, $txt(' ' + txt)]);
-	}, 
-	
+	},
+
 	cfgTab = function(txt, el) {
 		return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack'}, [
 			$new('div', {
@@ -1200,7 +1200,7 @@ function addSettings() {
 			})
 		])
 	},
-	
+
 	openTab = function(tab, el) {
 		if(tab.className == 'DESU_cfgTab_sel') {
 			return;
@@ -1222,7 +1222,7 @@ function addSettings() {
 			$id('DESU_spellEdit').value = spellsList.join('\n');
 		}
 	},
-	
+
 	cfgFilters = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgFilters'
@@ -1297,7 +1297,7 @@ function addSettings() {
 			})
 		])
 	]),
-	
+
 	cfgPosts = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
@@ -1356,7 +1356,7 @@ function addSettings() {
 			])
 		])
 	]),
-	
+
 	cfgLinks = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgLinks'
@@ -1398,7 +1398,7 @@ function addSettings() {
 			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle[lCode], null, ''))
 		])
 	]),
-	
+
 	cfgForm = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgForm'
@@ -1453,7 +1453,7 @@ function addSettings() {
 			}, ''))
 		])
 	]),
-	
+
 	cfgCommon = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgCommon'
@@ -1493,14 +1493,14 @@ function addSettings() {
 			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
 	]),
-	
+
 	cfgInfo = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
-	
+
 	$append($id('DESU_contentCfg'), [
 		$New('div', {
 			'class': aib.pClass,
@@ -2242,9 +2242,9 @@ function initKeyNavig() {
 				pScroll = true;
 			} catch(e) {}
 		};
-	
+
 	keyNavTrigger(doc);
-	
+
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
@@ -2253,12 +2253,12 @@ function initKeyNavig() {
 			scrScroll = false;
 		}
 	};
-	
+
 	doc.onkeydown = function (e) {
 		var curTh,
 			kc = e.keyCode;
 		if(
-			!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey 
+			!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey
 				|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
 		) {
 			return;
@@ -4829,7 +4829,7 @@ function getHanaPost(postJson) {
 			]),
 			$new('br', null, null)
 		]);
-	
+
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -4842,7 +4842,7 @@ function getHanaPost(postJson) {
 }
 
 function loadNewPosts(inf, fn) {
-	var el, del, 
+	var el, del,
 		i = 0,
 		len = 0,
 		thr = $x('.//div[contains(@class," DESU_thread")]', dForm);
@@ -6103,7 +6103,7 @@ function checkForUpdates(force, fn) {
 	var t = +(new Date()).getTime(),
 		day = 2*1000*60*60*24,
 		updInt =
-			Cfg['supdint'] === 0 ? 0 
+			Cfg['supdint'] === 0 ? 0
 			: Cfg['supdint'] === 1 ? day
 			: Cfg['supdint'] === 2 ? day*2
 			: Cfg['supdint'] === 3 ? day*7
@@ -6114,7 +6114,7 @@ function checkForUpdates(force, fn) {
 	}
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' 
+		url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
 			+ (Cfg['betaupd'] ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
 		headers: {
 			'Content-Type': 'text/plain'
@@ -6738,7 +6738,7 @@ function preparePage() {
 		}
 	}
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
-		aib.abu ? 'self::form' 
+		aib.abu ? 'self::form'
 		: aib.fch ? 'self::div[@class="boardBanner"]'
 		: 'self::div[@class="logo"]'
 	) + ' or self::h1]]]', dForm);
