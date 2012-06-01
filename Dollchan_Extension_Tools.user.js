@@ -3912,17 +3912,13 @@ function preloadImages(el) {
 			if(idx >= arr.length) {
 				return;
 			}
-			var req, bb,
-				type = 'image/',
+			var req,
+				gifImg = false,
 				a_ = arr[idx],
 				a = a_.href;
-			if(/\.jpe?g$/i.test(a)) {
-				type += 'jpeg';
-			} else if(/\.png$/i.test(a)) {
-				type += 'png';
-			} else if(/\.gif$/i.test(a)) {
-				type += 'gif';
-			} else {
+			if(/\.gif$/i.test(a)) {
+				gifImg = true;
+			} else if(!/\.(?:jpe?g|png)$/i.test(a)) {
 				loadFunc(i++);
 				return;
 			}
@@ -3939,6 +3935,9 @@ function preloadImages(el) {
 			req.onload = function(e) {
 				if(this.status == 200) {
 					a_.href = window.URL.createObjectURL(arrToBlob([this.response]));
+					if(gifImg) {
+						$t('img', a_).src = a_.href;
+					}
 					parseImg(a_, this.response);
 				}
 				cReq--;
