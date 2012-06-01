@@ -3398,7 +3398,7 @@ function fixTime(txt) {
 				: /дек|dec/i.test(a) && 11
 			);
 		}
-		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second);
+		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
 		return dtime.toString().replace(/GMT.*$/, '');
 	});
