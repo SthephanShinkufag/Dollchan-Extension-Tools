@@ -2780,9 +2780,8 @@ function checkUpload(dc, url) {
 	var err, tNum,
 		txt = '',
 		qArea = $id('DESU_qarea'),
-		pathname = url.match(/^(([^:\/?#]+):)?(\/\/([^\/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?/)[5],
 		xp =
-			aib.hana && /error/.test(pathname) ? './/td[@class="post-error"]'
+			aib.hana && !dc.getElementById('delete_form') ? './/td[@class="post-error"]'
 			: aib.krau && !$t('form', dc) ? './/td[starts-with(@class,"message_text")]'
 			: aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]'
 			: '',
