@@ -308,7 +308,9 @@ Lng = {
 	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
 	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 	reply:			['Ответ', 'Reply'],
-	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)']
+	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)'],
+	wait:			['Ждите', 'Wait'],
+	makeRjpeg:		['Сделать Rarjpeg', 'Make Rarjpeg']
 },
 
 doc = window.document,
@@ -1154,11 +1156,11 @@ function addSettings() {
 		}
 		return $New('label', null, [el, $txt(' ' + txt)]);
 	},
-	
+
 	divBox = function(name, txt, fn) {
 		return $New('div', null, [lBox(name, txt, fn, '')]);
 	},
-	
+
 	inpTxt = function(name, size, fn) {
 		return $new('input', {
 			'type': 'text',
@@ -1173,7 +1175,7 @@ function addSettings() {
 			}
 		})
 	},
-	
+
 	optSel = function(name, arr, txt, fn) {
 		for(var i = 0, len = arr.length, el, opt = []; i < len; i++) {
 			opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
@@ -1185,8 +1187,8 @@ function addSettings() {
 		});
 		el.selectedIndex = Cfg[name];
 		return $New('label', null, [el, $txt(' ' + txt)]);
-	}, 
-	
+	},
+
 	cfgTab = function(txt, el) {
 		return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack'}, [
 			$new('div', {
@@ -1198,7 +1200,7 @@ function addSettings() {
 			})
 		])
 	},
-	
+
 	openTab = function(tab, el) {
 		if(tab.className == 'DESU_cfgTab_sel') {
 			return;
@@ -1220,7 +1222,7 @@ function addSettings() {
 			$id('DESU_spellEdit').value = spellsList.join('\n');
 		}
 	},
-	
+
 	cfgFilters = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgFilters'
@@ -1295,7 +1297,7 @@ function addSettings() {
 			})
 		])
 	]),
-	
+
 	cfgPosts = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
@@ -1354,7 +1356,7 @@ function addSettings() {
 			])
 		])
 	]),
-	
+
 	cfgLinks = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgLinks'
@@ -1396,7 +1398,7 @@ function addSettings() {
 			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle[lCode], null, ''))
 		])
 	]),
-	
+
 	cfgForm = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgForm'
@@ -1410,8 +1412,8 @@ function addSettings() {
 			}
 		})),
 		divBox('verify', Lng.replyCheck[lCode], null),
-		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('sImgs', Lng.sameImgs[lCode], null)),
-		$if(!aib.nul && !aib.tiny && nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
+		$if(nav.h5Rep, divBox('sImgs', Lng.sameImgs[lCode], null)),
+		$if(nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
 		divBox('addfav', Lng.addToFav[lCode], null),
 		$if(pr.mail, $New('div', null, [
 			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
@@ -1451,7 +1453,7 @@ function addSettings() {
 			}, ''))
 		])
 	]),
-	
+
 	cfgCommon = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgCommon'
@@ -1491,14 +1493,14 @@ function addSettings() {
 			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
 	]),
-	
+
 	cfgInfo = $New('div', {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
-	
+
 	$append($id('DESU_contentCfg'), [
 		$New('div', {
 			'class': aib.pClass,
@@ -2240,9 +2242,9 @@ function initKeyNavig() {
 				pScroll = true;
 			} catch(e) {}
 		};
-	
+
 	keyNavTrigger(doc);
-	
+
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
@@ -2251,12 +2253,12 @@ function initKeyNavig() {
 			scrScroll = false;
 		}
 	};
-	
+
 	doc.onkeydown = function (e) {
 		var curTh,
 			kc = e.keyCode;
 		if(
-			!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey 
+			!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey
 				|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
 		) {
 			return;
@@ -2599,7 +2601,7 @@ function doPostformChanges(a) {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg['verify'] !== 0) {
-		if(!aib.nul && !aib.tiny && nav.h5Rep) {
+		if(nav.h5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
@@ -2620,6 +2622,7 @@ function doPostformChanges(a) {
 					ajaxCheckSubmit(dForm, by, data, checkDelete);
 				});
 			};
+			aib.rJpeg = true;
 		} else {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
@@ -2635,6 +2638,9 @@ function doPostformChanges(a) {
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
 	}
+	if(pr.file) {
+		eventFiles($x(pr.tr, pr.file));
+	}
 	if(aib.nul) {
 		el = $id('posttypeindicator');
 		if(el) {
@@ -2642,6 +2648,85 @@ function doPostformChanges(a) {
 		}
 		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
 	}
+}
+
+function eventFiles(tr) {
+	$each($X('.//input[@type="file"]', tr), function(el) {
+		$event(el, {'change': processInput});
+	});
+}
+
+function processInput(e) {
+	if(!this.haveBtns) {
+		this.haveBtns = true;
+		$after(this, $event($add('<button class="DESU_fileUtil">'
+			+ Lng.clear[lCode] + '</button>'), {'click': clearInput}));
+	} else if(this.rarJPEG) {
+		this.rarJPEG = null;
+		$del(this.nextSibling);
+	}
+	if(aib.rJpeg) {
+		$del($c('DESU_delFile', this.parentNode));
+		 if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+			$after(this.nextSibling, $event($add('<button class="DESU_fileUtil DESU_delFile">'
+				+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
+		}
+	}
+	eventFiles($x(pr.tr, this));
+}
+
+function clearInput(e) {
+	$pd(e);
+	var pn = this.parentNode;
+	delFileUtils(pn);
+	pr.file = $x('input[@type="file"]', $html(pn, pn.innerHTML));
+	$event(pr.file, {'change': processInput});
+}
+
+function makeRarjpeg(e) {
+	$pd(e);
+	var el = $id('DESU_arInput'),
+		inp = $x('input[@type="file"]', this.parentNode),
+		btn = this;
+	if(!el) {
+		el = doc.body.appendChild($new('input', {
+			'id': 'DESU_arInput',
+			'type': 'file',
+			'style': 'display: none'
+		}, null));
+	}
+	el.onchange = function(e) {
+		$del(btn);
+		readArch(inp, el.files[0]);
+	};
+	el.click();
+}
+
+function readArch(inp, file) {
+	var fr = new FileReader(),
+		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>'
+			+ Lng.wait[lCode] + '</span>');
+	$after(inp, el);
+	fr.readAsArrayBuffer(file);
+	fr.onload = function() {
+		if(inp.nextSibling === el) {
+			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;" title="'
+				+ inp.files[0].name + ' + ' + file.name + '">Rarjpeg</span>'));
+			inp.rarJPEG = this.result;
+			$del(el);
+		}
+	};
+}
+
+function delFileUtils(el) {
+	var els = el.getElementsByClassName('DESU_fileUtil'),
+		i = els.length - 1;
+	for(; i >= 0; i--) {
+		$del(els[i]);
+	}
+	$each($X('.//input[@type="file"]', el), function(elm) {
+		elm.rarJPEG = null;
+	});
 }
 
 
@@ -2738,7 +2823,10 @@ function checkUpload(dc, url) {
 		pr.txta.value = '';
 		if(pr.file) {
 			err = $x(pr.tr, pr.file);
-			pr.file = $x('.//input[@type="file"]', $html(err, err.innerHTML));
+			delFileUtils(err);
+			err = $html(err, err.innerHTML);
+			pr.file = $x('.//input[@type="file"]', err);
+			eventFiles(err)
 		}
 		if(pr.video) {
 			pr.video.value = '';
@@ -2802,7 +2890,7 @@ function prepareData(form, fn) {
 	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
 		if(el.type === 'file') {
 			if(el.files.length > 0) {
-				prepareFiles(el.files[0], function(idx, blob, name, type) {
+				prepareFiles(el, function(idx, blob, name, type) {
 					if(blob != null) {
 						arr[idx] = {
 							name: el.name,
@@ -2889,8 +2977,9 @@ function removeExif(arr) {
 	return out.buffer;
 }
 
-function prepareFiles(file, fn, i) {
-	var fr = new FileReader();
+function prepareFiles(el, fn, i) {
+	var file = el.files[0],
+		fr = new FileReader();
 	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 		fn(i, file, file.name, file.type);
 		return;
@@ -2898,13 +2987,15 @@ function prepareFiles(file, fn, i) {
 	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
-			? removeExif(this.result)
-			: this.result;
-		fn(
-			i,
-			Cfg['sImgs'] !== 0 ? arrToBlob([dat, String(Math.round(Math.random()*1e6))]) : dat,
-			file.name, file.type
-		);
+			? [removeExif(this.result)]
+			: [this.result];
+		if(el.rarJPEG) {
+			dat.push(el.rarJPEG);
+		}
+		if(Cfg['sImgs'] !== 0) {
+			dat.push(String(Math.round(Math.random()*1e6)));
+		}
+		fn(i, arrToBlob(dat), file.name, file.type);
 	};
 }
 
@@ -3821,17 +3912,13 @@ function preloadImages(el) {
 			if(idx >= arr.length) {
 				return;
 			}
-			var req, bb,
-				type = 'image/',
+			var req,
+				gifImg = false,
 				a_ = arr[idx],
 				a = a_.href;
-			if(/\.jpe?g$/i.test(a)) {
-				type += 'jpeg';
-			} else if(/\.png$/i.test(a)) {
-				type += 'png';
-			} else if(/\.gif$/i.test(a)) {
-				type += 'gif';
-			} else {
+			if(/\.gif$/i.test(a)) {
+				gifImg = true;
+			} else if(!/\.(?:jpe?g|png)$/i.test(a)) {
 				loadFunc(i++);
 				return;
 			}
@@ -3848,6 +3935,9 @@ function preloadImages(el) {
 			req.onload = function(e) {
 				if(this.status == 200) {
 					a_.href = window.URL.createObjectURL(arrToBlob([this.response]));
+					if(gifImg) {
+						$t('img', a_).src = a_.href;
+					}
 					parseImg(a_, this.response);
 				}
 				cReq--;
@@ -4739,7 +4829,7 @@ function getHanaPost(postJson) {
 			]),
 			$new('br', null, null)
 		]);
-	
+
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -4752,7 +4842,7 @@ function getHanaPost(postJson) {
 }
 
 function loadNewPosts(inf, fn) {
-	var el, del, 
+	var el, del,
 		i = 0,
 		len = 0,
 		thr = $x('.//div[contains(@class," DESU_thread")]', dForm);
@@ -6013,7 +6103,7 @@ function checkForUpdates(force, fn) {
 	var t = +(new Date()).getTime(),
 		day = 2*1000*60*60*24,
 		updInt =
-			Cfg['supdint'] === 0 ? 0 
+			Cfg['supdint'] === 0 ? 0
 			: Cfg['supdint'] === 1 ? day
 			: Cfg['supdint'] === 2 ? day*2
 			: Cfg['supdint'] === 3 ? day*7
@@ -6024,7 +6114,7 @@ function checkForUpdates(force, fn) {
 	}
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' 
+		url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
 			+ (Cfg['betaupd'] ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
 		headers: {
 			'Content-Type': 'text/plain'
@@ -6158,7 +6248,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.h5Rep = nav.Firefox > 6 || nav.Chrome;
+	nav.h5Rep = (nav.Firefox > 6 || nav.Chrome) && !aib.nul && !aib.tiny;
 	if(nav.Chrome) {
 		window.URL = window.webkitURL;
 	}
@@ -6648,7 +6738,7 @@ function preparePage() {
 		}
 	}
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
-		aib.abu ? 'self::form' 
+		aib.abu ? 'self::form'
 		: aib.fch ? 'self::div[@class="boardBanner"]'
 		: 'self::div[@class="logo"]'
 	) + ' or self::h1]]]', dForm);
