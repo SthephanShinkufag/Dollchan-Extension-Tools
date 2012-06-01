@@ -3887,7 +3887,7 @@ function parseImg(a, ab) {
 		if((dat[i] === 0x37 && dat[i + 1] === 0x7A) ||
 			(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
 			(dat[i] === 0x52 && dat[i + 1] === 0x61)) {
-			$x(aib.xImages, aib.abu ? getPost(a) : a.parentNode).className += ' DESU_archive';
+			$x(aib.xImages, aib.getPicWrap(a)).className += ' DESU_archive';
 			break;
 		}
 	}
@@ -6433,6 +6433,19 @@ function getImageboard() {
 		obj.krau ? '@class="file_thread" or @class="file_reply"'
 		: obj.hana ? '@class="file"'
 		: false;
+	obj.getPicWrap = obj.hana
+		? function(el) {
+			if(!el.previousElementSibling) {
+				el = el.parentNode;
+			}
+			return el.parentNode;
+		}
+		: obj.krau ? function(el) {
+			return el.parentNode;
+		}
+		: function(el) {
+			return getPost(el);
+		}
 	obj.getMsg = obj.cMsg
 		? function(el) {
 			return $c(obj.cMsg, el);
