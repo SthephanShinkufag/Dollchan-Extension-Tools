@@ -3222,7 +3222,7 @@ function getPost(el) {
 }
 
 function getImages(post) {
-	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler")]', post);
+	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler") or starts-with(@src,"blob:")]', post);
 }
 
 function getTitle(post) {
@@ -3903,11 +3903,11 @@ function preloadImages(el) {
 				return;
 			}
 			var req,
-				gifImg = false,
+				eImg = nav.Chrome,
 				a_ = arr[idx],
 				a = a_.href;
 			if(/\.gif$/i.test(a)) {
-				gifImg = true;
+				eImg = true;
 			} else if(!/\.(?:jpe?g|png)$/i.test(a)) {
 				loadFunc(i++);
 				return;
@@ -3925,7 +3925,7 @@ function preloadImages(el) {
 			req.onload = function(e) {
 				if(this.status == 200) {
 					a_.href = window.URL.createObjectURL(arrToBlob([this.response]));
-					if(gifImg) {
+					if(eImg) {
 						$t('img', a_).src = a_.href;
 					}
 					parseImg(a_, this.response);
