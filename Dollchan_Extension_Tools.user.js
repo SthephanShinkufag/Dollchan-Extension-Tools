@@ -3346,7 +3346,7 @@ function addPostButtons(post) {
 	}
 	$after(ref, post.Btns);
 	if(pr.on && Cfg['insnum'] !== 0) {
-		if(aib.nul || aib.futr) {
+		if(aib.futr) {
 			$each($X('a', ref), function(el) {
 				$rattr(el, 'onclick');
 			});
