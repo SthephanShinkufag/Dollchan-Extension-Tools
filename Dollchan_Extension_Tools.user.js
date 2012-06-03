@@ -4296,20 +4296,9 @@ function eventRefLink(el) {
 	if(Cfg['navig'] === 0) {
 		return;
 	}
-	var clear = ($x(aib.xMsg + '//a[starts-with(text(),">>")]', el) || {}).onmouseover
-		? function(link) {
-			$rattr(link, 'onmouseover');
-			$rattr(link, 'onmouseout');
-			return link;
-		}
-		: function(link) {
-			return link;
-		};
 	$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
-		$event(clear(link), {
-			'mouseover': overRefLink,
-			'mouseout': outRefLink
-		});
+		link.onmouseover = overRefLink;
+		link.onmouseout = outRefLink;
 	});
 }
 
