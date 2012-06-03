@@ -3334,8 +3334,7 @@ function prepareButtons() {
 }
 
 function addPostButtons(post) {
-	var el, h,
-		ref = aib.getRef(post);
+	var ref = aib.getRef(post);
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	post.Btns.id = 'DESU_btns' + post.Num;
 	if(aib.getSage(post)) {
@@ -3353,7 +3352,7 @@ function addPostButtons(post) {
 			});
 		}
 		if(!aib.brit) {
-			$event(ref, {'click': insertRefLink});
+			ref.onclick = insertRefLink;
 		}
 	}
 }
@@ -4987,7 +4986,7 @@ function togglePost(post, vis) {
 function applyPostVisib(post, vis, note) {
 	var el,
 		pNum = post.Num;
-	if(vis === 0 && Cfg['delhd'] !== 3) {
+	if(vis === 0 && Cfg['delhd'] !== 2) {
 		$event(aib.getRef(post), {
 			'mouseover': function() {
 				if(post.Vis === 0) {
