@@ -3261,88 +3261,100 @@ function getImgSize(post) {
 
 /*--------------------------------Post buttons--------------------------------*/
 
+function prepareButtons() {
+	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
+		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(this)"></span>'),
+		$if(pr.on || oeForm,
+			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>')
+		)
+	]);
+	opPanel = pPanel.cloneNode(true);
+	opPanel.className += '_op';
+	$append(opPanel, [
+		$if(!TNum, 
+			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(this)"></span>')
+		),
+		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
+	]);
+	var script = doc.createElement('script');
+	script.id = 'DESU_script';
+	script.type = 'text/javascript';
+	doc.head.appendChild(script);
+	script.textContent = 
+		'function DESU_hideClick(el) {\
+			window.postMessage(["hideClick", el.parentNode.id], "*");\
+		}\
+		function DESU_hideOver(el) {\
+			window.postMessage(["hideOver", el.parentNode.id], "*");\
+		}\
+		function DESU_delSelection(el) {\
+			window.postMessage(["delSelection", el.parentNode.id], "*");\
+		}\
+		function DESU_qReplyClick(el) {\
+			window.postMessage(["qReplyClick", el.parentNode.id], "*");\
+		}\
+		function DESU_qReplyOver(el) {\
+			window.postMessage(["qReplyOver", el.parentNode.id], "*");\
+		}\
+		function DESU_expandClick(el) {\
+			window.postMessage(["expandClick", el.parentNode.id], "*");\
+		}\
+		function DESU_expandOver(el) {\
+			window.postMessage(["expandOver", el.parentNode.id], "*");\
+		}\
+		function DESU_favorClick(el) {\
+			window.postMessage(["favorClick", el.parentNode.id], "*");\
+		}\
+		function DESU_sageClick(el) {\
+			window.postMessage(["sageClick", el.parentNode.id], "*");\
+		}';
+	window.addEventListener('message', function(event) {
+		var name = event.data[0],
+			post = pByNum[event.data[1].substring(9)];
+		if(name === "hideOver") {
+			selectPostHider(post);
+		} else if(name === "expandOver") {
+			selectExpandThread(post);
+		} else if(name === "qReplyOver") {
+			quotetxt = txtSelection();
+		} else if(name === "hideClick") {
+			togglePostVisib(post);
+		} else if(name === "expandClick") {
+			loadThread(post, 1, null);
+		} else if(name === "qReplyClick") {
+			showQuickReply(post);
+		} else if(name === "delSelection") {
+			$del($id('DESU_select'));
+		} else if(name === "favorClick") {
+			toggleFavorites(post, $c('DESU_btnFav', post) || $c('DESU_btnFavSel', post));
+		} else if(name === "sageClick") {
+			applySpells('#sage');
+		}
+	}, false);
+}
+
 function addPostButtons(post) {
 	var el, h,
 		ref = aib.getRef(post);
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
-	el = post.Btns.firstChild;
-	$event(el, {
-		'click': function(e) {
-			togglePostVisib(post);
-		},
-		'mouseover': function() {
-			selectPostHider(post);
-		},
-		'mouseout': removeSelMenu
-	});
-	if(pr.on || oeForm) {
-		el = el.nextSibling;
-		$event(el, {
-			'click': function(e) {
-				showQuickReply(post);
-			},
-			'mouseover': function() {
-				quotetxt = txtSelection();
-			}
-		});
-	}
-	if(post.isOp){
-		if(!TNum) {
-			el = el.nextSibling;
-			$event(el, {
-				'click': function(e) {
-					loadThread(post, 1, null);
-				},
-				'mouseover': function() {
-					selectExpandThread(post);
-				},
-				'mouseout': removeSelMenu
-			});
-		}
-		el = el.nextSibling;
-		$event(el, {
-			'click': function(e) {
-				toggleFavorites(post, this);
-			}
-		});
-		h = aib.host;
-		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			el.className = 'DESU_btnFavSel';
-			Favor[h][brd][post.Num].cnt = post.thr.pCount + 1;
-			setStored('DESU_Favorites', $uneval(Favor));
-		}
-	}
+	post.Btns.id = 'DESU_btns' + post.Num;
 	if(aib.getSage(post)) {
 		post.Btns.appendChild($new('span', {
 			'class': 'DESU_btnSage',
-			'title': 'SAGE'}, {
-			'click': function(e) {
-				applySpells('#sage');
-			}
-		}));
+			'title': 'SAGE',
+			'onclick': 'DESU_sageClick(this)'
+		}, null));
 	}
 	$after(ref, post.Btns);
 	if(pr.on && Cfg['insnum'] !== 0) {
 		if(aib.nul || aib.futr) {
-			$each($X('.//a', ref), function(el) {
+			$each($X('a', ref), function(el) {
 				$rattr(el, 'onclick');
 			});
 		}
-		if(!aib.brit) $event(ref, {'click': insertRefLink});
-	}
-	if(Cfg['viewhd'] !== 0) {
-		$event(ref, {
-			'mouseover': function() {
-				if(post.Vis === 0) {
-					togglePost(post, 1);
-				}
-			},
-			'mouseout': function() {
-				if(post.Vis === 0) {
-					togglePost(post, 0);
-				}
-			}
-		});
+		if(!aib.brit) {
+			$event(ref, {'click': insertRefLink});
+		}
 	}
 }
 
@@ -4986,6 +4998,20 @@ function togglePost(post, vis) {
 function applyPostVisib(post, vis, note) {
 	var el,
 		pNum = post.Num;
+	if(vis === 0 && Cfg['delhd'] !== 3) {
+		$event(aib.getRef(post), {
+			'mouseover': function() {
+				if(post.Vis === 0) {
+					togglePost(post, 1);
+				}
+			},
+			'mouseout': function() {
+				if(post.Vis === 0) {
+					togglePost(post, 0);
+				}
+			}
+		});
+	}
 	if(post.isOp) {
 		el = $id('DESU_hidThr_' + pNum);
 		if(vis === 1 && el) {
@@ -6753,24 +6779,6 @@ function preparePage() {
 		$del($t('hr', dForm));
 		$del($t('hr', dForm.previousElementSibling));
 	}
-	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$new('span', {
-			'class': 'DESU_btnHide'
-		}, null),
-		$if(pr.on || oeForm, $new('span', {
-			'class': 'DESU_btnRep'
-		}, null))
-	]);
-	opPanel = pPanel.cloneNode(true);
-	opPanel.className += '_op';
-	$append(opPanel, [
-		$if(!TNum, $new('span', {
-			'class': 'DESU_btnExpthr'
-		}, null)),
-		$new('span', {
-			'class': 'DESU_btnFav'
-		}, null)
-	]);
 	if(TNum) {
 		onhid = function() {
 			doc.body.className = 'blurred';
@@ -6901,6 +6909,8 @@ function doScript() {
 	}
 	initPostform();
 	Log('initPostform');
+	prepareButtons();
+	Log('prepareButtons');
 	forEachPost(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
