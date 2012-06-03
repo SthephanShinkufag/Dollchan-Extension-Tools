@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.5.31.1
+// @version			12.6.4.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.5.31.1',
+	'version':	'12.6.4.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -96,137 +96,160 @@ var defaultCfg = {
 },
 
 Lng = {
-	cookiesLimit:	['Превышен лимит cookies', 'Cookies limit overflow'],
-	settings:		['Настройки', 'Settings'],
-	hidden:			['Скрытое', 'Hidden'],
-	favorites:		['Избранное', 'Favorites'],
-	refresh:		['Обновить', 'Refresh'],
-	newThread:		['Создать тред', 'New thread'],
-	goBack:			['Назад', 'Go back'],
-	goNext:			['Следующая', 'Next'],
-	goUp:			['Наверх', 'To the top'],
-	goDown:			['В конец', 'To the bottom'],
-	expImages:		['Раскрыть картинки', 'Expand images'],
-	maskImages:		['Маскировать картинки', 'Mask images'],
-	autoupd:		['Автообновление треда', 'Thread autoupdate'],
-	postsImages:	['Постов/Изображений в треде', 'Posts/Images in thread'],
-	antiWipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
-	sameLines:		['Повтор строк', 'Same lines'],
-	sameWords:		['Повтор слов', 'Same words'],
-	specSymbols:	['Спецсимволы', 'Special symbols'],
-	longPosts:		['Длинные посты', 'Long posts'],
-	longWords:		['Длинные слова', 'Long words'],
-	numbers:		['Числа', 'Numbers'],
-	caps:			['КАПС/реГисТР', 'CAPS/cAsE'],
-	spells:			['Заклинания: ', 'Magic spells: '],
-	add:			['Добавить', 'Add'],
-	apply:			['Применить', 'Apply'],
-	clear:			['Очистить', 'Clear'],
-	selHiddenPosts:	[
-		['Не изменять', 'Объединять', 'Удалять'],
-		['Skip', 'Merge', 'Delete']
-	],
-	filterThreads:	['Применять фильтры к тредам', 'Apply filters to threads'],
-	hiderMenu:		['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-	viewHidden:		['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
-	threadUpd:		['подгрузка треда* T=', 'thread update* T='],
-	selThreadUpd:	[
-		['Откл.', 'Авто', 'Счет+клик', 'По клику'],
-		['Disable', 'Auto', 'Count+click', 'On click']
-	],
-	indication:		['индикация*', 'indication*'],
-	navigation:		['навигация по >>ссылкам* ', 'navigation by >>links* '],
-	selNavigation:	[
-		['Откл.', 'Без карты', 'С картой'],
-		['Disable', 'No map', 'With map']
-	],
-	delayPreview:	[' задержка пропадания (мс)', ' delay disappearance (ms)'],
-	markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
-	hidRefmap:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
-	disHidPview:	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
-	expandPosts:	['загрузка сокращенных постов*', 'upload of shorted posts*'],
-	selClickAuto:	[
-		['Откл.', 'Авто', 'По клику'],
-		['Disable', 'Auto', 'On click']
-	],
-	scriptStyle:	[' стиль скрипта', ' script style'],
-	insertLink:		['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-	animation:		['Включить анимацию в скрипте', 'Enable animation in script'],
-	autoClose:		['Автоматически закрывать уведомления', 'Close popups automatically'],
-	replaceTitle:	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
-	attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
-	showImgCount:	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
-	imgExpand:		['раскрывать изображения ', 'expand images '],
-	selImgExpand:	[
-		['Откл.', 'В посте', 'По центру'],
-		['Disable', 'In post', 'By center']
-	],
-	hideNames:		['Скрывать имена в постах', 'Hide names in posts'],
-	openSpoilers:	['Открывать спойлеры', 'Open spoilers'],
-	noScroll:		['Без скролла в постах', 'No scroll in posts'],
-	mp3Embed:		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
-	imgEmbed:		[
-		'Загружать изображения к .jpg-, .png-, .gif-ссылкам*',
-		'Load images to .jpg-, .png-, .gif-links*'
-	],
-	YTembed:		['к YouTube-ссылкам* ', 'to YouTube-links* '],
-	selYTembed:	[
-		['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'],
-		['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
-	],
-	YTtitle:		['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
-	replyCheck:		[
-		'Постить без перезагрузки (проверять ответ при отправке)*',
-		'Posting without reload (check reply on submit)*'
-	],
-	addToFav:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-	mailToSage:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
-	saveSage:		['запоминать сажу', 'remember sage'],
-	replyForm:		['форма ответа в треде* ', 'reply form in thread* '],
-	noThrForm:		['Прятать форму создания треда', 'Hide thread creating form'],
-	selReplyForm:	[
-		['Сверху', 'Внизу', 'Скрытая'],
-		['At top', 'At bottom', 'Hidden']
-	],
-	capInput:		['язык ввода капчи', 'language input in captcha'],
-	selCapInput:	[
-		['Откл.', 'Eng', 'Rus'],
-		['Disable', 'Eng', 'Rus']
-	],
-	formatBtns:		['кнопки форматирования текста ', 'text format buttons '],
-	selFormatBtns:	[
-		['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'],
-		['Disable', 'As images', 'As text', 'Standard']
-	],
-	atBottom:		['внизу', 'at bottom'],
-	fixedName:		['Постоянное имя', 'Fixed name'],
-	fixedPass:		['Постоянный пароль', 'Fixed password'],
-	fixedSign:		['Постоянная подпись', 'Fixed signature'],
-	dontShow:		['Не отображать: ', 'Do not show: '],
-	rules:			['правила ', 'rules '],
-	gotoField:		['поле goto ', 'goto field '],
-	passw:			['пароль', 'password'],
-	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
-	save:			['Сохранить', 'Save'],
-	load:			['Загрузить', 'Load'],
-	reset:			['Сброс', 'Reset'],
-	version:		['Версия: ', 'Version: '],
-	storage:		['Хранение: ', 'Storage: '],
-	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
-	thrCreated:		['Тредов создано: ', 'Threads created: '],
-	pstSended:		['Постов отправлено: ', 'Posts sended: '],
-	total:			['Всего: ', 'Total: '],
-	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
-	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
-	onPage:			[' на странице', ' on page'],
-	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
-	noHidOnPage:	['На этой странице нет скрытого...', 'Nothing to hide on this page...'],
-	expandAll:		['Раскрыть все', 'Expand all'],
-	undo:			['Вернуть назад', 'Undo'],
-	noFavorites:	['Нет избранных тредов...', 'Favorites is empty...'],
-	remove:			['Удалить', 'Remove'],
-	edit:			['Правка', 'Edit'],
-	info:			['Инфо', 'Info'],
+	cfg: {
+		spells:		['Заклинания: ', 'Magic spells: '],
+		awipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
+		samel:		['Повтор строк', 'Same lines'],
+		samew:		['Повтор слов', 'Same words'],
+		longp:		['Длинные посты', 'Long posts'],
+		longw:		['Длинные слова', 'Long words'],
+		specs:		['Спецсимволы', 'Special symbols'],
+		caps:		['КАПС/реГисТР', 'CAPS/cAsE'],
+		nums:		['Числа', 'Numbers'],
+		filthr:		['Применять фильтры к тредам', 'Apply filters to threads'],
+		menuhd:		['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
+		viewhd:		['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
+		delhd: {
+			sel:	[['Не изменять', 'Объединять', 'Удалять'], ['Skip', 'Merge', 'Delete']],
+			txt:	['скрытые посты', 'hidden posts']
+		},
+
+		updthr: {
+			sel:	[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
+			txt:	['подгрузка новых постов в треде*', 'loading new posts in thread*']
+		},
+		updint: {
+			sel:	[[0.5, 1, 1.5, 2, 5, 15, 30], [0.5, 1, 1.5, 2, 5, 15, 30]],
+			txt:	['(мин) интервал проверки*', '(min) update interval*']
+		},
+		updfav:		['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
+		expost: {
+			sel:	[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
+			txt:	['загрузка сокращенных постов*', 'upload of shorted posts*']
+		},
+		expimg: {
+			sel:	[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
+			txt:	['раскрывать изображения ', 'expand images ']
+		},
+		pimgs:		['Предварительно загружать изображения*', 'Pre-load images*'],
+		rarjpeg:	['Распознавать RarJpeg\'и в изображениях*', 'Detect RarJpegs in images*'],
+		imgsrc:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
+		ospoil:		['Открывать спойлеры', 'Open spoilers'],
+		noname:		['Скрывать имена в постах', 'Hide names in posts'],
+		noscrl:		['Без скролла в постах', 'No scroll in posts'],
+		keynav:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		ctime:		['Корректировать время в постах* ', 'Correct time in posts* '],
+		ctmofs:		[' Разница во времени', ' Time difference'],
+		ctmpat:		['Шаблон замены', 'Replace pattern'],
+
+		navig: {
+			sel:	[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
+			txt:	['навигация по >>ссылкам* ', 'navigation by >>links* ']
+		},
+		nashow:		[' задержка появления (мс)', ' delay appearance (ms)'],
+		navdel:		[' задержка пропадания (мс)', ' delay disappearance (ms)'],
+		navmrk:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
+		navhid:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
+		navdis:		['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+		insnum:		['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
+		mp3:		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
+		addimg:		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
+		ytube: {
+			sel:	[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
+			txt:	['к YouTube-ссылкам* ', 'to YouTube-links* ']
+		},
+		yptype: {
+			sel:	[['Flash', 'HTML5 iframe', 'HTML5 video'], ['Flash', 'HTML5 iframe', 'HTML5 video']],
+			txt:	[' ', ' ']
+		},
+		yhdvid:		['HD ', 'HD '],
+		ytitle:		['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
+
+		pform: {
+			sel:	[['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
+			txt:	['форма ответа в треде* ', 'reply form in thread* '],
+		},
+		tform:		['Прятать форму создания треда', 'Hide thread creating form'],
+		addfav:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
+		verify:		['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
+		sImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
+		rExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		sagebt:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
+		svsage:		['запоминать сажу', 'remember sage'],
+		forcap: {
+			sel:	[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
+			txt:	['язык ввода капчи', 'language input in captcha']
+		},
+		txtbtn: {
+			sel:	[['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
+			txt:	['кнопки форматирования текста ', 'text format buttons ']
+		},
+		txtpos:		['внизу', 'at bottom'],
+		name:		['Постоянное имя', 'Fixed name'],
+		passw:		['Постоянный пароль', 'Fixed password'],
+		sign:		['Постоянная подпись', 'Fixed signature'],
+		norule:		['правила ', 'rules '],
+		nogoto:		['поле goto ', 'goto field '],
+		nopass:		['пароль', 'password'],
+		
+		sstyle: {
+			sel:	[['Glass blue', 'Gradient blue', 'Solid grey'], ['Glass blue', 'Gradient blue', 'Solid grey']],
+			txt:	[' стиль скрипта', ' script style']
+		},
+		attach:		['Прикрепить главную панель ', 'Attach main panel '],
+		icount:		['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
+		rtitle:		['Название треда в заголовке вкладки*', 'Thread name in page title*'],
+		animp:		['Включить анимацию в скрипте', 'Enable animation in script'],
+		aclose:		['Автоматически закрывать уведомления', 'Close popups automatically'],
+		enupd:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
+		supdint: {
+			sel:	[['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
+			txt:	['Интервал проверки', 'Check interval'],
+		},
+		betaupd:	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
+
+		lang: {
+			sel: [['Ru', 'En'], ['Ru', 'En']],
+			txt: ['', '']
+		}
+	},
+
+	txtBtn: {
+		Bold:		['Жирный', 'Bold'],
+		Italic:		['Наклонный', 'Italic'],
+		Under:		['Подчеркнутый', 'Underlined'],
+		Strike:		['Зачеркнутый', 'Strike'],
+		Spoil:		['Спойлер', 'Spoiler'],
+		Code:		['Код', 'Code'],
+		Quote:		['Цитировать выделенное', 'Quote selected']
+	},
+
+	cfgTab: {
+		Filters:	['Фильтры', 'Filters'],
+		Posts:		['Посты', 'Posts'],
+		Links:		['Ссылки', 'Links'],
+		Form:		['Форма', 'Form'],
+		Common:		['Общее', 'Common'],
+		Info:		['Инфо', 'Info']
+	},
+
+	panelBtn: {
+		Settings:	['Настройки', 'Settings'],
+		Hidden:		['Скрытое', 'Hidden'],
+		Favor:		['Избранное', 'Favorites'],
+		Refresh:	['Обновить', 'Refresh'],
+		GoBack:		['Назад', 'Go back'],
+		GoNext:		['Следующая', 'Next'],
+		GoUp:		['Наверх', 'To the top'],
+		GoDown:		['В конец', 'To the bottom'],
+		NewThr:		['Создать тред', 'New thread'],
+		ExpImg:		['Раскрыть картинки', 'Expand images'],
+		MaskImg:	['Маскировать картинки', 'Mask images'],
+		UpdOn:		['Автообновление треда', 'Thread autoupdate'],
+		Catalog:	['Каталог', 'Catalog'],
+		counter:	['Постов/Изображений в треде', 'Posts/Images in thread']
+	},
+
 	selHiderMenu:	[
 		['Скрывать выделенное', 'Скрывать изображение', 'Скрыть схожий текст'],
 		['Hide selected text', 'Hide same images', 'Hide similar text']
@@ -239,78 +262,72 @@ Lng = {
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages']
 	],
+
+	add:			['Добавить', 'Add'],
+	apply:			['Применить', 'Apply'],
+	clear:			['Очистить', 'Clear'],
+	refresh:		['Обновить', 'Refresh'],
+	load:			['Загрузить', 'Load'],
+	save:			['Сохранить', 'Save'],
+	edit:			['Правка', 'Edit'],
+	reset:			['Сброс', 'Reset'],
+	remove:			['Удалить', 'Remove'],
+	info:			['Инфо', 'Info'],
+	undo:			['Отмена', 'Undo'],
 	loading:		['Загрузка...', 'Loading...'],
 	checking:		['Проверка...', 'Checking...'],
 	deleting:		['Удаление...', 'Deleting...'],
 	error:			['Ошибка:', 'Error:'],
-	bold:			['Жирный', 'Bold'],
-	italic:			['Наклонный', 'Italic'],
-	underlined:		['Подчеркнутый', 'Underlined'],
-	strike:			['Зачеркнутый', 'Strike'],
-	spoiler:		['Спойлер', 'Spoiler'],
-	code:			['Код', 'Code'],
-	quote:			['Цитировать выделенное', 'Quote selected'],
-	replies:		['Ответы:', 'Replies:'],
-	postNotFound:	['Пост не найден', 'Post not found'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
+	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
+	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
+	errDelete:		['Не могу удалить пост(ы)!', 'Can\'t delete post(s)!'],
+	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
+	cookiesLimit:	['Превышен лимит cookies', 'Cookies limit overflow'],
+	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
+	postNotFound:	['Пост не найден', 'Post not found'],
+	checkNow:		['Проверить сейчас', 'Check now'],
+	updAvail:		['Доступно обновление!', 'Update available!'],
+	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
+	version:		['Версия: ', 'Version: '],
+	storage:		['Хранение: ', 'Storage: '],
+	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
+	thrCreated:		['Тредов создано: ', 'Threads created: '],
+	pstSended:		['Постов отправлено: ', 'Posts sended: '],
+	total:			['Всего: ', 'Total: '],
+	dontShow:		['Не отображать: ', 'Do not show: '],
+	showMore:		['Показать подробнее', 'Show more'],
+	loadGlobal:		['Загрузить глобальные настройки', 'Load global settings'],
+	saveGlobal:		['Сохранить настройки как глобальные', 'Save settings as global'],
+	resetCfg:		['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
+	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
+	editInTxt:		['Правка в текстовом формате', 'Edit in text format'],
+	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
+	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
+	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
+	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
+	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
+	onPage:			[' на странице', ' on page'],
+	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
+	noHidOnPage:	['На этой странице нет скрытого...', 'Nothing to hide on this page...'],
+	expandAll:		['Раскрыть все', 'Expand all'],
+	noFavorites:	['Нет избранных тредов...', 'Favorites is empty...'],
+	replies:		['Ответы:', 'Replies:'],
 	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
 	deleted:		['удалён', 'deleted'],
-	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
 	getNewPosts:	['Получить новые посты', 'Get new posts'],
 	page:			[' страница', ' page'],
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
 	expandForm:		['Раскрыть форму', 'Expand form'],
-	goCatalog:		['Каталог', 'Catalog'],
-	cTime:			['Корректировать время в постах* ', 'Correct time in posts* '],
-	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
-	cTimeOffset:	[' Разница во времени', ' Time difference'],
-	cTimePattern:	['Шаблон замены', 'Replace pattern'],
-	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
-	errDelete:		['Не могу удалить пост(ы)!', 'Can\'t delete post(s)!'],
-	keyNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
-	keyNavHelp:		[
-		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,'
-		+ '\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
-		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,'
-		+ '\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'],
 	search:			['Искать в ', 'Search in '],
-	imgSearch:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
-	filters:		['Фильтры', 'Filters'],
-	posts:			['Посты', 'Posts'],
-	links:			['Ссылки', 'Links'],
-	form:			['Форма', 'Form'],
-	common:			['Общее', 'Common'],
-	showMore:		['Показать подробнее', 'Show more'],
-	loadGlobal:		['Загрузить глобальные настройки', 'Load global settings'],
-	saveGlobal:		['Сохранить настройки как глобальные', 'Save settings as global'],
-	editCfg:		['Редактировать настройки в текстовом формате', 'Edit settings in text format'],
-	resetCfg:		['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
-	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
-	editNotes:		['Правка в текстовом формате', 'Edit notes in text format'],
-	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
-	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
-	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
-	upd:	{
-		select:		[
-			['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
-			['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']
-		],
-		interval:	['Интервал проверки', 'Check interval'],
-		enable:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
-		beta:		['Проверять обновления для beta-версии', 'Check updates for beta-version'],
-		checkNow:	['Проверить сейчас', 'Check now'],
-		available:	['Доступно обновление!', 'Update available!'],
-		haveLatest:	['У вас стоит самая последняя версия!', 'You have latest version!']
-	},
-	pImages:		['Предзагрузка изображений*', 'Preload images*'],
-	detectRJ:		['Распознавать rarjpeg\'и*', 'Detect rarjpegs*'],
-	remExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
-	sameImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 	reply:			['Ответ', 'Reply'],
-	pShowDelay:		[' задержка появления (мс)', ' delay appearance (ms)'],
 	wait:			['Ждите', 'Wait'],
-	makeRjpeg:		['Сделать Rarjpeg', 'Make Rarjpeg']
+	makeRjpeg:		['Сделать Rarjpeg', 'Make Rarjpeg'],
+	keyNavHelp:		[
+		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
+		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
+	]
 },
 
 doc = window.document,
@@ -981,17 +998,17 @@ function saveViewedPosts(pNum) {
 
 function addPanel() {
 	var imgLen = getImages(dForm).snapshotLength,
-		pButton = function(bName, bTitle, bClick, bHref, bOver, bOut) {
+		pButton = function(id, click, href, over, out) {
 			return $New('li', null, [
 				$new('a', {
-					'id': 'DESU_btn' + bName,
+					'id': 'DESU_btn' + id,
 					'class': 'DESU_aBtn',
-					'title': bTitle,
-					'href': bHref ? bHref : '#'
+					'title': Lng.panelBtn[id][lCode],
+					'href': href ? href : '#'
 				}, {
-					'click': bClick,
-					'mouseover': bOver,
-					'mouseout': bOut
+					'click': click,
+					'mouseover': over,
+					'mouseout': out
 				})
 			]);
 		};
@@ -1008,19 +1025,19 @@ function addPanel() {
 				}
 			}),
 			$New('ul', {'id': 'DESU_panelBtns'}, [
-				pButton('Settings', Lng.settings[lCode], function(e) {
+				pButton('Settings', function(e) {
 					$pd(e);
 					toggleContent('Cfg', false);
 				}, null, null, null),
-				pButton('Hidden', Lng.hidden[lCode], function(e) {
+				pButton('Hidden', function(e) {
 					$pd(e);
 					toggleContent('Hid', false);
 				}, null, null, null),
-				pButton('Favor', Lng.favorites[lCode], function(e) {
+				pButton('Favor', function(e) {
 					$pd(e);
 					toggleContent('Fav', false);
 				}, null, null, null),
-				pButton('Refresh', Lng.refresh[lCode], function(e) {
+				pButton('Refresh', function(e) {
 					$pd(e);
 					window.location.reload();
 				}, null, function() {
@@ -1028,27 +1045,21 @@ function addPanel() {
 						selectAjaxPages();
 					}
 				}, removeSelMenu),
-				pButton(
-					'Goback', Lng.goBack[lCode], null,
-					'//' + aib.host + getPageUrl(pageNum - 1), null, null
-				),
-				$if(!TNum, pButton(
-					'Gonext', Lng.goNext[lCode], null,
-					'//' + aib.host + getPageUrl(pageNum + 1), null, null
-				)),
-				pButton('Goup', Lng.goUp[lCode], function(e) {
+				pButton('GoBack', null, '//' + aib.host + getPageUrl(pageNum - 1), null, null),
+				$if(!TNum, pButton('GoNext', null, '//' + aib.host + getPageUrl(pageNum + 1), null, null)),
+				pButton('GoUp', function(e) {
 					$pd(e);
 					window.scrollTo(0, 0);
 				}, null, null, null),
-				pButton('Godown', Lng.goDown[lCode], function(e) {
+				pButton('GoDown', function(e) {
 					$pd(e);
 					window.scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
 				}, null, null, null),
 				$if(
 					!TNum && (pr.on || oeForm),
-					pButton('Newthr', Lng.newThread[lCode], toggleMainReply, null, null, null)
+					pButton('NewThr', toggleMainReply, null, null, null)
 				),
-				$if(imgLen > 0, pButton('Expimg', Lng.expImages[lCode], function(e) {
+				$if(imgLen > 0, pButton('ExpImg', function(e) {
 					$pd(e);
 					Cfg['expimg'] = 1;
 					isExpImg = !isExpImg;
@@ -1056,12 +1067,12 @@ function addPanel() {
 						expandAllPostImg(post, isExpImg);
 					});
 				}, null, null, null)),
-				$if(pr.file || oeForm, pButton('Maskimg', Lng.maskImages[lCode], function(e) {
+				$if(pr.file || oeForm, pButton('MaskImg', function(e) {
 					$pd(e);
 					toggleCfg('mask');
 					scriptCSS();
 				}, null, null, null)),
-				$if(TNum && Cfg['updthr'] !== 3, pButton('UpdOn', Lng.autoupd[lCode], function(e) {
+				$if(TNum && Cfg['updthr'] !== 3, pButton('UpdOn', function(e) {
 					$pd(e);
 					if(ajaxInterval) {
 						endPostsUpdate();
@@ -1070,14 +1081,11 @@ function addPanel() {
 						initThreadsUpdater();
 					}
 				}, null, null, null)),
-				$if(aib.nul, pButton(
-					'Catalog', Lng.goCatalog[lCode], null,
-					'//0chan.ru/' + brd + '/catalog.html', null, null
-				))
+				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
 				$new('span', {
-					'title': Lng.postsImages[lCode],
+					'title': Lng.panelBtn.counter[lCode],
 					'text': Posts.length + '/' + imgLen
 				}, null)
 			]))
@@ -1143,7 +1151,7 @@ function showContent(el, id, name, isUpd) {
 ==============================================================================*/
 
 function addSettings() {
-	var lBox = function(name, txt, fn, id) {
+	var lBox = function(name, fn, id) {
 		var el = $new('input', {
 			'type': 'checkbox'}, {
 			'click': function() {
@@ -1157,11 +1165,11 @@ function addSettings() {
 		if(id !== '') {
 			el.id = id;
 		}
-		return $New('label', null, [el, $txt(' ' + txt)]);
+		return $New('label', null, [el, $txt(' ' + Lng.cfg[name][lCode])]);
 	},
 
-	divBox = function(name, txt, fn) {
-		return $New('div', null, [lBox(name, txt, fn, '')]);
+	divBox = function(name, fn) {
+		return $New('div', null, [lBox(name, fn, '')]);
 	},
 
 	inpTxt = function(name, size, fn) {
@@ -1179,9 +1187,9 @@ function addSettings() {
 		})
 	},
 
-	optSel = function(name, arr, txt, fn) {
-		for(var i = 0, len = arr.length, el, opt = []; i < len; i++) {
-			opt[i] = '<option value="' + i + '">' + arr[i] + '</option>';
+	optSel = function(name, fn) {
+		for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
+			opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
 		}
 		el = $event($add('<select id="' + name + '_sel">' + opt.join('') + '</select>'), {
 			'change': (fn ? fn : function() {
@@ -1189,14 +1197,14 @@ function addSettings() {
 			})
 		});
 		el.selectedIndex = Cfg[name];
-		return $New('label', null, [el, $txt(' ' + txt)]);
+		return $New('label', null, [el, $txt(' ' + x.txt[lCode])]);
 	},
 
-	cfgTab = function(txt, el) {
+	cfgTab = function(id, el) {
 		return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack'}, [
 			$new('div', {
 				'class': 'DESU_cfgTab',
-				'text': txt}, {
+				'text': Lng.cfgTab[id][lCode]}, {
 				'click': function() {
 					openTab(this, el);
 				}
@@ -1266,15 +1274,15 @@ function addSettings() {
 					'class': 'DESU_aBtn'
 				}, null)
 			]),
-			lBox('spells', Lng.spells[lCode], toggleSpells, 'DESU_spellChk'),
+			lBox('spells', toggleSpells, 'DESU_spellChk'),
 			$new('textarea', {
 				'id': 'DESU_spellEdit',
 				'rows': 7,
-				'cols': 55
+				'cols': 49
 			}, null)
 		]),
 		$New('div', null, [
-			lBox('awipe', Lng.antiWipe[lCode], null, ''),
+			lBox('awipe', null, ''),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
 			})
@@ -1283,19 +1291,19 @@ function addSettings() {
 			'id': 'DESU_cfgWipe',
 			'style': 'display: none; padding-left: 25px;'
 		}, [
-			divBox('samel', Lng.sameLines[lCode], null),
-			divBox('samew', Lng.sameWords[lCode], null),
-			divBox('longp', Lng.longPosts[lCode], null),
-			divBox('longw', Lng.longWords[lCode], null),
-			divBox('caps', Lng.caps[lCode], null),
-			divBox('specs', Lng.specSymbols[lCode], null),
-			divBox('nums', Lng.numbers[lCode], null)
+			divBox('samel', null),
+			divBox('samew', null),
+			divBox('longp', null),
+			divBox('longw', null),
+			divBox('specs', null),
+			divBox('caps', null),
+			divBox('nums', null)
 		]),
-		divBox('filthr', Lng.filterThreads[lCode], null),
-		divBox('menuhd', Lng.hiderMenu[lCode], null),
-		divBox('viewhd', Lng.viewHidden[lCode], null),
+		divBox('filthr', null),
+		divBox('menuhd', null),
+		divBox('viewhd', null),
 		$New('div', null, [
-			optSel('delhd', Lng.selHiddenPosts[lCode], Lng.hiddenPosts[lCode], function() {
+			optSel('delhd', function() {
 				processHidden(this.selectedIndex, Cfg['delhd']);
 			})
 		])
@@ -1305,27 +1313,23 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
 	}, [
-		$New('div', null, [
-			optSel('updthr', Lng.selThreadUpd[lCode], Lng.threadUpd[lCode], null),
-			optSel('updint', [0.5, 1, 1.5, 2, 5, 15, 30], 'min* ', null),
-			$if(nav.Firefox, lBox('updfav', Lng.indication[lCode], null, ''))
+		$New('div', null, [optSel('updthr', null)]),
+		$New('div', {'style': 'padding-left: 25px;'}, [
+			$New('div', null, [optSel('updint', null)]),
+			$if(nav.Firefox, divBox('updfav', null))
 		]),
-		$New('div', null, [
-			optSel('expost', Lng.selClickAuto[lCode], Lng.expandPosts[lCode], null)
-		]),
-		$New('div', null, [
-			optSel('expimg', Lng.selImgExpand[lCode], Lng.imgExpand[lCode], null)
-		]),
-		$if(nav.Firefox >= 6 || nav.Chrome, $New('div', null, [
-			lBox('pimgs', Lng.pImages[lCode], null),
-			$if(!aib.fch, lBox('rarjpeg', Lng.detectRJ[lCode], null))
+		$New('div', null, [optSel('expost', null)]),
+		$New('div', null, [optSel('expimg', null)]),
+		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', null)),
+		$if(!aib.fch && (nav.Firefox >= 6 || nav.Chrome), $New('div', {'style': 'padding-left: 25px;'}, [
+			lBox('rarjpeg', null, '')
 		])),
-		divBox('imgsrc', Lng.imgSearch[lCode], null),
-		divBox('ospoil', Lng.openSpoilers[lCode], scriptCSS),
-		divBox('noname', Lng.hideNames[lCode], scriptCSS),
-		$if(aib.abu, lBox('noscrl', Lng.noScroll[lCode], scriptCSS, '')),
+		divBox('imgsrc', null),
+		divBox('ospoil', scriptCSS),
+		divBox('noname', scriptCSS),
+		$if(aib.abu, lBox('noscrl', scriptCSS, '')),
 		$if(!aib.nul, $New('div', null, [
-			lBox('keynav', Lng.keyNavig[lCode], null, ''),
+			lBox('keynav', null, ''),
 			$new('a', {
 				'text': '?',
 				'href': '#',
@@ -1336,19 +1340,17 @@ function addSettings() {
 				}
 			})
 		])),
-		$New('div', null, [
-			lBox('ctime', Lng.cTime[lCode], toggleTimeSettings, 'DESU_ctime')
-		]),
+		$New('div', null, [lBox('ctime', toggleTimeSettings, 'DESU_ctime')]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('ctmofs', 3, null),
-				$new('span', {text: Lng.cTimeOffset[lCode]}, null)
+				$new('span', {text: Lng.cfg.ctmofs[lCode]}, null)
 			]),
 			$New('div', null, [
 				inpTxt('ctmpat', 30, null),
 				$txt(' '),
 				$new('a', {
-					'text': Lng.cTimePattern[lCode],
+					'text': Lng.cfg.ctmpat[lCode],
 					'href': '#',
 					'class': 'DESU_aBtn'}, {
 					'click': function(e) {
@@ -1364,41 +1366,34 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgLinks'
 	}, [
-		$New('div', null, [
-			optSel('navig', Lng.selNavigation[lCode], Lng.navigation[lCode], null)
-		]),
+		$New('div', null, [optSel('navig', null)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				inpTxt('navdel', 8, null),
-				$txt(Lng.delayPreview[lCode])
+				inpTxt('nashow', 6, null),
+				$txt(Lng.cfg.nashow[lCode])
 			]),
 			$New('div', null, [
-				inpTxt('nashow', 8, null),
-				$txt(Lng.pShowDelay[lCode])
+				inpTxt('navdel', 6, null),
+				$txt(Lng.cfg.navdel[lCode])
 			]),
-			divBox('navmrk', Lng.markViewed[lCode], null),
-			divBox('navhid', Lng.hidRefmap[lCode], null),
-			divBox('navdis', Lng.disHidPview[lCode], null)
+			divBox('navmrk', null),
+			divBox('navhid', null),
+			divBox('navdis', null)
 		]),
-		divBox('insnum', Lng.insertLink[lCode], null),
-		divBox('mp3', Lng.mp3Embed[lCode], null),
-		divBox('addimg', Lng.imgEmbed[lCode], null),
-		$New('div', null, [
-			optSel('ytube', Lng.selYTembed[lCode], Lng.YTembed[lCode], null)
-		]),
+		divBox('insnum', null),
+		divBox('mp3', null),
+		divBox('addimg', null),
+		$New('div', null, [optSel('ytube', null)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel(
-					'yptype',
-					nav.Opera ? ['Flash', 'HTML5 iframe'] : ['Flash', 'HTML5 iframe', 'HTML5 video'],
-					' ', null
-				),
+				optSel('yptype', null),
 				inpTxt('ywidth', 6, null),
 				$txt('×'),
-				inpTxt('yheigh', 6, null), $txt(' '),
-				lBox('yhdvid', 'HD ', null, '')
+				inpTxt('yheigh', 6, null),
+				$txt(' '),
+				lBox('yhdvid', null, '')
 			]),
-			$if(!nav.Opera, lBox('ytitle', Lng.YTtitle[lCode], null, ''))
+			$if(!nav.Opera, lBox('ytitle', null, ''))
 		])
 	]),
 
@@ -1406,52 +1401,50 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgForm'
 	}, [
-		$if(pr.on, $New('div', null, [
-			optSel('pform', Lng.selReplyForm[lCode], Lng.replyForm[lCode], null)
-		])),
-		$if(pr.on, divBox('tform', Lng.noThrForm[lCode], function() {
+		$if(pr.on, $New('div', null, [optSel('pform', null)])),
+		$if(pr.on, divBox('tform', function() {
 			if(!TNum) {
 				$id('DESU_parea').style.display = Cfg['tform'] ? 'none' : '';
 			}
 		})),
-		divBox('verify', Lng.replyCheck[lCode], null),
-		$if(nav.h5Rep, divBox('sImgs', Lng.sameImgs[lCode], null)),
-		$if(nav.h5Rep, divBox('rExif', Lng.remExif[lCode], null)),
-		divBox('addfav', Lng.addToFav[lCode], null),
-		$if(pr.mail, $New('div', null, [
-			lBox('sagebt', Lng.mailToSage[lCode], null, ''),
-			lBox('svsage', Lng.saveSage[lCode], null, '')
+		divBox('addfav', null),
+		divBox('verify', null),
+		$if(nav.h5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
+			divBox('sImgs', null),
+			divBox('rExif', null)
 		])),
-		$New('div', null, [
-			optSel('forcap', Lng.selCapInput[lCode], Lng.capInput[lCode], null)
-		]),
+		$if(pr.mail, $New('div', null, [
+			lBox('sagebt', null, ''),
+			lBox('svsage', null, '')
+		])),
+		$New('div', null, [optSel('forcap', null)]),
 		$if(pr.on, $New('div', null, [
-			optSel('txtbtn', Lng.selFormatBtns[lCode], Lng.formatBtns[lCode], function() {
+			optSel('txtbtn', function() {
 				saveCfg('txtbtn', this.selectedIndex);
 				addTextPanel();
 				scriptCSS();
 			}),
-			lBox('txtpos', Lng.atBottom[lCode], null, '')
+			lBox('txtpos', null, '')
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
-			lBox('name', Lng.fixedName[lCode], setUserName, 'DESU_fixNameChk')
+			lBox('name', setUserName, 'DESU_fixNameChk')
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('pasval', 20, setUserPassw),
-			lBox('passw', Lng.fixedPass[lCode], setUserPassw, 'DESU_fixPassChk')
+			lBox('passw', setUserPassw, 'DESU_fixPassChk')
 		])),
 		$if(pr.txta, $New('div', null, [
 			inpTxt('sigval', 20, null),
-			lBox('sign', Lng.fixedSign[lCode], null, '')
+			lBox('sign', null, '')
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('norule', Lng.rules[lCode], scriptCSS, ''),
-			$if(pr.gothr, lBox('nogoto', Lng.gotoField[lCode], function() {
+			lBox('norule', scriptCSS, ''),
+			$if(pr.gothr, lBox('nogoto', function() {
 				$disp(pr.gothr);
 			}, '')),
-			$if(pr.passw, lBox('nopass', Lng.passw[lCode], function() {
+			$if(pr.passw, lBox('nopass', function() {
 				$disp(pr.passw.parentNode.parentNode);
 			}, ''))
 		])
@@ -1462,30 +1455,27 @@ function addSettings() {
 		'id': 'DESU_cfgCommon'
 	}, [
 		$New('div', null, [
-			optSel(
-				'sstyle', ['Glass blue', 'Gradient blue', 'Solid grey'], Lng.scriptStyle[lCode],
-				function() {
-					saveCfg('sstyle', this.selectedIndex);
-					scriptCSS();
-				}
-			)
+			optSel('sstyle', function() {
+				saveCfg('sstyle', this.selectedIndex);
+				scriptCSS();
+			})
 		]),
-		divBox('attach', Lng.attachPanel[lCode], function() {
+		divBox('attach', function() {
 			toggleContent('Cfg', false);
 			scriptCSS();
 		}),
-		divBox('icount', Lng.showImgCount[lCode], scriptCSS),
-		divBox('rtitle', Lng.replaceTitle[lCode], null),
-		divBox('animp', Lng.animation[lCode], null),
-		divBox('aclose', Lng.autoClose[lCode], null),
+		divBox('icount', scriptCSS),
+		divBox('rtitle', null),
+		divBox('animp', null),
+		divBox('aclose', null),
 		$if(!nav.Opera, $New('div', null, [
-			divBox('enupd', Lng.upd.enable[lCode], null),
+			divBox('enupd', null),
 			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('supdint', Lng.upd.select[lCode], Lng.upd.interval[lCode], function() {
+				optSel('supdint', function() {
 					saveCfg('supdint', this.selectedIndex);
 				}),
-				divBox('betaupd', Lng.upd.beta[lCode], null),
-				$btn(Lng.upd.checkNow[lCode], '', function() {
+				divBox('betaupd', null),
+				$btn(Lng.checkNow[lCode], '', function() {
 					var el = $id('DESU_updRes');
 					el.innerHTML = '<span class="DESU_wait">' + Lng.checking[lCode] + '</div>';
 					checkForUpdates(true, function(html) {
@@ -1501,7 +1491,7 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgInfo'
 	}, [
-		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 200px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
+		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 
 	$append($id('DESU_contentCfg'), [
@@ -1514,16 +1504,16 @@ function addSettings() {
 				'text': 'Dollchan Extension Tools'
 			}, null),
 			$New('div', {'id': 'DESU_cfgBar'}, [
-				cfgTab(Lng.filters[lCode], cfgFilters),
-				cfgTab(Lng.posts[lCode], cfgPosts),
-				cfgTab(Lng.links[lCode], cfgLinks),
-				cfgTab(Lng.form[lCode], cfgForm),
-				cfgTab(Lng.common[lCode], cfgCommon),
-				cfgTab(Lng.info[lCode], cfgInfo)
+				cfgTab('Filters', cfgFilters),
+				cfgTab('Posts', cfgPosts),
+				cfgTab('Links', cfgLinks),
+				cfgTab('Form', cfgForm),
+				cfgTab('Common', cfgCommon),
+				cfgTab('Info', cfgInfo)
 			]),
 			$New('div', {'id': 'DESU_cfgBtns'}, [
 				$New('div', {'style': 'float: right;'}, [
-					optSel('lang', ['Ru', 'En'], '', function() {
+					optSel('lang', function() {
 						saveCfg('lang', this.selectedIndex);
 						window.location.reload();
 					}),
@@ -1539,7 +1529,7 @@ function addSettings() {
 						setStored('DESU_GlobalCfg', $uneval(Cfg));
 						toggleContent('Cfg', true);
 					})),
-					$btn(Lng.edit[lCode], Lng.editCfg[lCode], function() {
+					$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
 						$disp($attr($id('DESU_cfgEdit'), {
 							'value': getStored('DESU_Config_' + aib.dm)
 						}).parentNode);
@@ -1731,7 +1721,7 @@ function addHiddenTable() {
 	}
 	$append(table, [
 		$New('tr', null, [
-			$btn(Lng.edit[lCode], Lng.editNotes[lCode], function() {
+			$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
 				$disp($id('DESU_hidTEdit').parentNode);
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
@@ -1841,7 +1831,7 @@ function addFavoritesTable() {
 	$append(table, [
 		$New('tr', null, [
 			$new('hr', null, null),
-			$btn(Lng.edit[lCode], Lng.editNotes[lCode], function() {
+			$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
 				$disp($id('DESU_favEdit').parentNode);
 			}),
 			$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
@@ -3116,9 +3106,9 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
-function tfBtn(id, title, wktag, bbtag, val) {
+function txtBtn(id, wktag, bbtag, val) {
 	var x = pr.txta,
-		btn = $new('span', {'id': id, 'title': title}, null);
+		btn = $new('span', {'id': 'DESU_btn' + id, 'title': Lng.txtBtn[id][lCode]}, null);
 	if(Cfg['txtbtn'] === 2) {
 		btn.innerHTML = '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : '');
 	}
@@ -3193,13 +3183,13 @@ function addTextPanel() {
 			$New('span', {'id': 'DESU_txtPanel'}, [
 				$txt(unescape('%u00A0')),
 				$if(Cfg['txtbtn'] === 2, $txt('[ ')),
-				tfBtn('DESU_btnBold', Lng.bold[lCode], '**', aib._420 ? '**' : 'b', 'B'),
-				tfBtn('DESU_btnItalic', Lng.italic[lCode], '*', aib._420 ? '*' : 'i', 'i'),
-				$if(!aib._420, tfBtn('DESU_btnUnder', Lng.underlined[lCode], '__', 'u', 'U')),
-				$if(!aib._420, tfBtn('DESU_btnStrike', Lng.strike[lCode], aib._410 ? '^^' : '', 's', 'S')),
-				tfBtn('DESU_btnSpoiler', Lng.spoiler[lCode], '%%', aib._420 ? '%' : 'spoiler', '%'),
-				tfBtn('DESU_btnCode', Lng.code[lCode], '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
-				tfBtn('DESU_btnQuote', Lng.quote[lCode], '', '', '&gt;'),
+				txtBtn('Bold', '**', aib._420 ? '**' : 'b', 'B'),
+				txtBtn('Italic', '*', aib._420 ? '*' : 'i', 'i'),
+				$if(!aib._420, txtBtn('Under', '__', 'u', 'U')),
+				$if(!aib._420, txtBtn('Strike', aib._410 ? '^^' : '', 's', 'S')),
+				txtBtn('Spoil', '%%', aib._420 ? '%' : 'spoiler', '%'),
+				txtBtn('Code', '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
+				txtBtn('Quote', '', '', '&gt;'),
 				$if(Cfg['txtbtn'] === 2, $txt(' ]'))
 			])
 		);
@@ -3897,7 +3887,8 @@ function parseImg(a, ab) {
 	for(len = i + 50; i < len; i++) {
 		if((dat[i] === 0x37 && dat[i + 1] === 0x7A) ||
 			(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
-			(dat[i] === 0x52 && dat[i + 1] === 0x61)) {
+			(dat[i] === 0x52 && dat[i + 1] === 0x61)
+		) {
 			$x(aib.xImages, aib.getPicWrap(a)).className += ' DESU_archive';
 			break;
 		}
@@ -4292,13 +4283,12 @@ function outRefLink() {
 }
 
 function eventRefLink(el) {
-	if(Cfg['navig'] === 0) {
-		return;
+	if(Cfg['navig'] !== 0) {
+		$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
+			link.onmouseover = overRefLink;
+			link.onmouseout = outRefLink;
+		});
 	}
-	$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
-		link.onmouseover = overRefLink;
-		link.onmouseout = outRefLink;
-	});
 }
 
 
@@ -5809,13 +5799,13 @@ function scriptCSS() {
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + nav.cFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 5px; ' + nav.cFix + 'border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		.DESU_cfgBody { min-width: 412px; min-height: 250px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { min-width: 371px; min-height: 280px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' border-top: none; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
 		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: ' + (Cfg['sstyle'] === 0 ? '#325f9e;' : Cfg['sstyle'] === 1 ? '#0c1626;' : '#777;') + ' }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 9px; border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.DESU_cfgTab { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%);' : 'background-color: rgba(0,0,0,.2);') + ' }\
 		.DESU_cfgTab:hover { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%);' : 'background-color: rgba(99,99,99,.2);') + ' }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
@@ -5851,13 +5841,13 @@ function scriptCSS() {
 	gif('#DESU_btnHidden', p + 'I5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
 	gif('#DESU_btnFavor', p + 'IzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
 	gif('#DESU_btnRefresh', p + 'JAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
-	gif('#DESU_btnGoback', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
-	gif('#DESU_btnGonext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
-	gif('#DESU_btnGoup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
-	gif('#DESU_btnGodown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
-	gif('#DESU_btnNewthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
-	gif('#DESU_btnExpimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
-	gif('#DESU_btnMaskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
+	gif('#DESU_btnGoBack', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
+	gif('#DESU_btnGoNext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
+	gif('#DESU_btnGoUp', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
+	gif('#DESU_btnGoDown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
+	gif('#DESU_btnNewThr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
+	gif('#DESU_btnExpImg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
+	gif('#DESU_btnMaskImg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
 	if(aib.nul) {
 		gif('#DESU_btnCatalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	}
@@ -5904,7 +5894,7 @@ function scriptCSS() {
 		gif('#DESU_btnItalic', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
 		gif('#DESU_btnUnder', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
 		gif('#DESU_btnStrike', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
-		gif('#DESU_btnSpoiler', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
+		gif('#DESU_btnSpoil', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
 		gif('#DESU_btnCode', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
 		gif('#DESU_btnQuote', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 	}
@@ -6159,9 +6149,9 @@ function checkForUpdates(force, fn) {
 								+ 'master/Dollchan_Extension_Tools.user.js'
 							: 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
 								+ 'wiki/Versions'
-					)+ '">' + Lng.upd.available[lCode] + '</a>');
+					)+ '">' + Lng.updAvail[lCode] + '</a>');
 				} else if(force) {
-					fn(Lng.upd.haveLatest[lCode]);
+					fn(Lng.haveLatest[lCode]);
 				}
 			} else if(force) {
 				fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lCode] + '</div>');
