@@ -6179,7 +6179,7 @@ function isCompatible() {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
-	aib = getImageboard();
+	getImageboard();
 	if(/DESU_iframe/.test(window.name)) {
 		fixDomain();
 		return false;
@@ -6346,148 +6346,147 @@ function getPostform(form) {
 function getImageboard() {
 	var h = window.location.hostname.match(
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
-		)[0],
-		obj = {};
-	obj.dm = h;
-	obj.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
-	obj.tiny = $xb('.//form[@name="postcontrols"]', doc);
-	obj.krau = h === 'krautchan.net';
-	obj.gazo = h === '2chan.net';
-	obj.brit = h === 'britfa.gs';
-	obj.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
-	obj.xDForm = obj.brit ? './/div[@class="threadz"]' : './/form[' + (
-		obj.hana || obj.krau || obj.ylil ? 'contains(@action,"delete")]'
-		: obj.tiny ? '@name="postcontrols"]'
-		: obj.gazo ? '2]'
+		)[0];
+	aib.dm = h;
+	aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
+	aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
+	aib.krau = h === 'krautchan.net';
+	aib.gazo = h === '2chan.net';
+	aib.brit = h === 'britfa.gs';
+	aib.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
+	aib.xDForm = aib.brit ? './/div[@class="threadz"]' : './/form[' + (
+		aib.hana || aib.krau || aib.ylil ? 'contains(@action,"delete")]'
+		: aib.tiny ? '@name="postcontrols"]'
+		: aib.gazo ? '2]'
 		: '@id="delform" or @name="delform"]'
 	);
-	dForm = $x(obj.xDForm, doc);
+	dForm = $x(aib.xDForm, doc);
 	if(!dForm) {
-		return obj;
+		return;
 	}
-	obj.host = window.location.hostname;
-	obj.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
-	obj.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
-	obj.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	obj.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
-	obj.fch = h === '4chan.org';
-	obj.nul = h === '0chan.ru';
-	obj._7ch = h === '7chan.org';
-	obj._410 = h === '410chan.ru';
-	obj.hid = h === 'hiddenchan.i2p';
-	obj.tire = h === '2--ch.ru';
-	obj.dfwk = h === 'dfwk.ru';
-	obj.pony = h === 'ponychan.net';
-	obj.vomb = h === 'vombatov.net';
-	obj.ment = h === '02ch.net';
-	obj.futr = h === '2chan.su';
-	obj._420 = h === '420chan.org';
-	obj.pClass =
-		obj.krau ? 'postreply'
-		: obj.ylil ? ' answer'
-		: obj.tiny || obj.fch ? 'post reply'
+	aib.host = window.location.hostname;
+	aib.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
+	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
+	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
+	aib.fch = h === '4chan.org';
+	aib.nul = h === '0chan.ru';
+	aib._7ch = h === '7chan.org';
+	aib._410 = h === '410chan.ru';
+	aib.hid = h === 'hiddenchan.i2p';
+	aib.tire = h === '2--ch.ru';
+	aib.dfwk = h === 'dfwk.ru';
+	aib.pony = h === 'ponychan.net';
+	aib.vomb = h === 'vombatov.net';
+	aib.ment = h === '02ch.net';
+	aib.futr = h === '2chan.su';
+	aib._420 = h === '420chan.org';
+	aib.pClass =
+		aib.krau ? 'postreply'
+		: aib.ylil ? ' answer'
+		: aib.tiny || aib.fch ? 'post reply'
 		: 'reply';
-	obj.opClass =
-		obj.kus ? 'postnode'
-		: obj.brit ? 'originalpost'
-		: obj.fch ? 'op'
+	aib.opClass =
+		aib.kus ? 'postnode'
+		: aib.brit ? 'originalpost'
+		: aib.fch ? 'op'
 		: 'oppost';
-	obj.tClass = obj.krau ? 'thread_body' : 'thread';
-	obj.xThreads = './/div[' + (
+	aib.tClass = aib.krau ? 'thread_body' : 'thread';
+	aib.xThreads = './/div[' + (
 		$xb('.//div[contains(@id,"_info") and contains(@style,"float")]', doc)
 			? 'starts-with(@id,"t") and not(contains(@id,"_info"))'
-		: obj._420 ? 'contains(@id,"thread")'
-		: 'starts-with(@id,"thread")' + (obj._7ch ? 'and not(@id="thread_controls")' : '')
+		: aib._420 ? 'contains(@id,"thread")'
+		: 'starts-with(@id,"thread")' + (aib._7ch ? 'and not(@id="thread_controls")' : '')
 	) + ']';
-	obj.xTNum =
-		obj.gazo || obj.tiny ? './/input[@type="checkbox"]'
-		: (obj.waka && !obj.abu) || obj.brit || obj.tinyIb ? './/a[@name]'
-		: obj.kus && !obj._7ch ? 'a[@name][2]'
+	aib.xTNum =
+		aib.gazo || aib.tiny ? './/input[@type="checkbox"]'
+		: (aib.waka && !aib.abu) || aib.brit || aib.tinyIb ? './/a[@name]'
+		: aib.kus && !aib._7ch ? 'a[@name][2]'
 		: false;
-	obj.xRef = obj.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]' : false;
-	obj.cRef =
-		obj.krau || obj.ylil ? 'postnumber'
-		: obj.gazo ? 'del'
+	aib.xRef = aib.tiny ? './/p[@class="intro"]/a[@class="post_no"][2]' : false;
+	aib.cRef =
+		aib.krau || aib.ylil ? 'postnumber'
+		: aib.gazo ? 'del'
 		: 'reflink';
-	obj.xMsg =
-		obj.hana ? './/div[@class="postbody"]'
-		: obj.ylil ? './/div[@class="post"]'
-		: obj.tiny ? './/p[@class="body"]'
-		: obj._7ch ? './/p[@class="message"]'
+	aib.xMsg =
+		aib.hana ? './/div[@class="postbody"]'
+		: aib.ylil ? './/div[@class="post"]'
+		: aib.tiny ? './/p[@class="body"]'
+		: aib._7ch ? './/p[@class="message"]'
 		: './/blockquote';
-	obj.cMsg =
-		obj.hana ? 'postbody'
-		: obj.ylil ? 'post'
-		: obj.tiny ? 'body'
-		: obj._7ch ? 'message'
+	aib.cMsg =
+		aib.hana ? 'postbody'
+		: aib.ylil ? 'post'
+		: aib.tiny ? 'body'
+		: aib._7ch ? 'message'
 		: false;
-	obj.xImages = obj.brit ? './/a[@class="fileinfo"]' : (
-		obj.gazo ? '.'
-		: obj.tiny || obj.ylil ? './/p[@class="fileinfo"]'
-		: obj.hana ? './/div[starts-with(@class,"fileinfo")]'
-		: './/span[@class="' + (obj.krau ? 'filename' : obj.fch ? 'fileText' : 'filesize') + '"]'
+	aib.xImages = aib.brit ? './/a[@class="fileinfo"]' : (
+		aib.gazo ? '.'
+		: aib.tiny || aib.ylil ? './/p[@class="fileinfo"]'
+		: aib.hana ? './/div[starts-with(@class,"fileinfo")]'
+		: './/span[@class="' + (aib.krau ? 'filename' : aib.fch ? 'fileText' : 'filesize') + '"]'
 	) + '//a[contains(@href,".jpg") or contains(@href,".png") or contains(@href,".gif")]'
-		+ (obj.nul ? '[1]' : '');
-	obj.cTitle =
-		obj.krau || obj.ylil ? 'postsubject'
-		: obj.tiny || obj.fch ? 'subject'
-		: obj.hana ? 'replytitle'
+		+ (aib.nul ? '[1]' : '');
+	aib.cTitle =
+		aib.krau || aib.ylil ? 'postsubject'
+		: aib.tiny || aib.fch ? 'subject'
+		: aib.hana ? 'replytitle'
 		: 'filetitle';
-	obj.cOmPosts =
-		obj.krau ? 'omittedinfo'
-		: obj.ylil ? 'omitted'
-		: obj.hana ? 'abbrev'
-		: obj.fch ? 'summary desktop'
+	aib.cOmPosts =
+		aib.krau ? 'omittedinfo'
+		: aib.ylil ? 'omitted'
+		: aib.hana ? 'abbrev'
+		: aib.fch ? 'summary desktop'
 		: 'omittedposts';
-	obj.xBan =
-		obj.krau ? './/span[@class="ban_mark"]/ancestor::p'
-		: obj.fch ? './/strong[@style="color: red;"]'
+	aib.xBan =
+		aib.krau ? './/span[@class="ban_mark"]/ancestor::p'
+		: aib.fch ? './/strong[@style="color: red;"]'
 		: false;
-	obj.picWrap =
-		obj.krau ? '@class="file_thread" or @class="file_reply"'
-		: obj.hana ? '@class="file"'
+	aib.picWrap =
+		aib.krau ? '@class="file_thread" or @class="file_reply"'
+		: aib.hana ? '@class="file"'
 		: false;
-	obj.getPicWrap = obj.hana
+	aib.getPicWrap = aib.hana
 		? function(el) {
 			if(!el.previousElementSibling) {
 				el = el.parentNode;
 			}
 			return el.parentNode;
 		}
-		: obj.krau ? function(el) {
+		: aib.krau ? function(el) {
 			return el.parentNode;
 		}
 		: function(el) {
 			return getPost(el);
 		}
-	obj.getMsg = obj.cMsg
+	aib.getMsg = aib.cMsg
 		? function(el) {
-			return $c(obj.cMsg, el);
+			return $c(aib.cMsg, el);
 		}
 		: function(el) {
 			return $t('blockquote', el);
 		};
-	obj.getRef =
-		obj.xRef ? function(el) {
-			return $x(obj.xRef, el);
+	aib.getRef =
+		aib.xRef ? function(el) {
+			return $x(aib.xRef, el);
 		}
-		: obj.fch ? function(el) {
+		: aib.fch ? function(el) {
 			return $c('postInfo', el).lastElementChild;
 		}
 		: function(el) {
-			return $c(obj.cRef, el);
+			return $c(aib.cRef, el);
 		};
-	obj.getOp =
-		(obj.abu || obj.hana || obj.kus || obj.fch) && $c(obj.opClass, doc) ? function(thr, dc) {
-			return $c(obj.opClass, thr);
+	aib.getOp =
+		(aib.abu || aib.hana || aib.kus || aib.fch) && $c(aib.opClass, doc) ? function(thr, dc) {
+			return $c(aib.opClass, thr);
 		}
-		: obj.ylil ? function(thr, dc) {
+		: aib.ylil ? function(thr, dc) {
 			return thr.firstElementChild;
 		}
-		: obj.brit ? function(thr, dc) {
+		: aib.brit ? function(thr, dc) {
 			var el,
 				post = $$new('div', {'style': 'clear: left;'}, null, dc),
-				op = $c(obj.opClass, thr);
+				op = $c(aib.opClass, thr);
 			$after($c('postmenu', op), post);
 			while((el = thr.firstChild).tagName !== 'TABLE') {
 				$after(post, el);
@@ -6504,7 +6503,7 @@ function getImageboard() {
 		: function(thr, dc) {
 			var el,
 				op = $$new('div', null, null, dc),
-				opEnd = $$x(obj.xTable + '|div[starts-with(@id,"repl")]', thr, dc);
+				opEnd = $$x(aib.xTable + '|div[starts-with(@id,"repl")]', thr, dc);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
@@ -6515,35 +6514,35 @@ function getImageboard() {
 			}
 			return op;
 		};
-	obj.getTNum =
-		obj.xTNum ? function(op, dc) {
-			return $$x(obj.xTNum, op, dc).name.match(/\d+/)[0];
+	aib.getTNum =
+		aib.xTNum ? function(op, dc) {
+			return $$x(aib.xTNum, op, dc).name.match(/\d+/)[0];
 		}
-		: obj.krau ? function(op, dc) {
+		: aib.krau ? function(op, dc) {
 			return op.parentNode.previousElementSibling.name;
 		}
 		: function(op, dc) {
-			return op.parentNode.id.match('\\d+' + (obj._420 ? '$' : ''))[0];
+			return op.parentNode.id.match('\\d+' + (aib._420 ? '$' : ''))[0];
 		};
-	obj.getPNum = obj.gazo
+	aib.getPNum = aib.gazo
 		? function(post) {
 			return $t('input', post).name;
 		}
 		: function(post) {
 			return post.id.match(/\d+/)[0];
 		};
-	obj.getOmPosts = obj.gazo
+	aib.getOmPosts = aib.gazo
 		? function(el, dc) {
 			return $$x('.//font[@color="#707070"]', el, dc);
 		}
 		: function(el, dc) {
-			return $c(obj.cOmPosts, el);
+			return $c(aib.cOmPosts, el);
 		};
-	obj.getSage =
-		obj.krau ? function(post) {
+	aib.getSage =
+		aib.krau ? function(post) {
 			return !!$c('sage', post);
 		}
-		: obj._410 ? function(post) {
+		: aib._410 ? function(post) {
 			return $xb(
 				'.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]',
 				post
@@ -6553,14 +6552,13 @@ function getImageboard() {
 			var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		}
-	obj.getImgInfo = obj.fch
+	aib.getImgInfo = aib.fch
 		? function(post) {
 			return $c('fileText', post);
 		}
 		: function (post) {
 			return $t('em', post) || $c('filesize', post) || $c('fileinfo', post);
 		}
-	return obj;
 }
 
 function pushPost(post, i) {
