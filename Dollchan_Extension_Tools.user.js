@@ -3282,52 +3282,52 @@ function prepareButtons() {
 	doc.head.appendChild(script);
 	script.textContent = 
 		'function DESU_hideClick(el) {\
-			window.postMessage(["hideClick", el.parentNode.id], "*");\
+			window.postMessage("D" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_hideOver(el) {\
-			window.postMessage(["hideOver", el.parentNode.id], "*");\
+			window.postMessage("A" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_delSelection(el) {\
-			window.postMessage(["delSelection", el.parentNode.id], "*");\
+			window.postMessage("G" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_qReplyClick(el) {\
-			window.postMessage(["qReplyClick", el.parentNode.id], "*");\
+			window.postMessage("F" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_qReplyOver(el) {\
-			window.postMessage(["qReplyOver", el.parentNode.id], "*");\
+			window.postMessage("C" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_expandClick(el) {\
-			window.postMessage(["expandClick", el.parentNode.id], "*");\
+			window.postMessage("E" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_expandOver(el) {\
-			window.postMessage(["expandOver", el.parentNode.id], "*");\
+			window.postMessage("B" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_favorClick(el) {\
-			window.postMessage(["favorClick", el.parentNode.id], "*");\
+			window.postMessage("H" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_sageClick(el) {\
-			window.postMessage(["sageClick", el.parentNode.id], "*");\
+			window.postMessage("I" + el.parentNode.id.substring(9), "*");\
 		}';
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
-			post = pByNum[event.data[1].substring(9)];
-		if(name === "hideOver") {
+			post = pByNum[+event.data.substring(1)];
+		if(name === "A") {
 			selectPostHider(post);
-		} else if(name === "expandOver") {
+		} else if(name === "B") {
 			selectExpandThread(post);
-		} else if(name === "qReplyOver") {
+		} else if(name === "C") {
 			quotetxt = txtSelection();
-		} else if(name === "hideClick") {
+		} else if(name === "D") {
 			togglePostVisib(post);
-		} else if(name === "expandClick") {
+		} else if(name === "E") {
 			loadThread(post, 1, null);
-		} else if(name === "qReplyClick") {
+		} else if(name === "F") {
 			showQuickReply(post);
-		} else if(name === "delSelection") {
+		} else if(name === "G") {
 			$del($id('DESU_select'));
-		} else if(name === "favorClick") {
+		} else if(name === "H") {
 			toggleFavorites(post, $c('DESU_btnFav', post) || $c('DESU_btnFavSel', post));
-		} else if(name === "sageClick") {
+		} else if(name === "I") {
 			applySpells('#sage');
 		}
 	}, false);
