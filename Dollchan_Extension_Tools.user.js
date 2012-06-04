@@ -7002,10 +7002,6 @@ function doScript() {
 		addImgSearch(dForm);
 		Log('addImgSearch');
 	}
-	if(Cfg['pimgs'] !== 0) {
-		preloadImages(dForm);
-		Log('preloadImages');
-	}
 	if(Cfg['navig'] === 2) {
 		genRefMap(pByNum);
 		Log('genRefMap');
@@ -7018,6 +7014,10 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
+	if(Cfg['pimgs'] !== 0) {
+		preloadImages(dForm);
+		Log('preloadImages');
+	}
 	endTime = (new Date()).getTime() - initTime;
 }
 
