@@ -6315,7 +6315,9 @@ function getNavigator() {
 		}
 	}
 	nav.h5Rep = (nav.Firefox > 6 || nav.Chrome) && !aib.nul && !aib.tiny;
-	window.URL = window.URL || window.webkitURL;
+	if(nav.Chrome) {
+		window.URL = window.webkitURL;
+	}
 	nav.insAfter = nav.Firefox && nav.Firefox < 8
 		? function(el, html) {
 			$after(el, $add(html));
