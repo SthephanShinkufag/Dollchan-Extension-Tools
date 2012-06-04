@@ -2700,7 +2700,6 @@ function readArch(inp, file) {
 		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>'
 			+ Lng.wait[lCode] + '</span>');
 	$after(inp, el);
-	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		if(inp.nextSibling === el) {
 			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;" title="'
@@ -2709,6 +2708,7 @@ function readArch(inp, file) {
 			$del(el);
 		}
 	};
+	fr.readAsArrayBuffer(file);
 }
 
 function delFileUtils(el) {
@@ -2976,7 +2976,6 @@ function prepareFiles(el, fn, i) {
 		fn(i, file, file.name, file.type);
 		return;
 	}
-	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
 			? [removeExif(this.result)]
@@ -2989,6 +2988,7 @@ function prepareFiles(el, fn, i) {
 		}
 		fn(i, arrToBlob(dat), file.name, file.type);
 	};
+	fr.readAsArrayBuffer(file);
 }
 
 
