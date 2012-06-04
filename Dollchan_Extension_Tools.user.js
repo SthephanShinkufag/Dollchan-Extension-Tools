@@ -3270,7 +3270,7 @@ function getImgSize(post) {
 
 function prepareButtons() {
 	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(this)"></span>'),
+		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>'),
 		$if(pr.on || oeForm,
 			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>')
 		)
@@ -3279,7 +3279,7 @@ function prepareButtons() {
 	opPanel.className += '_op';
 	$append(opPanel, [
 		$if(!TNum, 
-			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(this)"></span>')
+			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
 		),
 		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
 	]);
@@ -3294,8 +3294,11 @@ function prepareButtons() {
 		function DESU_hideOver(el) {\
 			window.postMessage("A" + el.parentNode.id.substring(9), "*");\
 		}\
-		function DESU_delSelection(el) {\
-			window.postMessage("G" + el.parentNode.id.substring(9), "*");\
+		function DESU_delSelection(e) {\
+			if(!document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
+				var el = document.getElementById("DESU_select");\
+				el.parentNode.removeChild(el);\
+			}\
 		}\
 		function DESU_qReplyClick(el) {\
 			window.postMessage("F" + el.parentNode.id.substring(9), "*");\
@@ -3310,10 +3313,10 @@ function prepareButtons() {
 			window.postMessage("B" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_favorClick(el) {\
-			window.postMessage("H" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("G" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_sageClick(el) {\
-			window.postMessage("I" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("H" + el.parentNode.id.substring(9), "*");\
 		}';
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
@@ -3331,10 +3334,8 @@ function prepareButtons() {
 		} else if(name === "F") {
 			showQuickReply(post);
 		} else if(name === "G") {
-			$del($id('DESU_select'));
-		} else if(name === "H") {
 			toggleFavorites(post, $c('DESU_btnFav', post) || $c('DESU_btnFavSel', post));
-		} else if(name === "I") {
+		} else if(name === "H") {
 			applySpells('#sage');
 		}
 	}, false);
@@ -6004,7 +6005,7 @@ function scriptCSS() {
 		#DESU_sageBtn { cursor: pointer; }\
 		#DESU_select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
-		#DESU_select a:hover { background-color: ' + (Cfg['sstyle'] === 2 ? '#444' : '#1b345e') + '; color: #fff; }\
+		#DESU_select a:hover { background-color: #222; color: #fff; }\
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : nav.cFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed { color: #888 !important; }\
