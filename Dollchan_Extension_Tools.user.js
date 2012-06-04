@@ -1428,9 +1428,8 @@ function addSettings() {
 			optSel('txtbtn', function() {
 				saveCfg('txtbtn', this.selectedIndex);
 				addTextPanel();
-				scriptCSS();
 			}),
-			lBox('txtpos', null, '')
+			lBox('txtpos', addTextPanel, '')
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
@@ -3113,94 +3112,105 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
-function txtBtn(id, wktag, bbtag, val) {
-	var x = pr.txta,
-		btn = $new('span', {'id': 'DESU_btn' + id, 'title': Lng.txtBtn[id][lCode]}, null);
-	if(Cfg['txtbtn'] === 2) {
-		btn.innerHTML = '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : '');
-	}
-	if(Cfg['txtbtn'] === 3) {
-		btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
-	}
-	if(val !== '&gt;') {
-		$event(btn, {
-			'click': function(e) {
-				var tag1, tag2, j, len,
-					start = x.selectionStart,
-					end = x.selectionEnd,
-					scrtop = x.scrollTop,
-					text = x.value.substring(start, end).split('\n'),
-					i = text.length;
-				$pd(e);
-				if(aib.kus || aib.abu || aib.krau || aib._420 || aib.fch && wktag === '%%') {
-					tag1 = '[' + bbtag + ']';
-					tag2 = '[/' + bbtag + ']';
-				} else {
-					tag1 = tag2 = wktag;
-				}
-				while(i--) {
-					if(tag1 === '') {
-						j = text[i].trim().length;
-						while(j--) {
-							tag2 += '^H';
-						}
-					}
-					len = end + tag1.length + tag2.length;
-					if(text[i].match(/^\s+/)) {
-						tag1 = text[i].match(/^\s+/)[0] + tag1;
-					}
-					if(text[i].match(/\s+$/)) {
-						tag2 += text[i].match(/\s+$/)[0];
-					}
-					text[i] = tag1 + text[i].trim() + tag2;
-				}
-				x.value = x.value.substr(0, start) + text.join('\n') + x.value.substr(end);
-				x.setSelectionRange(len, len);
-				x.focus();
-				x.scrollTop = scrtop;
-			}
-		});
-	} else {
-		$event(btn, {
-			'mouseover': function() {
-				quotetxt = txtSelection();
-			},
-			'click': function(e) {
-				var start = x.selectionStart,
-					end = x.selectionEnd;
-				$pd(e);
-				insertInto(x, '> ' + (
-					start === end ? quotetxt: x.value.substring(start, end)
-				).replace(/\n/gm, '\n> '));
-			}
-		});
-	}
-	return btn;
-}
-
 function addTextPanel() {
-	$del($id('DESU_txtPanel'));
-	if(Cfg['txtbtn'] !== 0 && pr.txta) {
-		$after(
-			Cfg['txtpos'] === 0 ? (
-				aib.abu ? $id('hideUserFlds')
-				: aib._420 ? $c('popup', pr.form)
-				: pr.subm
-			) : $id('DESU_txtResizer'),
-			$New('span', {'id': 'DESU_txtPanel'}, [
-				$txt(unescape('%u00A0')),
-				$if(Cfg['txtbtn'] === 2, $txt('[ ')),
-				txtBtn('Bold', '**', aib._420 ? '**' : 'b', 'B'),
-				txtBtn('Italic', '*', aib._420 ? '*' : 'i', 'i'),
-				$if(!aib._420, txtBtn('Under', '__', 'u', 'U')),
-				$if(!aib._420, txtBtn('Strike', aib._410 ? '^^' : '', 's', 'S')),
-				txtBtn('Spoil', '%%', aib._420 ? '%' : 'spoiler', '%'),
-				txtBtn('Code', '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
-				txtBtn('Quote', '', '', '&gt;'),
-				$if(Cfg['txtbtn'] === 2, $txt(' ]'))
-			])
-		);
+	if(!pr.txta) {
+		return;
 	}
+	var pnl = $id('DESU_txtPanel'),
+		bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
+		tagTable = {
+			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
+			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
+			'Under': [bbBrds ? 'u' : '__', 'U'],
+			'Strike': [bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
+			'Spoil': [aib._420 ? '%' : bbBrds ? 'spoiler' : '%%', '%'],
+			'Code': [aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
+			'Quote': [,'&gt;']
+		},
+		txtBtn = function(id) {
+				var x = pr.txta,
+				btn = $id('DESU_btn' + id),
+				val = tagTable[id][1];
+			if(!btn) {
+				btn = $new('span', {'id': 'DESU_btn' + id, 'title': Lng.txtBtn[id][lCode]}, null);
+				if(val !== '&gt;') {
+					btn.onclick = function(e) {
+						var tag1, tag2, j, len,
+							start = x.selectionStart,
+							end = x.selectionEnd,
+							scrtop = x.scrollTop,
+							text = x.value.substring(start, end).split('\n'),
+							i = text.length,
+							tag = tagTable[this.id.substring(8)][0];
+						$pd(e);
+						if(bbBrds || (aib.fch && tag === '%%')) {
+							tag1 = '[' + tag + ']';
+							tag2 = '[/' + tag + ']';
+						} else {
+							tag1 = tag2 = tag;
+						}
+						while(i--) {
+							if(tag1 === '') {
+								j = text[i].trim().length;
+								while(j--) {
+									tag2 += '^H';
+								}
+							}
+							len = end + tag1.length + tag2.length;
+							if(text[i].match(/^\s+/)) {
+								tag1 = text[i].match(/^\s+/)[0] + tag1;
+							}
+							if(text[i].match(/\s+$/)) {
+								tag2 += text[i].match(/\s+$/)[0];
+							}
+							text[i] = tag1 + text[i].trim() + tag2;
+						}
+						x.value = x.value.substr(0, start) + text.join('\n') + x.value.substr(end);
+						x.setSelectionRange(len, len);
+						x.focus();
+						x.scrollTop = scrtop;
+					};
+				} else {
+					btn.onmouseover = function() {
+						quotetxt = txtSelection();
+					};
+					btn.onclick = function(e) {
+						var start = x.selectionStart,
+							end = x.selectionEnd;
+						$pd(e);
+						insertInto(x, '> ' + (
+							start === end ? quotetxt: x.value.substring(start, end)
+						).replace(/\n/gm, '\n> '));
+					};
+				}
+				pnl.appendChild(btn);
+			}
+			if(Cfg['txtbtn'] === 1) {
+				btn.innerHTML = '';
+			} else if(Cfg['txtbtn'] === 2) {
+				btn.innerHTML = (val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]');
+			} else if(Cfg['txtbtn'] === 3) {
+				btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
+			}
+		};
+	if(!pnl) {
+		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
+	}
+	pnl.lang = (Cfg['txtbtn'] === 0 ? 'en' : Cfg['txtpos'] === 0 ? 'ru' : '');
+	$after(Cfg['txtpos'] === 0 ? (
+		aib.abu ? $id('hideUserFlds')
+		: aib._420 ? $c('popup', pr.form)
+		: pr.subm
+	) : $id('DESU_txtResizer'), pnl);
+	txtBtn('Bold', pnl);
+	txtBtn('Italic', pnl);
+	if(!aib._420) {
+		txtBtn('Under', pnl);
+		txtBtn('Strike', pnl);
+	}
+	txtBtn('Spoil', pnl);
+	txtBtn('Code', pnl);
+	txtBtn('Quote', pnl);
 }
 
 
@@ -5900,18 +5910,20 @@ function scriptCSS() {
 	);
 
 	// text format buttons
-	x.push('#DESU_txtPanel { ' + (Cfg['txtpos'] === 0 ? 'float: right;' : '') + ' display: block; height: 23px; font-weight: bold; cursor: pointer; }');
-	if(Cfg['txtbtn'] === 1) {
-		x.push('#DESU_txtPanel span { display: inline-block; width: 27px; height: 23px }');
-		p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
-		gif('#DESU_btnBold', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
-		gif('#DESU_btnItalic', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
-		gif('#DESU_btnUnder', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
-		gif('#DESU_btnStrike', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
-		gif('#DESU_btnSpoil', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
-		gif('#DESU_btnCode', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
-		gif('#DESU_btnQuote', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
-	}
+	x.push(
+		'#DESU_txtPanel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
+		#DESU_txtPanel > span:empty { display: inline-block; width: 27px; height: 23px }\
+		#DESU_txtPanel:lang(en) { display: none; }\
+		#DESU_txtPanel:lang(ru) { float: right; }'
+	);
+	p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
+	gif('#DESU_btnBold:empty', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
+	gif('#DESU_btnItalic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
+	gif('#DESU_btnUnder:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
+	gif('#DESU_btnStrike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
+	gif('#DESU_btnSpoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
+	gif('#DESU_btnCode:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#DESU_btnQuote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
 	if(nav.Anim) {
