@@ -6031,6 +6031,7 @@ function scriptCSS() {
 	} else if(aib.abu) {
 		x.push(
 			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"] { display: none !important; }\
+			textarea { margin: 0 !important; }\
 			.DESU_aBtn { ' + nav.aCFix + 'transition: none; }'
 		);
 	} else if(aib.tiny) {
