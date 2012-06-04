@@ -3992,19 +3992,17 @@ function getRefMap(post, pNum, refMap) {
 }
 
 function genRefMap(pBn) {
-	var pNum, post,
-		refMap = [];
+	var pNum, post, refMap = [];
 	for(pNum in pBn) {
 		getRefMap(pBn[pNum], pNum, refMap);
 	}
 	for(pNum in refMap) {
 		post = pBn[pNum];
 		if(post) {
-			$after(post.Msg, $add(
-				'<div class="DESU_refMap">'
-					+ refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
-					+ '</div>'
-			));
+			nav.insAfter(post.Msg, '<div class="DESU_refMap">'
+				+ refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
+				+ '</div>'
+			);
 		}
 	}
 	refMap = null;
@@ -6315,9 +6313,14 @@ function getNavigator() {
 		}
 	}
 	nav.h5Rep = (nav.Firefox > 6 || nav.Chrome) && !aib.nul && !aib.tiny;
-	if(nav.Chrome) {
-		window.URL = window.webkitURL;
-	}
+	window.URL = window.URL || window.webkitURL;
+	nav.insAfter = nav.Firefox && nav.Firefox < 8
+		? function(el, html) {
+			$after(el, $add(html));
+		}
+		: function(el, html) {
+			el.insertAdjacentHTML('afterend', html);
+		};
 }
 
 function getPage() {
