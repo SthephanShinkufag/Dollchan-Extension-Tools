@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.4.0
+// @version			12.6.4.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.4.0',
+	'version':	'12.6.4.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -92,7 +92,8 @@ var defaultCfg = {
 	'pimgs':	0,		// preload images
 	'rarjpeg':	0,		// detect rarjpegs
 	'rExif':	1,		// remove EXIF data from JPEGs
-	'sImgs':	1		// ability to post same images
+	'sImgs':	1,		// ability to post same images
+	'dNotif':   0
 },
 
 Lng = {
@@ -123,6 +124,7 @@ Lng = {
 			txt:	['(мин) интервал проверки*', '(min) update interval*']
 		},
 		updfav:		['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
+		dNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
 		expost: {
 			sel:	[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:	['загрузка сокращенных постов*', 'upload of shorted posts*']
@@ -289,6 +291,7 @@ Lng = {
 	checkNow:		['Проверить сейчас', 'Check now'],
 	updAvail:		['Доступно обновление!', 'Update available!'],
 	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
+	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
 	version:		['Версия: ', 'Version: '],
 	storage:		['Хранение: ', 'Storage: '],
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
@@ -333,8 +336,8 @@ Lng = {
 doc = window.document,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
-pr = {}, dForm, oeForm, pPanel, opPanel, dummy, postWrapper = false,
-Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null},
+pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false,
+Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
 timePattern, timeRegex,
@@ -768,6 +771,9 @@ function readCfg() {
 	}
 	if(!nav.Firefox) {
 		Cfg['updfav'] = 0;
+	}
+	if(!nav.Chrome) {
+		Cfg['dNotif'] = 0;
 	}
 	if(nav.Opera) {
 		Cfg['ytitle'] = 0;
@@ -1322,7 +1328,12 @@ function addSettings() {
 		$New('div', null, [optSel('updthr', null)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [optSel('updint', null)]),
-			$if(nav.Firefox, divBox('updfav', null))
+			$if(nav.Firefox, divBox('updfav', null)),
+			$if(nav.Chrome, divBox('dNotif', function() {
+				if(Cfg['dNotif'] !== 0) {
+					window.webkitNotifications.requestPermission();
+				}
+			}))
 		]),
 		$New('div', null, [optSel('expost', null)]),
 		$New('div', null, [optSel('expimg', null)]),
@@ -2153,9 +2164,10 @@ function selectAjaxPages() {
 	});
 }
 
-function selectImgSearch(btn, href) {
+function selectImgSearch(e) {
+	var href = this.nextSibling.href;
 	addSelMenu(
-		btn, false,
+		this, false,
 		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'IQDB</a>'
 			+ '<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + href
@@ -3128,7 +3140,7 @@ function addTextPanel() {
 			'Quote': [,'&gt;']
 		},
 		txtBtn = function(id) {
-				var x = pr.txta,
+			var x = pr.txta,
 				btn = $id('DESU_btn' + id),
 				val = tagTable[id][1];
 			if(!btn) {
@@ -3185,13 +3197,10 @@ function addTextPanel() {
 				}
 				pnl.appendChild(btn);
 			}
-			if(Cfg['txtbtn'] === 1) {
-				btn.innerHTML = '';
-			} else if(Cfg['txtbtn'] === 2) {
-				btn.innerHTML = (val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]');
-			} else if(Cfg['txtbtn'] === 3) {
-				btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
-			}
+			btn.innerHTML =
+				Cfg['txtbtn'] === 2 ? ((val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]'))
+				: Cfg['txtbtn'] === 3 ? ('<input type="button" value="' + val + '" style="font-weight: bold;" />')
+				: '';
 		};
 	if(!pnl) {
 		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
@@ -3275,14 +3284,15 @@ function prepareButtons() {
 			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>')
 		)
 	]);
-	opPanel = pPanel.cloneNode(true);
-	opPanel.className += '_op';
+	(opPanel = pPanel.cloneNode(true)).className += '_op';
 	$append(opPanel, [
 		$if(!TNum, 
 			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
 		),
 		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
 	]);
+	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
+	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	var script = doc.createElement('script');
 	script.id = 'DESU_script';
 	script.type = 'text/javascript';
@@ -3346,17 +3356,13 @@ function addPostButtons(post) {
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	post.Btns.id = 'DESU_btns' + post.Num;
 	if(aib.getSage(post)) {
-		post.Btns.appendChild($new('span', {
-			'class': 'DESU_btnSage',
-			'title': 'SAGE',
-			'onclick': 'DESU_sageClick(this)'
-		}, null));
+		post.Btns.appendChild(sageBtn.cloneNode(false));
 	}
 	$after(ref, post.Btns);
 	if(pr.on && Cfg['insnum'] !== 0) {
 		if(aib.futr) {
 			$each($X('a', ref), function(el) {
-				$rattr(el, 'onclick');
+				el.onclick = null;
 			});
 		}
 		if(!aib.brit) {
@@ -3822,23 +3828,17 @@ function addImgSearch(el) {
 	if(!Cfg['imgsrc']) {
 		return;
 	}
+	var iB;
 	$each($X(aib.xImages, el), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			return;
 		}
-		if(link.innerHTML.indexOf('<') >= 0) {
+		if(link.innerHTML.indexOf('<') !== -1) {
 			return;
 		}
-		$before(link, [
-			$new('span', {
-				'class': 'DESU_btnSrc'}, {
-				'mouseover': function() {
-					selectImgSearch(this, escape(link.href));
-				},
-				'mouseout': removeSelMenu
-			})
-		]);
+		(iB = imgBtn.cloneNode(false)).onmouseover = selectImgSearch;
+		link.parentNode.insertBefore(iB, link);
 	});
 }
 
@@ -4648,6 +4648,29 @@ function endPostsUpdate() {
 	ajaxInterval = undefined;
 }
 
+function desktopNotification(count) {
+	if(window.webkitNotifications.checkPermission() !== 0) {
+		return;
+	}
+	var notif = window.webkitNotifications.createNotification(
+			'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png', 
+			docTitle,
+			Lng.unreadMsg[lCode].replace(/%m/g, count)
+		);
+	notif.ondisplay = function() {
+		setTimeout(function () {
+			notif.cancel();
+		}, 8000);
+	};
+	notif.onclick = function () {
+		if(window.focus) {
+			window.focus();
+		}
+		notif.cancel();
+	};
+	notif.show();
+}
+
 function infoNewPosts(err, inf) {
 	var old;
 	if(err) {
@@ -4693,6 +4716,9 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
+	if(Cfg['dNotif'] !== 0 && inf > 0) {
+		desktopNotification(inf);
+	} 
 }
 
 function setHanaRating() {
