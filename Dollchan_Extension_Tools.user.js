@@ -336,8 +336,8 @@ Lng = {
 doc = window.document,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
-pr = {}, dForm, oeForm, pPanel, opPanel, dummy, postWrapper = false,
-Pviews = {isActive: false, current: null, deleted: [], ajaxed: {}, overDelay: null, outDelay: null},
+pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false,
+Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
 timePattern, timeRegex,
@@ -2164,9 +2164,10 @@ function selectAjaxPages() {
 	});
 }
 
-function selectImgSearch(btn, href) {
+function selectImgSearch(e) {
+	var href = this.nextSibling.href;
 	addSelMenu(
-		btn, false,
+		this, false,
 		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'IQDB</a>'
 			+ '<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + href
@@ -2657,6 +2658,13 @@ function doPostformChanges(a) {
 			$del(el.parentNode);
 		}
 		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
+	} else if(aib.abu) {
+		$id('recaptcha_response_field').onkeydown = function(e) {
+			if(e.keyCode === 13) {
+				$pd(e);
+				pr.subm.click();
+			}
+		};
 	}
 }
 
@@ -3283,14 +3291,15 @@ function prepareButtons() {
 			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>')
 		)
 	]);
-	opPanel = pPanel.cloneNode(true);
-	opPanel.className += '_op';
+	(opPanel = pPanel.cloneNode(true)).className += '_op';
 	$append(opPanel, [
 		$if(!TNum, 
 			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
 		),
 		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
 	]);
+	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
+	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	var script = doc.createElement('script');
 	script.id = 'DESU_script';
 	script.type = 'text/javascript';
@@ -3354,17 +3363,13 @@ function addPostButtons(post) {
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	post.Btns.id = 'DESU_btns' + post.Num;
 	if(aib.getSage(post)) {
-		post.Btns.appendChild($new('span', {
-			'class': 'DESU_btnSage',
-			'title': 'SAGE',
-			'onclick': 'DESU_sageClick(this)'
-		}, null));
+		post.Btns.appendChild(sageBtn.cloneNode(false));
 	}
 	$after(ref, post.Btns);
 	if(pr.on && Cfg['insnum'] !== 0) {
 		if(aib.futr) {
 			$each($X('a', ref), function(el) {
-				$rattr(el, 'onclick');
+				el.onclick = null;
 			});
 		}
 		if(!aib.brit) {
@@ -3830,23 +3835,17 @@ function addImgSearch(el) {
 	if(!Cfg['imgsrc']) {
 		return;
 	}
+	var iB;
 	$each($X(aib.xImages, el), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			return;
 		}
-		if(link.innerHTML.indexOf('<') >= 0) {
+		if(link.innerHTML.indexOf('<') !== -1) {
 			return;
 		}
-		$before(link, [
-			$new('span', {
-				'class': 'DESU_btnSrc'}, {
-				'mouseover': function() {
-					selectImgSearch(this, escape(link.href));
-				},
-				'mouseout': removeSelMenu
-			})
-		]);
+		(iB = imgBtn.cloneNode(false)).onmouseover = selectImgSearch;
+		link.parentNode.insertBefore(iB, link);
 	});
 }
 
