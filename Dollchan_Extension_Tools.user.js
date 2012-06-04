@@ -1015,7 +1015,10 @@ function addPanel() {
 
 	$before(dForm, [
 		$new('div', {'style': 'clear: both;'}, null),
-		$New('div', {'id': 'DESU_panel'}, [
+		$New('div', {
+			'id': 'DESU_panel',
+			'lang': (Cfg['sstyle'] === 0 ? 'en' : Cfg['sstyle'] === 1 ? 'ru' : 'de')
+		}, [
 			$new('span', {
 				'id': 'DESU_btnLogo',
 				'style': 'cursor: pointer'}, {
@@ -1090,7 +1093,10 @@ function addPanel() {
 				}, null)
 			]))
 		]),
-		$new('div', {'class': 'DESU_content'}, null),
+		$new('div', {
+			'class': 'DESU_content',
+			'lang': (Cfg['sstyle'] === 0 ? 'en' : Cfg['sstyle'] === 1 ? 'ru' : 'de')
+		}, null),
 		$new('div', {'id': 'DESU_alertBox'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
 	]);
@@ -1456,8 +1462,9 @@ function addSettings() {
 	}, [
 		$New('div', null, [
 			optSel('sstyle', function() {
-				saveCfg('sstyle', this.selectedIndex);
-				scriptCSS();
+				var sI = this.selectedIndex;
+				saveCfg('sstyle', sI);
+				$id('DESU_panel').lang = $c('DESU_content', doc).lang = (sI === 0 ? 'en' : sI === 1 ? 'ru' : 'de');
 			})
 		]),
 		divBox('attach', function() {
@@ -5782,12 +5789,7 @@ function hideByWipe(post) {
 ==============================================================================*/
 
 function scriptCSS() {
-	var x = [],
-		p = 'background: ' + (
-			Cfg['sstyle'] === 0 ? nav.aCFix + 'linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%)'
-			: Cfg['sstyle'] === 1 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)'
-			: '#777'
-		) + '; ',
+	var x = [], p,
 		gif = function(name, src) {
 			x.push(name + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }');
 		},
@@ -5798,16 +5800,25 @@ function scriptCSS() {
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + nav.cFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 5px; ' + nav.cFix + 'border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead { padding: 5px; ' + nav.cFix + 'border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%); }\
+		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
+		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		.DESU_cfgBody { min-width: 371px; min-height: 280px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
-		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' border-top: none; }\
+		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
+		.DESU_cfgBody:lang(de), #DESU_cfgBtns:lang(de) { border-color: #444; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
-		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: ' + (Cfg['sstyle'] === 0 ? '#325f9e;' : Cfg['sstyle'] === 1 ? '#0c1626;' : '#777;') + ' }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
-		.DESU_cfgTab { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%);' : 'background-color: rgba(0,0,0,.2);') + ' }\
-		.DESU_cfgTab:hover { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%);' : 'background-color: rgba(99,99,99,.2);') + ' }\
+		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #325f9e; }\
+		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
+		#DESU_cfgBar:lang(de) { background-color: #777; }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
+		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
+		.DESU_cfgTab:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%); }\
+		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
+		.DESU_cfgTab:hover:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; ' + nav.cFix + 'box-shadow: none !important; border: none !important; ' + nav.cFix + 'border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
@@ -5817,17 +5828,20 @@ function scriptCSS() {
 	// Main panel
 	x.push(
 		'#DESU_btnLogo { margin-right: 3px; }\
-		#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
-		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height:25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; }\
+		#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
+		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
+		#DESU_panelBtns:lang(ru) { border-color: #79c; }\
+		#DESU_panelBtns:lang(de) { border-color: #ccc; }\
 		#DESU_panelBtns > li { margin: 0 1px; }\
-		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }'
-		+ (Cfg['sstyle'] === 0
-			? '#DESU_panelBtns > li { ' + nav.aCFix + 'transition: all 0.3s ease; }\
-			#DESU_panelBtns > li:hover { background-color: rgba(255,255,255,.15); ' + nav.cFix + 'box-shadow: 0 0 3px rgba(143,187,237,.5); }'
-			: '#DESU_panelBtns > li > a { ' + nav.cFix + 'border-radius: 5px; }\
-			#DESU_panelBtns > li > a:hover { width: 21px; height: 21px; border: 2px solid ' + (Cfg['sstyle'] === 1 ? '#9be' : '#444') + ' }'
-		) + '\
-		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
+		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }\
+		#DESU_panelBtns:lang(en) > li { ' + nav.aCFix + 'transition: all 0.3s ease; }\
+		#DESU_panelBtns:lang(en) > li:hover { background-color: rgba(255,255,255,.15); ' + nav.cFix + 'box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+		#DESU_panelBtns:lang(ru) > li > a, #DESU_panelBtns:lang(de) > li > a { ' + nav.cFix + 'border-radius: 5px; }\
+		#DESU_panelBtns:lang(ru) > li > a:hover { width: 21px; height: 21px; border: 2px solid #9be; }\
+		#DESU_panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
+		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }\
+		#DESU_panelInfo:lang(en) { border-color: #79c; }\
+		#DESU_panelInfo:lang(de) { border-color: #ccc; }'
 	);
 	if(Cfg['icount'] === 0) {
 		x.push('#DESU_panelInfo { display: none; }');
