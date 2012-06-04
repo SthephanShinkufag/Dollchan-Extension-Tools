@@ -1015,13 +1015,16 @@ function addPanel() {
 
 	$before(dForm, [
 		$new('div', {'style': 'clear: both;'}, null),
-		$New('div', {'id': 'DESU_panel'}, [
+		$New('div', {
+			'id': 'DESU_panel',
+			'lang': (Cfg['sstyle'] === 0 ? 'en' : Cfg['sstyle'] === 1 ? 'ru' : 'de')
+		}, [
 			$new('span', {
 				'id': 'DESU_btnLogo',
 				'style': 'cursor: pointer'}, {
 				'click': function(e) {
 					toggleCfg('showmp');
-					scriptCSS();
+					updateCSS();
 				}
 			}),
 			$New('ul', {'id': 'DESU_panelBtns'}, [
@@ -1070,7 +1073,7 @@ function addPanel() {
 				$if(pr.file || oeForm, pButton('MaskImg', function(e) {
 					$pd(e);
 					toggleCfg('mask');
-					scriptCSS();
+					updateCSS();
 				}, null, null, null)),
 				$if(TNum && Cfg['updthr'] !== 3, pButton('UpdOn', function(e) {
 					$pd(e);
@@ -1090,7 +1093,10 @@ function addPanel() {
 				}, null)
 			]))
 		]),
-		$new('div', {'class': 'DESU_content'}, null),
+		$new('div', {
+			'class': 'DESU_content',
+			'lang': (Cfg['sstyle'] === 0 ? 'en' : Cfg['sstyle'] === 1 ? 'ru' : 'de')
+		}, null),
 		$new('div', {'id': 'DESU_alertBox'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
 	]);
@@ -1325,9 +1331,9 @@ function addSettings() {
 			lBox('rarjpeg', null, '')
 		])),
 		divBox('imgsrc', null),
-		divBox('ospoil', scriptCSS),
-		divBox('noname', scriptCSS),
-		$if(aib.abu, lBox('noscrl', scriptCSS, '')),
+		divBox('ospoil', updateCSS),
+		divBox('noname', updateCSS),
+		$if(aib.abu, lBox('noscrl', updateCSS, '')),
 		$if(!aib.nul, $New('div', null, [
 			lBox('keynav', null, ''),
 			$new('a', {
@@ -1422,9 +1428,8 @@ function addSettings() {
 			optSel('txtbtn', function() {
 				saveCfg('txtbtn', this.selectedIndex);
 				addTextPanel();
-				scriptCSS();
 			}),
-			lBox('txtpos', null, '')
+			lBox('txtpos', addTextPanel, '')
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
@@ -1440,7 +1445,7 @@ function addSettings() {
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('norule', scriptCSS, ''),
+			lBox('norule', updateCSS, ''),
 			$if(pr.gothr, lBox('nogoto', function() {
 				$disp(pr.gothr);
 			}, '')),
@@ -1456,15 +1461,16 @@ function addSettings() {
 	}, [
 		$New('div', null, [
 			optSel('sstyle', function() {
-				saveCfg('sstyle', this.selectedIndex);
-				scriptCSS();
+				var sI = this.selectedIndex;
+				saveCfg('sstyle', sI);
+				$id('DESU_panel').lang = $c('DESU_content', doc).lang = (sI === 0 ? 'en' : sI === 1 ? 'ru' : 'de');
 			})
 		]),
 		divBox('attach', function() {
 			toggleContent('Cfg', false);
-			scriptCSS();
+			updateCSS();
 		}),
-		divBox('icount', scriptCSS),
+		divBox('icount', updateCSS),
 		divBox('rtitle', null),
 		divBox('animp', null),
 		divBox('aclose', null),
@@ -2033,10 +2039,10 @@ function addSelMenu(el, fPanel, html) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
 			? 'bottom: 25'
-			: 'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
+			: 'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + ($offset(el).top + el.offsetHeight);
+		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.appendChild($event($add(
 		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos + '; ' + (
@@ -2700,7 +2706,6 @@ function readArch(inp, file) {
 		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>'
 			+ Lng.wait[lCode] + '</span>');
 	$after(inp, el);
-	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		if(inp.nextSibling === el) {
 			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;" title="'
@@ -2709,6 +2714,7 @@ function readArch(inp, file) {
 			$del(el);
 		}
 	};
+	fr.readAsArrayBuffer(file);
 }
 
 function delFileUtils(el) {
@@ -2976,7 +2982,6 @@ function prepareFiles(el, fn, i) {
 		fn(i, file, file.name, file.type);
 		return;
 	}
-	fr.readAsArrayBuffer(file);
 	fr.onload = function() {
 		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
 			? [removeExif(this.result)]
@@ -2989,6 +2994,7 @@ function prepareFiles(el, fn, i) {
 		}
 		fn(i, arrToBlob(dat), file.name, file.type);
 	};
+	fr.readAsArrayBuffer(file);
 }
 
 
@@ -3106,94 +3112,105 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
-function txtBtn(id, wktag, bbtag, val) {
-	var x = pr.txta,
-		btn = $new('span', {'id': 'DESU_btn' + id, 'title': Lng.txtBtn[id][lCode]}, null);
-	if(Cfg['txtbtn'] === 2) {
-		btn.innerHTML = '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : '');
-	}
-	if(Cfg['txtbtn'] === 3) {
-		btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
-	}
-	if(val !== '&gt;') {
-		$event(btn, {
-			'click': function(e) {
-				var tag1, tag2, j, len,
-					start = x.selectionStart,
-					end = x.selectionEnd,
-					scrtop = x.scrollTop,
-					text = x.value.substring(start, end).split('\n'),
-					i = text.length;
-				$pd(e);
-				if(aib.kus || aib.abu || aib.krau || aib._420 || aib.fch && wktag === '%%') {
-					tag1 = '[' + bbtag + ']';
-					tag2 = '[/' + bbtag + ']';
-				} else {
-					tag1 = tag2 = wktag;
-				}
-				while(i--) {
-					if(tag1 === '') {
-						j = text[i].trim().length;
-						while(j--) {
-							tag2 += '^H';
-						}
-					}
-					len = end + tag1.length + tag2.length;
-					if(text[i].match(/^\s+/)) {
-						tag1 = text[i].match(/^\s+/)[0] + tag1;
-					}
-					if(text[i].match(/\s+$/)) {
-						tag2 += text[i].match(/\s+$/)[0];
-					}
-					text[i] = tag1 + text[i].trim() + tag2;
-				}
-				x.value = x.value.substr(0, start) + text.join('\n') + x.value.substr(end);
-				x.setSelectionRange(len, len);
-				x.focus();
-				x.scrollTop = scrtop;
-			}
-		});
-	} else {
-		$event(btn, {
-			'mouseover': function() {
-				quotetxt = txtSelection();
-			},
-			'click': function(e) {
-				var start = x.selectionStart,
-					end = x.selectionEnd;
-				$pd(e);
-				insertInto(x, '> ' + (
-					start === end ? quotetxt: x.value.substring(start, end)
-				).replace(/\n/gm, '\n> '));
-			}
-		});
-	}
-	return btn;
-}
-
 function addTextPanel() {
-	$del($id('DESU_txtPanel'));
-	if(Cfg['txtbtn'] !== 0 && pr.txta) {
-		$after(
-			Cfg['txtpos'] === 0 ? (
-				aib.abu ? $id('hideUserFlds')
-				: aib._420 ? $c('popup', pr.form)
-				: pr.subm
-			) : $id('DESU_txtResizer'),
-			$New('span', {'id': 'DESU_txtPanel'}, [
-				$txt(unescape('%u00A0')),
-				$if(Cfg['txtbtn'] === 2, $txt('[ ')),
-				txtBtn('Bold', '**', aib._420 ? '**' : 'b', 'B'),
-				txtBtn('Italic', '*', aib._420 ? '*' : 'i', 'i'),
-				$if(!aib._420, txtBtn('Under', '__', 'u', 'U')),
-				$if(!aib._420, txtBtn('Strike', aib._410 ? '^^' : '', 's', 'S')),
-				txtBtn('Spoil', '%%', aib._420 ? '%' : 'spoiler', '%'),
-				txtBtn('Code', '`', aib.krau ? 'aa' : aib._420 ? 'pre' : 'code', 'C'),
-				txtBtn('Quote', '', '', '&gt;'),
-				$if(Cfg['txtbtn'] === 2, $txt(' ]'))
-			])
-		);
+	if(!pr.txta) {
+		return;
 	}
+	var pnl = $id('DESU_txtPanel'),
+		bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
+		tagTable = {
+			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
+			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
+			'Under': [bbBrds ? 'u' : '__', 'U'],
+			'Strike': [bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
+			'Spoil': [aib._420 ? '%' : bbBrds ? 'spoiler' : '%%', '%'],
+			'Code': [aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
+			'Quote': [,'&gt;']
+		},
+		txtBtn = function(id) {
+				var x = pr.txta,
+				btn = $id('DESU_btn' + id),
+				val = tagTable[id][1];
+			if(!btn) {
+				btn = $new('span', {'id': 'DESU_btn' + id, 'title': Lng.txtBtn[id][lCode]}, null);
+				if(val !== '&gt;') {
+					btn.onclick = function(e) {
+						var tag1, tag2, j, len,
+							start = x.selectionStart,
+							end = x.selectionEnd,
+							scrtop = x.scrollTop,
+							text = x.value.substring(start, end).split('\n'),
+							i = text.length,
+							tag = tagTable[this.id.substring(8)][0];
+						$pd(e);
+						if(bbBrds || (aib.fch && tag === '%%')) {
+							tag1 = '[' + tag + ']';
+							tag2 = '[/' + tag + ']';
+						} else {
+							tag1 = tag2 = tag;
+						}
+						while(i--) {
+							if(tag1 === '') {
+								j = text[i].trim().length;
+								while(j--) {
+									tag2 += '^H';
+								}
+							}
+							len = end + tag1.length + tag2.length;
+							if(text[i].match(/^\s+/)) {
+								tag1 = text[i].match(/^\s+/)[0] + tag1;
+							}
+							if(text[i].match(/\s+$/)) {
+								tag2 += text[i].match(/\s+$/)[0];
+							}
+							text[i] = tag1 + text[i].trim() + tag2;
+						}
+						x.value = x.value.substr(0, start) + text.join('\n') + x.value.substr(end);
+						x.setSelectionRange(len, len);
+						x.focus();
+						x.scrollTop = scrtop;
+					};
+				} else {
+					btn.onmouseover = function() {
+						quotetxt = txtSelection();
+					};
+					btn.onclick = function(e) {
+						var start = x.selectionStart,
+							end = x.selectionEnd;
+						$pd(e);
+						insertInto(x, '> ' + (
+							start === end ? quotetxt: x.value.substring(start, end)
+						).replace(/\n/gm, '\n> '));
+					};
+				}
+				pnl.appendChild(btn);
+			}
+			if(Cfg['txtbtn'] === 1) {
+				btn.innerHTML = '';
+			} else if(Cfg['txtbtn'] === 2) {
+				btn.innerHTML = (val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]');
+			} else if(Cfg['txtbtn'] === 3) {
+				btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
+			}
+		};
+	if(!pnl) {
+		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
+	}
+	pnl.lang = (Cfg['txtbtn'] === 0 ? 'en' : Cfg['txtpos'] === 0 ? 'ru' : '');
+	$after(Cfg['txtpos'] === 0 ? (
+		aib.abu ? $id('hideUserFlds')
+		: aib._420 ? $c('popup', pr.form)
+		: pr.subm
+	) : $id('DESU_txtResizer'), pnl);
+	txtBtn('Bold');
+	txtBtn('Italic');
+	if(!aib._420) {
+		txtBtn('Under');
+		txtBtn('Strike');
+	}
+	txtBtn('Spoil');
+	txtBtn('Code');
+	txtBtn('Quote');
 }
 
 
@@ -3253,7 +3270,7 @@ function getImgSize(post) {
 
 function prepareButtons() {
 	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(this)"></span>'),
+		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>'),
 		$if(pr.on || oeForm,
 			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>')
 		)
@@ -3262,7 +3279,7 @@ function prepareButtons() {
 	opPanel.className += '_op';
 	$append(opPanel, [
 		$if(!TNum, 
-			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(this)"></span>')
+			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
 		),
 		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
 	]);
@@ -3277,8 +3294,11 @@ function prepareButtons() {
 		function DESU_hideOver(el) {\
 			window.postMessage("A" + el.parentNode.id.substring(9), "*");\
 		}\
-		function DESU_delSelection(el) {\
-			window.postMessage("G" + el.parentNode.id.substring(9), "*");\
+		function DESU_delSelection(e) {\
+			if(!document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
+				var el = document.getElementById("DESU_select");\
+				el.parentNode.removeChild(el);\
+			}\
 		}\
 		function DESU_qReplyClick(el) {\
 			window.postMessage("F" + el.parentNode.id.substring(9), "*");\
@@ -3293,10 +3313,10 @@ function prepareButtons() {
 			window.postMessage("B" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_favorClick(el) {\
-			window.postMessage("H" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("G" + el.parentNode.id.substring(9), "*");\
 		}\
 		function DESU_sageClick(el) {\
-			window.postMessage("I" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("H" + el.parentNode.id.substring(9), "*");\
 		}';
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
@@ -3314,10 +3334,8 @@ function prepareButtons() {
 		} else if(name === "F") {
 			showQuickReply(post);
 		} else if(name === "G") {
-			$del($id('DESU_select'));
-		} else if(name === "H") {
 			toggleFavorites(post, $c('DESU_btnFav', post) || $c('DESU_btnFavSel', post));
-		} else if(name === "I") {
+		} else if(name === "H") {
 			applySpells('#sage');
 		}
 	}, false);
@@ -5135,7 +5153,7 @@ function processHidden(newCfg, oldCfg) {
 		forEachPost(mergeHidden);
 	}
 	saveCfg('delhd', newCfg);
-	scriptCSS();
+	updateCSS();
 }
 
 /*--------------------------Hide posts with similar text----------------------*/
@@ -5782,12 +5800,7 @@ function hideByWipe(post) {
 ==============================================================================*/
 
 function scriptCSS() {
-	var x = [],
-		p = 'background: ' + (
-			Cfg['sstyle'] === 0 ? nav.aCFix + 'linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%)'
-			: Cfg['sstyle'] === 1 ? 'url( data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7)'
-			: '#777'
-		) + '; ',
+	var x = [], p,
 		gif = function(name, src) {
 			x.push(name + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }');
 		},
@@ -5798,16 +5811,25 @@ function scriptCSS() {
 	// Settings window
 	x.push(
 		'#DESU_cfgWindow { float: left; ' + nav.cFix + 'border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 5px; ' + nav.cFix + 'border-radius: 10px 10px 0 0; ' + p + 'color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead { padding: 5px; ' + nav.cFix + 'border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%); }\
+		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
+		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		.DESU_cfgBody { min-width: 371px; min-height: 280px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
-		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' border-top: none; }\
+		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
+		.DESU_cfgBody:lang(de), #DESU_cfgBtns:lang(de) { border-color: #444; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
-		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: ' + (Cfg['sstyle'] === 0 ? '#325f9e;' : Cfg['sstyle'] === 1 ? '#0c1626;' : '#777;') + ' }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid ' + (Cfg['sstyle'] === 2 ? '#444;' : '#183d77;') + ' ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
-		.DESU_cfgTab { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%);' : 'background-color: rgba(0,0,0,.2);') + ' }\
-		.DESU_cfgTab:hover { ' + (Cfg['sstyle'] === 0 ? 'background: ' + nav.aCFix + 'linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%);' : 'background-color: rgba(99,99,99,.2);') + ' }\
+		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #325f9e; }\
+		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
+		#DESU_cfgBar:lang(de) { background-color: #777; }\
+		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; ' + nav.cFix + 'border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
+		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
+		.DESU_cfgTab:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%); }\
+		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
+		.DESU_cfgTab:hover:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; ' + nav.cFix + 'box-shadow: none !important; border: none !important; ' + nav.cFix + 'border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
@@ -5817,24 +5839,21 @@ function scriptCSS() {
 	// Main panel
 	x.push(
 		'#DESU_btnLogo { margin-right: 3px; }\
-		#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + p + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
-		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height:25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; }\
+		#DESU_panel { height: 25px; z-index: 9999; ' + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
+		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
+		#DESU_panelBtns:lang(ru) { border-color: #79c; }\
+		#DESU_panelBtns:lang(de) { border-color: #ccc; }\
 		#DESU_panelBtns > li { margin: 0 1px; }\
-		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }'
-		+ (Cfg['sstyle'] === 0
-			? '#DESU_panelBtns > li { ' + nav.aCFix + 'transition: all 0.3s ease; }\
-			#DESU_panelBtns > li:hover { background-color: rgba(255,255,255,.15); ' + nav.cFix + 'box-shadow: 0 0 3px rgba(143,187,237,.5); }'
-			: '#DESU_panelBtns > li > a { ' + nav.cFix + 'border-radius: 5px; }\
-			#DESU_panelBtns > li > a:hover { width: 21px; height: 21px; border: 2px solid ' + (Cfg['sstyle'] === 1 ? '#9be' : '#444') + ' }'
-		) + '\
-		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid ' + (Cfg['sstyle'] === 0 ? '#8fbbed' : Cfg['sstyle'] === 1 ? '#79c' : '#ccc') + '; color: #fff; font: 18px serif; }'
+		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }\
+		#DESU_panelBtns:lang(en) > li { ' + nav.aCFix + 'transition: all 0.3s ease; }\
+		#DESU_panelBtns:lang(en) > li:hover { background-color: rgba(255,255,255,.15); ' + nav.cFix + 'box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+		#DESU_panelBtns:lang(ru) > li > a, #DESU_panelBtns:lang(de) > li > a { ' + nav.cFix + 'border-radius: 5px; }\
+		#DESU_panelBtns:lang(ru) > li > a:hover { width: 21px; height: 21px; border: 2px solid #9be; }\
+		#DESU_panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
+		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }\
+		#DESU_panelInfo:lang(en) { border-color: #79c; }\
+		#DESU_panelInfo:lang(de) { border-color: #ccc; }'
 	);
-	if(Cfg['icount'] === 0) {
-		x.push('#DESU_panelInfo { display: none; }');
-	}
-	if(Cfg['showmp'] === 0) {
-		x.push('#DESU_panelBtns, #DESU_panelInfo { display: none; }');
-	}
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	gif('#DESU_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
@@ -5886,18 +5905,20 @@ function scriptCSS() {
 	);
 
 	// text format buttons
-	x.push('#DESU_txtPanel { ' + (Cfg['txtpos'] === 0 ? 'float: right;' : '') + ' display: block; height: 23px; font-weight: bold; cursor: pointer; }');
-	if(Cfg['txtbtn'] === 1) {
-		x.push('#DESU_txtPanel span { display: inline-block; width: 27px; height: 23px }');
-		p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
-		gif('#DESU_btnBold', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
-		gif('#DESU_btnItalic', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
-		gif('#DESU_btnUnder', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
-		gif('#DESU_btnStrike', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
-		gif('#DESU_btnSpoil', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
-		gif('#DESU_btnCode', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
-		gif('#DESU_btnQuote', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
-	}
+	x.push(
+		'#DESU_txtPanel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
+		#DESU_txtPanel > span:empty { display: inline-block; width: 27px; height: 23px }\
+		#DESU_txtPanel:lang(en) { display: none; }\
+		#DESU_txtPanel:lang(ru) { float: right; }'
+	);
+	p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
+	gif('#DESU_btnBold:empty', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
+	gif('#DESU_btnItalic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
+	gif('#DESU_btnUnder:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
+	gif('#DESU_btnStrike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
+	gif('#DESU_btnSpoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
+	gif('#DESU_btnCode:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#DESU_btnQuote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
 	if(nav.Anim) {
@@ -5945,12 +5966,6 @@ function scriptCSS() {
 		.DESU_post > a + .DESU_mp3, .DESU_post > a + .DESU_ytObj { display: inline-block; }\
 		.DESU_ytObj > img { cursor: pointer; }'
 	);
-	if(Cfg['mask'] !== 0) {
-		x.push(
-			'.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
-			.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }'
-		);
-	}
 
 	// Other
 	cont('.DESU_wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -5960,8 +5975,8 @@ function scriptCSS() {
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
-		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' text-align: left; }\
-		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px; font-size: 16px;' : 'padding: 5px 10px; border: 1px solid grey; font-size: 16px;') + ' }\
+		.DESU_content { text-align: left; }\
+		.DESU_content > table { font-size: 16px; }\
 		.DESU_favData .DESU_thread { padding-left: 15px; border: 1px solid grey; }\
 		.DESU_favData a, .DESU_hidTData a { text-decoration: none; }\
 		.DESU_favHead a { color: inherit; font-weight: bold; }\
@@ -5978,7 +5993,7 @@ function scriptCSS() {
 		#DESU_sageBtn { cursor: pointer; }\
 		#DESU_select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
-		#DESU_select a:hover { background-color: ' + (Cfg['sstyle'] === 2 ? '#444' : '#1b345e') + '; color: #fff; }\
+		#DESU_select a:hover { background-color: #222; color: #fff; }\
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : nav.cFix + 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed { color: #888 !important; }\
@@ -5992,21 +6007,6 @@ function scriptCSS() {
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }'
 	);
-	if(Cfg['delhd'] === 2) {
-		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
-	}
-	if(Cfg['noname'] !== 0) {
-		x.push('.commentpostername, .postername, .postertrip { display: none; }');
-	}
-	if(Cfg['ospoil'] !== 0) {
-		x.push('.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }');
-	}
-	if(Cfg['noscrl'] !== 0) {
-		x.push('blockquote { max-height: 100% !important; overflow: visible !important; }');
-	}
-	if(Cfg['norule'] !== 0) {
-		x.push((aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }');
-	}
 	if(aib.kus) {
 		x.push(
 			'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
@@ -6030,9 +6030,9 @@ function scriptCSS() {
 		);
 	} else if(aib.abu) {
 		x.push(
-			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"]' +
-				(Cfg['ytube'] === 0 ? '' : ', div[id^="post_video"]') + ' { display: none !important; }\
-			.DESU_aBtn { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
+			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"] { display: none !important; }\
+			textarea { margin: 0 !important; }\
+			.DESU_aBtn { ' + nav.aCFix + 'transition: none; }'
 		);
 	} else if(aib.tiny) {
 		x.push(
@@ -6074,18 +6074,59 @@ function scriptCSS() {
 		x.push('.DESU_spoiler { color: #000; background-color: #000; }');
 	}
 
-	if(!$id('DESU_css')) {
-		doc.head.appendChild($new('style', {
-			'id': 'DESU_css',
-			'type': 'text/css',
-			'text': x.join(' ')
-		}, null));
-		if(nav.Chrome) {
-			$disp(dForm);
-		}
-	} else {
-		$id('DESU_css').textContent = x.join(' ');
+	doc.head.appendChild($new('style', {
+		'id': 'DESU_css',
+		'type': 'text/css',
+		'text': x.join(' ')
+	}, null));
+	doc.head.appendChild($new('style', {
+		'id': 'DESU_dynCss',
+		'type': 'text/css'
+	}, null));
+	updateCSS();
+	if(nav.Chrome) {
+		$disp(dForm);
 	}
+}
+
+function updateCSS() {
+	var x = [];
+	x.push(
+		'#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
+		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' }\
+		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }'
+	);
+	if(Cfg['icount'] === 0) {
+		x.push('#DESU_panelInfo { display: none; }');
+	}
+	if(Cfg['showmp'] === 0) {
+		x.push('#DESU_panelBtns, #DESU_panelInfo { display: none; }');
+	}
+	if(Cfg['mask'] !== 0) {
+		x.push(
+			'.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
+			.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }'
+		);
+	}
+	if(Cfg['delhd'] === 2) {
+		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
+	}
+	if(Cfg['noname'] !== 0) {
+		x.push('.commentpostername, .postername, .postertrip { display: none; }');
+	}
+	if(Cfg['ospoil'] !== 0) {
+		x.push('.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }');
+	}
+	if(Cfg['noscrl'] !== 0) {
+		x.push('blockquote { max-height: 100% !important; overflow: visible !important; }');
+	}
+	if(Cfg['norule'] !== 0) {
+		x.push((aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }');
+	}
+	if(aib.abu && Cfg['ytube'] !== 0) {
+		x.push('div[id^="post_video"] { display: none !important; }');
+	}
+	$id('DESU_dynCss').textContent = x.join(' ');
 }
 
 
