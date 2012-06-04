@@ -2039,10 +2039,10 @@ function addSelMenu(el, fPanel, html) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
 			? 'bottom: 25'
-			: 'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
+			: 'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + ($offset(el).top + el.offsetHeight);
+		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.appendChild($event($add(
 		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos + '; ' + (
