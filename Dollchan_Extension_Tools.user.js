@@ -5614,141 +5614,118 @@ function applySpells(txt) {
 ==============================================================================*/
 
 function detectWipe_sameLines(txt) {
-	var lines, i, x,
-		arr = [],
-		n = 0;
 	if(Cfg['samel'] === 0) {
 		return false;
 	}
-	lines = txt.replace(/> /g, '').split(/\s*\n\s*/);
-	i = lines.length;
-	if(i < 6) {
+	var i = 0, j, n, x,
+		lines = txt.replace(/> /g, '').split(/\s*\n\s*/),
+		len = lines.length;
+	if(len < 6) {
 		return false;
 	}
-	while(i--) {
+	lines.sort();
+	while(i < len && lines[i++] === '');
+	for(n = (len - i) / 4; i < len;) {
 		x = lines[i];
-		if(x.length === 0) {
-			continue;
+		j = 0;
+		while(lines[++i] === x) {
+			j++;
 		}
-		if(arr[x]) {
-			arr[x]++;
-		} else {
-			arr[x] = 1;
-		}
-		n++;
-	}
-	n = n/4;
-	for(x in arr) {
-		if(arr[x] > n && arr[x] > 4) {
-			return 'same lines: "' + x.substr(0, 20) + '" x' + (arr[x] + 1);
+		if(j > 4 && j > n) {
+			return 'same lines: "' + x.substr(0, 20) + '" x' + j;
 		}
 	}
 	return false;
 }
 
 function detectWipe_sameWords(txt) {
-	var words, i, x,
-		arr = [],
-		n = 0,
-		keys = 0,
-		pop = '',
-		mpop = -1;
 	if(Cfg['samew'] === 0) {
 		return false;
 	}
-	words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-	i = words.length;
+	var i = 0, x, n, j, keys, pop, mpop = -1,
+		words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' '),
+		len = words.length;
 	if(i <= 13) {
 		return false;
 	}
-	while(i--) {
-		x = words[i];
-		if(x.length < 2) {
-			continue;
-		}
-		if(arr[x]) {
-			arr[x]++;
-		} else {
-			arr[x] = 1;
-		}
-		n++;
-	}
-	if(n < 10) {
+	words.sort();
+	while(i < len && words[i++].length < 2);
+	n = len - i;
+	if(n <= 10) {
 		return false;
 	}
-	for(x in arr) {
-		keys++;
-		if(arr[x] > mpop) {
-			mpop = arr[x];
+	for(keys = 0, mpop = -1; i < len; keys++) {
+		x = words[i];
+		j = 0;
+		while(words[++i] === x) {
+			j++;
+		}
+		if(j > mpop) {
+			mpop = j;
 			pop = x;
 		}
-		if(n > 25 && arr[x] > n/3.5) {
-			return 'same words: "' + x.substr(0, 20) + '" x' + arr[x];
+		if(n > 25 && j > n / 3.5) {
+			return 'same words: "' + x.substr(0, 20) + '" x' + j;
 		}
 	}
-	return n > 80 && keys <= 20 || n/keys > 7
+	return n > 80 && keys <= 20 || n / keys > 7
 		? 'same words: "' + pop.substr(0, 20) + '" x' + mpop
 		: false;
 }
 
 function detectWipe_longColumn(txt) {
-	var rows, i,
-		n = 0;
 	if(Cfg['longp'] === 0) {
 		return false;
 	}
-	rows = txt.split(/\s*\n\s*/);
-	i = rows.length;
+	var rows = txt.split(/\s*\n\s*/),
+		i = rows.length;
 	if(i > 50) {
 		return 'long text x' + i;
 	}
-	while(i--) {
-		if(rows[i].length < 9) {
-			n++;
-		} else {
-			return false;
-		}
+	rows.sort();
+	if(rows[i - 1].length >= 9) {
+		return false;
 	}
-	return n > 5 ? 'columns x' + n : false;
+	return i > 5 ? 'columns x' + i : false;
 }
 
 function detectWipe_longWords(txt) {
-	var words, i, x,
-		all = '',
-		longest = '',
-		n = 0;
 	if(Cfg['longw'] === 0) {
 		return false;
 	}
-	words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-	i = words.length;
-	while(i--) {
-		x = words[i];
-		if(x.length < 2) {
-			continue;
-		}
-		all += x;
-		longest = x.length > longest.length ? x : longest;
-		n++;
+	var i = 0, j,
+		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ').sort(),
+		len = words.length,
+		lWord = words[len - 1];
+	if(lWord.length > 70) {
+		return 'long words: "' + lWord.substr(0, 20) + '.."';
 	}
-	return n === 1 && longest.length > 70 || n > 1 && all.length/n > 12
-		? 'long words: "' + longest.substr(0, 20) + '.."'
-		: false;
+	while(i < len && words[i++].length < 2);
+	j = len - i;
+	if(j < 1) {
+		return false;
+	}
+	if(words.slice(i).join('').length / j > 12) {
+		return 'long words: "' + lWord.substr(0, 20) + '.."';
+	}
+	return false;
 }
 
 function detectWipe_caseWords(txt) {
-	var words, i, x,
-		capsw = 0,
-		casew = 0,
-		n = 0;
 	if(Cfg['caps'] === 0) {
 		return false;
 	}
-	words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
-	if(words.length < 5) {
+	var i, x,
+		capsw = 0,
+		casew = 0,
+		n = 0,
+		words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' '),
+		len = words.length;
+	if(len < 5) {
 		return false;
 	}
-	for(i = 0; x = words[i++];) {
+	for(i = 0; i < len; i++) {
+		x = words[i];
 		if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 			continue;
 		}
@@ -5760,8 +5737,8 @@ function detectWipe_caseWords(txt) {
 		}
 		n++;
 	}
-	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100, 10) + '%')
-		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100, 10) + '%')
+	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + capsw / words.length * 100 + '%')
+		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + casew / words.length * 100 + '%')
 		: false;
 }
 
@@ -5772,7 +5749,7 @@ function detectWipe_specSymbols(txt) {
 	}
 	txt = txt.replace(/\s+/g, '');
 	len = txt.length;
-	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length/len;
+	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
 	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc*100, 10) + '%' : false;
 }
 
@@ -5783,31 +5760,21 @@ function detectWipe_numbers(txt) {
 	}
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	len = txt.length;
-	proc = (len - txt.replace(/\d/g, '').length)/len;
+	proc = (len - txt.replace(/\d/g, '').length) / len;
 	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc*100, 10) + '%' : false;
 }
 
 function detectWipe(post) {
-	var arr, i, x;
 	if(Cfg['awipe'] === 0) {
 		return false;
 	}
-	arr = [
-		detectWipe_sameLines,
-		detectWipe_sameWords,
-		detectWipe_longColumn,
-		detectWipe_longWords,
-		detectWipe_caseWords,
-		detectWipe_specSymbols,
-		detectWipe_numbers
-	];
-	for(i = 0; i < 7; i++) {
-		x = arr[i](post.Text);
-		if(x) {
-			return x;
-		}
-	}
-	return false;
+	return detectWipe_sameLines(post.Text) ||
+		detectWipe_sameWords(post.Text) ||
+		detectWipe_longColumn(post.Text) ||
+		detectWipe_longWords(post.Text) ||
+		detectWipe_caseWords(post.Text) ||
+		detectWipe_specSymbols(post.Text) ||
+		detectWipe_numbers(post.Text);
 }
 
 function hideByWipe(post) {
