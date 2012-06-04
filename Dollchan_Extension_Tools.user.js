@@ -3202,15 +3202,15 @@ function addTextPanel() {
 		: aib._420 ? $c('popup', pr.form)
 		: pr.subm
 	) : $id('DESU_txtResizer'), pnl);
-	txtBtn('Bold', pnl);
-	txtBtn('Italic', pnl);
+	txtBtn('Bold');
+	txtBtn('Italic');
 	if(!aib._420) {
-		txtBtn('Under', pnl);
-		txtBtn('Strike', pnl);
+		txtBtn('Under');
+		txtBtn('Strike');
 	}
-	txtBtn('Spoil', pnl);
-	txtBtn('Code', pnl);
-	txtBtn('Quote', pnl);
+	txtBtn('Spoil');
+	txtBtn('Code');
+	txtBtn('Quote');
 }
 
 
