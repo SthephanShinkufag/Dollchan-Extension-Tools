@@ -1024,7 +1024,7 @@ function addPanel() {
 				'style': 'cursor: pointer'}, {
 				'click': function(e) {
 					toggleCfg('showmp');
-					scriptCSS();
+					updateCSS();
 				}
 			}),
 			$New('ul', {'id': 'DESU_panelBtns'}, [
@@ -1073,7 +1073,7 @@ function addPanel() {
 				$if(pr.file || oeForm, pButton('MaskImg', function(e) {
 					$pd(e);
 					toggleCfg('mask');
-					scriptCSS();
+					updateCSS();
 				}, null, null, null)),
 				$if(TNum && Cfg['updthr'] !== 3, pButton('UpdOn', function(e) {
 					$pd(e);
@@ -1331,9 +1331,9 @@ function addSettings() {
 			lBox('rarjpeg', null, '')
 		])),
 		divBox('imgsrc', null),
-		divBox('ospoil', scriptCSS),
-		divBox('noname', scriptCSS),
-		$if(aib.abu, lBox('noscrl', scriptCSS, '')),
+		divBox('ospoil', updateCSS),
+		divBox('noname', updateCSS),
+		$if(aib.abu, lBox('noscrl', updateCSS, '')),
 		$if(!aib.nul, $New('div', null, [
 			lBox('keynav', null, ''),
 			$new('a', {
@@ -1445,7 +1445,7 @@ function addSettings() {
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('norule', scriptCSS, ''),
+			lBox('norule', updateCSS, ''),
 			$if(pr.gothr, lBox('nogoto', function() {
 				$disp(pr.gothr);
 			}, '')),
@@ -1468,9 +1468,9 @@ function addSettings() {
 		]),
 		divBox('attach', function() {
 			toggleContent('Cfg', false);
-			scriptCSS();
+			updateCSS();
 		}),
-		divBox('icount', scriptCSS),
+		divBox('icount', updateCSS),
 		divBox('rtitle', null),
 		divBox('animp', null),
 		divBox('aclose', null),
@@ -5153,7 +5153,7 @@ function processHidden(newCfg, oldCfg) {
 		forEachPost(mergeHidden);
 	}
 	saveCfg('delhd', newCfg);
-	scriptCSS();
+	updateCSS();
 }
 
 /*--------------------------Hide posts with similar text----------------------*/
@@ -5839,7 +5839,7 @@ function scriptCSS() {
 	// Main panel
 	x.push(
 		'#DESU_btnLogo { margin-right: 3px; }\
-		#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' height: 25px; z-index: 9999; ' + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
+		#DESU_panel { height: 25px; z-index: 9999; ' + nav.cFix + 'border-radius: 15px 0 0 0; cursor: default;}\
 		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 		#DESU_panelBtns:lang(ru) { border-color: #79c; }\
 		#DESU_panelBtns:lang(de) { border-color: #ccc; }\
@@ -5854,12 +5854,6 @@ function scriptCSS() {
 		#DESU_panelInfo:lang(en) { border-color: #79c; }\
 		#DESU_panelInfo:lang(de) { border-color: #ccc; }'
 	);
-	if(Cfg['icount'] === 0) {
-		x.push('#DESU_panelInfo { display: none; }');
-	}
-	if(Cfg['showmp'] === 0) {
-		x.push('#DESU_panelBtns, #DESU_panelInfo { display: none; }');
-	}
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	gif('#DESU_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
@@ -5972,12 +5966,6 @@ function scriptCSS() {
 		.DESU_post > a + .DESU_mp3, .DESU_post > a + .DESU_ytObj { display: inline-block; }\
 		.DESU_ytObj > img { cursor: pointer; }'
 	);
-	if(Cfg['mask'] !== 0) {
-		x.push(
-			'.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
-			.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }'
-		);
-	}
 
 	// Other
 	cont('.DESU_wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -5987,8 +5975,8 @@ function scriptCSS() {
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
-		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' text-align: left; }\
-		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px; font-size: 16px;' : 'padding: 5px 10px; border: 1px solid grey; font-size: 16px;') + ' }\
+		.DESU_content { text-align: left; }\
+		.DESU_content > table { font-size: 16px; }\
 		.DESU_favData .DESU_thread { padding-left: 15px; border: 1px solid grey; }\
 		.DESU_favData a, .DESU_hidTData a { text-decoration: none; }\
 		.DESU_favHead a { color: inherit; font-weight: bold; }\
@@ -6019,21 +6007,6 @@ function scriptCSS() {
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }'
 	);
-	if(Cfg['delhd'] === 2) {
-		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
-	}
-	if(Cfg['noname'] !== 0) {
-		x.push('.commentpostername, .postername, .postertrip { display: none; }');
-	}
-	if(Cfg['ospoil'] !== 0) {
-		x.push('.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }');
-	}
-	if(Cfg['noscrl'] !== 0) {
-		x.push('blockquote { max-height: 100% !important; overflow: visible !important; }');
-	}
-	if(Cfg['norule'] !== 0) {
-		x.push((aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }');
-	}
 	if(aib.kus) {
 		x.push(
 			'.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
@@ -6057,9 +6030,8 @@ function scriptCSS() {
 		);
 	} else if(aib.abu) {
 		x.push(
-			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"]' +
-				(Cfg['ytube'] === 0 ? '' : ', div[id^="post_video"]') + ' { display: none !important; }\
-			.DESU_aBtn { -moz-transition: none; -o-transition: none; -webkit-transition: none; transition: none; }'
+			'.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"] { display: none !important; }\
+			.DESU_aBtn { ' + nav.aCFix + 'transition: none; }'
 		);
 	} else if(aib.tiny) {
 		x.push(
@@ -6101,18 +6073,59 @@ function scriptCSS() {
 		x.push('.DESU_spoiler { color: #000; background-color: #000; }');
 	}
 
-	if(!$id('DESU_css')) {
-		doc.head.appendChild($new('style', {
-			'id': 'DESU_css',
-			'type': 'text/css',
-			'text': x.join(' ')
-		}, null));
-		if(nav.Chrome) {
-			$disp(dForm);
-		}
-	} else {
-		$id('DESU_css').textContent = x.join(' ');
+	doc.head.appendChild($new('style', {
+		'id': 'DESU_css',
+		'type': 'text/css',
+		'text': x.join(' ')
+	}, null));
+	doc.head.appendChild($new('style', {
+		'id': 'DESU_dynCss',
+		'type': 'text/css'
+	}, null));
+	updateCSS();
+	if(nav.Chrome) {
+		$disp(dForm);
 	}
+}
+
+function updateCSS() {
+	var x = [];
+	x.push(
+		'#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
+		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' }\
+		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }'
+	);
+	if(Cfg['icount'] === 0) {
+		x.push('#DESU_panelInfo { display: none; }');
+	}
+	if(Cfg['showmp'] === 0) {
+		x.push('#DESU_panelBtns, #DESU_panelInfo { display: none; }');
+	}
+	if(Cfg['mask'] !== 0) {
+		x.push(
+			'.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
+			.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }'
+		);
+	}
+	if(Cfg['delhd'] === 2) {
+		x.push('div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }');
+	}
+	if(Cfg['noname'] !== 0) {
+		x.push('.commentpostername, .postername, .postertrip { display: none; }');
+	}
+	if(Cfg['ospoil'] !== 0) {
+		x.push('.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }');
+	}
+	if(Cfg['noscrl'] !== 0) {
+		x.push('blockquote { max-height: 100% !important; overflow: visible !important; }');
+	}
+	if(Cfg['norule'] !== 0) {
+		x.push((aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }');
+	}
+	if(aib.abu && Cfg['ytube'] !== 0) {
+		x.push('div[id^="post_video"] { display: none !important; }');
+	}
+	$id('DESU_dynCss').textContent = x.join(' ');
 }
 
 
