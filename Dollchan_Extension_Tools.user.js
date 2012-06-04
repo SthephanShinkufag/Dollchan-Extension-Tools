@@ -2658,6 +2658,13 @@ function doPostformChanges(a) {
 			$del(el.parentNode);
 		}
 		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
+	} else if(aib.abu) {
+		$id('recaptcha_response_field').onkeydown = function(e) {
+			if(e.keyCode === 13) {
+				$pd(e);
+				pr.subm.click();
+			}
+		};
 	}
 }
 
