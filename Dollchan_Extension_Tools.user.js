@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.4.1
+// @version			12.6.4.3
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,63 +13,62 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.4.1',
+	'version':	'12.6.4.3',
 	'lang':		0,		// script language [0=ru, 1=en]
-	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
-	'spells':	0,		// hide posts by magic spells
+	'spells':	0,		// hide posts by spells
 	'awipe':	1,		// antiwipe detectors:
 	'samel':	1,		//		same lines
 	'samew':	1,		//		same words
 	'longp':	1,		//		long posts
 	'longw':	1,		//		long words
-	'caps':		0,		//		cAsE, CAPS
 	'specs':	0,		//		special symbols
+	'caps':		0,		//		cAsE, CAPS
 	'nums':		1,		//		numbers
+	'filthr':	1,		// apply filters to threads
 	'menuhd':	1,		// menu on hide button
 	'viewhd':	1,		// view hidden on postnumber
 	'delhd':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
-	'filthr':	1,		// filter threads
 	'updthr':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
 	'updint':	2,		//		threads update interval
 	'updfav':	1,		//		favicon blinking, if new posts detected
-	'navig':	2,		// >>links navigation [0=off, 1=no map, 2=+refmap]
-	'navdel':	'1500',	//		delay in ms
-	'nashow':	'100',	//		show timeout
-	'navmrk':	0,		//		mark viewed posts
-	'navhid':	0,		//		strike hidden posts in refmap
-	'navdis':	0,		//		don't show hidden posts
-	'expimg':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'dNotif':   0,		//		desktop notifications, if new posts detected
 	'expost':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
-	'ctime':	0,		// correct time in posts
-	'ctmofs':	'-2',	//		offset
-	'ctmpat':	'',		//		pattern
-	'insnum':	1,		// insert >>link on postnumber click
-	'animp':	1,		// animation in script
-	'aclose':	0,		// auto-close popups
-	'rtitle':	1,		// replace page title in threads
-	'attach':	1,		// attach main panel
-	'icount':	1,		// show posts/images counter
-	'showmp':	0,		// show full main panel
+	'expimg':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'mask':		0,		// mask images
+	'pimgs':	0,		// pre-load images
+	'rarjpeg':	0,		// detect rarjpegs
+	'imgsrc':	1,		// add image search buttons
 	'ospoil':	1,		// open spoilers
 	'noname':	0,		// hide post names
-	'noscrl':	1,		// hide scrollers in posts
+	'noscrl':	1,		// no scroll in posts
+	'keynav':	0,		// keyboard navigation
+	'ctime':	0,		// correct time in posts
+	'ctmofs':	'-2',	//		offset in hours
+	'ctmpat':	'',		//		replace pattern
+	'navig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
+	'nashow':	'100',	//		delay appearance in ms
+	'navdel':	'1500',	//		delay disappearance in ms
+	'navmrk':	0,		//		mark viewed posts
+	'navhid':	0,		//		strike >>links to hidden posts
+	'navdis':	0,		//		don't show previews for hidden posts
+	'insnum':	1,		// insert >>link on postnumber click
 	'mp3':		1,		// mp3 player by links
 	'addimg':	1,		// add images by links
-	'imgsrc':	1,		// image search
 	'ytube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'yptype':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
 	'ywidth':	360,	//		player width
 	'yheigh':	270,	//		player height
 	'yhdvid':	0,		//		hd video quality
 	'ytitle':	0,		//		convert links to titles
-	'verify':	1,		// reply without reload (verify on submit)
+	'pform':	2,		// postform is [0=at top, 1=at bottom, 2=hidden]
+	'tform':	1,		// hide thread-creating form
 	'addfav':	1,		// add thread to favorites on reply
-	'keynav':	0,		// keyboard navigation
+	'verify':	1,		// reply without reload
+	'sImgs':	1,		// 		ability to post same images
+	'rExif':	1,		// 		remove EXIF data from JPEGs
 	'sagebt':	1,		// email field -> sage btn
 	'svsage':	1,		//		remember sage
 	'issage':	0,		//		reply with sage
-	'pform':	2,		// postform is [0=at top, 1=at bottom, 2=hidden]
-	'tform':	1,		// hide thread-creating form
 	'forcap':	1,		// language input in captcha [0=off, 1=en, 2=ru]
 	'txtbtn':	1,		// text format buttons [0=off, 1=graph, 2=text, 3=usual]
 	'txtpos':	0,		//		position at [0=top, 1=bottom]
@@ -82,18 +81,19 @@ var defaultCfg = {
 	'norule':	1,		// hide board rules
 	'nogoto':	1,		// hide goto field
 	'nopass':	1,		// hide password field
-	'mask':		0,		// mask images
-	'texw':		530,	// textarea width
-	'texh':		140,	// textarea height
+	'sstyle':	0,		// script style [0=glass blue, 1=gradient blue, 2=solid grey]
+	'showmp':	0,		// show full main panel
+	'attach':	1,		// attach main panel
+	'icount':	1,		// show posts/images counter
+	'rtitle':	1,		// replace page title in threads
+	'animp':	1,		// animation in script
+	'aclose':	0,		// auto-close popups
 	'enupd':	1,		// check for script's update
+	'supdint':	2,		// 		check interval in days (0=on page load)
 	'betaupd':	0,		// 		check for beta-version
 	'lupdchk':	0,		// 		last update check
-	'supdint':	2,		// 		update interval in days (0=on page load)
-	'pimgs':	0,		// preload images
-	'rarjpeg':	0,		// detect rarjpegs
-	'rExif':	1,		// remove EXIF data from JPEGs
-	'sImgs':	1,		// ability to post same images
-	'dNotif':   0
+	'texw':		530,	// textarea width
+	'texh':		140,	// textarea height
 },
 
 Lng = {
@@ -1289,7 +1289,7 @@ function addSettings() {
 			lBox('spells', toggleSpells, 'DESU_spellChk'),
 			$new('textarea', {
 				'id': 'DESU_spellEdit',
-				'rows': 7,
+				'rows': 10,
 				'cols': 49
 			}, null)
 		]),
@@ -4653,9 +4653,7 @@ function desktopNotification(count) {
 		return;
 	}
 	var notif = window.webkitNotifications.createNotification(
-			'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png', 
-			docTitle,
-			Lng.unreadMsg[lCode].replace(/%m/g, count)
+			'/favicon.ico', docTitle, Lng.unreadMsg[lCode].replace(/%m/g, count)
 		);
 	notif.ondisplay = function() {
 		setTimeout(function () {
@@ -4716,7 +4714,7 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
-	if(Cfg['dNotif'] !== 0 && inf > 0) {
+	if(nav.Chrome && Cfg['dNotif'] !== 0 && inf > 0) {
 		desktopNotification(inf);
 	} 
 }
@@ -5841,7 +5839,7 @@ function scriptCSS() {
 		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: ' + nav.aCFix + 'linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
-		.DESU_cfgBody { min-width: 371px; min-height: 280px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { min-width: 371px; min-height: 300px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
