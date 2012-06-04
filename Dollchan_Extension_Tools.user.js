@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.4.0
+// @version			12.6.4.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.4.0',
+	'version':	'12.6.4.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'sstyle':	0,		// script elements style [0=glass blue, 1=gradient blue, 2=solid grey]
 	'spells':	0,		// hide posts by magic spells
@@ -92,7 +92,8 @@ var defaultCfg = {
 	'pimgs':	0,		// preload images
 	'rarjpeg':	0,		// detect rarjpegs
 	'rExif':	1,		// remove EXIF data from JPEGs
-	'sImgs':	1		// ability to post same images
+	'sImgs':	1,		// ability to post same images
+	'dNotif':   0
 },
 
 Lng = {
@@ -123,6 +124,7 @@ Lng = {
 			txt:	['(мин) интервал проверки*', '(min) update interval*']
 		},
 		updfav:		['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
+		dNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
 		expost: {
 			sel:	[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:	['загрузка сокращенных постов*', 'upload of shorted posts*']
@@ -289,6 +291,7 @@ Lng = {
 	checkNow:		['Проверить сейчас', 'Check now'],
 	updAvail:		['Доступно обновление!', 'Update available!'],
 	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
+	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
 	version:		['Версия: ', 'Version: '],
 	storage:		['Хранение: ', 'Storage: '],
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
@@ -768,6 +771,9 @@ function readCfg() {
 	}
 	if(!nav.Firefox) {
 		Cfg['updfav'] = 0;
+	}
+	if(!nav.Chrome) {
+		Cfg['dNotif'] = 0;
 	}
 	if(nav.Opera) {
 		Cfg['ytitle'] = 0;
@@ -1322,7 +1328,12 @@ function addSettings() {
 		$New('div', null, [optSel('updthr', null)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [optSel('updint', null)]),
-			$if(nav.Firefox, divBox('updfav', null))
+			$if(nav.Firefox, divBox('updfav', null)),
+			$if(nav.Chrome, divBox('dNotif', function() {
+				if(Cfg['dNotif'] !== 0) {
+					window.webkitNotifications.requestPermission();
+				}
+			}))
 		]),
 		$New('div', null, [optSel('expost', null)]),
 		$New('div', null, [optSel('expimg', null)]),
@@ -3128,7 +3139,7 @@ function addTextPanel() {
 			'Quote': [,'&gt;']
 		},
 		txtBtn = function(id) {
-				var x = pr.txta,
+			var x = pr.txta,
 				btn = $id('DESU_btn' + id),
 				val = tagTable[id][1];
 			if(!btn) {
@@ -3185,13 +3196,10 @@ function addTextPanel() {
 				}
 				pnl.appendChild(btn);
 			}
-			if(Cfg['txtbtn'] === 1) {
-				btn.innerHTML = '';
-			} else if(Cfg['txtbtn'] === 2) {
-				btn.innerHTML = (val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]');
-			} else if(Cfg['txtbtn'] === 3) {
-				btn.innerHTML = '<input type="button" value="' + val + '" style="font-weight: bold;" />';
-			}
+			btn.innerHTML =
+				Cfg['txtbtn'] === 2 ? ((val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]'))
+				: Cfg['txtbtn'] === 3 ? ('<input type="button" value="' + val + '" style="font-weight: bold;" />')
+				: '';
 		};
 	if(!pnl) {
 		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
@@ -4648,6 +4656,29 @@ function endPostsUpdate() {
 	ajaxInterval = undefined;
 }
 
+function desktopNotification(count) {
+	if(window.webkitNotifications.checkPermission() !== 0) {
+		return;
+	}
+	var notif = window.webkitNotifications.createNotification(
+			'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png', 
+			docTitle,
+			Lng.unreadMsg[lCode].replace(/%m/g, count)
+		);
+	notif.ondisplay = function() {
+		setTimeout(function () {
+			notif.cancel();
+		}, 8000);
+	};
+	notif.onclick = function () {
+		if(window.focus) {
+			window.focus();
+		}
+		notif.cancel();
+	};
+	notif.show();
+}
+
 function infoNewPosts(err, inf) {
 	var old;
 	if(err) {
@@ -4693,6 +4724,9 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
+	if(Cfg['dNotif'] !== 0 && inf > 0) {
+		desktopNotification(inf);
+	} 
 }
 
 function setHanaRating() {
