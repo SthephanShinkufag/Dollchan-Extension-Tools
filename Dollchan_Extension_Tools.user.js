@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.5.1
+// @version			12.6.5.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.5.1',
+	'version':	'12.6.5.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'spells':	0,		// hide posts by spells
 	'awipe':	1,		// antiwipe detectors:
@@ -3955,11 +3955,14 @@ function getRefMap(post, pNum, refMap) {
 function genRefMap(pBn) {
 	var pNum, post, refMap = [];
 	for(pNum in pBn) {
-		getRefMap(pBn[pNum], pNum, refMap);
+		post = pBn[pNum];
+		if(typeof post === 'object') {
+			getRefMap(post, pNum, refMap);
+		}
 	}
 	for(pNum in refMap) {
 		post = pBn[pNum];
-		if(post) {
+		if(post && typeof post === 'object') {
 			nav.insAfter(post.Msg, '<div class="DESU_refMap">'
 				+ refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
 				+ '</div>'
