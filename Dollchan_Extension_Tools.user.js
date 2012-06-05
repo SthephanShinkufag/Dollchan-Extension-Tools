@@ -4188,13 +4188,32 @@ function getPview(post, pNum, parent, link, txt) {
 	return el;
 }
 
+function getAjaxPview(b, pNum) {
+	var el, els, i;
+	if(!Pviews.ajaxed[b]) {
+		Pviews.ajaxed[b] = {};
+	}
+	el = Pviews.ajaxed[b][pNum];
+	if(b === brd || !el || el.aRep) {
+		return el;
+	}
+	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
+	for(els = el.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
+		if(/^>>\d+$/.test(els[i].textContent)) {
+			els[i].href = pNum;
+		}
+	}
+	el.aRep = true;
+	return el;
+}
+
 function showPview(link) {
 	var b = aib.ylil
 			? link['data-boardurl']
 			: link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || (Pviews.ajaxed[b] || [])[pNum],
+		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : Pviews.current;
 	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
@@ -4220,13 +4239,12 @@ function showPview(link) {
 		null, pNum, parent, link,
 		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
-	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, function(dc, post, i) {
 		Pviews.ajaxed[b][post.Num] = post;
 	}, function(err) {
 		genRefMap(Pviews.ajaxed[b]);
 		if(el && !el.forDel) {
-			getPview(Pviews.ajaxed[b][pNum], pNum, parent, link, err);
+			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
 	});
 }
