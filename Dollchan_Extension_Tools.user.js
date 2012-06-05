@@ -1014,11 +1014,11 @@ function addPanel() {
 					'id': 'DESU_btn' + id,
 					'class': 'DESU_aBtn',
 					'title': Lng.panelBtn[id][lCode],
-					'href': href ? href : '#'
+					'href': href ? href : '#',
+					'onmouseout': out
 				}, {
 					'click': click,
-					'mouseover': over,
-					'mouseout': out
+					'mouseover': over
 				})
 			]);
 		};
@@ -1057,7 +1057,7 @@ function addPanel() {
 					if(!TNum) {
 						selectAjaxPages();
 					}
-				}, removeSelMenu),
+				},  'DESU_delSelection(event)'),
 				pButton('GoBack', null, '//' + aib.host + getPageUrl(pageNum - 1), null, null),
 				$if(!TNum, pButton('GoNext', null, '//' + aib.host + getPageUrl(pageNum + 1), null, null)),
 				pButton('GoUp', function(e) {
@@ -1259,10 +1259,10 @@ function addSettings() {
 				$new('a', {
 					'text': Lng.add[lCode],
 					'href': '#',
-					'class': 'DESU_aBtn'}, {
+					'class': 'DESU_aBtn',
+					'onmouseout': 'DESU_delSelection(event)'}, {
 					'click': $pd,
-					'mouseover': selectSpell,
-					'mouseout': removeSelMenu
+					'mouseover': selectSpell
 				}),
 				$new('a', {
 					'text': Lng.apply[lCode],
@@ -2016,12 +2016,6 @@ function $alert(txt, id, wait) {
 								DROPDOWN SELECT MENUS
 ==============================================================================*/
 
-function removeSelMenu(e) {
-	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) {
-		$del($id('DESU_select'));
-	}
-}
-
 function addSelMenu(el, fPanel, html) {
 	var y, pos,
 		pst = getPost(el);
@@ -2039,9 +2033,8 @@ function addSelMenu(el, fPanel, html) {
 			el.className === 'DESU_btnSrc'
 				? 'left: ' + $offset(el).left
 				: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;">' + html + '</div>'
+		) + 'px; ' + y + 'px;" onmouseout="DESU_delSelection(event)">' + html + '</div>'
 	), {
-		'mouseout': removeSelMenu,
 		'mouseover': function() {
 			if(pst && pst.node) {
 				markPviewToDel(pst.node, false);
@@ -3290,9 +3283,11 @@ function prepareButtons() {
 				window.postMessage("A" + el.parentNode.id.substring(9), "*");\
 			}\
 			function DESU_delSelection(e) {\
-				if(!document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
+				if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
 					var el = document.getElementById("DESU_select");\
-					el.parentNode.removeChild(el);\
+					if(el) {\
+						el.parentNode.removeChild(el);\
+					}\
 				}\
 			}\
 			function DESU_qReplyClick(el) {\
