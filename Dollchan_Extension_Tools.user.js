@@ -2792,6 +2792,11 @@ function checkUpload(dc, url) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
 		}
+		if(aib.hana && /слишком старый/.test(err)) {
+			pr.cap.value = '';
+			pr.cap.focus();
+			refreshCapImg(tNum);
+		}
 		$alert(err, 'Upload', false);
 	} else {
 		pr.txta.value = '';
