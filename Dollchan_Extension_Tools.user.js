@@ -5828,9 +5828,9 @@ function scriptCSS() {
 		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
 		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%); }\
+		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
-		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%); }\
+		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
