@@ -81,7 +81,7 @@ var defaultCfg = {
 	'norule':	1,		// hide board rules
 	'nogoto':	1,		// hide goto field
 	'nopass':	1,		// hide password field
-	'sstyle':	0,		// script style [0=glass blue, 1=gradient blue, 2=solid grey]
+	'sstyle':	0,		// script style [0=glass black, 1=glass blue, 2=gradient blue, 3=solid grey]
 	'showmp':	0,		// show full main panel
 	'attach':	1,		// attach main panel
 	'icount':	1,		// show posts/images counter
@@ -195,7 +195,7 @@ Lng = {
 		nopass:		['пароль', 'password'],
 		
 		sstyle: {
-			sel:	[['Glass blue', 'Gradient blue', 'Solid grey'], ['Glass blue', 'Gradient blue', 'Solid grey']],
+			sel:	[['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey']],
 			txt:	[' стиль скрипта', ' script style']
 		},
 		attach:		['Прикрепить главную панель ', 'Attach main panel '],
@@ -637,6 +637,10 @@ function fixFunctions() {
 	}
 }
 
+function getThemeLang() {
+	return (Cfg['sstyle'] === 0 ? 'fr' : Cfg['sstyle'] === 1 ? 'en' : Cfg['sstyle'] === 2 ? 'ru' : 'de')
+}
+
 
 /*==============================================================================
 								STORAGE / CONFIG
@@ -754,8 +758,8 @@ function readCfg() {
 	if(global) {
 		fixGlobalCfg();
 	}
-	if(nav.Opera && nav.Opera < 11.1 && Cfg['sstyle'] === 0) {
-		Cfg['sstyle'] = 1;
+	if(nav.Opera && nav.Opera < 11.1 && Cfg['sstyle'] < 2) {
+		Cfg['sstyle'] = 2;
 	}
 	if(nav.Firefox < 6 && !nav.Chrome) {
 		Cfg['pimgs'] = 0;
@@ -1023,7 +1027,7 @@ function addPanel() {
 		$new('div', {'style': 'clear: both;'}, null),
 		$New('div', {
 			'id': 'DESU_panel',
-			'lang': (Cfg['sstyle'] === 0 ? 'en' : Cfg['sstyle'] === 1 ? 'ru' : 'de')
+			'lang': getThemeLang()
 		}, [
 			$new('span', {
 				'id': 'DESU_btnLogo',
@@ -1101,7 +1105,7 @@ function addPanel() {
 		]),
 		$new('div', {
 			'class': 'DESU_content',
-			'lang': (Cfg['sstyle'] === 0 ? 'en' : Cfg['sstyle'] === 1 ? 'ru' : 'de')
+			'lang': getThemeLang()
 		}, null),
 		$new('div', {'id': 'DESU_alertBox'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
@@ -1472,9 +1476,8 @@ function addSettings() {
 	}, [
 		$New('div', null, [
 			optSel('sstyle', function() {
-				var sI = this.selectedIndex;
-				saveCfg('sstyle', sI);
-				$id('DESU_panel').lang = $c('DESU_content', doc).lang = (sI === 0 ? 'en' : sI === 1 ? 'ru' : 'de');
+				saveCfg('sstyle', this.selectedIndex);
+				$id('DESU_panel').lang = $c('DESU_content', doc).lang = getThemeLang();
 			})
 		]),
 		divBox('attach', function() {
@@ -5614,141 +5617,118 @@ function applySpells(txt) {
 ==============================================================================*/
 
 function detectWipe_sameLines(txt) {
-	var lines, i, x,
-		arr = [],
-		n = 0;
 	if(Cfg['samel'] === 0) {
 		return false;
 	}
-	lines = txt.replace(/> /g, '').split(/\s*\n\s*/);
-	i = lines.length;
-	if(i < 6) {
+	var i = 0, j, n, x,
+		lines = txt.replace(/> /g, '').split(/\s*\n\s*/),
+		len = lines.length;
+	if(len < 6) {
 		return false;
 	}
-	while(i--) {
+	lines.sort();
+	while(i < len && lines[i++] === '');
+	for(n = (len - i) / 4; i < len;) {
 		x = lines[i];
-		if(x.length === 0) {
-			continue;
+		j = 0;
+		while(lines[++i] === x) {
+			j++;
 		}
-		if(arr[x]) {
-			arr[x]++;
-		} else {
-			arr[x] = 1;
-		}
-		n++;
-	}
-	n = n/4;
-	for(x in arr) {
-		if(arr[x] > n && arr[x] > 4) {
-			return 'same lines: "' + x.substr(0, 20) + '" x' + (arr[x] + 1);
+		if(j > 4 && j > n) {
+			return 'same lines: "' + x.substr(0, 20) + '" x' + j;
 		}
 	}
 	return false;
 }
 
 function detectWipe_sameWords(txt) {
-	var words, i, x,
-		arr = [],
-		n = 0,
-		keys = 0,
-		pop = '',
-		mpop = -1;
 	if(Cfg['samew'] === 0) {
 		return false;
 	}
-	words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-	i = words.length;
+	var i = 0, x, n, j, keys, pop, mpop = -1,
+		words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' '),
+		len = words.length;
 	if(i <= 13) {
 		return false;
 	}
-	while(i--) {
-		x = words[i];
-		if(x.length < 2) {
-			continue;
-		}
-		if(arr[x]) {
-			arr[x]++;
-		} else {
-			arr[x] = 1;
-		}
-		n++;
-	}
-	if(n < 10) {
+	words.sort();
+	while(i < len && words[i++].length < 2);
+	n = len - i;
+	if(n <= 10) {
 		return false;
 	}
-	for(x in arr) {
-		keys++;
-		if(arr[x] > mpop) {
-			mpop = arr[x];
+	for(keys = 0, mpop = -1; i < len; keys++) {
+		x = words[i];
+		j = 0;
+		while(words[++i] === x) {
+			j++;
+		}
+		if(j > mpop) {
+			mpop = j;
 			pop = x;
 		}
-		if(n > 25 && arr[x] > n/3.5) {
-			return 'same words: "' + x.substr(0, 20) + '" x' + arr[x];
+		if(n > 25 && j > n / 3.5) {
+			return 'same words: "' + x.substr(0, 20) + '" x' + j;
 		}
 	}
-	return n > 80 && keys <= 20 || n/keys > 7
+	return n > 80 && keys <= 20 || n / keys > 7
 		? 'same words: "' + pop.substr(0, 20) + '" x' + mpop
 		: false;
 }
 
 function detectWipe_longColumn(txt) {
-	var rows, i,
-		n = 0;
 	if(Cfg['longp'] === 0) {
 		return false;
 	}
-	rows = txt.split(/\s*\n\s*/);
-	i = rows.length;
+	var rows = txt.split(/\s*\n\s*/),
+		i = rows.length;
 	if(i > 50) {
 		return 'long text x' + i;
 	}
-	while(i--) {
-		if(rows[i].length < 9) {
-			n++;
-		} else {
-			return false;
-		}
+	rows.sort();
+	if(rows[i - 1].length >= 9) {
+		return false;
 	}
-	return n > 5 ? 'columns x' + n : false;
+	return i > 5 ? 'columns x' + i : false;
 }
 
 function detectWipe_longWords(txt) {
-	var words, i, x,
-		all = '',
-		longest = '',
-		n = 0;
 	if(Cfg['longw'] === 0) {
 		return false;
 	}
-	words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-	i = words.length;
-	while(i--) {
-		x = words[i];
-		if(x.length < 2) {
-			continue;
-		}
-		all += x;
-		longest = x.length > longest.length ? x : longest;
-		n++;
+	var i = 0, j,
+		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ').sort(),
+		len = words.length,
+		lWord = words[len - 1];
+	if(lWord.length > 70) {
+		return 'long words: "' + lWord.substr(0, 20) + '.."';
 	}
-	return n === 1 && longest.length > 70 || n > 1 && all.length/n > 12
-		? 'long words: "' + longest.substr(0, 20) + '.."'
-		: false;
+	while(i < len && words[i++].length < 2);
+	j = len - i;
+	if(j < 1) {
+		return false;
+	}
+	if(words.slice(i).join('').length / j > 12) {
+		return 'long words: "' + lWord.substr(0, 20) + '.."';
+	}
+	return false;
 }
 
 function detectWipe_caseWords(txt) {
-	var words, i, x,
-		capsw = 0,
-		casew = 0,
-		n = 0;
 	if(Cfg['caps'] === 0) {
 		return false;
 	}
-	words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
-	if(words.length < 5) {
+	var i, x,
+		capsw = 0,
+		casew = 0,
+		n = 0,
+		words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' '),
+		len = words.length;
+	if(len < 5) {
 		return false;
 	}
-	for(i = 0; x = words[i++];) {
+	for(i = 0; i < len; i++) {
+		x = words[i];
 		if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 			continue;
 		}
@@ -5760,8 +5740,8 @@ function detectWipe_caseWords(txt) {
 		}
 		n++;
 	}
-	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + parseInt(capsw/words.length*100, 10) + '%')
-		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + parseInt(casew/words.length*100, 10) + '%')
+	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + capsw / words.length * 100 + '%')
+		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + casew / words.length * 100 + '%')
 		: false;
 }
 
@@ -5772,7 +5752,7 @@ function detectWipe_specSymbols(txt) {
 	}
 	txt = txt.replace(/\s+/g, '');
 	len = txt.length;
-	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length/len;
+	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
 	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc*100, 10) + '%' : false;
 }
 
@@ -5783,31 +5763,21 @@ function detectWipe_numbers(txt) {
 	}
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	len = txt.length;
-	proc = (len - txt.replace(/\d/g, '').length)/len;
+	proc = (len - txt.replace(/\d/g, '').length) / len;
 	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc*100, 10) + '%' : false;
 }
 
 function detectWipe(post) {
-	var arr, i, x;
 	if(Cfg['awipe'] === 0) {
 		return false;
 	}
-	arr = [
-		detectWipe_sameLines,
-		detectWipe_sameWords,
-		detectWipe_longColumn,
-		detectWipe_longWords,
-		detectWipe_caseWords,
-		detectWipe_specSymbols,
-		detectWipe_numbers
-	];
-	for(i = 0; i < 7; i++) {
-		x = arr[i](post.Text);
-		if(x) {
-			return x;
-		}
-	}
-	return false;
+	return detectWipe_sameLines(post.Text) ||
+		detectWipe_sameWords(post.Text) ||
+		detectWipe_longColumn(post.Text) ||
+		detectWipe_longWords(post.Text) ||
+		detectWipe_caseWords(post.Text) ||
+		detectWipe_specSymbols(post.Text) ||
+		detectWipe_numbers(post.Text);
 }
 
 function hideByWipe(post) {
@@ -5839,25 +5809,28 @@ function scriptCSS() {
 
 	// Settings window
 	x += '#DESU_cfgWindow { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgHead { padding: 5px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df 0%, #3d77be 20%, #376cb0 25%, #295591 50%, #183d77 50%, #1f4485 75%, #264c90 85%, #325f9e 100%); }\
+		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
+		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(top, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.DESU_cfgBody { min-width: 371px; min-height: 300px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
 		.DESU_cfgBody:lang(de), #DESU_cfgBtns:lang(de) { border-color: #444; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
-		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #325f9e; }\
+		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; }\
+		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
 		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
+		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:lang(en) { background: linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(110,110,110,.35) 20%, rgba(100,100,100,.35) 25%, rgba(79,79,79,.35) 50%, rgba(58,58,58,.35) 50%, rgba(68,68,68,.35) 75%, rgba(74,74,74,.35) 85%, rgba(90,90,90,.35) 100%); }\
+		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
-		.DESU_cfgTab:hover:lang(en) { background: linear-gradient(top, rgba(90,90,90,.35) 0%, rgba(74,74,74,.35) 15%, rgba(68,68,68,.35) 25%, rgba(58,58,58,.35) 50%, rgba(79,79,79,.35) 50%, rgba(100,100,100,.35) 75%, rgba(110,110,110,.35) 80%, rgba(132,132,132,.35) 100%); }\
+		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
@@ -5867,18 +5840,17 @@ function scriptCSS() {
 	x += '#DESU_btnLogo { margin-right: 3px; }\
 		#DESU_panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
 		#DESU_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
-		#DESU_panelBtns:lang(ru) { border-color: #79c; }\
-		#DESU_panelBtns:lang(de) { border-color: #ccc; }\
+		#DESU_panelBtns:lang(ru), #DESU_panelInfo:lang(ru) { border-color: #79c; }\
+		#DESU_panelBtns:lang(de), #DESU_panelInfo:lang(de) { border-color: #ccc; }\
+		#DESU_panelBtns:lang(fr), #DESU_panelInfo:lang(fr) { border-color: #616b86; }\
 		#DESU_panelBtns > li { margin: 0 1px; }\
 		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }\
-		#DESU_panelBtns:lang(en) > li { transition: all 0.3s ease; }\
-		#DESU_panelBtns:lang(en) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+		#DESU_panelBtns:lang(en) > li, #DESU_panelBtns:lang(fr) > li  { transition: all 0.3s ease; }\
+		#DESU_panelBtns:lang(en) > li:hover, #DESU_panelBtns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 		#DESU_panelBtns:lang(ru) > li > a, #DESU_panelBtns:lang(de) > li > a { border-radius: 5px; }\
 		#DESU_panelBtns:lang(ru) > li > a:hover { width: 21px; height: 21px; border: 2px solid #9be; }\
 		#DESU_panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }\
-		#DESU_panelInfo:lang(en) { border-color: #79c; }\
-		#DESU_panelInfo:lang(de) { border-color: #ccc; }';
+		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }'
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	gif('#DESU_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
