@@ -4556,7 +4556,7 @@ function loadFavorThread() {
 			'name': name,
 			'class': 'DESU_favIframe',
 			'src': url,
-			'style': 'border: none; width: ' + (doc.body.clientWidth - 65) + 'px; height: 1px;'
+			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
 		}, null),
 		$add(
 			'<div class="DESU_wait" style="font-size: 1.1em; text-align: center">'
