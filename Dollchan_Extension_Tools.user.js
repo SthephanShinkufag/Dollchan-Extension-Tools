@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.4.3
+// @version			12.6.5.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.4.3',
+	'version':	'12.6.5.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'spells':	0,		// hide posts by spells
 	'awipe':	1,		// antiwipe detectors:
@@ -3108,7 +3108,7 @@ function addTextPanel() {
 			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
 			'Under': [bbBrds ? 'u' : '__', 'U'],
 			'Strike': [bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
-			'Spoil': [aib._420 ? '%' : bbBrds ? 'spoiler' : '%%', '%'],
+			'Spoil': [aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
 			'Code': [aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
 			'Quote': [,'&gt;']
 		},
@@ -3128,7 +3128,7 @@ function addTextPanel() {
 							i = text.length,
 							tag = tagTable[this.id.substring(8)][0];
 						$pd(e);
-						if(bbBrds || (aib.fch && tag === '%%')) {
+						if(bbBrds || (aib.fch && tag === 'spoiler')) {
 							tag1 = '[' + tag + ']';
 							tag2 = '[/' + tag + ']';
 						} else {
@@ -6576,10 +6576,6 @@ function parseDelform(node, dc, pFn) {
 				$before(el.parentNode.firstChild, [el]);
 			}
 		});
-	} else if(aib.fch) {
-		$each($X('.//span[@class="spoiler"]', dForm), function(el) {
-			el.className = 'DESU_spoiler';
-		});
 	}
 	if(Posts.length < 2) {
 		aib.xPost = aib.fch
@@ -6687,6 +6683,9 @@ function replaceDelform(el) {
 		}
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
+		}
+		if(aib.fch && Cfg['ospoil'] !== 0) {
+			txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
 		}
 		if(Cfg['spells'] !== 0 && oSpells.rep[0]) {
 			txt = doReplace(oSpells.rep, txt);
