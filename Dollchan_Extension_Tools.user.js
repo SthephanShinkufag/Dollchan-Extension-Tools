@@ -584,7 +584,7 @@ function HTMLtoDOM(html) {
 }
 
 function Log(txt) {
-	var newTime = (new Date()).getTime();
+	var newTime = Date.now()
 	timeLog += txt + ': ' + (newTime - oldTime) + 'ms\n';
 	oldTime = newTime;
 }
@@ -606,6 +606,11 @@ function fixFunctions() {
 				i = str.length;
 			while(s.test(str.charAt(--i))) {}
 			return str.slice(0, i + 1);
+		};
+	}
+	if(!Date.now) {
+		Date.now = function now() {
+			return +(new Date);
 		};
 	}
 	if(typeof uneval !== 'function') {
@@ -649,7 +654,7 @@ function getThemeLang() {
 function setCookie(name, value, life) {
 	if(name) {
 		doc.cookie = escape(name) + '=' + escape(value) + ';expires='
-			+ (new Date((new Date()).getTime() + life)).toGMTString() + ';path=/';
+			+ (new Date(Date.now() + life)).toGMTString() + ';path=/';
 	}
 }
 
@@ -814,8 +819,7 @@ function getVisib(pNum) {
 }
 
 function readPostsVisib() {
-	var i, arr, data,
-		currTime = (new Date()).getTime();
+	var i, arr, data, currTime = Date.now();
 	if(sav.cookie) {
 		if(TNum) {
 			data = getStored('DESU_Posts_' + aib.dm + '_' + TNum);
@@ -3301,23 +3305,29 @@ function prepareButtons() {
 	}, null));
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
-			post = pByNum[+event.data.substring(1)];
+			data = event.data.substring(1);
 		if(name === "A") {
-			selectPostHider(post);
+			selectPostHider(pByNum[+data]);
 		} else if(name === "B") {
-			selectExpandThread(post);
+			selectExpandThread(pByNum[+data]);
 		} else if(name === "C") {
 			quotetxt = txtSelection();
 		} else if(name === "D") {
-			togglePostVisib(post);
+			togglePostVisib(pByNum[+data]);
 		} else if(name === "E") {
-			loadThread(post, 1, null);
+			loadThread(pByNum[+data], 1, null);
 		} else if(name === "F") {
-			showQuickReply(post);
+			showQuickReply(pByNum[+data]);
 		} else if(name === "G") {
-			toggleFavorites(post, $c('DESU_btnFav', post) || $c('DESU_btnFavSel', post));
+			toggleFavorites(pByNum[+data], $c('DESU_btnFav', pByNum[+data]) || $c('DESU_btnFavSel', pByNum[+data]));
 		} else if(name === "H") {
 			applySpells('#sage');
+		} else if(name === 'I') {
+			data = data.split('|');
+			name = $id(data[0]);
+			$del(name.nextSibling);
+			$c('DESU_content', doc).style.overflowY = 'scroll';
+			name.style.height = (+data[1] + Math.sqrt(0.6 * data[1]) + 55) + 'px';
 		}
 	}, false);
 }
@@ -4526,30 +4536,27 @@ function loadFavorThread() {
 	var el = this.parentNode.parentNode,
 		favt = $c('DESU_favThr', el),
 		url = this.nextElementSibling.href,
-		tNum = el.id.substr(13).split('|')[2];
+		tNum = el.id.substr(13).split('|')[2],
+		name = 'DESU_favIframe' + $rnd();
 	if(favt.style.display !== 'none') {
-		while(favt.firstChild) {
-			$del(favt.firstChild);
-		}
+		$del(favt.firstChild);
 		$disp(favt);
-		$del($c('DESU_favIframe', doc));
+		if(!$c('DESU_favIframe', doc)) {
+			$c('DESU_content', doc).style.overflowY = 'auto';
+		}
 		return;
 	}
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) {
 		$focus(pByNum[tNum]);
 		return;
 	}
-	window.onmessage = function(e) {
-		$c('DESU_wait', favt).style.display = 'none';
-		favt = $c('DESU_favIframe', favt);
-		favt.style.height = e.data + 'px';
-	}
 	$append(favt, [
 		$new('iframe', {
-			'name': 'DESU_favIframe',
+			'id': name,
+			'name': name,
 			'class': 'DESU_favIframe',
 			'src': url,
-			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
+			'style': 'border: none; width: ' + (doc.body.clientWidth - 65) + 'px; height: 1px;'
 		}, null),
 		$add(
 			'<div class="DESU_wait" style="font-size: 1.1em; text-align: center">'
@@ -5023,7 +5030,7 @@ function applyPostVisib(post, vis, note) {
 	}
 	if(!sav.cookie) {
 		Visib[brd + pNum] = vis;
-		Expires[brd + pNum] = (new Date()).getTime() + storageLife;
+		Expires[brd + pNum] = Date.now() + storageLife;
 	} else if(TNum) {
 		Visib[post.Count] = vis;
 	}
@@ -5999,7 +6006,7 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
-		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow: auto;') + ' }\
+		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
 		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }';
 	if(Cfg['icount'] === 0) {
 		x += '#DESU_panelInfo { display: none; }';
@@ -6039,7 +6046,7 @@ function updateCSS() {
 ==============================================================================*/
 
 function checkForUpdates(force, fn) {
-	var t = +(new Date()).getTime(),
+	var t = Date.now(),
 		day = 2 * 1000 * 60 * 60 * 24,
 		updInt =
 			Cfg['supdint'] === 0 ? 0
@@ -6115,15 +6122,18 @@ function isCompatible() {
 		return false;
 	}
 	getImageboard();
-	if(/DESU_iframe/.test(window.name)) {
+	if(/^DESU_iframe/.test(window.name)) {
 		fixDomain();
 		return false;
 	}
-	if(/DESU_favIframe/.test(window.name)) {
+	if(/^DESU_favIframe/.test(window.name)) {
 		liteMode = true;
+		window.top.postMessage('I' + window.name + '|' + doc.body.scrollHeight, '*');
 		$event(window, {
 			'load': function(e) {
-				window.top.postMessage('' + (document.body.offsetHeight + 20), '*');
+				setTimeout(function() {
+					window.top.postMessage('I' + window.name + '|' + doc.body.scrollHeight, '*');
+				}, 1E3);
 			}
 		});
 	}
@@ -6702,6 +6712,34 @@ function preparePage() {
 	if(aib.krau) {
 		$del($t('hr', dForm));
 		$del($t('hr', dForm.previousElementSibling));
+	} else if(aib.abu) {
+		el = $c('DESU_thread', dForm);
+		if(TNum && el) {
+			$Del('following-sibling::node()', el);
+			$after(el, $new('hr', null, null));
+		}
+		$del($x('.//input[@name="makewatermark"]', pr.form));
+		if(!TNum) {
+			$del(dForm.nextElementSibling);
+			$del(dForm.nextElementSibling);
+		}
+	} else if(aib.brit) {
+		$each($X('.//span[@class="reflink"]', dForm), function(el) {
+			var a = el.firstChild;
+			$rattr(a, 'onclick');
+			a.href = getThrdUrl(aib.host, brd, a.textContent);
+			a.target = '_blank';
+		});
+	} else if(aib.ylil) {
+		el = $t('iframe', dForm);
+		if(el) {
+			$del(el.nextElementSibling);
+			$del(el.nextElementSibling);
+			$del(el);
+		}
+	}
+	if(liteMode) {
+		return;
 	}
 	if(TNum) {
 		onhid = function() {
@@ -6741,38 +6779,6 @@ function preparePage() {
 			window.onblur = onhid;
 			window.onfocus = onvis;
 		}
-	} else {
-		setTimeout(function() {
-			window.scrollTo(0, 0);
-		}, 50);
-	}
-	if(aib.abu) {
-		el = $c('DESU_thread', dForm);
-		if(TNum && el) {
-			$Del('following-sibling::node()', el);
-			$after(el, $new('hr', null, null));
-		}
-		$del($x('.//input[@name="makewatermark"]', pr.form));
-		if(!TNum) {
-			$del(dForm.nextElementSibling);
-			$del(dForm.nextElementSibling);
-		}
-	} else if(aib.brit) {
-		$each($X('.//span[@class="reflink"]', dForm), function(el) {
-			var a = el.firstChild;
-			$rattr(a, 'onclick');
-			a.href = getThrdUrl(aib.host, brd, a.textContent);
-			a.target = '_blank';
-		});
-	} else if(aib.ylil) {
-		el = $t('iframe', dForm);
-		if(el) {
-			$del(el.nextElementSibling);
-			$del(el.nextElementSibling);
-			$del(el);
-		}
-	}
-	if(TNum) {
 		initThreadsUpdater();
 		if(Cfg['updthr'] === 2 || Cfg['updthr'] === 3) {
 			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
@@ -6786,6 +6792,10 @@ function preparePage() {
 				}
 			}));
 		}
+	} else {
+		setTimeout(function() {
+			window.scrollTo(0, 0);
+		}, 20);
 	}
 	if(Cfg['enupd'] !== 0) {
 		checkForUpdates(false, function(html) {
@@ -6800,7 +6810,7 @@ function preparePage() {
 ==============================================================================*/
 
 function doScript() {
-	var initTime = (new Date()).getTime();
+	var initTime = Date.now();
 	oldTime = initTime;
 	if(!isCompatible()) {
 		return;
@@ -6887,7 +6897,7 @@ function doScript() {
 		preloadImages(dForm);
 		Log('preloadImages');
 	}
-	endTime = (new Date()).getTime() - initTime;
+	endTime = Date.now() - initTime;
 }
 
 if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
