@@ -3772,7 +3772,7 @@ function addLinkImg(el, addBr) {
 				this.height = k < 1 ? 200 : 200/k;
 			}
 		}));
-		a.click = function(e) {
+		a.onclick = function(e) {
 			if(Cfg['expimg'] !== 0 && e.button !== 1) {
 				$pd(e);
 				addFullImg(this, this.firstChild.title.split('x'), null);
