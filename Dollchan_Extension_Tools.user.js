@@ -4191,7 +4191,7 @@ function getPview(post, pNum, parent, link, txt) {
 function getAjaxPview(b, pNum) {
 	var el, els, i;
 	if(!Pviews.ajaxed[b]) {
-		Pviews.ajaxed[b] = {};
+		Pviews.ajaxed[b] = [];
 	}
 	el = Pviews.ajaxed[b][pNum];
 	if(b === brd || !el || el.aRep) {
