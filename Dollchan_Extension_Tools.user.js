@@ -1014,11 +1014,11 @@ function addPanel() {
 					'id': 'DESU_btn' + id,
 					'class': 'DESU_aBtn',
 					'title': Lng.panelBtn[id][lCode],
-					'href': href ? href : '#'
+					'href': href ? href : '#',
+					'onmouseout': out
 				}, {
 					'click': click,
-					'mouseover': over,
-					'mouseout': out
+					'mouseover': over
 				})
 			]);
 		};
@@ -1057,7 +1057,7 @@ function addPanel() {
 					if(!TNum) {
 						selectAjaxPages();
 					}
-				}, removeSelMenu),
+				},  'DESU_delSelection(event)'),
 				pButton('GoBack', null, '//' + aib.host + getPageUrl(pageNum - 1), null, null),
 				$if(!TNum, pButton('GoNext', null, '//' + aib.host + getPageUrl(pageNum + 1), null, null)),
 				pButton('GoUp', function(e) {
@@ -1259,10 +1259,10 @@ function addSettings() {
 				$new('a', {
 					'text': Lng.add[lCode],
 					'href': '#',
-					'class': 'DESU_aBtn'}, {
+					'class': 'DESU_aBtn',
+					'onmouseout': 'DESU_delSelection(event)'}, {
 					'click': $pd,
-					'mouseover': selectSpell,
-					'mouseout': removeSelMenu
+					'mouseover': selectSpell
 				}),
 				$new('a', {
 					'text': Lng.apply[lCode],
@@ -1605,22 +1605,19 @@ function addHiddenTable() {
 		cln.vis = 0;
 		cln.btn = pp ? $c('DESU_btnUnhide', cln) : $x('.//a', cln);
 		if(pp) {
-			$rattr(cln.btn, 'onclick');
 			$rattr(cln.btn, 'onmouseover');
 			$rattr(cln.btn, 'onmouseout');
 		}
-		$event(cln.btn, {
-			'click': function(el) {
-				return function() {
-					el.vis = el.vis === 0 ? 1 : 0;
-					if(!el.pst.isOp) {
-						togglePost(el, el.vis);
-					} else {
-						el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
-					}
+		cln.btn.onclick = (function(el) {
+			return function() {
+				el.vis = el.vis === 0 ? 1 : 0;
+				if(!el.pst.isOp) {
+					togglePost(el, el.vis);
+				} else {
+					el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
 				}
-			}(cln)
-		});
+			}
+		})(cln);
 		$append(table, [
 			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', null, [
 				$add('<b>' + (
@@ -2016,12 +2013,6 @@ function $alert(txt, id, wait) {
 								DROPDOWN SELECT MENUS
 ==============================================================================*/
 
-function removeSelMenu(e) {
-	if(!$xb('ancestor-or-self::div[@id="DESU_select"]', e.relatedTarget)) {
-		$del($id('DESU_select'));
-	}
-}
-
 function addSelMenu(el, fPanel, html) {
 	var y, pos,
 		pst = getPost(el);
@@ -2039,9 +2030,8 @@ function addSelMenu(el, fPanel, html) {
 			el.className === 'DESU_btnSrc'
 				? 'left: ' + $offset(el).left
 				: 'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;">' + html + '</div>'
+		) + 'px; ' + y + 'px;" onmouseout="DESU_delSelection(event)">' + html + '</div>'
 	), {
-		'mouseout': removeSelMenu,
 		'mouseover': function() {
 			if(pst && pst.node) {
 				markPviewToDel(pst.node, false);
@@ -2060,23 +2050,21 @@ function selectSpell(e) {
 			+ ('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
 			.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
-		$event(a, {
-			'click': function(e) {
-				var exp = this.textContent;
-				$pd(e);
-				if(exp === '#b/') {
-					exp = '#' + brd + '/ ';
-				}
-				if(exp === '#b/itt') {
-					if(TNum) {
-						exp = '#' + brd + '/' + TNum + ' ';
-					} else {
-						return;
-					}
-				}
-				insertInto($id('DESU_spellEdit'), exp);
+		a.onclick = function(e) {
+			var exp = this.textContent;
+			$pd(e);
+			if(exp === '#b/') {
+				exp = '#' + brd + '/ ';
 			}
-		});
+			if(exp === '#b/itt') {
+				if(TNum) {
+					exp = '#' + brd + '/' + TNum + ' ';
+				} else {
+					return;
+				}
+			}
+			insertInto($id('DESU_spellEdit'), exp);
+		};
 	});
 }
 
@@ -2088,31 +2076,25 @@ function selectPostHider(post) {
 		post.Btns.firstChild, false,
 		'<a href="#">' + Lng.selHiderMenu[lCode].join('</a><a href="#">') + '</a>'
 	);
-	$event(a.snapshotItem(0), {
-		'click': function(e) {
-			$pd(e);
-			applySpells(quotetxt);
-		},
-		'mouseover': function() {
-			quotetxt = txtSelection().trim();
-		}
-	});
-	$event(a.snapshotItem(1), {
-		'click': function(e) {
-			$pd(e);
-			applySpells(
-				post.Img.snapshotLength === 0
-					? '#noimg'
-					: '#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
-			)
-		}
-	});
-	$event(a.snapshotItem(2), {
-		'click': function(e) {
-			$pd(e);
-			hideBySameText(post);
-		}
-	});
+	a.snapshotItem(1).onclick = function(e) {
+		$pd(e);
+		applySpells(
+			post.Img.snapshotLength === 0
+				? '#noimg'
+				: '#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
+		)
+	};
+	a.snapshotItem(2).onclick = function(e) {
+		$pd(e);
+		hideBySameText(post);
+	};
+	(a = a.snapshotItem(0)).onclick = function(e) {
+		$pd(e);
+		applySpells(quotetxt);
+	};
+	a.onmouseover = function() {
+		quotetxt = txtSelection().trim();
+	};
 }
 
 function selectExpandThread(post) {
@@ -2120,12 +2102,10 @@ function selectExpandThread(post) {
 		$x('span[3]', post.Btns), false,
 		'<a href="#">' + Lng.selExpandThrd[lCode].join('</a><a href="#">') + '</a>'
 	), function(a) {
-		$event(a, {
-			'click': function(e) {
-				$pd(e);
-				loadThread(post, parseInt(this.textContent, 10), null);
-			}
-		});
+		a.onclick = function(e) {
+			$pd(e);
+			loadThread(post, parseInt(this.textContent, 10), null);
+		};
 	});
 }
 
@@ -2134,12 +2114,10 @@ function selectAjaxPages() {
 		$id('DESU_btnRefresh'), true,
 		'<a href="#">' + Lng.selAjaxPages[lCode].join('</a><a href="#">') + '</a>'
 	), function(a, i) {
-		$event(a, {
-			'click': function(e) {
-				$pd(e);
-				loadPages(i + 1);
-			}
-		});
+		a.onclick = function(e) {
+			$pd(e);
+			loadPages(i + 1);
+		};
 	});
 }
 
@@ -2814,6 +2792,11 @@ function checkUpload(dc, url) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
 		}
+		if(aib.hana && /слишком старый/.test(err)) {
+			pr.cap.value = '';
+			pr.cap.focus();
+			refreshCapImg(tNum);
+		}
 		$alert(err, 'Upload', false);
 	} else {
 		pr.txta.value = '';
@@ -3290,9 +3273,11 @@ function prepareButtons() {
 				window.postMessage("A" + el.parentNode.id.substring(9), "*");\
 			}\
 			function DESU_delSelection(e) {\
-				if(!document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
+				if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
 					var el = document.getElementById("DESU_select");\
-					el.parentNode.removeChild(el);\
+					if(el) {\
+						el.parentNode.removeChild(el);\
+					}\
 				}\
 			}\
 			function DESU_qReplyClick(el) {\
@@ -3492,11 +3477,9 @@ function addTubePlayer(el, m) {
 		el = el.firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
-			$event(el, {
-				'loadedmetadata': function() {
-					this.currentTime = time;
-				}
-			});
+			el.onloadedmetadata = function() {
+				this.currentTime = time;
+			};
 		}
 	});
 }
@@ -3505,14 +3488,12 @@ function addTubePreview(el, m) {
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1]
 		+ '" target="_blank"><img src="https://i.ytimg.com/vi/' + m[1]
 		+ '/0.jpg" width="360" height="270" /></a>';
-	$event(el.firstChild, {
-		'click': function(e) {
-			if(Cfg['ytube'] !== 4) {
-				$pd(e);
-				addTubePlayer(this.parentNode, m);
-			}
+	el.firstChild.onclick = function(e) {
+		if(Cfg['ytube'] !== 4) {
+			$pd(e);
+			addTubePlayer(this.parentNode, m);
 		}
-	});
+	};
 }
 
 function getTubePattern() {
@@ -3581,7 +3562,7 @@ function addLinkTube(post) {
 			}
 		}
 		link.className = 'DESU_ytLink';
-		$event(link, {'click': clickTubeLink});
+		link.onclick = clickTubeLink;
 		if(!nav.Opera && Cfg['ytitle'] !== 0) {
 			GM_xmlhttpRequest({
 				method: 'GET',
@@ -3684,17 +3665,15 @@ function makeMoveable(el) {
 		elStop = function() {
 			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 		};
-	$event(el, {
-		'mousedown': function(e) {
-			$pd(e);
-			el.curX = e.clientX - parseInt(el.style.left, 10);
-			el.curY = e.clientY - parseInt(el.style.top, 10);
-			$event(doc.body, {
-				'mousemove': elMove,
-				'mouseup': elStop
-			});
-		}
-	});
+	el.onmousedown = function(e) {
+		$pd(e);
+		el.curX = e.clientX - parseInt(el.style.left, 10);
+		el.curY = e.clientY - parseInt(el.style.top, 10);
+		$event(doc.body, {
+			'mousemove': elMove,
+			'mouseup': elStop
+		});
+	};
 }
 
 function resizeImg(e) {
@@ -3798,14 +3777,12 @@ function addLinkImg(el, addBr) {
 				this.height = k < 1 ? 200 : 200/k;
 			}
 		}));
-		$event(a, {
-			'click': function(e) {
-				if(Cfg['expimg'] !== 0 && e.button !== 1) {
-					$pd(e);
-					addFullImg(this, this.firstChild.title.split('x'), null);
-				}
+		a.onclick = function(e) {
+			if(Cfg['expimg'] !== 0 && e.button !== 1) {
+				$pd(e);
+				addFullImg(this, this.firstChild.title.split('x'), null);
 			}
-		});
+		};
 		$before(link, [a, $if(addBr, $new('br', null, null))]);
 	});
 }
@@ -4192,12 +4169,10 @@ function getPview(post, pNum, parent, link, txt) {
 	pView.style.display = '';
 	dForm.appendChild(pView);
 	setPviewPostion(link, pView, false);
-	$event(pView, {
-		'mouseover': function() {
-			markPviewToDel(this.node, false);
-		},
-		'mouseout': outRefLink
-	});
+	pView.onmouseover = function() {
+		markPviewToDel(this.node, false);
+	};
+	pView.onmouseout = outRefLink;
 	if(Pviews.current && parent) {
 		if(parent.kid) {
 			delPviews(parent.kid);
@@ -4218,13 +4193,32 @@ function getPview(post, pNum, parent, link, txt) {
 	return el;
 }
 
+function getAjaxPview(b, pNum) {
+	var el, els, i;
+	if(!Pviews.ajaxed[b]) {
+		Pviews.ajaxed[b] = [];
+	}
+	el = Pviews.ajaxed[b][pNum];
+	if(b === brd || !el || el.aRep) {
+		return el;
+	}
+	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
+	for(els = el.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
+		if(/^>>\d+$/.test(els[i].textContent)) {
+			els[i].href = pNum;
+		}
+	}
+	el.aRep = true;
+	return el;
+}
+
 function showPview(link) {
 	var b = aib.ylil
 			? link['data-boardurl']
 			: link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || (Pviews.ajaxed[b] || [])[pNum],
+		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : Pviews.current;
 	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
@@ -4250,13 +4244,12 @@ function showPview(link) {
 		null, pNum, parent, link,
 		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
-	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, function(dc, post, i) {
 		Pviews.ajaxed[b][post.Num] = post;
 	}, function(err) {
 		genRefMap(Pviews.ajaxed[b]);
 		if(el && !el.forDel) {
-			getPview(Pviews.ajaxed[b][pNum], pNum, parent, link, err);
+			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
 	});
 }
@@ -4299,17 +4292,14 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function parseHTMLdata(html, b, tNum, pFn) {
-	var dc = HTMLtoDOM(aib.hana
-		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
-		: html
-	);
+	var dc = HTMLtoDOM(html);
 	if(!pr.on && oeForm) {
 		pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
 		$before(oeForm, [pr.form]);
 	}
 	if(pFn) {
 		try {
-			parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
+			parseDelform($$x(aib.xDForm, dc, dc), dc, function(post, i) {
 				pFn(dc, post, i);
 			});
 		} catch(e) {}
@@ -4473,21 +4463,16 @@ function expandPost(post) {
 		if(Cfg['expost'] === 1) {
 			getFullMsg(post, tNum, el, false);
 		} else {
-			$rattr(el, 'onclick');
-			$event(el, {
-				'click': function(e) {
-					$pd(e);
-					getFullMsg(post, tNum, e.target, true);
-				}
-			});
+			el.onclick = function(e) {
+				$pd(e);
+				getFullMsg(post, tNum, e.target, true);
+			};
 		}
 	}
 }
 
 function loadThread(op, last, fn) {
-	var i,
-		psts = [],
-		thr = op.thr;
+	var i, psts = [], thr = op.thr;
 	if(!fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
@@ -4499,9 +4484,7 @@ function loadThread(op, last, fn) {
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
-			i = thr;
-			thr = i.cloneNode(false);
-			i.parentNode.replaceChild(thr, i);
+			thr.innerHTML = '';
 			op = psts[0];
 			newPost(thr, op, 0);
 			$after(op.Btns, $add(
@@ -4521,13 +4504,11 @@ function loadThread(op, last, fn) {
 				newPost(thr, psts[i], i++);
 			}
 			if(last > 5 || last === 1) {
-				thr.appendChild($event($add(
-					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
-				), {
-					'click': function(e) {
-						$pd(e);
-						loadThread(op, 5, null);
-				}}));
+				thr.appendChild($add('<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'));
+				thr.lastChild.onclick = function(e) {
+					$pd(e);
+					loadThread(op, 5, null);
+				};
 			}
 			thr.pCount = psts.length;
 			thr.Num = op.Num
@@ -5003,18 +4984,17 @@ function applyPostVisib(post, vis, note) {
 	var el,
 		pNum = post.Num;
 	if(vis === 0 && Cfg['delhd'] !== 2) {
-		$event(aib.getRef(post), {
-			'mouseover': function() {
-				if(post.Vis === 0) {
-					togglePost(post, 1);
-				}
-			},
-			'mouseout': function() {
-				if(post.Vis === 0) {
-					togglePost(post, 0);
-				}
+		el = aib.getRef(post);
+		el.onmouseover = function() {
+			if(post.Vis === 0) {
+				togglePost(post, 1);
 			}
-		});
+		};
+		el.onmouseout = function() {
+			if(post.Vis === 0) {
+				togglePost(post, 0);
+			}
+		};
 	}
 	if(post.isOp) {
 		el = $id('DESU_hidThr_' + pNum);
@@ -5030,12 +5010,10 @@ function applyPostVisib(post, vis, note) {
 						: post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 					) + ')</i></div>'
 			);
-			$event($t('a', el), {
-				'click': function(e) {
-					$pd(e);
-					togglePostVisib(post);
-				}
-			});
+			$t('a', el).onclick = function(e) {
+				$pd(e);
+				togglePostVisib(post);
+			};
 			$before(post.thr, [el]);
 			toggleHiddenThread(post, 0);
 			post.thr.Vis = vis;
