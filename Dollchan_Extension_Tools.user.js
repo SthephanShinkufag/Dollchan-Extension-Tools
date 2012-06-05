@@ -1605,22 +1605,19 @@ function addHiddenTable() {
 		cln.vis = 0;
 		cln.btn = pp ? $c('DESU_btnUnhide', cln) : $x('.//a', cln);
 		if(pp) {
-			$rattr(cln.btn, 'onclick');
 			$rattr(cln.btn, 'onmouseover');
 			$rattr(cln.btn, 'onmouseout');
 		}
-		$event(cln.btn, {
-			'click': function(el) {
-				return function() {
-					el.vis = el.vis === 0 ? 1 : 0;
-					if(!el.pst.isOp) {
-						togglePost(el, el.vis);
-					} else {
-						el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
-					}
+		cln.btn.onclick = (function(el) {
+			return function() {
+				el.vis = el.vis === 0 ? 1 : 0;
+				if(!el.pst.isOp) {
+					togglePost(el, el.vis);
+				} else {
+					el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
 				}
-			}(cln)
-		});
+			}
+		})(cln);
 		$append(table, [
 			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', null, [
 				$add('<b>' + (
@@ -2053,23 +2050,21 @@ function selectSpell(e) {
 			+ ('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
 			.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
-		$event(a, {
-			'click': function(e) {
-				var exp = this.textContent;
-				$pd(e);
-				if(exp === '#b/') {
-					exp = '#' + brd + '/ ';
-				}
-				if(exp === '#b/itt') {
-					if(TNum) {
-						exp = '#' + brd + '/' + TNum + ' ';
-					} else {
-						return;
-					}
-				}
-				insertInto($id('DESU_spellEdit'), exp);
+		a.onclick = function(e) {
+			var exp = this.textContent;
+			$pd(e);
+			if(exp === '#b/') {
+				exp = '#' + brd + '/ ';
 			}
-		});
+			if(exp === '#b/itt') {
+				if(TNum) {
+					exp = '#' + brd + '/' + TNum + ' ';
+				} else {
+					return;
+				}
+			}
+			insertInto($id('DESU_spellEdit'), exp);
+		};
 	});
 }
 
@@ -2081,31 +2076,25 @@ function selectPostHider(post) {
 		post.Btns.firstChild, false,
 		'<a href="#">' + Lng.selHiderMenu[lCode].join('</a><a href="#">') + '</a>'
 	);
-	$event(a.snapshotItem(0), {
-		'click': function(e) {
-			$pd(e);
-			applySpells(quotetxt);
-		},
-		'mouseover': function() {
-			quotetxt = txtSelection().trim();
-		}
-	});
-	$event(a.snapshotItem(1), {
-		'click': function(e) {
-			$pd(e);
-			applySpells(
-				post.Img.snapshotLength === 0
-					? '#noimg'
-					: '#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
-			)
-		}
-	});
-	$event(a.snapshotItem(2), {
-		'click': function(e) {
-			$pd(e);
-			hideBySameText(post);
-		}
-	});
+	a.snapshotItem(1).onclick = function(e) {
+		$pd(e);
+		applySpells(
+			post.Img.snapshotLength === 0
+				? '#noimg'
+				: '#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
+		)
+	};
+	a.snapshotItem(2).onclick = function(e) {
+		$pd(e);
+		hideBySameText(post);
+	};
+	(a = a.snapshotItem(0)).onclick = function(e) {
+		$pd(e);
+		applySpells(quotetxt);
+	};
+	a.onmouseover = function() {
+		quotetxt = txtSelection().trim();
+	};
 }
 
 function selectExpandThread(post) {
@@ -2113,12 +2102,10 @@ function selectExpandThread(post) {
 		$x('span[3]', post.Btns), false,
 		'<a href="#">' + Lng.selExpandThrd[lCode].join('</a><a href="#">') + '</a>'
 	), function(a) {
-		$event(a, {
-			'click': function(e) {
-				$pd(e);
-				loadThread(post, parseInt(this.textContent, 10), null);
-			}
-		});
+		a.onclick = function(e) {
+			$pd(e);
+			loadThread(post, parseInt(this.textContent, 10), null);
+		};
 	});
 }
 
@@ -2127,12 +2114,10 @@ function selectAjaxPages() {
 		$id('DESU_btnRefresh'), true,
 		'<a href="#">' + Lng.selAjaxPages[lCode].join('</a><a href="#">') + '</a>'
 	), function(a, i) {
-		$event(a, {
-			'click': function(e) {
-				$pd(e);
-				loadPages(i + 1);
-			}
-		});
+		a.onclick = function(e) {
+			$pd(e);
+			loadPages(i + 1);
+		};
 	});
 }
 
@@ -3487,11 +3472,9 @@ function addTubePlayer(el, m) {
 		el = el.firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
-			$event(el, {
-				'loadedmetadata': function() {
-					this.currentTime = time;
-				}
-			});
+			el.onloadedmetadata = function() {
+				this.currentTime = time;
+			};
 		}
 	});
 }
@@ -3500,14 +3483,12 @@ function addTubePreview(el, m) {
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1]
 		+ '" target="_blank"><img src="https://i.ytimg.com/vi/' + m[1]
 		+ '/0.jpg" width="360" height="270" /></a>';
-	$event(el.firstChild, {
-		'click': function(e) {
-			if(Cfg['ytube'] !== 4) {
-				$pd(e);
-				addTubePlayer(this.parentNode, m);
-			}
+	el.firstChild.onclick = function(e) {
+		if(Cfg['ytube'] !== 4) {
+			$pd(e);
+			addTubePlayer(this.parentNode, m);
 		}
-	});
+	};
 }
 
 function getTubePattern() {
@@ -3576,7 +3557,7 @@ function addLinkTube(post) {
 			}
 		}
 		link.className = 'DESU_ytLink';
-		$event(link, {'click': clickTubeLink});
+		link.onclick = clickTubeLink;
 		if(!nav.Opera && Cfg['ytitle'] !== 0) {
 			GM_xmlhttpRequest({
 				method: 'GET',
@@ -3679,17 +3660,15 @@ function makeMoveable(el) {
 		elStop = function() {
 			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 		};
-	$event(el, {
-		'mousedown': function(e) {
-			$pd(e);
-			el.curX = e.clientX - parseInt(el.style.left, 10);
-			el.curY = e.clientY - parseInt(el.style.top, 10);
-			$event(doc.body, {
-				'mousemove': elMove,
-				'mouseup': elStop
-			});
-		}
-	});
+	el.onmousedown = function(e) {
+		$pd(e);
+		el.curX = e.clientX - parseInt(el.style.left, 10);
+		el.curY = e.clientY - parseInt(el.style.top, 10);
+		$event(doc.body, {
+			'mousemove': elMove,
+			'mouseup': elStop
+		});
+	};
 }
 
 function resizeImg(e) {
@@ -3793,14 +3772,12 @@ function addLinkImg(el, addBr) {
 				this.height = k < 1 ? 200 : 200/k;
 			}
 		}));
-		$event(a, {
-			'click': function(e) {
-				if(Cfg['expimg'] !== 0 && e.button !== 1) {
-					$pd(e);
-					addFullImg(this, this.firstChild.title.split('x'), null);
-				}
+		a.click = function(e) {
+			if(Cfg['expimg'] !== 0 && e.button !== 1) {
+				$pd(e);
+				addFullImg(this, this.firstChild.title.split('x'), null);
 			}
-		});
+		};
 		$before(link, [a, $if(addBr, $new('br', null, null))]);
 	});
 }
@@ -4187,12 +4164,10 @@ function getPview(post, pNum, parent, link, txt) {
 	pView.style.display = '';
 	dForm.appendChild(pView);
 	setPviewPostion(link, pView, false);
-	$event(pView, {
-		'mouseover': function() {
-			markPviewToDel(this.node, false);
-		},
-		'mouseout': outRefLink
-	});
+	pView.onmouseover = function() {
+		markPviewToDel(this.node, false);
+	};
+	pView.onmouseout = outRefLink;
 	if(Pviews.current && parent) {
 		if(parent.kid) {
 			delPviews(parent.kid);
@@ -4468,13 +4443,10 @@ function expandPost(post) {
 		if(Cfg['expost'] === 1) {
 			getFullMsg(post, tNum, el, false);
 		} else {
-			$rattr(el, 'onclick');
-			$event(el, {
-				'click': function(e) {
-					$pd(e);
-					getFullMsg(post, tNum, e.target, true);
-				}
-			});
+			el.onclick = function(e) {
+				$pd(e);
+				getFullMsg(post, tNum, e.target, true);
+			};
 		}
 	}
 }
@@ -4516,13 +4488,11 @@ function loadThread(op, last, fn) {
 				newPost(thr, psts[i], i++);
 			}
 			if(last > 5 || last === 1) {
-				thr.appendChild($event($add(
-					'<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'
-				), {
-					'click': function(e) {
-						$pd(e);
-						loadThread(op, 5, null);
-				}}));
+				thr.appendChild($add('<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'));
+				thr.firstChild.onclick = function(e) {
+					$pd(e);
+					loadThread(op, 5, null);
+				};
 			}
 			thr.pCount = psts.length;
 			thr.Num = op.Num
@@ -4998,18 +4968,17 @@ function applyPostVisib(post, vis, note) {
 	var el,
 		pNum = post.Num;
 	if(vis === 0 && Cfg['delhd'] !== 2) {
-		$event(aib.getRef(post), {
-			'mouseover': function() {
-				if(post.Vis === 0) {
-					togglePost(post, 1);
-				}
-			},
-			'mouseout': function() {
-				if(post.Vis === 0) {
-					togglePost(post, 0);
-				}
+		el = aib.getRef(post);
+		el.onmouseover = function() {
+			if(post.Vis === 0) {
+				togglePost(post, 1);
 			}
-		});
+		};
+		el.onmouseout = function() {
+			if(post.Vis === 0) {
+				togglePost(post, 0);
+			}
+		};
 	}
 	if(post.isOp) {
 		el = $id('DESU_hidThr_' + pNum);
@@ -5025,12 +4994,10 @@ function applyPostVisib(post, vis, note) {
 						: post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 					) + ')</i></div>'
 			);
-			$event($t('a', el), {
-				'click': function(e) {
-					$pd(e);
-					togglePostVisib(post);
-				}
-			});
+			$t('a', el).onclick = function(e) {
+				$pd(e);
+				togglePostVisib(post);
+			};
 			$before(post.thr, [el]);
 			toggleHiddenThread(post, 0);
 			post.thr.Vis = vis;
