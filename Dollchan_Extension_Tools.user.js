@@ -4269,17 +4269,14 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function parseHTMLdata(html, b, tNum, pFn) {
-	var dc = HTMLtoDOM(aib.hana
-		? '<html><head></head><body><div id="' + tNum + '" class="thread">' + html + '</div></body></html>'
-		: html
-	);
+	var dc = HTMLtoDOM(html);
 	if(!pr.on && oeForm) {
 		pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
 		$before(oeForm, [pr.form]);
 	}
 	if(pFn) {
 		try {
-			parseDelform(!aib.hana ? $$x(aib.xDForm, dc, dc) : dc, dc, function(post, i) {
+			parseDelform($$x(aib.xDForm, dc, dc), dc, function(post, i) {
 				pFn(dc, post, i);
 			});
 		} catch(e) {}
@@ -4452,9 +4449,7 @@ function expandPost(post) {
 }
 
 function loadThread(op, last, fn) {
-	var i,
-		psts = [],
-		thr = op.thr;
+	var i, psts = [], thr = op.thr;
 	if(!fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
@@ -4466,9 +4461,7 @@ function loadThread(op, last, fn) {
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
-			i = thr;
-			thr = i.cloneNode(false);
-			i.parentNode.replaceChild(thr, i);
+			thr.innerHTML = '';
 			op = psts[0];
 			newPost(thr, op, 0);
 			$after(op.Btns, $add(
@@ -4489,7 +4482,7 @@ function loadThread(op, last, fn) {
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild($add('<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'));
-				thr.firstChild.onclick = function(e) {
+				thr.lastChild.onclick = function(e) {
 					$pd(e);
 					loadThread(op, 5, null);
 				};
