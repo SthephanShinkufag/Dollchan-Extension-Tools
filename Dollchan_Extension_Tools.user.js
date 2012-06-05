@@ -342,7 +342,7 @@ pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
 timePattern, timeRegex,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false, isKeyNav = true,
-storageLife = 5*24*3600*1000;
+storageLife = 5 * 24 * 3600 * 1000;
 
 
 /*==============================================================================
@@ -533,7 +533,7 @@ function $pd(e) {
 }
 
 function $rnd() {
-	return Math.round(Math.random()*1e10).toString(10);
+	return Math.round(Math.random() * 1e10).toString(10);
 }
 
 function insertInto(el, txt) {
@@ -1939,7 +1939,7 @@ function showAlert(el) {
 				return;
 			}
 			var s = el.style;
-			s.opacity = i/10;
+			s.opacity = i / 10;
 			s.paddingTop = (parseInt(s.paddingTop, 10) + 1) + 'px';
 			s.paddingBottom = (parseInt(s.paddingBottom, 10) + 1) + 'px';
 		}, 30);
@@ -1971,8 +1971,8 @@ function closeAlert(el) {
 				return;
 			}
 			var s = el.style,
-				hh = parseInt(s.height, 10) - h/10;
-			s.opacity = i/10;
+				hh = parseInt(s.height, 10) - h / 10;
+			s.opacity = i / 10;
 			s.paddingTop = (parseInt(s.paddingTop, 10) - 1) + 'px';
 			s.paddingBottom = (parseInt(s.paddingBottom, 10) - 1) + 'px';
 			s.height = (hh < 0 ? 0 : hh) + 'px';
@@ -2222,7 +2222,7 @@ function initKeyNavig() {
 				window.scrollTo(
 					0, toTop
 						? $offset(post).top
-						: $offset(post).top - window.innerHeight/2 + post.clientHeight/2
+						: $offset(post).top - window.innerHeight / 2 + post.clientHeight / 2
 				);
 			}
 			idx = $c('DESU_selected', doc);
@@ -2242,8 +2242,8 @@ function initKeyNavig() {
 					pIndex = scrollToPost(
 						Posts, pIndex + 1, 1,
 						Posts[pIndex + 1].isOp
-							|| Posts[pIndex + 1].getBoundingClientRect().top > window.innerHeight/2
-							- Posts[pIndex + 1].clientHeight/2,
+							|| Posts[pIndex + 1].getBoundingClientRect().top > window.innerHeight / 2
+							- Posts[pIndex + 1].clientHeight / 2,
 						false
 					);
 					pScroll = true;
@@ -2950,7 +2950,7 @@ function arrToBlob(arr) {
 
 /** @constructor */
 function dataForm() {
-	this.boundary = '---------------------------' + Math.round(Math.random() * 100000000000);
+	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 }
 
@@ -3012,7 +3012,7 @@ function prepareFiles(el, fn, i) {
 			dat.push(el.rarJPEG);
 		}
 		if(Cfg['sImgs'] !== 0) {
-			dat.push(String(Math.round(Math.random()*1e6)));
+			dat.push(String(Math.round(Math.random() * 1e6)));
 		}
 		fn(i, arrToBlob(dat), file.name, file.type);
 	};
@@ -3271,10 +3271,10 @@ function getImgWeight(post) {
 	var inf = aib.getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
 		w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) {
-		w = w*1e3;
+		w = w * 1e3;
 	}
 	if(/\d[\s]*B/.test(inf)) {
-		w = (w/1e3).toFixed(2);
+		w = (w / 1e3).toFixed(2);
 	}
 	return +w;
 }
@@ -3729,13 +3729,13 @@ function resizeImg(e) {
 		oldW = this.width,
 		oldH = this.height,
 		d = nav.Opera || nav.Chrome ? e.wheelDelta : -e.detail,
-		newW = parseInt(this.width*(d > 0 ? 1.25 : 0.8), 10),
-		newH = parseInt(this.height*(d > 0 ? 1.25 : 0.8), 10);
+		newW = parseInt(this.width * (d > 0 ? 1.25 : 0.8), 10),
+		newH = parseInt(this.height * (d > 0 ? 1.25 : 0.8), 10);
 	$pd(e);
 	this.width = newW;
 	this.height = newH;
-	this.style.left = parseInt(curX - (newW/oldW)*(curX - oldL), 10) + 'px';
-	this.style.top = parseInt(curY - (newH/oldH)*(curY - oldT), 10) + 'px';
+	this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
+	this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
 }
 
 function addFullImg(a, sz, isExp) {
@@ -3770,10 +3770,10 @@ function addFullImg(a, sz, isExp) {
 	}
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
-		newH = newW*fullH/fullW;
+		newH = newW * fullH / fullW;
 		if(Cfg['expimg'] === 2 && newH > scrH) {
 			newH = scrH;
-			newW = newH*fullW/fullH;
+			newW = newH * fullW / fullH;
 		}
 	}
 	full = a.appendChild($add('<img class="DESU_fullImg" src="' + a.href +
@@ -3818,7 +3818,7 @@ function addLinkImg(el, addBr) {
 					return;
 				}
 				k = fullW/fullH;
-				this.width = k < 1 ? 200*k : 200;
+				this.width = k < 1 ? 200 * k : 200;
 				this.height = k < 1 ? 200 : 200/k;
 			}
 		}));
@@ -4130,7 +4130,7 @@ function setPviewPostion(link, pView, anim) {
 		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
 		return;
 	}
-	uId = 'DESU_mCSS' + Math.round(Math.random()*1e3);
+	uId = 'DESU_mCSS' + Math.round(Math.random() * 1e3);
 	doc.head.appendChild($new('style', {
 		'class': 'DESU_moveCSS',
 		'type': 'text/css',
@@ -4955,7 +4955,7 @@ function loadNewPosts(inf, fn) {
 
 function initThreadsUpdater() {
 	var C = Cfg['updint'],
-		t = 6e4*(C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
+		t = 6e4 * (C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
 	if(Cfg['updthr'] === 1) {
 		ajaxInterval = setInterval(function() {
 			loadNewPosts(false, null);
@@ -5205,7 +5205,7 @@ function findSameText(post, oNum, oVis, oWords) {
 		olen = i,
 		_olen = i,
 		n = 0;
-	if(len < olen*0.4 || len > olen*3) {
+	if(len < olen * 0.4 || len > olen * 3) {
 		return;
 	}
 	while(i--) {
@@ -5220,7 +5220,7 @@ function findSameText(post, oNum, oVis, oWords) {
 			}
 		}
 	}
-	if(n < _olen*0.4 || len > _olen*3) {
+	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
 	$del($c('DESU_postNote', post));
@@ -5620,21 +5620,20 @@ function detectWipe_sameLines(txt) {
 	if(Cfg['samel'] === 0) {
 		return false;
 	}
-	var i = 0, j, n, x,
+	var j, n, x, i = 0,
 		lines = txt.replace(/> /g, '').split(/\s*\n\s*/),
 		len = lines.length;
 	if(len < 6) {
 		return false;
 	}
 	lines.sort();
-	while(i < len && lines[i++] === '');
-	for(n = (len - i) / 4; i < len;) {
+	for(n = len / 4; i < len;) {
 		x = lines[i];
 		j = 0;
-		while(lines[++i] === x) {
+		while(lines[i++] === x) {
 			j++;
 		}
-		if(j > 4 && j > n) {
+		if(j > 4 && j > n && x !== '') {
 			return 'same lines: "' + x.substr(0, 20) + '" x' + j;
 		}
 	}
@@ -5645,34 +5644,29 @@ function detectWipe_sameWords(txt) {
 	if(Cfg['samew'] === 0) {
 		return false;
 	}
-	var i = 0, x, n, j, keys, pop, mpop = -1,
+	var j, n, x, pop, keys = 0, mpop = 0, i = 0,
 		words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' '),
 		len = words.length;
-	if(i <= 13) {
+	if(len < 4) {
 		return false;
 	}
 	words.sort();
-	while(i < len && words[i++].length < 2);
-	n = len - i;
-	if(n <= 10) {
-		return false;
-	}
-	for(keys = 0, mpop = -1; i < len; keys++) {
+	for(n = len / 4; i < len; keys++) {
 		x = words[i];
 		j = 0;
-		while(words[++i] === x) {
+		while(words[i++] === x) {
 			j++;
 		}
-		if(j > mpop) {
+		if(j > mpop && x.length > 2) {
 			mpop = j;
 			pop = x;
 		}
-		if(n > 25 && j > n / 3.5) {
-			return 'same words: "' + x.substr(0, 20) + '" x' + j;
+		if(len > 25 && mpop >= n) {
+			return 'same words #1: "' + pop.substr(0, 20) + '" x' + mpop;
 		}
 	}
-	return n > 80 && keys <= 20 || n / keys > 7
-		? 'same words: "' + pop.substr(0, 20) + '" x' + mpop
+	return len / keys > 3
+		? ('same words #2: "' + pop.substr(0, 20) + '" x' + mpop)
 		: false;
 }
 
@@ -5696,22 +5690,10 @@ function detectWipe_longWords(txt) {
 	if(Cfg['longw'] === 0) {
 		return false;
 	}
-	var i = 0, j,
-		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ').sort(),
-		len = words.length,
-		lWord = words[len - 1];
-	if(lWord.length > 70) {
-		return 'long words: "' + lWord.substr(0, 20) + '.."';
-	}
-	while(i < len && words[i++].length < 2);
-	j = len - i;
-	if(j < 1) {
-		return false;
-	}
-	if(words.slice(i).join('').length / j > 12) {
-		return 'long words: "' + lWord.substr(0, 20) + '.."';
-	}
-	return false;
+	var i = 0,
+		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' '),
+		len = words.length;
+	return words[0] > 70 || words.join('').length / len > 10 ? 'long words' : false;
 }
 
 function detectWipe_caseWords(txt) {
@@ -5740,8 +5722,8 @@ function detectWipe_caseWords(txt) {
 		}
 		n++;
 	}
-	return (capsw/n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + capsw / words.length * 100 + '%')
-		: (casew/n >= 0.3 && n > 8) ? ('cAsE words: ' + casew / words.length * 100 + '%')
+	return (capsw / n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + capsw / words.length * 100 + '%')
+		: (casew / n >= 0.3 && n > 8) ? ('cAsE words: ' + casew / words.length * 100 + '%')
 		: false;
 }
 
@@ -5753,7 +5735,7 @@ function detectWipe_specSymbols(txt) {
 	txt = txt.replace(/\s+/g, '');
 	len = txt.length;
 	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
-	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc*100, 10) + '%' : false;
+	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc * 100, 10) + '%' : false;
 }
 
 function detectWipe_numbers(txt) {
@@ -5764,7 +5746,7 @@ function detectWipe_numbers(txt) {
 	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
 	len = txt.length;
 	proc = (len - txt.replace(/\d/g, '').length) / len;
-	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc*100, 10) + '%' : false;
+	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc * 100, 10) + '%' : false;
 }
 
 function detectWipe(post) {
@@ -6104,14 +6086,14 @@ function updateCSS() {
 
 function checkForUpdates(force, fn) {
 	var t = +(new Date()).getTime(),
-		day = 2*1000*60*60*24,
+		day = 2 * 1000 * 60 * 60 * 24,
 		updInt =
 			Cfg['supdint'] === 0 ? 0
 			: Cfg['supdint'] === 1 ? day
-			: Cfg['supdint'] === 2 ? day*2
-			: Cfg['supdint'] === 3 ? day*7
-			: Cfg['supdint'] === 4 ? day*14
-			: Cfg['supdint'] === 5 && day*30;
+			: Cfg['supdint'] === 2 ? day * 2
+			: Cfg['supdint'] === 3 ? day * 7
+			: Cfg['supdint'] === 4 ? day * 14
+			: Cfg['supdint'] === 5 && day * 30;
 	if(!force && t - +Cfg['lupdchk'] < updInt) {
 		return;
 	}
