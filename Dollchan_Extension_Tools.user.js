@@ -1603,12 +1603,17 @@ function addHiddenTable() {
 		cln.style.display = '';
 		cln.pst = post;
 		cln.vis = 0;
-		$event(pp ? $c('DESU_btnUnhide', doc) : $x('.//a', cln), {
+		cln.btn = pp ? $c('DESU_btnUnhide', cln) : $x('.//a', cln);
+		if(pp) {
+			$rattr(cln.btn, 'onclick');
+			$rattr(cln.btn, 'onmouseover');
+			$rattr(cln.btn, 'onmouseout');
+		}
+		$event(cln.btn, {
 			'click': function(el) {
-				return function(e) {
-					$pd(e);
+				return function() {
 					el.vis = el.vis === 0 ? 1 : 0;
-					if(pp) {
+					if(!el.pst.isOp) {
 						togglePost(el, el.vis);
 					} else {
 						el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
@@ -1616,32 +1621,6 @@ function addHiddenTable() {
 				}
 			}(cln)
 		});
-		if(Cfg['attach'] === 0) {
-			$event(aib.getRef(cln) || $x('.//a', cln), {
-				'mouseover': function(el) {
-					return function() {
-						if(el.vis === 0) {
-							if(pp) {
-								togglePost(el, 1);
-							} else {
-								el.nextElementSibling.style.display = '';
-							}
-						}
-					}
-				}(cln),
-				'mouseout': function(el) {
-					return function() {
-						if(el.vis === 0) {
-							if(pp) {
-								togglePost(el, 0);
-							} else {
-								el.nextElementSibling.style.display = 'none';
-							}
-						}
-					}
-				}(cln)
-			});
-		}
 		$append(table, [
 			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', null, [
 				$add('<b>' + (
@@ -1656,9 +1635,6 @@ function addHiddenTable() {
 				}))
 			])
 		]);
-		if(!pp) {
-			togglePost(cln.nextElementSibling, 1);
-		}
 	});
 	if(pcnt + tcnt === 0) {
 		table.insertRow(-1).appendChild($add('<b>' + Lng.noHidOnPage[lCode] + '</b>'));
