@@ -6708,11 +6708,11 @@ function replaceDelform(el) {
 
 function preparePage() {
 	var el;
-	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
+	/*$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
 		aib.abu ? 'self::form'
 		: aib.fch ? 'self::div[@class="boardBanner"]'
 		: 'self::div[@class="logo"]'
-	) + ' or self::h1]]]', dForm);
+	) + ' or self::h1]]]', dForm);*/
 	if(aib.krau) {
 		$del($t('hr', dForm));
 		$del($t('hr', dForm.previousElementSibling));
@@ -6722,7 +6722,7 @@ function preparePage() {
 			$Del('following-sibling::node()', el);
 			$after(el, $new('hr', null, null));
 		}
-		$del($x('.//input[@name="makewatermark"]', pr.form));
+		$del((document.getElementsByName('makewatermark') || [])[0]);
 		if(!TNum) {
 			$del(dForm.nextElementSibling);
 			$del(dForm.nextElementSibling);
