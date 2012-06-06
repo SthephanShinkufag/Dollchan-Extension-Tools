@@ -1116,8 +1116,9 @@ function toggleContent(name, isUpd) {
 		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
 		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
-			nav.aEvent(el, function() {
-				showContent(el, id, name, isUpd);
+			nav.aEvent(el, function(node) {
+				showContent(node, id, name, isUpd);
+				id = name = isUpd = null;
 			});
 			el.className = 'DESU_content DESU_cfgClose';
 		} else {
@@ -1163,25 +1164,23 @@ function showContent(el, id, name, isUpd) {
 ==============================================================================*/
 
 function addSettings() {
-	var lBox = function(name, fn, id) {
+	var lBox = function(name, fn) {
 		var el = $new('input', {
-			'type': 'checkbox'}, {
+			'type': 'checkbox',
+			'id': 'DESU_' + name}, {
 			'click': function() {
-				toggleCfg(name);
+				toggleCfg(this.id.substring(5));
 				if(fn) {
 					fn();
 				}
 			}
 		});
 		el.checked = Cfg[name] !== 0;
-		if(id !== '') {
-			el.id = id;
-		}
 		return $New('label', null, [el, $txt(' ' + Lng.cfg[name][lCode])]);
 	},
 
 	divBox = function(name, fn) {
-		return $New('div', null, [lBox(name, fn, '')]);
+		return $New('div', null, [lBox(name, fn)]);
 	},
 
 	inpTxt = function(name, size, fn) {
@@ -1191,7 +1190,7 @@ function addSettings() {
 			'size': size,
 			'value': Cfg[name]}, {
 			'keyup': function() {
-				saveCfg(name, $id('DESU_' + name).value.replace(/\|/g, ''));
+				saveCfg(this.id.substring(5), this.value.replace(/\|/g, ''));
 				if(fn) {
 					fn();
 				}
@@ -1203,9 +1202,9 @@ function addSettings() {
 		for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
 			opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
 		}
-		el = $event($add('<select id="' + name + '_sel">' + opt.join('') + '</select>'), {
+		el = $event($add('<select id="DESU_sel' + name + '">' + opt.join('') + '</select>'), {
 			'change': (fn ? fn : function() {
-				saveCfg(name, this.selectedIndex);
+				saveCfg(this.id.substring(8), this.selectedIndex);
 			})
 		});
 		el.selectedIndex = Cfg[name];
@@ -1286,7 +1285,7 @@ function addSettings() {
 					'class': 'DESU_aBtn'
 				}, null)
 			]),
-			lBox('spells', toggleSpells, 'DESU_spellChk'),
+			lBox('spells', toggleSpells),
 			$new('textarea', {
 				'id': 'DESU_spellEdit',
 				'rows': 10,
@@ -1294,7 +1293,7 @@ function addSettings() {
 			}, null)
 		]),
 		$New('div', null, [
-			lBox('awipe', null, ''),
+			lBox('awipe', null),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
 			})
@@ -1339,14 +1338,14 @@ function addSettings() {
 		$New('div', null, [optSel('expimg', null)]),
 		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', null)),
 		$if(!aib.fch && (nav.Firefox >= 6 || nav.Chrome), $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('rarjpeg', null, '')
+			lBox('rarjpeg', null)
 		])),
 		divBox('imgsrc', null),
 		divBox('ospoil', updateCSS),
 		divBox('noname', updateCSS),
-		$if(aib.abu, lBox('noscrl', updateCSS, '')),
+		$if(aib.abu, lBox('noscrl', updateCSS)),
 		$if(!aib.nul, $New('div', null, [
-			lBox('keynav', null, ''),
+			lBox('keynav', null),
 			$new('a', {
 				'text': '?',
 				'href': '#',
@@ -1357,7 +1356,7 @@ function addSettings() {
 				}
 			})
 		])),
-		$New('div', null, [lBox('ctime', toggleTimeSettings, 'DESU_ctime')]),
+		$New('div', null, [lBox('ctime', toggleTimeSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('ctmofs', 3, null),
@@ -1408,9 +1407,9 @@ function addSettings() {
 				$txt('×'),
 				inpTxt('yheigh', 6, null),
 				$txt(' '),
-				lBox('yhdvid', null, '')
+				lBox('yhdvid', null)
 			]),
-			$if(!nav.Opera, lBox('ytitle', null, ''))
+			$if(!nav.Opera, lBox('ytitle', null))
 		])
 	]),
 
@@ -1431,8 +1430,8 @@ function addSettings() {
 			divBox('rExif', null)
 		])),
 		$if(pr.mail, $New('div', null, [
-			lBox('sagebt', null, ''),
-			lBox('svsage', null, '')
+			lBox('sagebt', null),
+			lBox('svsage', null)
 		])),
 		$New('div', null, [optSel('forcap', null)]),
 		$if(pr.on, $New('div', null, [
@@ -1440,29 +1439,29 @@ function addSettings() {
 				saveCfg('txtbtn', this.selectedIndex);
 				addTextPanel();
 			}),
-			lBox('txtpos', addTextPanel, '')
+			lBox('txtpos', addTextPanel)
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('namval', 20, setUserName),
-			lBox('name', setUserName, 'DESU_fixNameChk')
+			lBox('name', setUserName)
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('pasval', 20, setUserPassw),
-			lBox('passw', setUserPassw, 'DESU_fixPassChk')
+			lBox('passw', setUserPassw)
 		])),
 		$if(pr.txta, $New('div', null, [
 			inpTxt('sigval', 20, null),
-			lBox('sign', null, '')
+			lBox('sign', null)
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('norule', updateCSS, ''),
+			lBox('norule', updateCSS),
 			$if(pr.gothr, lBox('nogoto', function() {
 				$disp(pr.gothr);
-			}, '')),
+			})),
 			$if(pr.passw, lBox('nopass', function() {
 				$disp(pr.passw.parentNode.parentNode);
-			}, ''))
+			}))
 		])
 	]),
 
@@ -2332,7 +2331,7 @@ function doSageBtn() {
 
 function setUserName() {
 	saveCfg('namval', $id('DESU_fixName').value.replace(/\|/g, ''));
-	pr.name.value = $id('DESU_fixNameChk').checked ? Cfg['namval'] : '';
+	pr.name.value = $id('DESU_name').checked ? Cfg['namval'] : '';
 }
 
 function setUserPassw() {
@@ -2576,9 +2575,7 @@ function doPostformChanges(a) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
-					prepareData(pr.form, function(by, data) {
-						ajaxCheckSubmit(pr.form, by, data, checkUpload);
-					});
+					ajaxSubmit(pr.form, checkUpload);
 				}, 1e3);
 			};
 			dForm.onsubmit = function(e) {
@@ -2589,9 +2586,7 @@ function doPostformChanges(a) {
 						return false;
 					};
 				});
-				prepareData(dForm, function(by, data) {
-					ajaxCheckSubmit(dForm, by, data, checkDelete);
-				});
+				ajaxSubmit(dForm, checkDelete);
 			};
 			aib.rJpeg = !aib.fch;
 		} else {
@@ -2714,33 +2709,6 @@ function delFileUtils(el) {
 							ONSUBMIT REPLY / DELETE CHECK
 ==============================================================================*/
 
-function ajaxCheckSubmit(form, by, data, fn) {
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + by};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	GM_xmlhttpRequest({
-		'method': form.method,
-		'headers': headers,
-		'data': data,
-		'url': form.action,
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 200) {
-					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
-				} else {
-					$alert(
-						xhr.status === 0
-							? Lng.noConnect[lCode]
-							: 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-						'Upload', false
-					);
-				}
-			}
-		}
-	});
-}
-
 function iframeCheckSubmit() {
 	var frm = $id('DESU_iframe');
 	try {
@@ -2854,24 +2822,23 @@ function checkDelete(dc, url) {
 	}
 }
 
-function prepareData(form, fn) {
-	var fd = new dataForm(),
-		done = false,
+function ajaxSubmit(form, fn) {
+	var done = false,
 		ready = 0,
 		rNeeded = 0,
 		i = 0,
 		arr = [],
 		cb = function() {
 			if(done && ready === rNeeded) {
-				var el;
+				var el, fd = new dataForm();
 				for(ready = i, i = 0; i < ready; i++) {
 					el = arr[i];
 					if(el) {
 						fd.append(el.name, el.val, el.type, el.fName, el.fType);
 					}
 				}
-				fd.getResult(fn);
-				fd = done = ready = rNeeded = i = arr = null;
+				fd.send(form.action, fn);
+				done = ready = rNeeded = i = arr = fn = null;
 			}
 		};
 	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
@@ -2906,8 +2873,8 @@ function arrToBlob(arr) {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
 			i = 0,
 			len = arr.length;
-		for(; i < len; i++) {
-			bb.append(arr[i]);
+		while(i < len) {
+			bb.append(arr[i++]);
 		}
 		return bb.getBlob();
 	} else {
@@ -2931,10 +2898,32 @@ dataForm.prototype.append = function(name, val, type, fileName, fileType) {
 	);
 };
 
-dataForm.prototype.getResult = function(fn) {
-	var arr = this.data;
-	arr.push('--' + this.boundary + '--\r\n');
-	fn(this.boundary, arrToBlob(arr));
+dataForm.prototype.send = function(url, fn) {
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
+	this.data.push('--' + this.boundary + '--\r\n');
+	GM_xmlhttpRequest({
+		'method': 'POST',
+		'headers': headers,
+		'data': arrToBlob(this.data),
+		'url': url,
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status === 200) {
+					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
+				} else {
+					$alert(
+						xhr.status === 0
+							? Lng.noConnect[lCode]
+							: 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+						'Upload', false
+					);
+				}
+			}
+		}
+	});
 };
 
 function removeExif(arr) {
@@ -5533,7 +5522,7 @@ function toggleSpells() {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
 		}
 		if(fld) {
-			$id('DESU_spellChk').checked = false;
+			$id('DESU_spells').checked = false;
 		}
 		saveCfg('spells', 0);
 	}
@@ -5563,7 +5552,7 @@ function applySpells(txt) {
 	}
 	if(fld) {
 		fld.value = val;
-		$id('DESU_spellChk').checked = val !== '';
+		$id('DESU_spells').checked = val !== '';
 	}
 	Posts.forEach(function(post) {
 		if(checkSpells(post)) {
