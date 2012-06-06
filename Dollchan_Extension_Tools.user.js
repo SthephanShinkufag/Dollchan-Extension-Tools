@@ -2913,6 +2913,7 @@ dataForm.prototype.send = function(url, fn) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
 					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
+					fn = null;
 				} else {
 					$alert(
 						xhr.status === 0
