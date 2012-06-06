@@ -2759,7 +2759,7 @@ function checkUpload(dc, url) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
 		}
-		if(aib.hana && /слишком старый/.test(err)) {
+		if(aib.hana && /подтвердите, что вы человек/.test(err)) {
 			pr.cap.value = '';
 			pr.cap.focus();
 			refreshCapImg(tNum);
@@ -4319,6 +4319,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 							: 'HTTP [' + xhr.status + '] ' + xhr.statusText
 					);
 				}
+				fFn = pFn = tNum = b = null;
 			}
 		}
 	});
@@ -4338,6 +4339,7 @@ function getJSON(url, fn) {
 					} catch(e) {
 						fn(1, e.toString(), null);
 					}
+					fn = null;
 				}
 			}
 		}
