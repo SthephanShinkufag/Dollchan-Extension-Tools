@@ -1679,7 +1679,7 @@ function addHiddenTable() {
 							var inp = this;
 							$each($X(
 								'.//tr[contains(@id,"_' + inp.parentNode.id.substr(14) + '|")]/div/input',
-								table
+								$id('DESU_contentHid')
 							), function(el) {
 								el.checked = inp.checked;
 							});
@@ -1714,7 +1714,7 @@ function addHiddenTable() {
 				$disp($id('DESU_hidTEdit').parentNode);
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
-				$each($X('.//tr[@class="DESU_hidTData"]', table), function(el) {
+				$each($X('.//tr[@class="DESU_hidTData"]', $id('DESU_contentHid')), function(el) {
 					var i,
 						arr = el.id.substr(14).split('|'),
 						b = arr[0],
