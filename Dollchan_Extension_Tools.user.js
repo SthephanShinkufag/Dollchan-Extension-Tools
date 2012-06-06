@@ -6188,8 +6188,8 @@ function getNavigator() {
 		: function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
-	nav.forEach =
-		nav.Opera || nav.Firefox < 4 ? function(obj, fn) {
+	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4)
+		? function(obj, fn) {
 			for(var i in obj) {
 				if(obj.hasOwnProperty(i)) {
 					fn.call(obj, i);
