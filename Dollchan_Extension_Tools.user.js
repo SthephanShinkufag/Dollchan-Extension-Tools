@@ -3959,7 +3959,7 @@ function genRefMap(pBn) {
 }
 
 function updRefMap(post) {
-	getRefMap.call(pBn, post.Num);
+	getRefMap.call(pByNum, post.Num);
 	nav.forEach(refMap, function(pNum) {
 		var pst = pByNum[pNum], el;
 		if(pst) {
