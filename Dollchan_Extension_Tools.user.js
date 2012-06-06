@@ -1930,8 +1930,8 @@ function closeAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		nav.aEvent(el, function(e) {
-			$del(e);
+		nav.aEvent(el, function(node) {
+			$del(node);
 		});
 		el.className = el.oclassName + ' DESU_aClose';
 		return;
@@ -1960,8 +1960,8 @@ function blinkAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		nav.aEvent(el, function(e) {
-			e.className = e.oclassName;
+		nav.aEvent(el, function(node) {
+			node.className = node.oclassName;
 		});
 		el.className = el.oclassName + ' DESU_aBlink';
 		return;
@@ -1971,6 +1971,7 @@ function blinkAlert(el) {
 			el.style.opacity = el.style.opacity !== '0' ? 0 : 0.9;
 			if(i-- < 0) {
 				clearInterval(blinking);
+				el = i = null;
 			}
 		}, 80);
 	el.style.opacity = 0.9;
@@ -1996,7 +1997,7 @@ function $alert(txt, id, wait) {
 		$new('span', {
 			'class': 'DESU_alertBtn',
 			'text': tBtn}, {
-			'click': function(e) {
+			'click': function() {
 				closeAlert(this.parentNode);
 			}
 		}),
@@ -2448,8 +2449,8 @@ function doPostformChanges(a) {
 			}
 		}
 	});
-	$each($X('.//input[@type="text"]', pr.form), function(e) {
-		e.size = 35;
+	$each($X('.//input[@type="text"]', pr.form), function(node) {
+		node.size = 35;
 	});
 	if(Cfg['nogoto'] !== 0 && pr.gothr) {
 		$disp(pr.gothr);
@@ -2585,8 +2586,8 @@ function doPostformChanges(a) {
 			dForm.onsubmit = function(e) {
 				$pd(e);
 				$alert(Lng.deleting[lCode], 'Deleting', true);
-				$each($X('.//input[@type="checkbox"]', dForm), function(e) {
-					e.onclick = function() {
+				$each($X('.//input[@type="checkbox"]', dForm), function(node) {
+					node.onclick = function() {
 						return false;
 					};
 				});
@@ -4010,8 +4011,8 @@ function closePview(el) {
 		$del(el);
 		return;
 	}
-	nav.aEvent(el, function(e) {
-		$del(e);
+	nav.aEvent(el, function(node) {
+		$del(node);
 	});
 	el.style[nav.aName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
@@ -4198,8 +4199,8 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	markPviewToDel(el, false);
 	if(Cfg['animp'] !== 0 && nav.Anim) {
-		nav.aEvent(pView, function(e) {
-			e.style[nav.aName] = '';
+		nav.aEvent(pView, function(node) {
+			node.style[nav.aName] = '';
 		});
 		pView.style[nav.aName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
@@ -6738,11 +6739,11 @@ function preparePage() {
 			$del(dForm.nextElementSibling);
 		}
 	} else if(aib.brit) {
-		$each($X('.//span[@class="reflink"]', dForm), function(e) {
-			var a = e.firstChild;
-			$rattr(a, 'onclick');
-			a.href = getThrdUrl(aib.host, brd, a.textContent);
-			a.target = '_blank';
+		$each($X('.//span[@class="reflink"]', dForm), function(node) {
+			node = node.firstChild;
+			$rattr(node, 'onclick');
+			node.href = getThrdUrl(aib.host, brd, node.textContent);
+			node.target = '_blank';
 		});
 	} else if(aib.ylil) {
 		el = $t('iframe', dForm);
