@@ -5669,25 +5669,23 @@ function detectWipe_caseWords(txt) {
 }
 
 function detectWipe_specSymbols(txt) {
-	var len, proc;
 	if(Cfg['specs'] === 0) {
 		return false;
 	}
 	txt = txt.replace(/\s+/g, '');
-	len = txt.length;
-	proc = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
-	return len > 30 && proc > 0.4 ? 'specsymbols: ' + parseInt(proc * 100, 10) + '%' : false;
+	var len = txt.length,
+		x = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
+	return len > 30 && x > 0.4 ? 'specsymbols: ' + parseInt(x * 100, 10) + '%' : false;
 }
 
 function detectWipe_numbers(txt) {
-	var len, proc;
 	if(Cfg['nums'] === 0) {
 		return false;
 	}
-	txt = txt.replace(/\s+/g, ' ').replace(/((>>\d+)+|https*:\/\/.*?)(\s|$)/g, '');
-	len = txt.length;
-	proc = (len - txt.replace(/\d/g, '').length) / len;
-	return len > 30 && proc > 0.4 ? 'numbers: ' + parseInt(proc * 100, 10) + '%' : false;
+	txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?:\s|$)/g, '');
+	var len = txt.length,
+		x = (len - txt.replace(/\d/g, '').length) / len;
+	return len > 30 && x > 0.4 ? 'numbers: ' + parseInt(x * 100, 10) + '%' : false;
 }
 
 function detectWipe(post) {
