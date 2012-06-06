@@ -5587,7 +5587,7 @@ function detectWipe_sameWords(txt) {
 	if(Cfg['samew'] === 0) {
 		return false;
 	}
-	var j, n, x, pop, keys = 0, mpop = 0, i = 0,
+	var j, n, x, keys = 0, pop = 0, i = 0,
 		words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' '),
 		len = words.length;
 	if(len < 4) {
@@ -5600,17 +5600,15 @@ function detectWipe_sameWords(txt) {
 		while(words[i++] === x) {
 			j++;
 		}
-		if(j > mpop && x.length > 2) {
-			mpop = j;
-			pop = x;
+		if(j > pop && x.length > 2) {
+			pop = j;
 		}
-		if(len > 25 && mpop >= n) {
-			return 'same words #1: "' + pop.substr(0, 20) + '" x' + mpop;
+		if(len > 25 && pop >= n) {
+			return 'same words: "' + x.substr(0, 20) + '" x' + pop;
 		}
 	}
-	return len / keys > 3
-		? ('same words #2: "' + pop.substr(0, 20) + '" x' + mpop)
-		: false;
+	x = keys / len;
+	return x < 0.25 ? ('uniq words: ' + x * 100 + '%') : false;
 }
 
 function detectWipe_longColumn(txt) {
