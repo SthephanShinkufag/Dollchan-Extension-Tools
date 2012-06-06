@@ -1930,8 +1930,8 @@ function closeAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		nav.aEvent(el, function() {
-			$del(el);
+		nav.aEvent(el, function(e) {
+			$del(e);
 		});
 		el.className = el.oclassName + ' DESU_aClose';
 		return;
@@ -1960,8 +1960,8 @@ function blinkAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		nav.aEvent(el, function() {
-			el.className = el.oclassName;
+		nav.aEvent(el, function(e) {
+			e.className = e.oclassName;
 		});
 		el.className = el.oclassName + ' DESU_aBlink';
 		return;
@@ -4010,8 +4010,8 @@ function closePview(el) {
 		$del(el);
 		return;
 	}
-	nav.aEvent(el, function() {
-		$del(el);
+	nav.aEvent(el, function(e) {
+		$del(e);
 	});
 	el.style[nav.aName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
@@ -4198,8 +4198,8 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	markPviewToDel(el, false);
 	if(Cfg['animp'] !== 0 && nav.Anim) {
-		nav.aEvent(pView, function() {
-			this.style[nav.aName] = '';
+		nav.aEvent(pView, function(e) {
+			e.style[nav.aName] = '';
 		});
 		pView.style[nav.aName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
@@ -6195,7 +6195,7 @@ function getNavigator() {
 		nav.aEvent = function(el, fn) {
 			el.addEventListener(nav.nEvent, function aEvent(e) {
 				this.removeEventListener(nav.nEvent, aEvent, false);
-				fn();
+				fn(this);
 			}, false);
 		}
 	}
