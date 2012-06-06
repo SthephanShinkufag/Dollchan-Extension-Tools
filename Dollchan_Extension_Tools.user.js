@@ -1776,7 +1776,7 @@ function addFavoritesTable() {
 							var inp = this;
 							$each($X(
 								'.//tr[contains(@id,"_' + inp.parentNode.id.substr(13) + '|")]/div/input',
-								table
+								$id('DESU_contentFav')
 							), function(el) {
 								el.checked = inp.checked;
 							});
@@ -1817,7 +1817,6 @@ function addFavoritesTable() {
 	if(!table.firstChild) {
 		table.insertRow(-1).appendChild($add('<b>' + Lng.noFavorites[lCode] + '</b>'));
 	}
-	list = $X('.//tr[@class="DESU_favData"]', table);
 	$append(table, [
 		$New('tr', null, [
 			$new('hr', null, null),
@@ -1825,7 +1824,7 @@ function addFavoritesTable() {
 				$disp($id('DESU_favEdit').parentNode);
 			}),
 			$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
-				$each(list, function(el) {
+				$each($X('.//tr[@class="DESU_favData"]', $id('DESU_contentFav')), function(el) {
 					var c,
 						arr = el.id.substr(13).split('|'),
 						cnt = 0;
@@ -1852,7 +1851,7 @@ function addFavoritesTable() {
 				});
 			}),
 			$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
-				$each(list, function(el) {
+				$each($X('.//tr[@class="DESU_favData"]', $id('DESU_contentFav')), function(el) {
 					var arr = el.id.substr(13).split('|');
 					ajaxGetPosts(
 						getThrdUrl(arr[0], arr[1], arr[2]), null, null, null,
@@ -1867,7 +1866,7 @@ function addFavoritesTable() {
 				});
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
-				$each(list, function(el) {
+				$each($X('.//tr[@class="DESU_favData"]', $id('DESU_contentFav')), function(el) {
 					var arr = el.id.substr(13).split('|');
 					if($t('input', el).checked) {
 						removeFavorites(arr[0], arr[1], arr[2]);
@@ -1888,7 +1887,6 @@ function addFavoritesTable() {
 			})
 		])
 	]);
-	list = null;
 }
 
 
