@@ -1127,11 +1127,15 @@ function toggleContent(name, isUpd) {
 }
 
 function showContent(el, id, name, isUpd) {
-	el.innerHTML = '';
 	if(!isUpd && el.id === id) {
-		el.id = '';
+		var cF = $t('tbody', el).clear;
+		if(cF) {
+			cF();
+		}
+		el.innerHTML = el.id = '';
 		return;
 	}
+	el.innerHTML = '';
 	el.id = id;
 	if(Cfg['attach'] === 0) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
@@ -1145,11 +1149,11 @@ function showContent(el, id, name, isUpd) {
 		}
 		if(name === 'Hid') {
 			readHiddenThreads();
-			addHiddenTable();
+			addHiddenTable(el);
 		}
 		if(name === 'Fav') {
 			readFavorites();
-			addFavoritesTable();
+			addFavoritesTable(el);
 		}
 	}
 	if(Cfg['animp'] !== 0 && nav.Anim) {
@@ -1583,12 +1587,12 @@ function addSettings() {
 									"HIDDEN" WINDOW
 ==============================================================================*/
 
-function addHiddenTable() {
+function addHiddenTable(node) {
 	var pp, cln, b, tNum, url,
 		clones = [],
 		tcnt = 0,
 		pcnt = 0,
-		table = $t('tbody', $id('DESU_contentHid'));
+		table = $t('tbody', node);
 	Posts.forEach(function(post) {
 		if(post.Vis !== 0) {
 			return;
@@ -1753,6 +1757,9 @@ function addHiddenTable() {
 		])
 	]);
 	eventRefLink(table);
+	table.clear = function() {
+		cln = null;
+	};
 }
 
 
@@ -1760,9 +1767,9 @@ function addHiddenTable() {
 								"FAVORITES" WINDOW
 ==============================================================================*/
 
-function addFavoritesTable() {
-	var h, b, tNum, url, fav, list,
-		table = $t('tbody', $id('DESU_contentFav'));
+function addFavoritesTable(node) {
+	var h, b, tNum, url, fav,
+		table = $t('tbody', node);
 	for(h in Favor) {
 		for(b in Favor[h]) {
 			$append(table, [
@@ -1817,7 +1824,6 @@ function addFavoritesTable() {
 	if(!table.firstChild) {
 		table.insertRow(-1).appendChild($add('<b>' + Lng.noFavorites[lCode] + '</b>'));
 	}
-	list = $X('.//tr[@class="DESU_favData"]', table);
 	$append(table, [
 		$New('tr', null, [
 			$new('hr', null, null),
@@ -1825,7 +1831,7 @@ function addFavoritesTable() {
 				$disp($id('DESU_favEdit').parentNode);
 			}),
 			$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
-				$each(list, function(el) {
+				$each($X('tr[@class="DESU_favData"]', table), function(el) {
 					var c,
 						arr = el.id.substr(13).split('|'),
 						cnt = 0;
@@ -1852,7 +1858,7 @@ function addFavoritesTable() {
 				});
 			}),
 			$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
-				$each(list, function(el) {
+				$each($X('tr[@class="DESU_favData"]', table), function(el) {
 					var arr = el.id.substr(13).split('|');
 					ajaxGetPosts(
 						getThrdUrl(arr[0], arr[1], arr[2]), null, null, null,
@@ -1867,7 +1873,7 @@ function addFavoritesTable() {
 				});
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
-				$each(list, function(el) {
+				$each($X('tr[@class="DESU_favData"]', table), function(el) {
 					var arr = el.id.substr(13).split('|');
 					if($t('input', el).checked) {
 						removeFavorites(arr[0], arr[1], arr[2]);
@@ -1888,7 +1894,9 @@ function addFavoritesTable() {
 			})
 		])
 	]);
-	list = null;
+	table.clear = function() {
+		table = null;
+	};
 }
 
 
