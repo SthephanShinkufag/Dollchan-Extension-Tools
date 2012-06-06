@@ -336,7 +336,7 @@ Lng = {
 doc = window.document,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
-pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false,
+pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
@@ -3936,8 +3936,8 @@ function preloadImages(el) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRefMap(post, pNum, refMap) {
-	for(var rNum, els = post.Msg.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
+function getRefMap(pNum) {
+	for(var rNum, els = this[pNum].Msg.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
 		rNum = els[i].textContent.match(/^>>(\d+)$/);
 		if(rNum) {
 			rNum = rNum[1];
@@ -3953,31 +3953,23 @@ function getRefMap(post, pNum, refMap) {
 }
 
 function genRefMap(pBn) {
-	var pNum, post, refMap = [];
-	for(pNum in pBn) {
-		post = pBn[pNum];
-		if(typeof post === 'object') {
-			getRefMap(post, pNum, refMap);
-		}
-	}
-	for(pNum in refMap) {
-		post = pBn[pNum];
-		if(post && typeof post === 'object') {
+	nav.forEach(pBn, getRefMap);
+	nav.forEach(refMap, function(pNum) {
+		var post = pBn[pNum];
+		if(post) {
 			nav.insAfter(post.Msg, '<div class="DESU_refMap">'
-				+ refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
+				+ this[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
 				+ '</div>'
 			);
 		}
-	}
-	refMap = null;
+	});
+	refMap = [];
 }
 
 function updRefMap(post) {
-	var pNum, pst, el,
-		refMap = [];
-	getRefMap(post, post.Num, refMap);
-	for(pNum in refMap) {
-		pst = pByNum[pNum];
+	getRefMap.call(pBn, post.Num);
+	nav.forEach(refMap, function(pNum) {
+		var pst = pByNum[pNum], el;
 		if(pst) {
 			el = $c('DESU_refMap', pst);
 			if(!el) {
@@ -3987,12 +3979,12 @@ function updRefMap(post) {
 				el.appendChild($txt(', '));
 			}
 			el.appendChild(
-				$add(refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>'))
+				$add(this[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>'))
 			);
 			eventRefLink(el);
 		}
-	}
-	refMap = null;
+	});
+	refMap = [];
 }
 
 
@@ -6202,6 +6194,17 @@ function getNavigator() {
 		: function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
+	nav.forEach =
+		nav.Opera ? function(obj, fn) {
+			for(var i in obj) {
+				if(obj.hasOwnProperty(i)) {
+					fn.call(obj, i);
+				}
+			}
+		}
+		: function(obj, fn) {
+			Object.keys(obj).forEach(fn, obj);
+		}
 }
 
 function getPage() {
