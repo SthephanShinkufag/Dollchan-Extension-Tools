@@ -6649,8 +6649,8 @@ function parseDelform(node, dc, pFn) {
 		}
 		if(dc === doc) {
 			if(!TNum) {
-				thr.pCount += (el = aib.getOmPosts(thr, dc)) && (el = el.textContent)
-					? +(el.match(/\d+/) || [0])[0] : 0;
+				thr.pCount += (i = aib.getOmPosts(thr, dc)) && (i = i.textContent)
+					? +(i.match(/\d+/) || [0])[0] : 0;
 			}
 			op.dTitle = getTitle(op);
 		}
@@ -6707,14 +6707,7 @@ function replaceDelform(el) {
 }
 
 function preparePage() {
-	var el, onhid, onvis;
-	pr = getPostform($x('.//textarea/ancestor::form[1]', doc));
-	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
-	if(!pr.mail) {
-		aib.getSage = function(post) {
-			return false;
-		}
-	}
+	var el;
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
 		aib.abu ? 'self::form'
 		: aib.fch ? 'self::div[@class="boardBanner"]'
@@ -6749,13 +6742,20 @@ function preparePage() {
 			$del(el);
 		}
 	}
-	if(liteMode) {
-		return;
+}
+
+function initUpdater() {
+	pr = getPostform($x('.//textarea/ancestor::form[1]', doc));
+	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
+	if(!pr.mail) {
+		aib.getSage = function(post) {
+			return false;
+		}
 	}
 	if(TNum) {
-		onhid = function() {
+		var onhid = function() {
 			doc.body.className = 'blurred';
-		};
+		},
 		onvis = function() {
 			doc.body.className = 'focused';
 			if(Cfg['updfav'] !== 0 && favIcon) {
@@ -6850,8 +6850,9 @@ function doScript() {
 		Log('initKeyNavig');
 	}
 	preparePage();
-	Log('preparePage');
 	if(!liteMode) {
+		initUpdater();
+		Log('preparePage');
 		addPanel();
 		Log('addPanel');
 		readFavorites();
