@@ -336,7 +336,7 @@ Lng = {
 doc = window.document,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
-pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false,
+pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
@@ -839,7 +839,7 @@ function readPostsVisib() {
 		}
 	}
 	readHiddenThreads();
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		var pNum = post.Num;
 		post.Vis = getVisib(pNum);
 		if(post.isOp) {
@@ -1075,7 +1075,7 @@ function addPanel() {
 					$pd(e);
 					Cfg['expimg'] = 1;
 					isExpImg = !isExpImg;
-					forEachPost(function(post) {
+					Posts.forEach(function(post) {
 						expandAllPostImg(post, isExpImg);
 					});
 				}, null, null, null)),
@@ -1592,7 +1592,7 @@ function addHiddenTable() {
 		tcnt = 0,
 		pcnt = 0,
 		table = $t('tbody', $id('DESU_contentHid'));
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(post.Vis !== 0) {
 			return;
 		}
@@ -3195,12 +3195,6 @@ function addTextPanel() {
 								FOR POSTS AND THREADS
 ==============================================================================*/
 
-function forEachPost(fn) {
-	for(var post, i = 0; post = Posts[i++];) {
-		fn(post);
-	}
-}
-
 function getPost(el) {
 	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
 }
@@ -3606,7 +3600,7 @@ function filterTextTube(post, text) {
 }
 
 function unHideTextTube() {
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(post.tHide === 1) {
 			unhidePost(post);
 			post.tHide = 0;
@@ -3812,9 +3806,7 @@ function addImgSearch(el) {
 
 function expandPostImg(a, post, isExp) {
 	if(/\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
-		addFullImg(a, getImgSize(
-			post.Img.snapshotLength > 1 ? $x('ancestor::node()[self::div or self::td][1]', a) : post
-		), isExp);
+		addFullImg(a, getImgSize(aib.getPicWrap(a)), isExp);
 	}
 }
 
@@ -3936,8 +3928,8 @@ function preloadImages(el) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRefMap(post, pNum, refMap) {
-	for(var rNum, els = post.Msg.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
+function getRefMap(pNum) {
+	for(var rNum, els = this[pNum].Msg.getElementsByTagName('a'), i = els.length - 1; i >= 0; i--) {
 		rNum = els[i].textContent.match(/^>>(\d+)$/);
 		if(rNum) {
 			rNum = rNum[1];
@@ -3953,31 +3945,23 @@ function getRefMap(post, pNum, refMap) {
 }
 
 function genRefMap(pBn) {
-	var pNum, post, refMap = [];
-	for(pNum in pBn) {
-		post = pBn[pNum];
-		if(typeof post === 'object') {
-			getRefMap(post, pNum, refMap);
-		}
-	}
-	for(pNum in refMap) {
-		post = pBn[pNum];
-		if(post && typeof post === 'object') {
+	nav.forEach(pBn, getRefMap);
+	nav.forEach(refMap, function(pNum) {
+		var post = pBn[pNum];
+		if(post) {
 			nav.insAfter(post.Msg, '<div class="DESU_refMap">'
-				+ refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
+				+ this[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')
 				+ '</div>'
 			);
 		}
-	}
-	refMap = null;
+	});
+	refMap = [];
 }
 
 function updRefMap(post) {
-	var pNum, pst, el,
-		refMap = [];
-	getRefMap(post, post.Num, refMap);
-	for(pNum in refMap) {
-		pst = pByNum[pNum];
+	getRefMap.call(pBn, post.Num);
+	nav.forEach(refMap, function(pNum) {
+		var pst = pByNum[pNum], el;
 		if(pst) {
 			el = $c('DESU_refMap', pst);
 			if(!el) {
@@ -3987,12 +3971,12 @@ function updRefMap(post) {
 				el.appendChild($txt(', '));
 			}
 			el.appendChild(
-				$add(refMap[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>'))
+				$add(this[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>'))
 			);
 			eventRefLink(el);
 		}
-	}
-	refMap = null;
+	});
+	refMap = [];
 }
 
 
@@ -5074,7 +5058,7 @@ function unhidePost(post) {
 }
 
 function saveHiddenPosts() {
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(post.Vis === 0) {
 			setPostVisib(post, 0);
 		}
@@ -5123,7 +5107,7 @@ function mergeHidden(post) {
 
 function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2) {
-		forEachPost(function(post) {
+		Posts.forEach(function(post) {
 			if(post.Vis === 0 && !post.isOp) {
 				$disp(aib.getWrap(post));
 			}
@@ -5141,7 +5125,7 @@ function processHidden(newCfg, oldCfg) {
 		});
 	}
 	if(newCfg === 1) {
-		forEachPost(mergeHidden);
+		Posts.forEach(mergeHidden);
 	}
 	saveCfg('delhd', newCfg);
 	updateCSS();
@@ -5193,7 +5177,7 @@ function findSameText(post, oNum, oVis, oWords) {
 function hideBySameText(post) {
 	var vis = post.Vis;
 	if(post.Text !== '') {
-		forEachPost(function(target) {
+		Posts.forEach(function(target) {
 			findSameText(target, post.Num, vis, getWrds(post));
 		});
 		saveHiddenPosts();
@@ -5505,11 +5489,11 @@ function toggleSpells() {
 			fld.value = val;
 		}
 		if(Cfg['spells'] !== 0) {
-			forEachPost(hideBySpells);
+			Posts.forEach(hideBySpells);
 			hideTextTube();
 		} else {
 			unHideTextTube();
-			forEachPost(function(post) {
+			Posts.forEach(function(post) {
 				if(checkSpells(post)) {
 					unhidePost(post);
 				}
@@ -5553,7 +5537,7 @@ function applySpells(txt) {
 		fld.value = val;
 		$id('DESU_spellChk').checked = val !== '';
 	}
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(checkSpells(post)) {
 			unhidePost(post);
 		}
@@ -5562,7 +5546,7 @@ function applySpells(txt) {
 	saveSpells(val);
 	if(val !== '') {
 		saveCfg('spells', 1);
-		forEachPost(hideBySpells);
+		Posts.forEach(hideBySpells);
 		hideTextTube();
 	} else {
 		saveCfg('spells', 0);
@@ -6202,6 +6186,17 @@ function getNavigator() {
 		: function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
+	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4)
+		? function(obj, fn) {
+			for(var i in obj) {
+				if(obj.hasOwnProperty(i)) {
+					fn.call(obj, i);
+				}
+			}
+		}
+		: function(obj, fn) {
+			Object.keys(obj).forEach(fn, obj);
+		}
 }
 
 function getPage() {
@@ -6846,25 +6841,25 @@ function doScript() {
 	initPostform();
 	Log('initPostform');
 	prepareButtons();
-	forEachPost(addPostButtons);
+	Posts.forEach(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
 	if(Cfg['navmrk'] !== 0) {
 		readViewedPosts();
 	}
 	Log('readPosts');
-	forEachPost(doPostFilters);
+	Posts.forEach(doPostFilters);
 	Log('doPostFilters');
 	if(Cfg['delhd'] === 1) {
-		forEachPost(mergeHidden);
+		Posts.forEach(mergeHidden);
 		Log('mergeHidden');
 	}
 	if(Cfg['expimg'] !== 0) {
-		forEachPost(eventPostImg);
+		Posts.forEach(eventPostImg);
 		Log('eventPostImg');
 	}
 	if(Cfg['expost'] !== 0 && !TNum) {
-		forEachPost(expandPost);
+		Posts.forEach(expandPost);
 		Log('expandPost');
 	}
 	if(Cfg['mp3'] !== 0) {
