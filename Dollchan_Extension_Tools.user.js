@@ -3806,9 +3806,7 @@ function addImgSearch(el) {
 
 function expandPostImg(a, post, isExp) {
 	if(/\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
-		addFullImg(a, getImgSize(
-			post.Img.snapshotLength > 1 ? $x('ancestor::node()[self::div or self::td][1]', a) : post
-		), isExp);
+		addFullImg(a, getImgSize(aib.getPicWrap(a)), isExp);
 	}
 }
 
