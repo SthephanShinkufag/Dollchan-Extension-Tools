@@ -6708,11 +6708,6 @@ function replaceDelform(el) {
 
 function preparePage() {
 	var el;
-	/*$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
-		aib.abu ? 'self::form'
-		: aib.fch ? 'self::div[@class="boardBanner"]'
-		: 'self::div[@class="logo"]'
-	) + ' or self::h1]]]', dForm);*/
 	if(aib.krau) {
 		$del($t('hr', dForm));
 		$del($t('hr', dForm.previousElementSibling));
@@ -6752,6 +6747,11 @@ function initUpdater() {
 			return false;
 		}
 	}
+	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
+		aib.abu ? 'self::form'
+		: aib.fch ? 'self::div[@class="boardBanner"]'
+		: 'self::div[@class="logo"]'
+	) + ' or self::h1]]]', dForm);
 	if(TNum) {
 		var onhid = function() {
 			doc.body.className = 'blurred';
