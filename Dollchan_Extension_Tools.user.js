@@ -625,6 +625,7 @@ function fixFunctions() {
 				try{
 					obj.onload(xhr);
 				} catch(e) {}
+				xhr = null;
 			};
 			xhr.open(obj.method, obj.url, true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
@@ -978,18 +979,14 @@ function toggleFavorites(post, btn) {
 
 function markViewedPost(pNum) {
 	var post = pByNum[pNum];
-	if(post && (post.className).indexOf('DESU_viewed') < 0) {
+	if(post && post.className.indexOf('DESU_viewed') === -1) {
 		post.className += ' DESU_viewed';
 	}
 }
 
 function readViewedPosts() {
-	var arr, i;
 	if(Cfg['navmrk'] !== 0 && sav.session) {
-		arr = (sessionStorage.viewedPosts || '').split(',');
-		for(i in arr) {
-			markViewedPost(arr[i]);
-		}
+		(sessionStorage.viewedPosts || '').split(',').forEach(markViewedPost);
 	}
 }
 
@@ -1783,6 +1780,7 @@ function addFavoritesTable() {
 							), function(el) {
 								el.checked = inp.checked;
 							});
+							inp = null;
 						}
 					}),
 					$add('<a href="//' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
@@ -1848,6 +1846,7 @@ function addFavoritesTable() {
 								Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 								setStored('DESU_Favorites', $uneval(Favor));
 							}
+							c = cnt = arr = null;
 						});
 					}
 				});
@@ -1862,6 +1861,7 @@ function addFavoritesTable() {
 								removeFavorites(arr[0], arr[1], arr[2]);
 								saveFavorites($uneval(Favor));
 							}
+							arr = null;
 						}
 					);
 				});
@@ -1888,6 +1888,7 @@ function addFavoritesTable() {
 			})
 		])
 	]);
+	list = null;
 }
 
 
@@ -1908,6 +1909,7 @@ function showAlert(el) {
 		showing = setInterval(function() {
 			if(!el || i++ > 8) {
 				clearInterval(showing);
+				showing = i = el = null;
 				return;
 			}
 			var s = el.style;
@@ -1940,6 +1942,7 @@ function closeAlert(el) {
 			if(!el || i-- < 0) {
 				clearInterval(closing);
 				$del(el);
+				closing = el = i = h = null;
 				return;
 			}
 			var s = el.style,
@@ -2003,6 +2006,7 @@ function $alert(txt, id, wait) {
 	if(Cfg['aclose'] !== 0 && !wait) {
 		setTimeout(function() {
 			closeAlert(el);
+			el = null;
 		}, 4e3);
 	}
 }
@@ -2133,6 +2137,7 @@ function selectImgSearch(e) {
 			+ '<a class="DESU_srcSaucenao" href="//saucenao.com/search.php?url=' + href
 			+ '" target="_blank">' + Lng.search[lCode] + 'SauceNAO</a>'
 	);
+	href = null;
 }
 
 
@@ -2384,7 +2389,7 @@ function initPostform() {
 }
 
 function doPostformChanges(a) {
-	var img, src, _img, sageBtn, m, load, el,
+	var img, src, _img, sBtn, m, load, el,
 		pTxt = pr.txta,
 		resMove = function(e) {
 			var p = $offset(pTxt);
@@ -2443,8 +2448,8 @@ function doPostformChanges(a) {
 			}
 		}
 	});
-	$each($X('.//input[@type="text"]', pr.form), function(el) {
-		el.size = 35;
+	$each($X('.//input[@type="text"]', pr.form), function(e) {
+		e.size = 35;
 	});
 	if(Cfg['nogoto'] !== 0 && pr.gothr) {
 		$disp(pr.gothr);
@@ -2548,7 +2553,7 @@ function doPostformChanges(a) {
 		}
 	}
 	if(Cfg['sagebt'] !== 0 && pr.mail) {
-		sageBtn = $new('span', {
+		sBtn = $new('span', {
 			'id': 'DESU_sageBtn'}, {
 			'click': function(e) {
 				e.stopPropagation();
@@ -2560,10 +2565,10 @@ function doPostformChanges(a) {
 		m = $x('ancestor::label', pr.mail) || pr.mail;
 		if(m.nextElementSibling || m.previousElementSibling) {
 			$disp(m);
-			$after(m, sageBtn);
+			$after(m, sBtn);
 		} else {
 			$disp($x(pr.tr, pr.mail));
-			$after(pr.name || pr.subm, sageBtn);
+			$after(pr.name || pr.subm, sBtn);
 		}
 		setTimeout(doSageBtn, 0);
 	}
@@ -2580,10 +2585,10 @@ function doPostformChanges(a) {
 			dForm.onsubmit = function(e) {
 				$pd(e);
 				$alert(Lng.deleting[lCode], 'Deleting', true);
-				$each($X('.//input[@type="checkbox"]', dForm), function(el) {
-					el.onclick = function() {
+				$each($X('.//input[@type="checkbox"]', dForm), function(e) {
+					e.onclick = function() {
 						return false;
-					}
+					};
 				});
 				prepareData(dForm, function(by, data) {
 					ajaxCheckSubmit(dForm, by, data, checkDelete);
@@ -2672,6 +2677,7 @@ function makeRarjpeg(e) {
 	el.onchange = function(e) {
 		$del(btn);
 		readArch(inp, el.files[0]);
+		btn = inp = el = null;
 	};
 	el.click();
 }
@@ -2687,6 +2693,7 @@ function readArch(inp, file) {
 				+ inp.files[0].name + ' + ' + file.name + '">Rarjpeg</span>'));
 			inp.rarJPEG = this.result;
 			$del(el);
+			el = inp = file = null;
 		}
 	};
 	fr.readAsArrayBuffer(file);
@@ -2782,6 +2789,7 @@ function checkUpload(dc, url) {
 			}
 		}
 		err = txt !== '' ? txt : Lng.error[lCode] + '\n' + dc.body.innerHTML;
+		txt = null;
 		if(/обновл|successful!|uploaded!/i.test(err)) {
 			err = undefined;
 		}
@@ -2837,6 +2845,7 @@ function checkDelete(dc, url) {
 				el.checked = false; el.onclick = null;
 			});
 			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
+			allDel = null;
 		};
 	if(TNum) {
 		loadNewPosts(false, cbFunc);
@@ -2853,9 +2862,9 @@ function prepareData(form, fn) {
 		rNeeded = 0,
 		i = 0,
 		arr = [],
-		el,
 		cb = function() {
 			if(done && ready === rNeeded) {
+				var el;
 				for(ready = i, i = 0; i < ready; i++) {
 					el = arr[i];
 					if(el) {
@@ -2863,6 +2872,7 @@ function prepareData(form, fn) {
 					}
 				}
 				fd.getResult(fn);
+				fd = done = ready = rNeeded = i = arr = null;
 			}
 		};
 	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
@@ -2973,6 +2983,7 @@ function prepareFiles(el, fn, i) {
 			dat.push(String(Math.round(Math.random() * 1e6)));
 		}
 		fn(i, arrToBlob(dat), file.name, file.type);
+		file = null;
 	};
 	fr.readAsArrayBuffer(file);
 }
@@ -3188,6 +3199,7 @@ function addTextPanel() {
 	txtBtn('Spoil');
 	txtBtn('Code');
 	txtBtn('Quote');
+	pnl = null;
 }
 
 
@@ -3397,6 +3409,7 @@ function fixTime(txt) {
 		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
 		return dtime.toString().replace(/GMT.*$/, '');
 	});
+	a = t = second = minute = hour = day = month = year = dtime = null;
 }
 
 
@@ -3405,8 +3418,7 @@ function fixTime(txt) {
 ==============================================================================*/
 
 function getTubeVideoLinks(id, fn) {
-	id = '//www.youtube.com/watch?v=' + id;
-	GM_xmlhttpRequest({method: 'GET', url: id, onload: function(xhr) {
+	GM_xmlhttpRequest({method: 'GET', url: '//www.youtube.com/watch?v=' + id, onload: function(xhr) {
 		var i, group, len, elem, result1, result2, src,
 			sep1 = '%2C',
 			sep2 = '%26',
@@ -3415,6 +3427,7 @@ function getTubeVideoLinks(id, fn) {
 			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/);
 		if(!formats) {
 			fn(false);
+			fn = null;
 			return;
 		}
 		formats = formats[1];
@@ -3442,6 +3455,7 @@ function getTubeVideoLinks(id, fn) {
 			}
 		}
 		fn(url);
+		fn = null;
 	}});
 }
 
@@ -3478,6 +3492,7 @@ function addTubePlayer(el, m) {
 		if(time !== 0) {
 			el.onloadedmetadata = function() {
 				this.currentTime = time;
+				time = null;
 			};
 		}
 	});
@@ -3571,6 +3586,7 @@ function addLinkTube(post) {
 					try {
 						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 						filterTextTube(pst, link.textContent);
+						link = null;
 					} catch(e) {}
 				}
 			});
@@ -3711,6 +3727,7 @@ function addFullImg(a, sz, isExp) {
 			$disp(full);
 			setTimeout(function() {
 				$del(full);
+				full = null;
 			}, 0);
 		} else {
 			full.moved = false;
@@ -3802,6 +3819,7 @@ function addImgSearch(el) {
 		(iB = imgBtn.cloneNode(false)).onmouseover = selectImgSearch;
 		link.parentNode.insertBefore(iB, link);
 	});
+	iB = null;
 }
 
 function expandPostImg(a, post, isExp) {
@@ -3880,6 +3898,9 @@ function preloadImages(el) {
 		arr = [],
 		loadFunc = function(idx) {
 			if(idx >= arr.length) {
+				if(cReq === 0) {
+					mReqs = cReq = i = arr = null;
+				}
 				return;
 			}
 			var req,
@@ -3959,7 +3980,7 @@ function genRefMap(pBn) {
 }
 
 function updRefMap(post) {
-	getRefMap.call(pBn, post.Num);
+	getRefMap.call(pByNum, post.Num);
 	nav.forEach(refMap, function(pNum) {
 		var pst = pByNum[pNum], el;
 		if(pst) {
@@ -4178,7 +4199,7 @@ function getPview(post, pNum, parent, link, txt) {
 	markPviewToDel(el, false);
 	if(Cfg['animp'] !== 0 && nav.Anim) {
 		nav.aEvent(pView, function() {
-			pView.style[nav.aName] = '';
+			this.style[nav.aName] = '';
 		});
 		pView.style[nav.aName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
@@ -4236,13 +4257,14 @@ function showPview(link) {
 		null, pNum, parent, link,
 		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
-	ajaxGetPosts(null, b, tNum, function(dc, post, i) {
-		Pviews.ajaxed[b][post.Num] = post;
+	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
+		Pviews.ajaxed[b][pst.Num] = pst;
 	}, function(err) {
 		genRefMap(Pviews.ajaxed[b]);
 		if(el && !el.forDel) {
 			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
+		b = pNum = parent = el = null;
 	});
 }
 
@@ -4428,6 +4450,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 			post.Msg = aib.getMsg(post);
 			post.Text = getText(post.Msg);
 			processFullMsg(post);
+			msg = null;
 			throw '';
 		}
 	}, function(err) {});
@@ -4508,6 +4531,7 @@ function loadThread(op, last, fn) {
 			closeAlert($id('DESU_alertLoadThr'));
 		}
 		$focus(op);
+		i = psts = thr = null;
 		if(fn) {
 			fn();
 		}
@@ -4575,6 +4599,7 @@ function loadPage(p, tClass, len) {
 			savePostsVisib();
 			readHiddenThreads();
 		}
+		thr = page = null;
 	});
 }
 
@@ -4612,6 +4637,7 @@ function desktopNotification(count) {
 	notif.ondisplay = function() {
 		setTimeout(function () {
 			notif.cancel();
+			notif = null;
 		}, 8000);
 	};
 	notif.onclick = function () {
@@ -4619,6 +4645,7 @@ function desktopNotification(count) {
 			window.focus();
 		}
 		notif.cancel();
+		notif = null;
 	};
 	notif.show();
 }
@@ -4654,14 +4681,13 @@ function infoNewPosts(err, inf) {
 		clearInterval(favIconInterval);
 		if(inf > 0) {
 			favIconInterval = setInterval(function() {
-				var href = $xb('.//link[@href="' + favIcon + '"]', doc.head)
-					? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJ'
-						+ 'LR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglE'
-						+ 'wCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII='
-					: favIcon;
 				$Del('.//link[@rel="shortcut icon"]', doc.head);
 				doc.head.appendChild($new('link', {
-					'href': href,
+					'href': $xb('.//link[@href="' + favIcon + '"]', doc.head)
+						? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJ'
+							+ 'LR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglE'
+							+ 'wCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII='
+						: favIcon,
 					'rel': 'shortcut icon'
 				}, null));
 			}, 800);
@@ -4848,6 +4874,7 @@ function loadNewPosts(inf, fn) {
 					}
 					infoNewPosts(null, el ? el.length : 0);
 				}
+				el = del = i = len = thr = null;
 				if(fn) {
 					fn();
 				}
@@ -4893,6 +4920,7 @@ function loadNewPosts(inf, fn) {
 			$id('DESU_panelInfo').firstChild.textContent =
 				i + '/' + getImages(dForm).snapshotLength;
 		}
+		el = del = i = len = thr = null;
 		if(fn) {
 			fn();
 		}
@@ -5184,6 +5212,7 @@ function hideBySameText(post) {
 	} else {
 		applySpells('#notxt');
 	}
+	vis = null;
 }
 
 
@@ -5706,11 +5735,10 @@ function detectWipe(post) {
 }
 
 function hideByWipe(post) {
-	var note;
 	if(Cfg['filthr'] === 0 && post.isOp || post.Vis === 0 || post.Vis === 1) {
 		return;
 	}
-	note = detectWipe(post);
+	var note = detectWipe(post);
 	if(note) {
 		hidePost(post, note);
 	} else {
@@ -5975,7 +6003,7 @@ function scriptCSS() {
 		'type': 'text/css',
 		'text': x.replace(/(linear-gradient|transition|keyframes|transform|animation)/g, nav.cFix + '$1')
 	}, null));
-	x = null;
+	x = gif = cont = null;
 	doc.head.appendChild($new('style', {
 		'id': 'DESU_dynCss',
 		'type': 'text/css'
@@ -6019,7 +6047,6 @@ function updateCSS() {
 		x += 'div[id^="post_video"] { display: none !important; }';
 	}
 	$id('DESU_dynCss').textContent = x;
-	x = null;
 }
 
 
@@ -6028,8 +6055,7 @@ function updateCSS() {
 ==============================================================================*/
 
 function checkForUpdates(force, fn) {
-	var t = Date.now(),
-		day = 2 * 1000 * 60 * 60 * 24,
+	var day = 2 * 1000 * 60 * 60 * 24,
 		updInt =
 			Cfg['supdint'] === 0 ? 0
 			: Cfg['supdint'] === 1 ? day
@@ -6037,7 +6063,7 @@ function checkForUpdates(force, fn) {
 			: Cfg['supdint'] === 3 ? day * 7
 			: Cfg['supdint'] === 4 ? day * 14
 			: Cfg['supdint'] === 5 && day * 30;
-	if(!force && t - +Cfg['lupdchk'] < updInt) {
+	if(!force && Date.now() - +Cfg['lupdchk'] < updInt) {
 		return;
 	}
 	GM_xmlhttpRequest({
@@ -6066,7 +6092,7 @@ function checkForUpdates(force, fn) {
 					}
 					return;
 				}
-				Cfg['lupdchk'] = t;
+				Cfg['lupdchk'] = Date.now();
 				while(i < len) {
 					if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 						upd = true;
@@ -6253,35 +6279,33 @@ function getPageUrl(p) {
 }
 
 function getPostform(form) {
-	var obj = {},
-		tr = aib._7ch ? 'li' : 'tr',
-		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	if(!form) {
-		return obj;
+		return {};
 	}
-	obj.on = true;
-	obj.isQuick = false;
-	obj.tNum = TNum;
-	obj.form = form;
-	obj.tr = 'ancestor::' + tr + '[1]';
-	obj.recap = $x('.//input[@id="recaptcha_response_field"]', form);
-	if(!aib.ylil) {
-		obj.cap = $x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || obj.recap;
-	}
-	obj.txta = $x('.//' + tr + '[not(contains(@style,"none"))]//textarea[not(contains(@style,"display: none"))]', form);
-	obj.subm = $x('.//' + tr + '//input[@type="submit"]', form);
-	obj.file = $x('.//' + tr + '//input[@type="file"]', form);
-	obj.passw = $x('.//' + tr + '//input[@type="password"]', form);
-	obj.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form);
-	obj.name = $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
-	obj.mail = $x(pre + (
-		aib._410 ? '@name="sage"]'
-		: aib.futr ? '@name="denshimeru"]'
-		: '(@name="field2" or @name="em" or @name="sage" '
-			+ 'or @name="email" or @name="nabiki" or @name="dont_bump")]'
-	), form);
-	obj.video = $x('.//' + tr + '//input[@name="video" or @name="embed"]', form);
-	return obj;
+	var tr = aib._7ch ? 'li' : 'tr',
+		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
+	return {
+		on: true,
+		isQuick: false,
+		tNum: TNum,
+		form: form,
+		tr: 'ancestor::' + tr + '[1]',
+		recap: $x('.//input[@id="recaptcha_response_field"]', form),
+		cap: (aib.ylil ? null : ($x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || obj.recap)),
+		txta: $x('.//' + tr + '[not(contains(@style,"none"))]//textarea[not(contains(@style,"display: none"))]', form),
+		subm: $x('.//' + tr + '//input[@type="submit"]', form),
+		file: $x('.//' + tr + '//input[@type="file"]', form),
+		passw: $x('.//' + tr + '//input[@type="password"]', form),
+		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
+		name: $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
+		mail: $x(pre + (
+			aib._410 ? '@name="sage"]'
+			: aib.futr ? '@name="denshimeru"]'
+			: '(@name="field2" or @name="em" or @name="sage" '
+				+ 'or @name="email" or @name="nabiki" or @name="dont_bump")]'
+		), form),
+		video: $x('.//' + tr + '//input[@name="video" or @name="embed"]', form)
+	};
 }
 
 function getImageboard() {
@@ -6560,7 +6584,6 @@ function parseThread(node, dc, fn) {
 }
 
 function parseDelform(node, dc, pFn) {
-	var el;
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
 		$$Del('.//a[@data-embedcode]', node, dc);
@@ -6637,12 +6660,13 @@ function parseDelform(node, dc, pFn) {
 			op.dTitle = getTitle(op);
 		}
 	});
-	el = pByNum[window.location.hash.substring(1)];
+	var el = pByNum[window.location.hash.substring(1)];
 	if(window.location.hash && el) {
 		$event(window, {
 			'load': function() {
 				setTimeout(function() {
 					el.className += ' DESU_post';
+					el = null;
 				}, 1e3);
 			}
 		});
@@ -6716,8 +6740,8 @@ function preparePage() {
 			$del(dForm.nextElementSibling);
 		}
 	} else if(aib.brit) {
-		$each($X('.//span[@class="reflink"]', dForm), function(el) {
-			var a = el.firstChild;
+		$each($X('.//span[@class="reflink"]', dForm), function(e) {
+			var a = e.firstChild;
 			$rattr(a, 'onclick');
 			a.href = getThrdUrl(aib.host, brd, a.textContent);
 			a.target = '_blank';
