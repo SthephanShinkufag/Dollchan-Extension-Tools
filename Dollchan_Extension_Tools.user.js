@@ -2613,13 +2613,6 @@ function doPostformChanges(a) {
 			$del(el.parentNode);
 		}
 		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
-	} else if(aib.abu) {
-		$id('recaptcha_response_field').onkeydown = function(e) {
-			if(e.keyCode === 13) {
-				$pd(e);
-				pr.subm.click();
-			}
-		};
 	}
 }
 
@@ -2632,7 +2625,7 @@ function eventFiles(tr) {
 function processInput(e) {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		$after(this, $event($add('<button class="DESU_fileUtil">'
+		$after(this, $event($add('<button type="button" class="DESU_fileUtil">'
 			+ Lng.clear[lCode] + '</button>'), {'click': clearInput}));
 	} else if(this.rarJPEG) {
 		this.rarJPEG = null;
@@ -2641,7 +2634,7 @@ function processInput(e) {
 	if(aib.rJpeg) {
 		$del($c('DESU_delFile', this.parentNode));
 		 if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this.nextSibling, $event($add('<button class="DESU_fileUtil DESU_delFile">'
+			$after(this.nextSibling, $event($add('<button type="button" class="DESU_fileUtil DESU_delFile">'
 				+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
 		}
 	}
