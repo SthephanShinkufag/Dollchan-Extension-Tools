@@ -4633,7 +4633,6 @@ function desktopNotification(count) {
 }
 
 function infoNewPosts(err, inf) {
-	var old;
 	if(err) {
 		if(err !== Lng.noConnect[lCode]) {
 			$alert(Lng.thrdNotFound[lCode] + TNum + '): \n' + err, 'NewP', false);
@@ -4654,10 +4653,7 @@ function infoNewPosts(err, inf) {
 		if(doc.body.className === 'focused') {
 			return;
 		}
-		old = doc.title.match(/^\[(\d+)\]/);
-		if(old) {
-			inf += +old[1];
-		}
+		inf += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
 	}
 	if(Cfg['updfav'] !== 0 && favIcon) {
 		clearInterval(favIconInterval);
@@ -4721,47 +4717,19 @@ function getHanaFile(file, pId) {
 		thumbW = 200;
 		thumbH = 200;
 	}
-	return $New('div', {'class': 'file'}, [
-		$New('div', {'class': 'fileinfo'}, [
-			$txt('Файл: '),
-			$new('a', {
-				'href': '/' + src,
-				'target': '_blank',
-				'text': name
-			}, null),
-			$new('br', null, null),
-			$new('em', {
-				'text': file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
-					size < kb ? size + ' B'
-					: size < mb ? (size / kb).toFixed(2) + ' KB'
-					: size < gb ? (size / mb).toFixed(2) + ' MB'
-					: (size / gb).toFixed(2) + ' GB'
-				) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height']
-			}, null),
-			$new('br', null, null),
-			$New('a', {
-				'class': 'edit_ icon',
-				'href': '/utils/image/edit/' + file['file_id'] + '/' + pId
-			}, [
-				$new('img', {
-					'title': 'edit',
-					'alt': 'edit',
-					'src': '/images/blank.png'
-				}, null)
-			])
-		]),
-		$New('a', {
-			'href': '/' + src,
-			'target': '_blank'
-		}, [
-			$new('img', {
-				'class': 'thumb',
-				'src': '/' + thumb,
-				'width': thumbW,
-				'height': thumbH
-			}, null)
-		])
-	]);
+	return $add(
+		'<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' + name
+		+ '</a><br /><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
+			size < kb ? size + ' B'
+			: size < mb ? (size / kb).toFixed(2) + ' KB'
+			: size < gb ? (size / mb).toFixed(2) + ' MB'
+			: (size / gb).toFixed(2) + ' GB'
+		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height']
+		+ '</em><br /><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + pId
+		+ '"><img title="edit" alt="edit" src="/images/blank.png" /></a></div><a href="/' + src
+		+ '" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="'
+		+ thumbH + '" /></a></div>'
+	);
 }
 
 function getHanaPost(postJson) {
@@ -4769,51 +4737,24 @@ function getHanaPost(postJson) {
 		id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $New('td', {
+		post = $new('td', {
 			'id': 'reply' + id,
 			'class': 'reply DESU_post'
-		}, [
-			$new('a', {'name': 'i' + id}, null),
-			$New('label', null, [
-				$New('a', {'class': 'delete icon'}, [
-					$new('input', {
-						'type': 'checkbox',
-						'id': 'delbox_' + id,
-						'class': 'delete_checkbox',
-						'value': postJson['post_id'],
-						'name': id
-					}, null),
-					$new('img', {
-						'alt': 'Удалить',
-						'title': 'Mark to delete',
-						'src': '/images/blank.png'
-					}, null)
-				]),
-				$new('span', {
-					'class': 'postername',
-					'text': postJson['name']
-				}, null),
-				$txt(' ' + postJson['date'].replace(
-					/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
-					function(str, y, mo, d, h, m, s) {
-						var dtime = new Date(y, mo - 1, d, h, m, s);
-						if(Cfg['ctime'] && timeRegex) {
-							dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
-						}
-						return dtime.toString().replace(/GMT.*$/, '');
+		}, null);
+		post.innerHTML =
+			'<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
+			+ '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id
+			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date'].replace(
+				/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
+				function(str, y, mo, d, h, m, s) {
+					var dtime = new Date(y, mo - 1, d, h, m, s);
+					if(Cfg['ctime'] && timeRegex) {
+						dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
 					}
-				) + ' ')
-			]),
-			$New('span', {'class': 'reflink'}, [
-				$new('a', {
-					'onclick': 'Highlight(0, ' + id + ')',
-					'href': '/' + brd + '/res/' + TNum + '.xhtml#i' + id,
-					'text': 'No.' + id
-				}, null)
-			]),
-			$new('br', null, null)
-		]);
-
+					return dtime.toString().replace(/GMT.*$/, '');
+				}
+			) + ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
+			+ '/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -4856,10 +4797,10 @@ function loadNewPosts(inf, fn) {
 					}
 					infoNewPosts(null, el ? el.length : 0);
 				}
-				el = del = i = len = thr = null;
 				if(fn) {
 					fn();
 				}
+				fn = el = del = i = len = thr = null;
 			}
 		);
 		return;
@@ -4902,10 +4843,10 @@ function loadNewPosts(inf, fn) {
 			$id('DESU_panelInfo').firstChild.textContent =
 				i + '/' + getImages(dForm).snapshotLength;
 		}
-		el = del = i = len = thr = null;
 		if(fn) {
 			fn();
 		}
+		fn = el = del = i = len = thr = null;
 	});
 }
 
@@ -4918,7 +4859,6 @@ function initThreadsUpdater() {
 		}, t);
 	} else if(Cfg['updthr'] === 2) {
 		ajaxInterval = setInterval(function() {
-			var cnt = 0;
 			if(aib.hana) {
 				getJSON(
 					'//dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
@@ -4934,10 +4874,12 @@ function initThreadsUpdater() {
 					}
 				);
 			} else {
+				var cnt = 0;
 				ajaxGetPosts(null, brd, TNum, function(dc, pst, i) {
 					cnt++;
 				}, function(err) {
 					infoNewPosts(err, cnt - Posts.length);
+					cnt = null;
 				});
 			}
 		}, t);
@@ -5077,11 +5019,11 @@ function saveHiddenPosts() {
 }
 
 function mergeHidden(post) {
-	var el, next;
 	if(post.Vis !== 0 || post.isOp) {
 		return;
 	}
-	el = post.previousElementSibling;
+	var next,
+		el = post.previousElementSibling;
 	if(!el) {
 		return;
 	}
@@ -5282,13 +5224,13 @@ function doReplace(arr, txt) {
 }
 
 function getImgSpell(imgW, imgH, imgK, exp) {
-	var s, stat, expK, x, expW, expH;
 	if(exp === '') {
 		return false;
 	}
-	s = exp.split('@');
-	stat = s[0][0];
-	expK = s[0].substr(1).split('-');
+	var x, expW, expH,
+		s = exp.split('@'),
+		stat = s[0][0],
+		expK = s[0].substr(1).split('-');
 	if(!expK[1]) {
 		expK[1] = expK[0];
 	}
@@ -5330,7 +5272,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 }
 
 function getSpells(x, post) {
-	var inf, i, t, _t, pTitle, pName, pTrip, sz, imgW, imgH, imgK;
+	var inf, i, t, _t, pTitle, pName, pTrip, imgW, imgH, imgK;
 	post.noHide = false;
 	if(oSpells.skip[0] && TNum) {
 		inf = post.Count + 1;
@@ -5396,9 +5338,9 @@ function getSpells(x, post) {
 	}
 	if(post.Img.snapshotLength > 0) {
 		if(x.img[0]) {
-			sz = getImgSize(post);
-			imgW = +sz[0];
-			imgH = +sz[1];
+			_t = getImgSize(post);
+			imgW = +_t[0];
+			imgH = +_t[1];
 			imgK = getImgWeight(post);
 			for(i = 0; t = x.img[i++];) {
 				if(getImgSpell(imgW, imgH, imgK, t)) {
@@ -5453,11 +5395,10 @@ function checkSpells(post) {
 }
 
 function hideBySpells(post) {
-	var exp;
 	if(Cfg['filthr'] === 0 && post.isOp) {
 		return;
 	}
-	exp = checkSpells(post);
+	var exp = checkSpells(post);
 	if(post.Vis === 0) {
 		if(post.noHide) {
 			unhidePost(post);
@@ -5468,10 +5409,10 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
-	var i, t, rep,
-		re = /#exp |#exph |#rep |#outrep |#imgn |#video |#theme /;
 	txt = txt.split('\n');
-	i = txt.length;
+	var t, rep,
+		i = txt.length,
+		re = /#exp |#exph |#rep |#outrep |#imgn |#video |#theme /;
 	while(i--) {
 		t = txt[i];
 		rep = t.match(re);
@@ -5488,9 +5429,7 @@ function verifyRegExp(txt) {
 
 function toggleSpells() {
 	var fld = $id('DESU_spellEdit'),
-		val = (fld ? fld.value : spellsList.join('\n'))
-			.replace(/[\r\n]+/g, '\n')
-			.replace(/^\n|\n$/g, ''),
+		val = (fld ? fld.value : spellsList.join('\n')).replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
 		wrong = verifyRegExp(val);
 	if(!wrong) {
 		saveSpells(val);
@@ -5574,14 +5513,14 @@ function detectWipe_sameLines(txt) {
 	if(Cfg['samel'] === 0) {
 		return false;
 	}
-	var j, n, x, i = 0,
+	var i, j, n, x,
 		lines = txt.replace(/> /g, '').split(/\s*\n\s*/),
 		len = lines.length;
 	if(len < 6) {
 		return false;
 	}
 	lines.sort();
-	for(n = len / 4; i < len;) {
+	for(i = 0, n = len / 4; i < len;) {
 		x = lines[i];
 		j = 0;
 		while(lines[i++] === x) {
@@ -5598,14 +5537,14 @@ function detectWipe_sameWords(txt) {
 	if(Cfg['samew'] === 0) {
 		return false;
 	}
-	var j, n, x, keys = 0, pop = 0, i = 0,
+	var i, j, n, x, keys, pop,
 		words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' '),
 		len = words.length;
 	if(len < 4) {
 		return false;
 	}
 	words.sort();
-	for(n = len / 4; i < len; keys++) {
+	for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
 		x = words[i];
 		j = 0;
 		while(words[i++] === x) {
@@ -5652,16 +5591,13 @@ function detectWipe_caseWords(txt) {
 	if(Cfg['caps'] === 0) {
 		return false;
 	}
-	var i, x,
-		capsw = 0,
-		casew = 0,
-		n = 0,
+	var i, n, x, capsw, casew,
 		words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' '),
 		len = words.length;
 	if(len < 5) {
 		return false;
 	}
-	for(i = 0; i < len; i++) {
+	for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
 		x = words[i];
 		if((x.match(/[a-zа-я]/ig) || []).length < 5) {
 			continue;
@@ -6144,11 +6080,9 @@ function fixDomain() {
 function getNavigator() {
 	var gs, ss, ls, se,
 		ua = window.navigator.userAgent;
-	nav = {
-		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1],
-		Opera: +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1],
-		Chrome: /chrome/i.test(ua)
-	};
+	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
+	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
+	nav.Chrome = /chrome/i.test(ua);
 	gs = nav.Firefox && typeof GM_setValue === 'function';
 	ss = nav.Opera && !!scriptStorage;
 	ls = window.localStorage && typeof localStorage === 'object';
@@ -6737,24 +6671,24 @@ function initUpdater() {
 	) + ' or self::h1]]]', dForm);
 	if(TNum) {
 		var onhid = function() {
-			doc.body.className = 'blurred';
-		},
-		onvis = function() {
-			doc.body.className = 'focused';
-			if(Cfg['updfav'] !== 0 && favIcon) {
-				clearInterval(favIconInterval);
-				$Del('.//link[@rel="shortcut icon"]', doc.head);
-				doc.head.appendChild($new('link', {
-					'href': favIcon,
-					'rel': 'shortcut icon'
-				}, null));
-			}
-			if(Cfg['updthr'] === 1) {
-				setTimeout(function() {
-					doc.title = docTitle;
-				}, 0);
-			}
-		};
+				doc.body.className = 'blurred';
+			},
+			onvis = function() {
+				doc.body.className = 'focused';
+				if(Cfg['updfav'] !== 0 && favIcon) {
+					clearInterval(favIconInterval);
+					$Del('.//link[@rel="shortcut icon"]', doc.head);
+					doc.head.appendChild($new('link', {
+						'href': favIcon,
+						'rel': 'shortcut icon'
+					}, null));
+				}
+				if(Cfg['updthr'] === 1) {
+					setTimeout(function() {
+						doc.title = docTitle;
+					}, 0);
+				}
+			};
 		if(Cfg['rtitle'] === 0) {
 			docTitle = doc.title;
 		} else {
