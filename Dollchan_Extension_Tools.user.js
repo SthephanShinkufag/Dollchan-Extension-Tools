@@ -839,7 +839,7 @@ function readPostsVisib() {
 		}
 	}
 	readHiddenThreads();
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		var pNum = post.Num;
 		post.Vis = getVisib(pNum);
 		if(post.isOp) {
@@ -1075,7 +1075,7 @@ function addPanel() {
 					$pd(e);
 					Cfg['expimg'] = 1;
 					isExpImg = !isExpImg;
-					forEachPost(function(post) {
+					Posts.forEach(function(post) {
 						expandAllPostImg(post, isExpImg);
 					});
 				}, null, null, null)),
@@ -1592,7 +1592,7 @@ function addHiddenTable() {
 		tcnt = 0,
 		pcnt = 0,
 		table = $t('tbody', $id('DESU_contentHid'));
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(post.Vis !== 0) {
 			return;
 		}
@@ -3195,12 +3195,6 @@ function addTextPanel() {
 								FOR POSTS AND THREADS
 ==============================================================================*/
 
-function forEachPost(fn) {
-	for(var post, i = 0; post = Posts[i++];) {
-		fn(post);
-	}
-}
-
 function getPost(el) {
 	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
 }
@@ -3606,7 +3600,7 @@ function filterTextTube(post, text) {
 }
 
 function unHideTextTube() {
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(post.tHide === 1) {
 			unhidePost(post);
 			post.tHide = 0;
@@ -5066,7 +5060,7 @@ function unhidePost(post) {
 }
 
 function saveHiddenPosts() {
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(post.Vis === 0) {
 			setPostVisib(post, 0);
 		}
@@ -5115,7 +5109,7 @@ function mergeHidden(post) {
 
 function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2) {
-		forEachPost(function(post) {
+		Posts.forEach(function(post) {
 			if(post.Vis === 0 && !post.isOp) {
 				$disp(aib.getWrap(post));
 			}
@@ -5133,7 +5127,7 @@ function processHidden(newCfg, oldCfg) {
 		});
 	}
 	if(newCfg === 1) {
-		forEachPost(mergeHidden);
+		Posts.forEach(mergeHidden);
 	}
 	saveCfg('delhd', newCfg);
 	updateCSS();
@@ -5185,7 +5179,7 @@ function findSameText(post, oNum, oVis, oWords) {
 function hideBySameText(post) {
 	var vis = post.Vis;
 	if(post.Text !== '') {
-		forEachPost(function(target) {
+		Posts.forEach(function(target) {
 			findSameText(target, post.Num, vis, getWrds(post));
 		});
 		saveHiddenPosts();
@@ -5497,11 +5491,11 @@ function toggleSpells() {
 			fld.value = val;
 		}
 		if(Cfg['spells'] !== 0) {
-			forEachPost(hideBySpells);
+			Posts.forEach(hideBySpells);
 			hideTextTube();
 		} else {
 			unHideTextTube();
-			forEachPost(function(post) {
+			Posts.forEach(function(post) {
 				if(checkSpells(post)) {
 					unhidePost(post);
 				}
@@ -5545,7 +5539,7 @@ function applySpells(txt) {
 		fld.value = val;
 		$id('DESU_spellChk').checked = val !== '';
 	}
-	forEachPost(function(post) {
+	Posts.forEach(function(post) {
 		if(checkSpells(post)) {
 			unhidePost(post);
 		}
@@ -5554,7 +5548,7 @@ function applySpells(txt) {
 	saveSpells(val);
 	if(val !== '') {
 		saveCfg('spells', 1);
-		forEachPost(hideBySpells);
+		Posts.forEach(hideBySpells);
 		hideTextTube();
 	} else {
 		saveCfg('spells', 0);
@@ -6849,25 +6843,25 @@ function doScript() {
 	initPostform();
 	Log('initPostform');
 	prepareButtons();
-	forEachPost(addPostButtons);
+	Posts.forEach(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
 	if(Cfg['navmrk'] !== 0) {
 		readViewedPosts();
 	}
 	Log('readPosts');
-	forEachPost(doPostFilters);
+	Posts.forEach(doPostFilters);
 	Log('doPostFilters');
 	if(Cfg['delhd'] === 1) {
-		forEachPost(mergeHidden);
+		Posts.forEach(mergeHidden);
 		Log('mergeHidden');
 	}
 	if(Cfg['expimg'] !== 0) {
-		forEachPost(eventPostImg);
+		Posts.forEach(eventPostImg);
 		Log('eventPostImg');
 	}
 	if(Cfg['expost'] !== 0 && !TNum) {
-		forEachPost(expandPost);
+		Posts.forEach(expandPost);
 		Log('expandPost');
 	}
 	if(Cfg['mp3'] !== 0) {
