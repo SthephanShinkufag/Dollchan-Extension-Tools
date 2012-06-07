@@ -338,7 +338,8 @@ Lng = {
 	week:			[
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-	]
+	],
+	conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?']
 }, doc = window.document, storageLife = 5 * 24 * 3600 * 1000;
 
 var Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
@@ -1550,12 +1551,14 @@ function addSettings() {
 						}).parentNode);
 					}),
 					$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
-						setDefaultCfg();
-						setStored('DESU_Stat_' + aib.dm, '');
-						setStored('DESU_Favorites', '');
-						setStored('DESU_Threads_' + aib.dm, '');
-						saveSpells('');
-						window.location.reload();
+						if(confirm(Lng.conReset[lCode])) {
+							setDefaultCfg();
+							setStored('DESU_Stat_' + aib.dm, '');
+							setStored('DESU_Favorites', '');
+							setStored('DESU_Threads_' + aib.dm, '');
+							saveSpells('');
+							window.location.reload();
+						}
 					})
 				]),
 				$new('br', {'style': 'clear: both;'}, null),
