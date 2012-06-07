@@ -12,7 +12,7 @@
 
 (function (scriptStorage) {
 'use strict';
-var defaultCfg = {
+const defaultCfg = {
 	'version':	'12.6.5.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'spells':	0,		// hide posts by spells
@@ -330,19 +330,25 @@ Lng = {
 	keyNavHelp:		[
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
+	],
+	month:			[
+		['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
+		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+	],
+	week:			[
+		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
+		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	]
-},
+}, doc = window.document, storageLife = 5 * 24 * 3600 * 1000;
 
-doc = window.document,
-Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
+var Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
-timePattern, timeRegex,
-ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false, isKeyNav = true,
-storageLife = 5 * 24 * 3600 * 1000;
+timePattern, timeRegex, timeRPattern = '',
+ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
 
 
 /*==============================================================================
@@ -767,9 +773,6 @@ function readCfg() {
 	}
 	if(!aib.abu) {
 		Cfg['noscrl'] = 0;
-	}
-	if(aib.nul) {
-		Cfg['keynav'] = 0;
 	}
 	if(aib.fch) {
 		Cfg['rarjpeg'] = 0;
@@ -1234,9 +1237,6 @@ function addSettings() {
 		} else {
 			$after($id('DESU_cfgBar'), el);
 		}
-		if(Cfg['keynav'] !== 0) {
-			keyNavTrigger(el);
-		}
 		tab.className = 'DESU_cfgTab_sel';
 		if(el === cfgFilters) {
 			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
@@ -1344,7 +1344,7 @@ function addSettings() {
 		divBox('ospoil', updateCSS),
 		divBox('noname', updateCSS),
 		$if(aib.abu, lBox('noscrl', updateCSS)),
-		$if(!aib.nul, $New('div', null, [
+		$New('div', null, [
 			lBox('keynav', null),
 			$new('a', {
 				'text': '?',
@@ -1355,7 +1355,7 @@ function addSettings() {
 					$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
 				}
 			})
-		])),
+		]),
 		$New('div', null, [lBox('ctime', toggleTimeSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
@@ -1371,7 +1371,7 @@ function addSettings() {
 					'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "++++yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "++++dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy+++++++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy+++++++hh+ii+ss"\n4chan.org: "nn+dd+yy+++++hh+ii-?s?s?"\n4chon.net: "nn+dd+yy+++++++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'TRepHlp', false);
+						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'TRepHlp', false);
 					}
 				})
 			])
@@ -2143,17 +2143,6 @@ function selectImgSearch(e) {
 								KEYBOARD NAVIGATION
 ==============================================================================*/
 
-function keyNavTrigger(node) {
-	$each($X('.//input[@type="text" or @type="password"]|.//textarea', node), function(el) {
-		el.onfocus = function() {
-			isKeyNav = false;
-		};
-		el.onblur = function() {
-			isKeyNav = true;
-		};
-	});
-}
-
 function initKeyNavig() {
 	var pIndex,
 		tIndex = 0,
@@ -2213,8 +2202,6 @@ function initKeyNavig() {
 			} catch(e) {}
 		};
 
-	keyNavTrigger(doc);
-
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
@@ -2225,11 +2212,16 @@ function initKeyNavig() {
 	};
 
 	doc.onkeydown = function (e) {
-		var curTh,
+		var curTh = e.target.tagName,
 			kc = e.keyCode;
-		if(
-			!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey
-				|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
+		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
+			if(kc === 27) {
+				e.target.blur();
+			}
+			return;
+		}
+		if(e.ctrlKey || e.altKey || e.shiftKey
+			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
 		) {
 			return;
 		}
@@ -2759,7 +2751,7 @@ function checkUpload(dc, url) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
 		}
-		if(aib.hana && /слишком старый/.test(err)) {
+		if(aib.hana && /подтвердите, что вы человек/.test(err)) {
 			pr.cap.value = '';
 			pr.cap.focus();
 			refreshCapImg(tNum);
@@ -3339,33 +3331,65 @@ function addPostButtons(post) {
 
 function toggleTimeSettings() {
 	var el = $id('DESU_ctime');
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || !parseTimePattern())) {
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || checkTimePattern())) {
 		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
 		saveCfg('ctime', 0);
 		el.checked = false;
 	}
 }
 
+function checkTimePattern() {
+	return /[^\?\-\+sihdmwny]|mm|ww/.test(Cfg['ctmpat']);
+}
+
 function parseTimePattern() {
-	if(/[^\?\-\+sihdmny]|mm/.test(Cfg['ctmpat'])) {
-		return false;
+	if(checkTimePattern()) {
+		return;
 	}
 	timeRegex = Cfg['ctmpat']
 		.replace(/\-/g, '[^<]')
 		.replace(/\+/g, '[^0-9]')
 		.replace(/([sihdny]+)/g, '($1)')
 		.replace(/[sihdny]/g, '\\d')
-		.replace(/\m/g, '([a-zA-Zа-яА-Я]+)');
+		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
 	timePattern = Cfg['ctmpat'].replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
-	return true;
+}
+
+function getTimePattern(txt) {
+	var i, j = 0, k, a, t,
+		match = txt.match(new RegExp(timeRegex)),
+		str = match[0];
+	for(i = 1; i < 8; i++) {
+		a = match[i];
+		if(!a) {
+			break;
+		}
+		k = str.indexOf(a, j);
+		timeRPattern += str.substring(j, k);
+		j = k + a.length;
+		t = timePattern[i - 1];
+		if(t === 'y') {
+			timeRPattern += a.length === 2 ? '__ye' : '__year';
+		} else {
+			timeRPattern +=
+				t === 's' ? '__sec'
+				: t === 'i' ? '__min'
+				: t === 'h' ? '__hr'
+				: t === 'd' ? '__day'
+				: t === 'n' ? '__dm'
+				: t === 'm' ? '__sm'
+				: t === 'w' ? '__wk' : '';
+		}
+	}
 }
 
 function fixTime(txt) {
-	var a, t, second, minute, hour, day, month, year, dtime;
-	return txt.replace(new RegExp(timeRegex, 'g'), function(str, a1, a2, a3, a4, a5, a6) {
-		for(var i = 0, arr = [a1, a2, a3, a4, a5, a6]; i < 6; i++) {
-			a = arr[i];
-			t = timePattern[i];
+	var a, t, second, minute, hour, day, month, year, dtime,
+		arrM = Lng.month[lCode], arrW = Lng.week[lCode];	
+	return txt.replace(new RegExp(timeRegex, 'g'), function() {
+		for(var i = 1; i < 8; i++) {
+			a = arguments[i];
+			t = timePattern[i - 1];
 			t === 's' ? second = a
 			: t === 'i' ? minute = a
 			: t === 'h' ? hour = a
@@ -3389,9 +3413,25 @@ function fixTime(txt) {
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
-		return dtime.toString().replace(/GMT.*$/, '');
+		return timeRPattern
+			.replace('__sec', zeroFill(dtime.getSeconds()))
+			.replace('__min', zeroFill(dtime.getMinutes()))
+			.replace('__hr', zeroFill(dtime.getHours()))
+			.replace('__day', zeroFill(dtime.getDate()))
+			.replace('__wk', arrW[dtime.getDay()])
+			.replace('__dm', zeroFill(dtime.getMonth() + 1))
+			.replace('__sm', arrM[dtime.getMonth()])
+			.replace('__year', dtime.getFullYear())
+			.replace('__ye', ('' + dtime.getFullYear()).substring(2))
 	});
-	a = t = second = minute = hour = day = month = year = dtime = null;
+	a = t = second = minute = hour = day = month = year = dtime = arrW = arrM = null;
+}
+
+function zeroFill(num) {
+	if(num < 10) {
+		return '0' + num;
+	}
+	return num;
 }
 
 
@@ -4319,6 +4359,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 							: 'HTTP [' + xhr.status + '] ' + xhr.statusText
 					);
 				}
+				fFn = pFn = tNum = b = null;
 			}
 		}
 	});
@@ -4338,6 +4379,7 @@ function getJSON(url, fn) {
 					} catch(e) {
 						fn(1, e.toString(), null);
 					}
+					fn = null;
 				}
 			}
 		}
@@ -4348,7 +4390,7 @@ function importPost(post) {
 	var el = doc.importNode(post, true);
 	el.Num = post.Num;
 	el.isOp = post.isOp;
-	replaceDelform(el);
+	replaceDelform(el, false);
 	return el;
 }
 
@@ -4439,7 +4481,7 @@ function getFullMsg(post, tNum, a, addFunc) {
 }
 
 function processFullMsg(post) {
-	replaceDelform(post);
+	replaceDelform(post, false);
 	$Del('.//span[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
@@ -4740,21 +4782,19 @@ function getHanaPost(postJson) {
 		post = $new('td', {
 			'id': 'reply' + id,
 			'class': 'reply DESU_post'
-		}, null);
-		post.innerHTML =
+		}, null), html =
 			'<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
 			+ '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id
-			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date'].replace(
-				/^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})$/,
-				function(str, y, mo, d, h, m, s) {
-					var dtime = new Date(y, mo - 1, d, h, m, s);
-					if(Cfg['ctime'] && timeRegex) {
-						dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
-					}
-					return dtime.toString().replace(/GMT.*$/, '');
-				}
-			) + ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
+			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date']
+			+ ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
 			+ '/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
+	if(Cfg['ctime'] && timeRegex) {
+		i = timeRegex;
+		timeRegex = 'yyyy+nn+dd+hh+ii+ss';
+		html = fixTime(html);
+		timeRegex = i;
+	}	
+	post.innerHTML = html;
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -4789,7 +4829,7 @@ function loadNewPosts(inf, fn) {
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							del = getHanaPost(el[i]);
-							replaceDelform(del);
+							replaceDelform(del, false);
 							del.Num = el[i]['display_id'];
 							newPost(thr, del, thr.pCount + i);
 						}
@@ -6604,10 +6644,13 @@ function tryToParse() {
 	return true;
 }
 
-function replaceDelform(el) {
+function replaceDelform(el, init) {
 	if(aib.fch || aib.krau || Cfg['ctime'] && timeRegex || Cfg['spells'] !== 0 && oSpells.rep[0]) {
 		var txt = el.innerHTML;
 		if(Cfg['ctime'] && timeRegex) {
+			if(init) {
+				getTimePattern(txt);
+			}
 			txt = fixTime(txt);
 		}
 		if(aib.fch || aib.krau) {
@@ -6756,7 +6799,7 @@ function doScript() {
 	Log('initBoard');
 	readCfg();
 	Log('readCfg');
-	replaceDelform(dForm);
+	replaceDelform(dForm, true);
 	Log('replaceDelform');
 	if(!tryToParse()) {
 		return;
