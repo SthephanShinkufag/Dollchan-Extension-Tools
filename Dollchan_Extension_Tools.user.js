@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.5.2
+// @version			12.6.7.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 const defaultCfg = {
-	'version':	'12.6.5.2',
+	'version':	'12.6.7.0',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'spells':	0,		// hide posts by spells
 	'awipe':	1,		// antiwipe detectors:
@@ -4339,7 +4339,7 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function parseHTMLdata(html, b, tNum, pFn) {
+function parseHTMLdata(html, pFn) {
 	var dc = HTMLtoDOM(html);
 	if(!pr.on && oeForm) {
 		pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
@@ -4362,7 +4362,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
-					parseHTMLdata(xhr.responseText, b, tNum, pFn);
+					parseHTMLdata(xhr.responseText, pFn);
 					fFn();
 				} else {
 					fFn(
@@ -4371,7 +4371,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 							: 'HTTP [' + xhr.status + '] ' + xhr.statusText
 					);
 				}
-				fFn = pFn = tNum = b = null;
+				fFn = pFn = null;
 			}
 		}
 	});
@@ -4463,17 +4463,18 @@ function newPost(thr, post, i) {
 	}
 }
 
-function getFullMsg(post, tNum, a, addFunc) {
-	var msg = post.Msg;
+function getFullMsg(el, addFunc) {
+	var	post = getPost(el),
+		tNum = post.thr.Num;
 	if(aib.hana) {
-		$del(a.nextSibling);
-		$del(a.previousSibling);
-		$del(a);
-		msg.replaceChild(
+		$del(el.nextSibling);
+		$del(el.previousSibling);
+		$del(el);
+		post.Msg.replaceChild(
 			$x('div[@class="postbody alternate"]', post).firstElementChild,
-			msg.firstElementChild
+			post.Msg.firstElementChild
 		);
-		post.Text = getText(msg);
+		post.Text = getText(post.Msg);
 		if(addFunc) {
 			processFullMsg(post);
 		}
@@ -4481,12 +4482,12 @@ function getFullMsg(post, tNum, a, addFunc) {
 	}
 	ajaxGetPosts(null, brd, tNum, function(dc, pst, i) {
 		if(pst.Num === post.Num) {
-			$del(a);
-			msg.parentNode.replaceChild(doc.importNode(aib.getMsg(pst), true), msg);
+			$del(el);
+			post.Msg.parentNode.replaceChild(doc.importNode(aib.getMsg(pst), true), post.Msg);
 			post.Msg = aib.getMsg(post);
 			post.Text = getText(post.Msg);
 			processFullMsg(post);
-			msg = null;
+			el = post = null;
 			throw '';
 		}
 	}, function(err) {});
@@ -4512,24 +4513,25 @@ function expandPost(post) {
 		);
 	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 		if(Cfg['expost'] === 1) {
-			getFullMsg(post, tNum, el, false);
+			getFullMsg(el, false);
 		} else {
 			el.onclick = function(e) {
 				$pd(e);
-				getFullMsg(post, tNum, e.target, true);
+				getFullMsg(this, true);
 			};
 		}
 	}
 }
 
 function loadThread(op, last, fn) {
-	var i, psts = [], thr = op.thr;
+	var psts = [];
 	if(!fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
 	ajaxGetPosts(null, brd, op.Num, function(dc, post, j) {
 		psts.push(importPost(post));
 	}, function(err) {
+		var i, thr = op.thr;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
@@ -4567,17 +4569,16 @@ function loadThread(op, last, fn) {
 			closeAlert($id('DESU_alertLoadThr'));
 		}
 		$focus(op);
-		i = psts = thr = null;
 		if(fn) {
 			fn();
 		}
+		op = last = fn = psts = null;
 	});
 }
 
 function loadFavorThread() {
 	var el = this.parentNode.parentNode,
 		favt = $c('DESU_favThr', el),
-		url = this.nextElementSibling.href,
 		tNum = el.id.substr(13).split('|')[2],
 		name = 'DESU_favIframe' + $rnd();
 	if(favt.style.display !== 'none') {
@@ -4597,7 +4598,7 @@ function loadFavorThread() {
 			'id': name,
 			'name': name,
 			'class': 'DESU_favIframe',
-			'src': url,
+			'src': this.nextElementSibling.href,
 			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
 		}, null),
 		$add(
@@ -4609,14 +4610,14 @@ function loadFavorThread() {
 }
 
 function loadPage(p, tClass, len) {
-	var thr, page;
+	var thr, page = $new('div', {'id': 'DESU_page' + p}, null);
 	$append(dForm, [
 		$new('center', {
 			'text': p + Lng.page[lCode],
 			'style': 'font-size: 2em;'
 		}, null),
 		$new('hr', null, null),
-		page = $new('div', {'id': 'DESU_page' + p}, null)
+		page
 	]);
 	ajaxGetPosts(getPageUrl(p), null, null, function(dc, post, i) {
 		if(i === 0) {
@@ -4635,16 +4636,15 @@ function loadPage(p, tClass, len) {
 			savePostsVisib();
 			readHiddenThreads();
 		}
-		thr = page = null;
+		thr = page = p = tClass = len = null;
 	});
 }
 
 function loadPages(len) {
-	var p,
-		tClass = $c('DESU_thread', dForm).className;
 	$alert(Lng.loading[lCode], 'LPages', true);
 	dForm.innerHTML = '';
-	for(p = 0, Posts = []; p < len; p++) {
+	Posts = [];
+	for(p = 0, tClass = $c('DESU_thread', dForm).className; p < len; p++) {
 		loadPage(p, tClass, len);
 	}
 }
@@ -4757,15 +4757,12 @@ function getHanaFile(file, pId) {
 		if(name.length > 17)
 		name = name.substring(0, 17) + '...';
 	}
-	if(rating === 'r-18g' && maxRating !== "r-18g") {
-		thumb = "images/r-18g.png";
-	} else if(rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18')) {
-		thumb = "images/r-18.png";
-	} else if(rating === 'r-15' && maxRating === 'sfw') {
-		thumb = "images/r-15.png";
-	} else if(rating === 'illegal') {
-		thumb = "images/illegal.png";
-	}
+	thumb =
+		rating === 'r-18g' && maxRating !== 'r-18g' ? 'images/r-18g.png'
+		: rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18') ? 'images/r-18.png'
+		: rating === 'r-15' && maxRating === 'sfw' ? 'images/r-15.png'
+		: rating === 'illegal' ? 'images/illegal.png'
+		: file['thumb'];
 	if(thumb !== file['thumb']) {
 		thumbW = 200;
 		thumbH = 200;
@@ -4793,8 +4790,9 @@ function getHanaPost(postJson) {
 		post = $new('td', {
 			'id': 'reply' + id,
 			'class': 'reply DESU_post'
-		}, null), html =
-			'<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
+		}, null),
+		html = '<a name="i' + id
+			+ '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
 			+ '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id
 			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date']
 			+ ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
