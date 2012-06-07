@@ -1801,7 +1801,7 @@ function addFavoritesTable() {
 							}),
 							$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 							$txt(' - ' + fav.txt),
-							$add('<span class="DESU_favPCount">[<span>' + fav.cnt + '</span>]</span>')
+							$add('<span class="DESU_favPCount">[<span>' + (fav.cnt + 1) + '</span>]</span>')
 						]),
 						$new('div', {
 							'id': tNum,
@@ -3223,7 +3223,9 @@ function getImgSize(post) {
 	return m ? m[0].split(/[x×]/) : [null, null];
 }
 
-/*--------------------------------Post buttons--------------------------------*/
+/*==============================================================================
+									POST BUTTONS
+==============================================================================*/
 
 function prepareButtons() {
 	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
@@ -3308,11 +3310,19 @@ function prepareButtons() {
 }
 
 function addPostButtons(post) {
-	var ref = aib.getRef(post);
+	var h, ref = aib.getRef(post);
 	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
 	post.Btns.id = 'DESU_btns' + post.Num;
 	if(aib.getSage(post)) {
 		post.Btns.appendChild(sageBtn.cloneNode(false));
+	}
+	if(post.isOp) {
+		h = aib.host;
+		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
+			$c('DESU_btnFav', post.Btns).className = 'DESU_btnFavSel';
+			Favor[h][brd][post.Num].cnt = post.thr.pCount;
+			setStored('DESU_Favorites', $uneval(Favor));
+		}
 	}
 	$after(ref, post.Btns);
 	if(pr.on && Cfg['insnum'] !== 0) {
@@ -3327,7 +3337,9 @@ function addPostButtons(post) {
 	}
 }
 
-/*---------------------------------Time correction-----------------------------*/
+/*==============================================================================
+									TIME CORRECTION
+==============================================================================*/
 
 function toggleTimeSettings() {
 	var el = $id('DESU_ctime');
@@ -4662,14 +4674,13 @@ function desktopNotification(count) {
 		setTimeout(function () {
 			notif.cancel();
 			notif = null;
-		}, 8000);
+		}, 8e3);
 	};
 	notif.onclick = function () {
 		if(window.focus) {
 			window.focus();
 		}
-		notif.cancel();
-		notif = null;
+		this.cancel();
 	};
 	notif.show();
 }
