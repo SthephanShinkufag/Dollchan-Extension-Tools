@@ -3795,7 +3795,7 @@ function addFullImg(a, sz, isExp) {
 	}
 }
 
-function addLinkImg(el, addBr) {
+function addLinkImg(el) {
 	if(Cfg['addimg'] === 0) {
 		return;
 	}
@@ -3815,7 +3815,7 @@ function addLinkImg(el, addBr) {
 			'alt': a.href}, {
 			'load': function() {
 				var fullW, fullH, k;
-				$disp(a);
+				$disp(this.parentNode);
 				fullW = this.width;
 				fullH = this.height;
 				this.title = fullW + 'x' + fullH;
@@ -3833,7 +3833,7 @@ function addLinkImg(el, addBr) {
 				addFullImg(this, this.firstChild.title.split('x'), null);
 			}
 		};
-		$before(link, [a, $if(addBr, $new('br', null, null))]);
+		$before(link, [a]);
 	});
 }
 
@@ -4198,7 +4198,7 @@ function getPview(post, pNum, parent, link, txt) {
 			img.style.display = '';
 		});
 		eventPostImg(pView);
-		addLinkImg(pView, false);
+		addLinkImg(pView);
 		addImgSearch(pView);
 		if(Cfg['navig'] === 2) {
 			markRefMap(pView, parent.Num);
@@ -4428,7 +4428,7 @@ function addPostFunc(post) {
 	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
-	addLinkImg(post, true);
+	addLinkImg(post);
 	addImgSearch(post);
 	if(Cfg['pimgs'] !== 0) {
 		preloadImages(post);
@@ -6860,7 +6860,7 @@ function doScript() {
 		Log('addLinkTube');
 	}
 	if(Cfg['addimg'] !== 0) {
-		addLinkImg(dForm, true);
+		addLinkImg(dForm);
 		Log('addLinkImg');
 	}
 	if(Cfg['imgsrc'] !== 0) {
