@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.7.0
+// @version			12.6.7.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 const defaultCfg = {
-	'version':	'12.6.7.0',
+	'version':	'12.6.7.1',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'spells':	0,		// hide posts by spells
 	'awipe':	1,		// antiwipe detectors:
@@ -3326,7 +3326,7 @@ function addPostButtons(post) {
 	}
 	$after(ref, post.Btns);
 	if(pr.on && Cfg['insnum'] !== 0) {
-		if(aib.futr) {
+		if(aib.futr || (aib.nul && TNum)) {
 			$each($X('a', ref), function(el) {
 				el.onclick = null;
 			});
