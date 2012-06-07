@@ -12,7 +12,7 @@
 
 (function (scriptStorage) {
 'use strict';
-var defaultCfg = {
+const defaultCfg = {
 	'version':	'12.6.5.2',
 	'lang':		0,		// script language [0=ru, 1=en]
 	'spells':	0,		// hide posts by spells
@@ -339,18 +339,16 @@ Lng = {
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	]
-},
+}, doc = window.document, storageLife = 5 * 24 * 3600 * 1000;
 
-doc = window.document,
-Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
+var Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
 timePattern, timeRegex, timeRPattenr = '',
-ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false, isKeyNav = true,
-storageLife = 5 * 24 * 3600 * 1000;
+ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
 
 
 /*==============================================================================
@@ -775,9 +773,6 @@ function readCfg() {
 	}
 	if(!aib.abu) {
 		Cfg['noscrl'] = 0;
-	}
-	if(aib.nul) {
-		Cfg['keynav'] = 0;
 	}
 	if(aib.fch) {
 		Cfg['rarjpeg'] = 0;
@@ -1242,9 +1237,6 @@ function addSettings() {
 		} else {
 			$after($id('DESU_cfgBar'), el);
 		}
-		if(Cfg['keynav'] !== 0) {
-			keyNavTrigger(el);
-		}
 		tab.className = 'DESU_cfgTab_sel';
 		if(el === cfgFilters) {
 			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
@@ -1352,7 +1344,7 @@ function addSettings() {
 		divBox('ospoil', updateCSS),
 		divBox('noname', updateCSS),
 		$if(aib.abu, lBox('noscrl', updateCSS)),
-		$if(!aib.nul, $New('div', null, [
+		$New('div', null, [
 			lBox('keynav', null),
 			$new('a', {
 				'text': '?',
@@ -1363,7 +1355,7 @@ function addSettings() {
 					$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
 				}
 			})
-		])),
+		]),
 		$New('div', null, [lBox('ctime', toggleTimeSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
@@ -2151,17 +2143,6 @@ function selectImgSearch(e) {
 								KEYBOARD NAVIGATION
 ==============================================================================*/
 
-function keyNavTrigger(node) {
-	$each($X('.//input[@type="text" or @type="password"]|.//textarea', node), function(el) {
-		el.onfocus = function() {
-			isKeyNav = false;
-		};
-		el.onblur = function() {
-			isKeyNav = true;
-		};
-	});
-}
-
 function initKeyNavig() {
 	var pIndex,
 		tIndex = 0,
@@ -2221,8 +2202,6 @@ function initKeyNavig() {
 			} catch(e) {}
 		};
 
-	keyNavTrigger(doc);
-
 	window.onscroll = function() {
 		if(!scrScroll) {
 			pScroll = true;
@@ -2233,11 +2212,16 @@ function initKeyNavig() {
 	};
 
 	doc.onkeydown = function (e) {
-		var curTh,
+		var curTh = e.target.tagName,
 			kc = e.keyCode;
-		if(
-			!isKeyNav || e.ctrlKey || e.altKey || e.shiftKey
-				|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
+		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
+			if(kc === 27) {
+				e.target.blur();
+			}
+			return;
+		}
+		if(e.ctrlKey || e.altKey || e.shiftKey
+			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
 		) {
 			return;
 		}
