@@ -347,7 +347,7 @@ pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = f
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '',
-timePattern, timeRegex, timeRPattenr = '',
+timePattern, timeRegex, timeRPattern = '',
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
 
 
@@ -3365,13 +3365,13 @@ function getTimePattern(txt) {
 			break;
 		}
 		k = str.indexOf(a, j);
-		timeRPattenr += str.substring(j, k);
+		timeRPattern += str.substring(j, k);
 		j = k + a.length;
 		t = timePattern[i - 1];
 		if(t === 'y') {
-			timeRPattenr += a.length === 2 ? '__ye' : '__year';
+			timeRPattern += a.length === 2 ? '__ye' : '__year';
 		} else {
-			timeRPattenr +=
+			timeRPattern +=
 				t === 's' ? '__sec'
 				: t === 'i' ? '__min'
 				: t === 'h' ? '__hr'
@@ -3413,7 +3413,7 @@ function fixTime(txt) {
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
-		return timeRPattenr
+		return timeRPattern
 			.replace('__sec', zeroFill(dtime.getSeconds()))
 			.replace('__min', zeroFill(dtime.getMinutes()))
 			.replace('__hr', zeroFill(dtime.getHours()))
