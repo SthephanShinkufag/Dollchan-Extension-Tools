@@ -193,7 +193,7 @@ Lng = {
 		norule:		['правила ', 'rules '],
 		nogoto:		['поле goto ', 'goto field '],
 		nopass:		['пароль', 'password'],
-		
+
 		sstyle: {
 			sel:	[['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey']],
 			txt:	[' стиль скрипта', ' script style']
@@ -347,8 +347,7 @@ nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
-oldTime, endTime, timeLog = '',
-timePattern, timeRegex, timeRPattern = '',
+oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
 
 
@@ -541,6 +540,13 @@ function $pd(e) {
 
 function $rnd() {
 	return Math.round(Math.random() * 1e10).toString(10);
+}
+
+function pad2(num) {
+	if(num < 10) {
+		return '0' + num;
+	}
+	return num;
 }
 
 function insertInto(el, txt) {
@@ -793,7 +799,7 @@ function readCfg() {
 	}
 	setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
 	if(Cfg['ctime']) {
-		parseTimePattern();
+		dTime = new dateTime(Cfg['ctmpat'], Cfg['ctmofs']);
 	}
 	saveSpells(getStored('DESU_Spells_' + aib.dm) || '');
 }
@@ -1351,7 +1357,7 @@ function addSettings() {
 				}
 			})
 		]),
-		$New('div', null, [lBox('ctime', toggleTimeSettings)]),
+		$New('div', null, [lBox('ctime', dateTime.toggleSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('ctmofs', 3, null),
@@ -3233,7 +3239,7 @@ function prepareButtons() {
 	]);
 	(opPanel = pPanel.cloneNode(true)).className += '_op';
 	$append(opPanel, [
-		$if(!TNum, 
+		$if(!TNum,
 			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
 		),
 		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
@@ -3338,50 +3344,70 @@ function addPostButtons(post) {
 									TIME CORRECTION
 ==============================================================================*/
 
-function toggleTimeSettings() {
-	var el = $id('DESU_ctime');
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || checkTimePattern())) {
-		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
-		saveCfg('ctime', 0);
-		el.checked = false;
-	}
-}
-
-function checkTimePattern() {
-	return /[^\?\-\+sihdmwny]|mm|ww/.test(Cfg['ctmpat']);
-}
-
-function parseTimePattern() {
-	if(checkTimePattern()) {
+/** @constructor */
+function dateTime(pattern, timeDiff) {
+	if(dateTime.checkPattern(pattern)) {
+		this.disabled = true;
 		return;
 	}
-	timeRegex = Cfg['ctmpat']
+	this.regex = pattern
 		.replace(/\-/g, '[^<]')
 		.replace(/\+/g, '[^0-9]')
 		.replace(/([sihdny]+)/g, '($1)')
 		.replace(/[sihdny]/g, '\\d')
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
-	timePattern = Cfg['ctmpat'].replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
+	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
+	this.diff = parseInt(timeDiff, 10);
 }
 
-function getTimePattern(txt) {
-	var i = 1, j = 0, k, a,
-		m = txt.match(new RegExp(timeRegex)),
-		str = m[0];
+dateTime.toggleSettings = function() {
+	var el = $id('DESU_ctime');
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || this.checkPattern(Cfg['ctmpat']))) {
+		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
+		saveCfg('ctime', 0);
+		el.checked = false;
+	}
+};
+
+dateTime.checkPattern = function(val) {
+	return /[^\?\-\+sihdmwny]|mm|ww/.test(val);
+};
+
+dateTime.prototype.init = function(txt) {
+	if(this.inited || this.disabled) {
+		return;
+	}
+	var i = 1, j = 0, k, a, str,
+		m = txt.match(new RegExp(this.regex));
+	if(!m) {
+		this.disabled = true;
+		return;
+	}
+	this.rPattern = '';
+	str = m[0];
 	while(a = m[i++]) {
 		k = str.indexOf(a, j);
-		timeRPattern += str.substring(j, k) + '_' + timePattern[i - 2];
+		this.rPattern += str.substring(j, k) + '_' + this.pattern[i - 2];
 		j = k + a.length;
 	}
-}
+	this.inited = true;
+};
 
-function fixTime(txt) {
-	var a, t, second, minute, hour, day, month, year, dtime,
-		arrM = Lng.month[lCode], arrW = Lng.week[lCode];	
-	return txt.replace(new RegExp(timeRegex, 'g'), function() {
-		for(var i = 1; i < 8; i++) {
+dateTime.prototype.fix = function(txt, tReg) {
+	if(this.disabled) {
+		return txt;
+	}
+	if(!tReg) {
+		tReg = this.regex;
+	}
+	var arrM = Lng.month[lCode], arrW = Lng.week[lCode],
+		tPat = this.pattern, tRPat = this.rPattern,
+		diff = this.diff;
+	return txt.replace(new RegExp(tReg, 'g'), function() {
+		var i, a, t, second, minute, hour, day, month, year, dtime;
+		for(i = 1; i < 8; i++) {
 			a = arguments[i];
-			t = timePattern[i - 1];
+			t = tPat[i - 1];
 			t === 's' ? second = a
 			: t === 'i' ? minute = a
 			: t === 'h' ? hour = a
@@ -3404,8 +3430,8 @@ function fixTime(txt) {
 			);
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
-		return timeRPattern
+		dtime.setHours(dtime.getHours() + diff);
+		return tRPat
 			.replace('_s', pad2(dtime.getSeconds()))
 			.replace('_i', pad2(dtime.getMinutes()))
 			.replace('_h', pad2(dtime.getHours()))
@@ -3418,15 +3444,8 @@ function fixTime(txt) {
 				: dtime.getFullYear()
 			)
 	});
-	a = t = second = minute = hour = day = month = year = dtime = arrW = arrM = null;
-}
-
-function pad2(num) {
-	if(num < 10) {
-		return '0' + num;
-	}
-	return num;
-}
+	arrW = arrM = tPat = tRPat = diff = null;
+};
 
 
 /*==============================================================================
@@ -4384,7 +4403,7 @@ function importPost(post) {
 	var el = doc.importNode(post, true);
 	el.Num = post.Num;
 	el.isOp = post.isOp;
-	replaceDelform(el, false);
+	replaceDelform(el);
 	return el;
 }
 
@@ -4476,7 +4495,7 @@ function getFullMsg(el, addFunc) {
 }
 
 function processFullMsg(post) {
-	replaceDelform(post, false);
+	replaceDelform(post);
 	$Del('.//span[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
@@ -4709,7 +4728,7 @@ function infoNewPosts(err, inf) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 	if(nav.Chrome && Cfg['dNotif'] !== 0 && inf > 0) {
 		desktopNotification(inf);
-	} 
+	}
 }
 
 function setHanaRating() {
@@ -4772,20 +4791,16 @@ function getHanaPost(postJson) {
 		post = $new('td', {
 			'id': 'reply' + id,
 			'class': 'reply DESU_post'
-		}, null),
-		html = '<a name="i' + id
+		}, null);
+		post.innerHTML = '<a name="i' + id
 			+ '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
 			+ '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id
-			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date']
-			+ ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
+			+ '" /></a><span class="postername">' + postJson['name'] + '</span> '
+			+ (dTime
+				? dTime.fix(postJson['date'], '(\\d\\d\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)')
+				: postJson['date']
+			) + ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
 			+ '/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
-	if(Cfg['ctime'] && timeRegex) {
-		i = timeRegex;
-		timeRegex = 'yyyy+nn+dd+hh+ii+ss';
-		html = fixTime(html);
-		timeRegex = i;
-	}	
-	post.innerHTML = html;
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -4820,7 +4835,7 @@ function loadNewPosts(inf, fn) {
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							del = getHanaPost(el[i]);
-							replaceDelform(del, false);
+							replaceDelform(del);
 							del.Num = el[i]['display_id'];
 							newPost(thr, del, thr.pCount + i);
 						}
@@ -6635,14 +6650,12 @@ function tryToParse() {
 	return true;
 }
 
-function replaceDelform(el, init) {
-	if(aib.fch || aib.krau || Cfg['ctime'] && timeRegex || Cfg['spells'] !== 0 && oSpells.rep[0]) {
+function replaceDelform(el) {
+	if(aib.fch || aib.krau || dTime || Cfg['spells'] !== 0 && oSpells.rep[0]) {
 		var txt = el.innerHTML;
-		if(Cfg['ctime'] && timeRegex) {
-			if(init) {
-				getTimePattern(txt);
-			}
-			txt = fixTime(txt);
+		if(dTime) {
+			dTime.init(txt);
+			txt = dTime.fix(txt, null);
 		}
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
@@ -6790,7 +6803,7 @@ function doScript() {
 	Log('initBoard');
 	readCfg();
 	Log('readCfg');
-	replaceDelform(dForm, true);
+	replaceDelform(dForm);
 	Log('replaceDelform');
 	if(!tryToParse()) {
 		return;
