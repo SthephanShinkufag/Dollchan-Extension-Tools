@@ -6219,7 +6219,7 @@ function getPageUrl(h, b, p) {
 		? ('/' + b + (p === 1 ? '/' : '-' + p))
 		: (fixBrd(b) + (
 			p > 0 ? (p + docExt)
-			: (/dobrochan|tenhou/.test(h) + 1) ? ('index' + docExt)
+			: /dobrochan|tenhou/.test(h) ? ('index' + docExt)
 			: ''
 		));
 }
