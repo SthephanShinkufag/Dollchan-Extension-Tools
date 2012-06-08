@@ -570,7 +570,7 @@ function isEmptyObj(obj) {
 }
 
 function $uneval(obj) {
-	return unescape(uneval(obj).replace(/\\u/g, '%u'));
+	return unescape(JSON.stringify(obj).replace(/\\u/g, '%u'));
 }
 
 function HTMLtoDOM(html) {
@@ -614,9 +614,6 @@ function fixFunctions() {
 			while(s.test(str.charAt(--i))) {}
 			return str.slice(0, i + 1);
 		};
-	}
-	if(typeof uneval !== 'function') {
-		(function(){var f=[],g={"\t":"t","\n":"n","\u000b":"v","\u000c":"f","\r":"\r","'":"'",'"':'"',"\\":"\\"},h=function(b){if(b in g)return"\\"+g[b];var c=b.charCodeAt(0);return c<32?"\\x0"+c.toString(16):c<127?"\\"+b:c<256?"\\x"+c.toString(16):c<4096?"\\u0"+c.toString(16):"\\u"+c.toString(16)},i=function(b){return b.toString()},j={"boolean":i,number:i,string:function(b){return"'"+b.toString().replace(/[\x00-\x1F\'\"\\\u007F-\uFFFF]/g,h)+"'"},undefined:function(){return"undefined"},"function":i}, k=function(b,c){var a=[],d;for(d in b)b.hasOwnProperty(d)&&(a[a.length]=uneval(d)+":"+uneval(b[d],1));return c?"{"+a.toString()+"}":"({"+a.toString()+"})"},uneval_set=function(b,c,a){f[f.length]=[b,c];j[c]=a||k};uneval_set(Array,"array",function(b){for(var c=[],a=0,d=b.length;a<d;a++)c[a]=uneval(b[a]);return"["+String(c)+"]"});uneval_set(RegExp,"regexp",i);uneval_set(Date,"date",function(b){return"(new Date("+b.valueOf()+"))"});window.uneval=function(b,c){var a;if(b===void 0)a="undefined";else if(b===null)a= "null";else{a:if(a=typeof b,a=="object"){a=0;for(var d=f.length;a<d;a++)if(b instanceof f[a][0]){a=f[a][1];break a}a="object"}a=(j[a]||k)(b,c)}return a}})();
 	}
 	if(!('GM_log' in window)) {
 		window.GM_log = function() {};
@@ -713,7 +710,7 @@ function setStored(name, value) {
 
 function getStoredObj(name, def) {
 	try {
-		return eval(getStored(name)) || def;
+		return JSON.parse(getStored(name)) || def;
 	} catch(e) {
 		return def;
 	}
@@ -737,7 +734,7 @@ function setDefaultCfg() {
 
 function isValidCfg(data) {
 	try {
-		if(eval(data).version) {
+		if(JSON.parse(data).version) {
 			return true;
 		}
 	} catch(e) {}
@@ -753,7 +750,7 @@ function readCfg() {
 		global = true;
 	}
 	if(isValidCfg(data)) {
-		Cfg = eval(data);
+		Cfg = JSON.parse(data);
 		Cfg['version'] = defaultCfg['version'];
 		for(key in defaultCfg) {
 			if(Cfg[key] === undefined) {
@@ -905,7 +902,7 @@ function toggleHiddenThread(post, vis) {
 		if(vis === 1 && i >= 0) {
 			hThrds[b].splice(i, 1);
 		}
-		if(escape(uneval(hThrds)).length > 4095) {
+		if(escape(JSON.stringify(hThrds)).length > 4095) {
 			hThrds[b].shift();
 		}
 	} else {
@@ -969,7 +966,7 @@ function toggleFavorites(post, btn) {
 		cnt: post.thr.pCount,
 		txt: sav.cookie ? post.dTitle.substring(0, 25) : post.dTitle
 	};
-	if(sav.cookie && escape(uneval(Favor)).length > 4095) {
+	if(sav.cookie && escape(JSON.stringify(Favor)).length > 4095) {
 		$alert(Lng.cookiesLimit[lCode], 'CookieErr', false);
 		delete Favor[h][b][tNum];
 		return;
