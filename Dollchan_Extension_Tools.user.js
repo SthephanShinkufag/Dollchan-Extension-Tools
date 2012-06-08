@@ -2811,52 +2811,15 @@ function checkDelete(dc, url) {
 }
 
 function ajaxSubmit(form, fn) {
-	var done = false,
-		ready = 0,
-		rNeeded = 0,
-		i = 0,
-		arr = [],
-		cb = function() {
-			if(done && ready === rNeeded) {
-				var el, fd = new dataForm();
-				for(ready = i, i = 0; i < ready; i++) {
-					el = arr[i];
-					if(el) {
-						fd.append(el.name, el.val, el.type, el.fName, el.fType);
-					}
-				}
-				fd.send(form.action, fn);
-				done = ready = rNeeded = i = arr = fn = null;
-			}
-		};
+	var fd = new dataForm();
 	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
-		if(el.type === 'file') {
-			if(el.files.length > 0) {
-				prepareFiles(el, function(idx, blob, name, type) {
-					if(blob != null) {
-						arr[idx] = {
-							name: el.name,
-							type: el.type,
-							val: blob,
-							fName: name,
-							fType: type
-						};
-					}
-					ready++;
-					cb();
-				}, i);
-				rNeeded++;
-			}
-		} else if(!(el.type === 'checkbox' && !el.checked)) {
-			arr[i] = {name: el.name, type: el.type, val: el.value};
-		}
-		i++;
+		fd.append(el);
 	});
-	done = true;
-	cb();
+	fd.send(form.action, fn);
+	fd = null;
 }
 
-function arrToBlob(arr) {
+function toBlob(arr) {
 	if(nav.Firefox < 13) {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
 			i = 0,
@@ -2869,51 +2832,6 @@ function arrToBlob(arr) {
 		return new Blob(arr);
 	}
 }
-
-/** @constructor */
-function dataForm() {
-	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
-	this.data = [];
-}
-
-dataForm.prototype.append = function(name, val, type, fileName, fileType) {
-	this.data.push(
-		'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' + name + '"' + (
-			type === 'file'
-				? ('; filename="' + fileName + '"\r\n' + 'Content-type: ' + fileType + '\r\n\r\n')
-				: '\r\n\r\n'
-		), val, '\r\n'
-	);
-};
-
-dataForm.prototype.send = function(url, fn) {
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	this.data.push('--' + this.boundary + '--\r\n');
-	GM_xmlhttpRequest({
-		'method': 'POST',
-		'headers': headers,
-		'data': arrToBlob(this.data),
-		'url': url,
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 200) {
-					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
-					fn = null;
-				} else {
-					$alert(
-						xhr.status === 0
-							? Lng.noConnect[lCode]
-							: 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-						'Upload', false
-					);
-				}
-			}
-		}
-	});
-};
 
 function removeExif(arr) {
 	var i = 0,
@@ -2942,15 +2860,40 @@ function removeExif(arr) {
 	return out.buffer;
 }
 
-function prepareFiles(el, fn, i) {
-	var file = el.files[0],
-		fr = new FileReader();
+/** @constructor */
+function dataForm() {
+	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
+	this.data = [];
+	this.busy = 0;
+}
+
+dataForm.prototype.append = function(el) {
+	if(el.type === 'file') {
+		if(el.files.length > 0) {
+			this.data.push(
+				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="'
+				+ el.name + '"; filename="' + el.files[0].name + '"\r\n' + 'Content-type: '
+				+ el.files[0].type + '\r\n\r\n', null, '\r\n'
+			);
+			this.readFile(el, this.data.length - 2);
+		}
+	} else if(!(el.type === 'checkbox' && !el.checked)) {
+		this.data.push('--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="'
+			+ el.name + '"\r\n\r\n' + el.value + '\r\n'
+		);
+	}
+};
+
+dataForm.prototype.readFile = function(el, idx) {
+	var fr = new FileReader(),
+		file = el.files[0],
+		dF = this;
 	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
-		fn(i, file, file.name, file.type);
+		this.data[idx] = file;
 		return;
 	}
 	fr.onload = function() {
-		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
+		var dat = Cfg['rExif'] !== 0
 			? [removeExif(this.result)]
 			: [this.result];
 		if(el.rarJPEG) {
@@ -2959,11 +2902,50 @@ function prepareFiles(el, fn, i) {
 		if(Cfg['sImgs'] !== 0) {
 			dat.push(String(Math.round(Math.random() * 1e6)));
 		}
-		fn(i, arrToBlob(dat), file.name, file.type);
-		file = null;
+		dF.data[idx] = toBlob(dat);
+		dF.busy--;
+		fr = dF = el = idx = null;
 	};
 	fr.readAsArrayBuffer(file);
-}
+	this.busy++;
+};
+
+dataForm.prototype.send = function(url, fn) {
+	if(this.busy > 0) {
+		var dF = this;
+		setTimeout(function() {
+			dF.send(url, fn);
+			dF = url = fn = null;
+		}, 200);
+		return;
+	}
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
+	this.data.push('--' + this.boundary + '--\r\n');
+	GM_xmlhttpRequest({
+		'method': 'POST',
+		'headers': headers,
+		'data': toBlob(this.data, null),
+		'url': url,
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status === 200) {
+					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
+					fn = null;
+				} else {
+					$alert(
+						xhr.status === 0
+							? Lng.noConnect[lCode]
+							: 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+						'Upload', false
+					);
+				}
+			}
+		}
+	});
+};
 
 
 /*==============================================================================
@@ -3960,7 +3942,7 @@ function preloadImages(el) {
 			req.responseType = 'arraybuffer';
 			req.onload = function(e) {
 				if(this.status == 200) {
-					a_.href = window.URL.createObjectURL(arrToBlob([this.response]));
+					a_.href = window.URL.createObjectURL(toBlob([this.response]));
 					if(eImg) {
 						$t('img', a_).src = a_.href;
 					}
