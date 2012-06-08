@@ -1055,8 +1055,8 @@ function addPanel() {
 						selectAjaxPages();
 					}
 				},  'DESU_delSelection(event)'),
-				pButton('GoBack', null, '//' + aib.host + getPageUrl(pageNum - 1), null, null),
-				$if(!TNum, pButton('GoNext', null, '//' + aib.host + getPageUrl(pageNum + 1), null, null)),
+				pButton('GoBack', null, '//' + aib.host + getPageUrl(aib.host, brd, pageNum - 1), null, null),
+				$if(!TNum, pButton('GoNext', null, '//' + aib.host + getPageUrl(aib.host, brd, pageNum + 1), null, null)),
 				pButton('GoUp', function(e) {
 					$pd(e);
 					window.scrollTo(0, 0);
@@ -1782,7 +1782,7 @@ function addFavoritesTable() {
 							inp = null;
 						}
 					}),
-					$add('<a href="//' + h + '/' + b + '" target="_blank">' + h + '/' + b + '</a>')
+					$add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
 				])
 			]);
 			for(tNum in Favor[h][b]) {
@@ -1799,7 +1799,7 @@ function addFavoritesTable() {
 								'class': 'DESU_btnExpthr'}, {
 								'click': loadFavorThread
 							}),
-							$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
+							$add('<a href="' + url + '">№' + tNum + '</a>'),
 							$txt(' - ' + fav.txt),
 							$add('<span class="DESU_favPCount">[<span>' + (fav.cnt + 1) + '</span>]</span>')
 						]),
@@ -4604,7 +4604,7 @@ function loadPage(p, tClass, len) {
 		$new('hr', null, null),
 		page
 	]);
-	ajaxGetPosts(getPageUrl(p), null, null, function(dc, post, i) {
+	ajaxGetPosts(getPageUrl(aib.host, brd, p), null, null, function(dc, post, i) {
 		if(i === 0) {
 			thr = $new('div', {'class': tClass}, null);
 			thr.Num = post.Num;
@@ -6206,7 +6206,7 @@ function getThrdUrl(h, b, tNum) {
 			: (h.indexOf('ylilauta.fi') + 1) ? ''
 			: 'res/'
 		) + tNum + (
-			(h.indexOf('dobrochan.') + 1) ? '.xhtml'
+			/dobrochan|tenhou/.test(h) ? '.xhtml'
 			: (h.indexOf('2chan.net') + 1) ? '.htm'
 			: (h.indexOf('420chan.org') + 1) ? '.php'
 			: (h.indexOf('ylilauta.fi') + 1) ? ''
@@ -6214,12 +6214,12 @@ function getThrdUrl(h, b, tNum) {
 		);
 }
 
-function getPageUrl(p) {
-	return aib.ylil
-		? ('/' + brd + (p === 1 ? '/' : '-' + p))
-		: (fixBrd(brd) + (
+function getPageUrl(h, b, p) {
+	return (h.indexOf('ylilauta.fi') + 1)
+		? ('/' + b + (p === 1 ? '/' : '-' + p))
+		: (fixBrd(b) + (
 			p > 0 ? (p + docExt)
-			: aib.hana ? ('index' + docExt)
+			: (/dobrochan|tenhou/.test(h) + 1) ? ('index' + docExt)
 			: ''
 		));
 }
