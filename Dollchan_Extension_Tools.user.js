@@ -772,9 +772,6 @@ function readCfg() {
 	if(nav.Firefox < 6 && !nav.Chrome) {
 		Cfg['pimgs'] = 0;
 	}
-	if(!aib.abu) {
-		Cfg['noscrl'] = 0;
-	}
 	if(aib.fch) {
 		Cfg['rarjpeg'] = 0;
 	}
@@ -1344,7 +1341,7 @@ function addSettings() {
 		divBox('imgsrc', null),
 		divBox('ospoil', updateCSS),
 		divBox('noname', updateCSS),
-		$if(aib.abu, lBox('noscrl', updateCSS)),
+		divBox('noscrl', updateCSS),
 		$New('div', null, [
 			lBox('keynav', null),
 			$new('a', {
@@ -5989,7 +5986,7 @@ function updateCSS() {
 		x += '.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }';
 	}
 	if(Cfg['noscrl'] !== 0) {
-		x += 'blockquote { max-height: 100% !important; overflow: visible !important; }';
+		x += 'blockquote, .code_part { max-height: 100% !important; overflow: visible !important; }';
 	}
 	if(Cfg['norule'] !== 0) {
 		x += (aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
