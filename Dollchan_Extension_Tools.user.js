@@ -338,7 +338,8 @@ Lng = {
 	week:			[
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-	]
+	],
+	conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?']
 }, doc = window.document, storageLife = 5 * 24 * 3600 * 1000;
 
 var Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
@@ -1550,12 +1551,14 @@ function addSettings() {
 						}).parentNode);
 					}),
 					$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
-						setDefaultCfg();
-						setStored('DESU_Stat_' + aib.dm, '');
-						setStored('DESU_Favorites', '');
-						setStored('DESU_Threads_' + aib.dm, '');
-						saveSpells('');
-						window.location.reload();
+						if(confirm(Lng.conReset[lCode])) {
+							setDefaultCfg();
+							setStored('DESU_Stat_' + aib.dm, '');
+							setStored('DESU_Favorites', '');
+							setStored('DESU_Threads_' + aib.dm, '');
+							saveSpells('');
+							window.location.reload();
+						}
 					})
 				]),
 				$new('br', {'style': 'clear: both;'}, null),
@@ -3368,30 +3371,13 @@ function parseTimePattern() {
 }
 
 function getTimePattern(txt) {
-	var i, j = 0, k, a, t,
-		match = txt.match(new RegExp(timeRegex)),
-		str = match[0];
-	for(i = 1; i < 8; i++) {
-		a = match[i];
-		if(!a) {
-			break;
-		}
+	var i = 1, j = 0, k, a,
+		m = txt.match(new RegExp(timeRegex)),
+		str = m[0];
+	while(a = m[i++]) {
 		k = str.indexOf(a, j);
-		timeRPattern += str.substring(j, k);
+		timeRPattern += str.substring(j, k) + '_' + timePattern[i - 2];
 		j = k + a.length;
-		t = timePattern[i - 1];
-		if(t === 'y') {
-			timeRPattern += a.length === 2 ? '__ye' : '__year';
-		} else {
-			timeRPattern +=
-				t === 's' ? '__sec'
-				: t === 'i' ? '__min'
-				: t === 'h' ? '__hr'
-				: t === 'd' ? '__day'
-				: t === 'n' ? '__dm'
-				: t === 'm' ? '__sm'
-				: t === 'w' ? '__wk' : '';
-		}
 	}
 }
 
@@ -3426,20 +3412,22 @@ function fixTime(txt) {
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
 		return timeRPattern
-			.replace('__sec', zeroFill(dtime.getSeconds()))
-			.replace('__min', zeroFill(dtime.getMinutes()))
-			.replace('__hr', zeroFill(dtime.getHours()))
-			.replace('__day', zeroFill(dtime.getDate()))
-			.replace('__wk', arrW[dtime.getDay()])
-			.replace('__dm', zeroFill(dtime.getMonth() + 1))
-			.replace('__sm', arrM[dtime.getMonth()])
-			.replace('__year', dtime.getFullYear())
-			.replace('__ye', ('' + dtime.getFullYear()).substring(2))
+			.replace('_s', pad2(dtime.getSeconds()))
+			.replace('_i', pad2(dtime.getMinutes()))
+			.replace('_h', pad2(dtime.getHours()))
+			.replace('_d', pad2(dtime.getDate()))
+			.replace('_w', arrW[dtime.getDay()])
+			.replace('_n', pad2(dtime.getMonth() + 1))
+			.replace('_m', arrM[dtime.getMonth()])
+			.replace('_y', year.length === 2
+				? ('' + dtime.getFullYear()).substring(2)
+				: dtime.getFullYear()
+			)
 	});
 	a = t = second = minute = hour = day = month = year = dtime = arrW = arrM = null;
 }
 
-function zeroFill(num) {
+function pad2(num) {
 	if(num < 10) {
 		return '0' + num;
 	}
@@ -3795,7 +3783,7 @@ function addFullImg(a, sz, isExp) {
 	}
 }
 
-function addLinkImg(el, addBr) {
+function addLinkImg(el) {
 	if(Cfg['addimg'] === 0) {
 		return;
 	}
@@ -3815,7 +3803,7 @@ function addLinkImg(el, addBr) {
 			'alt': a.href}, {
 			'load': function() {
 				var fullW, fullH, k;
-				$disp(a);
+				$disp(this.parentNode);
 				fullW = this.width;
 				fullH = this.height;
 				this.title = fullW + 'x' + fullH;
@@ -3833,7 +3821,7 @@ function addLinkImg(el, addBr) {
 				addFullImg(this, this.firstChild.title.split('x'), null);
 			}
 		};
-		$before(link, [a, $if(addBr, $new('br', null, null))]);
+		$before(link, [a]);
 	});
 }
 
@@ -4198,7 +4186,7 @@ function getPview(post, pNum, parent, link, txt) {
 			img.style.display = '';
 		});
 		eventPostImg(pView);
-		addLinkImg(pView, false);
+		addLinkImg(pView);
 		addImgSearch(pView);
 		if(Cfg['navig'] === 2) {
 			markRefMap(pView, parent.Num);
@@ -4428,7 +4416,7 @@ function addPostFunc(post) {
 	eventRefLink(post);
 	addLinkMP3(post);
 	addLinkTube(post);
-	addLinkImg(post, true);
+	addLinkImg(post);
 	addImgSearch(post);
 	if(Cfg['pimgs'] !== 0) {
 		preloadImages(post);
@@ -6860,7 +6848,7 @@ function doScript() {
 		Log('addLinkTube');
 	}
 	if(Cfg['addimg'] !== 0) {
-		addLinkImg(dForm, true);
+		addLinkImg(dForm);
 		Log('addLinkImg');
 	}
 	if(Cfg['imgsrc'] !== 0) {
