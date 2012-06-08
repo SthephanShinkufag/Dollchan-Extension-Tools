@@ -3371,30 +3371,13 @@ function parseTimePattern() {
 }
 
 function getTimePattern(txt) {
-	var i, j = 0, k, a, t,
-		match = txt.match(new RegExp(timeRegex)),
-		str = match[0];
-	for(i = 1; i < 8; i++) {
-		a = match[i];
-		if(!a) {
-			break;
-		}
+	var i = 1, j = 0, k, a,
+		m = txt.match(new RegExp(timeRegex)),
+		str = m[0];
+	while(a = m[i++]) {
 		k = str.indexOf(a, j);
-		timeRPattern += str.substring(j, k);
+		timeRPattern += str.substring(j, k) + '_' + timePattern[i - 2];
 		j = k + a.length;
-		t = timePattern[i - 1];
-		if(t === 'y') {
-			timeRPattern += a.length === 2 ? '__ye' : '__year';
-		} else {
-			timeRPattern +=
-				t === 's' ? '__sec'
-				: t === 'i' ? '__min'
-				: t === 'h' ? '__hr'
-				: t === 'd' ? '__day'
-				: t === 'n' ? '__dm'
-				: t === 'm' ? '__sm'
-				: t === 'w' ? '__wk' : '';
-		}
 	}
 }
 
@@ -3429,20 +3412,22 @@ function fixTime(txt) {
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
 		return timeRPattern
-			.replace('__sec', zeroFill(dtime.getSeconds()))
-			.replace('__min', zeroFill(dtime.getMinutes()))
-			.replace('__hr', zeroFill(dtime.getHours()))
-			.replace('__day', zeroFill(dtime.getDate()))
-			.replace('__wk', arrW[dtime.getDay()])
-			.replace('__dm', zeroFill(dtime.getMonth() + 1))
-			.replace('__sm', arrM[dtime.getMonth()])
-			.replace('__year', dtime.getFullYear())
-			.replace('__ye', ('' + dtime.getFullYear()).substring(2))
+			.replace('_s', pad2(dtime.getSeconds()))
+			.replace('_i', pad2(dtime.getMinutes()))
+			.replace('_h', pad2(dtime.getHours()))
+			.replace('_d', pad2(dtime.getDate()))
+			.replace('_w', arrW[dtime.getDay()])
+			.replace('_n', pad2(dtime.getMonth() + 1))
+			.replace('_m', arrM[dtime.getMonth()])
+			.replace('_y', year.length === 2
+				? ('' + dtime.getFullYear()).substring(2)
+				: dtime.getFullYear()
+			)
 	});
 	a = t = second = minute = hour = day = month = year = dtime = arrW = arrM = null;
 }
 
-function zeroFill(num) {
+function pad2(num) {
 	if(num < 10) {
 		return '0' + num;
 	}
