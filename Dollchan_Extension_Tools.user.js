@@ -2332,8 +2332,8 @@ function doSageBtn() {
 }
 
 function setUserName() {
-	saveCfg('nameValue', $id('DESU_fixName').value.replace(/\|/g, ''));
-	pr.name.value = $id('DESU_name').checked ? Cfg['nameValue'] : '';
+	saveCfg('nameValue', $id('DESU_nameValue').value.replace(/\|/g, ''));
+	pr.name.value = $id('DESU_userName').checked ? Cfg['nameValue'] : '';
 }
 
 function setUserPassw() {
@@ -5480,7 +5480,7 @@ function toggleSpells() {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
 		}
 		if(fld) {
-			$id('DESU_spells').checked = false;
+			$id('DESU_hideBySpell').checked = false;
 		}
 		saveCfg('hideBySpell', 0);
 	}
@@ -5510,7 +5510,7 @@ function applySpells(txt) {
 	}
 	if(fld) {
 		fld.value = val;
-		$id('DESU_spells').checked = val !== '';
+		$id('DESU_hideBySpell').checked = val !== '';
 	}
 	Posts.forEach(function(post) {
 		if(checkSpells(post)) {
@@ -5874,7 +5874,7 @@ function scriptCSS() {
 		.DESU_favPCount span { color: #4f7942; }\
 		#DESU_iframe { display: none; width: 0px; height: 0px; border: none; }\
 		.DESU_omitted { color: grey; font-style: italic; }\
-		.DESU_postNote { color: inherit; font: bold 12px italic; }\
+		.DESU_postNote { color: inherit; font: italic bold 12px serif; }\
 		#DESU_qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		.DESU_refHid { text-decoration: line-through !important; }\
 		.DESU_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
