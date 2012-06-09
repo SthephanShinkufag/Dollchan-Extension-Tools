@@ -193,7 +193,7 @@ Lng = {
 		norule:		['правила ', 'rules '],
 		nogoto:		['поле goto ', 'goto field '],
 		nopass:		['пароль', 'password'],
-		
+
 		sstyle: {
 			sel:	[['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey']],
 			txt:	[' стиль скрипта', ' script style']
@@ -347,8 +347,7 @@ nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {isActive: false, deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
-oldTime, endTime, timeLog = '',
-timePattern, timeRegex, timeRPattern = '',
+oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
 
 
@@ -543,6 +542,13 @@ function $rnd() {
 	return Math.round(Math.random() * 1e10).toString(10);
 }
 
+function pad2(num) {
+	if(num < 10) {
+		return '0' + num;
+	}
+	return num;
+}
+
 function insertInto(el, txt) {
 	var scrtop = el.scrollTop,
 		start = el.selectionStart;
@@ -724,6 +730,8 @@ function saveSpells(val) {
 
 function fixGlobalCfg() {
 	Cfg['forcap'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	Cfg['ctmpat'] = Cfg['ctmofs'] = '';
+	Cfg['ctime'] = 0;
 }
 
 function setDefaultCfg() {
@@ -793,7 +801,7 @@ function readCfg() {
 	}
 	setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
 	if(Cfg['ctime']) {
-		parseTimePattern();
+		dTime = new dateTime(Cfg['ctmpat'], Cfg['ctmofs']);
 	}
 	saveSpells(getStored('DESU_Spells_' + aib.dm) || '');
 }
@@ -1351,7 +1359,7 @@ function addSettings() {
 				}
 			})
 		]),
-		$New('div', null, [lBox('ctime', toggleTimeSettings)]),
+		$New('div', null, [lBox('ctime', dateTime.toggleSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('ctmofs', 3, null),
@@ -2376,7 +2384,7 @@ function initPostform() {
 }
 
 function doPostformChanges(a) {
-	var img, src, _img, sBtn, m, load, el,
+	var img, src, _img, sBtn, m, el,
 		pTxt = pr.txta,
 		resMove = function(e) {
 			var p = $offset(pTxt);
@@ -2564,7 +2572,9 @@ function doPostformChanges(a) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(function() {
-					ajaxSubmit(pr.form, checkUpload);
+					ajaxSubmit(pr.form, function(dc, url) {
+						checkUpload(findError(dc), url);
+					});
 				}, 1e3);
 			};
 			dForm.onsubmit = function(e) {
@@ -2582,14 +2592,9 @@ function doPostformChanges(a) {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
 			}
-			load = nav.Opera ? 'DOMFrameContentLoaded' : 'load';
-			$after($c('DESU_content', doc), $event($add(
-				'<iframe name="DESU_iframe" id="DESU_iframe" src="about:blank" />'
-			), {
-				load: function() {
-					setTimeout(iframeCheckSubmit, 500);
-				}
-			}));
+			$after($c('DESU_content', doc),
+				$add('<iframe id="DESU_iframe" name="DESU_iframe" src="about:blank" />')
+			);
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
 	}
@@ -2691,33 +2696,14 @@ function delFileUtils(el) {
 							ONSUBMIT REPLY / DELETE CHECK
 ==============================================================================*/
 
-function iframeCheckSubmit() {
-	var frm = $id('DESU_iframe');
-	try {
-		frm = frm.contentDocument;
-		if(!frm || !frm.body || !frm.body.innerHTML) {
-			return;
-		}
-	} catch(e) {
-		$alert('Iframe load error:\n' + e, 'Upload', false);
-		return;
-	}
-	checkUpload(frm, '' + frm.location);
-	frm.location.replace('about:blank');
-}
-
-function checkUpload(dc, url) {
-	var err, tNum,
+function findError(dc) {
+	var err = '',
 		txt = '',
 		qArea = $id('DESU_qarea'),
-		xp =
-			aib.hana && !dc.getElementById('delete_form') ? './/td[@class="post-error"]'
+		xp = aib.hana && !dc.getElementById('delete_form') ? './/td[@class="post-error"]'
 			: aib.krau && !$t('form', dc) ? './/td[starts-with(@class,"message_text")]'
 			: aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]'
-			: '',
-		lFunc = function() {
-			closeAlert($id('DESU_alertUpload'));
-		};
+			: '';
 	if(xp || !$t('form', dc)) {
 		if(!xp) {
 			xp =
@@ -2740,10 +2726,18 @@ function checkUpload(dc, url) {
 		err = txt !== '' ? txt : Lng.error[lCode] + '\n' + dc.body.innerHTML;
 		txt = null;
 		if(/обновл|successful!|uploaded!/i.test(err)) {
-			err = undefined;
+			err = '';
 		}
 	}
-	if(err) {
+	return err;
+}
+
+function checkUpload(err, url) {
+	var tNum, file,
+		lFunc = function() {
+			closeAlert($id('DESU_alertUpload'));
+		};
+	if(err !== '') {
 		if(pr.isQuick) {
 			$disp(qArea);
 			qArea.appendChild($id('DESU_pform'));
@@ -2751,36 +2745,36 @@ function checkUpload(dc, url) {
 		if(aib.hana && /подтвердите, что вы человек/.test(err)) {
 			pr.cap.value = '';
 			pr.cap.focus();
-			refreshCapImg(tNum);
+			refreshCapImg(pr.tNum);
 		}
 		$alert(err, 'Upload', false);
-	} else {
-		pr.txta.value = '';
-		if(pr.file) {
-			err = $x(pr.tr, pr.file);
-			delFileUtils(err);
-			err = $html(err, err.innerHTML);
-			pr.file = $x('.//input[@type="file"]', err);
-			eventFiles(err)
-		}
-		if(pr.video) {
-			pr.video.value = '';
-		}
-		if(pr.tNum) {
-			tNum = pr.tNum;
-			showMainReply();
-			if(!TNum) {
-				loadThread(pByNum[tNum], 5, lFunc);
-			} else {
-				loadNewPosts(false, lFunc);
-			}
-			if(pr.cap) {
-				pr.cap.value = '';
-				refreshCapImg(tNum);
-			}
+		return;
+	}
+	pr.txta.value = '';
+	if(pr.file) {
+		file = $x(pr.tr, pr.file);
+		delFileUtils(file);
+		file = $html(file, file.innerHTML);
+		pr.file = $x('.//input[@type="file"]', file);
+		eventFiles(file)
+	}
+	if(pr.video) {
+		pr.video.value = '';
+	}
+	if(pr.tNum) {
+		tNum = pr.tNum;
+		showMainReply();
+		if(!TNum) {
+			loadThread(pByNum[tNum], 5, lFunc);
 		} else {
-			window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
+			loadNewPosts(false, lFunc);
 		}
+		if(pr.cap) {
+			pr.cap.value = '';
+			refreshCapImg(tNum);
+		}
+	} else {
+		window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 	}
 }
 
@@ -2805,52 +2799,15 @@ function checkDelete(dc, url) {
 }
 
 function ajaxSubmit(form, fn) {
-	var done = false,
-		ready = 0,
-		rNeeded = 0,
-		i = 0,
-		arr = [],
-		cb = function() {
-			if(done && ready === rNeeded) {
-				var el, fd = new dataForm();
-				for(ready = i, i = 0; i < ready; i++) {
-					el = arr[i];
-					if(el) {
-						fd.append(el.name, el.val, el.type, el.fName, el.fType);
-					}
-				}
-				fd.send(form.action, fn);
-				done = ready = rNeeded = i = arr = fn = null;
-			}
-		};
+	var fd = new dataForm();
 	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
-		if(el.type === 'file') {
-			if(el.files.length > 0) {
-				prepareFiles(el, function(idx, blob, name, type) {
-					if(blob != null) {
-						arr[idx] = {
-							name: el.name,
-							type: el.type,
-							val: blob,
-							fName: name,
-							fType: type
-						};
-					}
-					ready++;
-					cb();
-				}, i);
-				rNeeded++;
-			}
-		} else if(!(el.type === 'checkbox' && !el.checked)) {
-			arr[i] = {name: el.name, type: el.type, val: el.value};
-		}
-		i++;
+		fd.append(el);
 	});
-	done = true;
-	cb();
+	fd.send(form.action, fn);
+	fd = null;
 }
 
-function arrToBlob(arr) {
+function toBlob(arr) {
 	if(nav.Firefox < 13) {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
 			i = 0,
@@ -2863,51 +2820,6 @@ function arrToBlob(arr) {
 		return new Blob(arr);
 	}
 }
-
-/** @constructor */
-function dataForm() {
-	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
-	this.data = [];
-}
-
-dataForm.prototype.append = function(name, val, type, fileName, fileType) {
-	this.data.push(
-		'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' + name + '"' + (
-			type === 'file'
-				? ('; filename="' + fileName + '"\r\n' + 'Content-type: ' + fileType + '\r\n\r\n')
-				: '\r\n\r\n'
-		), val, '\r\n'
-	);
-};
-
-dataForm.prototype.send = function(url, fn) {
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	this.data.push('--' + this.boundary + '--\r\n');
-	GM_xmlhttpRequest({
-		'method': 'POST',
-		'headers': headers,
-		'data': arrToBlob(this.data),
-		'url': url,
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 200) {
-					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
-					fn = null;
-				} else {
-					$alert(
-						xhr.status === 0
-							? Lng.noConnect[lCode]
-							: 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-						'Upload', false
-					);
-				}
-			}
-		}
-	});
-};
 
 function removeExif(arr) {
 	var i = 0,
@@ -2936,15 +2848,40 @@ function removeExif(arr) {
 	return out.buffer;
 }
 
-function prepareFiles(el, fn, i) {
-	var file = el.files[0],
-		fr = new FileReader();
+/** @constructor */
+function dataForm() {
+	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
+	this.data = [];
+	this.busy = 0;
+}
+
+dataForm.prototype.append = function(el) {
+	if(el.type === 'file') {
+		if(el.files.length > 0) {
+			this.data.push(
+				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="'
+				+ el.name + '"; filename="' + el.files[0].name + '"\r\n' + 'Content-type: '
+				+ el.files[0].type + '\r\n\r\n', null, '\r\n'
+			);
+			this.readFile(el, this.data.length - 2);
+		}
+	} else if(!(el.type === 'checkbox' && !el.checked)) {
+		this.data.push('--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="'
+			+ el.name + '"\r\n\r\n' + el.value + '\r\n'
+		);
+	}
+};
+
+dataForm.prototype.readFile = function(el, idx) {
+	var fr = new FileReader(),
+		file = el.files[0],
+		dF = this;
 	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
-		fn(i, file, file.name, file.type);
+		this.data[idx] = file;
 		return;
 	}
 	fr.onload = function() {
-		var dat = Cfg['rExif'] !== 0 && file.type === 'image/jpeg'
+		var dat = Cfg['rExif'] !== 0
 			? [removeExif(this.result)]
 			: [this.result];
 		if(el.rarJPEG) {
@@ -2953,11 +2890,50 @@ function prepareFiles(el, fn, i) {
 		if(Cfg['sImgs'] !== 0) {
 			dat.push(String(Math.round(Math.random() * 1e6)));
 		}
-		fn(i, arrToBlob(dat), file.name, file.type);
-		file = null;
+		dF.data[idx] = toBlob(dat);
+		dF.busy--;
+		fr = dF = el = idx = null;
 	};
 	fr.readAsArrayBuffer(file);
-}
+	this.busy++;
+};
+
+dataForm.prototype.send = function(url, fn) {
+	if(this.busy > 0) {
+		var dF = this;
+		setTimeout(function() {
+			dF.send(url, fn);
+			dF = url = fn = null;
+		}, 200);
+		return;
+	}
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
+	this.data.push('--' + this.boundary + '--\r\n');
+	GM_xmlhttpRequest({
+		'method': 'POST',
+		'headers': headers,
+		'data': toBlob(this.data, null),
+		'url': url,
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status === 200) {
+					fn(HTMLtoDOM(xhr.responseText), xhr.finalUrl);
+					fn = null;
+				} else {
+					$alert(
+						xhr.status === 0
+							? Lng.noConnect[lCode]
+							: 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+						'Upload', false
+					);
+				}
+			}
+		}
+	});
+};
 
 
 /*==============================================================================
@@ -3233,7 +3209,7 @@ function prepareButtons() {
 	]);
 	(opPanel = pPanel.cloneNode(true)).className += '_op';
 	$append(opPanel, [
-		$if(!TNum, 
+		$if(!TNum,
 			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
 		),
 		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
@@ -3302,6 +3278,10 @@ function prepareButtons() {
 			$del(name.nextSibling);
 			$c('DESU_content', doc).style.overflowY = 'scroll';
 			name.style.height = (+data[1] + Math.sqrt(0.6 * data[1]) + 55) + 'px';
+		} else if(name === 'J') {
+			data = data.split('$#$');
+			checkUpload(data[0], data[1]);
+			$id('DESU_iframe').location.replace('about:blank');
 		}
 	}, false);
 }
@@ -3338,50 +3318,70 @@ function addPostButtons(post) {
 									TIME CORRECTION
 ==============================================================================*/
 
-function toggleTimeSettings() {
-	var el = $id('DESU_ctime');
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || checkTimePattern())) {
-		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
-		saveCfg('ctime', 0);
-		el.checked = false;
-	}
-}
-
-function checkTimePattern() {
-	return /[^\?\-\+sihdmwny]|mm|ww/.test(Cfg['ctmpat']);
-}
-
-function parseTimePattern() {
-	if(checkTimePattern()) {
+/** @constructor */
+function dateTime(pattern, timeDiff) {
+	if(dateTime.checkPattern(pattern)) {
+		this.disabled = true;
 		return;
 	}
-	timeRegex = Cfg['ctmpat']
+	this.regex = pattern
 		.replace(/\-/g, '[^<]')
 		.replace(/\+/g, '[^0-9]')
 		.replace(/([sihdny]+)/g, '($1)')
 		.replace(/[sihdny]/g, '\\d')
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
-	timePattern = Cfg['ctmpat'].replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
+	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
+	this.diff = parseInt(timeDiff, 10);
 }
 
-function getTimePattern(txt) {
-	var i = 1, j = 0, k, a,
-		m = txt.match(new RegExp(timeRegex)),
-		str = m[0];
+dateTime.toggleSettings = function() {
+	var el = $id('DESU_ctime');
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || this.checkPattern(Cfg['ctmpat']))) {
+		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
+		saveCfg('ctime', 0);
+		el.checked = false;
+	}
+};
+
+dateTime.checkPattern = function(val) {
+	return /[^\?\-\+sihdmwny]|mm|ww/.test(val);
+};
+
+dateTime.prototype.init = function(txt) {
+	if(this.inited || this.disabled) {
+		return;
+	}
+	var i = 1, j = 0, k, a, str,
+		m = txt.match(new RegExp(this.regex));
+	if(!m) {
+		this.disabled = true;
+		return;
+	}
+	this.rPattern = '';
+	str = m[0];
 	while(a = m[i++]) {
 		k = str.indexOf(a, j);
-		timeRPattern += str.substring(j, k) + '_' + timePattern[i - 2];
+		this.rPattern += str.substring(j, k) + '_' + this.pattern[i - 2];
 		j = k + a.length;
 	}
-}
+	this.inited = true;
+};
 
-function fixTime(txt) {
-	var a, t, second, minute, hour, day, month, year, dtime,
-		arrM = Lng.month[lCode], arrW = Lng.week[lCode];	
-	return txt.replace(new RegExp(timeRegex, 'g'), function() {
-		for(var i = 1; i < 8; i++) {
+dateTime.prototype.fix = function(txt, tReg) {
+	if(this.disabled) {
+		return txt;
+	}
+	if(!tReg) {
+		tReg = this.regex;
+	}
+	var arrM = Lng.month[lCode], arrW = Lng.week[lCode],
+		tPat = this.pattern, tRPat = this.rPattern,
+		diff = this.diff;
+	return txt.replace(new RegExp(tReg, 'g'), function() {
+		var i, a, t, second, minute, hour, day, month, year, dtime;
+		for(i = 1; i < 8; i++) {
 			a = arguments[i];
-			t = timePattern[i - 1];
+			t = tPat[i - 1];
 			t === 's' ? second = a
 			: t === 'i' ? minute = a
 			: t === 'h' ? hour = a
@@ -3404,8 +3404,8 @@ function fixTime(txt) {
 			);
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-		dtime.setHours(dtime.getHours() + parseInt(Cfg['ctmofs'], 10));
-		return timeRPattern
+		dtime.setHours(dtime.getHours() + diff);
+		return tRPat
 			.replace('_s', pad2(dtime.getSeconds()))
 			.replace('_i', pad2(dtime.getMinutes()))
 			.replace('_h', pad2(dtime.getHours()))
@@ -3418,15 +3418,8 @@ function fixTime(txt) {
 				: dtime.getFullYear()
 			)
 	});
-	a = t = second = minute = hour = day = month = year = dtime = arrW = arrM = null;
-}
-
-function pad2(num) {
-	if(num < 10) {
-		return '0' + num;
-	}
-	return num;
-}
+	arrW = arrM = tPat = tRPat = diff = null;
+};
 
 
 /*==============================================================================
@@ -3941,7 +3934,7 @@ function preloadImages(el) {
 			req.responseType = 'arraybuffer';
 			req.onload = function(e) {
 				if(this.status == 200) {
-					a_.href = window.URL.createObjectURL(arrToBlob([this.response]));
+					a_.href = window.URL.createObjectURL(toBlob([this.response]));
 					if(eImg) {
 						$t('img', a_).src = a_.href;
 					}
@@ -4384,7 +4377,7 @@ function importPost(post) {
 	var el = doc.importNode(post, true);
 	el.Num = post.Num;
 	el.isOp = post.isOp;
-	replaceDelform(el, false);
+	replaceDelform(el);
 	return el;
 }
 
@@ -4476,7 +4469,7 @@ function getFullMsg(el, addFunc) {
 }
 
 function processFullMsg(post) {
-	replaceDelform(post, false);
+	replaceDelform(post);
 	$Del('.//span[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
@@ -4709,7 +4702,7 @@ function infoNewPosts(err, inf) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 	if(nav.Chrome && Cfg['dNotif'] !== 0 && inf > 0) {
 		desktopNotification(inf);
-	} 
+	}
 }
 
 function setHanaRating() {
@@ -4772,20 +4765,16 @@ function getHanaPost(postJson) {
 		post = $new('td', {
 			'id': 'reply' + id,
 			'class': 'reply DESU_post'
-		}, null),
-		html = '<a name="i' + id
+		}, null);
+		post.innerHTML = '<a name="i' + id
 			+ '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
 			+ '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id
-			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date']
-			+ ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
+			+ '" /></a><span class="postername">' + postJson['name'] + '</span> '
+			+ (dTime
+				? dTime.fix(postJson['date'], '(\\d\\d\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)')
+				: postJson['date']
+			) + ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
 			+ '/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
-	if(Cfg['ctime'] && timeRegex) {
-		i = timeRegex;
-		timeRegex = 'yyyy+nn+dd+hh+ii+ss';
-		html = fixTime(html);
-		timeRegex = i;
-	}	
-	post.innerHTML = html;
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -4820,7 +4809,7 @@ function loadNewPosts(inf, fn) {
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							del = getHanaPost(el[i]);
-							replaceDelform(del, false);
+							replaceDelform(del);
 							del.Num = el[i]['display_id'];
 							newPost(thr, del, thr.pCount + i);
 						}
@@ -6076,7 +6065,7 @@ function isCompatible() {
 	}
 	getImageboard();
 	if(/^DESU_iframe/.test(window.name)) {
-		fixDomain();
+		window.top.postMessage('J' + findError(doc) + '$#$' + window.location, '*');
 		return false;
 	}
 	if(/^DESU_favIframe/.test(window.name)) {
@@ -6098,14 +6087,6 @@ function isCompatible() {
 		return false;
 	}
 	return true;
-}
-
-function fixDomain() {
-	try {
-		doc.domain = aib.dm;
-	} catch(e) {
-		aib.dm = doc.domain;
-	}
 }
 
 function getNavigator() {
@@ -6226,15 +6207,16 @@ function getPostform(form) {
 		return {};
 	}
 	var tr = aib._7ch ? 'li' : 'tr',
-		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
+		pre = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ',
+		recap = $x('.//input[@id="recaptcha_response_field"]', form);
 	return {
 		on: true,
 		isQuick: false,
 		tNum: TNum,
 		form: form,
 		tr: 'ancestor::' + tr + '[1]',
-		recap: $x('.//input[@id="recaptcha_response_field"]', form),
-		cap: (aib.ylil ? null : ($x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || obj.recap)),
+		recap: recap,
+		cap: (aib.ylil ? null : ($x('.//input[contains(@name,"aptcha") and not(@name="recaptcha_challenge_field")]', form) || recap)),
 		txta: $x('.//' + tr + '[not(contains(@style,"none"))]//textarea[not(contains(@style,"display: none"))]', form),
 		subm: $x('.//' + tr + '//input[@type="submit"]', form),
 		file: $x('.//' + tr + '//input[@type="file"]', form),
@@ -6262,6 +6244,10 @@ function getImageboard() {
 	aib.gazo = h === '2chan.net';
 	aib.brit = h === 'britfa.gs';
 	aib.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
+	aib.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
+	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.fch = h === '4chan.org';
+	aib._420 = h === '420chan.org';
 	aib.xDForm = aib.brit ? './/div[@class="threadz"]' : './/form[' + (
 		aib.hana || aib.krau || aib.ylil ? 'contains(@action,"delete")]'
 		: aib.tiny ? '@name="postcontrols"]'
@@ -6275,9 +6261,6 @@ function getImageboard() {
 	aib.host = window.location.hostname;
 	aib.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
-	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	aib.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
-	aib.fch = h === '4chan.org';
 	aib.nul = h === '0chan.ru';
 	aib._7ch = h === '7chan.org';
 	aib._410 = h === '410chan.ru';
@@ -6288,7 +6271,6 @@ function getImageboard() {
 	aib.vomb = h === 'vombatov.net';
 	aib.ment = h === '02ch.net';
 	aib.futr = h === '2chan.su';
-	aib._420 = h === '420chan.org';
 	aib.pClass =
 		aib.krau ? 'postreply'
 		: aib.ylil ? ' answer'
@@ -6635,14 +6617,12 @@ function tryToParse() {
 	return true;
 }
 
-function replaceDelform(el, init) {
-	if(aib.fch || aib.krau || Cfg['ctime'] && timeRegex || Cfg['spells'] !== 0 && oSpells.rep[0]) {
+function replaceDelform(el) {
+	if(aib.fch || aib.krau || dTime || Cfg['spells'] !== 0 && oSpells.rep[0]) {
 		var txt = el.innerHTML;
-		if(Cfg['ctime'] && timeRegex) {
-			if(init) {
-				getTimePattern(txt);
-			}
-			txt = fixTime(txt);
+		if(dTime) {
+			dTime.init(txt);
+			txt = dTime.fix(txt, null);
 		}
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
@@ -6783,14 +6763,13 @@ function doScript() {
 		return;
 	}
 	dummy = $new('div', null, null);
-	fixDomain();
 	fixFunctions();
 	getNavigator();
 	getPage();
 	Log('initBoard');
 	readCfg();
 	Log('readCfg');
-	replaceDelform(dForm, true);
+	replaceDelform(dForm);
 	Log('replaceDelform');
 	if(!tryToParse()) {
 		return;
