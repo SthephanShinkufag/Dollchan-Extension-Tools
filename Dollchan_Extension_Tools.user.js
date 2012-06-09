@@ -37,6 +37,7 @@ const defaultCfg = {
 	'mask':		0,		// mask images
 	'pimgs':	0,		// pre-load images
 	'rarjpeg':	0,		// detect rarjpegs
+	'txtPostBtns':	0,		// post buttons as text
 	'imgsrc':	1,		// add image search buttons
 	'ospoil':	1,		// open spoilers
 	'noname':	0,		// hide post names
@@ -70,7 +71,7 @@ const defaultCfg = {
 	'svsage':	1,		//		remember sage
 	'issage':	0,		//		reply with sage
 	'forcap':	1,		// language input in captcha [0=off, 1=en, 2=ru]
-	'txtbtn':	1,		// text format buttons [0=off, 1=graph, 2=text, 3=usual]
+	'txtbtn':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
 	'txtpos':	0,		//		position at [0=top, 1=bottom]
 	'name':		0,		// user name
 	'namval':	'',		//		value
@@ -117,11 +118,11 @@ Lng = {
 
 		updthr: {
 			sel:	[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
-			txt:	['подгрузка новых постов в треде*', 'loading new posts in thread*']
+			txt:	['подгрузка постов в треде ', 'loading posts in thread ']
 		},
 		updint: {
 			sel:	[[0.5, 1, 1.5, 2, 5, 15, 30], [0.5, 1, 1.5, 2, 5, 15, 30]],
-			txt:	['(мин) интервал проверки*', '(min) update interval*']
+			txt:	['(мин)*', '(min)*']
 		},
 		updfav:		['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
 		dNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
@@ -135,6 +136,7 @@ Lng = {
 		},
 		pimgs:		['Предварительно загружать изображения*', 'Pre-load images*'],
 		rarjpeg:	['Распознавать RarJpeg\'и в изображениях*', 'Detect RarJpegs in images*'],
+		txtPostBtns:	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
 		imgsrc:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 		ospoil:		['Открывать спойлеры', 'Open spoilers'],
 		noname:		['Скрывать имена в постах', 'Hide names in posts'],
@@ -1327,10 +1329,12 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgPosts'
 	}, [
-		$New('div', null, [optSel('updthr', null)]),
+		$New('div', null, [
+			optSel('updthr', null),
+			optSel('updint', null)
+		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			$New('div', null, [optSel('updint', null)]),
-			$if(nav.Firefox, divBox('updfav', null)),
+			divBox('updfav', null),
 			$if(nav.Chrome, divBox('dNotif', function() {
 				if(Cfg['dNotif'] !== 0) {
 					window.webkitNotifications.requestPermission();
@@ -1343,6 +1347,7 @@ function addSettings() {
 		$if(!aib.fch && (nav.Firefox >= 6 || nav.Chrome), $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('rarjpeg', null)
 		])),
+		divBox('txtPostBtns', null),
 		divBox('imgsrc', null),
 		divBox('ospoil', updateCSS),
 		divBox('noname', updateCSS),
@@ -5760,20 +5765,32 @@ function scriptCSS() {
 	gif('#DESU_btnUpdWarn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	// Post buttons
-	x += '.DESU_btnHide, .DESU_btnUnhide, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc\
-			{ display: inline-block; padding: 0 14px 14px 0; margin: 0 4px -2px 0 !important; cursor: pointer; }\
-		.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; font-weight: bold; }';
-	p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
-	gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-	gif('.DESU_btnUnhide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
-	gif('.DESU_btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
-	gif('.DESU_btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
-	gif('.DESU_btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-	gif('.DESU_btnFavSel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-	gif('.DESU_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+	x += '.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; }\
+		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+	if(Cfg['txtPostBtns'] === 0) {
+		x += 'padding: 0 14px 14px 0; }';
+		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
+		gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+		gif('.DESU_btnUnhide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.DESU_btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
+		gif('.DESU_btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
+		gif('.DESU_btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.DESU_btnFavSel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.DESU_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+		gif('.DESU_btnSrc', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
+	} else {
+		x += 'color: ' + getStyle($t('a', doc), 'color') + '; font-size:14px; }\
+			.DESU_btnHide:after { content: "×"; }\
+			.DESU_btnUnhide:after { content: "+"; }\
+			.DESU_btnRep:after { content: "R"; }\
+			.DESU_btnExpthr:after { content: "E"; }\
+			.DESU_btnFav:after { content: "F"; }\
+			.DESU_btnFavSel:after { content: "[F]"; }\
+			.DESU_btnSage:after { content: "SAGE!"; }\
+			.DESU_btnSrc:after { content: "[SAUCE]"; }';
+	}
 
 	// Search images buttons
-	gif('.DESU_btnSrc', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	cont('.DESU_srcGoogle', '//google.ru/favicon.ico');
 	cont('.DESU_srcTineye', '//tineye.com/favicon.ico');
 	cont('.DESU_srcIqdb', '//iqdb.org/favicon.ico');
@@ -5857,7 +5874,7 @@ function scriptCSS() {
 		.DESU_favPCount span { color: #4f7942; }\
 		#DESU_iframe { display: none; width: 0px; height: 0px; border: none; }\
 		.DESU_omitted { color: grey; font-style: italic; }\
-		.DESU_postNote { color: inherit; font-size: 12px; font-style: italic; }\
+		.DESU_postNote { color: inherit; font: bold 12px italic; }\
 		#DESU_qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		.DESU_refHid { text-decoration: line-through !important; }\
 		.DESU_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
