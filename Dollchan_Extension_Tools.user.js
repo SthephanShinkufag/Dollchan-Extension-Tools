@@ -14,207 +14,207 @@
 'use strict';
 const defaultCfg = {
 	'version':	'12.6.7.1',
-	'lang':		0,		// script language [0=ru, 1=en]
-	'spells':	0,		// hide posts by spells
-	'awipe':	1,		// antiwipe detectors:
-	'samel':	1,		//		same lines
-	'samew':	1,		//		same words
-	'longp':	1,		//		long posts
-	'longw':	1,		//		long words
-	'specs':	0,		//		special symbols
-	'caps':		0,		//		cAsE, CAPS
-	'nums':		1,		//		numbers
-	'filthr':	1,		// apply filters to threads
-	'menuhd':	1,		// menu on hide button
-	'viewhd':	1,		// view hidden on postnumber
-	'delhd':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
-	'updthr':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
-	'updint':	2,		//		threads update interval
-	'updfav':	1,		//		favicon blinking, if new posts detected
-	'dNotif':   0,		//		desktop notifications, if new posts detected
-	'expost':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
-	'expimg':	2,		// expand images by click [0=off, 1=in post, 2=by center]
-	'mask':		0,		// mask images
-	'pimgs':	0,		// pre-load images
-	'rarjpeg':	0,		// detect rarjpegs
-	'txtPostBtns':	0,		// post buttons as text
-	'imgsrc':	1,		// add image search buttons
-	'ospoil':	1,		// open spoilers
-	'noname':	0,		// hide post names
-	'noscrl':	1,		// no scroll in posts
-	'keynav':	0,		// keyboard navigation
-	'ctime':	0,		// correct time in posts
-	'ctmofs':	'-2',	//		offset in hours
-	'ctmpat':	'',		//		replace pattern
-	'navig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
-	'nashow':	'100',	//		delay appearance in ms
-	'navdel':	'1500',	//		delay disappearance in ms
-	'navmrk':	0,		//		mark viewed posts
-	'navhid':	0,		//		strike >>links to hidden posts
-	'navdis':	0,		//		don't show previews for hidden posts
-	'insnum':	1,		// insert >>link on postnumber click
-	'mp3':		1,		// mp3 player by links
-	'addimg':	1,		// add images by links
-	'ytube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
-	'yptype':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
-	'ywidth':	360,	//		player width
-	'yheigh':	270,	//		player height
-	'yhdvid':	0,		//		hd video quality
-	'ytitle':	0,		//		convert links to titles
-	'pform':	2,		// postform is [0=at top, 1=at bottom, 2=hidden]
-	'tform':	1,		// hide thread-creating form
-	'addfav':	1,		// add thread to favorites on reply
-	'verify':	1,		// reply without reload
-	'sImgs':	1,		// 		ability to post same images
-	'rExif':	1,		// 		remove EXIF data from JPEGs
-	'sagebt':	1,		// email field -> sage btn
-	'svsage':	1,		//		remember sage
-	'issage':	0,		//		reply with sage
-	'forcap':	1,		// language input in captcha [0=off, 1=en, 2=ru]
-	'txtbtn':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
-	'txtpos':	0,		//		position at [0=top, 1=bottom]
-	'name':		0,		// user name
-	'namval':	'',		//		value
-	'passw':	0,		// user password
-	'pasval':	'',		//		value
-	'sign':		0,		// user signature
-	'sigval':	'',		//		value
-	'norule':	1,		// hide board rules
-	'nogoto':	1,		// hide goto field
-	'nopass':	1,		// hide password field
-	'sstyle':	0,		// script style [0=glass black, 1=glass blue, 2=gradient blue, 3=solid grey]
-	'showmp':	0,		// show full main panel
-	'attach':	1,		// attach main panel
-	'icount':	1,		// show posts/images counter
-	'rtitle':	1,		// replace page title in threads
-	'animp':	1,		// animation in script
-	'aclose':	0,		// auto-close popups
-	'enupd':	1,		// check for script's update
-	'supdint':	2,		// 		check interval in days (0=on page load)
-	'betaupd':	0,		// 		check for beta-version
-	'lupdchk':	0,		// 		last update check
-	'texw':		530,	// textarea width
-	'texh':		140,	// textarea height
+	'language':		0,		// script language [0=ru, 1=en]
+	'hideBySpell':	0,		// hide posts by spells
+	'hideByWipe':	1,		// antiwipe detectors:
+	'wipeSameLin':	1,		//		same lines
+	'wipeSameWrd':	1,		//		same words
+	'wipeLongPst':	1,		//		long posts
+	'wipeLongWrd':	1,		//		long words
+	'wipeSpecial':	0,		//		special symbols
+	'wipeCAPS':		0,		//		cAsE, CAPS
+	'wipeNumbers':	1,		//		numbers
+	'filterThrds':	1,		// apply filters to threads
+	'menuHiddBtn':	1,		// menu on hide button
+	'viewHiddNum':	1,		// view hidden on postnumber
+	'delHiddPost':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
+	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
+	'updThrIntrv':	2,		//		threads update interval
+	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
+	'desktNotif':	0,		//		desktop notifications, if new posts detected
+	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
+	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'maskImgs':		0,		// mask images
+	'preLoadImgs':	0,		// pre-load images
+	'findRarJPEG':	0,		// detect rarJPEGs in images
+	'postBtnsTxt':	0,		// show post buttons as text
+	'imgSrcBtns':	1,		// add image search buttons
+	'noSpoilers':	1,		// open spoilers
+	'noPostNames':	0,		// hide post names
+	'noPostScrl':	1,		// no scroll in posts
+	'keybNavig':	0,		// keyboard navigation
+	'correctTime':	0,		// correct time in posts
+	'timeOffset':	'-2',	//		offset in hours
+	'timePattern':	'',		//		replace pattern
+	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
+	'linksOver':	'100',	//		delay appearance in ms
+	'linksOut':		'1500',	//		delay disappearance in ms
+	'markViewed':	0,		//		mark viewed posts
+	'strikeHidd':	0,		//		strike >>links to hidden posts
+	'noNavigHidd':	0,		//		don't show previews for hidden posts
+	'insertNum':	1,		// insert >>link on postnumber click
+	'addMP3':		1,		// mp3 player by links
+	'addImgs':		1,		// add images by links
+	'addYouTube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
+	'YTubeType':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
+	'YTubeWidth':	360,	//		player width
+	'YTubeHeigh':	270,	//		player height
+	'YTubeHD':		0,		//		hd video quality
+	'YTubeTitles':	0,		//		convert links to titles
+	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden]
+	'noThrdForm':	1,		// hide thread-creating form
+	'favOnReply':	1,		// add thread to favorites on reply
+	'checkReply':	1,		// reply without reload
+	'postSameImg':	1,		// 		ability to post same images
+	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
+	'addSageBtn':	1,		// email field -> sage btn
+	'saveSage':		1,		//		remember sage
+	'sageReply':	0,		//		reply with sage
+	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
+	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
+	'txtBtnsLoc':	0,		//		located at [0=top, 1=bottom]
+	'userName':		0,		// user name
+	'nameValue':	'',		//		value
+	'userPassw':	0,		// user password
+	'passwValue':	'',		//		value
+	'userSignat':	0,		// user signature
+	'signatValue':	'',		//		value
+	'noBoardRule':	1,		// hide board rules
+	'noGoto':		1,		// hide goto field
+	'noPassword':	1,		// hide password field
+	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=gradient blue, 3=solid grey]
+	'expandPanel':	0,		// show full main panel
+	'attachPanel':	1,		// attach main panel
+	'panelCounter':	1,		// posts/images counter in script panel
+	'rePageTitle':	1,		// replace page title in threads
+	'animation':	1,		// animation in script
+	'closePopups':	0,		// auto-close popups
+	'updScript':	1,		// check for script's update
+	'scrUpdIntrv':	2,		// 		check interval in days (0=on page load)
+	'betaScrUpd':	0,		// 		check for beta-version
+	'lastScrUpd':	0,		// 		last update check
+	'textaWidth':	530,	// textarea width
+	'textaHeight':	140,	// textarea height
 },
 
 Lng = {
 	cfg: {
-		spells:		['Заклинания: ', 'Magic spells: '],
-		awipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
-		samel:		['Повтор строк', 'Same lines'],
-		samew:		['Повтор слов', 'Same words'],
-		longp:		['Длинные посты', 'Long posts'],
-		longw:		['Длинные слова', 'Long words'],
-		specs:		['Спецсимволы', 'Special symbols'],
-		caps:		['КАПС/реГисТР', 'CAPS/cAsE'],
-		nums:		['Числа', 'Numbers'],
-		filthr:		['Применять фильтры к тредам', 'Apply filters to threads'],
-		menuhd:		['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-		viewhd:		['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
-		delhd: {
-			sel:	[['Не изменять', 'Объединять', 'Удалять'], ['Skip', 'Merge', 'Delete']],
-			txt:	['скрытые посты', 'hidden posts']
+		hideBySpell:	['Заклинания: ', 'Magic spells: '],
+		hideByWipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
+		wipeSameLin:	['Повтор строк', 'Same lines'],
+		wipeSameWrd:	['Повтор слов', 'Same words'],
+		wipeLongPst:	['Длинные посты', 'Long posts'],
+		wipeLongWrd:	['Длинные слова', 'Long words'],
+		wipeSpecial:	['Спецсимволы', 'Special symbols'],
+		wipeCAPS:		['КАПС/реГисТР', 'CAPS/cAsE'],
+		wipeNumbers:	['Числа', 'Numbers'],
+		filterThrds:	['Применять фильтры к тредам', 'Apply filters to threads'],
+		menuHiddBtn:	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
+		viewHiddNum:	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
+		delHiddPost: {
+			sel:		[['Не изменять', 'Объединять', 'Удалять'], ['Skip', 'Merge', 'Delete']],
+			txt:		['скрытые посты', 'hidden posts']
 		},
 
-		updthr: {
-			sel:	[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
-			txt:	['подгрузка постов в треде ', 'loading posts in thread ']
+		updThread: {
+			sel:		[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
+			txt:		['подгрузка постов в треде ', 'loading posts in thread ']
 		},
-		updint: {
-			sel:	[[0.5, 1, 1.5, 2, 5, 15, 30], [0.5, 1, 1.5, 2, 5, 15, 30]],
-			txt:	['(мин)*', '(min)*']
+		updThrIntrv: {
+			sel:		[[0.5, 1, 1.5, 2, 5, 15, 30], [0.5, 1, 1.5, 2, 5, 15, 30]],
+			txt:		['(мин)*', '(min)*']
 		},
-		updfav:		['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
-		dNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
-		expost: {
-			sel:	[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
-			txt:	['загрузка сокращенных постов*', 'upload of shorted posts*']
+		favIcoBlink:	['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
+		desktNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
+		expandPosts: {
+			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
+			txt:		['загрузка сокращенных постов*', 'upload of shorted posts*']
 		},
-		expimg: {
-			sel:	[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
-			txt:	['раскрывать изображения ', 'expand images ']
+		expandImgs: {
+			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
+			txt:		['раскрывать изображения ', 'expand images ']
 		},
-		pimgs:		['Предварительно загружать изображения*', 'Pre-load images*'],
-		rarjpeg:	['Распознавать RarJpeg\'и в изображениях*', 'Detect RarJpegs in images*'],
-		txtPostBtns:	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
-		imgsrc:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
-		ospoil:		['Открывать спойлеры', 'Open spoilers'],
-		noname:		['Скрывать имена в постах', 'Hide names in posts'],
-		noscrl:		['Без скролла в постах', 'No scroll in posts'],
-		keynav:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
-		ctime:		['Корректировать время в постах* ', 'Correct time in posts* '],
-		ctmofs:		[' Разница во времени', ' Time difference'],
-		ctmpat:		['Шаблон замены', 'Replace pattern'],
+		preLoadImgs:	['Предварительно загружать изображения*', 'Pre-load images*'],
+		findRarJPEG:	['Распознавать rarJPEG\'и в изображениях*', 'Detect rarJPEGs in images*'],
+		postBtnsTxt:	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
+		imgSrcBtns:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
+		noSpoilers:		['Открывать спойлеры', 'Open spoilers'],
+		noPostNames:	['Скрывать имена в постах', 'Hide names in posts'],
+		noPostScrl:		['Без скролла в постах', 'No scroll in posts'],
+		keybNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		correctTime:	['Корректировать время в постах* ', 'Correct time in posts* '],
+		timeOffset:		[' Разница во времени', ' Time difference'],
+		timePattern:	['Шаблон замены', 'Replace pattern'],
 
-		navig: {
-			sel:	[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
-			txt:	['навигация по >>ссылкам* ', 'navigation by >>links* ']
+		linksNavig: {
+			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
+			txt:		['навигация по >>ссылкам* ', 'navigation by >>links* ']
 		},
-		nashow:		[' задержка появления (мс)', ' delay appearance (ms)'],
-		navdel:		[' задержка пропадания (мс)', ' delay disappearance (ms)'],
-		navmrk:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
-		navhid:		['Зачеркивать >>ссылки на скрытые посты*', 'Strike >>links to hidden posts*'],
-		navdis:		['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
-		insnum:		['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		mp3:		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
-		addimg:		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
-		ytube: {
-			sel:	[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
-			txt:	['к YouTube-ссылкам* ', 'to YouTube-links* ']
+		linksOver:		[' задержка появления (мс)', ' delay appearance (ms)'],
+		linksOut:		[' задержка пропадания (мс)', ' delay disappearance (ms)'],
+		markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
+		strikeHidd:		['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
+		noNavigHidd:	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+		insertNum:		['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
+		addMP3:			['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
+		addImgs:		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
+		addYouTube: {
+			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
+			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
 		},
-		yptype: {
-			sel:	[['Flash', 'HTML5 iframe', 'HTML5 video'], ['Flash', 'HTML5 iframe', 'HTML5 video']],
-			txt:	[' ', ' ']
+		YTubeType: {
+			sel:		[['Flash', 'HTML5 iframe', 'HTML5 video'], ['Flash', 'HTML5 iframe', 'HTML5 video']],
+			txt:		[' ', ' ']
 		},
-		yhdvid:		['HD ', 'HD '],
-		ytitle:		['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
+		YTubeHD:		['HD ', 'HD '],
+		YTubeTitles:	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 
-		pform: {
-			sel:	[['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
-			txt:	['форма ответа в треде* ', 'reply form in thread* '],
+		addPostForm: {
+			sel:		[['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
+			txt:		['форма ответа в треде* ', 'reply form in thread* '],
 		},
-		tform:		['Прятать форму создания треда', 'Hide thread creating form'],
-		addfav:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		verify:		['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
-		sImgs:		['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-		rExif:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
-		sagebt:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
-		svsage:		['запоминать сажу', 'remember sage'],
-		forcap: {
-			sel:	[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
-			txt:	['язык ввода капчи', 'language input in captcha']
+		noThrdForm:		['Прятать форму создания треда', 'Hide thread creating form'],
+		favOnReply:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
+		checkReply:		['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
+		postSameImg:	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
+		removeEXIF:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		addSageBtn:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
+		saveSage:		['запоминать сажу', 'remember sage'],
+		captchaLang: {
+			sel:		[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
+			txt:		['язык ввода капчи', 'language input in captcha']
 		},
-		txtbtn: {
-			sel:	[['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
-			txt:	['кнопки форматирования текста ', 'text format buttons ']
+		addTextBtns: {
+			sel:		[['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
+			txt:		['кнопки форматирования текста ', 'text format buttons ']
 		},
-		txtpos:		['внизу', 'at bottom'],
-		name:		['Постоянное имя', 'Fixed name'],
-		passw:		['Постоянный пароль', 'Fixed password'],
-		sign:		['Постоянная подпись', 'Fixed signature'],
-		norule:		['правила ', 'rules '],
-		nogoto:		['поле goto ', 'goto field '],
-		nopass:		['пароль', 'password'],
+		txtBtnsLoc:		['внизу', 'at bottom'],
+		userName:		['Постоянное имя', 'Fixed name'],
+		userPassw:		['Постоянный пароль', 'Fixed password'],
+		userSignat:		['Постоянная подпись', 'Fixed signature'],
+		noBoardRule:	['правила ', 'rules '],
+		noGoto:			['поле goto ', 'goto field '],
+		noPassword:		['пароль', 'password'],
 
-		sstyle: {
-			sel:	[['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey']],
-			txt:	[' стиль скрипта', ' script style']
+		scriptStyle: {
+			sel:		[['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey']],
+			txt:		[' стиль скрипта', ' script style']
 		},
-		attach:		['Прикрепить главную панель ', 'Attach main panel '],
-		icount:		['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
-		rtitle:		['Название треда в заголовке вкладки*', 'Thread name in page title*'],
-		animp:		['Включить анимацию в скрипте', 'Enable animation in script'],
-		aclose:		['Автоматически закрывать уведомления', 'Close popups automatically'],
-		enupd:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
-		supdint: {
-			sel:	[['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
-			txt:	['Интервал проверки', 'Check interval'],
+		attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
+		panelCounter:	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
+		rePageTitle:	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
+		animation:		['Включить анимацию в скрипте', 'Enable animation in script'],
+		closePopups:	['Автоматически закрывать уведомления', 'Close popups automatically'],
+		updScript:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
+		scrUpdIntrv: {
+			sel:		[['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
+			txt:		['Интервал проверки', 'Check interval'],
 		},
-		betaupd:	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
+		betaScrUpd:	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
 
-		lang: {
-			sel: [['Ru', 'En'], ['Ru', 'En']],
-			txt: ['', '']
+		language: {
+			sel:		[['Ru', 'En'], ['Ru', 'En']],
+			txt:		['', '']
 		}
 	},
 
@@ -328,7 +328,7 @@ Lng = {
 	search:			['Искать в ', 'Search in '],
 	reply:			['Ответ', 'Reply'],
 	wait:			['Ждите', 'Wait'],
-	makeRjpeg:		['Сделать Rarjpeg', 'Make Rarjpeg'],
+	makeRjpeg:		['Сделать rarJPEG', 'Make rarJPEG'],
 	keyNavHelp:		[
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
@@ -651,7 +651,7 @@ function fixFunctions() {
 }
 
 function getThemeLang() {
-	return (Cfg['sstyle'] === 0 ? 'fr' : Cfg['sstyle'] === 1 ? 'en' : Cfg['sstyle'] === 2 ? 'ru' : 'de')
+	return (Cfg['scriptStyle'] === 0 ? 'fr' : Cfg['scriptStyle'] === 1 ? 'en' : Cfg['scriptStyle'] === 2 ? 'ru' : 'de')
 }
 
 
@@ -731,9 +731,9 @@ function saveSpells(val) {
 }
 
 function fixGlobalCfg() {
-	Cfg['forcap'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
-	Cfg['ctmpat'] = Cfg['ctmofs'] = '';
-	Cfg['ctime'] = 0;
+	Cfg['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	Cfg['timePattern'] = Cfg['timeOffset'] = '';
+	Cfg['correctTime'] = 0;
 }
 
 function setDefaultCfg() {
@@ -773,37 +773,37 @@ function readCfg() {
 	if(global) {
 		fixGlobalCfg();
 	}
-	if(nav.Opera && nav.Opera < 11.1 && Cfg['sstyle'] < 2) {
-		Cfg['sstyle'] = 2;
+	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] < 2) {
+		Cfg['scriptStyle'] = 2;
 	}
 	if(nav.Firefox < 6 && !nav.Chrome) {
-		Cfg['pimgs'] = 0;
+		Cfg['preLoadImgs'] = 0;
 	}
 	if(aib.fch) {
-		Cfg['rarjpeg'] = 0;
+		Cfg['findRarJPEG'] = 0;
 	}
 	if(!nav.Firefox) {
-		Cfg['updfav'] = 0;
+		Cfg['favIcoBlink'] = 0;
 	}
 	if(!nav.Chrome) {
-		Cfg['dNotif'] = 0;
+		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
-		Cfg['ytitle'] = 0;
-		Cfg['enupd'] = 0;
+		Cfg['YTubeTitles'] = 0;
+		Cfg['updScript'] = 0;
 	}
-	if(Cfg['svsage'] === 0) {
-		Cfg['issage'] = 0;
+	if(Cfg['saveSage'] === 0) {
+		Cfg['sageReply'] = 0;
 	}
 	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
-	lCode = Cfg['lang'];
+	lCode = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {view: 0, op: 0, reply: 0});
 	if(TNum) {
 		Stat.view = +Stat.view + 1;
 	}
 	setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
-	if(Cfg['ctime']) {
-		dTime = new dateTime(Cfg['ctmpat'], Cfg['ctmofs']);
+	if(Cfg['correctTime']) {
+		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset']);
 	}
 	saveSpells(getStored('DESU_Spells_' + aib.dm) || '');
 }
@@ -993,7 +993,7 @@ function markViewedPost(pNum) {
 }
 
 function readViewedPosts() {
-	if(Cfg['navmrk'] !== 0 && sav.session) {
+	if(Cfg['markViewed'] !== 0 && sav.session) {
 		(sessionStorage.viewedPosts || '').split(',').forEach(markViewedPost);
 	}
 }
@@ -1037,7 +1037,7 @@ function addPanel() {
 				'id': 'DESU_btnLogo',
 				'style': 'cursor: pointer'}, {
 				'click': function(e) {
-					toggleCfg('showmp');
+					toggleCfg('expandPanel');
 					updateCSS();
 				}
 			}),
@@ -1078,7 +1078,7 @@ function addPanel() {
 				),
 				$if(imgLen > 0, pButton('ExpImg', function(e) {
 					$pd(e);
-					Cfg['expimg'] = 1;
+					Cfg['expandImgs'] = 1;
 					isExpImg = !isExpImg;
 					Posts.forEach(function(post) {
 						expandAllPostImg(post, isExpImg);
@@ -1086,10 +1086,10 @@ function addPanel() {
 				}, null, null, null)),
 				$if(pr.file || oeForm, pButton('MaskImg', function(e) {
 					$pd(e);
-					toggleCfg('mask');
+					toggleCfg('maskImgs');
 					updateCSS();
 				}, null, null, null)),
-				$if(TNum && Cfg['updthr'] !== 3, pButton('UpdOn', function(e) {
+				$if(TNum && Cfg['updThread'] !== 3, pButton('UpdOn', function(e) {
 					$pd(e);
 					if(ajaxInterval) {
 						endPostsUpdate();
@@ -1123,7 +1123,7 @@ function toggleContent(name, isUpd) {
 	var el = $c('DESU_content', doc),
 		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
-		if(el.childElementCount && Cfg['animp'] !== 0 && nav.Anim) {
+		if(el.childElementCount && Cfg['animation'] !== 0 && nav.Anim) {
 			nav.aEvent(el, function(node) {
 				showContent(node, id, name, isUpd);
 				id = name = isUpd = null;
@@ -1142,14 +1142,14 @@ function showContent(el, id, name, isUpd) {
 		return;
 	}
 	el.id = id;
-	if(Cfg['attach'] === 0) {
+	if(Cfg['attachPanel'] === 0) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
 	if(name === 'Cfg') {
 		addSettings();
 	} else {
 		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
-		if(Cfg['attach'] !== 0) {
+		if(Cfg['attachPanel'] !== 0) {
 			$t('table', el).style.backgroundColor = getStyle(doc.body, 'background-color');
 		}
 		if(name === 'Hid') {
@@ -1161,7 +1161,7 @@ function showContent(el, id, name, isUpd) {
 			addFavoritesTable();
 		}
 	}
-	if(Cfg['animp'] !== 0 && nav.Anim) {
+	if(Cfg['animation'] !== 0 && nav.Anim) {
 		el.className = 'DESU_content DESU_cfgOpen';
 	}
 }
@@ -1290,7 +1290,7 @@ function addSettings() {
 					'class': 'DESU_aBtn'
 				}, null)
 			]),
-			lBox('spells', toggleSpells),
+			lBox('hideBySpell', toggleSpells),
 			$new('textarea', {
 				'id': 'DESU_spellEdit',
 				'rows': 10,
@@ -1298,7 +1298,7 @@ function addSettings() {
 			}, null)
 		]),
 		$New('div', null, [
-			lBox('awipe', null),
+			lBox('hideByWipe', null),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
 			})
@@ -1307,20 +1307,20 @@ function addSettings() {
 			'id': 'DESU_cfgWipe',
 			'style': 'display: none; padding-left: 25px;'
 		}, [
-			divBox('samel', null),
-			divBox('samew', null),
-			divBox('longp', null),
-			divBox('longw', null),
-			divBox('specs', null),
-			divBox('caps', null),
-			divBox('nums', null)
+			divBox('wipeSameLin', null),
+			divBox('wipeSameWrd', null),
+			divBox('wipeLongPst', null),
+			divBox('wipeLongWrd', null),
+			divBox('wipeSpecial', null),
+			divBox('wipeCAPS', null),
+			divBox('wipeNumbers', null)
 		]),
-		divBox('filthr', null),
-		divBox('menuhd', null),
-		divBox('viewhd', null),
+		divBox('filterThrds', null),
+		divBox('menuHiddBtn', null),
+		divBox('viewHiddNum', null),
 		$New('div', null, [
-			optSel('delhd', function() {
-				processHidden(this.selectedIndex, Cfg['delhd']);
+			optSel('delHiddPost', function() {
+				processHidden(this.selectedIndex, Cfg['delHiddPost']);
 			})
 		])
 	]),
@@ -1330,30 +1330,30 @@ function addSettings() {
 		'id': 'DESU_cfgPosts'
 	}, [
 		$New('div', null, [
-			optSel('updthr', null),
-			optSel('updint', null)
+			optSel('updThread', null),
+			optSel('updThrIntrv', null)
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			divBox('updfav', null),
-			$if(nav.Chrome, divBox('dNotif', function() {
-				if(Cfg['dNotif'] !== 0) {
+			divBox('favIcoBlink', null),
+			$if(nav.Chrome, divBox('desktNotif', function() {
+				if(Cfg['desktNotif'] !== 0) {
 					window.webkitNotifications.requestPermission();
 				}
 			}))
 		]),
-		$New('div', null, [optSel('expost', null)]),
-		$New('div', null, [optSel('expimg', null)]),
-		$if(nav.Firefox >= 6 || nav.Chrome, divBox('pimgs', null)),
+		$New('div', null, [optSel('expandPosts', null)]),
+		$New('div', null, [optSel('expandImgs', null)]),
+		$if(nav.Firefox >= 6 || nav.Chrome, divBox('preLoadImgs', null)),
 		$if(!aib.fch && (nav.Firefox >= 6 || nav.Chrome), $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('rarjpeg', null)
+			lBox('findRarJPEG', null)
 		])),
-		divBox('txtPostBtns', null),
-		divBox('imgsrc', null),
-		divBox('ospoil', updateCSS),
-		divBox('noname', updateCSS),
-		divBox('noscrl', updateCSS),
+		divBox('postBtnsTxt', null),
+		divBox('imgSrcBtns', null),
+		divBox('noSpoilers', updateCSS),
+		divBox('noPostNames', updateCSS),
+		divBox('noPostScrl', updateCSS),
 		$New('div', null, [
-			lBox('keynav', null),
+			lBox('keybNavig', null),
 			$new('a', {
 				'text': '?',
 				'href': '#',
@@ -1364,17 +1364,17 @@ function addSettings() {
 				}
 			})
 		]),
-		$New('div', null, [lBox('ctime', dateTime.toggleSettings)]),
+		$New('div', null, [lBox('correctTime', dateTime.toggleSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				inpTxt('ctmofs', 3, null),
-				$new('span', {text: Lng.cfg.ctmofs[lCode]}, null)
+				inpTxt('timeOffset', 3, null),
+				$new('span', {text: Lng.cfg.timeOffset[lCode]}, null)
 			]),
 			$New('div', null, [
-				inpTxt('ctmpat', 30, null),
+				inpTxt('timePattern', 30, null),
 				$txt(' '),
 				$new('a', {
-					'text': Lng.cfg.ctmpat[lCode],
+					'text': Lng.cfg.timePattern[lCode],
 					'href': '#',
 					'class': 'DESU_aBtn'}, {
 					'click': function(e) {
@@ -1390,34 +1390,34 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgLinks'
 	}, [
-		$New('div', null, [optSel('navig', null)]),
+		$New('div', null, [optSel('linksNavig', null)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				inpTxt('nashow', 6, null),
-				$txt(Lng.cfg.nashow[lCode])
+				inpTxt('linksOver', 6, null),
+				$txt(Lng.cfg.linksOver[lCode])
 			]),
 			$New('div', null, [
-				inpTxt('navdel', 6, null),
-				$txt(Lng.cfg.navdel[lCode])
+				inpTxt('linksOut', 6, null),
+				$txt(Lng.cfg.linksOut[lCode])
 			]),
-			divBox('navmrk', null),
-			divBox('navhid', null),
-			divBox('navdis', null)
+			divBox('markViewed', null),
+			divBox('strikeHidd', null),
+			divBox('noNavigHidd', null)
 		]),
-		divBox('insnum', null),
-		divBox('mp3', null),
-		divBox('addimg', null),
-		$New('div', null, [optSel('ytube', null)]),
+		divBox('insertNum', null),
+		divBox('addMP3', null),
+		divBox('addImgs', null),
+		$New('div', null, [optSel('addYouTube', null)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel('yptype', null),
-				inpTxt('ywidth', 6, null),
+				optSel('YTubeType', null),
+				inpTxt('YTubeWidth', 6, null),
 				$txt('×'),
-				inpTxt('yheigh', 6, null),
+				inpTxt('YTubeHeigh', 6, null),
 				$txt(' '),
-				lBox('yhdvid', null)
+				lBox('YTubeHD', null)
 			]),
-			$if(!nav.Opera, lBox('ytitle', null))
+			$if(!nav.Opera, lBox('YTubeTitles', null))
 		])
 	]),
 
@@ -1425,49 +1425,49 @@ function addSettings() {
 		'class': 'DESU_cfgBody',
 		'id': 'DESU_cfgForm'
 	}, [
-		$if(pr.on, $New('div', null, [optSel('pform', null)])),
-		$if(pr.on, divBox('tform', function() {
+		$if(pr.on, $New('div', null, [optSel('addPostForm', null)])),
+		$if(pr.on, divBox('noThrdForm', function() {
 			if(!TNum) {
-				$id('DESU_parea').style.display = Cfg['tform'] ? 'none' : '';
+				$id('DESU_parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
 			}
 		})),
-		divBox('addfav', null),
-		divBox('verify', null),
+		divBox('favOnReply', null),
+		divBox('checkReply', null),
 		$if(nav.h5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
-			divBox('sImgs', null),
-			divBox('rExif', null)
+			divBox('postSameImg', null),
+			divBox('removeEXIF', null)
 		])),
 		$if(pr.mail, $New('div', null, [
-			lBox('sagebt', null),
-			lBox('svsage', null)
+			lBox('addSageBtn', null),
+			lBox('saveSage', null)
 		])),
-		$New('div', null, [optSel('forcap', null)]),
+		$New('div', null, [optSel('captchaLang', null)]),
 		$if(pr.on, $New('div', null, [
-			optSel('txtbtn', function() {
-				saveCfg('txtbtn', this.selectedIndex);
+			optSel('addTextBtns', function() {
+				saveCfg('addTextBtns', this.selectedIndex);
 				addTextPanel();
 			}),
-			lBox('txtpos', addTextPanel)
+			lBox('txtBtnsLoc', addTextPanel)
 		])),
 		$if(pr.name, $New('div', null, [
-			inpTxt('namval', 20, setUserName),
-			lBox('name', setUserName)
+			inpTxt('nameValue', 20, setUserName),
+			lBox('userName', setUserName)
 		])),
 		$if(pr.passw, $New('div', null, [
-			inpTxt('pasval', 20, setUserPassw),
-			lBox('passw', setUserPassw)
+			inpTxt('passwValue', 20, setUserPassw),
+			lBox('userPassw', setUserPassw)
 		])),
 		$if(pr.txta, $New('div', null, [
-			inpTxt('sigval', 20, null),
-			lBox('sign', null)
+			inpTxt('signatValue', 20, null),
+			lBox('userSignat', null)
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('norule', updateCSS),
-			$if(pr.gothr, lBox('nogoto', function() {
+			lBox('noBoardRule', updateCSS),
+			$if(pr.gothr, lBox('noGoto', function() {
 				$disp(pr.gothr);
 			})),
-			$if(pr.passw, lBox('nopass', function() {
+			$if(pr.passw, lBox('noPassword', function() {
 				$disp(pr.passw.parentNode.parentNode);
 			}))
 		])
@@ -1478,26 +1478,26 @@ function addSettings() {
 		'id': 'DESU_cfgCommon'
 	}, [
 		$New('div', null, [
-			optSel('sstyle', function() {
-				saveCfg('sstyle', this.selectedIndex);
+			optSel('scriptStyle', function() {
+				saveCfg('scriptStyle', this.selectedIndex);
 				$id('DESU_panel').lang = $c('DESU_content', doc).lang = getThemeLang();
 			})
 		]),
-		divBox('attach', function() {
+		divBox('attachPanel', function() {
 			toggleContent('Cfg', false);
 			updateCSS();
 		}),
-		divBox('icount', updateCSS),
-		divBox('rtitle', null),
-		divBox('animp', null),
-		divBox('aclose', null),
+		divBox('panelCounter', updateCSS),
+		divBox('rePageTitle', null),
+		divBox('animation', null),
+		divBox('closePopups', null),
 		$if(!nav.Opera, $New('div', null, [
-			divBox('enupd', null),
+			divBox('updScript', null),
 			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('supdint', function() {
-					saveCfg('supdint', this.selectedIndex);
+				optSel('scrUpdIntrv', function() {
+					saveCfg('scrUpdIntrv', this.selectedIndex);
 				}),
-				divBox('betaupd', null),
+				divBox('betaScrUpd', null),
 				$btn(Lng.checkNow[lCode], '', function() {
 					var el = $id('DESU_updRes');
 					el.innerHTML = '<span class="DESU_wait">' + Lng.checking[lCode] + '</div>';
@@ -1536,8 +1536,8 @@ function addSettings() {
 			]),
 			$New('div', {'id': 'DESU_cfgBtns'}, [
 				$New('div', {'style': 'float: right;'}, [
-					optSel('lang', function() {
-						saveCfg('lang', this.selectedIndex);
+					optSel('language', function() {
+						saveCfg('language', this.selectedIndex);
 						window.location.reload();
 					}),
 					$if(sav.isGlobal, $btn(Lng.load[lCode], Lng.loadGlobal[lCode], function() {
@@ -1904,7 +1904,7 @@ function addFavoritesTable() {
 ==============================================================================*/
 
 function showAlert(el) {
-	if(Cfg['animp'] === 0) {
+	if(Cfg['animation'] === 0) {
 		return;
 	}
 	if(nav.Anim) {
@@ -1932,7 +1932,7 @@ function closeAlert(el) {
 	if(!el) {
 		return;
 	}
-	if(Cfg['animp'] === 0) {
+	if(Cfg['animation'] === 0) {
 		$del(el);
 		return;
 	}
@@ -1963,7 +1963,7 @@ function closeAlert(el) {
 }
 
 function blinkAlert(el) {
-	if(Cfg['animp'] === 0) {
+	if(Cfg['animation'] === 0) {
 		return;
 	}
 	if(nav.Anim) {
@@ -2011,7 +2011,7 @@ function $alert(txt, id, wait) {
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
-	if(Cfg['aclose'] !== 0 && !wait) {
+	if(Cfg['closePopups'] !== 0 && !wait) {
 		setTimeout(function() {
 			closeAlert(el);
 			el = null;
@@ -2027,7 +2027,7 @@ function $alert(txt, id, wait) {
 function addSelMenu(el, fPanel, html) {
 	var y, pos,
 		pst = getPost(el);
-	if(Cfg['attach'] !== 0 && fPanel) {
+	if(Cfg['attachPanel'] !== 0 && fPanel) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
 			? 'bottom: 25'
@@ -2080,7 +2080,7 @@ function selectSpell(e) {
 }
 
 function selectPostHider(post) {
-	if(Cfg['menuhd'] === 0 || Cfg['filthr'] === 0 && post.isOp) {
+	if(Cfg['menuHiddBtn'] === 0 || Cfg['filterThrds'] === 0 && post.isOp) {
 		return;
 	}
 	var a = addSelMenu(
@@ -2319,7 +2319,7 @@ function refreshCapImg(tNum) {
 }
 
 function doSageBtn() {
-	var c = Cfg['issage'] !== 0;
+	var c = Cfg['sageReply'] !== 0;
 	$id('DESU_sageBtn').innerHTML = '&nbsp;' + (
 		c ? '<span class="DESU_btnSage"></span><b style="color: red;">SAGE</b>'
 		: '<i>(no&nbsp;sage)</i>'
@@ -2332,17 +2332,17 @@ function doSageBtn() {
 }
 
 function setUserName() {
-	saveCfg('namval', $id('DESU_fixName').value.replace(/\|/g, ''));
-	pr.name.value = $id('DESU_name').checked ? Cfg['namval'] : '';
+	saveCfg('nameValue', $id('DESU_fixName').value.replace(/\|/g, ''));
+	pr.name.value = $id('DESU_name').checked ? Cfg['nameValue'] : '';
 }
 
 function setUserPassw() {
 	var val,
-		el = $id('DESU_pasval');
+		el = $id('DESU_passwValue');
 	if(el) {
-		saveCfg('pasval', el.value.replace(/\|/g, ''));
+		saveCfg('passwValue', el.value.replace(/\|/g, ''));
 	}
-	val = Cfg['passw'] !== 0 ? Cfg['pasval'] : $rnd().substring(0, 8);
+	val = Cfg['userPassw'] !== 0 ? Cfg['passwValue'] : $rnd().substring(0, 8);
 	el = $x('.//input[@type="password"]', dForm);
 	if(el) {
 		el.value = val;
@@ -2368,12 +2368,12 @@ function initPostform() {
 		$New('div', {'id': 'DESU_pform'}, [pr.form, oeForm]),
 		$new('hr', null, null)
 	]);
-	if(TNum && Cfg['pform'] === 1) {
+	if(TNum && Cfg['addPostForm'] === 1) {
 		$after(aib.fch ? $t('hr', dForm) : dForm, pArea);
 	} else {
 		$before(dForm, [pArea]);
 	}
-	if(TNum && Cfg['pform'] === 2 || !TNum && Cfg['tform'] !== 0) {
+	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm'] !== 0) {
 		$disp(pArea);
 	}
 	$after(pArea, $new('div', {
@@ -2398,8 +2398,8 @@ function doPostformChanges(a) {
 		},
 		resStop = function() {
 			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-			saveCfg('texw', parseInt(pTxt.style.width, 10));
-			saveCfg('texh', parseInt(pTxt.style.height, 10));
+			saveCfg('textaWidth', parseInt(pTxt.style.width, 10));
+			saveCfg('textaHeight', parseInt(pTxt.style.height, 10));
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
@@ -2414,7 +2414,7 @@ function doPostformChanges(a) {
 		}
 	}));
 	addTextPanel();
-	pTxt.style.cssText = 'width: ' + Cfg['texw'] + 'px; height: ' + Cfg['texh'] + 'px;';
+	pTxt.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 	$event(pTxt, {
 		'keypress': function(e) {
 			var code = e.charCode || e.keyCode;
@@ -2428,12 +2428,12 @@ function doPostformChanges(a) {
 		'click': function(e) {
 			var txt = pr.txta.value;
 			pr.txta.value =
-				(Cfg['spells'] === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
-					+ (Cfg['sign'] !== 0 && Cfg['sigval'] !== '' ? '\n' + Cfg['sigval'] : '');
-			if(Cfg['verify'] !== 0) {
+				(Cfg['hideBySpell'] === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
+					+ (Cfg['userSignat'] !== 0 && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '');
+			if(Cfg['checkReply'] !== 0) {
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
-			if(Cfg['addfav'] !== 0 && pr.tNum) {
+			if(Cfg['favOnReply'] !== 0 && pr.tNum) {
 				toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
 			}
 			if(pr.tNum) {
@@ -2451,15 +2451,15 @@ function doPostformChanges(a) {
 	$each($X('.//input[@type="text"]', pr.form), function(node) {
 		node.size = 35;
 	});
-	if(Cfg['nogoto'] !== 0 && pr.gothr) {
+	if(Cfg['noGoto'] !== 0 && pr.gothr) {
 		$disp(pr.gothr);
 	}
-	if(Cfg['nopass'] !== 0 && pr.passw) {
+	if(Cfg['noPassword'] !== 0 && pr.passw) {
 		$disp($x(pr.tr, pr.passw));
 	}
-	if(Cfg['name'] !== 0 && pr.name) {
+	if(Cfg['userName'] !== 0 && pr.name) {
 		setTimeout(function() {
-			pr.name.value = Cfg['namval'];
+			pr.name.value = Cfg['nameValue'];
 		}, 0);
 	}
 	if(pr.passw) {
@@ -2496,10 +2496,10 @@ function doPostformChanges(a) {
 					ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 					en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`',
 					i = en.length;
-				if(Cfg['forcap'] === 0 || e.which === 0) {
+				if(Cfg['captchaLang'] === 0 || e.which === 0) {
 					return;
 				}
-				if(Cfg['forcap'] === 1) {
+				if(Cfg['captchaLang'] === 1) {
 					if(code < 0x0410 || code > 0x04FF) {
 						return;
 					}
@@ -2552,13 +2552,13 @@ function doPostformChanges(a) {
 			}
 		}
 	}
-	if(Cfg['sagebt'] !== 0 && pr.mail) {
+	if(Cfg['addSageBtn'] !== 0 && pr.mail) {
 		sBtn = $new('span', {
 			'id': 'DESU_sageBtn'}, {
 			'click': function(e) {
 				e.stopPropagation();
 				$pd(e);
-				toggleCfg('issage');
+				toggleCfg('sageReply');
 				doSageBtn();
 			}
 		});
@@ -2572,7 +2572,7 @@ function doPostformChanges(a) {
 		}
 		setTimeout(doSageBtn, 0);
 	}
-	if(Cfg['verify'] !== 0) {
+	if(Cfg['checkReply'] !== 0) {
 		if(nav.h5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
@@ -2634,7 +2634,7 @@ function processInput(e) {
 		$del($c('DESU_delFile', this.parentNode));
 		 if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 			$after(this.nextSibling, $event($add('<button type="button" class="DESU_fileUtil DESU_delFile">'
-				+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarjpeg}));
+				+ Lng.makeRjpeg[lCode] + '</button>'), {'click': makeRarJPEG}));
 		}
 	}
 	eventFiles($x(pr.tr, this));
@@ -2648,7 +2648,7 @@ function clearInput(e) {
 	$event(pr.file, {'change': processInput});
 }
 
-function makeRarjpeg(e) {
+function makeRarJPEG(e) {
 	$pd(e);
 	var el = $id('DESU_arInput'),
 		inp = $x('input[@type="file"]', this.parentNode),
@@ -2676,7 +2676,7 @@ function readArch(inp, file) {
 	fr.onload = function() {
 		if(inp.nextSibling === el) {
 			$after(inp, $add('<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;" title="'
-				+ inp.files[0].name + ' + ' + file.name + '">Rarjpeg</span>'));
+				+ inp.files[0].name + ' + ' + file.name + '">RarJPEG</span>'));
 			inp.rarJPEG = this.result;
 			$del(el);
 			el = inp = file = null;
@@ -2886,13 +2886,13 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = Cfg['rExif'] !== 0
+		var dat = Cfg['removeEXIF'] !== 0
 			? [removeExif(this.result)]
 			: [this.result];
 		if(el.rarJPEG) {
 			dat.push(el.rarJPEG);
 		}
-		if(Cfg['sImgs'] !== 0) {
+		if(Cfg['postSameImg'] !== 0) {
 			dat.push(String(Math.round(Math.random() * 1e6)));
 		}
 		dF.data[idx] = toBlob(dat);
@@ -2980,7 +2980,7 @@ function showQuickReply(post) {
 	qArea.style.display = '';
 	if(!TNum) {
 		toggleQuickReply(tNum);
-		if(Cfg['tform'] !== 0) {
+		if(Cfg['noThrdForm'] !== 0) {
 			$id('DESU_parea').style.display = 'none';
 		}
 	}
@@ -3036,10 +3036,10 @@ function insertRefLink(e) {
 	if(!/Reply|Ответ/.test(e.target.textContent)) {
 		e.stopPropagation();
 		$pd(e);
-		if(!TNum && Cfg['tform'] !== 0 && !pr.isQuick) {
+		if(!TNum && Cfg['noThrdForm'] !== 0 && !pr.isQuick) {
 			$id('DESU_parea').style.display = '';
 		}
-		if(TNum && Cfg['pform'] === 2 && !pr.isQuick) {
+		if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
 			showQuickReply(pByNum[pNum]);
 		} else {
 			if(aib._420 && pr.txta.value === 'Comment') {
@@ -3129,15 +3129,15 @@ function addTextPanel() {
 				pnl.appendChild(btn);
 			}
 			btn.innerHTML =
-				Cfg['txtbtn'] === 2 ? ((val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]'))
-				: Cfg['txtbtn'] === 3 ? ('<input type="button" value="' + val + '" style="font-weight: bold;" />')
+				Cfg['addTextBtns'] === 2 ? ((val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]'))
+				: Cfg['addTextBtns'] === 3 ? ('<input type="button" value="' + val + '" style="font-weight: bold;" />')
 				: '';
 		};
 	if(!pnl) {
 		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
 	}
-	pnl.lang = (Cfg['txtbtn'] === 0 ? 'en' : Cfg['txtpos'] === 0 ? 'ru' : '');
-	$after(Cfg['txtpos'] === 0 ? (
+	pnl.lang = (Cfg['addTextBtns'] === 0 ? 'en' : Cfg['txtBtnsLoc'] === 0 ? 'ru' : '');
+	$after(Cfg['txtBtnsLoc'] === 0 ? (
 		aib.abu ? $id('hideUserFlds')
 		: aib._420 ? $c('popup', pr.form)
 		: pr.subm
@@ -3307,7 +3307,7 @@ function addPostButtons(post) {
 		}
 	}
 	$after(ref, post.Btns);
-	if(pr.on && Cfg['insnum'] !== 0) {
+	if(pr.on && Cfg['insertNum'] !== 0) {
 		if(aib.futr || (aib.nul && TNum)) {
 			$each($X('a', ref), function(el) {
 				el.onclick = null;
@@ -3340,10 +3340,10 @@ function dateTime(pattern, timeDiff) {
 }
 
 dateTime.toggleSettings = function() {
-	var el = $id('DESU_ctime');
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['ctmofs']) || this.checkPattern(Cfg['ctmpat']))) {
+	var el = $id('DESU_correctTime');
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['timeOffset']) || this.checkPattern(Cfg['timePattern']))) {
 		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
-		saveCfg('ctime', 0);
+		saveCfg('correctTime', 0);
 		el.checked = false;
 	}
 };
@@ -3474,25 +3474,25 @@ function getTubeVideoLinks(id, fn) {
 }
 
 function addTubeEmbed(el, id, time) {
-	var wh = ' width="' + Cfg['ywidth'] + '" height="' + Cfg['yheigh'] + '" />';
-	el.innerHTML = Cfg['yptype'] === 1
+	var wh = ' width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '" />';
+	el.innerHTML = Cfg['YTubeType'] === 1
 		? '<iframe type="text/html" src="https://www.youtube.com/embed/' + id
-			+ (Cfg['yhdvid'] !== 0 ? '?hd=1&' : '?')
+			+ (Cfg['YTubeHD'] !== 0 ? '?hd=1&' : '?')
 			+ 'start=' + time + '&html5=1" frameborder="0"' + wh
 		: '<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id
-			+ (Cfg['yhdvid'] !== 0 ? '?hd=1&' : '?')
+			+ (Cfg['YTubeHD'] !== 0 ? '?hd=1&' : '?')
 			+ 'start=' + time + '" wmode="transparent"' + wh;
 }
 
 function addTubePlayer(el, m) {
 	var id = m[1],
 		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
-	if(Cfg['yptype'] !== 2) {
+	if(Cfg['YTubeType'] !== 2) {
 		addTubeEmbed(el, id, time);
 		return;
 	}
 	getTubeVideoLinks(id, function(url) {
-		var src = url ? (Cfg['yhdvid'] === 0 ? url[43] : url[45] || url[44] || url[43]) : false;
+		var src = url ? (Cfg['YTubeHD'] === 0 ? url[43] : url[45] || url[44] || url[43]) : false;
 		if(!src) {
 			addTubeEmbed(el, id, time);
 			return;
@@ -3500,7 +3500,7 @@ function addTubePlayer(el, m) {
 		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id
 			+ '/0.jpg" controls="controls" preload="none" src="' + src
 			+ (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '')
-			+ '" width="' + Cfg['ywidth'] + '" height="' + Cfg['yheigh'] + '"></video>';
+			+ '" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
 		el = el.firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
@@ -3517,7 +3517,7 @@ function addTubePreview(el, m) {
 		+ '" target="_blank"><img src="https://i.ytimg.com/vi/' + m[1]
 		+ '/0.jpg" width="360" height="270" /></a>';
 	el.firstChild.onclick = function(e) {
-		if(Cfg['ytube'] !== 4) {
+		if(Cfg['addYouTube'] !== 4) {
 			$pd(e);
 			addTubePlayer(this.parentNode, m);
 		}
@@ -3534,7 +3534,7 @@ function clickTubeLink(e) {
 	$pd(e);
 	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
 		el.innerHTML = '';
-	} else if(Cfg['ytube'] > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
+	} else if(Cfg['addYouTube'] > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
 		addTubePreview(el, m);
 	} else {
 		addTubePlayer(el, m);
@@ -3542,7 +3542,7 @@ function clickTubeLink(e) {
 }
 
 function addLinkTube(post) {
-	if(Cfg['ytube'] === 0) {
+	if(Cfg['addYouTube'] === 0) {
 		return;
 	}
 	$each($X('.//embed', post || dForm), function(el) {
@@ -3574,9 +3574,9 @@ function addLinkTube(post) {
 		el = $c('DESU_ytObj', pst);
 		if(!el) {
 			el = $new('div', {'class': 'DESU_ytObj'}, null);
-			if(Cfg['ytube'] > 2) {
+			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
-			} else if(Cfg['ytube'] === 2) {
+			} else if(Cfg['addYouTube'] === 2) {
 				addTubePlayer(el, m);
 			}
 			msg = pst.Msg || aib.getMsg(pst);
@@ -3591,7 +3591,7 @@ function addLinkTube(post) {
 		}
 		link.className = 'DESU_ytLink';
 		link.onclick = clickTubeLink;
-		if(!nav.Opera && Cfg['ytitle'] !== 0) {
+		if(!nav.Opera && Cfg['YTubeTitles'] !== 0) {
 			GM_xmlhttpRequest({
 				method: 'GET',
 				url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1]
@@ -3615,7 +3615,7 @@ function filterTextTube(post, text) {
 		i = 0,
 		fHide = (function(a) {
 			return a ? hidePost : function(b, c) {};
-		})(Cfg['spells'] === 1);
+		})(Cfg['hideBySpell'] === 1);
 	for(;t = oSpells.video[i++];) {
 		if(strToRegexp(t).test(text)) {
 			fHide(post, '#video ' + t);
@@ -3639,7 +3639,7 @@ function unHideTextTube() {
 }
 
 function hideTextTube() {
-	if(Cfg['ytitle'] === 0) {
+	if(Cfg['YTubeTitles'] === 0) {
 		return;
 	}
 	$each($X('.//a[contains(@href,"youtu")]', dForm), function(link) {
@@ -3655,7 +3655,7 @@ function hideTextTube() {
 }
 
 function addLinkMP3(post) {
-	if(Cfg['mp3'] === 0) {
+	if(Cfg['addMP3'] === 0) {
 		return;
 	}
 	$each($X('.//a[contains(@href,".mp3")]', post || dForm), function(link) {
@@ -3733,7 +3733,7 @@ function addFullImg(a, sz, isExp) {
 	if(full && isExp || !full && isExp === false) {
 		return;
 	}
-	if(Cfg['expimg'] === 1 && !$xb('img[contains(@style,"fixed")]', a)) {
+	if(Cfg['expandImgs'] === 1 && !$xb('img[contains(@style,"fixed")]', a)) {
 		$disp($t('img', a));
 	}
 	if(full) {
@@ -3748,7 +3748,7 @@ function addFullImg(a, sz, isExp) {
 		}
 		return;
 	}
-	if(Cfg['expimg'] === 1) {
+	if(Cfg['expandImgs'] === 1) {
 		scrW -= $offset(a).left + 25;
 	} else {
 		$del($c('DESU_cFullImg', doc));
@@ -3756,7 +3756,7 @@ function addFullImg(a, sz, isExp) {
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
 		newH = newW * fullH / fullW;
-		if(Cfg['expimg'] === 2 && newH > scrH) {
+		if(Cfg['expandImgs'] === 2 && newH > scrH) {
 			newH = scrH;
 			newW = newH * fullW / fullH;
 		}
@@ -3764,7 +3764,7 @@ function addFullImg(a, sz, isExp) {
 	full = a.appendChild($add('<img class="DESU_fullImg" src="' + a.href +
 		'" alt="' + a.href + '" width="' + newW + '" height="' + newH + '"/>'
 	));
-	if(Cfg['expimg'] === 2) {
+	if(Cfg['expandImgs'] === 2) {
 		full.className += ' DESU_cFullImg';
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
@@ -3776,7 +3776,7 @@ function addFullImg(a, sz, isExp) {
 }
 
 function addLinkImg(el) {
-	if(Cfg['addimg'] === 0) {
+	if(Cfg['addImgs'] === 0) {
 		return;
 	}
 	$each($X(
@@ -3808,7 +3808,7 @@ function addLinkImg(el) {
 			}
 		}));
 		a.onclick = function(e) {
-			if(Cfg['expimg'] !== 0 && e.button !== 1) {
+			if(Cfg['expandImgs'] !== 0 && e.button !== 1) {
 				$pd(e);
 				addFullImg(this, this.firstChild.title.split('x'), null);
 			}
@@ -3818,7 +3818,7 @@ function addLinkImg(el) {
 }
 
 function addImgSearch(el) {
-	if(!Cfg['imgsrc']) {
+	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
 	var iB;
@@ -3858,7 +3858,7 @@ function eventPostImg(post) {
 				$rattr(img.parentNode, 'onclick');
 			}
 			a.addEventListener('click', function(e) {
-				if(Cfg['expimg'] !== 0 && e.button !== 1) {
+				if(Cfg['expandImgs'] !== 0 && e.button !== 1) {
 					$pd(e);
 					expandPostImg(this, post, null);
 				}
@@ -3868,7 +3868,7 @@ function eventPostImg(post) {
 }
 
 function parseImg(a, ab) {
-	if(Cfg['rarjpeg'] !== 1) {
+	if(Cfg['findRarJPEG'] !== 1) {
 		return;
 	}
 	var dat = new Uint8Array(ab),
@@ -4020,7 +4020,7 @@ function updRefMap(post) {
 ==============================================================================*/
 
 function closePview(el) {
-	if(Cfg['animp'] === 0 || !nav.Anim) {
+	if(Cfg['animation'] === 0 || !nav.Anim) {
 		$del(el);
 		return;
 	}
@@ -4061,7 +4061,7 @@ function markPviewToDel(el, forDel) {
 				return delPviews(el);
 			}
 		}
-	}, +Cfg['navdel']);
+	}, +Cfg['linksOut']);
 }
 
 function setPviewPostion(link, pView, anim) {
@@ -4106,7 +4106,7 @@ function setPviewPostion(link, pView, anim) {
 	if(left === pView.style.left && top === pView.style.top) {
 		return;
 	}
-	if(Cfg['animp'] === 0 || !anim) {
+	if(Cfg['animation'] === 0 || !anim) {
 		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
 		return;
 	}
@@ -4163,14 +4163,14 @@ function getPview(post, pNum, parent, link, txt) {
 		pView.Num = pNum;
 		$Del(
 			'.//img[@class="DESU_preImg"]/ancestor::a|.//img[@class="DESU_fullImg"]|'
-				+ (Cfg['ytube'] !== 2 ? 'div[@class="DESU_ytObj"]|' : '')
+				+ (Cfg['addYouTube'] !== 2 ? 'div[@class="DESU_ytObj"]|' : '')
 				+ './/span[starts-with(@class,"DESU_postPanel") or @class="DESU_btnSrc"]',
 			pView
 		);
 		if(!pByNum[pNum]) {
 			addLinkMP3(pView);
 		}
-		if(!pByNum[pNum] || Cfg['ytube'] !== 2) {
+		if(!pByNum[pNum] || Cfg['addYouTube'] !== 2) {
 			addLinkTube(pView);
 		}
 		pView.Img = getImages(pView);
@@ -4180,11 +4180,11 @@ function getPview(post, pNum, parent, link, txt) {
 		eventPostImg(pView);
 		addLinkImg(pView);
 		addImgSearch(pView);
-		if(Cfg['navig'] === 2) {
+		if(Cfg['linksNavig'] === 2) {
 			markRefMap(pView, parent.Num);
 		}
 		eventRefLink(pView);
-		if(Cfg['navmrk'] !== 0) {
+		if(Cfg['markViewed'] !== 0) {
 			pView.readDelay = setTimeout(function() {
 				markViewedPost(pNum);
 				saveViewedPosts(pNum);
@@ -4211,7 +4211,7 @@ function getPview(post, pNum, parent, link, txt) {
 		Pviews.current = el;
 	}
 	markPviewToDel(el, false);
-	if(Cfg['animp'] !== 0 && nav.Anim) {
+	if(Cfg['animation'] !== 0 && nav.Anim) {
 		nav.aEvent(pView, function(node) {
 			node.style[nav.aName] = '';
 		});
@@ -4248,7 +4248,7 @@ function showPview(link) {
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : Pviews.current;
-	if(Cfg['navdis'] === 1 && post && post.Vis === 0) {
+	if(Cfg['noNavigHidd'] === 1 && post && post.Vis === 0) {
 		Pviews.isActive = false;
 		return;
 	}
@@ -4283,7 +4283,7 @@ function showPview(link) {
 }
 
 function overRefLink(e) {
-	if(Cfg['navig'] === 0 || /^>>$/.test(this.textContent)) {
+	if(Cfg['linksNavig'] === 0 || /^>>$/.test(this.textContent)) {
 		return;
 	}
 	if(!Pviews.isActive) {
@@ -4292,7 +4292,7 @@ function overRefLink(e) {
 			if(Pviews.isActive) {
 				showPview(e.target);
 			}
-		}, +Cfg['nashow']);
+		}, +Cfg['linksOver']);
 	} else {
 		showPview(this);
 	}
@@ -4306,7 +4306,7 @@ function outRefLink() {
 }
 
 function eventRefLink(el) {
-	if(Cfg['navig'] !== 0) {
+	if(Cfg['linksNavig'] !== 0) {
 		$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
 			link.onmouseover = overRefLink;
 			link.onmouseout = outRefLink;
@@ -4410,13 +4410,13 @@ function addPostFunc(post) {
 	addLinkTube(post);
 	addLinkImg(post);
 	addImgSearch(post);
-	if(Cfg['pimgs'] !== 0) {
+	if(Cfg['preLoadImgs'] !== 0) {
 		preloadImages(post);
 	}
 	if(post.Vis === 0) {
 		setPostVisib(post, 0);
 	}
-	if(Cfg['delhd'] === 1) {
+	if(Cfg['delHiddPost'] === 1) {
 		mergeHidden(post);
 	}
 	if(isExpImg) {
@@ -4430,10 +4430,10 @@ function newPost(thr, post, i) {
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
 	addPostButtons(post);
-	if(Cfg['expimg'] !== 0) {
+	if(Cfg['expandImgs'] !== 0) {
 		eventPostImg(post);
 	}
-	if(Cfg['expost'] !== 0 && !TNum) {
+	if(Cfg['expandPosts'] !== 0 && !TNum) {
 		expandPost(post);
 	}
 	addPostFunc(post);
@@ -4492,7 +4492,7 @@ function expandPost(post) {
 			post
 		);
 	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
-		if(Cfg['expost'] === 1) {
+		if(Cfg['expandPosts'] === 1) {
 			getFullMsg(el, false);
 		} else {
 			el.onclick = function(e) {
@@ -4632,7 +4632,7 @@ function loadPages(len) {
 /*-------------------------------Threads updater------------------------------*/
 
 function setUpdButtonState(state) {
-	if(TNum && Cfg['updthr'] !== 3) {
+	if(TNum && Cfg['updThread'] !== 3) {
 		$x('.//a[starts-with(@id,"DESU_btnUpd")]', doc).id = 'DESU_btnUpd' + state;
 	}
 }
@@ -4678,17 +4678,17 @@ function infoNewPosts(err, inf) {
 		return;
 	}
 	closeAlert($id('DESU_alertNewP'));
-	if(Cfg['updthr'] === 3) {
+	if(Cfg['updThread'] === 3) {
 		return;
 	}
 	setUpdButtonState('On');
-	if(Cfg['updthr'] === 1) {
+	if(Cfg['updThread'] === 1) {
 		if(doc.body.className === 'focused') {
 			return;
 		}
 		inf += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
 	}
-	if(Cfg['updfav'] !== 0 && favIcon) {
+	if(Cfg['favIcoBlink'] !== 0 && favIcon) {
 		clearInterval(favIconInterval);
 		if(inf > 0) {
 			favIconInterval = setInterval(function() {
@@ -4705,7 +4705,7 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
-	if(nav.Chrome && Cfg['dNotif'] !== 0 && inf > 0) {
+	if(nav.Chrome && Cfg['desktNotif'] !== 0 && inf > 0) {
 		desktopNotification(inf);
 	}
 }
@@ -4876,13 +4876,13 @@ function loadNewPosts(inf, fn) {
 }
 
 function initThreadsUpdater() {
-	var C = Cfg['updint'],
+	var C = Cfg['updThrIntrv'],
 		t = 6e4 * (C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
-	if(Cfg['updthr'] === 1) {
+	if(Cfg['updThread'] === 1) {
 		ajaxInterval = setInterval(function() {
 			loadNewPosts(false, null);
 		}, t);
-	} else if(Cfg['updthr'] === 2) {
+	} else if(Cfg['updThread'] === 2) {
 		ajaxInterval = setInterval(function() {
 			if(aib.hana) {
 				getJSON(
@@ -4918,7 +4918,7 @@ function initThreadsUpdater() {
 
 function doPostFilters(post) {
 	hideByWipe(post);
-	if(Cfg['spells'] !== 0) {
+	if(Cfg['hideBySpell'] !== 0) {
 		hideBySpells(post);
 	}
 }
@@ -4949,7 +4949,7 @@ function togglePost(post, vis) {
 function applyPostVisib(post, vis, note) {
 	var el,
 		pNum = post.Num;
-	if(vis === 0 && Cfg['delhd'] !== 2) {
+	if(vis === 0 && Cfg['delHiddPost'] !== 2) {
 		el = aib.getRef(post);
 		el.onmouseover = function() {
 			if(post.Vis === 0) {
@@ -4984,7 +4984,7 @@ function applyPostVisib(post, vis, note) {
 			toggleHiddenThread(post, 0);
 			post.thr.Vis = vis;
 		}
-	} else if(Cfg['delhd'] === 2) {
+	} else if(Cfg['delHiddPost'] === 2) {
 		(aib.getWrap(post) || post).style.display = vis === 0 ? 'none' : '';
 	}
 	if(!sav.cookie) {
@@ -5000,7 +5000,7 @@ function setPostVisib(post, vis) {
 	post.Btns.firstChild.className = vis === 0 ? 'DESU_btnUnhide' : 'DESU_btnHide';
 	togglePost(post, vis);
 	applyPostVisib(post, vis, false);
-	if(Cfg['navhid'] !== 0) {
+	if(Cfg['strikeHidd'] !== 0) {
 		setTimeout(function() {
 			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
 				el.className = vis === 0 ? 'DESU_refHid' : '';
@@ -5104,7 +5104,7 @@ function processHidden(newCfg, oldCfg) {
 	if(newCfg === 1) {
 		Posts.forEach(mergeHidden);
 	}
-	saveCfg('delhd', newCfg);
+	saveCfg('delHiddPost', newCfg);
 	updateCSS();
 }
 
@@ -5420,7 +5420,7 @@ function checkSpells(post) {
 }
 
 function hideBySpells(post) {
-	if(Cfg['filthr'] === 0 && post.isOp) {
+	if(Cfg['filterThrds'] === 0 && post.isOp) {
 		return;
 	}
 	var exp = checkSpells(post);
@@ -5463,7 +5463,7 @@ function toggleSpells() {
 		if(fld) {
 			fld.value = val;
 		}
-		if(Cfg['spells'] !== 0) {
+		if(Cfg['hideBySpell'] !== 0) {
 			Posts.forEach(hideBySpells);
 			hideTextTube();
 		} else {
@@ -5482,7 +5482,7 @@ function toggleSpells() {
 		if(fld) {
 			$id('DESU_spells').checked = false;
 		}
-		saveCfg('spells', 0);
+		saveCfg('hideBySpell', 0);
 	}
 }
 
@@ -5520,11 +5520,11 @@ function applySpells(txt) {
 	unHideTextTube();
 	saveSpells(val);
 	if(val !== '') {
-		saveCfg('spells', 1);
+		saveCfg('hideBySpell', 1);
 		Posts.forEach(hideBySpells);
 		hideTextTube();
 	} else {
-		saveCfg('spells', 0);
+		saveCfg('hideBySpell', 0);
 	}
 	saveHiddenPosts();
 }
@@ -5535,7 +5535,7 @@ function applySpells(txt) {
 ==============================================================================*/
 
 function detectWipe_sameLines(txt) {
-	if(Cfg['samel'] === 0) {
+	if(Cfg['wipeSameLin'] === 0) {
 		return false;
 	}
 	var i, j, n, x,
@@ -5559,7 +5559,7 @@ function detectWipe_sameLines(txt) {
 }
 
 function detectWipe_sameWords(txt) {
-	if(Cfg['samew'] === 0) {
+	if(Cfg['wipeSameWrd'] === 0) {
 		return false;
 	}
 	var i, j, n, x, keys, pop,
@@ -5587,7 +5587,7 @@ function detectWipe_sameWords(txt) {
 }
 
 function detectWipe_longColumn(txt) {
-	if(Cfg['longp'] === 0) {
+	if(Cfg['wipeLongPst'] === 0) {
 		return false;
 	}
 	var rows = txt.split(/\s*\n\s*/),
@@ -5603,7 +5603,7 @@ function detectWipe_longColumn(txt) {
 }
 
 function detectWipe_longWords(txt) {
-	if(Cfg['longw'] === 0) {
+	if(Cfg['wipeLongWrd'] === 0) {
 		return false;
 	}
 	var i = 0,
@@ -5613,7 +5613,7 @@ function detectWipe_longWords(txt) {
 }
 
 function detectWipe_caseWords(txt) {
-	if(Cfg['caps'] === 0) {
+	if(Cfg['wipeCAPS'] === 0) {
 		return false;
 	}
 	var i, n, x, capsw, casew,
@@ -5641,7 +5641,7 @@ function detectWipe_caseWords(txt) {
 }
 
 function detectWipe_specSymbols(txt) {
-	if(Cfg['specs'] === 0) {
+	if(Cfg['wipeSpecial'] === 0) {
 		return false;
 	}
 	txt = txt.replace(/\s+/g, '');
@@ -5651,7 +5651,7 @@ function detectWipe_specSymbols(txt) {
 }
 
 function detectWipe_numbers(txt) {
-	if(Cfg['nums'] === 0) {
+	if(Cfg['wipeNumbers'] === 0) {
 		return false;
 	}
 	txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?:\s|$)/g, '');
@@ -5661,7 +5661,7 @@ function detectWipe_numbers(txt) {
 }
 
 function detectWipe(post) {
-	if(Cfg['awipe'] === 0) {
+	if(Cfg['hideByWipe'] === 0) {
 		return false;
 	}
 	return detectWipe_sameLines(post.Text) ||
@@ -5674,7 +5674,7 @@ function detectWipe(post) {
 }
 
 function hideByWipe(post) {
-	if(Cfg['filthr'] === 0 && post.isOp || post.Vis === 0 || post.Vis === 1) {
+	if(Cfg['filterThrds'] === 0 && post.isOp || post.Vis === 0 || post.Vis === 1) {
 		return;
 	}
 	var note = detectWipe(post);
@@ -5767,7 +5767,7 @@ function scriptCSS() {
 	// Post buttons
 	x += '.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; }\
 		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
-	if(Cfg['txtPostBtns'] === 0) {
+	if(Cfg['postBtnsTxt'] === 0) {
 		x += 'padding: 0 14px 14px 0; }';
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 		gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
@@ -5786,8 +5786,8 @@ function scriptCSS() {
 			.DESU_btnExpthr:after { content: "E"; }\
 			.DESU_btnFav:after { content: "F"; }\
 			.DESU_btnFavSel:after { content: "[F]"; }\
-			.DESU_btnSage:after { content: "SAGE!"; }\
-			.DESU_btnSrc:after { content: "[SAUCE]"; }';
+			.DESU_btnSage:after { content: "Sage!"; }\
+			.DESU_btnSrc:after { content: "[Sauce]"; }';
 	}
 
 	// Search images buttons
@@ -5966,35 +5966,35 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '#DESU_panel { ' + (Cfg['attach'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
-		.DESU_content { ' + (Cfg['attach'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
-		.DESU_content > table { ' + (Cfg['attach'] === 0 ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }';
-	if(Cfg['icount'] === 0) {
+	var x = '#DESU_panel { ' + (Cfg['attachPanel'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
+		.DESU_content { ' + (Cfg['attachPanel'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
+		.DESU_content > table { ' + (Cfg['attachPanel'] === 0 ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }';
+	if(Cfg['panelCounter'] === 0) {
 		x += '#DESU_panelInfo { display: none; }';
 	}
-	if(Cfg['showmp'] === 0) {
+	if(Cfg['expandPanel'] === 0) {
 		x += '#DESU_panelBtns, #DESU_panelInfo { display: none; }';
 	}
-	if(Cfg['mask'] !== 0) {
+	if(Cfg['maskImgs'] !== 0) {
 		x+= '.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
 			.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
 	}
-	if(Cfg['delhd'] === 2) {
+	if(Cfg['delHiddPost'] === 2) {
 		x += 'div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }';
 	}
-	if(Cfg['noname'] !== 0) {
+	if(Cfg['noPostNames'] !== 0) {
 		x += '.commentpostername, .postername, .postertrip { display: none; }';
 	}
-	if(Cfg['ospoil'] !== 0) {
+	if(Cfg['noSpoilers'] !== 0) {
 		x += '.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }';
 	}
-	if(Cfg['noscrl'] !== 0) {
+	if(Cfg['noPostScrl'] !== 0) {
 		x += 'blockquote, .code_part { max-height: 100% !important; overflow: visible !important; }';
 	}
-	if(Cfg['norule'] !== 0) {
+	if(Cfg['noBoardRule'] !== 0) {
 		x += (aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu && Cfg['ytube'] !== 0) {
+	if(aib.abu && Cfg['addYouTube'] !== 0) {
 		x += 'div[id^="post_video"] { display: none !important; }';
 	}
 	$id('DESU_dynCss').textContent = x;
@@ -6008,19 +6008,19 @@ function updateCSS() {
 function checkForUpdates(force, fn) {
 	var day = 2 * 1000 * 60 * 60 * 24,
 		updInt =
-			Cfg['supdint'] === 0 ? 0
-			: Cfg['supdint'] === 1 ? day
-			: Cfg['supdint'] === 2 ? day * 2
-			: Cfg['supdint'] === 3 ? day * 7
-			: Cfg['supdint'] === 4 ? day * 14
-			: Cfg['supdint'] === 5 && day * 30;
-	if(!force && Date.now() - +Cfg['lupdchk'] < updInt) {
+			Cfg['scrUpdIntrv'] === 0 ? 0
+			: Cfg['scrUpdIntrv'] === 1 ? day
+			: Cfg['scrUpdIntrv'] === 2 ? day * 2
+			: Cfg['scrUpdIntrv'] === 3 ? day * 7
+			: Cfg['scrUpdIntrv'] === 4 ? day * 14
+			: Cfg['scrUpdIntrv'] === 5 && day * 30;
+	if(!force && Date.now() - +Cfg['lastScrUpd'] < updInt) {
 		return;
 	}
 	GM_xmlhttpRequest({
 		method: 'GET',
 		url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
-			+ (Cfg['betaupd'] ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
+			+ (Cfg['betaScrUpd'] ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
 		headers: {
 			'Content-Type': 'text/plain'
 		},
@@ -6043,7 +6043,7 @@ function checkForUpdates(force, fn) {
 					}
 					return;
 				}
-				Cfg['lupdchk'] = Date.now();
+				Cfg['lastScrUpd'] = Date.now();
 				while(i < len) {
 					if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 						upd = true;
@@ -6055,7 +6055,7 @@ function checkForUpdates(force, fn) {
 				}
 				if(upd) {
 					fn('<a style="color: blue; font-weight: bold;" href="' + (
-						Cfg['betaupd']
+						Cfg['betaScrUpd']
 							? 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
 								+ 'master/Dollchan_Extension_Tools.user.js'
 							: 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/'
@@ -6635,7 +6635,7 @@ function tryToParse() {
 }
 
 function replaceDelform(el) {
-	if(aib.fch || aib.krau || dTime || Cfg['spells'] !== 0 && oSpells.rep[0]) {
+	if(aib.fch || aib.krau || dTime || Cfg['hideBySpell'] !== 0 && oSpells.rep[0]) {
 		var txt = el.innerHTML;
 		if(dTime) {
 			dTime.init(txt);
@@ -6644,10 +6644,10 @@ function replaceDelform(el) {
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
 		}
-		if(aib.fch && Cfg['ospoil'] !== 0) {
+		if(aib.fch && Cfg['noSpoilers'] !== 0) {
 			txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
 		}
-		if(Cfg['spells'] !== 0 && oSpells.rep[0]) {
+		if(Cfg['hideBySpell'] !== 0 && oSpells.rep[0]) {
 			txt = doReplace(oSpells.rep, txt);
 		}
 		el.innerHTML = txt;
@@ -6706,7 +6706,7 @@ function initUpdater() {
 			},
 			onvis = function() {
 				doc.body.className = 'focused';
-				if(Cfg['updfav'] !== 0 && favIcon) {
+				if(Cfg['favIcoBlink'] !== 0 && favIcon) {
 					clearInterval(favIconInterval);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
 					doc.head.appendChild($new('link', {
@@ -6714,13 +6714,13 @@ function initUpdater() {
 						'rel': 'shortcut icon'
 					}, null));
 				}
-				if(Cfg['updthr'] === 1) {
+				if(Cfg['updThread'] === 1) {
 					setTimeout(function() {
 						doc.title = docTitle;
 					}, 0);
 				}
 			};
-		if(Cfg['rtitle'] === 0) {
+		if(Cfg['rePageTitle'] === 0) {
 			docTitle = doc.title;
 		} else {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
@@ -6739,7 +6739,7 @@ function initUpdater() {
 			window.onfocus = onvis;
 		}
 		initThreadsUpdater();
-		if(Cfg['updthr'] === 2 || Cfg['updthr'] === 3) {
+		if(Cfg['updThread'] === 2 || Cfg['updThread'] === 3) {
 			$after($x('.//div[contains(@class," DESU_thread")]', doc), $event($add(
 				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'
 			), {
@@ -6756,7 +6756,7 @@ function initUpdater() {
 			window.scrollTo(0, 0);
 		}, 20);
 	}
-	if(Cfg['enupd'] !== 0) {
+	if(Cfg['updScript'] !== 0) {
 		checkForUpdates(false, function(html) {
 			$alert(html, 'UpdAvail', false);
 		});
@@ -6792,7 +6792,7 @@ function doScript() {
 		return;
 	}
 	Log('parseDelform');
-	if(Cfg['keynav'] !== 0) {
+	if(Cfg['keybNavig'] !== 0) {
 		initKeyNavig();
 		Log('initKeyNavig');
 	}
@@ -6811,45 +6811,45 @@ function doScript() {
 	Posts.forEach(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
-	if(Cfg['navmrk'] !== 0) {
+	if(Cfg['markViewed'] !== 0) {
 		readViewedPosts();
 	}
 	Log('readPosts');
 	Posts.forEach(doPostFilters);
 	Log('doPostFilters');
-	if(Cfg['delhd'] === 1) {
+	if(Cfg['delHiddPost'] === 1) {
 		Posts.forEach(mergeHidden);
 		Log('mergeHidden');
 	}
-	if(Cfg['expimg'] !== 0) {
+	if(Cfg['expandImgs'] !== 0) {
 		Posts.forEach(eventPostImg);
 		Log('eventPostImg');
 	}
-	if(Cfg['expost'] !== 0 && !TNum) {
+	if(Cfg['expandPosts'] !== 0 && !TNum) {
 		Posts.forEach(expandPost);
 		Log('expandPost');
 	}
-	if(Cfg['mp3'] !== 0) {
+	if(Cfg['addMP3'] !== 0) {
 		addLinkMP3(null);
 		Log('addLinkMP3');
 	}
-	if(Cfg['ytube'] !== 0) {
+	if(Cfg['addYouTube'] !== 0) {
 		addLinkTube(null);
 		Log('addLinkTube');
 	}
-	if(Cfg['addimg'] !== 0) {
+	if(Cfg['addImgs'] !== 0) {
 		addLinkImg(dForm);
 		Log('addLinkImg');
 	}
-	if(Cfg['imgsrc'] !== 0) {
+	if(Cfg['imgSrcBtns'] !== 0) {
 		addImgSearch(dForm);
 		Log('addImgSearch');
 	}
-	if(Cfg['navig'] === 2) {
+	if(Cfg['linksNavig'] === 2) {
 		genRefMap(pByNum);
 		Log('genRefMap');
 	}
-	if(Cfg['navig'] !== 0) {
+	if(Cfg['linksNavig'] !== 0) {
 		eventRefLink(dForm);
 		Log('eventRefLink');
 	}
@@ -6857,7 +6857,7 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
-	if(Cfg['pimgs'] !== 0) {
+	if(Cfg['preLoadImgs'] !== 0) {
 		preloadImages(dForm);
 		Log('preloadImages');
 	}
