@@ -3330,7 +3330,7 @@ function dateTime(pattern, timeDiff) {
 		return;
 	}
 	this.regex = pattern
-		.replace(/(?:([sihdny\-\+])\?){2,}/g, function() {
+		.replace(/(?:[sihdny]\?){2,}/g, function() {
 			return '(?:' + arguments[0].replace(/\?/g, '') + ')?';
 		})
 		.replace(/\-/g, '[^<]')
