@@ -2231,8 +2231,15 @@ function initKeyNavig() {
 			return;
 		}
 		if(e.ctrlKey || e.altKey || e.shiftKey
-			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
+			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86 && kc !== 116)
 		) {
+			return;
+		}
+		if(kc === 116) {
+			if(!TNum) {
+				$pd(e);
+				loadPages(1);
+			}
 			return;
 		}
 		$pd(e);
@@ -3330,6 +3337,9 @@ function dateTime(pattern, timeDiff) {
 		return;
 	}
 	this.regex = pattern
+		.replace(/(?:[sihdny]\?){2,}/g, function() {
+			return '(?:' + arguments[0].replace(/\?/g, '') + ')?';
+		})
 		.replace(/\-/g, '[^<]')
 		.replace(/\+/g, '[^0-9]')
 		.replace(/([sihdny]+)/g, '($1)')
@@ -3354,13 +3364,13 @@ dateTime.checkPattern = function(val) {
 
 dateTime.prototype.init = function(txt) {
 	if(this.inited || this.disabled) {
-		return;
+		return this;
 	}
 	var i = 1, j = 0, k, a, str,
 		m = txt.match(new RegExp(this.regex));
 	if(!m) {
 		this.disabled = true;
-		return;
+		return this;
 	}
 	this.rPattern = '';
 	str = m[0];
@@ -3370,19 +3380,17 @@ dateTime.prototype.init = function(txt) {
 		j = k + a.length;
 	}
 	this.inited = true;
+	return this;
 };
 
-dateTime.prototype.fix = function(txt, tReg) {
+dateTime.prototype.fix = function(txt) {
 	if(this.disabled) {
 		return txt;
-	}
-	if(!tReg) {
-		tReg = this.regex;
 	}
 	var arrM = Lng.month[lCode], arrW = Lng.week[lCode],
 		tPat = this.pattern, tRPat = this.rPattern,
 		diff = this.diff;
-	return txt.replace(new RegExp(tReg, 'g'), function() {
+	return txt.replace(new RegExp(this.regex, 'g'), function() {
 		var i, a, t, second, minute, hour, day, month, year, dtime;
 		for(i = 1; i < 8; i++) {
 			a = arguments[i];
@@ -4429,6 +4437,9 @@ function newPost(thr, post, i) {
 	pushPost(post, i);
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
+	if(post.isOp) {
+		post.dTitle = getTitle(post);
+	}
 	addPostButtons(post);
 	if(Cfg['expandImgs'] !== 0) {
 		eventPostImg(post);
@@ -4589,16 +4600,8 @@ function loadFavorThread() {
 	$disp(favt);
 }
 
-function loadPage(p, tClass, len) {
-	var thr, page = $new('div', {'id': 'DESU_page' + p}, null);
-	$append(dForm, [
-		$new('center', {
-			'text': p + Lng.page[lCode],
-			'style': 'font-size: 2em;'
-		}, null),
-		$new('hr', null, null),
-		page
-	]);
+function loadPage(page, p, tClass, last) {
+	var thr;
 	ajaxGetPosts(getPageUrl(aib.host, brd, p), null, null, function(dc, post, i) {
 		if(i === 0) {
 			thr = $new('div', {'class': tClass}, null);
@@ -4611,21 +4614,34 @@ function loadPage(p, tClass, len) {
 		}
 		newPost(thr, importPost(post), i);
 	}, function(err) {
-		if(p === len - 1) {
+		if(last) {
 			closeAlert($id('DESU_alertLPages'));
 			savePostsVisib();
 			readHiddenThreads();
 		}
-		thr = page = p = tClass = len = null;
+		thr = page = p = tClass = last = null;
 	});
 }
 
 function loadPages(len) {
 	$alert(Lng.loading[lCode], 'LPages', true);
+	var p = -1, page = dForm,
+		tClass = $c('DESU_thread', dForm).className;
 	dForm.innerHTML = '';
 	Posts = [];
-	for(p = 0, tClass = $c('DESU_thread', dForm).className; p < len; p++) {
-		loadPage(p, tClass, len);
+	while(++p < len) {
+		if(len > 1) {
+			page = $new('div', {'id': 'DESU_page' + p}, null);
+			$append(dForm, [
+				$new('center', {
+					'text': p + Lng.page[lCode],
+					'style': 'font-size: 2em;'
+				}, null),
+				$new('hr', null, null),
+				page
+			]);
+		}
+		loadPage(page, p, tClass, p === len - 1);
 	}
 }
 
@@ -4770,16 +4786,20 @@ function getHanaPost(postJson) {
 		post = $new('td', {
 			'id': 'reply' + id,
 			'class': 'reply DESU_post'
-		}, null);
-		post.innerHTML = '<a name="i' + id
+		}, null),
+		html = '<a name="i' + id
 			+ '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' + id
 			+ '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id
-			+ '" /></a><span class="postername">' + postJson['name'] + '</span> '
-			+ (dTime
-				? dTime.fix(postJson['date'], '(\\d\\d\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)[^0-9](\\d\\d)')
-				: postJson['date']
-			) + ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
+			+ '" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date']
+			+ ' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd
 			+ '/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
+	if(dTime) {
+		if(!aib.hDTFix) {
+			aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset']).init(postJson['date']);
+		}
+		html = aib.hDTFix.fix(html);
+	}
+	post.innerHTML = html;
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -6638,8 +6658,7 @@ function replaceDelform(el) {
 	if(aib.fch || aib.krau || dTime || Cfg['hideBySpell'] !== 0 && oSpells.rep[0]) {
 		var txt = el.innerHTML;
 		if(dTime) {
-			dTime.init(txt);
-			txt = dTime.fix(txt, null);
+			txt = dTime.init(txt).fix(txt, null);
 		}
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
