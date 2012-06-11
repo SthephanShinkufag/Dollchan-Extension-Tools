@@ -4231,7 +4231,7 @@ function getPview(post, pNum, parent, link, txt) {
 function getAjaxPview(b, pNum) {
 	var el, els, i;
 	if(!Pviews.ajaxed[b]) {
-		Pviews.ajaxed[b] = [];
+		return null;
 	}
 	el = Pviews.ajaxed[b][pNum];
 	if(b === brd || !el || el.aRep) {
@@ -4279,6 +4279,7 @@ function showPview(link) {
 		null, pNum, parent, link,
 		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
+	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
 		Pviews.ajaxed[b][pst.Num] = pst;
 	}, function(err) {
@@ -6154,7 +6155,10 @@ function getNavigator() {
 			nav.Firefox ? 'MozAnimationName'
 			: nav.Chrome ? 'webkitAnimationName'
 			: 'OAnimationName';
-		nav.nEvent = nav.Chrome ? 'webkitAnimationEnd' : 'animationend';
+		nav.nEvent =
+			nav.Chrome ? 'webkitAnimationEnd' :
+			nav.Opera ? 'oAnimationEnd'
+			: 'animationend';
 		nav.aEvent = function(el, fn) {
 			el.addEventListener(nav.nEvent, function aEvent(e) {
 				this.removeEventListener(nav.nEvent, aEvent, false);
