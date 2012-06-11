@@ -2231,8 +2231,15 @@ function initKeyNavig() {
 			return;
 		}
 		if(e.ctrlKey || e.altKey || e.shiftKey
-			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86)
+			|| (kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86 && kc !== 116)
 		) {
+			return;
+		}
+		if(kc === 116) {
+			if(!TNum) {
+				$pd(e);
+				loadPages(1);
+			}
 			return;
 		}
 		$pd(e);
@@ -4430,6 +4437,9 @@ function newPost(thr, post, i) {
 	pushPost(post, i);
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
+	if(post.isOp) {
+		post.dTitle = getTitle(post);
+	}
 	addPostButtons(post);
 	if(Cfg['expandImgs'] !== 0) {
 		eventPostImg(post);
@@ -4590,16 +4600,8 @@ function loadFavorThread() {
 	$disp(favt);
 }
 
-function loadPage(p, tClass, len) {
-	var thr, page = $new('div', {'id': 'DESU_page' + p}, null);
-	$append(dForm, [
-		$new('center', {
-			'text': p + Lng.page[lCode],
-			'style': 'font-size: 2em;'
-		}, null),
-		$new('hr', null, null),
-		page
-	]);
+function loadPage(page, p, tClass, last) {
+	var thr;
 	ajaxGetPosts(getPageUrl(aib.host, brd, p), null, null, function(dc, post, i) {
 		if(i === 0) {
 			thr = $new('div', {'class': tClass}, null);
@@ -4612,21 +4614,34 @@ function loadPage(p, tClass, len) {
 		}
 		newPost(thr, importPost(post), i);
 	}, function(err) {
-		if(p === len - 1) {
+		if(last) {
 			closeAlert($id('DESU_alertLPages'));
 			savePostsVisib();
 			readHiddenThreads();
 		}
-		thr = page = p = tClass = len = null;
+		thr = page = p = tClass = last = null;
 	});
 }
 
 function loadPages(len) {
 	$alert(Lng.loading[lCode], 'LPages', true);
+	var p = -1, page = dForm,
+		tClass = $c('DESU_thread', dForm).className;
 	dForm.innerHTML = '';
 	Posts = [];
-	for(p = 0, tClass = $c('DESU_thread', dForm).className; p < len; p++) {
-		loadPage(p, tClass, len);
+	while(++p < len) {
+		if(len > 1) {
+			page = $new('div', {'id': 'DESU_page' + p}, null);
+			$append(dForm, [
+				$new('center', {
+					'text': p + Lng.page[lCode],
+					'style': 'font-size: 2em;'
+				}, null),
+				$new('hr', null, null),
+				page
+			]);
+		}
+		loadPage(page, p, tClass, p === len - 1);
 	}
 }
 
