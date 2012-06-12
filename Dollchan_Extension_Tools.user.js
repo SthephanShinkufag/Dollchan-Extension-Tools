@@ -3991,6 +3991,7 @@ function getRefMap(pNum) {
 }
 
 function genRefMap(pBn) {
+	refMap = [];
 	nav.forEach(pBn, getRefMap);
 	nav.forEach(refMap, function(pNum) {
 		var post = pBn[pNum];
@@ -4001,10 +4002,10 @@ function genRefMap(pBn) {
 			);
 		}
 	});
-	refMap = [];
 }
 
 function updRefMap(post) {
+	refMap = [];
 	getRefMap.call(pByNum, post.Num);
 	nav.forEach(refMap, function(pNum) {
 		var pst = pByNum[pNum], el;
@@ -4022,7 +4023,6 @@ function updRefMap(post) {
 			eventRefLink(el);
 		}
 	});
-	refMap = [];
 }
 
 
@@ -4641,6 +4641,7 @@ function loadPages(len) {
 	var p = -1, page = dForm;
 	dForm.innerHTML = '';
 	Posts = [];
+	Pviews.ajaxed = {};
 	while(++p < len) {
 		if(len > 1) {
 			page = $new('div', {'id': 'DESU_page' + p}, null);
