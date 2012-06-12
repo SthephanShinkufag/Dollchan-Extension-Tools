@@ -651,7 +651,7 @@ function fixFunctions() {
 }
 
 function getThemeLang() {
-	return (Cfg['scriptStyle'] === 0 ? 'fr' : Cfg['scriptStyle'] === 1 ? 'en' : Cfg['scriptStyle'] === 2 ? 'ru' : 'de')
+	return (!Cfg['scriptStyle'] ? 'fr' : Cfg['scriptStyle'] === 1 ? 'en' : Cfg['scriptStyle'] === 2 ? 'ru' : 'de')
 }
 
 
@@ -792,7 +792,7 @@ function readCfg() {
 		Cfg['YTubeTitles'] = 0;
 		Cfg['updScript'] = 0;
 	}
-	if(Cfg['saveSage'] === 0) {
+	if(!Cfg['saveSage']) {
 		Cfg['sageReply'] = 0;
 	}
 	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
@@ -814,7 +814,7 @@ function saveCfg(name, val) {
 }
 
 function toggleCfg(name) {
-	saveCfg(name, Cfg[name] === 0 ? 1 : 0);
+	saveCfg(name, !Cfg[name] ? 1 : 0);
 }
 
 function getVisib(pNum) {
@@ -856,7 +856,7 @@ function readPostsVisib() {
 				sav.cookie && hThrds[brd].indexOf(pNum) >= 0
 					|| !sav.cookie && hThrds[brd][pNum] !== undefined
 			)) {
-				setPostVisib(post, 0);
+				post.Vis = 0;
 			} else if(post.Vis === 0) {
 				Visib[brd + pNum] = null;
 				post.Vis = null;
@@ -993,7 +993,7 @@ function markViewedPost(pNum) {
 }
 
 function readViewedPosts() {
-	if(Cfg['markViewed'] !== 0 && sav.session) {
+	if(Cfg['markViewed'] && sav.session) {
 		(sessionStorage.viewedPosts || '').split(',').forEach(markViewedPost);
 	}
 }
@@ -1123,7 +1123,7 @@ function toggleContent(name, isUpd) {
 	var el = $c('DESU_content', doc),
 		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
-		if(el.childElementCount && Cfg['animation'] !== 0 && nav.Anim) {
+		if(el.childElementCount && Cfg['animation'] && nav.Anim) {
 			nav.aEvent(el, function(node) {
 				showContent(node, id, name, isUpd);
 				id = name = isUpd = null;
@@ -1142,14 +1142,14 @@ function showContent(el, id, name, isUpd) {
 		return;
 	}
 	el.id = id;
-	if(Cfg['attachPanel'] === 0) {
+	if(!Cfg['attachPanel']) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
 	if(name === 'Cfg') {
 		addSettings();
 	} else {
 		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
-		if(Cfg['attachPanel'] !== 0) {
+		if(Cfg['attachPanel']) {
 			$t('table', el).style.backgroundColor = getStyle(doc.body, 'background-color');
 		}
 		if(name === 'Hid') {
@@ -1161,7 +1161,7 @@ function showContent(el, id, name, isUpd) {
 			addFavoritesTable();
 		}
 	}
-	if(Cfg['animation'] !== 0 && nav.Anim) {
+	if(Cfg['animation'] && nav.Anim) {
 		el.className = 'DESU_content DESU_cfgOpen';
 	}
 }
@@ -1183,7 +1183,7 @@ function addSettings() {
 				}
 			}
 		});
-		el.checked = Cfg[name] !== 0;
+		el.checked = Cfg[name];
 		return $New('label', null, [el, $txt(' ' + Lng.cfg[name][lCode])]);
 	},
 
@@ -1336,7 +1336,7 @@ function addSettings() {
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			divBox('favIcoBlink', null),
 			$if(nav.Chrome, divBox('desktNotif', function() {
-				if(Cfg['desktNotif'] !== 0) {
+				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
 				}
 			}))
@@ -1845,7 +1845,7 @@ function addFavoritesTable() {
 						});
 						ajaxGetPosts(null, arr[1], arr[2], function(dc, post, j) {
 							cnt++;
-						}, function(err) {
+						}, function(dc, err) {
 							$attr(c, {
 								'class': '',
 								'text': err || cnt
@@ -1864,7 +1864,7 @@ function addFavoritesTable() {
 					var arr = el.id.substr(13).split('|');
 					ajaxGetPosts(
 						getThrdUrl(arr[0], arr[1], arr[2]), null, null, null,
-						function(err) {
+						function(dc, err) {
 							if(err) {
 								removeFavorites(arr[0], arr[1], arr[2]);
 								saveFavorites($uneval(Favor));
@@ -1904,7 +1904,7 @@ function addFavoritesTable() {
 ==============================================================================*/
 
 function showAlert(el) {
-	if(Cfg['animation'] === 0) {
+	if(!Cfg['animation']) {
 		return;
 	}
 	if(nav.Anim) {
@@ -1932,7 +1932,7 @@ function closeAlert(el) {
 	if(!el) {
 		return;
 	}
-	if(Cfg['animation'] === 0) {
+	if(!Cfg['animation']) {
 		$del(el);
 		return;
 	}
@@ -1963,7 +1963,7 @@ function closeAlert(el) {
 }
 
 function blinkAlert(el) {
-	if(Cfg['animation'] === 0) {
+	if(!Cfg['animation']) {
 		return;
 	}
 	if(nav.Anim) {
@@ -2011,7 +2011,7 @@ function $alert(txt, id, wait) {
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
-	if(Cfg['closePopups'] !== 0 && !wait) {
+	if(Cfg['closePopups'] && !wait) {
 		setTimeout(function() {
 			closeAlert(el);
 			el = null;
@@ -2027,7 +2027,7 @@ function $alert(txt, id, wait) {
 function addSelMenu(el, fPanel, html) {
 	var y, pos,
 		pst = getPost(el);
-	if(Cfg['attachPanel'] !== 0 && fPanel) {
+	if(Cfg['attachPanel'] && fPanel) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh'
 			? 'bottom: 25'
@@ -2080,7 +2080,7 @@ function selectSpell(e) {
 }
 
 function selectPostHider(post) {
-	if(Cfg['menuHiddBtn'] === 0 || Cfg['filterThrds'] === 0 && post.isOp) {
+	if(!Cfg['menuHiddBtn'] || !Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
 	var a = addSelMenu(
@@ -2326,7 +2326,7 @@ function refreshCapImg(tNum) {
 }
 
 function doSageBtn() {
-	var c = Cfg['sageReply'] !== 0;
+	var c = Cfg['sageReply'];
 	$id('DESU_sageBtn').innerHTML = '&nbsp;' + (
 		c ? '<span class="DESU_btnSage"></span><b style="color: red;">SAGE</b>'
 		: '<i>(no&nbsp;sage)</i>'
@@ -2349,7 +2349,7 @@ function setUserPassw() {
 	if(el) {
 		saveCfg('passwValue', el.value.replace(/\|/g, ''));
 	}
-	val = Cfg['userPassw'] !== 0 ? Cfg['passwValue'] : $rnd().substring(0, 8);
+	val = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
 	el = $x('.//input[@type="password"]', dForm);
 	if(el) {
 		el.value = val;
@@ -2380,7 +2380,7 @@ function initPostform() {
 	} else {
 		$before(dForm, [pArea]);
 	}
-	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm'] !== 0) {
+	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
 	$after(pArea, $new('div', {
@@ -2395,8 +2395,8 @@ function initPostform() {
 	}
 }
 
-function doPostformChanges(a) {
-	var img, src, _img, sBtn, m, el,
+function doPostformChanges(m, el) {
+	var img, src, _img, sBtn,
 		pTxt = pr.txta,
 		resMove = function(e) {
 			var p = $offset(pTxt);
@@ -2435,12 +2435,12 @@ function doPostformChanges(a) {
 		'click': function(e) {
 			var txt = pr.txta.value;
 			pr.txta.value =
-				(Cfg['hideBySpell'] === 0 || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
-					+ (Cfg['userSignat'] !== 0 && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '');
-			if(Cfg['checkReply'] !== 0) {
+				(!Cfg['hideBySpell'] || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt))
+					+ (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '');
+			if(Cfg['checkReply']) {
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
-			if(Cfg['favOnReply'] !== 0 && pr.tNum) {
+			if(Cfg['favOnReply'] && pr.tNum) {
 				toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
 			}
 			if(pr.tNum) {
@@ -2458,13 +2458,13 @@ function doPostformChanges(a) {
 	$each($X('.//input[@type="text"]', pr.form), function(node) {
 		node.size = 35;
 	});
-	if(Cfg['noGoto'] !== 0 && pr.gothr) {
+	if(Cfg['noGoto'] && pr.gothr) {
 		$disp(pr.gothr);
 	}
-	if(Cfg['noPassword'] !== 0 && pr.passw) {
+	if(Cfg['noPassword'] && pr.passw) {
 		$disp($x(pr.tr, pr.passw));
 	}
-	if(Cfg['userName'] !== 0 && pr.name) {
+	if(Cfg['userName'] && pr.name) {
 		setTimeout(function() {
 			pr.name.value = Cfg['nameValue'];
 		}, 0);
@@ -2503,7 +2503,7 @@ function doPostformChanges(a) {
 					ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 					en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`',
 					i = en.length;
-				if(Cfg['captchaLang'] === 0 || e.which === 0) {
+				if(!Cfg['captchaLang'] || e.which === 0) {
 					return;
 				}
 				if(Cfg['captchaLang'] === 1) {
@@ -2559,7 +2559,7 @@ function doPostformChanges(a) {
 			}
 		}
 	}
-	if(Cfg['addSageBtn'] !== 0 && pr.mail) {
+	if(Cfg['addSageBtn'] && pr.mail) {
 		sBtn = $new('span', {
 			'id': 'DESU_sageBtn'}, {
 			'click': function(e) {
@@ -2579,7 +2579,7 @@ function doPostformChanges(a) {
 		}
 		setTimeout(doSageBtn, 0);
 	}
-	if(Cfg['checkReply'] !== 0) {
+	if(Cfg['checkReply']) {
 		if(nav.h5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
@@ -2893,13 +2893,13 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = Cfg['removeEXIF'] !== 0
+		var dat = Cfg['removeEXIF']
 			? [removeExif(this.result)]
 			: [this.result];
 		if(el.rarJPEG) {
 			dat.push(el.rarJPEG);
 		}
-		if(Cfg['postSameImg'] !== 0) {
+		if(Cfg['postSameImg']) {
 			dat.push(String(Math.round(Math.random() * 1e6)));
 		}
 		dF.data[idx] = toBlob(dat);
@@ -2987,7 +2987,7 @@ function showQuickReply(post) {
 	qArea.style.display = '';
 	if(!TNum) {
 		toggleQuickReply(tNum);
-		if(Cfg['noThrdForm'] !== 0) {
+		if(Cfg['noThrdForm']) {
 			$id('DESU_parea').style.display = 'none';
 		}
 	}
@@ -3043,7 +3043,7 @@ function insertRefLink(e) {
 	if(!/Reply|Ответ/.test(e.target.textContent)) {
 		e.stopPropagation();
 		$pd(e);
-		if(!TNum && Cfg['noThrdForm'] !== 0 && !pr.isQuick) {
+		if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
 			$id('DESU_parea').style.display = '';
 		}
 		if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
@@ -3143,8 +3143,8 @@ function addTextPanel() {
 	if(!pnl) {
 		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
 	}
-	pnl.lang = (Cfg['addTextBtns'] === 0 ? 'en' : Cfg['txtBtnsLoc'] === 0 ? 'ru' : '');
-	$after(Cfg['txtBtnsLoc'] === 0 ? (
+	pnl.lang = (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '');
+	$after(!Cfg['txtBtnsLoc'] ? (
 		aib.abu ? $id('hideUserFlds')
 		: aib._420 ? $c('popup', pr.form)
 		: pr.subm
@@ -3314,7 +3314,7 @@ function addPostButtons(post) {
 		}
 	}
 	$after(ref, post.Btns);
-	if(pr.on && Cfg['insertNum'] !== 0) {
+	if(pr.on && Cfg['insertNum']) {
 		if(aib.futr || (aib.nul && TNum)) {
 			$each($X('a', ref), function(el) {
 				el.onclick = null;
@@ -3485,10 +3485,10 @@ function addTubeEmbed(el, id, time) {
 	var wh = ' width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '" />';
 	el.innerHTML = Cfg['YTubeType'] === 1
 		? '<iframe type="text/html" src="https://www.youtube.com/embed/' + id
-			+ (Cfg['YTubeHD'] !== 0 ? '?hd=1&' : '?')
+			+ (Cfg['YTubeHD'] ? '?hd=1&' : '?')
 			+ 'start=' + time + '&html5=1" frameborder="0"' + wh
 		: '<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id
-			+ (Cfg['YTubeHD'] !== 0 ? '?hd=1&' : '?')
+			+ (Cfg['YTubeHD'] ? '?hd=1&' : '?')
 			+ 'start=' + time + '" wmode="transparent"' + wh;
 }
 
@@ -3500,7 +3500,7 @@ function addTubePlayer(el, m) {
 		return;
 	}
 	getTubeVideoLinks(id, function(url) {
-		var src = url ? (Cfg['YTubeHD'] === 0 ? url[43] : url[45] || url[44] || url[43]) : false;
+		var src = url ? (!Cfg['YTubeHD'] ? url[43] : url[45] || url[44] || url[43]) : false;
 		if(!src) {
 			addTubeEmbed(el, id, time);
 			return;
@@ -3550,7 +3550,7 @@ function clickTubeLink(e) {
 }
 
 function addLinkTube(post) {
-	if(Cfg['addYouTube'] === 0) {
+	if(!Cfg['addYouTube']) {
 		return;
 	}
 	$each($X('.//embed', post || dForm), function(el) {
@@ -3599,7 +3599,7 @@ function addLinkTube(post) {
 		}
 		link.className = 'DESU_ytLink';
 		link.onclick = clickTubeLink;
-		if(!nav.Opera && Cfg['YTubeTitles'] !== 0) {
+		if(!nav.Opera && Cfg['YTubeTitles']) {
 			GM_xmlhttpRequest({
 				method: 'GET',
 				url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1]
@@ -3647,7 +3647,7 @@ function unHideTextTube() {
 }
 
 function hideTextTube() {
-	if(Cfg['YTubeTitles'] === 0) {
+	if(!Cfg['YTubeTitles']) {
 		return;
 	}
 	$each($X('.//a[contains(@href,"youtu")]', dForm), function(link) {
@@ -3663,7 +3663,7 @@ function hideTextTube() {
 }
 
 function addLinkMP3(post) {
-	if(Cfg['addMP3'] === 0) {
+	if(!Cfg['addMP3']) {
 		return;
 	}
 	$each($X('.//a[contains(@href,".mp3")]', post || dForm), function(link) {
@@ -3784,7 +3784,7 @@ function addFullImg(a, sz, isExp) {
 }
 
 function addLinkImg(el) {
-	if(Cfg['addImgs'] === 0) {
+	if(!Cfg['addImgs']) {
 		return;
 	}
 	$each($X(
@@ -3816,7 +3816,7 @@ function addLinkImg(el) {
 			}
 		}));
 		a.onclick = function(e) {
-			if(Cfg['expandImgs'] !== 0 && e.button !== 1) {
+			if(Cfg['expandImgs'] && e.button !== 1) {
 				$pd(e);
 				addFullImg(this, this.firstChild.title.split('x'), null);
 			}
@@ -3866,7 +3866,7 @@ function eventPostImg(post) {
 				$rattr(img.parentNode, 'onclick');
 			}
 			a.addEventListener('click', function(e) {
-				if(Cfg['expandImgs'] !== 0 && e.button !== 1) {
+				if(Cfg['expandImgs'] && e.button !== 1) {
 					$pd(e);
 					expandPostImg(this, post, null);
 				}
@@ -3876,7 +3876,7 @@ function eventPostImg(post) {
 }
 
 function parseImg(a, ab) {
-	if(Cfg['findRarJPEG'] !== 1) {
+	if(!Cfg['findRarJPEG']) {
 		return;
 	}
 	var dat = new Uint8Array(ab),
@@ -3914,6 +3914,9 @@ function parseImg(a, ab) {
 }
 
 function preloadImages(el) {
+	if(!Cfg['preLoadImgs']) {
+		return;
+	}
 	var mReqs = 4,
 		cReq = 0,
 		i = 0,
@@ -3988,6 +3991,7 @@ function getRefMap(pNum) {
 }
 
 function genRefMap(pBn) {
+	refMap = [];
 	nav.forEach(pBn, getRefMap);
 	nav.forEach(refMap, function(pNum) {
 		var post = pBn[pNum];
@@ -3998,10 +4002,10 @@ function genRefMap(pBn) {
 			);
 		}
 	});
-	refMap = [];
 }
 
 function updRefMap(post) {
+	refMap = [];
 	getRefMap.call(pByNum, post.Num);
 	nav.forEach(refMap, function(pNum) {
 		var pst = pByNum[pNum], el;
@@ -4019,7 +4023,6 @@ function updRefMap(post) {
 			eventRefLink(el);
 		}
 	});
-	refMap = [];
 }
 
 
@@ -4028,7 +4031,7 @@ function updRefMap(post) {
 ==============================================================================*/
 
 function closePview(el) {
-	if(Cfg['animation'] === 0 || !nav.Anim) {
+	if(!Cfg['animation'] || !nav.Anim) {
 		$del(el);
 		return;
 	}
@@ -4114,7 +4117,7 @@ function setPviewPostion(link, pView, anim) {
 	if(left === pView.style.left && top === pView.style.top) {
 		return;
 	}
-	if(Cfg['animation'] === 0 || !anim) {
+	if(!Cfg['animation'] || !anim) {
 		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
 		return;
 	}
@@ -4192,7 +4195,7 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.Num);
 		}
 		eventRefLink(pView);
-		if(Cfg['markViewed'] !== 0) {
+		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function() {
 				markViewedPost(pNum);
 				saveViewedPosts(pNum);
@@ -4219,7 +4222,7 @@ function getPview(post, pNum, parent, link, txt) {
 		Pviews.current = el;
 	}
 	markPviewToDel(el, false);
-	if(Cfg['animation'] !== 0 && nav.Anim) {
+	if(Cfg['animation'] && nav.Anim) {
 		nav.aEvent(pView, function(node) {
 			node.style[nav.aName] = '';
 		});
@@ -4231,7 +4234,7 @@ function getPview(post, pNum, parent, link, txt) {
 function getAjaxPview(b, pNum) {
 	var el, els, i;
 	if(!Pviews.ajaxed[b]) {
-		Pviews.ajaxed[b] = [];
+		return null;
 	}
 	el = Pviews.ajaxed[b][pNum];
 	if(b === brd || !el || el.aRep) {
@@ -4279,6 +4282,7 @@ function showPview(link) {
 		null, pNum, parent, link,
 		'<span class="DESU_wait">' + Lng.loading[lCode] + '</span>'
 	);
+	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, function(dc, pst, i) {
 		Pviews.ajaxed[b][pst.Num] = pst;
 	}, function(err) {
@@ -4291,7 +4295,7 @@ function showPview(link) {
 }
 
 function overRefLink(e) {
-	if(Cfg['linksNavig'] === 0 || /^>>$/.test(this.textContent)) {
+	if(!Cfg['linksNavig'] || /^>>$/.test(this.textContent)) {
 		return;
 	}
 	if(!Pviews.isActive) {
@@ -4314,7 +4318,7 @@ function outRefLink() {
 }
 
 function eventRefLink(el) {
-	if(Cfg['linksNavig'] !== 0) {
+	if(Cfg['linksNavig']) {
 		$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
 			link.onmouseover = overRefLink;
 			link.onmouseout = outRefLink;
@@ -4327,8 +4331,7 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function parseHTMLdata(html, pFn) {
-	var dc = HTMLtoDOM(html);
+function parseHTMLdata(dc, pFn) {
 	if(!pr.on && oeForm) {
 		pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
 		$before(oeForm, [pr.form]);
@@ -4348,15 +4351,16 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 		method: 'GET',
 		url: url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt)),
 		onreadystatechange: function(xhr) {
+			var dc = null;
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
-					parseHTMLdata(xhr.responseText, pFn);
-					fFn();
+					dc = HTMLtoDOM(xhr.responseText);
+					parseHTMLdata(dc, pFn);
+					fFn(dc, null);
 				} else {
-					fFn(
-						xhr.status === 0
-							? Lng.noConnect[lCode]
-							: 'HTTP [' + xhr.status + '] ' + xhr.statusText
+					fFn(dc, xhr.status === 0
+						? Lng.noConnect[lCode]
+						: 'HTTP [' + xhr.status + '] ' + xhr.statusText
 					);
 				}
 				fFn = pFn = null;
@@ -4396,7 +4400,7 @@ function importPost(post) {
 
 function insertPost(thr, post) {
 	var pst, el;
-	if(postWrapper && post.Count !== 0) {
+	if(postWrapper) {
 		pst = postWrapper.cloneNode(true);
 		el = $x(aib.xPost, pst);
 		if(el) {
@@ -4418,9 +4422,7 @@ function addPostFunc(post) {
 	addLinkTube(post);
 	addLinkImg(post);
 	addImgSearch(post);
-	if(Cfg['preLoadImgs'] !== 0) {
-		preloadImages(post);
-	}
+	preloadImages(post);
 	if(post.Vis === 0) {
 		setPostVisib(post, 0);
 	}
@@ -4437,14 +4439,11 @@ function newPost(thr, post, i) {
 	pushPost(post, i);
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
-	if(post.isOp) {
-		post.dTitle = getTitle(post);
-	}
 	addPostButtons(post);
-	if(Cfg['expandImgs'] !== 0) {
+	if(Cfg['expandImgs']) {
 		eventPostImg(post);
 	}
-	if(Cfg['expandPosts'] !== 0 && !TNum) {
+	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
 	}
 	addPostFunc(post);
@@ -4481,7 +4480,7 @@ function getFullMsg(el, addFunc) {
 			el = post = null;
 			throw '';
 		}
-	}, function(err) {});
+	}, function(dc, err) {});
 }
 
 function processFullMsg(post) {
@@ -4521,7 +4520,7 @@ function loadThread(op, last, fn) {
 	}
 	ajaxGetPosts(null, brd, op.Num, function(dc, post, j) {
 		psts.push(importPost(post));
-	}, function(err) {
+	}, function(dc, err) {
 		var i, thr = op.thr;
 		if(err) {
 			$alert(err, 'LoadThr', false);
@@ -4600,35 +4599,49 @@ function loadFavorThread() {
 	$disp(favt);
 }
 
-function loadPage(page, p, tClass, last) {
-	var thr;
-	ajaxGetPosts(getPageUrl(aib.host, brd, p), null, null, function(dc, post, i) {
-		if(i === 0) {
-			thr = $new('div', {'class': tClass}, null);
-			thr.Num = post.Num;
-			$append(page, [
-				thr,
-				$new('br', {'clear': 'left'}, null),
-				$new('hr', null, null)
-			]);
+function loadPage(page, p, last) {
+	ajaxGetPosts(getPageUrl(aib.host, brd, p), null, null, null, function(dc, err) {
+		var df = doc.importNode($$x(aib.xDForm, dc, dc), true), el;
+		while(el = df.firstChild) {
+			page.appendChild(el);
 		}
-		newPost(thr, importPost(post), i);
-	}, function(err) {
+		replaceDelform(page);
+		parseDelform(page, doc, pushPost);
+		preparePage(page);
 		if(last) {
+			Posts.forEach(addPostButtons);
+			readPostsVisib();
+			Posts.forEach(doPostFilters);
+			if(Cfg['delHiddPost'] === 1) {
+				Posts.forEach(mergeHidden);
+			}
+			Posts.forEach(eventPostImg);
+			Posts.forEach(expandPost);
+			addLinkMP3(null);
+			addLinkTube(null);
+			addLinkImg(dForm);
+			addImgSearch(dForm);
+			genRefMap(pByNum);
+			eventRefLink(dForm);
+			saveHiddenPosts();
+			if(isExpImg) {
+				Posts.forEach(function(post) {
+					expandAllPostImg(post, null);
+				});
+			}
 			closeAlert($id('DESU_alertLPages'));
-			savePostsVisib();
-			readHiddenThreads();
+			preloadImages(dForm);
 		}
-		thr = page = p = tClass = last = null;
+		page = last = null;
 	});
 }
 
 function loadPages(len) {
 	$alert(Lng.loading[lCode], 'LPages', true);
-	var p = -1, page = dForm,
-		tClass = $c('DESU_thread', dForm).className;
+	var p = -1, page = dForm;
 	dForm.innerHTML = '';
 	Posts = [];
+	Pviews.ajaxed = {};
 	while(++p < len) {
 		if(len > 1) {
 			page = $new('div', {'id': 'DESU_page' + p}, null);
@@ -4641,7 +4654,7 @@ function loadPages(len) {
 				page
 			]);
 		}
-		loadPage(page, p, tClass, p === len - 1);
+		loadPage(page, p, p === len - 1);
 	}
 }
 
@@ -4704,7 +4717,7 @@ function infoNewPosts(err, inf) {
 		}
 		inf += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
 	}
-	if(Cfg['favIcoBlink'] !== 0 && favIcon) {
+	if(Cfg['favIcoBlink'] && favIcon) {
 		clearInterval(favIconInterval);
 		if(inf > 0) {
 			favIconInterval = setInterval(function() {
@@ -4721,7 +4734,7 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
-	if(nav.Chrome && Cfg['desktNotif'] !== 0 && inf > 0) {
+	if(nav.Chrome && Cfg['desktNotif'] && inf > 0) {
 		desktopNotification(inf);
 	}
 }
@@ -4872,7 +4885,7 @@ function loadNewPosts(inf, fn) {
 			}
 		}
 		i++;
-	}, function(err) {
+	}, function(dc, err) {
 		infoNewPosts(err, len);
 		if(!err) {
 			del = Posts.length;
@@ -4922,7 +4935,7 @@ function initThreadsUpdater() {
 				var cnt = 0;
 				ajaxGetPosts(null, brd, TNum, function(dc, pst, i) {
 					cnt++;
-				}, function(err) {
+				}, function(dc, err) {
 					infoNewPosts(err, cnt - Posts.length);
 					cnt = null;
 				});
@@ -4938,7 +4951,7 @@ function initThreadsUpdater() {
 
 function doPostFilters(post) {
 	hideByWipe(post);
-	if(Cfg['hideBySpell'] !== 0) {
+	if(Cfg['hideBySpell']) {
 		hideBySpells(post);
 	}
 }
@@ -5020,7 +5033,7 @@ function setPostVisib(post, vis) {
 	post.Btns.firstChild.className = vis === 0 ? 'DESU_btnUnhide' : 'DESU_btnHide';
 	togglePost(post, vis);
 	applyPostVisib(post, vis, false);
-	if(Cfg['strikeHidd'] !== 0) {
+	if(Cfg['strikeHidd']) {
 		setTimeout(function() {
 			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
 				el.className = vis === 0 ? 'DESU_refHid' : '';
@@ -5440,7 +5453,7 @@ function checkSpells(post) {
 }
 
 function hideBySpells(post) {
-	if(Cfg['filterThrds'] === 0 && post.isOp) {
+	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
 	var exp = checkSpells(post);
@@ -5483,7 +5496,7 @@ function toggleSpells() {
 		if(fld) {
 			fld.value = val;
 		}
-		if(Cfg['hideBySpell'] !== 0) {
+		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
 			hideTextTube();
 		} else {
@@ -5555,7 +5568,7 @@ function applySpells(txt) {
 ==============================================================================*/
 
 function detectWipe_sameLines(txt) {
-	if(Cfg['wipeSameLin'] === 0) {
+	if(!Cfg['wipeSameLin']) {
 		return false;
 	}
 	var i, j, n, x,
@@ -5579,7 +5592,7 @@ function detectWipe_sameLines(txt) {
 }
 
 function detectWipe_sameWords(txt) {
-	if(Cfg['wipeSameWrd'] === 0) {
+	if(!Cfg['wipeSameWrd']) {
 		return false;
 	}
 	var i, j, n, x, keys, pop,
@@ -5607,7 +5620,7 @@ function detectWipe_sameWords(txt) {
 }
 
 function detectWipe_longColumn(txt) {
-	if(Cfg['wipeLongPst'] === 0) {
+	if(!Cfg['wipeLongPst']) {
 		return false;
 	}
 	var rows = txt.split(/\s*\n\s*/),
@@ -5623,17 +5636,17 @@ function detectWipe_longColumn(txt) {
 }
 
 function detectWipe_longWords(txt) {
-	if(Cfg['wipeLongWrd'] === 0) {
+	if(!Cfg['wipeLongWrd']) {
 		return false;
 	}
 	var i = 0,
 		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' '),
 		len = words.length;
-	return words[0] > 70 || words.join('').length / len > 10 ? 'long words' : false;
+	return words[0] > 50 || (len > 1 && words.join('').length / len > 10) ? 'long words' : false;
 }
 
 function detectWipe_caseWords(txt) {
-	if(Cfg['wipeCAPS'] === 0) {
+	if(!Cfg['wipeCAPS']) {
 		return false;
 	}
 	var i, n, x, capsw, casew,
@@ -5661,7 +5674,7 @@ function detectWipe_caseWords(txt) {
 }
 
 function detectWipe_specSymbols(txt) {
-	if(Cfg['wipeSpecial'] === 0) {
+	if(!Cfg['wipeSpecial']) {
 		return false;
 	}
 	txt = txt.replace(/\s+/g, '');
@@ -5671,7 +5684,7 @@ function detectWipe_specSymbols(txt) {
 }
 
 function detectWipe_numbers(txt) {
-	if(Cfg['wipeNumbers'] === 0) {
+	if(!Cfg['wipeNumbers']) {
 		return false;
 	}
 	txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?:\s|$)/g, '');
@@ -5681,7 +5694,7 @@ function detectWipe_numbers(txt) {
 }
 
 function detectWipe(post) {
-	if(Cfg['hideByWipe'] === 0) {
+	if(!Cfg['hideByWipe']) {
 		return false;
 	}
 	return detectWipe_sameLines(post.Text) ||
@@ -5694,7 +5707,7 @@ function detectWipe(post) {
 }
 
 function hideByWipe(post) {
-	if(Cfg['filterThrds'] === 0 && post.isOp || post.Vis === 0 || post.Vis === 1) {
+	if(!Cfg['filterThrds'] && post.isOp || post.Vis === 0 || post.Vis === 1) {
 		return;
 	}
 	var note = detectWipe(post);
@@ -5787,7 +5800,7 @@ function scriptCSS() {
 	// Post buttons
 	x += '.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; }\
 		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
-	if(Cfg['postBtnsTxt'] === 0) {
+	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 		gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
@@ -5986,35 +5999,35 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '#DESU_panel { ' + (Cfg['attachPanel'] === 0 ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
-		.DESU_content { ' + (Cfg['attachPanel'] === 0 ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
-		.DESU_content > table { ' + (Cfg['attachPanel'] === 0 ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }';
-	if(Cfg['panelCounter'] === 0) {
+	var x = '#DESU_panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
+		.DESU_content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
+		.DESU_content > table { ' + (!Cfg['attachPanel'] ? 'margin: 5px 20px;' : 'padding: 5px 10px; border: 1px solid grey;') + ' }';
+	if(!Cfg['panelCounter']) {
 		x += '#DESU_panelInfo { display: none; }';
 	}
-	if(Cfg['expandPanel'] === 0) {
+	if(!Cfg['expandPanel']) {
 		x += '#DESU_panelBtns, #DESU_panelInfo { display: none; }';
 	}
-	if(Cfg['maskImgs'] !== 0) {
+	if(Cfg['maskImgs']) {
 		x+= '.DESU_preImg, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
 			.DESU_preImg:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['delHiddPost'] === 2) {
 		x += 'div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }';
 	}
-	if(Cfg['noPostNames'] !== 0) {
+	if(Cfg['noPostNames']) {
 		x += '.commentpostername, .postername, .postertrip { display: none; }';
 	}
-	if(Cfg['noSpoilers'] !== 0) {
+	if(Cfg['noSpoilers']) {
 		x += '.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }';
 	}
-	if(Cfg['noPostScrl'] !== 0) {
+	if(Cfg['noPostScrl']) {
 		x += 'blockquote, .code_part { max-height: 100% !important; overflow: visible !important; }';
 	}
-	if(Cfg['noBoardRule'] !== 0) {
+	if(Cfg['noBoardRule']) {
 		x += (aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu && Cfg['addYouTube'] !== 0) {
+	if(aib.abu && Cfg['addYouTube']) {
 		x += 'div[id^="post_video"] { display: none !important; }';
 	}
 	$id('DESU_dynCss').textContent = x;
@@ -6028,7 +6041,7 @@ function updateCSS() {
 function checkForUpdates(force, fn) {
 	var day = 2 * 1000 * 60 * 60 * 24,
 		updInt =
-			Cfg['scrUpdIntrv'] === 0 ? 0
+			!Cfg['scrUpdIntrv'] ? 0
 			: Cfg['scrUpdIntrv'] === 1 ? day
 			: Cfg['scrUpdIntrv'] === 2 ? day * 2
 			: Cfg['scrUpdIntrv'] === 3 ? day * 7
@@ -6154,7 +6167,10 @@ function getNavigator() {
 			nav.Firefox ? 'MozAnimationName'
 			: nav.Chrome ? 'webkitAnimationName'
 			: 'OAnimationName';
-		nav.nEvent = nav.Chrome ? 'webkitAnimationEnd' : 'animationend';
+		nav.nEvent =
+			nav.Chrome ? 'webkitAnimationEnd' :
+			nav.Opera ? 'oAnimationEnd'
+			: 'animationend';
 		nav.aEvent = function(el, fn) {
 			el.addEventListener(nav.nEvent, function aEvent(e) {
 				this.removeEventListener(nav.nEvent, aEvent, false);
@@ -6655,7 +6671,7 @@ function tryToParse() {
 }
 
 function replaceDelform(el) {
-	if(aib.fch || aib.krau || dTime || Cfg['hideBySpell'] !== 0 && oSpells.rep[0]) {
+	if(aib.fch || aib.krau || dTime || Cfg['hideBySpell'] && oSpells.rep[0]) {
 		var txt = el.innerHTML;
 		if(dTime) {
 			txt = dTime.init(txt).fix(txt, null);
@@ -6663,41 +6679,41 @@ function replaceDelform(el) {
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
 		}
-		if(aib.fch && Cfg['noSpoilers'] !== 0) {
+		if(aib.fch && Cfg['noSpoilers']) {
 			txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
 		}
-		if(Cfg['hideBySpell'] !== 0 && oSpells.rep[0]) {
+		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
 			txt = doReplace(oSpells.rep, txt);
 		}
 		el.innerHTML = txt;
 	}
 }
 
-function preparePage() {
+function preparePage(node) {
 	var el;
 	if(aib.krau) {
-		$del($t('hr', dForm));
-		$del($t('hr', dForm.previousElementSibling));
+		$del($t('hr', node));
+		$del($t('hr', node.previousElementSibling));
 	} else if(aib.abu) {
-		el = $c('DESU_thread', dForm);
+		el = $c('DESU_thread', node);
 		if(TNum && el) {
 			$Del('following-sibling::node()', el);
 			$after(el, $new('hr', null, null));
 		}
 		$del((document.getElementsByName('makewatermark') || [])[0]);
 		if(!TNum) {
-			$del(dForm.nextElementSibling);
-			$del(dForm.nextElementSibling);
+			$del(node.nextElementSibling);
+			$del(node.nextElementSibling);
 		}
 	} else if(aib.brit) {
-		$each($X('.//span[@class="reflink"]', dForm), function(node) {
+		$each($X('.//span[@class="reflink"]', node), function(node) {
 			node = node.firstChild;
 			$rattr(node, 'onclick');
 			node.href = getThrdUrl(aib.host, brd, node.textContent);
 			node.target = '_blank';
 		});
 	} else if(aib.ylil) {
-		el = $t('iframe', dForm);
+		el = $t('iframe', node);
 		if(el) {
 			$del(el.nextElementSibling);
 			$del(el.nextElementSibling);
@@ -6725,7 +6741,7 @@ function initUpdater() {
 			},
 			onvis = function() {
 				doc.body.className = 'focused';
-				if(Cfg['favIcoBlink'] !== 0 && favIcon) {
+				if(Cfg['favIcoBlink'] && favIcon) {
 					clearInterval(favIconInterval);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
 					doc.head.appendChild($new('link', {
@@ -6739,7 +6755,7 @@ function initUpdater() {
 					}, 0);
 				}
 			};
-		if(Cfg['rePageTitle'] === 0) {
+		if(!Cfg['rePageTitle']) {
 			docTitle = doc.title;
 		} else {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
@@ -6775,7 +6791,7 @@ function initUpdater() {
 			window.scrollTo(0, 0);
 		}, 20);
 	}
-	if(Cfg['updScript'] !== 0) {
+	if(Cfg['updScript']) {
 		checkForUpdates(false, function(html) {
 			$alert(html, 'UpdAvail', false);
 		});
@@ -6811,11 +6827,11 @@ function doScript() {
 		return;
 	}
 	Log('parseDelform');
-	if(Cfg['keybNavig'] !== 0) {
+	if(Cfg['keybNavig']) {
 		initKeyNavig();
 		Log('initKeyNavig');
 	}
-	preparePage();
+	preparePage(dForm);
 	if(!liteMode) {
 		initUpdater();
 		Log('preparePage');
@@ -6830,7 +6846,7 @@ function doScript() {
 	Posts.forEach(addPostButtons);
 	Log('addPostButtons');
 	readPostsVisib();
-	if(Cfg['markViewed'] !== 0) {
+	if(Cfg['markViewed']) {
 		readViewedPosts();
 	}
 	Log('readPosts');
@@ -6840,27 +6856,27 @@ function doScript() {
 		Posts.forEach(mergeHidden);
 		Log('mergeHidden');
 	}
-	if(Cfg['expandImgs'] !== 0) {
+	if(Cfg['expandImgs']) {
 		Posts.forEach(eventPostImg);
 		Log('eventPostImg');
 	}
-	if(Cfg['expandPosts'] !== 0 && !TNum) {
+	if(Cfg['expandPosts'] && !TNum) {
 		Posts.forEach(expandPost);
 		Log('expandPost');
 	}
-	if(Cfg['addMP3'] !== 0) {
+	if(Cfg['addMP3']) {
 		addLinkMP3(null);
 		Log('addLinkMP3');
 	}
-	if(Cfg['addYouTube'] !== 0) {
+	if(Cfg['addYouTube']) {
 		addLinkTube(null);
 		Log('addLinkTube');
 	}
-	if(Cfg['addImgs'] !== 0) {
+	if(Cfg['addImgs']) {
 		addLinkImg(dForm);
 		Log('addLinkImg');
 	}
-	if(Cfg['imgSrcBtns'] !== 0) {
+	if(Cfg['imgSrcBtns']) {
 		addImgSearch(dForm);
 		Log('addImgSearch');
 	}
@@ -6868,7 +6884,7 @@ function doScript() {
 		genRefMap(pByNum);
 		Log('genRefMap');
 	}
-	if(Cfg['linksNavig'] !== 0) {
+	if(Cfg['linksNavig']) {
 		eventRefLink(dForm);
 		Log('eventRefLink');
 	}
@@ -6876,7 +6892,7 @@ function doScript() {
 	Log('saveHiddenPosts');
 	scriptCSS();
 	Log('scriptCSS');
-	if(Cfg['preLoadImgs'] !== 0) {
+	if(Cfg['preLoadImgs']) {
 		preloadImages(dForm);
 		Log('preloadImages');
 	}
