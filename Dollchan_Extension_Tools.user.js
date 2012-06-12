@@ -5630,7 +5630,7 @@ function detectWipe_longWords(txt) {
 	var i = 0,
 		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' '),
 		len = words.length;
-	return words[0] > 70 || words.join('').length / len > 10 ? 'long words' : false;
+	return words[0] > 50 || (len > 1 && words.join('').length / len > 10) ? 'long words' : false;
 }
 
 function detectWipe_caseWords(txt) {
