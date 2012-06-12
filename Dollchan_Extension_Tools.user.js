@@ -856,7 +856,7 @@ function readPostsVisib() {
 				sav.cookie && hThrds[brd].indexOf(pNum) >= 0
 					|| !sav.cookie && hThrds[brd][pNum] !== undefined
 			)) {
-				setPostVisib(post, 0);
+				post.Vis = 0;
 			} else if(post.Vis === 0) {
 				Visib[brd + pNum] = null;
 				post.Vis = null;
@@ -4611,6 +4611,7 @@ function loadPage(page, p, last) {
 		preparePage(page);
 		if(last) {
 			Posts.forEach(addPostButtons);
+			readPostsVisib();
 			Posts.forEach(doPostFilters);
 			if(Cfg['delHiddPost'] === 1) {
 				Posts.forEach(mergeHidden);
@@ -4624,7 +4625,6 @@ function loadPage(page, p, last) {
 			genRefMap(pByNum);
 			eventRefLink(dForm);
 			saveHiddenPosts();
-			readHiddenThreads();
 			if(isExpImg) {
 				Posts.forEach(function(post) {
 					expandAllPostImg(post, null);
