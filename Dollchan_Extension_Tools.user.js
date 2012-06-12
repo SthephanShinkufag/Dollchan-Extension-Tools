@@ -4600,7 +4600,6 @@ function loadFavorThread() {
 }
 
 function loadPage(page, p, last) {
-	var thr;
 	ajaxGetPosts(getPageUrl(aib.host, brd, p), null, null, null, function(dc, err) {
 		var df = doc.importNode($$x(aib.xDForm, dc, dc), true), el;
 		while(el = df.firstChild) {
@@ -4633,7 +4632,7 @@ function loadPage(page, p, last) {
 			closeAlert($id('DESU_alertLPages'));
 			preloadImages(dForm);
 		}
-		thr = page = last = null;
+		page = last = null;
 	});
 }
 
