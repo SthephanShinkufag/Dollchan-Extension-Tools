@@ -4440,13 +4440,13 @@ function newPost(thr, post, i) {
 	post.Vis = getVisib(post.Num);
 	post.thr = thr;
 	addPostButtons(post);
-	addPostFunc(post);
 	if(Cfg['expandImgs']) {
 		eventPostImg(post);
 	}
 	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
 	}
+	addPostFunc(post);
 	insertPost(thr, post);
 	if(aib.tiny) {
 		thr.appendChild($new('br', null, null));
