@@ -2711,7 +2711,6 @@ function delFileUtils(el) {
 function findError(dc) {
 	var err = '',
 		txt = '',
-		qArea = $id('DESU_qarea'),
 		xp = aib.hana && !dc.getElementById('delete_form') ? './/td[@class="post-error"]'
 			: aib.krau && !$t('form', dc) ? './/td[starts-with(@class,"message_text")]'
 			: aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]'
@@ -2746,6 +2745,7 @@ function findError(dc) {
 
 function checkUpload(err, url) {
 	var tNum, file,
+		qArea = $id('DESU_qarea'),
 		lFunc = function() {
 			closeAlert($id('DESU_alertUpload'));
 		};
@@ -3144,11 +3144,12 @@ function addTextPanel() {
 		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
 	}
 	pnl.lang = (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '');
-	$after(!Cfg['txtBtnsLoc'] ? (
-		aib.abu ? $id('hideUserFlds')
+	$after(
+		Cfg['txtBtnsLoc'] ? $id('DESU_txtResizer')
 		: aib._420 ? $c('popup', pr.form)
-		: pr.subm
-	) : $id('DESU_txtResizer'), pnl);
+		: pr.subm,
+		pnl
+	);
 	txtBtn('Bold');
 	txtBtn('Italic');
 	if(!aib._420) {
@@ -6297,7 +6298,7 @@ function getImageboard() {
 	aib.gazo = h === '2chan.net';
 	aib.brit = h === 'britfa.gs';
 	aib.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
-	aib.abu = $xb('.//script[contains(@src,"wakaba_new.js")]', doc);
+	aib.abu = !!$id('ABU_submitframe');
 	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
 	aib.fch = h === '4chan.org';
 	aib._420 = h === '420chan.org';
@@ -6700,7 +6701,6 @@ function preparePage(node) {
 			$Del('following-sibling::node()', el);
 			$after(el, $new('hr', null, null));
 		}
-		$del((document.getElementsByName('makewatermark') || [])[0]);
 		if(!TNum) {
 			$del(node.nextElementSibling);
 			$del(node.nextElementSibling);
@@ -6731,9 +6731,7 @@ function initUpdater() {
 		}
 	}
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
-		aib.abu ? 'self::form'
-		: aib.fch ? 'self::div[@class="boardBanner"]'
-		: 'self::div[@class="logo"]'
+		aib.fch ? 'self::div[@class="boardBanner"]' : 'self::div[@class="logo"]'
 	) + ' or self::h1]]]', dForm);
 	if(TNum) {
 		var onhid = function() {
