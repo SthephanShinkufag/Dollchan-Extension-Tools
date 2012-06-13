@@ -5946,8 +5946,7 @@ function scriptCSS() {
 			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.abu) {
-		x += '.ABU_refmap, .postpanel, .highslide, a[onclick^="window.open"] { display: none !important; }\
-			textarea { margin: 0 !important; }\
+		x += '.ABU_refmap, .postpanel, a[onclick^="window.open"] { display: none !important; }\
 			.DESU_aBtn { transition: none; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
@@ -6699,12 +6698,9 @@ function preparePage(node) {
 		el = $c('DESU_thread', node);
 		if(TNum && el) {
 			$Del('following-sibling::node()', el);
-			$after(el, $new('hr', null, null));
 		}
-		if(!TNum) {
-			$del(node.nextElementSibling);
-			$del(node.nextElementSibling);
-		}
+		$del(node.nextElementSibling);
+		$del(node.nextElementSibling);
 	} else if(aib.brit) {
 		$each($X('.//span[@class="reflink"]', node), function(node) {
 			node = node.firstChild;
