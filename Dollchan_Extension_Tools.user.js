@@ -4969,15 +4969,19 @@ function togglePost(post, vis) {
 		post.thr.style.display = vis === 0 ? 'none' : '';
 		return;
 	}
-	$each($X('following-sibling::*', $c(
-		aib.krau ? 'postheader'
-		: aib.ylil ? 'postinfo'
-		: aib.fch ? 'postInfo'
-		: aib.tiny ? 'intro'
-		: aib._420 ? 'replyheader'
-		: 'DESU_postPanel',
-		post
-	)), function(el) {
+	$each($X(
+		'following-sibling::*' + (
+			aib.abu ? '|preceding-sibling::*[following-sibling::span[@class="postername"]]' : ''
+		), $c(
+			aib.krau ? 'postheader'
+			: aib.ylil ? 'postinfo'
+			: aib.fch ? 'postInfo'
+			: aib.tiny ? 'intro'
+			: aib._420 ? 'replyheader'
+			: 'DESU_postPanel',
+			post
+		)
+	), function(el) {
 		el.style.display = vis === 0 ? 'none' : '';
 	});
 }
