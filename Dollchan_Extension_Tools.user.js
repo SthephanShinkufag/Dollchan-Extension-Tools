@@ -347,7 +347,7 @@ storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
-Pviews = {isActive: false, deleted: [], ajaxed: {}},
+Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
@@ -610,7 +610,9 @@ function fixFunctions() {
 	}
 	if(aib.hid) {
 		window.setTimeout = function(fn, num) {
-			if(typeof fn === 'function') fn();
+			if(typeof fn === 'function') {
+				fn.apply(null, Array.prototype.slice.call(arguments, 2));
+			}
 			return 1;
 		};
 	}
@@ -795,6 +797,8 @@ function readCfg() {
 	if(!Cfg['saveSage']) {
 		Cfg['sageReply'] = 0;
 	}
+	Cfg['linksOver'] = +Cfg['linksOver'];
+	Cfg['linksOut'] = +Cfg['linksOut'];
 	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
 	lCode = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {view: 0, op: 0, reply: 0});
@@ -2011,10 +2015,7 @@ function $alert(txt, id, wait) {
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
 	if(Cfg['closePopups'] && !wait) {
-		setTimeout(function() {
-			closeAlert(el);
-			el = null;
-		}, 4e3);
+		setTimeout(closeAlert, 4e3, el);
 	}
 }
 
@@ -2582,11 +2583,9 @@ function doPostformChanges(m, el) {
 		if(nav.h5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
-				setTimeout(function() {
-					ajaxSubmit(pr.form, function(dc, url) {
-						checkUpload(findError(dc), url);
-					});
-				}, 1e3);
+				setTimeout(ajaxSubmit, 1e3, pr.form, function(dc, url) {
+					checkUpload(findError(dc), url);
+				});
 			};
 			dForm.onsubmit = function(e) {
 				$pd(e);
@@ -2811,11 +2810,8 @@ function checkDelete(dc, url) {
 
 function ajaxSubmit(form, fn) {
 	var fd = new dataForm();
-	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
-		fd.append(el);
-	});
+	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), fd.append.bind(fd));
 	fd.send(form.action, fn);
-	fd = null;
 }
 
 function toBlob(arr) {
@@ -2911,11 +2907,7 @@ dataForm.prototype.readFile = function(el, idx) {
 
 dataForm.prototype.send = function(url, fn) {
 	if(this.busy > 0) {
-		var dF = this;
-		setTimeout(function() {
-			dF.send(url, fn);
-			dF = url = fn = null;
-		}, 200);
+		setTimeout(this.send.bind(this), 200, url, fn);
 		return;
 	}
 	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
@@ -3747,10 +3739,7 @@ function addFullImg(a, sz, isExp) {
 	if(full) {
 		if(!full.moved) {
 			$disp(full);
-			setTimeout(function() {
-				$del(full);
-				full = null;
-			}, 0);
+			setTimeout($del, 0, full);
 		} else {
 			full.moved = false;
 		}
@@ -3939,9 +3928,7 @@ function preloadImages(el) {
 				return;
 			}
 			if(cReq === mReqs) {
-				setTimeout(function() {
-					loadFunc(idx);
-				}, 200);
+				setTimeout(loadFunc, 200, idx);
 				return;
 			}
 			cReq++;
@@ -4045,34 +4032,22 @@ function delPviews(el) {
 	if(!el) {
 		return;
 	}
-	var lk = Pviews.current.lastkid || Pviews.current;
 	if(el.parent) {
 		el.parent.kid = null;
-		Pviews.current.lastkid = el.parent;
 	} else {
-		Pviews.current = Pviews.isActive = false;
+		Pviews.current = null;
 	}
 	do {
-		clearTimeout(lk.post.readDelay);
-		closePview(lk.post);
-	} while((lk = lk.parent) !== el.parent && lk);
+		clearTimeout(el.post.readDelay);
+		closePview(el.post);
+	} while(el = el.kid);
 }
 
-function markPviewToDel(el, forDel) {
-	if(!el) {
-		return;
+function markPviewToDel(el, delAll) {
+	if(el) {
+		clearTimeout(Pviews.outDelay);
+		Pviews.outDelay = setTimeout(delPviews, Cfg['linksOut'], delAll ? el : el.kid);
 	}
-	clearTimeout(Pviews.outDelay);
-	do {
-		el.forDel = forDel;
-	} while(el = el.parent);
-	Pviews.outDelay = setTimeout(function() {
-		for(el = Pviews.current; el; el = el.kid) {
-			if(el.forDel) {
-				return delPviews(el);
-			}
-		}
-	}, +Cfg['linksOut']);
 }
 
 function setPviewPostion(link, pView, anim) {
@@ -4145,6 +4120,7 @@ function markRefMap(pView, pNum) {
 }
 
 function getPview(post, pNum, parent, link, txt) {
+	clearTimeout(Pviews.outDelay);
 	var el, pView;
 	if(!post) {
 		if(!txt) {
@@ -4196,13 +4172,13 @@ function getPview(post, pNum, parent, link, txt) {
 		}
 		eventRefLink(pView);
 		if(Cfg['markViewed']) {
-			pView.readDelay = setTimeout(function() {
-				markViewedPost(pNum);
-				saveViewedPosts(pNum);
-			}, 2e3);
+			pView.readDelay = setTimeout(function(pN) {
+				markViewedPost(pN);
+				saveViewedPosts(pN);
+			}, 2e3, pNum);
 		}
 	}
-	el = pView.node = {parent: null, kid: null, lastkid: null, post: pView};
+	el = pView.node = {parent: null, kid: null, post: pView};
 	parent = parent.node;
 	pView.style.display = '';
 	dForm.appendChild(pView);
@@ -4210,18 +4186,17 @@ function getPview(post, pNum, parent, link, txt) {
 	pView.onmouseover = function() {
 		markPviewToDel(this.node, false);
 	};
-	pView.onmouseout = outRefLink;
+	pView.onmouseout = function() {
+		markPviewToDel(Pviews.current, true);
+	};
 	if(Pviews.current && parent) {
-		if(parent.kid) {
-			delPviews(parent.kid);
-		}
+		delPviews(parent.kid);
 		el.parent = parent;
-		Pviews.current.lastkid = parent.kid = el;
+		parent.kid = el;
 	} else {
 		delPviews(Pviews.current);
 		Pviews.current = el;
 	}
-	markPviewToDel(el, false);
 	if(Cfg['animation'] && nav.Anim) {
 		nav.aEvent(pView, function(node) {
 			node.style[nav.aName] = '';
@@ -4259,8 +4234,7 @@ function showPview(link) {
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : Pviews.current;
-	if(Cfg['noNavigHidd'] === 1 && post && post.Vis === 0) {
-		Pviews.isActive = false;
+	if(Cfg['noNavigHidd'] && post && post.Vis === 0) {
 		return;
 	}
 	if(Pviews.deleted[pNum]) {
@@ -4294,27 +4268,15 @@ function showPview(link) {
 	});
 }
 
-function overRefLink(e) {
-	if(!Cfg['linksNavig'] || /^>>$/.test(this.textContent)) {
-		return;
-	}
-	if(!Pviews.isActive) {
-		Pviews.isActive = true;
-		Pviews.overDelay = setTimeout(function() {
-			if(Pviews.isActive) {
-				showPview(e.target);
-			}
-		}, +Cfg['linksOver']);
-	} else {
-		showPview(this);
+function overRefLink() {
+	if(this.textContent.length > 2) {
+		this.overDelay = setTimeout(showPview, Cfg['linksOver'], this);
 	}
 }
 
 function outRefLink() {
-	clearTimeout(Pviews.overDelay);
-	if(Pviews.current) {
-		markPviewToDel(Pviews.current.lastkid || Pviews.current, true);
-	}
+	clearTimeout(this.overDelay);
+	markPviewToDel(Pviews.current, true);
 }
 
 function eventRefLink(el) {
@@ -4680,7 +4642,7 @@ function desktopNotification(count) {
 			'/favicon.ico', docTitle, Lng.unreadMsg[lCode].replace(/%m/g, count)
 		);
 	notif.ondisplay = function() {
-		setTimeout(function () {
+		setTimeout(function() {
 			notif.cancel();
 			notif = null;
 		}, 8e3);
@@ -5038,11 +5000,9 @@ function setPostVisib(post, vis) {
 	togglePost(post, vis);
 	applyPostVisib(post, vis, false);
 	if(Cfg['strikeHidd']) {
-		setTimeout(function() {
-			$each($X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
-				el.className = vis === 0 ? 'DESU_refHid' : '';
-			});
-		}, 0);
+		setTimeout($each, 0, $X('.//a[contains(@href,"#' + post.Num + '")]', dForm), function(el) {
+			el.className = vis === 0 ? 'DESU_refHid' : '';
+		});
 	}
 }
 
@@ -6109,9 +6069,7 @@ function isCompatible() {
 		window.top.postMessage('I' + window.name + '|' + doc.body.scrollHeight, '*');
 		$event(window, {
 			'load': function(e) {
-				setTimeout(function() {
-					window.top.postMessage('I' + window.name + '|' + doc.body.scrollHeight, '*');
-				}, 1E3);
+				setTimeout(window.top.postMessage, 1E3, 'I' + window.name + '|' + doc.body.scrollHeight, '*');
 			}
 		});
 	}
@@ -6628,10 +6586,9 @@ function parseDelform(node, dc, pFn) {
 	if(window.location.hash && el) {
 		$event(window, {
 			'load': function() {
-				setTimeout(function() {
-					el.className += ' DESU_post';
-					el = null;
-				}, 1e3);
+				setTimeout(function(e) {
+					e.className += ' DESU_post';
+				}, 1e3, el);
 			}
 		});
 	}
@@ -6767,9 +6724,7 @@ function initUpdater() {
 			}));
 		}
 	} else {
-		setTimeout(function() {
-			window.scrollTo(0, 0);
-		}, 20);
+		setTimeout(window.scrollTo, 20, 0, 0);
 	}
 	if(Cfg['updScript']) {
 		checkForUpdates(false, function(html) {
