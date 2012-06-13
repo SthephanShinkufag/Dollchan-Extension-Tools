@@ -347,7 +347,7 @@ storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
 nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon, favIconInterval,
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
-Pviews = {isActive: false, deleted: [], ajaxed: {}},
+Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
@@ -4235,7 +4235,6 @@ function showPview(link) {
 		parent = getPost(link),
 		el = parent.node ? parent.node.kid : Pviews.current;
 	if(Cfg['noNavigHidd'] && post && post.Vis === 0) {
-		Pviews.isActive = false;
 		return;
 	}
 	if(Pviews.deleted[pNum]) {
