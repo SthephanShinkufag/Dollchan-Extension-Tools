@@ -2810,11 +2810,8 @@ function checkDelete(dc, url) {
 
 function ajaxSubmit(form, fn) {
 	var fd = new dataForm();
-	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), function(el) {
-		fd.append(el);
-	});
+	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), fd.append.bind(fd));
 	fd.send(form.action, fn);
-	fd = null;
 }
 
 function toBlob(arr) {
