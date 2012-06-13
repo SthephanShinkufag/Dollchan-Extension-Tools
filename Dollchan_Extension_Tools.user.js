@@ -19,7 +19,6 @@ var defaultCfg = {
 	'hideByWipe':	1,		// antiwipe detectors:
 	'wipeSameLin':	1,		//		same lines
 	'wipeSameWrd':	1,		//		same words
-	'wipeLongPst':	1,		//		long posts
 	'wipeLongWrd':	1,		//		long words
 	'wipeSpecial':	0,		//		special symbols
 	'wipeCAPS':		0,		//		cAsE, CAPS
@@ -103,7 +102,6 @@ Lng = {
 		hideByWipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
 		wipeSameLin:	['Повтор строк', 'Same lines'],
 		wipeSameWrd:	['Повтор слов', 'Same words'],
-		wipeLongPst:	['Длинные посты', 'Long posts'],
 		wipeLongWrd:	['Длинные слова', 'Long words'],
 		wipeSpecial:	['Спецсимволы', 'Special symbols'],
 		wipeCAPS:		['КАПС/реГисТР', 'CAPS/cAsE'],
@@ -1311,7 +1309,6 @@ function addSettings() {
 		}, [
 			divBox('wipeSameLin', null),
 			divBox('wipeSameWrd', null),
-			divBox('wipeLongPst', null),
 			divBox('wipeLongWrd', null),
 			divBox('wipeSpecial', null),
 			divBox('wipeCAPS', null),
@@ -5626,22 +5623,6 @@ function detectWipe_sameWords(txt) {
 	return x < 0.25 ? ('uniq words: ' + x * 100 + '%') : false;
 }
 
-function detectWipe_longColumn(txt) {
-	if(!Cfg['wipeLongPst']) {
-		return false;
-	}
-	var rows = txt.split(/\s*\n\s*/),
-		i = rows.length;
-	if(i > 50) {
-		return 'long text x' + i;
-	}
-	rows.sort();
-	if(rows[i - 1].length >= 9) {
-		return false;
-	}
-	return i > 5 ? 'columns x' + i : false;
-}
-
 function detectWipe_longWords(txt) {
 	if(!Cfg['wipeLongWrd']) {
 		return false;
@@ -5706,7 +5687,6 @@ function detectWipe(post) {
 	}
 	return detectWipe_sameLines(post.Text) ||
 		detectWipe_sameWords(post.Text) ||
-		detectWipe_longColumn(post.Text) ||
 		detectWipe_longWords(post.Text) ||
 		detectWipe_caseWords(post.Text) ||
 		detectWipe_specSymbols(post.Text) ||
