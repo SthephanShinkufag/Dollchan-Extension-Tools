@@ -2910,9 +2910,7 @@ dataForm.prototype.readFile = function(el, idx) {
 
 dataForm.prototype.send = function(url, fn) {
 	if(this.busy > 0) {
-		setTimeout(function(dF, u, f) {
-			dF.send(u, f);
-		}, 200, this, url, fn);
+		setTimeout(this.send.bind(this), 200, url, fn);
 		return;
 	}
 	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
