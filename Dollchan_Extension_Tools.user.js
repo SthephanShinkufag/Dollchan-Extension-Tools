@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.14.0
+// @version			12.6.14.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.14.0',
+	'version':	'12.6.14.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -1116,7 +1116,7 @@ function addPanel() {
 		$new('div', {
 			'class': 'DESU_content',
 			'lang': getThemeLang()
-		}),
+		}, null),
 		$new('div', {'id': 'DESU_alertBox'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
 	]);
@@ -5908,7 +5908,7 @@ function updateCSS() {
 		x += '.spoiler, .DESU_spoiler { background: #888 !important; color: #ccc !important; }';
 	}
 	if(Cfg['noPostScrl']) {
-		x += 'blockquote, .code_part { max-height: 100% !important; overflow: visible !important; }';
+		x += 'blockquote, blockquote > p, .code_part { max-height: 100% !important; overflow: visible !important; }';
 	}
 	if(Cfg['noBoardRule']) {
 		x += (aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
