@@ -345,7 +345,7 @@ Lng = {
 doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], tByCnt = [], Visib = [], Expires = [],
-nav = {}, sav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
+nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
 pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
@@ -696,24 +696,24 @@ function turnCookies(name) {
 }
 
 function getStored(name) {
-	if(sav.GM) {
+	if(nav.isGM) {
 		return GM_getValue(name);
 	}
-	if(sav.script) {
+	if(nav.isScript) {
 		return scriptStorage.getItem(name);
 	}
-	if(sav.local) {
+	if(nav.isLocal) {
 		return localStorage.getItem(name);
 	}
 	return getCookie(name);
 }
 
 function setStored(name, value) {
-	if(sav.GM) {
+	if(nav.isGM) {
 		GM_setValue(name, value);
-	} else if(sav.script) {
+	} else if(nav.isScript) {
 		scriptStorage.setItem(name, value);
-	} else if(sav.local) {
+	} else if(nav.isLocal) {
 		localStorage.setItem(name, value);
 	} else {
 		setCookie(name, value, storageLife);
@@ -759,7 +759,7 @@ function readCfg() {
 	var key,
 		global = false,
 		data = getStored('DESU_Config_' + aib.dm);
-	if(sav.isGlobal && !isValidCfg(data)) {
+	if(nav.isGlobal && !isValidCfg(data)) {
 		data = getStored('DESU_GlobalCfg');
 		global = true;
 	}
@@ -824,13 +824,13 @@ function toggleCfg(name) {
 }
 
 function getVisib(pNum) {
-	var key = sav.cookie ? pByNum[pNum].Count : brd + pNum;
+	var key = nav.isCookie ? pByNum[pNum].Count : brd + pNum;
 	return key in Visib ? Visib[key] : null;
 }
 
 function readPostsVisib() {
 	var i, arr, data, currTime = Date.now();
-	if(sav.cookie) {
+	if(nav.isCookie) {
 		if(TNum) {
 			data = getStored('DESU_Posts_' + aib.dm + '_' + TNum);
 			if(data) {
@@ -859,7 +859,7 @@ function readPostsVisib() {
 		post.Vis = getVisib(pNum);
 		if(post.isOp) {
 			if(hThrds[brd] && (
-				sav.cookie && hThrds[brd].indexOf(pNum) >= 0 || !sav.cookie && hThrds[brd][pNum] !== undefined
+				nav.isCookie && hThrds[brd].indexOf(pNum) >= 0 || !nav.isCookie && hThrds[brd][pNum] !== undefined
 			)) {
 				post.Vis = 0;
 			} else if(post.Vis === 0) {
@@ -874,7 +874,7 @@ function savePostsVisib() {
 	var key,
 		arr = [],
 		id = 'DESU_Posts_' + aib.dm;
-	if(sav.cookie) {
+	if(nav.isCookie) {
 		if(TNum) {
 			id += '_' + TNum;
 			if(!getStored(id)) {
@@ -906,7 +906,7 @@ function toggleHiddenThread(post, vis) {
 	var i,
 		b = brd,
 		tNum = post.Num;
-	if(sav.cookie) {
+	if(nav.isCookie) {
 		if(!hThrds[b]) {
 			hThrds[b] = [];
 		}
@@ -979,9 +979,9 @@ function toggleFavorites(post, btn) {
 	}
 	Favor[h][b][tNum] = {
 		cnt: post.thr.pCount,
-		txt: sav.cookie ? post.dTitle.substring(0, 25) : post.dTitle
+		txt: nav.isCookie ? post.dTitle.substring(0, 25) : post.dTitle
 	};
-	if(sav.cookie && escape(JSON.stringify(Favor)).length > 4095) {
+	if(nav.isCookie && escape(JSON.stringify(Favor)).length > 4095) {
 		$alert(Lng.cookiesLimit[lCode], 'CookieErr', false);
 		delete Favor[h][b][tNum];
 		return;
@@ -998,13 +998,13 @@ function markViewedPost(pNum) {
 }
 
 function readViewedPosts() {
-	if(Cfg['markViewed'] && sav.session) {
+	if(Cfg['markViewed'] && nav.isSession) {
 		(sessionStorage.viewedPosts || '').split(',').forEach(markViewedPost);
 	}
 }
 
 function saveViewedPosts(pNum) {
-	if(sav.session) {
+	if(nav.isSession) {
 		var arr = (sessionStorage.viewedPosts || '').split(',');
 		arr.push(pNum);
 		sessionStorage.viewedPosts = arr;
@@ -1502,7 +1502,7 @@ function addSettings() {
 	]),
 
 	cfgInfo = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgInfo'}, [
-		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (sav.GM ? 'Mozilla config' : sav.script ? 'Opera ScriptStorage' : sav.local ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
+		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 
 	$id('DESU_contentCfg').appendChild($New('div', {'class': aib.pClass, 'id': 'DESU_cfgWindow'}, [
@@ -1524,7 +1524,7 @@ function addSettings() {
 					saveCfg('language', this.selectedIndex);
 					window.location.reload();
 				}),
-				$if(sav.isGlobal, $btn(Lng.load[lCode], Lng.loadGlobal[lCode], function() {
+				$if(nav.isGlobal, $btn(Lng.load[lCode], Lng.loadGlobal[lCode], function() {
 					if(isValidCfg(getStored('DESU_GlobalCfg'))) {
 						setStored('DESU_Config_' + aib.dm, '');
 						window.location.reload();
@@ -1532,7 +1532,7 @@ function addSettings() {
 						$alert(Lng.noGlobalCfg[lCode], 'ErrNoGCfg', false);
 					}
 				})),
-				$if(sav.isGlobal, $btn(Lng.save[lCode], Lng.saveGlobal[lCode], function() {
+				$if(nav.isGlobal, $btn(Lng.save[lCode], Lng.saveGlobal[lCode], function() {
 					setStored('DESU_GlobalCfg', $uneval(Cfg));
 					toggleContent('Cfg', true);
 				})),
@@ -1671,7 +1671,7 @@ function addHiddenTable() {
 				$add('<b>' + b + '</b>')
 			]));
 			for(tNum in hThrds[b]) {
-				if(sav.cookie) {
+				if(nav.isCookie) {
 					tNum = hThrds[b][tNum];
 				}
 				url = getThrdUrl(aib.host, b, tNum);
@@ -1679,7 +1679,7 @@ function addHiddenTable() {
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
-						$if(!sav.cookie, $txt(' - ' + hThrds[b][tNum]))
+						$if(!nav.isCookie, $txt(' - ' + hThrds[b][tNum]))
 					])
 				]));
 			}
@@ -1699,7 +1699,7 @@ function addHiddenTable() {
 					if($t('input', el).checked) {
 						if(pByNum[tNum]) {
 							setPostVisib(pByNum[tNum], 1);
-						} else if(sav.cookie) {
+						} else if(nav.isCookie) {
 							i = hThrds[b].indexOf(tNum);
 							if(i >= 0) {
 								hThrds[b].splice(i, 1);
@@ -4928,7 +4928,7 @@ function applyPostVisib(post, vis, note) {
 	} else if(Cfg['delHiddPost'] === 2) {
 		(aib.getWrap(post) || post).style.display = vis === 0 ? 'none' : '';
 	}
-	if(!sav.cookie) {
+	if(!nav.isCookie) {
 		Visib[brd + pNum] = vis;
 		Expires[brd + pNum] = Date.now() + storageLife;
 	} else if(TNum) {
@@ -6020,23 +6020,16 @@ function isCompatible() {
 }
 
 function getNavigator() {
-	var gs, ss, ls, se,
-		ua = window.navigator.userAgent;
+	var ua = window.navigator.userAgent;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
 	nav.Chrome = /chrome/i.test(ua);
-	gs = nav.Firefox && typeof GM_setValue === 'function';
-	ss = nav.Opera && !!scriptStorage;
-	ls = window.localStorage && typeof localStorage === 'object';
-	se = window.sessionStorage && (sessionStorage.test = 1) === 1;
-	sav = {
-		GM: !!gs,
-		script: ss,
-		local: ls,
-		cookie: !ls && !ss && !gs,
-		session: se,
-		isGlobal: gs || ss
-	};
+	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
+	nav.isScript = nav.Opera && !!scriptStorage;
+	nav.isLocal = window.localStorage && typeof localStorage === 'object';
+	nav.isSession = window.sessionStorage && (sessionStorage.test = 1) === 1;
+	nav.isCookie = !nav.isGM && !nav.isScript && !nav.isLocal;
+	nav.isGlobal = nav.isGM || nav.isScript;
 	nav.cFix =
 		nav.Firefox ? '-moz-' :
 		nav.Chrome ? '-webkit-' :
