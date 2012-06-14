@@ -1154,7 +1154,7 @@ function showContent(el, id, name, isUpd) {
 	if(name === 'Cfg') {
 		addSettings();
 	} else {
-		el.appendChild($add('<table><tbody align="left"></tbody></table>'));
+		el.appendChild($add('<table><tbody align="left" /></table>'));
 		if(Cfg['attachPanel']) {
 			$t('table', el).style.backgroundColor = getStyle(doc.body, 'background-color');
 		}
@@ -3163,22 +3163,22 @@ function getImgSize(post) {
 
 function prepareButtons() {
 	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>'),
+		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)" />'),
 		$if(
 			pr.on || oeForm,
-			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>')
+			$add('<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)" />')
 		)
 	]);
 	(opPanel = pPanel.cloneNode(true)).className += '_op';
 	$append(opPanel, [
 		$if(
 			!TNum,
-			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>')
+			$add('<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)" />')
 		),
-		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>')
+		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)" />')
 	]);
-	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
-	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
+	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)" />');
+	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)" />');
 	doc.head.appendChild($new('script', {
 		'id': 'DESU_script',
 		'type': 'text/javascript',
@@ -3457,7 +3457,7 @@ function addTubePlayer(el, m) {
 			'<video poster="https://i.ytimg.com/vi/' + id +
 				'/0.jpg" controls="controls" preload="none" src="' + src +
 				(nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-				'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
+				'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '" />';
 		el = el.firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
@@ -3627,7 +3627,7 @@ function addLinkMP3(post) {
 			}
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
-			$html(el, el.innerHTML + '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"></object><br>');
+			$html(el, el.innerHTML + '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>');
 		}
 	});
 }
