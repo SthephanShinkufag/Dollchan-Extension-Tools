@@ -93,7 +93,7 @@ var defaultCfg = {
 	'betaScrUpd':	0,		// 		check for beta-version
 	'lastScrUpd':	0,		// 		last update check
 	'textaWidth':	530,	// textarea width
-	'textaHeight':	140,	// textarea height
+	'textaHeight':	140		// textarea height
 },
 
 Lng = {
@@ -169,7 +169,7 @@ Lng = {
 
 		addPostForm: {
 			sel:		[['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
-			txt:		['форма ответа в треде* ', 'reply form in thread* '],
+			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
 		noThrdForm:		['Прятать форму создания треда', 'Hide thread creating form'],
 		favOnReply:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
@@ -206,7 +206,7 @@ Lng = {
 		updScript:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
 		scrUpdIntrv: {
 			sel:		[['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
-			txt:		['Интервал проверки', 'Check interval'],
+			txt:		['Интервал проверки', 'Check interval']
 		},
 		betaScrUpd:	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
 
@@ -2389,7 +2389,7 @@ function initPostform() {
 		'style': 'display: none;'
 	}, null))
 	if(pr.on) {
-		doPostformChanges(null);
+		doPostformChanges(null, null);
 	} else if(oeForm) {
 		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges);
 	}
@@ -2918,7 +2918,7 @@ dataForm.prototype.send = function(url, fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': toBlob(this.data, null),
+		'data': toBlob(this.data),
 		'url': url,
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
@@ -3382,7 +3382,7 @@ dateTime.prototype.fix = function(txt) {
 	var arrM = Lng.month[lCode], arrW = Lng.week[lCode],
 		tPat = this.pattern, tRPat = this.rPattern,
 		diff = this.diff;
-	return txt.replace(new RegExp(this.regex, 'g'), function() {
+	txt = txt.replace(new RegExp(this.regex, 'g'), function() {
 		var i, a, t, second, minute, hour, day, month, year, dtime;
 		for(i = 1; i < 8; i++) {
 			a = arguments[i];
@@ -3424,6 +3424,7 @@ dateTime.prototype.fix = function(txt) {
 			)
 	});
 	arrW = arrM = tPat = tRPat = diff = null;
+	return txt;
 };
 
 
@@ -4261,7 +4262,7 @@ function showPview(link) {
 		Pviews.ajaxed[b][pst.Num] = pst;
 	}, function(err) {
 		genRefMap(Pviews.ajaxed[b]);
-		if(el && !el.forDel) {
+		if(el) {
 			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
 		b = pNum = parent = el = null;

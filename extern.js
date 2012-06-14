@@ -12,16 +12,18 @@
  */
 Document.prototype.implementation.createHTMLDocument = function(html) {};
 /**
+ * @param {Function|string} callback
+ * @param {number} delay
+ * @param {...*} var_args
+ * @return {number}
+ */
+function setTimeout(callback, delay, var_args) {};
+/**
  * @constructor
  * @return {Object}
  * @nosideeffects
  */
 function MozBlobBuilder() {};
-/**
- * @param {Object} obj
- * @return {String}
- */
-function uneval(obj) {};
 
 Window.JSON = {};
 /**
