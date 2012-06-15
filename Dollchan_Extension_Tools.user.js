@@ -339,7 +339,8 @@ Lng = {
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	],
-	conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?']
+	conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
+	fileCorrupt: ['Файл повреждён: ', 'File is corrupted: ']
 },
 
 doc = window.document,
@@ -2789,31 +2790,58 @@ function toBlob(arr) {
 	}
 }
 
-function removeExif(arr) {
+function processImage(arr) {
 	var i = 0,
 		j = 0,
 		dat = new Uint8Array(arr),
-		len = dat.length - 1,
-		out;
-	if(dat[0] !== 0xFF || dat[1] !== 0xD8) {
-		return arr;
+		len = dat.length,
+		out,
+		rExif = !!Cfg['removeEXIF'];
+	if(!Cfg['postSameImg'] && !rExif) {
+		return [arr];
 	}
-	for(; i < len; i++, j++) {
-		if(dat[i] === 0xFF && (dat[i + 1] >> 4) === 0xE && dat[i + 1] !== 0xE0) {
-			i += 1 + (dat[i + 2] << 8) + dat[i + 3];
-			j--;
-		} else if(j !== i){
-			dat[j] = dat[i];
+	if(dat[0] === 0xFF && dat[1] === 0xD8) {
+		for(; i < len - 1; i++, j++) {
+			if(dat[i] === 0xFF) {
+				if(rExif && (dat[i + 1] >> 4) === 0xE && dat[i + 1] !== 0xE0) {
+					i += 2 + (dat[i + 2] << 8) + dat[i + 3];
+				} else if(dat[i + 1] === 0xD9) {
+					dat[j] = dat[i];
+					break;
+				}
+			}
+			if(j !== i) {
+				dat[j] = dat[i];
+			}
 		}
+		j += 2;
+		i += 2;
+		if(j !== i) {
+			dat[j - 1] = dat[i - 1];
+			if(len - j > 75) {
+				for(; i < len; dat[j++] = dat[i++]);
+			}
+		} else if(j === len || len - j > 75) {
+			return [arr];
+		}
+	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+		for(; j < len - 7; j++) {
+			if(dat[j] === 0x49 && dat[j + 1] === 0x45 && dat[j + 2] === 0x4E && dat[j + 3] === 0x44) {
+				j += 8;
+				break;
+			}
+		}
+		if(j === len || len - j > 75) {
+			return [arr];
+		}
+	} else {
+		return null;
 	}
-	if(j !== i){
-		dat[j++] = dat[i];
-	}
-	out = new Uint8Array(++j);
+	out = new Uint8Array(j);
 	for(i = 0; i < j; i++) {
 		out[i] = dat[i];
 	}
-	return out.buffer;
+	return [out.buffer];
 }
 
 /** @constructor */
@@ -2821,6 +2849,7 @@ function dataForm() {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
+	this.error = false;
 }
 
 dataForm.prototype.append = function(el) {
@@ -2850,22 +2879,30 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = Cfg['removeEXIF'] ? [removeExif(this.result)] : [this.result];
-		if(el.rarJPEG) {
-			dat.push(el.rarJPEG);
+		var dat = processImage(this.result);
+		if(!dat) {
+			dF.error = true;
+			$alert(Lng.fileCorrupt[lCode] + file.name, 'Upload', false);
+		} else {
+			if(el.rarJPEG) {
+				dat.push(el.rarJPEG);
+			}
+			if(Cfg['postSameImg']) {
+				dat.push(String(Math.round(Math.random() * 1e6)));
+			}
+			dF.data[idx] = toBlob(dat);
+			dF.busy--;
 		}
-		if(Cfg['postSameImg']) {
-			dat.push(String(Math.round(Math.random() * 1e6)));
-		}
-		dF.data[idx] = toBlob(dat);
-		dF.busy--;
-		fr = dF = el = idx = null;
+		fr = dF = el = idx = file = null;
 	};
 	fr.readAsArrayBuffer(file);
 	this.busy++;
 };
 
 dataForm.prototype.send = function(url, fn) {
+	if(this.error) {
+		return;
+	}
 	if(this.busy > 0) {
 		setTimeout(this.send.bind(this), 200, url, fn);
 		return;
