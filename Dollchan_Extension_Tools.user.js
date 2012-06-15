@@ -3044,7 +3044,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var btns, bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
+	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
 		tagTable = {
 			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -3110,7 +3110,7 @@ function addTextPanel() {
 						).replace(/\n/gm, '\n> '));
 					};
 				}
-				btns.appendChild(btn);
+				$id('DESU_txtPanel').appendChild(btn);
 			}
 			btn.innerHTML =
 				Cfg['addTextBtns'] === 2 ? (
@@ -3121,21 +3121,19 @@ function addTextPanel() {
 				'';
 			return txtBtn;
 		};
-	btns = $attr($id('DESU_txtPanel') || $new('span', {'id': 'DESU_txtPanel'}, null), {
-		'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
-	});
 	$after(
 		Cfg['txtBtnsLoc'] ? $id('DESU_txtResizer') :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
-		btns
+		$attr($id('DESU_txtPanel') || $new('span', {'id': 'DESU_txtPanel'}, null), {
+			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
+		})
 	);
 	txtBtn('Bold')('Italic');
 	if(!aib._420) {
 		txtBtn('Under')('Strike');
 	}
 	txtBtn('Spoil')('Code')('Quote');
-	btns = null;
 }
 
 
