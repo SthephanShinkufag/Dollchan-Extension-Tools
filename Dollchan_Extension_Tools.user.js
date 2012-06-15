@@ -6519,14 +6519,12 @@ function parseDelform(node, dc, pFn) {
 		op.isOp = true;
 		pFn(op, 0);
 		if(!nav.Firefox || aib.gazo) {
-			thr.pCount = 0;
-			$each($$X(aib.xWrap, thr, dc), function(el) {
-				processPost(el, thr, pFn, thr.pCount++);
-			});
+			for(psts = $$X(aib.xWrap, thr, dc), len = 0; i = psts.snapshotItem(len);
+				processPost(i, thr, pFn, len++));
+			thr.pCount = len;
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
-			thr.pCount = psts.length;
-			for(i = 0, len = psts.length; i < len; i++) {
+			for(i = 0, len = thr.pCount = psts.length; i < len; i++) {
 				processPost(psts[i], thr, pFn, i);
 			}
 		}
@@ -6589,30 +6587,30 @@ function replaceDelform(el) {
 }
 
 function preparePage(node) {
-	var el;
 	if(aib.krau) {
 		$del($t('hr', node));
 		$del($t('hr', node.previousElementSibling));
 	} else if(aib.abu) {
-		el = $c('DESU_thread', node);
-		if(TNum && el) {
-			$Del('following-sibling::node()', el);
+		$del(node.nextElementSibling);
+		$del(node.nextElementSibling);
+		node = $c('DESU_thread', node);
+		if(TNum && node) {
+			$Del('following-sibling::node()', node);
 		}
-		$del(node.nextElementSibling);
-		$del(node.nextElementSibling);
 	} else if(aib.brit) {
-		$each($X('.//span[@class="reflink"]', node), function(node) {
-			node = node.firstChild;
-			$rattr(node, 'onclick');
-			node.href = getThrdUrl(aib.host, brd, node.textContent);
-			node.target = '_blank';
-		});
+		node = node.getElementsByClassName('reflink');
+		for(var el, i = node.length - 1; i >= 0; i--) {
+			el = node[i].firstChild;
+			$rattr(el, 'onclick');
+			el.href = getThrdUrl(aib.host, brd, el.textContent);
+			el.target = '_blank';
+		}
 	} else if(aib.ylil) {
-		el = $t('iframe', node);
-		if(el) {
-			$del(el.nextElementSibling);
-			$del(el.nextElementSibling);
-			$del(el);
+		node = $t('iframe', node);
+		if(node) {
+			$del(node.nextElementSibling);
+			$del(node.nextElementSibling);
+			$del(node);
 		}
 	}
 }
