@@ -658,6 +658,13 @@ function getThemeLang() {
 		'de';
 }
 
+function addContentScript(text) {
+	doc.head.appendChild($new('script', {
+		'type': 'text/javascript',
+		'text': text
+	}, null));
+}
+
 
 /*==============================================================================
 								STORAGE / CONFIG
@@ -3175,10 +3182,7 @@ function prepareButtons() {
 	]);
 	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)" />');
 	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)" />');
-	doc.head.appendChild($new('script', {
-		'id': 'DESU_script',
-		'type': 'text/javascript',
-		'text':
+	addContentScript(
 			'function DESU_hideClick(el) {\
 				window.postMessage("D" + el.parentNode.id.substring(9), "*");\
 			}\
@@ -3211,7 +3215,7 @@ function prepareButtons() {
 			function DESU_sageClick(el) {\
 				window.postMessage("H" + el.parentNode.id.substring(9), "*");\
 			}'
-	}, null));
+	);
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
 			data = event.data.substring(1);
@@ -3240,7 +3244,7 @@ function prepareButtons() {
 		} else if(name === 'J') {
 			data = data.split('$#$');
 			checkUpload(data[0], data[1]);
-			$id('DESU_iframe').location.replace('about:blank');
+			$id('DESU_iframe').src = 'about:blank';
 		}
 	}, false);
 }
@@ -5989,16 +5993,17 @@ function isCompatible() {
 		return false;
 	}
 	getImageboard();
+	getNavigator();
 	if(/^DESU_iframe/.test(window.name)) {
-		window.top.postMessage('J' + findError(doc) + '$#$' + window.location, '*');
+		nav.postMsg(('window.top.postMessage("J' + findError(doc) + '$#$' + window.location + '", "*");').replace(/\n|\r/g, '\\n'));
 		return false;
 	}
 	if(/^DESU_favIframe/.test(window.name)) {
 		liteMode = true;
-		window.top.postMessage('I' + window.name + '|' + doc.body.scrollHeight, '*');
+		nav.postMsg('window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
 		$event(window, {
 			'load': function(e) {
-				setTimeout(window.top.postMessage, 1E3, 'I' + window.name + '|' + doc.body.scrollHeight, '*');
+				setTimeout(nav.postMsg, 1E3, 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
 			}
 		});
 	}
@@ -6066,6 +6071,7 @@ function getNavigator() {
 		function(obj, fn) {
 			Object.keys(obj).forEach(fn, obj);
 		}
+	nav.postMsg = nav.Chrome ? addContentScript : eval;
 }
 
 function getPage() {
@@ -6663,7 +6669,6 @@ function doScript() {
 	}
 	dummy = $new('div', null, null);
 	fixFunctions();
-	getNavigator();
 	getPage();
 	Log('initBoard');
 	readCfg();
