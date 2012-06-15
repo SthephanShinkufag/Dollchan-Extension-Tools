@@ -2303,25 +2303,25 @@ function setUserPassw() {
 }
 
 function initPostform() {
-	var pArea = '<center id="DESU_parea"><div id="DESU_toggleReply" style="display:none">' +
-		'[<a href="#" class="DESU_aBtn">' + Lng.expandForm[lCode] + '</a>]</div>' +
-		'<div id="DESU_pform"></div><hr /></center>';
+	var pArea = $New('center', {'id': 'DESU_parea'}, [
+		$New('div', {'id': 'DESU_toggleReply', 'style': 'display: none;'}, [
+			$txt('['),
+			$new('a', {
+				'text': Lng.expandForm[lCode],
+				'href': '#',
+				'class': 'DESU_aBtn'}, {
+				'click': toggleMainReply
+			}),
+			$txt(']')
+		]),
+		$New('div', {'id': 'DESU_pform'}, [pr.form, oeForm]),
+		$new('hr', null, null)
+	]);
 	if(TNum && Cfg['addPostForm'] === 1) {
-		nav.insAfter(aib.fch ? $t('hr', dForm) : dForm, pArea);
+		$after(aib.fch ? $t('hr', dForm) : dForm, pArea);
 	} else {
-		nav.insBefore(dForm, pArea);
+		$before(dForm, [pArea]);
 	}
-	pArea = $id('DESU_parea');
-	setTimeout(function(pA) {
-		$t('a', pA).onclick = toggleMainReply;
-		pA = $id('DESU_pform');
-		if(pr.on) {
-			pA.appendChild(pr.form);
-		}
-		if(oeForm) {
-			pA.appendChild(oeForm);
-		}
-	}, 100, pArea);
 	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
@@ -2781,14 +2781,14 @@ function toBlob(arr) {
 	}
 }
 
-function processImage(arr) {
+function processImage(arr, force) {
 	var i = 0,
 		j = 0,
 		dat = new Uint8Array(arr),
 		len = dat.length,
 		out,
 		rExif = !!Cfg['removeEXIF'];
-	if(!Cfg['postSameImg'] && !rExif) {
+	if(!Cfg['postSameImg'] && !rExif && !force) {
 		return [arr];
 	}
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
@@ -2809,10 +2809,10 @@ function processImage(arr) {
 		i += 2;
 		if(j !== i) {
 			dat[j - 1] = dat[i - 1];
-			if(len - j > 75) {
+			if(!force && len - j > 75) {
 				for(; i < len; dat[j++] = dat[i++]);
 			}
-		} else if(j === len || len - j > 75) {
+		} else if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
@@ -2822,7 +2822,7 @@ function processImage(arr) {
 				break;
 			}
 		}
-		if(j === len || len - j > 75) {
+		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
 	} else {
@@ -2870,7 +2870,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = processImage(this.result);
+		var dat = processImage(this.result, !!el.rarJPEG);
 		if(!dat) {
 			dF.error = true;
 			$alert(Lng.fileCorrupt[lCode] + file.name, 'Upload', false);
@@ -3044,7 +3044,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var btns, bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
+	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
 		tagTable = {
 			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -3110,7 +3110,7 @@ function addTextPanel() {
 						).replace(/\n/gm, '\n> '));
 					};
 				}
-				btns.appendChild(btn);
+				$id('DESU_txtPanel').appendChild(btn);
 			}
 			btn.innerHTML =
 				Cfg['addTextBtns'] === 2 ? (
@@ -3121,21 +3121,19 @@ function addTextPanel() {
 				'';
 			return txtBtn;
 		};
-	btns = $attr($id('DESU_txtPanel') || $new('span', {'id': 'DESU_txtPanel'}, null), {
-		'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
-	});
 	$after(
 		Cfg['txtBtnsLoc'] ? $id('DESU_txtResizer') :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
-		btns
+		$attr($id('DESU_txtPanel') || $new('span', {'id': 'DESU_txtPanel'}, null), {
+			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
+		})
 	);
 	txtBtn('Bold')('Italic');
 	if(!aib._420) {
 		txtBtn('Under')('Strike');
 	}
 	txtBtn('Spoil')('Code')('Quote');
-	btns = null;
 }
 
 
@@ -5549,7 +5547,7 @@ function detectWipe_longWords(txt) {
 	var i = 0,
 		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' '),
 		len = words.length;
-	return words[0] > 50 || (len > 1 && words.join('').length / len > 10) ? 'long words' : false;
+	return words[0].length > 50 || (len > 1 && words.join('').length / len > 10) ? 'long words' : false;
 }
 
 function detectWipe_caseWords(txt) {
@@ -6082,13 +6080,6 @@ function getNavigator() {
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
-		};
-	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
-		function(el, html) {
-			$before(el, [$add(html)]);
-		} :
-		function(el, html) {
-			el.insertAdjacentHTML('beforebegin', html);
 		};
 	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
 		function(obj, fn) {
