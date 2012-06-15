@@ -2664,6 +2664,9 @@ function findError(dc) {
 			aib.krau && !$t('form', dc) ? './/td[starts-with(@class,"message_text")]' :
 			aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]' :
 			'';
+	if(!dc.body.firstChild) {
+		return '';
+	}
 	if(xp || !$t('form', dc)) {
 		if(!xp) {
 			xp =
