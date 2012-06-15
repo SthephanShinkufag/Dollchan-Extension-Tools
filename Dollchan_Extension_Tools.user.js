@@ -2295,17 +2295,11 @@ function setUserName() {
 }
 
 function setUserPassw() {
-	var val,
-		el = $id('DESU_passwValue');
+	var el = $id('DESU_passwValue');
 	if(el) {
 		saveCfg('passwValue', el.value.replace(/\|/g, ''));
 	}
-	val = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
-	el = $x('.//input[@type="password"]', dForm);
-	if(el) {
-		el.value = val;
-	}
-	pr.passw.value = val;
+	(pr.dpass || {}).value = pr.passw.value = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
 }
 
 function initPostform() {
@@ -2344,21 +2338,20 @@ function initPostform() {
 }
 
 function doPostformChanges(m, el) {
-	var img, src, _img, sBtn,
-		pTxt = pr.txta,
+	var img, _img, sBtn,
 		resMove = function(e) {
-			var p = $offset(pTxt);
-			pTxt.style.width = e.pageX - p.left + 'px';
-			pTxt.style.height = e.pageY - p.top + 'px';
+			var p = $offset(pr.txta);
+			pr.txta.style.width = e.pageX - p.left + 'px';
+			pr.txta.style.height = e.pageY - p.top + 'px';
 		},
 		resStop = function() {
 			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-			saveCfg('textaWidth', parseInt(pTxt.style.width, 10));
-			saveCfg('textaHeight', parseInt(pTxt.style.height, 10));
+			saveCfg('textaWidth', parseInt(pr.txta.style.width, 10));
+			saveCfg('textaHeight', parseInt(pr.txta.style.height, 10));
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	$after(pTxt, $new('div', {
+	$after(pr.txta, $new('div', {
 		'id': 'DESU_txtResizer'}, {
 		'mousedown': function(e) {
 			$pd(e);
@@ -2369,8 +2362,8 @@ function doPostformChanges(m, el) {
 		}
 	}));
 	addTextPanel();
-	pTxt.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
-	$event(pTxt, {
+	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+	$event(pr.txta, {
 		'keypress': function(e) {
 			var code = e.charCode || e.keyCode;
 			if((code === 33 || code === 34) && e.which === 0) {
@@ -2381,10 +2374,11 @@ function doPostformChanges(m, el) {
 	});
 	$event(pr.subm, {
 		'click': function(e) {
-			var txt = pr.txta.value;
-			pr.txta.value =
-				(!Cfg['hideBySpell'] || !oSpells.outrep[0] ? txt : doReplace(oSpells.outrep, txt)) +
-				(Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '');
+			pr.txta.value = (
+				!Cfg['hideBySpell'] || !oSpells.outrep[0]
+					? pr.txta.value
+					: doReplace(oSpells.outrep, pr.txta.value)
+			) + (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '');
 			if(Cfg['checkReply']) {
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
@@ -2478,21 +2472,18 @@ function doPostformChanges(m, el) {
 			}
 		});
 		if(!aib.hana && !pr.recap) {
-			if(aib.kus) {
-				img = $x('.//a|.//img', $x(pr.tr, pr.cap));
-				src =
-					aib._410 ? ('/faptcha.php?board=' + brd) :
-					aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
-					'/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random();
-			} else {
-				img = $x(pr.tr + '//img', pr.cap);
-				src = img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + $rnd();
-			}
+			img = aib.kus ? $x('.//a|.//img', $x(pr.tr, pr.cap)) : $x(pr.tr + '//img', pr.cap);
 			_img = $new('img', {
 				'alt': Lng.loading[lCode],
 				'title': Lng.refresh[lCode],
 				'style': 'display: block; border: none; cursor: pointer;',
-				'src': refreshCapSrc(src, TNum || 0)}, {
+				'src': refreshCapSrc(
+					aib._410 ? ('/faptcha.php?board=' + brd) :
+						aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
+						aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
+						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + $rnd()),
+					TNum || 0
+				)}, {
 				'click': function() {
 					refreshCapImg(TNum || 0);
 				}
@@ -2575,7 +2566,7 @@ function eventFiles(tr) {
 	});
 }
 
-function processInput(e) {
+function processInput() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
 		$after(this, $event($add(
@@ -2672,10 +2663,7 @@ function findError(dc) {
 			aib.krau && !$t('form', dc) ? './/td[starts-with(@class,"message_text")]' :
 			aib.abu && !dc.getElementById('delform') ? './/font[@size="5"]' :
 			'';
-	if(!dc.body.firstChild) {
-		return '';
-	}
-	if(xp || !$t('form', dc)) {
+	if(dc.body.firstChild && (xp || !$t('form', dc))) {
 		if(!xp) {
 			xp =
 				aib.kus ? './/h1|.//h2|.//div[contains(@style,"1.25em")]' :
@@ -3053,8 +3041,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var pnl = $id('DESU_txtPanel'),
-		bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
+	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
 		tagTable = {
 			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -3120,7 +3107,7 @@ function addTextPanel() {
 						).replace(/\n/gm, '\n> '));
 					};
 				}
-				pnl.appendChild(btn);
+				$id('DESU_txtPanel').appendChild(btn);
 			}
 			btn.innerHTML =
 				Cfg['addTextBtns'] === 2 ? (
@@ -3130,15 +3117,13 @@ function addTextPanel() {
 					('<input type="button" value="' + val + '" style="font-weight: bold;" />') :
 				'';
 		};
-	if(!pnl) {
-		pnl = $new('span', {'id': 'DESU_txtPanel'}, null);
-	}
-	pnl.lang = (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '');
 	$after(
 		Cfg['txtBtnsLoc'] ? $id('DESU_txtResizer') :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
-		pnl
+		$attr($id('DESU_txtPanel') || $new('span', {'id': 'DESU_txtPanel'}, null), {
+			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
+		})
 	);
 	txtBtn('Bold');
 	txtBtn('Italic');
@@ -3149,7 +3134,6 @@ function addTextPanel() {
 	txtBtn('Spoil');
 	txtBtn('Code');
 	txtBtn('Quote');
-	pnl = null;
 }
 
 
@@ -5833,7 +5817,7 @@ function scriptCSS() {
 		.DESU_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.DESU_refMap:before { content: "' + Lng.replies[lCode] + ' "; }\
 		.DESU_refMap > a { text-decoration: none; }\
-		#DESU_sageBtn { cursor: pointer; }\
+		#DESU_sageBtn { margin-right: 7px; cursor: pointer; }\
 		#DESU_select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#DESU_select a:hover { background-color: #222; color: #fff; }\
@@ -6189,6 +6173,7 @@ function getPostform(form) {
 		subm: $x('.//' + tr + '//input[@type="submit"]', form),
 		file: $x('.//' + tr + '//input[@type="file"]', form),
 		passw: $x('.//' + tr + '//input[@type="password"]', form),
+		dpass: $x('.//input[@type="password"]', dForm),
 		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
 		name: $x(pre + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
 		mail: $x(pre + (
