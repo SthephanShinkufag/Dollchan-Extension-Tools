@@ -2781,14 +2781,14 @@ function toBlob(arr) {
 	}
 }
 
-function processImage(arr) {
+function processImage(arr, force) {
 	var i = 0,
 		j = 0,
 		dat = new Uint8Array(arr),
 		len = dat.length,
 		out,
 		rExif = !!Cfg['removeEXIF'];
-	if(!Cfg['postSameImg'] && !rExif) {
+	if(!Cfg['postSameImg'] && !rExif && !force) {
 		return [arr];
 	}
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
@@ -2809,10 +2809,10 @@ function processImage(arr) {
 		i += 2;
 		if(j !== i) {
 			dat[j - 1] = dat[i - 1];
-			if(len - j > 75) {
+			if(!force && len - j > 75) {
 				for(; i < len; dat[j++] = dat[i++]);
 			}
-		} else if(j === len || len - j > 75) {
+		} else if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
@@ -2822,7 +2822,7 @@ function processImage(arr) {
 				break;
 			}
 		}
-		if(j === len || len - j > 75) {
+		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
 	} else {
@@ -2870,7 +2870,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = processImage(this.result);
+		var dat = processImage(this.result, !!el.rarJPEG);
 		if(!dat) {
 			dF.error = true;
 			$alert(Lng.fileCorrupt[lCode] + file.name, 'Upload', false);
