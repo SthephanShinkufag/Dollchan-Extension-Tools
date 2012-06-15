@@ -2380,7 +2380,7 @@ function doPostformChanges(m, el) {
 			) + (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '') + (
 				($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
 					'Dollchan Extension Tools' ?
-					'\n*' + window.navigator.userAgent + '*\n*v' + Cfg['version'] + '*' : ''
+					'\n\n`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' : ''
 			);
 			if(Cfg['checkReply']) {
 				$alert(Lng.checking[lCode], 'Upload', true);
