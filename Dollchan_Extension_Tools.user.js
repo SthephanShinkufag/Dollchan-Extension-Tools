@@ -2303,25 +2303,25 @@ function setUserPassw() {
 }
 
 function initPostform() {
-	var pArea = '<center id="DESU_parea"><div id="DESU_toggleReply" style="display:none">' +
-		'[<a href="#" class="DESU_aBtn">' + Lng.expandForm[lCode] + '</a>]</div>' +
-		'<div id="DESU_pform"></div><hr /></center>';
+	var pArea = $New('center', {'id': 'DESU_parea'}, [
+		$New('div', {'id': 'DESU_toggleReply', 'style': 'display: none;'}, [
+			$txt('['),
+			$new('a', {
+				'text': Lng.expandForm[lCode],
+				'href': '#',
+				'class': 'DESU_aBtn'}, {
+				'click': toggleMainReply
+			}),
+			$txt(']')
+		]),
+		$New('div', {'id': 'DESU_pform'}, [pr.form, oeForm]),
+		$new('hr', null, null)
+	]);
 	if(TNum && Cfg['addPostForm'] === 1) {
-		nav.insAfter(aib.fch ? $t('hr', dForm) : dForm, pArea);
+		$after(aib.fch ? $t('hr', dForm) : dForm, pArea);
 	} else {
-		nav.insBefore(dForm, pArea);
+		$before(dForm, [pArea]);
 	}
-	pArea = $id('DESU_parea');
-	setTimeout(function(pA) {
-		$t('a', pA).onclick = toggleMainReply;
-		pA = $id('DESU_pform');
-		if(pr.on) {
-			pA.appendChild(pr.form);
-		}
-		if(oeForm) {
-			pA.appendChild(oeForm);
-		}
-	}, 100, pArea);
 	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
@@ -6082,13 +6082,6 @@ function getNavigator() {
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
-		};
-	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
-		function(el, html) {
-			$before(el, [$add(html)]);
-		} :
-		function(el, html) {
-			el.insertAdjacentHTML('beforebegin', html);
 		};
 	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
 		function(obj, fn) {
