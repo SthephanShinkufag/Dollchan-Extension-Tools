@@ -2375,10 +2375,13 @@ function doPostformChanges(m, el) {
 	$event(pr.subm, {
 		'click': function(e) {
 			pr.txta.value = (
-				!Cfg['hideBySpell'] || !oSpells.outrep[0]
-					? pr.txta.value
-					: doReplace(oSpells.outrep, pr.txta.value)
-			) + (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '');
+				!Cfg['hideBySpell'] || !oSpells.outrep[0] ?
+					pr.txta.value : doReplace(oSpells.outrep, pr.txta.value)
+			) + (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '') + (
+				($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
+					'Dollchan Extension Tools' ?
+					'\n*' + window.navigator.userAgent + '*\n*v' + Cfg['version'] + '*' : ''
+			);
 			if(Cfg['checkReply']) {
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
