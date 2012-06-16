@@ -393,8 +393,8 @@ function $t(id, root) {
 function $each(list, fn) {
 	var i = 0, el;
 	if(list) {
-		while(el = list.snapshotItem(i++)) {
-			fn(el, i - 1);
+		while(el = list.snapshotItem(i)) {
+			fn(el, i++);
 		}
 	}
 }
