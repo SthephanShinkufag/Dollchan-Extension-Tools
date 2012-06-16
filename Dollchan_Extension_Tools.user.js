@@ -2359,14 +2359,20 @@ function doPostformChanges(m, el) {
 	});
 	$event(pr.subm, {
 		'click': function(e) {
-			pr.txta.value = (
-				!Cfg['hideBySpell'] || !oSpells.outrep[0] ?
-					pr.txta.value : doReplace(oSpells.outrep, pr.txta.value)
-			) + (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '') + (
-				($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
-					'Dollchan Extension Tools' ?
-					'\n\n`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' : ''
-			);
+			var val = pr.txta.value, sVal = Cfg['signatValue'];
+			if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
+				val = doReplace(oSpells.outrep, val);
+			}
+			if(Cfg['userSignat'] && sVal !== '') {
+				val += '\n' + sVal;
+			}
+			if(($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
+				'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
+				val += '\n\n`--------------------------------------------------`\n' +
+					'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
+					'\n`--------------------------------------------------`';
+			}
+			pr.txta.value = val;
 			if(Cfg['checkReply']) {
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
