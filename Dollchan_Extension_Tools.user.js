@@ -393,8 +393,8 @@ function $t(id, root) {
 function $each(list, fn) {
 	var i = 0, el;
 	if(list) {
-		while(el = list.snapshotItem(i++)) {
-			fn(el, i - 1);
+		while(el = list.snapshotItem(i)) {
+			fn(el, i++);
 		}
 	}
 }
@@ -683,10 +683,9 @@ function getCookie(name) {
 		arr = doc.cookie.split('; '),
 		i = arr.length;
 	while(i--) {
-		one = arr[i].split('='); {
-			if(one[0] === escape(name)) {
-				return unescape(one[1]);
-			}
+		one = arr[i].split('=');
+		if(one[0] === escape(name)) {
+			return unescape(one[1]);
 		}
 	}
 	return false;
@@ -742,49 +741,35 @@ function saveSpells(val) {
 	initSpells();
 }
 
-function fixGlobalCfg() {
-	Cfg['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
-	Cfg['timePattern'] = Cfg['timeOffset'] = '';
-	Cfg['correctTime'] = 0;
+/** @constructor */
+function Config(cfg) {
+    for(var key in cfg) {
+        this[key] = cfg[key];
+    }
 }
+Config.prototype = defaultCfg;
 
-function setDefaultCfg() {
-	Cfg = defaultCfg;
-	fixGlobalCfg();
-	setStored('DESU_Config_' + aib.dm, $uneval(defaultCfg));
-}
-
-function isValidCfg(data) {
+function parseCfg(cfStr) {
 	try {
-		if(JSON.parse(data).version) {
-			return true;
+		var rv = JSON.parse(getStored(cfStr));
+		if(rv['version']) {
+			return new Config(rv);
 		}
 	} catch(e) {}
 	return false;
 }
 
+function fixCfg(uGlob) {
+	var rv = (uGlob && parseCfg('DESU_GlobalCfg')) || new Config({'version': defaultCfg['version']});
+	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	rv['timePattern'] = rv['timeOffset'] = '';
+	rv['correctTime'] = 0;
+	return rv;
+}
+
 function readCfg() {
-	var key,
-		global = false,
-		data = getStored('DESU_Config_' + aib.dm);
-	if(nav.isGlobal && !isValidCfg(data)) {
-		data = getStored('DESU_GlobalCfg');
-		global = true;
-	}
-	if(isValidCfg(data)) {
-		Cfg = JSON.parse(data);
-		Cfg['version'] = defaultCfg['version'];
-		for(key in defaultCfg) {
-			if(Cfg[key] === undefined) {
-				Cfg[key] = defaultCfg[key];
-			}
-		}
-	} else {
-		setDefaultCfg();
-	}
-	if(global) {
-		fixGlobalCfg();
-	}
+	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
+	Cfg['version'] = defaultCfg['version'];
 	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
@@ -1534,7 +1519,7 @@ function addSettings() {
 					window.location.reload();
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lCode], Lng.loadGlobal[lCode], function() {
-					if(isValidCfg(getStored('DESU_GlobalCfg'))) {
+					if(parseCfg('DESU_GlobalCfg')) {
 						setStored('DESU_Config_' + aib.dm, '');
 						window.location.reload();
 					} else {
@@ -1552,7 +1537,7 @@ function addSettings() {
 				}),
 				$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
 					if(confirm(Lng.conReset[lCode])) {
-						setDefaultCfg();
+						setStored('DESU_Config_' + aib.dm, $uneval(fixCfg(false)));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads_' + aib.dm, '');
@@ -2374,14 +2359,20 @@ function doPostformChanges(m, el) {
 	});
 	$event(pr.subm, {
 		'click': function(e) {
-			pr.txta.value = (
-				!Cfg['hideBySpell'] || !oSpells.outrep[0] ?
-					pr.txta.value : doReplace(oSpells.outrep, pr.txta.value)
-			) + (Cfg['userSignat'] && Cfg['signatValue'] !== '' ? '\n' + Cfg['signatValue'] : '') + (
-				($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
-					'Dollchan Extension Tools' ?
-					'\n\n`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' : ''
-			);
+			var val = pr.txta.value, sVal = Cfg['signatValue'];
+			if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
+				val = doReplace(oSpells.outrep, val);
+			}
+			if(Cfg['userSignat'] && sVal !== '') {
+				val += '\n' + sVal;
+			}
+			if(($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
+				'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
+				val += '\n\n`--------------------------------------------------`\n' +
+					'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
+					'\n`--------------------------------------------------`';
+			}
+			pr.txta.value = val;
 			if(Cfg['checkReply']) {
 				$alert(Lng.checking[lCode], 'Upload', true);
 			}
