@@ -683,10 +683,9 @@ function getCookie(name) {
 		arr = doc.cookie.split('; '),
 		i = arr.length;
 	while(i--) {
-		one = arr[i].split('='); {
-			if(one[0] === escape(name)) {
-				return unescape(one[1]);
-			}
+		one = arr[i].split('=');
+		if(one[0] === escape(name)) {
+			return unescape(one[1]);
 		}
 	}
 	return false;
@@ -742,49 +741,41 @@ function saveSpells(val) {
 	initSpells();
 }
 
-function fixGlobalCfg() {
-	Cfg['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
-	Cfg['timePattern'] = Cfg['timeOffset'] = '';
-	Cfg['correctTime'] = 0;
+/** @constructor */
+function Config(cfg) {
+    for(var key in cfg) {
+        this[key] = cfg[key];
+    }
 }
+Config.prototype = defaultCfg;
 
-function setDefaultCfg() {
-	Cfg = defaultCfg;
-	fixGlobalCfg();
-	setStored('DESU_Config_' + aib.dm, $uneval(defaultCfg));
-}
-
-function isValidCfg(data) {
+function parseCfg(cfStr) {
 	try {
-		if(JSON.parse(data).version) {
-			return true;
+		var rv = JSON.parse(getStored(cfStr));
+		if(rv['version']) {
+			return new Config(rv);
 		}
 	} catch(e) {}
 	return false;
 }
 
+function fixCfg(uGlob) {
+	var rv;
+	if(uGlob) {
+		rv = parseCfg('DESU_GlobalCfg');
+	}
+	if(!rv) {
+		rv = new Config({'version': defaultCfg['version']});
+	}
+	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	rv['timePattern'] = rv['timeOffset'] = '';
+	rv['correctTime'] = 0;
+	return rv;
+}
+
 function readCfg() {
-	var key,
-		global = false,
-		data = getStored('DESU_Config_' + aib.dm);
-	if(nav.isGlobal && !isValidCfg(data)) {
-		data = getStored('DESU_GlobalCfg');
-		global = true;
-	}
-	if(isValidCfg(data)) {
-		Cfg = JSON.parse(data);
-		Cfg['version'] = defaultCfg['version'];
-		for(key in defaultCfg) {
-			if(Cfg[key] === undefined) {
-				Cfg[key] = defaultCfg[key];
-			}
-		}
-	} else {
-		setDefaultCfg();
-	}
-	if(global) {
-		fixGlobalCfg();
-	}
+	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
+	Cfg['version'] = defaultCfg['version'];
 	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
@@ -1534,7 +1525,7 @@ function addSettings() {
 					window.location.reload();
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lCode], Lng.loadGlobal[lCode], function() {
-					if(isValidCfg(getStored('DESU_GlobalCfg'))) {
+					if(parseCfg('DESU_GlobalCfg')) {
 						setStored('DESU_Config_' + aib.dm, '');
 						window.location.reload();
 					} else {
@@ -1552,7 +1543,7 @@ function addSettings() {
 				}),
 				$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
 					if(confirm(Lng.conReset[lCode])) {
-						setDefaultCfg();
+						setStored('DESU_Config_' + aib.dm, $uneval(fixCfg(false)));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads_' + aib.dm, '');
