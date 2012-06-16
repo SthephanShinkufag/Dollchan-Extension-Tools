@@ -760,13 +760,7 @@ function parseCfg(cfStr) {
 }
 
 function fixCfg(uGlob) {
-	var rv;
-	if(uGlob) {
-		rv = parseCfg('DESU_GlobalCfg');
-	}
-	if(!rv) {
-		rv = new Config({'version': defaultCfg['version']});
-	}
+	var rv = (uGlob && parseCfg('DESU_GlobalCfg')) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
