@@ -3264,12 +3264,12 @@ function addPostButtons(post) {
 	if(post.isOp) {
 		btns.className += '_op';
 		h = aib.host;
-		nav.insBefore(btns, '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>');
+		nav.appendChild(btns, '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>');
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			nav.insBefore(btns, '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>');
+			nav.appendChild(btns, '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>');
 			Favor[h][brd][post.Num].cnt = post.thr.pCount;
 		} else {
-			nav.insBefore(btns, '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>');
+			nav.appendChild(btns, '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>');
 		}
 	}
 	$after(ref, btns);
@@ -6063,7 +6063,7 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
-	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
+	nav.appendChild = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			el.appendChild($add(html));
 		} :
