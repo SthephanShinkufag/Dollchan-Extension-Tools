@@ -347,7 +347,7 @@ doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
-pr = {}, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
+pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
@@ -3175,7 +3175,6 @@ function getImgSize(post) {
 ==============================================================================*/
 
 function prepareButtons() {
-	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	addContentScript(
 			'function DESU_hideClick(el) {\
 				window.postMessage("D" + el.parentNode.id.substring(9), "*");\
@@ -3765,7 +3764,6 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	var iB;
 	$each($X(aib.xImages, el), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -3774,10 +3772,9 @@ function addImgSearch(el) {
 		if(link.innerHTML.indexOf('<') !== -1) {
 			return;
 		}
-		(iB = imgBtn.cloneNode(false)).onmouseover = selectImgSearch;
-		link.parentNode.insertBefore(iB, link);
+		nav.insBefore(link, '<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
+		link.nextSibling.onmouseover = selectImgSearch;
 	});
-	iB = null;
 }
 
 function expandPostImg(a, post, isExp) {
@@ -6049,6 +6046,13 @@ function getNavigator() {
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
+		};
+	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
+		function(el, html) {
+			$before(el, $add(html));
+		} :
+		function(el, html) {
+			el.insertAdjacentHTML('beforebegin', html);
 		};
 	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
 		function(obj, fn) {
