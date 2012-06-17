@@ -2966,7 +2966,7 @@ function showQuickReply(post) {
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
 	}
-	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n>$2') + '\n');
+	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n> $2') + '\n');
 }
 
 function showMainReply() {
