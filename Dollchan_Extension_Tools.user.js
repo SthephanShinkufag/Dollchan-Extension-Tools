@@ -1334,8 +1334,8 @@ function addSettings() {
 		]),
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
-		$if(nav.Firefox >= 6 || nav.WebKit, divBox('preLoadImgs', null)),
-		$if(!aib.fch && (nav.Firefox >= 6 || nav.WebKit), $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(nav.toBlob, divBox('preLoadImgs', null)),
+		$if(!aib.fch && nav.toBlob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -6063,7 +6063,6 @@ function getNavigator() {
 			return link;
 		}
 	nav.postMsg = nav.WebKit ? addContentScript : eval;
-	nav.h5Rep = !aib.nul && !aib.tiny;
 	try {
 		blb = new Blob(['1']);
 	} catch(e) {}
@@ -6080,13 +6079,14 @@ function getNavigator() {
 				return bb.getBlob();
 			};
 		} else {
-			nav.h5Rep = false;
+			nav.toBlob = false;
 		}
 	} else {
 		nav.toBlob = function(arr) {
 			return new Blob(arr);
 		};
 	}
+	nav.h5Rep = !aib.nul && !aib.tiny && !!nav.toBlob;
 }
 
 function getPage() {
