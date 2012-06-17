@@ -3773,7 +3773,7 @@ function addImgSearch(el) {
 			return;
 		}
 		nav.insBefore(link, '<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
-		link.nextSibling.onmouseover = selectImgSearch;
+		link.previousSibling.onmouseover = selectImgSearch;
 	});
 }
 
