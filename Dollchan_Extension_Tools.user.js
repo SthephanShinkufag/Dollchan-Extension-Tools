@@ -1798,14 +1798,14 @@ function addFavoritesTable() {
 						}, function(dc, err) {
 							$attr(c, {
 								'class': '',
-								'text': err || ++cnt
+								'text': err || cnt
 							});
 							if(!err) {
 								Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 								setStored('DESU_Favorites', $uneval(Favor));
 							}
 							c = cnt = arr = null;
-						}, false);
+						});
 					}
 				});
 			}),
@@ -1818,7 +1818,7 @@ function addFavoritesTable() {
 							saveFavorites($uneval(Favor));
 						}
 						arr = null;
-					}, false);
+					});
 				});
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
@@ -2318,7 +2318,7 @@ function initPostform() {
 	if(pr.on) {
 		doPostformChanges(null, null);
 	} else if(oeForm) {
-		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges, false);
+		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges);
 	}
 }
 
@@ -4227,7 +4227,7 @@ function showPview(link) {
 			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
 		b = pNum = parent = el = null;
-	}, true);
+	});
 }
 
 function overRefLink() {
@@ -4255,7 +4255,7 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function ajaxGetPosts(url, b, tNum, pFn, fFn, loadOp) {
+function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
 		url: url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt)),
@@ -4270,7 +4270,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn, loadOp) {
 					}
 					if(pFn) {
 						try {
-							parseDelform($$x(aib.xDForm, dc, dc), dc, pFn, loadOp);
+							parseDelform($$x(aib.xDForm, dc, dc), dc, pFn);
 						} catch(e) {}
 					}
 					fFn(dc, null);
@@ -4281,7 +4281,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn, loadOp) {
 							'HTTP [' + xhr.status + '] ' + xhr.statusText
 					);
 				}
-				fFn = pFn = loadOp = null;
+				fFn = pFn = null;
 			}
 		}
 	});
@@ -4394,7 +4394,7 @@ function getFullMsg(el, addFunc) {
 			el = post = null;
 			throw '';
 		}
-	}, function(dc, err) {}, true);
+	}, function(dc, err) {});
 }
 
 function processFullMsg(post) {
@@ -4476,7 +4476,7 @@ function loadThread(op, last, fn) {
 			fn();
 		}
 		last = fn = psts = pNums = null;
-	}, true);
+	});
 }
 
 function loadFavorThread() {
@@ -4519,7 +4519,7 @@ function loadPage(page, p, last) {
 			page.appendChild(el);
 		}
 		replaceDelform(page);
-		parseDelform(page, doc, pushPost, true);
+		parseDelform(page, doc, pushPost);
 		preparePage(page);
 		if(last) {
 			Posts.forEach(addPostButtons);
@@ -4546,7 +4546,7 @@ function loadPage(page, p, last) {
 			preloadImages(dForm);
 		}
 		page = last = null;
-	}, false);
+	});
 }
 
 function loadPages(len) {
@@ -4738,7 +4738,7 @@ function getHanaPost(postJson) {
 }
 
 function loadNewPosts(inf, fn) {
-	var i = 1,
+	var i = 0,
 		len = 0,
 		thr = $x('.//div[contains(@class," DESU_thread")]', dForm);
 	if(inf) {
@@ -4812,7 +4812,7 @@ function loadNewPosts(inf, fn) {
 			fn();
 		}
 		fn = i = len = thr = null;
-	}, false);
+	});
 }
 
 function initThreadsUpdater() {
@@ -4840,9 +4840,9 @@ function initThreadsUpdater() {
 				ajaxGetPosts(null, brd, TNum, function() {
 					cnt++;
 				}, function(dc, err) {
-					infoNewPosts(err, cnt - Posts.length + 1);
+					infoNewPosts(err, cnt - Posts.length);
 					cnt = null;
-				}, false);
+				});
 			}
 		}, t);
 	}
@@ -6438,7 +6438,7 @@ function parseThread(node, dc, fn) {
 	}
 }
 
-function parseDelform(node, dc, pFn, loadOp) {
+function parseDelform(node, dc, pFn) {
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
 		$$Del('.//a[@data-embedcode]', node, dc);
@@ -6479,11 +6479,8 @@ function parseDelform(node, dc, pFn, loadOp) {
 		}
 	}
 	parseThread(node, dc, function(thr) {
-		var i, len, psts, op;
-		if(loadOp) {
-			op = aib.getOp(thr, dc);
-			pFn(dc, op, thr, aib.getTNum(op, dc), 0);
-		}
+		var i, len, psts, op = aib.getOp(thr, dc);
+		pFn(dc, op, thr, aib.getTNum(op, dc), 0);
 		if(!nav.Firefox || aib.gazo) {
 			for(psts = $$X(aib.xWrap, thr, dc), len = 0; i = psts.snapshotItem(len);
 				pFn(dc, i, thr, aib.getPNum(i), len + 1), len++);
@@ -6525,7 +6522,7 @@ function tryToParse() {
 	dForm.id = '';
 	$disp(dForm);
 	try {
-		parseDelform(dForm, doc, pushPost, true);
+		parseDelform(dForm, doc, pushPost);
 	} catch(e) {
 		$disp(dForm);
 		return false;
