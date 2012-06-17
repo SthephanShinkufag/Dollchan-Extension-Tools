@@ -6050,13 +6050,6 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
-	nav.appendChild = nav.Firefox && nav.Firefox < 8 ?
-		function(el, html) {
-			el.appendChild($add(html));
-		} :
-		function(el, html) {
-			el.insertAdjacentHTML('beforeend', html);
-		};
 	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
 		function(obj, fn) {
 			for(var i in obj) {
