@@ -347,7 +347,7 @@ doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
-pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
+pr = {}, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
@@ -3185,8 +3185,6 @@ function prepareButtons() {
 			'<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>'
 		))
 	]);
-	opPanel = (!TNum ? '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>'
-		: '') + '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
 	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	addContentScript(
@@ -3266,11 +3264,12 @@ function addPostButtons(post) {
 	if(post.isOp) {
 		btns.className += '_op';
 		h = aib.host;
+		nav.insBefore(btns, '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>');
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			nav.insBefore(btns, opPanel.replace('DESU_btnFav', 'DESU_btnFavSel'));
+			nav.insBefore(btns, '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>');
 			Favor[h][brd][post.Num].cnt = post.thr.pCount;
 		} else {
-			nav.insBefore(btns, opPanel);
+			nav.insBefore(btns, '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>');
 		}
 	}
 	$after(ref, btns);
@@ -6066,7 +6065,7 @@ function getNavigator() {
 		};
 	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
-			el.innerHtml = el.innerHTML + html;
+			el.appendChild($add(html));
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('beforeend', html);
