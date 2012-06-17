@@ -347,7 +347,7 @@ doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
-pr = {}, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
+pr = {}, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
@@ -2310,11 +2310,7 @@ function initPostform() {
 	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
-	$after(pArea, $new('div', {
-		'id': 'DESU_qarea',
-		'class': aib.pClass,
-		'style': 'display: none;'
-	}, null));
+	nav.insAfter(pArea, '<div id="DESU_qarea" class="' + aib.pClass + '" style="display: none;"></div>');
 	if(pr.on) {
 		doPostformChanges(null, null);
 	} else if(oeForm) {
@@ -2535,9 +2531,9 @@ function doPostformChanges(m, el) {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
 			}
-			$after(
+			nav.insAfter(
 				$c('DESU_content', doc),
-				$add('<iframe id="DESU_iframe" name="DESU_iframe" src="about:blank" />')
+				'<iframe id="DESU_iframe" name="DESU_iframe" src="about:blank" />'
 			);
 			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
 		}
@@ -2966,7 +2962,7 @@ function showQuickReply(post) {
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
 	}
-	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(^|\n)(.)/gm, '\n> $2') + '\n');
+	insertInto(pr.txta, '>>' + post.Num + quotetxt.replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 }
 
 function showMainReply() {
@@ -3179,13 +3175,6 @@ function getImgSize(post) {
 ==============================================================================*/
 
 function prepareButtons() {
-	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>'),
-		$if(pr.on || oeForm, $add(
-			'<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>'
-		))
-	]);
-	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
 	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	addContentScript(
 			'function DESU_hideClick(el) {\
@@ -3256,23 +3245,21 @@ function prepareButtons() {
 
 function addPostButtons(post) {
 	var h, ref = aib.getRef(post),
-		btns = post.Btns = pPanel.cloneNode(true);
-	btns.id = 'DESU_btns' + post.Num;
-	if(aib.getSage(post)) {
-		btns.appendChild(sageBtn.cloneNode(false));
-	}
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" id="DESU_btns' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '') + (aib.getSage(post) ? '<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>' : '');
 	if(post.isOp) {
-		btns.className += '_op';
 		h = aib.host;
-		nav.appendChild(btns, '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>');
+		if(!TNum) {
+			html += '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>';
+		}
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			nav.appendChild(btns, '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>');
+			html += '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>';
 			Favor[h][brd][post.Num].cnt = post.thr.pCount;
 		} else {
-			nav.appendChild(btns, '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>');
+			html += '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 		}
 	}
-	$after(ref, btns);
+	nav.insAfter(ref, html + '</span>');
+	post.Btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
 		if(aib.futr || (aib.nul && TNum)) {
 			$each($X('a', ref), function(el) {
