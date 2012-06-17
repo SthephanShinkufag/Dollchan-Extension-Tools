@@ -2754,20 +2754,6 @@ function ajaxSubmit(form, fn) {
 	fd.send(form.action, fn);
 }
 
-function toBlob(arr) {
-	if(nav.Firefox < 13) {
-		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
-			i = 0,
-			len = arr.length;
-		while(i < len) {
-			bb.append(arr[i++]);
-		}
-		return bb.getBlob();
-	} else {
-		return new Blob(arr);
-	}
-}
-
 function processImage(arr, force) {
 	var i = 0,
 		j = 0,
@@ -2868,7 +2854,7 @@ dataForm.prototype.readFile = function(el, idx) {
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = toBlob(dat);
+			dF.data[idx] = nav.toBlob(dat);
 			dF.busy--;
 		}
 		fr = dF = el = idx = file = null;
@@ -2893,8 +2879,8 @@ dataForm.prototype.send = function(url, fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': toBlob(this.data),
-		'url': url,
+		'data': nav.toBlob(this.data),
+		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return
@@ -3384,7 +3370,7 @@ dateTime.prototype.fix = function(txt) {
 ==============================================================================*/
 
 function getTubeVideoLinks(id, fn) {
-	GM_xmlhttpRequest({method: 'GET', url: '//www.youtube.com/watch?v=' + id, onload: function(xhr) {
+	GM_xmlhttpRequest({method: 'GET', url: 'https://www.youtube.com/watch?v=' + id, onload: function(xhr) {
 		var i, group, len, elem, result1, result2, src,
 			sep1 = '%2C',
 			sep2 = '%26',
@@ -3882,7 +3868,7 @@ function preloadImages(el) {
 			req.responseType = 'arraybuffer';
 			req.onload = function(e) {
 				if(this.status == 200) {
-					a_.href = window.URL.createObjectURL(toBlob([this.response]));
+					a_.href = window.URL.createObjectURL(nav.toBlob([this.response]));
 					if(eImg) {
 						$t('img', a_).src = a_.href;
 					}
@@ -4241,7 +4227,7 @@ function eventRefLink(el) {
 function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt)),
+		url: nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
 		onreadystatechange: function(xhr) {
 			var dc = null;
 			if(xhr.readyState === 4) {
@@ -4273,7 +4259,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 function getJSON(url, fn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: url,
+		url: nav.fixLink(url),
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 304) {
@@ -6005,10 +5991,11 @@ function isCompatible() {
 }
 
 function getNavigator() {
-	var ua = window.navigator.userAgent;
+	var ua = window.navigator.userAgent, blb;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
-	nav.WebKit = /chrome|safari/i.test(ua);
+	nav.Safari = /safari/i.test(ua);
+	nav.WebKit = nav.Safari || /chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
@@ -6036,7 +6023,6 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.h5Rep = (nav.Firefox > 6 || nav.WebKit) && !aib.nul && !aib.tiny;
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
@@ -6049,7 +6035,7 @@ function getNavigator() {
 		};
 	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
-			$before(el, $add(html));
+			$before(el, [$add(html)]);
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('beforebegin', html);
@@ -6065,7 +6051,42 @@ function getNavigator() {
 		function(obj, fn) {
 			Object.keys(obj).forEach(fn, obj);
 		}
+	nav.fixLink = nav.Safari ?
+		function (link) {
+			if(link[1] === '/') {
+				return 'http:' + link;
+			} else if(link[0] === '/') {
+				return 'http://' + aib.host + link;
+			}
+		} :
+		function(link) {
+			return link;
+		}
 	nav.postMsg = nav.WebKit ? addContentScript : eval;
+	nav.h5Rep = !aib.nul && !aib.tiny;
+	try {
+		blb = new Blob(['1']);
+	} catch(e) {}
+	if(!blb || blb.size === 0) {
+		window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
+		if(window.BlobBuilder) {
+			nav.toBlob = function(arr) {
+				var bb = new BlobBuilder(),
+					i = 0,
+					len = arr.length;
+				while(i < len) {
+					bb.append(arr[i++]);
+				}
+				return bb.getBlob();
+			};
+		} else {
+			nav.h5Rep = false;
+		}
+	} else {
+		nav.toBlob = function(arr) {
+			return new Blob(arr);
+		};
+	}
 }
 
 function getPage() {
