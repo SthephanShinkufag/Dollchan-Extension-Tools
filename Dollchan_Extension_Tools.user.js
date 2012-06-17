@@ -3180,20 +3180,15 @@ function getImgSize(post) {
 
 function prepareButtons() {
 	pPanel = $New('span', {'class': 'DESU_postPanel'}, [
-		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)" />'),
+		$add('<span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>'),
 		$if(pr.on || oeForm, $add(
-			'<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)" />'
+			'<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>'
 		))
 	]);
-	(opPanel = pPanel.cloneNode(true)).className += '_op';
-	$append(opPanel, [
-		$if(!TNum, $add(
-			'<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)" />'
-		)),
-		$add('<span class="DESU_btnFav" onclick="DESU_favorClick(this)" />')
-	]);
-	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)" />');
-	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)" />');
+	opPanel = (!TNum ? '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>'
+		: '') + '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
+	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
+	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	addContentScript(
 			'function DESU_hideClick(el) {\
 				window.postMessage("D" + el.parentNode.id.substring(9), "*");\
@@ -3262,21 +3257,23 @@ function prepareButtons() {
 }
 
 function addPostButtons(post) {
-	var h, ref = aib.getRef(post);
-	post.Btns = (!post.isOp ? pPanel : opPanel).cloneNode(true);
-	post.Btns.id = 'DESU_btns' + post.Num;
+	var h, ref = aib.getRef(post),
+		btns = post.Btns = pPanel.cloneNode(true);
+	btns.id = 'DESU_btns' + post.Num;
 	if(aib.getSage(post)) {
-		post.Btns.appendChild(sageBtn.cloneNode(false));
+		btns.appendChild(sageBtn.cloneNode(false));
 	}
 	if(post.isOp) {
+		btns.className += '_op';
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			$c('DESU_btnFav', post.Btns).className = 'DESU_btnFavSel';
+			nav.insBefore(btns, opPanel.replace('DESU_btnFav', 'DESU_btnFavSel'));
 			Favor[h][brd][post.Num].cnt = post.thr.pCount;
-			setStored('DESU_Favorites', $uneval(Favor));
+		} else {
+			nav.insBefore(btns, opPanel);
 		}
 	}
-	$after(ref, post.Btns);
+	$after(ref, btns);
 	if(pr.on && Cfg['insertNum']) {
 		if(aib.futr || (aib.nul && TNum)) {
 			$each($X('a', ref), function(el) {
@@ -3468,7 +3465,7 @@ function addTubePlayer(el, m) {
 		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
 			'/0.jpg" controls="controls" preload="none" src="' + src +
 			(nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '" />';
+			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
 		el = el.firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
@@ -6072,6 +6069,13 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
+	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
+		function(el, html) {
+			el.innerHtml = el.innerHTML + html;
+		} :
+		function(el, html) {
+			el.insertAdjacentHTML('beforeend', html);
+		};
 	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
 		function(obj, fn) {
 			for(var i in obj) {
@@ -6707,6 +6711,7 @@ function doScript() {
 	Log('initPostform');
 	prepareButtons();
 	Posts.forEach(addPostButtons);
+	saveFavorites($uneval(Favor));
 	Log('addPostButtons');
 	readPostsVisib();
 	if(Cfg['markViewed']) {
