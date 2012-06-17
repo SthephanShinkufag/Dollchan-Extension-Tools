@@ -6038,7 +6038,7 @@ function getNavigator() {
 		}
 	}
 	nav.blob = nav.Firefox > 6 || (!nav.Safari && nav.WebKit) || (nav.Safari && nav.WebKit > 536);
-	nav.h5rep = nav.blob && !aib.nul && !aib.tiny;
+	nav.h5Rep = nav.blob && !aib.nul && !aib.tiny;
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
