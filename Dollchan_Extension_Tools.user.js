@@ -6024,7 +6024,7 @@ function getNavigator() {
 	var ua = window.navigator.userAgent;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
-	nav.WebKit = /chrome|safari/i.test(ua));
+	nav.WebKit = /chrome|safari/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
