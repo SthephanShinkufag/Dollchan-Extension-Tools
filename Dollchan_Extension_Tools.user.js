@@ -2617,12 +2617,12 @@ function readArch(inp, file) {
 	$after(inp, el);
 	fr.onload = function() {
 		if(inp.nextSibling === el) {
-			$after(inp, $add(
-				'<span class="DESU_fileUtil" style="font-weight: bold; margin: 0 5px;" title="' +
-					inp.files[0].name + ' + ' + file.name + '">RarJPEG</span>'
-			));
+			$attr(el, {
+				'style': 'font-weight: bold; margin: 0 5px;',
+				'title': inp.files[0].name + ' + ' + file.name,
+				'text': 'RarJPEG'
+			});
 			inp.rarJPEG = this.result;
-			$del(el);
 			el = inp = file = null;
 		}
 	};
@@ -4427,10 +4427,10 @@ function loadThread(op, last, fn) {
 			thr.innerHTML = '';
 			op = psts[0];
 			newPost(thr, op, pNums[0], 0);
-			$after(op.Btns, $add(
-				'<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, op.Num) + '">' +
+			nav.insAfter(
+				op.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, op.Num) + '">' +
 					Lng.reply[lCode] + '</a>]</span>'
-			));
+			);
 			if(last === 1 || last >= psts.length - 1) {
 				i = 1;
 			} else {
