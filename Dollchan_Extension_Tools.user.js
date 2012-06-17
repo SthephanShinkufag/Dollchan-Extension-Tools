@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.17.0
+// @version			12.6.17.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.17.0',
+	'version':	'12.6.17.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -92,7 +92,7 @@ var defaultCfg = {
 	'scrUpdIntrv':	2,		// 		check interval in days (0=on page load)
 	'betaScrUpd':	0,		// 		check for beta-version
 	'lastScrUpd':	0,		// 		last update check
-	'textaWidth':	530,	// textarea width
+	'textaWidth':	540,	// textarea width
 	'textaHeight':	140		// textarea height
 },
 
@@ -789,6 +789,8 @@ function readCfg() {
 	}
 	if(nav.Opera && nav.Opera < 12) {
 		Cfg['YTubeTitles'] = 0;
+	}
+	if(nav.Opera) {
 		Cfg['updScript'] = 0;
 	}
 	if(!Cfg['saveSage']) {
@@ -3386,7 +3388,7 @@ dateTime.prototype.fix = function(txt) {
 ==============================================================================*/
 
 function getTubeVideoLinks(id, fn) {
-	GM_xmlhttpRequest({method: 'GET', url: 'https://www.youtube.com/watch?v=' + id, onload: function(xhr) {
+	GM_xmlhttpRequest({'method': 'GET', 'url': 'https://www.youtube.com/watch?v=' + id, 'onload': function(xhr) {
 		var i, group, len, elem, result1, result2, src,
 			sep1 = '%2C',
 			sep2 = '%26',
@@ -3540,10 +3542,10 @@ function addLinkTube(post) {
 		link.onclick = clickTubeLink;
 		if(!(nav.Opera && nav.Opera < 12) && Cfg['YTubeTitles']) {
 			GM_xmlhttpRequest({
-				method: 'GET',
-				url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
+				'method': 'GET',
+				'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
 					'?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
-				onload: function(xhr) {
+				'onload': function(xhr) {
 					try {
 						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 						filterTextTube(pst, link.textContent);
@@ -4242,9 +4244,9 @@ function eventRefLink(el) {
 
 function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
-		method: 'GET',
-		url: nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
-		onreadystatechange: function(xhr) {
+		'method': 'GET',
+		'url': nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
+		'onreadystatechange': function(xhr) {
 			var dc = null;
 			if(xhr.readyState === 4) {
 				if(xhr.status === 200) {
@@ -4273,24 +4275,20 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 }
 
 function getJSON(url, fn) {
-	GM_xmlhttpRequest({
-		method: 'GET',
-		url: nav.fixLink(url),
-		onreadystatechange: function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 304) {
-					closeAlert($id('DESU_alertNewP'));
-				} else {
-					try {
-						fn(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
-					} catch(e) {
-						fn(1, e.toString(), null);
-					}
-					fn = null;
+	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(xhr) {
+		if(xhr.readyState === 4) {
+			if(xhr.status === 304) {
+				closeAlert($id('DESU_alertNewP'));
+			} else {
+				try {
+					fn(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
+				} catch(e) {
+					fn(1, e.toString(), null);
 				}
+				fn = null;
 			}
 		}
-	});
+	}});
 }
 
 function importPost(post) {
@@ -5923,13 +5921,11 @@ function checkForUpdates(force, fn) {
 		return;
 	}
 	GM_xmlhttpRequest({
-		method: 'GET',
-		url: 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' +
+		'method': 'GET',
+		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' +
 			(Cfg['betaScrUpd'] ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
-		headers: {
-			'Content-Type': 'text/plain'
-		},
-		onreadystatechange: function(xhr) {
+		'headers': {'Content-Type': 'text/plain'},
+		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return;
 			}
@@ -6078,7 +6074,7 @@ function getNavigator() {
 		function(link) {
 			return link;
 		}
-	nav.postMsg = nav.WebKit ? addContentScript : eval;
+	nav.postMsg = nav.WebKit || nav.Opera ? addContentScript : eval;
 }
 
 function getPage() {
