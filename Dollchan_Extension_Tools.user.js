@@ -347,7 +347,7 @@ doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
-pr = {}, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
+pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
@@ -1334,8 +1334,8 @@ function addSettings() {
 		]),
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
-		$if(nav.Firefox >= 6 || nav.WebKit, divBox('preLoadImgs', null)),
-		$if(!aib.fch && (nav.Firefox >= 6 || nav.WebKit), $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(nav.blob, divBox('preLoadImgs', null)),
+		$if(!aib.fch && nav.blob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -2755,7 +2755,9 @@ function ajaxSubmit(form, fn) {
 }
 
 function toBlob(arr) {
-	if(nav.Firefox < 13) {
+	try {
+		return new Blob(arr);
+	} catch(e) {
 		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
 			i = 0,
 			len = arr.length;
@@ -2763,8 +2765,6 @@ function toBlob(arr) {
 			bb.append(arr[i++]);
 		}
 		return bb.getBlob();
-	} else {
-		return new Blob(arr);
 	}
 }
 
@@ -2894,7 +2894,7 @@ dataForm.prototype.send = function(url, fn) {
 		'method': 'POST',
 		'headers': headers,
 		'data': toBlob(this.data),
-		'url': url,
+		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return
@@ -3175,7 +3175,6 @@ function getImgSize(post) {
 ==============================================================================*/
 
 function prepareButtons() {
-	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	addContentScript(
 			'function DESU_hideClick(el) {\
 				window.postMessage("D" + el.parentNode.id.substring(9), "*");\
@@ -3385,7 +3384,7 @@ dateTime.prototype.fix = function(txt) {
 ==============================================================================*/
 
 function getTubeVideoLinks(id, fn) {
-	GM_xmlhttpRequest({method: 'GET', url: '//www.youtube.com/watch?v=' + id, onload: function(xhr) {
+	GM_xmlhttpRequest({method: 'GET', url: 'https://www.youtube.com/watch?v=' + id, onload: function(xhr) {
 		var i, group, len, elem, result1, result2, src,
 			sep1 = '%2C',
 			sep2 = '%26',
@@ -3765,7 +3764,6 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	var iB;
 	$each($X(aib.xImages, el), function(link) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -3774,10 +3772,9 @@ function addImgSearch(el) {
 		if(link.innerHTML.indexOf('<') !== -1) {
 			return;
 		}
-		(iB = imgBtn.cloneNode(false)).onmouseover = selectImgSearch;
-		link.parentNode.insertBefore(iB, link);
+		nav.insBefore(link, '<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
+		link.previousSibling.onmouseover = selectImgSearch;
 	});
-	iB = null;
 }
 
 function expandPostImg(a, post, isExp) {
@@ -4244,7 +4241,7 @@ function eventRefLink(el) {
 function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt)),
+		url: nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
 		onreadystatechange: function(xhr) {
 			var dc = null;
 			if(xhr.readyState === 4) {
@@ -4276,7 +4273,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 function getJSON(url, fn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
-		url: url,
+		url: nav.fixLink(url),
 		onreadystatechange: function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 304) {
@@ -6008,10 +6005,11 @@ function isCompatible() {
 }
 
 function getNavigator() {
-	var ua = window.navigator.userAgent;
-	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
-	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
-	nav.WebKit = /chrome|safari/i.test(ua);
+	var ua = window.navigator.userAgent, blb;
+	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
+	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [,0])[1];
+	nav.Safari = +(ua.match(/safari\/(\d+\.\d+)/i) || [,0])[1];
+	nav.WebKit = nav.Safari || /chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
@@ -6039,7 +6037,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.h5Rep = (nav.Firefox > 6 || nav.WebKit) && !aib.nul && !aib.tiny;
+	nav.blob = nav.Firefox > 6 || (nav.WebKit && !nav.Safari) || (nav.Safari && nav.Safari > 536.10);
+	nav.h5rep = nav.blob && !aib.nul && !aib.tiny;
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
@@ -6049,6 +6048,13 @@ function getNavigator() {
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
+		};
+	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
+		function(el, html) {
+			$before(el, [$add(html)]);
+		} :
+		function(el, html) {
+			el.insertAdjacentHTML('beforebegin', html);
 		};
 	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
 		function(obj, fn) {
@@ -6060,6 +6066,15 @@ function getNavigator() {
 		} :
 		function(obj, fn) {
 			Object.keys(obj).forEach(fn, obj);
+		}
+	nav.fixLink = nav.Safari ?
+		function (link) {
+			return link[1] === '/' ? 'http:' + link :
+				link[0] === '/' ? 'http://' + aib.host + link :
+				link;
+		} :
+		function(link) {
+			return link;
 		}
 	nav.postMsg = nav.WebKit ? addContentScript : eval;
 }
