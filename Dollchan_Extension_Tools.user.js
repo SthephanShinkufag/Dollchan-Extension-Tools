@@ -347,7 +347,7 @@ doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
-pr = {}, opPanel, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
+pr = {}, pPanel, sageBtn, imgBtn, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
@@ -773,7 +773,7 @@ function readCfg() {
 	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
-	if(nav.Firefox < 6 && !nav.Chrome) {
+	if(nav.Firefox < 6 && !nav.WebKit) {
 		Cfg['preLoadImgs'] = 0;
 	}
 	if(aib.fch) {
@@ -782,7 +782,7 @@ function readCfg() {
 	if(!nav.Firefox) {
 		Cfg['favIcoBlink'] = 0;
 	}
-	if(!nav.Chrome) {
+	if(!nav.WebKit) {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
@@ -1326,7 +1326,7 @@ function addSettings() {
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			divBox('favIcoBlink', null),
-			$if(nav.Chrome, divBox('desktNotif', function() {
+			$if(nav.WebKit, divBox('desktNotif', function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
 				}
@@ -1334,8 +1334,8 @@ function addSettings() {
 		]),
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
-		$if(nav.Firefox >= 6 || nav.Chrome, divBox('preLoadImgs', null)),
-		$if(!aib.fch && (nav.Firefox >= 6 || nav.Chrome), $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(nav.Firefox >= 6 || nav.WebKit, divBox('preLoadImgs', null)),
+		$if(!aib.fch && (nav.Firefox >= 6 || nav.WebKit), $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -1798,14 +1798,14 @@ function addFavoritesTable() {
 						}, function(dc, err) {
 							$attr(c, {
 								'class': '',
-								'text': err || ++cnt
+								'text': err || cnt
 							});
 							if(!err) {
 								Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 								setStored('DESU_Favorites', $uneval(Favor));
 							}
 							c = cnt = arr = null;
-						}, false);
+						});
 					}
 				});
 			}),
@@ -1818,7 +1818,7 @@ function addFavoritesTable() {
 							saveFavorites($uneval(Favor));
 						}
 						arr = null;
-					}, false);
+					});
 				});
 			}),
 			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
@@ -2318,7 +2318,7 @@ function initPostform() {
 	if(pr.on) {
 		doPostformChanges(null, null);
 	} else if(oeForm) {
-		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges, false);
+		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges);
 	}
 }
 
@@ -3185,8 +3185,6 @@ function prepareButtons() {
 			'<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>'
 		))
 	]);
-	opPanel = (!TNum ? '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>'
-		: '') + '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 	sageBtn = $add('<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>');
 	imgBtn = $add('<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
 	addContentScript(
@@ -3266,11 +3264,12 @@ function addPostButtons(post) {
 	if(post.isOp) {
 		btns.className += '_op';
 		h = aib.host;
+		nav.appendChild(btns, '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>');
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
-			nav.insBefore(btns, opPanel.replace('DESU_btnFav', 'DESU_btnFavSel'));
+			nav.appendChild(btns, '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>');
 			Favor[h][brd][post.Num].cnt = post.thr.pCount;
 		} else {
-			nav.insBefore(btns, opPanel);
+			nav.appendChild(btns, '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>');
 		}
 	}
 	$after(ref, btns);
@@ -3672,7 +3671,7 @@ function resizeImg(e) {
 		oldT = parseInt(this.style.top, 10),
 		oldW = this.width,
 		oldH = this.height,
-		d = nav.Opera || nav.Chrome ? e.wheelDelta : -e.detail,
+		d = nav.Opera || nav.WebKit ? e.wheelDelta : -e.detail,
 		newW = parseInt(this.width * (d > 0 ? 1.25 : 0.8), 10),
 		newH = parseInt(this.height * (d > 0 ? 1.25 : 0.8), 10);
 	$pd(e);
@@ -3726,7 +3725,7 @@ function addFullImg(a, sz, isExp) {
 		full.className += ' DESU_cFullImg';
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
-			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
+			nav.Opera || nav.WebKit ? 'mousewheel' : 'DOMMouseScroll',
 			resizeImg, false
 		);
 		makeMoveable(full);
@@ -3880,7 +3879,7 @@ function preloadImages(el) {
 				return;
 			}
 			var req,
-				eImg = nav.Chrome,
+				eImg = nav.WebKit,
 				a_ = arr[idx],
 				a = a_.href;
 			if(/\.gif$/i.test(a)) {
@@ -4227,7 +4226,7 @@ function showPview(link) {
 			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
 		b = pNum = parent = el = null;
-	}, true);
+	});
 }
 
 function overRefLink() {
@@ -4255,7 +4254,7 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function ajaxGetPosts(url, b, tNum, pFn, fFn, loadOp) {
+function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 	GM_xmlhttpRequest({
 		method: 'GET',
 		url: url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt)),
@@ -4270,7 +4269,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn, loadOp) {
 					}
 					if(pFn) {
 						try {
-							parseDelform($$x(aib.xDForm, dc, dc), dc, pFn, loadOp);
+							parseDelform($$x(aib.xDForm, dc, dc), dc, pFn);
 						} catch(e) {}
 					}
 					fFn(dc, null);
@@ -4281,7 +4280,7 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn, loadOp) {
 							'HTTP [' + xhr.status + '] ' + xhr.statusText
 					);
 				}
-				fFn = pFn = loadOp = null;
+				fFn = pFn = null;
 			}
 		}
 	});
@@ -4394,7 +4393,7 @@ function getFullMsg(el, addFunc) {
 			el = post = null;
 			throw '';
 		}
-	}, function(dc, err) {}, true);
+	}, function(dc, err) {});
 }
 
 function processFullMsg(post) {
@@ -4476,7 +4475,7 @@ function loadThread(op, last, fn) {
 			fn();
 		}
 		last = fn = psts = pNums = null;
-	}, true);
+	});
 }
 
 function loadFavorThread() {
@@ -4519,7 +4518,7 @@ function loadPage(page, p, last) {
 			page.appendChild(el);
 		}
 		replaceDelform(page);
-		parseDelform(page, doc, pushPost, true);
+		parseDelform(page, doc, pushPost);
 		preparePage(page);
 		if(last) {
 			Posts.forEach(addPostButtons);
@@ -4546,7 +4545,7 @@ function loadPage(page, p, last) {
 			preloadImages(dForm);
 		}
 		page = last = null;
-	}, false);
+	});
 }
 
 function loadPages(len) {
@@ -4647,7 +4646,7 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
-	if(nav.Chrome && Cfg['desktNotif'] && inf > 0) {
+	if(nav.WebKit && Cfg['desktNotif'] && inf > 0) {
 		desktopNotification(inf);
 	}
 }
@@ -4738,7 +4737,7 @@ function getHanaPost(postJson) {
 }
 
 function loadNewPosts(inf, fn) {
-	var i = 1,
+	var i = 0,
 		len = 0,
 		thr = $x('.//div[contains(@class," DESU_thread")]', dForm);
 	if(inf) {
@@ -4812,7 +4811,7 @@ function loadNewPosts(inf, fn) {
 			fn();
 		}
 		fn = i = len = thr = null;
-	}, false);
+	});
 }
 
 function initThreadsUpdater() {
@@ -4840,9 +4839,9 @@ function initThreadsUpdater() {
 				ajaxGetPosts(null, brd, TNum, function() {
 					cnt++;
 				}, function(dc, err) {
-					infoNewPosts(err, cnt - Posts.length + 1);
+					infoNewPosts(err, cnt - Posts.length);
 					cnt = null;
-				}, false);
+				});
 			}
 		}, t);
 	}
@@ -5802,7 +5801,7 @@ function scriptCSS() {
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#DESU_select a:hover { background-color: #222; color: #fff; }\
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.WebKit ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed { color: #888 !important; }\
 		.DESU_post { width: auto; }\
 		.DESU_aBtn { text-decoration: none !important; outline: none; }\
@@ -5880,7 +5879,7 @@ function scriptCSS() {
 	]);
 	x = gif = cont = null;
 	updateCSS();
-	if(nav.Chrome) {
+	if(nav.WebKit) {
 		$disp(dForm);
 	}
 }
@@ -6025,7 +6024,7 @@ function getNavigator() {
 	var ua = window.navigator.userAgent;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
-	nav.Chrome = /chrome/i.test(ua);
+	nav.WebKit = /chrome|safari/i.test(ua));
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
@@ -6034,16 +6033,16 @@ function getNavigator() {
 	nav.isGlobal = nav.isGM || nav.isScript;
 	nav.cFix =
 		nav.Firefox ? '-moz-' :
-		nav.Chrome ? '-webkit-' :
+		nav.WebKit ? '-webkit-' :
 		'-o-';
-	if(nav.Firefox > 4 || nav.Chrome || nav.Opera >= 12) {
+	if(nav.Firefox > 4 || nav.WebKit || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.aName =
 			nav.Firefox ? 'MozAnimationName' :
-			nav.Chrome ? 'webkitAnimationName' :
+			nav.WebKit ? 'webkitAnimationName' :
 			'OAnimationName';
 		nav.nEvent =
-			nav.Chrome ? 'webkitAnimationEnd' :
+			nav.WebKit ? 'webkitAnimationEnd' :
 			nav.Opera ? 'oAnimationEnd' :
 			'animationend';
 		nav.aEvent = function(el, fn) {
@@ -6053,8 +6052,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.h5Rep = (nav.Firefox > 6 || nav.Chrome) && !aib.nul && !aib.tiny;
-	if(nav.Chrome) {
+	nav.h5Rep = (nav.Firefox > 6 || nav.WebKit) && !aib.nul && !aib.tiny;
+	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
@@ -6064,9 +6063,9 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
-	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
+	nav.appendChild = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
-			el.innerHtml = el.innerHTML + html;
+			el.appendChild($add(html));
 		} :
 		function(el, html) {
 			el.insertAdjacentHTML('beforeend', html);
@@ -6082,7 +6081,7 @@ function getNavigator() {
 		function(obj, fn) {
 			Object.keys(obj).forEach(fn, obj);
 		}
-	nav.postMsg = nav.Chrome ? addContentScript : eval;
+	nav.postMsg = nav.WebKit ? addContentScript : eval;
 }
 
 function getPage() {
@@ -6438,7 +6437,7 @@ function parseThread(node, dc, fn) {
 	}
 }
 
-function parseDelform(node, dc, pFn, loadOp) {
+function parseDelform(node, dc, pFn) {
 	$$Del('.//script', node, dc);
 	if(aib.ylil) {
 		$$Del('.//a[@data-embedcode]', node, dc);
@@ -6479,11 +6478,8 @@ function parseDelform(node, dc, pFn, loadOp) {
 		}
 	}
 	parseThread(node, dc, function(thr) {
-		var i, len, psts, op;
-		if(loadOp) {
-			op = aib.getOp(thr, dc);
-			pFn(dc, op, thr, aib.getTNum(op, dc), 0);
-		}
+		var i, len, psts, op = aib.getOp(thr, dc);
+		pFn(dc, op, thr, aib.getTNum(op, dc), 0);
 		if(!nav.Firefox || aib.gazo) {
 			for(psts = $$X(aib.xWrap, thr, dc), len = 0; i = psts.snapshotItem(len);
 				pFn(dc, i, thr, aib.getPNum(i), len + 1), len++);
@@ -6525,12 +6521,12 @@ function tryToParse() {
 	dForm.id = '';
 	$disp(dForm);
 	try {
-		parseDelform(dForm, doc, pushPost, true);
+		parseDelform(dForm, doc, pushPost);
 	} catch(e) {
 		$disp(dForm);
 		return false;
 	}
-	if(!nav.Chrome) {
+	if(!nav.WebKit) {
 		$disp(dForm);
 	}
 	return true;
