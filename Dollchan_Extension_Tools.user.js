@@ -773,7 +773,7 @@ function readCfg() {
 	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
-	if(nav.Firefox < 6 && !nav.Chrome) {
+	if(nav.Firefox < 6 && !nav.WebKit) {
 		Cfg['preLoadImgs'] = 0;
 	}
 	if(aib.fch) {
@@ -782,7 +782,7 @@ function readCfg() {
 	if(!nav.Firefox) {
 		Cfg['favIcoBlink'] = 0;
 	}
-	if(!nav.Chrome) {
+	if(!nav.WebKit) {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
@@ -1326,7 +1326,7 @@ function addSettings() {
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			divBox('favIcoBlink', null),
-			$if(nav.Chrome, divBox('desktNotif', function() {
+			$if(nav.WebKit, divBox('desktNotif', function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
 				}
@@ -1334,8 +1334,8 @@ function addSettings() {
 		]),
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
-		$if(nav.Firefox >= 6 || nav.Chrome, divBox('preLoadImgs', null)),
-		$if(!aib.fch && (nav.Firefox >= 6 || nav.Chrome), $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(nav.Firefox >= 6 || nav.WebKit, divBox('preLoadImgs', null)),
+		$if(!aib.fch && (nav.Firefox >= 6 || nav.WebKit), $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -3671,7 +3671,7 @@ function resizeImg(e) {
 		oldT = parseInt(this.style.top, 10),
 		oldW = this.width,
 		oldH = this.height,
-		d = nav.Opera || nav.Chrome ? e.wheelDelta : -e.detail,
+		d = nav.Opera || nav.WebKit ? e.wheelDelta : -e.detail,
 		newW = parseInt(this.width * (d > 0 ? 1.25 : 0.8), 10),
 		newH = parseInt(this.height * (d > 0 ? 1.25 : 0.8), 10);
 	$pd(e);
@@ -3725,7 +3725,7 @@ function addFullImg(a, sz, isExp) {
 		full.className += ' DESU_cFullImg';
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
-			nav.Opera || nav.Chrome ? 'mousewheel' : 'DOMMouseScroll',
+			nav.Opera || nav.WebKit ? 'mousewheel' : 'DOMMouseScroll',
 			resizeImg, false
 		);
 		makeMoveable(full);
@@ -3879,7 +3879,7 @@ function preloadImages(el) {
 				return;
 			}
 			var req,
-				eImg = nav.Chrome,
+				eImg = nav.WebKit,
 				a_ = arr[idx],
 				a = a_.href;
 			if(/\.gif$/i.test(a)) {
@@ -4646,7 +4646,7 @@ function infoNewPosts(err, inf) {
 		}
 	}
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
-	if(nav.Chrome && Cfg['desktNotif'] && inf > 0) {
+	if(nav.WebKit && Cfg['desktNotif'] && inf > 0) {
 		desktopNotification(inf);
 	}
 }
@@ -5801,7 +5801,7 @@ function scriptCSS() {
 		#DESU_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#DESU_select a:hover { background-color: #222; color: #fff; }\
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.Chrome ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.WebKit ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed { color: #888 !important; }\
 		.DESU_post { width: auto; }\
 		.DESU_aBtn { text-decoration: none !important; outline: none; }\
@@ -5879,7 +5879,7 @@ function scriptCSS() {
 	]);
 	x = gif = cont = null;
 	updateCSS();
-	if(nav.Chrome) {
+	if(nav.WebKit) {
 		$disp(dForm);
 	}
 }
@@ -6024,7 +6024,7 @@ function getNavigator() {
 	var ua = window.navigator.userAgent;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
-	nav.Chrome = /chrome/i.test(ua);
+	nav.WebKit = /chrome/i.test(ua) || /safari/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
@@ -6033,16 +6033,16 @@ function getNavigator() {
 	nav.isGlobal = nav.isGM || nav.isScript;
 	nav.cFix =
 		nav.Firefox ? '-moz-' :
-		nav.Chrome ? '-webkit-' :
+		nav.WebKit ? '-webkit-' :
 		'-o-';
-	if(nav.Firefox > 4 || nav.Chrome || nav.Opera >= 12) {
+	if(nav.Firefox > 4 || nav.WebKit || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.aName =
 			nav.Firefox ? 'MozAnimationName' :
-			nav.Chrome ? 'webkitAnimationName' :
+			nav.WebKit ? 'webkitAnimationName' :
 			'OAnimationName';
 		nav.nEvent =
-			nav.Chrome ? 'webkitAnimationEnd' :
+			nav.WebKit ? 'webkitAnimationEnd' :
 			nav.Opera ? 'oAnimationEnd' :
 			'animationend';
 		nav.aEvent = function(el, fn) {
@@ -6052,8 +6052,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.h5Rep = (nav.Firefox > 6 || nav.Chrome) && !aib.nul && !aib.tiny;
-	if(nav.Chrome) {
+	nav.h5Rep = (nav.Firefox > 6 || nav.WebKit) && !aib.nul && !aib.tiny;
+	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
@@ -6081,7 +6081,7 @@ function getNavigator() {
 		function(obj, fn) {
 			Object.keys(obj).forEach(fn, obj);
 		}
-	nav.postMsg = nav.Chrome ? addContentScript : eval;
+	nav.postMsg = nav.WebKit ? addContentScript : eval;
 }
 
 function getPage() {
@@ -6526,7 +6526,7 @@ function tryToParse() {
 		$disp(dForm);
 		return false;
 	}
-	if(!nav.Chrome) {
+	if(!nav.WebKit) {
 		$disp(dForm);
 	}
 	return true;
