@@ -6008,8 +6008,8 @@ function getNavigator() {
 	var ua = window.navigator.userAgent, blb;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [,0])[1];
-	nav.Safari = +(ua.match(/safari\/(\d+\.\d+)/i) || [,0])[1];
-	nav.WebKit = nav.Safari || /chrome/i.test(ua);
+	nav.WebKit = +(ua.match(/WebKit\/(\d+)/i) || [,0])[1];
+	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
@@ -6037,8 +6037,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.blob = nav.Firefox > 6 || (nav.WebKit && !nav.Safari) || (nav.Safari && nav.Safari > 536.10);
-	nav.h5rep = nav.blob && !aib.nul && !aib.tiny;
+	nav.blob = nav.Firefox > 6 || (!nav.Safari && nav.WebKit) || (nav.Safari && nav.WebKit > 536);
+	nav.h5Rep = nav.blob && !aib.nul && !aib.tiny;
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
