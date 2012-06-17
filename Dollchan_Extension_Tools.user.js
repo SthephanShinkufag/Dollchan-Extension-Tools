@@ -1334,8 +1334,8 @@ function addSettings() {
 		]),
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
-		$if(nav.toBlob, divBox('preLoadImgs', null)),
-		$if(!aib.fch && nav.toBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(nav.blob, divBox('preLoadImgs', null)),
+		$if(!aib.fch && nav.blob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -2754,6 +2754,20 @@ function ajaxSubmit(form, fn) {
 	fd.send(form.action, fn);
 }
 
+function toBlob(arr) {
+	try {
+		return new Blob(arr);
+	} catch(e) {
+		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
+			i = 0,
+			len = arr.length;
+		while(i < len) {
+			bb.append(arr[i++]);
+		}
+		return bb.getBlob();
+	}
+}
+
 function processImage(arr, force) {
 	var i = 0,
 		j = 0,
@@ -2854,7 +2868,7 @@ dataForm.prototype.readFile = function(el, idx) {
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = nav.toBlob(dat);
+			dF.data[idx] = toBlob(dat);
 			dF.busy--;
 		}
 		fr = dF = el = idx = file = null;
@@ -2879,7 +2893,7 @@ dataForm.prototype.send = function(url, fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': nav.toBlob(this.data),
+		'data': toBlob(this.data),
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -3868,7 +3882,7 @@ function preloadImages(el) {
 			req.responseType = 'arraybuffer';
 			req.onload = function(e) {
 				if(this.status == 200) {
-					a_.href = window.URL.createObjectURL(nav.toBlob([this.response]));
+					a_.href = window.URL.createObjectURL(toBlob([this.response]));
 					if(eImg) {
 						$t('img', a_).src = a_.href;
 					}
@@ -5992,9 +6006,9 @@ function isCompatible() {
 
 function getNavigator() {
 	var ua = window.navigator.userAgent, blb;
-	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [0, 0])[1];
-	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [0, 0])[1];
-	nav.Safari = /safari/i.test(ua);
+	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
+	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [,0])[1];
+	nav.Safari = +(ua.match(/safari\/(\d+\.\d+)/i) || [,0])[1];
 	nav.WebKit = nav.Safari || /chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
@@ -6023,6 +6037,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
+	nav.blob = nav.Firefox > 6 || (nav.WebKit && !nav.Safari) || (nav.Safari && nav.Safari > 536.10);
+	nav.h5rep = nav.blob && !aib.nul && !aib.tiny;
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
@@ -6053,40 +6069,14 @@ function getNavigator() {
 		}
 	nav.fixLink = nav.Safari ?
 		function (link) {
-			if(link[1] === '/') {
-				return 'http:' + link;
-			} else if(link[0] === '/') {
-				return 'http://' + aib.host + link;
-			}
+			return link[1] === '/' ? 'http:' + link :
+				link[0] === '/' ? 'http://' + aib.host + link :
+				link;
 		} :
 		function(link) {
 			return link;
 		}
 	nav.postMsg = nav.WebKit ? addContentScript : eval;
-	try {
-		blb = new Blob(['1']);
-	} catch(e) {}
-	if(!blb || blb.size === 0) {
-		window.BlobBuilder = window.BlobBuilder || window.WebKitBlobBuilder || window.MozBlobBuilder;
-		if(window.BlobBuilder) {
-			nav.toBlob = function(arr) {
-				var bb = new BlobBuilder(),
-					i = 0,
-					len = arr.length;
-				while(i < len) {
-					bb.append(arr[i++]);
-				}
-				return bb.getBlob();
-			};
-		} else {
-			nav.toBlob = false;
-		}
-	} else {
-		nav.toBlob = function(arr) {
-			return new Blob(arr);
-		};
-	}
-	nav.h5Rep = !aib.nul && !aib.tiny && !!nav.toBlob;
 }
 
 function getPage() {
