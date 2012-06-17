@@ -5829,7 +5829,10 @@ function scriptCSS() {
 			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.abu) {
-		x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"] { display: none !important; }\
+		x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"],\
+			#usrFlds + tbody > tr:first-child, #postform > div:nth-child(2),\
+			#DESU_parea > hr, hr[style="clear: left;"] { display: none !important; }\
+			#DESU_txtPanel { font-size: 16px !important; }\
 			.DESU_aBtn { transition: none; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
@@ -6559,6 +6562,7 @@ function preparePage(node) {
 		node = $c('DESU_thread', node);
 		if(TNum && node) {
 			$Del('following-sibling::node()', node);
+			nav.insAfter(node, '<hr />');
 		}
 	} else if(aib.brit) {
 		node = node.getElementsByClassName('reflink');
