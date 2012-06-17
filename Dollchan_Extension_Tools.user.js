@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.15.0
+// @version			12.6.17.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.15.0',
+	'version':	'12.6.17.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -632,9 +632,11 @@ function fixFunctions() {
 	if(!('GM_xmlhttpRequest' in window)) {
 		window.GM_xmlhttpRequest = function(obj) {
 			var h, xhr = new window.XMLHttpRequest();
-			xhr.onreadystatechange = function() {
-				obj.onreadystatechange(xhr);
-			};
+			if('onreadystatechange' in obj) {
+				xhr.onreadystatechange = function() {
+					obj.onreadystatechange(xhr);
+				};
+			}
 			xhr.onload = function() {
 				try{
 					obj.onload(xhr);
@@ -770,7 +772,7 @@ function fixCfg(uGlob) {
 function readCfg() {
 	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
-	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] < 2) {
+	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] !== 2) {
 		Cfg['scriptStyle'] = 2;
 	}
 	if(nav.Firefox < 6 && !nav.WebKit) {
@@ -785,7 +787,7 @@ function readCfg() {
 	if(!nav.WebKit) {
 		Cfg['desktNotif'] = 0;
 	}
-	if(nav.Opera) {
+	if(nav.Opera && nav.Opera < 12) {
 		Cfg['YTubeTitles'] = 0;
 		Cfg['updScript'] = 0;
 	}
@@ -1405,7 +1407,7 @@ function addSettings() {
 				$txt(' '),
 				lBox('YTubeHD', null)
 			]),
-			$if(!nav.Opera, lBox('YTubeTitles', null))
+			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', null))
 		])
 	]),
 
@@ -3536,7 +3538,7 @@ function addLinkTube(post) {
 		}
 		link.className = 'DESU_ytLink';
 		link.onclick = clickTubeLink;
-		if(!nav.Opera && Cfg['YTubeTitles']) {
+		if(!(nav.Opera && nav.Opera < 12) && Cfg['YTubeTitles']) {
 			GM_xmlhttpRequest({
 				method: 'GET',
 				url: 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
@@ -6020,7 +6022,7 @@ function getNavigator() {
 		nav.Firefox ? '-moz-' :
 		nav.WebKit ? '-webkit-' :
 		'-o-';
-	if(nav.Firefox > 4 || nav.WebKit || nav.Opera >= 12) {
+	if(nav.Firefox > 4 || nav.WebKit || nav.Opera > 11) {
 		nav.Anim = true;
 		nav.aName =
 			nav.Firefox ? 'MozAnimationName' :
