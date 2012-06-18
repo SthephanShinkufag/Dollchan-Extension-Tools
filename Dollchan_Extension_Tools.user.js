@@ -248,6 +248,7 @@ Lng = {
 		ExpImg:		['Раскрыть картинки', 'Expand images'],
 		MaskImg:	['Маскировать картинки', 'Mask images'],
 		UpdOn:		['Автообновление треда', 'Thread autoupdate'],
+		AudioOff:	['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		Catalog:	['Каталог', 'Catalog'],
 		counter:	['Постов/Изображений в треде', 'Posts/Images in thread']
 	},
@@ -263,6 +264,10 @@ Lng = {
 	selAjaxPages:	[
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages']
+	],
+	selAudioNotif:	[
+		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
+		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']
 	],
 
 	add:			['Добавить', 'Add'],
@@ -1037,7 +1042,7 @@ function addPanel() {
 					if(!TNum) {
 						selectAjaxPages();
 					}
-				},  'DESU_delSelection(event)'),
+				}, 'DESU_delSelection(event)'),
 				pButton(
 					'GoBack', null,
 					'//' + aib.host + getPageUrl(aib.host, brd, pageNum - 1),
@@ -1079,6 +1084,15 @@ function addPanel() {
 						initThreadsUpdater();
 					}
 				}, null, null, null)),
+				$if(!nav.Safari && (!nav.Firefox || nav.Firefox > 4) && TNum && Cfg['updThread'] === 1,
+					pButton('AudioOff', function(e) {
+						$pd(e);
+						toggleAudioNotif();
+						nav.audioRepeat = false;
+						this.id = nav.audioPlay ? 'DESU_btnAudioOn' : 'DESU_btnAudioOff';
+						$del($id('DESU_select'));
+					}, null, selectAudioNotif, 'DESU_delSelection(event)')
+				),
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
@@ -1951,7 +1965,7 @@ function addSelMenu(el, fPanel, html) {
 		pst = getPost(el);
 	if(Cfg['attachPanel'] && fPanel) {
 		pos = 'fixed';
-		y = el.id === 'DESU_btnRefresh' ?
+		y = el.id === 'DESU_btnRefresh' || el.id === 'DESU_btnAudioOff' ?
 			'bottom: 25' :
 			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
@@ -2050,6 +2064,27 @@ function selectAjaxPages() {
 		a.onclick = function(e) {
 			$pd(e);
 			loadPages(i + 1);
+		};
+	});
+}
+
+function selectAudioNotif() {
+	if(this.id !== 'DESU_btnAudioOff') {
+		return;
+	}
+	$each(addSelMenu($id('DESU_btnAudioOff'), true,
+		'<a href="#">' + Lng.selAudioNotif[lCode].join('</a><a href="#">') + '</a>'
+	), function(a, i) {
+		a.onclick = function(e) {
+			$pd(e);
+			nav.audioRepeat = true;
+			nav.audioDelay = i === 0 ? 3e4 :
+				i === 1 ? 6e4 :
+				i === 2 ? 12e4 :
+				3e5;
+			toggleAudioNotif();
+			$id('DESU_btnAudioOff').id = 'DESU_btnAudioOn';
+			$del(this.parentNode);
 		};
 	});
 }
@@ -4566,6 +4601,26 @@ function endPostsUpdate() {
 	ajaxInterval = undefined;
 }
 
+function toggleAudioNotif() {
+	if(!nav.audio) {
+		nav.audio = $new('audio', {
+			'preload': 'auto',
+			'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/audio/signal.ogg'
+		}, null);
+	}
+	nav.audioPlay = !nav.audioPlay;
+}
+
+function audioNotification() {
+	if(nav.audioRepeat) {
+		nav.audio.play()
+		setTimeout(audioNotification, nav.audioDelay);
+		nav.audioRepeating = true;
+	} else {
+		nav.audioRepeating = false;
+	}
+}
+
 function desktopNotification(count) {
 	if(window.webkitNotifications.checkPermission() !== 0) {
 		return;
@@ -4630,6 +4685,13 @@ function infoNewPosts(err, inf) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 	if(nav.WebKit && Cfg['desktNotif'] && inf > 0) {
 		desktopNotification(inf);
+	}
+	if(nav.audioPlay && !nav.audioRepeating && inf > 0) {
+		if(nav.audioRepeat) {
+			audioNotification();
+		} else {
+			nav.audio.play()
+		}
 	}
 }
 
@@ -5648,7 +5710,7 @@ function scriptCSS() {
 		#DESU_panelBtns:lang(ru) > li > a, #DESU_panelBtns:lang(de) > li > a { border-radius: 5px; }\
 		#DESU_panelBtns:lang(ru) > li > a:hover { width: 21px; height: 21px; border: 2px solid #9be; }\
 		#DESU_panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }'
+		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	gif('#DESU_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
@@ -5665,6 +5727,9 @@ function scriptCSS() {
 	if(aib.nul) {
 		gif('#DESU_btnCatalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	}
+	p = 'iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAA';
+	x += '#DESU_btnAudioOff { background: url(data:image/png;base64,' + p + 'DXSURBVHja5JY9CgIxEIW/yDba2IpY2FkIa2vlCSwFWxvxDLZWXsEbeAQ9gf0W2ngAu8VCG8GxieBPcM26swg7MIRkeDzmvSGJERG0o0QO8bckI2DmAzCentSBLVAFjEYnXWBvCU4acg2BDVC2+0vWJFNg+YvxgV1rQOioD4Cx4/yahmQFdDxwkkauSkoFvEjOniRS7GvF5EHS0PTkPiVzoO+o97IgQUQ+ZSgiR3mPOAH3lEnGR0AL2GlP1wFoA2stuV5z8SDZ17jAs/MJEANNzZex4L+V2wA+tr2XwRrZ6QAAAABJRU5ErkJggjk5OTczOQ==) no-repeat center !important; }';
+	x += '#DESU_btnAudioOn { background: url(data:image/png;base64,' + p + 'HPSURBVHja7JbBS1RRFMZ/TyfHmsWAYA2h1MKECAwDwVrUom0KgtAqiCJdaKtAEF0pSERLN/kPuHFjbVqXa5EYxI20iSQIJylMUvpa9D25Tk/GqygtPPD4zvnOee+7l3vP4SWSOG6r4wTsvxV5CEzsk2sGngFn97CSYp6Lkr7pr+Uy8recGwn5GIFuSZv+yA9JjRk1uWARrbEi97XXKpLyQX5Q0idJBe9WkhZiREb1r1WqdnLXfNnxG8dXJZG4T0pAR8ZB9gNPMvh14DwwDBSAKWDGtS3ABvAdmAaepitZUpx99XsfHBd9HpI079yWz6czvcLnIq9xzthnHAd2gFWg19w8UARupiKbkSLpLFoFfgEPHL8Oat4b24/S8fXGFeCC/Y/GBFiz33QUkXQ3xYBrDPwG405doBxrv42XgEX7N4IFtNn/nIq0HHIXj4wvjb3AT/s9xnJ6S54D9zI+druGSNpDs8A139IRc11AGXhXq9s7JG3s0/FnJDVLKrl2xTkk3bE/dNCxUpK0XGOsDJh/4fiL40LMgEwkvQ1E1qsG5HVJY/Yfu2byMKMeSa8CoXxG/kqwiF0+F3mrBoEKcNmdXm3bwBwwGZLJ6d9KjP0ZAJniHRP/VIaIAAAAAElFTkSuQmCCODMzNDcw) no-repeat center !important; }';
 	p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
 	gif('#DESU_btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
 	gif('#DESU_btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
@@ -6597,6 +6662,7 @@ function initUpdater() {
 			},
 			onvis = function() {
 				doc.body.className = 'focused';
+				nav.audioRepeat = false;
 				if(Cfg['favIcoBlink'] && favIcon) {
 					clearInterval(favIcon.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
@@ -6617,6 +6683,7 @@ function initUpdater() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
+		doc.body.className = 'focused';
 		if(nav.Firefox > 10) {
 			doc.addEventListener('mozvisibilitychange', function(e) {
 				if(doc.mozHidden) {
