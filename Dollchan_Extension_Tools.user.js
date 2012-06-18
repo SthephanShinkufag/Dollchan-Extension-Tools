@@ -3225,7 +3225,7 @@ function prepareButtons() {
 
 function addPostButtons(post) {
 	var h, ref = aib.getRef(post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" id="DESU_btns' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '') + (aib.getSage(post) ? '<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" id="DESU_btns' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -3238,7 +3238,7 @@ function addPostButtons(post) {
 			html += '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 		}
 	}
-	nav.insAfter(ref, html + '</span>');
+	nav.insAfter(ref, html + (aib.getSage(post) ? '<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span></span>' : '</span>'));
 	post.Btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
 		if(aib.futr || (aib.nul && TNum)) {
