@@ -354,7 +354,7 @@ Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads =
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
-Audio = {enabled: false, el: null, repeat: false, running: false, focused: false},
+Audio = {enabled: false, el: null, repeat: false, running: false},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
@@ -4612,7 +4612,7 @@ function toggleAudioNotif() {
 }
 
 function audioNotification() {
-	if(!Audio.focused) {
+	if(!doc.focused) {
 		Audio.el.play()
 		setTimeout(audioNotification, Audio.repeat);
 		Audio.running = true;
@@ -4661,7 +4661,7 @@ function infoNewPosts(err, inf) {
 	}
 	setUpdButtonState('On');
 	if(Cfg['updThread'] === 1) {
-		if(doc.body.className === 'focused') {
+		if(doc.focused) {
 			return;
 		}
 		inf += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
@@ -6658,12 +6658,10 @@ function initUpdater() {
 	) + ' or self::h1]]]', dForm);
 	if(TNum) {
 		var onhid = function() {
-				Audio.focused = false;
-				doc.body.className = 'blurred';
+				doc.focused = false;
 			},
 			onvis = function() {
-				doc.body.className = 'focused';
-				Audio.focused = true;
+				doc.focused = true;
 				if(Cfg['favIcoBlink'] && favIcon) {
 					clearInterval(favIcon.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
@@ -6692,11 +6690,11 @@ function initUpdater() {
 					onvis();
 				}
 			}, false);
-			doc.body.className = doc.mozHidden ? 'blurred' : 'focused';
+			doc.focused = !doc.mozHidden;
 		} else {
 			window.onblur = onhid;
 			window.onfocus = onvis;
-			doc.body.className = 'blurred';
+			doc.focused = false;
 		}
 		initThreadsUpdater();
 		if(Cfg['updThread'] === 2 || Cfg['updThread'] === 3) {
