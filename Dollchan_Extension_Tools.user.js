@@ -354,7 +354,7 @@ Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads =
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
-Audio = {enabled: false, el: null, repeat: false, running: false},
+Audio = {enabled: false, el: null, repeat: false, running: false, focused: false},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
@@ -4612,7 +4612,7 @@ function toggleAudioNotif() {
 }
 
 function audioNotification() {
-	if(Audio.repeat) {
+	if(!Audio.focused) {
 		Audio.el.play()
 		setTimeout(audioNotification, Audio.repeat);
 		Audio.running = true;
@@ -6658,11 +6658,12 @@ function initUpdater() {
 	) + ' or self::h1]]]', dForm);
 	if(TNum) {
 		var onhid = function() {
+				Audio.focused = false;
 				doc.body.className = 'blurred';
 			},
 			onvis = function() {
 				doc.body.className = 'focused';
-				Audio.repeat = false;
+				Audio.focused = true;
 				if(Cfg['favIcoBlink'] && favIcon) {
 					clearInterval(favIcon.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
