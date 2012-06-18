@@ -354,6 +354,7 @@ Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads =
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
+Audio = {enabled: false, el: null, repeat: false, running: false},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
@@ -1088,8 +1089,8 @@ function addPanel() {
 					pButton('AudioOff', function(e) {
 						$pd(e);
 						toggleAudioNotif();
-						nav.audioRepeat = false;
-						this.id = nav.audioPlay ? 'DESU_btnAudioOn' : 'DESU_btnAudioOff';
+						Audio.repeat = false;
+						this.id = Audio.enabled ? 'DESU_btnAudioOn' : 'DESU_btnAudioOff';
 						$del($id('DESU_select'));
 					}, null, selectAudioNotif, 'DESU_delSelection(event)')
 				),
@@ -2077,8 +2078,7 @@ function selectAudioNotif() {
 	), function(a, i) {
 		a.onclick = function(e) {
 			$pd(e);
-			nav.audioRepeat = true;
-			nav.audioDelay = i === 0 ? 3e4 :
+			Audio.repeat = i === 0 ? 3e4 :
 				i === 1 ? 6e4 :
 				i === 2 ? 12e4 :
 				3e5;
@@ -4602,22 +4602,22 @@ function endPostsUpdate() {
 }
 
 function toggleAudioNotif() {
-	if(!nav.audio) {
-		nav.audio = $new('audio', {
+	if(!Audio.el) {
+		Audio.el = $new('audio', {
 			'preload': 'auto',
 			'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/audio/signal.ogg'
 		}, null);
 	}
-	nav.audioPlay = !nav.audioPlay;
+	Audio.enabled = !Audio.enabled;
 }
 
 function audioNotification() {
-	if(nav.audioRepeat) {
-		nav.audio.play()
-		setTimeout(audioNotification, nav.audioDelay);
-		nav.audioRepeating = true;
+	if(Audio.repeat) {
+		Audio.el.play()
+		setTimeout(audioNotification, Audio.repeat);
+		Audio.running = true;
 	} else {
-		nav.audioRepeating = false;
+		Audio.running = false;
 	}
 }
 
@@ -4686,11 +4686,11 @@ function infoNewPosts(err, inf) {
 	if(nav.WebKit && Cfg['desktNotif'] && inf > 0) {
 		desktopNotification(inf);
 	}
-	if(nav.audioPlay && !nav.audioRepeating && inf > 0) {
-		if(nav.audioRepeat) {
+	if(Audio.enabled && !Audio.running && inf > 0) {
+		if(Audio.repeat) {
 			audioNotification();
 		} else {
-			nav.audio.play()
+			Audio.el.play()
 		}
 	}
 }
@@ -6662,7 +6662,7 @@ function initUpdater() {
 			},
 			onvis = function() {
 				doc.body.className = 'focused';
-				nav.audioRepeat = false;
+				Audio.repeat = false;
 				if(Cfg['favIcoBlink'] && favIcon) {
 					clearInterval(favIcon.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
