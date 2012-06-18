@@ -1980,7 +1980,7 @@ function selectSpell(e) {
 			('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
+			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ,#vtag ')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
@@ -3526,12 +3526,13 @@ function addLinkTube(post) {
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
-					'?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
+					'?alt=json&fields=title/text(),media:group/media:keywords',
 				'onload': function(xhr) {
 					try {
-						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-						filterTextTube(pst, link.textContent);
-						link = null;
+						var json = JSON.parse(xhr.responseText)['entry'];
+						filterTube(pst, link.textContent = json['title']['$t'],
+							link.rel = json['media$group']['media$keywords']['$t'] + ',');
+						link = pst = null;
 					} catch(e) {}
 				}
 			});
@@ -3541,26 +3542,32 @@ function addLinkTube(post) {
 	});
 }
 
-function filterTextTube(post, text) {
-	var t,
-		i = 0,
+function filterTube(post, text, tags) {
+	var t, i,
 		fHide = (function(a) {
 			return a ? hidePost : function(b, c) {};
 		})(Cfg['hideBySpell'] === 1);
-	for(;t = oSpells.video[i++];) {
+	for(i = 0; t = oSpells.video[i]; i++) {
 		if($toRegExp(t).test(text)) {
 			fHide(post, '#video ' + t);
 			post.tHide = 1;
-			if(hideTubeDelay) {
-				clearTimeout(hideTubeDelay);
-			}
+			clearTimeout(hideTubeDelay);
+			hideTubeDelay = setTimeout(saveHiddenPosts, 500);
+			return;
+		}
+	}
+	for(i = 0; t = oSpells.vtag[i]; i++) {
+		if(tags.indexOf(t) !== -1) {
+			fHide(post, '#vtag ' + t.substring(0, t.length - 1));
+			post.tHide = 1;
+			clearTimeout(hideTubeDelay);
 			hideTubeDelay = setTimeout(saveHiddenPosts, 500);
 			return;
 		}
 	}
 }
 
-function unHideTextTube() {
+function unHideTube() {
 	Posts.forEach(function(post) {
 		if(post.tHide === 1) {
 			unhidePost(post);
@@ -3569,17 +3576,26 @@ function unHideTextTube() {
 	});
 }
 
-function hideTextTube() {
+function hideTube() {
 	if(!Cfg['YTubeTitles']) {
 		return;
 	}
 	$each($X('.//a[contains(@href,"youtu")]', dForm), function(link) {
-		for(var i = 0, t, post; t = oSpells.video[i++];) {
-			if($toRegExp(t).test(link.textContent)) {
+		var i, t, post, val;
+		for(i = 0, val = link.textContent; t = oSpells.video[i++];) {
+			if($toRegExp(t).test(val)) {
 				post = getPost(link);
 				hidePost(post, '#video ' + t);
 				post.tHide = 1;
-				break;
+				return
+			}
+		}
+		for(i = 0, val = link.rel; t = oSpells.vtag[i++];) {
+			if(val.indexOf(t) !== -1) {
+				post = getPost(link);
+				hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
+				post.tHide = 1;
+				return
 			}
 		}
 	});
@@ -5082,7 +5098,7 @@ function initSpells() {
 	var i, x, b, n, t, p, j, Spells;
 	pSpells = getSpellObj();
 	tSpells = getSpellObj();
-	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
+	oSpells = {rep: [], skip: [], num: [], outrep: [], video: [], vtag: []};
 	for(i = 0; x = spellsList[i++];) {
 		Spells = pSpells;
 		x = x.toString();
@@ -5136,7 +5152,8 @@ function initSpells() {
 		t === '#noimg' ? Spells.noimg = true :
 		t === '#trip' ? Spells.trip = true :
 		t === '#outrep' ? oSpells.outrep.push(p) :
-		t === '#video' && oSpells.video.push(p);
+		t === '#video' ? oSpells.video.push(p) :
+		t === '#vtag' && oSpells.vtag.push(p.toLowerCase() + ',');
 	}
 }
 
@@ -5364,9 +5381,9 @@ function toggleSpells() {
 		}
 		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
-			hideTextTube();
+			hideTube();
 		} else {
-			unHideTextTube();
+			unHideTube();
 			Posts.forEach(function(post) {
 				if(checkSpells(post)) {
 					unhidePost(post);
@@ -5416,12 +5433,12 @@ function applySpells(txt) {
 			unhidePost(post);
 		}
 	});
-	unHideTextTube();
+	unHideTube();
 	saveSpells(val);
 	if(val !== '') {
 		saveCfg('hideBySpell', 1);
 		Posts.forEach(hideBySpells);
-		hideTextTube();
+		hideTube();
 	} else {
 		saveCfg('hideBySpell', 0);
 	}
