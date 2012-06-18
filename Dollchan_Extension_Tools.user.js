@@ -1316,7 +1316,7 @@ function addSettings() {
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
 		$if(nav.isBlob, divBox('preLoadImgs', null)),
-		$if(!aib.fch && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -2507,7 +2507,7 @@ function doPostformChanges(m, el) {
 				});
 				ajaxSubmit(dForm, checkDelete);
 			};
-			aib.rJpeg = !aib.fch;
+			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
@@ -2838,7 +2838,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = processImage(this.result, !!el.rarJPEG);
+		var dat = processImage(this.result, !aib.rJpeg || !!el.rarJPEG);
 		if(!dat) {
 			dF.error = true;
 			$alert(Lng.fileCorrupt[lCode] + file.name, 'Upload', false);
