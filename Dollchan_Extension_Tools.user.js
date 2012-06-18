@@ -5499,7 +5499,7 @@ function detectWipe_sameWords(txt) {
 		}
 	}
 	x = keys / len;
-	return x < 0.25 ? ('uniq words: ' + x * 100 + '%') : false;
+	return x < 0.25 ? ('uniq words: ' + (x * 100).toFixed(0) + '%') : false;
 }
 
 function detectWipe_longWords(txt) {
