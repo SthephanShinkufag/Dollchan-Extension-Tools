@@ -6683,7 +6683,6 @@ function initUpdater() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		doc.body.className = 'focused';
 		if(nav.Firefox > 10) {
 			doc.addEventListener('mozvisibilitychange', function(e) {
 				if(doc.mozHidden) {
@@ -6692,9 +6691,11 @@ function initUpdater() {
 					onvis();
 				}
 			}, false);
+			doc.body.className = doc.mozHidden ? 'blurred' : 'focused';
 		} else {
 			window.onblur = onhid;
 			window.onfocus = onvis;
+			doc.body.className = 'blurred';
 		}
 		initThreadsUpdater();
 		if(Cfg['updThread'] === 2 || Cfg['updThread'] === 3) {
