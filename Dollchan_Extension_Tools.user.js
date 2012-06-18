@@ -248,6 +248,7 @@ Lng = {
 		ExpImg:		['Раскрыть картинки', 'Expand images'],
 		MaskImg:	['Маскировать картинки', 'Mask images'],
 		UpdOn:		['Автообновление треда', 'Thread autoupdate'],
+		AudioOff:	['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		Catalog:	['Каталог', 'Catalog'],
 		counter:	['Постов/Изображений в треде', 'Posts/Images in thread']
 	},
@@ -263,6 +264,10 @@ Lng = {
 	selAjaxPages:	[
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages']
+	],
+	selAudioNotif:	[
+		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
+		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']
 	],
 
 	add:			['Добавить', 'Add'],
@@ -1037,7 +1042,7 @@ function addPanel() {
 					if(!TNum) {
 						selectAjaxPages();
 					}
-				},  'DESU_delSelection(event)'),
+				}, 'DESU_delSelection(event)'),
 				pButton(
 					'GoBack', null,
 					'//' + aib.host + getPageUrl(aib.host, brd, pageNum - 1),
@@ -1079,6 +1084,15 @@ function addPanel() {
 						initThreadsUpdater();
 					}
 				}, null, null, null)),
+				$if(!nav.Safari && (!nav.Firefox || nav.Firefox > 4) && TNum && Cfg['updThread'] === 1,
+					pButton('AudioOff', function(e) {
+						$pd(e);
+						toggleAudioNotif();
+						nav.audioRepeat = false;
+						this.id = nav.audioPlay ? 'DESU_btnAudioOn' : 'DESU_btnAudioOff';
+						$del($id('DESU_select'));
+					}, null, selectAudioNotif, 'DESU_delSelection(event)')
+				),
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
@@ -1316,7 +1330,7 @@ function addSettings() {
 		$New('div', null, [optSel('expandPosts', null)]),
 		$New('div', null, [optSel('expandImgs', null)]),
 		$if(nav.isBlob, divBox('preLoadImgs', null)),
-		$if(!aib.fch && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', null)
 		])),
 		divBox('postBtnsTxt', null),
@@ -1951,7 +1965,7 @@ function addSelMenu(el, fPanel, html) {
 		pst = getPost(el);
 	if(Cfg['attachPanel'] && fPanel) {
 		pos = 'fixed';
-		y = el.id === 'DESU_btnRefresh' ?
+		y = el.id === 'DESU_btnRefresh' || el.id === 'DESU_btnAudioOff' ?
 			'bottom: 25' :
 			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
@@ -1980,7 +1994,7 @@ function selectSpell(e) {
 			('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
+			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ,#vtag ')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
@@ -2050,6 +2064,27 @@ function selectAjaxPages() {
 		a.onclick = function(e) {
 			$pd(e);
 			loadPages(i + 1);
+		};
+	});
+}
+
+function selectAudioNotif() {
+	if(this.id !== 'DESU_btnAudioOff') {
+		return;
+	}
+	$each(addSelMenu($id('DESU_btnAudioOff'), true,
+		'<a href="#">' + Lng.selAudioNotif[lCode].join('</a><a href="#">') + '</a>'
+	), function(a, i) {
+		a.onclick = function(e) {
+			$pd(e);
+			nav.audioRepeat = true;
+			nav.audioDelay = i === 0 ? 3e4 :
+				i === 1 ? 6e4 :
+				i === 2 ? 12e4 :
+				3e5;
+			toggleAudioNotif();
+			$id('DESU_btnAudioOff').id = 'DESU_btnAudioOn';
+			$del(this.parentNode);
 		};
 	});
 }
@@ -2507,7 +2542,7 @@ function doPostformChanges(m, el) {
 				});
 				ajaxSubmit(dForm, checkDelete);
 			};
-			aib.rJpeg = !aib.fch;
+			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
 			if(aib.nul) {
 				pr.form.action = pr.form.action.replace(/https/, 'http');
@@ -2838,7 +2873,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = processImage(this.result, !!el.rarJPEG);
+		var dat = processImage(this.result, !aib.rJpeg || !!el.rarJPEG);
 		if(!dat) {
 			dF.error = true;
 			$alert(Lng.fileCorrupt[lCode] + file.name, 'Upload', false);
@@ -3225,7 +3260,7 @@ function prepareButtons() {
 
 function addPostButtons(post) {
 	var h, ref = aib.getRef(post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" id="DESU_btns' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '') + (aib.getSage(post) ? '<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" id="DESU_btns' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -3238,7 +3273,7 @@ function addPostButtons(post) {
 			html += '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 		}
 	}
-	nav.insAfter(ref, html + '</span>');
+	nav.insAfter(ref, html + (aib.getSage(post) ? '<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span></span>' : '</span>'));
 	post.Btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
 		if(aib.futr || (aib.nul && TNum)) {
@@ -3526,12 +3561,13 @@ function addLinkTube(post) {
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
-					'?alt=json&fields=title/text(),yt:noembed,app:control/yt:state/@reasonCode',
+					'?alt=json&fields=title/text(),media:group/media:keywords',
 				'onload': function(xhr) {
 					try {
-						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-						filterTextTube(pst, link.textContent);
-						link = null;
+						var json = JSON.parse(xhr.responseText)['entry'];
+						filterTube(pst, link.textContent = json['title']['$t'],
+							link.rel = json['media$group']['media$keywords']['$t'] + ',');
+						link = pst = null;
 					} catch(e) {}
 				}
 			});
@@ -3541,26 +3577,32 @@ function addLinkTube(post) {
 	});
 }
 
-function filterTextTube(post, text) {
-	var t,
-		i = 0,
+function filterTube(post, text, tags) {
+	var t, i,
 		fHide = (function(a) {
 			return a ? hidePost : function(b, c) {};
 		})(Cfg['hideBySpell'] === 1);
-	for(;t = oSpells.video[i++];) {
+	for(i = 0; t = oSpells.video[i]; i++) {
 		if($toRegExp(t).test(text)) {
 			fHide(post, '#video ' + t);
 			post.tHide = 1;
-			if(hideTubeDelay) {
-				clearTimeout(hideTubeDelay);
-			}
+			clearTimeout(hideTubeDelay);
+			hideTubeDelay = setTimeout(saveHiddenPosts, 500);
+			return;
+		}
+	}
+	for(i = 0; t = oSpells.vtag[i]; i++) {
+		if(tags.indexOf(t) !== -1) {
+			fHide(post, '#vtag ' + t.substring(0, t.length - 1));
+			post.tHide = 1;
+			clearTimeout(hideTubeDelay);
 			hideTubeDelay = setTimeout(saveHiddenPosts, 500);
 			return;
 		}
 	}
 }
 
-function unHideTextTube() {
+function unHideTube() {
 	Posts.forEach(function(post) {
 		if(post.tHide === 1) {
 			unhidePost(post);
@@ -3569,17 +3611,26 @@ function unHideTextTube() {
 	});
 }
 
-function hideTextTube() {
+function hideTube() {
 	if(!Cfg['YTubeTitles']) {
 		return;
 	}
 	$each($X('.//a[contains(@href,"youtu")]', dForm), function(link) {
-		for(var i = 0, t, post; t = oSpells.video[i++];) {
-			if($toRegExp(t).test(link.textContent)) {
+		var i, t, post, val;
+		for(i = 0, val = link.textContent; t = oSpells.video[i++];) {
+			if($toRegExp(t).test(val)) {
 				post = getPost(link);
 				hidePost(post, '#video ' + t);
 				post.tHide = 1;
-				break;
+				return
+			}
+		}
+		for(i = 0, val = link.rel; t = oSpells.vtag[i++];) {
+			if(val.indexOf(t) !== -1) {
+				post = getPost(link);
+				hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
+				post.tHide = 1;
+				return
 			}
 		}
 	});
@@ -4550,6 +4601,26 @@ function endPostsUpdate() {
 	ajaxInterval = undefined;
 }
 
+function toggleAudioNotif() {
+	if(!nav.audio) {
+		nav.audio = $new('audio', {
+			'preload': 'auto',
+			'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/audio/signal.ogg'
+		}, null);
+	}
+	nav.audioPlay = !nav.audioPlay;
+}
+
+function audioNotification() {
+	if(nav.audioRepeat) {
+		nav.audio.play()
+		setTimeout(audioNotification, nav.audioDelay);
+		nav.audioRepeating = true;
+	} else {
+		nav.audioRepeating = false;
+	}
+}
+
 function desktopNotification(count) {
 	if(window.webkitNotifications.checkPermission() !== 0) {
 		return;
@@ -4614,6 +4685,13 @@ function infoNewPosts(err, inf) {
 	doc.title = (inf > 0 ? ' [' + inf + '] ' : '') + docTitle;
 	if(nav.WebKit && Cfg['desktNotif'] && inf > 0) {
 		desktopNotification(inf);
+	}
+	if(nav.audioPlay && !nav.audioRepeating && inf > 0) {
+		if(nav.audioRepeat) {
+			audioNotification();
+		} else {
+			nav.audio.play()
+		}
 	}
 }
 
@@ -5082,7 +5160,7 @@ function initSpells() {
 	var i, x, b, n, t, p, j, Spells;
 	pSpells = getSpellObj();
 	tSpells = getSpellObj();
-	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
+	oSpells = {rep: [], skip: [], num: [], outrep: [], video: [], vtag: []};
 	for(i = 0; x = spellsList[i++];) {
 		Spells = pSpells;
 		x = x.toString();
@@ -5136,7 +5214,8 @@ function initSpells() {
 		t === '#noimg' ? Spells.noimg = true :
 		t === '#trip' ? Spells.trip = true :
 		t === '#outrep' ? oSpells.outrep.push(p) :
-		t === '#video' && oSpells.video.push(p);
+		t === '#video' ? oSpells.video.push(p) :
+		t === '#vtag' && oSpells.vtag.push(p.toLowerCase() + ',');
 	}
 }
 
@@ -5364,9 +5443,9 @@ function toggleSpells() {
 		}
 		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
-			hideTextTube();
+			hideTube();
 		} else {
-			unHideTextTube();
+			unHideTube();
 			Posts.forEach(function(post) {
 				if(checkSpells(post)) {
 					unhidePost(post);
@@ -5416,12 +5495,12 @@ function applySpells(txt) {
 			unhidePost(post);
 		}
 	});
-	unHideTextTube();
+	unHideTube();
 	saveSpells(val);
 	if(val !== '') {
 		saveCfg('hideBySpell', 1);
 		Posts.forEach(hideBySpells);
-		hideTextTube();
+		hideTube();
 	} else {
 		saveCfg('hideBySpell', 0);
 	}
@@ -5482,7 +5561,7 @@ function detectWipe_sameWords(txt) {
 		}
 	}
 	x = keys / len;
-	return x < 0.25 ? ('uniq words: ' + x * 100 + '%') : false;
+	return x < 0.25 ? ('uniq words: ' + (x * 100).toFixed(0) + '%') : false;
 }
 
 function detectWipe_longWords(txt) {
@@ -5631,7 +5710,7 @@ function scriptCSS() {
 		#DESU_panelBtns:lang(ru) > li > a, #DESU_panelBtns:lang(de) > li > a { border-radius: 5px; }\
 		#DESU_panelBtns:lang(ru) > li > a:hover { width: 21px; height: 21px; border: 2px solid #9be; }\
 		#DESU_panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }'
+		#DESU_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#DESU_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	gif('#DESU_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
@@ -5648,6 +5727,9 @@ function scriptCSS() {
 	if(aib.nul) {
 		gif('#DESU_btnCatalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	}
+	p = 'iVBORw0KGgoAAAANSUhEUgAAABkAAAAZCAYAAADE6YVjAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAIGNIUk0AAHolAACAgwAA+f8AAIDpAAB1MAAA6mAAADqYAAAXb5JfxUYAAA';
+	x += '#DESU_btnAudioOff { background: url(data:image/png;base64,' + p + 'DXSURBVHja5JY9CgIxEIW/yDba2IpY2FkIa2vlCSwFWxvxDLZWXsEbeAQ9gf0W2ngAu8VCG8GxieBPcM26swg7MIRkeDzmvSGJERG0o0QO8bckI2DmAzCentSBLVAFjEYnXWBvCU4acg2BDVC2+0vWJFNg+YvxgV1rQOioD4Cx4/yahmQFdDxwkkauSkoFvEjOniRS7GvF5EHS0PTkPiVzoO+o97IgQUQ+ZSgiR3mPOAH3lEnGR0AL2GlP1wFoA2stuV5z8SDZ17jAs/MJEANNzZex4L+V2wA+tr2XwRrZ6QAAAABJRU5ErkJggjk5OTczOQ==) no-repeat center !important; }';
+	x += '#DESU_btnAudioOn { background: url(data:image/png;base64,' + p + 'HPSURBVHja7JbBS1RRFMZ/TyfHmsWAYA2h1MKECAwDwVrUom0KgtAqiCJdaKtAEF0pSERLN/kPuHFjbVqXa5EYxI20iSQIJylMUvpa9D25Tk/GqygtPPD4zvnOee+7l3vP4SWSOG6r4wTsvxV5CEzsk2sGngFn97CSYp6Lkr7pr+Uy8recGwn5GIFuSZv+yA9JjRk1uWARrbEi97XXKpLyQX5Q0idJBe9WkhZiREb1r1WqdnLXfNnxG8dXJZG4T0pAR8ZB9gNPMvh14DwwDBSAKWDGtS3ABvAdmAaepitZUpx99XsfHBd9HpI079yWz6czvcLnIq9xzthnHAd2gFWg19w8UARupiKbkSLpLFoFfgEPHL8Oat4b24/S8fXGFeCC/Y/GBFiz33QUkXQ3xYBrDPwG405doBxrv42XgEX7N4IFtNn/nIq0HHIXj4wvjb3AT/s9xnJ6S54D9zI+druGSNpDs8A139IRc11AGXhXq9s7JG3s0/FnJDVLKrl2xTkk3bE/dNCxUpK0XGOsDJh/4fiL40LMgEwkvQ1E1qsG5HVJY/Yfu2byMKMeSa8CoXxG/kqwiF0+F3mrBoEKcNmdXm3bwBwwGZLJ6d9KjP0ZAJniHRP/VIaIAAAAAElFTkSuQmCCODMzNDcw) no-repeat center !important; }';
 	p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
 	gif('#DESU_btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
 	gif('#DESU_btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
@@ -6580,6 +6662,7 @@ function initUpdater() {
 			},
 			onvis = function() {
 				doc.body.className = 'focused';
+				nav.audioRepeat = false;
 				if(Cfg['favIcoBlink'] && favIcon) {
 					clearInterval(favIcon.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
@@ -6600,6 +6683,7 @@ function initUpdater() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
+		doc.body.className = 'focused';
 		if(nav.Firefox > 10) {
 			doc.addEventListener('mozvisibilitychange', function(e) {
 				if(doc.mozHidden) {
