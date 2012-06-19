@@ -351,9 +351,10 @@ Lng = {
 doc = window.document,
 storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
-nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle, favIcon,
+nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
 Pviews = {deleted: [], ajaxed: {}},
+Favico = {href: '', delay: null, focus: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
 oldTime, endTime, timeLog = '', dTime,
@@ -2078,7 +2079,8 @@ function selectAudioNotif() {
 	), function(a, i) {
 		a.onclick = function(e) {
 			$pd(e);
-			Audio.repeat = i === 0 ? 3e4 :
+			Audio.repeat =
+				i === 0 ? 3e4 :
 				i === 1 ? 6e4 :
 				i === 2 ? 12e4 :
 				3e5;
@@ -4612,7 +4614,7 @@ function toggleAudioNotif() {
 }
 
 function audioNotification() {
-	if(!doc.focused) {
+	if(!Favico.focused) {
 		Audio.el.play()
 		setTimeout(audioNotification, Audio.repeat);
 		Audio.running = true;
@@ -4661,16 +4663,16 @@ function infoNewPosts(err, inf) {
 	}
 	setUpdButtonState('On');
 	if(Cfg['updThread'] === 1) {
-		if(doc.focused) {
+		if(Favico.focused) {
 			return;
 		}
 		inf += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
 	}
-	if(Cfg['favIcoBlink'] && favIcon) {
-		clearInterval(favIcon.delay);
+	if(Cfg['favIcoBlink'] && Favico.href) {
+		clearInterval(Favico.delay);
 		if(inf > 0) {
-			favIcon.delay = setInterval(function() {
-				var href = $xb('.//link[@href="' + favIcon + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : favIcon;
+			Favico.delay = setInterval(function() {
+				var href = $xb('.//link[@href="' + Favico.href + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : Favico.href;
 				$Del('.//link[@rel="shortcut icon"]', doc.head);
 				doc.head.appendChild($new('link', {
 					'href': href,
@@ -6166,7 +6168,7 @@ function getPage() {
 			'.html'
 		);
 	}
-	favIcon = ($x('.//head//link[@rel="shortcut icon"]', doc) || {}).href;
+	Favico.href = ($x('.//head//link[@rel="shortcut icon"]', doc) || {}).href;
 }
 
 function fixBrd(b) {
@@ -6655,15 +6657,15 @@ function initUpdater() {
 	) + ' or self::h1]]]', dForm);
 	if(TNum) {
 		var onhid = function() {
-				doc.focused = false;
+				Favico.focused = false;
 			},
 			onvis = function() {
-				doc.focused = true;
-				if(Cfg['favIcoBlink'] && favIcon) {
-					clearInterval(favIcon.delay);
+				Favico.focused = true;
+				if(Cfg['favIcoBlink'] && Favico.href) {
+					clearInterval(Favico.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
 					doc.head.appendChild($new('link', {
-						'href': favIcon,
+						'href': Favico.href,
 						'rel': 'shortcut icon'
 					}, null));
 				}
@@ -6687,14 +6689,14 @@ function initUpdater() {
 					onvis();
 				}
 			}, false);
-			doc.focused = !doc.mozHidden;
+			Favico.focused = !doc.mozHidden;
 		} else {
 			window.onblur = onhid;
 			window.onfocus = onvis;
-			doc.focused = false;
+			Favico.focused = false;
 			$event(window, {'mousemove': function mouseMove(e) {
-				doc.focused = true;
-				window.removeEventListener('mousemove', mouseMove, false);
+				Favico.focused = true;
+				$revent(window, {'mousemove': mouseMove});
 			}});
 		}
 		initThreadsUpdater();
@@ -6704,7 +6706,7 @@ function initUpdater() {
 				'click': function(e) {
 					$pd(e);
 					doc.title = docTitle;
-					clearInterval(favIcon.delay);
+					clearInterval(Favico.delay);
 					loadNewPosts(true, null);
 				}
 			}));
