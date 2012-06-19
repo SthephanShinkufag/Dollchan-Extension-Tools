@@ -4605,7 +4605,7 @@ function toggleAudioNotif() {
 	if(!Audio.el) {
 		Audio.el = $new('audio', {
 			'preload': 'auto',
-			'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/audio/signal.ogg'
+			'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
 		}, null);
 	}
 	Audio.enabled = !Audio.enabled;
