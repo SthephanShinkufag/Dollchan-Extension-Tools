@@ -2443,7 +2443,7 @@ function doPostformChanges(m, el) {
 			if(Cfg['userSignat'] && sVal !== '') {
 				val += '\n' + sVal;
 			}
-			if(($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
+			if(pByNum[pr.tNum] && ($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
 				'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
 				val += '\n\n`--------------------------------------------------`\n' +
 					'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
@@ -6092,7 +6092,7 @@ function getNavigator() {
 		nav.Firefox ? '-moz-' :
 		nav.WebKit ? '-webkit-' :
 		'-o-';
-	if(nav.Firefox > 4 || nav.WebKit || nav.Opera > 11) {
+	if(nav.Firefox > 4 || nav.WebKit || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.animName =
 			nav.Firefox ? 'MozAnimationName' :
