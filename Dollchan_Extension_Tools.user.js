@@ -4670,13 +4670,10 @@ function infoNewPosts(err, inf) {
 		clearInterval(favIcon.delay);
 		if(inf > 0) {
 			favIcon.delay = setInterval(function() {
+				var href = $xb('.//link[@href="' + favIcon + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : favIcon;
 				$Del('.//link[@rel="shortcut icon"]', doc.head);
 				doc.head.appendChild($new('link', {
-					'href': $xb('.//link[@href="' + favIcon + '"]', doc.head) ?
-						'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJ' +
-							'LR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglE' +
-							'wCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' :
-						favIcon,
+					'href': href,
 					'rel': 'shortcut icon'
 				}, null));
 			}, 800);
