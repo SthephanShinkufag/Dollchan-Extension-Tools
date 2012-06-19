@@ -6534,10 +6534,8 @@ function parseDelform(node, dc, pFn) {
 			}
 			thr.className += ' DESU_thread';
 			thr.Num = op.Num;
-			if(!TNum) {
-				thr.pCount = len +
-					((i = aib.getOmPosts(thr, dc)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0);
-			}
+			thr.pCount = len +
+				((i = aib.getOmPosts(thr, dc)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0);
 		}
 	});
 	var el = pByNum[window.location.hash.substring(1)];
