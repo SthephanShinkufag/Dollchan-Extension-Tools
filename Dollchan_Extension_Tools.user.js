@@ -2443,7 +2443,7 @@ function doPostformChanges(m, el) {
 			if(Cfg['userSignat'] && sVal !== '') {
 				val += '\n' + sVal;
 			}
-			if(pByNum[pr.tNum] && ($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
+			if(pr.tNum && ($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
 				'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
 				val += '\n\n`--------------------------------------------------`\n' +
 					'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
