@@ -6695,6 +6695,10 @@ function initUpdater() {
 			window.onblur = onhid;
 			window.onfocus = onvis;
 			doc.focused = false;
+			$event(window, {'mousemove': function mouseMove(e) {
+				doc.focused = true;
+				window.removeEventListener('mousemove', mouseMove, false);
+			}});
 		}
 		initThreadsUpdater();
 		if(Cfg['updThread'] === 2 || Cfg['updThread'] === 3) {
