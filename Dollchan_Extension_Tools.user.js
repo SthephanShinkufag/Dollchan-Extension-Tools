@@ -3581,7 +3581,7 @@ function addLinkTube(post) {
 					try {
 						var json = JSON.parse(xhr.responseText)['entry'];
 						filterTube(pst, link.textContent = json['title']['$t'],
-							link.rel = json['media$group']['media$keywords']['$t'] + ',');
+							link.rel = json['media$group']['media$keywords']['$t'].toLowerCase() + ',');
 						link = pst = null;
 					} catch(e) {}
 				}
