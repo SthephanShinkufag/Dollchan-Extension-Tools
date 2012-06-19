@@ -353,7 +353,7 @@ storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
-Pviews = {deleted: [], ajaxed: {}},
+Pviews = {deleted: [], ajaxed: {}, current: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 pSpells = {}, tSpells = {}, oSpells = {}, spellsList = [],
@@ -648,6 +648,71 @@ function addContentScript(text) {
 	}, null));
 }
 
+function getPost(el) {
+	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
+}
+
+function getImages(el) {
+	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler") or starts-with(@src,"blob:")]', el);
+}
+
+function getText(el) {
+	return (
+		el.innerText ||
+			el.innerHTML
+				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
+				.replace(/<[^>]+?>/g,'')
+				.replace(/&gt;/g, '>')
+				.replace(/&lt;/g, '<')
+	).trim();
+}
+
+function getImgWeight(post) {
+	var inf = aib.getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
+		w = parseFloat(inf.match(/[\d|\.]+/));
+	if(/MB/.test(inf)) {
+		w = w * 1e3;
+	}
+	if(/\d[\s]*B/.test(inf)) {
+		w = (w / 1e3).toFixed(2);
+	}
+	return +w;
+}
+
+function getImgSize(post) {
+	var el = aib.getImgInfo(post),
+		m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
+	return m ? m[0].split(/[x×]/) : [null, null];
+}
+
+function fixBrd(b) {
+	return '/' + (b === '' ? '' : b + '/');
+}
+
+function getThrdUrl(h, b, tNum) {
+	return '//' + h + fixBrd(b) + (
+		(h.indexOf('krautchan.net') + 1) ? 'thread-' :
+		(h.indexOf('ylilauta.fi') + 1) ? '' :
+		'res/'
+	) + tNum + (
+		/dobrochan|tenhou/.test(h) ? '.xhtml' :
+		(h.indexOf('2chan.net') + 1) ? '.htm' :
+		(h.indexOf('420chan.org') + 1) ? '.php' :
+		(h.indexOf('ylilauta.fi') + 1) ? '' :
+		'.html'
+	);
+}
+
+function getPageUrl(h, b, p) {
+	return (h.indexOf('ylilauta.fi') + 1) ?
+		('/' + b + (p === 1 ? '/' : '-' + p)) :
+		(fixBrd(b) + (
+			p > 0 ? (p + docExt) :
+			/dobrochan|tenhou/.test(h) ? ('index' + docExt) :
+			''
+		));
+}
+
 
 /*==============================================================================
 								STORAGE / CONFIG
@@ -806,7 +871,8 @@ function getVisib(pNum) {
 }
 
 function readPostsVisib() {
-	var i, arr, data, currTime = Date.now();
+	var i, arr, data,
+		currTime = Date.now();
 	if(nav.isCookie) {
 		if(TNum) {
 			data = getStored('DESU_Posts_' + aib.dm + '_' + TNum);
@@ -1628,8 +1694,7 @@ function addHiddenTable() {
 				}
 			}),
 			$btn(Lng.save[lCode], '', function() {
-				var i;
-				for(i = 0; cln = clones[i++];) {
+				for(var i = 0; cln = clones[i++];) {
 					if(cln.vis !== 0) {
 						setPostVisib(cln.pst, 1);
 					}
@@ -2606,16 +2671,13 @@ function clearInput(e) {
 
 function makeRarJPEG(e) {
 	$pd(e);
-	var el = $id('DESU_arInput'),
-		inp = $x('input[@type="file"]', this.parentNode),
-		btn = this;
-	if(!el) {
-		el = doc.body.appendChild($new('input', {
+	var el = $id('DESU_arInput') || doc.body.appendChild($new('input', {
 			'id': 'DESU_arInput',
 			'type': 'file',
 			'style': 'display: none'
-		}, null));
-	}
+		}, null)),
+		inp = $x('input[@type="file"]', this.parentNode),
+		btn = this;
 	el.onchange = function(e) {
 		$del(btn);
 		readArch(inp, el.files[0]);
@@ -3141,52 +3203,6 @@ function addTextPanel() {
 
 
 /*==============================================================================
-								FOR POSTS AND THREADS
-==============================================================================*/
-
-function getPost(el) {
-	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
-}
-
-function getImages(post) {
-	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler") or starts-with(@src,"blob:")]', post);
-}
-
-function getTitle(post) {
-	var title = $c(aib.cTitle, post);
-	return title && title.textContent.trim() || post.Text.substring(0, 70).replace(/\s+/g, ' ');
-}
-
-function getText(el) {
-	return (
-		el.innerText ||
-			el.innerHTML
-				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-				.replace(/<[^>]+?>/g,'')
-				.replace(/&gt;/g, '>')
-				.replace(/&lt;/g, '<')
-	).trim();
-}
-
-function getImgWeight(post) {
-	var inf = aib.getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
-		w = parseFloat(inf.match(/[\d|\.]+/));
-	if(/MB/.test(inf)) {
-		w = w * 1e3;
-	}
-	if(/\d[\s]*B/.test(inf)) {
-		w = (w / 1e3).toFixed(2);
-	}
-	return +w;
-}
-
-function getImgSize(post) {
-	var el = aib.getImgInfo(post),
-		m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
-	return m ? m[0].split(/[x×]/) : [null, null];
-}
-
-/*==============================================================================
 									POST BUTTONS
 ==============================================================================*/
 
@@ -3537,8 +3553,7 @@ function addLinkTube(post) {
 		}
 		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
-		el = $c('DESU_ytObj', pst);
-		if(!el) {
+		if(!$c('DESU_ytObj', pst)) {
 			el = $new('div', {'class': 'DESU_ytObj'}, null);
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
@@ -4280,29 +4295,30 @@ function ajaxGetPosts(url, b, tNum, pFn, fFn) {
 		'method': 'GET',
 		'url': nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
 		'onreadystatechange': function(xhr) {
-			var dc = null;
-			if(xhr.readyState === 4) {
-				if(xhr.status === 200) {
-					dc = $toDOM(xhr.responseText);
-					if(!pr.on && oeForm) {
-						pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
-						$before(oeForm, pr.form);
-					}
-					if(pFn) {
-						try {
-							parseDelform($$x(aib.xDForm, dc, dc), dc, pFn);
-						} catch(e) {}
-					}
-					fFn(dc, null);
-				} else {
-					fFn(
-						dc, xhr.status === 0 ?
-							Lng.noConnect[lCode] :
-							'HTTP [' + xhr.status + '] ' + xhr.statusText
-					);
-				}
-				fFn = pFn = null;
+			if(xhr.readyState !== 4) {
+				return;
 			}
+			var dc;
+			if(xhr.status === 200) {
+				dc = $toDOM(xhr.responseText);
+				if(!pr.on && oeForm) {
+					pr = getPostform(doc.importNode($$x('.//textarea/ancestor::form[1]', dc, dc), true));
+					$before(oeForm, pr.form);
+				}
+				if(pFn) {
+					try {
+						parseDelform($$x(aib.xDForm, dc, dc), dc, pFn);
+					} catch(e) {}
+				}
+				fFn(dc, null);
+			} else {
+				fFn(
+					null, xhr.status === 0 ?
+						Lng.noConnect[lCode] :
+						'HTTP [' + xhr.status + '] ' + xhr.statusText
+				);
+			}
+			fFn = pFn = null;
 		}
 	});
 }
@@ -4812,7 +4828,7 @@ function loadNewPosts(inf, fn) {
 		return;
 	}
 	ajaxGetPosts(null, brd, TNum, function(dc, post, thrd, num, j) {
-		var el = Posts[i];
+		var isBan, el = Posts[i];
 		while(el && el.Num !== num) {
 			if(!el.isDel) {
 				el.isDel = true;
@@ -4824,7 +4840,7 @@ function loadNewPosts(inf, fn) {
 			newPost(thr, importPost(post), num, i);
 			len++;
 		} else if(aib.xBan && !el.isBan) {
-			var isBan = $$x(aib.xBan, post, dc);
+			isBan = $$x(aib.xBan, post, dc);
 			if(isBan) {
 				if(!$xb(aib.xBan, el)) {
 					el.Msg.appendChild(doc.importNode(isBan, true));
@@ -6160,34 +6176,6 @@ function getPage() {
 	Favico.href = ($x('.//head//link[@rel="shortcut icon"]', doc) || {}).href;
 }
 
-function fixBrd(b) {
-	return '/' + (b === '' ? '' : b + '/');
-}
-
-function getThrdUrl(h, b, tNum) {
-	return '//' + h + fixBrd(b) + (
-		(h.indexOf('krautchan.net') + 1) ? 'thread-' :
-		(h.indexOf('ylilauta.fi') + 1) ? '' :
-		'res/'
-	) + tNum + (
-		/dobrochan|tenhou/.test(h) ? '.xhtml' :
-		(h.indexOf('2chan.net') + 1) ? '.htm' :
-		(h.indexOf('420chan.org') + 1) ? '.php' :
-		(h.indexOf('ylilauta.fi') + 1) ? '' :
-		'.html'
-	);
-}
-
-function getPageUrl(h, b, p) {
-	return (h.indexOf('ylilauta.fi') + 1) ?
-		('/' + b + (p === 1 ? '/' : '-' + p)) :
-		(fixBrd(b) + (
-			p > 0 ? (p + docExt) :
-			/dobrochan|tenhou/.test(h) ? ('index' + docExt) :
-			''
-		));
-}
-
 function getPostform(form) {
 	if(!form) {
 		return {};
@@ -6442,7 +6430,7 @@ function pushPost(dc, post, thr, num, i) {
 	if(i === 0) {
 		post.isOp = true;
 		post.className += ' DESU_oppost';
-		post.dTitle = getTitle(post);
+		post.dTitle = ($c(aib.cTitle, post) || {}).textContent || post.Text.substring(0, 70).replace(/\s+/g, ' ');
 		Threads.push(post);
 	} else {
 		post.className += ' DESU_post';
