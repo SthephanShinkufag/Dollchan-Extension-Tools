@@ -4937,7 +4937,7 @@ function togglePost(post, vis) {
 				aib._420 ? 'replyheader' :
 				'DESU_postPanel',
 			post
-		)
+		) || $c('DESU_postPanel_del', post)
 	), function(el) {
 		el.style.display = vis === 0 ? 'none' : '';
 	});
