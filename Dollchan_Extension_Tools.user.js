@@ -6627,16 +6627,13 @@ function initUpdater() {
 	if(!pr.mail) {
 		aib.getSage = function(post) {
 			return false;
-		}
+		};
 	}
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
 		aib.fch ? 'self::div[@class="boardBanner"]' : 'self::div[@class="logo"]'
 	) + ' or self::h1]]]', dForm);
 	if(TNum) {
-		var onhid = function() {
-				Favico.focused = false;
-			},
-			onvis = function() {
+		var onvis = function() {
 				Favico.focused = true;
 				if(Cfg['favIcoBlink'] && Favico.href) {
 					clearInterval(Favico.delay);
@@ -6661,14 +6658,16 @@ function initUpdater() {
 		if(nav.Firefox > 10) {
 			doc.addEventListener('mozvisibilitychange', function(e) {
 				if(doc.mozHidden) {
-					onhid();
+					Favico.focused = false;
 				} else {
 					onvis();
 				}
 			}, false);
 			Favico.focused = !doc.mozHidden;
 		} else {
-			window.onblur = onhid;
+			window.onblur = function() {
+				Favico.focused = false;
+			};
 			window.onfocus = onvis;
 			Favico.focused = false;
 			$event(window, {'mousemove': function mouseMove(e) {
