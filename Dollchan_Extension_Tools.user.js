@@ -820,7 +820,7 @@ function readCfg() {
 	if(nav.Firefox < 6 && !nav.WebKit) {
 		Cfg['preLoadImgs'] = 0;
 	}
-	if(aib.fch) {
+	if(aib.fch || aib.abu) {
 		Cfg['findRarJPEG'] = 0;
 	}
 	if(!nav.Firefox) {
@@ -1201,9 +1201,9 @@ function showContent(el, id, name, isUpd) {
 	if(name === 'Cfg') {
 		addSettings();
 	} else {
-		el.appendChild($add('<table><tbody align="left" /></table>'));
+		el.appendChild($add('<div></div>'));
 		if(Cfg['attachPanel']) {
-			$t('table', el).style.backgroundColor = $getStyle(doc.body, 'background-color');
+			$t('div', el).style.backgroundColor = $getStyle(doc.body, 'background-color');
 		}
 		if(name === 'Hid') {
 			readHiddenThreads();
@@ -1629,95 +1629,109 @@ function addSettings() {
 ==============================================================================*/
 
 function addHiddenTable() {
-	var pp, cln, b, tNum, url,
-		clones = [],
-		tcnt = 0,
-		pcnt = 0,
-		table = $t('tbody', $id('DESU_contentHid'));
-	Posts.forEach(function(post) {
-		if(post.Vis !== 0) {
+	var b, tNum, url, pHead, tHead,
+		hid = $t('div', $id('DESU_contentHid')),
+		el = hid.appendChild($add('<div></div>'));
+	Threads.forEach(function(op) {
+		if(op.Vis !== 0) {
 			return;
 		}
-		pp = !post.isOp;
-		cln = $attr(($id('DESU_hidThr_' + post.Num) || post).cloneNode(true), {'id': ''});
-		clones.push(cln);
-		cln.style.display = '';
-		cln.pst = post;
-		cln.vis = 0;
-		cln.btn = pp ? $c('DESU_btnUnhide', cln) : $x('.//a', cln);
-		if(pp) {
-			$rattr(cln.btn, 'onmouseover');
-			$rattr(cln.btn, 'onmouseout');
-		}
-		cln.btn.onclick = (function(el) {
-			return function() {
-				el.vis = el.vis === 0 ? 1 : 0;
-				if(!el.pst.isOp) {
-					togglePost(el, el.vis);
-				} else {
-					el.nextElementSibling.style.display = el.vis === 1 ? '' : 'none';
+		var wrap = $New('div', {'class': aib.pClass}, [
+			$new('input', {'type': 'checkbox'}, null),
+			$event($add('<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
+				'click': function(e) {
+					$pd(e);
+					this.vis = this.vis ? 0 : 1;
+					this.parentNode.nextSibling.style.display = this.vis === 1 ? '' : 'none';
 				}
-			}
-		})(cln);
-		$append(table, [
-			$if(!pp && tcnt++ === 0 || pp && pcnt++ === 0, $New('tr', null, [
-				$add('<b>' + (
-					pp ? Lng.hiddenPosts[lCode] : Lng.hiddenThrds[lCode]
-				) + Lng.onPage[lCode] + ':</b>')
-			])),
-			$New('tr', null, [
-				cln,
-				$if(!pp, $attr(post.cloneNode(true), {
-					'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
-				}))
-			])
+			}),
+			$txt(' - ' + op.dTitle)
 		]);
+		wrap.pst = op;
+		wrap.vis = 0;
+		if(!tHead) {
+			tHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
+				$add('<b>' + Lng.hiddenThrds[lCode] + Lng.onPage[lCode] + ':</b>')
+			]));
+		}
+		tHead.appendChild(
+			$New('div', {'class': 'DESU_contData'}, [
+				wrap,
+				$attr(op.cloneNode(true), {
+					'class': 'DESU_hidOppost',
+					'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
+				})
+			])
+		);
 	});
-	if(pcnt + tcnt === 0) {
-		table.insertRow(-1).appendChild($add('<b>' + Lng.noHidOnPage[lCode] + '</b>'));
+	Posts.forEach(function(post) {
+		if(post.Vis !== 0 || post.isOp) {
+			return;
+		}
+		var cln = $attr(post.cloneNode(true), {'id': ''});
+		cln.style.display = '';
+		cln.vis = 0;
+		cln.pst = post;
+		cln.btn = $c('DESU_btnUnhide', cln);
+		$rattr(cln.btn, 'onmouseover');
+		$rattr(cln.btn, 'onmouseout');
+		cln.btn.onclick = function() {
+			var post = getPost(this);
+			post.vis = post.vis ? 0 : 1;
+			togglePost(post, post.vis);
+		};
+		if(!pHead) {
+			pHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
+				$add('<b>' + Lng.hiddenPosts[lCode] + Lng.onPage[lCode] + ':</b>')
+			]));
+		}
+		pHead.appendChild($New('div', {'class': 'DESU_contData'}, [cln]));
+	});
+	if(!pHead && !tHead) {
+		el.appendChild($add('<b>' + Lng.noHidOnPage[lCode] + '</b>'));
 	} else {
-		$append(table.insertRow(-1), [
+		$append(el, [
 			$btn(Lng.expandAll[lCode], '', function() {
-				var i;
+				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
-					for(i = 0; cln = clones[i++];) {
-						setPostVisib(cln.pst, 1);
-					}
+					$each(psts, function(el) {
+						setPostVisib(el.pst, 1);
+					});
 				} else {
 					this.value = Lng.expandAll[lCode];
-					for(i = 0; cln = clones[i++];) {
-						setPostVisib(cln.pst, cln.vis);
-					}
+					$each(psts, function(el) {
+						setPostVisib(el.pst, el.vis);
+					});
 				}
 			}),
 			$btn(Lng.save[lCode], '', function() {
-				for(var i = 0; cln = clones[i++];) {
-					if(cln.vis !== 0) {
-						setPostVisib(cln.pst, 1);
+				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
+				$each(psts, function(el) {
+					if(el.vis !== 0) {
+						setPostVisib(el.pst, 1);
 					}
-				}
+				});
 				savePostsVisib();
 			})
 		]);
 	}
-	table.appendChild($New('tr', null, [
-		$new('hr', null, null),
+	el = hid.appendChild($add('<div></div>'));
+	el.appendChild($New('div', null, [
+		$add('<hr />'),
 		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lCode] : Lng.hiddenThrds[lCode]) + '</b>')
 	]));
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
-			table.appendChild($New('tr', {'class': 'DESU_hidTHead', 'id': 'DESU_hidTHead_' + b}, [
+			tHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
 				$new('input', {
 					'type': 'checkbox'}, {
 					'click': function() {
-						var inp = this;
-						$each($X(
-							'.//tr[contains(@id,"_' + inp.parentNode.id.substr(14) + '|")]/div/input',
-							$id('DESU_contentHid')
-						), function(el) {
-							el.checked = inp.checked;
+						var res = this.checked;
+						$each($X('div[@class="DESU_contData"]/div/input', this.parentNode), function(el) {
+							el.checked = res;
 						});
+						res = null;
 					}
 				}),
 				$add('<b>' + b + '</b>')
@@ -1727,7 +1741,7 @@ function addHiddenTable() {
 					tNum = hThrds[b][tNum];
 				}
 				url = getThrdUrl(aib.host, b, tNum);
-				table.appendChild($New('tr', {'class': 'DESU_hidTData', 'id': 'DESU_hidTData_' + b + '|' + tNum}, [
+				tHead.appendChild($New('div', {'class': 'DESU_contData', 'id': 'DESU_hidTData_' + b + '|' + tNum}, [
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
@@ -1737,39 +1751,37 @@ function addHiddenTable() {
 			}
 		}
 	}
-	$append(table, [
-		$New('tr', null, [
-			$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-				$disp($id('DESU_hidTEdit').parentNode);
-			}),
-			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
-				$each($X('.//tr[@class="DESU_hidTData"]', $id('DESU_contentHid')), function(el) {
-					var i,
-						arr = el.id.substr(14).split('|'),
-						b = arr[0],
-						tNum = arr[1];
-					if($t('input', el).checked) {
-						if(pByNum[tNum]) {
-							setPostVisib(pByNum[tNum], 1);
-						} else if(nav.isCookie) {
-							i = hThrds[b].indexOf(tNum);
-							if(i >= 0) {
-								hThrds[b].splice(i, 1);
-							}
-						} else {
-							Visib[b + tNum] = 1;
-							delete hThrds[b][tNum];
+	$append(el, [
+		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
+			$disp($id('DESU_hidTEdit').parentNode);
+		}),
+		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
+			$each($X('.//div[@class="DESU_contData"]', $id('DESU_contentHid')), function(el) {
+				var i,
+					arr = el.id.substr(14).split('|'),
+					b = arr[0],
+					tNum = arr[1];
+				if($t('input', el).checked) {
+					if(pByNum[tNum]) {
+						setPostVisib(pByNum[tNum], 1);
+					} else if(nav.isCookie) {
+						i = hThrds[b].indexOf(tNum);
+						if(i >= 0) {
+							hThrds[b].splice(i, 1);
 						}
-						if($isEmpty(hThrds[b])) {
-							delete hThrds[b];
-						}
+					} else {
+						Visib[b + tNum] = 1;
+						delete hThrds[b][tNum];
 					}
-				});
-				setStored('DESU_Threads_' + aib.dm, $uneval(hThrds));
-				savePostsVisib();
-			})
-		]),
-		$New('tr', {'style': 'display: none;'}, [
+					if($isEmpty(hThrds[b])) {
+						delete hThrds[b];
+					}
+				}
+			});
+			setStored('DESU_Threads_' + aib.dm, $uneval(hThrds));
+			savePostsVisib();
+		}),
+		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {
 				'id': 'DESU_hidTEdit',
 				'rows': 9,
@@ -1781,7 +1793,8 @@ function addHiddenTable() {
 			})
 		])
 	]);
-	eventRefLink(table);
+	eventRefLink(hid);
+	pHead = tHead = null;
 }
 
 
@@ -1790,28 +1803,24 @@ function addHiddenTable() {
 ==============================================================================*/
 
 function addFavoritesTable() {
-	var h, b, tNum, list,
-		table = $t('tbody', $id('DESU_contentFav'));
+	var h, b, tNum, list, fav = $t('div', $id('DESU_contentFav'));
 	for(h in Favor) {
 		for(b in Favor[h]) {
-			table.appendChild($New('tr', {'class': 'DESU_favHead', 'id': 'DESU_favHead_' + h + '|' + b}, [
+			list = fav.appendChild($New('div', {'class': 'DESU_contHead'}, [
 				$new('input', {
 					'type': 'checkbox'}, {
 					'click': function() {
-						var inp = this;
-						$each($X(
-							'.//tr[contains(@id,"_' + inp.parentNode.id.substr(13) + '|")]/div/input',
-							$id('DESU_contentFav')
-						), function(el) {
-							el.checked = inp.checked;
+						var res = this.checked;
+						$each($X('div[@class="DESU_contData"]/div/input', this.parentNode), function(el) {
+							el.checked = res;
 						});
-						inp = null;
+						res = null;
 					}
 				}),
 				$add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
 			]));
 			for(tNum in Favor[h][b]) {
-				table.appendChild($New('tr', {'class': 'DESU_favData', 'id': 'DESU_favData_' + h + '|' + b + '|' + tNum}, [
+				list.appendChild($New('div', {'class': 'DESU_contData', 'id': 'DESU_favData_' + h + '|' + b + '|' + tNum}, [
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {
@@ -1821,75 +1830,68 @@ function addFavoritesTable() {
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
 						$txt(' - ' + Favor[h][b][tNum].txt),
 						$add('<span class="DESU_favPCount">[<span>' + (Favor[h][b][tNum].cnt + 1) + '</span>]</span>')
-					]),
-					$new('div', {
-						'id': tNum,
-						'class': 'DESU_favThr',
-						'style': 'display: none;'
-					}, null)
+					])
 				]));
 			}
 		}
 	}
-	if(!table.firstChild) {
-		table.insertRow(-1).appendChild($add('<b>' + Lng.noFavorites[lCode] + '</b>'));
+	if(!fav.firstChild) {
+		fav.appendChild($add('<b>' + Lng.noFavorites[lCode] + '</b>'));
 	}
-	$append(table, [
-		$New('tr', null, [
-			$new('hr', null, null),
-			$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-				$disp($id('DESU_favEdit').parentNode);
-			}),
-			$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
-				$each($X('.//tr[@class="DESU_favData"]', $id('DESU_contentFav')), function(el) {
-					var c,
-						arr = el.id.substr(13).split('|'),
-						cnt = 0;
-					if(aib.host === arr[0]) {
-						c = $t('span', $c('DESU_favPCount', el));
-						$attr(c, {
-							'class': 'DESU_wait',
-							'text': ''
-						});
-						ajaxGetPosts(null, arr[1], arr[2], function() {
-							cnt++;
-						}, function(dc, err) {
-							$attr(c, {
-								'class': '',
-								'text': err || cnt
-							});
-							if(!err) {
-								Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
-								setStored('DESU_Favorites', $uneval(Favor));
-							}
-							c = cnt = arr = null;
-						});
-					}
-				});
-			}),
-			$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
-				$each($X('.//tr[@class="DESU_favData"]', $id('DESU_contentFav')), function(el) {
-					var arr = el.id.substr(13).split('|');
-					ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, null, function(dc, err) {
-						if(err) {
-							removeFavorites(arr[0], arr[1], arr[2]);
-							saveFavorites($uneval(Favor));
-						}
-						arr = null;
+	$append(fav, [
+		$new('hr', null, null),
+		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
+			$disp($id('DESU_favEdit').parentNode);
+		}),
+		$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
+			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
+				var c,
+					arr = el.id.substr(13).split('|'),
+					cnt = 0;
+				if(aib.host === arr[0]) {
+					c = $t('span', $c('DESU_favPCount', el));
+					$attr(c, {
+						'class': 'DESU_wait',
+						'text': ''
 					});
-				});
-			}),
-			$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
-				$each($X('.//tr[@class="DESU_favData"]', $id('DESU_contentFav')), function(el) {
-					var arr = el.id.substr(13).split('|');
-					if($t('input', el).checked) {
+					ajaxGetPosts(null, arr[1], arr[2], function() {
+						cnt++;
+					}, function(dc, err) {
+						$attr(c, {
+							'class': '',
+							'text': err || cnt
+						});
+						if(!err) {
+							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
+							setStored('DESU_Favorites', $uneval(Favor));
+						}
+						c = cnt = arr = null;
+					});
+				}
+			});
+		}),
+		$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
+			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
+				var arr = el.id.substr(13).split('|');
+				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, null, function(dc, err) {
+					if(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
+						saveFavorites($uneval(Favor));
 					}
+					arr = null;
 				});
-				saveFavorites($uneval(Favor));
-			})
-		]),
-		$New('tr', {'style': 'display: none;'}, [
+			});
+		}),
+		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
+			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
+				var arr = el.id.substr(13).split('|');
+				if($t('input', el).checked) {
+					removeFavorites(arr[0], arr[1], arr[2]);
+				}
+			});
+			saveFavorites($uneval(Favor));
+		}),
+		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {
 				'id': 'DESU_favEdit',
 				'rows': 9,
@@ -2120,10 +2122,10 @@ function selectAjaxPages() {
 	$each(addSelMenu(
 		$id('DESU_btnRefresh'), true,
 		'<a href="#">' + Lng.selAjaxPages[lCode].join('</a><a href="#">') + '</a>'
-	), function(a, i) {
+	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
-			loadPages(i + 1);
+			loadPages(Array.prototype.indexOf.call(this.parentNode.children, this) + 1);
 		};
 	});
 }
@@ -2134,9 +2136,10 @@ function selectAudioNotif() {
 	}
 	$each(addSelMenu($id('DESU_btnAudioOff'), true,
 		'<a href="#">' + Lng.selAudioNotif[lCode].join('</a><a href="#">') + '</a>'
-	), function(a, i) {
+	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
+			var i = Array.prototype.indexOf.call(this.parentNode.children, this);
 			Audio.repeat =
 				i === 0 ? 3e4 :
 				i === 1 ? 6e4 :
@@ -2588,7 +2591,7 @@ function doPostformChanges(m, el) {
 		if(nav.isH5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
-				setTimeout(ajaxSubmit, 1e3, pr.form, function(dc, url) {
+				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), function(dc, url) {
 					checkUpload(findError(dc), url);
 				});
 			};
@@ -2600,7 +2603,7 @@ function doPostformChanges(m, el) {
 						return false;
 					};
 				});
-				ajaxSubmit(dForm, checkDelete);
+				ajaxSubmit(new dataForm(dForm), checkDelete);
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
@@ -2821,10 +2824,39 @@ function checkDelete(dc, url) {
 	}
 }
 
-function ajaxSubmit(form, fn) {
-	var fd = new dataForm();
-	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), fd.append.bind(fd));
-	fd.send(form.action, fn);
+function ajaxSubmit(dF, fn) {
+	if(dF.error) {
+		return;
+	}
+	if(dF.busy > 0) {
+		setTimeout(ajaxSubmit, 200, dF, fn);
+		return;
+	}
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + dF.boundary};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
+	dF.data.push('--' + dF.boundary + '--\r\n');
+	GM_xmlhttpRequest({
+		'method': 'POST',
+		'headers': headers,
+		'data': toBlob(dF.data),
+		'url': nav.fixLink(dF.url),
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState !== 4) {
+				return
+			}
+			if(xhr.status === 200) {
+				fn($toDOM(xhr.responseText), xhr.finalUrl);
+				fn = null;
+			} else {
+				$alert(
+					xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+					'Upload', false
+				);
+			}
+		}
+	});
 }
 
 function toBlob(arr) {
@@ -2878,10 +2910,20 @@ function processImage(arr, force) {
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(; j < len - 7; j++) {
 			if(dat[j] === 0x49 && dat[j + 1] === 0x45 && dat[j + 2] === 0x4E && dat[j + 3] === 0x44) {
-				j += 8;
 				break;
 			}
 		}
+		j += 8;
+		if(j === len || (!force && len - j > 75)) {
+			return [arr];
+		}
+	} else if(dat[0] === 0x47 && dat[1] === 0x49) {
+		for(; j < len - 1; j++) {
+			if(dat[j] === 0x00 && dat[j + 1] === 0x3B) {
+				break;
+			}
+		}
+		j += 2;
 		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
@@ -2896,11 +2938,13 @@ function processImage(arr, force) {
 }
 
 /** @constructor */
-function dataForm() {
+function dataForm(form) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
 	this.error = false;
+	this.url = form.action;
+	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), this.append.bind(this));
 }
 
 dataForm.prototype.append = function(el) {
@@ -2925,7 +2969,7 @@ dataForm.prototype.readFile = function(el, idx) {
 	var fr = new FileReader(),
 		file = el.files[0],
 		dF = this;
-	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
+	if(!/^image\/(?:png|jpeg|gif)$/.test(file.type)) {
 		this.data[idx] = file;
 		return;
 	}
@@ -2948,41 +2992,6 @@ dataForm.prototype.readFile = function(el, idx) {
 	};
 	fr.readAsArrayBuffer(file);
 	this.busy++;
-};
-
-dataForm.prototype.send = function(url, fn) {
-	if(this.error) {
-		return;
-	}
-	if(this.busy > 0) {
-		setTimeout(this.send.bind(this), 200, url, fn);
-		return;
-	}
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	this.data.push('--' + this.boundary + '--\r\n');
-	GM_xmlhttpRequest({
-		'method': 'POST',
-		'headers': headers,
-		'data': toBlob(this.data),
-		'url': nav.fixLink(url),
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState !== 4) {
-				return
-			}
-			if(xhr.status === 200) {
-				fn($toDOM(xhr.responseText), xhr.finalUrl);
-				fn = null;
-			} else {
-				$alert(
-					xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-					'Upload', false
-				);
-			}
-		}
-	});
 };
 
 
@@ -3257,7 +3266,7 @@ function prepareButtons() {
 			applySpells('#sage');
 		} else if(name === 'I') {
 			data = data.split('|');
-			name = $id(data[0]);
+			name = doc.getElementsByName(data[0])[0];
 			$del(name.nextSibling);
 			$c('DESU_content', doc).style.overflowY = 'scroll';
 			name.style.height = (+data[1] + Math.sqrt(0.6 * data[1]) + 55) + 'px';
@@ -4507,12 +4516,10 @@ function loadThread(op, last, fn) {
 
 function loadFavorThread() {
 	var el = this.parentNode.parentNode,
-		favt = $c('DESU_favThr', el),
-		tNum = el.id.substr(13).split('|')[2],
-		name = 'DESU_favIframe' + $rnd();
-	if(favt.style.display !== 'none') {
-		$del(favt.firstChild);
-		$disp(favt);
+		favi = $t('iframe', el),
+		tNum = el.id.substr(13).split('|')[2];
+	if(favi) {
+		$del(favi);
 		if(!$c('DESU_favIframe', doc)) {
 			$c('DESU_content', doc).style.overflowY = 'auto';
 		}
@@ -4522,20 +4529,12 @@ function loadFavorThread() {
 		$focus(pByNum[tNum]);
 		return;
 	}
-	$append(favt, [
-		$new('iframe', {
-			'id': name,
-			'name': name,
-			'class': 'DESU_favIframe',
-			'src': this.nextElementSibling.href,
-			'style': 'border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;'
-		}, null),
-		$add(
-			'<div class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
-				Lng.loading[lCode] + '</div>'
-		)
+	$append(el, [
+		$add('<iframe name="DESU_favIframe' + $rnd() + '" class="DESU_favIframe" src="' + $t('a', el).href +
+			'" style="border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;" />'),
+		$add('<div class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
+			Lng.loading[lCode] + '</div>')
 	]);
-	$disp(favt);
 }
 
 function loadPage(page, p, last) {
@@ -5831,10 +5830,11 @@ function scriptCSS() {
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
 		.DESU_content { text-align: left; }\
-		.DESU_content > table { font-size: 16px; }\
-		.DESU_favData .DESU_thread { padding-left: 15px; border: 1px solid grey; }\
-		.DESU_favData a, .DESU_hidTData a { text-decoration: none; }\
-		.DESU_favHead a { color: inherit; font-weight: bold; }\
+		.DESU_content > div { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+		.DESU_contData { margin: 2px 0; }\
+		.DESU_contData > :first-child { float: none !important; }\
+		.DESU_contData > div > a { text-decoration: none; }\
+		.DESU_contHead > a { color: inherit; font-weight: bold; }\
 		.DESU_favPCount { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
 		.DESU_favPCount span { color: #4f7942; }\
 		#DESU_iframe { display: none; width: 0px; height: 0px; border: none; }\
@@ -6160,6 +6160,7 @@ function getPage() {
 		docExt = url[4] || (
 			aib.gazo ? '.htm' :
 			aib._420 ? '.php' :
+			aib.fch ? '' :
 			'.html'
 		);
 	}
