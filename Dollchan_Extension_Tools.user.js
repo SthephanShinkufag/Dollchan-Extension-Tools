@@ -2589,7 +2589,7 @@ function doPostformChanges(m, el) {
 		if(nav.isH5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
-				setTimeout(ajaxSubmit, 1e3, pr.form, function(dc, url) {
+				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), function(dc, url) {
 					checkUpload(findError(dc), url);
 				});
 			};
@@ -2601,7 +2601,7 @@ function doPostformChanges(m, el) {
 						return false;
 					};
 				});
-				ajaxSubmit(dForm, checkDelete);
+				ajaxSubmit(new dataForm(dForm), checkDelete);
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
@@ -2822,10 +2822,39 @@ function checkDelete(dc, url) {
 	}
 }
 
-function ajaxSubmit(form, fn) {
-	var fd = new dataForm();
-	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), fd.append.bind(fd));
-	fd.send(form.action, fn);
+function ajaxSubmit(dF, fn) {
+	if(dF.error) {
+		return;
+	}
+	if(dF.busy > 0) {
+		setTimeout(ajaxSubmit, 200, dF, fn);
+		return;
+	}
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + dF.boundary};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
+	dF.data.push('--' + dF.boundary + '--\r\n');
+	GM_xmlhttpRequest({
+		'method': 'POST',
+		'headers': headers,
+		'data': toBlob(dF.data),
+		'url': nav.fixLink(dF.url),
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState !== 4) {
+				return
+			}
+			if(xhr.status === 200) {
+				fn($toDOM(xhr.responseText), xhr.finalUrl);
+				fn = null;
+			} else {
+				$alert(
+					xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+					'Upload', false
+				);
+			}
+		}
+	});
 }
 
 function toBlob(arr) {
@@ -2907,11 +2936,13 @@ function processImage(arr, force) {
 }
 
 /** @constructor */
-function dataForm() {
+function dataForm(form) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
 	this.error = false;
+	this.url = form.action;
+	$each($X('.//input[not(@type="submit")]|.//textarea|.//select', form), this.append.bind(this));
 }
 
 dataForm.prototype.append = function(el) {
@@ -2959,41 +2990,6 @@ dataForm.prototype.readFile = function(el, idx) {
 	};
 	fr.readAsArrayBuffer(file);
 	this.busy++;
-};
-
-dataForm.prototype.send = function(url, fn) {
-	if(this.error) {
-		return;
-	}
-	if(this.busy > 0) {
-		setTimeout(this.send.bind(this), 200, url, fn);
-		return;
-	}
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	this.data.push('--' + this.boundary + '--\r\n');
-	GM_xmlhttpRequest({
-		'method': 'POST',
-		'headers': headers,
-		'data': toBlob(this.data),
-		'url': nav.fixLink(url),
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState !== 4) {
-				return
-			}
-			if(xhr.status === 200) {
-				fn($toDOM(xhr.responseText), xhr.finalUrl);
-				fn = null;
-			} else {
-				$alert(
-					xhr.status === 0 ? Lng.noConnect[lCode] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-					'Upload', false
-				);
-			}
-		}
-	});
 };
 
 
