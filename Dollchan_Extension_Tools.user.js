@@ -1992,14 +1992,11 @@ function blinkAlert(el) {
 }
 
 function $alert(txt, id, wait) {
-	var node,
-		el = $id('DESU_alert' + id),
+	var el = $id('DESU_alert' + id),
 		cMsg = 'DESU_alertMsg' + (wait ? ' DESU_wait' : ''),
 		tBtn = wait ? '' : '× ';
 	if(el) {
-		node = $t('div', el);
-		node.innerHTML = txt.trim();
-		node.className = cMsg;
+		$html($attr($t('div', el), {'class': cMsg}), txt.trim());
 		$t('span', el).textContent = tBtn;
 		blinkAlert(el);
 		return;
@@ -3050,7 +3047,7 @@ function showMainReply() {
 		pr.isQuick = false;
 		if(!TNum) {
 			toggleQuickReply(0);
-			$del($x('.//input[@id="thr_id"]', pr.form));
+			$del($id('thr_id'));
 		}
 		$disp(el);
 		qArea.style.display = 'none';
@@ -3484,11 +3481,11 @@ function addTubePlayer(el, m) {
 			addTubeEmbed(el, id, time);
 			return;
 		}
-		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
-			'/0.jpg" controls="controls" preload="none" src="' + src +
-			(nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
-		el = el.firstChild;
+		el = $html(
+			el, '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
+				'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
+				'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>'
+		).firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
 			el.onloadedmetadata = function() {
@@ -4473,7 +4470,7 @@ function loadThread(op, last, fn) {
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
-			thr.innerHTML = '';
+			thr = $html(thr, '');
 			op = psts[0];
 			newPost(thr, op, pNums[0], 0);
 			nav.insAfter(
@@ -4584,7 +4581,7 @@ function loadPage(page, p, last) {
 function loadPages(len) {
 	$alert(Lng.loading[lCode], 'LPages', true);
 	var p = -1, page = dForm;
-	dForm.innerHTML = '';
+	dForm = $html(dForm, '');
 	Posts = [];
 	Pviews.ajaxed = {};
 	while(++p < len) {
@@ -5048,16 +5045,15 @@ function mergeHidden(post) {
 	}
 	if(el.className !== 'DESU_merged') {
 		$before(post, $new('span', {'style': 'display: inline; cursor: pointer;'}, {
-				'click': function(e) {
-					$pd(e);
-					var hSpan = this.nextSibling;
-					this.innerHTML = (hSpan.style.display === 'none' ? '▼' : '▲') +
-						'[<i><a href="#">' + Lng.hiddenPosts[lCode] +
-						'</a>:&nbsp;' + hSpan.childNodes.length + '</i>]';
-					$disp(hSpan);
-				}
-			})
-		);
+			'click': function(e) {
+				$pd(e);
+				var hSpan = this.nextSibling;
+				this.innerHTML = (hSpan.style.display === 'none' ? '▼' : '▲') +
+					'[<i><a href="#">' + Lng.hiddenPosts[lCode] +
+					'</a>:&nbsp;' + hSpan.childNodes.length + '</i>]';
+				$disp(hSpan);
+			}
+		}));
 		nav.insBefore(post, '<span class="DESU_merged" style="display: none;"></span>');
 		el = post.previousSibling;
 	}
