@@ -2892,7 +2892,7 @@ function processImage(arr, force) {
 				break;
 			}
 		}
-		j++;
+		j += 2;
 		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
