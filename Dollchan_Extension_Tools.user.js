@@ -2120,9 +2120,10 @@ function selectAjaxPages() {
 	$each(addSelMenu(
 		$id('DESU_btnRefresh'), true,
 		'<a href="#">' + Lng.selAjaxPages[lCode].join('</a><a href="#">') + '</a>'
-	), function(a, i) {
+	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
+			var i = Array.prototype.indexOf.call(this.parentNode.children, this);
 			loadPages(i + 1);
 		};
 	});
@@ -2134,9 +2135,10 @@ function selectAudioNotif() {
 	}
 	$each(addSelMenu($id('DESU_btnAudioOff'), true,
 		'<a href="#">' + Lng.selAudioNotif[lCode].join('</a><a href="#">') + '</a>'
-	), function(a, i) {
+	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
+			var i = Array.prototype.indexOf.call(this.parentNode.children, this);
 			Audio.repeat =
 				i === 0 ? 3e4 :
 				i === 1 ? 6e4 :
