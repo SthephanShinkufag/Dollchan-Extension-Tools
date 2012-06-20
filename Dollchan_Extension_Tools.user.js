@@ -28,7 +28,7 @@ var defaultCfg = {
 	'viewHiddNum':	1,		// view hidden on postnumber
 	'delHiddPost':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
 	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
-	'updThrIntrv':	2,		//		threads update interval
+	'updThrDelay':	'60',	//		threads update interval in sec
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
@@ -118,10 +118,7 @@ Lng = {
 			sel:		[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
 			txt:		['подгрузка постов в треде ', 'loading posts in thread ']
 		},
-		updThrIntrv: {
-			sel:		[[0.5, 1, 1.5, 2, 5, 15, 30], [0.5, 1, 1.5, 2, 5, 15, 30]],
-			txt:		['(мин)*', '(min)*']
-		},
+		updThrDelay:	[' (сек)*', ' (sec)*'],
 		favIcoBlink:	['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
 		desktNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
 		expandPosts: {
@@ -1378,7 +1375,8 @@ function addSettings() {
 	cfgPosts = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgPosts'}, [
 		$New('div', null, [
 			optSel('updThread', null),
-			optSel('updThrIntrv', null)
+			inpTxt('updThrDelay', 4, null),
+			$txt(Lng.cfg.updThrDelay[lCode])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			divBox('favIcoBlink', null),
@@ -1415,7 +1413,7 @@ function addSettings() {
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
-				$new('span', {text: Lng.cfg.timeOffset[lCode]}, null)
+				$txt(Lng.cfg.timeOffset[lCode])
 			]),
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
@@ -4865,12 +4863,10 @@ function loadNewPosts(inf, fn) {
 }
 
 function initThreadsUpdater() {
-	var C = Cfg['updThrIntrv'],
-		t = 6e4 * (C === 0 ? 0.5 : C === 1 ? 1 : C === 2 ? 1.5 : C === 3 ? 2 : C === 4 ? 5 : C === 5 ? 15 : 30);
 	if(Cfg['updThread'] === 1) {
 		ajaxInterval = setInterval(function() {
 			loadNewPosts(false, null);
-		}, t);
+		}, Cfg['updThrDelay']*1e3);
 	} else if(Cfg['updThread'] === 2) {
 		ajaxInterval = setInterval(function() {
 			if(aib.hana) {
@@ -4893,7 +4889,7 @@ function initThreadsUpdater() {
 					cnt = null;
 				});
 			}
-		}, t);
+		}, +Cfg['updThrDelay']*1e3);
 	}
 }
 
