@@ -1994,7 +1994,7 @@ function $alert(txt, id, wait) {
 		cMsg = 'DESU_alertMsg' + (wait ? ' DESU_wait' : ''),
 		tBtn = wait ? '' : '× ';
 	if(el) {
-		$html($attr($t('div', el), {'class': cMsg}), txt.trim());
+		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
 		$t('span', el).textContent = tBtn;
 		blinkAlert(el);
 		return;
@@ -3479,11 +3479,10 @@ function addTubePlayer(el, m) {
 			addTubeEmbed(el, id, time);
 			return;
 		}
-		el = $html(
-			el, '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
-				'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-				'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>'
-		).firstChild;
+		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
+			'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
+			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
+		el = el.firstChild;
 		addTubeEmbed(el, id, time);
 		if(time !== 0) {
 			el.onloadedmetadata = function() {
@@ -3667,7 +3666,7 @@ function addLinkMP3(post) {
 			}
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
-			$html(el, el.innerHTML + '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>');
+			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>';
 		}
 	});
 }
@@ -4336,7 +4335,9 @@ function getJSON(url, fn) {
 }
 
 function importPost(post) {
-	return replaceDelform(doc.importNode(post, true));
+	var el = doc.importNode(post, true);
+	replaceDelform(el);
+	return el;
 }
 
 function insertPost(thr, post) {
@@ -4423,7 +4424,7 @@ function getFullMsg(el, addFunc) {
 }
 
 function processFullMsg(post) {
-	post = replaceDelform(post);
+	replaceDelform(post);
 	$Del('.//span[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
@@ -4466,7 +4467,7 @@ function loadThread(op, last, fn) {
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
-			thr = $html(thr, '');
+			thr.innerHTML = '';
 			op = psts[0];
 			newPost(thr, op, pNums[0], 0);
 			nav.insAfter(
@@ -4543,7 +4544,7 @@ function loadPage(page, p, last) {
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
-		page = replaceDelform(page);
+		replaceDelform(page);
 		parseDelform(page, doc, pushPost);
 		preparePage(page);
 		if(last) {
@@ -4577,7 +4578,7 @@ function loadPage(page, p, last) {
 function loadPages(len) {
 	$alert(Lng.loading[lCode], 'LPages', true);
 	var p = -1, page = dForm;
-	dForm = $html(dForm, '');
+	dForm.innerHTML = '';
 	Posts = [];
 	Pviews.ajaxed = {};
 	while(++p < len) {
@@ -4801,10 +4802,12 @@ function loadNewPosts(inf, fn) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					var el = (json['result'] || {})['posts'];
+					var el = (json['result'] || {})['posts'], post;
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
-							newPost(thr, replaceDelform(getHanaPost(el[i])), el[i]['display_id'], thr.pCount + i);
+							post = getHanaPost(el[i]);
+							replaceDelform(post);
+							newPost(thr, post, el[i]['display_id'], thr.pCount + i);
 						}
 						thr.pCount += el.length;
 					}
@@ -4889,7 +4892,7 @@ function initThreadsUpdater() {
 					cnt = null;
 				});
 			}
-		}, +Cfg['updThrDelay']*1e3);
+		}, Cfg['updThrDelay']*1e3);
 	}
 }
 
@@ -6572,9 +6575,8 @@ function replaceDelform(el) {
 		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
 			txt = doReplace(oSpells.rep, txt);
 		}
-		return $html(el, txt);
+		el.innerHTML = txt;
 	}
-	return el;
 }
 
 function preparePage(node) {
@@ -6705,7 +6707,7 @@ function doScript() {
 	$log('initBoard');
 	readCfg();
 	$log('readCfg');
-	dForm = replaceDelform(dForm);
+	replaceDelform(dForm);
 	$log('replaceDelform');
 	if(!tryToParse()) {
 		return;
