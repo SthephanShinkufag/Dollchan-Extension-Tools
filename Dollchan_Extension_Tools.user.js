@@ -2123,8 +2123,7 @@ function selectAjaxPages() {
 	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
-			var i = Array.prototype.indexOf.call(this.parentNode.children, this);
-			loadPages(i + 1);
+			loadPages(Array.prototype.indexOf.call(this.parentNode.children, this) + 1);
 		};
 	});
 }
@@ -2880,10 +2879,20 @@ function processImage(arr, force) {
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(; j < len - 7; j++) {
 			if(dat[j] === 0x49 && dat[j + 1] === 0x45 && dat[j + 2] === 0x4E && dat[j + 3] === 0x44) {
-				j += 8;
 				break;
 			}
 		}
+		j += 8;
+		if(j === len || (!force && len - j > 75)) {
+			return [arr];
+		}
+	} else if(dat[0] === 0x47 && dat[1] === 0x49) {
+		for(; j < len - 1; j++) {
+			if(dat[j] === 0x00 && dat[j + 1] === 0x3B) {
+				break;
+			}
+		}
+		j++;
 		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
@@ -2927,7 +2936,7 @@ dataForm.prototype.readFile = function(el, idx) {
 	var fr = new FileReader(),
 		file = el.files[0],
 		dF = this;
-	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
+	if(!/^image\/(?:png|jpeg|gif)$/.test(file.type)) {
 		this.data[idx] = file;
 		return;
 	}
