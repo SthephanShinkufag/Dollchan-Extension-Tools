@@ -6167,6 +6167,7 @@ function getPage() {
 		docExt = url[4] || (
 			aib.gazo ? '.htm' :
 			aib._420 ? '.php' :
+			aib.fch ? '' :
 			'.html'
 		);
 	}
