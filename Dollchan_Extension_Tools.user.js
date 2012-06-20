@@ -820,7 +820,7 @@ function readCfg() {
 	if(nav.Firefox < 6 && !nav.WebKit) {
 		Cfg['preLoadImgs'] = 0;
 	}
-	if(aib.fch) {
+	if(aib.fch || aib.abu) {
 		Cfg['findRarJPEG'] = 0;
 	}
 	if(!nav.Firefox) {
