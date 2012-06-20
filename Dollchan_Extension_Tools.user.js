@@ -4338,9 +4338,7 @@ function getJSON(url, fn) {
 }
 
 function importPost(post) {
-	var el = doc.importNode(post, true);
-	replaceDelform(el);
-	return el;
+	return replaceDelform(doc.importNode(post, true));
 }
 
 function insertPost(thr, post) {
@@ -4427,7 +4425,7 @@ function getFullMsg(el, addFunc) {
 }
 
 function processFullMsg(post) {
-	replaceDelform(post);
+	post = replaceDelform(post);
 	$Del('.//span[@class="DESU_btnSrc"]', post);
 	addPostFunc(post);
 }
@@ -4547,7 +4545,7 @@ function loadPage(page, p, last) {
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
-		replaceDelform(page);
+		page = replaceDelform(page);
 		parseDelform(page, doc, pushPost);
 		preparePage(page);
 		if(last) {
@@ -4805,12 +4803,10 @@ function loadNewPosts(inf, fn) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					var el = (json['result'] || {})['posts'], post;
+					var el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
-							post = getHanaPost(el[i]);
-							replaceDelform(post);
-							newPost(thr, post, el[i]['display_id'], thr.pCount + i);
+							newPost(thr, replaceDelform(getHanaPost(el[i])), el[i]['display_id'], thr.pCount + i);
 						}
 						thr.pCount += el.length;
 					}
@@ -6580,8 +6576,9 @@ function replaceDelform(el) {
 		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
 			txt = doReplace(oSpells.rep, txt);
 		}
-		el.innerHTML = txt;
+		return $html(el, txt);
 	}
+	return el;
 }
 
 function preparePage(node) {
@@ -6712,7 +6709,7 @@ function doScript() {
 	$log('initBoard');
 	readCfg();
 	$log('readCfg');
-	replaceDelform(dForm);
+	dForm = replaceDelform(dForm);
 	$log('replaceDelform');
 	if(!tryToParse()) {
 		return;
