@@ -4130,7 +4130,7 @@ function getPview(post, pNum, parent, link, txt) {
 			Pviews.deleted[pNum] = true;
 		}
 		pView = $add(
-			'<div class="' + aib.pClass + ' DESU_info DESU_pView">' + txt || Lng.postNotFound[lCode] + '</div>'
+			'<div class="' + aib.pClass + ' DESU_info DESU_pView">' + (txt || Lng.postNotFound[lCode]) + '</div>'
 		);
 	} else {
 		if(post.ownerDocument === doc) {
@@ -4263,7 +4263,7 @@ function showPview(link) {
 		pst.isOp = i === 0;
 		pst.Msg = aib.getMsg(pst);
 		Pviews.ajaxed[b][num] = pst;
-	}, function(err) {
+	}, function(dc, err) {
 		genRefMap(Pviews.ajaxed[b]);
 		if(el) {
 			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
