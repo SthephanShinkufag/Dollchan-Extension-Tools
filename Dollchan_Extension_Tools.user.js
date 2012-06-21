@@ -2874,11 +2874,11 @@ function toBlob(arr) {
 }
 
 function processImage(arr, force) {
-	var i = 0,
-		j = 0,
+	var i = 4,
+		j = 4,
 		dat = new Uint8Array(arr),
 		len = dat.length,
-		out,
+		out = 1,
 		rExif = !!Cfg['removeEXIF'];
 	if(!Cfg['postSameImg'] && !rExif && !force) {
 		return [arr];
@@ -2886,11 +2886,15 @@ function processImage(arr, force) {
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(; i < len - 1; i++, j++) {
 			if(dat[i] === 0xFF) {
-				if(rExif && (dat[i + 1] >> 4) === 0xE && dat[i + 1] !== 0xE0) {
+				if(rExif && (dat[i + 1] >> 4) === 0xE) {
 					i += 2 + (dat[i + 2] << 8) + dat[i + 3];
+				} else if(dat[i + 1] === 0xD8) {
+					out++;
 				} else if(dat[i + 1] === 0xD9) {
-					dat[j] = dat[i];
-					break;
+					if(--out === 0) {
+						dat[j] = dat[i];
+						break;
+					}
 				}
 			}
 			if(j !== i) {
