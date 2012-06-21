@@ -2926,8 +2926,9 @@ function getExifData(exif, off, len) {
 			}
 		}
 	}
-	xRes = xRes === 0  ? yRes : xRes;
+	xRes = xRes === 0 ? yRes : xRes;
 	yRes = yRes === 0 ? xRes : yRes;
+	exif = bE = null;
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
