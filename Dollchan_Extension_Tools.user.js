@@ -4449,7 +4449,7 @@ function expandPost(post) {
 	var tNum = post.thr.Num,
 		el = $x(
 			aib.krau ? './/p[starts-with(@id,"post_truncated")]' :
-				aib.hana ? './/div[@class="abbrev"]/span/a' :
+				aib.hana ? './/div[@class="abbrev"]/span' :
 				'.//div[@class="abbrev"]|.//span[@class="abbr" or @class="omittedposts" or @class="shortened"]',
 			post
 		);
@@ -4457,7 +4457,7 @@ function expandPost(post) {
 		if(Cfg['expandPosts'] === 1) {
 			getFullMsg(el, false);
 		} else {
-			el.onclick = function(e) {
+			$t('a', el).onclick = function(e) {
 				$pd(e);
 				getFullMsg(this, true);
 			};
