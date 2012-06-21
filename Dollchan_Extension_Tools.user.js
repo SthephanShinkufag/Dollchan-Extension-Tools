@@ -2915,19 +2915,19 @@ function getExifData(exif, off, len) {
 		if(tag === 0x0128) {
 			resT = Get16u(dE + 8) - 1;
 		} else {
-			dE = Get32u(dE + 8) + i;
+			dE = off + 8 + Get32u(dE + 8);
 			if(dE > len) {
 				return [0,0,1,0,1];
 			}
 			if(tag === 0x11A) {
-				xRes = +(Get32u(dE + 4) / Get32u(dE)).toFixed(0);
+				xRes = +(Get32u(dE) / Get32u(dE + 4)).toFixed(0);
 			} else {
-				yRes = +(Get32u(dE + 4) / Get32u(dE)).toFixed(0);
+				yRes = +(Get32u(dE) / Get32u(dE + 4)).toFixed(0);
 			}
 		}
 	}
-	xRes = xRes === 0 || xRes > 3e5 ? yRes : xRes;
-	yRes = yRes === 0 || yRes > 3e5 ? xRes : yRes;
+	xRes = xRes === 0  ? yRes : xRes;
+	yRes = yRes === 0 ? xRes : yRes;
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
