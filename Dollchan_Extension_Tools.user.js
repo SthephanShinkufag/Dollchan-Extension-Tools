@@ -2873,32 +2873,104 @@ function toBlob(arr) {
 	}
 }
 
+function initJpeg(img, dat) {
+	img[0] = 0xFF; img[1] = 0xD8; img[2] = 0xFF; img[3] = 0xE0; img[4] = 0; img[5] = 0x10; img[6] = 0x4A;
+	img[7] = 0x46; img[8] = 0x49; img[9] = 0x46; img[10] = 0; img[11] = 1; img[12] = 1; img[18] = 0; img[19] = 0;
+	img[13] = dat[0]; img[14] = dat[1];
+	img[15] = dat[2]; img[16] = dat[3];
+	img[17] = dat[4];
+}
+
+function getExifData(exif, off, len) {
+	var i, j, dE, tag, tgLen,
+		xRes = 0, yRes = 0, resT = 0, bE = 0,
+		Get16u = function(off) {
+			if(bE) {
+				return (exif[off] << 8) | exif[off + 1];
+			}
+			return (exif[off + 1] << 8) | exif[off];
+		},
+		Get32u = function(off) {
+			if(bE) {
+				return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
+			}
+			return (exif[off + 3] << 24) | (exif[off + 2] << 16) | (exif[off + 1] << 8) | exif[off];
+		};
+	if(String.fromCharCode(exif[off + 8], exif[off + 9]) === 'MM') {
+		bE = 1;
+	}
+	if(Get16u(off + 10) !== 0x2A) {
+		return [0,0,1,0,1];
+	}
+	i = 8 + Get32u(off + 12);
+	if(i > len) {
+		return [0,0,1,0,1];
+	}
+	for(tgLen = Get16u(off + i), j = 0; j < tgLen; j++) {
+		dE = off + i + 2 + 12 * j;
+		tag = Get16u(dE);
+		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
+			continue;
+		}
+		if(tag === 0x0128) {
+			resT = Get16u(dE + 8) - 1;
+		} else {
+			dE = Get32u(dE + 8) + i;
+			if(dE > len) {
+				return [0,0,1,0,1];
+			}
+			if(tag === 0x11A) {
+				xRes = +(Get32u(dE + 4) / Get32u(dE)).toFixed(0);
+			} else {
+				yRes = +(Get32u(dE + 4) / Get32u(dE)).toFixed(0);
+			}
+		}
+	}
+	xRes = xRes === 0 || xRes > 3e5 ? yRes : xRes;
+	yRes = yRes === 0 || yRes > 3e5 ? xRes : yRes;
+	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+}
+
 function processImage(arr, force) {
-	var i = 4,
-		j = 4,
+	var i = 0,
+		j = 0,
 		dat = new Uint8Array(arr),
 		len = dat.length,
-		out = 1,
-		rExif = !!Cfg['removeEXIF'];
+		out = 0,
+		rExif = !!Cfg['removeEXIF'],
+		jpgDat = false;
 	if(!Cfg['postSameImg'] && !rExif && !force) {
 		return [arr];
 	}
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(; i < len - 1; i++, j++) {
-			if(dat[i] === 0xFF) {
-				if(rExif && (dat[i + 1] >> 4) === 0xE) {
-					i += 2 + (dat[i + 2] << 8) + dat[i + 3];
-				} else if(dat[i + 1] === 0xD8) {
-					out++;
-				} else if(dat[i + 1] === 0xD9) {
-					if(--out === 0) {
-						dat[j] = dat[i];
-						break;
+		while(i < len - 1) {
+			findAgain: {
+				if(dat[i] === 0xFF) {
+					if(rExif) {
+						if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45 && !jpgDat) {
+							jpgDat = getExifData(dat, i + 2, (dat[i + 2] << 8) + dat[i + 3]);
+						} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46 && !jpgDat) {
+							jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+						}
+						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
+							i += 2 + (dat[i + 2] << 8) + dat[i + 3];
+							break findAgain;
+						}
+					}
+					if(dat[i + 1] === 0xD8) {
+						out++;
+					} else if(dat[i + 1] === 0xD9) {
+						if(--out === 0) {
+							dat[j] = dat[i];
+							break;
+						}
 					}
 				}
-			}
-			if(j !== i) {
-				dat[j] = dat[i];
+				if(j !== i) {
+					dat[j] = dat[i];
+				}
+				i++;
+				j++;
 			}
 		}
 		j += 2;
@@ -2910,6 +2982,11 @@ function processImage(arr, force) {
 			}
 		} else if(j === len || (!force && len - j > 75)) {
 			return [arr];
+		}
+		if(rExif) {
+			out = new Uint8Array(len = j + 18);
+			initJpeg(out, jpgDat);
+			j = 20; i = 2;
 		}
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(; j < len - 7; j++) {
@@ -2934,9 +3011,12 @@ function processImage(arr, force) {
 	} else {
 		return null;
 	}
-	out = new Uint8Array(j);
-	for(i = 0; i < j; i++) {
-		out[i] = dat[i];
+	if(out === 0) {
+		out = new Uint8Array(len = j);
+		i = j = 0;
+	}
+	for(; j < len; i++, j++) {
+		out[j] = dat[i];
 	}
 	return [out.buffer];
 }
