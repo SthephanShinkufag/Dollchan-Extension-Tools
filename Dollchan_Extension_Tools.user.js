@@ -2918,11 +2918,13 @@ function dataForm(form) {
 
 dataForm.prototype.append = function(el) {
 	if(el.type === 'file') {
+		var fName = el.files[0].name;
 		if(el.files.length > 0) {
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"; filename="' + (Cfg['removeFName'] ? '' : el.files[0].name)
-					+ '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
+				el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
+					' ' + fName.substring(fName.lastIndexOf('.'))
+				) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
 			);
 			this.readFile(el, this.data.length - 2);
 		}
