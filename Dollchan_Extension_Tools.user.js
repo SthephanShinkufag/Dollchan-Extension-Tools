@@ -1293,8 +1293,8 @@ function addSettings(Set) {
 				$new('a', {'text': Lng.clear[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						disableSpells();
-						saveSpells($id('DESU_spellEdit').value = '');
+						$id('DESU_spellEdit').value = '';
+						toggleSpells(this.parentNode.nextSibling.firstChild);
 					}
 				}),
 				$new('a', {
