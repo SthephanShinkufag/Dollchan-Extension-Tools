@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.19.0
+// @version			12.6.22.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.19.0',
+	'version':	'12.6.22.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -424,15 +424,6 @@ function $event(el, events) {
 		el.addEventListener(key, events[key], false);
 	}
 	return el;
-}
-
-function $rattr(el, attr) {
-	if(el.getAttribute(attr)) {
-		el.removeAttribute(attr);
-	}
-	if(nav.Opera && el[attr]) {
-		el[attr] = '';
-	}
 }
 
 function $revent(el, events) {
@@ -1673,8 +1664,8 @@ function addHiddenTable() {
 		cln.vis = 0;
 		cln.pst = post;
 		cln.btn = $c('DESU_btnUnhide', cln);
-		$rattr(cln.btn, 'onmouseover');
-		$rattr(cln.btn, 'onmouseout');
+		cln.btn.onmouseover = null;
+		cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var post = getPost(this);
 			post.vis = post.vis ? 0 : 1;
@@ -2501,45 +2492,42 @@ function doPostformChanges(m, el) {
 		setTimeout(function() {
 			if(aib.abu) {
 				refreshCapImg(0);
-				$rattr(pr.cap, 'onclick');
+				pr.cap.onclick = null;
 			}
 		}, 0);
-		$rattr(pr.cap, 'onfocus');
-		$rattr(pr.cap, 'onkeypress');
-		$event($attr(pr.cap, {
-			'autocomplete': 'off'}), {
-			'keypress': function(e) {
-				var code = e.charCode || e.keyCode,
-					chr = String.fromCharCode(code).toLowerCase(),
-					ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
-					en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`',
-					i = en.length;
-				if(!Cfg['captchaLang'] || e.which === 0) {
+		pr.cap.onfocus = null;
+		pr.cap.autocomplete = 'off';
+		pr.cap.onkeypress = function(e) {
+			var code = e.charCode || e.keyCode,
+				chr = String.fromCharCode(code).toLowerCase(),
+				ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
+				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`',
+				i = en.length;
+			if(!Cfg['captchaLang'] || e.which === 0) {
+				return;
+			}
+			if(Cfg['captchaLang'] === 1) {
+				if(code < 0x0410 || code > 0x04FF) {
 					return;
 				}
-				if(Cfg['captchaLang'] === 1) {
-					if(code < 0x0410 || code > 0x04FF) {
-						return;
-					}
-					while(i--) {
-						if(chr === ru[i]) {
-							chr = en[i];
-						}
-					}
-				} else {
-					if(code < 0x0021 || code > 0x007A) {
-						return;
-					}
-					while(i--) {
-						if(chr === en[i]) {
-							chr = ru[i];
-						}
+				while(i--) {
+					if(chr === ru[i]) {
+						chr = en[i];
 					}
 				}
-				$pd(e);
-				$txtInsert(e.target, chr);
+			} else {
+				if(code < 0x0021 || code > 0x007A) {
+					return;
+				}
+				while(i--) {
+					if(chr === en[i]) {
+						chr = ru[i];
+					}
+				}
 			}
-		});
+			$pd(e);
+			$txtInsert(e.target, chr);
+		};
 		if(!aib.hana && !pr.recap) {
 			img = aib.kus ? $x('.//a|.//img', $x(pr.tr, pr.cap)) : $x(pr.tr + '//img', pr.cap);
 			_img = $new('img', {
@@ -2614,7 +2602,7 @@ function doPostformChanges(m, el) {
 				$c('DESU_content', doc),
 				'<iframe id="DESU_iframe" name="DESU_iframe" src="about:blank" />'
 			);
-			$rattr($attr(pr.form, {'target': 'DESU_iframe'}), 'onsubmit');
+			$attr(pr.form, {'target': 'DESU_iframe'}).onsubmit = null;
 		}
 	}
 	if(pr.file) {
@@ -2678,8 +2666,8 @@ function makeRarJPEG(e) {
 		btn = this;
 	el.onchange = function(e) {
 		$del(btn);
-		readArch(inp, el.files[0]);
-		btn = inp = el = null;
+		readArch(inp, this.files[0]);
+		btn = inp = null;
 	};
 	el.click();
 }
@@ -2811,7 +2799,8 @@ function checkDelete(dc, url) {
 				if(el.checked && !getPost(el).isDel) {
 					allDel = false;
 				}
-				el.checked = false; el.onclick = null;
+				el.checked = false;
+				el.onclick = null;
 			});
 			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
 			allDel = null;
@@ -3588,9 +3577,8 @@ function addTubePlayer(el, m) {
 }
 
 function addTubePreview(el, m) {
-	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] +
-		'" target="_blank"><img src="https://i.ytimg.com/vi/' + m[1] +
-		'/0.jpg" width="360" height="270" /></a>';
+	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
+		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270" /></a>';
 	el.firstChild.onclick = function(e) {
 		if(Cfg['addYouTube'] !== 4) {
 			$pd(e);
@@ -3933,17 +3921,16 @@ function eventPostImg(post) {
 	$each(post.Img, function(img) {
 		var a = $x('ancestor::a[1]', img);
 		if(a) {
-			$rattr(a, 'onclick');
-			$rattr(img, 'onclick');
+			img.onclick = null;
 			if(aib.dfwk) {
-				$rattr(img.parentNode, 'onclick');
+				img.parentNode.onclick = null;
 			}
-			a.addEventListener('click', function(e) {
+			a.onclick = function(e) {
 				if(Cfg['expandImgs'] && e.button !== 1) {
 					$pd(e);
 					expandPostImg(this, post, null);
 				}
-			}, false);
+			};
 		}
 	});
 }
@@ -4581,12 +4568,12 @@ function loadThread(op, last, fn) {
 				newPost(thr, psts[i], pNums[i], i++);
 			}
 			if(last > 5 || last === 1) {
-				thr.appendChild($add('<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'));
-				thr.lastChild.onclick = function(e) {
-					$pd(e);
-					loadThread(op, 5, null);
-					op = null;
-				};
+				thr.appendChild($add('<span>[<a href="#">' + Lng.collapseThrd[lCode] + '</a>]</span>'))
+					.onclick = function(e) {
+						$pd(e);
+						loadThread(op, 5, null);
+						op = null;
+					};
 			}
 			thr.pCount = psts.length;
 			closeAlert($id('DESU_alertLoadThr'));
@@ -6681,7 +6668,7 @@ function preparePage(node) {
 		node = node.getElementsByClassName('reflink');
 		for(var el, i = node.length - 1; i >= 0; i--) {
 			el = node[i].firstChild;
-			$rattr(el, 'onclick');
+			el.onclick = null;
 			el.href = getThrdUrl(aib.host, brd, el.textContent);
 			el.target = '_blank';
 		}
