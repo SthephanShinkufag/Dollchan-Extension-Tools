@@ -1246,18 +1246,18 @@ function cfgTab(id, name) {
 					return;
 				}
 				var el = $c('DESU_cfgBody', doc),
-					id = this.getAttribute('info');
+					name = this.getAttribute('info');
 				if(el) {
 					el.className = 'DESU_cfgUnvis';
 					$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
 				}
 				this.className = 'DESU_cfgTab_sel';
-				el = $id('DESU_' + id);
+				el = $id('DESU_' + name);
 				if(!el) {
-					$after($id('DESU_cfgBar'), el = getCfgBody(id));
+					$after($id('DESU_cfgBar'), el = getCfgBody(name));
 				}
 				el.className = 'DESU_cfgBody';
-				if(id === 'cfgFilters') {
+				if(name === 'cfgFilters') {
 					spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
 					initSpells();
 					$id('DESU_spellEdit').value = spellsList.join('\n');
