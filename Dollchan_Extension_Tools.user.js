@@ -1239,34 +1239,32 @@ function addSettings(Set) {
 		]);
 	},
 
-	cfgTab = function(id, el) {
+	cfgTab = function(id, name) {
 		return $New('li', {'class': aib.pClass}, [
-			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode]}, {'click': function() {
-				openTab(this, el);
-			}})
+			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode], 'info': name}, {
+				'click': function() {
+					if(this.className == 'DESU_cfgTab_sel') {
+						return;
+					}
+					var oldEl = $c('DESU_cfgBody', doc),
+						id = this.getAttribute('info');
+					if(oldEl) {
+						oldEl.className = 'DESU_cfgUnvis';
+						$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
+					}
+					this.className = 'DESU_cfgTab_sel';
+					$id('DESU_' + id).className = 'DESU_cfgBody';
+					if(id === 'cfgFilters') {
+						spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
+						initSpells();
+						$id('DESU_spellEdit').value = spellsList.join('\n');
+					}
+				}
+			})
 		]);
 	},
 
-	openTab = function(tab, el) {
-		if(tab.className == 'DESU_cfgTab_sel') {
-			return;
-		}
-		var oldEl = $c('DESU_cfgBody', doc);
-		if(oldEl) {
-			oldEl.parentNode.replaceChild(el, oldEl);
-			$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
-		} else {
-			$after($id('DESU_cfgBar'), el);
-		}
-		tab.className = 'DESU_cfgTab_sel';
-		if(el === cfgFilters) {
-			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
-			initSpells();
-			$id('DESU_spellEdit').value = spellsList.join('\n');
-		}
-	},
-
-	cfgFilters = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgFilters'}, [
+	cfgFilters = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgFilters'}, [
 		$New('div', null, [
 			$New('span', {'id': 'DESU_spellPanel'}, [
 				$new('a', {
@@ -1326,7 +1324,7 @@ function addSettings(Set) {
 		})
 	]),
 
-	cfgPosts = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgPosts'}, [
+	cfgPosts = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgPosts'}, [
 		optSel('updThread', false, null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
@@ -1377,7 +1375,7 @@ function addSettings(Set) {
 		])
 	]),
 
-	cfgLinks = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgLinks'}, [
+	cfgLinks = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgLinks'}, [
 		optSel('linksNavig', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
@@ -1409,7 +1407,7 @@ function addSettings(Set) {
 		])
 	]),
 
-	cfgForm = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgForm'}, [
+	cfgForm = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgForm'}, [
 		$if(pr.on, optSel('addPostForm', true, null)),
 		$if(pr.on, lBox('noThrdForm', true, function() {
 			if(!TNum) {
@@ -1459,7 +1457,7 @@ function addSettings(Set) {
 		])
 	]),
 
-	cfgCommon = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgCommon'}, [
+	cfgCommon = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgCommon'}, [
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			$id('DESU_panelStuff').lang = getThemeLang();
@@ -1489,20 +1487,21 @@ function addSettings(Set) {
 		]))
 	]),
 
-	cfgInfo = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgInfo'}, [
+	cfgInfo = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 
 	Set.appendChild($New('div', {'class': aib.pClass}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
 		$New('ul', {'id': 'DESU_cfgBar'}, [
-			cfgTab('Filters', cfgFilters),
-			cfgTab('Posts', cfgPosts),
-			cfgTab('Links', cfgLinks),
-			cfgTab('Form', cfgForm),
-			cfgTab('Common', cfgCommon),
-			cfgTab('Info', cfgInfo)
+			cfgTab('Filters', 'cfgFilters'),
+			cfgTab('Posts', 'cfgPosts'),
+			cfgTab('Links', 'cfgLinks'),
+			cfgTab('Form', 'cfgForm'),
+			cfgTab('Common', 'cfgCommon'),
+			cfgTab('Info', 'cfgInfo')
 		]),
+		cfgFilters, cfgPosts, cfgLinks, cfgForm, cfgCommon, cfgInfo,
 		$New('div', {'id': 'DESU_cfgBtns'}, [
 			$New('span', {'style': 'float: right;'}, [
 				optSel('language', false, function() {
@@ -1552,7 +1551,7 @@ function addSettings(Set) {
 			])
 		])
 	]));
-	openTab($c('DESU_cfgTab', doc), cfgFilters);
+	$c('DESU_cfgTab', Set).click();
 }
 
 
@@ -5594,6 +5593,7 @@ function scriptCSS() {
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(top, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+		.DESU_cfgUnvis { display: none; }\
 		.DESU_cfgBody { min-width: 371px; min-height: 300px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
