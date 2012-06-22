@@ -581,10 +581,6 @@ function $isEmpty(obj) {
 	return true;
 }
 
-function $uneval(obj) {
-	return unescape(JSON.stringify(obj).replace(/\\u/g, '%u'));
-}
-
 function $log(txt) {
 	var newTime = Date.now();
 	timeLog += txt + ': ' + (newTime - oldTime) + 'ms\n';
@@ -833,13 +829,13 @@ function readCfg() {
 	}
 	Cfg['linksOver'] = +Cfg['linksOver'];
 	Cfg['linksOut'] = +Cfg['linksOut'];
-	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
+	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 	lCode = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {view: 0, op: 0, reply: 0});
 	if(TNum) {
 		Stat.view = +Stat.view + 1;
 	}
-	setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
+	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset']);
 	}
@@ -848,7 +844,7 @@ function readCfg() {
 
 function saveCfg(name, val) {
 	Cfg[name] = val;
-	setStored('DESU_Config_' + aib.dm, $uneval(Cfg));
+	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 }
 
 function toggleCfg(name) {
@@ -967,7 +963,7 @@ function toggleHiddenThread(post, vis) {
 			}
 		}
 	}
-	saveHiddenThreads($uneval(hThrds));
+	saveHiddenThreads(JSON.stringify(hThrds));
 }
 
 function readFavorites() {
@@ -1002,7 +998,7 @@ function toggleFavorites(post, btn) {
 	readFavorites();
 	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) {
 		removeFavorites(h, b, tNum);
-		saveFavorites($uneval(Favor));
+		saveFavorites(JSON.stringify(Favor));
 		return;
 	}
 	if(!Favor[h]) {
@@ -1021,7 +1017,7 @@ function toggleFavorites(post, btn) {
 		return;
 	}
 	btn.className = 'DESU_btnFavSel';
-	saveFavorites($uneval(Favor));
+	saveFavorites(JSON.stringify(Favor));
 }
 
 function markViewedPost(pNum) {
@@ -1579,7 +1575,7 @@ function addSettings() {
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lCode], Lng.saveGlobal[lCode], function() {
-					setStored('DESU_GlobalCfg', $uneval(Cfg));
+					setStored('DESU_GlobalCfg', JSON.stringify(Cfg));
 					toggleContent('Cfg', true);
 				})),
 				$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
@@ -1589,7 +1585,7 @@ function addSettings() {
 				}),
 				$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
 					if(confirm(Lng.conReset[lCode])) {
-						setStored('DESU_Config_' + aib.dm, $uneval(fixCfg(false)));
+						setStored('DESU_Config_' + aib.dm, JSON.stringify(fixCfg(false)));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads_' + aib.dm, '');
@@ -1630,7 +1626,8 @@ function addHiddenTable(hid) {
 		}
 		var wrap = $New('div', {'class': aib.pClass}, [
 			$new('input', {'type': 'checkbox'}, null),
-			$event($add('<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
+			$event($add(
+				'<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
 				'click': function(e) {
 					$pd(e);
 					this.vis = this.vis ? 0 : 1;
@@ -1746,7 +1743,7 @@ function addHiddenTable(hid) {
 	$append(el, [
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
 			var ta = $t('textarea', this.parentNode);
-			ta.value = $uneval(hThrds);
+			ta.value = JSON.stringify(hThrds);
 			$disp(ta.parentNode);
 		}),
 		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
@@ -1772,7 +1769,7 @@ function addHiddenTable(hid) {
 					}
 				}
 			});
-			setStored('DESU_Threads_' + aib.dm, $uneval(hThrds));
+			setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThrds));
 			savePostsVisib();
 		}),
 		$New('div', {'style': 'display: none;'}, [
@@ -1834,7 +1831,7 @@ function addFavoritesTable(fav) {
 		$new('hr', null, null),
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
 			var ta = $t('textarea', this.parentNode);
-			ta.value = $uneval(Favor);
+			ta.value = JSON.stringify(Favor);
 			$disp(ta.parentNode);
 		}),
 		$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
@@ -1857,7 +1854,7 @@ function addFavoritesTable(fav) {
 						});
 						if(!err) {
 							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
-							setStored('DESU_Favorites', $uneval(Favor));
+							setStored('DESU_Favorites', JSON.stringify(Favor));
 						}
 						c = cnt = arr = null;
 					});
@@ -1870,7 +1867,7 @@ function addFavoritesTable(fav) {
 				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, null, function(dc, err) {
 					if(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
-						saveFavorites($uneval(Favor));
+						saveFavorites(JSON.stringify(Favor));
 					}
 					arr = null;
 				});
@@ -1883,7 +1880,7 @@ function addFavoritesTable(fav) {
 					removeFavorites(arr[0], arr[1], arr[2]);
 				}
 			});
-			saveFavorites($uneval(Favor));
+			saveFavorites(JSON.stringify(Favor));
 		}),
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {
@@ -2451,7 +2448,7 @@ function doPostformChanges(m, el) {
 			} else {
 				Stat.op = +Stat.op + 1;
 			}
-			setStored('DESU_Stat_' + aib.dm, $uneval(Stat));
+			setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 			if(pr.isQuick) {
 				$disp($id('DESU_qarea'));
 				$after($id('DESU_toggleReply'), $id('DESU_pform'));
@@ -3027,8 +3024,8 @@ dataForm.prototype.append = function(el) {
 		if(el.files.length > 0) {
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"; filename="' + (Cfg['removeFName'] ? '' : el.files[0].name) + '"\r\n' + 'Content-type: ' +
-					el.files[0].type + '\r\n\r\n', null, '\r\n'
+					el.name + '"; filename="' + (Cfg['removeFName'] ? '' : el.files[0].name)
+					+ '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
 			);
 			this.readFile(el, this.data.length - 2);
 		}
@@ -6804,7 +6801,7 @@ function doScript() {
 	$log('initPostform');
 	prepareButtons();
 	Posts.forEach(addPostButtons);
-	saveFavorites($uneval(Favor));
+	saveFavorites(JSON.stringify(Favor));
 	$log('addPostButtons');
 	readPostsVisib();
 	if(Cfg['markViewed']) {
