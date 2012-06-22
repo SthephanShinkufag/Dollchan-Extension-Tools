@@ -66,6 +66,7 @@ var defaultCfg = {
 	'checkReply':	1,		// reply without reload
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
+	'removeFName':	0,		// 		remove file name
 	'addSageBtn':	1,		// email field -> sage btn
 	'saveSage':		1,		//		remember sage
 	'sageReply':	0,		//		reply with sage
@@ -173,6 +174,7 @@ Lng = {
 		checkReply:		['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
 		postSameImg:	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 		removeEXIF:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		removeFName:	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
 		addSageBtn:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
 		saveSage:		['запоминать сажу', 'remember sage'],
 		captchaLang: {
@@ -1473,7 +1475,8 @@ function addSettings() {
 		divBox('checkReply', null),
 		$if(nav.isH5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
 			divBox('postSameImg', null),
-			divBox('removeEXIF', null)
+			divBox('removeEXIF', null),
+			divBox('removeFName', null)
 		])),
 		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', null),
@@ -3035,7 +3038,7 @@ dataForm.prototype.append = function(el) {
 		if(el.files.length > 0) {
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"; filename="' + el.files[0].name + '"\r\n' + 'Content-type: ' +
+					el.name + '"; filename="' + (Cfg['removeFName'] ? '' : el.files[0].name) + '"\r\n' + 'Content-type: ' +
 					el.files[0].type + '\r\n\r\n', null, '\r\n'
 			);
 			this.readFile(el, this.data.length - 2);
