@@ -5399,12 +5399,6 @@ function disableSpells() {
 	});
 }
 
-function applySpells() {
-	Posts.forEach(hideBySpells);
-	hideTube();
-	saveHiddenPosts();
-}
-
 function toggleSpells(el) {
 	var fld = $id('DESU_spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
@@ -5442,14 +5436,26 @@ function addSpell(spell) {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
 			return;
 		}
-		saveSpells(val);
 	}
-	saveCfg('hideBySpell', 1);
 	if(fld) {
 		fld.value = val;
 		fld.previousSibling.firstChild.checked = true;
 	}
-	applySpells();
+	Posts.forEach(function(post) {
+		if(checkSpells(post)) {
+			unhidePost(post);
+		}
+	});
+	unHideTube();
+	saveSpells(val);
+	if(val !== '') {
+		saveCfg('hideBySpell', 1);
+		Posts.forEach(hideBySpells);
+		hideTube();
+	} else {
+		saveCfg('hideBySpell', 0);
+	}
+	saveHiddenPosts();
 }
 
 
