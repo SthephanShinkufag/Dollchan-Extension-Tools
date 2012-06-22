@@ -835,8 +835,10 @@ function readCfg() {
 }
 
 function saveCfg(name, val) {
-	Cfg[name] = val;
-	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	if(Cfg[name] !== val) {
+		Cfg[name] = val;
+		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	}
 }
 
 function toggleCfg(name) {
@@ -1282,14 +1284,17 @@ function addSettings(Set) {
 				$new('a', {'text': Lng.apply[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						applySpells('');
+						var el = this.parentNode.nextSibling.firstChild;
+						saveCfg('hideBySpell', 1);
+						el.checked = true;
+						toggleSpells(el);
 					}
 				}),
 				$new('a', {'text': Lng.clear[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$id('DESU_spellEdit').value = '';
-						applySpells('');
+						disableSpells();
+						saveSpells($id('DESU_spellEdit').value = '');
 					}
 				}),
 				$new('a', {
@@ -1991,7 +1996,7 @@ function selectPostHider(post) {
 	);
 	a.snapshotItem(1).onclick = function(e) {
 		$pd(e);
-		applySpells(
+		addSpell(
 			post.Img.snapshotLength === 0 ?
 				'#noimg' :
 				'#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
@@ -2003,7 +2008,7 @@ function selectPostHider(post) {
 	};
 	(a = a.snapshotItem(0)).onclick = function(e) {
 		$pd(e);
-		applySpells(quotetxt);
+		addSpell(quotetxt);
 	};
 	a.onmouseover = function() {
 		quotetxt = $txtSelect().trim();
@@ -3223,7 +3228,7 @@ function prepareButtons() {
 		} else if(name === "G") {
 			toggleFavorites(pByNum[+data], $c('DESU_btnFav', pByNum[+data]) || $c('DESU_btnFavSel', pByNum[+data]));
 		} else if(name === "H") {
-			applySpells('#sage');
+			addSpell('#sage');
 		} else if(name === 'I') {
 			data = data.split('|');
 			name = doc.getElementsByName(data[0])[0];
@@ -5070,7 +5075,7 @@ function hideBySameText(post) {
 		});
 		saveHiddenPosts();
 	} else {
-		applySpells('#notxt');
+		addSpell('#notxt');
 	}
 	vis = null;
 }
@@ -5343,6 +5348,9 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
+	if(txt === '') {
+		return true;
+	}
 	txt = txt.split('\n');
 	var t, rep,
 		i = txt.length,
@@ -5361,81 +5369,74 @@ function verifyRegExp(txt) {
 	return false;
 }
 
-function toggleSpells(el) {
-	var fld = $id('DESU_spellEdit'),
-		val = (fld ? fld.value : spellsList.join('\n')).replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		wrong = verifyRegExp(val);
-	if(!wrong) {
-		saveSpells(val);
+function checkSpellsText(txt) {
+	if(!txt || txt === '') {
+		return false;
 	}
-	if(val !== '' && !wrong) {
-		if(fld) {
-			fld.value = val;
-		}
-		if(Cfg['hideBySpell']) {
-			Posts.forEach(hideBySpells);
-			hideTube();
-		} else {
-			unHideTube();
-			Posts.forEach(function(post) {
-				if(checkSpells(post)) {
-					unhidePost(post);
-				}
-			});
-		}
-		saveHiddenPosts();
+	txt = txt.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
+	if(verifyRegExp(txt)) {
+		return false;
 	} else {
-		if(wrong) {
-			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
-		}
-		if(el) {
-			el.checked = false;
-		}
-		saveCfg('hideBySpell', 0);
+		return txt;
 	}
 }
 
-function applySpells(txt) {
-	var nval, ntxt, wrong,
-		fld = $id('DESU_spellEdit'),
-		val = fld ? fld.value : spellsList.join('\n');
-	if(txt !== '') {
-		if(txt.trim() === '') {
-			return;
-		}
-		if(TNum) {
-			txt = '#' + brd + '/' + TNum + ' ' + txt;
-		}
-		toggleSpells(false);
-		nval = '\n' + val;
-		ntxt = '\n' + txt;
-		val = nval.indexOf(ntxt) >= 0 ? nval.split(ntxt).join('') : val + ntxt;
-	}
-	val = val.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
-	wrong = verifyRegExp(val);
-	if(wrong) {
-		$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
-		return;
-	}
-	if(fld) {
-		fld.value = val;
-		$id('DESU_hideBySpell').checked = val !== '';
-	}
+function disableSpells() {
+	unHideTube();
 	Posts.forEach(function(post) {
 		if(checkSpells(post)) {
 			unhidePost(post);
 		}
 	});
-	unHideTube();
-	saveSpells(val);
-	if(val !== '') {
-		saveCfg('hideBySpell', 1);
-		Posts.forEach(hideBySpells);
-		hideTube();
+}
+
+function applySpells() {
+	Posts.forEach(hideBySpells);
+	hideTube();
+	saveHiddenPosts();
+}
+
+function toggleSpells(el) {
+	var val = $id('DESU_spellEdit').value,
+		spls = checkSpellsText(val);
+	if(spls) {
+		saveSpells(spls);
+		if(Cfg['hideBySpell']) {
+			Posts.forEach(hideBySpells);
+			hideTube();
+		} else {
+			disableSpells();
+		}
+		saveHiddenPosts();
 	} else {
+		if(val !== '') {
+			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
+		} else {
+			saveSpells('');
+		}
+		el.checked = false;
 		saveCfg('hideBySpell', 0);
 	}
-	saveHiddenPosts();
+}
+
+function addSpell(spell) {
+	var fld = $id('DESU_spellEdit'),
+		spls = (fld && checkSpellsText(fld.value)) || spellsList.join('\n');
+	disableSpells();
+	if(('\n' + spls).indexOf('\n' + spell) === -1) {
+		spls = (spls !== '' ? spls + '\n' : '') + spell;
+		if(verifyRegExp(spls)) {
+			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
+			return;
+		}
+		saveSpells(spls);
+	}
+	saveCfg('hideBySpell', 1);
+	if(fld) {
+		fld.value = spls;
+		fld.previousSibling.firstChild.checked = true;
+	}
+	applySpells();
 }
 
 
