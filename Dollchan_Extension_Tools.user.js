@@ -253,8 +253,8 @@ Lng = {
 	},
 
 	selHiderMenu:	[
-		['Скрывать выделенное', 'Скрывать изображение', 'Скрыть схожий текст'],
-		['Hide selected text', 'Hide same images', 'Hide similar text']
+		['Скрывать выделенное', 'Скрывать изображение', 'Скрыв. схожие изобр.', 'Скрыть схожий текст'],
+		['Hide selected text', 'Hide same images', 'Hide similar images', 'Hide similar text']
 	],
 	selExpandThrd:	[
 		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
@@ -2024,6 +2024,10 @@ function selectPostHider(post) {
 		)
 	};
 	a.snapshotItem(2).onclick = function(e) {
+		$pd(e);
+		hideByImgHash(post);
+	};
+	a.snapshotItem(3).onclick = function(e) {
 		$pd(e);
 		hideBySameText(post);
 	};
@@ -5099,6 +5103,119 @@ function hideBySameText(post) {
 		addSpell('#notxt');
 	}
 	vis = null;
+}
+
+/*-------------------------Hide posts with similar images---------------------*/
+
+function imgDesaturate(data, w, h) {
+	var p = w * h,
+		pix = p * 4,
+		pix1, pix2;
+	while(p--) {
+		data[pix -= 4] = data[pix1 = pix + 1] = data[pix2 = pix + 2] =
+		// Average
+		//	(data[pix] + data[pix1] + data[pix2]) / 3;
+		// Scaled
+			(data[pix] * 0.3 + data[pix1] * 0.59 + data[pix2] * 0.11);
+	}
+}
+
+function imgPosterize(data, w, h) {
+	// levels = 2 leaves only black and white,
+	// levels > 2 adds more gray graduation
+	var levels = 2,
+		areas = 256 / levels,
+		values = 256 / (levels - 1),
+		w4 = w * 4,
+		y = h,
+		x, r, g, b, offset, offsetY;
+	do {
+		offsetY = (y - 1) * w4;
+		x = w;
+		do {
+			offset = offsetY + (x - 1) * 4;
+			r = values * ((data[offset] / areas) >> 0);
+			g = values * ((data[offset + 1] / areas) >> 0);
+			b = values * ((data[offset + 2] / areas) >> 0);
+			if(r > 255) r = 255;
+			if(g > 255) g = 255;
+			if(b > 255) b = 255;
+			data[offset] = r;
+			data[offset + 1] = g;
+			data[offset + 2] = b;
+		} while(--x);
+	} while(--y);
+}
+
+function imgResize(data, cnv, w, h) {
+	var width = 8,
+		height = 8,
+		copy = $new('canvas', {'width': width, 'height': height});
+	copy.getContext("2d").drawImage(cnv, 0, 0, width, height);
+	cnv.width = width;
+	cnv.height = height;
+	cnv.getContext("2d").drawImage(copy, 0, 0);
+}
+
+function getHashByData(data, w, h) {
+	var hash = 0,
+		pix = w * h * 4,
+		lhash, i;
+	while (h--) {
+		i = w;
+		lhash = 0;
+		while(i--) {
+			pix -= 4;
+			if(data[pix]) {
+				lhash = (lhash << 1) + 1;
+			} else {
+				lhash = (lhash << 1);
+			}
+		}
+		hash = (hash << 3) + lhash;
+	}
+	return hash.toString(16);
+}
+
+function getCanvasByData(data, w, h) {
+	var cnv = $new('canvas', {'width': w, 'height': h}),
+		ctx = cnv.getContext('2d'),
+		cti = ctx.createImageData(w, h),
+		i = data.length;
+	while(i--) {
+		cti.data[i] = data[i];
+	}
+	ctx.putImageData(cti, 0, 0);
+	return cnv;
+}
+
+function getImgHash(post) {
+	var img = post.Img.snapshotItem(0),
+		w = img.width,
+		h = img.height,
+		cnv = $new('canvas', {'width': w, 'height': h}),
+		ctx = cnv.getContext('2d'),
+		data;
+	ctx.drawImage(img, 0, 0);
+	data = ctx.getImageData(0, 0, w, h).data;
+	imgDesaturate(data, w, h);
+	imgPosterize(data, w, h);
+	cnv = getCanvasByData(data, w, h);
+	imgResize(data, cnv, w, h);
+	w = cnv.width;
+	h = cnv.height;
+	data = cnv.getContext('2d').getImageData(0, 0, w, h).data;
+	// Canvas test
+	//post.appendChild(getCanvasByData(data, w, h));
+	return getHashByData(data, w, h);
+}
+
+function hideByImgHash(post) {
+	if(post.Img.snapshotLength === 0) {
+		addSpell('#noimg');
+		return;
+	}
+	$alert(getImgHash(post));
 }
 
 
