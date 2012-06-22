@@ -1173,7 +1173,6 @@ function showContent(el, id, name, isUpd) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
 	if(name === 'Cfg') {
-		el.style.backgroundColor = aib.pColor;
 		addSettings(el);
 	} else {
 		if(Cfg['attachPanel']) {
@@ -1239,7 +1238,7 @@ function addSettings(Cfg) {
 	},
 
 	cfgTab = function(id, el) {
-		return $New('li', {'style': 'background-color:' + aib.pColor}, [
+		return $New('li', {'class': aib.pClass}, [
 			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode]}, {'click': function() {
 				openTab(this, el);
 			}})
@@ -1494,7 +1493,7 @@ function addSettings(Cfg) {
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 
-	$append(Cfg, [
+	Cfg.appendChild($New('div', {'class': aib.pClass}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
 		$New('ul', {'id': 'DESU_cfgBar'}, [
 			cfgTab('Filters', cfgFilters),
@@ -1552,7 +1551,7 @@ function addSettings(Cfg) {
 				})
 			])
 		])
-	]);
+	]));
 	openTab($c('DESU_cfgTab', doc), cfgFilters);
 }
 
@@ -1568,7 +1567,7 @@ function addHiddenTable(hid) {
 		if(op.Vis !== 0) {
 			return;
 		}
-		var wrap = $New('div', {'style': 'background-color:' + aib.pColor}, [
+		var wrap = $New('div', {'class': aib.pClass}, [
 			$new('input', {'type': 'checkbox'}, null),
 			$event($add(
 				'<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
@@ -1671,7 +1670,7 @@ function addHiddenTable(hid) {
 				}
 				url = getThrdUrl(aib.host, b, tNum);
 				tHead.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
-					$New('div', {'style': 'background-color:' + aib.pColor}, [
+					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 						$if(!nav.isCookie, $txt(' - ' + hThrds[b][tNum]))
@@ -1744,7 +1743,7 @@ function addFavoritesTable(fav) {
 			]));
 			for(tNum in Favor[h][b]) {
 				list.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
-					$New('div', {'style': 'background-color:' + aib.pColor}, [
+					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
@@ -1911,7 +1910,7 @@ function $alert(txt, id, wait) {
 		blinkAlert(el);
 		return;
 	}
-	el = $New('div', {'style': 'background-color:' + aib.pColor, 'id': 'DESU_alert' + id}, [
+	el = $New('div', {'class': aib.pClass, 'id': 'DESU_alert' + id}, [
 		$new('span', {'class': 'DESU_alertBtn', 'text': tBtn}, {'click': function() {
 			closeAlert(this.parentNode);
 		}}),
@@ -1941,10 +1940,10 @@ function addSelMenu(el, fPanel, html) {
 		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.appendChild($event($add(
-		'<div id="DESU_select" style="background-color:' + aib.pColor + '; position: ' +
-		pos + '; ' + (el.className === 'DESU_btnSrc' ?
-			'left: ' + $offset(el).left :
-			'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
+		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos + '; ' + (
+			el.className === 'DESU_btnSrc' ?
+				'left: ' + $offset(el).left :
+				'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="DESU_delSelection(event)">' + html + '</div>'), {
 		'mouseover': function() {
 			if(pst && pst.node) {
@@ -5611,7 +5610,7 @@ function scriptCSS() {
 		};
 
 	// Settings window
-	x += '#DESU_contentCfg { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+	x += '#DESU_contentCfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
@@ -5624,7 +5623,7 @@ function scriptCSS() {
 		.DESU_cfgBody:lang(de), #DESU_cfgBtns:lang(de) { border-color: #444; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
 		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
-		#DESU_cfgBar > li { display: table-cell; border-radius: 4px 4px 0 0; }\
+		#DESU_cfgBar > li { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
@@ -6185,7 +6184,6 @@ function getImageboard() {
 		aib.ylil ? ' answer' :
 		aib.tiny || aib.fch ? 'post reply' :
 		'reply';
-	aib.pColor = $getStyle($new('div', {'class': aib.pClass}, null), 'background-color');
 	aib.opClass =
 		aib.kus ? 'postnode' :
 		aib.brit ? 'originalpost' :
