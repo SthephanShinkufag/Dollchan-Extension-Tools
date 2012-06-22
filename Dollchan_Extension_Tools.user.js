@@ -5369,18 +5369,6 @@ function verifyRegExp(txt) {
 	return false;
 }
 
-function checkSpellsText(txt) {
-	if(!txt || txt === '') {
-		return false;
-	}
-	txt = txt.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
-	if(verifyRegExp(txt)) {
-		return false;
-	} else {
-		return txt;
-	}
-}
-
 function disableSpells() {
 	unHideTube();
 	Posts.forEach(function(post) {
@@ -5397,10 +5385,19 @@ function applySpells() {
 }
 
 function toggleSpells(el) {
-	var val = $id('DESU_spellEdit').value,
-		spls = checkSpellsText(val);
-	if(spls) {
-		saveSpells(spls);
+	var fld = $id('DESU_spellEdit'),
+		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
+	if(verifyRegExp(val)) {
+		if(val !== '') {
+			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
+		} else {
+			disableSpells();
+			saveSpells('');
+		}
+		el.checked = false;
+		saveCfg('hideBySpell', 0);
+	} else {
+		saveSpells(val);
 		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
 			hideTube();
@@ -5408,32 +5405,27 @@ function toggleSpells(el) {
 			disableSpells();
 		}
 		saveHiddenPosts();
-	} else {
-		if(val !== '') {
-			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
-		} else {
-			saveSpells('');
-		}
-		el.checked = false;
-		saveCfg('hideBySpell', 0);
 	}
 }
 
 function addSpell(spell) {
 	var fld = $id('DESU_spellEdit'),
-		spls = (fld && checkSpellsText(fld.value)) || spellsList.join('\n');
+		val = (fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''));
+	if(!val || verifyRegExp(val)) {
+		val = spellsList.join('\n');
+	}
 	disableSpells();
-	if(('\n' + spls).indexOf('\n' + spell) === -1) {
-		spls = (spls !== '' ? spls + '\n' : '') + spell;
-		if(verifyRegExp(spls)) {
+	if(('\n' + val).indexOf('\n' + spell) === -1) {
+		val = val === '' ? spell : val + '\n' + spell;
+		if(verifyRegExp(val)) {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
 			return;
 		}
-		saveSpells(spls);
+		saveSpells(val);
 	}
 	saveCfg('hideBySpell', 1);
 	if(fld) {
-		fld.value = spls;
+		fld.value = val;
 		fld.previousSibling.firstChild.checked = true;
 	}
 	applySpells();
