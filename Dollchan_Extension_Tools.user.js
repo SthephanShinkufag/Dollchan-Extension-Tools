@@ -2907,8 +2907,8 @@ function dataForm(form) {
 
 dataForm.prototype.append = function(el) {
 	if(el.type === 'file') {
-		var fName = el.files[0].name;
 		if(el.files.length > 0) {
+			var fName = el.files[0].name;
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
 				el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
