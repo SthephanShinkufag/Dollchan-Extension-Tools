@@ -835,8 +835,10 @@ function readCfg() {
 }
 
 function saveCfg(name, val) {
-	Cfg[name] = val;
-	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	if(Cfg[name] !== val) {
+		Cfg[name] = val;
+		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	}
 }
 
 function toggleCfg(name) {
@@ -1173,7 +1175,7 @@ function showContent(el, id, name, isUpd) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
 	if(name === 'Cfg') {
-		addSettings();
+		addSettings(el);
 	} else {
 		if(Cfg['attachPanel']) {
 			el.style.backgroundColor = $getStyle(doc.body, 'background-color');
@@ -1197,74 +1199,76 @@ function showContent(el, id, name, isUpd) {
 								"SETTINGS" WINDOW
 ==============================================================================*/
 
-function addSettings() {
-	var lBox = function(name, fn) {
-		var el = $new('input', {'type': 'checkbox', 'id': 'DESU_' + name}, {'click': function() {
-			toggleCfg(this.id.substring(5));
+function lBox(name, block, fn) {
+	var el = $new('input', {'info': name, 'type': 'checkbox'}, {'click': function() {
+		toggleCfg(this.getAttribute('info'));
+		if(fn) {
+			fn(this);
+		}
+	}});
+	el.checked = Cfg[name];
+	return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
+		el, $txt(' ' + Lng.cfg[name][lCode])
+	]);
+}
+
+function inpTxt(name, size, fn) {
+	return $new('input', {'info': name, 'type': 'text', 'size': size, 'value': Cfg[name]}, {
+		'keyup': function() {
+			saveCfg(this.getAttribute('info'), this.value.replace(/\|/g, ''));
 			if(fn) {
-				fn();
+				fn(this);
 			}
-		}});
-		el.checked = Cfg[name];
-		return $New('label', null, [el, $txt(' ' + Lng.cfg[name][lCode])]);
-	},
+		}
+	});
+}
 
-	divBox = function(name, fn) {
-		return $New('div', null, [lBox(name, fn)]);
-	},
+function optSel(name, block, fn) {
+	for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
+		opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
+	}
+	el = $event($add('<select info="' + name + '">' + opt.join('') + '</select>'), {
+		'change': fn ? fn : function() {
+			saveCfg(this.getAttribute('info'), this.selectedIndex);
+		}
+	});
+	el.selectedIndex = Cfg[name];
+	return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
+		el, $txt(' ' + x.txt[lCode])
+	]);
+}
 
-	inpTxt = function(name, size, fn) {
-		return $new('input', {'type': 'text', 'id': 'DESU_' + name, 'size': size, 'value': Cfg[name]}, {
-			'keyup': function() {
-				saveCfg(this.id.substring(5), this.value.replace(/\|/g, ''));
-				if(fn) {
-					fn();
+function cfgTab(id, name) {
+	return $New('li', {'class': aib.pClass}, [
+		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode], 'info': name}, {
+			'click': function() {
+				if(this.className == 'DESU_cfgTab_sel') {
+					return;
+				}
+				var el = $c('DESU_cfgBody', doc),
+					name = this.getAttribute('info');
+				if(el) {
+					el.className = 'DESU_cfgUnvis';
+					$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
+				}
+				this.className = 'DESU_cfgTab_sel';
+				el = $id('DESU_' + name);
+				if(!el) {
+					$after($id('DESU_cfgBar'), el = getCfgBody(name));
+				}
+				el.className = 'DESU_cfgBody';
+				if(name === 'cfgFilters') {
+					spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
+					initSpells();
+					$id('DESU_spellEdit').value = spellsList.join('\n');
 				}
 			}
-		});
-	},
+		})
+	]);
+}
 
-	optSel = function(name, fn) {
-		for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
-			opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
-		}
-		el = $event($add('<select id="DESU_sel' + name + '">' + opt.join('') + '</select>'), {
-			'change': (fn ? fn : function() {
-				saveCfg(this.id.substring(8), this.selectedIndex);
-			})
-		});
-		el.selectedIndex = Cfg[name];
-		return $New('label', null, [el, $txt(' ' + x.txt[lCode])]);
-	},
-
-	cfgTab = function(id, el) {
-		return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack'}, [
-			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode]}, {'click': function() {
-				openTab(this, el);
-			}})
-		]);
-	},
-
-	openTab = function(tab, el) {
-		if(tab.className == 'DESU_cfgTab_sel') {
-			return;
-		}
-		var oldEl = $c('DESU_cfgBody', doc);
-		if(oldEl) {
-			oldEl.parentNode.replaceChild(el, oldEl);
-			$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
-		} else {
-			$after($id('DESU_cfgBar'), el);
-		}
-		tab.className = 'DESU_cfgTab_sel';
-		if(el === cfgFilters) {
-			spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
-			initSpells();
-			$id('DESU_spellEdit').value = spellsList.join('\n');
-		}
-	},
-
-	cfgFilters = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgFilters'}, [
+function getCfgFilters(name) {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgFilters'}, [
 		$New('div', null, [
 			$New('span', {'id': 'DESU_spellPanel'}, [
 				$new('a', {
@@ -1278,14 +1282,17 @@ function addSettings() {
 				$new('a', {'text': Lng.apply[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						applySpells('');
+						var el = this.parentNode.nextSibling.firstChild;
+						saveCfg('hideBySpell', 1);
+						el.checked = true;
+						toggleSpells(el);
 					}
 				}),
 				$new('a', {'text': Lng.clear[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$id('DESU_spellEdit').value = '';
-						applySpells('');
+						toggleSpells(this.parentNode.nextSibling.firstChild);
 					}
 				}),
 				$new('a', {
@@ -1295,66 +1302,67 @@ function addSettings() {
 					'class': 'DESU_aBtn'
 				}, null)
 			]),
-			lBox('hideBySpell', toggleSpells),
+			lBox('hideBySpell', false, toggleSpells),
 			$new('textarea', {'id': 'DESU_spellEdit', 'rows': 10, 'cols': 49}, null)
 		]),
 		$New('div', null, [
-			lBox('hideByWipe', null),
+			lBox('hideByWipe', false, null),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
 			})
 		]),
 		$New('div', {'id': 'DESU_cfgWipe', 'style': 'display: none; padding-left: 25px;'}, [
-			divBox('wipeSameLin', null),
-			divBox('wipeSameWrd', null),
-			divBox('wipeLongWrd', null),
-			divBox('wipeSpecial', null),
-			divBox('wipeCAPS', null),
-			divBox('wipeNumbers', null)
+			lBox('wipeSameLin', true, null),
+			lBox('wipeSameWrd', true, null),
+			lBox('wipeLongWrd', true, null),
+			lBox('wipeSpecial', true, null),
+			lBox('wipeCAPS', true, null),
+			lBox('wipeNumbers', true, null)
 		]),
-		divBox('filterThrds', null),
-		divBox('menuHiddBtn', null),
-		divBox('viewHiddNum', null),
-		$New('div', null, [
-			optSel('delHiddPost', function() {
-				processHidden(this.selectedIndex, Cfg['delHiddPost']);
-			})
-		])
-	]),
+		lBox('filterThrds', true, null),
+		lBox('menuHiddBtn', true, null),
+		lBox('viewHiddNum', true, null),
+		optSel('delHiddPost', true, function() {
+			processHidden(this.selectedIndex, Cfg['delHiddPost']);
+			saveCfg('delHiddPost', this.selectedIndex);
+		})
+	]);
+}
 
-	cfgPosts = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgPosts'}, [
-		$New('div', null, [
-			optSel('updThread', null),
+function getCfgPosts() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgPosts'}, [
+		optSel('updThread', false, null),
+		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
 			$txt(Lng.cfg.updThrDelay[lCode])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			divBox('favIcoBlink', null),
-			$if(nav.WebKit, divBox('desktNotif', function() {
+			lBox('favIcoBlink', true, null),
+			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
 				}
 			}))
 		]),
-		$New('div', null, [optSel('expandPosts', null)]),
-		$New('div', null, [optSel('expandImgs', null)]),
-		$if(nav.isBlob, divBox('preLoadImgs', null)),
+		optSel('expandPosts', true, null),
+		optSel('expandImgs', true, null),
+		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
 		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('findRarJPEG', null)
+			lBox('findRarJPEG', false, null)
 		])),
-		divBox('postBtnsTxt', null),
-		divBox('imgSrcBtns', null),
-		divBox('noSpoilers', updateCSS),
-		divBox('noPostNames', updateCSS),
-		divBox('noPostScrl', updateCSS),
+		lBox('postBtnsTxt', true, null),
+		lBox('imgSrcBtns', true, null),
+		lBox('noSpoilers', true, updateCSS),
+		lBox('noPostNames', true, updateCSS),
+		lBox('noPostScrl', true, updateCSS),
 		$New('div', null, [
-			lBox('keybNavig', null),
+			lBox('keybNavig', false, null),
 			$new('a', {'text': '?', 'href': '#', 'class': 'DESU_aBtn'}, {'click': function(e) {
 				$pd(e);
-				$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
+				$alert(Lng.keyNavHelp[lCode], 'HelpKNav', false);
 			}})
 		]),
-		$New('div', null, [lBox('correctTime', dateTime.toggleSettings)]),
+		lBox('correctTime', true, dateTime.toggleSettings),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
@@ -1366,15 +1374,17 @@ function addSettings() {
 				$new('a', {'text': Lng.cfg.timePattern[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'TRepHlp', false);
+						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'HelpTRep', false);
 					}
 				})
 			])
 		])
-	]),
+	]);
+}
 
-	cfgLinks = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgLinks'}, [
-		$New('div', null, [optSel('linksNavig', null)]),
+function getCfgLinks() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgLinks'}, [
+		optSel('linksNavig', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('linksOver', 6, null),
@@ -1384,99 +1394,99 @@ function addSettings() {
 				inpTxt('linksOut', 6, null),
 				$txt(Lng.cfg.linksOut[lCode])
 			]),
-			divBox('markViewed', null),
-			divBox('strikeHidd', null),
-			divBox('noNavigHidd', null)
+			lBox('markViewed', true, null),
+			lBox('strikeHidd', true, null),
+			lBox('noNavigHidd', true, null)
 		]),
-		divBox('insertNum', null),
-		divBox('addMP3', null),
-		divBox('addImgs', null),
-		$New('div', null, [optSel('addYouTube', null)]),
+		lBox('insertNum', true, null),
+		lBox('addMP3', true, null),
+		lBox('addImgs', true, null),
+		optSel('addYouTube', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel('YTubeType', null),
+				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 6, null),
 				$txt('×'),
 				inpTxt('YTubeHeigh', 6, null),
 				$txt(' '),
-				lBox('YTubeHD', null)
+				lBox('YTubeHD', false, null)
 			]),
-			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', null))
+			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', false, null))
 		])
-	]),
+	]);
+}
 
-	cfgForm = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgForm'}, [
-		$if(pr.on, $New('div', null, [optSel('addPostForm', null)])),
-		$if(pr.on, divBox('noThrdForm', function() {
+function getCfgForm() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgForm'}, [
+		$if(pr.on, optSel('addPostForm', true, null)),
+		$if(pr.on, lBox('noThrdForm', true, function() {
 			if(!TNum) {
 				$id('DESU_parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
 			}
 		})),
-		divBox('favOnReply', null),
-		divBox('checkReply', null),
+		lBox('favOnReply', true, null),
+		lBox('checkReply', true, null),
 		$if(nav.isH5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
-			divBox('postSameImg', null),
-			divBox('removeEXIF', null),
-			divBox('removeFName', null)
+			lBox('postSameImg', true, null),
+			lBox('removeEXIF', true, null),
+			lBox('removeFName', true, null)
 		])),
 		$if(pr.mail, $New('div', null, [
-			lBox('addSageBtn', null),
-			lBox('saveSage', null)
+			lBox('addSageBtn', false, null),
+			lBox('saveSage', false, null)
 		])),
-		$New('div', null, [optSel('captchaLang', null)]),
+		optSel('captchaLang', true, null),
 		$if(pr.on, $New('div', null, [
-			optSel('addTextBtns', function() {
+			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
 				addTextPanel();
 			}),
-			lBox('txtBtnsLoc', addTextPanel)
+			lBox('txtBtnsLoc', false, addTextPanel)
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('nameValue', 20, setUserName),
-			lBox('userName', setUserName)
+			lBox('userName', false, setUserName)
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('passwValue', 20, setUserPassw),
-			lBox('userPassw', setUserPassw)
+			lBox('userPassw', false, setUserPassw)
 		])),
 		$if(pr.txta, $New('div', null, [
 			inpTxt('signatValue', 20, null),
-			lBox('userSignat', null)
+			lBox('userSignat', false, null)
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('noBoardRule', updateCSS),
-			$if(pr.gothr, lBox('noGoto', function() {
+			lBox('noBoardRule', false, updateCSS),
+			$if(pr.gothr, lBox('noGoto', false, function() {
 				$disp(pr.gothr);
 			})),
-			$if(pr.passw, lBox('noPassword', function() {
+			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
 			}))
 		])
-	]),
+	]);
+}
 
-	cfgCommon = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgCommon'}, [
-		$New('div', null, [
-			optSel('scriptStyle', function() {
-				saveCfg('scriptStyle', this.selectedIndex);
-				$id('DESU_panelStuff').lang = getThemeLang();
-			})
-		]),
-		divBox('attachPanel', function() {
+function getCfgCommon() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgCommon'}, [
+		optSel('scriptStyle', true, function() {
+			saveCfg('scriptStyle', this.selectedIndex);
+			$id('DESU_panelStuff').lang = getThemeLang();
+		}),
+		lBox('attachPanel', true, function() {
 			toggleContent('Cfg', false);
 			updateCSS();
 		}),
-		divBox('panelCounter', updateCSS),
-		divBox('rePageTitle', null),
-		divBox('animation', null),
-		divBox('closePopups', null),
+		lBox('panelCounter', true, updateCSS),
+		lBox('rePageTitle', true, null),
+		lBox('animation', true, null),
+		lBox('closePopups', true, null),
 		$if(!nav.Opera, $New('div', null, [
-			divBox('updScript', null),
+			lBox('updScript', true, null),
 			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('scrUpdIntrv', function() {
-					saveCfg('scrUpdIntrv', this.selectedIndex);
-				}),
-				divBox('betaScrUpd', null),
+				optSel('scrUpdIntrv', false, null),
+				lBox('betaScrUpd', true, null),
 				$btn(Lng.checkNow[lCode], '', function() {
 					var el = $id('DESU_updRes');
 					el.innerHTML = '<span class="DESU_wait">' + Lng.checking[lCode] + '</div>';
@@ -1487,25 +1497,40 @@ function addSettings() {
 			]),
 			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
-	]),
+	]);
+}
 
-	cfgInfo = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgInfo'}, [
+function getCfgInfo() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
+}
 
-	$id('DESU_contentCfg').appendChild($New('div', {'class': aib.pClass, 'id': 'DESU_cfgWindow'}, [
+function getCfgBody(name) {
+	switch(name) {
+		case 'cfgFilters': return getCfgFilters();
+		case 'cfgPosts': return getCfgPosts();
+		case 'cfgLinks': return getCfgLinks();
+		case 'cfgForm': return getCfgForm();
+		case 'cfgCommon': return getCfgCommon();
+		case 'cfgInfo': return getCfgInfo();
+	}
+}
+
+function addSettings(Set) {
+	Set.appendChild($New('div', {'class': aib.pClass}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
-		$New('div', {'id': 'DESU_cfgBar'}, [
-			cfgTab('Filters', cfgFilters),
-			cfgTab('Posts', cfgPosts),
-			cfgTab('Links', cfgLinks),
-			cfgTab('Form', cfgForm),
-			cfgTab('Common', cfgCommon),
-			cfgTab('Info', cfgInfo)
+		$New('ul', {'id': 'DESU_cfgBar'}, [
+			cfgTab('Filters', 'cfgFilters'),
+			cfgTab('Posts', 'cfgPosts'),
+			cfgTab('Links', 'cfgLinks'),
+			cfgTab('Form', 'cfgForm'),
+			cfgTab('Common', 'cfgCommon'),
+			cfgTab('Info', 'cfgInfo')
 		]),
 		$New('div', {'id': 'DESU_cfgBtns'}, [
-			$New('div', {'style': 'float: right;'}, [
-				optSel('language', function() {
+			$New('span', {'style': 'float: right;'}, [
+				optSel('language', false, function() {
 					saveCfg('language', lCode = this.selectedIndex);
 					$del($id('DESU_panelStuff'));
 					addPanel();
@@ -1527,7 +1552,7 @@ function addSettings() {
 					toggleContent('Cfg', true);
 				})),
 				$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-					$disp($attr($id('DESU_cfgEdit'), {
+					$disp($attr($t('textarea', this.parentNode.parentNode), {
 						'value': getStored('DESU_Config_' + aib.dm)
 					}).parentNode);
 				}),
@@ -1544,15 +1569,15 @@ function addSettings() {
 			]),
 			$new('br', {'style': 'clear: both;'}, null),
 			$New('div', {'style': 'display: none;'}, [
-				$new('textarea', {'id': 'DESU_cfgEdit', 'rows': 10, 'cols': 56, 'value': ''}, null),
+				$new('textarea', {'rows': 10, 'cols': 56}, null),
 				$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-					setStored('DESU_Config_' + aib.dm, $id('DESU_cfgEdit').value.trim());
+					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim());
 					window.location.reload();
 				})
 			])
 		])
 	]));
-	openTab($c('DESU_cfgTab', doc), cfgFilters);
+	$c('DESU_cfgTab', Set).click();
 }
 
 
@@ -1917,7 +1942,7 @@ function $alert(txt, id, wait) {
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
-	if(Cfg['closePopups'] && !wait) {
+	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
 		setTimeout(closeAlert, 4e3, el);
 	}
 }
@@ -1992,7 +2017,7 @@ function selectPostHider(post) {
 	);
 	a.snapshotItem(1).onclick = function(e) {
 		$pd(e);
-		applySpells(
+		addSpell(
 			post.Img.snapshotLength === 0 ?
 				'#noimg' :
 				'#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
@@ -2004,7 +2029,7 @@ function selectPostHider(post) {
 	};
 	(a = a.snapshotItem(0)).onclick = function(e) {
 		$pd(e);
-		applySpells(quotetxt);
+		addSpell(quotetxt);
 	};
 	a.onmouseover = function() {
 		quotetxt = $txtSelect().trim();
@@ -2258,15 +2283,15 @@ function doSageBtn() {
 	}
 }
 
-function setUserName() {
-	saveCfg('nameValue', $id('DESU_nameValue').value.replace(/\|/g, ''));
-	pr.name.value = $id('DESU_userName').checked ? Cfg['nameValue'] : '';
+function setUserName(el) {
+	el = el.parentNode;
+	saveCfg('nameValue', el.firstChild.value.replace(/\|/g, ''));
+	pr.name.value = el.lastChild.checked ? Cfg['nameValue'] : '';
 }
 
-function setUserPassw() {
-	var el = $id('DESU_passwValue');
+function setUserPassw(el) {
 	if(el) {
-		saveCfg('passwValue', el.value.replace(/\|/g, ''));
+		saveCfg('passwValue', el.firstChild.value.replace(/\|/g, ''));
 	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
 }
@@ -2883,16 +2908,6 @@ function processImage(arr, force) {
 		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
-	} else if(dat[0] === 0x47 && dat[1] === 0x49) {
-		for(; j < len - 1; j++) {
-			if(dat[j] === 0x00 && dat[j + 1] === 0x3B) {
-				break;
-			}
-		}
-		j += 2;
-		if(j === len || (!force && len - j > 75)) {
-			return [arr];
-		}
 	} else {
 		return null;
 	}
@@ -2919,10 +2934,12 @@ function dataForm(form) {
 dataForm.prototype.append = function(el) {
 	if(el.type === 'file') {
 		if(el.files.length > 0) {
+			var fName = el.files[0].name;
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"; filename="' + (Cfg['removeFName'] ? '' : el.files[0].name)
-					+ '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
+				el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
+					' ' + fName.substring(fName.lastIndexOf('.'))
+				) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
 			);
 			this.readFile(el, this.data.length - 2);
 		}
@@ -2938,7 +2955,7 @@ dataForm.prototype.readFile = function(el, idx) {
 	var fr = new FileReader(),
 		file = el.files[0],
 		dF = this;
-	if(!/^image\/(?:png|jpeg|gif)$/.test(file.type)) {
+	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 		this.data[idx] = file;
 		return;
 	}
@@ -3232,7 +3249,7 @@ function prepareButtons() {
 		} else if(name === "G") {
 			toggleFavorites(pByNum[+data], $c('DESU_btnFav', pByNum[+data]) || $c('DESU_btnFavSel', pByNum[+data]));
 		} else if(name === "H") {
-			applySpells('#sage');
+			addSpell('#sage');
 		} else if(name === 'I') {
 			data = data.split('|');
 			name = doc.getElementsByName(data[0])[0];
@@ -3299,8 +3316,7 @@ function dateTime(pattern, timeDiff) {
 	this.diff = parseInt(timeDiff, 10);
 }
 
-dateTime.toggleSettings = function() {
-	var el = $id('DESU_correctTime');
+dateTime.toggleSettings = function(el) {
 	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['timeOffset']) || this.checkPattern(Cfg['timePattern']))) {
 		$alert(Lng.cTimeError[lCode], 'TimeErr', false);
 		saveCfg('correctTime', 0);
@@ -5026,7 +5042,6 @@ function processHidden(newCfg, oldCfg) {
 	if(newCfg === 1) {
 		Posts.forEach(mergeHidden);
 	}
-	saveCfg('delHiddPost', newCfg);
 	updateCSS();
 }
 
@@ -5081,7 +5096,7 @@ function hideBySameText(post) {
 		});
 		saveHiddenPosts();
 	} else {
-		applySpells('#notxt');
+		addSpell('#notxt');
 	}
 	vis = null;
 }
@@ -5354,6 +5369,9 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
+	if(txt === '') {
+		return true;
+	}
 	txt = txt.split('\n');
 	var t, rep,
 		i = txt.length,
@@ -5372,81 +5390,66 @@ function verifyRegExp(txt) {
 	return false;
 }
 
-function toggleSpells() {
-	var fld = $id('DESU_spellEdit'),
-		val = (fld ? fld.value : spellsList.join('\n')).replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		wrong = verifyRegExp(val);
-	if(!wrong) {
-		saveSpells(val);
-	}
-	if(val !== '' && !wrong) {
-		if(fld) {
-			fld.value = val;
-		}
-		if(Cfg['hideBySpell']) {
-			Posts.forEach(hideBySpells);
-			hideTube();
-		} else {
-			unHideTube();
-			Posts.forEach(function(post) {
-				if(checkSpells(post)) {
-					unhidePost(post);
-				}
-			});
-		}
-		saveHiddenPosts();
-	} else {
-		if(wrong) {
-			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
-		}
-		if(fld) {
-			$id('DESU_hideBySpell').checked = false;
-		}
-		saveCfg('hideBySpell', 0);
-	}
-}
-
-function applySpells(txt) {
-	var nval, ntxt, wrong,
-		fld = $id('DESU_spellEdit'),
-		val = fld ? fld.value : spellsList.join('\n');
-	if(txt !== '') {
-		if(txt.trim() === '') {
-			return;
-		}
-		if(TNum) {
-			txt = '#' + brd + '/' + TNum + ' ' + txt;
-		}
-		toggleSpells();
-		nval = '\n' + val;
-		ntxt = '\n' + txt;
-		val = nval.indexOf(ntxt) >= 0 ? nval.split(ntxt).join('') : val + ntxt;
-	}
-	val = val.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
-	wrong = verifyRegExp(val);
-	if(wrong) {
-		$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
-		return;
-	}
-	if(fld) {
-		fld.value = val;
-		$id('DESU_hideBySpell').checked = val !== '';
-	}
+function disableSpells() {
+	unHideTube();
 	Posts.forEach(function(post) {
 		if(checkSpells(post)) {
 			unhidePost(post);
 		}
 	});
-	unHideTube();
-	saveSpells(val);
-	if(val !== '') {
-		saveCfg('hideBySpell', 1);
-		Posts.forEach(hideBySpells);
-		hideTube();
-	} else {
-		saveCfg('hideBySpell', 0);
-	}
+}
+
+function applySpells() {
+	Posts.forEach(hideBySpells);
+	hideTube();
 	saveHiddenPosts();
+}
+
+function toggleSpells(el) {
+	var fld = $id('DESU_spellEdit'),
+		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
+	if(verifyRegExp(val)) {
+		if(val !== '') {
+			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
+		} else {
+			disableSpells();
+			saveSpells('');
+		}
+		el.checked = false;
+		saveCfg('hideBySpell', 0);
+	} else {
+		saveSpells(val);
+		if(Cfg['hideBySpell']) {
+			Posts.forEach(hideBySpells);
+			hideTube();
+		} else {
+			disableSpells();
+		}
+		saveHiddenPosts();
+	}
+}
+
+function addSpell(spell) {
+	var fld = $id('DESU_spellEdit'),
+		val = (fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''));
+	if(!val || verifyRegExp(val)) {
+		val = spellsList.join('\n');
+	}
+	disableSpells();
+	if(('\n' + val).indexOf('\n' + spell) === -1) {
+		val = val === '' ? spell : val + '\n' + spell;
+		if(verifyRegExp(val)) {
+			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
+			return;
+		}
+		saveSpells(val);
+	}
+	saveCfg('hideBySpell', 1);
+	if(fld) {
+		fld.value = val;
+		fld.previousSibling.firstChild.checked = true;
+	}
+	applySpells();
 }
 
 
@@ -5610,22 +5613,25 @@ function scriptCSS() {
 		};
 
 	// Settings window
-	x += '#DESU_cfgWindow { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+	x += '#DESU_contentCfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(top, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+		.DESU_cfgUnvis { display: none; }\
 		.DESU_cfgBody { min-width: 371px; min-height: 300px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
+		.DESU_blockInp { display: block; }\
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
 		.DESU_cfgBody:lang(de), #DESU_cfgBtns:lang(de) { border-color: #444; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
-		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; }\
+		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
+		#DESU_cfgBar > li { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
 		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
@@ -5634,7 +5640,6 @@ function scriptCSS() {
 		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
 		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
-		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }';
 
