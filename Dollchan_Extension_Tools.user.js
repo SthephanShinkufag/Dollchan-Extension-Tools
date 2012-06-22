@@ -66,6 +66,7 @@ var defaultCfg = {
 	'checkReply':	1,		// reply without reload
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
+	'removeFName':	0,		// 		remove file name
 	'addSageBtn':	1,		// email field -> sage btn
 	'saveSage':		1,		//		remember sage
 	'sageReply':	0,		//		reply with sage
@@ -173,6 +174,7 @@ Lng = {
 		checkReply:		['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
 		postSameImg:	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 		removeEXIF:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		removeFName:	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
 		addSageBtn:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
 		saveSage:		['запоминать сажу', 'remember sage'],
 		captchaLang: {
@@ -1180,7 +1182,7 @@ function toggleContent(name, isUpd) {
 }
 
 function showContent(el, id, name, isUpd) {
-	el.innerHTML = '';
+	el.innerHTML = el.style.backgroundColor = '';
 	if(!isUpd && el.id === id) {
 		el.id = '';
 		return;
@@ -1192,17 +1194,16 @@ function showContent(el, id, name, isUpd) {
 	if(name === 'Cfg') {
 		addSettings();
 	} else {
-		el.appendChild($add('<div></div>'));
 		if(Cfg['attachPanel']) {
-			$t('div', el).style.backgroundColor = $getStyle(doc.body, 'background-color');
+			el.style.backgroundColor = $getStyle(doc.body, 'background-color');
 		}
 		if(name === 'Hid') {
 			readHiddenThreads();
-			addHiddenTable();
+			addHiddenTable(el);
 		}
 		if(name === 'Fav') {
 			readFavorites();
-			addFavoritesTable();
+			addFavoritesTable(el);
 		}
 	}
 	if(Cfg['animation'] && nav.Anim) {
@@ -1465,7 +1466,8 @@ function addSettings() {
 		divBox('checkReply', null),
 		$if(nav.isH5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
 			divBox('postSameImg', null),
-			divBox('removeEXIF', null)
+			divBox('removeEXIF', null),
+			divBox('removeFName', null)
 		])),
 		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', null),
@@ -1619,9 +1621,8 @@ function addSettings() {
 									"HIDDEN" WINDOW
 ==============================================================================*/
 
-function addHiddenTable() {
+function addHiddenTable(hid) {
 	var b, tNum, url, pHead, tHead,
-		hid = $t('div', $id('DESU_contentHid')),
 		el = hid.appendChild($add('<div></div>'));
 	Threads.forEach(function(op) {
 		if(op.Vis !== 0) {
@@ -1708,10 +1709,10 @@ function addHiddenTable() {
 		]);
 	}
 	el = hid.appendChild($add('<div></div>'));
-	el.appendChild($New('div', null, [
+	$append(el, [
 		$add('<hr />'),
-		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lCode] : Lng.hiddenThrds[lCode]) + '</b>')
-	]));
+		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lCode] : Lng.hiddenThrds[lCode]) + ':</b>')
+	]);
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
 			tHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
@@ -1732,7 +1733,7 @@ function addHiddenTable() {
 					tNum = hThrds[b][tNum];
 				}
 				url = getThrdUrl(aib.host, b, tNum);
-				tHead.appendChild($New('div', {'class': 'DESU_contData', 'id': 'DESU_hidTData_' + b + '|' + tNum}, [
+				tHead.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
@@ -1744,12 +1745,14 @@ function addHiddenTable() {
 	}
 	$append(el, [
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-			$disp($id('DESU_hidTEdit').parentNode);
+			var ta = $t('textarea', this.parentNode);
+			ta.value = $uneval(hThrds);
+			$disp(ta.parentNode);
 		}),
 		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
-			$each($X('.//div[@class="DESU_contData"]', $id('DESU_contentHid')), function(el) {
+			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
 				var i,
-					arr = el.id.substr(14).split('|'),
+					arr = el.getAttribute('info').split(';'),
 					b = arr[0],
 					tNum = arr[1];
 				if($t('input', el).checked) {
@@ -1774,13 +1777,11 @@ function addHiddenTable() {
 		}),
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {
-				'id': 'DESU_hidTEdit',
 				'rows': 9,
-				'cols': 70,
-				'value': $uneval(hThrds)
+				'cols': 70
 			}, null),
 			$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-				saveHiddenThreads($id('DESU_hidTEdit').value);
+				saveHiddenThreads(this.previousSibling.value);
 			})
 		])
 	]);
@@ -1793,8 +1794,8 @@ function addHiddenTable() {
 								"FAVORITES" WINDOW
 ==============================================================================*/
 
-function addFavoritesTable() {
-	var h, b, tNum, list, fav = $t('div', $id('DESU_contentFav'));
+function addFavoritesTable(fav) {
+	var h, b, tNum, list;
 	for(h in Favor) {
 		for(b in Favor[h]) {
 			list = fav.appendChild($New('div', {'class': 'DESU_contHead'}, [
@@ -1811,7 +1812,7 @@ function addFavoritesTable() {
 				$add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
 			]));
 			for(tNum in Favor[h][b]) {
-				list.appendChild($New('div', {'class': 'DESU_contData', 'id': 'DESU_favData_' + h + '|' + b + '|' + tNum}, [
+				list.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {
@@ -1832,12 +1833,14 @@ function addFavoritesTable() {
 	$append(fav, [
 		$new('hr', null, null),
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-			$disp($id('DESU_favEdit').parentNode);
+			var ta = $t('textarea', this.parentNode);
+			ta.value = $uneval(Favor);
+			$disp(ta.parentNode);
 		}),
 		$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
 				var c,
-					arr = el.id.substr(13).split('|'),
+					arr = el.getAttribute('info').split(';'),
 					cnt = 0;
 				if(aib.host === arr[0]) {
 					c = $t('span', $c('DESU_favPCount', el));
@@ -1863,7 +1866,7 @@ function addFavoritesTable() {
 		}),
 		$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
-				var arr = el.id.substr(13).split('|');
+				var arr = el.getAttribute('info').split(';');
 				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, null, function(dc, err) {
 					if(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
@@ -1875,7 +1878,7 @@ function addFavoritesTable() {
 		}),
 		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
-				var arr = el.id.substr(13).split('|');
+				var arr = el.getAttribute('info').split(';');
 				if($t('input', el).checked) {
 					removeFavorites(arr[0], arr[1], arr[2]);
 				}
@@ -1884,13 +1887,11 @@ function addFavoritesTable() {
 		}),
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {
-				'id': 'DESU_favEdit',
 				'rows': 9,
-				'cols': 70,
-				'value': $uneval(Favor)
+				'cols': 70
 			}, null),
 			$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-				saveFavorites($id('DESU_favEdit').value);
+				saveFavorites(this.previousSibling.value);
 			})
 		])
 	]);
@@ -3026,7 +3027,7 @@ dataForm.prototype.append = function(el) {
 		if(el.files.length > 0) {
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"; filename="' + el.files[0].name + '"\r\n' + 'Content-type: ' +
+					el.name + '"; filename="' + (Cfg['removeFName'] ? '' : el.files[0].name) + '"\r\n' + 'Content-type: ' +
 					el.files[0].type + '\r\n\r\n', null, '\r\n'
 			);
 			this.readFile(el, this.data.length - 2);
@@ -5900,9 +5901,9 @@ function scriptCSS() {
 		.DESU_alertMsg { display: inline-block; margin-top: .25em; }\
 		#DESU_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#DESU_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
-		#DESU_cfgEdit, #DESU_favEdit, #DESU_hidTEdit, #DESU_spellEdit { display: block; margin: 2px 0; font: 12px courier new; }\
+		.DESU_content textarea { display: block; margin: 2px 0; font: 12px courier new; }\
 		.DESU_content { text-align: left; }\
-		.DESU_content > div { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+		#DESU_contentFav, #DESU_contentHid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
 		.DESU_contData { margin: 2px 0; }\
 		.DESU_contData > :first-child { float: none !important; }\
 		.DESU_contData > div > a { text-decoration: none; }\
