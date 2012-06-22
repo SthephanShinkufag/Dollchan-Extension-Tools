@@ -1199,72 +1199,76 @@ function showContent(el, id, name, isUpd) {
 								"SETTINGS" WINDOW
 ==============================================================================*/
 
-function addSettings(Set) {
-	var lBox = function(name, block, fn) {
-		var el = $new('input', {'info': name, 'type': 'checkbox'}, {'click': function() {
-			toggleCfg(this.getAttribute('info'));
+function lBox(name, block, fn) {
+	var el = $new('input', {'info': name, 'type': 'checkbox'}, {'click': function() {
+		toggleCfg(this.getAttribute('info'));
+		if(fn) {
+			fn(this);
+		}
+	}});
+	el.checked = Cfg[name];
+	return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
+		el, $txt(' ' + Lng.cfg[name][lCode])
+	]);
+}
+
+function inpTxt(name, size, fn) {
+	return $new('input', {'info': name, 'type': 'text', 'size': size, 'value': Cfg[name]}, {
+		'keyup': function() {
+			saveCfg(this.getAttribute('info'), this.value.replace(/\|/g, ''));
 			if(fn) {
 				fn(this);
 			}
-		}});
-		el.checked = Cfg[name];
-		return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
-			el, $txt(' ' + Lng.cfg[name][lCode])
-		]);
-	},
-
-	inpTxt = function(name, size, fn) {
-		return $new('input', {'info': name, 'type': 'text', 'size': size, 'value': Cfg[name]}, {
-			'keyup': function() {
-				saveCfg(this.getAttribute('info'), this.value.replace(/\|/g, ''));
-				if(fn) {
-					fn(this);
-				}
-			}
-		});
-	},
-
-	optSel = function(name, block, fn) {
-		for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
-			opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
 		}
-		el = $event($add('<select info="' + name + '">' + opt.join('') + '</select>'), {
-			'change': fn ? fn : function() {
-				saveCfg(this.getAttribute('info'), this.selectedIndex);
-			}
-		});
-		el.selectedIndex = Cfg[name];
-		return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
-			el, $txt(' ' + x.txt[lCode])
-		]);
-	},
+	});
+}
 
-	cfgTab = function(id, name) {
-		return $New('li', {'class': aib.pClass}, [
-			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode], 'info': name}, {
-				'click': function() {
-					if(this.className == 'DESU_cfgTab_sel') {
-						return;
-					}
-					var oldEl = $c('DESU_cfgBody', doc),
-						id = this.getAttribute('info');
-					if(oldEl) {
-						oldEl.className = 'DESU_cfgUnvis';
-						$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
-					}
-					this.className = 'DESU_cfgTab_sel';
-					$id('DESU_' + id).className = 'DESU_cfgBody';
-					if(id === 'cfgFilters') {
-						spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
-						initSpells();
-						$id('DESU_spellEdit').value = spellsList.join('\n');
-					}
+function optSel(name, block, fn) {
+	for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
+		opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
+	}
+	el = $event($add('<select info="' + name + '">' + opt.join('') + '</select>'), {
+		'change': fn ? fn : function() {
+			saveCfg(this.getAttribute('info'), this.selectedIndex);
+		}
+	});
+	el.selectedIndex = Cfg[name];
+	return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
+		el, $txt(' ' + x.txt[lCode])
+	]);
+}
+
+function cfgTab(id, name) {
+	return $New('li', {'class': aib.pClass}, [
+		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode], 'info': name}, {
+			'click': function() {
+				if(this.className == 'DESU_cfgTab_sel') {
+					return;
 				}
-			})
-		]);
-	},
+				var el = $c('DESU_cfgBody', doc),
+					id = this.getAttribute('info');
+				if(el) {
+					el.className = 'DESU_cfgUnvis';
+					$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
+				}
+				this.className = 'DESU_cfgTab_sel';
+				el = $id('DESU_' + id);
+				if(!el) {
+					$after($id('DESU_cfgBar'), el = getCfgBody(id));
+				}
+				el.className = 'DESU_cfgBody';
+				if(id === 'cfgFilters') {
+					spellsList = getStored('DESU_Spells_' + aib.dm).split('\n');
+					initSpells();
+					$id('DESU_spellEdit').value = spellsList.join('\n');
+				}
+			}
+		})
+	]);
+}
 
-	cfgFilters = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgFilters'}, [
+function getCfgFilters(name) {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgFilters'}, [
 		$New('div', null, [
 			$New('span', {'id': 'DESU_spellPanel'}, [
 				$new('a', {
@@ -1322,9 +1326,11 @@ function addSettings(Set) {
 			processHidden(this.selectedIndex, Cfg['delHiddPost']);
 			saveCfg('delHiddPost', this.selectedIndex);
 		})
-	]),
+	]);
+}
 
-	cfgPosts = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgPosts'}, [
+function getCfgPosts() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgPosts'}, [
 		optSel('updThread', false, null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
@@ -1373,9 +1379,11 @@ function addSettings(Set) {
 				})
 			])
 		])
-	]),
+	]);
+}
 
-	cfgLinks = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgLinks'}, [
+function getCfgLinks() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgLinks'}, [
 		optSel('linksNavig', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
@@ -1405,9 +1413,11 @@ function addSettings(Set) {
 			]),
 			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', false, null))
 		])
-	]),
+	]);
+}
 
-	cfgForm = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgForm'}, [
+function getCfgForm() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgForm'}, [
 		$if(pr.on, optSel('addPostForm', true, null)),
 		$if(pr.on, lBox('noThrdForm', true, function() {
 			if(!TNum) {
@@ -1455,9 +1465,11 @@ function addSettings(Set) {
 				$disp(pr.passw.parentNode.parentNode);
 			}))
 		])
-	]),
+	]);
+}
 
-	cfgCommon = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgCommon'}, [
+function getCfgCommon() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgCommon'}, [
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			$id('DESU_panelStuff').lang = getThemeLang();
@@ -1485,12 +1497,27 @@ function addSettings(Set) {
 			]),
 			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
-	]),
+	]);
+}
 
-	cfgInfo = $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
+function getCfgInfo() {
+	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
+}
 
+function getCfgBody(name) {
+	switch(name) {
+		case 'cfgFilters': return getCfgFilters();
+		case 'cfgPosts': return getCfgPosts();
+		case 'cfgLinks': return getCfgLinks();
+		case 'cfgForm': return getCfgForm();
+		case 'cfgCommon': return getCfgCommon();
+		case 'cfgInfo': return getCfgInfo();
+	}
+}
+
+function addSettings(Set) {
 	Set.appendChild($New('div', {'class': aib.pClass}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
 		$New('ul', {'id': 'DESU_cfgBar'}, [
@@ -1501,7 +1528,6 @@ function addSettings(Set) {
 			cfgTab('Common', 'cfgCommon'),
 			cfgTab('Info', 'cfgInfo')
 		]),
-		cfgFilters, cfgPosts, cfgLinks, cfgForm, cfgCommon, cfgInfo,
 		$New('div', {'id': 'DESU_cfgBtns'}, [
 			$New('span', {'style': 'float: right;'}, [
 				optSel('language', false, function() {
