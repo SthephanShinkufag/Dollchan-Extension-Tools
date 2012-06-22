@@ -1200,7 +1200,7 @@ function showContent(el, id, name, isUpd) {
 ==============================================================================*/
 
 function addSettings(Set) {
-	var lBox = function(name, fn) {
+	var lBox = function(name, block, fn) {
 		var el = $new('input', {'info': name, 'type': 'checkbox'}, {'click': function() {
 			toggleCfg(this.getAttribute('info'));
 			if(fn) {
@@ -1208,11 +1208,9 @@ function addSettings(Set) {
 			}
 		}});
 		el.checked = Cfg[name];
-		return $New('label', null, [el, $txt(' ' + Lng.cfg[name][lCode])]);
-	},
-
-	divBox = function(name, fn) {
-		return $attr(lBox(name, fn), {'class': 'DESU_blockInp'});
+		return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
+			el, $txt(' ' + Lng.cfg[name][lCode])
+		]);
 	},
 
 	inpTxt = function(name, size, fn) {
@@ -1226,7 +1224,7 @@ function addSettings(Set) {
 		});
 	},
 
-	optSel = function(name, fn) {
+	optSel = function(name, block, fn) {
 		for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
 			opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
 		}
@@ -1236,11 +1234,9 @@ function addSettings(Set) {
 			}
 		});
 		el.selectedIndex = Cfg[name];
-		return $New('label', null, [el, $txt(' ' + x.txt[lCode])]);
-	},
-
-	divSel = function(name, fn) {
-		return $attr(optSel(name, fn), {'class': 'DESU_blockInp'});
+		return $New('label', block ? {'class': 'DESU_blockInp'} : null, [
+			el, $txt(' ' + x.txt[lCode])
+		]);
 	},
 
 	cfgTab = function(id, el) {
@@ -1304,65 +1300,65 @@ function addSettings(Set) {
 					'class': 'DESU_aBtn'
 				}, null)
 			]),
-			lBox('hideBySpell', toggleSpells),
+			lBox('hideBySpell', false, toggleSpells),
 			$new('textarea', {'id': 'DESU_spellEdit', 'rows': 10, 'cols': 49}, null)
 		]),
 		$New('div', null, [
-			lBox('hideByWipe', null),
+			lBox('hideByWipe', false, null),
 			$btn('>', Lng.showMore[lCode], function() {
 				$disp($id('DESU_cfgWipe'));
 			})
 		]),
 		$New('div', {'id': 'DESU_cfgWipe', 'style': 'display: none; padding-left: 25px;'}, [
-			divBox('wipeSameLin', null),
-			divBox('wipeSameWrd', null),
-			divBox('wipeLongWrd', null),
-			divBox('wipeSpecial', null),
-			divBox('wipeCAPS', null),
-			divBox('wipeNumbers', null)
+			lBox('wipeSameLin', true, null),
+			lBox('wipeSameWrd', true, null),
+			lBox('wipeLongWrd', true, null),
+			lBox('wipeSpecial', true, null),
+			lBox('wipeCAPS', true, null),
+			lBox('wipeNumbers', true, null)
 		]),
-		divBox('filterThrds', null),
-		divBox('menuHiddBtn', null),
-		divBox('viewHiddNum', null),
-		divSel('delHiddPost', function() {
+		lBox('filterThrds', true, null),
+		lBox('menuHiddBtn', true, null),
+		lBox('viewHiddNum', true, null),
+		optSel('delHiddPost', true, function() {
 			processHidden(this.selectedIndex, Cfg['delHiddPost']);
 			saveCfg('delHiddPost', this.selectedIndex);
 		})
 	]),
 
 	cfgPosts = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgPosts'}, [
-		optSel('updThread', null),
+		optSel('updThread', false, null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
 			$txt(Lng.cfg.updThrDelay[lCode])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			divBox('favIcoBlink', null),
-			$if(nav.WebKit, divBox('desktNotif', function() {
+			lBox('favIcoBlink', true, null),
+			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
 				}
 			}))
 		]),
-		divSel('expandPosts', null),
-		divSel('expandImgs', null),
-		$if(nav.isBlob, divBox('preLoadImgs', null)),
+		optSel('expandPosts', true, null),
+		optSel('expandImgs', true, null),
+		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
 		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('findRarJPEG', null)
+			lBox('findRarJPEG', false, null)
 		])),
-		divBox('postBtnsTxt', null),
-		divBox('imgSrcBtns', null),
-		divBox('noSpoilers', updateCSS),
-		divBox('noPostNames', updateCSS),
-		divBox('noPostScrl', updateCSS),
+		lBox('postBtnsTxt', true, null),
+		lBox('imgSrcBtns', true, null),
+		lBox('noSpoilers', true, updateCSS),
+		lBox('noPostNames', true, updateCSS),
+		lBox('noPostScrl', true, updateCSS),
 		$New('div', null, [
-			lBox('keybNavig', null),
+			lBox('keybNavig', false, null),
 			$new('a', {'text': '?', 'href': '#', 'class': 'DESU_aBtn'}, {'click': function(e) {
 				$pd(e);
 				$alert(Lng.keyNavHelp[lCode], 'HelpKNav', false);
 			}})
 		]),
-		divBox('correctTime', dateTime.toggleSettings),
+		lBox('correctTime', true, dateTime.toggleSettings),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
@@ -1382,7 +1378,7 @@ function addSettings(Set) {
 	]),
 
 	cfgLinks = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgLinks'}, [
-		divSel('linksNavig', null),
+		optSel('linksNavig', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('linksOver', 6, null),
@@ -1392,95 +1388,95 @@ function addSettings(Set) {
 				inpTxt('linksOut', 6, null),
 				$txt(Lng.cfg.linksOut[lCode])
 			]),
-			divBox('markViewed', null),
-			divBox('strikeHidd', null),
-			divBox('noNavigHidd', null)
+			lBox('markViewed', true, null),
+			lBox('strikeHidd', true, null),
+			lBox('noNavigHidd', true, null)
 		]),
-		divBox('insertNum', null),
-		divBox('addMP3', null),
-		divBox('addImgs', null),
-		divSel('addYouTube', null),
+		lBox('insertNum', true, null),
+		lBox('addMP3', true, null),
+		lBox('addImgs', true, null),
+		optSel('addYouTube', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				optSel('YTubeType', null),
+				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 6, null),
 				$txt('×'),
 				inpTxt('YTubeHeigh', 6, null),
 				$txt(' '),
-				lBox('YTubeHD', null)
+				lBox('YTubeHD', false, null)
 			]),
-			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', null))
+			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', false, null))
 		])
 	]),
 
 	cfgForm = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgForm'}, [
-		$if(pr.on, divSel('addPostForm', null)),
-		$if(pr.on, divBox('noThrdForm', function() {
+		$if(pr.on, optSel('addPostForm', true, null)),
+		$if(pr.on, lBox('noThrdForm', true, function() {
 			if(!TNum) {
 				$id('DESU_parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
 			}
 		})),
-		divBox('favOnReply', null),
-		divBox('checkReply', null),
+		lBox('favOnReply', true, null),
+		lBox('checkReply', true, null),
 		$if(nav.isH5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
-			divBox('postSameImg', null),
-			divBox('removeEXIF', null),
-			divBox('removeFName', null)
+			lBox('postSameImg', true, null),
+			lBox('removeEXIF', true, null),
+			lBox('removeFName', true, null)
 		])),
 		$if(pr.mail, $New('div', null, [
-			lBox('addSageBtn', null),
-			lBox('saveSage', null)
+			lBox('addSageBtn', false, null),
+			lBox('saveSage', false, null)
 		])),
-		divSel('captchaLang', null),
+		optSel('captchaLang', true, null),
 		$if(pr.on, $New('div', null, [
-			optSel('addTextBtns', function() {
+			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
 				addTextPanel();
 			}),
-			lBox('txtBtnsLoc', addTextPanel)
+			lBox('txtBtnsLoc', false, addTextPanel)
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('nameValue', 20, setUserName),
-			lBox('userName', setUserName)
+			lBox('userName', false, setUserName)
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('passwValue', 20, setUserPassw),
-			lBox('userPassw', setUserPassw)
+			lBox('userPassw', false, setUserPassw)
 		])),
 		$if(pr.txta, $New('div', null, [
 			inpTxt('signatValue', 20, null),
-			lBox('userSignat', null)
+			lBox('userSignat', false, null)
 		])),
 		$New('div', null, [
 			$if(pr.on || oeForm, $txt(Lng.dontShow[lCode])),
-			lBox('noBoardRule', updateCSS),
-			$if(pr.gothr, lBox('noGoto', function() {
+			lBox('noBoardRule', false, updateCSS),
+			$if(pr.gothr, lBox('noGoto', false, function() {
 				$disp(pr.gothr);
 			})),
-			$if(pr.passw, lBox('noPassword', function() {
+			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
 			}))
 		])
 	]),
 
 	cfgCommon = $New('div', {'class': 'DESU_cfgBody', 'id': 'DESU_cfgCommon'}, [
-		divSel('scriptStyle', function() {
+		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			$id('DESU_panelStuff').lang = getThemeLang();
 		}),
-		divBox('attachPanel', function() {
+		lBox('attachPanel', true, function() {
 			toggleContent('Cfg', false);
 			updateCSS();
 		}),
-		divBox('panelCounter', updateCSS),
-		divBox('rePageTitle', null),
-		divBox('animation', null),
-		divBox('closePopups', null),
+		lBox('panelCounter', true, updateCSS),
+		lBox('rePageTitle', true, null),
+		lBox('animation', true, null),
+		lBox('closePopups', true, null),
 		$if(!nav.Opera, $New('div', null, [
-			divBox('updScript', null),
+			lBox('updScript', true, null),
 			$New('div', {'id': 'DESU_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('scrUpdIntrv', null),
-				divBox('betaScrUpd', null),
+				optSel('scrUpdIntrv', false, null),
+				lBox('betaScrUpd', true, null),
 				$btn(Lng.checkNow[lCode], '', function() {
 					var el = $id('DESU_updRes');
 					el.innerHTML = '<span class="DESU_wait">' + Lng.checking[lCode] + '</div>';
@@ -1509,7 +1505,7 @@ function addSettings(Set) {
 		]),
 		$New('div', {'id': 'DESU_cfgBtns'}, [
 			$New('span', {'style': 'float: right;'}, [
-				optSel('language', function() {
+				optSel('language', false, function() {
 					saveCfg('language', lCode = this.selectedIndex);
 					$del($id('DESU_panelStuff'));
 					addPanel();
