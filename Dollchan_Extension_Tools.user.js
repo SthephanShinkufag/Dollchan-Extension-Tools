@@ -2882,16 +2882,6 @@ function processImage(arr, force) {
 		if(j === len || (!force && len - j > 75)) {
 			return [arr];
 		}
-	} else if(dat[0] === 0x47 && dat[1] === 0x49) {
-		for(; j < len - 1; j++) {
-			if(dat[j] === 0x00 && dat[j + 1] === 0x3B) {
-				break;
-			}
-		}
-		j += 2;
-		if(j === len || (!force && len - j > 75)) {
-			return [arr];
-		}
 	} else {
 		return null;
 	}
@@ -2939,7 +2929,7 @@ dataForm.prototype.readFile = function(el, idx) {
 	var fr = new FileReader(),
 		file = el.files[0],
 		dF = this;
-	if(!/^image\/(?:png|jpeg|gif)$/.test(file.type)) {
+	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 		this.data[idx] = file;
 		return;
 	}
