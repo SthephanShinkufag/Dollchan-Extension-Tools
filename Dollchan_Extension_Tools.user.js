@@ -1188,7 +1188,7 @@ function showContent(el, id, name, isUpd) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
 	if(name === 'Cfg') {
-		addSettings();
+		addSettings(el, el.style.backgroundColor = $getStyle(Posts[1], 'background-color'));
 	} else {
 		if(Cfg['attachPanel']) {
 			el.style.backgroundColor = $getStyle(doc.body, 'background-color');
@@ -1212,7 +1212,7 @@ function showContent(el, id, name, isUpd) {
 								"SETTINGS" WINDOW
 ==============================================================================*/
 
-function addSettings() {
+function addSettings(Cfg, bgCol) {
 	var lBox = function(name, fn) {
 		var el = $new('input', {
 			'type': 'checkbox',
@@ -1262,7 +1262,7 @@ function addSettings() {
 	},
 
 	cfgTab = function(id, el) {
-		return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack'}, [
+		return $New('li', {'style': 'background-color:' + bgCol}, [
 			$new('div', {
 				'class': 'DESU_cfgTab',
 				'text': Lng.cfgTab[id][lCode]}, {
@@ -1542,12 +1542,12 @@ function addSettings() {
 		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
 	]);
 
-	$id('DESU_contentCfg').appendChild($New('div', {'class': aib.pClass, 'id': 'DESU_cfgWindow'}, [
+	$append(Cfg, [
 		$new('div', {
 			'id': 'DESU_cfgHead',
 			'text': 'Dollchan Extension Tools'
 		}, null),
-		$New('div', {'id': 'DESU_cfgBar'}, [
+		$New('ul', {'id': 'DESU_cfgBar'}, [
 			cfgTab('Filters', cfgFilters),
 			cfgTab('Posts', cfgPosts),
 			cfgTab('Links', cfgLinks),
@@ -1579,7 +1579,7 @@ function addSettings() {
 					toggleContent('Cfg', true);
 				})),
 				$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-					$disp($attr($id('DESU_cfgEdit'), {
+					$disp($attr($t('textarea', $id('DESU_cfgBtns')), {
 						'value': getStored('DESU_Config_' + aib.dm)
 					}).parentNode);
 				}),
@@ -1597,19 +1597,18 @@ function addSettings() {
 			$new('br', {'style': 'clear: both;'}, null),
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {
-					'id': 'DESU_cfgEdit',
 					'rows': 10,
-					'cols': 56,
-					'value': ''
+					'cols': 56
 				}, null),
 				$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-					setStored('DESU_Config_' + aib.dm, $id('DESU_cfgEdit').value.trim());
+					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim());
 					window.location.reload();
 				})
 			])
 		])
-	]));
+	]);
 	openTab($c('DESU_cfgTab', doc), cfgFilters);
+	bgCol = null;
 }
 
 
@@ -1742,9 +1741,9 @@ function addHiddenTable(hid) {
 	}
 	$append(el, [
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-			var ta = $t('textarea', this.parentNode);
-			ta.value = JSON.stringify(hThrds);
-			$disp(ta.parentNode);
+			$disp($attr($t('textarea', this.parentNode), {
+				'value': JSON.stringify(hThrds)
+			}).parentNode);
 		}),
 		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
@@ -1830,9 +1829,9 @@ function addFavoritesTable(fav) {
 	$append(fav, [
 		$new('hr', null, null),
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-			var ta = $t('textarea', this.parentNode);
-			ta.value = JSON.stringify(Favor);
-			$disp(ta.parentNode);
+			$disp($attr($t('textarea', this.parentNode), {
+				'value': JSON.stringify(Favor)
+			}).parentNode);
 		}),
 		$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
@@ -5732,7 +5731,7 @@ function scriptCSS() {
 		};
 
 	// Settings window
-	x += '#DESU_cfgWindow { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+	x += '#DESU_contentCfg { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
@@ -5744,7 +5743,8 @@ function scriptCSS() {
 		.DESU_cfgBody, #DESU_cfgBtns { border: 1px solid #183d77; border-top: none; }\
 		.DESU_cfgBody:lang(de), #DESU_cfgBtns:lang(de) { border-color: #444; }\
 		#DESU_cfgBtns { padding: 7px 2px 2px; }\
-		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; }\
+		#DESU_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
+		#DESU_cfgBar > li { display: table-cell; border-radius: 4px 4px 0 0; }\
 		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
@@ -5756,7 +5756,6 @@ function scriptCSS() {
 		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
 		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
-		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }';
 
