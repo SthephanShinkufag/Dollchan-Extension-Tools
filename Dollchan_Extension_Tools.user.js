@@ -1351,7 +1351,7 @@ function addSettings() {
 			lBox('keybNavig', null),
 			$new('a', {'text': '?', 'href': '#', 'class': 'DESU_aBtn'}, {'click': function(e) {
 				$pd(e);
-				$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
+				$alert(Lng.keyNavHelp[lCode], 'HelpKNav', false);
 			}})
 		]),
 		$New('div', null, [lBox('correctTime', dateTime.toggleSettings)]),
@@ -1366,7 +1366,7 @@ function addSettings() {
 				$new('a', {'text': Lng.cfg.timePattern[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'TRepHlp', false);
+						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'HelpTRep', false);
 					}
 				})
 			])
@@ -1917,7 +1917,7 @@ function $alert(txt, id, wait) {
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
-	if(Cfg['closePopups'] && !wait) {
+	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
 		setTimeout(closeAlert, 4e3, el);
 	}
 }
