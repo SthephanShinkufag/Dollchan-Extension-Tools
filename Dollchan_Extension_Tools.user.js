@@ -1173,7 +1173,8 @@ function showContent(el, id, name, isUpd) {
 		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
 	}
 	if(name === 'Cfg') {
-		addSettings(el, el.style.backgroundColor = $getStyle(Posts[1], 'background-color'));
+		el.style.backgroundColor = aib.pColor;
+		addSettings(el);
 	} else {
 		if(Cfg['attachPanel']) {
 			el.style.backgroundColor = $getStyle(doc.body, 'background-color');
@@ -1197,7 +1198,7 @@ function showContent(el, id, name, isUpd) {
 								"SETTINGS" WINDOW
 ==============================================================================*/
 
-function addSettings(Cfg, bgCol) {
+function addSettings(Cfg) {
 	var lBox = function(name, fn) {
 		var el = $new('input', {'type': 'checkbox', 'id': 'DESU_' + name}, {'click': function() {
 			toggleCfg(this.id.substring(5));
@@ -1238,7 +1239,7 @@ function addSettings(Cfg, bgCol) {
 	},
 
 	cfgTab = function(id, el) {
-		return $New('div', {'style': 'background-color:' + bgCol}, [
+		return $New('li', {'style': 'background-color:' + aib.pColor}, [
 			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode]}, {'click': function() {
 				openTab(this, el);
 			}})
@@ -1495,7 +1496,7 @@ function addSettings(Cfg, bgCol) {
 
 	$append(Cfg, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
-		$New('div', {'id': 'DESU_cfgBar'}, [
+		$New('ul', {'id': 'DESU_cfgBar'}, [
 			cfgTab('Filters', cfgFilters),
 			cfgTab('Posts', cfgPosts),
 			cfgTab('Links', cfgLinks),
@@ -1553,7 +1554,6 @@ function addSettings(Cfg, bgCol) {
 		])
 	]);
 	openTab($c('DESU_cfgTab', doc), cfgFilters);
-	bgCol = null;
 }
 
 
@@ -1568,7 +1568,7 @@ function addHiddenTable(hid) {
 		if(op.Vis !== 0) {
 			return;
 		}
-		var wrap = $New('div', {'class': aib.pClass}, [
+		var wrap = $New('div', {'style': 'background-color:' + aib.pColor}, [
 			$new('input', {'type': 'checkbox'}, null),
 			$event($add(
 				'<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
@@ -1671,7 +1671,7 @@ function addHiddenTable(hid) {
 				}
 				url = getThrdUrl(aib.host, b, tNum);
 				tHead.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
-					$New('div', {'class': aib.pClass}, [
+					$New('div', {'style': 'background-color:' + aib.pColor}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 						$if(!nav.isCookie, $txt(' - ' + hThrds[b][tNum]))
@@ -1744,7 +1744,7 @@ function addFavoritesTable(fav) {
 			]));
 			for(tNum in Favor[h][b]) {
 				list.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
-					$New('div', {'class': aib.pClass}, [
+					$New('div', {'style': 'background-color:' + aib.pColor}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
@@ -1911,7 +1911,7 @@ function $alert(txt, id, wait) {
 		blinkAlert(el);
 		return;
 	}
-	el = $New('div', {'class': aib.pClass, 'id': 'DESU_alert' + id}, [
+	el = $New('div', {'style': 'background-color:' + aib.pColor, 'id': 'DESU_alert' + id}, [
 		$new('span', {'class': 'DESU_alertBtn', 'text': tBtn}, {'click': function() {
 			closeAlert(this.parentNode);
 		}}),
@@ -1941,10 +1941,10 @@ function addSelMenu(el, fPanel, html) {
 		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.appendChild($event($add(
-		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos + '; ' + (
-			el.className === 'DESU_btnSrc' ?
-				'left: ' + $offset(el).left :
-				'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
+		'<div id="DESU_select" style="background-color:' + aib.pColor + '; position: ' +
+		pos + '; ' + (el.className === 'DESU_btnSrc' ?
+			'left: ' + $offset(el).left :
+			'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="DESU_delSelection(event)">' + html + '</div>'), {
 		'mouseover': function() {
 			if(pst && pst.node) {
@@ -6185,6 +6185,7 @@ function getImageboard() {
 		aib.ylil ? ' answer' :
 		aib.tiny || aib.fch ? 'post reply' :
 		'reply';
+	aib.pColor = $getStyle($new('div', {'class': aib.pClass}, null), 'background-color');
 	aib.opClass =
 		aib.kus ? 'postnode' :
 		aib.brit ? 'originalpost' :
