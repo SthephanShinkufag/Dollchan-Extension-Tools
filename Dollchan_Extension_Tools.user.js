@@ -498,12 +498,7 @@ function $txt(el) {
 }
 
 function $btn(val, ttl, fn) {
-	return $new('input', {
-		'type': 'button',
-		'value': val,
-		'title': ttl}, {
-		'click': fn
-	});
+	return $new('input', {'type': 'button', 'value': val, 'title': ttl}, {'click': fn});
 }
 
 function $if(cond, el) {
@@ -628,10 +623,7 @@ function fixFunctions() {
 }
 
 function addContentScript(text) {
-	doc.head.appendChild($new('script', {
-		'type': 'text/javascript',
-		'text': text
-	}, null));
+	doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null));
 }
 
 function getPost(el) {
@@ -1064,14 +1056,10 @@ function addPanel() {
 	$before(dForm, $New('div', {'id': 'DESU_panelStuff', 'lang': getThemeLang()}, [
 		$new('div', {'style': 'clear:both;'}, null),
 		$New('div', {'id': 'DESU_panel'}, [
-			$new('span', {
-				'id': 'DESU_btnLogo',
-				'style': 'cursor: pointer'}, {
-				'click': function(e) {
-					toggleCfg('expandPanel');
-					updateCSS();
-				}
-			}),
+			$new('span', {'id': 'DESU_btnLogo', 'style': 'cursor: pointer'}, {'click': function(e) {
+				toggleCfg('expandPanel');
+				updateCSS();
+			}}),
 			$New('ul', {'id': 'DESU_panelBtns'}, [
 				pButton('Settings', function(e) {
 					$pd(e);
@@ -1146,10 +1134,7 @@ function addPanel() {
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
-				$new('span', {
-					'title': Lng.panelBtn.counter[lCode],
-					'text': Posts.length + '/' + imgLen
-				}, null)
+				$new('span', {'title': Lng.panelBtn.counter[lCode], 'text': Posts.length + '/' + imgLen}, null)
 			]))
 		]),
 		$new('div', {'class': 'DESU_content'}, null),
@@ -1214,16 +1199,12 @@ function showContent(el, id, name, isUpd) {
 
 function addSettings(Cfg, bgCol) {
 	var lBox = function(name, fn) {
-		var el = $new('input', {
-			'type': 'checkbox',
-			'id': 'DESU_' + name}, {
-			'click': function() {
-				toggleCfg(this.id.substring(5));
-				if(fn) {
-					fn();
-				}
+		var el = $new('input', {'type': 'checkbox', 'id': 'DESU_' + name}, {'click': function() {
+			toggleCfg(this.id.substring(5));
+			if(fn) {
+				fn();
 			}
-		});
+		}});
 		el.checked = Cfg[name];
 		return $New('label', null, [el, $txt(' ' + Lng.cfg[name][lCode])]);
 	},
@@ -1233,11 +1214,7 @@ function addSettings(Cfg, bgCol) {
 	},
 
 	inpTxt = function(name, size, fn) {
-		return $new('input', {
-			'type': 'text',
-			'id': 'DESU_' + name,
-			'size': size,
-			'value': Cfg[name]}, {
+		return $new('input', {'type': 'text', 'id': 'DESU_' + name, 'size': size, 'value': Cfg[name]}, {
 			'keyup': function() {
 				saveCfg(this.id.substring(5), this.value.replace(/\|/g, ''));
 				if(fn) {
@@ -1251,8 +1228,7 @@ function addSettings(Cfg, bgCol) {
 		for(var i = 0, x = Lng.cfg[name], len = x.sel[lCode].length, el, opt = []; i < len; i++) {
 			opt[i] = '<option value="' + i + '">' + x.sel[lCode][i] + '</option>';
 		}
-		el = $event($add(
-			'<select id="DESU_sel' + name + '">' + opt.join('') + '</select>'), {
+		el = $event($add('<select id="DESU_sel' + name + '">' + opt.join('') + '</select>'), {
 			'change': (fn ? fn : function() {
 				saveCfg(this.id.substring(8), this.selectedIndex);
 			})
@@ -1262,14 +1238,10 @@ function addSettings(Cfg, bgCol) {
 	},
 
 	cfgTab = function(id, el) {
-		return $New('li', {'style': 'background-color:' + bgCol}, [
-			$new('div', {
-				'class': 'DESU_cfgTab',
-				'text': Lng.cfgTab[id][lCode]}, {
-				'click': function() {
-					openTab(this, el);
-				}
-			})
+		return $New('div', {'style': 'background-color:' + bgCol}, [
+			$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[id][lCode]}, {'click': function() {
+				openTab(this, el);
+			}})
 		]);
 	},
 
@@ -1303,19 +1275,13 @@ function addSettings(Cfg, bgCol) {
 					'click': $pd,
 					'mouseover': selectSpell
 				}),
-				$new('a', {
-					'text': Lng.apply[lCode],
-					'href': '#',
-					'class': 'DESU_aBtn'}, {
+				$new('a', {'text': Lng.apply[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						applySpells('');
 					}
 				}),
-				$new('a', {
-					'text': Lng.clear[lCode],
-					'href': '#',
-					'class': 'DESU_aBtn'}, {
+				$new('a', {'text': Lng.clear[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$id('DESU_spellEdit').value = '';
@@ -1330,11 +1296,7 @@ function addSettings(Cfg, bgCol) {
 				}, null)
 			]),
 			lBox('hideBySpell', toggleSpells),
-			$new('textarea', {
-				'id': 'DESU_spellEdit',
-				'rows': 10,
-				'cols': 49
-			}, null)
+			$new('textarea', {'id': 'DESU_spellEdit', 'rows': 10, 'cols': 49}, null)
 		]),
 		$New('div', null, [
 			lBox('hideByWipe', null),
@@ -1387,15 +1349,10 @@ function addSettings(Cfg, bgCol) {
 		divBox('noPostScrl', updateCSS),
 		$New('div', null, [
 			lBox('keybNavig', null),
-			$new('a', {
-				'text': '?',
-				'href': '#',
-				'class': 'DESU_aBtn'}, {
-				'click': function(e) {
-					$pd(e);
-					$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
-				}
-			})
+			$new('a', {'text': '?', 'href': '#', 'class': 'DESU_aBtn'}, {'click': function(e) {
+				$pd(e);
+				$alert(Lng.keyNavHelp[lCode], 'KNavHlp', false);
+			}})
 		]),
 		$New('div', null, [lBox('correctTime', dateTime.toggleSettings)]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
@@ -1406,10 +1363,7 @@ function addSettings(Cfg, bgCol) {
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
 				$txt(' '),
-				$new('a', {
-					'text': Lng.cfg.timePattern[lCode],
-					'href': '#',
-					'class': 'DESU_aBtn'}, {
+				$new('a', {'text': Lng.cfg.timePattern[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'TRepHlp', false);
@@ -1531,10 +1485,7 @@ function addSettings(Cfg, bgCol) {
 					});
 				})
 			]),
-			$new('div', {
-				'id': 'DESU_updRes',
-				'style': 'font-size: 1.1em; text-align: center'
-			}, null)
+			$new('div', {'id': 'DESU_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
 	]),
 
@@ -1543,11 +1494,8 @@ function addSettings(Cfg, bgCol) {
 	]);
 
 	$append(Cfg, [
-		$new('div', {
-			'id': 'DESU_cfgHead',
-			'text': 'Dollchan Extension Tools'
-		}, null),
-		$New('ul', {'id': 'DESU_cfgBar'}, [
+		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
+		$New('div', {'id': 'DESU_cfgBar'}, [
 			cfgTab('Filters', cfgFilters),
 			cfgTab('Posts', cfgPosts),
 			cfgTab('Links', cfgLinks),
@@ -1596,10 +1544,7 @@ function addSettings(Cfg, bgCol) {
 			]),
 			$new('br', {'style': 'clear: both;'}, null),
 			$New('div', {'style': 'display: none;'}, [
-				$new('textarea', {
-					'rows': 10,
-					'cols': 56
-				}, null),
+				$new('textarea', {'rows': 10, 'cols': 56}, null),
 				$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
 					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim());
 					window.location.reload();
@@ -1644,8 +1589,7 @@ function addHiddenTable(hid) {
 		}
 		tHead.appendChild(
 			$New('div', {'class': 'DESU_contData'}, [
-				wrap,
-				$attr(op.cloneNode(true), {
+				wrap, $attr(op.cloneNode(true), {
 					'class': 'DESU_hidOppost',
 					'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
 				})
@@ -1712,16 +1656,13 @@ function addHiddenTable(hid) {
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
 			tHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
-				$new('input', {
-					'type': 'checkbox'}, {
-					'click': function() {
-						var res = this.checked;
-						$each($X('div[@class="DESU_contData"]/div/input', this.parentNode), function(el) {
-							el.checked = res;
-						});
-						res = null;
-					}
-				}),
+				$new('input', {'type': 'checkbox'}, {'click': function() {
+					var res = this.checked;
+					$each($X('div[@class="DESU_contData"]/div/input', this.parentNode), function(el) {
+						el.checked = res;
+					});
+					res = null;
+				}}),
 				$add('<b>' + b + '</b>')
 			]));
 			for(tNum in hThrds[b]) {
@@ -1772,10 +1713,7 @@ function addHiddenTable(hid) {
 			savePostsVisib();
 		}),
 		$New('div', {'style': 'display: none;'}, [
-			$new('textarea', {
-				'rows': 9,
-				'cols': 70
-			}, null),
+			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
 				saveHiddenThreads(this.previousSibling.value);
 			})
@@ -1795,26 +1733,20 @@ function addFavoritesTable(fav) {
 	for(h in Favor) {
 		for(b in Favor[h]) {
 			list = fav.appendChild($New('div', {'class': 'DESU_contHead'}, [
-				$new('input', {
-					'type': 'checkbox'}, {
-					'click': function() {
-						var res = this.checked;
-						$each($X('div[@class="DESU_contData"]/div/input', this.parentNode), function(el) {
-							el.checked = res;
-						});
-						res = null;
-					}
-				}),
+				$new('input', {'type': 'checkbox'}, {'click': function() {
+					var res = this.checked;
+					$each($X('div[@class="DESU_contData"]/div/input', this.parentNode), function(el) {
+						el.checked = res;
+					});
+					res = null;
+				}}),
 				$add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
 			]));
 			for(tNum in Favor[h][b]) {
 				list.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
-						$new('span', {
-							'class': 'DESU_btnExpthr'}, {
-							'click': loadFavorThread
-						}),
+						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
 						$txt(' - ' + Favor[h][b][tNum].txt),
 						$add('<span class="DESU_favPCount">[<span>' + (Favor[h][b][tNum].cnt + 1) + '</span>]</span>')
@@ -1839,18 +1771,11 @@ function addFavoritesTable(fav) {
 					arr = el.getAttribute('info').split(';'),
 					cnt = 0;
 				if(aib.host === arr[0]) {
-					c = $t('span', $c('DESU_favPCount', el));
-					$attr(c, {
-						'class': 'DESU_wait',
-						'text': ''
-					});
+					c = $attr($t('span', $c('DESU_favPCount', el)), {'class': 'DESU_wait', 'text': ''});
 					ajaxGetPosts(null, arr[1], arr[2], function() {
 						cnt++;
 					}, function(dc, err) {
-						$attr(c, {
-							'class': '',
-							'text': err || cnt
-						});
+						$attr(c, {'class': '', 'text': err || cnt});
 						if(!err) {
 							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 							setStored('DESU_Favorites', JSON.stringify(Favor));
@@ -1882,10 +1807,7 @@ function addFavoritesTable(fav) {
 			saveFavorites(JSON.stringify(Favor));
 		}),
 		$New('div', {'style': 'display: none;'}, [
-			$new('textarea', {
-				'rows': 9,
-				'cols': 70
-			}, null),
+			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
 				saveFavorites(this.previousSibling.value);
 			})
@@ -1990,13 +1912,9 @@ function $alert(txt, id, wait) {
 		return;
 	}
 	el = $New('div', {'class': aib.pClass, 'id': 'DESU_alert' + id}, [
-		$new('span', {
-			'class': 'DESU_alertBtn',
-			'text': tBtn}, {
-			'click': function() {
-				closeAlert(this.parentNode);
-			}
-		}),
+		$new('span', {'class': 'DESU_alertBtn', 'text': tBtn}, {'click': function() {
+			closeAlert(this.parentNode);
+		}}),
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
@@ -2358,10 +2276,7 @@ function initPostform() {
 	var pArea = $New('center', {'id': 'DESU_parea'}, [
 		$New('div', {'id': 'DESU_toggleReply', 'style': 'display: none;'}, [
 			$txt('['),
-			$new('a', {
-				'text': Lng.expandForm[lCode],
-				'href': '#',
-				'class': 'DESU_aBtn'}, {
+			$new('a', {'text': Lng.expandForm[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 				'click': toggleMainReply
 			}),
 			$txt(']')
@@ -2399,61 +2314,51 @@ function doPostformChanges(m, el) {
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	$after(pr.txta, $new('div', {
-		'id': 'DESU_txtResizer'}, {
-		'mousedown': function(e) {
-			$pd(e);
-			$event(doc.body, {
-				'mousemove': resMove,
-				'mouseup': resStop
-			});
-		}
-	}));
+	$after(pr.txta, $new('div', {'id': 'DESU_txtResizer'}, {'mousedown': function(e) {
+		$pd(e);
+		$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+	}}));
 	addTextPanel();
 	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
-	$event(pr.txta, {
-		'keypress': function(e) {
-			var code = e.charCode || e.keyCode;
-			if((code === 33 || code === 34) && e.which === 0) {
-				e.target.blur();
-				window.focus();
-			}
+	$event(pr.txta, {'keypress': function(e) {
+		var code = e.charCode || e.keyCode;
+		if((code === 33 || code === 34) && e.which === 0) {
+			e.target.blur();
+			window.focus();
 		}
-	});
-	$event(pr.subm, {
-		'click': function(e) {
-			var val = pr.txta.value, sVal = Cfg['signatValue'];
-			if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
-				val = doReplace(oSpells.outrep, val);
-			}
-			if(Cfg['userSignat'] && sVal !== '') {
-				val += '\n' + sVal;
-			}
-			if(pr.tNum && ($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
-				'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
-				val += '\n\n`--------------------------------------------------`\n' +
-					'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
-					'\n`--------------------------------------------------`';
-			}
-			pr.txta.value = val;
-			if(Cfg['checkReply']) {
-				$alert(Lng.checking[lCode], 'Upload', true);
-			}
-			if(Cfg['favOnReply'] && pr.tNum) {
-				toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
-			}
-			if(pr.tNum) {
-				Stat.reply = +Stat.reply + 1;
-			} else {
-				Stat.op = +Stat.op + 1;
-			}
-			setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
-			if(pr.isQuick) {
-				$disp($id('DESU_qarea'));
-				$after($id('DESU_toggleReply'), $id('DESU_pform'));
-			}
+	}});
+	$event(pr.subm, {'click': function(e) {
+		var val = pr.txta.value, sVal = Cfg['signatValue'];
+		if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
+			val = doReplace(oSpells.outrep, val);
 		}
-	});
+		if(Cfg['userSignat'] && sVal !== '') {
+			val += '\n' + sVal;
+		}
+		if(pr.tNum && ($x('.//span[@class="filetitle"]', pByNum[pr.tNum]) || {}).textContent ===
+			'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
+			val += '\n\n`--------------------------------------------------`\n' +
+				'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
+				'\n`--------------------------------------------------`';
+		}
+		pr.txta.value = val;
+		if(Cfg['checkReply']) {
+			$alert(Lng.checking[lCode], 'Upload', true);
+		}
+		if(Cfg['favOnReply'] && pr.tNum) {
+			toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
+		}
+		if(pr.tNum) {
+			Stat.reply = +Stat.reply + 1;
+		} else {
+			Stat.op = +Stat.op + 1;
+		}
+		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
+		if(pr.isQuick) {
+			$disp($id('DESU_qarea'));
+			$after($id('DESU_toggleReply'), $id('DESU_pform'));
+		}
+	}});
 	$each($X('.//input[@type="text"]', pr.form), function(node) {
 		node.size = 35;
 	});
@@ -2475,10 +2380,7 @@ function doPostformChanges(m, el) {
 		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		el = $id('recaptcha_image');
 		if(el) {
-			$attr(el, {
-				'onclick': 'Recaptcha.reload()',
-				'style': 'width: 300px; cursor: pointer;'
-			});
+			$attr(el, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 		}
 		el = $id('recaptcha_reload_btn');
 		if(el) {
@@ -2553,15 +2455,12 @@ function doPostformChanges(m, el) {
 		}
 	}
 	if(Cfg['addSageBtn'] && pr.mail) {
-		sBtn = $new('span', {
-			'id': 'DESU_sageBtn'}, {
-			'click': function(e) {
-				e.stopPropagation();
-				$pd(e);
-				toggleCfg('sageReply');
-				doSageBtn();
-			}
-		});
+		sBtn = $new('span', {'id': 'DESU_sageBtn'}, {'click': function(e) {
+			e.stopPropagation();
+			$pd(e);
+			toggleCfg('sageReply');
+			doSageBtn();
+		}});
 		m = $x('ancestor::label', pr.mail) || pr.mail;
 		if(m.nextElementSibling || m.previousElementSibling) {
 			$disp(m);
@@ -3768,10 +3667,7 @@ function makeMoveable(el) {
 		$pd(e);
 		el.curX = e.clientX - parseInt(el.style.left, 10);
 		el.curY = e.clientY - parseInt(el.style.top, 10);
-		$event(doc.body, {
-			'mousemove': elMove,
-			'mouseup': elStop
-		});
+		$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 	};
 }
 
@@ -3857,10 +3753,7 @@ function addLinkImg(el) {
 		var a = link.cloneNode(false);
 		a.target = '_blank';
 		$disp(a);
-		a.appendChild($new('img', {
-			'class': 'DESU_preImg',
-			'src': a.href,
-			'alt': a.href}, {
+		a.appendChild($new('img', {'class': 'DESU_preImg', 'src': a.href, 'alt': a.href}, {
 			'load': function() {
 				var fullW, fullH, k;
 				$disp(this.parentNode);
@@ -4653,10 +4546,7 @@ function loadPages(len) {
 		if(len > 1) {
 			page = $new('div', {'id': 'DESU_page' + p}, null);
 			$append(dForm, [
-				$new('center', {
-					'text': p + Lng.page[lCode],
-					'style': 'font-size: 2em;'
-				}, null),
+				$new('center', {'text': p + Lng.page[lCode], 'style': 'font-size: 2em;'}, null),
 				$new('hr', null, null),
 				page
 			]);
@@ -4750,10 +4640,7 @@ function infoNewPosts(err, inf) {
 			Favico.delay = setInterval(function() {
 				var href = $xb('.//link[@href="' + Favico.href + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : Favico.href;
 				$Del('.//link[@rel="shortcut icon"]', doc.head);
-				doc.head.appendChild($new('link', {
-					'href': href,
-					'rel': 'shortcut icon'
-				}, null));
+				doc.head.appendChild($new('link', {'href': href, 'rel': 'shortcut icon'}, null));
 			}, 800);
 		}
 	}
@@ -4771,11 +4658,9 @@ function infoNewPosts(err, inf) {
 }
 
 function setHanaRating() {
-	$event($x('.//input[@type="button"]', doc), {
-		'click': function(e) {
-			setCookie('DESU_rating', $id('rating').value, 1e12);
-		}
-	});
+	$event($x('.//input[@type="button"]', doc), {'click': function(e) {
+		setCookie('DESU_rating', $id('rating').value, 1e12);
+	}});
 }
 
 function getHanaFile(file, pId) {
@@ -4828,10 +4713,7 @@ function getHanaPost(postJson) {
 		id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {
-			'id': 'reply' + id,
-			'class': 'reply DESU_post'
-		}, null),
+		post = $new('td', {'id': 'reply' + id, 'class': 'reply DESU_post'}, null),
 		html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 			id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 			'" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date'] +
@@ -5107,16 +4989,14 @@ function mergeHidden(post) {
 		return;
 	}
 	if(el.className !== 'DESU_merged') {
-		$before(post, $new('span', {'style': 'display: inline; cursor: pointer;'}, {
-			'click': function(e) {
-				$pd(e);
-				var hSpan = this.nextSibling;
-				this.innerHTML = (hSpan.style.display === 'none' ? '▼' : '▲') +
-					'[<i><a href="#">' + Lng.hiddenPosts[lCode] +
-					'</a>:&nbsp;' + hSpan.childNodes.length + '</i>]';
-				$disp(hSpan);
-			}
-		}));
+		$before(post, $new('span', {'style': 'display: inline; cursor: pointer;'}, {'click': function(e) {
+			$pd(e);
+			var hSpan = this.nextSibling;
+			this.innerHTML = (hSpan.style.display === 'none' ? '▼' : '▲') +
+				'[<i><a href="#">' + Lng.hiddenPosts[lCode] +
+				'</a>:&nbsp;' + hSpan.childNodes.length + '</i>]';
+			$disp(hSpan);
+		}}));
 		nav.insBefore(post, '<span class="DESU_merged" style="display: none;"></span>');
 		el = post.previousSibling;
 	}
@@ -5990,10 +5870,7 @@ function scriptCSS() {
 			'type': 'text/css',
 			'text': x.replace(/(linear-gradient|transition|keyframes|transform|animation)/g, nav.cssFix + '$1')
 		}, null),
-		$new('style', {
-			'id': 'DESU_dynCss',
-			'type': 'text/css'
-		}, null)
+		$new('style', {'id': 'DESU_dynCss', 'type': 'text/css'}, null)
 	]);
 	x = gif = cont = null;
 	updateCSS();
@@ -6120,11 +5997,9 @@ function isCompatible() {
 	if(/^DESU_favIframe/.test(window.name)) {
 		liteMode = true;
 		nav.postMsg('window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
-		$event(window, {
-			'load': function(e) {
-				setTimeout(nav.postMsg, 1E3, 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
-			}
-		});
+		$event(window, {'load': function(e) {
+			setTimeout(nav.postMsg, 1E3, 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
+		}});
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
 		setHanaRating();
@@ -6601,13 +6476,11 @@ function parseDelform(node, dc, pFn) {
 	});
 	var el = pByNum[window.location.hash.substring(1)];
 	if(window.location.hash && el) {
-		$event(window, {
-			'load': function() {
-				setTimeout(function(e) {
-					e.className += ' DESU_post';
-				}, 1e3, el);
-			}
-		});
+		$event(window, {'load': function() {
+			setTimeout(function(e) {
+				e.className += ' DESU_post';
+			}, 1e3, el);
+		}});
 	}
 	if(liteMode) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
@@ -6696,10 +6569,7 @@ function initUpdater() {
 				if(Cfg['favIcoBlink'] && Favico.href) {
 					clearInterval(Favico.delay);
 					$Del('.//link[@rel="shortcut icon"]', doc.head);
-					doc.head.appendChild($new('link', {
-						'href': Favico.href,
-						'rel': 'shortcut icon'
-					}, null));
+					doc.head.appendChild($new('link', {'href': Favico.href, 'rel': 'shortcut icon'}, null));
 				}
 				if(Cfg['updThread'] === 1) {
 					setTimeout(function() {
