@@ -5176,9 +5176,7 @@ function getCRC32(data, length) {
 	if(!crc32table) {
 		getCRC32table();
 	}
-	var crc = 0;
-	crc = crc ^ (-1);
-	for(var i = 0; i < length; i++) {
+	for(var i = 0, crc = -1; i < length; i++) {
 		crc = (crc >>> 8) ^ crc32table[(crc ^ data[i]) & 0xFF];
 	}
 	return crc ^ (-1);
