@@ -2021,11 +2021,11 @@ function selectPostHider(post) {
 			post.Img.snapshotLength === 0 ?
 				'#noimg' :
 				'#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
-		)
+		);
 	};
 	a.snapshotItem(2).onclick = function(e) {
 		$pd(e);
-		hideByImgHash(post);
+		addSpell(post.Img.snapshotLength === 0 ? '#noimg' : '#ihash ' + getImgHash(post));
 	};
 	a.snapshotItem(3).onclick = function(e) {
 		$pd(e);
@@ -5210,14 +5210,6 @@ function getImgHash(post) {
 	return getHashByData(data, w, h);
 }
 
-function hideByImgHash(post) {
-	if(post.Img.snapshotLength === 0) {
-		addSpell('#noimg');
-		return;
-	}
-	$alert(getImgHash(post));
-}
-
 
 /*==============================================================================
 								SPELLS AND EXPRESSIONS
@@ -5225,7 +5217,7 @@ function hideByImgHash(post) {
 
 function getSpellObj() {
 	return {
-		words: [], exp: [], exph: [], img: [], imgn: [], name: [], theme: [], tmax: [],
+		words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
 		sage: false, notxt: false, noimg: false, trip: false
 	};
 }
@@ -5278,6 +5270,7 @@ function initSpells() {
 		t === '#rep' ? oSpells.rep.push(p) :
 		t === '#exp' ? Spells.exp.push($toRegExp(p)) :
 		t === '#exph' ? Spells.exph.push($toRegExp(p)) :
+		t === '#ihash' ? Spells.ihash.push(p) :
 		t === '#img' ? Spells.img.push(p) :
 		t === '#imgn' ? Spells.imgn.push($toRegExp(p)) :
 		t === '#name' ? Spells.name.push(p) :
@@ -5414,6 +5407,13 @@ function getSpells(x, post) {
 		}
 	}
 	if(post.Img.snapshotLength > 0) {
+		if(x.ihash[0]) {
+			for(i = 0, inf = getImgHash(post); t = x.ihash[i++];) {
+				if(t === inf) {
+					return '#ihash ' + t;
+				}
+			}
+		}
 		if(x.img[0]) {
 			_t = getImgSize(post);
 			imgW = +_t[0];
@@ -5546,24 +5546,20 @@ function addSpell(spell) {
 	if(!val || verifyRegExp(val)) {
 		val = spellsList.join('\n');
 	}
-	disableSpells();
 	if(('\n' + val).indexOf('\n' + spell) === -1) {
 		val = val === '' ? spell : val + '\n' + spell;
 		if(verifyRegExp(val)) {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
 			return;
 		}
+	} else {
+		val = ('\n' + val).split('\n' + spell).join('');
 	}
 	if(fld) {
 		fld.value = val;
 		fld.previousSibling.firstChild.checked = true;
 	}
-	Posts.forEach(function(post) {
-		if(checkSpells(post)) {
-			unhidePost(post);
-		}
-	});
-	unHideTube();
+	disableSpells();
 	saveSpells(val);
 	if(val !== '') {
 		saveCfg('hideBySpell', 1);
