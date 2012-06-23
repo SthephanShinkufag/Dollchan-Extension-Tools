@@ -5210,6 +5210,19 @@ function getImgHash(post) {
 	return getHashByData(data, w, h);
 }
 
+function getHammingDist(hash1, hash2) {
+	var num1 = parseInt(hash1, 16),
+		num2 = parseInt(hash2, 16),
+		dist = 0,
+		i = 0,
+		weight1 = 0,
+		weight2 = 0;
+	while(Math.max(num1, num2) > (1 << i)) {
+		dist += ((num1 >> i) & 1) ^ ((num2 >> i) & 1);
+		i++;
+	}
+	return dist;
+}
 
 /*==============================================================================
 								SPELLS AND EXPRESSIONS
@@ -5409,7 +5422,7 @@ function getSpells(x, post) {
 	if(post.Img.snapshotLength > 0) {
 		if(x.ihash[0]) {
 			for(i = 0, inf = getImgHash(post); t = x.ihash[i++];) {
-				if(t === inf) {
+				if(getHammingDist(t, inf) < 4) {
 					return '#ihash ' + t;
 				}
 			}
