@@ -5204,9 +5204,12 @@ function getImgHash(post) {
 	if(img.crc32) {
 		return img.crc32;
 	}
-	w = img.width;
-	h = img.height;
-	cnv = $new('canvas', {'width': w, 'height': h});
+	cnv = $id('DESU_canvas') || doc.body.appendChild($new('canvas', {
+		'id': 'DESU_canvas',
+		'style': 'display: none;'
+	}));
+	w = cnv.width = img.width;
+	h = cnv.height = img.height;
 	ctx = cnv.getContext('2d');
 	ctx.drawImage(img, 0, 0);
 	data = ctx.getImageData(0, 0, w, h).data;
