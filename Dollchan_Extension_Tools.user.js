@@ -627,7 +627,7 @@ function addContentScript(text) {
 }
 
 function getPost(el) {
-	return $x('ancestor::*[contains(@class," DESU_post") or contains(@class," DESU_oppost")]', el);
+	return $x('ancestor::*[@desu-post]', el);
 }
 
 function getImages(el) {
@@ -3203,10 +3203,10 @@ function addTextPanel() {
 function prepareButtons() {
 	addContentScript(
 		'function DESU_hideClick(el) {\
-			window.postMessage("D" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_hideOver(el) {\
-			window.postMessage("A" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("A" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_delSelection(e) {\
 			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
@@ -3217,22 +3217,22 @@ function prepareButtons() {
 			}\
 		}\
 		function DESU_qReplyClick(el) {\
-			window.postMessage("F" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("F" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_qReplyOver(el) {\
-			window.postMessage("C" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("C" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_expandClick(el) {\
-			window.postMessage("E" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("E" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_expandOver(el) {\
-			window.postMessage("B" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("B" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_favorClick(el) {\
-			window.postMessage("G" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("G" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_sageClick(el) {\
-			window.postMessage("H" + el.parentNode.id.substring(9), "*");\
+			window.postMessage("H" + el.parentNode.getAttribute("info"), "*");\
 		}'
 	);
 	window.addEventListener('message', function(event) {
@@ -3270,7 +3270,7 @@ function prepareButtons() {
 
 function addPostButtons(post) {
 	var h, ref = aib.getRef(post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" id="DESU_btns' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -4115,14 +4115,15 @@ function getPview(post, pNum, parent, link, txt) {
 		} else {
 			pView = importPost(post);
 			if(!post.isOp) {
-				pView.className = aib.pClass + ' DESU_post';
+				pView.className = aib.pClass;
 			}
+			pView.setAttribute('desu-post', null);
 		}
 		if(post.Vis === 0) {
 			togglePost(pView, 1);
 		}
 		if(post.isOp) {
-			pView.className = aib.pClass + ' DESU_post';
+			pView.className = aib.pClass;
 		}
 		pView.className += ' DESU_pView';
 		if(aib._7ch) {
@@ -4732,7 +4733,7 @@ function getHanaPost(postJson) {
 		id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {'id': 'reply' + id, 'class': 'reply DESU_post'}, null),
+		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'desu-post': id}, null),
 		html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 			id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 			'" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date'] +
@@ -5904,7 +5905,6 @@ function scriptCSS() {
 	cont('.DESU_ytLink', '//youtube.com/favicon.ico');
 	x += '.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
-		.DESU_post > a + .DESU_mp3, .DESU_post > a + .DESU_ytObj { display: inline-block; }\
 		.DESU_ytObj > img { cursor: pointer; }';
 
 	// Other
@@ -5937,7 +5937,6 @@ function scriptCSS() {
 		.DESU_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#DESU_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? 8 : nav.WebKit ? 2 : 3) + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.DESU_viewed { color: #888 !important; }\
-		.DESU_post { width: auto; }\
 		.DESU_aBtn { text-decoration: none !important; outline: none; }\
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
@@ -5947,7 +5946,7 @@ function scriptCSS() {
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; }';
 	if(aib.kus) {
-		x += '.extrabtns, .ui-resizable-handle, .DESU_oppost > a[onclick]:not([target]) { display: none !important; }\
+		x += '.extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
 	if(aib.nul) {
@@ -6500,12 +6499,10 @@ function pushPost(dc, post, thr, num, i) {
 	post.Img = getImages(post);
 	if(i === 0) {
 		post.isOp = true;
-		post.className += ' DESU_oppost';
 		post.dTitle = ($c(aib.cTitle, post) || {}).textContent || post.Text.substring(0, 70).replace(/\s+/g, ' ');
 		Threads.push(post);
-	} else {
-		post.className += ' DESU_post';
 	}
+	post.setAttribute('desu-post', num);
 	pByNum[post.Num = num] = post;
 	Posts.push(post);
 }
@@ -6610,14 +6607,6 @@ function parseDelform(node, dc, pFn) {
 				((i = aib.getOmPosts(thr, dc)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0);
 		}
 	});
-	var el = pByNum[window.location.hash.substring(1)];
-	if(window.location.hash && el) {
-		$event(window, {'load': function() {
-			setTimeout(function(e) {
-				e.className += ' DESU_post';
-			}, 1e3, el);
-		}});
-	}
 	if(liteMode) {
 		$$Del('preceding-sibling::node()|following-sibling::node()', dForm, dc);
 	}
