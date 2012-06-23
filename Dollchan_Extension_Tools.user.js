@@ -5124,7 +5124,7 @@ function imgDesaturate(data, w, h) {
 function imgPosterize(data, w, h) {
 	// levels = 2 leaves only black and white,
 	// levels > 2 adds more gray graduation
-	var levels = 3,
+	var levels = 2,
 		areas = 256 / levels,
 		values = 256 / (levels - 1),
 		i, len, a;
@@ -5137,7 +5137,7 @@ function imgPosterize(data, w, h) {
 
 function imgResize(data, oldw, oldh) {
 	var i, j, l, c, t, u, tmp,
-		newh = 16, neww = 16,
+		newh = 8, neww = 8,
 		rv = new Uint8Array(newh * neww);
 	for(i = 0; i < newh; i++) {
 		for(j = 0; j < neww; j++) {
@@ -5199,12 +5199,15 @@ function getCanvasByData(data, w, h) {
 }
 
 function getImgHash(post) {
-	var img = post.Img.snapshotItem(0),
-		w = img.width,
-		h = img.height,
-		cnv = $new('canvas', {'width': w, 'height': h}),
-		ctx = cnv.getContext('2d'),
-		data, dat1, hDat;
+	var w, h, cnv, ctx, data, dat1, hDat,
+		img = post.Img.snapshotItem(0);
+	if(img.crc32) {
+		return img.crc32;
+	}
+	w = img.width;
+	h = img.height;
+	cnv = $new('canvas', {'width': w, 'height': h});
+	ctx = cnv.getContext('2d');
 	ctx.drawImage(img, 0, 0);
 	data = ctx.getImageData(0, 0, w, h).data;
 	dat1 = imgDesaturate(data, w, h);
@@ -5212,8 +5215,8 @@ function getImgHash(post) {
 	imgPosterize(dat1, w, h);
 	post.appendChild(getCanvasByData(dat1, w, h));
 	data = imgResize(dat1, w, h);
-	post.appendChild(getCanvasByData(data, 16, 16));
-	hDat = getCRC32(data, 16 * 16);
+	post.appendChild(getCanvasByData(data, 8, 8));
+	img.crc32 = hDat = getCRC32(data, 8 * 8);
 	post.appendChild($txt(' HASH: ' + hDat));
 	return hDat;
 }
@@ -5277,7 +5280,7 @@ function initSpells() {
 		t === '#rep' ? oSpells.rep.push(p) :
 		t === '#exp' ? Spells.exp.push($toRegExp(p)) :
 		t === '#exph' ? Spells.exph.push($toRegExp(p)) :
-		t === '#ihash' ? Spells.ihash.push(p) :
+		t === '#ihash' ? Spells.ihash.push(+p) :
 		t === '#img' ? Spells.img.push(p) :
 		t === '#imgn' ? Spells.imgn.push($toRegExp(p)) :
 		t === '#name' ? Spells.name.push(p) :
