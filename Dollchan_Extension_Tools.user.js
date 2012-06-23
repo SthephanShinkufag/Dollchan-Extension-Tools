@@ -5553,11 +5553,11 @@ function addSpell(spell) {
 			return;
 		}
 	} else {
-		val = ('\n' + val).split('\n' + spell).join('');
+		val = ('\n' + val).split('\n' + spell).join('').replace(/^\n|\n$/g, '');
 	}
 	if(fld) {
 		fld.value = val;
-		fld.previousSibling.firstChild.checked = true;
+		fld.previousSibling.firstChild.checked = val !== '';
 	}
 	disableSpells();
 	saveSpells(val);
