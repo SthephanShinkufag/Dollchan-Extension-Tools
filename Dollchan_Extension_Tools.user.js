@@ -3271,17 +3271,21 @@ function prepareCFeatures() {
 	);
 	if(Cfg['preLoadImgs']) {
 		pImgUrl = window.URL.createObjectURL(toBlob(['self.onmessage = function(e) {\
-			var dat, i, len, req = new XMLHttpRequest();\
+			var dat, i, j, len, req = new XMLHttpRequest();\
 			req.open("GET", e.data, false);\
 			req.responseType = "arraybuffer";\
 			req.send();\
 			dat = new Uint8Array(req.response);\
 			len = dat.length;\
 			if(dat[0] === 0xFF && dat[1] === 0xD8) {\
-				for(i = 0; i < len - 1; i++) {\
-					if(dat[i] === 0xFF && dat[i + 1] === 0xD9) {\
-						i += 2;\
-						break;\
+				for(i = 0, j = 0; i < len - 1; i++) {\
+					if(dat[i] === 0xFF) {\
+						if(dat[i + 1] === 0xD8) {\
+							j++;\
+						} else if(dat[i + 1] === 0xD9 && --j === 0) {\
+							i += 2;\
+							break;\
+						}\
 					}\
 				}\
 			} else if(dat[0] === 0x89 && dat[1] === 0x50) {\
@@ -3342,8 +3346,7 @@ function prepareCFeatures() {
 			}\
 			function preloadImages(pNum) {\
 				var len, el, mReqs = 4, cReq = 0, i = 0, arr = [],\
-				workers = [],\
-				loadFunc = function(idx) {\
+				workers = [], loadFunc = function(idx) {\
 						if(idx >= arr.length) {\
 							if(cReq === 0) {\
 								mReqs = cReq = i = arr = null;\
