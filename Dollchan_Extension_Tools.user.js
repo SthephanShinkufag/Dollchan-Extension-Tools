@@ -3318,7 +3318,7 @@ function prepareCFeatures() {
 					return;\
 				}\
 			});\
-			function $q(path, root) {\
+			function $q(path) {\
 				return document.querySelector(path);\
 			}\
 			function $Q(path, root) {\
@@ -3351,7 +3351,7 @@ function prepareCFeatures() {
 							return;\
 						}\
 						var req,\
-							eImg = ' + nav.WebKit + ',\
+							eImg = ' + !!nav.WebKit + ',\
 							a_ = arr[idx],\
 							a = a_.href;\
 						if(/\.gif$/i.test(a)) {\
@@ -3373,20 +3373,17 @@ function prepareCFeatures() {
 								var href = a_.href = window.' + (nav.WebKit ? 'webkit' : '') +
 									'URL.createObjectURL(toBlob([this.response])), w;;\
 								if(eImg) {\
-									a_.getElementsByTagName("img")[0].src = a_.href;\
-								}\
-								if(' + (Cfg['findRarJPEG'] !== 0) + ') {\
-									a_.id = "DESU_a" + Math.random();\
-									(w = workers[idx % 4]).onmessage = function(e) {\
-										if(e.data) {\
-											window.postMessage("L" + a_.id, "*");\
-										}\
-										cReq--; loadFunc(i++); a_ = null;\
-									};\
-									w.onerror = function() { cReq--; loadFunc(i++); a_ = null;\ };\
-									w.postMessage(a_.href);\
-								} else { cReq--; loadFunc(i++); a_ = null;\ }\
-							}\
+									a_.getElementsByTagName("img")[0].src = href;\
+								};' + (Cfg['findRarJPEG'] ?
+								'(w = workers[idx % 4]).onmessage = function(e) {\
+									if(e.data) {\
+										window.postMessage("L" + (a_.id = "DESU_a" + Math.random()), "*");\
+									}\
+									cReq--; loadFunc(i++); a_ = eImg = null;\
+								};\
+								w.onerror = function() { cReq--; loadFunc(i++); a_ = eImg = null; };\
+								w.postMessage(a_.href);' : 'cReq--; loadFunc(i++); a_ = eImg = null; ') +
+							'}\
 						};\
 						req.send(null);\
 					};\
