@@ -627,7 +627,7 @@ function addContentScript(text) {
 }
 
 function getPost(el) {
-	return $x('ancestor::node()[@desu-post]', el);
+	return $x('ancestor::*[@desu-post]', el);
 }
 
 function getImages(el) {
@@ -1648,7 +1648,7 @@ function addHiddenTable(hid) {
 	} else {
 		$append(el, [
 			$btn(Lng.expandAll[lCode], '', function() {
-				var psts = $X('.//div[@class="DESU_contData"]/node()[not(@class="DESU_hidOppost")]', this.parentNode);
+				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					$each(psts, function(el) {
@@ -1662,7 +1662,7 @@ function addHiddenTable(hid) {
 				}
 			}),
 			$btn(Lng.save[lCode], '', function() {
-				var psts = $X('.//div[@class="DESU_contData"]/node()[not(@class="DESU_hidOppost")]', this.parentNode);
+				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
 				$each(psts, function(el) {
 					if(el.vis !== 0) {
 						setPostVisib(el.pst, 1);
@@ -3372,7 +3372,7 @@ function prepareCFeatures() {
 						};\
 						req.send(null);\
 					};\
-				el = getImages(pNum === "all" ? document : $x(".//node()[@desu-post=\'" + pNum + "\']", document));\
+				el = getImages(pNum === "all" ? document : $x(".//*[@desu-post=\'" + pNum + "\']", document));\
 				for(i = 0, len = el.snapshotLength; i < len; i++) {\
 					arr.push($x("ancestor::a[1]", el.snapshotItem(i)));\
 				}\
@@ -3633,7 +3633,7 @@ function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
 		el = $c('DESU_ytObj', getPost(this));
 	$pd(e);
-	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
+	if($xb('*[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
 		el.innerHTML = '';
 	} else if(Cfg['addYouTube'] > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
 		addTubePreview(el, m);
