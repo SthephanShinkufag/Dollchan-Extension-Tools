@@ -627,7 +627,7 @@ function addContentScript(text) {
 }
 
 function getPost(el) {
-	return $x('ancestor::*[@desu-post]', el);
+	return $x('ancestor::node()[@desu-post]', el);
 }
 
 function getImages(el) {
@@ -1648,7 +1648,7 @@ function addHiddenTable(hid) {
 	} else {
 		$append(el, [
 			$btn(Lng.expandAll[lCode], '', function() {
-				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
+				var psts = $X('.//div[@class="DESU_contData"]/node()[not(@class="DESU_hidOppost")]', this.parentNode);
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					$each(psts, function(el) {
@@ -1662,7 +1662,7 @@ function addHiddenTable(hid) {
 				}
 			}),
 			$btn(Lng.save[lCode], '', function() {
-				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
+				var psts = $X('.//div[@class="DESU_contData"]/node()[not(@class="DESU_hidOppost")]', this.parentNode);
 				$each(psts, function(el) {
 					if(el.vis !== 0) {
 						setPostVisib(el.pst, 1);
@@ -3322,29 +3322,13 @@ function prepareCFeatures() {
 					return;\
 				}\
 			});\
-			function $q(path) {\
-				return document.querySelector(path);\
-			}\
-			function $Q(path, root) {\
-				return root.querySelectorAll(path);\
+			function $X(path, root, dc) {\
+				return document.evaluate(path, root, null, 7, null);\
 			}\
 			function $x(path, root) {\
 				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
-			}\
-			function toBlob(arr) {\
-				try {\
-					return new Blob(arr);\
-				} catch(e) {\
-					var bb = new ' + (nav.Firefox ? 'Moz' : 'WebKit') + 'BlobBuilder(),\
-						i = 0,\
-						len = arr.length;\
-					while(i < len) {\
-						bb.append(arr[i++]);\
-					}\
-					return bb.getBlob();\
-				}\
-			}\
-			function preloadImages(pNum) {\
+			}' + String(toBlob) + String(getImages) +
+			'function preloadImages(pNum) {\
 				var len, el, mReqs = 4, cReq = 0, i = 0, arr = [],\
 				workers = [], loadFunc = function(idx) {\
 						if(idx >= arr.length) {\
@@ -3390,10 +3374,9 @@ function prepareCFeatures() {
 						};\
 						req.send(null);\
 					};\
-				el = $Q("img.thumb, img[src*=\'thumb\'], img[src*=\'/spoiler\'], img[src^=\'blob:\']",\
-					pNum === "all" ? document : $q("[desu-post=\'" + pNum + "\']"));\
-				for(i = 0, len = el.length; i < len; i++) {\
-					arr.push($x("ancestor::a[1]", el[i]));\
+				el = getImages(pNum === "all" ? document : $x(".//node()[@desu-post=\'" + pNum + "\']"));\
+				for(i = 0, len = el.snapshotLength; i < len; i++) {\
+					arr.push($x("ancestor::a[1]", el.snapshotItem(i)));\
 				}\
 				for(i = 0; i < mReqs; i++) {\
 					workers.push(new Worker("' + pImgUrl + '"));\
@@ -5173,7 +5156,8 @@ function getCRC32(data, length) {
 
 function imgProcess(data, oldw, oldh) {
 	var i, j, l, c, t, u, tmp = oldw * oldh,
-		newh = 8, neww = 8,
+		newh = 8,
+		neww = 8,
 		levels = 2,
 		areas = 256 / levels,
 		values = 256 / (levels - 1),
@@ -6502,7 +6486,9 @@ function pushPost(dc, post, thr, num, i) {
 	post.Img = getImages(post);
 	if(i === 0) {
 		post.isOp = true;
-		post.dTitle = ($c(aib.cTitle, post) || {}).textContent || post.Text.substring(0, 70).replace(/\s+/g, ' ');
+		post.dTitle =
+			($c(aib.cTitle, post) || {}).textContent ||
+			post.Text.substring(0, 70).replace(/\s+/g, ' ');
 		Threads.push(post);
 	}
 	post.setAttribute('desu-post', num);
