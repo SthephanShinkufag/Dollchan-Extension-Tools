@@ -1337,7 +1337,7 @@ function getCfgPosts() {
 			$txt(Lng.cfg.updThrDelay[lCode])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('favIcoBlink', true, null),
+			$if(nav.Firefox, lBox('favIcoBlink', true, null)),
 			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
