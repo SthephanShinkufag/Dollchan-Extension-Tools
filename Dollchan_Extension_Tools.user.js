@@ -5786,7 +5786,7 @@ function scriptCSS() {
 		#DESU_panelBtns:lang(ru), #DESU_panelInfo:lang(ru) { border-color: #79c; }\
 		#DESU_panelBtns:lang(de), #DESU_panelInfo:lang(de) { border-color: #ccc; }\
 		#DESU_panelBtns:lang(fr), #DESU_panelInfo:lang(fr) { border-color: #616b86; }\
-		#DESU_panelBtns > li { margin: 0 1px; }\
+		#DESU_panelBtns > li { margin: 0 1px; padding: 0; }\
 		#DESU_panelBtns > li, #DESU_panelBtns > li > a, #DESU_btnLogo { display: inline-block; width: 25px; height: 25px; }\
 		#DESU_panelBtns:lang(en) > li, #DESU_panelBtns:lang(fr) > li  { transition: all 0.3s ease; }\
 		#DESU_panelBtns:lang(en) > li:hover, #DESU_panelBtns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
@@ -6486,12 +6486,12 @@ function getImageboard() {
 			var a = $x('.//a[starts-with(@href,"mailto:") or @href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		}
-	aib.getImgInfo = aib.fch ?
-		function(post) {
+	aib.getImgInfo =
+		aib.fch ? function(post) {
 			return $c('fileText', post);
 		} :
 		function (post) {
-			return $t('em', post) || $c('filesize', post) || $c('fileinfo', post);
+			return $c('filesize', post) || $c('fileinfo', post);
 		}
 }
 
