@@ -627,7 +627,7 @@ function addContentScript(text) {
 }
 
 function getPost(el) {
-	return $x('ancestor::node()[@desu-post]', el);
+	return $x('ancestor::*[@desu-post]', el);
 }
 
 function getImages(el) {
@@ -1648,7 +1648,7 @@ function addHiddenTable(hid) {
 	} else {
 		$append(el, [
 			$btn(Lng.expandAll[lCode], '', function() {
-				var psts = $X('.//div[@class="DESU_contData"]/node()[not(@class="DESU_hidOppost")]', this.parentNode);
+				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					$each(psts, function(el) {
@@ -1662,7 +1662,7 @@ function addHiddenTable(hid) {
 				}
 			}),
 			$btn(Lng.save[lCode], '', function() {
-				var psts = $X('.//div[@class="DESU_contData"]/node()[not(@class="DESU_hidOppost")]', this.parentNode);
+				var psts = $X('.//div[@class="DESU_contData"]/*[not(@class="DESU_hidOppost")]', this.parentNode);
 				$each(psts, function(el) {
 					if(el.vis !== 0) {
 						setPostVisib(el.pst, 1);
@@ -3234,7 +3234,6 @@ function addPostButtons(post) {
 ==============================================================================*/
 
 function prepareCFeatures() {
-	var pImgUrl;
 	addContentScript(
 		'function DESU_hideClick(el) {\
 			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
@@ -3269,8 +3268,9 @@ function prepareCFeatures() {
 			window.postMessage("H" + el.parentNode.getAttribute("info"), "*");\
 		}'
 	);
-	if(Cfg['preLoadImgs']) {
-		pImgUrl = window.URL.createObjectURL(toBlob(['self.onmessage = function(e) {\
+	if(nav.isBlob) {
+		var rjURL = window.URL.createObjectURL(toBlob(['self.onmessage = function(e) {\
+			"use strict";\
 			var dat, i, j, len, req = new XMLHttpRequest();\
 			req.open("GET", e.data, false);\
 			req.responseType = "arraybuffer";\
@@ -3312,9 +3312,10 @@ function prepareCFeatures() {
 				}\
 			}\
 			self.postMessage(false);\
-		}']));
-		addContentScript('(function() {\
-			window.addEventListener("message", function(event) {\
+		}'])), rjWrk = 'new Worker("' + rjURL + '")';
+		addContentScript('(function() {"use strict";' + (Cfg['findRarJPEG'] ? 'var rjWorkers = [' +
+			rjWrk + ',' + rjWrk + ',' + rjWrk + ',' + rjWrk + ']; ' : '') +
+			'window.addEventListener("message", function(event) {\
 				var name = event.data[0],\
 					data = event.data.substring(1);\
 				if(name === "K") {\
@@ -3322,23 +3323,22 @@ function prepareCFeatures() {
 					return;\
 				}\
 			});\
-			function $X(path, root, dc) {\
+			function $X(path, root) {\
 				return document.evaluate(path, root, null, 7, null);\
 			}\
 			function $x(path, root) {\
 				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
-			}' + String(toBlob) + String(getImages) +
+			}' + String(toBlob).replace('nav.Firefox', !!nav.Firefox) + String(getImages) +
+			String(getPost) + String(aib.getPicWrap).replace('(el)', 'getPicWrap(el)') +
 			'function preloadImages(pNum) {\
-				var len, el, mReqs = 4, cReq = 0, i = 0, arr = [],\
-				workers = [], loadFunc = function(idx) {\
+				var len, el, mReqs = 4, cReq = 0, i = 0, arr = [], loadFunc = function(idx) {\
 						if(idx >= arr.length) {\
 							if(cReq === 0) {\
-								mReqs = cReq = i = arr = null;\
+								mReqs = cReq = i = arr = loadFunc = null;\
 							}\
 							return;\
 						}\
-						var req,\
-							eImg = ' + !!nav.WebKit + ',\
+						var req, eImg = ' + !!nav.WebKit + ',\
 							a_ = arr[idx],\
 							a = a_.href;\
 						if(/\.gif$/i.test(a)) {\
@@ -3358,13 +3358,13 @@ function prepareCFeatures() {
 						req.onload = function(e) {\
 							if(this.status == 200) {\
 								var href = a_.href = window.' + (nav.WebKit ? 'webkit' : '') +
-									'URL.createObjectURL(toBlob([this.response])), w;;\
+									'URL.createObjectURL(toBlob([this.response])), w;\
 								if(eImg) {\
 									a_.getElementsByTagName("img")[0].src = href;\
-								};' + (Cfg['findRarJPEG'] ?
-								'(w = workers[idx % 4]).onmessage = function(e) {\
+								}' + (Cfg['findRarJPEG'] ?
+								'(w = rjWorkers[idx % 4]).onmessage = function(e) {\
 									if(e.data) {\
-										window.postMessage("L" + (a_.id = "DESU_a" + Math.random()), "*");\
+										$x(\'' + aib.xImages + '\', getPicWrap(a_)).className += " DESU_archive";\
 									}\
 									cReq--; loadFunc(i++); a_ = eImg = null;\
 								};\
@@ -3374,16 +3374,18 @@ function prepareCFeatures() {
 						};\
 						req.send(null);\
 					};\
-				el = getImages(pNum === "all" ? document : $x(".//node()[@desu-post=\'" + pNum + "\']"));\
+				el = getImages(pNum === "all" ? document : $x(".//*[@desu-post=\'" + pNum + "\']", document));\
 				for(i = 0, len = el.snapshotLength; i < len; i++) {\
 					arr.push($x("ancestor::a[1]", el.snapshotItem(i)));\
 				}\
 				for(i = 0; i < mReqs; i++) {\
-					workers.push(new Worker("' + pImgUrl + '"));\
 					loadFunc(i);\
 				}\
 			}})()'
 		);
+		setTimeout(function(url) {
+			window.URL.revokeObjectURL(url);
+		}, 1e4, rjURL);
 	}
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
@@ -3414,8 +3416,6 @@ function prepareCFeatures() {
 			data = data.split('$#$');
 			checkUpload(data[0], data[1]);
 			$id('DESU_iframe').src = 'about:blank';
-		} else if(name === 'L') {
-			$x(aib.xImages, aib.getPicWrap($id(data))).className += ' DESU_archive';
 		}
 	}, false);
 }
@@ -3633,7 +3633,7 @@ function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
 		el = $c('DESU_ytObj', getPost(this));
 	$pd(e);
-	if($xb('node()[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
+	if($xb('*[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
 		el.innerHTML = '';
 	} else if(Cfg['addYouTube'] > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
 		addTubePreview(el, m);
