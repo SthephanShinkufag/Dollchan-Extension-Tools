@@ -3328,6 +3328,7 @@ function prepareCFeatures() {
 			function $x(path, root) {\
 				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
 			}' + String(toBlob).replace('nav.Firefox', !!nav.Firefox) + String(getImages) +
+			String(getPost) + String(aib.getPicWrap).replace('(el)', 'getPicWrap(el)') +
 			'function preloadImages(pNum) {\
 				var len, el, mReqs = 4, cReq = 0, i = 0, arr = [], loadFunc = function(idx) {\
 						if(idx >= arr.length) {\
@@ -3362,7 +3363,7 @@ function prepareCFeatures() {
 								}' + (Cfg['findRarJPEG'] ?
 								'(w = rjWorkers[idx % 4]).onmessage = function(e) {\
 									if(e.data) {\
-										window.postMessage("L" + (a_.id = "DESU_a" + Math.random()), "*");\
+										$x(\'' + aib.xImages + '\', getPicWrap(a_)).className += " DESU_archive";\
 									}\
 									cReq--; loadFunc(i++); a_ = eImg = null;\
 								};\
@@ -3414,8 +3415,6 @@ function prepareCFeatures() {
 			data = data.split('$#$');
 			checkUpload(data[0], data[1]);
 			$id('DESU_iframe').src = 'about:blank';
-		} else if(name === 'L') {
-			$x(aib.xImages, aib.getPicWrap($id(data))).className += ' DESU_archive';
 		}
 	}, false);
 }
