@@ -3270,6 +3270,7 @@ function prepareCFeatures() {
 	);
 	if(nav.isBlob) {
 		var rjURL = window.URL.createObjectURL(toBlob(['self.onmessage = function(e) {\
+			"use strict";\
 			var dat, i, j, len, req = new XMLHttpRequest();\
 			req.open("GET", e.data, false);\
 			req.responseType = "arraybuffer";\
@@ -3312,8 +3313,8 @@ function prepareCFeatures() {
 			}\
 			self.postMessage(false);\
 		}'])), rjWrk = 'new Worker("' + rjURL + '")';
-		addContentScript('(function() {' + (Cfg['findRarJPEG'] ? 'var rjWorkers = [' + rjWrk +
-			',' + rjWrk + ',' + rjWrk + ',' + rjWrk + ']; ' : '') +
+		addContentScript('(function() {"use strict";' + (Cfg['findRarJPEG'] ? 'var rjWorkers = [' +
+			rjWrk + ',' + rjWrk + ',' + rjWrk + ',' + rjWrk + ']; ' : '') +
 			'window.addEventListener("message", function(event) {\
 				var name = event.data[0],\
 					data = event.data.substring(1);\
