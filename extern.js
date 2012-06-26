@@ -34,7 +34,7 @@ Window.JSON = {};
 Window.JSON.parse = function(text, opt_reviver) {};
 
 /** @type {String} */ XMLHttpRequest.prototype.finalUrl;
-var localStorage = {}, sessionStorage = {};
+var localStorage = {}, sessionStorage = {}, self = {};
 
 /**
  * @param {String} text
