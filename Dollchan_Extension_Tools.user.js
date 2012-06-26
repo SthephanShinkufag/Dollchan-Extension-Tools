@@ -2795,32 +2795,32 @@ function initJpeg(img, dat) {
 }
 
 function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen,
-		xRes = 0, yRes = 0, resT = 0, bE = 0,
+	var i, j, dE, tag, tgLen, xRes = 0, yRes = 0, resT = 0,
 		Get16u = function(off) {
-			if(bE) {
-				return (exif[off] << 8) | exif[off + 1];
-			}
 			return (exif[off + 1] << 8) | exif[off];
 		},
 		Get32u = function(off) {
-			if(bE) {
-				return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
-			}
 			return (exif[off + 3] << 24) | (exif[off + 2] << 16) | (exif[off + 1] << 8) | exif[off];
 		};
-	if(String.fromCharCode(exif[off + 8], exif[off + 9]) === 'MM') {
-		bE = 1;
+	if(String.fromCharCode(exif[off], exif[off + 1]) === 'MM') {
+		Get16u = function(off) {
+			return (exif[off] << 8) | exif[off + 1];
+		};
+		Get32u = function(off) {
+			return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
+		};
 	}
-	if(Get16u(off + 10) !== 0x2A) {
+	if(Get16u(off + 2) !== 0x2A) {
+		exif = null;
 		return [0, 0, 1, 0, 1];
 	}
-	i = 8 + Get32u(off + 12);
+	i = Get32u(off + 4);
 	if(i > len) {
+		exif = null;
 		return [0, 0, 1, 0, 1];
 	}
-	for(tgLen = Get16u(off + i), j = 0; j < tgLen; j++) {
-		dE = off + i + 2 + 12 * j;
+	for(tgLen = Get16u(i += off), j = 0; j < tgLen; j++) {
+		dE = i + 2 + 12 * j;
 		tag = Get16u(dE);
 		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
 			continue;
@@ -2828,10 +2828,12 @@ function getExifData(exif, off, len) {
 		if(tag === 0x0128) {
 			resT = Get16u(dE + 8) - 1;
 		} else {
-			dE = off + 8 + Get32u(dE + 8);
+			dE = Get32u(dE + 8);
 			if(dE > len) {
+				exif = null;
 				return [0, 0, 1, 0, 1];
 			}
+			dE += off;
 			if(tag === 0x11A) {
 				xRes = +(Get32u(dE) / Get32u(dE + 4)).toFixed(0);
 			} else {
@@ -2841,7 +2843,7 @@ function getExifData(exif, off, len) {
 	}
 	xRes = xRes === 0 ? yRes : xRes;
 	yRes = yRes === 0 ? xRes : yRes;
-	exif = bE = null;
+	exif = null;
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
@@ -2862,7 +2864,7 @@ function getReplyImgData(arr, force) {
 				if(dat[i] === 0xFF) {
 					if(rExif) {
 						if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45 && !jpgDat) {
-							jpgDat = getExifData(dat, i + 2, (dat[i + 2] << 8) + dat[i + 3]);
+							jpgDat = getExifData(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
 						} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46 && !jpgDat) {
 							jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
 						}
