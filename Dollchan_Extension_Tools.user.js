@@ -2519,9 +2519,6 @@ function doPostformChanges(m, el) {
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
-			if(aib.nul) {
-				pr.form.action = pr.form.action.replace(/https/, 'http');
-			}
 			nav.insAfter(
 				$c('DESU_content', doc),
 				'<iframe id="DESU_iframe" name="DESU_iframe" src="about:blank" />'
