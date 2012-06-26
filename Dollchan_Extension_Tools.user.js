@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.22.0
+// @version			12.6.26.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.22.0',
+	'version':	'12.6.26.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -630,7 +630,7 @@ function getPost(el) {
 	return $x('ancestor::*[@desu-post]', el);
 }
 
-function getImages(el) {
+function getPostImages(el) {
 	return $X('.//img[@class="thumb" or contains(@src,"thumb") or contains(@src,"/spoiler") or starts-with(@src,"blob:")]', el);
 }
 
@@ -1040,7 +1040,7 @@ function saveViewedPosts(pNum) {
 ==============================================================================*/
 
 function addPanel() {
-	var imgLen = getImages(dForm).snapshotLength,
+	var imgLen = getPostImages(dForm).snapshotLength,
 		pButton = function(id, click, href, over, out) {
 			return $New('li', null, [
 				$new('a', {
@@ -1267,7 +1267,7 @@ function cfgTab(id, name) {
 	]);
 }
 
-function getCfgFilters(name) {
+function getCfgFilters() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgFilters'}, [
 		$New('div', null, [
 			$New('span', {'id': 'DESU_spellPanel'}, [
@@ -2504,7 +2504,7 @@ function doPostformChanges(m, el) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), function(dc, url) {
-					checkUpload(findError(dc), url);
+					checkUpload(findSubmitError(dc), url);
 				});
 			};
 			dForm.onsubmit = function(e) {
@@ -2633,7 +2633,7 @@ function delFileUtils(el) {
 							ONSUBMIT REPLY / DELETE CHECK
 ==============================================================================*/
 
-function findError(dc) {
+function findSubmitError(dc) {
 	var err = '',
 		txt = '',
 		xp =
@@ -2813,11 +2813,11 @@ function getExifData(exif, off, len) {
 		bE = 1;
 	}
 	if(Get16u(off + 10) !== 0x2A) {
-		return [0,0,1,0,1];
+		return [0, 0, 1, 0, 1];
 	}
 	i = 8 + Get32u(off + 12);
 	if(i > len) {
-		return [0,0,1,0,1];
+		return [0, 0, 1, 0, 1];
 	}
 	for(tgLen = Get16u(off + i), j = 0; j < tgLen; j++) {
 		dE = off + i + 2 + 12 * j;
@@ -2830,7 +2830,7 @@ function getExifData(exif, off, len) {
 		} else {
 			dE = off + 8 + Get32u(dE + 8);
 			if(dE > len) {
-				return [0,0,1,0,1];
+				return [0, 0, 1, 0, 1];
 			}
 			if(tag === 0x11A) {
 				xRes = +(Get32u(dE) / Get32u(dE + 4)).toFixed(0);
@@ -2845,7 +2845,7 @@ function getExifData(exif, off, len) {
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
-function processImage(arr, force) {
+function getReplyImgData(arr, force) {
 	var i = 0,
 		j = 0,
 		dat = new Uint8Array(arr),
@@ -2892,7 +2892,7 @@ function processImage(arr, force) {
 		if(j !== i) {
 			dat[j - 1] = dat[i - 1];
 			if(!force && len - j > 75) {
-				for(; i < len; dat[j++] = dat[i++]);
+				for(; i < len; dat[j++] = dat[i++]) {};
 			}
 		} else if(j === len || (!force && len - j > 75)) {
 			return [arr];
@@ -2900,7 +2900,8 @@ function processImage(arr, force) {
 		if(rExif) {
 			out = new Uint8Array(len = j + 18);
 			initJpeg(out, jpgDat);
-			j = 20; i = 2;
+			j = 20;
+			i = 2;
 		}
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(; j < len - 7; j++) {
@@ -2964,7 +2965,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = processImage(this.result, !aib.rJpeg || !!el.rarJPEG);
+		var dat = getReplyImgData(this.result, !aib.rJpeg || !!el.rarJPEG);
 		if(!dat) {
 			dF.error = true;
 			$alert(Lng.fileCorrupt[lCode] + file.name, 'Upload', false);
@@ -3268,125 +3269,7 @@ function prepareCFeatures() {
 			window.postMessage("H" + el.parentNode.getAttribute("info"), "*");\
 		}'
 	);
-	if(nav.isBlob) {
-		var rjURL = window.URL.createObjectURL(toBlob(['self.onmessage = function(e) {\
-			"use strict";\
-			var dat, i, j, len, req = new XMLHttpRequest();\
-			req.open("GET", e.data, false);\
-			req.responseType = "arraybuffer";\
-			req.send();\
-			dat = new Uint8Array(req.response);\
-			len = dat.length;\
-			if(dat[0] === 0xFF && dat[1] === 0xD8) {\
-				for(i = 0, j = 0; i < len - 1; i++) {\
-					if(dat[i] === 0xFF) {\
-						if(dat[i + 1] === 0xD8) {\
-							j++;\
-						} else if(dat[i + 1] === 0xD9 && --j === 0) {\
-							i += 2;\
-							break;\
-						}\
-					}\
-				}\
-			} else if(dat[0] === 0x89 && dat[1] === 0x50) {\
-				for(i = 0; i < len - 7; i++) {\
-					if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {\
-						i += 8;\
-						break;\
-					}\
-				}\
-			} else {\
-				self.postMessage(false);\
-				return;\
-			}\
-			if(i !== len && len - i > 60) {\
-				for(len = i + 50; i < len; i++) {\
-					if(\
-						(dat[i] === 0x37 && dat[i + 1] === 0x7A) ||\
-						(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||\
-						(dat[i] === 0x52 && dat[i + 1] === 0x61)\
-					) {\
-						self.postMessage(true);\
-						return;\
-					}\
-				}\
-			}\
-			self.postMessage(false);\
-		}'])), rjWrk = 'new Worker("' + rjURL + '")';
-		addContentScript('(function() {"use strict";' + (Cfg['findRarJPEG'] ? 'var rjWorkers = [' +
-			rjWrk + ',' + rjWrk + ',' + rjWrk + ',' + rjWrk + ']; ' : '') +
-			'window.addEventListener("message", function(event) {\
-				var name = event.data[0],\
-					data = event.data.substring(1);\
-				if(name === "K") {\
-					preloadImages(data);\
-					return;\
-				}\
-			});\
-			function $X(path, root) {\
-				return document.evaluate(path, root, null, 7, null);\
-			}\
-			function $x(path, root) {\
-				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
-			}' + String(toBlob).replace('nav.Firefox', !!nav.Firefox) + String(getImages) +
-			String(getPost) + String(aib.getPicWrap).replace('(el)', 'getPicWrap(el)') +
-			'function preloadImages(pNum) {\
-				var len, el, mReqs = 4, cReq = 0, i = 0, arr = [], loadFunc = function(idx) {\
-						if(idx >= arr.length) {\
-							if(cReq === 0) {\
-								mReqs = cReq = i = arr = loadFunc = null;\
-							}\
-							return;\
-						}\
-						var req, eImg = ' + !!nav.WebKit + ',\
-							a_ = arr[idx],\
-							a = a_.href;\
-						if(/\.gif$/i.test(a)) {\
-							eImg = true;\
-						} else if(!/\.(?:jpe?g|png)$/i.test(a)) {\
-							loadFunc(i++);\
-							return;\
-						}\
-						if(cReq === mReqs) {\
-							setTimeout(loadFunc, 200, idx);\
-							return;\
-						}\
-						cReq++;\
-						req = new XMLHttpRequest();\
-						req.open("GET", a, true);\
-						req.responseType = "arraybuffer";\
-						req.onload = function(e) {\
-							if(this.status == 200) {\
-								var href = a_.href = window.' + (nav.WebKit ? 'webkit' : '') +
-									'URL.createObjectURL(toBlob([this.response])), w;\
-								if(eImg) {\
-									a_.getElementsByTagName("img")[0].src = href;\
-								}' + (Cfg['findRarJPEG'] ?
-								'(w = rjWorkers[idx % 4]).onmessage = function(e) {\
-									if(e.data) {\
-										$x(\'' + aib.xImages + '\', getPicWrap(a_)).className += " DESU_archive";\
-									}\
-									cReq--; loadFunc(i++); a_ = eImg = null;\
-								};\
-								w.onerror = function() { cReq--; loadFunc(i++); a_ = eImg = null; };\
-								w.postMessage(a_.href);' : 'cReq--; loadFunc(i++); a_ = eImg = null; ') +
-							'}\
-						};\
-						req.send(null);\
-					};\
-				el = getImages(pNum === "all" ? document : $x(".//*[@desu-post=\'" + pNum + "\']", document));\
-				for(i = 0, len = el.snapshotLength; i < len; i++) {\
-					arr.push($x("ancestor::a[1]", el.snapshotItem(i)));\
-				}\
-				for(i = 0; i < mReqs; i++) {\
-					loadFunc(i);\
-				}\
-			}})()'
-		);
-		setTimeout(function(url) {
-			window.URL.revokeObjectURL(url);
-		}, 1e4, rjURL);
-	}
+
 	window.addEventListener('message', function(event) {
 		var name = event.data[0],
 			data = event.data.substring(1);
@@ -3418,6 +3301,92 @@ function prepareCFeatures() {
 			$id('DESU_iframe').src = 'about:blank';
 		}
 	}, false);
+
+	if(!nav.isBlob) {
+		return;
+	}
+	var rjURL = window.URL.createObjectURL(toBlob(['self.onmessage = ' + String(parsePostImg)])),
+		rjWrk = 'new Worker("' + rjURL + '")';
+	addContentScript('(function() {\
+		"use strict";' +
+		(Cfg['findRarJPEG'] ? 'var rjWorkers = [' + rjWrk + ',' + rjWrk + ',' + rjWrk + ',' + rjWrk + ']; ' : '') +
+		'window.addEventListener("message", function(event) {\
+			var name = event.data[0],\
+				data = event.data.substring(1);\
+			if(name === "K") {\
+				preloadImages(data);\
+				return;\
+			}\
+		});\
+		function $X(path, root) {\
+			return document.evaluate(path, root, null, 7, null);\
+		}\
+		function $x(path, root) {\
+			return document.evaluate(path, root, null, 8, null).singleNodeValue;\
+		}' +
+		String(toBlob).replace('nav.Firefox', !!nav.Firefox) +
+		String(getPostImages) +
+		String(getPost) +
+		String(aib.getPicWrap).replace('(el)', 'getPicWrap(el)') +
+		'function preloadImages(pNum) {\
+			var len, el, mReqs = 4, cReq = 0, i = 0, arr = [],\
+				loadFunc = function(idx) {\
+					if(idx >= arr.length) {\
+						if(cReq === 0) {\
+							mReqs = cReq = i = arr = loadFunc = null;\
+						}\
+						return;\
+					}\
+					var req, eImg = ' + !!nav.WebKit + ',\
+						a_ = arr[idx],\
+						a = a_.href;\
+					if(/\.gif$/i.test(a)) {\
+						eImg = true;\
+					} else if(!/\.(?:jpe?g|png)$/i.test(a)) {\
+						loadFunc(i++);\
+						return;\
+					}\
+					if(cReq === mReqs) {\
+						setTimeout(loadFunc, 200, idx);\
+						return;\
+					}\
+					cReq++;\
+					req = new XMLHttpRequest();\
+					req.open("GET", a, true);\
+					req.responseType = "arraybuffer";\
+					req.onload = function(e) {\
+						if(this.status == 200) {\
+							var href = a_.href = window.' + (nav.WebKit ? 'webkit' : '') +
+								'URL.createObjectURL(toBlob([this.response])), w;\
+							if(eImg) {\
+								a_.getElementsByTagName("img")[0].src = href;\
+							}' + (Cfg['findRarJPEG'] ?
+								'(w = rjWorkers[idx % 4]).onmessage = function(e) {\
+									if(e.data) {\
+										$x(\'' + aib.xImages + '\', getPicWrap(a_)).className += " DESU_archive";\
+									}\
+									cReq--; loadFunc(i++); a_ = eImg = null;\
+								};\
+								w.onerror = function() { cReq--; loadFunc(i++); a_ = eImg = null; };\
+								w.postMessage(a_.href);' :
+								'cReq--; loadFunc(i++); a_ = eImg = null; '
+							) +
+						'}\
+					};\
+					req.send(null);\
+				};\
+			el = getPostImages(pNum === "all" ? document : $x(".//*[@desu-post=\'" + pNum + "\']", document));\
+			for(i = 0, len = el.snapshotLength; i < len; i++) {\
+				arr.push($x("ancestor::a[1]", el.snapshotItem(i)));\
+			}\
+			for(i = 0; i < mReqs; i++) {\
+				loadFunc(i);\
+			}\
+		}})()'
+	);
+	setTimeout(function(url) {
+		window.URL.revokeObjectURL(url);
+	}, 1e4, rjURL);
 }
 
 /*==============================================================================
@@ -3967,6 +3936,51 @@ function eventPostImg(post) {
 	});
 }
 
+function parsePostImg(e) {
+	var dat, i, j, len,
+		req = new XMLHttpRequest();
+	req.open('GET', e.data, false);
+	req.responseType = 'arraybuffer';
+	req.send();
+	dat = new Uint8Array(req.response);
+	len = dat.length;
+	if(dat[0] === 0xFF && dat[1] === 0xD8) {
+		for(i = 0, j = 0; i < len - 1; i++) {
+			if(dat[i] === 0xFF) {
+				if(dat[i + 1] === 0xD8) {
+					j++;
+				} else if(dat[i + 1] === 0xD9 && --j === 0) {
+					i += 2;
+					break;
+				}
+			}
+		}
+	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+		for(i = 0; i < len - 7; i++) {
+			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+				i += 8;
+				break;
+			}
+		}
+	} else {
+		self.postMessage(false);
+		return;
+	}
+	if(i !== len && len - i > 60) {
+		for(len = i + 50; i < len; i++) {
+			if(
+				(dat[i] === 0x37 && dat[i + 1] === 0x7A) ||
+				(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
+				(dat[i] === 0x52 && dat[i + 1] === 0x61)
+			) {
+				self.postMessage(true);
+				return;
+			}
+		}
+	}
+	self.postMessage(false);
+}
+
 
 /*==============================================================================
 								MAP OF >>REFLINKS
@@ -4173,7 +4187,7 @@ function getPview(post, pNum, parent, link, txt) {
 		if(!pByNum[pNum] || Cfg['addYouTube'] !== 2) {
 			addLinkTube(pView);
 		}
-		pView.Img = getImages(pView);
+		pView.Img = getPostImages(pView);
 		$each(pView.Img, function(img) {
 			img.style.display = '';
 		});
@@ -4858,7 +4872,7 @@ function loadNewPosts(inf, fn) {
 			}
 			thr.pCount = i - 1;
 			savePostsVisib();
-			$id('DESU_panelInfo').firstChild.textContent = i + '/' + getImages(dForm).snapshotLength;
+			$id('DESU_panelInfo').firstChild.textContent = i + '/' + getPostImages(dForm).snapshotLength;
 		}
 		if(fn) {
 			fn();
@@ -5154,7 +5168,7 @@ function getCRC32(data, length) {
 	return crc ^ (-1);
 }
 
-function imgProcess(data, oldw, oldh) {
+function prepareImgHash(data, oldw, oldh) {
 	var i, j, l, c, t, u, tmp = oldw * oldh,
 		newh = 8,
 		neww = 8,
@@ -5204,12 +5218,12 @@ function getImgHash(post) {
 	cnv = $id('DESU_canvas') || doc.body.appendChild($new('canvas', {
 		'id': 'DESU_canvas',
 		'style': 'display: none;'
-	}));
+	}, null));
 	w = cnv.width = img.width;
 	h = cnv.height = img.height;
 	ctx = cnv.getContext('2d');
 	ctx.drawImage(img, 0, 0);
-	return img.crc32 = getCRC32(imgProcess(ctx.getImageData(0, 0, w, h).data, w, h), 8 * 8);
+	return img.crc32 = getCRC32(prepareImgHash(ctx.getImageData(0, 0, w, h).data, w, h), 8 * 8);
 }
 
 /*==============================================================================
@@ -6113,7 +6127,7 @@ function isCompatible() {
 	getImageboard();
 	getNavigator();
 	if(/^DESU_iframe/.test(window.name)) {
-		nav.postMsg(('window.top.postMessage("J' + findError(doc) + '$#$' + window.location + '", "*");').replace(/\n|\r/g, '\\n'));
+		nav.postMsg(('window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");').replace(/\n|\r/g, '\\n'));
 		return false;
 	}
 	if(/^DESU_favIframe/.test(window.name)) {
@@ -6483,7 +6497,7 @@ function pushPost(dc, post, thr, num, i) {
 	post.thr = thr;
 	post.Count = i;
 	post.Text = getText(post.Msg = aib.getMsg(post));
-	post.Img = getImages(post);
+	post.Img = getPostImages(post);
 	if(i === 0) {
 		post.isOp = true;
 		post.dTitle =
@@ -6579,7 +6593,7 @@ function parseDelform(node, dc, pFn) {
 		pFn(dc, op, thr, aib.getTNum(op, dc), 0);
 		if(!nav.Firefox || aib.gazo) {
 			for(psts = $$X(aib.xWrap, thr, dc), len = 0; i = psts.snapshotItem(len);
-				pFn(dc, i, thr, aib.getPNum(i), len + 1), len++);
+				pFn(dc, i, thr, aib.getPNum(i), len + 1), len++) {};
 		} else {
 			psts = thr.getElementsByClassName(aib.pClass);
 			for(i = 0, len = psts.length; i < len; i++) {
