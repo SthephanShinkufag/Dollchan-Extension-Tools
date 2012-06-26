@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.26.0
+// @version			12.6.26.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.26.0',
+	'version':	'12.6.26.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -2358,7 +2358,7 @@ function doPostformChanges(m, el) {
 	$event(pr.subm, {'click': function(e) {
 		var val = pr.txta.value, sVal = Cfg['signatValue'];
 		if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
-			val = doReplace(oSpells.outrep, val);
+			val = replaceBySpells(oSpells.outrep, val);
 		}
 		if(Cfg['userSignat'] && sVal !== '') {
 			val += '\n' + sVal;
@@ -3789,8 +3789,8 @@ function resizeImg(e) {
 		oldW = this.width,
 		oldH = this.height,
 		d = nav.Opera || nav.WebKit ? e.wheelDelta : -e.detail,
-		newW = parseInt(this.width * (d > 0 ? 1.25 : 0.8), 10),
-		newH = parseInt(this.height * (d > 0 ? 1.25 : 0.8), 10);
+		newW = parseInt(oldW * (d > 0 ? 1.25 : 0.8), 10),
+		newH = parseInt(oldH * (d > 0 ? 1.25 : 0.8), 10);
 	$pd(e);
 	this.width = newW;
 	this.height = newH;
@@ -4572,7 +4572,7 @@ function loadPage(page, p, last) {
 		}
 		replaceDelform(page);
 		parseDelform(page, doc, pushPost);
-		preparePage(page);
+		removePageTrash(page);
 		if(last) {
 			Posts.forEach(addPostButtons);
 			readPostsVisib();
@@ -5028,7 +5028,7 @@ function hidePost(post, note) {
 }
 
 function unhidePost(post) {
-	if(!detectWipe(post)) {
+	if(!detectWipeText(post)) {
 		setPostVisib(post, 1);
 		$del($c('DESU_postNote', post));
 		hideByWipe(post);
@@ -5229,15 +5229,14 @@ function getImgHash(post) {
 								SPELLS AND EXPRESSIONS
 ==============================================================================*/
 
-function getSpellObj() {
-	return {
-		words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
-		sage: false, notxt: false, noimg: false, trip: false
-	};
-}
-
 function initSpells() {
-	var i, x, b, n, t, p, j, Spells;
+	var i, x, b, n, t, p, j, Spells,
+		getSpellObj = function() {
+			return {
+				words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
+				sage: false, notxt: false, noimg: false, trip: false
+			};
+		};
 	pSpells = getSpellObj();
 	tSpells = getSpellObj();
 	oSpells = {rep: [], skip: [], num: [], outrep: [], video: [], vtag: []};
@@ -5300,7 +5299,7 @@ function initSpells() {
 	}
 }
 
-function doReplace(arr, txt) {
+function replaceBySpells(arr, txt) {
 	var re,
 		i = arr.length;
 	while(i--) {
@@ -5590,133 +5589,109 @@ function addSpell(spell) {
 									WIPE DETECTORS
 ==============================================================================*/
 
-function detectWipe_sameLines(txt) {
-	if(!Cfg['wipeSameLin']) {
-		return false;
-	}
-	var i, j, n, x,
-		lines = txt.replace(/> /g, '').split(/\s*\n\s*/),
-		len = lines.length;
-	if(len < 6) {
-		return false;
-	}
-	lines.sort();
-	for(i = 0, n = len / 4; i < len;) {
-		x = lines[i];
-		j = 0;
-		while(lines[i++] === x) {
-			j++;
-		}
-		if(j > 4 && j > n && x !== '') {
-			return 'same lines: "' + x.substr(0, 20) + '" x' + j;
-		}
-	}
-	return false;
-}
-
-function detectWipe_sameWords(txt) {
-	if(!Cfg['wipeSameWrd']) {
-		return false;
-	}
-	var i, j, n, x, keys, pop,
-		words = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' '),
-		len = words.length;
-	if(len < 4) {
-		return false;
-	}
-	words.sort();
-	for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
-		x = words[i];
-		j = 0;
-		while(words[i++] === x) {
-			j++;
-		}
-		if(j > pop && x.length > 2) {
-			pop = j;
-		}
-		if(len > 25 && pop >= n) {
-			return 'same words: "' + x.substr(0, 20) + '" x' + pop;
-		}
-	}
-	x = keys / len;
-	return x < 0.25 ? ('uniq words: ' + (x * 100).toFixed(0) + '%') : false;
-}
-
-function detectWipe_longWords(txt) {
-	if(!Cfg['wipeLongWrd']) {
-		return false;
-	}
-	var i = 0,
-		words = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' '),
-		len = words.length;
-	return words[0].length > 50 || (len > 1 && words.join('').length / len > 10) ? 'long words' : false;
-}
-
-function detectWipe_caseWords(txt) {
-	if(!Cfg['wipeCAPS']) {
-		return false;
-	}
-	var i, n, x, capsw, casew,
-		words = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' '),
-		len = words.length;
-	if(len < 5) {
-		return false;
-	}
-	for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
-		x = words[i];
-		if((x.match(/[a-zа-я]/ig) || []).length < 5) {
-			continue;
-		}
-		if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
-			casew++;
-		}
-		if(x === x.toUpperCase()) {
-			capsw++;
-		}
-		n++;
-	}
-	return (capsw / n >= 0.3 && n > 4) ? ('CAPSLOCK: ' + capsw / words.length * 100 + '%') :
-		(casew / n >= 0.3 && n > 8) ? ('cAsE words: ' + casew / words.length * 100 + '%') :
-		false;
-}
-
-function detectWipe_specSymbols(txt) {
-	if(!Cfg['wipeSpecial']) {
-		return false;
-	}
-	txt = txt.replace(/\s+/g, '');
-	var len = txt.length,
-		x = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
-	return len > 30 && x > 0.4 ? 'specsymbols: ' + parseInt(x * 100, 10) + '%' : false;
-}
-
-function detectWipe_numbers(txt) {
-	if(!Cfg['wipeNumbers']) {
-		return false;
-	}
-	txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?:\s|$)/g, '');
-	var len = txt.length,
-		x = (len - txt.replace(/\d/g, '').length) / len;
-	return len > 30 && x > 0.4 ? 'numbers: ' + parseInt(x * 100, 10) + '%' : false;
-}
-
-function detectWipe(post) {
+function detectWipeText(post) {
 	if(!Cfg['hideByWipe']) {
 		return false;
 	}
-	return detectWipe_sameLines(post.Text) ||
-		detectWipe_sameWords(post.Text) ||
-		detectWipe_longWords(post.Text) ||
-		detectWipe_caseWords(post.Text) ||
-		detectWipe_specSymbols(post.Text) ||
-		detectWipe_numbers(post.Text);
+	var arr, len, i, j, n, x, keys, pop, capsw, casew,
+		txt = post.Text;
+	if(Cfg['wipeSameLin']) {
+		arr = txt.replace(/> /g, '').split(/\s*\n\s*/);
+		len = arr.length;
+		if(len > 5) {
+			arr.sort();
+			for(i = 0, n = len / 4; i < len;) {
+				x = arr[i];
+				j = 0;
+				while(arr[i++] === x) {
+					j++;
+				}
+				if(j > 4 && j > n && x !== '') {
+					return 'same lines: "' + x.substr(0, 20) + '" x' + j;
+				}
+			}
+		}
+	}
+	if(Cfg['wipeSameWrd']) {
+		arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
+		len = arr.length;
+		if(len > 3) {
+			arr.sort();
+			for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
+				x = arr[i];
+				j = 0;
+				while(arr[i++] === x) {
+					j++;
+				}
+				if(j > pop && x.length > 2) {
+					pop = j;
+				}
+				if(len > 25 && pop >= n) {
+					return 'same words: "' + x.substr(0, 20) + '" x' + pop;
+				}
+			}
+			x = keys / len;
+			if(x < 0.25) {
+				return 'uniq words: ' + (x * 100).toFixed(0) + '%';
+			}
+		}
+	}
+	if(Cfg['wipeLongWrd']) {
+		i = 0;
+		arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+		len = arr.length;
+		if(arr[0].length > 50 || (len > 1 && arr.join('').length / len > 10)) {
+			return 'long words';
+		}
+	}
+	if(Cfg['wipeCAPS']) {
+		arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+		len = arr.length;
+		if(len > 4) {
+			for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
+				x = arr[i];
+				if((x.match(/[a-zа-я]/ig) || []).length < 5) {
+					continue;
+				}
+				if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
+					casew++;
+				}
+				if(x === x.toUpperCase()) {
+					capsw++;
+				}
+				n++;
+			}
+			if(capsw / n >= 0.3 && n > 4) {
+				return 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+			} else if(casew / n >= 0.3 && n > 8) {
+				return 'cAsE words: ' + casew / arr.length * 100 + '%';
+			}
+		}
+	}
+	if(Cfg['wipeSpecial']) {
+		txt = post.Text.replace(/\s+/g, '');
+		len = txt.length;
+		x = txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
+		if(len > 30 && x > 0.4) {
+			return 'specsymbols: ' + parseInt(x * 100, 10) + '%';
+		}
+	}
+	if(Cfg['wipeNumbers']) {
+		txt = post.Text.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?:\s|$)/g, '');
+		len = txt.length;
+		x = (len - txt.replace(/\d/g, '').length) / len;
+		if(len > 30 && x > 0.4) {
+			return 'numbers: ' + parseInt(x * 100, 10) + '%';
+		}
+	}
+	return false;
 }
 
 function hideByWipe(post) {
 	if(!Cfg['filterThrds'] && post.isOp || post.Vis === 0 || post.Vis === 1) {
 		return;
 	}
-	var note = detectWipe(post);
+	var note = detectWipeText(post);
 	if(note) {
 		hidePost(post, note);
 	} else {
@@ -6643,13 +6618,13 @@ function replaceDelform(el) {
 			txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
 		}
 		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
-			txt = doReplace(oSpells.rep, txt);
+			txt = replaceBySpells(oSpells.rep, txt);
 		}
 		el.innerHTML = txt;
 	}
 }
 
-function preparePage(node) {
+function removePageTrash(node) {
 	if(aib.krau) {
 		$del($t('hr', node));
 		$del($t('hr', node.previousElementSibling));
@@ -6679,7 +6654,7 @@ function preparePage(node) {
 	}
 }
 
-function initUpdater() {
+function initPage() {
 	pr = getPostform($x('.//textarea/ancestor::form[1]', doc));
 	oeForm = $x('.//form[contains(@action,"paint") or @name="oeform"]', doc);
 	if(!pr.mail) {
@@ -6711,13 +6686,13 @@ function initUpdater() {
 			doc.title = docTitle;
 		}
 		if(nav.Firefox > 10) {
-			doc.addEventListener('mozvisibilitychange', function(e) {
+			$event(doc, {'mozvisibilitychange': function(e) {
 				if(doc.mozHidden) {
 					Favico.focused = false;
 				} else {
 					onvis();
 				}
-			}, false);
+			}});
 			Favico.focused = !doc.mozHidden;
 		} else {
 			window.onblur = function() {
@@ -6784,10 +6759,10 @@ function doScript() {
 		initKeyNavig();
 		$log('initKeyNavig');
 	}
-	preparePage(dForm);
+	removePageTrash(dForm);
 	if(!liteMode) {
-		initUpdater();
-		$log('preparePage');
+		initPage();
+		$log('initPage');
 		addPanel();
 		$log('addPanel');
 		readFavorites();
