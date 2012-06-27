@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.6.27.0
+// @version			12.6.27.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.6.27.0',
+	'version':	'12.6.27.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -3799,14 +3799,14 @@ function resizeImg(e) {
 		curY = e.clientY,
 		oldL = parseInt(this.style.left, 10),
 		oldT = parseInt(this.style.top, 10),
-		oldW = this.width,
-		oldH = this.height,
+		oldW = parseFloat(this.style.width || this.width),
+		oldH = parseFloat(this.style.height || this.height),
 		d = nav.Opera || nav.WebKit ? e.wheelDelta : -e.detail,
-		newW = parseInt(oldW * (d > 0 ? 1.25 : 0.8), 10),
-		newH = parseInt(oldH * (d > 0 ? 1.25 : 0.8), 10);
+		newW = oldW * (d > 0 ? 1.25 : 0.8),
+		newH = oldH * (d > 0 ? 1.25 : 0.8);
 	$pd(e);
-	this.width = newW;
-	this.height = newH;
+	this.style.width = newW + 'px';
+	this.style.height = newH + 'px';
 	this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
 	this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
 }
