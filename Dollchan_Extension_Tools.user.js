@@ -595,7 +595,7 @@ function fixFunctions() {
 		};
 	}
 	if(!('GM_log' in window)) {
-		window.GM_log = function(txt) { console.log(txt); };
+		window.GM_log = function() {};
 	}
 	if(!('GM_xmlhttpRequest' in window)) {
 		window.GM_xmlhttpRequest = function(obj) {
@@ -3388,7 +3388,7 @@ function prepareCFeatures() {
 						bwrk[wI] = 0;\
 						link = wI = null;\
 					};\
-					w.onerror = function() { GM_log("WORKER ERROR"); };\
+					w.onerror = function() { console.error("WORKER ERROR"); };\
 					w.postMessage(link.href);\
 				};' : ';') +
 			'el = getPostImages(pNum === "all" ? document : $x(".//*[@desu-post=\'" + pNum + "\']", document));\
