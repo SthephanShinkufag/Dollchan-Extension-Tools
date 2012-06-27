@@ -3310,16 +3310,17 @@ function prepareCFeatures() {
 	if(!nav.isBlob) {
 		return;
 	}
-	var rjURL = window.URL.createObjectURL(toBlob(['self.onmessage = ' + String(parsePostImg)])),
-		rjWrk = 'new Worker("' + rjURL + '")';
 	addContentScript('(function() {\
-		"use strict";' +
-		(Cfg['findRarJPEG'] ? 'var rjWorkers = [' + rjWrk + ',' + rjWrk + ',' + rjWrk + ',' + rjWrk + ']; ' : '') +
-		'window.addEventListener("message", function(e) {\
+		"use strict";\
+		window.addEventListener("message", function(e) {\
 			var id = e.data[0],\
 				data = e.data.substring(1);\
 			if(id === "K") {\
-				preloadImages(data);\
+				var mReqs = data === "all" ? 4 : 1, i = mReqs, rjw' +
+				(Cfg['findRarJPEG'] ? '= []; while(i--) rjw.push(new Worker("' +
+					window.URL.createObjectURL(toBlob(['self.onmessage = ' + String(parsePostImg)]))
+				+ '"));' : ';') +
+				'preloadImages(data, mReqs, rjw);\
 				return;\
 			}\
 		});\
@@ -3333,8 +3334,8 @@ function prepareCFeatures() {
 		String(getPostImages) +
 		String(getPost) +
 		String(aib.getPicWrap).replace('(el)', 'getPicWrap(el)') +
-		'function preloadImages(pNum) {\
-			var len, el, mReqs = 4, cReq = 0, i = 0, arr = [],\
+		'function preloadImages(pNum, mReqs, rjw) {\
+			var len, el, cReq = 0, i = 0, arr = [],\
 				loadFunc = function(idx) {\
 					if(idx >= arr.length) {\
 						if(cReq === 0) {\
@@ -3366,7 +3367,7 @@ function prepareCFeatures() {
 							if(eImg) {\
 								a_.getElementsByTagName("img")[0].src = href;\
 							}' + (Cfg['findRarJPEG'] ?
-								'(w = rjWorkers[idx % 4]).onmessage = function(e) {\
+								'(w = rjw[idx % 4]).onmessage = function(e) {\
 									if(e.data) {\
 										$x(\'' + aib.xImages + '\', getPicWrap(a_)).className += " DESU_archive";\
 									}\
@@ -3389,9 +3390,6 @@ function prepareCFeatures() {
 			}\
 		}})()'
 	);
-	setTimeout(function(url) {
-		window.URL.revokeObjectURL(url);
-	}, 1e4, rjURL);
 }
 
 /*==============================================================================
@@ -5519,6 +5517,7 @@ function disableSpells() {
 		if(post.ytHide === 1) {
 			unhidePost(post);
 			post.ytHide = 0;
+			return;
 		}
 		if(checkSpells(post)) {
 			unhidePost(post);
