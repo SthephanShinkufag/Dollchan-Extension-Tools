@@ -99,157 +99,157 @@ var defaultCfg = {
 
 Lng = {
 	cfg: {
-		hideBySpell:	['Заклинания: ', 'Magic spells: '],
-		hideByWipe:		['Анти-вайп детекторы ', 'Anti-wipe detectors '],
-		wipeSameLin:	['Повтор строк', 'Same lines'],
-		wipeSameWrd:	['Повтор слов', 'Same words'],
-		wipeLongWrd:	['Длинные слова', 'Long words'],
-		wipeSpecial:	['Спецсимволы', 'Special symbols'],
-		wipeCAPS:		['КАПС/реГисТР', 'CAPS/cAsE'],
-		wipeNumbers:	['Числа', 'Numbers'],
-		filterThrds:	['Применять фильтры к тредам', 'Apply filters to threads'],
-		menuHiddBtn:	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-		viewHiddNum:	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
-		delHiddPost: {
+		'hideBySpell':	['Заклинания: ', 'Magic spells: '],
+		'hideByWipe':	['Анти-вайп детекторы ', 'Anti-wipe detectors '],
+		'wipeSameLin':	['Повтор строк', 'Same lines'],
+		'wipeSameWrd':	['Повтор слов', 'Same words'],
+		'wipeLongWrd':	['Длинные слова', 'Long words'],
+		'wipeSpecial':	['Спецсимволы', 'Special symbols'],
+		'wipeCAPS':		['КАПС/реГисТР', 'CAPS/cAsE'],
+		'wipeNumbers':	['Числа', 'Numbers'],
+		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
+		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
+		'viewHiddNum':	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
+		'delHiddPost': {
 			sel:		[['Не изменять', 'Объединять', 'Удалять'], ['Skip', 'Merge', 'Delete']],
 			txt:		['скрытые посты', 'hidden posts']
 		},
 
-		updThread: {
+		'updThread': {
 			sel:		[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
 			txt:		['подгрузка постов в треде ', 'loading posts in thread ']
 		},
-		updThrDelay:	[' (сек)*', ' (sec)*'],
-		favIcoBlink:	['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
-		desktNotif:		['Уведомления на рабочем столе', 'Desktop notifications'],
-		expandPosts: {
+		'updThrDelay':	[' (сек)*', ' (sec)*'],
+		'favIcoBlink':	['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
+		'desktNotif':		['Уведомления на рабочем столе', 'Desktop notifications'],
+		'expandPosts': {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['загрузка сокращенных постов*', 'upload of shorted posts*']
 		},
-		expandImgs: {
+		'expandImgs': {
 			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
 			txt:		['раскрывать изображения ', 'expand images ']
 		},
-		preLoadImgs:	['Предварительно загружать изображения*', 'Pre-load images*'],
-		findRarJPEG:	['Распознавать rarJPEG\'и в изображениях*', 'Detect rarJPEGs in images*'],
-		postBtnsTxt:	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
-		imgSrcBtns:		['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
-		noSpoilers:		['Открывать спойлеры', 'Open spoilers'],
-		noPostNames:	['Скрывать имена в постах', 'Hide names in posts'],
-		noPostScrl:		['Без скролла в постах', 'No scroll in posts'],
-		keybNavig:		['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
-		correctTime:	['Корректировать время в постах* ', 'Correct time in posts* '],
-		timeOffset:		[' Разница во времени', ' Time difference'],
-		timePattern:	['Шаблон замены', 'Replace pattern'],
+		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
+		'findRarJPEG':	['Распознавать rarJPEG\'и в изображениях*', 'Detect rarJPEGs in images*'],
+		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
+		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
+		'noSpoilers':	['Открывать спойлеры', 'Open spoilers'],
+		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
+		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
+		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
+		'timeOffset':	[' Разница во времени', ' Time difference'],
+		'timePattern':	['Шаблон замены', 'Replace pattern'],
 
-		linksNavig: {
+		'linksNavig': {
 			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
 			txt:		['навигация по >>ссылкам* ', 'navigation by >>links* ']
 		},
-		linksOver:		[' задержка появления (мс)', ' delay appearance (ms)'],
-		linksOut:		[' задержка пропадания (мс)', ' delay disappearance (ms)'],
-		markViewed:		['Отмечать просмотренные посты*', 'Mark viewed posts*'],
-		strikeHidd:		['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
-		noNavigHidd:	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
-		insertNum:		['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		addMP3:			['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
-		addImgs:		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
-		addYouTube: {
+		'linksOver':	[' задержка появления (мс)', ' delay appearance (ms)'],
+		'linksOut':		[' задержка пропадания (мс)', ' delay disappearance (ms)'],
+		'markViewed':	['Отмечать просмотренные посты*', 'Mark viewed posts*'],
+		'strikeHidd':	['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
+		'noNavigHidd':	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
+		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
+		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
+		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
 			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
 		},
-		YTubeType: {
+		'YTubeType': {
 			sel:		[['Flash', 'HTML5 iframe', 'HTML5 video'], ['Flash', 'HTML5 iframe', 'HTML5 video']],
 			txt:		[' ', ' ']
 		},
-		YTubeHD:		['HD ', 'HD '],
-		YTubeTitles:	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
+		'YTubeHD':		['HD ', 'HD '],
+		'YTubeTitles':	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 
-		addPostForm: {
+		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
-		noThrdForm:		['Прятать форму создания треда', 'Hide thread creating form'],
-		favOnReply:		['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		checkReply:		['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
-		postSameImg:	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-		removeEXIF:		['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
-		removeFName:	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
-		addSageBtn:		['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
-		saveSage:		['запоминать сажу', 'remember sage'],
-		captchaLang: {
+		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
+		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
+		'checkReply':	['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
+		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
+		'removeEXIF':	['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
+		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
+		'saveSage':		['запоминать сажу', 'remember sage'],
+		'captchaLang': {
 			sel:		[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
 			txt:		['язык ввода капчи', 'language input in captcha']
 		},
-		addTextBtns: {
+		'addTextBtns': {
 			sel:		[['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
 			txt:		['кнопки форматирования текста ', 'text format buttons ']
 		},
-		txtBtnsLoc:		['внизу', 'at bottom'],
-		userName:		['Постоянное имя', 'Fixed name'],
-		userPassw:		['Постоянный пароль', 'Fixed password'],
-		userSignat:		['Постоянная подпись', 'Fixed signature'],
-		noBoardRule:	['правила ', 'rules '],
-		noGoto:			['поле goto ', 'goto field '],
-		noPassword:		['пароль', 'password'],
+		'txtBtnsLoc':	['внизу', 'at bottom'],
+		'userName':		['Постоянное имя', 'Fixed name'],
+		'userPassw':	['Постоянный пароль', 'Fixed password'],
+		'userSignat':	['Постоянная подпись', 'Fixed signature'],
+		'noBoardRule':	['правила ', 'rules '],
+		'noGoto':		['поле goto ', 'goto field '],
+		'noPassword':	['пароль', 'password'],
 
-		scriptStyle: {
+		'scriptStyle': {
 			sel:		[['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Gradient blue', 'Solid grey']],
 			txt:		[' стиль скрипта', ' script style']
 		},
-		attachPanel:	['Прикрепить главную панель ', 'Attach main panel '],
-		panelCounter:	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
-		rePageTitle:	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
-		animation:		['Включить анимацию в скрипте', 'Enable animation in script'],
-		closePopups:	['Автоматически закрывать уведомления', 'Close popups automatically'],
-		updScript:		['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
-		scrUpdIntrv: {
+		'attachPanel':	['Прикрепить главную панель ', 'Attach main panel '],
+		'panelCounter':	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
+		'rePageTitle':	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
+		'animation':	['Включить анимацию в скрипте', 'Enable animation in script'],
+		'closePopups':	['Автоматически закрывать уведомления', 'Close popups automatically'],
+		'updScript':	['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
+		'scrUpdIntrv': {
 			sel:		[['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
 			txt:		['Интервал проверки', 'Check interval']
 		},
-		betaScrUpd:	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
+		'betaScrUpd':	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
 
-		language: {
+		'language': {
 			sel:		[['Ru', 'En'], ['Ru', 'En']],
 			txt:		['', '']
 		}
 	},
 
 	txtBtn: {
-		Bold:		['Жирный', 'Bold'],
-		Italic:		['Наклонный', 'Italic'],
-		Under:		['Подчеркнутый', 'Underlined'],
-		Strike:		['Зачеркнутый', 'Strike'],
-		Spoil:		['Спойлер', 'Spoiler'],
-		Code:		['Код', 'Code'],
-		Quote:		['Цитировать выделенное', 'Quote selected']
+		'Bold':		['Жирный', 'Bold'],
+		'Italic':	['Наклонный', 'Italic'],
+		'Under':	['Подчеркнутый', 'Underlined'],
+		'Strike':	['Зачеркнутый', 'Strike'],
+		'Spoil':	['Спойлер', 'Spoiler'],
+		'Code':		['Код', 'Code'],
+		'Quote':	['Цитировать выделенное', 'Quote selected']
 	},
 
 	cfgTab: {
-		Filters:	['Фильтры', 'Filters'],
-		Posts:		['Посты', 'Posts'],
-		Links:		['Ссылки', 'Links'],
-		Form:		['Форма', 'Form'],
-		Common:		['Общее', 'Common'],
-		Info:		['Инфо', 'Info']
+		'Filters':	['Фильтры', 'Filters'],
+		'Posts':	['Посты', 'Posts'],
+		'Links':	['Ссылки', 'Links'],
+		'Form':		['Форма', 'Form'],
+		'Common':	['Общее', 'Common'],
+		'Info':		['Инфо', 'Info']
 	},
 
 	panelBtn: {
-		Settings:	['Настройки', 'Settings'],
-		Hidden:		['Скрытое', 'Hidden'],
-		Favor:		['Избранное', 'Favorites'],
-		Refresh:	['Обновить', 'Refresh'],
-		GoBack:		['Назад', 'Go back'],
-		GoNext:		['Следующая', 'Next'],
-		GoUp:		['Наверх', 'To the top'],
-		GoDown:		['В конец', 'To the bottom'],
-		NewThr:		['Создать тред', 'New thread'],
-		ExpImg:		['Раскрыть картинки', 'Expand images'],
-		MaskImg:	['Маскировать картинки', 'Mask images'],
-		UpdOn:		['Автообновление треда', 'Thread autoupdate'],
-		AudioOff:	['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
-		Catalog:	['Каталог', 'Catalog'],
-		counter:	['Постов/Изображений в треде', 'Posts/Images in thread']
+		'Settings':	['Настройки', 'Settings'],
+		'Hidden':	['Скрытое', 'Hidden'],
+		'Favor':	['Избранное', 'Favorites'],
+		'Refresh':	['Обновить', 'Refresh'],
+		'GoBack':	['Назад', 'Go back'],
+		'GoNext':	['Следующая', 'Next'],
+		'GoUp':		['Наверх', 'To the top'],
+		'GoDown':	['В конец', 'To the bottom'],
+		'NewThr':	['Создать тред', 'New thread'],
+		'ExpImg':	['Раскрыть картинки', 'Expand images'],
+		'MaskImg':	['Маскировать картинки', 'Mask images'],
+		'UpdOn':	['Автообновление треда', 'Thread autoupdate'],
+		'AudioOff':	['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
+		'Catalog':	['Каталог', 'Catalog'],
+		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread']
 	},
 
 	selHiderMenu:	[
