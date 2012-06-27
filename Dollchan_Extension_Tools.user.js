@@ -5519,8 +5519,7 @@ function disableSpells() {
 		if(post.ytHide === 1) {
 			unhidePost(post);
 			post.ytHide = 0;
-		}
-		if(checkSpells(post)) {
+		} else if(checkSpells(post)) {
 			unhidePost(post);
 		}
 	});
