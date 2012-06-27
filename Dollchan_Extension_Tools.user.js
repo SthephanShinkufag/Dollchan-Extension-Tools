@@ -3390,6 +3390,8 @@ function prepareCFeatures() {
 					};\
 					w.onerror = function(e) {\
 						console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);\
+						bwrk[wI] = 0;\
+						link = wI = null;\
 					};\
 					w.postMessage(link.href);\
 				};' : ';') +
