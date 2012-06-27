@@ -3388,7 +3388,9 @@ function prepareCFeatures() {
 						bwrk[wI] = 0;\
 						link = wI = null;\
 					};\
-					w.onerror = function() { console.error("WORKER ERROR"); };\
+					w.onerror = function(e) {\
+						console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);\
+					};\
 					w.postMessage(link.href);\
 				};' : ';') +
 			'el = getPostImages(pNum === "all" ? document : $x(".//*[@desu-post=\'" + pNum + "\']", document));\
