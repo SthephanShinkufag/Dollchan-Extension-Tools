@@ -1336,7 +1336,7 @@ function getCfgPosts() {
 		optSel('updThread', false, null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
-			$txt(Lng.cfg.updThrDelay[lCode])
+			$txt(Lng.cfg['updThrDelay'][lCode])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$if(nav.Firefox, lBox('favIcoBlink', true, null)),
@@ -1368,12 +1368,12 @@ function getCfgPosts() {
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
-				$txt(Lng.cfg.timeOffset[lCode])
+				$txt(Lng.cfg['timeOffset'][lCode])
 			]),
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
 				$txt(' '),
-				$new('a', {'text': Lng.cfg.timePattern[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
+				$new('a', {'text': Lng.cfg['timePattern'][lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'HelpTRep', false);
@@ -1390,11 +1390,11 @@ function getCfgLinks() {
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
 				inpTxt('linksOver', 6, null),
-				$txt(Lng.cfg.linksOver[lCode])
+				$txt(Lng.cfg['linksOver'][lCode])
 			]),
 			$New('div', null, [
 				inpTxt('linksOut', 6, null),
-				$txt(Lng.cfg.linksOut[lCode])
+				$txt(Lng.cfg['linksOut'][lCode])
 			]),
 			lBox('markViewed', true, null),
 			lBox('strikeHidd', true, null),
