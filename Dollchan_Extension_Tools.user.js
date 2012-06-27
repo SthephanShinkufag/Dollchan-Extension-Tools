@@ -1138,7 +1138,7 @@ function addPanel() {
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
-				$new('span', {'title': Lng.panelBtn.counter[lCode], 'text': Posts.length + '/' + imgLen}, null)
+				$new('span', {'title': Lng.panelBtn['counter'][lCode], 'text': Posts.length + '/' + imgLen}, null)
 			]))
 		]),
 		$new('div', {'class': 'DESU_content'}, null),
