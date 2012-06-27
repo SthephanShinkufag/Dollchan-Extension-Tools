@@ -823,7 +823,7 @@ function readCfg() {
 	Cfg['linksOut'] = +Cfg['linksOut'];
 	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 	lCode = Cfg['language'];
-	Stat = getStoredObj('DESU_Stat_' + aib.dm, {view: 0, op: 0, reply: 0});
+	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
 		Stat.view = +Stat.view + 1;
 	}
