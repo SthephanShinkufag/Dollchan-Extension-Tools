@@ -28,7 +28,7 @@ var defaultCfg = {
 	'viewHiddNum':	1,		// view hidden on postnumber
 	'delHiddPost':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
 	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
-	'updThrDelay':	'60',	//		threads update interval in sec
+	'updThrDelay':	60,		//		threads update interval in sec
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
@@ -43,11 +43,11 @@ var defaultCfg = {
 	'noPostScrl':	1,		// no scroll in posts
 	'keybNavig':	0,		// keyboard navigation
 	'correctTime':	0,		// correct time in posts
-	'timeOffset':	'-2',	//		offset in hours
+	'timeOffset':	'',		//		offset in hours
 	'timePattern':	'',		//		replace pattern
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
-	'linksOver':	'100',	//		delay appearance in ms
-	'linksOut':		'1500',	//		delay disappearance in ms
+	'linksOver':	100,	//		delay appearance in ms
+	'linksOut':		1500,	//		delay disappearance in ms
 	'markViewed':	0,		//		mark viewed posts
 	'strikeHidd':	0,		//		strike >>links to hidden posts
 	'noNavigHidd':	0,		//		don't show previews for hidden posts
@@ -343,8 +343,10 @@ Lng = {
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	],
-	conReset: ['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
-	fileCorrupt: ['Файл повреждён: ', 'File is corrupted: ']
+	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
+	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
+	debug:			['Отладка', 'Debug'],
+	infoDebug:		['Информация для отладки', 'Information for debugging']
 },
 
 doc = window.document,
@@ -689,6 +691,44 @@ function getPageUrl(h, b, p) {
 			/dobrochan|tenhou/.test(h) ? ('index' + docExt) :
 			''
 		));
+}
+
+function getPrettyJSON(obj, indent) {
+	var sJSON, iCount, indentStyle = '\t',
+		isArr = obj instanceof Array;
+	if(isArr) {
+		if(obj.length == 0) {
+			return '[]';
+		}
+		sJSON = '[';
+	} else if($isEmpty(obj)) {
+		return '{}';
+	} else {
+		sJSON = '{';
+	}
+	iCount = 0;
+	nav.forEach(obj, function(key) {
+		var val = this[key], type = typeof(val);
+		if(type === 'function') {
+			return;
+		} else if(type === 'object') {
+			type = val === null ? 'null' :
+				val instanceof Array ? 'array' :
+				val instanceof Date ? 'date' :
+				val instanceof RegExp ? 'regex' :
+				'object';
+		}
+		if(iCount > 0) {
+			sJSON += ',';
+		}
+		sJSON += '\n' + indent + indentStyle + (isArr ? '' : '"' + key + '"' + ': ') + (
+			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + indentStyle) :
+			type === 'boolean' || type === 'number' ? val.toString() :
+			type === 'string' ? '"' + val + '"' : type
+		);
+		iCount++;
+	});
+    return sJSON += '\n' + indent + (isArr ? ']' : '}');
 }
 
 
@@ -1504,7 +1544,33 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
-		$add('<div style="padding-left: 10px;"><div style="display: inline-block; vertical-align: top; width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</div><div style="display: inline-block; vertical-align: top; padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</div><div style="text-align: center;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts/</a></div></div>')
+		$add('<span style="width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</span>'),
+		$add('<span style="padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</span>'),
+		$New('div', {'style': 'display: table;'}, [
+			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts</a></span>'),
+			$new('input', {'type': 'button', 'style': 'display: table-cell;', 'value': Lng.debug[lCode], 'title': Lng.infoDebug[lCode]}, {'click': function() {
+				$del($id('DESU_alertHelpDEBUG'));
+				var nCfg = new Config(Cfg), tl = timeLog.split('\n');
+				tl[tl.length - 1] = Lng.total[lCode] + endTime + 'ms';
+				delete nCfg['passwValue'];
+				delete nCfg['signatValue'];
+				delete nCfg['lastScrUpd'];
+				for(var i in nCfg) {
+					if(nCfg[i] === defaultCfg[i]) {
+						delete nCfg[i];
+					}
+				}
+				$alert(Lng.infoDebug[lCode] + ':<br /><textarea readonly rows="20" cols="75">' + getPrettyJSON({
+					'version': defaultCfg['version'],
+					'location': String(window.location),
+					'nav': nav,
+					'cfg': nCfg,
+					'spells': spellsList,
+					'audio': Audio,
+					'perf': tl
+				}, '') + '</textarea>', 'HelpDEBUG', false);
+			}})
+		])
 	]);
 }
 
@@ -1555,7 +1621,7 @@ function addSettings(Set) {
 				})),
 				$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
 					$disp($attr($t('textarea', this.parentNode.parentNode), {
-						'value': getStored('DESU_Config_' + aib.dm)
+						'value': getPrettyJSON(Cfg, '')
 					}).parentNode);
 				}),
 				$btn(Lng.reset[lCode], Lng.resetCfg[lCode], function() {
@@ -1573,7 +1639,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 56}, null),
 				$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim());
+					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 					window.location.reload();
 				})
 			])
@@ -1677,7 +1743,7 @@ function addHiddenTable(hid) {
 	el = hid.appendChild($add('<div></div>'));
 	$append(el, [
 		$add('<hr />'),
-		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lCode] : Lng.hiddenThrds[lCode]) + ':</b>')
+		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lCode] : Lng.hiddenThrds[lCode] + ':') + '</b>')
 	]);
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
@@ -1707,10 +1773,11 @@ function addHiddenTable(hid) {
 		}
 	}
 	$append(el, [
+	$add('<hr />'),
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-			var ta = $t('textarea', this.parentNode);
-			ta.value = JSON.stringify(hThrds);
-			$disp(ta.parentNode);
+			$disp($attr($t('textarea', this.parentNode), {
+				'value': getPrettyJSON(hThrds, '')
+			}).parentNode);
 		}),
 		$btn(Lng.remove[lCode], Lng.clrSelected[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
@@ -1741,7 +1808,7 @@ function addHiddenTable(hid) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-				saveHiddenThreads(this.previousSibling.value);
+				saveHiddenThreads(this.previousSibling.value.trim().replace(/\t|\n/, ''));
 			})
 		])
 	]);
@@ -1787,9 +1854,9 @@ function addFavoritesTable(fav) {
 	$append(fav, [
 		$new('hr', null, null),
 		$btn(Lng.edit[lCode], Lng.editInTxt[lCode], function() {
-			var ta = $t('textarea', this.parentNode);
-			ta.value = JSON.stringify(Favor);
-			$disp(ta.parentNode);
+			$disp($attr($t('textarea', this.parentNode), {
+				'value': getPrettyJSON(Favor, '')
+			}).parentNode);
 		}),
 		$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
 			$each($X('.//div[@class="DESU_contData"]', this.parentNode), function(el) {
@@ -1835,7 +1902,7 @@ function addFavoritesTable(fav) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lCode], Lng.saveChanges[lCode], function() {
-				saveFavorites(this.previousSibling.value);
+				saveFavorites(this.previousSibling.value.trim().replace(/\n|\r/, ''));
 			})
 		])
 	]);
@@ -3332,8 +3399,7 @@ function prepareCFeatures() {
 		}' +
 		String(toBlob).replace('nav.Firefox', !!nav.Firefox) +
 		String(getPostImages) +
-		String(getPost) +
-		String(aib.getPicWrap).replace('(el)', 'getPicWrap(el)') +
+		String(aib.getPicWrap) +
 		'function preloadImages(pNum, mReqs, rjw) {\
 			var len, el, cReq = 0, i = 0, arr = [],\
 				bwrk = mReqs === 4 ? [0, 0, 0, 0] : [0],\
@@ -5729,6 +5795,8 @@ function scriptCSS() {
 
 	// Settings window
 	x += '#DESU_contentCfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+		#DESU_cfgInfo { padding-left: 10px; }\
+		#DESU_cfgInfo > span { display: inline-block; vertical-align: top; }\
 		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
@@ -5926,7 +5994,7 @@ function scriptCSS() {
 		.DESU_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
 		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
-		textarea { resize: none !important; }';
+		textarea { resize: none !important; -moz-tab-size: 4; -o-tab-size: 4; tab-size: 4; }';
 	if(aib.kus) {
 		x += '.extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
@@ -6363,18 +6431,18 @@ function getImageboard() {
 		aib.hana ? '@class="file"' :
 		false;
 	aib.getPicWrap =
-		aib.hana ? function(el) {
+		aib.hana ? function getPicWrap(el) {
 			if(!el.previousElementSibling) {
 				el = el.parentNode;
 			}
 			return el.parentNode;
 		} :
-		aib.krau ? function(el) {
+		aib.krau ? function getPicWrap(el) {
 			return el.parentNode;
 		} :
-		function(el) {
-			return getPost(el);
-		}
+		function getPicWrap(el) {
+			return $x('ancestor::*[@desu-post]', el);
+		};
 	aib.getMsg = aib.cMsg ?
 		function(el) {
 			return $c(aib.cMsg, el);
