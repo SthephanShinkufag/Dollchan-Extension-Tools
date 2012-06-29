@@ -1566,7 +1566,6 @@ function getCfgInfo() {
 					'nav': nav,
 					'cfg': nCfg,
 					'spells': spellsList,
-					'audio': Audio,
 					'perf': tl
 				}, '') + '</textarea>', 'HelpDEBUG', false);
 			}})
