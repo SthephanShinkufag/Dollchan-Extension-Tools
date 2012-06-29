@@ -1702,7 +1702,7 @@ function addHiddenTable(hid) {
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
 			pst.vis = pst.vis ? 0 : 1;
-			togglePost(pst, post.vis);
+			togglePost(pst, pst.vis);
 		};
 		if(!pHead) {
 			pHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
