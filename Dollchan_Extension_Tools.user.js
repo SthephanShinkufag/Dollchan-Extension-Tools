@@ -724,7 +724,7 @@ function getPrettyJSON(obj, indent) {
 		sJSON += '\n' + indent + indentStyle + (isArr ? '' : '"' + key + '"' + ': ') + (
 			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + indentStyle) :
 			type === 'boolean' || type === 'number' ? val.toString() :
-			type === 'string' ? '"' + val + '"' : type
+			type === 'string' ? '"' + val.replace(/"/g, '\\"') + '"' : type
 		);
 		iCount++;
 	});
