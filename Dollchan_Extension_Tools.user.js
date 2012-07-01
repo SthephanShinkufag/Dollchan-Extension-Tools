@@ -4613,47 +4613,24 @@ function loadFavorThread() {
 	]);
 }
 
-function loadPage(page, i, last) {
+function loadPage(page, i, Fn) {
 	ajaxGetPosts(getPageUrl(aib.host, brd, i), null, null, null, function(dc, err) {
 		var df = doc.importNode($$x(aib.xDForm, dc, dc), true), el;
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
 		replaceDelform(page);
-		parseDelform(page, doc, pushPost);
-		removePageTrash(page);
-		if(last) {
-			Posts.forEach(addPostButtons);
-			readPostsVisib();
-			Posts.forEach(doPostFilters);
-			if(Cfg['delHiddPost'] === 1) {
-				Posts.forEach(mergeHidden);
-			}
-			Posts.forEach(eventPostImg);
-			Posts.forEach(expandPost);
-			addLinkMP3(null);
-			addLinkTube(null);
-			addLinkImg(dForm);
-			addImgSearch(dForm);
-			genRefMap(pByNum);
-			eventRefLink(dForm);
-			saveHiddenPosts();
-			if(isExpImg) {
-				Posts.forEach(function(post) {
-					expandAllPostImg(post, null);
-				});
-			}
-			closeAlert($id('DESU_alertLPages'));
-			window.postMessage('Kall', '*');
-		}
-		page = last = null;
+		Fn(page, i);
+		Fn = page = i = null;
 	});
 }
 
 function loadPages(len) {
 	$alert(Lng.loading[lCode], 'LPages', true);
 	var i = -1,
-		page = dForm;
+		page = dForm,
+		pages = new Array(len),
+		loaded = 1;
 	dForm.innerHTML = '';
 	Posts = [];
 	Pviews.ajaxed = {};
@@ -4666,7 +4643,40 @@ function loadPages(len) {
 				page
 			]);
 		}
-		loadPage(page, i, i === len - 1);
+		loadPage(page, i, function(page, idx) {
+			pages[idx] = page;
+			if(loaded === len) {
+				pages.forEach(function(page) {
+					parseDelform(page, doc, pushPost);
+					removePageTrash(page);
+				});
+				Posts.forEach(addPostButtons);
+				readPostsVisib();
+				Posts.forEach(doPostFilters);
+				if(Cfg['delHiddPost'] === 1) {
+					Posts.forEach(mergeHidden);
+				}
+				Posts.forEach(eventPostImg);
+				Posts.forEach(expandPost);
+				addLinkMP3(null);
+				addLinkTube(null);
+				addLinkImg(dForm);
+				addImgSearch(dForm);
+				genRefMap(pByNum);
+				eventRefLink(dForm);
+				saveHiddenPosts();
+				if(isExpImg) {
+					Posts.forEach(function(post) {
+						expandAllPostImg(post, null);
+					});
+				}
+				closeAlert($id('DESU_alertLPages'));
+				window.postMessage('Kall', '*');
+				loaded = pages = null;
+			} else {
+				loaded++;
+			}
+		});
 	}
 }
 
@@ -6715,8 +6725,6 @@ function removePageTrash(el) {
 		$del($t('hr', el));
 		$del($t('hr', el.previousElementSibling));
 	} else if(aib.abu) {
-		$del(el.nextElementSibling);
-		$del(el.nextElementSibling);
 		el = $c('DESU_thread', el);
 		if(TNum && el) {
 			$Del('following-sibling::node()', el);
@@ -6751,6 +6759,10 @@ function initPage() {
 	$Del('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
 		aib.fch ? 'self::div[@class="boardBanner"]' : 'self::div[@class="logo"]'
 	) + ' or self::h1]]]', dForm);
+	if(aib.abu) {
+		$del(dForm.nextElementSibling);
+		$del(dForm.nextElementSibling);
+	}
 	if(TNum) {
 		var onvis = function() {
 				Favico.focused = true;
