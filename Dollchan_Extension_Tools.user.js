@@ -6217,9 +6217,8 @@ function getNavigator() {
 		}
 	}
 	try {
-		ua = new Uint8Array(0);
 		try {
-			new Blob([ua]);
+			new Blob([new Uint8Array(0)]);
 			nav.toBlob = function toBlob(arr) {
 				return new Blob(arr);
 			};
@@ -6235,7 +6234,7 @@ function getNavigator() {
 					if(el instanceof Uint8Array) {
 						if(el.byteLength !== el.buffer.byteLength) {
 							out = new Uint8Array(len_ = el.length);
-							for(j = 0; j < len; j++) {
+							for(j = 0; j < len_; j++) {
 								out[j] = el[j];
 							}
 							bb.append(out.buffer);
