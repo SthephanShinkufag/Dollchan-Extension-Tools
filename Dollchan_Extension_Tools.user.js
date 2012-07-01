@@ -5957,6 +5957,7 @@ function scriptCSS() {
 	// Embedders
 	cont('.DESU_ytLink', '//youtube.com/favicon.ico');
 	x += '.DESU_preImg, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
+		.DESU_fullImg { float: left; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
 		.DESU_ytObj > img { cursor: pointer; }';
 
