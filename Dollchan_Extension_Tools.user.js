@@ -35,7 +35,9 @@ var defaultCfg = {
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
-	'findRarJPEG':	0,		// detect rarJPEGs in images
+	'findRarJPEG':	0,		// 		detect rarJPEGs in images
+	'showGIFs':		0,		// 		show animated GIFs in posts
+	'openSpoilers':	0,		// 		open image spoilers in posts
 	'postBtnsTxt':	0,		// show post buttons as text
 	'imgSrcBtns':	1,		// add image search buttons
 	'noSpoilers':	1,		// open spoilers
@@ -132,6 +134,8 @@ Lng = {
 		},
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findRarJPEG':	['Распознавать rarJPEG\'и в изображениях*', 'Detect rarJPEGs in images*'],
+		'showGIFs':		['Анимировать GIFы в постах*', 'Animate GIFs in posts*'],
+		'openSpoilers':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
 		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 		'noSpoilers':	['Открывать спойлеры', 'Open spoilers'],
@@ -1347,19 +1351,20 @@ function getCfgFilters() {
 			lBox('hideBySpell', false, toggleSpells),
 			$new('textarea', {'id': 'DESU_spellEdit', 'rows': 10, 'cols': 49}, null)
 		]),
-		$New('div', null, [
-			lBox('hideByWipe', false, null),
-			$btn('>', Lng.showMore[lCode], function() {
-				$disp($id('DESU_cfgWipe'));
-			})
-		]),
-		$New('div', {'id': 'DESU_cfgWipe', 'style': 'display: none; padding-left: 25px;'}, [
-			lBox('wipeSameLin', true, null),
-			lBox('wipeSameWrd', true, null),
-			lBox('wipeLongWrd', true, null),
-			lBox('wipeSpecial', true, null),
-			lBox('wipeCAPS', true, null),
-			lBox('wipeNumbers', true, null)
+		lBox('hideByWipe', true, null),
+		$New('div', {'id': 'DESU_cfgWipe'}, [
+			$New('div', null, [
+				lBox('wipeSameLin', false, null),
+				lBox('wipeSameWrd', false, null)
+			]),
+			$New('div', null, [
+				lBox('wipeLongWrd', false, null),
+				lBox('wipeSpecial', false, null)
+			]),
+			$New('div', null, [
+				lBox('wipeCAPS', false, null),
+				lBox('wipeNumbers', false, null)
+			])
 		]),
 		lBox('filterThrds', true, null),
 		lBox('menuHiddBtn', true, null),
@@ -1390,7 +1395,9 @@ function getCfgPosts() {
 		optSel('expandImgs', true, null),
 		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
 		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('findRarJPEG', false, null)
+			lBox('findRarJPEG', true, null),
+			lBox('showGIFs', true, null),
+			lBox('openSpoilers', true, null)
 		])),
 		lBox('postBtnsTxt', true, null),
 		lBox('imgSrcBtns', true, null),
@@ -1552,6 +1559,7 @@ function getCfgInfo() {
 				$del($id('DESU_alertHelpDEBUG'));
 				var nCfg = new Config(Cfg), tl = timeLog.split('\n');
 				tl[tl.length - 1] = Lng.total[lCode] + endTime + 'ms';
+				delete nCfg['nameValue'];
 				delete nCfg['passwValue'];
 				delete nCfg['signatValue'];
 				delete nCfg['lastScrUpd'];
@@ -2351,6 +2359,9 @@ function doSageBtn() {
 		pr.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
 	} else {
 		pr.mail.checked = c;
+	}
+	if(aib.abu) {
+		setCookie('email', c ? 'sage' : '', 1e5);
 	}
 }
 
@@ -3389,11 +3400,11 @@ function prepareCFeatures() {
 						}\
 						return;\
 					}\
-					var xhr, eImg = ' + !!nav.WebKit + ',\
+					var xhr, eImg = ' + !!Cfg['openSpoilers'] + ',\
 						a = arr[idx],\
 						url = a.href;\
 					if(/\.gif$/i.test(url)) {\
-						eImg = true;\
+						eImg = ' + !!Cfg['showGIFs'] + ';\
 					} else if(!/\.(?:jpe?g|png)$/i.test(url)) {\
 						loadFunc(i++);\
 						return;\
@@ -5792,7 +5803,7 @@ function scriptCSS() {
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(top, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.DESU_cfgUnvis { display: none; }\
-		.DESU_cfgBody { min-width: 371px; min-height: 300px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { min-width: 371px; min-height: 345px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_blockInp { display: block; }\
@@ -5813,7 +5824,10 @@ function scriptCSS() {
 		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		#DESU_spellPanel { float: right; }\
-		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }';
+		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }\
+		#DESU_cfgWipe { display: table; padding-left: 25px; }\
+		#DESU_cfgWipe > div { display: table-row; }\
+		#DESU_cfgWipe > div > label { display: table-cell; }';
 
 	// Main panel
 	x += '#DESU_btnLogo { margin-right: 3px; }\
@@ -6011,7 +6025,7 @@ function scriptCSS() {
 	} else if(aib._7ch) {
 		x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
 	} else if(aib.gazo) {
-		x += '.DESU_content, #DESU_cfgBody { font-family: arial; }\
+		x += '.DESU_content, .DESU_cfgBody { font-family: arial; }\
 			.ftbl { width: auto; margin: 0; }\
 			.reply { background: #f0e0d6; }';
 	} else if(aib.krau) {
