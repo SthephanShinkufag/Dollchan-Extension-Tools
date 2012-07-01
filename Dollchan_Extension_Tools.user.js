@@ -2813,7 +2813,7 @@ function ajaxSubmit(dF, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': toBlob(dF.data),
+		'data': nav.toBlob(dF.data),
 		'url': nav.fixLink(dF.url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -2830,20 +2830,6 @@ function ajaxSubmit(dF, Fn) {
 			}
 		}
 	});
-}
-
-function toBlob(arr) {
-	try {
-		return new Blob(arr);
-	} catch(e) {
-		var bb = nav.Firefox ? new MozBlobBuilder() : new WebKitBlobBuilder(),
-			i = 0,
-			len = arr.length;
-		while(i < len) {
-			bb.append(arr[i++]);
-		}
-		return bb.getBlob();
-	}
 }
 
 function initJpeg(img, dat) {
@@ -2963,10 +2949,11 @@ function getReplyImgData(arr, isForce) {
 			return [arr];
 		}
 		if(rExif) {
-			out = new Uint8Array(len = j + 18);
-			initJpeg(out, jpgDat);
-			j = 20;
-			i = 2;
+			initJpeg(out = new Uint8Array(len = j + 18), jpgDat);
+			for(i = 2, j = 20; j < len; i++, j++) {
+				out[j] = dat[i];
+			}
+			return [out];
 		}
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(; j < len - 7; j++) {
@@ -2981,14 +2968,7 @@ function getReplyImgData(arr, isForce) {
 	} else {
 		return null;
 	}
-	if(out === 0) {
-		out = new Uint8Array(len = j);
-		i = j = 0;
-	}
-	for(; j < len; i++, j++) {
-		out[j] = dat[i];
-	}
-	return [out.buffer];
+	return [new Uint8Array(arr, j)];
 }
 
 /** @constructor */
@@ -3041,7 +3021,7 @@ dataForm.prototype.readFile = function(el, idx) {
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = toBlob(dat);
+			dF.data[idx] = nav.toBlob(dat);
 			dF.busy--;
 		}
 		fr = dF = el = idx = file = null;
@@ -3384,7 +3364,7 @@ function prepareCFeatures() {
 			if(id === "K") {\
 				var mReqs = data === "all" ? 4 : 1, i = mReqs, rjw' +
 				(Cfg['findRarJPEG'] ? '= []; while(i--) rjw.push(new Worker("' +
-					window.URL.createObjectURL(toBlob(['self.onmessage = ' + String(parsePostImg)]))
+					window.URL.createObjectURL(nav.toBlob(['self.onmessage = ' + String(parsePostImg)]))
 				+ '"));' : ';') +
 				'preloadImages(data, mReqs, rjw);\
 				return;\
@@ -3395,10 +3375,7 @@ function prepareCFeatures() {
 		}\
 		function $x(path, root) {\
 			return document.evaluate(path, root, null, 8, null).singleNodeValue;\
-		}' +
-		String(toBlob).replace('nav.Firefox', !!nav.Firefox) +
-		String(getPostImages) +
-		String(aib.getPicWrap) +
+		}' + String(nav.toBlob) + String(getPostImages) + String(aib.getPicWrap) +
 		'function preloadImages(pNum, mReqs, rjw) {\
 			var len, el, cReq = 0, i = 0, arr = [],\
 				bwrk = mReqs === 4 ? [0, 0, 0, 0] : [0],\
@@ -6225,14 +6202,46 @@ function getNavigator() {
 			el.addEventListener(nav.animEnd, function aEvent() {
 				this.removeEventListener(nav.animEnd, aEvent, false);
 				Fn(this);
+				Fn = null;
 			}, false);
 		}
 	}
-	nav.isBlob = nav.Firefox > 6 || (!nav.Safari && nav.WebKit) || (nav.Safari && nav.WebKit > 536);
+	try {
+		ua = new Uint8Array(0);
+		try {
+			new Blob([ua]);
+			nav.toBlob = function toBlob(arr) {
+				return new Blob(arr);
+			};
+		} catch(e) {
+			if(!window.MozBlobBuilder && !window.WebKitBlobBuilder) {
+				throw null;
+			}
+			nav.toBlob = function toBlob(arr) {
+				var i, j, len, len_, out, el,
+					bb = new (window.WebKitBlobBuilder || window.MozBlobBuilder)();
+				for(i = 0, len = arr.length; i < len; i++) {
+					el = arr[i]
+					if(el instanceof Uint8Array) {
+						if(el.byteLength !== el.buffer.byteLength) {
+							out = new Uint8Array(len_ = el.length);
+							for(j = 0; j < len; j++) {
+								out[j] = el[j];
+							}
+							bb.append(out.buffer);
+						} else {
+							bb.append(el.buffer);
+						}
+					} else {
+						bb.append(el);
+					}
+				}
+				return bb.getBlob();
+			};
+		}
+		nav.isBlob = true;
+	} catch(e) { nav.isBlob = false; }
 	nav.isH5Rep = nav.isBlob && !aib.nul && !aib.tiny;
-	if(nav.WebKit) {
-		window.URL = window.webkitURL;
-	}
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
@@ -6267,6 +6276,9 @@ function getNavigator() {
 		function(url) {
 			return url;
 		};
+	if(nav.WebKit) {
+		window.URL = window.webkitURL;
+	}
 	nav.postMsg = nav.WebKit || nav.Opera ? addContentScript : eval;
 }
 
