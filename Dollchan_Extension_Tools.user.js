@@ -3370,13 +3370,16 @@ function prepareCFeatures() {
 				return;\
 			}\
 		});\
-		function $X(path, root) {\
-			return document.evaluate(path, root, null, 7, null);\
-		}\
-		function $x(path, root) {\
-			return document.evaluate(path, root, null, 8, null).singleNodeValue;\
-		}' + String(nav.toBlob) + String(getPostImages) + String(aib.getPicWrap) +
-		'function preloadImages(pNum, mReqs, rjw) {\
+		var $X = function(path, root) {\
+				return document.evaluate(path, root, null, 7, null);\
+			},\
+			$x = function(path, root) {\
+				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
+			},\
+			toBlob = ' + String(nav.toBlob) + ',\
+			getPostImages = (function() { return ' + String(getPostImages) + '; })(),\
+			getPicWrap = ' + String(aib.getPicWrap) + ';\
+		function preloadImages(pNum, mReqs, rjw) {\
 			var len, el, cReq = 0, i = 0, arr = [],\
 				bwrk = mReqs === 4 ? [0, 0, 0, 0] : [0],\
 				loadFunc = function(idx) {\
@@ -6219,14 +6222,14 @@ function getNavigator() {
 	try {
 		try {
 			new Blob([new Uint8Array(0)]);
-			nav.toBlob = function toBlob(arr) {
+			nav.toBlob = function(arr) {
 				return new Blob(arr);
 			};
 		} catch(e) {
 			if(!window.MozBlobBuilder && !window.WebKitBlobBuilder) {
 				throw null;
 			}
-			nav.toBlob = function toBlob(arr) {
+			nav.toBlob = function(arr) {
 				var i, j, len, len_, out, el,
 					bb = new (window.WebKitBlobBuilder || window.MozBlobBuilder)();
 				for(i = 0, len = arr.length; i < len; i++) {
@@ -6451,16 +6454,16 @@ function getImageboard() {
 		aib.hana ? '@class="file"' :
 		false;
 	aib.getPicWrap =
-		aib.hana ? function getPicWrap(el) {
+		aib.hana ? function(el) {
 			if(!el.previousElementSibling) {
 				el = el.parentNode;
 			}
 			return el.parentNode;
 		} :
-		aib.krau ? function getPicWrap(el) {
+		aib.krau ? function(el) {
 			return el.parentNode;
 		} :
-		function getPicWrap(el) {
+		function(el) {
 			return $x('ancestor::*[@desu-post]', el);
 		};
 	aib.getMsg = aib.cMsg ?

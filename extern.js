@@ -74,3 +74,15 @@ function GM_getValue(name) {};
  * @return {undefined}
  */
 function GM_openInTab(url, loadInBackground, reuseTab) {};
+/**
+ * @param {String} path
+ * @param {Node} root
+ * @return {XPathResult}
+ */
+function $X(path, root) {};
+/**
+ * @param {String} path
+ * @param {Node} root
+ * @return {Node}
+ */
+function $x(path, root) {};
