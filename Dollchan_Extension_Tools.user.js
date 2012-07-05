@@ -4454,7 +4454,7 @@ function addPostFunc(post) {
 
 function newPost(thr, post, pNum, i) {
 	var pst, el;
-	pushPost(doc, post, thr, pNum, i);
+	pushPost(post, thr, pNum, i);
 	post.Vis = getVisib(post.Num);
 	addPostButtons(post);
 	if(Cfg['expandImgs']) {
