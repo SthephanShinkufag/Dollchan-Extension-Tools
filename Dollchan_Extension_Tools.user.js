@@ -6393,7 +6393,7 @@ function getImageboard() {
 	aib.pClass =
 		aib.krau ? 'postreply' :
 		aib.ylil ? ' answer' :
-		aib.tiny || aib.fch ? 'post reply' :
+		aib.tiny || aib.fch ? 'reply' :
 		'reply';
 	aib.opClass =
 		aib.kus ? 'postnode' :
@@ -6436,9 +6436,7 @@ function getImageboard() {
 		aib.qImgWrap + 'a[href*=".png"]' + (aib.nul ? ':first-child,' : ',') +
 		aib.qImgWrap + 'a[href*=".gif"]' + (aib.nul ? ':first-child' : '')
 	);
-	aib.qPost = aib.fch ? 'div:nth-child(2)' :
-		aib.gazo ? 'td:nth-child(2)' :
-		'.' + aib.pClass;
+	aib.qPost = aib.gazo ? 'td:nth-child(2)' : '.' + aib.pClass;
 	aib.qPostForm = aib.gazo ? 'form:nth-of-type(1)' : '#postform, #postForm';
 	aib.cTitle =
 		aib.krau || aib.ylil ? 'postsubject' :
