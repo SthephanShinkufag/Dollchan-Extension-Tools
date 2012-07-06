@@ -4046,7 +4046,7 @@ function parsePostImg(e) {
 ==============================================================================*/
 
 function getRefMap(pNum) {
-	for(var rNum, nodes = this[pNum].Msg.getElementsByTagName('a'), i = nodes.length - 1; i >= 0; i--) {
+	for(var rNum, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
 		rNum = nodes[i].textContent.match(/^>>(\d+)$/);
 		if(rNum) {
 			rNum = rNum[1];
