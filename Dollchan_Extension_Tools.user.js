@@ -37,7 +37,7 @@ var defaultCfg = {
 	'preLoadImgs':	0,		// pre-load images
 	'findRarJPEG':	0,		// 		detect rarJPEGs in images
 	'showGIFs':		0,		// 		show animated GIFs in posts
-	'openSpoilers':	0,		// 		open image spoilers in posts
+	'noImgSpoil':	0,		// 		open image spoilers in posts
 	'postBtnsTxt':	0,		// show post buttons as text
 	'imgSrcBtns':	1,		// add image search buttons
 	'noSpoilers':	1,		// open spoilers
@@ -135,7 +135,7 @@ Lng = {
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findRarJPEG':	['Распознавать rarJPEG\'и в изображениях*', 'Detect rarJPEGs in images*'],
 		'showGIFs':		['Анимировать GIFы в постах*', 'Animate GIFs in posts*'],
-		'openSpoilers':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
+		'noImgSpoil':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
 		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 		'noSpoilers':	['Открывать спойлеры', 'Open spoilers'],
@@ -1400,7 +1400,7 @@ function getCfgPosts() {
 		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', true, null),
 			lBox('showGIFs', true, null),
-			lBox('openSpoilers', true, null)
+			lBox('noImgSpoil', true, null)
 		])),
 		lBox('postBtnsTxt', true, null),
 		lBox('imgSrcBtns', true, null),
@@ -3398,7 +3398,7 @@ function prepareCFeatures() {
 						}\
 						return;\
 					}\
-					var xhr, eImg = ' + !!Cfg['openSpoilers'] + ',\
+					var xhr, eImg = ' + !!Cfg['noImgSpoil'] + ',\
 						a = arr[idx],\
 						url = a.href;\
 					if(/\.gif$/i.test(url)) {\
