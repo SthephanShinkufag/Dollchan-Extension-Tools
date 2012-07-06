@@ -3717,14 +3717,12 @@ function addLinkTube(post) {
 				addTubePlayer(el, m);
 			}
 			msg = pst.Msg || $q(aib.qMsg, pst);
-			if((aib.hana || aib.krau) && msg) {
+			if(aib.hana || aib.krau) {
 				msg = msg.parentNode;
 				pN = msg.previousElementSibling;
 				$before(pN.hasAttribute('style') ? pN : msg, el);
-			} else if(msg) {
-				$before(msg, el);
 			} else {
-				pst.appendChild(el);
+				$before(msg, el);
 			}
 		}
 		link.className = 'DESU_ytLink';
@@ -3806,20 +3804,14 @@ function addLinkMP3(post) {
 		return;
 	}
 	$$each($Q('a[href*=".mp3"]', post || dForm), function(link) {
-		var pst, el, msg;
 		if(!(link.target === '_blank' || link.rel === 'nofollow')) {
 			return;
 		}
-		pst = post || getPost(link);
-		el = $c('DESU_mp3', pst);
+		var pst = post || getPost(link),
+			el = $c('DESU_mp3', pst);
 		if(!el) {
 			el = $new('div', {'class': 'DESU_mp3'}, null);
-			msg = pst.Msg || $q(aib.qMsg, pst);
-			if(msg) {
-				$before(msg, el);
-			} else {
-				pst.appendChild(el);
-			}
+			$before(pst.Msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
 			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>';
