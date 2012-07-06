@@ -3702,7 +3702,7 @@ function addLinkTube(post) {
 		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
-		var pst, el, msg,
+		var pst, el, msg, pN,
 			m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
@@ -3717,8 +3717,12 @@ function addLinkTube(post) {
 				addTubePlayer(el, m);
 			}
 			msg = pst.Msg || $q(aib.qMsg, pst);
-			if(msg) {
-				$before(aib.hana || aib.krau ? msg.parentNode : msg, el);
+			if((aib.hana || aib.krau) && msg) {
+				msg = msg.parentNode;
+				pN = msg.previousElementSibling;
+				$before(pN.hasAttribute('style') ? pN : msg, el);
+			} else if(msg) {
+				$before(msg, el);
 			} else {
 				pst.appendChild(el);
 			}
