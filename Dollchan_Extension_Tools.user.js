@@ -5979,11 +5979,11 @@ function scriptCSS() {
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
 		textarea { resize: none !important; -moz-tab-size: 4; -o-tab-size: 4; tab-size: 4; }';
 	if(aib.kus) {
-		x += '.extrabtns, .ui-resizable-handle { display: none !important; }\
+		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
 	if(aib.nul) {
-		x += '#newposts_get, #postform nobr, .replieslist, #captcha_status, .DESU_thread span[style="float: right;"] { display: none !important; }\
+		x += '#postform nobr, .replieslist, #captcha_status, .DESU_thread span[style="float: right;"] { display: none !important; }\
 			.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 			.ui-resizable { display: inline !important; }\
 			.voiceplay { float: none; }';
