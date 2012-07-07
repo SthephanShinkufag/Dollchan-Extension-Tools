@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.7.6.1
+// @version			12.7.7.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.7.6.1',
+	'version':	'12.7.7.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -1185,7 +1185,10 @@ function addPanel() {
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
-				$new('span', {'title': Lng.panelBtn['counter'][lCode], 'text': Posts.length + '/' + imgLen}, null)
+				$new('span', {
+					'title': Lng.panelBtn['counter'][lCode],
+					'text': Posts.length + '/' + imgLen
+				}, null)
 			]))
 		]),
 		$new('div', {'class': 'DESU_content'}, null),
@@ -3702,7 +3705,7 @@ function addLinkTube(post) {
 		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
-		var pst, el, msg, pN,
+		var pst, el,
 			m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
@@ -3710,20 +3713,13 @@ function addLinkTube(post) {
 		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
 		if(!$c('DESU_ytObj', pst)) {
-			el = $new('div', {'class': 'DESU_ytObj'}, null);
+			el = $new('span', {'class': 'DESU_ytObj'}, null);
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg['addYouTube'] === 2) {
 				addTubePlayer(el, m);
 			}
-			msg = pst.Msg || $q(aib.qMsg, pst);
-			if(aib.hana || aib.krau) {
-				msg = msg.parentNode;
-				pN = msg.previousElementSibling;
-				$before(pN.hasAttribute('style') ? pN : msg, el);
-			} else {
-				$before(msg, el);
-			}
+			$before(pst.Msg || $q(aib.qMsg, pst), el);
 		}
 		link.className = 'DESU_ytLink';
 		link.onclick = clickTubeLink;
@@ -5942,8 +5938,7 @@ function scriptCSS() {
 	cont('.DESU_ytLink', '//youtube.com/favicon.ico');
 	x += '.DESU_preImg > img, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_fullImg { float: left; }\
-		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
-		.DESU_ytObj > img { cursor: pointer; }';
+		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; cursor: pointer; }';
 
 	// Other
 	cont('.DESU_wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -5995,9 +5990,7 @@ function scriptCSS() {
 	} else if(aib.hana) {
 		x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 			.delete { background: none; }\
-			.delete_checkbox { position: static !important; }\
-			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
-			.DESU_ytObj + div { clear: left; }';
+			.delete_checkbox { position: static !important; }';
 	} else if(aib.abu) {
 		x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"],\
 			#usrFlds + tbody > tr:first-child, #postform > div:nth-child(2),\
@@ -6016,9 +6009,7 @@ function scriptCSS() {
 	} else if(aib.krau) {
 		x += 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
-			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
-			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
-			.DESU_ytObj + div { clear: left; }';
+			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }';
 	} else if(aib._420) {
 		x += '.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
