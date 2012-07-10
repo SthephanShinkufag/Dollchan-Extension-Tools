@@ -6018,7 +6018,8 @@ function scriptCSS() {
 		x += 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
-			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }';
+			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; }\
+			.file_reply + .DESU_ytObj { float: left; }';
 	} else if(aib._420) {
 		x += '.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
