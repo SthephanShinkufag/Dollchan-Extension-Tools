@@ -3095,7 +3095,7 @@ function showQuickReply(post) {
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
 	}
-	$txtInsert(pr.txta, '>>' + post.Num + quotetxt.replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
+	$txtInsert(pr.txta, '>>' + post.Num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 }
 
 function showMainReply() {
