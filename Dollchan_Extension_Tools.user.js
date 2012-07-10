@@ -2698,7 +2698,7 @@ function readArch(inp, file) {
 }
 
 function delFileUtils(el) {
-	$$each($C('DESU_fileUtil', el), $del);
+	$$each($Q('.DESU_fileUtil', el), $del);
 	$$each($Q('input[type="file"]', el), function(node) {
 		node.rarJPEG = null;
 	});
