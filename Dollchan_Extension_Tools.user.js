@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.7.10.1
+// @version			12.7.10.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.7.10.1',
+	'version':	'12.7.10.2',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -3095,7 +3095,7 @@ function showQuickReply(post) {
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
 	}
-	$txtInsert(pr.txta, '>>' + post.Num + quotetxt.replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
+	$txtInsert(pr.txta, '>>' + post.Num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 }
 
 function showMainReply() {
