@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.7.10.2
+// @version			12.7.11.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function (scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.7.10.2',
+	'version':	'12.7.11.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -3713,7 +3713,7 @@ function addLinkTube(post) {
 		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
 		if(!$c('DESU_ytObj', pst)) {
-			el = $new('p', {'class': 'DESU_ytObj'}, null);
+			el = $new('div', {'class': 'DESU_ytObj'}, null);
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg['addYouTube'] === 2) {
@@ -5946,6 +5946,7 @@ function scriptCSS() {
 	x += '.DESU_preImg > img, .DESU_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.DESU_fullImg { float: left; }\
 		.DESU_mp3, .DESU_ytObj { margin: 5px 20px; }\
+		a + .DESU_ytObj { display: inline-block; }\
 		.DESU_ytObj > img { cursor: pointer; }';
 
 	// Other
@@ -5998,7 +5999,9 @@ function scriptCSS() {
 	} else if(aib.hana) {
 		x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 			.delete { background: none; }\
-			.delete_checkbox { position: static !important; }';
+			.delete_checkbox { position: static !important; }\
+			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; display: block; }\
+			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.abu) {
 		x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"],\
 			#usrFlds + tbody > tr:first-child, #postform > div:nth-child(2),\
@@ -6019,7 +6022,8 @@ function scriptCSS() {
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; }\
-			.file_reply + .DESU_ytObj { float: left; }';
+			.file_reply + .DESU_ytObj { float: left; display: block; }\
+			.DESU_ytObj + div { clear: left; }';
 	} else if(aib._420) {
 		x += '.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
