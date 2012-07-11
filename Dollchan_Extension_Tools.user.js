@@ -842,7 +842,7 @@ function fixCfg(isGlob) {
 function readCfg() {
 	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
-	if(nav.Opera && nav.Opera < 11.1 && Cfg['scriptStyle'] !== 2) {
+	if(nav.Opera && nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
 	if(nav.Firefox < 6 && !nav.WebKit) {
@@ -5785,10 +5785,10 @@ function scriptCSS() {
 		#DESU_cfgInfo { padding-left: 10px; }\
 		#DESU_cfgInfo > span { display: inline-block; vertical-align: top; }\
 		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(top, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
+		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#DESU_cfgHead:lang(ru), #DESU_panel:lang(ru) { background: url("data:image/gif;base64,R0lGODlhAQAZAMQAABkqTSRDeRsxWBcoRh48axw4ZChOixs0Xi1WlihMhRkuUQwWJiBBcSpTkS9bmxAfNSdKgDJfoQ0YKRElQQ4bLRAjOgsWIg4fMQsVHgAAAAAAAAAAAAAAAAAAAAAAAAAAACwAAAAAAQAZAEAFFWDETJghUAhUAM/iNElAHMpQXZIVAgA7"); }\
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
-		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(top, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(top, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.DESU_cfgUnvis { display: none; }\
 		.DESU_cfgBody { width: 371px; min-height: 345px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
@@ -5806,9 +5806,9 @@ function scriptCSS() {
 		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
 		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
 		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
+		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
-		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
+		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
 		.DESU_cfgTab_sel { border-bottom: none; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }\
@@ -6021,9 +6021,7 @@ function scriptCSS() {
 		x += 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
-			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; }\
-			.file_reply + .DESU_ytObj { float: left; }\
-			.DESU_ytObj + div { clear: left; }';
+			.file_reply + .DESU_ytObj { margin: 5px 20px 5px 5px;  float: left; }';
 	} else if(aib._420) {
 		x += '.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
@@ -6042,12 +6040,15 @@ function scriptCSS() {
 		x = x.replace(/(border-radius|box-shadow|background-size)/g, '-moz-$1');
 	}
 
+	if(nav.Firefox < 16) {
+		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
+		if(!nav.Opera) {
+			x = x.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
+		}
+	}
+
 	$append(doc.head, [
-		$new('style', {
-			'id': 'DESU_css',
-			'type': 'text/css',
-			'text': x.replace(/(linear-gradient|transition|keyframes|transform|animation)/g, nav.cssFix + '$1')
-		}, null),
+		$new('style', {'id': 'DESU_css', 'type': 'text/css', 'text': x}, null),
 		$new('style', {'id': 'DESU_dynCss', 'type': 'text/css'}, null)
 	]);
 	x = gif = cont = null;
@@ -6202,19 +6203,20 @@ function getNavigator() {
 	nav.isCookie = !nav.isGM && !nav.isScript && !nav.isLocal;
 	nav.isGlobal = nav.isGM || nav.isScript;
 	nav.cssFix =
-		nav.Firefox ? '-moz-' :
 		nav.WebKit ? '-webkit-' :
-		'-o-';
+		nav.Opera ? '-o-' :
+		nav.Firefox < 16 ? '-moz-' : '';
 	if(nav.Firefox > 4 || nav.WebKit || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.animName =
-			nav.Firefox ? 'MozAnimationName' :
 			nav.WebKit ? 'webkitAnimationName' :
-			'OAnimationName';
+			nav.Opera ? 'OAnimationName' :
+			nav.Firefox < 16 ? 'MozAnimationName' :
+			'animationName';
 		nav.animEnd =
 			nav.WebKit ? 'webkitAnimationEnd' :
 			nav.Opera ? 'oAnimationEnd' :
-			'animationend';
+			'animationEnd';
 		nav.animEvent = function(el, Fn) {
 			el.addEventListener(nav.animEnd, function aEvent() {
 				this.removeEventListener(nav.animEnd, aEvent, false);
