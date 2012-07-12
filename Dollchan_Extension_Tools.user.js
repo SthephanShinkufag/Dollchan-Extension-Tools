@@ -6242,7 +6242,7 @@ function getNavigator() {
 				for(i = 0, len = arr.length; i < len; i++) {
 					el = arr[i]
 					if(el instanceof Uint8Array) {
-						if(el.byteLength !== el.buffer.byteLength) {
+						if(el.length !== el.buffer.byteLength) {
 							out = new Uint8Array(len_ = el.length);
 							for(j = 0; j < len_; j++) {
 								out[j] = el[j];
