@@ -4521,20 +4521,19 @@ function processFullMsg(post) {
 	addPostFunc(post);
 }
 
-function replaceFullMsg(post, pNum) {
-	if(post.Num === this) {
-		$del(el);
-		post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
-		post.Msg = $q(aib.qMsg, post);
-		post.Text = getText(post.Msg);
-		processFullMsg(post);
-		el = post = null;
-		throw '';
-	}
-}
-
 function getFullPost(el, isFunc) {
-	var	post = getPost(el);
+	var	post = getPost(el),
+		replaceFMsg = function(pst, pNum) {
+			if(post.Num === pNum) {
+				$del(el);
+				post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
+				post.Msg = $q(aib.qMsg, post);
+				post.Text = getText(post.Msg);
+				processFullMsg(post);
+				el = post = null;
+				throw '';
+			}
+		};
 	if(aib.hana) {
 		$del(el.nextSibling);
 		$del(el.previousSibling);
@@ -4549,13 +4548,13 @@ function getFullPost(el, isFunc) {
 	ajaxGetPosts(null, brd, post.thr.Num, true, function(els, op, err) {
 		if(!err) {
 			try {
-				replaceFullMsg(post, op, aib.getTNum(op));
+				replaceFMsg(op, aib.getTNum(op));
 				$$each(els, function(pst) {
-					replaceFullMsg(post, pst, aib.getPNum(pst));
+					replaceFMsg(pst, aib.getPNum(pst));
 				});
 			} catch(e) {}
 		}
-		post = null;
+		el = post = null;
 	});
 }
 
