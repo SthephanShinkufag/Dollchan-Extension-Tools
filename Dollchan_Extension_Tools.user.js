@@ -1872,20 +1872,17 @@ function addFavoritesTable(fav) {
 		}),
 		$btn(Lng.info[lCode], Lng.infoCount[lCode], function() {
 			$$each($C('DESU_contData', this.parentNode), function(el) {
-				var c,
-					arr = el.getAttribute('info').split(';'),
-					cnt = 0;
+				var c, arr = el.getAttribute('info').split(';');
 				if(aib.host === arr[0]) {
 					c = $attr($t('span', $c('DESU_favPCount', el)), {'class': 'DESU_wait', 'text': ''});
-					ajaxGetPosts(null, arr[1], arr[2], function() {
-						cnt++;
-					}, function(dc, err) {
+					ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
+						var cnt = els.length + 1;
 						$attr(c, {'class': '', 'text': err || cnt});
 						if(!err) {
 							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 							setStored('DESU_Favorites', JSON.stringify(Favor));
 						}
-						c = cnt = arr = null;
+						c = arr = null;
 					});
 				}
 			});
@@ -1893,7 +1890,7 @@ function addFavoritesTable(fav) {
 		$btn(Lng.clear[lCode], Lng.clrDeleted[lCode], function() {
 			$$each($C('DESU_contData', this.parentNode), function(el) {
 				var arr = el.getAttribute('info').split(';');
-				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, null, function(dc, err) {
+				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, false, function(a, dc, err) {
 					if(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 						saveFavorites(JSON.stringify(Favor));
@@ -2419,12 +2416,12 @@ function initPostform() {
 	if(pr.on) {
 		doPostformChanges(null, null);
 	} else if(oeForm) {
-		ajaxGetPosts(null, brd, Posts[0].Num, null, doPostformChanges);
+		ajaxGetPosts(null, brd, Posts[0].Num, false, doPostformChanges);
 	}
 }
 
-function doPostformChanges(m, el) {
-	var img, _img, sBtn,
+function doPostformChanges(img, m, el) {
+	var _img, sBtn,
 		resMove = function(e) {
 			var p = $offset(pr.txta);
 			pr.txta.style.width = e.pageX - p.left + 'px';
@@ -4359,14 +4356,21 @@ function showPview(link) {
 	}
 	el = getPview(null, pNum, parent, link, '<span class="DESU_wait">' + Lng.loading[lCode] + '</span>');
 	Pviews.ajaxed[b] = [];
-	ajaxGetPosts(null, b, tNum, function(pst, thr, num, i) {
-		pst.isOp = i === 0;
-		pst.Msg = $q(aib.qMsg, pst);
-		Pviews.ajaxed[b][num] = pst;
-	}, function(dc, err) {
-		genRefMap(Pviews.ajaxed[b]);
-		if(el) {
-			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
+	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
+		if(!err) {
+			var i = 0, len = els.length, pst;
+			op.isOp = true;
+			op.Msg = $q(aib.qMsg, op);
+			Pviews.ajaxed[b][aib.getTNum(op)] = op;
+			for(; i < len; i++) {
+				pst = els[i];
+				pst.Msg = $q(aib.qMsg, pst);
+				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
+			}
+			genRefMap(Pviews.ajaxed[b]);
+			if(el) {
+				getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
+			}
 		}
 		b = pNum = parent = el = null;
 	});
@@ -4397,7 +4401,7 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function ajaxGetPosts(url, b, tNum, postFn, Fn) {
+function ajaxGetPosts(url, b, tNum, parse, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
@@ -4411,20 +4415,20 @@ function ajaxGetPosts(url, b, tNum, postFn, Fn) {
 					pr = getPostform(doc.importNode($q(aib.qPostForm, dc), true));
 					$before(oeForm, pr.form);
 				}
-				if(postFn) {
-					try {
-						parseDelform($q(aib.qDForm, dc), dc, postFn);
-					} catch(e) {}
+				if(parse) {
+					parseDelform($q(aib.qDForm, dc), dc, function(thr) {
+						Fn(aib.getPosts(thr), aib.getOp(thr, dc), null);
+					});
+				} else {
+					Fn(null, dc, null);
 				}
-				Fn(dc, null);
 			} else {
-				Fn(
-					null, xhr.status === 0 ?
-						Lng.noConnect[lCode] :
-						'HTTP [' + xhr.status + '] ' + xhr.statusText
+				Fn(null, null, xhr.status === 0 ?
+					Lng.noConnect[lCode] :
+					'HTTP [' + xhr.status + '] ' + xhr.statusText
 				);
 			}
-			Fn = postFn = null;
+			Fn = parse = dc = null;
 		}
 	});
 }
@@ -4473,7 +4477,14 @@ function addPostFunc(post) {
 
 function newPost(thr, post, pNum, i) {
 	var pst, el;
-	pushPost(post, thr, pNum, i);
+	processPost(post, pNum, thr, i);
+	Posts.push(post);
+	if(i === 0) {
+		post.isOp = true;
+		post.dTitle = ($c(aib.cTitle, post) || {}).textContent ||
+			post.Text.substring(0, 70).replace(/\s+/g, ' ');
+		Threads.push(post);
+	}
 	post.Vis = getVisib(post.Num);
 	addPostButtons(post);
 	if(Cfg['expandImgs']) {
@@ -4509,6 +4520,18 @@ function processFullMsg(post) {
 	addPostFunc(post);
 }
 
+function replaceFullMsg(post, pNum) {
+	if(post.Num === this) {
+		$del(el);
+		post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
+		post.Msg = $q(aib.qMsg, post);
+		post.Text = getText(post.Msg);
+		processFullMsg(post);
+		el = post = null;
+		throw '';
+	}
+}
+
 function getFullPost(el, isFunc) {
 	var	post = getPost(el);
 	if(aib.hana) {
@@ -4522,17 +4545,17 @@ function getFullPost(el, isFunc) {
 		}
 		return;
 	}
-	ajaxGetPosts(null, brd, post.thr.Num, function(pst, thr, pNum, i) {
-		if(post.Num === pNum) {
-			$del(el);
-			post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
-			post.Msg = $q(aib.qMsg, post);
-			post.Text = getText(post.Msg);
-			processFullMsg(post);
-			el = post = null;
-			throw '';
+	ajaxGetPosts(null, brd, post.thr.Num, true, function(els, op, err) {
+		if(!err) {
+			try {
+				replaceFullMsg(post, op, aib.getTNum(op));
+				$$each(els, function(pst) {
+					replaceFullMsg(post, pst, aib.getPNum(pst));
+				});
+			} catch(e) {}
 		}
-	}, function(dc, err) {});
+		post = null;
+	});
 }
 
 function expandPost(post) {
@@ -4558,38 +4581,33 @@ function expandPost(post) {
 }
 
 function loadThread(op, last, Fn) {
-	var posts = [], pNums = [];
 	if(!Fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
-	ajaxGetPosts(null, brd, op.Num, function(post, thr, pNum, j) {
-		posts.push(importPost(post));
-		pNums.push(pNum);
-	}, function(dc, err) {
-		var i, thr = op.thr;
+	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
+		var i, thr = op.thr, len = els.length, impOp;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
 			thr.innerHTML = '';
-			op = posts[0];
-			newPost(thr, op, pNums[0], 0);
+			newPost(thr, impOp = importPost(newOp), aib.getTNum(newOp), 0);
 			nav.insAfter(
-				op.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, op.Num) + '">' +
+				impOp.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impOp.Num) + '">' +
 					Lng.reply[lCode] + '</a>]</span>'
 			);
-			if(last === 1 || last >= posts.length - 1) {
-				i = 1;
+			if(last === 1 || last >= len) {
+				i = 0;
 			} else {
-				i = posts.length - last;
+				i = len - last;
 				thr.appendChild($new('div', {
 					'class': 'DESU_omitted',
-					'text': Lng.postsOmitted[lCode] + (posts.length - last - 1)
+					'text': Lng.postsOmitted[lCode] + (len - last)
 				}, null));
 			}
-			while(i < posts.length) {
-				newPost(thr, posts[i], pNums[i], i++);
+			for(; i < len; i++) {
+				newPost(thr, importPost(els[i]), aib.getPNum(els[i]), i + 1);
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
@@ -4600,14 +4618,14 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
-			thr.pCount = posts.length;
+			thr.pCount = len + 1;
 			closeAlert($id('DESU_alertLoadThr'));
 		}
 		$focus(op);
 		if(Fn) {
 			Fn();
 		}
-		last = Fn = posts = pNums = null;
+		last = Fn = null;
 	});
 }
 
@@ -4635,8 +4653,9 @@ function loadFavorThread() {
 }
 
 function loadPage(page, i, Fn) {
-	ajaxGetPosts(getPageUrl(aib.host, brd, i), null, null, null, function(dc, err) {
-		var df = doc.importNode($q(aib.qDForm, dc), true), el;
+	ajaxGetPosts(getPageUrl(aib.host, brd, i), null, null, false, function(df, dc, err) {
+		var el;
+		df = doc.importNode($q(aib.qDForm, dc), true);
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
@@ -4668,7 +4687,7 @@ function loadPages(len) {
 			pages[idx] = page;
 			if(loaded === len) {
 				pages.forEach(function(page) {
-					parseDelform(page, doc, pushPost);
+					tryToParse(page);
 					removePageTrash(page);
 				});
 				Posts.forEach(addPostButtons);
@@ -4883,10 +4902,27 @@ function getHanaPost(postJson) {
 	return post;
 }
 
+function checkBan(el, el_) {
+	if(aib.qBan && !el.isBan) {
+		var isBan = $q(aib.qBan, el_);
+		if(isBan) {
+			if(!$q(aib.qBan, el)) {
+				el.Msg.appendChild(doc.importNode(isBan, true));
+			}
+			el.isBan = true;
+		}
+	}
+}
+
+function markDel(post) {
+	if(!post.isDel) {
+		post.isDel = true;
+		post.Btns.className += '_del';
+	}
+}
+
 function loadNewPosts(isInfo, Fn) {
-	var i = 0,
-		len = 0,
-		thr = $c('DESU_thread', dForm);
+	var thr = $c('DESU_thread', dForm);
 	if(isInfo) {
 		$alert(Lng.loading[lCode], 'NewP', true);
 	}
@@ -4898,7 +4934,7 @@ function loadNewPosts(isInfo, Fn) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					var el = (json['result'] || {})['posts'], post;
+					var el = (json['result'] || {})['posts'], i, len, post;
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = getHanaPost(el[i]);
@@ -4912,52 +4948,50 @@ function loadNewPosts(isInfo, Fn) {
 				if(Fn) {
 					Fn();
 				}
-				Fn = i = len = thr = null;
+				Fn = thr = null;
 			}
 		);
 		return;
 	}
-	ajaxGetPosts(null, brd, TNum, function(post, thrd, pNum, j) {
-		var isBan, el = Posts[i];
-		while(el && el.Num !== pNum) {
-			if(!el.isDel) {
-				el.isDel = true;
-				el.Btns.className += '_del';
+	ajaxGetPosts(null, brd, TNum, true, function(els, op, err) {
+		if(err) {
+			infoNewPosts(err, null);
+			if(Fn) {
+				Fn();
 			}
-			el = Posts[++i];
+			Fn = thr = null;
+			return;
 		}
-		if(!el) {
-			newPost(thr, importPost(post), pNum, i);
-			len++;
-		} else if(aib.qBan && !el.isBan) {
-			isBan = $q(aib.qBan, post);
-			if(isBan) {
-				if(!$q(aib.qBan, el)) {
-					el.Msg.appendChild(doc.importNode(isBan, true));
+		var i, j, np = 0, len = Posts.length, len_ = els.length, el, el_, pNum;
+		checkBan(Posts[0], op);
+		for(i = 1, j = 0; i < len || j < len_; i++, j++) {
+			el = Posts[i];
+			el_ = els[j];
+			if(!el_) {
+				markDel(el);
+				continue;
+			}
+			pNum = aib.getPNum(el_);
+			if(el) {
+				if(el.Num !== pNum) {
+					markDel(el);
+					j--;
+					continue;
 				}
-				el.isBan = true;
+				checkBan(el, el_);
+			} else {
+				newPost(thr, importPost(el_), pNum, i);
+				np++;
 			}
 		}
-		i++;
-	}, function(dc, err) {
-		infoNewPosts(err, len);
-		if(!err) {
-			var el, del = Posts.length;
-			while(i < del) {
-				el = Posts[i++];
-				if(!el.isDel) {
-					el.isDel = true;
-					el.Btns.className += '_del';
-				}
-			}
-			thr.pCount = i - 1;
-			savePostsVisib();
-			$id('DESU_panelInfo').firstChild.textContent = i + '/' + getPostImages(dForm).length;
-		}
+		infoNewPosts(err, np);
+		thr.pCount = len;
+		savePostsVisib();
+		$id('DESU_panelInfo').firstChild.textContent = i + '/' + getPostImages(dForm).length;
 		if(Fn) {
 			Fn();
 		}
-		Fn = i = len = thr = null;
+		Fn = thr = null;
 	});
 }
 
@@ -4980,12 +5014,8 @@ function initThreadsUpdater() {
 					}
 				);
 			} else {
-				var i = 0;
-				ajaxGetPosts(null, brd, TNum, function() {
-					i++;
-				}, function(dc, err) {
-					infoNewPosts(err, i - Posts.length);
-					i = null;
+				ajaxGetPosts(null, brd, TNum, true, function(els, op, err) {
+					infoNewPosts(err, els.length - Posts.length + 1);
 				});
 			}
 		}, Cfg['updThrDelay']*1e3);
@@ -5792,6 +5822,7 @@ function getThemeLang() {
 }
 
 function scriptCSS() {
+	$disp(dForm);
 	var p, x = '',
 		gif = function(id, src) {
 			x += id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
@@ -6073,9 +6104,7 @@ function scriptCSS() {
 	]);
 	x = gif = cont = null;
 	updateCSS();
-	if(nav.WebKit) {
-		$disp(dForm);
-	}
+	$disp(dForm);
 }
 
 function updateCSS() {
@@ -6489,6 +6518,13 @@ function getImageboard() {
 		function(el) {
 			return $x('ancestor::*[@desu-post]', el);
 		};
+	aib.getPosts =
+		aib.gazo ? function(thr) {
+			return $Q('td:nth-child(2)', thr);
+		} :
+		function(thr) {
+			return $C(aib.pClass, thr);
+		};
 	aib.getOp =
 		(aib.abu || aib.hana || aib.kus || aib.fch) && $c(aib.opClass, doc) ? function(thr, dc) {
 			return $c(aib.opClass, thr);
@@ -6574,58 +6610,18 @@ function getImageboard() {
 		}
 }
 
-function pushPost(post, thr, pNum, i) {
+function processPost(post, pNum, thr, i) {
 	post.thr = thr;
 	post.Count = i;
 	post.Text = getText(post.Msg = $q(aib.qMsg, post));
 	post.Img = getPostImages(post);
-	if(i === 0) {
-		post.isOp = true;
-		post.dTitle =
-			($c(aib.cTitle, post) || {}).textContent ||
-			post.Text.substring(0, 70).replace(/\s+/g, ' ');
-		Threads.push(post);
-	}
 	post.setAttribute('desu-post', pNum);
 	pByNum[post.Num = pNum] = post;
-	Posts.push(post);
-}
-
-function parseThread(node, dc, Fn) {
-	var el, thr,
-		pThr = false,
-		thrds = $C(aib.tClass, node);
-	if(thrds.length === 0) {
-		thrds = $Q(aib.qThreads, node);
-		if(thrds.length === 0) {
-			el = $t('hr', node).parentNode.firstChild;
-			while(1) {
-				thrds = $$new('div', null, null, dc);
-				while(el && (thr = el.nextSibling) && thr.tagName !== 'HR') {
-					thrds.appendChild(el);
-					el = thr;
-				}
-				if(pThr) {
-					$after(pThr, thrds);
-				} else {
-					$before(node.firstChild, thrds);
-				}
-				if(!el || !thr) {
-					return;
-				}
-				if(thrds.childElementCount) {
-					Fn(thrds);
-				}
-				pThr = thr;
-				el = thr.nextSibling;
-			}
-			return;
-		}
-	}
-	$$each(thrds, Fn);
 }
 
 function parseDelform(el, dc, Fn) {
+	var node, thr, pThr = false,
+		thrds = $C(aib.tClass, el);
 	$$each($T('script', el), $del);
 	if(aib.ylil) {
 		$$each($Q('a[data-embedcode]', el), $del);
@@ -6656,41 +6652,66 @@ function parseDelform(el, dc, Fn) {
 			}
 		}
 	}
-	parseThread(el, dc, function(thr) {
-		var i, len, posts, op = aib.getOp(thr, dc);
-		Fn(op, thr, aib.getTNum(op), 0);
-		posts = aib.gazo ? $Q('td:nth-child(2)', thr) : $C(aib.pClass, thr);
-		for(i = 0, len = posts.length; i < len; i++) {
-			Fn(posts[i], thr, aib.getPNum(posts[i]), i + 1);
+	if(thrds.length === 0) {
+		thrds = $Q(aib.qThreads, el);
+		if(thrds.length === 0) {
+			node = $t('hr', el).parentNode.firstChild;
+			while(1) {
+				thrds = $$new('div', null, null, dc);
+				while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
+					thrds.appendChild(node);
+					node = thr;
+				}
+				if(pThr) {
+					$after(pThr, thrds);
+				} else {
+					$before(node.firstChild, thrds);
+				}
+				if(!node || !thr) {
+					return;
+				}
+				if(thrds.childElementCount) {
+					Fn(thrds);
+				}
+				pThr = thr;
+				node = thr.nextSibling;
+			}
+			return;
 		}
-		if(dc === doc) {
+	}
+	$$each(thrds, Fn);
+}
+
+function tryToParse(node) {
+	try {
+		parseDelform(node, doc, function(thr) {
+			var i, op = aib.getOp(thr, doc),
+				els = aib.getPosts(thr),
+				len = els.length;
+			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
+			op.isOp = true;
+			op.dTitle = ($c(aib.cTitle, op) || {}).textContent ||
+				op.Text.substring(0, 70).replace(/\s+/g, ' ');
+			for(i = 0; i < len; i++) {
+				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
+			}
+			Posts.push(op);
+			Threads.push(op);
+			Posts = Posts.concat(Array.prototype.slice.call(els));
 			if(aib._420 || (aib.tiny && !TNum)) {
 				$after(thr, thr.lastChild);
 			}
 			thr.className += ' DESU_thread';
-			thr.Num = op.Num;
 			thr.pCount = len +
 				((i = aib.getOmPosts(thr)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0);
+		});
+		if(liteMode) {
+			$$each($Q('body > *:not(form)', doc), $del);
 		}
-	});
-	if(liteMode) {
-		$$each($Q('body > *:not(form)', dc), $del);
-	}
-	return el;
-}
-
-function tryToParse() {
-	dForm.id = '';
-	$disp(dForm);
-	try {
-		parseDelform(dForm, doc, pushPost);
 	} catch(e) {
-		$disp(dForm);
 		return false;
 	}
-	if(!nav.WebKit) {
-		$disp(dForm);
-	}
+	node.removeAttribute('id');
 	return true;
 }
 
@@ -6842,7 +6863,7 @@ function doScript() {
 	$log('readCfg');
 	replaceDelform(dForm);
 	$log('replaceDelform');
-	if(!tryToParse()) {
+	if(!tryToParse(dForm)) {
 		return;
 	}
 	$log('parseDelform');
