@@ -944,7 +944,7 @@ function readPostsVisib() {
 }
 
 function savePostsVisib() {
-	var key,
+	var key, n,
 		arr = [],
 		id = 'DESU_Posts_' + aib.dm;
 	if(nav.isCookie) {
@@ -957,10 +957,11 @@ function savePostsVisib() {
 		}
 	} else {
 		for(key in Visib) {
-			if(!/^\d$/.test(Visib[key])) {
+			n = Visib[key];
+			if(+n !== +n) {
 				break;
 			}
-			arr[arr.length] = key + '-' + Visib[key] + '-' + Expires[key];
+			arr.push(key + '-' + n + '-' + Expires[key]);
 		}
 		setStored(id, arr.join('-'));
 	}
