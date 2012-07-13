@@ -2168,14 +2168,26 @@ function selectAudioNotif() {
 }
 
 function selectImgSearch() {
-	var p = this.nextSibling.href + '" target="_blank">' + Lng.search[lCode];
+	var p = this.nextSibling.href + '" target="_blank">' + Lng.search[lCode],
+		c = doc.body.getAttribute('desu-image-search'), str = '';
+	if(c) {
+		c = c.split(';');
+		c.forEach(function(el) {
+			var info = el.split(',');
+			str += '<a class="DESU_src' + info[0] + (info[1] === '' ?
+				'" onclick="DESU_cImgSearch(event, \'' + info[0] + '\')" href="#" desu-url="' :
+				'" href="' + info[1]
+			) + p + info[0] + '</a>';
+		});
+	}
 	addSelMenu(
 		this, false,
 		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
 			'<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="DESU_srcGoogle" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="DESU_srcSaucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>'
+			'<a class="DESU_srcSaucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
 	);
+	str = null;
 }
 
 
@@ -3299,7 +3311,13 @@ function addPostButtons(post) {
 
 function prepareCFeatures() {
 	addContentScript(
-		'function DESU_hideClick(el) {\
+		'function DESU_removeSel() {\
+			var el = document.getElementById("DESU_select");\
+			if(el) {\
+				el.parentNode.removeChild(el);\
+			}\
+		}\
+		function DESU_hideClick(el) {\
 			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_hideOver(el) {\
@@ -3307,10 +3325,7 @@ function prepareCFeatures() {
 		}\
 		function DESU_delSelection(e) {\
 			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
-				var el = document.getElementById("DESU_select");\
-				if(el) {\
-					el.parentNode.removeChild(el);\
-				}\
+				DESU_removeSel();\
 			}\
 		}\
 		function DESU_qReplyClick(el) {\
@@ -3330,6 +3345,11 @@ function prepareCFeatures() {
 		}\
 		function DESU_sageClick(el) {\
 			window.postMessage("H" + el.parentNode.getAttribute("info"), "*");\
+		}\
+		function DESU_cImgSearch(e, name) {\
+			e.preventDefault();\
+			window.postMessage("_" + name + ";" + e.target.getAttribute("desu-url"), "*");\
+			DESU_removeSel();\
 		}'
 	);
 
