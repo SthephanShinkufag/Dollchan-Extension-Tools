@@ -2759,6 +2759,9 @@ function checkUpload(err, url) {
 		qArea = $id('DESU_qarea'),
 		lFunc = function() {
 			closeAlert($id('DESU_alertUpload'));
+			if(Cfg['updThread'] === 2) {
+				infoNewPosts(null, 0);
+			}
 		};
 	if(err !== '') {
 		if(pr.isQuick) {
@@ -6834,9 +6837,7 @@ function initPage() {
 				'<span id="DESU_getNewPosts">[<a href="#">' + Lng.getNewPosts[lCode] + '</a>]</span>'), {
 				'click': function(e) {
 					$pd(e);
-					doc.title = docTitle;
-					clearInterval(Favico.delay);
-					loadNewPosts(true, null);
+					loadNewPosts(true, function() { infoNewPosts(null, 0); });
 				}
 			}));
 		}
