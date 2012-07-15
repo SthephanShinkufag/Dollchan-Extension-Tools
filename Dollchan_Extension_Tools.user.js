@@ -4521,6 +4521,7 @@ function newPost(thr, post, pNum, i) {
 	if(aib.tiny) {
 		thr.appendChild($new('br', null, null));
 	}
+	return post.Vis === 0 ? 0 : 1;
 }
 
 function processFullMsg(post) {
@@ -4942,16 +4943,16 @@ function loadNewPosts(isInfo, Fn) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					var el = (json['result'] || {})['posts'], i, len, post;
+					var i, len, post, np = 0, el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = getHanaPost(el[i]);
 							replaceDelform(post);
-							newPost(thr, post, el[i]['display_id'], thr.pCount + i);
+							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
 						}
 						thr.pCount += el.length;
 					}
-					infoNewPosts(null, el ? el.length : 0);
+					infoNewPosts(null, np);
 				}
 				if(Fn) {
 					Fn();
@@ -4988,8 +4989,7 @@ function loadNewPosts(isInfo, Fn) {
 				}
 				checkBan(el, el_);
 			} else {
-				newPost(thr, importPost(el_), pNum, i);
-				np++;
+				np += newPost(thr, importPost(el_), pNum, i);
 			}
 		}
 		infoNewPosts(err, np);
