@@ -644,14 +644,12 @@ function getPostImages(el) {
 }
 
 function getText(el) {
-	return (
-		el.innerText ||
-			el.innerHTML
-				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-				.replace(/<[^>]+?>/g,'')
-				.replace(/&gt;/g, '>')
-				.replace(/&lt;/g, '<')
-	).trim();
+	return el.innerHTML
+		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
+		.replace(/<[^>]+?>/g,'')
+		.replace(/&gt;/g, '>')
+		.replace(/&lt;/g, '<')
+		.trim();
 }
 
 function getImgWeight(post) {
@@ -2087,7 +2085,7 @@ function selectSpell(e) {
 }
 
 function selectPostHider(post) {
-	if(!Cfg['menuHiddBtn'] || !Cfg['filterThrds'] && post.isOp) {
+	if(!Cfg['menuHiddBtn'] || (!Cfg['filterThrds'] && post.isOp)) {
 		return;
 	}
 	var a = addSelMenu(
@@ -2165,8 +2163,8 @@ function selectAudioNotif() {
 	});
 }
 
-function selectImgSearch() {
-	var p = this.nextSibling.href + '" target="_blank">' + Lng.search[lCode],
+function selectImgSearch(node) {
+	var p = node.nextSibling.href + '" target="_blank">' + Lng.search[lCode],
 		c = doc.body.getAttribute('desu-image-search'), str = '';
 	if(c) {
 		c = c.split(';');
@@ -2179,7 +2177,7 @@ function selectImgSearch() {
 		});
 	}
 	addSelMenu(
-		this, false,
+		node, false,
 		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
 			'<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="DESU_srcGoogle" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
@@ -3276,11 +3274,11 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
-			html += '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>';
+			html += '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_btnOut(event)"></span>';
 		}
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
 			html += '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>';
@@ -3318,16 +3316,31 @@ function prepareCFeatures() {
 				el.parentNode.removeChild(el);\
 			}\
 		}\
-		function DESU_hideClick(el) {\
-			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function DESU_hideOver(el) {\
-			window.postMessage("A" + el.parentNode.getAttribute("info"), "*");\
-		}\
 		function DESU_delSelection(e) {\
 			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
 				DESU_removeSel();\
 			}\
+		}\
+		function DESU_btnOut(e) {\
+			clearTimeout(e.target.DESU_overDelay);\
+			DESU_delSelection(e);\
+		}\
+		function DESU_btnOver(el, data) {\
+			el.DESU_overDelay = setTimeout(function(msg) {\
+				window.postMessage(msg, "*");\
+			}, ' + Cfg['linksOver'] + ', data);\
+		}\
+		function DESU_hideOver(el) {\
+			DESU_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
+		}\
+		function DESU_imgSOver(el) {\
+			DESU_btnOver(el, "L" + el.getAttribute("desu-id"));\
+		}\
+		function DESU_expandOver(el) {\
+			DESU_btnOver("B" + el.parentNode.getAttribute("info"));\
+		}\
+		function DESU_hideClick(el) {\
+			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_qReplyClick(el) {\
 			window.postMessage("F" + el.parentNode.getAttribute("info"), "*");\
@@ -3337,9 +3350,6 @@ function prepareCFeatures() {
 		}\
 		function DESU_expandClick(el) {\
 			window.postMessage("E" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function DESU_expandOver(el) {\
-			window.postMessage("B" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_favorClick(el) {\
 			window.postMessage("G" + el.parentNode.getAttribute("info"), "*");\
@@ -3386,6 +3396,8 @@ function prepareCFeatures() {
 			data = data.split('$#$');
 			checkUpload(data[0], data[1]);
 			$id('DESU_iframe').src = 'about:blank';
+		} else if(id === 'L') {
+			selectImgSearch($q('.DESU_btnSrc[desu-id="' + data + '"]', dForm));
 		}
 	}, false);
 
@@ -3975,17 +3987,16 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var els = $Q(aib.qImages, el), i = 0, len = els.length, link; i < len; i++) {
+	for(var els = $Q(aib.qImages, el), i = 0, i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			return;
 		}
-		if(link.innerHTML.indexOf('<') !== -1) {
+		if(link.firstElementChild) {
 			return;
 		}
-		nav.insBefore(link, '<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
-		link.previousSibling.onmouseover = selectImgSearch;
+		nav.insBefore(link, '<span desu-id="' + i + '" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>');
 	}
 }
 
