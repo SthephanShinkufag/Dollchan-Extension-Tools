@@ -1292,7 +1292,7 @@ function optSel(id, isBlock, Fn) {
 }
 
 function cfgTab(name, id) {
-	return $New('li', {'class': aib.pClass}, [
+	return $New('div', {'class': aib.pClass}, [
 		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[name][lCode], 'info': id}, {
 			'click': function() {
 				if(this.className == 'DESU_cfgTab_sel') {
@@ -1590,7 +1590,6 @@ function getCfgInfo() {
 
 function getCfgBody(id) {
 	switch(id) {
-		case 'cfgFilters': return getCfgFilters();
 		case 'cfgPosts': return getCfgPosts();
 		case 'cfgLinks': return getCfgLinks();
 		case 'cfgForm': return getCfgForm();
@@ -1602,7 +1601,7 @@ function getCfgBody(id) {
 function addSettings(Set) {
 	Set.appendChild($New('div', {'class': aib.pClass}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
-		$New('ul', {'id': 'DESU_cfgBar'}, [
+		$New('div', {'id': 'DESU_cfgBar'}, [
 			cfgTab('Filters', 'cfgFilters'),
 			cfgTab('Posts', 'cfgPosts'),
 			cfgTab('Links', 'cfgLinks'),
@@ -1610,6 +1609,7 @@ function addSettings(Set) {
 			cfgTab('Common', 'cfgCommon'),
 			cfgTab('Info', 'cfgInfo')
 		]),
+		getCfgFilters(),
 		$New('div', {'id': 'DESU_cfgBtns'}, [
 			$New('span', {'style': 'float: right;'}, [
 				optSel('language', false, function() {
@@ -4086,15 +4086,18 @@ function genRefMap(pBn) {
 	refMap = [];
 	nav.forEach(pBn, getRefMap);
 	nav.forEach(refMap, function(pNum) {
-		var post = pBn[pNum];
+		var post = pBn[pNum], rM;
 		if(post) {
-			nav.insAfter(
-				post.Msg,
-				'<div class="DESU_refMap">' +
-					this[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>') + '</div>'
-			);
+			rM = '<div class="DESU_refMap">' + this[pNum].join(', ').replace(/(\d+)/g,
+				'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
+			try {
+				nav.insAfter(post.Msg, rM);
+			} catch(e) {
+				post.appendChild($add(rM));
+			}
 		}
 	});
+	refMap = null;
 }
 
 function updRefMap(post) {
@@ -4106,7 +4109,11 @@ function updRefMap(post) {
 			el = $c('DESU_refMap', pst);
 			if(!el) {
 				el = $new('div', {'class': 'DESU_refMap'}, null);
-				$after(pst.Msg, el);
+				try {
+					$after(pst.Msg, el);
+				} catch(e) {
+					pst.appendChild(el);
+				}
 			} else {
 				el.appendChild($txt(', '));
 			}
@@ -4114,6 +4121,7 @@ function updRefMap(post) {
 			eventRefLink(el);
 		}
 	});
+	refMap = null;
 }
 
 
@@ -5852,7 +5860,7 @@ function scriptCSS() {
 		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
-		#DESU_cfgBar > li { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
+		#DESU_cfgBar > div { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
 		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
@@ -6489,7 +6497,10 @@ function getImageboard() {
 		aib.qImgWrap + 'a[href*=".gif"]' + (aib.nul ? ':first-child' : '')
 	);
 	aib.qPost = aib.gazo ? 'td:nth-child(2)' : '.' + aib.pClass;
-	aib.qPostForm = aib.gazo ? 'form:nth-of-type(1)' : '#postform, #postForm';
+	aib.qPostForm =
+		aib.gazo ? 'form:nth-of-type(1)' :
+		aib.fch ? 'form[name="post"]' :
+		'#postform';
 	aib.cTitle =
 		aib.krau || aib.ylil ? 'postsubject' :
 		aib.tiny || aib.fch ? 'subject' :
