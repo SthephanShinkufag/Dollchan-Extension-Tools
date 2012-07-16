@@ -1290,19 +1290,20 @@ function optSel(id, isBlock, Fn) {
 }
 
 function cfgTab(name, id) {
-	return $New('div', {'class': aib.pClass}, [
+	return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack', 'selected': false}, [
 		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[name][lCode], 'info': id}, {
 			'click': function() {
-				if(this.className == 'DESU_cfgTab_sel') {
+				var el, id, pN = this.parentNode;
+				if(pN.getAttribute('selected') === 'true') {
 					return;
 				}
-				var el = $c('DESU_cfgBody', doc),
-					id = this.getAttribute('info');
+				el = $c('DESU_cfgBody', doc);
 				if(el) {
 					el.className = 'DESU_cfgUnvis';
-					$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
+					$q('.DESU_cfgTabBack[selected="true"]', doc).setAttribute('selected', false);
 				}
-				this.className = 'DESU_cfgTab_sel';
+				pN.setAttribute('selected', true);
+				id = this.getAttribute('info');
 				el = $id('DESU_' + id);
 				if(!el) {
 					$after($id('DESU_cfgBar'), el = getCfgBody(id));
@@ -5878,15 +5879,16 @@ function scriptCSS() {
 		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
-		#DESU_cfgBar > div { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
-		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
-		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
-		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
-		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
-		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
-		.DESU_cfgTab_sel { border-bottom: none; }\
+		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
+		.DESU_cfgTabBack:lang(de) { border-color: #444 !important; }\
+		.DESU_cfgTabBack:lang(fr) { border-color: #121421 !important; }\
+		.DESU_cfgTabBack[selected="true"] { border-bottom: none !important; }\
+		.DESU_cfgTab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:lang(en), .DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:hover:lang(en), .DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+		.DESU_cfgTab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }\
 		#DESU_cfgWipe { display: table; padding-left: 25px; }\
