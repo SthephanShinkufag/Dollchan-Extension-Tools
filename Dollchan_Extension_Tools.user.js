@@ -2809,7 +2809,7 @@ function checkDelete(dc, url) {
 			}
 		};
 	if(!err) {
-		$$each($Q('input:checked', Posts[0].thr), !TNum ? function(el) {
+		$$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.Num;
 			if(tNums.indexOf(tNum) === -1) {
 				tNums.push(tNum);
