@@ -291,7 +291,7 @@ Lng = {
 	noConnect:		['Ошибка подключения', 'Connection failed'],
 	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
-	errDelete:		['Не могу удалить пост(ы)!', 'Can\'t delete post(s)!'],
+	errDelete:		['Не могу удалить пост(ы):\n', 'Can\'t delete post(s):\n'],
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cookiesLimit:	['Превышен лимит cookies', 'Cookies limit overflow'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
@@ -1950,6 +1950,7 @@ function closeAlert(el) {
 	if(!el) {
 		return;
 	}
+	el.closeTimeout = null;
 	if(!Cfg['animation']) {
 		$del(el);
 		return;
@@ -2009,6 +2010,7 @@ function $alert(txt, id, wait) {
 	if(el) {
 		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
 		$t('span', el).textContent = tBtn;
+		clearTimeout(el.closeTimeout);
 		blinkAlert(el);
 		return;
 	}
@@ -2020,7 +2022,7 @@ function $alert(txt, id, wait) {
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
 	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
-		setTimeout(closeAlert, 4e3, el);
+		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
 
@@ -2601,11 +2603,6 @@ function doPostformChanges(img, m, el) {
 			dForm.onsubmit = function(e) {
 				$pd(e);
 				$alert(Lng.deleting[lCode], 'Deleting', true);
-				$$each($Q('input[type="checkbox"]', dForm), function(node) {
-					node.onclick = function() {
-						return false;
-					};
-				});
 				ajaxSubmit(new dataForm(dForm), checkDelete);
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
@@ -2724,14 +2721,14 @@ function findSubmitError(dc) {
 			aib.hana && !dc.getElementById('delete_form') ? '.post-error' :
 			aib.krau && !$t('form', dc) ? '.message_text' :
 			aib.abu && !dc.getElementById('delform') ? 'font[size="5"]' :
-			'';
+			false;
 	if(dc.body.firstChild && (xp || !$t('form', dc))) {
 		if(!xp) {
 			xp =
 				aib.kus ? 'h1, h2, div[style*="1.25em"]' :
-				aib.fch ? 'table font > b' :
+				aib.fch ? '#errmsg' :
 				aib.gazo ? 'font[size="5"]' :
-				aib._420 ? 'pre' : '';
+				aib._420 ? 'pre' : false;
 		}
 		if(xp) {
 			$$each($Q(xp, dc), function(el) {
@@ -2803,24 +2800,32 @@ function checkUpload(err, url) {
 }
 
 function checkDelete(dc, url) {
-	var allDel = true,
-		cbFunc = function() {
-			$$each($Q('input[type="checkbox"]', dForm), function(el) {
-				if(el.checked && !getPost(el).isDel) {
-					allDel = false;
-				}
-				el.checked = false;
-				el.onclick = null;
-			});
-			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
-			allDel = null;
+	var err = aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc),
+		tNums = [], lFunc = function() {
+			var el = $id('DESU_alertDeleting');
+			if(el) {
+				closeAlert(el);
+				$alert(Lng.succDeleted[lCode], 'Deleted', false);
+			}
 		};
-	if(TNum) {
-		loadNewPosts(false, cbFunc);
+	if(!err) {
+		$$each($Q('input:checked', Posts[0].thr), !TNum ? function(el) {
+			var tNum = getPost(el).thr.Num;
+			if(tNums.indexOf(tNum) === -1) {
+				tNums.push(tNum);
+			}
+		} : function(el) { el.checked = false; });
+		if(!TNum) {
+			tNums.forEach(function(tNum) {
+				loadThread(pByNum[tNum], 5, lFunc);
+			});
+		} else {
+			loadNewPosts(false, lFunc);
+		}
 	} else {
-		//TODO: add !TNum delete checking
-		cbFunc();
+		$alert(Lng.errDelete[lCode] + err, 'Deleting', false);
 	}
+	tNums = null;
 }
 
 function ajaxSubmit(dF, Fn) {
@@ -3991,10 +3996,10 @@ function addImgSearch(el) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
-			return;
+			continue;
 		}
 		if(link.firstElementChild) {
-			return;
+			continue;
 		}
 		nav.insBefore(link, '<span desu-id="' + i + '" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>');
 	}
