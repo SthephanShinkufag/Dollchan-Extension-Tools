@@ -3740,7 +3740,6 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		$q(aib.qMsg, post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
-		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
 		var pst, el, msg, prev,
