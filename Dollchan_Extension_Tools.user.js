@@ -3343,7 +3343,7 @@ function prepareCFeatures() {
 			DESU_btnOver(el, "L" + el.getAttribute("desu-id"));\
 		}\
 		function DESU_expandOver(el) {\
-			DESU_btnOver("B" + el.parentNode.getAttribute("info"));\
+			DESU_btnOver(el, "B" + el.parentNode.getAttribute("info"));\
 		}\
 		function DESU_hideClick(el) {\
 			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
