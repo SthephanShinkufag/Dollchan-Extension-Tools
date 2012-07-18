@@ -3740,7 +3740,9 @@ function addLinkTube(post) {
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
-		$q(aib.qMsg, post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
+		(post ? post.Msg : $q(aib.qMsg, getPost(el)))
+			.appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' + src + '</a></p>'));
+		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
 		var pst, el, msg, prev,
@@ -4554,12 +4556,16 @@ function getFullPost(el, isFunc) {
 		replaceFMsg = function(pst, pNum) {
 			if(post.Num === pNum) {
 				$del(el);
+				var ytube = $q('.DESU_eYTube', post.Msg);
 				post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
 				post.Msg = $q(aib.qMsg, post);
 				post.Text = getText(post.Msg);
+				if(ytube) {
+					post.Msg.appendChild(ytube);
+				}
 				processFullMsg(post);
 				el = post = null;
-				throw '';
+				throw null;
 			}
 		};
 	if(aib.hana) {
