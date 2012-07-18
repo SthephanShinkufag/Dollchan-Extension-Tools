@@ -6302,6 +6302,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
+	nav.visChange = nav.Chrome ? 'webkitvisibilitychange' : 'mozvisibilitychange';
 	try {
 		try {
 			new Blob([new Uint8Array(0)]);
@@ -6822,7 +6823,7 @@ function initPage() {
 				if(Cfg['updThread'] === 1) {
 					setTimeout(function() {
 						doc.title = docTitle;
-					}, 0);
+					}, 200);
 				}
 			};
 		if(!Cfg['rePageTitle']) {
@@ -6831,14 +6832,14 @@ function initPage() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.Firefox > 10) {
-			$event(doc, {'mozvisibilitychange': function() {
-				if(doc.mozHidden) {
+		if(nav.Firefox > 10 || nav.Chrome) {
+			doc.addEventListener(nav.visChange, function() {
+				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
 				} else {
 					onvis();
 				}
-			}});
+			});
 			Favico.focused = !doc.mozHidden;
 		} else {
 			window.onblur = function() {
