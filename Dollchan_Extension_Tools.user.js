@@ -3994,7 +3994,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var els = $Q(aib.qImages, el), i = 0, i = els.length - 1, link; i >= 0; i--) {
+	for(var els = $Q(aib.qImages, el), i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
