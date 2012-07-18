@@ -291,7 +291,7 @@ Lng = {
 	noConnect:		['Ошибка подключения', 'Connection failed'],
 	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
-	errDelete:		['Не могу удалить пост(ы)!', 'Can\'t delete post(s)!'],
+	errDelete:		['Не могу удалить пост(ы):\n', 'Can\'t delete post(s):\n'],
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
 	cookiesLimit:	['Превышен лимит cookies', 'Cookies limit overflow'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
@@ -644,14 +644,12 @@ function getPostImages(el) {
 }
 
 function getText(el) {
-	return (
-		el.innerText ||
-			el.innerHTML
-				.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-				.replace(/<[^>]+?>/g,'')
-				.replace(/&gt;/g, '>')
-				.replace(/&lt;/g, '<')
-	).trim();
+	return el.innerHTML
+		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
+		.replace(/<[^>]+?>/g,'')
+		.replace(/&gt;/g, '>')
+		.replace(/&lt;/g, '<')
+		.trim();
 }
 
 function getImgWeight(post) {
@@ -1292,19 +1290,20 @@ function optSel(id, isBlock, Fn) {
 }
 
 function cfgTab(name, id) {
-	return $New('div', {'class': aib.pClass}, [
+	return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack', 'selected': false}, [
 		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[name][lCode], 'info': id}, {
 			'click': function() {
-				if(this.className == 'DESU_cfgTab_sel') {
+				var el, id, pN = this.parentNode;
+				if(pN.getAttribute('selected') === 'true') {
 					return;
 				}
-				var el = $c('DESU_cfgBody', doc),
-					id = this.getAttribute('info');
+				el = $c('DESU_cfgBody', doc);
 				if(el) {
 					el.className = 'DESU_cfgUnvis';
-					$c('DESU_cfgTab_sel', doc).className = 'DESU_cfgTab';
+					$q('.DESU_cfgTabBack[selected="true"]', doc).setAttribute('selected', false);
 				}
-				this.className = 'DESU_cfgTab_sel';
+				pN.setAttribute('selected', true);
+				id = this.getAttribute('info');
 				el = $id('DESU_' + id);
 				if(!el) {
 					$after($id('DESU_cfgBar'), el = getCfgBody(id));
@@ -1952,6 +1951,7 @@ function closeAlert(el) {
 	if(!el) {
 		return;
 	}
+	el.closeTimeout = null;
 	if(!Cfg['animation']) {
 		$del(el);
 		return;
@@ -2011,6 +2011,7 @@ function $alert(txt, id, wait) {
 	if(el) {
 		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
 		$t('span', el).textContent = tBtn;
+		clearTimeout(el.closeTimeout);
 		blinkAlert(el);
 		return;
 	}
@@ -2022,7 +2023,7 @@ function $alert(txt, id, wait) {
 	]);
 	showAlert($id('DESU_alertBox').appendChild(el));
 	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
-		setTimeout(closeAlert, 4e3, el);
+		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
 
@@ -2087,7 +2088,7 @@ function selectSpell(e) {
 }
 
 function selectPostHider(post) {
-	if(!Cfg['menuHiddBtn'] || !Cfg['filterThrds'] && post.isOp) {
+	if(!Cfg['menuHiddBtn'] || (!Cfg['filterThrds'] && post.isOp)) {
 		return;
 	}
 	var a = addSelMenu(
@@ -2165,8 +2166,8 @@ function selectAudioNotif() {
 	});
 }
 
-function selectImgSearch() {
-	var p = this.nextSibling.href + '" target="_blank">' + Lng.search[lCode],
+function selectImgSearch(node) {
+	var p = node.nextSibling.href + '" target="_blank">' + Lng.search[lCode],
 		c = doc.body.getAttribute('desu-image-search'), str = '';
 	if(c) {
 		c = c.split(';');
@@ -2179,7 +2180,7 @@ function selectImgSearch() {
 		});
 	}
 	addSelMenu(
-		this, false,
+		node, false,
 		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
 			'<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="DESU_srcGoogle" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
@@ -2603,11 +2604,6 @@ function doPostformChanges(img, m, el) {
 			dForm.onsubmit = function(e) {
 				$pd(e);
 				$alert(Lng.deleting[lCode], 'Deleting', true);
-				$$each($Q('input[type="checkbox"]', dForm), function(node) {
-					node.onclick = function() {
-						return false;
-					};
-				});
 				ajaxSubmit(new dataForm(dForm), checkDelete);
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
@@ -2726,14 +2722,14 @@ function findSubmitError(dc) {
 			aib.hana && !dc.getElementById('delete_form') ? '.post-error' :
 			aib.krau && !$t('form', dc) ? '.message_text' :
 			aib.abu && !dc.getElementById('delform') ? 'font[size="5"]' :
-			'';
+			false;
 	if(dc.body.firstChild && (xp || !$t('form', dc))) {
 		if(!xp) {
 			xp =
 				aib.kus ? 'h1, h2, div[style*="1.25em"]' :
-				aib.fch ? 'table font > b' :
+				aib.fch ? '#errmsg' :
 				aib.gazo ? 'font[size="5"]' :
-				aib._420 ? 'pre' : '';
+				aib._420 ? 'pre' : false;
 		}
 		if(xp) {
 			$$each($Q(xp, dc), function(el) {
@@ -2805,24 +2801,32 @@ function checkUpload(err, url) {
 }
 
 function checkDelete(dc, url) {
-	var allDel = true,
-		cbFunc = function() {
-			$$each($Q('input[type="checkbox"]', dForm), function(el) {
-				if(el.checked && !getPost(el).isDel) {
-					allDel = false;
-				}
-				el.checked = false;
-				el.onclick = null;
-			});
-			$alert(allDel ? Lng.succDeleted[lCode] : Lng.errDelete[lCode], 'Deleting', false);
-			allDel = null;
+	var err = aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc),
+		tNums = [], lFunc = function() {
+			var el = $id('DESU_alertDeleting');
+			if(el) {
+				closeAlert(el);
+				$alert(Lng.succDeleted[lCode], 'Deleted', false);
+			}
 		};
-	if(TNum) {
-		loadNewPosts(false, cbFunc);
+	if(!err) {
+		$$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
+			var tNum = getPost(el).thr.Num;
+			if(tNums.indexOf(tNum) === -1) {
+				tNums.push(tNum);
+			}
+		} : function(el) { el.checked = false; });
+		if(!TNum) {
+			tNums.forEach(function(tNum) {
+				loadThread(pByNum[tNum], 5, lFunc);
+			});
+		} else {
+			loadNewPosts(false, lFunc);
+		}
 	} else {
-		//TODO: add !TNum delete checking
-		cbFunc();
+		$alert(Lng.errDelete[lCode] + err, 'Deleting', false);
 	}
+	tNums = null;
 }
 
 function ajaxSubmit(dF, Fn) {
@@ -3276,11 +3280,11 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_delSelection(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
-			html += '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_delSelection(event)"></span>';
+			html += '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_btnOut(event)"></span>';
 		}
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
 			html += '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>';
@@ -3318,16 +3322,31 @@ function prepareCFeatures() {
 				el.parentNode.removeChild(el);\
 			}\
 		}\
-		function DESU_hideClick(el) {\
-			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function DESU_hideOver(el) {\
-			window.postMessage("A" + el.parentNode.getAttribute("info"), "*");\
-		}\
 		function DESU_delSelection(e) {\
 			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'DESU_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
 				DESU_removeSel();\
 			}\
+		}\
+		function DESU_btnOut(e) {\
+			clearTimeout(e.target.DESU_overDelay);\
+			DESU_delSelection(e);\
+		}\
+		function DESU_btnOver(el, data) {\
+			el.DESU_overDelay = setTimeout(function(msg) {\
+				window.postMessage(msg, "*");\
+			}, ' + Cfg['linksOver'] + ', data);\
+		}\
+		function DESU_hideOver(el) {\
+			DESU_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
+		}\
+		function DESU_imgSOver(el) {\
+			DESU_btnOver(el, "L" + el.getAttribute("desu-id"));\
+		}\
+		function DESU_expandOver(el) {\
+			DESU_btnOver(el, "B" + el.parentNode.getAttribute("info"));\
+		}\
+		function DESU_hideClick(el) {\
+			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_qReplyClick(el) {\
 			window.postMessage("F" + el.parentNode.getAttribute("info"), "*");\
@@ -3337,9 +3356,6 @@ function prepareCFeatures() {
 		}\
 		function DESU_expandClick(el) {\
 			window.postMessage("E" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function DESU_expandOver(el) {\
-			window.postMessage("B" + el.parentNode.getAttribute("info"), "*");\
 		}\
 		function DESU_favorClick(el) {\
 			window.postMessage("G" + el.parentNode.getAttribute("info"), "*");\
@@ -3386,6 +3402,8 @@ function prepareCFeatures() {
 			data = data.split('$#$');
 			checkUpload(data[0], data[1]);
 			$id('DESU_iframe').src = 'about:blank';
+		} else if(id === 'L') {
+			selectImgSearch($q('.DESU_btnSrc[desu-id="' + data + '"]', dForm));
 		}
 	}, false);
 
@@ -3722,7 +3740,8 @@ function addLinkTube(post) {
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
-		$q(aib.qMsg, post || getPost(el)).appendChild($add('<p><a href="' + src + '">' + src + '</a></p>'));
+		(post ? post.Msg : $q(aib.qMsg, getPost(el)))
+			.appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' + src + '</a></p>'));
 		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
@@ -3975,17 +3994,16 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var els = $Q(aib.qImages, el), i = 0, len = els.length, link; i < len; i++) {
+	for(var els = $Q(aib.qImages, el), i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
-			return;
+			continue;
 		}
-		if(link.innerHTML.indexOf('<') !== -1) {
-			return;
+		if(link.firstElementChild) {
+			continue;
 		}
-		nav.insBefore(link, '<span class="DESU_btnSrc" onmouseout="DESU_delSelection(event)"></span>');
-		link.previousSibling.onmouseover = selectImgSearch;
+		nav.insBefore(link, '<span desu-id="' + i + '" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>');
 	}
 }
 
@@ -4538,12 +4556,16 @@ function getFullPost(el, isFunc) {
 		replaceFMsg = function(pst, pNum) {
 			if(post.Num === pNum) {
 				$del(el);
+				var ytube = $q('.DESU_eYTube', post.Msg);
 				post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
 				post.Msg = $q(aib.qMsg, post);
 				post.Text = getText(post.Msg);
+				if(ytube) {
+					post.Msg.appendChild(ytube);
+				}
 				processFullMsg(post);
 				el = post = null;
-				throw '';
+				throw null;
 			}
 		};
 	if(aib.hana) {
@@ -5863,15 +5885,16 @@ function scriptCSS() {
 		#DESU_cfgBar:lang(en) { background-color: #325f9e; }\
 		#DESU_cfgBar:lang(ru) { background-color: #0c1626; }\
 		#DESU_cfgBar:lang(de) { background-color: #777; }\
-		#DESU_cfgBar > div { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: none !important; border-radius: 4px 4px 0 0; opacity: 1; }\
-		.DESU_cfgTab, .DESU_cfgTab_sel { padding: 4px 6px; border: 1px solid #183d77; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
-		.DESU_cfgTab:lang(de), .DESU_cfgTab_sel:lang(de) { border-color: #444; }\
-		.DESU_cfgTab:lang(fr), .DESU_cfgTab_sel:lang(fr) { border-color: #121421; }\
-		.DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.DESU_cfgTab:lang(en), .DESU_cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
-		.DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
-		.DESU_cfgTab:hover:lang(en), .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%); }\
-		.DESU_cfgTab_sel { border-bottom: none; }\
+		.DESU_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
+		.DESU_cfgTabBack:lang(de) { border-color: #444 !important; }\
+		.DESU_cfgTabBack:lang(fr) { border-color: #121421 !important; }\
+		.DESU_cfgTabBack[selected="true"] { border-bottom: none !important; }\
+		.DESU_cfgTab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab { background-color: rgba(0,0,0,.2); }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:lang(en), .DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
+		.DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:hover:lang(en), .DESU_cfgTabBack[selected="false"] > .DESU_cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+		.DESU_cfgTab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 		#DESU_spellPanel { float: right; }\
 		#DESU_spellPanel > a { padding: 0 7px; text-align: center; }\
 		#DESU_cfgWipe { display: table; padding-left: 25px; }\
@@ -6285,6 +6308,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
+	nav.visChange = nav.Chrome ? 'webkitvisibilitychange' : 'mozvisibilitychange';
 	try {
 		try {
 			new Blob([new Uint8Array(0)]);
@@ -6805,7 +6829,7 @@ function initPage() {
 				if(Cfg['updThread'] === 1) {
 					setTimeout(function() {
 						doc.title = docTitle;
-					}, 0);
+					}, 200);
 				}
 			};
 		if(!Cfg['rePageTitle']) {
@@ -6814,14 +6838,14 @@ function initPage() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.Firefox > 10) {
-			$event(doc, {'mozvisibilitychange': function() {
-				if(doc.mozHidden) {
+		if(nav.Firefox > 10 || nav.Chrome) {
+			doc.addEventListener(nav.visChange, function() {
+				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
 				} else {
 					onvis();
 				}
-			}});
+			});
 			Favico.focused = !doc.mozHidden;
 		} else {
 			window.onblur = function() {
