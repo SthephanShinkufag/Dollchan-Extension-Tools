@@ -2475,6 +2475,12 @@ function doPostformChanges(img, m, el) {
 		} else {
 			Stat.op = +Stat.op + 1;
 		}
+		if(pr.video && (val = pr.video.value) !== '') {
+			val = val.match(getTubePattern());
+			if(val) {
+				pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+			}
+		}
 		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
 			$disp($id('DESU_qarea'));
