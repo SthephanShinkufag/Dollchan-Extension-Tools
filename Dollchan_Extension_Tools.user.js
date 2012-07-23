@@ -5074,6 +5074,7 @@ function doPostFilters(post) {
 }
 
 function togglePostVisib(post) {
+	$del($c('DESU_postNote', post));
 	setPostVisib(post, post.Vis !== 0 ? 0 : 1);
 	savePostsVisib();
 }
