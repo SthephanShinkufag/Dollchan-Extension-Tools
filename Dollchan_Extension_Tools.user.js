@@ -1399,8 +1399,8 @@ function getCfgPosts() {
 		]),
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
-		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
-		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(!nav.noBlob, lBox('preLoadImgs', true, null)),
+		$if(aib.rJpeg && !nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', true, null),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
@@ -3413,7 +3413,7 @@ function prepareCFeatures() {
 		}
 	}, false);
 
-	if(!nav.isBlob) {
+	if(nav.noBlob) {
 		return;
 	}
 	addContentScript('(function() {\
@@ -6315,42 +6315,37 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.visChange = nav.Chrome ? 'webkitvisibilitychange' : 'mozvisibilitychange';
-	try {
-		try {
-			new Blob([new Uint8Array(0)]);
-			nav.toBlob = function(arr) {
-				return new Blob(arr);
-			};
-		} catch(e) {
-			if(!window.MozBlobBuilder && !window.WebKitBlobBuilder) {
-				throw null;
-			}
-			nav.toBlob = function(arr) {
-				var i, j, len, len_, out, el,
-					bb = new (window.WebKitBlobBuilder || window.MozBlobBuilder)();
-				for(i = 0, len = arr.length; i < len; i++) {
-					el = arr[i]
-					if(el instanceof Uint8Array) {
-						if(el.length !== el.buffer.byteLength) {
-							out = new Uint8Array(len_ = el.length);
-							for(j = 0; j < len_; j++) {
-								out[j] = el[j];
-							}
-							bb.append(out.buffer);
-						} else {
-							bb.append(el.buffer);
+	nav.visChange = nav.WebKit ? 'webkitvisibilitychange' : 'mozvisibilitychange';
+	if(nav.Firefox > 14 || nav.WebKit > 536) {
+		nav.toBlob = function(arr) {
+			return new Blob(arr);
+		};
+	} else if(nav.Firefox > 5 || (nav.WebKit && !nav.Safari)) {
+		nav.toBlob = function(arr) {
+			var i, j, len, len_, out, el,
+				bb = new (window.WebKitBlobBuilder || window.MozBlobBuilder)();
+			for(i = 0, len = arr.length; i < len; i++) {
+				el = arr[i]
+				if(el.buffer) {
+					if(el.length !== el.buffer.byteLength) {
+						out = new Uint8Array(len_ = el.length);
+						for(j = 0; j < len_; j++) {
+							out[j] = el[j];
 						}
+						bb.append(out.buffer);
 					} else {
-						bb.append(el);
+						bb.append(el.buffer);
 					}
+				} else {
+					bb.append(el);
 				}
-				return bb.getBlob();
-			};
-		}
-		nav.isBlob = true;
-	} catch(e) { nav.isBlob = false; }
-	nav.isH5Rep = nav.isBlob && !aib.nul && !aib.tiny;
+			}
+			return bb.getBlob();
+		};
+	} else {
+		nav.noBlob = true;
+	}
+	nav.isH5Rep = !nav.noBlob && !aib.nul && !aib.tiny;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
@@ -6845,7 +6840,7 @@ function initPage() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.Firefox > 10 || nav.Chrome) {
+		if(nav.Firefox > 10 || nav.WebKit) {
 			doc.addEventListener(nav.visChange, function() {
 				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
