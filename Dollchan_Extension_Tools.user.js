@@ -6706,7 +6706,7 @@ function parseDelform(el, dc, Fn) {
 				if(pThr) {
 					$after(pThr, thrds);
 				} else {
-					$before(node.firstChild, thrds);
+					$before(el.firstChild, thrds);
 				}
 				if(!node || !thr) {
 					return;
