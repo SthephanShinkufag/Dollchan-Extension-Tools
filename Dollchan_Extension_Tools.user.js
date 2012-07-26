@@ -4494,6 +4494,9 @@ function importPost(post) {
 }
 
 function addPostFunc(post) {
+	if(Cfg['expandImgs']) {
+		eventPostImg(post);
+	}
 	doPostFilters(post);
 	updRefMap(post);
 	eventRefLink(post);
@@ -4524,9 +4527,6 @@ function newPost(thr, post, pNum, i) {
 	}
 	post.Vis = getVisib(post.Num);
 	addPostButtons(post);
-	if(Cfg['expandImgs']) {
-		eventPostImg(post);
-	}
 	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
 	}
@@ -4555,6 +4555,7 @@ function newPost(thr, post, pNum, i) {
 function processFullMsg(post) {
 	replaceDelform(post);
 	$$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
+	post.Img = getPostImages(post);
 	addPostFunc(post);
 }
 
