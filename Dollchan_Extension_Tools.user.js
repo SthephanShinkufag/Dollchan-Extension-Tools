@@ -832,6 +832,7 @@ function parseCfg(id) {
 function fixCfg(isGlob) {
 	var rv = (isGlob && parseCfg('DESU_GlobalCfg')) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	rv['language'] = navigator.language.indexOf('ru') === -1 ? 1 : 0;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
 	return rv;
