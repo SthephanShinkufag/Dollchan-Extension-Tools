@@ -6322,10 +6322,10 @@ function getNavigator() {
 		nav.toBlob = function(arr) {
 			return new Blob(arr);
 		};
-	} else if(nav.Firefox > 5 || (nav.WebKit && !nav.Safari)) {
+	} else if(nav.Firefox > 5) {
 		nav.toBlob = function(arr) {
 			var i, j, len, len_, out, el,
-				bb = new (window.WebKitBlobBuilder || window.MozBlobBuilder)();
+				bb = new window.MozBlobBuilder();
 			for(i = 0, len = arr.length; i < len; i++) {
 				el = arr[i]
 				if(el.buffer) {
