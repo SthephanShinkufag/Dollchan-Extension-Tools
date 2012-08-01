@@ -6347,7 +6347,7 @@ function getNavigator() {
 	} else {
 		nav.noBlob = true;
 	}
-	nav.isH5Rep = !nav.noBlob && !aib.nul && !aib.tiny;
+	nav.isH5Rep = !nav.Safari && !nav.noBlob && !aib.nul && !aib.tiny;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
@@ -6362,16 +6362,16 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('beforebegin', html);
 		};
-	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
+	nav.forEach = nav.WebKit || nav.Opera >= 12 || nav.Firefox >= 4 ?
+		function(obj, Fn) {
+			Object.keys(obj).forEach(Fn, obj);
+		} :
 		function(obj, Fn) {
 			for(var i in obj) {
 				if(obj.hasOwnProperty(i)) {
 					Fn.call(obj, i);
 				}
 			}
-		} :
-		function(obj, Fn) {
-			Object.keys(obj).forEach(Fn, obj);
 		};
 	nav.fixLink = nav.Safari ?
 		function(url) {
