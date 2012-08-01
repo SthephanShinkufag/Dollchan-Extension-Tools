@@ -3738,8 +3738,7 @@ function addLinkTube(post) {
 		return;
 	}
 	$$each($Q('embed', post || dForm), function(el) {
-		var src,
-			m = el.src.match(getTubePattern());
+		var src, pst, m = el.src.match(getTubePattern());
 		if(!m) {
 			return;
 		}
@@ -3747,13 +3746,13 @@ function addLinkTube(post) {
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
-		(post ? post.Msg : $q(aib.qMsg, getPost(el)))
-			.appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' + src + '</a></p>'));
+		pst = post || getPost(el);
+		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add('<p class="DESU_eYTube"><a href="' + src +
+			'">' + src + '</a></p>'));
 		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
-		var pst, el, msg, prev,
-			m = link.href.match(getTubePattern());
+		var pst, el, msg, prev, m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
 		}
