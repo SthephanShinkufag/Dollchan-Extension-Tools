@@ -6850,7 +6850,7 @@ function initPage() {
 					onvis();
 				}
 			});
-			Favico.focused = !doc.mozHidden;
+			Favico.focused = !(doc.mozHidden || doc.webkitHidden);
 		} else {
 			window.onblur = function() {
 				Favico.focused = false;
