@@ -4162,9 +4162,7 @@ function closePview(el) {
 		$del(el);
 		return;
 	}
-	nav.animEvent(el, function(node) {
-		$del(node);
-	});
+	nav.animEvent(el, $del);
 	el.style[nav.animName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
 
@@ -4190,66 +4188,59 @@ function markPviewToDel(el, delAll) {
 	}
 }
 
-function setPviewPostion(link, pView, isAnim) {
-	var left, uId,
-		scrW = doc.body.clientWidth,
-		scrH = window.innerHeight,
-		x = $offset(link).left + link.offsetWidth/2,
-		y = $offset(link).top,
-		top = link.getBoundingClientRect().top + link.offsetHeight,
-		width = 'auto',
-		moved = function() {
-			if(this.style[nav.animName]) {
-				this.style.cssText = this.newPos;
-				this.newPos = false;
-				$$each($C('DESU_moveCSS', doc.head), $del);
-				this.removeEventListener(nav.animEnd, moved, false);
-			}
-		};
-	if(x < scrW / 2) {
-		left = x;
-		pView.aLeft = true;
-		if(left + pView.offsetWidth >= scrW - 10) {
-			width = (scrW - left - 10) + 'px';
-		}
-	} else {
-		left = x - pView.offsetWidth;
-		pView.aLeft = false;
-		if(left < 10) {
-			left = '10';
-			width = (x - 10) + 'px';
-		}
+function PviewMoved() {
+	if(this.style[nav.animName]) {
+		this.style.cssText = this.newPos;
+		this.newPos = false;
+		$$each($C('DESU_moveCSS', doc.head), $del);
+		this.removeEventListener(nav.animEnd, PviewMoved, false);
 	}
-	left += 'px';
-	uId = pView.offsetHeight;
-	if(top + uId < scrH - 10 || top - uId < 10) {
-		top = (y + link.offsetHeight) + 'px';
-		pView.aTop = true;
-	} else {
-		top = (y - uId) + 'px';
-		pView.aTop = false;
-	}
-	if(left === pView.style.left && top === pView.style.top) {
+}
+
+function setPviewPosition(link, pView, isAnim) {
+	if(pView.link === link) {
 		return;
 	}
+	pView.link = link;
+	var isTop, top, cr = link.getBoundingClientRect(),
+		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
+		offY = cr.top + window.pageYOffset,
+		bWidth = doc.body.clientWidth,
+		isLeft = offX < bWidth / 2,
+		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
+		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
+			Math.min(parseInt(pView.offsetWidth, 10), tmp)) + 'px;';
+	if(isAnim) {
+		tmp = pView.style.cssText;
+		pView.style.cssText = 'opacity: 0; ' + lmw;
+	} else {
+		pView.style.cssText = lmw;
+	}
+	top = pView.offsetHeight;
+	isTop = top + cr.top + link.offsetHeight < window.innerHeight || cr.top - top < 5;
+	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
+	pView.aLeft = isLeft;
+	pView.aTop = isTop;
 	if(!Cfg['animation'] || !isAnim) {
-		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
+		pView.style.top = top;
 		return;
 	}
-	uId = 'DESU_mCSS' + Math.round(Math.random() * 1e3);
+	var uId = 'DESU_mCSS' + Math.round(Math.random() * 1e3);
 	doc.head.appendChild($new('style', {
 		'class': 'DESU_moveCSS',
 		'type': 'text/css',
 		'text': '@' + nav.cssFix + 'keyframes ' + uId + ' {\
-			to { left: ' + left + '; top: ' + top + '; width: ' + width + '; }\
+			to { ' + lmw + ' top:' + top + '; }\
 		}'
 	}, null));
 	if(pView.newPos) {
 		pView.style.cssText = pView.newPos;
-		pView.removeEventListener(nav.animEnd, moved, false);
+		pView.removeEventListener(nav.animEnd, PviewMoved, false);
+	} else {
+		pView.style.cssText = tmp;
 	}
-	pView.newPos = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';';
-	pView.addEventListener(nav.animEnd, moved, false);
+	pView.newPos = lmw + ' top:' + top + ';';
+	pView.addEventListener(nav.animEnd, PviewMoved, false);
 	pView.style[nav.animName] = uId;
 }
 
@@ -4321,7 +4312,7 @@ function getPview(post, pNum, parent, link, txt) {
 	parent = parent.node;
 	pView.style.display = '';
 	dForm.appendChild(pView);
-	setPviewPostion(link, pView, false);
+	setPviewPosition(link, pView, false);
 	pView.onmouseover = function() {
 		markPviewToDel(this.node, false);
 	};
@@ -4365,8 +4356,7 @@ function getAjaxPview(b, pNum) {
 }
 
 function showPview(link) {
-	var b = aib.ylil ?
-			link['data-boardurl'] :
+	var b = aib.ylil ? link['data-boardurl'] :
 			link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
@@ -4383,7 +4373,7 @@ function showPview(link) {
 	if(el && el.post.Num === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
-		setPviewPostion(link, el.post, nav.Anim);
+		setPviewPosition(link, el.post, nav.Anim);
 		markRefMap(el.post, parent.Num);
 		return;
 	}
