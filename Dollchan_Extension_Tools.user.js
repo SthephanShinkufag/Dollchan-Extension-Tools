@@ -603,6 +603,11 @@ function fixFunctions() {
 			return 1;
 		};
 	}
+	if(!String.prototype.contains) {
+		String.prototype.contains = function(s) {
+			return this.indexOf(s) !== -1;
+		};
+	}
 	if(!('GM_log' in window)) {
 		window.GM_log = function() {};
 	}
@@ -676,20 +681,20 @@ function fixBrd(b) {
 
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		(h.indexOf('krautchan.net') + 1) ? 'thread-' :
-		(h.indexOf('ylilauta.fi') + 1) ? '' :
+		h.contains('krautchan.net') ? 'thread-' :
+		h.contains('ylilauta.org') ? '' :
 		'res/'
 	) + tNum + (
 		/dobrochan|tenhou/.test(h) ? '.xhtml' :
-		(h.indexOf('2chan.net') + 1) ? '.htm' :
-		(h.indexOf('420chan.org') + 1) ? '.php' :
-		(h.indexOf('ylilauta.fi') + 1) ? '' :
+		h.contains('2chan.net') ? '.htm' :
+		h.contains('420chan.org') ? '.php' :
+		h.contains('ylilauta.org') ? '' :
 		'.html'
 	);
 }
 
 function getPageUrl(h, b, p) {
-	return (h.indexOf('ylilauta.fi') + 1) ?
+	return h.contains('ylilauta.org') ?
 		('/' + b + (p === 1 ? '/' : '-' + p)) :
 		(fixBrd(b) + (
 			p > 0 ? (p + docExt) :
@@ -832,7 +837,7 @@ function parseCfg(id) {
 function fixCfg(isGlob) {
 	var rv = (isGlob && parseCfg('DESU_GlobalCfg')) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
-	rv['language'] = navigator.language.indexOf('ru') === -1 ? 1 : 0;
+	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
 	return rv;
@@ -1065,7 +1070,7 @@ function toggleFavorites(post, btn) {
 
 function markViewedPost(pNum) {
 	var post = pByNum[pNum];
-	if(post && post.className.indexOf('DESU_viewed') === -1) {
+	if(post && !post.className.contains('DESU_viewed')) {
 		post.className += ' DESU_viewed';
 	}
 }
@@ -3641,9 +3646,9 @@ function getTubeVideoLinks(id, Fn) {
 			return;
 		}
 		formats = formats[1];
-		if(formats.indexOf(',') >= 0) {
+		if(formats.contains(',')) {
 			sep1 = ',';
-			sep2 = formats.indexOf('&') >= 0 ? '&' : '\\u0026';
+			sep2 = formats.contains('&') ? '&' : '\\u0026';
 			sep3 = '=';
 		}
 		for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
@@ -3813,7 +3818,7 @@ function filterTube(post, text, tags) {
 		}
 	}
 	for(i = 0; t = oSpells.vtag[i]; i++) {
-		if(tags.indexOf(t) !== -1) {
+		if(tags.contains(t)) {
 			hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
 			post.ytHide = 1;
 			clearTimeout(hideTubeDelay);
@@ -3838,7 +3843,7 @@ function hideByTube() {
 			}
 		}
 		for(i = 0, val = link.rel; t = oSpells.vtag[i++];) {
-			if(val.indexOf(t) !== -1) {
+			if(val.contains(t)) {
 				post = getPost(link);
 				hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
 				post.ytHide = 1;
@@ -5416,7 +5421,7 @@ function initSpells() {
 			p = p.split(', ');
 			j = p.length;
 			while(j--) {
-				if(p[j].indexOf('-') < 0) {
+				if(!p[j].contains('-')) {
 					p[j] += '-' + p[j];
 				}
 				t === '#num' ? oSpells.num.push(p[j]) : oSpells.skip.push(p[j]);
@@ -5516,7 +5521,7 @@ function getSpells(x, post) {
 		for(i = 0, inf = post.Text.toLowerCase(); t = x.words[i++];) {
 			_t = t;
 			t = t.toLowerCase();
-			if(inf.indexOf(t) >= 0 || pTitle.indexOf(t) >= 0) {
+			if(inf.contains(t) || pTitle.contains(t)) {
 				return _t;
 			}
 		}
@@ -5555,7 +5560,7 @@ function getSpells(x, post) {
 		for(i = 0; t = x.name[i++];) {
 			_t = t;
 			t = t.split(/!+/);
-			if(t[0] !== '' && pName.indexOf(t[0]) >= 0 || t[1] !== '' && pTrip.indexOf(t[1]) >= 0) {
+			if(t[0] !== '' && pName.contains(t[0]) || t[1] !== '' && pTrip.contains(t[1])) {
 				return '#name ' + _t;
 			}
 		}
@@ -5702,7 +5707,7 @@ function addSpell(spell) {
 	if(!val || verifyRegExp(val)) {
 		val = spellsList.join('\n');
 	}
-	if(('\n' + val).indexOf('\n' + spell) === -1) {
+	if(!('\n' + val).contains('\n' + spell)) {
 		val = val === '' ? spell : val + '\n' + spell;
 		if(verifyRegExp(val)) {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
@@ -6444,7 +6449,7 @@ function getImageboard() {
 	aib.krau = h === 'krautchan.net';
 	aib.gazo = h === '2chan.net';
 	aib.brit = h === 'britfa.gs';
-	aib.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
+	aib.ylil = h === 'ylilauta.org';
 	aib.abu = !!$id('ABU_submitframe');
 	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
 	aib.fch = h === '4chan.org';
@@ -6721,7 +6726,7 @@ function tryToParse(node) {
 	try {
 		parseDelform(node, doc, function(thr) {
 			var i, op = aib.getOp(thr, doc),
-				els = aib.getPosts(thr),
+				els = Array.prototype.slice.call(aib.getPosts(thr)),
 				len = els.length;
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
@@ -6732,7 +6737,7 @@ function tryToParse(node) {
 			}
 			Posts.push(op);
 			Threads.push(op);
-			Posts = Posts.concat(Array.prototype.slice.call(els));
+			Posts = Posts.concat(els);
 			if(aib._420 || (aib.tiny && !TNum)) {
 				$after(thr, thr.lastChild);
 			}
