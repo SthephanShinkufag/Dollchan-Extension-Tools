@@ -12,6 +12,13 @@
  */
 Document.prototype.implementation.createHTMLDocument = function(html) {};
 /**
+ * @param {String} string
+ * @param {number=} start_index
+ * @return {Boolean}
+ * @nosideeffects
+ */
+String.prototype.contains = function(string, start_index) {};
+/**
  * @param {Function|string} callback
  * @param {number} delay
  * @param {...*} var_args
