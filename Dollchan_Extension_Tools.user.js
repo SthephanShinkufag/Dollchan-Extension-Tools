@@ -6358,7 +6358,7 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('beforebegin', html);
 		};
-	nav.forEach = nav.WebKit || nav.Opera >= 12 || nav.Firefox >= 4 ?
+	nav.forEach = nav.WebKit || nav.Firefox >= 4 ?
 		function(obj, Fn) {
 			Object.keys(obj).forEach(Fn, obj);
 		} :
