@@ -6450,7 +6450,7 @@ function getImageboard() {
 	aib.gazo = h === '2chan.net';
 	aib.brit = h === 'britfa.gs';
 	aib.ylil = h === 'ylilauta.org';
-	aib.abu = !!$id('ABU_submitframe');
+	aib.abu = !!$id('LakeSettings');
 	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
 	aib.fch = h === '4chan.org';
 	aib._420 = h === '420chan.org';
