@@ -603,6 +603,11 @@ function fixFunctions() {
 			return 1;
 		};
 	}
+	if(!String.prototype.contains) {
+		String.prototype.contains = function(s) {
+			return this.indexOf(s) !== -1;
+		};
+	}
 	if(!('GM_log' in window)) {
 		window.GM_log = function() {};
 	}
@@ -676,20 +681,20 @@ function fixBrd(b) {
 
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		(h.indexOf('krautchan.net') + 1) ? 'thread-' :
-		(h.indexOf('ylilauta.fi') + 1) ? '' :
+		h.contains('krautchan.net') ? 'thread-' :
+		h.contains('ylilauta.org') ? '' :
 		'res/'
 	) + tNum + (
 		/dobrochan|tenhou/.test(h) ? '.xhtml' :
-		(h.indexOf('2chan.net') + 1) ? '.htm' :
-		(h.indexOf('420chan.org') + 1) ? '.php' :
-		(h.indexOf('ylilauta.fi') + 1) ? '' :
+		h.contains('2chan.net') ? '.htm' :
+		h.contains('420chan.org') ? '.php' :
+		h.contains('ylilauta.org') ? '' :
 		'.html'
 	);
 }
 
 function getPageUrl(h, b, p) {
-	return (h.indexOf('ylilauta.fi') + 1) ?
+	return h.contains('ylilauta.org') ?
 		('/' + b + (p === 1 ? '/' : '-' + p)) :
 		(fixBrd(b) + (
 			p > 0 ? (p + docExt) :
@@ -832,6 +837,7 @@ function parseCfg(id) {
 function fixCfg(isGlob) {
 	var rv = (isGlob && parseCfg('DESU_GlobalCfg')) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
 	return rv;
@@ -1064,7 +1070,7 @@ function toggleFavorites(post, btn) {
 
 function markViewedPost(pNum) {
 	var post = pByNum[pNum];
-	if(post && post.className.indexOf('DESU_viewed') === -1) {
+	if(post && !post.className.contains('DESU_viewed')) {
 		post.className += ' DESU_viewed';
 	}
 }
@@ -1399,8 +1405,8 @@ function getCfgPosts() {
 		]),
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
-		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
-		$if(aib.rJpeg && nav.isBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(!nav.noBlob, lBox('preLoadImgs', true, null)),
+		$if(aib.rJpeg && !nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('findRarJPEG', true, null),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
@@ -2475,6 +2481,12 @@ function doPostformChanges(img, m, el) {
 		} else {
 			Stat.op = +Stat.op + 1;
 		}
+		if(pr.video && (val = pr.video.value) !== '') {
+			val = val.match(getTubePattern());
+			if(val) {
+				pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+			}
+		}
 		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
 			$disp($id('DESU_qarea'));
@@ -3407,7 +3419,7 @@ function prepareCFeatures() {
 		}
 	}, false);
 
-	if(!nav.isBlob) {
+	if(nav.noBlob) {
 		return;
 	}
 	addContentScript('(function() {\
@@ -3634,9 +3646,9 @@ function getTubeVideoLinks(id, Fn) {
 			return;
 		}
 		formats = formats[1];
-		if(formats.indexOf(',') >= 0) {
+		if(formats.contains(',')) {
 			sep1 = ',';
-			sep2 = formats.indexOf('&') >= 0 ? '&' : '\\u0026';
+			sep2 = formats.contains('&') ? '&' : '\\u0026';
 			sep3 = '=';
 		}
 		for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
@@ -3731,8 +3743,7 @@ function addLinkTube(post) {
 		return;
 	}
 	$$each($Q('embed', post || dForm), function(el) {
-		var src,
-			m = el.src.match(getTubePattern());
+		var src, pst, m = el.src.match(getTubePattern());
 		if(!m) {
 			return;
 		}
@@ -3740,13 +3751,13 @@ function addLinkTube(post) {
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
-		(post ? post.Msg : $q(aib.qMsg, getPost(el)))
-			.appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' + src + '</a></p>'));
+		pst = post || getPost(el);
+		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add('<p class="DESU_eYTube"><a href="' + src +
+			'">' + src + '</a></p>'));
 		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
-		var pst, el, msg, prev,
-			m = link.href.match(getTubePattern());
+		var pst, el, msg, prev, m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
 		}
@@ -3807,7 +3818,7 @@ function filterTube(post, text, tags) {
 		}
 	}
 	for(i = 0; t = oSpells.vtag[i]; i++) {
-		if(tags.indexOf(t) !== -1) {
+		if(tags.contains(t)) {
 			hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
 			post.ytHide = 1;
 			clearTimeout(hideTubeDelay);
@@ -3832,7 +3843,7 @@ function hideByTube() {
 			}
 		}
 		for(i = 0, val = link.rel; t = oSpells.vtag[i++];) {
-			if(val.indexOf(t) !== -1) {
+			if(val.contains(t)) {
 				post = getPost(link);
 				hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
 				post.ytHide = 1;
@@ -3994,6 +4005,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
+	var num = el.Num || '';
 	for(var els = $Q(aib.qImages, el), i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
@@ -4003,7 +4015,7 @@ function addImgSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		nav.insBefore(link, '<span desu-id="' + i + '" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>');
+		nav.insBefore(link, '<span desu-id="' + num + i + '" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>');
 	}
 }
 
@@ -4155,9 +4167,7 @@ function closePview(el) {
 		$del(el);
 		return;
 	}
-	nav.animEvent(el, function(node) {
-		$del(node);
-	});
+	nav.animEvent(el, $del);
 	el.style[nav.animName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
 
@@ -4183,66 +4193,59 @@ function markPviewToDel(el, delAll) {
 	}
 }
 
-function setPviewPostion(link, pView, isAnim) {
-	var left, uId,
-		scrW = doc.body.clientWidth,
-		scrH = window.innerHeight,
-		x = $offset(link).left + link.offsetWidth/2,
-		y = $offset(link).top,
-		top = link.getBoundingClientRect().top + link.offsetHeight,
-		width = 'auto',
-		moved = function() {
-			if(this.style[nav.animName]) {
-				this.style.cssText = this.newPos;
-				this.newPos = false;
-				$$each($C('DESU_moveCSS', doc.head), $del);
-				this.removeEventListener(nav.animEnd, moved, false);
-			}
-		};
-	if(x < scrW / 2) {
-		left = x;
-		pView.aLeft = true;
-		if(left + pView.offsetWidth >= scrW - 10) {
-			width = (scrW - left - 10) + 'px';
-		}
-	} else {
-		left = x - pView.offsetWidth;
-		pView.aLeft = false;
-		if(left < 10) {
-			left = '10';
-			width = (x - 10) + 'px';
-		}
+function PviewMoved() {
+	if(this.style[nav.animName]) {
+		this.style.cssText = this.newPos;
+		this.newPos = false;
+		$$each($C('DESU_moveCSS', doc.head), $del);
+		this.removeEventListener(nav.animEnd, PviewMoved, false);
 	}
-	left += 'px';
-	uId = pView.offsetHeight;
-	if(top + uId < scrH - 10 || top - uId < 10) {
-		top = (y + link.offsetHeight) + 'px';
-		pView.aTop = true;
-	} else {
-		top = (y - uId) + 'px';
-		pView.aTop = false;
-	}
-	if(left === pView.style.left && top === pView.style.top) {
+}
+
+function setPviewPosition(link, pView, isAnim) {
+	if(pView.link === link) {
 		return;
 	}
+	pView.link = link;
+	var isTop, top, cr = link.getBoundingClientRect(),
+		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
+		offY = cr.top + window.pageYOffset,
+		bWidth = doc.body.clientWidth,
+		isLeft = offX < bWidth / 2,
+		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
+		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
+			Math.min(parseInt(pView.offsetWidth, 10), tmp)) + 'px;';
+	if(isAnim) {
+		tmp = pView.style.cssText;
+		pView.style.cssText = 'opacity: 0; ' + lmw;
+	} else {
+		pView.style.cssText = lmw;
+	}
+	top = pView.offsetHeight;
+	isTop = top + cr.top + link.offsetHeight < window.innerHeight || cr.top - top < 5;
+	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
+	pView.aLeft = isLeft;
+	pView.aTop = isTop;
 	if(!Cfg['animation'] || !isAnim) {
-		pView.style.cssText = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';'
+		pView.style.top = top;
 		return;
 	}
-	uId = 'DESU_mCSS' + Math.round(Math.random() * 1e3);
+	var uId = 'DESU_mCSS' + Math.round(Math.random() * 1e3);
 	doc.head.appendChild($new('style', {
 		'class': 'DESU_moveCSS',
 		'type': 'text/css',
 		'text': '@' + nav.cssFix + 'keyframes ' + uId + ' {\
-			to { left: ' + left + '; top: ' + top + '; width: ' + width + '; }\
+			to { ' + lmw + ' top:' + top + '; }\
 		}'
 	}, null));
 	if(pView.newPos) {
 		pView.style.cssText = pView.newPos;
-		pView.removeEventListener(nav.animEnd, moved, false);
+		pView.removeEventListener(nav.animEnd, PviewMoved, false);
+	} else {
+		pView.style.cssText = tmp;
 	}
-	pView.newPos = 'left: ' + left + '; top: ' + top + '; width: ' + width + ';';
-	pView.addEventListener(nav.animEnd, moved, false);
+	pView.newPos = lmw + ' top:' + top + ';';
+	pView.addEventListener(nav.animEnd, PviewMoved, false);
 	pView.style[nav.animName] = uId;
 }
 
@@ -4314,7 +4317,7 @@ function getPview(post, pNum, parent, link, txt) {
 	parent = parent.node;
 	pView.style.display = '';
 	dForm.appendChild(pView);
-	setPviewPostion(link, pView, false);
+	setPviewPosition(link, pView, false);
 	pView.onmouseover = function() {
 		markPviewToDel(this.node, false);
 	};
@@ -4358,8 +4361,7 @@ function getAjaxPview(b, pNum) {
 }
 
 function showPview(link) {
-	var b = aib.ylil ?
-			link['data-boardurl'] :
+	var b = aib.ylil ? link['data-boardurl'] :
 			link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
@@ -4376,7 +4378,7 @@ function showPview(link) {
 	if(el && el.post.Num === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
-		setPviewPostion(link, el.post, nav.Anim);
+		setPviewPosition(link, el.post, nav.Anim);
 		markRefMap(el.post, parent.Num);
 		return;
 	}
@@ -4487,6 +4489,9 @@ function importPost(post) {
 }
 
 function addPostFunc(post) {
+	if(Cfg['expandImgs']) {
+		eventPostImg(post);
+	}
 	doPostFilters(post);
 	updRefMap(post);
 	eventRefLink(post);
@@ -4517,9 +4522,6 @@ function newPost(thr, post, pNum, i) {
 	}
 	post.Vis = getVisib(post.Num);
 	addPostButtons(post);
-	if(Cfg['expandImgs']) {
-		eventPostImg(post);
-	}
 	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
 	}
@@ -4548,6 +4550,7 @@ function newPost(thr, post, pNum, i) {
 function processFullMsg(post) {
 	replaceDelform(post);
 	$$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
+	post.Img = getPostImages(post);
 	addPostFunc(post);
 }
 
@@ -5068,6 +5071,7 @@ function doPostFilters(post) {
 }
 
 function togglePostVisib(post) {
+	$del($c('DESU_postNote', post));
 	setPostVisib(post, post.Vis !== 0 ? 0 : 1);
 	savePostsVisib();
 }
@@ -5417,7 +5421,7 @@ function initSpells() {
 			p = p.split(', ');
 			j = p.length;
 			while(j--) {
-				if(p[j].indexOf('-') < 0) {
+				if(!p[j].contains('-')) {
 					p[j] += '-' + p[j];
 				}
 				t === '#num' ? oSpells.num.push(p[j]) : oSpells.skip.push(p[j]);
@@ -5517,7 +5521,7 @@ function getSpells(x, post) {
 		for(i = 0, inf = post.Text.toLowerCase(); t = x.words[i++];) {
 			_t = t;
 			t = t.toLowerCase();
-			if(inf.indexOf(t) >= 0 || pTitle.indexOf(t) >= 0) {
+			if(inf.contains(t) || pTitle.contains(t)) {
 				return _t;
 			}
 		}
@@ -5556,7 +5560,7 @@ function getSpells(x, post) {
 		for(i = 0; t = x.name[i++];) {
 			_t = t;
 			t = t.split(/!+/);
-			if(t[0] !== '' && pName.indexOf(t[0]) >= 0 || t[1] !== '' && pTrip.indexOf(t[1]) >= 0) {
+			if(t[0] !== '' && pName.contains(t[0]) || t[1] !== '' && pTrip.contains(t[1])) {
 				return '#name ' + _t;
 			}
 		}
@@ -5703,7 +5707,7 @@ function addSpell(spell) {
 	if(!val || verifyRegExp(val)) {
 		val = spellsList.join('\n');
 	}
-	if(('\n' + val).indexOf('\n' + spell) === -1) {
+	if(!('\n' + val).contains('\n' + spell)) {
 		val = val === '' ? spell : val + '\n' + spell;
 		if(verifyRegExp(val)) {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
@@ -6277,7 +6281,7 @@ function getNavigator() {
 	var ua = window.navigator.userAgent;
 	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
 	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [,0])[1];
-	nav.WebKit = +(ua.match(/WebKit\/(\d+)/i) || [,0])[1];
+	nav.WebKit = +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1];
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isScript = nav.Opera && !!scriptStorage;
@@ -6308,42 +6312,37 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.visChange = nav.Chrome ? 'webkitvisibilitychange' : 'mozvisibilitychange';
-	try {
-		try {
-			new Blob([new Uint8Array(0)]);
-			nav.toBlob = function(arr) {
-				return new Blob(arr);
-			};
-		} catch(e) {
-			if(!window.MozBlobBuilder && !window.WebKitBlobBuilder) {
-				throw null;
-			}
-			nav.toBlob = function(arr) {
-				var i, j, len, len_, out, el,
-					bb = new (window.WebKitBlobBuilder || window.MozBlobBuilder)();
-				for(i = 0, len = arr.length; i < len; i++) {
-					el = arr[i]
-					if(el instanceof Uint8Array) {
-						if(el.length !== el.buffer.byteLength) {
-							out = new Uint8Array(len_ = el.length);
-							for(j = 0; j < len_; j++) {
-								out[j] = el[j];
-							}
-							bb.append(out.buffer);
-						} else {
-							bb.append(el.buffer);
+	nav.visChange = nav.WebKit ? 'webkitvisibilitychange' : 'mozvisibilitychange';
+	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
+		nav.toBlob = function(arr) {
+			return new Blob(arr);
+		};
+	} else if(nav.Firefox > 5) {
+		nav.toBlob = function(arr) {
+			var i, j, len, len_, out, el,
+				bb = new window.MozBlobBuilder();
+			for(i = 0, len = arr.length; i < len; i++) {
+				el = arr[i]
+				if(el.buffer) {
+					if(el.length !== el.buffer.byteLength) {
+						out = new Uint8Array(len_ = el.length);
+						for(j = 0; j < len_; j++) {
+							out[j] = el[j];
 						}
+						bb.append(out.buffer);
 					} else {
-						bb.append(el);
+						bb.append(el.buffer);
 					}
+				} else {
+					bb.append(el);
 				}
-				return bb.getBlob();
-			};
-		}
-		nav.isBlob = true;
-	} catch(e) { nav.isBlob = false; }
-	nav.isH5Rep = nav.isBlob && !aib.nul && !aib.tiny;
+			}
+			return bb.getBlob();
+		};
+	} else {
+		nav.noBlob = true;
+	}
+	nav.isH5Rep = !nav.Safari && !nav.noBlob && !aib.nul && !aib.tiny;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
@@ -6358,16 +6357,16 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('beforebegin', html);
 		};
-	nav.forEach = nav.Opera || (nav.Firefox && nav.Firefox < 4) ?
+	nav.forEach = nav.WebKit || nav.Opera >= 12 || nav.Firefox >= 4 ?
+		function(obj, Fn) {
+			Object.keys(obj).forEach(Fn, obj);
+		} :
 		function(obj, Fn) {
 			for(var i in obj) {
 				if(obj.hasOwnProperty(i)) {
 					Fn.call(obj, i);
 				}
 			}
-		} :
-		function(obj, Fn) {
-			Object.keys(obj).forEach(Fn, obj);
 		};
 	nav.fixLink = nav.Safari ?
 		function(url) {
@@ -6450,7 +6449,7 @@ function getImageboard() {
 	aib.krau = h === 'krautchan.net';
 	aib.gazo = h === '2chan.net';
 	aib.brit = h === 'britfa.gs';
-	aib.ylil = h === 'ylilauta.fi' || h === 'ylilauta.org';
+	aib.ylil = h === 'ylilauta.org';
 	aib.abu = !!$id('ABU_submitframe');
 	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
 	aib.fch = h === '4chan.org';
@@ -6706,7 +6705,7 @@ function parseDelform(el, dc, Fn) {
 				if(pThr) {
 					$after(pThr, thrds);
 				} else {
-					$before(node.firstChild, thrds);
+					$before(el.firstChild, thrds);
 				}
 				if(!node || !thr) {
 					return;
@@ -6727,7 +6726,7 @@ function tryToParse(node) {
 	try {
 		parseDelform(node, doc, function(thr) {
 			var i, op = aib.getOp(thr, doc),
-				els = aib.getPosts(thr),
+				els = Array.prototype.slice.call(aib.getPosts(thr)),
 				len = els.length;
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
@@ -6738,7 +6737,7 @@ function tryToParse(node) {
 			}
 			Posts.push(op);
 			Threads.push(op);
-			Posts = Posts.concat(Array.prototype.slice.call(els));
+			Posts = Posts.concat(els);
 			if(aib._420 || (aib.tiny && !TNum)) {
 				$after(thr, thr.lastChild);
 			}
@@ -6838,7 +6837,7 @@ function initPage() {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
 		}
-		if(nav.Firefox > 10 || nav.Chrome) {
+		if(nav.Firefox > 10 || nav.WebKit) {
 			doc.addEventListener(nav.visChange, function() {
 				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
@@ -6846,7 +6845,7 @@ function initPage() {
 					onvis();
 				}
 			});
-			Favico.focused = !doc.mozHidden;
+			Favico.focused = !(doc.mozHidden || doc.webkitHidden);
 		} else {
 			window.onblur = function() {
 				Favico.focused = false;
