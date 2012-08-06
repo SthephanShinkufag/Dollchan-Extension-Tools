@@ -2734,6 +2734,7 @@ function findSubmitError(dc) {
 			aib.hana && !dc.getElementById('delete_form') ? '.post-error' :
 			aib.krau && !$t('form', dc) ? '.message_text' :
 			aib.abu && !dc.getElementById('delform') ? 'font[size="5"]' :
+			aib.tire && $t('h1', dc) ? 'h1' :
 			false;
 	if(dc.body.firstChild && (xp || !$t('form', dc))) {
 		if(!xp) {
