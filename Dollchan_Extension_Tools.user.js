@@ -543,8 +543,8 @@ function $offset(el) {
 }
 
 function $getStyle(el, prop) {
-	return doc.defaultView && doc.defaultView.getComputedStyle ?
-		doc.defaultView.getComputedStyle(el, '').getPropertyValue(prop) : '';
+	var dv = doc.defaultView;
+	return dv && dv.getComputedStyle ? dv.getComputedStyle(el, '').getPropertyValue(prop) : '';
 }
 
 function $focus(el) {
@@ -740,29 +740,29 @@ function getPrettyJSON(obj, indent) {
 		);
 		iCount++;
 	});
-    return sJSON += '\n' + indent + (isArr ? ']' : '}');
+	return sJSON += '\n' + indent + (isArr ? ']' : '}');
 }
 
 function ELFHash(arr, len) {
-    for(var h = 0, g, i = 0; i < len; ++i) {
-        h = (h << 4) + arr[i];
-        if(g = h & 0xF0000000) {
-            h ^= g >>> 24;
-        }
-        h &= ~g;
-    }
-    return h;
+	for(var h = 0, g, i = 0; i < len; ++i) {
+		h = (h << 4) + arr[i];
+		if(g = h & 0xF0000000) {
+			h ^= g >>> 24;
+		}
+		h &= ~g;
+	}
+	return h;
 }
 
 function ELFHashStr(str) {
-    for(var h = 0, g, i = 0, len = str.length; i < len; ++i) {
-        h = (h << 4) + str.charCodeAt(i);
-        if(g = h & 0xF0000000) {
-            h ^= g >>> 24;
-        }
-        h &= ~g;
-    }
-    return h;
+	for(var h = 0, g, i = 0, len = str.length; i < len; ++i) {
+		h = (h << 4) + str.charCodeAt(i);
+		if(g = h & 0xF0000000) {
+			h ^= g >>> 24;
+		}
+		h &= ~g;
+	}
+	return h;
 }
 
 
@@ -855,9 +855,9 @@ function readSpells() {
 
 /** @constructor */
 function Config(cfg) {
-    for(var key in cfg) {
-        this[key] = cfg[key];
-    }
+	for(var key in cfg) {
+		this[key] = cfg[key];
+	}
 }
 Config.prototype = defaultCfg;
 
