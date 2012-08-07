@@ -10,7 +10,6 @@
 // @include			*
 // ==/UserScript==
 
-(function (scriptStorage) {
 'use strict';
 var defaultCfg = {
 	'version':	'12.7.20.0',
@@ -354,7 +353,7 @@ Lng = {
 },
 
 doc = window.document,
-storageLife = 5 * 24 * 3600 * 1000,
+scriptStorage, storageLife = 5 * 24 * 3600 * 1000,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [], Visib = [], Expires = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
@@ -805,7 +804,7 @@ function getStored(id) {
 	if(nav.isGM) {
 		return GM_getValue(id);
 	}
-	if(nav.isScript) {
+	if(scriptStorage) {
 		return scriptStorage.getItem(id);
 	}
 	if(nav.isLocal) {
@@ -817,7 +816,7 @@ function getStored(id) {
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(nav.isScript) {
+	} else if(scriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else if(nav.isLocal) {
 		localStorage.setItem(id, value);
@@ -1594,7 +1593,7 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
-		$add('<span style="width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : nav.isScript ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</span>'),
+		$add('<span style="width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : scriptStorage ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</span>'),
 		$add('<span style="padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
 			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts</a></span>'),
@@ -6299,11 +6298,10 @@ function getNavigator() {
 	nav.WebKit = +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1];
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
-	nav.isScript = nav.Opera && !!scriptStorage;
 	nav.isLocal = window.localStorage && typeof localStorage === 'object';
 	nav.isSession = window.sessionStorage && (sessionStorage.test = 1) === 1;
-	nav.isCookie = !nav.isGM && !nav.isScript && !nav.isLocal;
-	nav.isGlobal = nav.isGM || nav.isScript;
+	nav.isCookie = !nav.isGM && !scriptStorage && !nav.isLocal;
+	nav.isGlobal = nav.isGM || scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
 		nav.Opera ? '-o-' :
@@ -6992,6 +6990,7 @@ function doScript() {
 	endTime = Date.now() - initTime;
 }
 
-if(window.opera) $event(doc, {'DOMContentLoaded': doScript});
-else doScript();
-})(window.opera ? window.opera.scriptStorage : null);
+if(window.opera) {
+	scriptStorage = window.opera.scriptStorage;
+	$event(doc, {'DOMContentLoaded': doScript});
+} else doScript();
