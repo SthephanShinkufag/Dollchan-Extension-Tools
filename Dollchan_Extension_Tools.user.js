@@ -5760,9 +5760,8 @@ function detectWipeText(txt) {
 	}
 	var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt;
 	if(Cfg['wipeSameLin']) {
-		arr = txt.replace(/> /g, '').split(/\s*\n\s*/);
-		len = arr.length;
-		if(len > 5) {
+		arr = txt.split(/\s*\n\s*/);
+		if((len = arr.length) > 5) {
 			arr.sort();
 			for(i = 0, n = len / 4; i < len;) {
 				x = arr[i];
@@ -5778,8 +5777,7 @@ function detectWipeText(txt) {
 	}
 	if(Cfg['wipeSameWrd']) {
 		arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-		len = arr.length;
-		if(len > 3) {
+		if((len = arr.length) > 3) {
 			arr.sort();
 			for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
 				x = arr[i];
@@ -5787,11 +5785,13 @@ function detectWipeText(txt) {
 				while(arr[i++] === x) {
 					j++;
 				}
-				if(j > pop && x.length > 2) {
-					pop = j;
-				}
-				if(len > 25 && pop >= n) {
-					return 'same words: "' + x.substr(0, 20) + '" x' + pop;
+				if(len > 25) {
+					if(j > pop && x.length > 2) {
+						pop = j;
+					}
+					if(pop >= n) {
+						return 'same words: "' + x.substr(0, 20) + '" x' + pop;
+					}
 				}
 			}
 			x = keys / len;
@@ -5801,17 +5801,14 @@ function detectWipeText(txt) {
 		}
 	}
 	if(Cfg['wipeLongWrd']) {
-		i = 0;
 		arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-		len = arr.length;
-		if(arr[0].length > 50 || (len > 1 && arr.join('').length / len > 10)) {
+		if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
 			return 'long words';
 		}
 	}
 	if(Cfg['wipeCAPS']) {
 		arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
-		len = arr.length;
-		if(len > 4) {
+		if((len = arr.length) > 4) {
 			for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
 				x = arr[i];
 				if((x.match(/[a-zа-я]/ig) || []).length < 5) {
@@ -5834,18 +5831,16 @@ function detectWipeText(txt) {
 	}
 	if(Cfg['wipeSpecial']) {
 		_txt = txt.replace(/\s+/g, '');
-		len = _txt.length;
-		x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len;
-		if(len > 30 && x > 0.4) {
-			return 'specsymbols: ' + parseInt(x * 100, 10) + '%';
+		if((len = _txt.length) > 30 &&
+			(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
+		{
+			return 'specsymbols: ' + Math.round(x * 100) + '%';
 		}
 	}
 	if(Cfg['wipeNumbers']) {
-		_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?:\s|$)/g, '');
-		len = _txt.length;
-		x = (len - _txt.replace(/\d/g, '').length) / len;
-		if(len > 30 && x > 0.4) {
-			return 'numbers: ' + parseInt(x * 100, 10) + '%';
+		_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+		if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
+			return 'numbers: ' + Math.round(x * 100) + '%';
 		}
 	}
 	return false;
