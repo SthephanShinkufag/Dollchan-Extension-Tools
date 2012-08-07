@@ -2794,21 +2794,23 @@ function findSubmitError(dc) {
 	return err;
 }
 
+function endUpload() {
+	closeAlert($id('DESU_alertUpload'));
+	if(Cfg['updThread'] === 2) {
+		infoNewPosts(null, 0);
+	}
+}
+
 function checkUpload(err, url) {
-	var tNum, file,
-		qArea = $id('DESU_qarea'),
-		lFunc = function() {
-			closeAlert($id('DESU_alertUpload'));
-			if(Cfg['updThread'] === 2) {
-				infoNewPosts(null, 0);
-			}
-		};
+	var tNum, file, qArea;
 	if(err !== '') {
 		if(pr.isQuick) {
-			$disp(qArea);
+			$disp(qArea = $id('DESU_qarea'));
 			qArea.appendChild($id('DESU_pform'));
 		}
-		if(aib.hana && /подтвердите, что вы человек/.test(err)) {
+		if((aib.hana && /подтвердите, что вы человек/.test(err)) ||
+			(pr.cap && /captch|капч|подтверж/i.test(err)))
+		{
 			pr.cap.value = '';
 			pr.cap.focus();
 			refreshCapImg(pr.tNum);
@@ -2827,13 +2829,12 @@ function checkUpload(err, url) {
 	if(pr.video) {
 		pr.video.value = '';
 	}
-	if(pr.tNum) {
-		tNum = pr.tNum;
+	if(tNum = pr.tNum) {
 		showMainReply();
 		if(!TNum) {
-			loadThread(pByNum[tNum], 5, lFunc);
+			loadThread(pByNum[tNum], 5, endUpload);
 		} else {
-			loadNewPosts(false, lFunc);
+			loadNewPosts(false, endUpload);
 		}
 		if(pr.cap) {
 			pr.cap.value = '';
@@ -2844,15 +2845,17 @@ function checkUpload(err, url) {
 	}
 }
 
+function endDelete() {
+	var el = $id('DESU_alertDeleting');
+	if(el) {
+		closeAlert(el);
+		$alert(Lng.succDeleted[lCode], 'Deleted', false);
+	}
+}
+
 function checkDelete(dc, url) {
 	var err = aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc),
-		tNums = [], lFunc = function() {
-			var el = $id('DESU_alertDeleting');
-			if(el) {
-				closeAlert(el);
-				$alert(Lng.succDeleted[lCode], 'Deleted', false);
-			}
-		};
+		tNums = [];
 	if(!err) {
 		$$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.Num;
@@ -2860,12 +2863,12 @@ function checkDelete(dc, url) {
 				tNums.push(tNum);
 			}
 		} : function(el) { el.checked = false; });
-		if(!TNum) {
-			tNums.forEach(function(tNum) {
-				loadThread(pByNum[tNum], 5, lFunc);
-			});
+		if(TNum) {
+			loadNewPosts(false, endDelete);
 		} else {
-			loadNewPosts(false, lFunc);
+			tNums.forEach(function(tNum) {
+				loadThread(pByNum[tNum], 5, endDelete);
+			});
 		}
 	} else {
 		$alert(Lng.errDelete[lCode] + err, 'Deleting', false);
