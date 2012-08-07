@@ -5763,7 +5763,7 @@ function detectWipeText(txt) {
 	}
 	var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt;
 	if(Cfg['wipeSameLin']) {
-		arr = txt.split(/\s*\n\s*/);
+		arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 		if((len = arr.length) > 5) {
 			arr.sort();
 			for(i = 0, n = len / 4; i < len;) {
