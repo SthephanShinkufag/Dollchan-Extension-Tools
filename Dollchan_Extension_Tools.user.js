@@ -918,9 +918,7 @@ function readCfg() {
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset']);
 	}
-	if(Cfg['hideBySpell']) {
-		readSpells();
-	}
+	readSpells();
 }
 
 function saveCfg(id, val) {
@@ -5695,6 +5693,7 @@ function toggleSpells(el) {
 			$alert(Lng.error[lCode] + ' ' + wrong, 'ErrSpell', false);
 		} else {
 			disableSpells();
+			saveHiddenPosts();
 			saveSpells('');
 		}
 		el.checked = false;
