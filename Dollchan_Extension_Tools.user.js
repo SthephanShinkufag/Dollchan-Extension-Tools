@@ -5308,7 +5308,6 @@ function findSameText(post, oNum, oVis, oWords) {
 	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
-	$del($c('DESU_postNote', post));
 	if(oVis !== 0) {
 		hidePost(post, 'similar to >>' + oNum);
 	} else {
