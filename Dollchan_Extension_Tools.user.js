@@ -2552,41 +2552,32 @@ function doPostformChanges(img, m, el) {
 		}
 	}
 	if(pr.cap) {
-		setTimeout(function() {
-			if(aib.abu) {
+		if(aib.abu) {
+			setTimeout(function() {
 				refreshCapImg(0);
 				pr.cap.onclick = null;
-			}
-		}, 0);
+			}, 50);
+		}
 		pr.cap.onfocus = null;
 		pr.cap.autocomplete = 'off';
 		pr.cap.onkeypress = function(e) {
-			var code = e.charCode || e.keyCode,
+			var i, code = e.charCode || e.keyCode,
 				chr = String.fromCharCode(code).toLowerCase(),
 				ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
-				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`',
-				i = en.length;
+				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 			if(!Cfg['captchaLang'] || e.which === 0) {
 				return;
 			}
 			if(Cfg['captchaLang'] === 1) {
-				if(code < 0x0410 || code > 0x04FF) {
+				if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
 					return;
 				}
-				while(i--) {
-					if(chr === ru[i]) {
-						chr = en[i];
-					}
-				}
+				chr = en[i];
 			} else {
-				if(code < 0x0021 || code > 0x007A) {
+				if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
 					return;
 				}
-				while(i--) {
-					if(chr === en[i]) {
-						chr = ru[i];
-					}
-				}
+				chr = ru[i];
 			}
 			$pd(e);
 			$txtInsert(e.target, chr);
@@ -2855,7 +2846,9 @@ function endDelete() {
 function checkDelete(dc, url) {
 	var err = aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc),
 		tNums = [];
-	if(!err) {
+	if(err) {
+		$alert(Lng.errDelete[lCode] + err, 'Deleting', false);
+	} else {
 		$$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.Num;
 			if(tNums.indexOf(tNum) === -1) {
@@ -2869,8 +2862,6 @@ function checkDelete(dc, url) {
 				loadThread(pByNum[tNum], 5, endDelete);
 			});
 		}
-	} else {
-		$alert(Lng.errDelete[lCode] + err, 'Deleting', false);
 	}
 	tNums = null;
 }
@@ -6200,16 +6191,20 @@ function updateCSS() {
 ==============================================================================*/
 
 function checkForUpdates(isForce, Fn) {
-	var day = 2 * 1000 * 60 * 60 * 24,
-		updInt =
-			!Cfg['scrUpdIntrv'] ? 0 :
-			Cfg['scrUpdIntrv'] === 1 ? day :
-			Cfg['scrUpdIntrv'] === 2 ? day * 2 :
-			Cfg['scrUpdIntrv'] === 3 ? day * 7 :
-			Cfg['scrUpdIntrv'] === 4 ? day * 14 :
-			Cfg['scrUpdIntrv'] === 5 && day * 30;
-	if(!isForce && Date.now() - +Cfg['lastScrUpd'] < updInt) {
-		return;
+	var day, temp = Cfg['scrUpdIntrv'];
+	if(!isForce && temp !== 0) {
+		day = 2 * 1000 * 60 * 60 * 24;
+		switch(temp) {
+			case 1: temp = day; break;
+			case 2: temp = day * 2; break;
+			case 3: temp = day * 7; break;
+			case 4: temp = day * 14; break;
+			case 5: temp = day * 30; break;
+			default: return;
+		}
+		if(Date.now() - +Cfg['lastScrUpd'] < temp) {
+			return;
+		}
 	}
 	GM_xmlhttpRequest({
 		'method': 'GET',
@@ -6815,9 +6810,23 @@ function removePageTrash(el) {
 	}
 }
 
+function onVis() {
+	Favico.focused = true;
+	if(Cfg['favIcoBlink'] && Favico.href) {
+		clearInterval(Favico.delay);
+		$$each($Q('link[rel="shortcut icon"]', doc.head), $del);
+		doc.head.appendChild($new('link', {'href': Favico.href, 'rel': 'shortcut icon'}, null));
+	}
+	if(Cfg['updThread'] === 1) {
+		setTimeout(function() {
+			doc.title = docTitle;
+		}, 200);
+	}
+}
+
 function initPage() {
 	pr = getPostform($q(aib.qPostForm, doc));
-	oeForm = $q('form[action*="paint"], form[name="oeform"]', doc);
+	oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
 	if(!pr.mail) {
 		aib.getSage = function(post) {
 			return false;
@@ -6831,19 +6840,6 @@ function initPage() {
 		$del(dForm.nextElementSibling);
 	}
 	if(TNum) {
-		var onvis = function() {
-				Favico.focused = true;
-				if(Cfg['favIcoBlink'] && Favico.href) {
-					clearInterval(Favico.delay);
-					$$each($Q('link[rel="shortcut icon"]', doc.head), $del);
-					doc.head.appendChild($new('link', {'href': Favico.href, 'rel': 'shortcut icon'}, null));
-				}
-				if(Cfg['updThread'] === 1) {
-					setTimeout(function() {
-						doc.title = docTitle;
-					}, 200);
-				}
-			};
 		if(!Cfg['rePageTitle']) {
 			docTitle = doc.title;
 		} else {
@@ -6855,7 +6851,7 @@ function initPage() {
 				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
 				} else {
-					onvis();
+					onVis();
 				}
 			});
 			Favico.focused = !(doc.mozHidden || doc.webkitHidden);
@@ -6863,7 +6859,7 @@ function initPage() {
 			window.onblur = function() {
 				Favico.focused = false;
 			};
-			window.onfocus = onvis;
+			window.onfocus = onVis;
 			Favico.focused = false;
 			$event(window, {'mousemove': function mouseMove() {
 				Favico.focused = true;
