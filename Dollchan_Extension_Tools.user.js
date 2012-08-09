@@ -648,12 +648,12 @@ function getPostImages(el) {
 }
 
 function getText(el) {
-	return el.innerHTML
+	return el.Text || (el.Text = el.innerHTML
 		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
 		.replace(/<[^>]+?>/g,'')
 		.replace(/&gt;/g, '>')
 		.replace(/&lt;/g, '<')
-		.trim();
+		.trim());
 }
 
 function getImgWeight(post) {
@@ -900,7 +900,9 @@ function readCfg() {
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset']);
 	}
-	readSpells();
+	if(Cfg['hideBySpell']) {
+		readSpells();
+	}
 }
 
 function saveCfg(id, val) {
@@ -4469,7 +4471,7 @@ function newPost(thr, post, pNum, i) {
 	if(i === 0) {
 		post.isOp = true;
 		post.dTitle = ($c(aib.cTitle, post) || {}).textContent ||
-			post.Text.substring(0, 70).replace(/\s+/g, ' ');
+			getText(post).substring(0, 70).replace(/\s+/g, ' ');
 		Threads.push(post);
 	}
 	addPostButtons(post);
@@ -4513,7 +4515,6 @@ function getFullPost(el, isFunc) {
 				var ytube = $q('.DESU_eYTube', post.Msg);
 				post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
 				post.Msg = $q(aib.qMsg, post);
-				post.Text = getText(post.Msg);
 				if(ytube) {
 					post.Msg.appendChild(ytube);
 				}
@@ -4527,7 +4528,6 @@ function getFullPost(el, isFunc) {
 		$del(el.previousSibling);
 		$del(el);
 		post.Msg.replaceChild($q('.alternate > div', post), post.Msg.firstElementChild);
-		post.Text = getText(post.Msg);
 		if(isFunc) {
 			processFullMsg(post);
 		}
@@ -5018,7 +5018,7 @@ function doPostFilters(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
-	var note = detectWipeText(post.Text) || (Cfg['hideBySpell'] && checkSpells(post));
+	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
 	if(note) {
 		setPostVisib(post, sVis[post.Count] = 0, note);
 	} else {
@@ -5035,7 +5035,8 @@ function setPostsVisib() {
 				uSetPostVisib(post, 0);
 			}
 			if(vis === undefined) {
-				sVis[i] = detectWipeText(post.Text) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
+				sVis[i] = detectWipeText(getText(post)) ||
+					(Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
 			}
 			continue;
 		}
@@ -5168,7 +5169,7 @@ function hidePost(post, note) {
 
 function unhidePost(post) {
 	if(!uVis[post.Num]) {
-		var wn = detectWipeText(post.Text);
+		var wn = detectWipeText(getText(post));
 		if(wn) {
 			hidePost(post, wn);
 		} else {
@@ -5241,8 +5242,8 @@ function processHidden(newCfg, oldCfg) {
 
 /*--------------------------Hide posts with similar text----------------------*/
 
-function getWrds(post) {
-	return post.Text
+function getWrds(text) {
+	return text
 		.replace(/\s+/g, ' ')
 		.replace(/[^a-zа-я ]/ig, '')
 		.substring(0, 800).split(' ');
@@ -5250,7 +5251,7 @@ function getWrds(post) {
 
 function findSameText(post, oNum, oVis, oWords) {
 	var j,
-		words = getWrds(post),
+		words = getWrds(getText(post)),
 		len = words.length,
 		i = oWords.length,
 		olen = i,
@@ -5289,10 +5290,10 @@ function findSameText(post, oNum, oVis, oWords) {
 }
 
 function hideBySameText(post) {
-	var vis = post.Vis;
-	if(post.Text !== '') {
+	var vis = post.Vis, text = getText(post);
+	if(text !== '') {
 		Posts.forEach(function(target) {
-			findSameText(target, post.Num, vis, getWrds(post));
+			findSameText(target, post.Num, vis, getWrds(text));
 		});
 		saveUserPostsVisib();
 	} else {
@@ -5489,7 +5490,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 }
 
 function getSpells(x, post) {
-	var inf, i, t, _t, pTitle, pName, pTrip, imgW, imgH, imgK;
+	var inf, i, t, _t, pTitle, pText, pName, pTrip, imgW, imgH, imgK;
 	post.noHide = false;
 	if(oSpells.skip[0] && TNum) {
 		inf = post.Count + 1;
@@ -5505,8 +5506,9 @@ function getSpells(x, post) {
 		pTitle = $c('replytitle', post) || $c('filetitle', post);
 		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
 	}
+	pText = getText(post);
 	if(x.words[0]) {
-		for(i = 0, inf = post.Text.toLowerCase(); t = x.words[i++];) {
+		for(i = 0, inf = pText.toLowerCase(); t = x.words[i++];) {
 			_t = t;
 			t = t.toLowerCase();
 			if(inf.contains(t) || pTitle.contains(t)) {
@@ -5522,7 +5524,7 @@ function getSpells(x, post) {
 		}
 	}
 	if(x.exp[0]) {
-		for(i = 0, inf = post.Text; t = x.exp[i++];) {
+		for(i = 0, inf = pText; t = x.exp[i++];) {
 			if(t.test(inf)) {
 				return '#exp ' + t.toString();
 			}
@@ -5593,7 +5595,7 @@ function getSpells(x, post) {
 		}
 	}
 	if(x.tmax[0]) {
-		for(i = 0, inf = post.Text.replace(/\n/g, '').length; t = x.tmax[i++];) {
+		for(i = 0, inf = pText.replace(/\n/g, '').length; t = x.tmax[i++];) {
 			if(inf >= t) {
 				return '#tmax ' + t;
 			}
@@ -5602,7 +5604,7 @@ function getSpells(x, post) {
 	if(x.sage && aib.getSage(post)) {
 		return '#sage';
 	}
-	if(x.notxt && post.Text === '') {
+	if(x.notxt && pText === '') {
 		return '#no text';
 	}
 	if(x.noimg && post.Img.length === 0) {
@@ -5690,8 +5692,11 @@ function toggleSpells(el) {
 
 function addSpell(spell) {
 	var fld = $id('DESU_spellEdit'),
-		val = (fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''));
+		val = fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	if(!val || verifyRegExp(val)) {
+		if(!spellsList) {
+			readSpells();
+		}
 		val = spellsList.join('\n');
 	}
 	if(!('\n' + val).contains('\n' + spell)) {
@@ -6629,7 +6634,7 @@ function getImageboard() {
 function processPost(post, pNum, thr, i) {
 	post.thr = thr;
 	post.Count = i;
-	post.Text = getText(post.Msg = $q(aib.qMsg, post));
+	post.Msg = $q(aib.qMsg, post);
 	post.Img = getPostImages(post);
 	post.setAttribute('desu-post', pNum);
 	pByNum[post.Num = pNum] = post;
