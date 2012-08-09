@@ -1027,17 +1027,15 @@ function markViewedPost(pNum) {
 }
 
 function readViewedPosts() {
-	if(Cfg['markViewed'] && nav.isSession) {
+	if(Cfg['markViewed']) {
 		(sessionStorage.viewedPosts || '').split(',').forEach(markViewedPost);
 	}
 }
 
 function saveViewedPosts(pNum) {
-	if(nav.isSession) {
-		var arr = (sessionStorage.viewedPosts || '').split(',');
-		arr.push(pNum);
-		sessionStorage.viewedPosts = arr;
-	}
+	var arr = (sessionStorage.viewedPosts || '').split(',');
+	arr.push(pNum);
+	sessionStorage.viewedPosts = arr;
 }
 
 /*==============================================================================
@@ -6200,23 +6198,26 @@ function checkForUpdates(isForce, Fn) {
 ==============================================================================*/
 
 function isCompatible() {
-	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
+	if(
+		/^(?:about|chrome|opera|res)/i.test(window.location) ||
+		!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)
+	) {
 		return false;
 	}
 	getImageboard();
-	if(!(window.localStorage && typeof localStorage === 'object')) {
-		return false;
-	}
 	getNavigator();
 	if(/^DESU_iframe/.test(window.name)) {
-		nav.postMsg(('window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");').replace(/\n|\r/g, '\\n'));
+		nav.postMsg((
+			'window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
+		).replace(/\n|\r/g, '\\n'));
 		return false;
 	}
 	if(/^DESU_favIframe/.test(window.name)) {
+		var pMsg = 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");';
 		liteMode = true;
-		nav.postMsg('window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
+		nav.postMsg(pMsg);
 		$event(window, {'load': function() {
-			setTimeout(nav.postMsg, 1E3, 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");');
+			setTimeout(nav.postMsg, 1E3, pMsg);
 		}});
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
@@ -6236,7 +6237,6 @@ function getNavigator() {
 	nav.WebKit = +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1];
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
-	nav.isSession = window.sessionStorage && (sessionStorage.test = 1) === 1;
 	nav.isGlobal = nav.isGM || scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
