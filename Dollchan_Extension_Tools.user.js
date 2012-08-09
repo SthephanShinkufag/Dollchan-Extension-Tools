@@ -4563,15 +4563,16 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
 	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
-		var i, thr = op.thr, len = els.length, impP, nEls;
+		var i, thr = op.thr, len = els.length, impP, nEls, pCnt;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
+			pCnt = thr.visPCnt || thr.pCount - aib.getOmPosts(thr) + 1;
 			thr.innerHTML = '';
-			newPost(thr, impP = importPost(newOp), aib.getTNum(newOp), 0);
-			impP.isOp = true;
+			(impP = importPost(newOp)).isOp = true;
+			newPost(thr, impP, aib.getTNum(newOp), 0);
 			impP.dTitle = ($c(aib.cTitle, impP) || {}).textContent ||
 				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
 			Threads[Threads.indexOf(op)] = impP;
@@ -4583,9 +4584,10 @@ function loadThread(op, last, Fn) {
 				i = 0;
 			} else {
 				i = len - last;
+				thr.visPCnt = last + 1;
 				thr.appendChild($new('div', {
 					'class': 'DESU_omitted',
-					'text': Lng.postsOmitted[lCode] + (len - last)
+					'text': Lng.postsOmitted[lCode] + i
 				}, null));
 			}
 			for(nEls = [impP]; i < len; i++) {
@@ -4601,7 +4603,7 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
-			Array.prototype.splice.apply(Posts, [Posts.indexOf(op), thr.pCount].concat(nEls));
+			Array.prototype.splice.apply(Posts, [Posts.indexOf(op), pCnt].concat(nEls));
 			thr.pCount = len + 1;
 			closeAlert($id('DESU_alertLoadThr'));
 		}
@@ -6511,12 +6513,13 @@ function getImageboard() {
 		aib.tiny || aib.fch ? 'subject' :
 		aib.hana ? 'replytitle' :
 		'filetitle';
-	aib.cOmPosts =
-		aib.krau ? 'omittedinfo' :
-		aib.ylil ? 'omitted' :
-		aib.hana ? 'abbrev' :
-		aib.fch ? 'summary desktop' :
-		'omittedposts';
+	aib.omPosts =
+		aib.gazo ? 'font[color="#707070"]' :
+		aib.krau ? '.omittedinfo' :
+		aib.ylil ? '.omitted' :
+		aib.hana ? '.abbrev' :
+		aib.fch ? '.summary.desktop' :
+		'.omittedposts';
 	aib.qBan =
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
@@ -6599,12 +6602,9 @@ function getImageboard() {
 		function(post) {
 			return post.id.match(/\d+/)[0];
 		};
-	aib.getOmPosts = aib.gazo ?
-		function(el) {
-			return $q('font[color="#707070"]', el);
-		} :
-		function(el) {
-			return $c(aib.cOmPosts, el);
+	aib.getOmPosts = function(el) {
+			var i = $q(aib.omPosts, el);
+			return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
@@ -6721,8 +6721,7 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 			}
 			thr.className += ' DESU_thread';
-			thr.pCount = len +
-				((i = aib.getOmPosts(thr)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0);
+			thr.pCount = len + aib.getOmPosts(thr);
 		});
 		if(liteMode) {
 			$$each($Q('body > *:not(form)', doc), $del);
