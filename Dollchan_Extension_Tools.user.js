@@ -648,7 +648,7 @@ function getPostImages(el) {
 }
 
 function getText(el) {
-	return el.Text || (el.Text = el.innerHTML
+	return el.Text || (el.Text = el.Msg.innerHTML
 		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
 		.replace(/<[^>]+?>/g,'')
 		.replace(/&gt;/g, '>')
