@@ -6711,7 +6711,7 @@ function tryToParse(node) {
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.dTitle = ($c(aib.cTitle, op) || {}).textContent ||
-				getText(op).substring(0, 70).replace(/\s+/g, ' ');
+				getText(op.Msg).substring(0, 70).replace(/\s+/g, ' ');
 			for(i = 0; i < len; i++) {
 				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
 			}
