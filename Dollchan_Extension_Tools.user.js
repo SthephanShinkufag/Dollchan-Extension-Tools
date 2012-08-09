@@ -5016,6 +5016,7 @@ function initThreadsUpdater() {
 
 function doPostFilters(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
+		sVis[post.Count] = 1;
 		return;
 	}
 	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
@@ -5042,7 +5043,7 @@ function setPostsVisib() {
 		}
 		if(post.isOp) {
 			if(hThrds[brd] && hThrds[brd][pNum] !== undefined) {
-				vis = '0';
+				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
 			}
