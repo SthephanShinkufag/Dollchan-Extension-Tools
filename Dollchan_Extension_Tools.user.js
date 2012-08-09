@@ -351,8 +351,7 @@ Lng = {
 	infoDebug:		['Информация для отладки', 'Information for debugging']
 },
 
-doc = window.document,
-storageLife = 5 * 24 * 3600 * 1000, scriptStorage, sVis, uVis,
+doc = window.document, scriptStorage, sVis, uVis,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle,
 pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
@@ -952,7 +951,18 @@ function savePostsVisib() {
 }
 
 function saveUserPostsVisib() {
-	setStored('DESU_Posts_' + aib.dm + '_' + brd, JSON.stringify(uVis));
+	var minDate, str = JSON.stringify(uVis);
+	if(str.length > 9000) {
+		minDate = Date.now() - 5 * 24 * 3600 * 1000;
+		nav.forEach(uVis, function(i) {
+			if(uVis[i][1] < minDate) {
+				delete uVis[i];
+			}
+		});
+		setStored('DESU_Posts_' + aib.dm + '_' + brd, JSON.stringify(uVis));
+	} else {
+		setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
+	}
 	toggleContent('Hid', true);
 }
 
@@ -1701,7 +1711,7 @@ function addHiddenTable(hid) {
 				} else {
 					this.value = Lng.expandAll[lCode];
 					$$each(posts, function(el) {
-						setPostVisib(el.pst, el.vis);
+						setPostVisib(el.pst, el.vis, null);
 					});
 				}
 			}),
@@ -2337,13 +2347,13 @@ function doSageBtn() {
 
 function setUserName(el) {
 	el = el.parentNode;
-	saveCfg('nameValue', el.firstChild.value.replace(/\|/g, ''));
+	saveCfg('nameValue', el.value.replace(/\|/g, ''));
 	pr.name.value = el.lastChild.checked ? Cfg['nameValue'] : '';
 }
 
 function setUserPassw(el) {
 	if(el) {
-		saveCfg('passwValue', el.firstChild.value.replace(/\|/g, ''));
+		saveCfg('passwValue', el.value.replace(/\|/g, ''));
 	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
 }
@@ -2412,7 +2422,7 @@ function doPostformChanges(img, m, el) {
 			val += '\n' + sVal;
 		}
 		if(pr.tNum && ($c('filetitle', pByNum[pr.tNum]) || {}).textContent ===
-			'Dollchan Extension Tools' && !/`\n`\-{50}`$/.test(val)) {
+			'Dollchan Extension Tools' && !/`\n`\-{50}`/.test(val)) {
 			val += '\n\n`--------------------------------------------------`\n' +
 				'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
 				'\n`--------------------------------------------------`';
@@ -5017,16 +5027,17 @@ function doPostFilters(post) {
 }
 
 function setPostsVisib() {
-	Posts.forEach(function(post) {
-		var pNum = post.Num, cnt = post.Count, vis = sVis[cnt];
-		if(uVis[pNum]) {
+	for(var post, pNum, vis, i = 0, len = Posts.length; i < len; i++) {
+		vis = sVis[i];
+		post = Posts[i];
+		if(uVis[pNum = post.Num]) {
 			if(uVis[pNum][0] === 0) {
 				uSetPostVisib(post, 0);
 			}
 			if(vis === undefined) {
-				sVis[cnt] = detectWipeText(post.Text) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
+				sVis[i] = detectWipeText(post.Text) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
 			}
-			return;
+			continue;
 		}
 		if(post.isOp) {
 			if(hThrds[brd] && hThrds[brd][pNum] !== undefined) {
@@ -5040,7 +5051,7 @@ function setPostsVisib() {
 		} else if(vis !== '1') {
 			doPostFilters(post);
 		}
-	});
+	}
 }
 
 function togglePostVisib(post) {
@@ -5233,7 +5244,7 @@ function processHidden(newCfg, oldCfg) {
 function getWrds(post) {
 	return post.Text
 		.replace(/\s+/g, ' ')
-		.replace(/[\?\.\\\/\+\*\$\^\(\)\|\{\}\[\]!@#%_=:;<,-]/g, '')
+		.replace(/[^a-zа-я ]/ig, '')
 		.substring(0, 800).split(' ');
 }
 
@@ -5263,10 +5274,17 @@ function findSameText(post, oNum, oVis, oWords) {
 	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
+	$del($c('DESU_postNote',  post));
 	if(oVis !== 0) {
-		hidePost(post, 'similar to >>' + oNum);
+		uSetPostVisib(post, 0);
+		addPostNote(post, 'similar to >>' + oNum);
 	} else {
-		unhidePost(post);
+		if(sVis[post.Count] !== 0) {
+			setPostVisib(post, 1, null);
+		}
+		if(uVis[i = post.Num]) {
+			delete uVis[i];
+		}
 	}
 }
 
@@ -5276,7 +5294,7 @@ function hideBySameText(post) {
 		Posts.forEach(function(target) {
 			findSameText(target, post.Num, vis, getWrds(post));
 		});
-		savePostsVisib();
+		saveUserPostsVisib();
 	} else {
 		addSpell('#notxt');
 	}
