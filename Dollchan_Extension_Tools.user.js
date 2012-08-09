@@ -1040,23 +1040,18 @@ function toggleFavorites(post, btn) {
 	saveFavorites(JSON.stringify(Favor));
 }
 
-function markViewedPost(pNum) {
-	var post = pByNum[pNum];
-	if(post && !post.className.contains('DESU_viewed')) {
-		post.className += ' DESU_viewed';
-	}
-}
-
 function readViewedPosts() {
 	if(Cfg['markViewed']) {
-		(sessionStorage.viewedPosts || '').split(',').forEach(markViewedPost);
+		var viewed = sessionStorage['desu-viewed'];
+		if(viewed) {
+			viewed = viewed.split(',');
+			Posts.forEach(function(post) {
+				if(viewed.indexOf(post.Num) !== -1) {
+					post.className += ' DESU_viewed';
+				}
+			});
+		}
 	}
-}
-
-function saveViewedPosts(pNum) {
-	var arr = (sessionStorage.viewedPosts || '').split(',');
-	arr.push(pNum);
-	sessionStorage.viewedPosts = arr;
 }
 
 /*==============================================================================
@@ -4262,10 +4257,14 @@ function getPview(post, pNum, parent, link, txt) {
 		}
 		eventRefLink(pView);
 		if(Cfg['markViewed']) {
-			pView.readDelay = setTimeout(function(num) {
-				markViewedPost(num);
-				saveViewedPosts(num);
-			}, 2e3, pNum);
+			pView.readDelay = setTimeout(function(pst, num) {
+				if(!pst.className.contains('DESU_viewed')) {
+					pst.className += ' DESU_viewed';
+				}
+				var arr = (sessionStorage['desu-viewed'] || '').split(',');
+				arr.push(num);
+				sessionStorage['desu-viewed'] = arr;
+			}, 2e3, post, pNum);
 		}
 	}
 	el = pView.node = {parent: null, kid: null, post: pView};
@@ -6712,7 +6711,7 @@ function tryToParse(node) {
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.dTitle = ($c(aib.cTitle, op) || {}).textContent ||
-				op.Text.substring(0, 70).replace(/\s+/g, ' ');
+				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			for(i = 0; i < len; i++) {
 				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
 			}
@@ -6942,9 +6941,7 @@ function doScript() {
 		$log('eventRefLink');
 	}
 	readPostsVisib();
-	if(Cfg['markViewed']) {
-		readViewedPosts();
-	}
+	readViewedPosts();
 	$log('readPosts');
 	setPostsVisib();
 	$log('setPostsVisib');
