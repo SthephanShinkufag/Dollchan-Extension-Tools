@@ -928,7 +928,7 @@ function getHidCfg() {
 function readPostsVisib() {
 	if(TNum) {
 		try {
-			var temp = sessionStorage['desu-' + brd + TNum].split(',');
+			var temp = sessionStorage['desu-hidden'].split(',');
 			if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
 				sVis = temp[2].split('');
 				sVis.length = Posts.length;
@@ -945,7 +945,7 @@ function readPostsVisib() {
 function savePostsVisib() {
 	if(TNum) {
 		try {
-			sessionStorage['desu-' + brd + TNum] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
+			sessionStorage['desu-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
 				getHidCfg() + ',' + sVis.join('');
 		} catch(e) {}
 	}
@@ -1041,16 +1041,14 @@ function toggleFavorites(post, btn) {
 }
 
 function readViewedPosts() {
-	if(Cfg['markViewed']) {
-		var viewed = sessionStorage['desu-viewed'];
-		if(viewed) {
-			viewed = viewed.split(',');
-			Posts.forEach(function(post) {
-				if(viewed.indexOf(post.Num) !== -1) {
-					post.className += ' DESU_viewed';
-				}
-			});
-		}
+	var viewed = sessionStorage['desu-viewed'];
+	if(viewed) {
+		viewed.split(',').forEach(function(num) {
+			var post = pByNum[num];
+			if(post) {
+				post.className += ' DESU_viewed';
+			}
+		});
 	}
 }
 
@@ -4466,13 +4464,6 @@ function addPostFunc(post) {
 function newPost(thr, post, pNum, i) {
 	var pst, el;
 	processPost(post, pNum, thr, i);
-	Posts.push(post);
-	if(i === 0) {
-		post.isOp = true;
-		post.dTitle = ($c(aib.cTitle, post) || {}).textContent ||
-			getText(post).substring(0, 70).replace(/\s+/g, ' ');
-		Threads.push(post);
-	}
 	addPostButtons(post);
 	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
@@ -4572,16 +4563,20 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
 	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
-		var i, thr = op.thr, len = els.length, impOp;
+		var i, thr = op.thr, len = els.length, impP, nEls;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
 			thr.innerHTML = '';
-			newPost(thr, impOp = importPost(newOp), aib.getTNum(newOp), 0);
+			newPost(thr, impP = importPost(newOp), aib.getTNum(newOp), 0);
+			impP.isOp = true;
+			impP.dTitle = ($c(aib.cTitle, impP) || {}).textContent ||
+				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
+			Threads[Threads.indexOf(op)] = impP;
 			nav.insAfter(
-				impOp.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impOp.Num) + '">' +
+				impP.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impP.Num) + '">' +
 					Lng.reply[lCode] + '</a>]</span>'
 			);
 			if(last === 1 || last >= len) {
@@ -4593,8 +4588,9 @@ function loadThread(op, last, Fn) {
 					'text': Lng.postsOmitted[lCode] + (len - last)
 				}, null));
 			}
-			for(; i < len; i++) {
-				newPost(thr, importPost(els[i]), aib.getPNum(els[i]), i + 1);
+			for(nEls = [impP]; i < len; i++) {
+				newPost(thr, impP = importPost(els[i]), aib.getPNum(els[i]), i + 1);
+				nEls.push(impP);
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
@@ -4605,6 +4601,7 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
+			Array.prototype.splice.apply(Posts, [Posts.indexOf(op), thr.pCount].concat(nEls));
 			thr.pCount = len + 1;
 			closeAlert($id('DESU_alertLoadThr'));
 		}
@@ -4927,6 +4924,7 @@ function loadNewPosts(isInfo, Fn) {
 							post = getHanaPost(el[i]);
 							replaceDelform(post);
 							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
+							Posts.push(post);
 						}
 						thr.pCount += el.length;
 					}
@@ -4967,7 +4965,8 @@ function loadNewPosts(isInfo, Fn) {
 				}
 				checkBan(el, el_);
 			} else {
-				np += newPost(thr, importPost(el_), pNum, i);
+				np += newPost(thr, el = importPost(el_), pNum, i);
+				Posts.push(el);
 			}
 		}
 		infoNewPosts(err, np);
@@ -6941,7 +6940,9 @@ function doScript() {
 		$log('eventRefLink');
 	}
 	readPostsVisib();
-	readViewedPosts();
+	if(Cfg['markViewed']) {
+		readViewedPosts();
+	}
 	$log('readPosts');
 	setPostsVisib();
 	$log('setPostsVisib');
