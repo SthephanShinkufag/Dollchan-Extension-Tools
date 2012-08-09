@@ -4469,7 +4469,7 @@ function newPost(thr, post, pNum, i) {
 		expandPost(post);
 	}
 	addPostFunc(post);
-	if(postWrapper && !post.isOp) {
+	if(postWrapper && i !== 0) {
 		pst = postWrapper.cloneNode(true);
 		el = $q(aib.qPost, pst);
 		if(el) {
