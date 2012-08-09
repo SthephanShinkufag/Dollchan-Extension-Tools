@@ -915,12 +915,21 @@ function toggleCfg(id) {
 	saveCfg(id, !Cfg[id] ? 1 : 0);
 }
 
+function getHidCfg() {
+	if(Cfg['hideByWipe']) {
+		return Cfg['wipeSameLin'] + (Cfg['wipeSameWrd'] << 1) + (Cfg['wipeLongWrd'] << 2) +
+			(Cfg['wipeCAPS'] << 3) + (Cfg['wipeSpecial'] << 4) + (Cfg['wipeNumbers'] << 5);
+	} else {
+		return 0;
+	}
+}
+
 function readPostsVisib() {
 	if(TNum) {
 		try {
 			var temp = sessionStorage['desu-' + brd + TNum].split(',');
-			if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0)) {
-				sVis = temp[1].split('');
+			if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
+				sVis = temp[2].split('');
 				sVis.length = Posts.length;
 			}
 		} catch(e) {}
@@ -936,7 +945,7 @@ function savePostsVisib() {
 	if(TNum) {
 		try {
 			sessionStorage['desu-' + brd + TNum] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
-				sVis.join('');
+				getHidCfg() + ',' + sVis.join('');
 		} catch(e) {}
 	}
 	toggleContent('Hid', true);
@@ -5015,7 +5024,7 @@ function setPostsVisib() {
 				uSetPostVisib(post, 0);
 			}
 			if(vis === undefined) {
-				sVis[cnt] = detectWipeText(post.Text) || (Cfg['hideBySpell'] && checkSpells(post)) ? 1 : 0;
+				sVis[cnt] = detectWipeText(post.Text) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
 			}
 			return;
 		}
