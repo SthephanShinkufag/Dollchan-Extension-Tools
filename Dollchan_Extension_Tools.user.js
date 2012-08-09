@@ -292,7 +292,6 @@ Lng = {
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	errDelete:		['Не могу удалить пост(ы):\n', 'Can\'t delete post(s):\n'],
 	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
-	cookiesLimit:	['Превышен лимит cookies', 'Cookies limit overflow'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
 	checkNow:		['Проверить сейчас', 'Check now'],
@@ -789,17 +788,6 @@ function getCookie(id) {
 	return false;
 }
 
-function turnCookies(id) {
-	var data = getCookie('DESU_Cookies'),
-		arr = data ? data.split('|') : [];
-	arr[arr.length] = id;
-	if(arr.length > 13) {
-		setCookie(arr[0], '', -10);
-		arr.splice(0, 1);
-	}
-	setCookie('DESU_Cookies', arr.join('|'), storageLife);
-}
-
 function getStored(id) {
 	if(nav.isGM) {
 		return GM_getValue(id);
@@ -807,10 +795,7 @@ function getStored(id) {
 	if(scriptStorage) {
 		return scriptStorage.getItem(id);
 	}
-	if(nav.isLocal) {
-		return localStorage.getItem(id);
-	}
-	return getCookie(id);
+	return localStorage.getItem(id);
 }
 
 function setStored(id, value) {
@@ -818,10 +803,8 @@ function setStored(id, value) {
 		GM_setValue(id, value);
 	} else if(scriptStorage) {
 		scriptStorage.setItem(id, value);
-	} else if(nav.isLocal) {
-		localStorage.setItem(id, value);
 	} else {
-		setCookie(id, value, storageLife);
+		localStorage.setItem(id, value);
 	}
 }
 
@@ -973,34 +956,15 @@ function saveHiddenThreads(txt) {
 }
 
 function toggleHiddenThread(post, vis) {
-	var i,
-		b = brd,
-		tNum = post.Num;
-	if(nav.isCookie) {
-		if(!hThrds[b]) {
-			hThrds[b] = [];
-		}
-		i = hThrds[b].indexOf(tNum);
-		if(vis === 0 && i < 0) {
-			hThrds[b].push(tNum);
-		}
-		if(vis === 1 && i >= 0) {
-			hThrds[b].splice(i, 1);
-		}
-		if(escape(JSON.stringify(hThrds)).length > 4095) {
-			hThrds[b].shift();
-		}
+	if(!hThrds[brd]) {
+		hThrds[brd] = {};
+	}
+	if(vis === 0) {
+		hThrds[brd][post.Num] = post.dTitle;
 	} else {
-		if(!hThrds[b]) {
-			hThrds[b] = {};
-		}
-		if(vis === 0) {
-			hThrds[b][tNum] = post.dTitle;
-		} else {
-			delete hThrds[b][tNum];
-			if($isEmpty(hThrds[b])) {
-				delete hThrds[b];
-			}
+		delete hThrds[brd][post.Num];
+		if($isEmpty(hThrds[brd])) {
+			delete hThrds[brd];
 		}
 	}
 	saveHiddenThreads(JSON.stringify(hThrds));
@@ -1049,13 +1013,8 @@ function toggleFavorites(post, btn) {
 	}
 	Favor[h][b][tNum] = {
 		cnt: post.thr.pCount,
-		txt: nav.isCookie ? post.dTitle.substring(0, 25) : post.dTitle
+		txt: post.dTitle
 	};
-	if(nav.isCookie && escape(JSON.stringify(Favor)).length > 4095) {
-		$alert(Lng.cookiesLimit[lCode], 'CookieErr', false);
-		delete Favor[h][b][tNum];
-		return;
-	}
 	btn.className = 'DESU_btnFavSel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1554,7 +1513,7 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
-		$add('<span style="width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : scriptStorage ? 'Opera ScriptStorage' : nav.isLocal ? 'Local Storage' : 'Cookies') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</span>'),
+		$add('<span style="width: 170px;"><b>' + Lng.version[lCode] + Cfg['version'] + '</b><br><br>' + Lng.storage[lCode] + (nav.isGM ? 'Mozilla config' : scriptStorage ? 'Opera ScriptStorage' : 'Local Storage') + '<br>' + Lng.thrViewed[lCode] + Stat.view + '<br>' + Lng.thrCreated[lCode] + Stat.op + '<br>' + Lng.pstSended[lCode] + Stat.reply + '</span>'),
 		$add('<span style="padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lCode] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
 			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts</a></span>'),
@@ -1767,15 +1726,12 @@ function addHiddenTable(hid) {
 				$add('<b>' + b + '</b>')
 			]));
 			for(tNum in hThrds[b]) {
-				if(nav.isCookie) {
-					tNum = hThrds[b][tNum];
-				}
 				url = getThrdUrl(aib.host, b, tNum);
 				tHead.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.pClass}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
-						$if(!nav.isCookie, $txt(' - ' + hThrds[b][tNum]))
+						$txt(' - ' + hThrds[b][tNum])
 					])
 				]));
 			}
@@ -1797,11 +1753,6 @@ function addHiddenTable(hid) {
 				if($t('input', el).checked) {
 					if(pByNum[tNum]) {
 						uSetPostVisib(pByNum[tNum], 1);
-					} else if(nav.isCookie) {
-						i = hThrds[b].indexOf(tNum);
-						if(i >= 0) {
-							hThrds[b].splice(i, 1);
-						}
 					} else {
 						delete hThrds[b][tNum];
 					}
@@ -5071,10 +5022,7 @@ function setPostsVisib() {
 			return;
 		}
 		if(post.isOp) {
-			if(hThrds[brd] && (
-				nav.isCookie && hThrds[brd].indexOf(pNum) >= 0
-					|| !nav.isCookie && hThrds[brd][pNum] !== undefined
-			)) {
+			if(hThrds[brd] && hThrds[brd][pNum] !== undefined) {
 				vis = '0';
 			} else if(vis === '0') {
 				vis = null;
@@ -6256,6 +6204,9 @@ function isCompatible() {
 		return false;
 	}
 	getImageboard();
+	if(!(window.localStorage && typeof localStorage === 'object')) {
+		return false;
+	}
 	getNavigator();
 	if(/^DESU_iframe/.test(window.name)) {
 		nav.postMsg(('window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");').replace(/\n|\r/g, '\\n'));
@@ -6285,9 +6236,7 @@ function getNavigator() {
 	nav.WebKit = +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1];
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
-	nav.isLocal = window.localStorage && typeof localStorage === 'object';
 	nav.isSession = window.sessionStorage && (sessionStorage.test = 1) === 1;
-	nav.isCookie = !nav.isGM && !scriptStorage && !nav.isLocal;
 	nav.isGlobal = nav.isGM || scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
