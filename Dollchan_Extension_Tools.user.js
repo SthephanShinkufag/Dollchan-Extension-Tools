@@ -648,7 +648,7 @@ function getPostImages(el) {
 }
 
 function getText(el) {
-	return el.Text || (el.Text = el.innerHTML
+	return el.Text || (el.Text = el.Msg.innerHTML
 		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
 		.replace(/<[^>]+?>/g,'')
 		.replace(/&gt;/g, '>')
@@ -928,7 +928,7 @@ function getHidCfg() {
 function readPostsVisib() {
 	if(TNum) {
 		try {
-			var temp = sessionStorage['desu-' + brd + TNum].split(',');
+			var temp = sessionStorage['desu-hidden'].split(',');
 			if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
 				sVis = temp[2].split('');
 				sVis.length = Posts.length;
@@ -945,7 +945,7 @@ function readPostsVisib() {
 function savePostsVisib() {
 	if(TNum) {
 		try {
-			sessionStorage['desu-' + brd + TNum] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
+			sessionStorage['desu-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
 				getHidCfg() + ',' + sVis.join('');
 		} catch(e) {}
 	}
@@ -1041,16 +1041,14 @@ function toggleFavorites(post, btn) {
 }
 
 function readViewedPosts() {
-	if(Cfg['markViewed']) {
-		var viewed = sessionStorage['desu-viewed'];
-		if(viewed) {
-			viewed = viewed.split(',');
-			Posts.forEach(function(post) {
-				if(viewed.indexOf(post.Num) !== -1) {
-					post.className += ' DESU_viewed';
-				}
-			});
-		}
+	var viewed = sessionStorage['desu-viewed'];
+	if(viewed) {
+		viewed.split(',').forEach(function(num) {
+			var post = pByNum[num];
+			if(post) {
+				post.className += ' DESU_viewed';
+			}
+		});
 	}
 }
 
@@ -4466,19 +4464,12 @@ function addPostFunc(post) {
 function newPost(thr, post, pNum, i) {
 	var pst, el;
 	processPost(post, pNum, thr, i);
-	Posts.push(post);
-	if(i === 0) {
-		post.isOp = true;
-		post.dTitle = ($c(aib.cTitle, post) || {}).textContent ||
-			getText(post).substring(0, 70).replace(/\s+/g, ' ');
-		Threads.push(post);
-	}
 	addPostButtons(post);
 	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
 	}
 	addPostFunc(post);
-	if(postWrapper && !post.isOp) {
+	if(postWrapper && i !== 0) {
 		pst = postWrapper.cloneNode(true);
 		el = $q(aib.qPost, pst);
 		if(el) {
@@ -4572,29 +4563,36 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
 	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
-		var i, thr = op.thr, len = els.length, impOp;
+		var i, thr = op.thr, len = els.length, impP, nEls, pCnt;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
+			pCnt = thr.visPCnt || thr.pCount - aib.getOmPosts(thr) + 1;
 			thr.innerHTML = '';
-			newPost(thr, impOp = importPost(newOp), aib.getTNum(newOp), 0);
+			(impP = importPost(newOp)).isOp = true;
+			newPost(thr, impP, aib.getTNum(newOp), 0);
+			impP.dTitle = ($c(aib.cTitle, impP) || {}).textContent ||
+				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
+			Threads[Threads.indexOf(op)] = impP;
 			nav.insAfter(
-				impOp.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impOp.Num) + '">' +
+				impP.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impP.Num) + '">' +
 					Lng.reply[lCode] + '</a>]</span>'
 			);
 			if(last === 1 || last >= len) {
 				i = 0;
 			} else {
 				i = len - last;
+				thr.visPCnt = last + 1;
 				thr.appendChild($new('div', {
 					'class': 'DESU_omitted',
-					'text': Lng.postsOmitted[lCode] + (len - last)
+					'text': Lng.postsOmitted[lCode] + i
 				}, null));
 			}
-			for(; i < len; i++) {
-				newPost(thr, importPost(els[i]), aib.getPNum(els[i]), i + 1);
+			for(nEls = [impP]; i < len; i++) {
+				newPost(thr, impP = importPost(els[i]), aib.getPNum(els[i]), i + 1);
+				nEls.push(impP);
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
@@ -4605,6 +4603,7 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
+			Array.prototype.splice.apply(Posts, [Posts.indexOf(op), pCnt].concat(nEls));
 			thr.pCount = len + 1;
 			closeAlert($id('DESU_alertLoadThr'));
 		}
@@ -4927,6 +4926,7 @@ function loadNewPosts(isInfo, Fn) {
 							post = getHanaPost(el[i]);
 							replaceDelform(post);
 							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
+							Posts.push(post);
 						}
 						thr.pCount += el.length;
 					}
@@ -4967,7 +4967,8 @@ function loadNewPosts(isInfo, Fn) {
 				}
 				checkBan(el, el_);
 			} else {
-				np += newPost(thr, importPost(el_), pNum, i);
+				np += newPost(thr, el = importPost(el_), pNum, i);
+				Posts.push(el);
 			}
 		}
 		infoNewPosts(err, np);
@@ -5015,6 +5016,7 @@ function initThreadsUpdater() {
 
 function doPostFilters(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
+		sVis[post.Count] = 1;
 		return;
 	}
 	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
@@ -5041,7 +5043,7 @@ function setPostsVisib() {
 		}
 		if(post.isOp) {
 			if(hThrds[brd] && hThrds[brd][pNum] !== undefined) {
-				vis = '0';
+				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
 			}
@@ -6083,7 +6085,7 @@ function scriptCSS() {
 		x += 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
-			.file_reply + .DESU_ytObj { margin: 5px 20px 5px 5px;  float: left; }\
+			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px;  float: left; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib._420) {
 		x += '.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
@@ -6512,12 +6514,13 @@ function getImageboard() {
 		aib.tiny || aib.fch ? 'subject' :
 		aib.hana ? 'replytitle' :
 		'filetitle';
-	aib.cOmPosts =
-		aib.krau ? 'omittedinfo' :
-		aib.ylil ? 'omitted' :
-		aib.hana ? 'abbrev' :
-		aib.fch ? 'summary desktop' :
-		'omittedposts';
+	aib.omPosts =
+		aib.gazo ? 'font[color="#707070"]' :
+		aib.krau ? '.omittedinfo' :
+		aib.ylil ? '.omitted' :
+		aib.hana ? '.abbrev' :
+		aib.fch ? '.summary.desktop' :
+		'.omittedposts';
 	aib.qBan =
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
@@ -6600,12 +6603,9 @@ function getImageboard() {
 		function(post) {
 			return post.id.match(/\d+/)[0];
 		};
-	aib.getOmPosts = aib.gazo ?
-		function(el) {
-			return $q('font[color="#707070"]', el);
-		} :
-		function(el) {
-			return $c(aib.cOmPosts, el);
+	aib.getOmPosts = function(el) {
+			var i = $q(aib.omPosts, el);
+			return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
@@ -6711,7 +6711,7 @@ function tryToParse(node) {
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.dTitle = ($c(aib.cTitle, op) || {}).textContent ||
-				getText(op.Msg).substring(0, 70).replace(/\s+/g, ' ');
+				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			for(i = 0; i < len; i++) {
 				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
 			}
@@ -6722,8 +6722,7 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 			}
 			thr.className += ' DESU_thread';
-			thr.pCount = len +
-				((i = aib.getOmPosts(thr)) && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0);
+			thr.pCount = len + aib.getOmPosts(thr);
 		});
 		if(liteMode) {
 			$$each($Q('body > *:not(form)', doc), $del);
@@ -6941,7 +6940,9 @@ function doScript() {
 		$log('eventRefLink');
 	}
 	readPostsVisib();
-	readViewedPosts();
+	if(Cfg['markViewed']) {
+		readViewedPosts();
+	}
 	$log('readPosts');
 	setPostsVisib();
 	$log('setPostsVisib');
