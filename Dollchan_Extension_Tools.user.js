@@ -919,8 +919,8 @@ function toggleCfg(id) {
 
 function getHidCfg() {
 	return !Cfg['hideByWipe'] ? 0 :
-		Cfg['wipeSameLin'] + (Cfg['wipeSameWrd'] << 1) + (Cfg['wipeLongWrd'] << 2) +
-			(Cfg['wipeCAPS'] << 3) + (Cfg['wipeSpecial'] << 4) + (Cfg['wipeNumbers'] << 5);
+		Cfg['wipeSameLin'] | (Cfg['wipeSameWrd'] << 1) | (Cfg['wipeLongWrd'] << 2) |
+			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5);
 }
 
 function readPostsVisib() {
@@ -1670,8 +1670,7 @@ function addHiddenTable(hid) {
 		cln.vis = 0;
 		cln.pst = post;
 		cln.btn = $c('DESU_btnUnhide', cln);
-		cln.btn.onmouseover = null;
-		cln.btn.onmouseout = null;
+		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
 			pst.vis = pst.vis ? 0 : 1;
@@ -1693,19 +1692,18 @@ function addHiddenTable(hid) {
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					$$each(posts, function(el) {
-						setUserPostVisib(el.pst, 1);
+						setPostVisib(el.pst, 1, null);
 					});
 				} else {
 					this.value = Lng.expandAll[lCode];
 					$$each(posts, function(el) {
-						setUserPostVisib(el.pst, el.vis);
+						setPostVisib(el.pst, el.vis, null);
 					});
 				}
-				saveUserPostsVisib();
 			}),
 			$btn(Lng.save[lCode], '', function() {
 				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
-					if(el.vis !== 0) {
+					if(el.vis !== 0 || el.pst.Vis !== 0) {
 						setUserPostVisib(el.pst, 1);
 					}
 				});
