@@ -5053,7 +5053,7 @@ function doPostFilters(post) {
 }
 
 function setPostsVisib() {
-	for(var post, pNum, vis, i = 0, len = Posts.length; i < len; i++) {
+	for(var post, pNum, vis, i = Posts.length - 1; i >= 0; i--) {
 		vis = sVis[i];
 		post = Posts[i];
 		if(uVis[pNum = post.Num]) {
@@ -5073,7 +5073,7 @@ function setPostsVisib() {
 			}
 		}
 		if(vis === '0') {
-			hidePost(post, null);
+			setPostVisib(post, 0, null);
 		} else if(vis !== '1') {
 			doPostFilters(post);
 		}
@@ -5214,10 +5214,11 @@ function setUserPostVisib(post, vis, note) {
 			setUserPostVisib(pst, 0, n);
 		});
 	} else {
-		unhideByRef(post, function(pst) {
+		unhideByRef(post, function unhideUPV(pst) {
 			if(sVis[pst.Count] !== 0) {
 				setPostVisib(pst, 1, null);
 			}
+			unhideByRef(pst, unhideUPV);
 			delete uVis[pst.Num];
 		});
 	}
