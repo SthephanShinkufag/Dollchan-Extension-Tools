@@ -356,7 +356,7 @@ Lng = {
 doc = window.document, scriptStorage, sVis, uVis,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [],
 nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
-pr, dForm, oeForm, dummy, refMap, postWrapper,
+pr, dForm, oeForm, dummy, postWrapper,
 Pviews = {deleted: [], ajaxed: {}, current: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
@@ -4046,23 +4046,6 @@ function parsePostImg(e) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRefMap(pNum) {
-	for(var rNum, post, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
-		rNum = nodes[i].textContent.match(/^>>(\d+)$/);
-		if(rNum) {
-			rNum = rNum[1];
-			if(post = this[rNum]) {
-				if(!post.ref) {
-					post.ref = [pNum];
-					refMap.push(post);
-				} else if(post.ref.indexOf(pNum) === -1) {
-					post.ref.push(pNum);
-				}
-			}
-		}
-	}
-}
-
 function addRefMap(post) {
 	var rM = '<div class="DESU_refMap">' + post.ref.join(', ').replace(/(\d+)/g,
 			'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
@@ -4074,24 +4057,56 @@ function addRefMap(post) {
 }
 
 function genRefMap(pBn) {
-	refMap = [];
-	nav.forEach(pBn, getRefMap);
+	var refMap = [];
+	nav.forEach(pBn, function(pNum) {
+		for(var rNum, post, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
+			if(rNum = nodes[i].textContent.match(/^>>(\d+)$/)) {
+				if(post = pBn[rNum[1]]) {
+					if(!post.ref) {
+						post.ref = [pNum];
+						refMap.push(post);
+					} else if(post.ref.indexOf(pNum) === -1) {
+						post.ref.push(pNum);
+					}
+				}
+			}
+		}
+	});
 	refMap.forEach(addRefMap);
-	refMap = null;
+	refMap = pBn = null;
 }
 
 function updRefMap(post) {
-	refMap = [];
-	getRefMap.call(pByNum, post.Num);
-	refMap.forEach(function(pst) {
-		$del($c('DESU_refMap', pst));
-		addRefMap(pst);
+	var pNum, el, pst, pNums = [],
+		nodes = $T('a', post.Msg),
+		i = nodes.length - 1;
+	for(; i >= 0; i--) {
+		if((pNum = nodes[i].textContent.match(/^>>(\d+)$/)) &&
+			pNums.indexOf(pNum = pNum[1]) === -1)
+		{
+			pNums.push(pNum);
+		}
+	}
+	pNum = post.Num;
+	for(i = pNums.length - 1; i >= 0; i--) {
+		if(!(pst = pByNum[pNums[i]])) {
+			continue;
+		}
+		if(!pst.ref) {
+			pst.ref = [pNum];
+		} else {
+			pst.ref.push(pNum);
+		}
+		if(!(el = $c('DESU_refMap', pst))) {
+			addRefMap(pst);
+		} else {
+			$append(el, [$txt(', '), $add('<a href="#' + pNum + '">&gt;&gt;' + pNum + '</a>')]);
+		}
 		eventRefLink($c('DESU_refMap', pst));
 		if(Cfg['hideRefPsts'] && pst.Vis === 0) {
-			hidePost(post, 'reference to >>' + pst.Num);
+			hidePost(this, 'reference to >>' + pst.Num);
 		}
-	});
-	refMap = post = null;
+	}
 }
 
 
