@@ -927,7 +927,7 @@ function getHidCfg() {
 
 function readPostsVisib() {
 	if(TNum) {
-		var temp = sessionStorage['desu-hidden'].split(',');
+		var temp = (sessionStorage['desu-hidden'] || '').split(',');
 		if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
 			sVis = temp[2].split('');
 			sVis.length = Posts.length;
