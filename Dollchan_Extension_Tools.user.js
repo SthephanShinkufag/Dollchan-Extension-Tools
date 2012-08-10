@@ -354,15 +354,15 @@ Lng = {
 },
 
 doc = window.document, scriptStorage, sVis, uVis,
-Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [],
-nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle,
-pr = {}, dForm, oeForm, dummy, refMap, postWrapper = false,
+Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [],
+nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
+pr, dForm, oeForm, dummy, refMap, postWrapper,
 Pviews = {deleted: [], ajaxed: {}, current: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 pSpells, tSpells, oSpells, spellsList, spellsHash,
 oldTime, endTime, timeLog = '', dTime,
-ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode = false, isExpImg = false;
+ajaxInterval, lCode, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
 /*==============================================================================
@@ -6305,9 +6305,11 @@ function isCompatible() {
 
 function getNavigator() {
 	var ua = window.navigator.userAgent;
-	nav.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
-	nav.Opera = +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [,0])[1];
-	nav.WebKit = +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1];
+	nav = {
+		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
+		Opera: +(ua.match(/opera(?:.*version)?[ \/]([\d.]+)/i) || [,0])[1],
+		WebKit: +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1]
+	};
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || scriptStorage;
@@ -6465,17 +6467,18 @@ function getImageboard() {
 	var h = window.location.hostname.match(
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
-	aib.dm = h;
-	aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
-	aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
-	aib.krau = h === 'krautchan.net';
-	aib.gazo = h === '2chan.net';
-	aib.brit = h === 'britfa.gs';
-	aib.ylil = h === 'ylilauta.org';
-	aib.abu = !!$id('LakeSettings');
-	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	aib.fch = h === '4chan.org';
-	aib._420 = h === '420chan.org';
+	aib = {
+		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
+		tiny: $xb('.//form[@name="postcontrols"]', doc),
+		krau: h === 'krautchan.net',
+		gazo: h === '2chan.net',
+		brit: h === 'britfa.gs',
+		ylil: h === 'ylilauta.org',
+		abu: !!$id('LakeSettings'),
+		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
+		fch: h === '4chan.org',
+		_420: h === '420chan.org'
+	};
 	aib.qDForm = aib.brit ? '.threadz' :
 		aib.hana || aib.krau || aib.ylil ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
@@ -6485,6 +6488,7 @@ function getImageboard() {
 	if(!dForm) {
 		return;
 	}
+	aib.dm = h;
 	aib.host = window.location.hostname;
 	aib.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
