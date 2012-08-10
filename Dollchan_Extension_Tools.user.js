@@ -409,7 +409,7 @@ function $t(id, root) {
 }
 
 function $each(list, Fn) {
-	var i = 0, el;
+	var el, i = 0;
 	if(list) {
 		while(el = list.snapshotItem(i)) {
 			Fn(el, i++);
@@ -703,7 +703,7 @@ function getPageUrl(h, b, p) {
 }
 
 function getPrettyJSON(obj, indent) {
-	var sJSON, iCount, indentStyle = '\t',
+	var sJSON, iCount,
 		isArr = obj instanceof Array;
 	if(isArr) {
 		if(obj.length == 0) {
@@ -717,7 +717,8 @@ function getPrettyJSON(obj, indent) {
 	}
 	iCount = 0;
 	nav.forEach(obj, function(key) {
-		var val = this[key], type = typeof(val);
+		var val = this[key],
+			type = typeof(val);
 		if(type === 'function') {
 			return;
 		} else if(type === 'object') {
@@ -730,8 +731,8 @@ function getPrettyJSON(obj, indent) {
 		if(iCount > 0) {
 			sJSON += ',';
 		}
-		sJSON += '\n' + indent + indentStyle + (isArr ? '' : '"' + key + '"' + ': ') + (
-			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + indentStyle) :
+		sJSON += '\n' + indent + '\t' + (isArr ? '' : '"' + key + '"' + ': ') + (
+			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '\t') :
 			type === 'boolean' || type === 'number' ? val.toString() :
 			type === 'string' ? '"' + val.replace(/"/g, '\\"') + '"' : type
 		);
@@ -741,7 +742,7 @@ function getPrettyJSON(obj, indent) {
 }
 
 function ELFHash(arr, len) {
-	for(var h = 0, g, i = 0; i < len; ++i) {
+	for(var g, h = 0, i = 0; i < len; ++i) {
 		h = (h << 4) + arr[i];
 		if(g = h & 0xF0000000) {
 			h ^= g >>> 24;
@@ -752,7 +753,7 @@ function ELFHash(arr, len) {
 }
 
 function ELFHashStr(str) {
-	for(var h = 0, g, i = 0, len = str.length; i < len; ++i) {
+	for(var g, h = 0, i = 0, len = str.length; i < len; ++i) {
 		h = (h << 4) + str.charCodeAt(i);
 		if(g = h & 0xF0000000) {
 			h ^= g >>> 24;
@@ -823,14 +824,14 @@ function saveSpells(val) {
 }
 
 function readSpells() {
-	var spells = getStored('DESU_Spells_' + aib.dm), sObj;
+	var arr, data = getStored('DESU_Spells_' + aib.dm);
 	try {
-		sObj = JSON.parse(spells);
-		spellsHash = sObj[0];
-		spellsList = sObj[1];
+		arr = JSON.parse(data);
+		spellsHash = arr[0];
+		spellsList = arr[1];
 		initSpells();
 	} catch(e) {
-		saveSpells(spells || '');
+		saveSpells(data || '');
 	}
 }
 
@@ -853,7 +854,7 @@ function parseCfg(id) {
 }
 
 function fixCfg(isGlob) {
-	var rv = (isGlob && parseCfg('DESU_GlobalCfg')) || new Config({'version': defaultCfg['version']});
+	var rv = isGlob && parseCfg('DESU_GlobalCfg') || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
@@ -917,25 +918,20 @@ function toggleCfg(id) {
 }
 
 function getHidCfg() {
-	if(Cfg['hideByWipe']) {
-		return Cfg['wipeSameLin'] + (Cfg['wipeSameWrd'] << 1) + (Cfg['wipeLongWrd'] << 2) +
+	return !Cfg['hideByWipe'] ? 0 :
+		Cfg['wipeSameLin'] + (Cfg['wipeSameWrd'] << 1) + (Cfg['wipeLongWrd'] << 2) +
 			(Cfg['wipeCAPS'] << 3) + (Cfg['wipeSpecial'] << 4) + (Cfg['wipeNumbers'] << 5);
-	} else {
-		return 0;
-	}
 }
 
 function readPostsVisib() {
+	sVis = [];
 	if(TNum) {
-		var temp = (sessionStorage['desu-hidden'] || '').split(',');
-		if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
-			sVis = temp[2].split('');
-			sVis.length = Posts.length;
+		var data = (sessionStorage['desu-hidden'] || '').split(',');
+		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
+			sVis = data[2].split('');
 		}
 	}
-	if(!sVis) {
-		sVis = new Array(Posts.length);
-	}
+	sVis.length = Posts.length;
 	uVis = getStoredObj('DESU_Posts_' + aib.dm + '_' + brd, {});
 	readHiddenThreads();
 }
@@ -1525,13 +1521,15 @@ function getCfgInfo() {
 			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts</a></span>'),
 			$new('input', {'type': 'button', 'style': 'display: table-cell;', 'value': Lng.debug[lCode], 'title': Lng.infoDebug[lCode]}, {'click': function() {
 				$del($id('DESU_alertHelpDEBUG'));
-				var nCfg = new Config(Cfg), tl = timeLog.split('\n');
+				var i,
+					nCfg = new Config(Cfg),
+					tl = timeLog.split('\n');
 				tl[tl.length - 1] = Lng.total[lCode] + endTime + 'ms';
 				delete nCfg['nameValue'];
 				delete nCfg['passwValue'];
 				delete nCfg['signatValue'];
 				delete nCfg['lastScrUpd'];
-				for(var i in nCfg) {
+				for(i in nCfg) {
 					if(nCfg[i] === defaultCfg[i]) {
 						delete nCfg[i];
 					}
@@ -1691,16 +1689,16 @@ function addHiddenTable(hid) {
 	} else {
 		$append(el, [
 			$btn(Lng.expandAll[lCode], '', function() {
-				var posts = $Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode)
+				var posts = $Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode);
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					$$each(posts, function(el) {
-						uSetPostVisib(el.pst, 1);
+						setUserPostVisib(el.pst, 1);
 					});
 				} else {
 					this.value = Lng.expandAll[lCode];
 					$$each(posts, function(el) {
-						uSetPostVisib(el.pst, el.vis);
+						setUserPostVisib(el.pst, el.vis);
 					});
 				}
 				saveUserPostsVisib();
@@ -1708,7 +1706,7 @@ function addHiddenTable(hid) {
 			$btn(Lng.save[lCode], '', function() {
 				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0) {
-						uSetPostVisib(el.pst, 1);
+						setUserPostVisib(el.pst, 1);
 					}
 				});
 				saveUserPostsVisib();
@@ -1759,7 +1757,7 @@ function addHiddenTable(hid) {
 					tNum = arr[1];
 				if($t('input', el).checked) {
 					if(pByNum[tNum]) {
-						uSetPostVisib(pByNum[tNum], 1);
+						setUserPostVisib(pByNum[tNum], 1);
 					} else {
 						delete hThrds[b][tNum];
 					}
@@ -2122,7 +2120,8 @@ function selectAudioNotif() {
 
 function selectImgSearch(node) {
 	var p = node.nextSibling.href + '" target="_blank">' + Lng.search[lCode],
-		c = doc.body.getAttribute('desu-image-search'), str = '';
+		c = doc.body.getAttribute('desu-image-search'),
+		str = '';
 	if(c) {
 		c = c.split(';');
 		c.forEach(function(el) {
@@ -2404,7 +2403,8 @@ function doPostformChanges(img, m, el) {
 		}
 	}});
 	$event(pr.subm, {'click': function(e) {
-		var val = pr.txta.value, sVal = Cfg['signatValue'];
+		var val = pr.txta.value,
+			sVal = Cfg['signatValue'];
 		if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
 			val = replaceBySpells(oSpells.outrep, val);
 		}
@@ -3910,12 +3910,12 @@ function addLinkImg(el) {
 	if(!Cfg['addImgs']) {
 		return;
 	}
-	for(var els = $Q(aib.msgImg, el), i = 0, len = els.length, link; i < len; i++) {
+	for(var a, els = $Q(aib.msgImg, el), i = 0, len = els.length, link; i < len; i++) {
 		link = els[i];
 		if($xb('ancestor::small', link)) {
 			return;
 		}
-		var a = link.cloneNode(false);
+		a = link.cloneNode(false);
 		a.target = '_blank';
 		a.className += ' DESU_preImg';
 		$disp(a);
@@ -3948,8 +3948,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	var num = el.Num || '';
-	for(var els = $Q(aib.qImages, el), i = els.length - 1, link; i >= 0; i--) {
+	for(var num = el.Num || '', els = $Q(aib.qImages, el), i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -3958,7 +3957,10 @@ function addImgSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		nav.insBefore(link, '<span desu-id="' + num + i + '" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>');
+		nav.insBefore(
+			link, '<span desu-id="' + num + i +
+			'" class="DESU_btnSrc" onmouseover="DESU_imgSOver(this)" onmouseout="DESU_btnOut(event)"></span>'
+		);
 	}
 }
 
@@ -4062,7 +4064,7 @@ function genRefMap(pBn) {
 	refMap = [];
 	nav.forEach(pBn, getRefMap);
 	nav.forEach(refMap, function(pNum) {
-		var post = pBn[pNum], rM;
+		var rM, post = pBn[pNum];
 		if(post) {
 			rM = '<div class="DESU_refMap">' + this[pNum].join(', ').replace(/(\d+)/g,
 				'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
@@ -4150,7 +4152,8 @@ function setPviewPosition(link, pView, isAnim) {
 		return;
 	}
 	pView.link = link;
-	var isTop, top, cr = link.getBoundingClientRect(),
+	var isTop, top,
+		cr = link.getBoundingClientRect(),
 		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
 		offY = cr.top + window.pageYOffset,
 		bWidth = doc.body.clientWidth,
@@ -4337,7 +4340,9 @@ function showPview(link) {
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
 		if(!err) {
-			var i = 0, len = els.length, pst;
+			var pst,
+				i = 0,
+				len = els.length;
 			op.isOp = true;
 			op.Msg = $q(aib.qMsg, op);
 			Pviews.ajaxed[b][aib.getTNum(op)] = op;
@@ -4558,7 +4563,9 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lCode], 'LoadThr', true);
 	}
 	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
-		var i, thr = op.thr, len = els.length, impP, nEls, pCnt;
+		var i, impP, nEls, pCnt,
+			thr = op.thr,
+			len = els.length;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
@@ -4883,9 +4890,9 @@ function getHanaPost(postJson) {
 	return post;
 }
 
-function checkBan(el, el_) {
+function checkBan(el, node) {
 	if(aib.qBan && !el.isBan) {
-		var isBan = $q(aib.qBan, el_);
+		var isBan = $q(aib.qBan, node);
 		if(isBan) {
 			if(!$q(aib.qBan, el)) {
 				el.Msg.appendChild(doc.importNode(isBan, true));
@@ -4915,7 +4922,9 @@ function loadNewPosts(isInfo, Fn) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lCode] : (sText || json['message']), null);
 				} else {
-					var i, len, post, np = 0, el = (json['result'] || {})['posts'];
+					var i, len, post,
+						np = 0,
+						el = (json['result'] || {})['posts'];
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = getHanaPost(el[i]);
@@ -4944,7 +4953,10 @@ function loadNewPosts(isInfo, Fn) {
 			Fn = thr = null;
 			return;
 		}
-		var i, j, np = 0, len = Posts.length, len_ = els.length, el, el_, pNum;
+		var i, j, el, el_, pNum,
+			np = 0,
+			len = Posts.length,
+			len_ = els.length;
 		checkBan(Posts[0], op);
 		for(i = 1, j = 0; i < len || j < len_; i++, j++) {
 			el = Posts[i];
@@ -5028,11 +5040,10 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.Num]) {
 			if(uVis[pNum][0] === 0) {
-				uSetPostVisib(post, 0);
+				setUserPostVisib(post, 0);
 			}
 			if(vis === undefined) {
-				sVis[i] = detectWipeText(getText(post)) ||
-					(Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
+				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
 			}
 			continue;
 		}
@@ -5052,7 +5063,7 @@ function setPostsVisib() {
 }
 
 function togglePostVisib(post) {
-	uSetPostVisib(post, post.Vis !== 0 ? 0 : 1);
+	setUserPostVisib(post, post.Vis !== 0 ? 0 : 1);
 	saveUserPostsVisib();
 }
 
@@ -5175,7 +5186,7 @@ function unhidePost(post) {
 	}
 }
 
-function uSetPostVisib(post, vis) {
+function setUserPostVisib(post, vis) {
 	var num = post.Num;
 	setPostVisib(post, vis, null);
 	if(!uVis[num]) {
@@ -5273,7 +5284,7 @@ function findSameText(post, oNum, oVis, oWords) {
 	}
 	$del($c('DESU_postNote',  post));
 	if(oVis !== 0) {
-		uSetPostVisib(post, 0);
+		setUserPostVisib(post, 0);
 		addPostNote(post, 'similar to >>' + oNum);
 	} else {
 		if(sVis[post.Count] !== 0) {
@@ -5286,7 +5297,8 @@ function findSameText(post, oNum, oVis, oWords) {
 }
 
 function hideBySameText(post) {
-	var vis = post.Vis, text = getText(post);
+	var vis = post.Vis,
+		text = getText(post);
 	if(text !== '') {
 		Posts.forEach(function(target) {
 			findSameText(target, post.Num, vis, getWrds(text));
@@ -5301,7 +5313,8 @@ function hideBySameText(post) {
 /*-------------------------Hide posts with similar images---------------------*/
 
 function prepareImgHash(data, oldw, oldh) {
-	var i, j, l, c, t, u, tmp = oldw * oldh,
+	var i, j, l, c, t, u,
+		tmp = oldw * oldh,
 		newh = 8,
 		neww = 8,
 		levels = 2,
@@ -6634,7 +6647,8 @@ function processPost(post, pNum, thr, i) {
 }
 
 function parseDelform(el, dc, Fn) {
-	var node, thr, pThr = false,
+	var node, thr,
+		pThr = false,
 		thrds = $C(aib.tClass, el);
 	$$each($T('script', el), $del);
 	if(aib.ylil) {
