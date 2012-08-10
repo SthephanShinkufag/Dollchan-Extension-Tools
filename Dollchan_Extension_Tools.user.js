@@ -4086,6 +4086,7 @@ function updRefMap(post) {
 	refMap.forEach(function(pst) {
 		$del($c('DESU_refMap', pst));
 		addRefMap(pst);
+		eventRefLink($c('DESU_refMap', pst));
 		if(Cfg['hideRefPsts'] && pst.Vis === 0) {
 			hidePost(post, 'reference to >>' + pst.Num);
 		}
