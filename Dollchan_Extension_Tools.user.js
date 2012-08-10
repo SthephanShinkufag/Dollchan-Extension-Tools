@@ -5286,7 +5286,7 @@ function processHidden(newCfg, oldCfg) {
 function getWrds(text) {
 	return text
 		.replace(/\s+/g, ' ')
-		.replace(/[^a-zа-я ]/ig, '')
+		.replace(/[^a-zа-яё ]/ig, '')
 		.substring(0, 800).split(' ');
 }
 
