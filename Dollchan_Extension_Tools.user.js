@@ -919,8 +919,8 @@ function toggleCfg(id) {
 
 function getHidCfg() {
 	return !Cfg['hideByWipe'] ? 0 :
-		Cfg['wipeSameLin'] + (Cfg['wipeSameWrd'] << 1) + (Cfg['wipeLongWrd'] << 2) +
-			(Cfg['wipeCAPS'] << 3) + (Cfg['wipeSpecial'] << 4) + (Cfg['wipeNumbers'] << 5);
+		Cfg['wipeSameLin'] | (Cfg['wipeSameWrd'] << 1) | (Cfg['wipeLongWrd'] << 2) |
+			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5);
 }
 
 function readPostsVisib() {
@@ -1670,8 +1670,7 @@ function addHiddenTable(hid) {
 		cln.vis = 0;
 		cln.pst = post;
 		cln.btn = $c('DESU_btnUnhide', cln);
-		cln.btn.onmouseover = null;
-		cln.btn.onmouseout = null;
+		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
 			pst.vis = pst.vis ? 0 : 1;
