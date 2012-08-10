@@ -6236,10 +6236,11 @@ function checkForUpdates(isForce, Fn) {
 ==============================================================================*/
 
 function isCompatible() {
-	if(
-		/^(?:about|chrome|opera|res)/i.test(window.location) ||
-		!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)
-	) {
+	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
+		return false;
+	}
+	if(!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)) {
+		console.error('WEBSTORAGE ERROR: please, enable webstorage!');
 		return false;
 	}
 	getImageboard();
@@ -6734,6 +6735,7 @@ function tryToParse(node) {
 			$$each($Q('body > *:not(form)', doc), $del);
 		}
 	} catch(e) {
+		console.error('DELFORM ERROR: parser failure!\n' + e);
 		return false;
 	}
 	node.removeAttribute('id');
