@@ -1708,7 +1708,7 @@ function addHiddenTable(hid) {
 			$btn(Lng.save[lang], '', function() {
 				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0 || el.pst.Vis !== 0) {
-						setUserPostVisib(el.pst, 1, null);
+						setUserPostVisib(el.pst, 1);
 					}
 				});
 				saveUserPostsVisib();
@@ -1759,7 +1759,7 @@ function addHiddenTable(hid) {
 					tNum = arr[1];
 				if($t('input', el).checked) {
 					if(pByNum[tNum]) {
-						setUserPostVisib(pByNum[tNum], 1, null);
+						setUserPostVisib(pByNum[tNum], 1);
 					} else {
 						delete hThrds[b][tNum];
 					}
@@ -5059,7 +5059,7 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.Num]) {
 			if(uVis[pNum][0] === 0) {
-				setUserPostVisib(post, 0, null);
+				setUserPostVisib(post, 0);
 			}
 			if(vis === undefined) {
 				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
@@ -5082,7 +5082,7 @@ function setPostsVisib() {
 }
 
 function togglePostVisib(post) {
-	setUserPostVisib(post, post.Vis !== 0 ? 0 : 1, null);
+	setUserPostVisib(post, post.Vis !== 0 ? 0 : 1);
 	saveUserPostsVisib();
 }
 
@@ -5207,12 +5207,12 @@ function unhidePost(post) {
 	}
 }
 
-function setUserPostVisib(post, vis, note) {
+function setUserPostVisib(post, vis) {
 	var num = post.Num;
-	setPostVisib(post, vis, note);
+	setPostVisib(post, vis, null);
 	if(vis === 0) {
-		hideByRef(post, function hideUPV(pst, n) {
-			setPostVisib(pst, 0, n);
+		hideByRef(post, function hideUPV(pst, note) {
+			setPostVisib(pst, 0, note);
 			hideByRef(pst, hideUPV);
 		});
 	} else {
@@ -5316,8 +5316,10 @@ function findSameText(post, oNum, oVis, oWords) {
 	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
+	$del($c('DESU_postNote',  post));
 	if(oVis !== 0) {
-		setUserPostVisib(post, 0, 'similar to >>' + oNum);
+		setUserPostVisib(post, 0);
+		addPostNote(post, 'similar to >>' + oNum);
 	} else {
 		if(sVis[post.Count] !== 0) {
 			setPostVisib(post, 1, null);
@@ -5329,11 +5331,12 @@ function findSameText(post, oNum, oVis, oWords) {
 }
 
 function hideBySameText(post) {
-	var vis = post.Vis,
+	var wrds, vis = post.Vis,
 		text = getText(post);
 	if(text !== '') {
+		wrds = getWrds(text);
 		Posts.forEach(function(target) {
-			findSameText(target, post.Num, vis, getWrds(text));
+			findSameText(target, post.Num, vis, wrds);
 		});
 		saveUserPostsVisib();
 	} else {
