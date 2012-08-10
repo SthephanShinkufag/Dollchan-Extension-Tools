@@ -5215,7 +5215,10 @@ function setUserPostVisib(post, vis, note) {
 		});
 	} else {
 		unhideByRef(post, function(pst) {
-			setUserPostVisib(pst, 1, null);
+			if(sVis[pst.Count] !== 0) {
+				setPostVisib(pst, 1, null);
+			}
+			delete uVis[pst.Num];
 		});
 	}
 	if(!uVis[num]) {
