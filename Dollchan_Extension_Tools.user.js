@@ -1302,17 +1302,16 @@ function getCfgFilters() {
 				$new('a', {'text': Lng.apply[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						var el = this.parentNode.nextSibling.firstChild;
 						saveCfg('hideBySpell', 1);
-						el.checked = true;
-						toggleSpells(el);
+						$q('input[info="hideBySpell"]', doc).checked = true;
+						toggleSpells();
 					}
 				}),
 				$new('a', {'text': Lng.clear[lCode], 'href': '#', 'class': 'DESU_aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$id('DESU_spellEdit').value = '';
-						toggleSpells(this.parentNode.nextSibling.firstChild);
+						toggleSpells();
 					}
 				}),
 				$new('a', {
@@ -5667,7 +5666,7 @@ function disableSpells() {
 	});
 }
 
-function toggleSpells(el) {
+function toggleSpells() {
 	var fld = $id('DESU_spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	if(verifyRegExp(val)) {
@@ -5678,15 +5677,14 @@ function toggleSpells(el) {
 			savePostsVisib();
 			saveSpells('');
 		}
-		el.checked = false;
+		$q('input[info="hideBySpell"]', doc).checked = false;
 		saveCfg('hideBySpell', 0);
 	} else {
+		disableSpells();
 		saveSpells(val);
 		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
 			hideByTube();
-		} else {
-			disableSpells();
 		}
 		savePostsVisib();
 	}
