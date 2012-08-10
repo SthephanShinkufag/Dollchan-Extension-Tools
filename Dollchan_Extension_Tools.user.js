@@ -5210,8 +5210,9 @@ function setUserPostVisib(post, vis, note) {
 	var num = post.Num;
 	setPostVisib(post, vis, note);
 	if(vis === 0) {
-		hideByRef(post, function(pst, n) {
-			setUserPostVisib(pst, 0, n);
+		hideByRef(post, function hideUPV(pst, n) {
+			setPostVisib(pst, 0, n);
+			hideByRef(pst, hideUPV);
 		});
 	} else {
 		unhideByRef(post, function unhideUPV(pst) {
@@ -5219,7 +5220,6 @@ function setUserPostVisib(post, vis, note) {
 				setPostVisib(pst, 1, null);
 			}
 			unhideByRef(pst, unhideUPV);
-			delete uVis[pst.Num];
 		});
 	}
 	if(!uVis[num]) {
