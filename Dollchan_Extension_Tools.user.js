@@ -4060,14 +4060,12 @@ function genRefMap(pBn) {
 	var refMap = [];
 	nav.forEach(pBn, function(pNum) {
 		for(var rNum, post, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
-			if(rNum = nodes[i].textContent.match(/^>>(\d+)$/)) {
-				if(post = pBn[rNum[1]]) {
-					if(!post.ref) {
-						post.ref = [pNum];
-						refMap.push(post);
-					} else if(post.ref.indexOf(pNum) === -1) {
-						post.ref.push(pNum);
-					}
+			if((rNum = nodes[i].textContent.match(/^>>(\d+)$/)) && (post = pBn[rNum[1]])) {
+				if(!post.ref) {
+					post.ref = [pNum];
+					refMap.push(post);
+				} else if(post.ref.indexOf(pNum) === -1) {
+					post.ref.push(pNum);
 				}
 			}
 		}
