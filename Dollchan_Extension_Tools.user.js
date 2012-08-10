@@ -927,13 +927,11 @@ function getHidCfg() {
 
 function readPostsVisib() {
 	if(TNum) {
-		try {
-			var temp = sessionStorage['desu-hidden'].split(',');
-			if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
-				sVis = temp[2].split('');
-				sVis.length = Posts.length;
-			}
-		} catch(e) {}
+		var temp = sessionStorage['desu-hidden'].split(',');
+		if(+temp[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +temp[1] === getHidCfg()) {
+			sVis = temp[2].split('');
+			sVis.length = Posts.length;
+		}
 	}
 	if(!sVis) {
 		sVis = new Array(Posts.length);
@@ -944,10 +942,8 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		try {
-			sessionStorage['desu-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
-				getHidCfg() + ',' + sVis.join('');
-		} catch(e) {}
+		sessionStorage['desu-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
+			getHidCfg() + ',' + sVis.join('');
 	}
 	toggleContent('Hid', true);
 }
@@ -961,7 +957,7 @@ function saveUserPostsVisib() {
 				delete uVis[i];
 			}
 		});
-		atr = JSON.stringify(uVis);
+		str = JSON.stringify(uVis);
 	}
 	setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
 	toggleContent('Hid', true);
