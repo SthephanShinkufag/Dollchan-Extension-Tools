@@ -1701,14 +1701,15 @@ function addHiddenTable(hid) {
 				if(this.value === Lng.expandAll[lCode]) {
 					this.value = Lng.undo[lCode];
 					$$each(posts, function(el) {
-						setPostVisib(el.pst, 1, null);
+						uSetPostVisib(el.pst, 1);
 					});
 				} else {
 					this.value = Lng.expandAll[lCode];
 					$$each(posts, function(el) {
-						setPostVisib(el.pst, el.vis, null);
+						uSetPostVisib(el.pst, el.vis);
 					});
 				}
+				saveUserPostsVisib();
 			}),
 			$btn(Lng.save[lCode], '', function() {
 				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
