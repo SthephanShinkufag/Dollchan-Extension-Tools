@@ -961,10 +961,9 @@ function saveUserPostsVisib() {
 				delete uVis[i];
 			}
 		});
-		setStored('DESU_Posts_' + aib.dm + '_' + brd, JSON.stringify(uVis));
-	} else {
-		setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
+		atr = JSON.stringify(uVis);
 	}
+	setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
 	toggleContent('Hid', true);
 }
 
