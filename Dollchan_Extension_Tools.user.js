@@ -23,6 +23,7 @@ var defaultCfg = {
 	'wipeCAPS':		0,		//		cAsE, CAPS
 	'wipeNumbers':	1,		//		numbers
 	'filterThrds':	1,		// apply filters to threads
+	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'menuHiddBtn':	1,		// menu on hide button
 	'viewHiddNum':	1,		// view hidden on postnumber
 	'delHiddPost':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
@@ -109,6 +110,7 @@ Lng = {
 		'wipeCAPS':		['КАПС/реГисТР', 'CAPS/cAsE'],
 		'wipeNumbers':	['Числа', 'Numbers'],
 		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
+		'hideRefPsts':	['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'viewHiddNum':	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
 		'delHiddPost': {
@@ -354,7 +356,7 @@ Lng = {
 doc = window.document, scriptStorage, sVis, uVis,
 Cfg = {}, Favor = {}, hThrds = {}, Stat = {}, Posts = [], pByNum = [], Threads = [],
 nav = {}, aib = {}, brd, res, TNum, pageNum, docExt, docTitle,
-pr = {}, dForm, oeForm, dummy, postWrapper = false, refMap = [],
+pr = {}, dForm, oeForm, dummy, refMap, postWrapper = false,
 Pviews = {deleted: [], ajaxed: {}, current: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
@@ -918,9 +920,10 @@ function toggleCfg(id) {
 }
 
 function getHidCfg() {
-	return !Cfg['hideByWipe'] ? 0 :
+	return !Cfg['hideByWipe'] ? Cfg['hideRefPsts'] :
 		Cfg['wipeSameLin'] | (Cfg['wipeSameWrd'] << 1) | (Cfg['wipeLongWrd'] << 2) |
-			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5);
+			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5) |
+			(Cfg['hideRefPsts'] << 6);
 }
 
 function readPostsVisib() {
@@ -1331,6 +1334,7 @@ function getCfgFilters() {
 			])
 		]),
 		lBox('filterThrds', true, null),
+		lBox('hideRefPsts', true, null),
 		lBox('menuHiddBtn', true, null),
 		lBox('viewHiddNum', true, null),
 		optSel('delHiddPost', true, function() {
@@ -1704,7 +1708,7 @@ function addHiddenTable(hid) {
 			$btn(Lng.save[lCode], '', function() {
 				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0 || el.pst.Vis !== 0) {
-						setUserPostVisib(el.pst, 1);
+						setUserPostVisib(el.pst, 1, null);
 					}
 				});
 				saveUserPostsVisib();
@@ -1755,7 +1759,7 @@ function addHiddenTable(hid) {
 					tNum = arr[1];
 				if($t('input', el).checked) {
 					if(pByNum[tNum]) {
-						setUserPostVisib(pByNum[tNum], 1);
+						setUserPostVisib(pByNum[tNum], 1, null);
 					} else {
 						delete hThrds[b][tNum];
 					}
@@ -4043,61 +4047,50 @@ function parsePostImg(e) {
 ==============================================================================*/
 
 function getRefMap(pNum) {
-	for(var rNum, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
+	for(var rNum, post, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
 		rNum = nodes[i].textContent.match(/^>>(\d+)$/);
 		if(rNum) {
 			rNum = rNum[1];
-			if(refMap[rNum]) {
-				if(refMap[rNum].indexOf(pNum) === -1) {
-					refMap[rNum].push(pNum);
+			if(post = this[rNum]) {
+				if(!post.ref) {
+					post.ref = [pNum];
+					refMap.push(post);
+				} else if(post.ref.indexOf(pNum) === -1) {
+					post.ref.push(pNum);
 				}
-			} else {
-				refMap[rNum] = [pNum];
 			}
 		}
+	}
+}
+
+function addRefMap(post) {
+	var rM = '<div class="DESU_refMap">' + post.ref.join(', ').replace(/(\d+)/g,
+			'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
+	try {
+		nav.insAfter(post.Msg, rM);
+	} catch(e) {
+		post.appendChild($add(rM));
 	}
 }
 
 function genRefMap(pBn) {
 	refMap = [];
 	nav.forEach(pBn, getRefMap);
-	nav.forEach(refMap, function(pNum) {
-		var rM, post = pBn[pNum];
-		if(post) {
-			rM = '<div class="DESU_refMap">' + this[pNum].join(', ').replace(/(\d+)/g,
-				'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
-			try {
-				nav.insAfter(post.Msg, rM);
-			} catch(e) {
-				post.appendChild($add(rM));
-			}
-		}
-	});
+	refMap.forEach(addRefMap);
 	refMap = null;
 }
 
 function updRefMap(post) {
 	refMap = [];
 	getRefMap.call(pByNum, post.Num);
-	nav.forEach(refMap, function(pNum) {
-		var pst = pByNum[pNum], el;
-		if(pst) {
-			el = $c('DESU_refMap', pst);
-			if(!el) {
-				el = $new('div', {'class': 'DESU_refMap'}, null);
-				try {
-					$after(pst.Msg, el);
-				} catch(e) {
-					pst.appendChild(el);
-				}
-			} else {
-				el.appendChild($txt(', '));
-			}
-			el.appendChild($add(this[pNum].join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>')));
-			eventRefLink(el);
+	refMap.forEach(function(pst) {
+		$del($c('DESU_refMap', pst));
+		addRefMap(pst);
+		if(Cfg['hideRefPsts'] && pst.Vis === 0) {
+			hidePost(post, 'reference to >>' + pst.Num);
 		}
 	});
-	refMap = null;
+	refMap = post = null;
 }
 
 
@@ -5019,6 +5012,32 @@ function initThreadsUpdater() {
 								POSTS/THREADS HIDERS
 ==============================================================================*/
 
+function hideByRef(post, fn) {
+	if(!Cfg['hideRefPsts'] || !post.ref) {
+		return;
+	}
+	post.ref.forEach(function(pNum) {
+		var pst = pByNum[pNum];
+		if(pst) {
+			fn(pst, 'reference to >>' + post.Num);
+		}
+	});
+	post = null;
+}
+
+function unhideByRef(post, fn) {
+	if(!Cfg['hideRefPsts'] || !post.ref) {
+		return;
+	}
+	post.ref.forEach(function(pNum) {
+		var pst = pByNum[pNum];
+		if(pst) {
+			fn(pst);
+		}
+	});
+	post = null;
+}
+
 function doPostFilters(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		sVis[post.Count] = 1;
@@ -5027,6 +5046,7 @@ function doPostFilters(post) {
 	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
 	if(note) {
 		setPostVisib(post, sVis[post.Count] = 0, note);
+		hideByRef(post, hidePost);
 	} else {
 		sVis[post.Count] = 1;
 	}
@@ -5038,7 +5058,7 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.Num]) {
 			if(uVis[pNum][0] === 0) {
-				setUserPostVisib(post, 0);
+				setUserPostVisib(post, 0, null);
 			}
 			if(vis === undefined) {
 				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
@@ -5061,7 +5081,7 @@ function setPostsVisib() {
 }
 
 function togglePostVisib(post) {
-	setUserPostVisib(post, post.Vis !== 0 ? 0 : 1);
+	setUserPostVisib(post, post.Vis !== 0 ? 0 : 1, null);
 	saveUserPostsVisib();
 }
 
@@ -5168,6 +5188,7 @@ function hidePost(post, note) {
 			addPostNote(post, note);
 		} else {
 			setPostVisib(post, sVis[post.Count] = 0, note);
+			hideByRef(post, hidePost);
 		}
 	}
 }
@@ -5179,14 +5200,24 @@ function unhidePost(post) {
 			hidePost(post, wn);
 		} else {
 			setPostVisib(post, sVis[post.Count] = 1, null);
+			unhideByRef(post, unhidePost);
 			$del($c('DESU_postNote', post));
 		}
 	}
 }
 
-function setUserPostVisib(post, vis) {
+function setUserPostVisib(post, vis, note) {
 	var num = post.Num;
-	setPostVisib(post, vis, null);
+	setPostVisib(post, vis, note);
+	if(vis === 0) {
+		hideByRef(post, function(pst, n) {
+			setUserPostVisib(pst, 0, n);
+		});
+	} else {
+		unhideByRef(post, function(pst) {
+			setUserPostVisib(pst, 1, null);
+		});
+	}
 	if(!uVis[num]) {
 		uVis[num] = new Array(2);
 	}
@@ -5280,10 +5311,8 @@ function findSameText(post, oNum, oVis, oWords) {
 	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
-	$del($c('DESU_postNote',  post));
 	if(oVis !== 0) {
-		setUserPostVisib(post, 0);
-		addPostNote(post, 'similar to >>' + oNum);
+		setUserPostVisib(post, 0, 'similar to >>' + oNum);
 	} else {
 		if(sVis[post.Count] !== 0) {
 			setPostVisib(post, 1, null);
@@ -5859,7 +5888,7 @@ function scriptCSS() {
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.DESU_cfgUnvis { display: none; }\
-		.DESU_cfgBody { width: 371px; min-height: 345px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { width: 371px; min-height: 365px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_blockInp { display: block; }\
