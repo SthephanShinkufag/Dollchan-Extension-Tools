@@ -353,8 +353,8 @@ Lng = {
 	infoDebug:		['Информация для отладки', 'Information for debugging']
 },
 
-doc = window.document, scriptStorage, sVis, uVis,
-Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [],
+doc = window.document, aProto = Array.prototype, scriptStorage,
+Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper,
 Pviews = {deleted: [], ajaxed: {}, current: null, outDelay: null},
@@ -420,7 +420,7 @@ function $each(list, Fn) {
 }
 
 function $$each(nodes, Fn) {
-	Array.prototype.forEach.call(nodes, Fn);
+	aProto.forEach.call(nodes, Fn);
 }
 
 function $html(el, html) {
@@ -599,7 +599,7 @@ function fixFunctions() {
 	if(aib.hid) {
 		window.setTimeout = function(Fn, num) {
 			if(typeof Fn === 'function') {
-				Fn.apply(null, Array.prototype.slice.call(arguments, 2));
+				Fn.apply(null, aProto.slice.call(arguments, 2));
 			}
 			return 1;
 		};
@@ -647,6 +647,11 @@ function getPost(el) {
 
 function getPostImages(el) {
 	return el.querySelectorAll('.thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
+}
+
+function getOmPosts(el) {
+	var i = $q(aib.omPosts, el);
+	return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
 }
 
 function getText(el) {
@@ -705,8 +710,7 @@ function getPageUrl(h, b, p) {
 }
 
 function getPrettyJSON(obj, indent) {
-	var sJSON, iCount,
-		isArr = obj instanceof Array;
+	var sJSON, iCount, isArr = obj instanceof Array;
 	if(isArr) {
 		if(obj.length == 0) {
 			return '[]';
@@ -778,8 +782,7 @@ function setCookie(id, value, life) {
 }
 
 function getCookie(id) {
-	var one,
-		arr = doc.cookie.split('; '),
+	var one, arr = doc.cookie.split('; '),
 		i = arr.length;
 	while(i--) {
 		one = arr[i].split('=');
@@ -1631,8 +1634,7 @@ function addSettings(Set) {
 ==============================================================================*/
 
 function addHiddenTable(hid) {
-	var b, tNum, url, pHead, tHead,
-		el = hid.appendChild($add('<div></div>'));
+	var b, tNum, url, pHead, tHead, el = hid.appendChild($add('<div></div>'));
 	Threads.forEach(function(op) {
 		if(op.Vis !== 0) {
 			return;
@@ -1987,8 +1989,7 @@ function $alert(txt, id, wait) {
 ==============================================================================*/
 
 function addSelMenu(el, fPanel, html) {
-	var y, pos,
-		pst = getPost(el);
+	var y, pos, pst = getPost(el);
 	if(Cfg['attachPanel'] && fPanel) {
 		pos = 'fixed';
 		y = el.id === 'DESU_btnRefresh' || el.id === 'DESU_btnAudioOff' ?
@@ -2093,7 +2094,7 @@ function selectAjaxPages() {
 	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
-			loadPages(Array.prototype.indexOf.call(this.parentNode.children, this) + 1);
+			loadPages(aProto.indexOf.call(this.parentNode.children, this) + 1);
 		};
 	});
 }
@@ -2107,7 +2108,7 @@ function selectAudioNotif() {
 	), function(a, j) {
 		a.onclick = function(e) {
 			$pd(e);
-			var i = Array.prototype.indexOf.call(this.parentNode.children, this);
+			var i = aProto.indexOf.call(this.parentNode.children, this);
 			Audio.repeat =
 				i === 0 ? 3e4 :
 				i === 1 ? 6e4 :
@@ -2150,8 +2151,7 @@ function selectImgSearch(node) {
 ==============================================================================*/
 
 function initKeyNavig() {
-	var pIndex,
-		tIndex = 0,
+	var pIndex, tIndex = 0,
 		scrScroll = false,
 		pScroll = true,
 		tScroll = true,
@@ -2308,8 +2308,7 @@ function refreshCapSrc(src, tNum) {
 }
 
 function refreshCapImg(tNum) {
-	var src, e,
-		img = pr.recap ? $id('recaptcha_image') || pr.recap : $x(pr.tr + '//img', pr.cap);
+	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $x(pr.tr + '//img', pr.cap);
 	if(aib.hana || pr.recap) {
 		e = doc.createEvent('MouseEvents');
 		e.initEvent('click', true, true);
@@ -2830,8 +2829,7 @@ function initJpeg(img, dat) {
 }
 
 function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen,
-		xRes = 0,
+	var i, j, dE, tag, tgLen, xRes = 0,
 		yRes = 0,
 		resT = 0,
 		Get16u = function(off) {
@@ -3498,8 +3496,7 @@ dateTime.prototype.init = function(txt) {
 	if(this.inited || this.disabled) {
 		return this;
 	}
-	var k, a, str,
-		i = 1,
+	var k, a, str, i = 1,
 		j = 0,
 		m = txt.match(new RegExp(this.regex));
 	if(!m) {
@@ -3752,8 +3749,7 @@ function addLinkTube(post) {
 }
 
 function filterTube(post, text, tags) {
-	var t, i;
-	for(i = 0; t = oSpells.video[i]; i++) {
+	for(var t, i = 0; t = oSpells.video[i]; i++) {
 		if($toRegExp(t).test(text)) {
 			hidePost(post, '#video ' + t);
 			post.ytHide = 1;
@@ -3778,8 +3774,7 @@ function hideByTube() {
 		return;
 	}
 	$$each($Q('a[href*="youtu"]', dForm), function(link) {
-		var i, t, post, val;
-		for(i = 0, val = link.textContent; t = oSpells.video[i++];) {
+		for(var t, post, i = 0, val = link.textContent; t = oSpells.video[i++];) {
 			if($toRegExp(t).test(val)) {
 				post = getPost(link);
 				hidePost(post, '#video ' + t);
@@ -3997,8 +3992,7 @@ function eventPostImg(post) {
 }
 
 function parsePostImg(e) {
-	var dat, i, j, len,
-		xhr = new XMLHttpRequest();
+	var dat, i, j, len, xhr = new XMLHttpRequest();
 	xhr.open('GET', e.data, false);
 	xhr.responseType = 'arraybuffer';
 	xhr.send();
@@ -4157,8 +4151,7 @@ function setPviewPosition(link, pView, isAnim) {
 		return;
 	}
 	pView.link = link;
-	var isTop, top,
-		cr = link.getBoundingClientRect(),
+	var isTop, top, cr = link.getBoundingClientRect(),
 		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
 		offY = cr.top + window.pageYOffset,
 		bWidth = doc.body.clientWidth,
@@ -4568,15 +4561,14 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lang], 'LoadThr', true);
 	}
 	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
-		var i, impP, nEls, pCnt,
-			thr = op.thr,
+		var i, impP, nEls, pCnt, thr = op.thr,
 			len = els.length;
 		if(err) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
 			$del($id('DESU_select'));
-			pCnt = thr.visPCnt || thr.pCount - aib.getOmPosts(thr) + 1;
+			pCnt = thr.visPCnt || thr.pCount - getOmPosts(thr) + 1;
 			thr.innerHTML = '';
 			(impP = importPost(newOp)).isOp = true;
 			newPost(thr, impP, aib.getTNum(newOp), 0);
@@ -4610,7 +4602,7 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
-			Array.prototype.splice.apply(Posts, [Posts.indexOf(op), pCnt].concat(nEls));
+			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt].concat(nEls));
 			thr.pCount = len + 1;
 			closeAlert($id('DESU_alertLoadThr'));
 		}
@@ -4822,8 +4814,7 @@ function setHanaRating() {
 }
 
 function getHanaFile(file, id) {
-	var name,
-		src = file['src'],
+	var name, src = file['src'],
 		thumb = file['thumb'],
 		thumbW = file['thumb_width'],
 		thumbH = file['thumb_height'],
@@ -4867,8 +4858,7 @@ function getHanaFile(file, id) {
 }
 
 function getHanaPost(postJson) {
-	var i,
-		id = postJson['display_id'],
+	var i, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
 		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'desu-post': id}, null),
@@ -4958,8 +4948,7 @@ function loadNewPosts(isInfo, Fn) {
 			Fn = thr = null;
 			return;
 		}
-		var i, j, el, el_, pNum,
-			np = 0,
+		var i, j, el, el_, pNum, np = 0,
 			len = Posts.length,
 			len_ = els.length;
 		checkBan(Posts[0], op);
@@ -5304,8 +5293,7 @@ function getWrds(text) {
 }
 
 function findSameText(post, oNum, oVis, oWords) {
-	var j,
-		words = getWrds(getText(post)),
+	var j, words = getWrds(getText(post)),
 		len = words.length,
 		i = oWords.length,
 		olen = i,
@@ -5361,8 +5349,7 @@ function hideBySameText(post) {
 /*-------------------------Hide posts with similar images---------------------*/
 
 function prepareImgHash(data, oldw, oldh) {
-	var i, j, l, c, t, u,
-		tmp = oldw * oldh,
+	var i, j, l, c, t, u, tmp = oldw * oldh,
 		newh = 8,
 		neww = 8,
 		levels = 2,
@@ -5402,8 +5389,7 @@ function prepareImgHash(data, oldw, oldh) {
 }
 
 function getImgHash(post) {
-	var w, h, cnv, ctx,
-		img = post.Img[0];
+	var w, h, cnv, ctx, img = post.Img[0];
 	if(img.hash) {
 		return img.hash;
 	}
@@ -5422,14 +5408,15 @@ function getImgHash(post) {
 								SPELLS AND EXPRESSIONS
 ==============================================================================*/
 
+function getSpellObj() {
+	return {
+		words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
+		sage: false, notxt: false, noimg: false, trip: false
+	};
+}
+
 function initSpells() {
-	var i, x, b, n, t, p, j, Spells,
-		getSpellObj = function() {
-			return {
-				words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
-				sage: false, notxt: false, noimg: false, trip: false
-			};
-		};
+	var i, x, b, n, t, p, j, Spells;
 	pSpells = getSpellObj();
 	tSpells = getSpellObj();
 	oSpells = {rep: [], skip: [], num: [], outrep: [], video: [], vtag: []};
@@ -5505,8 +5492,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 	if(exp === '') {
 		return false;
 	}
-	var x, expW, expH,
-		s = exp.split('@'),
+	var x, expW, expH, s = exp.split('@'),
 		stat = s[0][0],
 		expK = s[0].substr(1).split('-');
 	if(!expK[1]) {
@@ -6521,11 +6507,9 @@ function getImageboard() {
 	aib.pClass =
 		aib.krau ? 'postreply' :
 		aib.ylil ? ' answer' :
-		aib.tiny || aib.fch ? 'reply' :
 		'reply';
 	aib.opClass =
 		aib.kus ? 'postnode' :
-		aib.brit ? 'originalpost' :
 		aib.fch ? 'op' :
 		'oppost';
 	aib.tClass = aib.krau ? 'thread_body' : 'thread';
@@ -6613,9 +6597,8 @@ function getImageboard() {
 			return thr.firstElementChild;
 		} :
 		aib.brit ? function(thr, dc) {
-			var el,
-				post = $$new('div', {'style': 'clear: left;'}, null, dc),
-				op = $c(aib.opClass, thr);
+			var el, post = $$new('div', {'style': 'clear: left;'}, null, dc),
+				op = $c('originalpost', thr);
 			$after($c('postmenu', op), post);
 			while((el = thr.firstChild).tagName !== 'TABLE') {
 				$after(post, el);
@@ -6630,8 +6613,7 @@ function getImageboard() {
 			return post;
 		} :
 		function(thr, dc) {
-			var el,
-				op = $$new('div', null, null, dc),
+			var el, op = $$new('div', null, null, dc),
 				opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
@@ -6662,10 +6644,6 @@ function getImageboard() {
 		} :
 		function(post) {
 			return post.id.match(/\d+/)[0];
-		};
-	aib.getOmPosts = function(el) {
-			var i = $q(aib.omPosts, el);
-			return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
@@ -6700,8 +6678,7 @@ function processPost(post, pNum, thr, i) {
 }
 
 function parseDelform(el, dc, Fn) {
-	var node, thr,
-		pThr = false,
+	var node, thr, pThr = false,
 		thrds = $C(aib.tClass, el);
 	$$each($T('script', el), $del);
 	if(aib.ylil) {
@@ -6767,7 +6744,7 @@ function tryToParse(node) {
 	try {
 		parseDelform(node, doc, function(thr) {
 			var i, op = aib.getOp(thr, doc),
-				els = Array.prototype.slice.call(aib.getPosts(thr)),
+				els = aProto.slice.call(aib.getPosts(thr)),
 				len = els.length;
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
@@ -6783,7 +6760,7 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 			}
 			thr.className += ' DESU_thread';
-			thr.pCount = len + aib.getOmPosts(thr);
+			thr.pCount = len + getOmPosts(thr);
 		});
 		if(liteMode) {
 			$$each($Q('body > *:not(form)', doc), $del);
