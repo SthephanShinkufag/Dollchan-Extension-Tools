@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.11.0
+// @version			12.8.13.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 'use strict';
 var defaultCfg = {
-	'version':	'12.8.11.0',
+	'version':	'12.8.13.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -2454,12 +2454,14 @@ function doPostformChanges(img, m, el) {
 	if(Cfg['noPassword'] && pr.passw) {
 		$disp($x(pr.tr, pr.passw));
 	}
-	if(Cfg['userName'] && pr.name) {
-		window.onload = setTimeout(setUserName, 1e3);
-	}
-	if(pr.passw) {
-		window.onload = setTimeout(setUserPassw, 1e3);
-	}
+	$event(window, {'load': function() {
+		if(Cfg['userName'] && pr.name) {
+			setTimeout(setUserName, 1e3);
+		}
+		if(pr.passw) {
+			setTimeout(setUserPassw, 1e3);
+		}
+	}});
 	if(pr.recap) {
 		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		el = $id('recaptcha_image');
@@ -6295,7 +6297,7 @@ function isCompatible() {
 		liteMode = true;
 		nav.postMsg(pMsg);
 		$event(window, {'load': function() {
-			setTimeout(nav.postMsg, 1E3, pMsg);
+			setTimeout(nav.postMsg, 1e3, pMsg);
 		}});
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
