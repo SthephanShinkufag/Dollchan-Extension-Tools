@@ -5355,7 +5355,7 @@ function prepareImgHash(data, oldw, oldh) {
 	var i, j, l, c, t, u, tmp = oldw * oldh,
 		newh = 8,
 		neww = 8,
-		levels = 2,
+		levels = 3,
 		areas = 256 / levels,
 		values = 256 / (levels - 1),
 		rv = new Uint8Array(newh * neww);
