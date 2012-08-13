@@ -2335,15 +2335,18 @@ function doSageBtn() {
 	}
 }
 
-function setUserName(el) {
-	el = el.parentNode;
-	saveCfg('nameValue', el.value.replace(/\|/g, ''));
-	pr.name.value = el.lastChild.checked ? Cfg['nameValue'] : '';
+function setUserName() {
+	var el = $q('input[info="nameValue"]', doc);
+	if(el) {
+		saveCfg('nameValue', el.value);
+	}
+	pr.name.value = Cfg['userName'] ? Cfg['nameValue'] : '';
 }
 
-function setUserPassw(el) {
+function setUserPassw() {
+	var el = $q('input[info="passwValue"]', doc);
 	if(el) {
-		saveCfg('passwValue', el.value.replace(/\|/g, ''));
+		saveCfg('passwValue', el.value);
 	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
 }
@@ -2452,9 +2455,7 @@ function doPostformChanges(img, m, el) {
 		$disp($x(pr.tr, pr.passw));
 	}
 	if(Cfg['userName'] && pr.name) {
-		setTimeout(function() {
-			pr.name.value = Cfg['nameValue'];
-		}, 0);
+		setTimeout(setUserName, 0);
 	}
 	if(pr.passw) {
 		setTimeout(setUserPassw, 0);
