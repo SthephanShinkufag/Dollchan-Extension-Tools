@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.13.0
+// @version			12.8.13.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 'use strict';
 var defaultCfg = {
-	'version':	'12.8.13.0',
+	'version':	'12.8.13.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -75,10 +75,9 @@ var defaultCfg = {
 	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
 	'txtBtnsLoc':	0,		//		located at [0=top, 1=bottom]
+	'passwValue':	'',		// user password value
 	'userName':		0,		// user name
 	'nameValue':	'',		//		value
-	'userPassw':	0,		// user password
-	'passwValue':	'',		//		value
 	'userSignat':	0,		// user signature
 	'signatValue':	'',		//		value
 	'noBoardRule':	1,		// hide board rules
@@ -191,8 +190,8 @@ Lng = {
 			txt:		['кнопки форматирования текста ', 'text format buttons ']
 		},
 		'txtBtnsLoc':	['внизу', 'at bottom'],
+		'userPassw':	[' Постоянный пароль', ' Fixed password'],
 		'userName':		['Постоянное имя', 'Fixed name'],
-		'userPassw':	['Постоянный пароль', 'Fixed password'],
 		'userSignat':	['Постоянная подпись', 'Fixed signature'],
 		'noBoardRule':	['правила ', 'rules '],
 		'noGoto':		['поле goto ', 'goto field '],
@@ -864,6 +863,7 @@ function fixCfg(isGlob) {
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
+	rv['passwValue'] = $rnd().substring(0, 8);
 	return rv;
 }
 
@@ -1463,13 +1463,13 @@ function getCfgForm() {
 			}),
 			lBox('txtBtnsLoc', false, addTextPanel)
 		])),
+		$if(pr.passw, $New('div', null, [
+			inpTxt('passwValue', 20, setUserPassw),
+			$txt(Lng.cfg['userPassw'][lang])
+		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('nameValue', 20, setUserName),
 			lBox('userName', false, setUserName)
-		])),
-		$if(pr.passw, $New('div', null, [
-			inpTxt('passwValue', 20, setUserPassw),
-			lBox('userPassw', false, setUserPassw)
 		])),
 		$if(pr.txta, $New('div', null, [
 			inpTxt('signatValue', 20, null),
@@ -2348,7 +2348,7 @@ function setUserPassw() {
 	if(el) {
 		saveCfg('passwValue', el.value);
 	}
-	(pr.dpass || {}).value = pr.passw.value = Cfg['userPassw'] ? Cfg['passwValue'] : $rnd().substring(0, 8);
+	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 }
 
 function initPostform() {
