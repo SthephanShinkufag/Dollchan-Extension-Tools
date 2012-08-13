@@ -925,10 +925,9 @@ function toggleCfg(id) {
 }
 
 function getHidCfg() {
-	return !Cfg['hideByWipe'] ? Cfg['hideRefPsts'] :
+	return !Cfg['hideByWipe'] ? 0 :
 		Cfg['wipeSameLin'] | (Cfg['wipeSameWrd'] << 1) | (Cfg['wipeLongWrd'] << 2) |
-			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5) |
-			(Cfg['hideRefPsts'] << 6);
+			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5);
 }
 
 function readPostsVisib() {
@@ -5030,30 +5029,35 @@ function initThreadsUpdater() {
 								POSTS/THREADS HIDERS
 ==============================================================================*/
 
-function hideByRef(post, fn) {
+function hideByRef(post) {
 	if(!Cfg['hideRefPsts'] || !post.ref) {
 		return;
 	}
 	post.ref.forEach(function(pNum) {
 		var pst = pByNum[pNum];
-		if(pst) {
-			fn(pst, 'reference to >>' + post.Num);
+		if(pst && !uVis[pNum]) {
+			setPostVisib(pst, 0, 'reference to >>' + post.Num);
+			pst.Btns.firstChild.className = 'DESU_btnUnhide';
+			hideByRef(pst);
 		}
 	});
 	post = null;
 }
 
-function unhideByRef(post, fn) {
+function unhideByRef(post) {
 	if(!Cfg['hideRefPsts'] || !post.ref) {
 		return;
 	}
 	post.ref.forEach(function(pNum) {
 		var pst = pByNum[pNum];
-		if(pst) {
-			fn(pst);
+		if(pst && !uVis[pNum]) {
+			if(sVis[pst.Count] !== 0) {
+				setPostVisib(pst, 1, null);
+				pst.Btns.firstChild.className = 'DESU_btnHide';
+			}
+			unhideByRef(pst);
 		}
 	});
-	post = null;
 }
 
 function doPostFilters(post) {
@@ -5064,7 +5068,7 @@ function doPostFilters(post) {
 	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
 	if(note) {
 		setPostVisib(post, sVis[post.Count] = 0, note);
-		hideByRef(post, hidePost);
+		hideByRef(post);
 	} else {
 		sVis[post.Count] = 1;
 	}
@@ -5094,6 +5098,7 @@ function setPostsVisib() {
 		}
 		if(vis === '0') {
 			setPostVisib(post, 0, null);
+			hideByRef(post);
 			post.Btns.firstChild.className = 'DESU_btnUnhide';
 		} else if(vis !== '1') {
 			doPostFilters(post);
@@ -5209,7 +5214,7 @@ function hidePost(post, note) {
 		} else {
 			setPostVisib(post, sVis[post.Count] = 0, note);
 			post.Btns.firstChild.className = 'DESU_btnUnhide';
-			hideByRef(post, hidePost);
+			hideByRef(post);
 		}
 	}
 }
@@ -5222,7 +5227,7 @@ function unhidePost(post) {
 		} else {
 			setPostVisib(post, sVis[post.Count] = 1, null);
 			post.Btns.firstChild.className = 'DESU_btnHide';
-			unhideByRef(post, unhidePost);
+			unhideByRef(post);
 			$del($c('DESU_postNote', post));
 		}
 	}
@@ -5233,23 +5238,9 @@ function setUserPostVisib(post, vis) {
 	setPostVisib(post, vis, null);
 	post.Btns.firstChild.className = 'DESU_btnLock';
 	if(vis === 0) {
-		hideByRef(post, function hideUPV(pst, note) {
-			setPostVisib(pst, 0, note);
-			pst.Btns.firstChild.className = 'DESU_btnUnhide';
-			hideByRef(pst, hideUPV);
-		});
+		hideByRef(post);
 	} else {
-		unhideByRef(post, function unhideUPV(pst) {
-			var note = detectWipeText(getText(pst)) || (Cfg['hideBySpell'] && checkSpells(pst));
-			if(note) {
-				$del($c('DESU_postNote', pst));
-				addPostNote(pst, note);
-			} else {
-				setPostVisib(pst, 1, null);
-				pst.Btns.firstChild.className = 'DESU_btnHide';
-			}
-			unhideByRef(pst, unhideUPV);
-		});
+		unhideByRef(post);
 	}
 	if(!uVis[num]) {
 		uVis[num] = new Array(2);
