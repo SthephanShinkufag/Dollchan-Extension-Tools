@@ -1184,6 +1184,12 @@ function toggleContent(name, isUpd) {
 }
 
 function showContent(el, id, name, isUpd) {
+	if(el.id === 'DESU_contentHid' && el.expanded) {
+		$$each($Q('.DESU_contData > :not(.DESU_hidOppost)', el.firstChild), function(node) {
+			setPostVisib(node.pst, 0, null);
+		});
+		el.expanded = false;
+	}
 	el.innerHTML = el.style.backgroundColor = '';
 	if(!isUpd && el.id === id) {
 		el.id = '';
@@ -1677,7 +1683,7 @@ function addHiddenTable(hid) {
 		cln.style.display = '';
 		cln.vis = 0;
 		cln.pst = post;
-		cln.btn = $c('DESU_btnUnhide', cln);
+		cln.btn = $q('.DESU_btnUnhide, .DESU_btnLock', cln);
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
@@ -1696,25 +1702,29 @@ function addHiddenTable(hid) {
 	} else {
 		$append(el, [
 			$btn(Lng.expandAll[lang], '', function() {
-				var posts = $Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode);
-				if(this.value === Lng.expandAll[lang]) {
-					this.value = Lng.undo[lang];
-					$$each(posts, function(el) {
-						setPostVisib(el.pst, 1, null);
-					});
-				} else {
+				var posts = $Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode),
+					el = this.parentNode.parentNode;
+				if(el.expanded) {
 					this.value = Lng.expandAll[lang];
-					$$each(posts, function(el) {
-						setPostVisib(el.pst, el.vis, null);
+					$$each(posts, function(node) {
+						setPostVisib(node.pst, node.vis, null);
 					});
+					el.expanded = false;
+				} else {
+					this.value = Lng.undo[lang];
+					$$each(posts, function(node) {
+						setPostVisib(node.pst, 1, null);
+					});
+					el.expanded = true;
 				}
 			}),
 			$btn(Lng.save[lang], '', function() {
-				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
+				$$each($Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0 || el.pst.Vis !== 0) {
 						setUserPostVisib(el.pst, 1);
 					}
 				});
+				this.parentNode.parentNode.expanded = false;
 				saveUserPostsVisib();
 			})
 		]);
@@ -5067,6 +5077,8 @@ function setPostsVisib() {
 		if(uVis[pNum = post.Num]) {
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, 0);
+			} else {
+				post.Btns.firstChild.className = 'DESU_btnLock';
 			}
 			if(vis === undefined) {
 				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
@@ -5082,6 +5094,7 @@ function setPostsVisib() {
 		}
 		if(vis === '0') {
 			setPostVisib(post, 0, null);
+			post.Btns.firstChild.className = 'DESU_btnUnhide';
 		} else if(vis !== '1') {
 			doPostFilters(post);
 		}
@@ -5166,8 +5179,7 @@ function setPostVisib(post, vis, note) {
 			} else if(vis === 0) {
 				addPostNote(post, note);
 			}
-			post.Btns.firstChild.className = vis === 0 ? 'DESU_btnUnhide' : 'DESU_btnHide';
-			if(vis === 0 && Cfg['delHiddPost'] !== 2) {
+			if(vis === 0) {
 				el = $q(aib.qRef, post);
 				el.onmouseover = function() {
 					if(post.Vis === 0) {
@@ -5196,6 +5208,7 @@ function hidePost(post, note) {
 			addPostNote(post, note);
 		} else {
 			setPostVisib(post, sVis[post.Count] = 0, note);
+			post.Btns.firstChild.className = 'DESU_btnUnhide';
 			hideByRef(post, hidePost);
 		}
 	}
@@ -5208,6 +5221,7 @@ function unhidePost(post) {
 			hidePost(post, wn);
 		} else {
 			setPostVisib(post, sVis[post.Count] = 1, null);
+			post.Btns.firstChild.className = 'DESU_btnHide';
 			unhideByRef(post, unhidePost);
 			$del($c('DESU_postNote', post));
 		}
@@ -5217,15 +5231,22 @@ function unhidePost(post) {
 function setUserPostVisib(post, vis) {
 	var num = post.Num;
 	setPostVisib(post, vis, null);
+	post.Btns.firstChild.className = 'DESU_btnLock';
 	if(vis === 0) {
 		hideByRef(post, function hideUPV(pst, note) {
 			setPostVisib(pst, 0, note);
+			pst.Btns.firstChild.className = 'DESU_btnUnhide';
 			hideByRef(pst, hideUPV);
 		});
 	} else {
 		unhideByRef(post, function unhideUPV(pst) {
-			if(sVis[pst.Count] !== 0) {
+			var note = detectWipeText(getText(pst)) || (Cfg['hideBySpell'] && checkSpells(pst));
+			if(note) {
+				$del($c('DESU_postNote', pst));
+				addPostNote(pst, note);
+			} else {
 				setPostVisib(pst, 1, null);
+				pst.Btns.firstChild.className = 'DESU_btnHide';
 			}
 			unhideByRef(pst, unhideUPV);
 		});
@@ -5967,12 +5988,13 @@ function scriptCSS() {
 
 	// Post buttons
 	x += '.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; }\
-		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnLock, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 		gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
 		gif('.DESU_btnUnhide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.DESU_btnLock', p + 'zSLLcS2MNQGsUMQRRq9CYJo5iRp6Y1FHXcGFuzJjnuIjOBzYr0LS9FnAlrJEGkJhSSUgAADs=');
 		gif('.DESU_btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
 		gif('.DESU_btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
 		gif('.DESU_btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
