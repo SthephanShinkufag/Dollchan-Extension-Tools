@@ -1719,7 +1719,7 @@ function addHiddenTable(hid) {
 				}
 			}),
 			$btn(Lng.save[lang], '', function() {
-				$$each($Q('.DESU_contData > *:not(.DESU_hidOppost)', this.parentNode), function(el) {
+				$$each($Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0 || el.pst.Vis !== 0) {
 						setUserPostVisib(el.pst, 1);
 					}
