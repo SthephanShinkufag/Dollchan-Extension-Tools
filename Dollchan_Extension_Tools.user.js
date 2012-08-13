@@ -863,7 +863,6 @@ function fixCfg(isGlob) {
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
-	rv['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	return rv;
 }
 
