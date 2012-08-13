@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.13.1
+// @version			12.8.13.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 'use strict';
 var defaultCfg = {
-	'version':	'12.8.13.1',
+	'version':	'12.8.13.2',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -863,7 +863,7 @@ function fixCfg(isGlob) {
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
-	rv['passwValue'] = $rnd().substring(0, 8);
+	rv['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	return rv;
 }
 
@@ -893,6 +893,9 @@ function readCfg() {
 	}
 	if(!Cfg['saveSage']) {
 		Cfg['sageReply'] = 0;
+	}
+	if(!Cfg['passwValue']) {
+		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
 	Cfg['linksOver'] = +Cfg['linksOver'];
 	Cfg['linksOut'] = +Cfg['linksOut'];
