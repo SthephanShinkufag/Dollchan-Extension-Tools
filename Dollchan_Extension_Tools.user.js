@@ -1234,7 +1234,7 @@ function inpTxt(id, size, Fn) {
 		'keyup': function() {
 			saveCfg(this.getAttribute('info'), this.value.replace(/\|/g, ''));
 			if(Fn) {
-				Fn(this);
+				Fn();
 			}
 		}
 	});
@@ -2455,10 +2455,10 @@ function doPostformChanges(img, m, el) {
 		$disp($x(pr.tr, pr.passw));
 	}
 	if(Cfg['userName'] && pr.name) {
-		setTimeout(setUserName, 0);
+		window.onload = setTimeout(setUserName, 1e3);
 	}
 	if(pr.passw) {
-		setTimeout(setUserPassw, 0);
+		window.onload = setTimeout(setUserPassw, 1e3);
 	}
 	if(pr.recap) {
 		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
@@ -3255,7 +3255,7 @@ function addPostButtons(post) {
 	) + '</span>');
 	post.Btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
-		if(aib.futr || (aib.nul && TNum)) {
+		if(aib.tinyIb || (aib.nul && TNum)) {
 			$$each($T('a', ref), function(el) {
 				el.onclick = null;
 			});
@@ -6141,6 +6141,8 @@ function scriptCSS() {
 		x += '.threadbuttons, .expandall, .tooltip { display: none !important; }';
 	} else if(aib.fch) {
 		x += '.DESU_spoiler { color: #000; background-color: #000; }';
+	} else if(aib.tinyIb) {
+		x += 'br.clear { display: none !important; }';
 	}
 
 	if(nav.Firefox && nav.Firefox < 4) {
