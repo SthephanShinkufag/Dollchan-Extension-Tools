@@ -880,7 +880,7 @@ function readCfg() {
 		Cfg['findRarJPEG'] = 0;
 	}
 	if(!nav.Firefox) {
-		Cfg['favIcoBlink'] = 0;
+		defaultCfg['favIcoBlink'] = 0;
 	}
 	if(!nav.WebKit) {
 		Cfg['desktNotif'] = 0;
@@ -1355,7 +1355,7 @@ function getCfgPosts() {
 			$txt(Lng.cfg['updThrDelay'][lang])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			$if(nav.Firefox, lBox('favIcoBlink', true, null)),
+			lBox('favIcoBlink', true, null),
 			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
