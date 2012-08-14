@@ -6556,8 +6556,7 @@ function getImageboard() {
 		'blockquote';
 	aib.cFileInfo =
 		aib.fch ? 'fileText' :
-		aib.krau ? 'filename' :
-		aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
+		aib.krau || aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : (
 		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
