@@ -649,7 +649,7 @@ function getPostImages(el) {
 }
 
 function getOmPosts(el) {
-	var i = $q(aib.omPosts, el);
+	var i = $q(aib.qOmitted, el);
 	return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
 }
 
@@ -663,7 +663,7 @@ function getText(el) {
 }
 
 function getImgWeight(post) {
-	var inf = aib.getImgInfo(post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
+	var inf = $c(aib.cFileInfo, post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
 		w = parseFloat(inf.match(/[\d|\.]+/));
 	if(/MB/.test(inf)) {
 		w = w * 1e3;
@@ -675,7 +675,7 @@ function getImgWeight(post) {
 }
 
 function getImgSize(post) {
-	var el = aib.getImgInfo(post),
+	var el = $c(aib.cFileInfo, post),
 		m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
 	return m ? m[0].split(/[x×]/) : [null, null];
 }
@@ -859,7 +859,7 @@ function parseCfg(id) {
 
 function fixCfg(isGlob) {
 	var rv = isGlob && parseCfg('DESU_GlobalCfg') || new Config({'version': defaultCfg['version']});
-	rv['captchaLang'] = aib.hana || aib.tire || aib.vomb || aib.ment || aib.tinyIb ? 2 : 1;
+	rv['captchaLang'] = aib.ru ? 2 : 1;
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
@@ -1263,7 +1263,7 @@ function optSel(id, isBlock, Fn) {
 }
 
 function cfgTab(name, id) {
-	return $New('div', {'class': aib.pClass + ' DESU_cfgTabBack', 'selected': false}, [
+	return $New('div', {'class': aib.cReply + ' DESU_cfgTabBack', 'selected': false}, [
 		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[name][lang], 'info': id}, {
 			'click': function() {
 				var el, id, pN = this.parentNode;
@@ -1572,7 +1572,7 @@ function getCfgBody(id) {
 }
 
 function addSettings(Set) {
-	Set.appendChild($New('div', {'class': aib.pClass}, [
+	Set.appendChild($New('div', {'class': aib.cReply}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
 		$New('div', {'id': 'DESU_cfgBar'}, [
 			cfgTab('Filters', 'cfgFilters'),
@@ -1646,7 +1646,7 @@ function addHiddenTable(hid) {
 		if(op.Vis !== 0) {
 			return;
 		}
-		var wrap = $New('div', {'class': aib.pClass}, [
+		var wrap = $New('div', {'class': aib.cReply}, [
 			$new('input', {'type': 'checkbox'}, null),
 			$event($add(
 				'<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
@@ -1748,7 +1748,7 @@ function addHiddenTable(hid) {
 			for(tNum in hThrds[b]) {
 				url = getThrdUrl(aib.host, b, tNum);
 				tHead.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
-					$New('div', {'class': aib.pClass}, [
+					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
 						$txt(' - ' + hThrds[b][tNum])
@@ -1816,7 +1816,7 @@ function addFavoritesTable(fav) {
 			]));
 			for(tNum in Favor[h][b]) {
 				list.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
-					$New('div', {'class': aib.pClass}, [
+					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
@@ -1982,7 +1982,7 @@ function $alert(txt, id, wait) {
 		blinkAlert(el);
 		return;
 	}
-	el = $New('div', {'class': aib.pClass, 'id': 'DESU_alert' + id}, [
+	el = $New('div', {'class': aib.cReply, 'id': 'DESU_alert' + id}, [
 		$new('span', {'class': 'DESU_alertBtn', 'text': tBtn}, {'click': function() {
 			closeAlert(this.parentNode);
 		}}),
@@ -2011,7 +2011,7 @@ function addSelMenu(el, fPanel, html) {
 		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.appendChild($event($add(
-		'<div class="' + aib.pClass + '" id="DESU_select" style="position: ' + pos + '; ' + (
+		'<div class="' + aib.cReply + '" id="DESU_select" style="position: ' + pos + '; ' + (
 			el.className === 'DESU_btnSrc' ?
 				'left: ' + $offset(el).left :
 				'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
@@ -2382,7 +2382,7 @@ function initPostform() {
 	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
-	nav.insAfter(pArea, '<div id="DESU_qarea" class="' + aib.pClass + '" style="display: none;"></div>');
+	nav.insAfter(pArea, '<div id="DESU_qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 	if(pr.on) {
 		doPostformChanges(null, null);
 	} else if(oeForm) {
@@ -3448,7 +3448,7 @@ function prepareCFeatures() {
 					bwrk[wI] = 1;\
 					w.onmessage = function(e) {\
 						if(e.data) {\
-							getPicWrap(link).querySelector(\'' + aib.qImages + '\').className += " DESU_archive";\
+							getPicWrap(link).querySelector(\'' + aib.qImgLink + '\').className += " DESU_archive";\
 						}\
 						bwrk[wI] = 0;\
 						link = wI = null;\
@@ -3921,7 +3921,10 @@ function addLinkImg(el) {
 	if(!Cfg['addImgs']) {
 		return;
 	}
-	for(var a, els = $Q(aib.msgImg, el), i = 0, len = els.length, link; i < len; i++) {
+	for(var a, link, i = 0, els = $Q(
+		aib.qMsg + ' a[href*=".jpg"], ' + aib.qMsg + ' a[href*=".png"], ' + aib.qMsg + ' a[href*=".gif"]',
+		el
+	), len = els.length; i < len; i++) {
 		link = els[i];
 		if($xb('ancestor::small', link)) {
 			return;
@@ -3959,7 +3962,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var num = el.Num || '', els = $Q(aib.qImages, el), i = els.length - 1, link; i >= 0; i--) {
+	for(var num = el.Num || '', els = $Q(aib.qImgLink, el), i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -4221,7 +4224,7 @@ function getPview(post, pNum, parent, link, txt) {
 			Pviews.deleted[pNum] = true;
 		}
 		pView = $add(
-			'<div class="' + aib.pClass + ' DESU_info DESU_pView">' + (txt || Lng.postNotFound[lang]) + '</div>'
+			'<div class="' + aib.cReply + ' DESU_info DESU_pView">' + (txt || Lng.postNotFound[lang]) + '</div>'
 		);
 	} else {
 		if(post.ownerDocument === doc) {
@@ -4229,7 +4232,7 @@ function getPview(post, pNum, parent, link, txt) {
 		} else {
 			pView = importPost(post);
 			if(!post.isOp) {
-				pView.className = aib.pClass;
+				pView.className = aib.cReply;
 			}
 			pView.setAttribute('desu-post', null);
 		}
@@ -4237,7 +4240,7 @@ function getPview(post, pNum, parent, link, txt) {
 			togglePostContent(pView, 1);
 		}
 		if(post.isOp) {
-			pView.className = aib.pClass;
+			pView.className = aib.cReply;
 		}
 		pView.className += ' DESU_pView';
 		if(aib._7ch) {
@@ -4483,7 +4486,7 @@ function newPost(thr, post, pNum, i) {
 	addPostFunc(post);
 	if(postWrapper && i !== 0) {
 		pst = postWrapper.cloneNode(true);
-		el = $q(aib.qPost, pst);
+		el = aib.getPosts(pst)[0];
 		if(el) {
 			el.parentNode.replaceChild(post, el);
 		} else {
@@ -5158,7 +5161,7 @@ function setPostVisib(post, vis, note) {
 		}
 		if(vis === 0 && !el) {
 			el = $add(
-				'<div class="' + aib.pClass + '" id="DESU_hidThr_' + post.Num + '">' +
+				'<div class="' + aib.cReply + '" id="DESU_hidThr_' + post.Num + '">' +
 					Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 						note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 					) + ')</i></div>'
@@ -5635,7 +5638,7 @@ function getSpells(x, post) {
 			}
 		}
 		if(x.imgn[0]) {
-			inf = aib.getImgInfo(post);
+			inf = $c(aib.cFileInfo, post);
 			if(inf) {
 				for(i = 0, inf = inf.textContent; t = x.imgn[i++];) {
 					if(t.test(inf)) {
@@ -6478,7 +6481,6 @@ function getPostform(form) {
 		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
 		mail: $x(p + (
 			aib._410 ? '@name="sage"]' :
-			aib.futr ? '@name="denshimeru"]' :
 			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
 		), form),
 		video: $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form)
@@ -6490,14 +6492,14 @@ function getImageboard() {
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
 	aib = {
+		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
 		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
 		tiny: $xb('.//form[@name="postcontrols"]', doc),
+		abu: !!$id('LakeSettings'),
 		krau: h === 'krautchan.net',
 		gazo: h === '2chan.net',
 		brit: h === 'britfa.gs',
 		ylil: h === 'ylilauta.org',
-		abu: !!$id('LakeSettings'),
-		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
 		fch: h === '4chan.org',
 		_420: h === '420chan.org'
 	};
@@ -6521,22 +6523,20 @@ function getImageboard() {
 	aib.tire = h === '2--ch.ru';
 	aib.dfwk = h === 'dfwk.ru';
 	aib.pony = h === 'ponychan.net';
-	aib.vomb = h === 'vombatov.net';
-	aib.ment = h === '02ch.net';
-	aib.futr = h === '2chan.su';
-	aib.pClass =
+	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
+	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.ylil ? ' answer' :
 		'reply';
-	aib.opClass =
+	aib.cOPost =
 		aib.kus ? 'postnode' :
 		aib.fch ? 'op' :
 		'oppost';
-	aib.tClass = aib.krau ? 'thread_body' : 'thread';
-	aib.qThreads =
+	aib.cThread = aib.krau ? 'thread_body' : 'thread';
+	aib.qThread =
 		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 		aib._420 ? '[id*="thread"]' :
-		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '')
+		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qTNum =
 		aib.gazo || aib.tiny ? 'input[type="checkbox"]' :
 		(aib.waka && !aib.abu) || aib.brit ? 'a[name]' :
@@ -6553,22 +6553,16 @@ function getImageboard() {
 		aib.tiny ? '.body' :
 		aib._7ch ? '.message' :
 		'blockquote';
-	aib.msgImg =
-		aib.qMsg + ' a[href*=".jpg"], ' +
-		aib.qMsg + ' a[href*=".png"], ' +
-		aib.qMsg + ' a[href*=".gif"]';
-	aib.qImgWrap = !aib.brit ? (
-		aib.tiny || aib.ylil || aib.hana ? '.fileinfo ' :
-		aib.gazo ? '' :
-		aib.krau ? '.filename ' :
-		aib.fch ? '.fileText ' : '.filesize '
-	) : null;
-	aib.qImages = aib.brit ? '.fileinfo' : (
-		aib.qImgWrap + 'a[href*=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
-		aib.qImgWrap + 'a[href*=".png"]' + (aib.nul ? ':first-child,' : ',') +
-		aib.qImgWrap + 'a[href*=".gif"]' + (aib.nul ? ':first-child' : '')
+	aib.cFileInfo =
+		aib.fch ? 'fileText' :
+		aib.krau ? 'filename' :
+		aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
+		'filesize';
+	aib.qImgLink = aib.brit ? '.fileinfo' : (
+		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href*=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
+		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href*=".png"]' + (aib.nul ? ':first-child,' : ',') +
+		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href*=".gif"]' + (aib.nul ? ':first-child' : '')
 	);
-	aib.qPost = aib.gazo ? 'td:nth-child(2)' : '.' + aib.pClass;
 	aib.qPostForm =
 		aib.gazo ? 'form:nth-of-type(1)' :
 		aib.fch ? 'form[name="post"]' :
@@ -6578,7 +6572,7 @@ function getImageboard() {
 		aib.tiny || aib.fch ? 'subject' :
 		aib.hana ? 'replytitle' :
 		'filetitle';
-	aib.omPosts =
+	aib.qOmitted =
 		aib.gazo ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
 		aib.ylil ? '.omitted' :
@@ -6607,11 +6601,11 @@ function getImageboard() {
 			return $Q('td:nth-child(2)', thr);
 		} :
 		function(thr) {
-			return $C(aib.pClass, thr);
+			return $C(aib.cReply, thr);
 		};
 	aib.getOp =
-		(aib.abu || aib.hana || aib.kus || aib.fch) && $c(aib.opClass, doc) ? function(thr, dc) {
-			return $c(aib.opClass, thr);
+		(aib.abu || aib.hana || aib.kus || aib.fch) && $c(aib.cOPost, doc) ? function(thr, dc) {
+			return $c(aib.cOPost, thr);
 		} :
 		aib.ylil ? function(thr, dc) {
 			return thr.firstElementChild;
@@ -6678,14 +6672,7 @@ function getImageboard() {
 		function(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
-		}
-	aib.getImgInfo =
-		aib.fch ? function(post) {
-			return $c('fileText', post);
-		} :
-		function (post) {
-			return $c('filesize', post) || $c('fileinfo', post);
-		}
+		};
 }
 
 function processPost(post, pNum, thr, i) {
@@ -6699,7 +6686,7 @@ function processPost(post, pNum, thr, i) {
 
 function parseDelform(el, dc, Fn) {
 	var node, thr, pThr = false,
-		thrds = $C(aib.tClass, el);
+		thrds = $C(aib.cThread, el);
 	$$each($T('script', el), $del);
 	if(aib.ylil) {
 		$$each($Q('a[data-embedcode]', el), $del);
@@ -6731,7 +6718,7 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		thrds = $Q(aib.qThreads, el);
+		thrds = $Q(aib.qThread, el);
 		if(thrds.length === 0) {
 			node = $t('hr', el).parentNode.firstChild;
 			while(1) {
