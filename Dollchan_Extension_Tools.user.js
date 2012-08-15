@@ -1683,6 +1683,7 @@ function addHiddenTable(hid) {
 		cln.vis = 0;
 		cln.pst = post;
 		cln.btn = $q('.DESU_btnUnhide, .DESU_btnLock', cln);
+		cln.btn.parentNode.className = '';
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
@@ -5129,7 +5130,7 @@ function togglePostContent(post, vis) {
 					aib._420 ? 'replyheader' :
 					'DESU_postPanel',
 				post
-			) || $c('DESU_postPanel_del', post)
+			) || $q('span[info]', post)
 		), function(el) {
 			el.style.display = vis === 0 ? 'none' : '';
 		});
@@ -6555,13 +6556,12 @@ function getImageboard() {
 		'blockquote';
 	aib.cFileInfo =
 		aib.fch ? 'fileText' :
-		aib.krau ? 'filename' :
-		aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
+		aib.krau || aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : (
-		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href*=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href*=".png"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href*=".gif"]' + (aib.nul ? ':first-child' : '')
+		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
+		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".png"]' + (aib.nul ? ':first-child,' : ',') +
+		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".gif"]' + (aib.nul ? ':first-child' : '')
 	);
 	aib.qPostForm =
 		aib.gazo ? 'form:nth-of-type(1)' :
