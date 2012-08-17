@@ -109,7 +109,7 @@ Lng = {
 		'wipeCAPS':		['КАПС/реГисТР', 'CAPS/cAsE'],
 		'wipeNumbers':	['Числа', 'Numbers'],
 		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
-		'hideRefPsts':	['Скрывать ответы на скрытые посты', 'Hide replies to hidden posts'],
+		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'viewHiddNum':	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
 		'delHiddPost': {
