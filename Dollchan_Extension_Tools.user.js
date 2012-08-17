@@ -6055,6 +6055,9 @@ function scriptCSS() {
 			.DESU_aBlink { animation: DESU_aBlink .7s ease-in-out both; }\
 			.DESU_cfgOpen { animation: DESU_cfgOpen .2s ease-out backwards; }\
 			.DESU_cfgClose { animation: DESU_cfgClose .2s ease-in both; }';
+		if(nav.WebKit) {
+			x+= 'body { -webkit-backface-visibility: hidden; }';
+		}
 	}
 
 	// Embedders
