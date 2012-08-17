@@ -896,8 +896,6 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	Cfg['linksOver'] = +Cfg['linksOver'];
-	Cfg['linksOut'] = +Cfg['linksOut'];
 	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
@@ -1054,22 +1052,22 @@ function readViewedPosts() {
 									MAIN PANEL
 ==============================================================================*/
 
-function addPanel() {
-	var imgLen = getPostImages(dForm).length,
-		pButton = function(id, click, href, over, out) {
-			return $New('li', null, [
-				$new('a', {
-					'id': 'DESU_btn' + id,
-					'class': 'DESU_aBtn',
-					'title': Lng.panelBtn[id][lang],
-					'href': href || '#',
-					'onmouseout': out}, {
-					'click': click,
-					'mouseover': over
-				})
-			]);
-		};
+function pButton(id, click, href, over, out) {
+	return $New('li', null, [
+		$new('a', {
+			'id': 'DESU_btn' + id,
+			'class': 'DESU_aBtn',
+			'title': Lng.panelBtn[id][lang],
+			'href': href || '#',
+			'onmouseout': out}, {
+			'click': click,
+			'mouseover': over
+		})
+	]);
+}
 
+function addPanel() {
+	var imgLen = getPostImages(dForm).length;
 	$before(dForm, $New('div', {'id': 'DESU_panelStuff', 'lang': getThemeLang()}, [
 		$new('div', {'style': 'clear:both;'}, null),
 		$New('div', {'id': 'DESU_panel'}, [
@@ -1164,9 +1162,6 @@ function addPanel() {
 }
 
 function toggleContent(name, isUpd) {
-	if(liteMode) {
-		return;
-	}
 	var el = $c('DESU_content', doc),
 		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
@@ -1238,11 +1233,8 @@ function lBox(id, isBlock, Fn) {
 
 function inpTxt(id, size, Fn) {
 	return $new('input', {'info': id, 'type': 'text', 'size': size, 'value': Cfg[id]}, {
-		'keyup': function() {
+		'keyup': Fn ? Fn : function() {
 			saveCfg(this.getAttribute('info'), this.value.replace(/\|/g, ''));
-			if(Fn) {
-				Fn();
-			}
 		}
 	});
 }
@@ -1262,9 +1254,9 @@ function optSel(id, isBlock, Fn) {
 	]);
 }
 
-function cfgTab(name, id) {
+function cfgTab(name) {
 	return $New('div', {'class': aib.cReply + ' DESU_cfgTabBack', 'selected': false}, [
-		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[name][lang], 'info': id}, {
+		$new('div', {'class': 'DESU_cfgTab', 'text': Lng.cfgTab[name][lang], 'info': 'cfg' + name}, {
 			'click': function() {
 				var el, id, pN = this.parentNode;
 				if(pN.getAttribute('selected') === 'true') {
@@ -1414,11 +1406,15 @@ function getCfgLinks() {
 		optSel('linksNavig', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
-				inpTxt('linksOver', 6, null),
+				inpTxt('linksOver', 6, function() {
+					saveCfg('linksOver', +this.value | 0);
+				}),
 				$txt(Lng.cfg['linksOver'][lang])
 			]),
 			$New('div', null, [
-				inpTxt('linksOut', 6, null),
+				inpTxt('linksOut', 6, function() {
+					saveCfg('linksOut', +this.value | 0);
+				}),
 				$txt(Lng.cfg['linksOut'][lang])
 			]),
 			lBox('markViewed', true, null),
@@ -1458,10 +1454,8 @@ function getCfgForm() {
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
 		])),
-		$if(pr.mail, $New('div', null, [
-			lBox('addSageBtn', false, null),
-			lBox('saveSage', false, null)
-		])),
+		$if(pr.mail, lBox('addSageBtn', false, null)),
+		$if(pr.mail, lBox('saveSage', true, null)),
 		optSel('captchaLang', true, null),
 		$if(pr.on, $New('div', null, [
 			optSel('addTextBtns', false, function() {
@@ -1575,12 +1569,12 @@ function addSettings(Set) {
 	Set.appendChild($New('div', {'class': aib.cReply}, [
 		$new('div', {'id': 'DESU_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
 		$New('div', {'id': 'DESU_cfgBar'}, [
-			cfgTab('Filters', 'cfgFilters'),
-			cfgTab('Posts', 'cfgPosts'),
-			cfgTab('Links', 'cfgLinks'),
-			cfgTab('Form', 'cfgForm'),
-			cfgTab('Common', 'cfgCommon'),
-			cfgTab('Info', 'cfgInfo')
+			cfgTab('Filters'),
+			cfgTab('Posts'),
+			cfgTab('Links'),
+			cfgTab('Form'),
+			cfgTab('Common'),
+			cfgTab('Info')
 		]),
 		getCfgFilters(),
 		$New('div', {'id': 'DESU_cfgBtns'}, [
@@ -1759,7 +1753,7 @@ function addHiddenTable(hid) {
 		}
 	}
 	$append(el, [
-	$add('<hr />'),
+		$add('<hr />'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
 			$disp($attr($t('textarea', this.parentNode), {
 				'value': getPrettyJSON(hThrds, '')
@@ -2041,13 +2035,8 @@ function selectSpell(e) {
 			$pd(e);
 			if(exp === '#b/') {
 				exp = '#' + brd + '/ ';
-			}
-			if(exp === '#b/itt') {
-				if(TNum) {
-					exp = '#' + brd + '/' + TNum + ' ';
-				} else {
-					return;
-				}
+			} else if(exp === '#b/itt') {
+				exp = '#' + brd + '/' + (TNum ? TNum + ' ': ' ');
 			}
 			$txtInsert($id('DESU_spellEdit'), exp);
 		};
@@ -2445,11 +2434,8 @@ function doPostformChanges(img, m, el) {
 		} else {
 			Stat.op = +Stat.op + 1;
 		}
-		if(pr.video && (val = pr.video.value) !== '') {
-			val = val.match(getTubePattern());
-			if(val) {
-				pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
-			}
+		if(pr.video && (val = pr.video.value) !== '' && (val = val.match(getTubePattern()))) {
+			pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 		}
 		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
@@ -3857,7 +3843,7 @@ function resizeImg(e) {
 		oldT = parseInt(this.style.top, 10),
 		oldW = parseFloat(this.style.width || this.width),
 		oldH = parseFloat(this.style.height || this.height),
-		d = nav.Opera || nav.WebKit ? e.wheelDelta : -e.detail,
+		d = nav.Firefox ? -e.detail : e.wheelDelta,
 		newW = oldW * (d > 0 ? 1.25 : 0.8),
 		newH = oldH * (d > 0 ? 1.25 : 0.8);
 	$pd(e);
@@ -3911,7 +3897,7 @@ function addFullImg(a, sz, isExp) {
 		full.className += ' DESU_cFullImg';
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
-			nav.Opera || nav.WebKit ? 'mousewheel' : 'DOMMouseScroll',
+			nav.Firefox ? 'DOMMouseScroll' : 'mousewheel',
 			resizeImg, false
 		);
 		makeMoveable(full);
@@ -4114,7 +4100,7 @@ function updRefMap(post) {
 		}
 		eventRefLink($c('DESU_refMap', pst));
 		if(Cfg['hideRefPsts'] && pst.Vis === 0) {
-			hidePost(this, 'reference to >>' + pst.Num);
+			hidePost(post, 'reference to >>' + pNums[i]);
 		}
 	}
 }
@@ -6369,8 +6355,7 @@ function getNavigator() {
 		};
 	} else if(nav.Firefox > 5) {
 		nav.toBlob = function(arr) {
-			var i, j, len, len_, out, el,
-				bb = new window.MozBlobBuilder();
+			var i, j, len, len_, out, el, bb = new window.MozBlobBuilder();
 			for(i = 0, len = arr.length; i < len; i++) {
 				el = arr[i]
 				if(el.buffer) {
@@ -6430,7 +6415,7 @@ function getNavigator() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
-	nav.postMsg = nav.WebKit || nav.Opera ? addContentScript : eval;
+	nav.postMsg = nav.Firefox ? eval : addContentScript;
 }
 
 function getPage() {
