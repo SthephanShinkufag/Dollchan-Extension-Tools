@@ -1234,7 +1234,7 @@ function lBox(id, isBlock, Fn) {
 function inpTxt(id, size, Fn) {
 	return $new('input', {'info': id, 'type': 'text', 'size': size, 'value': Cfg[id]}, {
 		'keyup': Fn ? Fn : function() {
-			saveCfg(this.getAttribute('info'), this.value.replace(/\|/g, ''));
+			saveCfg(this.getAttribute('info'), this.value);
 		}
 	});
 }
