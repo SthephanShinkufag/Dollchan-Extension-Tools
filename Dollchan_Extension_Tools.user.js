@@ -3332,7 +3332,10 @@ function prepareCFeatures() {
 		var id = e.data[0],
 			data = e.data.substring(1);
 		if(id === "A") {
-			selectPostHider(pByNum[+data]);
+			data = pByNum[+data];
+			if(data.Vis !== 0) {
+				selectPostHider(data);
+			}
 		} else if(id === "B") {
 			selectExpandThread(pByNum[+data]);
 		} else if(id === "C") {
@@ -3344,10 +3347,8 @@ function prepareCFeatures() {
 		} else if(id === "F") {
 			showQuickReply(pByNum[+data]);
 		} else if(id === "G") {
-			toggleFavorites(
-				pByNum[+data],
-				$c('DESU_btnFav', pByNum[+data]) || $c('DESU_btnFavSel', pByNum[+data])
-			);
+			data = pByNum[+data];
+			toggleFavorites(data, c('DESU_btnFav', data) || $c('DESU_btnFavSel', data));
 		} else if(id === "H") {
 			addSpell('#sage');
 		} else if(id === 'I') {
