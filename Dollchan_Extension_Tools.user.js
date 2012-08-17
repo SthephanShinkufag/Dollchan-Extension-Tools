@@ -1454,8 +1454,10 @@ function getCfgForm() {
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
 		])),
-		$if(pr.mail, lBox('addSageBtn', false, null)),
-		$if(pr.mail, lBox('saveSage', true, null)),
+		$if(pr.mail, $New('div', null, [
+			lBox('addSageBtn', false, null),
+			lBox('saveSage', false, null),
+		])),
 		optSel('captchaLang', true, null),
 		$if(pr.on, $New('div', null, [
 			optSel('addTextBtns', false, function() {
