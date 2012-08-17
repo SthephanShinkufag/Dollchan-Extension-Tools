@@ -3332,10 +3332,7 @@ function prepareCFeatures() {
 		var id = e.data[0],
 			data = e.data.substring(1);
 		if(id === "A") {
-			data = pByNum[+data];
-			if(data.Vis !== 0) {
-				selectPostHider(data);
-			}
+			selectPostHider(pByNum[+data]);
 		} else if(id === "B") {
 			selectExpandThread(pByNum[+data]);
 		} else if(id === "C") {
