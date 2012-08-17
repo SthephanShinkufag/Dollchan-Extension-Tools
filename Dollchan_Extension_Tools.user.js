@@ -1456,7 +1456,7 @@ function getCfgForm() {
 		])),
 		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
-			lBox('saveSage', false, null),
+			lBox('saveSage', false, null)
 		])),
 		optSel('captchaLang', true, null),
 		$if(pr.on, $New('div', null, [
