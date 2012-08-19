@@ -2560,15 +2560,20 @@ function doPostformChanges(img, m, el) {
 			dForm.onsubmit = function(e) {
 				$pd(e);
 				$alert(Lng.deleting[lang], 'Deleting', true);
-				ajaxSubmit(new dataForm(dForm), checkDelete);
+				ajaxSubmit(new dataForm(dForm), function(dc, url) {
+					checkDelete(findDeleteError(dc), url);
+				});
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
-			nav.insAfter(
-				$c('DESU_content', doc),
-				'<iframe id="DESU_iframe" name="DESU_iframe" src="about:blank" />'
-			);
-			$attr(pr.form, {'target': 'DESU_iframe'}).onsubmit = null;
+			$append($id('DESU_panelStuff'), [
+				$add('<iframe id="DESU_pIframe" name="DESU_pIframe" src="about:blank"/>'),
+				$add('<iframe id="DESU_dIframe" name="DESU_dIframe" src="about:blank"/>')
+			]);
+			$attr(pr.form, {'target': 'DESU_pIframe'}).onsubmit = null;
+			$attr(dForm, {'target': 'DESU_dIframe'}).onsubmit = function() {
+				$alert(Lng.deleting[lang], 'Deleting', true);
+			};
 		}
 	}
 	if(pr.file) {
@@ -2707,6 +2712,10 @@ function findSubmitError(dc) {
 	return err;
 }
 
+function findDeleteError(dc) {
+	return aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc);
+}
+
 function endUpload() {
 	closeAlert($id('DESU_alertUpload'));
 	if(Cfg['updThread'] === 2) {
@@ -2766,9 +2775,8 @@ function endDelete() {
 	}
 }
 
-function checkDelete(dc, url) {
-	var err = aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc),
-		tNums = [];
+function checkDelete(err, url) {
+	var tNums = [];
 	if(err) {
 		$alert(Lng.errDelete[lang] + err, 'Deleting', false);
 	} else {
@@ -3330,37 +3338,41 @@ function prepareCFeatures() {
 	);
 
 	window.addEventListener('message', function(e) {
-		var id = e.data[0],
-			data = e.data.substring(1);
-		if(id === "A") {
-			selectPostHider(pByNum[+data]);
-		} else if(id === "B") {
-			selectExpandThread(pByNum[+data]);
-		} else if(id === "C") {
-			quotetxt = $txtSelect();
-		} else if(id === "D") {
-			togglePostVisib(pByNum[+data]);
-		} else if(id === "E") {
-			loadThread(pByNum[+data], 1, null);
-		} else if(id === "F") {
-			showQuickReply(pByNum[+data]);
-		} else if(id === "G") {
-			data = pByNum[+data];
-			toggleFavorites(data, c('DESU_btnFav', data) || $c('DESU_btnFavSel', data));
-		} else if(id === "H") {
-			addSpell('#sage');
-		} else if(id === 'I') {
+		var temp, data = e.data.substring(1);
+		switch(e.data[0]) {
+		case 'A': selectPostHider(pByNum[+data]); return;
+		case 'B': selectExpandThread(pByNum[+data]); return;
+		case 'C': quotetxt = $txtSelect(); return;
+		case 'D': togglePostVisib(pByNum[+data]); return;
+		case 'E': loadThread(pByNum[+data], 1, null); return;
+		case 'F': showQuickReply(pByNum[+data]); return;
+		case 'G': {
+			temp = pByNum[+data];
+			toggleFavorites(temp, c('DESU_btnFav', temp) || $c('DESU_btnFavSel', temp));
+			return;
+		}
+		case 'H': addSpell('#sage'); return;
+		case 'I': {
 			data = data.split('|');
-			id = doc.getElementsByName(data[0])[0];
-			$del(id.nextSibling);
+			temp = doc.getElementsByName(data[0])[0];
+			$del(temp.nextSibling);
 			$c('DESU_content', doc).style.overflowY = 'scroll';
-			id.style.height = (+data[1] + Math.sqrt(0.6 * data[1]) + 55) + 'px';
-		} else if(id === 'J') {
-			data = data.split('$#$');
-			checkUpload(data[0], data[1]);
-			$id('DESU_iframe').src = 'about:blank';
-		} else if(id === 'L') {
-			selectImgSearch($q('.DESU_btnSrc[desu-id="' + data + '"]', dForm));
+			temp.style.height = (+data[1] + Math.sqrt(0.6 * data[1]) + 55) + 'px';
+			return;
+		}
+		case 'J': {
+			temp = data.split('$#$');
+			checkUpload(temp[0], temp[1]);
+			$id('DESU_pIframe').src = 'about:blank';
+			return;
+		}
+		case 'L': selectImgSearch($q('.DESU_btnSrc[desu-id="' + data + '"]', dForm)); return;
+		case 'M': {
+			temp = data.split('$#$');
+			checkDelete(temp[0], temp[1]);
+			$id('DESU_dIframe').src = 'about:blank';
+			return;
+		}
 		}
 	}, false);
 
@@ -6081,7 +6093,7 @@ function scriptCSS() {
 		.DESU_contHead > a { color: inherit; font-weight: bold; }\
 		.DESU_favPCount { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
 		.DESU_favPCount span { color: #4f7942; }\
-		#DESU_iframe { display: none; width: 0px; height: 0px; border: none; }\
+		#DESU_pIframe, #DESU_dIframe { display: none; width: 0px; height: 0px; border: none; }\
 		.DESU_omitted { color: grey; font-style: italic; }\
 		.DESU_postNote { color: inherit; font: italic bold 12px serif; }\
 		#DESU_qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
@@ -6295,19 +6307,27 @@ function isCompatible() {
 	}
 	getImageboard();
 	getNavigator();
-	if(/^DESU_iframe/.test(window.name)) {
+	switch(window.name) {
+	case 'DESU_pIframe': {
 		nav.postMsg((
 			'window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	}
-	if(/^DESU_favIframe/.test(window.name)) {
+	case 'DESU_dIframe': {
+		nav.postMsg((
+			'window.top.postMessage("M' + findDeleteError(doc) + '$#$' + window.location + '", "*");'
+		).replace(/\n|\r/g, '\\n'));
+		return false;
+	}
+	case 'DESU_favIframe': {
 		var pMsg = 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");';
 		liteMode = true;
 		nav.postMsg(pMsg);
 		$event(window, {'load': function() {
 			setTimeout(nav.postMsg, 1e3, pMsg);
 		}});
+	}
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
 		setHanaRating();
