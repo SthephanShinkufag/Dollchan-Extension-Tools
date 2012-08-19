@@ -675,8 +675,12 @@ function getImgWeight(post) {
 }
 
 function getImgSize(post) {
-	var el = $c(aib.cFileInfo, post),
-		m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
+	var m, el = $c(aib.cFileInfo, post);
+	if(aib.brit) {
+		m = el.onclick.toString().split('\', \'');
+		return [+m[3], +m[4]];
+	}
+	m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
 	return m ? m[0].split(/[x×]/) : [null, null];
 }
 
