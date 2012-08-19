@@ -604,9 +604,16 @@ function fixFunctions() {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
 		};
+		String.prototype.endsWith = function(s) {
+			var t = String(s),
+				index = this.lastIndexOf(t);
+			return index !== -1 && index === this.length - t.length;
+		};
 	}
 	if(!window.GM_log) {
-		window.GM_log = function() {};
+		window.GM_log = function(msg) {
+			console.error(msg);
+		};
 	}
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = function(obj) {
@@ -682,29 +689,33 @@ function getImgSize(post) {
 }
 
 function fixBrd(b) {
-	return '/' + (b === '' ? '' : b + '/');
+	return '/' + b + (b ? '/' : '');
+}
+
+function checkHost(host, domain) {
+	return host === domain || host.endsWith('.' + domain);
 }
 
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		h.contains('krautchan.net') ? 'thread-' :
-		h.contains('ylilauta.org') ? '' :
+		checkHost(h, 'krautchan.net') ? 'thread-' :
+		checkHost(h, 'ylilauta.org') ? '' :
 		'res/'
 	) + tNum + (
-		/dobrochan|tenhou/.test(h) ? '.xhtml' :
-		h.contains('2chan.net') ? '.htm' :
-		h.contains('420chan.org') ? '.php' :
-		h.contains('ylilauta.org') ? '' :
+		checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? '.xhtml' :
+		checkHost(h, '2chan.net') ? '.htm' :
+		checkHost(h, '420chan.org') ? '.php' :
+		checkHost(h, 'ylilauta.org') ? '' :
 		'.html'
 	);
 }
 
 function getPageUrl(h, b, p) {
-	return h.contains('ylilauta.org') ?
+	return checkHost(h, 'ylilauta.org') ?
 		('/' + b + (p === 1 ? '/' : '-' + p)) :
 		(fixBrd(b) + (
 			p > 0 ? (p + docExt) :
-			/dobrochan|tenhou/.test(h) ? ('index' + docExt) :
+			checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? ('index' + docExt) :
 			''
 		));
 }
@@ -1030,8 +1041,8 @@ function toggleFavorites(post, btn) {
 		Favor[h][b] = {};
 	}
 	Favor[h][b][tNum] = {
-		cnt: post.thr.pCount,
-		txt: post.dTitle
+		'cnt': post.thr.pCount,
+		'txt': post.dTitle
 	};
 	btn.className = 'DESU_btnFavSel';
 	saveFavorites(JSON.stringify(Favor));
@@ -1163,6 +1174,9 @@ function addPanel() {
 }
 
 function toggleContent(name, isUpd) {
+	if(liteMode) {
+		return;
+	}
 	var el = $c('DESU_content', doc),
 		id = 'DESU_content' + name;
 	if(!isUpd || el.id === id) {
@@ -1818,8 +1832,8 @@ function addFavoritesTable(fav) {
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
-						$txt(' - ' + Favor[h][b][tNum].txt),
-						$add('<span class="DESU_favPCount">[<span>' + (Favor[h][b][tNum].cnt + 1) + '</span>]</span>')
+						$txt(' - ' + Favor[h][b][tNum]['txt']),
+						$add('<span class="DESU_favPCount">[<span>' + (Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>')
 					])
 				]));
 			}
@@ -1837,19 +1851,17 @@ function addFavoritesTable(fav) {
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 			$$each($C('DESU_contData', this.parentNode), function(el) {
-				var c, arr = el.getAttribute('info').split(';');
-				if(aib.host === arr[0]) {
+				var arr = el.getAttribute('info').split(';'),
 					c = $attr($t('span', $c('DESU_favPCount', el)), {'class': 'DESU_wait', 'text': ''});
-					ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
-						var cnt = els.length + 1;
-						$attr(c, {'class': '', 'text': err || cnt});
-						if(!err) {
-							Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
-							setStored('DESU_Favorites', JSON.stringify(Favor));
-						}
-						c = arr = null;
-					});
-				}
+				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
+					var cnt = els.length + 1;
+					$attr(c, {'class': '', 'text': err || cnt});
+					if(!err) {
+						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
+						setStored('DESU_Favorites', JSON.stringify(Favor));
+					}
+					c = arr = null;
+				});
 			});
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
@@ -3346,33 +3358,26 @@ function prepareCFeatures() {
 		case 'D': togglePostVisib(pByNum[+data]); return;
 		case 'E': loadThread(pByNum[+data], 1, null); return;
 		case 'F': showQuickReply(pByNum[+data]); return;
-		case 'G': {
+		case 'G':
 			temp = pByNum[+data];
-			toggleFavorites(temp, c('DESU_btnFav', temp) || $c('DESU_btnFavSel', temp));
+			toggleFavorites(temp, $c('DESU_btnFav', temp) || $c('DESU_btnFavSel', temp));
 			return;
-		}
 		case 'H': addSpell('#sage'); return;
-		case 'I': {
-			data = data.split('|');
-			temp = doc.getElementsByName(data[0])[0];
-			$del(temp.nextSibling);
-			$c('DESU_content', doc).style.overflowY = 'scroll';
-			temp.style.height = (+data[1] + Math.sqrt(0.6 * data[1]) + 55) + 'px';
+		case 'I':
+			$del($id('DESU_favWait'));
+			doc.getElementById('DESU_favIframe').style.height = data + 'px';
 			return;
-		}
-		case 'J': {
+		case 'J':
 			temp = data.split('$#$');
 			checkUpload(temp[0], temp[1]);
 			$id('DESU_pIframe').src = 'about:blank';
 			return;
-		}
 		case 'L': selectImgSearch($q('.DESU_btnSrc[desu-id="' + data + '"]', dForm)); return;
-		case 'M': {
+		case 'M':
 			temp = data.split('$#$');
 			checkDelete(temp[0], temp[1]);
 			$id('DESU_dIframe').src = 'about:blank';
 			return;
-		}
 		}
 	}, false);
 
@@ -4633,23 +4638,24 @@ function loadThread(op, last, Fn) {
 
 function loadFavorThread() {
 	var el = this.parentNode.parentNode,
-		frm = $t('iframe', el),
-		tNum = el.id.substr(13).split('|')[2];
-	if(frm) {
-		$del(frm);
-		if(!$c('DESU_favIframe', doc)) {
-			$c('DESU_content', doc).style.overflowY = 'auto';
-		}
+		ifrm = $t('iframe', el),
+		tNum = el.id.substr(13).split('|')[2],
+		cont = $c('DESU_content', doc);
+	if(ifrm) {
+		$del(ifrm);
+		cont.style.overflowY = 'auto';
 		return;
 	}
 	if(pByNum[tNum] && pByNum[tNum].offsetHeight) {
 		$focus(pByNum[tNum]);
 		return;
 	}
+	$$each($Q('#DESU_favIframe, .DESU_wait', cont), $del);
+	$c('DESU_content', doc).style.overflowY = 'scroll';
 	$append(el, [
-		$add('<iframe name="DESU_favIframe' + $rnd() + '" class="DESU_favIframe" src="' + $t('a', el).href +
-			'" style="border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 0px;" />'),
-		$add('<div class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
+		$add('<iframe name="DESU_favIframe" id="DESU_favIframe" src="' + $t('a', el).href +
+			'" scrolling="no" style="border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 1px;" />'),
+		$add('<div id="DESU_favWait" class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
 			Lng.loading[lang] + '</div>')
 	]);
 }
@@ -6302,32 +6308,39 @@ function isCompatible() {
 		return false;
 	}
 	if(!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)) {
-		console.error('WEBSTORAGE ERROR: please, enable webstorage!');
+		GM_log('WEBSTORAGE ERROR: please, enable webstorage!');
 		return false;
 	}
 	getImageboard();
-	getNavigator();
 	switch(window.name) {
-	case 'DESU_pIframe': {
-		nav.postMsg((
+	case '': break;
+	case 'DESU_pIframe':
+		addContentScript((
 			'window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
-	}
-	case 'DESU_dIframe': {
-		nav.postMsg((
+	case 'DESU_dIframe':
+		addContentScript((
 			'window.top.postMessage("M' + findDeleteError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
-	}
-	case 'DESU_favIframe': {
-		var pMsg = 'window.top.postMessage("I' + window.name + '|' + doc.body.scrollHeight + '", "*");';
-		liteMode = true;
-		nav.postMsg(pMsg);
+	case 'DESU_favIframe':
+		var intvr = setInterval(function() {
+			$del($id('DESU_favScript'));
+			doc.head.appendChild($new('script', {
+				'id': 'DESU_favScript',
+				'type': 'text/javascript',
+				'text': 'window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'
+			}, null));
+		}, 1500);
 		$event(window, {'load': function() {
-			setTimeout(nav.postMsg, 1e3, pMsg);
+			setTimeout(function() {
+				clearInterval(intvr);
+				intvr = null;
+			}, 3e4);
 		}});
-	}
+		liteMode = true;
+		pr = {};
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
 		setHanaRating();
@@ -6336,6 +6349,7 @@ function isCompatible() {
 	if(!dForm || $id('DESU_panel')) {
 		return false;
 	}
+	getNavigator();
 	return true;
 }
 
@@ -6439,7 +6453,6 @@ function getNavigator() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
-	nav.postMsg = nav.Firefox ? eval : addContentScript;
 }
 
 function getPage() {
@@ -6505,14 +6518,16 @@ function getImageboard() {
 		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
 		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
 		tiny: $xb('.//form[@name="postcontrols"]', doc),
-		abu: !!$id('LakeSettings'),
-		krau: h === 'krautchan.net',
-		gazo: h === '2chan.net',
-		brit: h === 'britfa.gs',
-		ylil: h === 'ylilauta.org',
-		fch: h === '4chan.org',
-		_420: h === '420chan.org'
+		abu: !!$id('LakeSettings')
 	};
+	switch(h) {
+	case 'krautchan.net': aib.krau = true; break;
+	case '2chan.net': aib.gazo = true; break;
+	case 'britfa.gs': aib.brit = true; break;
+	case 'ylilauta.org': aib.ylil = true; break;
+	case '4chan.org': aib.fch = true; break;
+	case '420chan.org': aib._420 = true; break;
+	}
 	aib.qDForm = aib.brit ? '.threadz' :
 		aib.hana || aib.krau || aib.ylil ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
@@ -6526,13 +6541,15 @@ function getImageboard() {
 	aib.host = window.location.hostname;
 	aib.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
-	aib.nul = h === '0chan.ru';
-	aib._7ch = h === '7chan.org';
-	aib._410 = h === '410chan.ru';
-	aib.hid = h === 'hiddenchan.i2p';
-	aib.tire = h === '2--ch.ru';
-	aib.dfwk = h === 'dfwk.ru';
-	aib.pony = h === 'ponychan.net';
+	switch(h) {
+	case '0chan.ru': aib.nul = true; break;
+	case '7chan.org': aib._7ch = true; break;
+	case '410chan.ru': aib._410 = true; break;
+	case 'hiddenchan.i2p': aib.hid = true; break;
+	case '2--ch.ru': aib.tire = true; break;
+	case 'dfwk.ru': aib.dfwk = true; break;
+	case 'ponychan.net': aib.pony = true; break;
+	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
@@ -6779,10 +6796,10 @@ function tryToParse(node) {
 			thr.pCount = len + getOmPosts(thr);
 		});
 		if(liteMode) {
-			$$each($Q('body > *:not(form)', doc), $del);
+			$each($X('.//body/node()[not(self::form or @class="threadz")]', doc), $del);
 		}
 	} catch(e) {
-		console.error('DELFORM ERROR: parser failure!\n' + e);
+		GM_log('DELFORM ERROR: parser failure!\n' + e);
 		return false;
 	}
 	node.removeAttribute('id');
@@ -6811,7 +6828,9 @@ function replaceDelform(el) {
 function removePageTrash(el) {
 	if(aib.krau) {
 		$del($t('hr', el));
-		$del($t('hr', el.previousElementSibling));
+		if(!liteMode) {
+			$del($t('hr', el.previousElementSibling));
+		}
 	} else if(aib.abu) {
 		el = $c('DESU_thread', el);
 		if(TNum && el) {
@@ -6940,6 +6959,8 @@ function doScript() {
 		return;
 	}
 	$log('parseDelform');
+	readFavorites();
+	$log('readFavorites');
 	if(Cfg['keybNavig']) {
 		initKeyNavig();
 		$log('initKeyNavig');
@@ -6950,11 +6971,9 @@ function doScript() {
 		$log('initPage');
 		addPanel();
 		$log('addPanel');
-		readFavorites();
-		$log('readFavorites');
+		initPostform();
+		$log('initPostform');
 	}
-	initPostform();
-	$log('initPostform');
 	prepareCFeatures();
 	if(Cfg['preLoadImgs']) {
 		window.postMessage('Kall', '*');
