@@ -5,6 +5,7 @@
 /** @return {String} */ Document.prototype.getSelection = function() {};
 /** @type {Object} */ Window.opera;
 /** @type {Object} */ Window.opera.scriptStorage; 
+/** @return {String} */ Window.opera.version = function() {};
 
 /**
  * @param {String} html
