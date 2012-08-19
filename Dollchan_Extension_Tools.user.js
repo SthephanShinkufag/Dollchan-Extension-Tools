@@ -6546,10 +6546,10 @@ function getImageboard() {
 		aib.fch ? 'fileText' :
 		aib.krau || aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
-	aib.qImgLink = aib.brit ? '.fileinfo' : (
-		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".png"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo + ' ') + 'a[href$=".gif"]' + (aib.nul ? ':first-child' : '')
+	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]' + (aib.nul ? ':first-child,' : ',') +
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]' + (aib.nul ? ':first-child' : '')
 	);
 	aib.qPostForm =
 		aib.gazo ? 'form:nth-of-type(1)' :
