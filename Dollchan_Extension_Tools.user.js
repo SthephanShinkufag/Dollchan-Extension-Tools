@@ -612,7 +612,7 @@ function fixFunctions() {
 				}
 				xhr = obj = null;
 			};
-			xhr.open(obj.method, obj.url, true);
+			xhr.open(obj['method'], obj['url'], true);
 			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 			for(h in obj['headers']) {
 				xhr.setRequestHeader(h, obj['headers'][h]);
@@ -2135,8 +2135,7 @@ function selectImgSearch(node) {
 		});
 	}
 	addSelMenu(
-		node, false,
-		'<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
+		node, false, '<a class="DESU_srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
 			'<a class="DESU_srcTineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="DESU_srcGoogle" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
 			'<a class="DESU_srcSaucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
@@ -3348,7 +3347,7 @@ function prepareCFeatures() {
 		case 'H': addSpell('#sage'); return;
 		case 'I':
 			$del($id('DESU_favWait'));
-			doc.getElementById('DESU_favIframe').style.height = data + 'px';
+			$id('DESU_favIframe').style.height = data + 'px';
 			return;
 		case 'J':
 			temp = data.split('$#$');
@@ -4304,7 +4303,7 @@ function getAjaxPview(b, pNum) {
 		return el;
 	}
 	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
-	for(nodes = el.getElementsByTagName('a'), i = nodes.length - 1; i >= 0; i--) {
+	for(nodes = $T('a'), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
 		}
@@ -6218,12 +6217,12 @@ function checkForUpdates(isForce, Fn) {
 	if(!isForce && temp !== 0) {
 		day = 2 * 1000 * 60 * 60 * 24;
 		switch(temp) {
-			case 1: temp = day; break;
-			case 2: temp = day * 2; break;
-			case 3: temp = day * 7; break;
-			case 4: temp = day * 14; break;
-			case 5: temp = day * 30; break;
-			default: return;
+		case 1: temp = day; break;
+		case 2: temp = day * 2; break;
+		case 3: temp = day * 7; break;
+		case 4: temp = day * 14; break;
+		case 5: temp = day * 30; break;
+		default: return;
 		}
 		if(Date.now() - +Cfg['lastScrUpd'] < temp) {
 			return;
@@ -6833,7 +6832,7 @@ function removePageTrash(el) {
 			nav.insAfter(el, '<hr />');
 		}
 	} else if(aib.brit) {
-		el = el.getElementsByClassName('reflink');
+		el = $C('reflink');
 		for(var node, i = el.length - 1; i >= 0; i--) {
 			node = el[i].firstChild;
 			node.onclick = null;
