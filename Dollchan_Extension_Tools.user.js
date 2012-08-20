@@ -6944,11 +6944,6 @@ function initPage() {
 ==============================================================================*/
 
 function doScript() {
-	if(!Date.now) {
-		Date.now = function now() {
-			return +(new Date);
-		};
-	}
 	var initTime = Date.now();
 	oldTime = initTime;
 	if(!isCompatible()) {
