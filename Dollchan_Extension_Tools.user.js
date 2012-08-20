@@ -493,23 +493,6 @@ function $New(tag, attr, nodes) {
 	return el;
 }
 
-function $toDOM(html) {
-	var myDoc, el, first;
-	try {
-		myDoc = (new DOMParser()).parseFromString(html, 'text/html');
-	} catch (e) {}
-	if(!myDoc || !myDoc.body) {
-		myDoc = doc.implementation.createHTMLDocument('');
-		el = myDoc.documentElement;
-		el.innerHTML = html;
-		first = el.firstElementChild;
-		if(el.childElementCount === 1 && first.localName.toLowerCase() === 'html') {
-			myDoc.replaceChild(first, el);
-		}
-	}
-	return myDoc;
-}
-
 function $txt(el) {
 	return doc.createTextNode(el);
 }
@@ -2832,7 +2815,7 @@ function ajaxSubmit(dF, Fn) {
 				return
 			}
 			if(xhr.status === 200) {
-				Fn($toDOM(xhr.responseText), xhr.finalUrl);
+				Fn(nav.toDOM(xhr.responseText), xhr.finalUrl);
 				Fn = null;
 			} else {
 				$alert(
@@ -4414,7 +4397,7 @@ function ajaxGetPosts(url, b, tNum, parse, Fn) {
 				return;
 			}
 			if(xhr.status === 200) {
-				var dc = $toDOM(xhr.responseText);
+				var dc = nav.toDOM(xhr.responseText);
 				if(!pr.on && oeForm) {
 					pr = getPostform(doc.importNode($q(aib.qPostForm, dc), true));
 					$before(oeForm, pr.form);
@@ -6459,6 +6442,15 @@ function getNavigator() {
 		} :
 		function(el, cName) {
 			el.classList.add(cName);
+		};
+	nav.toDOM = nav.Firefox >= 12 ?
+		function(html) {
+			return new DOMParser().parseFromString(html, 'text/html');
+		} :
+		function(html) {
+			var myDoc = doc.implementation.createHTMLDocument('');
+			myDoc.documentElement.innerHTML = html;
+			return myDoc;
 		};
 }
 
