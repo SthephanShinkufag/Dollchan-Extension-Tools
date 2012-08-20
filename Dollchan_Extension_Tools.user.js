@@ -1054,7 +1054,7 @@ function readViewedPosts() {
 		viewed.split(',').forEach(function(num) {
 			var post = pByNum[num];
 			if(post) {
-				post.className += ' DESU_viewed';
+				nav.addClass(post, 'DESU_viewed');
 			}
 		});
 	}
@@ -1905,7 +1905,7 @@ function showAlert(el) {
 	}
 	if(nav.Anim) {
 		el.oclassName = el.className;
-		el.className += ' DESU_aOpen';
+		nav.addClass(el, 'DESU_aOpen');
 		return;
 	}
 	var i = 0,
@@ -2199,7 +2199,7 @@ function initKeyNavig() {
 				post = post.thr;
 			}
 			post.oldClassName = post.className;
-			post.className += ' DESU_selected';
+			nav.addClass(post, 'DESU_selected');
 			return mIdx;
 		},
 		scrollDownToPost = function() {
@@ -3912,7 +3912,7 @@ function addFullImg(a, sz, isExp) {
 			'" height="' + newH + '"/>'
 	));
 	if(Cfg['expandImgs'] === 2) {
-		full.className += ' DESU_cFullImg';
+		nav.addClass(full, 'DESU_cFullImg');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(
 			nav.Firefox ? 'DOMMouseScroll' : 'mousewheel',
@@ -3936,7 +3936,7 @@ function addLinkImg(el) {
 		}
 		a = link.cloneNode(false);
 		a.target = '_blank';
-		a.className += ' DESU_preImg';
+		nav.addClass(a, 'DESU_preImg');
 		$disp(a);
 		a.appendChild($new('img', {'src': a.href, 'alt': a.href}, {
 			'load': function() {
@@ -4247,7 +4247,7 @@ function getPview(post, pNum, parent, link, txt) {
 		if(post.isOp) {
 			pView.className = aib.cReply;
 		}
-		pView.className += ' DESU_pView';
+		nav.addClass(pView, 'DESU_pView');
 		if(aib._7ch) {
 			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
@@ -4275,7 +4275,7 @@ function getPview(post, pNum, parent, link, txt) {
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.className.contains('DESU_viewed')) {
-					pst.className += ' DESU_viewed';
+					nav.addClass(pst, 'DESU_viewed');
 				}
 				var arr = (sessionStorage['desu-viewed'] || '').split(',');
 				arr.push(num);
@@ -6453,6 +6453,13 @@ function getNavigator() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
+	nav.addClass = nav.Opera && nav.Opera < 11.5 ?
+		function(el, cName) {
+			el.className += ' ' + cName;
+		} :
+		function(el, cName) {
+			el.classList.add(cName);
+		};
 }
 
 function getPage() {
@@ -6792,7 +6799,7 @@ function tryToParse(node) {
 			if(aib._420 || (aib.tiny && !TNum)) {
 				$after(thr, thr.lastChild);
 			}
-			thr.className += ' DESU_thread';
+			nav.addClass(thr, 'DESU_thread');
 			thr.pCount = len + getOmPosts(thr);
 		});
 		if(liteMode) {
