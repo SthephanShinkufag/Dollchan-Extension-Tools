@@ -1132,7 +1132,7 @@ function addPanel() {
 						initThreadsUpdater();
 					}
 				}, null, null, null)),
-				$if(!nav.Safari && (!nav.Firefox || nav.Firefox > 4) && TNum && Cfg['updThread'] === 1,
+				$if(!nav.Safari && TNum && Cfg['updThread'] === 1,
 					pButton('AudioOff', function(e) {
 						$pd(e);
 						toggleAudioNotif();
@@ -6157,10 +6157,6 @@ function scriptCSS() {
 		x += 'br.clear { display: none !important; }';
 	}
 
-	if(nav.Firefox && nav.Firefox < 4) {
-		x = x.replace(/(border-radius|box-shadow|background-size)/g, '-moz-$1');
-	}
-
 	if(nav.Firefox < 16) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
 		if(!nav.Opera) {
@@ -6350,7 +6346,7 @@ function getNavigator() {
 		nav.WebKit ? '-webkit-' :
 		nav.Opera ? '-o-' :
 		nav.Firefox < 16 ? '-moz-' : '';
-	if(nav.Firefox > 4 || nav.WebKit || nav.Opera >= 12) {
+	if(nav.Firefox || nav.WebKit || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.animName =
 			nav.WebKit ? 'webkitAnimationName' :
@@ -6413,7 +6409,7 @@ function getNavigator() {
 		function(el, html) {
 			el.insertAdjacentHTML('beforebegin', html);
 		};
-	nav.forEach = nav.WebKit || nav.Firefox >= 4 ?
+	nav.forEach = nav.WebKit || nav.Firefox ?
 		function(obj, Fn) {
 			Object.keys(obj).forEach(Fn, obj);
 		} :
