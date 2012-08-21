@@ -6822,12 +6822,8 @@ function replaceDelform(el) {
 function removePageTrash(el) {
 	if(aib.krau) {
 		$del($t('hr', el));
-		if(!liteMode) {
-			$del($t('hr', el.previousElementSibling));
-		}
 	} else if(aib.abu) {
-		el = $c('DESU_thread', el);
-		if(TNum && el) {
+		if(TNum && (el = $c('DESU_thread', el))) {
 			$each($X('following-sibling::node()', el), $del);
 			nav.insAfter(el, '<hr />');
 		}
@@ -6840,8 +6836,7 @@ function removePageTrash(el) {
 			node.target = '_blank';
 		}
 	} else if(aib.ylil) {
-		el = $t('iframe', el);
-		if(el) {
+		if(el = $t('iframe', el)) {
 			$del(el.nextElementSibling);
 			$del(el.nextElementSibling);
 			$del(el);
@@ -6877,6 +6872,8 @@ function initPage() {
 	if(aib.abu) {
 		$del(dForm.nextElementSibling);
 		$del(dForm.nextElementSibling);
+	} else if(aib.krau) {
+		$del($t('hr', dForm.previousElementSibling));
 	}
 	if(TNum) {
 		if(!Cfg['rePageTitle']) {
@@ -6931,8 +6928,7 @@ function initPage() {
 ==============================================================================*/
 
 function doScript() {
-	var initTime = Date.now();
-	oldTime = initTime;
+	var initTime = oldTime = Date.now();
 	if(!isCompatible()) {
 		return;
 	}
