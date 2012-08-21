@@ -6793,7 +6793,10 @@ function tryToParse(node) {
 			$each($X('.//body/node()[not(self::form or @class="threadz")]', doc), $del);
 		}
 	} catch(e) {
-		GM_log('DELFORM ERROR: parser failure!\n' + e);
+		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
+			e.name + ': ' + e.message + '\n' +
+			(nav.Firefox ? e.stack.replace(/^.+?:(\d{1,4})$/gm, '    at line $1') : e.stack)
+		));
 		return false;
 	}
 	node.removeAttribute('id');
