@@ -2805,7 +2805,7 @@ function ajaxSubmit(dF, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': nav.toBlob(dF.data),
+		'data': nav.toBlob(dF.data, null),
 		'url': nav.fixLink(dF.url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -3012,7 +3012,7 @@ dataForm.prototype.readFile = function(el, idx) {
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = nav.toBlob(dat);
+			dF.data[idx] = nav.toBlob(dat, null);
 			dF.busy--;
 		}
 		fr = dF = el = idx = file = null;
@@ -3372,7 +3372,7 @@ function prepareCFeatures() {
 			if(id === "K") {\
 				var mReqs = data === "all" ? 4 : 1, i = mReqs, rjw' +
 				(Cfg['findRarJPEG'] ? '= []; while(i--) rjw.push(new Worker("' +
-					window.URL.createObjectURL(nav.toBlob(['self.onmessage = ' + String(parsePostImg)]))
+					window.URL.createObjectURL(nav.toBlob(['self.onmessage = ' + String(parsePostImg)], null))
 				+ '"));' : ';') +
 				'preloadImages(data, mReqs, rjw);\
 				return;\
@@ -3394,12 +3394,20 @@ function prepareCFeatures() {
 						}\
 						return;\
 					}\
-					var xhr, eImg = ' + !!Cfg['noImgSpoil'] + ',\
-						a = arr[idx],\
-						url = a.href;\
+					var xhr, url, type, eImg = ' + !!Cfg['noImgSpoil'] + ',\
+						a = arr[idx];\
+					if(!a || !(url = a.href)) {\
+						loadFunc(i++);\
+						return;\
+					}\
 					if(/\.gif$/i.test(url)) {\
 						eImg = ' + !!Cfg['showGIFs'] + ';\
-					} else if(!/\.(?:jpe?g|png)$/i.test(url)) {\
+						type = "image/gif";\
+					} else if(/\.jpe?g$/i.test(url)) {\
+						type = "image/jpeg";\
+					} else if(/\.png$/i.test(url)) {\
+						type = "image/png";\
+					} else {\
 						loadFunc(i++);\
 						return;\
 					}\
@@ -3413,12 +3421,13 @@ function prepareCFeatures() {
 					xhr.responseType = "arraybuffer";\
 					xhr.onload = function() {\
 						if(this.status == 200) {\
+							a.download = url.substring(url.lastIndexOf("/") + 1);\
 							var href = a.href = window.' + (nav.WebKit ? 'webkit' : '') +
-								'URL.createObjectURL(toBlob([this.response]));\
+								'URL.createObjectURL(toBlob([new Uint8Array(this.response)], type));\
 							if(eImg) {\
 								a.getElementsByTagName("img")[0].src = href;\
 							}' + (Cfg['findRarJPEG'] ? 'parseRJ(a);' : '') +
-							'cReq--; loadFunc(i++); a = eImg = null;\
+							'cReq--; loadFunc(i++); a = eImg = url = type = null;\
 						}\
 					};\
 					xhr.send(null);\
@@ -6366,11 +6375,11 @@ function getNavigator() {
 	}
 	nav.visChange = nav.WebKit ? 'webkitvisibilitychange' : 'mozvisibilitychange';
 	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
-		nav.toBlob = function(arr) {
-			return new Blob(arr);
+		nav.toBlob = function(arr, type) {
+			return new Blob(arr, type ? {'type': type} : undefined);
 		};
 	} else if(nav.Firefox > 5) {
-		nav.toBlob = function(arr) {
+		nav.toBlob = function(arr, type) {
 			var i, j, len, len_, out, el, bb = new window.MozBlobBuilder();
 			for(i = 0, len = arr.length; i < len; i++) {
 				el = arr[i]
@@ -6388,7 +6397,7 @@ function getNavigator() {
 					bb.append(el);
 				}
 			}
-			return bb.getBlob();
+			return bb.getBlob(type);
 		};
 	} else {
 		nav.noBlob = true;
@@ -6573,7 +6582,7 @@ function getImageboard() {
 		false;
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
-		aib.tiny ? '.intro > :nth-last-child(2)' :
+		aib.tiny ? '.intro > :last-child' :
 		aib.krau || aib.ylil ? '.postnumber' :
 		aib.gazo ? '.del' :
 		'.reflink';
