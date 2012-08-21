@@ -6376,7 +6376,7 @@ function getNavigator() {
 	nav.visChange = nav.WebKit ? 'webkitvisibilitychange' : 'mozvisibilitychange';
 	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
 		nav.toBlob = function(arr, type) {
-			return new Blob(arr, type ? {'type': type} : undefined);
+			return type ? new Blob(arr, {'type': type}) : new Blob(arr);
 		};
 	} else if(nav.Firefox > 5) {
 		nav.toBlob = function(arr, type) {
@@ -6397,7 +6397,7 @@ function getNavigator() {
 					bb.append(el);
 				}
 			}
-			return bb.getBlob(type);
+			return type ? bb.getBlob(type) : bb.getBlob();
 		};
 	} else {
 		nav.noBlob = true;
