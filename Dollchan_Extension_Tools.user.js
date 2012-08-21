@@ -6784,7 +6784,7 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			if(aib._420 || (aib.tiny && !TNum)) {
+			if(aib._420 || aib.tiny) {
 				$after(thr, thr.lastChild);
 			}
 			nav.addClass(thr, 'DESU_thread');
