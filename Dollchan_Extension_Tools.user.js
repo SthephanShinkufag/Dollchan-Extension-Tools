@@ -1887,7 +1887,9 @@ function showAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		el.oclassName = el.className;
+		nav.animEvent(el, function(node) {
+			nav.remClass(node, 'DESU_aOpen');
+		});
 		nav.addClass(el, 'DESU_aOpen');
 		return;
 	}
@@ -1917,10 +1919,8 @@ function closeAlert(el) {
 		return;
 	}
 	if(nav.Anim) {
-		nav.animEvent(el, function(node) {
-			$del(node);
-		});
-		el.className = el.oclassName + ' DESU_aClose';
+		nav.animEvent(el, $del);
+		nav.addClass(el, 'DESU_aClose');
 		return;
 	}
 	var i = 8,
@@ -1948,9 +1948,9 @@ function blinkAlert(el) {
 	}
 	if(nav.Anim) {
 		nav.animEvent(el, function(node) {
-			node.className = node.oclassName;
+			nav.remClass(node, 'DESU_aBlink');
 		});
-		el.className = el.oclassName + ' DESU_aBlink';
+		nav.addClass(el, 'DESU_aBlink');
 		return;
 	}
 	var i = 6,
@@ -2173,14 +2173,12 @@ function initKeyNavig() {
 						$offset(post).top - window.innerHeight / 2 + post.clientHeight / 2
 				);
 			}
-			idx = $c('DESU_selected', doc);
-			if(idx) {
-				idx.className = idx.oldClassName;
+			if(idx = $c('DESU_selected', doc)) {
+				nav.remClass(idx, 'DESU_selected');
 			}
 			if(post.isOp) {
 				post = post.thr;
 			}
-			post.oldClassName = post.className;
 			nav.addClass(post, 'DESU_selected');
 			return mIdx;
 		},
@@ -4116,6 +4114,7 @@ function closePview(el) {
 		return;
 	}
 	nav.animEvent(el, $del);
+	nav.addClass(el, 'DESU_aPView');
 	el.style[nav.animName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
 
@@ -4143,6 +4142,7 @@ function markPviewToDel(el, delAll) {
 
 function PviewMoved() {
 	if(this.style[nav.animName]) {
+		nav.remClass(pView, 'DESU_aPView');
 		this.style.cssText = this.newPos;
 		this.newPos = false;
 		$$each($C('DESU_moveCSS', doc.head), $del);
@@ -4194,6 +4194,7 @@ function setPviewPosition(link, pView, isAnim) {
 	}
 	pView.newPos = lmw + ' top:' + top + ';';
 	pView.addEventListener(nav.animEnd, PviewMoved, false);
+	nav.addClass(pView, 'DESU_aPView');
 	pView.style[nav.animName] = uId;
 }
 
@@ -4286,8 +4287,10 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	if(Cfg['animation'] && nav.Anim) {
 		nav.animEvent(pView, function(node) {
+			nav.remClass(pView, 'DESU_aPView');
 			node.style[nav.animName] = '';
 		});
+		nav.addClass(pView, 'DESU_aPView');
 		pView.style[nav.animName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
 	return el;
@@ -6048,15 +6051,12 @@ function scriptCSS() {
 			@keyframes DESU_pCloseBL { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@keyframes DESU_pCloseTR { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@keyframes DESU_pCloseBR { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			.DESU_pView { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
+			.DESU_aPView { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
 			.DESU_aOpen { animation: DESU_aOpen .7s ease-out both; }\
 			.DESU_aClose { animation: DESU_aClose .7s ease-in both; }\
 			.DESU_aBlink { animation: DESU_aBlink .7s ease-in-out both; }\
 			.DESU_cfgOpen { animation: DESU_cfgOpen .2s ease-out backwards; }\
 			.DESU_cfgClose { animation: DESU_cfgClose .2s ease-in both; }';
-		if(nav.WebKit) {
-			x += 'body { -webkit-backface-visibility: hidden; }';
-		}
 	}
 
 	// Embedders
@@ -6437,6 +6437,13 @@ function getNavigator() {
 		} :
 		function(el, cName) {
 			el.classList.add(cName);
+		};
+	nav.remClass = nav.Opera && nav.Opera < 11.5 ?
+		function(el, cName) {
+			el.className = el.className.replace(new RegExp('(?:^| )' + cName, 'g'), '');
+		} :
+		function(el, cName) {
+			el.classList.remove(cName);
 		};
 	nav.toDOM = nav.Firefox >= 12 ?
 		function(html) {
