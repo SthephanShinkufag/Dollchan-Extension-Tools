@@ -3142,14 +3142,14 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420,
+	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420 || aib.mlpg,
 		tagTable = {
 			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
 			'Under': [bbBrds ? 'u' : '__', 'U'],
-			'Strike': [bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
-			'Spoil': [aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
-			'Code': [aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
+			'Strike': [aib.mlpg ? '-' : bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
+			'Spoil': [aib.mlpg ? 's' : aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
+			'Code': [aib.mlpg ? 'c' : aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
 			'Quote': [,'&gt;']
 		},
 		txtBtn = function(id) {
@@ -3204,7 +3204,7 @@ function addTextPanel() {
 							end = x.selectionEnd;
 						$pd(e);
 						$txtInsert(x, '> ' + (
-							start === end ? quotetxt: x.value.substring(start, end)
+							start === end ? quotetxt : x.value.substring(start, end)
 						).replace(/\n/gm, '\n> '));
 					};
 				}
@@ -6543,6 +6543,7 @@ function getImageboard() {
 	case '2--ch.ru': aib.tire = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
 	case 'ponychan.net': aib.pony = true; break;
+	case 'mlpg.co': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
 	aib.cReply =
