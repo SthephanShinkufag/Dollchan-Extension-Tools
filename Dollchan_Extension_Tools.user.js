@@ -6771,6 +6771,9 @@ function parseDelform(el, dc, Fn) {
 function tryToParse(node) {
 	try {
 		parseDelform(node, doc, function(thr) {
+			if(aib._420 || aib.tiny) {
+				$after(thr, thr.lastChild);
+			}
 			var i, op = aib.getOp(thr, doc),
 				els = aProto.slice.call(aib.getPosts(thr)),
 				len = els.length;
@@ -6784,9 +6787,6 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			if(aib._420 || aib.tiny) {
-				$after(thr, thr.lastChild);
-			}
 			nav.addClass(thr, 'DESU_thread');
 			thr.pCount = len + getOmPosts(thr);
 		});
