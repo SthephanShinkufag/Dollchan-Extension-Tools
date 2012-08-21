@@ -6393,7 +6393,7 @@ function getNavigator() {
 	} else {
 		nav.noBlob = true;
 	}
-	nav.isH5Rep = !nav.Safari && !nav.noBlob && !aib.nul && !aib.tiny;
+	nav.isH5Rep = !nav.Safari && !nav.noBlob && !aib.nul;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
@@ -6586,7 +6586,7 @@ function getImageboard() {
 	);
 	aib.qPostForm =
 		aib.gazo ? 'form:nth-of-type(1)' :
-		aib.fch ? 'form[name="post"]' :
+		aib.fch || aib.tiny ? 'form[name="post"]' :
 		'#postform';
 	aib.cTitle =
 		aib.krau || aib.ylil ? 'postsubject' :
