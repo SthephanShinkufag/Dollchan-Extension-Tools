@@ -6009,6 +6009,7 @@ function scriptCSS() {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
 			.DESU_btnHide:after { content: "×"; }\
 			.DESU_btnUnhide:after { content: "+"; }\
+			.DESU_btnLock:after { content: "■"; }\
 			.DESU_btnRep:after { content: "R"; }\
 			.DESU_btnExpthr:after { content: "E"; }\
 			.DESU_btnFav:after { content: "F"; }\
