@@ -6751,7 +6751,8 @@ function parseDelform(el, dc, Fn) {
 	}
 	if(Posts.length < 2) {
 		aib.qTable = aib.fch ? $c('replyContainer', el) :
-			$t('table', el) ? (aib.tire ? 'table:not(.postfiles)' : 'table') : false;
+			$q(aib.gazo ? 'table' : 'table td[class*="' + aib.cReply + '"]', el) ?
+			(aib.tire ? 'table:not(.postfiles)' : 'table') : false;
 		aib.getWrap =
 			aib.fch ? function(post) {
 				return post.parentNode;
