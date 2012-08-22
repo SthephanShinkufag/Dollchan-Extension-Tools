@@ -942,6 +942,10 @@ function savePostsVisib() {
 		sessionStorage['desu-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
 			getHidCfg() + ',' + sVis.join('');
 	}
+	if(Cfg['delHiddPost'] === 1) {
+		unmergeHidden();
+		Posts.forEach(mergeHidden);
+	}
 	toggleContent('Hid', true);
 }
 
@@ -1586,7 +1590,8 @@ function addSettings(Set) {
 					addPanel();
 					toggleContent('Cfg', false);
 					if(Cfg['delHiddPost'] === 1) {
-						processHidden(1, 1);
+						unmergeHidden();
+						Posts.forEach(mergeHidden);
 					}
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
@@ -4923,7 +4928,6 @@ function markDel(post) {
 }
 
 function loadNewPosts(isInfo, Fn) {
-	var thr = $c('DESU_thread', dForm);
 	if(isInfo) {
 		$alert(Lng.loading[lang], 'NewP', true);
 	}
@@ -4937,7 +4941,8 @@ function loadNewPosts(isInfo, Fn) {
 				} else {
 					var i, len, post,
 						np = 0,
-						el = (json['result'] || {})['posts'];
+						el = (json['result'] || {})['posts'],
+						thr = $c('DESU_thread', dForm);
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = getHanaPost(el[i]);
@@ -4952,7 +4957,7 @@ function loadNewPosts(isInfo, Fn) {
 				if(Fn) {
 					Fn();
 				}
-				Fn = thr = null;
+				Fn = null;
 			}
 		);
 		return;
@@ -4963,12 +4968,13 @@ function loadNewPosts(isInfo, Fn) {
 			if(Fn) {
 				Fn();
 			}
-			Fn = thr = null;
+			Fn = null;
 			return;
 		}
 		var i, j, el, el_, pNum, np = 0,
 			len = Posts.length,
-			len_ = els.length;
+			len_ = els.length,
+			thr = $c('DESU_thread', dForm);
 		checkBan(Posts[0], op);
 		for(i = 1, j = 0; i < len || j < len_; i++, j++) {
 			el = Posts[i];
@@ -4997,7 +5003,7 @@ function loadNewPosts(isInfo, Fn) {
 		if(Fn) {
 			Fn();
 		}
-		Fn = thr = null;
+		Fn = null;
 	});
 }
 
@@ -5279,6 +5285,18 @@ function mergeHidden(post) {
 		Lng.hiddenPosts[lang] + '</a>:&nbsp;' + el.childNodes.length + '</i>]';
 }
 
+function unmergeHidden() {
+	$$each($Q('.DESU_merged', dForm), function(el) {
+		var px = el.children,
+			i = px.length;
+		while(i--) {
+			$after(el, px[i]);
+		}
+		$del(el.previousSibling);
+		$del(el);
+	});
+}
+
 function processHidden(newCfg, oldCfg) {
 	if(newCfg === 2 || oldCfg === 2) {
 		Posts.forEach(function(post) {
@@ -5288,15 +5306,7 @@ function processHidden(newCfg, oldCfg) {
 		});
 	}
 	if(oldCfg === 1) {
-		$$each($C('DESU_merged', dForm), function(el) {
-			var px = el.childNodes,
-				i = px.length;
-			while(i--) {
-				$after(el, px[i]);
-			}
-			$del(el.previousSibling);
-			$del(el);
-		});
+		unmergeHidden();
 	}
 	if(newCfg === 1) {
 		Posts.forEach(mergeHidden);
@@ -6647,7 +6657,7 @@ function getImageboard() {
 			return $C(aib.cReply, thr);
 		};
 	aib.getOp =
-		(aib.abu || aib.hana || aib.kus || aib.fch) && $c(aib.cOPost, doc) ? function(thr, dc) {
+		aib.abu || aib.hana || aib.fch || (aib.kus && $c(aib.cOPost, doc)) ? function(thr, dc) {
 			return $c(aib.cOPost, thr);
 		} :
 		aib.ylil ? function(thr, dc) {
@@ -6925,7 +6935,7 @@ function initPage() {
 			window.onfocus = onVis;
 			Favico.focused = false;
 			$event(window, {'mousemove': function mouseMove() {
-				Favico.focused = true;
+				onVis();
 				$revent(window, {'mousemove': mouseMove});
 			}});
 		}
@@ -7032,10 +7042,6 @@ function doScript() {
 	$log('readPosts');
 	setPostsVisib();
 	$log('setPostsVisib');
-	if(Cfg['delHiddPost'] === 1) {
-		Posts.forEach(mergeHidden);
-		$log('mergeHidden');
-	}
 	savePostsVisib();
 	$log('savePostsVisib');
 	scriptCSS();
