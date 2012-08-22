@@ -895,7 +895,7 @@ function readCfg() {
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
-		Stat.view = +Stat.view + 1;
+		Stat['view'] = +Stat['view'] + 1;
 	}
 	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
@@ -1527,7 +1527,7 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
-		$add('<span style="width: 170px;"><b>' + Lng.version[lang] + Cfg['version'] + '</b><br><br>' + Lng.storage[lang] + (nav.isGM ? 'Mozilla config' : scriptStorage ? 'Opera ScriptStorage' : 'Local Storage') + '<br>' + Lng.thrViewed[lang] + Stat.view + '<br>' + Lng.thrCreated[lang] + Stat.op + '<br>' + Lng.pstSended[lang] + Stat.reply + '</span>'),
+		$add('<span style="width: 170px;"><b>' + Lng.version[lang] + Cfg['version'] + '</b><br><br>' + Lng.storage[lang] + (nav.isGM ? 'Mozilla config' : scriptStorage ? 'Opera ScriptStorage' : 'Local Storage') + '<br>' + Lng.thrViewed[lang] + Stat['view'] + '<br>' + Lng.thrCreated[lang] + Stat['op'] + '<br>' + Lng.pstSended[lang] + Stat['reply'] + '</span>'),
 		$add('<span style="padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
 			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts</a></span>'),
@@ -2133,7 +2133,7 @@ function selectImgSearch(node) {
 		c = c.split(';');
 		c.forEach(function(el) {
 			var info = el.split(',');
-			str += '<a class="DESU_src' + info[0] + (info[1] === '' ?
+			str += '<a class="DESU_src' + info[0] + (!info[1] ?
 				'" onclick="DESU_cImgSearch(event, \'' + info[0] + '\')" href="#" desu-url="' :
 				'" href="' + info[1]
 			) + p + info[0] + '</a>';
@@ -2413,7 +2413,7 @@ function doPostformChanges(img, m, el) {
 		if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
 			val = replaceBySpells(oSpells.outrep, val);
 		}
-		if(Cfg['userSignat'] && sVal !== '') {
+		if(Cfg['userSignat'] && sVal) {
 			val += '\n' + sVal;
 		}
 		if(pr.tNum && ($c('filetitle', pByNum[pr.tNum]) || {}).textContent ===
@@ -2430,11 +2430,11 @@ function doPostformChanges(img, m, el) {
 			toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
 		}
 		if(pr.tNum) {
-			Stat.reply = +Stat.reply + 1;
+			Stat['reply'] = +Stat['reply'] + 1;
 		} else {
-			Stat.op = +Stat.op + 1;
+			Stat['op'] = +Stat['op'] + 1;
 		}
-		if(pr.video && (val = pr.video.value) !== '' && (val = val.match(getTubePattern()))) {
+		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
 			pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 		}
 		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
@@ -2700,7 +2700,7 @@ function findSubmitError(dc) {
 				txt = xp.innerHTML.replace(/<br.*/i, '');
 			}
 		}
-		err = txt !== '' ? txt : Lng.error[lang] + '\n' + dc.body.innerHTML;
+		err = txt ? txt : Lng.error[lang] + '\n' + dc.body.innerHTML;
 		txt = null;
 		if(/обновл|successful!|uploaded!/i.test(err)) {
 			err = '';
@@ -2722,7 +2722,7 @@ function endUpload() {
 
 function checkUpload(err, url) {
 	var tNum, file, qArea;
-	if(err !== '') {
+	if(err) {
 		if(pr.isQuick) {
 			$disp(qArea = $id('DESU_qarea'));
 			qArea.appendChild($id('DESU_pform'));
@@ -3178,7 +3178,7 @@ function addTextPanel() {
 							tag1 = tag2 = tag;
 						}
 						while(i--) {
-							if(tag1 === '') {
+							if(!tag1) {
 								j = text[i].trim().length;
 								while(j--) {
 									tag2 += '^H';
@@ -5364,7 +5364,7 @@ function findSameText(post, oNum, oVis, oWords) {
 function hideBySameText(post) {
 	var wrds, vis = post.Vis,
 		text = getText(post);
-	if(text !== '') {
+	if(text) {
 		wrds = getWrds(text);
 		Posts.forEach(function(target) {
 			findSameText(target, post.Num, vis, wrds);
@@ -5519,7 +5519,7 @@ function replaceBySpells(arr, txt) {
 }
 
 function getImgSpell(imgW, imgH, imgK, exp) {
-	if(exp === '') {
+	if(!exp) {
 		return false;
 	}
 	var x, expW, expH, s = exp.split('@'),
@@ -5528,7 +5528,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 	if(!expK[1]) {
 		expK[1] = expK[0];
 	}
-	if(expK[0] !== '') {
+	if(expK[0]) {
 		if(
 			(stat === '<' && imgK < +expK[0]) ||
 			(stat === '>' && imgK > +expK[0]) ||
@@ -5623,7 +5623,7 @@ function getSpells(x, post) {
 		for(i = 0; t = x.name[i++];) {
 			_t = t;
 			t = t.split(/!+/);
-			if(t[0] !== '' && pName.contains(t[0]) || t[1] !== '' && pTrip.contains(t[1])) {
+			if(t[0] && pName.contains(t[0]) || t[1] && pTrip.contains(t[1])) {
 				return '#name ' + _t;
 			}
 		}
@@ -5677,7 +5677,7 @@ function getSpells(x, post) {
 	if(x.sage && aib.getSage(post)) {
 		return '#sage';
 	}
-	if(x.notxt && pText === '') {
+	if(x.notxt && !pText) {
 		return '#no text';
 	}
 	if(x.noimg && post.Img.length === 0) {
@@ -5706,7 +5706,7 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
-	if(txt === '') {
+	if(!txt) {
 		return true;
 	}
 	txt = txt.split('\n');
@@ -5742,7 +5742,7 @@ function toggleSpells() {
 	var fld = $id('DESU_spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	if(verifyRegExp(val)) {
-		if(val !== '') {
+		if(val) {
 			$alert(Lng.error[lang] + ' ' + wrong, 'ErrSpell', false);
 		} else {
 			disableSpells();
@@ -5772,7 +5772,7 @@ function addSpell(spell) {
 		val = spellsList.join('\n');
 	}
 	if(!('\n' + val).contains('\n' + spell)) {
-		val = val === '' ? spell : val + '\n' + spell;
+		val = !val ? spell : val + '\n' + spell;
 		if(verifyRegExp(val)) {
 			$alert(Lng.error[lang] + ' ' + wrong, 'ErrSpell', false);
 			return;
@@ -5782,11 +5782,11 @@ function addSpell(spell) {
 	}
 	if(fld) {
 		fld.value = val;
-		fld.previousSibling.firstChild.checked = val !== '';
+		fld.previousSibling.firstChild.checked = !!val;
 	}
 	disableSpells();
 	saveSpells(val);
-	if(val !== '') {
+	if(val) {
 		saveCfg('hideBySpell', 1);
 		Posts.forEach(hideBySpells);
 		hideByTube();
@@ -5816,7 +5816,7 @@ function detectWipeText(txt) {
 				while(arr[i++] === x) {
 					j++;
 				}
-				if(j > 4 && j > n && x !== '') {
+				if(j > 4 && j > n && x) {
 					return 'same lines: "' + x.substr(0, 20) + '" x' + j;
 				}
 			}
