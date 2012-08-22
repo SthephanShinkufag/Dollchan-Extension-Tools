@@ -3239,7 +3239,7 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.on || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -6500,6 +6500,7 @@ function getPostform(form) {
 	return {
 		on: true,
 		isQuick: false,
+		qButton: !aib.tiny || !!TNum,
 		tNum: TNum,
 		form: form,
 		tr: 'ancestor::' + tr + '[1]',
