@@ -1367,8 +1367,8 @@ function getCfgPosts() {
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
 		$if(!nav.noBlob, lBox('preLoadImgs', true, null)),
-		$if(aib.rJpeg && !nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('findRarJPEG', true, null),
+		$if(!nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+			$if(aib.rJpeg, lBox('findRarJPEG', true, null)),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
 		])),
