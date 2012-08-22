@@ -525,8 +525,7 @@ function $offset(el) {
 }
 
 function $getStyle(el, prop) {
-	var dv = doc.defaultView;
-	return dv && dv.getComputedStyle ? dv.getComputedStyle(el, '').getPropertyValue(prop) : '';
+	return getComputedStyle(el).getPropertyValue(prop);
 }
 
 function $focus(el) {
