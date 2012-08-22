@@ -10,6 +10,7 @@
 // @include			*
 // ==/UserScript==
 
+(function(scriptStorage) {
 'use strict';
 var defaultCfg = {
 	'version':	'12.8.13.2',
@@ -352,7 +353,7 @@ Lng = {
 	infoDebug:		['Информация для отладки', 'Information for debugging']
 },
 
-doc = window.document, aProto = Array.prototype, scriptStorage,
+doc = window.document, aProto = Array.prototype,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper,
@@ -7043,6 +7044,7 @@ function doScript() {
 }
 
 if(window.opera) {
-	scriptStorage = window.opera.scriptStorage;
 	$event(doc, {'DOMContentLoaded': doScript});
 } else doScript();
+
+})(window.opera && window.opera.scriptStorage);
