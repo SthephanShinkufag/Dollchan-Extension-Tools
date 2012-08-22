@@ -5,6 +5,7 @@
 /** @return {String} */ Document.prototype.getSelection = function() {};
 /** @type {Object} */ Window.opera;
 /** @type {Object} */ Window.opera.scriptStorage; 
+/** @return {String} */ Window.opera.version = function() {};
 
 /**
  * @param {String} html
@@ -18,6 +19,13 @@ Document.prototype.implementation.createHTMLDocument = function(html) {};
  * @nosideeffects
  */
 String.prototype.contains = function(string, start_index) {};
+/**
+ * @param {String} string
+ * @param {number=} start_index
+ * @return {Boolean}
+ * @nosideeffects
+ */
+String.prototype.endsWith = function(string, start_index) {};
 /**
  * @param {Function|string} callback
  * @param {number} delay
