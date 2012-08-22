@@ -6492,7 +6492,7 @@ function getPage() {
 }
 
 function getPostform(form) {
-	if(!form) {
+	if(!form || aib.abu && $c('locked', form)) {
 		return {};
 	}
 	var tr = aib._7ch ? 'li' : 'tr',
