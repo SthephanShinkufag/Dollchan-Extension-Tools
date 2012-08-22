@@ -6639,6 +6639,9 @@ function getImageboard() {
 		aib.gazo ? function(thr) {
 			return $Q('td:nth-child(2)', thr);
 		} :
+		aib.tiny ? function(thr) {
+			return $C('reply', thr);
+		} :
 		function(thr) {
 			return $C(aib.cReply, thr);
 		};
@@ -6791,6 +6794,7 @@ function tryToParse(node) {
 		parseDelform(node, doc, function(thr) {
 			if(aib._420 || aib.tiny) {
 				$after(thr, thr.lastChild);
+				$del($c('clear', thr));
 			}
 			var i, op = aib.getOp(thr, doc),
 				els = aProto.slice.call(aib.getPosts(thr)),
