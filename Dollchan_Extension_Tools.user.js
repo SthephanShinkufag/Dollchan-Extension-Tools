@@ -6936,7 +6936,7 @@ function initPage() {
 			window.onfocus = onVis;
 			Favico.focused = false;
 			$event(window, {'mousemove': function mouseMove() {
-				onVis();
+				Favico.focused = true;
 				$revent(window, {'mousemove': mouseMove});
 			}});
 		}
