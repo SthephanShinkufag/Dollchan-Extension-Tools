@@ -6830,7 +6830,9 @@ function tryToParse(node) {
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
 			e.name + ': ' + e.message + '\n' +
-			(nav.Firefox ? e.stack.replace(/^.+?:(\d{1,4})$/gm, '    at line $1') : e.stack)
+			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
+				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
+			}) : e.stack)
 		));
 		return false;
 	}
@@ -6866,7 +6868,7 @@ function removePageTrash(el) {
 			nav.insAfter(el, '<hr />');
 		}
 	} else if(aib.brit) {
-		el = $C('reflink');
+		el = $C('reflink', el);
 		for(var node, i = el.length - 1; i >= 0; i--) {
 			node = el[i].firstChild;
 			node.onclick = null;
