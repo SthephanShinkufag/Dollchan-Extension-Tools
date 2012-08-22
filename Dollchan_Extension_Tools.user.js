@@ -6752,7 +6752,8 @@ function parseDelform(el, dc, Fn) {
 	if(Posts.length < 2) {
 		aib.qTable = aib.fch ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
-			!aib.tiny && aib.gazo || $q('td.' + aib.cReply, el) ? 'table' :
+			aib.brit ? 'div[id^="replies"] > table' :
+			!aib.tiny && aib.gazo || ($c(aib.cReply, el) || {}).tagName === 'TD' ? 'table' :
 			false;
 		aib.getWrap =
 			aib.fch ? function(post) {
@@ -6765,9 +6766,7 @@ function parseDelform(el, dc, Fn) {
 				return post;
 			};
 		if(aib.qTable) {
-			postWrapper = aib.fch ? aib.qTable :
-				$q(aib.brit ? 'div[id^="replies"] > table' : aib.qTable, el);
-			if(dc !== doc && postWrapper) {
+			if((postWrapper = aib.fch ? aib.qTable : $q(aib.qTable, el)) && dc !== doc) {
 				postWrapper = doc.importNode(postWrapper, true);
 			}
 		}
