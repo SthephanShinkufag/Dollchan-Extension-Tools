@@ -677,7 +677,7 @@ function getThrdUrl(h, b, tNum) {
 function getPageUrl(h, b, p) {
 	return fixBrd(b) + (
 		p > 0 ? (p + docExt) :
-		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? ('index' + docExt) :
+		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? 'index.xhtml' :
 		''
 	);
 }
