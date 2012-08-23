@@ -5075,6 +5075,7 @@ function doPostFilters(post) {
 	if(note) {
 		setPostVisib(post, sVis[post.Count] = 0, note);
 		hideByRef(post);
+		post.Btns.firstChild.className = 'DESU_btnUnhide';
 	} else {
 		sVis[post.Count] = 1;
 	}
