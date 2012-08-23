@@ -27,7 +27,7 @@ var defaultCfg = {
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'menuHiddBtn':	1,		// menu on hide button
 	'viewHiddNum':	1,		// view hidden on postnumber
-	'delHiddPost':	0,		// delete hidden posts [0=off, 1=merge, 2=full hide]
+	'delHiddPost':	0,		// delete hidden posts
 	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
 	'updThrDelay':	60,		//		threads update interval in sec
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
@@ -113,10 +113,7 @@ Lng = {
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'viewHiddNum':	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
-		'delHiddPost': {
-			sel:		[['Не изменять', 'Объединять', 'Удалять'], ['Skip', 'Merge', 'Delete']],
-			txt:		['скрытые посты', 'hidden posts']
-		},
+		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
 
 		'updThread': {
 			sel:		[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
@@ -941,10 +938,6 @@ function savePostsVisib() {
 		sessionStorage['desu-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
 			getHidCfg() + ',' + sVis.join('');
 	}
-	if(Cfg['delHiddPost'] === 1) {
-		unmergeHidden();
-		Posts.forEach(mergeHidden);
-	}
 	toggleContent('Hid', true);
 }
 
@@ -1341,9 +1334,13 @@ function getCfgFilters() {
 		lBox('hideRefPsts', true, null),
 		lBox('menuHiddBtn', true, null),
 		lBox('viewHiddNum', true, null),
-		optSel('delHiddPost', true, function() {
-			processHidden(this.selectedIndex, Cfg['delHiddPost']);
-			saveCfg('delHiddPost', this.selectedIndex);
+		lBox('delHiddPost', true, function() {
+			Posts.forEach(function(post) {
+				if(post.Vis === 0 && !post.isOp) {
+					$disp(aib.getWrap(post));
+				}
+			});
+			updateCSS();
 		})
 	]);
 }
@@ -1588,10 +1585,6 @@ function addSettings(Set) {
 					$del($id('DESU_panelStuff'));
 					addPanel();
 					toggleContent('Cfg', false);
-					if(Cfg['delHiddPost'] === 1) {
-						unmergeHidden();
-						Posts.forEach(mergeHidden);
-					}
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(parseCfg('DESU_GlobalCfg')) {
@@ -4469,9 +4462,6 @@ function addPostFunc(post) {
 	addLinkTube(post);
 	addLinkImg(post);
 	addImgSearch(post);
-	if(Cfg['delHiddPost'] === 1) {
-		mergeHidden(post);
-	}
 	if(isExpImg) {
 		expandAllPostImg(post, null);
 	}
@@ -4705,9 +4695,6 @@ function loadPages(len) {
 				eventRefLink(dForm);
 				readPostsVisib();
 				setPostsVisib();
-				if(Cfg['delHiddPost'] === 1) {
-					Posts.forEach(mergeHidden);
-				}
 				savePostsVisib();
 				if(isExpImg) {
 					Posts.forEach(function(post) {
@@ -5173,7 +5160,7 @@ function setPostVisib(post, vis, note) {
 			post.thr.Vis = vis;
 		}
 	} else {
-		if(Cfg['delHiddPost'] === 2) {
+		if(Cfg['delHiddPost']) {
 			(aib.getWrap(post) || post).style.display = vis === 0 ? 'none' : '';
 		} else {
 			if(el = $c('DESU_postNote', post)) {
@@ -5253,61 +5240,6 @@ function setUserPostVisib(post, vis) {
 	}
 	uVis[num][0] = vis;
 	uVis[num][1] = Date.now();
-}
-
-function mergeHidden(post) {
-	if(post.Vis !== 0 || post.isOp) {
-		return;
-	}
-	post = aib.getWrap(post);
-	var el = post.previousElementSibling;
-	if(!el) {
-		return;
-	}
-	if(el.className !== 'DESU_merged') {
-		$before(post, $new('span', {'style': 'display: inline; cursor: pointer;'}, {'click': function(e) {
-			$pd(e);
-			var hSpan = this.nextSibling;
-			this.innerHTML = (hSpan.style.display === 'none' ? '▼' : '▲') +
-				'[<i><a href="#">' + Lng.hiddenPosts[lang] +
-				'</a>:&nbsp;' + hSpan.childNodes.length + '</i>]';
-			$disp(hSpan);
-		}}));
-		nav.insBefore(post, '<span class="DESU_merged" style="display: none;"></span>');
-		el = post.previousSibling;
-	}
-	el.appendChild(post);
-	el.previousSibling.innerHTML = '▲[<i><a href="#">' +
-		Lng.hiddenPosts[lang] + '</a>:&nbsp;' + el.childNodes.length + '</i>]';
-}
-
-function unmergeHidden() {
-	$$each($Q('.DESU_merged', dForm), function(el) {
-		var px = el.children,
-			i = px.length;
-		while(i--) {
-			$after(el, px[i]);
-		}
-		$del(el.previousSibling);
-		$del(el);
-	});
-}
-
-function processHidden(newCfg, oldCfg) {
-	if(newCfg === 2 || oldCfg === 2) {
-		Posts.forEach(function(post) {
-			if(post.Vis === 0 && !post.isOp) {
-				$disp(aib.getWrap(post));
-			}
-		});
-	}
-	if(oldCfg === 1) {
-		unmergeHidden();
-	}
-	if(newCfg === 1) {
-		Posts.forEach(mergeHidden);
-	}
-	updateCSS();
 }
 
 /*--------------------------Hide posts with similar text----------------------*/
@@ -6201,7 +6133,7 @@ function updateCSS() {
 		x+= '.DESU_preImg > img, .DESU_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
 			.DESU_preImg > img:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
 	}
-	if(Cfg['delHiddPost'] === 2) {
+	if(Cfg['delHiddPost']) {
 		x += 'div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }';
 	}
 	if(Cfg['noPostNames']) {
