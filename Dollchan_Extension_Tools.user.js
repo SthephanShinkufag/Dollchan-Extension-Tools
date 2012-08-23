@@ -643,12 +643,12 @@ function getText(el) {
 }
 
 function getImgWeight(post) {
-	var inf = $c(aib.cFileInfo, post).textContent.match(/\d+[\.\d\s|m|k|к]*[b|б]/i)[0],
-		w = parseFloat(inf.match(/[\d|\.]+/));
+	var inf = $c(aib.cFileInfo, post).textContent.match(/\d+[\.\d\smkк]*[bб]/i)[0],
+		w = parseFloat(inf.match(/[\d\.]+/));
 	if(/MB/.test(inf)) {
 		w = w * 1e3;
 	}
-	if(/\d[\s]*B/.test(inf)) {
+	if(/\d\s*B/.test(inf)) {
 		w = (w / 1e3).toFixed(2);
 	}
 	return +w;
