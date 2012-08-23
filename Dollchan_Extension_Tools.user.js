@@ -678,26 +678,21 @@ function checkHost(host, domain) {
 
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		checkHost(h, 'krautchan.net') ? 'thread-' :
-		checkHost(h, 'ylilauta.org') ? '' :
-		'res/'
+		checkHost(h, 'krautchan.net') ? 'thread-' : 'res/'
 	) + tNum + (
 		checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? '.xhtml' :
 		checkHost(h, '2chan.net') ? '.htm' :
 		checkHost(h, '420chan.org') ? '.php' :
-		checkHost(h, 'ylilauta.org') ? '' :
 		'.html'
 	);
 }
 
 function getPageUrl(h, b, p) {
-	return checkHost(h, 'ylilauta.org') ?
-		('/' + b + (p === 1 ? '/' : '-' + p)) :
-		(fixBrd(b) + (
-			p > 0 ? (p + docExt) :
-			checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? ('index' + docExt) :
-			''
-		));
+	return fixBrd(b) + (
+		p > 0 ? (p + docExt) :
+		checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? ('index' + docExt) :
+		''
+	);
 }
 
 function getPrettyJSON(obj, indent) {
@@ -1031,8 +1026,8 @@ function toggleFavorites(post, btn) {
 function readViewedPosts() {
 	var viewed = sessionStorage['desu-viewed'];
 	if(viewed) {
-		viewed.split(',').forEach(function(num) {
-			var post = pByNum[num];
+		viewed.split(',').forEach(function(pNum) {
+			var post = pByNum[pNum];
 			if(post) {
 				nav.addClass(post, 'DESU_viewed');
 			}
@@ -5227,7 +5222,7 @@ function unhidePost(post) {
 }
 
 function setUserPostVisib(post, vis) {
-	var num = post.Num;
+	var pNum = post.Num;
 	setPostVisib(post, vis, null);
 	post.Btns.firstChild.className = 'DESU_btnLock';
 	if(vis === 0) {
@@ -5235,11 +5230,11 @@ function setUserPostVisib(post, vis) {
 	} else {
 		unhideByRef(post);
 	}
-	if(!uVis[num]) {
-		uVis[num] = new Array(2);
+	if(!uVis[pNum]) {
+		uVis[pNum] = new Array(2);
 	}
-	uVis[num][0] = vis;
-	uVis[num][1] = Date.now();
+	uVis[pNum][0] = vis;
+	uVis[pNum][1] = Date.now();
 }
 
 /*--------------------------Hide posts with similar text----------------------*/
