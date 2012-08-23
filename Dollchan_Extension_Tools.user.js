@@ -533,10 +533,6 @@ function $pd(e) {
 	e.preventDefault();
 }
 
-function $rnd() {
-	return Math.round(Math.random() * 1e10).toString(10);
-}
-
 function $txtInsert(el, txt) {
 	var scrtop = el.scrollTop,
 		start = el.selectionStart;
@@ -2287,7 +2283,7 @@ function refreshCapSrc(src, tNum) {
 	if(tNum > 0) {
 		src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
 	}
-	return src.replace(/dummy=\d*/, 'dummy=' + $rnd());
+	return src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
 }
 
 function refreshCapImg(tNum) {
@@ -2494,7 +2490,7 @@ function doPostformChanges(img, m, el) {
 					aib._410 ? ('/faptcha.php?board=' + brd) :
 						aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
 						aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
-						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + $rnd()),
+						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
 					TNum || 0
 				)}, {
 				'click': function() {
