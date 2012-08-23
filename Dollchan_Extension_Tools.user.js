@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.13.2
+// @version			12.8.23.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.8.13.2',
+	'version':	'12.8.23.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -665,11 +665,11 @@ function fixBrd(b) {
 
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		h === 'krautchan.net' ? 'thread-' : 'res/'
+		/(?:^|\.)krautchan\.net$/.test(h) ? 'thread-' : 'res/'
 	) + tNum + (
-		h === 'dobrochan.ru' || h === 'dobrochan.org' || h === 'tenhou.ru' ? '.xhtml' :
+		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? '.xhtml' :
 		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
-		h === '2chan.net' ? '.htm' :
+		/(?:^|\.)2chan\.net$/.test(h) ? '.htm' :
 		'.html'
 	);
 }
@@ -677,7 +677,7 @@ function getThrdUrl(h, b, tNum) {
 function getPageUrl(h, b, p) {
 	return fixBrd(b) + (
 		p > 0 ? (p + docExt) :
-		h === 'dobrochan.ru' || h === 'dobrochan.org' || h === 'tenhou.ru' ? ('index' + docExt) :
+		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? ('index' + docExt) :
 		''
 	);
 }
