@@ -6471,7 +6471,8 @@ function getNavigator() {
 }
 
 function getPage() {
-	var url = (window.location.pathname || '').match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
+	var url = (window.location.pathname || '')
+		.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	res = aib.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
@@ -6572,7 +6573,7 @@ function getImageboard() {
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qTNum =
 		aib.gazo || aib.tiny ? 'input[type="checkbox"]' :
-		(aib.waka && !aib.abu) || aib.brit ? 'a[name]' :
+		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
 		false;
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
@@ -6623,9 +6624,7 @@ function getImageboard() {
 		aib.krau ? function(el) {
 			return el.parentNode;
 		} :
-		function(el) {
-			return $x('ancestor::*[@desu-post]', el);
-		};
+		getPost;
 	aib.getPosts =
 		aib.gazo ? function(thr) {
 			return $Q('td:nth-child(2)', thr);
