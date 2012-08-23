@@ -2372,7 +2372,7 @@ function initPostform() {
 	}
 	nav.insAfter(pArea, '<div id="DESU_qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 	if(pr.on) {
-		doPostformChanges(null, null);
+		doPostformChanges(null, null, null);
 	} else if(oeForm) {
 		ajaxGetPosts(null, brd, Posts[0].Num, false, doPostformChanges);
 	}
@@ -4318,7 +4318,7 @@ function getAjaxPview(b, pNum) {
 		return el;
 	}
 	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
-	for(nodes = $T('a'), i = nodes.length - 1; i >= 0; i--) {
+	for(nodes = $T('a', doc), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
 		}
@@ -6793,7 +6793,6 @@ function parseDelform(el, dc, Fn) {
 				pThr = thr;
 				node = thr.nextSibling;
 			}
-			return;
 		}
 	}
 	$$each(thrds, Fn);
