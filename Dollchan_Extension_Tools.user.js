@@ -1760,14 +1760,11 @@ function addHiddenTable(hid) {
 	$append(el, [
 		$add('<hr />'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-			$disp($attr($t('textarea', this.parentNode), {
-				'value': getPrettyJSON(hThrds, '')
-			}).parentNode);
+			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(hThrds, '')}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$$each($C('DESU_contData', this.parentNode), function(el) {
-				var i,
-					arr = el.getAttribute('info').split(';'),
+				var i, arr = el.getAttribute('info').split(';'),
 					b = arr[0],
 					tNum = arr[1];
 				if($t('input', el).checked) {
@@ -1833,9 +1830,7 @@ function addFavoritesTable(fav) {
 	$append(fav, [
 		$new('hr', null, null),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-			$disp($attr($t('textarea', this.parentNode), {
-				'value': getPrettyJSON(Favor, '')
-			}).parentNode);
+			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(Favor, '')}).parentNode);
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 			$$each($C('DESU_contData', this.parentNode), function(el) {
@@ -1855,6 +1850,9 @@ function addFavoritesTable(fav) {
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			$$each($C('DESU_contData', this.parentNode), function(el) {
 				var arr = el.getAttribute('info').split(';');
+				if(nav.Opera && arr[0] !== aib.host) {
+					return;
+				}
 				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, false, function(a, dc, err) {
 					if(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
