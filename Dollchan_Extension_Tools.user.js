@@ -3537,6 +3537,9 @@ dateTime.prototype.fix = function(txt) {
 					/дек|dec/i.test(a) && 11
 			);
 		}
+		if(!(year && month && day && hour && minute)) {
+			return;
+		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + diff);
 		return tRPat
