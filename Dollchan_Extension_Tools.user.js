@@ -667,7 +667,7 @@ function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
 		h === 'krautchan.net' ? 'thread-' : 'res/'
 	) + tNum + (
-		/^(?:dobrochan\.|tenhou\.ru$)/.test(h) ? '.xhtml' :
+		h === 'dobrochan.ru' || h === 'dobrochan.org' || h === 'tenhou.ru' ? '.xhtml' :
 		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
 		h === '2chan.net' ? '.htm' :
 		'.html'
@@ -677,7 +677,7 @@ function getThrdUrl(h, b, tNum) {
 function getPageUrl(h, b, p) {
 	return fixBrd(b) + (
 		p > 0 ? (p + docExt) :
-		/^(?:dobrochan\.|tenhou\.ru$)/.test(h) ? ('index' + docExt) :
+		h === 'dobrochan.ru' || h === 'dobrochan.org' || h === 'tenhou.ru' ? ('index' + docExt) :
 		''
 	);
 }
