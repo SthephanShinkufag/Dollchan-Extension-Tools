@@ -580,11 +580,6 @@ function fixFunctions() {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
 		};
-		String.prototype.endsWith = function(s) {
-			var t = String(s),
-				index = this.lastIndexOf(t);
-			return index !== -1 && index === this.length - t.length;
-		};
 	}
 	if(!window.GM_log) {
 		window.GM_log = function(msg) {
@@ -670,11 +665,11 @@ function fixBrd(b) {
 
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		/(?:^|\.)krautchan\.net$/.test(h) ? 'thread-' : 'res/'
+		h === 'krautchan.net' ? 'thread-' : 'res/'
 	) + tNum + (
-		/(?:^|\.)(?:dobrochan\.|tenhou\.ru)/.test(h) ? '.xhtml' :
-		/(?:^|\.)2chan\.net$/.test(h) ? '.htm' :
+		/^(?:dobrochan\.|tenhou\.ru$)/.test(h) ? '.xhtml' :
 		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
+		h === '2chan.net' ? '.htm' :
 		'.html'
 	);
 }
@@ -682,7 +677,7 @@ function getThrdUrl(h, b, tNum) {
 function getPageUrl(h, b, p) {
 	return fixBrd(b) + (
 		p > 0 ? (p + docExt) :
-		/(?:^|\.)(?:dobrochan\.|tenhou\.ru)/.test(h) ? ('index' + docExt) :
+		/^(?:dobrochan\.|tenhou\.ru$)/.test(h) ? ('index' + docExt) :
 		''
 	);
 }
