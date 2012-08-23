@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.23.0
+// @version			12.8.23.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 (function(scriptStorage) {
 'use strict';
 var defaultCfg = {
-	'version':	'12.8.23.0',
+	'version':	'12.8.23.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -3465,7 +3465,7 @@ function dateTime(pattern, diff) {
 }
 
 dateTime.toggleSettings = function(el) {
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['timeOffset']) || this.checkPattern(Cfg['timePattern']))) {
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['timeOffset']) || dateTime.checkPattern(Cfg['timePattern']))) {
 		$alert(Lng.cTimeError[lang], 'TimeErr', false);
 		saveCfg('correctTime', 0);
 		el.checked = false;
@@ -3473,7 +3473,7 @@ dateTime.toggleSettings = function(el) {
 };
 
 dateTime.checkPattern = function(val) {
-	return /[^\?\-\+sihdmwny]|mm|ww/.test(val);
+	return /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
 dateTime.prototype.init = function(txt) {
