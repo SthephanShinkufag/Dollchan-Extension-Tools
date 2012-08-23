@@ -672,17 +672,13 @@ function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
 }
 
-function checkHost(host, domain) {
-	return host === domain || host.endsWith('.' + domain);
-}
-
 function getThrdUrl(h, b, tNum) {
 	return '//' + h + fixBrd(b) + (
-		checkHost(h, 'krautchan.net') ? 'thread-' : 'res/'
+		/(?:^|\.)krautchan\.net$/.test(h) ? 'thread-' : 'res/'
 	) + tNum + (
-		checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? '.xhtml' :
-		checkHost(h, '2chan.net') ? '.htm' :
-		checkHost(h, '420chan.org') ? '.php' :
+		/(?:^|\.)(?:dobrochan\.|tenhou\.ru)/.test(h) ? '.xhtml' :
+		/(?:^|\.)2chan\.net$/.test(h) ? '.htm' :
+		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
 		'.html'
 	);
 }
@@ -690,7 +686,7 @@ function getThrdUrl(h, b, tNum) {
 function getPageUrl(h, b, p) {
 	return fixBrd(b) + (
 		p > 0 ? (p + docExt) :
-		checkHost(h, 'dobrochan.ru') || checkHost(h, 'tenhou.ru') ? ('index' + docExt) :
+		/(?:^|\.)(?:dobrochan\.|tenhou\.ru)/.test(h) ? ('index' + docExt) :
 		''
 	);
 }
