@@ -5615,9 +5615,6 @@ function hideBySpells(post) {
 }
 
 function verifyRegExp(txt) {
-	if(!txt) {
-		return true;
-	}
 	txt = txt.split('\n');
 	var t, rep,
 		i = txt.length,
@@ -5650,7 +5647,7 @@ function disableSpells() {
 function toggleSpells() {
 	var fld = $id('DESU_spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		err = verifyRegExp(val);
+		err = val && verifyRegExp(val);
 	if(err) {
 		if(val) {
 			$alert(Lng.error[lang] + ' ' + err, 'ErrSpell', false);
@@ -5673,23 +5670,21 @@ function toggleSpells() {
 }
 
 function addSpell(spell) {
-	var fld = $id('DESU_spellEdit'),
-		val = fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		err = verifyRegExp(val);
-	if(err) {
+	var err, fld = $id('DESU_spellEdit'),
+		val = fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
+	if(!val) {
 		if(!spellsList) {
 			readSpells();
 		}
 		val = spellsList.join('\n');
+	} else if(err = verifyRegExp(val)) {
+		$alert(Lng.error[lang] + ' ' + err, 'ErrSpell', false);
+		return;
 	}
-	if(!('\n' + val).contains('\n' + spell)) {
-		val = !val ? spell : val + '\n' + spell;
-		if(err) {
-			$alert(Lng.error[lang] + ' ' + err, 'ErrSpell', false);
-			return;
-		}
-	} else {
+	if(('\n' + val).contains('\n' + spell)) {
 		val = ('\n' + val).split('\n' + spell).join('').replace(/^\n|\n$/g, '');
+	} else {
+		val = !val ? spell : val + '\n' + spell;
 	}
 	if(fld) {
 		fld.value = val;
