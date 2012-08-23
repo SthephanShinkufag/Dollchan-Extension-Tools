@@ -3043,7 +3043,7 @@ function showQuickReply(post) {
 		pr.isQuick = true;
 		qArea.appendChild($id('DESU_pform'));
 		$disp($id('DESU_toggleReply'));
-		if(!TNum && !aib.kus && !aib.hana && !aib.ylil) {
+		if(!TNum && !aib.kus && !aib.hana) {
 			$del($q('#thr_id, input[name="parent"]', pr.form));
 			$before(pr.form.firstChild, 
 				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
@@ -4328,8 +4328,7 @@ function getAjaxPview(b, pNum) {
 }
 
 function showPview(link) {
-	var b = aib.ylil ? link['data-boardurl'] :
-			link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
+	var b = link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
@@ -5127,7 +5126,6 @@ function togglePostContent(post, vis) {
 				aib.abu ? '|preceding-sibling::*[following-sibling::span[@class="postername"]]' : ''
 			), $c(
 				aib.krau ? 'postheader' :
-					aib.ylil ? 'postinfo' :
 					aib.fch ? 'postInfo' :
 					aib.tiny ? 'intro' :
 					aib._420 ? 'replyheader' :
@@ -6166,8 +6164,6 @@ function scriptCSS() {
 			a + .threadlinktext { position: relative; top: 17px; }\
 			.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
 			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
-	} else if(aib.ylil) {
-		x += '.threadbuttons, .expandall, .tooltip { display: none !important; }';
 	} else if(aib.fch) {
 		x += '.DESU_spoiler { color: #000; background-color: #000; }';
 	} else if(aib.tinyIb) {
@@ -6475,27 +6471,17 @@ function getNavigator() {
 }
 
 function getPage() {
-	var url = (window.location.pathname || '');
-	if(aib.ylil) {
-		url = url.match(/^\/?(.*?)\/(\d+)?$/);
-		brd = url[1].split('-')[0];
-		res = '';
-		TNum = url[2];
-		pageNum = +url[1].split('-')[1] || 1;
-		docExt = '';
-	} else {
-		url = url.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
-		brd = url[1] || (aib.dfwk ? 'df' : '');
-		res = aib.krau ? 'thread-' : 'res/';
-		TNum = url[2] ? url[3] : false;
-		pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
-		docExt = url[4] || (
-			aib.gazo ? '.htm' :
-			aib._420 ? '.php' :
-			aib.fch ? '' :
-			'.html'
-		);
-	}
+	var url = (window.location.pathname || '').match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
+	brd = url[1] || (aib.dfwk ? 'df' : '');
+	res = aib.krau ? 'thread-' : 'res/';
+	TNum = url[2] ? url[3] : false;
+	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
+	docExt = url[4] || (
+		aib.gazo ? '.htm' :
+		aib._420 ? '.php' :
+		aib.fch ? '' :
+		'.html'
+	);
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 }
 
@@ -6514,7 +6500,7 @@ function getPostform(form) {
 		form: form,
 		tr: 'ancestor::' + tr + '[1]',
 		recap: recap,
-		cap: (aib.ylil ? null : ($q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap)),
+		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
@@ -6544,12 +6530,11 @@ function getImageboard() {
 	case 'krautchan.net': aib.krau = true; break;
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
-	case 'ylilauta.org': aib.ylil = true; break;
 	case '4chan.org': aib.fch = true; break;
 	case '420chan.org': aib._420 = true; break;
 	}
 	aib.qDForm = aib.brit ? '.threadz' :
-		aib.hana || aib.krau || aib.ylil ? 'form[action*="delete"]' :
+		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
 		aib.gazo ? 'form:nth-of-type(2)' :
 		'#delform, form[name="delform"]';
@@ -6574,7 +6559,6 @@ function getImageboard() {
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
-		aib.ylil ? ' answer' :
 		aib.tiny ? 'post reply' :
 		'reply';
 	aib.cOPost =
@@ -6593,18 +6577,17 @@ function getImageboard() {
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
 		aib.tiny ? '.intro > :last-child' :
-		aib.krau || aib.ylil ? '.postnumber' :
+		aib.krau ? '.postnumber' :
 		aib.gazo ? '.del' :
 		'.reflink';
 	aib.qMsg =
 		aib.hana ? '.postbody' :
-		aib.ylil ? '.post' :
 		aib.tiny ? '.body' :
 		aib._7ch ? '.message' :
 		'blockquote';
 	aib.cFileInfo =
 		aib.fch ? 'fileText' :
-		aib.krau || aib.tiny || aib.ylil || aib.hana || aib.brit ? 'fileinfo' :
+		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
 		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
@@ -6616,14 +6599,13 @@ function getImageboard() {
 		aib.fch || aib.tiny ? 'form[name="post"]' :
 		'#postform';
 	aib.cTitle =
-		aib.krau || aib.ylil ? 'postsubject' :
+		aib.krau ? 'postsubject' :
 		aib.tiny || aib.fch ? 'subject' :
 		aib.hana ? 'replytitle' :
 		'filetitle';
 	aib.qOmitted =
 		aib.gazo ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
-		aib.ylil ? '.omitted' :
 		aib.hana ? '.abbrev' :
 		aib.fch ? '.summary.desktop' :
 		'.omittedposts';
@@ -6657,9 +6639,6 @@ function getImageboard() {
 	aib.getOp =
 		aib.abu || aib.hana || aib.fch || (aib.kus && $c(aib.cOPost, doc)) ? function(thr, dc) {
 			return $c(aib.cOPost, thr);
-		} :
-		aib.ylil ? function(thr, dc) {
-			return thr.firstElementChild;
 		} :
 		aib.brit ? function(thr, dc) {
 			var el, post = $$new('div', {'style': 'clear: left;'}, null, dc),
@@ -6739,14 +6718,6 @@ function parseDelform(el, dc, Fn) {
 	var node, thr, pThr = false,
 		thrds = $C(aib.cThread, el);
 	$$each($T('script', el), $del);
-	if(aib.ylil) {
-		$$each($Q('a[data-embedcode]', el), $del);
-		$$each($C('postinfo', el), function(node) {
-			if(node.previousElementSibling) {
-				$before(node.parentNode.firstChild, node);
-			}
-		});
-	}
 	if(Posts.length < 2) {
 		aib.qTable = aib.fch ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
@@ -6871,12 +6842,6 @@ function removePageTrash(el) {
 			node.onclick = null;
 			node.href = getThrdUrl(aib.host, brd, node.textContent);
 			node.target = '_blank';
-		}
-	} else if(aib.ylil) {
-		if(el = $t('iframe', el)) {
-			$del(el.nextElementSibling);
-			$del(el.nextElementSibling);
-			$del(el);
 		}
 	}
 }
