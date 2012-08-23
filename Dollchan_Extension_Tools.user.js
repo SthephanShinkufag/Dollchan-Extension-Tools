@@ -6636,9 +6636,6 @@ function getImageboard() {
 			return $C(aib.cReply, thr);
 		};
 	aib.getOp =
-		aib.abu || aib.hana || aib.fch || (aib.kus && $c(aib.cOPost, doc)) ? function(thr, dc) {
-			return $c(aib.cOPost, thr);
-		} :
 		aib.brit ? function(thr, dc) {
 			var el, post = $$new('div', {'style': 'clear: left;'}, null, dc),
 				op = $c('originalpost', thr);
@@ -6656,8 +6653,13 @@ function getImageboard() {
 			return post;
 		} :
 		function(thr, dc) {
-			var el, op = $$new('div', null, null, dc),
-				opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
+			var el, op, opEnd;
+			op = $c(aib.cOPost, thr);
+			if(op) {
+				return op;
+			}
+			op = $$new('div', null, null, dc),
+			opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
