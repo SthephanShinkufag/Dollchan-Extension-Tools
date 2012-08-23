@@ -1301,13 +1301,11 @@ function getCfgFilters() {
 		$New('div', {'id': 'DESU_cfgWipe'}, [
 			$New('div', null, [
 				lBox('wipeSameLin', false, null),
-				lBox('wipeSameWrd', false, null)
+				lBox('wipeSameWrd', false, null),
+				lBox('wipeLongWrd', false, null)
 			]),
 			$New('div', null, [
-				lBox('wipeLongWrd', false, null),
-				lBox('wipeSpecial', false, null)
-			]),
-			$New('div', null, [
+				lBox('wipeSpecial', false, null),
 				lBox('wipeCAPS', false, null),
 				lBox('wipeNumbers', false, null)
 			])
@@ -5836,7 +5834,7 @@ function scriptCSS() {
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.DESU_cfgUnvis { display: none; }\
-		.DESU_cfgBody { width: 371px; min-height: 365px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { width: 371px; min-height: 345px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_blockInp { display: block; }\
@@ -6194,7 +6192,7 @@ function checkForUpdates(isForce, Fn) {
 							'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
 								'Dollchan_Extension_Tools.user.js' :
 							'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Versions'
-					)+ '">' + Lng.updAvail[lang] + '</a>');
+					) + '">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
 				}
