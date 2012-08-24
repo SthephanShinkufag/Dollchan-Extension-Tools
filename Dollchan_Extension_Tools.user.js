@@ -3473,7 +3473,9 @@ dateTime.toggleSettings = function(el) {
 };
 
 dateTime.checkPattern = function(val) {
-	return /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+	return !val.contains('i') || !val.contains('h') || !val.contains('d') || !val.contains('y') ||
+		!(val.contains('n') || val.contains('m')) ||
+		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
 dateTime.prototype.init = function(txt) {
@@ -3536,9 +3538,6 @@ dateTime.prototype.fix = function(txt) {
 					/ноя|nov/i.test(a) ? 10 :
 					/дек|dec/i.test(a) && 11
 			);
-		}
-		if(!(year && month && day && hour && minute)) {
-			return;
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + diff);
