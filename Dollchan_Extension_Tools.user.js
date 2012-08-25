@@ -11,7 +11,6 @@
 // ==/UserScript==
 
 (function(scriptStorage) {
-'use strict';
 var defaultCfg = {
 	'version':	'12.8.23.1',
 	'language':		0,		// script language [0=ru, 1=en]
@@ -339,6 +338,10 @@ Lng = {
 	month:			[
 		['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
 		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+	],
+	fullMonth:			[
+		['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'],
+		['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 	],
 	week:			[
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
@@ -878,7 +881,10 @@ function readCfg() {
 	}
 	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
-		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset'], lang);
+		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset'], lang, Cfg['timeRPattern'], Cfg['timeRPHash']);
+	}
+	if(aib.hana) {
+		aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset'] || 0, Cfg['correctTime'] ? lang : 1, '1_d _m _y (_w) _h:_i ', 152203056);
 	}
 	if(Cfg['hideBySpell']) {
 		readSpells();
@@ -3449,7 +3455,7 @@ function prepareCFeatures() {
 ==============================================================================*/
 
 /** @constructor */
-function dateTime(pattern, diff, dtLang) {
+function dateTime(pattern, diff, dtLang, info, hash) {
 	if(dateTime.checkPattern(pattern)) {
 		this.disabled = true;
 		return;
@@ -3467,6 +3473,12 @@ function dateTime(pattern, diff, dtLang) {
 	this.diff = parseInt(diff, 10);
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
+	this.arrFM = Lng.fullMonth[dtLang];
+	if(info && hash && ELFHashStr(info) === +hash) {
+		this.inited = true;
+		this.rPattern = info.substring(1);
+		this.fullM = !!info[0];
+	}
 }
 
 dateTime.toggleSettings = function(el) {
@@ -3487,7 +3499,7 @@ dateTime.prototype.initTxt = function(txt) {
 	if(this.inited || this.disabled) {
 		return this;
 	}
-	var k, a, str, i = 1,
+	var k, p, a, str, i = 1,
 		j = 0,
 		m = txt.match(new RegExp(this.regex));
 	if(!m) {
@@ -3497,19 +3509,16 @@ dateTime.prototype.initTxt = function(txt) {
 	this.rPattern = '';
 	str = m[0];
 	while(a = m[i++]) {
+		if((p = this.pattern[i - 2]) === 'm') {
+			this.fullM = a.length > 3;
+		}
 		k = str.indexOf(a, j);
-		this.rPattern += str.substring(j, k) + '_' + this.pattern[i - 2];
+		this.rPattern += str.substring(j, k) + '_' + p;
 		j = k + a.length;
 	}
+	Cfg['timeRPHash'] = ELFHashStr(Cfg['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
+	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 	this.inited = true;
-	return this;
-};
-
-dateTime.prototype.initPat = function(rPat) {
-	if(!this.inited && !this.disabled) {
-		this.rPattern = rPat;
-		this.inited = true;
-	}
 	return this;
 };
 
@@ -3518,7 +3527,7 @@ dateTime.prototype.fix = function(txt) {
 		return txt;
 	}
 	var arrW = this.arrW,
-		arrM = this.arrM,
+		arrM = this.fullM ? this.arrFM : this.arrM,
 		tPat = this.pattern,
 		tRPat = this.rPattern,
 		diff = this.diff,
@@ -3538,18 +3547,18 @@ dateTime.prototype.fix = function(txt) {
 			t === 'y' ? year = a :
 			t === 'm' && (
 				month =
-					/янв|jan/i.test(a) ? 0 :
-					/фев|feb/i.test(a) ? 1 :
-					/мар|mar/i.test(a) ? 2 :
-					/апр|apr/i.test(a) ? 3 :
-					/май|may/i.test(a) ? 4 :
-					/июн|jun/i.test(a) ? 5 :
-					/июл|jul/i.test(a) ? 6 :
-					/авг|aug/i.test(a) ? 7 :
-					/сен|sep/i.test(a) ? 8 :
-					/окт|oct/i.test(a) ? 9 :
-					/ноя|nov/i.test(a) ? 10 :
-					/дек|dec/i.test(a) && 11
+					/^янв|^jan/i.test(a) ? 0 :
+					/^фев|^feb/i.test(a) ? 1 :
+					/^мар|^mar/i.test(a) ? 2 :
+					/^апр|^apr/i.test(a) ? 3 :
+					/^май|^may/i.test(a) ? 4 :
+					/^июн|^jun/i.test(a) ? 5 :
+					/^июл|^jul/i.test(a) ? 6 :
+					/^авг|^aug/i.test(a) ? 7 :
+					/^сен|^sep/i.test(a) ? 8 :
+					/^окт|^oct/i.test(a) ? 9 :
+					/^ноя|^nov/i.test(a) ? 10 :
+					/^дек|^dec/i.test(a) && 11
 			);
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
@@ -6625,9 +6634,6 @@ function getImageboard() {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		};
-	if(aib.hana) {
-		aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset'] || 0, Cfg['correctTime'] ? lang : 1).initPat('_d _m _y (_w) _h:_i ');
-	}
 }
 
 function processPost(post, pNum, thr, i) {
