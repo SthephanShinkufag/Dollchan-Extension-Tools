@@ -846,7 +846,7 @@ function readCfg() {
 	if(nav.Opera && nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
-	if(nav.Firefox < 6 && !nav.WebKit) {
+	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
 	}
 	if(aib.fch || aib.abu) {
@@ -878,7 +878,7 @@ function readCfg() {
 	}
 	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
-		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset']);
+		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset'], lang);
 	}
 	if(Cfg['hideBySpell']) {
 		readSpells();
@@ -1563,6 +1563,9 @@ function addSettings(Set) {
 				optSel('language', false, function() {
 					saveCfg('language', lang = this.selectedIndex);
 					$del($id('DESU_panelStuff'));
+					$del($id('DESU_css'));
+					$del($id('DESU_dynCss'));
+					scriptCSS();
 					addPanel();
 					toggleContent('Cfg', false);
 				}),
@@ -3377,7 +3380,7 @@ function prepareCFeatures() {
 						return;\
 					}\
 					if(/\.gif$/i.test(url)) {\
-						eImg = ' + !!Cfg['showGIFs'] + ';\
+						eImg |= ' + !!Cfg['showGIFs'] + ';\
 						type = "image/gif";\
 					} else if(/\.jpe?g$/i.test(url)) {\
 						type = "image/jpeg";\
@@ -3446,7 +3449,7 @@ function prepareCFeatures() {
 ==============================================================================*/
 
 /** @constructor */
-function dateTime(pattern, diff) {
+function dateTime(pattern, diff, dtLang) {
 	if(dateTime.checkPattern(pattern)) {
 		this.disabled = true;
 		return;
@@ -3462,6 +3465,8 @@ function dateTime(pattern, diff) {
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
 	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 	this.diff = parseInt(diff, 10);
+	this.arrW = Lng.week[dtLang];
+	this.arrM = Lng.month[dtLang];
 }
 
 dateTime.toggleSettings = function(el) {
@@ -3473,10 +3478,12 @@ dateTime.toggleSettings = function(el) {
 };
 
 dateTime.checkPattern = function(val) {
-	return /[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
+	return !val.contains('i') || !val.contains('h') || !val.contains('d') || !val.contains('y') ||
+		!(val.contains('n') || val.contains('m')) ||
+		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
-dateTime.prototype.init = function(txt) {
+dateTime.prototype.initTxt = function(txt) {
 	if(this.inited || this.disabled) {
 		return this;
 	}
@@ -3498,12 +3505,20 @@ dateTime.prototype.init = function(txt) {
 	return this;
 };
 
+dateTime.prototype.initPat = function(rPat) {
+	if(!this.inited && !this.disabled) {
+		this.rPattern = rPat;
+		this.inited = true;
+	}
+	return this;
+};
+
 dateTime.prototype.fix = function(txt) {
 	if(this.disabled) {
 		return txt;
 	}
-	var arrW = Lng.week[lang],
-		arrM = Lng.month[lang],
+	var arrW = this.arrW,
+		arrM = this.arrM,
 		tPat = this.pattern,
 		tRPat = this.rPattern,
 		diff = this.diff,
@@ -3536,9 +3551,6 @@ dateTime.prototype.fix = function(txt) {
 					/ноя|nov/i.test(a) ? 10 :
 					/дек|dec/i.test(a) && 11
 			);
-		}
-		if(!(year && month && day && hour && minute)) {
-			return;
 		}
 		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 		dtime.setHours(dtime.getHours() + diff);
@@ -3614,7 +3626,7 @@ function addTubeEmbed(el, id, time) {
 
 function addTubePlayer(el, m) {
 	var id = m[1],
-		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
+		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 	if(Cfg['YTubeType'] !== 2) {
 		addTubeEmbed(el, id, time);
 		return;
@@ -3628,10 +3640,8 @@ function addTubePlayer(el, m) {
 		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
 			'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
-		el = el.firstChild;
-		addTubeEmbed(el, id, time);
 		if(time !== 0) {
-			el.onloadedmetadata = function() {
+			el.firstChild.onloadedmetadata = function() {
 				this.currentTime = time;
 				time = null;
 			};
@@ -4644,6 +4654,11 @@ function loadPage(page, i, Fn) {
 
 function loadPages(len) {
 	$alert(Lng.loading[lang], 'LPages', true);
+	if(Cfg['preLoadImgs']) {
+		$$each($Q('a[href^="blob:"]', dForm), function(a) {
+			window.URL.revokeObjectURL(a.href);
+		});
+	}
 	var i = -1,
 		page = dForm,
 		pages = new Array(len),
@@ -4850,19 +4865,12 @@ function getHanaPost(postJson) {
 	var i, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'desu-post': id}, null),
-		html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
-			id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
-			'" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date'] +
-			' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
-			'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
-	if(dTime) {
-		if(!aib.hDTFix) {
-			aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset']).init(postJson['date']);
-		}
-		html = aib.hDTFix.fix(html);
-	}
-	post.innerHTML = html;
+		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'desu-post': id}, null);
+	post.innerHTML = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
+		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
+		'" /></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
+		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
+		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -6028,7 +6036,7 @@ function scriptCSS() {
 		.DESU_aBtn { text-decoration: none !important; outline: none; }\
 		.DESU_pPost { font-weight: bold; }\
 		.DESU_info { padding: 3px 6px !important; }\
-		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; }\
+		.DESU_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.DESU_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
 		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
@@ -6617,6 +6625,9 @@ function getImageboard() {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		};
+	if(aib.hana) {
+		aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset'] || 0, Cfg['correctTime'] ? lang : 1).initPat('_d _m _y (_w) _h:_i ');
+	}
 }
 
 function processPost(post, pNum, thr, i) {
@@ -6726,7 +6737,7 @@ function replaceDelform(el) {
 	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
 		var txt = el.innerHTML;
 		if(dTime) {
-			txt = dTime.init(txt).fix(txt, null);
+			txt = dTime.initTxt(txt).fix(txt, null);
 		}
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
