@@ -846,7 +846,7 @@ function readCfg() {
 	if(nav.Opera && nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
 	}
-	if(nav.Firefox < 6 && !nav.WebKit) {
+	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
 	}
 	if(aib.fch || aib.abu) {
@@ -2209,9 +2209,6 @@ function initKeyNavig() {
 		if(kc === 116) {
 			if(!TNum) {
 				$pd(e);
-				$$each($Q('a[href^="blob:"]', dForm), function(a) {
-					window.URL.revokeObjectURL(a.href);
-				});
 				loadPages(1);
 			}
 			return;
@@ -4649,6 +4646,11 @@ function loadPage(page, i, Fn) {
 
 function loadPages(len) {
 	$alert(Lng.loading[lang], 'LPages', true);
+	if(Cfg['preLoadImgs']) {
+		$$each($Q('a[href^="blob:"]', dForm), function(a) {
+			window.URL.revokeObjectURL(a.href);
+		});
+	}
 	var i = -1,
 		page = dForm,
 		pages = new Array(len),
