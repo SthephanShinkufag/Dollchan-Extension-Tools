@@ -878,7 +878,7 @@ function readCfg() {
 	}
 	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
-		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset']);
+		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset'], lang);
 	}
 	if(Cfg['hideBySpell']) {
 		readSpells();
@@ -3449,7 +3449,7 @@ function prepareCFeatures() {
 ==============================================================================*/
 
 /** @constructor */
-function dateTime(pattern, diff) {
+function dateTime(pattern, diff, dtLang) {
 	if(dateTime.checkPattern(pattern)) {
 		this.disabled = true;
 		return;
@@ -3465,6 +3465,8 @@ function dateTime(pattern, diff) {
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
 	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 	this.diff = parseInt(diff, 10);
+	this.arrW = Lng.week[dtLang];
+	this.arrM = Lng.month[dtLang];
 }
 
 dateTime.toggleSettings = function(el) {
@@ -3481,7 +3483,7 @@ dateTime.checkPattern = function(val) {
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
-dateTime.prototype.init = function(txt) {
+dateTime.prototype.initTxt = function(txt) {
 	if(this.inited || this.disabled) {
 		return this;
 	}
@@ -3503,12 +3505,20 @@ dateTime.prototype.init = function(txt) {
 	return this;
 };
 
+dateTime.prototype.initPat = function(rPat) {
+	if(!this.inited && !this.disabled) {
+		this.rPattern = rPat;
+		this.inited = true;
+	}
+	return this;
+};
+
 dateTime.prototype.fix = function(txt) {
 	if(this.disabled) {
 		return txt;
 	}
-	var arrW = Lng.week[lang],
-		arrM = Lng.month[lang],
+	var arrW = this.arrW,
+		arrM = this.arrM,
 		tPat = this.pattern,
 		tRPat = this.rPattern,
 		diff = this.diff,
@@ -4857,19 +4867,12 @@ function getHanaPost(postJson) {
 	var i, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'desu-post': id}, null),
-		html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
-			id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
-			'" /></a><span class="postername">' + postJson['name'] + '</span> ' + postJson['date'] +
-			' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
-			'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
-	if(dTime) {
-		if(!aib.hDTFix) {
-			aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset']).init(postJson['date']);
-		}
-		html = aib.hDTFix.fix(html);
-	}
-	post.innerHTML = html;
+		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'desu-post': id}, null);
+	post.innerHTML = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
+		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
+		'" /></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
+		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
+		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], id));
 	}
@@ -6624,6 +6627,9 @@ function getImageboard() {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		};
+	if(aib.hana) {
+		aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset'] || 0, Cfg['correctTime'] ? lang : 1).initPat('_d _m _y (_w) _h:_i ');
+	}
 }
 
 function processPost(post, pNum, thr, i) {
@@ -6733,7 +6739,7 @@ function replaceDelform(el) {
 	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
 		var txt = el.innerHTML;
 		if(dTime) {
-			txt = dTime.init(txt).fix(txt, null);
+			txt = dTime.initTxt(txt).fix(txt, null);
 		}
 		if(aib.fch || aib.krau) {
 			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
