@@ -1563,6 +1563,9 @@ function addSettings(Set) {
 				optSel('language', false, function() {
 					saveCfg('language', lang = this.selectedIndex);
 					$del($id('DESU_panelStuff'));
+					$del($id('DESU_css'));
+					$del($id('DESU_dynCss'));
+					scriptCSS();
 					addPanel();
 					toggleContent('Cfg', false);
 				}),
