@@ -3626,7 +3626,7 @@ function addTubeEmbed(el, id, time) {
 
 function addTubePlayer(el, m) {
 	var id = m[1],
-		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? m[4] : 0);
+		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 	if(Cfg['YTubeType'] !== 2) {
 		addTubeEmbed(el, id, time);
 		return;
@@ -3640,10 +3640,8 @@ function addTubePlayer(el, m) {
 		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
 			'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
-		el = el.firstChild;
-		addTubeEmbed(el, id, time);
 		if(time !== 0) {
-			el.onloadedmetadata = function() {
+			el.firstChild.onloadedmetadata = function() {
 				this.currentTime = time;
 				time = null;
 			};
