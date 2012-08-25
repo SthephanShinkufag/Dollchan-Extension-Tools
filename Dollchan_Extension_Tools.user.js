@@ -2209,6 +2209,9 @@ function initKeyNavig() {
 		if(kc === 116) {
 			if(!TNum) {
 				$pd(e);
+				$$each($Q('a[href^="blob:"]', dForm), function(a) {
+					window.URL.revokeObjectURL(a.href);
+				});
 				loadPages(1);
 			}
 			return;
@@ -3380,7 +3383,7 @@ function prepareCFeatures() {
 						return;\
 					}\
 					if(/\.gif$/i.test(url)) {\
-						eImg = ' + !!Cfg['showGIFs'] + ';\
+						eImg |= ' + !!Cfg['showGIFs'] + ';\
 						type = "image/gif";\
 					} else if(/\.jpe?g$/i.test(url)) {\
 						type = "image/jpeg";\
