@@ -3477,7 +3477,7 @@ function dateTime(pattern, diff, dtLang, info, hash) {
 	if(info && hash && ELFHashStr(info) === +hash) {
 		this.inited = true;
 		this.rPattern = info.substring(1);
-		this.fullM = !!info[0];
+		this.fullM = !!+info[0];
 	}
 }
 
