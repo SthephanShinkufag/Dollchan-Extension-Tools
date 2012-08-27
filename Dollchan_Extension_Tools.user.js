@@ -310,6 +310,7 @@ Lng = {
 	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
 	editInTxt:		['Правка в текстовом формате', 'Edit in text format'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
+	infoPage:		['Проверить номер страницы треда', 'Check for thread page number'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
 	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
@@ -324,7 +325,7 @@ Lng = {
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
 	deleted:		['удалён', 'deleted'],
 	getNewPosts:	['Получить новые посты', 'Get new posts'],
-	page:			[' страница', ' page'],
+	page:			['Страница', 'Page'],
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
 	expandForm:		['Раскрыть форму', 'Expand form'],
 	search:			['Искать в ', 'Search in '],
@@ -1815,9 +1816,12 @@ function addFavoritesTable(fav) {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(Favor, '')}).parentNode);
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
-			$$each($C('DESU_contData', this.parentNode), function(el) {
-				var arr = el.getAttribute('info').split(';'),
-					c = $attr($t('span', $c('DESU_favPCount', el)), {'class': 'DESU_wait', 'text': ''});
+			$$each($C('DESU_contData', doc), function(el) {
+				var c, arr = el.getAttribute('info').split(';');
+				if(arr[0] !== aib.host) {
+					return;
+				}
+				c = $attr($t('span', $c('DESU_favPCount', el)), {'class': 'DESU_wait', 'text': ''});
 				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
 					var cnt = els.length + 1;
 					$attr(c, {'class': '', 'text': err || cnt});
@@ -1829,10 +1833,26 @@ function addFavoritesTable(fav) {
 				});
 			});
 		}),
+		$btn(Lng.page[lang], Lng.infoPage[lang], function() {
+			var i = 5;
+			$alert(Lng.loading[lang], 'LPages', true);
+			while(i--) {
+				loadPage($add('<div></div>'), i, function(page, idx) {
+					$$each($C('DESU_contData', doc), function(el) {
+						var arr = el.getAttribute('info').split(';');
+						el = $c('DESU_favPCount', el);
+						if(arr[0] === aib.host && (new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
+							$html(el, el.innerHTML + '@' + idx);
+						}
+					});
+					closeAlert($id('DESU_alertLPages'));
+				});
+			}
+		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			$$each($C('DESU_contData', this.parentNode), function(el) {
+			$$each($C('DESU_contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
-				if(nav.Opera && arr[0] !== aib.host) {
+				if(nav.Opera || arr[0] !== aib.host) {
 					return;
 				}
 				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, false, function(a, dc, err) {
@@ -1845,7 +1865,7 @@ function addFavoritesTable(fav) {
 			});
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$$each($C('DESU_contData', this.parentNode), function(el) {
+			$$each($C('DESU_contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
 				if($t('input', el).checked) {
 					removeFavorites(arr[0], arr[1], arr[2]);
@@ -4679,7 +4699,7 @@ function loadPages(len) {
 		if(len > 1) {
 			page = $new('div', {'id': 'DESU_page' + i}, null);
 			$append(dForm, [
-				$new('center', {'text': i + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
+				$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
 				$new('hr', null, null),
 				page
 			]);
@@ -6712,8 +6732,7 @@ function tryToParse(node) {
 				len = els.length;
 			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
-			op.dTitle = ($c(aib.cTitle, op) || {}).textContent ||
-				getText(op).substring(0, 70).replace(/\s+/g, ' ');
+			op.dTitle = ($c(aib.cTitle, op) || {}).textContent || getText(op).substring(0, 70);
 			for(i = 0; i < len; i++) {
 				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
 			}
