@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.23.1
+// @version			12.8.28.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.8.23.1',
+	'version':	'12.8.28.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -752,10 +752,8 @@ function ELFHashStr(str) {
 ==============================================================================*/
 
 function setCookie(id, value, life) {
-	if(id) {
-		doc.cookie = escape(id) + '=' + escape(value) + ';expires=' +
-			(new Date(Date.now() + life)).toGMTString() + ';path=/';
-	}
+	doc.cookie = escape(id) + '=' + escape(value) + ';expires=' +
+		(new Date(Date.now() + life)).toGMTString() + ';path=/';
 }
 
 function getCookie(id) {
@@ -771,13 +769,9 @@ function getCookie(id) {
 }
 
 function getStored(id) {
-	if(nav.isGM) {
-		return GM_getValue(id);
-	}
-	if(scriptStorage) {
-		return scriptStorage.getItem(id);
-	}
-	return localStorage.getItem(id);
+	return nav.isGM ? GM_getValue(id) :
+		scriptStorage ? scriptStorage.getItem(id) :
+		localStorage.getItem(id);
 }
 
 function setStored(id, value) {
@@ -882,10 +876,22 @@ function readCfg() {
 	}
 	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
-		dTime = new dateTime(Cfg['timePattern'], Cfg['timeOffset'], lang, Cfg['timeRPattern'], Cfg['timeRPHash']);
+		dTime = new dateTime(
+			Cfg['timePattern'],
+			Cfg['timeOffset'],
+			lang,
+			Cfg['timeRPattern'],
+			Cfg['timeRPHash']
+		);
 	}
 	if(aib.hana) {
-		aib.hDTFix = new dateTime('yyyy-nn-dd-hh-ii-ss', Cfg['timeOffset'] || 0, Cfg['correctTime'] ? lang : 1, '1_d _m _y (_w) _h:_i ', 152203056);
+		aib.hDTFix = new dateTime(
+			'yyyy-nn-dd-hh-ii-ss',
+			Cfg['timeOffset'] || 0,
+			Cfg['correctTime'] ? lang : 1,
+			'1_d _m _y (_w) _h:_i ',
+			152203056
+		);
 	}
 	if(Cfg['hideBySpell']) {
 		readSpells();
@@ -1009,10 +1015,7 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {
-		'cnt': post.thr.pCount,
-		'txt': post.dTitle
-	};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount, 'txt': post.dTitle};
 	btn.className = 'DESU_btnFavSel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1118,15 +1121,13 @@ function addPanel() {
 						initThreadsUpdater();
 					}
 				}, null, null, null)),
-				$if(!nav.Safari && TNum && Cfg['updThread'] === 1,
-					pButton('AudioOff', function(e) {
-						$pd(e);
-						toggleAudioNotif();
-						Audio.repeat = false;
-						this.id = Audio.enabled ? 'DESU_btnAudioOn' : 'DESU_btnAudioOff';
-						$del($id('DESU_select'));
-					}, null, selectAudioNotif, 'DESU_delSelection(event)')
-				),
+				$if(!nav.Safari && TNum && Cfg['updThread'] === 1, pButton('AudioOff', function(e) {
+					$pd(e);
+					toggleAudioNotif();
+					Audio.repeat = false;
+					this.id = Audio.enabled ? 'DESU_btnAudioOn' : 'DESU_btnAudioOff';
+					$del($id('DESU_select'));
+				}, null, selectAudioNotif, 'DESU_delSelection(event)')),
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'DESU_panelInfo'}, [
@@ -1148,16 +1149,17 @@ function toggleContent(name, isUpd) {
 	}
 	var el = $c('DESU_content', doc),
 		id = 'DESU_content' + name;
-	if(!isUpd || el.id === id) {
-		if(el.childElementCount && Cfg['animation'] && nav.Anim) {
-			nav.animEvent(el, function(node) {
-				showContent(node, id, name, isUpd);
-				id = name = isUpd = null;
-			});
-			el.className = 'DESU_content DESU_cfgClose';
-		} else {
-			showContent(el, id, name, isUpd);
-		}
+	if(isUpd && el.id !== id) {
+		return;
+	}
+	if(el.childElementCount && Cfg['animation'] && nav.Anim) {
+		nav.animEvent(el, function(node) {
+			showContent(node, id, name, isUpd);
+			id = name = isUpd = null;
+		});
+		el.className = 'DESU_content DESU_cfgClose';
+	} else {
+		showContent(el, id, name, isUpd);
 	}
 }
 
@@ -1210,9 +1212,7 @@ function lBox(id, isBlock, Fn) {
 		}
 	}});
 	el.checked = Cfg[id];
-	return $New('label', isBlock ? {'class': 'DESU_blockInp'} : null, [
-		el, $txt(' ' + Lng.cfg[id][lang])
-	]);
+	return $New('label', isBlock ? {'class': 'DESU_blockInp'} : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
 }
 
 function inpTxt(id, size, Fn) {
@@ -1233,9 +1233,7 @@ function optSel(id, isBlock, Fn) {
 		}
 	});
 	el.selectedIndex = Cfg[id];
-	return $New('label', isBlock ? {'class': 'DESU_blockInp'} : null, [
-		el, $txt(' ' + x.txt[lang])
-	]);
+	return $New('label', isBlock ? {'class': 'DESU_blockInp'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
 
 function cfgTab(name) {
@@ -1511,34 +1509,55 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
-		$add('<span style="width: 170px;"><b>' + Lng.version[lang] + Cfg['version'] + '</b><br><br>' + Lng.storage[lang] + (nav.isGM ? 'Mozilla config' : scriptStorage ? 'Opera ScriptStorage' : 'Local Storage') + '<br>' + Lng.thrViewed[lang] + Stat['view'] + '<br>' + Lng.thrCreated[lang] + Stat['op'] + '<br>' + Lng.pstSended[lang] + Stat['reply'] + '</span>'),
-		$add('<span style="padding-left: 17px; border-left: 1px solid grey;">' + timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
+		$add(
+			'<span style="width: 170px;"><b>' +
+			Lng.version[lang] + Cfg['version'] + '</b><br><br>' +
+			Lng.storage[lang] + (
+				nav.isGM ? 'Mozilla config' :
+				scriptStorage ? 'Opera ScriptStorage' :
+				'Local Storage'
+			) + '<br>' + Lng.thrViewed[lang] + Stat['view'] + '<br>' +
+			Lng.thrCreated[lang] + Stat['op'] + '<br>' +
+			Lng.pstSended[lang] + Stat['reply'] + '</span>'
+		),
+		$add(
+			'<span style="padding-left: 17px; border-left: 1px solid grey;">' +
+			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'
+		),
 		$New('div', {'style': 'display: table;'}, [
-			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/" target="_blank">http://www.freedollchan.org/scripts</a></span>'),
-			$new('input', {'type': 'button', 'style': 'display: table-cell;', 'value': Lng.debug[lang], 'title': Lng.infoDebug[lang]}, {'click': function() {
-				$del($id('DESU_alertHelpDEBUG'));
-				var i,
-					nCfg = new Config(Cfg),
-					tl = timeLog.split('\n');
-				tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
-				delete nCfg['nameValue'];
-				delete nCfg['passwValue'];
-				delete nCfg['signatValue'];
-				delete nCfg['lastScrUpd'];
-				for(i in nCfg) {
-					if(nCfg[i] === defaultCfg[i]) {
-						delete nCfg[i];
+			$add(
+				'<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/"' +
+				' target="_blank">http://www.freedollchan.org/scripts</a></span>'
+			),
+			$new('input', {
+				'type': 'button',
+				'style': 'display: table-cell;',
+				'value': Lng.debug[lang],
+				'title': Lng.infoDebug[lang]}, {
+				'click': function() {
+					$del($id('DESU_alertHelpDEBUG'));
+					var i, nCfg = new Config(Cfg),
+						tl = timeLog.split('\n');
+					tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
+					delete nCfg['nameValue'];
+					delete nCfg['passwValue'];
+					delete nCfg['signatValue'];
+					delete nCfg['lastScrUpd'];
+					for(i in nCfg) {
+						if(nCfg[i] === defaultCfg[i]) {
+							delete nCfg[i];
+						}
 					}
+					$alert(Lng.infoDebug[lang] + ':<br /><textarea readonly rows="20" cols="75">' + getPrettyJSON({
+						'version': defaultCfg['version'],
+						'location': String(window.location),
+						'nav': nav,
+						'cfg': nCfg,
+						'spells': spellsList,
+						'perf': tl
+					}, '') + '</textarea>', 'HelpDEBUG', false);
 				}
-				$alert(Lng.infoDebug[lang] + ':<br /><textarea readonly rows="20" cols="75">' + getPrettyJSON({
-					'version': defaultCfg['version'],
-					'location': String(window.location),
-					'nav': nav,
-					'cfg': nCfg,
-					'spells': spellsList,
-					'perf': tl
-				}, '') + '</textarea>', 'HelpDEBUG', false);
-			}})
+			})
 		])
 	]);
 }
@@ -1647,14 +1666,12 @@ function addHiddenTable(hid) {
 				$add('<b>' + Lng.hiddenThrds[lang] + Lng.onPage[lang] + ':</b>')
 			]));
 		}
-		tHead.appendChild(
-			$New('div', {'class': 'DESU_contData'}, [
-				wrap, $attr(op.cloneNode(true), {
-					'class': 'DESU_hidOppost',
-					'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
-				})
-			])
-		);
+		tHead.appendChild($New('div', {'class': 'DESU_contData'}, [
+			wrap, $attr(op.cloneNode(true), {
+				'class': 'DESU_hidOppost',
+				'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
+			})
+		]));
 	});
 	Posts.forEach(function(post) {
 		if(post.Vis !== 0 || post.isOp) {
@@ -1679,9 +1696,7 @@ function addHiddenTable(hid) {
 		}
 		pHead.appendChild($New('div', {'class': 'DESU_contData'}, [cln]));
 	});
-	if(!pHead && !tHead) {
-		el.appendChild($add('<b>' + Lng.noHidOnPage[lang] + '</b>'));
-	} else {
+	if(pHead || tHead) {
 		$append(el, [
 			$btn(Lng.expandAll[lang], '', function() {
 				var posts = $Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode),
@@ -1710,6 +1725,8 @@ function addHiddenTable(hid) {
 				saveUserPostsVisib();
 			})
 		]);
+	} else {
+		el.appendChild($add('<b>' + Lng.noHidOnPage[lang] + '</b>'));
 	}
 	el = hid.appendChild($add('<div></div>'));
 	$append(el, [
@@ -1801,7 +1818,10 @@ function addFavoritesTable(fav) {
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
 						$txt(' - ' + Favor[h][b][tNum]['txt']),
-						$add('<span class="DESU_favPCount">[<span>' + (Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>')
+						$add(
+							'<span class="DESU_favPCount">[<span>' +
+							(Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>'
+						)
 					])
 				]));
 			}
@@ -1834,7 +1854,7 @@ function addFavoritesTable(fav) {
 			});
 		}),
 		$btn(Lng.page[lang], Lng.infoPage[lang], function() {
-			var i = 5;
+			var i = 6;
 			$alert(Lng.loading[lang], 'LPages', true);
 			while(i--) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
@@ -1846,6 +1866,7 @@ function addFavoritesTable(fav) {
 						}
 					});
 					closeAlert($id('DESU_alertLPages'));
+					page = idx = null;
 				});
 			}
 		}),
@@ -2209,11 +2230,11 @@ function initKeyNavig() {
 		};
 
 	window.onscroll = function() {
-		if(!scrScroll) {
+		if(scrScroll) {
+			scrScroll = false;
+		} else {
 			pScroll = true;
 			tScroll = true;
-		} else {
-			scrScroll = false;
 		}
 	};
 
@@ -2750,10 +2771,10 @@ function checkUpload(err, url) {
 	}
 	if(tNum = pr.tNum) {
 		showMainReply();
-		if(!TNum) {
-			loadThread(pByNum[tNum], 5, endUpload);
-		} else {
+		if(TNum) {
 			loadNewPosts(false, endUpload);
+		} else {
+			loadThread(pByNum[tNum], 5, endUpload);
 		}
 		if(pr.cap) {
 			pr.cap.value = '';
@@ -3007,10 +3028,7 @@ dataForm.prototype.readFile = function(el, idx) {
 	}
 	fr.onload = function() {
 		var dat = getReplyImgData(this.result, !aib.rJpeg || !!el.rarJPEG);
-		if(!dat) {
-			dF.error = true;
-			$alert(Lng.fileCorrupt[lang] + file.name, 'Upload', false);
-		} else {
+		if(dat) {
 			if(el.rarJPEG) {
 				dat.push(el.rarJPEG);
 			}
@@ -3019,6 +3037,9 @@ dataForm.prototype.readFile = function(el, idx) {
 			}
 			dF.data[idx] = nav.toBlob(dat, null);
 			dF.busy--;
+		} else {
+			dF.error = true;
+			$alert(Lng.fileCorrupt[lang] + file.name, 'Upload', false);
 		}
 		fr = dF = el = idx = file = null;
 	};
@@ -3118,21 +3139,22 @@ function toggleMainReply(e) {
 }
 
 function insertRefLink(e) {
+	if(/Reply|Ответ/.test(e.target.textContent)) {
+		return;
+	}
+	e.stopPropagation();
+	$pd(e);
+	if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
+		$id('DESU_parea').style.display = '';
+	}
 	var pNum = getPost(e.target).Num;
-	if(!/Reply|Ответ/.test(e.target.textContent)) {
-		e.stopPropagation();
-		$pd(e);
-		if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
-			$id('DESU_parea').style.display = '';
+	if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
+		showQuickReply(pByNum[pNum]);
+	} else {
+		if(aib._420 && pr.txta.value === 'Comment') {
+			pr.txta.value = '';
 		}
-		if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
-			showQuickReply(pByNum[pNum]);
-		} else {
-			if(aib._420 && pr.txta.value === 'Comment') {
-				pr.txta.value = '';
-			}
-			$txtInsert(pr.txta, '>>' + pNum);
-		}
+		$txtInsert(pr.txta, '>>' + pNum);
 	}
 }
 
@@ -3720,8 +3742,9 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add('<p class="DESU_eYTube"><a href="' + src +
-			'">' + src + '</a></p>'));
+		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add(
+			'<p class="DESU_eYTube"><a href="' + src + '">' + src + '</a></p>'
+		));
 		$del(el.parentNode);
 	});
 	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
@@ -3749,28 +3772,28 @@ function addLinkTube(post) {
 		}
 		link.className = 'DESU_ytLink';
 		link.onclick = clickTubeLink;
-		if(!(nav.Opera && nav.Opera < 12) && Cfg['YTubeTitles']) {
-			GM_xmlhttpRequest({
-				'method': 'GET',
-				'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
-					'?alt=json&fields=title/text(),media:group/media:keywords',
-				'onload': function(xhr) {
-					try {
-						var json = JSON.parse(xhr.responseText)['entry'],
-							txt = json['title']['$t'],
-							rel = json['media$group']['media$keywords']['$t'].toLowerCase() + ',';
-						link.textContent = txt;
-						link.rel = rel;
-						if(Cfg['hideBySpell']) {
-							filterTube(pst, txt, rel);
-						}
-						link = pst = null;
-					} catch(e) {}
-				}
-			});
-		} else {
+		if(nav.Opera && nav.Opera < 12 || !Cfg['YTubeTitles']) {
 			link.textContent = link.textContent.replace(/^http:/, 'https:');
+			return;
 		}
+		GM_xmlhttpRequest({
+			'method': 'GET',
+			'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
+				'?alt=json&fields=title/text(),media:group/media:keywords',
+			'onload': function(xhr) {
+				try {
+					var json = JSON.parse(xhr.responseText)['entry'],
+						txt = json['title']['$t'],
+						rel = json['media$group']['media$keywords']['$t'].toLowerCase() + ',';
+					link.textContent = txt;
+					link.rel = rel;
+					if(Cfg['hideBySpell']) {
+						filterTube(pst, txt, rel);
+					}
+					link = pst = null;
+				} catch(e) {}
+			}
+		});
 	});
 }
 
@@ -3893,11 +3916,11 @@ function addFullImg(a, sz, isExp) {
 		$disp($t('img', a));
 	}
 	if(full) {
-		if(!full.moved) {
+		if(full.moved) {
+			full.moved = false;
+		} else {
 			$disp(full);
 			setTimeout($del, 0, full);
-		} else {
-			full.moved = false;
 		}
 		return;
 	}
@@ -4102,9 +4125,7 @@ function updRefMap(post) {
 		nodes = $T('a', post.Msg),
 		i = nodes.length - 1;
 	for(; i >= 0; i--) {
-		if((pNum = nodes[i].textContent.match(/^>>(\d+)$/)) &&
-			pNums.indexOf(pNum = pNum[1]) === -1)
-		{
+		if((pNum = nodes[i].textContent.match(/^>>(\d+)$/)) && pNums.indexOf(pNum = pNum[1]) === -1) {
 			pNums.push(pNum);
 		}
 	}
@@ -4113,15 +4134,15 @@ function updRefMap(post) {
 		if(!(pst = pByNum[pNums[i]])) {
 			continue;
 		}
-		if(!pst.ref) {
-			pst.ref = [pNum];
-		} else {
+		if(pst.ref) {
 			pst.ref.push(pNum);
-		}
-		if(!(el = $c('DESU_refMap', pst))) {
-			addRefMap(pst);
 		} else {
+			pst.ref = [pNum];
+		}
+		if(el = $c('DESU_refMap', pst)) {
 			$append(el, [$txt(', '), $add('<a href="#' + pNum + '">&gt;&gt;' + pNum + '</a>')]);
+		} else {
+			addRefMap(pst);
 		}
 		eventRefLink($c('DESU_refMap', pst));
 		if(Cfg['hideRefPsts'] && pst.Vis === 0) {
@@ -4233,15 +4254,8 @@ function markRefMap(pView, pNum) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var el, pView;
-	if(!post) {
-		if(!txt) {
-			Pviews.deleted[pNum] = true;
-		}
-		pView = $add(
-			'<div class="' + aib.cReply + ' DESU_info DESU_pView">' + (txt || Lng.postNotFound[lang]) + '</div>'
-		);
-	} else {
+	var el, pView, arr;
+	if(post) {
 		if(post.ownerDocument === doc) {
 			pView = post.cloneNode(true);
 		} else {
@@ -4287,11 +4301,18 @@ function getPview(post, pNum, parent, link, txt) {
 				if(!pst.className.contains('DESU_viewed')) {
 					nav.addClass(pst, 'DESU_viewed');
 				}
-				var arr = (sessionStorage['desu-viewed'] || '').split(',');
+				arr = (sessionStorage['desu-viewed'] || '').split(',');
 				arr.push(num);
 				sessionStorage['desu-viewed'] = arr;
 			}, 2e3, post, pNum);
 		}
+	} else {
+		if(!txt) {
+			Pviews.deleted[pNum] = true;
+		}
+		pView = $add(
+			'<div class="' + aib.cReply + ' DESU_info DESU_pView">' + (txt || Lng.postNotFound[lang]) + '</div>'
+		);
 	}
 	el = pView.node = {parent: null, kid: null, post: pView};
 	parent = parent.node;
@@ -4370,22 +4391,22 @@ function showPview(link) {
 	el = getPview(null, pNum, parent, link, '<span class="DESU_wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
-		if(!err) {
-			var pst,
-				i = 0,
-				len = els.length;
-			op.isOp = true;
-			op.Msg = $q(aib.qMsg, op);
-			Pviews.ajaxed[b][aib.getTNum(op)] = op;
-			for(; i < len; i++) {
-				pst = els[i];
-				pst.Msg = $q(aib.qMsg, pst);
-				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
-			}
-			genRefMap(Pviews.ajaxed[b]);
-			if(el) {
-				getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
-			}
+		if(err) {
+			return;
+		}
+		var pst, i = 0,
+			len = els.length;
+		op.isOp = true;
+		op.Msg = $q(aib.qMsg, op);
+		Pviews.ajaxed[b][aib.getTNum(op)] = op;
+		for(; i < len; i++) {
+			pst = els[i];
+			pst.Msg = $q(aib.qMsg, pst);
+			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
+		}
+		genRefMap(Pviews.ajaxed[b]);
+		if(el) {
+			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 		}
 		b = pNum = parent = el = null;
 	});
@@ -4661,10 +4682,15 @@ function loadFavorThread() {
 	$$each($Q('#DESU_favIframe, .DESU_wait', cont), $del);
 	$c('DESU_content', doc).style.overflowY = 'scroll';
 	$append(el, [
-		$add('<iframe name="DESU_favIframe" id="DESU_favIframe" src="' + $t('a', el).href +
-			'" scrolling="no" style="border: none; width: ' + (doc.body.clientWidth - 55) + 'px; height: 1px;" />'),
-		$add('<div id="DESU_favWait" class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
-			Lng.loading[lang] + '</div>')
+		$add(
+			'<iframe name="DESU_favIframe" id="DESU_favIframe" src="' + $t('a', el).href +
+			'" scrolling="no" style="border: none; width: ' +
+			(doc.body.clientWidth - 55) + 'px; height: 1px;" />'
+		),
+		$add(
+			'<div id="DESU_favWait" class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
+			Lng.loading[lang] + '</div>'
+		)
 	]);
 }
 
@@ -4763,12 +4789,12 @@ function toggleAudioNotif() {
 }
 
 function audioNotification() {
-	if(!Favico.focused) {
+	if(Favico.focused) {
+		Audio.running = false;
+	} else {
 		Audio.el.play()
 		setTimeout(audioNotification, Audio.repeat);
 		Audio.running = true;
-	} else {
-		Audio.running = false;
 	}
 }
 
@@ -4877,16 +4903,16 @@ function getHanaFile(file, id) {
 	}
 	return $add(
 		'<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' + name +
-			'</a><br /><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
-				size < kb ? size + ' B'
-				: size < mb ? (size / kb).toFixed(2) + ' KB'
-				: size < gb ? (size / mb).toFixed(2) + ' MB'
-				: (size / gb).toFixed(2) + ' GB'
-			) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
-			'</em><br /><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
-			'"><img title="edit" alt="edit" src="/images/blank.png" /></a></div><a href="/' + src +
-			'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
-			thumbH + '" /></a></div>'
+		'</a><br /><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
+			size < kb ? size + ' B'
+			: size < mb ? (size / kb).toFixed(2) + ' KB'
+			: size < gb ? (size / mb).toFixed(2) + ' MB'
+			: (size / gb).toFixed(2) + ' GB'
+		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
+		'</em><br /><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
+		'"><img title="edit" alt="edit" src="/images/blank.png" /></a></div><a href="/' + src +
+		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
+		thumbH + '" /></a></div>'
 	);
 }
 
@@ -5167,9 +5193,9 @@ function setPostVisib(post, vis, note) {
 		if(vis === 0 && !el) {
 			el = $add(
 				'<div class="' + aib.cReply + '" id="DESU_hidThr_' + post.Num + '">' +
-					Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
-						note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-					) + ')</i></div>'
+				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
+					note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+				) + ')</i></div>'
 			);
 			$t('a', el).onclick = function(e) {
 				$pd(e);
@@ -5221,28 +5247,30 @@ function doHidePost(post, note) {
 }
 
 function hidePost(post, note) {
-	if(!post.noHide && !uVis[post.Num]) {
-		if(post.Vis === 0) {
-			$del($c('DESU_postNote', post));
-			addPostNote(post, note);
-		} else {
-			sVis[post.Count] = 0;
-			doHidePost(post, note);
-		}
+	if(post.noHide || uVis[post.Num]) {
+		return;
+	}
+	if(post.Vis === 0) {
+		$del($c('DESU_postNote', post));
+		addPostNote(post, note);
+	} else {
+		sVis[post.Count] = 0;
+		doHidePost(post, note);
 	}
 }
 
 function unhidePost(post) {
-	if(!uVis[post.Num]) {
-		var wn = detectWipeText(getText(post));
-		if(wn) {
-			hidePost(post, wn);
-		} else {
-			setPostVisib(post, sVis[post.Count] = 1, null);
-			post.Btns.firstChild.className = 'DESU_btnHide';
-			unhideByRef(post);
-			$del($c('DESU_postNote', post));
-		}
+	if(uVis[post.Num]) {
+		return;
+	}
+	var wn = detectWipeText(getText(post));
+	if(wn) {
+		hidePost(post, wn);
+	} else {
+		setPostVisib(post, sVis[post.Count] = 1, null);
+		post.Btns.firstChild.className = 'DESU_btnHide';
+		unhideByRef(post);
+		$del($c('DESU_postNote', post));
 	}
 }
 
@@ -5416,11 +5444,11 @@ function initSpells() {
 			}
 		}
 		if(/^#op /.test(x)) {
-			if(!TNum) {
+			if(TNum) {
+				continue;
+			} else {
 				Spells = tSpells;
 				x = x.substr(4);
-			} else {
-				continue;
 			}
 		}
 		if(!/^#/.test(x)) {
@@ -5636,10 +5664,8 @@ function getSpells(x, post) {
 }
 
 function checkSpells(post) {
-	if(!TNum && post.isOp) {
-		return getSpells(tSpells, post) || getSpells(pSpells, post);
-	}
-	return getSpells(pSpells, post);
+	return !TNum && post.isOp ?
+		getSpells(tSpells, post) || getSpells(pSpells, post) : getSpells(pSpells, post);
 }
 
 function hideBySpells(post) {
@@ -6828,11 +6854,11 @@ function initPage() {
 		$del($t('hr', dForm.previousElementSibling));
 	}
 	if(TNum) {
-		if(!Cfg['rePageTitle']) {
-			docTitle = doc.title;
-		} else {
+		if(Cfg['rePageTitle']) {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
 			doc.title = docTitle;
+		} else {
+			docTitle = doc.title;
 		}
 		if(nav.Firefox > 10 || nav.WebKit) {
 			doc.addEventListener(nav.visChange, function() {
