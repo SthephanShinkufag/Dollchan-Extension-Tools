@@ -310,7 +310,7 @@ Lng = {
 	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
 	editInTxt:		['Правка в текстовом формате', 'Edit in text format'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
-	infoPage:		['Проверить номер страницы треда', 'Check for thread page number'],
+	infoPage:		['Проверить номера страниц тредов', 'Check for page numbers of threads'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
 	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
@@ -1852,7 +1852,7 @@ function addFavoritesTable(fav) {
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			$$each($C('DESU_contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
-				if(nav.Opera || arr[0] !== aib.host) {
+				if(nav.Opera && arr[0] !== aib.host) {
 					return;
 				}
 				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, false, function(a, dc, err) {
