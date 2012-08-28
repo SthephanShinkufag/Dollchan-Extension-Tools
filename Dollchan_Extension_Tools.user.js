@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.28.0
+// @version			12.8.28.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.8.28.0',
+	'version':	'12.8.28.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -1817,10 +1817,8 @@ function addFavoritesTable(fav) {
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
 						$txt(' - ' + Favor[h][b][tNum]['txt']),
-						$add(
-							'<span class="DESU_favPCount">[<span>' +
-							(Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>'
-						)
+						$add('<span class="DESU_favInfPage"></span>'),
+						$add('<span class="DESU_favInfCount">[<span>' + (Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>')
 					])
 				]));
 			}
@@ -1840,10 +1838,10 @@ function addFavoritesTable(fav) {
 				if(arr[0] !== aib.host) {
 					return;
 				}
-				c = $attr($t('span', $c('DESU_favPCount', el)), {'class': 'DESU_wait', 'text': ''});
+				c = $attr($t('span', $c('DESU_favInfCount', el)), {'class': 'DESU_wait', 'text': ''});
 				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
-					var cnt = els.length + 1;
-					$attr(c, {'class': '', 'text': err || cnt});
+					var cnt = err ? err : els.length + 1;
+					$attr(c, {'class': '', 'text': cnt});
 					if(!err) {
 						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 						setStored('DESU_Favorites', JSON.stringify(Favor));
@@ -1859,18 +1857,15 @@ function addFavoritesTable(fav) {
 			while(i--) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
 					$$each($C('DESU_contData', doc), function(el) {
-						var html, arr = el.getAttribute('info').split(';');
-						if(arr[0] !== aib.host) {
+						var arr = el.getAttribute('info').split(';');
+						if(arr[0] !== aib.host || arr[1] !== brd) {
 							return;
 						}
-						el = $c('DESU_favPCount', el);
-						html = el.innerHTML;
-						if(loaded === 0) {
-							el.innerHTML = html.split('@')[0];
-						} else if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
-							el.innerHTML = html + '@' + idx;
-						} else if(loaded === 5 && html.indexOf('@') < 0) {
-							el.innerHTML = html + '@?';
+						el = $c('DESU_favInfPage', el);
+						if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
+							el.innerHTML = '@' + idx;
+						} else if(loaded === 5 && el.textContent.indexOf('@') < 0) {
+							el.innerHTML = '@?';
 						}
 					});
 					if(loaded === 5) {
@@ -6073,8 +6068,8 @@ function scriptCSS() {
 		.DESU_contData > :first-child { float: none !important; }\
 		.DESU_contData > div > a { text-decoration: none; }\
 		.DESU_contentBlock > a { color: inherit; font-weight: bold; }\
-		.DESU_favPCount { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
-		.DESU_favPCount span { color: #4f7942; }\
+		.DESU_favInfCount, .DESU_favInfPage { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
+		.DESU_favInfCount span { color: #4f7942; }\
 		#DESU_pIframe, #DESU_dIframe { display: none; width: 0px; height: 0px; border: none; }\
 		.DESU_omitted { color: grey; font-style: italic; }\
 		.DESU_postNote { color: inherit; font: italic bold 12px serif; }\
