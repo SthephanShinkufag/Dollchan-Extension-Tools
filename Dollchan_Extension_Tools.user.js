@@ -4619,18 +4619,19 @@ function loadThread(op, last, Fn) {
 function loadFavorThread() {
 	var el = this.parentNode.parentNode,
 		ifrm = $t('iframe', el),
-		tNum = el.id.substr(13).split('|')[2],
+		tNum = el.getAttribute('info').split(';')[2],
 		cont = $c('DESU_content', doc);
+	$del($id('DESU_favWait'));
 	if(ifrm) {
 		$del(ifrm);
 		cont.style.overflowY = 'auto';
 		return;
 	}
-	if(pByNum[tNum] && pByNum[tNum].offsetHeight) {
+	if(pByNum[tNum]) {
 		$focus(pByNum[tNum]);
 		return;
 	}
-	$$each($Q('#DESU_favIframe, .DESU_wait', cont), $del);
+	$del($id('DESU_favIframe'));
 	$c('DESU_content', doc).style.overflowY = 'scroll';
 	$append(el, [
 		$add(
