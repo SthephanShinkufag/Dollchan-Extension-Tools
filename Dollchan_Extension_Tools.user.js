@@ -310,7 +310,7 @@ Lng = {
 	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
 	editInTxt:		['Правка в текстовом формате', 'Edit in text format'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
-	infoPage:		['Проверить номера страниц тредов', 'Check for page numbers of threads'],
+	infoPage:		['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
 	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
