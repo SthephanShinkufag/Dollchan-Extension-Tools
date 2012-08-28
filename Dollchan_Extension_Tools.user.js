@@ -1864,14 +1864,13 @@ function addFavoritesTable(fav) {
 						html = el.innerHTML;
 						if(loaded === 0) {
 							el.innerHTML = html.split('@')[0];
-						} else if(
-							arr[0] === aib.host &&
-							(new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)
-						) {
-							el.innerHTML = html + '@' + idx;
-						} else if(loaded === 5 && html.indexOf('@') < 0) {
-							el.innerHTML = html + '@ > 5';
-							closeAlert($id('DESU_alertLPages'));
+						} else if(arr[0] === aib.host) {
+							if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
+								el.innerHTML = html + '@' + idx;
+							} else if(loaded === 5 && html.indexOf('@') < 0) {
+								el.innerHTML = html + '@ > 5';
+								closeAlert($id('DESU_alertLPages'));
+							}
 						}
 					});
 					loaded++;
