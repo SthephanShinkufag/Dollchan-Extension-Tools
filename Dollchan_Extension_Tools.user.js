@@ -847,6 +847,9 @@ function readCfg() {
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
 	}
+	if(!nav.Anim) {
+		Cfg['animations'] = 0;
+	}
 	if(aib.fch || aib.abu) {
 		Cfg['findRarJPEG'] = 0;
 	}
@@ -1152,7 +1155,7 @@ function toggleContent(name, isUpd) {
 	if(isUpd && el.id !== id) {
 		return;
 	}
-	if(el.childElementCount && Cfg['animation'] && nav.Anim) {
+	if(el.childElementCount && Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			showContent(node, id, name, isUpd);
 			id = name = isUpd = null;
@@ -1194,7 +1197,7 @@ function showContent(el, id, name, isUpd) {
 			addFavoritesTable(el);
 		}
 	}
-	if(Cfg['animation'] && nav.Anim) {
+	if(Cfg['animation']) {
 		el.className = 'DESU_content DESU_cfgOpen';
 	}
 }
@@ -1487,7 +1490,7 @@ function getCfgCommon() {
 		}),
 		lBox('panelCounter', true, updateCSS),
 		lBox('rePageTitle', true, null),
-		lBox('animation', true, null),
+		$if(nav.Anim, lBox('animation', true, null)),
 		lBox('closePopups', true, null),
 		$if(!nav.Opera, $New('div', null, [
 			lBox('updScript', true, null),
@@ -1920,85 +1923,33 @@ function addFavoritesTable(fav) {
 ==============================================================================*/
 
 function showAlert(el) {
-	if(!Cfg['animation']) {
-		return;
-	}
-	if(nav.Anim) {
+	if(Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			nav.remClass(node, 'DESU_aOpen');
 		});
 		nav.addClass(el, 'DESU_aOpen');
-		return;
 	}
-	var i = 0,
-		showing = setInterval(function() {
-			if(!el || i++ > 8) {
-				clearInterval(showing);
-				showing = i = el = null;
-				return;
-			}
-			var s = el.style;
-			s.opacity = i / 10;
-			s.paddingTop = (parseInt(s.paddingTop, 10) + 1) + 'px';
-			s.paddingBottom = (parseInt(s.paddingBottom, 10) + 1) + 'px';
-		}, 30);
-	el.style.paddingTop = el.style.paddingBottom = '0px';
-	el.style.opacity = 0;
 }
 
 function closeAlert(el) {
-	if(!el) {
-		return;
+	if(el) {
+		el.closeTimeout = null;
+		if(Cfg['animation']) {
+			nav.animEvent(el, $del);
+			nav.addClass(el, 'DESU_aClose');
+		} else {
+			$del(el);
+		}
 	}
-	el.closeTimeout = null;
-	if(!Cfg['animation']) {
-		$del(el);
-		return;
-	}
-	if(nav.Anim) {
-		nav.animEvent(el, $del);
-		nav.addClass(el, 'DESU_aClose');
-		return;
-	}
-	var i = 8,
-		h = el.clientHeight - 18,
-		closing = setInterval(function() {
-			if(!el || i-- < 0) {
-				clearInterval(closing);
-				$del(el);
-				closing = el = i = h = null;
-				return;
-			}
-			var s = el.style,
-				hh = parseInt(s.height, 10) - h / 10;
-			s.opacity = i / 10;
-			s.paddingTop = (parseInt(s.paddingTop, 10) - 1) + 'px';
-			s.paddingBottom = (parseInt(s.paddingBottom, 10) - 1) + 'px';
-			s.height = (hh < 0 ? 0 : hh) + 'px';
-		}, 30);
-	el.style.height = h + 'px';
 }
 
 function blinkAlert(el) {
-	if(!Cfg['animation']) {
-		return;
-	}
-	if(nav.Anim) {
+	if(Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			nav.remClass(node, 'DESU_aBlink');
 		});
 		nav.addClass(el, 'DESU_aBlink');
-		return;
 	}
-	var i = 6,
-		blinking = setInterval(function() {
-			el.style.opacity = el.style.opacity !== '0' ? 0 : 0.9;
-			if(i-- < 0) {
-				clearInterval(blinking);
-				el = i = null;
-			}
-		}, 80);
-	el.style.opacity = 0.9;
 }
 
 function $alert(txt, id, wait) {
@@ -4162,13 +4113,13 @@ function updRefMap(post) {
 ==============================================================================*/
 
 function closePview(el) {
-	if(!Cfg['animation'] || !nav.Anim) {
+	if(Cfg['animation']) {
+		nav.animEvent(el, $del);
+		nav.addClass(el, 'DESU_aPView');
+		el.style[nav.animName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+	} else {
 		$del(el);
-		return;
 	}
-	nav.animEvent(el, $del);
-	nav.addClass(el, 'DESU_aPView');
-	el.style[nav.animName] = 'DESU_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 }
 
 function delPviews(el) {
@@ -4338,7 +4289,7 @@ function getPview(post, pNum, parent, link, txt) {
 		delPviews(Pviews.current);
 		Pviews.current = el;
 	}
-	if(Cfg['animation'] && nav.Anim) {
+	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
 			nav.remClass(pView, 'DESU_aPView');
 			node.style[nav.animName] = '';
@@ -4385,7 +4336,7 @@ function showPview(link) {
 	if(el && el.post.Num === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
-		setPviewPosition(link, el.post, nav.Anim);
+		setPviewPosition(link, el.post, true);
 		markRefMap(el.post, parent.Num);
 		return;
 	}
@@ -6337,7 +6288,7 @@ function getNavigator() {
 		nav.WebKit ? '-webkit-' :
 		nav.Opera ? '-o-' :
 		nav.Firefox < 16 ? '-moz-' : '';
-	if(nav.Firefox || nav.WebKit || nav.Opera >= 12) {
+	if(!nav.Opera || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.animName =
 			nav.WebKit ? 'webkitAnimationName' :
