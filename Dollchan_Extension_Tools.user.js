@@ -1816,10 +1816,10 @@ function addFavoritesTable(fav) {
 			for(tNum in Favor[h][b]) {
 				block.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
-						$new('input', {'type': 'checkbox'}, null),
+						$add('<input type="checkbox" />'),
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
-						$txt(' - ' + Favor[h][b][tNum]['txt']),
+						$add('<span class="DESU_favTitle"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 						$add('<span class="DESU_favInfPage"></span>'),
 						$add('<span class="DESU_favInfCount">[<span>' + (Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>')
 					])
@@ -1867,7 +1867,7 @@ function addFavoritesTable(fav) {
 						el = $c('DESU_favInfPage', el);
 						if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
 							el.innerHTML = '@' + idx;
-						} else if(loaded === 5 && el.textContent.indexOf('@') < 0) {
+						} else if(loaded === 5 && !el.textContent.contains('@')) {
 							el.innerHTML = '@?';
 						}
 					});
@@ -6019,8 +6019,9 @@ function scriptCSS() {
 		.DESU_contData > :first-child { float: none !important; }\
 		.DESU_contData > div > a { text-decoration: none; }\
 		.DESU_contentBlock > a { color: inherit; font-weight: bold; }\
-		.DESU_favInfCount, .DESU_favInfPage { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
-		.DESU_favInfCount span { color: #4f7942; }\
+		.DESU_favInfCount, .DESU_favInfPage { float: right; margin-right: 5px; font: bold 16px serif; }\
+		.DESU_favInfCount > span { color: #4f7942; }\
+		.DESU_favTitle { margin-right: 15px; }\
 		#DESU_pIframe, #DESU_dIframe { display: none; width: 0px; height: 0px; border: none; }\
 		.DESU_omitted { color: grey; font-style: italic; }\
 		.DESU_postNote { color: inherit; font: italic bold 12px serif; }\
