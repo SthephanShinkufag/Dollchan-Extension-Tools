@@ -1853,18 +1853,28 @@ function addFavoritesTable(fav) {
 			});
 		}),
 		$btn(Lng.page[lang], Lng.infoPage[lang], function() {
-			var i = 6;
+			var i = 6,
+				loaded = 0;
 			$alert(Lng.loading[lang], 'LPages', true);
 			while(i--) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
 					$$each($C('DESU_contData', doc), function(el) {
-						var arr = el.getAttribute('info').split(';');
+						var html, arr = el.getAttribute('info').split(';');
 						el = $c('DESU_favPCount', el);
-						if(arr[0] === aib.host && (new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
-							$html(el, el.innerHTML + '@' + idx);
+						html = el.innerHTML;
+						if(loaded === 0) {
+							el.innerHTML = html.split('@')[0];
+						} else if(
+							arr[0] === aib.host &&
+							(new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)
+						) {
+							el.innerHTML = html + '@' + idx;
+						} else if(loaded === 5 && html.indexOf('@') < 0) {
+							el.innerHTML = html + '@ > 5';
+							closeAlert($id('DESU_alertLPages'));
 						}
 					});
-					closeAlert($id('DESU_alertLPages'));
+					loaded++;
 					page = idx = null;
 				});
 			}
