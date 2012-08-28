@@ -4627,8 +4627,8 @@ function loadFavorThread() {
 		cont.style.overflowY = 'auto';
 		return;
 	}
-	if(pByNum[tNum]) {
-		$focus(pByNum[tNum]);
+	if((tNum = pByNum[tNum]) && tNum.Vis !== 0) {
+		$focus(tNum);
 		return;
 	}
 	$del($id('DESU_favIframe'));
