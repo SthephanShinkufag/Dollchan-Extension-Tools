@@ -1917,15 +1917,6 @@ function addFavoritesTable(fav) {
 								POPUP ALERT MESSAGES
 ==============================================================================*/
 
-function showAlert(el) {
-	if(Cfg['animation']) {
-		nav.animEvent(el, function(node) {
-			nav.remClass(node, 'DESU_aOpen');
-		});
-		nav.addClass(el, 'DESU_aOpen');
-	}
-}
-
 function closeAlert(el) {
 	if(el) {
 		el.closeTimeout = null;
@@ -1938,15 +1929,6 @@ function closeAlert(el) {
 	}
 }
 
-function blinkAlert(el) {
-	if(Cfg['animation']) {
-		nav.animEvent(el, function(node) {
-			nav.remClass(node, 'DESU_aBlink');
-		});
-		nav.addClass(el, 'DESU_aBlink');
-	}
-}
-
 function $alert(txt, id, wait) {
 	var el = $id('DESU_alert' + id),
 		cMsg = 'DESU_alertMsg' + (wait ? ' DESU_wait' : ''),
@@ -1955,16 +1937,26 @@ function $alert(txt, id, wait) {
 		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
 		$t('span', el).textContent = tBtn;
 		clearTimeout(el.closeTimeout);
-		blinkAlert(el);
+		if(Cfg['animation']) {
+			nav.animEvent(el, function(node) {
+				nav.remClass(node, 'DESU_aBlink');
+			});
+			nav.addClass(el, 'DESU_aBlink');
+		}
 		return;
 	}
-	el = $New('div', {'class': aib.cReply, 'id': 'DESU_alert' + id}, [
+	el = $id('DESU_alertBox').appendChild($New('div', {'class': aib.cReply, 'id': 'DESU_alert' + id}, [
 		$new('span', {'class': 'DESU_alertBtn', 'text': tBtn}, {'click': function() {
 			closeAlert(this.parentNode);
 		}}),
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
-	]);
-	showAlert($id('DESU_alertBox').appendChild(el));
+	]));
+	if(Cfg['animation']) {
+		nav.animEvent(el, function(node) {
+			nav.remClass(node, 'DESU_aOpen');
+		});
+		nav.addClass(el, 'DESU_aOpen');
+	}
 	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
