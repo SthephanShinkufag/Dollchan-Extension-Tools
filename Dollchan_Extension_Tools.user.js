@@ -1641,8 +1641,21 @@ function addSettings(Set) {
 									"HIDDEN" WINDOW
 ==============================================================================*/
 
+function contentBlock(parent, link) {
+	return parent.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
+		$new('input', {'type': 'checkbox'}, {'click': function() {
+			var res = this.checked;
+			$$each($Q('.DESU_contData > div > input', this.parentNode), function(el) {
+				el.checked = res;
+			});
+			res = null;
+		}}),
+		link
+	]));
+}
+
 function addHiddenTable(hid) {
-	var b, tNum, url, pHead, tHead, el = hid.appendChild($add('<div></div>'));
+	var b, tNum, pBlock, tBlock, el = hid.appendChild($add('<div></div>'));
 	Threads.forEach(function(op) {
 		if(op.Vis !== 0) {
 			return;
@@ -1661,12 +1674,12 @@ function addHiddenTable(hid) {
 		]);
 		wrap.pst = op;
 		wrap.vis = 0;
-		if(!tHead) {
-			tHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
+		if(!tBlock) {
+			tBlock = el.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
 				$add('<b>' + Lng.hiddenThrds[lang] + Lng.onPage[lang] + ':</b>')
 			]));
 		}
-		tHead.appendChild($New('div', {'class': 'DESU_contData'}, [
+		tBlock.appendChild($New('div', {'class': 'DESU_contData'}, [
 			wrap, $attr(op.cloneNode(true), {
 				'class': 'DESU_hidOppost',
 				'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
@@ -1689,14 +1702,14 @@ function addHiddenTable(hid) {
 			pst.vis = pst.vis ? 0 : 1;
 			togglePostContent(pst, pst.vis);
 		};
-		if(!pHead) {
-			pHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
+		if(!pBlock) {
+			pBlock = el.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
 				$add('<b>' + Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b>')
 			]));
 		}
-		pHead.appendChild($New('div', {'class': 'DESU_contData'}, [cln]));
+		pBlock.appendChild($New('div', {'class': 'DESU_contData'}, [cln]));
 	});
-	if(pHead || tHead) {
+	if(pBlock || tBlock) {
 		$append(el, [
 			$btn(Lng.expandAll[lang], '', function() {
 				var posts = $Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode),
@@ -1735,22 +1748,15 @@ function addHiddenTable(hid) {
 	]);
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
-			tHead = el.appendChild($New('div', {'class': 'DESU_contHead'}, [
-				$new('input', {'type': 'checkbox'}, {'click': function() {
-					var res = this.checked;
-					$$each($Q('.DESU_contData > div > input', this.parentNode), function(el) {
-						el.checked = res;
-					});
-					res = null;
-				}}),
-				$add('<b>' + b + '</b>')
-			]));
+			tBlock = contentBlock(el, $add('<b>' + b + '</b>'));
 			for(tNum in hThrds[b]) {
-				url = getThrdUrl(aib.host, b, tNum);
-				tHead.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
+				tBlock.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
-						$add('<a href="' + url + '" target="_blank">№' + tNum + '</a>'),
+						$add(
+							'<a href="' + getThrdUrl(aib.host, b, tNum) +
+							'" target="_blank">№' + tNum + '</a>'
+						),
 						$txt(' - ' + hThrds[b][tNum])
 					])
 				]));
@@ -1789,7 +1795,7 @@ function addHiddenTable(hid) {
 		])
 	]);
 	eventRefLink(hid);
-	pHead = tHead = null;
+	pBlock = tBlock = null;
 }
 
 
@@ -1798,21 +1804,14 @@ function addHiddenTable(hid) {
 ==============================================================================*/
 
 function addFavoritesTable(fav) {
-	var h, b, tNum, list;
+	var h, b, tNum, block;
 	for(h in Favor) {
 		for(b in Favor[h]) {
-			list = fav.appendChild($New('div', {'class': 'DESU_contHead'}, [
-				$new('input', {'type': 'checkbox'}, {'click': function() {
-					var res = this.checked;
-					$$each($Q('.DESU_contData > div > input', this.parentNode), function(el) {
-						el.checked = res;
-					});
-					res = null;
-				}}),
-				$add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
-			]));
+			block = contentBlock(
+				fav, $add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
+			);
 			for(tNum in Favor[h][b]) {
-				list.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
+				block.appendChild($New('div', {'class': 'DESU_contData', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$new('span', {'class': 'DESU_btnExpthr'}, {'click': loadFavorThread}),
@@ -3626,11 +3625,10 @@ dateTime.prototype.fix = function(txt) {
 
 function getTubeVideoLinks(id, Fn) {
 	GM_xmlhttpRequest({'method': 'GET', 'url': 'https://www.youtube.com/watch?v=' + id, 'onload': function(xhr) {
-		var i, group, len, el, result1, result2, src,
+		var i, group, len, el, result1, result2, src, url = [],
 			sep1 = '%2C',
 			sep2 = '%26',
 			sep3 = '%3D',
-			url = [],
 			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/);
 		if(!formats) {
 			Fn(false);
@@ -3944,10 +3942,7 @@ function addFullImg(a, sz, isExp) {
 	if(Cfg['expandImgs'] === 2) {
 		nav.addClass(full, 'DESU_cFullImg');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
-		full.addEventListener(
-			nav.Firefox ? 'DOMMouseScroll' : 'mousewheel',
-			resizeImg, false
-		);
+		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
 		makeMoveable(full);
 	}
 }
@@ -3968,21 +3963,19 @@ function addLinkImg(el) {
 		a.target = '_blank';
 		nav.addClass(a, 'DESU_preImg');
 		$disp(a);
-		a.appendChild($new('img', {'src': a.href, 'alt': a.href}, {
-			'load': function() {
-				var fullW, fullH, k;
-				$disp(this.parentNode);
-				fullW = this.width;
-				fullH = this.height;
-				this.title = fullW + 'x' + fullH;
-				if(fullW <= 200 && fullH <= 200) {
-					return;
-				}
-				k = fullW/fullH;
-				this.width = k < 1 ? 200 * k : 200;
-				this.height = k < 1 ? 200 : 200/k;
+		a.appendChild($new('img', {'src': a.href, 'alt': a.href}, {'load': function() {
+			var fullW, fullH, k;
+			$disp(this.parentNode);
+			fullW = this.width;
+			fullH = this.height;
+			this.title = fullW + 'x' + fullH;
+			if(fullW <= 200 && fullH <= 200) {
+				return;
 			}
-		}));
+			k = fullW/fullH;
+			this.width = k < 1 ? 200 * k : 200;
+			this.height = k < 1 ? 200 : 200/k;
+		}}));
 		a.onclick = function(e) {
 			if(Cfg['expandImgs'] && e.button !== 1) {
 				$pd(e);
@@ -5293,10 +5286,7 @@ function setUserPostVisib(post, vis) {
 /*--------------------------Hide posts with similar text----------------------*/
 
 function getWrds(text) {
-	return text
-		.replace(/\s+/g, ' ')
-		.replace(/[^a-zа-яё ]/ig, '')
-		.substring(0, 800).split(' ');
+	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').substring(0, 800).split(' ');
 }
 
 function findSameText(post, oNum, oVis, oWords) {
@@ -6070,7 +6060,7 @@ function scriptCSS() {
 		.DESU_contData { margin: 2px 0; }\
 		.DESU_contData > :first-child { float: none !important; }\
 		.DESU_contData > div > a { text-decoration: none; }\
-		.DESU_contHead > a { color: inherit; font-weight: bold; }\
+		.DESU_contentBlock > a { color: inherit; font-weight: bold; }\
 		.DESU_favPCount { float: right; margin: 0 5px 0 15px; font: bold 16px serif; }\
 		.DESU_favPCount span { color: #4f7942; }\
 		#DESU_pIframe, #DESU_dIframe { display: none; width: 0px; height: 0px; border: none; }\
