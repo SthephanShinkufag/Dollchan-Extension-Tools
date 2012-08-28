@@ -1860,19 +1860,22 @@ function addFavoritesTable(fav) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
 					$$each($C('DESU_contData', doc), function(el) {
 						var html, arr = el.getAttribute('info').split(';');
+						if(arr[0] !== aib.host) {
+							return;
+						}
 						el = $c('DESU_favPCount', el);
 						html = el.innerHTML;
 						if(loaded === 0) {
 							el.innerHTML = html.split('@')[0];
-						} else if(arr[0] === aib.host) {
-							if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
-								el.innerHTML = html + '@' + idx;
-							} else if(loaded === 5 && html.indexOf('@') < 0) {
-								el.innerHTML = html + '@ > 5';
-								closeAlert($id('DESU_alertLPages'));
-							}
+						} else if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
+							el.innerHTML = html + '@' + idx;
+						} else if(loaded === 5 && html.indexOf('@') < 0) {
+							el.innerHTML = html + '@?';
 						}
 					});
+					if(loaded === 5) {
+						closeAlert($id('DESU_alertLPages'));
+					}
 					loaded++;
 					page = idx = null;
 				});
