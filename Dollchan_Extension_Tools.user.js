@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.28.1
+// @version			12.8.29.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.8.28.1',
+	'version':	'12.8.29.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -474,8 +474,8 @@ function $add(html) {
 	return dummy.firstChild;
 }
 
-function $$new(tag, attr, events, dc) {
-	var el = dc.createElement(tag);
+function $new(tag, attr, events) {
+	var el = doc.createElement(tag);
 	if(attr) {
 		$attr(el, attr);
 	}
@@ -483,10 +483,6 @@ function $$new(tag, attr, events, dc) {
 		$event(el, events);
 	}
 	return el;
-}
-
-function $new(tag, attr, events) {
-	return $$new(tag, attr, events, doc);
 }
 
 function $New(tag, attr, nodes) {
@@ -1831,7 +1827,7 @@ function addFavoritesTable(fav) {
 		fav.appendChild($add('<b>' + Lng.noFavorites[lang] + '</b>'));
 	}
 	$append(fav, [
-		$new('hr', null, null),
+		doc.createElement('hr'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(Favor, '')}).parentNode);
 		}),
@@ -2332,7 +2328,7 @@ function initPostform() {
 			$txt(']')
 		]),
 		$New('div', {'id': 'DESU_pform'}, [pr.form, oeForm]),
-		$new('hr', null, null)
+		doc.createElement('hr')
 	]);
 	if(TNum && Cfg['addPostForm'] === 1) {
 		$after(aib.fch ? $t('hr', dForm) : dForm, pArea);
@@ -4477,7 +4473,7 @@ function newPost(thr, post, pNum, i) {
 		window.postMessage('K' + post.Num, '*');
 	}
 	if(aib.tiny) {
-		thr.appendChild($new('br', null, null));
+		thr.appendChild(doc.createElement('br'));
 	}
 	return post.Vis === 0 ? 0 : 1;
 }
@@ -4670,7 +4666,7 @@ function loadPages(len) {
 			page = $new('div', {'id': 'DESU_page' + i}, null);
 			$append(dForm, [
 				$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
-				$new('hr', null, null),
+				doc.createElement('hr'),
 				page
 			]);
 		}
@@ -6555,14 +6551,14 @@ function getImageboard() {
 		};
 	aib.getOp =
 		aib.brit ? function(thr, dc) {
-			var el, post = $$new('div', {'style': 'clear: left;'}, null, dc),
+			var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
 				op = $c('originalpost', thr);
 			$after($c('postmenu', op), post);
 			while((el = thr.firstChild).tagName !== 'TABLE') {
 				$after(post, el);
 				post = el;
 			}
-			post = $$new('div', null, null, dc);
+			post = dc.createElement('div');
 			$before(thr.firstChild, post);
 			while(el = op.firstChild) {
 				post.appendChild(el);
@@ -6576,7 +6572,7 @@ function getImageboard() {
 			if(op) {
 				return op;
 			}
-			op = $$new('div', null, null, dc),
+			op = dc.createElement('div'),
 			opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
@@ -6664,7 +6660,7 @@ function parseDelform(el, dc, Fn) {
 		if(thrds.length === 0) {
 			node = $t('hr', el).parentNode.firstChild;
 			while(1) {
-				thrds = $$new('div', null, null, dc);
+				thrds = dc.createElement('div');
 				while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
 					thrds.appendChild(node);
 					node = thr;
@@ -6852,7 +6848,7 @@ function doScript() {
 	if(!isCompatible()) {
 		return;
 	}
-	dummy = $new('div', null, null);
+	dummy = doc.createElement('div');
 	fixFunctions();
 	getPage();
 	$log('initBoard');
