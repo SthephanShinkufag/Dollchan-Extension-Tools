@@ -4193,7 +4193,7 @@ function markRefMap(pView, pNum) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var el, pView, arr;
+	var el, pView;
 	if(post) {
 		if(post.ownerDocument === doc) {
 			pView = post.cloneNode(true);
@@ -4240,7 +4240,7 @@ function getPview(post, pNum, parent, link, txt) {
 				if(!pst.className.contains('DESU_viewed')) {
 					nav.addClass(pst, 'DESU_viewed');
 				}
-				arr = (sessionStorage['desu-viewed'] || '').split(',');
+				var arr = (sessionStorage['desu-viewed'] || '').split(',');
 				arr.push(num);
 				sessionStorage['desu-viewed'] = arr;
 			}, 2e3, post, pNum);
@@ -4330,22 +4330,21 @@ function showPview(link) {
 	el = getPview(null, pNum, parent, link, '<span class="DESU_wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
-		if(err) {
-			return;
-		}
-		var pst, i = 0,
-			len = els.length;
-		op.isOp = true;
-		op.Msg = $q(aib.qMsg, op);
-		Pviews.ajaxed[b][aib.getTNum(op)] = op;
-		for(; i < len; i++) {
-			pst = els[i];
-			pst.Msg = $q(aib.qMsg, pst);
-			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
-		}
-		genRefMap(Pviews.ajaxed[b]);
-		if(el) {
-			getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
+		if(!err) {
+			var pst, i = 0,
+				len = els.length;
+			op.isOp = true;
+			op.Msg = $q(aib.qMsg, op);
+			Pviews.ajaxed[b][aib.getTNum(op)] = op;
+			for(; i < len; i++) {
+				pst = els[i];
+				pst.Msg = $q(aib.qMsg, pst);
+				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
+			}
+			genRefMap(Pviews.ajaxed[b]);
+			if(el && el.ownerDocument) {
+				getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
+			}
 		}
 		b = pNum = parent = el = null;
 	});
