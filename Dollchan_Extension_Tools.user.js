@@ -4342,7 +4342,7 @@ function showPview(link) {
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
 			genRefMap(Pviews.ajaxed[b]);
-			if(el && el.ownerDocument) {
+			if(el && el.post.parentNode) {
 				getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 			}
 		}
