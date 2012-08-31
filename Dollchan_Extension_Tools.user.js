@@ -4304,7 +4304,7 @@ function showPview(link) {
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
-		el = (parent.pView && parent.kid) || (!parent.pView && Pviews.current);
+		el = parent.pView ? parent.kid : Pviews.current;
 	if(Cfg['noNavigHidd'] && post && post.Vis === 0) {
 		return;
 	}
