@@ -1981,8 +1981,8 @@ function addSelMenu(el, fPanel, html) {
 				'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="DESU_delSelection(event)">' + html + '</div>'), {
 		'mouseover': function() {
-			if(pst && pst.node) {
-				markPviewToDel(pst.node, false);
+			if(pst) {
+				markPviewToDel(pst, false);
 			}
 		}
 	}));
