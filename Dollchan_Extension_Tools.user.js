@@ -4113,8 +4113,8 @@ function delPviews(el) {
 			Pviews.current = null;
 		}
 		do {
-			clearTimeout(el.post.readDelay);
-			closePview(el.post);
+			clearTimeout(el.readDelay);
+			closePview(el);
 		} while(el = el.kid);
 	}
 }
@@ -4190,7 +4190,7 @@ function markRefMap(pView, pNum) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var el, pView;
+	var pView;
 	if(post) {
 		if(post.ownerDocument === doc) {
 			pView = post.cloneNode(true);
@@ -4250,24 +4250,23 @@ function getPview(post, pNum, parent, link, txt) {
 			'<div class="' + aib.cReply + ' DESU_pViewInfo DESU_pView">' + (txt || Lng.postNotFound[lang]) + '</div>'
 		);
 	}
-	el = pView.node = {parent: null, kid: null, post: pView};
-	parent = parent.node;
 	pView.style.display = '';
 	dForm.appendChild(pView);
 	setPviewPosition(link, pView, false);
 	pView.onmouseover = function() {
-		markPviewToDel(this.node, false);
+		markPviewToDel(this, false);
 	};
 	pView.onmouseout = function() {
 		markPviewToDel(Pviews.current, true);
 	};
-	if(Pviews.current && parent) {
+	pView.pView = true;
+	if(Pviews.current && parent.pView) {
 		delPviews(parent.kid);
-		el.parent = parent;
-		parent.kid = el;
+		pView.parent = parent;
+		parent.kid = pView;
 	} else {
 		delPviews(Pviews.current);
-		Pviews.current = el;
+		Pviews.current = pView;
 	}
 	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
@@ -4277,7 +4276,7 @@ function getPview(post, pNum, parent, link, txt) {
 		nav.addClass(pView, 'DESU_aPView');
 		pView.style[nav.animName] = 'DESU_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
-	return el;
+	return pView;
 }
 
 function getAjaxPview(b, pNum) {
@@ -4305,7 +4304,7 @@ function showPview(link) {
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
-		el = parent.node ? parent.node.kid : Pviews.current;
+		el = parent.kid || Pviews.current;
 	if(Cfg['noNavigHidd'] && post && post.Vis === 0) {
 		return;
 	}
@@ -4313,11 +4312,11 @@ function showPview(link) {
 		getPview(null, pNum, parent, link, Lng.postNotFound[lang]);
 		return;
 	}
-	if(el && el.post.Num === pNum) {
+	if(el && el.Num === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
-		setPviewPosition(link, el.post, true);
-		markRefMap(el.post, parent.Num);
+		setPviewPosition(link, el, true);
+		markRefMap(el, parent.Num);
 		return;
 	}
 	if(post) {
@@ -4339,7 +4338,7 @@ function showPview(link) {
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
 			genRefMap(Pviews.ajaxed[b]);
-			if(el && el.post.parentNode) {
+			if(el && el.parentNode) {
 				getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
 			}
 		}
