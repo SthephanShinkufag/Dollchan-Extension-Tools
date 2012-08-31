@@ -358,7 +358,7 @@ doc = window.document, aProto = Array.prototype,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper,
-Pviews = {deleted: [], ajaxed: {}, current: null, outDelay: null},
+Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 pSpells, tSpells, oSpells, spellsList, spellsHash,
@@ -4110,7 +4110,7 @@ function delPviews(el) {
 		if(el.parent) {
 			el.parent.kid = null;
 		} else {
-			Pviews.current = null;
+			Pviews.top = null;
 		}
 		do {
 			clearTimeout(el.readDelay);
@@ -4257,16 +4257,16 @@ function getPview(post, pNum, parent, link, txt) {
 		markPviewToDel(this, false);
 	};
 	pView.onmouseout = function() {
-		markPviewToDel(Pviews.current, true);
+		markPviewToDel(Pviews.top, true);
 	};
 	pView.pView = true;
-	if(Pviews.current && parent.pView) {
+	if(Pviews.top && parent.pView) {
 		delPviews(parent.kid);
 		pView.parent = parent;
 		parent.kid = pView;
 	} else {
-		delPviews(Pviews.current);
-		Pviews.current = pView;
+		delPviews(Pviews.top);
+		Pviews.top = pView;
 	}
 	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
@@ -4304,7 +4304,7 @@ function showPview(link) {
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
-		el = parent.pView ? parent.kid : Pviews.current;
+		el = parent.pView ? parent.kid : Pviews.top;
 	if(Cfg['noNavigHidd'] && post && post.Vis === 0) {
 		return;
 	}
@@ -4354,7 +4354,7 @@ function overRefLink() {
 
 function outRefLink() {
 	clearTimeout(this.overDelay);
-	markPviewToDel(Pviews.current, true);
+	markPviewToDel(Pviews.top, true);
 }
 
 function eventRefLink(el) {
