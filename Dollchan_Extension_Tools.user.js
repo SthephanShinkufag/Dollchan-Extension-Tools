@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.29.0
+// @version			12.8.31.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.8.29.0',
+	'version':	'12.8.31.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -4304,7 +4304,7 @@ function showPview(link) {
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum),
 		parent = getPost(link),
-		el = parent.kid || Pviews.current;
+		el = !parent.pView && Pviews.current;
 	if(Cfg['noNavigHidd'] && post && post.Vis === 0) {
 		return;
 	}
