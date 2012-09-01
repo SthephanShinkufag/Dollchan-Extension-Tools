@@ -4422,7 +4422,7 @@ function getJsonPosts(url, Fn) {
 
 function importPost(post) {
 	var el = doc.importNode(post, true);
-	replaceDelform(el);
+	replacePost(el);
 	return el;
 }
 
@@ -4474,7 +4474,7 @@ function newPost(thr, post, pNum, i) {
 }
 
 function processFullMsg(post) {
-	replaceDelform(post);
+	replacePost(post);
 	$$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
 	post.Img = getPostImages(post);
 	addPostFunc(post);
@@ -4636,7 +4636,7 @@ function loadPage(page, i, Fn) {
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
-		replaceDelform(page);
+		replacePost(page);
 		Fn(page, i);
 		Fn = page = i = null;
 	});
@@ -4910,7 +4910,7 @@ function loadNewPosts(isInfo, Fn) {
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = getHanaPost(el[i]);
-							replaceDelform(post);
+							replacePost(post);
 							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
 							Posts.push(post);
 						}
@@ -6714,23 +6714,33 @@ function tryToParse(node) {
 	return true;
 }
 
+function replaceString(txt) {
+	if(dTime) {
+		txt = dTime.initTxt(txt).fix(txt, null);
+	}
+	if(aib.fch || aib.krau) {
+		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
+	}
+	if(aib.fch && Cfg['noSpoilers']) {
+		txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
+	}
+	if(Cfg['hideBySpell'] && oSpells.rep[0]) {
+		txt = replaceBySpells(oSpells.rep, txt);
+	}
+	return txt;
+}
+
+function replacePost(el) {
+	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
+		el.innerHTML = replaceString(el.innerHTML);
+	}
+}
+
 function replaceDelform(el) {
 	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
 		var txt = el.outerHTML || new XMLSerializer().serializeToString(el);
 		el.style.display = 'none';
-		if(dTime) {
-			txt = dTime.initTxt(txt).fix(txt, null);
-		}
-		if(aib.fch || aib.krau) {
-			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
-		}
-		if(aib.fch && Cfg['noSpoilers']) {
-			txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
-		}
-		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
-			txt = replaceBySpells(oSpells.rep, txt);
-		}
-		nav.insBefore(el, txt);
+		nav.insBefore(el, replaceString(txt));
 		dForm = el.previousSibling;
 		$event(window, {'load': function() {
 			$del(el);
