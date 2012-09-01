@@ -6716,7 +6716,8 @@ function tryToParse(node) {
 
 function replaceDelform(el) {
 	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
-		var txt = el.innerHTML;
+		var txt = el.outerHTML || new XMLSerializer().serializeToString(el);
+		el.style.display = 'none';
 		if(dTime) {
 			txt = dTime.initTxt(txt).fix(txt, null);
 		}
@@ -6729,7 +6730,12 @@ function replaceDelform(el) {
 		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
 			txt = replaceBySpells(oSpells.rep, txt);
 		}
-		el.innerHTML = txt;
+		nav.insBefore(el, txt);
+		dForm = el.previousSibling;
+		$event(window, {'load': function() {
+			$del(el);
+			el = null;
+		}});
 	}
 }
 
