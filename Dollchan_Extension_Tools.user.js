@@ -3483,7 +3483,7 @@ dateTime.checkPattern = function(val) {
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
-dateTime.prototype.initTxt = function(txt) {
+dateTime.prototype.init = function(txt) {
 	if(this.inited || this.disabled) {
 		return this;
 	}
@@ -6714,7 +6714,7 @@ function tryToParse(node) {
 
 function replaceString(txt) {
 	if(dTime) {
-		txt = dTime.initTxt(txt).fix(txt, null);
+		txt = dTime.init(txt).fix(txt, null);
 	}
 	if(aib.fch || aib.krau) {
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
