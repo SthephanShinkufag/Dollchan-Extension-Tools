@@ -6311,7 +6311,7 @@ function getNavigator() {
 	} else {
 		nav.noBlob = true;
 	}
-	nav.isH5Rep = !nav.Safari && !nav.noBlob && !aib.nul;
+	nav.isH5Rep = !nav.Safari && !nav.noBlob;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
