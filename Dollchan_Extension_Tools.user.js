@@ -879,8 +879,8 @@ function readCfg() {
 			Cfg['timePattern'],
 			Cfg['timeOffset'],
 			lang,
-			Cfg['timeRPattern'],
-			Cfg['timeRPHash']
+			sessionStorage['timeRPattern'],
+			sessionStorage['timeRPHash']
 		);
 	}
 	if(aib.hana) {
@@ -3504,8 +3504,7 @@ dateTime.prototype.initTxt = function(txt) {
 		this.rPattern += str.substring(j, k) + '_' + p;
 		j = k + a.length;
 	}
-	Cfg['timeRPHash'] = ELFHashStr(Cfg['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
-	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	sessionStorage['timeRPHash'] = ELFHashStr(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
 	this.inited = true;
 	return this;
 };
