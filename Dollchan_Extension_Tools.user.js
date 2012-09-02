@@ -4421,9 +4421,7 @@ function getJsonPosts(url, Fn) {
 }
 
 function importPost(post) {
-	var el = doc.importNode(post, true);
-	replacePost(el);
-	return el;
+	return replacePost(doc.importNode(post, true));
 }
 
 function addPostFunc(post) {
@@ -4474,9 +4472,11 @@ function newPost(thr, post, pNum, i) {
 }
 
 function processFullMsg(post) {
-	replacePost(post);
+	if(aib.rep) {
+		post.innerHTML = replaceString(post.innerHTML);
+		post.Img = getPostImages(post);
+	}
 	$$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
-	post.Img = getPostImages(post);
 	addPostFunc(post);
 }
 
@@ -4636,8 +4636,7 @@ function loadPage(page, i, Fn) {
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
-		replacePost(page);
-		Fn(page, i);
+		Fn(replacePost(page), i);
 		Fn = page = i = null;
 	});
 }
@@ -4909,8 +4908,7 @@ function loadNewPosts(isInfo, Fn) {
 						thr = $c('DESU_thread', dForm);
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
-							post = getHanaPost(el[i]);
-							replacePost(post);
+							post = replacePost(getHanaPost(el[i]));
 							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
 							Posts.push(post);
 						}
@@ -6464,6 +6462,7 @@ function getImageboard() {
 	case 'mlpg.co': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
+	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]);
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny ? 'post reply' :
@@ -6731,20 +6730,20 @@ function replaceString(txt) {
 }
 
 function replacePost(el) {
-	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
+	if(aib.rep) {
 		el.innerHTML = replaceString(el.innerHTML);
 	}
+	return el;
 }
 
-function replaceDelform(el) {
-	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
-		var txt = el.outerHTML || new XMLSerializer().serializeToString(el);
-		el.style.display = 'none';
-		nav.insBefore(el, replaceString(txt));
-		dForm = el.previousSibling;
+function replaceDelform() {
+	if(aib.rep) {
+		nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
+		dForm.style.display = 'none';
+		dForm.id = 'DESU_oldDForm';
+		dForm = dForm.previousSibling;
 		$event(window, {'load': function() {
-			$del(el);
-			el = null;
+			$del($id('DESU_oldDForm'));
 		}});
 	}
 }
@@ -6862,7 +6861,7 @@ function doScript() {
 	$log('initBoard');
 	readCfg();
 	$log('readCfg');
-	replaceDelform(dForm);
+	replaceDelform();
 	$log('replaceDelform');
 	if(!tryToParse(dForm)) {
 		return;
