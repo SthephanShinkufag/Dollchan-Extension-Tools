@@ -4289,7 +4289,7 @@ function getAjaxPview(b, pNum) {
 		return el;
 	}
 	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
-	for(nodes = $T('a', doc), i = nodes.length - 1; i >= 0; i--) {
+	for(nodes = $T('a', el), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
 		}
