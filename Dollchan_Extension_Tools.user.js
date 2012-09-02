@@ -895,6 +895,7 @@ function readCfg() {
 	if(Cfg['hideBySpell']) {
 		readSpells();
 	}
+	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]);
 }
 
 function saveCfg(id, val) {
@@ -6462,7 +6463,6 @@ function getImageboard() {
 	case 'mlpg.co': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
-	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]);
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny ? 'post reply' :
