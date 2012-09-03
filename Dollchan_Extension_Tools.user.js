@@ -23,9 +23,9 @@ var defaultCfg = {
 	'wipeCAPS':		0,		//		cAsE, CAPS
 	'wipeNumbers':	1,		//		numbers
 	'filterThrds':	1,		// apply filters to threads
-	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'menuHiddBtn':	1,		// menu on hide button
 	'viewHiddNum':	1,		// view hidden on postnumber
+	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
 	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
 	'updThrDelay':	60,		//		threads update interval in sec
@@ -109,9 +109,9 @@ Lng = {
 		'wipeCAPS':		['КАПС/реГисТР', 'CAPS/cAsE'],
 		'wipeNumbers':	['Числа', 'Numbers'],
 		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
-		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'viewHiddNum':	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
+		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
 
 		'updThread': {
@@ -1316,9 +1316,9 @@ function getCfgFilters() {
 			])
 		]),
 		lBox('filterThrds', true, null),
-		lBox('hideRefPsts', true, null),
 		lBox('menuHiddBtn', true, null),
 		lBox('viewHiddNum', true, null),
+		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
 			Posts.forEach(function(post) {
 				if(post.Vis === 0 && !post.isOp) {
@@ -1510,7 +1510,7 @@ function getCfgCommon() {
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
 		$add(
-			'<span style="width: 170px;"><b>' +
+			'<span style="width: 179px;"><b>' +
 			Lng.version[lang] + Cfg['version'] + '</b><br><br>' +
 			Lng.storage[lang] + (
 				nav.isGM ? 'Mozilla config' :
@@ -1521,7 +1521,7 @@ function getCfgInfo() {
 			Lng.pstSended[lang] + Stat['reply'] + '</span>'
 		),
 		$add(
-			'<span style="padding-left: 17px; border-left: 1px solid grey;">' +
+			'<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'
 		),
 		$New('div', {'style': 'display: table;'}, [
@@ -5819,7 +5819,6 @@ function scriptCSS() {
 
 	// Settings window
 	x += '#DESU_contentCfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#DESU_cfgInfo { padding-left: 10px; }\
 		#DESU_cfgInfo > span { display: inline-block; vertical-align: top; }\
 		#DESU_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#DESU_cfgHead:lang(en), #DESU_panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
@@ -5827,7 +5826,7 @@ function scriptCSS() {
 		#DESU_cfgHead:lang(de), #DESU_panel:lang(de) { background: #777; }\
 		#DESU_cfgHead:lang(fr), #DESU_panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.DESU_cfgUnvis { display: none; }\
-		.DESU_cfgBody { width: 371px; min-height: 345px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.DESU_cfgBody { width: 371px; min-height: 347px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.DESU_cfgBody input[type="text"] { width: auto; }\
 		.DESU_cfgBody input[value=">"] { width: 20px; }\
 		.DESU_blockInp { display: block; }\
@@ -6924,11 +6923,9 @@ function doScript() {
 	if(Cfg['markViewed']) {
 		readViewedPosts();
 	}
-	$log('readPosts');
 	setPostsVisib();
-	$log('setPostsVisib');
 	savePostsVisib();
-	$log('savePostsVisib');
+	$log('readPosts');
 	scriptCSS();
 	$log('scriptCSS');
 	endTime = Date.now() - initTime;
