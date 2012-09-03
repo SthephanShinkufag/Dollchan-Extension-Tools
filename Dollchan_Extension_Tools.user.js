@@ -4062,19 +4062,15 @@ function updRefMap(post) {
 		if(!(pst = pByNum[pNums[i]])) {
 			continue;
 		}
-		if(pst.ref) {
+		if(!pst.ref) {
+			pst.ref = [pNum];
+		} else if(pst.ref.indexOf(pNum) === -1) {
 			pst.ref.push(pNum);
 		} else {
-			pst.ref = [pNum];
+			return;
 		}
-		if(el = $c('DESU_refMap', pst)) {
-			$append(el, [
-				$txt(', '),
-				$add('<a href="#' + pNum + '">&gt;&gt;' + pNum + '</a>')
-			]);
-		} else {
-			addRefMap(pst);
-		}
+		$del($c('DESU_refMap', pst));
+		addRefMap(pst);
 		eventRefLink($c('DESU_refMap', pst));
 		if(Cfg['hideRefPsts'] && pst.Vis === 0) {
 			hidePost(post, 'reference to >>' + pNums[i]);
