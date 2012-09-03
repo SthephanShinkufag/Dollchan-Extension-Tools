@@ -1172,7 +1172,7 @@ function showContent(el, id, name, isUpd) {
 	}
 	el.innerHTML = el.style.backgroundColor = '';
 	if(!isUpd && el.id === id) {
-		el.id = '';
+		el.removeAttribute('id');
 		return;
 	}
 	el.id = id;
@@ -1690,12 +1690,12 @@ function addHiddenTable(hid) {
 			return;
 		}
 		var cln = post.cloneNode(true);
-		cln.id = '';
+		cln.removeAttribute('id');
 		cln.style.display = '';
 		cln.vis = 0;
 		cln.pst = post;
 		cln.btn = $q('.DESU_btnUnhide, .DESU_btnLock', cln);
-		cln.btn.parentNode.className = '';
+		cln.btn.parentNode.removeAttribute('class');
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
@@ -3330,7 +3330,7 @@ function prepareCFeatures() {
 			$id('DESU_dIframe').src = 'about:blank';
 			return;
 		}
-	});
+	}});
 
 	if(nav.noBlob) {
 		return;
