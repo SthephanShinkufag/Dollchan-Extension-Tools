@@ -4066,8 +4066,6 @@ function updRefMap(post) {
 			pst.ref = [pNum];
 		} else if(pst.ref.indexOf(pNum) === -1) {
 			pst.ref.push(pNum);
-		} else {
-			return;
 		}
 		$del($c('DESU_refMap', pst));
 		addRefMap(pst);
