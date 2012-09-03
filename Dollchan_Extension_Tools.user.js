@@ -337,7 +337,7 @@ Lng = {
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
 	],
 	month:			[
-		['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
 		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 	],
 	fullMonth:			[
@@ -879,8 +879,8 @@ function readCfg() {
 			Cfg['timePattern'],
 			Cfg['timeOffset'],
 			lang,
-			Cfg['timeRPattern'],
-			Cfg['timeRPHash']
+			sessionStorage['timeRPattern'],
+			sessionStorage['timeRPHash']
 		);
 	}
 	if(aib.hana) {
@@ -895,6 +895,7 @@ function readCfg() {
 	if(Cfg['hideBySpell']) {
 		readSpells();
 	}
+	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]);
 }
 
 function saveCfg(id, val) {
@@ -3482,7 +3483,7 @@ dateTime.checkPattern = function(val) {
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
-dateTime.prototype.initTxt = function(txt) {
+dateTime.prototype.init = function(txt) {
 	if(this.inited || this.disabled) {
 		return this;
 	}
@@ -3503,8 +3504,7 @@ dateTime.prototype.initTxt = function(txt) {
 		this.rPattern += str.substring(j, k) + '_' + p;
 		j = k + a.length;
 	}
-	Cfg['timeRPHash'] = ELFHashStr(Cfg['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
-	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	sessionStorage['timeRPHash'] = ELFHashStr(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
 	this.inited = true;
 	return this;
 };
@@ -4289,7 +4289,7 @@ function getAjaxPview(b, pNum) {
 		return el;
 	}
 	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
-	for(nodes = $T('a', doc), i = nodes.length - 1; i >= 0; i--) {
+	for(nodes = $T('a', el), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
 		}
@@ -4421,9 +4421,7 @@ function getJsonPosts(url, Fn) {
 }
 
 function importPost(post) {
-	var el = doc.importNode(post, true);
-	replaceDelform(el);
-	return el;
+	return replacePost(doc.importNode(post, true));
 }
 
 function addPostFunc(post) {
@@ -4474,9 +4472,11 @@ function newPost(thr, post, pNum, i) {
 }
 
 function processFullMsg(post) {
-	replaceDelform(post);
+	if(aib.rep) {
+		post.innerHTML = replaceString(post.innerHTML);
+		post.Img = getPostImages(post);
+	}
 	$$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
-	post.Img = getPostImages(post);
 	addPostFunc(post);
 }
 
@@ -4636,8 +4636,7 @@ function loadPage(page, i, Fn) {
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
-		replaceDelform(page);
-		Fn(page, i);
+		Fn(replacePost(page), i);
 		Fn = page = i = null;
 	});
 }
@@ -4909,8 +4908,7 @@ function loadNewPosts(isInfo, Fn) {
 						thr = $c('DESU_thread', dForm);
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
-							post = getHanaPost(el[i]);
-							replaceDelform(post);
+							post = replacePost(getHanaPost(el[i]));
 							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
 							Posts.push(post);
 						}
@@ -6313,7 +6311,7 @@ function getNavigator() {
 	} else {
 		nav.noBlob = true;
 	}
-	nav.isH5Rep = !nav.Safari && !nav.noBlob && !aib.nul;
+	nav.isH5Rep = !nav.Safari && !nav.noBlob;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
@@ -6714,22 +6712,38 @@ function tryToParse(node) {
 	return true;
 }
 
-function replaceDelform(el) {
-	if(aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0])) {
-		var txt = el.innerHTML;
-		if(dTime) {
-			txt = dTime.initTxt(txt).fix(txt, null);
-		}
-		if(aib.fch || aib.krau) {
-			txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
-		}
-		if(aib.fch && Cfg['noSpoilers']) {
-			txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
-		}
-		if(Cfg['hideBySpell'] && oSpells.rep[0]) {
-			txt = replaceBySpells(oSpells.rep, txt);
-		}
-		el.innerHTML = txt;
+function replaceString(txt) {
+	if(dTime) {
+		txt = dTime.init(txt).fix(txt, null);
+	}
+	if(aib.fch || aib.krau) {
+		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
+	}
+	if(aib.fch && Cfg['noSpoilers']) {
+		txt = txt.replace(/"spoiler">/g, '"DESU_spoiler">');
+	}
+	if(Cfg['hideBySpell'] && oSpells.rep[0]) {
+		txt = replaceBySpells(oSpells.rep, txt);
+	}
+	return txt;
+}
+
+function replacePost(el) {
+	if(aib.rep) {
+		el.innerHTML = replaceString(el.innerHTML);
+	}
+	return el;
+}
+
+function replaceDelform() {
+	if(aib.rep) {
+		nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
+		dForm.style.display = 'none';
+		dForm.id = 'DESU_oldDForm';
+		dForm = dForm.previousSibling;
+		$event(window, {'load': function() {
+			$del($id('DESU_oldDForm'));
+		}});
 	}
 }
 
@@ -6846,7 +6860,7 @@ function doScript() {
 	$log('initBoard');
 	readCfg();
 	$log('readCfg');
-	replaceDelform(dForm);
+	replaceDelform();
 	$log('replaceDelform');
 	if(!tryToParse(dForm)) {
 		return;
