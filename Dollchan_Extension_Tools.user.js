@@ -289,7 +289,7 @@ Lng = {
 	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	errDelete:		['Не могу удалить пост(ы):\n', 'Can\'t delete post(s):\n'],
-	cTimeError:		['Неправильная разница во времени', 'Invalid time difference'],
+	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
 	checkNow:		['Проверить сейчас', 'Check now'],
@@ -411,17 +411,17 @@ function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
 }
 
-function $each(list, Fn) {
+function $each(nodes, Fn) {
+	aProto.forEach.call(nodes, Fn);
+}
+
+function $xeach(list, Fn) {
 	var el, i = 0;
 	if(list) {
 		while(el = list.snapshotItem(i)) {
 			Fn(el, i++);
 		}
 	}
-}
-
-function $$each(nodes, Fn) {
-	aProto.forEach.call(nodes, Fn);
 }
 
 function $html(el, html) {
@@ -1055,7 +1055,7 @@ function addPanel() {
 	$before(dForm, $New('div', {'id': 'DESU_panelStuff', 'lang': getThemeLang()}, [
 		$new('div', {'style': 'clear:both;'}, null),
 		$New('div', {'id': 'DESU_panel'}, [
-			$new('span', {'id': 'DESU_btnLogo', 'style': 'cursor: pointer'}, {'click': function() {
+			$new('span', {'id': 'DESU_btnLogo'}, {'click': function() {
 				toggleCfg('expandPanel');
 				updateCSS();
 			}}),
@@ -1165,7 +1165,7 @@ function toggleContent(name, isUpd) {
 
 function showContent(el, id, name, isUpd) {
 	if(el.id === 'DESU_contentHid' && el.expanded) {
-		$$each($Q('.DESU_contData > :not(.DESU_hidOppost)', el.firstChild), function(node) {
+		$each($Q('.DESU_contData > :not(.DESU_hidOppost)', el.firstChild), function(node) {
 			setPostVisib(node.pst, 0, null);
 		});
 		el.expanded = false;
@@ -1227,12 +1227,11 @@ function optSel(id, isBlock, Fn) {
 	for(var i = 0, x = Lng.cfg[id], len = x.sel[lang].length, el, opt = []; i < len; i++) {
 		opt[i] = '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
-	el = $event($add('<select info="' + id + '">' + opt.join('') + '</select>'), {
+	(el = $event($add('<select info="' + id + '">' + opt.join('') + '</select>'), {
 		'change': Fn ? Fn : function() {
 			saveCfg(this.getAttribute('info'), this.selectedIndex);
 		}
-	});
-	el.selectedIndex = Cfg[id];
+	})).selectedIndex = Cfg[id];
 	return $New('label', isBlock ? {'class': 'DESU_blockInp'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
 
@@ -1645,7 +1644,7 @@ function contentBlock(parent, link) {
 	return parent.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function() {
 			var res = this.checked;
-			$$each($Q('.DESU_contData > div > input', this.parentNode), function(el) {
+			$each($Q('.DESU_contData > div > input', this.parentNode), function(el) {
 				el.checked = res;
 			});
 			res = null;
@@ -1690,7 +1689,8 @@ function addHiddenTable(hid) {
 		if(post.Vis !== 0 || post.isOp) {
 			return;
 		}
-		var cln = $attr(post.cloneNode(true), {'id': ''});
+		var cln = post.cloneNode(true);
+		cln.id = '';
 		cln.style.display = '';
 		cln.vis = 0;
 		cln.pst = post;
@@ -1716,20 +1716,20 @@ function addHiddenTable(hid) {
 					el = this.parentNode.parentNode;
 				if(el.expanded) {
 					this.value = Lng.expandAll[lang];
-					$$each(posts, function(node) {
+					$each(posts, function(node) {
 						setPostVisib(node.pst, node.vis, null);
 					});
 					el.expanded = false;
 				} else {
 					this.value = Lng.undo[lang];
-					$$each(posts, function(node) {
+					$each(posts, function(node) {
 						setPostVisib(node.pst, 1, null);
 					});
 					el.expanded = true;
 				}
 			}),
 			$btn(Lng.save[lang], '', function() {
-				$$each($Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode), function(el) {
+				$each($Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0 || el.pst.Vis !== 0) {
 						setUserPostVisib(el.pst, 1);
 					}
@@ -1741,8 +1741,7 @@ function addHiddenTable(hid) {
 	} else {
 		el.appendChild($add('<b>' + Lng.noHidOnPage[lang] + '</b>'));
 	}
-	el = hid.appendChild($add('<div></div>'));
-	$append(el, [
+	$append(el = hid.appendChild($add('<div></div>')), [
 		$add('<hr />'),
 		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>')
 	]);
@@ -1769,7 +1768,7 @@ function addHiddenTable(hid) {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(hThrds, '')}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$$each($C('DESU_contData', this.parentNode), function(el) {
+			$each($C('DESU_contData', this.parentNode), function(el) {
 				var i, arr = el.getAttribute('info').split(';'),
 					b = arr[0],
 					tNum = arr[1];
@@ -1833,7 +1832,7 @@ function addFavoritesTable(fav) {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(Favor, '')}).parentNode);
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
-			$$each($C('DESU_contData', doc), function(el) {
+			$each($C('DESU_contData', doc), function(el) {
 				var c, arr = el.getAttribute('info').split(';');
 				if(arr[0] !== aib.host) {
 					return;
@@ -1856,7 +1855,7 @@ function addFavoritesTable(fav) {
 			$alert(Lng.loading[lang], 'LPages', true);
 			while(i--) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
-					$$each($C('DESU_contData', doc), function(el) {
+					$each($C('DESU_contData', doc), function(el) {
 						var arr = el.getAttribute('info').split(';');
 						if(arr[0] !== aib.host || arr[1] !== brd) {
 							return;
@@ -1877,7 +1876,7 @@ function addFavoritesTable(fav) {
 			}
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			$$each($C('DESU_contData', doc), function(el) {
+			$each($C('DESU_contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
 				if(nav.Opera && arr[0] !== aib.host) {
 					return;
@@ -1892,7 +1891,7 @@ function addFavoritesTable(fav) {
 			});
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$$each($C('DESU_contData', doc), function(el) {
+			$each($C('DESU_contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
 				if($t('input', el).checked) {
 					removeFavorites(arr[0], arr[1], arr[2]);
@@ -1991,7 +1990,7 @@ function addSelMenu(el, fPanel, html) {
 }
 
 function selectSpell(e) {
-	$$each(addSelMenu(
+	$each(addSelMenu(
 		e.target, true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">' +
 			('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,')
@@ -2047,7 +2046,7 @@ function selectPostHider(post) {
 }
 
 function selectExpandThread(post) {
-	$$each(addSelMenu(
+	$each(addSelMenu(
 		$q('span:nth-child(3)', post.Btns), false,
 		'<a href="#">' + Lng.selExpandThrd[lang].join('</a><a href="#">') + '</a>'
 	), function(a) {
@@ -2059,7 +2058,7 @@ function selectExpandThread(post) {
 }
 
 function selectAjaxPages() {
-	$$each(addSelMenu(
+	$each(addSelMenu(
 		$id('DESU_btnRefresh'), true,
 		'<a href="#">' + Lng.selAjaxPages[lang].join('</a><a href="#">') + '</a>'
 	), function(a, j) {
@@ -2074,7 +2073,7 @@ function selectAudioNotif() {
 	if(this.id !== 'DESU_btnAudioOff') {
 		return;
 	}
-	$$each(addSelMenu($id('DESU_btnAudioOff'), true,
+	$each(addSelMenu($id('DESU_btnAudioOff'), true,
 		'<a href="#">' + Lng.selAudioNotif[lang].join('</a><a href="#">') + '</a>'
 	), function(a, j) {
 		a.onclick = function(e) {
@@ -2410,7 +2409,7 @@ function doPostformChanges(img, m, el) {
 			$after($id('DESU_toggleReply'), $id('DESU_pform'));
 		}
 	}});
-	$$each($Q('input[type="text"]', pr.form), function(node) {
+	$each($Q('input[type="text"]', pr.form), function(node) {
 		node.size = 35;
 	});
 	if(Cfg['noGoto'] && pr.gothr) {
@@ -2553,7 +2552,7 @@ function doPostformChanges(img, m, el) {
 }
 
 function eventFiles(tr) {
-	$$each($Q('input[type="file"]', tr), function(el) {
+	$each($Q('input[type="file"]', tr), function(el) {
 		$event(el, {'change': processInput});
 	});
 }
@@ -2586,8 +2585,7 @@ function clearInput(e) {
 	$pd(e);
 	var el = this.parentNode;
 	delFileUtils(el);
-	pr.file = $q('input[type="file"]', $html(el, el.innerHTML));
-	$event(pr.file, {'change': processInput});
+	$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
 }
 
 function makeRarJPEG(e) {
@@ -2629,8 +2627,8 @@ function readArch(inp, file) {
 }
 
 function delFileUtils(el) {
-	$$each($Q('.DESU_fileUtil', el), $del);
-	$$each($Q('input[type="file"]', el), function(node) {
+	$each($Q('.DESU_fileUtil', el), $del);
+	$each($Q('input[type="file"]', el), function(node) {
 		node.rarJPEG = null;
 	});
 }
@@ -2658,7 +2656,7 @@ function findSubmitError(dc) {
 				aib._420 ? 'pre' : false;
 		}
 		if(xp) {
-			$$each($Q(xp, dc), function(el) {
+			$each($Q(xp, dc), function(el) {
 				txt += el.innerHTML + '\n';
 			});
 		} else {
@@ -2744,7 +2742,7 @@ function checkDelete(err, url) {
 	if(err) {
 		$alert(Lng.errDelete[lang] + err, 'Deleting', false);
 	} else {
-		$$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
+		$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.Num;
 			if(tNums.indexOf(tNum) === -1) {
 				tNums.push(tNum);
@@ -2941,7 +2939,7 @@ function dataForm(form) {
 	this.busy = 0;
 	this.error = false;
 	this.url = form.action;
-	$$each($Q('input, textarea, select', form), this.append.bind(this));
+	$each($Q('input, textarea, select', form), this.append.bind(this));
 }
 
 dataForm.prototype.append = function(el) {
@@ -3232,7 +3230,7 @@ function addPostButtons(post) {
 	post.Btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
 		if(aib.tinyIb || (aib.nul && TNum)) {
-			$$each($T('a', ref), function(el) {
+			$each($T('a', ref), function(el) {
 				el.onclick = null;
 			});
 		}
@@ -3302,7 +3300,7 @@ function prepareCFeatures() {
 		}'
 	);
 
-	window.addEventListener('message', function(e) {
+	$event(window, {'message': function(e) {
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
 		case 'A': selectPostHider(pByNum[+data]); return;
@@ -3332,7 +3330,7 @@ function prepareCFeatures() {
 			$id('DESU_dIframe').src = 'about:blank';
 			return;
 		}
-	}, false);
+	});
 
 	if(nav.noBlob) {
 		return;
@@ -3355,7 +3353,7 @@ function prepareCFeatures() {
 				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
 			},\
 			toBlob = ' + String(nav.toBlob) + ',\
-			getPostImages = (function() { return ' + String(getPostImages) + '; })(),\
+			getPostImages = ' + String(getPostImages) + ',\
 			getPicWrap = ' + String(aib.getPicWrap) + ';\
 		function preloadImages(pNum, mReqs, rjw) {\
 			var len, el, cReq = 0, i = 0, arr = [],\
@@ -3676,7 +3674,7 @@ function addLinkTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
-	$$each($Q('embed', post || dForm), function(el) {
+	$each($Q('embed', post || dForm), function(el) {
 		var src, pst, m = el.src.match(getTubePattern());
 		if(!m) {
 			return;
@@ -3691,7 +3689,7 @@ function addLinkTube(post) {
 		));
 		$del(el.parentNode);
 	});
-	$$each($Q('a[href*="youtu"]', post || dForm), function(link) {
+	$each($Q('a[href*="youtu"]', post || dForm), function(link) {
 		var pst, el, msg, prev, m = link.href.match(getTubePattern());
 		if(!m) {
 			return;
@@ -3766,7 +3764,7 @@ function hideByTube() {
 	if(!Cfg['YTubeTitles']) {
 		return;
 	}
-	$$each($Q('a[href*="youtu"]', dForm), function(link) {
+	$each($Q('a[href*="youtu"]', dForm), function(link) {
 		for(var t, post, i = 0, val = link.textContent; t = oSpells.video[i++];) {
 			if($toRegExp(t).test(val)) {
 				post = getPost(link);
@@ -3790,7 +3788,7 @@ function addLinkMP3(post) {
 	if(!Cfg['addMP3']) {
 		return;
 	}
-	$$each($Q('a[href*=".mp3"]', post || dForm), function(link) {
+	$each($Q('a[href*=".mp3"]', post || dForm), function(link) {
 		if(!(link.target === '_blank' || link.rel === 'nofollow')) {
 			return;
 		}
@@ -3959,13 +3957,13 @@ function expandPostImg(a, isExp) {
 }
 
 function expandAllPostImg(post, isExp) {
-	$$each(post.Img, function(img) {
+	$each(post.Img, function(img) {
 		expandPostImg($x('ancestor::a[1]', img), isExp);
 	});
 }
 
 function eventPostImg(post) {
-	$$each(post.Img, function(img) {
+	$each(post.Img, function(img) {
 		var a = $x('ancestor::a[1]', img);
 		if(a) {
 			img.onclick = null;
@@ -4131,7 +4129,7 @@ function PviewMoved() {
 		nav.remClass(this, 'DESU_aPView');
 		this.style.cssText = this.newPos;
 		this.newPos = false;
-		$$each($C('DESU_moveCSS', doc.head), $del);
+		$each($C('DESU_moveCSS', doc.head), $del);
 		this.removeEventListener(nav.animEnd, PviewMoved, false);
 	}
 }
@@ -4213,7 +4211,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.Num = pNum;
-		$$each($Q('.DESU_preImg, .DESU_fullImg, .DESU_postPanel, .DESU_btnSrc' + (
+		$each($Q('.DESU_preImg, .DESU_fullImg, .DESU_postPanel, .DESU_btnSrc' + (
 			Cfg['addYouTube'] !== 2 ? ', .DESU_ytObj' : ''
 		), pView), $del);
 		if(!pByNum[pNum]) {
@@ -4222,7 +4220,7 @@ function getPview(post, pNum, parent, link, txt) {
 		if(!pByNum[pNum] || Cfg['addYouTube'] !== 2) {
 			addLinkTube(pView);
 		}
-		$$each(pView.Img = getPostImages(pView), function(img) {
+		$each(pView.Img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
 		eventPostImg(pView);
@@ -4359,7 +4357,7 @@ function outRefLink() {
 
 function eventRefLink(el) {
 	if(Cfg['linksNavig']) {
-		$each($X('.//a[starts-with(text(),">>")]', el), function(link) {
+		$xeach($X('.//a[starts-with(text(),">>")]', el), function(link) {
 			link.onmouseover = overRefLink;
 			link.onmouseout = outRefLink;
 		});
@@ -4476,7 +4474,7 @@ function processFullMsg(post) {
 		post.innerHTML = replaceString(post.innerHTML);
 		post.Img = getPostImages(post);
 	}
-	$$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
+	$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
 	addPostFunc(post);
 }
 
@@ -4510,7 +4508,7 @@ function getFullPost(el, isFunc) {
 		if(!err) {
 			try {
 				replaceFMsg(op, aib.getTNum(op));
-				$$each(els, function(pst) {
+				$each(els, function(pst) {
 					replaceFMsg(pst, aib.getPNum(pst));
 				});
 			} catch(e) {}
@@ -4644,7 +4642,7 @@ function loadPage(page, i, Fn) {
 function loadPages(len) {
 	$alert(Lng.loading[lang], 'LPages', true);
 	if(Cfg['preLoadImgs']) {
-		$$each($Q('a[href^="blob:"]', dForm), function(a) {
+		$each($Q('a[href^="blob:"]', dForm), function(a) {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
@@ -4782,7 +4780,7 @@ function infoNewPosts(err, i) {
 		if(i > 0) {
 			Favico.delay = setInterval(function() {
 				var href = $xb('.//link[@href="' + Favico.href + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : Favico.href;
-				$$each($Q('link[rel="shortcut icon"]', doc.head), $del);
+				$each($Q('link[rel="shortcut icon"]', doc.head), $del);
 				doc.head.appendChild($new('link', {'href': href, 'rel': 'shortcut icon'}, null));
 			}, 800);
 		}
@@ -5083,7 +5081,7 @@ function togglePostContent(post, vis) {
 	if(post.isOp) {
 		post.thr.style.display = vis === 0 ? 'none' : '';
 	} else {
-		$each($X(
+		$xeach($X(
 			'following-sibling::*' + (
 				aib.abu ? '|preceding-sibling::*[following-sibling::span[@class="postername"]]' : ''
 			), $c(
@@ -5167,7 +5165,7 @@ function setPostVisib(post, vis, note) {
 		}
 	}
 	if(Cfg['strikeHidd']) {
-		setTimeout($$each, 0, $Q('a[href*="#' + post.Num + '"]', dForm), function(el) {
+		setTimeout($each, 0, $Q('a[href*="#' + post.Num + '"]', dForm), function(el) {
 			el.className = vis === 0 ? 'DESU_refHid' : '';
 		});
 	}
@@ -6621,7 +6619,7 @@ function processPost(post, pNum, thr, i) {
 function parseDelform(el, dc, Fn) {
 	var node, thr, pThr = false,
 		thrds = $C(aib.cThread, el);
-	$$each($T('script', el), $del);
+	$each($T('script', el), $del);
 	if(Posts.length < 2) {
 		aib.qTable = aib.fch ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
@@ -6670,7 +6668,7 @@ function parseDelform(el, dc, Fn) {
 			}
 		}
 	}
-	$$each(thrds, Fn);
+	$each(thrds, Fn);
 }
 
 function tryToParse(node) {
@@ -6696,7 +6694,7 @@ function tryToParse(node) {
 			thr.pCount = len + getOmPosts(thr);
 		});
 		if(liteMode) {
-			$each($X('.//body/node()[not(self::form or @class="threadz")]', doc), $del);
+			$xeach($X('.//body/node()[not(self::form or @class="threadz")]', doc), $del);
 		}
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
@@ -6751,7 +6749,7 @@ function removePageTrash(el) {
 		$del($t('hr', el));
 	} else if(aib.abu) {
 		if(TNum && (el = $c('DESU_thread', el))) {
-			$each($X('following-sibling::node()', el), $del);
+			$xeach($X('following-sibling::node()', el), $del);
 			nav.insAfter(el, '<hr />');
 		}
 	} else if(aib.brit) {
@@ -6769,7 +6767,7 @@ function onVis() {
 	Favico.focused = true;
 	if(Cfg['favIcoBlink'] && Favico.href) {
 		clearInterval(Favico.delay);
-		$$each($Q('link[rel="shortcut icon"]', doc.head), $del);
+		$each($Q('link[rel="shortcut icon"]', doc.head), $del);
 		doc.head.appendChild($new('link', {'href': Favico.href, 'rel': 'shortcut icon'}, null));
 	}
 	if(Cfg['updThread'] === 1) {
@@ -6787,7 +6785,7 @@ function initPage() {
 			return false;
 		};
 	}
-	$each($X('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
+	$xeach($X('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
 		aib.fch ? 'self::div[@class="boardBanner"]' : 'self::div[@class="logo"]'
 	) + ' or self::h1]]]', dForm), $del);
 	if(aib.abu) {
