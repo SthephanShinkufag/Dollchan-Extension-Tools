@@ -1508,26 +1508,18 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'DESU_cfgUnvis', 'id': 'DESU_cfgInfo'}, [
-		$add(
-			'<span style="width: 179px;"><b>' +
-			Lng.version[lang] + Cfg['version'] + '</b><br><br>' +
+		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + Cfg['version'] + '</b><br><br>' +
 			Lng.storage[lang] + (
 				nav.isGM ? 'Mozilla config' :
 				scriptStorage ? 'Opera ScriptStorage' :
 				'Local Storage'
 			) + '<br>' + Lng.thrViewed[lang] + Stat['view'] + '<br>' +
-			Lng.thrCreated[lang] + Stat['op'] + '<br>' +
-			Lng.pstSended[lang] + Stat['reply'] + '</span>'
-		),
-		$add(
-			'<span style="padding-left: 7px; border-left: 1px solid grey;">' +
-			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'
-		),
+			Lng.thrCreated[lang] + Stat['op'] + '<br>' + Lng.pstSended[lang] + Stat['reply'] + '</span>'),
+		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
+			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
-			$add(
-				'<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/"' +
-				' target="_blank">http://www.freedollchan.org/scripts</a></span>'
-			),
+			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/"' +
+				' target="_blank">http://www.freedollchan.org/scripts</a></span>'),
 			$new('input', {
 				'type': 'button',
 				'style': 'display: table-cell;',
@@ -1752,10 +1744,8 @@ function addHiddenTable(hid) {
 				tBlock.appendChild($New('div', {'class': 'DESU_contData', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
-						$add(
-							'<a href="' + getThrdUrl(aib.host, b, tNum) +
-							'" target="_blank">№' + tNum + '</a>'
-						),
+						$add('<a href="' + getThrdUrl(aib.host, b, tNum) +
+							'" target="_blank">№' + tNum + '</a>'),
 						$txt(' - ' + hThrds[b][tNum])
 					])
 				]));
@@ -1817,7 +1807,8 @@ function addFavoritesTable(fav) {
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
 						$add('<span class="DESU_favTitle"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 						$add('<span class="DESU_favInfPage"></span>'),
-						$add('<span class="DESU_favInfCount">[<span class="DESU_favInfOld">' + Favor[h][b][tNum]['cnt'] + '</span>]</span>')
+						$add('<span class="DESU_favInfCount">[<span class="DESU_favInfOld">' +
+							Favor[h][b][tNum]['cnt'] + '</span>]</span>')
 					])
 				]));
 			}
@@ -1841,7 +1832,7 @@ function addFavoritesTable(fav) {
 				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
 					var cnt = err ? err : els.length + 1;
 					c.textContent = cnt;
-					if(!err && cnt > +Favor[arr[0]][arr[1]][arr[2]].cnt) {
+					if(!err && cnt > Favor[arr[0]][arr[1]][arr[2]].cnt) {
 						c.className = 'DESU_favInfNew';
 						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 						setStored('DESU_Favorites', JSON.stringify(Favor));
@@ -2610,10 +2601,8 @@ function makeRarJPEG(e) {
 
 function readArch(inp, file) {
 	var fr = new FileReader(),
-		el = $add(
-			'<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>' +
-				Lng.wait[lang] + '</span>'
-		);
+		el = $add('<span class="DESU_fileUtil" style="margin: 0 5px;"><span class="DESU_wait"></span>' +
+			Lng.wait[lang] + '</span>');
 	$after(inp, el);
 	fr.onload = function() {
 		if(inp.nextSibling === el) {
@@ -3015,7 +3004,8 @@ function showQuickReply(post) {
 		$disp($id('DESU_toggleReply'));
 		if(!TNum && !aib.kus && !aib.hana) {
 			$del($q('#thr_id, input[name="parent"]', pr.form));
-			$before(pr.form.firstChild, 
+			$before(
+				pr.form.firstChild, 
 				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
 					aib.fch || aib.gazo ? 'resto' :
 					aib.tiny ? 'thread' :
@@ -3024,7 +3014,8 @@ function showQuickReply(post) {
 			);
 			if(oeForm) {
 				$del($q('input[name="oek_parent"]', oeForm));
-				$before(oeForm.firstChild,
+				$before(
+					oeForm.firstChild,
 					$add('<input type="hidden" value="' + tNum + '" name="oek_parent">')
 				);
 			}
@@ -3687,9 +3678,8 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add(
-			'<p class="DESU_eYTube"><a href="' + src + '">' + src + '</a></p>'
-		));
+		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' +
+			src + '</a></p>'));
 		$del(el.parentNode);
 	});
 	$each($Q('a[href*="youtu"]', post || dForm), function(link) {
@@ -3882,10 +3872,8 @@ function addFullImg(a, sz, isExp) {
 			newW = newH * fullW / fullH;
 		}
 	}
-	full = a.appendChild($add(
-		'<img class="DESU_fullImg" src="' + a.href + '" alt="' + a.href + '" width="' + newW +
-			'" height="' + newH + '"/>'
-	));
+	full = a.appendChild($add('<img class="DESU_fullImg" src="' + a.href + '" alt="' + a.href +
+		'" width="' + newW + '" height="' + newH + '"/>'));
 	if(Cfg['expandImgs'] === 2) {
 		nav.addClass(full, 'DESU_cFullImg');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
@@ -4080,7 +4068,10 @@ function updRefMap(post) {
 			pst.ref = [pNum];
 		}
 		if(el = $c('DESU_refMap', pst)) {
-			$append(el, [$txt(', '), $add('<a href="#' + pNum + '">&gt;&gt;' + pNum + '</a>')]);
+			$append(el, [
+				$txt(', '),
+				$add('<a href="#' + pNum + '">&gt;&gt;' + pNum + '</a>')
+			]);
 		} else {
 			addRefMap(pst);
 		}
@@ -4247,9 +4238,8 @@ function getPview(post, pNum, parent, link, txt) {
 		if(!txt) {
 			Pviews.deleted[pNum] = true;
 		}
-		pView = $add(
-			'<div class="' + aib.cReply + ' DESU_pViewInfo DESU_pView">' + (txt || Lng.postNotFound[lang]) + '</div>'
-		);
+		pView = $add('<div class="' + aib.cReply + ' DESU_pViewInfo DESU_pView">' +
+			(txt || Lng.postNotFound[lang]) + '</div>');
 	}
 	pView.style.display = '';
 	dForm.appendChild(pView);
@@ -4618,15 +4608,11 @@ function loadFavorThread() {
 	$del($id('DESU_favIframe'));
 	$c('DESU_content', doc).style.overflowY = 'scroll';
 	$append(el, [
-		$add(
-			'<iframe name="DESU_favIframe" id="DESU_favIframe" src="' + $t('a', el).href +
+		$add('<iframe name="DESU_favIframe" id="DESU_favIframe" src="' + $t('a', el).href +
 			'" scrolling="no" style="border: none; width: ' +
-			(doc.body.clientWidth - 55) + 'px; height: 1px;" />'
-		),
-		$add(
-			'<div id="DESU_favWait" class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
-			Lng.loading[lang] + '</div>'
-		)
+			(doc.body.clientWidth - 55) + 'px; height: 1px;" />'),
+		$add('<div id="DESU_favWait" class="DESU_wait" style="font-size: 1.1em; text-align: center">' +
+			Lng.loading[lang] + '</div>')
 	]);
 }
 
@@ -4836,9 +4822,8 @@ function getHanaFile(file, id) {
 		thumbW = 200;
 		thumbH = 200;
 	}
-	return $add(
-		'<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' + name +
-		'</a><br /><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
+	return $add('<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">'
+		+ name + '</a><br /><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
 			size < kb ? size + ' B'
 			: size < mb ? (size / kb).toFixed(2) + ' KB'
 			: size < gb ? (size / mb).toFixed(2) + ' MB'
@@ -4847,8 +4832,7 @@ function getHanaFile(file, id) {
 		'</em><br /><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
 		'"><img title="edit" alt="edit" src="/images/blank.png" /></a></div><a href="/' + src +
 		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
-		thumbH + '" /></a></div>'
-	);
+		thumbH + '" /></a></div>');
 }
 
 function getHanaPost(postJson) {
@@ -5125,12 +5109,10 @@ function setPostVisib(post, vis, note) {
 			toggleHiddenThread(post, 1);
 		}
 		if(vis === 0 && !el) {
-			el = $add(
-				'<div class="' + aib.cReply + '" id="DESU_hidThr_' + post.Num + '">' +
+			el = $add('<div class="' + aib.cReply + '" id="DESU_hidThr_' + post.Num + '">' +
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-				) + ')</i></div>'
-			);
+				) + ')</i></div>');
 			$t('a', el).onclick = function(e) {
 				$pd(e);
 				togglePostVisib(post);
