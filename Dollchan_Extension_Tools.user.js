@@ -1015,7 +1015,7 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount, 'txt': post.dTitle};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.dTitle};
 	btn.className = 'DESU_btnFavSel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1817,7 +1817,7 @@ function addFavoritesTable(fav) {
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
 						$add('<span class="DESU_favTitle"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 						$add('<span class="DESU_favInfPage"></span>'),
-						$add('<span class="DESU_favInfCount">[<span>' + (Favor[h][b][tNum]['cnt'] + 1) + '</span>]</span>')
+						$add('<span class="DESU_favInfCount">[<span class="DESU_favInfOld">' + Favor[h][b][tNum]['cnt'] + '</span>]</span>')
 					])
 				]));
 			}
@@ -1837,13 +1837,16 @@ function addFavoritesTable(fav) {
 				if(arr[0] !== aib.host) {
 					return;
 				}
-				c = $attr($t('span', $c('DESU_favInfCount', el)), {'class': 'DESU_wait', 'text': ''});
+				c = $attr($c('DESU_favInfCount', el).firstElementChild, {'class': 'DESU_wait', 'text': ''});
 				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
 					var cnt = err ? err : els.length + 1;
-					$attr(c, {'class': '', 'text': cnt});
-					if(!err) {
+					c.textContent = cnt;
+					if(!err && cnt > +Favor[arr[0]][arr[1]][arr[2]].cnt) {
+						c.className = 'DESU_favInfNew';
 						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
 						setStored('DESU_Favorites', JSON.stringify(Favor));
+					} else {
+						c.className = 'DESU_favInfOld';
 					}
 					c = arr = null;
 				});
@@ -3218,7 +3221,7 @@ function addPostButtons(post) {
 		}
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
 			html += '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>';
-			Favor[h][brd][post.Num].cnt = post.thr.pCount;
+			Favor[h][brd][post.Num].cnt = post.thr.pCount + 1;
 		} else {
 			html += '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 		}
@@ -6000,7 +6003,8 @@ function scriptCSS() {
 		.DESU_contData > div > a { text-decoration: none; }\
 		.DESU_contentBlock > a { color: inherit; font-weight: bold; }\
 		.DESU_favInfCount, .DESU_favInfPage { float: right; margin-right: 5px; font: bold 16px serif; }\
-		.DESU_favInfCount > span { color: #4f7942; }\
+		.DESU_favInfOld { color: #4f7942; }\
+		.DESU_favInfNew { color: blue; }\
 		.DESU_favTitle { margin-right: 15px; }\
 		.DESU_omitted { color: grey; font-style: italic; }\
 		.DESU_postNote { color: inherit; font: italic bold 12px serif; }\
