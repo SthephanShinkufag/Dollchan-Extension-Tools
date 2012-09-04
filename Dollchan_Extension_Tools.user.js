@@ -1166,7 +1166,7 @@ function toggleContent(name, isUpd) {
 function showContent(el, id, name, isUpd) {
 	if(el.id === 'DESU_contentHid' && el.expanded) {
 		$each($Q('.DESU_contData > :not(.DESU_hidOppost)', el.firstChild), function(node) {
-			setPostVisib(node.pst, 0, null);
+			setPostVisib(node.pst, true, null);
 		});
 		el.expanded = false;
 	}
@@ -1690,7 +1690,7 @@ function addHiddenTable(hid) {
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
 			pst.vis = pst.vis ? 0 : 1;
-			togglePostContent(pst, pst.vis);
+			togglePostContent(pst, !pst.vis);
 		};
 		if(!pBlock) {
 			pBlock = el.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
@@ -1707,13 +1707,13 @@ function addHiddenTable(hid) {
 				if(el.expanded) {
 					this.value = Lng.expandAll[lang];
 					$each(posts, function(node) {
-						setPostVisib(node.pst, node.vis, null);
+						setPostVisib(node.pst, !node.vis, null);
 					});
 					el.expanded = false;
 				} else {
 					this.value = Lng.undo[lang];
 					$each(posts, function(node) {
-						setPostVisib(node.pst, 1, null);
+						setPostVisib(node.pst, false, null);
 					});
 					el.expanded = true;
 				}
@@ -1721,7 +1721,7 @@ function addHiddenTable(hid) {
 			$btn(Lng.save[lang], '', function() {
 				$each($Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode), function(el) {
 					if(el.vis !== 0 || el.pst.Vis !== 0) {
-						setUserPostVisib(el.pst, 1);
+						setUserPostVisib(el.pst, false);
 					}
 				});
 				this.parentNode.parentNode.expanded = false;
@@ -1762,7 +1762,7 @@ function addHiddenTable(hid) {
 					tNum = arr[1];
 				if($t('input', el).checked) {
 					if(pByNum[tNum]) {
-						setUserPostVisib(pByNum[tNum], 1);
+						setUserPostVisib(pByNum[tNum], false);
 					} else {
 						delete hThrds[b][tNum];
 					}
@@ -4185,13 +4185,7 @@ function getPview(post, pNum, parent, link, txt) {
 			}
 			pView.setAttribute('desu-post', null);
 		}
-		if(post.Vis === 0) {
-			togglePostContent(pView, 1);
-		}
-		if(post.isOp) {
-			pView.className = aib.cReply;
-		}
-		nav.addClass(pView, 'DESU_pView');
+		pView.className = aib.cReply + ' DESU_pView' + (post.viewed ? ' DESU_viewed' : '');
 		if(aib._7ch) {
 			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
@@ -4218,8 +4212,9 @@ function getPview(post, pNum, parent, link, txt) {
 		eventRefLink(pView);
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
-				if(!pst.className.contains('DESU_viewed')) {
+				if(!pst.viewed) {
 					nav.addClass(pst, 'DESU_viewed');
+					pst.viewed = true;
 				}
 				var arr = (sessionStorage['desu-viewed'] || '').split(',');
 				arr.push(num);
@@ -5000,7 +4995,7 @@ function unhideByRef(post) {
 		var pst = pByNum[pNum];
 		if(pst && !uVis[pNum]) {
 			if(sVis[pst.Count] !== 0) {
-				setPostVisib(pst, 1, null);
+				setPostVisib(pst, false, null);
 				pst.Btns.firstChild.className = 'DESU_btnHide';
 			}
 			unhideByRef(pst);
@@ -5028,7 +5023,7 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.Num]) {
 			if(uVis[pNum][0] === 0) {
-				setUserPostVisib(post, 0);
+				setUserPostVisib(post, true);
 			} else {
 				post.Btns.firstChild.className = 'DESU_btnLock';
 			}
@@ -5053,14 +5048,12 @@ function setPostsVisib() {
 }
 
 function togglePostVisib(post) {
-	setUserPostVisib(post, post.Vis !== 0 ? 0 : 1);
+	setUserPostVisib(post, post.Vis !== 0);
 	saveUserPostsVisib();
 }
 
-function togglePostContent(post, vis) {
-	if(post.isOp) {
-		post.thr.style.display = vis === 0 ? 'none' : '';
-	} else if(vis === 0) {
+function togglePostContent(post, hide) {
+	if(hide) {
 		nav.addClass(post, 'DESU_hidden');
 	} else {
 		nav.remClass(post, 'DESU_hidden');
@@ -5081,16 +5074,18 @@ function addPostNote(post, note) {
 	}
 }
 
-function setPostVisib(post, vis, note) {
+function setPostVisib(post, hide, note) {
 	var el, pNum = post.Num;
-	togglePostContent(post, post.Vis = vis);
+	togglePostContent(post, hide);
+	post.Vis = +!hide;
 	if(post.isOp) {
+		post.thr.style.display = hide && 'none';
 		el = $id('DESU_hidThr_' + pNum);
-		if(vis === 1 && el) {
+		if(!hide && el) {
 			$del(el);
 			toggleHiddenThread(post, 1);
 		}
-		if(vis === 0 && !el) {
+		if(hide && !el) {
 			el = $add('<div class="' + aib.cReply + '" id="DESU_hidThr_' + post.Num + '">' +
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -5101,45 +5096,37 @@ function setPostVisib(post, vis, note) {
 			};
 			$before(post.thr, el);
 			toggleHiddenThread(post, 0);
-			post.thr.Vis = vis;
+			post.thr.Vis = +!hide;
 		}
+	} else if(Cfg['delHiddPost']) {
+		aib.getWrap(post).style.display = hide && 'none';
 	} else {
-		if(Cfg['delHiddPost']) {
-			(aib.getWrap(post) || post).style.display = vis === 0 ? 'none' : '';
-		} else {
-			if(el = $c('DESU_postNote', post)) {
-				if(vis === 1) {
-					$del(el);
-				} else if(note) {
-					el.innerText = ' autohide: ' + note + ' ';
-				}
-			} else if(vis === 0) {
-				addPostNote(post, note);
+		if(el = $c('DESU_postNote', post)) {
+			if(!hide) {
+				$del(el);
+			} else if(note) {
+				el.innerText = ' autohide: ' + note + ' ';
 			}
-			if(vis === 0) {
-				el = $q(aib.qRef, post);
-				el.onmouseover = function() {
-					if(post.Vis === 0) {
-						togglePostContent(post, 1);
-					}
-				};
-				el.onmouseout = function() {
-					if(post.Vis === 0) {
-						togglePostContent(post, 0);
-					}
-				};
-			}
+		} else if(hide) {
+			addPostNote(post, note);
 		}
+		el = $q(aib.qRef, post);
+		el.onmouseover = hide && function() {
+			togglePostContent(post, false);
+		};
+		el.onmouseout = hide && function() {
+			togglePostContent(post, true);
+		};
 	}
 	if(Cfg['strikeHidd']) {
 		setTimeout($each, 0, $Q('a[href*="#' + post.Num + '"]', dForm), function(el) {
-			el.className = vis === 0 ? 'DESU_refHid' : '';
+			el.className = hide && 'DESU_refHid';
 		});
 	}
 }
 
 function doHidePost(post, note) {
-	setPostVisib(post, 0, note);
+	setPostVisib(post, true, note);
 	post.Btns.firstChild.className = 'DESU_btnUnhide';
 	hideByRef(post);
 }
@@ -5165,18 +5152,19 @@ function unhidePost(post) {
 	if(wn) {
 		hidePost(post, wn);
 	} else {
-		setPostVisib(post, sVis[post.Count] = 1, null);
+		sVis[post.Count] = 1;
+		setPostVisib(post, false, null);
 		post.Btns.firstChild.className = 'DESU_btnHide';
 		unhideByRef(post);
 		$del($c('DESU_postNote', post));
 	}
 }
 
-function setUserPostVisib(post, vis) {
+function setUserPostVisib(post, hide) {
 	var pNum = post.Num;
-	setPostVisib(post, vis, null);
+	setPostVisib(post, hide, null);
 	post.Btns.firstChild.className = 'DESU_btnLock';
-	if(vis === 0) {
+	if(hide) {
 		hideByRef(post);
 	} else {
 		unhideByRef(post);
@@ -5184,7 +5172,7 @@ function setUserPostVisib(post, vis) {
 	if(!uVis[pNum]) {
 		uVis[pNum] = new Array(2);
 	}
-	uVis[pNum][0] = vis;
+	uVis[pNum][0] = +!hide;
 	uVis[pNum][1] = Date.now();
 }
 
@@ -5221,11 +5209,11 @@ function findSameText(post, oNum, oVis, oWords) {
 	}
 	$del($c('DESU_postNote',  post));
 	if(oVis !== 0) {
-		setUserPostVisib(post, 0);
+		setUserPostVisib(post, true);
 		addPostNote(post, 'similar to >>' + oNum);
 	} else {
 		if(sVis[post.Count] !== 0) {
-			setPostVisib(post, 1, null);
+			setPostVisib(post, false, null);
 		}
 		if(uVis[i = post.Num]) {
 			delete uVis[i];
