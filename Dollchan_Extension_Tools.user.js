@@ -5079,7 +5079,7 @@ function setPostVisib(post, hide, note) {
 	togglePostContent(post, hide);
 	post.Vis = +!hide;
 	if(post.isOp) {
-		post.thr.style.display = hide && 'none';
+		post.thr.style.display = hide ? 'none' : '';
 		el = $id('DESU_hidThr_' + pNum);
 		if(!hide && el) {
 			$del(el);
@@ -5099,7 +5099,7 @@ function setPostVisib(post, hide, note) {
 			post.thr.Vis = +!hide;
 		}
 	} else if(Cfg['delHiddPost']) {
-		aib.getWrap(post).style.display = hide && 'none';
+		aib.getWrap(post).style.display = hide ? 'none' : '';
 	} else {
 		if(el = $c('DESU_postNote', post)) {
 			if(!hide) {
