@@ -1320,10 +1320,8 @@ function getCfgFilters() {
 		lBox('viewHiddNum', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
-			Posts.forEach(function(post) {
-				if(post.Hid && !post.isOp) {
-					$disp(aib.getWrap(post));
-				}
+			$each($C('DESU_hidden', dForm), function(post) {
+				$disp(aib.getWrap(post));
 			});
 			updateCSS();
 		})
@@ -1690,8 +1688,7 @@ function addHiddenTable(hid) {
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
-			pst.Hid = !pst.Hid;
-			togglePostContent(pst, pst.Hid);
+			togglePostContent(pst, pst.Hid = !pst.Hid);
 		};
 		if(!pBlock) {
 			pBlock = el.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
@@ -5112,10 +5109,10 @@ function setPostVisib(post, hide, note) {
 		}
 		el = $q(aib.qRef, post);
 		el.onmouseover = hide && function() {
-			togglePostContent(post, false);
+			togglePostContent(getPost(this), false);
 		};
 		el.onmouseout = hide && function() {
-			togglePostContent(post, true);
+			togglePostContent(getPost(this), true);
 		};
 	}
 	if(Cfg['strikeHidd']) {
