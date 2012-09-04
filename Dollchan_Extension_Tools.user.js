@@ -1682,7 +1682,7 @@ function addHiddenTable(hid) {
 		cln.style.display = '';
 		cln.Hid = true;
 		cln.pst = post;
-		cln.btn = $q('.DESU_btnUnhide, .DESU_btnLock', cln);
+		cln.btn = $q('.DESU_btnHide, .DESU_btnLock', cln);
 		nav.remClass(pP = cln.btn.parentNode, 'DESU_pP_cnt');
 		nav.remClass(pP, 'DESU_pP_del');
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
@@ -4994,7 +4994,6 @@ function unhideByRef(post) {
 		if(pst && !uVis[pNum]) {
 			if(sVis[pst.Count] !== 0) {
 				setPostVisib(pst, false, null);
-				pst.Btns.firstChild.className = 'DESU_btnHide';
 			}
 			unhideByRef(pst);
 		}
@@ -5073,18 +5072,18 @@ function addPostNote(post, note) {
 }
 
 function setPostVisib(post, hide, note) {
-	var el, pNum = post.Num;
+	var el, pNum;
 	togglePostContent(post, post.Hid = hide);
 	if(post.isOp) {
 		post.thr.style.display = hide ? 'none' : '';
 		post.thr.Hid = hide;
-		el = $id('DESU_hidThr_' + pNum);
+		el = $id('DESU_hidThr_' + (pNum = post.Num));
 		if(!hide && el) {
 			$del(el);
 			toggleHiddenThread(post, 1);
 		}
 		if(hide && !el) {
-			el = $add('<div class="' + aib.cReply + '" id="DESU_hidThr_' + post.Num + '">' +
+			el = $add('<div class="' + aib.cReply + '" id="DESU_hidThr_' + pNum + '">' +
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
@@ -5095,36 +5094,37 @@ function setPostVisib(post, hide, note) {
 			$before(post.thr, el);
 			toggleHiddenThread(post, 0);
 		}
-	} else if(Cfg['delHiddPost']) {
-		aib.getWrap(post).style.display = hide ? 'none' : '';
 	} else {
-		if(el = $c('DESU_postNote', post)) {
-			if(!hide) {
-				$del(el);
-			} else if(note) {
-				el.innerText = ' autohide: ' + note + ' ';
+		if(Cfg['delHiddPost']) {
+			aib.getWrap(post).style.display = hide ? 'none' : '';
+		} else {
+			if(el = $c('DESU_postNote', post)) {
+				if(!hide) {
+					$del(el);
+				} else if(note) {
+					el.innerText = ' autohide: ' + note + ' ';
+				}
+			} else if(hide) {
+				addPostNote(post, note);
 			}
-		} else if(hide) {
-			addPostNote(post, note);
+			el = $q(aib.qRef, post);
+			el.onmouseover = hide && function() {
+				togglePostContent(getPost(this), false);
+			};
+			el.onmouseout = hide && function() {
+				togglePostContent(getPost(this), true);
+			};
 		}
-		el = $q(aib.qRef, post);
-		el.onmouseover = hide && function() {
-			togglePostContent(getPost(this), false);
-		};
-		el.onmouseout = hide && function() {
-			togglePostContent(getPost(this), true);
-		};
-	}
-	if(Cfg['strikeHidd']) {
-		setTimeout($each, 0, $Q('a[href*="#' + post.Num + '"]', dForm), function(el) {
-			el.className = hide && 'DESU_refHid';
-		});
+		if(Cfg['strikeHidd']) {
+			setTimeout($each, 0, $Q('a[href*="#' + post.Num + '"]', dForm), function(el) {
+				el.className = hide && 'DESU_refHid';
+			});
+		}
 	}
 }
 
 function doHidePost(post, note) {
 	setPostVisib(post, true, note);
-	post.Btns.firstChild.className = 'DESU_btnUnhide';
 	hideByRef(post);
 }
 
@@ -5151,7 +5151,6 @@ function unhidePost(post) {
 	} else {
 		sVis[post.Count] = 1;
 		setPostVisib(post, false, null);
-		post.Btns.firstChild.className = 'DESU_btnHide';
 		unhideByRef(post);
 		$del($c('DESU_postNote', post));
 	}
@@ -5844,12 +5843,12 @@ function scriptCSS() {
 
 	// Post buttons
 	x += '.DESU_postPanel, .DESU_postPanel_op { margin-left: 4px; }\
-		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnLock, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.DESU_btnHide, .DESU_btnLock, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 		gif('.DESU_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-		gif('.DESU_btnUnhide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.DESU_hidden .DESU_btnHide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
 		gif('.DESU_btnLock', p + 'zSLLcS2MNQGsUMQRRq9CYJo5iRp6Y1FHXcGFuzJjnuIjOBzYr0LS9FnAlrJEGkJhSSUgAADs=');
 		gif('.DESU_btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
 		gif('.DESU_btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
@@ -5860,7 +5859,7 @@ function scriptCSS() {
 	} else {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
 			.DESU_btnHide:after { content: "×"; }\
-			.DESU_btnUnhide:after { content: "+"; }\
+			.DESU_hidden .DESU_btnHide:after { content: "+"; }\
 			.DESU_btnLock:after { content: "■"; }\
 			.DESU_btnRep:after { content: "R"; }\
 			.DESU_btnExpthr:after { content: "E"; }\
