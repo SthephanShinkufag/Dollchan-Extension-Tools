@@ -5996,14 +5996,14 @@ function scriptCSS() {
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
 	if(aib.krau) {
-		x += '.DESU_hidden > .postheader ~ *, img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+		x += '.DESU_hidden > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; float: left; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.fch) {
 		x += '.DESU_spoiler { color: #000; background-color: #000; }\
-			.DESU_hidden > .postInfo ~ * { display: none !important; }';
+			.DESU_hidden > .file, .DESU_hidden > blockquote { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
 			.DESU_hidden > .intro ~ *, .post-hover { display: none !important; }';
