@@ -1027,6 +1027,7 @@ function readViewedPosts() {
 			var post = pByNum[pNum];
 			if(post) {
 				nav.addClass(post, 'DESU_viewed');
+				post.viewed = true;
 			}
 		});
 	}
