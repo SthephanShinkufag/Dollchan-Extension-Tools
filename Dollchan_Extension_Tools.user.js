@@ -710,8 +710,8 @@ function getPrettyJSON(obj, indent) {
 		if(iCount > 0) {
 			sJSON += ',';
 		}
-		sJSON += '\n' + indent + '\t' + (isArr ? '' : '"' + key + '"' + ': ') + (
-			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '\t') :
+		sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
+			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 			type === 'boolean' || type === 'number' ? val.toString() :
 			type === 'string' ? '"' + val.replace(/"/g, '\\"') + '"' : type
 		);
@@ -1677,17 +1677,15 @@ function addHiddenTable(hid) {
 			})
 		]));
 	});
-	Posts.forEach(function(post) {
-		if(post.Vis !== 0 || post.isOp) {
-			return;
-		}
-		var cln = post.cloneNode(true);
+	$each($C('DESU_hidden', dForm), function(post) {
+		var pP, cln = post.cloneNode(true);
 		cln.removeAttribute('id');
 		cln.style.display = '';
 		cln.vis = 0;
 		cln.pst = post;
 		cln.btn = $q('.DESU_btnUnhide, .DESU_btnLock', cln);
-		cln.btn.parentNode.removeAttribute('class');
+		nav.remClass(pP = cln.btn.parentNode, 'DESU_pP_cnt');
+		nav.remClass(pP, 'DESU_pP_del');
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
@@ -3204,7 +3202,7 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + '" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + ' DESU_pP_cnt" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -4199,7 +4197,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.Num = pNum;
-		$each($Q('.DESU_preImg, .DESU_fullImg, .DESU_postPanel, .DESU_btnSrc' + (
+		$each($Q('.DESU_preImg, .DESU_fullImg, .DESU_postPanel, .DESU_postPanel_op, .DESU_btnSrc' + (
 			Cfg['addYouTube'] !== 2 ? ', .DESU_ytObj' : ''
 		), pView), $del);
 		if(!pByNum[pNum]) {
@@ -4865,7 +4863,8 @@ function checkBan(el, node) {
 function markDel(post) {
 	if(!post.isDel) {
 		post.isDel = true;
-		post.Btns.className += '_del';
+		nav.remClass(post.Btns, 'DESU_pP_cnt');
+		nav.addClass(post.Btns, 'DESU_pP_del');
 	}
 }
 
@@ -5061,21 +5060,10 @@ function togglePostVisib(post) {
 function togglePostContent(post, vis) {
 	if(post.isOp) {
 		post.thr.style.display = vis === 0 ? 'none' : '';
+	} else if(vis === 0) {
+		nav.addClass(post, 'DESU_hidden');
 	} else {
-		$xeach($X(
-			'following-sibling::*' + (
-				aib.abu ? '|preceding-sibling::*[following-sibling::span[@class="postername"]]' : ''
-			), $c(
-				aib.krau ? 'postheader' :
-					aib.fch ? 'postInfo' :
-					aib.tiny ? 'intro' :
-					aib._420 ? 'replyheader' :
-					'DESU_postPanel',
-				post
-			) || $q('span[info]', post)
-		), function(el) {
-			el.style.display = vis === 0 ? 'none' : '';
-		});
+		nav.remClass(post, 'DESU_hidden');
 	}
 }
 
@@ -5869,7 +5857,7 @@ function scriptCSS() {
 	gif('#DESU_btnUpdWarn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	// Post buttons
-	x += '.DESU_postPanel, .DESU_postPanel_op, .DESU_postPanel_del { margin-left: 4px; }\
+	x += '.DESU_postPanel, .DESU_postPanel_op { margin-left: 4px; }\
 		.DESU_btnHide, .DESU_btnUnhide, .DESU_btnLock, .DESU_btnRep, .DESU_btnExpthr, .DESU_btnFav, .DESU_btnFavSel, .DESU_btnSage, .DESU_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
@@ -5904,8 +5892,8 @@ function scriptCSS() {
 
 	// Posts counter
 	if(TNum) x += '.DESU_thread { counter-reset: i 1; }\
-		.DESU_postPanel:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
-		.DESU_postPanel_del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
+		.DESU_pP_cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+		.DESU_pP_del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// text format buttons
 	x += '#DESU_txtPanel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -6001,54 +5989,58 @@ function scriptCSS() {
 		.DESU_pViewInfo { padding: 3px 6px !important; }\
 		.DESU_pViewLink { font-weight: bold; }\
 		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#DESU_pIframe, #DESU_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }\
-		textarea { resize: none !important; ' + (nav.Firefox ? '-moz-' : nav.Opera ? '-o-' : '') + 'tab-size: 4; }';
+		#DESU_pIframe, #DESU_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }' +
+		(nav.Opera ? '' : 'textarea { resize: none !important; }');
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
-	if(aib.nul) {
-		x += '#postform nobr, .replieslist, #captcha_status, .DESU_thread span[style="float: right;"] { display: none !important; }\
-			.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-			.ui-resizable { display: inline !important; }\
-			.voiceplay { float: none; }';
-	} else if(aib.hana) {
-		x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
-			.delete { background: none; }\
-			.delete_checkbox { position: static !important; }\
-			.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
-			.DESU_ytObj + div { clear: left; }';
-	} else if(aib.abu) {
-		x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #DESU_parea > hr, hr[style="clear: left;"] { display: none !important; }\
-			#DESU_txtPanel { font-size: 16px !important; }\
-			.DESU_aBtn { transition: none; }';
-	} else if(aib.tiny) {
-		x += 'form, form table { margin: 0; }\
-			.post-hover { display: none !important; }';
-	} else if(aib._7ch) {
-		x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
-	} else if(aib.gazo) {
-		x += '.DESU_content, .DESU_cfgBody { font-family: arial; }\
-			.ftbl { width: auto; margin: 0; }\
-			.reply { background: #f0e0d6; }';
-	} else if(aib.krau) {
-		x += 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+	if(aib.krau) {
+		x += '.DESU_hidden > .postheader ~ *, img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; float: left; }\
 			.DESU_ytObj + div { clear: left; }';
-	} else if(aib._420) {
-		x += '.opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none; }\
-			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
-	} else if(aib.brit) {
-		x += '.DESU_postPanel, .DESU_postPanel_op { float: left; margin-top: 0.45em; }\
-			a + .threadlinktext { position: relative; top: 17px; }\
-			.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
-			.DESU_btnSrc { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
 	} else if(aib.fch) {
-		x += '.DESU_spoiler { color: #000; background-color: #000; }';
-	} else if(aib.tinyIb) {
-		x += 'br.clear { display: none !important; }';
+		x += '.DESU_spoiler { color: #000; background-color: #000; }\
+			.DESU_hidden > .postInfo ~ * { display: none !important; }';
+	} else if(aib.tiny) {
+		x += 'form, form table { margin: 0; }\
+			.DESU_hidden > .intro ~ *, .post-hover { display: none !important; }';
+	} else if(aib._420) {
+		x += '.DESU_hidden > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none !important; }\
+			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
+	} else {
+		x+= '.DESU_hidden > .DESU_postPanel ~ * { display: none !important; }'
+		if(aib.abu) {
+			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #DESU_parea > hr, hr[style="clear: left;"] { display: none !important; }\
+				#DESU_txtPanel { font-size: 16px !important; }\
+				.DESU_aBtn { transition: none; }';
+		} else if(aib.nul) {
+			x += '#postform nobr, .replieslist, #captcha_status, .DESU_thread span[style="float: right;"] { display: none !important; }\
+				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
+				.ui-resizable { display: inline !important; }\
+				.voiceplay { float: none; }';
+		} else if(aib.hana) {
+			x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
+				.delete { background: none; }\
+				.delete_checkbox { position: static !important; }\
+				.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
+				.DESU_ytObj + div { clear: left; }';
+		} else if(aib._7ch) {
+			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
+		} else if(aib.gazo) {
+			x += '.DESU_content, .DESU_cfgBody { font-family: arial; }\
+				.ftbl { width: auto; margin: 0; }\
+				.reply { background: #f0e0d6; }';
+		} else if(aib.brit) {
+			x += '.DESU_postPanel, .DESU_postPanel_op { float: left; margin-top: 0.45em; }\
+				a + .threadlinktext { position: relative; top: 17px; }\
+				.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
+				.DESU_btnSrc { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
+		} else if(aib.tinyIb) {
+			x += 'br.clear { display: none !important; }';
+		}
 	}
 
 	if(nav.Firefox < 16) {
