@@ -370,10 +370,6 @@ ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 									UTILITES
 ==============================================================================*/
 
-function $X(path, root) {
-	return doc.evaluate(path, root, null, 7, null);
-}
-
 function $x(path, root) {
 	return doc.evaluate(path, root, null, 8, null).singleNodeValue;
 }
@@ -415,12 +411,10 @@ function $each(nodes, Fn) {
 	aProto.forEach.call(nodes, Fn);
 }
 
-function $xeach(list, Fn) {
-	var el, i = 0;
-	if(list) {
-		while(el = list.snapshotItem(i)) {
-			Fn(el, i++);
-		}
+function $xeach(path, root, Fn) {
+	var i, res = doc.evaluate(path, root, null, 6, null);
+	for(i = res.snapshotLength - 1; i >= 0; i--) {
+		Fn(res.snapshotItem(i));
 	}
 }
 
@@ -4335,7 +4329,7 @@ function outRefLink() {
 
 function eventRefLink(el) {
 	if(Cfg['linksNavig']) {
-		$xeach($X('.//a[starts-with(text(),">>")]', el), function(link) {
+		$xeach('.//a[starts-with(text(),">>")]', el, function(link) {
 			link.onmouseover = overRefLink;
 			link.onmouseout = outRefLink;
 		});
@@ -6651,7 +6645,7 @@ function tryToParse(node) {
 			thr.pCount = len + getOmPosts(thr);
 		});
 		if(liteMode) {
-			$xeach($X('.//body/node()[not(self::form or @class="threadz")]', doc), $del);
+			$xeach('.//body/node()[not(self::form or @class="threadz")]', doc, $del);
 		}
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
@@ -6706,7 +6700,7 @@ function removePageTrash(el) {
 		$del($t('hr', el));
 	} else if(aib.abu) {
 		if(TNum && (el = $c('DESU_thread', el))) {
-			$xeach($X('following-sibling::node()', el), $del);
+			$xeach('following-sibling::node()', el, $del);
 			nav.insAfter(el, '<hr />');
 		}
 	} else if(aib.brit) {
@@ -6742,9 +6736,9 @@ function initPage() {
 			return false;
 		};
 	}
-	$xeach($X('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
+	$xeach('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
 		aib.fch ? 'self::div[@class="boardBanner"]' : 'self::div[@class="logo"]'
-	) + ' or self::h1]]]', dForm), $del);
+	) + ' or self::h1]]]', dForm, $del);
 	if(aib.abu) {
 		$del(dForm.nextElementSibling);
 		$del(dForm.nextElementSibling);
