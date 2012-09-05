@@ -2292,7 +2292,7 @@ function setUserPassw() {
 }
 
 function initPostform() {
-	var pArea = $New('center', {'id': 'DESU_parea'}, [
+	var pArea = $New('div', {'id': 'DESU_parea', 'style': 'text-align: center;'}, [
 		$New('div', {'id': 'DESU_toggleReply', 'style': 'display: none;'}, [
 			$txt('['),
 			$new('a', {'text': Lng.expandForm[lang], 'href': '#', 'class': 'DESU_aBtn'}, {
@@ -5580,8 +5580,8 @@ function disableSpells() {
 function toggleSpells() {
 	var fld = $id('DESU_spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		err = val && verifyRegExp(val);
-	if(err) {
+		err = verifyRegExp(val);
+	if(err || !val) {
 		if(val) {
 			$alert(Lng.error[lang] + ' ' + err, 'ErrSpell', false);
 		} else {
@@ -5864,7 +5864,7 @@ function scriptCSS() {
 
 	// Posts counter
 	if(TNum) x += '.DESU_thread { counter-reset: i 1; }\
-		.DESU_pP_cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+		.DESU_postPanel.DESU_pP_cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.DESU_pP_del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// text format buttons
@@ -5961,21 +5961,21 @@ function scriptCSS() {
 		.DESU_pViewInfo { padding: 3px 6px !important; }\
 		.DESU_pViewLink { font-weight: bold; }\
 		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#DESU_pIframe, #DESU_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea { display: none !important; }' +
+		#DESU_pIframe, #DESU_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea, .theader { display: none !important; }' +
 		(nav.Opera ? '' : 'textarea { resize: none !important; }');
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
 	if(aib.krau) {
-		x += '.DESU_hidden > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-child > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+		x += '.DESU_hidden > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; float: left; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.fch) {
 		x += '.DESU_spoiler { color: #000; background-color: #000; }\
-			.DESU_hidden > .file, .DESU_hidden > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks { display: none !important; }';
+			.DESU_hidden > .file, .DESU_hidden > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
 			.DESU_hidden > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
@@ -5985,7 +5985,7 @@ function scriptCSS() {
 	} else {
 		x+= '.DESU_hidden > .DESU_postPanel ~ * { display: none !important; }'
 		if(aib.abu) {
-			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), hr[style="clear: left;"], #BottomNormalReply, body > center:not(#DESU_parea) { display: none !important; }\
+			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), hr[style="clear: left;"], #BottomNormalReply, body > center { display: none !important; }\
 				#DESU_txtPanel { font-size: 16px !important; }\
 				.DESU_aBtn { transition: none; }';
 		} else if(aib.nul) {
@@ -6540,7 +6540,7 @@ function getImageboard() {
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
-			return $xb('.//span[@class="posteruid" and text()="(ID: Heaven)"]', post);
+			return $c('id_Heaven', post);
 		} :
 		aib.krau ? function(post) {
 			return !!$c('sage', post);
