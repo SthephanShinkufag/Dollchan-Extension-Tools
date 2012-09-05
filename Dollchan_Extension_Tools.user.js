@@ -6678,15 +6678,13 @@ function replacePost(el) {
 }
 
 function replaceDelform() {
-	if(aib.rep) {
-		nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
-		dForm.style.display = 'none';
-		dForm.id = 'DESU_oldDForm';
-		dForm = dForm.previousSibling;
-		$event(window, {'load': function() {
-			$del($id('DESU_oldDForm'));
-		}});
-	}
+	nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
+	dForm.style.display = 'none';
+	dForm.id = 'DESU_oldDForm';
+	dForm = dForm.previousSibling;
+	$event(window, {'load': function() {
+		$del($id('DESU_oldDForm'));
+	}});
 }
 
 function removePageTrash(el) {
@@ -6791,8 +6789,10 @@ function doScript() {
 	$log('initBoard');
 	readCfg();
 	$log('readCfg');
-	replaceDelform();
-	$log('replaceDelform');
+	if(aib.rep) {
+		replaceDelform();
+		$log('replaceDelform');
+	}
 	if(!tryToParse(dForm)) {
 		return;
 	}
