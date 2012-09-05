@@ -5983,7 +5983,7 @@ function scriptCSS() {
 	} else {
 		x+= '.DESU_hidden > .DESU_postPanel ~ * { display: none !important; }'
 		if(aib.abu) {
-			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #DESU_parea > hr, hr[style="clear: left;"], #BottomNormalReply, body > center { display: none !important; }\
+			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), hr[style="clear: left;"], #BottomNormalReply, body > center:not(#DESU_parea) { display: none !important; }\
 				#DESU_txtPanel { font-size: 16px !important; }\
 				.DESU_aBtn { transition: none; }';
 		} else if(aib.nul) {
