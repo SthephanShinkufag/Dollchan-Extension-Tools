@@ -2446,14 +2446,7 @@ function doPostformChanges(img, m, el) {
 			_img = $new('img', {
 				'alt': Lng.loading[lang],
 				'title': Lng.refresh[lang],
-				'style': 'display: block; border: none; cursor: pointer;',
-				'src': refreshCapSrc(
-					aib._410 ? ('/faptcha.php?board=' + brd) :
-						aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
-						aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
-						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
-					TNum || 0
-				)}, {
+				'style': 'display: block; border: none; cursor: pointer;'}, {
 				'click': function() {
 					refreshCapImg(TNum || 0);
 				}
@@ -2466,6 +2459,15 @@ function doPostformChanges(img, m, el) {
 				}
 				$after(pr.cap, _img);
 			}
+			setTimeout(function(i) {
+				i.src = refreshCapSrc(
+					aib._410 ? ('/faptcha.php?board=' + brd) :
+						aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
+						aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
+						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
+					TNum || 0
+				);
+			}, 50, _img);
 		}
 	}
 	if(Cfg['addSageBtn'] && pr.mail) {
