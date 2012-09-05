@@ -4427,7 +4427,7 @@ function newPost(thr, post, pNum, i) {
 	if(aib.tiny) {
 		thr.appendChild(doc.createElement('br'));
 	}
-	return +post.Hid;
+	return +!post.Hid;
 }
 
 function processFullMsg(post) {
