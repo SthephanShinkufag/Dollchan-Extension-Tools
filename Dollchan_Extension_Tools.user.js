@@ -714,18 +714,7 @@ function getPrettyJSON(obj, indent) {
 	return sJSON += '\n' + indent + (isArr ? ']' : '}');
 }
 
-function ELFHash(arr, len) {
-	for(var g, h = 0, i = 0; i < len; ++i) {
-		h = (h << 4) + arr[i];
-		if(g = h & 0xF0000000) {
-			h ^= g >>> 24;
-		}
-		h &= ~g;
-	}
-	return h;
-}
-
-function ELFHashStr(str) {
+function ELFHash(str) {
 	for(var g, h = 0, i = 0, len = str.length; i < len; ++i) {
 		h = (h << 4) + str.charCodeAt(i);
 		if(g = h & 0xF0000000) {
@@ -783,7 +772,7 @@ function getStoredObj(id, def) {
 }
 
 function saveSpells(val) {
-	spellsHash = ELFHashStr(val);
+	spellsHash = ELFHash(val);
 	spellsList = val.split('\n');
 	setStored('DESU_Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
 	initSpells();
@@ -3444,7 +3433,7 @@ function dateTime(pattern, diff, dtLang, info, hash) {
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
-	if(info && hash && ELFHashStr(info) === +hash) {
+	if(info && hash && ELFHash(info) === +hash) {
 		this.inited = true;
 		this.rPattern = info.substring(1);
 		this.fullM = !!+info[0];
@@ -3486,7 +3475,7 @@ dateTime.prototype.init = function(txt) {
 		this.rPattern += str.substring(j, k) + '_' + p;
 		j = k + a.length;
 	}
-	sessionStorage['timeRPHash'] = ELFHashStr(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
+	sessionStorage['timeRPHash'] = ELFHash(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
 	this.inited = true;
 	return this;
 };
@@ -5229,14 +5218,14 @@ function hideBySameText(post) {
 
 /*-------------------------Hide posts with similar images---------------------*/
 
-function prepareImgHash(data, oldw, oldh) {
-	var i, j, l, c, t, u, tmp = oldw * oldh,
+function genImgHash(data, oldw, oldh) {
+	var i, j, l, c, t, u, g, tmp = oldw * oldh,
 		newh = 8,
 		neww = 8,
 		levels = 3,
 		areas = 256 / levels,
 		values = 256 / (levels - 1),
-		rv = new Uint8Array(newh * neww);
+		hash = 0;
 	for(i = 0, j = 0; i < tmp; i++, j += 4) {
 		data[i] = data[j] * 0.3 + data[j + 1] * 0.59 + data[j + 2] * 0.11;
 	}
@@ -5258,15 +5247,17 @@ function prepareImgHash(data, oldw, oldh) {
 				c = oldw - 2;
 			}
 			t = tmp - c;
-			tmp = values * (((data[l * oldw + c] * ((1 - t) * (1 - u)) +
+			hash = (hash << 4) + Math.min(values * (((data[l * oldw + c] * ((1 - t) * (1 - u)) +
 				data[l * oldw + c + 1] * (t * (1 - u)) +
 				data[(l + 1) * oldw + c + 1] * (t * u) +
-				data[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) >> 0);
-			if(tmp > 255) tmp = 255;
-			rv[i * newh + j] = tmp;
+				data[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) >> 0), 255);
+			if(g = hash & 0xF0000000) {
+				hash ^= g >>> 24;
+			}
+			hash &= ~g;
 		}
 	}
-	return rv;
+	return hash;
 }
 
 function getImgHash(post) {
@@ -5282,7 +5273,7 @@ function getImgHash(post) {
 	h = cnv.height = img.height;
 	ctx = cnv.getContext('2d');
 	ctx.drawImage(img, 0, 0);
-	return img.hash = ELFHash(prepareImgHash(ctx.getImageData(0, 0, w, h).data, w, h), 8 * 8);
+	return img.hash = genImgHash(ctx.getImageData(0, 0, w, h).data, w, h);
 }
 
 /*==============================================================================
