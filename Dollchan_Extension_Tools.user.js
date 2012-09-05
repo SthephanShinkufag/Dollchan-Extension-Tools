@@ -5580,8 +5580,8 @@ function disableSpells() {
 function toggleSpells() {
 	var fld = $id('DESU_spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		err = val && verifyRegExp(val);
-	if(err) {
+		err = verifyRegExp(val);
+	if(err || !val) {
 		if(val) {
 			$alert(Lng.error[lang] + ' ' + err, 'ErrSpell', false);
 		} else {
