@@ -91,7 +91,7 @@ var defaultCfg = {
 	'animation':	1,		// animation in script
 	'closePopups':	0,		// auto-close popups
 	'updScript':	1,		// check for script's update
-	'scrUpdIntrv':	2,		// 		check interval in days (0=on page load)
+	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
 	'betaScrUpd':	0,		// 		check for beta-version
 	'lastScrUpd':	0,		// 		last update check
 	'textaWidth':	540,	// textarea width
@@ -205,7 +205,7 @@ Lng = {
 		'closePopups':	['Автоматически закрывать уведомления', 'Close popups automatically'],
 		'updScript':	['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
 		'scrUpdIntrv': {
-			sel:		[['Всегда', 'Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Always', 'Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
+			sel:		[['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
 			txt:		['Интервал проверки', 'Check interval']
 		},
 		'betaScrUpd':	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
@@ -1537,11 +1537,11 @@ function getCfgInfo() {
 
 function getCfgBody(id) {
 	switch(id) {
-		case 'cfgPosts': return getCfgPosts();
-		case 'cfgLinks': return getCfgLinks();
-		case 'cfgForm': return getCfgForm();
-		case 'cfgCommon': return getCfgCommon();
-		case 'cfgInfo': return getCfgInfo();
+	case 'cfgPosts': return getCfgPosts();
+	case 'cfgLinks': return getCfgLinks();
+	case 'cfgForm': return getCfgForm();
+	case 'cfgCommon': return getCfgCommon();
+	case 'cfgInfo': return getCfgInfo();
 	}
 }
 
@@ -5959,31 +5959,31 @@ function scriptCSS() {
 		.DESU_pViewInfo { padding: 3px 6px !important; }\
 		.DESU_pViewLink { font-weight: bold; }\
 		.DESU_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#DESU_pIframe, #DESU_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"] { display: none !important; }' +
+		#DESU_pIframe, #DESU_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea { display: none !important; }' +
 		(nav.Opera ? '' : 'textarea { resize: none !important; }');
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
 	if(aib.krau) {
-		x += '.DESU_hidden > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"]' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+		x += '.DESU_hidden > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-child > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; float: left; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.fch) {
 		x += '.DESU_spoiler { color: #000; background-color: #000; }\
-			.DESU_hidden > .file, .DESU_hidden > blockquote { display: none !important; }';
+			.DESU_hidden > .file, .DESU_hidden > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.DESU_hidden > .intro ~ *, .post-hover { display: none !important; }';
+			.DESU_hidden > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
 	} else if(aib._420) {
-		x += '.DESU_hidden > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript { display: none !important; }\
+		x += '.DESU_hidden > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
 	} else {
 		x+= '.DESU_hidden > .DESU_postPanel ~ * { display: none !important; }'
 		if(aib.abu) {
-			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #DESU_parea > hr, hr[style="clear: left;"] { display: none !important; }\
+			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #DESU_parea > hr, hr[style="clear: left;"], #BottomNormalReply, body > center { display: none !important; }\
 				#DESU_txtPanel { font-size: 16px !important; }\
 				.DESU_aBtn { transition: none; }';
 		} else if(aib.nul) {
@@ -5998,7 +5998,8 @@ function scriptCSS() {
 				.file + .DESU_ytObj { float: left; margin: 5px 20px 5px 5px; }\
 				.DESU_ytObj + div { clear: left; }';
 		} else if(aib._7ch) {
-			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
+			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }\
+				.content.notice { display: none !important; }';
 		} else if(aib.gazo) {
 			x += '.DESU_content, .DESU_cfgBody { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
@@ -6010,6 +6011,8 @@ function scriptCSS() {
 				.DESU_btnSrc { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
 		} else if(aib.tinyIb) {
 			x += 'br.clear { display: none !important; }';
+		} else if(aib.pony) {
+			x += '#bodywrap3 > hr, .blotter { display: none !important; }';
 		}
 	}
 
@@ -6071,15 +6074,15 @@ function updateCSS() {
 
 function checkForUpdates(isForce, Fn) {
 	var day, temp = Cfg['scrUpdIntrv'];
-	if(!isForce && temp !== 0) {
+	if(!isForce) {
 		day = 2 * 1000 * 60 * 60 * 24;
 		switch(temp) {
-		case 1: temp = day; break;
-		case 2: temp = day * 2; break;
-		case 3: temp = day * 7; break;
-		case 4: temp = day * 14; break;
-		case 5: temp = day * 30; break;
-		default: return;
+		case 0: temp = day; break;
+		case 1: temp = day * 2; break;
+		case 2: temp = day * 7; break;
+		case 3: temp = day * 14; break;
+		case 4:
+		default: temp = day * 30; break;
 		}
 		if(Date.now() - +Cfg['lastScrUpd'] < temp) {
 			return;
@@ -6687,9 +6690,7 @@ function replaceDelform() {
 }
 
 function removePageTrash(el) {
-	if(aib.krau) {
-		$del($t('hr', el));
-	} else if(aib.abu) {
+	if(aib.abu) {
 		if(TNum && (el = $c('DESU_thread', el))) {
 			$xeach('following-sibling::node()', el, $del);
 			nav.insAfter(el, '<hr />');
@@ -6726,15 +6727,6 @@ function initPage() {
 		aib.getSage = function(post) {
 			return false;
 		};
-	}
-	$xeach('preceding-sibling::node()[preceding-sibling::*[descendant-or-self::*[' + (
-		aib.fch ? 'self::div[@class="boardBanner"]' : 'self::div[@class="logo"]'
-	) + ' or self::h1]]]', dForm, $del);
-	if(aib.abu) {
-		$del(dForm.nextElementSibling);
-		$del(dForm.nextElementSibling);
-	} else if(aib.krau) {
-		$del($t('hr', dForm.previousElementSibling));
 	}
 	if(TNum) {
 		if(Cfg['rePageTitle']) {
