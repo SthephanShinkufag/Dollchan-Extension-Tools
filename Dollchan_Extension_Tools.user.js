@@ -1227,7 +1227,7 @@ function optSel(id, isBlock, Fn) {
 
 function cfgTab(name) {
 	return $New('div', {'class': aib.cReply + ' de-cfg-tab-back', 'selected': false}, [
-		$new('div', {'class': 'de-cfg-tab', 'text': Lng.cfgTab[name][lang], 'info': 'cfg-' + name}, {
+		$new('div', {'class': 'de-cfg-tab', 'text': Lng.cfgTab[name][lang], 'info': name}, {
 			'click': function() {
 				var el, id, pN = this.parentNode;
 				if(pN.getAttribute('selected') === 'true') {
@@ -1240,12 +1240,18 @@ function cfgTab(name) {
 				}
 				pN.setAttribute('selected', true);
 				id = this.getAttribute('info');
-				el = $id('de-' + id);
+				el = $id('de-cfg-' + id);
 				if(!el) {
-					$after($id('de-cfg-bar'), el = getCfgBody(id));
+					$after($id('de-cfg-bar'), el =
+						id === 'posts' ? getCfgPosts() :
+						id === 'links' ? getCfgLinks() :
+						id === 'form' ? getCfgForm() :
+						id === 'common' ? getCfgCommon() :
+						getCfgInfo()
+					);
 				}
 				el.className = 'de-cfg-body';
-				if(id === 'cfg-filters') {
+				if(id === 'filters') {
 					readSpells();
 					$id('de-spell-edit').value = spellsList.join('\n');
 				}
@@ -1482,14 +1488,14 @@ function getCfgCommon() {
 				optSel('scrUpdIntrv', false, null),
 				lBox('betaScrUpd', true, null),
 				$btn(Lng.checkNow[lang], '', function() {
-					var el = $id('de-upd-res');
+					var el = $id('de-updresult');
 					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
 					checkForUpdates(true, function(html) {
 						el.innerHTML = html;
 					});
 				})
 			]),
-			$new('div', {'id': 'de-upd-res', 'style': 'font-size: 1.1em; text-align: center'}, null)
+			$new('div', {'id': 'de-updresult', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
 	]);
 }
@@ -1514,7 +1520,6 @@ function getCfgInfo() {
 				'value': Lng.debug[lang],
 				'title': Lng.infoDebug[lang]}, {
 				'click': function() {
-					$del($id('de-alert-debughelp'));
 					var i, nCfg = new Config(Cfg),
 						tl = timeLog.split('\n');
 					tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
@@ -1539,16 +1544,6 @@ function getCfgInfo() {
 			})
 		])
 	]);
-}
-
-function getCfgBody(id) {
-	switch(id) {
-	case 'cfg-posts': return getCfgPosts();
-	case 'cfg-links': return getCfgLinks();
-	case 'cfg-form': return getCfgForm();
-	case 'cfg-common': return getCfgCommon();
-	case 'cfg-info': return getCfgInfo();
-	}
 }
 
 function addSettings(Set) {
