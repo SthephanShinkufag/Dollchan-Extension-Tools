@@ -6859,7 +6859,6 @@ function doScript() {
 	scriptCSS();
 	$log('scriptCSS');
 	endTime = Date.now() - initTime;
-	alert(getPrettyJSON(sessionStorage));
 }
 
 if(window.opera) {
