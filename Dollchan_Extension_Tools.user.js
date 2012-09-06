@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.8.31.0
+// @version			12.9.6.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.8.31.0',
+	'version':	'12.9.6.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -4240,16 +4240,15 @@ function getPview(post, pNum, parent, link, txt) {
 	return pView;
 }
 
-function getAjaxPview(b, pNum) {
-	var el, nodes, i;
+function getAjaxPview(b, pNum, tNum) {
 	if(!Pviews.ajaxed[b]) {
 		return null;
 	}
-	el = Pviews.ajaxed[b][pNum];
+	var nodes, i, el = Pviews.ajaxed[b][pNum];
 	if(b === brd || !el || el.aRep) {
 		return el;
 	}
-	pNum = fixBrd(b) + res + el.thr.Num + (aib.tire ? '.html' : docExt);
+	pNum = fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt);
 	for(nodes = $T('a', el), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
@@ -4263,7 +4262,7 @@ function showPview(link) {
 	var b = link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || getAjaxPview(b, pNum),
+		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
 		parent = getPost(link),
 		el = parent.pView ? parent.kid : Pviews.top;
 	if(Cfg['noNavigHidd'] && post && post.Hid) {
@@ -4292,7 +4291,7 @@ function showPview(link) {
 				len = els.length;
 			op.isOp = true;
 			op.Msg = $q(aib.qMsg, op);
-			Pviews.ajaxed[b][aib.getTNum(op)] = op;
+			Pviews.ajaxed[b][tNum] = op;
 			for(; i < len; i++) {
 				pst = els[i];
 				pst.Msg = $q(aib.qMsg, pst);
@@ -4300,10 +4299,10 @@ function showPview(link) {
 			}
 			genRefMap(Pviews.ajaxed[b]);
 			if(el && el.parentNode) {
-				getPview(getAjaxPview(b, pNum), pNum, parent, link, err);
+				getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, err);
 			}
 		}
-		b = pNum = parent = el = null;
+		b = pNum = tNum = parent = el = null;
 	});
 }
 
