@@ -3116,7 +3116,7 @@ function addTextPanel() {
 							scrtop = x.scrollTop,
 							text = x.value.substring(start, end).split('\n'),
 							i = text.length,
-							tag = tagTable[this.id.substring(8)][0];
+							tag = tagTable[this.id.substring(6)][0];
 						$pd(e);
 						if(bbBrds || (aib.fch && tag === 'spoiler')) {
 							tag1 = '[' + tag + ']';
