@@ -904,6 +904,12 @@ function readPostsVisib() {
 		var data = (sessionStorage['desu-hidden'] || '').split(',');
 		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
 			sVis = data[2].split('');
+			if(data = sessionStorage['desu-deleted']) {
+				data.split(',').forEach(function(dC) {
+					sVis.splice(dC, 1);
+				});
+				delete sessionStorage['desu-deleted'];
+			}
 		}
 	}
 	sVis.length = Posts.length;
@@ -4638,7 +4644,6 @@ function loadPages(len) {
 				eventRefLink(dForm);
 				readPostsVisib();
 				setPostsVisib();
-				savePostsVisib();
 				if(isExpImg) {
 					Posts.forEach(function(post) {
 						expandAllPostImg(post, null);
@@ -4839,6 +4844,8 @@ function checkBan(el, node) {
 
 function markDel(post) {
 	if(!post.isDel) {
+		var dd = sessionStorage['desu-deleted'];
+		sessionStorage['desu-deleted'] = (dd ? dd + ',' : '') + post.Count;
 		post.isDel = true;
 		nav.remClass(post.Btns, 'DESU_pP_cnt');
 		nav.addClass(post.Btns, 'DESU_pP_del');
@@ -5233,25 +5240,15 @@ function genImgHash(data, oldw, oldh) {
 	for(i = 0; i < newh; i++) {
 		for(j = 0; j < neww; j++) {
 			tmp = i / (newh - 1) * (oldh - 1);
-			l = Math.floor(tmp);
-			if(l < 0) {
-				l = 0;
-			} else if(l >= oldh - 1) {
-				l = oldh - 2;
-			}
+			l = Math.min(tmp | 0, oldh - 2);
 			u = tmp - l;
 			tmp = j / (neww - 1) * (oldw - 1);
-			c = Math.floor(tmp);
-			if(c < 0) {
-				c = 0;
-			} else if(c >= oldw - 1) {
-				c = oldw - 2;
-			}
+			c = Math.min(tmp | 0, oldw - 2);
 			t = tmp - c;
 			hash = (hash << 4) + Math.min(values * (((data[l * oldw + c] * ((1 - t) * (1 - u)) +
 				data[l * oldw + c + 1] * (t * (1 - u)) +
 				data[(l + 1) * oldw + c + 1] * (t * u) +
-				data[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) >> 0), 255);
+				data[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
 			if(g = hash & 0xF0000000) {
 				hash ^= g >>> 24;
 			}
