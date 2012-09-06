@@ -5237,12 +5237,12 @@ function genImgHash(data, oldw, oldh) {
 	for(i = 0, j = 0; i < tmp; i++, j += 4) {
 		data[i] = data[j] * 0.3 + data[j + 1] * 0.59 + data[j + 2] * 0.11;
 	}
-	for(i = 0; i < 8; i++) {
+	for(i = 0; i < newh; i++) {
 		for(j = 0; j < neww; j++) {
-		    tmp = i / (newh - 1) * (oldh - 1)
+			tmp = i / (newh - 1) * (oldh - 1);
 			l = Math.min(tmp | 0, oldh - 2);
 			u = tmp - l;
-			tmp = j / (neww - 1) * (oldw - 1)
+			tmp = j / (neww - 1) * (oldw - 1);
 			c = Math.min(tmp | 0, oldw - 2);
 			t = tmp - c;
 			hash = (hash << 4) + Math.min(values * (((data[l * oldw + c] * ((1 - t) * (1 - u)) +
