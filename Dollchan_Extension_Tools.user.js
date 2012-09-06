@@ -6624,7 +6624,7 @@ function tryToParse(node) {
 			var i, op = aib.getOp(thr, doc),
 				els = aProto.slice.call(aib.getPosts(thr)),
 				len = els.length;
-			processPost(op, thr.numy = aib.getTNum(op), thr, 0);
+			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent || getText(op).substring(0, 70);
 			for(i = 0; i < len; i++) {
