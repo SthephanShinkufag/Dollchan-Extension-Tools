@@ -610,7 +610,7 @@ function addContentScript(text) {
 }
 
 function getPost(el) {
-	return $x('ancestor::*[@de_post]', el);
+	return $x('ancestor::*[@de-post]', el);
 }
 
 function getPostImages(el) {
@@ -774,12 +774,12 @@ function getStoredObj(id, def) {
 function saveSpells(val) {
 	spellsHash = ELFHash(val);
 	spellsList = val.split('\n');
-	setStored('dE_Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
+	setStored('de-Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
 	initSpells();
 }
 
 function readSpells() {
-	var arr, data = getStored('dE_Spells_' + aib.dm);
+	var arr, data = getStored('de-Spells_' + aib.dm);
 	try {
 		arr = JSON.parse(data);
 		spellsHash = arr[0];
@@ -809,7 +809,7 @@ function parseCfg(id) {
 }
 
 function fixCfg(isGlob) {
-	var rv = isGlob && parseCfg('dE_GlobalCfg') || new Config({'version': defaultCfg['version']});
+	var rv = isGlob && parseCfg('de-GlobalCfg') || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.ru ? 2 : 1;
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
@@ -818,7 +818,7 @@ function fixCfg(isGlob) {
 }
 
 function readCfg() {
-	Cfg = parseCfg('dE_Config_' + aib.dm) || fixCfg(nav.isGlobal);
+	Cfg = parseCfg('de-Config_' + aib.dm) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
 	if(nav.Opera && nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
@@ -850,13 +850,13 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	setStored('dE_Config_' + aib.dm, JSON.stringify(Cfg));
+	setStored('de-Config_' + aib.dm, JSON.stringify(Cfg));
 	lang = Cfg['language'];
-	Stat = getStoredObj('dE_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
+	Stat = getStoredObj('de-Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
 		Stat['view'] = +Stat['view'] + 1;
 	}
-	setStored('dE_Stat_' + aib.dm, JSON.stringify(Stat));
+	setStored('de-Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(
 			Cfg['timePattern'],
@@ -884,7 +884,7 @@ function readCfg() {
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		setStored('dE_Config_' + aib.dm, JSON.stringify(Cfg));
+		setStored('de-Config_' + aib.dm, JSON.stringify(Cfg));
 	}
 }
 
@@ -901,25 +901,25 @@ function getHidCfg() {
 function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
-		var data = (sessionStorage['de_hidden'] || '').split(',');
+		var data = (sessionStorage['de-hidden'] || '').split(',');
 		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
 			sVis = data[2].split('');
-			if(data = sessionStorage['de_deleted']) {
+			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
 					sVis.splice(dC, 1);
 				});
-				delete sessionStorage['de_deleted'];
+				delete sessionStorage['de-deleted'];
 			}
 		}
 	}
 	sVis.length = Posts.length;
-	uVis = getStoredObj('dE_Posts_' + aib.dm + '_' + brd, {});
+	uVis = getStoredObj('de-Posts_' + aib.dm + '_' + brd, {});
 	readHiddenThreads();
 }
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['de_hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
+		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
 			getHidCfg() + ',' + sVis.join('');
 	}
 	toggleContent('Hid', true);
@@ -936,16 +936,16 @@ function saveUserPostsVisib() {
 		});
 		str = JSON.stringify(uVis);
 	}
-	setStored('dE_Posts_' + aib.dm + '_' + brd, str);
+	setStored('de-Posts_' + aib.dm + '_' + brd, str);
 	toggleContent('Hid', true);
 }
 
 function readHiddenThreads() {
-	hThrds = getStoredObj('dE_Threads_' + aib.dm, {});
+	hThrds = getStoredObj('de-Threads_' + aib.dm, {});
 }
 
 function saveHiddenThreads(txt) {
-	setStored('dE_Threads_' + aib.dm, txt);
+	setStored('de-Threads_' + aib.dm, txt);
 }
 
 function toggleHiddenThread(post, vis) {
@@ -964,11 +964,11 @@ function toggleHiddenThread(post, vis) {
 }
 
 function readFavorites() {
-	Favor = getStoredObj('dE_Favorites', {});
+	Favor = getStoredObj('de-Favorites', {});
 }
 
 function saveFavorites(txt) {
-	setStored('dE_Favorites', txt);
+	setStored('de-Favorites', txt);
 	toggleContent('Fav', true);
 }
 
@@ -981,7 +981,7 @@ function removeFavorites(h, b, tNum) {
 		delete Favor[h];
 	}
 	if(pByNum[tNum]) {
-		($c('dE_btnFavSel', pByNum[tNum].btns) || {}).className = 'dE_btnFav';
+		($c('de-btnFavSel', pByNum[tNum].btns) || {}).className = 'de-btnFav';
 	}
 }
 
@@ -1005,17 +1005,17 @@ function toggleFavorites(post, btn) {
 		Favor[h][b] = {};
 	}
 	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle};
-	btn.className = 'dE_btnFavSel';
+	btn.className = 'de-btnFavSel';
 	saveFavorites(JSON.stringify(Favor));
 }
 
 function readViewedPosts() {
-	var viewed = sessionStorage['de_viewed'];
+	var viewed = sessionStorage['de-viewed'];
 	if(viewed) {
 		viewed.split(',').forEach(function(pNum) {
 			var post = pByNum[pNum];
 			if(post) {
-				nav.addClass(post, 'dE_viewed');
+				nav.addClass(post, 'de-viewed');
 				post.viewed = true;
 			}
 		});
@@ -1029,8 +1029,8 @@ function readViewedPosts() {
 function pButton(id, click, href, over, out) {
 	return $New('li', null, [
 		$new('a', {
-			'id': 'dE_btn' + id,
-			'class': 'dE_aBtn',
+			'id': 'de-btn' + id,
+			'class': 'de-aBtn',
 			'title': Lng.panelBtn[id][lang],
 			'href': href || '#',
 			'onmouseout': out}, {
@@ -1042,14 +1042,14 @@ function pButton(id, click, href, over, out) {
 
 function addPanel() {
 	var imgLen = getPostImages(dForm).length;
-	$before(dForm, $New('div', {'id': 'dE_panelStuff', 'lang': getThemeLang()}, [
+	$before(dForm, $New('div', {'id': 'de-panelStuff', 'lang': getThemeLang()}, [
 		$new('div', {'style': 'clear:both;'}, null),
-		$New('div', {'id': 'dE_panel'}, [
-			$new('span', {'id': 'dE_btnLogo'}, {'click': function() {
+		$New('div', {'id': 'de-panel'}, [
+			$new('span', {'id': 'de-btnLogo'}, {'click': function() {
 				toggleCfg('expandPanel');
 				updateCSS();
 			}}),
-			$New('ul', {'id': 'dE_panelBtns'}, [
+			$New('ul', {'id': 'de-panelBtns'}, [
 				pButton('Settings', function(e) {
 					$pd(e);
 					toggleContent('Cfg', false);
@@ -1069,7 +1069,7 @@ function addPanel() {
 					if(!TNum) {
 						selectAjaxPages();
 					}
-				}, 'dE_delSelection(event)'),
+				}, 'de_delSelection(event)'),
 				pButton(
 					'GoBack', null,
 					'//' + aib.host + getPageUrl(aib.host, brd, pageNum - 1),
@@ -1107,7 +1107,7 @@ function addPanel() {
 					if(ajaxInterval) {
 						endPostsUpdate();
 					} else {
-						this.id = 'dE_btnUpdOn';
+						this.id = 'de-btnUpdOn';
 						initThreadsUpdater();
 					}
 				}, null, null, null)),
@@ -1115,20 +1115,20 @@ function addPanel() {
 					$pd(e);
 					toggleAudioNotif();
 					Audio.repeat = false;
-					this.id = Audio.enabled ? 'dE_btnAudioOn' : 'dE_btnAudioOff';
-					$del($id('dE_select'));
-				}, null, selectAudioNotif, 'dE_delSelection(event)')),
+					this.id = Audio.enabled ? 'de-btnAudioOn' : 'de-btnAudioOff';
+					$del($id('de-select'));
+				}, null, selectAudioNotif, 'de_delSelection(event)')),
 				$if(aib.nul, pButton('Catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
 			]),
-			$if(TNum, $New('div', {'id': 'dE_panelInfo'}, [
+			$if(TNum, $New('div', {'id': 'de-panelInfo'}, [
 				$new('span', {
 					'title': Lng.panelBtn['counter'][lang],
 					'text': Posts.length + '/' + imgLen
 				}, null)
 			]))
 		]),
-		$new('div', {'class': 'dE_content'}, null),
-		$new('div', {'id': 'dE_alertBox'}, null),
+		$new('div', {'class': 'de-content'}, null),
+		$new('div', {'id': 'de-alertBox'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
 	]));
 }
@@ -1137,8 +1137,8 @@ function toggleContent(name, isUpd) {
 	if(liteMode) {
 		return;
 	}
-	var el = $c('dE_content', doc),
-		id = 'dE_content' + name;
+	var el = $c('de-content', doc),
+		id = 'de-content' + name;
 	if(isUpd && el.id !== id) {
 		return;
 	}
@@ -1147,15 +1147,15 @@ function toggleContent(name, isUpd) {
 			showContent(node, id, name, isUpd);
 			id = name = isUpd = null;
 		});
-		el.className = 'dE_content dE_cfgClose';
+		el.className = 'de-content de-cfgClose';
 	} else {
 		showContent(el, id, name, isUpd);
 	}
 }
 
 function showContent(el, id, name, isUpd) {
-	if(el.id === 'dE_contentHid' && el.expanded) {
-		$each($Q('.dE_contData > :not(.dE_hidOppost)', el.firstChild), function(node) {
+	if(el.id === 'de-contentHid' && el.expanded) {
+		$each($Q('.de-contData > :not(.de-hidOppost)', el.firstChild), function(node) {
 			setPostVisib(node.pst, true, null);
 		});
 		el.expanded = false;
@@ -1185,7 +1185,7 @@ function showContent(el, id, name, isUpd) {
 		}
 	}
 	if(Cfg['animation']) {
-		el.className = 'dE_content dE_cfgOpen';
+		el.className = 'de-content de-cfgOpen';
 	}
 }
 
@@ -1202,7 +1202,7 @@ function lBox(id, isBlock, Fn) {
 		}
 	}});
 	el.checked = Cfg[id];
-	return $New('label', isBlock ? {'class': 'dE_blockInp'} : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
+	return $New('label', isBlock ? {'class': 'de-blockInp'} : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
 }
 
 function inpTxt(id, size, Fn) {
@@ -1222,32 +1222,32 @@ function optSel(id, isBlock, Fn) {
 			saveCfg(this.getAttribute('info'), this.selectedIndex);
 		}
 	})).selectedIndex = Cfg[id];
-	return $New('label', isBlock ? {'class': 'dE_blockInp'} : null, [el, $txt(' ' + x.txt[lang])]);
+	return $New('label', isBlock ? {'class': 'de-blockInp'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
 
 function cfgTab(name) {
-	return $New('div', {'class': aib.cReply + ' dE_cfgTabBack', 'selected': false}, [
-		$new('div', {'class': 'dE_cfgTab', 'text': Lng.cfgTab[name][lang], 'info': 'cfg' + name}, {
+	return $New('div', {'class': aib.cReply + ' de-cfgTabBack', 'selected': false}, [
+		$new('div', {'class': 'de-cfgTab', 'text': Lng.cfgTab[name][lang], 'info': 'cfg' + name}, {
 			'click': function() {
 				var el, id, pN = this.parentNode;
 				if(pN.getAttribute('selected') === 'true') {
 					return;
 				}
-				el = $c('dE_cfgBody', doc);
+				el = $c('de-cfgBody', doc);
 				if(el) {
-					el.className = 'dE_cfgUnvis';
-					$q('.dE_cfgTabBack[selected="true"]', doc).setAttribute('selected', false);
+					el.className = 'de-cfgUnvis';
+					$q('.de-cfgTabBack[selected="true"]', doc).setAttribute('selected', false);
 				}
 				pN.setAttribute('selected', true);
 				id = this.getAttribute('info');
-				el = $id('dE_' + id);
+				el = $id('de-' + id);
 				if(!el) {
-					$after($id('dE_cfgBar'), el = getCfgBody(id));
+					$after($id('de-cfgBar'), el = getCfgBody(id));
 				}
-				el.className = 'dE_cfgBody';
+				el.className = 'de-cfgBody';
 				if(id === 'cfgFilters') {
 					readSpells();
-					$id('dE_spellEdit').value = spellsList.join('\n');
+					$id('de-spellEdit').value = spellsList.join('\n');
 				}
 			}
 		})
@@ -1255,18 +1255,18 @@ function cfgTab(name) {
 }
 
 function getCfgFilters() {
-	return $New('div', {'class': 'dE_cfgUnvis', 'id': 'dE_cfgFilters'}, [
+	return $New('div', {'class': 'de-cfgUnvis', 'id': 'de-cfgFilters'}, [
 		$New('div', null, [
-			$New('span', {'id': 'dE_spellPanel'}, [
+			$New('span', {'id': 'de-spellPanel'}, [
 				$new('a', {
 					'text': Lng.add[lang],
 					'href': '#',
-					'class': 'dE_aBtn',
-					'onmouseout': 'dE_delSelection(event)'}, {
+					'class': 'de-aBtn',
+					'onmouseout': 'de_delSelection(event)'}, {
 					'click': $pd,
 					'mouseover': selectSpell
 				}),
-				$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'dE_aBtn'}, {
+				$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						saveCfg('hideBySpell', 1);
@@ -1274,10 +1274,10 @@ function getCfgFilters() {
 						toggleSpells();
 					}
 				}),
-				$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'dE_aBtn'}, {
+				$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-aBtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$id('dE_spellEdit').value = '';
+						$id('de-spellEdit').value = '';
 						toggleSpells();
 					}
 				}),
@@ -1285,14 +1285,14 @@ function getCfgFilters() {
 					'text': '?',
 					'target': '_blank',
 					'href': '//www.freedollchan.org/scripts/spells',
-					'class': 'dE_aBtn'
+					'class': 'de-aBtn'
 				}, null)
 			]),
 			lBox('hideBySpell', false, toggleSpells),
-			$new('textarea', {'id': 'dE_spellEdit', 'rows': 10, 'cols': 49}, null)
+			$new('textarea', {'id': 'de-spellEdit', 'rows': 10, 'cols': 49}, null)
 		]),
 		lBox('hideByWipe', true, null),
-		$New('div', {'id': 'dE_cfgWipe'}, [
+		$New('div', {'id': 'de-cfgWipe'}, [
 			$New('div', null, [
 				lBox('wipeSameLin', false, null),
 				lBox('wipeSameWrd', false, null),
@@ -1309,7 +1309,7 @@ function getCfgFilters() {
 		lBox('viewHiddNum', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
-			$each($C('dE_hidPost', dForm), function(post) {
+			$each($C('de-hidPost', dForm), function(post) {
 				$disp(aib.getWrap(post));
 			});
 			updateCSS();
@@ -1318,7 +1318,7 @@ function getCfgFilters() {
 }
 
 function getCfgPosts() {
-	return $New('div', {'class': 'dE_cfgUnvis', 'id': 'dE_cfgPosts'}, [
+	return $New('div', {'class': 'de-cfgUnvis', 'id': 'de-cfgPosts'}, [
 		optSel('updThread', false, null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
@@ -1347,7 +1347,7 @@ function getCfgPosts() {
 		lBox('noPostScrl', true, updateCSS),
 		$New('div', null, [
 			lBox('keybNavig', false, null),
-			$new('a', {'text': '?', 'href': '#', 'class': 'dE_aBtn'}, {'click': function(e) {
+			$new('a', {'text': '?', 'href': '#', 'class': 'de-aBtn'}, {'click': function(e) {
 				$pd(e);
 				$alert(Lng.keyNavHelp[lang], 'HelpKNav', false);
 			}})
@@ -1361,7 +1361,7 @@ function getCfgPosts() {
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
 				$txt(' '),
-				$new('a', {'text': Lng.cfg['timePattern'][lang], 'href': '#', 'class': 'dE_aBtn'}, {
+				$new('a', {'text': Lng.cfg['timePattern'][lang], 'href': '#', 'class': 'de-aBtn'}, {
 					'click': function(e) {
 						$pd(e);
 						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'HelpTRep', false);
@@ -1373,7 +1373,7 @@ function getCfgPosts() {
 }
 
 function getCfgLinks() {
-	return $New('div', {'class': 'dE_cfgUnvis', 'id': 'dE_cfgLinks'}, [
+	return $New('div', {'class': 'de-cfgUnvis', 'id': 'de-cfgLinks'}, [
 		optSel('linksNavig', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			$New('div', null, [
@@ -1411,11 +1411,11 @@ function getCfgLinks() {
 }
 
 function getCfgForm() {
-	return $New('div', {'class': 'dE_cfgUnvis', 'id': 'dE_cfgForm'}, [
+	return $New('div', {'class': 'de-cfgUnvis', 'id': 'de-cfgForm'}, [
 		$if(pr.on, optSel('addPostForm', true, null)),
 		$if(pr.on, lBox('noThrdForm', true, function() {
 			if(!TNum) {
-				$id('dE_parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
+				$id('de-parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
 			}
 		})),
 		lBox('favOnReply', true, null),
@@ -1463,10 +1463,10 @@ function getCfgForm() {
 }
 
 function getCfgCommon() {
-	return $New('div', {'class': 'dE_cfgUnvis', 'id': 'dE_cfgCommon'}, [
+	return $New('div', {'class': 'de-cfgUnvis', 'id': 'de-cfgCommon'}, [
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
-			$id('dE_panelStuff').lang = getThemeLang();
+			$id('de-panelStuff').lang = getThemeLang();
 		}),
 		lBox('attachPanel', true, function() {
 			toggleContent('Cfg', false);
@@ -1478,24 +1478,24 @@ function getCfgCommon() {
 		lBox('closePopups', true, null),
 		$if(!nav.Opera, $New('div', null, [
 			lBox('updScript', true, null),
-			$New('div', {'id': 'dE_updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
+			$New('div', {'id': 'de-updCont', 'style': 'padding: 2px 0 10px 25px;'}, [
 				optSel('scrUpdIntrv', false, null),
 				lBox('betaScrUpd', true, null),
 				$btn(Lng.checkNow[lang], '', function() {
-					var el = $id('dE_updRes');
-					el.innerHTML = '<span class="dE_wait">' + Lng.checking[lang] + '</div>';
+					var el = $id('de-updRes');
+					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
 					checkForUpdates(true, function(html) {
 						el.innerHTML = html;
 					});
 				})
 			]),
-			$new('div', {'id': 'dE_updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
+			$new('div', {'id': 'de-updRes', 'style': 'font-size: 1.1em; text-align: center'}, null)
 		]))
 	]);
 }
 
 function getCfgInfo() {
-	return $New('div', {'class': 'dE_cfgUnvis', 'id': 'dE_cfgInfo'}, [
+	return $New('div', {'class': 'de-cfgUnvis', 'id': 'de-cfgInfo'}, [
 		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + Cfg['version'] + '</b><br><br>' +
 			Lng.storage[lang] + (
 				nav.isGM ? 'Mozilla config' :
@@ -1514,7 +1514,7 @@ function getCfgInfo() {
 				'value': Lng.debug[lang],
 				'title': Lng.infoDebug[lang]}, {
 				'click': function() {
-					$del($id('dE_alertHelpDEBUG'));
+					$del($id('de-alertHelpDEBUG'));
 					var i, nCfg = new Config(Cfg),
 						tl = timeLog.split('\n');
 					tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
@@ -1553,8 +1553,8 @@ function getCfgBody(id) {
 
 function addSettings(Set) {
 	Set.appendChild($New('div', {'class': aib.cReply}, [
-		$new('div', {'id': 'dE_cfgHead', 'text': 'Dollchan Extension Tools'}, null),
-		$New('div', {'id': 'dE_cfgBar'}, [
+		$new('div', {'id': 'de-cfgHead', 'text': 'Dollchan Extension Tools'}, null),
+		$New('div', {'id': 'de-cfgBar'}, [
 			cfgTab('Filters'),
 			cfgTab('Posts'),
 			cfgTab('Links'),
@@ -1563,27 +1563,27 @@ function addSettings(Set) {
 			cfgTab('Info')
 		]),
 		getCfgFilters(),
-		$New('div', {'id': 'dE_cfgBtns'}, [
+		$New('div', {'id': 'de-cfgBtns'}, [
 			$New('span', {'style': 'float: right;'}, [
 				optSel('language', false, function() {
 					saveCfg('language', lang = this.selectedIndex);
-					$del($id('dE_panelStuff'));
-					$del($id('dE_css'));
-					$del($id('dE_dynCss'));
+					$del($id('de-panelStuff'));
+					$del($id('de-css'));
+					$del($id('de-dynCss'));
 					scriptCSS();
 					addPanel();
 					toggleContent('Cfg', false);
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(parseCfg('dE_GlobalCfg')) {
-						setStored('dE_Config_' + aib.dm, '');
+					if(parseCfg('de-GlobalCfg')) {
+						setStored('de-Config_' + aib.dm, '');
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'ErrNoGCfg', false);
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					setStored('dE_GlobalCfg', JSON.stringify(Cfg));
+					setStored('de-GlobalCfg', JSON.stringify(Cfg));
 					toggleContent('Cfg', true);
 				})),
 				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
@@ -1593,10 +1593,10 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						setStored('dE_Config_' + aib.dm, JSON.stringify(fixCfg(false)));
-						setStored('dE_Stat_' + aib.dm, '');
-						setStored('dE_Favorites', '');
-						setStored('dE_Threads_' + aib.dm, '');
+						setStored('de-Config_' + aib.dm, JSON.stringify(fixCfg(false)));
+						setStored('de-Stat_' + aib.dm, '');
+						setStored('de-Favorites', '');
+						setStored('de-Threads_' + aib.dm, '');
 						saveSpells('');
 						window.location.reload();
 					}
@@ -1606,13 +1606,13 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 56}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					setStored('dE_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
+					setStored('de-Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 					window.location.reload();
 				})
 			])
 		])
 	]));
-	$c('dE_cfgTab', Set).click();
+	$c('de-cfgTab', Set).click();
 }
 
 
@@ -1621,10 +1621,10 @@ function addSettings(Set) {
 ==============================================================================*/
 
 function contentBlock(parent, link) {
-	return parent.appendChild($New('div', {'class': 'dE_contentBlock'}, [
+	return parent.appendChild($New('div', {'class': 'de-contentBlock'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function() {
 			var res = this.checked;
-			$each($Q('.dE_contData > div > input', this.parentNode), function(el) {
+			$each($Q('.de-contData > div > input', this.parentNode), function(el) {
 				el.checked = res;
 			});
 			res = null;
@@ -1654,42 +1654,42 @@ function addHiddenTable(hid) {
 		wrap.pst = op;
 		wrap.hide = true;
 		if(!tBlock) {
-			tBlock = el.appendChild($New('div', {'class': 'dE_contentBlock'}, [
+			tBlock = el.appendChild($New('div', {'class': 'de-contentBlock'}, [
 				$add('<b>' + Lng.hiddenThrds[lang] + Lng.onPage[lang] + ':</b>')
 			]));
 		}
-		tBlock.appendChild($New('div', {'class': 'dE_contData'}, [
+		tBlock.appendChild($New('div', {'class': 'de-contData'}, [
 			wrap, $attr(op.cloneNode(true), {
-				'class': 'dE_hidOppost',
+				'class': 'de-hidOppost',
 				'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
 			})
 		]));
 	});
-	$each($C('dE_hidPost', dForm), function(post) {
+	$each($C('de-hidPost', dForm), function(post) {
 		var pP, cln = post.cloneNode(true);
 		cln.removeAttribute('id');
 		cln.style.display = '';
 		cln.hide = true;
 		cln.pst = post;
-		cln.btn = $q('.dE_btnHide, .dE_btnLock', cln);
-		nav.remClass(pP = cln.btn.parentNode, 'dE_pP_cnt');
-		nav.remClass(pP, 'dE_pP_del');
+		cln.btn = $q('.de-btnHide, .de-btnLock', cln);
+		nav.remClass(pP = cln.btn.parentNode, 'de-pP_cnt');
+		nav.remClass(pP, 'de-pP_del');
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
 			togglePostContent(pst, pst.hide = !pst.hide);
 		};
 		if(!pBlock) {
-			pBlock = el.appendChild($New('div', {'class': 'dE_contentBlock'}, [
+			pBlock = el.appendChild($New('div', {'class': 'de-contentBlock'}, [
 				$add('<b>' + Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b>')
 			]));
 		}
-		pBlock.appendChild($New('div', {'class': 'dE_contData'}, [cln]));
+		pBlock.appendChild($New('div', {'class': 'de-contData'}, [cln]));
 	});
 	if(pBlock || tBlock) {
 		$append(el, [
 			$btn(Lng.expandAll[lang], '', function() {
-				var posts = $Q('.dE_contData > :not(.dE_hidOppost)', this.parentNode),
+				var posts = $Q('.de-contData > :not(.de-hidOppost)', this.parentNode),
 					el = this.parentNode.parentNode;
 				if(el.expanded) {
 					this.value = Lng.expandAll[lang];
@@ -1706,7 +1706,7 @@ function addHiddenTable(hid) {
 				}
 			}),
 			$btn(Lng.save[lang], '', function() {
-				$each($Q('.dE_contData > :not(.dE_hidOppost)', this.parentNode), function(el) {
+				$each($Q('.de-contData > :not(.de-hidOppost)', this.parentNode), function(el) {
 					if(!el.hide || !el.pst.hide) {
 						setUserPostVisib(el.pst, false);
 					}
@@ -1726,7 +1726,7 @@ function addHiddenTable(hid) {
 		for(b in hThrds) {
 			tBlock = contentBlock(el, $add('<b>' + b + '</b>'));
 			for(tNum in hThrds[b]) {
-				tBlock.appendChild($New('div', {'class': 'dE_contData', 'info': b + ';' + tNum}, [
+				tBlock.appendChild($New('div', {'class': 'de-contData', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + getThrdUrl(aib.host, b, tNum) +
@@ -1743,7 +1743,7 @@ function addHiddenTable(hid) {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(hThrds, '')}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$each($C('dE_contData', this.parentNode), function(el) {
+			$each($C('de-contData', this.parentNode), function(el) {
 				var i, arr = el.getAttribute('info').split(';'),
 					b = arr[0],
 					tNum = arr[1];
@@ -1758,7 +1758,7 @@ function addHiddenTable(hid) {
 					}
 				}
 			});
-			setStored('dE_Threads_' + aib.dm, JSON.stringify(hThrds));
+			setStored('de-Threads_' + aib.dm, JSON.stringify(hThrds));
 			saveUserPostsVisib();
 		}),
 		$New('div', {'style': 'display: none;'}, [
@@ -1785,14 +1785,14 @@ function addFavoritesTable(fav) {
 				fav, $add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
 			);
 			for(tNum in Favor[h][b]) {
-				block.appendChild($New('div', {'class': 'dE_contData', 'info': h + ';' + b + ';' + tNum}, [
+				block.appendChild($New('div', {'class': 'de-contData', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$add('<input type="checkbox" />'),
-						$new('span', {'class': 'dE_btnExpthr'}, {'click': loadFavorThread}),
+						$new('span', {'class': 'de-btnExpthr'}, {'click': loadFavorThread}),
 						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
-						$add('<span class="dE_favTitle"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
-						$add('<span class="dE_favInfPage"></span>'),
-						$add('<span class="dE_favInfCount">[<span class="dE_favInfOld">' +
+						$add('<span class="de-favTitle"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
+						$add('<span class="de-favInfPage"></span>'),
+						$add('<span class="de-favInfCount">[<span class="de-favInfOld">' +
 							Favor[h][b][tNum]['cnt'] + '</span>]</span>')
 					])
 				]));
@@ -1808,21 +1808,21 @@ function addFavoritesTable(fav) {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(Favor, '')}).parentNode);
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
-			$each($C('dE_contData', doc), function(el) {
+			$each($C('de-contData', doc), function(el) {
 				var c, arr = el.getAttribute('info').split(';');
 				if(arr[0] !== aib.host) {
 					return;
 				}
-				c = $attr($c('dE_favInfCount', el).firstElementChild, {'class': 'dE_wait', 'text': ''});
+				c = $attr($c('de-favInfCount', el).firstElementChild, {'class': 'de-wait', 'text': ''});
 				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
 					var cnt = err ? err : els.length + 1;
 					c.textContent = cnt;
 					if(!err && cnt > Favor[arr[0]][arr[1]][arr[2]].cnt) {
-						c.className = 'dE_favInfNew';
+						c.className = 'de-favInfNew';
 						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
-						setStored('dE_Favorites', JSON.stringify(Favor));
+						setStored('de-Favorites', JSON.stringify(Favor));
 					} else {
-						c.className = 'dE_favInfOld';
+						c.className = 'de-favInfOld';
 					}
 					c = arr = null;
 				});
@@ -1834,12 +1834,12 @@ function addFavoritesTable(fav) {
 			$alert(Lng.loading[lang], 'LPages', true);
 			while(i--) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
-					$each($C('dE_contData', doc), function(el) {
+					$each($C('de-contData', doc), function(el) {
 						var arr = el.getAttribute('info').split(';');
 						if(arr[0] !== aib.host || arr[1] !== brd) {
 							return;
 						}
-						el = $c('dE_favInfPage', el);
+						el = $c('de-favInfPage', el);
 						if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
 							el.innerHTML = '@' + idx;
 						} else if(loaded === 5 && !el.textContent.contains('@')) {
@@ -1847,7 +1847,7 @@ function addFavoritesTable(fav) {
 						}
 					});
 					if(loaded === 5) {
-						closeAlert($id('dE_alertLPages'));
+						closeAlert($id('de-alertLPages'));
 					}
 					loaded++;
 					page = idx = null;
@@ -1855,7 +1855,7 @@ function addFavoritesTable(fav) {
 			}
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			$each($C('dE_contData', doc), function(el) {
+			$each($C('de-contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
 				if(nav.Opera && arr[0] !== aib.host) {
 					return;
@@ -1870,7 +1870,7 @@ function addFavoritesTable(fav) {
 			});
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$each($C('dE_contData', doc), function(el) {
+			$each($C('de-contData', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
 				if($t('input', el).checked) {
 					removeFavorites(arr[0], arr[1], arr[2]);
@@ -1897,7 +1897,7 @@ function closeAlert(el) {
 		el.closeTimeout = null;
 		if(Cfg['animation']) {
 			nav.animEvent(el, $del);
-			nav.addClass(el, 'dE_aClose');
+			nav.addClass(el, 'de-aClose');
 		} else {
 			$del(el);
 		}
@@ -1905,8 +1905,8 @@ function closeAlert(el) {
 }
 
 function $alert(txt, id, wait) {
-	var el = $id('dE_alert' + id),
-		cMsg = 'dE_alertMsg' + (wait ? ' dE_wait' : ''),
+	var el = $id('de-alert' + id),
+		cMsg = 'de-alertMsg' + (wait ? ' de-wait' : ''),
 		tBtn = wait ? '' : '× ';
 	if(el) {
 		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
@@ -1914,23 +1914,23 @@ function $alert(txt, id, wait) {
 		clearTimeout(el.closeTimeout);
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
-				nav.remClass(node, 'dE_aBlink');
+				nav.remClass(node, 'de-aBlink');
 			});
-			nav.addClass(el, 'dE_aBlink');
+			nav.addClass(el, 'de-aBlink');
 		}
 		return;
 	}
-	el = $id('dE_alertBox').appendChild($New('div', {'class': aib.cReply, 'id': 'dE_alert' + id}, [
-		$new('span', {'class': 'dE_alertBtn', 'text': tBtn}, {'click': function() {
+	el = $id('de-alertBox').appendChild($New('div', {'class': aib.cReply, 'id': 'de-alert' + id}, [
+		$new('span', {'class': 'de-alertBtn', 'text': tBtn}, {'click': function() {
 			closeAlert(this.parentNode);
 		}}),
 		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
 	]));
 	if(Cfg['animation']) {
 		nav.animEvent(el, function(node) {
-			nav.remClass(node, 'dE_aOpen');
+			nav.remClass(node, 'de-aOpen');
 		});
-		nav.addClass(el, 'dE_aOpen');
+		nav.addClass(el, 'de-aOpen');
 	}
 	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
@@ -1946,7 +1946,7 @@ function addSelMenu(el, fPanel, html) {
 	var y, pos, pst = getPost(el);
 	if(Cfg['attachPanel'] && fPanel) {
 		pos = 'fixed';
-		y = el.id === 'dE_btnRefresh' || el.id === 'dE_btnAudioOff' ?
+		y = el.id === 'de-btnRefresh' || el.id === 'de-btnAudioOff' ?
 			'bottom: 25' :
 			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
@@ -1954,18 +1954,18 @@ function addSelMenu(el, fPanel, html) {
 		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.appendChild($event($add(
-		'<div class="' + aib.cReply + '" id="dE_select" style="position: ' + pos + '; ' + (
-			el.className === 'dE_btnSrc' ?
+		'<div class="' + aib.cReply + '" id="de-select" style="position: ' + pos + '; ' + (
+			el.className === 'de-btnSrc' ?
 				'left: ' + $offset(el).left :
 				'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="dE_delSelection(event)">' + html + '</div>'), {
+		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>'), {
 		'mouseover': function() {
 			if(pst) {
 				markPviewToDel(pst, false);
 			}
 		}
 	}));
-	return $T('a', $id('dE_select'));
+	return $T('a', $id('de-select'));
 }
 
 function selectSpell(e) {
@@ -1986,7 +1986,7 @@ function selectSpell(e) {
 			} else if(exp === '#b/itt') {
 				exp = '#' + brd + '/' + (TNum ? TNum + ' ': ' ');
 			}
-			$txtInsert($id('dE_spellEdit'), exp);
+			$txtInsert($id('de-spellEdit'), exp);
 		};
 	});
 }
@@ -2038,7 +2038,7 @@ function selectExpandThread(post) {
 
 function selectAjaxPages() {
 	$each(addSelMenu(
-		$id('dE_btnRefresh'), true,
+		$id('de-btnRefresh'), true,
 		'<a href="#">' + Lng.selAjaxPages[lang].join('</a><a href="#">') + '</a>'
 	), function(a, j) {
 		a.onclick = function(e) {
@@ -2049,10 +2049,10 @@ function selectAjaxPages() {
 }
 
 function selectAudioNotif() {
-	if(this.id !== 'dE_btnAudioOff') {
+	if(this.id !== 'de-btnAudioOff') {
 		return;
 	}
-	$each(addSelMenu($id('dE_btnAudioOff'), true,
+	$each(addSelMenu($id('de-btnAudioOff'), true,
 		'<a href="#">' + Lng.selAudioNotif[lang].join('</a><a href="#">') + '</a>'
 	), function(a, j) {
 		a.onclick = function(e) {
@@ -2064,7 +2064,7 @@ function selectAudioNotif() {
 				i === 2 ? 12e4 :
 				3e5;
 			toggleAudioNotif();
-			$id('dE_btnAudioOff').id = 'dE_btnAudioOn';
+			$id('de-btnAudioOff').id = 'de-btnAudioOn';
 			$del(this.parentNode);
 		};
 	});
@@ -2072,23 +2072,23 @@ function selectAudioNotif() {
 
 function selectImgSearch(node) {
 	var p = node.nextSibling.href + '" target="_blank">' + Lng.search[lang],
-		c = doc.body.getAttribute('de_image-search'),
+		c = doc.body.getAttribute('de-image-search'),
 		str = '';
 	if(c) {
 		c = c.split(';');
 		c.forEach(function(el) {
 			var info = el.split(',');
-			str += '<a class="dE_src' + info[0] + (!info[1] ?
-				'" onclick="dE_cImgSearch(event, \'' + info[0] + '\')" href="#" de_url="' :
+			str += '<a class="de-src' + info[0] + (!info[1] ?
+				'" onclick="de_cImgSearch(event, \'' + info[0] + '\')" href="#" de-url="' :
 				'" href="' + info[1]
 			) + p + info[0] + '</a>';
 		});
 	}
 	addSelMenu(
-		node, false, '<a class="dE_srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
-			'<a class="dE_srcTineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="dE_srcGoogle" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="dE_srcSaucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
+		node, false, '<a class="de-srcIqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
+			'<a class="de-srcTineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
+			'<a class="de-srcGoogle" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
+			'<a class="de-srcSaucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
 	);
 	str = null;
 }
@@ -2123,13 +2123,13 @@ function initKeyNavig() {
 						$offset(post).top - window.innerHeight / 2 + post.clientHeight / 2
 				);
 			}
-			if(idx = $c('dE_selected', doc)) {
-				nav.remClass(idx, 'dE_selected');
+			if(idx = $c('de-selected', doc)) {
+				nav.remClass(idx, 'de-selected');
 			}
 			if(post.isOp) {
 				post = post.thr;
 			}
-			nav.addClass(post, 'dE_selected');
+			nav.addClass(post, 'de-selected');
 			return mIdx;
 		},
 		scrollDownToPost = function() {
@@ -2268,8 +2268,8 @@ function refreshCapImg(tNum) {
 
 function doSageBtn() {
 	var c = Cfg['sageReply'];
-	$id('dE_sageBtn').innerHTML = '&nbsp;' + (
-		c ? '<span class="dE_btnSage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
+	$id('de-sageBtn').innerHTML = '&nbsp;' + (
+		c ? '<span class="de-btnSage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
 	);
 	if(pr.mail.type === 'text') {
 		pr.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
@@ -2298,15 +2298,15 @@ function setUserPassw() {
 }
 
 function initPostform() {
-	var pArea = $New('div', {'id': 'dE_parea', 'style': 'text-align: center;'}, [
-		$New('div', {'id': 'dE_toggleReply', 'style': 'display: none;'}, [
+	var pArea = $New('div', {'id': 'de-parea', 'style': 'text-align: center;'}, [
+		$New('div', {'id': 'de-toggleReply', 'style': 'display: none;'}, [
 			$txt('['),
-			$new('a', {'text': Lng.expandForm[lang], 'href': '#', 'class': 'dE_aBtn'}, {
+			$new('a', {'text': Lng.expandForm[lang], 'href': '#', 'class': 'de-aBtn'}, {
 				'click': toggleMainReply
 			}),
 			$txt(']')
 		]),
-		$New('div', {'id': 'dE_pform'}, [pr.form, oeForm]),
+		$New('div', {'id': 'de-pform'}, [pr.form, oeForm]),
 		doc.createElement('hr')
 	]);
 	if(TNum && Cfg['addPostForm'] === 1) {
@@ -2317,7 +2317,7 @@ function initPostform() {
 	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
-	nav.insAfter(pArea, '<div id="dE_qarea" class="' + aib.cReply + '" style="display: none;"></div>');
+	nav.insAfter(pArea, '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 	if(pr.on) {
 		doPostformChanges(null, null, null);
 	} else if(oeForm) {
@@ -2339,7 +2339,7 @@ function doPostformChanges(img, m, el) {
 		};
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	$after(pr.txta, $new('div', {'id': 'dE_txtResizer'}, {'mousedown': function(e) {
+	$after(pr.txta, $new('div', {'id': 'de-txtResizer'}, {'mousedown': function(e) {
 		$pd(e);
 		$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
 	}}));
@@ -2372,7 +2372,7 @@ function doPostformChanges(img, m, el) {
 			$alert(Lng.checking[lang], 'Upload', true);
 		}
 		if(Cfg['favOnReply'] && pr.tNum) {
-			toggleFavorites(pByNum[pr.tNum], $c('dE_btnFav', pByNum[pr.tNum].btns));
+			toggleFavorites(pByNum[pr.tNum], $c('de-btnFav', pByNum[pr.tNum].btns));
 		}
 		if(pr.tNum) {
 			Stat['reply'] = +Stat['reply'] + 1;
@@ -2382,10 +2382,10 @@ function doPostformChanges(img, m, el) {
 		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
 			pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 		}
-		setStored('dE_Stat_' + aib.dm, JSON.stringify(Stat));
+		setStored('de-Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
-			$disp($id('dE_qarea'));
-			$after($id('dE_toggleReply'), $id('dE_pform'));
+			$disp($id('de-qarea'));
+			$after($id('de-toggleReply'), $id('de-pform'));
 		}
 	}});
 	$each($Q('input[type="text"]', pr.form), function(node) {
@@ -2477,7 +2477,7 @@ function doPostformChanges(img, m, el) {
 		}
 	}
 	if(Cfg['addSageBtn'] && pr.mail) {
-		sBtn = $new('span', {'id': 'dE_sageBtn'}, {'click': function(e) {
+		sBtn = $new('span', {'id': 'de-sageBtn'}, {'click': function(e) {
 			e.stopPropagation();
 			$pd(e);
 			toggleCfg('sageReply');
@@ -2510,12 +2510,12 @@ function doPostformChanges(img, m, el) {
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
-			$append($id('dE_panelStuff'), [
-				$add('<iframe id="dE_pIframe" name="dE_pIframe" src="about:blank"/>'),
-				$add('<iframe id="dE_dIframe" name="dE_dIframe" src="about:blank"/>')
+			$append($id('de-panelStuff'), [
+				$add('<iframe id="de-pIframe" name="de-pIframe" src="about:blank"/>'),
+				$add('<iframe id="de-dIframe" name="de-dIframe" src="about:blank"/>')
 			]);
-			$attr(pr.form, {'target': 'dE_pIframe'}).onsubmit = null;
-			$attr(dForm, {'target': 'dE_dIframe'}).onsubmit = function() {
+			$attr(pr.form, {'target': 'de-pIframe'}).onsubmit = null;
+			$attr(dForm, {'target': 'de-dIframe'}).onsubmit = function() {
 				$alert(Lng.deleting[lang], 'Deleting', true);
 			};
 		}
@@ -2542,7 +2542,7 @@ function processInput() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
 		$after(this, $event($add(
-			'<button type="button" class="dE_fileUtil">' + Lng.clear[lang] + '</button>'), {
+			'<button type="button" class="de-fileUtil">' + Lng.clear[lang] + '</button>'), {
 			'click': clearInput
 		}));
 	} else if(this.rarJPEG) {
@@ -2550,10 +2550,10 @@ function processInput() {
 		$del(this.nextSibling);
 	}
 	if(aib.rJpeg) {
-		$del($c('dE_delFile', this.parentNode));
+		$del($c('de-delFile', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 			$after(this.nextSibling, $event($add(
-				'<button type="button" class="dE_fileUtil dE_delFile">' +
+				'<button type="button" class="de-fileUtil de-delFile">' +
 					Lng.makeRjpeg[lang] + '</button>'), {
 				'click': makeRarJPEG
 			}));
@@ -2571,8 +2571,8 @@ function clearInput(e) {
 
 function makeRarJPEG(e) {
 	$pd(e);
-	var el = $id('dE_arInput') || doc.body.appendChild($new('input', {
-			'id': 'dE_arInput',
+	var el = $id('de-arInput') || doc.body.appendChild($new('input', {
+			'id': 'de-arInput',
 			'type': 'file',
 			'style': 'display: none'
 		}, null)),
@@ -2588,7 +2588,7 @@ function makeRarJPEG(e) {
 
 function readArch(inp, file) {
 	var fr = new FileReader(),
-		el = $add('<span class="dE_fileUtil" style="margin: 0 5px;"><span class="dE_wait"></span>' +
+		el = $add('<span class="de-fileUtil" style="margin: 0 5px;"><span class="de-wait"></span>' +
 			Lng.wait[lang] + '</span>');
 	$after(inp, el);
 	fr.onload = function() {
@@ -2606,7 +2606,7 @@ function readArch(inp, file) {
 }
 
 function delFileUtils(el) {
-	$each($Q('.dE_fileUtil', el), $del);
+	$each($Q('.de-fileUtil', el), $del);
 	$each($Q('input[type="file"]', el), function(node) {
 		node.rarJPEG = null;
 	});
@@ -2658,7 +2658,7 @@ function findDeleteError(dc) {
 }
 
 function endUpload() {
-	closeAlert($id('dE_alertUpload'));
+	closeAlert($id('de-alertUpload'));
 	if(Cfg['updThread'] === 2) {
 		infoNewPosts(null, 0);
 	}
@@ -2668,8 +2668,8 @@ function checkUpload(err, url) {
 	var tNum, file, qArea;
 	if(err) {
 		if(pr.isQuick) {
-			$disp(qArea = $id('dE_qarea'));
-			qArea.appendChild($id('dE_pform'));
+			$disp(qArea = $id('de-qarea'));
+			qArea.appendChild($id('de-pform'));
 		}
 		if((aib.hana && /подтвердите, что вы человек/.test(err)) ||
 			(pr.cap && /captch|капч|подтверж/i.test(err)))
@@ -2709,7 +2709,7 @@ function checkUpload(err, url) {
 }
 
 function endDelete() {
-	var el = $id('dE_alertDeleting');
+	var el = $id('de-alertDeleting');
 	if(el) {
 		closeAlert(el);
 		$alert(Lng.succDeleted[lang], 'Deleted', false);
@@ -2721,7 +2721,7 @@ function checkDelete(err, url) {
 	if(err) {
 		$alert(Lng.errDelete[lang] + err, 'Deleting', false);
 	} else {
-		$each($Q('[de_post] input:checked', dForm), !TNum ? function(el) {
+		$each($Q('[de-post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.num;
 			if(tNums.indexOf(tNum) === -1) {
 				tNums.push(tNum);
@@ -2977,7 +2977,7 @@ dataForm.prototype.readFile = function(el, idx) {
 
 function showQuickReply(post) {
 	var tNum = post.thr.num,
-		qArea = $id('dE_qarea');
+		qArea = $id('de-qarea');
 	pr.tNum = tNum;
 	if(pr.isQuick) {
 		if(aib.getWrap(post).nextElementSibling === qArea) {
@@ -2987,8 +2987,8 @@ function showQuickReply(post) {
 		}
 	} else {
 		pr.isQuick = true;
-		qArea.appendChild($id('dE_pform'));
-		$disp($id('dE_toggleReply'));
+		qArea.appendChild($id('de-pform'));
+		$disp($id('de-toggleReply'));
 		if(!TNum && !aib.kus && !aib.hana) {
 			$del($q('#thr_id, input[name="parent"]', pr.form));
 			$before(
@@ -3013,7 +3013,7 @@ function showQuickReply(post) {
 	if(!TNum) {
 		toggleQuickReply(tNum);
 		if(Cfg['noThrdForm']) {
-			$id('dE_parea').style.display = 'none';
+			$id('de-parea').style.display = 'none';
 		}
 	}
 	if(pr.cap && !pr.recap && !aib.kus) {
@@ -3027,8 +3027,8 @@ function showQuickReply(post) {
 
 function showMainReply() {
 	if(pr.isQuick) {
-		var el = $id('dE_toggleReply'),
-			qArea = $id('dE_qarea');
+		var el = $id('de-toggleReply'),
+			qArea = $id('de-qarea');
 		pr.isQuick = false;
 		if(!TNum) {
 			toggleQuickReply(0);
@@ -3036,8 +3036,8 @@ function showMainReply() {
 		}
 		$disp(el);
 		qArea.style.display = 'none';
-		$after($id('dE_parea'), qArea);
-		$after(el, $id('dE_pform'));
+		$after($id('de-parea'), qArea);
+		$after(el, $id('de-pform'));
 	}
 }
 
@@ -3052,7 +3052,7 @@ function toggleQuickReply(tNum) {
 }
 
 function toggleMainReply(e) {
-	var pArea = $id('dE_parea');
+	var pArea = $id('de-parea');
 	$pd(e);
 	if(pr.isQuick) {
 		pArea.style.display = '';
@@ -3070,7 +3070,7 @@ function insertRefLink(e) {
 	e.stopPropagation();
 	$pd(e);
 	if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
-		$id('dE_parea').style.display = '';
+		$id('de-parea').style.display = '';
 	}
 	var pNum = getPost(e.target).num;
 	if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
@@ -3104,10 +3104,10 @@ function addTextPanel() {
 		},
 		txtBtn = function(id) {
 			var x = pr.txta,
-				btn = $id('dE_btn' + id),
+				btn = $id('de-btn' + id),
 				val = tagTable[id][1];
 			if(!btn) {
-				btn = $new('span', {'id': 'dE_btn' + id, 'title': Lng.txtBtn[id][lang]}, null);
+				btn = $new('span', {'id': 'de-btn' + id, 'title': Lng.txtBtn[id][lang]}, null);
 				if(val !== '&gt;') {
 					btn.onclick = function(e) {
 						var tag1, tag2, j, len,
@@ -3158,7 +3158,7 @@ function addTextPanel() {
 						).replace(/\n/gm, '\n> '));
 					};
 				}
-				$id('dE_txtPanel').appendChild(btn);
+				$id('de-txtPanel').appendChild(btn);
 			}
 			btn.innerHTML =
 				Cfg['addTextBtns'] === 2 ? (
@@ -3170,10 +3170,10 @@ function addTextPanel() {
 			return txtBtn;
 		};
 	$after(
-		Cfg['txtBtnsLoc'] ? $id('dE_txtResizer') :
+		Cfg['txtBtnsLoc'] ? $id('de-txtResizer') :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
-		$attr($id('dE_txtPanel') || $new('span', {'id': 'dE_txtPanel'}, null), {
+		$attr($id('de-txtPanel') || $new('span', {'id': 'de-txtPanel'}, null), {
 			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 		})
 	);
@@ -3191,22 +3191,22 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="dE_postPanel' + (post.isOp ? '_op' : '') + ' dE_pP_cnt" info="' + post.num + '"><span class="dE_btnHide" onclick="dE_hideClick(this)" onmouseover="dE_hideOver(this)" onmouseout="dE_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="dE_btnRep" onclick="dE_qReplyClick(this)" onmouseover="dE_qReplyOver(this)"></span>' : '');
+		html = '<span class="de-postPanel' + (post.isOp ? '_op' : '') + ' de-pP_cnt" info="' + post.num + '"><span class="de-btnHide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btnRep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
-			html += '<span class="dE_btnExpthr" onclick="dE_expandClick(this)" onmouseover="dE_expandOver(this)" onmouseout="dE_btnOut(event)"></span>';
+			html += '<span class="de-btnExpthr" onclick="de_expandClick(this)" onmouseover="de_expandOver(this)" onmouseout="de_btnOut(event)"></span>';
 		}
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
-			html += '<span class="dE_btnFavSel" onclick="dE_favorClick(this)"></span>';
+			html += '<span class="de-btnFavSel" onclick="de_favorClick(this)"></span>';
 			Favor[h][brd][post.num].cnt = post.thr.pCount + 1;
 		} else {
-			html += '<span class="dE_btnFav" onclick="dE_favorClick(this)"></span>';
+			html += '<span class="de-btnFav" onclick="de_favorClick(this)"></span>';
 		}
 	}
 	nav.insAfter(ref, html + (
 		aib.getSage(post) ?
-			'<span class="dE_btnSage" title="SAGE" onclick="dE_sageClick(this)"></span>' : ''
+			'<span class="de-btnSage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
 	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
@@ -3227,57 +3227,57 @@ function addPostButtons(post) {
 
 function prepareCFeatures() {
 	addContentScript(
-		'function dE_removeSel() {\
-			var el = document.getElementById("dE_select");\
+		'function de_removeSel() {\
+			var el = document.getElementById("de-select");\
 			if(el) {\
 				el.parentNode.removeChild(el);\
 			}\
 		}\
-		function dE_delSelection(e) {\
-			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'dE_select\']", e.relatedTarget, null, 3, null).booleanValue) {\
-				dE_removeSel();\
+		function de_delSelection(e) {\
+			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'de-select\']", e.relatedTarget, null, 3, null).booleanValue) {\
+				de_removeSel();\
 			}\
 		}\
-		function dE_btnOut(e) {\
-			clearTimeout(e.target.dE_overDelay);\
-			dE_delSelection(e);\
+		function de_btnOut(e) {\
+			clearTimeout(e.target.de_overDelay);\
+			de_delSelection(e);\
 		}\
-		function dE_btnOver(el, data) {\
-			el.dE_overDelay = setTimeout(function(msg) {\
+		function de_btnOver(el, data) {\
+			el.de_overDelay = setTimeout(function(msg) {\
 				window.postMessage(msg, "*");\
 			}, ' + Cfg['linksOver'] + ', data);\
 		}\
-		function dE_hideOver(el) {\
-			dE_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
+		function de_hideOver(el) {\
+			de_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
 		}\
-		function dE_imgSOver(el) {\
-			dE_btnOver(el, "L" + el.getAttribute("de_id"));\
+		function de_imgSOver(el) {\
+			de_btnOver(el, "L" + el.getAttribute("de-id"));\
 		}\
-		function dE_expandOver(el) {\
-			dE_btnOver(el, "B" + el.parentNode.getAttribute("info"));\
+		function de_expandOver(el) {\
+			de_btnOver(el, "B" + el.parentNode.getAttribute("info"));\
 		}\
-		function dE_hideClick(el) {\
+		function de_hideClick(el) {\
 			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
 		}\
-		function dE_qReplyClick(el) {\
+		function de_qReplyClick(el) {\
 			window.postMessage("F" + el.parentNode.getAttribute("info"), "*");\
 		}\
-		function dE_qReplyOver(el) {\
+		function de_qReplyOver(el) {\
 			window.postMessage("C" + el.parentNode.getAttribute("info"), "*");\
 		}\
-		function dE_expandClick(el) {\
+		function de_expandClick(el) {\
 			window.postMessage("E" + el.parentNode.getAttribute("info"), "*");\
 		}\
-		function dE_favorClick(el) {\
+		function de_favorClick(el) {\
 			window.postMessage("G" + el.parentNode.getAttribute("info"), "*");\
 		}\
-		function dE_sageClick(el) {\
+		function de_sageClick(el) {\
 			window.postMessage("H" + el.parentNode.getAttribute("info"), "*");\
 		}\
-		function dE_cImgSearch(e, name) {\
+		function de_cImgSearch(e, name) {\
 			e.preventDefault();\
-			window.postMessage("_" + name + ";" + e.target.getAttribute("de_url"), "*");\
-			dE_removeSel();\
+			window.postMessage("_" + name + ";" + e.target.getAttribute("de-url"), "*");\
+			de_removeSel();\
 		}'
 	);
 
@@ -3292,23 +3292,23 @@ function prepareCFeatures() {
 		case 'F': showQuickReply(pByNum[+data]); return;
 		case 'G':
 			temp = pByNum[+data];
-			toggleFavorites(temp, $c('dE_btnFav', temp) || $c('dE_btnFavSel', temp));
+			toggleFavorites(temp, $c('de-btnFav', temp) || $c('de-btnFavSel', temp));
 			return;
 		case 'H': addSpell('#sage'); return;
 		case 'I':
-			$del($id('dE_favWait'));
-			$id('dE_favIframe').style.height = data + 'px';
+			$del($id('de-favWait'));
+			$id('de-favIframe').style.height = data + 'px';
 			return;
 		case 'J':
 			temp = data.split('$#$');
 			checkUpload(temp[0], temp[1]);
-			$id('dE_pIframe').src = 'about:blank';
+			$id('de-pIframe').src = 'about:blank';
 			return;
-		case 'L': selectImgSearch($q('.dE_btnSrc[de_id="' + data + '"]', dForm)); return;
+		case 'L': selectImgSearch($q('.de-btnSrc[de-id="' + data + '"]', dForm)); return;
 		case 'M':
 			temp = data.split('$#$');
 			checkDelete(temp[0], temp[1]);
-			$id('dE_dIframe').src = 'about:blank';
+			$id('de-dIframe').src = 'about:blank';
 			return;
 		}
 	}});
@@ -3394,7 +3394,7 @@ function prepareCFeatures() {
 					bwrk[wI] = 1;\
 					w.onmessage = function(e) {\
 						if(e.data) {\
-							getPicWrap(link).querySelector(\'' + aib.qImgLink + '\').className += " dE_archive";\
+							getPicWrap(link).querySelector(\'' + aib.qImgLink + '\').className += " de-archive";\
 						}\
 						bwrk[wI] = 0;\
 						link = wI = null;\
@@ -3406,7 +3406,7 @@ function prepareCFeatures() {
 					};\
 					w.postMessage(link.href);\
 				};' : ';') +
-			'el = getPostImages(pNum === "all" ? document : document.querySelector("[de_post=\'" + pNum + "\']"));\
+			'el = getPostImages(pNum === "all" ? document : document.querySelector("[de-post=\'" + pNum + "\']"));\
 			for(i = 0, len = el.length; i < len; i++) {\
 				arr.push($x("ancestor::a[1]", el[i]));\
 			}\
@@ -3640,7 +3640,7 @@ function getTubePattern() {
 
 function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
-		el = $c('dE_ytObj', getPost(this));
+		el = $c('de-ytObj', getPost(this));
 	$pd(e);
 	if($xb('*[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
 		el.innerHTML = '';
@@ -3665,7 +3665,7 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="dE_eYTube"><a href="' + src + '">' +
+		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="de-eYTube"><a href="' + src + '">' +
 			src + '</a></p>'));
 		$del(el.parentNode);
 	});
@@ -3676,8 +3676,8 @@ function addLinkTube(post) {
 		}
 		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
-		if(!$c('dE_ytObj', pst)) {
-			el = $new('div', {'class': 'dE_ytObj'}, null);
+		if(!$c('de-ytObj', pst)) {
+			el = $new('div', {'class': 'de-ytObj'}, null);
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg['addYouTube'] === 2) {
@@ -3692,7 +3692,7 @@ function addLinkTube(post) {
 				$before(msg, el);
 			}
 		}
-		link.className = 'dE_ytLink';
+		link.className = 'de-ytLink';
 		link.onclick = clickTubeLink;
 		if(nav.Opera && nav.Opera < 12 || !Cfg['YTubeTitles']) {
 			link.textContent = link.textContent.replace(/^http:/, 'https:');
@@ -3773,9 +3773,9 @@ function addLinkMP3(post) {
 			return;
 		}
 		var pst = post || getPost(link),
-			el = $c('dE_mp3', pst);
+			el = $c('de-mp3', pst);
 		if(!el) {
-			el = $new('div', {'class': 'dE_mp3'}, null);
+			el = $new('div', {'class': 'de-mp3'}, null);
 			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
@@ -3830,7 +3830,7 @@ function addFullImg(a, sz, isExp) {
 		fullH = +sz[1],
 		scrW = doc.body.clientWidth,
 		scrH = window.innerHeight,
-		full = $c('dE_fullImg', a);
+		full = $c('de-fullImg', a);
 	if(full && isExp || !full && isExp === false) {
 		return;
 	}
@@ -3849,7 +3849,7 @@ function addFullImg(a, sz, isExp) {
 	if(Cfg['expandImgs'] === 1) {
 		scrW -= $offset(a).left + 25;
 	} else {
-		$del($c('dE_cFullImg', doc));
+		$del($c('de-cFullImg', doc));
 	}
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
@@ -3859,10 +3859,10 @@ function addFullImg(a, sz, isExp) {
 			newW = newH * fullW / fullH;
 		}
 	}
-	full = a.appendChild($add('<img class="dE_fullImg" src="' + a.href + '" alt="' + a.href +
+	full = a.appendChild($add('<img class="de-fullImg" src="' + a.href + '" alt="' + a.href +
 		'" width="' + newW + '" height="' + newH + '"/>'));
 	if(Cfg['expandImgs'] === 2) {
-		nav.addClass(full, 'dE_cFullImg');
+		nav.addClass(full, 'de-cFullImg');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
 		makeMoveable(full);
@@ -3883,7 +3883,7 @@ function addLinkImg(el) {
 		}
 		a = link.cloneNode(false);
 		a.target = '_blank';
-		nav.addClass(a, 'dE_preImg');
+		nav.addClass(a, 'de-preImg');
 		$disp(a);
 		a.appendChild($new('img', {'src': a.href, 'alt': a.href}, {'load': function() {
 			var fullW, fullH, k;
@@ -3922,8 +3922,8 @@ function addImgSearch(el) {
 			continue;
 		}
 		nav.insBefore(
-			link, '<span de_id="' + num + i +
-			'" class="dE_btnSrc" onmouseover="dE_imgSOver(this)" onmouseout="dE_btnOut(event)"></span>'
+			link, '<span de-id="' + num + i +
+			'" class="de-btnSrc" onmouseover="de_imgSOver(this)" onmouseout="de_btnOut(event)"></span>'
 		);
 	}
 }
@@ -4008,7 +4008,7 @@ function parsePostImg(e) {
 ==============================================================================*/
 
 function addRefMap(post) {
-	var rM = '<div class="dE_refMap">' + post.ref.join(', ').replace(/(\d+)/g,
+	var rM = '<div class="de-refMap">' + post.ref.join(', ').replace(/(\d+)/g,
 			'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
 	try {
 		nav.insAfter(post.msg, rM);
@@ -4054,9 +4054,9 @@ function updRefMap(post) {
 		} else if(pst.ref.indexOf(pNum) === -1) {
 			pst.ref.push(pNum);
 		}
-		$del($c('dE_refMap', pst));
+		$del($c('de-refMap', pst));
 		addRefMap(pst);
-		eventRefLink($c('dE_refMap', pst));
+		eventRefLink($c('de-refMap', pst));
 		if(Cfg['hideRefPsts'] && pst.hide) {
 			hidePost(post, 'reference to >>' + pNums[i]);
 		}
@@ -4071,8 +4071,8 @@ function updRefMap(post) {
 function closePview(el) {
 	if(Cfg['animation']) {
 		nav.animEvent(el, $del);
-		nav.addClass(el, 'dE_aPView');
-		el.style[nav.animName] = 'dE_pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
+		nav.addClass(el, 'de-aPView');
+		el.style[nav.animName] = 'de-pClose' + (el.aTop ? 'T' : 'B') + (el.aLeft ? 'L' : 'R');
 	} else {
 		$del(el);
 	}
@@ -4101,10 +4101,10 @@ function markPviewToDel(el, delAll) {
 
 function PviewMoved() {
 	if(this.style[nav.animName]) {
-		nav.remClass(this, 'dE_aPView');
+		nav.remClass(this, 'de-aPView');
 		this.style.cssText = this.newPos;
 		this.newPos = false;
-		$each($C('dE_moveCSS', doc.head), $del);
+		$each($C('de-moveCSS', doc.head), $del);
 		this.removeEventListener(nav.animEnd, PviewMoved, false);
 	}
 }
@@ -4137,9 +4137,9 @@ function setPviewPosition(link, pView, isAnim) {
 		pView.style.top = top;
 		return;
 	}
-	var uId = 'dE_mCSS' + Math.round(Math.random() * 1e3);
+	var uId = 'de-mCSS' + Math.round(Math.random() * 1e3);
 	doc.head.appendChild($new('style', {
-		'class': 'dE_moveCSS',
+		'class': 'de-moveCSS',
 		'type': 'text/css',
 		'text': '@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'
 	}, null));
@@ -4151,14 +4151,14 @@ function setPviewPosition(link, pView, isAnim) {
 	}
 	pView.newPos = lmw + ' top:' + top + ';';
 	pView.addEventListener(nav.animEnd, PviewMoved, false);
-	nav.addClass(pView, 'dE_aPView');
+	nav.addClass(pView, 'de-aPView');
 	pView.style[nav.animName] = uId;
 }
 
 function markRefMap(pView, pNum) {
-	($c('dE_pViewLink', pView) || {}).className = '';
+	($c('de-pViewLink', pView) || {}).className = '';
 	($x('.//a[starts-with(text(),">>") and contains(text(),"' + pNum + '")]', pView) || {}).className =
-		'dE_pViewLink';
+		'de-pViewLink';
 }
 
 function getPview(post, pNum, parent, link, txt) {
@@ -4172,16 +4172,16 @@ function getPview(post, pNum, parent, link, txt) {
 			if(!post.isOp) {
 				pView.className = aib.cReply;
 			}
-			pView.setAttribute('de_post', null);
+			pView.setAttribute('de-post', null);
 		}
-		pView.className = aib.cReply + ' dE_pView' + (post.viewed ? ' dE_viewed' : '');
+		pView.className = aib.cReply + ' de-pView' + (post.viewed ? ' de-viewed' : '');
 		if(aib._7ch) {
 			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.dE_preImg, .dE_fullImg, .dE_postPanel, .dE_postPanel_op, .dE_btnSrc' + (
-			Cfg['addYouTube'] !== 2 ? ', .dE_ytObj' : ''
+		$each($Q('.de-preImg, .de-fullImg, .de-postPanel, .de-postPanel_op, .de-btnSrc' + (
+			Cfg['addYouTube'] !== 2 ? ', .de-ytObj' : ''
 		), pView), $del);
 		if(!pByNum[pNum]) {
 			addLinkMP3(pView);
@@ -4202,19 +4202,19 @@ function getPview(post, pNum, parent, link, txt) {
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
-					nav.addClass(pst, 'dE_viewed');
+					nav.addClass(pst, 'de-viewed');
 					pst.viewed = true;
 				}
-				var arr = (sessionStorage['de_viewed'] || '').split(',');
+				var arr = (sessionStorage['de-viewed'] || '').split(',');
 				arr.push(num);
-				sessionStorage['de_viewed'] = arr;
+				sessionStorage['de-viewed'] = arr;
 			}, 2e3, post, pNum);
 		}
 	} else {
 		if(!txt) {
 			Pviews.deleted[pNum] = true;
 		}
-		pView = $add('<div class="' + aib.cReply + ' dE_pViewInfo dE_pView">' +
+		pView = $add('<div class="' + aib.cReply + ' de-pViewInfo de-pView">' +
 			(txt || Lng.postNotFound[lang]) + '</div>');
 	}
 	pView.style.display = '';
@@ -4237,11 +4237,11 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
-			nav.remClass(pView, 'dE_aPView');
+			nav.remClass(pView, 'de-aPView');
 			node.style[nav.animName] = '';
 		});
-		nav.addClass(pView, 'dE_aPView');
-		pView.style[nav.animName] = 'dE_pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
+		nav.addClass(pView, 'de-aPView');
+		pView.style[nav.animName] = 'de-pOpen' + (pView.aTop ? 'T' : 'B') + (pView.aLeft ? 'L' : 'R');
 	}
 	return pView;
 }
@@ -4289,7 +4289,7 @@ function showPview(link) {
 		getPview(post, pNum, parent, link, null);
 		return;
 	}
-	el = getPview(null, pNum, parent, link, '<span class="dE_wait">' + Lng.loading[lang] + '</span>');
+	el = getPview(null, pNum, parent, link, '<span class="de-wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
 		if(!err) {
@@ -4373,7 +4373,7 @@ function getJsonPosts(url, Fn) {
 	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(xhr) {
 		if(xhr.readyState === 4) {
 			if(xhr.status === 304) {
-				closeAlert($id('dE_alertNewP'));
+				closeAlert($id('de-alertNewP'));
 			} else {
 				try {
 					Fn(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
@@ -4442,7 +4442,7 @@ function processFullMsg(post) {
 		post.innerHTML = replaceString(post.innerHTML);
 		post.img = getPostImages(post);
 	}
-	$each($Q('.dE_btnSrc, .dE_ytObj', post), $del);
+	$each($Q('.de-btnSrc, .de-ytObj', post), $del);
 	addPostFunc(post);
 }
 
@@ -4451,7 +4451,7 @@ function getFullPost(el, isFunc) {
 		replaceFMsg = function(pst, pNum) {
 			if(post.num === pNum) {
 				$del(el);
-				var ytube = $q('.dE_eYTube', post.msg);
+				var ytube = $q('.de-eYTube', post.msg);
 				post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.msg);
 				post.msg = $q(aib.qMsg, post);
 				if(ytube) {
@@ -4518,7 +4518,7 @@ function loadThread(op, last, Fn) {
 			$alert(err, 'LoadThr', false);
 		} else {
 			showMainReply();
-			$del($id('dE_select'));
+			$del($id('de-select'));
 			pCnt = thr.visPCnt || thr.pCount - getOmPosts(thr) + 1;
 			thr.innerHTML = '';
 			(impP = importPost(newOp)).isOp = true;
@@ -4536,7 +4536,7 @@ function loadThread(op, last, Fn) {
 				i = len - last;
 				thr.visPCnt = last + 1;
 				thr.appendChild($new('div', {
-					'class': 'dE_omitted',
+					'class': 'de-omitted',
 					'text': Lng.postsOmitted[lang] + i
 				}, null));
 			}
@@ -4555,7 +4555,7 @@ function loadThread(op, last, Fn) {
 			}
 			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt].concat(nEls));
 			thr.pCount = len + 1;
-			closeAlert($id('dE_alertLoadThr'));
+			closeAlert($id('de-alertLoadThr'));
 		}
 		$focus(op);
 		if(Fn) {
@@ -4569,8 +4569,8 @@ function loadFavorThread() {
 	var el = this.parentNode.parentNode,
 		ifrm = $t('iframe', el),
 		tNum = el.getAttribute('info').split(';')[2],
-		cont = $c('dE_content', doc);
-	$del($id('dE_favWait'));
+		cont = $c('de-content', doc);
+	$del($id('de-favWait'));
 	if(ifrm) {
 		$del(ifrm);
 		cont.style.overflowY = 'auto';
@@ -4580,13 +4580,13 @@ function loadFavorThread() {
 		$focus(tNum);
 		return;
 	}
-	$del($id('dE_favIframe'));
-	$c('dE_content', doc).style.overflowY = 'scroll';
+	$del($id('de-favIframe'));
+	$c('de-content', doc).style.overflowY = 'scroll';
 	$append(el, [
-		$add('<iframe name="dE_favIframe" id="dE_favIframe" src="' + $t('a', el).href +
+		$add('<iframe name="de-favIframe" id="de-favIframe" src="' + $t('a', el).href +
 			'" scrolling="no" style="border: none; width: ' +
 			(doc.body.clientWidth - 55) + 'px; height: 1px;" />'),
-		$add('<div id="dE_favWait" class="dE_wait" style="font-size: 1.1em; text-align: center">' +
+		$add('<div id="de-favWait" class="de-wait" style="font-size: 1.1em; text-align: center">' +
 			Lng.loading[lang] + '</div>')
 	]);
 }
@@ -4619,7 +4619,7 @@ function loadPages(len) {
 	Pviews.ajaxed = {};
 	while(++i < len) {
 		if(len > 1) {
-			page = $new('div', {'id': 'dE_page' + i}, null);
+			page = $new('div', {'id': 'de-page' + i}, null);
 			$append(dForm, [
 				$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
 				doc.createElement('hr'),
@@ -4649,7 +4649,7 @@ function loadPages(len) {
 						expandAllPostImg(post, null);
 					});
 				}
-				closeAlert($id('dE_alertLPages'));
+				closeAlert($id('de-alertLPages'));
 				window.postMessage('Kall', '*');
 				loaded = pages = null;
 			} else {
@@ -4663,7 +4663,7 @@ function loadPages(len) {
 
 function setUpdButtonState(state) {
 	if(TNum && Cfg['updThread'] !== 3) {
-		$q('a[id^="dE_btnUpd"]', doc).id = 'dE_btnUpd' + state;
+		$q('a[id^="de-btnUpd"]', doc).id = 'de-btnUpd' + state;
 	}
 }
 
@@ -4727,7 +4727,7 @@ function infoNewPosts(err, i) {
 		}
 		return;
 	}
-	closeAlert($id('dE_alertNewP'));
+	closeAlert($id('de-alertNewP'));
 	if(Cfg['updThread'] === 3) {
 		return;
 	}
@@ -4763,7 +4763,7 @@ function infoNewPosts(err, i) {
 
 function setHanaRating() {
 	$event($q('input[type="button"]', doc), {'click': function() {
-		setCookie('dE_rating', $id('rating').value, 1e12);
+		setCookie('de-rating', $id('rating').value, 1e12);
 	}});
 }
 
@@ -4774,7 +4774,7 @@ function getHanaFile(file, id) {
 		thumbH = file['thumb_height'],
 		size = file['size'],
 		rating = file['rating'],
-		maxRating = getCookie('dE_rating') || 'r-15',
+		maxRating = getCookie('de-rating') || 'r-15',
 		kb = 1024,
 		mb = 1048576,
 		gb = 1073741824;
@@ -4813,7 +4813,7 @@ function getHanaPost(postJson) {
 	var i, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de_post': id}, null);
+		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de-post': id}, null);
 	post.innerHTML = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 		'" /></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
@@ -4844,11 +4844,11 @@ function checkBan(el, node) {
 
 function markDel(post) {
 	if(!post.deleted) {
-		var dd = sessionStorage['de_deleted'];
-		sessionStorage['de_deleted'] = (dd ? dd + ',' : '') + post.count;
+		var dd = sessionStorage['de-deleted'];
+		sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + post.count;
 		post.deleted = true;
-		nav.remClass(post.btns, 'dE_pP_cnt');
-		nav.addClass(post.btns, 'dE_pP_del');
+		nav.remClass(post.btns, 'de-pP_cnt');
+		nav.addClass(post.btns, 'de-pP_del');
 	}
 }
 
@@ -4867,7 +4867,7 @@ function loadNewPosts(isInfo, Fn) {
 					var i, len, post,
 						np = 0,
 						el = (json['result'] || {})['posts'],
-						thr = $c('dE_thread', dForm);
+						thr = $c('de-thread', dForm);
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = replacePost(getHanaPost(el[i]));
@@ -4898,7 +4898,7 @@ function loadNewPosts(isInfo, Fn) {
 		var i, j, el, el_, pNum, np = 0,
 			len = Posts.length,
 			len_ = els.length,
-			thr = $c('dE_thread', dForm);
+			thr = $c('de-thread', dForm);
 		checkBan(Posts[0], op);
 		for(i = 1, j = 0; i < len || j < len_; i++, j++) {
 			el = Posts[i];
@@ -4923,7 +4923,7 @@ function loadNewPosts(isInfo, Fn) {
 		infoNewPosts(err, np);
 		thr.pCount = len;
 		savePostsVisib();
-		$id('dE_panelInfo').firstChild.textContent = i + '/' + getPostImages(dForm).length;
+		$id('de-panelInfo').firstChild.textContent = i + '/' + getPostImages(dForm).length;
 		if(Fn) {
 			Fn();
 		}
@@ -5013,7 +5013,7 @@ function setPostsVisib() {
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, true);
 			} else {
-				post.btns.firstChild.className = 'dE_btnLock';
+				post.btns.firstChild.className = 'de-btnLock';
 			}
 			if(vis === undefined) {
 				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
@@ -5042,16 +5042,16 @@ function togglePostVisib(post) {
 
 function togglePostContent(post, hide) {
 	if(hide) {
-		nav.addClass(post, 'dE_hidPost');
+		nav.addClass(post, 'de-hidPost');
 	} else {
-		nav.remClass(post, 'dE_hidPost');
+		nav.remClass(post, 'de-hidPost');
 	}
 }
 
 function addPostNote(post, note) {
 	if(note) {
 		post.btns.appendChild($new('a', {
-			'class': 'dE_postNote dE_aBtn',
+			'class': 'de-postNote de-aBtn',
 			'text': ' autohide: ' + note + ' ',
 			'href': '#'}, {
 			'click': function(e) {
@@ -5068,13 +5068,13 @@ function setPostVisib(post, hide, note) {
 	if(post.isOp) {
 		thr.style.display = hide ? 'none' : '';
 		thr.hide = hide;
-		el = $id('dE_hidThr_' + (pNum = post.num));
+		el = $id('de-hidThr_' + (pNum = post.num));
 		if(!hide && el) {
 			$del(el);
 			toggleHiddenThread(post, 1);
 		}
 		if(hide && !el) {
-			el = $add('<div class="' + aib.cReply + ' dE_hidThr" id="dE_hidThr_' + pNum + '">' +
+			el = $add('<div class="' + aib.cReply + ' de-hidThr" id="de-hidThr_' + pNum + '">' +
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
@@ -5089,7 +5089,7 @@ function setPostVisib(post, hide, note) {
 		if(Cfg['delHiddPost']) {
 			aib.getWrap(post).style.display = hide ? 'none' : '';
 		} else {
-			if(el = $c('dE_postNote', post)) {
+			if(el = $c('de-postNote', post)) {
 				if(!hide) {
 					$del(el);
 				} else if(note) {
@@ -5108,7 +5108,7 @@ function setPostVisib(post, hide, note) {
 		}
 		if(Cfg['strikeHidd']) {
 			setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), function(el) {
-				el.className = hide && 'dE_refHid';
+				el.className = hide && 'de-refHid';
 			});
 		}
 	}
@@ -5124,7 +5124,7 @@ function hidePost(post, note) {
 		return;
 	}
 	if(post.hide) {
-		$del($c('dE_postNote', post));
+		$del($c('de-postNote', post));
 		addPostNote(post, note);
 	} else {
 		sVis[post.count] = 0;
@@ -5143,14 +5143,14 @@ function unhidePost(post) {
 		sVis[post.count] = 1;
 		setPostVisib(post, false, null);
 		unhideByRef(post);
-		$del($c('dE_postNote', post));
+		$del($c('de-postNote', post));
 	}
 }
 
 function setUserPostVisib(post, hide) {
 	var pNum = post.num;
 	setPostVisib(post, hide, null);
-	post.btns.firstChild.className = 'dE_btnLock';
+	post.btns.firstChild.className = 'de-btnLock';
 	if(hide) {
 		hideByRef(post);
 	} else {
@@ -5194,7 +5194,7 @@ function findSameText(post, oNum, oHid, oWords) {
 	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
-	$del($c('dE_postNote',  post));
+	$del($c('de-postNote',  post));
 	if(oHid) {
 		if(sVis[post.count] !== 0) {
 			setPostVisib(post, false, null);
@@ -5263,8 +5263,8 @@ function getImgHash(post) {
 	if(img.hash) {
 		return img.hash;
 	}
-	cnv = $id('dE_canvas') || doc.body.appendChild($new('canvas', {
-		'id': 'dE_canvas',
+	cnv = $id('de-canvas') || doc.body.appendChild($new('canvas', {
+		'id': 'de-canvas',
 		'style': 'display: none;'
 	}, null));
 	w = cnv.width = img.width;
@@ -5574,7 +5574,7 @@ function disableSpells() {
 }
 
 function toggleSpells() {
-	var fld = $id('dE_spellEdit'),
+	var fld = $id('de-spellEdit'),
 		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
 		err = verifyRegExp(val);
 	if(err || !val) {
@@ -5599,7 +5599,7 @@ function toggleSpells() {
 }
 
 function addSpell(spell) {
-	var err, fld = $id('dE_spellEdit'),
+	var err, fld = $id('de-spellEdit'),
 		val = fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
 	if(!val) {
 		if(!spellsList) {
@@ -5750,257 +5750,257 @@ function scriptCSS() {
 		};
 
 	// Settings window
-	x += '#dE_contentCfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#dE_cfgInfo > span { display: inline-block; vertical-align: top; }\
-		#dE_cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		#dE_cfgHead:lang(en), #dE_panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
-		#dE_cfgHead:lang(de), #dE_panel:lang(de) { background: #777; }\
-		#dE_cfgHead:lang(fr), #dE_panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
-		.dE_cfgUnvis { display: none; }\
-		.dE_cfgBody { width: 371px; min-height: 347px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
-		.dE_cfgBody input[type="text"] { width: auto; }\
-		.dE_cfgBody input[value=">"] { width: 20px; }\
-		.dE_blockInp { display: block; }\
-		.dE_cfgBody, #dE_cfgBtns { border: 1px solid #183d77; border-top: none; }\
-		.dE_cfgBody:lang(de), #dE_cfgBtns:lang(de) { border-color: #444; }\
-		#dE_cfgBtns { padding: 7px 2px 2px; }\
-		#dE_cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
-		#dE_cfgBar:lang(en) { background-color: #325f9e; }\
-		#dE_cfgBar:lang(de) { background-color: #777; }\
-		.dE_cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
-		.dE_cfgTabBack:lang(de) { border-color: #444 !important; }\
-		.dE_cfgTabBack:lang(fr) { border-color: #121421 !important; }\
-		.dE_cfgTabBack[selected="true"] { border-bottom: none !important; }\
-		.dE_cfgTab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
-		.dE_cfgTabBack[selected="false"] > .dE_cfgTab { background-color: rgba(0,0,0,.2); }\
-		.dE_cfgTabBack[selected="false"] > .dE_cfgTab:lang(en), .dE_cfgTabBack[selected="false"] > .dE_cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-		.dE_cfgTabBack[selected="false"] > .dE_cfgTab:hover { background-color: rgba(99,99,99,.2); }\
-		.dE_cfgTabBack[selected="false"] > .dE_cfgTab:hover:lang(en), .dE_cfgTabBack[selected="false"] > .dE_cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
-		.dE_cfgTab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
-		#dE_spellPanel { float: right; }\
-		#dE_spellPanel > a { padding: 0 7px; text-align: center; }\
-		#dE_cfgWipe { display: table; padding-left: 25px; }\
-		#dE_cfgWipe > div { display: table-row; }\
-		#dE_cfgWipe > div > label { display: table-cell; }';
+	x += '#de-contentCfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+		#de-cfgInfo > span { display: inline-block; vertical-align: top; }\
+		#de-cfgHead { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		#de-cfgHead:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
+		#de-cfgHead:lang(de), #de-panel:lang(de) { background: #777; }\
+		#de-cfgHead:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+		.de-cfgUnvis { display: none; }\
+		.de-cfgBody { width: 371px; min-height: 347px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.de-cfgBody input[type="text"] { width: auto; }\
+		.de-cfgBody input[value=">"] { width: 20px; }\
+		.de-blockInp { display: block; }\
+		.de-cfgBody, #de-cfgBtns { border: 1px solid #183d77; border-top: none; }\
+		.de-cfgBody:lang(de), #de-cfgBtns:lang(de) { border-color: #444; }\
+		#de-cfgBtns { padding: 7px 2px 2px; }\
+		#de-cfgBar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
+		#de-cfgBar:lang(en) { background-color: #325f9e; }\
+		#de-cfgBar:lang(de) { background-color: #777; }\
+		.de-cfgTabBack { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
+		.de-cfgTabBack:lang(de) { border-color: #444 !important; }\
+		.de-cfgTabBack:lang(fr) { border-color: #121421 !important; }\
+		.de-cfgTabBack[selected="true"] { border-bottom: none !important; }\
+		.de-cfgTab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.de-cfgTabBack[selected="false"] > .de-cfgTab { background-color: rgba(0,0,0,.2); }\
+		.de-cfgTabBack[selected="false"] > .de-cfgTab:lang(en), .de-cfgTabBack[selected="false"] > .de-cfgTab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+		.de-cfgTabBack[selected="false"] > .de-cfgTab:hover { background-color: rgba(99,99,99,.2); }\
+		.de-cfgTabBack[selected="false"] > .de-cfgTab:hover:lang(en), .de-cfgTabBack[selected="false"] > .de-cfgTab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
+		.de-cfgTab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
+		#de-spellPanel { float: right; }\
+		#de-spellPanel > a { padding: 0 7px; text-align: center; }\
+		#de-cfgWipe { display: table; padding-left: 25px; }\
+		#de-cfgWipe > div { display: table-row; }\
+		#de-cfgWipe > div > label { display: table-cell; }';
 
 	// Main panel
-	x += '#dE_btnLogo { margin-right: 3px; }\
-		#dE_panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
-		#dE_panelBtns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
-		#dE_panelBtns:lang(de), #dE_panelInfo:lang(de) { border-color: #ccc; }\
-		#dE_panelBtns:lang(fr), #dE_panelInfo:lang(fr) { border-color: #616b86; }\
-		#dE_panelBtns > li { margin: 0 1px; padding: 0; }\
-		#dE_panelBtns > li, #dE_panelBtns > li > a, #dE_btnLogo { display: inline-block; width: 25px; height: 25px; }\
-		#dE_panelBtns:lang(en) > li, #dE_panelBtns:lang(fr) > li  { transition: all 0.3s ease; }\
-		#dE_panelBtns:lang(en) > li:hover, #dE_panelBtns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
-		#dE_panelBtns:lang(de) > li > a { border-radius: 5px; }\
-		#dE_panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#dE_panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
+	x += '#de-btnLogo { margin-right: 3px; }\
+		#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
+		#de-panelBtns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
+		#de-panelBtns:lang(de), #de-panelInfo:lang(de) { border-color: #ccc; }\
+		#de-panelBtns:lang(fr), #de-panelInfo:lang(fr) { border-color: #616b86; }\
+		#de-panelBtns > li { margin: 0 1px; padding: 0; }\
+		#de-panelBtns > li, #de-panelBtns > li > a, #de-btnLogo { display: inline-block; width: 25px; height: 25px; }\
+		#de-panelBtns:lang(en) > li, #de-panelBtns:lang(fr) > li  { transition: all 0.3s ease; }\
+		#de-panelBtns:lang(en) > li:hover, #de-panelBtns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
+		#de-panelBtns:lang(de) > li > a { border-radius: 5px; }\
+		#de-panelBtns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
+		#de-panelInfo { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
-	gif('#dE_btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
-	gif('#dE_btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
-	gif('#dE_btnHidden', p + 'I5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
-	gif('#dE_btnFavor', p + 'IzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
-	gif('#dE_btnRefresh', p + 'JAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
-	gif('#dE_btnGoBack', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
-	gif('#dE_btnGoNext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
-	gif('#dE_btnGoUp', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
-	gif('#dE_btnGoDown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
-	gif('#dE_btnNewThr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
-	gif('#dE_btnExpImg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
-	gif('#dE_btnMaskImg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
+	gif('#de-btnLogo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
+	gif('#de-btnSettings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
+	gif('#de-btnHidden', p + 'I5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
+	gif('#de-btnFavor', p + 'IzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
+	gif('#de-btnRefresh', p + 'JAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
+	gif('#de-btnGoBack', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
+	gif('#de-btnGoNext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
+	gif('#de-btnGoUp', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
+	gif('#de-btnGoDown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
+	gif('#de-btnNewThr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
+	gif('#de-btnExpImg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
+	gif('#de-btnMaskImg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
 	if(aib.nul) {
-		gif('#dE_btnCatalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
+		gif('#de-btnCatalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	}
-	gif('#dE_btnAudioOff', p + 'I7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==');
-	gif('#dE_btnAudioOn', p + 'JHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==');
+	gif('#de-btnAudioOff', p + 'I7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==');
+	gif('#de-btnAudioOn', p + 'JHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==');
 	p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
-	gif('#dE_btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
-	gif('#dE_btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
-	gif('#dE_btnUpdWarn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
+	gif('#de-btnUpdOn', 'R0lGODlhGQAZAJEAADL/Mv' + p);
+	gif('#de-btnUpdOff', 'R0lGODlhGQAZAJEAAP8yMv' + p);
+	gif('#de-btnUpdWarn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	// Post buttons
-	x += '.dE_postPanel, .dE_postPanel_op { margin-left: 4px; }\
-		.dE_btnHide, .dE_btnLock, .dE_btnRep, .dE_btnExpthr, .dE_btnFav, .dE_btnFavSel, .dE_btnSage, .dE_btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+	x += '.de-postPanel, .de-postPanel_op { margin-left: 4px; }\
+		.de-btnHide, .de-btnLock, .de-btnRep, .de-btnExpthr, .de-btnFav, .de-btnFavSel, .de-btnSage, .de-btnSrc { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
-		gif('.dE_btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-		gif('.dE_hidPost .dE_btnHide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
-		gif('.dE_btnLock', p + 'zSLLcS2MNQGsUMQRRq9CYJo5iRp6Y1FHXcGFuzJjnuIjOBzYr0LS9FnAlrJEGkJhSSUgAADs=');
-		gif('.dE_btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
-		gif('.dE_btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
-		gif('.dE_btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-		gif('.dE_btnFavSel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-		gif('.dE_btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
-		gif('.dE_btnSrc', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
+		gif('.de-btnHide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+		gif('.de-hidPost .de-btnHide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.de-btnLock', p + 'zSLLcS2MNQGsUMQRRq9CYJo5iRp6Y1FHXcGFuzJjnuIjOBzYr0LS9FnAlrJEGkJhSSUgAADs=');
+		gif('.de-btnRep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
+		gif('.de-btnExpthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
+		gif('.de-btnFav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.de-btnFavSel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.de-btnSage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+		gif('.de-btnSrc', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	} else {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
-			.dE_btnHide:after { content: "×"; }\
-			.dE_hidPost .dE_btnHide:after { content: "+"; }\
-			.dE_btnLock:after { content: "■"; }\
-			.dE_btnRep:after { content: "R"; }\
-			.dE_btnExpthr:after { content: "E"; }\
-			.dE_btnFav:after { content: "F"; }\
-			.dE_btnFavSel:after { content: "[F]"; }\
-			.dE_btnSage:after { content: "Sage!"; }\
-			.dE_btnSrc:after { content: "[Sauce]"; }';
+			.de-btnHide:after { content: "×"; }\
+			.de-hidPost .de-btnHide:after { content: "+"; }\
+			.de-btnLock:after { content: "■"; }\
+			.de-btnRep:after { content: "R"; }\
+			.de-btnExpthr:after { content: "E"; }\
+			.de-btnFav:after { content: "F"; }\
+			.de-btnFavSel:after { content: "[F]"; }\
+			.de-btnSage:after { content: "Sage!"; }\
+			.de-btnSrc:after { content: "[Sauce]"; }';
 	}
 
 	// Search images buttons
-	cont('.dE_srcGoogle', '//google.ru/favicon.ico');
-	cont('.dE_srcTineye', '//tineye.com/favicon.ico');
-	cont('.dE_srcIqdb', '//iqdb.org/favicon.ico');
-	cont('.dE_srcSaucenao', '//saucenao.com/favicon.ico');
+	cont('.de-srcGoogle', '//google.ru/favicon.ico');
+	cont('.de-srcTineye', '//tineye.com/favicon.ico');
+	cont('.de-srcIqdb', '//iqdb.org/favicon.ico');
+	cont('.de-srcSaucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	if(TNum) x += '.dE_thread { counter-reset: i 1; }\
-		.dE_postPanel.dE_pP_cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
-		.dE_pP_del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
+	if(TNum) x += '.de-thread { counter-reset: i 1; }\
+		.de-postPanel.de-pP_cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+		.de-pP_del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// text format buttons
-	x += '#dE_txtPanel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
-		#dE_txtPanel > span:empty { display: inline-block; width: 27px; height: 23px }\
-		#dE_txtPanel:lang(en) { display: none; }\
-		#dE_txtPanel:lang(ru) { float: right; }';
+	x += '#de-txtPanel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
+		#de-txtPanel > span:empty { display: inline-block; width: 27px; height: 23px }\
+		#de-txtPanel:lang(en) { display: none; }\
+		#de-txtPanel:lang(ru) { float: right; }';
 	p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
-	gif('#dE_btnBold:empty', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
-	gif('#dE_btnItalic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
-	gif('#dE_btnUnder:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
-	gif('#dE_btnStrike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
-	gif('#dE_btnSpoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
-	gif('#dE_btnCode:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
-	gif('#dE_btnQuote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
+	gif('#de-btnBold:empty', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
+	gif('#de-btnItalic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
+	gif('#de-btnUnder:empty', p + 'V3IKpq4YAoRARzAoV3hzoDnoJNlGSWSEHw7JrEHILiVp1NlZXtKe5XiptPrFh4NVKHh9FI5NX60WIJ6ATZoVeaVnf8xSU4r7NMRYcFk6pzYRD2TIUAAA7');
+	gif('#de-btnStrike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
+	gif('#de-btnSpoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
+	gif('#de-btnCode:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#de-btnQuote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
 	if(nav.Anim) {
-		x += '@keyframes dE_aOpen {\
+		x += '@keyframes de-aOpen {\
 				0% { transform: translateY(-1500px); }\
 				40% { transform: translateY(30px); }\
 				70% { transform: translateY(-10px); }\
 				100% { transform: translateY(0); }\
 			}\
-			@keyframes dE_aClose {\
+			@keyframes de-aClose {\
 				0% { transform: translateY(0); }\
 				20% { transform: translateY(20px); }\
 				100% { transform: translateY(-4000px); }\
 			}\
-			@keyframes dE_aBlink {\
+			@keyframes de-aBlink {\
 				0%, 100% { transform: translateX(0); }\
 				10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
 				20%, 40%, 60%, 80% { transform: translateX(10px); }\
 			}\
-			@keyframes dE_cfgOpen { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-			@keyframes dE_cfgClose { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-			@keyframes dE_pOpenTL { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pOpenBL { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pOpenTR { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pOpenBR { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pCloseTL { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pCloseBL { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pCloseTR { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
-			@keyframes dE_pCloseBR { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			.dE_aPView { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
-			.dE_aOpen { animation: dE_aOpen .7s ease-out both; }\
-			.dE_aClose { animation: dE_aClose .7s ease-in both; }\
-			.dE_aBlink { animation: dE_aBlink .7s ease-in-out both; }\
-			.dE_cfgOpen { animation: dE_cfgOpen .2s ease-out backwards; }\
-			.dE_cfgClose { animation: dE_cfgClose .2s ease-in both; }';
+			@keyframes de-cfgOpen { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+			@keyframes de-cfgClose { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+			@keyframes de-pOpenTL { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+			@keyframes de-pOpenBL { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+			@keyframes de-pOpenTR { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+			@keyframes de-pOpenBR { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\
+			@keyframes de-pCloseTL { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
+			@keyframes de-pCloseBL { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
+			@keyframes de-pCloseTR { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
+			@keyframes de-pCloseBR { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
+			.de-aPView { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
+			.de-aOpen { animation: de-aOpen .7s ease-out both; }\
+			.de-aClose { animation: de-aClose .7s ease-in both; }\
+			.de-aBlink { animation: de-aBlink .7s ease-in-out both; }\
+			.de-cfgOpen { animation: de-cfgOpen .2s ease-out backwards; }\
+			.de-cfgClose { animation: de-cfgClose .2s ease-in both; }';
 	}
 
 	// Embedders
-	cont('.dE_ytLink', '//youtube.com/favicon.ico');
-	x += '.dE_preImg > img, .dE_fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
-		.dE_fullImg { float: left; }\
-		.dE_cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
-		.dE_mp3, .dE_ytObj { margin: 5px 20px; }\
-		td > a + .dE_ytObj { display: inline-block; }';
+	cont('.de-ytLink', '//youtube.com/favicon.ico');
+	x += '.de-preImg > img, .de-fullImg { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
+		.de-fullImg { float: left; }\
+		.de-cFullImg { position: fixed; z-index: 9999; border: 1px solid black; }\
+		.de-mp3, .de-ytObj { margin: 5px 20px; }\
+		td > a + .de-ytObj { display: inline-block; }';
 
 	// Other
-	cont('.dE_wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
-	x += '.dE_alertBtn { display: inline-block; vertical-align: top; font-size: 150%; color: green; cursor: pointer; }\
-		.dE_alertMsg { display: inline-block; margin-top: .25em; }\
-		#dE_alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
-		#dE_alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
-		.dE_content textarea { display: block; margin: 2px 0; font: 12px courier new; }\
-		.dE_content { text-align: left; }\
-		#dE_contentFav, #dE_contentHid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
-		.dE_contData { margin: 2px 0; }\
-		.dE_contData > :first-child { float: none !important; }\
-		.dE_contData > div > a { text-decoration: none; }\
-		.dE_contentBlock > a { color: inherit; font-weight: bold; }\
-		.dE_favInfCount, .dE_favInfPage { float: right; margin-right: 5px; font: bold 16px serif; }\
-		.dE_favInfOld { color: #4f7942; }\
-		.dE_favInfNew { color: blue; }\
-		.dE_favTitle { margin-right: 15px; }\
-		.dE_omitted { color: grey; font-style: italic; }\
-		.dE_postNote { color: inherit; font: italic bold 12px serif; }\
-		#dE_qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
-		.dE_refHid { text-decoration: line-through !important; }\
-		.dE_refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
-		.dE_refMap:before { content: "' + Lng.replies[lang] + ' "; }\
-		.dE_refMap > a { text-decoration: none; }\
-		#dE_sageBtn { margin-right: 7px; cursor: pointer; }\
-		#dE_select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
-		#dE_select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
-		#dE_select a:hover { background-color: #222; color: #fff; }\
-		.dE_selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#dE_txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? '6' : nav.WebKit ? '0' : '3') + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
-		.dE_viewed { color: #888 !important; }\
-		.dE_aBtn { text-decoration: none !important; outline: none; }\
-		.dE_pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
-		.dE_pViewInfo { padding: 3px 6px !important; }\
-		.dE_pViewLink { font-weight: bold; }\
-		.dE_archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#dE_pIframe, #dE_dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea, .theader { display: none !important; }' +
+	cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
+	x += '.de-alertBtn { display: inline-block; vertical-align: top; font-size: 150%; color: green; cursor: pointer; }\
+		.de-alertMsg { display: inline-block; margin-top: .25em; }\
+		#de-alertBox { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
+		#de-alertBox > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
+		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; }\
+		.de-content { text-align: left; }\
+		#de-contentFav, #de-contentHid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+		.de-contData { margin: 2px 0; }\
+		.de-contData > :first-child { float: none !important; }\
+		.de-contData > div > a { text-decoration: none; }\
+		.de-contentBlock > a { color: inherit; font-weight: bold; }\
+		.de-favInfCount, .de-favInfPage { float: right; margin-right: 5px; font: bold 16px serif; }\
+		.de-favInfOld { color: #4f7942; }\
+		.de-favInfNew { color: blue; }\
+		.de-favTitle { margin-right: 15px; }\
+		.de-omitted { color: grey; font-style: italic; }\
+		.de-postNote { color: inherit; font: italic bold 12px serif; }\
+		#de-qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
+		.de-refHid { text-decoration: line-through !important; }\
+		.de-refMap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
+		.de-refMap:before { content: "' + Lng.replies[lang] + ' "; }\
+		.de-refMap > a { text-decoration: none; }\
+		#de-sageBtn { margin-right: 7px; cursor: pointer; }\
+		#de-select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
+		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
+		#de-select a:hover { background-color: #222; color: #fff; }\
+		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+		#de-txtResizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? '6' : nav.WebKit ? '0' : '3') + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		.de-viewed { color: #888 !important; }\
+		.de-aBtn { text-decoration: none !important; outline: none; }\
+		.de-pView { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
+		.de-pViewInfo { padding: 3px 6px !important; }\
+		.de-pViewLink { font-weight: bold; }\
+		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
+		#de-pIframe, #de-dIframe, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea, .theader { display: none !important; }' +
 		(nav.Opera ? '' : 'textarea { resize: none !important; }');
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	}
 	if(aib.krau) {
-		x += '.dE_hidPost > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+		x += '.de-hidPost > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
-			.dE_hidThr { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
-			.file_reply + .dE_ytObj, .file_thread + .dE_ytObj { margin: 5px 20px 5px 5px; float: left; }\
-			.dE_ytObj + div { clear: left; }';
+			.de-hidThr { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
+			.file_reply + .de-ytObj, .file_thread + .de-ytObj { margin: 5px 20px 5px 5px; float: left; }\
+			.de-ytObj + div { clear: left; }';
 	} else if(aib.fch) {
-		x += '.dE_spoiler { color: #000; background-color: #000; }\
-			.dE_hidPost > .file, .dE_hidPost > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
+		x += '.de-spoiler { color: #000; background-color: #000; }\
+			.de-hidPost > .file, .de-hidPost > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.dE_hidPost > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
+			.de-hidPost > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
 	} else if(aib._420) {
-		x += '.dE_hidPost > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
-			.dE_hidThr { margin: 1em 0; }';
+		x += '.de-hidPost > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
+			.de-hidThr { margin: 1em 0; }';
 	} else {
-		x+= '.dE_hidPost > .dE_postPanel ~ * { display: none !important; }'
+		x+= '.de-hidPost > .de-postPanel ~ * { display: none !important; }'
 		if(aib.abu) {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), hr[style="clear: left;"], #BottomNormalReply, body > center { display: none !important; }\
-				#dE_txtPanel { font-size: 16px !important; }\
-				.dE_aBtn { transition: none; }';
+				#de-txtPanel { font-size: 16px !important; }\
+				.de-aBtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, .dE_thread span[style="float: right;"] { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, .de-thread span[style="float: right;"] { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
 			x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 				.delete { background: none; }\
 				.delete_checkbox { position: static !important; }\
-				.file + .dE_ytObj { float: left; margin: 5px 20px 5px 5px; }\
-				.dE_ytObj + div { clear: left; }';
+				.file + .de-ytObj { float: left; margin: 5px 20px 5px 5px; }\
+				.de-ytObj + div { clear: left; }';
 		} else if(aib._7ch) {
 			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }\
 				.content.notice { display: none !important; }';
 		} else if(aib.gazo) {
-			x += '.dE_content, .dE_cfgBody { font-family: arial; }\
+			x += '.de-content, .de-cfgBody { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }';
 		} else if(aib.brit) {
-			x += '.dE_postPanel, .dE_postPanel_op { float: left; margin-top: 0.45em; }\
+			x += '.de-postPanel, .de-postPanel_op { float: left; margin-top: 0.45em; }\
 				a + .threadlinktext { position: relative; top: 17px; }\
 				.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
-				.dE_btnSrc { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
+				.de-btnSrc { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
 		} else if(aib.tinyIb) {
 			x += 'br.clear { display: none !important; }';
 		} else if(aib.pony) {
@@ -6016,8 +6016,8 @@ function scriptCSS() {
 	}
 
 	$append(doc.head, [
-		$new('style', {'id': 'dE_css', 'type': 'text/css', 'text': x}, null),
-		$new('style', {'id': 'dE_dynCss', 'type': 'text/css'}, null)
+		$new('style', {'id': 'de-css', 'type': 'text/css', 'text': x}, null),
+		$new('style', {'id': 'de-dynCss', 'type': 'text/css'}, null)
 	]);
 	x = gif = cont = null;
 	updateCSS();
@@ -6025,26 +6025,26 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '#dE_panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
-		.dE_content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }';
+	var x = '#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
+		.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }';
 	if(!Cfg['panelCounter']) {
-		x += '#dE_panelInfo { display: none; }';
+		x += '#de-panelInfo { display: none; }';
 	}
 	if(!Cfg['expandPanel']) {
-		x += '#dE_panelBtns, #dE_panelInfo { display: none; }';
+		x += '#de-panelBtns, #de-panelInfo { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x+= '.dE_preImg > img, .dE_ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
-			.dE_preImg > img:hover, .dE_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
+		x+= '.de-preImg > img, .de-ytObj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
+			.de-preImg > img:hover, .de-ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['delHiddPost']) {
-		x += '.dE_hidThr, .dE_hidThr + div + br, .dE_hidThr + div + br + hr { display: none; }';
+		x += '.de-hidThr, .de-hidThr + div + br, .de-hidThr + div + br + hr { display: none; }';
 	}
 	if(Cfg['noPostNames']) {
 		x += '.commentpostername, .postername, .postertrip { display: none; }';
 	}
 	if(Cfg['noSpoilers']) {
-		x += '.spoiler, .dE_spoiler { background: #888 !important; color: #ccc !important; }';
+		x += '.spoiler, .de-spoiler { background: #888 !important; color: #ccc !important; }';
 	}
 	if(Cfg['noPostScrl']) {
 		x += 'blockquote, blockquote > p, .code_part { max-height: 100% !important; overflow: visible !important; }';
@@ -6055,7 +6055,7 @@ function updateCSS() {
 	if(aib.abu && Cfg['addYouTube']) {
 		x += 'div[id^="post_video"] { display: none !important; }';
 	}
-	$id('dE_dynCss').textContent = x;
+	$id('de-dynCss').textContent = x;
 }
 
 
@@ -6143,21 +6143,21 @@ function isCompatible() {
 	getImageboard();
 	switch(window.name) {
 	case '': break;
-	case 'dE_pIframe':
+	case 'de-pIframe':
 		addContentScript((
 			'window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
-	case 'dE_dIframe':
+	case 'de-dIframe':
 		addContentScript((
 			'window.top.postMessage("M' + findDeleteError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
-	case 'dE_favIframe':
+	case 'de-favIframe':
 		var intvr = setInterval(function() {
-			$del($id('dE_favScript'));
+			$del($id('de-favScript'));
 			doc.head.appendChild($new('script', {
-				'id': 'dE_favScript',
+				'id': 'de-favScript',
 				'type': 'text/javascript',
 				'text': 'window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'
 			}, null));
@@ -6175,7 +6175,7 @@ function isCompatible() {
 		setHanaRating();
 		return false;
 	}
-	if(!dForm || $id('dE_panel')) {
+	if(!dForm || $id('de-panel')) {
 		return false;
 	}
 	getNavigator();
@@ -6548,7 +6548,7 @@ function processPost(post, pNum, thr, i) {
 	post.count = i;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
-	post.setAttribute('de_post', pNum);
+	post.setAttribute('de-post', pNum);
 	pByNum[post.num = pNum] = post;
 }
 
@@ -6626,7 +6626,7 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			nav.addClass(thr, 'dE_thread');
+			nav.addClass(thr, 'de-thread');
 			thr.pCount = len + getOmPosts(thr);
 		});
 		if(liteMode) {
@@ -6653,7 +6653,7 @@ function replaceString(txt) {
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
 	}
 	if(aib.fch && Cfg['noSpoilers']) {
-		txt = txt.replace(/"spoiler">/g, '"dE_spoiler">');
+		txt = txt.replace(/"spoiler">/g, '"de-spoiler">');
 	}
 	if(Cfg['hideBySpell'] && oSpells.rep[0]) {
 		txt = replaceBySpells(oSpells.rep, txt);
@@ -6671,16 +6671,16 @@ function replacePost(el) {
 function replaceDelform() {
 	nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
 	dForm.style.display = 'none';
-	dForm.id = 'dE_oldDForm';
+	dForm.id = 'de-oldDForm';
 	dForm = dForm.previousSibling;
 	$event(window, {'load': function() {
-		$del($id('dE_oldDForm'));
+		$del($id('de-oldDForm'));
 	}});
 }
 
 function removePageTrash(el) {
 	if(aib.abu) {
-		if(TNum && (el = $c('dE_thread', el))) {
+		if(TNum && (el = $c('de-thread', el))) {
 			$xeach('following-sibling::node()', el, $del);
 			nav.insAfter(el, '<hr />');
 		}
@@ -6746,8 +6746,8 @@ function initPage() {
 		}
 		initThreadsUpdater();
 		if(Cfg['updThread'] === 2 || Cfg['updThread'] === 3) {
-			$after($c('dE_thread', doc), $event($add(
-				'<span id="dE_getNewPosts">[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
+			$after($c('de-thread', doc), $event($add(
+				'<span id="de-getNewPosts">[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
 				'click': function(e) {
 					$pd(e);
 					loadNewPosts(true, function() { infoNewPosts(null, 0); });
