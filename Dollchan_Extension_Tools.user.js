@@ -904,6 +904,12 @@ function readPostsVisib() {
 		var data = (sessionStorage['desu-hidden'] || '').split(',');
 		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
 			sVis = data[2].split('');
+			if(data = sessionStorage['desu-deleted']) {
+				data.split(',').forEach(function(dC) {
+					sVis.splice(dC, 1);
+				});
+				delete sessionStorage['desu-deleted'];
+			}
 		}
 	}
 	sVis.length = Posts.length;
@@ -4638,7 +4644,6 @@ function loadPages(len) {
 				eventRefLink(dForm);
 				readPostsVisib();
 				setPostsVisib();
-				savePostsVisib();
 				if(isExpImg) {
 					Posts.forEach(function(post) {
 						expandAllPostImg(post, null);
@@ -4839,6 +4844,8 @@ function checkBan(el, node) {
 
 function markDel(post) {
 	if(!post.isDel) {
+		var dd = sessionStorage['desu-deleted'];
+		sessionStorage['desu-deleted'] = (dd ? dd + ',' : '') + post.Count;
 		post.isDel = true;
 		nav.remClass(post.Btns, 'DESU_pP_cnt');
 		nav.addClass(post.Btns, 'DESU_pP_del');
