@@ -610,7 +610,7 @@ function addContentScript(text) {
 }
 
 function getPost(el) {
-	return $x('ancestor::*[@dE_post]', el);
+	return $x('ancestor::*[@de_post]', el);
 }
 
 function getPostImages(el) {
@@ -901,14 +901,14 @@ function getHidCfg() {
 function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
-		var data = (sessionStorage['dE_hidden'] || '').split(',');
+		var data = (sessionStorage['de_hidden'] || '').split(',');
 		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
 			sVis = data[2].split('');
-			if(data = sessionStorage['dE_deleted']) {
+			if(data = sessionStorage['de_deleted']) {
 				data.split(',').forEach(function(dC) {
 					sVis.splice(dC, 1);
 				});
-				delete sessionStorage['dE_deleted'];
+				delete sessionStorage['de_deleted'];
 			}
 		}
 	}
@@ -919,7 +919,7 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['dE_hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
+		sessionStorage['de_hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
 			getHidCfg() + ',' + sVis.join('');
 	}
 	toggleContent('Hid', true);
@@ -1010,7 +1010,7 @@ function toggleFavorites(post, btn) {
 }
 
 function readViewedPosts() {
-	var viewed = sessionStorage['dE_viewed'];
+	var viewed = sessionStorage['de_viewed'];
 	if(viewed) {
 		viewed.split(',').forEach(function(pNum) {
 			var post = pByNum[pNum];
@@ -2072,14 +2072,14 @@ function selectAudioNotif() {
 
 function selectImgSearch(node) {
 	var p = node.nextSibling.href + '" target="_blank">' + Lng.search[lang],
-		c = doc.body.getAttribute('dE_image-search'),
+		c = doc.body.getAttribute('de_image-search'),
 		str = '';
 	if(c) {
 		c = c.split(';');
 		c.forEach(function(el) {
 			var info = el.split(',');
 			str += '<a class="dE_src' + info[0] + (!info[1] ?
-				'" onclick="dE_cImgSearch(event, \'' + info[0] + '\')" href="#" dE_url="' :
+				'" onclick="dE_cImgSearch(event, \'' + info[0] + '\')" href="#" de_url="' :
 				'" href="' + info[1]
 			) + p + info[0] + '</a>';
 		});
@@ -2721,7 +2721,7 @@ function checkDelete(err, url) {
 	if(err) {
 		$alert(Lng.errDelete[lang] + err, 'Deleting', false);
 	} else {
-		$each($Q('[dE_post] input:checked', dForm), !TNum ? function(el) {
+		$each($Q('[de_post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.num;
 			if(tNums.indexOf(tNum) === -1) {
 				tNums.push(tNum);
@@ -3251,7 +3251,7 @@ function prepareCFeatures() {
 			dE_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
 		}\
 		function dE_imgSOver(el) {\
-			dE_btnOver(el, "L" + el.getAttribute("dE_id"));\
+			dE_btnOver(el, "L" + el.getAttribute("de_id"));\
 		}\
 		function dE_expandOver(el) {\
 			dE_btnOver(el, "B" + el.parentNode.getAttribute("info"));\
@@ -3276,7 +3276,7 @@ function prepareCFeatures() {
 		}\
 		function dE_cImgSearch(e, name) {\
 			e.preventDefault();\
-			window.postMessage("_" + name + ";" + e.target.getAttribute("dE_url"), "*");\
+			window.postMessage("_" + name + ";" + e.target.getAttribute("de_url"), "*");\
 			dE_removeSel();\
 		}'
 	);
@@ -3304,7 +3304,7 @@ function prepareCFeatures() {
 			checkUpload(temp[0], temp[1]);
 			$id('dE_pIframe').src = 'about:blank';
 			return;
-		case 'L': selectImgSearch($q('.dE_btnSrc[dE_id="' + data + '"]', dForm)); return;
+		case 'L': selectImgSearch($q('.dE_btnSrc[de_id="' + data + '"]', dForm)); return;
 		case 'M':
 			temp = data.split('$#$');
 			checkDelete(temp[0], temp[1]);
@@ -3406,7 +3406,7 @@ function prepareCFeatures() {
 					};\
 					w.postMessage(link.href);\
 				};' : ';') +
-			'el = getPostImages(pNum === "all" ? document : document.querySelector("[dE_post=\'" + pNum + "\']"));\
+			'el = getPostImages(pNum === "all" ? document : document.querySelector("[de_post=\'" + pNum + "\']"));\
 			for(i = 0, len = el.length; i < len; i++) {\
 				arr.push($x("ancestor::a[1]", el[i]));\
 			}\
@@ -3922,7 +3922,7 @@ function addImgSearch(el) {
 			continue;
 		}
 		nav.insBefore(
-			link, '<span dE_id="' + num + i +
+			link, '<span de_id="' + num + i +
 			'" class="dE_btnSrc" onmouseover="dE_imgSOver(this)" onmouseout="dE_btnOut(event)"></span>'
 		);
 	}
@@ -4172,7 +4172,7 @@ function getPview(post, pNum, parent, link, txt) {
 			if(!post.isOp) {
 				pView.className = aib.cReply;
 			}
-			pView.setAttribute('dE_post', null);
+			pView.setAttribute('de_post', null);
 		}
 		pView.className = aib.cReply + ' dE_pView' + (post.viewed ? ' dE_viewed' : '');
 		if(aib._7ch) {
@@ -4205,9 +4205,9 @@ function getPview(post, pNum, parent, link, txt) {
 					nav.addClass(pst, 'dE_viewed');
 					pst.viewed = true;
 				}
-				var arr = (sessionStorage['dE_viewed'] || '').split(',');
+				var arr = (sessionStorage['de_viewed'] || '').split(',');
 				arr.push(num);
-				sessionStorage['dE_viewed'] = arr;
+				sessionStorage['de_viewed'] = arr;
 			}, 2e3, post, pNum);
 		}
 	} else {
@@ -4813,7 +4813,7 @@ function getHanaPost(postJson) {
 	var i, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'dE_post': id}, null);
+		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de_post': id}, null);
 	post.innerHTML = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 		'" /></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
@@ -4844,8 +4844,8 @@ function checkBan(el, node) {
 
 function markDel(post) {
 	if(!post.deleted) {
-		var dd = sessionStorage['dE_deleted'];
-		sessionStorage['dE_deleted'] = (dd ? dd + ',' : '') + post.count;
+		var dd = sessionStorage['de_deleted'];
+		sessionStorage['de_deleted'] = (dd ? dd + ',' : '') + post.count;
 		post.deleted = true;
 		nav.remClass(post.btns, 'dE_pP_cnt');
 		nav.addClass(post.btns, 'dE_pP_del');
@@ -6555,7 +6555,7 @@ function processPost(post, pNum, thr, i) {
 	post.count = i;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
-	post.setAttribute('dE_post', pNum);
+	post.setAttribute('de_post', pNum);
 	pByNum[post.num = pNum] = post;
 }
 
