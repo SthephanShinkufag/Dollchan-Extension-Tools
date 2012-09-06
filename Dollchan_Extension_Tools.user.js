@@ -774,12 +774,12 @@ function getStoredObj(id, def) {
 function saveSpells(val) {
 	spellsHash = ELFHash(val);
 	spellsList = val.split('\n');
-	setStored('de-Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
+	setStored('DESU_Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
 	initSpells();
 }
 
 function readSpells() {
-	var arr, data = getStored('de-Spells_' + aib.dm);
+	var arr, data = getStored('DESU_Spells_' + aib.dm);
 	try {
 		arr = JSON.parse(data);
 		spellsHash = arr[0];
@@ -809,7 +809,7 @@ function parseCfg(id) {
 }
 
 function fixCfg(isGlob) {
-	var rv = isGlob && parseCfg('de-GlobalCfg') || new Config({'version': defaultCfg['version']});
+	var rv = isGlob && parseCfg('DESU_GlobalCfg') || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.ru ? 2 : 1;
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
@@ -818,7 +818,7 @@ function fixCfg(isGlob) {
 }
 
 function readCfg() {
-	Cfg = parseCfg('de-Config_' + aib.dm) || fixCfg(nav.isGlobal);
+	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
 	if(nav.Opera && nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
 		Cfg['scriptStyle'] = 2;
@@ -850,13 +850,13 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	setStored('de-Config_' + aib.dm, JSON.stringify(Cfg));
+	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 	lang = Cfg['language'];
-	Stat = getStoredObj('de-Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
+	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
 		Stat['view'] = +Stat['view'] + 1;
 	}
-	setStored('de-Stat_' + aib.dm, JSON.stringify(Stat));
+	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(
 			Cfg['timePattern'],
@@ -884,7 +884,7 @@ function readCfg() {
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		setStored('de-Config_' + aib.dm, JSON.stringify(Cfg));
+		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
 	}
 }
 
@@ -913,7 +913,7 @@ function readPostsVisib() {
 		}
 	}
 	sVis.length = Posts.length;
-	uVis = getStoredObj('de-Posts_' + aib.dm + '_' + brd, {});
+	uVis = getStoredObj('DESU_Posts_' + aib.dm + '_' + brd, {});
 	readHiddenThreads();
 }
 
@@ -936,16 +936,16 @@ function saveUserPostsVisib() {
 		});
 		str = JSON.stringify(uVis);
 	}
-	setStored('de-Posts_' + aib.dm + '_' + brd, str);
+	setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
 	toggleContent('Hid', true);
 }
 
 function readHiddenThreads() {
-	hThrds = getStoredObj('de-Threads_' + aib.dm, {});
+	hThrds = getStoredObj('DESU_Threads_' + aib.dm, {});
 }
 
 function saveHiddenThreads(txt) {
-	setStored('de-Threads_' + aib.dm, txt);
+	setStored('DESU_Threads_' + aib.dm, txt);
 }
 
 function toggleHiddenThread(post, vis) {
@@ -964,11 +964,11 @@ function toggleHiddenThread(post, vis) {
 }
 
 function readFavorites() {
-	Favor = getStoredObj('de-Favorites', {});
+	Favor = getStoredObj('DESU_Favorites', {});
 }
 
 function saveFavorites(txt) {
-	setStored('de-Favorites', txt);
+	setStored('DESU_Favorites', txt);
 	toggleContent('Fav', true);
 }
 
@@ -1575,15 +1575,15 @@ function addSettings(Set) {
 					toggleContent('Cfg', false);
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(parseCfg('de-GlobalCfg')) {
-						setStored('de-Config_' + aib.dm, '');
+					if(parseCfg('DESU_GlobalCfg')) {
+						setStored('DESU_Config_' + aib.dm, '');
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'ErrNoGCfg', false);
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					setStored('de-GlobalCfg', JSON.stringify(Cfg));
+					setStored('DESU_GlobalCfg', JSON.stringify(Cfg));
 					toggleContent('Cfg', true);
 				})),
 				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
@@ -1593,10 +1593,10 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						setStored('de-Config_' + aib.dm, JSON.stringify(fixCfg(false)));
-						setStored('de-Stat_' + aib.dm, '');
-						setStored('de-Favorites', '');
-						setStored('de-Threads_' + aib.dm, '');
+						setStored('DESU_Config_' + aib.dm, JSON.stringify(fixCfg(false)));
+						setStored('DESU_Stat_' + aib.dm, '');
+						setStored('DESU_Favorites', '');
+						setStored('DESU_Threads_' + aib.dm, '');
 						saveSpells('');
 						window.location.reload();
 					}
@@ -1606,7 +1606,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 56}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					setStored('de-Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
+					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 					window.location.reload();
 				})
 			])
@@ -1758,7 +1758,7 @@ function addHiddenTable(hid) {
 					}
 				}
 			});
-			setStored('de-Threads_' + aib.dm, JSON.stringify(hThrds));
+			setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThrds));
 			saveUserPostsVisib();
 		}),
 		$New('div', {'style': 'display: none;'}, [
@@ -1820,7 +1820,7 @@ function addFavoritesTable(fav) {
 					if(!err && cnt > Favor[arr[0]][arr[1]][arr[2]].cnt) {
 						c.className = 'de-favInfNew';
 						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
-						setStored('de-Favorites', JSON.stringify(Favor));
+						setStored('DESU_Favorites', JSON.stringify(Favor));
 					} else {
 						c.className = 'de-favInfOld';
 					}
@@ -2382,7 +2382,7 @@ function doPostformChanges(img, m, el) {
 		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
 			pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 		}
-		setStored('de-Stat_' + aib.dm, JSON.stringify(Stat));
+		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
 			$disp($id('de-qarea'));
 			$after($id('de-toggleReply'), $id('de-pform'));
