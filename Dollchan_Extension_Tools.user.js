@@ -286,7 +286,7 @@ Lng = {
 	deleting:		['Удаление...', 'Deleting...'],
 	error:			['Ошибка:', 'Error:'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
-	thrdNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
+	thrNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
 	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
 	errDelete:		['Не могу удалить пост(ы):\n', 'Can\'t delete post(s):\n'],
 	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
@@ -623,7 +623,7 @@ function getOmPosts(el) {
 }
 
 function getText(el) {
-	return el.Text || (el.Text = el.Msg.innerHTML
+	return el.Text || (el.Text = el.msg.innerHTML
 		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
 		.replace(/<[^>]+?>/g,'')
 		.replace(/&gt;/g, '>')
@@ -953,9 +953,9 @@ function toggleHiddenThread(post, vis) {
 		hThrds[brd] = {};
 	}
 	if(vis === 0) {
-		hThrds[brd][post.Num] = post.dTitle;
+		hThrds[brd][post.num] = post.tTitle;
 	} else {
-		delete hThrds[brd][post.Num];
+		delete hThrds[brd][post.num];
 		if($isEmpty(hThrds[brd])) {
 			delete hThrds[brd];
 		}
@@ -981,14 +981,14 @@ function removeFavorites(h, b, tNum) {
 		delete Favor[h];
 	}
 	if(pByNum[tNum]) {
-		($c('DESU_btnFavSel', pByNum[tNum].Btns) || {}).className = 'DESU_btnFav';
+		($c('DESU_btnFavSel', pByNum[tNum].btns) || {}).className = 'DESU_btnFav';
 	}
 }
 
 function toggleFavorites(post, btn) {
 	var h = aib.host,
 		b = brd,
-		tNum = post.Num;
+		tNum = post.num;
 	if(!btn) {
 		return;
 	}
@@ -1004,7 +1004,7 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.dTitle};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle};
 	btn.className = 'DESU_btnFavSel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1636,23 +1636,23 @@ function contentBlock(parent, link) {
 function addHiddenTable(hid) {
 	var b, tNum, pBlock, tBlock, el = hid.appendChild($add('<div></div>'));
 	Threads.forEach(function(op) {
-		if(!op.Hid) {
+		if(!op.hide) {
 			return;
 		}
 		var wrap = $New('div', {'class': aib.cReply}, [
 			$new('input', {'type': 'checkbox'}, null),
 			$event($add(
-				'<a href="' + getThrdUrl(aib.host, brd, op.Num) + '" target="_blank">№' + op.Num + '</a>'), {
+				'<a href="' + getThrdUrl(aib.host, brd, op.num) + '" target="_blank">№' + op.num + '</a>'), {
 				'click': function(e) {
 					$pd(e);
-					this.Hid = !this.Hid;
-					this.parentNode.nextSibling.style.display = this.Hid ? 'none' : '';
+					this.hide = !this.hide;
+					this.parentNode.nextSibling.style.display = this.hide ? 'none' : '';
 				}
 			}),
-			$txt(' - ' + op.dTitle)
+			$txt(' - ' + op.tTitle)
 		]);
 		wrap.pst = op;
-		wrap.Hid = true;
+		wrap.hide = true;
 		if(!tBlock) {
 			tBlock = el.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
 				$add('<b>' + Lng.hiddenThrds[lang] + Lng.onPage[lang] + ':</b>')
@@ -1669,7 +1669,7 @@ function addHiddenTable(hid) {
 		var pP, cln = post.cloneNode(true);
 		cln.removeAttribute('id');
 		cln.style.display = '';
-		cln.Hid = true;
+		cln.hide = true;
 		cln.pst = post;
 		cln.btn = $q('.DESU_btnHide, .DESU_btnLock', cln);
 		nav.remClass(pP = cln.btn.parentNode, 'DESU_pP_cnt');
@@ -1677,7 +1677,7 @@ function addHiddenTable(hid) {
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
-			togglePostContent(pst, pst.Hid = !pst.Hid);
+			togglePostContent(pst, pst.hide = !pst.hide);
 		};
 		if(!pBlock) {
 			pBlock = el.appendChild($New('div', {'class': 'DESU_contentBlock'}, [
@@ -1694,7 +1694,7 @@ function addHiddenTable(hid) {
 				if(el.expanded) {
 					this.value = Lng.expandAll[lang];
 					$each(posts, function(node) {
-						setPostVisib(node.pst, node.Hid, null);
+						setPostVisib(node.pst, node.hide, null);
 					});
 					el.expanded = false;
 				} else {
@@ -1707,7 +1707,7 @@ function addHiddenTable(hid) {
 			}),
 			$btn(Lng.save[lang], '', function() {
 				$each($Q('.DESU_contData > :not(.DESU_hidOppost)', this.parentNode), function(el) {
-					if(!el.Hid || !el.pst.Hid) {
+					if(!el.hide || !el.pst.hide) {
 						setUserPostVisib(el.pst, false);
 					}
 				});
@@ -1996,20 +1996,20 @@ function selectPostHider(post) {
 		return;
 	}
 	var a = addSelMenu(
-		post.Btns.firstChild, false,
+		post.btns.firstChild, false,
 		'<a href="#">' + Lng.selHiderMenu[lang].join('</a><a href="#">') + '</a>'
 	);
 	a[1].onclick = function(e) {
 		$pd(e);
 		addSpell(
-			post.Img.length === 0 ?
+			post.img.length === 0 ?
 				'#noimg' :
 				'#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
 		);
 	};
 	a[2].onclick = function(e) {
 		$pd(e);
-		addSpell(post.Img.length === 0 ? '#noimg' : '#ihash ' + getImgHash(post));
+		addSpell(post.img.length === 0 ? '#noimg' : '#ihash ' + getImgHash(post));
 	};
 	a[3].onclick = function(e) {
 		$pd(e);
@@ -2026,7 +2026,7 @@ function selectPostHider(post) {
 
 function selectExpandThread(post) {
 	$each(addSelMenu(
-		$q('span:nth-child(3)', post.Btns), false,
+		$q('span:nth-child(3)', post.btns), false,
 		'<a href="#">' + Lng.selExpandThrd[lang].join('</a><a href="#">') + '</a>'
 	), function(a) {
 		a.onclick = function(e) {
@@ -2112,7 +2112,7 @@ function initKeyNavig() {
 		},
 		scrollToPost = function(posts, idx, dir, scroll, toTop) {
 			var post, mIdx = idx;
-			while(posts[mIdx].Hid || posts[mIdx].thr.Hid) {
+			while(posts[mIdx].hide || posts[mIdx].thr.hide) {
 				mIdx += dir;
 			}
 			post = posts[mIdx];
@@ -2205,9 +2205,9 @@ function initKeyNavig() {
 			if(TNum) {
 				showQuickReply(Posts[pIndex]);
 			} else if(nav.Firefox) {
-				GM_openInTab(getThrdUrl(aib.host, brd, Threads[curTh].Num), false, true);
+				GM_openInTab(getThrdUrl(aib.host, brd, Threads[curTh].num), false, true);
 			} else {
-				window.open(getThrdUrl(aib.host, brd, Threads[curTh].Num), '_blank');
+				window.open(getThrdUrl(aib.host, brd, Threads[curTh].num), '_blank');
 			}
 			return;
 		}
@@ -2321,7 +2321,7 @@ function initPostform() {
 	if(pr.on) {
 		doPostformChanges(null, null, null);
 	} else if(oeForm) {
-		ajaxGetPosts(null, brd, Posts[0].Num, false, doPostformChanges);
+		ajaxGetPosts(null, brd, Posts[0].num, false, doPostformChanges);
 	}
 }
 
@@ -2372,7 +2372,7 @@ function doPostformChanges(img, m, el) {
 			$alert(Lng.checking[lang], 'Upload', true);
 		}
 		if(Cfg['favOnReply'] && pr.tNum) {
-			toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].Btns));
+			toggleFavorites(pByNum[pr.tNum], $c('DESU_btnFav', pByNum[pr.tNum].btns));
 		}
 		if(pr.tNum) {
 			Stat['reply'] = +Stat['reply'] + 1;
@@ -2722,7 +2722,7 @@ function checkDelete(err, url) {
 		$alert(Lng.errDelete[lang] + err, 'Deleting', false);
 	} else {
 		$each($Q('[desu-post] input:checked', dForm), !TNum ? function(el) {
-			var tNum = getPost(el).thr.Num;
+			var tNum = getPost(el).thr.num;
 			if(tNums.indexOf(tNum) === -1) {
 				tNums.push(tNum);
 			}
@@ -2976,7 +2976,7 @@ dataForm.prototype.readFile = function(el, idx) {
 ==============================================================================*/
 
 function showQuickReply(post) {
-	var tNum = post.thr.Num,
+	var tNum = post.thr.num,
 		qArea = $id('DESU_qarea');
 	pr.tNum = tNum;
 	if(pr.isQuick) {
@@ -3022,7 +3022,7 @@ function showQuickReply(post) {
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
 	}
-	$txtInsert(pr.txta, '>>' + post.Num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
+	$txtInsert(pr.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 }
 
 function showMainReply() {
@@ -3072,7 +3072,7 @@ function insertRefLink(e) {
 	if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
 		$id('DESU_parea').style.display = '';
 	}
-	var pNum = getPost(e.target).Num;
+	var pNum = getPost(e.target).num;
 	if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
 		showQuickReply(pByNum[pNum]);
 	} else {
@@ -3191,15 +3191,15 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + ' DESU_pP_cnt" info="' + post.Num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
+		html = '<span class="DESU_postPanel' + (post.isOp ? '_op' : '') + ' DESU_pP_cnt" info="' + post.num + '"><span class="DESU_btnHide" onclick="DESU_hideClick(this)" onmouseover="DESU_hideOver(this)" onmouseout="DESU_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="DESU_btnRep" onclick="DESU_qReplyClick(this)" onmouseover="DESU_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
 			html += '<span class="DESU_btnExpthr" onclick="DESU_expandClick(this)" onmouseover="DESU_expandOver(this)" onmouseout="DESU_btnOut(event)"></span>';
 		}
-		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.Num]) {
+		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
 			html += '<span class="DESU_btnFavSel" onclick="DESU_favorClick(this)"></span>';
-			Favor[h][brd][post.Num].cnt = post.thr.pCount + 1;
+			Favor[h][brd][post.num].cnt = post.thr.pCount + 1;
 		} else {
 			html += '<span class="DESU_btnFav" onclick="DESU_favorClick(this)"></span>';
 		}
@@ -3208,7 +3208,7 @@ function addPostButtons(post) {
 		aib.getSage(post) ?
 			'<span class="DESU_btnSage" title="SAGE" onclick="DESU_sageClick(this)"></span>' : ''
 	) + '</span>');
-	post.Btns = ref.nextSibling;
+	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
 		if(aib.tinyIb || (aib.nul && TNum)) {
 			$each($T('a', ref), function(el) {
@@ -3665,7 +3665,7 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.Msg || $q(aib.qMsg, pst)).appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' +
+		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="DESU_eYTube"><a href="' + src + '">' +
 			src + '</a></p>'));
 		$del(el.parentNode);
 	});
@@ -3683,7 +3683,7 @@ function addLinkTube(post) {
 			} else if(Cfg['addYouTube'] === 2) {
 				addTubePlayer(el, m);
 			}
-			msg = pst.Msg || $q(aib.qMsg, pst);
+			msg = pst.msg || $q(aib.qMsg, pst);
 			if(aib.krau) {
 				msg = msg.parentNode;
 				prev = msg.previousElementSibling;
@@ -3723,7 +3723,7 @@ function filterTube(post, text, tags) {
 	for(var t, i = 0; t = oSpells.video[i]; i++) {
 		if($toRegExp(t).test(text)) {
 			hidePost(post, '#video ' + t);
-			post.ytHide = 1;
+			post.ytHide = true;
 			clearTimeout(hideTubeDelay);
 			hideTubeDelay = setTimeout(savePostsVisib, 500);
 			return;
@@ -3732,7 +3732,7 @@ function filterTube(post, text, tags) {
 	for(i = 0; t = oSpells.vtag[i]; i++) {
 		if(tags.contains(t)) {
 			hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
-			post.ytHide = 1;
+			post.ytHide = true;
 			clearTimeout(hideTubeDelay);
 			hideTubeDelay = setTimeout(savePostsVisib, 500);
 			return;
@@ -3749,16 +3749,16 @@ function hideByTube() {
 			if($toRegExp(t).test(val)) {
 				post = getPost(link);
 				hidePost(post, '#video ' + t);
-				post.ytHide = 1;
-				return
+				post.ytHide = true;
+				return;
 			}
 		}
 		for(i = 0, val = link.rel; t = oSpells.vtag[i++];) {
 			if(val.contains(t)) {
 				post = getPost(link);
 				hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
-				post.ytHide = 1;
-				return
+				post.ytHide = true;
+				return;
 			}
 		}
 	});
@@ -3776,7 +3776,7 @@ function addLinkMP3(post) {
 			el = $c('DESU_mp3', pst);
 		if(!el) {
 			el = $new('div', {'class': 'DESU_mp3'}, null);
-			$before(pst.Msg || $q(aib.qMsg, pst), el);
+			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
 			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>';
@@ -3912,7 +3912,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var num = el.Num || '', els = $Q(aib.qImgLink, el), i = els.length - 1, link; i >= 0; i--) {
+	for(var num = el.num || '', els = $Q(aib.qImgLink, el), i = els.length - 1, link; i >= 0; i--) {
 		link = els[i];
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
@@ -3935,13 +3935,13 @@ function expandPostImg(a, isExp) {
 }
 
 function expandAllPostImg(post, isExp) {
-	$each(post.Img, function(img) {
+	$each(post.img, function(img) {
 		expandPostImg($x('ancestor::a[1]', img), isExp);
 	});
 }
 
 function eventPostImg(post) {
-	$each(post.Img, function(img) {
+	$each(post.img, function(img) {
 		var a = $x('ancestor::a[1]', img);
 		if(a) {
 			img.onclick = null;
@@ -4011,7 +4011,7 @@ function addRefMap(post) {
 	var rM = '<div class="DESU_refMap">' + post.ref.join(', ').replace(/(\d+)/g,
 			'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
 	try {
-		nav.insAfter(post.Msg, rM);
+		nav.insAfter(post.msg, rM);
 	} catch(e) {
 		post.appendChild($add(rM));
 	}
@@ -4020,7 +4020,7 @@ function addRefMap(post) {
 function genRefMap(pBn) {
 	var refMap = [];
 	nav.forEach(pBn, function(pNum) {
-		for(var rNum, post, nodes = $T('a', this[pNum].Msg), i = nodes.length - 1; i >= 0; i--) {
+		for(var rNum, post, nodes = $T('a', this[pNum].msg), i = nodes.length - 1; i >= 0; i--) {
 			if((rNum = nodes[i].textContent.match(/^>>(\d+)$/)) && (post = pBn[rNum[1]])) {
 				if(!post.ref) {
 					post.ref = [pNum];
@@ -4037,14 +4037,14 @@ function genRefMap(pBn) {
 
 function updRefMap(post) {
 	var pNum, el, pst, pNums = [],
-		nodes = $T('a', post.Msg),
+		nodes = $T('a', post.msg),
 		i = nodes.length - 1;
 	for(; i >= 0; i--) {
 		if((pNum = nodes[i].textContent.match(/^>>(\d+)$/)) && pNums.indexOf(pNum = pNum[1]) === -1) {
 			pNums.push(pNum);
 		}
 	}
-	pNum = post.Num;
+	pNum = post.num;
 	for(i = pNums.length - 1; i >= 0; i--) {
 		if(!(pst = pByNum[pNums[i]])) {
 			continue;
@@ -4057,7 +4057,7 @@ function updRefMap(post) {
 		$del($c('DESU_refMap', pst));
 		addRefMap(pst);
 		eventRefLink($c('DESU_refMap', pst));
-		if(Cfg['hideRefPsts'] && pst.Hid) {
+		if(Cfg['hideRefPsts'] && pst.hide) {
 			hidePost(post, 'reference to >>' + pNums[i]);
 		}
 	}
@@ -4179,7 +4179,7 @@ function getPview(post, pNum, parent, link, txt) {
 			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
 		}
-		pView.Num = pNum;
+		pView.num = pNum;
 		$each($Q('.DESU_preImg, .DESU_fullImg, .DESU_postPanel, .DESU_postPanel_op, .DESU_btnSrc' + (
 			Cfg['addYouTube'] !== 2 ? ', .DESU_ytObj' : ''
 		), pView), $del);
@@ -4189,14 +4189,14 @@ function getPview(post, pNum, parent, link, txt) {
 		if(!pByNum[pNum] || Cfg['addYouTube'] !== 2) {
 			addLinkTube(pView);
 		}
-		$each(pView.Img = getPostImages(pView), function(img) {
+		$each(pView.img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
 		eventPostImg(pView);
 		addLinkImg(pView);
 		addImgSearch(pView);
 		if(Cfg['linksNavig'] === 2) {
-			markRefMap(pView, parent.Num);
+			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
 		if(Cfg['markViewed']) {
@@ -4271,18 +4271,18 @@ function showPview(link) {
 		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
 		parent = getPost(link),
 		el = parent.pView ? parent.kid : Pviews.top;
-	if(Cfg['noNavigHidd'] && post && post.Hid) {
+	if(Cfg['noNavigHidd'] && post && post.hide) {
 		return;
 	}
 	if(Pviews.deleted[pNum]) {
 		getPview(null, pNum, parent, link, Lng.postNotFound[lang]);
 		return;
 	}
-	if(el && el.Num === pNum) {
+	if(el && el.num === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
 		setPviewPosition(link, el, true);
-		markRefMap(el, parent.Num);
+		markRefMap(el, parent.num);
 		return;
 	}
 	if(post) {
@@ -4296,11 +4296,11 @@ function showPview(link) {
 			var pst, i = 0,
 				len = els.length;
 			op.isOp = true;
-			op.Msg = $q(aib.qMsg, op);
+			op.msg = $q(aib.qMsg, op);
 			Pviews.ajaxed[b][tNum] = op;
 			for(; i < len; i++) {
 				pst = els[i];
-				pst.Msg = $q(aib.qMsg, pst);
+				pst.msg = $q(aib.qMsg, pst);
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
 			genRefMap(Pviews.ajaxed[b]);
@@ -4394,7 +4394,7 @@ function addPostFunc(post) {
 	if(Cfg['expandImgs']) {
 		eventPostImg(post);
 	}
-	if(!post.Hid) {
+	if(!post.hide) {
 		doPostFilters(post);
 	}
 	updRefMap(post);
@@ -4429,18 +4429,18 @@ function newPost(thr, post, pNum, i) {
 	}
 	thr.appendChild(pst);
 	if(Cfg['preLoadImgs']) {
-		window.postMessage('K' + post.Num, '*');
+		window.postMessage('K' + pNum, '*');
 	}
 	if(aib.tiny) {
 		thr.appendChild(doc.createElement('br'));
 	}
-	return +!post.Hid;
+	return +!post.hide;
 }
 
 function processFullMsg(post) {
 	if(aib.rep) {
 		post.innerHTML = replaceString(post.innerHTML);
-		post.Img = getPostImages(post);
+		post.img = getPostImages(post);
 	}
 	$each($Q('.DESU_btnSrc, .DESU_ytObj', post), $del);
 	addPostFunc(post);
@@ -4449,13 +4449,13 @@ function processFullMsg(post) {
 function getFullPost(el, isFunc) {
 	var	post = getPost(el),
 		replaceFMsg = function(pst, pNum) {
-			if(post.Num === pNum) {
+			if(post.num === pNum) {
 				$del(el);
-				var ytube = $q('.DESU_eYTube', post.Msg);
-				post.Msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.Msg);
-				post.Msg = $q(aib.qMsg, post);
+				var ytube = $q('.DESU_eYTube', post.msg);
+				post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.msg);
+				post.msg = $q(aib.qMsg, post);
 				if(ytube) {
-					post.Msg.appendChild(ytube);
+					post.msg.appendChild(ytube);
 				}
 				processFullMsg(post);
 				el = post = null;
@@ -4466,13 +4466,13 @@ function getFullPost(el, isFunc) {
 		$del(el.nextSibling);
 		$del(el.previousSibling);
 		$del(el);
-		post.Msg.replaceChild($q('.alternate > div', post), post.Msg.firstElementChild);
+		post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
 		if(isFunc) {
 			processFullMsg(post);
 		}
 		return;
 	}
-	ajaxGetPosts(null, brd, post.thr.Num, true, function(els, op, err) {
+	ajaxGetPosts(null, brd, post.thr.num, true, function(els, op, err) {
 		if(!err) {
 			try {
 				replaceFMsg(op, aib.getTNum(op));
@@ -4486,7 +4486,7 @@ function getFullPost(el, isFunc) {
 }
 
 function expandPost(post) {
-	if(post.Hid) {
+	if(post.hide) {
 		return;
 	}
 	var el = $q(
@@ -4511,7 +4511,7 @@ function loadThread(op, last, Fn) {
 	if(!Fn) {
 		$alert(Lng.loading[lang], 'LoadThr', true);
 	}
-	ajaxGetPosts(null, brd, op.Num, true, function(els, newOp, err) {
+	ajaxGetPosts(null, brd, op.num, true, function(els, newOp, err) {
 		var i, impP, nEls, pCnt, thr = op.thr,
 			len = els.length;
 		if(err) {
@@ -4523,11 +4523,11 @@ function loadThread(op, last, Fn) {
 			thr.innerHTML = '';
 			(impP = importPost(newOp)).isOp = true;
 			newPost(thr, impP, aib.getTNum(newOp), 0);
-			impP.dTitle = ($c(aib.cTitle, impP) || {}).textContent ||
+			impP.tTitle = ($c(aib.cTitle, impP) || {}).textContent ||
 				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
 			Threads[Threads.indexOf(op)] = impP;
 			nav.insAfter(
-				impP.Btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impP.Num) + '">' +
+				impP.btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impP.num) + '">' +
 					Lng.reply[lang] + '</a>]</span>'
 			);
 			if(last === 1 || last >= len) {
@@ -4576,7 +4576,7 @@ function loadFavorThread() {
 		cont.style.overflowY = 'auto';
 		return;
 	}
-	if((tNum = pByNum[tNum]) && !tNum.Hid) {
+	if((tNum = pByNum[tNum]) && !tNum.hide) {
 		$focus(tNum);
 		return;
 	}
@@ -4718,7 +4718,7 @@ function desktopNotification(i) {
 function infoNewPosts(err, i) {
 	if(err) {
 		if(err !== Lng.noConnect[lang]) {
-			$alert(Lng.thrdNotFound[lang] + TNum + '): \n' + err, 'NewP', false);
+			$alert(Lng.thrNotFound[lang] + TNum + '): \n' + err, 'NewP', false);
 			doc.title = '{' + err.match(/(?:\[)(\d+)(?:\])/)[1] + '} ' + doc.title;
 			endPostsUpdate();
 		} else {
@@ -4835,7 +4835,7 @@ function checkBan(el, node) {
 		var isBan = $q(aib.qBan, node);
 		if(isBan) {
 			if(!$q(aib.qBan, el)) {
-				el.Msg.appendChild(doc.importNode(isBan, true));
+				el.msg.appendChild(doc.importNode(isBan, true));
 			}
 			el.isBan = true;
 		}
@@ -4843,12 +4843,12 @@ function checkBan(el, node) {
 }
 
 function markDel(post) {
-	if(!post.isDel) {
+	if(!post.deleted) {
 		var dd = sessionStorage['desu-deleted'];
-		sessionStorage['desu-deleted'] = (dd ? dd + ',' : '') + post.Count;
-		post.isDel = true;
-		nav.remClass(post.Btns, 'DESU_pP_cnt');
-		nav.addClass(post.Btns, 'DESU_pP_del');
+		sessionStorage['desu-deleted'] = (dd ? dd + ',' : '') + post.count;
+		post.deleted = true;
+		nav.remClass(post.btns, 'DESU_pP_cnt');
+		nav.addClass(post.btns, 'DESU_pP_del');
 	}
 }
 
@@ -4859,7 +4859,7 @@ function loadNewPosts(isInfo, Fn) {
 	if(aib.hana) {
 		getJsonPosts(
 			'//dobrochan.ru/api/thread/' + brd + '/' + TNum +
-				'/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].Num,
+				'/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].num,
 			function(status, sText, json) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lang] : (sText || json['message']), null);
@@ -4909,7 +4909,7 @@ function loadNewPosts(isInfo, Fn) {
 			}
 			pNum = aib.getPNum(el_);
 			if(el) {
-				if(el.Num !== pNum) {
+				if(el.num !== pNum) {
 					markDel(el);
 					j--;
 					continue;
@@ -4970,7 +4970,7 @@ function hideByRef(post) {
 	post.ref.forEach(function(pNum) {
 		var pst = pByNum[pNum];
 		if(pst && !uVis[pNum]) {
-			doHidePost(pst, 'reference to >>' + post.Num);
+			doHidePost(pst, 'reference to >>' + post.num);
 		}
 	});
 	post = null;
@@ -4983,7 +4983,7 @@ function unhideByRef(post) {
 	post.ref.forEach(function(pNum) {
 		var pst = pByNum[pNum];
 		if(pst && !uVis[pNum]) {
-			if(sVis[pst.Count] !== 0) {
+			if(sVis[pst.count] !== 0) {
 				setPostVisib(pst, false, null);
 			}
 			unhideByRef(pst);
@@ -4993,15 +4993,15 @@ function unhideByRef(post) {
 
 function doPostFilters(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
-		sVis[post.Count] = 1;
+		sVis[post.count] = 1;
 		return;
 	}
 	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
 	if(note) {
-		sVis[post.Count] = 0;
+		sVis[post.count] = 0;
 		doHidePost(post, note);
 	} else {
-		sVis[post.Count] = 1;
+		sVis[post.count] = 1;
 	}
 }
 
@@ -5009,11 +5009,11 @@ function setPostsVisib() {
 	for(var post, pNum, vis, i = Posts.length - 1; i >= 0; i--) {
 		vis = sVis[i];
 		post = Posts[i];
-		if(uVis[pNum = post.Num]) {
+		if(uVis[pNum = post.num]) {
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, true);
 			} else {
-				post.Btns.firstChild.className = 'DESU_btnLock';
+				post.btns.firstChild.className = 'DESU_btnLock';
 			}
 			if(vis === undefined) {
 				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
@@ -5036,7 +5036,7 @@ function setPostsVisib() {
 }
 
 function togglePostVisib(post) {
-	setUserPostVisib(post, !post.Hid);
+	setUserPostVisib(post, !post.hide);
 	saveUserPostsVisib();
 }
 
@@ -5050,7 +5050,7 @@ function togglePostContent(post, hide) {
 
 function addPostNote(post, note) {
 	if(note) {
-		post.Btns.appendChild($new('a', {
+		post.btns.appendChild($new('a', {
 			'class': 'DESU_postNote DESU_aBtn',
 			'text': ' autohide: ' + note + ' ',
 			'href': '#'}, {
@@ -5063,12 +5063,12 @@ function addPostNote(post, note) {
 }
 
 function setPostVisib(post, hide, note) {
-	var el, pNum;
-	togglePostContent(post, post.Hid = hide);
+	var el, pNum, thr = post.thr;
+	togglePostContent(post, post.hide = hide);
 	if(post.isOp) {
-		post.thr.style.display = hide ? 'none' : '';
-		post.thr.Hid = hide;
-		el = $id('DESU_hidThr_' + (pNum = post.Num));
+		thr.style.display = hide ? 'none' : '';
+		thr.hide = hide;
+		el = $id('DESU_hidThr_' + (pNum = post.num));
 		if(!hide && el) {
 			$del(el);
 			toggleHiddenThread(post, 1);
@@ -5076,13 +5076,13 @@ function setPostVisib(post, hide, note) {
 		if(hide && !el) {
 			el = $add('<div class="' + aib.cReply + '" id="DESU_hidThr_' + pNum + '">' +
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
-					note ? 'autohide: ' + note : post.dTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
 			$t('a', el).onclick = function(e) {
 				$pd(e);
 				togglePostVisib(post);
 			};
-			$before(post.thr, el);
+			$before(thr, el);
 			toggleHiddenThread(post, 0);
 		}
 	} else {
@@ -5107,7 +5107,7 @@ function setPostVisib(post, hide, note) {
 			};
 		}
 		if(Cfg['strikeHidd']) {
-			setTimeout($each, 0, $Q('a[href*="#' + post.Num + '"]', dForm), function(el) {
+			setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), function(el) {
 				el.className = hide && 'DESU_refHid';
 			});
 		}
@@ -5120,27 +5120,27 @@ function doHidePost(post, note) {
 }
 
 function hidePost(post, note) {
-	if(post.noHide || uVis[post.Num]) {
+	if(post.noHide || uVis[post.num]) {
 		return;
 	}
-	if(post.Hid) {
+	if(post.hide) {
 		$del($c('DESU_postNote', post));
 		addPostNote(post, note);
 	} else {
-		sVis[post.Count] = 0;
+		sVis[post.count] = 0;
 		doHidePost(post, note);
 	}
 }
 
 function unhidePost(post) {
-	if(uVis[post.Num]) {
+	if(uVis[post.num]) {
 		return;
 	}
 	var wn = detectWipeText(getText(post));
 	if(wn) {
 		hidePost(post, wn);
 	} else {
-		sVis[post.Count] = 1;
+		sVis[post.count] = 1;
 		setPostVisib(post, false, null);
 		unhideByRef(post);
 		$del($c('DESU_postNote', post));
@@ -5148,9 +5148,9 @@ function unhidePost(post) {
 }
 
 function setUserPostVisib(post, hide) {
-	var pNum = post.Num;
+	var pNum = post.num;
 	setPostVisib(post, hide, null);
-	post.Btns.firstChild.className = 'DESU_btnLock';
+	post.btns.firstChild.className = 'DESU_btnLock';
 	if(hide) {
 		hideByRef(post);
 	} else {
@@ -5196,10 +5196,10 @@ function findSameText(post, oNum, oHid, oWords) {
 	}
 	$del($c('DESU_postNote',  post));
 	if(oHid) {
-		if(sVis[post.Count] !== 0) {
+		if(sVis[post.count] !== 0) {
 			setPostVisib(post, false, null);
 		}
-		if(uVis[i = post.Num]) {
+		if(uVis[i = post.num]) {
 			delete uVis[i];
 		}
 	} else {
@@ -5212,8 +5212,8 @@ function hideBySameText(post) {
 	var wrds, hid, num, text = getText(post);
 	if(text) {
 		wrds = getWrds(text);
-		num = post.Num;
-		hid = post.Hid;
+		num = post.num;
+		hid = post.hide;
 		Posts.forEach(function(target) {
 			findSameText(target, num, hid, wrds);
 		});
@@ -5259,7 +5259,7 @@ function genImgHash(data, oldw, oldh) {
 }
 
 function getImgHash(post) {
-	var w, h, cnv, ctx, img = post.Img[0];
+	var w, h, cnv, ctx, img = post.img[0];
 	if(img.hash) {
 		return img.hash;
 	}
@@ -5406,7 +5406,7 @@ function getSpells(x, post) {
 	var inf, i, t, _t, pTitle, pText, pName, pTrip, imgW, imgH, imgK;
 	post.noHide = false;
 	if(oSpells.skip[0] && TNum) {
-		inf = post.Count + 1;
+		inf = post.count + 1;
 		for(i = 0; t = oSpells.skip[i++];) {
 			t = t.split('-');
 			if(inf >= +t[0] && inf <= +t[1]) {
@@ -5468,7 +5468,7 @@ function getSpells(x, post) {
 			}
 		}
 	}
-	if(post.Img.length > 0) {
+	if(post.img.length > 0) {
 		if(x.ihash[0]) {
 			for(i = 0, inf = getImgHash(post); t = x.ihash[i++];) {
 				if(t === inf) {
@@ -5499,7 +5499,7 @@ function getSpells(x, post) {
 		}
 	}
 	if(oSpells.num[0]) {
-		for(i = 0, inf = post.Count + 1; t = oSpells.num[i++];) {
+		for(i = 0, inf = post.count + 1; t = oSpells.num[i++];) {
 			_t = t;
 			t = t.split('-');
 			if(inf >= +t[0] && inf <= +t[1]) {
@@ -5520,7 +5520,7 @@ function getSpells(x, post) {
 	if(x.notxt && !pText) {
 		return '#no text';
 	}
-	if(x.noimg && post.Img.length === 0) {
+	if(x.noimg && post.img.length === 0) {
 		return '#no image';
 	}
 	return false;
@@ -5538,7 +5538,7 @@ function hideBySpells(post) {
 	var exp = checkSpells(post);
 	if(exp) {
 		hidePost(post, exp.substring(0, 70));
-	} else if(post.Hid && post.noHide) {
+	} else if(post.hide && post.noHide) {
 		unhidePost(post);
 	}
 }
@@ -5564,9 +5564,9 @@ function verifyRegExp(txt) {
 
 function disableSpells() {
 	Posts.forEach(function(post) {
-		if(post.ytHide === 1) {
+		if(post.ytHide === true) {
 			unhidePost(post);
-			post.ytHide = 0;
+			post.ytHide = false;
 		} else if(checkSpells(post)) {
 			unhidePost(post);
 		}
@@ -6552,11 +6552,11 @@ function getImageboard() {
 
 function processPost(post, pNum, thr, i) {
 	post.thr = thr;
-	post.Count = i;
-	post.Msg = $q(aib.qMsg, post);
-	post.Img = getPostImages(post);
+	post.count = i;
+	post.msg = $q(aib.qMsg, post);
+	post.img = getPostImages(post);
 	post.setAttribute('desu-post', pNum);
-	pByNum[post.Num = pNum] = post;
+	pByNum[post.num = pNum] = post;
 }
 
 function parseDelform(el, dc, Fn) {
@@ -6624,9 +6624,9 @@ function tryToParse(node) {
 			var i, op = aib.getOp(thr, doc),
 				els = aProto.slice.call(aib.getPosts(thr)),
 				len = els.length;
-			processPost(op, thr.Num = aib.getTNum(op), thr, 0);
+			processPost(op, thr.numy = aib.getTNum(op), thr, 0);
 			op.isOp = true;
-			op.dTitle = ($c(aib.cTitle, op) || {}).textContent || getText(op).substring(0, 70);
+			op.tTitle = ($c(aib.cTitle, op) || {}).textContent || getText(op).substring(0, 70);
 			for(i = 0; i < len; i++) {
 				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
 			}
@@ -6726,7 +6726,7 @@ function initPage() {
 	}
 	if(TNum) {
 		if(Cfg['rePageTitle']) {
-			docTitle = '/' + brd + ' - ' + pByNum[TNum].dTitle;
+			docTitle = '/' + brd + ' - ' + pByNum[TNum].tTitle;
 			doc.title = docTitle;
 		} else {
 			docTitle = doc.title;
