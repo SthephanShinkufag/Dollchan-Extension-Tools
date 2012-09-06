@@ -5074,7 +5074,7 @@ function setPostVisib(post, hide, note) {
 			toggleHiddenThread(post, 1);
 		}
 		if(hide && !el) {
-			el = $add('<div class="' + aib.cReply + '" id="DESU_hidThr_' + pNum + '">' +
+			el = $add('<div class="' + aib.cReply + ' DESU_hidThr" id="DESU_hidThr_' + pNum + '">' +
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
@@ -5966,7 +5966,7 @@ function scriptCSS() {
 	if(aib.krau) {
 		x += '.DESU_hidden > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
-			div[id^="DESU_hidThr_"] { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
+			.DESU_hidThr { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .DESU_ytObj, .file_thread + .DESU_ytObj { margin: 5px 20px 5px 5px; float: left; }\
 			.DESU_ytObj + div { clear: left; }';
 	} else if(aib.fch) {
@@ -5977,7 +5977,7 @@ function scriptCSS() {
 			.DESU_hidden > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
 	} else if(aib._420) {
 		x += '.DESU_hidden > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
-			div[id^="DESU_hidThr_"] { margin: 1em 0; }';
+			.DESU_hidThr { margin: 1em 0; }';
 	} else {
 		x+= '.DESU_hidden > .DESU_postPanel ~ * { display: none !important; }'
 		if(aib.abu) {
@@ -6045,7 +6045,7 @@ function updateCSS() {
 			.DESU_preImg > img:hover, .DESU_ytObj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['delHiddPost']) {
-		x += 'div[id^=DESU_hidThr_], div[id^=DESU_hidThr_] + div + br, div[id^=DESU_hidThr_] + div + br + hr { display: none; }';
+		x += '.DESU_hidThr, .DESU_hidThr + div + br, .DESU_hidThr + div + br + hr { display: none; }';
 	}
 	if(Cfg['noPostNames']) {
 		x += '.commentpostername, .postername, .postertrip { display: none; }';
