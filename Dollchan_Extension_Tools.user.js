@@ -411,13 +411,6 @@ function $each(nodes, Fn) {
 	aProto.forEach.call(nodes, Fn);
 }
 
-function $xeach(path, root, Fn) {
-	var i, res = doc.evaluate(path, root, null, 6, null);
-	for(i = res.snapshotLength - 1; i >= 0; i--) {
-		Fn(res.snapshotItem(i));
-	}
-}
-
 function $html(el, html) {
 	var cln = el.cloneNode(false);
 	cln.innerHTML = html;
@@ -4356,10 +4349,11 @@ function outRefLink() {
 
 function eventRefLink(el) {
 	if(Cfg['linksNavig']) {
-		$xeach('.//a[starts-with(text(),">>")]', el, function(link) {
+		var link, links = doc.evaluate('.//a[starts-with(text(),">>")]', el, null, 4, null);
+		while(link = links.iterateNext()) {
 			link.onmouseover = overRefLink;
 			link.onmouseout = outRefLink;
-		});
+		}
 	}
 }
 
@@ -6716,8 +6710,12 @@ function replaceDelform() {
 
 function removePageTrash(el) {
 	if(aib.abu) {
-		if(TNum && (el = $c('de-thread', el))) {
-			$xeach('following-sibling::node()', el, $del);
+		var el_;
+		if(TNum && (el = $c('de-thread', el).nextSibling)) {
+			while(el_ = el.nextSibling) {
+				$del(el);
+				el = el_;
+			}
 			nav.insAfter(el, '<hr />');
 		}
 	} else if(aib.brit) {
