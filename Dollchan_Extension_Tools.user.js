@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.8.0
+// @version			12.9.8.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.8.0',
+	'version':	'12.9.8.1',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -6693,7 +6693,7 @@ function replaceString(txt) {
 		txt = replaceBySpells(oSpells.rep, txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(/&gt;&gt;\/(.*?)\/(\d+)/g, function() {
+		txt = txt.replace(/&gt;&gt;\/([a-z0-9]+)\/(\d+)/g, function() {
 			var b = arguments[1],
 				num = arguments[2];
 			return '<a href="' + getThrdUrl(aib.host, b, num) + '">&gt;&gt;/' + b + '/' + num + '</a>';
