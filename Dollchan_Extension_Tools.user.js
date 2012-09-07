@@ -3036,7 +3036,9 @@ function showQuickReply(post) {
 		pr.txta.value = '';
 	}
 	$txtInsert(pr.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
-	$attr($id('de-qarea-target'), {'text': 'Thread #' + tNum});
+	if(Cfg['addPostForm'] === 3) {
+		$attr($id('de-qarea-target'), {'text': 'Thread #' + tNum});
+	}
 }
 
 function showMainReply() {
