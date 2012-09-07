@@ -1155,7 +1155,7 @@ function toggleContent(name, isUpd) {
 
 function showContent(el, id, name, isUpd) {
 	if(el.id === 'de-content-hid' && el.expanded) {
-		$each($Q('.de-entry > :not(.de-hid-oppost)', el.firstChild), function(node) {
+		$each($Q('.de-entry > :not(.de-oppost-hid)', el.firstChild), function(node) {
 			setPostVisib(node.pst, true, null);
 		});
 		el.expanded = false;
@@ -1655,7 +1655,7 @@ function addHiddenTable(hid) {
 		}
 		tBlock.appendChild($New('div', {'class': 'de-entry'}, [
 			wrap, $attr(op.cloneNode(true), {
-				'class': 'de-hid-oppost',
+				'class': 'de-oppost-hid',
 				'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
 			})
 		]));
@@ -1667,8 +1667,8 @@ function addHiddenTable(hid) {
 		cln.hide = true;
 		cln.pst = post;
 		cln.btn = $q('.de-btn-hide, .de-btn-lock', cln);
-		nav.remClass(pP = cln.btn.parentNode, 'de-post-panel-cnt');
-		nav.remClass(pP, 'de-post-panel-del');
+		nav.remClass(pP = cln.btn.parentNode, 'de-ppanel-cnt');
+		nav.remClass(pP, 'de-ppanel-del');
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
@@ -1684,7 +1684,7 @@ function addHiddenTable(hid) {
 	if(pBlock || tBlock) {
 		$append(el, [
 			$btn(Lng.expandAll[lang], '', function() {
-				var posts = $Q('.de-entry > :not(.de-hid-oppost)', this.parentNode),
+				var posts = $Q('.de-entry > :not(.de-oppost-hid)', this.parentNode),
 					el = this.parentNode.parentNode;
 				if(el.expanded) {
 					this.value = Lng.expandAll[lang];
@@ -1701,7 +1701,7 @@ function addHiddenTable(hid) {
 				}
 			}),
 			$btn(Lng.save[lang], '', function() {
-				$each($Q('.de-entry > :not(.de-hid-oppost)', this.parentNode), function(el) {
+				$each($Q('.de-entry > :not(.de-oppost-hid)', this.parentNode), function(el) {
 					if(!el.hide || !el.pst.hide) {
 						setUserPostVisib(el.pst, false);
 					}
@@ -1892,7 +1892,7 @@ function closeAlert(el) {
 		el.closeTimeout = null;
 		if(Cfg['animation']) {
 			nav.animEvent(el, $del);
-			nav.addClass(el, 'de-anim-close');
+			nav.addClass(el, 'de-close');
 		} else {
 			$del(el);
 		}
@@ -1909,9 +1909,9 @@ function $alert(txt, id, wait) {
 		clearTimeout(el.closeTimeout);
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
-				nav.remClass(node, 'de-anim-blink');
+				nav.remClass(node, 'de-blink');
 			});
-			nav.addClass(el, 'de-anim-blink');
+			nav.addClass(el, 'de-blink');
 		}
 		return;
 	}
@@ -1923,9 +1923,9 @@ function $alert(txt, id, wait) {
 	]));
 	if(Cfg['animation']) {
 		nav.animEvent(el, function(node) {
-			nav.remClass(node, 'de-anim-open');
+			nav.remClass(node, 'de-open');
 		});
-		nav.addClass(el, 'de-anim-open');
+		nav.addClass(el, 'de-open');
 	}
 	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
@@ -2263,7 +2263,7 @@ function refreshCapImg(tNum) {
 
 function doSageBtn() {
 	var c = Cfg['sageReply'];
-	$id('de-sage-btn').innerHTML = '&nbsp;' + (
+	$id('de-sagebtn').innerHTML = '&nbsp;' + (
 		c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
 	);
 	if(pr.mail.type === 'text') {
@@ -2294,7 +2294,7 @@ function setUserPassw() {
 
 function initPostform() {
 	var pArea = $New('div', {'id': 'de-parea', 'style': 'text-align: center;'}, [
-		$New('div', {'id': 'de-toggle-reply', 'style': 'display: none;'}, [
+		$New('div', {'id': 'de-togglereply', 'style': 'display: none;'}, [
 			$txt('['),
 			$new('a', {'text': Lng.expandForm[lang], 'href': '#', 'class': 'de-abtn'}, {
 				'click': toggleMainReply
@@ -2392,7 +2392,7 @@ function doPostformChanges(img, m, el) {
 		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
 			$disp($id('de-qarea'));
-			$after($id('de-toggle-reply'), $id('de-pform'));
+			$after($id('de-togglereply'), $id('de-pform'));
 		}
 	}});
 	$each($Q('input[type="text"]', pr.form), function(node) {
@@ -2484,7 +2484,7 @@ function doPostformChanges(img, m, el) {
 		}
 	}
 	if(Cfg['addSageBtn'] && pr.mail) {
-		sBtn = $new('span', {'id': 'de-sage-btn'}, {'click': function(e) {
+		sBtn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
 			e.stopPropagation();
 			$pd(e);
 			toggleCfg('sageReply');
@@ -2557,10 +2557,10 @@ function processInput() {
 		$del(this.nextSibling);
 	}
 	if(aib.rJpeg) {
-		$del($c('de-del-file', this.parentNode));
+		$del($c('de-file-del', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 			$after(this.nextSibling, $event($add(
-				'<button type="button" class="de-file-util de-del-file">' +
+				'<button type="button" class="de-file-util de-file-del">' +
 					Lng.makeRjpeg[lang] + '</button>'), {
 				'click': makeRarJPEG
 			}));
@@ -2578,8 +2578,8 @@ function clearInput(e) {
 
 function makeRarJPEG(e) {
 	$pd(e);
-	var el = $id('de-ar-input') || doc.body.appendChild($new('input', {
-			'id': 'de-ar-input',
+	var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
+			'id': 'de-file-rar',
 			'type': 'file',
 			'style': 'display: none'
 		}, null)),
@@ -2995,7 +2995,7 @@ function showQuickReply(post) {
 	} else {
 		pr.isQuick = true;
 		qArea.appendChild($id('de-pform'));
-		$disp($id('de-toggle-reply'));
+		$disp($id('de-togglereply'));
 		if(!TNum && !aib.kus && !aib.hana) {
 			$del($q('#thr_id, input[name="parent"]', pr.form));
 			$before(
@@ -3034,7 +3034,7 @@ function showQuickReply(post) {
 
 function showMainReply() {
 	if(pr.isQuick) {
-		var el = $id('de-toggle-reply'),
+		var el = $id('de-togglereply'),
 			qArea = $id('de-qarea');
 		pr.isQuick = false;
 		if(!TNum) {
@@ -3123,7 +3123,7 @@ function addTextPanel() {
 							scrtop = x.scrollTop,
 							text = x.value.substring(start, end).split('\n'),
 							i = text.length,
-							tag = tagTable[this.id.substring(6)][0];
+							tag = tagTable[this.id.substring(7)][0];
 						$pd(e);
 						if(bbBrds || (aib.fch && tag === 'spoiler')) {
 							tag1 = '[' + tag + ']';
@@ -3198,7 +3198,7 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="de-post-panel' + (post.isOp ? '_op' : '') + ' de-post-panel-cnt" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
+		html = '<span class="de-ppanel' + (post.isOp ? '-op' : '') + ' de-ppanel-cnt" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -3304,7 +3304,7 @@ function prepareCFeatures() {
 		case 'H': addSpell('#sage'); return;
 		case 'I':
 			$del($id('de-fav-wait'));
-			$id('de-fav-iframe').style.height = data + 'px';
+			$id('de-iframe-fav').style.height = data + 'px';
 			return;
 		case 'J':
 			temp = data.split('$#$');
@@ -3672,7 +3672,7 @@ function addLinkTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="de-e-y-tube"><a href="' + src + '">' +
+		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="de-ytube-ext"><a href="' + src + '">' +
 			src + '</a></p>'));
 		$del(el.parentNode);
 	});
@@ -3856,7 +3856,7 @@ function addFullImg(a, sz, isExp) {
 	if(Cfg['expandImgs'] === 1) {
 		scrW -= $offset(a).left + 25;
 	} else {
-		$del($c('de-img-full-center', doc));
+		$del($c('de-img-center', doc));
 	}
 	if(fullW && fullH) {
 		newW = fullW < scrW ? fullW : scrW;
@@ -3869,7 +3869,7 @@ function addFullImg(a, sz, isExp) {
 	full = a.appendChild($add('<img class="de-img-full" src="' + a.href + '" alt="' + a.href +
 		'" width="' + newW + '" height="' + newH + '"/>'));
 	if(Cfg['expandImgs'] === 2) {
-		nav.addClass(full, 'de-img-full-center');
+		nav.addClass(full, 'de-img-center');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
 		makeMoveable(full);
@@ -4111,7 +4111,7 @@ function PviewMoved() {
 		nav.remClass(this, 'de-pview-anim');
 		this.style.cssText = this.newPos;
 		this.newPos = false;
-		$each($C('de-move-c-s-s', doc.head), $del);
+		$each($C('de-css-move', doc.head), $del);
 		this.removeEventListener(nav.animEnd, PviewMoved, false);
 	}
 }
@@ -4144,9 +4144,9 @@ function setPviewPosition(link, pView, isAnim) {
 		pView.style.top = top;
 		return;
 	}
-	var uId = 'de-m-c-s-s' + Math.round(Math.random() * 1e3);
+	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
 	doc.head.appendChild($new('style', {
-		'class': 'de-move-c-s-s',
+		'class': 'de-css-move',
 		'type': 'text/css',
 		'text': '@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'
 	}, null));
@@ -4187,7 +4187,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.de-img-pre, .de-img-full, .de-post-panel, .de-post-panel-op, .de-btn-src' + (
+		$each($Q('.de-img-pre, .de-img-full, .de-ppanel, .de-ppanel-op, .de-btn-src' + (
 			Cfg['addYouTube'] !== 2 ? ', .de-ytube-obj' : ''
 		), pView), $del);
 		if(!pByNum[pNum]) {
@@ -4458,7 +4458,7 @@ function getFullPost(el, isFunc) {
 		replaceFMsg = function(pst, pNum) {
 			if(post.num === pNum) {
 				$del(el);
-				var ytube = $q('.de-e-y-tube', post.msg);
+				var ytube = $q('.de-ytube-ext', post.msg);
 				post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.msg);
 				post.msg = $q(aib.qMsg, post);
 				if(ytube) {
@@ -4587,10 +4587,10 @@ function loadFavorThread() {
 		$focus(tNum);
 		return;
 	}
-	$del($id('de-fav-iframe'));
+	$del($id('de-iframe-fav'));
 	$c('de-content', doc).style.overflowY = 'scroll';
 	$append(el, [
-		$add('<iframe name="de-fav-iframe" id="de-fav-iframe" src="' + $t('a', el).href +
+		$add('<iframe name="de-iframe-fav" id="de-iframe-fav" src="' + $t('a', el).href +
 			'" scrolling="no" style="border: none; width: ' +
 			(doc.body.clientWidth - 55) + 'px; height: 1px;" />'),
 		$add('<div id="de-fav-wait" class="de-wait" style="font-size: 1.1em; text-align: center">' +
@@ -4854,8 +4854,8 @@ function markDel(post) {
 		var dd = sessionStorage['de-deleted'];
 		sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + post.count;
 		post.deleted = true;
-		nav.remClass(post.btns, 'de-post-panel-cnt');
-		nav.addClass(post.btns, 'de-post-panel-del');
+		nav.remClass(post.btns, 'de-ppanel-cnt');
+		nav.addClass(post.btns, 'de-ppanel-del');
 	}
 }
 
@@ -5827,7 +5827,7 @@ function scriptCSS() {
 	gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	// Post buttons
-	x += '.de-post-panel, .de-post-panel-op { margin-left: 4px; }\
+	x += '.de-ppanel, .de-ppanel-op { margin-left: 4px; }\
 		.de-btn-hide, .de-btn-lock, .de-btn-rep, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-sage, .de-btn-src { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
@@ -5862,8 +5862,8 @@ function scriptCSS() {
 
 	// Posts counter
 	if(TNum) x += '.de-thread { counter-reset: i 1; }\
-		.de-post-panel.de-post-panel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
-		.de-post-panel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
+		.de-ppanel.de-ppanel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -5881,18 +5881,18 @@ function scriptCSS() {
 
 	// Show/close animation
 	if(nav.Anim) {
-		x += '@keyframes de-anim-open {\
+		x += '@keyframes de-open {\
 				0% { transform: translateY(-1500px); }\
 				40% { transform: translateY(30px); }\
 				70% { transform: translateY(-10px); }\
 				100% { transform: translateY(0); }\
 			}\
-			@keyframes de-anim-close {\
+			@keyframes de-close {\
 				0% { transform: translateY(0); }\
 				20% { transform: translateY(20px); }\
 				100% { transform: translateY(-4000px); }\
 			}\
-			@keyframes de-anim-blink {\
+			@keyframes de-blink {\
 				0%, 100% { transform: translateX(0); }\
 				10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\
 				20%, 40%, 60%, 80% { transform: translateX(10px); }\
@@ -5908,9 +5908,9 @@ function scriptCSS() {
 			@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
 			.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
-			.de-anim-open { animation: de-anim-open .7s ease-out both; }\
-			.de-anim-close { animation: de-anim-close .7s ease-in both; }\
-			.de-anim-blink { animation: de-anim-blink .7s ease-in-out both; }\
+			.de-open { animation: de-open .7s ease-out both; }\
+			.de-close { animation: de-close .7s ease-in both; }\
+			.de-blink { animation: de-blink .7s ease-in-out both; }\
 			.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\
 			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }';
 	}
@@ -5919,7 +5919,7 @@ function scriptCSS() {
 	cont('.de-ytube-link', '//youtube.com/favicon.ico');
 	x += '.de-img-pre > img, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; }\
-		.de-img-full-center { position: fixed; z-index: 9999; border: 1px solid black; }\
+		.de-img-center { position: fixed; z-index: 9999; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }';
 
@@ -5947,7 +5947,7 @@ function scriptCSS() {
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-refmap > a { text-decoration: none; }\
-		#de-sage-btn { margin-right: 7px; cursor: pointer; }\
+		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
 		#de-select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
 		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#de-select a:hover { background-color: #222; color: #fff; }\
@@ -5980,7 +5980,7 @@ function scriptCSS() {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
 	} else {
-		x+= '.de-post-hid > .de-post-panel ~ * { display: none !important; }'
+		x+= '.de-post-hid > .de-ppanel ~ * { display: none !important; }'
 		if(aib.abu) {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), hr[style="clear: left;"], #BottomNormalReply, body > center { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
@@ -6003,7 +6003,7 @@ function scriptCSS() {
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }';
 		} else if(aib.brit) {
-			x += '.de-post-panel, .de-post-panel-op { float: left; margin-top: 0.45em; }\
+			x += '.de-ppanel, .de-ppanel-op { float: left; margin-top: 0.45em; }\
 				a + .threadlinktext { position: relative; top: 17px; }\
 				.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
 				.de-btn-src { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
@@ -6159,7 +6159,7 @@ function isCompatible() {
 			'window.top.postMessage("M' + findDeleteError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
-	case 'de-fav-iframe':
+	case 'de-iframe-fav':
 		var intvr = setInterval(function() {
 			$del($id('de-fav-script'));
 			doc.head.appendChild($new('script', {
