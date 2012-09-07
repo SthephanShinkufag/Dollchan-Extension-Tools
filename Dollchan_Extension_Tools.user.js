@@ -3890,18 +3890,16 @@ function addLinkImg(el) {
 		return;
 	}
 	for(var a, link, i = 0, els = $Q(
-		aib.qMsg + ' a[href*=".jpg"], ' + aib.qMsg + ' a[href*=".png"], ' + aib.qMsg + ' a[href*=".gif"]',
-		el
+		aib.qMsg + ' a[href*=".jpg"], ' + aib.qMsg + ' a[href*=".png"], ' + aib.qMsg + ' a[href*=".gif"]', el
 	), len = els.length; i < len; i++) {
 		link = els[i];
-		if($xb('ancestor::small', link)) {
+		if(link.parentNode.tagName === 'SMALL') {
 			return;
 		}
 		a = link.cloneNode(false);
 		a.target = '_blank';
-		nav.addClass(a, 'de-img-pre');
 		$disp(a);
-		a.appendChild($new('img', {'src': a.href, 'alt': a.href}, {'load': function() {
+		a.appendChild($new('img', {'class': 'de-img-pre', 'src': a.href, 'alt': a.href}, {'load': function() {
 			var fullW, fullH, k;
 			$disp(this.parentNode);
 			fullW = this.width;
@@ -5934,7 +5932,7 @@ function scriptCSS() {
 
 	// Embedders
 	cont('.de-ytube-link', '//youtube.com/favicon.ico');
-	x += '.de-img-pre > img, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
+	x += '.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
@@ -6057,8 +6055,8 @@ function updateCSS() {
 		x += '#de-panel-btns, #de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x+= '.de-img-pre > img, .de-ytube-obj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
-			.de-img-pre > img:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
+		x+= '.de-img-pre, .de-ytube-obj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
+			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['delHiddPost']) {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
