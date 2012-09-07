@@ -217,13 +217,13 @@ Lng = {
 	},
 
 	txtBtn: {
-		'Bold':		['Жирный', 'Bold'],
-		'Italic':	['Наклонный', 'Italic'],
-		'Under':	['Подчеркнутый', 'Underlined'],
-		'Strike':	['Зачеркнутый', 'Strike'],
-		'Spoil':	['Спойлер', 'Spoiler'],
-		'Code':		['Код', 'Code'],
-		'Quote':	['Цитировать выделенное', 'Quote selected']
+		'bold':		['Жирный', 'Bold'],
+		'italic':	['Наклонный', 'Italic'],
+		'under':	['Подчеркнутый', 'Underlined'],
+		'strike':	['Зачеркнутый', 'Strike'],
+		'spoil':	['Спойлер', 'Spoiler'],
+		'code':		['Код', 'Code'],
+		'quote':	['Цитировать выделенное', 'Quote selected']
 	},
 
 	cfgTab: {
@@ -2320,24 +2320,36 @@ function initPostform() {
 	}
 }
 
+function addTextResizer(el, Fn) {
+	if(nav.Opera) {
+		var resMove = function(e) {
+				var p = $offset(pr.txta);
+				pr.txta.style.width = e.pageX - p.left + 'px';
+				pr.txta.style.height = e.pageY - p.top + 'px';
+			},
+			resStop = function() {
+				$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+				Fn(parseInt(el.style.width, 10), parseInt(el.style.height, 10));
+			};
+		$after(el, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
+			$pd(e);
+			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+		}}));
+	} else {
+		$event(el, {'mouseup': function() {
+			Fn(parseInt(this.style.width, 10), parseInt(this.style.height, 10));
+		}});
+	}
+}
+
 function doPostformChanges(img, m, el) {
-	var _img, sBtn,
-		resMove = function(e) {
-			var p = $offset(pr.txta);
-			pr.txta.style.width = e.pageX - p.left + 'px';
-			pr.txta.style.height = e.pageY - p.top + 'px';
-		},
-		resStop = function() {
-			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-			saveCfg('textaWidth', parseInt(pr.txta.style.width, 10));
-			saveCfg('textaHeight', parseInt(pr.txta.style.height, 10));
-		};
+	var _img, sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	$after(pr.txta, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
-		$pd(e);
-		$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-	}}));
+	addTextResizer(pr.txta, function(w, h) {
+		saveCfg('textaWidth', w);
+		saveCfg('textaHeight', h);
+	});
 	addTextPanel();
 	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 	$event(pr.txta, {'keypress': function(e) {
@@ -3089,20 +3101,20 @@ function addTextPanel() {
 	}
 	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420 || aib.mlpg,
 		tagTable = {
-			'Bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
-			'Italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
-			'Under': [bbBrds ? 'u' : '__', 'U'],
-			'Strike': [aib.mlpg ? '-' : bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
-			'Spoil': [aib.mlpg ? 's' : aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
-			'Code': [aib.mlpg ? 'c' : aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
-			'Quote': [,'&gt;']
+			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
+			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
+			'under': [bbBrds ? 'u' : '__', 'U'],
+			'strike': [aib.mlpg ? '-' : bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
+			'spoil': [aib.mlpg ? 's' : aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
+			'code': [aib.mlpg ? 'c' : aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
+			'quote': [,'&gt;']
 		},
 		txtBtn = function(id) {
 			var x = pr.txta,
-				btn = $id('de-btn' + id),
+				btn = $id('de-btn-' + id),
 				val = tagTable[id][1];
 			if(!btn) {
-				btn = $new('span', {'id': 'de-btn' + id, 'title': Lng.txtBtn[id][lang]}, null);
+				btn = $new('span', {'id': 'de-btn-' + id, 'title': Lng.txtBtn[id][lang]}, null);
 				if(val !== '&gt;') {
 					btn.onclick = function(e) {
 						var tag1, tag2, j, len,
@@ -3165,18 +3177,18 @@ function addTextPanel() {
 			return txtBtn;
 		};
 	$after(
-		Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') :
+		Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || pr.txta :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
 		$attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
 			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 		})
 	);
-	txtBtn('Bold')('Italic');
+	txtBtn('bold')('italic');
 	if(!aib._420) {
-		txtBtn('Under')('Strike');
+		txtBtn('under')('strike');
 	}
-	txtBtn('Spoil')('Code')('Quote');
+	txtBtn('spoil')('code')('quote');
 }
 
 
@@ -5917,7 +5929,7 @@ function scriptCSS() {
 		.de-alert-msg { display: inline-block; margin-top: .25em; }\
 		#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
-		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; }\
+		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content { text-align: left; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
 		.de-entry { margin: 2px 0; }\
@@ -5940,15 +5952,14 @@ function scriptCSS() {
 		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -' + (nav.Opera ? '6' : nav.WebKit ? '0' : '3') + 'px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-abtn { text-decoration: none !important; outline: none; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea, .theader { display: none !important; }' +
-		(nav.Opera ? '' : 'textarea { resize: none !important; }');
+		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea, .theader { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
