@@ -62,7 +62,7 @@ var defaultCfg = {
 	'YTubeHeigh':	270,	//		player height
 	'YTubeHD':		0,		//		hd video quality
 	'YTubeTitles':	0,		//		convert links to titles
-	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden]
+	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
 	'noThrdForm':	1,		// hide thread-creating form
 	'favOnReply':	1,		// add thread to favorites on reply
 	'checkReply':	1,		// reply without reload
@@ -167,7 +167,7 @@ Lng = {
 		'YTubeTitles':	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 
 		'addPostForm': {
-			sel:		[['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
+			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
 		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
@@ -2309,7 +2309,7 @@ function initPostform() {
 	} else {
 		$before(dForm, pArea);
 	}
-	if(TNum && Cfg['addPostForm'] === 2 || !TNum && Cfg['noThrdForm']) {
+	if(TNum && Cfg['addPostForm'] > 1 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
 	nav.insAfter(pArea, '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
@@ -3080,7 +3080,7 @@ function insertRefLink(e) {
 		$id('de-parea').style.display = '';
 	}
 	var pNum = getPost(e.target).num;
-	if(TNum && Cfg['addPostForm'] === 2 && !pr.isQuick) {
+	if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
 		showQuickReply(pByNum[pNum]);
 	} else {
 		if(aib._420 && pr.txta.value === 'Comment') {
@@ -5958,7 +5958,6 @@ function scriptCSS() {
 		.de-fav-title { margin-right: 15px; }\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-post-note { color: inherit; font: italic bold 12px serif; }\
-		#de-qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
@@ -6049,8 +6048,9 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
-		.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }';
+	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
+		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
+		#de-qarea {' + (Cfg['addPostForm'] === 3 ? 'position: fixed; right: 0; bottom: 25px; z-index: 9990; border: 1px solid gray; ' : 'float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0;') + ' }';
 	if(!Cfg['panelCounter']) {
 		x += '#de-panel-info { display: none; }';
 	}
