@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.8.1
+// @version			12.9.8.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.8.1',
+	'version':	'12.9.8.2',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -53,7 +53,7 @@ var defaultCfg = {
 	'markViewed':	0,		//		mark viewed posts
 	'strikeHidd':	0,		//		strike >>links to hidden posts
 	'noNavigHidd':	0,		//		don't show previews for hidden posts
-	'crossLinks':	0,		// recognize >>/b/links
+	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// mp3 player by links
 	'addImgs':		1,		// add images by links
@@ -153,7 +153,7 @@ Lng = {
 		'markViewed':	['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 		'strikeHidd':	['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'noNavigHidd':	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
-		'crossLinks':	['Распознавать перекрестные >>/b/ссылки*', 'Recognize crossboard >>/b/links*'],
+		'crossLinks':	['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
 		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
@@ -6693,10 +6693,11 @@ function replaceString(txt) {
 		txt = replaceBySpells(oSpells.rep, txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(/&gt;&gt;\/([a-z0-9]+)\/(\d+)/g, function() {
+		txt = txt.replace(/>https?:\/\/[^\/]+\/([a-z0-9]+)\/(?:res\/|thread-)(\d+)(?:[^#<]+)?(?:#i?(\d+))?</g, function() {
 			var b = arguments[1],
-				num = arguments[2];
-			return '<a href="' + getThrdUrl(aib.host, b, num) + '">&gt;&gt;/' + b + '/' + num + '</a>';
+				tNum = arguments[2],
+				pNum = arguments[3];
+			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 		});
 	}
 	return txt;
