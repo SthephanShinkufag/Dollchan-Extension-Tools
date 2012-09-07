@@ -3633,12 +3633,12 @@ function addTubePlayer(el, m) {
 function addTubePreview(el, m) {
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270" /></a>';
-	el.firstChild.onclick = function(e) {
-		if(Cfg['addYouTube'] !== 4) {
+	if(Cfg['addYouTube'] === 3) {
+		el.firstChild.onclick = function(e) {
 			$pd(e);
 			addTubePlayer(this.parentNode, m);
-		}
-	};
+		};
+	}
 }
 
 function getTubePattern() {
@@ -3876,6 +3876,15 @@ function addFullImg(a, sz, isExp) {
 	}
 }
 
+function eventLinkImg(el) {
+	el.onclick = function(e) {
+		if(Cfg['expandImgs'] && e.button !== 1) {
+			$pd(e);
+			addFullImg(this, this.firstChild.title.split('x'), null);
+		}
+	};
+}
+
 function addLinkImg(el) {
 	if(!Cfg['addImgs']) {
 		return;
@@ -3905,12 +3914,7 @@ function addLinkImg(el) {
 			this.width = k < 1 ? 200 * k : 200;
 			this.height = k < 1 ? 200 : 200/k;
 		}}));
-		a.onclick = function(e) {
-			if(Cfg['expandImgs'] && e.button !== 1) {
-				$pd(e);
-				addFullImg(this, this.firstChild.title.split('x'), null);
-			}
-		};
+		eventLinkImg(a);
 		$before(link, a);
 	}
 }
@@ -3956,7 +3960,7 @@ function eventPostImg(post) {
 				img.parentNode.onclick = null;
 			}
 			a.onclick = function(e) {
-				if(Cfg['expandImgs'] && e.button !== 1) {
+				if(e.button !== 1) {
 					$pd(e);
 					expandPostImg(this, null);
 				}
@@ -4170,38 +4174,52 @@ function markRefMap(pView, pNum) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var pView;
+	var pView, inDoc;
 	if(post) {
-		if(post.ownerDocument === doc) {
-			pView = post.cloneNode(true);
-		} else {
-			pView = importPost(post);
-			if(!post.isOp) {
-				pView.className = aib.cReply;
-			}
-			pView.setAttribute('de-post', null);
-		}
+		inDoc = post.ownerDocument === doc ;
+		pView = inDoc ? post.cloneNode(true) : importPost(post);
+		pView.setAttribute('de-post', null);
 		pView.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
+		pView.style.display = '';
 		if(aib._7ch) {
 			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.de-img-pre, .de-img-full, .de-ppanel, .de-ppanel-op, .de-btn-src' + (
-			Cfg['addYouTube'] !== 2 ? ', .de-ytube-obj' : ''
-		), pView), $del);
-		if(!pByNum[pNum]) {
+		$each($Q('.de-img-full, .de-ppanel, .de-ppanel-op', pView), $del);
+		if(!inDoc) {
 			addLinkMP3(pView);
-		}
-		if(!pByNum[pNum] || Cfg['addYouTube'] !== 2) {
 			addLinkTube(pView);
+			addLinkImg(pView);
+			addImgSearch(pView);
+		} else {
+			if(Cfg['addYouTube']) {
+				$each($C('de-ytube-link', pView), function(el) {
+					el.onclick = clickTubeLink;
+				});
+				if(Cfg['addYouTube'] === 3) {
+					$each($C('de-ytube-obj', pView), function(el) {
+						addTubePreview(el, el.firstChild.href.match(getTubePattern()));
+					});
+				}
+			}
+			if(Cfg['addImgs']) {
+				$each($C('de-img-pre', pView), function(el) {
+					eventLinkImg(el.parentNode);
+				});
+			}
+			if(Cfg['imgSrcBtns']) {
+				$each($C('de-btn-src', pView), function(el) {
+					el.setAttribute('de-id', 'pv' + el.getAttribute('de-id'));
+				});
+			}
 		}
 		$each(pView.img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
-		eventPostImg(pView);
-		addLinkImg(pView);
-		addImgSearch(pView);
+		if(Cfg['expandImgs']) {
+			eventPostImg(pView);
+		}
 		if(Cfg['linksNavig'] === 2) {
 			markRefMap(pView, parent.num);
 		}
@@ -4224,7 +4242,6 @@ function getPview(post, pNum, parent, link, txt) {
 		pView = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
 			(txt || Lng.postNotFound[lang]) + '</div>');
 	}
-	pView.style.display = '';
 	dForm.appendChild(pView);
 	setPviewPosition(link, pView, false);
 	pView.onmouseover = function() {
@@ -4409,7 +4426,6 @@ function addPostFunc(post) {
 	addLinkMP3(post);
 	addLinkTube(post);
 	addLinkImg(post);
-	addImgSearch(post);
 	if(isExpImg) {
 		expandAllPostImg(post, null);
 	}
@@ -4423,6 +4439,7 @@ function newPost(thr, post, pNum, i) {
 		expandPost(post);
 	}
 	addPostFunc(post);
+	addImgSearch(post);
 	if(postWrapper && i !== 0) {
 		pst = postWrapper.cloneNode(true);
 		el = aib.getPosts(pst)[0];
@@ -4449,7 +4466,7 @@ function processFullMsg(post) {
 		post.innerHTML = replaceString(post.innerHTML);
 		post.img = getPostImages(post);
 	}
-	$each($Q('.de-btn-src, .de-ytube-obj', post), $del);
+	$each($Q('.de-ytube-obj', post), $del);
 	addPostFunc(post);
 }
 
