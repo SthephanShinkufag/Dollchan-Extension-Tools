@@ -3030,6 +3030,9 @@ function showQuickReply(post) {
 		pr.txta.value = '';
 	}
 	$txtInsert(pr.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
+	$before(qArea.firstChild, $attr(($id('de-qarea-target') || $add('<span id="de-qarea-target"></span>')), {
+		'text': 'Thread #' + tNum
+	}));
 }
 
 function showMainReply() {
@@ -6050,7 +6053,8 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
 		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }\
-		#de-qarea {' + (Cfg['addPostForm'] === 3 ? 'position: fixed; right: 0; bottom: 25px; z-index: 9990; border: 1px solid gray; ' : 'float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0;') + ' }';
+		#de-qarea {' + (Cfg['addPostForm'] === 3 ? 'position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 5px; border: 1px solid gray; ' : 'float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0;') + ' }\
+		#de-qarea-target { font-weight: bold; }';
 	if(!Cfg['panelCounter']) {
 		x += '#de-panel-info { display: none; }';
 	}
