@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.7.0
+// @version			12.9.8.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.7.0',
+	'version':	'12.9.8.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -53,6 +53,7 @@ var defaultCfg = {
 	'markViewed':	0,		//		mark viewed posts
 	'strikeHidd':	0,		//		strike >>links to hidden posts
 	'noNavigHidd':	0,		//		don't show previews for hidden posts
+	'crossLinks':	0,		// recognize >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// mp3 player by links
 	'addImgs':		1,		// add images by links
@@ -152,6 +153,7 @@ Lng = {
 		'markViewed':	['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 		'strikeHidd':	['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
 		'noNavigHidd':	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+		'crossLinks':	['Распознавать перекрестные >>/b/ссылки*', 'Recognize crossboard >>/b/links*'],
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
 		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
@@ -872,7 +874,7 @@ function readCfg() {
 	if(Cfg['hideBySpell']) {
 		readSpells();
 	}
-	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]);
+	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]) || Cfg['crossLinks'];
 }
 
 function saveCfg(id, val) {
@@ -1392,6 +1394,7 @@ function getCfgLinks() {
 			lBox('strikeHidd', true, null),
 			lBox('noNavigHidd', true, null)
 		]),
+		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addMP3', true, null),
 		lBox('addImgs', true, null),
@@ -6688,6 +6691,13 @@ function replaceString(txt) {
 	}
 	if(Cfg['hideBySpell'] && oSpells.rep[0]) {
 		txt = replaceBySpells(oSpells.rep, txt);
+	}
+	if(Cfg['crossLinks']) {
+		txt = txt.replace(/&gt;&gt;\/(.*?)\/(\d+)/g, function() {
+			var b = arguments[1],
+				num = arguments[2];
+			return '<a href="' + getThrdUrl(aib.host, b, num) + '">&gt;&gt;/' + b + '/' + num + '</a>';
+		});
 	}
 	return txt;
 }
