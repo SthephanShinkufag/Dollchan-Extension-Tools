@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.6.0
+// @version			12.9.7.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.6.0',
+	'version':	'12.9.7.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -330,6 +330,7 @@ Lng = {
 	expandForm:		['Раскрыть форму', 'Expand form'],
 	search:			['Искать в ', 'Search in '],
 	reply:			['Ответ', 'Reply'],
+	replyTo:		['Ответ в', 'Reply to'],
 	wait:			['Ждите', 'Wait'],
 	makeRjpeg:		['Сделать rarJPEG', 'Make rarJPEG'],
 	keyNavHelp:		[
@@ -2308,7 +2309,7 @@ function initPostform() {
 	nav.insAfter(pArea, '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 	if(Cfg['addPostForm'] === 3) {
 		$append($id('de-qarea'), [
-			$add('<span id="de-qarea-target"></span>'),
+			$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
 			$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': showMainReply})
 		]);
 	}
@@ -3030,7 +3031,7 @@ function showQuickReply(post) {
 	}
 	$txtInsert(pr.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 	if(Cfg['addPostForm'] === 3) {
-		$attr($id('de-qarea-target'), {'text': 'Thread #' + tNum});
+		$attr($t('a', $id('de-qarea-target')), {'href': getThrdUrl(aib.host, brd, tNum), 'text': '#' + tNum});
 	}
 }
 
@@ -6056,7 +6057,7 @@ function updateCSS() {
 	if(Cfg['addPostForm'] === 3) {
 		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
 			#de-qarea-target { font-weight: bold; }\
-			#de-qarea-close { float: right; color: green; font: bold 21px arial; cursor: pointer; }';
+			#de-qarea-close { float: right; color: green; font: bold 20px arial; cursor: pointer; }';
 	} else {
 		x += '#de-qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }';
 	}
