@@ -6698,7 +6698,7 @@ function replaceString(txt) {
 	}
 	if(Cfg['crossLinks']) {
 		txt = txt.replace(
-			new RegExp('>https?:\\/\\/[^\\/]*' + aib.dm.replace(/\./g, '.') +
+			new RegExp('>https?:\\/\\/[^\\/]*' + aib.dm +
 				'\\/([a-z0-9]+)\\/(?:res\\/|thread-)(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'),
 			function(str, b, tNum, pNum) {
 				return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
