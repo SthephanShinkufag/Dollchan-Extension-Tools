@@ -1832,7 +1832,7 @@ function addFavoritesTable(fav) {
 							return;
 						}
 						el = $c('de-fav-inf-page', el);
-						if((new RegExp('(?:№|No.|>)\s*' + arr[2] + '\s*<')).test(page.innerHTML)) {
+						if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
 							el.innerHTML = '@' + idx;
 						} else if(loaded === 5 && !el.textContent.contains('@')) {
 							el.innerHTML = '@?';
@@ -6697,9 +6697,13 @@ function replaceString(txt) {
 		txt = replaceBySpells(oSpells.rep, txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(/>https?:\/\/[^\/]+\/([a-z0-9]+)\/(?:res\/|thread-)(\d+)(?:[^#<]+)?(?:#i?(\d+))?</g, function(str, b, tNum, pNum) {
-			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
-		});
+		txt = txt.replace(
+			new RegExp('>https?:\\/\\/[^\\/]*' + aib.dm.replace(/\./g, '.') +
+				'\\/([a-z0-9]+)\\/(?:res\\/|thread-)(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'),
+			function(str, b, tNum, pNum) {
+				return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
+			}
+		);
 	}
 	return txt;
 }
