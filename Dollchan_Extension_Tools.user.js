@@ -5984,6 +5984,8 @@ function scriptCSS() {
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
+	} else if(aib.mlpg) {
+		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"] { display: none !important; }';
 	}
 	if(aib.krau) {
 		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
@@ -5996,7 +5998,7 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, form > :not(.de-thread) + hr, .mentioned { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover, form > :not(.de-thread) + hr, .banner { display: none !important; }';
 	} else if(aib._420) {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
@@ -6596,13 +6598,13 @@ function parseDelform(el, dc, Fn) {
 		thrds = $C(aib.cThread, el);
 	$each($T('script', el), $del);
 	if(Posts.length < 2) {
-		aib.qTable = aib.fch ? $c('replyContainer', el) :
+		aib.qTable = aib.fch || aib.mlpg ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
 			aib.brit ? 'div[id^="replies"] > table' :
 			!aib.tiny && aib.gazo || ($c(aib.cReply, el) || {}).tagName === 'TD' ? 'table' :
 			false;
 		aib.getWrap =
-			aib.fch ? function(post) {
+			aib.fch || aib.mlpg ? function(post) {
 				return post.parentNode;
 			} :
 			aib.qTable ? function(post) {
@@ -6612,7 +6614,7 @@ function parseDelform(el, dc, Fn) {
 				return post;
 			};
 		if(aib.qTable) {
-			if((postWrapper = aib.fch ? aib.qTable : $q(aib.qTable, el)) && dc !== doc) {
+			if((postWrapper = aib.fch || aib.mlpg ? aib.qTable : $q(aib.qTable, el)) && dc !== doc) {
 				postWrapper = doc.importNode(postWrapper, true);
 			}
 		}
