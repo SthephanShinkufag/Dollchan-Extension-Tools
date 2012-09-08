@@ -5985,7 +5985,7 @@ function scriptCSS() {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	} else if(aib.mlpg) {
-		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"] { display: none !important; }';
+		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
 	}
 	if(aib.krau) {
 		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
@@ -5998,7 +5998,7 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, form > :not(.de-thread) + hr, div.banner { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
 	} else if(aib._420) {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
