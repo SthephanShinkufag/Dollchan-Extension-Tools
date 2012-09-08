@@ -5998,7 +5998,7 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, form > :not(.de-thread) + hr, .banner { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover, form > :not(.de-thread) + hr, div.banner { display: none !important; }';
 	} else if(aib._420) {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
@@ -6697,10 +6697,7 @@ function replaceString(txt) {
 		txt = replaceBySpells(oSpells.rep, txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(/>https?:\/\/[^\/]+\/([a-z0-9]+)\/(?:res\/|thread-)(\d+)(?:[^#<]+)?(?:#i?(\d+))?</g, function() {
-			var b = arguments[1],
-				tNum = arguments[2],
-				pNum = arguments[3];
+		txt = txt.replace(/>https?:\/\/[^\/]+\/([a-z0-9]+)\/(?:res\/|thread-)(\d+)(?:[^#<]+)?(?:#i?(\d+))?</g, function(str, b, tNum, pNum) {
 			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 		});
 	}
