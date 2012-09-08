@@ -5996,7 +5996,7 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover, form > :not(.de-thread) + hr, .mentioned { display: none !important; }';
 	} else if(aib._420) {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
@@ -6429,7 +6429,8 @@ function getImageboard() {
 	case '2--ch.ru': aib.tire = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
 	case 'ponychan.net': aib.pony = true; break;
-	case 'mlpg.co': aib.mlpg = true; break;
+	case 'mlpg.co':
+	case 'mlpchan.net': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
 	aib.cReply =
@@ -6439,6 +6440,7 @@ function getImageboard() {
 	aib.cOPost =
 		aib.kus ? 'postnode' :
 		aib.fch ? 'op' :
+		aib.mlpg ? 'opMain' :
 		'oppost';
 	aib.cThread = aib.krau ? 'thread_body' : 'thread';
 	aib.qThread =
@@ -6446,7 +6448,7 @@ function getImageboard() {
 		aib._420 ? '[id*="thread"]' :
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qTNum =
-		aib.gazo || aib.tiny ? 'input[type="checkbox"]' :
+		aib.gazo || (aib.tiny && !aib.mlpg) ? 'input[type="checkbox"]' :
 		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
 		false;
 	aib.qRef =
