@@ -1039,7 +1039,6 @@ function pButton(id, click, href, over, out) {
 function addPanel() {
 	var imgLen = getPostImages(dForm).length;
 	$before(dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
-		$new('div', {'style': 'clear:both;'}, null),
 		$New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo'}, {'click': function() {
 				toggleCfg('expandPanel');
@@ -5980,7 +5979,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .postarea, .theader { display: none !important; }';
+		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
@@ -5998,14 +5997,14 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover { display: none !important; }';
 	} else if(aib._420) {
-		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
+		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
 	} else {
 		x+= '.de-post-hid > .de-ppanel ~ * { display: none !important; }'
 		if(aib.abu) {
-			x += '.ABU_refmap, .postpanel, #CommentToolbar, a[onclick^="window.open"], #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), hr[style="clear: left;"], #BottomNormalReply, body > center { display: none !important; }\
+			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
@@ -6019,8 +6018,7 @@ function scriptCSS() {
 				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
 				.de-ytube-obj + div { clear: left; }';
 		} else if(aib._7ch) {
-			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }\
-				.content.notice { display: none !important; }';
+			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
 		} else if(aib.gazo) {
 			x += '.de-content, .de-cfg-body { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
@@ -6058,7 +6056,7 @@ function scriptCSS() {
 
 function updateCSS() {
 	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
-		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right;' : 'position: fixed; right: 0; bottom: 0;') + ' }';
+		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right; clear: both' : 'position: fixed; right: 0; bottom: 0;') + ' }';
 	if(Cfg['addPostForm'] === 3) {
 		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
 			#de-qarea-target { font-weight: bold; }\
