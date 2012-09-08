@@ -5984,6 +5984,8 @@ function scriptCSS() {
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
+	} else if(aib.mlpg) {
+		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
 	}
 	if(aib.krau) {
 		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
@@ -5996,7 +5998,7 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, body > * > hr { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
 	} else if(aib._420) {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #soulbannar, #soulbannar + div, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
@@ -6429,7 +6431,8 @@ function getImageboard() {
 	case '2--ch.ru': aib.tire = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
 	case 'ponychan.net': aib.pony = true; break;
-	case 'mlpg.co': aib.mlpg = true; break;
+	case 'mlpg.co':
+	case 'mlpchan.net': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
 	aib.cReply =
@@ -6439,6 +6442,7 @@ function getImageboard() {
 	aib.cOPost =
 		aib.kus ? 'postnode' :
 		aib.fch ? 'op' :
+		aib.mlpg ? 'opMain' :
 		'oppost';
 	aib.cThread = aib.krau ? 'thread_body' : 'thread';
 	aib.qThread =
@@ -6446,7 +6450,7 @@ function getImageboard() {
 		aib._420 ? '[id*="thread"]' :
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qTNum =
-		aib.gazo || aib.tiny ? 'input[type="checkbox"]' :
+		aib.gazo || (aib.tiny && !aib.mlpg) ? 'input[type="checkbox"]' :
 		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
 		false;
 	aib.qRef =
@@ -6594,13 +6598,13 @@ function parseDelform(el, dc, Fn) {
 		thrds = $C(aib.cThread, el);
 	$each($T('script', el), $del);
 	if(Posts.length < 2) {
-		aib.qTable = aib.fch ? $c('replyContainer', el) :
+		aib.qTable = aib.fch || aib.mlpg ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
 			aib.brit ? 'div[id^="replies"] > table' :
 			!aib.tiny && aib.gazo || ($c(aib.cReply, el) || {}).tagName === 'TD' ? 'table' :
 			false;
 		aib.getWrap =
-			aib.fch ? function(post) {
+			aib.fch || aib.mlpg ? function(post) {
 				return post.parentNode;
 			} :
 			aib.qTable ? function(post) {
@@ -6610,7 +6614,7 @@ function parseDelform(el, dc, Fn) {
 				return post;
 			};
 		if(aib.qTable) {
-			if((postWrapper = aib.fch ? aib.qTable : $q(aib.qTable, el)) && dc !== doc) {
+			if((postWrapper = aib.fch || aib.mlpg ? aib.qTable : $q(aib.qTable, el)) && dc !== doc) {
 				postWrapper = doc.importNode(postWrapper, true);
 			}
 		}
@@ -6693,10 +6697,7 @@ function replaceString(txt) {
 		txt = replaceBySpells(oSpells.rep, txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(/>https?:\/\/[^\/]+\/([a-z0-9]+)\/(?:res\/|thread-)(\d+)(?:[^#<]+)?(?:#i?(\d+))?</g, function() {
-			var b = arguments[1],
-				tNum = arguments[2],
-				pNum = arguments[3];
+		txt = txt.replace(/>https?:\/\/[^\/]+\/([a-z0-9]+)\/(?:res\/|thread-)(\d+)(?:[^#<]+)?(?:#i?(\d+))?</g, function(str, b, tNum, pNum) {
 			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 		});
 	}
