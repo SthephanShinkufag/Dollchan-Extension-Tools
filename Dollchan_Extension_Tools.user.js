@@ -5994,7 +5994,7 @@ function scriptCSS() {
 			.de-ytube-obj + div { clear: left; }';
 	} else if(aib.fch) {
 		x += '.de-spoiler { color: #000; background-color: #000; }\
-			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, #globalToggle, #globalMessage, .navLinks, .postingMode { display: none !important; }';
+			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
 			.de-post-hid > .intro ~ *, .post-hover { display: none !important; }';
