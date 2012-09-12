@@ -6231,7 +6231,7 @@ function getNavigator() {
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
-		nav.Opera ? '-o-' :
+		nav.Opera ? (nav.Opera < 12.5 ? '-o-' : '') :
 		nav.Firefox < 16 ? '-moz-' : '';
 	if(!nav.Opera || nav.Opera >= 12) {
 		nav.Anim = true;
@@ -6242,7 +6242,7 @@ function getNavigator() {
 			'animationName';
 		nav.animEnd =
 			nav.WebKit ? 'webkitAnimationEnd' :
-			nav.Opera ? 'oAnimationEnd' :
+			nav.Opera && nav.Opera < 12.5 ? 'oAnimationEnd' :
 			'animationend';
 		nav.animEvent = function(el, Fn) {
 			el.addEventListener(nav.animEnd, function aEvent() {
