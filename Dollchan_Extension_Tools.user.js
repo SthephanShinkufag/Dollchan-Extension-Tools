@@ -533,7 +533,7 @@ function $txtInsert(el, txt) {
 }
 
 function $txtSelect() {
-	return nav.Opera ? doc.getSelection() : window.getSelection().toString();
+	return (nav.Opera ? doc.getSelection() : window.getSelection()).toString();
 }
 
 function $toRegExp(str) {
