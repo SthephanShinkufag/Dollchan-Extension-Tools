@@ -2322,36 +2322,35 @@ function initPostform() {
 	}
 }
 
-function addTextResizer(el, Fn) {
-	if(nav.Opera) {
-		var resMove = function(e) {
-				var p = $offset(pr.txta);
-				pr.txta.style.width = e.pageX - p.left + 'px';
-				pr.txta.style.height = e.pageY - p.top + 'px';
-			},
-			resStop = function() {
-				$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-				Fn(parseInt(el.style.width, 10), parseInt(el.style.height, 10));
-			};
-		$after(el, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
-			$pd(e);
-			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-		}}));
-	} else {
-		$event(el, {'mouseup': function() {
-			Fn(parseInt(this.style.width, 10), parseInt(this.style.height, 10));
-		}});
-	}
+function addOperaTextResizer() {
+	var resMove = function(e) {
+			var p = $offset(pr.txta);
+			pr.txta.style.width = e.pageX - p.left + 'px';
+			pr.txta.style.height = e.pageY - p.top + 'px';
+		},
+		resStop = function() {
+			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+			saveCfg('textaWidth', parseInt(pr.txta.style.width, 10));
+			saveCfg('textaHeight', parseInt(pr.txta.style.height, 10));
+		};
+	$after(pr.txta, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
+		$pd(e);
+		$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+	}}));
 }
 
 function doPostformChanges(img, m, el) {
 	var _img, sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	addTextResizer(pr.txta, function(w, h) {
-		saveCfg('textaWidth', w);
-		saveCfg('textaHeight', h);
-	});
+	if(nav.Opera) {
+		addOperaTextResizer();
+	} else {
+		$event(pr.txta, {'mouseup': function() {
+			saveCfg('textaWidth', parseInt(this.style.width, 10));
+			saveCfg('textaHeight', parseInt(this.style.height, 10));
+		}});
+	}
 	addTextPanel();
 	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 	$event(pr.txta, {'keypress': function(e) {
