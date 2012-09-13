@@ -1616,7 +1616,7 @@ function contentBlock(parent, link) {
 }
 
 function addHiddenTable(hid) {
-	var b, tNum, pBlock, tBlock, el = hid.appendChild($add('<div></div>'));
+	var b, tNum, block;
 	$each($C('de-post-hid', dForm), function(post) {
 		if(post.isOp) {
 			return;
@@ -1633,18 +1633,15 @@ function addHiddenTable(hid) {
 			var pst = getPost(this);
 			togglePostContent(pst, pst.hide = !pst.hide);
 		};
-		if(!pBlock) {
-			pBlock = el.appendChild($New('div', {'class': 'de-content-block'}, [
-				$add('<b>' + Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b>')
-			]));
-		}
-		pBlock.appendChild($New('div', {'class': 'de-entry'}, [cln]));
+		(block || (block = hid.appendChild($New('div', {'class': 'de-content-block'}, [
+			$add('<b>' + Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b>')
+		])))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
 	});
-	if(pBlock) {
-		$append(el, [
+	if(block) {
+		$append(hid, [
 			$btn(Lng.expandAll[lang], '', function() {
-				$each($Q('.de-entry > [de-post]', this.parentNode), function(node) {
-					togglePostContent(node, node.hide = !node.hide);
+				$each($Q('.de-entry > [de-post]', this.parentNode), function(el) {
+					togglePostContent(el, el.hide = !el.hide);
 				});
 				this.value = this.value == Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 			}),
@@ -1654,22 +1651,21 @@ function addHiddenTable(hid) {
 						setUserPostVisib(el.pst, false);
 					}
 				});
-				this.parentNode.parentNode.expanded = false;
 				saveUserPostsVisib();
 			})
 		]);
 	} else {
-		el.appendChild($add('<b>' + Lng.noHidOnPage[lang] + '</b>'));
+		hid.appendChild($add('<b>' + Lng.noHidOnPage[lang] + '</b>'));
 	}
-	$append(el = hid.appendChild($add('<div></div>')), [
+	$append(hid, [
 		$add('<hr />'),
 		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>')
 	]);
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
-			tBlock = contentBlock(el, $add('<b>' + b + '</b>'));
+			block = contentBlock(hid, $add('<b>' + b + '</b>'));
 			for(tNum in hThrds[b]) {
-				tBlock.appendChild($New('div', {'class': 'de-entry', 'info': b + ';' + tNum}, [
+				block.appendChild($New('div', {'class': 'de-entry', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + getThrdUrl(aib.host, b, tNum) +
@@ -1680,13 +1676,13 @@ function addHiddenTable(hid) {
 			}
 		}
 	}
-	$append(el, [
+	$append(hid, [
 		$add('<hr />'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
 			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(hThrds, '')}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$each($C('de-entry', this.parentNode), function(el) {
+			$each($Q('.de-entry[info]', this.parentNode), function(el) {
 				var i, arr = el.getAttribute('info').split(';'),
 					b = arr[0],
 					tNum = arr[1];
@@ -1711,8 +1707,6 @@ function addHiddenTable(hid) {
 			})
 		])
 	]);
-	eventRefLink(hid);
-	pBlock = tBlock = null;
 }
 
 
