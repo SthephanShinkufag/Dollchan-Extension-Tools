@@ -24,7 +24,6 @@ var defaultCfg = {
 	'wipeNumbers':	1,		//		numbers
 	'filterThrds':	1,		// apply filters to threads
 	'menuHiddBtn':	1,		// menu on hide button
-	'viewHiddNum':	1,		// view hidden on postnumber
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
 	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
@@ -111,7 +110,6 @@ Lng = {
 		'wipeNumbers':	['Числа', 'Numbers'],
 		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-		'viewHiddNum':	['Просмотр скрытого по №поста*', 'View hidden on №postnumber*'],
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
 
@@ -1149,12 +1147,6 @@ function toggleContent(name, isUpd) {
 }
 
 function showContent(el, id, name, isUpd) {
-	if(el.id === 'de-content-hid' && el.expanded) {
-		$each($Q('.de-entry > :not(.de-oppost-hid)', el.firstChild), function(node) {
-			setPostVisib(node.pst, true, null);
-		});
-		el.expanded = false;
-	}
 	el.innerHTML = el.style.backgroundColor = '';
 	if(!isUpd && el.id === id) {
 		el.removeAttribute('id');
@@ -1307,7 +1299,6 @@ function getCfgFilters() {
 		]),
 		lBox('filterThrds', true, null),
 		lBox('menuHiddBtn', true, null),
-		lBox('viewHiddNum', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
 			$each($C('de-post-hid', dForm), function(post) {
@@ -1626,45 +1617,17 @@ function contentBlock(parent, link) {
 
 function addHiddenTable(hid) {
 	var b, tNum, pBlock, tBlock, el = hid.appendChild($add('<div></div>'));
-	Threads.forEach(function(op) {
-		if(!op.hide) {
+	$each($C('de-post-hid', dForm), function(post) {
+		if(post.isOp) {
 			return;
 		}
-		var wrap = $New('div', {'class': aib.cReply}, [
-			$new('input', {'type': 'checkbox'}, null),
-			$event($add(
-				'<a href="' + getThrdUrl(aib.host, brd, op.num) + '" target="_blank">№' + op.num + '</a>'), {
-				'click': function(e) {
-					$pd(e);
-					this.hide = !this.hide;
-					this.parentNode.nextSibling.style.display = this.hide ? 'none' : '';
-				}
-			}),
-			$txt(' - ' + op.tTitle)
-		]);
-		wrap.pst = op;
-		wrap.hide = true;
-		if(!tBlock) {
-			tBlock = el.appendChild($New('div', {'class': 'de-content-block'}, [
-				$add('<b>' + Lng.hiddenThrds[lang] + Lng.onPage[lang] + ':</b>')
-			]));
-		}
-		tBlock.appendChild($New('div', {'class': 'de-entry'}, [
-			wrap, $attr(op.cloneNode(true), {
-				'class': 'de-oppost-hid',
-				'style': 'display: none; padding-left: 15px; overflow: hidden; border: 1px solid grey;'
-			})
-		]));
-	});
-	$each($C('de-post-hid', dForm), function(post) {
-		var pP, cln = post.cloneNode(true);
+		var cln = post.cloneNode(true);
 		cln.removeAttribute('id');
 		cln.style.display = '';
 		cln.hide = true;
 		cln.pst = post;
 		cln.btn = $q('.de-btn-hide, .de-btn-lock', cln);
-		nav.remClass(pP = cln.btn.parentNode, 'de-ppanel-cnt');
-		nav.remClass(pP, 'de-ppanel-del');
+		cln.btn.parentNode.className = 'de-ppanel';
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
 			var pst = getPost(this);
@@ -1677,28 +1640,17 @@ function addHiddenTable(hid) {
 		}
 		pBlock.appendChild($New('div', {'class': 'de-entry'}, [cln]));
 	});
-	if(pBlock || tBlock) {
+	if(pBlock) {
 		$append(el, [
 			$btn(Lng.expandAll[lang], '', function() {
-				var posts = $Q('.de-entry > :not(.de-oppost-hid)', this.parentNode),
-					el = this.parentNode.parentNode;
-				if(el.expanded) {
-					this.value = Lng.expandAll[lang];
-					$each(posts, function(node) {
-						setPostVisib(node.pst, node.hide, null);
-					});
-					el.expanded = false;
-				} else {
-					this.value = Lng.undo[lang];
-					$each(posts, function(node) {
-						setPostVisib(node.pst, false, null);
-					});
-					el.expanded = true;
-				}
+				$each($Q('.de-entry > [de-post]', this.parentNode), function(node) {
+					togglePostContent(node, node.hide = !node.hide);
+				});
+				this.value = this.value == Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 			}),
 			$btn(Lng.save[lang], '', function() {
-				$each($Q('.de-entry > :not(.de-oppost-hid)', this.parentNode), function(el) {
-					if(!el.hide || !el.pst.hide) {
+				$each($Q('.de-entry > [de-post]', this.parentNode), function(el) {
+					if(!el.hide) {
 						setUserPostVisib(el.pst, false);
 					}
 				});
