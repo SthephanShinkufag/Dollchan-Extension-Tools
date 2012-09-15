@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.8.2
+// @version			12.9.15.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.8.2',
+	'version':	'12.9.15.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -313,11 +313,10 @@ Lng = {
 	infoPage:		['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
 	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
-	hiddenPosts:	['Скрытые посты', 'Hidden posts'],
+	hiddenPosts:	['Скрытые посты на странице', 'Hidden posts on page'],
 	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
-	onPage:			[' на странице', ' on page'],
+	noHidPosts:		['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
-	noHidOnPage:	['На этой странице нет скрытого...', 'Nothing to hide on this page...'],
 	expandAll:		['Раскрыть все', 'Expand all'],
 	noFavorites:	['Нет избранных тредов...', 'Favorites is empty...'],
 	replies:		['Ответы:', 'Replies:'],
@@ -1634,7 +1633,7 @@ function addHiddenTable(hid) {
 			togglePostContent(pst, pst.hide = !pst.hide);
 		};
 		(block || (block = hid.appendChild($New('div', {'class': 'de-content-block'}, [
-			$add('<b>' + Lng.hiddenPosts[lang] + Lng.onPage[lang] + ':</b>')
+			$add('<b>' + Lng.hiddenPosts[lang] + ':</b>')
 		])))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
 	});
 	if(block) {
@@ -1655,7 +1654,7 @@ function addHiddenTable(hid) {
 			})
 		]);
 	} else {
-		hid.appendChild($add('<b>' + Lng.noHidOnPage[lang] + '</b>'));
+		hid.appendChild($add('<b>' + Lng.noHidPosts[lang] + '</b>'));
 	}
 	$append(hid, [
 		$add('<hr />'),
@@ -1912,7 +1911,7 @@ function selectSpell(e) {
 			('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ,#vtag ')
+			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
@@ -3662,39 +3661,24 @@ function addLinkTube(post) {
 			'onload': function(xhr) {
 				try {
 					var json = JSON.parse(xhr.responseText)['entry'],
-						txt = json['title']['$t'],
-						rel = json['media$group']['media$keywords']['$t'].toLowerCase() + ',';
+						txt = json['title']['$t'];
 					link.textContent = txt;
-					link.rel = rel;
 					if(Cfg['hideBySpell']) {
-						filterTube(pst, txt, rel);
+						for(var t, i = 0; t = oSpells.video[i]; i++) {
+							if($toRegExp(t).test(txt)) {
+								hidePost(pst, '#video ' + t);
+								pst.ytHide = true;
+								clearTimeout(hideTubeDelay);
+								hideTubeDelay = setTimeout(savePostsVisib, 500);
+								return;
+							}
+						}
 					}
 					link = pst = null;
 				} catch(e) {}
 			}
 		});
 	});
-}
-
-function filterTube(post, text, tags) {
-	for(var t, i = 0; t = oSpells.video[i]; i++) {
-		if($toRegExp(t).test(text)) {
-			hidePost(post, '#video ' + t);
-			post.ytHide = true;
-			clearTimeout(hideTubeDelay);
-			hideTubeDelay = setTimeout(savePostsVisib, 500);
-			return;
-		}
-	}
-	for(i = 0; t = oSpells.vtag[i]; i++) {
-		if(tags.contains(t)) {
-			hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
-			post.ytHide = true;
-			clearTimeout(hideTubeDelay);
-			hideTubeDelay = setTimeout(savePostsVisib, 500);
-			return;
-		}
-	}
 }
 
 function hideByTube() {
@@ -3706,14 +3690,6 @@ function hideByTube() {
 			if($toRegExp(t).test(val)) {
 				post = getPost(link);
 				hidePost(post, '#video ' + t);
-				post.ytHide = true;
-				return;
-			}
-		}
-		for(i = 0, val = link.rel; t = oSpells.vtag[i++];) {
-			if(val.contains(t)) {
-				post = getPost(link);
-				hidePost(post, '#vtag ' + t.substring(0, t.length - 1));
 				post.ytHide = true;
 				return;
 			}
@@ -4793,7 +4769,7 @@ function getHanaPost(postJson) {
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
 		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
 	for(i = 0; i < len; i++) {
-		post.appendChild(getHanaFile(files[i], id));
+		post.appendChild(getHanaFile(files[i], postJson['post_id']));
 	}
 	$append(post, [
 		$if(len > 1, $new('div', {'style': 'clear: both;'}, null)),
@@ -5262,7 +5238,7 @@ function initSpells() {
 	var i, x, b, n, t, p, j, Spells;
 	pSpells = getSpellObj();
 	tSpells = getSpellObj();
-	oSpells = {rep: [], skip: [], num: [], outrep: [], video: [], vtag: []};
+	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
 	for(i = 0; x = spellsList[i++];) {
 		Spells = pSpells;
 		x = x.toString();
@@ -5317,8 +5293,7 @@ function initSpells() {
 		t === '#noimg' ? Spells.noimg = true :
 		t === '#trip' ? Spells.trip = true :
 		t === '#outrep' ? oSpells.outrep.push(p) :
-		t === '#video' ? oSpells.video.push(p) :
-		t === '#vtag' && oSpells.vtag.push(p.toLowerCase() + ',');
+		t === '#video' && oSpells.video.push(p);
 	}
 }
 
