@@ -4770,7 +4770,7 @@ function getHanaPost(postJson) {
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
 		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
 	for(i = 0; i < len; i++) {
-		post.appendChild(getHanaFile(files[i], id));
+		post.appendChild(getHanaFile(files[i], postJson['post_id']));
 	}
 	$append(post, [
 		$if(len > 1, $new('div', {'style': 'clear: both;'}, null)),
