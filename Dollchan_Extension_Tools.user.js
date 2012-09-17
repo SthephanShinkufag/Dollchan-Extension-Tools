@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.15.0
+// @version			12.9.17.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.15.0',
+	'version':	'12.9.17.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -1854,21 +1854,21 @@ function $alert(txt, id, wait) {
 			});
 			nav.addClass(el, 'de-blink');
 		}
-		return;
+	} else {
+		el = $id('de-alert').appendChild($New('div', {'class': aib.cReply, 'id': 'de-alert-' + id}, [
+			$new('span', {'class': 'de-alert-btn', 'text': tBtn}, {'click': function() {
+				closeAlert(this.parentNode);
+			}}),
+			$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
+		]));
+		if(Cfg['animation']) {
+			nav.animEvent(el, function(node) {
+				nav.remClass(node, 'de-open');
+			});
+			nav.addClass(el, 'de-open');
+		}
 	}
-	el = $id('de-alert').appendChild($New('div', {'class': aib.cReply, 'id': 'de-alert-' + id}, [
-		$new('span', {'class': 'de-alert-btn', 'text': tBtn}, {'click': function() {
-			closeAlert(this.parentNode);
-		}}),
-		$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
-	]));
-	if(Cfg['animation']) {
-		nav.animEvent(el, function(node) {
-			nav.remClass(node, 'de-open');
-		});
-		nav.addClass(el, 'de-open');
-	}
-	if(Cfg['closePopups'] && !wait && id.indexOf('Help') !== 0) {
+	if(Cfg['closePopups'] && !wait && !id.contains('help')) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
