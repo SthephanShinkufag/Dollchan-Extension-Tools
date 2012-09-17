@@ -301,7 +301,7 @@ Lng = {
 	storage:		['Хранение: ', 'Storage: '],
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
 	thrCreated:		['Тредов создано: ', 'Threads created: '],
-	pstSended:		['Постов отправлено: ', 'Posts sended: '],
+	posts:			['Постов: ', 'Posts: '],
 	total:			['Всего: ', 'Total: '],
 	dontShow:		['Не отображать: ', 'Do not show: '],
 	showMore:		['Показать подробнее', 'Show more'],
@@ -332,7 +332,7 @@ Lng = {
 	reply:			['Ответ', 'Reply'],
 	replyTo:		['Ответ в', 'Reply to'],
 	wait:			['Ждите', 'Wait'],
-	makeRjpeg:		['Сделать rarJPEG', 'Make rarJPEG'],
+	addRarJPEG:		['+ rarJPEG', '+ rarJPEG'],
 	keyNavHelp:		[
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
@@ -1503,7 +1503,7 @@ function getCfgInfo() {
 				scriptStorage ? 'Opera ScriptStorage' :
 				'Local Storage'
 			) + '<br>' + Lng.thrViewed[lang] + Stat['view'] + '<br>' +
-			Lng.thrCreated[lang] + Stat['op'] + '<br>' + Lng.pstSended[lang] + Stat['reply'] + '</span>'),
+			Lng.thrCreated[lang] + Stat['op'] + '<br>' + Lng.posts[lang] + Stat['reply'] + '</span>'),
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
@@ -2293,8 +2293,81 @@ function addOperaTextResizer() {
 	}}));
 }
 
-function doPostformChanges(img, m, el) {
-	var _img, sBtn;
+function eventFiles(tr) {
+	$each($Q('input[type="file"]', tr), function(el) {
+		$event(el, {'change': processInput});
+	});
+}
+
+function delFileUtils(el) {
+	$each($Q('.de-file-util', el), $del);
+	$each($Q('input[type="file"]', el), function(node) {
+		node.rarJPEG = null;
+	});
+}
+
+function processInput() {
+	if(!this.haveBtns) {
+		this.haveBtns = true;
+		$after(this, $new('button', {'type': 'button', 'class': 'de-file-util', 'text': Lng.clear[lang]}, {
+			'click': function(e) {
+				$pd(e);
+				var el = this.parentNode;
+				delFileUtils(el);
+				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
+			}
+		}));
+	} else if(this.rarJPEG) {
+		this.rarJPEG = null;
+		$del(this.nextSibling);
+	}
+	if(aib.rJpeg) {
+		$del($c('de-file-rar', this.parentNode));
+		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+			$after(this, $new('button', {
+				'type': 'button',
+				'class': 'de-file-util de-file-rar',
+				'text': Lng.addRarJPEG[lang]}, {
+				'click': function(e) {
+					$pd(e);
+					var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
+							'id': 'de-file-rar',
+							'type': 'file',
+							'style': 'display: none'
+						}, null)),
+						inp = $q('input[type="file"]', this.parentNode),
+						btn = this;
+					el.onchange = function(e) {
+						$del(btn);
+						var file = this.files[0],
+							fr = new FileReader(),
+							node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
+								'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+						$after(inp, node);
+						fr.onload = function() {
+							if(inp.nextSibling === node) {
+								$attr(node, {
+									'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
+									'title': inp.files[0].name + ' + ' + file.name,
+									'text': 'rarJPEG'
+								});
+								inp.rarJPEG = this.result;
+								node = inp = file = null;
+							}
+						};
+						fr.readAsArrayBuffer(file);
+						btn = null;
+					};
+					el.click();
+				}
+			}));
+		}
+	}
+	eventFiles($x(pr.tr, this));
+}
+
+function doPostformChanges(img, _img, el) {
+	var sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
 	if(nav.Opera) {
@@ -2387,7 +2460,6 @@ function doPostformChanges(img, m, el) {
 			if(!Cfg['captchaLang'] || e.which === 0) {
 				return;
 			}
-			$pd(e);
 			var i, code = e.charCode || e.keyCode,
 				chr = String.fromCharCode(code).toLowerCase(),
 				ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
@@ -2403,6 +2475,7 @@ function doPostformChanges(img, m, el) {
 				}
 				chr = ru[i];
 			}
+			$pd(e);
 			$txtInsert(e.target, chr);
 		};
 		if(!aib.hana && !pr.recap) {
@@ -2441,10 +2514,10 @@ function doPostformChanges(img, m, el) {
 			toggleCfg('sageReply');
 			doSageBtn();
 		}});
-		m = $x('ancestor::label', pr.mail) || pr.mail;
-		if(m.nextElementSibling || m.previousElementSibling) {
-			$disp(m);
-			$after(m, sBtn);
+		el = $x('ancestor::label', pr.mail) || pr.mail;
+		if(el.nextElementSibling || el.previousElementSibling) {
+			$disp(el);
+			$after(el, sBtn);
 		} else {
 			$disp($x(pr.tr, pr.mail));
 			$after(pr.name || pr.subm, sBtn);
@@ -2488,86 +2561,6 @@ function doPostformChanges(img, m, el) {
 		}
 		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
 	}
-}
-
-function eventFiles(tr) {
-	$each($Q('input[type="file"]', tr), function(el) {
-		$event(el, {'change': processInput});
-	});
-}
-
-function processInput() {
-	if(!this.haveBtns) {
-		this.haveBtns = true;
-		$after(this, $event($add(
-			'<button type="button" class="de-file-util">' + Lng.clear[lang] + '</button>'), {
-			'click': clearInput
-		}));
-	} else if(this.rarJPEG) {
-		this.rarJPEG = null;
-		$del(this.nextSibling);
-	}
-	if(aib.rJpeg) {
-		$del($c('de-file-del', this.parentNode));
-		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this.nextSibling, $event($add(
-				'<button type="button" class="de-file-util de-file-del">' +
-					Lng.makeRjpeg[lang] + '</button>'), {
-				'click': makeRarJPEG
-			}));
-		}
-	}
-	eventFiles($x(pr.tr, this));
-}
-
-function clearInput(e) {
-	$pd(e);
-	var el = this.parentNode;
-	delFileUtils(el);
-	$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
-}
-
-function makeRarJPEG(e) {
-	$pd(e);
-	var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-			'id': 'de-file-rar',
-			'type': 'file',
-			'style': 'display: none'
-		}, null)),
-		inp = $q('input[type="file"]', this.parentNode),
-		btn = this;
-	el.onchange = function(e) {
-		$del(btn);
-		readArch(inp, this.files[0]);
-		btn = inp = null;
-	};
-	el.click();
-}
-
-function readArch(inp, file) {
-	var fr = new FileReader(),
-		el = $add('<span class="de-file-util" style="margin: 0 5px;"><span class="de-wait"></span>' +
-			Lng.wait[lang] + '</span>');
-	$after(inp, el);
-	fr.onload = function() {
-		if(inp.nextSibling === el) {
-			$attr(el, {
-				'style': 'font-weight: bold; margin: 0 5px;',
-				'title': inp.files[0].name + ' + ' + file.name,
-				'text': 'RarJPEG'
-			});
-			inp.rarJPEG = this.result;
-			el = inp = file = null;
-		}
-	};
-	fr.readAsArrayBuffer(file);
-}
-
-function delFileUtils(el) {
-	$each($Q('.de-file-util', el), $del);
-	$each($Q('input[type="file"]', el), function(node) {
-		node.rarJPEG = null;
-	});
 }
 
 
