@@ -2270,26 +2270,21 @@ function initPostform() {
 	}
 }
 
-function addTextResizer(el, Fn) {
-	if(nav.Opera) {
-		var resMove = function(e) {
-				var p = $offset(pr.txta);
-				pr.txta.style.width = e.pageX - p.left + 'px';
-				pr.txta.style.height = e.pageY - p.top + 'px';
-			},
-			resStop = function() {
-				$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-				Fn(parseInt(el.style.width, 10), parseInt(el.style.height, 10));
-			};
-		$after(el, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
-			$pd(e);
-			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-		}}));
-	} else {
-		$event(el, {'mouseup': function() {
-			Fn(parseInt(this.style.width, 10), parseInt(this.style.height, 10));
-		}});
-	}
+function addOperaTextResizer() {
+	var resMove = function(e) {
+			var p = $offset(pr.txta);
+			pr.txta.style.width = e.pageX - p.left + 'px';
+			pr.txta.style.height = e.pageY - p.top + 'px';
+		},
+		resStop = function() {
+			$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+			saveCfg('textaWidth', parseInt(pr.txta.style.width, 10));
+			saveCfg('textaHeight', parseInt(pr.txta.style.height, 10));
+		};
+	$after(pr.txta, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
+		$pd(e);
+		$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
+	}}));
 }
 
 function eventFiles(tr) {
@@ -2362,10 +2357,14 @@ function doPostformChanges(img, _img, el) {
 	var sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	addTextResizer(pr.txta, function(w, h) {
-		saveCfg('textaWidth', w);
-		saveCfg('textaHeight', h);
-	});
+	if(nav.Opera) {
+		addOperaTextResizer();
+	} else {
+		$event(pr.txta, {'mouseup': function() {
+			saveCfg('textaWidth', parseInt(this.style.width, 10));
+			saveCfg('textaHeight', parseInt(this.style.height, 10));
+		}});
+	}
 	addTextPanel();
 	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 	$event(pr.txta, {'keypress': function(e) {
@@ -3147,8 +3146,7 @@ function addPostButtons(post) {
 		}
 	}
 	nav.insAfter(ref, html + (
-		aib.getSage(post) ?
-			'<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
+		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
 	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
@@ -5448,7 +5446,7 @@ function getSpells(x, post) {
 			}
 		}
 	}
-	if(x.sage && aib.getSage(post)) {
+	if(x.sage && post.sage) {
 		return '#sage';
 	}
 	if(x.notxt && !pText) {
@@ -6477,7 +6475,7 @@ function getImageboard() {
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
-			return $c('id_Heaven', post);
+			return !!$c('id_Heaven', post);
 		} :
 		aib.krau ? function(post) {
 			return !!$c('sage', post);
@@ -6496,6 +6494,7 @@ function processPost(post, pNum, thr, i) {
 	post.count = i;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
+	post.sage = aib.getSage(post);
 	post.setAttribute('de-post', pNum);
 	pByNum[post.num = pNum] = post;
 }
@@ -6670,11 +6669,6 @@ function onVis() {
 function initPage() {
 	pr = getPostform($q(aib.qPostForm, doc));
 	oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
-	if(!pr.mail) {
-		aib.getSage = function(post) {
-			return false;
-		};
-	}
 	if(TNum) {
 		if(Cfg['rePageTitle']) {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].tTitle;
