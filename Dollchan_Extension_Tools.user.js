@@ -1509,34 +1509,28 @@ function getCfgInfo() {
 		$New('div', {'style': 'display: table;'}, [
 			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/"' +
 				' target="_blank">http://www.freedollchan.org/scripts</a></span>'),
-			$new('input', {
-				'type': 'button',
-				'style': 'display: table-cell;',
-				'value': Lng.debug[lang],
-				'title': Lng.infoDebug[lang]}, {
-				'click': function() {
-					var i, nCfg = new Config(Cfg),
-						tl = timeLog.split('\n');
-					tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
-					delete nCfg['nameValue'];
-					delete nCfg['passwValue'];
-					delete nCfg['signatValue'];
-					delete nCfg['lastScrUpd'];
-					for(i in nCfg) {
-						if(nCfg[i] === defaultCfg[i]) {
-							delete nCfg[i];
-						}
+			$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
+				var i, nCfg = new Config(Cfg),
+					tl = timeLog.split('\n');
+				tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
+				delete nCfg['nameValue'];
+				delete nCfg['passwValue'];
+				delete nCfg['signatValue'];
+				delete nCfg['lastScrUpd'];
+				for(i in nCfg) {
+					if(nCfg[i] === defaultCfg[i]) {
+						delete nCfg[i];
 					}
-					$alert(Lng.infoDebug[lang] + ':<br /><textarea readonly rows="20" cols="75">' + getPrettyJSON({
-						'version': defaultCfg['version'],
-						'location': String(window.location),
-						'nav': nav,
-						'cfg': nCfg,
-						'spells': spellsList,
-						'perf': tl
-					}, '') + '</textarea>', 'help-debug', false);
 				}
-			})
+				$alert(Lng.infoDebug[lang] + ':<br /><textarea readonly rows="20" cols="75">' + getPrettyJSON({
+					'version': defaultCfg['version'],
+					'location': String(window.location),
+					'nav': nav,
+					'cfg': nCfg,
+					'spells': spellsList,
+					'perf': tl
+				}, '') + '</textarea>', 'help-debug', false);
+			}), {'style': 'display: table-cell;',})
 		])
 	]);
 }
@@ -2314,14 +2308,12 @@ function delFileUtils(el) {
 function processInput() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		$after(this, $new('button', {'type': 'button', 'class': 'de-file-util', 'text': Lng.clear[lang]}, {
-			'click': function(e) {
-				$pd(e);
-				var el = this.parentNode;
-				delFileUtils(el);
-				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
-			}
-		}));
+		$after(this, $attr($btn(Lng.clear[lang], null, function(e) {
+			$pd(e);
+			var el = this.parentNode;
+			delFileUtils(el);
+			$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
+		}), {'class': 'de-file-util de-file-del'}));
 	} else if(this.rarJPEG) {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
@@ -2329,43 +2321,38 @@ function processInput() {
 	if(aib.rJpeg) {
 		$del($c('de-file-rar', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this, $new('button', {
-				'type': 'button',
-				'class': 'de-file-util de-file-rar',
-				'text': Lng.addRarJPEG[lang]}, {
-				'click': function(e) {
-					$pd(e);
-					var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-							'id': 'de-file-rar',
-							'type': 'file',
-							'style': 'display: none'
-						}, null)),
-						inp = $q('input[type="file"]', this.parentNode),
-						btn = this;
-					el.onchange = function(e) {
-						$del(btn);
-						var file = this.files[0],
-							fr = new FileReader(),
-							node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
-								'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-						$after(inp, node);
-						fr.onload = function() {
-							if(inp.nextSibling === node) {
-								$attr(node, {
-									'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-									'title': inp.files[0].name + ' + ' + file.name,
-									'text': 'rarJPEG'
-								});
-								inp.rarJPEG = this.result;
-								node = inp = file = null;
-							}
-						};
-						fr.readAsArrayBuffer(file);
-						btn = null;
+			$after(this, $attr($btn(Lng.addRarJPEG[lang], null, function(e) {
+				$pd(e);
+				var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
+						'id': 'de-file-rar',
+						'type': 'file',
+						'style': 'display: none'
+					}, null)),
+					inp = $q('input[type="file"]', this.parentNode),
+					btn = this;
+				el.onchange = function(e) {
+					$del(btn);
+					var file = this.files[0],
+						fr = new FileReader(),
+						node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
+							'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+					$after(inp, node);
+					fr.onload = function() {
+						if(inp.nextSibling === node) {
+							$attr(node, {
+								'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
+								'title': inp.files[0].name + ' + ' + file.name,
+								'text': 'rarJPEG'
+							});
+							inp.rarJPEG = this.result;
+						}
+						node = inp = file = null;
 					};
-					el.click();
-				}
-			}));
+					fr.readAsArrayBuffer(file);
+					btn = null;
+				};
+				el.click();
+			}), {'class': 'de-file-util de-file-rar'}));
 		}
 	}
 	eventFiles($x(pr.tr, this));
