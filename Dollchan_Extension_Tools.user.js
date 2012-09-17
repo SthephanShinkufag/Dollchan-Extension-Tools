@@ -94,8 +94,8 @@ var defaultCfg = {
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
 	'betaScrUpd':	0,		// 		check for beta-version
 	'lastScrUpd':	0,		// 		last update check
-	'textaWidth':	540,	// textarea width
-	'textaHeight':	140		// textarea height
+	'textaWidth':	500,	// textarea width
+	'textaHeight':	160		// textarea height
 },
 
 Lng = {
@@ -209,6 +209,7 @@ Lng = {
 			txt:		['Интервал проверки', 'Check interval']
 		},
 		'betaScrUpd':	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
+		'excludeList':	['Список адресов, запрещающих скрипт:', 'Address list, that excludes script'],
 
 		'language': {
 			sel:		[['Ru', 'En'], ['Ru', 'En']],
@@ -1482,6 +1483,14 @@ function getCfgCommon() {
 				})
 			]),
 			$new('div', {'id': 'de-updresult', 'style': 'font-size: 1.1em; text-align: center'}, null)
+		])),
+		$if(nav.isGlobal, $New('div', null, [
+			$txt(Lng.cfg['excludeList'][lang]),
+			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 49}, {
+				'keyup': function() {
+					setStored('DESU_Exclude', this.value);
+				}
+			})
 		]))
 	]);
 }
@@ -1585,7 +1594,7 @@ function addSettings(Set) {
 			]),
 			$new('br', {'style': 'clear: both;'}, null),
 			$New('div', {'style': 'display: none;'}, [
-				$new('textarea', {'rows': 10, 'cols': 56}, null),
+				$new('textarea', {'rows': 10, 'cols': 49}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
 					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 					window.location.reload();
@@ -2333,17 +2342,17 @@ function doPostformChanges(img, m, el) {
 		} else {
 			Stat['op'] = +Stat['op'] + 1;
 		}
+		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
 			pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 		}
-		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.isQuick) {
 			$disp($id('de-qarea'));
 			$after($id('de-togglereply'), $id('de-pform'));
 		}
 	}});
-	$each($Q('input[type="text"]', pr.form), function(node) {
-		node.size = 35;
+	$each($Q('input[type="text"], input[type="file"]', pr.form), function(node) {
+		node.size = 30;
 	});
 	if(Cfg['noGoto'] && pr.gothr) {
 		$disp(pr.gothr);
@@ -2365,10 +2374,6 @@ function doPostformChanges(img, m, el) {
 		if(el) {
 			$attr(el, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 		}
-		el = $id('recaptcha_reload_btn');
-		if(el) {
-			$disp(el.parentNode);
-		}
 	}
 	if(pr.cap) {
 		if(aib.abu) {
@@ -2377,16 +2382,17 @@ function doPostformChanges(img, m, el) {
 				pr.cap.onclick = null;
 			}, 50);
 		}
-		pr.cap.onfocus = null;
 		pr.cap.autocomplete = 'off';
+		pr.cap.onfocus = null;
 		pr.cap.onkeypress = function(e) {
+			if(!Cfg['captchaLang'] || e.which === 0) {
+				return;
+			}
+			$pd(e);
 			var i, code = e.charCode || e.keyCode,
 				chr = String.fromCharCode(code).toLowerCase(),
 				ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
-			if(!Cfg['captchaLang'] || e.which === 0) {
-				return;
-			}
 			if(Cfg['captchaLang'] === 1) {
 				if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
 					return;
@@ -2398,7 +2404,6 @@ function doPostformChanges(img, m, el) {
 				}
 				chr = ru[i];
 			}
-			$pd(e);
 			$txtInsert(e.target, chr);
 		};
 		if(!aib.hana && !pr.recap) {
@@ -6137,6 +6142,9 @@ function isCompatible() {
 		return false;
 	}
 	getNavigator();
+	if((getStored('DESU_Exclude') || '').indexOf(aib.dm) !== -1) {
+		return false;
+	}
 	return true;
 }
 
