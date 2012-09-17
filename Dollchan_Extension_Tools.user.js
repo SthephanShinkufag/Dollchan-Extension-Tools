@@ -92,7 +92,6 @@ var defaultCfg = {
 	'closePopups':	0,		// auto-close popups
 	'updScript':	1,		// check for script's update
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
-	'betaScrUpd':	0,		// 		check for beta-version
 	'lastScrUpd':	0,		// 		last update check
 	'textaWidth':	500,	// textarea width
 	'textaHeight':	160		// textarea height
@@ -194,6 +193,7 @@ Lng = {
 		'noGoto':		['поле goto ', 'goto field '],
 		'noPassword':	['пароль', 'password'],
 
+		'excludeList':	['Список адресов, запрещающих скрипт:', 'Address list, that excludes script'],
 		'scriptStyle': {
 			sel:		[['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
 			txt:		[' стиль скрипта', ' script style']
@@ -208,8 +208,6 @@ Lng = {
 			sel:		[['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
 			txt:		['Интервал проверки', 'Check interval']
 		},
-		'betaScrUpd':	['Проверять обновления для beta-версии', 'Check updates for beta-version'],
-		'excludeList':	['Список адресов, запрещающих скрипт:', 'Address list, that excludes script'],
 
 		'language': {
 			sel:		[['Ru', 'En'], ['Ru', 'En']],
@@ -1457,6 +1455,14 @@ function getCfgForm() {
 
 function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
+		$if(nav.isGlobal, $New('div', null, [
+			$txt(Lng.cfg['excludeList'][lang]),
+			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 49}, {
+				'keyup': function() {
+					setStored('DESU_Exclude', this.value);
+				}
+			})
+		])),
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			$id('de-main').lang = getThemeLang();
@@ -1473,7 +1479,6 @@ function getCfgCommon() {
 			lBox('updScript', true, null),
 			$New('div', {'id': 'de-upd-cont', 'style': 'padding: 2px 0 10px 25px;'}, [
 				optSel('scrUpdIntrv', false, null),
-				lBox('betaScrUpd', true, null),
 				$btn(Lng.checkNow[lang], '', function() {
 					var el = $id('de-updresult');
 					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
@@ -1483,14 +1488,6 @@ function getCfgCommon() {
 				})
 			]),
 			$new('div', {'id': 'de-updresult', 'style': 'font-size: 1.1em; text-align: center'}, null)
-		])),
-		$if(nav.isGlobal, $New('div', null, [
-			$txt(Lng.cfg['excludeList'][lang]),
-			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 49}, {
-				'keyup': function() {
-					setStored('DESU_Exclude', this.value);
-				}
-			})
 		]))
 	]);
 }
@@ -6023,7 +6020,7 @@ function checkForUpdates(isForce, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' +
-			(Cfg['betaScrUpd'] ? 'master' : 'stable') + '/Dollchan_Extension_Tools.meta.js',
+			'master/Dollchan_Extension_Tools.meta.js',
 		'headers': {'Content-Type': 'text/plain'},
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -6052,12 +6049,9 @@ function checkForUpdates(isForce, Fn) {
 					i++;
 				}
 				if(isUpd) {
-					Fn('<a style="color: blue; font-weight: bold;" href="' + (
-						Cfg['betaScrUpd'] ?
-							'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
-								'Dollchan_Extension_Tools.user.js' :
-							'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Versions'
-					) + '">' + Lng.updAvail[lang] + '</a>');
+					Fn('<a style="color: blue; font-weight: bold;" href="' +
+						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
 				}
