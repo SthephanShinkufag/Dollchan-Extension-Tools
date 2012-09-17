@@ -3159,8 +3159,7 @@ function addPostButtons(post) {
 		}
 	}
 	nav.insAfter(ref, html + (
-		aib.getSage(post) ?
-			'<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
+		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
 	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
@@ -5460,7 +5459,7 @@ function getSpells(x, post) {
 			}
 		}
 	}
-	if(x.sage && aib.getSage(post)) {
+	if(x.sage && post.sage) {
 		return '#sage';
 	}
 	if(x.notxt && !pText) {
@@ -6489,7 +6488,7 @@ function getImageboard() {
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
-			return $c('id_Heaven', post);
+			return !!$c('id_Heaven', post);
 		} :
 		aib.krau ? function(post) {
 			return !!$c('sage', post);
@@ -6508,6 +6507,7 @@ function processPost(post, pNum, thr, i) {
 	post.count = i;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
+	post.sage = aib.getSage(post);
 	post.setAttribute('de-post', pNum);
 	pByNum[post.num = pNum] = post;
 }
@@ -6682,11 +6682,6 @@ function onVis() {
 function initPage() {
 	pr = getPostform($q(aib.qPostForm, doc));
 	oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
-	if(!pr.mail) {
-		aib.getSage = function(post) {
-			return false;
-		};
-	}
 	if(TNum) {
 		if(Cfg['rePageTitle']) {
 			docTitle = '/' + brd + ' - ' + pByNum[TNum].tTitle;
