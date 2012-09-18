@@ -4940,10 +4940,15 @@ function setPostsVisib() {
 		vis = sVis[i];
 		post = Posts[i];
 		if(uVis[pNum = post.num]) {
-			if(uVis[pNum][0] === 0) {
-				setUserPostVisib(post, true);
+			if(post.isOp && !(hThrds[brd] && hThrds[brd][pNum] !== undefined)) {
+				delete uVis[pNum];
+				setStored('DESU_Posts_' + aib.dm + '_' + brd, JSON.stringify(uVis));
 			} else {
-				post.btns.firstChild.className = 'de-btn-lock';
+				if(uVis[pNum][0] === 0) {
+					setUserPostVisib(post, true);
+				} else {
+					post.btns.firstChild.className = 'de-btn-lock';
+				}
 			}
 			if(vis === undefined) {
 				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
@@ -5015,32 +5020,32 @@ function setPostVisib(post, hide, note) {
 			$before(thr, el);
 			toggleHiddenThread(post, 0);
 		}
+		return;
+	}
+	if(Cfg['delHiddPost']) {
+		aib.getWrap(post).style.display = hide ? 'none' : '';
 	} else {
-		if(Cfg['delHiddPost']) {
-			aib.getWrap(post).style.display = hide ? 'none' : '';
-		} else {
-			if(el = $c('de-post-note', post)) {
-				if(!hide) {
-					$del(el);
-				} else if(note) {
-					el.innerText = ' autohide: ' + note + ' ';
-				}
-			} else if(hide) {
-				addPostNote(post, note);
+		if(el = $c('de-post-note', post)) {
+			if(!hide) {
+				$del(el);
+			} else if(note) {
+				el.innerText = ' autohide: ' + note + ' ';
 			}
-			el = $q(aib.qRef, post);
-			el.onmouseover = hide && function() {
-				togglePostContent(getPost(this), false);
-			};
-			el.onmouseout = hide && function() {
-				togglePostContent(getPost(this), true);
-			};
+		} else if(hide) {
+			addPostNote(post, note);
 		}
-		if(Cfg['strikeHidd']) {
-			setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), function(el) {
-				el.className = hide && 'de-ref-hid';
-			});
-		}
+		el = $q(aib.qRef, post);
+		el.onmouseover = hide && function() {
+			togglePostContent(getPost(this), false);
+		};
+		el.onmouseout = hide && function() {
+			togglePostContent(getPost(this), true);
+		};
+	}
+	if(Cfg['strikeHidd']) {
+		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), function(el) {
+			el.className = hide && 'de-ref-hid';
+		});
 	}
 }
 
