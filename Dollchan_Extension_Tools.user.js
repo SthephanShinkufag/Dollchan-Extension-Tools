@@ -936,10 +936,6 @@ function readHiddenThreads() {
 	hThrds = getStoredObj('DESU_Threads_' + aib.dm, {});
 }
 
-function saveHiddenThreads(txt) {
-	setStored('DESU_Threads_' + aib.dm, txt);
-}
-
 function toggleHiddenThread(post, vis) {
 	if(!hThrds[brd]) {
 		hThrds[brd] = {};
@@ -952,7 +948,7 @@ function toggleHiddenThread(post, vis) {
 			delete hThrds[brd];
 		}
 	}
-	saveHiddenThreads(JSON.stringify(hThrds));
+	setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThrds));
 }
 
 function readFavorites() {
@@ -1702,7 +1698,8 @@ function addHiddenTable(hid) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				saveHiddenThreads(this.previousSibling.value.trim().replace(/\t|\n/, ''));
+				setStored('DESU_Threads_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/, ''));
+				window.location.reload();
 			})
 		])
 	]);
