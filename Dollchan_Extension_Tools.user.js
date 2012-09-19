@@ -2510,17 +2510,13 @@ function doPostformChanges(img, _img, el) {
 		if(nav.isH5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
-				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), function(dc, url) {
-					checkUpload(findSubmitError(dc), url);
-				});
+				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), checkUpload);
 			};
 			dForm.onsubmit = function(e) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
-				ajaxSubmit(new dataForm(dForm), function(dc, url) {
-					checkDelete(findSubmitError(dc), url);
-				});
+				ajaxSubmit(new dataForm(dForm), checkDelete);
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
@@ -2680,7 +2676,7 @@ function ajaxSubmit(dF, Fn) {
 				return
 			}
 			if(xhr.status === 200) {
-				Fn(nav.toDOM(xhr.responseText), xhr.finalUrl);
+				Fn(findSubmitError(nav.toDOM(xhr.responseText)), xhr.finalUrl);
 				Fn = null;
 			} else {
 				$alert(
