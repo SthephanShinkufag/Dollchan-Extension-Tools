@@ -3221,15 +3221,14 @@ function prepareCFeatures() {
 			return;
 		case 'J':
 			temp = data.split('$#$');
-			checkUpload(temp[0], temp[1]);
-			$id('de-iframe-pform').src = 'about:blank';
+			if(temp[0] === 'de-iframe-pform') {
+				checkUpload(temp[1], temp[2]);
+			} else {
+				checkDelete(temp[1], temp[2]);
+			}
+			$id(temp[0]).src = 'about:blank';
 			return;
 		case 'L': selectImgSearch($q('.de-btn-src[de-id="' + data + '"]', dForm)); return;
-		case 'M':
-			temp = data.split('$#$');
-			checkDelete(temp[0], temp[1]);
-			$id('de-iframe-dform').src = 'about:blank';
-			return;
 		}
 	}});
 
@@ -6066,14 +6065,9 @@ function isCompatible() {
 	getImageboard();
 	switch(window.name) {
 	case '': break;
-	case 'de-iframe-pform':
+	case 'de-iframe-pform', 'de-iframe-dform':
 		addContentScript((
-			'window.top.postMessage("J' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
-		).replace(/\n|\r/g, '\\n'));
-		return false;
-	case 'de-iframe-dform':
-		addContentScript((
-			'window.top.postMessage("M' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
+			'window.top.postMessage("J' + window.name + '$#$' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
