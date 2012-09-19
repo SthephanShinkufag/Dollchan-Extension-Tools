@@ -2095,7 +2095,7 @@ function initKeyNavig() {
 		}
 	};
 
-	doc.onkeydown = function (e) {
+	doc.addEventListener('keydown', function (e) {
 		var curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
@@ -2118,6 +2118,7 @@ function initKeyNavig() {
 			return;
 		}
 		$pd(e);
+		e.stopPropagation();
 		if(tScroll) {
 			pIndex = !pScroll ? Posts.indexOf(Threads[tIndex]) : findCurrPost(Posts);
 		}
@@ -2168,7 +2169,7 @@ function initKeyNavig() {
 		} else if(!TNum && kc === 78) {
 			scrollDownToPost();
 		}
-	};
+	}, true);
 }
 
 
@@ -2509,18 +2510,17 @@ function doPostformChanges(img, _img, el) {
 		if(nav.isH5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
-				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), function(dc, url) {
-					checkUpload(findSubmitError(dc), url);
-				});
+				ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
 			};
-			dForm.onsubmit = function(e) {
-				$pd(e);
-				showMainReply();
-				$alert(Lng.deleting[lang], 'deleting', true);
-				ajaxSubmit(new dataForm(dForm), function(dc, url) {
-					checkDelete(findSubmitError(dc), url);
-				});
-			};
+			dForm.onsubmit = $pd;
+			$each($Q('input[type="submit"]', dForm), function(el) {
+				el.onclick = function(e) {
+					$pd(e);
+					showMainReply();
+					$alert(Lng.deleting[lang], 'deleting', true);
+					ajaxSubmit(new dataForm(dForm, this), checkDelete);
+				};
+			});
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
 			$append($id('de-main'), [
@@ -2680,7 +2680,7 @@ function ajaxSubmit(dF, Fn) {
 				return
 			}
 			if(xhr.status === 200) {
-				Fn(nav.toDOM(xhr.responseText), xhr.finalUrl);
+				Fn(findSubmitError(nav.toDOM(xhr.responseText)), xhr.finalUrl);
 				Fn = null;
 			} else {
 				$alert(
@@ -2831,13 +2831,14 @@ function getReplyImgData(arr, isForce) {
 }
 
 /** @constructor */
-function dataForm(form) {
+function dataForm(form, button) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
 	this.error = false;
 	this.url = form.action;
-	$each($Q('input, textarea, select', form), this.append.bind(this));
+	$each($Q('input:not([type="submit"]), textarea, select', form), this.append.bind(this));
+	this.append(button);
 }
 
 dataForm.prototype.append = function(el) {
@@ -6484,7 +6485,7 @@ function parseDelform(el, dc, Fn) {
 		aib.qTable = aib.fch || aib.mlpg ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
 			aib.brit ? 'div[id^="replies"] > table' :
-			!aib.tiny && aib.gazo || ($c(aib.cReply, el) || {}).tagName === 'TD' ? 'table' :
+			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
