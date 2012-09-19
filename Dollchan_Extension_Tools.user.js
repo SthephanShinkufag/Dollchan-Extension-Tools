@@ -2510,14 +2510,17 @@ function doPostformChanges(img, _img, el) {
 		if(nav.isH5Rep) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
-				setTimeout(ajaxSubmit, 1e3, new dataForm(pr.form), checkUpload);
+				ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
 			};
-			dForm.onsubmit = function(e) {
-				$pd(e);
-				showMainReply();
-				$alert(Lng.deleting[lang], 'deleting', true);
-				ajaxSubmit(new dataForm(dForm), checkDelete);
-			};
+			dForm.onsubmit = $pd;
+			$each($Q('input[type="submit"]', dForm), function(el) {
+				el.onclick = function(e) {
+					$pd(e);
+					showMainReply();
+					$alert(Lng.deleting[lang], 'deleting', true);
+					ajaxSubmit(new dataForm(dForm, this), checkDelete);
+				};
+			});
 			aib.rJpeg = !aib.abu && !aib.fch;
 		} else {
 			$append($id('de-main'), [
@@ -2827,13 +2830,14 @@ function getReplyImgData(arr, isForce) {
 }
 
 /** @constructor */
-function dataForm(form) {
+function dataForm(form, button) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
 	this.error = false;
 	this.url = form.action;
-	$each($Q('input, textarea, select', form), this.append.bind(this));
+	$each($Q('input:not([type="submit"]), textarea, select', form), this.append.bind(this));
+	this.append(button);
 }
 
 dataForm.prototype.append = function(el) {
