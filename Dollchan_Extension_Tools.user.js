@@ -641,8 +641,8 @@ function getImgSize(post) {
 		m = el.onclick.toString().split('\', \'');
 		return [+m[3], +m[4]];
 	}
-	m = el ? el.textContent.match(/\d+[x?]\d+/) : false;
-	return m ? m[0].split(/[x?]/) : [null, null];
+	m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
+	return m ? m[0].split(/[x×]/) : [null, null];
 }
 
 function fixBrd(b) {
@@ -1387,7 +1387,7 @@ function getCfgLinks() {
 			$New('div', null, [
 				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 6, null),
-				$txt('?'),
+				$txt('×'),
 				inpTxt('YTubeHeigh', 6, null),
 				$txt(' '),
 				lBox('YTubeHD', false, null)
@@ -1840,7 +1840,7 @@ function closeAlert(el) {
 function $alert(txt, id, wait) {
 	var el = $id('de-alert-' + id),
 		cMsg = 'de-alert-msg' + (wait ? ' de-wait' : ''),
-		tBtn = wait ? '' : '? ';
+		tBtn = wait ? '' : '× ';
 	if(el) {
 		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
 		$t('span', el).textContent = tBtn;
@@ -2254,7 +2254,7 @@ function initPostform() {
 	if(Cfg['addPostForm'] === 3) {
 		$append($id('de-qarea'), [
 			$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
-			$new('span', {'id': 'de-qarea-close', 'text': '?'}, {'click': showMainReply})
+			$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': showMainReply})
 		]);
 	}
 	if(pr.on) {
@@ -4408,7 +4408,7 @@ function expandPost(post) {
 				'.abbrev, .abbr, .omittedposts, .shortened',
 			post
 		);
-	if(el && /long|full comment|gekurzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 		if(Cfg['expandPosts'] === 1) {
 			getFullPost(el, false);
 		} else {
@@ -5299,7 +5299,7 @@ function getImgSpell(imgW, imgH, imgK, exp) {
 		}
 	}
 	if(s[1]) {
-		x = s[1].split(/[x?]/);
+		x = s[1].split(/[x×]/);
 		expW = x[0].split('-');
 		expH = x[1].split('-');
 		if(!expW[1]) {
@@ -5753,9 +5753,9 @@ function scriptCSS() {
 		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	} else {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
-			.de-btn-hide:after { content: "?"; }\
+			.de-btn-hide:after { content: "×"; }\
 			.de-post-hid .de-btn-hide:after { content: "+"; }\
-			.de-btn-lock:after { content: "¦"; }\
+			.de-btn-lock:after { content: "■"; }\
 			.de-btn-rep:after { content: "R"; }\
 			.de-btn-expthr:after { content: "E"; }\
 			.de-btn-fav:after { content: "F"; }\
