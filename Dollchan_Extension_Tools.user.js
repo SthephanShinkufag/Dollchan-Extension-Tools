@@ -2095,7 +2095,7 @@ function initKeyNavig() {
 		}
 	};
 
-	doc.onkeydown = function (e) {
+	doc.addEventListener('keydown', function (e) {
 		var curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
@@ -2118,6 +2118,7 @@ function initKeyNavig() {
 			return;
 		}
 		$pd(e);
+		e.stopPropagation();
 		if(tScroll) {
 			pIndex = !pScroll ? Posts.indexOf(Threads[tIndex]) : findCurrPost(Posts);
 		}
@@ -2168,7 +2169,7 @@ function initKeyNavig() {
 		} else if(!TNum && kc === 78) {
 			scrollDownToPost();
 		}
-	};
+	}, true);
 }
 
 
@@ -6483,7 +6484,7 @@ function parseDelform(el, dc, Fn) {
 		aib.qTable = aib.fch || aib.mlpg ? $c('replyContainer', el) :
 			aib.tire ? 'table:not(.postfiles)' :
 			aib.brit ? 'div[id^="replies"] > table' :
-			!aib.tiny && aib.gazo || ($c(aib.cReply, el) || {}).tagName === 'TD' ? 'table' :
+			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
