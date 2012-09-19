@@ -2515,9 +2515,10 @@ function doPostformChanges(img, _img, el) {
 			};
 			dForm.onsubmit = function(e) {
 				$pd(e);
+				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
 				ajaxSubmit(new dataForm(dForm), function(dc, url) {
-					checkDelete(findDeleteError(dc), url);
+					checkDelete(findSubmitError(dc), url);
 				});
 			};
 			aib.rJpeg = !aib.abu && !aib.fch;
@@ -2528,6 +2529,7 @@ function doPostformChanges(img, _img, el) {
 			]);
 			$attr(pr.form, {'target': 'de-iframe-pform'}).onsubmit = null;
 			$attr(dForm, {'target': 'de-iframe-dform'}).onsubmit = function() {
+				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
 			};
 		}
@@ -2550,43 +2552,27 @@ function doPostformChanges(img, _img, el) {
 ==============================================================================*/
 
 function findSubmitError(dc) {
-	var err = '',
-		txt = '',
-		xp =
-			aib.hana && !dc.getElementById('delete_form') ? '.post-error' :
-			aib.krau && !$t('form', dc) ? '.message_text' :
-			aib.abu && !dc.getElementById('delform') ? 'font[size="5"]' :
-			aib.tire && $t('h1', dc) ? 'h1' :
-			false;
-	if(dc.body.firstChild && (xp || !$t('form', dc))) {
-		if(!xp) {
-			xp =
-				aib.kus ? 'h1, h2, div[style*="1.25em"]' :
-				aib.fch ? '#errmsg' :
-				aib.gazo ? 'font[size="5"]' :
-				aib._420 ? 'pre' : false;
-		}
-		if(xp) {
-			$each($Q(xp, dc), function(el) {
-				txt += el.innerHTML + '\n';
-			});
-		} else {
-			xp = $t('h2', dc) || $t('h1', dc);
-			if(xp) {
-				txt = xp.innerHTML.replace(/<br.*/i, '');
-			}
-		}
-		err = txt ? txt : Lng.error[lang] + '\n' + dc.body.innerHTML;
-		txt = null;
-		if(/обновл|successful!|uploaded!/i.test(err)) {
-			err = '';
-		}
+	if(!dc.body.firstChild || $q(aib.qDForm, dc)) {
+		return false;
+	}
+	var err = '';
+	$each($Q(
+		aib.hana ? '.post-error, h2' :
+		aib.kus ? 'h1, h2, div[style*="1.25em"]' :
+		aib.fch ? '#errmsg' :
+		aib.krau ? '.message_text' :
+		aib._420 ? 'pre' :
+		'h1, h2, font[size="5"]', dc
+	), function(el) {
+		err += el.innerHTML + '\n';
+	});
+	if(!err) {
+		err = Lng.error[lang] + '\n' + dc.body.innerHTML;
+	}
+	if(/обновл|successful|uploaded|удалено/i.test(err)) {
+		return false;
 	}
 	return err;
-}
-
-function findDeleteError(dc) {
-	return aib.hana ? (!$t('form', dc) ? $t('h2', dc).textContent : false) : findSubmitError(dc);
 }
 
 function endUpload() {
@@ -5882,7 +5868,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
-		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader { display: none !important; }';
+		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
@@ -6087,7 +6073,7 @@ function isCompatible() {
 		return false;
 	case 'de-iframe-dform':
 		addContentScript((
-			'window.top.postMessage("M' + findDeleteError(doc) + '$#$' + window.location + '", "*");'
+			'window.top.postMessage("M' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
@@ -6335,7 +6321,7 @@ function getImageboard() {
 	case 'mlpg.co':
 	case 'mlpchan.net': aib.mlpg = true; break;
 	}
-	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net' || h === 'vombatov.net';
+	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny ? 'post reply' :
