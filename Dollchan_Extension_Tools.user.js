@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.17.0
+// @version			12.9.19.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.17.0',
+	'version':	'12.9.19.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -1522,7 +1522,7 @@ function getCfgInfo() {
 					'spells': spellsList,
 					'perf': tl
 				}, '') + '</textarea>', 'help-debug', false);
-			}), {'style': 'display: table-cell;',})
+			}), {'style': 'display: table-cell;'})
 		])
 	]);
 }
@@ -2565,10 +2565,11 @@ function findSubmitError(dc) {
 	), function(el) {
 		err += el.innerHTML + '\n';
 	});
+	err = err.replace(/<br.*/i, '');
 	if(!err) {
 		err = Lng.error[lang] + '\n' + dc.body.innerHTML;
 	}
-	if(/обновл|successful|uploaded|удалено/i.test(err)) {
+	if(/successful|uploaded|updating|обновл|удален[о\.]/i.test(err)) {
 		return false;
 	}
 	return err;
@@ -6085,7 +6086,8 @@ function isCompatible() {
 	getImageboard();
 	switch(window.name) {
 	case '': break;
-	case 'de-iframe-pform', 'de-iframe-dform':
+	case 'de-iframe-pform':
+	case 'de-iframe-dform':
 		addContentScript((
 			'window.top.postMessage("J' + window.name + '$#$' + findSubmitError(doc) + '$#$' + getFinalURL(doc, true) + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
