@@ -591,7 +591,6 @@ function fixFunctions() {
 			for(h in obj['headers']) {
 				xhr.setRequestHeader(h, obj['headers'][h]);
 			}
-			xhr.finalUrl = obj['url'];
 			xhr.send(null);
 		};
 	}
@@ -2623,7 +2622,26 @@ function checkUpload(err, url) {
 			refreshCapImg(tNum);
 		}
 	} else {
-		window.location = !aib.fch ? url : $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
+		window.location = url;
+	}
+}
+
+function getFinalURL(dc, iframe) {
+	if(aib.fch) {
+		return $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
+	} else if(iframe) {
+		return window.location;
+	} else if($q(aib.qDForm, dc)) {
+		var tNum, thr = $q('.thread, ' + aib.qThread, dc);
+		if(thr) {
+			tNum = thr.id.match('\\d+' + (aib._420 ? '$' : ''))[0];
+		} else {
+			thr = $q(aib.qTNum, dc);
+			tNum = thr.value || thr.name.match(/\d+/)[0];
+		}
+		return getThrdUrl(aib.host, brd, tNum);
+	} else {
+		return '';
 	}
 }
 
@@ -2680,7 +2698,8 @@ function ajaxSubmit(dF, Fn) {
 				return
 			}
 			if(xhr.status === 200) {
-				Fn(findSubmitError(nav.toDOM(xhr.responseText)), xhr.finalUrl);
+				var dc = nav.toDOM(xhr.responseText);
+				Fn(findSubmitError(dc), getFinalURL(dc, false));
 				Fn = null;
 			} else {
 				$alert(
@@ -6070,7 +6089,7 @@ function isCompatible() {
 	case 'de-iframe-pform':
 	case 'de-iframe-dform':
 		addContentScript((
-			'window.top.postMessage("J' + window.name + '$#$' + findSubmitError(doc) + '$#$' + window.location + '", "*");'
+			'window.top.postMessage("J' + window.name + '$#$' + findSubmitError(doc) + '$#$' + getFinalURL(doc, true) + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
@@ -6293,12 +6312,21 @@ function getImageboard() {
 	case 'britfa.gs': aib.brit = true; break;
 	case '4chan.org': aib.fch = true; break;
 	case '420chan.org': aib._420 = true; break;
+	case '7chan.org': aib._7ch = true; break;
 	}
 	aib.qDForm = aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
 		aib.gazo ? 'form:nth-of-type(2)' :
 		'#delform, form[name="delform"]';
+	aib.qThread =
+		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+		aib._420 ? '[id*="thread"]' :
+		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
+	aib.qTNum =
+		aib.gazo || (aib.tiny && !aib.mlpg) ? 'input[type="checkbox"]' :
+		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
+		false;
 	dForm = $q(aib.qDForm, doc);
 	if(!dForm) {
 		return;
@@ -6309,7 +6337,6 @@ function getImageboard() {
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
 	case '0chan.ru': aib.nul = true; break;
-	case '7chan.org': aib._7ch = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
 	case '2--ch.ru': aib.tire = true; break;
@@ -6329,14 +6356,6 @@ function getImageboard() {
 		aib.mlpg ? 'opMain' :
 		'oppost';
 	aib.cThread = aib.krau ? 'thread_body' : 'thread';
-	aib.qThread =
-		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
-		aib._420 ? '[id*="thread"]' :
-		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
-	aib.qTNum =
-		aib.gazo || (aib.tiny && !aib.mlpg) ? 'input[type="checkbox"]' :
-		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
-		false;
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
 		aib.tiny ? '.intro > :last-child' :
