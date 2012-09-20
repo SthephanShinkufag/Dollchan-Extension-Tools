@@ -2552,7 +2552,7 @@ function doPostformChanges(img, _img, el) {
 
 function findSubmitError(dc) {
 	if(!dc.body.firstChild || $q(aib.qDForm, dc)) {
-		return false;
+		return '';
 	}
 	var err = '';
 	$each($Q(
@@ -2565,14 +2565,14 @@ function findSubmitError(dc) {
 	), function(el) {
 		err += el.innerHTML + '\n';
 	});
-	err = err.replace(/<br.*/i, '');
+	err = err.replace(/<a [^>]+>Назад.+|<br.+/, '');
 	if(!err) {
 		err = Lng.error[lang] + '\n' + dc.body.innerHTML;
 	}
 	if(/successful|uploaded|updating|обновл|удален[о\.]/i.test(err)) {
-		return false;
+		return '';
 	}
-	return err;
+	return err.replace(/"/g, "'");
 }
 
 function endUpload() {
