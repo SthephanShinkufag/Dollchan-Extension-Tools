@@ -6310,7 +6310,8 @@ function getImageboard() {
 		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
 		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
 		tiny: $xb('.//form[@name="postcontrols"]', doc),
-		abu: !!$id('LakeSettings')
+		abu: !!$id('LakeSettings'),
+		waka: $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc)
 	};
 	switch(h) {
 	case 'krautchan.net': aib.krau = true; break;
@@ -6339,7 +6340,6 @@ function getImageboard() {
 	}
 	aib.dm = h;
 	aib.host = window.location.hostname;
-	aib.waka = $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc);
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
 	case '0chan.ru': aib.nul = true; break;
