@@ -6320,6 +6320,7 @@ function getImageboard() {
 	case '4chan.org': aib.fch = true; break;
 	case '420chan.org': aib._420 = true; break;
 	case '7chan.org': aib._7ch = true; break;
+	case 'mlpg.co': aib.mlpg = true; break;
 	}
 	aib.qDForm = aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
@@ -6348,8 +6349,6 @@ function getImageboard() {
 	case '2--ch.ru': aib.tire = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
 	case 'ponychan.net': aib.pony = true; break;
-	case 'mlpg.co':
-	case 'mlpchan.net': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
