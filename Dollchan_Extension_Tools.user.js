@@ -62,13 +62,13 @@ var defaultCfg = {
 	'YTubeHeigh':	270,	//		player height
 	'YTubeHD':		0,		//		hd video quality
 	'YTubeTitles':	0,		//		convert links to titles
-	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
-	'noThrdForm':	1,		// hide thread-creating form
-	'favOnReply':	1,		// add thread to favorites on reply
-	'checkReply':	1,		// reply without reload
+	'ajaxReply':	2,		// posting with AJAX (0=no, 1=iframe, 2=HTML5)
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
 	'removeFName':	0,		// 		remove file name
+	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
+	'noThrdForm':	1,		// hide thread-creating form
+	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
 	'saveSage':		1,		//		remember sage
 	'sageReply':	0,		//		reply with sage
@@ -165,16 +165,19 @@ Lng = {
 		'YTubeHD':		['HD ', 'HD '],
 		'YTubeTitles':	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 
+		'ajaxReply':	{
+			sel:		[['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
+			txt:		['AJAX отправка постов*', 'posting with AJAX*']
+		},
+		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
+		'removeEXIF':	['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
 		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		'checkReply':	['Постить ответ без перезагрузки*', 'Posting reply without reload*'],
-		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-		'removeEXIF':	['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
-		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
 		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
 		'saveSage':		['запоминать сажу', 'remember sage'],
 		'captchaLang': {
@@ -811,11 +814,11 @@ function fixCfg(isGlob) {
 function readCfg() {
 	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
-	if(nav.Opera && nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
-		Cfg['scriptStyle'] = 2;
-	}
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
+	}
+	if((nav.noBlob || nav.Safari) && Cfg['ajaxReply'] === 2) {
+		Cfg['ajaxReply'] = 1;
 	}
 	if(!nav.Anim) {
 		Cfg['animations'] = 0;
@@ -829,10 +832,16 @@ function readCfg() {
 	if(!nav.WebKit) {
 		Cfg['desktNotif'] = 0;
 	}
-	if(nav.Opera && nav.Opera < 12) {
-		Cfg['YTubeTitles'] = 0;
-	}
 	if(nav.Opera) {
+		if(nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
+			Cfg['scriptStyle'] = 2;
+		}
+		if(nav.Opera < 12) {
+			Cfg['YTubeTitles'] = 0;
+		}
+		if(Cfg['YTubeType'] === 2) {
+			Cfg['YTubeType'] = 1;
+		}
 		Cfg['updScript'] = 0;
 	}
 	if(!Cfg['saveSage']) {
@@ -1398,6 +1407,12 @@ function getCfgLinks() {
 
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
+		optSel('ajaxReply', true, null),
+		$if(!nav.Safari && !nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+			lBox('postSameImg', true, null),
+			lBox('removeEXIF', true, null),
+			lBox('removeFName', true, null)
+		])),
 		$if(pr.on, optSel('addPostForm', true, null)),
 		$if(pr.on, lBox('noThrdForm', true, function() {
 			if(!TNum) {
@@ -1405,12 +1420,6 @@ function getCfgForm() {
 			}
 		})),
 		lBox('favOnReply', true, null),
-		lBox('checkReply', true, null),
-		$if(nav.isH5Rep, $New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('postSameImg', true, null),
-			lBox('removeEXIF', true, null),
-			lBox('removeFName', true, null)
-		])),
 		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
 			lBox('saveSage', false, null)
@@ -2384,7 +2393,7 @@ function doPostformChanges(img, _img, el) {
 				'\n`--------------------------------------------------`';
 		}
 		pr.txta.value = val;
-		if(Cfg['checkReply']) {
+		if(Cfg['ajaxReply']) {
 			$alert(Lng.checking[lang], 'upload', true);
 		}
 		if(Cfg['favOnReply'] && pr.tNum) {
@@ -2505,8 +2514,7 @@ function doPostformChanges(img, _img, el) {
 		}
 		setTimeout(doSageBtn, 0);
 	}
-	if(Cfg['checkReply']) {
-		if(nav.isH5Rep) {
+	if(Cfg['ajaxReply'] === 2) {
 			pr.form.onsubmit = function(e) {
 				$pd(e);
 				ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
@@ -2521,17 +2529,16 @@ function doPostformChanges(img, _img, el) {
 				};
 			});
 			aib.rJpeg = !aib.abu && !aib.fch;
-		} else {
-			$append($id('de-main'), [
-				$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
-				$add('<iframe id="de-iframe-dform" name="de-iframe-dform" src="about:blank"/>')
-			]);
-			$attr(pr.form, {'target': 'de-iframe-pform'}).onsubmit = null;
-			$attr(dForm, {'target': 'de-iframe-dform'}).onsubmit = function() {
-				showMainReply();
-				$alert(Lng.deleting[lang], 'deleting', true);
-			};
-		}
+	} else if(Cfg['ajaxReply'] === 1) {
+		$append($id('de-main'), [
+			$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
+			$add('<iframe id="de-iframe-dform" name="de-iframe-dform" src="about:blank"/>')
+		]);
+		$attr(pr.form, {'target': 'de-iframe-pform'}).onsubmit = null;
+		$attr(dForm, {'target': 'de-iframe-dform'}).onsubmit = function() {
+			showMainReply();
+			$alert(Lng.deleting[lang], 'deleting', true);
+		};
 	}
 	if(pr.file) {
 		eventFiles($x(pr.tr, pr.file));
@@ -6186,7 +6193,6 @@ function getNavigator() {
 	} else {
 		nav.noBlob = true;
 	}
-	nav.isH5Rep = !nav.Safari && !nav.noBlob;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
