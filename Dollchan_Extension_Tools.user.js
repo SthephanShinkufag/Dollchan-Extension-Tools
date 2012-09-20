@@ -4176,7 +4176,7 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
-			nav.remClass(pView, 'de-pview-anim');
+			nav.remClass(node, 'de-pview-anim');
 			node.style[nav.animName] = '';
 		});
 		nav.addClass(pView, 'de-pview-anim');
