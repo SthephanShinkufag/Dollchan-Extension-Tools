@@ -114,14 +114,14 @@ Lng = {
 
 		'updThread': {
 			sel:		[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
-			txt:		['подгрузка постов в треде ', 'loading posts in thread ']
+			txt:		['AJAX обновление треда* ', 'AJAX thread update* ']
 		},
-		'updThrDelay':	[' (сек)*', ' (sec)*'],
+		'updThrDelay':	[' (сек)', ' (sec)'],
 		'favIcoBlink':	['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
-		'desktNotif':		['Уведомления на рабочем столе', 'Desktop notifications'],
+		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
 		'expandPosts': {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
-			txt:		['загрузка сокращенных постов*', 'upload of shorted posts*']
+			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
 		},
 		'expandImgs': {
 			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
@@ -133,7 +133,7 @@ Lng = {
 		'noImgSpoil':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
 		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
-		'noSpoilers':	['Открывать спойлеры', 'Open spoilers'],
+		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
 		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
@@ -160,7 +160,7 @@ Lng = {
 		},
 		'YTubeType': {
 			sel:		[['Flash', 'HTML5 iframe', 'HTML5 video'], ['Flash', 'HTML5 iframe', 'HTML5 video']],
-			txt:		[' ', ' ']
+			txt:		['', '']
 		},
 		'YTubeHD':		['HD ', 'HD '],
 		'YTubeTitles':	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
@@ -171,7 +171,7 @@ Lng = {
 		},
 		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 		'removeEXIF':	['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
-		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove name from uploaded files'],
+		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
@@ -196,20 +196,20 @@ Lng = {
 		'noGoto':		['поле goto ', 'goto field '],
 		'noPassword':	['пароль', 'password'],
 
-		'excludeList':	['Список адресов, запрещающих скрипт:', 'Address list, that excludes script'],
+		'excludeList':	['Список адресов, запрещающих запуск скрипта:', 'Address list, that excludes script launch:'],
 		'scriptStyle': {
 			sel:		[['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
-			txt:		[' стиль скрипта', ' script style']
+			txt:		['стиль скрипта', 'script style']
 		},
-		'attachPanel':	['Прикрепить главную панель ', 'Attach main panel '],
-		'panelCounter':	['Счетчик постов/изображений в треде', 'Posts/images counter in thread'],
-		'rePageTitle':	['Название треда в заголовке вкладки*', 'Thread name in page title*'],
-		'animation':	['Включить анимацию в скрипте', 'Enable animation in script'],
+		'attachPanel':	['Прикрепить главную панель', 'Attach main panel'],
+		'panelCounter':	['Счетчик постов/изображений на главной панели', 'Counter of posts/images on main panel'],
+		'rePageTitle':	['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
+		'animation':	['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':	['Автоматически закрывать уведомления', 'Close popups automatically'],
-		'updScript':	['Включить авто-проверку на обновления', 'Enable Auto Update-сheck'],
+		'updScript':	['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 		'scrUpdIntrv': {
 			sel:		[['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
-			txt:		['Интервал проверки', 'Check interval']
+			txt:		['интервал проверки', 'check interval']
 		},
 
 		'language': {
@@ -1183,9 +1183,53 @@ function showContent(el, id, name, isUpd) {
 								"SETTINGS" WINDOW
 ==============================================================================*/
 
+function toggleBox(state, arr) {
+	var i = arr.length;
+	while(i--) {
+		($q(arr[i], doc) || {}).disabled = !state;
+	}
+}
+
+function fixSettings() {
+	toggleBox(Cfg['hideByWipe'], [
+		'input[info="wipeSameLin"]',
+		'input[info="wipeSameWrd"]',
+		'input[info="wipeLongWrd"]',
+		'input[info="wipeSpecial"]',
+		'input[info="wipeCAPS"]',
+		'input[info="wipeNumbers"]'
+	]);
+	toggleBox(Cfg['updThread'] === 1 || Cfg['updThread'] === 2, [
+		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
+	]);
+	toggleBox(Cfg['preLoadImgs'], [
+		'input[info="findRarJPEG"]', 'input[info="showGIFs"]', 'input[info="noImgSpoil"]'
+	]);
+	toggleBox(Cfg['linksNavig'], [
+		'input[info="linksOver"]',
+		'input[info="linksOut"]',
+		'input[info="markViewed"]',
+		'input[info="strikeHidd"]',
+		'input[info="noNavigHidd"]',
+	]);
+	toggleBox(Cfg['addYouTube'] && Cfg['addYouTube'] !== 4, [
+		'select[info="YTubeType"]', 'input[info="YTubeHD"]'
+	]);
+	toggleBox(Cfg['addYouTube'], [
+		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
+	]);
+	toggleBox(Cfg['ajaxReply'] === 2, [
+		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
+	]);
+	toggleBox(Cfg['addTextBtns'], ['input[info="txtBtnsLoc"]']);
+	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
+}
+
+
 function lBox(id, isBlock, Fn) {
 	var el = $new('input', {'info': id, 'type': 'checkbox'}, {'click': function() {
 		toggleCfg(this.getAttribute('info'));
+		fixSettings();
 		if(Fn) {
 			Fn(this);
 		}
@@ -1209,6 +1253,7 @@ function optSel(id, isBlock, Fn) {
 	(el = $event($add('<select info="' + id + '">' + opt.join('') + '</select>'), {
 		'change': Fn ? Fn : function() {
 			saveCfg(this.getAttribute('info'), this.selectedIndex);
+			fixSettings();
 		}
 	})).selectedIndex = Cfg[id];
 	return $New('label', isBlock ? {'class': 'de-blockinp'} : null, [el, $txt(' ' + x.txt[lang])]);
@@ -1244,6 +1289,7 @@ function cfgTab(name) {
 					readSpells();
 					$id('de-spell-edit').value = spellsList.join('\n');
 				}
+				fixSettings();
 			}
 		})
 	]);
@@ -1330,7 +1376,7 @@ function getCfgPosts() {
 		optSel('expandImgs', true, null),
 		$if(!nav.noBlob, lBox('preLoadImgs', true, null)),
 		$if(!nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
-			$if(aib.rJpeg, lBox('findRarJPEG', true, null)),
+			$if(!aib.abu && !aib.fch, lBox('findRarJPEG', true, null)),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
 		])),
@@ -1482,7 +1528,7 @@ function getCfgCommon() {
 		$if(!nav.Opera, $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'id': 'de-upd-cont', 'style': 'padding: 2px 0 10px 25px;'}, [
-				optSel('scrUpdIntrv', false, null),
+				optSel('scrUpdIntrv', true, null),
 				$btn(Lng.checkNow[lang], '', function() {
 					var el = $id('de-updresult');
 					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
@@ -2316,7 +2362,7 @@ function processInput() {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
 	}
-	if(aib.rJpeg) {
+	if(!aib.abu && !aib.fch) {
 		$del($c('de-file-rar', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 			$after(this, $attr($btn(Lng.addRarJPEG[lang], null, function(e) {
@@ -2515,20 +2561,19 @@ function doPostformChanges(img, _img, el) {
 		setTimeout(doSageBtn, 0);
 	}
 	if(Cfg['ajaxReply'] === 2) {
-			pr.form.onsubmit = function(e) {
+		pr.form.onsubmit = function(e) {
+			$pd(e);
+			ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
+		};
+		dForm.onsubmit = $pd;
+		$each($Q('input[type="submit"]', dForm), function(el) {
+			el.onclick = function(e) {
 				$pd(e);
-				ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
+				showMainReply();
+				$alert(Lng.deleting[lang], 'deleting', true);
+				ajaxSubmit(new dataForm(dForm, this), checkDelete);
 			};
-			dForm.onsubmit = $pd;
-			$each($Q('input[type="submit"]', dForm), function(el) {
-				el.onclick = function(e) {
-					$pd(e);
-					showMainReply();
-					$alert(Lng.deleting[lang], 'deleting', true);
-					ajaxSubmit(new dataForm(dForm, this), checkDelete);
-				};
-			});
-			aib.rJpeg = !aib.abu && !aib.fch;
+		});
 	} else if(Cfg['ajaxReply'] === 1) {
 		$append($id('de-main'), [
 			$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
@@ -2896,7 +2941,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = getReplyImgData(this.result, !aib.rJpeg || !!el.rarJPEG);
+		var dat = getReplyImgData(this.result, aib.abu || aib.fch || !!el.rarJPEG);
 		if(dat) {
 			if(el.rarJPEG) {
 				dat.push(el.rarJPEG);
