@@ -2850,7 +2850,7 @@ function getReplyImgData(arr, isForce) {
 		}
 		j += 8;
 		if(j === len || (!isForce && len - j > 75)) {
-			return [arr];
+			return [dat];
 		}
 	} else {
 		return null;
