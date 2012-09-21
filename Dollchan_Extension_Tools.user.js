@@ -2726,58 +2726,60 @@ function initJpeg(img, dat) {
 	img[17] = dat[4];
 }
 
+function get16uII(exif, off) {
+	return (exif[off + 1] << 8) | exif[off];
+}
+function get32uII(exif, off) {
+	return (exif[off + 3] << 24) | (exif[off + 2] << 16) | (exif[off + 1] << 8) | exif[off];
+}
+function get16uMM(exif, off) {
+	return (exif[off] << 8) | exif[off + 1];
+}
+function get32uMM(exif, off) {
+	return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
+}
+
 function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen, xRes = 0,
+	var i, j, dE, tag, tgLen, Get16u, Get32u, xRes = 0,
 		yRes = 0,
-		resT = 0,
-		Get16u = function(off) {
-			return (exif[off + 1] << 8) | exif[off];
-		},
-		Get32u = function(off) {
-			return (exif[off + 3] << 24) | (exif[off + 2] << 16) | (exif[off + 1] << 8) | exif[off];
-		};
+		resT = 0;
 	if(String.fromCharCode(exif[off], exif[off + 1]) === 'MM') {
-		Get16u = function(off) {
-			return (exif[off] << 8) | exif[off + 1];
-		};
-		Get32u = function(off) {
-			return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
-		};
+		Get16u = get16uMM;
+		Get32u = get32uMM;
+	} else {
+		Get16u = get16uII;
+		Get32u = get32uII;
 	}
-	if(Get16u(off + 2) !== 0x2A) {
-		exif = null;
-		return [0, 0, 1, 0, 1];
+	if(Get16u(exif, off + 2) !== 0x2A) {
+		return false;
 	}
-	i = Get32u(off + 4);
+	i = Get32u(exif, off + 4);
 	if(i > len) {
-		exif = null;
-		return [0, 0, 1, 0, 1];
+		return false;
 	}
-	for(tgLen = Get16u(i += off), j = 0; j < tgLen; j++) {
+	for(tgLen = Get16u(exif, i += off), j = 0; j < tgLen; j++) {
 		dE = i + 2 + 12 * j;
-		tag = Get16u(dE);
+		tag = Get16u(exif, dE);
 		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
 			continue;
 		}
 		if(tag === 0x0128) {
-			resT = Get16u(dE + 8) - 1;
+			resT = Get16u(exif, dE + 8) - 1;
 		} else {
-			dE = Get32u(dE + 8);
+			dE = Get32u(exif, dE + 8);
 			if(dE > len) {
-				exif = null;
-				return [0, 0, 1, 0, 1];
+				return false;
 			}
 			dE += off;
 			if(tag === 0x11A) {
-				xRes = +(Get32u(dE) / Get32u(dE + 4)).toFixed(0);
+				xRes = +(Get32u(exif, dE) / Get32u(exif, dE + 4)).toFixed(0);
 			} else {
-				yRes = +(Get32u(dE) / Get32u(dE + 4)).toFixed(0);
+				yRes = +(Get32u(exif, dE) / Get32u(exif, dE + 4)).toFixed(0);
 			}
 		}
 	}
-	xRes = xRes === 0 ? yRes : xRes;
-	yRes = yRes === 0 ? xRes : yRes;
-	exif = null;
+	xRes = xRes || yRes;
+	yRes = yRes || xRes;
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
@@ -2790,7 +2792,7 @@ function getReplyImgData(arr, isForce) {
 		rExif = !!Cfg['removeEXIF'],
 		jpgDat = false;
 	if(!Cfg['postSameImg'] && !rExif && !isForce) {
-		return [arr];
+		return [dat];
 	}
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		while(i < len - 1) {
@@ -2831,10 +2833,10 @@ function getReplyImgData(arr, isForce) {
 				for(; i < len; dat[j++] = dat[i++]) {};
 			}
 		} else if(j === len || (!isForce && len - j > 75)) {
-			return [arr];
+			return [dat];
 		}
 		if(rExif) {
-			initJpeg(out = new Uint8Array(len = j + 18), jpgDat);
+			initJpeg(out = new Uint8Array(len = j + 18), jpgDat || [0, 0, 1, 0, 1]);
 			for(i = 2, j = 20; j < len; i++, j++) {
 				out[j] = dat[i];
 			}
