@@ -2828,7 +2828,7 @@ function getExifData(exif, off, len) {
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
-function getReplyImgData(arr, isForce) {
+function getReplyImgData(arr, delExtraData) {
 	var i = 0,
 		j = 0,
 		dat = new Uint8Array(arr),
@@ -2836,7 +2836,7 @@ function getReplyImgData(arr, isForce) {
 		out = 0,
 		rExif = !!Cfg['removeEXIF'],
 		jpgDat = false;
-	if(!Cfg['postSameImg'] && !rExif && !isForce) {
+	if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
 		return [dat];
 	}
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
@@ -2874,11 +2874,11 @@ function getReplyImgData(arr, isForce) {
 		i += 2;
 		if(j !== i) {
 			dat[j - 1] = dat[i - 1];
-			if(!isForce && len - j > 75) {
-				for(; i < len; dat[j++] = dat[i++]) {};
-			}
-		} else if(j === len || (!isForce && len - j > 75)) {
+		} else if(j === len) {
 			return [dat];
+		}
+		if(!delExtraData && len - j > 75) {
+			for(; i < len; dat[j++] = dat[i++]) {}
 		}
 		if(rExif) {
 			initJpeg(out = new Uint8Array(len = j + 18), jpgDat || [0, 0, 1, 0, 1]);
@@ -2894,13 +2894,13 @@ function getReplyImgData(arr, isForce) {
 			}
 		}
 		j += 8;
-		if(j === len || (!isForce && len - j > 75)) {
+		if(j === len || (!delExtraData && len - j > 75)) {
 			return [dat];
 		}
 	} else {
 		return null;
 	}
-	return [new Uint8Array(arr, j)];
+	return [new Uint8Array(dat, j)];
 }
 
 /** @constructor */
