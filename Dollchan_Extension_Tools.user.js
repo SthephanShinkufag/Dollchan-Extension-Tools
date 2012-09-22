@@ -2877,7 +2877,7 @@ function getReplyImgData(arr, delExtraData) {
 		} else if(j === len) {
 			return [dat];
 		}
-		if(!delExtraData && len - j > 75) {
+		if(!delExtraData && len - i > 75) {
 			for(; i < len; dat[j++] = dat[i++]) {}
 		}
 		if(rExif) {
