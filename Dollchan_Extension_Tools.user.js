@@ -2828,10 +2828,9 @@ function getExifData(exif, off, len) {
 	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
 }
 
-function getReplyImgData(arr, delExtraData) {
+function getReplyImgData(dat, delExtraData) {
 	var i = 0,
 		j = 0,
-		dat = new Uint8Array(arr),
 		len = dat.length,
 		out = 0,
 		rExif = !!Cfg['removeEXIF'],
@@ -2943,7 +2942,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = getReplyImgData(this.result, aib.abu || aib.fch || !!el.rarJPEG);
+		var dat = getReplyImgData(new Uint8Array(this.result), aib.abu || aib.fch || !!el.rarJPEG);
 		if(dat) {
 			if(el.rarJPEG) {
 				dat.push(el.rarJPEG);
