@@ -829,7 +829,9 @@ function readCfg() {
 	if(!nav.Firefox) {
 		defaultCfg['favIcoBlink'] = 0;
 	}
-	if(!nav.WebKit) {
+	if(nav.WebKit) {
+		Cfg['favIcoBlink'] = 0;
+	} else {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
@@ -1210,7 +1212,7 @@ function fixSettings() {
 		'input[info="linksOut"]',
 		'input[info="markViewed"]',
 		'input[info="strikeHidd"]',
-		'input[info="noNavigHidd"]',
+		'input[info="noNavigHidd"]'
 	]);
 	toggleBox(Cfg['addYouTube'] && Cfg['addYouTube'] !== 4, [
 		'select[info="YTubeType"]', 'input[info="YTubeHD"]'
@@ -1365,7 +1367,7 @@ function getCfgPosts() {
 			$txt(Lng.cfg['updThrDelay'][lang])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('favIcoBlink', true, null),
+			$if(!nav.WebKit, lBox('favIcoBlink', true, null)),
 			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
@@ -3956,7 +3958,7 @@ function parsePostImg(e) {
 			}
 		}
 	} else {
-		self.postMessage(false);
+		self.postMessage(false, null);
 		return;
 	}
 	if(i !== len && len - i > 60) {
@@ -3966,12 +3968,12 @@ function parsePostImg(e) {
 				(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
 				(dat[i] === 0x52 && dat[i + 1] === 0x61)
 			) {
-				self.postMessage(true);
+				self.postMessage(true, null);
 				return;
 			}
 		}
 	}
-	self.postMessage(false);
+	self.postMessage(false, null);
 }
 
 
@@ -5774,7 +5776,7 @@ function scriptCSS() {
 		.de-cfg-unvis { display: none; }';
 
 	// Main panel
-	x += '#de-btn-logo { margin-right: 3px; }\
+	x += '#de-btn-logo { margin-right: 3px; cursor: pointer; }\
 		#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
 		#de-panel-btns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 		#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
@@ -6732,7 +6734,7 @@ function initPage() {
 				} else {
 					onVis();
 				}
-			});
+			}, false);
 			Favico.focused = !(doc.mozHidden || doc.webkitHidden);
 		} else {
 			window.onblur = function() {
