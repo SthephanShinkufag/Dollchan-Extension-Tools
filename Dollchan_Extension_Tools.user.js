@@ -6463,7 +6463,7 @@ function getImageboard() {
 		aib.gazo ? function(thr) {
 			return $Q('td:nth-child(2)', thr);
 		} :
-		aib.tiny ? function(thr) {
+		aib.tiny || aib.fch ? function(thr) {
 			return $C('reply', thr);
 		} :
 		function(thr) {
