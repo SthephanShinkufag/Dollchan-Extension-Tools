@@ -6401,8 +6401,7 @@ function getImageboard() {
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
-		aib.tiny ? 'post reply' :
-		aib.fch ? 'reply post' :
+		aib.tiny || aib.fch ? 'post reply' :
 		'reply';
 	aib.cOPost =
 		aib.kus ? 'postnode' :
