@@ -5264,7 +5264,7 @@ function getImgHash(post) {
 	h = cnv.height = img.height;
 	ctx = cnv.getContext('2d');
 	ctx.drawImage(img, 0, 0);
-	return img.hash = genImgHash(ctx.getImageData(0, 0, w, h).data, w, h);
+	return img.hash = genImgHash(ctx.getImageData(0, 0, w || 1, h || 1).data, w, h);
 }
 
 /*==============================================================================
