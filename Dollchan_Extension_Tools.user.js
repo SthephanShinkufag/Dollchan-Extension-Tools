@@ -6402,6 +6402,7 @@ function getImageboard() {
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny ? 'post reply' :
+		aib.fch ? 'reply post' :
 		'reply';
 	aib.cOPost =
 		aib.kus ? 'postnode' :
