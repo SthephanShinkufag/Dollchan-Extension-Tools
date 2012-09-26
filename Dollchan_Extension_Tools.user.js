@@ -3186,7 +3186,7 @@ function addPostButtons(post) {
 	) + '</span>');
 	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
-		if(TNum && (aib.kus || aib.tinyIb)) {
+		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
 			$each($T('a', ref), function(el) {
 				el.onclick = null;
 			});
@@ -6413,8 +6413,8 @@ function getImageboard() {
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]' +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]' + 
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"],' +
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"],' +
 		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]'
 	);
 	aib.qPostForm =
