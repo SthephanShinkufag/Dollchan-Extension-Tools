@@ -2685,17 +2685,9 @@ function getFinalURL(dc, iframe) {
 		return $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 	} else if(iframe) {
 		return window.location;
-	} else if($q(aib.qDForm, dc)) {
-		var tNum, thr = $q('.thread, ' + aib.qThread, dc);
-		if(thr) {
-			tNum = thr.id.match('\\d+' + (aib._420 ? '$' : ''))[0];
-		} else {
-			thr = $q(aib.qTNum, dc);
-			tNum = thr.value || thr.name.match(/\d+/)[0];
-		}
-		return getThrdUrl(aib.host, brd, tNum);
 	} else {
-		return '';
+		var el = $q(aib.qDForm, dc);
+		return el ? getThrdUrl(aib.host, brd, aib.getTNum(el)) : '';
 	}
 }
 
@@ -6212,7 +6204,6 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.visChange = nav.WebKit ? 'webkitvisibilitychange' : 'mozvisibilitychange';
 	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
 		nav.toBlob = function(arr, type) {
 			return type ? new Blob(arr, {'type': type}) : new Blob(arr);
@@ -6359,7 +6350,8 @@ function getImageboard() {
 		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
 		tiny: $xb('.//form[@name="postcontrols"]', doc),
 		abu: !!$id('LakeSettings'),
-		waka: $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc)
+		waka: $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc),
+		tinyIb: $xb('.//form[contains(@action,"imgboard.php?delete")]', doc)
 	};
 	switch(h) {
 	case 'krautchan.net': aib.krau = true; break;
@@ -6375,21 +6367,25 @@ function getImageboard() {
 		aib.tiny ? 'form[name="postcontrols"]' :
 		aib.gazo ? 'form:nth-of-type(2)' :
 		'#delform, form[name="delform"]';
-	aib.qThread =
-		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
-		aib._420 ? '[id*="thread"]' :
-		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
-	aib.qTNum =
-		aib.gazo || (aib.tiny && !aib.mlpg) ? 'input[type="checkbox"]' :
-		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
-		false;
+	aib.getTNum =
+		aib.kus || aib.tinyIb ? function(op) {
+			return $q('input[type="checkbox"]', op).value;
+		} :
+		aib.abu || aib._420 ?  function(op) {
+			return $q('a[id]', op).id.match(/\d+/)[0];
+		} :
+		aib.waka || aib.brit ? function(op) {
+			return $q('a[name]', op).name.match(/\d+/)[0];
+		} :
+		function(op) {
+			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+		};
 	dForm = $q(aib.qDForm, doc);
 	if(!dForm) {
 		return;
 	}
 	aib.dm = h;
 	aib.host = window.location.hostname;
-	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
 	case '0chan.ru': aib.nul = true; break;
 	case '410chan.ru': aib._410 = true; break;
@@ -6409,6 +6405,10 @@ function getImageboard() {
 		aib.mlpg ? 'opMain' :
 		'oppost';
 	aib.cThread = aib.krau ? 'thread_body' : 'thread';
+	aib.qThread =
+		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+		aib._420 ? '[id*="thread"]' :
+		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
 		aib.tiny ? '.intro > :last-child' :
@@ -6503,19 +6503,6 @@ function getImageboard() {
 				thr.appendChild(op);
 			}
 			return op;
-		};
-	aib.getTNum =
-		(aib.kus && !aib._7ch) || aib.tinyIb ? function(op) {
-			return $q('input[type="checkbox"]', op).value;
-		} :
-		aib.qTNum ? function(op) {
-			return $q(aib.qTNum, op).name.match(/\d+/)[0];
-		} :
-		aib.krau ? function(op) {
-			return op.parentNode.previousElementSibling.name;
-		} :
-		function(op) {
-			return op.parentNode.id.match('\\d+' + (aib._420 ? '$' : ''))[0];
 		};
 	aib.getPNum = aib.gazo ?
 		function(post) {
@@ -6728,7 +6715,7 @@ function initPage() {
 			docTitle = doc.title;
 		}
 		if(nav.Firefox > 10 || nav.WebKit) {
-			doc.addEventListener(nav.visChange, function() {
+			doc.addEventListener((nav.WebKit ? 'webkit' : 'moz') + 'visibilitychange', function() {
 				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
 				} else {
