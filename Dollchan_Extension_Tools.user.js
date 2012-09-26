@@ -1115,7 +1115,7 @@ function addPanel() {
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-select'));
 				}, null, selectAudioNotif, 'de_delSelection(event)')),
-				$if(aib.nul, pButton('catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
+				$if(aib.nul, pButton('catalog', null, '//0-chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'de-panel-info'}, [
 				$new('span', {
@@ -2266,9 +2266,6 @@ function doSageBtn() {
 	} else {
 		pr.mail.checked = c;
 	}
-	if(aib.abu) {
-		setCookie('email', c ? 'sage' : '', 1e5);
-	}
 }
 
 function setUserName() {
@@ -2590,13 +2587,6 @@ function doPostformChanges(img, _img, el) {
 	if(pr.file) {
 		eventFiles($x(pr.tr, pr.file));
 	}
-	if(aib.nul) {
-		el = $id('posttypeindicator');
-		if(el) {
-			$del(el.parentNode);
-		}
-		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
-	}
 }
 
 
@@ -2643,9 +2633,7 @@ function checkUpload(err, url) {
 			$disp(qArea = $id('de-qarea'));
 			qArea.appendChild($id('de-pform'));
 		}
-		if((aib.hana && /подтвердите, что вы человек/.test(err)) ||
-			(pr.cap && /captch|капч|подтверж/i.test(err)))
-		{
+		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
 			pr.cap.value = '';
 			pr.cap.focus();
 			refreshCapImg(pr.tNum);
@@ -3198,7 +3186,7 @@ function addPostButtons(post) {
 	) + '</span>');
 	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
-		if(aib.tinyIb || (aib.nul && TNum)) {
+		if(TNum && (aib.kus || aib.tinyIb)) {
 			$each($T('a', ref), function(el) {
 				el.onclick = null;
 			});
@@ -5937,7 +5925,7 @@ function scriptCSS() {
 		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
-		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
+		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	} else if(aib.mlpg) {
 		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
@@ -5964,7 +5952,7 @@ function scriptCSS() {
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, .de-thread span[style="float: right;"] { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .logo + hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
@@ -6346,39 +6334,34 @@ function getImageboard() {
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
 	aib = {
-		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
 		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
 		tiny: $xb('.//form[@name="postcontrols"]', doc),
-		abu: !!$id('LakeSettings'),
-		waka: $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc),
-		tinyIb: $xb('.//form[contains(@action,"imgboard.php?delete")]', doc)
 	};
 	switch(h) {
+	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
-	case '4chan.org': aib.fch = true; break;
 	case '420chan.org': aib._420 = true; break;
-	case '7chan.org': aib._7ch = true; break;
-	case 'mlpg.co': aib.mlpg = true; break;
 	}
-	aib.qDForm = aib.brit ? '.threadz' :
+	aib.qDForm =
+		aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
 		aib.gazo ? 'form:nth-of-type(2)' :
 		'#delform, form[name="delform"]';
 	aib.getTNum =
-		aib.kus || aib.tinyIb ? function(op) {
-			return $q('input[type="checkbox"]', op).value;
+		aib.fch || aib.krau || aib.gazo || aib.tiny ? function(op) {
+			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		} :
-		aib.abu || aib._420 ?  function(op) {
-			return $q('a[id]', op).id.match(/\d+/)[0];
-		} :
-		aib.waka || aib.brit ? function(op) {
+		aib.brit ? function(op) {
 			return $q('a[name]', op).name.match(/\d+/)[0];
 		} :
+		aib._420 ?  function(op) {
+			return $q('a[id]', op).id.match(/\d+/)[0];
+		} :
 		function(op) {
-			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			return $q('input[type="checkbox"]', op).value;
 		};
 	dForm = $q(aib.qDForm, doc);
 	if(!dForm) {
@@ -6386,13 +6369,18 @@ function getImageboard() {
 	}
 	aib.dm = h;
 	aib.host = window.location.hostname;
+	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.abu = !!$id('LakeSettings');
+	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
-	case '0chan.ru': aib.nul = true; break;
+	case '0-chan.ru': aib.nul = true; break;
+	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
-	case '2--ch.ru': aib.tire = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
+	case '7chan.org': aib._7ch = true; break;
 	case 'ponychan.net': aib.pony = true; break;
+	case 'mlpg.co': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
@@ -6425,9 +6413,9 @@ function getImageboard() {
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]' + (aib.nul ? ':first-child' : '')
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]' +
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]' + 
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]'
 	);
 	aib.qPostForm =
 		aib.gazo ? 'form:nth-of-type(1)' :
