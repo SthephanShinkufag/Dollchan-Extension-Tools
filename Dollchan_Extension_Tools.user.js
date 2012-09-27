@@ -3069,7 +3069,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420 || aib.mlpg,
+	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg,
 		tagTable = {
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -6354,7 +6354,7 @@ function getImageboard() {
 		aib.fch || aib.krau || aib.gazo || aib.tiny ? function(op) {
 			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		} :
-		aib.brit ? function(op) {
+		aib.hana || aib.brit ? function(op) {
 			return $q('a[name]', op).name.match(/\d+/)[0];
 		} :
 		aib._420 ?  function(op) {
@@ -6370,7 +6370,7 @@ function getImageboard() {
 	aib.dm = h;
 	aib.host = window.location.hostname;
 	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	aib.abu = !!$id('LakeSettings');
+	aib.abu = !!$id('ABU_css');
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
 	case '0-chan.ru': aib.nul = true; break;
