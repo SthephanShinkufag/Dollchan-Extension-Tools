@@ -170,7 +170,7 @@ Lng = {
 			txt:		['AJAX отправка постов*', 'posting with AJAX*']
 		},
 		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-		'removeEXIF':	['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
@@ -1332,7 +1332,7 @@ function getCfgFilters() {
 				}, null)
 			]),
 			lBox('hideBySpell', false, toggleSpells),
-			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 49}, null)
+			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 50}, null)
 		]),
 		lBox('hideByWipe', true, null),
 		$New('div', {'id': 'de-cfg-wipe'}, [
@@ -1509,7 +1509,7 @@ function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
 		$if(nav.isGlobal, $New('div', null, [
 			$txt(Lng.cfg['excludeList'][lang]),
-			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 49}, {
+			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 50}, {
 				'keyup': function() {
 					setStored('DESU_Exclude', this.value);
 				}
@@ -1637,7 +1637,7 @@ function addSettings(Set) {
 			]),
 			$new('br', {'style': 'clear: both;'}, null),
 			$New('div', {'style': 'display: none;'}, [
-				$new('textarea', {'rows': 10, 'cols': 49}, null),
+				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
 					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 					window.location.reload();
@@ -5728,8 +5728,8 @@ function scriptCSS() {
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
-		.de-cfg-body { width: 371px; min-height: 347px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
-		.de-cfg-body input[type="text"] { width: auto; }\
+		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
 		.de-cfg-body input[value=">"] { width: 20px; }\
 		.de-blockinp { display: block; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
@@ -6167,7 +6167,7 @@ function getNavigator() {
 		WebKit: +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1]
 	};
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
-	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
+	nav.isGM = !!nav.Firefox && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
