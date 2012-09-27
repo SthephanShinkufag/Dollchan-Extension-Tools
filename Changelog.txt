@@ -1,0 +1,181 @@
+Sep 23, 2012
+  - Disable favicon blinking for Chrome
+    Убрана в Хроме опция "Посты" > "мигать фавиконом при новых постах" 
+
+Sep 21, 2012
+  - Adds ability to disable of multiple dependent checkboxes
+    Опции в "Настройках" становятся недоступными, если зависят от других опций, которые отключены
+
+Sep 20, 2012
+  - Add iframe ajax posting option
+    Добавлена возможность выбора между способом аякс-взаимодействия
+      + "Форма" > "[AJAX] отправка постов"
+      + "Форма" > "[Iframe] отправка постов"
+
+Sep 19, 2012
+  - Add closure-compiled userscript file
+    Добавлен скомпилированный сжатый скрипт на github.com
+
+Sep 17, 2012
+  - Remove betaScrUpd option
+    Убрано разделение на "стабильные" и "бета" версии
+    Убрана опция "Общее" > "Проверять обновления для beta-версии"
+    Обновление скрипта ограничено верхним коммитом ветки master на github.com
+
+Sep 16, 2012
+  - New option - address list, that excludes script
+    Добавлена возможность запрещать выполнение скрипта на сайтах, указанных в списке
+      + "Общее" > "Список адресов, запрещающих запуск скрипта"
+ 
+Sep 14, 2012
+  - Remove youtube tags support
+    Убран спелл #vtag, детектируюший ютуб-тэги (ютуб их более не поддерживает)
+
+Sep 13, 2012
+  - Simplify addHiddenTable
+    Убрано дублирование информации о скрытых тредах в "Скрытом"
+
+Sep 07, 2012
+  - New option: recognize crossboard >>/b/links
+    Добавлена возможность преобразования ссылок между тредами имиджборда в пригодные для работы превью
+      + "Ссылки" > "Преобразовывать http:// в >>/b/ссылки"
+  - New option - hanging postform. Preliminary.
+    Добавлена возможность делать форму отправки фиксированной в углу экрана
+      + "Форма" > "[Отдельная] форма ответа в треде"
+
+Sep 06, 2012
+  - Fix textbuttons & improve txtResizer
+    Использование встроенного в браузер ресайзера текстового поля
+  - Rename prefixes dE_ --> de-
+    Глобально переименован префикс во всех классах и id скрипта
+  - Remove Gradient Blue style
+    Удален стиль "Общее" > "[Gradient Blue] стиль скрипта"
+
+Sep 05, 2012
+  - Handle deleted posts
+    Скрытые посты теперь хранятся в sessionStorage
+
+Sep 04, 2012
+  - Use class for hiding posts
+    Посты скрываются посредством взаимодействия классов на css
+
+Sep 03, 2012
+  - Mark by color new posts counter in Favorites
+    Новые посты при нажатии на "Инфо" в "Избранном" теперь помечаются синим цветом 
+
+Sep 02, 2012
+  - Enable html5 functions on 0chan
+    Включены html5 функции на 0chan.ru
+
+Aug 28, 2012
+  - Remove obsolete animations
+    Убрана костыльная js-анимация для старых браузеров
+
+Aug 27, 2012
+  - Introduce page number check button in Favorites
+    Добавлен детектор "глубины треда" в "Избранном"
+      + "Избранное" > кнопка "Страница"
+
+Aug 25, 2012
+  - Fix dobrochan + add full month support + cahce time replace pattern
+    Кеширование настроек коррекции времени, поддержка полных названий месяцев
+  - Refresh CSS when user changes script language
+    Изменение языка в настройках теперь происходит без перезагрузки
+
+Aug 24, 2012
+  - Better time pattern checking
+    Проверка на корректность введенных настроек коррекции времени
+
+Aug 23, 2012
+  - Delete unnecessary merging of hidden posts
+    Убрана опция "Фильтры" > "Объединять скрытые посты"
+  - Remove ylilauta.org from supported boards
+    Убраны костыли для неподдерживаемой ylilauta.org
+
+Aug 21, 2012
+  - Support mlpg.co markup
+    Добавлена поддержка mlpg.co
+
+Aug 20, 2012
+  - Remove Firefox < 4 support
+    Убрана поддержка Лисы версии < 4
+
+Aug 19, 2012
+  - Redreshless deleting for opera
+    Удаление постов в Опере теперь происходит без перезагрузки
+
+Aug 13, 2012
+  - Change icon of manual hidden posts
+    Изменена иконка скрытых вручную постов (в виде сплошного квадрата)
+  - Increase posterization level to 3
+    Увеличен уровень постеризации спелла #lhash с 2 до 3
+  - Simplify password settings
+    Пользовательский пароль в "Настройках" теперь генерируется только один раз
+
+Aug 12, 2012
+  - Disable by default favicon blinking but allow to enable it for opera
+    Возвращена возможность включения мигания фавикона при новых постах в Опере
+      + "Посты" > "мигать фавиконом при новых постах" 
+
+Aug 10, 2012
+  - Add hideByRef feature
+    Добавлена возможнсть скрывать ответы на скрытые посты
+      + "фильтры" > "Скрывать ответы на скрытые посты"
+  - Console error logging added
+    Добавлен лог в консоли ошибок при ошибке парсера
+
+Aug 09, 2012
+  - Save wipe parameters along with hide info
+    Антивайп-параметры теперь хранятся вместе с информацией о скрытых постах
+  - Simplify webstorage checking
+    Поддерживаемые браузеры теперь должны иметь webstorage хранилище
+  - Remove outdated and unnecessary Cookies mode
+    Убрано взимодействие скрипта с хранилищем в куках
+
+Aug 08, 2012
+  - Prototype new save algorythm
+    Сохранения скрытых постов происходит по новому алгоритму, учитывающему ручное скрытие
+
+Aug 07, 2012
+  - Update captcha if user enter it wrong
+    Авто-обновление капчи при неправильном вводе
+
+Jul 31, 2012
+  - Disable blob-features on some webkit browsers
+    Отключена для Safari blob-обработка изображений и соответствующие опции
+
+Jul 25, 2012
+  - Auto-detect browser language
+    Авто-детектирование языка в настройках браузера
+
+Jul 23, 2012
+  - Fix video links before submit
+    Ссылки ютуба перед отправкой исправляются на watch?v=
+
+Jul 15, 2012
+  - Show some menus with delay
+    Некоторые меню теперь появляются при краткой задержке курсора
+
+Jul 14, 2012
+  - Don't notify about new hidden posts
+    Авто-обновление теперь не оповещает о новых постах, если они скрыты
+
+Jul 12, 2012
+  - Ability to add custom image search
+    Добавлена возможность пользовательского поиска изображений средствами сторонних js
+
+Jul 05, 2012
+  - Replace XPath with querySelector where possible
+    Селекторы в скрипте заменены с XPath на Query 
+
+Jul 01, 2012
+  - Add image expand options
+    Добавлены новые возможности для обработки картинок:
+      + "Посты" > "Анимировать GIFы в постах"
+      + "Посты" > "Раскрывать изображения-спойлеры"
+    Чекбоксов антивайп-детекторов теперь разделены по группам
+
+Jun 29, 2012
+  - Add ability to get script info
+    Возможность получения удобной отладочной информации
+      + "Инфо" > кнопка "Отладка"
