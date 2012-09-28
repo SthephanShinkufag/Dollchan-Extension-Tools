@@ -5316,7 +5316,7 @@ Spells.prototype = {
 			return true;
 		},
 		function(post, val) {			// num
-			return Spells.checkArr(val, post.count);
+			return Spells.checkArr(val, post.count + 1);
 		}
 	],
 	_repRegExp:  /([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
@@ -5404,9 +5404,6 @@ Spells.prototype = {
 			}, temp = [[], []]);
 			tokens.push([rType, temp, opt]);
 			break;
-		case 14:
-		case 15:
-			return val[0].length;
 		case 5:
 			if(!exp) {
 				tokens.push([rType, exp, opt]);
@@ -5683,7 +5680,7 @@ Spells.prototype = {
 	readed: false,
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
-		this._TEMP = {list: str};
+		this._TEMP = {};
 		var oStr = this._findReps(str),
 			data = this._compile(oStr[0]);
 		if(data !== false) {
@@ -5691,9 +5688,12 @@ Spells.prototype = {
 		} else if(this._error) {
 			try {
 				$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
-			} catch(e) {}
+			} catch(e) {
+				GM_log(Lng.error[lang] + ' ' + this._error);
+			}
 			return false;
 		}
+		this._TEMP.list = oStr.join('\n\n').replace(/[\s\n]+$/, '');
 		return oStr;
 	},
 	saveSpells: function(val) {
@@ -5804,7 +5804,7 @@ function toggleSpells() {
 	if(val && (temp = spells.parseText(val)) && temp[0]) {
 		disableSpells();
 		spells.saveTemp();
-		fld.value = temp.join('\n\n').replace(/\n+$/, '');
+		fld.value = spells.list;
 		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
 		}
@@ -6769,7 +6769,7 @@ function getImageboard() {
 
 function processPost(post, pNum, thr, i) {
 	post.thr = thr;
-	post.count = i + 1;
+	post.count = i;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
 	post.sage = aib.getSage(post);
