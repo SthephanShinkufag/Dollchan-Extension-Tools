@@ -359,11 +359,10 @@ Lng = {
 doc = window.document, aProto = Array.prototype,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
-pr, dForm, oeForm, dummy, postWrapper,
+pr, dForm, oeForm, dummy, postWrapper, spells,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-pSpells, tSpells, oSpells, spellsList, spellsHash,
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
@@ -535,12 +534,6 @@ function $txtSelect() {
 	return (nav.Opera ? doc.getSelection() : window.getSelection()).toString();
 }
 
-function $toRegExp(str) {
-	var t = str.match(/\/.*?[^\\]\/[ig]*/)[0],
-		l = t.lastIndexOf('/');
-	return new RegExp(t.substr(1, l - 1), t.substr(l + 1));
-}
-
 function $isEmpty(obj) {
 	for(var i in obj) {
 		if(obj.hasOwnProperty(i)) {
@@ -570,6 +563,9 @@ function fixFunctions() {
 			return this.indexOf(s) !== -1;
 		};
 	}
+	RegExp.quote = function(str) {
+		return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+	};
 	if(!window.GM_log) {
 		window.GM_log = function(msg) {
 			console.error(msg);
@@ -709,6 +705,7 @@ function getPrettyJSON(obj, indent) {
 }
 
 function ELFHash(str) {
+	try {
 	for(var g, h = 0, i = 0, len = str.length; i < len; ++i) {
 		h = (h << 4) + str.charCodeAt(i);
 		if(g = h & 0xF0000000) {
@@ -717,6 +714,14 @@ function ELFHash(str) {
 		h &= ~g;
 	}
 	return h;
+	}catch(e) {
+		GM_log('ERROR:\n' + (nav.WebKit ? e.stack :
+			e.name + ': ' + e.message + '\n' +
+			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
+				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
+			}) : e.stack)
+		));
+	}
 }
 
 
@@ -762,25 +767,6 @@ function getStoredObj(id, def) {
 		return JSON.parse(getStored(id)) || def;
 	} catch(e) {
 		return def;
-	}
-}
-
-function saveSpells(val) {
-	spellsHash = ELFHash(val);
-	spellsList = val.split('\n');
-	setStored('DESU_Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
-	initSpells();
-}
-
-function readSpells() {
-	var arr, data = getStored('DESU_Spells_' + aib.dm);
-	try {
-		arr = JSON.parse(data);
-		spellsHash = arr[0];
-		spellsList = arr[1];
-		initSpells();
-	} catch(e) {
-		saveSpells(data || '');
 	}
 }
 
@@ -875,10 +861,9 @@ function readCfg() {
 			152203056
 		);
 	}
-	if(Cfg['hideBySpell']) {
-		readSpells();
-	}
-	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]) || Cfg['crossLinks'];
+	spells = new Spells(!!Cfg['hideBySpell']);
+	console.log(spells.haveReps);
+	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
 function saveCfg(id, val) {
@@ -902,7 +887,7 @@ function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden'] || '').split(',');
-		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
+		if(+data[0] === (Cfg['hideBySpell'] ? spells.hash : 0) && +data[1] === getHidCfg()) {
 			sVis = data[2].split('');
 			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
@@ -919,7 +904,7 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
+		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') +
 			getHidCfg() + ',' + sVis.join('');
 	}
 	toggleContent('hid', true);
@@ -1286,8 +1271,8 @@ function cfgTab(name) {
 				}
 				el.className = 'de-cfg-body';
 				if(id === 'filters') {
-					readSpells();
-					$id('de-spell-edit').value = spellsList.join('\n');
+					spells.update();
+					$id('de-spell-edit').value = spells.list;
 				}
 				fixSettings();
 			}
@@ -1574,7 +1559,9 @@ function getCfgInfo() {
 					'location': String(window.location),
 					'nav': nav,
 					'cfg': nCfg,
-					'spells': spellsList,
+					'spells': spells.list.split('\n'),
+					'cSpells': getStored('DESU_CSpells_' + aib.dm),
+					'oSpells': sessionStorage['de-spells'],
 					'perf': tl
 				}, '') + '</textarea>', 'help-debug', false);
 			}), {'style': 'display: table-cell;'})
@@ -1628,7 +1615,7 @@ function addSettings(Set) {
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads_' + aib.dm, '');
-						saveSpells('');
+						spells.saveSpells('');
 						window.location.reload();
 					}
 				})
@@ -1990,13 +1977,13 @@ function selectPostHider(post) {
 		$pd(e);
 		addSpell(
 			post.img.length === 0 ?
-				'#noimg' :
-				'#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
+				'!#img' :
+				'#img(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')'
 		);
 	};
 	a[2].onclick = function(e) {
 		$pd(e);
-		addSpell(post.img.length === 0 ? '#noimg' : '#ihash ' + getImgHash(post));
+		addSpell(post.img.length === 0 ? '!#img' : '#ihash(' + getImgHash(post) + ')');
 	};
 	a[3].onclick = function(e) {
 		$pd(e);
@@ -2004,7 +1991,7 @@ function selectPostHider(post) {
 	};
 	(a = a[0]).onclick = function(e) {
 		$pd(e);
-		addSpell(quotetxt);
+		addSpell('#words(' + quotetxt + ')');
 	};
 	a.onmouseover = function() {
 		quotetxt = $txtSelect().trim();
@@ -2426,8 +2413,8 @@ function doPostformChanges(img, _img, el) {
 	$event(pr.subm, {'click': function(e) {
 		var val = pr.txta.value,
 			sVal = Cfg['signatValue'];
-		if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
-			val = replaceBySpells(oSpells.outrep, val);
+		if(spells.haveOutreps) {
+			val = spells.outReplace(val);
 		}
 		if(Cfg['userSignat'] && sVal) {
 			val += '\n' + sVal;
@@ -3697,40 +3684,11 @@ function addLinkTube(post) {
 				'?alt=json&fields=title/text(),media:group/media:keywords',
 			'onload': function(xhr) {
 				try {
-					var json = JSON.parse(xhr.responseText)['entry'],
-						txt = json['title']['$t'];
-					link.textContent = txt;
-					if(Cfg['hideBySpell']) {
-						for(var t, i = 0; t = oSpells.video[i]; i++) {
-							if($toRegExp(t).test(txt)) {
-								hidePost(pst, '#video ' + t);
-								pst.ytHide = true;
-								clearTimeout(hideTubeDelay);
-								hideTubeDelay = setTimeout(savePostsVisib, 500);
-								return;
-							}
-						}
-					}
+					link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 					link = pst = null;
 				} catch(e) {}
 			}
 		});
-	});
-}
-
-function hideByTube() {
-	if(!Cfg['YTubeTitles']) {
-		return;
-	}
-	$each($Q('a[href*="youtu"]', dForm), function(link) {
-		for(var t, post, i = 0, val = link.textContent; t = oSpells.video[i++];) {
-			if($toRegExp(t).test(val)) {
-				post = getPost(link);
-				hidePost(post, '#video ' + t);
-				post.ytHide = true;
-				return;
-			}
-		}
 	});
 }
 
@@ -4982,7 +4940,7 @@ function doPostFilters(post) {
 		sVis[post.count] = 1;
 		return;
 	}
-	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
+	var note = detectWipeText(getText(post)) || spells.check(post);
 	if(note) {
 		sVis[post.count] = 0;
 		doHidePost(post, note);
@@ -5007,7 +4965,7 @@ function setPostsVisib() {
 				}
 			}
 			if(vis === undefined) {
-				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
+				sVis[i] = detectWipeText(getText(post)) || spells.check(post) ? 0 : 1;
 			}
 			continue;
 		}
@@ -5111,7 +5069,7 @@ function doHidePost(post, note) {
 }
 
 function hidePost(post, note) {
-	if(post.noHide || uVis[post.num]) {
+	if(uVis[post.num]) {
 		return;
 	}
 	if(post.hide) {
@@ -5210,7 +5168,7 @@ function hideBySameText(post) {
 		});
 		saveUserPostsVisib();
 	} else {
-		addSpell('#notxt');
+		addSpell('!#tlen');
 	}
 	hid = num = wrds = null;
 }
@@ -5269,356 +5227,665 @@ function getImgHash(post) {
 								SPELLS AND EXPRESSIONS
 ==============================================================================*/
 
-function getSpellObj() {
-	return {
-		words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
-		sage: false, notxt: false, noimg: false, trip: false
-	};
-}
-
-function initSpells() {
-	var i, x, b, n, t, p, j, Spells;
-	pSpells = getSpellObj();
-	tSpells = getSpellObj();
-	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
-	for(i = 0; x = spellsList[i++];) {
-		Spells = pSpells;
-		x = x.toString();
-		if(/^#(?:[^\s]+\/)?(?:\d+)? /.test(x)) {
-			b = x.match(/^#([^\/]+)\//);
-			n = x.match(/(\d+)\s/);
-			if(
-				TNum && b && n && b[1] === brd && n[1] === TNum ||
-				TNum && !b && n && n[1] === TNum ||
-				b && !n && b[1] === brd
-			) {
-				x = x.replace(/^#[^\s]+ /, '');
-			} else {
-				continue;
-			}
-		}
-		if(/^#op /.test(x)) {
-			if(TNum) {
-				continue;
-			} else {
-				Spells = tSpells;
-				x = x.substr(4);
-			}
-		}
-		if(!/^#/.test(x)) {
-			Spells.words.push(x);
-			continue;
-		}
-		t = x.split(' ')[0];
-		p = x.replace(/^#[^\s]+ /, '');
-		if(TNum && (t === '#skip' || t === '#num')) {
-			p = p.split(', ');
-			j = p.length;
-			while(j--) {
-				if(!p[j].contains('-')) {
-					p[j] += '-' + p[j];
-				}
-				t === '#num' ? oSpells.num.push(p[j]) : oSpells.skip.push(p[j]);
-			}
-		}
-		t === '#rep' ? oSpells.rep.push(p) :
-		t === '#exp' ? Spells.exp.push($toRegExp(p)) :
-		t === '#exph' ? Spells.exph.push($toRegExp(p)) :
-		t === '#ihash' ? Spells.ihash.push(+p) :
-		t === '#img' ? Spells.img.push(p) :
-		t === '#imgn' ? Spells.imgn.push($toRegExp(p)) :
-		t === '#name' ? Spells.name.push(p) :
-		t === '#theme' ? Spells.theme.push($toRegExp(p)) :
-		t === '#tmax' ? Spells.tmax.push(p) :
-		t === '#sage' ? Spells.sage = true :
-		t === '#notxt' ? Spells.notxt = true :
-		t === '#noimg' ? Spells.noimg = true :
-		t === '#trip' ? Spells.trip = true :
-		t === '#outrep' ? oSpells.outrep.push(p) :
-		t === '#video' && oSpells.video.push(p);
+function Spells(read) {
+	if(read) {
+		this.update();
+	} else {
+		this._disable();
 	}
 }
-
-function replaceBySpells(arr, txt) {
-	var re, i = arr.length;
-	while(i--) {
-		re = $toRegExp(arr[i]);
-		txt = txt.replace(re, arr[i].substr(re.toString().length + 1));
-	}
-	return txt;
-}
-
-function getImgSpell(imgW, imgH, imgK, exp) {
-	if(!exp) {
-		return false;
-	}
-	var x, expW, expH, s = exp.split('@'),
-		stat = s[0][0],
-		expK = s[0].substr(1).split('-');
-	if(!expK[1]) {
-		expK[1] = expK[0];
-	}
-	if(expK[0]) {
-		if(
-			(stat === '<' && imgK < +expK[0]) ||
-			(stat === '>' && imgK > +expK[0]) ||
-			(stat === '=' && imgK >= +expK[0] && imgK <= +expK[1])
-		) {
-			if(!s[1]) {
-				return 'image ' + exp;
-			}
-		} else {
-			return false;
+Spells.checkArr = function(val, num) {
+	var i, arr;
+	for(arr = val[0], i = arr.length - 1; i >= 0; i--) {
+		if(arr[i] === num) {
+			return true;
 		}
 	}
-	if(s[1]) {
-		x = s[1].split(/[x×]/);
-		expW = x[0].split('-');
-		expH = x[1].split('-');
-		if(!expW[1]) {
-			expW[1] = expW[0];
-		}
-		if(!expH[1]) {
-			expH[1] = expH[0];
-		}
-		if(
-			stat === '<' && imgW < +expW[0] && imgH < +expH[0] ||
-			stat === '>' && imgW > +expW[0] && imgH > +expH[0] ||
-			stat === '=' && imgW >= +expW[0] && imgW <= +expW[1] && imgH >= +expH[0] && imgH <= +expH[1]
-		) {
-			return 'image ' + exp;
+	for(arr = val[1], i = arr.length - 1; i >= 0; i--) {
+		if(num >= arr[i][0] && num <= arr[i][1]) {
+			return true;
 		}
 	}
 	return false;
-}
-
-function getSpells(x, post) {
-	var inf, i, t, _t, pTitle, pText, pName, pTrip, imgW, imgH, imgK;
-	post.noHide = false;
-	if(oSpells.skip[0] && TNum) {
-		inf = post.count + 1;
-		for(i = 0; t = oSpells.skip[i++];) {
-			t = t.split('-');
-			if(inf >= +t[0] && inf <= +t[1]) {
-				post.noHide = true;
+};
+Spells.prototype = {
+	_names: [
+		'words', 'exp', 'exph', 'imgn', 'ihash',
+		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'true', 
+		'num'
+	],
+	_funcs: [
+		function(post, val) {			// words
+			var pTitle;
+			return getText(post).toLowerCase().contains(val) ||
+				(pTitle = $q('.replytitle, .filetitle', post)) &&
+				pTitle.textContent.toLowerCase().contains(val);
+		},
+		function(post, val) {			// exp
+			return val.test(getText(post));
+		},
+		function(post, val) {			// exph
+			return val.test(post.innerHTML);
+		},
+		function(post, val) {			// imgn
+			var inf = $c(aib.cFileInfo, post);
+			return inf && val.test(inf.textContent);
+		},
+		function(post, val) {			// ihash
+			return post.img[0] && getImgHash(post) === val;
+		},
+		function(post, val) {			// subj
+			var pTitle = $q('.replytitle, .filetitle', post);
+			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
 			}
-		}
-	}
-	if(x.words[0] || x.theme[0]) {
-		pTitle = $c('replytitle', post) || $c('filetitle', post);
-		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
-	}
-	pText = getText(post);
-	if(x.words[0]) {
-		for(i = 0, inf = pText.toLowerCase(); t = x.words[i++];) {
-			_t = t;
-			t = t.toLowerCase();
-			if(inf.contains(t) || pTitle.contains(t)) {
-				return _t;
+			return !val || val.test(pTitle);
+		},
+		function(post, val) {			// name
+			var pName = $q('.commentpostername, .postername', post);
+			if(!pName || !(pName = pName.textContent)) {
+				return false;
 			}
-		}
-	}
-	if(x.theme[0]) {
-		for(i = 0; t = x.theme[i++];) {
-			if(t.test(pTitle)) {
-				return '#theme ' + t.toString();
+			return !val || pName.contains(val);
+		},
+		function(post, val) {			// trip
+			var pTrip = $c('postertrip', post);
+			if(!pTrip) {
+				return false;
 			}
-		}
-	}
-	if(x.exp[0]) {
-		for(i = 0, inf = pText; t = x.exp[i++];) {
-			if(t.test(inf)) {
-				return '#exp ' + t.toString();
+			return !val || pTrip.textContent.contains(val);
+		},
+		function(post, val) {			// img
+			if(!post.img[0]) {
+				return false;
 			}
-		}
-	}
-	if(x.exph[0]) {
-		for(i = 0, inf = post.innerHTML; t = x.exph[i++];) {
-			if(t.test(inf)) {
-				return '#exph ' + t.toString();
-			}
-		}
-	}
-	if(x.name[0] || x.trip) {
-		pName = $c('commentpostername', post) || $c('postername', post);
-		pTrip = $c('postertrip', post);
-	}
-	if(x.trip && pTrip) {
-		return '#trip';
-	}
-	if(x.name[0]) {
-		pName = pName ? pName.textContent : '';
-		pTrip = pTrip ? pTrip.textContent : '';
-		for(i = 0; t = x.name[i++];) {
-			_t = t;
-			t = t.split(/!+/);
-			if(t[0] && pName.contains(t[0]) || t[1] && pTrip.contains(t[1])) {
-				return '#name ' + _t;
-			}
-		}
-	}
-	if(post.img.length > 0) {
-		if(x.ihash[0]) {
-			for(i = 0, inf = getImgHash(post); t = x.ihash[i++];) {
-				if(t === inf) {
-					return '#ihash ' + t;
+			if(val) {
+				var temp, wh, w, h;
+				if(temp = val[1]) {
+					w = getImgWeight(post);
+					switch(val[0]) {
+					case 0: h = w >= temp[0] && w <= temp[1]; break;
+					case 1: h = w < temp[0]; break;
+					case 2: h = w > temp[0]; break;
+					}
+					if(!h) {
+						return false;
+					} else if(!val[2]) {
+						return true;
+					}
 				}
-			}
-		}
-		if(x.img[0]) {
-			_t = getImgSize(post);
-			imgW = +_t[0];
-			imgH = +_t[1];
-			imgK = getImgWeight(post);
-			for(i = 0; t = x.img[i++];) {
-				if(getImgSpell(imgW, imgH, imgK, t)) {
-					return '#img ' + t;
-				}
-			}
-		}
-		if(x.imgn[0]) {
-			inf = $c(aib.cFileInfo, post);
-			if(inf) {
-				for(i = 0, inf = inf.textContent; t = x.imgn[i++];) {
-					if(t.test(inf)) {
-						return '#imgn ' + t;
+				if(temp = val[2]) {
+					wh = getImgSize(post);
+					w = wh[0];
+					h = wh[1];
+					switch(val[0]) {
+					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
+					case 1: return w < temp[0] && h < temp[3];
+					case 2: return w > temp[0] && h > temp[3];
 					}
 				}
 			}
+			return true;
+		},
+		function(post, val) {			// sage
+			return post.sage;
+		},
+		function(post, val) {			// op
+			return post.isOp;
+		},
+		function(post, val) {			// tlen
+			var text = getText(post);
+			if(!val) {
+				return !!text;
+			}
+			return Spells.checkArr(val, text.replace(/\n/g, '').length);
+		},
+		function(post, val) {			// true
+			return true;
+		},
+		function(post, val) {			// num
+			return Spells.checkArr(val, post.count);
 		}
-	}
-	if(oSpells.num[0]) {
-		for(i = 0, inf = post.count + 1; t = oSpells.num[i++];) {
-			_t = t;
-			t = t.split('-');
-			if(inf >= +t[0] && inf <= +t[1]) {
-				return '#num ' + _t;
+	],
+	_repRegExp:  /([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
+	_outrepRegExp: /([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
+	_toRegExp: function(str) {
+		var l = str.lastIndexOf('/');
+		return new RegExp(str.substr(1, l - 1), str.substr(l + 1));
+	},
+	_parseSpell: function(tokens, str, offset) {
+		var opt, type, rType, exp, temp,
+			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?(?:\((.*?[^\\])\))?/);
+		if(!val) {
+			this._errorMessage = 'syntax error';
+			this._lastErrCol = 0;
+			return 0;
+		}
+		type = this._names.indexOf(val[1]);
+		if(type === -1) {
+			this._errorMessage = 'unknown spell: ' + val[1];
+			this._lastErrCol = 1;
+			return 0;
+		}
+		if((type !== 15 || type !== 16) && this._lastType === 2) {
+			this._errorMessage = 'missing operator before statement';
+			this._lastErrCol = 0;
+			return 0;
+		}
+		if(this._opNeg) {
+			rType = type | 0x100;
+			this._opNeg = false;
+		} else {
+			rType = type;
+		}
+		opt = val[2] && [val[2], val[3]];
+		exp = val[4];
+		if(!exp) {
+			if(type > 4 && type < 13) {
+				exp = '';
+			} else {
+				this._errorMessage = 'missing argument for spell ' + val[0];
+				this._lastErrCol = val[0].length;
+				return 0;
 			}
 		}
-	}
-	if(x.tmax[0]) {
-		for(i = 0, inf = pText.replace(/\n/g, '').length; t = x.tmax[i++];) {
-			if(inf >= t) {
-				return '#tmax ' + t;
+		switch(type) {
+		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
+		case 4:
+			exp = +exp;
+			if(exp !== exp) {
+				this._errorMessage = 'can\'t convert ' + val[4] + ' to number';
+				this._lastErrCol = val[0].length - val[4].length - 1;
+				return 0;
+			}
+			tokens.push([rType, exp, opt]);
+			break;
+		case 8:
+			if(exp) {
+				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
+				if(!exp || (!exp[2] && !exp[3])) {
+					this._errorMessage = 'syntax error';
+					this._lastErrCol = val[0].length - val[4].length - 1;
+					return 0;
+				}
+				tokens.push([rType, [exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2, exp[2] && [+exp[2], exp[3] ? +exp[3] : +exp[2]], exp[4] && [+exp[4], exp[5] ? +exp[5] : +exp[4], +exp[6], exp[7] ? +exp[7] : +exp[6]]], opt]);
+			} else {
+				tokens.push([rType, exp, opt]);
+			}
+			break;
+		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
+		case 11:
+			if(!exp) {
+				tokens.push([rType, exp, opt]);
+				break;
+			}
+		case 13:
+			exp.split(/, */).forEach(function(val) {
+				if(val.contains('-')) {
+					var nums = val.split('-');
+					nums[0] = +nums[0];
+					nums[1] = +nums[1];
+					this[1].push(nums);
+				} else {
+					this[0].push(+val);
+				}
+			}, temp = [[], []]);
+			tokens.push([rType, temp, opt]);
+			break;
+		case 14:
+		case 15:
+			return val[0].length;
+		case 5:
+			if(!exp) {
+				tokens.push([rType, exp, opt]);
+				break;
+			}
+		case 1:
+		case 2:
+		case 3:
+			try {
+				this._toRegExp(exp);
+			} catch(e) {
+				this._errorMessage = 'syntax error in regular expression: ' + exp;
+				this._lastErrCol = val[0].length - exp.length - 1;
+				return 0;
+			}
+		default: tokens.push([rType, exp, opt]); break;
+		}
+		this._lastType = 2;
+		return val[0].length;
+	},
+	_setOperator: function(scope, op) {
+		if(op === 2) {
+			if(!this._lastType || this._lastType === 3) {
+				this._lastType = 1;
+				return this._opNeg = true;
+			}
+		} else {
+			if(this._lastType === 2 || this._lastType === 4) {
+				this._lastType = 0;
+				if(op === 1) {
+					scope[scope.length - 1][0] |= 0x200;
+				}
+				return true;
 			}
 		}
-	}
-	if(x.sage && post.sage) {
-		return '#sage';
-	}
-	if(x.notxt && !pText) {
-		return '#no text';
-	}
-	if(x.noimg && post.img.length === 0) {
-		return '#no image';
-	}
-	return false;
-}
+		return false;
+	},
+	_compile: function(sList) {
+		if(!sList) {
+			return null;
+		}
+		this._lastType = this._opNeg = null;
+		var data = [],
+			scopes = [],
+			scope = data,
+			bkt = 0;
+		for(var d, col = 1, line = 1, i = 0, len = sList.length; i < len; i++, col++) {
+			switch(sList[i]) {
+			case '\n': line++; col = 0;
+			case ' ': continue;
+			case '#': 
+				d = this._parseSpell(scope, sList, i);
+				if(d === 0) {
+					 this._error = this._errorMessage + ' (' + line + ':' + (col + this._lastErrCol) + ')';
+					 return false;
+				} else {
+					i += d;
+					col += d;
+				}
+				break;
+			case '(':
+				scopes.push(scope);
+				scope.push([this._opNeg ? 0x1FF : 0xFF, []])
+				scope = scope[scope.length - 1][1];
+				bkt++;
+				this._lastType = 3;
+				this._opNeg = false;
+				break;
+			case ')':
+				if(bkt > 0) {
+					scope = scopes.pop();
+					bkt--;
+				} else {
+					this._error = 'missing ( in parenthetical (' + line + ':' + col + ')';
+					return false;
+				}
+				this._lastType = 4;
+				break;
+			case '|':
+			case '&':
+			case '!':
+				if(this._setOperator(scope, sList[i] === '|' ? 0 : sList[i] === '&' ? 1 : 2)) { break; }
+			default:
+				this._error = 'unexpected character ' + sList[i] + ' (' + line + ':' + col + ')';
+				return false;
+			}
+		}
+		if(this._lastType !== 2 && this._lastType !== 4) {
+			this._error = 'syntax error (' + line + ')';
+			return false;
+		}
+		if(bkt > 0) {
+			this._error = 'missing ) in parenthetical (' + line + ')';
+			return false;
+		}
+		return data.length === 0 ? null : data;
+	},
+	_clearScope: function(nScope, item, i, len) {
+		var neg = (item & 0x100) !== 0;
+		if(i === len - 1) {
+			if(i === 0) {
+				return null;
+			}
+			var temp = nScope.length - 1;
+			if(neg) {
+				while(nScope[temp] && (nScope[temp][0] & 0x200) === 0) {
+					delete nScope[temp];
+					temp -= 2;
+				}
+				if(nScope[temp]) {
+					nScope[temp][0] &= 0x1FF;
+				}
+				return temp >= 0 ? nScope : [[12,'',null]];
+			} else {
+				while(nScope[temp] && (nScope[temp][0] & 0x200) !== 0) {
+					delete nScope[temp];
+					temp -= 2;
+				}
+				return temp >= 0 ? nScope : null;
+			}
+		} else if((item & 0x200) !== 0) {
+			if(!neg) {
+				return null;
+			}
+		} else if(neg) {
+			return [[12,'',null]];
+		}
+		return false;
+	},
+	_processScope: function(scope) {
+		for(var i = 0, len = scope.length, nScope = [], type, spell, temp; i < len; i++) {
+			spell = scope[i];
+			type = spell[0] & 0xFF;
+			if(type === 0xFF) {
+				if(temp = this._processScope(spell[1])) {
+					if(temp.length === 1) {
+						temp = temp[0];
+						temp[0] |= spell[0] & 0x300;
+						nScope.push(temp);
+					} else {
+						nScope.push([spell[0], temp]);
+					}
+				} else {
+					temp = this._clearScope(nScope, spell[0], i, len);
+					if(temp !== false) {
+						return temp;
+					}
+				}
+			} else {
+				temp = spell[2];
+				if((temp && (temp[0] !== brd || (temp[1] && temp[1] !== TNum)))) {
+					temp = this._clearScope(nScope, spell[0], i, len);
+					if(temp !== false) {
+						return temp;
+					}
+					continue;
+				}
+				if(type === 12) {
+					temp = this._clearScope(nScope, spell[0] ^ 0x100, i, len);
+					if(temp !== false) {
+						return temp;
+					}
+					continue;
+				}
+				nScope.push(spell);
+			}
+		}
+		return nScope.length === 0 ? null : nScope;
+	},
+	_removeBoards: function(data) {
+		console.log('rb:' + JSON.stringify(data));
+		if(!data) {
+			return false;
+		}
+		return this._processScope(data);
+	},
+	_initSpells: function(data) {
+		console.log('init:' + JSON.stringify(data));
+		if(data) {
+			data.forEach(function initExps(item) {
+				switch(item[0] & 0xFF) {
+				case 1:
+				case 2:
+				case 3:
+				case 5: item[1] = this(item[1]); break;
+				case 0xFF: item[1].forEach(initExps, this);
+				}
+			}, this._toRegExp);
+		}
+		return data;
+	},
+	_realCheck: function(post) {
+		var rv = false;
+		this._spells.some(function checkSpell(spell) {
+			var val, temp = spell[0], type = temp & 0xFF;
+			if(type === 0xFF) {
+				spell[1].some(checkSpell, this);
+				val = rv;
+				rv = false;
+			} else {
+				val = this[type](post, spell[1]);
+			}
+			if((temp & 0x100) !== 0) {
+				val = !val;
+			}
+			if((temp & 0x200) !== 0) {
+				if(!val) {
+					rv = false;
+					return true;
+				}
+			} else if(val) {
+				rv = true;
+				return true;
+			}
+			return false;
+		}, this._funcs);
+		return rv;
+	},
+	_fakeCheck: function(post) {
+		return false;
+	},
+	_findReps: function(str) {
+		var reps = [],
+			outreps = [],
+			rStr = '';
+		str = str.replace(this._repRegExp, function(exp, preOp, fullExp, b, t, reg, txt) {
+			reps.push([b, t, reg, txt]);
+			rStr += fullExp + '\n';
+			return preOp || '';
+		}).replace(this._outrepRegExp, function(exp, preOp, fullExp, b, t, reg, txt) {
+			outreps.push([b, t, reg, txt]);
+			rStr += fullExp + '\n';
+			return preOp || '';
+		});
+		this._TEMP.reps = reps;
+		this._TEMP.outreps = outreps;
+		return [str, rStr];
+	},
+	_optimizeReps: function(data) {
+		if(data) {
+			var nData = [];
+			data.forEach(function(temp) {
+				if(!temp[0] || (temp[0] === brd && (!temp[1] || temp[1] === TNum))) {
+					nData.push([temp[2], temp[3]]);
+				}
+			});
+			return nData.length === 0 ? false : nData;
+		}
+		return false;
+	},
+	_initReps: function(data) {
+		if(data) {
+			for(var i = data.length - 1; i >= 0; i--) {
+				data[i][0] = this._toRegExp(data[i][0]);
+			}
+		}
+		return data;
+	},
+	_init: function(spells, reps, outreps) {
+		this._spells = this._initSpells(spells);
+		this._reps = this._initReps(reps);
+		this._outreps = this._initReps(outreps);
+		this.check = this._spells ? this._realCheck : this._fakeCheck;
+		this.haveSpells = !!spells;
+		this.haveReps = !!reps;
+		this.haveOutreps = !!outreps;
+	},
+	_disable: function() {
+		this.hash = 0;
+		this.list = '';
+		this.check = this._fakeCheck;
+		this.haveSpells = this.haveReps = this.haveOutreps = false;
+		saveCfg('hideBySpell', 0);
+	},
 
-function checkSpells(post) {
-	return !TNum && post.isOp ?
-		getSpells(tSpells, post) || getSpells(pSpells, post) : getSpells(pSpells, post);
-}
+	readed: false,
+	parseText: function(str) {
+		str = String(str).replace(/[\s\n]+$/, '');
+		this._TEMP = {list: str};
+		var oStr = this._findReps(str),
+			data = this._compile(oStr[0]);
+		if(data !== false) {
+			this._TEMP.gSpells = data;
+		} else if(this._error) {
+			try {
+				$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
+			} catch(e) {}
+			return false;
+		}
+		return oStr;
+	},
+	saveSpells: function(val) {
+		this.hash = ELFHash(val);
+		this.list = val;
+		setStored('DESU_Spells_' + aib.dm, JSON.stringify([this.hash, this.list]));
+		if(!val) {
+			this._disable();
+		}
+	},
+	saveTemp: function() {
+		var gSpells = this._TEMP.gSpells,
+			lSpells = this._removeBoards(gSpells),
+			reps = this._TEMP.reps,
+			outreps = this._TEMP.outreps;
+		if(reps.length === 0) {
+			reps = false;
+		}
+		if(outreps.length === 0) {
+			outreps = false;
+		}
+		setStored('DESU_CSpells_' + aib.dm, JSON.stringify([this.hash, gSpells, reps, outreps]));
+		reps = this._optimizeReps(reps);
+		outreps = this._optimizeReps(outreps);
+		sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+		this._init(lSpells, reps, outreps);
+		this.saveSpells(this._TEMP.list);
+	},
+	read: function() {
+		try {
+			data = JSON.parse(getStored('DESU_Spells_' + aib.dm));
+			this.hash = data[0];
+			this.list = data[1];
+			return true;
+		} catch(e) {}
+		return false;
+	},
+	update: function() {
+		if(this.read() && this.hash) {
+			var data, readed = false;
+			try {
+				data = JSON.parse(sessionStorage['de-spells']);
+				if(data && data[0] === this.hash) {
+					this._init(data[1], data[2], data[3]);
+					return;
+				}
+			} catch(e) {}
+			try {
+				data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
+				if(data && data[0] === this.hash) {
+					var lSpells = this._removeBoards(data[1]),
+						reps = this._optimizeReps(data[2]),
+						outreps = this._optimizeReps(data[3]);
+					this._init(lSpells, reps, outreps);
+					sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+					return;
+				}
+			} catch(e) {}
+			data = this.parseText(this.list);
+			this.saveSpells(data ? data.join('\n\n').replace(/\n+$/, '') : '');
+			this.saveTemp();
+		} else {
+			this._disable();
+		}
+	},
+	disable: function() {
+		this.check = this._fakeCheck;
+	},
+	replace: function(txt) {
+		for(var i = 0, len = this._reps.length; i < len; i++) {
+			console.log(typeof this._reps[i][0]);
+			txt = txt.replace(this._reps[i][0], this._reps[i][1]);
+		}
+		return txt;
+	},
+	outReplace: function(txt) {
+		for(var i = 0, len = this._outreps.length; i < len; i++) {
+			txt = txt.replace(this._outreps[i][0], his._outreps[i][1]);
+		}
+		return txt;
+	}
+};
 
 function hideBySpells(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
-	var exp = checkSpells(post);
-	if(exp) {
-		hidePost(post, exp.substring(0, 70));
-	} else if(post.hide && post.noHide) {
+	if(spells.check(post)) {
+		hidePost(post, 'By spells');
+	} else if(post.hide) {
 		unhidePost(post);
 	}
 }
 
-function verifyRegExp(txt) {
-	txt = txt.split('\n');
-	var t, rep,
-		i = txt.length,
-		re = /#exp |#exph |#rep |#outrep |#imgn |#video |#theme /;
-	while(i--) {
-		t = txt[i];
-		rep = t.match(re);
-		if(rep) {
-			try {
-				$toRegExp(t.substr(t.indexOf(rep)));
-			} catch(e) {
-				return t;
-			}
-		}
-	}
-	return false;
-}
-
 function disableSpells() {
-	Posts.forEach(function(post) {
-		if(post.ytHide === true) {
-			unhidePost(post);
-			post.ytHide = false;
-		} else if(checkSpells(post)) {
-			unhidePost(post);
-		}
-	});
+	closeAlert($id('de-alert-help-err-spell'));
+	if(spells.haveSpells) {
+		Posts.forEach(function(post) {
+			if(spells.check(post)) {
+				unhidePost(post);
+			}
+		});
+	}
 }
 
 function toggleSpells() {
-	var fld = $id('de-spell-edit'),
-		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		err = verifyRegExp(val);
-	if(err || !val) {
-		if(val) {
-			$alert(Lng.error[lang] + ' ' + err, 'err-spell', false);
-		} else {
-			disableSpells();
-			savePostsVisib();
-			saveSpells('');
-		}
-		$q('input[info="hideBySpell"]', doc).checked = false;
-		saveCfg('hideBySpell', 0);
-	} else {
+	var temp, fld = $id('de-spell-edit'),
+		val = fld.value;
+	if(val && (temp = spells.parseText(val)) && temp[0]) {
 		disableSpells();
-		saveSpells(val);
+		spells.saveTemp();
+		fld.value = temp.join('\n\n').replace(/\n+$/, '');
 		if(Cfg['hideBySpell']) {
 			Posts.forEach(hideBySpells);
-			hideByTube();
 		}
 		savePostsVisib();
+	} else {
+		disableSpells();
+		savePostsVisib();
+		spells.saveSpells('');
+		$q('input[info="hideBySpell"]', doc).checked = false;
 	}
 }
 
 function addSpell(spell) {
-	var err, fld = $id('de-spell-edit'),
-		val = fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
+	var temp, temp_, fld = $id('de-spell-edit'),
+		val = fld && fld.value;
 	if(!val) {
-		if(!spellsList) {
-			readSpells();
+		if(!spells.readed) {
+			spells.read();
 		}
-		val = spellsList.join('\n');
-	} else if(err = verifyRegExp(val)) {
-		$alert(Lng.error[lang] + ' ' + err, 'err-spell', false);
-		return;
+		val = spells.list;
 	}
-	if(('\n' + val).contains('\n' + spell)) {
-		val = ('\n' + val).split('\n' + spell).join('').replace(/^\n|\n$/g, '');
-	} else {
-		val = !val ? spell : val + '\n' + spell;
+	temp = spells.parseText(val);
+	if(temp) {
+		temp_ = false;
+		val = temp[0].split(new RegExp('(?:^|\\n)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
+		if(val.length === 1) {
+			console.log(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
+			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
+		} else {
+			console.log(val.join('') + '\n\n' + temp[1]);
+			temp = spells.parseText(val.join('') + '\n\n' + temp[1]);
+		}
+		if(temp) {
+			disableSpells();
+			spells.saveTemp();
+			if(fld) {
+				fld.previousSibling.firstChild.checked = !!(fld.value = spells.list);
+			}
+			if(spells.list) {
+				saveCfg('hideBySpell', 1);
+				Posts.forEach(hideBySpells);
+			}
+			return;
+		}
 	}
+	spells.disable();
 	if(fld) {
-		fld.value = val;
-		fld.previousSibling.firstChild.checked = !!val;
+		fld.previousSibling.firstChild.checked = false;
 	}
-	disableSpells();
-	saveSpells(val);
-	if(val) {
-		saveCfg('hideBySpell', 1);
-		Posts.forEach(hideBySpells);
-		hideByTube();
-	} else {
-		saveCfg('hideBySpell', 0);
-	}
-	savePostsVisib();
+	saveCfg('hideBySpell', 0);
 }
 
 
@@ -6099,7 +6366,7 @@ function checkForUpdates(isForce, Fn) {
 					}
 					return;
 				}
-				Cfg['lastScrUpd'] = Date.now();
+				saveCfg('lastScrUpd', Date.now());
 				while(i < len) {
 					if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 						isUpd = true;
@@ -6540,7 +6807,7 @@ function getImageboard() {
 
 function processPost(post, pNum, thr, i) {
 	post.thr = thr;
-	post.count = i;
+	post.count = i + 1;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
 	post.sage = aib.getSage(post);
@@ -6648,8 +6915,8 @@ function replaceString(txt) {
 	if(aib.fch && Cfg['noSpoilers']) {
 		txt = txt.replace(/"spoiler">/g, '"de-spoiler">');
 	}
-	if(Cfg['hideBySpell'] && oSpells.rep[0]) {
-		txt = replaceBySpells(oSpells.rep, txt);
+	if(spells.haveReps) {
+		txt = spells.replace(txt);
 	}
 	if(Cfg['crossLinks']) {
 		txt = txt.replace(
@@ -6671,10 +6938,12 @@ function replacePost(el) {
 }
 
 function replaceDelform() {
+	$disp(doc.body);
 	nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
 	dForm.style.display = 'none';
 	dForm.id = 'de-dform-old';
 	dForm = dForm.previousSibling;
+	$disp(doc.body);
 	$event(window, {'load': function() {
 		$del($id('de-dform-old'));
 	}});
