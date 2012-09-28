@@ -5342,9 +5342,6 @@ Spells.prototype = {
 		function(post, val) {			// true
 			return true;
 		},
-		function(post, val) {			// num
-			return Spells.checkArr(val, post.count + 1);
-		},
 		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
 			if(!post.tubeObj) {
 				Spells.retAsyncVal(post, !val, flags, sStack, hFunc, nhFunc);
@@ -5352,6 +5349,9 @@ Spells.prototype = {
 			}
 			//TODO: make #video spell work
 			Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
+		},
+		function(post, val) {			// num
+			return Spells.checkArr(val, post.count + 1);
 		}
 	],
 	_repRegExp:  /([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
