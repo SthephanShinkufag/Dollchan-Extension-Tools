@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.19.0
+// @version			12.9.24.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.19.0',
+	'version':	'12.9.24.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -170,7 +170,7 @@ Lng = {
 			txt:		['AJAX отправка постов*', 'posting with AJAX*']
 		},
 		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-		'removeEXIF':	['Удалять EXIF-данные из JPEG-изображений', 'Remove EXIF-data from JPEG-images'],
+		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
@@ -815,7 +815,9 @@ function readCfg() {
 	if(!nav.Firefox) {
 		defaultCfg['favIcoBlink'] = 0;
 	}
-	if(!nav.WebKit) {
+	if(nav.WebKit) {
+		Cfg['favIcoBlink'] = 0;
+	} else {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
@@ -1098,7 +1100,7 @@ function addPanel() {
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-select'));
 				}, null, selectAudioNotif, 'de_delSelection(event)')),
-				$if(aib.nul, pButton('catalog', null, '//0chan.ru/' + brd + '/catalog.html', null, null))
+				$if(aib.nul, pButton('catalog', null, '//0-chan.ru/' + brd + '/catalog.html', null, null))
 			]),
 			$if(TNum, $New('div', {'id': 'de-panel-info'}, [
 				$new('span', {
@@ -1195,7 +1197,7 @@ function fixSettings() {
 		'input[info="linksOut"]',
 		'input[info="markViewed"]',
 		'input[info="strikeHidd"]',
-		'input[info="noNavigHidd"]',
+		'input[info="noNavigHidd"]'
 	]);
 	toggleBox(Cfg['addYouTube'] && Cfg['addYouTube'] !== 4, [
 		'select[info="YTubeType"]', 'input[info="YTubeHD"]'
@@ -1315,7 +1317,7 @@ function getCfgFilters() {
 				}, null)
 			]),
 			lBox('hideBySpell', false, toggleSpells),
-			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 49}, null)
+			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 50}, null)
 		]),
 		lBox('hideByWipe', true, null),
 		$New('div', {'id': 'de-cfg-wipe'}, [
@@ -1350,7 +1352,7 @@ function getCfgPosts() {
 			$txt(Lng.cfg['updThrDelay'][lang])
 		]),
 		$New('div', {'style': 'padding-left: 25px;'}, [
-			lBox('favIcoBlink', true, null),
+			$if(!nav.WebKit, lBox('favIcoBlink', true, null)),
 			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					window.webkitNotifications.requestPermission();
@@ -1492,7 +1494,7 @@ function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
 		$if(nav.isGlobal, $New('div', null, [
 			$txt(Lng.cfg['excludeList'][lang]),
-			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 49}, {
+			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 50}, {
 				'keyup': function() {
 					setStored('DESU_Exclude', this.value);
 				}
@@ -1622,7 +1624,7 @@ function addSettings(Set) {
 			]),
 			$new('br', {'style': 'clear: both;'}, null),
 			$New('div', {'style': 'display: none;'}, [
-				$new('textarea', {'rows': 10, 'cols': 49}, null),
+				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
 					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 					window.location.reload();
@@ -2251,9 +2253,6 @@ function doSageBtn() {
 	} else {
 		pr.mail.checked = c;
 	}
-	if(aib.abu) {
-		setCookie('email', c ? 'sage' : '', 1e5);
-	}
 }
 
 function setUserName() {
@@ -2575,13 +2574,6 @@ function doPostformChanges(img, _img, el) {
 	if(pr.file) {
 		eventFiles($x(pr.tr, pr.file));
 	}
-	if(aib.nul) {
-		el = $id('posttypeindicator');
-		if(el) {
-			$del(el.parentNode);
-		}
-		pr.cap.style.cssText = 'display: block; float: left; margin-top: 1em;';
-	}
 }
 
 
@@ -2628,9 +2620,7 @@ function checkUpload(err, url) {
 			$disp(qArea = $id('de-qarea'));
 			qArea.appendChild($id('de-pform'));
 		}
-		if((aib.hana && /подтвердите, что вы человек/.test(err)) ||
-			(pr.cap && /captch|капч|подтверж/i.test(err)))
-		{
+		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
 			pr.cap.value = '';
 			pr.cap.focus();
 			refreshCapImg(pr.tNum);
@@ -2670,17 +2660,9 @@ function getFinalURL(dc, iframe) {
 		return $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
 	} else if(iframe) {
 		return window.location;
-	} else if($q(aib.qDForm, dc)) {
-		var tNum, thr = $q('.thread, ' + aib.qThread, dc);
-		if(thr) {
-			tNum = thr.id.match('\\d+' + (aib._420 ? '$' : ''))[0];
-		} else {
-			thr = $q(aib.qTNum, dc);
-			tNum = thr.value || thr.name.match(/\d+/)[0];
-		}
-		return getThrdUrl(aib.host, brd, tNum);
 	} else {
-		return '';
+		var el = $q(aib.qDForm, dc);
+		return el ? getThrdUrl(aib.host, brd, aib.getTNum(el)) : '';
 	}
 }
 
@@ -3074,7 +3056,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.abu || aib.krau || aib._420 || aib.mlpg,
+	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg,
 		tagTable = {
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -3191,7 +3173,7 @@ function addPostButtons(post) {
 	) + '</span>');
 	post.btns = ref.nextSibling;
 	if(pr.on && Cfg['insertNum']) {
-		if(aib.tinyIb || (aib.nul && TNum)) {
+		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
 			$each($T('a', ref), function(el) {
 				el.onclick = null;
 			});
@@ -3914,7 +3896,7 @@ function parsePostImg(e) {
 			}
 		}
 	} else {
-		self.postMessage(false);
+		self.postMessage(false, null);
 		return;
 	}
 	if(i !== len && len - i > 60) {
@@ -3924,12 +3906,12 @@ function parsePostImg(e) {
 				(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
 				(dat[i] === 0x52 && dat[i + 1] === 0x61)
 			) {
-				self.postMessage(true);
+				self.postMessage(true, null);
 				return;
 			}
 		}
 	}
-	self.postMessage(false);
+	self.postMessage(false, null);
 }
 
 
@@ -5220,7 +5202,7 @@ function getImgHash(post) {
 	h = cnv.height = img.height;
 	ctx = cnv.getContext('2d');
 	ctx.drawImage(img, 0, 0);
-	return img.hash = genImgHash(ctx.getImageData(0, 0, w, h).data, w, h);
+	return img.hash = genImgHash(ctx.getImageData(0, 0, w || 1, h || 1).data, w, h);
 }
 
 /*==============================================================================
@@ -6013,8 +5995,8 @@ function scriptCSS() {
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
-		.de-cfg-body { width: 371px; min-height: 347px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
-		.de-cfg-body input[type="text"] { width: auto; }\
+		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
 		.de-cfg-body input[value=">"] { width: 20px; }\
 		.de-blockinp { display: block; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
@@ -6041,7 +6023,7 @@ function scriptCSS() {
 		.de-cfg-unvis { display: none; }';
 
 	// Main panel
-	x += '#de-btn-logo { margin-right: 3px; }\
+	x += '#de-btn-logo { margin-right: 3px; cursor: pointer; }\
 		#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
 		#de-panel-btns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 		#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
@@ -6210,7 +6192,7 @@ function scriptCSS() {
 		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
-		x += '#newposts_get, .extrabtns, .ui-resizable-handle { display: none !important; }\
+		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	} else if(aib.mlpg) {
 		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
@@ -6237,7 +6219,7 @@ function scriptCSS() {
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, .de-thread span[style="float: right;"] { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .logo + hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
@@ -6452,7 +6434,7 @@ function getNavigator() {
 		WebKit: +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1]
 	};
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
-	nav.isGM = nav.Firefox && typeof GM_setValue === 'function';
+	nav.isGM = !!nav.Firefox && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
@@ -6477,7 +6459,6 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.visChange = nav.WebKit ? 'webkitvisibilitychange' : 'mozvisibilitychange';
 	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
 		nav.toBlob = function(arr, type) {
 			return type ? new Blob(arr, {'type': type}) : new Blob(arr);
@@ -6620,53 +6601,58 @@ function getImageboard() {
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
 	aib = {
-		kus: $xb('.//script[contains(@src,"kusaba")]', doc),
 		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
 		tiny: $xb('.//form[@name="postcontrols"]', doc),
-		abu: !!$id('LakeSettings'),
-		waka: $xb('.//script[contains(@src,"wakaba")]|.//form[contains(@action,"wakaba.pl")]', doc)
 	};
 	switch(h) {
+	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
-	case '4chan.org': aib.fch = true; break;
 	case '420chan.org': aib._420 = true; break;
-	case '7chan.org': aib._7ch = true; break;
-	case 'mlpg.co': aib.mlpg = true; break;
 	}
-	aib.qDForm = aib.brit ? '.threadz' :
+	aib.qDForm =
+		aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
 		aib.gazo ? 'form:nth-of-type(2)' :
 		'#delform, form[name="delform"]';
-	aib.qThread =
-		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
-		aib._420 ? '[id*="thread"]' :
-		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
-	aib.qTNum =
-		aib.gazo || (aib.tiny && !aib.mlpg) ? 'input[type="checkbox"]' :
-		aib.waka && !aib.abu || aib.brit ? 'a[name]' :
-		false;
+	aib.getTNum =
+		aib.fch || aib.krau || aib.gazo || aib.tiny ? function(op) {
+			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+		} :
+		aib.hana || aib.brit ? function(op) {
+			return $q('a[name]', op).name.match(/\d+/)[0];
+		} :
+		aib._420 ?  function(op) {
+			return $q('a[id]', op).id.match(/\d+/)[0];
+		} :
+		function(op) {
+			return $q('input[type="checkbox"]', op).value;
+		};
 	dForm = $q(aib.qDForm, doc);
 	if(!dForm) {
 		return;
 	}
 	aib.dm = h;
 	aib.host = window.location.hostname;
+	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.abu = !!$id('ABU_css');
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
-	case '0chan.ru': aib.nul = true; break;
+	case '0-chan.ru': aib.nul = true; break;
+	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
-	case '2--ch.ru': aib.tire = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
+	case '7chan.org': aib._7ch = true; break;
 	case 'ponychan.net': aib.pony = true; break;
+	case 'mlpg.co': aib.mlpg = true; break;
 	}
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
-		aib.tiny ? 'post reply' :
+		aib.tiny || aib.fch ? 'post reply' :
 		'reply';
 	aib.cOPost =
 		aib.kus ? 'postnode' :
@@ -6674,6 +6660,10 @@ function getImageboard() {
 		aib.mlpg ? 'opMain' :
 		'oppost';
 	aib.cThread = aib.krau ? 'thread_body' : 'thread';
+	aib.qThread =
+		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+		aib._420 ? '[id*="thread"]' :
+		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
 		aib.tiny ? '.intro > :last-child' :
@@ -6690,9 +6680,9 @@ function getImageboard() {
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]' + (aib.nul ? ':first-child,' : ',') +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]' + (aib.nul ? ':first-child' : '')
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"],' +
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"],' +
+		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]'
 	);
 	aib.qPostForm =
 		aib.gazo ? 'form:nth-of-type(1)' :
@@ -6728,7 +6718,7 @@ function getImageboard() {
 		aib.gazo ? function(thr) {
 			return $Q('td:nth-child(2)', thr);
 		} :
-		aib.tiny ? function(thr) {
+		aib.tiny || aib.fch ? function(thr) {
 			return $C('reply', thr);
 		} :
 		function(thr) {
@@ -6769,19 +6759,6 @@ function getImageboard() {
 			}
 			return op;
 		};
-	aib.getTNum =
-		(aib.kus && !aib._7ch) || aib.tinyIb ? function(op) {
-			return $q('input[type="checkbox"]', op).value;
-		} :
-		aib.qTNum ? function(op) {
-			return $q(aib.qTNum, op).name.match(/\d+/)[0];
-		} :
-		aib.krau ? function(op) {
-			return op.parentNode.previousElementSibling.name;
-		} :
-		function(op) {
-			return op.parentNode.id.match('\\d+' + (aib._420 ? '$' : ''))[0];
-		};
 	aib.getPNum = aib.gazo ?
 		function(post) {
 			return $t('input', post).name;
@@ -6820,10 +6797,10 @@ function parseDelform(el, dc, Fn) {
 		thrds = $C(aib.cThread, el);
 	$each($T('script', el), $del);
 	if(Posts.length < 2) {
-		aib.qTable = aib.fch || aib.mlpg ? $c('replyContainer', el) :
-			aib.tire ? 'table:not(.postfiles)' :
+		aib.qTable =
+			aib.fch || aib.mlpg ? '.replyContainer' :
 			aib.brit ? 'div[id^="replies"] > table' :
-			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'table' :
+			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'form > table, div > table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
@@ -6836,7 +6813,7 @@ function parseDelform(el, dc, Fn) {
 				return post;
 			};
 		if(aib.qTable) {
-			if((postWrapper = aib.fch || aib.mlpg ? aib.qTable : $q(aib.qTable, el)) && dc !== doc) {
+			if((postWrapper = $q(aib.qTable, el)) && dc !== doc) {
 				postWrapper = doc.importNode(postWrapper, true);
 			}
 		}
@@ -6995,13 +6972,13 @@ function initPage() {
 			docTitle = doc.title;
 		}
 		if(nav.Firefox > 10 || nav.WebKit) {
-			doc.addEventListener(nav.visChange, function() {
+			doc.addEventListener((nav.WebKit ? 'webkit' : 'moz') + 'visibilitychange', function() {
 				if(doc.mozHidden || doc.webkitHidden) {
 					Favico.focused = false;
 				} else {
 					onVis();
 				}
-			});
+			}, false);
 			Favico.focused = !(doc.mozHidden || doc.webkitHidden);
 		} else {
 			window.onblur = function() {

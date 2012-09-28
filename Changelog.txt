@@ -1,0 +1,260 @@
+Sep 23, 2012
+  - Disable favicon blinking for Chrome
+		+ Option "Posts" > "Favicon blinking on new posts" removed in Chrome
+		+ Опция "Посты" > "Мигать фавиконом при новых постах" убрана в Хроме
+
+Sep 21, 2012
+	- Adds ability to disable of multiple dependent checkboxes
+		+ Options in "Settings" will not be available if they are dependent to disabled options
+		+ Опции в "Настройках" становятся недоступными, если зависят от других опций, которые отключены
+
+Sep 20, 2012
+	- Add iframe ajax posting option
+		+ New ability to choice between AJAX methods
+			"Form" > "[HTML5] posting with AJAX"
+			"Форма" > "[Iframe] posting with AJAX"
+		+ Добавлена возможность выбора между аякс-методами
+			"Форма" > "[HTML5] отправка постов"
+			"Форма" > "[Iframe] отправка постов"
+
+Sep 19, 2012
+	- Add closure-compiled userscript file
+		+ Added compressed script on github.com
+			Used http://closure-compiler.appspot.com/home, Advanced method
+		+ Добавлен скомпилированный сжатый скрипт на github.com
+			Используется http://closure-compiler.appspot.com/home, Advanced метод
+
+Sep 17, 2012
+	- Remove betaScrUpd option
+		+ Removed difference between of "stable" and "beta" script releases
+			Removed option "Common" > "Check updates for beta-version"
+		+ Убрано разделение релизов скрипта на "стабильные" и "бета" версии
+			Убрана опция "Общее" > "Проверять обновления для beta-версии"
+
+Sep 16, 2012
+	- New option - address list, that excludes script
+		+ New ability to disable the script on websites mentioned in the list
+			"Common" > "Address list, that excludes script launch"
+			Each domain is entered on a separate line in textarea
+		+ Добавлена возможность запрещать выполнение скрипта на сайтах, указанных в списке
+			"Общее" > "Список адресов, запрещающих запуск скрипта"
+			Каждый домен адреса вводится с новой строки в текстовое поле
+ 
+Sep 14, 2012
+	- Remove youtube tags support
+		+ Removed #vtag spell that detecting youtube tags
+		+ Убран спелл #vtag, детектирующий ютуб-тэги
+
+Sep 13, 2012
+	- Simplify addHiddenTable
+		+ Removed extra information about hidden threads in "Hidden"
+			Removed option "Filters" > "View hidden on №postnumber"
+		+ Убрана лишняя информация о скрытых тредах в "Скрытом"
+			Убрана опция "Фильтры" > "Просмотр скрытого по №поста"
+
+Sep 07, 2012
+	- New option: recognize crossboard >>/b/links
+		+ New ability to replace links between threads into useful for preview
+			"Links" > "Replace http:// with >>/b/links*"
+		+ Добавлена возможность замены ссылок между тредами на пригодные для превью
+			"Ссылки" > "Преобразовывать http:// в >>/b/ссылки"
+	- New option - hanging postform. Preliminary.
+		+ New ability to make reply form fixed in the screen corner
+			"Form" > "[Hanging] reply form in thread"
+		+ Добавлена возможность делать форму отправки фиксированной в углу экрана
+			"Форма" > "[Отдельная] форма ответа в треде"
+
+Sep 06, 2012
+	- Fix textbuttons & improve txtResizer
+		+ Used built-in browser textarea resizer
+		+ Использование встроенного в браузер ресайзера текстового поля
+	- Rename prefixes dE_ --> de-
+		+ Globally renamed prefixes in all script classes and id
+		+ Глобально переименованы префиксы во всех классах и id скрипта
+	- Remove Gradient Blue style
+		+ Removed option "Common" > "[Gradient Blue] script style"
+		+ Убрана опция "Общее" > "[Gradient Blue] стиль скрипта"
+
+Sep 05, 2012
+	- Handle deleted posts
+		+ Deleted posts stored in sessionStorage
+		+ Удаленные посты хранятся в sessionStorage
+
+Sep 04, 2012
+	- Speed-up initPage
+		+ Removed option "Settings"> "Common" > "[Always] Check interval" for script update
+		+ Убрана опция "Общее" > "[Всегда] Интервал проверки" для обновления скрипта
+	- Use class for hiding posts
+		+ Скрытие постов осуществляется посредством применения классов
+
+Sep 03, 2012
+	- Mark by color new posts counter in Favorites
+		+ "Favorites" > button "Info" marks counters in blue when new posts available
+		+ "Избранное" > кнопка "Инфо" помечает счетчики синим цветом при наличии новых постов
+
+Sep 02, 2012
+	- Use sessionStorage in dateTime
+		+ Apply sessionStorage to store correct time templates
+		+ Шаблоны коррекции времени хранятся в sessionStorage
+	- Enable html5 functions on 0chan.ru
+		+ Включены html5 функции на 0chan.ru
+
+Sep 01, 2012
+	- Use new algorythm only for first page loading
+		+ Accelerated replacement of page content
+		+ Ускорена замена содержимого страницы
+
+Aug 28, 2012
+	- Remove obsolete animations
+		+ Removed js-animation for older browsers
+		+ Убрана костыльная js-анимация для старых браузеров
+
+Aug 27, 2012
+	- Introduce page number check button in Favorites
+		+ Added detection of page that contains favorite thread
+			"Favorites" > "Page" button
+		+ Добавлен детектор страницы, на которой находится избранный тред ("глубинометр")
+			"Избранное" > кнопка "Страница"
+
+Aug 25, 2012
+	- Improve getHanaPost
+		+ Caching time correction settings, support for the full month names
+		+ Кеширование настроек коррекции времени, поддержка полных названий месяцев
+	- Refresh CSS when user changes script language
+		+ Changing the language in "Settings" now proceed without refresh
+		+ Изменение языка в настройках теперь происходит без перезагрузки
+
+Aug 24, 2012
+	- Better time pattern checking
+		+ Added checking for entered time correction settings
+		+ Добавлена проверка на корректность введенных настроек коррекции времени
+
+Aug 23, 2012
+	- Delete unnecessary merging of hidden posts
+		+ Removed option "Filters" > "Merge hidden posts"
+		+ Убрана опция "Фильтры" > "Объединять скрытые посты"
+	- Remove ylilauta.org from supported boards
+		+ Убраны костыли для неподдерживаемой ylilauta.org
+
+Aug 21, 2012
+	- Don't show quick reply button if it might not work
+		+ Disabled quick reply in tinyboard engine boards
+		+ Отключен быстрый ответ на tinyboard досках
+	- Support mlpg.co markup
+		+ Добавлена специальная поддержка mlpg.co
+
+Aug 20, 2012
+	- Remove Firefox < 4 support
+		+ Убрана поддержка Firefox версии < 4
+
+Aug 19, 2012
+	- Refreshless deleting for opera
+		+ Deleting posts in Opera now proceed with iframe ajax
+		+ Удаление постов в Опере теперь происходит без перезагрузки
+
+Aug 13, 2012
+	- Change icon of manually hidden posts
+		+ Изменена иконка скрытых вручную постов
+	- Increase posterization level to 3
+		+ Increased posterization level of #lhash spell from 2 to 3
+		+ Увеличен уровень постеризации спелла #lhash с 2 до 3
+	- Simplify password settings
+		+ User password in "Form" is now generated only once
+		+ Пользовательский пароль в "Форма" теперь генерируется только один раз
+
+Aug 12, 2012
+	- Disable by default favicon blinking but allow to enable it for opera/chrome users
+			"Posts" > "Favicon blinking on new posts" 
+		+ Возвращена опция мигания фавикона при новых постах в Опере/Хроме
+			"Посты" > "Мигать фавиконом при новых постах" 
+
+Aug 10, 2012
+	- Add hideByRef feature
+		+ New ability to hide replies to hidden posts
+			"Filters" > "Hide replies to hidden posts"
+		+ Добавлена возможность скрывать ответы на скрытые посты
+			"фильтры" > "Скрывать ответы на скрытые посты"
+	- Console error logging added
+		+ Add log to error console when parser fails
+		+ Добавлять лог в консоль ошибок при ошибке парсера
+
+Aug 09, 2012
+	- Save wipe parameters along with hide info
+		+ Anti-wipe parameters now are stored along with hidden posts information
+		+ Антивайп-параметры теперь хранятся вместе с информацией о скрытых постах
+	- Simplify webstorage checking
+		+ Supported browsers should have webstorage
+		+ Поддерживаемые браузеры теперь должны иметь webstorage хранилище
+	- Remove outdated and unnecessary Cookies mode
+		+ Removed all script interactions with the cookies storage
+		+ Убрано взаимодействие скрипта с хранилищем в куках
+
+Aug 08, 2012
+	- Prototype new save algorythm
+		+ Saving hidden posts with the new algorithm
+			Manually hidden posts are stored in the master storage
+			Posts hidden by filters are stored in sessionStorage
+		+ Сохранение скрытых постов происходит по новому алгоритму
+			Вручную скрытые посты сохраняются в основном хранилище
+			Скрытые фильтрами посты сохраняются в sessionStorage
+
+Aug 07, 2012
+	- Update captcha if user enter it wrong
+		+ Авто-обновление капчи при неправильном вводе
+
+Aug 06, 2012
+	- Save hash alone with spells
+		+ Реализовано сохранение спеллов вместе с хешем
+
+Jul 31, 2012
+	- Disable blob-features on some webkit browsers
+		+ Disabled blob image processing and related options for Safari
+		+ Отключена для Safari blob-обработка изображений и соответствующие опции
+
+Jul 25, 2012
+	- Auto-detect browser language
+		+ Авто-детектирование языка из настроек браузера
+
+Jul 23, 2012
+	- Fix video links before submit
+		+ Links before sending are corrected to ...watch?v=...
+		+ Ссылки ютуба перед отправкой исправляются на ...watch?v=...
+
+Jul 15, 2012
+	- Show some menus with delay
+		+ Some menus now appear thru a brief cursor delay
+		+ Некоторые меню теперь появляются при краткой задержке курсора
+
+Jul 14, 2012
+	- Don't notify about new hidden posts
+		+ Auto-update is now not announce new posts, if they are hidden
+		+ Авто-обновление теперь не оповещает о новых постах, если они скрыты
+
+Jul 12, 2012
+	- Ability to add custom image search
+		+ New ability to search for images by external userscript
+			Also visit https://github.com/Y0ba/ExHentai4Dollchan
+		+ Добавлена возможность поиска изображений средствами сторонних скриптов
+			См. страницу https://github.com/Y0ba/ExHentai4Dollchan
+
+Jul 05, 2012
+	- Replace XPath with querySelector where possible
+		+ Селекторы в скрипте заменены с XPath на Query 
+
+Jul 01, 2012
+	- Add image expand options
+		+ New abilities for images processing:
+			"Posts" > "Animate GIFs in posts"
+			"Posts" > "Open spoiler-images"
+		Checkboxes of anti-wipe detectors placed more compact
+		+ Добавлены возможности для обработки картинок:
+			"Посты" > "Анимировать GIFы в постах"
+			"Посты" > "Раскрывать изображения-спойлеры"
+		Чекбоксы антивайп-детекторов размещены более компактно
+
+Jun 29, 2012
+	- Add ability to get script info
+		+ New ability of obtaining a convenient debugging info
+			"Info" > "Debug" button
+		+ Добавлена возможность получения удобной отладочной информации
+			"Инфо" > кнопка "Отладка"
