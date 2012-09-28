@@ -705,7 +705,6 @@ function getPrettyJSON(obj, indent) {
 }
 
 function ELFHash(str) {
-	try {
 	for(var g, h = 0, i = 0, len = str.length; i < len; ++i) {
 		h = (h << 4) + str.charCodeAt(i);
 		if(g = h & 0xF0000000) {
@@ -714,14 +713,6 @@ function ELFHash(str) {
 		h &= ~g;
 	}
 	return h;
-	}catch(e) {
-		GM_log('ERROR:\n' + (nav.WebKit ? e.stack :
-			e.name + ': ' + e.message + '\n' +
-			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
-				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
-			}) : e.stack)
-		));
-	}
 }
 
 
@@ -864,7 +855,6 @@ function readCfg() {
 		);
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
-	console.log(spells.haveReps);
 	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
@@ -5587,14 +5577,12 @@ Spells.prototype = {
 		return nScope.length === 0 ? null : nScope;
 	},
 	_removeBoards: function(data) {
-		console.log('rb:' + JSON.stringify(data));
 		if(!data) {
 			return false;
 		}
 		return this._processScope(data);
 	},
 	_initSpells: function(data) {
-		console.log('init:' + JSON.stringify(data));
 		if(data) {
 			data.forEach(function initExps(item) {
 				switch(item[0] & 0xFF) {
@@ -5776,7 +5764,6 @@ Spells.prototype = {
 	},
 	replace: function(txt) {
 		for(var i = 0, len = this._reps.length; i < len; i++) {
-			console.log(typeof this._reps[i][0]);
 			txt = txt.replace(this._reps[i][0], this._reps[i][1]);
 		}
 		return txt;
@@ -5844,10 +5831,8 @@ function addSpell(spell) {
 		temp_ = false;
 		val = temp[0].split(new RegExp('(?:^|\\n)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
 		if(val.length === 1) {
-			console.log(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
 			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
 		} else {
-			console.log(val.join('') + '\n\n' + temp[1]);
 			temp = spells.parseText(val.join('') + '\n\n' + temp[1]);
 		}
 		if(temp) {
