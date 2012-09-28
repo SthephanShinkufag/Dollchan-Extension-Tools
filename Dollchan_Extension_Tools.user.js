@@ -5801,20 +5801,23 @@ function disableSpells() {
 function toggleSpells() {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld.value;
-	if(val && (temp = spells.parseText(val)) && temp[0]) {
-		disableSpells();
-		spells.saveTemp();
-		fld.value = spells.list;
-		if(Cfg['hideBySpell']) {
-			Posts.forEach(hideBySpells);
+	if(val) {
+		if((temp = spells.parseText(val)) && temp[0]) {
+			disableSpells();
+			spells.saveTemp();
+			fld.value = spells.list;
+			if(Cfg['hideBySpell']) {
+				Posts.forEach(hideBySpells);
+			}
+			savePostsVisib();
+			return;
 		}
-		savePostsVisib();
 	} else {
 		disableSpells();
 		savePostsVisib();
-		spells.saveSpells('');
-		$q('input[info="hideBySpell"]', doc).checked = false;
 	}
+	spells.saveSpells('');
+	$q('input[info="hideBySpell"]', doc).checked = false;
 }
 
 function addSpell(spell) {
