@@ -4925,11 +4925,11 @@ function doPostFilters(post) {
 		sVis[post.count] = 0;
 		doHidePost(post, note);
 	} else {
+		sVis[pst.count] = 1;
 		spells.check(post, function(pst) {
 			sVis[pst.count] = 0;
 			doHidePost(pst, 'By spells');
 		}, false);
-		sVis[post.count] = 1;
 	}
 }
 
