@@ -3628,8 +3628,8 @@ function addLinkTube(post) {
 		}
 		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
-		if(!$c('de-ytube-obj', pst)) {
-			el = $new('div', {'class': 'de-ytube-obj'}, null);
+		if(!pst.tubeObj) {
+			pst.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg['addYouTube'] === 2) {
@@ -3650,15 +3650,23 @@ function addLinkTube(post) {
 			link.textContent = link.textContent.replace(/^http:/, 'https:');
 			return;
 		}
+		link.textData = 1;
 		GM_xmlhttpRequest({
 			'method': 'GET',
 			'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
 				'?alt=json&fields=title/text(),media:group/media:keywords',
-			'onload': function(xhr) {
-				try {
-					link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+			'onreadystatechange': function(xhr) {
+				if(xhr.readyState === 4) {
+					if(xhr.status === 200) {
+						try {
+							link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+							link.textData = 2;
+							return;
+						} catch(e) {}
+					}
+					link.textData = 3;
 					link = pst = null;
-				} catch(e) {}
+				}
 			}
 		});
 	});
@@ -4912,11 +4920,15 @@ function doPostFilters(post) {
 		sVis[post.count] = 1;
 		return;
 	}
-	var note = detectWipeText(getText(post)) || spells.check(post);
+	var note = detectWipeText(getText(post));
 	if(note) {
 		sVis[post.count] = 0;
 		doHidePost(post, note);
 	} else {
+		spells.check(post, function(pst) {
+			sVis[pst.count] = 0;
+			doHidePost(pst, 'By spells');
+		}, false);
 		sVis[post.count] = 1;
 	}
 }
@@ -4937,7 +4949,12 @@ function setPostsVisib() {
 				}
 			}
 			if(vis === undefined) {
-				sVis[i] = detectWipeText(getText(post)) || spells.check(post) ? 0 : 1;
+				sVis[i] = vis = detectWipeText(getText(post)) ? 0 : 1;
+				if(vis === 1) {
+					spells.check(post, function(pst) {
+						sVis[pst.count] = 0;
+					}, false);
+				}
 			}
 			continue;
 		}
@@ -5220,10 +5237,20 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
+Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc) {
+	var rv = spells._checkRes(flags, val);
+	if(rv === null) {
+		spells._continueCheck(sStack, post, hFunc, nhFunc);
+	} else if(rv) {
+		hFunc(post);
+	} else if(nhFunc) {
+		nhFunc(post);
+	}
+};
 Spells.prototype = {
 	_names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash',
-		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'true', 
+		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'true', 'video',
 		'num'
 	],
 	_funcs: [
@@ -5317,6 +5344,14 @@ Spells.prototype = {
 		},
 		function(post, val) {			// num
 			return Spells.checkArr(val, post.count + 1);
+		},
+		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
+			if(!post.tubeObj) {
+				Spells.retAsyncVal(post, !val, flags, sStack, hFunc, nhFunc);
+				return;
+			}
+			//TODO: make #video spell work
+			Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
 		}
 	],
 	_repRegExp:  /([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
@@ -5327,7 +5362,7 @@ Spells.prototype = {
 	},
 	_parseSpell: function(tokens, str, offset) {
 		var opt, type, rType, exp, temp,
-			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?(?:\((.*?[^\\])\))?/);
+			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
 		if(!val) {
 			this._errorMessage = 'syntax error';
 			this._lastErrCol = 0;
@@ -5353,7 +5388,7 @@ Spells.prototype = {
 		opt = val[2] && [val[2], val[3]];
 		exp = val[4];
 		if(!exp) {
-			if(type > 4 && type < 13) {
+			if(type > 4 && type < 14) {
 				exp = '';
 			} else {
 				this._errorMessage = 'missing argument for spell ' + val[0];
@@ -5391,7 +5426,7 @@ Spells.prototype = {
 				tokens.push([rType, exp, opt]);
 				break;
 			}
-		case 13:
+		case 14:
 			exp.split(/, */).forEach(function(val) {
 				if(val.contains('-')) {
 					var nums = val.split('-');
@@ -5404,6 +5439,7 @@ Spells.prototype = {
 			}, temp = [[], []]);
 			tokens.push([rType, temp, opt]);
 			break;
+		case 13:
 		case 5:
 			if(!exp) {
 				tokens.push([rType, exp, opt]);
@@ -5580,6 +5616,7 @@ Spells.prototype = {
 		return this._processScope(data);
 	},
 	_initSpells: function(data) {
+		console.log(JSON.stringify(data));
 		if(data) {
 			data.forEach(function initExps(item) {
 				switch(item[0] & 0xFF) {
@@ -5593,35 +5630,75 @@ Spells.prototype = {
 		}
 		return data;
 	},
-	_realCheck: function(post) {
-		var rv = false;
-		this._spells.some(function checkSpell(spell) {
-			var val, temp = spell[0], type = temp & 0xFF;
-			if(type === 0xFF) {
-				spell[1].some(checkSpell, this);
-				val = rv;
-				rv = false;
-			} else {
-				val = this[type](post, spell[1]);
+	_checkRes: function(flags, val) {
+		if((flags & 0x100) !== 0) {
+			val = !val;
+		}
+		if((flags & 0x200) !== 0) {
+			if(!val) {
+				return false;
 			}
-			if((temp & 0x100) !== 0) {
-				val = !val;
-			}
-			if((temp & 0x200) !== 0) {
-				if(!val) {
-					rv = false;
-					return true;
-				}
-			} else if(val) {
-				rv = true;
-				return true;
-			}
-			return false;
-		}, this._funcs);
-		return rv;
+		} else if(val) {
+			return true;
+		}
+		return null;
 	},
-	_fakeCheck: function(post) {
-		return false;
+	_continueCheck: function(post, sStack, hFunc, nhFunc) {
+		var type, temp, val, rv = false,
+			cInfo = sStack.pop(),
+			i = cInfo[0],
+			len = cInfo[1],
+			scope = cInfo[2];
+		while(true) {
+			if(i < len) {
+				temp = scope[i][0];
+				type = temp & 0xFF;
+				if(type === 0xFF) {
+					sStack.push([i, len, scope]);
+					scope = scope[i][1];
+					len = scope.length;
+					i = 0;
+					continue;
+				} else if(type === 14) {
+					sStack.push([i + 1, len, scope]);
+					this._funcs[14](post, scope[i][1], temp, sStack, hFunc, nhFunc);
+					return;
+				} else {
+					val = this._funcs[type](post, scope[i][1]);
+				}
+				rv = this._checkRes(temp, val);
+				if(rv === null) {
+					i++;
+					continue;
+				}
+			} else {
+				rv = false;
+			}
+			if(cInfo = sStack.pop()) {
+				i = cInfo[0];
+				len = cInfo[1];
+				scope = cInfo[2];
+				rv = this._checkRes(scope[i][0], rv);
+				if(rv === null) {
+					i++;
+					continue;
+				}
+			}
+			if(rv) {
+				hFunc(post);
+			} else if(nhFunc) {
+				nhFunc(post);
+			}
+			return;
+		}
+	},
+	_realCheck: function(post, hFunc, nhFunc) {
+		this._continueCheck(post, [[0, this._spells.length, this._spells]], hFunc, nhFunc);
+	},
+	_fakeCheck: function(post, hFunc, nhFunc) {
+		if(nhFunc) {
+			nhFunc(post);
+		}
 	},
 	_findReps: function(str) {
 		var reps = [],
@@ -5780,20 +5857,16 @@ function hideBySpells(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
-	if(spells.check(post)) {
-		hidePost(post, 'By spells');
-	} else if(post.hide) {
-		unhidePost(post);
-	}
+	spells.check(post, function(pst) {
+		hidePost(pst, 'By spells');
+	}, post.hide && unhidePost);
 }
 
 function disableSpells() {
 	closeAlert($id('de-alert-help-err-spell'));
 	if(spells.haveSpells) {
 		Posts.forEach(function(post) {
-			if(spells.check(post)) {
-				unhidePost(post);
-			}
+			spells.check(post, unhidePost, null);
 		});
 	}
 }
