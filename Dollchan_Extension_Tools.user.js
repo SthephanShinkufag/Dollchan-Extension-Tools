@@ -3658,7 +3658,7 @@ function addLinkTube(post) {
 		}
 		link.className = 'de-ytube-link';
 		link.onclick = clickTubeLink;
-		if(nav.Opera && nav.Opera < 12 || !Cfg['YTubeTitles']) {
+		if(!Cfg['YTubeTitles']) {
 			link.textContent = link.textContent.replace(/^http:/, 'https:');
 			return;
 		}
@@ -5252,7 +5252,7 @@ Spells.checkArr = function(val, num) {
 Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc) {
 	var rv = spells._checkRes(flags, val);
 	if(rv === null) {
-		spells._continueCheck(sStack, post, hFunc, nhFunc);
+		spells._continueCheck(post, sStack, hFunc, nhFunc);
 	} else if(rv) {
 		hFunc(post);
 	} else if(nhFunc) {
@@ -5355,22 +5355,50 @@ Spells.prototype = {
 			return true;
 		},
 		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
-			if(!post.tubeObj) {
-				Spells.retAsyncVal(post, !val, flags, sStack, hFunc, nhFunc);
+			if(!val) {
+				Spells.retAsyncVal(post, !!post.tubeObj, flags, sStack, hFunc, nhFunc);
 				return;
 			}
-			//TODO: make #video spell work
-			Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
+			if(!post.tubeObj || !Cfg['YTubeTitles']) {
+				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
+				return;
+			}
+			var links = $C('de-ytube-link', post),
+				timeOut = 21,
+				i = 0,
+				len = links.length;
+			(function checkLink() {
+				var link;
+				if(--timeOut === 0) {
+					timeOut = 21;
+					i++;
+				}
+				while(i < len) {
+					link = links[i];
+					switch(link.textData) {
+					case 1: setTimeout(checkLink, 500); return;
+					case 2:
+						if(val.test(link.textContent)) {
+							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc);
+							links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
+							return;
+						}
+					default: i++;
+					}
+				}
+				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
+				links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
+				return;
+			})();
 		},
 		function(post, val) {			// num
 			return Spells.checkArr(val, post.count + 1);
 		}
 	],
-	_repRegExp:  /([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
-	_outrepRegExp: /([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g,
-	_toRegExp: function(str) {
-		var l = str.lastIndexOf('/');
-		return new RegExp(str.substr(1, l - 1), str.substr(l + 1));
+	_toRegExp: function(str, noG) {
+		var l = str.lastIndexOf('/'),
+			flags = str.substr(l + 1);
+		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 	},
 	_parseSpell: function(tokens, str, offset) {
 		if(this._lastType === 2) {
@@ -5461,7 +5489,7 @@ Spells.prototype = {
 		case 2:
 		case 3:
 			try {
-				this._toRegExp(exp);
+				this._toRegExp(exp, true);
 			} catch(e) {
 				this._errorMessage = Lng.seErrRegex[lang] + exp;
 				this._lastErrCol = val[0].length - exp.length - 1;
@@ -5635,7 +5663,8 @@ Spells.prototype = {
 				case 1:
 				case 2:
 				case 3:
-				case 5: item[1] = this(item[1]); break;
+				case 5:
+				case 13: item[1] = this(item[1], true); break;
 				case 0xFF: item[1].forEach(initExps, this);
 				}
 			}, this._toRegExp);
@@ -5671,9 +5700,9 @@ Spells.prototype = {
 					len = scope.length;
 					i = 0;
 					continue;
-				} else if(type === 14) {
+				} else if(type === 13) {
 					sStack.push([i + 1, len, scope]);
-					this._funcs[14](post, scope[i][1], temp, sStack, hFunc, nhFunc);
+					this._funcs[type](post, scope[i][1], temp, sStack, hFunc, nhFunc);
 					return;
 				} else {
 					val = this._funcs[type](post, scope[i][1]);
@@ -5716,11 +5745,11 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(this._repRegExp, function(exp, preOp, fullExp, b, t, reg, txt) {
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
 			reps.push([b, t, reg, txt]);
 			rStr += fullExp + '\n';
 			return preOp || '';
-		}).replace(this._outrepRegExp, function(exp, preOp, fullExp, b, t, reg, txt) {
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
 			outreps.push([b, t, reg, txt]);
 			rStr += fullExp + '\n';
 			return preOp || '';
@@ -5744,7 +5773,7 @@ Spells.prototype = {
 	_initReps: function(data) {
 		if(data) {
 			for(var i = data.length - 1; i >= 0; i--) {
-				data[i][0] = this._toRegExp(data[i][0]);
+				data[i][0] = this._toRegExp(data[i][0], false);
 			}
 		}
 		return data;
