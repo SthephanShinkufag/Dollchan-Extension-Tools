@@ -5379,7 +5379,6 @@ Spells.prototype = {
 					case 1: setTimeout(checkLink, 500); return;
 					case 2:
 						if(val.test(link.textContent)) {
-							console.log(timeOut);
 							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc, timeOut !== 20);
 							links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
 							return;
@@ -5657,7 +5656,6 @@ Spells.prototype = {
 		return this._processScope(data);
 	},
 	_initSpells: function(data) {
-		console.log(JSON.stringify(data));
 		if(data) {
 			data.forEach(function initExps(item) {
 				switch(item[0] & 0xFF) {
