@@ -5249,10 +5249,10 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
-Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc) {
+Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 	var rv = spells._checkRes(flags, val);
 	if(rv === null) {
-		spells._continueCheck(post, sStack, hFunc, nhFunc);
+		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
 	} else if(rv) {
 		hFunc(post);
 	} else if(nhFunc) {
@@ -5356,11 +5356,11 @@ Spells.prototype = {
 		},
 		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
 			if(!val) {
-				Spells.retAsyncVal(post, !!post.tubeObj, flags, sStack, hFunc, nhFunc);
+				Spells.retAsyncVal(post, !!post.tubeObj, flags, sStack, hFunc, nhFunc, false);
 				return;
 			}
 			if(!post.tubeObj || !Cfg['YTubeTitles']) {
-				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
+				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, false);
 				return;
 			}
 			var links = $C('de-ytube-link', post),
@@ -5379,14 +5379,15 @@ Spells.prototype = {
 					case 1: setTimeout(checkLink, 500); return;
 					case 2:
 						if(val.test(link.textContent)) {
-							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc);
+							console.log(timeOut);
+							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc, timeOut !== 20);
 							links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
 							return;
 						}
 					default: i++;
 					}
 				}
-				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc);
+				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, timeOut !== 20);
 				links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
 				return;
 			})();
@@ -5684,7 +5685,7 @@ Spells.prototype = {
 		}
 		return null;
 	},
-	_continueCheck: function(post, sStack, hFunc, nhFunc) {
+	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
 		var type, temp, val, rv = false,
 			cInfo = sStack.pop(),
 			i = cInfo[0],
@@ -5726,15 +5727,27 @@ Spells.prototype = {
 				}
 			}
 			if(rv) {
-				hFunc(post);
+				hFunc(post, async);
 			} else if(nhFunc) {
-				nhFunc(post);
+				nhFunc(post, async);
 			}
 			return;
 		}
 	},
 	_realCheck: function(post, hFunc, nhFunc) {
-		this._continueCheck(post, [[0, this._spells.length, this._spells]], hFunc, nhFunc);
+		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, async) {
+			hFunc(pst);
+			if(async) {
+				clearTimeout(aSpellTO);
+				aSpellTO = setTimeout(savePostsVisib, 500);
+			}
+		}, nhFunc && function(pst, async) {
+			nhFunc(pst);
+			if(async) {
+				clearTimeout(aSpellTO);
+				aSpellTO = setTimeout(savePostsVisib, 500);
+			}
+		}, false);
 	},
 	_fakeCheck: function(post, hFunc, nhFunc) {
 		if(nhFunc) {
