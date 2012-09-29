@@ -5435,6 +5435,8 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
+		} else {
+			exp = exp.replace(/\\\)/g, ')');
 		}
 		switch(type) {
 		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
