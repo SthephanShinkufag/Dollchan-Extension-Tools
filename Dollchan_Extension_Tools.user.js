@@ -353,7 +353,19 @@ Lng = {
 	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	debug:			['Отладка', 'Debug'],
-	infoDebug:		['Информация для отладки', 'Information for debugging']
+	infoDebug:		['Информация для отладки', 'Information for debugging'],
+
+	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
+	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
+	seMissOp:		['пропущен оператор перед спеллом', 'missing operator before spell'],
+	seMissArg:		['пропущен аргумент спелла ', 'missing argument of spell '],
+	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
+	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
+	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
+	seMissOpBkt:	['пропущена открывающаяся скобка', 'missing ( in parenthetical'],
+	seMissClBkt:	['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
+	seRow:			[' (строка ', ' (row '],
+	seCol:			[', столбец ', ', column ']
 },
 
 doc = window.document, aProto = Array.prototype,
@@ -5361,22 +5373,22 @@ Spells.prototype = {
 		return new RegExp(str.substr(1, l - 1), str.substr(l + 1));
 	},
 	_parseSpell: function(tokens, str, offset) {
+		if(this._lastType === 2) {
+			this._errorMessage = Lng.seMissOp[lang];
+			this._lastErrCol = 0;
+			return 0;
+		}
 		var opt, type, rType, exp, temp,
 			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
 		if(!val) {
-			this._errorMessage = 'syntax error';
+			this._errorMessage = Lng.seSyntaxErr[lang];
 			this._lastErrCol = 0;
 			return 0;
 		}
 		type = this._names.indexOf(val[1]);
 		if(type === -1) {
-			this._errorMessage = 'unknown spell: ' + val[1];
+			this._errorMessage = Lng.seUnknown[lang] + val[1];
 			this._lastErrCol = 1;
-			return 0;
-		}
-		if((type !== 15 || type !== 16) && this._lastType === 2) {
-			this._errorMessage = 'missing operator before statement';
-			this._lastErrCol = 0;
 			return 0;
 		}
 		if(this._opNeg) {
@@ -5391,7 +5403,7 @@ Spells.prototype = {
 			if(type > 4 && type < 14) {
 				exp = '';
 			} else {
-				this._errorMessage = 'missing argument for spell ' + val[0];
+				this._errorMessage = Lng.seMissArg[lang] + val[0];
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
@@ -5401,7 +5413,7 @@ Spells.prototype = {
 		case 4:
 			exp = +exp;
 			if(exp !== exp) {
-				this._errorMessage = 'can\'t convert ' + val[4] + ' to number';
+				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[4]);
 				this._lastErrCol = val[0].length - val[4].length - 1;
 				return 0;
 			}
@@ -5411,7 +5423,7 @@ Spells.prototype = {
 			if(exp) {
 				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
 				if(!exp || (!exp[2] && !exp[3])) {
-					this._errorMessage = 'syntax error';
+					this._errorMessage = Lng.seSyntaxErr[lang];
 					this._lastErrCol = val[0].length - val[4].length - 1;
 					return 0;
 				}
@@ -5451,7 +5463,7 @@ Spells.prototype = {
 			try {
 				this._toRegExp(exp);
 			} catch(e) {
-				this._errorMessage = 'syntax error in regular expression: ' + exp;
+				this._errorMessage = Lng.seErrRegex[lang] + exp;
 				this._lastErrCol = val[0].length - exp.length - 1;
 				return 0;
 			}
@@ -5493,7 +5505,7 @@ Spells.prototype = {
 			case '#': 
 				d = this._parseSpell(scope, sList, i);
 				if(d === 0) {
-					 this._error = this._errorMessage + ' (' + line + ':' + (col + this._lastErrCol) + ')';
+					 this._error = this._errorMessage + Lng.seRow[lang] + line + Lng.seCol[lang] + (col + this._lastErrCol) + ')';
 					 return false;
 				} else {
 					i += d;
@@ -5513,7 +5525,7 @@ Spells.prototype = {
 					scope = scopes.pop();
 					bkt--;
 				} else {
-					this._error = 'missing ( in parenthetical (' + line + ':' + col + ')';
+					this._error = Lng.seMissOpBkt[lang] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 					return false;
 				}
 				this._lastType = 4;
@@ -5523,16 +5535,16 @@ Spells.prototype = {
 			case '!':
 				if(this._setOperator(scope, sList[i] === '|' ? 0 : sList[i] === '&' ? 1 : 2)) { break; }
 			default:
-				this._error = 'unexpected character ' + sList[i] + ' (' + line + ':' + col + ')';
+				this._error = Lng.seUnexpChar[lang] + sList[i] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 				return false;
 			}
 		}
 		if(this._lastType !== 2 && this._lastType !== 4) {
-			this._error = 'syntax error (' + line + ')';
+			this._error = Lng.seSyntaxErr[lang] + Lng.seRow[lang] + line + ')';
 			return false;
 		}
 		if(bkt > 0) {
-			this._error = 'missing ) in parenthetical (' + line + ')';
+			this._error = Lng.seMissClBkt[lang] + Lng.seRow[lang] + line + ')';
 			return false;
 		}
 		return data.length === 0 ? null : data;
