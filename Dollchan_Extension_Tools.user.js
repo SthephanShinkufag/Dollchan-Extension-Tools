@@ -1953,7 +1953,7 @@ function selectSpell(e) {
 			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#trip,#img,#sage,#op,#tlen,#all,#video,#num')
+			('#img,#sage,#op,#tlen,#all,#video,#num')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
