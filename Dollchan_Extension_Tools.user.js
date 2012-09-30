@@ -6031,7 +6031,7 @@ function toggleSpells() {
 }
 
 function addSpell(spell, arg) {
-	var temp, temp_, fld = $id('de-spell-edit'),
+	var temp, fld = $id('de-spell-edit'),
 		val = fld && fld.value;
 	if(!val) {
 		if(!spells.readed) {
@@ -6039,10 +6039,8 @@ function addSpell(spell, arg) {
 		}
 		val = spells.list;
 	}
-	temp = spells.parseText(val);
-	if(temp) {
+	if(temp = spells.parseText(val)) {
 		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
-		temp_ = false;
 		val = temp[0].split(new RegExp('(?:^|\\n)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
 		if(val.length === 1) {
 			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
