@@ -5596,7 +5596,7 @@ Spells.prototype = {
 		var neg = (item & 0x100) !== 0;
 		if(i === len - 1) {
 			if(i === 0) {
-				return null;
+				return neg ? [[12,'',null]] : null;
 			}
 			var temp = nScope.length - 1;
 			if(neg) {
