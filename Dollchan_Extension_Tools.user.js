@@ -5824,11 +5824,12 @@ Spells.prototype = {
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', 0);
 	},
-	_convertOld: function updateSpells(sList) {
-		var newSpells = [],
-			repSpells = [];
-		function pushSpell(op, sbt, spell, args) {
-			newSpells.push(op ? '(#op' + sbt + ' & ' + spell + args + ')' : spell + sbt + args);
+	_convertOld: function(sList) {
+		var nS = [],
+			rS = [],
+			sS = [];
+		function pushSpell(op, sbt, spell, args, s) {
+			s.push(op ? '(#op' + sbt + ' & ' + spell + args + ')' : spell + sbt + args);
 		}
 		sList.forEach(function(str) {
 			if(!str) {
@@ -5848,41 +5849,41 @@ Spells.prototype = {
 			if(str[0] === '#') {
 				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
 					switch(re[1]) {
-					case 'sage': pushSpell(op, sbt, '#sage', ''); return;
-					case 'notxt': pushSpell(op, sbt, '!#tlen', ''); return;
-					case 'noimg': pushSpell(op, sbt, '!#img', ''); return;
-					case 'trip': pushSpell(op, sbt, '#trip', ''); return;
-					case 'tmax': pushSpell(op, sbt, '#tlen', '(' + re[2] + '-9000)'); return;
+					case 'sage': pushSpell(op, sbt, '#sage', '', nS); return;
+					case 'notxt': pushSpell(op, sbt, '!#tlen', '', nS); return;
+					case 'noimg': pushSpell(op, sbt, '!#img', '', nS); return;
+					case 'trip': pushSpell(op, sbt, '#trip', '', nS); return;
+					case 'tmax': pushSpell(op, sbt, '#tlen', '(' + re[2] + '-9000)', nS); return;
 					case 'name':
 						spell = re[2].split('!!');
 						if(spell.length === 2) {
-							pushSpell(op, sbt, '#trip', '(!!' + spell[1] + ')');
+							pushSpell(op, sbt, '#trip', '(!!' + spell[1] + ')', nS);
 						}
 						if(spell[0]) {
 							spell = spell[0].split('!');
 							if(spell.length === 2) {
-								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')');
+								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')', nS);
 							}
 							if(spell[0]) {
-								pushSpell(op, sbt, '#name', '(' + spell[0] + ')');
+								pushSpell(op, sbt, '#name', '(' + spell[0] + ')', nS);
 							}
 						}
 						return;
 					case 'theme': spell = '#subj'; break;
-					case 'skip': spell = '!#num'; break;
+					case 'skip': pushSpell(op, sbt, '!#num', '(' + re[2] + ')', sS); return;
 					case 'rep':
 					case 'outrep':
-						repSpells.push('#' + re[1] + sbt + '(' + re[2].replace(/\)/g, '\\)') + ')')
+						rS.push('#' + re[1] + sbt + '(' + re[2].replace(/\)/g, '\\)') + ')')
 						return;
 					default: spell = '#' + re[1]; break;
 					}
-					pushSpell(op, sbt, spell, '(' + re[2].replace(/\)/g, '\\)') + ')');
+					pushSpell(op, sbt, spell, '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 				}
 			} else {
-				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')');
+				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
 			}
 		});
-		return newSpells.join(' |\n') + '\n\n' + repSpells.join('\n');
+		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
 
 	readed: false,
