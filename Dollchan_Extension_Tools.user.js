@@ -358,7 +358,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
+nav, aib, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
@@ -4228,7 +4228,7 @@ function getAjaxPview(b, pNum, tNum) {
 	if(b === brd || !el || el.aRep) {
 		return el;
 	}
-	pNum = fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt);
+	pNum = fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt);
 	for(nodes = $T('a', el), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
@@ -4239,7 +4239,9 @@ function getAjaxPview(b, pNum, tNum) {
 }
 
 function showPview(link) {
-	var b = link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
+	var b = link.pathname.match(new RegExp(
+			'^\\/?(.*?)\\/?(?:' + aib.res.replace('/', '\\/') + '|index|\\d+|$)'
+		))[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
@@ -4315,7 +4317,7 @@ function eventRefLink(el) {
 function ajaxGetPosts(url, b, tNum, parse, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
+		'url': nav.fixLink(url || (fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt))),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return;
@@ -6006,8 +6008,14 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'float: left;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
-		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right; clear: both' : 'position: fixed; right: 0; bottom: 0;') + ' }';
+	var x;
+	if(Cfg['attachPanel']) {
+		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
+		#de-panel { position: fixed; right: 0; bottom: 0; }'
+	} else {
+		x = '.de-content { clear: both; float: left; }\
+		#de-panel { float: right; clear: both; }'
+	}
 	if(Cfg['addPostForm'] === 3) {
 		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
 			#de-qarea-target { font-weight: bold; }\
@@ -6290,16 +6298,18 @@ function getNavigator() {
 }
 
 function getPage() {
-	var url = (window.location.pathname || '')
-		.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
+	var url = (window.location.pathname || '').match(new RegExp(
+		'^(?:\\/?([^\\.]+?)\\/?)?(' + aib.res.replace('/', '\\/')
+		+ ')?(\\d+|index|wakaba.*?\\d+)?(\\.(?:[xme]*html?|php))?$'
+	));
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	res = aib.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
 	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	docExt = url[4] || (
+		aib.fch || aib.erns ? '' :
 		aib.gazo ? '.htm' :
 		aib._420 ? '.php' :
-		aib.fch ? '' :
 		'.html'
 	);
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
@@ -6350,6 +6360,7 @@ function getImageboard() {
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
+	case 'ernstchan.net': aib.erns = true; break;
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
@@ -6400,10 +6411,11 @@ function getImageboard() {
 		aib.fch ? 'op' :
 		aib.mlpg ? 'opMain' :
 		'oppost';
-	aib.cThread = aib.krau ? 'thread_body' : 'thread';
 	aib.qThread =
-		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+		aib.krau ? '.thread_body' :
 		aib._420 ? '[id*="thread"]' :
+		!aib.erns && $q('.thread', doc) ? '.thread' :
+		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
@@ -6444,6 +6456,10 @@ function getImageboard() {
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
+	aib.res =
+		aib.krau ? 'thread-' :
+		aib.erns ? 'faden/' :
+		'res/';
 	aib.getPicWrap =
 		aib.hana ? function(el) {
 			if(!el.previousElementSibling) {
@@ -6535,7 +6551,7 @@ function processPost(post, pNum, thr, i) {
 
 function parseDelform(el, dc, Fn) {
 	var node, thr, pThr = false,
-		thrds = $C(aib.cThread, el);
+		thrds = $Q(aib.qThread, el);
 	$each($T('script', el), $del);
 	if(Posts.length < 2) {
 		aib.qTable =
@@ -6560,7 +6576,6 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		thrds = $Q(aib.qThread, el);
 		if(thrds.length === 0) {
 			node = $t('hr', el).parentNode.firstChild;
 			while(1) {
