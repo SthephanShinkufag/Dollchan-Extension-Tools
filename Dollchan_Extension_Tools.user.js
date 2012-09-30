@@ -6584,28 +6584,26 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		if(thrds.length === 0) {
-			node = $t('hr', el).parentNode.firstChild;
-			while(1) {
-				thrds = dc.createElement('div');
-				while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
-					thrds.appendChild(node);
-					node = thr;
-				}
-				if(pThr) {
-					$after(pThr, thrds);
-				} else {
-					$before(el.firstChild, thrds);
-				}
-				if(!node || !thr) {
-					return;
-				}
-				if(thrds.childElementCount) {
-					Fn(thrds);
-				}
-				pThr = thr;
-				node = thr.nextSibling;
+		node = $t('hr', el).parentNode.firstChild;
+		while(1) {
+			thrds = dc.createElement('div');
+			while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
+				thrds.appendChild(node);
+				node = thr;
 			}
+			if(pThr) {
+				$after(pThr, thrds);
+			} else {
+				$before(el.firstChild, thrds);
+			}
+			if(!node || !thr) {
+				return;
+			}
+			if(thrds.childElementCount) {
+				Fn(thrds);
+			}
+			pThr = thr;
+			node = thr.nextSibling;
 		}
 	}
 	$each(thrds, Fn);
