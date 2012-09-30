@@ -5841,8 +5841,8 @@ Spells.prototype = {
 					str = str.substr(re[0].length);
 				}
 			}
-			if(str.startsWith('#op')) {
-				str = str.substr(3);
+			if(str.startsWith('#op ')) {
+				str = str.substr(4);
 				op = true;
 			}
 			if(str[0] === '#') {
