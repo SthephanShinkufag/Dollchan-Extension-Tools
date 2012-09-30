@@ -6362,7 +6362,10 @@ function getImageboard() {
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
-	case 'ernstchan.net': aib.erns = true; break;
+	case 'ernstchan.net':
+	case 'ernstchan.com':
+		aib.erns = true; 
+		break;
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
