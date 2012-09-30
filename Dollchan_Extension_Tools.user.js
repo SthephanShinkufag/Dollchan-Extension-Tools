@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.24.0
+// @version			12.9.30.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.24.0',
+	'version':	'12.9.30.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -333,7 +333,7 @@ Lng = {
 	reply:			['Ответ', 'Reply'],
 	replyTo:		['Ответ в', 'Reply to'],
 	wait:			['Ждите', 'Wait'],
-	addRarJPEG:		['+ rarJPEG', '+ rarJPEG'],
+	addRar:			['+ .rar', '+ .rar'],
 	keyNavHelp:		[
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
@@ -370,7 +370,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-nav, aib, brd, res, TNum, pageNum, docExt, docTitle,
+nav, aib, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
@@ -1144,9 +1144,6 @@ function showContent(el, id, name, isUpd) {
 		return;
 	}
 	el.id = id;
-	if(!Cfg['attachPanel']) {
-		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
-	}
 	if(name === 'cfg') {
 		addSettings(el);
 	} else {
@@ -1777,7 +1774,7 @@ function addFavoritesTable(fav) {
 			}
 		}
 	}
-	if(!fav.firstChild) {
+	if(!block) {
 		fav.appendChild($add('<b>' + Lng.noFavorites[lang] + '</b>'));
 	}
 	$append(fav, [
@@ -2340,12 +2337,17 @@ function delFileUtils(el) {
 function processInput() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		$after(this, $attr($btn(Lng.clear[lang], null, function(e) {
-			$pd(e);
-			var el = this.parentNode;
-			delFileUtils(el);
-			$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
-		}), {'class': 'de-file-util de-file-del'}));
+		$after(this, $attr($new('button', {
+			'class': 'de-file-util de-file-del',
+			'text': Lng.clear[lang],
+			'type': 'button'}, {
+			'click': function(e) {
+				$pd(e);
+				var el = this.parentNode;
+				delFileUtils(el);
+				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
+			}
+		})));
 	} else if(this.rarJPEG) {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
@@ -2353,38 +2355,43 @@ function processInput() {
 	if(!aib.abu && !aib.fch) {
 		$del($c('de-file-rar', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this, $attr($btn(Lng.addRarJPEG[lang], null, function(e) {
-				$pd(e);
-				var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-						'id': 'de-file-rar',
-						'type': 'file',
-						'style': 'display: none'
-					}, null)),
-					inp = $q('input[type="file"]', this.parentNode),
-					btn = this;
-				el.onchange = function(e) {
-					$del(btn);
-					var file = this.files[0],
-						fr = new FileReader(),
-						node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
-							'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-					$after(inp, node);
-					fr.onload = function() {
-						if(inp.nextSibling === node) {
-							$attr(node, {
-								'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-								'title': inp.files[0].name + ' + ' + file.name,
-								'text': 'rarJPEG'
-							});
-							inp.rarJPEG = this.result;
-						}
-						node = inp = file = null;
+			$after(this, $attr($new('button', {
+				'class': 'de-file-util de-file-rar',
+				'text': Lng.addRar[lang],
+				'type': 'button'}, {
+				'click': function(e) {
+					$pd(e);
+					var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
+							'id': 'de-file-rar',
+							'type': 'file',
+							'style': 'display: none'
+						}, null)),
+						inp = $q('input[type="file"]', this.parentNode),
+						btn = this;
+					el.onchange = function(e) {
+						$del(btn);
+						var file = this.files[0],
+							fr = new FileReader(),
+							node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
+								'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+						$after(inp, node);
+						fr.onload = function() {
+							if(inp.nextSibling === node) {
+								$attr(node, {
+									'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
+									'title': inp.files[0].name + ' + ' + file.name,
+									'text': 'rarJPEG'
+								});
+								inp.rarJPEG = this.result;
+							}
+							node = inp = file = null;
+						};
+						fr.readAsArrayBuffer(file);
+						btn = null;
 					};
-					fr.readAsArrayBuffer(file);
-					btn = null;
-				};
-				el.click();
-			}), {'class': 'de-file-util de-file-rar'}));
+					el.click();
+				}
+			})));
 		}
 	}
 	eventFiles($x(pr.tr, this));
@@ -4189,7 +4196,7 @@ function getAjaxPview(b, pNum, tNum) {
 	if(b === brd || !el || el.aRep) {
 		return el;
 	}
-	pNum = fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt);
+	pNum = fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt);
 	for(nodes = $T('a', el), i = nodes.length - 1; i >= 0; i--) {
 		if(/^>>\d+$/.test(nodes[i].textContent)) {
 			nodes[i].href = pNum;
@@ -4200,7 +4207,7 @@ function getAjaxPview(b, pNum, tNum) {
 }
 
 function showPview(link) {
-	var b = link.pathname.match(/^\/?(.*?)\/?(?:res|thread-|index|\d+|$)/)[1],
+	var b = link.pathname.match(aib.rePviewBrd)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
@@ -4276,7 +4283,7 @@ function eventRefLink(el) {
 function ajaxGetPosts(url, b, tNum, parse, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': nav.fixLink(url || (fixBrd(b) + res + tNum + (aib.tire ? '.html' : docExt))),
+		'url': nav.fixLink(url || (fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt))),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return;
@@ -6406,7 +6413,7 @@ function scriptCSS() {
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .logo + hr { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
@@ -6453,8 +6460,14 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
-		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right; clear: both' : 'position: fixed; right: 0; bottom: 0;') + ' }';
+	var x;
+	if(Cfg['attachPanel']) {
+		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
+		#de-panel { position: fixed; right: 0; bottom: 0; }'
+	} else {
+		x = '.de-content { clear: both; float: left; }\
+		#de-panel { float: right; clear: both; }'
+	}
 	if(Cfg['addPostForm'] === 3) {
 		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
 			#de-qarea-target { font-weight: bold; }\
@@ -6737,16 +6750,19 @@ function getNavigator() {
 }
 
 function getPage() {
-	var url = (window.location.pathname || '')
-		.match(/^(?:\/?(.*?)\/?)?(res\/|thread-)?(\d+|index|wakaba)?(\.(?:[xme]*html?|php))?$/);
+	var url = (window.location.pathname || '').match(new RegExp(
+		'^(?:\\/?([^\\.]+?)\\/?)?' +
+		'(' + RegExp.quote(aib.res) + ')?' +
+		'(\\d+|index|wakaba.*?\\d+)?' +
+		'(\\.(?:[xme]*html?|php))?$'
+	));
 	brd = url[1] || (aib.dfwk ? 'df' : '');
-	res = aib.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
 	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	docExt = url[4] || (
+		aib.fch || aib.erns ? '' :
 		aib.gazo ? '.htm' :
 		aib._420 ? '.php' :
-		aib.fch ? '' :
 		'.html'
 	);
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
@@ -6797,6 +6813,7 @@ function getImageboard() {
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
+	case 'ernstchan.net': aib.erns = true; break;
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
@@ -6827,7 +6844,8 @@ function getImageboard() {
 	aib.abu = !!$id('ABU_css');
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
-	case '0-chan.ru': aib.nul = true; break;
+	case '0-chan.ru':
+	case '0chan.ru': aib.nul = true; aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
@@ -6836,6 +6854,7 @@ function getImageboard() {
 	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
 	}
+	fixFunctions();
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
@@ -6846,10 +6865,11 @@ function getImageboard() {
 		aib.fch ? 'op' :
 		aib.mlpg ? 'opMain' :
 		'oppost';
-	aib.cThread = aib.krau ? 'thread_body' : 'thread';
 	aib.qThread =
-		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+		aib.krau ? '.thread_body' :
 		aib._420 ? '[id*="thread"]' :
+		!aib.erns && $q('.thread', doc) ? '.thread' :
+		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qRef =
 		aib.fch ? '.postInfo > :last-child' :
@@ -6890,6 +6910,15 @@ function getImageboard() {
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
+	aib.res =
+		aib.krau ? 'thread-' :
+		aib.erns ? 'faden/' :
+		'res/';
+	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + RegExp.quote(aib.res) + '|index|\\d+|$)');
+	aib.reCrossLinks = new RegExp(
+		'>https?:\\/\\/[^\\/]*' + aib.dm +
+		'\\/([a-z0-9]+)\\/' + RegExp.quote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
+	)
 	aib.getPicWrap =
 		aib.hana ? function(el) {
 			if(!el.previousElementSibling) {
@@ -6981,7 +7010,7 @@ function processPost(post, pNum, thr, i) {
 
 function parseDelform(el, dc, Fn) {
 	var node, thr, pThr = false,
-		thrds = $C(aib.cThread, el);
+		thrds = $Q(aib.qThread, el);
 	$each($T('script', el), $del);
 	if(Posts.length < 2) {
 		aib.qTable =
@@ -7006,29 +7035,26 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		thrds = $Q(aib.qThread, el);
-		if(thrds.length === 0) {
-			node = $t('hr', el).parentNode.firstChild;
-			while(1) {
-				thrds = dc.createElement('div');
-				while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
-					thrds.appendChild(node);
-					node = thr;
-				}
-				if(pThr) {
-					$after(pThr, thrds);
-				} else {
-					$before(el.firstChild, thrds);
-				}
-				if(!node || !thr) {
-					return;
-				}
-				if(thrds.childElementCount) {
-					Fn(thrds);
-				}
-				pThr = thr;
-				node = thr.nextSibling;
+		node = $t('hr', el).parentNode.firstChild;
+		while(1) {
+			thrds = dc.createElement('div');
+			while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
+				thrds.appendChild(node);
+				node = thr;
 			}
+			if(pThr) {
+				$after(pThr, thrds);
+			} else {
+				$before(el.firstChild, thrds);
+			}
+			if(!node || !thr) {
+				return;
+			}
+			if(thrds.childElementCount) {
+				Fn(thrds);
+			}
+			pThr = thr;
+			node = thr.nextSibling;
 		}
 	}
 	$each(thrds, Fn);
@@ -7083,13 +7109,9 @@ function replaceString(txt) {
 		txt = spells.replace(txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(
-			new RegExp('>https?:\\/\\/[^\\/]*' + aib.dm +
-				'\\/([a-z0-9]+)\\/(?:res\\/|thread-)(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'),
-			function(str, b, tNum, pNum) {
-				return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
-			}
-		);
+		txt = txt.replace(aib.reCrossLinks, function(str, b, tNum, pNum) {
+			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
+		});
 	}
 	return txt;
 }
@@ -7209,7 +7231,6 @@ function doScript() {
 		return;
 	}
 	dummy = doc.createElement('div');
-	fixFunctions();
 	getPage();
 	$log('initBoard');
 	readCfg();
