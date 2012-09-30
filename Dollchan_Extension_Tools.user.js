@@ -570,6 +570,9 @@ function fixFunctions() {
 			return this.indexOf(s) !== -1;
 		};
 	}
+	RegExp.quote = function(str) {
+		return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+	};
 	if(!window.GM_log) {
 		window.GM_log = function(msg) {
 			console.error(msg);
@@ -4239,9 +4242,7 @@ function getAjaxPview(b, pNum, tNum) {
 }
 
 function showPview(link) {
-	var b = link.pathname.match(new RegExp(
-			'^\\/?(.*?)\\/?(?:' + aib.res.replace('/', '\\/') + '|index|\\d+|$)'
-		))[1],
+	var b = link.pathname.match(aib.rePviewBrd)[1],
 		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
@@ -6299,11 +6300,12 @@ function getNavigator() {
 
 function getPage() {
 	var url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]+?)\\/?)?(' + aib.res.replace('/', '\\/')
-		+ ')?(\\d+|index|wakaba.*?\\d+)?(\\.(?:[xme]*html?|php))?$'
+		'^(?:\\/?([^\\.]+?)\\/?)?' +
+		'(' + RegExp.quote(aib.res) + ')?' +
+		'(\\d+|index|wakaba.*?\\d+)?' +
+		'(\\.(?:[xme]*html?|php))?$'
 	));
 	brd = url[1] || (aib.dfwk ? 'df' : '');
-	res = aib.krau ? 'thread-' : 'res/';
 	TNum = url[2] ? url[3] : false;
 	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	docExt = url[4] || (
@@ -6401,6 +6403,7 @@ function getImageboard() {
 	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
 	}
+	fixFunctions();
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
@@ -6460,6 +6463,11 @@ function getImageboard() {
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
 		'res/';
+	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + RegExp.quote(aib.res) + '|index|\\d+|$)');
+	aib.reCrossLinks = new RegExp(
+		'>https?:\\/\\/[^\\/]*' + aib.dm +
+		'\\/([a-z0-9]+)\\/' + RegExp.quote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
+	)
 	aib.getPicWrap =
 		aib.hana ? function(el) {
 			if(!el.previousElementSibling) {
@@ -6652,13 +6660,9 @@ function replaceString(txt) {
 		txt = replaceBySpells(oSpells.rep, txt);
 	}
 	if(Cfg['crossLinks']) {
-		txt = txt.replace(
-			new RegExp('>https?:\\/\\/[^\\/]*' + aib.dm +
-				'\\/([a-z0-9]+)\\/(?:res\\/|thread-)(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'),
-			function(str, b, tNum, pNum) {
-				return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
-			}
-		);
+		txt = txt.replace(aib.reCrossLinks, function(str, b, tNum, pNum) {
+			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
+		});
 	}
 	return txt;
 }
@@ -6776,7 +6780,6 @@ function doScript() {
 		return;
 	}
 	dummy = doc.createElement('div');
-	fixFunctions();
 	getPage();
 	$log('initBoard');
 	readCfg();
