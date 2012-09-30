@@ -574,6 +574,9 @@ function fixFunctions() {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
 		};
+		String.prototype.startsWith = function(s) {
+			return this.indexOf(s) === 0;
+		};
 	}
 	RegExp.quote = function(str) {
 		return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -5833,11 +5836,14 @@ Spells.prototype = {
 			}
 			var re, sbt = '', spell, op = false;
 			if(str[0] === '#') {
-				if(re = str.match(/^#([a-z]+)\/([0-9]+)?( #op)? /)) {
+				if(re = str.match(/^#([a-z]+)\/([0-9]+)? /)) {
 					sbt = re[1] ? '[' + re[1] + (re[2] ? ',' + re[2] : '') + ']' : '';
-					op = !!re[3];
 					str = str.substr(re[0].length);
 				}
+			}
+			if(str.startsWith('#op')) {
+				str = str.substr(3);
+				op = true;
 			}
 			if(str[0] === '#') {
 				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
