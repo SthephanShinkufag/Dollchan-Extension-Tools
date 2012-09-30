@@ -5660,13 +5660,16 @@ Spells.prototype = {
 	_initSpells: function(data) {
 		if(data) {
 			data.forEach(function initExps(item) {
-				switch(item[0] & 0xFF) {
-				case 1:
-				case 2:
-				case 3:
-				case 5:
-				case 13: item[1] = this(item[1], true); break;
-				case 0xFF: item[1].forEach(initExps, this);
+				var val = item[1];
+				if(val) {
+					switch(item[0] & 0xFF) {
+					case 1:
+					case 2:
+					case 3:
+					case 5:
+					case 13: item[1] = this(val, true); break;
+					case 0xFF: val.forEach(initExps, this);
+					}
 				}
 			}, this._toRegExp);
 		}
