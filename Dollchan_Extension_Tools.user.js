@@ -5807,6 +5807,63 @@ Spells.prototype = {
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', 0);
 	},
+	_convertOld: function updateSpells(sList) {
+		var newSpells = [],
+			repSpells = [];
+		function pushSpell(op, sbt, spell, args) {
+			newSpells.push(op ? '(#op' + sbt + ' & ' + spell + args + ')' : spell + sbt + args);
+		}
+		sList.forEach(function(str) {
+			if(!str) {
+				return;
+			}
+			var re, sbt = '', spell, op = false;
+			if(str[0] === '#') {
+				if(re = str.match(/^#([a-z]+)\/([0-9]+)?( #op)? /)) {
+					sbt = re[1] ? '[' + re[1] + (re[2] ? ',' + re[2] : '') + ']' : '';
+					op = !!re[3];
+					str = str.substr(re[0].length);
+				}
+			}
+			if(str[0] === '#') {
+				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
+					switch(re[1]) {
+					case 'sage': pushSpell(op, sbt, '#sage', ''); return;
+					case 'notxt': pushSpell(op, sbt, '!#tlen', ''); return;
+					case 'noimg': pushSpell(op, sbt, '!#img', ''); return;
+					case 'trip': pushSpell(op, sbt, '#trip', ''); return;
+					case 'tmax': pushSpell(op, sbt, '#tlen', '(' + re[2] + '-9000)'); return;
+					case 'name':
+						spell = re[2].split('!!');
+						if(spell.length === 2) {
+							pushSpell(op, sbt, '#trip', '(!!' + spell[1] + ')');
+						}
+						if(spell[0]) {
+							spell = spell[0].split('!');
+							if(spell.length === 2) {
+								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')');
+							}
+							if(spell[0]) {
+								pushSpell(op, sbt, '#name', '(' + spell[0] + ')');
+							}
+						}
+						return;
+					case 'theme': spell = '#subj'; break;
+					case 'skip': spell = '!#num'; break;
+					case 'rep':
+					case 'outrep':
+						repSpells.push('#' + re[1] + sbt + '(' + re[2].replace(/\)/g, '\\)') + ')')
+						return;
+					default: spell = '#' + re[1]; break;
+					}
+					pushSpell(op, sbt, spell, '(' + re[2].replace(/\)/g, '\\)') + ')');
+				}
+			} else {
+				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')');
+			}
+		});
+		return newSpells.join(' |\n') + '\n\n' + repSpells.join('\n');
+	},
 
 	readed: false,
 	parseText: function(str) {
@@ -5830,7 +5887,7 @@ Spells.prototype = {
 	saveSpells: function(val) {
 		this.hash = ELFHash(val);
 		this.list = val;
-		setStored('DESU_Spells_' + aib.dm, JSON.stringify([this.hash, this.list]));
+		setStored('DESU_Spells_' + aib.dm, JSON.stringify([1, this.hash, this.list]));
 		if(!val) {
 			this._disable();
 		}
@@ -5854,12 +5911,24 @@ Spells.prototype = {
 		this.saveSpells(this._TEMP.list);
 	},
 	read: function() {
+		var arr, data = getStored('DESU_Spells_' + aib.dm);
 		try {
-			data = JSON.parse(getStored('DESU_Spells_' + aib.dm));
-			this.hash = data[0];
-			this.list = data[1];
+			arr = JSON.parse(data);
+			if(arr.length < 3) {
+				this.hash = arr[0];
+				this.list = arr[1] ? this._convertOld(arr[1]) : '';
+			} else {
+				this.hash = arr[1];
+				this.list = arr[2];
+			}
 			return true;
-		} catch(e) {}
+		} catch(e) {
+			if(data && typeof data === 'string') {
+				this.hash = ELFHash(data);
+				this.list = this._convertOld(data.split('\n'));
+				return true;
+			}
+		}
 		return false;
 	},
 	update: function() {
