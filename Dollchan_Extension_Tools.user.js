@@ -1950,21 +1950,18 @@ function selectSpell(e) {
 	$each(addSelMenu(
 		e.target, true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">' +
-			('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,')
+			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
+			('#trip,#img,#sage,#op,#tlen,#all,#video,#num')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
-			var exp = this.textContent;
+			var val, exp = this.textContent;
 			$pd(e);
-			if(exp === '#b/') {
-				exp = '#' + brd + '/ ';
-			} else if(exp === '#b/itt') {
-				exp = '#' + brd + '/' + (TNum ? TNum + ' ': ' ');
-			}
-			$txtInsert($id('de-spell-edit'), exp);
+			$txtInsert($id('de-spell-edit'), exp + '[' + brd + (TNum ? ',' + TNum : '') + ']' +
+				(spells.needArg(exp.substr(1)) ? '(' : '')
+			);
 		};
 	});
 }
@@ -5276,7 +5273,7 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 Spells.prototype = {
 	_names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash',
-		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'true', 'video',
+		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video',
 		'num'
 	],
 	_funcs: [
@@ -5365,7 +5362,7 @@ Spells.prototype = {
 			}
 			return Spells.checkArr(val, text.replace(/\n/g, '').length);
 		},
-		function(post, val) {			// true
+		function(post, val) {			// all
 			return true;
 		},
 		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
@@ -5887,6 +5884,10 @@ Spells.prototype = {
 	},
 
 	readed: false,
+	needArg: function(spell) {
+		var idx = this._names.indexOf(spell);
+		return idx < 5 || idx > 13;
+	},
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
 		this._TEMP = {};
