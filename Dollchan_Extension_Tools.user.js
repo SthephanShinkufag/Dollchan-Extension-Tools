@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.24.0
+// @version			12.9.30.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.24.0',
+	'version':	'12.9.30.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
 	'hideByWipe':	1,		// antiwipe detectors:
@@ -333,7 +333,7 @@ Lng = {
 	reply:			['Ответ', 'Reply'],
 	replyTo:		['Ответ в', 'Reply to'],
 	wait:			['Ждите', 'Wait'],
-	addRarJPEG:		['+ rarJPEG', '+ rarJPEG'],
+	addRar:			['+ .rar', '+ .rar'],
 	keyNavHelp:		[
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
@@ -2348,12 +2348,17 @@ function delFileUtils(el) {
 function processInput() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		$after(this, $attr($btn(Lng.clear[lang], null, function(e) {
-			$pd(e);
-			var el = this.parentNode;
-			delFileUtils(el);
-			$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
-		}), {'class': 'de-file-util de-file-del'}));
+		$after(this, $attr($new('button', {
+			'class': 'de-file-util de-file-del',
+			'text': Lng.clear[lang],
+			'type': 'button'}, {
+			'click': function(e) {
+				$pd(e);
+				var el = this.parentNode;
+				delFileUtils(el);
+				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
+			}
+		})));
 	} else if(this.rarJPEG) {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
@@ -2361,38 +2366,43 @@ function processInput() {
 	if(!aib.abu && !aib.fch) {
 		$del($c('de-file-rar', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this, $attr($btn(Lng.addRarJPEG[lang], null, function(e) {
-				$pd(e);
-				var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-						'id': 'de-file-rar',
-						'type': 'file',
-						'style': 'display: none'
-					}, null)),
-					inp = $q('input[type="file"]', this.parentNode),
-					btn = this;
-				el.onchange = function(e) {
-					$del(btn);
-					var file = this.files[0],
-						fr = new FileReader(),
-						node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
-							'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-					$after(inp, node);
-					fr.onload = function() {
-						if(inp.nextSibling === node) {
-							$attr(node, {
-								'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-								'title': inp.files[0].name + ' + ' + file.name,
-								'text': 'rarJPEG'
-							});
-							inp.rarJPEG = this.result;
-						}
-						node = inp = file = null;
+			$after(this, $attr($new('button', {
+				'class': 'de-file-util de-file-rar',
+				'text': Lng.addRar[lang],
+				'type': 'button'}, {
+				'click': function(e) {
+					$pd(e);
+					var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
+							'id': 'de-file-rar',
+							'type': 'file',
+							'style': 'display: none'
+						}, null)),
+						inp = $q('input[type="file"]', this.parentNode),
+						btn = this;
+					el.onchange = function(e) {
+						$del(btn);
+						var file = this.files[0],
+							fr = new FileReader(),
+							node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
+								'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+						$after(inp, node);
+						fr.onload = function() {
+							if(inp.nextSibling === node) {
+								$attr(node, {
+									'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
+									'title': inp.files[0].name + ' + ' + file.name,
+									'text': 'rarJPEG'
+								});
+								inp.rarJPEG = this.result;
+							}
+							node = inp = file = null;
+						};
+						fr.readAsArrayBuffer(file);
+						btn = null;
 					};
-					fr.readAsArrayBuffer(file);
-					btn = null;
-				};
-				el.click();
-			}), {'class': 'de-file-util de-file-rar'}));
+					el.click();
+				}
+			})));
 		}
 	}
 	eventFiles($x(pr.tr, this));
