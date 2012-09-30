@@ -1950,17 +1950,19 @@ function selectSpell(e) {
 	$each(addSelMenu(
 		e.target, true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">' +
-			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip')
+			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#img,#sage,#op,#tlen,#all,#video,#num')
+			('#sage,#op,#tlen,#all,#video,#num,#rep,#outrep')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
-			var val, exp = this.textContent;
+			var exp = this.textContent;
 			$pd(e);
-			$txtInsert($id('de-spell-edit'), exp + '[' + brd + (TNum ? ',' + TNum : '') + ']' +
-				(spells.needArg(exp.substr(1)) ? '(' : '')
+			$txtInsert($id('de-spell-edit'), exp +
+				(TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ?
+					'[' + brd + ',' + TNum + ']' : ''
+				) + (spells.needArg(exp.substr(1)) ? '(' : '')
 			);
 		};
 	});
