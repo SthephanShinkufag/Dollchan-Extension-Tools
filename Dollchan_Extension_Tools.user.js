@@ -1976,15 +1976,19 @@ function selectPostHider(post) {
 	);
 	a[1].onclick = function(e) {
 		$pd(e);
-		addSpell(
-			post.img.length === 0 ?
-				'!#img' :
-				'#img(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')'
-		);
+		if(post.img[0]) {
+			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
+		} else {
+			addSpell('!#img', '');
+		}
 	};
 	a[2].onclick = function(e) {
 		$pd(e);
-		addSpell(post.img.length === 0 ? '!#img' : '#ihash(' + getImgHash(post) + ')');
+		if(post.img[0]) {
+			addSpell('#ihash', '(' + getImgHash(post) + ')');
+		} else {
+			addSpell('!#img', '');
+		}
 	};
 	a[3].onclick = function(e) {
 		$pd(e);
@@ -1992,7 +1996,7 @@ function selectPostHider(post) {
 	};
 	(a = a[0]).onclick = function(e) {
 		$pd(e);
-		addSpell('#words(' + quotetxt + ')');
+		addSpell('#words', '(' + quotetxt + ')');
 	};
 	a.onmouseover = function() {
 		quotetxt = $txtSelect().trim();
@@ -3266,7 +3270,7 @@ function prepareCFeatures() {
 			temp = pByNum[+data];
 			toggleFavorites(temp, $c('de-btn-fav', temp) || $c('de-btn-fav-sel', temp));
 			return;
-		case 'H': addSpell('#sage'); return;
+		case 'H': addSpell('#sage', ''); return;
 		case 'I':
 			$del($id('de-fav-wait'));
 			$id('de-iframe-fav').style.height = data + 'px';
@@ -5176,7 +5180,7 @@ function hideBySameText(post) {
 		});
 		saveUserPostsVisib();
 	} else {
-		addSpell('!#tlen');
+		addSpell('!#tlen', '');
 	}
 	hid = num = wrds = null;
 }
@@ -6026,7 +6030,7 @@ function toggleSpells() {
 	$q('input[info="hideBySpell"]', doc).checked = false;
 }
 
-function addSpell(spell) {
+function addSpell(spell, arg) {
 	var temp, temp_, fld = $id('de-spell-edit'),
 		val = fld && fld.value;
 	if(!val) {
@@ -6037,6 +6041,7 @@ function addSpell(spell) {
 	}
 	temp = spells.parseText(val);
 	if(temp) {
+		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
 		temp_ = false;
 		val = temp[0].split(new RegExp('(?:^|\\n)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
 		if(val.length === 1) {
