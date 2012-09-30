@@ -1157,9 +1157,6 @@ function showContent(el, id, name, isUpd) {
 		return;
 	}
 	el.id = id;
-	if(!Cfg['attachPanel']) {
-		el.appendChild($new('hr', {'style': 'clear: both;'}, null));
-	}
 	if(name === 'cfg') {
 		addSettings(el);
 	} else {
@@ -1788,7 +1785,7 @@ function addFavoritesTable(fav) {
 			}
 		}
 	}
-	if(!fav.firstChild) {
+	if(!block) {
 		fav.appendChild($add('<b>' + Lng.noFavorites[lang] + '</b>'));
 	}
 	$append(fav, [
@@ -5952,7 +5949,7 @@ function scriptCSS() {
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .logo + hr { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
@@ -5999,7 +5996,7 @@ function scriptCSS() {
 }
 
 function updateCSS() {
-	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'width: 100%;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
+	var x = '.de-content { ' + (!Cfg['attachPanel'] ? 'float: left;' : 'position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto;') + ' }\
 		#de-panel { ' + (!Cfg['attachPanel'] ? 'float: right; clear: both' : 'position: fixed; right: 0; bottom: 0;') + ' }';
 	if(Cfg['addPostForm'] === 3) {
 		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
@@ -6373,7 +6370,8 @@ function getImageboard() {
 	aib.abu = !!$id('ABU_css');
 	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	switch(h) {
-	case '0-chan.ru': aib.nul = true; break;
+	case '0-chan.ru':
+	case '0chan.ru': aib.nul = true; aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
