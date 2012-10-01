@@ -6006,32 +6006,28 @@ Spells.prototype = {
 	},
 	read: function() {
 		var arr, data = getStored('DESU_Spells_' + aib.dm);
-		try {
-			if(!data) {
-				throw null;
-			}
-			arr = JSON.parse(data);
-			if(arr.length < 3) {
-				this.hash = arr[0];
-				this.list = arr[1] ? this._convertOld(arr[1]) : '';
-			} else {
-				this.hash = arr[1];
-				this.list = arr[2];
-			}
-			return true;
-		} catch(e) {
-			if(typeof data === 'string') {
-				this.list = this._convertOld(data.split('\n'));
-			} else {
-				this.list = '#wipe(samelines,samewords,longwords,numbers)';
-			}
-			this.hash = ELFHash(this.list);
-			return true;
+		if(data) {
+			try {
+				arr = JSON.parse(data);
+				if(arr.length < 3) {
+					this.hash = arr[0];
+					this.list = arr[1] ? this._convertOld(arr[1]) : '';
+				} else {
+					this.hash = arr[1];
+					this.list = arr[2];
+				}
+				return this.hash;
+			} catch(e) {}
 		}
-		return false;
+		if(typeof data === 'string') {
+			this.list = this._convertOld(data.split('\n'));
+		} else {
+			this.list = '#wipe(samelines,samewords,longwords,numbers)';
+		}
+		return this.hash = ELFHash(this.list);
 	},
 	update: function() {
-		if(this.read() && this.hash) {
+		if(this.read()) {
 			var data, readed = false;
 			try {
 				data = JSON.parse(sessionStorage['de-spells']);
