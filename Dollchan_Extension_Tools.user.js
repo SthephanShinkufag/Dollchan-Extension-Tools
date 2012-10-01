@@ -6006,6 +6006,7 @@ Spells.prototype = {
 	},
 	read: function() {
 		var arr, data = getStored('DESU_Spells_' + aib.dm);
+		this.readed = true;
 		if(data) {
 			try {
 				arr = JSON.parse(data);
