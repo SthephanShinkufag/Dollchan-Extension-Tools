@@ -874,7 +874,7 @@ function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden'] || '').split(',');
-		if(+data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
+		if(data[1] && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
 			sVis = data[1].split('');
 			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
