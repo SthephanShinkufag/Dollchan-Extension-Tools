@@ -5828,12 +5828,12 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
-			reps.push([b, t, reg, txt]);
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			reps.push([b, nt ? -1 : t, reg, txt]);
 			rStr += fullExp + '\n';
 			return preOp || '';
-		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
-			outreps.push([b, t, reg, txt]);
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			outreps.push([b, nt ? -1 : t, reg, txt]);
 			rStr += fullExp + '\n';
 			return preOp || '';
 		});
@@ -5845,7 +5845,7 @@ Spells.prototype = {
 		if(data) {
 			var nData = [];
 			data.forEach(function(temp) {
-				if(!temp[0] || (temp[0] === brd && (!temp[1] || temp[1] === TNum))) {
+				if(!temp[0] || (temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum))) {
 					nData.push([temp[2], temp[3]]);
 				}
 			});
