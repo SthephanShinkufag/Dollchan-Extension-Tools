@@ -6064,7 +6064,7 @@ Spells.prototype = {
 	},
 	outReplace: function(txt) {
 		for(var i = 0, len = this._outreps.length; i < len; i++) {
-			txt = txt.replace(this._outreps[i][0], his._outreps[i][1]);
+			txt = txt.replace(this._outreps[i][0], this._outreps[i][1]);
 		}
 		return txt;
 	}
