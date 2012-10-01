@@ -5489,14 +5489,6 @@ Spells.prototype = {
 		}
 		switch(type) {
 		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
-		case 14:
-			exp = +exp;
-			if(exp !== exp || exp < 1 || exp > 63) {
-				this._errorMessage = Lng.seSyntaxErr[lang];
-				this._lastErrCol = val[0].length - val[5].length - 1;
-				return 0;
-			}
-			tokens.push([rType, exp, opt]);
 		case 4:
 			exp = +exp;
 			if(exp !== exp) {
@@ -5520,12 +5512,22 @@ Spells.prototype = {
 			}
 			break;
 		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
+		case 14:
+			if(exp) {
+				exp = +exp;
+				if(exp !== exp || exp < 1 || exp > 63) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = val[0].length - val[5].length - 1;
+					return 0;
+				}
+				tokens.push([rType, exp, opt]);
+			}
 		case 11:
 			if(!exp) {
 				tokens.push([rType, exp, opt]);
 				break;
 			}
-		case 14:
+		case 15:
 			exp.split(/, */).forEach(function(v) {
 				if(v.contains('-')) {
 					var nums = v.split('-');
