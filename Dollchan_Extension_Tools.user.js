@@ -6822,8 +6822,6 @@ function getImageboard() {
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
-	case 'ernstchan.com':
-	case 'ernstchan.net': aib.erns = true; break;
 	default:
 		aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
 		aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
@@ -6860,8 +6858,10 @@ function getImageboard() {
 	case 'hiddenchan.i2p': aib.hid = true; break;
 	case 'dfwk.ru': aib.dfwk = aib.kus = true; break;
 	case '7chan.org': aib._7ch = aib.kus = true; break;
-	case 'ponychan.net': aib.pony = true; break;
+	case 'ponychan.net': aib.pony = aib.kus = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
+	case 'ernstchan.com':
+	case 'ernstchan.net': aib.erns = true; break;
 	default:
 		aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
 		aib.abu = !!$id('ABU_css');
