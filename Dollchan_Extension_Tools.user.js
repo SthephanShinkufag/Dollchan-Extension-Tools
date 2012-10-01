@@ -5828,11 +5828,11 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
 			reps.push([b, t, reg, txt]);
 			rStr += fullExp + '\n';
 			return preOp || '';
-		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*) (.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, t, reg, txt) {
 			outreps.push([b, t, reg, txt]);
 			rStr += fullExp + '\n';
 			return preOp || '';
