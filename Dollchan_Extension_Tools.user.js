@@ -2525,12 +2525,14 @@ function doPostformChanges(img, _img, el) {
 			ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
 		};
 		dForm.onsubmit = $pd;
-		$q(aib.qDelBut, dForm).onclick = function(e) {
-			$pd(e);
-			showMainReply();
-			$alert(Lng.deleting[lang], 'deleting', true);
-			ajaxSubmit(new dataForm(dForm, this), checkDelete);
-		};
+		if(sBtn = $q(aib.qDelBut, dForm)) {
+			sBtn.onclick = function(e) {
+				$pd(e);
+				showMainReply();
+				$alert(Lng.deleting[lang], 'deleting', true);
+				ajaxSubmit(new dataForm(dForm, this), checkDelete);
+			};
+		}
 	} else if(Cfg['ajaxReply'] === 1) {
 		$append($id('de-main'), [
 			$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
