@@ -6852,9 +6852,9 @@ function getImageboard() {
 		return;
 	}
 	switch(aib.dm = h) {
-	case '2ch.so': aib.so = true; break;
+	case '2ch.so': aib.so = aib.abu = true; break;
 	case '0-chan.ru':
-	case '0chan.ru': aib.nul = true; aib.kus = true; break;
+	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
@@ -6862,11 +6862,12 @@ function getImageboard() {
 	case '7chan.org': aib._7ch = true; break;
 	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
+	default:
+		aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+		aib.abu = !!$id('ABU_css');
+		aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	}
 	aib.host = window.location.hostname;
-	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	aib.abu = aib.so || !!$id('ABU_css');
-	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	fixFunctions();
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
