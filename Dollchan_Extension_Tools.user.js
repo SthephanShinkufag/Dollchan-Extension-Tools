@@ -5351,9 +5351,6 @@ Spells.prototype = {
 		},
 		function(post, val) {			// wipe
 			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = getText(post);
-			if(!val) {
-				val = 0x27;
-			}
 			if(val & 0x1) {
 				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 				if((len = arr.length) > 5) {
@@ -5514,14 +5511,27 @@ Spells.prototype = {
 		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
 		case 14:
 			if(exp) {
-				exp = +exp;
-				if(exp !== exp || exp < 1 || exp > 63) {
+				var temp = 0;
+				if(exp.split(/, */).some(function(v) {
+					switch(v) {
+					case 'samelines': temp |= 1; return false;
+					case 'samewords': temp |= 2; return false;
+					case 'longwords': temp |= 4; return false;
+					case 'symbols': temp |= 8; return false;
+					case 'capslock': temp |= 16; return false;
+					case 'numbers': temp |= 32; return false;
+					default: return true;
+					}
+				})) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length - val[5].length - 1;
+					this._lastErrCol = val[0].length - exp.length - 1;
 					return 0;
 				}
-				tokens.push([rType, exp, opt]);
+			} else {
+				temp = 0x3F;
 			}
+			tokens.push([rType, temp, opt]);
+			break;
 		case 11:
 			if(!exp) {
 				tokens.push([rType, exp, opt]);
@@ -5930,13 +5940,14 @@ Spells.prototype = {
 			}
 		});
 		if(Cfg['hideByWipe'] !== 0) {
-			rv = +(Cfg['wipeSameLin'] !== 0) |
-				(+(Cfg['wipeSameWrd'] !== 0) << 1) |
-				(+(Cfg['wipeLongWrd'] !== 0) << 2) |
-				(+(Cfg['wipeSpecial'] === 1) << 3) |
-				(+(Cfg['wipeCAPS'] === 1) << 4) |
-				(+(Cfg['wipeNumbers'] !== 0) << 5);
-			rv = '#wipe' + (rv === 0x27 ? '' : '(' + rv + ')') + (nS.length !== 0 ? ' |\n' : '');
+			rv = [];
+			(Cfg['wipeSameLin'] !== 0) && rv.push('samelines');
+			(Cfg['wipeSameWrd'] !== 0) && rv.push('samewords');
+			(Cfg['wipeLongWrd'] !== 0) && rv.push('longwords');
+			(Cfg['wipeSpecial'] === 1) && rv.push('symbols');
+			(Cfg['wipeCAPS']    === 1) && rv.push('capslock');
+			(Cfg['wipeNumbers'] !== 0) && rv.push('numbers');
+			rv = rv.length === 0 ? '' : '#wipe(' + rv.join(',') + ')' + (nS.length !== 0 ? ' |\n' : '');
 		}
 		delete Cfg['hideByWipe']; delete Cfg['wipeSameLin']; delete Cfg['wipeSameWrd']; delete Cfg['wipeLongWrd'];
 		delete Cfg['wipeSpecial']; delete Cfg['wipeCAPS']; delete Cfg['wipeNumbers'];
@@ -6009,10 +6020,10 @@ Spells.prototype = {
 			}
 			return true;
 		} catch(e) {
-			if(typeof data !== 'string') {
-				this.list = '#wipe';
-			} else {
+			if(typeof data === 'string') {
 				this.list = this._convertOld(data.split('\n'));
+			} else {
+				this.list = '#wipe(samelines,samewords,longwords,numbers)';
 			}
 			this.hash = ELFHash(this.list);
 			return true;
