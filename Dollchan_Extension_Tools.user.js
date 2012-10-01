@@ -14,7 +14,7 @@
 var defaultCfg = {
 	'version':	'12.9.30.0',
 	'language':		0,		// script language [0=ru, 1=en]
-	'hideBySpell':	0,		// hide posts by spells
+	'hideBySpell':	1,		// hide posts by spells
 	'filterThrds':	1,		// apply filters to threads
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
@@ -6009,7 +6009,11 @@ Spells.prototype = {
 			}
 			return true;
 		} catch(e) {
-			this.list = this._convertOld((data || '').split('\n'));
+			if(typeof data !== 'string') {
+				this.list = '#wipe';
+			} else {
+				this.list = this._convertOld(data.split('\n'));
+			}
 			this.hash = ELFHash(this.list);
 			return true;
 		}
