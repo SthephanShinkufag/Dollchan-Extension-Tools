@@ -1290,7 +1290,7 @@ function getCfgFilters() {
 				}, null)
 			]),
 			lBox('hideBySpell', false, toggleSpells),
-			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 50}, null)
+			$new('textarea', {'id': 'de-spell-edit', 'rows': 16, 'cols': 50}, null)
 		]),
 		lBox('filterThrds', true, null),
 		lBox('menuHiddBtn', true, null),
