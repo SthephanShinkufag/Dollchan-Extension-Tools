@@ -5267,9 +5267,9 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 	if(rv === null) {
 		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
 	} else if(rv) {
-		hFunc(post);
+		hFunc(post, async);
 	} else if(nhFunc) {
-		nhFunc(post);
+		nhFunc(post, async);
 	}
 };
 Spells.prototype = {
