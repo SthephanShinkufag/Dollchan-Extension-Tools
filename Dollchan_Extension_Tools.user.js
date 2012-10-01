@@ -2525,14 +2525,12 @@ function doPostformChanges(img, _img, el) {
 			ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
 		};
 		dForm.onsubmit = $pd;
-		$each($Q('input[type="submit"]', dForm), function(el) {
-			el.onclick = function(e) {
-				$pd(e);
-				showMainReply();
-				$alert(Lng.deleting[lang], 'deleting', true);
-				ajaxSubmit(new dataForm(dForm, this), checkDelete);
-			};
-		});
+		$q(aib.qDelBut, dForm).onclick = function(e) {
+			$pd(e);
+			showMainReply();
+			$alert(Lng.deleting[lang], 'deleting', true);
+			ajaxSubmit(new dataForm(dForm, this), checkDelete);
+		};
 	} else if(Cfg['ajaxReply'] === 1) {
 		$append($id('de-main'), [
 			$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
@@ -2629,9 +2627,7 @@ function checkUpload(err, url) {
 }
 
 function getFinalURL(dc, iframe) {
-	if(aib.fch) {
-		return $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
-	} else if(iframe) {
+	if(iframe) {
 		return window.location;
 	} else {
 		var el = $q(aib.qDForm, dc);
@@ -2851,7 +2847,7 @@ function dataForm(form, button) {
 	this.busy = 0;
 	this.error = false;
 	this.url = form.action;
-	$each($Q('input:not([type="submit"]), textarea, select', form), this.append.bind(this));
+	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
 	this.append(button);
 }
 
@@ -6899,6 +6895,7 @@ function getImageboard() {
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
+	aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
 	aib.res =
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
