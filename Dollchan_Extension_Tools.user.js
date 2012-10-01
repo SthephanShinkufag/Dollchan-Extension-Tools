@@ -1577,7 +1577,7 @@ function addSettings(Set) {
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads_' + aib.dm, '');
-						spells.saveSpells('');
+						setStored('DESU_Spells_' + aib.dm, '[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]');
 						window.location.reload();
 					}
 				})
@@ -6092,7 +6092,7 @@ function toggleSpells() {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld.value;
 	if(val) {
-		if((temp = spells.parseText(val)) && temp[0]) {
+		if(temp = spells.parseText(val)) {
 			disableSpells();
 			spells.saveTemp();
 			fld.value = spells.list;
