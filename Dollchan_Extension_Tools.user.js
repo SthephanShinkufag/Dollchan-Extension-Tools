@@ -15,13 +15,6 @@ var defaultCfg = {
 	'version':	'12.9.30.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	0,		// hide posts by spells
-	'hideByWipe':	1,		// antiwipe detectors:
-	'wipeSameLin':	1,		//		same lines
-	'wipeSameWrd':	1,		//		same words
-	'wipeLongWrd':	1,		//		long words
-	'wipeSpecial':	0,		//		special symbols
-	'wipeCAPS':		0,		//		cAsE, CAPS
-	'wipeNumbers':	1,		//		numbers
 	'filterThrds':	1,		// apply filters to threads
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
@@ -100,13 +93,6 @@ var defaultCfg = {
 Lng = {
 	cfg: {
 		'hideBySpell':	['Заклинания: ', 'Magic spells: '],
-		'hideByWipe':	['Анти-вайп детекторы ', 'Anti-wipe detectors '],
-		'wipeSameLin':	['Повтор строк', 'Same lines'],
-		'wipeSameWrd':	['Повтор слов', 'Same words'],
-		'wipeLongWrd':	['Длинные слова', 'Long words'],
-		'wipeSpecial':	['Спецсимволы', 'Special symbols'],
-		'wipeCAPS':		['КАПС/реГисТР', 'CAPS/cAsE'],
-		'wipeNumbers':	['Числа', 'Numbers'],
 		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
@@ -884,18 +870,12 @@ function toggleCfg(id) {
 	saveCfg(id, !Cfg[id] ? 1 : 0);
 }
 
-function getHidCfg() {
-	return !Cfg['hideByWipe'] ? 0 :
-		Cfg['wipeSameLin'] | (Cfg['wipeSameWrd'] << 1) | (Cfg['wipeLongWrd'] << 2) |
-			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5);
-}
-
 function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden'] || '').split(',');
-		if(+data[0] === (Cfg['hideBySpell'] ? spells.hash : 0) && +data[1] === getHidCfg()) {
-			sVis = data[2].split('');
+		if(+data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
+			sVis = data[1].split('');
 			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
 					sVis.splice(dC, 1);
@@ -911,8 +891,7 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') +
-			getHidCfg() + ',' + sVis.join('');
+		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
 	}
 	toggleContent('hid', true);
 }
@@ -1180,14 +1159,6 @@ function toggleBox(state, arr) {
 }
 
 function fixSettings() {
-	toggleBox(Cfg['hideByWipe'], [
-		'input[info="wipeSameLin"]',
-		'input[info="wipeSameWrd"]',
-		'input[info="wipeLongWrd"]',
-		'input[info="wipeSpecial"]',
-		'input[info="wipeCAPS"]',
-		'input[info="wipeNumbers"]'
-	]);
 	toggleBox(Cfg['updThread'] === 1 || Cfg['updThread'] === 2, [
 		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
@@ -1320,19 +1291,6 @@ function getCfgFilters() {
 			]),
 			lBox('hideBySpell', false, toggleSpells),
 			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 50}, null)
-		]),
-		lBox('hideByWipe', true, null),
-		$New('div', {'id': 'de-cfg-wipe'}, [
-			$New('div', null, [
-				lBox('wipeSameLin', false, null),
-				lBox('wipeSameWrd', false, null),
-				lBox('wipeLongWrd', false, null)
-			]),
-			$New('div', null, [
-				lBox('wipeSpecial', false, null),
-				lBox('wipeCAPS', false, null),
-				lBox('wipeNumbers', false, null)
-			])
 		]),
 		lBox('filterThrds', true, null),
 		lBox('menuHiddBtn', true, null),
@@ -1953,7 +1911,7 @@ function selectSpell(e) {
 			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#sage,#op,#tlen,#all,#video,#num,#rep,#outrep')
+			('#sage,#op,#tlen,#all,#video,#num,#wipe,#rep,#outrep')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
@@ -4945,17 +4903,11 @@ function doPostFilters(post) {
 		sVis[post.count] = 1;
 		return;
 	}
-	var note = detectWipeText(getText(post));
-	if(note) {
-		sVis[post.count] = 0;
-		doHidePost(post, note);
-	} else {
-		sVis[post.count] = 1;
-		spells.check(post, function(pst) {
-			sVis[pst.count] = 0;
-			doHidePost(pst, 'By spells');
-		}, false);
-	}
+	sVis[post.count] = 1;
+	spells.check(post, function(pst) {
+		sVis[pst.count] = 0;
+		doHidePost(pst, 'By spells');
+	}, false);
 }
 
 function setPostsVisib() {
@@ -4974,12 +4926,10 @@ function setPostsVisib() {
 				}
 			}
 			if(vis === undefined) {
-				sVis[i] = vis = detectWipeText(getText(post)) ? 0 : 1;
-				if(vis === 1) {
-					spells.check(post, function(pst) {
-						sVis[pst.count] = 0;
-					}, false);
-				}
+				sVis[i] = 1
+				spells.check(post, function(pst) {
+					sVis[pst.count] = 0;
+				}, false);
 			}
 			continue;
 		}
@@ -5099,15 +5049,10 @@ function unhidePost(post) {
 	if(uVis[post.num]) {
 		return;
 	}
-	var wn = detectWipeText(getText(post));
-	if(wn) {
-		hidePost(post, wn);
-	} else {
-		sVis[post.count] = 1;
-		setPostVisib(post, false, null);
-		unhideByRef(post);
-		$del($c('de-post-note', post));
-	}
+	sVis[post.count] = 1;
+	setPostVisib(post, false, null);
+	unhideByRef(post);
+	$del($c('de-post-note', post));
 }
 
 function setUserPostVisib(post, hide) {
@@ -5275,8 +5220,8 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 Spells.prototype = {
 	_names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash',
-		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all', 'video',
-		'num'
+		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
+		'video', 'wipe', 'num'
 	],
 	_funcs: [
 		function(post, val) {			// words
@@ -5404,6 +5349,97 @@ Spells.prototype = {
 				return;
 			})();
 		},
+		function(post, val) {			// wipe
+			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = getText(post);
+			if(!val) {
+				val = 0x27;
+			}
+			if(val & 0x1) {
+				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
+				if((len = arr.length) > 5) {
+					arr.sort();
+					for(i = 0, n = len / 4; i < len;) {
+						x = arr[i];
+						j = 0;
+						while(arr[i++] === x) {
+							j++;
+						}
+						if(j > 4 && j > n && x) {
+							return true;//'same lines: "' + x.substr(0, 20) + '" x' + j;
+						}
+					}
+				}
+			}
+			if(val & 0x2) {
+				arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
+				if((len = arr.length) > 3) {
+					arr.sort();
+					for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
+						x = arr[i];
+						j = 0;
+						while(arr[i++] === x) {
+							j++;
+						}
+						if(len > 25) {
+							if(j > pop && x.length > 2) {
+								pop = j;
+							}
+							if(pop >= n) {
+								return true;//'same words: "' + x.substr(0, 20) + '" x' + pop;
+							}
+						}
+					}
+					x = keys / len;
+					if(x < 0.25) {
+						return true;//'uniq words: ' + (x * 100).toFixed(0) + '%';
+					}
+				}
+			}
+			if(val & 0x4) {
+				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
+					return true;//'long words';
+				}
+			}
+			if(val & 0x8) {
+				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+				if((len = arr.length) > 4) {
+					for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
+						x = arr[i];
+						if((x.match(/[a-zа-я]/ig) || []).length < 5) {
+							continue;
+						}
+						if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
+							casew++;
+						}
+						if(x === x.toUpperCase()) {
+							capsw++;
+						}
+						n++;
+					}
+					if(capsw / n >= 0.3 && n > 4) {
+						return true;//'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+					} else if(casew / n >= 0.3 && n > 8) {
+						return true;//'cAsE words: ' + casew / arr.length * 100 + '%';
+					}
+				}
+			}
+			if(val & 0x16) {
+				_txt = txt.replace(/\s+/g, '');
+				if((len = _txt.length) > 30 &&
+					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
+				{
+					return true;//'specsymbols: ' + Math.round(x * 100) + '%';
+				}
+			}
+			if(val & 0x32) {
+				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
+					return true;//'numbers: ' + Math.round(x * 100) + '%';
+				}
+			}
+			return false;
+		},
 		function(post, val) {			// num
 			return Spells.checkArr(val, post.count + 1);
 		}
@@ -5441,7 +5477,7 @@ Spells.prototype = {
 		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
 		exp = val[5];
 		if(!exp) {
-			if(type > 4 && type < 14) {
+			if(type > 4 && type < 15) {
 				exp = '';
 			} else {
 				this._errorMessage = Lng.seMissArg[lang] + val[0];
@@ -5453,6 +5489,14 @@ Spells.prototype = {
 		}
 		switch(type) {
 		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
+		case 14:
+			exp = +exp;
+			if(exp !== exp || exp < 1 || exp > 63) {
+				this._errorMessage = Lng.seSyntaxErr[lang];
+				this._lastErrCol = val[0].length - val[5].length - 1;
+				return 0;
+			}
+			tokens.push([rType, exp, opt]);
 		case 4:
 			exp = +exp;
 			if(exp !== exp) {
@@ -5826,7 +5870,8 @@ Spells.prototype = {
 	_convertOld: function(sList) {
 		var nS = [],
 			rS = [],
-			sS = [];
+			sS = [],
+			rv = '';
 		function pushSpell(op, sbt, spell, args, s) {
 			s.push(op ? '(#op' + sbt + ' & ' + spell + args + ')' : spell + sbt + args);
 		}
@@ -5882,13 +5927,25 @@ Spells.prototype = {
 				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
 			}
 		});
-		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') + nS.join(' |\n') + '\n\n' + rS.join('\n');
+		if(Cfg['hideByWipe'] !== 0) {
+			rv = +(Cfg['wipeSameLin'] !== 0) |
+				(+(Cfg['wipeSameWrd'] !== 0) << 1) |
+				(+(Cfg['wipeLongWrd'] !== 0) << 2) |
+				(+(Cfg['wipeSpecial'] === 1) << 3) |
+				(+(Cfg['wipeCAPS'] === 1) << 4) |
+				(+(Cfg['wipeNumbers'] !== 0) << 5);
+			rv = '#wipe' + (rv === 0x27 ? '' : '(' + rv + ')') + (nS.length !== 0 ? ' |\n' : '');
+		}
+		delete Cfg['hideByWipe']; delete Cfg['wipeSameLin']; delete Cfg['wipeSameWrd']; delete Cfg['wipeLongWrd'];
+		delete Cfg['wipeSpecial']; delete Cfg['wipeCAPS']; delete Cfg['wipeNumbers'];
+		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') + rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
 
 	readed: false,
 	needArg: function(spell) {
 		var idx = this._names.indexOf(spell);
-		return idx < 5 || idx > 13;
+		return idx < 5 || idx > 14;
 	},
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
@@ -5937,6 +5994,9 @@ Spells.prototype = {
 	read: function() {
 		var arr, data = getStored('DESU_Spells_' + aib.dm);
 		try {
+			if(!data) {
+				throw null;
+			}
 			arr = JSON.parse(data);
 			if(arr.length < 3) {
 				this.hash = arr[0];
@@ -5947,11 +6007,9 @@ Spells.prototype = {
 			}
 			return true;
 		} catch(e) {
-			if(data && typeof data === 'string') {
-				this.hash = ELFHash(data);
-				this.list = this._convertOld(data.split('\n'));
-				return true;
-			}
+			this.list = this._convertOld((data || '').split('\n'));
+			this.hash = ELFHash(this.list);
+			return true;
 		}
 		return false;
 	},
@@ -6075,103 +6133,6 @@ function addSpell(spell, arg) {
 		fld.previousSibling.firstChild.checked = false;
 	}
 	saveCfg('hideBySpell', 0);
-}
-
-
-/*==============================================================================
-									WIPE DETECTORS
-==============================================================================*/
-
-function detectWipeText(txt) {
-	if(!Cfg['hideByWipe']) {
-		return false;
-	}
-	var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt;
-	if(Cfg['wipeSameLin']) {
-		arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
-		if((len = arr.length) > 5) {
-			arr.sort();
-			for(i = 0, n = len / 4; i < len;) {
-				x = arr[i];
-				j = 0;
-				while(arr[i++] === x) {
-					j++;
-				}
-				if(j > 4 && j > n && x) {
-					return 'same lines: "' + x.substr(0, 20) + '" x' + j;
-				}
-			}
-		}
-	}
-	if(Cfg['wipeSameWrd']) {
-		arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-		if((len = arr.length) > 3) {
-			arr.sort();
-			for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
-				x = arr[i];
-				j = 0;
-				while(arr[i++] === x) {
-					j++;
-				}
-				if(len > 25) {
-					if(j > pop && x.length > 2) {
-						pop = j;
-					}
-					if(pop >= n) {
-						return 'same words: "' + x.substr(0, 20) + '" x' + pop;
-					}
-				}
-			}
-			x = keys / len;
-			if(x < 0.25) {
-				return 'uniq words: ' + (x * 100).toFixed(0) + '%';
-			}
-		}
-	}
-	if(Cfg['wipeLongWrd']) {
-		arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-		if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-			return 'long words';
-		}
-	}
-	if(Cfg['wipeCAPS']) {
-		arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
-		if((len = arr.length) > 4) {
-			for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
-				x = arr[i];
-				if((x.match(/[a-zа-я]/ig) || []).length < 5) {
-					continue;
-				}
-				if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
-					casew++;
-				}
-				if(x === x.toUpperCase()) {
-					capsw++;
-				}
-				n++;
-			}
-			if(capsw / n >= 0.3 && n > 4) {
-				return 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
-			} else if(casew / n >= 0.3 && n > 8) {
-				return 'cAsE words: ' + casew / arr.length * 100 + '%';
-			}
-		}
-	}
-	if(Cfg['wipeSpecial']) {
-		_txt = txt.replace(/\s+/g, '');
-		if((len = _txt.length) > 30 &&
-			(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
-		{
-			return 'specsymbols: ' + Math.round(x * 100) + '%';
-		}
-	}
-	if(Cfg['wipeNumbers']) {
-		_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
-		if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-			return 'numbers: ' + Math.round(x * 100) + '%';
-		}
-	}
-	return false;
 }
 
 
