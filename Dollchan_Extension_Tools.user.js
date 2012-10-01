@@ -5420,7 +5420,7 @@ Spells.prototype = {
 			return 0;
 		}
 		var opt, type, rType, exp, temp,
-			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
+			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
 		if(!val) {
 			this._errorMessage = Lng.seSyntaxErr[lang];
 			this._lastErrCol = 0;
@@ -5438,8 +5438,8 @@ Spells.prototype = {
 		} else {
 			rType = type;
 		}
-		opt = val[2] && [val[2], val[3]];
-		exp = val[4];
+		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
+		exp = val[5];
 		if(!exp) {
 			if(type > 4 && type < 14) {
 				exp = '';
@@ -5456,8 +5456,8 @@ Spells.prototype = {
 		case 4:
 			exp = +exp;
 			if(exp !== exp) {
-				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[4]);
-				this._lastErrCol = val[0].length - val[4].length - 1;
+				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[5]);
+				this._lastErrCol = val[0].length - val[5].length - 1;
 				return 0;
 			}
 			tokens.push([rType, exp, opt]);
@@ -5467,7 +5467,7 @@ Spells.prototype = {
 				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
 				if(!exp || (!exp[2] && !exp[3])) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length - val[4].length - 1;
+					this._lastErrCol = val[0].length - val[5].length - 1;
 					return 0;
 				}
 				tokens.push([rType, [exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2, exp[2] && [+exp[2], exp[3] ? +exp[3] : +exp[2]], exp[4] && [+exp[4], exp[5] ? +exp[5] : +exp[4], +exp[6], exp[7] ? +exp[7] : +exp[6]]], opt]);
@@ -5482,14 +5482,14 @@ Spells.prototype = {
 				break;
 			}
 		case 14:
-			exp.split(/, */).forEach(function(val) {
-				if(val.contains('-')) {
-					var nums = val.split('-');
+			exp.split(/, */).forEach(function(v) {
+				if(v.contains('-')) {
+					var nums = v.split('-');
 					nums[0] = +nums[0];
 					nums[1] = +nums[1];
 					this[1].push(nums);
 				} else {
-					this[0].push(+val);
+					this[0].push(+v);
 				}
 			}, temp = [[], []]);
 			tokens.push([rType, temp, opt]);
@@ -5645,7 +5645,7 @@ Spells.prototype = {
 				}
 			} else {
 				temp = spell[2];
-				if((temp && (temp[0] !== brd || (temp[1] && temp[1] !== TNum)))) {
+				if(temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))) {
 					temp = this._clearScope(nScope, spell[0], i, len);
 					if(temp !== false) {
 						return temp;
