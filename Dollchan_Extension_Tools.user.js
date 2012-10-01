@@ -6852,7 +6852,7 @@ function getImageboard() {
 		return;
 	}
 	switch(aib.dm = h) {
-	case '2ch.so': aib.so = true;
+	case '2ch.so': aib.so = true; break;
 	case '0-chan.ru':
 	case '0chan.ru': aib.nul = true; aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
