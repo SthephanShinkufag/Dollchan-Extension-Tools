@@ -6855,7 +6855,7 @@ function getImageboard() {
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = aib.kus = true; break;
-	case 'hiddenchan.i2p': aib.hid = true; break;
+	case 'hiddenchan.i2p': aib.hid = aib.kus = true; break;
 	case 'dfwk.ru': aib.dfwk = aib.kus = true; break;
 	case '7chan.org': aib._7ch = aib.kus = true; break;
 	case 'ponychan.net': aib.pony = aib.kus = true; break;
