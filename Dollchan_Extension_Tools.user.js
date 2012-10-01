@@ -3071,7 +3071,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.abu,
+	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.so,
 		tagTable = {
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -6851,12 +6851,8 @@ function getImageboard() {
 	if(!dForm) {
 		return;
 	}
-	aib.dm = h;
-	aib.host = window.location.hostname;
-	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	aib.abu = !!$id('ABU_css');
-	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
-	switch(h) {
+	switch(aib.dm = h) {
+	case '2ch.so': aib.so = true;
 	case '0-chan.ru':
 	case '0chan.ru': aib.nul = true; aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
@@ -6867,6 +6863,10 @@ function getImageboard() {
 	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
 	}
+	aib.host = window.location.hostname;
+	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.abu = aib.so || !!$id('ABU_css');
+	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	fixFunctions();
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
