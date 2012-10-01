@@ -6849,25 +6849,25 @@ function getImageboard() {
 	if(!dForm) {
 		return;
 	}
+	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.host = window.location.hostname;
 	switch(aib.dm = h) {
 	case '2ch.so': aib.so = aib.abu = true; break;
 	case '0-chan.ru':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
-	case '410chan.ru': aib._410 = aib.kus = true; break;
-	case 'hiddenchan.i2p': aib.hid = aib.kus = true; break;
-	case 'dfwk.ru': aib.dfwk = aib.kus = true; break;
-	case '7chan.org': aib._7ch = aib.kus = true; break;
-	case 'ponychan.net': aib.pony = aib.kus = true; break;
+	case '410chan.ru': aib._410 = true; break;
+	case 'hiddenchan.i2p': aib.hid = true; break;
+	case 'dfwk.ru': aib.dfwk = true; break;
+	case '7chan.org': aib._7ch = true; break;
+	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
 	case 'ernstchan.com':
 	case 'ernstchan.net': aib.erns = true; break;
 	default:
-		aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
 		aib.abu = !!$id('ABU_css');
 		aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	}
-	aib.host = window.location.hostname;
 	fixFunctions();
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
