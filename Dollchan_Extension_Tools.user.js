@@ -3071,7 +3071,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg,
+	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.abu,
 		tagTable = {
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
