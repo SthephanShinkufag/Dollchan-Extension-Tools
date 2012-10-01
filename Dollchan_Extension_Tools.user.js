@@ -6816,17 +6816,18 @@ function getImageboard() {
 	var h = window.location.hostname.match(
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
-	aib = {
-		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
-		tiny: $xb('.//form[@name="postcontrols"]', doc),
-	};
+	aib = {};
 	switch(h) {
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
+	case 'ernstchan.com':
 	case 'ernstchan.net': aib.erns = true; break;
+	default:
+		aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
+		aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
@@ -6859,7 +6860,7 @@ function getImageboard() {
 	case '410chan.ru': aib._410 = aib.kus = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
 	case 'dfwk.ru': aib.dfwk = aib.kus = true; break;
-	case '7chan.org': aib._7ch = true; break;
+	case '7chan.org': aib._7ch = aib.kus = true; break;
 	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
 	default:
