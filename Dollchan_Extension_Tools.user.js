@@ -355,7 +355,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
+Cfg, Favor, hThrds, cHThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
@@ -913,17 +913,18 @@ function saveUserPostsVisib() {
 
 function readHiddenThreads() {
 	hThrds = getStoredObj('DESU_Threads_' + aib.dm, {});
+	cHThrds = hThrds[brd] || {};
 }
 
 function toggleHiddenThread(post, vis) {
 	if(!hThrds[brd]) {
-		hThrds[brd] = {};
+		hThrds[brd] = cHThrds;
 	}
 	if(vis === 0) {
-		hThrds[brd][post.num] = post.tTitle;
+		cHThrds[post.num] = post.tTitle;
 	} else {
-		delete hThrds[brd][post.num];
-		if($isEmpty(hThrds[brd])) {
+		delete cHThrds[post.num];
+		if($isEmpty(cHThrds)) {
 			delete hThrds[brd];
 		}
 	}
@@ -4910,15 +4911,14 @@ function setPostsVisib() {
 		vis = sVis[i];
 		post = Posts[i];
 		if(uVis[pNum = post.num]) {
-			if(post.isOp && !(hThrds[brd] && hThrds[brd][pNum] !== undefined)) {
-				delete uVis[pNum];
-				setStored('DESU_Posts_' + aib.dm + '_' + brd, JSON.stringify(uVis));
+			if(post.isOp) {
+				uVis[pNum][0] = cHThrds[pNum] === undefined ? 1 : 0;
+				uVis[pNum][1] = Date.now();
+			}
+			if(uVis[pNum][0] === 0) {
+				setUserPostVisib(post, true);
 			} else {
-				if(uVis[pNum][0] === 0) {
-					setUserPostVisib(post, true);
-				} else {
-					post.btns.firstChild.className = 'de-btn-lock';
-				}
+				post.btns.firstChild.className = 'de-btn-lock';
 			}
 			if(vis === undefined) {
 				sVis[i] = 1
@@ -4929,7 +4929,7 @@ function setPostsVisib() {
 			continue;
 		}
 		if(post.isOp) {
-			if(hThrds[brd] && hThrds[brd][pNum] !== undefined) {
+			if(cHThrds[pNum] !== undefined) {
 				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
@@ -5016,9 +5016,9 @@ function setPostVisib(post, hide, note) {
 		};
 	}
 	if(Cfg['strikeHidd']) {
-		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), function(el) {
-			el.className = hide && 'de-ref-hid';
-		});
+		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), hide ? function(el) {
+			el.className = 'de-ref-hid';
+		} : function(el) { el.className = null; });
 	}
 }
 
