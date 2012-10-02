@@ -4904,7 +4904,7 @@ function doPostFilters(post) {
 	sVis[post.count] = 1;
 	spells.check(post, function(pst) {
 		sVis[pst.count] = 0;
-		doHidePost(pst, 'By spells');
+		doHidePost(pst, post.note);
 	}, false);
 }
 
@@ -5225,26 +5225,26 @@ Spells.prototype = {
 		// 0: #words
 		function(post, val) {
 			var pTitle;
-			return getText(post).toLowerCase().contains(val) ||
+			return (getText(post).toLowerCase().contains(val) ||
 				(pTitle = $q('.replytitle, .filetitle', post)) &&
-				pTitle.textContent.toLowerCase().contains(val);
+				pTitle.textContent.toLowerCase().contains(val)) && ('#words: ' + val);
 		},
 		// 1: #exp
 		function(post, val) {
-			return val.test(getText(post));
+			return val.test(getText(post)) && ('#exp: ' + val.toString());
 		},
 		// 2: #exph
 		function(post, val) {
-			return val.test(post.innerHTML);
+			return val.test(post.innerHTML) && ('#exph: ' + val.toString());
 		},
 		// 3: #imgn
 		function(post, val) {
 			var inf = $c(aib.cFileInfo, post);
-			return inf && val.test(inf.textContent);
+			return inf && val.test(inf.textContent) && ('#imgn: ' + val.toString());
 		},
 		// 4: #ihash
 		function(post, val) {
-			return post.img[0] && getImgHash(post) === val;
+			return post.img[0] && getImgHash(post) === val && ('#ihash: ' + val);
 		},
 		// 5: #subj
 		function(post, val) {
@@ -5252,7 +5252,7 @@ Spells.prototype = {
 			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
 			}
-			return !val || val.test(pTitle);
+			return !val || val.test(pTitle) && ('#subj: ' + val);
 		},
 		// 6: #name
 		function(post, val) {
@@ -5260,7 +5260,7 @@ Spells.prototype = {
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
-			return !val || pName.contains(val);
+			return (!val || pName.contains(val)) && ('#name: ' + val);
 		},
 		// 7: #trip
 		function(post, val) {
@@ -5268,7 +5268,7 @@ Spells.prototype = {
 			if(!pTrip) {
 				return false;
 			}
-			return !val || pTrip.textContent.contains(val);
+			return (!val || pTrip.textContent.contains(val)) && ('#trip: ' + val);
 		},
 		// 8: #img
 		function(post, val) {
@@ -5287,7 +5287,7 @@ Spells.prototype = {
 					if(!h) {
 						return false;
 					} else if(!val[2]) {
-						return true;
+						return ('#img: ' + val);
 					}
 				}
 				if(temp = val[2]) {
@@ -5295,33 +5295,33 @@ Spells.prototype = {
 					w = wh[0];
 					h = wh[1];
 					switch(val[0]) {
-					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
-					case 1: return w < temp[0] && h < temp[3];
-					case 2: return w > temp[0] && h > temp[3];
+					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3] && ('#img: ' + val);
+					case 1: return w < temp[0] && h < temp[3] && ('#img: ' + val);
+					case 2: return w > temp[0] && h > temp[3] && ('#img: ' + val);
 					}
 				}
 			}
-			return true;
+			return '#img';
 		},
 		// 9: #sage
 		function(post, val) {
-			return post.sage;
+			return post.sage && '#sage';
 		},
 		// 10: #op
 		function(post, val) {
-			return post.isOp;
+			return post.isOp && '#op';
 		},
 		// 11: #tlen
 		function(post, val) {
 			var text = getText(post);
 			if(!val) {
-				return !!text;
+				return !!text && ('#tlen: ' + val);
 			}
-			return Spells.checkArr(val, text.replace(/\n/g, '').length);
+			return Spells.checkArr(val, text.replace(/\n/g, '').length) && ('#tlen: ' + val);
 		},
 		// 12: #all
 		function(post, val) {
-			return true;
+			return '#all';
 		},
 		// 13: #video
 		function(post, val, flags, sStack, hFunc, nhFunc) {
@@ -5376,7 +5376,7 @@ Spells.prototype = {
 							j++;
 						}
 						if(j > 4 && j > n && x) {
-							return true;//'same lines: "' + x.substr(0, 20) + '" x' + j;
+							return 'same lines: "' + x.substr(0, 20) + '" x' + j;
 						}
 					}
 				}
@@ -5397,13 +5397,13 @@ Spells.prototype = {
 								pop = j;
 							}
 							if(pop >= n) {
-								return true;//'same words: "' + x.substr(0, 20) + '" x' + pop;
+								return 'same words: "' + x.substr(0, 20) + '" x' + pop;
 							}
 						}
 					}
 					x = keys / len;
 					if(x < 0.25) {
-						return true;//'uniq words: ' + (x * 100).toFixed(0) + '%';
+						return 'uniq words: ' + (x * 100).toFixed(0) + '%';
 					}
 				}
 			}
@@ -5411,7 +5411,7 @@ Spells.prototype = {
 			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-					return true;//'long words';
+					return 'long words';
 				}
 			}
 			// (1 << 3): symbols
@@ -5432,9 +5432,9 @@ Spells.prototype = {
 						n++;
 					}
 					if(capsw / n >= 0.3 && n > 4) {
-						return true;//'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+						return 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
 					} else if(casew / n >= 0.3 && n > 8) {
-						return true;//'cAsE words: ' + casew / arr.length * 100 + '%';
+						return 'cAsE words: ' + casew / arr.length * 100 + '%';
 					}
 				}
 			}
@@ -5444,21 +5444,21 @@ Spells.prototype = {
 				if((len = _txt.length) > 30 &&
 					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 				{
-					return true;//'specsymbols: ' + Math.round(x * 100) + '%';
+					return 'specsymbols: ' + Math.round(x * 100) + '%';
 				}
 			}
 			// (1 << 5): numbers
 			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-					return true;//'numbers: ' + Math.round(x * 100) + '%';
+					return 'numbers: ' + Math.round(x * 100) + '%';
 				}
 			}
 			return false;
 		},
 		// 15: #num
 		function(post, val) {
-			return Spells.checkArr(val, post.count + 1);
+			return Spells.checkArr(val, post.count + 1) && ('#num: ' + val);
 		}
 	],
 	_toRegExp: function(str, noG) {
@@ -5809,6 +5809,10 @@ Spells.prototype = {
 					return;
 				} else {
 					val = this._funcs[type](post, scope[i][1]);
+					if(val) {
+						post.note = val;
+					}
+					val = !!val;
 				}
 				rv = this._checkRes(temp, val);
 				if(rv === null) {
@@ -6107,7 +6111,7 @@ function hideBySpells(post) {
 		return;
 	}
 	spells.check(post, function(pst) {
-		hidePost(pst, 'By spells');
+		hidePost(pst, post.note);
 	}, post.hide && unhidePost);
 }
 
