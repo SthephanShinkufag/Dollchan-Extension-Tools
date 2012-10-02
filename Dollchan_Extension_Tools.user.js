@@ -692,7 +692,7 @@ function getPrettyJSON(obj, indent) {
 		sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 			type === 'boolean' || type === 'number' ? val.toString() :
-			type === 'string' ? '"' + val.replace(/("|\n)/g, '\\$1') + '"' : type
+			type === 'string' ? '"' + val.replace(/(["\n\\])/g, '\\$1') + '"' : type
 		);
 		iCount++;
 	});
@@ -5494,8 +5494,8 @@ Spells.prototype = {
 		// #img
 		case 8:
 			if(exp) {
-				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
-				if(!exp || (!exp[2] && !exp[3])) {
+				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
+				if(!exp || (!exp[2] && !exp[4])) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
 					this._lastErrCol = val[0].length - val[5].length - 1;
 					return 0;
@@ -5847,12 +5847,12 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			reps.push([b, nt ? -1 : t, reg, txt]);
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			reps.push([b, nt ? -1 : t, reg.replace(/\\\)/g, ')'), txt.replace(/\\\)/g, ')') || '']);
 			rStr += fullExp + '\n';
 			return preOp || '';
-		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			outreps.push([b, nt ? -1 : t, reg, txt]);
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			outreps.push([b, nt ? -1 : t, reg.replace(/\\\)/g, ')'), txt.replace(/\\\)/g, ')') || '']);
 			rStr += fullExp + '\n';
 			return preOp || '';
 		});
@@ -5946,7 +5946,8 @@ Spells.prototype = {
 					case 'skip': pushSpell(op, sbt, '!#num', '(' + re[2] + ')', sS); return;
 					case 'rep':
 					case 'outrep':
-						rS.push('#' + re[1] + sbt + '(' + re[2].replace(/\)/g, '\\)') + ')')
+						spell = re[2].replace(/\)/g, '\\)').match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
+						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '') + ')')
 						return;
 					default: spell = '#' + re[1]; break;
 					}
@@ -6028,8 +6029,8 @@ Spells.prototype = {
 			try {
 				arr = JSON.parse(data);
 				if(arr.length < 3) {
-					this.hash = arr[0];
 					this.list = arr[1] ? this._convertOld(arr[1]) : '';
+					this.hash = ELFHash(this.list);
 				} else {
 					this.hash = arr[1];
 					this.list = arr[2];
