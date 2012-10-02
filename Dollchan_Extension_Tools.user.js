@@ -2684,7 +2684,7 @@ function ajaxSubmit(dF, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': nav.toBlob(dF.data, null),
+		'data': new Blob(dF.data),
 		'url': nav.fixLink(dF.url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -2864,7 +2864,7 @@ dataForm.prototype.readFile = function(el, idx) {
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = nav.toBlob(dat, null);
+			dF.data[idx] = new Blob(dat);
 			dF.busy--;
 		} else {
 			dF.error = true;
@@ -3231,7 +3231,7 @@ function prepareCFeatures() {
 			if(id === "K") {\
 				var mReqs = data === "all" ? 4 : 1, i = mReqs, rjw' +
 				(Cfg['findRarJPEG'] ? '= []; while(i--) rjw.push(new Worker("' +
-					window.URL.createObjectURL(nav.toBlob(['self.onmessage = ' + String(parsePostImg)], null))
+					window.URL.createObjectURL(new Blob(['self.onmessage = ' + String(parsePostImg)]))
 				+ '"));' : ';') +
 				'preloadImages(data, mReqs, rjw);\
 				return;\
@@ -3240,7 +3240,6 @@ function prepareCFeatures() {
 		var $x = function(path, root) {\
 				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
 			},\
-			toBlob = ' + String(nav.toBlob) + ',\
 			getPostImages = ' + String(getPostImages) + ',\
 			getPicWrap = ' + String(aib.getPicWrap) + ';\
 		function preloadImages(pNum, mReqs, rjw) {\
@@ -3282,7 +3281,7 @@ function prepareCFeatures() {
 						if(this.status == 200) {\
 							a.download = url.substring(url.lastIndexOf("/") + 1);\
 							var href = a.href = window.' + (nav.WebKit ? 'webkit' : '') +
-								'URL.createObjectURL(toBlob([new Uint8Array(this.response)], type));\
+								'URL.createObjectURL(new Blob([new Uint8Array(this.response)], {"type": type}));\
 							if(eImg) {\
 								a.getElementsByTagName("img")[0].src = href;\
 							}' + (Cfg['findRarJPEG'] ? 'parseRJ(a);' : '') +
@@ -6670,13 +6669,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
-		nav.toBlob = function(arr, type) {
-			return type ? new Blob(arr, {'type': type}) : new Blob(arr);
-		};
-	} else {
-		nav.noBlob = true;
-	}
+	nav.noBlob = nav.Firefox > 14 || nav.WebKit >= 536.1;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
