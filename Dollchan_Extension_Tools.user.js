@@ -623,25 +623,19 @@ function getText(el) {
 }
 
 function getImgWeight(post) {
-	var inf = $c(aib.cFileInfo, post).textContent.match(/\d+[\.\d\smkк]*[bб]/i)[0],
-		w = parseFloat(inf.match(/[\d\.]+/));
-	if(/MB/.test(inf)) {
-		w = w * 1e3;
-	}
-	if(/\d\s*B/.test(inf)) {
-		w = (w / 1e3).toFixed(2);
-	}
-	return +w;
+	var inf = $c(aib.cFileInfo, post).textContent.match(/(\d+(?:\.\d+)?)\s*([mkк])[bб]/i),
+		w = parseFloat(inf[1]);
+	return inf[2] === 'M' ? (w * 1e3) | 0 : !inf[2] ? Math.round(w / 1e3) : w;
 }
 
 function getImgSize(post) {
 	var m, el = $c(aib.cFileInfo, post);
 	if(aib.brit) {
-		m = el.onclick.toString().split('\', \'');
-		return [+m[3], +m[4]];
+		m = el.onclick.toString().split("', '");
+		return [m[3], m[4]];
 	}
-	m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
-	return m ? m[0].split(/[x×]/) : [null, null];
+	m = el ? el.textContent.match(/(\d+)[x×](\d+)/) : false;
+	return m ? m.slice(1) : [null, null];
 }
 
 function fixBrd(b) {
@@ -698,7 +692,7 @@ function getPrettyJSON(obj, indent) {
 		sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 			type === 'boolean' || type === 'number' ? val.toString() :
-			type === 'string' ? '"' + val.replace(/"/g, '\\"') + '"' : type
+			type === 'string' ? '"' + val.replace(/("|\n)/g, '\\$1') + '"' : type
 		);
 		iCount++;
 	});
@@ -2730,9 +2724,9 @@ function getExifData(exif, off, len) {
 				return false;
 			}
 			if(tag === 0x11A) {
-				xRes = +(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le)).toFixed(0);
+				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
 			} else {
-				yRes = +(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le)).toFixed(0);
+				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
 			}
 		}
 	}
@@ -5154,6 +5148,7 @@ function getImgHash(post) {
 								SPELLS AND EXPRESSIONS
 ==============================================================================*/
 
+/** @constructor */
 function Spells(read) {
 	if(read) {
 		this.update();
@@ -5263,8 +5258,8 @@ Spells.prototype = {
 				}
 				if(temp = val[2]) {
 					wh = getImgSize(post);
-					w = wh[0];
-					h = wh[1];
+					w = +wh[0];
+					h = +wh[1];
 					switch(val[0]) {
 					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
 					case 1: return w < temp[0] && h < temp[3];
@@ -5395,7 +5390,7 @@ Spells.prototype = {
 				if((len = _txt.length) > 30 &&
 					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 				{
-					Spells._lastWipeMsg = 'specsymbols: ' + Math.round(x * 100) + '%';
+					Spells._lastWipeMsg = 'specsymbols: ' + (x * 100).toFixed(0) + '%';
 					return true;
 				}
 			}
