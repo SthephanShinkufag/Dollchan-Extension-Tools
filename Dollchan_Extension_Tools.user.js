@@ -3396,85 +3396,86 @@ dateTime.checkPattern = function(val) {
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
-dateTime.prototype.init = function(txt) {
-	if(this.inited || this.disabled) {
-		return this;
-	}
-	var k, p, a, str, i = 1,
-		j = 0,
-		m = txt.match(new RegExp(this.regex));
-	if(!m) {
-		this.disabled = true;
-		return this;
-	}
-	this.rPattern = '';
-	str = m[0];
-	while(a = m[i++]) {
-		if((p = this.pattern[i - 2]) === 'm') {
-			this.fullM = a.length > 3;
+dateTime.prototype = {
+	init: function(txt) {
+		if(this.inited || this.disabled) {
+			return this;
 		}
-		k = str.indexOf(a, j);
-		this.rPattern += str.substring(j, k) + '_' + p;
-		j = k + a.length;
-	}
-	sessionStorage['timeRPHash'] = ELFHash(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
-	this.inited = true;
-	return this;
-};
-
-dateTime.prototype.fix = function(txt) {
-	if(this.disabled) {
+		var k, p, a, str, i = 1,
+			j = 0,
+			m = txt.match(new RegExp(this.regex));
+		if(!m) {
+			this.disabled = true;
+			return this;
+		}
+		this.rPattern = '';
+		str = m[0];
+		while(a = m[i++]) {
+			if((p = this.pattern[i - 2]) === 'm') {
+				this.fullM = a.length > 3;
+			}
+			k = str.indexOf(a, j);
+			this.rPattern += str.substring(j, k) + '_' + p;
+			j = k + a.length;
+		}
+		sessionStorage['timeRPHash'] = ELFHash(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
+		this.inited = true;
+		return this;
+	},
+	fix: function(txt) {
+		if(this.disabled) {
+			return txt;
+		}
+		var arrW = this.arrW,
+			arrM = this.fullM ? this.arrFM : this.arrM,
+			tPat = this.pattern,
+			tRPat = this.rPattern,
+			diff = this.diff,
+			pad2 = function(num) {
+				return num < 10 ? '0' + num : num;
+			};
+		txt = txt.replace(new RegExp(this.regex, 'g'), function() {
+			var i, a, t, second, minute, hour, day, month, year, dtime;
+			for(i = 1; i < 8; i++) {
+				a = arguments[i];
+				t = tPat[i - 1];
+				t === 's' ? second = a :
+				t === 'i' ? minute = a :
+				t === 'h' ? hour = a :
+				t === 'd' ? day = a :
+				t === 'n' ? month = a - 1 :
+				t === 'y' ? year = a :
+				t === 'm' && (
+					month =
+						/^янв|^jan/i.test(a) ? 0 :
+						/^фев|^feb/i.test(a) ? 1 :
+						/^мар|^mar/i.test(a) ? 2 :
+						/^апр|^apr/i.test(a) ? 3 :
+						/^май|^may/i.test(a) ? 4 :
+						/^июн|^jun/i.test(a) ? 5 :
+						/^июл|^jul/i.test(a) ? 6 :
+						/^авг|^aug/i.test(a) ? 7 :
+						/^сен|^sep/i.test(a) ? 8 :
+						/^окт|^oct/i.test(a) ? 9 :
+						/^ноя|^nov/i.test(a) ? 10 :
+						/^дек|^dec/i.test(a) && 11
+				);
+			}
+			dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
+			dtime.setHours(dtime.getHours() + diff);
+			return tRPat
+				.replace('_s', pad2(dtime.getSeconds()))
+				.replace('_i', pad2(dtime.getMinutes()))
+				.replace('_h', pad2(dtime.getHours()))
+				.replace('_d', pad2(dtime.getDate()))
+				.replace('_w', arrW[dtime.getDay()])
+				.replace('_n', pad2(dtime.getMonth() + 1))
+				.replace('_m', arrM[dtime.getMonth()])
+				.replace('_y', year.length === 2 ? ('' + dtime.getFullYear()).substring(2) : dtime.getFullYear());
+		});
+		arrW = arrM = tPat = tRPat = diff = pad2 = null;
 		return txt;
 	}
-	var arrW = this.arrW,
-		arrM = this.fullM ? this.arrFM : this.arrM,
-		tPat = this.pattern,
-		tRPat = this.rPattern,
-		diff = this.diff,
-		pad2 = function(num) {
-			return num < 10 ? '0' + num : num;
-		};
-	txt = txt.replace(new RegExp(this.regex, 'g'), function() {
-		var i, a, t, second, minute, hour, day, month, year, dtime;
-		for(i = 1; i < 8; i++) {
-			a = arguments[i];
-			t = tPat[i - 1];
-			t === 's' ? second = a :
-			t === 'i' ? minute = a :
-			t === 'h' ? hour = a :
-			t === 'd' ? day = a :
-			t === 'n' ? month = a - 1 :
-			t === 'y' ? year = a :
-			t === 'm' && (
-				month =
-					/^янв|^jan/i.test(a) ? 0 :
-					/^фев|^feb/i.test(a) ? 1 :
-					/^мар|^mar/i.test(a) ? 2 :
-					/^апр|^apr/i.test(a) ? 3 :
-					/^май|^may/i.test(a) ? 4 :
-					/^июн|^jun/i.test(a) ? 5 :
-					/^июл|^jul/i.test(a) ? 6 :
-					/^авг|^aug/i.test(a) ? 7 :
-					/^сен|^sep/i.test(a) ? 8 :
-					/^окт|^oct/i.test(a) ? 9 :
-					/^ноя|^nov/i.test(a) ? 10 :
-					/^дек|^dec/i.test(a) && 11
-			);
-		}
-		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-		dtime.setHours(dtime.getHours() + diff);
-		return tRPat
-			.replace('_s', pad2(dtime.getSeconds()))
-			.replace('_i', pad2(dtime.getMinutes()))
-			.replace('_h', pad2(dtime.getHours()))
-			.replace('_d', pad2(dtime.getDate()))
-			.replace('_w', arrW[dtime.getDay()])
-			.replace('_n', pad2(dtime.getMonth() + 1))
-			.replace('_m', arrM[dtime.getMonth()])
-			.replace('_y', year.length === 2 ? ('' + dtime.getFullYear()).substring(2) : dtime.getFullYear());
-	});
-	arrW = arrM = tPat = tRPat = diff = pad2 = null;
-	return txt;
 };
 
 
