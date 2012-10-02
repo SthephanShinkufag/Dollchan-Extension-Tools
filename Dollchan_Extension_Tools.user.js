@@ -5800,7 +5800,7 @@ Spells.prototype = {
 		var rv, type = spell[0] & 0xFF,
 			val = spell[1];
 		if(type === 0xFF) {
-			return this._getMsg(val[val.length - 1]);
+			return this._getMsg(val[this._lastPSpell]);
 		}
 		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
 		switch(type) {
@@ -5837,7 +5837,9 @@ Spells.prototype = {
 					i++;
 					continue;
 				}
+				this._lastPSpell = i;
 			} else {
+				this._lastPSpell = i - 1;
 				rv = false;
 			}
 			if(cInfo = sStack.pop()) {
