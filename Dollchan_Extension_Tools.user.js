@@ -6122,6 +6122,8 @@ function toggleSpells() {
 			fld.value = spells.list;
 			if(Cfg['hideBySpell']) {
 				Posts.forEach(hideBySpells);
+			} else {
+				spells.disable();
 			}
 			savePostsVisib();
 			return;
