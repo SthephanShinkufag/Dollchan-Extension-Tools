@@ -4902,10 +4902,7 @@ function doPostFilters(post) {
 		return;
 	}
 	sVis[post.count] = 1;
-	spells.check(post, function(pst, note) {
-		sVis[pst.count] = 0;
-		doHidePost(pst, note);
-	}, false);
+	spells.check(post, hidePost, false);
 }
 
 function setPostsVisib() {
@@ -6130,9 +6127,7 @@ function hideBySpells(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
-	spells.check(post, function(pst, note) {
-		hidePost(pst, note);
-	}, post.hide && unhidePost);
+	spells.check(post, hidePost, post.hide && unhidePost);
 }
 
 function disableSpells() {
