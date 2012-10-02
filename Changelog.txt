@@ -1,5 +1,22 @@
+Oct 01, 2012
+	- Convert wipe detectors to spells
+		+ Anti-wipe detectors converted to #wipe() spell
+		+ Checkboxes of the detectors are removed from "Settings"
+		+ Антивайп-детекторы превращены в спелл #wipe()
+		+ Убраны чекбоксы детекторов из "Настроек"
+Sep 30, 2012
+	- Initial ernstchan.net support
+		+ Поддержка имиджборда ernstchan.net
+Sep 28, 2012
+	- Introduce new spells
+		+ Completely changed format of spells, added new spells. Possibility of logic operations with spells.
+		+ Automatic conversion from old spells to new format.
+		+ Read more: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-en
+		+ Полностью изменен формат спеллов, добавлены новые. Возможность логических операций со спеллами.
+		+ Автоматическое преобразование старых спеллов в новый формат.
+		+ Подробнее: https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-ru
 Sep 23, 2012
-  - Disable favicon blinking for Chrome
+	- Disable favicon blinking for Chrome
 		+ Option "Posts" > "Favicon blinking on new posts" removed in Chrome
 		+ Опция "Посты" > "Мигать фавиконом при новых постах" убрана в Хроме
 
