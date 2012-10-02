@@ -261,6 +261,7 @@ Lng = {
 	add:			['Добавить', 'Add'],
 	apply:			['Применить', 'Apply'],
 	clear:			['Очистить', 'Clear'],
+	help:			['Помощь', 'Help'],
 	refresh:		['Обновить', 'Refresh'],
 	load:			['Загрузить', 'Load'],
 	save:			['Сохранить', 'Save'],
@@ -1282,9 +1283,10 @@ function getCfgFilters() {
 					}
 				}),
 				$new('a', {
-					'text': '?',
+					'text': Lng.help[lang],
 					'target': '_blank',
-					'href': '//www.freedollchan.org/scripts/spells',
+					'href': 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
+						(lang ? 'en' : 'ru'),
 					'class': 'de-abtn'
 				}, null)
 			]),
@@ -5187,8 +5189,7 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 };
 Spells.prototype = {
 	_names: [
-		'words', 'exp', 'exph', 'imgn', 'ihash',
-		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
+		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
 		'video', 'wipe', 'num'
 	],
 	_funcs: [
@@ -5284,10 +5285,7 @@ Spells.prototype = {
 		// 11: #tlen
 		function(post, val) {
 			var text = getText(post);
-			if(!val) {
-				return !!text;
-			}
-			return Spells.checkArr(val, text.replace(/\n/g, '').length);
+			return !val ? !!text : Spells.checkArr(val, text.replace(/\n/g, '').length);
 		},
 		// 12: #all
 		function(post, val) {
@@ -5523,7 +5521,19 @@ Spells.prototype = {
 					this._lastErrCol = val[0].length;
 					return 0;
 				}
-				tokens.push([rType, [exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2, exp[2] && [+exp[2], exp[3] ? +exp[3] : +exp[2]], exp[4] && [+exp[4], exp[5] ? +exp[5] : +exp[4], +exp[6], exp[7] ? +exp[7] : +exp[6]]], opt]);
+				tokens.push([rType, [
+					exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2,
+					exp[2] && [
+						+exp[2],
+						exp[3] ? +exp[3] : +exp[2]
+					],
+					exp[4] && [
+						+exp[4],
+						exp[5] ? +exp[5] : +exp[4],
+						+exp[6],
+						exp[7] ? +exp[7] : +exp[6]
+					]
+				], opt]);
 			} else {
 				tokens.push([rType, exp, opt]);
 			}
@@ -5618,18 +5628,23 @@ Spells.prototype = {
 			return null;
 		}
 		this._lastType = this._opNeg = null;
-		var data = [],
+		var d, data = [],
 			scopes = [],
 			scope = data,
-			bkt = 0;
-		for(var d, col = 1, line = 1, i = 0, len = sList.length; i < len; i++, col++) {
+			bkt = 0,
+			col = 1,
+			line = 1,
+			i = 0,
+			len = sList.length;
+		for(; i < len; i++, col++) {
 			switch(sList[i]) {
 			case '\n': line++; col = 0;
 			case ' ': continue;
 			case '#': 
 				d = this._parseSpell(scope, sList, i);
 				if(d === 0) {
-					 this._error = this._errorMessage + Lng.seRow[lang] + line + Lng.seCol[lang] + (col + this._lastErrCol) + ')';
+					 this._error = this._errorMessage + Lng.seRow[lang] + line +
+						Lng.seCol[lang] + (col + this._lastErrCol) + ')';
 					 return false;
 				} else {
 					i += d;
@@ -5649,7 +5664,8 @@ Spells.prototype = {
 					scope = scopes.pop();
 					bkt--;
 				} else {
-					this._error = Lng.seMissOpBkt[lang] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+					this._error = Lng.seMissOpBkt[lang] +
+						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 					return false;
 				}
 				this._lastType = 4;
@@ -5657,9 +5673,12 @@ Spells.prototype = {
 			case '|':
 			case '&':
 			case '!':
-				if(this._setOperator(scope, sList[i] === '|' ? 0 : sList[i] === '&' ? 1 : 2)) { break; }
+				if(this._setOperator(scope, sList[i] === '|' ? 0 : sList[i] === '&' ? 1 : 2)) {
+					break;
+				}
 			default:
-				this._error = Lng.seUnexpChar[lang] + sList[i] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+				this._error = Lng.seUnexpChar[lang] + sList[i] +
+					Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 				return false;
 			}
 		}
@@ -5674,12 +5693,12 @@ Spells.prototype = {
 		return data.length === 0 ? null : data;
 	},
 	_clearScope: function(nScope, item, i, len) {
-		var neg = (item & 0x100) !== 0;
+		var temp, neg = (item & 0x100) !== 0;
 		if(i === len - 1) {
 			if(i === 0) {
 				return neg ? [[12,'',null]] : null;
 			}
-			var temp = nScope.length - 1;
+			temp = nScope.length - 1;
 			if(neg) {
 				while(nScope[temp] && (nScope[temp][0] & 0x200) === 0) {
 					delete nScope[temp];
@@ -5870,15 +5889,21 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-			rStr += fullExp + '\n';
-			return preOp || '';
-		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-			rStr += fullExp + '\n';
-			return preOp || '';
-		});
+		str = str.replace(
+			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
+			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
+				rStr += fullExp + '\n';
+				return preOp || '';
+			}
+		).replace(
+			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
+			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
+				rStr += fullExp + '\n';
+				return preOp || '';
+			}
+		);
 		this._TEMP.reps = reps;
 		this._TEMP.outreps = outreps;
 		return [str, rStr];
@@ -5969,7 +5994,8 @@ Spells.prototype = {
 					case 'rep':
 					case 'outrep':
 						spell = re[2].match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
-						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '').replace(/\)/g, '\\)') + ')')
+						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '')
+							.replace(/\)/g, '\\)') + ')')
 						return;
 					case 'theme': re[1] = 'subj';
 					case 'exp':
@@ -5995,10 +6021,16 @@ Spells.prototype = {
 			(Cfg['wipeNumbers'] !== 0) && rv.push('numbers');
 			rv = rv.length === 0 ? '' : '#wipe(' + rv.join(',') + ')' + (nS.length !== 0 ? ' |\n' : '');
 		}
-		delete Cfg['hideByWipe']; delete Cfg['wipeSameLin']; delete Cfg['wipeSameWrd']; delete Cfg['wipeLongWrd'];
-		delete Cfg['wipeSpecial']; delete Cfg['wipeCAPS']; delete Cfg['wipeNumbers'];
+		delete Cfg['hideByWipe'];
+		delete Cfg['wipeSameLin'];
+		delete Cfg['wipeSameWrd'];
+		delete Cfg['wipeLongWrd'];
+		delete Cfg['wipeSpecial'];
+		delete Cfg['wipeCAPS'];
+		delete Cfg['wipeNumbers'];
 		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
-		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') + rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
+		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') +
+			rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
 
 	readed: false,
@@ -6075,7 +6107,7 @@ Spells.prototype = {
 	},
 	update: function() {
 		if(this.read()) {
-			var data, readed = false;
+			var data, lSpells, reps, outreps, readed = false;
 			try {
 				data = JSON.parse(sessionStorage['de-spells']);
 				if(data && data[0] === this.hash) {
@@ -6086,9 +6118,9 @@ Spells.prototype = {
 			try {
 				data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
 				if(data && data[0] === this.hash) {
-					var lSpells = this._removeBoards(data[1]),
-						reps = this._optimizeReps(data[2]),
-						outreps = this._optimizeReps(data[3]);
+					lSpells = this._removeBoards(data[1]);
+					reps = this._optimizeReps(data[2]);
+					outreps = this._optimizeReps(data[3]);
 					this._init(lSpells, reps, outreps);
 					sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
 					return;
@@ -6244,7 +6276,7 @@ function scriptCSS() {
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 		.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 		#de-spell-panel { float: right; }\
-		#de-spell-panel > a { padding: 0 7px; text-align: center; }\
+		#de-spell-panel > a { padding: 0 4px; text-align: center; }\
 		#de-cfg-wipe { display: table; padding-left: 25px; }\
 		#de-cfg-wipe > div { display: table-row; }\
 		#de-cfg-wipe > div > label { display: table-cell; }\
@@ -6625,7 +6657,8 @@ function isCompatible() {
 	case 'de-iframe-pform':
 	case 'de-iframe-dform':
 		addContentScript((
-			'window.top.postMessage("J' + window.name + '$#$' + findSubmitError(doc) + '$#$' + getFinalURL(doc, true) + '", "*");'
+			'window.top.postMessage("J' + window.name +
+			'$#$' + findSubmitError(doc) + '$#$' + getFinalURL(doc, true) + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
