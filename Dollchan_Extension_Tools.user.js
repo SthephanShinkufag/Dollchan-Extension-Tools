@@ -5222,47 +5222,56 @@ Spells.prototype = {
 		'video', 'wipe', 'num'
 	],
 	_funcs: [
-		function(post, val) {			// words
+		// 0: #words
+		function(post, val) {
 			var pTitle;
 			return getText(post).toLowerCase().contains(val) ||
 				(pTitle = $q('.replytitle, .filetitle', post)) &&
 				pTitle.textContent.toLowerCase().contains(val);
 		},
-		function(post, val) {			// exp
+		// 1: #exp
+		function(post, val) {
 			return val.test(getText(post));
 		},
-		function(post, val) {			// exph
+		// 2: #exph
+		function(post, val) {
 			return val.test(post.innerHTML);
 		},
-		function(post, val) {			// imgn
+		// 3: #imgn
+		function(post, val) {
 			var inf = $c(aib.cFileInfo, post);
 			return inf && val.test(inf.textContent);
 		},
-		function(post, val) {			// ihash
+		// 4: #ihash
+		function(post, val) {
 			return post.img[0] && getImgHash(post) === val;
 		},
-		function(post, val) {			// subj
+		// 5: #subj
+		function(post, val) {
 			var pTitle = $q('.replytitle, .filetitle', post);
 			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
 			}
 			return !val || val.test(pTitle);
 		},
-		function(post, val) {			// name
+		// 6: #name
+		function(post, val) {
 			var pName = $q('.commentpostername, .postername', post);
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
 			return !val || pName.contains(val);
 		},
-		function(post, val) {			// trip
+		// 7: #trip
+		function(post, val) {
 			var pTrip = $c('postertrip', post);
 			if(!pTrip) {
 				return false;
 			}
 			return !val || pTrip.textContent.contains(val);
 		},
-		function(post, val) {			// img
+		// 8: #img
+		function(post, val) {
 			if(!post.img[0]) {
 				return false;
 			}
@@ -5294,23 +5303,28 @@ Spells.prototype = {
 			}
 			return true;
 		},
-		function(post, val) {			// sage
+		// 9: #sage
+		function(post, val) {
 			return post.sage;
 		},
-		function(post, val) {			// op
+		// 10: #op
+		function(post, val) {
 			return post.isOp;
 		},
-		function(post, val) {			// tlen
+		// 11: #tlen
+		function(post, val) {
 			var text = getText(post);
 			if(!val) {
 				return !!text;
 			}
 			return Spells.checkArr(val, text.replace(/\n/g, '').length);
 		},
-		function(post, val) {			// all
+		// 12: #all
+		function(post, val) {
 			return true;
 		},
-		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
+		// 13: #video
+		function(post, val, flags, sStack, hFunc, nhFunc) {
 			if(!val) {
 				Spells.retAsyncVal(post, !!post.tubeObj, flags, sStack, hFunc, nhFunc, false);
 				return;
@@ -5347,8 +5361,10 @@ Spells.prototype = {
 				return;
 			})();
 		},
-		function(post, val) {			// wipe
+		// 14: #wipe
+		function(post, val) {
 			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = getText(post);
+			// (1 << 0): samelines
 			if(val & 1) {
 				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 				if((len = arr.length) > 5) {
@@ -5365,6 +5381,7 @@ Spells.prototype = {
 					}
 				}
 			}
+			// (1 << 1): samewords
 			if(val & 2) {
 				arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
 				if((len = arr.length) > 3) {
@@ -5390,12 +5407,14 @@ Spells.prototype = {
 					}
 				}
 			}
+			// (1 << 2): longwords
 			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
 					return true;//'long words';
 				}
 			}
+			// (1 << 3): symbols
 			if(val & 8) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 				if((len = arr.length) > 4) {
@@ -5419,6 +5438,7 @@ Spells.prototype = {
 					}
 				}
 			}
+			// (1 << 4): capslock
 			if(val & 16) {
 				_txt = txt.replace(/\s+/g, '');
 				if((len = _txt.length) > 30 &&
@@ -5427,6 +5447,7 @@ Spells.prototype = {
 					return true;//'specsymbols: ' + Math.round(x * 100) + '%';
 				}
 			}
+			// (1 << 5): numbers
 			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
@@ -5435,7 +5456,8 @@ Spells.prototype = {
 			}
 			return false;
 		},
-		function(post, val) {			// num
+		// 15: #num
+		function(post, val) {
 			return Spells.checkArr(val, post.count + 1);
 		}
 	],
@@ -5483,7 +5505,9 @@ Spells.prototype = {
 			exp = exp.replace(/\\\)/g, ')');
 		}
 		switch(type) {
+		// #words
 		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
+		// #ihash
 		case 4:
 			exp = +exp;
 			if(exp !== exp) {
@@ -5493,6 +5517,7 @@ Spells.prototype = {
 			}
 			tokens.push([rType, exp, opt]);
 			break;
+		// #img
 		case 8:
 			if(exp) {
 				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
@@ -5506,7 +5531,9 @@ Spells.prototype = {
 				tokens.push([rType, exp, opt]);
 			}
 			break;
+		// #trip
 		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
+		// #wipe
 		case 14:
 			if(exp) {
 				var temp = 0;
@@ -5530,11 +5557,13 @@ Spells.prototype = {
 			}
 			tokens.push([rType, temp, opt]);
 			break;
+		// #tlen
 		case 11:
 			if(!exp) {
 				tokens.push([rType, exp, opt]);
 				break;
 			}
+		// #num
 		case 15:
 			exp.split(/, */).forEach(function(v) {
 				if(v.contains('-')) {
@@ -5548,12 +5577,14 @@ Spells.prototype = {
 			}, temp = [[], []]);
 			tokens.push([rType, temp, opt]);
 			break;
+		// #video, #subj
 		case 13:
 		case 5:
 			if(!exp) {
 				tokens.push([rType, exp, opt]);
 				break;
 			}
+		// #exp, #exph, #imgn
 		case 1:
 		case 2:
 		case 3:
@@ -5564,6 +5595,7 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length - exp.length - 1;
 				return 0;
 			}
+		// #name, #sage
 		default: tokens.push([rType, exp, opt]); break;
 		}
 		this._lastType = 2;
