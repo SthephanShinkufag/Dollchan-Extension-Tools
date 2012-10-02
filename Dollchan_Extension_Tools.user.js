@@ -5349,7 +5349,7 @@ Spells.prototype = {
 		},
 		function(post, val) {			// wipe
 			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = getText(post);
-			if(val & 0x1) {
+			if(val & 1) {
 				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
 				if((len = arr.length) > 5) {
 					arr.sort();
@@ -5365,7 +5365,7 @@ Spells.prototype = {
 					}
 				}
 			}
-			if(val & 0x2) {
+			if(val & 2) {
 				arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
 				if((len = arr.length) > 3) {
 					arr.sort();
@@ -5390,13 +5390,13 @@ Spells.prototype = {
 					}
 				}
 			}
-			if(val & 0x4) {
+			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
 					return true;//'long words';
 				}
 			}
-			if(val & 0x8) {
+			if(val & 8) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 				if((len = arr.length) > 4) {
 					for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
@@ -5419,7 +5419,7 @@ Spells.prototype = {
 					}
 				}
 			}
-			if(val & 0x16) {
+			if(val & 16) {
 				_txt = txt.replace(/\s+/g, '');
 				if((len = _txt.length) > 30 &&
 					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
@@ -5427,7 +5427,7 @@ Spells.prototype = {
 					return true;//'specsymbols: ' + Math.round(x * 100) + '%';
 				}
 			}
-			if(val & 0x32) {
+			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
 					return true;//'numbers: ' + Math.round(x * 100) + '%';
