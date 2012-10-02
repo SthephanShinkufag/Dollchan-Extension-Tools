@@ -14,14 +14,7 @@
 var defaultCfg = {
 	'version':	'12.9.30.0',
 	'language':		0,		// script language [0=ru, 1=en]
-	'hideBySpell':	0,		// hide posts by spells
-	'hideByWipe':	1,		// antiwipe detectors:
-	'wipeSameLin':	1,		//		same lines
-	'wipeSameWrd':	1,		//		same words
-	'wipeLongWrd':	1,		//		long words
-	'wipeSpecial':	0,		//		special symbols
-	'wipeCAPS':		0,		//		cAsE, CAPS
-	'wipeNumbers':	1,		//		numbers
+	'hideBySpell':	1,		// hide posts by spells
 	'filterThrds':	1,		// apply filters to threads
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
@@ -100,13 +93,6 @@ var defaultCfg = {
 Lng = {
 	cfg: {
 		'hideBySpell':	['Заклинания: ', 'Magic spells: '],
-		'hideByWipe':	['Анти-вайп детекторы ', 'Anti-wipe detectors '],
-		'wipeSameLin':	['Повтор строк', 'Same lines'],
-		'wipeSameWrd':	['Повтор слов', 'Same words'],
-		'wipeLongWrd':	['Длинные слова', 'Long words'],
-		'wipeSpecial':	['Спецсимволы', 'Special symbols'],
-		'wipeCAPS':		['КАПС/реГисТР', 'CAPS/cAsE'],
-		'wipeNumbers':	['Числа', 'Numbers'],
 		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
@@ -353,17 +339,28 @@ Lng = {
 	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	debug:			['Отладка', 'Debug'],
-	infoDebug:		['Информация для отладки', 'Information for debugging']
+	infoDebug:		['Информация для отладки', 'Information for debugging'],
+
+	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
+	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
+	seMissOp:		['пропущен оператор перед спеллом', 'missing operator before spell'],
+	seMissArg:		['пропущен аргумент спелла ', 'missing argument of spell '],
+	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
+	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
+	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
+	seMissOpBkt:	['пропущена открывающаяся скобка', 'missing ( in parenthetical'],
+	seMissClBkt:	['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
+	seRow:			[' (строка ', ' (row '],
+	seCol:			[', столбец ', ', column ']
 },
 
 doc = window.document, aProto = Array.prototype,
 Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-nav, aib, brd, TNum, pageNum, docExt, docTitle,
-pr, dForm, oeForm, dummy, postWrapper,
+aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
+pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-pSpells, tSpells, oSpells, spellsList, spellsHash,
 oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
@@ -535,12 +532,6 @@ function $txtSelect() {
 	return (nav.Opera ? doc.getSelection() : window.getSelection()).toString();
 }
 
-function $toRegExp(str) {
-	var t = str.match(/\/.*?[^\\]\/[ig]*/)[0],
-		l = t.lastIndexOf('/');
-	return new RegExp(t.substr(1, l - 1), t.substr(l + 1));
-}
-
 function $isEmpty(obj) {
 	for(var i in obj) {
 		if(obj.hasOwnProperty(i)) {
@@ -568,6 +559,9 @@ function fixFunctions() {
 	if(!String.prototype.contains) {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
+		};
+		String.prototype.startsWith = function(s) {
+			return this.indexOf(s) === 0;
 		};
 	}
 	RegExp.quote = function(str) {
@@ -768,25 +762,6 @@ function getStoredObj(id, def) {
 	}
 }
 
-function saveSpells(val) {
-	spellsHash = ELFHash(val);
-	spellsList = val.split('\n');
-	setStored('DESU_Spells_' + aib.dm, JSON.stringify([spellsHash, spellsList]));
-	initSpells();
-}
-
-function readSpells() {
-	var arr, data = getStored('DESU_Spells_' + aib.dm);
-	try {
-		arr = JSON.parse(data);
-		spellsHash = arr[0];
-		spellsList = arr[1];
-		initSpells();
-	} catch(e) {
-		saveSpells(data || '');
-	}
-}
-
 /** @constructor */
 function Config(cfg) {
 	for(var key in cfg) {
@@ -880,10 +855,8 @@ function readCfg() {
 			152203056
 		);
 	}
-	if(Cfg['hideBySpell']) {
-		readSpells();
-	}
-	aib.rep = aib.fch || aib.krau || dTime || (oSpells && oSpells.rep[0]) || Cfg['crossLinks'];
+	spells = new Spells(!!Cfg['hideBySpell']);
+	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
 function saveCfg(id, val) {
@@ -897,18 +870,12 @@ function toggleCfg(id) {
 	saveCfg(id, !Cfg[id] ? 1 : 0);
 }
 
-function getHidCfg() {
-	return !Cfg['hideByWipe'] ? 0 :
-		Cfg['wipeSameLin'] | (Cfg['wipeSameWrd'] << 1) | (Cfg['wipeLongWrd'] << 2) |
-			(Cfg['wipeCAPS'] << 3) | (Cfg['wipeSpecial'] << 4) | (Cfg['wipeNumbers'] << 5);
-}
-
 function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden'] || '').split(',');
-		if(+data[0] === (Cfg['hideBySpell'] ? spellsHash : 0) && +data[1] === getHidCfg()) {
-			sVis = data[2].split('');
+		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
+			sVis = data[1].split('');
 			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
 					sVis.splice(dC, 1);
@@ -924,8 +891,7 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spellsHash + ',' : '0,') +
-			getHidCfg() + ',' + sVis.join('');
+		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
 	}
 	toggleContent('hid', true);
 }
@@ -1193,14 +1159,6 @@ function toggleBox(state, arr) {
 }
 
 function fixSettings() {
-	toggleBox(Cfg['hideByWipe'], [
-		'input[info="wipeSameLin"]',
-		'input[info="wipeSameWrd"]',
-		'input[info="wipeLongWrd"]',
-		'input[info="wipeSpecial"]',
-		'input[info="wipeCAPS"]',
-		'input[info="wipeNumbers"]'
-	]);
 	toggleBox(Cfg['updThread'] === 1 || Cfg['updThread'] === 2, [
 		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
@@ -1288,8 +1246,8 @@ function cfgTab(name) {
 				}
 				el.className = 'de-cfg-body';
 				if(id === 'filters') {
-					readSpells();
-					$id('de-spell-edit').value = spellsList.join('\n');
+					spells.update();
+					$id('de-spell-edit').value = spells.list;
 				}
 				fixSettings();
 			}
@@ -1332,20 +1290,7 @@ function getCfgFilters() {
 				}, null)
 			]),
 			lBox('hideBySpell', false, toggleSpells),
-			$new('textarea', {'id': 'de-spell-edit', 'rows': 10, 'cols': 50}, null)
-		]),
-		lBox('hideByWipe', true, null),
-		$New('div', {'id': 'de-cfg-wipe'}, [
-			$New('div', null, [
-				lBox('wipeSameLin', false, null),
-				lBox('wipeSameWrd', false, null),
-				lBox('wipeLongWrd', false, null)
-			]),
-			$New('div', null, [
-				lBox('wipeSpecial', false, null),
-				lBox('wipeCAPS', false, null),
-				lBox('wipeNumbers', false, null)
-			])
+			$new('textarea', {'id': 'de-spell-edit', 'rows': 16, 'cols': 50}, null)
 		]),
 		lBox('filterThrds', true, null),
 		lBox('menuHiddBtn', true, null),
@@ -1576,7 +1521,9 @@ function getCfgInfo() {
 					'location': String(window.location),
 					'nav': nav,
 					'cfg': nCfg,
-					'spells': spellsList,
+					'spells': spells.list.split('\n'),
+					'cSpells': getStored('DESU_CSpells_' + aib.dm),
+					'oSpells': sessionStorage['de-spells'],
 					'perf': tl
 				}, '') + '</textarea>', 'help-debug', false);
 			}), {'style': 'display: table-cell;'})
@@ -1630,7 +1577,7 @@ function addSettings(Set) {
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads_' + aib.dm, '');
-						saveSpells('');
+						setStored('DESU_Spells_' + aib.dm, '[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]');
 						window.location.reload();
 					}
 				})
@@ -1961,21 +1908,20 @@ function selectSpell(e) {
 	$each(addSelMenu(
 		e.target, true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">' +
-			('#b/,#b/itt,#exp ,#exph ,#img ,#imgn ,#name ,#noimg,#notxt,#num ,')
+			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
 				.split(',').join('</a><a href="#">') +
 			'</a></div><div style="display: inline-block;"><a href="#">' +
-			('#op,#outrep,#rep ,#sage,#skip ,#theme ,#tmax ,#trip,#video ')
+			('#sage,#op,#tlen,#all,#video,#num,#wipe,#rep,#outrep')
 				.split(',').join('</a><a href="#">') + '</a></div>'
 	), function(a) {
 		a.onclick = function(e) {
 			var exp = this.textContent;
 			$pd(e);
-			if(exp === '#b/') {
-				exp = '#' + brd + '/ ';
-			} else if(exp === '#b/itt') {
-				exp = '#' + brd + '/' + (TNum ? TNum + ' ': ' ');
-			}
-			$txtInsert($id('de-spell-edit'), exp);
+			$txtInsert($id('de-spell-edit'), exp +
+				(TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ?
+					'[' + brd + ',' + TNum + ']' : ''
+				) + (spells.needArg(exp.substr(1)) ? '(' : '')
+			);
 		};
 	});
 }
@@ -1990,15 +1936,19 @@ function selectPostHider(post) {
 	);
 	a[1].onclick = function(e) {
 		$pd(e);
-		addSpell(
-			post.img.length === 0 ?
-				'#noimg' :
-				'#img =' + getImgWeight(post) + '@' + getImgSize(post).join('x')
-		);
+		if(post.img[0]) {
+			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
+		} else {
+			addSpell('!#img', '');
+		}
 	};
 	a[2].onclick = function(e) {
 		$pd(e);
-		addSpell(post.img.length === 0 ? '#noimg' : '#ihash ' + getImgHash(post));
+		if(post.img[0]) {
+			addSpell('#ihash', '(' + getImgHash(post) + ')');
+		} else {
+			addSpell('!#img', '');
+		}
 	};
 	a[3].onclick = function(e) {
 		$pd(e);
@@ -2006,7 +1956,7 @@ function selectPostHider(post) {
 	};
 	(a = a[0]).onclick = function(e) {
 		$pd(e);
-		addSpell(quotetxt);
+		addSpell('#words', '(' + quotetxt + ')');
 	};
 	a.onmouseover = function() {
 		quotetxt = $txtSelect().trim();
@@ -2435,8 +2385,8 @@ function doPostformChanges(img, _img, el) {
 	$event(pr.subm, {'click': function(e) {
 		var val = pr.txta.value,
 			sVal = Cfg['signatValue'];
-		if(Cfg['hideBySpell'] && oSpells.outrep[0]) {
-			val = replaceBySpells(oSpells.outrep, val);
+		if(spells.haveOutreps) {
+			val = spells.outReplace(val);
 		}
 		if(Cfg['userSignat'] && sVal) {
 			val += '\n' + sVal;
@@ -2575,14 +2525,14 @@ function doPostformChanges(img, _img, el) {
 			ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
 		};
 		dForm.onsubmit = $pd;
-		$each($Q('input[type="submit"]', dForm), function(el) {
-			el.onclick = function(e) {
+		if(sBtn = $q(aib.qDelBut, dForm)) {
+			sBtn.onclick = function(e) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
 				ajaxSubmit(new dataForm(dForm, this), checkDelete);
 			};
-		});
+		}
 	} else if(Cfg['ajaxReply'] === 1) {
 		$append($id('de-main'), [
 			$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
@@ -2679,9 +2629,7 @@ function checkUpload(err, url) {
 }
 
 function getFinalURL(dc, iframe) {
-	if(aib.fch) {
-		return $t('meta', dc).content.match(/http:\/\/[^"]+/)[0];
-	} else if(iframe) {
+	if(iframe) {
 		return window.location;
 	} else {
 		var el = $q(aib.qDForm, dc);
@@ -2901,7 +2849,7 @@ function dataForm(form, button) {
 	this.busy = 0;
 	this.error = false;
 	this.url = form.action;
-	$each($Q('input:not([type="submit"]), textarea, select', form), this.append.bind(this));
+	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
 	this.append(button);
 }
 
@@ -3079,7 +3027,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg,
+	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.so,
 		tagTable = {
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -3280,7 +3228,7 @@ function prepareCFeatures() {
 			temp = pByNum[+data];
 			toggleFavorites(temp, $c('de-btn-fav', temp) || $c('de-btn-fav-sel', temp));
 			return;
-		case 'H': addSpell('#sage'); return;
+		case 'H': addSpell('#sage', ''); return;
 		case 'I':
 			$del($id('de-fav-wait'));
 			$id('de-iframe-fav').style.height = data + 'px';
@@ -3620,7 +3568,7 @@ function addTubePreview(el, m) {
 }
 
 function getTubePattern() {
-	return /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?)?$/;
+	return /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 }
 
 function clickTubeLink(e) {
@@ -3661,8 +3609,8 @@ function addLinkTube(post) {
 		}
 		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
-		if(!$c('de-ytube-obj', pst)) {
-			el = $new('div', {'class': 'de-ytube-obj'}, null);
+		if(!pst.tubeObj) {
+			pst.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg['addYouTube'] === 2) {
@@ -3679,50 +3627,29 @@ function addLinkTube(post) {
 		}
 		link.className = 'de-ytube-link';
 		link.onclick = clickTubeLink;
-		if(nav.Opera && nav.Opera < 12 || !Cfg['YTubeTitles']) {
+		if(!Cfg['YTubeTitles']) {
 			link.textContent = link.textContent.replace(/^http:/, 'https:');
 			return;
 		}
+		link.textData = 1;
 		GM_xmlhttpRequest({
 			'method': 'GET',
 			'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
 				'?alt=json&fields=title/text(),media:group/media:keywords',
-			'onload': function(xhr) {
-				try {
-					var json = JSON.parse(xhr.responseText)['entry'],
-						txt = json['title']['$t'];
-					link.textContent = txt;
-					if(Cfg['hideBySpell']) {
-						for(var t, i = 0; t = oSpells.video[i]; i++) {
-							if($toRegExp(t).test(txt)) {
-								hidePost(pst, '#video ' + t);
-								pst.ytHide = true;
-								clearTimeout(hideTubeDelay);
-								hideTubeDelay = setTimeout(savePostsVisib, 500);
-								return;
-							}
-						}
+			'onreadystatechange': function(xhr) {
+				if(xhr.readyState === 4) {
+					if(xhr.status === 200) {
+						try {
+							link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+							link.textData = 2;
+							return;
+						} catch(e) {}
 					}
+					link.textData = 3;
 					link = pst = null;
-				} catch(e) {}
+				}
 			}
 		});
-	});
-}
-
-function hideByTube() {
-	if(!Cfg['YTubeTitles']) {
-		return;
-	}
-	$each($Q('a[href*="youtu"]', dForm), function(link) {
-		for(var t, post, i = 0, val = link.textContent; t = oSpells.video[i++];) {
-			if($toRegExp(t).test(val)) {
-				post = getPost(link);
-				hidePost(post, '#video ' + t);
-				post.ytHide = true;
-				return;
-			}
-		}
 	});
 }
 
@@ -4974,13 +4901,11 @@ function doPostFilters(post) {
 		sVis[post.count] = 1;
 		return;
 	}
-	var note = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post));
-	if(note) {
-		sVis[post.count] = 0;
-		doHidePost(post, note);
-	} else {
-		sVis[post.count] = 1;
-	}
+	sVis[post.count] = 1;
+	spells.check(post, function(pst) {
+		sVis[pst.count] = 0;
+		doHidePost(pst, 'By spells');
+	}, false);
 }
 
 function setPostsVisib() {
@@ -4999,7 +4924,10 @@ function setPostsVisib() {
 				}
 			}
 			if(vis === undefined) {
-				sVis[i] = detectWipeText(getText(post)) || (Cfg['hideBySpell'] && checkSpells(post)) ? 0 : 1;
+				sVis[i] = 1
+				spells.check(post, function(pst) {
+					sVis[pst.count] = 0;
+				}, false);
 			}
 			continue;
 		}
@@ -5103,7 +5031,7 @@ function doHidePost(post, note) {
 }
 
 function hidePost(post, note) {
-	if(post.noHide || uVis[post.num]) {
+	if(uVis[post.num]) {
 		return;
 	}
 	if(post.hide) {
@@ -5119,15 +5047,10 @@ function unhidePost(post) {
 	if(uVis[post.num]) {
 		return;
 	}
-	var wn = detectWipeText(getText(post));
-	if(wn) {
-		hidePost(post, wn);
-	} else {
-		sVis[post.count] = 1;
-		setPostVisib(post, false, null);
-		unhideByRef(post);
-		$del($c('de-post-note', post));
-	}
+	sVis[post.count] = 1;
+	setPostVisib(post, false, null);
+	unhideByRef(post);
+	$del($c('de-post-note', post));
 }
 
 function setUserPostVisib(post, hide) {
@@ -5202,7 +5125,7 @@ function hideBySameText(post) {
 		});
 		saveUserPostsVisib();
 	} else {
-		addSpell('#notxt');
+		addSpell('!#tlen', '');
 	}
 	hid = num = wrds = null;
 }
@@ -5261,453 +5184,967 @@ function getImgHash(post) {
 								SPELLS AND EXPRESSIONS
 ==============================================================================*/
 
-function getSpellObj() {
-	return {
-		words: [], exp: [], exph: [], ihash: [], img: [], imgn: [], name: [], theme: [], tmax: [],
-		sage: false, notxt: false, noimg: false, trip: false
-	};
-}
-
-function initSpells() {
-	var i, x, b, n, t, p, j, Spells;
-	pSpells = getSpellObj();
-	tSpells = getSpellObj();
-	oSpells = {rep: [], skip: [], num: [], outrep: [], video: []};
-	for(i = 0; x = spellsList[i++];) {
-		Spells = pSpells;
-		x = x.toString();
-		if(/^#(?:[^\s]+\/)?(?:\d+)? /.test(x)) {
-			b = x.match(/^#([^\/]+)\//);
-			n = x.match(/(\d+)\s/);
-			if(
-				TNum && b && n && b[1] === brd && n[1] === TNum ||
-				TNum && !b && n && n[1] === TNum ||
-				b && !n && b[1] === brd
-			) {
-				x = x.replace(/^#[^\s]+ /, '');
-			} else {
-				continue;
-			}
-		}
-		if(/^#op /.test(x)) {
-			if(TNum) {
-				continue;
-			} else {
-				Spells = tSpells;
-				x = x.substr(4);
-			}
-		}
-		if(!/^#/.test(x)) {
-			Spells.words.push(x);
-			continue;
-		}
-		t = x.split(' ')[0];
-		p = x.replace(/^#[^\s]+ /, '');
-		if(TNum && (t === '#skip' || t === '#num')) {
-			p = p.split(', ');
-			j = p.length;
-			while(j--) {
-				if(!p[j].contains('-')) {
-					p[j] += '-' + p[j];
-				}
-				t === '#num' ? oSpells.num.push(p[j]) : oSpells.skip.push(p[j]);
-			}
-		}
-		t === '#rep' ? oSpells.rep.push(p) :
-		t === '#exp' ? Spells.exp.push($toRegExp(p)) :
-		t === '#exph' ? Spells.exph.push($toRegExp(p)) :
-		t === '#ihash' ? Spells.ihash.push(+p) :
-		t === '#img' ? Spells.img.push(p) :
-		t === '#imgn' ? Spells.imgn.push($toRegExp(p)) :
-		t === '#name' ? Spells.name.push(p) :
-		t === '#theme' ? Spells.theme.push($toRegExp(p)) :
-		t === '#tmax' ? Spells.tmax.push(p) :
-		t === '#sage' ? Spells.sage = true :
-		t === '#notxt' ? Spells.notxt = true :
-		t === '#noimg' ? Spells.noimg = true :
-		t === '#trip' ? Spells.trip = true :
-		t === '#outrep' ? oSpells.outrep.push(p) :
-		t === '#video' && oSpells.video.push(p);
+function Spells(read) {
+	if(read) {
+		this.update();
+	} else {
+		this._disable();
 	}
 }
-
-function replaceBySpells(arr, txt) {
-	var re, i = arr.length;
-	while(i--) {
-		re = $toRegExp(arr[i]);
-		txt = txt.replace(re, arr[i].substr(re.toString().length + 1));
-	}
-	return txt;
-}
-
-function getImgSpell(imgW, imgH, imgK, exp) {
-	if(!exp) {
-		return false;
-	}
-	var x, expW, expH, s = exp.split('@'),
-		stat = s[0][0],
-		expK = s[0].substr(1).split('-');
-	if(!expK[1]) {
-		expK[1] = expK[0];
-	}
-	if(expK[0]) {
-		if(
-			(stat === '<' && imgK < +expK[0]) ||
-			(stat === '>' && imgK > +expK[0]) ||
-			(stat === '=' && imgK >= +expK[0] && imgK <= +expK[1])
-		) {
-			if(!s[1]) {
-				return 'image ' + exp;
-			}
-		} else {
-			return false;
+Spells.checkArr = function(val, num) {
+	var i, arr;
+	for(arr = val[0], i = arr.length - 1; i >= 0; i--) {
+		if(arr[i] === num) {
+			return true;
 		}
 	}
-	if(s[1]) {
-		x = s[1].split(/[x×]/);
-		expW = x[0].split('-');
-		expH = x[1].split('-');
-		if(!expW[1]) {
-			expW[1] = expW[0];
-		}
-		if(!expH[1]) {
-			expH[1] = expH[0];
-		}
-		if(
-			stat === '<' && imgW < +expW[0] && imgH < +expH[0] ||
-			stat === '>' && imgW > +expW[0] && imgH > +expH[0] ||
-			stat === '=' && imgW >= +expW[0] && imgW <= +expW[1] && imgH >= +expH[0] && imgH <= +expH[1]
-		) {
-			return 'image ' + exp;
+	for(arr = val[1], i = arr.length - 1; i >= 0; i--) {
+		if(num >= arr[i][0] && num <= arr[i][1]) {
+			return true;
 		}
 	}
 	return false;
-}
-
-function getSpells(x, post) {
-	var inf, i, t, _t, pTitle, pText, pName, pTrip, imgW, imgH, imgK;
-	post.noHide = false;
-	if(oSpells.skip[0] && TNum) {
-		inf = post.count + 1;
-		for(i = 0; t = oSpells.skip[i++];) {
-			t = t.split('-');
-			if(inf >= +t[0] && inf <= +t[1]) {
-				post.noHide = true;
+};
+Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
+	var rv = spells._checkRes(flags, val);
+	if(rv === null) {
+		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
+	} else if(rv) {
+		hFunc(post, async);
+	} else if(nhFunc) {
+		nhFunc(post, async);
+	}
+};
+Spells.prototype = {
+	_names: [
+		'words', 'exp', 'exph', 'imgn', 'ihash',
+		'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
+		'video', 'wipe', 'num'
+	],
+	_funcs: [
+		function(post, val) {			// words
+			var pTitle;
+			return getText(post).toLowerCase().contains(val) ||
+				(pTitle = $q('.replytitle, .filetitle', post)) &&
+				pTitle.textContent.toLowerCase().contains(val);
+		},
+		function(post, val) {			// exp
+			return val.test(getText(post));
+		},
+		function(post, val) {			// exph
+			return val.test(post.innerHTML);
+		},
+		function(post, val) {			// imgn
+			var inf = $c(aib.cFileInfo, post);
+			return inf && val.test(inf.textContent);
+		},
+		function(post, val) {			// ihash
+			return post.img[0] && getImgHash(post) === val;
+		},
+		function(post, val) {			// subj
+			var pTitle = $q('.replytitle, .filetitle', post);
+			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
 			}
-		}
-	}
-	if(x.words[0] || x.theme[0]) {
-		pTitle = $c('replytitle', post) || $c('filetitle', post);
-		pTitle = pTitle ? pTitle.textContent.toLowerCase() : '';
-	}
-	pText = getText(post);
-	if(x.words[0]) {
-		for(i = 0, inf = pText.toLowerCase(); t = x.words[i++];) {
-			_t = t;
-			t = t.toLowerCase();
-			if(inf.contains(t) || pTitle.contains(t)) {
-				return _t;
+			return !val || val.test(pTitle);
+		},
+		function(post, val) {			// name
+			var pName = $q('.commentpostername, .postername', post);
+			if(!pName || !(pName = pName.textContent)) {
+				return false;
 			}
-		}
-	}
-	if(x.theme[0]) {
-		for(i = 0; t = x.theme[i++];) {
-			if(t.test(pTitle)) {
-				return '#theme ' + t.toString();
+			return !val || pName.contains(val);
+		},
+		function(post, val) {			// trip
+			var pTrip = $c('postertrip', post);
+			if(!pTrip) {
+				return false;
 			}
-		}
-	}
-	if(x.exp[0]) {
-		for(i = 0, inf = pText; t = x.exp[i++];) {
-			if(t.test(inf)) {
-				return '#exp ' + t.toString();
+			return !val || pTrip.textContent.contains(val);
+		},
+		function(post, val) {			// img
+			if(!post.img[0]) {
+				return false;
 			}
-		}
-	}
-	if(x.exph[0]) {
-		for(i = 0, inf = post.innerHTML; t = x.exph[i++];) {
-			if(t.test(inf)) {
-				return '#exph ' + t.toString();
-			}
-		}
-	}
-	if(x.name[0] || x.trip) {
-		pName = $c('commentpostername', post) || $c('postername', post);
-		pTrip = $c('postertrip', post);
-	}
-	if(x.trip && pTrip) {
-		return '#trip';
-	}
-	if(x.name[0]) {
-		pName = pName ? pName.textContent : '';
-		pTrip = pTrip ? pTrip.textContent : '';
-		for(i = 0; t = x.name[i++];) {
-			_t = t;
-			t = t.split(/!+/);
-			if(t[0] && pName.contains(t[0]) || t[1] && pTrip.contains(t[1])) {
-				return '#name ' + _t;
-			}
-		}
-	}
-	if(post.img.length > 0) {
-		if(x.ihash[0]) {
-			for(i = 0, inf = getImgHash(post); t = x.ihash[i++];) {
-				if(t === inf) {
-					return '#ihash ' + t;
+			if(val) {
+				var temp, wh, w, h;
+				if(temp = val[1]) {
+					w = getImgWeight(post);
+					switch(val[0]) {
+					case 0: h = w >= temp[0] && w <= temp[1]; break;
+					case 1: h = w < temp[0]; break;
+					case 2: h = w > temp[0]; break;
+					}
+					if(!h) {
+						return false;
+					} else if(!val[2]) {
+						return true;
+					}
 				}
-			}
-		}
-		if(x.img[0]) {
-			_t = getImgSize(post);
-			imgW = +_t[0];
-			imgH = +_t[1];
-			imgK = getImgWeight(post);
-			for(i = 0; t = x.img[i++];) {
-				if(getImgSpell(imgW, imgH, imgK, t)) {
-					return '#img ' + t;
-				}
-			}
-		}
-		if(x.imgn[0]) {
-			inf = $c(aib.cFileInfo, post);
-			if(inf) {
-				for(i = 0, inf = inf.textContent; t = x.imgn[i++];) {
-					if(t.test(inf)) {
-						return '#imgn ' + t;
+				if(temp = val[2]) {
+					wh = getImgSize(post);
+					w = wh[0];
+					h = wh[1];
+					switch(val[0]) {
+					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
+					case 1: return w < temp[0] && h < temp[3];
+					case 2: return w > temp[0] && h > temp[3];
 					}
 				}
 			}
+			return true;
+		},
+		function(post, val) {			// sage
+			return post.sage;
+		},
+		function(post, val) {			// op
+			return post.isOp;
+		},
+		function(post, val) {			// tlen
+			var text = getText(post);
+			if(!val) {
+				return !!text;
+			}
+			return Spells.checkArr(val, text.replace(/\n/g, '').length);
+		},
+		function(post, val) {			// all
+			return true;
+		},
+		function(post, val, flags, sStack, hFunc, nhFunc) {			// video
+			if(!val) {
+				Spells.retAsyncVal(post, !!post.tubeObj, flags, sStack, hFunc, nhFunc, false);
+				return;
+			}
+			if(!post.tubeObj || !Cfg['YTubeTitles']) {
+				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, false);
+				return;
+			}
+			var links = $C('de-ytube-link', post),
+				timeOut = 21,
+				i = 0,
+				len = links.length;
+			(function checkLink() {
+				var link;
+				if(--timeOut === 0) {
+					timeOut = 21;
+					i++;
+				}
+				while(i < len) {
+					link = links[i];
+					switch(link.textData) {
+					case 1: setTimeout(checkLink, 500); return;
+					case 2:
+						if(val.test(link.textContent)) {
+							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc, timeOut !== 20);
+							links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
+							return;
+						}
+					default: i++;
+					}
+				}
+				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, timeOut !== 20);
+				links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
+				return;
+			})();
+		},
+		function(post, val) {			// wipe
+			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = getText(post);
+			if(val & 0x1) {
+				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
+				if((len = arr.length) > 5) {
+					arr.sort();
+					for(i = 0, n = len / 4; i < len;) {
+						x = arr[i];
+						j = 0;
+						while(arr[i++] === x) {
+							j++;
+						}
+						if(j > 4 && j > n && x) {
+							return true;//'same lines: "' + x.substr(0, 20) + '" x' + j;
+						}
+					}
+				}
+			}
+			if(val & 0x2) {
+				arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
+				if((len = arr.length) > 3) {
+					arr.sort();
+					for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
+						x = arr[i];
+						j = 0;
+						while(arr[i++] === x) {
+							j++;
+						}
+						if(len > 25) {
+							if(j > pop && x.length > 2) {
+								pop = j;
+							}
+							if(pop >= n) {
+								return true;//'same words: "' + x.substr(0, 20) + '" x' + pop;
+							}
+						}
+					}
+					x = keys / len;
+					if(x < 0.25) {
+						return true;//'uniq words: ' + (x * 100).toFixed(0) + '%';
+					}
+				}
+			}
+			if(val & 0x4) {
+				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
+					return true;//'long words';
+				}
+			}
+			if(val & 0x8) {
+				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+				if((len = arr.length) > 4) {
+					for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
+						x = arr[i];
+						if((x.match(/[a-zа-я]/ig) || []).length < 5) {
+							continue;
+						}
+						if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
+							casew++;
+						}
+						if(x === x.toUpperCase()) {
+							capsw++;
+						}
+						n++;
+					}
+					if(capsw / n >= 0.3 && n > 4) {
+						return true;//'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+					} else if(casew / n >= 0.3 && n > 8) {
+						return true;//'cAsE words: ' + casew / arr.length * 100 + '%';
+					}
+				}
+			}
+			if(val & 0x16) {
+				_txt = txt.replace(/\s+/g, '');
+				if((len = _txt.length) > 30 &&
+					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
+				{
+					return true;//'specsymbols: ' + Math.round(x * 100) + '%';
+				}
+			}
+			if(val & 0x32) {
+				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
+					return true;//'numbers: ' + Math.round(x * 100) + '%';
+				}
+			}
+			return false;
+		},
+		function(post, val) {			// num
+			return Spells.checkArr(val, post.count + 1);
 		}
-	}
-	if(oSpells.num[0]) {
-		for(i = 0, inf = post.count + 1; t = oSpells.num[i++];) {
-			_t = t;
-			t = t.split('-');
-			if(inf >= +t[0] && inf <= +t[1]) {
-				return '#num ' + _t;
+	],
+	_toRegExp: function(str, noG) {
+		var l = str.lastIndexOf('/'),
+			flags = str.substr(l + 1);
+		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
+	},
+	_parseSpell: function(tokens, str, offset) {
+		if(this._lastType === 2) {
+			this._errorMessage = Lng.seMissOp[lang];
+			this._lastErrCol = 0;
+			return 0;
+		}
+		var opt, type, rType, exp, temp,
+			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
+		if(!val) {
+			this._errorMessage = Lng.seSyntaxErr[lang];
+			this._lastErrCol = 0;
+			return 0;
+		}
+		type = this._names.indexOf(val[1]);
+		if(type === -1) {
+			this._errorMessage = Lng.seUnknown[lang] + val[1];
+			this._lastErrCol = 1;
+			return 0;
+		}
+		if(this._opNeg) {
+			rType = type | 0x100;
+			this._opNeg = false;
+		} else {
+			rType = type;
+		}
+		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
+		exp = val[5];
+		if(!exp) {
+			if(type > 4 && type < 15) {
+				exp = '';
+			} else {
+				this._errorMessage = Lng.seMissArg[lang] + val[0];
+				this._lastErrCol = val[0].length;
+				return 0;
+			}
+		} else {
+			exp = exp.replace(/\\\)/g, ')');
+		}
+		switch(type) {
+		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
+		case 4:
+			exp = +exp;
+			if(exp !== exp) {
+				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[5]);
+				this._lastErrCol = val[0].length - val[5].length - 1;
+				return 0;
+			}
+			tokens.push([rType, exp, opt]);
+			break;
+		case 8:
+			if(exp) {
+				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
+				if(!exp || (!exp[2] && !exp[3])) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = val[0].length - val[5].length - 1;
+					return 0;
+				}
+				tokens.push([rType, [exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2, exp[2] && [+exp[2], exp[3] ? +exp[3] : +exp[2]], exp[4] && [+exp[4], exp[5] ? +exp[5] : +exp[4], +exp[6], exp[7] ? +exp[7] : +exp[6]]], opt]);
+			} else {
+				tokens.push([rType, exp, opt]);
+			}
+			break;
+		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
+		case 14:
+			if(exp) {
+				var temp = 0;
+				if(exp.split(/, */).some(function(v) {
+					switch(v) {
+					case 'samelines': temp |= 1; return false;
+					case 'samewords': temp |= 2; return false;
+					case 'longwords': temp |= 4; return false;
+					case 'symbols': temp |= 8; return false;
+					case 'capslock': temp |= 16; return false;
+					case 'numbers': temp |= 32; return false;
+					default: return true;
+					}
+				})) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = val[0].length - exp.length - 1;
+					return 0;
+				}
+			} else {
+				temp = 0x3F;
+			}
+			tokens.push([rType, temp, opt]);
+			break;
+		case 11:
+			if(!exp) {
+				tokens.push([rType, exp, opt]);
+				break;
+			}
+		case 15:
+			exp.split(/, */).forEach(function(v) {
+				if(v.contains('-')) {
+					var nums = v.split('-');
+					nums[0] = +nums[0];
+					nums[1] = +nums[1];
+					this[1].push(nums);
+				} else {
+					this[0].push(+v);
+				}
+			}, temp = [[], []]);
+			tokens.push([rType, temp, opt]);
+			break;
+		case 13:
+		case 5:
+			if(!exp) {
+				tokens.push([rType, exp, opt]);
+				break;
+			}
+		case 1:
+		case 2:
+		case 3:
+			try {
+				this._toRegExp(exp, true);
+			} catch(e) {
+				this._errorMessage = Lng.seErrRegex[lang] + exp;
+				this._lastErrCol = val[0].length - exp.length - 1;
+				return 0;
+			}
+		default: tokens.push([rType, exp, opt]); break;
+		}
+		this._lastType = 2;
+		return val[0].length;
+	},
+	_setOperator: function(scope, op) {
+		if(op === 2) {
+			if(!this._lastType || this._lastType === 3) {
+				this._lastType = 1;
+				return this._opNeg = true;
+			}
+		} else {
+			if(this._lastType === 2 || this._lastType === 4) {
+				this._lastType = 0;
+				if(op === 1) {
+					scope[scope.length - 1][0] |= 0x200;
+				}
+				return true;
 			}
 		}
-	}
-	if(x.tmax[0]) {
-		for(i = 0, inf = pText.replace(/\n/g, '').length; t = x.tmax[i++];) {
-			if(inf >= t) {
-				return '#tmax ' + t;
+		return false;
+	},
+	_compile: function(sList) {
+		if(!sList) {
+			return null;
+		}
+		this._lastType = this._opNeg = null;
+		var data = [],
+			scopes = [],
+			scope = data,
+			bkt = 0;
+		for(var d, col = 1, line = 1, i = 0, len = sList.length; i < len; i++, col++) {
+			switch(sList[i]) {
+			case '\n': line++; col = 0;
+			case ' ': continue;
+			case '#': 
+				d = this._parseSpell(scope, sList, i);
+				if(d === 0) {
+					 this._error = this._errorMessage + Lng.seRow[lang] + line + Lng.seCol[lang] + (col + this._lastErrCol) + ')';
+					 return false;
+				} else {
+					i += d;
+					col += d;
+				}
+				break;
+			case '(':
+				scopes.push(scope);
+				scope.push([this._opNeg ? 0x1FF : 0xFF, []])
+				scope = scope[scope.length - 1][1];
+				bkt++;
+				this._lastType = 3;
+				this._opNeg = false;
+				break;
+			case ')':
+				if(bkt > 0) {
+					scope = scopes.pop();
+					bkt--;
+				} else {
+					this._error = Lng.seMissOpBkt[lang] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+					return false;
+				}
+				this._lastType = 4;
+				break;
+			case '|':
+			case '&':
+			case '!':
+				if(this._setOperator(scope, sList[i] === '|' ? 0 : sList[i] === '&' ? 1 : 2)) { break; }
+			default:
+				this._error = Lng.seUnexpChar[lang] + sList[i] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+				return false;
 			}
 		}
-	}
-	if(x.sage && post.sage) {
-		return '#sage';
-	}
-	if(x.notxt && !pText) {
-		return '#no text';
-	}
-	if(x.noimg && post.img.length === 0) {
-		return '#no image';
-	}
-	return false;
-}
+		if(this._lastType !== 2 && this._lastType !== 4) {
+			this._error = Lng.seSyntaxErr[lang] + Lng.seRow[lang] + line + ')';
+			return false;
+		}
+		if(bkt > 0) {
+			this._error = Lng.seMissClBkt[lang] + Lng.seRow[lang] + line + ')';
+			return false;
+		}
+		return data.length === 0 ? null : data;
+	},
+	_clearScope: function(nScope, item, i, len) {
+		var neg = (item & 0x100) !== 0;
+		if(i === len - 1) {
+			if(i === 0) {
+				return neg ? [[12,'',null]] : null;
+			}
+			var temp = nScope.length - 1;
+			if(neg) {
+				while(nScope[temp] && (nScope[temp][0] & 0x200) === 0) {
+					delete nScope[temp];
+					temp -= 2;
+				}
+				if(nScope[temp]) {
+					nScope[temp][0] &= 0x1FF;
+				}
+				return temp >= 0 ? nScope : [[12,'',null]];
+			} else {
+				while(nScope[temp] && (nScope[temp][0] & 0x200) !== 0) {
+					delete nScope[temp];
+					temp -= 2;
+				}
+				return temp >= 0 ? nScope : null;
+			}
+		} else if((item & 0x200) !== 0) {
+			if(!neg) {
+				return null;
+			}
+		} else if(neg) {
+			return [[12,'',null]];
+		}
+		return false;
+	},
+	_processScope: function(scope) {
+		for(var i = 0, len = scope.length, nScope = [], type, spell, temp; i < len; i++) {
+			spell = scope[i];
+			type = spell[0] & 0xFF;
+			if(type === 0xFF) {
+				if(temp = this._processScope(spell[1])) {
+					if(temp.length === 1) {
+						temp = temp[0];
+						temp[0] |= spell[0] & 0x300;
+						nScope.push(temp);
+					} else {
+						nScope.push([spell[0], temp]);
+					}
+				} else {
+					temp = this._clearScope(nScope, spell[0], i, len);
+					if(temp !== false) {
+						return temp;
+					}
+				}
+			} else {
+				temp = spell[2];
+				if(temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))) {
+					temp = this._clearScope(nScope, spell[0], i, len);
+					if(temp !== false) {
+						return temp;
+					}
+					continue;
+				}
+				if(type === 12) {
+					temp = this._clearScope(nScope, spell[0] ^ 0x100, i, len);
+					if(temp !== false) {
+						return temp;
+					}
+					continue;
+				}
+				nScope.push(spell);
+			}
+		}
+		return nScope.length === 0 ? null : nScope;
+	},
+	_removeBoards: function(data) {
+		if(!data) {
+			return false;
+		}
+		return this._processScope(data);
+	},
+	_initSpells: function(data) {
+		if(data) {
+			data.forEach(function initExps(item) {
+				var val = item[1];
+				if(val) {
+					switch(item[0] & 0xFF) {
+					case 1:
+					case 2:
+					case 3:
+					case 5:
+					case 13: item[1] = this(val, true); break;
+					case 0xFF: val.forEach(initExps, this);
+					}
+				}
+			}, this._toRegExp);
+		}
+		return data;
+	},
+	_checkRes: function(flags, val) {
+		if((flags & 0x100) !== 0) {
+			val = !val;
+		}
+		if((flags & 0x200) !== 0) {
+			if(!val) {
+				return false;
+			}
+		} else if(val) {
+			return true;
+		}
+		return null;
+	},
+	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
+		var type, temp, val, rv = false,
+			cInfo = sStack.pop(),
+			i = cInfo[0],
+			len = cInfo[1],
+			scope = cInfo[2];
+		while(true) {
+			if(i < len) {
+				temp = scope[i][0];
+				type = temp & 0xFF;
+				if(type === 0xFF) {
+					sStack.push([i, len, scope]);
+					scope = scope[i][1];
+					len = scope.length;
+					i = 0;
+					continue;
+				} else if(type === 13) {
+					sStack.push([i + 1, len, scope]);
+					this._funcs[type](post, scope[i][1], temp, sStack, hFunc, nhFunc);
+					return;
+				} else {
+					val = this._funcs[type](post, scope[i][1]);
+				}
+				rv = this._checkRes(temp, val);
+				if(rv === null) {
+					i++;
+					continue;
+				}
+			} else {
+				rv = false;
+			}
+			if(cInfo = sStack.pop()) {
+				i = cInfo[0];
+				len = cInfo[1];
+				scope = cInfo[2];
+				rv = this._checkRes(scope[i][0], rv);
+				if(rv === null) {
+					i++;
+					continue;
+				}
+			}
+			if(rv) {
+				hFunc(post, async);
+			} else if(nhFunc) {
+				nhFunc(post, async);
+			}
+			return;
+		}
+	},
+	_realCheck: function(post, hFunc, nhFunc) {
+		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, async) {
+			hFunc(pst);
+			if(async) {
+				clearTimeout(aSpellTO);
+				aSpellTO = setTimeout(savePostsVisib, 500);
+			}
+		}, nhFunc && function(pst, async) {
+			nhFunc(pst);
+			if(async) {
+				clearTimeout(aSpellTO);
+				aSpellTO = setTimeout(savePostsVisib, 500);
+			}
+		}, false);
+	},
+	_fakeCheck: function(post, hFunc, nhFunc) {
+		if(nhFunc) {
+			nhFunc(post);
+		}
+	},
+	_findReps: function(str) {
+		var reps = [],
+			outreps = [],
+			rStr = '';
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			reps.push([b, nt ? -1 : t, reg, txt]);
+			rStr += fullExp + '\n';
+			return preOp || '';
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			outreps.push([b, nt ? -1 : t, reg, txt]);
+			rStr += fullExp + '\n';
+			return preOp || '';
+		});
+		this._TEMP.reps = reps;
+		this._TEMP.outreps = outreps;
+		return [str, rStr];
+	},
+	_optimizeReps: function(data) {
+		if(data) {
+			var nData = [];
+			data.forEach(function(temp) {
+				if(!temp[0] || (temp[0] === brd && (temp[1] === -1 ? !TNum : !temp[1] || temp[1] === TNum))) {
+					nData.push([temp[2], temp[3]]);
+				}
+			});
+			return nData.length === 0 ? false : nData;
+		}
+		return false;
+	},
+	_initReps: function(data) {
+		if(data) {
+			for(var i = data.length - 1; i >= 0; i--) {
+				data[i][0] = this._toRegExp(data[i][0], false);
+			}
+		}
+		return data;
+	},
+	_init: function(spells, reps, outreps) {
+		this._spells = this._initSpells(spells);
+		this._reps = this._initReps(reps);
+		this._outreps = this._initReps(outreps);
+		this.check = this._spells ? this._realCheck : this._fakeCheck;
+		this.haveSpells = !!spells;
+		this.haveReps = !!reps;
+		this.haveOutreps = !!outreps;
+	},
+	_disable: function() {
+		this.hash = 0;
+		this.list = '';
+		this.check = this._fakeCheck;
+		this.haveSpells = this.haveReps = this.haveOutreps = false;
+		saveCfg('hideBySpell', 0);
+	},
+	_convertOld: function(sList) {
+		var nS = [],
+			rS = [],
+			sS = [],
+			rv = '';
+		function pushSpell(op, sbt, spell, args, s) {
+			s.push(op ? '(#op' + sbt + ' & ' + spell + args + ')' : spell + sbt + args);
+		}
+		sList.forEach(function(str) {
+			if(!str) {
+				return;
+			}
+			var re, sbt = '', spell, op = false;
+			if(str[0] === '#') {
+				if(re = str.match(/^#([a-z]+)\/([0-9]+)? /)) {
+					sbt = re[1] ? '[' + re[1] + (re[2] ? ',' + re[2] : '') + ']' : '';
+					str = str.substr(re[0].length);
+				}
+			}
+			if(str.startsWith('#op ')) {
+				str = str.substr(4);
+				op = true;
+			}
+			if(str[0] === '#') {
+				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
+					switch(re[1]) {
+					case 'sage': pushSpell(op, sbt, '#sage', '', nS); return;
+					case 'notxt': pushSpell(op, sbt, '!#tlen', '', nS); return;
+					case 'noimg': pushSpell(op, sbt, '!#img', '', nS); return;
+					case 'trip': pushSpell(op, sbt, '#trip', '', nS); return;
+					case 'tmax': pushSpell(op, sbt, '#tlen', '(' + re[2] + '-9000)', nS); return;
+					case 'name':
+						spell = re[2].split('!!');
+						if(spell.length === 2) {
+							pushSpell(op, sbt, '#trip', '(!!' + spell[1] + ')', nS);
+						}
+						if(spell[0]) {
+							spell = spell[0].split('!');
+							if(spell.length === 2) {
+								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')', nS);
+							}
+							if(spell[0]) {
+								pushSpell(op, sbt, '#name', '(' + spell[0] + ')', nS);
+							}
+						}
+						return;
+					case 'theme': spell = '#subj'; break;
+					case 'skip': pushSpell(op, sbt, '!#num', '(' + re[2] + ')', sS); return;
+					case 'rep':
+					case 'outrep':
+						rS.push('#' + re[1] + sbt + '(' + re[2].replace(/\)/g, '\\)') + ')')
+						return;
+					default: spell = '#' + re[1]; break;
+					}
+					pushSpell(op, sbt, spell, '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
+				}
+			} else {
+				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
+			}
+		});
+		if(Cfg['hideByWipe'] !== 0) {
+			rv = [];
+			(Cfg['wipeSameLin'] !== 0) && rv.push('samelines');
+			(Cfg['wipeSameWrd'] !== 0) && rv.push('samewords');
+			(Cfg['wipeLongWrd'] !== 0) && rv.push('longwords');
+			(Cfg['wipeSpecial'] === 1) && rv.push('symbols');
+			(Cfg['wipeCAPS']    === 1) && rv.push('capslock');
+			(Cfg['wipeNumbers'] !== 0) && rv.push('numbers');
+			rv = rv.length === 0 ? '' : '#wipe(' + rv.join(',') + ')' + (nS.length !== 0 ? ' |\n' : '');
+		}
+		delete Cfg['hideByWipe']; delete Cfg['wipeSameLin']; delete Cfg['wipeSameWrd']; delete Cfg['wipeLongWrd'];
+		delete Cfg['wipeSpecial']; delete Cfg['wipeCAPS']; delete Cfg['wipeNumbers'];
+		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') + rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
+	},
 
-function checkSpells(post) {
-	return !TNum && post.isOp ?
-		getSpells(tSpells, post) || getSpells(pSpells, post) : getSpells(pSpells, post);
-}
+	readed: false,
+	needArg: function(spell) {
+		var idx = this._names.indexOf(spell);
+		return idx < 5 || idx > 14;
+	},
+	parseText: function(str) {
+		str = String(str).replace(/[\s\n]+$/, '');
+		this._TEMP = {};
+		var oStr = this._findReps(str),
+			data = this._compile(oStr[0]);
+		if(data !== false) {
+			this._TEMP.gSpells = data;
+		} else if(this._error) {
+			try {
+				$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
+			} catch(e) {
+				GM_log(Lng.error[lang] + ' ' + this._error);
+			}
+			return false;
+		}
+		this._TEMP.list = oStr.join('\n\n').replace(/[\s\n]+$/, '');
+		return oStr;
+	},
+	saveSpells: function(val) {
+		this.hash = ELFHash(val);
+		this.list = val;
+		setStored('DESU_Spells_' + aib.dm, JSON.stringify([1, this.hash, this.list]));
+		if(!val) {
+			this._disable();
+		}
+	},
+	saveTemp: function() {
+		var gSpells = this._TEMP.gSpells,
+			lSpells = this._removeBoards(gSpells),
+			reps = this._TEMP.reps,
+			outreps = this._TEMP.outreps;
+		if(reps.length === 0) {
+			reps = false;
+		}
+		if(outreps.length === 0) {
+			outreps = false;
+		}
+		setStored('DESU_CSpells_' + aib.dm, JSON.stringify([this.hash, gSpells, reps, outreps]));
+		reps = this._optimizeReps(reps);
+		outreps = this._optimizeReps(outreps);
+		sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+		this._init(lSpells, reps, outreps);
+		this.saveSpells(this._TEMP.list);
+	},
+	read: function() {
+		var arr, data = getStored('DESU_Spells_' + aib.dm);
+		this.readed = true;
+		if(data) {
+			try {
+				arr = JSON.parse(data);
+				if(arr.length < 3) {
+					this.hash = arr[0];
+					this.list = arr[1] ? this._convertOld(arr[1]) : '';
+				} else {
+					this.hash = arr[1];
+					this.list = arr[2];
+				}
+				return this.hash;
+			} catch(e) {}
+		}
+		if(typeof data === 'string') {
+			this.list = this._convertOld(data.split('\n'));
+		} else {
+			this.list = '#wipe(samelines,samewords,longwords,numbers)';
+		}
+		return this.hash = ELFHash(this.list);
+	},
+	update: function() {
+		if(this.read()) {
+			var data, readed = false;
+			try {
+				data = JSON.parse(sessionStorage['de-spells']);
+				if(data && data[0] === this.hash) {
+					this._init(data[1], data[2], data[3]);
+					return;
+				}
+			} catch(e) {}
+			try {
+				data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
+				if(data && data[0] === this.hash) {
+					var lSpells = this._removeBoards(data[1]),
+						reps = this._optimizeReps(data[2]),
+						outreps = this._optimizeReps(data[3]);
+					this._init(lSpells, reps, outreps);
+					sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+					return;
+				}
+			} catch(e) {}
+			data = this.parseText(this.list);
+			this.saveSpells(data ? data.join('\n\n').replace(/\n+$/, '') : '');
+			this.saveTemp();
+		} else {
+			this._disable();
+		}
+	},
+	disable: function() {
+		this.check = this._fakeCheck;
+	},
+	replace: function(txt) {
+		for(var i = 0, len = this._reps.length; i < len; i++) {
+			txt = txt.replace(this._reps[i][0], this._reps[i][1]);
+		}
+		return txt;
+	},
+	outReplace: function(txt) {
+		for(var i = 0, len = this._outreps.length; i < len; i++) {
+			txt = txt.replace(this._outreps[i][0], this._outreps[i][1]);
+		}
+		return txt;
+	}
+};
 
 function hideBySpells(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
-	var exp = checkSpells(post);
-	if(exp) {
-		hidePost(post, exp.substring(0, 70));
-	} else if(post.hide && post.noHide) {
-		unhidePost(post);
-	}
-}
-
-function verifyRegExp(txt) {
-	txt = txt.split('\n');
-	var t, rep,
-		i = txt.length,
-		re = /#exp |#exph |#rep |#outrep |#imgn |#video |#theme /;
-	while(i--) {
-		t = txt[i];
-		rep = t.match(re);
-		if(rep) {
-			try {
-				$toRegExp(t.substr(t.indexOf(rep)));
-			} catch(e) {
-				return t;
-			}
-		}
-	}
-	return false;
+	spells.check(post, function(pst) {
+		hidePost(pst, 'By spells');
+	}, post.hide && unhidePost);
 }
 
 function disableSpells() {
-	Posts.forEach(function(post) {
-		if(post.ytHide === true) {
-			unhidePost(post);
-			post.ytHide = false;
-		} else if(checkSpells(post)) {
-			unhidePost(post);
-		}
-	});
+	closeAlert($id('de-alert-help-err-spell'));
+	if(spells.haveSpells) {
+		Posts.forEach(function(post) {
+			spells.check(post, unhidePost, null);
+		});
+	}
 }
 
 function toggleSpells() {
-	var fld = $id('de-spell-edit'),
-		val = fld.value = fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, ''),
-		err = verifyRegExp(val);
-	if(err || !val) {
-		if(val) {
-			$alert(Lng.error[lang] + ' ' + err, 'err-spell', false);
-		} else {
+	var temp, fld = $id('de-spell-edit'),
+		val = fld.value;
+	if(val) {
+		if(temp = spells.parseText(val)) {
 			disableSpells();
+			spells.saveTemp();
+			fld.value = spells.list;
+			if(Cfg['hideBySpell']) {
+				Posts.forEach(hideBySpells);
+			}
 			savePostsVisib();
-			saveSpells('');
+			return;
 		}
-		$q('input[info="hideBySpell"]', doc).checked = false;
-		saveCfg('hideBySpell', 0);
 	} else {
 		disableSpells();
-		saveSpells(val);
-		if(Cfg['hideBySpell']) {
-			Posts.forEach(hideBySpells);
-			hideByTube();
-		}
 		savePostsVisib();
 	}
+	spells.saveSpells('');
+	$q('input[info="hideBySpell"]', doc).checked = false;
 }
 
-function addSpell(spell) {
-	var err, fld = $id('de-spell-edit'),
-		val = fld && fld.value.replace(/[\r\n]+/g, '\n').replace(/^\n|\n$/g, '');
+function addSpell(spell, arg) {
+	var temp, fld = $id('de-spell-edit'),
+		val = fld && fld.value;
 	if(!val) {
-		if(!spellsList) {
-			readSpells();
+		if(!spells.readed) {
+			spells.read();
 		}
-		val = spellsList.join('\n');
-	} else if(err = verifyRegExp(val)) {
-		$alert(Lng.error[lang] + ' ' + err, 'err-spell', false);
-		return;
+		val = spells.list;
 	}
-	if(('\n' + val).contains('\n' + spell)) {
-		val = ('\n' + val).split('\n' + spell).join('').replace(/^\n|\n$/g, '');
-	} else {
-		val = !val ? spell : val + '\n' + spell;
+	if(temp = spells.parseText(val)) {
+		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
+		val = temp[0].split(new RegExp('(?:^|\\n)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
+		if(val.length === 1) {
+			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
+		} else {
+			temp = spells.parseText(val.join('') + '\n\n' + temp[1]);
+		}
+		if(temp) {
+			disableSpells();
+			spells.saveTemp();
+			if(fld) {
+				fld.previousSibling.firstChild.checked = !!(fld.value = spells.list);
+			}
+			if(spells.list) {
+				saveCfg('hideBySpell', 1);
+				Posts.forEach(hideBySpells);
+			}
+			return;
+		}
 	}
+	spells.disable();
 	if(fld) {
-		fld.value = val;
-		fld.previousSibling.firstChild.checked = !!val;
+		fld.previousSibling.firstChild.checked = false;
 	}
-	disableSpells();
-	saveSpells(val);
-	if(val) {
-		saveCfg('hideBySpell', 1);
-		Posts.forEach(hideBySpells);
-		hideByTube();
-	} else {
-		saveCfg('hideBySpell', 0);
-	}
-	savePostsVisib();
-}
-
-
-/*==============================================================================
-									WIPE DETECTORS
-==============================================================================*/
-
-function detectWipeText(txt) {
-	if(!Cfg['hideByWipe']) {
-		return false;
-	}
-	var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt;
-	if(Cfg['wipeSameLin']) {
-		arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
-		if((len = arr.length) > 5) {
-			arr.sort();
-			for(i = 0, n = len / 4; i < len;) {
-				x = arr[i];
-				j = 0;
-				while(arr[i++] === x) {
-					j++;
-				}
-				if(j > 4 && j > n && x) {
-					return 'same lines: "' + x.substr(0, 20) + '" x' + j;
-				}
-			}
-		}
-	}
-	if(Cfg['wipeSameWrd']) {
-		arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-		if((len = arr.length) > 3) {
-			arr.sort();
-			for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
-				x = arr[i];
-				j = 0;
-				while(arr[i++] === x) {
-					j++;
-				}
-				if(len > 25) {
-					if(j > pop && x.length > 2) {
-						pop = j;
-					}
-					if(pop >= n) {
-						return 'same words: "' + x.substr(0, 20) + '" x' + pop;
-					}
-				}
-			}
-			x = keys / len;
-			if(x < 0.25) {
-				return 'uniq words: ' + (x * 100).toFixed(0) + '%';
-			}
-		}
-	}
-	if(Cfg['wipeLongWrd']) {
-		arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-		if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-			return 'long words';
-		}
-	}
-	if(Cfg['wipeCAPS']) {
-		arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
-		if((len = arr.length) > 4) {
-			for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
-				x = arr[i];
-				if((x.match(/[a-zа-я]/ig) || []).length < 5) {
-					continue;
-				}
-				if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
-					casew++;
-				}
-				if(x === x.toUpperCase()) {
-					capsw++;
-				}
-				n++;
-			}
-			if(capsw / n >= 0.3 && n > 4) {
-				return 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
-			} else if(casew / n >= 0.3 && n > 8) {
-				return 'cAsE words: ' + casew / arr.length * 100 + '%';
-			}
-		}
-	}
-	if(Cfg['wipeSpecial']) {
-		_txt = txt.replace(/\s+/g, '');
-		if((len = _txt.length) > 30 &&
-			(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
-		{
-			return 'specsymbols: ' + Math.round(x * 100) + '%';
-		}
-	}
-	if(Cfg['wipeNumbers']) {
-		_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
-		if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-			return 'numbers: ' + Math.round(x * 100) + '%';
-		}
-	}
-	return false;
+	saveCfg('hideBySpell', 0);
 }
 
 
@@ -6097,7 +6534,7 @@ function checkForUpdates(isForce, Fn) {
 					}
 					return;
 				}
-				Cfg['lastScrUpd'] = Date.now();
+				saveCfg('lastScrUpd', Date.now());
 				while(i < len) {
 					if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 						isUpd = true;
@@ -6352,17 +6789,15 @@ function getImageboard() {
 	var h = window.location.hostname.match(
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
-	aib = {
-		hana: $xb('.//script[contains(@src,"hanabira")]', doc),
-		tiny: $xb('.//form[@name="postcontrols"]', doc),
-	};
 	switch(h) {
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
-	case 'ernstchan.net': aib.erns = true; break;
+	default:
+		aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
+		aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
@@ -6387,14 +6822,12 @@ function getImageboard() {
 	if(!dForm) {
 		return;
 	}
-	aib.dm = h;
-	aib.host = window.location.hostname;
 	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
-	aib.abu = !!$id('ABU_css');
-	aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
-	switch(h) {
+	aib.host = window.location.hostname;
+	switch(aib.dm = h) {
+	case '2ch.so': aib.so = aib.abu = true; break;
 	case '0-chan.ru':
-	case '0chan.ru': aib.nul = true; aib.kus = true; break;
+	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
@@ -6402,6 +6835,11 @@ function getImageboard() {
 	case '7chan.org': aib._7ch = true; break;
 	case 'ponychan.net': aib.pony = true; break;
 	case 'mlpg.co': aib.mlpg = true; break;
+	case 'ernstchan.com':
+	case 'ernstchan.net': aib.erns = true; break;
+	default:
+		aib.abu = !!$id('ABU_css');
+		aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	}
 	fixFunctions();
 	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
@@ -6459,6 +6897,7 @@ function getImageboard() {
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
+	aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
 	aib.res =
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
@@ -6654,8 +7093,8 @@ function replaceString(txt) {
 	if(aib.fch && Cfg['noSpoilers']) {
 		txt = txt.replace(/"spoiler">/g, '"de-spoiler">');
 	}
-	if(Cfg['hideBySpell'] && oSpells.rep[0]) {
-		txt = replaceBySpells(oSpells.rep, txt);
+	if(spells.haveReps) {
+		txt = spells.replace(txt);
 	}
 	if(Cfg['crossLinks']) {
 		txt = txt.replace(aib.reCrossLinks, function(str, b, tNum, pNum) {
@@ -6673,10 +7112,12 @@ function replacePost(el) {
 }
 
 function replaceDelform() {
+	$disp(doc.body);
 	nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
 	dForm.style.display = 'none';
 	dForm.id = 'de-dform-old';
 	dForm = dForm.previousSibling;
+	$disp(doc.body);
 	$event(window, {'load': function() {
 		$del($id('de-dform-old'));
 	}});
