@@ -355,7 +355,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, Favor, hThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
+Cfg, Favor, hThrds, cHThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
@@ -913,17 +913,18 @@ function saveUserPostsVisib() {
 
 function readHiddenThreads() {
 	hThrds = getStoredObj('DESU_Threads_' + aib.dm, {});
+	cHThrds = hThrds[brd] || {};
 }
 
 function toggleHiddenThread(post, vis) {
 	if(!hThrds[brd]) {
-		hThrds[brd] = {};
+		hThrds[brd] = cHThrds;
 	}
 	if(vis === 0) {
-		hThrds[brd][post.num] = post.tTitle;
+		cHThrds[post.num] = post.tTitle;
 	} else {
-		delete hThrds[brd][post.num];
-		if($isEmpty(hThrds[brd])) {
+		delete cHThrds[post.num];
+		if($isEmpty(cHThrds)) {
 			delete hThrds[brd];
 		}
 	}
@@ -4902,10 +4903,7 @@ function doPostFilters(post) {
 		return;
 	}
 	sVis[post.count] = 1;
-	spells.check(post, function(pst) {
-		sVis[pst.count] = 0;
-		doHidePost(pst, post.note);
-	}, false);
+	spells.check(post, hidePost, false);
 }
 
 function setPostsVisib() {
@@ -4913,26 +4911,25 @@ function setPostsVisib() {
 		vis = sVis[i];
 		post = Posts[i];
 		if(uVis[pNum = post.num]) {
-			if(post.isOp && !(hThrds[brd] && hThrds[brd][pNum] !== undefined)) {
-				delete uVis[pNum];
-				setStored('DESU_Posts_' + aib.dm + '_' + brd, JSON.stringify(uVis));
+			if(post.isOp) {
+				uVis[pNum][0] = cHThrds[pNum] === undefined ? 1 : 0;
+			}
+			if(uVis[pNum][0] === 0) {
+				setUserPostVisib(post, true);
 			} else {
-				if(uVis[pNum][0] === 0) {
-					setUserPostVisib(post, true);
-				} else {
-					post.btns.firstChild.className = 'de-btn-lock';
-				}
+				uVis[pNum][1] = Date.now();
+				post.btns.firstChild.className = 'de-btn-lock';
 			}
 			if(vis === undefined) {
 				sVis[i] = 1
-				spells.check(post, function(pst) {
+				spells.check(post, function(pst, note) {
 					sVis[pst.count] = 0;
 				}, false);
 			}
 			continue;
 		}
 		if(post.isOp) {
-			if(hThrds[brd] && hThrds[brd][pNum] !== undefined) {
+			if(cHThrds[pNum] !== undefined) {
 				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
@@ -5019,9 +5016,9 @@ function setPostVisib(post, hide, note) {
 		};
 	}
 	if(Cfg['strikeHidd']) {
-		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), function(el) {
-			el.className = hide && 'de-ref-hid';
-		});
+		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), hide ? function(el) {
+			el.className = 'de-ref-hid';
+		} : function(el) { el.className = null; });
 	}
 }
 
@@ -5206,11 +5203,12 @@ Spells.checkArr = function(val, num) {
 	return false;
 };
 Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
-	var rv = spells._checkRes(flags, val);
+	var temp, rv = spells._checkRes(flags, val);
 	if(rv === null) {
 		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
 	} else if(rv) {
-		hFunc(post, async);
+		temp = sStack.pop();
+		hFunc(post, spells._getMsg(temp[2][temp[0] - 1]), async);
 	} else if(nhFunc) {
 		nhFunc(post, async);
 	}
@@ -5227,24 +5225,24 @@ Spells.prototype = {
 			var pTitle;
 			return (getText(post).toLowerCase().contains(val) ||
 				(pTitle = $q('.replytitle, .filetitle', post)) &&
-				pTitle.textContent.toLowerCase().contains(val)) && ('#words(' + val + '');
+				pTitle.textContent.toLowerCase().contains(val));
 		},
 		// 1: #exp
 		function(post, val) {
-			return val.test(getText(post)) && ('#exp(' + val.toString() + ')');
+			return val.test(getText(post));
 		},
 		// 2: #exph
 		function(post, val) {
-			return val.test(post.innerHTML) && ('#exph(' + val.toString() + ')');
+			return val.test(post.innerHTML);
 		},
 		// 3: #imgn
 		function(post, val) {
 			var inf = $c(aib.cFileInfo, post);
-			return inf && val.test(inf.textContent) && ('#imgn(' + val.toString() + ')');
+			return inf && val.test(inf.textContent);
 		},
 		// 4: #ihash
 		function(post, val) {
-			return post.img[0] && getImgHash(post) === val && ('#ihash(' + val + ')');
+			return post.img[0] && getImgHash(post) === val;
 		},
 		// 5: #subj
 		function(post, val) {
@@ -5252,7 +5250,7 @@ Spells.prototype = {
 			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
 			}
-			return (!val || val.test(pTitle)) && ('#subj(' + val.toString() + ')');
+			return !val || val.test(pTitle);
 		},
 		// 6: #name
 		function(post, val) {
@@ -5260,7 +5258,7 @@ Spells.prototype = {
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
-			return (!val || pName.contains(val)) && ('#name(' + val + ')');
+			return (!val || pName.contains(val));
 		},
 		// 7: #trip
 		function(post, val) {
@@ -5268,7 +5266,7 @@ Spells.prototype = {
 			if(!pTrip) {
 				return false;
 			}
-			return (!val || pTrip.textContent.contains(val)) && ('#trip(' + val + ')');
+			return (!val || pTrip.textContent.contains(val));
 		},
 		// 8: #img
 		function(post, val) {
@@ -5287,7 +5285,7 @@ Spells.prototype = {
 					if(!h) {
 						return false;
 					} else if(!val[2]) {
-						return ('#img: ' + val);
+						return true;
 					}
 				}
 				if(temp = val[2]) {
@@ -5295,33 +5293,33 @@ Spells.prototype = {
 					w = wh[0];
 					h = wh[1];
 					switch(val[0]) {
-					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3] && ('#img: ' + val);
-					case 1: return w < temp[0] && h < temp[3] && ('#img: ' + val);
-					case 2: return w > temp[0] && h > temp[3] && ('#img: ' + val);
+					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
+					case 1: return w < temp[0] && h < temp[3];
+					case 2: return w > temp[0] && h > temp[3];
 					}
 				}
 			}
-			return '#img()';
+			return true;
 		},
 		// 9: #sage
 		function(post, val) {
-			return post.sage && '#sage()';
+			return post.sage;
 		},
 		// 10: #op
 		function(post, val) {
-			return post.isOp && '#op()';
+			return post.isOp;
 		},
 		// 11: #tlen
 		function(post, val) {
 			var text = getText(post);
 			if(!val) {
-				return !!text && ('#tlen()');
+				return !!text;
 			}
-			return Spells.checkArr(val, text.replace(/\n/g, '').length) && ('#tlen(' + val + ')');
+			return Spells.checkArr(val, text.replace(/\n/g, '').length);
 		},
 		// 12: #all
 		function(post, val) {
-			return '#all()';
+			return true;
 		},
 		// 13: #video
 		function(post, val, flags, sStack, hFunc, nhFunc) {
@@ -5376,7 +5374,8 @@ Spells.prototype = {
 							j++;
 						}
 						if(j > 4 && j > n && x) {
-							return '#wipe: same lines "' + x.substr(0, 20) + '" x' + j;
+							this._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + j;
+							return true;
 						}
 					}
 				}
@@ -5397,13 +5396,15 @@ Spells.prototype = {
 								pop = j;
 							}
 							if(pop >= n) {
-								return '#wipe: same words "' + x.substr(0, 20) + '" x' + pop;
+								this._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + pop;
+								return true;
 							}
 						}
 					}
 					x = keys / len;
 					if(x < 0.25) {
-						return '#wipe: uniq words ' + (x * 100).toFixed(0) + '%';
+						this._lastWipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
+						return true;
 					}
 				}
 			}
@@ -5411,11 +5412,22 @@ Spells.prototype = {
 			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-					return '#wipe: long words';
+					this._lastWipeMsg = 'long words';
+					return true;
 				}
 			}
-			// (1 << 3): capslock
+			// (1 << 3): symbols
 			if(val & 8) {
+				_txt = txt.replace(/\s+/g, '');
+				if((len = _txt.length) > 30 &&
+					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
+				{
+					this._lastWipeMsg = 'specsymbols: ' + Math.round(x * 100) + '%';
+					return true;
+				}
+			}
+			// (1 << 4): capslock
+			if(val & 16) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 				if((len = arr.length) > 4) {
 					for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
@@ -5432,33 +5444,27 @@ Spells.prototype = {
 						n++;
 					}
 					if(capsw / n >= 0.3 && n > 4) {
-						return '#wipe: CAPSLOCK ' + capsw / arr.length * 100 + '%';
+						this._lastWipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+						return true;
 					} else if(casew / n >= 0.3 && n > 8) {
-						return '#wipe: cAsE words ' + casew / arr.length * 100 + '%';
+						this._lastWipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
+						return true;
 					}
-				}
-			}
-			// (1 << 4): symbols
-			if(val & 16) {
-				_txt = txt.replace(/\s+/g, '');
-				if((len = _txt.length) > 30 &&
-					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
-				{
-					return '#wipe: symbols ' + Math.round(x * 100) + '%';
 				}
 			}
 			// (1 << 5): numbers
 			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-					return '#wipe: numbers ' + Math.round(x * 100) + '%';
+					this._lastWipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
+					return true;
 				}
 			}
-			return false;
+			return this._lastWipeMsg = false;
 		},
 		// 15: #num
 		function(post, val) {
-			return Spells.checkArr(val, post.count + 1) && ('#num(' + val + ')');
+			return Spells.checkArr(val, post.count + 1);
 		}
 	],
 	_toRegExp: function(str, noG) {
@@ -5787,6 +5793,19 @@ Spells.prototype = {
 		}
 		return null;
 	},
+	_getMsg: function(spell) {
+		var rv, type = spell[0] & 0xFF,
+			val = spell[1];
+		if(type === 0xFF) {
+			return this._getMsg(val[this._lastPSpell]);
+		}
+		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
+		switch(type) {
+		case 14: return rv += '#wipe' + (this._lastWipeMsg ? ': ' + this._lastWipeMsg : '');
+		default: rv += '#' + this._names[type] + (val ? ': ' + val : '');
+		}
+		return rv;
+	},
 	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
 		var type, temp, val, rv = false,
 			cInfo = sStack.pop(),
@@ -5809,16 +5828,15 @@ Spells.prototype = {
 					return;
 				} else {
 					val = this._funcs[type](post, scope[i][1]);
-					if(val) {
-						post.note = val;
-					}
 				}
-				rv = this._checkRes(temp, !!val);
+				rv = this._checkRes(temp, val);
 				if(rv === null) {
 					i++;
 					continue;
 				}
+				this._lastPSpell = i;
 			} else {
+				this._lastPSpell = i -= 1;
 				rv = false;
 			}
 			if(cInfo = sStack.pop()) {
@@ -5832,7 +5850,7 @@ Spells.prototype = {
 				}
 			}
 			if(rv) {
-				hFunc(post, async);
+				hFunc(post, this._getMsg(scope[i]), async);
 			} else if(nhFunc) {
 				nhFunc(post, async);
 			}
@@ -5840,8 +5858,8 @@ Spells.prototype = {
 		}
 	},
 	_realCheck: function(post, hFunc, nhFunc) {
-		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, async) {
-			hFunc(pst);
+		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, msg, async) {
+			hFunc(pst, msg);
 			if(async) {
 				clearTimeout(aSpellTO);
 				aSpellTO = setTimeout(savePostsVisib, 500);
@@ -6109,9 +6127,7 @@ function hideBySpells(post) {
 	if(!Cfg['filterThrds'] && post.isOp) {
 		return;
 	}
-	spells.check(post, function(pst) {
-		hidePost(pst, post.note);
-	}, post.hide && unhidePost);
+	spells.check(post, hidePost, post.hide && unhidePost);
 }
 
 function disableSpells() {
@@ -7325,10 +7341,11 @@ function doScript() {
 		readViewedPosts();
 	}
 	setPostsVisib();
-	savePostsVisib();
 	$log('readPosts');
 	scriptCSS();
 	$log('scriptCSS');
+	savePostsVisib();
+	saveUserPostsVisib();
 	endTime = Date.now() - initTime;
 }
 
