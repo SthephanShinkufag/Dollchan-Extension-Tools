@@ -623,25 +623,19 @@ function getText(el) {
 }
 
 function getImgWeight(post) {
-	var inf = $c(aib.cFileInfo, post).textContent.match(/\d+[\.\d\smkк]*[bб]/i)[0],
-		w = parseFloat(inf.match(/[\d\.]+/));
-	if(/MB/.test(inf)) {
-		w = w * 1e3;
-	}
-	if(/\d\s*B/.test(inf)) {
-		w = (w / 1e3).toFixed(2);
-	}
-	return +w;
+	var inf = $c(aib.cFileInfo, post).textContent.match(/(\d+(?:\.\d+)?)\s*([mkк])[bб]/i),
+		w = parseFloat(inf[1]);
+	return inf[2] === 'M' ? (w * 1e3) | 0 : !inf[2] ? Math.round(w / 1e3) : w;
 }
 
 function getImgSize(post) {
 	var m, el = $c(aib.cFileInfo, post);
 	if(aib.brit) {
-		m = el.onclick.toString().split('\', \'');
-		return [+m[3], +m[4]];
+		m = el.onclick.toString().split("', '");
+		return [m[3], m[4]];
 	}
-	m = el ? el.textContent.match(/\d+[x×]\d+/) : false;
-	return m ? m[0].split(/[x×]/) : [null, null];
+	m = el ? el.textContent.match(/(\d+)[x×](\d+)/) : false;
+	return m ? m.slice(1) : [null, null];
 }
 
 function fixBrd(b) {
@@ -698,7 +692,7 @@ function getPrettyJSON(obj, indent) {
 		sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 			type === 'boolean' || type === 'number' ? val.toString() :
-			type === 'string' ? '"' + val.replace(/"/g, '\\"') + '"' : type
+			type === 'string' ? '"' + val.replace(/(["\n\\])/g, '\\$1') + '"' : type
 		);
 		iCount++;
 	});
@@ -2684,7 +2678,7 @@ function ajaxSubmit(dF, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'POST',
 		'headers': headers,
-		'data': nav.toBlob(dF.data, null),
+		'data': new Blob(dF.data),
 		'url': nav.fixLink(dF.url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -2704,63 +2698,35 @@ function ajaxSubmit(dF, Fn) {
 	});
 }
 
-function initJpeg(img, dat) {
-	img[0] = 0xFF; img[1] = 0xD8; img[2] = 0xFF; img[3] = 0xE0; img[4] = 0; img[5] = 0x10; img[6] = 0x4A;
-	img[7] = 0x46; img[8] = 0x49; img[9] = 0x46; img[10] = 0; img[11] = 1; img[12] = 1; img[18] = 0; img[19] = 0;
-	img[13] = dat[0]; img[14] = dat[1];
-	img[15] = dat[2]; img[16] = dat[3];
-	img[17] = dat[4];
-}
-
-function get16uII(exif, off) {
-	return (exif[off + 1] << 8) | exif[off];
-}
-function get32uII(exif, off) {
-	return (exif[off + 3] << 24) | (exif[off + 2] << 16) | (exif[off + 1] << 8) | exif[off];
-}
-function get16uMM(exif, off) {
-	return (exif[off] << 8) | exif[off + 1];
-}
-function get32uMM(exif, off) {
-	return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
-}
-
 function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen, Get16u, Get32u, xRes = 0,
+	var i, j, dE, tag, tgLen, xRes = 0,
 		yRes = 0,
-		resT = 0;
-	if(String.fromCharCode(exif[off], exif[off + 1]) === 'MM') {
-		Get16u = get16uMM;
-		Get32u = get32uMM;
-	} else {
-		Get16u = get16uII;
-		Get32u = get32uII;
-	}
-	if(Get16u(exif, off + 2) !== 0x2A) {
+		resT = 0,
+		le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
+		dv = new DataView(exif.buffer, off);
+	if(dv.getUint16(2, le) !== 0x2A) {
 		return false;
 	}
-	i = Get32u(exif, off + 4);
+	i = dv.getUint32(4, le);
 	if(i > len) {
 		return false;
 	}
-	for(tgLen = Get16u(exif, i += off), j = 0; j < tgLen; j++) {
-		dE = i + 2 + 12 * j;
-		tag = Get16u(exif, dE);
+	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
 		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
 			continue;
 		}
 		if(tag === 0x0128) {
-			resT = Get16u(exif, dE + 8) - 1;
+			resT = dv.getUint16(dE + 8, le) - 1;
 		} else {
-			dE = Get32u(exif, dE + 8);
+			dE = dv.getUint32(dE + 8, le);
 			if(dE > len) {
 				return false;
 			}
-			dE += off;
 			if(tag === 0x11A) {
-				xRes = +(Get32u(exif, dE) / Get32u(exif, dE + 4)).toFixed(0);
+				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
 			} else {
-				yRes = +(Get32u(exif, dE) / Get32u(exif, dE + 4)).toFixed(0);
+				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
 			}
 		}
 	}
@@ -2821,7 +2787,8 @@ function getReplyImgData(dat, delExtraData) {
 			for(; i < len; dat[j++] = dat[i++]) {}
 		}
 		if(rExif) {
-			initJpeg(out = new Uint8Array(len = j + 18), jpgDat || [0, 0, 1, 0, 1]);
+			out = new Uint8Array(len = j + 18);
+			out.set(aProto.concat.apply([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1], (jpgDat || [0, 0, 1, 0, 1])));
 			for(i = 2, j = 20; j < len; i++, j++) {
 				out[j] = dat[i];
 			}
@@ -2866,7 +2833,7 @@ dataForm.prototype.append = function(el) {
 			);
 			this.readFile(el, this.data.length - 2);
 		}
-	} else if(!(el.type === 'checkbox' && !el.checked)) {
+	} else if(el.type !== 'checkbox' || el.checked) {
 		this.data.push(
 			'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
 				el.name + '"\r\n\r\n' + el.value + '\r\n'
@@ -2891,7 +2858,7 @@ dataForm.prototype.readFile = function(el, idx) {
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = nav.toBlob(dat, null);
+			dF.data[idx] = new Blob(dat);
 			dF.busy--;
 		} else {
 			dF.error = true;
@@ -3258,7 +3225,7 @@ function prepareCFeatures() {
 			if(id === "K") {\
 				var mReqs = data === "all" ? 4 : 1, i = mReqs, rjw' +
 				(Cfg['findRarJPEG'] ? '= []; while(i--) rjw.push(new Worker("' +
-					window.URL.createObjectURL(nav.toBlob(['self.onmessage = ' + String(parsePostImg)], null))
+					window.URL.createObjectURL(new Blob(['self.onmessage = ' + String(parsePostImg)]))
 				+ '"));' : ';') +
 				'preloadImages(data, mReqs, rjw);\
 				return;\
@@ -3267,7 +3234,6 @@ function prepareCFeatures() {
 		var $x = function(path, root) {\
 				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
 			},\
-			toBlob = ' + String(nav.toBlob) + ',\
 			getPostImages = ' + String(getPostImages) + ',\
 			getPicWrap = ' + String(aib.getPicWrap) + ';\
 		function preloadImages(pNum, mReqs, rjw) {\
@@ -3309,7 +3275,7 @@ function prepareCFeatures() {
 						if(this.status == 200) {\
 							a.download = url.substring(url.lastIndexOf("/") + 1);\
 							var href = a.href = window.' + (nav.WebKit ? 'webkit' : '') +
-								'URL.createObjectURL(toBlob([new Uint8Array(this.response)], type));\
+								'URL.createObjectURL(new Blob([new Uint8Array(this.response)], {"type": type}));\
 							if(eImg) {\
 								a.getElementsByTagName("img")[0].src = href;\
 							}' + (Cfg['findRarJPEG'] ? 'parseRJ(a);' : '') +
@@ -3396,85 +3362,86 @@ dateTime.checkPattern = function(val) {
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
 
-dateTime.prototype.init = function(txt) {
-	if(this.inited || this.disabled) {
-		return this;
-	}
-	var k, p, a, str, i = 1,
-		j = 0,
-		m = txt.match(new RegExp(this.regex));
-	if(!m) {
-		this.disabled = true;
-		return this;
-	}
-	this.rPattern = '';
-	str = m[0];
-	while(a = m[i++]) {
-		if((p = this.pattern[i - 2]) === 'm') {
-			this.fullM = a.length > 3;
+dateTime.prototype = {
+	init: function(txt) {
+		if(this.inited || this.disabled) {
+			return this;
 		}
-		k = str.indexOf(a, j);
-		this.rPattern += str.substring(j, k) + '_' + p;
-		j = k + a.length;
-	}
-	sessionStorage['timeRPHash'] = ELFHash(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
-	this.inited = true;
-	return this;
-};
-
-dateTime.prototype.fix = function(txt) {
-	if(this.disabled) {
+		var k, p, a, str, i = 1,
+			j = 0,
+			m = txt.match(new RegExp(this.regex));
+		if(!m) {
+			this.disabled = true;
+			return this;
+		}
+		this.rPattern = '';
+		str = m[0];
+		while(a = m[i++]) {
+			if((p = this.pattern[i - 2]) === 'm') {
+				this.fullM = a.length > 3;
+			}
+			k = str.indexOf(a, j);
+			this.rPattern += str.substring(j, k) + '_' + p;
+			j = k + a.length;
+		}
+		sessionStorage['timeRPHash'] = ELFHash(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
+		this.inited = true;
+		return this;
+	},
+	fix: function(txt) {
+		if(this.disabled) {
+			return txt;
+		}
+		var arrW = this.arrW,
+			arrM = this.fullM ? this.arrFM : this.arrM,
+			tPat = this.pattern,
+			tRPat = this.rPattern,
+			diff = this.diff,
+			pad2 = function(num) {
+				return num < 10 ? '0' + num : num;
+			};
+		txt = txt.replace(new RegExp(this.regex, 'g'), function() {
+			var i, a, t, second, minute, hour, day, month, year, dtime;
+			for(i = 1; i < 8; i++) {
+				a = arguments[i];
+				t = tPat[i - 1];
+				t === 's' ? second = a :
+				t === 'i' ? minute = a :
+				t === 'h' ? hour = a :
+				t === 'd' ? day = a :
+				t === 'n' ? month = a - 1 :
+				t === 'y' ? year = a :
+				t === 'm' && (
+					month =
+						/^янв|^jan/i.test(a) ? 0 :
+						/^фев|^feb/i.test(a) ? 1 :
+						/^мар|^mar/i.test(a) ? 2 :
+						/^апр|^apr/i.test(a) ? 3 :
+						/^май|^may/i.test(a) ? 4 :
+						/^июн|^jun/i.test(a) ? 5 :
+						/^июл|^jul/i.test(a) ? 6 :
+						/^авг|^aug/i.test(a) ? 7 :
+						/^сен|^sep/i.test(a) ? 8 :
+						/^окт|^oct/i.test(a) ? 9 :
+						/^ноя|^nov/i.test(a) ? 10 :
+						/^дек|^dec/i.test(a) && 11
+				);
+			}
+			dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
+			dtime.setHours(dtime.getHours() + diff);
+			return tRPat
+				.replace('_s', pad2(dtime.getSeconds()))
+				.replace('_i', pad2(dtime.getMinutes()))
+				.replace('_h', pad2(dtime.getHours()))
+				.replace('_d', pad2(dtime.getDate()))
+				.replace('_w', arrW[dtime.getDay()])
+				.replace('_n', pad2(dtime.getMonth() + 1))
+				.replace('_m', arrM[dtime.getMonth()])
+				.replace('_y', year.length === 2 ? ('' + dtime.getFullYear()).substring(2) : dtime.getFullYear());
+		});
+		arrW = arrM = tPat = tRPat = diff = pad2 = null;
 		return txt;
 	}
-	var arrW = this.arrW,
-		arrM = this.fullM ? this.arrFM : this.arrM,
-		tPat = this.pattern,
-		tRPat = this.rPattern,
-		diff = this.diff,
-		pad2 = function(num) {
-			return num < 10 ? '0' + num : num;
-		};
-	txt = txt.replace(new RegExp(this.regex, 'g'), function() {
-		var i, a, t, second, minute, hour, day, month, year, dtime;
-		for(i = 1; i < 8; i++) {
-			a = arguments[i];
-			t = tPat[i - 1];
-			t === 's' ? second = a :
-			t === 'i' ? minute = a :
-			t === 'h' ? hour = a :
-			t === 'd' ? day = a :
-			t === 'n' ? month = a - 1 :
-			t === 'y' ? year = a :
-			t === 'm' && (
-				month =
-					/^янв|^jan/i.test(a) ? 0 :
-					/^фев|^feb/i.test(a) ? 1 :
-					/^мар|^mar/i.test(a) ? 2 :
-					/^апр|^apr/i.test(a) ? 3 :
-					/^май|^may/i.test(a) ? 4 :
-					/^июн|^jun/i.test(a) ? 5 :
-					/^июл|^jul/i.test(a) ? 6 :
-					/^авг|^aug/i.test(a) ? 7 :
-					/^сен|^sep/i.test(a) ? 8 :
-					/^окт|^oct/i.test(a) ? 9 :
-					/^ноя|^nov/i.test(a) ? 10 :
-					/^дек|^dec/i.test(a) && 11
-			);
-		}
-		dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-		dtime.setHours(dtime.getHours() + diff);
-		return tRPat
-			.replace('_s', pad2(dtime.getSeconds()))
-			.replace('_i', pad2(dtime.getMinutes()))
-			.replace('_h', pad2(dtime.getHours()))
-			.replace('_d', pad2(dtime.getDate()))
-			.replace('_w', arrW[dtime.getDay()])
-			.replace('_n', pad2(dtime.getMonth() + 1))
-			.replace('_m', arrM[dtime.getMonth()])
-			.replace('_y', year.length === 2 ? ('' + dtime.getFullYear()).substring(2) : dtime.getFullYear());
-	});
-	arrW = arrM = tPat = tRPat = diff = pad2 = null;
-	return txt;
 };
 
 
@@ -4912,7 +4879,7 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.num]) {
 			if(post.isOp) {
-				uVis[pNum][0] = cHThrds[pNum] === undefined ? 1 : 0;
+				uVis[pNum][0] = typeof cHThrds[pNum] === 'undefined' ? 1 : 0;
 			}
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, true);
@@ -4920,7 +4887,7 @@ function setPostsVisib() {
 				uVis[pNum][1] = Date.now();
 				post.btns.firstChild.className = 'de-btn-lock';
 			}
-			if(vis === undefined) {
+			if(typeof vis === 'undefined') {
 				sVis[i] = 1
 				spells.check(post, function(pst, note) {
 					sVis[pst.count] = 0;
@@ -4929,7 +4896,7 @@ function setPostsVisib() {
 			continue;
 		}
 		if(post.isOp) {
-			if(cHThrds[pNum] !== undefined) {
+			if(typeof cHThrds[pNum] !== 'undefined') {
 				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
@@ -5181,6 +5148,7 @@ function getImgHash(post) {
 								SPELLS AND EXPRESSIONS
 ==============================================================================*/
 
+/** @constructor */
 function Spells(read) {
 	if(read) {
 		this.update();
@@ -5290,8 +5258,8 @@ Spells.prototype = {
 				}
 				if(temp = val[2]) {
 					wh = getImgSize(post);
-					w = wh[0];
-					h = wh[1];
+					w = +wh[0];
+					h = +wh[1];
 					switch(val[0]) {
 					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
 					case 1: return w < temp[0] && h < temp[3];
@@ -5374,7 +5342,7 @@ Spells.prototype = {
 							j++;
 						}
 						if(j > 4 && j > n && x) {
-							this._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + j;
+							Spells._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + j;
 							return true;
 						}
 					}
@@ -5396,14 +5364,14 @@ Spells.prototype = {
 								pop = j;
 							}
 							if(pop >= n) {
-								this._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + pop;
+								Spells._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + pop;
 								return true;
 							}
 						}
 					}
 					x = keys / len;
 					if(x < 0.25) {
-						this._lastWipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
+						Spells._lastWipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
 						return true;
 					}
 				}
@@ -5412,7 +5380,7 @@ Spells.prototype = {
 			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-					this._lastWipeMsg = 'long words';
+					Spells._lastWipeMsg = 'long words';
 					return true;
 				}
 			}
@@ -5422,7 +5390,7 @@ Spells.prototype = {
 				if((len = _txt.length) > 30 &&
 					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 				{
-					this._lastWipeMsg = 'specsymbols: ' + Math.round(x * 100) + '%';
+					Spells._lastWipeMsg = 'specsymbols: ' + (x * 100).toFixed(0) + '%';
 					return true;
 				}
 			}
@@ -5444,10 +5412,10 @@ Spells.prototype = {
 						n++;
 					}
 					if(capsw / n >= 0.3 && n > 4) {
-						this._lastWipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+						Spells._lastWipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
 						return true;
 					} else if(casew / n >= 0.3 && n > 8) {
-						this._lastWipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
+						Spells._lastWipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
 						return true;
 					}
 				}
@@ -5456,11 +5424,11 @@ Spells.prototype = {
 			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-					this._lastWipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
+					Spells._lastWipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
 					return true;
 				}
 			}
-			return this._lastWipeMsg = false;
+			return Spells._lastWipeMsg = false;
 		},
 		// 15: #num
 		function(post, val) {
@@ -5478,8 +5446,8 @@ Spells.prototype = {
 			this._lastErrCol = 0;
 			return 0;
 		}
-		var opt, type, rType, exp, temp,
-			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
+		var opt, type, rType, exp, expVal, temp,
+			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?/);
 		if(!val) {
 			this._errorMessage = Lng.seSyntaxErr[lang];
 			this._lastErrCol = 0;
@@ -5498,7 +5466,28 @@ Spells.prototype = {
 			rType = type;
 		}
 		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
-		exp = val[5];
+		str = str.substr(offset + 1 + val[0].length);
+		if(str[0] === '(') {
+			if(type === 1 || type === 2 || type === 3 || type === 5 || type === 13) {
+				expVal = str.match(/^\(\)|\((\/.*?[^\\]\/[ig]*)\)/);
+				if(!expVal) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = 0;
+					return 0;
+				}
+				exp = expVal[1] || '';
+			} else {
+				expVal = str.match(/^\(\)|\((.*?[^\\])\)/);
+				if(!expVal) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = 0;
+					return 0;
+				}
+				exp = expVal[1].replace(/\\\)/g, ')') || '';
+			}
+		} else {
+			exp = '';
+		}
 		if(!exp) {
 			if(type > 4 && type < 15) {
 				exp = '';
@@ -5507,8 +5496,6 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
-		} else {
-			exp = exp.replace(/\\\)/g, ')');
 		}
 		switch(type) {
 		// #words
@@ -5518,7 +5505,7 @@ Spells.prototype = {
 			exp = +exp;
 			if(exp !== exp) {
 				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[5]);
-				this._lastErrCol = val[0].length - val[5].length - 1;
+				this._lastErrCol = val[0].length;
 				return 0;
 			}
 			tokens.push([rType, exp, opt]);
@@ -5526,10 +5513,10 @@ Spells.prototype = {
 		// #img
 		case 8:
 			if(exp) {
-				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?(?:@|$))?(?:(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
-				if(!exp || (!exp[2] && !exp[3])) {
+				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
+				if(!exp || (!exp[2] && !exp[4])) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length - val[5].length - 1;
+					this._lastErrCol = val[0].length;
 					return 0;
 				}
 				tokens.push([rType, [exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2, exp[2] && [+exp[2], exp[3] ? +exp[3] : +exp[2]], exp[4] && [+exp[4], exp[5] ? +exp[5] : +exp[4], +exp[6], exp[7] ? +exp[7] : +exp[6]]], opt]);
@@ -5537,8 +5524,6 @@ Spells.prototype = {
 				tokens.push([rType, exp, opt]);
 			}
 			break;
-		// #trip
-		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
 		// #wipe
 		case 14:
 			if(exp) {
@@ -5555,7 +5540,7 @@ Spells.prototype = {
 					}
 				})) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length - exp.length - 1;
+					this._lastErrCol = val[0].length;
 					return 0;
 				}
 			} else {
@@ -5598,14 +5583,14 @@ Spells.prototype = {
 				this._toRegExp(exp, true);
 			} catch(e) {
 				this._errorMessage = Lng.seErrRegex[lang] + exp;
-				this._lastErrCol = val[0].length - exp.length - 1;
+				this._lastErrCol = val[0].length;
 				return 0;
 			}
-		// #name, #sage
+		// #name, #sage, #trip
 		default: tokens.push([rType, exp, opt]); break;
 		}
 		this._lastType = 2;
-		return val[0].length;
+		return val[0].length + (expVal ? expVal[0].length : 0);
 	},
 	_setOperator: function(scope, op) {
 		if(op === 2) {
@@ -5801,7 +5786,7 @@ Spells.prototype = {
 		}
 		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
 		switch(type) {
-		case 14: return rv += '#wipe' + (this._lastWipeMsg ? ': ' + this._lastWipeMsg : '');
+		case 14: return rv += '#wipe' + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
 		default: rv += '#' + this._names[type] + (val ? ': ' + val : '');
 		}
 		return rv;
@@ -5881,12 +5866,12 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			reps.push([b, nt ? -1 : t, reg, txt]);
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			reps.push([b, nt ? -1 : t, reg, txt.replace(/\\\)/g, ')') || '']);
 			rStr += fullExp + '\n';
 			return preOp || '';
-		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			outreps.push([b, nt ? -1 : t, reg, txt]);
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			outreps.push([b, nt ? -1 : t, reg, txt.replace(/\\\)/g, ')') || '']);
 			rStr += fullExp + '\n';
 			return preOp || '';
 		});
@@ -5972,19 +5957,25 @@ Spells.prototype = {
 								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')', nS);
 							}
 							if(spell[0]) {
-								pushSpell(op, sbt, '#name', '(' + spell[0] + ')', nS);
+								pushSpell(op, sbt, '#name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
 							}
 						}
 						return;
-					case 'theme': spell = '#subj'; break;
 					case 'skip': pushSpell(op, sbt, '!#num', '(' + re[2] + ')', sS); return;
 					case 'rep':
 					case 'outrep':
-						rS.push('#' + re[1] + sbt + '(' + re[2].replace(/\)/g, '\\)') + ')')
+						spell = re[2].match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
+						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '').replace(/\)/g, '\\)') + ')')
 						return;
-					default: spell = '#' + re[1]; break;
+					case 'theme': re[1] = 'subj';
+					case 'exp':
+					case 'exph':
+					case 'imgn':
+						pushSpell(op, sbt, '#' + re[1], '(' + re[2] + ')', nS);
+						return;
+					default:
+						pushSpell(op, sbt, '#' + re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 					}
-					pushSpell(op, sbt, spell, '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 				}
 			} else {
 				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
@@ -6062,8 +6053,8 @@ Spells.prototype = {
 			try {
 				arr = JSON.parse(data);
 				if(arr.length < 3) {
-					this.hash = arr[0];
 					this.list = arr[1] ? this._convertOld(arr[1]) : '';
+					this.hash = ELFHash(this.list);
 				} else {
 					this.hash = arr[1];
 					this.list = arr[2];
@@ -6149,6 +6140,8 @@ function toggleSpells() {
 			fld.value = spells.list;
 			if(Cfg['hideBySpell']) {
 				Posts.forEach(hideBySpells);
+			} else {
+				spells.disable();
 			}
 			savePostsVisib();
 			return;
@@ -6696,34 +6689,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
-		nav.toBlob = function(arr, type) {
-			return type ? new Blob(arr, {'type': type}) : new Blob(arr);
-		};
-	} else if(nav.Firefox > 5) {
-		nav.toBlob = function(arr, type) {
-			var i, j, len, len_, out, el, bb = new window.MozBlobBuilder();
-			for(i = 0, len = arr.length; i < len; i++) {
-				el = arr[i]
-				if(el.buffer) {
-					if(el.length !== el.buffer.byteLength) {
-						out = new Uint8Array(len_ = el.length);
-						for(j = 0; j < len_; j++) {
-							out[j] = el[j];
-						}
-						bb.append(out.buffer);
-					} else {
-						bb.append(el.buffer);
-					}
-				} else {
-					bb.append(el);
-				}
-			}
-			return type ? bb.getBlob(type) : bb.getBlob();
-		};
-	} else {
-		nav.noBlob = true;
-	}
+	nav.noBlob = nav.Firefox < 15 && nav.WebKit < 536.1;
 	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
 		function(el, html) {
 			$after(el, $add(html));
