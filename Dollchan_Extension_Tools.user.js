@@ -5211,7 +5211,7 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
 	} else if(rv) {
 		temp = sStack.pop();
-		hFunc(post, spells._getMsg(temp[2][temp[0]]), async);
+		hFunc(post, spells._getMsg(temp[2][temp[0] - 1]), async);
 	} else if(nhFunc) {
 		nhFunc(post, async);
 	}
