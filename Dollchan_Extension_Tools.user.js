@@ -2833,7 +2833,7 @@ dataForm.prototype.append = function(el) {
 			);
 			this.readFile(el, this.data.length - 2);
 		}
-	} else if(!(el.type === 'checkbox' && !el.checked)) {
+	} else if(el.type !== 'checkbox' || el.checked) {
 		this.data.push(
 			'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
 				el.name + '"\r\n\r\n' + el.value + '\r\n'
@@ -5505,8 +5505,6 @@ Spells.prototype = {
 				tokens.push([rType, exp, opt]);
 			}
 			break;
-		// #trip
-		case 7: tokens.push([rType, exp.split(/!+/), opt]); break;
 		// #wipe
 		case 14:
 			if(exp) {
@@ -5569,7 +5567,7 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length - exp.length - 1;
 				return 0;
 			}
-		// #name, #sage
+		// #name, #sage, #trip
 		default: tokens.push([rType, exp, opt]); break;
 		}
 		this._lastType = 2;
