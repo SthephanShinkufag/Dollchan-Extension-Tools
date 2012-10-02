@@ -4912,7 +4912,7 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.num]) {
 			if(post.isOp) {
-				uVis[pNum][0] = cHThrds[pNum] === undefined ? 1 : 0;
+				uVis[pNum][0] = typeof cHThrds[pNum] === 'undefined' ? 1 : 0;
 			}
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, true);
@@ -4920,7 +4920,7 @@ function setPostsVisib() {
 				uVis[pNum][1] = Date.now();
 				post.btns.firstChild.className = 'de-btn-lock';
 			}
-			if(vis === undefined) {
+			if(typeof vis === 'undefined') {
 				sVis[i] = 1
 				spells.check(post, function(pst, note) {
 					sVis[pst.count] = 0;
@@ -4929,7 +4929,7 @@ function setPostsVisib() {
 			continue;
 		}
 		if(post.isOp) {
-			if(cHThrds[pNum] !== undefined) {
+			if(typeof cHThrds[pNum] !== 'undefined') {
 				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
