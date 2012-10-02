@@ -5227,24 +5227,24 @@ Spells.prototype = {
 			var pTitle;
 			return (getText(post).toLowerCase().contains(val) ||
 				(pTitle = $q('.replytitle, .filetitle', post)) &&
-				pTitle.textContent.toLowerCase().contains(val)) && ('#words: ' + val);
+				pTitle.textContent.toLowerCase().contains(val)) && ('#words(' + val + '');
 		},
 		// 1: #exp
 		function(post, val) {
-			return val.test(getText(post)) && ('#exp: ' + val.toString());
+			return val.test(getText(post)) && ('#exp(' + val.toString() + ')');
 		},
 		// 2: #exph
 		function(post, val) {
-			return val.test(post.innerHTML) && ('#exph: ' + val.toString());
+			return val.test(post.innerHTML) && ('#exph(' + val.toString() + ')');
 		},
 		// 3: #imgn
 		function(post, val) {
 			var inf = $c(aib.cFileInfo, post);
-			return inf && val.test(inf.textContent) && ('#imgn: ' + val.toString());
+			return inf && val.test(inf.textContent) && ('#imgn(' + val.toString() + ')');
 		},
 		// 4: #ihash
 		function(post, val) {
-			return post.img[0] && getImgHash(post) === val && ('#ihash: ' + val);
+			return post.img[0] && getImgHash(post) === val && ('#ihash(' + val + ')');
 		},
 		// 5: #subj
 		function(post, val) {
@@ -5252,7 +5252,7 @@ Spells.prototype = {
 			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
 			}
-			return !val || val.test(pTitle) && ('#subj: ' + val);
+			return (!val || val.test(pTitle)) && ('#subj(' + val.toString() + ')');
 		},
 		// 6: #name
 		function(post, val) {
@@ -5260,7 +5260,7 @@ Spells.prototype = {
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
-			return (!val || pName.contains(val)) && ('#name: ' + val);
+			return (!val || pName.contains(val)) && ('#name(' + val + ')');
 		},
 		// 7: #trip
 		function(post, val) {
@@ -5268,7 +5268,7 @@ Spells.prototype = {
 			if(!pTrip) {
 				return false;
 			}
-			return (!val || pTrip.textContent.contains(val)) && ('#trip: ' + val);
+			return (!val || pTrip.textContent.contains(val)) && ('#trip(' + val + ')');
 		},
 		// 8: #img
 		function(post, val) {
@@ -5301,27 +5301,27 @@ Spells.prototype = {
 					}
 				}
 			}
-			return '#img';
+			return '#img()';
 		},
 		// 9: #sage
 		function(post, val) {
-			return post.sage && '#sage';
+			return post.sage && '#sage()';
 		},
 		// 10: #op
 		function(post, val) {
-			return post.isOp && '#op';
+			return post.isOp && '#op()';
 		},
 		// 11: #tlen
 		function(post, val) {
 			var text = getText(post);
 			if(!val) {
-				return !!text && ('#tlen: ' + val);
+				return !!text && ('#tlen()');
 			}
-			return Spells.checkArr(val, text.replace(/\n/g, '').length) && ('#tlen: ' + val);
+			return Spells.checkArr(val, text.replace(/\n/g, '').length) && ('#tlen(' + val + ')');
 		},
 		// 12: #all
 		function(post, val) {
-			return '#all';
+			return '#all()';
 		},
 		// 13: #video
 		function(post, val, flags, sStack, hFunc, nhFunc) {
@@ -5376,7 +5376,7 @@ Spells.prototype = {
 							j++;
 						}
 						if(j > 4 && j > n && x) {
-							return 'same lines: "' + x.substr(0, 20) + '" x' + j;
+							return '#wipe: same lines "' + x.substr(0, 20) + '" x' + j;
 						}
 					}
 				}
@@ -5397,13 +5397,13 @@ Spells.prototype = {
 								pop = j;
 							}
 							if(pop >= n) {
-								return 'same words: "' + x.substr(0, 20) + '" x' + pop;
+								return '#wipe: same words "' + x.substr(0, 20) + '" x' + pop;
 							}
 						}
 					}
 					x = keys / len;
 					if(x < 0.25) {
-						return 'uniq words: ' + (x * 100).toFixed(0) + '%';
+						return '#wipe: uniq words ' + (x * 100).toFixed(0) + '%';
 					}
 				}
 			}
@@ -5411,10 +5411,10 @@ Spells.prototype = {
 			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-					return 'long words';
+					return '#wipe: long words';
 				}
 			}
-			// (1 << 3): symbols
+			// (1 << 3): capslock
 			if(val & 8) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
 				if((len = arr.length) > 4) {
@@ -5432,33 +5432,33 @@ Spells.prototype = {
 						n++;
 					}
 					if(capsw / n >= 0.3 && n > 4) {
-						return 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+						return '#wipe: CAPSLOCK ' + capsw / arr.length * 100 + '%';
 					} else if(casew / n >= 0.3 && n > 8) {
-						return 'cAsE words: ' + casew / arr.length * 100 + '%';
+						return '#wipe: cAsE words ' + casew / arr.length * 100 + '%';
 					}
 				}
 			}
-			// (1 << 4): capslock
+			// (1 << 4): symbols
 			if(val & 16) {
 				_txt = txt.replace(/\s+/g, '');
 				if((len = _txt.length) > 30 &&
 					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 				{
-					return 'specsymbols: ' + Math.round(x * 100) + '%';
+					return '#wipe: symbols ' + Math.round(x * 100) + '%';
 				}
 			}
 			// (1 << 5): numbers
 			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-					return 'numbers: ' + Math.round(x * 100) + '%';
+					return '#wipe: numbers ' + Math.round(x * 100) + '%';
 				}
 			}
 			return false;
 		},
 		// 15: #num
 		function(post, val) {
-			return Spells.checkArr(val, post.count + 1) && ('#num: ' + val);
+			return Spells.checkArr(val, post.count + 1) && ('#num(' + val + ')');
 		}
 	],
 	_toRegExp: function(str, noG) {
@@ -5812,9 +5812,8 @@ Spells.prototype = {
 					if(val) {
 						post.note = val;
 					}
-					val = !!val;
 				}
-				rv = this._checkRes(temp, val);
+				rv = this._checkRes(temp, !!val);
 				if(rv === null) {
 					i++;
 					continue;
