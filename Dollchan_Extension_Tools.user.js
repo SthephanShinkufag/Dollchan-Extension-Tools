@@ -5870,12 +5870,12 @@ Spells.prototype = {
 		var reps = [],
 			outreps = [],
 			rStr = '';
-		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			reps.push([b, nt ? -1 : t, reg, txt.replace(/\\\)/g, ')') || '']);
+		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
 			rStr += fullExp + '\n';
 			return preOp || '';
-		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			outreps.push([b, nt ? -1 : t, reg, txt.replace(/\\\)/g, ')') || '']);
+		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+			outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
 			rStr += fullExp + '\n';
 			return preOp || '';
 		});
