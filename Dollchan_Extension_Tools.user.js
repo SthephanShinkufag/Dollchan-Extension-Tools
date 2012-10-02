@@ -2704,55 +2704,35 @@ function ajaxSubmit(dF, Fn) {
 	});
 }
 
-function get16uII(exif, off) {
-	return (exif[off + 1] << 8) | exif[off];
-}
-function get32uII(exif, off) {
-	return (exif[off + 3] << 24) | (exif[off + 2] << 16) | (exif[off + 1] << 8) | exif[off];
-}
-function get16uMM(exif, off) {
-	return (exif[off] << 8) | exif[off + 1];
-}
-function get32uMM(exif, off) {
-	return (exif[off] << 24) | (exif[off + 1] << 16) | (exif[off + 2] << 8) | exif[off + 3];
-}
-
 function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen, Get16u, Get32u, xRes = 0,
+	var i, j, dE, tag, tgLen, xRes = 0,
 		yRes = 0,
-		resT = 0;
-	if(String.fromCharCode(exif[off], exif[off + 1]) === 'MM') {
-		Get16u = get16uMM;
-		Get32u = get32uMM;
-	} else {
-		Get16u = get16uII;
-		Get32u = get32uII;
-	}
-	if(Get16u(exif, off + 2) !== 0x2A) {
+		resT = 0,
+		le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
+		dv = new DataView(exif.buffer, off);
+	if(dv.getUint16(2, le) !== 0x2A) {
 		return false;
 	}
-	i = Get32u(exif, off + 4);
+	i = dv.getUint32(4, le);
 	if(i > len) {
 		return false;
 	}
-	for(tgLen = Get16u(exif, i += off), j = 0; j < tgLen; j++) {
-		dE = i + 2 + 12 * j;
-		tag = Get16u(exif, dE);
+	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
 		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
 			continue;
 		}
 		if(tag === 0x0128) {
-			resT = Get16u(exif, dE + 8) - 1;
+			resT = dv.getUint16(dE + 8, le) - 1;
 		} else {
-			dE = Get32u(exif, dE + 8);
+			dE = dv.getUint32(dE + 8, le);
 			if(dE > len) {
 				return false;
 			}
-			dE += off;
 			if(tag === 0x11A) {
-				xRes = +(Get32u(exif, dE) / Get32u(exif, dE + 4)).toFixed(0);
+				xRes = +(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le)).toFixed(0);
 			} else {
-				yRes = +(Get32u(exif, dE) / Get32u(exif, dE + 4)).toFixed(0);
+				yRes = +(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le)).toFixed(0);
 			}
 		}
 	}
@@ -6693,27 +6673,6 @@ function getNavigator() {
 	if(nav.Firefox > 14 || nav.WebKit >= 536.1) {
 		nav.toBlob = function(arr, type) {
 			return type ? new Blob(arr, {'type': type}) : new Blob(arr);
-		};
-	} else if(nav.Firefox > 5) {
-		nav.toBlob = function(arr, type) {
-			var i, j, len, len_, out, el, bb = new window.MozBlobBuilder();
-			for(i = 0, len = arr.length; i < len; i++) {
-				el = arr[i]
-				if(el.buffer) {
-					if(el.length !== el.buffer.byteLength) {
-						out = new Uint8Array(len_ = el.length);
-						for(j = 0; j < len_; j++) {
-							out[j] = el[j];
-						}
-						bb.append(out.buffer);
-					} else {
-						bb.append(el.buffer);
-					}
-				} else {
-					bb.append(el);
-				}
-			}
-			return type ? bb.getBlob(type) : bb.getBlob();
 		};
 	} else {
 		nav.noBlob = true;
