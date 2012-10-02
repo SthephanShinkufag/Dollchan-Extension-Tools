@@ -5839,7 +5839,7 @@ Spells.prototype = {
 				}
 				this._lastPSpell = i;
 			} else {
-				this._lastPSpell = i - 1;
+				this._lastPSpell = i -= 1;
 				rv = false;
 			}
 			if(cInfo = sStack.pop()) {
