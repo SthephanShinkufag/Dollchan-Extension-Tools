@@ -5368,7 +5368,7 @@ Spells.prototype = {
 							j++;
 						}
 						if(j > 4 && j > n && x) {
-							this._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + j;
+							Spells._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + j;
 							return true;
 						}
 					}
@@ -5390,14 +5390,14 @@ Spells.prototype = {
 								pop = j;
 							}
 							if(pop >= n) {
-								this._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + pop;
+								Spells._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + pop;
 								return true;
 							}
 						}
 					}
 					x = keys / len;
 					if(x < 0.25) {
-						this._lastWipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
+						Spells._lastWipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
 						return true;
 					}
 				}
@@ -5406,7 +5406,7 @@ Spells.prototype = {
 			if(val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
 				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-					this._lastWipeMsg = 'long words';
+					Spells._lastWipeMsg = 'long words';
 					return true;
 				}
 			}
@@ -5416,7 +5416,7 @@ Spells.prototype = {
 				if((len = _txt.length) > 30 &&
 					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
 				{
-					this._lastWipeMsg = 'specsymbols: ' + Math.round(x * 100) + '%';
+					Spells._lastWipeMsg = 'specsymbols: ' + Math.round(x * 100) + '%';
 					return true;
 				}
 			}
@@ -5438,10 +5438,10 @@ Spells.prototype = {
 						n++;
 					}
 					if(capsw / n >= 0.3 && n > 4) {
-						this._lastWipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+						Spells._lastWipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
 						return true;
 					} else if(casew / n >= 0.3 && n > 8) {
-						this._lastWipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
+						Spells._lastWipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
 						return true;
 					}
 				}
@@ -5450,11 +5450,11 @@ Spells.prototype = {
 			if(val & 32) {
 				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
 				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-					this._lastWipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
+					Spells._lastWipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
 					return true;
 				}
 			}
-			return this._lastWipeMsg = false;
+			return Spells._lastWipeMsg = false;
 		},
 		// 15: #num
 		function(post, val) {
@@ -5795,7 +5795,7 @@ Spells.prototype = {
 		}
 		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
 		switch(type) {
-		case 14: return rv += '#wipe' + (this._lastWipeMsg ? ': ' + this._lastWipeMsg : '');
+		case 14: return rv += '#wipe' + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
 		default: rv += '#' + this._names[type] + (val ? ': ' + val : '');
 		}
 		return rv;
