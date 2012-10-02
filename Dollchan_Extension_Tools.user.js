@@ -4913,11 +4913,11 @@ function setPostsVisib() {
 		if(uVis[pNum = post.num]) {
 			if(post.isOp) {
 				uVis[pNum][0] = cHThrds[pNum] === undefined ? 1 : 0;
-				uVis[pNum][1] = Date.now();
 			}
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, true);
 			} else {
+				uVis[pNum][1] = Date.now();
 				post.btns.firstChild.className = 'de-btn-lock';
 			}
 			if(vis === undefined) {
@@ -7341,10 +7341,11 @@ function doScript() {
 		readViewedPosts();
 	}
 	setPostsVisib();
-	savePostsVisib();
 	$log('readPosts');
 	scriptCSS();
 	$log('scriptCSS');
+	savePostsVisib();
+	saveUserPostsVisib();
 	endTime = Date.now() - initTime;
 }
 
