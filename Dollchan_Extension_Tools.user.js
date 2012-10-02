@@ -1079,7 +1079,11 @@ function addPanel() {
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-select'));
 				}, null, selectAudioNotif, 'de_delSelection(event)')),
-				$if(aib.nul, pButton('catalog', null, '//0-chan.ru/' + brd + '/catalog.html', null, null))
+				$if(aib.nul, pButton(
+					'catalog', null,
+					'//' + aib.host + '/' + brd + '/catalog.html',
+					null, null
+				))
 			]),
 			$if(TNum, $New('div', {'id': 'de-panel-info'}, [
 				$new('span', {
