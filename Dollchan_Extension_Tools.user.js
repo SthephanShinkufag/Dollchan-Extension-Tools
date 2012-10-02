@@ -5313,7 +5313,7 @@ Spells.prototype = {
 		function(post, val) {
 			var text = getText(post);
 			if(!val) {
-				return !!text && ('#tlen: ' + val);
+				return !!text && ('#tlen()');
 			}
 			return Spells.checkArr(val, text.replace(/\n/g, '').length);
 		},
@@ -5416,7 +5416,7 @@ Spells.prototype = {
 					return true;
 				}
 			}
-			// (1 << 3): symbols
+			// (1 << 3): capslock
 			if(val & 8) {
 				_txt = txt.replace(/\s+/g, '');
 				if((len = _txt.length) > 30 &&
@@ -5829,7 +5829,7 @@ Spells.prototype = {
 				} else {
 					val = this._funcs[type](post, scope[i][1]);
 				}
-				rv = this._checkRes(temp, val);
+				rv = this._checkRes(temp, !!val);
 				if(rv === null) {
 					i++;
 					continue;
