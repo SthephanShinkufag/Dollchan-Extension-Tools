@@ -5446,8 +5446,8 @@ Spells.prototype = {
 			this._lastErrCol = 0;
 			return 0;
 		}
-		var opt, type, rType, exp, temp,
-			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?(?:\(\)|\((.*?[^\\])\))?/);
+		var opt, type, rType, exp, expVal, temp,
+			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?/);
 		if(!val) {
 			this._errorMessage = Lng.seSyntaxErr[lang];
 			this._lastErrCol = 0;
@@ -5466,7 +5466,28 @@ Spells.prototype = {
 			rType = type;
 		}
 		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
-		exp = val[5];
+		str = str.substr(offset + 1 + val[0].length);
+		if(str[0] === '(') {
+			if(type === 1 || type === 2 || type === 3 || type === 5 || type === 13) {
+				expVal = str.match(/^\(\)|\((\/.*?[^\\]\/[ig]*)\)/);
+				if(!expVal) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = 0;
+					return 0;
+				}
+				exp = expVal[1] || '';
+			} else {
+				expVal = str.match(/^\(\)|\((.*?[^\\])\)/);
+				if(!expVal) {
+					this._errorMessage = Lng.seSyntaxErr[lang];
+					this._lastErrCol = 0;
+					return 0;
+				}
+				exp = expVal[1].replace(/\\\)/g, ')') || '';
+			}
+		} else {
+			exp = '';
+		}
 		if(!exp) {
 			if(type > 4 && type < 15) {
 				exp = '';
@@ -5475,8 +5496,6 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
-		} else {
-			exp = exp.replace(/\\\)/g, ')');
 		}
 		switch(type) {
 		// #words
@@ -5486,7 +5505,7 @@ Spells.prototype = {
 			exp = +exp;
 			if(exp !== exp) {
 				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[5]);
-				this._lastErrCol = val[0].length - val[5].length - 1;
+				this._lastErrCol = val[0].length;
 				return 0;
 			}
 			tokens.push([rType, exp, opt]);
@@ -5497,7 +5516,7 @@ Spells.prototype = {
 				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
 				if(!exp || (!exp[2] && !exp[4])) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length - val[5].length - 1;
+					this._lastErrCol = val[0].length;
 					return 0;
 				}
 				tokens.push([rType, [exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2, exp[2] && [+exp[2], exp[3] ? +exp[3] : +exp[2]], exp[4] && [+exp[4], exp[5] ? +exp[5] : +exp[4], +exp[6], exp[7] ? +exp[7] : +exp[6]]], opt]);
@@ -5521,7 +5540,7 @@ Spells.prototype = {
 					}
 				})) {
 					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length - exp.length - 1;
+					this._lastErrCol = val[0].length;
 					return 0;
 				}
 			} else {
@@ -5564,14 +5583,14 @@ Spells.prototype = {
 				this._toRegExp(exp, true);
 			} catch(e) {
 				this._errorMessage = Lng.seErrRegex[lang] + exp;
-				this._lastErrCol = val[0].length - exp.length - 1;
+				this._lastErrCol = val[0].length;
 				return 0;
 			}
 		// #name, #sage, #trip
 		default: tokens.push([rType, exp, opt]); break;
 		}
 		this._lastType = 2;
-		return val[0].length;
+		return val[0].length + (expVal ? expVal[0].length : 0);
 	},
 	_setOperator: function(scope, op) {
 		if(op === 2) {
@@ -5848,11 +5867,11 @@ Spells.prototype = {
 			outreps = [],
 			rStr = '';
 		str = str.replace(/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			reps.push([b, nt ? -1 : t, reg.replace(/\\\)/g, ')'), txt.replace(/\\\)/g, ')') || '']);
+			reps.push([b, nt ? -1 : t, reg, txt.replace(/\\\)/g, ')') || '']);
 			rStr += fullExp + '\n';
 			return preOp || '';
 		}).replace(/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*),(.*?[^\\])?\))[\n\s]*/g, function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-			outreps.push([b, nt ? -1 : t, reg.replace(/\\\)/g, ')'), txt.replace(/\\\)/g, ')') || '']);
+			outreps.push([b, nt ? -1 : t, reg, txt.replace(/\\\)/g, ')') || '']);
 			rStr += fullExp + '\n';
 			return preOp || '';
 		});
@@ -5938,20 +5957,25 @@ Spells.prototype = {
 								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')', nS);
 							}
 							if(spell[0]) {
-								pushSpell(op, sbt, '#name', '(' + spell[0] + ')', nS);
+								pushSpell(op, sbt, '#name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
 							}
 						}
 						return;
-					case 'theme': spell = '#subj'; break;
 					case 'skip': pushSpell(op, sbt, '!#num', '(' + re[2] + ')', sS); return;
 					case 'rep':
 					case 'outrep':
-						spell = re[2].replace(/\)/g, '\\)').match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
-						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '') + ')')
+						spell = re[2].match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
+						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '').replace(/\)/g, '\\)') + ')')
 						return;
-					default: spell = '#' + re[1]; break;
+					case 'theme': re[1] = 'subj';
+					case 'exp':
+					case 'exph':
+					case 'imgn':
+						pushSpell(op, sbt, '#' + re[1], '(' + re[2] + ')', nS);
+						return;
+					default:
+						pushSpell(op, sbt, '#' + re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 					}
-					pushSpell(op, sbt, spell, '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 				}
 			} else {
 				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
