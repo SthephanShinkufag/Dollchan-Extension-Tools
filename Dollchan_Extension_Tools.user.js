@@ -2704,14 +2704,6 @@ function ajaxSubmit(dF, Fn) {
 	});
 }
 
-function initJpeg(img, dat) {
-	img[0] = 0xFF; img[1] = 0xD8; img[2] = 0xFF; img[3] = 0xE0; img[4] = 0; img[5] = 0x10; img[6] = 0x4A;
-	img[7] = 0x46; img[8] = 0x49; img[9] = 0x46; img[10] = 0; img[11] = 1; img[12] = 1; img[18] = 0; img[19] = 0;
-	img[13] = dat[0]; img[14] = dat[1];
-	img[15] = dat[2]; img[16] = dat[3];
-	img[17] = dat[4];
-}
-
 function get16uII(exif, off) {
 	return (exif[off + 1] << 8) | exif[off];
 }
@@ -2821,7 +2813,8 @@ function getReplyImgData(dat, delExtraData) {
 			for(; i < len; dat[j++] = dat[i++]) {}
 		}
 		if(rExif) {
-			initJpeg(out = new Uint8Array(len = j + 18), jpgDat || [0, 0, 1, 0, 1]);
+			out = new Uint8Array(len = j + 18);
+			out.set(aProto.concat.apply([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1], (jpgDat || [0, 0, 1, 0, 1])));
 			for(i = 2, j = 20; j < len; i++, j++) {
 				out[j] = dat[i];
 			}
