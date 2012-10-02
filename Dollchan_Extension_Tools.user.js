@@ -4902,7 +4902,7 @@ function doPostFilters(post) {
 		return;
 	}
 	sVis[post.count] = 1;
-	spells.check(post, function(pst, node) {
+	spells.check(post, function(pst, note) {
 		sVis[pst.count] = 0;
 		doHidePost(pst, note);
 	}, false);
@@ -4925,7 +4925,7 @@ function setPostsVisib() {
 			}
 			if(vis === undefined) {
 				sVis[i] = 1
-				spells.check(post, function(pst, node) {
+				spells.check(post, function(pst, note) {
 					sVis[pst.count] = 0;
 				}, false);
 			}
