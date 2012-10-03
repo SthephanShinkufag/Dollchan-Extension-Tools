@@ -1204,10 +1204,10 @@ function inpTxt(id, size, Fn) {
 }
 
 function optSel(id, isBlock, Fn) {
-	for(var i = 0, x = Lng.cfg[id], len = x.sel[lang].length, el, opt = []; i < len; i++) {
-		opt[i] = '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
+	for(var i = 0, x = Lng.cfg[id], len = x.sel[lang].length, el, opt = ''; i < len; i++) {
+		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
-	(el = $event($add('<select info="' + id + '">' + opt.join('') + '</select>'), {
+	(el = $event($add('<select info="' + id + '">' + opt + '</select>'), {
 		'change': Fn ? Fn : function() {
 			saveCfg(this.getAttribute('info'), this.selectedIndex);
 			fixSettings();
@@ -1252,22 +1252,20 @@ function cfgTab(name) {
 	]);
 }
 
-function scrollSpellEdit() {
-	var st = this.scrollTop,
-		stt = (st / 12) | 0 + 1
-		el = $id('de-spell-rownum'),
-		nl = el.numLines;
-	if(nl - 17 < stt) {
-		var str = '',
-			tmp = Math.max(stt, 17),
-			tmp_ = nl + 1;
-		while(tmp--) {
-			str += '<br>' + tmp_++;
+function updRowMeter() {
+	var top = this.scrollTop,
+		el = $id('de-spell-rowmeter'),
+		num = el.numLines,
+		str = '',
+		i = 17;
+	if(num++ - i < (top / 12) | 0 + 1) {
+		while(i--) {
+			str += '<br>' + num++;
 		}
 		el.insertAdjacentHTML('beforeend', str);
-		el.numLines = tmp_;
+		el.numLines = num;
 	}
-	el.scrollTop = st;
+	el.scrollTop = top;
 }
 
 function getCfgFilters() {
@@ -1307,11 +1305,12 @@ function getCfgFilters() {
 			]),
 			lBox('hideBySpell', false, toggleSpells),
 			$New('div', {'id': 'de-spell-div'}, [
-				$add('<div><div id="de-spell-rownum">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div></div>'),
+				$add('<div><div id="de-spell-rowmeter">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>'
+					+ '10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div></div>'),
 				$New('div', null, [$new(
 					'textarea',
 					{'id': 'de-spell-edit', 'rows': 16, 'cols': 46, 'wrap': 'off'},
-					{'keydown': scrollSpellEdit, 'scroll': scrollSpellEdit}
+					{'keydown': updRowMeter, 'scroll': updRowMeter}
 				)])
 			])
 		]),
@@ -1614,7 +1613,7 @@ function addSettings(Set) {
 			])
 		])
 	]));
-	$id('de-spell-rownum').numLines = 17;
+	$id('de-spell-rowmeter').numLines = 17;
 	$c('de-cfg-tab', Set).click();
 	$id('de-spell-edit').setSelectionRange(0, 0);
 }
@@ -3896,8 +3895,8 @@ function parsePostImg(e) {
 ==============================================================================*/
 
 function addRefMap(post) {
-	var rM = '<div class="de-refmap">' + post.ref.join(', ').replace(/(\d+)/g,
-			'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
+	var rM = '<div class="de-refmap">' +
+		post.ref.join(', ').replace(/(\d+)/g,'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
 	try {
 		nav.insAfter(post.msg, rM);
 	} catch(e) {
@@ -6494,7 +6493,7 @@ function scriptCSS() {
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-rownum { margin: 5px 4px 0 0; overflow: hidden; width: 2em; height: 20em; text-align: right; color: green; font: 12px courier new; }\
+		#de-spell-rowmeter { padding: 0 3px 0 0; margin: 5px 0 0 0; overflow: hidden; width: 2em; height: 20em; text-align: right; background-color: #777; color: #fff; font: 12px courier new; }\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
