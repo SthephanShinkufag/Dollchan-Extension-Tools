@@ -342,8 +342,7 @@ Lng = {
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
-	seMissOp:		['пропущен оператор перед спеллом', 'missing operator before spell'],
-	seMissArg:		['пропущен аргумент спелла ', 'missing argument of spell '],
+	seMissOp:		['пропущен оператор', 'missing operator'],
 	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
 	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
 	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
@@ -622,7 +621,7 @@ function getText(el) {
 }
 
 function getImgWeight(post) {
-	var inf = $c(aib.cFileInfo, post).textContent.match(/(\d+(?:\.\d+)?)\s*([mkк])[bб]/i),
+	var inf = $c(aib.cFileInfo, post).textContent.match(/(\d+(?:\.\d+)?)\s*([mkк])?[bб]/i),
 		w = parseFloat(inf[1]);
 	return inf[2] === 'M' ? (w * 1e3) | 0 : !inf[2] ? Math.round(w / 1e3) : w;
 }
@@ -1254,7 +1253,21 @@ function cfgTab(name) {
 }
 
 function scrollSpellEdit() {
-	$id('de-spell-rownum').scrollTop = $id('de-spell-edit').scrollTop; 
+	var st = this.scrollTop,
+		stt = (st / 12) | 0 + 1
+		el = $id('de-spell-rownum'),
+		nl = el.numLines;
+	if(nl - 17 < stt) {
+		var str = '',
+			tmp = Math.max(stt, 17),
+			tmp_ = nl + 1;
+		while(tmp--) {
+			str += '<br>' + tmp_++;
+		}
+		el.insertAdjacentHTML('beforeend', str);
+		el.numLines = tmp_;
+	}
+	el.scrollTop = st;
 }
 
 function getCfgFilters() {
@@ -1294,11 +1307,11 @@ function getCfgFilters() {
 			]),
 			lBox('hideBySpell', false, toggleSpells),
 			$New('div', {'id': 'de-spell-div'}, [
-				$new('div', {'id': 'de-spell-rownum'}, null),
+				$add('<div><div id="de-spell-rownum">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div></div>'),
 				$New('div', null, [$new(
 					'textarea',
 					{'id': 'de-spell-edit', 'rows': 16, 'cols': 46, 'wrap': 'off'},
-					{'keydown': scrollSpellEdit, 'keyup': scrollSpellEdit, 'onscroll': scrollSpellEdit}
+					{'keydown': scrollSpellEdit, 'scroll': scrollSpellEdit}
 				)])
 			])
 		]),
@@ -1601,11 +1614,9 @@ function addSettings(Set) {
 			])
 		])
 	]));
+	$id('de-spell-rownum').numLines = 17;
 	$c('de-cfg-tab', Set).click();
-	for(var s = [], i = 1; i < 1000; i++) {
-		s[i] = i + '<br>';
-	}
-	$id('de-spell-rownum').innerHTML = s.join(''); 
+	$id('de-spell-edit').setSelectionRange(0, 0);
 }
 
 
@@ -5487,7 +5498,7 @@ Spells.prototype = {
 		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
 		str = str.substr(offset + 1 + val[0].length);
 		temp = str[0] !== '(' ? 0 : str[1] === ')' ? 2 : false;
-		noBkt = exp !== false;
+		noBkt = temp !== false;
 		switch(type) {
 		// #ihash
 		case 4:
@@ -5593,7 +5604,7 @@ Spells.prototype = {
 		case 1:
 		case 2:
 		case 3:
-			exp = !noBkt && str.match(/^\(\)|\((\/.*?[^\\]\/[ig]*)\)/);
+			exp = !noBkt && str.match(/^\((\/.*?[^\\]\/[ig]*)\)/);
 			if(!exp) {
 				this._errorMessage = Lng.seSyntaxErr[lang];
 				this._lastErrCol = val[0].length;
@@ -5607,8 +5618,10 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
+			tokens.push([rType, temp, opt]);
 			return val[0].length + exp[0].length;
-		// #sage, #op, #all
+		// #sage, #op, #all, #trip
+		case 7:
 		case 9:
 		case 10:
 		case 12:
@@ -5616,7 +5629,7 @@ Spells.prototype = {
 				tokens.push([rType, '', opt]);
 				return val[0].length + temp;
 			}
-		// #name, #trip, #words
+		// #name, #words
 		default:
 			exp = str.match(/^\((.*?[^\\])\)/);
 			if(!exp) {
@@ -6479,8 +6492,9 @@ function scriptCSS() {
 		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-spell-div > div { display: inline-block; }\
-		#de-spell-rownum { margin: 4px 4px 0 0; vertical-align: top; overflow: hidden; width: 20px; height: 255px; text-align: right; color: green; font: 12px courier new; }\
+		#de-spell-div { display: table; }\
+		#de-spell-div > div { display: table-cell; vertical-align: top; }\
+		#de-spell-rownum { margin: 5px 4px 0 0; overflow: hidden; width: 2em; height: 20em; text-align: right; color: green; font: 12px courier new; }\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
