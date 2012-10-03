@@ -5620,7 +5620,8 @@ Spells.prototype = {
 			}
 			tokens.push([rType, temp, opt]);
 			return val[0].length + exp[0].length;
-		// #sage, #op, #all
+		// #sage, #op, #all, #trip
+		case 7:
 		case 9:
 		case 10:
 		case 12:
@@ -5628,7 +5629,7 @@ Spells.prototype = {
 				tokens.push([rType, '', opt]);
 				return val[0].length + temp;
 			}
-		// #name, #trip, #words
+		// #name, #words
 		default:
 			exp = str.match(/^\((.*?[^\\])\)/);
 			if(!exp) {
