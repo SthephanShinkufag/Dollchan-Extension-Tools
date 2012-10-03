@@ -5449,7 +5449,7 @@ Spells.prototype = {
 			this._lastErrCol = 0;
 			return 0;
 		}
-		var opt, type, rType, exp, expVal, temp, noBkt,
+		var opt, type, rType, exp, temp, noBkt,
 			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?/);
 		if(!val) {
 			this._errorMessage = Lng.seSyntaxErr[lang];
@@ -5781,12 +5781,9 @@ Spells.prototype = {
 				nScope.push(spell);
 			}
 		}
-		if(nScope.length === 0) {
-			return null;
-		} else if(nScope.length === 1 && nScope[0][0] === 0xFF) {
-			return nScope[0][1];
-		}
-		return nScope;
+		return nScope.length === 0 ? null :
+			nScope.length === 1 && nScope[0][0] === 0xFF ? nScope[0][1] :
+			nScope;
 	},
 	_removeBoards: function(data) {
 		if(!data) {
