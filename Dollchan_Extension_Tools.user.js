@@ -1253,7 +1253,21 @@ function cfgTab(name) {
 }
 
 function scrollSpellEdit() {
-	$id('de-spell-rownum').scrollTop = $id('de-spell-edit').scrollTop; 
+	var st = this.scrollTop,
+		stt = (st / 12) | 0 + 1
+		el = this.parentNode.previousSibling,
+		nl = el.numLines;
+	if(nl - 17 < stt) {
+		var str = '',
+			tmp = Math.max(stt, 17),
+			tmp_ = nl + 1;
+		while(tmp--) {
+			str += '<br>' + tmp_++;
+		}
+		el.insertAdjacentHTML('beforeend', str);
+		el.numLines = tmp_;
+	}
+	el.scrollTop = st;
 }
 
 function getCfgFilters() {
@@ -1293,11 +1307,11 @@ function getCfgFilters() {
 			]),
 			lBox('hideBySpell', false, toggleSpells),
 			$New('div', {'id': 'de-spell-div'}, [
-				$new('div', {'id': 'de-spell-rownum'}, null),
+				$add('<div id="de-spell-rownum">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div>'),
 				$New('div', null, [$new(
 					'textarea',
 					{'id': 'de-spell-edit', 'rows': 16, 'cols': 46, 'wrap': 'off'},
-					{'keydown': scrollSpellEdit, 'keyup': scrollSpellEdit, 'onscroll': scrollSpellEdit}
+					{'keydown': scrollSpellEdit, 'scroll': scrollSpellEdit}
 				)])
 			])
 		]),
@@ -1600,11 +1614,9 @@ function addSettings(Set) {
 			])
 		])
 	]));
+	$id('de-spell-rownum').numLines = 17;
 	$c('de-cfg-tab', Set).click();
-	for(var s = [], i = 1; i < 1000; i++) {
-		s[i] = i + '<br>';
-	}
-	$id('de-spell-rownum').innerHTML = s.join(''); 
+	$id('de-spell-edit').setSelectionRange(0, 0);
 }
 
 
@@ -6479,7 +6491,7 @@ function scriptCSS() {
 		#de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-spell-div > div { display: inline-block; }\
-		#de-spell-rownum { margin: 4px 4px 0 0; vertical-align: top; overflow: hidden; width: 20px; height: 255px; text-align: right; color: green; font: 12px courier new; }\
+		#de-spell-rownum { margin: 5px 4px 0 0; vertical-align: top; overflow: hidden; width: 20px; height: 242px; text-align: right; color: green; font: 12px courier new; }\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
