@@ -5708,14 +5708,19 @@ Spells.prototype = {
 				if(nScope[temp]) {
 					nScope[temp][0] &= 0x1FF;
 				}
-				return temp >= 0 ? nScope : [[12,'',null]];
+				if(temp < 0) {
+					return [[12,'',null]];
+				}
 			} else {
 				while(nScope[temp] && (nScope[temp][0] & 0x200) !== 0) {
 					delete nScope[temp];
 					temp -= 2;
 				}
-				return temp >= 0 ? nScope : null;
+				if(temp < 0) {
+					return null;
+				}
 			}
+			return nScope.length === 1 && nScope[0][0] === 0xFF ? nScope[0][1] : nScope;
 		} else if((item & 0x200) !== 0) {
 			if(!neg) {
 				return null;
@@ -5733,7 +5738,8 @@ Spells.prototype = {
 				if(temp = this._processScope(spell[1])) {
 					if(temp.length === 1) {
 						temp = temp[0];
-						temp[0] |= spell[0] & 0x300;
+						temp[0] |= spell[0] & 0x200;
+						temp[0] ^= spell[0] & 0x100;
 						nScope.push(temp);
 					} else {
 						nScope.push([spell[0], temp]);
@@ -5763,7 +5769,12 @@ Spells.prototype = {
 				nScope.push(spell);
 			}
 		}
-		return nScope.length === 0 ? null : nScope;
+		if(nScope.length === 0) {
+			return null;
+		} else if(nScope.length === 1 && nScope[0][0] === 0xFF) {
+			return nScope[0][1];
+		}
+		return nScope;
 	},
 	_removeBoards: function(data) {
 		if(!data) {
