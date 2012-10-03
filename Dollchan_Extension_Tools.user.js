@@ -5604,7 +5604,7 @@ Spells.prototype = {
 		case 1:
 		case 2:
 		case 3:
-			exp = !noBkt && str.match(/^\(\)|\((\/.*?[^\\]\/[ig]*)\)/);
+			exp = !noBkt && str.match(/^\((\/.*?[^\\]\/[ig]*)\)/);
 			if(!exp) {
 				this._errorMessage = Lng.seSyntaxErr[lang];
 				this._lastErrCol = val[0].length;
@@ -5618,6 +5618,7 @@ Spells.prototype = {
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
+			tokens.push([rType, temp, opt]);
 			return val[0].length + exp[0].length;
 		// #sage, #op, #all
 		case 9:
