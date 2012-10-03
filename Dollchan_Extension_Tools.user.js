@@ -3097,7 +3097,7 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="de-ppanel' + (post.isOp ? '-op' : '') + ' de-ppanel-cnt" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
+		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		h = aib.host;
 		if(!TNum) {
@@ -4037,7 +4037,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.de-img-full, .de-ppanel, .de-ppanel-op', pView), $del);
+		$each($Q('.de-img-full, .de-ppanel', pView), $del);
 		if(!inDoc) {
 			addLinkMP3(pView);
 			addLinkTube(pView);
@@ -4938,7 +4938,7 @@ function addPostNote(post, note) {
 
 function setPostVisib(post, hide, note) {
 	var el, a, pNum, thr = post.thr;
-	togglePostContent(post, post.hide = hide);
+	post.hide = hide;
 	if(post.isOp) {
 		thr.style.display = hide ? 'none' : '';
 		thr.hide = hide;
@@ -4968,6 +4968,7 @@ function setPostVisib(post, hide, note) {
 		}
 		return;
 	}
+	togglePostContent(post, hide);
 	if(Cfg['delHiddPost']) {
 		aib.getWrap(post).style.display = hide ? 'none' : '';
 	} else {
@@ -6316,9 +6317,9 @@ function scriptCSS() {
 	gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	// Post panel
-	x += '.de-ppanel, .de-ppanel-op { margin-left: 4px; }\
+	x += '.de-ppanel { margin-left: 4px; }\
 		.de-post-note { color: inherit; font: italic bold 12px serif; }\
-		.de-ppanel > span, .de-ppanel-op > span { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.de-ppanel > span { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
@@ -6354,7 +6355,7 @@ function scriptCSS() {
 
 	// Posts counter
 	if(TNum) x += '.de-thread { counter-reset: i 1; }\
-		.de-ppanel.de-ppanel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+		.de-ppanel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// text format buttons
@@ -6494,7 +6495,7 @@ function scriptCSS() {
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }';
 		} else if(aib.brit) {
-			x += '.de-ppanel, .de-ppanel-op { float: left; margin-top: 0.45em; }\
+			x += '.de-ppanel { float: left; margin-top: 0.45em; }\
 				a + .threadlinktext { position: relative; top: 17px; }\
 				.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
 				.de-btn-src { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
