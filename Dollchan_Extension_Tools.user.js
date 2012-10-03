@@ -6319,7 +6319,7 @@ function scriptCSS() {
 	// Post panel
 	x += '.de-ppanel { margin-left: 4px; }\
 		.de-post-note { color: inherit; font: italic bold 12px serif; }\
-		.de-ppanel > span { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.de-ppanel > span, .de-btn-src { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
