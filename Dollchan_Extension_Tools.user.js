@@ -15,7 +15,6 @@ var defaultCfg = {
 	'version':	'12.9.30.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
-	'filterThrds':	1,		// apply filters to threads
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
@@ -93,7 +92,6 @@ var defaultCfg = {
 Lng = {
 	cfg: {
 		'hideBySpell':	['Заклинания: ', 'Magic spells: '],
-		'filterThrds':	['Применять фильтры к тредам', 'Apply filters to threads'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
@@ -1293,7 +1291,6 @@ function getCfgFilters() {
 			lBox('hideBySpell', false, toggleSpells),
 			$new('textarea', {'id': 'de-spell-edit', 'rows': 16, 'cols': 50}, null)
 		]),
-		lBox('filterThrds', true, null),
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
@@ -1928,7 +1925,7 @@ function selectSpell(e) {
 }
 
 function selectPostHider(post) {
-	if(!Cfg['menuHiddBtn'] || (!Cfg['filterThrds'] && post.isOp)) {
+	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
 	var a = addSelMenu(
@@ -3195,7 +3192,7 @@ function prepareCFeatures() {
 		case 'A': selectPostHider(pByNum[+data]); return;
 		case 'B': selectExpandThread(pByNum[+data]); return;
 		case 'C': quotetxt = $txtSelect(); return;
-		case 'D': togglePostVisib(pByNum[+data]); return;
+		case 'D': toggleUserPostVisib(pByNum[+data]); return;
 		case 'E': loadThread(pByNum[+data], 1, null); return;
 		case 'F': showQuickReply(pByNum[+data]); return;
 		case 'G':
@@ -4274,7 +4271,8 @@ function addPostFunc(post) {
 		eventPostImg(post);
 	}
 	if(!post.hide) {
-		doPostFilters(post);
+		sVis[post.count] = 1;
+		spells.check(post, hidePost, false);
 	}
 	updRefMap(post);
 	eventRefLink(post);
@@ -4522,6 +4520,9 @@ function loadPages(len) {
 				genRefMap(pByNum);
 				eventRefLink(dForm);
 				readPostsVisib();
+				if(Cfg['markViewed']) {
+					readViewedPosts();
+				}
 				setPostsVisib();
 				if(isExpImg) {
 					Posts.forEach(function(post) {
@@ -4870,15 +4871,6 @@ function unhideByRef(post) {
 	});
 }
 
-function doPostFilters(post) {
-	if(!Cfg['filterThrds'] && post.isOp) {
-		sVis[post.count] = 1;
-		return;
-	}
-	sVis[post.count] = 1;
-	spells.check(post, hidePost, false);
-}
-
 function setPostsVisib() {
 	for(var post, pNum, vis, i = Posts.length - 1; i >= 0; i--) {
 		vis = sVis[i];
@@ -4911,12 +4903,13 @@ function setPostsVisib() {
 		if(vis === '0') {
 			doHidePost(post, null);
 		} else if(vis !== '1') {
-			doPostFilters(post);
+			sVis[post.count] = 1;
+			spells.check(post, hidePost, false);
 		}
 	}
 }
 
-function togglePostVisib(post) {
+function toggleUserPostVisib(post) {
 	setUserPostVisib(post, !post.hide);
 	saveUserPostsVisib();
 }
@@ -4959,11 +4952,11 @@ function setPostVisib(post, hide, note) {
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
-			a = $t('a', el);
 			$before(thr, el);
+			a = $t('a', el);
 			a.onclick = function(e) {
 				$pd(e);
-				togglePostVisib(post);
+				toggleUserPostVisib(post);
 			};
 			a.onmouseover = function() {
 				thr.style.display = '';
@@ -6158,9 +6151,6 @@ Spells.prototype = {
 };
 
 function hideBySpells(post) {
-	if(!Cfg['filterThrds'] && post.isOp) {
-		return;
-	}
 	spells.check(post, hidePost, post.hide && unhidePost);
 }
 
