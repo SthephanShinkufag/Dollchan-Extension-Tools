@@ -4944,7 +4944,7 @@ function addPostNote(post, note) {
 }
 
 function setPostVisib(post, hide, note) {
-	var el, pNum, thr = post.thr;
+	var el, a, pNum, thr = post.thr;
 	togglePostContent(post, post.hide = hide);
 	if(post.isOp) {
 		thr.style.display = hide ? 'none' : '';
@@ -4959,11 +4959,18 @@ function setPostVisib(post, hide, note) {
 				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
-			$t('a', el).onclick = function(e) {
+			a = $t('a', el);
+			$before(thr, el);
+			a.onclick = function(e) {
 				$pd(e);
 				togglePostVisib(post);
 			};
-			$before(thr, el);
+			a.onmouseover = function() {
+				thr.style.display = '';
+			};
+			el.onmouseout = function() {
+				thr.style.display = 'none';
+			};
 			toggleHiddenThread(post, 0);
 		}
 		return;
