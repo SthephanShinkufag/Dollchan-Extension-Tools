@@ -342,8 +342,7 @@ Lng = {
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
-	seMissOp:		['пропущен оператор перед спеллом', 'missing operator before spell'],
-	seMissArg:		['пропущен аргумент спелла ', 'missing argument of spell '],
+	seMissOp:		['пропущен оператор', 'missing operator'],
 	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
 	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
 	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
@@ -5487,7 +5486,7 @@ Spells.prototype = {
 		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
 		str = str.substr(offset + 1 + val[0].length);
 		temp = str[0] !== '(' ? 0 : str[1] === ')' ? 2 : false;
-		noBkt = exp !== false;
+		noBkt = temp !== false;
 		switch(type) {
 		// #ihash
 		case 4:
