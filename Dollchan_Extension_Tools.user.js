@@ -6315,10 +6315,10 @@ function scriptCSS() {
 	gif('#de-btn-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p);
 	gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
-	// Post buttons
+	// Post panel
 	x += '.de-ppanel, .de-ppanel-op { margin-left: 4px; }\
 		.de-post-note { color: inherit; font: italic bold 12px serif; }\
-		.de-btn-hide, .de-btn-hide-user, .de-btn-unhide-user, .de-btn-rep, .de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-sage, .de-btn-src { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.de-ppanel > span, .de-ppanel-op > span { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
