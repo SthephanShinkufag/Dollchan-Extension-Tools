@@ -5444,12 +5444,12 @@ Spells.prototype = {
 		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 	},
 	_parseSpell: function(tokens, str, offset) {
-		if(this._lastType === 2) {
+		if(this._lastType === 2 || this._lastType === 4) {
 			this._errorMessage = Lng.seMissOp[lang];
 			this._lastErrCol = 0;
 			return 0;
 		}
-		var opt, type, rType, exp, expVal, temp,
+		var opt, type, rType, exp, expVal, temp, noBkt,
 			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?/);
 		if(!val) {
 			this._errorMessage = Lng.seSyntaxErr[lang];
@@ -5457,6 +5457,7 @@ Spells.prototype = {
 			return 0;
 		}
 		type = this._names.indexOf(val[1]);
+		this._lastType = 2;
 		if(type === -1) {
 			this._errorMessage = Lng.seUnknown[lang] + val[1];
 			this._lastErrCol = 1;
@@ -5470,80 +5471,58 @@ Spells.prototype = {
 		}
 		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
 		str = str.substr(offset + 1 + val[0].length);
-		if(str[0] === '(') {
-			if(type === 1 || type === 2 || type === 3 || type === 5 || type === 13) {
-				expVal = str.match(/^\(\)|\((\/.*?[^\\]\/[ig]*)\)/);
-				if(!expVal) {
-					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = 0;
-					return 0;
-				}
-				exp = expVal[1] || '';
-			} else {
-				expVal = str.match(/^\(\)|\((.*?[^\\])\)/);
-				if(!expVal) {
-					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = 0;
-					return 0;
-				}
-				exp = expVal[1].replace(/\\\)/g, ')') || '';
-			}
-		} else {
-			exp = '';
-		}
-		if(!exp) {
-			if(type > 4 && type < 15) {
-				exp = '';
-			} else {
-				this._errorMessage = Lng.seMissArg[lang] + val[0];
-				this._lastErrCol = val[0].length;
-				return 0;
-			}
-		}
+		temp = str[0] !== '(' ? 0 : str[1] === ')' ? 2 : false;
+		noBkt = exp !== false;
 		switch(type) {
-		// #words
-		case 0: tokens.push([rType, exp.toLowerCase(), opt]); break;
 		// #ihash
 		case 4:
-			exp = +exp;
-			if(exp !== exp) {
-				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', val[5]);
+			exp = !noBkt && str.match(/^\((?:(\d+)|(.*?))\)/);
+			if(!exp) {
+				this._errorMessage = Lng.seSyntaxErr[lang];
+			} else if(!exp[1]) {
+				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', exp[2]);
+			} else {
+				tokens.push([rType, +exp[1], opt]);
+				return val[0].length + exp[0].length;
+			}
+			this._lastErrCol = val[0].length;
+			return 0;
+		// #img
+		case 8:
+			if(noBkt) {
+				tokens.push([rType, '', opt]);
+				return val[0].length + temp;
+			}
+			exp = str.match(/^\(([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?\)/);
+			if(!exp || (!exp[2] && !exp[4])) {
+				this._errorMessage = Lng.seSyntaxErr[lang];
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
-			tokens.push([rType, exp, opt]);
-			break;
-		// #img
-		case 8:
-			if(exp) {
-				exp = exp.match(/^([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?$/);
-				if(!exp || (!exp[2] && !exp[4])) {
-					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length;
-					return 0;
-				}
-				tokens.push([rType, [
-					exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2,
-					exp[2] && [
-						+exp[2],
-						exp[3] ? +exp[3] : +exp[2]
-					],
-					exp[4] && [
-						+exp[4],
-						exp[5] ? +exp[5] : +exp[4],
-						+exp[6],
-						exp[7] ? +exp[7] : +exp[6]
-					]
-				], opt]);
-			} else {
-				tokens.push([rType, exp, opt]);
-			}
-			break;
+			tokens.push([rType, [
+				exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2,
+				exp[2] && [
+					+exp[2],
+					exp[3] ? +exp[3] : +exp[2]
+				],
+				exp[4] && [
+					+exp[4],
+					exp[5] ? +exp[5] : +exp[4],
+					+exp[6],
+					exp[7] ? +exp[7] : +exp[6]
+				]
+			], opt]);
+			return val[0].length + exp[0].length;
 		// #wipe
 		case 14:
+			if(noBkt) {
+				tokens.push([rType, 0x3F, opt]);
+				return val[0].length + temp;
+			}
+			exp = str.match(/^\(([a-z, ]+)\)/);
 			if(exp) {
 				var temp = 0;
-				if(exp.split(/, */).some(function(v) {
+				if(!exp[1].split(/, */).some(function(v) {
 					switch(v) {
 					case 'samelines': temp |= 1; return false;
 					case 'samewords': temp |= 2; return false;
@@ -5554,58 +5533,86 @@ Spells.prototype = {
 					default: return true;
 					}
 				})) {
-					this._errorMessage = Lng.seSyntaxErr[lang];
-					this._lastErrCol = val[0].length;
-					return 0;
+					tokens.push([rType, temp, opt]);
+					return val[0].length + exp[0].length;
 				}
-			} else {
-				temp = 0x3F;
 			}
-			tokens.push([rType, temp, opt]);
-			break;
+			this._errorMessage = Lng.seSyntaxErr[lang];
+			this._lastErrCol = val[0].length;
+			return 0;
 		// #tlen
 		case 11:
-			if(!exp) {
-				tokens.push([rType, exp, opt]);
-				break;
+			if(noBkt) {
+				tokens.push([rType, '', opt]);
+				return val[0].length + temp;
 			}
 		// #num
 		case 15:
-			exp.split(/, */).forEach(function(v) {
-				if(v.contains('-')) {
-					var nums = v.split('-');
-					nums[0] = +nums[0];
-					nums[1] = +nums[1];
-					this[1].push(nums);
-				} else {
-					this[0].push(+v);
-				}
-			}, temp = [[], []]);
-			tokens.push([rType, temp, opt]);
-			break;
+			exp = !noBkt && str.match(/^\(([\d-, ]+)\)/);
+			if(exp) {
+				exp[1].split(/, */).forEach(function(v) {
+					if(v.contains('-')) {
+						var nums = v.split('-');
+						nums[0] = +nums[0];
+						nums[1] = +nums[1];
+						this[1].push(nums);
+					} else {
+						this[0].push(+v);
+					}
+				}, temp = [[], []]);
+				tokens.push([rType, temp, opt]);
+				return val[0].length + exp[0].length;
+			} else {
+				this._errorMessage = Lng.seSyntaxErr[lang];
+				this._lastErrCol = val[0].length;
+				return 0;
+			}
 		// #video, #subj
 		case 13:
 		case 5:
-			if(!exp) {
-				tokens.push([rType, exp, opt]);
-				break;
+			if(noBkt) {
+				tokens.push([rType, '', opt]);
+				return val[0].length + temp;
 			}
 		// #exp, #exph, #imgn
 		case 1:
 		case 2:
 		case 3:
-			try {
-				this._toRegExp(exp, true);
-			} catch(e) {
-				this._errorMessage = Lng.seErrRegex[lang] + exp;
+			exp = !noBkt && str.match(/^\(\)|\((\/.*?[^\\]\/[ig]*)\)/);
+			if(!exp) {
+				this._errorMessage = Lng.seSyntaxErr[lang];
 				this._lastErrCol = val[0].length;
 				return 0;
 			}
-		// #name, #sage, #trip
-		default: tokens.push([rType, exp, opt]); break;
+			temp = exp[1];
+			try {
+				this._toRegExp(temp, true);
+			} catch(e) {
+				this._errorMessage = Lng.seErrRegex[lang] + temp;
+				this._lastErrCol = val[0].length;
+				return 0;
+			}
+			return val[0].length + exp[0].length;
+		// #sage, #op, #all
+		case 9:
+		case 10:
+		case 12:
+			if(noBkt) {
+				tokens.push([rType, '', opt]);
+				return val[0].length + temp;
+			}
+		// #name, #trip, #words
+		default:
+			exp = str.match(/^\((.*?[^\\])\)/);
+			if(!exp) {
+				this._errorMessage = Lng.seSyntaxErr[lang];
+				this._lastErrCol = 0;
+				return false;
+			}
+			temp = exp[1].replace(/\\\)/g, ')');
+			tokens.push([rType, type === 0 ? temp.toLowerCase() : temp, opt]);
+			return val[0].length + exp[0].length;
 		}
-		this._lastType = 2;
-		return val[0].length + (expVal ? expVal[0].length : 0);
 	},
 	_setOperator: function(scope, op) {
 		if(op === 2) {
@@ -5653,6 +5660,11 @@ Spells.prototype = {
 				}
 				break;
 			case '(':
+				if(this._lastType === 2 || this._lastType === 4) {
+					this._error = Lng.seMissOp[lang] +
+						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+					return false;
+				}
 				scopes.push(scope);
 				scope.push([this._opNeg ? 0x1FF : 0xFF, []])
 				scope = scope[scope.length - 1][1];
