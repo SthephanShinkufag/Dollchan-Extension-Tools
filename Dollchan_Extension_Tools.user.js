@@ -1253,6 +1253,10 @@ function cfgTab(name) {
 	]);
 }
 
+function scrollSpellEdit() {
+	$id('de-spell-rownum').scrollTop = $id('de-spell-edit').scrollTop; 
+}
+
 function getCfgFilters() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-filters'}, [
 		$New('div', null, [
@@ -1289,7 +1293,14 @@ function getCfgFilters() {
 				}, null)
 			]),
 			lBox('hideBySpell', false, toggleSpells),
-			$new('textarea', {'id': 'de-spell-edit', 'rows': 16, 'cols': 50}, null)
+			$New('div', {'id': 'de-spell-div'}, [
+				$new('div', {'id': 'de-spell-rownum'}, null),
+				$New('div', null, [$new(
+					'textarea',
+					{'id': 'de-spell-edit', 'rows': 16, 'cols': 46, 'wrap': 'off'},
+					{'keydown': scrollSpellEdit, 'keyup': scrollSpellEdit, 'onscroll': scrollSpellEdit}
+				)])
+			])
 		]),
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
@@ -1514,7 +1525,7 @@ function getCfgInfo() {
 						delete nCfg[i];
 					}
 				}
-				$alert(Lng.infoDebug[lang] + ':<br /><textarea readonly rows="20" cols="75">' + getPrettyJSON({
+				$alert(Lng.infoDebug[lang] + ':<br><textarea readonly rows="20" cols="75">' + getPrettyJSON({
 					'version': defaultCfg['version'],
 					'location': String(window.location),
 					'nav': nav,
@@ -1591,6 +1602,10 @@ function addSettings(Set) {
 		])
 	]));
 	$c('de-cfg-tab', Set).click();
+	for(var s = [], i = 1; i < 1000; i++) {
+		s[i] = i + '<br>';
+	}
+	$id('de-spell-rownum').innerHTML = s.join(''); 
 }
 
 
@@ -4677,13 +4692,13 @@ function getHanaFile(file, id) {
 		thumbH = 200;
 	}
 	return $add('<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">'
-		+ name + '</a><br /><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
+		+ name + '</a><br><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
 			size < kb ? size + ' B'
 			: size < mb ? (size / kb).toFixed(2) + ' KB'
 			: size < gb ? (size / mb).toFixed(2) + ' MB'
 			: (size / gb).toFixed(2) + ' GB'
 		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
-		'</em><br /><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
+		'</em><br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
 		'"><img title="edit" alt="edit" src="/images/blank.png" /></a></div><a href="/' + src +
 		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
 		thumbH + '" /></a></div>');
@@ -4698,7 +4713,7 @@ function getHanaPost(postJson) {
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 		'" /></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
-		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br />';
+		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br>';
 	for(i = 0; i < len; i++) {
 		post.appendChild(getHanaFile(files[i], postJson['post_id']));
 	}
@@ -6380,7 +6395,7 @@ function scriptCSS() {
 
 	// text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
-		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px }\
+		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }\
 		#de-txt-panel:lang(en) { display: none; }\
 		#de-txt-panel:lang(ru) { float: right; }';
 	p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
@@ -6464,6 +6479,8 @@ function scriptCSS() {
 		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+		#de-spell-div > div { display: inline-block; }\
+		#de-spell-rownum { margin: 4px 4px 0 0; vertical-align: top; overflow: hidden; width: 20px; height: 255px; text-align: right; color: green; font: 12px courier new; }\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
