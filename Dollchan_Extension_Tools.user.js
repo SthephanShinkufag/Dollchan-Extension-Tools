@@ -1622,7 +1622,7 @@ function addHiddenTable(hid) {
 		cln.style.display = '';
 		cln.hide = true;
 		cln.pst = post;
-		cln.btn = $q('.de-btn-hide, .de-btn-unhide-user', cln);
+		cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
 		cln.btn.parentNode.className = 'de-ppanel';
 		cln.btn.onmouseover = cln.btn.onmouseout = null;
 		cln.btn.onclick = function() {
@@ -5026,7 +5026,7 @@ function unhidePost(post) {
 function setUserPostVisib(post, hide) {
 	var pNum = post.num;
 	setPostVisib(post, hide, null);
-	post.btns.firstChild.className = 'de-btn-' + (hide ? 'unhide' : 'hide') + '-user';
+	post.btns.firstChild.className = 'de-btn-hide-user';
 	if(hide) {
 		hideByRef(post);
 	} else {
@@ -6322,7 +6322,7 @@ function scriptCSS() {
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-		gif('.de-btn-unhide-user','R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.de-post-hid .de-btn-hide-user','R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
 		gif('.de-btn-hide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
 		gif('.de-post-hid .de-btn-hide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
@@ -6336,8 +6336,8 @@ function scriptCSS() {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
 			.de-btn-hide:after { content: "×"; }\
 			.de-post-hid .de-btn-hide:after { content: "+"; }\
-			.de-btn-unhide-user:after { content: "[×]"; }\
-			.de-btn-hide-user:after { content: "[+]"; }\
+			.de-btn-hide-user:after { content: "[×]"; }\
+			.de-post-hid .de-btn-hide-user:after { content: "[+]"; }\
 			.de-btn-rep:after { content: "R"; }\
 			.de-btn-expthr:after { content: "E"; }\
 			.de-btn-fav:after { content: "F"; }\
