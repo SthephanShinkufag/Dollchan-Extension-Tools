@@ -18,7 +18,7 @@ var defaultCfg = {
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
-	'updThread':	1,		// update threads [0=off, 1=auto, 2=click+count, 3=click]
+	'updThread':	1,		// update threads [0=off, 1=auto, 2=click]
 	'updThrDelay':	60,		//		threads update interval in sec
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
@@ -97,7 +97,7 @@ Lng = {
 		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
 
 		'updThread': {
-			sel:		[['Откл.', 'Авто', 'Счет+клик', 'По клику'], ['Disable', 'Auto', 'Count+click', 'On click']],
+			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['AJAX обновление треда* ', 'AJAX thread update* ']
 		},
 		'updThrDelay':	[' (сек)', ' (sec)'],
@@ -1061,7 +1061,7 @@ function addPanel() {
 					toggleCfg('maskImgs');
 					updateCSS();
 				}, null, null, null)),
-				$if(TNum && Cfg['updThread'] !== 3, pButton('upd-on', function(e) {
+				$if(TNum && Cfg['updThread'] === 1, pButton('upd-on', function(e) {
 					$pd(e);
 					if(ajaxInterval) {
 						endPostsUpdate();
@@ -1156,7 +1156,7 @@ function toggleBox(state, arr) {
 }
 
 function fixSettings() {
-	toggleBox(Cfg['updThread'] === 1 || Cfg['updThread'] === 2, [
+	toggleBox(Cfg['updThread'] === 1, [
 		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg['preLoadImgs'], [
@@ -1607,7 +1607,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
+					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\n/g, ''));
 					window.location.reload();
 				})
 			])
@@ -1724,7 +1724,7 @@ function addHiddenTable(hid) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				setStored('DESU_Threads_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
+				setStored('DESU_Threads_' + aib.dm, this.previousSibling.value.trim().replace(/\n/g, ''));
 				window.location.reload();
 			})
 		])
@@ -2604,9 +2604,6 @@ function findSubmitError(dc) {
 
 function endUpload() {
 	closeAlert($id('de-alert-upload'));
-	if(Cfg['updThread'] === 2) {
-		infoNewPosts(null, 0);
-	}
 }
 
 function checkUpload(err, url) {
@@ -2678,7 +2675,9 @@ function checkDelete(err, url) {
 			if(tNums.indexOf(tNum) === -1) {
 				tNums.push(tNum);
 			}
-		} : function(el) { el.checked = false; });
+		} : function(el) {
+			el.checked = false;
+		});
 		if(TNum) {
 			loadNewPosts(false, endDelete);
 		} else {
@@ -4567,7 +4566,7 @@ function loadPages(len) {
 /*-------------------------------Threads updater------------------------------*/
 
 function setUpdButtonState(state) {
-	if(TNum && Cfg['updThread'] !== 3) {
+	if(TNum && Cfg['updThread'] === 1) {
 		$q('a[id^="de-btn-upd"]', doc).id = 'de-btn-upd-' + state;
 	}
 }
@@ -4598,28 +4597,6 @@ function audioNotification() {
 	}
 }
 
-function desktopNotification(i) {
-	if(window.webkitNotifications.checkPermission() !== 0) {
-		return;
-	}
-	var notif = window.webkitNotifications.createNotification(
-			'/favicon.ico', docTitle, Lng.unreadMsg[lang].replace(/%m/g, i)
-		);
-	notif.ondisplay = function() {
-		setTimeout(function() {
-			notif.cancel();
-			notif = null;
-		}, 8e3);
-	};
-	notif.onclick = function () {
-		if(window.focus) {
-			window.focus();
-		}
-		this.cancel();
-	};
-	notif.show();
-}
-
 function infoNewPosts(err, i) {
 	if(err) {
 		if(err !== Lng.noConnect[lang]) {
@@ -4633,16 +4610,14 @@ function infoNewPosts(err, i) {
 		return;
 	}
 	closeAlert($id('de-alert-newposts'));
-	if(Cfg['updThread'] === 3) {
+	if(Cfg['updThread'] !== 1) {
 		return;
 	}
 	setUpdButtonState('on');
-	if(Cfg['updThread'] === 1) {
-		if(Favico.focused) {
-			return;
-		}
-		i += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
+	if(Favico.focused) {
+		return;
 	}
+	i += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
 	if(Cfg['favIcoBlink'] && Favico.href) {
 		clearInterval(Favico.delay);
 		if(i > 0) {
@@ -4654,8 +4629,23 @@ function infoNewPosts(err, i) {
 		}
 	}
 	doc.title = (i > 0 ? ' [' + i + '] ' : '') + docTitle;
-	if(nav.WebKit && Cfg['desktNotif'] && i > 0) {
-		desktopNotification(i);
+	if(nav.WebKit && Cfg['desktNotif'] && i > 0 && window.webkitNotifications.checkPermission() !== 0) {
+		var notif = window.webkitNotifications.createNotification(
+				'/favicon.ico', docTitle, Lng.unreadMsg[lang].replace(/%m/g, i)
+			);
+		notif.ondisplay = function() {
+			setTimeout(function() {
+				notif.cancel();
+				notif = null;
+			}, 8e3);
+		};
+		notif.onclick = function () {
+			if(window.focus) {
+				window.focus();
+			}
+			this.cancel();
+		};
+		notif.show();
 	}
 	if(Audio.enabled && !Audio.running && i > 0) {
 		if(Audio.repeat) {
@@ -4664,12 +4654,6 @@ function infoNewPosts(err, i) {
 			Audio.el.play()
 		}
 	}
-}
-
-function setHanaRating() {
-	$event($q('input[type="button"]', doc), {'click': function() {
-		setCookie('de-rating', $id('rating').value, 1e12);
-	}});
 }
 
 function getHanaFile(file, id) {
@@ -4767,7 +4751,7 @@ function loadNewPosts(isInfo, Fn) {
 				'/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].num,
 			function(status, sText, json) {
 				if(status !== 200 || json['error']) {
-					infoNewPosts(status === 0 ? Lng.noConnect[lang] : (sText || json['message']), null);
+					infoNewPosts(status === 0 ? Lng.noConnect[lang] : (sText || json['message']), 0);
 				} else {
 					var i, len, post,
 						np = 0,
@@ -4793,7 +4777,7 @@ function loadNewPosts(isInfo, Fn) {
 	}
 	ajaxGetPosts(null, brd, TNum, true, function(els, op, err) {
 		if(err) {
-			infoNewPosts(err, null);
+			infoNewPosts(err, 0);
 			if(Fn) {
 				Fn();
 			}
@@ -4837,30 +4821,9 @@ function loadNewPosts(isInfo, Fn) {
 }
 
 function initThreadsUpdater() {
-	if(Cfg['updThread'] === 1) {
-		ajaxInterval = setInterval(function() {
-			loadNewPosts(false, null);
-		}, Cfg['updThrDelay']*1e3);
-	} else if(Cfg['updThread'] === 2) {
-		ajaxInterval = setInterval(function() {
-			if(aib.hana) {
-				getJsonPosts(
-					'//dobrochan.ru/api/thread/' + brd + '/' + TNum + '.json?new_format',
-					function(status, sText, json) {
-						if(status !== 200 || json['error']) {
-							infoNewPosts(status === 0 ? Lng.noConnect[lang] : (sText || json['message']), null);
-						} else {
-							infoNewPosts(null, json['result']['posts_count'] - Posts.length);
-						}
-					}
-				);
-			} else {
-				ajaxGetPosts(null, brd, TNum, true, function(els, op, err) {
-					infoNewPosts(err, els.length - Posts.length + 1);
-				});
-			}
-		}, Cfg['updThrDelay']*1e3);
-	}
+	ajaxInterval = setInterval(function() {
+		loadNewPosts(false, null);
+	}, Cfg['updThrDelay']*1e3);
 }
 
 
@@ -5017,7 +4980,9 @@ function setPostVisib(post, hide, note) {
 	if(Cfg['strikeHidd']) {
 		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), hide ? function(el) {
 			el.className = 'de-ref-hid';
-		} : function(el) { el.className = null; });
+		} : function(el) {
+			el.className = null;
+		});
 	}
 }
 
@@ -5222,9 +5187,9 @@ Spells.prototype = {
 		// 0: #words
 		function(post, val) {
 			var pTitle;
-			return (getText(post).toLowerCase().contains(val) ||
+			return getText(post).toLowerCase().contains(val) ||
 				(pTitle = $q('.replytitle, .filetitle', post)) &&
-				pTitle.textContent.toLowerCase().contains(val));
+				pTitle.textContent.toLowerCase().contains(val);
 		},
 		// 1: #exp
 		function(post, val) {
@@ -5257,7 +5222,7 @@ Spells.prototype = {
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
-			return (!val || pName.contains(val));
+			return !val || pName.contains(val);
 		},
 		// 7: #trip
 		function(post, val) {
@@ -5265,7 +5230,7 @@ Spells.prototype = {
 			if(!pTrip) {
 				return false;
 			}
-			return (!val || pTrip.textContent.contains(val));
+			return !val || pTrip.textContent.contains(val);
 		},
 		// 8: #img
 		function(post, val) {
@@ -6322,9 +6287,6 @@ function scriptCSS() {
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 		.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
-		#de-cfg-wipe { display: table; padding-left: 25px; }\
-		#de-cfg-wipe > div { display: table-row; }\
-		#de-cfg-wipe > div > label { display: table-cell; }\
 		.de-cfg-unvis { display: none; }\
 		#de-spell-panel { float: right; }\
 		#de-spell-panel > a { padding: 0 4px; text-align: center; }\
@@ -6735,7 +6697,9 @@ function isCompatible() {
 		pr = {};
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
-		setHanaRating();
+		$event($q('input[type="button"]', doc), {'click': function() {
+			setCookie('de-rating', $id('rating').value, 1e12);
+		}});
 		return false;
 	}
 	if(!dForm || $id('de-panel')) {
@@ -7277,33 +7241,37 @@ function initPage() {
 		} else {
 			docTitle = doc.title;
 		}
-		if(nav.Firefox > 10 || nav.WebKit) {
-			doc.addEventListener((nav.WebKit ? 'webkit' : 'moz') + 'visibilitychange', function() {
-				if(doc.mozHidden || doc.webkitHidden) {
+		if(Cfg['updThread'] === 1) {
+			if(nav.Firefox > 10 || nav.WebKit) {
+				doc.addEventListener((nav.WebKit ? 'webkit' : 'moz') + 'visibilitychange', function() {
+					if(doc.mozHidden || doc.webkitHidden) {
+						Favico.focused = false;
+					} else {
+						onVis();
+					}
+				}, false);
+				Favico.focused = !(doc.mozHidden || doc.webkitHidden);
+			} else {
+				window.onblur = function() {
 					Favico.focused = false;
-				} else {
-					onVis();
-				}
-			}, false);
-			Favico.focused = !(doc.mozHidden || doc.webkitHidden);
-		} else {
-			window.onblur = function() {
+				};
+				window.onfocus = onVis;
 				Favico.focused = false;
-			};
-			window.onfocus = onVis;
-			Favico.focused = false;
-			$event(window, {'mousemove': function mouseMove() {
-				Favico.focused = true;
-				$revent(window, {'mousemove': mouseMove});
-			}});
+				$event(window, {'mousemove': function mouseMove() {
+					Favico.focused = true;
+					$revent(window, {'mousemove': mouseMove});
+				}});
+			}
+			initThreadsUpdater();
 		}
-		initThreadsUpdater();
-		if(Cfg['updThread'] === 2 || Cfg['updThread'] === 3) {
+		if(Cfg['updThread'] === 2) {
 			$after($c('de-thread', doc), $event($add(
 				'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
 				'click': function(e) {
 					$pd(e);
-					loadNewPosts(true, function() { infoNewPosts(null, 0); });
+					loadNewPosts(true, function() {
+						infoNewPosts(null, 0);
+					});
 				}
 			}));
 		}
@@ -7399,11 +7367,11 @@ function doScript() {
 		readViewedPosts();
 	}
 	setPostsVisib();
+	savePostsVisib();
+	saveUserPostsVisib();
 	$log('readPosts');
 	scriptCSS();
 	$log('scriptCSS');
-	savePostsVisib();
-	saveUserPostsVisib();
 	endTime = Date.now() - initTime;
 }
 
