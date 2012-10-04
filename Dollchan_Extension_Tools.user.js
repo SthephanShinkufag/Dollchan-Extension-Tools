@@ -5717,6 +5717,7 @@ Spells.prototype = {
 					break;
 				}
 			default:
+				alert(sList[i])
 				this._error = Lng.seUnexpChar[lang] + sList[i] +
 					Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 				return false;
@@ -6237,7 +6238,8 @@ function toggleSpells() {
 
 function addSpell(spell, arg) {
 	var temp, fld = $id('de-spell-edit'),
-		val = fld && fld.value;
+		val = fld && fld.value,
+		chk = $q('input[info="hideBySpell"]', doc);
 	if(!val) {
 		if(!spells.readed) {
 			spells.read();
@@ -6256,7 +6258,7 @@ function addSpell(spell, arg) {
 			disableSpells();
 			spells.saveTemp();
 			if(fld) {
-				fld.previousSibling.firstChild.checked = !!(fld.value = spells.list);
+				chk.checked = !!(fld.value = spells.list);
 			}
 			if(spells.list) {
 				saveCfg('hideBySpell', 1);
@@ -6267,7 +6269,7 @@ function addSpell(spell, arg) {
 	}
 	spells.disable();
 	if(fld) {
-		fld.previousSibling.firstChild.checked = false;
+		chk.checked = false;
 	}
 	saveCfg('hideBySpell', 0);
 }
