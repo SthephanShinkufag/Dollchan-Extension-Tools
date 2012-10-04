@@ -5674,6 +5674,7 @@ Spells.prototype = {
 		for(; i < len; i++, col++) {
 			switch(sList[i]) {
 			case '\n': line++; col = 0;
+			case '\r':
 			case ' ': continue;
 			case '#': 
 				d = this._parseSpell(scope, sList, i);
@@ -5717,7 +5718,6 @@ Spells.prototype = {
 					break;
 				}
 			default:
-				alert(sList[i])
 				this._error = Lng.seUnexpChar[lang] + sList[i] +
 					Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 				return false;
