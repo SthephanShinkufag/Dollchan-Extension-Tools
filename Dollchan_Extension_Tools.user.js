@@ -1309,7 +1309,7 @@ function getCfgFilters() {
 					+ '10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div></div>'),
 				$New('div', null, [$new(
 					'textarea',
-					{'id': 'de-spell-edit', 'rows': 16, 'cols': 46, 'wrap': 'off'},
+					{'id': 'de-spell-edit', 'wrap': 'off'},
 					{'keydown': updRowMeter, 'scroll': updRowMeter}
 				)])
 			])
@@ -1613,8 +1613,8 @@ function addSettings(Set) {
 			])
 		])
 	]));
-	$id('de-spell-rowmeter').numLines = 17;
 	$c('de-cfg-tab', Set).click();
+	$id('de-spell-rowmeter').numLines = 17;
 	$id('de-spell-edit').setSelectionRange(0, 0);
 }
 
@@ -6298,8 +6298,8 @@ function scriptCSS() {
 		#de-cfg-info > span { display: inline-block; vertical-align: top; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
-		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
 		.de-cfg-body input[value=">"] { width: 20px; }\
@@ -6320,12 +6320,18 @@ function scriptCSS() {
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 		.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
-		#de-spell-panel { float: right; }\
-		#de-spell-panel > a { padding: 0 4px; text-align: center; }\
 		#de-cfg-wipe { display: table; padding-left: 25px; }\
 		#de-cfg-wipe > div { display: table-row; }\
 		#de-cfg-wipe > div > label { display: table-cell; }\
-		.de-cfg-unvis { display: none; }';
+		.de-cfg-unvis { display: none; }\
+		#de-spell-panel { float: right; }\
+		#de-spell-panel > a { padding: 0 4px; text-align: center; }\
+		#de-spell-div { display: table; }\
+		#de-spell-div > div { display: table-cell; vertical-align: top; }\
+		#de-spell-edit { padding: 2px; width: 340px; height: 255px; border: none !important; outline: none !important; }\
+		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 257px; text-align: right; color: #fff; font: 12px courier new; }\
+		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
+		#de-spell-rowmeter:lang(de) { background-color: #777; }';
 
 	// Main panel
 	x += '#de-btn-logo { margin-right: 3px; cursor: pointer; }\
@@ -6491,9 +6497,6 @@ function scriptCSS() {
 		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-spell-div { display: table; }\
-		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-rowmeter { padding: 0 3px 0 0; margin: 5px 0 0 0; overflow: hidden; width: 2em; height: 20em; text-align: right; background-color: #777; color: #fff; font: 12px courier new; }\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
