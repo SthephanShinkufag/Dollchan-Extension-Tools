@@ -1724,7 +1724,7 @@ function addHiddenTable(hid) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				setStored('DESU_Threads_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/, ''));
+				setStored('DESU_Threads_' + aib.dm, this.previousSibling.value.trim().replace(/\t|\n/g, ''));
 				window.location.reload();
 			})
 		])
