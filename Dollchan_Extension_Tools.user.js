@@ -483,6 +483,14 @@ function $btn(val, ttl, Fn) {
 	return $new('input', {'type': 'button', 'value': val, 'title': ttl}, {'click': Fn});
 }
 
+function $script(text) {
+	return doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null));
+}
+
+function $css(text) {
+	return doc.head.appendChild($new('style', {'type': 'text/css', 'text': text}, null));
+}
+
 function $if(cond, el) {
 	return cond ? el : null;
 }
@@ -592,10 +600,6 @@ function fixFunctions() {
 			xhr.send(null);
 		};
 	}
-}
-
-function addContentScript(text) {
-	doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null));
 }
 
 function getPost(el) {
@@ -1192,7 +1196,7 @@ function lBox(id, isBlock, Fn) {
 		}
 	}});
 	el.checked = Cfg[id];
-	return $New('label', isBlock ? {'class': 'de-blockinp'} : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
+	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + Lng.cfg[id][lang])]);
 }
 
 function inpTxt(id, size, Fn) {
@@ -1213,7 +1217,7 @@ function optSel(id, isBlock, Fn) {
 			fixSettings();
 		}
 	})).selectedIndex = Cfg[id];
-	return $New('label', isBlock ? {'class': 'de-blockinp'} : null, [el, $txt(' ' + x.txt[lang])]);
+	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
 
 function cfgTab(name) {
@@ -1332,7 +1336,7 @@ function getCfgPosts() {
 			inpTxt('updThrDelay', 4, null),
 			$txt(Lng.cfg['updThrDelay'][lang])
 		]),
-		$New('div', {'style': 'padding-left: 25px;'}, [
+		$New('div', {'class': 'de-cfg-depend'}, [
 			$if(!nav.WebKit, lBox('favIcoBlink', true, null)),
 			$if(nav.WebKit, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
@@ -1343,7 +1347,7 @@ function getCfgPosts() {
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
 		$if(!nav.noBlob, lBox('preLoadImgs', true, null)),
-		$if(!nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(!nav.noBlob, $New('div', {'class': 'de-cfg-depend'}, [
 			$if(!aib.abu && !aib.fch, lBox('findRarJPEG', true, null)),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
@@ -1361,7 +1365,7 @@ function getCfgPosts() {
 			}})
 		]),
 		lBox('correctTime', true, dateTime.toggleSettings),
-		$New('div', {'style': 'padding-left: 25px;'}, [
+		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
 				$txt(Lng.cfg['timeOffset'][lang])
@@ -1383,7 +1387,7 @@ function getCfgPosts() {
 function getCfgLinks() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-links'}, [
 		optSel('linksNavig', true, null),
-		$New('div', {'style': 'padding-left: 25px;'}, [
+		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				inpTxt('linksOver', 6, function() {
 					saveCfg('linksOver', +this.value | 0);
@@ -1405,7 +1409,7 @@ function getCfgLinks() {
 		lBox('addMP3', true, null),
 		lBox('addImgs', true, null),
 		optSel('addYouTube', true, null),
-		$New('div', {'style': 'padding-left: 25px;'}, [
+		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				optSel('YTubeType', false, null),
 				inpTxt('YTubeWidth', 6, null),
@@ -1422,7 +1426,7 @@ function getCfgLinks() {
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
-		$if(!nav.Safari && !nav.noBlob, $New('div', {'style': 'padding-left: 25px;'}, [
+		$if(!nav.Safari && !nav.noBlob, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('postSameImg', true, null),
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
@@ -1495,17 +1499,17 @@ function getCfgCommon() {
 		lBox('closePopups', true, null),
 		$if(!nav.Opera, $New('div', null, [
 			lBox('updScript', true, null),
-			$New('div', {'id': 'de-upd-cont', 'style': 'padding: 2px 0 10px 25px;'}, [
+			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', true, null),
 				$btn(Lng.checkNow[lang], '', function() {
-					var el = $id('de-updresult');
+					var el = $id('de-cfg-updresult');
 					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
 					checkForUpdates(true, function(html) {
 						el.innerHTML = html;
 					});
 				})
 			]),
-			$new('div', {'id': 'de-updresult', 'style': 'font-size: 1.1em; text-align: center'}, null)
+			$new('div', {'id': 'de-cfg-updresult'}, null)
 		]))
 	]);
 }
@@ -2351,7 +2355,7 @@ function processInput() {
 					var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
 							'id': 'de-file-rar',
 							'type': 'file',
-							'style': 'display: none'
+							'style': 'display: none;'
 						}, null)),
 						inp = $q('input[type="file"]', this.parentNode),
 						btn = this;
@@ -3155,7 +3159,7 @@ function addPostButtons(post) {
 ==============================================================================*/
 
 function prepareCFeatures() {
-	addContentScript(
+	$script(
 		'function de_removeSel() {\
 			var el = document.getElementById("de-select");\
 			if(el) {\
@@ -3244,7 +3248,7 @@ function prepareCFeatures() {
 	if(nav.noBlob) {
 		return;
 	}
-	addContentScript('(function() {\
+	$script('(function() {\
 		"use strict";\
 		window.addEventListener("message", function(e) {\
 			var id = e.data[0],\
@@ -4024,11 +4028,9 @@ function setPviewPosition(link, pView, isAnim) {
 		return;
 	}
 	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-	doc.head.appendChild($new('style', {
-		'class': 'de-css-move',
-		'type': 'text/css',
-		'text': '@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'
-	}, null));
+	$attr($css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'), {
+		'class': 'de-css-move'
+	});
 	if(pView.newPos) {
 		pView.style.cssText = pView.newPos;
 		pView.removeEventListener(nav.animEnd, PviewMoved, false);
@@ -6258,7 +6260,8 @@ function scriptCSS() {
 		};
 
 	// Settings window
-	x += '#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+	x += '.de-block { display: block; }\
+		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#de-cfg-info > span { display: inline-block; vertical-align: top; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
@@ -6267,13 +6270,13 @@ function scriptCSS() {
 		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
 		.de-cfg-body input[value=">"] { width: 20px; }\
-		.de-blockinp { display: block; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
 		#de-cfg-btns { padding: 7px 2px 2px; }\
 		#de-cfg-bar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
+		.de-cfg-depend { padding-left: 25px; }\
 		.de-cfg-tab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
 		.de-cfg-tab-back { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
@@ -6285,6 +6288,7 @@ function scriptCSS() {
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 		.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 		.de-cfg-unvis { display: none; }\
+		#de-cfg-updresult { padding: 3px 0; font-size: 1.1em; text-align: center; }\
 		#de-spell-panel { float: right; }\
 		#de-spell-panel > a { padding: 0 4px; text-align: center; }\
 		#de-spell-div { display: table; }\
@@ -6333,7 +6337,7 @@ function scriptCSS() {
 	// Post panel
 	x += '.de-ppanel { margin-left: 4px; }\
 		.de-post-note { color: inherit; font: italic bold 12px serif; }\
-		.de-ppanel > span, .de-btn-src { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.de-ppanel > span, .de-btn-src, .de-btn-expthr { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
@@ -6472,7 +6476,7 @@ function scriptCSS() {
 		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
 	}
 	if(aib.krau) {
-		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr' + (liteMode ? ', div[id^="disclaimer"]' : '') + ' { display: none !important; }\
+		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
 			.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
 			.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
@@ -6519,9 +6523,6 @@ function scriptCSS() {
 			x += '#bodywrap3 > hr, .blotter { display: none !important; }';
 		}
 	}
-	if(liteMode) {
-		x += 'body > :not(' + (aib.brit ? '.threadz' : 'form') + ') { display: none; }'
-	}
 
 	if(nav.Firefox < 16) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -6530,10 +6531,8 @@ function scriptCSS() {
 		}
 	}
 
-	$append(doc.head, [
-		$new('style', {'id': 'de-css', 'type': 'text/css', 'text': x}, null),
-		$new('style', {'id': 'de-css-dynamic', 'type': 'text/css'}, null)
-	]);
+	$attr($css(x), {'id': 'de-css'});
+	$attr($css(''), {'id': 'de-css-dynamic'});
 	x = gif = cont = null;
 	updateCSS();
 	$disp(dForm);
@@ -6670,24 +6669,22 @@ function isCompatible() {
 	case '': break;
 	case 'de-iframe-pform':
 	case 'de-iframe-dform':
-		addContentScript((
+		$script((
 			'window.top.postMessage("J' + window.name +
 			'$#$' + findSubmitError(doc) + '$#$' + getFinalURL(doc, true) + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
-		var intvr = setInterval(function() {
+		var intrv = setInterval(function() {
 			$del($id('de-fav-script'));
-			doc.head.appendChild($new('script', {
-				'id': 'de-fav-script',
-				'type': 'text/javascript',
-				'text': 'window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'
-			}, null));
+			$attr($script('window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'), {
+				'id': 'de-fav-script'
+			});
 		}, 1500);
 		$event(window, {'load': function() {
 			setTimeout(function() {
-				clearInterval(intvr);
-				intvr = null;
+				clearInterval(intrv);
+				intrv = null;
 			}, 3e4);
 		}});
 		liteMode = true;
@@ -7183,14 +7180,26 @@ function replacePost(el) {
 
 function replaceDelform() {
 	$disp(doc.body);
-	nav.insBefore(dForm, replaceString(dForm.outerHTML || new XMLSerializer().serializeToString(dForm)));
-	dForm.style.display = 'none';
-	dForm.id = 'de-dform-old';
-	dForm = dForm.previousSibling;
-	$disp(doc.body);
-	$event(window, {'load': function() {
-		$del($id('de-dform-old'));
-	}});
+	var html = dForm.outerHTML || new XMLSerializer().serializeToString(dForm);
+	if(liteMode) {
+		nav.insBefore(doc.body.firstElementChild, html);
+		dForm = doc.body.firstElementChild;
+		$event(window, {'load': function() {
+			while(dForm.nextSibling) {
+				$del(dForm.nextSibling);
+			}
+			$disp(doc.body);
+		}});
+	} else {
+		nav.insBefore(dForm, replaceString(html));
+		dForm.style.display = 'none';
+		dForm.id = 'de-dform-old';
+		dForm = dForm.previousSibling;
+		$disp(doc.body);
+		$event(window, {'load': function() {
+			$del($id('de-dform-old'));
+		}});
+	}
 }
 
 function removePageTrash(el) {
@@ -7296,7 +7305,7 @@ function doScript() {
 	$log('initBoard');
 	readCfg();
 	$log('readCfg');
-	if(aib.rep) {
+	if(aib.rep || liteMode) {
 		replaceDelform();
 		$log('replaceDelform');
 	}
