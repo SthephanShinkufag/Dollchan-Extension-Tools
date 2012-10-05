@@ -6486,7 +6486,7 @@ function scriptCSS() {
 			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover { display: none !important; }';
+			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
 	} else if(aib._420) {
 		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #content > hr { display: none !important; }\
 			.de-thr-hid { margin: 1em 0; }';
@@ -6926,8 +6926,8 @@ function getImageboard() {
 		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
 	aib.qRef =
-		aib.fch ? '.postInfo > :last-child' :
-		aib.tiny ? '.intro > :last-child' :
+		aib.fch ? '.postInfo > .postNum' :
+		aib.tiny ? '.intro > .post_no + a' :
 		aib.krau ? '.postnumber' :
 		aib.gazo ? '.del' :
 		'.reflink';
