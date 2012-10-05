@@ -6213,7 +6213,7 @@ function addSpell(spell, arg) {
 	}
 	if(temp = spells.parseText(val)) {
 		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
-		val = temp[0].split(new RegExp('(?:^|[&|]?[\\s\\n]*)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
+		val = temp[0].split(new RegExp('(?:^|\\|?[\\s\\n]*)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
 		if(val.length === 1) {
 			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
 		} else {
