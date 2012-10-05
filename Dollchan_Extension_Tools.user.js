@@ -1962,7 +1962,7 @@ function selectPostHider(post) {
 		if(post.img[0]) {
 			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
 		} else {
-			addSpell('!#img', '');
+			addSpell('(#all', ' & !#img)');
 		}
 	};
 	a[2].onclick = function(e) {
@@ -1970,7 +1970,7 @@ function selectPostHider(post) {
 		if(post.img[0]) {
 			addSpell('#ihash', '(' + getImgHash(post) + ')');
 		} else {
-			addSpell('!#img', '');
+			addSpell('(#all', ' & !#img)');
 		}
 	};
 	a[3].onclick = function(e) {
@@ -5086,7 +5086,7 @@ function hideBySameText(post) {
 		});
 		saveUserPostsVisib();
 	} else {
-		addSpell('!#tlen', '');
+		addSpell('(#all', ' & !#tlen)');
 	}
 	hid = num = wrds = null;
 }
@@ -6213,7 +6213,7 @@ function addSpell(spell, arg) {
 	}
 	if(temp = spells.parseText(val)) {
 		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
-		val = temp[0].split(new RegExp('(?:^|\\n)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
+		val = temp[0].split(new RegExp('(?:^|[&|]?[\\s\\n]*)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
 		if(val.length === 1) {
 			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
 		} else {
