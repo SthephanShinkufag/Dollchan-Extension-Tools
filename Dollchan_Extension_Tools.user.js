@@ -3587,8 +3587,8 @@ function addLinkTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
-	$each($Q('embed', post || dForm), function(el) {
-		var src, pst, m = el.src.match(getTubePattern());
+	$each($Q('embed, object', post || dForm), function(el) {
+		var src, pst, m = (el.src || el.data).match(getTubePattern());
 		if(!m) {
 			return;
 		}
