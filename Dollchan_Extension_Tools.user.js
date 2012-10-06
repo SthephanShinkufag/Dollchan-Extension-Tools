@@ -6804,7 +6804,7 @@ function getNavigator() {
 
 function getPage() {
 	var url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]+?)\\/?)?' +
+		'^(?:\\/?([^\\.]*?)\\/?)?' +
 		'(' + RegExp.quote(aib.res) + ')?' +
 		'(\\d+|index|wakaba.*?\\d+)?' +
 		'(\\.(?:[xme]*html?|php))?$'
