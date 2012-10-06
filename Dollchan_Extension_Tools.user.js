@@ -7046,6 +7046,9 @@ function getImageboard() {
 		aib._410 ? function(post) {
 			return $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 		} :
+		aib.nul ? function(post) {
+			return !!$q('a[href="mailto:sage"], a[href^="http://cloudflare.com"]', post);
+		} :
 		function(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
