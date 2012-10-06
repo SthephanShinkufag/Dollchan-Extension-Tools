@@ -6470,7 +6470,7 @@ function scriptCSS() {
 		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
-		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode { display: none !important; }\
+		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	} else if(aib.mlpg) {
 		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
@@ -6497,7 +6497,7 @@ function scriptCSS() {
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, a[href="#top"], #posttypeindicator, .content-background > hr { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, #posttypeindicator, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
@@ -7071,7 +7071,8 @@ function parseDelform(el, dc, Fn) {
 		aib.qTable =
 			aib.fch || aib.mlpg ? '.replyContainer' :
 			aib.brit ? 'div[id^="replies"] > table' :
-			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'form > table, div > table' :
+			aib.tire ? 'table:not(.postfiles)' :
+			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'div > table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
