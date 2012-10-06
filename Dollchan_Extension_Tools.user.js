@@ -3587,7 +3587,7 @@ function addLinkTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
-	$each($Q('embed, object', post || dForm), function(el) {
+	$each($Q('embed, object, iframe', post || dForm), function(el) {
 		var src, pst, m = (el.src || el.data).match(getTubePattern());
 		if(!m) {
 			return;
@@ -3599,7 +3599,7 @@ function addLinkTube(post) {
 		pst = post || getPost(el);
 		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="de-ytube-ext"><a href="' + src + '">' +
 			src + '</a></p>'));
-		$del(el.parentNode);
+		$del(el);
 	});
 	$each($Q('a[href*="youtu"]', post || dForm), function(link) {
 		var pst, el, msg, prev, m = link.href.match(getTubePattern());
@@ -6909,7 +6909,7 @@ function getImageboard() {
 		aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
 	}
 	fixFunctions();
-	aib.ru = aib.hana || aib.tinyIb || aib.tire || h === '02ch.net';
+	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || h === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny || aib.fch ? 'post reply' :
