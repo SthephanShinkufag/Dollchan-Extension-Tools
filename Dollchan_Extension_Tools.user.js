@@ -4334,7 +4334,7 @@ function newPost(thr, post, pNum, i) {
 	if(Cfg['preLoadImgs']) {
 		window.postMessage('K' + pNum, '*');
 	}
-	if(aib.tiny) {
+	if(aib.tiny && !aib.mlpg) {
 		thr.appendChild(doc.createElement('br'));
 	}
 	return +!post.hide;
@@ -6916,8 +6916,7 @@ function getImageboard() {
 		'reply';
 	aib.cOPost =
 		aib.kus ? 'postnode' :
-		aib.fch ? 'op' :
-		aib.mlpg ? 'opMain' :
+		aib.fch || aib.mlpg ? 'op' :
 		'oppost';
 	aib.qThread =
 		aib.krau ? '.thread_body' :
@@ -7072,7 +7071,7 @@ function parseDelform(el, dc, Fn) {
 			aib.fch || aib.mlpg ? '.replyContainer' :
 			aib.brit ? 'div[id^="replies"] > table' :
 			aib.tire ? 'table:not(.postfiles)' :
-			!aib.tiny && (aib.gazo || $q('td.' + aib.cReply, el)) ? 'div > table' :
+			aib.gazo || $q('td.' + aib.cReply, el) ? 'div > table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
