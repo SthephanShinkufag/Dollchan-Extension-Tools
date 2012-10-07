@@ -6496,7 +6496,8 @@ function scriptCSS() {
 		} else if(aib._7ch) {
 			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
 		} else if(aib.futa) {
-			x += '.de-content, .de-cfg-body { font-family: arial; }\
+			x += 'span { font-size: inherit; }\
+				.de-content, .de-cfg-body { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }';
 		} else if(aib.brit) {
