@@ -4242,7 +4242,10 @@ function eventRefLink(el) {
 function ajaxGetPosts(url, b, tNum, parse, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': nav.fixLink(url || (fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt))),
+		'url': url || nav.fixLink(fixBrd(b) + (
+			aib.gazo ? ('futaba.php?res=' + tNum) :
+			(aib.res + tNum + (aib.tire ? '.html' : docExt))
+		)),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return;
@@ -6806,11 +6809,14 @@ function getPage() {
 	var url = (window.location.pathname || '').match(new RegExp(
 		'^(?:\\/?([^\\.]*?)\\/?)?' +
 		'(' + RegExp.quote(aib.res) + ')?' +
-		'(\\d+|index|wakaba.*?\\d+)?' +
+		'(\\d+|index|wakaba.*?\\d+|futaba)?' +
 		'(\\.(?:[xme]*html?|php))?$'
 	));
 	brd = url[1] || (aib.dfwk ? 'df' : '');
-	TNum = url[2] ? url[3] : false;
+	TNum =
+		url[2] ? url[3] :
+		url[3] === 'futaba' ? (window.location.search.match(/\d+/) || [false])[0] :
+		false;
 	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	docExt = url[4] || (
 		aib.fch || aib.erns ? '' :
@@ -6859,18 +6865,18 @@ function getImageboard() {
 	switch(h) {
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
-	case '2chan.net': aib.gazo = true; break;
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
 	default:
 		aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
+		aib.gazo = $xb('.//form[contains(@action,"futaba.php")]', doc);
 		aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
-		aib.gazo ? 'form:nth-of-type(2)' :
+		aib.gazo ? 'form:not([enctype])' :
 		'#delform, form[name="delform"]';
 	aib.getTNum =
 		aib.fch || aib.krau || aib.gazo || aib.tiny ? function(op) {
@@ -6928,7 +6934,7 @@ function getImageboard() {
 		aib.fch ? '.postInfo > .postNum' :
 		aib.tiny ? '.intro > .post_no + a' :
 		aib.krau ? '.postnumber' :
-		aib.gazo ? '.del' :
+		aib.gazo ? '.del, font[color="#117743"]' :
 		'.reflink';
 	aib.qMsg =
 		aib.hana ? '.postbody' :
@@ -7074,7 +7080,7 @@ function parseDelform(el, dc, Fn) {
 			aib.fch || aib.mlpg ? '.replyContainer' :
 			aib.brit ? 'div[id^="replies"] > table' :
 			aib.tire ? 'table:not(.postfiles)' :
-			aib.gazo || $q('td.' + aib.cReply, el) ? 'div > table' :
+			aib.gazo || $q('td.' + aib.cReply, el) ? 'form > table, div > table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
