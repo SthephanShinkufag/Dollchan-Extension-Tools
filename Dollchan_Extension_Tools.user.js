@@ -644,25 +644,6 @@ function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
 }
 
-function getThrdUrl(h, b, tNum) {
-	return '//' + h + fixBrd(b) + (
-		/(?:^|\.)krautchan\.net$/.test(h) ? 'thread-' : 'res/'
-	) + tNum + (
-		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? '.xhtml' :
-		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
-		/(?:^|\.)2chan\.net$/.test(h) ? '.htm' :
-		'.html'
-	);
-}
-
-function getPageUrl(h, b, p) {
-	return fixBrd(b) + (
-		p > 0 ? (p + docExt) :
-		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? 'index.xhtml' :
-		''
-	);
-}
-
 function getPrettyJSON(obj, indent) {
 	var sJSON, iCount, isArr = obj instanceof Array;
 	if(isArr) {
@@ -968,7 +949,7 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
 	btn.className = 'de-btn-fav-sel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1033,16 +1014,8 @@ function addPanel() {
 						selectAjaxPages();
 					}
 				}, 'de_delSelection(event)'),
-				pButton(
-					'goback', null,
-					'//' + aib.host + getPageUrl(aib.host, brd, pageNum - 1),
-					null, null
-				),
-				$if(!TNum, pButton(
-					'gonext', null,
-					'//' + aib.host + getPageUrl(aib.host, brd, pageNum + 1),
-					null, null
-				)),
+				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
+				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
 					$pd(e);
 					window.scrollTo(0, 0);
@@ -1688,13 +1661,12 @@ function addHiddenTable(hid) {
 	]);
 	if(!$isEmpty(hThrds)) {
 		for(b in hThrds) {
-			block = contentBlock(hid, $add('<b>' + b + '</b>'));
+			block = contentBlock(hid, $add('<b>/' + b + '</b>'));
 			for(tNum in hThrds[b]) {
 				block.appendChild($New('div', {'class': 'de-entry', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
-						$add('<a href="' + getThrdUrl(aib.host, b, tNum) +
-							'" target="_blank">№' + tNum + '</a>'),
+						$add('<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a>'),
 						$txt(' - ' + hThrds[b][tNum])
 					])
 				]));
@@ -1744,15 +1716,13 @@ function addFavoritesTable(fav) {
 	var h, b, tNum, block;
 	for(h in Favor) {
 		for(b in Favor[h]) {
-			block = contentBlock(
-				fav, $add('<a href="http://' + h + getPageUrl(h, b, 0) + '">' + h + '/' + b + '</a>')
-			);
+			block = contentBlock(fav, $add('<b>' + h + '/' + b + '</b>'));
 			for(tNum in Favor[h][b]) {
 				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$add('<input type="checkbox" />'),
 						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-						$add('<a href="' + getThrdUrl(h, b, tNum) + '">№' + tNum + '</a>'),
+						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
 						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 						$add('<span class="de-fav-inf-page"></span>'),
 						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
@@ -1772,7 +1742,8 @@ function addFavoritesTable(fav) {
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 			$each($C('de-entry', doc), function(el) {
-				var c, arr = el.getAttribute('info').split(';');
+				var c, arr = el.getAttribute('info').split(';'),
+					f = Favor[arr[0]][arr[1]][arr[2]];
 				if(arr[0] !== aib.host) {
 					return;
 				}
@@ -1780,14 +1751,14 @@ function addFavoritesTable(fav) {
 				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
 					var cnt = err ? err : els.length + 1;
 					c.textContent = cnt;
-					if(!err && cnt > Favor[arr[0]][arr[1]][arr[2]].cnt) {
+					if(!err && cnt > f.cnt) {
 						c.className = 'de-fav-inf-new';
-						Favor[arr[0]][arr[1]][arr[2]].cnt = cnt;
+						f.cnt = cnt;
 						setStored('DESU_Favorites', JSON.stringify(Favor));
 					} else {
 						c.className = 'de-fav-inf-old';
 					}
-					c = arr = null;
+					c = f = null;
 				});
 			});
 		}),
@@ -1823,13 +1794,15 @@ function addFavoritesTable(fav) {
 				if(nav.Opera && arr[0] !== aib.host) {
 					return;
 				}
-				ajaxGetPosts(getThrdUrl(arr[0], arr[1], arr[2]), null, null, false, function(a, dc, err) {
-					if(err) {
-						removeFavorites(arr[0], arr[1], arr[2]);
-						saveFavorites(JSON.stringify(Favor));
+				ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], null, null, false,
+					function(a, dc, err) {
+						if(err) {
+							removeFavorites(arr[0], arr[1], arr[2]);
+							saveFavorites(JSON.stringify(Favor));
+						}
+						arr = null;
 					}
-					arr = null;
-				});
+				);
 			});
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
@@ -2172,9 +2145,9 @@ function initKeyNavig() {
 			if(TNum) {
 				showQuickReply(Posts[pIndex]);
 			} else if(nav.Firefox) {
-				GM_openInTab(getThrdUrl(aib.host, brd, Threads[curTh].num), false, true);
+				GM_openInTab(aib.getThrdUrl(brd, Threads[curTh].num), false, true);
 			} else {
-				window.open(getThrdUrl(aib.host, brd, Threads[curTh].num), '_blank');
+				window.open(aib.getThrdUrl(brd, Threads[curTh].num), '_blank');
 			}
 			return;
 		}
@@ -2657,7 +2630,7 @@ function getFinalURL(dc, iframe) {
 		return window.location;
 	} else {
 		var el = $q(aib.qDForm, dc);
-		return el ? getThrdUrl(aib.host, brd, aib.getTNum(el)) : '';
+		return el ? aib.getThrdUrl(brd, aib.getTNum(el)) : '';
 	}
 }
 
@@ -2955,7 +2928,7 @@ function showQuickReply(post) {
 	}
 	$txtInsert(pr.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 	if(Cfg['addPostForm'] === 3) {
-		$attr($t('a', $id('de-qarea-target')), {'href': getThrdUrl(aib.host, brd, tNum), 'text': '#' + tNum});
+		$attr($t('a', $id('de-qarea-target')), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
 	}
 }
 
@@ -4242,10 +4215,7 @@ function eventRefLink(el) {
 function ajaxGetPosts(url, b, tNum, parse, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': url || nav.fixLink(fixBrd(b) + (
-			aib.futa ? ('futaba.php?res=' + tNum) :
-			(aib.res + tNum + (aib.tire ? '.html' : docExt))
-		)),
+		'url': nav.fixLink(url || aib.getThrdUrl(b, tNum)),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return;
@@ -4433,7 +4403,7 @@ function loadThread(op, last, Fn) {
 				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
 			Threads[Threads.indexOf(op)] = impP;
 			nav.insAfter(
-				impP.btns, '<span>&nbsp;[<a href="' + getThrdUrl(aib.host, brd, impP.num) + '">' +
+				impP.btns, '<span>&nbsp;[<a href="' + aib.getThrdUrl(brd, impP.num) + '">' +
 					Lng.reply[lang] + '</a>]</span>'
 			);
 			if(last === 1 || last >= len) {
@@ -4498,7 +4468,7 @@ function loadFavorThread() {
 }
 
 function loadPage(page, i, Fn) {
-	ajaxGetPosts(getPageUrl(aib.host, brd, i), null, null, false, function(df, dc, err) {
+	ajaxGetPosts(aib.getPageUrl(brd, i), null, null, false, function(df, dc, err) {
 		var el;
 		df = doc.importNode($q(aib.qDForm, dc), true);
 		while(el = df.firstChild) {
@@ -6809,20 +6779,22 @@ function getPage() {
 	var url = (window.location.pathname || '').match(new RegExp(
 		'^(?:\\/?([^\\.]*?)\\/?)?' +
 		'(' + RegExp.quote(aib.res) + ')?' +
-		'(\\d+|index|wakaba.*?\\d+|futaba)?' +
-		'(\\.(?:[xme]*html?|php))?$'
+		'(\\d+|index|wakaba|futaba)?' +
+		'(\\.(?:[a-z]+))?$'
 	));
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	TNum =
 		url[2] ? url[3] :
-		url[3] === 'futaba' ? (window.location.search.match(/\d+/) || [false])[0] :
+		aib.futa ? (window.location.search.match(/\d+/) || [false])[0] :
 		false;
-	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
-	docExt = url[4] || (
+	pageNum = url[3] && !TNum ? +(
+		aib.erns ? (window.location.search.match(/\d+/) || [0])[0] : url[3]
+	) || 0 : 0;
+	docExt = (
 		aib.fch || aib.erns ? '' :
 		aib.futa ? '.htm' :
 		aib._420 ? '.php' :
-		'.html'
+		url[4] || '.html'
 	);
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 }
@@ -6978,7 +6950,20 @@ function getImageboard() {
 	aib.reCrossLinks = new RegExp(
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
 		'\\/([a-z0-9]+)\\/' + RegExp.quote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
-	)
+	);
+	aib.getThrdUrl = function(b, tNum) {
+		return fixBrd(b) + (
+			aib.futa ? ('futaba.php?res=' + tNum) :
+			(aib.res + tNum + (aib.tire ? '.html' : docExt))
+		);
+	}
+	aib.getPageUrl = function(b, p) {
+		return fixBrd(b) + (
+			p > 0 ? (aib.erns ? 'wakaba.pl?task=show&page=' + p : p + docExt) :
+			aib.futa ? 'futaba.htm' :
+			aib.hana ? 'index.xhtml' : ''
+		);
+	};
 	aib.getPicWrap =
 		aib.hana ? function(el) {
 			if(!el.previousElementSibling) {
@@ -7226,7 +7211,7 @@ function removePageTrash(el) {
 		for(var node, i = el.length - 1; i >= 0; i--) {
 			node = el[i].firstChild;
 			node.onclick = null;
-			node.href = getThrdUrl(aib.host, brd, node.textContent);
+			node.href = aib.getThrdUrl(brd, node.textContent);
 			node.target = '_blank';
 		}
 	}
