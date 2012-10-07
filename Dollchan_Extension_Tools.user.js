@@ -2925,7 +2925,7 @@ function showQuickReply(post) {
 			$before(
 				pr.form.firstChild, 
 				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
-					aib.fch || aib.gazo ? 'resto' :
+					aib.fch || aib.futa ? 'resto' :
 					aib.tiny ? 'thread' :
 					'parent'
 				) + '">')
@@ -4243,7 +4243,7 @@ function ajaxGetPosts(url, b, tNum, parse, Fn) {
 	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': url || nav.fixLink(fixBrd(b) + (
-			aib.gazo ? ('futaba.php?res=' + tNum) :
+			aib.futa ? ('futaba.php?res=' + tNum) :
 			(aib.res + tNum + (aib.tire ? '.html' : docExt))
 		)),
 		'onreadystatechange': function(xhr) {
@@ -6511,7 +6511,7 @@ function scriptCSS() {
 				.de-ytube-obj + div { clear: left; }';
 		} else if(aib._7ch) {
 			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
-		} else if(aib.gazo) {
+		} else if(aib.futa) {
 			x += '.de-content, .de-cfg-body { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }';
@@ -6580,7 +6580,7 @@ function updateCSS() {
 		x += 'blockquote, blockquote > p, .code_part { max-height: 100% !important; overflow: visible !important; }';
 	}
 	if(Cfg['noBoardRule']) {
-		x += (aib.gazo ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
+		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
 	if(aib.abu && Cfg['addYouTube']) {
 		x += 'div[id^="post_video"] { display: none !important; }';
@@ -6820,7 +6820,7 @@ function getPage() {
 	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	docExt = url[4] || (
 		aib.fch || aib.erns ? '' :
-		aib.gazo ? '.htm' :
+		aib.futa ? '.htm' :
 		aib._420 ? '.php' :
 		'.html'
 	);
@@ -6869,17 +6869,17 @@ function getImageboard() {
 	case '420chan.org': aib._420 = true; break;
 	default:
 		aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
-		aib.gazo = $xb('.//form[contains(@action,"futaba.php")]', doc);
+		aib.futa = $xb('.//form[contains(@action,"futaba.php")]', doc);
 		aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
-		aib.gazo ? 'form:not([enctype])' :
+		aib.futa ? 'form:not([enctype])' :
 		'#delform, form[name="delform"]';
 	aib.getTNum =
-		aib.fch || aib.krau || aib.gazo || aib.tiny ? function(op) {
+		aib.fch || aib.krau || aib.futa || aib.tiny ? function(op) {
 			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 		} :
 		aib.hana || aib.brit ? function(op) {
@@ -6934,7 +6934,7 @@ function getImageboard() {
 		aib.fch ? '.postInfo > .postNum' :
 		aib.tiny ? '.intro > .post_no + a' :
 		aib.krau ? '.postnumber' :
-		aib.gazo ? '.del, font[color="#117743"]' :
+		aib.futa ? '.del, font[color="#117743"]' :
 		'.reflink';
 	aib.qMsg =
 		aib.hana ? '.postbody' :
@@ -6946,12 +6946,12 @@ function getImageboard() {
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"],' +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"],' +
-		(aib.gazo ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]'
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"],' +
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"],' +
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]'
 	);
 	aib.qPostForm =
-		aib.gazo ? 'form:nth-of-type(1)' :
+		aib.futa ? 'form:nth-of-type(1)' :
 		aib.fch || aib.tiny ? 'form[name="post"]' :
 		'#postform';
 	aib.cTitle =
@@ -6960,7 +6960,7 @@ function getImageboard() {
 		aib.hana ? 'replytitle' :
 		'filetitle';
 	aib.qOmitted =
-		aib.gazo ? 'font[color="#707070"]' :
+		aib.futa ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
 		aib.hana ? '.abbrev' :
 		aib.fch ? '.summary.desktop' :
@@ -6991,7 +6991,7 @@ function getImageboard() {
 		} :
 		getPost;
 	aib.getPosts =
-		aib.gazo ? function(thr) {
+		aib.futa ? function(thr) {
 			return $Q('td:nth-child(2)', thr);
 		} :
 		aib.tiny || aib.fch ? function(thr) {
@@ -7035,7 +7035,7 @@ function getImageboard() {
 			}
 			return op;
 		};
-	aib.getPNum = aib.gazo ?
+	aib.getPNum = aib.futa ?
 		function(post) {
 			return $t('input', post).name;
 		} :
@@ -7080,7 +7080,7 @@ function parseDelform(el, dc, Fn) {
 			aib.fch || aib.mlpg ? '.replyContainer' :
 			aib.brit ? 'div[id^="replies"] > table' :
 			aib.tire ? 'table:not(.postfiles)' :
-			aib.gazo || $q('td.' + aib.cReply, el) ? 'form > table, div > table' :
+			aib.futa || $q('td.' + aib.cReply, el) ? 'form > table, div > table' :
 			false;
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
