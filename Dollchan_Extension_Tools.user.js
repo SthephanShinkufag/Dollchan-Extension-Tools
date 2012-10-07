@@ -644,6 +644,17 @@ function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
 }
 
+function getThrdUrl(h, b, tNum) {
+	return fixBrd(b) + (
+		/(?:^|\.)krautchan\.net$/.test(h) ? 'thread-' : 'res/'
+	) + tNum + (
+		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? '.xhtml' :
+		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
+		/(?:^|\.)2chan\.net$/.test(h) ? '.htm' :
+		'.html'
+	);
+}
+
 function getPrettyJSON(obj, indent) {
 	var sJSON, iCount, isArr = obj instanceof Array;
 	if(isArr) {
@@ -1718,6 +1729,9 @@ function addFavoritesTable(fav) {
 		for(b in Favor[h]) {
 			block = contentBlock(fav, $add('<b>' + h + '/' + b + '</b>'));
 			for(tNum in Favor[h][b]) {
+				if(!Favor[h][b][tNum]['url']) {
+					Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
+				}
 				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$add('<input type="checkbox" />'),
