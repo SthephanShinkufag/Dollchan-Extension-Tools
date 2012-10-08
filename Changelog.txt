@@ -1,3 +1,22 @@
+Oct 06, 2012
+	- Better futaba support
+		+ Теоретическая поддержка любого имиджборда на движке футабы
+Oct 03, 2012
+	- Remove "Count+click" thread updater option
+		+ Removed option "Posts" > "[Count+click] AJAX thread update"
+		+ Убрана опция "Посты" > "[Счет+клик] AJAX обновление треда"
+Oct 03, 2012
+	- Introduce row-meter for spells editor
+		+ New line counter for spells textarea
+		+ Добавлен счетчик строк для редактора спеллов
+	- Mark user hide/unhide button by colour
+		+ Post hide buttons change their colour in manually hidden posts
+		+ Кнопки постов, скрытых пользователм вручную, меняют цвет
+	- Remove 'Apply filters to threads' option
+		+ Removed option "Filters" > "Apply filters to threads"
+		+ Убрана опция "Фильтры" > "Применять фильтры к тредам"
+	- Preview of hidden thread on №thread mouseover
+		+ Превью скрытых тредов по наведению мыши на №треда
 Oct 01, 2012
 	- Convert wipe detectors to spells
 		+ Anti-wipe detectors converted to #wipe() spell

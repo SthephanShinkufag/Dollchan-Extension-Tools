@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.9.30.0
+// @version			12.10.8.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.9.30.0',
+	'version':	'12.10.8.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
 	'menuHiddBtn':	1,		// menu on hide button
