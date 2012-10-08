@@ -2425,7 +2425,7 @@ function doPostformChanges(img, _img, el) {
 		}
 		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
-			pr.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+			pr.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 		}
 		if(pr.isQuick) {
 			$disp($id('de-qarea'));
@@ -2806,7 +2806,7 @@ function getReplyImgData(dat, delExtraData) {
 		}
 		if(rExif) {
 			out = new Uint8Array(len = j + 18);
-			out.set(aProto.concat.apply([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1], (jpgDat || [0, 0, 1, 0, 1])));
+			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1].concat(jpgDat || [0, 0, 1, 0, 1]));
 			for(i = 2, j = 20; j < len; i++, j++) {
 				out[j] = dat[i];
 			}
