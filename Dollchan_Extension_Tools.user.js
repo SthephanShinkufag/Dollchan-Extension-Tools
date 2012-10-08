@@ -861,7 +861,7 @@ function toggleCfg(id) {
 function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
-		var data = (sessionStorage['de-hidden'] || '').split(',');
+		var data = (sessionStorage['de-hidden-' + brd + TNum] || '').split(',');
 		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
 			sVis = data[1].split('');
 			if(data = sessionStorage['de-deleted']) {
@@ -879,7 +879,7 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['de-hidden'] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
+		sessionStorage['de-hidden-' + brd + TNum] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
 	}
 	toggleContent('hid', true);
 }
