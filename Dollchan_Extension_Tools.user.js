@@ -5743,7 +5743,8 @@ Spells.prototype = {
 				}
 			} else {
 				temp = spell[2];
-				if(temp && (temp[0] !== brd || ((temp[1] === -1 && TNum) || (temp[1] && temp[1] !== TNum)))) {
+				GM_log(JSON.stringify(temp) + ' ' + brd + ' ' + TNum + ' ' + (temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))));
+				if(temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))) {
 					temp = this._clearScope(nScope, spell[0], i, len);
 				} else if(type === 12) {
 					temp = this._clearScope(nScope, spell[0] ^ 0x100, i, len);
