@@ -5723,12 +5723,12 @@ Spells.prototype = {
 		}
 		return false;
 	},
-	_processScope: function(scope) {
+	_removeBoards: function(scope) {
 		for(var i = 0, len = scope.length, nScope = [], type, spell, temp; i < len; i++) {
 			spell = scope[i];
 			type = spell[0] & 0xFF;
 			if(type === 0xFF) {
-				if(temp = this._processScope(spell[1])) {
+				if(temp = this._removeBoards(spell[1])) {
 					if(temp.length === 1) {
 						temp = temp[0];
 						temp[0] |= spell[0] & 0x200;
@@ -5759,12 +5759,6 @@ Spells.prototype = {
 		return nScope.length === 0 ? null :
 			nScope.length === 1 && nScope[0][0] === 0xFF ? nScope[0][1] :
 			nScope;
-	},
-	_removeBoards: function(data) {
-		if(!data) {
-			return false;
-		}
-		return this._processScope(data);
 	},
 	_initSpells: function(data) {
 		if(data) {
@@ -6069,7 +6063,7 @@ Spells.prototype = {
 	},
 	saveTemp: function() {
 		var gSpells = this._TEMP.gSpells,
-			lSpells = this._removeBoards(gSpells),
+			lSpells = gSpells ? this._removeBoards(gSpells) : false,
 			reps = this._TEMP.reps,
 			outreps = this._TEMP.outreps;
 		if(reps.length === 0) {
@@ -6121,7 +6115,7 @@ Spells.prototype = {
 			try {
 				data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
 				if(data && data[0] === this.hash) {
-					lSpells = this._removeBoards(data[1]);
+					lSpells = data[1] ? this._removeBoards(data[1]) : false;
 					reps = this._optimizeReps(data[2]);
 					outreps = this._optimizeReps(data[3]);
 					this._init(lSpells, reps, outreps);
