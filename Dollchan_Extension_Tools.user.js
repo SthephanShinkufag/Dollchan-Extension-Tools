@@ -1532,7 +1532,7 @@ function getCfgInfo() {
 					'cfg': nCfg,
 					'spells': spells.list.split('\n'),
 					'cSpells': getStored('DESU_CSpells_' + aib.dm),
-					'oSpells': sessionStorage['de-spells'],
+					'oSpells': sessionStorage['de-spells-' + brd + TNum],
 					'perf': tl
 				}, '') + '</textarea>', 'help-debug', false);
 			}), {'style': 'display: table-cell;'})
@@ -5743,7 +5743,6 @@ Spells.prototype = {
 				}
 			} else {
 				temp = spell[2];
-				GM_log(JSON.stringify(temp) + ' ' + brd + ' ' + TNum + ' ' + (temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))));
 				if(temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))) {
 					temp = this._clearScope(nScope, spell[0], i, len);
 				} else if(type === 12) {
@@ -6076,7 +6075,7 @@ Spells.prototype = {
 		setStored('DESU_CSpells_' + aib.dm, JSON.stringify([this.hash, gSpells, reps, outreps]));
 		reps = this._optimizeReps(reps);
 		outreps = this._optimizeReps(outreps);
-		sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
 		this._init(lSpells, reps, outreps);
 		this.saveSpells(this._TEMP.list);
 	},
@@ -6107,7 +6106,7 @@ Spells.prototype = {
 		if(this.read()) {
 			var data, lSpells, reps, outreps, readed = false;
 			try {
-				data = JSON.parse(sessionStorage['de-spells']);
+				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
 				if(data && data[0] === this.hash) {
 					this._init(data[1], data[2], data[3]);
 					return;
@@ -6120,7 +6119,7 @@ Spells.prototype = {
 					reps = this._optimizeReps(data[2]);
 					outreps = this._optimizeReps(data[3]);
 					this._init(lSpells, reps, outreps);
-					sessionStorage['de-spells'] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+					sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
 					return;
 				}
 			} catch(e) {}
