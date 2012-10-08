@@ -5164,6 +5164,15 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 		nhFunc(post, async);
 	}
 };
+Spells.pushSpell = function(op, scope, not, spell, args, arr) {
+	spell = (not ? '!' : '') + '#' + spell;
+	arr.push(
+		op ? '(#op' + scope + ' & ' + spell + args + ')' :
+		not && scope && spell !== '!#num' ?
+			'(#all' + scope + ' & ' +spell + args + ')' :
+			spell + scope + args
+	);
+};
 Spells.prototype = {
 	_names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
@@ -5230,7 +5239,7 @@ Spells.prototype = {
 					switch(val[0]) {
 					case 0: h = w >= temp[0] && w <= temp[1]; break;
 					case 1: h = w < temp[0]; break;
-					case 2: h = w > temp[0]; break;
+					case 2: h = w > temp[0];
 					}
 					if(!h) {
 						return false;
@@ -5624,7 +5633,9 @@ Spells.prototype = {
 			len = sList.length;
 		for(; i < len; i++, col++) {
 			switch(sList[i]) {
-			case '\n': line++; col = 0;
+			case '\n':
+				line++;
+				col = 0;
 			case '\r':
 			case ' ': continue;
 			case '#': 
@@ -5808,11 +5819,11 @@ Spells.prototype = {
 			return this._getMsg(val[this._lastPSpell]);
 		}
 		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
-		switch(type) {
-		case 14: return rv += '#wipe' + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
-		default: rv += '#' + this._names[type] + (val ? ': ' + val : '');
+		if(type === 14) {
+			return rv += '#wipe' + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
+		} else {
+			return rv += '#' + this._names[type] + (val ? ': ' + val : '');
 		}
-		return rv;
 	},
 	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
 		var type, temp, val, rv = false,
@@ -5949,19 +5960,14 @@ Spells.prototype = {
 			rS = [],
 			sS = [],
 			rv = '';
-		function pushSpell(op, sbt, spell, args, s) {
-			s.push(op ? '(#op' + sbt + ' & ' + spell + args + ')' : spell + sbt + args);
-		}
 		sList.forEach(function(str) {
 			if(!str) {
 				return;
 			}
-			var re, sbt = '', spell, op = false;
-			if(str[0] === '#') {
-				if(re = str.match(/^#([a-z]+)\/([0-9]+)? /)) {
-					sbt = re[1] ? '[' + re[1] + (re[2] ? ',' + re[2] : '') + ']' : '';
-					str = str.substr(re[0].length);
-				}
+			var re, scope = '', spell, op = false;
+			if(re = str.match(/^#(?:([^\/]+)\/)?(\d+)? /)) {
+				scope = re[1] ? '[' + re[1] + (re[2] ? ',' + re[2] : '') + ']' : '';
+				str = str.substr(re[0].length);
 			}
 			if(str.startsWith('#op ')) {
 				str = str.substr(4);
@@ -5970,45 +5976,47 @@ Spells.prototype = {
 			if(str[0] === '#') {
 				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
 					switch(re[1]) {
-					case 'sage': pushSpell(op, sbt, '#sage', '', nS); return;
-					case 'notxt': pushSpell(op, sbt, '!#tlen', '', nS); return;
-					case 'noimg': pushSpell(op, sbt, '!#img', '', nS); return;
-					case 'trip': pushSpell(op, sbt, '#trip', '', nS); return;
-					case 'tmax': pushSpell(op, sbt, '#tlen', '(' + re[2] + '-9000)', nS); return;
+					case 'sage': Spells.pushSpell(op, scope, false, 'sage', '', nS); return;
+					case 'notxt': Spells.pushSpell(op, scope, true, 'tlen', '', nS); return;
+					case 'noimg': Spells.pushSpell(op, scope, true, 'img', '', nS); return;
+					case 'trip': Spells.pushSpell(op, scope, false, 'trip', '', nS); return;
+					case 'tmax':
+						Spells.pushSpell(op, scope, false, 'tlen', '(' + re[2] + '-20000)', nS);
+						return;
 					case 'name':
 						spell = re[2].split('!!');
-						if(spell.length === 2) {
-							pushSpell(op, sbt, '#trip', '(!!' + spell[1] + ')', nS);
+						if(spell[1]) {
+							Spells.pushSpell(op, scope, false, 'trip', '(!!' + spell[1] + ')', nS);
 						}
 						if(spell[0]) {
 							spell = spell[0].split('!');
-							if(spell.length === 2) {
-								pushSpell(op, sbt, '#trip', '(!' + spell[1] + ')', nS);
+							if(spell[1]) {
+								Spells.pushSpell(op, scope, false, 'trip', '(!' + spell[1] + ')', nS);
 							}
 							if(spell[0]) {
-								pushSpell(op, sbt, '#name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
+								Spells.pushSpell(op, scope, false, 'name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
 							}
 						}
 						return;
-					case 'skip': pushSpell(op, sbt, '!#num', '(' + re[2] + ')', sS); return;
+					case 'skip': Spells.pushSpell(op, scope, true, 'num', '(' + re[2] + ')', sS); return;
 					case 'rep':
 					case 'outrep':
 						spell = re[2].match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
-						rS.push('#' + re[1] + sbt + '(' + spell[1] + ',' + (spell[2] || '')
+						rS.push('#' + re[1] + scope + '(' + spell[1] + ',' + (spell[2] || '')
 							.replace(/\)/g, '\\)') + ')')
 						return;
 					case 'theme': re[1] = 'subj';
 					case 'exp':
 					case 'exph':
 					case 'imgn':
-						pushSpell(op, sbt, '#' + re[1], '(' + re[2] + ')', nS);
-						return;
+					case 'video': Spells.pushSpell(op, scope, false, re[1], '(' + re[2] + ')', nS); return;
+					case 'vtag': return;
 					default:
-						pushSpell(op, sbt, '#' + re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
+						Spells.pushSpell(op, scope, false, re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 					}
 				}
 			} else {
-				pushSpell(op, sbt, '#words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
+				Spells.pushSpell(op, scope, false, 'words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
 			}
 		});
 		if(Cfg['hideByWipe'] !== 0) {
@@ -6017,7 +6025,7 @@ Spells.prototype = {
 			(Cfg['wipeSameWrd'] !== 0) && rv.push('samewords');
 			(Cfg['wipeLongWrd'] !== 0) && rv.push('longwords');
 			(Cfg['wipeSpecial'] === 1) && rv.push('symbols');
-			(Cfg['wipeCAPS']    === 1) && rv.push('capslock');
+			(Cfg['wipeCAPS'] === 1) && rv.push('capslock');
 			(Cfg['wipeNumbers'] !== 0) && rv.push('numbers');
 			rv = rv.length === 0 ? '' : '#wipe(' + rv.join(',') + ')' + (nS.length !== 0 ? ' |\n' : '');
 		}
@@ -6587,8 +6595,7 @@ function checkForUpdates(isForce, Fn) {
 		case 1: temp = day * 2; break;
 		case 2: temp = day * 7; break;
 		case 3: temp = day * 14; break;
-		case 4:
-		default: temp = day * 30; break;
+		default: temp = day * 30;
 		}
 		if(Date.now() - +Cfg['lastScrUpd'] < temp) {
 			return;
