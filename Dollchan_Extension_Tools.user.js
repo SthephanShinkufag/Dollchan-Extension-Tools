@@ -5164,15 +5164,6 @@ Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
 		nhFunc(post, async);
 	}
 };
-Spells.pushSpell = function(op, scope, not, spell, args, arr) {
-	spell = (not ? '!' : '') + '#' + spell;
-	arr.push(
-		op ? '(#op' + scope + ' & ' + spell + args + ')' :
-		not && scope && spell !== '!#num' ?
-			'(#all' + scope + ' & ' +spell + args + ')' :
-			spell + scope + args
-	);
-};
 Spells.prototype = {
 	_names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
@@ -5746,29 +5737,23 @@ Spells.prototype = {
 					} else {
 						nScope.push([spell[0], temp]);
 					}
+					continue;
 				} else {
 					temp = this._clearScope(nScope, spell[0], i, len);
-					if(temp !== false) {
-						return temp;
-					}
 				}
 			} else {
 				temp = spell[2];
-				if(temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))) {
+				if(temp && (temp[0] !== brd || ((temp[1] === -1 && TNum) || (temp[1] && temp[1] !== TNum)))) {
 					temp = this._clearScope(nScope, spell[0], i, len);
-					if(temp !== false) {
-						return temp;
-					}
-					continue;
-				}
-				if(type === 12) {
+				} else if(type === 12) {
 					temp = this._clearScope(nScope, spell[0] ^ 0x100, i, len);
-					if(temp !== false) {
-						return temp;
-					}
+				} else {
+					nScope.push(spell);
 					continue;
 				}
-				nScope.push(spell);
+			}
+			if(temp !== false) {
+				return temp;
 			}
 		}
 		return nScope.length === 0 ? null :
@@ -5955,6 +5940,15 @@ Spells.prototype = {
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', 0);
 	},
+	_pushSpell: function(op, scope, not, spell, args, arr) {
+		spell = (not ? '!' : '') + '#' + spell;
+		arr.push(
+			op ? '(#op' + scope + ' & ' + spell + args + ')' :
+			not && scope && spell !== '!#num' ?
+				'(#all' + scope + ' & ' +spell + args + ')' :
+				spell + scope + args
+		);
+	},
 	_convertOld: function(sList) {
 		var nS = [],
 			rS = [],
@@ -5976,29 +5970,29 @@ Spells.prototype = {
 			if(str[0] === '#') {
 				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
 					switch(re[1]) {
-					case 'sage': Spells.pushSpell(op, scope, false, 'sage', '', nS); return;
-					case 'notxt': Spells.pushSpell(op, scope, true, 'tlen', '', nS); return;
-					case 'noimg': Spells.pushSpell(op, scope, true, 'img', '', nS); return;
-					case 'trip': Spells.pushSpell(op, scope, false, 'trip', '', nS); return;
+					case 'sage': this(op, scope, false, 'sage', '', nS); return;
+					case 'notxt': this(op, scope, true, 'tlen', '', nS); return;
+					case 'noimg': this(op, scope, true, 'img', '', nS); return;
+					case 'trip': this(op, scope, false, 'trip', '', nS); return;
 					case 'tmax':
-						Spells.pushSpell(op, scope, false, 'tlen', '(' + re[2] + '-20000)', nS);
+						this(op, scope, false, 'tlen', '(' + re[2] + '-20000)', nS);
 						return;
 					case 'name':
 						spell = re[2].split('!!');
 						if(spell[1]) {
-							Spells.pushSpell(op, scope, false, 'trip', '(!!' + spell[1] + ')', nS);
+							this(op, scope, false, 'trip', '(!!' + spell[1] + ')', nS);
 						}
 						if(spell[0]) {
 							spell = spell[0].split('!');
 							if(spell[1]) {
-								Spells.pushSpell(op, scope, false, 'trip', '(!' + spell[1] + ')', nS);
+								this(op, scope, false, 'trip', '(!' + spell[1] + ')', nS);
 							}
 							if(spell[0]) {
-								Spells.pushSpell(op, scope, false, 'name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
+								this(op, scope, false, 'name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
 							}
 						}
 						return;
-					case 'skip': Spells.pushSpell(op, scope, true, 'num', '(' + re[2] + ')', sS); return;
+					case 'skip': this(op, scope, true, 'num', '(' + re[2] + ')', sS); return;
 					case 'rep':
 					case 'outrep':
 						spell = re[2].match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
@@ -6009,16 +6003,16 @@ Spells.prototype = {
 					case 'exp':
 					case 'exph':
 					case 'imgn':
-					case 'video': Spells.pushSpell(op, scope, false, re[1], '(' + re[2] + ')', nS); return;
+					case 'video': this(op, scope, false, re[1], '(' + re[2] + ')', nS); return;
 					case 'vtag': return;
 					default:
-						Spells.pushSpell(op, scope, false, re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
+						this(op, scope, false, re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
 					}
 				}
 			} else {
-				Spells.pushSpell(op, scope, false, 'words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
+				this(op, scope, false, 'words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
 			}
-		});
+		}, this._pushSpell);
 		if(Cfg['hideByWipe'] !== 0) {
 			rv = [];
 			(Cfg['wipeSameLin'] !== 0) && rv.push('samelines');
@@ -6059,6 +6053,7 @@ Spells.prototype = {
 			} catch(e) {
 				GM_log(Lng.error[lang] + ' ' + this._error);
 			}
+			this._TEMP.list = '';
 			return false;
 		}
 		this._TEMP.list = oStr.join('\n\n').replace(/[\s\n]+$/, '');
