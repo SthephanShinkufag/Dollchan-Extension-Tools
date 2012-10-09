@@ -6750,7 +6750,7 @@ function getNavigator() {
 		};
 	nav.remClass = nav.Opera && nav.Opera < 11.5 ?
 		function(el, cName) {
-			el.className = el.className.replace(new RegExp('(?:^| )' + cName, 'g'), '');
+			el.className = el.className.replace(new RegExp('(?:^| )' + RegExp.quote(cName), 'g'), '');
 		} :
 		function(el, cName) {
 			el.classList.remove(cName);
