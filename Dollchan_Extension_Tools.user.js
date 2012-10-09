@@ -1249,10 +1249,10 @@ function updRowMeter() {
 		el = $id('de-spell-rowmeter'),
 		num = el.numLines,
 		str = '',
-		i = 17;
-	if(num++ - i < (top / 12) | 0 + 1) {
+		i = 19;
+	if(num - i < (top / 12) | 0 + 1) {
 		while(i--) {
-			str += '<br>' + num++;
+			str += num++ + '<br>';
 		}
 		el.insertAdjacentHTML('beforeend', str);
 		el.numLines = num;
@@ -1297,8 +1297,7 @@ function getCfgFilters() {
 			]),
 			lBox('hideBySpell', false, toggleSpells),
 			$New('div', {'id': 'de-spell-div'}, [
-				$add('<div><div id="de-spell-rowmeter">1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>'
-					+ '10<br>11<br>12<br>13<br>14<br>15<br>16<br>17</div></div>'),
+				$add('<div><div id="de-spell-rowmeter"></div></div>'),
 				$New('div', null, [$new(
 					'textarea',
 					{'id': 'de-spell-edit', 'wrap': 'off'},
@@ -1606,8 +1605,9 @@ function addSettings(Set) {
 		])
 	]));
 	$c('de-cfg-tab', Set).click();
-	$id('de-spell-rowmeter').numLines = 17;
+	$id('de-spell-rowmeter').numLines = 1;
 	$id('de-spell-edit').setSelectionRange(0, 0);
+	updRowMeter();
 }
 
 
