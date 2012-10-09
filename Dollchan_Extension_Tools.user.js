@@ -2172,9 +2172,9 @@ function initKeyNavig() {
 			if(TNum) {
 				showQuickReply(Posts[pIndex]);
 			} else if(nav.Firefox) {
-				GM_openInTab(aib.getThrdUrl(brd, Threads[curTh].num), false, true);
+				GM_openInTab('//' + aib.host + aib.getThrdUrl(brd, Threads[curTh].num), false, true);
 			} else {
-				window.open(aib.getThrdUrl(brd, Threads[curTh].num), '_blank');
+				window.open('//' + aib.host + aib.getThrdUrl(brd, Threads[curTh].num), '_blank');
 			}
 			return;
 		}
