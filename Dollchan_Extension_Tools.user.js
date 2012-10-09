@@ -320,8 +320,12 @@ Lng = {
 	wait:			['Ждите', 'Wait'],
 	addRar:			['+ .rar', '+ .rar'],
 	keyNavHelp:		[
-		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n"V" - вход в тред\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
-		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n"V" - enter a thread\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply'
+		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n\n' +
+		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n' +
+		'"V" - вход в тред.\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
+		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n\n' +
+		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
+		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
 	],
 	month:			[
 		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
@@ -2136,9 +2140,10 @@ function initKeyNavig() {
 					window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
 				}
 			}
+			return;
 		}
 		if(
-			e.ctrlKey || e.altKey || e.shiftKey ||
+			e.altKey || e.shiftKey ||
 			kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86 && kc !== 116
 		) {
 			return;
