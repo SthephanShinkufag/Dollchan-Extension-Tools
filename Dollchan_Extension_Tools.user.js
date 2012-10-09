@@ -2124,6 +2124,19 @@ function initKeyNavig() {
 			}
 			return;
 		}
+		if(e.ctrlKey) {
+			if(TNum) {
+				if(kc === 37) {
+					window.location.pathname = aib.getPageUrl(brd, 0);
+				}
+			} else {
+				if(kc === 37) {
+					window.location.pathname = aib.getPageUrl(brd, pageNum - 1);
+				} else if(kc === 39) {
+					window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
+				}
+			}
+		}
 		if(
 			e.ctrlKey || e.altKey || e.shiftKey ||
 			kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 && kc !== 86 && kc !== 116
