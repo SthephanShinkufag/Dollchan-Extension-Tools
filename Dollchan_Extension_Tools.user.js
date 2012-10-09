@@ -2275,6 +2275,10 @@ function initPostform() {
 			$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': showMainReply})
 		]);
 	}
+	if(aib.tire) {
+		$each($Q('input[type="hidden"]', dForm), $del);
+		dForm.appendChild($c('userdelete', doc.body));
+	}
 	if(pr.on) {
 		doPostformChanges(null, null, null);
 	} else if(oeForm) {
@@ -6461,7 +6465,7 @@ function scriptCSS() {
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, #posttypeindicator, .content-background > hr { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }';
 		} else if(aib.hana) {
@@ -6486,6 +6490,8 @@ function scriptCSS() {
 			x += 'br.clear { display: none !important; }';
 		} else if(aib.pony) {
 			x += '#bodywrap3 > hr, .blotter { display: none !important; }';
+		} else if(aib.tire) {
+			x += 'span[id$="_display"] { display: none; }';
 		}
 	}
 
@@ -6750,7 +6756,7 @@ function getNavigator() {
 		};
 	nav.remClass = nav.Opera && nav.Opera < 11.5 ?
 		function(el, cName) {
-			el.className = el.className.replace(new RegExp('(?:^| )' + cName, 'g'), '');
+			el.className = el.className.replace(new RegExp('(?:^| )' + RegExp.quote(cName) + '(?= |$)', 'g'), '');
 		} :
 		function(el, cName) {
 			el.classList.remove(cName);
@@ -7050,7 +7056,6 @@ function processPost(post, pNum, thr, i) {
 function parseDelform(el, dc, Fn) {
 	var node, thr, pThr = false,
 		thrds = $Q(aib.qThread, el);
-	$each($T('script', el), $del);
 	if(Posts.length < 2) {
 		aib.qTable =
 			aib.fch || aib.mlpg ? '.replyContainer' :
@@ -7102,6 +7107,7 @@ function parseDelform(el, dc, Fn) {
 
 function tryToParse(node) {
 	try {
+		$each($T('script', node), $del);
 		parseDelform(node, doc, function(thr) {
 			if(aib._420 || aib.tiny) {
 				$after(thr, thr.lastChild);
