@@ -6729,62 +6729,55 @@ function getNavigator() {
 		}
 	}
 	nav.noBlob = nav.Firefox < 15 && nav.WebKit < 536.1;
-	nav.insAfter = nav.Firefox && nav.Firefox < 8 ?
-		function(el, html) {
+	nav.insAfter =
+		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$after(el, $add(html));
-		} :
-		function(el, html) {
+		} : function(el, html) {
 			el.insertAdjacentHTML('afterend', html);
 		};
-	nav.insBefore = nav.Firefox && nav.Firefox < 8 ?
-		function(el, html) {
+	nav.insBefore =
+		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$before(el, $add(html));
-		} :
-		function(el, html) {
+		} : function(el, html) {
 			el.insertAdjacentHTML('beforebegin', html);
 		};
-	nav.forEach = nav.WebKit || nav.Firefox ?
-		function(obj, Fn) {
+	nav.forEach =
+		nav.WebKit || nav.Firefox ? function(obj, Fn) {
 			Object.keys(obj).forEach(Fn, obj);
-		} :
-		function(obj, Fn) {
+		} : function(obj, Fn) {
 			for(var i in obj) {
 				if(obj.hasOwnProperty(i)) {
 					Fn.call(obj, i);
 				}
 			}
 		};
-	nav.fixLink = nav.Safari ?
-		function(url) {
+	nav.fixLink =
+		nav.Safari ? function(url) {
 			return url[1] === '/' ? 'http:' + url :
 				url[0] === '/' ? 'http://' + aib.host + url :
 				url;
-		} :
-		function(url) {
+		} : function(url) {
 			return url;
 		};
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
-	nav.addClass = nav.Opera && nav.Opera < 11.5 ?
-		function(el, cName) {
+	nav.addClass =
+		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
 			el.className += ' ' + cName;
-		} :
-		function(el, cName) {
+		} : function(el, cName) {
 			el.classList.add(cName);
 		};
-	nav.remClass = nav.Opera && nav.Opera < 11.5 ?
-		function(el, cName) {
+	nav.remClass =
+		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
 			el.className = el.className.replace(new RegExp('(?:^| )' + RegExp.quote(cName) + '(?= |$)', 'g'), '');
-		} :
-		function(el, cName) {
+		} : function(el, cName) {
 			el.classList.remove(cName);
 		};
-	nav.toDOM = nav.Firefox >= 12 ?
-		function(html) {
+	nav.toDOM =
+		nav.Firefox >= 12 ? function(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
-		} :
-		function(html) {
+		} : function(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
@@ -6872,14 +6865,11 @@ function getImageboard() {
 	aib.getTNum =
 		aib.fch || aib.krau || aib.futa || aib.tiny ? function(op) {
 			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-		} :
-		aib.hana || aib.brit ? function(op) {
+		} : aib.hana || aib.brit ? function(op) {
 			return $q('a[name]', op).name.match(/\d+/)[0];
-		} :
-		aib._420 ?  function(op) {
+		} : aib._420 ?  function(op) {
 			return $q('a[id]', op).id.match(/\d+/)[0];
-		} :
-		function(op) {
+		} : function(op) {
 			return $q('input[type="checkbox"]', op).value;
 		};
 	dForm = $q(aib.qDForm, doc);
@@ -6989,19 +6979,15 @@ function getImageboard() {
 				el = el.parentNode;
 			}
 			return el.parentNode;
-		} :
-		aib.krau ? function(el) {
+		} : aib.krau ? function(el) {
 			return el.parentNode;
-		} :
-		getPost;
+		} : getPost;
 	aib.getPosts =
 		aib.futa ? function(thr) {
 			return $Q('td:nth-child(2)', thr);
-		} :
-		aib.tiny || aib.fch ? function(thr) {
+		} : aib.tiny || aib.fch ? function(thr) {
 			return $C('reply', thr);
-		} :
-		function(thr) {
+		} : function(thr) {
 			return $C(aib.cReply, thr);
 		};
 	aib.getOp =
@@ -7020,8 +7006,7 @@ function getImageboard() {
 			}
 			$del($t('table', thr));
 			return post;
-		} :
-		function(thr, dc) {
+		} : function(thr, dc) {
 			var el, op, opEnd;
 			op = $c(aib.cOPost, thr);
 			if(op) {
@@ -7039,27 +7024,22 @@ function getImageboard() {
 			}
 			return op;
 		};
-	aib.getPNum = aib.futa ?
-		function(post) {
+	aib.getPNum =
+		aib.futa ? function(post) {
 			return $t('input', post).name;
-		} :
-		function(post) {
+		} : function(post) {
 			return post.id.match(/\d+/)[0];
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
 			return !!$c('id_Heaven', post);
-		} :
-		aib.krau ? function(post) {
+		} : aib.krau ? function(post) {
 			return !!$c('sage', post);
-		} :
-		aib._410 ? function(post) {
+		} : aib._410 ? function(post) {
 			return $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
-		} :
-		aib.nul ? function(post) {
+		} : aib.nul ? function(post) {
 			return !!$q('a[href="mailto:sage"], a[href^="http://cloudflare.com"]', post);
-		} :
-		function(post) {
+		} : function(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		};
@@ -7088,11 +7068,9 @@ function parseDelform(el, dc, Fn) {
 		aib.getWrap =
 			aib.fch || aib.mlpg ? function(post) {
 				return post.parentNode;
-			} :
-			aib.qTable ? function(post) {
+			} : aib.qTable ? function(post) {
 				return post.isOp ? post : $x('ancestor::table[1]', post);
-			} :
-			function(post) {
+			} : function(post) {
 				return post;
 			};
 		if(aib.qTable) {
