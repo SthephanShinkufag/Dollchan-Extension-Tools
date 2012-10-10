@@ -2299,7 +2299,7 @@ function initPostform() {
 	}
 }
 
-function addOperaTextResizer() {
+function addTextResizer() {
 	var resMove = function(e) {
 			var p = $offset(pr.txta);
 			pr.txta.style.width = e.pageX - p.left + 'px';
@@ -2396,16 +2396,17 @@ function doPostformChanges(img, _img, el) {
 	var sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	if(nav.Opera) {
-		addOperaTextResizer();
-	} else {
+
+	if(nav.Firefox) {
 		$event(pr.txta, {'mouseup': function() {
 			saveCfg('textaWidth', parseInt(this.style.width, 10));
 			saveCfg('textaHeight', parseInt(this.style.height, 10));
 		}});
+	} else {
+		addTextResizer();
 	}
 	addTextPanel();
-	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+	pr.txta.style.cssText = 'padding: 0; width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 	pr.txta.removeAttribute('id');
 	$event(pr.txta, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
@@ -6446,7 +6447,7 @@ function scriptCSS() {
 		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
 		#de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -6px -12px; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: 0 0 -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
