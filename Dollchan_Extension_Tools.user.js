@@ -1039,7 +1039,7 @@ function addPanel() {
 					$pd(e);
 					window.scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
 				}, null, null, null),
-				$if(!TNum && (pr.on || oeForm), pButton('newthr', toggleMainReply, null, null, null)),
+				$if(!TNum && (pr.form || oeForm), pButton('newthr', toggleMainReply, null, null, null)),
 				$if(imgLen > 0, pButton('expimg', function(e) {
 					$pd(e);
 					Cfg['expandImgs'] = 1;
@@ -1247,7 +1247,7 @@ function cfgTab(name) {
 function updRowMeter() {
 	var top = this.scrollTop,
 		el = $id('de-spell-rowmeter'),
-		num = el.numLines,
+		num = el.numLines || 1,
 		str = '',
 		i = 19;
 	if(num - i < (top / 12) | 0 + 1) {
@@ -1418,8 +1418,8 @@ function getCfgForm() {
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
 		])),
-		$if(pr.on, optSel('addPostForm', true, null)),
-		$if(pr.on, lBox('noThrdForm', true, function() {
+		$if(pr.form, optSel('addPostForm', true, null)),
+		$if(pr.form, lBox('noThrdForm', true, function() {
 			if(!TNum) {
 				$id('de-parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
 			}
@@ -1430,7 +1430,7 @@ function getCfgForm() {
 			lBox('saveSage', false, null)
 		])),
 		optSel('captchaLang', true, null),
-		$if(pr.on, $New('div', null, [
+		$if(pr.form, $New('div', null, [
 			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
 				addTextPanel();
@@ -1450,7 +1450,7 @@ function getCfgForm() {
 			lBox('userSignat', false, null)
 		])),
 		$New('div', null, [
-			$if(pr.on || oeForm, $txt(Lng.dontShow[lang])),
+			$if(pr.form || oeForm, $txt(Lng.dontShow[lang])),
 			lBox('noBoardRule', false, updateCSS),
 			$if(pr.gothr, lBox('noGoto', false, function() {
 				$disp(pr.gothr);
@@ -1605,7 +1605,6 @@ function addSettings(Set) {
 		])
 	]));
 	$c('de-cfg-tab', Set).click();
-	$id('de-spell-rowmeter').numLines = 1;
 	$id('de-spell-edit').setSelectionRange(0, 0);
 	updRowMeter();
 }
@@ -2226,7 +2225,7 @@ function refreshCapSrc(src, tNum) {
 }
 
 function refreshCapImg(tNum) {
-	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $x(pr.tr + '//img', pr.cap);
+	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $t('img', pr.getTR(pr.cap));
 	if(aib.hana || pr.recap) {
 		e = doc.createEvent('MouseEvents');
 		e.initEvent('click', true, true);
@@ -2297,7 +2296,7 @@ function initPostform() {
 		$each($Q('input[type="hidden"]', dForm), $del);
 		dForm.appendChild($c('userdelete', doc.body));
 	}
-	if(pr.on) {
+	if(pr.form) {
 		doPostformChanges(null, null, null);
 	} else if(oeForm) {
 		ajaxGetPosts(null, brd, Posts[0].num, false, doPostformChanges);
@@ -2394,7 +2393,7 @@ function processInput() {
 			})));
 		}
 	}
-	eventFiles($x(pr.tr, this));
+	eventFiles(pr.getTR(this));
 }
 
 function doPostformChanges(img, _img, el) {
@@ -2461,7 +2460,7 @@ function doPostformChanges(img, _img, el) {
 		$disp(pr.gothr);
 	}
 	if(Cfg['noPassword'] && pr.passw) {
-		$disp($x(pr.tr, pr.passw));
+		$disp(pr.getTR(pr.passw));
 	}
 	$event(window, {'load': function() {
 		if(Cfg['userName'] && pr.name) {
@@ -2510,7 +2509,7 @@ function doPostformChanges(img, _img, el) {
 			$txtInsert(e.target, chr);
 		};
 		if(!aib.hana && !pr.recap) {
-			img = aib.kus ? $q('a, img', $x(pr.tr, pr.cap)) : $x(pr.tr + '//img', pr.cap);
+			img = $q('a, img', pr.getTR(pr.cap));
 			_img = $new('img', {
 				'alt': Lng.loading[lang],
 				'title': Lng.refresh[lang],
@@ -2550,7 +2549,7 @@ function doPostformChanges(img, _img, el) {
 			$disp(el);
 			$after(el, sBtn);
 		} else {
-			$disp($x(pr.tr, pr.mail));
+			$disp(pr.getTR(pr.mail));
 			$after(pr.name || pr.subm, sBtn);
 		}
 		setTimeout(doSageBtn, 0);
@@ -2581,7 +2580,7 @@ function doPostformChanges(img, _img, el) {
 		};
 	}
 	if(pr.file) {
-		eventFiles($x(pr.tr, pr.file));
+		eventFiles(pr.getTR(pr.file));
 	}
 }
 
@@ -2636,7 +2635,7 @@ function checkUpload(err, url) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		file = $x(pr.tr, pr.file);
+		file = pr.getTR(pr.file);
 		delFileUtils(file);
 		file = $html(file, file.innerHTML);
 		pr.file = $q('input[type="file"]', file);
@@ -3131,7 +3130,7 @@ function addPostButtons(post) {
 		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
 	post.btns = ref.nextSibling;
-	if(pr.on && Cfg['insertNum']) {
+	if(pr.form && Cfg['insertNum']) {
 		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
 			$each($T('a', ref), function(el) {
 				el.onclick = null;
@@ -3251,9 +3250,8 @@ function prepareCFeatures() {
 				return;\
 			}\
 		});\
-		var $x = function(path, root) {\
-				return document.evaluate(path, root, null, 8, null).singleNodeValue;\
-			},\
+		var doc = document,\
+			$x = ' + String($x) + ',\
 			getPostImages = ' + String(getPostImages) + ',\
 			getPicWrap = ' + String(aib.getPicWrap) + ';\
 		function preloadImages(pNum, mReqs, rjw) {\
@@ -3314,7 +3312,10 @@ function prepareCFeatures() {
 					bwrk[wI] = 1;\
 					w.onmessage = function(e) {\
 						if(e.data) {\
-							getPicWrap(link).querySelector(\'' + aib.qImgLink + '\').className += " de-archive";\
+							var el = getPicWrap(link);\
+							if(el) {\
+								el.querySelector(\'' + aib.qImgLink + '\').className += " de-archive";\
+							}\
 						}\
 						bwrk[wI] = 0;\
 						link = wI = null;\
@@ -3326,7 +3327,7 @@ function prepareCFeatures() {
 					};\
 					w.postMessage(link.href);\
 				};' : ';') +
-			'el = getPostImages(pNum === "all" ? document : document.querySelector("[de-post=\'" + pNum + "\']"));\
+			'el = getPostImages(pNum === "all" ? doc : doc.querySelector("[de-post=\'" + pNum + "\']"));\
 			for(i = 0, len = el.length; i < len; i++) {\
 				arr.push($x("ancestor::a[1]", el[i]));\
 			}\
@@ -4238,7 +4239,7 @@ function ajaxGetPosts(url, b, tNum, parse, Fn) {
 			}
 			if(xhr.status === 200) {
 				var dc = nav.toDOM(xhr.responseText);
-				if(!pr.on && oeForm) {
+				if(!pr.form && oeForm) {
 					pr = getPostform(doc.importNode($q(aib.qPostForm, dc), true));
 					$before(oeForm, pr.form);
 				}
@@ -6822,12 +6823,10 @@ function getPostform(form) {
 		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ',
 		recap = $q('#recaptcha_response_field', form);
 	return {
-		on: true,
 		isQuick: false,
 		qButton: !aib.tiny || !!TNum,
 		tNum: TNum,
 		form: form,
-		tr: 'ancestor::' + tr + '[1]',
 		recap: recap,
 		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
@@ -6841,7 +6840,12 @@ function getPostform(form) {
 			aib._410 ? '@name="sage"]' :
 			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
 		), form),
-		video: $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form)
+		video: $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form),
+		getTR: aib._7ch ? function(el) {
+			return $x('ancestor::li[1]', el);
+		} : function(el) {
+			return $x('ancestor::tr[1]', el);
+		}
 	};
 }
 
