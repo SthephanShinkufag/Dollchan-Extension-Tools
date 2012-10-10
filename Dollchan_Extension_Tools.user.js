@@ -2406,6 +2406,7 @@ function doPostformChanges(img, _img, el) {
 	}
 	addTextPanel();
 	pr.txta.style.cssText = 'width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+	pr.txta.removeAttribute('id');
 	$event(pr.txta, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
