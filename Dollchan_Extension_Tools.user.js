@@ -375,10 +375,6 @@ function $x(path, root) {
 	return doc.evaluate(path, root, null, 8, null).singleNodeValue;
 }
 
-function $xb(path, root) {
-	return doc.evaluate(path, root, null, 3, null).booleanValue;
-}
-
 function $Q(path, root) {
 	return root.querySelectorAll(path);
 }
@@ -3564,9 +3560,9 @@ function clickTubeLink(e) {
 	var m = this.href.match(getTubePattern()),
 		el = $c('de-ytube-obj', getPost(this));
 	$pd(e);
-	if($xb('*[contains(@src,"' + m[1] + '")]|video[contains(@poster,"' + m[1] + '")]', el)) {
+	if($q('[src*="' + m[1] + '"], video[poster*="' + m[1] + '"]', el)) {
 		el.innerHTML = '';
-	} else if(Cfg['addYouTube'] > 2 && !$xb('a[contains(@href,"' + m[1] + '")]', el)) {
+	} else if(Cfg['addYouTube'] > 2 && !$q('a[href*="' + m[1] + '"]', el)) {
 		addTubePreview(el, m);
 	} else {
 		addTubePlayer(el, m);
@@ -3656,7 +3652,7 @@ function addLinkMP3(post) {
 			el = $new('div', {'class': 'de-mp3'}, null);
 			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
-		if(!$xb('.//object[contains(@FlashVars,"' + link.href + '")]', el)) {
+		if(!$q('object[FlashVars*="' + link.href + '"]', el)) {
 			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>';
 		}
 	});
@@ -3712,7 +3708,7 @@ function addFullImg(a, sz, isExp) {
 	if(full && isExp || !full && isExp === false) {
 		return;
 	}
-	if(Cfg['expandImgs'] === 1 && !$xb('img[contains(@style,"fixed")]', a)) {
+	if(Cfg['expandImgs'] === 1 && !$q('img[style*="fixed"]', a)) {
 		$disp($t('img', a));
 	}
 	if(full) {
@@ -4614,7 +4610,7 @@ function infoNewPosts(err, i) {
 		clearInterval(Favico.delay);
 		if(i > 0) {
 			Favico.delay = setInterval(function() {
-				var href = $xb('.//link[@href="' + Favico.href + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : Favico.href;
+				var href = $q('link[href="' + Favico.href + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : Favico.href;
 				$each($Q('link[rel="shortcut icon"]', doc.head), $del);
 				doc.head.appendChild($new('link', {'href': href, 'rel': 'shortcut icon'}, null));
 			}, 800);
@@ -6852,9 +6848,9 @@ function getImageboard() {
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
 	default:
-		aib.hana = $xb('.//script[contains(@src,"hanabira")]', doc);
-		aib.futa = $xb('.//form[contains(@action,"futaba.php")]', doc);
-		aib.tiny = $xb('.//form[@name="postcontrols"]', doc);
+		aib.hana = !!$q('script[src*="hanabira"]', doc);
+		aib.futa = !!$q('form[action*="futaba.php"]', doc);
+		aib.tiny = !!$q('form[name*="postcontrols"]', doc);
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
@@ -6876,7 +6872,7 @@ function getImageboard() {
 	if(!dForm) {
 		return;
 	}
-	aib.kus = $xb('.//script[contains(@src,"kusaba")]', doc);
+	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
 	switch(aib.dm = h) {
 	case '2ch.so': aib.so = aib.abu = true; break;
@@ -6893,7 +6889,7 @@ function getImageboard() {
 	case 'ernstchan.net': aib.erns = true; break;
 	default:
 		aib.abu = !!$id('ABU_css');
-		aib.tinyIb = $xb('.//form[contains(@action,"imgboard.php?delete")]', doc);
+		aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 	}
 	fixFunctions();
 	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || h === '02ch.net';
@@ -7036,7 +7032,7 @@ function getImageboard() {
 		} : aib.krau ? function(post) {
 			return !!$c('sage', post);
 		} : aib._410 ? function(post) {
-			return $xb('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
+			return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 		} : aib.nul ? function(post) {
 			return !!$q('a[href="mailto:sage"], a[href^="http://cloudflare.com"]', post);
 		} : function(post) {
