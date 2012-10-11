@@ -3012,7 +3012,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.so,
+	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.abu,
 		tagTable = {
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
@@ -6877,7 +6877,6 @@ function getImageboard() {
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
 	switch(aib.dm = h) {
-	case '2ch.so': aib.so = aib.abu = true; break;
 	case '0-chan.ru':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
