@@ -1954,12 +1954,20 @@ function hideMenu(post) {
 		this.add('sel');
 	}
 	if(post.img[0]) {
-		this.add('img').add('ihash');
+		this.add('img');
+		this.add('ihash');
 	} else {
 		this.add('noimg');
 	}
 	this.add(getText(post) ? 'text' : 'notext');
-	this.genMenu(post.btns.firstChild);
+	var a = addSelMenu(post.btns.firstChild, false,
+		'<a href="#">' + this.mItems.join('</a><a href="#">') + '</a>'
+	);
+	this.mNames.forEach(function(name, idx) {
+		this[name](a[idx]);
+	}, this.funcs);
+	a[0].parentNode.post = post;
+	a = null;
 }
 hideMenu.prototype = {
 	funcs: {
@@ -1972,19 +1980,20 @@ hideMenu.prototype = {
 		'img': function(link) {
 			link.onclick = function(e) {
 				$pd(e);
+				var post = this.parentNode.post;
 				addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
 			};
 		},
 		'ihash': function(link) {
 			link.onclick = function(e) {
 				$pd(e);
-				addSpell('#ihash', '(' + getImgHash(post) + ')');
+				addSpell('#ihash', '(' + getImgHash(this.parentNode.post) + ')');
 			};
 		},
 		'text': function(link) {
 			link.onclick = function(e) {
 				$pd(e);
-				hideBySameText(post);
+				hideBySameText(this.parentNode.post);
 			};
 		},
 		'noimg': function(link) {
@@ -2003,14 +2012,6 @@ hideMenu.prototype = {
 	add: function(name) {
 		this.mItems.push(Lng.selHiderMenu[name][lang]);
 		this.mNames.push(name);
-		return this;
-	},
-	genMenu: function(el) {
-		var a = addSelMenu(el, false, '<a href="#">' + this.mItems.join('</a><a href="#">') + '</a>');
-		this.mNames.forEach(function(name, idx) {
-			this[name](a[idx]);
-		}, this.funcs);
-		a = null;
 	}
 };
 
