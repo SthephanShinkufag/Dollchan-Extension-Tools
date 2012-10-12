@@ -2016,7 +2016,6 @@ function selectPostHider(post) {
 	}
 	menu.add(getText(post) ? 'text' : 'notext');
 	menu.genMenu(post.btns.firstChild);
-	menu = null;
 }
 
 function selectExpandThread(post) {
