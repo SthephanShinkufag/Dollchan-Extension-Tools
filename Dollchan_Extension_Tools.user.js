@@ -239,10 +239,14 @@ Lng = {
 		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread']
 	},
 
-	selHiderMenu:	[
-		['Скрывать выделенное', 'Скрывать изображение', 'Скрыв. схожие изобр.', 'Скрыть схожий текст'],
-		['Hide selected text', 'Hide same images', 'Hide similar images', 'Hide similar text']
-	],
+	selHiderMenu:	{
+		'sel': ['Скрывать выделенное', 'Hide selected text'],
+		'img': ['Скрывать изображение', 'Hide same images'],
+		'ihash': ['Скрыв. схожие изобр.', 'Hide similar images'],
+		'text': ['Скрыть схожий текст', 'Hide similar text'],
+		'noimg': ['Скрыть без изображений', 'Hide without images'],
+		'notext': ['Скрыть без текста', 'Hide without text']
+	},
 	selExpandThrd:	[
 		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
 		['5 posts', '15 posts', '30 posts', '50 posts', '100 posts']
@@ -1939,41 +1943,80 @@ function selectSpell(e) {
 	});
 }
 
+/** @constructor */
+function hMenuFactory() {
+	this._mItems = [];
+	this._mNames = [];
+}
+hMenuFactory.prototype = {
+	_funcs: {
+		'sel': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				addSpell('#words', '(' + quotetxt + ')');
+			};
+		},
+		'img': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
+			};
+		},
+		'ihash': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				addSpell('#ihash', '(' + getImgHash(post) + ')');
+			};
+		},
+		'text': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				hideBySameText(post);
+			};
+		},
+		'noimg': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				addSpell('(#all', ' & !#img)');
+			};
+		},
+		'notext': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				addSpell('(#all', ' & !#tlen)');
+			};
+		}
+	},
+	add: function(name) {
+		this._mItems.push(Lng.selHiderMenu[name][lang]);
+		this._mNames.push(name);
+		return this;
+	},
+	genMenu: function(el) {
+		var a = addSelMenu(el, false, '<a href="#">' + this._mItems.join('</a><a href="#">') + '</a>');
+		this._mNames.forEach(function(name, idx) {
+			this[name](a[idx]);
+		}, this._funcs);
+		a = null;
+	}
+};
+
 function selectPostHider(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	var a = addSelMenu(
-		post.btns.firstChild, false,
-		'<a href="#">' + Lng.selHiderMenu[lang].join('</a><a href="#">') + '</a>'
-	);
-	a[1].onclick = function(e) {
-		$pd(e);
-		if(post.img[0]) {
-			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
-		} else {
-			addSpell('(#all', ' & !#img)');
-		}
-	};
-	a[2].onclick = function(e) {
-		$pd(e);
-		if(post.img[0]) {
-			addSpell('#ihash', '(' + getImgHash(post) + ')');
-		} else {
-			addSpell('(#all', ' & !#img)');
-		}
-	};
-	a[3].onclick = function(e) {
-		$pd(e);
-		hideBySameText(post);
-	};
-	(a = a[0]).onclick = function(e) {
-		$pd(e);
-		addSpell('#words', '(' + quotetxt + ')');
-	};
-	a.onmouseover = function() {
-		quotetxt = $txtSelect().trim();
-	};
+	var menu = new hMenuFactory();
+	if(!post.hide && (quotetxt = $txtSelect().trim())) {
+		menu.add('sel');
+	}
+	if(post.img[0]) {
+		menu.add('img').add('ihash');
+	} else {
+		menu.add('noimg');
+	}
+	menu.add(getText(post) ? 'text' : 'notext');
+	menu.genMenu(post.btns.firstChild);
+	menu = null;
 }
 
 function selectExpandThread(post) {
@@ -5063,18 +5106,14 @@ function findSameText(post, oNum, oHid, oWords) {
 }
 
 function hideBySameText(post) {
-	var wrds, hid, num, text = getText(post);
-	if(text) {
-		wrds = getWrds(text);
+	var text = getText(post),
+		wrds = getWrds(text),
+		hid = post.hide,
 		num = post.num;
-		hid = post.hide;
-		Posts.forEach(function(target) {
-			findSameText(target, num, hid, wrds);
-		});
-		saveUserPostsVisib();
-	} else {
-		addSpell('(#all', ' & !#tlen)');
-	}
+	Posts.forEach(function(target) {
+		findSameText(target, num, hid, wrds);
+	});
+	saveUserPostsVisib();
 	hid = num = wrds = null;
 }
 
