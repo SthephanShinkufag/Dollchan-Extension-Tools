@@ -1944,12 +1944,25 @@ function selectSpell(e) {
 }
 
 /** @constructor */
-function hMenuFactory() {
-	this._mItems = [];
-	this._mNames = [];
+function hideMenu(post) {
+	if(!Cfg['menuHiddBtn']) {
+		return;
+	}
+	this.mItems = [];
+	this.mNames = [];
+	if(!post.hide && (quotetxt = $txtSelect().trim())) {
+		this.add('sel');
+	}
+	if(post.img[0]) {
+		this.add('img').add('ihash');
+	} else {
+		this.add('noimg');
+	}
+	this.add(getText(post) ? 'text' : 'notext');
+	this.genMenu(post.btns.firstChild);
 }
-hMenuFactory.prototype = {
-	_funcs: {
+hideMenu.prototype = {
+	funcs: {
 		'sel': function(link) {
 			link.onclick = function(e) {
 				$pd(e);
@@ -1988,35 +2001,18 @@ hMenuFactory.prototype = {
 		}
 	},
 	add: function(name) {
-		this._mItems.push(Lng.selHiderMenu[name][lang]);
-		this._mNames.push(name);
+		this.mItems.push(Lng.selHiderMenu[name][lang]);
+		this.mNames.push(name);
 		return this;
 	},
 	genMenu: function(el) {
-		var a = addSelMenu(el, false, '<a href="#">' + this._mItems.join('</a><a href="#">') + '</a>');
-		this._mNames.forEach(function(name, idx) {
+		var a = addSelMenu(el, false, '<a href="#">' + this.mItems.join('</a><a href="#">') + '</a>');
+		this.mNames.forEach(function(name, idx) {
 			this[name](a[idx]);
-		}, this._funcs);
+		}, this.funcs);
 		a = null;
 	}
 };
-
-function selectPostHider(post) {
-	if(!Cfg['menuHiddBtn']) {
-		return;
-	}
-	var menu = new hMenuFactory();
-	if(!post.hide && (quotetxt = $txtSelect().trim())) {
-		menu.add('sel');
-	}
-	if(post.img[0]) {
-		menu.add('img').add('ihash');
-	} else {
-		menu.add('noimg');
-	}
-	menu.add(getText(post) ? 'text' : 'notext');
-	menu.genMenu(post.btns.firstChild);
-}
 
 function selectExpandThread(post) {
 	$each(addSelMenu(
@@ -3245,7 +3241,7 @@ function prepareCFeatures() {
 	$event(window, {'message': function(e) {
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
-		case 'A': selectPostHider(pByNum[+data]); return;
+		case 'A': new hideMenu(pByNum[+data]); return;
 		case 'B': selectExpandThread(pByNum[+data]); return;
 		case 'C': quotetxt = $txtSelect(); return;
 		case 'D': toggleUserPostVisib(pByNum[+data]); return;
