@@ -2464,7 +2464,7 @@ function doPostformChanges(img, _img, el) {
 			val += '\n' + sVal;
 		}
 		if(pr.tNum && ($c('filetitle', pByNum[pr.tNum]) || {}).textContent ===
-			'Dollchan Extension Tools' && !/`\n`\-{50}`/.test(val)) {
+			'Dollchan Extension Tools' && !/`\-{50}`$/.test(val)) {
 			val += '\n\n`--------------------------------------------------`\n' +
 				'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
 				'\n`--------------------------------------------------`';
