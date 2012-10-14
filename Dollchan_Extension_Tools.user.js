@@ -4136,9 +4136,7 @@ function getPview(post, pNum, parent, link, txt) {
 		} else {
 			if(Cfg['addYouTube']) {
 				updateTubeLinks(pView, $C('de-ytube-link', post));
-				if(Cfg['addYouTube'] === 3) {
-					updateTubePlayer(pView, $c('de-ytube-obj', post));
-				}
+				updateTubePlayer(pView, $c('de-ytube-obj', post));
 			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', pView), function(el) {
@@ -4413,7 +4411,7 @@ function replaceFullMsg(post, fn) {
 	if(ytube) {
 		post.msg.appendChild(ytube);
 	}
-	if(ytObj && Cfg['addYouTube'] === 3) {
+	if(ytObj) {
 		updateTubePlayer(post, ytObj);
 	}
 	updateTubeLinks(post, ytLinks);
