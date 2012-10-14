@@ -3588,9 +3588,12 @@ function updateTubePlayers(src, dst) {
 		el.onclick = clickTubeLink;
 		el.ytinfo = this[idx].ytinfo;
 	}, $C('de-ytube-link', src));
-	if(Cfg['addYouTube'] === 3 && (ytObjSrc = $c('de-ytube-obj', src)) && ytObjSrc.tubeImg) {
+	if(Cfg['addYouTube'] === 3 && (ytObjSrc = $c('de-ytube-obj', src))) {
 		ytObjDst = $c('de-ytube-obj', dst);
-		eventTubePreview(ytObjDst, ytObjDst.ytinfo = ytObjSrc.ytinfo);
+		ytObjDst.ytinfo = ytObjSrc.ytinfo
+		if(ytObjSrc.tubeImg) {
+			eventTubePreview(ytObjDst);
+		}
 	}
 }
 
