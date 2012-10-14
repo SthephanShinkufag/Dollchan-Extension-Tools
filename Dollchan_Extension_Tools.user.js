@@ -3582,19 +3582,26 @@ function addTubePlayer(el, m) {
 	});
 }
 
-function updateTubePlayers(src, dst) {
-	var ytObjDst, ytObjSrc;
-	aProto.forEach.call($C('de-ytube-link', dst), function(el, idx) {
-		el.onclick = clickTubeLink;
-		el.ytinfo = this[idx].ytinfo;
-	}, $C('de-ytube-link', src));
-	if(Cfg['addYouTube'] === 3 && (ytObjSrc = $c('de-ytube-obj', src))) {
-		ytObjDst = $c('de-ytube-obj', dst);
+function updateTubePlayer(dst, ytObjSrc) {
+	if(ytObjSrc) {
+		var ytObjDst = $c('de-ytube-obj', dst);
 		ytObjDst.ytinfo = ytObjSrc.ytinfo
 		if(ytObjSrc.tubeImg) {
 			eventTubePreview(ytObjDst);
 		}
 	}
+}
+
+function updateTubeLinks(post, srcL) {
+	aProto.forEach.call($C('de-ytube-link', post), function(el, idx) {
+		var link = this[idx];
+		if(link) {
+			el.onclick = clickTubeLink;
+			el.ytinfo = link.ytinfo;
+		} else {
+			addLinkTube(el, el.href.match(getTubePattern()), post);
+		}
+	}, srcL);
 }
 
 function eventTubePreview(el) {
@@ -3635,7 +3642,55 @@ function clickTubeLink(e) {
 	el.ytinfo = m;
 }
 
-function addLinkTube(post) {
+function addLinkTube(link, m, post) {
+	var msg, prev, el;
+	if(!post.tubeObj) {
+		post.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
+		el.ytinfo = m;
+		if(Cfg['addYouTube'] > 2) {
+			addTubePreview(el, m);
+		} else if(Cfg['addYouTube'] === 2) {
+			addTubePlayer(el, m);
+		}
+		msg = post.msg || $q(aib.qMsg, post);
+		if(aib.krau) {
+			msg = msg.parentNode;
+			prev = msg.previousElementSibling;
+			$before(prev.hasAttribute('style') ? prev : msg, el);
+		} else {
+			$before(msg, el);
+		}
+	}
+	link.href = link.href.replace(/^http:/, 'https:');
+	link.ytinfo = m;
+	link.className = 'de-ytube-link';
+	link.onclick = clickTubeLink;
+	if(!Cfg['YTubeTitles']) {
+		link.textContent = link.textContent.replace(/^http:/, 'https:');
+		return;
+	}
+	link.textData = 1;
+	GM_xmlhttpRequest({
+		'method': 'GET',
+		'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
+			'?alt=json&fields=title/text(),media:group/media:keywords',
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status === 200) {
+					try {
+						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+						link.textData = 2;
+						return;
+					} catch(e) {}
+				}
+				link.textData = 3;
+				link = pst = null;
+			}
+		}
+	});
+}
+
+function addLinksTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
@@ -3654,55 +3709,10 @@ function addLinkTube(post) {
 		$del(el);
 	});
 	$each($Q('a[href*="youtu"]', post || dForm), function(link) {
-		var pst, el, msg, prev, m = link.href.match(getTubePattern());
-		if(!m) {
-			return;
+		var m = link.href.match(getTubePattern());
+		if(m) {
+			addLinkTube(link, m, post || getPost(link));
 		}
-		pst = post || getPost(link);
-		if(!pst.tubeObj) {
-			pst.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
-			el.ytinfo = m;
-			if(Cfg['addYouTube'] > 2) {
-				addTubePreview(el, m);
-			} else if(Cfg['addYouTube'] === 2) {
-				addTubePlayer(el, m);
-			}
-			msg = pst.msg || $q(aib.qMsg, pst);
-			if(aib.krau) {
-				msg = msg.parentNode;
-				prev = msg.previousElementSibling;
-				$before(prev.hasAttribute('style') ? prev : msg, el);
-			} else {
-				$before(msg, el);
-			}
-		}
-		link.href = link.href.replace(/^http:/, 'https:');
-		link.ytinfo = m;
-		link.className = 'de-ytube-link';
-		link.onclick = clickTubeLink;
-		if(!Cfg['YTubeTitles']) {
-			link.textContent = link.textContent.replace(/^http:/, 'https:');
-			return;
-		}
-		link.textData = 1;
-		GM_xmlhttpRequest({
-			'method': 'GET',
-			'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
-				'?alt=json&fields=title/text(),media:group/media:keywords',
-			'onreadystatechange': function(xhr) {
-				if(xhr.readyState === 4) {
-					if(xhr.status === 200) {
-						try {
-							link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-							link.textData = 2;
-							return;
-						} catch(e) {}
-					}
-					link.textData = 3;
-					link = pst = null;
-				}
-			}
-		});
 	});
 }
 
@@ -4120,12 +4130,15 @@ function getPview(post, pNum, parent, link, txt) {
 		$each($Q('.de-img-full, .de-ppanel', pView), $del);
 		if(!inDoc) {
 			addLinkMP3(pView);
-			addLinkTube(pView);
+			addLinksTube(pView);
 			addLinkImg(pView);
 			addImgSearch(pView);
 		} else {
 			if(Cfg['addYouTube']) {
-				updateTubePlayers(post, pView);
+				updateTubeLinks(pView, $C('de-ytube-link', post));
+				if(Cfg['addYouTube'] === 3) {
+					updateTubePlayer(pView, $c('de-ytube-obj', post));
+				}
 			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', pView), function(el) {
@@ -4350,7 +4363,6 @@ function addPostFunc(post) {
 	updRefMap(post);
 	eventRefLink(post);
 	addLinkMP3(post);
-	addLinkTube(post);
 	addLinkImg(post);
 	if(isExpImg) {
 		expandAllPostImg(post, null);
@@ -4365,6 +4377,7 @@ function newPost(thr, post, pNum, i) {
 		expandPost(post);
 	}
 	addPostFunc(post);
+	addLinksTube(post);
 	addImgSearch(post);
 	if(postWrapper && i !== 0) {
 		pst = postWrapper.cloneNode(true);
@@ -4387,51 +4400,67 @@ function newPost(thr, post, pNum, i) {
 	return +!post.hide;
 }
 
-function processFullMsg(post) {
+function replaceFullMsg(post, fn) {
+	var ytube = $q('.de-ytube-ext', post.msg),
+		ytObj = $c('de-ytube-obj', post),
+		ytLinks = $C('de-ytube-link', post);
+	fn();
 	if(aib.rep) {
 		post.innerHTML = replaceString(post.innerHTML);
 		post.img = getPostImages(post);
 	}
-	$each($Q('.de-ytube-obj', post), $del);
+	post.msg = $q(aib.qMsg, post);
+	if(ytube) {
+		post.msg.appendChild(ytube);
+	}
+	if(ytObj && Cfg['addYouTube'] === 3) {
+		updateTubePlayer(post, ytObj);
+	}
+	updateTubeLinks(post, ytLinks);
 	addPostFunc(post);
 }
 
 function getFullPost(el, isFunc) {
 	var	post = getPost(el),
-		replaceFMsg = function(pst, pNum) {
-			if(post.num === pNum) {
-				$del(el);
-				var ytube = $q('.de-ytube-ext', post.msg);
-				post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.msg);
-				post.msg = $q(aib.qMsg, post);
-				if(ytube) {
-					post.msg.appendChild(ytube);
-				}
-				processFullMsg(post);
-				el = post = null;
-				throw null;
-			}
-		};
+		pNum = post.num;
 	if(aib.hana) {
 		$del(el.nextSibling);
 		$del(el.previousSibling);
 		$del(el);
-		post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
 		if(isFunc) {
-			processFullMsg(post);
+			replaceFullMsg(post, function() {
+				post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
+			});
+		} else {
+			post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
 		}
+		post = null;
 		return;
 	}
 	ajaxGetPosts(null, brd, post.thr.num, true, function(els, op, err) {
 		if(!err) {
-			try {
-				replaceFMsg(op, aib.getTNum(op));
-				$each(els, function(pst) {
-					replaceFMsg(pst, aib.getPNum(pst));
+			if(pNum === aib.getTNum(op)) {
+				replaceFullMsg(post, function() {
+					post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, op), true), post.msg);
 				});
-			} catch(e) {}
+				$del(el);
+			} else {
+				err = aProto.some.call(els, function(pst) {
+					if(aib.getPNum(pst) === pNum) {
+						replaceFullMsg(post, function() {
+							post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.msg);
+						});
+						pst = null;
+						return true;
+					}
+					return false;
+				});
+				if(!err) {
+					$del(el);
+				}
+			}
 		}
-		el = post = null;
+		pNum = post = null;
 	});
 }
 
@@ -4587,7 +4616,7 @@ function loadPages(len) {
 				Posts.forEach(eventPostImg);
 				Posts.forEach(expandPost);
 				addLinkMP3(null);
-				addLinkTube(null);
+				addLinksTube(null);
 				addLinkImg(dForm);
 				addImgSearch(dForm);
 				genRefMap(pByNum);
@@ -7393,8 +7422,8 @@ function doScript() {
 		$log('addLinkMP3');
 	}
 	if(Cfg['addYouTube']) {
-		addLinkTube(null);
-		$log('addLinkTube');
+		addLinksTube(null);
+		$log('addLinksTube');
 	}
 	if(Cfg['addImgs']) {
 		addLinkImg(dForm);
