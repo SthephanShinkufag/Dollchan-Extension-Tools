@@ -3582,14 +3582,33 @@ function addTubePlayer(el, m) {
 	});
 }
 
+function updateTubePlayers(src, dst) {
+	var ytObjDst, ytObjSrc;
+	aProto.forEach.call($C('de-ytube-link', dst), function(el, idx) {
+		el.onclick = clickTubeLink;
+		el.ytinfo = this[idx].ytinfo;
+	}, $C('de-ytube-link', src));
+	if(Cfg['addYouTube'] === 3 && (ytObjSrc = $c('de-ytube-obj', src)) && ytObjSrc.tubeImg) {
+		ytObjDst = $c('de-ytube-obj', dst);
+		eventTubePreview(ytObjDst, ytObjDst.ytinfo = ytObjSrc.ytinfo);
+	}
+}
+
+function eventTubePreview(el) {
+	el.tubeImg = true;
+	el.firstChild.onclick = function(e) {
+		$pd(e);
+		var node = this.parentNode;
+		node.tubeImg = false;
+		addTubePlayer(node, node.ytinfo);
+	};
+}
+
 function addTubePreview(el, m) {
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270" /></a>';
 	if(Cfg['addYouTube'] === 3) {
-		el.firstChild.onclick = function(e) {
-			$pd(e);
-			addTubePlayer(this.parentNode, m);
-		};
+		eventTubePreview(el);
 	}
 }
 
@@ -3598,16 +3617,19 @@ function getTubePattern() {
 }
 
 function clickTubeLink(e) {
-	var m = this.href.match(getTubePattern()),
+	var m = this.ytinfo,
 		el = $c('de-ytube-obj', getPost(this));
 	$pd(e);
-	if($q('[src*="' + m[1] + '"], video[poster*="' + m[1] + '"]', el)) {
+	if(el.ytinfo === m) {
 		el.innerHTML = '';
-	} else if(Cfg['addYouTube'] > 2 && !$q('a[href*="' + m[1] + '"]', el)) {
+		el.ytinfo = null;
+		return;
+	} else if(Cfg['addYouTube'] > 2) {
 		addTubePreview(el, m);
 	} else {
 		addTubePlayer(el, m);
 	}
+	el.ytinfo = m;
 }
 
 function addLinkTube(post) {
@@ -3633,10 +3655,10 @@ function addLinkTube(post) {
 		if(!m) {
 			return;
 		}
-		link.href = link.href.replace(/^http:/, 'https:');
 		pst = post || getPost(link);
 		if(!pst.tubeObj) {
 			pst.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
+			el.ytinfo = m;
 			if(Cfg['addYouTube'] > 2) {
 				addTubePreview(el, m);
 			} else if(Cfg['addYouTube'] === 2) {
@@ -3651,6 +3673,8 @@ function addLinkTube(post) {
 				$before(msg, el);
 			}
 		}
+		link.href = link.href.replace(/^http:/, 'https:');
+		link.ytinfo = m;
 		link.className = 'de-ytube-link';
 		link.onclick = clickTubeLink;
 		if(!Cfg['YTubeTitles']) {
@@ -4098,14 +4122,7 @@ function getPview(post, pNum, parent, link, txt) {
 			addImgSearch(pView);
 		} else {
 			if(Cfg['addYouTube']) {
-				$each($C('de-ytube-link', pView), function(el) {
-					el.onclick = clickTubeLink;
-				});
-				if(Cfg['addYouTube'] === 3) {
-					$each($C('de-ytube-obj', pView), function(el) {
-						addTubePreview(el, el.firstChild.href.match(getTubePattern()));
-					});
-				}
+				updateTubePlayers(post, pView);
 			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', pView), function(el) {
