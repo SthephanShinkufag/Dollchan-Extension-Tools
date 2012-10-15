@@ -7008,9 +7008,9 @@ function getImageboard() {
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"],' +
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"],' +
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]'
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]:nth-child(1), ' +
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]:nth-child(1), ' +
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]:nth-child(1)'
 	);
 	aib.qPostForm =
 		aib.futa ? 'form:nth-of-type(1)' :
