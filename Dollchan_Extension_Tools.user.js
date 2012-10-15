@@ -6631,8 +6631,8 @@ function updateCSS() {
 		x += '#de-panel-btns, #de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x+= '.de-img-pre, .de-ytube-obj, img[src*="spoiler"], img[src*="thumb"] { opacity: 0.07 !important; }\
-			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover { opacity: 1 !important; }';
+		x+= '.de-img-pre, .de-ytube-obj, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['delHiddPost']) {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
