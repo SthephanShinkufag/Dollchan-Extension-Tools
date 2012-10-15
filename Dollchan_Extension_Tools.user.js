@@ -2435,7 +2435,7 @@ function doPostformChanges(img, _img, el) {
 	var sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-	if(nav.Firefox && !aib.nul) {
+	if(nav.Firefox) {
 		$event(pr.txta, {'mouseup': function() {
 			saveCfg('textaWidth', parseInt(this.style.width, 10));
 			saveCfg('textaHeight', parseInt(this.style.height, 10));
@@ -6565,7 +6565,8 @@ function scriptCSS() {
 		} else if(aib.nul) {
 			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-				.ui-resizable { display: inline !important; }';
+				.ui-resizable { display: inline !important; }\
+				form textarea { resize: both !important; }';
 		} else if(aib.hana) {
 			x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
 				.delete { background: none; }\
