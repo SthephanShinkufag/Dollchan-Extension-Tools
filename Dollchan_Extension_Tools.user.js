@@ -2435,8 +2435,7 @@ function doPostformChanges(img, _img, el) {
 	var sBtn;
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
-
-	if(nav.Firefox) {
+	if(nav.Firefox && !aib.nul) {
 		$event(pr.txta, {'mouseup': function() {
 			saveCfg('textaWidth', parseInt(this.style.width, 10));
 			saveCfg('textaHeight', parseInt(this.style.height, 10));
@@ -2445,7 +2444,8 @@ function doPostformChanges(img, _img, el) {
 		addTextResizer();
 	}
 	addTextPanel();
-	pr.txta.style.cssText = 'padding: 0; width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+	pr.txta.style.cssText =
+		'padding: 0; width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 	$event(pr.txta, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
