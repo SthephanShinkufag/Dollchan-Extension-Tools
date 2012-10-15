@@ -2446,7 +2446,6 @@ function doPostformChanges(img, _img, el) {
 	}
 	addTextPanel();
 	pr.txta.style.cssText = 'padding: 0; width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
-	pr.txta.removeAttribute('id');
 	$event(pr.txta, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
@@ -6905,7 +6904,7 @@ function getPostform(form) {
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
-		passw: $q(tr + ' input[type="password"]', form),
+		passw: !aib.nul && $q(tr + ' input[type="password"]', form),
 		dpass: $q('input[type="password"]', dForm),
 		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
 		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
