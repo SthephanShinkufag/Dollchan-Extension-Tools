@@ -3645,10 +3645,11 @@ function addLinkTube(link, m, post) {
 	var msg, prev, el;
 	if(!post.tubeObj) {
 		post.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
-		el.ytinfo = m;
 		if(Cfg['addYouTube'] > 2) {
+			el.ytinfo = m;
 			addTubePreview(el, m);
 		} else if(Cfg['addYouTube'] === 2) {
+			el.ytinfo = m;
 			addTubePlayer(el, m);
 		}
 		msg = post.msg || $q(aib.qMsg, post);
