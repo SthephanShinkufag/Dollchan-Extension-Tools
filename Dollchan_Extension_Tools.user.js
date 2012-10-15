@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.10.11.0
+// @version			12.10.15.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -12,7 +12,7 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.10.11.0',
+	'version':	'12.10.15.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
 	'menuHiddBtn':	1,		// menu on hide button
@@ -574,9 +574,6 @@ function fixFunctions() {
 			return this.indexOf(s) === 0;
 		};
 	}
-	RegExp.quote = function(str) {
-		return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-	};
 	if(!window.GM_log) {
 		window.GM_log = function(msg) {
 			console.error(msg);
@@ -605,6 +602,10 @@ function fixFunctions() {
 		};
 	}
 }
+
+function regQuote(str) {
+	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+};
 
 function getPost(el) {
 	return $x('ancestor::*[@de-post]', el);
@@ -2371,7 +2372,7 @@ function delFileUtils(el) {
 function processInput() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		$after(this, $attr($new('button', {
+		$after(this, $new('button', {
 			'class': 'de-file-util de-file-del',
 			'text': Lng.clear[lang],
 			'type': 'button'}, {
@@ -2381,7 +2382,7 @@ function processInput() {
 				delFileUtils(el);
 				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
 			}
-		})));
+		}));
 	} else if(this.rarJPEG) {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
@@ -2389,7 +2390,7 @@ function processInput() {
 	if(!aib.abu && !aib.fch) {
 		$del($c('de-file-rar', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this, $attr($new('button', {
+			$after(this, $new('button', {
 				'class': 'de-file-util de-file-rar',
 				'text': Lng.addRar[lang],
 				'type': 'button'}, {
@@ -2425,7 +2426,7 @@ function processInput() {
 					};
 					el.click();
 				}
-			})));
+			}));
 		}
 	}
 	eventFiles(pr.getTR(this));
@@ -3584,7 +3585,7 @@ function addTubePlayer(el, m) {
 function updateTubePlayer(dst, ytObjSrc) {
 	if(ytObjSrc) {
 		var ytObjDst = $c('de-ytube-obj', dst);
-		ytObjDst.ytinfo = ytObjSrc.ytinfo
+		ytObjDst.ytInfo = ytObjSrc.ytInfo
 		if(ytObjSrc.tubeImg) {
 			eventTubePreview(ytObjDst);
 		}
@@ -3596,7 +3597,7 @@ function updateTubeLinks(post, srcL) {
 		var link = this[idx];
 		if(link) {
 			el.onclick = clickTubeLink;
-			el.ytinfo = link.ytinfo;
+			el.ytInfo = link.ytInfo;
 		} else {
 			addLinkTube(el, el.href.match(getTubePattern()), post);
 		}
@@ -3609,7 +3610,7 @@ function eventTubePreview(el) {
 		$pd(e);
 		var node = this.parentNode;
 		node.tubeImg = false;
-		addTubePlayer(node, node.ytinfo);
+		addTubePlayer(node, node.ytInfo);
 	};
 }
 
@@ -3626,30 +3627,30 @@ function getTubePattern() {
 }
 
 function clickTubeLink(e) {
-	var m = this.ytinfo,
+	var m = this.ytInfo,
 		el = $c('de-ytube-obj', getPost(this));
 	$pd(e);
-	if(el.ytinfo === m) {
+	if(el.ytInfo === m) {
 		el.innerHTML = '';
-		el.ytinfo = null;
+		el.ytInfo = null;
 		return;
 	} else if(Cfg['addYouTube'] > 2) {
 		addTubePreview(el, m);
 	} else {
 		addTubePlayer(el, m);
 	}
-	el.ytinfo = m;
+	el.ytInfo = m;
 }
 
 function addLinkTube(link, m, post) {
 	var msg, prev, el;
-	if(!post.tubeObj) {
-		post.tubeObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
+	if(!post.ytObj) {
+		post.ytObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
 		if(Cfg['addYouTube'] > 2) {
-			el.ytinfo = m;
+			el.ytInfo = m;
 			addTubePreview(el, m);
 		} else if(Cfg['addYouTube'] === 2) {
-			el.ytinfo = m;
+			el.ytInfo = m;
 			addTubePlayer(el, m);
 		}
 		msg = post.msg || $q(aib.qMsg, post);
@@ -3662,7 +3663,7 @@ function addLinkTube(link, m, post) {
 		}
 	}
 	link.href = link.href.replace(/^http:/, 'https:');
-	link.ytinfo = m;
+	link.ytInfo = m;
 	link.className = 'de-ytube-link';
 	link.onclick = clickTubeLink;
 	if(!Cfg['YTubeTitles']) {
@@ -5354,10 +5355,10 @@ Spells.prototype = {
 		// 13: #video
 		function(post, val, flags, sStack, hFunc, nhFunc) {
 			if(!val) {
-				Spells.retAsyncVal(post, !!post.tubeObj, flags, sStack, hFunc, nhFunc, false);
+				Spells.retAsyncVal(post, !!post.ytObj, flags, sStack, hFunc, nhFunc, false);
 				return;
 			}
-			if(!post.tubeObj || !Cfg['YTubeTitles']) {
+			if(!post.ytObj || !Cfg['YTubeTitles']) {
 				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, false);
 				return;
 			}
@@ -6279,7 +6280,7 @@ function addSpell(spell, arg) {
 	}
 	if(temp = spells.parseText(val)) {
 		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
-		val = temp[0].split(new RegExp('(?:^|\\|?[\\s\\n]*)' + RegExp.quote(spell) + '(?: \\|\\n|$)', 'g'));
+		val = temp[0].split(new RegExp('(?:^|\\|?[\\s\\n]*)' + regQuote(spell) + '(?: \\|\\n|$)', 'g'));
 		if(val.length === 1) {
 			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
 		} else {
@@ -6851,7 +6852,7 @@ function getNavigator() {
 		};
 	nav.remClass =
 		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
-			el.className = el.className.replace(new RegExp('(?:^| )' + RegExp.quote(cName) + '(?= |$)', 'g'), '');
+			el.className = el.className.replace(new RegExp('(?:^| )' + regQuote(cName) + '(?= |$)', 'g'), '');
 		} : function(el, cName) {
 			el.classList.remove(cName);
 		};
@@ -6868,7 +6869,7 @@ function getNavigator() {
 function getPage() {
 	var url = (window.location.pathname || '').match(new RegExp(
 		'^(?:\\/?([^\\.]*?)\\/?)?' +
-		'(' + RegExp.quote(aib.res) + ')?' +
+		'(' + regQuote(aib.res) + ')?' +
 		'(\\d+|index|wakaba|futaba)?' +
 		'(\\.(?:[a-z]+))?$'
 	));
@@ -7035,10 +7036,10 @@ function getImageboard() {
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
 		'res/';
-	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + RegExp.quote(aib.res) + '|index|\\d+|$)');
+	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + regQuote(aib.res) + '|index|\\d+|$)');
 	aib.reCrossLinks = new RegExp(
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
-		'\\/([a-z0-9]+)\\/' + RegExp.quote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
+		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
 	);
 	aib.getThrdUrl = function(b, tNum) {
 		return fixBrd(b) + (
