@@ -6807,7 +6807,7 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.noBlob = nav.Firefox < 15 && nav.WebKit < 536.1;
+	nav.noBlob = aib.nul || nav.Firefox < 15 && nav.WebKit < 536.1;
 	nav.insAfter =
 		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$after(el, $add(html));
