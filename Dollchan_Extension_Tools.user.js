@@ -769,18 +769,26 @@ function getCfg(obj) {
 }
 
 function fixCfg(isGlob) {
-	var rv = isGlob && getCfg(commonCfg['global']) || new Config({'version': defaultCfg['version']});
-	rv['captchaLang'] = aib.ru ? 2 : 1;
-	rv['timePattern'] = rv['timeOffset'] = '';
-	rv['correctTime'] = 0;
-	return rv;
+	var obj = isGlob && getCfg(commonCfg['global']) || new Config({'version': defaultCfg['version']});
+	obj['captchaLang'] = aib.ru ? 2 : 1;
+	obj['timePattern'] = obj['timeOffset'] = '';
+	obj['correctTime'] = 0;
+	return obj;
+}
+
+function saveCommonCfg(h, obj) {
+	if(obj) {
+		commonCfg[h] = obj;
+	} else {
+		delete commonCfg[h];
+	}
+	setStored('DESU_Config', JSON.stringify(commonCfg));
 }
 
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		commonCfg[aib.host] = Cfg;
-		setStored('DESU_Config', JSON.stringify(commonCfg));
+		saveCommonCfg(aib.host, Cfg);
 	}
 }
 
@@ -826,8 +834,7 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	commonCfg[aib.host] = Cfg;
-	setStored('DESU_Config', JSON.stringify(commonCfg));
+	saveCommonCfg(aib.host, Cfg);
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
@@ -1575,16 +1582,14 @@ function addSettings(Set) {
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(getCfg(commonCfg['global'])) {
-						delete commonCfg[aib.host];
-						setStored('DESU_Config', JSON.stringify(commonCfg));
+						saveCommonCfg(aib.host, null);
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					commonCfg['global'] = Cfg;
-					setStored('DESU_Config', JSON.stringify(commonCfg));
+					saveCommonCfg('global', Cfg);
 					toggleContent('cfg', true);
 				})),
 				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
@@ -1594,8 +1599,7 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						commonCfg[aib.host] = fixCfg(false);
-						setStored('DESU_Config', JSON.stringify(commonCfg));
+						saveCommonCfg(aib.host, fixCfg(false));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads', '');
@@ -1608,8 +1612,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					commonCfg[aib.host] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, ''));
-					setStored('DESU_Config', JSON.stringify(commonCfg));
+					saveCommonCfg(aib.host, JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')));
 					window.location.reload();
 				})
 			])
@@ -6123,8 +6126,7 @@ Spells.prototype = {
 		delete Cfg['wipeSpecial'];
 		delete Cfg['wipeCAPS'];
 		delete Cfg['wipeNumbers'];
-		commonCfg[aib.host] = Cfg;
-		setStored('DESU_Config', JSON.stringify(commonCfg));
+		saveCommonCfg(aib.host, Cfg);
 		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') +
 			rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
