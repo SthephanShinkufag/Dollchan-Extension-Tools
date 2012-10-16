@@ -361,7 +361,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, comCfg, hThr, comHThr, Favor, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
+Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
@@ -832,13 +832,14 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
+	if(!comCfg['stats']) {
+		comCfg['stats'] = {'view': 0, 'op': 0, 'reply': 0};
+	}
+	if(TNum) {
+		comCfg['stats']['view']++;
+	}
 	saveComCfg(aib.host, Cfg);
 	lang = Cfg['language'];
-	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
-	if(TNum) {
-		Stat['view'] = +Stat['view'] + 1;
-	}
-	setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(
 			Cfg['timePattern'],
@@ -1520,8 +1521,9 @@ function getCfgInfo() {
 				nav.isGM ? 'Mozilla config' :
 				scriptStorage ? 'Opera ScriptStorage' :
 				'Local Storage'
-			) + '<br>' + Lng.thrViewed[lang] + Stat['view'] + '<br>' +
-			Lng.thrCreated[lang] + Stat['op'] + '<br>' + Lng.posts[lang] + Stat['reply'] + '</span>'),
+			) + '<br>' + Lng.thrViewed[lang] + comCfg['stats']['view'] + '<br>' +
+			Lng.thrCreated[lang] + comCfg['stats']['op'] + '<br>' +
+			Lng.posts[lang] + comCfg['stats']['reply'] + '</span>'),
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
@@ -1596,11 +1598,14 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						saveComCfg(aib.host, fixCfg(false));
-						setStored('DESU_Stat_' + aib.dm, '');
+						//saveComCfg(aib.host, fixCfg(false));
+						setStored('DESU_Config', '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads', '');
-						setStored('DESU_Spells_' + aib.dm, '[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]');
+						setStored(
+							'DESU_Spells_' + aib.dm,
+							'[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]'
+						);
 						window.location.reload();
 					}
 				})
@@ -2491,12 +2496,8 @@ function doPostformChanges(img, _img, el) {
 		if(Cfg['favOnReply'] && pr.tNum) {
 			toggleFavorites(pByNum[pr.tNum], $c('de-btn-fav', pByNum[pr.tNum].btns));
 		}
-		if(pr.tNum) {
-			Stat['reply'] = +Stat['reply'] + 1;
-		} else {
-			Stat['op'] = +Stat['op'] + 1;
-		}
-		setStored('DESU_Stat_' + aib.dm, JSON.stringify(Stat));
+		comCfg['stats'][pr.tNum ? 'reply' : 'op']++;
+		setStored('DESU_Config', JSON.stringify(comCfg));
 		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
 			pr.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 		}
