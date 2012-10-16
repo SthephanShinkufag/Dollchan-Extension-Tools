@@ -12,7 +12,6 @@
 
 (function(scriptStorage) {
 var defaultCfg = {
-	'version':	'12.10.15.0',
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
 	'menuHiddBtn':	1,		// menu on hide button
@@ -84,7 +83,6 @@ var defaultCfg = {
 	'closePopups':	0,		// auto-close popups
 	'updScript':	1,		// check for script's update
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
-	'lastScrUpd':	0,		// 		last update check
 	'textaWidth':	500,	// textarea width
 	'textaHeight':	160		// textarea height
 },
@@ -765,11 +763,11 @@ function Config(cfg) {
 Config.prototype = defaultCfg;
 
 function getCfg(obj) {
-	return obj && obj['version'] ? new Config(obj) : false;
+	return obj && !$isEmpty(obj) ? new Config(obj) : false;
 }
 
 function fixCfg(isGlob) {
-	var obj = isGlob && getCfg(comCfg['global']) || new Config({'version': defaultCfg['version']});
+	var obj = isGlob && getCfg(comCfg['global']) || new Config({});
 	obj['captchaLang'] = aib.ru ? 2 : 1;
 	obj['timePattern'] = obj['timeOffset'] = '';
 	obj['correctTime'] = 0;
@@ -795,7 +793,6 @@ function saveCfg(id, val) {
 function readCfg() {
 	comCfg = getStoredObj('DESU_Config', {});
 	Cfg = getCfg(comCfg[aib.host]) || fixCfg(nav.isGlobal);
-	Cfg['version'] = defaultCfg['version'];
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
 	}
@@ -834,6 +831,7 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
+	saveComCfg('version', '12.10.15.0');
 	saveComCfg(aib.host, Cfg);
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
@@ -1517,7 +1515,7 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
-		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + Cfg['version'] + '</b><br><br>' +
+		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + comCfg['version'] + '</b><br><br>' +
 			Lng.storage[lang] + (
 				nav.isGM ? 'Mozilla config' :
 				scriptStorage ? 'Opera ScriptStorage' :
@@ -1536,14 +1534,13 @@ function getCfgInfo() {
 				delete nCfg['nameValue'];
 				delete nCfg['passwValue'];
 				delete nCfg['signatValue'];
-				delete nCfg['lastScrUpd'];
 				for(i in nCfg) {
 					if(nCfg[i] === defaultCfg[i]) {
 						delete nCfg[i];
 					}
 				}
 				$alert(Lng.infoDebug[lang] + ':<br><textarea readonly rows="20" cols="75">' + getPrettyJSON({
-					'version': defaultCfg['version'],
+					'version': comCfg['version'],
 					'location': String(window.location),
 					'nav': nav,
 					'cfg': nCfg,
@@ -2484,7 +2481,7 @@ function doPostformChanges(img, _img, el) {
 		if(pr.tNum && ($c('filetitle', pByNum[pr.tNum]) || {}).textContent ===
 			'Dollchan Extension Tools' && !/`\-{50}`$/.test(val)) {
 			val += '\n\n`--------------------------------------------------`\n' +
-				'`' + window.navigator.userAgent + '`\n`v' + Cfg['version'] + '`' +
+				'`' + window.navigator.userAgent + '`\n`v' + comCfg['version'] + '`' +
 				'\n`--------------------------------------------------`';
 		}
 		pr.txta.value = val;
@@ -6691,7 +6688,7 @@ function checkForUpdates(isForce, Fn) {
 		case 3: temp = day * 14; break;
 		default: temp = day * 30;
 		}
-		if(Date.now() - +Cfg['lastScrUpd'] < temp) {
+		if(Date.now() - +comCfg['lastUpd'] < temp) {
 			return;
 		}
 	}
@@ -6706,7 +6703,7 @@ function checkForUpdates(isForce, Fn) {
 			}
 			if(xhr.status === 200) {
 				var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
-					cVer = Cfg['version'].split('.'),
+					cVer = comCfg['version'].split('.'),
 					len = cVer.length > dVer.length ? cVer.length : dVer.length,
 					i = 0,
 					isUpd = false;
@@ -6716,7 +6713,7 @@ function checkForUpdates(isForce, Fn) {
 					}
 					return;
 				}
-				saveCfg('lastScrUpd', Date.now());
+				saveComCfg('lastUpd', Date.now());
 				while(i < len) {
 					if((+dVer[i] || 0) > (+cVer[i] || 0)) {
 						isUpd = true;
