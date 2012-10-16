@@ -747,6 +747,16 @@ function setStored(id, value) {
 	}
 }
 
+function delStored(id) {
+	if(nav.isGM) {
+		GM_deleteValue(id);
+	} else if(scriptStorage) {
+		scriptStorage.removeItem(id);
+	} else {
+		localStorage.removeItem(id);
+	}
+}
+
 function getStoredObj(id, def) {
 	try {
 		return JSON.parse(getStored(id)) || def;
@@ -755,20 +765,25 @@ function getStoredObj(id, def) {
 	}
 }
 
-/** @constructor */
-function Config(cfg) {
-	for(var key in cfg) {
-		this[key] = cfg[key];
-	}
+function readOldCfg() {
+	try {
+		var rv = JSON.parse(getStored('DESU_Config_' + aib.dm));
+		delStored('DESU_Config_' + aib.dm);
+		if(rv['version']) {
+			delete rv['version'];
+			delete rv['lastScrUpd'];
+			return rv;
+		}
+	} catch(e) {}
+	return false;
 }
-Config.prototype = defaultCfg;
 
 function getCfg(obj) {
-	return obj && !$isEmpty(obj) ? new Config(obj) : false;
+	return obj && !$isEmpty(obj) ? obj : readOldCfg();
 }
 
 function fixCfg(isGlob) {
-	var obj = isGlob && getCfg(comCfg['global']) || new Config({});
+	var obj = isGlob && getCfg(comCfg['global']) || {};
 	obj['captchaLang'] = aib.ru ? 2 : 1;
 	obj['timePattern'] = obj['timeOffset'] = '';
 	obj['correctTime'] = 0;
@@ -794,6 +809,7 @@ function saveCfg(id, val) {
 function readCfg() {
 	comCfg = getStoredObj('DESU_Config', {});
 	Cfg = getCfg(comCfg[aib.host]) || fixCfg(nav.isGlobal);
+	Cfg.__proto__ = defaultCfg;
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
 	}
@@ -1528,15 +1544,12 @@ function getCfgInfo() {
 			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/"' +
 				' target="_blank">http://www.freedollchan.org/scripts</a></span>'),
 			$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-				var i, nCfg = new Config(Cfg),
+				var i, nCfg = {},
 					tl = timeLog.split('\n');
 				tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
-				delete nCfg['nameValue'];
-				delete nCfg['passwValue'];
-				delete nCfg['signatValue'];
-				for(i in nCfg) {
-					if(nCfg[i] === defaultCfg[i]) {
-						delete nCfg[i];
+				for(i in Cfg) {
+					if(Cfg[i] !== defaultCfg[i] && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
+						nCfg[i] = Cfg[i];
 					}
 				}
 				$alert(Lng.infoDebug[lang] + ':<br><textarea readonly rows="20" cols="75">' + getPrettyJSON({
