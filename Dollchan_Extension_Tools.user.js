@@ -764,9 +764,9 @@ function Config(cfg) {
 }
 Config.prototype = defaultCfg;
 
-function parseCfg(id, obj) {
+function parseCfg(obj) {
 	try {
-		var rv = obj || JSON.parse(getStored(id));
+		var rv = obj;
 		if(rv['version']) {
 			return new Config(rv);
 		}
@@ -775,9 +775,8 @@ function parseCfg(id, obj) {
 }
 
 function fixCfg(isGlob) {
-	var rv = isGlob && parseCfg('DESU_GlobalCfg', null) || new Config({'version': defaultCfg['version']});
+	var rv = isGlob && parseCfg(commonCfg['global']) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.ru ? 2 : 1;
-	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
 	return rv;
@@ -793,8 +792,7 @@ function saveCfg(id, val) {
 
 function readCfg() {
 	commonCfg = getStoredObj('DESU_Config', {});
-	Cfg = parseCfg('', commonCfg[aib.host]) || fixCfg(nav.isGlobal);
-	alert(JSON.stringify(Cfg));
+	Cfg = parseCfg(commonCfg[aib.host]) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
@@ -1582,7 +1580,7 @@ function addSettings(Set) {
 					toggleContent('cfg', false);
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(parseCfg('DESU_GlobalCfg', null)) {
+					if(parseCfg(commonCfg['global'])) {
 						delete commonCfg[aib.host];
 						setStored('DESU_Config', JSON.stringify(commonCfg));
 						window.location.reload();
@@ -1591,7 +1589,8 @@ function addSettings(Set) {
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					setStored('DESU_GlobalCfg', JSON.stringify(Cfg));
+					commonCfg['global'] = Cfg;
+					setStored('DESU_Config', JSON.stringify(commonCfg));
 					toggleContent('cfg', true);
 				})),
 				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
