@@ -782,14 +782,6 @@ function getCfg(obj) {
 	return obj && !$isEmpty(obj) ? obj : readOldCfg();
 }
 
-function fixCfg(isGlob) {
-	var obj = isGlob && getCfg(comCfg['global']) || {};
-	obj['captchaLang'] = aib.ru ? 2 : 1;
-	obj['timePattern'] = obj['timeOffset'] = '';
-	obj['correctTime'] = 0;
-	return obj;
-}
-
 function saveComCfg(h, obj) {
 	if(obj) {
 		comCfg[h] = obj;
@@ -808,7 +800,16 @@ function saveCfg(id, val) {
 
 function readCfg() {
 	comCfg = getStoredObj('DESU_Config', {});
-	Cfg = getCfg(comCfg[aib.host]) || fixCfg(nav.isGlobal);
+	Cfg = getCfg(comCfg[aib.host]);
+	if(!Cfg && nav.isGlobal) {
+		Cfg = {};
+		for(var i in comCfg['global']) {
+			Cfg[i] = comCfg['global'][i];
+		}
+		Cfg['captchaLang'] = aib.ru ? 2 : 1;
+		Cfg['timePattern'] = Cfg['timeOffset'] = '';
+		Cfg['correctTime'] = 0;
+	}
 	Cfg.__proto__ = defaultCfg;
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
@@ -1601,7 +1602,14 @@ function addSettings(Set) {
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					saveComCfg('global', Cfg);
+					var i, obj = {},
+						com = comCfg[aib.host];
+					for(i in com) {
+						if(com[i] !== defaultCfg[i] && i !== 'stats') {
+							obj[i] = com[i];
+						}
+					}
+					saveComCfg('global', obj);
 					toggleContent('cfg', true);
 				})),
 				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
@@ -1611,7 +1619,6 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						//saveComCfg(aib.host, fixCfg(false));
 						setStored('DESU_Config', '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads', '');
@@ -7313,8 +7320,6 @@ function removePageTrash(el) {
 			}
 			nav.insAfter(el, '<hr />');
 		}
-		el = $id('title').firstChild;
-		el.textContent = el.textContent.replace(/\s[^\s]+/, 'Двачёк');
 	} else if(aib.brit) {
 		el = $C('reflink', el);
 		for(var node, i = el.length - 1; i >= 0; i--) {
