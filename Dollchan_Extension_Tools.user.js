@@ -848,11 +848,11 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	if(!comCfg['stats']) {
-		comCfg['stats'] = {'view': 0, 'op': 0, 'reply': 0};
+	if(!Cfg['stats']) {
+		Cfg['stats'] = {'view': 0, 'op': 0, 'reply': 0};
 	}
 	if(TNum) {
-		comCfg['stats']['view']++;
+		Cfg['stats']['view']++;
 	}
 	saveComCfg(aib.host, Cfg);
 	lang = Cfg['language'];
@@ -1537,9 +1537,9 @@ function getCfgInfo() {
 				nav.isGM ? 'Mozilla config' :
 				scriptStorage ? 'Opera ScriptStorage' :
 				'Local Storage'
-			) + '<br>' + Lng.thrViewed[lang] + comCfg['stats']['view'] + '<br>' +
-			Lng.thrCreated[lang] + comCfg['stats']['op'] + '<br>' +
-			Lng.posts[lang] + comCfg['stats']['reply'] + '</span>'),
+			) + '<br>' + Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
+			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
+			Lng.posts[lang] + Cfg['stats']['reply'] + '</span>'),
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
 		$New('div', {'style': 'display: table;'}, [
@@ -2509,8 +2509,6 @@ function doPostformChanges(img, _img, el) {
 		if(Cfg['favOnReply'] && pr.tNum) {
 			toggleFavorites(pByNum[pr.tNum], $c('de-btn-fav', pByNum[pr.tNum].btns));
 		}
-		comCfg['stats'][pr.tNum ? 'reply' : 'op']++;
-		setStored('DESU_Config', JSON.stringify(comCfg));
 		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
 			pr.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 		}
@@ -2710,6 +2708,8 @@ function checkUpload(err, url) {
 	if(pr.video) {
 		pr.video.value = '';
 	}
+	Cfg['stats'][pr.tNum ? 'reply' : 'op']++;
+	saveComCfg(aib.host, Cfg);
 	if(tNum = pr.tNum) {
 		showMainReply();
 		if(TNum) {
