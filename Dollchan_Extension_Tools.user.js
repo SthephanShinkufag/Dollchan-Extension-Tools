@@ -11,7 +11,8 @@
 // ==/UserScript==
 
 (function(scriptStorage) {
-var defaultCfg = {
+var version = '12.10.15.0',
+defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
 	'menuHiddBtn':	1,		// menu on hide button
@@ -831,7 +832,6 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	saveComCfg('version', '12.10.15.0');
 	saveComCfg(aib.host, Cfg);
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
@@ -1515,7 +1515,7 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
-		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + comCfg['version'] + '</b><br><br>' +
+		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + version + '</b><br><br>' +
 			Lng.storage[lang] + (
 				nav.isGM ? 'Mozilla config' :
 				scriptStorage ? 'Opera ScriptStorage' :
@@ -1540,7 +1540,7 @@ function getCfgInfo() {
 					}
 				}
 				$alert(Lng.infoDebug[lang] + ':<br><textarea readonly rows="20" cols="75">' + getPrettyJSON({
-					'version': comCfg['version'],
+					'version': version,
 					'location': String(window.location),
 					'nav': nav,
 					'cfg': nCfg,
@@ -2481,7 +2481,7 @@ function doPostformChanges(img, _img, el) {
 		if(pr.tNum && ($c('filetitle', pByNum[pr.tNum]) || {}).textContent ===
 			'Dollchan Extension Tools' && !/`\-{50}`$/.test(val)) {
 			val += '\n\n`--------------------------------------------------`\n' +
-				'`' + window.navigator.userAgent + '`\n`v' + comCfg['version'] + '`' +
+				'`' + window.navigator.userAgent + '`\n`v' + version + '`' +
 				'\n`--------------------------------------------------`';
 		}
 		pr.txta.value = val;
@@ -6703,7 +6703,7 @@ function checkForUpdates(isForce, Fn) {
 			}
 			if(xhr.status === 200) {
 				var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
-					cVer = comCfg['version'].split('.'),
+					cVer = version.split('.'),
 					len = cVer.length > dVer.length ? cVer.length : dVer.length,
 					i = 0,
 					isUpd = false;
