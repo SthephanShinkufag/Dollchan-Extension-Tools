@@ -764,18 +764,12 @@ function Config(cfg) {
 }
 Config.prototype = defaultCfg;
 
-function parseCfg(obj) {
-	try {
-		var rv = obj;
-		if(rv['version']) {
-			return new Config(rv);
-		}
-	} catch(e) {}
-	return false;
+function getCfg(obj) {
+	return obj && obj['version'] ? new Config(obj) : false;
 }
 
 function fixCfg(isGlob) {
-	var rv = isGlob && parseCfg(commonCfg['global']) || new Config({'version': defaultCfg['version']});
+	var rv = isGlob && getCfg(commonCfg['global']) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.ru ? 2 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
 	rv['correctTime'] = 0;
@@ -792,7 +786,7 @@ function saveCfg(id, val) {
 
 function readCfg() {
 	commonCfg = getStoredObj('DESU_Config', {});
-	Cfg = parseCfg(commonCfg[aib.host]) || fixCfg(nav.isGlobal);
+	Cfg = getCfg(commonCfg[aib.host]) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
@@ -1580,7 +1574,7 @@ function addSettings(Set) {
 					toggleContent('cfg', false);
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(parseCfg(commonCfg['global'])) {
+					if(getCfg(commonCfg['global'])) {
 						delete commonCfg[aib.host];
 						setStored('DESU_Config', JSON.stringify(commonCfg));
 						window.location.reload();
