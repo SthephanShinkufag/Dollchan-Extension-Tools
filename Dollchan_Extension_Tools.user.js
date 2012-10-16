@@ -362,7 +362,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, Favor, hThrds, cHThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
+Cfg, commonCfg, Favor, hThrds, cHThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
@@ -764,9 +764,9 @@ function Config(cfg) {
 }
 Config.prototype = defaultCfg;
 
-function parseCfg(id) {
+function parseCfg(id, obj) {
 	try {
-		var rv = JSON.parse(getStored(id));
+		var rv = obj || JSON.parse(getStored(id));
 		if(rv['version']) {
 			return new Config(rv);
 		}
@@ -775,7 +775,7 @@ function parseCfg(id) {
 }
 
 function fixCfg(isGlob) {
-	var rv = isGlob && parseCfg('DESU_GlobalCfg') || new Config({'version': defaultCfg['version']});
+	var rv = isGlob && parseCfg('DESU_GlobalCfg', null) || new Config({'version': defaultCfg['version']});
 	rv['captchaLang'] = aib.ru ? 2 : 1;
 	rv['language'] = navigator.language.contains('ru') ? 0 : 1;
 	rv['timePattern'] = rv['timeOffset'] = '';
@@ -783,8 +783,18 @@ function fixCfg(isGlob) {
 	return rv;
 }
 
+function saveCfg(id, val) {
+	if(Cfg[id] !== val) {
+		Cfg[id] = val;
+		commonCfg[aib.host] = Cfg;
+		setStored('DESU_Config', JSON.stringify(commonCfg));
+	}
+}
+
 function readCfg() {
-	Cfg = parseCfg('DESU_Config_' + aib.dm) || fixCfg(nav.isGlobal);
+	commonCfg = getStoredObj('DESU_Config', {});
+	Cfg = parseCfg('', commonCfg[aib.host]) || fixCfg(nav.isGlobal);
+	alert(JSON.stringify(Cfg));
 	Cfg['version'] = defaultCfg['version'];
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
@@ -824,7 +834,8 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+	commonCfg[aib.host] = Cfg;
+	setStored('DESU_Config', JSON.stringify(commonCfg));
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
@@ -851,13 +862,6 @@ function readCfg() {
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
 	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
-}
-
-function saveCfg(id, val) {
-	if(Cfg[id] !== val) {
-		Cfg[id] = val;
-		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
-	}
 }
 
 function toggleCfg(id) {
@@ -1578,8 +1582,9 @@ function addSettings(Set) {
 					toggleContent('cfg', false);
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(parseCfg('DESU_GlobalCfg')) {
-						setStored('DESU_Config_' + aib.dm, '');
+					if(parseCfg('DESU_GlobalCfg', null)) {
+						delete commonCfg[aib.host];
+						setStored('DESU_Config', JSON.stringify(commonCfg));
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
@@ -1596,7 +1601,8 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						setStored('DESU_Config_' + aib.dm, JSON.stringify(fixCfg(false)));
+						commonCfg[aib.host] = fixCfg(false);
+						setStored('DESU_Config', JSON.stringify(commonCfg));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads', '');
@@ -1609,7 +1615,8 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					setStored('DESU_Config_' + aib.dm, this.previousSibling.value.trim().replace(/\n/g, ''));
+					commonCfg[aib.host] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, ''));
+					setStored('DESU_Config', JSON.stringify(commonCfg));
 					window.location.reload();
 				})
 			])
@@ -6123,7 +6130,8 @@ Spells.prototype = {
 		delete Cfg['wipeSpecial'];
 		delete Cfg['wipeCAPS'];
 		delete Cfg['wipeNumbers'];
-		setStored('DESU_Config_' + aib.dm, JSON.stringify(Cfg));
+		commonCfg[aib.host] = Cfg;
+		setStored('DESU_Config', JSON.stringify(commonCfg));
 		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') +
 			rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
