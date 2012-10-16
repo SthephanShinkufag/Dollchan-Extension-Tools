@@ -343,6 +343,7 @@ Lng = {
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	],
+	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
 	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	debug:			['Отладка', 'Debug'],
@@ -905,23 +906,32 @@ function saveUserPostsVisib() {
 }
 
 function readHiddenThreads() {
-	hThrds = getStoredObj('DESU_Threads_' + aib.dm, {});
-	cHThrds = hThrds[brd] || {};
+	hThrds = getStoredObj('DESU_Threads', {});
+	cHThrds = (hThrds[aib.host] || {})[brd] || {};
+}
+
+function cleanHiddenThreads(b) {
+	if($isEmpty(hThrds[aib.host][b])) {
+		delete hThrds[aib.host][b];
+	}
+	if($isEmpty(hThrds[aib.host])) {
+		delete hThrds[aib.host];
+	}
+}
+
+function saveHiddenThreads() {
+	(hThrds[aib.host] || (hThrds[aib.host] = {}))[brd] = cHThrds;
+	cleanHiddenThreads(brd);
+	setStored('DESU_Threads', JSON.stringify(hThrds));
 }
 
 function toggleHiddenThread(post, vis) {
-	if(!hThrds[brd]) {
-		hThrds[brd] = cHThrds;
-	}
 	if(vis === 0) {
 		cHThrds[post.num] = post.tTitle;
 	} else {
 		delete cHThrds[post.num];
-		if($isEmpty(cHThrds)) {
-			delete hThrds[brd];
-		}
 	}
-	setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThrds));
+	saveHiddenThreads();
 }
 
 function readFavorites() {
@@ -1589,7 +1599,7 @@ function addSettings(Set) {
 						setStored('DESU_Config_' + aib.dm, JSON.stringify(fixCfg(false)));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
-						setStored('DESU_Threads_' + aib.dm, '');
+						setStored('DESU_Threads', '');
 						setStored('DESU_Spells_' + aib.dm, '[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]');
 						window.location.reload();
 					}
@@ -1629,7 +1639,7 @@ function contentBlock(parent, link) {
 }
 
 function addHiddenTable(hid) {
-	var b, tNum, block;
+	var b, tNum, block, obj = hThrds[aib.host];
 	$each($C('de-post-hid', dForm), function(post) {
 		if(post.isOp) {
 			return;
@@ -1672,17 +1682,17 @@ function addHiddenTable(hid) {
 	}
 	$append(hid, [
 		$add('<hr />'),
-		$add('<b>' + ($isEmpty(hThrds) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>')
+		$add('<b>' + ($isEmpty(obj) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>')
 	]);
-	if(!$isEmpty(hThrds)) {
-		for(b in hThrds) {
+	if(!$isEmpty(obj)) {
+		for(b in obj) {
 			block = contentBlock(hid, $add('<b>/' + b + '</b>'));
-			for(tNum in hThrds[b]) {
+			for(tNum in obj[b]) {
 				block.appendChild($New('div', {'class': 'de-entry', 'info': b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$new('input', {'type': 'checkbox'}, null),
 						$add('<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a>'),
-						$txt(' - ' + hThrds[b][tNum])
+						$txt(' - ' + obj[b][tNum])
 					])
 				]));
 			}
@@ -1691,7 +1701,9 @@ function addHiddenTable(hid) {
 	$append(hid, [
 		$add('<hr />'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(hThrds, '')}).parentNode);
+			$disp($attr($t('textarea', this.parentNode), {
+				'value': getPrettyJSON(hThrds[aib.host], '')
+			}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(el) {
@@ -1702,21 +1714,24 @@ function addHiddenTable(hid) {
 					if(pByNum[tNum]) {
 						setUserPostVisib(pByNum[tNum], false);
 					} else {
-						delete hThrds[b][tNum];
-					}
-					if($isEmpty(hThrds[b])) {
-						delete hThrds[b];
+						delete hThrds[aib.host][b][tNum];
+						cleanHiddenThreads(b);
 					}
 				}
 			});
-			setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThrds));
+			saveHiddenThreads();
 			saveUserPostsVisib();
 		}),
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				setStored('DESU_Threads_' + aib.dm, this.previousSibling.value.trim().replace(/\n/g, ''));
-				window.location.reload();
+				try {
+					hThrds[aib.host] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')) || {};
+					setStored('DESU_Threads', JSON.stringify(hThrds));
+					window.location.reload();
+				} catch(e) {
+					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+				}
 			})
 		])
 	]);
