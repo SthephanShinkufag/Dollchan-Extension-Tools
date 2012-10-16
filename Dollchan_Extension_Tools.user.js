@@ -362,7 +362,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, commonCfg, Favor, hThrds, cHThrds, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
+Cfg, comCfg, hThr, comHThr, Favor, Stat, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
@@ -769,32 +769,32 @@ function getCfg(obj) {
 }
 
 function fixCfg(isGlob) {
-	var obj = isGlob && getCfg(commonCfg['global']) || new Config({'version': defaultCfg['version']});
+	var obj = isGlob && getCfg(comCfg['global']) || new Config({'version': defaultCfg['version']});
 	obj['captchaLang'] = aib.ru ? 2 : 1;
 	obj['timePattern'] = obj['timeOffset'] = '';
 	obj['correctTime'] = 0;
 	return obj;
 }
 
-function saveCommonCfg(h, obj) {
+function saveComCfg(h, obj) {
 	if(obj) {
-		commonCfg[h] = obj;
+		comCfg[h] = obj;
 	} else {
-		delete commonCfg[h];
+		delete comCfg[h];
 	}
-	setStored('DESU_Config', JSON.stringify(commonCfg));
+	setStored('DESU_Config', JSON.stringify(comCfg));
 }
 
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		saveCommonCfg(aib.host, Cfg);
+		saveComCfg(aib.host, Cfg);
 	}
 }
 
 function readCfg() {
-	commonCfg = getStoredObj('DESU_Config', {});
-	Cfg = getCfg(commonCfg[aib.host]) || fixCfg(nav.isGlobal);
+	comCfg = getStoredObj('DESU_Config', {});
+	Cfg = getCfg(comCfg[aib.host]) || fixCfg(nav.isGlobal);
 	Cfg['version'] = defaultCfg['version'];
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
@@ -834,7 +834,7 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	saveCommonCfg(aib.host, Cfg);
+	saveComCfg(aib.host, Cfg);
 	lang = Cfg['language'];
 	Stat = getStoredObj('DESU_Stat_' + aib.dm, {'view': 0, 'op': 0, 'reply': 0});
 	if(TNum) {
@@ -909,30 +909,30 @@ function saveUserPostsVisib() {
 }
 
 function readHiddenThreads() {
-	hThrds = getStoredObj('DESU_Threads', {});
-	cHThrds = (hThrds[aib.host] || {})[brd] || {};
+	comHThr = getStoredObj('DESU_Threads', {});
+	hThr = (comHThr[aib.host] || {})[brd] || {};
 }
 
 function cleanHiddenThreads(b) {
-	if($isEmpty(hThrds[aib.host][b])) {
-		delete hThrds[aib.host][b];
+	if($isEmpty(comHThr[aib.host][b])) {
+		delete comHThr[aib.host][b];
 	}
-	if($isEmpty(hThrds[aib.host])) {
-		delete hThrds[aib.host];
+	if($isEmpty(comHThr[aib.host])) {
+		delete comHThr[aib.host];
 	}
 }
 
 function saveHiddenThreads() {
-	(hThrds[aib.host] || (hThrds[aib.host] = {}))[brd] = cHThrds;
+	(comHThr[aib.host] || (comHThr[aib.host] = {}))[brd] = hThr;
 	cleanHiddenThreads(brd);
-	setStored('DESU_Threads', JSON.stringify(hThrds));
+	setStored('DESU_Threads', JSON.stringify(comHThr));
 }
 
 function toggleHiddenThread(post, vis) {
 	if(vis === 0) {
-		cHThrds[post.num] = post.tTitle;
+		hThr[post.num] = post.tTitle;
 	} else {
-		delete cHThrds[post.num];
+		delete hThr[post.num];
 	}
 	saveHiddenThreads();
 }
@@ -1581,15 +1581,15 @@ function addSettings(Set) {
 					toggleContent('cfg', false);
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(getCfg(commonCfg['global'])) {
-						saveCommonCfg(aib.host, null);
+					if(getCfg(comCfg['global'])) {
+						saveComCfg(aib.host, null);
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 					}
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					saveCommonCfg('global', Cfg);
+					saveComCfg('global', Cfg);
 					toggleContent('cfg', true);
 				})),
 				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
@@ -1599,7 +1599,7 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						saveCommonCfg(aib.host, fixCfg(false));
+						saveComCfg(aib.host, fixCfg(false));
 						setStored('DESU_Stat_' + aib.dm, '');
 						setStored('DESU_Favorites', '');
 						setStored('DESU_Threads', '');
@@ -1612,7 +1612,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					saveCommonCfg(aib.host, JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')));
+					saveComCfg(aib.host, JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')));
 					window.location.reload();
 				})
 			])
@@ -1642,7 +1642,7 @@ function contentBlock(parent, link) {
 }
 
 function addHiddenTable(hid) {
-	var b, tNum, block, obj = hThrds[aib.host];
+	var b, tNum, block, obj = comHThr[aib.host];
 	$each($C('de-post-hid', dForm), function(post) {
 		if(post.isOp) {
 			return;
@@ -1705,7 +1705,7 @@ function addHiddenTable(hid) {
 		$add('<hr />'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
 			$disp($attr($t('textarea', this.parentNode), {
-				'value': getPrettyJSON(hThrds[aib.host], '')
+				'value': getPrettyJSON(comHThr[aib.host], '')
 			}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
@@ -1717,7 +1717,7 @@ function addHiddenTable(hid) {
 					if(pByNum[tNum]) {
 						setUserPostVisib(pByNum[tNum], false);
 					} else {
-						delete hThrds[aib.host][b][tNum];
+						delete comHThr[aib.host][b][tNum];
 						cleanHiddenThreads(b);
 					}
 				}
@@ -1729,8 +1729,8 @@ function addHiddenTable(hid) {
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
 				try {
-					hThrds[aib.host] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')) || {};
-					setStored('DESU_Threads', JSON.stringify(hThrds));
+					comHThr[aib.host] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')) || {};
+					setStored('DESU_Threads', JSON.stringify(comHThr));
 					window.location.reload();
 				} catch(e) {
 					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
@@ -4957,7 +4957,7 @@ function setPostsVisib() {
 		post = Posts[i];
 		if(uVis[pNum = post.num]) {
 			if(post.isOp) {
-				uVis[pNum][0] = typeof cHThrds[pNum] === 'undefined' ? 1 : 0;
+				uVis[pNum][0] = typeof hThr[pNum] === 'undefined' ? 1 : 0;
 			}
 			if(uVis[pNum][0] === 0) {
 				setUserPostVisib(post, true);
@@ -4974,7 +4974,7 @@ function setPostsVisib() {
 			continue;
 		}
 		if(post.isOp) {
-			if(typeof cHThrds[pNum] !== 'undefined') {
+			if(typeof hThr[pNum] !== 'undefined') {
 				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
@@ -6126,7 +6126,7 @@ Spells.prototype = {
 		delete Cfg['wipeSpecial'];
 		delete Cfg['wipeCAPS'];
 		delete Cfg['wipeNumbers'];
-		saveCommonCfg(aib.host, Cfg);
+		saveComCfg(aib.host, Cfg);
 		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') +
 			rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
