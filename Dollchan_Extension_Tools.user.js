@@ -851,9 +851,6 @@ function readCfg() {
 	if(!Cfg['passwValue']) {
 		Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
 	}
-	if(!aib.fch) {
-		Cfg['add4chanSnd'] = 0;
-	}
 	if(!Cfg['stats']) {
 		Cfg['stats'] = {'view': 0, 'op': 0, 'reply': 0};
 	}
@@ -3779,7 +3776,7 @@ function addLinkMP3(post) {
 	});
 }
 
-function checkImage(link, tag) {
+function checkImage(link) {
 	if(link.loading) {
 		return;
 	}
@@ -3791,22 +3788,32 @@ function checkImage(link, tag) {
 		'overrideMimeType': 'text/plain; charset=x-user-defined',
 		'onload': function(e) {
 			if(e.status === 200) {
-				var arr, str = e.responseText,
+				var arr, len, temp, tag = link.getAttribute('de-tag'),
+					str = e.responseText,
 					idx = str.indexOf(tag);
 				if(idx !== -1) {
 					str = str.substr(idx + tag.length);
-					if(!str.startsWith('OggS')) {
-						idx = -1;
-					}
 				}
+				idx = str.indexOf('OggS'.concat(String.fromCharCode(0x00, 0x02)));
 				if(idx === -1) {
-					idx = str.indexOf('OggS');
-					if(idx === -1) {
-						//TODO: ERROR HANDLING
-						link.outerHTML = link.getAttribute('de-tag');
-						return;
+					//TODO: ERROR HANDLING
+					link.outerHTML = link.getAttribute('de-tag');
+					return;
+				}
+				str = str.substr(idx);
+				len = str.indexOf('OggS'.concat(String.fromCharCode(0x00, 0x04)));
+				if(len !== -1) {
+					len += 26;
+					idx = str.charCodeAt(len) & 0xFF;
+					if(idx > 0) {
+						temp = len;
+						len += idx;
+						while(idx > 0) {
+							len += str.charCodeAt(temp + idx) & 0xFF;
+							idx--;
+						}
 					}
-					str = str.substr(idx);
+					str = str.substr(0, len);
 				}
 				for(idx = str.length - 1, arr = new Uint8Array(idx + 1); idx >= 0; idx--) {
 					arr[idx] = str.charCodeAt(idx);
@@ -3817,7 +3824,7 @@ function checkImage(link, tag) {
 				GM_log('Error: ' + e.statusText);
 			}
 			link.loading = false;
-			link = tag = post = null;
+			link = post = null;
 		}
 	});
 }
@@ -3828,7 +3835,7 @@ function add4chanSound(post) {
 	}
 	$each($Q('.de-sound-tag', post || dForm), function(link) {
 		var pst = post || getPost(link);
-		if(!pst.img[0] || getImgWeight(pst) < 500) {
+		if(!pst.img[0] || link.parentNode.className !== 'postMessage') {
 			link.outerHTML = link.getAttribute('de-tag');
 		} else {
 			link.onclick = function(e) {
@@ -3840,7 +3847,7 @@ function add4chanSound(post) {
 					this.href = '#';
 					return;
 				}
-				checkImage(this, this.getAttribute('de-tag'));
+				checkImage(this);
 			};
 		}
 	});
@@ -7354,7 +7361,7 @@ function replaceString(txt) {
 		});
 	}
 	if(Cfg['add4chanSnd']) {
-		txt = txt.replace(/(<blockquote.+?)(\[[^\]]+\])(?=.+?<\/blockquote)/ig, '$1<a href="#" class="de-sound-tag" de-tag="$2">$2♫</a>');
+		txt = txt.replace(/(\[[^\]]+\])(?=[^<]*<(?:br|\/block))/g, '<a href="#" class="de-sound-tag" de-tag="$1">$1♫</a>');
 	}
 	return txt;
 }
