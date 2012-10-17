@@ -47,6 +47,7 @@ defaultCfg = {
 	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// mp3 player by links
+	'add4chanSnd':	0,		// detect 4chan-sounds
 	'addImgs':		1,		// add images by links
 	'addYouTube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
@@ -136,6 +137,7 @@ Lng = {
 		'crossLinks':	['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
+		'add4chanSnd':	['Детектировать аудио-теги в постах', 'Detect audio-tags in posts'],
 		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
@@ -1424,6 +1426,7 @@ function getCfgLinks() {
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addMP3', true, null),
+		lBox('add4chanSnd', true, null),
 		lBox('addImgs', true, null),
 		optSel('addYouTube', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
@@ -3773,6 +3776,83 @@ function addLinkMP3(post) {
 	});
 }
 
+function checkImage(link) {
+	if(link.loading) {
+		return;
+	}
+	link.loading = true;
+	var post = getPost(link);
+	GM_xmlhttpRequest({
+		'method': "GET",
+		'url': post.img[0].parentNode.href,
+		'overrideMimeType': 'text/plain; charset=x-user-defined',
+		'onload': function(e) {
+			if(e.status === 200) {
+				var arr, len, temp, tag = link.getAttribute('de-tag'),
+					str = e.responseText,
+					idx = str.indexOf(tag);
+				if(idx !== -1) {
+					str = str.substr(idx + tag.length);
+				}
+				idx = str.indexOf('OggS'.concat(String.fromCharCode(0x00, 0x02)));
+				if(idx === -1) {
+					//TODO: ERROR HANDLING
+					link.outerHTML = link.getAttribute('de-tag');
+					return;
+				}
+				str = str.substr(idx);
+				len = str.indexOf('OggS'.concat(String.fromCharCode(0x00, 0x04)));
+				if(len !== -1) {
+					len += 26;
+					idx = str.charCodeAt(len) & 0xFF;
+					if(idx > 0) {
+						temp = len;
+						len += idx;
+						while(idx > 0) {
+							len += str.charCodeAt(temp + idx) & 0xFF;
+							idx--;
+						}
+					}
+					str = str.substr(0, len);
+				}
+				for(idx = str.length - 1, arr = new Uint8Array(idx + 1); idx >= 0; idx--) {
+					arr[idx] = str.charCodeAt(idx);
+				}
+				link.href = window.URL.createObjectURL(new Blob([arr], {'type': 'audio/ogg'}));
+				$before(post.msg || $q(aib.qMsg, post), link.player = $add('<audio class="de-audio" src="' + link.href + '" controls></audio>'));
+			} else {
+				GM_log('Error: ' + e.statusText);
+			}
+			link.loading = false;
+			link = post = null;
+		}
+	});
+}
+
+function add4chanSound(post) {
+	if(!Cfg['add4chanSnd']) {
+		return;
+	}
+	$each($Q('.de-sound-tag', post || dForm), function(link) {
+		var pst = post || getPost(link);
+		if(!pst.img[0] || link.parentNode.className !== 'postMessage') {
+			link.outerHTML = link.getAttribute('de-tag');
+		} else {
+			link.onclick = function(e) {
+				$pd(e);
+				if(this.player) {
+					window.URL.revokeObjectURL(this.href);
+					$del(this.player);
+					this.player = false;
+					this.href = '#';
+					return;
+				}
+				checkImage(this);
+			};
+		}
+	});
+}
+
 
 /*==============================================================================
 									IMAGES VIEWER
@@ -4189,6 +4269,7 @@ function getPview(post, pNum, parent, link, txt) {
 		$each(pView.img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
+		add4chanSound(pView);
 		if(Cfg['expandImgs']) {
 			eventPostImg(pView);
 		}
@@ -4398,6 +4479,7 @@ function addPostFunc(post) {
 	updRefMap(post);
 	eventRefLink(post);
 	addLinkMP3(post);
+	add4chanSound(post);
 	addLinkImg(post);
 	if(isExpImg) {
 		expandAllPostImg(post, null);
@@ -4651,6 +4733,7 @@ function loadPages(len) {
 				Posts.forEach(eventPostImg);
 				Posts.forEach(expandPost);
 				addLinkMP3(null);
+				add4chanSound(null);
 				addLinksTube(null);
 				addLinkImg(dForm);
 				addImgSearch(dForm);
@@ -6535,7 +6618,8 @@ function scriptCSS() {
 	x += '.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; border: 1px solid black; }\
-		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
+		.de-audio { display: block; }\
+		.de-mp3, .de-ytube-obj, .de-audio { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }';
 
 	// Other
@@ -7276,6 +7360,9 @@ function replaceString(txt) {
 			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 		});
 	}
+	if(Cfg['add4chanSnd']) {
+		txt = txt.replace(/(\[[^\]]+\])(?=[^<]*<(?:br|\/block))/g, '<a href="#" class="de-sound-tag" de-tag="$1">$1♫</a>');
+	}
 	return txt;
 }
 
@@ -7454,6 +7541,10 @@ function doScript() {
 	if(Cfg['addMP3']) {
 		addLinkMP3(null);
 		$log('addLinkMP3');
+	}
+	if(Cfg['add4chanSnd']) {
+		add4chanSound(null);
+		$log('add4chanSound');
 	}
 	if(Cfg['addYouTube']) {
 		addLinksTube(null);
