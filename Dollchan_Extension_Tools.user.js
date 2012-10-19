@@ -1639,7 +1639,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					saveComCfg(aib.dm, JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')));
+					saveComCfg(aib.dm, JSON.parse(this.previousSibling.value.trim().replace(/\n|\r/g, '')));
 					window.location.reload();
 				})
 			])
@@ -1754,7 +1754,7 @@ function addHiddenTable(hid) {
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
 				try {
-					comHThr[aib.dm] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')) || {};
+					comHThr[aib.dm] = JSON.parse(this.previousSibling.value.trim().replace(/\n|\r/g, '')) || {};
 					setStored('DESU_Threads', JSON.stringify(comHThr));
 					window.location.reload();
 				} catch(e) {
@@ -1878,7 +1878,7 @@ function addFavoritesTable(fav) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				saveFavorites(this.previousSibling.value.trim().replace(/\n|\r/, ''));
+				saveFavorites(this.previousSibling.value.trim().replace(/\n|\r/g, ''));
 			})
 		])
 	]);
