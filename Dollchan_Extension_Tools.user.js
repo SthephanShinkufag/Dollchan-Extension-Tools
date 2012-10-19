@@ -137,7 +137,7 @@ Lng = {
 		'crossLinks':	['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
-		'add4chanSnd':	['Детектировать аудио-теги в постах', 'Detect audio-tags in posts'],
+		'add4chanSnd':	['Детектировать аудио-теги в постах *', 'Detect audio-tags in posts *'],
 		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
@@ -369,7 +369,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime,
+oldTime, endTime, timeLog = '', dTime, addOggSound,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -817,6 +817,7 @@ function readCfg() {
 	Cfg.__proto__ = defaultCfg;
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
+		Cfg['add4chanSnd'] = 0;
 	}
 	if((nav.noBlob || nav.Safari) && Cfg['ajaxReply'] === 2) {
 		Cfg['ajaxReply'] = 1;
@@ -880,7 +881,7 @@ function readCfg() {
 		);
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
-	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
+	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'] || Cfg['add4chanSnd'];
 }
 
 function toggleCfg(id) {
@@ -1428,7 +1429,7 @@ function getCfgLinks() {
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addMP3', true, null),
-		lBox('add4chanSnd', true, null),
+		$if(!nav.noBlob, lBox('add4chanSnd', true, null)),
 		lBox('addImgs', true, null),
 		optSel('addYouTube', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
@@ -3775,81 +3776,123 @@ function addLinkMP3(post) {
 	});
 }
 
-function checkImage(link) {
-	if(link.loading) {
-		return;
-	}
-	link.loading = true;
-	var post = getPost(link);
-	GM_xmlhttpRequest({
-		'method': "GET",
-		'url': post.img[0].parentNode.href,
-		'overrideMimeType': 'text/plain; charset=x-user-defined',
-		'onload': function(e) {
-			if(e.status === 200) {
-				var arr, len, temp, tag = link.getAttribute('de-tag'),
-					str = e.responseText,
-					idx = str.indexOf(tag);
-				if(idx !== -1) {
-					str = str.substr(idx + tag.length);
-				}
-				idx = str.indexOf('OggS'.concat(String.fromCharCode(0x00, 0x02)));
-				if(idx === -1) {
-					//TODO: ERROR HANDLING
-					link.outerHTML = link.getAttribute('de-tag');
-					return;
-				}
-				str = str.substr(idx);
-				len = str.indexOf('OggS'.concat(String.fromCharCode(0x00, 0x04)));
-				if(len !== -1) {
-					len += 26;
-					idx = str.charCodeAt(len) & 0xFF;
-					if(idx > 0) {
-						temp = len;
-						len += idx;
-						while(idx > 0) {
-							len += str.charCodeAt(temp + idx) & 0xFF;
-							idx--;
-						}
-					}
-					str = str.substr(0, len);
-				}
-				for(idx = str.length - 1, arr = new Uint8Array(idx + 1); idx >= 0; idx--) {
-					arr[idx] = str.charCodeAt(idx);
-				}
-				link.href = window.URL.createObjectURL(new Blob([arr], {'type': 'audio/ogg'}));
-				$before(post.msg || $q(aib.qMsg, post), link.player = $add('<audio class="de-audio" src="' + link.href + '" controls></audio>'));
-			} else {
-				GM_log('Error: ' + e.statusText);
-			}
-			link.loading = false;
-			link = post = null;
-		}
-	});
-}
+function initOggDetector() {
+	var links = {};
 
-function add4chanSound(post) {
-	if(!Cfg['add4chanSnd']) {
-		return;
+	function addOggPlayer(link, a, post) {
+		console.log(a);
+		for(var i = a.length - 1, tag = link.getAttribute('de-tag'); i >= 0 && a[i][0] !== tag; i--) {}
+		link.href = a[i < 0 ? 0 : i][1];
+		$before(post.msg || $q(aib.qMsg, post), link.player = $add('<audio class="de-audio" src="' + link.href + '" controls></audio>'));
 	}
-	$each($Q('.de-sound-tag', post || dForm), function(link) {
-		var pst = post || getPost(link);
-		if(!pst.img[0] || link.parentNode.className !== 'postMessage') {
-			link.outerHTML = link.getAttribute('de-tag');
-		} else {
-			link.onclick = function(e) {
-				$pd(e);
-				if(this.player) {
-					window.URL.revokeObjectURL(this.href);
-					$del(this.player);
-					this.player = false;
-					this.href = '#';
-					return;
-				}
-				checkImage(this);
-			};
+
+	function findOgg(link) {
+		if(link.loading) {
+			return;
 		}
-	});
+		var post = getPost(link),
+			url = $x("ancestor::a[1]", post.img[0]).href,
+			sounds = links[url];
+		if(sounds) {
+			if(sounds.length === 0) {
+				$alert(Lng.error[lang], 'load-audio', false);
+			} else {
+				addOggPlayer(link, sounds, post);
+			}
+			return;
+		}
+		link.loading = true;
+		$alert(Lng.loading[lang] + ': ' + link.getAttribute('de-tag'), 'load-audio', true);
+		GM_xmlhttpRequest({
+			'method': "GET",
+			'url': url,
+			'overrideMimeType': 'text/plain; charset=x-user-defined',
+			'onload': function(e) {
+				if(e.status === 200) {
+					links[url] = [];
+					var arr, i, j, len, temp, tName, snds = links[url],
+						str = e.responseText;
+					while(true) {
+						tName = null;
+						i = str.indexOf(String.fromCharCode(0x4F, 0x67, 0x67, 0x53, 0x00, 0x02));
+						if(i === -1) {
+							break;
+						}
+						len = i - 1;
+						while(true) {
+							j = str.charCodeAt(len);
+							if(j !== 0x0D && j !== 0x0A && j !== 0x20 && j !== 0x22) {
+								if(j === 0x5D) {
+									j = len - 1;
+									while(j > 0 && str.charCodeAt(j) !== 0x5B) {
+										j--;
+									}
+									if(j !== 0) {
+										tName = str.substring(j, len + 1);
+									}
+								}
+								break;
+							}
+							len--;
+						}
+						str = str.substr(i);
+						len = str.indexOf(String.fromCharCode(0x4F, 0x67, 0x67, 0x53, 0x00, 0x04));
+						if(len === -1) {
+							break;
+						}
+						i = str.charCodeAt(len += 26) & 0xFF;
+						if(i > 0) {
+							j = len;
+							len += i;
+							while(i > 0) {
+								len += str.charCodeAt(j + i) & 0xFF;
+								i--;
+							}
+						}
+						temp = str.substr(0, len);
+						for(i = temp.length - 1, arr = new Uint8Array(i + 1); i >= 0; i--) {
+							arr[i] = temp.charCodeAt(i);
+						}
+						snds.push([tName, window.URL.createObjectURL(new Blob([arr], {'type': 'audio/ogg'}))]);
+						str = str.substr(len);
+					}
+					if(snds.length === 0) {
+						link.outerHTML = link.getAttribute('de-tag');
+						delete links[url];
+					} else {
+						addOggPlayer(link, snds, post);
+					}
+					$del($id('de-alert-load-audio'));
+				} else {
+					$alert(Lng.error[lang] + e.statusText, 'load-audio', false);
+				}
+				link.loading = false;
+				link = post = url = null;
+			}
+		});
+	}
+
+	addOggSound = function addOggSound(post) {
+		$each($Q('.de-sound-tag', post || dForm), function(link) {
+			var pst = post || getPost(link);
+			if(pst.img[0]) {
+				link.onclick = function(e) {
+					$pd(e);
+					if(this.player) {
+						$del(this.player);
+						this.player = false;
+						this.href = '#';
+						return;
+					}
+					findOgg(this);
+				};
+			} else {
+				link.outerHTML = link.getAttribute('de-tag');
+			}
+		});
+	};
+
+	addOggSound(null);
 }
 
 
@@ -4243,7 +4286,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.de-img-full, .de-ppanel', pView), $del);
+		$each($Q('.de-img-full, .de-ppanel, .de-sound', pView), $del);
 		if(!inDoc) {
 			addLinkMP3(pView);
 			addLinksTube(pView);
@@ -4268,7 +4311,9 @@ function getPview(post, pNum, parent, link, txt) {
 		$each(pView.img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
-		add4chanSound(pView);
+		if(typeof addOggSound !== 'undefined') {
+			addOggSound(pView);
+		}
 		if(Cfg['expandImgs']) {
 			eventPostImg(pView);
 		}
@@ -4478,7 +4523,9 @@ function addPostFunc(post) {
 	updRefMap(post);
 	eventRefLink(post);
 	addLinkMP3(post);
-	add4chanSound(post);
+	if(typeof addOggSound !== 'undefined') {
+		addOggSound(post);
+	}
 	addLinkImg(post);
 	if(isExpImg) {
 		expandAllPostImg(post, null);
@@ -4732,7 +4779,9 @@ function loadPages(len) {
 				Posts.forEach(eventPostImg);
 				Posts.forEach(expandPost);
 				addLinkMP3(null);
-				add4chanSound(null);
+				if(typeof addOggSound !== 'undefined') {
+					addOggSound(null);
+				}
 				addLinksTube(null);
 				addLinkImg(dForm);
 				addImgSearch(dForm);
@@ -7360,7 +7409,7 @@ function replaceString(txt) {
 		});
 	}
 	if(Cfg['add4chanSnd']) {
-		txt = txt.replace(/(\[[^\]]+\])(?=[^<]*<(?:br|\/block))/g, '<a href="#" class="de-sound-tag" de-tag="$1">$1♫</a>');
+		txt = txt.replace(/(\[[^\]]+\])(?=[^<]*<(?:br|\/block|\/div))/g, '<a href="#" class="de-sound-tag" de-tag="$1">$1♫</a>');
 	}
 	return txt;
 }
@@ -7542,8 +7591,8 @@ function doScript() {
 		$log('addLinkMP3');
 	}
 	if(Cfg['add4chanSnd']) {
-		add4chanSound(null);
-		$log('add4chanSound');
+		initOggDetector();
+		$log('addOggSound');
 	}
 	if(Cfg['addYouTube']) {
 		addLinksTube(null);
