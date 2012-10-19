@@ -3897,8 +3897,6 @@ function initOggDetector() {
 }
 
 
-
-
 /*==============================================================================
 									IMAGES VIEWER
 ==============================================================================*/
@@ -4290,7 +4288,6 @@ function getPview(post, pNum, parent, link, txt) {
 		}
 		pView.num = pNum;
 		$each($Q('.de-img-full, .de-ppanel, .de-sound', pView), $del);
-		
 		if(!inDoc) {
 			addLinkMP3(pView);
 			addLinksTube(pView);
