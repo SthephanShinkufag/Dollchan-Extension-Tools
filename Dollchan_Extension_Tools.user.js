@@ -3827,7 +3827,6 @@ function initOggDetector() {
 	var links = {};
 
 	function addOggPlayer(link, a, post) {
-		console.log(a);
 		for(var i = a.length - 1, tag = link.getAttribute('de-tag'); i >= 0 && a[i][0] !== tag; i--) {}
 		link.href = a[i < 0 ? 0 : i][1];
 		$before(post.msg || $q(aib.qMsg, post), link.player = $add('<audio class="de-audio" src="' + link.href + '" controls></audio>'));
@@ -7074,7 +7073,6 @@ function getNavigator() {
 					this.wrk.onerror = fn;\
 				},\
 				_postMessage: function() {\
-					console.log(arguments);\
 					this.wrk.postMessage.apply(this.wrk, arguments);\
 				}\
 			};'
