@@ -784,11 +784,11 @@ function getCfg(obj) {
 	return obj && !$isEmpty(obj) ? obj : readOldCfg();
 }
 
-function saveComCfg(h, obj) {
+function saveComCfg(dm, obj) {
 	if(obj) {
-		comCfg[h] = obj;
+		comCfg[dm] = obj;
 	} else {
-		delete comCfg[h];
+		delete comCfg[dm];
 	}
 	setStored('DESU_Config', JSON.stringify(comCfg));
 }
@@ -796,21 +796,23 @@ function saveComCfg(h, obj) {
 function saveCfg(id, val) {
 	if(Cfg[id] !== val) {
 		Cfg[id] = val;
-		saveComCfg(aib.host, Cfg);
+		saveComCfg(aib.dm, Cfg);
 	}
 }
 
 function readCfg() {
 	comCfg = getStoredObj('DESU_Config', {});
-	Cfg = getCfg(comCfg[aib.host]);
-	if(!Cfg && nav.isGlobal) {
+	Cfg = getCfg(comCfg[aib.dm]);
+	if(!Cfg) {
 		Cfg = {};
-		for(var i in comCfg['global']) {
-			Cfg[i] = comCfg['global'][i];
+		if(nav.isGlobal) {
+			for(var i in comCfg['global']) {
+				Cfg[i] = comCfg['global'][i];
+			}
+			Cfg['captchaLang'] = aib.ru ? 2 : 1;
+			Cfg['timePattern'] = Cfg['timeOffset'] = '';
+			Cfg['correctTime'] = 0;
 		}
-		Cfg['captchaLang'] = aib.ru ? 2 : 1;
-		Cfg['timePattern'] = Cfg['timeOffset'] = '';
-		Cfg['correctTime'] = 0;
 	}
 	Cfg.__proto__ = defaultCfg;
 	if(nav.noBlob) {
@@ -858,7 +860,7 @@ function readCfg() {
 	if(TNum) {
 		Cfg['stats']['view']++;
 	}
-	saveComCfg(aib.host, Cfg);
+	saveComCfg(aib.dm, Cfg);
 	lang = Cfg['language'];
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(
@@ -929,20 +931,20 @@ function saveUserPostsVisib() {
 
 function readHiddenThreads() {
 	comHThr = getStoredObj('DESU_Threads', {});
-	hThr = (comHThr[aib.host] || {})[brd] || {};
+	hThr = (comHThr[aib.dm] || {})[brd] || {};
 }
 
 function cleanHiddenThreads(b) {
-	if($isEmpty(comHThr[aib.host][b])) {
-		delete comHThr[aib.host][b];
+	if($isEmpty(comHThr[aib.dm][b])) {
+		delete comHThr[aib.dm][b];
 	}
-	if($isEmpty(comHThr[aib.host])) {
-		delete comHThr[aib.host];
+	if($isEmpty(comHThr[aib.dm])) {
+		delete comHThr[aib.dm];
 	}
 }
 
 function saveHiddenThreads() {
-	(comHThr[aib.host] || (comHThr[aib.host] = {}))[brd] = hThr;
+	(comHThr[aib.dm] || (comHThr[aib.dm] = {}))[brd] = hThr;
 	cleanHiddenThreads(brd);
 	setStored('DESU_Threads', JSON.stringify(comHThr));
 }
@@ -965,13 +967,13 @@ function saveFavorites(txt) {
 	toggleContent('fav', true);
 }
 
-function removeFavorites(h, b, tNum) {
-	delete Favor[h][b][tNum];
-	if($isEmpty(Favor[h][b])) {
-		delete Favor[h][b];
+function removeFavorites(dm, b, tNum) {
+	delete Favor[dm][b][tNum];
+	if($isEmpty(Favor[dm][b])) {
+		delete Favor[dm][b];
 	}
-	if($isEmpty(Favor[h])) {
-		delete Favor[h];
+	if($isEmpty(Favor[dm])) {
+		delete Favor[dm];
 	}
 	if(pByNum[tNum]) {
 		($c('de-btn-fav-sel', pByNum[tNum].btns) || {}).className = 'de-btn-fav';
@@ -979,25 +981,25 @@ function removeFavorites(h, b, tNum) {
 }
 
 function toggleFavorites(post, btn) {
-	var h = aib.host,
+	var dm = aib.dm,
 		b = brd,
 		tNum = post.num;
 	if(!btn) {
 		return;
 	}
 	readFavorites();
-	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) {
-		removeFavorites(h, b, tNum);
+	if(Favor[dm] && Favor[dm][b] && Favor[dm][b][tNum]) {
+		removeFavorites(dm, b, tNum);
 		saveFavorites(JSON.stringify(Favor));
 		return;
 	}
-	if(!Favor[h]) {
-		Favor[h] = {};
+	if(!Favor[dm]) {
+		Favor[dm] = {};
 	}
-	if(!Favor[h][b]) {
-		Favor[h][b] = {};
+	if(!Favor[dm][b]) {
+		Favor[dm][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
+	Favor[dm][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
 	btn.className = 'de-btn-fav-sel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1599,7 +1601,7 @@ function addSettings(Set) {
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(getCfg(comCfg['global'])) {
-						saveComCfg(aib.host, null);
+						saveComCfg(aib.dm, null);
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
@@ -1607,7 +1609,7 @@ function addSettings(Set) {
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
 					var i, obj = {},
-						com = comCfg[aib.host];
+						com = comCfg[aib.dm];
 					for(i in com) {
 						if(com[i] !== defaultCfg[i] && i !== 'stats') {
 							obj[i] = com[i];
@@ -1638,7 +1640,7 @@ function addSettings(Set) {
 			$New('div', {'style': 'display: none;'}, [
 				$new('textarea', {'rows': 10, 'cols': 50}, null),
 				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					saveComCfg(aib.host, JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')));
+					saveComCfg(aib.dm, JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')));
 					window.location.reload();
 				})
 			])
@@ -1668,7 +1670,7 @@ function contentBlock(parent, link) {
 }
 
 function addHiddenTable(hid) {
-	var b, tNum, block, obj = comHThr[aib.host];
+	var b, tNum, block, obj = comHThr[aib.dm];
 	$each($C('de-post-hid', dForm), function(post) {
 		if(post.isOp) {
 			return;
@@ -1731,20 +1733,18 @@ function addHiddenTable(hid) {
 		$add('<hr />'),
 		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
 			$disp($attr($t('textarea', this.parentNode), {
-				'value': getPrettyJSON(comHThr[aib.host], '')
+				'value': getPrettyJSON(comHThr[aib.dm], '')
 			}).parentNode);
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(el) {
-				var i, arr = el.getAttribute('info').split(';'),
-					b = arr[0],
-					tNum = arr[1];
+				var arr = el.getAttribute('info').split(';');
 				if($t('input', el).checked) {
-					if(pByNum[tNum]) {
-						setUserPostVisib(pByNum[tNum], false);
+					if(pByNum[arr[1]]) {
+						setUserPostVisib(pByNum[arr[1]], false);
 					} else {
-						delete comHThr[aib.host][b][tNum];
-						cleanHiddenThreads(b);
+						delete comHThr[aib.dm][arr[0]][arr[1]];
+						cleanHiddenThreads(arr[0]);
 					}
 				}
 			});
@@ -1755,7 +1755,7 @@ function addHiddenTable(hid) {
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
 				try {
-					comHThr[aib.host] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')) || {};
+					comHThr[aib.dm] = JSON.parse(this.previousSibling.value.trim().replace(/\n/g, '')) || {};
 					setStored('DESU_Threads', JSON.stringify(comHThr));
 					window.location.reload();
 				} catch(e) {
@@ -1772,23 +1772,23 @@ function addHiddenTable(hid) {
 ==============================================================================*/
 
 function addFavoritesTable(fav) {
-	var h, b, tNum, block;
-	for(h in Favor) {
-		for(b in Favor[h]) {
-			block = contentBlock(fav, $add('<b>' + h + '/' + b + '</b>'));
-			for(tNum in Favor[h][b]) {
-				if(!Favor[h][b][tNum]['url']) {
-					Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
+	var dm, b, tNum, block;
+	for(dm in Favor) {
+		for(b in Favor[dm]) {
+			block = contentBlock(fav, $add('<b>' + dm + '/' + b + '</b>'));
+			for(tNum in Favor[dm][b]) {
+				if(!Favor[dm][b][tNum]['url']) {
+					Favor[dm][b][tNum]['url'] = getThrdUrl(dm, b, tNum);
 				}
-				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
+				block.appendChild($New('div', {'class': 'de-entry', 'info': dm + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$add('<input type="checkbox" />'),
 						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
-						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
+						$add('<a href="//' + dm + Favor[dm][b][tNum]['url'] + '">№' + tNum + '</a>'),
+						$add('<span class="de-fav-title"> - ' + Favor[dm][b][tNum]['txt'] + '</span>'),
 						$add('<span class="de-fav-inf-page"></span>'),
 						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-							Favor[h][b][tNum]['cnt'] + '</span>]</span>')
+							Favor[dm][b][tNum]['cnt'] + '</span>]</span>')
 					])
 				]));
 			}
@@ -1806,7 +1806,7 @@ function addFavoritesTable(fav) {
 			$each($C('de-entry', doc), function(el) {
 				var c, arr = el.getAttribute('info').split(';'),
 					f = Favor[arr[0]][arr[1]][arr[2]];
-				if(arr[0] !== aib.host) {
+				if(arr[0] !== aib.dm) {
 					return;
 				}
 				c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
@@ -1832,7 +1832,7 @@ function addFavoritesTable(fav) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
 					$each($C('de-entry', doc), function(el) {
 						var arr = el.getAttribute('info').split(';');
-						if(arr[0] !== aib.host || arr[1] !== brd) {
+						if(arr[0] !== aib.dm || arr[1] !== brd) {
 							return;
 						}
 						el = $c('de-fav-inf-page', el);
@@ -1853,7 +1853,7 @@ function addFavoritesTable(fav) {
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			$each($C('de-entry', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
-				if(nav.Opera && arr[0] !== aib.host) {
+				if(nav.Opera && arr[0] !== aib.dm) {
 					return;
 				}
 				ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], null, null, false,
@@ -2720,7 +2720,7 @@ function checkUpload(err, url) {
 		pr.video.value = '';
 	}
 	Cfg['stats'][pr.tNum ? 'reply' : 'op']++;
-	saveComCfg(aib.host, Cfg);
+	saveComCfg(aib.dm, Cfg);
 	if(tNum = pr.tNum) {
 		showMainReply();
 		if(TNum) {
@@ -3189,16 +3189,15 @@ function addTextPanel() {
 ==============================================================================*/
 
 function addPostButtons(post) {
-	var h, ref = $q(aib.qRef, post),
+	var ref = $q(aib.qRef, post),
 		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
-		h = aib.host;
 		if(!TNum) {
 			html += '<span class="de-btn-expthr" onclick="de_expandClick(this)" onmouseover="de_expandOver(this)" onmouseout="de_btnOut(event)"></span>';
 		}
-		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
+		if(Favor[aib.dm] && Favor[aib.dm][brd] && Favor[aib.dm][brd][post.num]) {
 			html += '<span class="de-btn-fav-sel" onclick="de_favorClick(this)"></span>';
-			Favor[h][brd][post.num].cnt = post.thr.pCount + 1;
+			Favor[aib.dm][brd][post.num].cnt = post.thr.pCount + 1;
 		} else {
 			html += '<span class="de-btn-fav" onclick="de_favorClick(this)"></span>';
 		}
@@ -6280,7 +6279,7 @@ Spells.prototype = {
 		delete Cfg['wipeSpecial'];
 		delete Cfg['wipeCAPS'];
 		delete Cfg['wipeNumbers'];
-		saveComCfg(aib.host, Cfg);
+		saveComCfg(aib.dm, Cfg);
 		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') +
 			rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
 	},
@@ -7098,10 +7097,10 @@ function getPostform(form) {
 }
 
 function getImageboard() {
-	var h = window.location.hostname.match(
+	var dm = window.location.hostname.match(
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
-	switch(h) {
+	switch(dm) {
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case 'britfa.gs': aib.brit = true; break;
@@ -7133,7 +7132,7 @@ function getImageboard() {
 	}
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
-	switch(aib.dm = h) {
+	switch(aib.dm = dm) {
 	case '0-chan.ru':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
@@ -7150,7 +7149,7 @@ function getImageboard() {
 		aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 	}
 	fixFunctions();
-	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || h === '02ch.net';
+	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || dm === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny || aib.fch ? 'post reply' :
