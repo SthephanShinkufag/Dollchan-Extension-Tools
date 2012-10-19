@@ -3879,7 +3879,6 @@ function initOggDetector() {
 				link.onclick = function(e) {
 					$pd(e);
 					if(this.player) {
-						window.URL.revokeObjectURL(this.href);
 						$del(this.player);
 						this.player = false;
 						this.href = '#';
