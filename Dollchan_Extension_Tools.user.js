@@ -784,11 +784,11 @@ function getCfg(obj) {
 	return obj && !$isEmpty(obj) ? obj : readOldCfg();
 }
 
-function saveComCfg(h, obj) {
+function saveComCfg(dm, obj) {
 	if(obj) {
-		comCfg[h] = obj;
+		comCfg[dm] = obj;
 	} else {
-		delete comCfg[h];
+		delete comCfg[dm];
 	}
 	setStored('DESU_Config', JSON.stringify(comCfg));
 }
@@ -966,13 +966,13 @@ function saveFavorites(txt) {
 	toggleContent('fav', true);
 }
 
-function removeFavorites(h, b, tNum) {
-	delete Favor[h][b][tNum];
-	if($isEmpty(Favor[h][b])) {
-		delete Favor[h][b];
+function removeFavorites(dm, b, tNum) {
+	delete Favor[dm][b][tNum];
+	if($isEmpty(Favor[dm][b])) {
+		delete Favor[dm][b];
 	}
-	if($isEmpty(Favor[h])) {
-		delete Favor[h];
+	if($isEmpty(Favor[dm])) {
+		delete Favor[dm];
 	}
 	if(pByNum[tNum]) {
 		($c('de-btn-fav-sel', pByNum[tNum].btns) || {}).className = 'de-btn-fav';
@@ -1771,23 +1771,23 @@ function addHiddenTable(hid) {
 ==============================================================================*/
 
 function addFavoritesTable(fav) {
-	var h, b, tNum, block;
-	for(h in Favor) {
-		for(b in Favor[h]) {
-			block = contentBlock(fav, $add('<b>' + h + '/' + b + '</b>'));
-			for(tNum in Favor[h][b]) {
-				if(!Favor[h][b][tNum]['url']) {
-					Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
+	var dm, b, tNum, block;
+	for(dm in Favor) {
+		for(b in Favor[dm]) {
+			block = contentBlock(fav, $add('<b>' + dm + '/' + b + '</b>'));
+			for(tNum in Favor[dm][b]) {
+				if(!Favor[dm][b][tNum]['url']) {
+					Favor[dm][b][tNum]['url'] = getThrdUrl(dm, b, tNum);
 				}
-				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
+				block.appendChild($New('div', {'class': 'de-entry', 'info': dm + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$add('<input type="checkbox" />'),
 						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
-						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
+						$add('<a href="//' + dm + Favor[dm][b][tNum]['url'] + '">№' + tNum + '</a>'),
+						$add('<span class="de-fav-title"> - ' + Favor[dm][b][tNum]['txt'] + '</span>'),
 						$add('<span class="de-fav-inf-page"></span>'),
 						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-							Favor[h][b][tNum]['cnt'] + '</span>]</span>')
+							Favor[dm][b][tNum]['cnt'] + '</span>]</span>')
 					])
 				]));
 			}
@@ -7044,10 +7044,10 @@ function getPostform(form) {
 }
 
 function getImageboard() {
-	var h = window.location.hostname.match(
+	var dm = window.location.hostname.match(
 			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 		)[0];
-	switch(h) {
+	switch(dm) {
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case 'britfa.gs': aib.brit = true; break;
@@ -7079,7 +7079,7 @@ function getImageboard() {
 	}
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
-	switch(aib.dm = h) {
+	switch(aib.dm = dm) {
 	case '0-chan.ru':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
@@ -7096,7 +7096,7 @@ function getImageboard() {
 		aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 	}
 	fixFunctions();
-	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || h === '02ch.net';
+	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || dm === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny || aib.fch ? 'post reply' :
