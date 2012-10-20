@@ -369,7 +369,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime, addOggSound,
+oldTime, endTime, timeLog = '', dTime, addOggSound, archFinderUrl,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -559,6 +559,30 @@ function $log(txt) {
 	oldTime = newTime;
 }
 
+function $xhr(obj) {
+	var h, xhr = new window.XMLHttpRequest();
+	if(obj['onreadystatechange']) {
+		xhr.onreadystatechange = function() {
+			obj['onreadystatechange'](xhr);
+		};
+	}
+	xhr.onload = function() {
+		if(obj['onload']) {
+			obj['onload'](xhr);
+		}
+		xhr = obj = null;
+	};
+	xhr.open(obj['method'], obj['url'], true);
+	xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
+	if(obj['responseType']) {
+		xhr.responseType = obj['responseType'];
+	}
+	for(h in obj['headers']) {
+		xhr.setRequestHeader(h, obj['headers'][h]);
+	}
+	xhr.send(null);
+}
+
 function fixFunctions() {
 	if(aib.hid) {
 		window.setTimeout = function(Fn, num) {
@@ -581,27 +605,8 @@ function fixFunctions() {
 			console.error(msg);
 		};
 	}
-	if(!window.GM_xmlhttpRequest) {
-		window.GM_xmlhttpRequest = function(obj) {
-			var h, xhr = new window.XMLHttpRequest();
-			if(obj['onreadystatechange']) {
-				xhr.onreadystatechange = function() {
-					obj['onreadystatechange'](xhr);
-				};
-			}
-			xhr.onload = function() {
-				if(obj['onload']) {
-					obj['onload'](xhr);
-				}
-				xhr = obj = null;
-			};
-			xhr.open(obj['method'], obj['url'], true);
-			xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
-			for(h in obj['headers']) {
-				xhr.setRequestHeader(h, obj['headers'][h]);
-			}
-			xhr.send(null);
-		};
+	if(!nav.Firefox) {
+		window.GM_xmlhttpRequest = $xhr;
 	}
 }
 
@@ -3309,109 +3314,204 @@ function prepareCFeatures() {
 		}
 	}});
 
-	if(nav.noBlob) {
-		return;
+	if(!nav.noWorker) {
+		archFinderUrl = window.URL.createObjectURL(new Blob([
+			'self.onmessage = function(e) {\
+				self.postMessage((' + String(findArchive) + ')(e["data"]), null);\
+			}'
+		]));
 	}
-	$script('(function() {\
-		"use strict";\
-		window.addEventListener("message", function(e) {\
-			var id = e.data[0],\
-				data = e.data.substring(1);\
-			if(id === "K") {\
-				var mReqs = data === "all" ? 4 : 1, i = mReqs, rjw' +
-				(Cfg['findRarJPEG'] ? '= []; while(i--) rjw.push(new Worker("' +
-					window.URL.createObjectURL(new Blob(['self.onmessage = ' + String(parsePostImg)]))
-				+ '"));' : ';') +
-				'preloadImages(data, mReqs, rjw);\
-				return;\
-			}\
-		});\
-		var doc = document,\
-			$x = ' + String($x) + ',\
-			getPostImages = ' + String(getPostImages) + ',\
-			getPicWrap = ' + String(aib.getPicWrap) + ';\
-		function preloadImages(pNum, mReqs, rjw) {\
-			var len, el, cReq = 0, i = 0, arr = [],\
-				bwrk = mReqs === 4 ? [0, 0, 0, 0] : [0],\
-				loadFunc = function(idx) {\
-					if(idx >= arr.length) {\
-						if(cReq === 0) {\
-							mReqs = cReq = i = arr = loadFunc = null;\
-						}\
-						return;\
-					}\
-					var xhr, url, type, eImg = ' + !!Cfg['noImgSpoil'] + ',\
-						a = arr[idx];\
-					if(!a || !(url = a.href)) {\
-						loadFunc(i++);\
-						return;\
-					}\
-					if(/\.gif$/i.test(url)) {\
-						eImg |= ' + !!Cfg['showGIFs'] + ';\
-						type = "image/gif";\
-					} else if(/\.jpe?g$/i.test(url)) {\
-						type = "image/jpeg";\
-					} else if(/\.png$/i.test(url)) {\
-						type = "image/png";\
-					} else {\
-						loadFunc(i++);\
-						return;\
-					}\
-					if(cReq === mReqs) {\
-						setTimeout(loadFunc, 500, idx);\
-						return;\
-					}\
-					cReq++;\
-					xhr = new XMLHttpRequest();\
-					xhr.open("GET", url, true);\
-					xhr.responseType = "arraybuffer";\
-					xhr.onload = function() {\
-						if(this.status == 200) {\
-							a.download = url.substring(url.lastIndexOf("/") + 1);\
-							var href = a.href = window.' + (nav.WebKit ? 'webkit' : '') +
-								'URL.createObjectURL(new Blob([new Uint8Array(this.response)], {"type": type}));\
-							if(eImg) {\
-								a.getElementsByTagName("img")[0].src = href;\
-							}' + (Cfg['findRarJPEG'] ? 'parseRJ(a);' : '') +
-							'cReq--; loadFunc(i++); a = eImg = url = type = null;\
-						}\
-					};\
-					xhr.send(null);\
-				}' + (Cfg['findRarJPEG'] ? ',\
-				parseRJ = function(link) {\
-					var wI = bwrk.indexOf(0), w;\
-					if(wI === -1) {\
-						setTimeout(parseRJ, 500, link);\
-						return;\
-					}\
-					w = rjw[wI];\
-					bwrk[wI] = 1;\
-					w.onmessage = function(e) {\
-						if(e.data) {\
-							var el = getPicWrap(link);\
-							if(el) {\
-								el.querySelector(\'' + aib.qImgLink + '\').className += " de-archive";\
-							}\
-						}\
-						bwrk[wI] = 0;\
-						link = wI = null;\
-					};\
-					w.onerror = function(e) {\
-						console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);\
-						bwrk[wI] = 0;\
-						link = wI = null;\
-					};\
-					w.postMessage(link.href);\
-				};' : ';') +
-			'el = getPostImages(pNum === "all" ? doc : doc.querySelector("[de-post=\'" + pNum + "\']"));\
-			for(i = 0, len = el.length; i < len; i++) {\
-				arr.push($x("ancestor::a[1]", el[i]));\
-			}\
-			for(i = 0; i < mReqs; i++) {\
-				loadFunc(i);\
-			}\
-		}})()'
-	);
+}
+
+function findArchive(dat) {
+	var i, j, len = dat.length;
+	if(dat[0] === 0xFF && dat[1] === 0xD8) {
+		for(i = 0, j = 0; i < len - 1; i++) {
+			if(dat[i] === 0xFF) {
+				if(dat[i + 1] === 0xD8) {
+					j++;
+				} else if(dat[i + 1] === 0xD9 && --j === 0) {
+					i += 2;
+					break;
+				}
+			}
+		}
+	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+		for(i = 0; i < len - 7; i++) {
+			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+				i += 8;
+				break;
+			}
+		}
+	} else {
+		return false;
+	}
+	if(i !== len && len - i > 60) {
+		for(len = i + 50; i < len; i++) {
+			if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
+				return [i, 0];
+			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
+				return [i, 1];
+			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
+				return [i, 2];
+			}
+		}
+	}
+	return false;
+}
+
+function rjFinder(req) {
+	if(Cfg['findRarJPEG']) {
+		if(nav.noWorker) {
+			this.find = this._findSync;
+			return;
+		}
+		this.find = this._findWrk;
+		this.wrks = [];
+		this.busyWrks = [];
+		while(req >= 0) {
+			this.wrks.push(new Worker(archFinderUrl));
+			this.busyWrks.push(0);
+			req--;
+		}
+	} else {
+		this.find = function(link, data) {};
+	}
+}
+rjFinder.prototype = {
+	_addIcon: function(info, link, data) {
+		var type, ext, fName = link.getAttribute('download');
+		if(info[1] === 2) {
+			type = 'application/x-rar-compressed';
+			ext = '.rar';
+		} else if(info[1] === 1) {
+			type = 'application/zip';
+			ext = '.zip';
+		} else {
+			type = 'application/x-7z-compressed';
+			ext = '.7z';
+		}
+		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(link)),
+			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])],
+				{'type': type}
+			)) +
+			'" class="de-archive" download="' + fName.substring(0, fName.lastIndexOf('.')) +
+			ext + '"></a>'
+		);
+	},
+	_findSync: function syncFindRJ(link, data) {
+		var info = findArchive(data);
+		if(info) {
+			this._addIcon(info, link, data);
+		}
+	},
+	_findWrk: function wrkFindRJ(link, data) {
+		var w, bw = this.busyWrks,
+			wI = bw.indexOf(0),
+			addIco = this._addIcon;
+		if(wI === -1) {
+			setTimeout(wrkFindRJ.bind(this), 500, link, data);
+			return;
+		}
+		w = this.wrks[wI];
+		bw[wI] = 1;
+		w.onmessage = function(e) {
+			if(e.data) {
+				addIco(e.data, link, data);
+			}
+			bw[wI] = 0;
+			link = data = wI = bw = addIco = null;
+		};
+		w.onerror = function(e) {
+			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
+			bw[wI] = 0;
+			link = data = wI = bw = addIco = null;
+		};
+		w.postMessage(data, null, [data]);
+	}
+};
+
+function downloadData(url, fn) {
+	var obj = {
+		'method': 'GET',
+		'url': url,
+		'overrideMimeType': 'text/plain; charset=x-user-defined',
+		'onreadystatechange': function(e) {
+			if(e.readyState !== 4) {
+				return;
+			}
+			if(e.status === 200) {
+				if(aib.fch) {
+					fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
+				} else {
+					fn(new Uint8Array(e.response));
+				}
+				return;
+			}
+			fn(null);
+		}
+	};
+	if(!aib.fch) {
+		obj['responseType'] = 'arraybuffer';
+		$xhr(obj);
+	} else {
+		GM_xmlhttpRequest(obj);
+	}
+}
+
+function preloadImages(post) {
+	var len, el, mReqs = post ? 1 : 4, cReq = 0, i = 0, arr = [],
+		rjf = new rjFinder(mReqs),
+		loadFunc = function(idx) {
+			if(idx >= arr.length) {
+				if(cReq === 0) {
+					mReqs = cReq = i = arr = loadFunc = null;
+				}
+				return;
+			}
+			var xhr, url, type, eImg = !!Cfg['noImgSpoil'],
+				a = arr[idx];
+			if(!a || !(url = a.href)) {
+				loadFunc(i++);
+				return;
+			}
+			if(/\.gif$/i.test(url)) {
+				eImg |= !!Cfg['showGIFs'];
+				type = "image/gif";
+			} else if(/\.jpe?g$/i.test(url)) {
+				type = "image/jpeg";
+			} else if(/\.png$/i.test(url)) {
+				type = "image/png";
+			} else {
+				loadFunc(i++);
+				return;
+			}
+			if(cReq === mReqs) {
+				setTimeout(loadFunc, 500, idx);
+				return;
+			}
+			cReq++;
+			downloadData(url, function(data) {
+				if(data) {
+					a.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
+					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
+					if(eImg) {
+						a.getElementsByTagName("img")[0].src = a.href;
+					}
+					rjf.find(a, data);
+					cReq--;
+					loadFunc(i++);
+				}
+				a = eImg = url = type = null;
+			});
+		};
+	el = getPostImages(post || dForm);
+	for(i = 0, len = el.length; i < len; i++) {
+		arr.push($x("ancestor::a[1]", el[i]));
+	}
+	for(i = 0; i < mReqs; i++) {
+		loadFunc(i);
+	}
 }
 
 /*==============================================================================
@@ -3780,7 +3880,6 @@ function initOggDetector() {
 	var links = {};
 
 	function addOggPlayer(link, a, post) {
-		console.log(a);
 		for(var i = a.length - 1, tag = link.getAttribute('de-tag'); i >= 0 && a[i][0] !== tag; i--) {}
 		link.href = a[i < 0 ? 0 : i][1];
 		$before(post.msg || $q(aib.qMsg, post), link.player = $add('<audio class="de-audio" src="' + link.href + '" controls></audio>'));
@@ -3810,7 +3909,7 @@ function initOggDetector() {
 			'onload': function(e) {
 				if(e.status === 200) {
 					links[url] = [];
-					var arr, i, j, len, temp, tName, snds = links[url],
+					var arr, i, j, len, tName, snds = links[url],
 						str = e.responseText;
 					while(true) {
 						tName = null;
@@ -3849,11 +3948,7 @@ function initOggDetector() {
 								i--;
 							}
 						}
-						temp = str.substr(0, len);
-						for(i = temp.length - 1, arr = new Uint8Array(i + 1); i >= 0; i--) {
-							arr[i] = temp.charCodeAt(i);
-						}
-						snds.push([tName, window.URL.createObjectURL(new Blob([arr], {'type': 'audio/ogg'}))]);
+						snds.push([tName, window.URL.createObjectURL(new Blob([new Uint8Array(str.substr(0, len).split('').map(function(a) { return a.charCodeAt(); }))], {'type': 'audio/ogg'}))]);
 						str = str.substr(len);
 					}
 					if(snds.length === 0) {
@@ -4069,50 +4164,6 @@ function eventPostImg(post) {
 			};
 		}
 	});
-}
-
-function parsePostImg(e) {
-	var dat, i, j, len, xhr = new XMLHttpRequest();
-	xhr.open('GET', e.data, false);
-	xhr.responseType = 'arraybuffer';
-	xhr.send();
-	dat = new Uint8Array(xhr.response);
-	len = dat.length;
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 0, j = 0; i < len - 1; i++) {
-			if(dat[i] === 0xFF) {
-				if(dat[i + 1] === 0xD8) {
-					j++;
-				} else if(dat[i + 1] === 0xD9 && --j === 0) {
-					i += 2;
-					break;
-				}
-			}
-		}
-	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0; i < len - 7; i++) {
-			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-				i += 8;
-				break;
-			}
-		}
-	} else {
-		self.postMessage(false, null);
-		return;
-	}
-	if(i !== len && len - i > 60) {
-		for(len = i + 50; i < len; i++) {
-			if(
-				(dat[i] === 0x37 && dat[i + 1] === 0x7A) ||
-				(dat[i] === 0x50 && dat[i + 1] === 0x4B) ||
-				(dat[i] === 0x52 && dat[i + 1] === 0x61)
-			) {
-				self.postMessage(true, null);
-				return;
-			}
-		}
-	}
-	self.postMessage(false, null);
 }
 
 
@@ -4555,7 +4606,7 @@ function newPost(thr, post, pNum, i) {
 	}
 	thr.appendChild(pst);
 	if(Cfg['preLoadImgs']) {
-		window.postMessage('K' + pNum, '*');
+		preloadImages(post);
 	}
 	if(aib.tiny && !aib.mlpg) {
 		thr.appendChild(doc.createElement('br'));
@@ -4798,7 +4849,9 @@ function loadPages(len) {
 					});
 				}
 				closeAlert($id('de-alert-load-pages'));
-				window.postMessage('Kall', '*');
+				if(Cfg['preLoadImgs']) {
+					preloadImages(null);
+				}
 				loaded = pages = null;
 			} else {
 				loaded++;
@@ -6703,7 +6756,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		.de-archive:after { content: ""; padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
+		.de-archive { padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
@@ -6939,6 +6992,7 @@ function isCompatible() {
 		return false;
 	}
 	getNavigator();
+	fixFunctions();
 	if((getStored('DESU_Exclude') || '').indexOf(aib.dm) !== -1) {
 		return false;
 	}
@@ -6979,6 +7033,7 @@ function getNavigator() {
 		}
 	}
 	nav.noBlob = nav.Firefox < 15 && nav.WebKit < 536.1;
+	nav.noWorker = nav.Firefox && nav.Firefox < 18;
 	nav.insAfter =
 		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$after(el, $add(html));
@@ -7011,6 +7066,33 @@ function getNavigator() {
 		};
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
+		if(window.Worker.prototype.webkitPostMessage) {
+			window.Worker.prototype.postMessage = function(message, target, transObjs) {
+				this.webkitPostMessage(message, transObjs, target);
+			};
+		}
+	}
+	if(nav.Firefox >= 18) {
+		$script(
+			'window["de-worker"] = function(url) {\
+				this.wrk = new Worker(url);\
+			};\
+			window["de-worker-proto"] = window["de-worker"].prototype = {\
+				set onmessage(fn) {\
+					this.wrk.onmessage = fn;\
+				},\
+				set onerror(fn) {\
+					this.wrk.onerror = fn;\
+				},\
+				_postMessage: function() {\
+					this.wrk.postMessage.apply(this.wrk, arguments);\
+				}\
+			};'
+		);
+		window.Worker = new Proxy(unsafeWindow['de-worker'], {});
+		window.Worker.prototype.postMessage = function() {
+			unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
+		};
 	}
 	nav.addClass =
 		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
@@ -7144,7 +7226,6 @@ function getImageboard() {
 		aib.abu = !!$id('ABU_css');
 		aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 	}
-	fixFunctions();
 	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || dm === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
@@ -7176,9 +7257,9 @@ function getImageboard() {
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
 		'filesize';
 	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]:nth-child(1), ' +
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]:nth-child(1), ' +
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]:nth-child(1)'
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]:nth-of-type(1), ' +
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]:nth-of-type(1), ' +
+		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]:nth-of-type(1)'
 	);
 	aib.qPostForm =
 		aib.futa ? 'form:nth-of-type(1)' :
@@ -7573,7 +7654,7 @@ function doScript() {
 	}
 	prepareCFeatures();
 	if(Cfg['preLoadImgs']) {
-		window.postMessage('Kall', '*');
+		preloadImages(null);
 	}
 	Posts.forEach(addPostButtons);
 	saveFavorites(JSON.stringify(Favor));
