@@ -3314,15 +3314,59 @@ function prepareCFeatures() {
 		}
 	}});
 
-	if(nav.noBlob) {
-		return;
+	if(!nav.noWorker) {
+		parsePostImgUrl = window.URL.createObjectURL(new Blob([
+			'self.onmessage = function(e) {\
+				self.postMessage((' + String(findArchive) + ')(new Uint8Array(e["data"]["buf"])), null);\
+			}'
+		]));
 	}
-	parsePostImgUrl = window.URL.createObjectURL(new Blob(['self.onmessage = ' + String(parsePostImg)]));
+}
+
+function findArchive(dat) {
+	var i, j, len = dat.length;
+	if(dat[0] === 0xFF && dat[1] === 0xD8) {
+		for(i = 0, j = 0; i < len - 1; i++) {
+			if(dat[i] === 0xFF) {
+				if(dat[i + 1] === 0xD8) {
+					j++;
+				} else if(dat[i + 1] === 0xD9 && --j === 0) {
+					i += 2;
+					break;
+				}
+			}
+		}
+	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
+		for(i = 0; i < len - 7; i++) {
+			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
+				i += 8;
+				break;
+			}
+		}
+	} else {
+		return false;
+	}
+	if(i !== len && len - i > 60) {
+		for(len = i + 50; i < len; i++) {
+			if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
+				return [i, 0];
+			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
+				return [i, 1];
+			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
+				return [i, 2];
+			}
+		}
+	}
+	return false;
 }
 
 function rjFinder(req) {
 	if(Cfg['findRarJPEG']) {
-		this.find = this._find;
+		if(nav.noWorker) {
+			this.find = this._findSync;
+			return;
+		}
+		this.find = this._findWrk;
 		this.wrks = [];
 		this.busyWrks = [];
 		while(req >= 0) {
@@ -3335,44 +3379,54 @@ function rjFinder(req) {
 	}
 }
 rjFinder.prototype = {
-	_find: function findRJ(link, data) {
+	_addIcon: function(info, link, data) {
+		var type, ext, fName = link.getAttribute('download');
+		if(info[1] === 2) {
+			type = 'application/x-rar-compressed';
+			ext = '.rar';
+		} else if(info[1] === 1) {
+			type = 'application/zip';
+			ext = '.zip';
+		} else {
+			type = 'application/x-7z-compressed';
+			ext = '.7z';
+		}
+		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(link)),
+			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])],
+				{'type': type}
+			)) +
+			'" class="de-archive" download="' + fName.substring(0, fName.lastIndexOf('.')) +
+			ext + '"></a>'
+		);
+	},
+	_findSync: function syncFindRJ(link, data) {
+		var info = findArchive(data);
+		if(info) {
+			this._addIcon(info, link, data);
+		}
+	},
+	_findWrk: function wrkFindRJ(link, data) {
 		var w, bw = this.busyWrks,
 			wI = bw.indexOf(0),
+			addIco = this._addIcon,
 			buf = data.buffer;
 		if(wI === -1) {
-			setTimeout(findRJ.bind(this), 500, link, data);
+			setTimeout(wrkFindRJ.bind(this), 500, link, data);
 			return;
 		}
 		w = this.wrks[wI];
 		bw[wI] = 1;
 		w.onmessage = function(e) {
 			if(e.data) {
-				var type, ext, fName = link.download;
-				if(e.data[1] === 2) {
-					type = 'application/x-rar-compressed';
-					ext = '.rar';
-				} else if(e.data[1] === 1) {
-					type = 'application/zip';
-					ext = '.zip';
-				} else {
-					type = 'application/x-7z-compressed';
-					ext = '.7z';
-				}
-				nav.insAfter($q(aib.qImgLink, aib.getPicWrap(link)),
-					'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(e.data[0])],
-						{'type': type}
-					)) +
-					'" class="de-archive" download="' + fName.substring(0, fName.lastIndexOf('.')) +
-					ext + '"></a>'
-				);
+				addIco(e.data, link, data);
 			}
 			bw[wI] = 0;
-			link = data = wI = bw = null;
+			link = data = wI = bw = addIco = null;
 		};
 		w.onerror = function(e) {
 			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
 			bw[wI] = 0;
-			link = data = wI = bw = null;
+			link = data = wI = bw = addIco = null;
 		};
 		w.postMessage({'buf': buf}, null, [buf]);
 	}
@@ -3440,7 +3494,7 @@ function preloadImages(post) {
 			cReq++;
 			downloadData(url, function(data) {
 				if(data) {
-					a.download = url.substring(url.lastIndexOf("/") + 1);
+					a.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
 					if(eImg) {
 						a.getElementsByTagName("img")[0].src = a.href;
@@ -4111,48 +4165,6 @@ function eventPostImg(post) {
 			};
 		}
 	});
-}
-
-function parsePostImg(e) {
-	var i, j, dat = new Uint8Array(e['data']['buf']),
-		len = dat.length;
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 0, j = 0; i < len - 1; i++) {
-			if(dat[i] === 0xFF) {
-				if(dat[i + 1] === 0xD8) {
-					j++;
-				} else if(dat[i + 1] === 0xD9 && --j === 0) {
-					i += 2;
-					break;
-				}
-			}
-		}
-	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0; i < len - 7; i++) {
-			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
-				i += 8;
-				break;
-			}
-		}
-	} else {
-		self.postMessage(false, null);
-		return;
-	}
-	if(i !== len && len - i > 60) {
-		for(len = i + 50; i < len; i++) {
-			if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
-				self.postMessage([i, 0], null);
-				return;
-			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
-				self.postMessage([i, 1], null);
-				return;
-			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
-				self.postMessage([i, 2], null);
-				return;
-			}
-		}
-	}
-	self.postMessage(false, null);
 }
 
 
@@ -7022,6 +7034,7 @@ function getNavigator() {
 		}
 	}
 	nav.noBlob = nav.Firefox < 15 && nav.WebKit < 536.1;
+	nav.noWorker = nav.Firefox && nav.Firefox < 18;
 	nav.insAfter =
 		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$after(el, $add(html));
