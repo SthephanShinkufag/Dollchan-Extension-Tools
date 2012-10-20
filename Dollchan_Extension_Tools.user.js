@@ -369,7 +369,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime, addOggSound,
+oldTime, endTime, timeLog = '', dTime, addOggSound, archFinderUrl,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -3315,9 +3315,9 @@ function prepareCFeatures() {
 	}});
 
 	if(!nav.noWorker) {
-		parsePostImgUrl = window.URL.createObjectURL(new Blob([
+		archFinderUrl = window.URL.createObjectURL(new Blob([
 			'self.onmessage = function(e) {\
-				self.postMessage((' + String(findArchive) + ')(new Uint8Array(e["data"]["buf"])), null);\
+				self.postMessage((' + String(findArchive) + ')(e["data"]), null);\
 			}'
 		]));
 	}
@@ -3370,7 +3370,7 @@ function rjFinder(req) {
 		this.wrks = [];
 		this.busyWrks = [];
 		while(req >= 0) {
-			this.wrks.push(new Worker(parsePostImgUrl));
+			this.wrks.push(new Worker(archFinderUrl));
 			this.busyWrks.push(0);
 			req--;
 		}
@@ -3408,8 +3408,7 @@ rjFinder.prototype = {
 	_findWrk: function wrkFindRJ(link, data) {
 		var w, bw = this.busyWrks,
 			wI = bw.indexOf(0),
-			addIco = this._addIcon,
-			buf = data.buffer;
+			addIco = this._addIcon;
 		if(wI === -1) {
 			setTimeout(wrkFindRJ.bind(this), 500, link, data);
 			return;
@@ -3428,7 +3427,7 @@ rjFinder.prototype = {
 			bw[wI] = 0;
 			link = data = wI = bw = addIco = null;
 		};
-		w.postMessage({'buf': buf}, null, [buf]);
+		w.postMessage(data, null, [data]);
 	}
 };
 
