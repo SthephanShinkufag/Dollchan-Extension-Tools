@@ -7067,9 +7067,7 @@ function getNavigator() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 		if(window.Worker.prototype.webkitPostMessage) {
-			window.Worker.prototype.postMessage = function(message, target, transObjs) {
-				this.webkitPostMessage(message, target, transObjs);
-			};
+			window.Worker.prototype.postMessage = window.Worker.prototype.webkitPostMessage;
 		}
 	}
 	if(nav.Firefox >= 18) {
