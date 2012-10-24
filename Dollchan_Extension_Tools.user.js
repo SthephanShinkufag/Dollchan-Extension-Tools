@@ -7006,7 +7006,7 @@ function getNavigator() {
 		}
 	}
 	nav.isBlob = nav.Firefox > 14 || nav.WebKit > 536;
-	nav.isWorker = nav.WebKit || nav.Firefox > 17;
+	nav.isWorker = nav.Firefox > 17 || nav.WebKit > 536;
 	nav.insAfter =
 		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$after(el, $add(html));
@@ -7087,9 +7087,11 @@ function fixFunctions() {
 	}
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
-		window.Worker.prototype.postMessage = function(message, target, transObjs) {
-			this.webkitPostMessage(message, target, transObjs);
-		};
+		if(window.Worker.prototype.webkitPostMessage) {
+			window.Worker.prototype.postMessage = function(message, target, transObjs) {
+				this.webkitPostMessage(message, target, transObjs);
+			};
+		}
 	}
 	if(nav.Firefox >= 18) {
 		$script(
