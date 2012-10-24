@@ -7087,9 +7087,9 @@ function fixFunctions() {
 	}
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
-		if(window.Worker.prototype.webkitPostMessage) {
+		if(!window.Worker.prototype.postMessage) {
 			window.Worker.prototype.postMessage = function(message, target, transObjs) {
-				this.webkitPostMessage(message, target, transObjs);
+				this.webkitPostMessage(message, transObjs, target);
 			}
 		}
 	}
