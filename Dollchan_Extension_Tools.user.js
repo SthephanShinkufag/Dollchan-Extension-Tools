@@ -7088,9 +7088,9 @@ function fixFunctions() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 		if(window.Worker.prototype.webkitPostMessage) {
-			window.Worker.prototype.postMessage = function(message, transObjs) {
-				this.webkitPostMessage(message, transObjs, null);
-			};
+			window.Worker.prototype.postMessage = function(message, target, transObjs) {
+				this.webkitPostMessage(message, target, transObjs);
+			}
 		}
 	}
 	if(nav.Firefox >= 18) {
