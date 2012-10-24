@@ -3316,7 +3316,7 @@ function prepareCFeatures() {
 		}
 	}});
 
-	if(!nav.noWorker) {
+	if(!nav.noWorker && !nav.noBlob) {
 		archFinderUrl = window.URL.createObjectURL(new Blob([
 			'self.onmessage = function(e) {\
 				self.postMessage((' + String(findArchive) + ')(e["data"]), null);\
