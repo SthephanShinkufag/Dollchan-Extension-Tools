@@ -261,6 +261,28 @@ Lng = {
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']
 	],
 
+	keyNavHelp:		[
+		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n\n' +
+		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n' +
+		'"V" - вход в тред.\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
+		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n\n' +
+		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
+		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
+	],
+
+	month:			[
+		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
+		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+	],
+	fullMonth:			[
+		['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+		['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+	],
+	week:			[
+		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
+		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+	],
+
 	add:			['Добавить', 'Add'],
 	apply:			['Применить', 'Apply'],
 	clear:			['Очистить', 'Clear'],
@@ -279,38 +301,43 @@ Lng = {
 	error:			['Ошибка:', 'Error:'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
 	thrNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
-	succDeleted:	['Пост(ы) удален(ы)!', 'Post(s) deleted!'],
-	errDelete:		['Не могу удалить пост(ы):\n', 'Can\'t delete post(s):\n'],
+	succDeleted:	['Успешно удалено!', 'Succesfully deleted!'],
+	errDelete:		['Не могу удалить:\n', 'Can\'t delete:\n'],
 	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
+	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
+	dontShow:		['Не отображать: ', 'Do not show: '],
 	checkNow:		['Проверить сейчас', 'Check now'],
 	updAvail:		['Доступно обновление!', 'Update available!'],
 	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
-	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
 	version:		['Версия: ', 'Version: '],
 	storage:		['Хранение: ', 'Storage: '],
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
 	thrCreated:		['Тредов создано: ', 'Threads created: '],
 	posts:			['Постов: ', 'Posts: '],
 	total:			['Всего: ', 'Total: '],
-	dontShow:		['Не отображать: ', 'Do not show: '],
-	showMore:		['Показать подробнее', 'Show more'],
+	debug:			['Отладка', 'Debug'],
+	infoDebug:		['Информация для отладки', 'Information for debugging'],
 	loadGlobal:		['Загрузить глобальные настройки', 'Load global settings'],
 	saveGlobal:		['Сохранить настройки как глобальные', 'Save settings as global'],
-	resetCfg:		['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
-	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
 	editInTxt:		['Правка в текстовом формате', 'Edit in text format'],
+	resetCfg:		['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
+	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
+	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
+	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:		['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
-	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
 	hiddenPosts:	['Скрытые посты на странице', 'Hidden posts on page'],
 	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
 	noHidPosts:		['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
 	expandAll:		['Раскрыть все', 'Expand all'],
+	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
 	noFavorites:	['Нет избранных тредов...', 'Favorites is empty...'],
+	reply:			['Ответ', 'Reply'],
+	replyTo:		['Ответ в', 'Reply to'],
 	replies:		['Ответы:', 'Replies:'],
 	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
 	collapseThrd:	['Свернуть тред', 'Collapse thread'],
@@ -320,35 +347,10 @@ Lng = {
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
 	expandForm:		['Раскрыть форму', 'Expand form'],
 	search:			['Искать в ', 'Search in '],
-	reply:			['Ответ', 'Reply'],
-	replyTo:		['Ответ в', 'Reply to'],
 	wait:			['Ждите', 'Wait'],
 	addRar:			['+ .rar', '+ .rar'],
-	keyNavHelp:		[
-		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n\n' +
-		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n' +
-		'"V" - вход в тред.\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
-		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n\n' +
-		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
-		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
-	],
-	month:			[
-		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
-		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-	],
-	fullMonth:			[
-		['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
-		['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-	],
-	week:			[
-		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
-		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-	],
-	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
-	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
+	downloadArch:	['Скачать содержащийся архив', 'Download existing archive'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
-	debug:			['Отладка', 'Debug'],
-	infoDebug:		['Информация для отладки', 'Information for debugging'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -605,7 +607,7 @@ function fixFunctions() {
 			console.error(msg);
 		};
 	}
-	if(!nav.Firefox) {
+	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
 	}
 }
@@ -3392,11 +3394,9 @@ rjFinder.prototype = {
 			ext = '.7z';
 		}
 		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(link)),
-			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])],
-				{'type': type}
-			)) +
-			'" class="de-archive" download="' + fName.substring(0, fName.lastIndexOf('.')) +
-			ext + '"></a>'
+			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': type})) +
+			'" class="de-archive" title="' + Lng.downloadArch[lang] +
+			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + ext + '"></a>'
 		);
 	},
 	_findSync: function syncFindRJ(link, data) {
