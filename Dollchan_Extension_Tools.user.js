@@ -805,7 +805,7 @@ function readCfg() {
 	if(!nav.Anim) {
 		Cfg['animations'] = 0;
 	}
-	if(aib.fch || aib.abu) {
+	if(aib.fch) {
 		Cfg['findRarJPEG'] = 0;
 	}
 	if(!nav.Firefox) {
@@ -1350,7 +1350,7 @@ function getCfgPosts() {
 		optSel('expandImgs', true, null),
 		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
 		$if(nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
-			$if(!aib.abu && !aib.fch, lBox('findRarJPEG', true, null)),
+			$if(!aib.fch, lBox('findRarJPEG', true, null)),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
 		])),
@@ -2411,7 +2411,7 @@ function processInput() {
 		this.rarJPEG = null;
 		$del(this.nextSibling);
 	}
-	if(!aib.abu && !aib.fch) {
+	if(!aib.fch) {
 		$del($c('de-file-rar', this.parentNode));
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 			$after(this, $new('button', {
@@ -2926,7 +2926,7 @@ dataForm.prototype.readFile = function(el, idx) {
 		return;
 	}
 	fr.onload = function() {
-		var dat = getReplyImgData(new Uint8Array(this.result), aib.abu || aib.fch || !!el.rarJPEG);
+		var dat = getReplyImgData(new Uint8Array(this.result), aib.fch || !!el.rarJPEG);
 		if(dat) {
 			if(el.rarJPEG) {
 				dat.push(el.rarJPEG);
@@ -7087,9 +7087,9 @@ function fixFunctions() {
 	}
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
-		if(window.Worker.prototype.webkitPostMessage) {
-			window.Worker.prototype.postMessage = window.Worker.prototype.webkitPostMessage;
-		}
+		window.Worker.prototype.postMessage = function(message, target, transObjs) {
+			this.webkitPostMessage(message, target, transObjs);
+		};
 	}
 	if(nav.Firefox >= 18) {
 		$script(
