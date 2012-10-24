@@ -1605,9 +1605,9 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						setStored('DESU_Config', '');
-						setStored('DESU_Favorites', '');
-						setStored('DESU_Threads', '');
+						delStored('DESU_Config');
+						delStored('DESU_Favorites');
+						delStored('DESU_Threads');
 						setStored(
 							'DESU_Spells_' + aib.dm,
 							'[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]'
