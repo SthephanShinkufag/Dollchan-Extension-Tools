@@ -371,7 +371,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime, addOggSound, archFinderUrl,
+oldTime, endTime, timeLog = '', dTime, addOggSound,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -584,6 +584,34 @@ function $xhr(obj) {
 	}
 	xhr.send(null);
 }
+
+/** @constructor */
+function $queue(maxNum, fn) {
+	this.array = [];
+	this.length = 0;
+	this.fn = fn;
+	this.mNum = maxNum;
+	this.cNum = 0;
+}
+$queue.prototype = {
+	run: function(data) {
+		var num = this.cNum;
+		if(num === this.mNum) {
+			this.array.push(data);
+			this.length++;
+		} else {
+			this.cNum++;
+			this.fn(num, data);
+		}
+	},
+	end: function() {
+		this.cNum--;
+		if(this.length !== 0) {
+			this.length--;
+			this.run(this.array.splice(0, 1)[0]);
+		}
+	}
+};
 
 function regQuote(str) {
 	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -3288,14 +3316,6 @@ function prepareCFeatures() {
 		case 'L': selectImgSearch($q('.de-btn-src[de-id="' + data + '"]', dForm)); return;
 		}
 	}});
-
-	if(nav.isWorker) {
-		archFinderUrl = window.URL.createObjectURL(new Blob([
-			'self.onmessage = function(e) {\
-				self.postMessage((' + String(findArchive) + ')(e["data"]), null);\
-			}'
-		]));
-	}
 }
 
 function findArchive(dat) {
@@ -3335,27 +3355,56 @@ function findArchive(dat) {
 	return false;
 }
 
-function rjFinder(req) {
-	if(Cfg['findRarJPEG']) {
-		if(!nav.isWorker) {
-			this.find = this._findSync;
-			return;
-		}
-		this.find = this._findWrk;
-		this.wrks = [];
-		this.busyWrks = [];
-		while(req >= 0) {
-			this.wrks.push(new Worker(archFinderUrl));
-			this.busyWrks.push(0);
-			req--;
-		}
-	} else {
-		this.find = function(link, data) {};
+/** @constructor */
+function workerQueue(mReqs, fnWrk, fnErr) {
+	if(!nav.isWorker) {
+		this.find = this._findSync.bind(fnWrk, fnSucc);
+		return;
+	}
+	this.url = window.URL.createObjectURL(new Blob([
+		'self.onmessage = function(e) {\
+			self.postMessage((' + String(fnWrk) + ')(e["data"]), null);\
+		}'
+	]));
+	this.queue = new $queue(mReqs, this._createWrk.bind(this));
+	this.find = this._findWrk;
+	this.wrks = [];
+	this.onErr = this._onErr.bind(this, fnErr);
+	while(mReqs > 0) {
+		this.wrks.push(new Worker(this.url));
+		mReqs--;
 	}
 }
-rjFinder.prototype = {
-	_addIcon: function(info, link, data) {
-		var type, ext, fName = link.getAttribute('download');
+workerQueue.prototype = {
+	_findSync: function(fn, data) {
+		fn(this(data));
+	},
+	onMess: function(fn, e) {
+		this.queue.end();
+		fn(e.data);
+	},
+	_onErr: function(fn, e) {
+		this.queue.end();
+		fn(e);
+	},
+	_findWrk: function(data, fn) {
+		this.queue.run([data, this.onMess.bind(this, fn)]);
+	},
+	_createWrk: function(num, data) {
+		var w = this.wrks[num];
+		w.onmessage = data[1];
+		w.onerror = this.onErr;
+		w.postMessage.apply(w, data[0]);
+	},
+	clear: function() {
+		this.wrks = null;
+		window.URL.revokeObjectURL(this.url);
+	}
+};
+
+function addIcon(data, info) {
+	if(info) {
+		var type, ext, fName = this.getAttribute('download');
 		if(info[1] === 2) {
 			type = 'application/x-rar-compressed';
 			ext = '.rar';
@@ -3366,49 +3415,18 @@ rjFinder.prototype = {
 			type = 'application/x-7z-compressed';
 			ext = '.7z';
 		}
-		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(link)),
+		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(this)),
 			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': type})) +
 			'" class="de-archive" title="' + Lng.downloadArch[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + ext + '"></a>'
 		);
-	},
-	_findSync: function syncFindRJ(link, data) {
-		var info = findArchive(data);
-		if(info) {
-			this._addIcon(info, link, data);
-		}
-	},
-	_findWrk: function wrkFindRJ(link, data) {
-		var w, bw = this.busyWrks,
-			wI = bw.indexOf(0),
-			addIco = this._addIcon;
-		if(wI === -1) {
-			setTimeout(wrkFindRJ.bind(this), 500, link, data);
-			return;
-		}
-		w = this.wrks[wI];
-		bw[wI] = 1;
-		w.onmessage = function(e) {
-			if(e.data) {
-				addIco(e.data, link, data);
-			}
-			bw[wI] = 0;
-			link = data = wI = bw = addIco = null;
-		};
-		w.onerror = function(e) {
-			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
-			bw[wI] = 0;
-			link = data = wI = bw = addIco = null;
-		};
-		w.postMessage(data, null, [data]);
 	}
-};
+}
 
 function downloadData(url, fn) {
 	var obj = {
 		'method': 'GET',
 		'url': url,
-		'overrideMimeType': 'text/plain; charset=x-user-defined',
 		'onreadystatechange': function(e) {
 			if(e.readyState !== 4) {
 				return;
@@ -3419,33 +3437,33 @@ function downloadData(url, fn) {
 				} else {
 					fn(new Uint8Array(e.response));
 				}
-				return;
+			} else {
+				fn(null);
 			}
-			fn(null);
 		}
 	};
 	if(!aib.fch) {
 		obj['responseType'] = 'arraybuffer';
 		$xhr(obj);
 	} else {
+		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	}
 }
 
 function preloadImages(post) {
-	var len, el, mReqs = post ? 1 : 4, cReq = 0, i = 0, arr = [],
-		rjf = new rjFinder(mReqs),
-		loadFunc = function(idx) {
-			if(idx >= arr.length) {
-				if(cReq === 0) {
-					mReqs = cReq = i = arr = loadFunc = null;
-				}
+	var i, len, el, mReqs = post ? 1 : 4, last = false,
+		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
+			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
+		}), queue = new $queue(mReqs, function(num, a) {
+			if(last && num === 0) {
+				rjf && rjf.clear();
+				rjf = queue = last = null;
 				return;
 			}
-			var xhr, url, type, eImg = !!Cfg['noImgSpoil'],
-				a = arr[idx];
+			var url, type, eImg = !!Cfg['noImgSpoil'];
 			if(!a || !(url = a.href)) {
-				loadFunc(i++);
+				queue.end();
 				return;
 			}
 			if(/\.gif$/i.test(url)) {
@@ -3456,35 +3474,28 @@ function preloadImages(post) {
 			} else if(/\.png$/i.test(url)) {
 				type = "image/png";
 			} else {
-				loadFunc(i++);
+				queue.end();
 				return;
 			}
-			if(cReq === mReqs) {
-				setTimeout(loadFunc, 500, idx);
-				return;
-			}
-			cReq++;
 			downloadData(url, function(data) {
 				if(data) {
 					a.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
 					if(eImg) {
-						a.getElementsByTagName("img")[0].src = a.href;
+						$t('img', a).src = a.href;
 					}
-					rjf.find(a, data);
-					cReq--;
-					loadFunc(i++);
+					if(rjf) {
+						rjf.find([data, null, [data]], addIcon.bind(a, data));
+					}
 				}
-				a = eImg = url = type = null;
+				a = url = eImg = type = null;
+				queue.end();
 			});
-		};
-	el = getPostImages(post || dForm);
-	for(i = 0, len = el.length; i < len; i++) {
-		arr.push($x("ancestor::a[1]", el[i]));
+		});
+	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
+		queue.run($x("ancestor::a[1]", el[i]));
 	}
-	for(i = 0; i < mReqs; i++) {
-		loadFunc(i);
-	}
+	last = true;
 }
 
 /*==============================================================================
