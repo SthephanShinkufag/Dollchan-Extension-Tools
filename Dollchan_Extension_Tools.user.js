@@ -3787,7 +3787,7 @@ function addLinkTube(link, m, post) {
 		link.textContent = link.textContent.replace(/^http:/, 'https:');
 		return;
 	}
-	link.textData = false;
+	link.textData = 0;
 	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
@@ -3795,16 +3795,17 @@ function addLinkTube(link, m, post) {
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
 				var text;
+				link.textData = 1;
 				if(xhr.status === 200) {
 					try {
 						text = link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+						link.textData = 2;
 					} catch(e) {}
 				}
 				if(link.spellFn) {
 					link.spellFn(text);
 					link.spellFn = null;
 				}
-				link.textData = true;
 				link = null;
 			}
 		}
@@ -5582,7 +5583,7 @@ Spells.prototype = {
 			post.ytCount = len;
 			for(i = 0; i < len; i++) {
 				link = links[i];
-				if(link.textData) {
+				if(link.textData === 2) {
 					text = link.textContent;
 					if(text && val.test(text)) {
 						Spells.retAsyncVal.apply(null, args.concat(true, false));
@@ -5591,9 +5592,15 @@ Spells.prototype = {
 						return;
 					}
 					post.ytCount--;
+				} else if(link.textData === 1) {
+					post.ytCount--;
 				} else {
 					link.spellFn = checkLinkTube.bind(args);
 				}
+			}
+			if(post.ytCount === 0) {
+				Spells.retAsyncVal.apply(null, args.concat(false, false));
+				post.ytCount = null;
 			}
 		},
 		// 14: #wipe
