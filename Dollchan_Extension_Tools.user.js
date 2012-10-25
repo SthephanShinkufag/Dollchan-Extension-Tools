@@ -2640,7 +2640,7 @@ function doPostformChanges(img, _img, el) {
 	if(Cfg['ajaxReply'] === 2) {
 		pr.form.onsubmit = function(e) {
 			$pd(e);
-			ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
+			new dataForm(pr.form, pr.subm, checkUpload).submit();
 		};
 		dForm.onsubmit = $pd;
 		if(sBtn = $q(aib.qDelBut, dForm)) {
@@ -2648,7 +2648,7 @@ function doPostformChanges(img, _img, el) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
-				ajaxSubmit(new dataForm(dForm, this), checkDelete);
+				new dataForm(dForm, this, checkDelete).submit();
 			};
 		}
 	} else if(Cfg['ajaxReply'] === 1) {
@@ -2786,136 +2786,8 @@ function checkDelete(err, url) {
 	tNums = null;
 }
 
-function ajaxSubmit(dF, Fn) {
-	if(dF.error) {
-		return;
-	}
-	if(dF.busy > 0) {
-		setTimeout(ajaxSubmit, 200, dF, Fn);
-		return;
-	}
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + dF.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	dF.data.push('--' + dF.boundary + '--\r\n');
-	GM_xmlhttpRequest({
-		'method': 'POST',
-		'headers': headers,
-		'data': new Blob(dF.data),
-		'url': nav.fixLink(dF.url),
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState !== 4) {
-				return
-			}
-			if(xhr.status === 200) {
-				var dc = nav.toDOM(xhr.responseText);
-				Fn(findSubmitError(dc), getFinalURL(dc, false));
-				Fn = null;
-			} else {
-				$alert(
-					xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-					'upload', false
-				);
-			}
-		}
-	});
-}
-
-function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen, xRes = 0,
-		yRes = 0,
-		resT = 0,
-		le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
-		dv = new DataView(exif.buffer, off);
-	if(dv.getUint16(2, le) !== 0x2A) {
-		return null;
-	}
-	i = dv.getUint32(4, le);
-	if(i > len) {
-		return null;
-	}
-	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
-			continue;
-		}
-		if(tag === 0x0128) {
-			resT = dv.getUint16(dE + 8, le) - 1;
-		} else {
-			dE = dv.getUint32(dE + 8, le);
-			if(dE > len) {
-				return null;
-			}
-			if(tag === 0x11A) {
-				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-			} else {
-				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-			}
-		}
-	}
-	xRes = xRes || yRes;
-	yRes = yRes || xRes;
-	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
-}
-
-function getReplyImgData(dat, delExtraData) {
-	var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
-	if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-		return [dat];
-	}
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
-			if(dat[i] === 0xFF) {
-				if(rExif) {
-					if(!jpgDat && out === 1) {
-						if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
-							jpgDat = getExifData(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
-						} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
-							jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
-						}
-					}
-					if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
-						tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
-						j += tmp;
-						rData.push(i, i += tmp);
-						continue;
-					}
-				}
-				if(dat[i + 1] === 0xD8) {
-					out++;
-				} else if(dat[i + 1] === 0xD9 && --out === 0) {
-					break;
-				}
-			}
-			i++;
-		}
-		i += 2;
-		if(!delExtraData && len - i > 75) {
-			i = len;
-		}
-		if(j === 0) {
-			return i === len ? [dat] : [new Uint8Array(dat, i)];
-		}
-		rData.push(i);
-		out = new Uint8Array(i - j + 18);
-		out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1].concat(jpgDat || [0, 0, 1, 0, 1]), 0);
-		for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
-			out.set(dat.subarray(rData[i], rData[i + 1]), j);
-			j += rData[i + 1] - rData[i];
-		}
-		return [out];
-	}
-	if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
-		i += 8;
-		return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
-	}
-	return null;
-}
-
 /** @constructor */
-function dataForm(form, button) {
+function dataForm(form, button, fn) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
@@ -2923,56 +2795,178 @@ function dataForm(form, button) {
 	this.url = form.action;
 	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
 	this.append(button);
+	this.fn = fn;
 }
-
-dataForm.prototype.append = function(el) {
-	if(el.type === 'file') {
-		if(el.files.length > 0) {
-			var fName = el.files[0].name;
+dataForm.prototype = {
+	append: function(el) {
+		if(el.type === 'file') {
+			if(el.files.length > 0) {
+				var fName = el.files[0].name;
+				this.data.push(
+					'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
+					el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
+						' ' + fName.substring(fName.lastIndexOf('.'))
+					) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
+				);
+				this.readFile(el, this.data.length - 2);
+			}
+		} else if(el.type !== 'checkbox' || el.checked) {
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-				el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
-					' ' + fName.substring(fName.lastIndexOf('.'))
-				) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
+					el.name + '"\r\n\r\n' + el.value + '\r\n'
 			);
-			this.readFile(el, this.data.length - 2);
 		}
-	} else if(el.type !== 'checkbox' || el.checked) {
-		this.data.push(
-			'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-				el.name + '"\r\n\r\n' + el.value + '\r\n'
-		);
-	}
-};
-
-dataForm.prototype.readFile = function(el, idx) {
-	var fr = new FileReader(),
-		file = el.files[0],
-		dF = this;
-	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
-		this.data[idx] = file;
-		return;
-	}
-	fr.onload = function() {
-		var dat = getReplyImgData(new Uint8Array(this.result), aib.fch || !!el.rarJPEG);
+	},
+	submitted: function(xhr) {
+		if(xhr.readyState !== 4) {
+			return
+		}
+		if(xhr.status === 200) {
+			var dc = nav.toDOM(xhr.responseText);
+			this.fn(findSubmitError(dc), getFinalURL(dc, false));
+		} else {
+			$alert(
+				xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+				'upload', false
+			);
+		}
+	},
+	submit: function() {
+		if(!this.fn || this.error || this.busy !== 0) {
+			return;
+		}
+		var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
+		if(nav.Firefox) {
+			headers['Referer'] = '' + doc.location;
+		}
+		this.data.push('--' + this.boundary + '--\r\n');
+		GM_xmlhttpRequest({
+			'method': 'POST',
+			'headers': headers,
+			'data': new Blob(this.data),
+			'url': nav.fixLink(this.url),
+			'onreadystatechange': this.submitted.bind(this)
+		});
+	},
+	readExif: function(exif, off, len) {
+		var i, j, dE, tag, tgLen, xRes = 0,
+			yRes = 0,
+			resT = 0,
+			le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
+			dv = new DataView(exif.buffer, off);
+		if(dv.getUint16(2, le) !== 0x2A) {
+			return null;
+		}
+		i = dv.getUint32(4, le);
+		if(i > len) {
+			return null;
+		}
+		for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+			if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
+				continue;
+			}
+			if(tag === 0x0128) {
+				resT = dv.getUint16(dE + 8, le) - 1;
+			} else {
+				dE = dv.getUint32(dE + 8, le);
+				if(dE > len) {
+					return null;
+				}
+				if(tag === 0x11A) {
+					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				} else {
+					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				}
+			}
+		}
+		xRes = xRes || yRes;
+		yRes = yRes || xRes;
+		return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+	},
+	clearImage: function(dat, delExtraData) {
+		var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
+		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
+			return [dat];
+		}
+		if(dat[0] === 0xFF && dat[1] === 0xD8) {
+			for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
+				if(dat[i] === 0xFF) {
+					if(rExif) {
+						if(!jpgDat && out === 1) {
+							if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
+								jpgDat = this.readExif(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
+							} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
+								jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+							}
+						}
+						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
+							tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
+							j += tmp;
+							rData.push(i, i += tmp);
+							continue;
+						}
+					}
+					if(dat[i + 1] === 0xD8) {
+						out++;
+					} else if(dat[i + 1] === 0xD9 && --out === 0) {
+						break;
+					}
+				}
+				i++;
+			}
+			i += 2;
+			if(!delExtraData && len - i > 75) {
+				i = len;
+			}
+			if(j === 0) {
+				return i === len ? [dat] : [new Uint8Array(dat, i)];
+			}
+			rData.push(i);
+			out = new Uint8Array(i - j + 18);
+			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1].concat(jpgDat || [0, 0, 1, 0, 1]), 0);
+			for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
+				out.set(dat.subarray(rData[i], rData[i + 1]), j);
+				j += rData[i + 1] - rData[i];
+			}
+			return [out];
+		}
+		if(dat[0] === 0x89 && dat[1] === 0x50) {
+			for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
+			i += 8;
+			return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
+		}
+		return null;
+	},
+	fileReaded: function(fName, rarJPEG, idx, e) {
+		var dat = this.clearImage(new Uint8Array(e.target.result), aib.fch || !!rarJPEG);
 		if(dat) {
-			if(el.rarJPEG) {
-				dat.push(el.rarJPEG);
+			if(rarJPEG) {
+				dat.push(rarJPEG);
 			}
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = new Blob(dat);
-			dF.busy--;
+			this.data[idx] = new Blob(dat);
+			this.busy--;
+			this.submit();
 		} else {
-			dF.error = true;
-			$alert(Lng.fileCorrupt[lang] + file.name, 'upload', false);
+			this.error = true;
+			$alert(Lng.fileCorrupt[lang] + fName, 'upload', false);
 		}
-		fr = dF = el = idx = file = null;
-	};
-	fr.readAsArrayBuffer(file);
-	this.busy++;
-};
+	},
+	readFile: function(el, idx) {
+		var fr, file = el.files[0];
+		if(/^image\/(?:png|jpeg)$/.test(file.type)) {
+			fr = new FileReader();
+			fr.onload = this.fileReaded.bind(this, file.name, el.rarJPEG, idx);
+			fr.readAsArrayBuffer(file);
+			this.busy++;
+		} else {
+			this.data[idx] = file;
+		}
+	}
+}
 
 
 /*==============================================================================
