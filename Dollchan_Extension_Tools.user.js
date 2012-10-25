@@ -586,10 +586,11 @@ function $xhr(obj) {
 }
 
 /** @constructor */
-function $queue(maxNum, fn) {
+function $queue(maxNum, fn, endFn) {
 	this.array = [];
 	this.length = 0;
 	this.fn = fn;
+	this.endFn = endFn;
 	this.mNum = maxNum;
 	this.cNum = 0;
 }
@@ -609,6 +610,8 @@ $queue.prototype = {
 		if(this.length !== 0) {
 			this.length--;
 			this.run(this.array.splice(0, 1)[0]);
+		} else if(this.cNum === 0) {
+			this.endFn();
 		}
 	}
 };
@@ -3360,7 +3363,7 @@ function workerQueue(mReqs, fnWrk, fnErr) {
 			self.postMessage((' + String(fnWrk) + ')(e["data"]), null);\
 		}'
 	]));
-	this.queue = new $queue(mReqs, this._createWrk.bind(this));
+	this.queue = new $queue(mReqs, this._createWrk.bind(this), function(){});
 	this.find = this._findWrk;
 	this.wrks = [];
 	this.onErr = this._onErr.bind(this, fnErr);
@@ -3446,15 +3449,10 @@ function downloadData(url, fn) {
 }
 
 function preloadImages(post) {
-	var i, len, el, mReqs = post ? 1 : 4, last = false,
+	var i, len, el, mReqs = post ? 1 : 4,
 		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
 			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
 		}), queue = new $queue(mReqs, function(num, a) {
-			if(last && num === 0) {
-				rjf && rjf.clear();
-				rjf = queue = last = null;
-				return;
-			}
 			var url, type, eImg = !!Cfg['noImgSpoil'];
 			if(!a || !(url = a.href)) {
 				queue.end();
@@ -3485,11 +3483,13 @@ function preloadImages(post) {
 				a = url = eImg = type = null;
 				queue.end();
 			});
+		}, function() {
+			rjf && rjf.clear();
+			rjf = queue = null;
 		});
 	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
 		queue.run($x("ancestor::a[1]", el[i]));
 	}
-	last = true;
 }
 
 /*==============================================================================
@@ -3624,6 +3624,84 @@ dateTime.prototype = {
 							ON LINKS VIDEO / MP3 PLAYERS
 ==============================================================================*/
 
+/** @constructor */
+function tubeTitleDownloader() {
+	if(Cfg['YTubeTitles']) {
+		try {
+			this.ytData = JSON.parse(sessionStorage['de-yt-titles']);
+		} catch(e) {
+			this.ytData = {};
+		}
+		this.queue = new $queue(8, this._loadTitle.bind(this), this.lastLoaded.bind(this));
+	} else {
+		this.loadTitle = this.noLoadTitle;
+	}
+}
+tubeTitleDownloader.prototype = {
+	noLoadTitle: function(link) {
+		link.textContent = link.textContent.replace(/^http:\/\/youtu/, 'https:\/\/youtu');
+	},
+	saveTitles: function() {
+		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
+	},
+	saveLoaded: function() {
+		if(this.allLoaded) {
+			this.saveTitles();
+		} else {
+			this.canSave = true;
+		}
+	},
+	lastLoaded: function() {
+		if(this.canSave) {
+			this.saveTitles();
+		} else {
+			this.allLoaded = true;
+		}
+	},
+	loadTitle: function(data) {
+		var title = this.ytData[data[1]];
+		if(title) {
+			this.setTitle(data[0], title);
+		} else {
+			this.queue.run(data);
+		}
+	},
+	setTitle: function(link, text) {
+		if(text) {
+			link.textContent = text;
+			link.textData = 2;
+		} else {
+			link.textData = 1;
+		}
+		if(link.spellFn) {
+			link.spellFn(text);
+			link.spellFn = null;
+		}
+	},
+	loaded: function(data, xhr) {
+		if(xhr.readyState === 4) {
+			var text;
+			if(xhr.status === 200) {
+				try {
+					text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+					this.ytData[data[1]] = text;
+				} catch(e) {}
+			}
+			this.setTitle(data[0], text);
+			this.queue.end();
+		}
+	},
+	_loadTitle: function(num, data) {
+		data[0].textData = 0;
+		GM_xmlhttpRequest({
+			'method': 'GET',
+			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
+				'?alt=json&fields=title/text()',
+			'onreadystatechange': this.loaded.bind(this, data)
+		});
+	}
+};
+
 function getTubeVideoLinks(id, Fn) {
 	GM_xmlhttpRequest({'method': 'GET', 'url': 'https://www.youtube.com/watch?v=' + id, 'onload': function(xhr) {
 		var i, group, len, el, result1, result2, src, url = [],
@@ -3711,12 +3789,16 @@ function updateTubePlayer(dst, ytObjSrc) {
 
 function updateTubeLinks(post, srcL) {
 	aProto.forEach.call($C('de-ytube-link', post), function(el, idx) {
-		var link = this[idx];
+		var m, ttd, link = this[idx];
 		if(link) {
 			el.onclick = clickTubeLink;
 			el.ytInfo = link.ytInfo;
 		} else {
-			addLinkTube(el, el.href.match(getTubePattern()), post);
+			m = el.href.match(getTubePattern());
+			addLinkTube(el, m, post);
+			ttd = new tubeTitleDownloader();
+			ttd.loadTitle([link, m[1]]);
+			ttd.saveLoaded();
 		}
 	}, srcL);
 }
@@ -3783,39 +3865,13 @@ function addLinkTube(link, m, post) {
 	link.ytInfo = m;
 	link.className = 'de-ytube-link';
 	link.onclick = clickTubeLink;
-	if(!Cfg['YTubeTitles']) {
-		link.textContent = link.textContent.replace(/^http:/, 'https:');
-		return;
-	}
-	link.textData = 0;
-	GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
-			'?alt=json&fields=title/text(),media:group/media:keywords',
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				var text;
-				link.textData = 1;
-				if(xhr.status === 200) {
-					try {
-						text = link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-						link.textData = 2;
-					} catch(e) {}
-				}
-				if(link.spellFn) {
-					link.spellFn(text);
-					link.spellFn = null;
-				}
-				link = null;
-			}
-		}
-	});
 }
 
 function addLinksTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
+	var ttd = new tubeTitleDownloader();
 	$each($Q('embed, object, iframe', post || dForm), function(el) {
 		var src, pst, m = (el.src || el.data).match(getTubePattern());
 		if(!m) {
@@ -3834,8 +3890,11 @@ function addLinksTube(post) {
 		var m = link.href.match(getTubePattern());
 		if(m) {
 			addLinkTube(link, m, post || getPost(link));
+			ttd.loadTitle([link, m[1]]);
 		}
 	});
+	ttd.saveLoaded();
+	ttd = null;
 }
 
 function checkLinkTube(text) {
