@@ -3692,7 +3692,6 @@ tubeTitleDownloader.prototype = {
 		}
 	},
 	_loadTitle: function(num, data) {
-		data[0].textData = 0;
 		GM_xmlhttpRequest({
 			'method': 'GET',
 			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
@@ -3788,7 +3787,11 @@ function updateTubePlayer(dst, ytObjSrc) {
 }
 
 function updateTubeLinks(post, srcL) {
-	aProto.forEach.call($C('de-ytube-link', post), function(el, idx) {
+	var ttd, tLinks = $C('de-ytube-link', post);
+	if(tLinks.length > srcL.length) {
+		ttd = new tubeTitleDownloader();
+	}
+	aProto.forEach.call(tLinks, function(el, idx) {
 		var m, ttd, link = this[idx];
 		if(link) {
 			el.onclick = clickTubeLink;
@@ -3796,11 +3799,13 @@ function updateTubeLinks(post, srcL) {
 		} else {
 			m = el.href.match(getTubePattern());
 			addLinkTube(el, m, post);
-			ttd = new tubeTitleDownloader();
 			ttd.loadTitle([link, m[1]]);
-			ttd.saveLoaded();
 		}
 	}, srcL);
+	if(ttd) {
+		ttd.saveLoaded();
+	}
+	ttd = null;
 }
 
 function eventTubePreview(el) {
