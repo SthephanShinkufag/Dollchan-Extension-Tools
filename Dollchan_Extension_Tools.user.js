@@ -3796,6 +3796,7 @@ function updateTubeLinks(post, srcL) {
 		if(link) {
 			el.onclick = clickTubeLink;
 			el.ytInfo = link.ytInfo;
+			el.textData = link.textData;
 		} else {
 			m = el.href.match(getTubePattern());
 			addLinkTube(el, m, post);
