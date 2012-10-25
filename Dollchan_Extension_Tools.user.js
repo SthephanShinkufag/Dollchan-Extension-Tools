@@ -3787,22 +3787,26 @@ function addLinkTube(link, m, post) {
 		link.textContent = link.textContent.replace(/^http:/, 'https:');
 		return;
 	}
-	link.textData = 1;
+	link.textData = false;
 	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
 			'?alt=json&fields=title/text(),media:group/media:keywords',
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
+				var text;
 				if(xhr.status === 200) {
 					try {
-						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-						link.textData = 2;
-						return;
+						text = link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 					} catch(e) {}
 				}
-				link.textData = 3;
-				link = pst = null;
+				if(link.spellFn) {
+					link.spellFn(text);
+					link.spellFn = null;
+				} else {
+					link.textData = true;
+				}
+				link = null;
 			}
 		}
 	});
@@ -3832,6 +3836,18 @@ function addLinksTube(post) {
 			addLinkTube(link, m, post || getPost(link));
 		}
 	});
+}
+
+function checkLinkTube(text) {
+	var post = this[0];
+	if(post) {
+		if(text && this[1].test(text)) {
+			Spells.retAsyncVal.apply(null, this.concat(true, true));
+		} else if(--post.ytCount === 0) {
+			post.ytCount = null;
+			Spells.retAsyncVal.apply(null, this.concat(false, true));
+		}
+	}
 }
 
 function addLinkMP3(post) {
@@ -5435,7 +5451,7 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
-Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
+Spells.retAsyncVal = function(post, oval, flags, sStack, hFunc, nhFunc, val, async) {
 	var temp, rv = spells._checkRes(flags, val);
 	if(rv === null) {
 		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
@@ -5551,42 +5567,34 @@ Spells.prototype = {
 			return true;
 		},
 		// 13: #video
-		function(post, val, flags, sStack, hFunc, nhFunc) {
+		function(post, val) {
+			var args = aProto.slice.call(arguments);
 			if(!val) {
-				Spells.retAsyncVal(post, !!post.ytObj, flags, sStack, hFunc, nhFunc, false);
+				Spells.retAsyncVal.apply(null, args.concat(!!post.ytObj, false));
 				return;
 			}
 			if(!post.ytObj || !Cfg['YTubeTitles']) {
-				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, false);
+				Spells.retAsyncVal.apply(null, args.concat(false, false));
 				return;
 			}
-			var links = $C('de-ytube-link', post),
-				timeOut = 21,
-				i = 0,
+			var text, i, link, links = $C('de-ytube-link', post),
 				len = links.length;
-			(function checkLink() {
-				var link;
-				if(--timeOut === 0) {
-					timeOut = 21;
-					i++;
-				}
-				while(i < len) {
-					link = links[i];
-					switch(link.textData) {
-					case 1: setTimeout(checkLink, 500); return;
-					case 2:
-						if(val.test(link.textContent)) {
-							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc, timeOut !== 20);
-							links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
-							return;
-						}
-					default: i++;
+			post.ytCount = len;
+			for(i = 0; i < len; i++) {
+				link = links[i];
+				if(link.textData) {
+					text = link.textContent;
+					if(text && val.test(text)) {
+						Spells.retAsyncVal.apply(null, args.concat(true, false));
+						post.ytCount = null;
+						args[0] = false;
+						return;
 					}
+					post.ytCount--;
+				} else {
+					link.spellFn = checkLinkTube.bind(args);
 				}
-				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, timeOut !== 20);
-				links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
-				return;
-			})();
+			}
 		},
 		// 14: #wipe
 		function(post, val) {
