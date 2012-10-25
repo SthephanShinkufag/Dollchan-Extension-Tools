@@ -3843,6 +3843,7 @@ function checkLinkTube(text) {
 	if(post) {
 		if(text && this[1].test(text)) {
 			Spells.retAsyncVal.apply(null, this.concat(true, true));
+			this[0] = false;
 		} else if(--post.ytCount === 0) {
 			post.ytCount = null;
 			Spells.retAsyncVal.apply(null, this.concat(false, true));
