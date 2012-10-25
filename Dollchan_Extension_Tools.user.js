@@ -3628,11 +3628,11 @@ dateTime.prototype = {
 function tubeTitleDownloader() {
 	if(Cfg['YTubeTitles']) {
 		try {
-			this.ytData = JSON.parse(sessionStorage['de-yt-titles']);
+			this.ytData = JSON.parse(sessionStorage['de-yt-titles']) || {};
 		} catch(e) {
 			this.ytData = {};
 		}
-		this.queue = new $queue(8, this._loadTitle.bind(this), this.lastLoaded.bind(this));
+		this.queue = new $queue(8, this._loadTitle.bind(this), this.saveLoaded.bind(this));
 	} else {
 		this.loadTitle = this.noLoadTitle;
 	}
@@ -3645,17 +3645,10 @@ tubeTitleDownloader.prototype = {
 		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
 	},
 	saveLoaded: function() {
-		if(this.allLoaded) {
-			this.saveTitles();
-		} else {
-			this.canSave = true;
-		}
-	},
-	lastLoaded: function() {
 		if(this.canSave) {
 			this.saveTitles();
 		} else {
-			this.allLoaded = true;
+			this.canSave = true;
 		}
 	},
 	loadTitle: function(data) {
