@@ -3803,9 +3803,8 @@ function addLinkTube(link, m, post) {
 				if(link.spellFn) {
 					link.spellFn(text);
 					link.spellFn = null;
-				} else {
-					link.textData = true;
 				}
+				link.textData = true;
 				link = null;
 			}
 		}
