@@ -1935,7 +1935,7 @@ function addSelMenu(el, fPanel, html) {
 		'<div class="' + aib.cReply + '" id="de-select" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
 				'left: ' + $offset(el).left :
-				'right: ' + (doc.body.clientWidth - $offset(el).left - el.offsetWidth)
+				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>'), {
 		'mouseover': function() {
 			if(pst) {
@@ -4007,7 +4007,7 @@ function addFullImg(a, sz, isExp) {
 		newH = '',
 		fullW = +sz[0],
 		fullH = +sz[1],
-		scrW = doc.body.clientWidth,
+		scrW = doc.documentElement.clientWidth,
 		scrH = window.innerHeight,
 		full = $c('de-img-full', a);
 	if(full && isExp || !full && isExp === false) {
@@ -4254,7 +4254,7 @@ function setPviewPosition(link, pView, isAnim) {
 	var isTop, top, cr = link.getBoundingClientRect(),
 		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
 		offY = cr.top + window.pageYOffset,
-		bWidth = doc.body.clientWidth,
+		bWidth = doc.documentElement.clientWidth,
 		isLeft = offX < bWidth / 2,
 		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
 		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
@@ -4751,7 +4751,7 @@ function loadFavorThread() {
 	$append(el, [
 		$add('<iframe name="de-iframe-fav" id="de-iframe-fav" src="' + $t('a', el).href +
 			'" scrolling="no" style="border: none; width: ' +
-			(doc.body.clientWidth - 55) + 'px; height: 1px;" />'),
+			(doc.documentElement.clientWidth - 55) + 'px; height: 1px;" />'),
 		$add('<div id="de-fav-wait" class="de-wait" style="font-size: 1.1em; text-align: center">' +
 			Lng.loading[lang] + '</div>')
 	]);
