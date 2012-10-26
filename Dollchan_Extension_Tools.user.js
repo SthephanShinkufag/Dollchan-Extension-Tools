@@ -371,7 +371,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime, addOggSound, archFinderUrl,
+oldTime, endTime, timeLog = '', dTime, addOggSound,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -584,6 +584,37 @@ function $xhr(obj) {
 	}
 	xhr.send(null);
 }
+
+/** @constructor */
+function $queue(maxNum, fn, endFn) {
+	this.array = [];
+	this.length = 0;
+	this.fn = fn;
+	this.endFn = endFn;
+	this.mNum = maxNum;
+	this.cNum = 0;
+}
+$queue.prototype = {
+	run: function(data) {
+		var num = this.cNum;
+		if(num === this.mNum) {
+			this.array.push(data);
+			this.length++;
+		} else {
+			this.cNum++;
+			this.fn(num, data);
+		}
+	},
+	end: function() {
+		this.cNum--;
+		if(this.length !== 0) {
+			this.length--;
+			this.run(this.array.splice(0, 1)[0]);
+		} else if(this.cNum === 0) {
+			this.endFn();
+		}
+	}
+};
 
 function regQuote(str) {
 	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
@@ -2612,7 +2643,7 @@ function doPostformChanges(img, _img, el) {
 	if(Cfg['ajaxReply'] === 2) {
 		pr.form.onsubmit = function(e) {
 			$pd(e);
-			ajaxSubmit(new dataForm(pr.form, pr.subm), checkUpload);
+			new dataForm(pr.form, pr.subm, checkUpload).submit();
 		};
 		dForm.onsubmit = $pd;
 		if(sBtn = $q(aib.qDelBut, dForm)) {
@@ -2620,7 +2651,7 @@ function doPostformChanges(img, _img, el) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
-				ajaxSubmit(new dataForm(dForm, this), checkDelete);
+				new dataForm(dForm, this, checkDelete).submit();
 			};
 		}
 	} else if(Cfg['ajaxReply'] === 1) {
@@ -2758,136 +2789,8 @@ function checkDelete(err, url) {
 	tNums = null;
 }
 
-function ajaxSubmit(dF, Fn) {
-	if(dF.error) {
-		return;
-	}
-	if(dF.busy > 0) {
-		setTimeout(ajaxSubmit, 200, dF, Fn);
-		return;
-	}
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + dF.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
-	dF.data.push('--' + dF.boundary + '--\r\n');
-	GM_xmlhttpRequest({
-		'method': 'POST',
-		'headers': headers,
-		'data': new Blob(dF.data),
-		'url': nav.fixLink(dF.url),
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState !== 4) {
-				return
-			}
-			if(xhr.status === 200) {
-				var dc = nav.toDOM(xhr.responseText);
-				Fn(findSubmitError(dc), getFinalURL(dc, false));
-				Fn = null;
-			} else {
-				$alert(
-					xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-					'upload', false
-				);
-			}
-		}
-	});
-}
-
-function getExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen, xRes = 0,
-		yRes = 0,
-		resT = 0,
-		le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
-		dv = new DataView(exif.buffer, off);
-	if(dv.getUint16(2, le) !== 0x2A) {
-		return null;
-	}
-	i = dv.getUint32(4, le);
-	if(i > len) {
-		return null;
-	}
-	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
-			continue;
-		}
-		if(tag === 0x0128) {
-			resT = dv.getUint16(dE + 8, le) - 1;
-		} else {
-			dE = dv.getUint32(dE + 8, le);
-			if(dE > len) {
-				return null;
-			}
-			if(tag === 0x11A) {
-				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-			} else {
-				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-			}
-		}
-	}
-	xRes = xRes || yRes;
-	yRes = yRes || xRes;
-	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
-}
-
-function getReplyImgData(dat, delExtraData) {
-	var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
-	if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-		return [dat];
-	}
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
-			if(dat[i] === 0xFF) {
-				if(rExif) {
-					if(!jpgDat && out === 1) {
-						if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
-							jpgDat = getExifData(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
-						} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
-							jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
-						}
-					}
-					if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
-						tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
-						j += tmp;
-						rData.push(i, i += tmp);
-						continue;
-					}
-				}
-				if(dat[i + 1] === 0xD8) {
-					out++;
-				} else if(dat[i + 1] === 0xD9 && --out === 0) {
-					break;
-				}
-			}
-			i++;
-		}
-		i += 2;
-		if(!delExtraData && len - i > 75) {
-			i = len;
-		}
-		if(j === 0) {
-			return i === len ? [dat] : [new Uint8Array(dat, i)];
-		}
-		rData.push(i);
-		out = new Uint8Array(i - j + 18);
-		out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1].concat(jpgDat || [0, 0, 1, 0, 1]), 0);
-		for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
-			out.set(dat.subarray(rData[i], rData[i + 1]), j);
-			j += rData[i + 1] - rData[i];
-		}
-		return [out];
-	}
-	if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
-		i += 8;
-		return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
-	}
-	return null;
-}
-
 /** @constructor */
-function dataForm(form, button) {
+function dataForm(form, button, fn) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
 	this.busy = 0;
@@ -2895,56 +2798,178 @@ function dataForm(form, button) {
 	this.url = form.action;
 	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
 	this.append(button);
+	this.fn = fn;
 }
-
-dataForm.prototype.append = function(el) {
-	if(el.type === 'file') {
-		if(el.files.length > 0) {
-			var fName = el.files[0].name;
+dataForm.prototype = {
+	append: function(el) {
+		if(el.type === 'file') {
+			if(el.files.length > 0) {
+				var fName = el.files[0].name;
+				this.data.push(
+					'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
+					el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
+						' ' + fName.substring(fName.lastIndexOf('.'))
+					) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
+				);
+				this.readFile(el, this.data.length - 2);
+			}
+		} else if(el.type !== 'checkbox' || el.checked) {
 			this.data.push(
 				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-				el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
-					' ' + fName.substring(fName.lastIndexOf('.'))
-				) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
+					el.name + '"\r\n\r\n' + el.value + '\r\n'
 			);
-			this.readFile(el, this.data.length - 2);
 		}
-	} else if(el.type !== 'checkbox' || el.checked) {
-		this.data.push(
-			'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-				el.name + '"\r\n\r\n' + el.value + '\r\n'
-		);
-	}
-};
-
-dataForm.prototype.readFile = function(el, idx) {
-	var fr = new FileReader(),
-		file = el.files[0],
-		dF = this;
-	if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
-		this.data[idx] = file;
-		return;
-	}
-	fr.onload = function() {
-		var dat = getReplyImgData(new Uint8Array(this.result), aib.fch || !!el.rarJPEG);
+	},
+	submitted: function(xhr) {
+		if(xhr.readyState !== 4) {
+			return
+		}
+		if(xhr.status === 200) {
+			var dc = nav.toDOM(xhr.responseText);
+			this.fn(findSubmitError(dc), getFinalURL(dc, false));
+		} else {
+			$alert(
+				xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+				'upload', false
+			);
+		}
+	},
+	submit: function() {
+		if(!this.fn || this.error || this.busy !== 0) {
+			return;
+		}
+		var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
+		if(nav.Firefox) {
+			headers['Referer'] = '' + doc.location;
+		}
+		this.data.push('--' + this.boundary + '--\r\n');
+		GM_xmlhttpRequest({
+			'method': 'POST',
+			'headers': headers,
+			'data': new Blob(this.data),
+			'url': nav.fixLink(this.url),
+			'onreadystatechange': this.submitted.bind(this)
+		});
+	},
+	readExif: function(exif, off, len) {
+		var i, j, dE, tag, tgLen, xRes = 0,
+			yRes = 0,
+			resT = 0,
+			le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
+			dv = new DataView(exif.buffer, off);
+		if(dv.getUint16(2, le) !== 0x2A) {
+			return null;
+		}
+		i = dv.getUint32(4, le);
+		if(i > len) {
+			return null;
+		}
+		for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+			if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
+				continue;
+			}
+			if(tag === 0x0128) {
+				resT = dv.getUint16(dE + 8, le) - 1;
+			} else {
+				dE = dv.getUint32(dE + 8, le);
+				if(dE > len) {
+					return null;
+				}
+				if(tag === 0x11A) {
+					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				} else {
+					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				}
+			}
+		}
+		xRes = xRes || yRes;
+		yRes = yRes || xRes;
+		return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+	},
+	clearImage: function(dat, delExtraData) {
+		var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
+		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
+			return [dat];
+		}
+		if(dat[0] === 0xFF && dat[1] === 0xD8) {
+			for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
+				if(dat[i] === 0xFF) {
+					if(rExif) {
+						if(!jpgDat && out === 1) {
+							if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
+								jpgDat = this.readExif(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
+							} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
+								jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+							}
+						}
+						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
+							tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
+							j += tmp;
+							rData.push(i, i += tmp);
+							continue;
+						}
+					}
+					if(dat[i + 1] === 0xD8) {
+						out++;
+					} else if(dat[i + 1] === 0xD9 && --out === 0) {
+						break;
+					}
+				}
+				i++;
+			}
+			i += 2;
+			if(!delExtraData && len - i > 75) {
+				i = len;
+			}
+			if(j === 0) {
+				return i === len ? [dat] : [new Uint8Array(dat, i)];
+			}
+			rData.push(i);
+			out = new Uint8Array(i - j + 18);
+			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1].concat(jpgDat || [0, 0, 1, 0, 1]), 0);
+			for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
+				out.set(dat.subarray(rData[i], rData[i + 1]), j);
+				j += rData[i + 1] - rData[i];
+			}
+			return [out];
+		}
+		if(dat[0] === 0x89 && dat[1] === 0x50) {
+			for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
+			i += 8;
+			return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
+		}
+		return null;
+	},
+	fileReaded: function(fName, rarJPEG, idx, e) {
+		var dat = this.clearImage(new Uint8Array(e.target.result), aib.fch || !!rarJPEG);
 		if(dat) {
-			if(el.rarJPEG) {
-				dat.push(el.rarJPEG);
+			if(rarJPEG) {
+				dat.push(rarJPEG);
 			}
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
 			}
-			dF.data[idx] = new Blob(dat);
-			dF.busy--;
+			this.data[idx] = new Blob(dat);
+			this.busy--;
+			this.submit();
 		} else {
-			dF.error = true;
-			$alert(Lng.fileCorrupt[lang] + file.name, 'upload', false);
+			this.error = true;
+			$alert(Lng.fileCorrupt[lang] + fName, 'upload', false);
 		}
-		fr = dF = el = idx = file = null;
-	};
-	fr.readAsArrayBuffer(file);
-	this.busy++;
-};
+	},
+	readFile: function(el, idx) {
+		var fr, file = el.files[0];
+		if(/^image\/(?:png|jpeg)$/.test(file.type)) {
+			fr = new FileReader();
+			fr.onload = this.fileReaded.bind(this, file.name, el.rarJPEG, idx);
+			fr.readAsArrayBuffer(file);
+			this.busy++;
+		} else {
+			this.data[idx] = file;
+		}
+	}
+}
 
 
 /*==============================================================================
@@ -3288,14 +3313,6 @@ function prepareCFeatures() {
 		case 'L': selectImgSearch($q('.de-btn-src[de-id="' + data + '"]', dForm)); return;
 		}
 	}});
-
-	if(nav.isWorker) {
-		archFinderUrl = window.URL.createObjectURL(new Blob([
-			'self.onmessage = function(e) {\
-				self.postMessage((' + String(findArchive) + ')(e["data"]), null);\
-			}'
-		]));
-	}
 }
 
 function findArchive(dat) {
@@ -3335,27 +3352,56 @@ function findArchive(dat) {
 	return false;
 }
 
-function rjFinder(req) {
-	if(Cfg['findRarJPEG']) {
-		if(!nav.isWorker) {
-			this.find = this._findSync;
-			return;
-		}
-		this.find = this._findWrk;
-		this.wrks = [];
-		this.busyWrks = [];
-		while(req >= 0) {
-			this.wrks.push(new Worker(archFinderUrl));
-			this.busyWrks.push(0);
-			req--;
-		}
-	} else {
-		this.find = function(link, data) {};
+/** @constructor */
+function workerQueue(mReqs, fnWrk, fnErr) {
+	if(!nav.isWorker) {
+		this.find = this._findSync.bind(fnWrk, fnSucc);
+		return;
+	}
+	this.url = window.URL.createObjectURL(new Blob([
+		'self.onmessage = function(e) {\
+			self.postMessage((' + String(fnWrk) + ')(e["data"]), null);\
+		}'
+	]));
+	this.queue = new $queue(mReqs, this._createWrk.bind(this), function(){});
+	this.find = this._findWrk;
+	this.wrks = [];
+	this.onErr = this._onErr.bind(this, fnErr);
+	while(mReqs > 0) {
+		this.wrks.push(new Worker(this.url));
+		mReqs--;
 	}
 }
-rjFinder.prototype = {
-	_addIcon: function(info, link, data) {
-		var type, ext, fName = link.getAttribute('download');
+workerQueue.prototype = {
+	_findSync: function(fn, data) {
+		fn(this(data));
+	},
+	onMess: function(fn, e) {
+		this.queue.end();
+		fn(e.data);
+	},
+	_onErr: function(fn, e) {
+		this.queue.end();
+		fn(e);
+	},
+	_findWrk: function(data, fn) {
+		this.queue.run([data, this.onMess.bind(this, fn)]);
+	},
+	_createWrk: function(num, data) {
+		var w = this.wrks[num];
+		w.onmessage = data[1];
+		w.onerror = this.onErr;
+		w.postMessage.apply(w, data[0]);
+	},
+	clear: function() {
+		this.wrks = null;
+		window.URL.revokeObjectURL(this.url);
+	}
+};
+
+function addIcon(data, info) {
+	if(info) {
+		var type, ext, fName = this.getAttribute('download');
 		if(info[1] === 2) {
 			type = 'application/x-rar-compressed';
 			ext = '.rar';
@@ -3366,49 +3412,18 @@ rjFinder.prototype = {
 			type = 'application/x-7z-compressed';
 			ext = '.7z';
 		}
-		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(link)),
+		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(this)),
 			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': type})) +
 			'" class="de-archive" title="' + Lng.downloadArch[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + ext + '"></a>'
 		);
-	},
-	_findSync: function syncFindRJ(link, data) {
-		var info = findArchive(data);
-		if(info) {
-			this._addIcon(info, link, data);
-		}
-	},
-	_findWrk: function wrkFindRJ(link, data) {
-		var w, bw = this.busyWrks,
-			wI = bw.indexOf(0),
-			addIco = this._addIcon;
-		if(wI === -1) {
-			setTimeout(wrkFindRJ.bind(this), 500, link, data);
-			return;
-		}
-		w = this.wrks[wI];
-		bw[wI] = 1;
-		w.onmessage = function(e) {
-			if(e.data) {
-				addIco(e.data, link, data);
-			}
-			bw[wI] = 0;
-			link = data = wI = bw = addIco = null;
-		};
-		w.onerror = function(e) {
-			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
-			bw[wI] = 0;
-			link = data = wI = bw = addIco = null;
-		};
-		w.postMessage(data, null, [data]);
 	}
-};
+}
 
 function downloadData(url, fn) {
 	var obj = {
 		'method': 'GET',
 		'url': url,
-		'overrideMimeType': 'text/plain; charset=x-user-defined',
 		'onreadystatechange': function(e) {
 			if(e.readyState !== 4) {
 				return;
@@ -3419,33 +3434,28 @@ function downloadData(url, fn) {
 				} else {
 					fn(new Uint8Array(e.response));
 				}
-				return;
+			} else {
+				fn(null);
 			}
-			fn(null);
 		}
 	};
 	if(!aib.fch) {
 		obj['responseType'] = 'arraybuffer';
 		$xhr(obj);
 	} else {
+		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	}
 }
 
 function preloadImages(post) {
-	var len, el, mReqs = post ? 1 : 4, cReq = 0, i = 0, arr = [],
-		rjf = new rjFinder(mReqs),
-		loadFunc = function(idx) {
-			if(idx >= arr.length) {
-				if(cReq === 0) {
-					mReqs = cReq = i = arr = loadFunc = null;
-				}
-				return;
-			}
-			var xhr, url, type, eImg = !!Cfg['noImgSpoil'],
-				a = arr[idx];
+	var i, len, el, mReqs = post ? 1 : 4,
+		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
+			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
+		}), queue = new $queue(mReqs, function(num, a) {
+			var url, type, eImg = !!Cfg['noImgSpoil'];
 			if(!a || !(url = a.href)) {
-				loadFunc(i++);
+				queue.end();
 				return;
 			}
 			if(/\.gif$/i.test(url)) {
@@ -3456,34 +3466,29 @@ function preloadImages(post) {
 			} else if(/\.png$/i.test(url)) {
 				type = "image/png";
 			} else {
-				loadFunc(i++);
+				queue.end();
 				return;
 			}
-			if(cReq === mReqs) {
-				setTimeout(loadFunc, 500, idx);
-				return;
-			}
-			cReq++;
 			downloadData(url, function(data) {
 				if(data) {
 					a.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
 					if(eImg) {
-						a.getElementsByTagName("img")[0].src = a.href;
+						$t('img', a).src = a.href;
 					}
-					rjf.find(a, data);
-					cReq--;
-					loadFunc(i++);
+					if(rjf) {
+						rjf.find([data, null, [data]], addIcon.bind(a, data));
+					}
 				}
-				a = eImg = url = type = null;
+				a = url = eImg = type = null;
+				queue.end();
 			});
-		};
-	el = getPostImages(post || dForm);
-	for(i = 0, len = el.length; i < len; i++) {
-		arr.push($x("ancestor::a[1]", el[i]));
-	}
-	for(i = 0; i < mReqs; i++) {
-		loadFunc(i);
+		}, function() {
+			rjf && rjf.clear();
+			rjf = queue = null;
+		});
+	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
+		queue.run($x("ancestor::a[1]", el[i]));
 	}
 }
 
@@ -3619,6 +3624,76 @@ dateTime.prototype = {
 							ON LINKS VIDEO / MP3 PLAYERS
 ==============================================================================*/
 
+/** @constructor */
+function tubeTitleDownloader() {
+	if(Cfg['YTubeTitles']) {
+		try {
+			this.ytData = JSON.parse(sessionStorage['de-yt-titles']) || {};
+		} catch(e) {
+			this.ytData = {};
+		}
+		this.queue = new $queue(8, this._loadTitle.bind(this), this.saveLoaded.bind(this));
+	} else {
+		this.loadTitle = this.noLoadTitle;
+	}
+}
+tubeTitleDownloader.prototype = {
+	noLoadTitle: function(link) {
+		link.textContent = link.textContent.replace(/^http:\/\/youtu/, 'https:\/\/youtu');
+	},
+	saveTitles: function() {
+		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
+	},
+	saveLoaded: function() {
+		if(this.canSave) {
+			this.saveTitles();
+		} else {
+			this.canSave = true;
+		}
+	},
+	loadTitle: function(data) {
+		var title = this.ytData[data[1]];
+		if(title) {
+			this.setTitle(data[0], title);
+		} else {
+			this.queue.run(data);
+		}
+	},
+	setTitle: function(link, text) {
+		if(text) {
+			link.textContent = text;
+			link.textData = 2;
+		} else {
+			link.textData = 1;
+		}
+		if(link.spellFn) {
+			link.spellFn(text);
+			link.spellFn = null;
+		}
+	},
+	loaded: function(data, xhr) {
+		if(xhr.readyState === 4) {
+			var text;
+			if(xhr.status === 200) {
+				try {
+					text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+					this.ytData[data[1]] = text;
+				} catch(e) {}
+			}
+			this.setTitle(data[0], text);
+			this.queue.end();
+		}
+	},
+	_loadTitle: function(num, data) {
+		GM_xmlhttpRequest({
+			'method': 'GET',
+			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
+				'?alt=json&fields=title/text()',
+			'onreadystatechange': this.loaded.bind(this, data)
+		});
+	}
+};
+
 function getTubeVideoLinks(id, Fn) {
 	GM_xmlhttpRequest({'method': 'GET', 'url': 'https://www.youtube.com/watch?v=' + id, 'onload': function(xhr) {
 		var i, group, len, el, result1, result2, src, url = [],
@@ -3705,15 +3780,26 @@ function updateTubePlayer(dst, ytObjSrc) {
 }
 
 function updateTubeLinks(post, srcL) {
-	aProto.forEach.call($C('de-ytube-link', post), function(el, idx) {
-		var link = this[idx];
+	var ttd, tLinks = $C('de-ytube-link', post);
+	if(tLinks.length > srcL.length) {
+		ttd = new tubeTitleDownloader();
+	}
+	aProto.forEach.call(tLinks, function(el, idx) {
+		var m, ttd, link = this[idx];
 		if(link) {
 			el.onclick = clickTubeLink;
 			el.ytInfo = link.ytInfo;
+			el.textData = link.textData;
 		} else {
-			addLinkTube(el, el.href.match(getTubePattern()), post);
+			m = el.href.match(getTubePattern());
+			addLinkTube(el, m, post);
+			ttd.loadTitle([link, m[1]]);
 		}
 	}, srcL);
+	if(ttd) {
+		ttd.saveLoaded();
+	}
+	ttd = null;
 }
 
 function eventTubePreview(el) {
@@ -3778,35 +3864,13 @@ function addLinkTube(link, m, post) {
 	link.ytInfo = m;
 	link.className = 'de-ytube-link';
 	link.onclick = clickTubeLink;
-	if(!Cfg['YTubeTitles']) {
-		link.textContent = link.textContent.replace(/^http:/, 'https:');
-		return;
-	}
-	link.textData = 1;
-	GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': 'https://gdata.youtube.com/feeds/api/videos/' + m[1] +
-			'?alt=json&fields=title/text(),media:group/media:keywords',
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 200) {
-					try {
-						link.textContent = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-						link.textData = 2;
-						return;
-					} catch(e) {}
-				}
-				link.textData = 3;
-				link = pst = null;
-			}
-		}
-	});
 }
 
 function addLinksTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
+	var ttd = new tubeTitleDownloader();
 	$each($Q('embed, object, iframe', post || dForm), function(el) {
 		var src, pst, m = (el.src || el.data).match(getTubePattern());
 		if(!m) {
@@ -3825,8 +3889,24 @@ function addLinksTube(post) {
 		var m = link.href.match(getTubePattern());
 		if(m) {
 			addLinkTube(link, m, post || getPost(link));
+			ttd.loadTitle([link, m[1]]);
 		}
 	});
+	ttd.saveLoaded();
+	ttd = null;
+}
+
+function checkLinkTube(text) {
+	var post = this[0];
+	if(post) {
+		if(text && this[1].test(text)) {
+			Spells.retAsyncVal.apply(null, this.concat(true, true));
+			this[0] = false;
+		} else if(--post.ytCount === 0) {
+			post.ytCount = null;
+			Spells.retAsyncVal.apply(null, this.concat(false, true));
+		}
+	}
 }
 
 function addLinkMP3(post) {
@@ -5430,7 +5510,7 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
-Spells.retAsyncVal = function(post, val, flags, sStack, hFunc, nhFunc, async) {
+Spells.retAsyncVal = function(post, oval, flags, sStack, hFunc, nhFunc, val, async) {
 	var temp, rv = spells._checkRes(flags, val);
 	if(rv === null) {
 		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
@@ -5546,42 +5626,40 @@ Spells.prototype = {
 			return true;
 		},
 		// 13: #video
-		function(post, val, flags, sStack, hFunc, nhFunc) {
+		function(post, val) {
+			var args = aProto.slice.call(arguments);
 			if(!val) {
-				Spells.retAsyncVal(post, !!post.ytObj, flags, sStack, hFunc, nhFunc, false);
+				Spells.retAsyncVal.apply(null, args.concat(!!post.ytObj, false));
 				return;
 			}
 			if(!post.ytObj || !Cfg['YTubeTitles']) {
-				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, false);
+				Spells.retAsyncVal.apply(null, args.concat(false, false));
 				return;
 			}
-			var links = $C('de-ytube-link', post),
-				timeOut = 21,
-				i = 0,
+			var text, i, link, links = $C('de-ytube-link', post),
 				len = links.length;
-			(function checkLink() {
-				var link;
-				if(--timeOut === 0) {
-					timeOut = 21;
-					i++;
-				}
-				while(i < len) {
-					link = links[i];
-					switch(link.textData) {
-					case 1: setTimeout(checkLink, 500); return;
-					case 2:
-						if(val.test(link.textContent)) {
-							Spells.retAsyncVal(post, true, flags, sStack, hFunc, nhFunc, timeOut !== 20);
-							links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
-							return;
-						}
-					default: i++;
+			post.ytCount = len;
+			for(i = 0; i < len; i++) {
+				link = links[i];
+				if(link.textData === 2) {
+					text = link.textContent;
+					if(text && val.test(text)) {
+						Spells.retAsyncVal.apply(null, args.concat(true, false));
+						post.ytCount = null;
+						args[0] = false;
+						return;
 					}
+					post.ytCount--;
+				} else if(link.textData === 1) {
+					post.ytCount--;
+				} else {
+					link.spellFn = checkLinkTube.bind(args);
 				}
-				Spells.retAsyncVal(post, false, flags, sStack, hFunc, nhFunc, timeOut !== 20);
-				links = timeOut = i = len = post = val = sStack = hFunc = nhFunc = null;
-				return;
-			})();
+			}
+			if(post.ytCount === 0) {
+				Spells.retAsyncVal.apply(null, args.concat(false, false));
+				post.ytCount = null;
+			}
 		},
 		// 14: #wipe
 		function(post, val) {
