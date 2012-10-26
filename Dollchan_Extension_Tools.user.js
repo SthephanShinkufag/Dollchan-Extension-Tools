@@ -3638,8 +3638,8 @@ function tubeTitleDownloader() {
 	}
 }
 tubeTitleDownloader.prototype = {
-	noLoadTitle: function(link) {
-		link.textContent = link.textContent.replace(/^http:\/\/youtu/, 'https:\/\/youtu');
+	noLoadTitle: function(data) {
+		data[0].textContent = data[0].textContent.replace(/^http:\/\/youtu/, 'https:\/\/youtu');
 	},
 	saveTitles: function() {
 		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
