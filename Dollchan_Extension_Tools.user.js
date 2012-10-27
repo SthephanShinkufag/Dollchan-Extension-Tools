@@ -63,6 +63,7 @@ defaultCfg = {
 	'noThrdForm':	1,		// hide thread-creating form
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
+	'warnSubjTrip':	0,		// warn if subject field contains tripcode
 	'saveSage':		1,		//		remember sage
 	'sageReply':	0,		//		reply with sage
 	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
@@ -164,6 +165,7 @@ Lng = {
 		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
+		'warnSubjTrip':	['Предупреждать при наличии трип-кода в поле тема', 'Warn if field subject contains trip-code'],
 		'saveSage':		['запоминать сажу', 'remember sage'],
 		'captchaLang': {
 			sel:		[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
@@ -351,6 +353,7 @@ Lng = {
 	addRar:			['+ .rar', '+ .rar'],
 	downloadArch:	['Скачать содержащийся архив', 'Download existing archive'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
+	subjHasTrip:	['Поле тема содержит трипкод', 'Subject field contains tripcode'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -1476,6 +1479,7 @@ function getCfgForm() {
 			lBox('addSageBtn', false, null),
 			lBox('saveSage', false, null)
 		])),
+		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		optSel('captchaLang', true, null),
 		$if(pr.form, $New('div', null, [
 			optSel('addTextBtns', false, function() {
@@ -2512,6 +2516,11 @@ function doPostformChanges(img, _img, el) {
 	$event(pr.subm, {'click': function(e) {
 		var val = pr.txta.value,
 			sVal = Cfg['signatValue'];
+		if(Cfg['warnSubjTrip'] && pr.subj && /#.|##./.test(pr.subj.value)) {
+			$pd(e);
+			$alert(Lng.subjHasTrip[lang], 'upload', false);
+			return;
+		}
 		if(spells.haveOutreps) {
 			val = spells.outReplace(val);
 		}
@@ -2572,28 +2581,30 @@ function doPostformChanges(img, _img, el) {
 		}
 		pr.cap.autocomplete = 'off';
 		pr.cap.onfocus = null;
-		pr.cap.onkeypress = function(e) {
-			if(!Cfg['captchaLang'] || e.which === 0) {
-				return;
-			}
-			var i, code = e.charCode || e.keyCode,
-				chr = String.fromCharCode(code).toLowerCase(),
-				ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
+		pr.cap.onkeypress = (function() {
+			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
-			if(Cfg['captchaLang'] === 1) {
-				if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
+			return function(e) {
+				if(!Cfg['captchaLang'] || e.which === 0) {
 					return;
 				}
-				chr = en[i];
-			} else {
-				if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
-					return;
+				var i, code = e.charCode || e.keyCode,
+					chr = String.fromCharCode(code).toLowerCase();
+				if(Cfg['captchaLang'] === 1) {
+					if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
+						return;
+					}
+					chr = en[i];
+				} else {
+					if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
+						return;
+					}
+					chr = ru[i];
 				}
-				chr = ru[i];
-			}
-			$pd(e);
-			$txtInsert(e.target, chr);
-		};
+				$pd(e);
+				$txtInsert(e.target, chr);
+			};
+		})();
 		if(!aib.hana && !pr.recap) {
 			img = $q('a, img', pr.getTR(pr.cap));
 			_img = $new('img', {
@@ -7085,6 +7096,24 @@ function getNavigator() {
 	}
 	nav.isBlob = nav.Firefox > 14 || nav.WebKit > 536;
 	nav.isWorker = nav.Firefox > 17 || nav.WebKit > 536;
+	if(nav.Firefox > 17) {
+		$script(
+			'window["de-worker"] = function(url) {\
+				this.wrk = new Worker(url);\
+			};\
+			window["de-worker-proto"] = window["de-worker"].prototype = {\
+				set onmessage(fn) {\
+					this.wrk.onmessage = fn;\
+				},\
+				set onerror(fn) {\
+					this.wrk.onerror = fn;\
+				},\
+				_postMessage: function() {\
+					this.wrk.postMessage.apply(this.wrk, arguments);\
+				}\
+			};'
+		);
+	}
 	nav.insAfter =
 		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
 			$after(el, $add(html));
@@ -7166,23 +7195,7 @@ function fixFunctions() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
-	if(nav.Firefox >= 18) {
-		$script(
-			'window["de-worker"] = function(url) {\
-				this.wrk = new Worker(url);\
-			};\
-			window["de-worker-proto"] = window["de-worker"].prototype = {\
-				set onmessage(fn) {\
-					this.wrk.onmessage = fn;\
-				},\
-				set onerror(fn) {\
-					this.wrk.onerror = fn;\
-				},\
-				_postMessage: function() {\
-					this.wrk.postMessage.apply(this.wrk, arguments);\
-				}\
-			};'
-		);
+	if(nav.Firefox > 17) {
 		window.Worker = new Proxy(unsafeWindow['de-worker'], {});
 		window.Worker.prototype.postMessage = function() {
 			unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
@@ -7239,6 +7252,7 @@ function getPostform(form) {
 			aib._410 ? '@name="sage"]' :
 			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
 		), form),
+		subj: $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form),
 		video: $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form),
 		getTR: aib._7ch ? function(el) {
 			return $x('ancestor::li[1]', el);
