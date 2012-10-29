@@ -3385,7 +3385,7 @@ function workerQueue(mReqs, fnWrk, fnErr) {
 }
 workerQueue.prototype = {
 	_findSync: function(data, fn) {
-		fn(this(data[0]));
+		fn(this(data));
 	},
 	onMess: function(fn, e) {
 		this.queue.end();
@@ -3402,7 +3402,7 @@ workerQueue.prototype = {
 		var w = this.wrks[num];
 		w.onmessage = data[1];
 		w.onerror = this.onErr;
-		w.postMessage.apply(w, data[0]);
+		w.postMessage(data[0], null, [data[0]]);
 	},
 	clear: function() {
 		this.wrks = null;
@@ -3489,7 +3489,7 @@ function preloadImages(post) {
 						$t('img', a).src = a.href;
 					}
 					if(rjf) {
-						rjf.find([data, null, [data]], addIcon.bind(a, data));
+						rjf.find(data, addIcon.bind(a, data));
 					}
 				}
 				a = url = eImg = type = null;
