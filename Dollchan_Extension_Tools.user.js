@@ -4193,6 +4193,9 @@ function addImgSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
+		if(nav.WebKit) {
+			link.setAttribute('download', link.href);
+		}
 		nav.insBefore(
 			link, '<span de-id="' + num + i +
 			'" class="de-btn-src" onmouseover="de_imgSOver(this)" onmouseout="de_btnOut(event)"></span>'
