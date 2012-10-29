@@ -6780,7 +6780,7 @@ function scriptCSS() {
 	cont('.de-ytube-link', '//youtube.com/favicon.ico');
 	x += '.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; }\
-		.de-img-center { position: fixed; z-index: 9999; border: 1px solid black; }\
+		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-audio { display: block; }\
 		.de-mp3, .de-ytube-obj, .de-audio { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }';
