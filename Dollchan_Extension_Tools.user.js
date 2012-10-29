@@ -3385,7 +3385,7 @@ function workerQueue(mReqs, fnWrk, fnErr) {
 }
 workerQueue.prototype = {
 	_findSync: function(data, fn) {
-		fn(data);
+		fn(this(data[0]));
 	},
 	onMess: function(fn, e) {
 		this.queue.end();
