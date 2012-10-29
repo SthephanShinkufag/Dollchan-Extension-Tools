@@ -3366,7 +3366,7 @@ function findArchive(dat) {
 /** @constructor */
 function workerQueue(mReqs, fnWrk, fnErr) {
 	if(!nav.isWorker) {
-		this.find = this._findSync.bind(fnWrk, fnSucc);
+		this.find = this._findSync.bind(fnWrk);
 		return;
 	}
 	this.url = window.URL.createObjectURL(new Blob([
@@ -3384,8 +3384,8 @@ function workerQueue(mReqs, fnWrk, fnErr) {
 	}
 }
 workerQueue.prototype = {
-	_findSync: function(fn, data) {
-		fn(this(data));
+	_findSync: function(data, fn) {
+		fn(data);
 	},
 	onMess: function(fn, e) {
 		this.queue.end();
@@ -3463,7 +3463,8 @@ function preloadImages(post) {
 	var i, len, el, mReqs = post ? 1 : 4,
 		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
 			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
-		}), queue = new $queue(mReqs, function(num, a) {
+		}),
+		queue = new $queue(mReqs, function(num, a) {
 			var url, type, eImg = !!Cfg['noImgSpoil'];
 			if(!a || !(url = a.href)) {
 				queue.end();
