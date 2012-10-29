@@ -1894,7 +1894,7 @@ function addFavoritesTable(fav) {
 		$New('div', {'style': 'display: none;'}, [
 			$new('textarea', {'rows': 9, 'cols': 70}, null),
 			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				saveFavorites(this.previousSibling.value.trim().replace(/\n|\r/g, ''));
+				saveFavorites(this.previousSibling.value.trim().replace(/\\\n|\n|\r/g, ''));
 			})
 		])
 	]);
@@ -7539,7 +7539,8 @@ function tryToParse(node) {
 				len = els.length;
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
-			op.tTitle = ($c(aib.cTitle, op) || {}).textContent || getText(op).substring(0, 70);
+			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
+				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			for(i = 0; i < len; i++) {
 				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
 			}
