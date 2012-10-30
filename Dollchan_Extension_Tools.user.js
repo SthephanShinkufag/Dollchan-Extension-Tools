@@ -7313,6 +7313,7 @@ function getImageboard() {
 	aib.host = window.location.hostname;
 	switch(aib.dm = dm) {
 	case '0-chan.ru':
+	case '0chan.hk':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
