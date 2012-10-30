@@ -3460,7 +3460,7 @@ function downloadData(url, fn) {
 }
 
 function preloadImages(post) {
-	var i, len, el, mReqs = post ? 1 : 4,
+	var i, len, el, mReqs = post ? 1 : 4, ready = false,
 		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
 			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
 		}),
@@ -3496,12 +3496,15 @@ function preloadImages(post) {
 				queue.end();
 			});
 		}, function() {
-			rjf && rjf.clear();
-			rjf = null;
+			if(ready) {
+				rjf && rjf.clear();
+				rjf = queue = ready = null;
+			}
 		});
 	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
 		queue.run($x("ancestor::a[1]", el[i]));
 	}
+	ready = true;
 }
 
 /*==============================================================================
