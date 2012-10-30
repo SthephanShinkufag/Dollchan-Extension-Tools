@@ -6860,6 +6860,10 @@ function scriptCSS() {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
+			if(Cfg['noImgSpoil'] || Cfg['showGIFs']) {
+				x += '.reply .img { max-width: 200px; max-height: 200px; }\
+					.oppost .img { max-width: 250px; max-height: 250px }';
+			}
 		} else if(aib.nul) {
 			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
