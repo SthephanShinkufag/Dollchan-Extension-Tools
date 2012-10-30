@@ -3440,7 +3440,7 @@ function downloadData(url, fn) {
 				return;
 			}
 			if(e.status === 200) {
-				if(aib.fch) {
+				if(nav.Firefox && aib.fch) {
 					fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
 				} else {
 					fn(new Uint8Array(e.response));
@@ -3450,12 +3450,12 @@ function downloadData(url, fn) {
 			}
 		}
 	};
-	if(!aib.fch) {
-		obj['responseType'] = 'arraybuffer';
-		$xhr(obj);
-	} else {
+	if(nav.Firefox && aib.fch) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
+	} else {
+		obj['responseType'] = 'arraybuffer';
+		$xhr(obj);
 	}
 }
 
