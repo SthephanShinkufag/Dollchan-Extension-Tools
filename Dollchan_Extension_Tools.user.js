@@ -3497,7 +3497,7 @@ function preloadImages(post) {
 			});
 		}, function() {
 			rjf && rjf.clear();
-			rjf = queue = null;
+			rjf = null;
 		});
 	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
 		queue.run($x("ancestor::a[1]", el[i]));
