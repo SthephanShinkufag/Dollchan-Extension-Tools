@@ -3493,7 +3493,13 @@ function preloadImages(post) {
 					}
 				}
 				a = url = eImg = type = null;
-				queue.end();
+				if(nav.Firefox) {
+					queue.end();
+				} else {
+					setTimeout(function() {
+						queue.end();
+					}, 100);
+				}
 			});
 		}, function() {
 			if(ready) {
