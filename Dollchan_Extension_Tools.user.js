@@ -3440,7 +3440,7 @@ function downloadData(url, fn) {
 				return;
 			}
 			if(e.status === 200) {
-				if(aib.fch) {
+				if(nav.Firefox && aib.fch) {
 					fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
 				} else {
 					fn(new Uint8Array(e.response));
@@ -3450,17 +3450,17 @@ function downloadData(url, fn) {
 			}
 		}
 	};
-	if(!aib.fch) {
-		obj['responseType'] = 'arraybuffer';
-		$xhr(obj);
-	} else {
+	if(nav.Firefox && aib.fch) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
+	} else {
+		obj['responseType'] = 'arraybuffer';
+		$xhr(obj);
 	}
 }
 
 function preloadImages(post) {
-	var i, len, el, mReqs = post ? 1 : 4,
+	var i, len, el, mReqs = post ? 1 : 4, ready = false,
 		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
 			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
 		}),
@@ -3493,15 +3493,24 @@ function preloadImages(post) {
 					}
 				}
 				a = url = eImg = type = null;
-				queue.end();
+				if(nav.Firefox) {
+					queue.end();
+				} else {
+					setTimeout(function() {
+						queue.end();
+					}, 100);
+				}
 			});
 		}, function() {
-			rjf && rjf.clear();
-			rjf = null;
+			if(ready) {
+				rjf && rjf.clear();
+				rjf = queue = ready = null;
+			}
 		});
 	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
 		queue.run($x("ancestor::a[1]", el[i]));
 	}
+	ready = true;
 }
 
 /*==============================================================================
@@ -6851,6 +6860,10 @@ function scriptCSS() {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
+			if(Cfg['noImgSpoil'] || Cfg['showGIFs']) {
+				x += '.reply .img { max-width: 200px; max-height: 200px; }\
+					.oppost .img { max-width: 250px; max-height: 250px }';
+			}
 		} else if(aib.nul) {
 			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
@@ -7304,6 +7317,7 @@ function getImageboard() {
 	aib.host = window.location.hostname;
 	switch(aib.dm = dm) {
 	case '0-chan.ru':
+	case '0chan.hk':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.ru': aib._410 = true; break;
