@@ -26,7 +26,7 @@ defaultCfg = {
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
-	'findRarJPEG':	0,		// 		detect rarJPEGs in images
+	'findImgFile':	0,		// 		detect built-in files in images
 	'showGIFs':		0,		// 		show animated GIFs in posts
 	'noImgSpoil':	0,		// 		open image spoilers in posts
 	'postBtnsTxt':	0,		// show post buttons as text
@@ -112,7 +112,7 @@ Lng = {
 			txt:		['раскрывать изображения ', 'expand images ']
 		},
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
-		'findRarJPEG':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
+		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'showGIFs':		['Анимировать GIFы в постах*', 'Animate GIFs in posts*'],
 		'noImgSpoil':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
@@ -837,9 +837,6 @@ function readCfg() {
 	if(!nav.Anim) {
 		Cfg['animations'] = 0;
 	}
-	if(aib.fch) {
-		Cfg['findRarJPEG'] = 0;
-	}
 	if(!nav.Firefox) {
 		defaultCfg['favIcoBlink'] = 0;
 	}
@@ -1199,7 +1196,7 @@ function fixSettings() {
 		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg['preLoadImgs'], [
-		'input[info="findRarJPEG"]', 'input[info="showGIFs"]', 'input[info="noImgSpoil"]'
+		'input[info="findImgFile"]', 'input[info="showGIFs"]', 'input[info="noImgSpoil"]'
 	]);
 	toggleBox(Cfg['linksNavig'], [
 		'input[info="linksOver"]',
@@ -1382,7 +1379,7 @@ function getCfgPosts() {
 		optSel('expandImgs', true, null),
 		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
 		$if(nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
-			$if(!aib.fch, lBox('findRarJPEG', true, null)),
+			lBox('findImgFile', true, null),
 			lBox('showGIFs', true, null),
 			lBox('noImgSpoil', true, null)
 		])),
@@ -2421,7 +2418,7 @@ function eventFiles(tr) {
 function delFileUtils(el) {
 	$each($Q('.de-file-util', el), $del);
 	$each($Q('input[type="file"]', el), function(node) {
-		node.rarJPEG = null;
+		node.imgFile = null;
 	});
 }
 
@@ -2439,53 +2436,51 @@ function processInput() {
 				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': processInput});
 			}
 		}));
-	} else if(this.rarJPEG) {
-		this.rarJPEG = null;
+	} else if(this.imgFile) {
+		this.imgFile = null;
 		$del(this.nextSibling);
 	}
-	if(!aib.fch) {
-		$del($c('de-file-rar', this.parentNode));
-		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
-			$after(this, $new('button', {
-				'class': 'de-file-util de-file-rar',
-				'text': Lng.addFile[lang],
-				'title': Lng.helpAddFile[lang],
-				'type': 'button'}, {
-				'click': function(e) {
-					$pd(e);
-					var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-							'id': 'de-file-rar',
-							'type': 'file',
-							'style': 'display: none;'
-						}, null)),
-						inp = $q('input[type="file"]', this.parentNode),
-						btn = this;
-					el.onchange = function(e) {
-						$del(btn);
-						var file = this.files[0],
-							fr = new FileReader(),
-							node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
-								'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-						$after(inp, node);
-						fr.onload = function() {
-							if(inp.nextSibling === node) {
-								$attr(node, {
-									'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-									'title': inp.files[0].name + ' + ' + file.name,
-									'text': inp.files[0].name.replace(/^.+\./, '') + ' + ' +
-										file.name.replace(/^.+\./, '')
-								});
-								inp.rarJPEG = this.result;
-							}
-							node = inp = file = null;
-						};
-						fr.readAsArrayBuffer(file);
-						btn = null;
+	$del($c('de-file-rar', this.parentNode));
+	if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+		$after(this, $new('button', {
+			'class': 'de-file-util de-file-rar',
+			'text': Lng.addFile[lang],
+			'title': Lng.helpAddFile[lang],
+			'type': 'button'}, {
+			'click': function(e) {
+				$pd(e);
+				var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
+						'id': 'de-file-rar',
+						'type': 'file',
+						'style': 'display: none;'
+					}, null)),
+					inp = $q('input[type="file"]', this.parentNode),
+					btn = this;
+				el.onchange = function(e) {
+					$del(btn);
+					var file = this.files[0],
+						fr = new FileReader(),
+						node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
+							'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+					$after(inp, node);
+					fr.onload = function() {
+						if(inp.nextSibling === node) {
+							$attr(node, {
+								'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
+								'title': inp.files[0].name + ' + ' + file.name,
+								'text': inp.files[0].name.replace(/^.+\./, '') + ' + ' +
+									file.name.replace(/^.+\./, '')
+							});
+							inp.imgFile = this.result;
+						}
+						node = inp = file = null;
 					};
-					el.click();
-				}
-			}));
-		}
+					fr.readAsArrayBuffer(file);
+					btn = null;
+				};
+				el.click();
+			}
+		}));
 	}
 	eventFiles(pr.getTR(this));
 }
@@ -2951,11 +2946,11 @@ dataForm.prototype = {
 		}
 		return null;
 	},
-	fileReaded: function(fName, rarJPEG, idx, e) {
-		var dat = this.clearImage(new Uint8Array(e.target.result), aib.fch || !!rarJPEG);
+	fileReaded: function(fName, imgFile, idx, e) {
+		var dat = this.clearImage(new Uint8Array(e.target.result), !!imgFile);
 		if(dat) {
-			if(rarJPEG) {
-				dat.push(rarJPEG);
+			if(imgFile) {
+				dat.push(imgFile);
 			}
 			if(Cfg['postSameImg']) {
 				dat.push(String(Math.round(Math.random() * 1e6)));
@@ -2972,7 +2967,7 @@ dataForm.prototype = {
 		var fr, file = el.files[0];
 		if(/^image\/(?:png|jpeg)$/.test(file.type)) {
 			fr = new FileReader();
-			fr.onload = this.fileReaded.bind(this, file.name, el.rarJPEG, idx);
+			fr.onload = this.fileReaded.bind(this, file.name, el.imgFile, idx);
 			fr.readAsArrayBuffer(file);
 			this.busy++;
 		} else {
@@ -3325,26 +3320,26 @@ function prepareCFeatures() {
 	}});
 }
 
-function findArchive(dat) {
+function detectImgFile(dat) {
 	var i, j, len = dat.length;
-	for(i = 0; i < len; i++) {
-		if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67 && dat[i + 3] === 0x53 && dat[i + 4] === 0x00 && dat[i + 5] === 0x02) {
-			return [i, 3];
-		}
-	}
+	// JPG [ff d8 ff e0] = [яШяа]
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0, j = 0; i < len - 1; i++) {
 			if(dat[i] === 0xFF) {
+				// Built-in JPG
 				if(dat[i + 1] === 0xD8) {
 					j++;
+				// JPG end [ff d9]
 				} else if(dat[i + 1] === 0xD9 && --j === 0) {
 					i += 2;
 					break;
 				}
 			}
 		}
+	// PNG [89 50 4e 47] = [‰PNG]
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(i = 0; i < len - 7; i++) {
+			// PNG end [89 50 4e 47 49 45 4e 44 ae 42 60 82]
 			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
 				i += 8;
 				break;
@@ -3353,14 +3348,21 @@ function findArchive(dat) {
 	} else {
 		return false;
 	}
+	// Ignore small files
 	if(i !== len && len - i > 60) {
 		for(len = i + 50; i < len; i++) {
-			if(dat[i] === 0x37 && dat[i + 1] === 0x7A) {
+			// 7Z [37 7a bc af] = [7zјЇ]
+			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
 				return [i, 0];
-			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B) {
+			// ZIP [50 4b 03 04] = [PK..]
+			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
 				return [i, 1];
-			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61) {
+			// RAR [52 61 72 21] = [Rar!]
+			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
 				return [i, 2];
+			// OGG [4f 67 67 53] = [OggS]
+			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
+				return [i, 3];
 			}
 		}
 	}
@@ -3414,22 +3416,21 @@ workerQueue.prototype = {
 	}
 };
 
-function addIcon(data, info) {
+function addImgFileIcon(data, info) {
 	if(info) {
 		var app, ext, type = info[1];
-			app = 'application/';
 			fName = this.getAttribute('download');
 		if(type === 2) {
-			app += 'x-rar-compressed';
+			app = 'application/x-rar-compressed';
 			ext = 'rar';
 		} else if(type === 1) {
-			app += 'zip';
+			app = 'application/zip';
 			ext = 'zip';
 		} else if(type === 0) {
-			app += 'x-7z-compressed';
+			app = 'application/x-7z-compressed';
 			ext = '7z';
 		} else {
-			app += 'ogg';
+			app = 'audio/ogg';
 			ext = 'ogg';
 		}
 		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(this)),
@@ -3440,7 +3441,7 @@ function addIcon(data, info) {
 	}
 }
 
-function downloadData(url, fn) {
+function downloadImgData(url, fn) {
 	var obj = {
 		'method': 'GET',
 		'url': url,
@@ -3470,8 +3471,8 @@ function downloadData(url, fn) {
 
 function preloadImages(post) {
 	var i, len, el, mReqs = post ? 1 : 4, ready = false,
-		rjf = Cfg['findRarJPEG'] && new workerQueue(mReqs, findArchive, function(e) {
-			console.error("RARJPEG ERROR, line: " + e.lineno + " - " + e.message);
+		rjf = Cfg['findImgFile'] && new workerQueue(mReqs, detectImgFile, function(e) {
+			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		}),
 		queue = new $queue(mReqs, function(num, a) {
 			var url, type, eImg = !!Cfg['noImgSpoil'];
@@ -3490,7 +3491,7 @@ function preloadImages(post) {
 				queue.end();
 				return;
 			}
-			downloadData(url, function(data) {
+			downloadImgData(url, function(data) {
 				if(data) {
 					a.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
@@ -3498,7 +3499,7 @@ function preloadImages(post) {
 						$t('img', a).src = a.href;
 					}
 					if(rjf) {
-						rjf.find(data, addIcon.bind(a, data));
+						rjf.find(data, addImgFileIcon.bind(a, data));
 					}
 				}
 				a = url = eImg = type = null;
