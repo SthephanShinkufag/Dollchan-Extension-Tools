@@ -3339,7 +3339,7 @@ function detectImgFile(dat) {
 	// PNG [89 50 4e 47] = [‰PNG]
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(i = 0; i < len - 7; i++) {
-			// PNG end [89 50 4e 47 49 45 4e 44 ae 42 60 82]
+			// PNG end [49 45 4e 44 ae 42 60 82]
 			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
 				i += 8;
 				break;
@@ -3418,7 +3418,7 @@ workerQueue.prototype = {
 
 function addImgFileIcon(data, info) {
 	if(info) {
-		var app, ext, type = info[1];
+		var app, ext, type = info[1],
 			fName = this.getAttribute('download');
 		if(type === 2) {
 			app = 'application/x-rar-compressed';
