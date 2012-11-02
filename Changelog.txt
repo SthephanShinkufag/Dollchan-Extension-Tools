@@ -1,3 +1,53 @@
+Nov 02, 2012
+	- Move OGG detector to preloadImages
+		+ Removed option "Links" > "Detect audio-tags in posts"
+			Detector of .ogg files in images available when pre-load enabled
+		+ Убрана опция "Ссылки" > "Детектировать аудио-теги в постах"
+			Детектор .ogg файлов в изображениях доступен при включенной предзагрузке
+Oct 27, 2012
+	- Add tripcodein subj field detector
+		+ New ability to warning for trip-code in form subject field
+			"Form" > "Warn if field subject contains trip-code"
+		+ Добавлена возможность оповещать о содержащимся трипкоде в поле "тема"
+			"Форма" > "Предупреждать при наличии трип-кода в поле тема"
+Oct 25, 2012
+	- Introduce & workerQueue
+		+ Workers queue for images preloading and rarjpeg recognition
+		+ Очередь воркеров для предзагрузки изображений и распознавания раржпегов
+	- Cache youtube titles + run only 8 simultaneous requests
+		+ YouTube titles caching
+			Maximum of 8 simultaneous requests for YouTube titles loading
+		+ Кеширование ютуб заголовков
+			Максимум восемь одновременных реквестов для загрузки ютуб заголовков
+Oct 19, 2012
+	- Improve image preloading
+		+ Ускорение работы предварительной загрузки картинок
+Oct 17, 2012
+	- Initial 4chan sound support
+		+ Embedded .ogg files recognition in images
+			Playing found .ogg files
+			"Links" > "Detect audio-tags in posts"
+		+ Распознавание встроенных .ogg файлов в изображениях
+			Проигрывание найденных .ogg файлов
+			"Ссылки" > "Детектировать аудио-теги в постах"
+Oct 16, 2012
+	- Common 'DESU_Threads' storage
+		+ Common hidden threads storage for all domains
+		+ Общее для всех доменов хранилище скрытых тредов
+	- Make common 'DESU_Config'
+		+ Common config storage for all domains
+		+ Общее для всех доменов хранилище настроек
+Oct 12, 2012
+	- Smarter hide menu
+		+ Adaptable post hide menu on hide button
+		+ Адаптируемое меню скрытия поста по кнопке скрытия
+Oct 09, 2012
+	- Introduce Ctrl+arrow navigation for pages
+		+ "Ctrl+Left" - previous page "Ctrl+Right" - next page
+			Option "Posts" > "Navigation with keyboard" must be enabled
+		+ Добавлена навигация по страницам с помощью клавиш Ctrl+стрелка
+			"Ctrl+Влево" - предыдущая страница, "Ctrl+Вправо" - следующая страница
+			Опция "Посты" > "Навигация с помощью клавиатуры" должна быть вколючена
 Oct 06, 2012
 	- Better futaba support
 		+ Теоретическая поддержка любого имиджборда на движке футабы
