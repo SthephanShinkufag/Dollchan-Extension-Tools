@@ -47,7 +47,6 @@ defaultCfg = {
 	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// mp3 player by links
-	'add4chanSnd':	0,		// detect 4chan-sounds
 	'addImgs':		1,		// add images by links
 	'addYouTube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
@@ -113,7 +112,7 @@ Lng = {
 			txt:		['раскрывать изображения ', 'expand images ']
 		},
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
-		'findRarJPEG':	['Распознавать rarJPEG\'и в изображениях*', 'Detect rarJPEGs in images*'],
+		'findRarJPEG':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'showGIFs':		['Анимировать GIFы в постах*', 'Animate GIFs in posts*'],
 		'noImgSpoil':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
@@ -138,7 +137,6 @@ Lng = {
 		'crossLinks':	['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
-		'add4chanSnd':	['Детектировать аудио-теги в постах *', 'Detect audio-tags in posts *'],
 		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
@@ -350,8 +348,9 @@ Lng = {
 	expandForm:		['Раскрыть форму', 'Expand form'],
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
-	addRar:			['+ .rar', '+ .rar'],
-	downloadArch:	['Скачать содержащийся архив', 'Download existing archive'],
+	addFile:		['+ файл', '+ file'],
+	helpAddFile:	['Добавить .ogg, .rar, .zip, или .7z к картинке', 'Add .ogg, .rar, .zip, or .7z to image '],
+	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	subjHasTrip:	['Поле тема содержит трипкод', 'Subject field contains tripcode'],
 
@@ -374,7 +373,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime, addOggSound,
+oldTime, endTime, timeLog = '', dTime,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -831,7 +830,6 @@ function readCfg() {
 	Cfg.__proto__ = defaultCfg;
 	if(!nav.isBlob) {
 		Cfg['preLoadImgs'] = 0;
-		Cfg['add4chanSnd'] = 0;
 	}
 	if((!nav.isBlob || nav.Safari) && Cfg['ajaxReply'] === 2) {
 		Cfg['ajaxReply'] = 1;
@@ -895,7 +893,7 @@ function readCfg() {
 		);
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
-	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'] || Cfg['add4chanSnd'];
+	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
 function toggleCfg(id) {
@@ -1443,7 +1441,6 @@ function getCfgLinks() {
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addMP3', true, null),
-		$if(nav.isBlob, lBox('add4chanSnd', true, null)),
 		lBox('addImgs', true, null),
 		optSel('addYouTube', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
@@ -2451,7 +2448,8 @@ function processInput() {
 		if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 			$after(this, $new('button', {
 				'class': 'de-file-util de-file-rar',
-				'text': Lng.addRar[lang],
+				'text': Lng.addFile[lang],
+				'title': Lng.helpAddFile[lang],
 				'type': 'button'}, {
 				'click': function(e) {
 					$pd(e);
@@ -2474,7 +2472,8 @@ function processInput() {
 								$attr(node, {
 									'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
 									'title': inp.files[0].name + ' + ' + file.name,
-									'text': 'rarJPEG'
+									'text': inp.files[0].name.replace(/^.+\./, '') + ' + ' +
+										file.name.replace(/^.+\./, '')
 								});
 								inp.rarJPEG = this.result;
 							}
@@ -3328,6 +3327,11 @@ function prepareCFeatures() {
 
 function findArchive(dat) {
 	var i, j, len = dat.length;
+	for(i = 0; i < len; i++) {
+		if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67 && dat[i + 3] === 0x53 && dat[i + 4] === 0x00 && dat[i + 5] === 0x02) {
+			return [i, 3];
+		}
+	}
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0, j = 0; i < len - 1; i++) {
 			if(dat[i] === 0xFF) {
@@ -3412,21 +3416,26 @@ workerQueue.prototype = {
 
 function addIcon(data, info) {
 	if(info) {
-		var type, ext, fName = this.getAttribute('download');
-		if(info[1] === 2) {
-			type = 'application/x-rar-compressed';
-			ext = '.rar';
-		} else if(info[1] === 1) {
-			type = 'application/zip';
-			ext = '.zip';
+		var app, ext, type = info[1];
+			app = 'application/';
+			fName = this.getAttribute('download');
+		if(type === 2) {
+			app += 'x-rar-compressed';
+			ext = 'rar';
+		} else if(type === 1) {
+			app += 'zip';
+			ext = 'zip';
+		} else if(type === 0) {
+			app += 'x-7z-compressed';
+			ext = '7z';
 		} else {
-			type = 'application/x-7z-compressed';
-			ext = '.7z';
+			app += 'ogg';
+			ext = 'ogg';
 		}
 		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(this)),
-			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': type})) +
-			'" class="de-archive" title="' + Lng.downloadArch[lang] +
-			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + ext + '"></a>'
+			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': app})) +
+			'" class="' + (type === 3 ? 'de-img-ogg' : 'de-img-rar') + '" title="' + Lng.downloadFile[lang] +
+			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 		);
 	}
 }
@@ -3950,120 +3959,6 @@ function addLinkMP3(post) {
 	});
 }
 
-function initOggDetector() {
-	var links = {};
-
-	function addOggPlayer(link, a, post) {
-		for(var i = a.length - 1, tag = link.getAttribute('de-tag'); i >= 0 && a[i][0] !== tag; i--) {}
-		link.href = a[i < 0 ? 0 : i][1];
-		$before(post.msg || $q(aib.qMsg, post), link.player = $add('<audio class="de-audio" src="' + link.href + '" controls></audio>'));
-	}
-
-	function findOgg(link) {
-		if(link.loading) {
-			return;
-		}
-		var post = getPost(link),
-			url = $x("ancestor::a[1]", post.img[0]).href,
-			sounds = links[url];
-		if(sounds) {
-			if(sounds.length === 0) {
-				$alert(Lng.error[lang], 'load-audio', false);
-			} else {
-				addOggPlayer(link, sounds, post);
-			}
-			return;
-		}
-		link.loading = true;
-		$alert(Lng.loading[lang] + ': ' + link.getAttribute('de-tag'), 'load-audio', true);
-		GM_xmlhttpRequest({
-			'method': "GET",
-			'url': url,
-			'overrideMimeType': 'text/plain; charset=x-user-defined',
-			'onload': function(e) {
-				if(e.status === 200) {
-					links[url] = [];
-					var arr, i, j, len, tName, snds = links[url],
-						str = e.responseText;
-					while(true) {
-						tName = null;
-						i = str.indexOf(String.fromCharCode(0x4F, 0x67, 0x67, 0x53, 0x00, 0x02));
-						if(i === -1) {
-							break;
-						}
-						len = i - 1;
-						while(true) {
-							j = str.charCodeAt(len);
-							if(j !== 0x0D && j !== 0x0A && j !== 0x20 && j !== 0x22) {
-								if(j === 0x5D) {
-									j = len - 1;
-									while(j > 0 && str.charCodeAt(j) !== 0x5B) {
-										j--;
-									}
-									if(j !== 0) {
-										tName = str.substring(j, len + 1);
-									}
-								}
-								break;
-							}
-							len--;
-						}
-						str = str.substr(i);
-						len = str.indexOf(String.fromCharCode(0x4F, 0x67, 0x67, 0x53, 0x00, 0x04));
-						if(len === -1) {
-							break;
-						}
-						i = str.charCodeAt(len += 26) & 0xFF;
-						if(i > 0) {
-							j = len;
-							len += i;
-							while(i > 0) {
-								len += str.charCodeAt(j + i) & 0xFF;
-								i--;
-							}
-						}
-						snds.push([tName, window.URL.createObjectURL(new Blob([new Uint8Array(str.substr(0, len).split('').map(function(a) { return a.charCodeAt(); }))], {'type': 'audio/ogg'}))]);
-						str = str.substr(len);
-					}
-					if(snds.length === 0) {
-						link.outerHTML = link.getAttribute('de-tag');
-						delete links[url];
-					} else {
-						addOggPlayer(link, snds, post);
-					}
-					$del($id('de-alert-load-audio'));
-				} else {
-					$alert(Lng.error[lang] + e.statusText, 'load-audio', false);
-				}
-				link.loading = false;
-				link = post = url = null;
-			}
-		});
-	}
-
-	addOggSound = function addOggSound(post) {
-		$each($Q('.de-sound-tag', post || dForm), function(link) {
-			var pst = post || getPost(link);
-			if(pst.img[0]) {
-				link.onclick = function(e) {
-					$pd(e);
-					if(this.player) {
-						$del(this.player);
-						this.player = false;
-						this.href = '#';
-						return;
-					}
-					findOgg(this);
-				};
-			} else {
-				link.outerHTML = link.getAttribute('de-tag');
-			}
-		});
-	};
-
-	addOggSound(null);
-}
-
 
 /*==============================================================================
 									IMAGES VIEWER
@@ -4439,9 +4334,6 @@ function getPview(post, pNum, parent, link, txt) {
 		$each(pView.img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
-		if(typeof addOggSound !== 'undefined') {
-			addOggSound(pView);
-		}
 		if(Cfg['expandImgs']) {
 			eventPostImg(pView);
 		}
@@ -4651,9 +4543,6 @@ function addPostFunc(post) {
 	updRefMap(post);
 	eventRefLink(post);
 	addLinkMP3(post);
-	if(typeof addOggSound !== 'undefined') {
-		addOggSound(post);
-	}
 	addLinkImg(post);
 	if(isExpImg) {
 		expandAllPostImg(post, null);
@@ -4907,9 +4796,6 @@ function loadPages(len) {
 				Posts.forEach(eventPostImg);
 				Posts.forEach(expandPost);
 				addLinkMP3(null);
-				if(typeof addOggSound !== 'undefined') {
-					addOggSound(null);
-				}
 				addLinksTube(null);
 				addLinkImg(dForm);
 				addImgSearch(dForm);
@@ -6791,11 +6677,13 @@ function scriptCSS() {
 
 	// Embedders
 	cont('.de-ytube-link', '//youtube.com/favicon.ico');
-	x += '.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
+	cont('.de-img-rar', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
+	cont('.de-img-ogg', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
+	x += '.de-img-rar, .de-img-ogg { color: inherit; text-decoration: none; font-weight: bold; }\
+		.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
-		.de-audio { display: block; }\
-		.de-mp3, .de-ytube-obj, .de-audio { margin: 5px 20px; }\
+		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }';
 
 	// Other
@@ -6831,7 +6719,6 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		.de-archive { padding: 0 16px 3px 0; margin: 0 4px; background: url(data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==) no-repeat center; }\
 		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
@@ -7596,9 +7483,6 @@ function replaceString(txt) {
 			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 		});
 	}
-	if(Cfg['add4chanSnd']) {
-		txt = txt.replace(/(\[[^\]]+\])(?=[^<]*<(?:br|\/block|\/div))/g, '<a href="#" class="de-sound-tag" de-tag="$1">$1♫</a>');
-	}
 	return txt;
 }
 
@@ -7777,10 +7661,6 @@ function doScript() {
 	if(Cfg['addMP3']) {
 		addLinkMP3(null);
 		$log('addLinkMP3');
-	}
-	if(Cfg['add4chanSnd']) {
-		initOggDetector();
-		$log('addOggSound');
 	}
 	if(Cfg['addYouTube']) {
 		addLinksTube(null);
