@@ -27,8 +27,8 @@ defaultCfg = {
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
-	'showGIFs':		0,		// 		show animated GIFs in posts
-	'noImgSpoil':	0,		// 		open image spoilers in posts
+	'openImgs':		0,		// 		open images in posts
+	'openGIFs':		0,		// 		open only GIFs in posts
 	'postBtnsTxt':	0,		// show post buttons as text
 	'imgSrcBtns':	1,		// add image search buttons
 	'noSpoilers':	1,		// open spoilers
@@ -113,8 +113,8 @@ Lng = {
 		},
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
-		'showGIFs':		['Анимировать GIFы в постах*', 'Animate GIFs in posts*'],
-		'noImgSpoil':	['Раскрывать изображения-спойлеры*', 'Open spoiler-images*'],
+		'openImgs':		['Раскрывать изображения', 'Open images'],
+		'openGIFs':		['только GIFы', 'GIFs only'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
 		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
@@ -595,6 +595,7 @@ function $queue(maxNum, fn, endFn) {
 	this.endFn = endFn;
 	this.mNum = maxNum;
 	this.cNum = 0;
+	this.completed = false;
 }
 $queue.prototype = {
 	run: function(data) {
@@ -612,8 +613,15 @@ $queue.prototype = {
 		if(this.length !== 0) {
 			this.length--;
 			this.run(this.array.splice(0, 1)[0]);
-		} else if(this.cNum === 0) {
+		} else if(this.completed && this.cNum === 0) {
 			this.endFn();
+		}
+	},
+	complete: function() {
+		if((this.length | this.cNum) === 0) {
+			this.endFn();
+		} else {
+			this.completed = true;
 		}
 	}
 };
@@ -1195,9 +1203,8 @@ function fixSettings() {
 	toggleBox(Cfg['updThread'] === 1, [
 		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
-	toggleBox(Cfg['preLoadImgs'], [
-		'input[info="findImgFile"]', 'input[info="showGIFs"]', 'input[info="noImgSpoil"]'
-	]);
+	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
+	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
 		'input[info="linksOver"]',
 		'input[info="linksOut"]',
@@ -1379,10 +1386,14 @@ function getCfgPosts() {
 		optSel('expandImgs', true, null),
 		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
 		$if(nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
-			lBox('findImgFile', true, null),
-			lBox('showGIFs', true, null),
-			lBox('noImgSpoil', true, null)
+			lBox('findImgFile', true, null)
 		])),
+		$New('div', null, [
+			lBox('openImgs', false, null),
+			$txt(' ('),
+			lBox('openGIFs', false, null),
+			$txt(')*')
+		]),
 		lBox('postBtnsTxt', true, null),
 		lBox('imgSrcBtns', true, null),
 		lBox('noSpoilers', true, updateCSS),
@@ -3383,7 +3394,7 @@ function workerQueue(mReqs, fnWrk, fnErr) {
 			self.postMessage((' + String(fnWrk) + ')(e["data"]), null);\
 		}'
 	]));
-	this.queue = new $queue(mReqs, this._createWrk.bind(this), function(){});
+	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.find = this._findWrk;
 	this.wrks = [];
 	this.onErr = this._onErr.bind(this, fnErr);
@@ -3476,30 +3487,16 @@ function downloadImgData(url, fn) {
 }
 
 function preloadImages(post) {
-	var i, len, el, mReqs = post ? 1 : 4, ready = false,
+	var lnk, url, iType, nExp, i, len, el, mReqs = post ? 1 : 4,
 		rjf = Cfg['findImgFile'] && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		}),
-		queue = new $queue(mReqs, function(num, a) {
-			var url, type, eImg = !!Cfg['noImgSpoil'];
-			if(!a || !(url = a.href)) {
-				queue.end();
-				return;
-			}
-			if(/\.gif$/i.test(url)) {
-				eImg |= !!Cfg['showGIFs'];
-				type = "image/gif";
-			} else if(/\.jpe?g$/i.test(url)) {
-				type = "image/jpeg";
-			} else if(/\.png$/i.test(url)) {
-				type = "image/png";
-			} else {
-				queue.end();
-				return;
-			}
-			downloadImgData(url, function(data) {
+		queue = Cfg['preLoadImgs'] && new $queue(mReqs, function(num, dat) {
+			var a = dat[0],
+				type = dat[2],
+				eImg = dat[3];
+			downloadImgData(dat[1], function(data) {
 				if(data) {
-					a.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
 					if(eImg) {
 						$t('img', a).src = a.href;
@@ -3508,7 +3505,7 @@ function preloadImages(post) {
 						rjf.find(data, addImgFileIcon.bind(a, data));
 					}
 				}
-				a = url = eImg = type = null;
+				a = eImg = type = null;
 				if(nav.Firefox) {
 					queue.end();
 				} else {
@@ -3518,15 +3515,33 @@ function preloadImages(post) {
 				}
 			});
 		}, function() {
-			if(ready) {
-				rjf && rjf.clear();
-				rjf = queue = ready = null;
-			}
+			rjf && rjf.clear();
+			rjf = queue = null;
 		});
 	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
-		queue.run($x("ancestor::a[1]", el[i]));
+		lnk = $x("ancestor::a[1]", el[i]);
+		url = lnk.href;
+		nExp = !!Cfg['openImgs'];
+		if(/\.gif$/i.test(url)) {
+			iType = 'image/gif';
+		} else {
+			if(/\.jpe?g$/i.test(url)) {
+				iType = 'image/jpeg';
+			} else if(/\.png$/i.test(url)) {
+				iType = 'image/png';
+			} else {
+				continue;
+			}
+			nExp &= !Cfg['openGIFs'];
+		}
+		lnk.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
+		if(queue) {
+			queue.run([lnk, url, iType, nExp]);
+		} else if(nExp) {
+			el[i].src = url;
+		}
 	}
-	ready = true;
+	queue && queue.complete();
 }
 
 /*==============================================================================
@@ -3669,7 +3684,7 @@ function tubeTitleDownloader() {
 		} catch(e) {
 			this.ytData = {};
 		}
-		this.queue = new $queue(8, this._loadTitle.bind(this), this.saveLoaded.bind(this));
+		this.queue = new $queue(8, this._loadTitle.bind(this), this.saveTitles.bind(this));
 	} else {
 		this.loadTitle = this.noLoadTitle;
 	}
@@ -3682,11 +3697,7 @@ tubeTitleDownloader.prototype = {
 		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
 	},
 	saveLoaded: function() {
-		if(this.canSave) {
-			this.saveTitles();
-		} else {
-			this.canSave = true;
-		}
+		this.queue.complete();
 	},
 	loadTitle: function(data) {
 		var title = this.ytData[data[1]];
@@ -4104,9 +4115,6 @@ function addImgSearch(el) {
 		}
 		if(link.firstElementChild) {
 			continue;
-		}
-		if(nav.WebKit) {
-			link.setAttribute('download', link.href);
 		}
 		nav.insBefore(
 			link, '<span de-id="' + num + i +
@@ -4578,7 +4586,7 @@ function newPost(thr, post, pNum, i) {
 		pst = post;
 	}
 	thr.appendChild(pst);
-	if(Cfg['preLoadImgs']) {
+	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
 		preloadImages(post);
 	}
 	if(aib.tiny && !aib.mlpg) {
@@ -4819,7 +4827,7 @@ function loadPages(len) {
 					});
 				}
 				closeAlert($id('de-alert-load-pages'));
-				if(Cfg['preLoadImgs']) {
+				if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
 					preloadImages(null);
 				}
 				loaded = pages = null;
@@ -6754,7 +6762,7 @@ function scriptCSS() {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
-			if(Cfg['noImgSpoil'] || Cfg['showGIFs']) {
+			if(Cfg['openImgs']) {
 				x += '.reply .img { max-width: 200px; max-height: 200px; }\
 					.oppost .img { max-width: 250px; max-height: 250px }';
 			}
@@ -7650,10 +7658,11 @@ function doScript() {
 		initPostform();
 		$log('initPostform');
 	}
-	prepareCFeatures();
-	if(Cfg['preLoadImgs']) {
+	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
 		preloadImages(null);
+		$log('preloadImages');
 	}
+	prepareCFeatures();
 	Posts.forEach(addPostButtons);
 	saveFavorites(JSON.stringify(Favor));
 	$log('addPostButtons');
