@@ -3363,6 +3363,9 @@ function detectImgFile(dat) {
 			// OGG [4f 67 67 53] = [OggS]
 			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
 				return [i, 3];
+			// MP3 [0x49 0x44 0x33] = [ID3]
+			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
+				return [i, 4];
 			}
 		}
 	}
@@ -3429,13 +3432,16 @@ function addImgFileIcon(data, info) {
 		} else if(type === 0) {
 			app = 'application/x-7z-compressed';
 			ext = '7z';
-		} else {
+		} else if(type === 3) {
 			app = 'audio/ogg';
 			ext = 'ogg';
+		} else {
+			app = 'audio/mpeg';
+			ext = 'mp3';
 		}
 		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(this)),
 			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': app})) +
-			'" class="' + (type === 3 ? 'de-img-ogg' : 'de-img-rar') + '" title="' + Lng.downloadFile[lang] +
+			'" class="' + (type > 2 ? 'de-img-audio' : 'de-img-arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 		);
 	}
@@ -6678,9 +6684,9 @@ function scriptCSS() {
 
 	// Embedders
 	cont('.de-ytube-link', '//youtube.com/favicon.ico');
-	cont('.de-img-rar', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
-	cont('.de-img-ogg', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
-	x += '.de-img-rar, .de-img-ogg { color: inherit; text-decoration: none; font-weight: bold; }\
+	cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
+	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
+	x += '.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
