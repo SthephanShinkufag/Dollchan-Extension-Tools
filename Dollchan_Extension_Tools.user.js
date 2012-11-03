@@ -3697,7 +3697,7 @@ tubeTitleDownloader.prototype = {
 		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
 	},
 	saveLoaded: function() {
-		this.queue.complete();
+		this.queue && this.queue.complete();
 	},
 	loadTitle: function(data) {
 		var title = this.ytData[data[1]];
