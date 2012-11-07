@@ -6992,18 +6992,18 @@ function getNavigator() {
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
-		nav.Opera ? (nav.Opera < 12.5 ? '-o-' : '') :
-		nav.Firefox < 16 ? '-moz-' : '';
+		nav.Opera ? (nav.Opera < 12.1 ? '-o-' : '') :
+		nav.Firefox && nav.Firefox < 16 ? '-moz-' : '';
 	if(!nav.Opera || nav.Opera >= 12) {
 		nav.Anim = true;
 		nav.animName =
 			nav.WebKit ? 'webkitAnimationName' :
-			nav.Opera ? 'OAnimationName' :
-			nav.Firefox < 16 ? 'MozAnimationName' :
+			nav.Opera && nav.Opera < 12.1 ? 'OAnimationName' :
+			nav.Firefox && nav.Firefox < 16 ? 'MozAnimationName' :
 			'animationName';
 		nav.animEnd =
 			nav.WebKit ? 'webkitAnimationEnd' :
-			nav.Opera && nav.Opera < 12.5 ? 'oAnimationEnd' :
+			nav.Opera && nav.Opera < 12.1 ? 'oAnimationEnd' :
 			'animationend';
 		nav.animEvent = function(el, Fn) {
 			el.addEventListener(nav.animEnd, function aEvent() {
