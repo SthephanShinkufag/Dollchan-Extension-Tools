@@ -2752,6 +2752,7 @@ function checkUpload(err, url) {
 		showMainReply();
 		if(TNum) {
 			loadNewPosts(endUpload);
+			$focus(Posts[Posts.length]);
 		} else {
 			loadThread(pByNum[tNum], 5, endUpload);
 		}
