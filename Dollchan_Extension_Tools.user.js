@@ -2452,7 +2452,7 @@ function processInput() {
 		$del(this.nextSibling);
 	}
 	$del($c('de-file-rar', this.parentNode));
-	if(/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+	if(nav.isBlob && /^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 		$after(this, $new('button', {
 			'class': 'de-file-util de-file-rar',
 			'text': Lng.addFile[lang],
