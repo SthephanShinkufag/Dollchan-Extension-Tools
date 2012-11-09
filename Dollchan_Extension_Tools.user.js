@@ -3745,41 +3745,49 @@ tubeTitleDownloader.prototype = {
 
 function getTubeVideoLinks(id, Fn) {
 	GM_xmlhttpRequest({'method': 'GET', 'url': 'https://www.youtube.com/watch?v=' + id, 'onload': function(xhr) {
-		var i, group, len, el, result1, result2, src, url = [],
+		var group, i, len, el, videoPair, j, pair, url, itag, sig, videoURL = [],
+			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
 			sep1 = '%2C',
 			sep2 = '%26',
-			sep3 = '%3D',
-			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/);
+			sep3 = '%3D';
 		if(!formats) {
-			Fn(false);
+			Fn(null);
 			Fn = null;
 			return;
 		}
 		formats = formats[1];
-		if(formats.contains(',')) {
+		if(formats.contains(',')) { 
 			sep1 = ',';
 			sep2 = formats.contains('&') ? '&' : '\\u0026';
 			sep3 = '=';
 		}
 		for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
 			el = group[i].split(sep2);
-			if(el.length < 5) {
+			videoPair = [];
+			for(j = 0; j < el.length; j++) {
+				pair = el[j].split(sep3);
+				if(pair.length === 2) {
+					videoPair[pair[0]] = pair[1];
+				}
+			}
+			url = videoPair['url'];
+			if(!url) {
 				continue;
 			}
-			result1 = el[0].split(sep3);
-			if(result1.length < 2) {
+			url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
+			itag = videoPair['itag'];
+			if(!itag) {
 				continue;
 			}
-			src = unescape(unescape(result1[1])).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
-			result2 = el[4].split(sep3);
-			if(result2.length < 2) {
-				continue;
+			sig = videoPair['sig'];
+			if(sig) {
+				url += "&signature=" + sig;
 			}
-			if(src.toLowerCase().indexOf('http') === 0) {
-				url[result2[1]] = src;
+			if(url.toLowerCase().indexOf('http') === 0) {
+				videoURL[itag] = url;
 			}
 		}
-		Fn(url);
+		Fn(videoURL);
 		Fn = null;
 	}});
 }
@@ -3801,7 +3809,7 @@ function addTubePlayer(el, m) {
 		return;
 	}
 	getTubeVideoLinks(id, function(url) {
-		var src = url ? (!Cfg['YTubeHD'] ? url[43] : url[45] || url[44] || url[43]) : false;
+		var src = url ? (Cfg['YTubeHD'] ? (url[45] || url[44] || url[43]) : url[43]) : false;
 		if(!src) {
 			addTubeEmbed(el, id, time);
 			return;
