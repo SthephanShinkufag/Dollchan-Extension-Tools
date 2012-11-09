@@ -4580,8 +4580,8 @@ function newPost(thr, post, pNum, i) {
 	if(Cfg['expandPosts'] && !TNum) {
 		expandPost(post);
 	}
-	addPostFunc(post);
 	addLinksTube(post);
+	addPostFunc(post);
 	addImgSearch(post);
 	if(postWrapper && i !== 0) {
 		pst = postWrapper.cloneNode(true);
