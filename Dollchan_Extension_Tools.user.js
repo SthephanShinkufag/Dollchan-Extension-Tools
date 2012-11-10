@@ -307,6 +307,7 @@ Lng = {
 	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
+	loadCaptcha:	['Загрузить капчу', 'Load captcha'],
 	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
 	dontShow:		['Не отображать: ', 'Do not show: '],
 	checkNow:		['Проверить сейчас', 'Check now'],
@@ -2506,6 +2507,112 @@ function processInput() {
 	eventFiles(pr.getTR(this));
 }
 
+function updateCaptcha() {
+	var el, img, _img;
+	if(pr.recap) {
+		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
+		el = $id('recaptcha_image');
+		if(el) {
+			$attr(el, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+		}
+	} else if(aib.abu) {
+		updateABUCap();
+	}
+	if(pr.cap) {
+		if(aib.abu) {
+			setTimeout(function() {
+				refreshCapImg(0);
+				pr.cap.onclick = null;
+			}, 50);
+		}
+		pr.cap.autocomplete = 'off';
+		pr.cap.onfocus = null;
+		pr.cap.onkeypress = (function() {
+			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
+				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
+			return function(e) {
+				if(!Cfg['captchaLang'] || e.which === 0) {
+					return;
+				}
+				var i, code = e.charCode || e.keyCode,
+					chr = String.fromCharCode(code).toLowerCase();
+				if(Cfg['captchaLang'] === 1) {
+					if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
+						return;
+					}
+					chr = en[i];
+				} else {
+					if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
+						return;
+					}
+					chr = ru[i];
+				}
+				$pd(e);
+				$txtInsert(e.target, chr);
+			};
+		})();
+		if(!aib.hana && !pr.recap) {
+			img = $q('a, img', pr.getTR(pr.cap));
+			_img = $new('img', {
+				'alt': Lng.loading[lang],
+				'title': Lng.refresh[lang],
+				'style': 'display: block; border: none; cursor: pointer;'}, {
+				'click': function() {
+					refreshCapImg(TNum || 0);
+				}
+			});
+			if(img) {
+				img.parentNode.replaceChild(_img, img);
+			} else {
+				while(pr.cap.nextSibling) {
+					$del(pr.cap.nextSibling);
+				}
+				$after(pr.cap, _img);
+			}
+			setTimeout(function(i) {
+				i.src = refreshCapSrc(
+					aib._410 ? ('/faptcha.php?board=' + brd) :
+						aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
+						aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
+						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
+					TNum || 0
+				);
+			}, 50, _img);
+		}
+	}
+}
+
+function updateABUCap() {
+	var cap = $id('captcha_div'), uwin = nav.Firefox ? unsafeWindow : window;
+	if(!uwin.Recaptcha) {
+		doc.head.appendChild($new('script', {
+			'type': 'text/javascript',
+			'src': 'http://www.google.com/recaptcha/api/js/recaptcha_ajax.js'
+		}, null));
+	}
+	cap.innerHTML = '';
+	cap.appendChild($new('a', {
+		'href': '#',
+		'text': Lng.loadCaptcha[lang]}, {
+		'click': function(e) {
+			$pd(e);
+			var itvr, win = nav.Firefox ? unsafeWindow : window;
+			this.parentNode.innerHTML = '';
+			win.Recaptcha.create('6LdOEMMSAAAAAIGhmYodlkflEb2C-xgPjyATLnxx', 'captcha_div', {'theme': "red"});
+			itvr = setInterval(function() {
+				var el = $id('recaptcha_response_field');
+				if(el) {
+					pr.cap = pr.recap = $id('recaptcha_response_field');
+					updateCaptcha();
+					clearInterval(itvr);
+					itvr = null;
+				}
+			}, 500);
+		}
+	}));
+}
+
+
 function doPostformChanges(img, _img, el) {
 	var sBtn;
 	pr.form.style.display = 'inline-block';
@@ -2580,75 +2687,7 @@ function doPostformChanges(img, _img, el) {
 			setTimeout(setUserPassw, 1e3);
 		}
 	}});
-	if(pr.recap) {
-		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
-		el = $id('recaptcha_image');
-		if(el) {
-			$attr(el, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
-		}
-	}
-	if(pr.cap) {
-		if(aib.abu) {
-			setTimeout(function() {
-				refreshCapImg(0);
-				pr.cap.onclick = null;
-			}, 50);
-		}
-		pr.cap.autocomplete = 'off';
-		pr.cap.onfocus = null;
-		pr.cap.onkeypress = (function() {
-			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
-				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
-			return function(e) {
-				if(!Cfg['captchaLang'] || e.which === 0) {
-					return;
-				}
-				var i, code = e.charCode || e.keyCode,
-					chr = String.fromCharCode(code).toLowerCase();
-				if(Cfg['captchaLang'] === 1) {
-					if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
-						return;
-					}
-					chr = en[i];
-				} else {
-					if(code < 0x0021 || code > 0x007A || (i = en.indexOf(chr)) === -1) {
-						return;
-					}
-					chr = ru[i];
-				}
-				$pd(e);
-				$txtInsert(e.target, chr);
-			};
-		})();
-		if(!aib.hana && !pr.recap) {
-			img = $q('a, img', pr.getTR(pr.cap));
-			_img = $new('img', {
-				'alt': Lng.loading[lang],
-				'title': Lng.refresh[lang],
-				'style': 'display: block; border: none; cursor: pointer;'}, {
-				'click': function() {
-					refreshCapImg(TNum || 0);
-				}
-			});
-			if(img) {
-				img.parentNode.replaceChild(_img, img);
-			} else {
-				while(pr.cap.nextSibling) {
-					$del(pr.cap.nextSibling);
-				}
-				$after(pr.cap, _img);
-			}
-			setTimeout(function(i) {
-				i.src = refreshCapSrc(
-					aib._410 ? ('/faptcha.php?board=' + brd) :
-						aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
-						aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
-						: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
-					TNum || 0
-				);
-			}, 50, _img);
-		}
-	}
+	updateCaptcha();
 	if(Cfg['addSageBtn'] && pr.mail) {
 		sBtn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
 			e.stopPropagation();
@@ -2762,13 +2801,26 @@ function checkUpload(err, url) {
 		showMainReply();
 		if(TNum) {
 			loadNewPosts(endUpload);
-			$focus(Posts[Posts.length]);
+			$focus(Posts[Posts.length - 1]);
 		} else {
 			loadThread(pByNum[tNum], 5, endUpload);
 		}
 		if(pr.cap) {
 			pr.cap.value = '';
 			refreshCapImg(tNum);
+			if(aib.abu) {
+				GM_xmlhttpRequest({
+					'method': 'GET',
+					'url': '/makaba/captcha?code=' + getCookie('usercode'),
+					'onload': function(xhr) {
+						var text = xhr.responseText;
+						if(text.contains('OK') || text.contains('VIP')) {
+							pr.cap = pr.recap = null;
+							updateABUCap();
+						}
+					}
+				});
+			}
 		}
 	} else {
 		window.location = url;
