@@ -2602,7 +2602,7 @@ function updateABUCap() {
 			itvr = setInterval(function() {
 				var el = $id('recaptcha_response_field');
 				if(el) {
-					pr.cap = pr.recap = $id('recaptcha_response_field');
+					pr.cap = pr.recap = el;
 					updateCaptcha();
 					clearInterval(itvr);
 					itvr = null;
