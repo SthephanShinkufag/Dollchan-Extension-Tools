@@ -241,12 +241,13 @@ Lng = {
 	},
 
 	selHiderMenu:	{
-		'sel': ['Скрывать выделенное', 'Hide selected text'],
-		'img': ['Скрывать изображение', 'Hide same images'],
-		'ihash': ['Скрыв. схожие изобр.', 'Hide similar images'],
-		'text': ['Скрыть схожий текст', 'Hide similar text'],
-		'noimg': ['Скрыть без изображений', 'Hide without images'],
-		'notext': ['Скрыть без текста', 'Hide without text']
+		'sel':		['Скрывать выделенное', 'Hide selected text'],
+		'trip':		['Скрыть c трип-кодом: ', 'Hide with trip-code: '],
+		'img':		['Скрывать изображение', 'Hide same images'],
+		'ihash':	['Скрыв. схожие изобр.', 'Hide similar images'],
+		'text':		['Скрыть схожий текст', 'Hide similar text'],
+		'noimg':	['Скрыть без изображений', 'Hide without images'],
+		'notext':	['Скрыть без текста', 'Hide without text']
 	},
 	selExpandThrd:	[
 		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
@@ -2013,21 +2014,23 @@ function hideMenu(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	this.mItems = [];
+	var temp;
+	this.mItems = '';
 	this.mNames = [];
 	if(!post.hide && (quotetxt = $txtSelect().trim())) {
-		this.add('sel');
+		this.add('sel', '');
+	}
+	if(temp = $c('postertrip', post)) {
+		this.add('trip', temp.textContent);
 	}
 	if(post.img[0]) {
-		this.add('img');
-		this.add('ihash');
+		this.add('img', '');
+		this.add('ihash', '');
 	} else {
-		this.add('noimg');
+		this.add('noimg', '');
 	}
-	this.add(getText(post) ? 'text' : 'notext');
-	var a = addSelMenu(post.btns.firstChild, false,
-		'<a href="#">' + this.mItems.join('</a><a href="#">') + '</a>'
-	);
+	this.add(getText(post) ? 'text' : 'notext', '');
+	var a = addSelMenu(post.btns.firstChild, false, this.mItems);
 	this.mNames.forEach(function(name, idx) {
 		this[name](a[idx]);
 	}, this.funcs);
@@ -2040,6 +2043,13 @@ hideMenu.prototype = {
 			link.onclick = function(e) {
 				$pd(e);
 				addSpell('#words', '(' + quotetxt + ')');
+			};
+		},
+		'trip': function(link) {
+			link.onclick = function(e) {
+				$pd(e);
+				var post = this.parentNode.post;
+				addSpell('#trip', '(' + this.getAttribute('info').replace(/\)/g, '\\)') + ')');
 			};
 		},
 		'img': function(link) {
@@ -2074,8 +2084,8 @@ hideMenu.prototype = {
 			};
 		}
 	},
-	add: function(name) {
-		this.mItems.push(Lng.selHiderMenu[name][lang]);
+	add: function(name, val) {
+		this.mItems += '<a href="#" info="' + val + '">' + Lng.selHiderMenu[name][lang] + val + '</a>';
 		this.mNames.push(name);
 	}
 };
