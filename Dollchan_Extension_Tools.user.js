@@ -2767,6 +2767,9 @@ function findSubmitError(dc) {
 
 function endUpload() {
 	closeAlert($id('de-alert-upload'));
+	if(TNum) {
+		$focus(Posts[Posts.length - 1]);
+	}
 }
 
 function checkUpload(err, url) {
@@ -2801,7 +2804,6 @@ function checkUpload(err, url) {
 		showMainReply();
 		if(TNum) {
 			loadNewPosts(endUpload);
-			$focus(Posts[Posts.length - 1]);
 		} else {
 			loadThread(pByNum[tNum], 5, endUpload);
 		}
