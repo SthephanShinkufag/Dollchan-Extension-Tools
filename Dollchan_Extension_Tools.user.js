@@ -7236,7 +7236,7 @@ function getPostform(form) {
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
-		passw: !aib.nul && $q(tr + ' input[type="password"]', form),
+		passw: $q(tr + ' input[type="password"]', form),
 		dpass: $q('input[type="password"]', dForm),
 		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
 		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
