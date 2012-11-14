@@ -2743,26 +2743,24 @@ function doPostformChanges(img, _img, el) {
 ==============================================================================*/
 
 function getSubmitResponse(dc, isFrame) {
-	var err = '',
-		el = $q(aib.qDForm, dc),
-		url = (isFrame ? window.location : el ? aib.getThrdUrl(brd, aib.getTNum(el)) : '');
-	if(!dc.body.firstChild || el) {
-		return [url, ''];
+	var err = '', el = $q(aib.qDForm, dc);
+	if(dc.body.firstChild && !el) {
+		$each($Q(
+			aib.hana ? '.post-error, h2' :
+			aib.kus ? 'h1, h2, div[style*="1.25em"]' :
+			aib.fch ? '#errmsg' :
+			aib.krau ? '.message_text' :
+			aib._420 ? 'pre' :
+			'h1, h2, font[size="5"]', dc
+		), function(node) {
+			err += node.innerHTML + '\n';
+		});
+		if(!(err = err.replace(/<a [^>]+>Назад.+|<br.+/, ''))) {
+			err = Lng.error[lang] + '\n' + dc.body.innerHTML;
+		}
+		err = /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
 	}
-	$each($Q(
-		aib.hana ? '.post-error, h2' :
-		aib.kus ? 'h1, h2, div[style*="1.25em"]' :
-		aib.fch ? '#errmsg' :
-		aib.krau ? '.message_text' :
-		aib._420 ? 'pre' :
-		'h1, h2, font[size="5"]', dc
-	), function(el) {
-		err += el.innerHTML + '\n';
-	});
-	if(!(err = err.replace(/<a [^>]+>Назад.+|<br.+/, ''))) {
-		err = Lng.error[lang] + '\n' + dc.body.innerHTML;
-	}
-	return [url, /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'")];
+	return [(isFrame ? window.location : el ? aib.getThrdUrl(brd, aib.getTNum(el)) : ''), err];
 }
 
 function endUpload() {
