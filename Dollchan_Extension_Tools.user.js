@@ -2814,10 +2814,9 @@ function checkUpload(response) {
 	if(aib.abu) {
 		GM_xmlhttpRequest({
 			'method': 'GET',
-			'url': '/makaba/captcha?code=' + getCookie('usercode') || '',
+			'url': '/makaba/captcha?code=' + (getCookie('usercode') || ''),
 			'onload': function(xhr) {
 				var text = xhr.responseText;
-				console.log(text);
 				if(text.contains('OK') || text.contains('VIP')) {
 					pr.cap = pr.recap = null;
 					updateABUCap();
