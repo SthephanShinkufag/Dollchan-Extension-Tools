@@ -371,7 +371,7 @@ Lng = {
 doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
-pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO,
+pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
@@ -590,10 +590,10 @@ function $xhr(obj) {
 }
 
 /** @constructor */
-function $queue(maxNum, fn, endFn) {
+function $queue(maxNum, Fn, endFn) {
 	this.array = [];
 	this.length = 0;
-	this.fn = fn;
+	this.fn = Fn;
 	this.endFn = endFn;
 	this.mNum = maxNum;
 	this.cNum = 0;
@@ -2529,7 +2529,7 @@ function updateCaptcha() {
 	}
 	pr.cap.autocomplete = 'off';
 	pr.cap.onfocus = null;
-	pr.cap.onkeypress = function() {
+	pr.cap.onkeypress = (function() {
 		var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 			en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 		return function(e) {
@@ -2552,7 +2552,7 @@ function updateCaptcha() {
 			$pd(e);
 			$txtInsert(e.target, chr);
 		};
-	};
+	})();
 	if(aib.hana || pr.recap) {
 		return;
 	}
@@ -2710,7 +2710,7 @@ function doPostformChanges(img, _img, el) {
 	if(Cfg['ajaxReply'] === 2) {
 		pr.form.onsubmit = function(e) {
 			$pd(e);
-			new dataForm(pr.form, pr.subm, checkUpload).submit();
+			doHTML5Submit(pr.form, pr.subm, checkUpload);
 		};
 		dForm.onsubmit = $pd;
 		if(sBtn = $q(aib.qDelBut, dForm)) {
@@ -2718,7 +2718,7 @@ function doPostformChanges(img, _img, el) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
-				new dataForm(dForm, this, checkDelete).submit();
+				doHTML5Submit(dForm, this, checkDelete);
 			};
 		}
 	} else if(Cfg['ajaxReply'] === 1) {
@@ -2739,7 +2739,7 @@ function doPostformChanges(img, _img, el) {
 
 
 /*==============================================================================
-							ONSUBMIT REPLY / DELETE CHECK
+							FORM SUBMIT FUNCTIONS
 ==============================================================================*/
 
 function getSubmitResponse(dc, isFrame) {
@@ -2768,9 +2768,7 @@ function endUpload() {
 }
 
 function checkUpload(response) {
-	var qArea, el,
-		url = response[0],
-		err = response[1];
+	var qArea, el, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
 			$disp(qArea = $id('de-qarea'));
@@ -2796,7 +2794,7 @@ function checkUpload(response) {
 	Cfg['stats'][pr.tNum ? 'reply' : 'op']++;
 	saveComCfg(aib.dm, Cfg);
 	if(!pr.tNum) {
-		window.location = url;
+		window.location = response[0];
 		return;
 	}
 	showMainReply();
@@ -2835,11 +2833,9 @@ function endDelete() {
 }
 
 function checkDelete(response) {
-	var tNums = [],
-		url = response[0],
-		err = response[1];
-	if(err) {
-		$alert(Lng.errDelete[lang] + err, 'deleting', false);
+	var tNums = [];
+	if(response[1]) {
+		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
 	} else {
 		$each($Q('[de-post] input:checked', dForm), !TNum ? function(el) {
 			var tNum = getPost(el).thr.num;
@@ -2860,186 +2856,182 @@ function checkDelete(response) {
 	tNums = null;
 }
 
-/** @constructor */
-function dataForm(form, button, fn) {
-	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
-	this.data = [];
-	this.busy = 0;
-	this.error = false;
-	this.url = form.action;
-	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
-	this.append(button);
-	this.fn = fn;
+function doHTML5Submit(form, button, Fn) {
+	fData = {
+		boundary: '---------------------------' + Math.round(Math.random() * 1e11),
+		data: [],
+		busy: 0,
+		error: false,
+		url: form.action,
+		fn: Fn
+	};
+	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), appendFormData);
+	appendFormData(button);
+	submitFormData();
 }
-dataForm.prototype = {
-	append: function(el) {
-		if(el.type === 'file') {
-			if(el.files.length > 0) {
-				var fName = el.files[0].name;
-				this.data.push(
-					'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"; filename="' + (!Cfg['removeFName'] ? fName : 
-						' ' + fName.substring(fName.lastIndexOf('.'))
-					) + '"\r\n' + 'Content-type: ' + el.files[0].type + '\r\n\r\n', null, '\r\n'
-				);
-				this.readFile(el, this.data.length - 2);
-			}
-		} else if(el.type !== 'checkbox' || el.checked) {
-			this.data.push(
-				'--' + this.boundary + '\r\n' + 'Content-Disposition: form-data; name="' +
-					el.name + '"\r\n\r\n' + el.value + '\r\n'
-			);
-		}
-	},
-	submitted: function(xhr) {
-		if(xhr.readyState !== 4) {
-			return
-		}
-		if(xhr.status === 200) {
-			var dc = nav.toDOM(xhr.responseText);
-			this.fn(getSubmitResponse(dc, false));
-		} else {
-			$alert(
-				xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-				'upload', false
-			);
-		}
-	},
-	submit: function() {
-		if(!this.fn || this.error || this.busy !== 0) {
+
+function appendFormData(el) {
+	var file, fName, idx, fr,
+		pre = '--' + fData.boundary + '\r\n' + 'Content-Disposition: form-data; name="' + el.name + '"';
+	if(el.type === 'file' && el.files.length > 0) {
+		file = el.files[0];
+		fName = file.name;
+		fData.data.push(pre + '; filename="' + (
+			!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
+		) + '"\r\n' + 'Content-type: ' + file.type + '\r\n\r\n', null, '\r\n');
+		idx = fData.data.length - 2;
+		if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
+			fData.data[idx] = file;
 			return;
 		}
-		var headers = {'Content-type': 'multipart/form-data; boundary=' + this.boundary};
-		if(nav.Firefox) {
-			headers['Referer'] = '' + doc.location;
-		}
-		this.data.push('--' + this.boundary + '--\r\n');
-		GM_xmlhttpRequest({
-			'method': 'POST',
-			'headers': headers,
-			'data': new Blob(this.data),
-			'url': nav.fixLink(this.url),
-			'onreadystatechange': this.submitted.bind(this)
-		});
-	},
-	readExif: function(exif, off, len) {
-		var i, j, dE, tag, tgLen, xRes = 0,
-			yRes = 0,
-			resT = 0,
-			le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
-			dv = new DataView(exif.buffer, off);
-		if(dv.getUint16(2, le) !== 0x2A) {
-			return null;
-		}
-		i = dv.getUint32(4, le);
-		if(i > len) {
-			return null;
-		}
-		for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-			if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
-				continue;
-			}
-			if(tag === 0x0128) {
-				resT = dv.getUint16(dE + 8, le) - 1;
+		fr = new FileReader();
+		fr.onload = function(e) {
+			var dat = clearImageData(new Uint8Array(e.target.result), !!el.imgFile);
+			if(dat) {
+				if(el.imgFile) {
+					dat.push(el.imgFile);
+				}
+				if(Cfg['postSameImg']) {
+					dat.push(String(Math.round(Math.random() * 1e6)));
+				}
+				fData.data[idx] = new Blob(dat);
+				fData.busy--;
+				submitFormData();
 			} else {
-				dE = dv.getUint32(dE + 8, le);
-				if(dE > len) {
-					return null;
-				}
-				if(tag === 0x11A) {
-					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-				} else {
-					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-				}
+				fData.error = true;
+				$alert(Lng.fileCorrupt[lang] + fName, 'upload', false);
 			}
 		}
-		xRes = xRes || yRes;
-		yRes = yRes || xRes;
-		return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
-	},
-	clearImage: function(dat, delExtraData) {
-		var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
-		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-			return [dat];
+		fr.readAsArrayBuffer(file);
+		fData.busy++;
+	} else if(el.type !== 'checkbox' || el.checked) {
+		fData.data.push(pre + '\r\n\r\n' + el.value + '\r\n');
+	}
+}
+
+function submitFormData() {
+	if(fData.error || fData.busy) {
+		return;
+	}
+	var headers = {'Content-type': 'multipart/form-data; boundary=' + fData.boundary};
+	if(nav.Firefox) {
+		headers['Referer'] = '' + doc.location;
+	}
+	fData.data.push('--' + fData.boundary + '--\r\n');
+	GM_xmlhttpRequest({
+		'method': 'POST',
+		'headers': headers,
+		'data': new Blob(fData.data),
+		'url': nav.fixLink(fData.url),
+		'onreadystatechange': function(xhr) {
+			if(xhr.readyState !== 4) {
+				return;
+			}
+			if(xhr.status === 200) {
+				fData.fn(getSubmitResponse(nav.toDOM(xhr.responseText), false));
+			} else {
+				$alert(
+					xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+					'upload', false
+				);
+			}
+			fData = null;
 		}
-		if(dat[0] === 0xFF && dat[1] === 0xD8) {
-			for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
-				if(dat[i] === 0xFF) {
-					if(rExif) {
-						if(!jpgDat && out === 1) {
-							if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
-								jpgDat = this.readExif(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
-							} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
-								jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
-							}
-						}
-						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
-							tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
-							j += tmp;
-							rData.push(i, i += tmp);
-							continue;
-						}
-					}
-					if(dat[i + 1] === 0xD8) {
-						out++;
-					} else if(dat[i + 1] === 0xD9 && --out === 0) {
-						break;
-					}
-				}
-				i++;
-			}
-			i += 2;
-			if(!delExtraData && len - i > 75) {
-				i = len;
-			}
-			if(j === 0) {
-				return i === len ? [dat] : [new Uint8Array(dat, i)];
-			}
-			rData.push(i);
-			out = new Uint8Array(i - j + 18);
-			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1].concat(jpgDat || [0, 0, 1, 0, 1]), 0);
-			for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
-				out.set(dat.subarray(rData[i], rData[i + 1]), j);
-				j += rData[i + 1] - rData[i];
-			}
-			return [out];
-		}
-		if(dat[0] === 0x89 && dat[1] === 0x50) {
-			for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
-			i += 8;
-			return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
-		}
+	});
+}
+
+function readExifData(exif, off, len) {
+	var i, j, dE, tag, tgLen, xRes = 0,
+		yRes = 0,
+		resT = 0,
+		le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
+		dv = new DataView(exif.buffer, off);
+	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
-	},
-	fileReaded: function(fName, imgFile, idx, e) {
-		var dat = this.clearImage(new Uint8Array(e.target.result), !!imgFile);
-		if(dat) {
-			if(imgFile) {
-				dat.push(imgFile);
-			}
-			if(Cfg['postSameImg']) {
-				dat.push(String(Math.round(Math.random() * 1e6)));
-			}
-			this.data[idx] = new Blob(dat);
-			this.busy--;
-			this.submit();
-		} else {
-			this.error = true;
-			$alert(Lng.fileCorrupt[lang] + fName, 'upload', false);
+	}
+	i = dv.getUint32(4, le);
+	if(i > len) {
+		return null;
+	}
+	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
+			continue;
 		}
-	},
-	readFile: function(el, idx) {
-		var fr, file = el.files[0];
-		if(/^image\/(?:png|jpeg)$/.test(file.type)) {
-			fr = new FileReader();
-			fr.onload = this.fileReaded.bind(this, file.name, el.imgFile, idx);
-			fr.readAsArrayBuffer(file);
-			this.busy++;
+		if(tag === 0x0128) {
+			resT = dv.getUint16(dE + 8, le) - 1;
 		} else {
-			this.data[idx] = file;
+			dE = dv.getUint32(dE + 8, le);
+			if(dE > len) {
+				return null;
+			}
+			if(tag === 0x11A) {
+				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+			} else {
+				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+			}
 		}
 	}
+	xRes = xRes || yRes;
+	yRes = yRes || xRes;
+	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+}
+
+function clearImageData(dat, delExtraData) {
+	var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
+	if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
+		return [dat];
+	}
+	if(dat[0] === 0xFF && dat[1] === 0xD8) {
+		for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
+			if(dat[i] === 0xFF) {
+				if(rExif) {
+					if(!jpgDat && out === 1) {
+						if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
+							jpgDat = readExifData(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
+						} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
+							jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+						}
+					}
+					if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
+						tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
+						j += tmp;
+						rData.push(i, i += tmp);
+						continue;
+					}
+				}
+				if(dat[i + 1] === 0xD8) {
+					out++;
+				} else if(dat[i + 1] === 0xD9 && --out === 0) {
+					break;
+				}
+			}
+			i++;
+		}
+		i += 2;
+		if(!delExtraData && len - i > 75) {
+			i = len;
+		}
+		if(j === 0) {
+			return i === len ? [dat] : [new Uint8Array(dat, i)];
+		}
+		rData.push(i);
+		out = new Uint8Array(i - j + 18);
+		out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]
+			.concat(jpgDat || [0, 0, 1, 0, 1]), 0
+		);
+		for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
+			out.set(dat.subarray(rData[i], rData[i + 1]), j);
+			j += rData[i + 1] - rData[i];
+		}
+		return [out];
+	}
+	if(dat[0] === 0x89 && dat[1] === 0x50) {
+		for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
+		i += 8;
+		return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
+	}
+	return null;
 }
 
 
@@ -3439,39 +3431,39 @@ function detectImgFile(dat) {
 }
 
 /** @constructor */
-function workerQueue(mReqs, fnWrk, fnErr) {
+function workerQueue(mReqs, wrkFn, errFn) {
 	if(!nav.isWorker) {
-		this.find = this._findSync.bind(fnWrk);
+		this.find = this._findSync.bind(wrkFn);
 		return;
 	}
 	this.url = window.URL.createObjectURL(new Blob([
 		'self.onmessage = function(e) {\
-			self.postMessage((' + String(fnWrk) + ')(e["data"]), null);\
+			self.postMessage((' + String(wrkFn) + ')(e["data"]), null);\
 		}'
 	]));
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.find = this._findWrk;
 	this.wrks = [];
-	this.onErr = this._onErr.bind(this, fnErr);
+	this.onErr = this._onErr.bind(this, errFn);
 	while(mReqs > 0) {
 		this.wrks.push(new Worker(this.url));
 		mReqs--;
 	}
 }
 workerQueue.prototype = {
-	_findSync: function(data, fn) {
-		fn(this(data));
+	_findSync: function(data, Fn) {
+		Fn(this(data));
 	},
-	onMess: function(fn, e) {
+	onMess: function(Fn, e) {
 		this.queue.end();
-		fn(e.data);
+		Fn(e.data);
 	},
-	_onErr: function(fn, e) {
+	_onErr: function(Fn, e) {
 		this.queue.end();
-		fn(e);
+		Fn(e);
 	},
-	_findWrk: function(data, fn) {
-		this.queue.run([data, this.onMess.bind(this, fn)]);
+	_findWrk: function(data, Fn) {
+		this.queue.run([data, this.onMess.bind(this, Fn)]);
 	},
 	_createWrk: function(num, data) {
 		var w = this.wrks[num];
@@ -3513,7 +3505,7 @@ function addImgFileIcon(data, info) {
 	}
 }
 
-function downloadImgData(url, fn) {
+function downloadImgData(url, Fn) {
 	var obj = {
 		'method': 'GET',
 		'url': url,
@@ -3523,12 +3515,12 @@ function downloadImgData(url, fn) {
 			}
 			if(e.status === 200) {
 				if(nav.Firefox && aib.fch) {
-					fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
+					Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
 				} else {
-					fn(new Uint8Array(e.response));
+					Fn(new Uint8Array(e.response));
 				}
 			} else {
-				fn(null);
+				Fn(null);
 			}
 		}
 	};
@@ -4658,11 +4650,11 @@ function newPost(thr, post, pNum, i) {
 	return +!post.hide;
 }
 
-function replaceFullMsg(post, fn) {
+function replaceFullMsg(post, Fn) {
 	var ytube = $q('.de-ytube-ext', post.msg),
 		ytObj = $c('de-ytube-obj', post),
 		ytLinks = $C('de-ytube-link', post);
-	fn();
+	Fn();
 	if(aib.rep) {
 		post.innerHTML = replaceString(post.innerHTML);
 		post.img = getPostImages(post);
@@ -7084,11 +7076,11 @@ function getNavigator() {
 				this.wrk = new Worker(url);\
 			};\
 			window["de-worker-proto"] = window["de-worker"].prototype = {\
-				set onmessage(fn) {\
-					this.wrk.onmessage = fn;\
+				set onmessage(Fn) {\
+					this.wrk.onmessage = Fn;\
 				},\
-				set onerror(fn) {\
-					this.wrk.onerror = fn;\
+				set onerror(Fn) {\
+					this.wrk.onerror = Fn;\
 				},\
 				_postMessage: function() {\
 					this.wrk.postMessage.apply(this.wrk, arguments);\
