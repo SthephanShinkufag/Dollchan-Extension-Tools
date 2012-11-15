@@ -4372,6 +4372,9 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
+		if(aib.getSage(post)) {
+			$after($q(aib.qRef, pView), $new('span', {'class': 'de-btn-sage', 'title': 'SAGE'}));
+		}
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
