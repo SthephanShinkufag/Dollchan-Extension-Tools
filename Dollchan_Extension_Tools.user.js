@@ -2765,6 +2765,9 @@ function getSubmitResponse(dc, isFrame) {
 
 function endUpload() {
 	closeAlert($id('de-alert-upload'));
+	if(TNum) {
+		$focus(Posts[Posts.length - 1]);
+	}
 }
 
 function checkUpload(response) {
@@ -2800,7 +2803,6 @@ function checkUpload(response) {
 	showMainReply();
 	if(TNum) {
 		loadNewPosts(endUpload);
-		$focus(Posts[Posts.length - 1]);
 	} else {
 		loadThread(pByNum[pr.tNum], 5, endUpload);
 	}
@@ -2812,7 +2814,7 @@ function checkUpload(response) {
 	if(aib.abu) {
 		GM_xmlhttpRequest({
 			'method': 'GET',
-			'url': '/makaba/captcha?code=' + getCookie('usercode'),
+			'url': '/makaba/captcha?code=' + (getCookie('usercode') || ''),
 			'onload': function(xhr) {
 				var text = xhr.responseText;
 				if(text.contains('OK') || text.contains('VIP')) {
