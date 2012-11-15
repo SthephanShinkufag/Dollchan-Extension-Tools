@@ -986,13 +986,13 @@ function saveFavorites(txt) {
 	toggleContent('fav', true);
 }
 
-function removeFavorites(dm, b, tNum) {
-	delete Favor[dm][b][tNum];
-	if($isEmpty(Favor[dm][b])) {
-		delete Favor[dm][b];
+function removeFavorites(h, b, tNum) {
+	delete Favor[h][b][tNum];
+	if($isEmpty(Favor[h][b])) {
+		delete Favor[h][b];
 	}
-	if($isEmpty(Favor[dm])) {
-		delete Favor[dm];
+	if($isEmpty(Favor[h])) {
+		delete Favor[h];
 	}
 	if(pByNum[tNum]) {
 		($c('de-btn-fav-sel', pByNum[tNum].btns) || {}).className = 'de-btn-fav';
@@ -1000,25 +1000,25 @@ function removeFavorites(dm, b, tNum) {
 }
 
 function toggleFavorites(post, btn) {
-	var dm = aib.dm,
+	var h = aib.host,
 		b = brd,
 		tNum = post.num;
 	if(!btn) {
 		return;
 	}
 	readFavorites();
-	if(Favor[dm] && Favor[dm][b] && Favor[dm][b][tNum]) {
-		removeFavorites(dm, b, tNum);
+	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) {
+		removeFavorites(h, b, tNum);
 		saveFavorites(JSON.stringify(Favor));
 		return;
 	}
-	if(!Favor[dm]) {
-		Favor[dm] = {};
+	if(!Favor[h]) {
+		Favor[h] = {};
 	}
-	if(!Favor[dm][b]) {
-		Favor[dm][b] = {};
+	if(!Favor[h][b]) {
+		Favor[h][b] = {};
 	}
-	Favor[dm][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
 	btn.className = 'de-btn-fav-sel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -1794,23 +1794,23 @@ function addHiddenTable(hid) {
 ==============================================================================*/
 
 function addFavoritesTable(fav) {
-	var dm, b, tNum, block;
-	for(dm in Favor) {
-		for(b in Favor[dm]) {
-			block = contentBlock(fav, $add('<b>' + dm + '/' + b + '</b>'));
-			for(tNum in Favor[dm][b]) {
-				if(!Favor[dm][b][tNum]['url']) {
-					Favor[dm][b][tNum]['url'] = getThrdUrl(dm, b, tNum);
+	var h, b, tNum, block;
+	for(h in Favor) {
+		for(b in Favor[h]) {
+			block = contentBlock(fav, $add('<b>' + h + '/' + b + '</b>'));
+			for(tNum in Favor[h][b]) {
+				if(!Favor[h][b][tNum]['url']) {
+					Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
 				}
-				block.appendChild($New('div', {'class': 'de-entry', 'info': dm + ';' + b + ';' + tNum}, [
+				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
 						$add('<input type="checkbox" />'),
 						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-						$add('<a href="//' + dm + Favor[dm][b][tNum]['url'] + '">№' + tNum + '</a>'),
-						$add('<span class="de-fav-title"> - ' + Favor[dm][b][tNum]['txt'] + '</span>'),
+						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
+						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 						$add('<span class="de-fav-inf-page"></span>'),
 						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-							Favor[dm][b][tNum]['cnt'] + '</span>]</span>')
+							Favor[h][b][tNum]['cnt'] + '</span>]</span>')
 					])
 				]));
 			}
@@ -1828,7 +1828,7 @@ function addFavoritesTable(fav) {
 			$each($C('de-entry', doc), function(el) {
 				var c, arr = el.getAttribute('info').split(';'),
 					f = Favor[arr[0]][arr[1]][arr[2]];
-				if(arr[0] !== aib.dm) {
+				if(arr[0] !== aib.host) {
 					return;
 				}
 				c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
@@ -1854,7 +1854,7 @@ function addFavoritesTable(fav) {
 				loadPage($add('<div></div>'), i, function(page, idx) {
 					$each($C('de-entry', doc), function(el) {
 						var arr = el.getAttribute('info').split(';');
-						if(arr[0] !== aib.dm || arr[1] !== brd) {
+						if(arr[0] !== aib.host || arr[1] !== brd) {
 							return;
 						}
 						el = $c('de-fav-inf-page', el);
@@ -1875,7 +1875,7 @@ function addFavoritesTable(fav) {
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			$each($C('de-entry', doc), function(el) {
 				var arr = el.getAttribute('info').split(';');
-				if(nav.Opera && arr[0] !== aib.dm) {
+				if(nav.Opera && arr[0] !== aib.host) {
 					return;
 				}
 				ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], null, null, false,
@@ -2874,13 +2874,13 @@ function doHTML5Submit(form, button, Fn) {
 
 function appendFormData(el) {
 	var file, fName, idx, fr,
-		pre = '--' + fData.boundary + '\r\n' + 'Content-Disposition: form-data; name="' + el.name + '"';
+		pre = '--' + fData.boundary + '\r\nContent-Disposition: form-data; name="' + el.name + '"';
 	if(el.type === 'file' && el.files.length > 0) {
 		file = el.files[0];
 		fName = file.name;
 		fData.data.push(pre + '; filename="' + (
 			!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
-		) + '"\r\n' + 'Content-type: ' + file.type + '\r\n\r\n', null, '\r\n');
+		) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
 		idx = fData.data.length - 2;
 		if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 			fData.data[idx] = file;
@@ -3259,15 +3259,16 @@ function addTextPanel() {
 ==============================================================================*/
 
 function addPostButtons(post) {
-	var ref = $q(aib.qRef, post),
+	var h, ref = $q(aib.qRef, post),
 		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
 	if(post.isOp) {
 		if(!TNum) {
 			html += '<span class="de-btn-expthr" onclick="de_expandClick(this)" onmouseover="de_expandOver(this)" onmouseout="de_btnOut(event)"></span>';
 		}
-		if(Favor[aib.dm] && Favor[aib.dm][brd] && Favor[aib.dm][brd][post.num]) {
+		h = aib.host;
+		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
 			html += '<span class="de-btn-fav-sel" onclick="de_favorClick(this)"></span>';
-			Favor[aib.dm][brd][post.num].cnt = post.thr.pCount + 1;
+			Favor[h][brd][post.num].cnt = post.thr.pCount + 1;
 		} else {
 			html += '<span class="de-btn-fav" onclick="de_favorClick(this)"></span>';
 		}
