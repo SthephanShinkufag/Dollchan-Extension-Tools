@@ -579,7 +579,6 @@ function $xhr(obj) {
 		xhr = obj = null;
 	};
 	xhr.open(obj['method'], obj['url'], true);
-	xhr.setRequestHeader('Accept-Encoding', 'deflate, gzip, x-gzip');
 	if(obj['responseType']) {
 		xhr.responseType = obj['responseType'];
 	}
