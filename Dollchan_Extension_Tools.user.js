@@ -629,7 +629,7 @@ $queue.prototype = {
 
 function regQuote(str) {
 	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
-};
+}
 
 function getPost(el) {
 	return $x('ancestor::*[@de-post]', el);
@@ -1984,27 +1984,25 @@ function addSelMenu(el, fPanel, html) {
 			}
 		}
 	}));
-	return $T('a', $id('de-select'));
+	return $Q('span, a', $id('de-select'));
 }
 
 function selectSpell(e) {
 	$each(addSelMenu(
 		e.target, true,
-		'<div style="display: inline-block; border-right: 1px solid grey;"><a href="#">' +
+		'<div style="display: inline-block; border-right: 1px solid grey;"><span>' +
 			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
-				.split(',').join('</a><a href="#">') +
-			'</a></div><div style="display: inline-block;"><a href="#">' +
+				.split(',').join('</span><span>') +
+			'</span></div><div style="display: inline-block;"><span>' +
 			('#sage,#op,#tlen,#all,#video,#num,#wipe,#rep,#outrep')
-				.split(',').join('</a><a href="#">') + '</a></div>'
-	), function(a) {
-		a.onclick = function(e) {
+				.split(',').join('</span><span>') + '</span></div>'
+	), function(el) {
+		el.onclick = function() {
 			var exp = this.textContent;
-			$pd(e);
-			$txtInsert($id('de-spell-edit'), exp +
-				(TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ?
+			$txtInsert($id('de-spell-edit'), exp + (
+				TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ?
 					'[' + brd + ',' + TNum + ']' : ''
-				) + (spells.needArg(exp.substr(1)) ? '(' : '')
-			);
+			) + (spells.needArg(exp.substr(1)) ? '(' : ''));
 		};
 	});
 }
@@ -2030,73 +2028,65 @@ function hideMenu(post) {
 		this.add('noimg', '');
 	}
 	this.add(getText(post) ? 'text' : 'notext', '');
-	var a = addSelMenu(post.btns.firstChild, false, this.mItems);
+	var el = addSelMenu(post.btns.firstChild, false, this.mItems);
 	this.mNames.forEach(function(name, idx) {
-		this[name](a[idx]);
+		this[name](el[idx]);
 	}, this.funcs);
-	a[0].parentNode.post = post;
-	a = null;
+	el[0].parentNode.post = post;
+	el = null;
 }
 hideMenu.prototype = {
 	funcs: {
 		'sel': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				addSpell('#words', '(' + quotetxt + ')');
 			};
 		},
 		'trip': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				var post = this.parentNode.post;
 				addSpell('#trip', '(' + this.getAttribute('info').replace(/\)/g, '\\)') + ')');
 			};
 		},
 		'img': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				var post = this.parentNode.post;
 				addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
 			};
 		},
 		'ihash': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				addSpell('#ihash', '(' + getImgHash(this.parentNode.post) + ')');
 			};
 		},
 		'text': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				hideBySameText(this.parentNode.post);
 			};
 		},
 		'noimg': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				addSpell('(#all', ' & !#img)');
 			};
 		},
 		'notext': function(link) {
-			link.onclick = function(e) {
-				$pd(e);
+			link.onclick = function() {
 				addSpell('(#all', ' & !#tlen)');
 			};
 		}
 	},
 	add: function(name, val) {
-		this.mItems += '<a href="#" info="' + val + '">' + Lng.selHiderMenu[name][lang] + val + '</a>';
+		this.mItems += '<span info="' + val + '">' + Lng.selHiderMenu[name][lang] + val + '</span>';
 		this.mNames.push(name);
 	}
 };
 
 function selectExpandThread(post) {
 	$each(addSelMenu(
-		$q('span:nth-child(3)', post.btns), false,
-		'<a href="#">' + Lng.selExpandThrd[lang].join('</a><a href="#">') + '</a>'
-	), function(a) {
-		a.onclick = function(e) {
-			$pd(e);
+		$c('de-btn-expthr', post.btns), false,
+		'<span>' + Lng.selExpandThrd[lang].join('</span><span>') + '</span>'
+	), function(el) {
+		el.onclick = function() {
 			loadThread(post, parseInt(this.textContent, 10), null);
 		};
 	});
@@ -2104,11 +2094,9 @@ function selectExpandThread(post) {
 
 function selectAjaxPages() {
 	$each(addSelMenu(
-		$id('de-btn-refresh'), true,
-		'<a href="#">' + Lng.selAjaxPages[lang].join('</a><a href="#">') + '</a>'
-	), function(a, j) {
-		a.onclick = function(e) {
-			$pd(e);
+		$id('de-btn-refresh'), true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
+	), function(el) {
+		el.onclick = function() {
 			loadPages(aProto.indexOf.call(this.parentNode.children, this) + 1);
 		};
 	});
@@ -2119,10 +2107,9 @@ function selectAudioNotif() {
 		return;
 	}
 	$each(addSelMenu($id('de-btn-audio-off'), true,
-		'<a href="#">' + Lng.selAudioNotif[lang].join('</a><a href="#">') + '</a>'
-	), function(a, j) {
-		a.onclick = function(e) {
-			$pd(e);
+		'<span>' + Lng.selAudioNotif[lang].join('</span><span>') + '</span>'
+	), function(el) {
+		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
 			Audio.repeat =
 				i === 0 ? 3e4 :
@@ -2145,7 +2132,7 @@ function selectImgSearch(node) {
 		c.forEach(function(el) {
 			var info = el.split(',');
 			str += '<a class="de-src' + info[0] + (!info[1] ?
-				'" onclick="de_cImgSearch(event, \'' + info[0] + '\')" href="#" de-url="' :
+				'" onclick="de_cImgSearch(event, \'' + info[0] + '\')" de-url="' :
 				'" href="' + info[1]
 			) + p + info[0] + '</a>';
 		});
@@ -6783,8 +6770,8 @@ function scriptCSS() {
 		.de-refmap > a { text-decoration: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
 		#de-select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
-		#de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; }\
-		#de-select a:hover { background-color: #222; color: #fff; }\
+		#de-select span, #de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
+		#de-select span:hover, #de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
