@@ -1079,7 +1079,7 @@ function addPanel() {
 					window.location.reload();
 				}, null, function() {
 					if(!TNum) {
-						selectAjaxPages();
+						addAjaxPagesMenu();
 					}
 				}, 'de_delSelection(event)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
@@ -1121,7 +1121,7 @@ function addPanel() {
 					Audio.repeat = false;
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-select'));
-				}, null, selectAudioNotif, 'de_delSelection(event)')),
+				}, null, addAudioNotifMenu, 'de_delSelection(event)')),
 				$if(aib.nul, pButton(
 					'catalog', null,
 					'//' + aib.host + '/' + brd + '/catalog.html',
@@ -1322,7 +1322,7 @@ function getCfgFilters() {
 					'class': 'de-abtn',
 					'onmouseout': 'de_delSelection(event)'}, {
 					'click': $pd,
-					'mouseover': selectSpell
+					'mouseover': addSpellMenu
 				}),
 				$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn'}, {
 					'click': function(e) {
@@ -1958,12 +1958,12 @@ function $alert(txt, id, wait) {
 
 
 /*==============================================================================
-								DROPDOWN SELECT MENUS
+								DROPDOWN SELECT MENU
 ==============================================================================*/
 
-function addSelMenu(el, fPanel, html) {
-	var y, pos, pst = getPost(el);
-	if(Cfg['attachPanel'] && fPanel) {
+function addMenu(el, isPanel, child) {
+	var y, pos, menu, pst = getPost(el);
+	if(Cfg['attachPanel'] && isPanel) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
 			'bottom: 25' :
@@ -1972,23 +1972,25 @@ function addSelMenu(el, fPanel, html) {
 		pos = 'absolute';
 		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
-	doc.body.appendChild($event($add(
+	menu = doc.body.appendChild($event($add(
 		'<div class="' + aib.cReply + '" id="de-select" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
 				'left: ' + $offset(el).left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>'), {
+		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' +
+		(typeof child === 'string' ? child : '') + '</div>'
+	), {
 		'mouseover': function() {
 			if(pst) {
 				markPviewToDel(pst, false);
 			}
 		}
 	}));
-	return $Q('span, a', $id('de-select'));
+	return typeof child === 'string' ? $Q('span', $id('de-select')) : menu;
 }
 
-function selectSpell(e) {
-	$each(addSelMenu(
+function addSpellMenu(e) {
+	$each(addMenu(
 		e.target, true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><span>' +
 			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
@@ -2007,82 +2009,52 @@ function selectSpell(e) {
 	});
 }
 
-/** @constructor */
-function hideMenu(post) {
+function addPostHideMenu(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	var temp;
-	this.mItems = '';
-	this.mNames = [];
+	var temp, menu = addMenu(post.btns.firstChild, false, this.mItems),
+		add = function(name, val, Fn) {
+			var el = $add('<span info="' + val + '">' + Lng.selHiderMenu[name][lang] + val + '</span>');
+			el.onclick = Fn;
+			menu.appendChild(el);
+		};
 	if(!post.hide && (quotetxt = $txtSelect().trim())) {
-		this.add('sel', '');
+		add('sel', '', function() {
+			addSpell('#words', '(' + quotetxt + ')');
+		});
 	}
 	if(temp = $c('postertrip', post)) {
-		this.add('trip', temp.textContent);
+		add('trip', temp.textContent, function() {
+			addSpell('#trip', '(' + this.getAttribute('info').replace(/\)/g, '\\)') + ')');
+		});
 	}
 	if(post.img[0]) {
-		this.add('img', '');
-		this.add('ihash', '');
+		add('img', '', function() {
+			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
+		});
+		add('ihash', '', function() {
+			addSpell('#ihash', '(' + getImgHash(post) + ')');
+		});
 	} else {
-		this.add('noimg', '');
+		add('noimg', '', function() {
+			addSpell('(#all', ' & !#img)');
+		});
 	}
-	this.add(getText(post) ? 'text' : 'notext', '');
-	var el = addSelMenu(post.btns.firstChild, false, this.mItems);
-	this.mNames.forEach(function(name, idx) {
-		this[name](el[idx]);
-	}, this.funcs);
-	el[0].parentNode.post = post;
-	el = null;
+	if(getText(post)) {
+		add('text', '', function() {
+			hideBySameText(post);
+		});
+	} else {
+		add('notext', '', function() {
+			addSpell('(#all', ' & !#tlen)');
+		});
+	}
+	menu = null;
 }
-hideMenu.prototype = {
-	funcs: {
-		'sel': function(link) {
-			link.onclick = function() {
-				addSpell('#words', '(' + quotetxt + ')');
-			};
-		},
-		'trip': function(link) {
-			link.onclick = function() {
-				var post = this.parentNode.post;
-				addSpell('#trip', '(' + this.getAttribute('info').replace(/\)/g, '\\)') + ')');
-			};
-		},
-		'img': function(link) {
-			link.onclick = function() {
-				var post = this.parentNode.post;
-				addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
-			};
-		},
-		'ihash': function(link) {
-			link.onclick = function() {
-				addSpell('#ihash', '(' + getImgHash(this.parentNode.post) + ')');
-			};
-		},
-		'text': function(link) {
-			link.onclick = function() {
-				hideBySameText(this.parentNode.post);
-			};
-		},
-		'noimg': function(link) {
-			link.onclick = function() {
-				addSpell('(#all', ' & !#img)');
-			};
-		},
-		'notext': function(link) {
-			link.onclick = function() {
-				addSpell('(#all', ' & !#tlen)');
-			};
-		}
-	},
-	add: function(name, val) {
-		this.mItems += '<span info="' + val + '">' + Lng.selHiderMenu[name][lang] + val + '</span>';
-		this.mNames.push(name);
-	}
-};
 
-function selectExpandThread(post) {
-	$each(addSelMenu(
+function addExpandThreadMenu(post) {
+	$each(addMenu(
 		$c('de-btn-expthr', post.btns), false,
 		'<span>' + Lng.selExpandThrd[lang].join('</span><span>') + '</span>'
 	), function(el) {
@@ -2092,8 +2064,8 @@ function selectExpandThread(post) {
 	});
 }
 
-function selectAjaxPages() {
-	$each(addSelMenu(
+function addAjaxPagesMenu() {
+	$each(addMenu(
 		$id('de-btn-refresh'), true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
 	), function(el) {
 		el.onclick = function() {
@@ -2102,11 +2074,11 @@ function selectAjaxPages() {
 	});
 }
 
-function selectAudioNotif() {
+function addAudioNotifMenu() {
 	if(this.id !== 'de-btn-audio-off') {
 		return;
 	}
-	$each(addSelMenu($id('de-btn-audio-off'), true,
+	$each(addMenu($id('de-btn-audio-off'), true,
 		'<span>' + Lng.selAudioNotif[lang].join('</span><span>') + '</span>'
 	), function(el) {
 		el.onclick = function() {
@@ -2123,7 +2095,7 @@ function selectAudioNotif() {
 	});
 }
 
-function selectImgSearch(node) {
+function addImgSearchMenu(node) {
 	var p = node.nextSibling.href + '" target="_blank">' + Lng.search[lang],
 		c = doc.body.getAttribute('de-image-search'),
 		str = '';
@@ -2137,7 +2109,7 @@ function selectImgSearch(node) {
 			) + p + info[0] + '</a>';
 		});
 	}
-	addSelMenu(
+	addMenu(
 		node, false, '<a class="de-src-iqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
 			'<a class="de-src-tineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
 			'<a class="de-src-google" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
@@ -3338,8 +3310,8 @@ function prepareCFeatures() {
 	$event(window, {'message': function(e) {
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
-		case 'A': new hideMenu(pByNum[+data]); return;
-		case 'B': selectExpandThread(pByNum[+data]); return;
+		case 'A': addPostHideMenu(pByNum[+data]); return;
+		case 'B': addExpandThreadMenu(pByNum[+data]); return;
 		case 'C': quotetxt = $txtSelect(); return;
 		case 'D': toggleUserPostVisib(pByNum[+data]); return;
 		case 'E': loadThread(pByNum[+data], 1, null); return;
@@ -3362,7 +3334,7 @@ function prepareCFeatures() {
 			}
 			$id(temp[0]).src = 'about:blank';
 			return;
-		case 'L': selectImgSearch($q('.de-btn-src[de-id="' + data + '"]', dForm)); return;
+		case 'L': addImgSearchMenu($q('.de-btn-src[de-id="' + data + '"]', dForm)); return;
 		}
 	}});
 }
