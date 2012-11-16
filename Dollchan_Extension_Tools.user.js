@@ -284,6 +284,12 @@ Lng = {
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	],
 
+	editor:			{
+		cfg:		['Редактирование настроек:', 'Edit settings:'],
+		hidden:		['Редактирование скрытых тредов:', 'Edit hidden threads:'],
+		favor:		['Редактирование избранного:', 'Edit favorites:']
+	},
+
 	add:			['Добавить', 'Add'],
 	apply:			['Применить', 'Apply'],
 	clear:			['Очистить', 'Clear'],
@@ -375,7 +381,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-oldTime, endTime, timeLog = '', dTime,
+oldTime, timeLog = [], dTime,
 ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
 
 
@@ -561,7 +567,7 @@ function $isEmpty(obj) {
 
 function $log(txt) {
 	var newTime = Date.now();
-	timeLog += txt + ': ' + (newTime - oldTime) + 'ms\n';
+	timeLog.push(txt + ': ' + (newTime - oldTime) + 'ms');
 	oldTime = newTime;
 }
 
@@ -1561,28 +1567,24 @@ function getCfgCommon() {
 function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
 		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + version + '</b><br><br>' +
-			Lng.storage[lang] + (
-				nav.isGM ? 'Mozilla config' :
-				scriptStorage ? 'Opera ScriptStorage' :
-				'Local Storage'
-			) + '<br>' + Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
+			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
 			Lng.posts[lang] + Cfg['stats']['reply'] + '</span>'),
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
-			timeLog.split('\n').join('<br>') + '<br>' + Lng.total[lang] + endTime + 'ms</span>'),
+			timeLog.join('<br>') + '</span>'),
 		$New('div', {'style': 'display: table;'}, [
-			$add('<span style="display: table-cell; width: 100%;"><a href="//www.freedollchan.org/scripts/"' +
-				' target="_blank">http://www.freedollchan.org/scripts</a></span>'),
+			$add('<span style="display: table-cell; width: 100%;">' +
+				'<a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
+				'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
+				(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
 			$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-				var i, nCfg = {},
-					tl = timeLog.split('\n');
-				tl[tl.length - 1] = Lng.total[lang] + endTime + 'ms';
+				var i, nCfg = {};
 				for(i in Cfg) {
 					if(Cfg[i] !== defaultCfg[i] && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
 						nCfg[i] = Cfg[i];
 					}
 				}
-				$alert(Lng.infoDebug[lang] + ':<br><textarea readonly rows="20" cols="75">' + getPrettyJSON({
+				$alert(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor">' + getPrettyJSON({
 					'version': version,
 					'location': String(window.location),
 					'nav': nav,
@@ -1590,11 +1592,29 @@ function getCfgInfo() {
 					'spells': spells.list.split('\n'),
 					'cSpells': getStored('DESU_CSpells_' + aib.dm),
 					'oSpells': sessionStorage['de-spells-' + brd + TNum],
-					'perf': tl
+					'perf': timeLog
 				}, '') + '</textarea>', 'help-debug', false);
 			}), {'style': 'display: table-cell;'})
 		])
 	]);
+}
+
+function addEditButton(name, val, Fn) {
+	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
+		$alert('', 'edit-' + name);
+		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
+			$txt(Lng.editor[name][lang]),
+			$new('textarea', {'class': 'de-editor', 'value': getPrettyJSON(val, '')}, null),
+			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
+				try {
+					Fn();
+					window.location.reload();
+				} catch(e) {
+					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+				}
+			})
+		]);
+	});
 }
 
 function addSettings(Set) {
@@ -1610,16 +1630,16 @@ function addSettings(Set) {
 		]),
 		getCfgFilters(),
 		$New('div', {'id': 'de-cfg-btns'}, [
-			$New('span', {'style': 'float: right;'}, [
-				optSel('language', false, function() {
-					saveCfg('language', lang = this.selectedIndex);
-					$del($id('de-main'));
-					$del($id('de-css'));
-					$del($id('de-css-dynamic'));
-					scriptCSS();
-					addPanel();
-					toggleContent('cfg', false);
-				}),
+			$attr(optSel('language', false, function() {
+				saveCfg('language', lang = this.selectedIndex);
+				$del($id('de-main'));
+				$del($id('de-css'));
+				$del($id('de-css-dynamic'));
+				scriptCSS();
+				addPanel();
+				toggleContent('cfg', false);
+			}), {'style': 'display: table-cell;'}),
+			$New('div', {'style': 'display: table-cell; width: 100%; text-align: right;'}, [
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(getCfg(comCfg['global'])) {
 						saveComCfg(aib.dm, null);
@@ -1639,10 +1659,10 @@ function addSettings(Set) {
 					saveComCfg('global', obj);
 					toggleContent('cfg', true);
 				})),
-				$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-					$disp($attr($t('textarea', this.parentNode.parentNode), {
-						'value': getPrettyJSON(Cfg, '')
-					}).parentNode);
+				addEditButton('cfg', Cfg, function() {
+					saveComCfg(aib.dm, JSON.parse(
+						$t('textarea', $id('de-alert-edit-cfg')).value.trim().replace(/[\n\r\t]/g, '')
+					));
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
@@ -1655,14 +1675,6 @@ function addSettings(Set) {
 						);
 						window.location.reload();
 					}
-				})
-			]),
-			$new('br', {'style': 'clear: both;'}, null),
-			$New('div', {'style': 'display: none;'}, [
-				$new('textarea', {'rows': 10, 'cols': 50}, null),
-				$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-					saveComCfg(aib.dm, JSON.parse(this.previousSibling.value.trim().replace(/[\n\r\t]/g, '')));
-					window.location.reload();
 				})
 			])
 		])
@@ -1752,10 +1764,11 @@ function addHiddenTable(hid) {
 	}
 	$append(hid, [
 		$add('<hr />'),
-		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-			$disp($attr($t('textarea', this.parentNode), {
-				'value': getPrettyJSON(comHThr[aib.dm], '')
-			}).parentNode);
+		addEditButton('hidden', comHThr[aib.dm], function() {
+			comHThr[aib.dm] = JSON.parse(
+				$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
+			);
+			setStored('DESU_Threads', JSON.stringify(comHThr));
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(el) {
@@ -1772,18 +1785,6 @@ function addHiddenTable(hid) {
 			saveHiddenThreads();
 			saveUserPostsVisib();
 		}),
-		$New('div', {'style': 'display: none;'}, [
-			$new('textarea', {'rows': 9, 'cols': 70}, null),
-			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				try {
-					comHThr[aib.dm] = JSON.parse(this.previousSibling.value.trim().replace(/[\n\r\t]/g, '')) || {};
-					setStored('DESU_Threads', JSON.stringify(comHThr));
-					window.location.reload();
-				} catch(e) {
-					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
-				}
-			})
-		])
 	]);
 }
 
@@ -1820,8 +1821,11 @@ function addFavoritesTable(fav) {
 	}
 	$append(fav, [
 		doc.createElement('hr'),
-		$btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-			$disp($attr($t('textarea', this.parentNode), {'value': getPrettyJSON(Favor, '')}).parentNode);
+		addEditButton('favor', Favor, function() {
+			Favor = JSON.parse(
+				$t('textarea', $id('de-alert-edit-favor')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
+			);
+			setStored('DESU_Favorites', JSON.stringify(Favor));
 		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 			$each($C('de-entry', doc), function(el) {
@@ -1896,13 +1900,7 @@ function addFavoritesTable(fav) {
 				}
 			});
 			saveFavorites(JSON.stringify(Favor));
-		}),
-		$New('div', {'style': 'display: none;'}, [
-			$new('textarea', {'rows': 9, 'cols': 70}, null),
-			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
-				saveFavorites(this.previousSibling.value.trim().replace(/\\\n|[\n\r\t]/g, ''));
-			})
-		])
+		})
 	]);
 }
 
@@ -6555,7 +6553,7 @@ function scriptCSS() {
 		.de-cfg-body input[value=">"] { width: 20px; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
-		#de-cfg-btns { padding: 7px 2px 2px; }\
+		#de-cfg-btns { display: table; padding: 7px 2px 2px; }\
 		#de-cfg-bar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
@@ -6731,6 +6729,7 @@ function scriptCSS() {
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; }\
 		.de-entry { margin: 2px 0; }\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
@@ -7727,7 +7726,7 @@ function doScript() {
 	$log('readPosts');
 	scriptCSS();
 	$log('scriptCSS');
-	endTime = Date.now() - initTime;
+	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
 if(window.opera) {
