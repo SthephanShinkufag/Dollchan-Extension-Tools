@@ -1572,8 +1572,8 @@ function getCfgInfo() {
 			Lng.posts[lang] + Cfg['stats']['reply'] + '</span>'),
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.join('<br>') + '</span>'),
-		$New('div', {'style': 'display: table;'}, [
-			$add('<span style="display: table-cell; width: 100%;">' +
+		$New('div', null, [
+			$add('<span>' +
 				'<a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
 				'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 				(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
@@ -1594,7 +1594,7 @@ function getCfgInfo() {
 					'oSpells': sessionStorage['de-spells-' + brd + TNum],
 					'perf': timeLog
 				}, '') + '</textarea>', 'help-debug', false);
-			}), {'style': 'display: table-cell;'})
+			}), {'style': 'float: right;'})
 		])
 	]);
 }
@@ -1630,7 +1630,7 @@ function addSettings(Set) {
 		]),
 		getCfgFilters(),
 		$New('div', {'id': 'de-cfg-btns'}, [
-			$attr(optSel('language', false, function() {
+			optSel('language', false, function() {
 				saveCfg('language', lang = this.selectedIndex);
 				$del($id('de-main'));
 				$del($id('de-css'));
@@ -1638,8 +1638,8 @@ function addSettings(Set) {
 				scriptCSS();
 				addPanel();
 				toggleContent('cfg', false);
-			}), {'style': 'display: table-cell;'}),
-			$New('div', {'style': 'display: table-cell; width: 100%; text-align: right;'}, [
+			}),
+			$New('div', {'style': 'float: right;'}, [
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(getCfg(comCfg['global'])) {
 						saveComCfg(aib.dm, null);
@@ -6553,7 +6553,7 @@ function scriptCSS() {
 		.de-cfg-body input[value=">"] { width: 20px; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
-		#de-cfg-btns { display: table; padding: 7px 2px 2px; }\
+		#de-cfg-btns { padding: 7px 2px 2px; }\
 		#de-cfg-bar { height: 25px; width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
