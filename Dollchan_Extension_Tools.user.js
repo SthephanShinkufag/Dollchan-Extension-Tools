@@ -1675,7 +1675,8 @@ function addSettings(Set) {
 						window.location.reload();
 					}
 				})
-			])
+			]),
+			$new('div', {'style': 'clear: both;'}, null)
 		])
 	]));
 	$c('de-cfg-tab', Set).click();
