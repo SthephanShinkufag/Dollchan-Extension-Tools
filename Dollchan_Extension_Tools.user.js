@@ -242,12 +242,12 @@ Lng = {
 
 	selHiderMenu:	{
 		'sel':		['Скрывать выделенное', 'Hide selected text'],
-		'trip':		['Скрыть c трип-кодом: ', 'Hide with trip-code: '],
-		'img':		['Скрывать изображение', 'Hide same images'],
-		'ihash':	['Скрыв. схожие изобр.', 'Hide similar images'],
-		'text':		['Скрыть схожий текст', 'Hide similar text'],
-		'noimg':	['Скрыть без изображений', 'Hide without images'],
-		'notext':	['Скрыть без текста', 'Hide without text']
+		'trip':		['Скрывать трип-код', 'Hide with trip-code'],
+		'img':		['Скрывать изображение', 'Hide with image'],
+		'ihash':	['Скрывать схожие изобр.', 'Hide similar images'],
+		'text':		['Скрывать схожий текст', 'Hide similar text'],
+		'noimg':	['Скрывать без изображений', 'Hide without images'],
+		'notext':	['Скрывать без текста', 'Hide without text']
 	},
 	selExpandThrd:	[
 		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
@@ -360,7 +360,7 @@ Lng = {
 	helpAddFile:	['Добавить .ogg, .rar, .zip, или .7z к картинке', 'Add .ogg, .rar, .zip, or .7z to image '],
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
-	subjHasTrip:	['Поле тема содержит трипкод', 'Subject field contains tripcode'],
+	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains tripcode'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -1573,8 +1573,7 @@ function getCfgInfo() {
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.join('<br>') + '</span>'),
 		$New('div', null, [
-			$add('<span>' +
-				'<a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
+			$add('<span><a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
 				'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 				(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
 			$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
@@ -2011,40 +2010,40 @@ function addPostHideMenu(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	var temp, menu = addMenu(post.btns.firstChild, false, this.mItems),
-		add = function(name, val, Fn) {
-			var el = $add('<span info="' + val + '">' + Lng.selHiderMenu[name][lang] + val + '</span>');
+	var el, menu = addMenu(post.btns.firstChild, false, this.mItems),
+		add = function(name, Fn) {
+			var el = $add('<span>' + Lng.selHiderMenu[name][lang] + '</span>');
 			el.onclick = Fn;
 			menu.appendChild(el);
 		};
 	if(!post.hide && (quotetxt = $txtSelect().trim())) {
-		add('sel', '', function() {
+		add('sel', function() {
 			addSpell('#words', '(' + quotetxt + ')');
 		});
 	}
-	if(temp = $c('postertrip', post)) {
-		add('trip', temp.textContent, function() {
-			addSpell('#trip', '(' + this.getAttribute('info').replace(/\)/g, '\\)') + ')');
+	if(el = $c('postertrip', post)) {
+		add('trip', function() {
+			addSpell('#trip', '(' + el.textContent.replace(/\)/g, '\\)') + ')');
 		});
 	}
 	if(post.img[0]) {
-		add('img', '', function() {
+		add('img', function() {
 			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
 		});
-		add('ihash', '', function() {
+		add('ihash', function() {
 			addSpell('#ihash', '(' + getImgHash(post) + ')');
 		});
 	} else {
-		add('noimg', '', function() {
+		add('noimg', function() {
 			addSpell('(#all', ' & !#img)');
 		});
 	}
 	if(getText(post)) {
-		add('text', '', function() {
+		add('text', function() {
 			hideBySameText(post);
 		});
 	} else {
-		add('notext', '', function() {
+		add('notext', function() {
 			addSpell('(#all', ' & !#tlen)');
 		});
 	}
