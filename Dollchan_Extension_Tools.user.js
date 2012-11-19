@@ -6756,12 +6756,8 @@ function scriptCSS() {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
-			if(Cfg['openImgs']) {
-				x += '.reply .img { max-width: 200px; max-height: 200px; }\
-					.oppost .img { max-width: 250px; max-height: 250px }';
-			}
 		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
+			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }\
 				form textarea { resize: both !important; }';
@@ -6847,8 +6843,14 @@ function updateCSS() {
 	if(Cfg['noBoardRule']) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu && Cfg['addYouTube']) {
-		x += 'div[id^="post_video"] { display: none !important; }';
+	if(aib.abu) {
+		if(Cfg['openImgs']) {
+			x += '.reply .img { max-width: 200px; max-height: 200px; }\
+				.oppost .img { max-width: 250px; max-height: 250px }';
+		}
+		if(Cfg['addYouTube']) {
+			x += 'div[id^="post_video"] { display: none !important; }';
+		}
 	}
 	$id('de-css-dynamic').textContent = x;
 }
@@ -7287,7 +7289,7 @@ function getImageboard() {
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
 		'res/';
-	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + regQuote(aib.res) + '|index|\\d+|$)');
+	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + regQuote(aib.res) + '|index|$)');
 	aib.reCrossLinks = new RegExp(
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
 		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
