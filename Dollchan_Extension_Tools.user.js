@@ -872,6 +872,9 @@ function readCfg() {
 		}
 		Cfg['updScript'] = 0;
 	}
+	if(Cfg['updThrDelay'] < 15) {
+		Cfg['updThrDelay'] = 15;
+	}
 	if(!Cfg['saveSage']) {
 		Cfg['sageReply'] = 0;
 	}
@@ -2151,7 +2154,6 @@ function initKeyNavig() {
 				pScroll = true;
 			} catch(e) {}
 		};
-
 	window.onscroll = function() {
 		if(scrScroll) {
 			scrScroll = false;
@@ -2160,7 +2162,6 @@ function initKeyNavig() {
 			tScroll = true;
 		}
 	};
-
 	doc.addEventListener('keydown', function (e) {
 		var curTh = e.target.tagName,
 			kc = e.keyCode;
