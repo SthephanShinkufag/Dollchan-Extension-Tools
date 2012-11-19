@@ -1126,7 +1126,7 @@ function addPanel() {
 					toggleAudioNotif();
 					Audio.repeat = false;
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
-					$del($id('de-select'));
+					$del($id('de-menu'));
 				}, null, addAudioNotifMenu, 'de_delSelection(event)')),
 				$if(aib.nul, pButton(
 					'catalog', null,
@@ -1134,12 +1134,8 @@ function addPanel() {
 					null, null
 				))
 			]),
-			$if(TNum, $New('div', {'id': 'de-panel-info'}, [
-				$new('span', {
-					'title': Lng.panelBtn['counter'][lang],
-					'text': Posts.length + '/' + imgLen
-				}, null)
-			]))
+			$if(TNum, $add('<div id="de-panel-info"><span title="' +  Lng.panelBtn['counter'][lang] + '">' +
+				Posts.length + '/' + imgLen + '</span></div>'))
 		]),
 		$new('div', {'class': 'de-content'}, null),
 		$new('div', {'id': 'de-alert'}, null),
@@ -1267,39 +1263,37 @@ function optSel(id, isBlock, Fn) {
 }
 
 function cfgTab(name) {
-	return $New('div', {'class': aib.cReply + ' de-cfg-tab-back', 'selected': false}, [
-		$new('div', {'class': 'de-cfg-tab', 'text': Lng.cfgTab[name][lang], 'info': name}, {
-			'click': function() {
-				var el, id, pN = this.parentNode;
-				if(pN.getAttribute('selected') === 'true') {
-					return;
-				}
-				el = $c('de-cfg-body', doc);
-				if(el) {
-					el.className = 'de-cfg-unvis';
-					$q('.de-cfg-tab-back[selected="true"]', doc).setAttribute('selected', false);
-				}
-				pN.setAttribute('selected', true);
-				id = this.getAttribute('info');
-				el = $id('de-cfg-' + id);
-				if(!el) {
-					$after($id('de-cfg-bar'), el =
-						id === 'posts' ? getCfgPosts() :
-						id === 'links' ? getCfgLinks() :
-						id === 'form' ? getCfgForm() :
-						id === 'common' ? getCfgCommon() :
-						getCfgInfo()
-					);
-				}
-				el.className = 'de-cfg-body';
-				if(id === 'filters') {
-					spells.update();
-					$id('de-spell-edit').value = spells.list;
-				}
-				fixSettings();
+	return $New('div', {'class': aib.cReply + ' de-cfg-tab-back', 'selected': false}, [$new('div', {
+		'class': 'de-cfg-tab',
+		'text': Lng.cfgTab[name][lang],
+		'info': name}, {
+		'click': function() {
+			var el, id, pN = this.parentNode;
+			if(pN.getAttribute('selected') === 'true') {
+				return;
 			}
-		})
-	]);
+			if(el = $c('de-cfg-body', doc)) {
+				el.className = 'de-cfg-unvis';
+				$q('.de-cfg-tab-back[selected="true"]', doc).setAttribute('selected', false);
+			}
+			pN.setAttribute('selected', true);
+			if(!(el = $id('de-cfg-' + (id = this.getAttribute('info'))))) {
+				$after($id('de-cfg-bar'), el =
+					id === 'posts' ? getCfgPosts() :
+					id === 'links' ? getCfgLinks() :
+					id === 'form' ? getCfgForm() :
+					id === 'common' ? getCfgCommon() :
+					getCfgInfo()
+				);
+			}
+			el.className = 'de-cfg-body';
+			if(id === 'filters') {
+				spells.update();
+				$id('de-spell-edit').value = spells.list;
+			}
+			fixSettings();
+		}
+	})]);
 }
 
 function updRowMeter() {
@@ -1320,48 +1314,36 @@ function updRowMeter() {
 
 function getCfgFilters() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-filters'}, [
-		$New('div', null, [
-			$New('span', {'id': 'de-spell-panel'}, [
-				$new('a', {
-					'text': Lng.add[lang],
-					'href': '#',
-					'class': 'de-abtn',
-					'onmouseout': 'de_delSelection(event)'}, {
-					'click': $pd,
-					'mouseover': addSpellMenu
-				}),
-				$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn'}, {
-					'click': function(e) {
-						$pd(e);
-						saveCfg('hideBySpell', 1);
-						$q('input[info="hideBySpell"]', doc).checked = true;
-						toggleSpells();
-					}
-				}),
-				$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn'}, {
-					'click': function(e) {
-						$pd(e);
-						$id('de-spell-edit').value = '';
-						toggleSpells();
-					}
-				}),
-				$new('a', {
-					'text': Lng.help[lang],
-					'target': '_blank',
-					'href': 'https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
-						(lang ? 'en' : 'ru'),
-					'class': 'de-abtn'
-				}, null)
-			]),
-			lBox('hideBySpell', false, toggleSpells),
-			$New('div', {'id': 'de-spell-div'}, [
-				$add('<div><div id="de-spell-rowmeter"></div></div>'),
-				$New('div', null, [$new(
-					'textarea',
-					{'id': 'de-spell-edit', 'wrap': 'off'},
-					{'keydown': updRowMeter, 'scroll': updRowMeter}
-				)])
-			])
+		lBox('hideBySpell', false, toggleSpells),
+		$New('div', {'id': 'de-spell-panel'}, [
+			$new('a', {
+				'text': Lng.add[lang],
+				'href': '#',
+				'class': 'de-abtn',
+				'onmouseout': 'de_delSelection(event)'}, {
+				'click': $pd,
+				'mouseover': addSpellMenu
+			}),
+			$new('a', {'text': Lng.apply[lang], 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
+				$pd(e);
+				saveCfg('hideBySpell', 1);
+				$q('input[info="hideBySpell"]', doc).checked = true;
+				toggleSpells();
+			}}),
+			$new('a', {'text': Lng.clear[lang], 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
+				$pd(e);
+				$id('de-spell-edit').value = '';
+				toggleSpells();
+			}}),
+			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
+				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">' + Lng.help[lang] + '</a>')
+		]),
+		$New('div', {'id': 'de-spell-div'}, [
+			$add('<div><div id="de-spell-rowmeter"></div></div>'),
+			$New('div', null, [$new('textarea', {'id': 'de-spell-edit', 'wrap': 'off'}, {
+				'keydown': updRowMeter,
+				'scroll': updRowMeter
+			})])
 		]),
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
@@ -1572,35 +1554,33 @@ function getCfgInfo() {
 			Lng.posts[lang] + Cfg['stats']['reply'] + '</span>'),
 		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.join('<br>') + '</span>'),
-		$New('div', null, [
-			$add('<span><a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
-				'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
-				(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
-			$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-				var i, nCfg = {};
-				for(i in Cfg) {
-					if(Cfg[i] !== defaultCfg[i] && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
-						nCfg[i] = Cfg[i];
-					}
+		$add('<span><a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
+			'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
+			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
+		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
+			var i, nCfg = {};
+			for(i in Cfg) {
+				if(Cfg[i] !== defaultCfg[i] && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
+					nCfg[i] = Cfg[i];
 				}
-				$alert(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor">' + getPrettyJSON({
-					'version': version,
-					'location': String(window.location),
-					'nav': nav,
-					'cfg': nCfg,
-					'spells': spells.list.split('\n'),
-					'cSpells': getStored('DESU_CSpells_' + aib.dm),
-					'oSpells': sessionStorage['de-spells-' + brd + TNum],
-					'perf': timeLog
-				}, '') + '</textarea>', 'help-debug', false);
-			}), {'style': 'float: right;'})
-		])
+			}
+			$alert(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor">' + getPrettyJSON({
+				'version': version,
+				'location': String(window.location),
+				'nav': nav,
+				'cfg': nCfg,
+				'spells': spells.list.split('\n'),
+				'cSpells': getStored('DESU_CSpells_' + aib.dm),
+				'oSpells': sessionStorage['de-spells-' + brd + TNum],
+				'perf': timeLog
+			}, '') + '</textarea>', 'help-debug', false);
+		}), {'style': 'float: right;'})
 	]);
 }
 
 function addEditButton(name, val, Fn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-		$alert('', 'edit-' + name);
+		$alert('', 'edit-' + name, false);
 		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
 			$txt(Lng.editor[name][lang]),
 			$new('textarea', {'class': 'de-editor', 'value': getPrettyJSON(val, '')}, null),
@@ -1689,7 +1669,7 @@ function addSettings(Set) {
 									"HIDDEN" WINDOW
 ==============================================================================*/
 
-function contentBlock(parent, link) {
+function contentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function() {
 			var res = this.checked;
@@ -1698,7 +1678,7 @@ function contentBlock(parent, link) {
 			});
 			res = null;
 		}}),
-		link
+		$new('b', {'text': title}, null)
 	]));
 }
 
@@ -1720,9 +1700,9 @@ function addHiddenTable(hid) {
 			var pst = getPost(this);
 			togglePostContent(pst, pst.hide = !pst.hide);
 		};
-		(block || (block = hid.appendChild($New('div', {'class': 'de-content-block'}, [
-			$add('<b>' + Lng.hiddenPosts[lang] + ':</b>')
-		])))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
+		(block || (block = hid.appendChild(
+			$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
+		))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
 	});
 	if(block) {
 		$append(hid, [
@@ -1742,28 +1722,24 @@ function addHiddenTable(hid) {
 			})
 		]);
 	} else {
-		hid.appendChild($add('<b>' + Lng.noHidPosts[lang] + '</b>'));
+		hid.appendChild($new('b', {'text': Lng.noHidPosts[lang]}, null));
 	}
 	$append(hid, [
-		$add('<hr />'),
-		$add('<b>' + ($isEmpty(obj) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>')
+		doc.createElement('hr'),
+		$new('b', {'text': ($isEmpty(obj) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
 	]);
 	if(!$isEmpty(obj)) {
 		for(b in obj) {
-			block = contentBlock(hid, $add('<b>/' + b + '</b>'));
+			block = contentBlock(hid, '/' + b);
 			for(tNum in obj[b]) {
-				block.appendChild($New('div', {'class': 'de-entry', 'info': b + ';' + tNum}, [
-					$New('div', {'class': aib.cReply}, [
-						$new('input', {'type': 'checkbox'}, null),
-						$add('<a href="' + aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a>'),
-						$txt(' - ' + obj[b][tNum])
-					])
-				]));
+				block.appendChild($add('<div class="de-entry" info="' + b + ';' + tNum + '"><div class="' +
+					aib.cReply + '"><input type="checkbox"/><a href="' + aib.getThrdUrl(b, tNum) +
+					'" target="_blank">№' + tNum + '</a> - ' + obj[b][tNum] + '</div></div>'));
 			}
 		}
 	}
 	$append(hid, [
-		$add('<hr />'),
+		doc.createElement('hr'),
 		addEditButton('hidden', comHThr[aib.dm], function() {
 			comHThr[aib.dm] = JSON.parse(
 				$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
@@ -1784,7 +1760,7 @@ function addHiddenTable(hid) {
 			});
 			saveHiddenThreads();
 			saveUserPostsVisib();
-		}),
+		})
 	]);
 }
 
@@ -1797,14 +1773,14 @@ function addFavoritesTable(fav) {
 	var h, b, tNum, block;
 	for(h in Favor) {
 		for(b in Favor[h]) {
-			block = contentBlock(fav, $add('<b>' + h + '/' + b + '</b>'));
+			block = contentBlock(fav, h + '/' + b);
 			for(tNum in Favor[h][b]) {
 				if(!Favor[h][b][tNum]['url']) {
 					Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
 				}
 				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
-						$add('<input type="checkbox" />'),
+						$add('<input type="checkbox"/>'),
 						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
 						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
 						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
@@ -1817,7 +1793,7 @@ function addFavoritesTable(fav) {
 		}
 	}
 	if(!block) {
-		fav.appendChild($add('<b>' + Lng.noFavorites[lang] + '</b>'));
+		fav.appendChild($new('b', {'text': Lng.noFavorites[lang]}, null));
 	}
 	$append(fav, [
 		doc.createElement('hr'),
@@ -1854,7 +1830,7 @@ function addFavoritesTable(fav) {
 				loaded = 0;
 			$alert(Lng.loading[lang], 'load-pages', true);
 			while(i--) {
-				loadPage($add('<div></div>'), i, function(page, idx) {
+				loadPage(doc.createElement('div'), i, function(page, idx) {
 					$each($C('de-entry', doc), function(el) {
 						var arr = el.getAttribute('info').split(';');
 						if(arr[0] !== aib.host || arr[1] !== brd) {
@@ -1971,7 +1947,7 @@ function addMenu(el, isPanel, child) {
 		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	menu = doc.body.appendChild($event($add(
-		'<div class="' + aib.cReply + '" id="de-select" style="position: ' + pos + '; ' + (
+		'<div class="' + aib.cReply + '" id="de-menu" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
 				'left: ' + $offset(el).left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
@@ -1984,7 +1960,7 @@ function addMenu(el, isPanel, child) {
 			}
 		}
 	}));
-	return typeof child === 'string' ? $Q('span', $id('de-select')) : menu;
+	return typeof child === 'string' ? $Q('span', $id('de-menu')) : menu;
 }
 
 function addSpellMenu(e) {
@@ -2333,7 +2309,7 @@ function setUserPassw() {
 }
 
 function initPostform() {
-	var pArea = $New('div', {'id': 'de-parea', 'style': 'text-align: center;'}, [
+	var pArea = $New('div', {'id': 'de-parea'}, [
 		$New('div', {'id': 'de-togglereply', 'style': 'display: none;'}, [
 			$txt('['),
 			$new('a', {'text': Lng.expandForm[lang], 'href': '#', 'class': 'de-abtn'}, {
@@ -3019,14 +2995,12 @@ function showQuickReply(post) {
 					aib.fch || aib.futa ? 'resto' :
 					aib.tiny ? 'thread' :
 					'parent'
-				) + '">')
+				) + '"/>')
 			);
 			if(oeForm) {
 				$del($q('input[name="oek_parent"]', oeForm));
-				$before(
-					oeForm.firstChild,
-					$add('<input type="hidden" value="' + tNum + '" name="oek_parent">')
-				);
+				$before(oeForm.firstChild, $add('<input type="hidden" value="' + tNum +
+					'" name="oek_parent"/>'));
 			}
 		}
 	}
@@ -3190,7 +3164,7 @@ function addTextPanel() {
 					(val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]')
 				) :
 				Cfg['addTextBtns'] === 3 ?
-					('<input type="button" value="' + val + '" style="font-weight: bold;" />') :
+					('<input type="button" value="' + val + '" style="font-weight: bold;"/>') :
 				'';
 			return txtBtn;
 		};
@@ -3252,13 +3226,13 @@ function addPostButtons(post) {
 function prepareCFeatures() {
 	$script(
 		'function de_removeSel() {\
-			var el = document.getElementById("de-select");\
+			var el = document.getElementById("de-menu");\
 			if(el) {\
 				el.parentNode.removeChild(el);\
 			}\
 		}\
 		function de_delSelection(e) {\
-			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'de-select\']", e.relatedTarget, null, 3, null).booleanValue) {\
+			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'de-menu\']", e.relatedTarget, null, 3, null).booleanValue) {\
 				de_removeSel();\
 			}\
 		}\
@@ -3798,7 +3772,7 @@ function getTubeVideoLinks(id, Fn) {
 }
 
 function addTubeEmbed(el, id, time) {
-	var wh = ' width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '" />';
+	var wh = ' width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"/>';
 	el.innerHTML = Cfg['YTubeType'] === 1 ?
 		'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
 			(Cfg['YTubeHD'] ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh :
@@ -3876,7 +3850,7 @@ function eventTubePreview(el) {
 
 function addTubePreview(el, m) {
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270" /></a>';
+		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270"/></a>';
 	if(Cfg['addYouTube'] === 3) {
 		eventTubePreview(el);
 	}
@@ -3986,7 +3960,7 @@ function addLinkMP3(post) {
 			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$q('object[FlashVars*="' + link.href + '"]', el)) {
-			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '" /><br>';
+			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"/><br>';
 		}
 	});
 }
@@ -4371,7 +4345,7 @@ function getPview(post, pNum, parent, link, txt) {
 		}
 		eventRefLink(pView);
 		if(aib.getSage(post)) {
-			$after($q(aib.qRef, pView), $new('span', {'class': 'de-btn-sage', 'title': 'SAGE'}));
+			$after($q(aib.qRef, pView), $new('span', {'class': 'de-btn-sage', 'title': 'SAGE'}, null));
 		}
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
@@ -4709,7 +4683,7 @@ function loadThread(op, last, Fn) {
 			$alert(err, 'load-thr', false);
 		} else {
 			showMainReply();
-			$del($id('de-select'));
+			$del($id('de-menu'));
 			pCnt = thr.visPCnt || thr.pCount - getOmPosts(thr) + 1;
 			thr.innerHTML = '';
 			(impP = importPost(newOp)).isOp = true;
@@ -4776,7 +4750,7 @@ function loadFavorThread() {
 	$append(el, [
 		$add('<iframe name="de-iframe-fav" id="de-iframe-fav" src="' + $t('a', el).href +
 			'" scrolling="no" style="border: none; width: ' +
-			(doc.documentElement.clientWidth - 55) + 'px; height: 1px;" />'),
+			(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"/>'),
 		$add('<div id="de-fav-wait" class="de-wait" style="font-size: 1.1em; text-align: center">' +
 			Lng.loading[lang] + '</div>')
 	]);
@@ -4985,9 +4959,9 @@ function getHanaFile(file, id) {
 			: (size / gb).toFixed(2) + ' GB'
 		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
 		'</em><br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
-		'"><img title="edit" alt="edit" src="/images/blank.png" /></a></div><a href="/' + src +
+		'"><img title="edit" alt="edit" src="/images/blank.png"/></a></div><a href="/' + src +
 		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
-		thumbH + '" /></a></div>');
+		thumbH + '"/></a></div>');
 }
 
 function getHanaPost(postJson) {
@@ -4997,7 +4971,7 @@ function getHanaPost(postJson) {
 		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de-post': id}, null);
 	post.innerHTML = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
-		'" /></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
+		'"/></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
 		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br>';
 	for(i = 0; i < len; i++) {
@@ -5794,7 +5768,7 @@ Spells.prototype = {
 			}
 			exp = str.match(/^\(([a-z, ]+)\)/);
 			if(exp) {
-				var temp = 0;
+				temp = 0;
 				if(!exp[1].split(/, */).some(function(v) {
 					switch(v) {
 					case 'samelines': temp |= 1; return false;
@@ -6571,7 +6545,7 @@ function scriptCSS() {
 		.de-cfg-unvis { display: none; }\
 		#de-cfg-updresult { padding: 3px 0; font-size: 1.1em; text-align: center; }\
 		#de-spell-panel { float: right; }\
-		#de-spell-panel > a { padding: 0 4px; text-align: center; }\
+		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
 		#de-spell-edit { padding: 2px; width: 340px; height: 255px; border: none !important; outline: none !important; }\
@@ -6657,7 +6631,7 @@ function scriptCSS() {
 		.de-ppanel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
-	// text format buttons
+	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
 		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }\
 		#de-txt-panel:lang(en) { display: none; }\
@@ -6737,15 +6711,16 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
+		#de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
+		#de-menu span, #de-menu a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
+		#de-menu span:hover, #de-menu a:hover { background-color: #222; color: #fff; }\
 		.de-omitted { color: grey; font-style: italic; }\
+		#de-parea { text-align: center;}\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-refmap > a { text-decoration: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
-		#de-select { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
-		#de-select span, #de-select a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
-		#de-select span:hover, #de-select a:hover { background-color: #222; color: #fff; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
@@ -7558,7 +7533,7 @@ function removePageTrash(el) {
 				$del(el);
 				el = el_;
 			}
-			nav.insAfter(el, '<hr />');
+			nav.insAfter(el, '<hr/>');
 		}
 	} else if(aib.brit) {
 		el = $C('reflink', el);
