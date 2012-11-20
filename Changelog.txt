@@ -1,3 +1,28 @@
+Nov 16, 2012
+	- Make storage editors in alert window
+		+ Settings editors are moved into the pop-up windows
+		+ Редакторы настроек перемещены во всплывающих уведомления
+Nov 15, 2012
+	- Show sage marker in post preview
+		+ Отображение маркера сажи в превью поста
+Nov 10, 2012
+	- Add hide trip-code option to select menu
+		+ Ability to hide posts with selected trip-code by menu of post hiding button
+		+ Возможность скрывать посты с выбранным трипкодом через меню кнопки скрытия поста
+	- Add sosach recapcha updater
+		+ Added a button to forced captcha download on 2ch.hk
+		+ Добавлена кнопка принудительной загрузки капчи на 2ch.hk
+Nov 03, 2012
+	- .mp3 files detector
+		+ Detector of .mp3 files in images available when pre-load enabled
+		+ Детектор .mp3 файлов в изображениях доступен при включенной предзагрузке
+	- Add blobless image preloader
+		+ Ability to load full images (for gif-animation and and opening of spoiler-images)
+			"Posts" > "Open spoiler-images"
+			"Posts" > "Animate GIFs in posts"
+		+ Возможность загрузки изображений (для гиф-анимации и раскрытия изобржений-спойлеров)
+			"Посты" > "Раскрывать изображения-спойлеры"
+			"Посты" > "Анимировать GIFы в постах"
 Nov 02, 2012
 	- Move OGG detector to preloadImages
 		+ Removed option "Links" > "Detect audio-tags in posts"
