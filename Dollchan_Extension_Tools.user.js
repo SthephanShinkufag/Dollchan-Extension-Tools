@@ -4591,8 +4591,7 @@ function replaceFullMsg(post, origMsg, repMsg) {
 	var ytExt = $c('de-ytube-ext', origMsg),
 		ytObj = $c('de-ytube-obj', post),
 		ytLinks = $C('de-ytube-link', origMsg);
-	origMsg.parentNode.replaceChild(replacePost(repMsg), origMsg);
-	post.msg = $q(aib.qMsg, post);
+	origMsg.parentNode.replaceChild(post.msg = replacePost(repMsg), origMsg);
 	post.img = getPostImages(post);
 	if(ytExt) {
 		post.msg.appendChild(ytExt);
@@ -4604,8 +4603,8 @@ function replaceFullMsg(post, origMsg, repMsg) {
 	addPostFunc(post);
 }
 
-function getFullPost(post, isFunc) {
-	post = getPost(post);
+function getFullPost(el, isFunc) {
+	var post = getPost(el);
 	if(aib.hana) {
 		$del(el.nextSibling);
 		$del(el.previousSibling);
@@ -4636,7 +4635,7 @@ function getFullPost(post, isFunc) {
 			replaceFullMsg(post, post.msg, doc.importNode($q(aib.qMsg, full), true));
 			$del(el);
 		}
-		post = null;
+		el = post = null;
 	});
 }
 
