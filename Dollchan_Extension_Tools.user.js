@@ -4587,67 +4587,53 @@ function newPost(thr, post, pNum, i) {
 	return +!post.hide;
 }
 
-function replaceFullMsg(post, Fn) {
-	var ytube = $q('.de-ytube-ext', post.msg),
-		ytObj = $c('de-ytube-obj', post),
-		ytLinks = $C('de-ytube-link', post);
-	Fn();
-	if(aib.rep) {
-		post.innerHTML = replaceString(post.innerHTML);
-		post.img = getPostImages(post);
-	}
+function replaceFullMsg(post, origMsg, repMsg) {
+	var el = $q('.de-ytube-ext', origMsg);
+	origMsg.parentNode.replaceChild(replacePost(repMsg), origMsg);
 	post.msg = $q(aib.qMsg, post);
-	if(ytube) {
-		post.msg.appendChild(ytube);
+	post.img = getPostImages(post);
+	if(el) {
+		post.msg.appendChild(el);
 	}
-	if(ytObj) {
-		updateTubePlayer(post, ytObj);
+	if(el = $c('de-ytube-obj', post)) {
+		updateTubePlayer(post, el);
 	}
-	updateTubeLinks(post, ytLinks);
+	updateTubeLinks(post, $C('de-ytube-link', post));
 	addPostFunc(post);
 }
 
-function getFullPost(el, isFunc) {
-	var	post = getPost(el),
-		pNum = post.num;
+function getFullPost(post, isFunc) {
+	post = getPost(post);
 	if(aib.hana) {
 		$del(el.nextSibling);
 		$del(el.previousSibling);
 		$del(el);
 		if(isFunc) {
-			replaceFullMsg(post, function() {
-				post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
-			});
+			replaceFullMsg(post, post.msg.firstElementChild, $q('.alternate > div', post));
 		} else {
 			post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
 		}
-		post = null;
 		return;
 	}
 	ajaxGetPosts(null, brd, post.thr.num, true, function(els, op, err) {
-		if(!err) {
-			if(pNum === aib.getTNum(op)) {
-				replaceFullMsg(post, function() {
-					post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, op), true), post.msg);
-				});
-				$del(el);
-			} else {
-				err = aProto.some.call(els, function(pst) {
-					if(aib.getPNum(pst) === pNum) {
-						replaceFullMsg(post, function() {
-							post.msg.parentNode.replaceChild(doc.importNode($q(aib.qMsg, pst), true), post.msg);
-						});
-						pst = null;
-						return true;
-					}
-					return false;
-				});
-				if(!err) {
-					$del(el);
-				}
-			}
+		if(err) {
+			return;
 		}
-		pNum = post = null;
+		var full;
+		if(post.num === aib.getTNum(op)) {
+			full = op;
+		} else {
+			$each(els, function(pst) {
+				if(post.num === aib.getPNum(pst)) {
+					full = pst;
+				}
+			});
+		}
+		if(full) {
+			replaceFullMsg(post, post.msg, doc.importNode($q(aib.qMsg, full), true));
+			$del(el);
+		}
+		post = full = null;
 	});
 }
 
@@ -4656,11 +4642,10 @@ function expandPost(post) {
 		return;
 	}
 	var el = $q(
-			aib.krau ? 'p[id^="post_truncated"]' :
-				aib.hana ? '.abbrev > span' :
-				'.abbrev, .abbr, .omittedposts, .shortened',
-			post
-		);
+		aib.krau ? 'p[id^="post_truncated"]' :
+		aib.hana ? '.abbrev > span' :
+		'.abbrev, .abbr, .omittedposts, .shortened', post
+	);
 	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 		if(Cfg['expandPosts'] === 1) {
 			getFullPost(el, false);
@@ -4794,38 +4779,44 @@ function loadPages(len) {
 		}
 		loadPage(page, i, function(page, idx) {
 			pages[idx] = page;
-			if(loaded === len) {
-				pages.forEach(function(page) {
-					tryToParse(page);
-					removePageTrash(page);
-				});
-				Posts.forEach(addPostButtons);
-				Posts.forEach(eventPostImg);
-				Posts.forEach(expandPost);
-				addLinkMP3(null);
-				addLinksTube(null);
-				addLinkImg(dForm);
-				addImgSearch(dForm);
-				genRefMap(pByNum);
-				eventRefLink(dForm);
-				readPostsVisib();
-				if(Cfg['markViewed']) {
-					readViewedPosts();
-				}
-				setPostsVisib();
-				if(isExpImg) {
-					Posts.forEach(function(post) {
-						expandAllPostImg(post, null);
-					});
-				}
-				closeAlert($id('de-alert-load-pages'));
-				if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
-					preloadImages(null);
-				}
-				loaded = pages = null;
-			} else {
+			if(loaded !== len) {
 				loaded++;
+				return;
 			}
+			pages.forEach(function(page) {
+				tryToParse(page);
+				removePageTrash(page);
+			});
+			Posts.forEach(addPostButtons);
+			if(Cfg['expandImgs']) {
+				Posts.forEach(eventPostImg);
+			}
+			if(Cfg['expandPosts']) {
+				Posts.forEach(expandPost);
+			}
+			addLinkMP3(null);
+			addLinksTube(null);
+			addLinkImg(dForm);
+			addImgSearch(dForm);
+			if(Cfg['linksNavig'] === 2) {
+				genRefMap(pByNum);
+			}
+			eventRefLink(dForm);
+			readPostsVisib();
+			if(Cfg['markViewed']) {
+				readViewedPosts();
+			}
+			setPostsVisib();
+			if(isExpImg) {
+				Posts.forEach(function(post) {
+					expandAllPostImg(post, null);
+				});
+			}
+			closeAlert($id('de-alert-load-pages'));
+			if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
+				preloadImages(null);
+			}
+			loaded = pages = null;
 		});
 	}
 }
@@ -7660,7 +7651,6 @@ function doScript() {
 	}
 	prepareCFeatures();
 	Posts.forEach(addPostButtons);
-	saveFavorites(JSON.stringify(Favor));
 	$log('addPostButtons');
 	if(Cfg['expandImgs']) {
 		Posts.forEach(eventPostImg);
