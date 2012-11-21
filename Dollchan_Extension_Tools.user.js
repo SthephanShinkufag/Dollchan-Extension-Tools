@@ -4588,17 +4588,19 @@ function newPost(thr, post, pNum, i) {
 }
 
 function replaceFullMsg(post, origMsg, repMsg) {
-	var el = $q('.de-ytube-ext', origMsg);
+	var ytExt = $c('de-ytube-ext', origMsg),
+		ytObj = $c('de-ytube-obj', post),
+		ytLinks = $C('de-ytube-link', origMsg);
 	origMsg.parentNode.replaceChild(replacePost(repMsg), origMsg);
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
-	if(el) {
-		post.msg.appendChild(el);
+	if(ytExt) {
+		post.msg.appendChild(ytExt);
 	}
-	if(el = $c('de-ytube-obj', post)) {
-		updateTubePlayer(post, el);
+	if(ytObj) {
+		updateTubePlayer(post, ytObj);
 	}
-	updateTubeLinks(post, $C('de-ytube-link', post));
+	updateTubeLinks(post, ytLinks);
 	addPostFunc(post);
 }
 
@@ -4619,21 +4621,22 @@ function getFullPost(post, isFunc) {
 		if(err) {
 			return;
 		}
-		var full;
-		if(post.num === aib.getTNum(op)) {
+		var full, i, len;
+		if(post.isOp) {
 			full = op;
 		} else {
-			$each(els, function(pst) {
-				if(post.num === aib.getPNum(pst)) {
-					full = pst;
+			for(i = 0, len = els.length; i < len; i++) {
+				if(post.num === aib.getPNum(els[i])) {
+					full = els[i];
+					break;
 				}
-			});
+			}
 		}
 		if(full) {
 			replaceFullMsg(post, post.msg, doc.importNode($q(aib.qMsg, full), true));
 			$del(el);
 		}
-		post = full = null;
+		post = null;
 	});
 }
 
@@ -4641,11 +4644,7 @@ function expandPost(post) {
 	if(post.hide) {
 		return;
 	}
-	var el = $q(
-		aib.krau ? 'p[id^="post_truncated"]' :
-		aib.hana ? '.abbrev > span' :
-		'.abbrev, .abbr, .omittedposts, .shortened', post
-	);
+	var el = $q(aib.qTrunc, post);
 	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 		if(Cfg['expandPosts'] === 1) {
 			getFullPost(el, false);
@@ -7271,6 +7270,10 @@ function getImageboard() {
 		aib.hana ? '.abbrev' :
 		aib.fch ? '.summary.desktop' :
 		'.omittedposts';
+	aib.qTrunc =
+		aib.krau ? 'p[id^="post_truncated"]' :
+		aib.hana ? '.abbrev > span' :
+		'.abbrev, .abbr, .omittedposts, .shortened';
 	aib.qBan =
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
@@ -7651,6 +7654,7 @@ function doScript() {
 	}
 	prepareCFeatures();
 	Posts.forEach(addPostButtons);
+	saveFavorites(JSON.stringify(Favor));
 	$log('addPostButtons');
 	if(Cfg['expandImgs']) {
 		Posts.forEach(eventPostImg);
