@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 (function(scriptStorage) {
-var version = '12.11.3.0',
+var version = '12.11.20.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -1675,24 +1675,21 @@ function addSettings(Set) {
 function contentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function() {
-			var res = this.checked;
-			$each($Q('.de-entry > div > input', this.parentNode), function(el) {
-				el.checked = res;
-			});
-			res = null;
+			for(var res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode); els[i++];) {
+				els[i].checked = res;
+			}
 		}}),
 		$new('b', {'text': title}, null)
 	]));
 }
 
 function addHiddenTable(hid) {
-	var b, tNum, block, obj = comHThr[aib.dm];
-	$each($C('de-post-hid', dForm), function(post) {
+	var i, els, post, cln, b, tNum, block, obj = comHThr[aib.dm];
+	for(i = 0, els = $C('de-post-hid', dForm); post = els[i++];) {
 		if(post.isOp) {
-			return;
+			continue;
 		}
-		var cln = post.cloneNode(true);
-		cln.removeAttribute('id');
+		(cln = post.cloneNode(true)).removeAttribute('id');
 		cln.style.display = '';
 		cln.hide = true;
 		cln.pst = post;
@@ -1706,7 +1703,7 @@ function addHiddenTable(hid) {
 		(block || (block = hid.appendChild(
 			$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
 		))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
-	});
+	}
 	if(block) {
 		$append(hid, [
 			$btn(Lng.expandAll[lang], '', function() {
@@ -1938,7 +1935,7 @@ function $alert(txt, id, wait) {
 								DROPDOWN SELECT MENU
 ==============================================================================*/
 
-function addMenu(el, isPanel, child) {
+function addMenu(el, isPanel, html) {
 	var y, pos, menu, pst = getPost(el);
 	if(Cfg['attachPanel'] && isPanel) {
 		pos = 'fixed';
@@ -1954,8 +1951,7 @@ function addMenu(el, isPanel, child) {
 			el.className === 'de-btn-src' ?
 				'left: ' + $offset(el).left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' +
-		(typeof child === 'string' ? child : '') + '</div>'
+		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>'
 	), {
 		'mouseover': function() {
 			if(pst) {
@@ -1963,7 +1959,7 @@ function addMenu(el, isPanel, child) {
 			}
 		}
 	}));
-	return typeof child === 'string' ? $Q('span', $id('de-menu')) : menu;
+	return html ? $Q('span', $id('de-menu')) : menu;
 }
 
 function addSpellMenu(e) {
@@ -1990,7 +1986,7 @@ function addPostHideMenu(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	var el, menu = addMenu(post.btns.firstChild, false, this.mItems),
+	var el, menu = addMenu(post.btns.firstChild, false, ''),
 		add = function(name, Fn) {
 			var el = $add('<span>' + Lng.selHiderMenu[name][lang] + '</span>');
 			el.onclick = Fn;
@@ -2676,24 +2672,17 @@ function doPostformChanges(img, _img, el) {
 ==============================================================================*/
 
 function getSubmitResponse(dc, isFrame) {
-	var err = '', el = $q(aib.qDForm, dc);
-	if(dc.body.firstChild && !el) {
-		$each($Q(
-			aib.hana ? '.post-error, h2' :
-			aib.kus ? 'h1, h2, div[style*="1.25em"]' :
-			aib.fch ? '#errmsg' :
-			aib.krau ? '.message_text' :
-			aib._420 ? 'pre' :
-			'h1, h2, font[size="5"]', dc
-		), function(node) {
-			err += node.innerHTML + '\n';
-		});
+	var i, el, els, err = '', form = $q(aib.qDForm, dc);
+	if(dc.body.firstChild && !form) {
+		for(i = 0, els = $Q(aib.qError, dc); el = els[i++];) {
+			err += el.innerHTML + '\n';
+		}
 		if(!(err = err.replace(/<a [^>]+>Назад.+|<br.+/, ''))) {
 			err = Lng.error[lang] + '\n' + dc.body.innerHTML;
 		}
 		err = /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
 	}
-	return [(isFrame ? window.location : el ? aib.getThrdUrl(brd, aib.getTNum(el)) : ''), err];
+	return [(isFrame ? window.location : form ? aib.getThrdUrl(brd, aib.getTNum(form)) : ''), err];
 }
 
 function endUpload() {
@@ -2768,27 +2757,24 @@ function endDelete() {
 }
 
 function checkDelete(response) {
-	var tNums = [];
 	if(response[1]) {
 		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
-	} else {
-		$each($Q('[de-post] input:checked', dForm), !TNum ? function(el) {
-			var tNum = getPost(el).thr.num;
-			if(tNums.indexOf(tNum) === -1) {
-				tNums.push(tNum);
-			}
-		} : function(el) {
+		return;
+	}
+	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
+		if(!TNum) {
 			el.checked = false;
-		});
-		if(TNum) {
-			loadNewPosts(endDelete);
-		} else {
-			tNums.forEach(function(tNum) {
-				loadThread(pByNum[tNum], 5, endDelete);
-			});
+		} else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
+			tNums.push(tNum);
 		}
 	}
-	tNums = null;
+	if(TNum) {
+		loadNewPosts(endDelete);
+	} else {
+		tNums.forEach(function(tNum) {
+			loadThread(pByNum[tNum], 5, endDelete);
+		});
+	}
 }
 
 function doHTML5Submit(form, button, Fn) {
@@ -3907,28 +3893,26 @@ function addLinksTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
-	var ttd = new tubeTitleDownloader();
-	$each($Q('embed, object, iframe', post || dForm), function(el) {
-		var src, pst, m = (el.src || el.data).match(getTubePattern());
-		if(!m) {
-			return;
+	var i, els, el, m, src, pst, ttd = new tubeTitleDownloader();
+	for(i = 0, els = $Q('embed, object, iframe', post || dForm); el = els[i++];) {
+		if(!(m = (el.src || el.data).match(getTubePattern()))) {
+			continue;
 		}
 		src = 'https://www.youtube.com/watch?v=' + m[1];
 		if(m[4] || m[3] || m[2]) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.msg || $q(aib.qMsg, pst)).appendChild($add('<p class="de-ytube-ext"><a href="' + src + '">' +
-			src + '</a></p>'));
+		(pst.msg || $q(aib.qMsg, pst))
+			.appendChild($add('<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>'));
 		$del(el);
-	});
-	$each($Q('a[href*="youtu"]', post || dForm), function(link) {
-		var m = link.href.match(getTubePattern());
-		if(m) {
-			addLinkTube(link, m, post || getPost(link));
-			ttd.loadTitle([link, m[1]]);
+	}
+	for(i = 0, els = $Q('a[href*="youtu"]', post || dForm); el = els[i++];) {
+		if(m = el.href.match(getTubePattern())) {
+			addLinkTube(el, m, post || getPost(el));
+			ttd.loadTitle([el, m[1]]);
 		}
-	});
+	}
 	ttd.saveLoaded();
 	ttd = null;
 }
@@ -3950,20 +3934,19 @@ function addLinkMP3(post) {
 	if(!Cfg['addMP3']) {
 		return;
 	}
-	$each($Q('a[href*=".mp3"]', post || dForm), function(link) {
+	for(var link, pst, el, i = 0, els = $Q('a[href*=".mp3"]', post || dForm); link = els[i++];) {
 		if(!(link.target === '_blank' || link.rel === 'nofollow')) {
-			return;
+			continue;
 		}
-		var pst = post || getPost(link),
-			el = $c('de-mp3', pst);
-		if(!el) {
+		pst = post || getPost(link);
+		if(!(el = $c('de-mp3', pst))) {
 			el = $new('div', {'class': 'de-mp3'}, null);
 			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$q('object[FlashVars*="' + link.href + '"]', el)) {
 			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"/><br>';
 		}
-	});
+	}
 }
 
 
@@ -4113,15 +4096,15 @@ function addImgSearch(el) {
 }
 
 function expandPostImg(a, isExp) {
-	if(/\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
+	if(a && /\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
 		addFullImg(a, getImgSize(aib.getPicWrap(a)), isExp);
 	}
 }
 
 function expandAllPostImg(post, isExp) {
-	$each(post.img, function(img) {
-		expandPostImg($x('ancestor::a[1]', img), isExp);
-	});
+	for(var el, i = 0; el = post.img[i++];) {
+		expandPostImg($x('ancestor::a[1]', el), isExp);
+	}
 }
 
 function eventPostImg(post) {
@@ -4620,13 +4603,13 @@ function getFullPost(el, isFunc) {
 		if(err) {
 			return;
 		}
-		var full, i, len;
+		var full, i, el;
 		if(post.isOp) {
 			full = op;
 		} else {
-			for(i = 0, len = els.length; i < len; i++) {
-				if(post.num === aib.getPNum(els[i])) {
-					full = els[i];
+			for(i = 0; el = els[i++];) {
+				if(post.num === aib.getPNum(el)) {
+					full = el;
 					break;
 				}
 			}
@@ -7277,6 +7260,13 @@ function getImageboard() {
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
+	aib.qError =
+		aib.hana ? '.post-error, h2' :
+		aib.kus ? 'h1, h2, div[style*="1.25em"]' :
+		aib.fch ? '#errmsg' :
+		aib.krau ? '.message_text' :
+		aib._420 ? 'pre' :
+		'h1, h2, font[size="5"]';
 	aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
 	aib.res =
 		aib.krau ? 'thread-' :
