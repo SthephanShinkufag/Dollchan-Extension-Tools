@@ -1352,7 +1352,14 @@ function getCfgFilters() {
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
 			$each($C('de-post-hid', dForm), function(post) {
-				$disp(aib.getWrap(post));
+				var wrap = aib.getWrap(post),
+					hide = !wrap.style.display;
+				if(hide) {
+					nav.insAfter(wrap, '<span style="counter-increment: de-cnt 1;"></span>');
+				} else {
+					$del(wrap.nextSibling);
+				}
+				wrap.style.display = hide ? 'none' : '';
 			});
 			updateCSS();
 		})
@@ -3193,6 +3200,7 @@ function addPostButtons(post) {
 	nav.insAfter(ref, html + (
 		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
+	post.pref = ref;
 	post.btns = ref.nextSibling;
 	if(pr.form && Cfg['insertNum']) {
 		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
@@ -5185,7 +5193,12 @@ function setPostVisib(post, hide, note) {
 	}
 	togglePostContent(post, hide);
 	if(Cfg['delHiddPost']) {
-		aib.getWrap(post).style.display = hide ? 'none' : '';
+		(el = aib.getWrap(post)).style.display = hide ? 'none' : '';
+		if(hide) {
+			nav.insAfter(el, '<span style="counter-increment: de-cnt 1;"></span>');
+		} else {
+			$del(el.nextSibling);
+		}
 	} else {
 		if(el = $c('de-post-note', post)) {
 			if(!hide) {
@@ -5196,11 +5209,10 @@ function setPostVisib(post, hide, note) {
 		} else if(hide) {
 			addPostNote(post, note);
 		}
-		el = $q(aib.qRef, post);
-		el.onmouseover = hide && function() {
+		post.pref.onmouseover = hide && function() {
 			togglePostContent(getPost(this), false);
 		};
-		el.onmouseout = hide && function() {
+		post.pref.onmouseout = hide && function() {
 			togglePostContent(getPost(this), true);
 		};
 	}
@@ -6591,8 +6603,8 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	if(TNum) x += '.de-thread { counter-reset: i 1; }\
-		.de-ppanel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+	if(TNum) x += '.de-thread { counter-reset: de-cnt 1; }\
+		.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// Text format buttons
