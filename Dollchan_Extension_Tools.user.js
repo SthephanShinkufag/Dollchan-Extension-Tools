@@ -6026,17 +6026,97 @@ Spells.prototype = {
 		}
 		return null;
 	},
+	_decompileSpell: function(type, neg, val, scope) {
+		var temp, temp_, spell = (neg ? '!#' : '#') + this._names[type] + (scope ? '[' +
+			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
+		if(!val) {
+			return spell;
+		}
+		// #img
+		if(type === 8) {
+			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
+				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
+				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
+				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
+		}
+		// #wipe
+		else if(type === 14) {
+			if(val === 0x3F) {
+				return spell;
+			}
+			temp = [];
+			(val & 1) && temp.push('samelines');
+			(val & 2) && temp.push('samewords');
+			(val & 4) && temp.push('longwords');
+			(val & 8) && temp.push('symbols');
+			(val & 16) && temp.push('capslock');
+			(val & 32) && temp.push('numbers');
+			return spell + '(' + temp.join(',') + ')';
+		}
+		// #num, #tlen
+		else if(type === 15 || type === 11) {
+			if((temp = val[1].length - 1) !== -1) {
+				for(temp_ = []; temp--; ) {
+					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+				}
+				temp_.reverse();
+			}
+			spell += '(';
+			if(val[0].length !== 0) {
+				spell += val[0].join(',') + (temp_ ? ',' : '');
+			}
+			if(temp_) {
+				spell += temp_.join(',');
+			}
+			return spell + ')';
+		}
+		// #words, #name, #trip
+		else if(type === 0 || type === 6 || type === 7) {
+			return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+		} else {
+			return spell + '(' + String(val) + ')';
+		}
+	},
+	_decompileScope: function(scope, indent, nR) {
+		var i, len, spell, temp, neg, type, rv = '';
+		for(i = 0, len = scope.length; i < len; i++) {
+			spell = scope[i];
+			type = spell[0] & 0xFF;
+			neg = spell[0] & 0x100;
+			if(type === 0xFF) {
+				rv += (rv ? ' ' : indent) + (neg ? '!(' : '(');
+				temp = spell[1];
+				if(temp.length === 0) {
+					rv += ')';
+				} else if(temp.length > 3) {
+					rv += '\n' + this._decompileScope(temp, indent + '    ', true) + '\n)';
+				} else {
+					rv += this._decompileScope(temp, indent + '    ', false) + ')';
+				}
+			} else {
+				rv += (nR ? (rv ? '\n' : '') + indent : rv ? ' ' : '') +
+					this._decompileSpell(type, neg, spell[1], spell[2]);
+			}
+			if(i !== len - 1) {
+				rv += spell[0] & 0x200 ? ' &' : ' |';
+			}
+		}
+		return rv;
+	},
+	_decompileSpells: function(spells) {
+		return this._decompileScope(spells, '', true);
+	},
 	_getMsg: function(spell) {
-		var rv, type = spell[0] & 0xFF,
+		var neg = spell[0] & 0x100,
+			type = spell[0] & 0xFF,
 			val = spell[1];
 		if(type === 0xFF) {
 			return this._getMsg(val[this._lastPSpell]);
 		}
-		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
 		if(type === 14) {
-			return rv += '#wipe' + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
+			return (neg ? '!#wipe' : '#wipe') + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
 		} else {
-			return rv += '#' + this._names[type] + (val ? ': ' + val : '');
+			return this._decompileSpell(type, neg, val, spell[2]);
 		}
 	},
 	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
@@ -6285,7 +6365,9 @@ Spells.prototype = {
 			this._TEMP.list = '';
 			return false;
 		}
-		this._TEMP.list = oStr.join('\n\n').replace(/[\s\n]+$/, '');
+		// REPLACE ORIGINAL STRING WITH DECOMPILED SPELLS
+		oStr[0] = this._decompileSpells(data);
+		this._TEMP.list = oStr.join('\n\n').replace(/[\s\n\r]+$/, '');
 		return oStr;
 	},
 	saveSpells: function(val) {
