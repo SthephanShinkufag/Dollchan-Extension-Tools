@@ -382,7 +382,8 @@ Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 oldTime, timeLog = [], dTime,
-ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
+ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg,
+$each = Function.prototype.call.bind(aProto.forEach);
 
 
 /*==============================================================================
@@ -420,10 +421,6 @@ function $T(id, root) {
 
 function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
-}
-
-function $each(nodes, Fn) {
-	aProto.forEach.call(nodes, Fn);
 }
 
 function $html(el, html) {
@@ -1155,7 +1152,7 @@ function toggleContent(name, isUpd) {
 	if(isUpd && el.id !== id) {
 		return;
 	}
-	if(el.childElementCount && Cfg['animation']) {
+	if(el.hasChildNodes() && Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			showContent(node, id, name, isUpd);
 			id = name = isUpd = null;
@@ -2678,7 +2675,7 @@ function doPostformChanges(img, _img, el) {
 
 function getSubmitResponse(dc, isFrame) {
 	var i, els, el, err = '', form = $q(aib.qDForm, dc);
-	if(dc.body.firstChild && !form) {
+	if(dc.body.hasChildNodes() && !form) {
 		for(i = 0, els = $Q(aib.qError, dc); el = els[i++];) {
 			err += el.innerHTML + '\n';
 		}
@@ -7335,7 +7332,7 @@ function getImageboard() {
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
-			if(thr.childElementCount) {
+			if(thr.hasChildNodes()) {
 				$before(thr.firstChild, op);
 			} else {
 				thr.appendChild(op);
