@@ -1675,8 +1675,8 @@ function addSettings(Set) {
 function contentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function() {
-			for(var res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode); els[i++];) {
-				els[i].checked = res;
+			for(var el, res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode); el = els[i++];) {
+				el.checked = res;
 			}
 		}}),
 		$new('b', {'text': title}, null)
@@ -2672,7 +2672,7 @@ function doPostformChanges(img, _img, el) {
 ==============================================================================*/
 
 function getSubmitResponse(dc, isFrame) {
-	var i, el, els, err = '', form = $q(aib.qDForm, dc);
+	var i, els, el, err = '', form = $q(aib.qDForm, dc);
 	if(dc.body.firstChild && !form) {
 		for(i = 0, els = $Q(aib.qError, dc); el = els[i++];) {
 			err += el.innerHTML + '\n';
@@ -2761,7 +2761,7 @@ function checkDelete(response) {
 		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
 		return;
 	}
-	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
+	for(var tNum, tNums = [], el, i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		if(!TNum) {
 			el.checked = false;
 		} else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
@@ -3454,7 +3454,7 @@ function downloadImgData(url, Fn) {
 }
 
 function preloadImages(post) {
-	var lnk, url, iType, nExp, i, len, el, mReqs = post ? 1 : 4,
+	var lnk, url, iType, nExp, el, i, els, mReqs = post ? 1 : 4,
 		rjf = Cfg['findImgFile'] && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		}),
@@ -3485,8 +3485,8 @@ function preloadImages(post) {
 			rjf && rjf.clear();
 			rjf = queue = null;
 		});
-	for(i = 0, el = getPostImages(post || dForm), len = el.length; i < len; i++) {
-		lnk = $x("ancestor::a[1]", el[i]);
+	for(i = 0, els = getPostImages(post || dForm); el = els[i++];) {
+		lnk = $x("ancestor::a[1]", el);
 		url = lnk.href;
 		nExp = !!Cfg['openImgs'];
 		if(/\.gif$/i.test(url)) {
@@ -3505,7 +3505,7 @@ function preloadImages(post) {
 		if(queue) {
 			queue.run([lnk, url, iType, nExp]);
 		} else if(nExp) {
-			el[i].src = url;
+			el.src = url;
 		}
 	}
 	queue && queue.complete();
@@ -3934,7 +3934,7 @@ function addLinkMP3(post) {
 	if(!Cfg['addMP3']) {
 		return;
 	}
-	for(var link, pst, el, i = 0, els = $Q('a[href*=".mp3"]', post || dForm); link = els[i++];) {
+	for(var pst, el, link, i = 0, els = $Q('a[href*=".mp3"]', post || dForm); link = els[i++];) {
 		if(!(link.target === '_blank' || link.rel === 'nofollow')) {
 			continue;
 		}
@@ -4049,8 +4049,7 @@ function addLinkImg(el) {
 	}
 	for(var a, link, i = 0, els = $Q(
 		aib.qMsg + ' a[href*=".jpg"], ' + aib.qMsg + ' a[href*=".png"], ' + aib.qMsg + ' a[href*=".gif"]', el
-	), len = els.length; i < len; i++) {
-		link = els[i];
+	); link = els[i++];) {
 		if(link.parentNode.tagName === 'SMALL') {
 			return;
 		}
@@ -4079,8 +4078,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var num = el.num || '', els = $Q(aib.qImgLink, el), i = els.length - 1, link; i >= 0; i--) {
-		link = els[i];
+	for(var num = el.num || '', link, i = 0, els = $Q(aib.qImgLink, el); link = els[i++];) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			continue;
@@ -4143,8 +4141,8 @@ function addRefMap(post) {
 function genRefMap(pBn) {
 	var refMap = [];
 	nav.forEach(pBn, function(pNum) {
-		for(var rNum, post, nodes = $T('a', this[pNum].msg), i = nodes.length - 1; i >= 0; i--) {
-			if((rNum = nodes[i].textContent.match(/^>>(\d+)$/)) && (post = pBn[rNum[1]])) {
+		for(var rNum, post, el, i = 0, els = $T('a', this[pNum].msg); el = els[i++];) {
+			if((rNum = el.textContent.match(/^>>(\d+)$/)) && (post = pBn[rNum[1]])) {
 				if(!post.ref) {
 					post.ref = [pNum];
 					refMap.push(post);
@@ -4159,17 +4157,13 @@ function genRefMap(pBn) {
 }
 
 function updRefMap(post) {
-	var pNum, el, pst, pNums = [],
-		nodes = $T('a', post.msg),
-		i = nodes.length - 1;
-	for(; i >= 0; i--) {
-		if((pNum = nodes[i].textContent.match(/^>>(\d+)$/)) && pNums.indexOf(pNum = pNum[1]) === -1) {
+	for(var pNum, pst, pNums = [], el, i = 0, els = $T('a', post.msg); el = els[i++];) {
+		if((pNum = el.textContent.match(/^>>(\d+)$/)) && pNums.indexOf(pNum = pNum[1]) === -1) {
 			pNums.push(pNum);
 		}
 	}
-	pNum = post.num;
-	for(i = pNums.length - 1; i >= 0; i--) {
-		if(!(pst = pByNum[pNums[i]])) {
+	for(i = 0, pNum = post.num; el = pNums[i++];) {
+		if(!(pst = pByNum[el])) {
 			continue;
 		}
 		if(!pst.ref) {
@@ -4181,7 +4175,7 @@ function updRefMap(post) {
 		addRefMap(pst);
 		eventRefLink($c('de-refmap', pst));
 		if(Cfg['hideRefPsts'] && pst.hide) {
-			hidePost(post, 'reference to >>' + pNums[i]);
+			hidePost(post, 'reference to >>' + el);
 		}
 	}
 }
@@ -4381,18 +4375,18 @@ function getAjaxPview(b, pNum, tNum) {
 	if(!Pviews.ajaxed[b]) {
 		return null;
 	}
-	var nodes, i, el = Pviews.ajaxed[b][pNum];
-	if(b === brd || !el || el.aRep) {
-		return el;
+	var i, els, link, pView = Pviews.ajaxed[b][pNum];
+	if(b === brd || !pView || pView.aRep) {
+		return pView;
 	}
 	pNum = fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt);
-	for(nodes = $T('a', el), i = nodes.length - 1; i >= 0; i--) {
-		if(/^>>\d+$/.test(nodes[i].textContent)) {
-			nodes[i].href = pNum;
+	for(i = 0, els = $T('a', pView); link = els[i++];) {
+		if(/^>>\d+$/.test(link.textContent)) {
+			link.href = pNum;
 		}
 	}
-	el.aRep = true;
-	return el;
+	pView.aRep = true;
+	return pView;
 }
 
 function showPview(link) {
@@ -4424,13 +4418,11 @@ function showPview(link) {
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
 		if(!err) {
-			var pst, i = 0,
-				len = els.length;
+			var pst, i = 0;
 			op.isOp = true;
 			op.msg = $q(aib.qMsg, op);
 			Pviews.ajaxed[b][tNum] = op;
-			for(; i < len; i++) {
-				pst = els[i];
+			for(; pst = els[i++];) {
 				pst.msg = $q(aib.qMsg, pst);
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
@@ -5096,9 +5088,8 @@ function unhideByRef(post) {
 }
 
 function setPostsVisib() {
-	for(var post, pNum, vis, i = Posts.length - 1; i >= 0; i--) {
+	for(var vis, pNum, post, i = 0; post = Posts[i++];) {
 		vis = sVis[i];
-		post = Posts[i];
 		if(uVis[pNum = post.num]) {
 			if(post.isOp) {
 				uVis[pNum][0] = typeof hThr[pNum] === 'undefined' ? 1 : 0;
@@ -7430,21 +7421,19 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 				$del($c('clear', thr));
 			}
-			var i, op = aib.getOp(thr, doc),
-				els = aProto.slice.call(aib.getPosts(thr)),
-				len = els.length;
+			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
-			for(i = 0; i < len; i++) {
-				processPost(els[i], aib.getPNum(els[i]), thr, i + 1);
+			for(i = 0, els = aProto.slice.call(aib.getPosts(thr)); el = els[i++];) {
+				processPost(el, aib.getPNum(el), thr, i + 1);
 			}
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
 			nav.addClass(thr, 'de-thread');
-			thr.pCount = len + getOmPosts(thr);
+			thr.pCount = i + getOmPosts(thr);
 		});
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
@@ -7512,22 +7501,21 @@ function replaceDelform() {
 }
 
 function removePageTrash(el) {
+	var i, els;
 	if(aib.abu) {
-		var el_;
 		if(TNum && (el = $c('de-thread', el).nextSibling)) {
-			while(el_ = el.nextSibling) {
+			while(i = el.nextSibling) {
 				$del(el);
-				el = el_;
+				el = i;
 			}
 			nav.insAfter(el, '<hr/>');
 		}
 	} else if(aib.brit) {
-		el = $C('reflink', el);
-		for(var node, i = el.length - 1; i >= 0; i--) {
-			node = el[i].firstChild;
-			node.onclick = null;
-			node.href = aib.getThrdUrl(brd, node.textContent);
-			node.target = '_blank';
+		for(i = 0, els = $C('reflink', el); el = els[i++];) {
+			el = el.firstChild;
+			el.onclick = null;
+			el.href = aib.getThrdUrl(brd, el.textContent);
+			el.target = '_blank';
 		}
 	}
 }
