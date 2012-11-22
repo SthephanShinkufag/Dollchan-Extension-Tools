@@ -7351,7 +7351,7 @@ function processPost(post, pNum, thr, i) {
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
 	post.sage = aib.getSage(post);
-	post.setAttribute('de-post', pNum);
+	post.setAttribute('de-post', null);
 	pByNum[post.num = pNum] = post;
 }
 
