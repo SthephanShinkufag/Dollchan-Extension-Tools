@@ -1831,23 +1831,21 @@ function addFavoritesTable(fav) {
 			$alert(Lng.loading[lang], 'load-pages', true);
 			while(i--) {
 				loadPage(doc.createElement('div'), i, function(page, idx) {
-					$each($C('de-entry', doc), function(el) {
-						var arr = el.getAttribute('info').split(';');
-						if(arr[0] !== aib.host || arr[1] !== brd) {
-							return;
+					for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
+						arr = el.getAttribute('info').split(';');
+						if(arr[0] === aib.host && arr[1] === brd) {
+							el = $c('de-fav-inf-page', el);
+							if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
+								el.innerHTML = '@' + idx;
+							} else if(loaded === 5 && !el.textContent.contains('@')) {
+								el.innerHTML = '@?';
+							}
 						}
-						el = $c('de-fav-inf-page', el);
-						if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
-							el.innerHTML = '@' + idx;
-						} else if(loaded === 5 && !el.textContent.contains('@')) {
-							el.innerHTML = '@?';
-						}
-					});
+					}
 					if(loaded === 5) {
 						closeAlert($id('de-alert-load-pages'));
 					}
 					loaded++;
-					page = idx = null;
 				});
 			}
 		}),
@@ -2761,7 +2759,7 @@ function checkDelete(response) {
 		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
 		return;
 	}
-	for(var tNum, tNums = [], el, i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
+	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		if(!TNum) {
 			el.checked = false;
 		} else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
@@ -4157,7 +4155,7 @@ function genRefMap(pBn) {
 }
 
 function updRefMap(post) {
-	for(var pNum, pst, pNums = [], el, i = 0, els = $T('a', post.msg); el = els[i++];) {
+	for(var pNum, pst, el, pNums = [], i = 0, els = $T('a', post.msg); el = els[i++];) {
 		if((pNum = el.textContent.match(/^>>(\d+)$/)) && pNums.indexOf(pNum = pNum[1]) === -1) {
 			pNums.push(pNum);
 		}
@@ -6691,7 +6689,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
+		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea, .de-thread > br[clear="left"] { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
