@@ -7376,8 +7376,7 @@ function processPost(post, pNum, thr, i) {
 }
 
 function parseDelform(el, dc, Fn) {
-	var node, thr, pThr = false,
-		thrds = $Q(aib.qThread, el);
+	var thrds = $Q(aib.qThread, el);
 	if(Posts.length < 2) {
 		aib.qTable =
 			aib.fch || aib.mlpg ? '.replyContainer' :
@@ -7400,29 +7399,25 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		node = $t('hr', el).parentNode.firstChild;
-		while(1) {
-			thrds = dc.createElement('div');
-			while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
-				thrds.appendChild(node);
-				node = thr;
+		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce((function(prevVal, curVal, i, array) {
+			if(array[i + 1]) {
+				if(curVal.tagName === 'HR') {
+					$before(curVal, prevVal.lastChild);
+					$before(curVal, prevVal);
+					$after(prevVal, prevVal.lastChild);
+					this(prevVal);
+					return dc.createElement('div');
+				} else {
+					prevVal.appendChild(curVal);
+					return prevVal;
+				}
 			}
-			if(pThr) {
-				$after(pThr, thrds);
-			} else {
-				$before(el.firstChild, thrds);
-			}
-			if(!node || !thr) {
-				return;
-			}
-			if(thrds.childElementCount) {
-				Fn(thrds);
-			}
-			pThr = thr;
-			node = thr.nextSibling;
-		}
+			$after(curVal, prevVal);
+			prevVal.appendChild(curVal);
+		}).bind(Fn), dc.createElement('div'));
+	} else {
+		$each(thrds, Fn);
 	}
-	$each(thrds, Fn);
 }
 
 function tryToParse(node) {
