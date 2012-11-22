@@ -382,7 +382,8 @@ Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 oldTime, timeLog = [], dTime,
-ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg;
+ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg,
+$each = Function.prototype.call.bind(aProto.forEach);
 
 
 /*==============================================================================
@@ -420,10 +421,6 @@ function $T(id, root) {
 
 function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
-}
-
-function $each(nodes, Fn) {
-	aProto.forEach.call(nodes, Fn);
 }
 
 function $html(el, html) {
@@ -861,9 +858,6 @@ function readCfg() {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
-		if(nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
-			Cfg['scriptStyle'] = 2;
-		}
 		if(nav.Opera < 12) {
 			Cfg['YTubeTitles'] = 0;
 		}
@@ -1037,7 +1031,7 @@ function readViewedPosts() {
 		viewed.split(',').forEach(function(pNum) {
 			var post = pByNum[pNum];
 			if(post) {
-				nav.addClass(post, 'de-viewed');
+				post.classList.add('de-viewed');
 				post.viewed = true;
 			}
 		});
@@ -1155,7 +1149,7 @@ function toggleContent(name, isUpd) {
 	if(isUpd && el.id !== id) {
 		return;
 	}
-	if(el.childElementCount && Cfg['animation']) {
+	if(el.hasChildNodes() && Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			showContent(node, id, name, isUpd);
 			id = name = isUpd = null;
@@ -1352,7 +1346,14 @@ function getCfgFilters() {
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
 			$each($C('de-post-hid', dForm), function(post) {
-				$disp(aib.getWrap(post));
+				var wrap = aib.getWrap(post),
+					hide = !wrap.style.display;
+				if(hide) {
+					nav.insAfter(wrap, '<span style="counter-increment: de-cnt 1;"></span>');
+				} else {
+					$del(wrap.nextSibling);
+				}
+				wrap.style.display = hide ? 'none' : '';
 			});
 			updateCSS();
 		})
@@ -1888,7 +1889,7 @@ function closeAlert(el) {
 		el.closeTimeout = null;
 		if(Cfg['animation']) {
 			nav.animEvent(el, $del);
-			nav.addClass(el, 'de-close');
+			el.classList.add('de-close');
 		} else {
 			$del(el);
 		}
@@ -1905,9 +1906,9 @@ function $alert(txt, id, wait) {
 		clearTimeout(el.closeTimeout);
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
-				nav.remClass(node, 'de-blink');
+				node.classList.remove('de-blink');
 			});
-			nav.addClass(el, 'de-blink');
+			el.classList.add('de-blink');
 		}
 	} else {
 		el = $id('de-alert').appendChild($New('div', {'class': aib.cReply, 'id': 'de-alert-' + id}, [
@@ -1918,9 +1919,9 @@ function $alert(txt, id, wait) {
 		]));
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
-				nav.remClass(node, 'de-open');
+				node.classList.remove('de-open');
 			});
-			nav.addClass(el, 'de-open');
+			el.classList.add('de-open');
 		}
 	}
 	if(Cfg['closePopups'] && !wait && !id.contains('help')) {
@@ -2120,12 +2121,12 @@ function initKeyNavig() {
 				);
 			}
 			if(idx = $c('de-selected', doc)) {
-				nav.remClass(idx, 'de-selected');
+				idx.classList.remove('de-selected');
 			}
 			if(post.isOp) {
 				post = post.thr;
 			}
-			nav.addClass(post, 'de-selected');
+			post.classList.add('de-selected');
 			return mIdx;
 		},
 		scrollDownToPost = function() {
@@ -2671,7 +2672,7 @@ function doPostformChanges(img, _img, el) {
 
 function getSubmitResponse(dc, isFrame) {
 	var i, els, el, err = '', form = $q(aib.qDForm, dc);
-	if(dc.body.firstChild && !form) {
+	if(dc.body.hasChildNodes() && !form) {
 		for(i = 0, els = $Q(aib.qError, dc); el = els[i++];) {
 			err += el.innerHTML + '\n';
 		}
@@ -3191,6 +3192,7 @@ function addPostButtons(post) {
 	nav.insAfter(ref, html + (
 		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
+	post.pref = ref;
 	post.btns = ref.nextSibling;
 	if(pr.form && Cfg['insertNum']) {
 		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
@@ -4025,7 +4027,7 @@ function addFullImg(a, sz, isExp) {
 	full = a.appendChild($add('<img class="de-img-full" src="' + a.href + '" alt="' + a.href +
 		'" width="' + newW + '" height="' + newH + '"/>'));
 	if(Cfg['expandImgs'] === 2) {
-		nav.addClass(full, 'de-img-center');
+		full.classList.add('de-img-center');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
 		makeMoveable(full);
@@ -4186,7 +4188,7 @@ function updRefMap(post) {
 function closePview(el) {
 	if(Cfg['animation']) {
 		nav.animEvent(el, $del);
-		nav.addClass(el, 'de-pview-anim');
+		el.classList.add('de-pview-anim');
 		el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
 	} else {
 		$del(el);
@@ -4216,7 +4218,7 @@ function markPviewToDel(el, delAll) {
 
 function PviewMoved() {
 	if(this.style[nav.animName]) {
-		nav.remClass(this, 'de-pview-anim');
+		this.classList.remove('de-pview-anim');
 		this.style.cssText = this.newPos;
 		this.newPos = false;
 		$each($C('de-css-move', doc.head), $del);
@@ -4264,7 +4266,7 @@ function setPviewPosition(link, pView, isAnim) {
 	}
 	pView.newPos = lmw + ' top:' + top + ';';
 	pView.addEventListener(nav.animEnd, PviewMoved, false);
-	nav.addClass(pView, 'de-pview-anim');
+	pView.classList.add('de-pview-anim');
 	pView.style[nav.animName] = uId;
 }
 
@@ -4326,7 +4328,7 @@ function getPview(post, pNum, parent, link, txt) {
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
-					nav.addClass(pst, 'de-viewed');
+					pst.classList.add('de-viewed');
 					pst.viewed = true;
 				}
 				var arr = (sessionStorage['de-viewed'] || '').split(',');
@@ -4360,10 +4362,10 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
-			nav.remClass(node, 'de-pview-anim');
+			node.classList.remove('de-pview-anim');
 			node.style[nav.animName] = '';
 		});
-		nav.addClass(pView, 'de-pview-anim');
+		pView.classList.add('de-pview-anim');
 		pView.style[nav.animName] = 'de-post-open-' + (pView.aTop ? 't' : 'b') + (pView.aLeft ? 'l' : 'r');
 	}
 	return pView;
@@ -4965,8 +4967,8 @@ function markDel(post) {
 		var dd = sessionStorage['de-deleted'];
 		sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + post.count;
 		post.deleted = true;
-		nav.remClass(post.btns, 'de-ppanel-cnt');
-		nav.addClass(post.btns, 'de-ppanel-del');
+		post.btns.classList.remove('de-ppanel-cnt');
+		post.btns.classList.add('de-ppanel-del');
 	}
 }
 
@@ -5129,9 +5131,9 @@ function toggleUserPostVisib(post) {
 
 function togglePostContent(post, hide) {
 	if(hide) {
-		nav.addClass(post, 'de-post-hid');
+		post.classList.add('de-post-hid');
 	} else {
-		nav.remClass(post, 'de-post-hid');
+		post.classList.remove('de-post-hid');
 	}
 }
 
@@ -5183,7 +5185,12 @@ function setPostVisib(post, hide, note) {
 	}
 	togglePostContent(post, hide);
 	if(Cfg['delHiddPost']) {
-		aib.getWrap(post).style.display = hide ? 'none' : '';
+		(el = aib.getWrap(post)).style.display = hide ? 'none' : '';
+		if(hide) {
+			nav.insAfter(el, '<span style="counter-increment: de-cnt 1;"></span>');
+		} else {
+			$del(el.nextSibling);
+		}
 	} else {
 		if(el = $c('de-post-note', post)) {
 			if(!hide) {
@@ -5194,11 +5201,10 @@ function setPostVisib(post, hide, note) {
 		} else if(hide) {
 			addPostNote(post, note);
 		}
-		el = $q(aib.qRef, post);
-		el.onmouseover = hide && function() {
+		post.pref.onmouseover = hide && function() {
 			togglePostContent(getPost(this), false);
 		};
-		el.onmouseout = hide && function() {
+		post.pref.onmouseout = hide && function() {
 			togglePostContent(getPost(this), true);
 		};
 	}
@@ -6589,8 +6595,8 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	if(TNum) x += '.de-thread { counter-reset: i 1; }\
-		.de-ppanel-cnt:after { counter-increment: i 1; content: counter(i, decimal); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+	if(TNum) x += '.de-thread { counter-reset: de-cnt 1; }\
+		.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// Text format buttons
@@ -6689,7 +6695,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea, .de-thread > br[clear="left"] { display: none !important; }';
+		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
@@ -7020,18 +7026,6 @@ function getNavigator() {
 		} : function(url) {
 			return url;
 		};
-	nav.addClass =
-		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
-			el.className += ' ' + cName;
-		} : function(el, cName) {
-			el.classList.add(cName);
-		};
-	nav.remClass =
-		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
-			el.className = el.className.replace(new RegExp('(?:^| )' + regQuote(cName) + '(?= |$)', 'g'), '');
-		} : function(el, cName) {
-			el.classList.remove(cName);
-		};
 	nav.toDOM =
 		nav.Firefox >= 12 ? function(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
@@ -7323,7 +7317,7 @@ function getImageboard() {
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
-			if(thr.childElementCount) {
+			if(thr.hasChildNodes()) {
 				$before(thr.firstChild, op);
 			} else {
 				thr.appendChild(op);
@@ -7357,13 +7351,12 @@ function processPost(post, pNum, thr, i) {
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
 	post.sage = aib.getSage(post);
-	post.setAttribute('de-post', pNum);
+	post.setAttribute('de-post', null);
 	pByNum[post.num = pNum] = post;
 }
 
 function parseDelform(el, dc, Fn) {
-	var node, thr, pThr = false,
-		thrds = $Q(aib.qThread, el);
+	var thrds = $Q(aib.qThread, el);
 	if(Posts.length < 2) {
 		aib.qTable =
 			aib.fch || aib.mlpg ? '.replyContainer' :
@@ -7386,29 +7379,25 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		node = $t('hr', el).parentNode.firstChild;
-		while(1) {
-			thrds = dc.createElement('div');
-			while(node && (thr = node.nextSibling) && thr.tagName !== 'HR') {
-				thrds.appendChild(node);
-				node = thr;
+		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce((function(prevVal, curVal, i, array) {
+			if(array[i + 1]) {
+				if(curVal.tagName === 'HR') {
+					$before(curVal, prevVal.lastChild);
+					$before(curVal, prevVal);
+					$after(prevVal, prevVal.lastChild);
+					this(prevVal);
+					return dc.createElement('div');
+				} else {
+					prevVal.appendChild(curVal);
+					return prevVal;
+				}
 			}
-			if(pThr) {
-				$after(pThr, thrds);
-			} else {
-				$before(el.firstChild, thrds);
-			}
-			if(!node || !thr) {
-				return;
-			}
-			if(thrds.childElementCount) {
-				Fn(thrds);
-			}
-			pThr = thr;
-			node = thr.nextSibling;
-		}
+			$after(curVal, prevVal);
+			prevVal.appendChild(curVal);
+		}).bind(Fn), dc.createElement('div'));
+	} else {
+		$each(thrds, Fn);
 	}
-	$each(thrds, Fn);
 }
 
 function tryToParse(node) {
@@ -7430,7 +7419,7 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			nav.addClass(thr, 'de-thread');
+			thr.classList.add('de-thread');
 			thr.pCount = i + getOmPosts(thr);
 		});
 	} catch(e) {
