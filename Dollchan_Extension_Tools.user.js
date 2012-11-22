@@ -858,9 +858,6 @@ function readCfg() {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
-		if(nav.Opera < 11.6 && Cfg['scriptStyle'] < 2) {
-			Cfg['scriptStyle'] = 2;
-		}
 		if(nav.Opera < 12) {
 			Cfg['YTubeTitles'] = 0;
 		}
@@ -1034,7 +1031,7 @@ function readViewedPosts() {
 		viewed.split(',').forEach(function(pNum) {
 			var post = pByNum[pNum];
 			if(post) {
-				nav.addClass(post, 'de-viewed');
+				post.classList.add('de-viewed');
 				post.viewed = true;
 			}
 		});
@@ -1892,7 +1889,7 @@ function closeAlert(el) {
 		el.closeTimeout = null;
 		if(Cfg['animation']) {
 			nav.animEvent(el, $del);
-			nav.addClass(el, 'de-close');
+			el.classList.add('de-close');
 		} else {
 			$del(el);
 		}
@@ -1909,9 +1906,9 @@ function $alert(txt, id, wait) {
 		clearTimeout(el.closeTimeout);
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
-				nav.remClass(node, 'de-blink');
+				node.classList.remove('de-blink');
 			});
-			nav.addClass(el, 'de-blink');
+			el.classList.add('de-blink');
 		}
 	} else {
 		el = $id('de-alert').appendChild($New('div', {'class': aib.cReply, 'id': 'de-alert-' + id}, [
@@ -1922,9 +1919,9 @@ function $alert(txt, id, wait) {
 		]));
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
-				nav.remClass(node, 'de-open');
+				node.classList.remove('de-open');
 			});
-			nav.addClass(el, 'de-open');
+			el.classList.add('de-open');
 		}
 	}
 	if(Cfg['closePopups'] && !wait && !id.contains('help')) {
@@ -2124,12 +2121,12 @@ function initKeyNavig() {
 				);
 			}
 			if(idx = $c('de-selected', doc)) {
-				nav.remClass(idx, 'de-selected');
+				idx.classList.remove('de-selected');
 			}
 			if(post.isOp) {
 				post = post.thr;
 			}
-			nav.addClass(post, 'de-selected');
+			post.classList.add('de-selected');
 			return mIdx;
 		},
 		scrollDownToPost = function() {
@@ -4030,7 +4027,7 @@ function addFullImg(a, sz, isExp) {
 	full = a.appendChild($add('<img class="de-img-full" src="' + a.href + '" alt="' + a.href +
 		'" width="' + newW + '" height="' + newH + '"/>'));
 	if(Cfg['expandImgs'] === 2) {
-		nav.addClass(full, 'de-img-center');
+		full.classList.add('de-img-center');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
 		makeMoveable(full);
@@ -4191,7 +4188,7 @@ function updRefMap(post) {
 function closePview(el) {
 	if(Cfg['animation']) {
 		nav.animEvent(el, $del);
-		nav.addClass(el, 'de-pview-anim');
+		el.classList.add('de-pview-anim');
 		el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
 	} else {
 		$del(el);
@@ -4221,7 +4218,7 @@ function markPviewToDel(el, delAll) {
 
 function PviewMoved() {
 	if(this.style[nav.animName]) {
-		nav.remClass(this, 'de-pview-anim');
+		this.classList.remove('de-pview-anim');
 		this.style.cssText = this.newPos;
 		this.newPos = false;
 		$each($C('de-css-move', doc.head), $del);
@@ -4269,7 +4266,7 @@ function setPviewPosition(link, pView, isAnim) {
 	}
 	pView.newPos = lmw + ' top:' + top + ';';
 	pView.addEventListener(nav.animEnd, PviewMoved, false);
-	nav.addClass(pView, 'de-pview-anim');
+	pView.classList.add('de-pview-anim');
 	pView.style[nav.animName] = uId;
 }
 
@@ -4331,7 +4328,7 @@ function getPview(post, pNum, parent, link, txt) {
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
-					nav.addClass(pst, 'de-viewed');
+					pst.classList.add('de-viewed');
 					pst.viewed = true;
 				}
 				var arr = (sessionStorage['de-viewed'] || '').split(',');
@@ -4365,10 +4362,10 @@ function getPview(post, pNum, parent, link, txt) {
 	}
 	if(Cfg['animation']) {
 		nav.animEvent(pView, function(node) {
-			nav.remClass(node, 'de-pview-anim');
+			node.classList.remove('de-pview-anim');
 			node.style[nav.animName] = '';
 		});
-		nav.addClass(pView, 'de-pview-anim');
+		pView.classList.add('de-pview-anim');
 		pView.style[nav.animName] = 'de-post-open-' + (pView.aTop ? 't' : 'b') + (pView.aLeft ? 'l' : 'r');
 	}
 	return pView;
@@ -4970,8 +4967,8 @@ function markDel(post) {
 		var dd = sessionStorage['de-deleted'];
 		sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + post.count;
 		post.deleted = true;
-		nav.remClass(post.btns, 'de-ppanel-cnt');
-		nav.addClass(post.btns, 'de-ppanel-del');
+		post.btns.classList.remove('de-ppanel-cnt');
+		post.btns.classList.add('de-ppanel-del');
 	}
 }
 
@@ -5134,9 +5131,9 @@ function toggleUserPostVisib(post) {
 
 function togglePostContent(post, hide) {
 	if(hide) {
-		nav.addClass(post, 'de-post-hid');
+		post.classList.add('de-post-hid');
 	} else {
-		nav.remClass(post, 'de-post-hid');
+		post.classList.remove('de-post-hid');
 	}
 }
 
@@ -7029,18 +7026,6 @@ function getNavigator() {
 		} : function(url) {
 			return url;
 		};
-	nav.addClass =
-		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
-			el.className += ' ' + cName;
-		} : function(el, cName) {
-			el.classList.add(cName);
-		};
-	nav.remClass =
-		nav.Opera && nav.Opera < 11.5 ? function(el, cName) {
-			el.className = el.className.replace(new RegExp('(?:^| )' + regQuote(cName) + '(?= |$)', 'g'), '');
-		} : function(el, cName) {
-			el.classList.remove(cName);
-		};
 	nav.toDOM =
 		nav.Firefox >= 12 ? function(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
@@ -7434,7 +7419,7 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			nav.addClass(thr, 'de-thread');
+			thr.classList.add('de-thread');
 			thr.pCount = i + getOmPosts(thr);
 		});
 	} catch(e) {
