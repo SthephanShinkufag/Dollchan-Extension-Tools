@@ -365,6 +365,7 @@ Lng = {
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
 	seMissOp:		['пропущен оператор', 'missing operator'],
+	seMissSpell:	['пропущен спелл', 'missing spell'],
 	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
 	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
 	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
@@ -5837,14 +5838,12 @@ Spells.prototype = {
 				this._lastType = 1;
 				return this._opNeg = true;
 			}
-		} else {
-			if(this._lastType === 2 || this._lastType === 4) {
-				this._lastType = 0;
-				if(op === 1) {
-					scope[scope.length - 1][0] |= 0x200;
-				}
-				return true;
+		} else if(this._lastType === 2 || this._lastType === 4) {
+			this._lastType = 0;
+			if(op === 1) {
+				scope[scope.length - 1][0] |= 0x200;
 			}
+			return true;
 		}
 		return false;
 	},
@@ -5893,6 +5892,11 @@ Spells.prototype = {
 				this._opNeg = false;
 				break;
 			case ')':
+				if(this._lastType === 0 || this._lastType === 1) {
+					this._error = Lng.seMissSpell[lang] +
+						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+					return false;
+				}
 				if(bkt > 0) {
 					scope = scopes.pop();
 					bkt--;
