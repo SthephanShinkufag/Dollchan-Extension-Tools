@@ -7210,6 +7210,13 @@ function getImageboard() {
 		aib.tiny ? 'form[name="postcontrols"]' :
 		aib.futa ? 'form:not([enctype])' :
 		'#delform, form[name="delform"]';
+	aib.qError =
+		aib.hana ? '.post-error, h2' :
+		aib.kus ? 'h1, h2, div[style*="1.25em"]' :
+		aib.fch ? '#errmsg' :
+		aib.krau ? '.message_text' :
+		aib._420 ? 'pre' :
+		'h1, h2, font[size="5"]';
 	aib.getTNum =
 		aib.fch || aib.krau || aib.futa || aib.tiny ? function(op) {
 			return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -7301,13 +7308,6 @@ function getImageboard() {
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
-	aib.qError =
-		aib.hana ? '.post-error, h2' :
-		aib.kus ? 'h1, h2, div[style*="1.25em"]' :
-		aib.fch ? '#errmsg' :
-		aib.krau ? '.message_text' :
-		aib._420 ? 'pre' :
-		'h1, h2, font[size="5"]';
 	aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
 	aib.res =
 		aib.krau ? 'thread-' :
