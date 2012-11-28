@@ -7313,7 +7313,8 @@ function getImageboard() {
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
 		'res/';
-	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + regQuote(aib.res) + '|index|$)');
+	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + regQuote(aib.res) +
+		(aib.fch ? '|\\d+[^\\/]' : '') + '|index|$)');
 	aib.reCrossLinks = new RegExp(
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
 		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
