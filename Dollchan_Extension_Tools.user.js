@@ -3488,6 +3488,9 @@ function preloadImages(post) {
 		});
 	for(i = 0, els = getPostImages(post || dForm); el = els[i++];) {
 		lnk = $x("ancestor::a[1]", el);
+		if(!lnk) {
+			continue;
+		}
 		url = lnk.href;
 		nExp = !!Cfg['openImgs'];
 		if(/\.gif$/i.test(url)) {
