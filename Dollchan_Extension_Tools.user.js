@@ -365,6 +365,7 @@ Lng = {
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
 	seMissOp:		['пропущен оператор', 'missing operator'],
+	seMissSpell:	['пропущен спелл', 'missing spell'],
 	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
 	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
 	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
@@ -5837,14 +5838,12 @@ Spells.prototype = {
 				this._lastType = 1;
 				return this._opNeg = true;
 			}
-		} else {
-			if(this._lastType === 2 || this._lastType === 4) {
-				this._lastType = 0;
-				if(op === 1) {
-					scope[scope.length - 1][0] |= 0x200;
-				}
-				return true;
+		} else if(this._lastType === 2 || this._lastType === 4) {
+			this._lastType = 0;
+			if(op === 1) {
+				scope[scope.length - 1][0] |= 0x200;
 			}
+			return true;
 		}
 		return false;
 	},
@@ -5893,6 +5892,11 @@ Spells.prototype = {
 				this._opNeg = false;
 				break;
 			case ')':
+				if(this._lastType === 0 || this._lastType === 1) {
+					this._error = Lng.seMissSpell[lang] +
+						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+					return false;
+				}
 				if(bkt > 0) {
 					scope = scopes.pop();
 					bkt--;
@@ -6030,17 +6034,68 @@ Spells.prototype = {
 		}
 		return null;
 	},
+	_decompileSpell: function(type, neg, val, scope) {
+		var temp, temp_, spell = (neg ? '!#' : '#') + this._names[type] + (scope ? '[' +
+			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
+		if(!val) {
+			return spell;
+		}
+		// #img
+		if(type === 8) {
+			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
+				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
+				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
+				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
+		}
+		// #wipe
+		else if(type === 14) {
+			if(val === 0x3F) {
+				return spell;
+			}
+			temp = [];
+			(val & 1) && temp.push('samelines');
+			(val & 2) && temp.push('samewords');
+			(val & 4) && temp.push('longwords');
+			(val & 8) && temp.push('symbols');
+			(val & 16) && temp.push('capslock');
+			(val & 32) && temp.push('numbers');
+			return spell + '(' + temp.join(',') + ')';
+		}
+		// #num, #tlen
+		else if(type === 15 || type === 11) {
+			if((temp = val[1].length - 1) !== -1) {
+				for(temp_ = []; temp >= 0; temp--) {
+					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+				}
+				temp_.reverse();
+			}
+			spell += '(';
+			if(val[0].length !== 0) {
+				spell += val[0].join(',') + (temp_ ? ',' : '');
+			}
+			if(temp_) {
+				spell += temp_.join(',');
+			}
+			return spell + ')';
+		}
+		// #words, #name, #trip
+		else if(type === 0 || type === 6 || type === 7) {
+			return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+		} else {
+			return spell + '(' + String(val) + ')';
+		}
+	},
 	_getMsg: function(spell) {
-		var rv, type = spell[0] & 0xFF,
+		var neg = spell[0] & 0x100,
+			type = spell[0] & 0xFF,
 			val = spell[1];
 		if(type === 0xFF) {
 			return this._getMsg(val[this._lastPSpell]);
 		}
-		rv = (spell[0] & 0x100) !== 0 ? '!' : '';
 		if(type === 14) {
-			return rv += '#wipe' + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
+			return (neg ? '!#wipe' : '#wipe') + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
 		} else {
-			return rv += '#' + this._names[type] + (val ? ': ' + val : '');
+			return this._decompileSpell(type, neg, val, spell[2]);
 		}
 	},
 	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
