@@ -7238,7 +7238,7 @@ function getImageboard() {
 	case '0chan.hk':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
-	case '410chan.ru': aib._410 = true; break;
+	case '410chan.org': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
 	case 'dfwk.ru': aib.dfwk = true; break;
 	case '7chan.org': aib._7ch = true; break;
