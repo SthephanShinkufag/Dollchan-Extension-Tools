@@ -2042,7 +2042,12 @@ function addAjaxPagesMenu() {
 		$id('de-btn-refresh'), true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
 	), function(el) {
 		el.onclick = function() {
-			loadPages(aProto.indexOf.call(this.parentNode.children, this) + 1);
+			var i = aProto.indexOf.call(this.parentNode.children, this) + 1;
+			if(i === 1) {
+				loadPage(pageNum);
+			} else {
+				loadPages(i);
+			}
 		};
 	});
 }
@@ -2190,7 +2195,7 @@ function initKeyNavig() {
 		if(kc === 116) {
 			if(!TNum) {
 				$pd(e);
-				loadPages(1);
+				loadPage(pageNum);
 			}
 			return;
 		}
@@ -4730,7 +4735,7 @@ function loadFavorThread() {
 	]);
 }
 
-function loadPage(page, i, Fn) {
+function loadPageHelper(page, i, Fn) {
 	ajaxGetPosts(aib.getPageUrl(brd, i), null, null, false, function(df, dc, err) {
 		var el;
 		df = doc.importNode($q(aib.qDForm, dc), true);
@@ -4742,69 +4747,78 @@ function loadPage(page, i, Fn) {
 	});
 }
 
-function loadPages(len) {
+function parsePages(pages) {
+	pages.forEach(function(page) {
+		tryToParse(page);
+		removePageTrash(page);
+	});
+	Posts.forEach(addPostButtons);
+	if(Cfg['expandImgs']) {
+		Posts.forEach(eventPostImg);
+	}
+	if(Cfg['expandPosts']) {
+		Posts.forEach(expandPost);
+	}
+	addLinkMP3(null);
+	addLinksTube(null);
+	addLinkImg(dForm);
+	addImgSearch(dForm);
+	if(Cfg['linksNavig'] === 2) {
+		genRefMap(pByNum, false);
+	}
+	eventRefLink(dForm);
+	readPostsVisib();
+	if(Cfg['markViewed']) {
+		readViewedPosts();
+	}
+	setPostsVisib();
+	if(isExpImg) {
+		Posts.forEach(function(post) {
+			expandAllPostImg(post, null);
+		});
+	}
+	closeAlert($id('de-alert-load-pages'));
+	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
+		preloadImages(null);
+	}
+}
+
+function preparePage() {
 	$alert(Lng.loading[lang], 'load-pages', true);
 	if(Cfg['preLoadImgs']) {
 		$each($Q('a[href^="blob:"]', dForm), function(a) {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
-	var i = -1,
-		page = dForm,
-		pages = new Array(len),
-		loaded = 1;
 	dForm.innerHTML = '';
 	Posts = [];
 	Pviews.ajaxed = {};
-	while(++i < len) {
-		if(len > 1) {
-			page = $new('div', {'id': 'de-page' + i}, null);
-			$append(dForm, [
-				$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
-				doc.createElement('hr'),
-				page
-			]);
-		}
-		loadPage(page, i, function(page, idx) {
-			pages[idx] = page;
-			if(loaded !== len) {
+}
+
+function loadPage(pNum) {
+	preparePage();
+	loadPageHelper(dForm, pNum, function(pg, idx) {
+		parsePages([pg]);
+	});
+}
+
+function loadPages(len) {
+	preparePage();
+	for(var page, i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
+		page = $new('div', {'id': 'de-page' + i}, null);
+		$append(dForm, [
+			$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
+			doc.createElement('hr'),
+			page
+		]);
+		loadPageHelper(page, i, function(pg, idx) {
+			pages[idx] = pg;
+			if(loaded === len) {
+				parsePages(pages);
+				loaded = pages = null;
+			} else {
 				loaded++;
-				return;
 			}
-			pages.forEach(function(page) {
-				tryToParse(page);
-				removePageTrash(page);
-			});
-			Posts.forEach(addPostButtons);
-			if(Cfg['expandImgs']) {
-				Posts.forEach(eventPostImg);
-			}
-			if(Cfg['expandPosts']) {
-				Posts.forEach(expandPost);
-			}
-			addLinkMP3(null);
-			addLinksTube(null);
-			addLinkImg(dForm);
-			addImgSearch(dForm);
-			if(Cfg['linksNavig'] === 2) {
-				genRefMap(pByNum, false);
-			}
-			eventRefLink(dForm);
-			readPostsVisib();
-			if(Cfg['markViewed']) {
-				readViewedPosts();
-			}
-			setPostsVisib();
-			if(isExpImg) {
-				Posts.forEach(function(post) {
-					expandAllPostImg(post, null);
-				});
-			}
-			closeAlert($id('de-alert-load-pages'));
-			if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
-				preloadImages(null);
-			}
-			loaded = pages = null;
 		});
 	}
 }
