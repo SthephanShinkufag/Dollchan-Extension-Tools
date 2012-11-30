@@ -4132,9 +4132,16 @@ function eventPostImg(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
+function getAbsLink(num) {
+	return '<a href="' + this + '#' + num + '">&gt;&gt;' + num + '</a>';
+}
+
+function getRelLink(num) {
+	return '<a href="#' + num + '">&gt;&gt;' + num + '</a>';
+}
+
 function addRefMap(post) {
-	var rM = '<div class="de-refmap">' +
-		post.ref.join(', ').replace(/(\d+)/g,'<a href="#$1">&gt;&gt;$1</a>') + '</div>';
+	var rM = '<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>';
 	try {
 		nav.insAfter(post.msg, rM);
 	} catch(e) {
@@ -4142,7 +4149,7 @@ function addRefMap(post) {
 	}
 }
 
-function genRefMap(pBn) {
+function genRefMap(pBn, tNum) {
 	var refMap = [];
 	nav.forEach(pBn, function(pNum) {
 		for(var rNum, post, el, i = 0, els = $T('a', this[pNum].msg); el = els[i++];) {
@@ -4156,7 +4163,11 @@ function genRefMap(pBn) {
 			}
 		}
 	});
-	refMap.forEach(addRefMap);
+	if(tNum) {
+		refMap.forEach(addRefMap.bind(getAbsLink.bind(aib.getThrdUrl(brd, tNum))));
+	} else {
+		refMap.forEach(addRefMap.bind(getRelLink));
+	}
 	refMap = pBn = null;
 }
 
@@ -4176,7 +4187,7 @@ function updRefMap(post) {
 			pst.ref.push(pNum);
 		}
 		$del($c('de-refmap', pst));
-		addRefMap(pst);
+		addRefMap.call(getRelLink, pst);
 		eventRefLink($c('de-refmap', pst));
 		if(Cfg['hideRefPsts'] && pst.hide) {
 			hidePost(post, 'reference to >>' + el);
@@ -4430,7 +4441,7 @@ function showPview(link) {
 				pst.msg = $q(aib.qMsg, pst);
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
-			genRefMap(Pviews.ajaxed[b]);
+			genRefMap(Pviews.ajaxed[b], tNum);
 			if(el && el.parentNode) {
 				getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, err);
 			}
@@ -4776,7 +4787,7 @@ function loadPages(len) {
 			addLinkImg(dForm);
 			addImgSearch(dForm);
 			if(Cfg['linksNavig'] === 2) {
-				genRefMap(pByNum);
+				genRefMap(pByNum, false);
 			}
 			eventRefLink(dForm);
 			readPostsVisib();
@@ -6716,7 +6727,8 @@ function scriptCSS() {
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
-		td > a + .de-ytube-obj { display: inline-block; }';
+		td > a + .de-ytube-obj { display: inline-block; }\
+		video { background: black; }';
 
 	// Other
 	cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -7704,7 +7716,7 @@ function doScript() {
 		$log('addImgSearch');
 	}
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum);
+		genRefMap(pByNum, false);
 		$log('genRefMap');
 	}
 	if(Cfg['linksNavig']) {
