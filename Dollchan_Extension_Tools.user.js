@@ -2042,11 +2042,11 @@ function addAjaxPagesMenu() {
 		$id('de-btn-refresh'), true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
 	), function(el) {
 		el.onclick = function() {
-			var i = aProto.indexOf.call(this.parentNode.children, this) + 1;
-			if(i === 1) {
+			var i = aProto.indexOf.call(this.parentNode.children, this);
+			if(i === 0) {
 				loadPage(pageNum);
 			} else {
-				loadPages(i);
+				loadPages(i + 1);
 			}
 		};
 	});
@@ -2173,16 +2173,10 @@ function initKeyNavig() {
 			return;
 		}
 		if(e.ctrlKey) {
-			if(TNum) {
-				if(kc === 37) {
-					window.location.pathname = aib.getPageUrl(brd, 0);
-				}
-			} else {
-				if(kc === 37) {
-					window.location.pathname = aib.getPageUrl(brd, pageNum - 1);
-				} else if(kc === 39) {
-					window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
-				}
+			if(kc === 37) {
+				window.location.pathname = aib.getPageUrl(brd, TNum || pageNum === 0 ? 0 : pageNum - 1);
+			} else if(!TNum && kc === 39) {
+				window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
 			}
 			return;
 		}
@@ -4157,9 +4151,10 @@ function addRefMap(post) {
 function genRefMap(pBn, tNum) {
 	var refMap = [];
 	nav.forEach(pBn, function(pNum) {
-		for(var rNum, post, el, i = 0, els = $T('a', this[pNum].msg); el = els[i++];) {
-			if((rNum = el.textContent.match(/^>>(\d+)$/)) && (post = pBn[rNum[1]])) {
-				if(!post.ref) {
+		for(var rNum, post, el, tc, i = 0, els = $T('a', this[pNum].msg); el = els[i++];) {
+			tc = el.textContent;
+			if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (post = this[rNum])) {
+				if(typeof post.ref === 'undefined') {
 					post.ref = [pNum];
 					refMap.push(post);
 				} else if(post.ref.indexOf(pNum) === -1) {
@@ -4173,29 +4168,24 @@ function genRefMap(pBn, tNum) {
 	} else {
 		refMap.forEach(addRefMap.bind(getRelLink));
 	}
-	refMap = pBn = null;
+	refMap = null;
 }
 
 function updRefMap(post) {
-	for(var pNum, pst, el, pNums = [], i = 0, els = $T('a', post.msg); el = els[i++];) {
-		if((pNum = el.textContent.match(/^>>(\d+)$/)) && pNums.indexOf(pNum = pNum[1]) === -1) {
-			pNums.push(pNum);
-		}
-	}
-	for(i = 0, pNum = post.num; el = pNums[i++];) {
-		if(!(pst = pByNum[el])) {
-			continue;
-		}
-		if(!pst.ref) {
-			pst.ref = [pNum];
-		} else if(pst.ref.indexOf(pNum) === -1) {
-			pst.ref.push(pNum);
-		}
-		$del($c('de-refmap', pst));
-		addRefMap.call(getRelLink, pst);
-		eventRefLink($c('de-refmap', pst));
-		if(Cfg['hideRefPsts'] && pst.hide) {
-			hidePost(post, 'reference to >>' + el);
+	for(var rNum, pst, el, tc, pNum = post.num, i = 0, els = $T('a', post.msg); el = els[i++];) {
+		tc = el.textContent;
+		if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (pst = pByNum[rNum])) {
+			if(typeof pst.ref === 'undefined') {
+				pst.ref = [pNum];
+			} else if(pst.ref.indexOf(pNum) === -1) {
+				pst.ref.push(pNum);
+			}
+			$del($c('de-refmap', pst));
+			addRefMap.call(getRelLink, pst);
+			eventRefLink($c('de-refmap', pst));
+			if(Cfg['hideRefPsts'] && pst.hide) {
+				hidePost(post, 'reference to >>' + rNum);
+			}
 		}
 	}
 }
