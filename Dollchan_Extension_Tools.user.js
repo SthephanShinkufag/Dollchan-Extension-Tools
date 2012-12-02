@@ -2645,8 +2645,8 @@ function doPostformChanges(img, _img, el) {
 		}
 	} else if(Cfg['ajaxReply'] === 1) {
 		$id('de-main').insertAdjacentHTML('beforeend',
-			'<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>' +
-			'<iframe id="de-iframe-dform" name="de-iframe-dform" src="about:blank"/>'
+			'<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"></iframe>' +
+			'<iframe id="de-iframe-dform" name="de-iframe-dform" src="about:blank"></iframe>'
 		);
 		$attr(pr.form, {'target': 'de-iframe-pform'}).onsubmit = null;
 		$attr(dForm, {'target': 'de-iframe-dform'}).onsubmit = function() {
