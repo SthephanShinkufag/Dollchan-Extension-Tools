@@ -1350,7 +1350,7 @@ function getCfgFilters() {
 				var wrap = aib.getWrap(post),
 					hide = !wrap.style.display;
 				if(hide) {
-					nav.insAfter(wrap, '<span style="counter-increment: de-cnt 1;"></span>');
+					wrap.insertAdjacentHTML('afterend', '<span style="counter-increment: de-cnt 1;"></span>');
 				} else {
 					$del(wrap.nextSibling);
 				}
@@ -1734,9 +1734,10 @@ function addHiddenTable(hid) {
 		for(b in obj) {
 			block = contentBlock(hid, '/' + b);
 			for(tNum in obj[b]) {
-				block.appendChild($add('<div class="de-entry" info="' + b + ';' + tNum + '"><div class="' +
-					aib.cReply + '"><input type="checkbox"/><a href="' + aib.getThrdUrl(b, tNum) +
-					'" target="_blank">№' + tNum + '</a> - ' + obj[b][tNum] + '</div></div>'));
+				block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
+					tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"/><a href="' +
+					aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
+					obj[b][tNum] + '</div></div>');
 			}
 		}
 	}
@@ -1936,7 +1937,9 @@ function $alert(txt, id, wait) {
 ==============================================================================*/
 
 function addMenu(el, isPanel, html) {
-	var y, pos, menu, pst = getPost(el);
+	var y, pos, menu, pst = getPost(el),
+		offE = $offset(el),
+		offP = pst && pst.classList.contains('de-pview') ? $offset(pst) : {'top': 0, 'left': 0};
 	if(Cfg['attachPanel'] && isPanel) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
@@ -1944,22 +1947,15 @@ function addMenu(el, isPanel, html) {
 			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + ($offset(el).top + el.offsetHeight - (nav.Firefox ? .5 : 0));
+		y = 'top: ' + (offE.top - offP['top'] + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
-	menu = doc.body.appendChild($event($add(
-		'<div class="' + aib.cReply + '" id="de-menu" style="position: ' + pos + '; ' + (
+	(pst || doc.body).insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
+		'" id="de-menu" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
-				'left: ' + $offset(el).left :
+				'left: ' + (offE.left - offP['left']) :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>'
-	), {
-		'mouseover': function() {
-			if(pst) {
-				markPviewToDel(pst, false);
-			}
-		}
-	}));
-	return html ? $Q('span', $id('de-menu')) : menu;
+		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>');
+	return html ? $Q('span', $id('de-menu')) : (pst || doc.body).lastChild;
 }
 
 function addSpellMenu(e) {
@@ -2324,7 +2320,7 @@ function initPostform() {
 	if(TNum && Cfg['addPostForm'] > 1 || !TNum && Cfg['noThrdForm']) {
 		$disp(pArea);
 	}
-	nav.insAfter(pArea, '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
+	pArea.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 	if(Cfg['addPostForm'] === 3) {
 		$append($id('de-qarea'), [
 			$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
@@ -2412,24 +2408,22 @@ function processInput() {
 			el.onchange = function(e) {
 				$del(btn);
 				var file = this.files[0],
-					fr = new FileReader(),
-					node = $add('<span class="de-file-util" style="margin: 0 5px;">' +
-						'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-				$after(inp, node);
-				fr.onload = function() {
-					if(inp.nextSibling === node) {
+					fr = new FileReader();
+				inp.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
+					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+				fr.onload = (function(input, node, e) {
+					if(input.nextSibling === node) {
 						$attr(node, {
 							'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-							'title': inp.files[0].name + ' + ' + file.name,
+							'title': inp.files[0].name + ' + ' + this.name,
 							'text': inp.files[0].name.replace(/^.+\./, '') + ' + ' +
-								file.name.replace(/^.+\./, '')
+								this.name.replace(/^.+\./, '')
 						});
-						inp.imgFile = this.result;
+						inp.imgFile = e.target.result;
 					}
-					node = inp = file = null;
-				};
+				}).bind(file, inp, inp.nextSibling);
 				fr.readAsArrayBuffer(file);
-				btn = null;
+				btn = inp = null;
 			};
 			el.click();
 		}
@@ -2650,10 +2644,10 @@ function doPostformChanges(img, _img, el) {
 			};
 		}
 	} else if(Cfg['ajaxReply'] === 1) {
-		$append($id('de-main'), [
-			$add('<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>'),
-			$add('<iframe id="de-iframe-dform" name="de-iframe-dform" src="about:blank"/>')
-		]);
+		$id('de-main').insertAdjacentHTML('beforeend',
+			'<iframe id="de-iframe-pform" name="de-iframe-pform" src="about:blank"/>' +
+			'<iframe id="de-iframe-dform" name="de-iframe-dform" src="about:blank"/>'
+		);
 		$attr(pr.form, {'target': 'de-iframe-pform'}).onsubmit = null;
 		$attr(dForm, {'target': 'de-iframe-dform'}).onsubmit = function() {
 			showMainReply();
@@ -2975,18 +2969,15 @@ function showQuickReply(post) {
 		$disp($id('de-togglereply'));
 		if(!TNum && !aib.kus && !aib.hana) {
 			$del($q('#thr_id, input[name="parent"]', pr.form));
-			$before(
-				pr.form.firstChild, 
-				$add('<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
-					aib.fch || aib.futa ? 'resto' :
-					aib.tiny ? 'thread' :
-					'parent'
-				) + '"/>')
-			);
+			pr.form.firstChild.insertAdjacentHTML('beforebegin', '<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
+				aib.fch || aib.futa ? 'resto' :
+				aib.tiny ? 'thread' :
+				'parent'
+			) + '"/>');
 			if(oeForm) {
 				$del($q('input[name="oek_parent"]', oeForm));
-				$before(oeForm.firstChild, $add('<input type="hidden" value="' + tNum +
-					'" name="oek_parent"/>'));
+				oeForm.firstChild.insertAdjacentHTML('beforebegin', '<input type="hidden" value="' +
+					tNum + '" name="oek_parent"/>');
 			}
 		}
 	}
@@ -3189,7 +3180,7 @@ function addPostButtons(post) {
 			html += '<span class="de-btn-fav" onclick="de_favorClick(this)"></span>';
 		}
 	}
-	nav.insAfter(ref, html + (
+	ref.insertAdjacentHTML('afterend', html + (
 		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
 	) + '</span>');
 	post.pref = ref;
@@ -3417,7 +3408,7 @@ function addImgFileIcon(data, info) {
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		nav.insAfter($q(aib.qImgLink, aib.getPicWrap(this)),
+		$q(aib.qImgLink, aib.getPicWrap(this)).insertAdjacentHTML('afterend',
 			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': app})) +
 			'" class="' + (type > 2 ? 'de-img-audio' : 'de-img-arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
@@ -3906,8 +3897,8 @@ function addLinksTube(post) {
 			src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 		}
 		pst = post || getPost(el);
-		(pst.msg || $q(aib.qMsg, pst))
-			.appendChild($add('<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>'));
+		(pst.msg || $q(aib.qMsg, pst)).insertAdjacentHTML('beforeend',
+			'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
 		$del(el);
 	}
 	for(i = 0, els = $Q('a[href*="youtu"]', post || dForm); el = els[i++];) {
@@ -4027,9 +4018,10 @@ function addFullImg(a, sz, isExp) {
 			newW = newH * fullW / fullH;
 		}
 	}
-	full = a.appendChild($add('<img class="de-img-full" src="' + a.href + '" alt="' + a.href +
-		'" width="' + newW + '" height="' + newH + '"/>'));
+	a.insertAdjacentHTML('beforeend', '<img class="de-img-full" src="' + a.href + '" alt="' + 
+		a.href + '" width="' + newW + '" height="' + newH + '"/>');
 	if(Cfg['expandImgs'] === 2) {
+		full = a.lastChild;
 		full.classList.add('de-img-center');
 		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
 		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
@@ -4089,8 +4081,7 @@ function addImgSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		nav.insBefore(
-			link, '<span de-id="' + num + i +
+		link.insertAdjacentHTML('beforebegin', '<span de-id="' + num + i +
 			'" class="de-btn-src" onmouseover="de_imgSOver(this)" onmouseout="de_btnOut(event)"></span>'
 		);
 	}
@@ -4142,9 +4133,9 @@ function getRelLink(num) {
 function addRefMap(post) {
 	var rM = '<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>';
 	try {
-		nav.insAfter(post.msg, rM);
+		post.msg.insertAdjacentHTML('afterend', rM);
 	} catch(e) {
-		post.appendChild($add(rM));
+		post.insertAdjacentHTML('beforeend', rM);
 	}
 }
 
@@ -4333,7 +4324,7 @@ function getPview(post, pNum, parent, link, txt) {
 		}
 		eventRefLink(pView);
 		if(aib.getSage(post)) {
-			$after($q(aib.qRef, pView), $new('span', {'class': 'de-btn-sage', 'title': 'SAGE'}, null));
+			$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-btn-sage" title="SAGE"></span>');
 		}
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
@@ -4660,9 +4651,8 @@ function loadThread(op, last, Fn) {
 			impP.tTitle = ($c(aib.cTitle, impP) || {}).textContent ||
 				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
 			Threads[Threads.indexOf(op)] = impP;
-			nav.insAfter(
-				impP.btns, '<span>&nbsp;[<a href="' + aib.getThrdUrl(brd, impP.num) + '">' +
-					Lng.reply[lang] + '</a>]</span>'
+			impP.btns.insertAdjacentHTML('afterend', '&nbsp;[<a href="' +
+				aib.getThrdUrl(brd, impP.num) + '">' + Lng.reply[lang] + '</a>]'
 			);
 			if(last === 1 || last >= len) {
 				i = 0;
@@ -4716,13 +4706,11 @@ function loadFavorThread() {
 	}
 	$del($id('de-iframe-fav'));
 	$c('de-content', doc).style.overflowY = 'scroll';
-	$append(el, [
-		$add('<iframe name="de-iframe-fav" id="de-iframe-fav" src="' + $t('a', el).href +
-			'" scrolling="no" style="border: none; width: ' +
-			(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"/>'),
-		$add('<div id="de-fav-wait" class="de-wait" style="font-size: 1.1em; text-align: center">' +
-			Lng.loading[lang] + '</div>')
-	]);
+	el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-fav" id="de-iframe-fav" src="' +
+		$t('a', el).href + '" scrolling="no" style="border: none; width: ' +
+		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"/><div id="de-fav-wait" ' + 
+		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>'
+	);
 }
 
 function loadPageHelper(page, i, Fn) {
@@ -4935,7 +4923,7 @@ function getHanaFile(file, id) {
 		thumbW = 200;
 		thumbH = 200;
 	}
-	return $add('<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">'
+	return '<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">'
 		+ name + '</a><br><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
 			size < kb ? size + ' B'
 			: size < mb ? (size / kb).toFixed(2) + ' KB'
@@ -4945,27 +4933,24 @@ function getHanaFile(file, id) {
 		'</em><br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
 		'"><img title="edit" alt="edit" src="/images/blank.png"/></a></div><a href="/' + src +
 		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
-		thumbH + '"/></a></div>');
+		thumbH + '"/></a></div>';
 }
 
 function getHanaPost(postJson) {
-	var i, id = postJson['display_id'],
+	var i, html, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
 		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de-post': id}, null);
-	post.innerHTML = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
+	html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 		'"/></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
 		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br>';
 	for(i = 0; i < len; i++) {
-		post.appendChild(getHanaFile(files[i], postJson['post_id']));
+		html += getHanaFile(files[i], postJson['post_id']);
 	}
-	$append(post, [
-		$if(len > 1, $new('div', {'style': 'clear: both;'}, null)),
-		$add('<div class="postbody">' + postJson['message_html'] + '</div>'),
-		$new('div', {'class': 'abbrev'}, null)
-	]);
+	post.innerHTML = html + (len > 1 ? '<div style="clear: both;"></div>' : '') +
+		'<div class="postbody">' + postJson['message_html'] + '</div><div class="abbrev"></div>';
 	return post;
 }
 
@@ -5182,12 +5167,12 @@ function setPostVisib(post, hide, note) {
 			toggleHiddenThread(post, 1);
 		}
 		if(hide && !el) {
-			el = $add('<div class="' + aib.cReply + ' de-thr-hid" id="de-thr-hid-' + pNum + '">' +
-				Lng.hiddenThrd[lang] + ' <a href="#">№' + pNum + '</a><i> (' + (
+			thr.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
+				' de-thr-hid" id="de-thr-hid-' + pNum + '">' + Lng.hiddenThrd[lang] +
+				' <a href="#">№' + pNum + '</a><i> (' + (
 					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
-			$before(thr, el);
-			a = $t('a', el);
+			a = $t('a', el = thr.previousSibling);
 			a.onclick = function(e) {
 				$pd(e);
 				toggleUserPostVisib(post);
@@ -5206,7 +5191,7 @@ function setPostVisib(post, hide, note) {
 	if(Cfg['delHiddPost']) {
 		(el = aib.getWrap(post)).style.display = hide ? 'none' : '';
 		if(hide) {
-			nav.insAfter(el, '<span style="counter-increment: de-cnt 1;"></span>');
+			el.insertAdjacentHTML('afterend', '<span style="counter-increment: de-cnt 1;"></span>');
 		} else {
 			$del(el.nextSibling);
 		}
@@ -6803,7 +6788,7 @@ function scriptCSS() {
 				.ui-resizable { display: inline !important; }\
 				form textarea { resize: both !important; }';
 		} else if(aib.hana) {
-			x += '#hideinfotd, .reply_, .delete > img, .popup { display: none; }\
+			x += '#hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none; }\
 				.delete { background: none; }\
 				.delete_checkbox { position: static !important; }\
 				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
@@ -7070,18 +7055,6 @@ function getNavigator() {
 			};'
 		);
 	}
-	nav.insAfter =
-		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
-			$after(el, $add(html));
-		} : function(el, html) {
-			el.insertAdjacentHTML('afterend', html);
-		};
-	nav.insBefore =
-		nav.Firefox && nav.Firefox < 8 ? function(el, html) {
-			$before(el, $add(html));
-		} : function(el, html) {
-			el.insertAdjacentHTML('beforebegin', html);
-		};
 	nav.forEach =
 		nav.WebKit || nav.Firefox ? function(obj, Fn) {
 			Object.keys(obj).forEach(Fn, obj);
@@ -7542,7 +7515,7 @@ function replaceDelform() {
 	$disp(doc.body);
 	var html = dForm.outerHTML || new XMLSerializer().serializeToString(dForm);
 	if(liteMode) {
-		nav.insBefore(doc.body.firstElementChild, html);
+		doc.body.firstElementChild.insertAdjacentHTML('beforebegin', html);
 		dForm = doc.body.firstElementChild;
 		$event(window, {'load': function() {
 			while(dForm.nextSibling) {
@@ -7551,7 +7524,7 @@ function replaceDelform() {
 			$disp(doc.body);
 		}});
 	} else {
-		nav.insBefore(dForm, replaceString(html));
+		dForm.insertAdjacentHTML('beforebegin', replaceString(html));
 		dForm.style.display = 'none';
 		dForm.id = 'de-dform-old';
 		dForm = dForm.previousSibling;
@@ -7570,7 +7543,7 @@ function removePageTrash(el) {
 				$del(el);
 				el = i;
 			}
-			nav.insAfter(el, '<hr/>');
+			el.insertAdjacentHTML('afterend', '<hr/>');
 		}
 	} else if(aib.brit) {
 		for(i = 0, els = $C('reflink', el); el = els[i++];) {
