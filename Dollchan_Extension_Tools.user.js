@@ -843,9 +843,9 @@ function readCfg() {
 	Cfg.__proto__ = defaultCfg;
 	if(!nav.isBlob) {
 		Cfg['preLoadImgs'] = 0;
-	}
-	if((!nav.isBlob || nav.Safari) && Cfg['ajaxReply'] === 2) {
-		Cfg['ajaxReply'] = 1;
+		if(Cfg['ajaxReply'] === 2) {
+			Cfg['ajaxReply'] = 1;
+		}
 	}
 	if(!nav.Anim) {
 		Cfg['animations'] = 0;
@@ -1462,7 +1462,7 @@ function getCfgLinks() {
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
-		$if(nav.isBlob && !nav.Safari, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('postSameImg', true, null),
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
@@ -7007,7 +7007,7 @@ function getNavigator() {
 	nav = {
 		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
 		Opera: window.opera ? +window.opera.version() : 0,
-		WebKit: +(ua.match(/WebKit\/([\d.]+)/i) || [,0])[1]
+		WebKit: +(ua.match(/WebKit\/(\d+)/i) || [,0])[1]
 	};
 	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
 	nav.isGM = !!nav.Firefox && typeof GM_setValue === 'function';
@@ -7035,8 +7035,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.isBlob = nav.Firefox > 14 || nav.WebKit > 536;
-	nav.isWorker = nav.Firefox > 17 || nav.WebKit > 536;
+	nav.isBlob = nav.Firefox > 14 || (nav.WebKit && !nav.Safari);
+	nav.isWorker = nav.Firefox > 17 || nav.isBlob;
 	if(nav.Firefox > 17) {
 		$script(
 			'window["de-worker"] = function(url) {\
