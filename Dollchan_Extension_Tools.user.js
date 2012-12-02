@@ -1833,7 +1833,7 @@ function addFavoritesTable(fav) {
 				loaded = 0;
 			$alert(Lng.loading[lang], 'load-pages', true);
 			while(i--) {
-				loadPage(doc.createElement('div'), i, function(page, idx) {
+				loadPageHelper(doc.createElement('div'), i, function(page, idx) {
 					for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
 						arr = el.getAttribute('info').split(';');
 						if(arr[0] === aib.host && arr[1] === brd) {
