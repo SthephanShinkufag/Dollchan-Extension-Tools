@@ -7004,6 +7004,14 @@ function isCompatible() {
 
 function getNavigator() {
 	var ua = window.navigator.userAgent;
+	if(!String.prototype.contains) {
+		String.prototype.contains = function(s) {
+			return this.indexOf(s) !== -1;
+		};
+		String.prototype.startsWith = function(s) {
+			return this.indexOf(s) === 0;
+		};
+	}
 	nav = {
 		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
 		Opera: window.opera ? +window.opera.version() : 0,
@@ -7091,14 +7099,6 @@ function fixFunctions() {
 				Fn.apply(null, aProto.slice.call(arguments, 2));
 			}
 			return 1;
-		};
-	}
-	if(!String.prototype.contains) {
-		String.prototype.contains = function(s) {
-			return this.indexOf(s) !== -1;
-		};
-		String.prototype.startsWith = function(s) {
-			return this.indexOf(s) === 0;
 		};
 	}
 	if(!window.GM_log) {
