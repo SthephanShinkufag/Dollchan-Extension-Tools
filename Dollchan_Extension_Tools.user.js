@@ -7007,10 +7007,10 @@ function getNavigator() {
 	nav = {
 		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
 		Opera: window.opera ? +window.opera.version() : 0,
-		WebKit: +(ua.match(/WebKit\/(\d+)/i) || [,0])[1]
+		WebKit: ua.contains('WebKit/')
 	};
-	nav.Safari = nav.WebKit && !/chrome/i.test(ua);
-	nav.isGM = !!nav.Firefox && typeof GM_setValue === 'function';
+	nav.Safari = nav.WebKit && !ua.contains('Chrome/');
+	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
