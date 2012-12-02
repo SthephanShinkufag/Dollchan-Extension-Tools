@@ -7580,9 +7580,9 @@ function initPage() {
 			docTitle = doc.title;
 		}
 		if(Cfg['updThread'] === 1) {
-			if(nav.Firefox > 10 || nav.WebKit) {
-				doc.addEventListener((nav.WebKit ? 'webkit' : 'moz') + 'visibilitychange', function() {
-					if(doc.mozHidden || doc.webkitHidden) {
+			if(nav.Firefox > 10 || (nav.WebKit && !nav.Safari)) {
+				doc.addEventListener((nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange', function() {
+					if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
 						Favico.focused = false;
 					} else {
 						onVis();
