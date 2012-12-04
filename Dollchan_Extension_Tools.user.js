@@ -2969,14 +2969,14 @@ function showQuickReply(post) {
 		$disp($id('de-togglereply'));
 		if(!TNum && !aib.kus && !aib.hana) {
 			$del($q('#thr_id, input[name="parent"]', pr.form));
-			pr.form.firstChild.insertAdjacentHTML('beforebegin', '<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
+			pr.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
 				aib.fch || aib.futa ? 'resto' :
 				aib.tiny ? 'thread' :
 				'parent'
 			) + '"/>');
 			if(oeForm) {
 				$del($q('input[name="oek_parent"]', oeForm));
-				oeForm.firstChild.insertAdjacentHTML('beforebegin', '<input type="hidden" value="' +
+				oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' +
 					tNum + '" name="oek_parent"/>');
 			}
 		}
@@ -7515,8 +7515,8 @@ function replaceDelform() {
 	$disp(doc.body);
 	var html = dForm.outerHTML || new XMLSerializer().serializeToString(dForm);
 	if(liteMode) {
-		doc.body.firstElementChild.insertAdjacentHTML('beforebegin', html);
-		dForm = doc.body.firstElementChild;
+		doc.body.insertAdjacentHTML('afterbegin', html);
+		dForm = doc.body.firstChild;
 		$event(window, {'load': function() {
 			while(dForm.nextSibling) {
 				$del(dForm.nextSibling);
