@@ -3219,9 +3219,8 @@ function prepareCFeatures() {
 			de_delSelection(e);\
 		}\
 		function de_btnOver(el, data) {\
-			el.de_overDelay = setTimeout(function(msg) {\
-				window.postMessage(msg, "*");\
-			}, ' + Cfg['linksOver'] + ', data);\
+			el.de_overDelay = setTimeout(window.postMessage.bind(window), ' + Cfg['linksOver'] +
+			', data, "*");\
 		}\
 		function de_hideOver(el) {\
 			de_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
@@ -3467,9 +3466,7 @@ function preloadImages(post) {
 				if(nav.Firefox) {
 					queue.end();
 				} else {
-					setTimeout(function() {
-						queue.end();
-					}, 100);
+					setTimeout(queue.end.bind(queue), 100);
 				}
 			});
 		}, function() {
@@ -3694,7 +3691,7 @@ tubeTitleDownloader.prototype = {
 		}
 	},
 	_loadTitle: function(num, data) {
-		GM_xmlhttpRequest({
+		setTimeout(GM_xmlhttpRequest, 0, {
 			'method': 'GET',
 			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
 				'?alt=json&fields=title/text()',
@@ -3704,52 +3701,56 @@ tubeTitleDownloader.prototype = {
 };
 
 function getTubeVideoLinks(id, Fn) {
-	GM_xmlhttpRequest({'method': 'GET', 'url': 'https://www.youtube.com/watch?v=' + id, 'onload': function(xhr) {
-		var group, i, len, el, videoPair, j, pair, url, itag, sig, videoURL = [],
-			formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
-			sep1 = '%2C',
-			sep2 = '%26',
-			sep3 = '%3D';
-		if(!formats) {
-			Fn(null);
-			Fn = null;
-			return;
-		}
-		formats = formats[1];
-		if(formats.contains(',')) { 
-			sep1 = ',';
-			sep2 = formats.contains('&') ? '&' : '\\u0026';
-			sep3 = '=';
-		}
-		for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
-			el = group[i].split(sep2);
-			videoPair = [];
-			for(j = 0; j < el.length; j++) {
-				pair = el[j].split(sep3);
-				if(pair.length === 2) {
-					videoPair[pair[0]] = pair[1];
+	setTimeout(GM_xmlhttpRequest, 0, {
+		'method': 'GET',
+		'url': 'https://www.youtube.com/watch?v=' + id,
+		'onload': function(xhr) {
+			var group, i, len, el, videoPair, j, pair, url, itag, sig, videoURL = [],
+				formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
+				sep1 = '%2C',
+				sep2 = '%26',
+				sep3 = '%3D';
+			if(!formats) {
+				Fn(null);
+				Fn = null;
+				return;
+			}
+			formats = formats[1];
+			if(formats.contains(',')) { 
+				sep1 = ',';
+				sep2 = formats.contains('&') ? '&' : '\\u0026';
+				sep3 = '=';
+			}
+			for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
+				el = group[i].split(sep2);
+				videoPair = [];
+				for(j = 0; j < el.length; j++) {
+					pair = el[j].split(sep3);
+					if(pair.length === 2) {
+						videoPair[pair[0]] = pair[1];
+					}
+				}
+				url = videoPair['url'];
+				if(!url) {
+					continue;
+				}
+				url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
+				itag = videoPair['itag'];
+				if(!itag) {
+					continue;
+				}
+				sig = videoPair['sig'];
+				if(sig) {
+					url += "&signature=" + sig;
+				}
+				if(url.toLowerCase().indexOf('http') === 0) {
+					videoURL[itag] = url;
 				}
 			}
-			url = videoPair['url'];
-			if(!url) {
-				continue;
-			}
-			url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
-			itag = videoPair['itag'];
-			if(!itag) {
-				continue;
-			}
-			sig = videoPair['sig'];
-			if(sig) {
-				url += "&signature=" + sig;
-			}
-			if(url.toLowerCase().indexOf('http') === 0) {
-				videoURL[itag] = url;
-			}
+			Fn(videoURL);
+			Fn = null;
 		}
-		Fn(videoURL);
-		Fn = null;
-	}});
+	});
 }
 
 function addTubeEmbed(el, id, time) {
@@ -4872,10 +4873,7 @@ function infoNewPosts(err, i) {
 				'/favicon.ico', docTitle, Lng.unreadMsg[lang].replace(/%m/g, i)
 			);
 		notif.ondisplay = function() {
-			setTimeout(function() {
-				notif.cancel();
-				notif = null;
-			}, 8e3);
+			setTimeout(this.cancel.bind(this), 8e3);
 		};
 		notif.onclick = function () {
 			if(window.focus) {
@@ -6976,12 +6974,7 @@ function isCompatible() {
 				'id': 'de-fav-script'
 			});
 		}, 1500);
-		$event(window, {'load': function() {
-			setTimeout(function() {
-				clearInterval(intrv);
-				intrv = null;
-			}, 3e4);
-		}});
+		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
 		liteMode = true;
 		pr = {};
 	}
@@ -7095,8 +7088,15 @@ function getNavigator() {
 function fixFunctions() {
 	if(aib.hid) {
 		window.setTimeout = function(Fn, num) {
+			var ev = document.createEvent('HTMLEvents'),
+				args = arguments;
 			if(typeof Fn === 'function') {
-				Fn.apply(null, aProto.slice.call(arguments, 2));
+				window.document.body.addEventListener('timeoutEvent', function() {
+					Fn.apply(null, aProto.slice.call(args, 2));
+					Fn = args = null;
+				}, false);
+				ev.initEvent('timeoutEvent', true, false);
+				window.document.body.dispatchEvent(ev);
 			}
 			return 1;
 		};
@@ -7435,10 +7435,9 @@ function parseDelform(el, dc, Fn) {
 					$after(prevVal, prevVal.lastChild);
 					this(prevVal);
 					return dc.createElement('div');
-				} else {
-					prevVal.appendChild(curVal);
-					return prevVal;
 				}
+				prevVal.appendChild(curVal);
+				return prevVal;
 			}
 			$after(curVal, prevVal);
 			prevVal.appendChild(curVal);
