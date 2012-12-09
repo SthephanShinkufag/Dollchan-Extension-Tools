@@ -1348,13 +1348,13 @@ function getCfgFilters() {
 		lBox('delHiddPost', true, function() {
 			$each($C('de-post-hid', dForm), function(post) {
 				var wrap = aib.getWrap(post),
-					hide = !wrap.style.display;
+					hide = !wrap.classList.contains('de-hidden');
 				if(hide) {
 					wrap.insertAdjacentHTML('afterend', '<span style="counter-increment: de-cnt 1;"></span>');
 				} else {
 					$del(wrap.nextSibling);
 				}
-				wrap.style.display = hide ? 'none' : '';
+				wrap.classList.toggle('de-hidden');
 			});
 			updateCSS();
 		})
@@ -2110,11 +2110,13 @@ function initKeyNavig() {
 			}
 		},
 		scrollToPost = function(posts, idx, dir, scroll, toTop) {
-			var post, mIdx = idx;
-			while(posts[mIdx].hide || posts[mIdx].thr.hide) {
-				mIdx += dir;
+			var post = posts[idx], mIdx = idx;
+			while(post.hide || post.thr.hide) {
+				post = posts[mIdx += dir];
+				if(!post) {
+					return idx;
+				}
 			}
-			post = posts[mIdx];
 			if(mIdx !== idx || scroll) {
 				window.scrollTo(
 					0, toTop ?
@@ -2729,7 +2731,7 @@ function checkUpload(response) {
 	if(aib.abu) {
 		GM_xmlhttpRequest({
 			'method': 'GET',
-			'url': '/makaba/captcha?code=' + (getCookie('usercode') || ''),
+			'url': '/makaba/captcha?usercode=' + (getCookie('usercode') || ''),
 			'onload': function(xhr) {
 				var text = xhr.responseText;
 				if(text.contains('OK') || text.contains('VIP')) {
@@ -3803,7 +3805,7 @@ function updateTubeLinks(post, srcL) {
 		ttd = new tubeTitleDownloader();
 	}
 	aProto.forEach.call(tLinks, function(el, idx) {
-		var m, ttd, link = this[idx];
+		var m, link = this[idx];
 		if(link) {
 			el.onclick = clickTubeLink;
 			el.ytInfo = link.ytInfo;
@@ -4533,17 +4535,14 @@ function addPostFunc(post) {
 	}
 }
 
-function newPost(thr, post, pNum, i) {
+function newPost(thr, post, pNum, i, afterOp) {
 	var pst, el;
 	processPost(post, pNum, thr, i);
 	addPostButtons(post);
-	if(Cfg['expandPosts'] && !TNum) {
-		expandPost(post);
-	}
 	addLinksTube(post);
 	addPostFunc(post);
 	addImgSearch(post);
-	if(postWrapper && i !== 0) {
+	if(postWrapper) {
 		pst = postWrapper.cloneNode(true);
 		el = aib.getPosts(pst)[0];
 		if(el) {
@@ -4554,18 +4553,25 @@ function newPost(thr, post, pNum, i) {
 	} else {
 		pst = post;
 	}
-	thr.appendChild(pst);
-	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
-		preloadImages(post);
+	if(afterOp) {
+		$after(thr = thr.op, pst);
+	} else {
+		thr.appendChild(pst);
 	}
 	if(aib.tiny && !aib.mlpg) {
-		thr.appendChild(doc.createElement('br'));
+		pst.insertAdjacentHTML('afterend', '<br></br>');
+	}
+	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
+		preloadImages(post);
 	}
 	return +!post.hide;
 }
 
-function replaceFullMsg(post, origMsg, repMsg) {
-	var ytExt = $c('de-ytube-ext', origMsg),
+function replaceFullMsg(post, fullPost) {
+	var origMsg = aib.hana ? post.msg.firstElementChild : post.msg,
+		repMsg = aib.hana ? $q('.alternate > div', post)
+			: doc.importNode($q(aib.qMsg, fullPost), true),
+		ytExt = $c('de-ytube-ext', origMsg),
 		ytObj = $c('de-ytube-obj', post),
 		ytLinks = $C('de-ytube-link', origMsg);
 	origMsg.parentNode.replaceChild(post.msg = replacePost(repMsg), origMsg);
@@ -4580,14 +4586,14 @@ function replaceFullMsg(post, origMsg, repMsg) {
 	addPostFunc(post);
 }
 
-function getFullPost(el, isFunc) {
-	var post = getPost(el);
+function getFullPost(node, isFunc) {
+	var post = getPost(node);
 	if(aib.hana) {
-		$del(el.nextSibling);
-		$del(el.previousSibling);
-		$del(el);
+		$del(node.nextSibling);
+		$del(node.previousSibling);
+		$del(node);
 		if(isFunc) {
-			replaceFullMsg(post, post.msg.firstElementChild, $q('.alternate > div', post));
+			replaceFullMsg(post, null);
 		} else {
 			post.msg.replaceChild($q('.alternate > div', post), post.msg.firstElementChild);
 		}
@@ -4597,22 +4603,17 @@ function getFullPost(el, isFunc) {
 		if(err) {
 			return;
 		}
-		var full, i, el;
+		var i, el;
 		if(post.isOp) {
-			full = op;
+			el = op;
 		} else {
-			for(i = 0; el = els[i++];) {
-				if(post.num === aib.getPNum(el)) {
-					full = el;
-					break;
-				}
-			}
+			for(i = 0; el = els[i++] && post.num !== aib.getPNum(el);) {}
 		}
-		if(full) {
-			replaceFullMsg(post, post.msg, doc.importNode($q(aib.qMsg, full), true));
-			$del(el);
+		if(el) {
+			replaceFullMsg(post, el);
+			$del(node);
 		}
-		el = post = null;
+		node = post = null;
 	});
 }
 
@@ -4638,48 +4639,77 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lang], 'load-thr', true);
 	}
 	ajaxGetPosts(null, brd, op.num, true, function(els, newOp, err) {
-		var i, impP, nEls, pCnt, thr = op.thr,
-			len = els.length;
+		var i, j, opIdx, omm, lPosts, el, pCnt, len = els.length,
+			thr = op.thr;
 		if(err) {
 			$alert(err, 'load-thr', false);
 		} else {
 			showMainReply();
+			omm = thr.omitted || getOmPosts(thr);
+			pCnt = thr.visPCnt || thr.pCount - omm - 1;
 			$del($id('de-menu'));
-			pCnt = thr.visPCnt || thr.pCount - getOmPosts(thr) + 1;
-			thr.innerHTML = '';
-			(impP = importPost(newOp)).isOp = true;
-			newPost(thr, impP, aib.getTNum(newOp), 0);
-			impP.tTitle = ($c(aib.cTitle, impP) || {}).textContent ||
-				getText(impP).substring(0, 70).replace(/\s+/g, ' ');
-			Threads[Threads.indexOf(op)] = impP;
-			impP.btns.insertAdjacentHTML('afterend', '&nbsp;[<a href="' +
-				aib.getThrdUrl(brd, impP.num) + '">' + Lng.reply[lang] + '</a>]'
-			);
+			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
+			$each($Q('.de-refmap', dForm), $del);
+			thr.pCount = len + 1;
 			if(last === 1 || last >= len) {
-				i = 0;
+				j = 0;
+				thr.visPCnt = len;
 			} else {
-				i = len - last;
-				thr.visPCnt = last + 1;
-				thr.appendChild($new('div', {
+				j = len - last;
+				thr.visPCnt = last;
+			}
+			thr.omitted = j;
+			if(!(lPosts = thr.loadedPosts)) {
+				lPosts = [];
+				replaceFullMsg(op, newOp);
+			}
+			for(i = 0; i < j; i++) {
+				if(typeof lPosts[i] !== 'undefined') {
+					aib.getWrap(lPosts[i]).classList.add('de-hidden');
+				}
+			}
+			for(i = omm - 1; i >= j; i--) {
+				if(typeof lPosts[i] === 'undefined') {
+					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, true);
+				} else {
+					aib.getWrap(lPosts[i]).classList.remove('de-hidden');
+				}
+			}
+			if(j !== 0) {
+				$after(thr.op, $new('div', {
 					'class': 'de-omitted',
-					'text': Lng.postsOmitted[lang] + i
+					'text': Lng.postsOmitted[lang] + j
 				}, null));
 			}
-			for(nEls = [impP]; i < len; i++) {
-				newPost(thr, impP = importPost(els[i]), aib.getPNum(els[i]), i + 1);
-				nEls.push(impP);
+			if(thr.loadedPosts) {
+				omm += pCnt;
+			} else {
+				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt; omm++, i++) {
+					el = lPosts[omm] = Posts[opIdx + i + 1];
+					if(omm < j) {
+						aib.getWrap(el).classList.add('de-hidden');
+					}
+					replaceFullMsg(el, els[omm]);
+				}
+			}
+			for(; omm < len; omm++) {
+				if(typeof lPosts[omm] === 'undefined') {
+					newPost(thr, lPosts[omm] = importPost(els[omm]), aib.getPNum(els[omm]), omm + 1, false);
+				} else {
+					aib.getWrap(lPosts[omm]).classList.remove('de-hidden');
+				}
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
-					$add('<span>[<a href="#">' + Lng.collapseThrd[lang] + '</a>]</span>')
+					$add('<span class="de-expand">[<a href="#">' + Lng.collapseThrd[lang] + '</a>]</span>')
 				).onclick = function(e) {
 					$pd(e);
 					loadThread(op, 5, null);
 					op = null;
 				};
 			}
-			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt].concat(nEls));
-			thr.pCount = len + 1;
+			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j, len)));
+			thr.loadedPosts = lPosts;
 			closeAlert($id('de-alert-load-thr'));
 		}
 		$focus(op);
@@ -4990,7 +5020,7 @@ function loadNewPosts(Fn) {
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = replacePost(getHanaPost(el[i]));
-							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i);
+							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i, false);
 							Posts.push(post);
 						}
 						thr.pCount += el.length;
@@ -5035,7 +5065,7 @@ function loadNewPosts(Fn) {
 				}
 				checkBan(el, el_);
 			} else {
-				np += newPost(thr, el = importPost(el_), pNum, i);
+				np += newPost(thr, el = importPost(el_), pNum, i, false);
 				Posts.push(el);
 			}
 		}
@@ -5187,10 +5217,11 @@ function setPostVisib(post, hide, note) {
 	}
 	togglePostContent(post, hide);
 	if(Cfg['delHiddPost']) {
-		(el = aib.getWrap(post)).style.display = hide ? 'none' : '';
 		if(hide) {
+			(el = aib.getWrap(post)).classList.add('de-hidden');
 			el.insertAdjacentHTML('afterend', '<span style="counter-increment: de-cnt 1;"></span>');
 		} else {
+			(el = aib.getWrap(post)).classList.remove('de-hidden');
 			$del(el.nextSibling);
 		}
 	} else {
@@ -6752,7 +6783,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
+		.de-hidden' + (aib.tiny && !aib.mlpg ? ', .de-hidden + br' : '') + ', #de-iframe-pform, #de-iframe-dform, small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
@@ -7468,6 +7499,7 @@ function tryToParse(node) {
 			Posts = Posts.concat(els);
 			thr.classList.add('de-thread');
 			thr.pCount = i + getOmPosts(thr);
+			thr.op = op;
 		});
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
