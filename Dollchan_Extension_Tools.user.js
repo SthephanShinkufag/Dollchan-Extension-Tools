@@ -3813,7 +3813,7 @@ function updateTubeLinks(post, srcL) {
 		} else {
 			m = el.href.match(getTubePattern());
 			addLinkTube(el, m, post);
-			ttd.loadTitle([link, m[1]]);
+			ttd.loadTitle([el, m[1]]);
 		}
 	}, srcL);
 	if(ttd) {
@@ -4535,7 +4535,7 @@ function addPostFunc(post) {
 	}
 }
 
-function newPost(thr, post, pNum, i, afterOp) {
+function newPost(thr, post, pNum, i, node) {
 	var pst, el;
 	processPost(post, pNum, thr, i);
 	addPostButtons(post);
@@ -4553,8 +4553,8 @@ function newPost(thr, post, pNum, i, afterOp) {
 	} else {
 		pst = post;
 	}
-	if(afterOp) {
-		$after(thr = thr.op, pst);
+	if(node) {
+		$after(node, pst);
 	} else {
 		thr.appendChild(pst);
 	}
@@ -4667,11 +4667,12 @@ function loadThread(op, last, Fn) {
 					aib.getWrap(lPosts[i]).classList.add('de-hidden');
 				}
 			}
-			for(i = omm - 1; i >= j; i--) {
+			for(i = j, el = thr.op; i< omm; i++) {
 				if(typeof lPosts[i] === 'undefined') {
-					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, true);
+					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, el);
+					el = aib.getWrap(lPosts[i]);
 				} else {
-					aib.getWrap(lPosts[i]).classList.remove('de-hidden');
+					(el = aib.getWrap(lPosts[i])).classList.remove('de-hidden');
 				}
 			}
 			if(j !== 0) {
@@ -4681,7 +4682,9 @@ function loadThread(op, last, Fn) {
 				}, null));
 			}
 			if(thr.loadedPosts) {
-				omm += pCnt;
+				for(i = omm + pCnt; omm < i; omm++) {
+					updRefMap(lPosts[omm]);
+				}
 			} else {
 				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt; omm++, i++) {
 					el = lPosts[omm] = Posts[opIdx + i + 1];
@@ -4692,11 +4695,7 @@ function loadThread(op, last, Fn) {
 				}
 			}
 			for(; omm < len; omm++) {
-				if(typeof lPosts[omm] === 'undefined') {
-					newPost(thr, lPosts[omm] = importPost(els[omm]), aib.getPNum(els[omm]), omm + 1, false);
-				} else {
-					aib.getWrap(lPosts[omm]).classList.remove('de-hidden');
-				}
+				newPost(thr, lPosts[omm] = importPost(els[omm]), aib.getPNum(els[omm]), omm + 1, null);
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
@@ -5019,7 +5018,7 @@ function loadNewPosts(Fn) {
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = replacePost(getHanaPost(el[i]));
-							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i, false);
+							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i, null);
 							Posts.push(post);
 						}
 						thr.pCount += el.length;
@@ -5064,7 +5063,7 @@ function loadNewPosts(Fn) {
 				}
 				checkBan(el, el_);
 			} else {
-				np += newPost(thr, el = importPost(el_), pNum, i, false);
+				np += newPost(thr, el = importPost(el_), pNum, i, null);
 				Posts.push(el);
 			}
 		}
