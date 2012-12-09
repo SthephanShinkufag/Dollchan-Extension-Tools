@@ -4667,7 +4667,7 @@ function loadThread(op, last, Fn) {
 					aib.getWrap(lPosts[i]).classList.add('de-hidden');
 				}
 			}
-			for(i = j, el = thr.op; i< omm; i++) {
+			for(el = thr.op; i < omm; i++) {
 				if(typeof lPosts[i] === 'undefined') {
 					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, el);
 					el = aib.getWrap(lPosts[i]);
