@@ -4649,7 +4649,6 @@ function loadThread(op, last, Fn) {
 			pCnt = thr.visPCnt || thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
-			$each($Q('.de-refmap', dForm), $del);
 			thr.pCount = len + 1;
 			if(last === 1 || last >= len) {
 				j = 0;
