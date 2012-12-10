@@ -6793,8 +6793,7 @@ function scriptCSS() {
 			.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
 			.de-ytube-obj + div { clear: left; }';
 	} else if(aib.fch) {
-		x += '.de-spoiler { color: #000; background-color: #000; }\
-			.de-post-hid > .file, .de-post-hid > blockquote, #mpostform, .navLinks, .postingMode { display: none !important; }';
+		x += '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, #mpostform, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
 			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
@@ -6886,7 +6885,7 @@ function updateCSS() {
 		x += '.commentpostername, .postername, .postertrip { display: none; }';
 	}
 	if(Cfg['noSpoilers']) {
-		x += '.spoiler, .de-spoiler { background: #888 !important; color: #ccc !important; }';
+		x += '.spoiler' + (aib.fch ? ', s' : '') + ' { background: #888 !important; color: #ccc !important; }';
 	}
 	if(Cfg['noPostScrl']) {
 		x += 'blockquote, blockquote > p, .code_part { max-height: 100% !important; overflow: visible !important; }';
@@ -7516,9 +7515,6 @@ function replaceString(txt) {
 	}
 	if(aib.fch || aib.krau) {
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(?=$|<|\s)/ig, '$1<a href="$2">$2</a>');
-	}
-	if(aib.fch && Cfg['noSpoilers']) {
-		txt = txt.replace(/"spoiler">/g, '"de-spoiler">');
 	}
 	if(spells.haveReps) {
 		txt = spells.replace(txt);
