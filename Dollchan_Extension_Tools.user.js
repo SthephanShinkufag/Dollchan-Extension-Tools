@@ -3799,27 +3799,25 @@ function updateTubePlayer(dst, ytObjSrc) {
 	}
 }
 
-function updateTubeLinks(post, srcL) {
-	var ttd, tLinks = $C('de-ytube-link', post);
-	if(tLinks.length > srcL.length) {
-		ttd = new tubeTitleDownloader();
-	}
-	aProto.forEach.call(tLinks, function(el, idx) {
-		var m, link = this[idx];
+function updateTubeLinks(post, oldLinks, newLinks) {
+	var i, j, el, link, ttd, len = newLinks.length;
+	for(i = 0, j = 0; i < len; i++) {
+		el = newLinks[i];
+		link = oldLinks[j];
 		if(link) {
-			el.onclick = clickTubeLink;
-			el.ytInfo = link.ytInfo;
-			el.textData = link.textData;
+			if(getTubePattern().test(el.href)) {
+				el.parentNode.replaceChild(link, el);
+				j++;
+			}
 		} else {
 			m = el.href.match(getTubePattern());
 			addLinkTube(el, m, post);
-			ttd.loadTitle([el, m[1]]);
+			(ttd || (ttd = new tubeTitleDownloader)).loadTitle([el, m[1]]);
 		}
-	}, srcL);
+	}
 	if(ttd) {
 		ttd.saveLoaded();
 	}
-	ttd = null;
 }
 
 function eventTubePreview(el) {
@@ -4302,7 +4300,7 @@ function getPview(post, pNum, parent, link, txt) {
 			addImgSearch(pView);
 		} else {
 			if(Cfg['addYouTube']) {
-				updateTubeLinks(pView, $C('de-ytube-link', post));
+				updateTubeLinks(pView, $C('de-ytube-link', post), $C('de-ytube-link', pView));
 				updateTubePlayer(pView, $c('de-ytube-obj', post));
 			}
 			if(Cfg['addImgs']) {
@@ -4582,7 +4580,7 @@ function replaceFullMsg(post, fullPost) {
 	if(ytObj) {
 		updateTubePlayer(post, ytObj);
 	}
-	updateTubeLinks(post, ytLinks);
+	updateTubeLinks(post, ytLinks, $Q('a[href*="youtu"]', post.msg));
 	addPostFunc(post);
 }
 
