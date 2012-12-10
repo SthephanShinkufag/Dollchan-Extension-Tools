@@ -2759,7 +2759,7 @@ function checkDelete(response) {
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		if(!TNum) {
 			el.checked = false;
-		} else if(!tNums.contains(tNum = getPost(el).thr.num)) {
+		 } else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
 			tNums.push(tNum);
 		}
 	}
@@ -4142,7 +4142,7 @@ function genRefMap(pBn) {
 				if(typeof post.ref === 'undefined') {
 					post.ref = [pNum];
 					refMap.push(post);
-				} else if(!post.ref.contains(pNum)) {
+				} else if(post.ref.indexOf(pNum) === -1) {
 					post.ref.push(pNum);
 				}
 			}
@@ -4158,7 +4158,7 @@ function updRefMap(post) {
 		if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (pst = pByNum[rNum])) {
 			if(typeof pst.ref === 'undefined') {
 				pst.ref = [pNum];
-			} else if(!pst.ref.contains(pNum)) {
+			} else if(pst.ref.indexOf(pNum) === -1) {
 				pst.ref.push(pNum);
 			}
 			$del($c('de-refmap', pst));
