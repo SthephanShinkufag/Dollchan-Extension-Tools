@@ -4661,7 +4661,7 @@ function loadThread(op, last, Fn) {
 				j = len - last;
 				thr.visPCnt = last;
 			}
-			thr.omitted = j;
+			$c('de-thrcnt', thr).style.counterIncrement = 'de-cnt ' + (thr.omitted = j);
 			if(!(lPosts = thr.loadedPosts)) {
 				lPosts = [];
 				replaceFullMsg(op, newOp);
@@ -7488,7 +7488,7 @@ function tryToParse(node) {
 			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			if(!TNum) {
-				thr.insertAdjacentHTML('afterbegin', '<span style="counter-increment: de-cnt ' +
+				thr.insertAdjacentHTML('afterbegin', '<span class="de-thrcnt" style="counter-increment: de-cnt ' +
 					(thr.omitted = getOmPosts(thr)) + ';"></span>');
 			}
 			op.isOp = true;
