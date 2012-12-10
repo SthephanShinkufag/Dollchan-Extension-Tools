@@ -1735,7 +1735,7 @@ function addHiddenTable(hid) {
 			block = contentBlock(hid, '/' + b);
 			for(tNum in obj[b]) {
 				block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
-					tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"/><a href="' +
+					tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
 					aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
 					obj[b][tNum] + '</div></div>');
 			}
@@ -1783,7 +1783,7 @@ function addFavoritesTable(fav) {
 				}
 				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 					$New('div', {'class': aib.cReply}, [
-						$add('<input type="checkbox"/>'),
+						$add('<input type="checkbox">'),
 						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
 						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
 						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
@@ -2975,11 +2975,11 @@ function showQuickReply(post) {
 				aib.fch || aib.futa ? 'resto' :
 				aib.tiny ? 'thread' :
 				'parent'
-			) + '"/>');
+			) + '">');
 			if(oeForm) {
 				$del($q('input[name="oek_parent"]', oeForm));
 				oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' +
-					tNum + '" name="oek_parent"/>');
+					tNum + '" name="oek_parent">');
 			}
 		}
 	}
@@ -3143,7 +3143,7 @@ function addTextPanel() {
 					(val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]')
 				) :
 				Cfg['addTextBtns'] === 3 ?
-					('<input type="button" value="' + val + '" style="font-weight: bold;"/>') :
+					('<input type="button" value="' + val + '" style="font-weight: bold;">') :
 				'';
 			return txtBtn;
 		};
@@ -3756,7 +3756,7 @@ function getTubeVideoLinks(id, Fn) {
 }
 
 function addTubeEmbed(el, id, time) {
-	var wh = ' width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"/>';
+	var wh = ' width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '">';
 	el.innerHTML = Cfg['YTubeType'] === 1 ?
 		'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
 			(Cfg['YTubeHD'] ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh :
@@ -3832,7 +3832,7 @@ function eventTubePreview(el) {
 
 function addTubePreview(el, m) {
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270"/></a>';
+		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270"></a>';
 	if(Cfg['addYouTube'] === 3) {
 		eventTubePreview(el);
 	}
@@ -3939,7 +3939,7 @@ function addLinkMP3(post) {
 			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$q('object[FlashVars*="' + link.href + '"]', el)) {
-			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"/><br>';
+			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"><br>';
 		}
 	}
 }
@@ -4020,7 +4020,7 @@ function addFullImg(a, sz, isExp) {
 		}
 	}
 	a.insertAdjacentHTML('beforeend', '<img class="de-img-full" src="' + a.href + '" alt="' + 
-		a.href + '" width="' + newW + '" height="' + newH + '"/>');
+		a.href + '" width="' + newW + '" height="' + newH + '">');
 	if(Cfg['expandImgs'] === 2) {
 		full = a.lastChild;
 		full.classList.add('de-img-center');
@@ -4546,7 +4546,7 @@ function newPost(thr, post, pNum, i, node) {
 		thr.appendChild(pst);
 	}
 	if(aib.tiny && !aib.mlpg) {
-		pst.insertAdjacentHTML('afterend', '<br></br>');
+		pst.insertAdjacentHTML('afterend', '<br>');
 	}
 	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
 		preloadImages(post);
@@ -4724,7 +4724,7 @@ function loadFavorThread() {
 	$c('de-content', doc).style.overflowY = 'scroll';
 	el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-fav" id="de-iframe-fav" src="' +
 		$t('a', el).href + '" scrolling="no" style="border: none; width: ' +
-		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"/><div id="de-fav-wait" ' + 
+		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"><div id="de-fav-wait" ' + 
 		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>'
 	);
 }
@@ -4944,9 +4944,9 @@ function getHanaFile(file, id) {
 			: (size / gb).toFixed(2) + ' GB'
 		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
 		'</em><br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
-		'"><img title="edit" alt="edit" src="/images/blank.png"/></a></div><a href="/' + src +
+		'"><img title="edit" alt="edit" src="/images/blank.png"></a></div><a href="/' + src +
 		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
-		thumbH + '"/></a></div>';
+		thumbH + '"></a></div>';
 }
 
 function getHanaPost(postJson) {
@@ -4956,7 +4956,7 @@ function getHanaPost(postJson) {
 		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de-post': id}, null);
 	html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
-		'"/></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
+		'"></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
 		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br>';
 	for(i = 0; i < len; i++) {
@@ -7553,7 +7553,7 @@ function removePageTrash(el) {
 				$del(el);
 				el = i;
 			}
-			el.insertAdjacentHTML('afterend', '<hr/>');
+			el.insertAdjacentHTML('afterend', '<hr>');
 		}
 	} else if(aib.brit) {
 		for(i = 0, els = $C('reflink', el); el = els[i++];) {
