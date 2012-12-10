@@ -4272,7 +4272,7 @@ function markRefMap(pView, pNum) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var pView, inDoc, panel;;
+	var pView, inDoc, panel, pText;
 	if(post) {
 		inDoc = post.ownerDocument === doc ;
 		pView = inDoc ? post.cloneNode(true) : importPost(post);
@@ -4316,14 +4316,16 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
+		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+			(typeof post.count !== 'undefined' ?
+				'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
+				(post.count || 'op') + '</span>' : ''
+			);
 		if(panel = $c('de-ppanel', pView)) {
-			panel.innerHTML =
-				(aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
-				(typeof post.count !== 'undefined' ?
-					'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
-					(post.count || 'op') + '</span>' : ''
-				);
 			panel.classList.remove('de-ppanel-cnt');
+			panel.innerHTML = pText;
+		} else {
+			$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
 		}
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
@@ -4420,9 +4422,11 @@ function showPview(link) {
 		if(!err) {
 			var pst, i = 0;
 			op.isOp = true;
+			op.count = 0;
 			op.msg = $q(aib.qMsg, op);
 			Pviews.ajaxed[b][tNum] = op;
 			for(; pst = els[i++];) {
+				pst.count = i + 1;
 				pst.msg = $q(aib.qMsg, pst);
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
