@@ -4571,16 +4571,16 @@ function replaceFullMsg(post, fullPost) {
 			: doc.importNode($q(aib.qMsg, fullPost), true),
 		ytExt = $c('de-ytube-ext', origMsg),
 		ytObj = $c('de-ytube-obj', post),
-		ytLinks = $C('de-ytube-link', origMsg);
+		ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 	origMsg.parentNode.replaceChild(post.msg = replacePost(repMsg), origMsg);
 	post.img = getPostImages(post);
-	if(ytExt) {
-		post.msg.appendChild(ytExt);
-	}
 	if(ytObj) {
 		updateTubePlayer(post, ytObj);
 	}
 	updateTubeLinks(post, ytLinks, $Q('a[href*="youtu"]', post.msg));
+	if(ytExt) {
+		post.msg.appendChild(ytExt);
+	}
 	addPostFunc(post);
 }
 
