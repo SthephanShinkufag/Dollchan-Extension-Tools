@@ -1021,7 +1021,7 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
 	btn.className = 'de-btn-fav-sel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -2759,7 +2759,7 @@ function checkDelete(response) {
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		if(!TNum) {
 			el.checked = false;
-		} else if(!tNums.contains(tNum = getPost(el).thr.num)) {
+		} else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
 			tNums.push(tNum);
 		}
 	}
@@ -3177,7 +3177,7 @@ function addPostButtons(post) {
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
 			html += '<span class="de-btn-fav-sel" onclick="de_favorClick(this)"></span>';
-			Favor[h][brd][post.num].cnt = post.thr.pCount + 1;
+			Favor[h][brd][post.num].cnt = post.thr.pCount;
 		} else {
 			html += '<span class="de-btn-fav" onclick="de_favorClick(this)"></span>';
 		}
@@ -4142,7 +4142,7 @@ function genRefMap(pBn) {
 				if(typeof post.ref === 'undefined') {
 					post.ref = [pNum];
 					refMap.push(post);
-				} else if(!post.ref.contains(pNum)) {
+				} else if(post.ref.indexOf(pNum) === -1) {
 					post.ref.push(pNum);
 				}
 			}
@@ -4158,7 +4158,7 @@ function updRefMap(post) {
 		if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (pst = pByNum[rNum])) {
 			if(typeof pst.ref === 'undefined') {
 				pst.ref = [pNum];
-			} else if(!pst.ref.contains(pNum)) {
+			} else if(pst.ref.indexOf(pNum) === -1) {
 				pst.ref.push(pNum);
 			}
 			$del($c('de-refmap', pst));
