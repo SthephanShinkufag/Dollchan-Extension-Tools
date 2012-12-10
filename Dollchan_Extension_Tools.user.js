@@ -7489,7 +7489,7 @@ function tryToParse(node) {
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			if(!TNum) {
 				thr.insertAdjacentHTML('afterbegin', '<span style="counter-increment: de-cnt ' +
-					(thr.omitted = getOmPosts(thr)) + '";"></span>');
+					(thr.omitted = getOmPosts(thr)) + ';"></span>');
 			}
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
