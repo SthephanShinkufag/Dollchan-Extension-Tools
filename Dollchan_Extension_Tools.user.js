@@ -2759,7 +2759,7 @@ function checkDelete(response) {
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		if(!TNum) {
 			el.checked = false;
-		} else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
+		} else if(!tNums.contains(tNum = getPost(el).thr.num)) {
 			tNums.push(tNum);
 		}
 	}
@@ -3745,7 +3745,7 @@ function getTubeVideoLinks(id, Fn) {
 				if(sig) {
 					url += "&signature=" + sig;
 				}
-				if(url.toLowerCase().indexOf('http') === 0) {
+				if(url.toLowerCase().startsWith('http')) {
 					videoURL[itag] = url;
 				}
 			}
@@ -4142,7 +4142,7 @@ function genRefMap(pBn) {
 				if(typeof post.ref === 'undefined') {
 					post.ref = [pNum];
 					refMap.push(post);
-				} else if(post.ref.indexOf(pNum) === -1) {
+				} else if(!post.ref.contains(pNum)) {
 					post.ref.push(pNum);
 				}
 			}
@@ -4158,7 +4158,7 @@ function updRefMap(post) {
 		if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (pst = pByNum[rNum])) {
 			if(typeof pst.ref === 'undefined') {
 				pst.ref = [pNum];
-			} else if(pst.ref.indexOf(pNum) === -1) {
+			} else if(!pst.ref.contains(pNum)) {
 				pst.ref.push(pNum);
 			}
 			$del($c('de-refmap', pst));
@@ -7004,7 +7004,7 @@ function isCompatible() {
 	}
 	getNavigator();
 	fixFunctions();
-	if((getStored('DESU_Exclude') || '').indexOf(aib.dm) !== -1) {
+	if((getStored('DESU_Exclude') || '').contains(aib.dm)) {
 		return false;
 	}
 	return true;
@@ -7072,15 +7072,15 @@ function getNavigator() {
 		);
 	}
 	nav.forEach =
-		nav.WebKit || nav.Firefox ? function(obj, Fn) {
-			Object.keys(obj).forEach(Fn, obj);
-		} : function(obj, Fn) {
+		nav.Opera ? function(obj, Fn) {
 			for(var i in obj) {
 				if(obj.hasOwnProperty(i)) {
 					Fn.call(obj, i);
 				}
 			}
-		};
+		} : function(obj, Fn) {
+			Object.keys(obj).forEach(Fn, obj);
+		}; 
 	nav.fixLink =
 		nav.Safari ? function(url) {
 			return url[1] === '/' ? 'http:' + url :
@@ -7591,14 +7591,18 @@ function initPage() {
 		}
 		if(Cfg['updThread'] === 1) {
 			if(nav.Firefox > 10 || (nav.WebKit && !nav.Safari)) {
-				doc.addEventListener((nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange', function() {
-					if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
-						Favico.focused = false;
-					} else {
-						onVis();
-					}
-				}, false);
-				Favico.focused = !(doc.mozHidden || doc.webkitHidden);
+				doc.addEventListener(
+					(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
+					function() {
+						if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
+							Favico.focused = false;
+						} else {
+							onVis();
+						}
+					},
+					false
+				);
+				Favico.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
 			} else {
 				window.onblur = function() {
 					Favico.focused = false;
