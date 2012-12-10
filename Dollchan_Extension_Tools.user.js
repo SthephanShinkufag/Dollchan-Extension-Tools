@@ -4594,7 +4594,7 @@ function getFullPost(node, isFunc) {
 		if(post.isOp) {
 			el = op;
 		} else {
-			for(i = 0; el = els[i++] && post.num !== aib.getPNum(el);) {}
+			for(i = 0; (el = els[i++]) && post.num !== aib.getPNum(el);) {}
 		}
 		if(el) {
 			replaceFullMsg(post, el);
