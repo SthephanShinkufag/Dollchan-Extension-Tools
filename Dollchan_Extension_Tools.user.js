@@ -4123,16 +4123,9 @@ function eventPostImg(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getAbsLink(num) {
-	return '<a href="' + this + '#' + num + '">&gt;&gt;' + num + '</a>';
-}
-
-function getRelLink(num) {
-	return '<a href="#' + num + '">&gt;&gt;' + num + '</a>';
-}
-
 function addRefMap(post) {
-	var rM = '<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>';
+	var rM = '<div class="de-refmap">' +
+		post.ref.join(', ').replace(/(\d+)/g, '<a href="#">&gt;&gt;$1</a>') + '</div>';
 	try {
 		post.msg.insertAdjacentHTML('afterend', rM);
 	} catch(e) {
@@ -4140,7 +4133,7 @@ function addRefMap(post) {
 	}
 }
 
-function genRefMap(pBn, tNum) {
+function genRefMap(pBn) {
 	var refMap = [];
 	nav.forEach(pBn, function(pNum) {
 		for(var rNum, post, el, tc, i = 0, els = $T('a', this[pNum].msg); el = els[i++];) {
@@ -4155,11 +4148,7 @@ function genRefMap(pBn, tNum) {
 			}
 		}
 	});
-	if(tNum) {
-		refMap.forEach(addRefMap.bind(getAbsLink.bind(aib.getThrdUrl(brd, tNum))));
-	} else {
-		refMap.forEach(addRefMap.bind(getRelLink));
-	}
+	refMap.forEach(addRefMap);
 	refMap = null;
 }
 
@@ -4173,7 +4162,7 @@ function updRefMap(post) {
 				pst.ref.push(pNum);
 			}
 			$del($c('de-refmap', pst));
-			addRefMap.call(getRelLink, pst);
+			addRefMap(pst);
 			eventRefLink($c('de-refmap', pst));
 			if(Cfg['hideRefPsts'] && pst.hide) {
 				hidePost(post, 'reference to >>' + rNum);
@@ -4392,8 +4381,8 @@ function getAjaxPview(b, pNum, tNum) {
 }
 
 function showPview(link) {
-	var b = link.pathname.match(aib.rePviewBrd)[1],
-		tNum = (link.pathname.match(/[^\/]+\/[^\d]*(\d+)/) || [,0])[1],
+	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, ''),
+		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
 		parent = getPost(link),
@@ -4428,7 +4417,7 @@ function showPview(link) {
 				pst.msg = $q(aib.qMsg, pst);
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
-			genRefMap(Pviews.ajaxed[b], tNum);
+			genRefMap(Pviews.ajaxed[b]);
 			if(el && el.parentNode) {
 				getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, err);
 			}
@@ -4769,7 +4758,7 @@ function parsePages(pages) {
 	addLinkImg(dForm);
 	addImgSearch(dForm);
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum, false);
+		genRefMap(pByNum);
 	}
 	eventRefLink(dForm);
 	readPostsVisib();
@@ -7271,8 +7260,8 @@ function getImageboard() {
 		aib.tiny || aib.fch ? 'post reply' :
 		'reply';
 	aib.cOPost =
+		aib.fch || aib.mlpg || aib.pony ? 'op' :
 		aib.kus ? 'postnode' :
-		aib.fch || aib.mlpg ? 'op' :
 		'oppost';
 	aib.qThread =
 		aib.krau ? '.thread_body' :
@@ -7328,8 +7317,6 @@ function getImageboard() {
 		aib.krau ? 'thread-' :
 		aib.erns ? 'faden/' :
 		'res/';
-	aib.rePviewBrd = new RegExp('^\\/?(.*?)\\/?(?:' + regQuote(aib.res) +
-		(aib.fch ? '|\\d+[^\\/]' : '') + '|index|$)');
 	aib.reCrossLinks = new RegExp(
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
 		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
@@ -7716,7 +7703,7 @@ function doScript() {
 		$log('addImgSearch');
 	}
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum, false);
+		genRefMap(pByNum);
 		$log('genRefMap');
 	}
 	if(Cfg['linksNavig']) {
