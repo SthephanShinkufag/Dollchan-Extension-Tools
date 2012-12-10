@@ -4270,9 +4270,23 @@ function markRefMap(pView, pNum) {
 		'de-pview-link';
 }
 
+function appendPanel(post, pView) {
+	var cnt = post.count,
+		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+			'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
+			(cnt ? (TNum || !post.thr ? cnt : post.thr.omitted + cnt) : 'op') + '</span>',
+		panel = $c('de-ppanel', pView);
+	if(panel) {
+		panel.classList.remove('de-ppanel-cnt');
+		panel.innerHTML = pText;
+	} else {
+		$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
+	}
+}
+
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var pView, inDoc, panel, pText;
+	var pView, inDoc;
 	if(post) {
 		inDoc = post.ownerDocument === doc ;
 		pView = inDoc ? post.cloneNode(true) : importPost(post);
@@ -4316,17 +4330,7 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
-		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
-			(typeof post.count !== 'undefined' ?
-				'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
-				(post.count || 'op') + '</span>' : ''
-			);
-		if(panel = $c('de-ppanel', pView)) {
-			panel.classList.remove('de-ppanel-cnt');
-			panel.innerHTML = pText;
-		} else {
-			$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
-		}
+		appendPanel(post, pView);
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
@@ -4645,7 +4649,7 @@ function loadThread(op, last, Fn) {
 			$alert(err, 'load-thr', false);
 		} else {
 			showMainReply();
-			omm = thr.omitted || getOmPosts(thr);
+			omm = thr.omitted;
 			pCnt = thr.visPCnt || thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
@@ -6680,7 +6684,7 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	if(TNum) x += '.de-thread { counter-reset: de-cnt 1; }\
+	x += '.de-thread { counter-reset: de-cnt 1; }\
 		.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
@@ -7483,6 +7487,10 @@ function tryToParse(node) {
 			}
 			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
+			if(!TNum) {
+				thr.insertAdjacentHTML('afterbegin', '<span style="counter-increment: de-cnt ' +
+					(thr.omitted = getOmPosts(thr)) + '";"></span>');
+			}
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
