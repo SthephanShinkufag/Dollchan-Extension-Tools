@@ -4272,7 +4272,7 @@ function markRefMap(pView, pNum) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var pView, inDoc;
+	var pView, inDoc, panel;;
 	if(post) {
 		inDoc = post.ownerDocument === doc ;
 		pView = inDoc ? post.cloneNode(true) : importPost(post);
@@ -4284,7 +4284,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.de-img-full, .de-ppanel, .de-sound', pView), $del);
+		$each($C('de-img-full', pView), $del);
 		if(!inDoc) {
 			addLinkMP3(pView);
 			addLinksTube(pView);
@@ -4316,8 +4316,14 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
-		if(aib.getSage(post)) {
-			$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-btn-sage" title="SAGE"></span>');
+		if(panel = $c('de-ppanel', pView)) {
+			panel.innerHTML =
+				(aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+				(typeof post.count !== 'undefined' ?
+					'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
+					(post.count || 'op') + '</span>' : ''
+				);
+			panel.classList.remove('de-ppanel-cnt');
 		}
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
@@ -7476,6 +7482,7 @@ function tryToParse(node) {
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
+			op.count = 0;
 			for(i = 0, els = aProto.slice.call(aib.getPosts(thr)); el = els[i++];) {
 				processPost(el, aib.getPNum(el), thr, i + 1);
 			}
