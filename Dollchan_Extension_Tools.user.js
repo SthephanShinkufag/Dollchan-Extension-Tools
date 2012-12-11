@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			12.11.20.0
+// @version			12.12.10.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -11,7 +11,7 @@
 // ==/UserScript==
 
 (function(scriptStorage) {
-var version = '12.11.20.0',
+var version = '12.12.10.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -643,11 +643,6 @@ function getPostImages(el) {
 	return el.querySelectorAll('.thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
 }
 
-function getOmPosts(el) {
-	var i = $q(aib.qOmitted, el);
-	return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
-}
-
 function getText(el) {
 	return el.Text || (el.Text = el.msg.innerHTML
 		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
@@ -1021,7 +1016,7 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount + 1, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
+	Favor[h][b][tNum] = {'cnt': post.thr.pCount, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
 	btn.className = 'de-btn-fav-sel';
 	saveFavorites(JSON.stringify(Favor));
 }
@@ -3178,7 +3173,7 @@ function addPostButtons(post) {
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
 			html += '<span class="de-btn-fav-sel" onclick="de_favorClick(this)"></span>';
-			Favor[h][brd][post.num].cnt = post.thr.pCount + 1;
+			Favor[h][brd][post.num].cnt = post.thr.pCount;
 		} else {
 			html += '<span class="de-btn-fav" onclick="de_favorClick(this)"></span>';
 		}
@@ -4268,7 +4263,7 @@ function markRefMap(pView, pNum) {
 		'de-pview-link';
 }
 
-function appendPanel(post, pView) {
+function appendPviewPanel(post, pView) {
 	var cnt = post.count,
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 			'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
@@ -4328,7 +4323,7 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
-		appendPanel(post, pView);
+		appendPviewPanel(post, pView);
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
@@ -4648,18 +4643,12 @@ function loadThread(op, last, Fn) {
 		} else {
 			showMainReply();
 			omm = thr.omitted;
-			pCnt = thr.visPCnt || thr.pCount - omm - 1;
+			pCnt = thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
 			thr.pCount = len + 1;
-			if(last === 1 || last >= len) {
-				j = 0;
-				thr.visPCnt = len;
-			} else {
-				j = len - last;
-				thr.visPCnt = last;
-			}
-			$c('de-thrcnt', thr).style.counterIncrement = 'de-cnt ' + (thr.omitted = j);
+			j = last !== 1 && last < len ? len - last : 0;
+			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
 			if(!(lPosts = thr.loadedPosts)) {
 				lPosts = [];
 				replaceFullMsg(op, newOp);
@@ -6682,8 +6671,7 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	x += '.de-thread { counter-reset: de-cnt 1; }\
-		.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// Text format buttons
@@ -7040,7 +7028,8 @@ function getNavigator() {
 		Opera: window.opera ? +window.opera.version() : 0,
 		WebKit: ua.contains('WebKit/')
 	};
-	nav.Safari = nav.WebKit && !ua.contains('Chrome/');
+	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
+	nav.Safari = nav.WebKit && !nav.Chrome;
 	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
@@ -7066,8 +7055,8 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.isBlob = nav.Firefox > 14 || (nav.WebKit && !nav.Safari);
-	nav.isWorker = nav.Firefox > 17 || nav.isBlob;
+	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
+	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
 	if(nav.Firefox > 17) {
 		$script(
 			'window["de-worker"] = function(url) {\
@@ -7485,10 +7474,6 @@ function tryToParse(node) {
 			}
 			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
-			if(!TNum) {
-				thr.insertAdjacentHTML('afterbegin', '<span class="de-thrcnt" style="counter-increment: de-cnt ' +
-					(thr.omitted = getOmPosts(thr)) + ';"></span>');
-			}
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
@@ -7499,8 +7484,15 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
+			if(TNum) {
+				thr.omitted = 0;
+			} else {
+				el = $q(aib.qOmitted, thr);
+				thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] : 0;
+			}
+			thr.style.counterReset = 'de-cnt ' + (thr.omitted + 1);
 			thr.classList.add('de-thread');
-			thr.pCount = i + getOmPosts(thr);
+			thr.pCount = i + thr.omitted;
 			thr.op = op;
 		});
 	} catch(e) {
@@ -7610,7 +7602,7 @@ function initPage() {
 			docTitle = doc.title;
 		}
 		if(Cfg['updThread'] === 1) {
-			if(nav.Firefox > 10 || (nav.WebKit && !nav.Safari)) {
+			if(nav.Firefox > 10 || nav.Chrome) {
 				doc.addEventListener(
 					(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
 					function() {
