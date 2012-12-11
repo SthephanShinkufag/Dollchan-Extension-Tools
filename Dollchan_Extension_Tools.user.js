@@ -4279,10 +4279,12 @@ function markRefMap(pView, pNum) {
 
 function appendPviewPanel(post, pView) {
 	var cnt = post.count,
-		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
-			'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
-			(cnt ? (TNum || !post.thr ? cnt : post.thr.omitted + cnt) : 'op') + '</span>',
-		panel = $c('de-ppanel', pView);
+		panel = $c('de-ppanel', pView),
+		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
+			panel && panel.classList.contains('de-ppanel-del') ? ''
+			: '<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
+				(cnt ? (TNum || !post.thr ? cnt : post.thr.omitted + cnt) : 'op') + '</span>'
+		);
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
 		panel.innerHTML = pText;
@@ -5068,7 +5070,7 @@ function loadNewPosts(Fn) {
 				}
 				checkBan(el, el_);
 			} else {
-				np += newPost(thr, el = importPost(el_), pNum, i, null);
+				np += newPost(thr, el = importPost(el_), pNum, i + 1, null);
 				Posts.push(el);
 			}
 		}
