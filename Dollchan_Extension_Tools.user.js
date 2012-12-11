@@ -4270,7 +4270,7 @@ function markRefMap(pView, pNum) {
 		'de-pview-link';
 }
 
-function appendPanel(post, pView) {
+function appendPviewPanel(post, pView) {
 	var cnt = post.count,
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 			'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
@@ -4330,7 +4330,7 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
-		appendPanel(post, pView);
+		appendPviewPanel(post, pView);
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
@@ -4661,7 +4661,7 @@ function loadThread(op, last, Fn) {
 				j = len - last;
 				thr.visPCnt = last;
 			}
-			$c('de-thrcnt', thr).style.counterIncrement = 'de-cnt ' + (thr.omitted = j);
+			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
 			if(!(lPosts = thr.loadedPosts)) {
 				lPosts = [];
 				replaceFullMsg(op, newOp);
@@ -6684,8 +6684,7 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	x += '.de-thread { counter-reset: de-cnt 1; }\
-		.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
+	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
 	// Text format buttons
@@ -7487,10 +7486,7 @@ function tryToParse(node) {
 			}
 			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
-			if(!TNum) {
-				thr.insertAdjacentHTML('afterbegin', '<span class="de-thrcnt" style="counter-increment: de-cnt ' +
-					(thr.omitted = getOmPosts(thr)) + ';"></span>');
-			}
+			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = getOmPosts(thr)) + 1);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
