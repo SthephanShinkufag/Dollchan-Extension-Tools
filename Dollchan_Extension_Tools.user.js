@@ -643,11 +643,6 @@ function getPostImages(el) {
 	return el.querySelectorAll('.thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
 }
 
-function getOmPosts(el) {
-	var i = $q(aib.qOmitted, el);
-	return i && (i = i.textContent) ? +(i.match(/\d+/) || [0])[0] : 0;
-}
-
 function getText(el) {
 	return el.Text || (el.Text = el.msg.innerHTML
 		.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
@@ -7486,7 +7481,6 @@ function tryToParse(node) {
 			}
 			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
-			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = getOmPosts(thr)) + 1);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
@@ -7497,8 +7491,11 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
+			el = $q(aib.qOmitted, thr);
+			thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] : 0;
+			thr.style.counterReset = 'de-cnt ' + (thr.omitted + 1);
 			thr.classList.add('de-thread');
-			thr.pCount = i + getOmPosts(thr);
+			thr.pCount = i + thr.omitted;
 			thr.op = op;
 		});
 	} catch(e) {
