@@ -1945,8 +1945,7 @@ function $alert(txt, id, wait) {
 ==============================================================================*/
 
 function addMenu(el, isPanel, html) {
-	var y, pos, menu, pst = getPost(el),
-		offE = $offset(el);
+	var y, pos, menu, offE = $offset(el);
 	if(Cfg['attachPanel'] && isPanel) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
@@ -1962,11 +1961,11 @@ function addMenu(el, isPanel, html) {
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>');
-	el = $event(doc.body.lastChild, {'mouseover': function() {
-		if(pst) {
-			markPviewToDel(pst, false);
+	el = $event(doc.body.lastChild, {'mouseover': (function() {
+		if(this) {
+			markPviewToDel(this, false);
 		}
-	}});
+	}).bind(getPost(el))});
 	return html ? $Q('span', $id('de-menu')) : el;
 }
 
@@ -2767,9 +2766,8 @@ function checkDelete(response) {
 		return;
 	}
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
-		if(!TNum) {
-			el.checked = false;
-		} else if(tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
+		el.checked = false;
+		if(!TNum && tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
 			tNums.push(tNum);
 		}
 	}
@@ -4279,10 +4277,10 @@ function markRefMap(pView, pNum) {
 }
 
 function appendPviewPanel(post, pView) {
-	var cnt = post.count,
+	var cnt = post.count - (post.dcount || 0),
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
-			panel && panel.classList.contains('de-ppanel-del') ? '' :
+			post.deleted ? '' :
 				'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: ' +
 				'default;">' + (!cnt ? 'OP' : TNum || !post.thr ? cnt : post.thr.omitted + cnt) + '</span>'
 		);
@@ -5001,13 +4999,20 @@ function checkBan(el, node) {
 }
 
 function markDel(post) {
-	if(!post.deleted) {
-		var dd = sessionStorage['de-deleted'];
-		sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + post.count;
-		post.deleted = true;
-		post.btns.classList.remove('de-ppanel-cnt');
-		post.btns.classList.add('de-ppanel-del');
+	if(post.deleted) {
+		return 0;
 	}
+	var temp, len, dd = sessionStorage['de-deleted'],
+		cnt = post.count;
+	sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + cnt;
+	post.deleted = true;
+	for(len = Posts.length + 1; cnt < len; cnt++) {
+		temp = Posts[cnt - 1].dcount;
+		Posts[cnt - 1].dcount = (temp || 0) + 1;
+	}
+	post.btns.classList.remove('de-ppanel-cnt');
+	post.btns.classList.add('de-ppanel-del');
+	return 1;
 }
 
 function loadNewPosts(Fn) {
@@ -5052,6 +5057,7 @@ function loadNewPosts(Fn) {
 		}
 		var i, j, el, el_, pNum, np = 0,
 			len = Posts.length,
+			lastdcount = Posts[len - 1].dcount || 0,
 			len_ = els.length,
 			thr = $c('de-thread', dForm);
 		checkBan(Posts[0], op);
@@ -5059,19 +5065,20 @@ function loadNewPosts(Fn) {
 			el = Posts[i];
 			el_ = els[j];
 			if(!el_) {
-				markDel(el);
+				lastdcount += markDel(el);
 				continue;
 			}
 			pNum = aib.getPNum(el_);
 			if(el) {
 				if(el.num !== pNum) {
-					markDel(el);
+					lastdcount += markDel(el);
 					j--;
 					continue;
 				}
 				checkBan(el, el_);
 			} else {
 				np += newPost(thr, el = importPost(el_), pNum, i + 1, null);
+				el.dcount = lastdcount;
 				Posts.push(el);
 			}
 		}
