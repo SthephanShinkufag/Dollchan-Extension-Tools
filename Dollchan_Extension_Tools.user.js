@@ -4645,17 +4645,11 @@ function loadThread(op, last, Fn) {
 		} else {
 			showMainReply();
 			omm = thr.omitted;
-			pCnt = thr.visPCnt || thr.pCount - omm - 1;
+			pCnt = thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
 			thr.pCount = len + 1;
-			if(last === 1 || last >= len) {
-				j = 0;
-				thr.visPCnt = len;
-			} else {
-				j = len - last;
-				thr.visPCnt = last;
-			}
+			j = last !== 1 && last < len ? len - last : 0;
 			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
 			if(!(lPosts = thr.loadedPosts)) {
 				lPosts = [];
@@ -7036,7 +7030,8 @@ function getNavigator() {
 		Opera: window.opera ? +window.opera.version() : 0,
 		WebKit: ua.contains('WebKit/')
 	};
-	nav.Safari = nav.WebKit && !ua.contains('Chrome/');
+	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
+	nav.Safari = nav.WebKit && !nav.Chrome;
 	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
@@ -7062,8 +7057,9 @@ function getNavigator() {
 			}, false);
 		}
 	}
-	nav.isBlob = nav.Firefox > 14 || (nav.WebKit && !nav.Safari);
-	nav.isWorker = nav.Firefox > 17 || nav.isBlob;
+	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
+	alert(nav.isBlob)
+	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
 	if(nav.Firefox > 17) {
 		$script(
 			'window["de-worker"] = function(url) {\
@@ -7491,8 +7487,12 @@ function tryToParse(node) {
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			el = $q(aib.qOmitted, thr);
-			thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] : 0;
+			if(TNum) {
+				thr.omitted = 0;
+			} else {
+				el = $q(aib.qOmitted, thr);
+				thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] : 0;
+			}
 			thr.style.counterReset = 'de-cnt ' + (thr.omitted + 1);
 			thr.classList.add('de-thread');
 			thr.pCount = i + thr.omitted;
@@ -7605,7 +7605,7 @@ function initPage() {
 			docTitle = doc.title;
 		}
 		if(Cfg['updThread'] === 1) {
-			if(nav.Firefox > 10 || (nav.WebKit && !nav.Safari)) {
+			if(nav.Firefox > 10 || nav.Chrome) {
 				doc.addEventListener(
 					(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
 					function() {
