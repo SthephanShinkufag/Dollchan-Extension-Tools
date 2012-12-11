@@ -3798,9 +3798,9 @@ function addTubePlayer(el, m) {
 	});
 }
 
-function updateTubePlayer(dst, ytObjSrc) {
+function updateTubePlayer(post, ytObjSrc) {
 	if(ytObjSrc) {
-		var ytObjDst = $c('de-ytube-obj', dst);
+		var ytObjDst = post.ytObj = $c('de-ytube-obj', post);
 		ytObjDst.ytInfo = ytObjSrc.ytInfo
 		if(ytObjSrc.tubeImg) {
 			eventTubePreview(ytObjDst);
@@ -3808,25 +3808,23 @@ function updateTubePlayer(dst, ytObjSrc) {
 	}
 }
 
-function updateTubeLinks(post, oldLinks, newLinks) {
-	var i, j, el, link, ttd, len = newLinks.length;
+function updateTubeLinks(post, oldLinks, newLinks, cloned) {
+	var i, j, el, link, temp, ttd = !cloned && new tubeTitleDownloader,
+		len = newLinks.length;
 	for(i = 0, j = 0; i < len; i++) {
 		el = newLinks[i];
 		link = oldLinks[j];
-		if(link) {
-			if(getTubePattern().test(el.href)) {
-				el.parentNode.replaceChild(link, el);
-				j++;
-			}
-		} else {
-			m = el.href.match(getTubePattern());
+		if(cloned) {
+			el.ytInfo = link.ytInfo;
+			el.onclick = clickTubeLink;
+		} else if(getTubePattern().test(el.href)) {
+			m = link ? link.ytInfo : el.href.match(getTubePattern());
 			addLinkTube(el, m, post);
-			(ttd || (ttd = new tubeTitleDownloader)).loadTitle([el, m[1]]);
+			ttd.loadTitle([el, m[1]]);
+			j++;
 		}
 	}
-	if(ttd) {
-		ttd.saveLoaded();
-	}
+	ttd && ttd.saveLoaded();
 }
 
 function eventTubePreview(el) {
@@ -4314,8 +4312,8 @@ function getPview(post, pNum, parent, link, txt) {
 			addImgSearch(pView);
 		} else {
 			if(Cfg['addYouTube']) {
-				updateTubeLinks(pView, $C('de-ytube-link', post), $C('de-ytube-link', pView));
 				updateTubePlayer(pView, $c('de-ytube-obj', post));
+				updateTubeLinks(pView, $C('de-ytube-link', post), $C('de-ytube-link', pView), true);
 			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', pView), function(el) {
@@ -4584,14 +4582,10 @@ function replaceFullMsg(post, fullPost) {
 		repMsg = aib.hana ? $q('.alternate > div', post)
 			: doc.importNode($q(aib.qMsg, fullPost), true),
 		ytExt = $c('de-ytube-ext', origMsg),
-		ytObj = $c('de-ytube-obj', post),
 		ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 	origMsg.parentNode.replaceChild(post.msg = replacePost(repMsg), origMsg);
 	post.img = getPostImages(post);
-	if(ytObj) {
-		updateTubePlayer(post, ytObj);
-	}
-	updateTubeLinks(post, ytLinks, $Q('a[href*="youtu"]', post.msg));
+	updateTubeLinks(post, ytLinks, $Q('a[href*="youtu"]', post.msg), false);
 	if(ytExt) {
 		post.msg.appendChild(ytExt);
 	}
