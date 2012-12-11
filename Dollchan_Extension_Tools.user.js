@@ -1744,6 +1744,20 @@ function addHiddenTable(hid) {
 			);
 			setStored('DESU_Threads', JSON.stringify(comHThr));
 		}),
+		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
+			$each($Q('.de-entry[info]', this.parentNode), function(el) {
+				var arr = el.getAttribute('info').split(';');
+				ajaxGetPosts(null, arr[0], arr[1], false, function(a, dc, err) {
+					if(err) {
+						delete comHThr[aib.dm][arr[0]][arr[1]];
+						cleanHiddenThreads(arr[0]);
+						saveHiddenThreads();
+						saveUserPostsVisib();
+					}
+					arr = null;
+				});
+			});
+		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(el) {
 				var arr = el.getAttribute('info').split(';');
