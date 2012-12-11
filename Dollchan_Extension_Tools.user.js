@@ -4279,7 +4279,7 @@ function appendPviewPanel(post, pView) {
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
 			post.deleted ? '' :
-				'<i style="vertical-align: 1px; color: #4f7942; font: bold 13px serif; cursor: ' +
+				'<i style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: ' +
 				'default;">' + (!cnt ? 'OP' : TNum || !post.thr ? cnt : post.thr.omitted + cnt) + '</i>'
 		);
 	if(panel) {
