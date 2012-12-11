@@ -2764,7 +2764,7 @@ function checkDelete(response) {
 	}
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		el.checked = false;
-		if(TNum && tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
+		if(!TNum && tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
 			tNums.push(tNum);
 		}
 	}
