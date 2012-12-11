@@ -3079,24 +3079,22 @@ function addTextButton(bbBrds, id) {
 		}, null);
 		if(val !== '&gt;') {
 			btn.onclick = function(e) {
-				var txt, len, x = pr.txta,
+				var m, txt, len, x = pr.txta,
 					start = x.selectionStart,
 					end = x.selectionEnd,
 					scrtop = x.scrollTop,
 					tag = this.getAttribute('de-tag');
 				$pd(e);
 				if(this.getAttribute('de-bb') === 'true') {
-					txt = (function(all, bs, txt, es) {
-						return bs + '[' + this + ']' + txt + '[/' + this + ']' + es;
-					}).apply(tag, x.value.substring(start, end).match(/^(\s*)((?:.|\n|\r)*)(\s*)$/));
+					m = x.value.substring(start, end).match(/^(\s*)((?:.|\n|\r)*?)(\s*)$/);
+					txt = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
 				} else {
 					txt = '';
 					x.value.substring(start, end).split('\n').forEach(function(line) {
-						txt += '\n' +(function(all, bs, txt, es) {
-							return bs + (tag ? this + txt + this
-								: txt + new Array(txt.length + 1).join('^H')
-							) + es;
-						}).apply(tag, line.match(/^(\s*)(.*)(\s*)$/));
+						var m = line.match(/^(\s*)(.*?)(\s*)$/);
+						txt += '\n' + m[1] + (tag ? tag + m[2] + tag
+							: m[2] + new Array(txt.length + 1).join('^H')
+						) + m[3];
 					});
 					txt = txt.slice(1);
 				}
