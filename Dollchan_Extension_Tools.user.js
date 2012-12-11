@@ -3066,87 +3066,86 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
+function addTextButton(bbBrds, id) {
+	var btn = $id('de-btn-' + id),
+		tag = this[id][0],
+		val = this[id][1];
+	if(!btn) {
+		btn = $new('span', {
+			'id': 'de-btn-' + id,
+			'title': Lng.txtBtn[id][lang],
+			'de-tag': tag,
+			'de-bb': bbBrds || (aib.fch && tag === 'spoiler')
+		}, null);
+		if(val !== '&gt;') {
+			btn.onclick = function(e) {
+				var txt, len, x = pr.txta,
+					start = x.selectionStart,
+					end = x.selectionEnd,
+					scrtop = x.scrollTop,
+					tag = this.getAttribute('de-tag');
+				$pd(e);
+				if(this.getAttribute('de-bb') === 'true') {
+					txt = (function(all, bs, txt, es) {
+						return bs + '[' + this + ']' + txt + '[/' + this + ']' + es;
+					}).apply(tag, x.value.substring(start, end).match(/^(\s*)((?:.|\n|\r)*)(\s*)$/));
+				} else {
+					txt = '';
+					x.value.substring(start, end).split('\n').forEach(function(line) {
+						txt += '\n' +(function(all, bs, txt, es) {
+							return bs + (tag ? this + txt + this
+								: txt + new Array(txt.length + 1).join('^H')
+							) + es;
+						}).apply(tag, line.match(/^(\s*)(.*)(\s*)$/));
+					});
+					txt = txt.slice(1);
+				}
+				len = start + txt.length;
+				x.value = x.value.substr(0, start) + txt + x.value.substr(end);
+				x.setSelectionRange(len, len);
+				x.focus();
+				x.scrollTop = scrtop;
+				txt = tag = null;
+			};
+		} else {
+			btn.onmouseover = function() {
+				quotetxt = $txtSelect();
+			};
+			btn.onclick = function(e) {
+				var x = pr.txta,
+					start = x.selectionStart,
+					end = x.selectionEnd;
+				$pd(e);
+				$txtInsert(x, '> ' + (
+					start === end ? quotetxt : x.value.substring(start, end)
+				).replace(/\n/gm, '\n> '));
+			};
+		}
+		$id('de-txt-panel').appendChild(btn);
+	}
+	btn.innerHTML =
+		Cfg['addTextBtns'] === 2 ? (
+			(val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]')
+		) :
+		Cfg['addTextBtns'] === 3 ?
+			('<input type="button" value="' + val + '" style="font-weight: bold;">') :
+		'';
+}
+
 function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
 	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.abu,
-		tagTable = {
+		txtBtn = addTextButton.bind({
 			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
 			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
 			'under': [bbBrds ? 'u' : '__', 'U'],
 			'strike': [aib.mlpg ? '-' : bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
 			'spoil': [aib.mlpg ? 's' : aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
 			'code': [aib.mlpg ? 'c' : aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
-			'quote': [,'&gt;']
-		},
-		txtBtn = function(id) {
-			var x = pr.txta,
-				btn = $id('de-btn-' + id),
-				val = tagTable[id][1];
-			if(!btn) {
-				btn = $new('span', {'id': 'de-btn-' + id, 'title': Lng.txtBtn[id][lang]}, null);
-				if(val !== '&gt;') {
-					btn.onclick = function(e) {
-						var tag1, tag2, j, len,
-							start = x.selectionStart,
-							end = x.selectionEnd,
-							scrtop = x.scrollTop,
-							text = x.value.substring(start, end).split('\n'),
-							i = text.length,
-							tag = tagTable[this.id.substring(7)][0];
-						$pd(e);
-						if(bbBrds || (aib.fch && tag === 'spoiler')) {
-							tag1 = '[' + tag + ']';
-							tag2 = '[/' + tag + ']';
-						} else {
-							tag1 = tag2 = tag;
-						}
-						while(i--) {
-							if(!tag1) {
-								j = text[i].trim().length;
-								while(j--) {
-									tag2 += '^H';
-								}
-							}
-							len = end + tag1.length + tag2.length;
-							if(text[i].match(/^\s+/)) {
-								tag1 = text[i].match(/^\s+/)[0] + tag1;
-							}
-							if(text[i].match(/\s+$/)) {
-								tag2 += text[i].match(/\s+$/)[0];
-							}
-							text[i] = tag1 + text[i].trim() + tag2;
-						}
-						x.value = x.value.substr(0, start) + text.join('\n') + x.value.substr(end);
-						x.setSelectionRange(len, len);
-						x.focus();
-						x.scrollTop = scrtop;
-					};
-				} else {
-					btn.onmouseover = function() {
-						quotetxt = $txtSelect();
-					};
-					btn.onclick = function(e) {
-						var start = x.selectionStart,
-							end = x.selectionEnd;
-						$pd(e);
-						$txtInsert(x, '> ' + (
-							start === end ? quotetxt : x.value.substring(start, end)
-						).replace(/\n/gm, '\n> '));
-					};
-				}
-				$id('de-txt-panel').appendChild(btn);
-			}
-			btn.innerHTML =
-				Cfg['addTextBtns'] === 2 ? (
-					(val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]')
-				) :
-				Cfg['addTextBtns'] === 3 ?
-					('<input type="button" value="' + val + '" style="font-weight: bold;">') :
-				'';
-			return txtBtn;
-		};
+			'quote': ['', '&gt;']
+		}, bbBrds);
 	$after(
 		Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || pr.txta :
 			aib._420 ? $c('popup', pr.form) :
@@ -3155,11 +3154,15 @@ function addTextPanel() {
 			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 		})
 	);
-	txtBtn('bold')('italic');
+	txtBtn('bold');
+	txtBtn('italic');
 	if(!aib._420) {
-		txtBtn('under')('strike');
+		txtBtn('under');
+		txtBtn('strike');
 	}
-	txtBtn('spoil')('code')('quote');
+	txtBtn('spoil');
+	txtBtn('code');
+	txtBtn('quote');
 }
 
 
@@ -4267,6 +4270,20 @@ function markRefMap(pView, pNum) {
 		'de-pview-link';
 }
 
+function appendPanel(post, pView) {
+	var cnt = post.count,
+		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+			'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
+			(cnt ? (TNum || !post.thr ? cnt : post.thr.omitted + cnt) : 'op') + '</span>',
+		panel = $c('de-ppanel', pView);
+	if(panel) {
+		panel.classList.remove('de-ppanel-cnt');
+		panel.innerHTML = pText;
+	} else {
+		$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
+	}
+}
+
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
 	var pView, inDoc;
@@ -4281,7 +4298,7 @@ function getPview(post, pNum, parent, link, txt) {
 			$del($c('doubledash', pView));
 		}
 		pView.num = pNum;
-		$each($Q('.de-img-full, .de-ppanel, .de-sound', pView), $del);
+		$each($C('de-img-full', pView), $del);
 		if(!inDoc) {
 			addLinkMP3(pView);
 			addLinksTube(pView);
@@ -4313,9 +4330,7 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
-		if(aib.getSage(post)) {
-			$q(aib.qRef, pView).insertAdjacentHTML('afterend', '<span class="de-btn-sage" title="SAGE"></span>');
-		}
+		appendPanel(post, pView);
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
 				if(!pst.viewed) {
@@ -4411,9 +4426,11 @@ function showPview(link) {
 		if(!err) {
 			var pst, i = 0;
 			op.isOp = true;
+			op.count = 0;
 			op.msg = $q(aib.qMsg, op);
 			Pviews.ajaxed[b][tNum] = op;
 			for(; pst = els[i++];) {
+				pst.count = i + 1;
 				pst.msg = $q(aib.qMsg, pst);
 				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 			}
@@ -4632,7 +4649,7 @@ function loadThread(op, last, Fn) {
 			$alert(err, 'load-thr', false);
 		} else {
 			showMainReply();
-			omm = thr.omitted || getOmPosts(thr);
+			omm = thr.omitted;
 			pCnt = thr.visPCnt || thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
@@ -4644,7 +4661,7 @@ function loadThread(op, last, Fn) {
 				j = len - last;
 				thr.visPCnt = last;
 			}
-			thr.omitted = j;
+			$c('de-thrcnt', thr).style.counterIncrement = 'de-cnt ' + (thr.omitted = j);
 			if(!(lPosts = thr.loadedPosts)) {
 				lPosts = [];
 				replaceFullMsg(op, newOp);
@@ -6667,7 +6684,7 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	if(TNum) x += '.de-thread { counter-reset: de-cnt 1; }\
+	x += '.de-thread { counter-reset: de-cnt 1; }\
 		.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
 		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
 
@@ -7470,9 +7487,14 @@ function tryToParse(node) {
 			}
 			var i, els, el, op = aib.getOp(thr, doc);
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
+			if(!TNum) {
+				thr.insertAdjacentHTML('afterbegin', '<span class="de-thrcnt" style="counter-increment: de-cnt ' +
+					(thr.omitted = getOmPosts(thr)) + ';"></span>');
+			}
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
+			op.count = 0;
 			for(i = 0, els = aProto.slice.call(aib.getPosts(thr)); el = els[i++];) {
 				processPost(el, aib.getPNum(el), thr, i + 1);
 			}
