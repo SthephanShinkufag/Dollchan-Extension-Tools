@@ -1945,8 +1945,7 @@ function $alert(txt, id, wait) {
 ==============================================================================*/
 
 function addMenu(el, isPanel, html) {
-	var y, pos, menu, pst = getPost(el),
-		offE = $offset(el);
+	var y, pos, menu, offE = $offset(el);
 	if(Cfg['attachPanel'] && isPanel) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
@@ -1962,11 +1961,11 @@ function addMenu(el, isPanel, html) {
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>');
-	el = $event(doc.body.lastChild, {'mouseover': function() {
-		if(pst) {
-			markPviewToDel(pst, false);
+	el = $event(doc.body.lastChild, {'mouseover': (function() {
+		if(this) {
+			markPviewToDel(this, false);
 		}
-	}});
+	}).bind(getPost(el))});
 	return html ? $Q('span', $id('de-menu')) : el;
 }
 
