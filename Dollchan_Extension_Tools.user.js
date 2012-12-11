@@ -343,7 +343,8 @@ Lng = {
 	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
 	expandAll:		['Раскрыть все', 'Expand all'],
 	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
-	noFavorites:	['Нет избранных тредов...', 'Favorites is empty...'],
+	favThrds:		['Избранные треды:', 'Favorite threads:'],
+	noFavThrds:		['Нет избранных тредов...', 'Favorites is empty...'],
 	reply:			['Ответ', 'Reply'],
 	replyTo:		['Ответ в', 'Reply to'],
 	replies:		['Ответы:', 'Replies:'],
@@ -1804,9 +1805,7 @@ function addFavoritesTable(fav) {
 			}
 		}
 	}
-	if(!block) {
-		fav.appendChild($new('b', {'text': Lng.noFavorites[lang]}, null));
-	}
+	fav.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
 	$append(fav, [
 		doc.createElement('hr'),
 		addEditButton('favor', Favor, function() {
@@ -1958,13 +1957,13 @@ function addMenu(el, isPanel, html) {
 		pos = 'absolute';
 		y = 'top: ' + (offE.top - offP['top'] + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
-	(pst || doc.body).insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
+	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		'" id="de-menu" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
 				'left: ' + (offE.left - offP['left']) :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>');
-	return html ? $Q('span', $id('de-menu')) : (pst || doc.body).lastChild;
+	return html ? $Q('span', $id('de-menu')) : doc.body.lastChild;
 }
 
 function addSpellMenu(e) {
@@ -1993,9 +1992,7 @@ function addPostHideMenu(post) {
 	}
 	var el, menu = addMenu(post.btns.firstChild, false, ''),
 		add = function(name, Fn) {
-			var el = $add('<span>' + Lng.selHiderMenu[name][lang] + '</span>');
-			el.onclick = Fn;
-			menu.appendChild(el);
+			menu.appendChild($add('<span>' + Lng.selHiderMenu[name][lang] + '</span>')).onclick = Fn;
 		};
 	if(!post.hide && (quotetxt = $txtSelect().trim())) {
 		add('sel', function() {
@@ -4281,9 +4278,9 @@ function appendPviewPanel(post, pView) {
 	var cnt = post.count,
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
-			panel && panel.classList.contains('de-ppanel-del') ? ''
-			: '<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default;">' +
-				(cnt ? (TNum || !post.thr ? cnt : post.thr.omitted + cnt) : 'op') + '</span>'
+			panel && panel.classList.contains('de-ppanel-del') ? '' :
+				'<span style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: ' +
+				'default;">' + (!cnt ? 'OP' : TNum || !post.thr ? cnt : post.thr.omitted + cnt) + '</span>'
 		);
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
