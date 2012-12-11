@@ -3070,7 +3070,7 @@ function addTextButton(bbBrds, id) {
 			'id': 'de-btn-' + id,
 			'title': Lng.txtBtn[id][lang],
 			'de-tag': tag,
-			'de-bb': bbBrds || (aib.fch && tag === 'spoiler')
+			'de-bb': bbBrds || (!!aib.fch && tag === 'spoiler')
 		}, null);
 		if(val !== '&gt;') {
 			btn.onclick = function(e) {
