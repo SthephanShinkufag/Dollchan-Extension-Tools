@@ -1946,24 +1946,28 @@ function $alert(txt, id, wait) {
 
 function addMenu(el, isPanel, html) {
 	var y, pos, menu, pst = getPost(el),
-		offE = $offset(el),
-		offP = pst && pst.classList.contains('de-pview') ? $offset(pst) : {'top': 0, 'left': 0};
+		offE = $offset(el);
 	if(Cfg['attachPanel'] && isPanel) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
 			'bottom: 25' :
-			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
+			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + (offE.top - offP['top'] + el.offsetHeight - (nav.Firefox ? .5 : 0));
+		y = 'top: ' + (offE.top + el.offsetHeight);
 	}
 	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		'" id="de-menu" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
-				'left: ' + (offE.left - offP['left']) :
+				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>');
-	return html ? $Q('span', $id('de-menu')) : doc.body.lastChild;
+	el = $event(doc.body.lastChild, {'mouseover': function() {
+		if(pst) {
+			markPviewToDel(pst, false);
+		}
+	}});
+	return html ? $Q('span', $id('de-menu')) : el;
 }
 
 function addSpellMenu(e) {
