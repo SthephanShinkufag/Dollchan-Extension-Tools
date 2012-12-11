@@ -7058,7 +7058,6 @@ function getNavigator() {
 		}
 	}
 	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
-	alert(nav.isBlob)
 	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
 	if(nav.Firefox > 17) {
 		$script(
