@@ -4799,6 +4799,8 @@ function preparePage() {
 	}
 	dForm.innerHTML = '';
 	Posts = [];
+	Threads = [];
+	pByNum = {};
 	Pviews.ajaxed = {};
 }
 
