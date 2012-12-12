@@ -4979,9 +4979,12 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		lastdcount = oPosts[len - 1].dcount || 0,
 		len_ = nPosts.length;
 	for(i = 1, j = 0; i < len || j < len_; ) {
-		el = oPosts[i];
 		el_ = nPosts[j];
-		if(el) {
+		if(i >= len) {
+			np += newPost(thr, el = importPost(el_), aib.getPNum(el_), i + 1, null);
+			el.dcount = lastdcount;
+			oPosts.push(el);
+		} else if(el = oPosts[i]) {
 			if(!el_ || el.num !== aib.getPNum(el_)) {
 				if(TNum) {
 					if(!el.deleted) {
@@ -5016,10 +5019,6 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 				(fEl = aib.getWrap(el)).classList.remove('de-hidden');
 			}
 			checkBan(el, el_);
-		} else if(i >= len) {
-			np += newPost(thr, el = importPost(el_), aib.getPNum(el_), i + 1, null);
-			el.dcount = lastdcount;
-			oPosts.push(el);
 		} else if(i >= from) {
 			if(fEl && aib.tiny && !aib.mlpg) {
 				fEl = fEl.nextSibling;
