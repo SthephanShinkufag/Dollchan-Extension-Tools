@@ -4627,8 +4627,8 @@ function expandPost(post) {
 	if(post.hide) {
 		return;
 	}
-	var el = $q(aib.qTrunc, post);
-	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+	var el;
+	if(el = aib.isTrunc(post)) {
 		if(Cfg['expandPosts'] === 1) {
 			getFullPost(el, false);
 		} else {
@@ -4645,80 +4645,36 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lang], 'load-thr', true);
 	}
 	ajaxGetPosts(null, brd, op.num, true, function(els, newOp, err) {
-		var i, j, opIdx, omm, lPosts, el, pCnt, len = els.length,
+		var i, j, opIdx, omt, lPosts, el, pCnt, len = els.length,
 			thr = op.thr;
 		if(err) {
 			$alert(err, 'load-thr', false);
 		} else {
 			showMainReply();
-			omm = thr.omitted;
-			pCnt = thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
-			thr.pCount = len + 1;
+			omt = thr.omitted;
+			pCnt = thr.pCount - omt - 1;
+			if(!(lPosts = thr.loadedPosts)) {
+				lPosts = [op];
+				if(aib.isTrunc(op)) {
+					replaceFullMsg(op, newOp);
+				}
+				for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
+					el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
+					if(aib.isTrunc(el)) {
+						replaceFullMsg(el, els[omt + i]);
+					}
+				}
+			}
 			j = last !== 1 && last < len ? len - last : 0;
 			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
-			if(!(lPosts = thr.loadedPosts)) {
-				lPosts = [];
-				replaceFullMsg(op, newOp);
-			}
-			for(i = 0; i < j;) {
-				if(typeof lPosts[i] !== 'undefined') {
-					if(lPosts[i].num !== aib.getPNum(els[i])) {
-						$del(aib.getWrap(lPosts[i]));
-						lPosts.splice(i, 1);
-						continue;
-					}
-					aib.getWrap(lPosts[i]).classList.add('de-hidden');
-				}
-				i++;
-			}
-			for(el = thr.op; i < omm; i++) {
-				if(typeof lPosts[i] === 'undefined') {
-					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, el);
-					el = aib.getWrap(lPosts[i]);
-				} else {
-					if(lPosts[i].num !== aib.getPNum(els[i])) {
-						$del(aib.getWrap(lPosts[i]));
-						lPosts.splice(i, 1);
-						continue;
-					}
-					(el = aib.getWrap(lPosts[i])).classList.remove('de-hidden');
-				}
-				i++
-			}
+			parsePosts(thr, lPosts, els, j + 1, omt);
 			if(j !== 0) {
 				$after(thr.op, $new('div', {
 					'class': 'de-omitted',
 					'text': Lng.postsOmitted[lang] + j
 				}, null));
-			}
-			if(thr.loadedPosts) {
-				for(i = omm + pCnt; omm < i;) {
-					if(lPosts[omm].num !== aib.getPNum(els[omm])) {
-						$del(aib.getWrap(lPosts[i]));
-						lPosts.splice(i, 1);
-						continue;
-					}
-					updRefMap(lPosts[omm++]);
-				}
-			} else {
-				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt;) {
-					el = lPosts[omm] = Posts[opIdx + i + 1];
-					if(lPosts[omm].num !== aib.getPNum(els[omm])) {
-						$del(aib.getWrap(lPosts[omm]));
-						lPosts.splice(omm, 1);
-						continue;
-					}
-					if(omm < j) {
-						aib.getWrap(el).classList.add('de-hidden');
-					}
-					replaceFullMsg(el, els[omm++]);
-					i++;
-				}
-			}
-			for(; omm < len; omm++) {
-				newPost(thr, lPosts[omm] = importPost(els[omm]), aib.getPNum(els[omm]), omm + 1, null);
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
@@ -5017,21 +4973,64 @@ function checkBan(el, node) {
 	}
 }
 
-function markDel(post) {
-	if(post.deleted) {
-		return 0;
+function markDel(posts, post) {
+	if(TNum) {
+		if(post.deleted) {
+			return 0;
+		}
+		var temp = sessionStorage['de-deleted-' + TNum],
+			len = posts.length + 1,
+			cnt = post.count;
+		sessionStorage['de-deleted-' + TNum] = (temp ? temp + ',' : '') + cnt;
+		for(; cnt < len; cnt++) {
+			posts[cnt - 1].dcount = (posts[cnt - 1].dcount || 0) + 1;
+		}
+		post.deleted = true;
+		post.btns.classList.remove('de-ppanel-cnt');
+		post.btns.classList.add('de-ppanel-del');
+		return 1;
 	}
-	var temp, len, dd = sessionStorage['de-deleted'],
-		cnt = post.count;
-	sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + cnt;
-	post.deleted = true;
-	for(len = Posts.length + 1; cnt < len; cnt++) {
-		temp = Posts[cnt - 1].dcount;
-		Posts[cnt - 1].dcount = (temp || 0) + 1;
+	posts.splice(post.count - 1, 1);
+	return 0;
+}
+
+function parsePosts(thr, oPosts, nPosts, from, omt) {
+	var i, j, el, el_, fEl = thr.op,
+		np = 0,
+		len = oPosts.length,
+		lastdcount = oPosts[len - 1].dcount || 0,
+		len_ = nPosts.length;
+	for(i = 1, j = 0; i < len || j < len_; ) {
+		el = oPosts[i];
+		el_ = nPosts[j];
+		if(el) {
+			if(!el_ || el.num !== aib.getPNum(el_)) {
+				lastdcount += markDel(el);
+				if(TNum) {
+					i++;
+				}
+				continue;
+			}
+			if(i < from) {
+				if(i > omt) {
+					aib.getWrap(el).classList.add('de-hidden');
+				}
+			} else if(from !== -1) {
+				(fEl = aib.getWrap(el)).classList.remove('de-hidden');
+			}
+			checkBan(el, el_);
+		} else if(i >= len) {
+			np += newPost(thr, el = importPost(el_), aib.getPNum(el_), i + 1, null);
+			el.dcount = lastdcount;
+			oPosts.push(el);
+		} else if(i >= from) {
+			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl);
+			fEl = aib.getWrap(el);
+		}
+		j++;
+		i++;
 	}
-	post.btns.classList.remove('de-ppanel-cnt');
-	post.btns.classList.add('de-ppanel-del');
-	return 1;
+	return [thr.pCount = len, np];
 }
 
 function loadNewPosts(Fn) {
@@ -5074,37 +5073,11 @@ function loadNewPosts(Fn) {
 			Fn = null;
 			return;
 		}
-		var i, j, el, el_, pNum, np = 0,
-			len = Posts.length,
-			lastdcount = Posts[len - 1].dcount || 0,
-			len_ = els.length,
-			thr = $c('de-thread', dForm);
+		var data = parsePosts($c('de-thread', dForm), Posts, els, -1, 0);
 		checkBan(Posts[0], op);
-		for(i = 1, j = 0; i < len || j < len_; i++, j++) {
-			el = Posts[i];
-			el_ = els[j];
-			if(!el_) {
-				lastdcount += markDel(el);
-				continue;
-			}
-			pNum = aib.getPNum(el_);
-			if(el) {
-				if(el.num !== pNum) {
-					lastdcount += markDel(el);
-					j--;
-					continue;
-				}
-				checkBan(el, el_);
-			} else {
-				np += newPost(thr, el = importPost(el_), pNum, i + 1, null);
-				el.dcount = lastdcount;
-				Posts.push(el);
-			}
-		}
-		infoNewPosts(err, np);
-		thr.pCount = len;
+		infoNewPosts(err, data[1]);
 		savePostsVisib();
-		$id('de-panel-info').firstChild.textContent = i + '/' + getPostImages(dForm).length;
+		$id('de-panel-info').firstChild.textContent = data[0] + '/' + getPostImages(dForm).length;
 		if(Fn) {
 			Fn();
 		}
@@ -7368,6 +7341,13 @@ function getImageboard() {
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
 		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
 	);
+	aib.isTrunc = function(post) {
+		var el = $q(aib.qTrunc, post);
+		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+			return el;
+		}
+		return null;
+	};
 	aib.getThrdUrl = function(b, tNum) {
 		return fixBrd(b) + (
 			aib.futa ? ('futaba.php?res=' + tNum) :
@@ -7531,7 +7511,7 @@ function tryToParse(node) {
 				thr.omitted = 0;
 			} else {
 				el = $q(aib.qOmitted, thr);
-				thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] : 0;
+				thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
 			}
 			thr.style.counterReset = 'de-cnt ' + (thr.omitted + 1);
 			thr.classList.add('de-thread');
