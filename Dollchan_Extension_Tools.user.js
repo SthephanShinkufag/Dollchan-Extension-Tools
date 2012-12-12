@@ -4974,8 +4974,7 @@ function checkBan(el, node) {
 }
 
 function parsePosts(thr, oPosts, nPosts, from, omt) {
-	var i, j, k, el, el_, temp, fEl = thr.op,
-		np = 0,
+	var i, j, k, el, el_, temp, fEl, np = 0,
 		len = oPosts.length,
 		lastdcount = oPosts[len - 1].dcount || 0,
 		len_ = nPosts.length;
@@ -5022,7 +5021,10 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 			el.dcount = lastdcount;
 			oPosts.push(el);
 		} else if(i >= from) {
-			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl);
+			if(fEl && aib.tiny && !aib.mlpg) {
+				fEl = fEl.nextSibling;
+			}
+			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl || thr.op);
 			fEl = aib.getWrap(el);
 		}
 		j++;
@@ -7320,6 +7322,7 @@ function getImageboard() {
 		aib.hana ? 'replytitle' :
 		'filetitle';
 	aib.qOmitted =
+		aib.tiny ? '.omitted' :
 		aib.futa ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
 		aib.hana ? '.abbrev' :
