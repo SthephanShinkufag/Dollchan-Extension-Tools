@@ -4981,9 +4981,8 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 	for(i = 1, j = 0; i < len || j < len_; ) {
 		el_ = nPosts[j];
 		if(i >= len) {
-			np += newPost(thr, el = importPost(el_), aib.getPNum(el_), i + 1, null);
+			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, null);
 			el.dcount = lastdcount;
-			oPosts.push(el);
 		} else if(el = oPosts[i]) {
 			if(!el_ || el.num !== aib.getPNum(el_)) {
 				if(TNum) {
