@@ -7261,7 +7261,7 @@ function getImageboard() {
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
 	switch(aib.dm = dm) {
-	case '0chan.ru': aib.nul = aib.kus = true; break;
+	case '0chan.hk': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.org': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
@@ -7422,7 +7422,7 @@ function getImageboard() {
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
-			return !!$c('id_Heaven', post) || !!$q('.useremail[href^="mailto:sage"]', post);
+			return $q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		} : aib.krau ? function(post) {
 			return !!$c('sage', post);
 		} : aib._410 ? function(post) {
