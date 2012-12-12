@@ -4973,29 +4973,8 @@ function checkBan(el, node) {
 	}
 }
 
-function markDel(posts, post) {
-	if(TNum) {
-		if(post.deleted) {
-			return 0;
-		}
-		var temp = sessionStorage['de-deleted-' + TNum],
-			len = posts.length + 1,
-			cnt = post.count;
-		sessionStorage['de-deleted-' + TNum] = (temp ? temp + ',' : '') + cnt;
-		for(; cnt < len; cnt++) {
-			posts[cnt - 1].dcount = (posts[cnt - 1].dcount || 0) + 1;
-		}
-		post.deleted = true;
-		post.btns.classList.remove('de-ppanel-cnt');
-		post.btns.classList.add('de-ppanel-del');
-		return 1;
-	}
-	posts.splice(post.count - 1, 1);
-	return 0;
-}
-
 function parsePosts(thr, oPosts, nPosts, from, omt) {
-	var i, j, el, el_, fEl = thr.op,
+	var i, j, k, el, el_, temp, fEl = thr.op,
 		np = 0,
 		len = oPosts.length,
 		lastdcount = oPosts[len - 1].dcount || 0,
@@ -5005,9 +4984,23 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		el_ = nPosts[j];
 		if(el) {
 			if(!el_ || el.num !== aib.getPNum(el_)) {
-				lastdcount += markDel(el);
 				if(TNum) {
+					if(!el.deleted) {
+						el.deleted = true;
+						if(!temp) {
+							temp = sessionStorage['de-deleted-' + TNum];
+						}
+						temp = (temp ? temp + ',' : '') + (i + 1);
+						for(k = i; k < len; k++) {
+							oPosts[k].dcount = (oPosts[k].dcount || 0) + 1;
+						}
+						el.btns.classList.remove('de-ppanel-cnt');
+						el.btns.classList.add('de-ppanel-del');
+						lastdcount++;
+					}
 					i++;
+				} else {
+					posts.splice(i, 1);
 				}
 				continue;
 			}
@@ -5015,7 +5008,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 				if(i > omt) {
 					aib.getWrap(el).classList.add('de-hidden');
 				}
-			} else if(from !== -1) {
+			} else if(!TNum) {
 				(fEl = aib.getWrap(el)).classList.remove('de-hidden');
 			}
 			checkBan(el, el_);
@@ -5029,6 +5022,9 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		}
 		j++;
 		i++;
+	}
+	if(temp) {
+		sessionStorage['de-deleted-' + TNum] = temp;
 	}
 	return [thr.pCount = len, np];
 }
