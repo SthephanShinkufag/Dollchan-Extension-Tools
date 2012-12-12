@@ -7422,7 +7422,7 @@ function getImageboard() {
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
-			return !!$c('id_Heaven', post);
+			return !!$c('id_Heaven', post) || !!$q('.useremail[href^="mailto:sage"]', post);
 		} : aib.krau ? function(post) {
 			return !!$c('sage', post);
 		} : aib._410 ? function(post) {
