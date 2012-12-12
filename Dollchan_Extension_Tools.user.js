@@ -4706,8 +4706,8 @@ function loadThread(op, last, Fn) {
 				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt;) {
 					el = lPosts[omm] = Posts[opIdx + i + 1];
 					if(lPosts[omm].num !== aib.getPNum(els[omm])) {
-						$del(aib.getWrap(lPosts[i]));
-						lPosts.splice(i, 1);
+						$del(aib.getWrap(lPosts[omm]));
+						lPosts.splice(omm, 1);
 						continue;
 					}
 					if(omm < j) {
