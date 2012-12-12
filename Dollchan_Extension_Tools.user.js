@@ -2774,6 +2774,7 @@ function checkDelete(response) {
 	if(TNum) {
 		loadNewPosts(endDelete);
 	} else {
+		Pviews.ajaxed = {};
 		tNums.forEach(function(tNum) {
 			loadThread(pByNum[tNum], 5, endDelete);
 		});
@@ -5005,9 +5006,6 @@ function markDel(post) {
 	for(len = Posts.length + 1; cnt < len; cnt++) {
 		temp = Posts[cnt - 1].dcount;
 		Posts[cnt - 1].dcount = (temp || 0) + 1;
-	}
-	if(!TNum && !$isEmpty(Pviews.ajaxed)) {
-		Pviews.ajaxed = {};
 	}
 	post.btns.classList.remove('de-ppanel-cnt');
 	post.btns.classList.add('de-ppanel-del');
