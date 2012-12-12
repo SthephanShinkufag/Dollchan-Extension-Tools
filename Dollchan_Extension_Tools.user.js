@@ -5006,6 +5006,9 @@ function markDel(post) {
 		temp = Posts[cnt - 1].dcount;
 		Posts[cnt - 1].dcount = (temp || 0) + 1;
 	}
+	if(!TNum && !$isEmpty(Pviews.ajaxed)) {
+		Pviews.ajaxed = {};
+	}
 	post.btns.classList.remove('de-ppanel-cnt');
 	post.btns.classList.add('de-ppanel-del');
 	return 1;
