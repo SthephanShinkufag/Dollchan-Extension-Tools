@@ -2774,7 +2774,6 @@ function checkDelete(response) {
 	if(TNum) {
 		loadNewPosts(endDelete);
 	} else {
-		Pviews.ajaxed = {};
 		tNums.forEach(function(tNum) {
 			loadThread(pByNum[tNum], 5, endDelete);
 		});
@@ -4663,10 +4662,15 @@ function loadThread(op, last, Fn) {
 				lPosts = [];
 				replaceFullMsg(op, newOp);
 			}
-			for(i = 0; i < j; i++) {
+			for(i = 0; i < j; ) {
 				if(typeof lPosts[i] !== 'undefined') {
+					if(lPosts[i].num !== aib.getPNum(els[i])) {
+						lPosts.splice(i, 1);
+						continue;
+					}
 					aib.getWrap(lPosts[i]).classList.add('de-hidden');
 				}
+				i++;
 			}
 			for(el = thr.op; i < omm; i++) {
 				if(typeof lPosts[i] === 'undefined') {
