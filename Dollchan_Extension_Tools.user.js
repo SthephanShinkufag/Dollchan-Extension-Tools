@@ -7261,8 +7261,6 @@ function getImageboard() {
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
 	switch(aib.dm = dm) {
-	case '0-chan.ru':
-	case '0chan.hk':
 	case '0chan.ru': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.org': aib._410 = true; break;
@@ -7430,7 +7428,7 @@ function getImageboard() {
 		} : aib._410 ? function(post) {
 			return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 		} : aib.nul ? function(post) {
-			return !!$q('a[href="mailto:sage"], a[href^="http://cloudflare.com"]', post);
+			return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
 		} : function(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
