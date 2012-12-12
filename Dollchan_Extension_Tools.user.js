@@ -5000,7 +5000,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 					}
 					i++;
 				} else {
-					posts.splice(i, 1);
+					oPosts.splice(i, 1);
 				}
 				continue;
 			}
@@ -5069,7 +5069,7 @@ function loadNewPosts(Fn) {
 			Fn = null;
 			return;
 		}
-		var data = parsePosts($c('de-thread', dForm), Posts, els, -1, 0);
+		var data = parsePosts($c('de-thread', dForm), Posts, els, 0, 0);
 		checkBan(Posts[0], op);
 		infoNewPosts(err, data[1]);
 		savePostsVisib();
