@@ -5000,6 +5000,11 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 					}
 					i++;
 				} else {
+					k = aib.getWrap(el);
+					if(aib.tiny && !aib.mlpg) {
+						$del(k.nextSibling);
+					}
+					$del(k);
 					oPosts.splice(i, 1);
 				}
 				continue;
