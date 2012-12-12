@@ -4280,7 +4280,7 @@ function appendPviewPanel(post, pView) {
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
 			post.deleted ? '' :
 				'<i style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: ' +
-				'default;">' + (!cnt ? 'OP' : TNum || !post.thr ? cnt : post.thr.omitted + cnt) + '</i>'
+				'default;">' + (cnt === 0 ? 'OP' : cnt) + '</i>'
 		);
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
@@ -7499,27 +7499,27 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 				$del($c('clear', thr));
 			}
-			var i, els, el, op = aib.getOp(thr, doc);
+			var i, els, el, omt, op = aib.getOp(thr, doc);
+			if(TNum) {
+				omt = 0;
+			} else {
+				el = $q(aib.qOmitted, thr);
+				thr.omitted = omt = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
+			}
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
 			for(i = 0, els = aProto.slice.call(aib.getPosts(thr)); el = els[i++];) {
-				processPost(el, aib.getPNum(el), thr, i + 1);
+				processPost(el, aib.getPNum(el), thr, i + omt + 1);
 			}
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			if(TNum) {
-				thr.omitted = 0;
-			} else {
-				el = $q(aib.qOmitted, thr);
-				thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
-			}
-			thr.style.counterReset = 'de-cnt ' + (thr.omitted + 1);
+			thr.style.counterReset = 'de-cnt ' + (omt + 1);
 			thr.classList.add('de-thread');
-			thr.pCount = i + thr.omitted;
+			thr.pCount = i + omt;
 			thr.op = op;
 		});
 	} catch(e) {
