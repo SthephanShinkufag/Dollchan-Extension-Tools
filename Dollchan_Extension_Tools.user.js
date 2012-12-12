@@ -3810,7 +3810,7 @@ function updateTubePlayer(post, ytObjSrc) {
 }
 
 function updateTubeLinks(post, oldLinks, newLinks, cloned) {
-	var i, j, el, link, temp, ttd = !cloned && new tubeTitleDownloader,
+	var i, j, m, el, link, ttd = !cloned && new tubeTitleDownloader,
 		len = newLinks.length;
 	for(i = 0, j = 0; i < len; i++) {
 		el = newLinks[i];
