@@ -4662,9 +4662,10 @@ function loadThread(op, last, Fn) {
 				lPosts = [];
 				replaceFullMsg(op, newOp);
 			}
-			for(i = 0; i < j; ) {
+			for(i = 0; i < j;) {
 				if(typeof lPosts[i] !== 'undefined') {
 					if(lPosts[i].num !== aib.getPNum(els[i])) {
+						$del(aib.getWrap(lPosts[i]));
 						lPosts.splice(i, 1);
 						continue;
 					}
@@ -4677,8 +4678,14 @@ function loadThread(op, last, Fn) {
 					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, el);
 					el = aib.getWrap(lPosts[i]);
 				} else {
+					if(lPosts[i].num !== aib.getPNum(els[i])) {
+						$del(aib.getWrap(lPosts[i]));
+						lPosts.splice(i, 1);
+						continue;
+					}
 					(el = aib.getWrap(lPosts[i])).classList.remove('de-hidden');
 				}
+				i++
 			}
 			if(j !== 0) {
 				$after(thr.op, $new('div', {
@@ -4687,16 +4694,27 @@ function loadThread(op, last, Fn) {
 				}, null));
 			}
 			if(thr.loadedPosts) {
-				for(i = omm + pCnt; omm < i; omm++) {
-					updRefMap(lPosts[omm]);
+				for(i = omm + pCnt; omm < i;) {
+					if(lPosts[omm].num !== aib.getPNum(els[omm])) {
+						$del(aib.getWrap(lPosts[i]));
+						lPosts.splice(i, 1);
+						continue;
+					}
+					updRefMap(lPosts[omm++]);
 				}
 			} else {
-				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt; omm++, i++) {
+				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt;) {
 					el = lPosts[omm] = Posts[opIdx + i + 1];
+					if(lPosts[omm].num !== aib.getPNum(els[omm])) {
+						$del(aib.getWrap(lPosts[i]));
+						lPosts.splice(i, 1);
+						continue;
+					}
 					if(omm < j) {
 						aib.getWrap(el).classList.add('de-hidden');
 					}
-					replaceFullMsg(el, els[omm]);
+					replaceFullMsg(el, els[omm++]);
+					i++;
 				}
 			}
 			for(; omm < len; omm++) {
@@ -4988,7 +5006,7 @@ function getHanaPost(postJson) {
 }
 
 function checkBan(el, node) {
-	if(aib.qBan && !el.isBan) {
+	if(!el.isBan && aib.qBan) {
 		var isBan = $q(aib.qBan, node);
 		if(isBan) {
 			if(!$q(aib.qBan, el)) {
