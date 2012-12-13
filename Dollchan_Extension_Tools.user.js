@@ -3101,7 +3101,7 @@ function addTextButton(bbBrds, id) {
 					x.value.substring(start, end).split('\n').forEach(function(line) {
 						var m = line.match(/^(\s*)(.*?)(\s*)$/);
 						txt += '\n' + m[1] + (tag ? tag + m[2] + tag
-							: m[2] + new Array(txt.length + 1).join('^H')
+							: m[2] + new Array(m[2].length + 1).join('^H')
 						) + m[3];
 					});
 					txt = txt.slice(1);
