@@ -3101,7 +3101,7 @@ function addTextButton(bbBrds, id) {
 					x.value.substring(start, end).split('\n').forEach(function(line) {
 						var m = line.match(/^(\s*)(.*?)(\s*)$/);
 						txt += '\n' + m[1] + (tag ? tag + m[2] + tag
-							: m[2] + new Array(txt.length + 1).join('^H')
+							: m[2] + new Array(m[2].length + 1).join('^H')
 						) + m[3];
 					});
 					txt = txt.slice(1);
@@ -3809,7 +3809,7 @@ function updateTubePlayer(post, ytObjSrc) {
 }
 
 function updateTubeLinks(post, oldLinks, newLinks, cloned) {
-	var i, j, el, link, temp, ttd = !cloned && new tubeTitleDownloader,
+	var i, j, m, el, link, ttd = !cloned && new tubeTitleDownloader,
 		len = newLinks.length;
 	for(i = 0, j = 0; i < len; i++) {
 		el = newLinks[i];
@@ -4280,7 +4280,7 @@ function appendPviewPanel(post, pView) {
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
 			post.deleted ? '' :
 				'<i style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: ' +
-				'default;">' + (!cnt ? 'OP' : TNum || !post.thr ? cnt : post.thr.omitted + cnt) + '</i>'
+				'default;">' + (cnt === 0 ? 'OP' : cnt) + '</i>'
 		);
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
@@ -4627,8 +4627,8 @@ function expandPost(post) {
 	if(post.hide) {
 		return;
 	}
-	var el = $q(aib.qTrunc, post);
-	if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+	var el;
+	if(el = aib.isTrunc(post)) {
 		if(Cfg['expandPosts'] === 1) {
 			getFullPost(el, false);
 		} else {
@@ -4645,57 +4645,36 @@ function loadThread(op, last, Fn) {
 		$alert(Lng.loading[lang], 'load-thr', true);
 	}
 	ajaxGetPosts(null, brd, op.num, true, function(els, newOp, err) {
-		var i, j, opIdx, omm, lPosts, el, pCnt, len = els.length,
+		var i, j, opIdx, omt, lPosts, el, pCnt, len = els.length,
 			thr = op.thr;
 		if(err) {
 			$alert(err, 'load-thr', false);
 		} else {
 			showMainReply();
-			omm = thr.omitted;
-			pCnt = thr.pCount - omm - 1;
 			$del($id('de-menu'));
 			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
-			thr.pCount = len + 1;
+			omt = thr.omitted;
+			pCnt = thr.pCount - omt - 1;
+			if(!(lPosts = thr.loadedPosts)) {
+				lPosts = [op];
+				if(aib.isTrunc(op)) {
+					replaceFullMsg(op, newOp);
+				}
+				for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
+					el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
+					if(aib.isTrunc(el)) {
+						replaceFullMsg(el, els[omt + i]);
+					}
+				}
+			}
 			j = last !== 1 && last < len ? len - last : 0;
 			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
-			if(!(lPosts = thr.loadedPosts)) {
-				lPosts = [];
-				replaceFullMsg(op, newOp);
-			}
-			for(i = 0; i < j; i++) {
-				if(typeof lPosts[i] !== 'undefined') {
-					aib.getWrap(lPosts[i]).classList.add('de-hidden');
-				}
-			}
-			for(el = thr.op; i < omm; i++) {
-				if(typeof lPosts[i] === 'undefined') {
-					newPost(thr, lPosts[i] = importPost(els[i]), aib.getPNum(els[i]), i + 1, el);
-					el = aib.getWrap(lPosts[i]);
-				} else {
-					(el = aib.getWrap(lPosts[i])).classList.remove('de-hidden');
-				}
-			}
+			parsePosts(thr, lPosts, els, j + 1, omt);
 			if(j !== 0) {
 				$after(thr.op, $new('div', {
 					'class': 'de-omitted',
 					'text': Lng.postsOmitted[lang] + j
 				}, null));
-			}
-			if(thr.loadedPosts) {
-				for(i = omm + pCnt; omm < i; omm++) {
-					updRefMap(lPosts[omm]);
-				}
-			} else {
-				for(i = 0, opIdx = Posts.indexOf(op); i < pCnt; omm++, i++) {
-					el = lPosts[omm] = Posts[opIdx + i + 1];
-					if(omm < j) {
-						aib.getWrap(el).classList.add('de-hidden');
-					}
-					replaceFullMsg(el, els[omm]);
-				}
-			}
-			for(; omm < len; omm++) {
-				newPost(thr, lPosts[omm] = importPost(els[omm]), aib.getPNum(els[omm]), omm + 1, null);
 			}
 			if(last > 5 || last === 1) {
 				thr.appendChild(
@@ -4799,6 +4778,8 @@ function preparePage() {
 	}
 	dForm.innerHTML = '';
 	Posts = [];
+	Threads = [];
+	pByNum = {};
 	Pviews.ajaxed = {};
 }
 
@@ -4981,7 +4962,7 @@ function getHanaPost(postJson) {
 }
 
 function checkBan(el, node) {
-	if(aib.qBan && !el.isBan) {
+	if(!el.isBan && aib.qBan) {
 		var isBan = $q(aib.qBan, node);
 		if(isBan) {
 			if(!$q(aib.qBan, el)) {
@@ -4992,21 +4973,65 @@ function checkBan(el, node) {
 	}
 }
 
-function markDel(post) {
-	if(post.deleted) {
-		return 0;
+function parsePosts(thr, oPosts, nPosts, from, omt) {
+	var i, j, k, el, el_, temp, fEl, np = 0,
+		len = oPosts.length,
+		lastdcount = oPosts[len - 1].dcount || 0,
+		len_ = nPosts.length;
+	for(i = 1, j = 0; i < len || j < len_; ) {
+		el_ = nPosts[j];
+		if(i >= len) {
+			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, null);
+			el.dcount = lastdcount;
+		} else if(el = oPosts[i]) {
+			if(!el_ || el.num !== aib.getPNum(el_)) {
+				if(TNum) {
+					if(!el.deleted) {
+						el.deleted = true;
+						if(!temp) {
+							temp = sessionStorage['de-deleted-' + TNum];
+						}
+						temp = (temp ? temp + ',' : '') + (i + 1);
+						for(k = i; k < len; k++) {
+							oPosts[k].dcount = (oPosts[k].dcount || 0) + 1;
+						}
+						el.btns.classList.remove('de-ppanel-cnt');
+						el.btns.classList.add('de-ppanel-del');
+						lastdcount++;
+					}
+					i++;
+				} else {
+					k = aib.getWrap(el);
+					if(aib.tiny && !aib.mlpg) {
+						$del(k.nextSibling);
+					}
+					$del(k);
+					oPosts.splice(i, 1);
+				}
+				continue;
+			}
+			if(i < from) {
+				if(i > omt) {
+					aib.getWrap(el).classList.add('de-hidden');
+				}
+			} else if(!TNum) {
+				(fEl = aib.getWrap(el)).classList.remove('de-hidden');
+			}
+			checkBan(el, el_);
+		} else if(i >= from) {
+			if(fEl && aib.tiny && !aib.mlpg) {
+				fEl = fEl.nextSibling;
+			}
+			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl || thr.op);
+			fEl = aib.getWrap(el);
+		}
+		j++;
+		i++;
 	}
-	var temp, len, dd = sessionStorage['de-deleted'],
-		cnt = post.count;
-	sessionStorage['de-deleted'] = (dd ? dd + ',' : '') + cnt;
-	post.deleted = true;
-	for(len = Posts.length + 1; cnt < len; cnt++) {
-		temp = Posts[cnt - 1].dcount;
-		Posts[cnt - 1].dcount = (temp || 0) + 1;
+	if(temp) {
+		sessionStorage['de-deleted-' + TNum] = temp;
 	}
-	post.btns.classList.remove('de-ppanel-cnt');
-	post.btns.classList.add('de-ppanel-del');
-	return 1;
+	return [thr.pCount = len, np];
 }
 
 function loadNewPosts(Fn) {
@@ -5049,37 +5074,11 @@ function loadNewPosts(Fn) {
 			Fn = null;
 			return;
 		}
-		var i, j, el, el_, pNum, np = 0,
-			len = Posts.length,
-			lastdcount = Posts[len - 1].dcount || 0,
-			len_ = els.length,
-			thr = $c('de-thread', dForm);
+		var data = parsePosts($c('de-thread', dForm), Posts, els, 0, 0);
 		checkBan(Posts[0], op);
-		for(i = 1, j = 0; i < len || j < len_; i++, j++) {
-			el = Posts[i];
-			el_ = els[j];
-			if(!el_) {
-				lastdcount += markDel(el);
-				continue;
-			}
-			pNum = aib.getPNum(el_);
-			if(el) {
-				if(el.num !== pNum) {
-					lastdcount += markDel(el);
-					j--;
-					continue;
-				}
-				checkBan(el, el_);
-			} else {
-				np += newPost(thr, el = importPost(el_), pNum, i + 1, null);
-				el.dcount = lastdcount;
-				Posts.push(el);
-			}
-		}
-		infoNewPosts(err, np);
-		thr.pCount = len;
+		infoNewPosts(err, data[1]);
 		savePostsVisib();
-		$id('de-panel-info').firstChild.textContent = i + '/' + getPostImages(dForm).length;
+		$id('de-panel-info').firstChild.textContent = data[0] + '/' + getPostImages(dForm).length;
 		if(Fn) {
 			Fn();
 		}
@@ -7260,9 +7259,7 @@ function getImageboard() {
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
 	switch(aib.dm = dm) {
-	case '0-chan.ru':
-	case '0chan.hk':
-	case '0chan.ru': aib.nul = aib.kus = true; break;
+	case '0chan.hk': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.org': aib._410 = true; break;
 	case 'hiddenchan.i2p': aib.hid = true; break;
@@ -7321,6 +7318,7 @@ function getImageboard() {
 		aib.hana ? 'replytitle' :
 		'filetitle';
 	aib.qOmitted =
+		aib.tiny ? '.omitted' :
 		aib.futa ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
 		aib.hana ? '.abbrev' :
@@ -7343,6 +7341,13 @@ function getImageboard() {
 		'>https?:\\/\\/[^\\/]*' + aib.dm +
 		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
 	);
+	aib.isTrunc = function(post) {
+		var el = $q(aib.qTrunc, post);
+		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+			return el;
+		}
+		return null;
+	};
 	aib.getThrdUrl = function(b, tNum) {
 		return fixBrd(b) + (
 			aib.futa ? ('futaba.php?res=' + tNum) :
@@ -7415,13 +7420,13 @@ function getImageboard() {
 		};
 	aib.getSage =
 		aib.fch ? function(post) {
-			return !!$c('id_Heaven', post);
+			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 		} : aib.krau ? function(post) {
 			return !!$c('sage', post);
 		} : aib._410 ? function(post) {
 			return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 		} : aib.nul ? function(post) {
-			return !!$q('a[href="mailto:sage"], a[href^="http://cloudflare.com"]', post);
+			return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
 		} : function(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
@@ -7490,27 +7495,27 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 				$del($c('clear', thr));
 			}
-			var i, els, el, op = aib.getOp(thr, doc);
+			var i, els, el, omt, op = aib.getOp(thr, doc);
+			if(TNum) {
+				omt = 0;
+			} else {
+				el = $q(aib.qOmitted, thr);
+				thr.omitted = omt = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
+			}
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
 			for(i = 0, els = aProto.slice.call(aib.getPosts(thr)); el = els[i++];) {
-				processPost(el, aib.getPNum(el), thr, i + 1);
+				processPost(el, aib.getPNum(el), thr, i + omt + 1);
 			}
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			if(TNum) {
-				thr.omitted = 0;
-			} else {
-				el = $q(aib.qOmitted, thr);
-				thr.omitted = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] : 0;
-			}
-			thr.style.counterReset = 'de-cnt ' + (thr.omitted + 1);
+			thr.style.counterReset = 'de-cnt ' + (omt + 1);
 			thr.classList.add('de-thread');
-			thr.pCount = i + thr.omitted;
+			thr.pCount = i + omt;
 			thr.op = op;
 		});
 	} catch(e) {
