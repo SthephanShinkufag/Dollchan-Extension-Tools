@@ -5027,7 +5027,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 	if(temp) {
 		sessionStorage['de-deleted-' + TNum] = temp;
 	}
-	return [thr.pCount = len_, np];
+	return [thr.pCount = len_ + 1, np];
 }
 
 function loadNewPosts(Fn) {
