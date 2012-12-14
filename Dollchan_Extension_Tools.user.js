@@ -4685,7 +4685,7 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
-			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j, len)));
+			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j + 1, len + 1)));
 			thr.loadedPosts = lPosts;
 			closeAlert($id('de-alert-load-thr'));
 		}
@@ -7461,8 +7461,9 @@ function parseDelform(el, dc, Fn) {
 				return post;
 			};
 		if(aib.qTable) {
-			if((postWrapper = $q(aib.qTable, el)) && dc !== doc) {
-				postWrapper = doc.importNode(postWrapper, true);
+			if(postWrapper = $q(aib.qTable, el)) {
+				postWrapper = dc !== doc ? doc.importNode(postWrapper, true) :
+					postWrapper.cloneNode(true);
 			}
 		}
 	}
@@ -7496,18 +7497,20 @@ function tryToParse(node) {
 				$del($c('clear', thr));
 			}
 			var i, els, el, omt, op = aib.getOp(thr, doc);
-			if(TNum) {
-				omt = 0;
-			} else {
-				el = $q(aib.qOmitted, thr);
-				thr.omitted = omt = el && (el = el.textContent) ? +(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
-			}
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
-			for(i = 0, els = aProto.slice.call(aib.getPosts(thr)); el = els[i++];) {
+			els = aProto.slice.call(aib.getPosts(thr));
+			if(TNum) {
+				omt = 0;
+			} else {
+				el = $q(aib.qOmitted, thr);
+				thr.omitted = omt = el && (el = el.textContent) ?
+					+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
+			}
+			for(i = 0; el = els[i++];) {
 				processPost(el, aib.getPNum(el), thr, i + omt + 1);
 			}
 			Posts.push(op);
