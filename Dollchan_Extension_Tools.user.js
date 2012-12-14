@@ -4685,7 +4685,7 @@ function loadThread(op, last, Fn) {
 					op = null;
 				};
 			}
-			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j, len)));
+			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j + 1, len + 1)));
 			thr.loadedPosts = lPosts;
 			closeAlert($id('de-alert-load-thr'));
 		}
