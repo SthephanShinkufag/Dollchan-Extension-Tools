@@ -5011,15 +5011,15 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 					aib.getWrap(el).classList.add('de-hidden');
 				}
 			} else if(!TNum) {
-				(fEl = aib.getWrap(el)).classList.remove('de-hidden');
+				aib.getWrap(el).classList.remove('de-hidden');
 			}
 			checkBan(el, el_);
 		} else if(i >= from) {
-			if(fEl && aib.tiny && !aib.mlpg) {
-				fEl = fEl.nextSibling;
-			}
 			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl || thr.op);
 			fEl = aib.getWrap(el);
+			if(aib.tiny && !aib.mlpg) {
+				fEl = fEl.nextSibling;
+			}
 		}
 		j++;
 		i++;
