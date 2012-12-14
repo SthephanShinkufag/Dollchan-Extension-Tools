@@ -573,16 +573,11 @@ function $log(txt) {
 function $xhr(obj) {
 	var h, xhr = new window.XMLHttpRequest();
 	if(obj['onreadystatechange']) {
-		xhr.onreadystatechange = function() {
-			obj['onreadystatechange'](xhr);
-		};
+		xhr.onreadystatechange = obj['onreadystatechange'].bind(window, xhr);
 	}
-	xhr.onload = function() {
-		if(obj['onload']) {
-			obj['onload'](xhr);
-		}
-		xhr = obj = null;
-	};
+	if(obj['onload']) {
+		xhr.onload = obj['onload'].bind(window, xhr);
+	}
 	xhr.open(obj['method'], obj['url'], true);
 	if(obj['responseType']) {
 		xhr.responseType = obj['responseType'];
@@ -2738,7 +2733,7 @@ function checkUpload(response) {
 	pr.cap.value = '';
 	refreshCapImg(pr.tNum);
 	if(aib.abu) {
-		GM_xmlhttpRequest({
+		$xhr({
 			'method': 'GET',
 			'url': '/makaba/captcha?usercode=' + (getCookie('usercode') || ''),
 			'onload': function(xhr) {
@@ -4476,7 +4471,7 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function ajaxGetPosts(url, b, tNum, parse, Fn) {
-	GM_xmlhttpRequest({
+	$xhr({
 		'method': 'GET',
 		'url': nav.fixLink(url || aib.getThrdUrl(b, tNum)),
 		'onreadystatechange': function(xhr) {
@@ -5007,6 +5002,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 					}
 					$del(k);
 					oPosts.splice(i, 1);
+					len--;
 				}
 				continue;
 			}
@@ -7462,8 +7458,8 @@ function parseDelform(el, dc, Fn) {
 			};
 		if(aib.qTable) {
 			if(postWrapper = $q(aib.qTable, el)) {
-				postWrapper = dc !== doc ? doc.importNode(postWrapper, true) :
-					postWrapper.cloneNode(true);
+				postWrapper = dc === doc ? postWrapper.cloneNode(true) :
+					doc.importNode(postWrapper, true);
 			}
 		}
 	}
@@ -7496,13 +7492,13 @@ function tryToParse(node) {
 				$after(thr, thr.lastChild);
 				$del($c('clear', thr));
 			}
-			var i, els, el, omt, op = aib.getOp(thr, doc);
+			var i, el, omt, op = aib.getOp(thr, doc),
+				els = aProto.slice.call(aib.getPosts(thr));
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
 			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
-			els = aProto.slice.call(aib.getPosts(thr));
 			if(TNum) {
 				omt = 0;
 			} else {
