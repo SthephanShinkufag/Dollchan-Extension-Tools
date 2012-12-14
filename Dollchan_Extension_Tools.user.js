@@ -1743,13 +1743,11 @@ function addHiddenTable(hid) {
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			$each($Q('.de-entry[info]', this.parentNode), function(el) {
 				var arr = el.getAttribute('info').split(';');
-				ajaxGetPosts(null, arr[0], arr[1], false, function(a, dc, err) {
-					if(err) {
-						delete comHThr[aib.dm][arr[0]][arr[1]];
-						cleanHiddenThreads(arr[0]);
-						saveHiddenThreads();
-						saveUserPostsVisib();
-					}
+				ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(err) {
+					delete comHThr[aib.dm][arr[0]][arr[1]];
+					cleanHiddenThreads(arr[0]);
+					saveHiddenThreads();
+					saveUserPostsVisib();
 					arr = null;
 				});
 			});
@@ -1817,10 +1815,10 @@ function addFavoritesTable(fav) {
 					return;
 				}
 				c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
-				ajaxGetPosts(null, arr[1], arr[2], true, function(els, op, err) {
-					var cnt = err ? err : els.length + 1;
+				ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), true, function(els, op) {
+					var cnt = els.length + 1;
 					c.textContent = cnt;
-					if(!err && cnt > f.cnt) {
+					if(cnt > f.cnt) {
 						c.className = 'de-fav-inf-new';
 						f.cnt = cnt;
 						setStored('DESU_Favorites', JSON.stringify(Favor));
@@ -1828,6 +1826,10 @@ function addFavoritesTable(fav) {
 						c.className = 'de-fav-inf-old';
 					}
 					c = f = null;
+				}, function(err) {
+					c.textContent = err;
+					c.className = 'de-fav-inf-old';
+					c = null;
 				});
 			});
 		}),
@@ -1861,15 +1863,11 @@ function addFavoritesTable(fav) {
 				if(nav.Opera && arr[0] !== aib.host) {
 					return;
 				}
-				ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], null, null, false,
-					function(a, dc, err) {
-						if(err) {
-							removeFavorites(arr[0], arr[1], arr[2]);
-							saveFavorites(JSON.stringify(Favor));
-						}
-						arr = null;
-					}
-				);
+				ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
+					removeFavorites(arr[0], arr[1], arr[2]);
+					saveFavorites(JSON.stringify(Favor));
+					arr = null;
+				});
 			});
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
@@ -2340,7 +2338,7 @@ function initPostform() {
 	if(pr.form) {
 		doPostformChanges(null, null, null);
 	} else if(oeForm) {
-		ajaxGetPosts(null, brd, Posts[0].num, false, doPostformChanges);
+		ajaxGetPosts(aib.getThrdUrl(brd, Posts[0].num), false, doPostformChanges, null);
 	}
 }
 
@@ -2543,8 +2541,7 @@ function updateABUCap() {
 }
 
 
-function doPostformChanges(img, _img, el) {
-	var sBtn;
+function doPostformChanges(el, sBtn) {
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
 	if(nav.Firefox) {
@@ -4423,25 +4420,23 @@ function showPview(link) {
 	}
 	el = getPview(null, pNum, parent, link, '<span class="de-wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
-	ajaxGetPosts(null, b, tNum, true, function(els, op, err) {
-		if(!err) {
-			var pst, i = 0;
-			op.isOp = true;
-			op.count = 0;
-			op.msg = $q(aib.qMsg, op);
-			Pviews.ajaxed[b][tNum] = op;
-			for(; pst = els[i++];) {
-				pst.count = i + 1;
-				pst.msg = $q(aib.qMsg, pst);
-				Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
-			}
-			genRefMap(Pviews.ajaxed[b]);
-			if(el && el.parentNode) {
-				getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, err);
-			}
+	ajaxGetPosts(aib.getThrdUrl(b, tNum), true, function(els, op) {
+		var pst, i = 0;
+		op.isOp = true;
+		op.count = 0;
+		op.msg = $q(aib.qMsg, op);
+		Pviews.ajaxed[b][tNum] = op;
+		for(; pst = els[i++];) {
+			pst.count = i + 1;
+			pst.msg = $q(aib.qMsg, pst);
+			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
+		}
+		genRefMap(Pviews.ajaxed[b]);
+		if(el && el.parentNode) {
+			getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, null);
 		}
 		b = pNum = tNum = parent = el = null;
-	});
+	}, null);
 }
 
 function overRefLink() {
@@ -4470,34 +4465,33 @@ function eventRefLink(el) {
 									AJAX FUNCTIONS
 ==============================================================================*/
 
-function ajaxGetPosts(url, b, tNum, parse, Fn) {
+function ajaxGetPosts(url, isParse, Fn, errFn) {
 	$xhr({
 		'method': 'GET',
-		'url': nav.fixLink(url || aib.getThrdUrl(b, tNum)),
+		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
 				return;
 			}
-			if(xhr.status === 200) {
+			if(xhr.status !== 200) {
+				errFn && errFn(
+					xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText
+				);
+			} else if(Fn) {
 				var dc = nav.toDOM(xhr.responseText);
-				if(!pr.form && oeForm) {
-					pr = getPostform(doc.importNode($q(aib.qPostForm, dc), true));
-					$before(oeForm, pr.form);
-				}
-				if(parse) {
+				if(isParse) {
 					parseDelform($q(aib.qDForm, dc), dc, function(thr) {
-						Fn(aib.getPosts(thr), aib.getOp(thr, dc), null);
+						Fn(aib.getPosts(thr), aib.getOp(thr, dc));
 					});
 				} else {
-					Fn(null, dc, null);
+					if(!pr.form && oeForm) {
+						pr = getPostform(doc.importNode($q(aib.qPostForm, dc), true));
+						$before(oeForm, pr.form);
+					}
+					Fn(dc, null);
 				}
-			} else {
-				Fn(null, null, xhr.status === 0 ?
-					Lng.noConnect[lang] :
-					'HTTP [' + xhr.status + '] ' + xhr.statusText
-				);
 			}
-			Fn = parse = dc = null;
+			isParse = Fn = errFn = dc = null;
 		}
 	});
 }
@@ -4600,10 +4594,7 @@ function getFullPost(node, isFunc) {
 		}
 		return;
 	}
-	ajaxGetPosts(null, brd, post.thr.num, true, function(els, op, err) {
-		if(err) {
-			return;
-		}
+	ajaxGetPosts(aib.getThrdUrl(brd, post.thr.num), true, function(els, op) {
 		var i, el;
 		if(post.isOp) {
 			el = op;
@@ -4615,7 +4606,7 @@ function getFullPost(node, isFunc) {
 			$del(node);
 		}
 		node = post = null;
-	});
+	}, null);
 }
 
 function expandPost(post) {
@@ -4639,56 +4630,54 @@ function loadThread(op, last, Fn) {
 	if(!Fn) {
 		$alert(Lng.loading[lang], 'load-thr', true);
 	}
-	ajaxGetPosts(null, brd, op.num, true, function(els, newOp, err) {
+	ajaxGetPosts(aib.getThrdUrl(brd, op.num), true, function(els, newOp) {
 		var i, j, opIdx, omt, lPosts, el, pCnt, len = els.length,
 			thr = op.thr;
-		if(err) {
-			$alert(err, 'load-thr', false);
-		} else {
-			showMainReply();
-			$del($id('de-menu'));
-			$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
-			omt = thr.omitted;
-			pCnt = thr.pCount - omt - 1;
-			if(!(lPosts = thr.loadedPosts)) {
-				lPosts = [op];
-				if(aib.isTrunc(op)) {
-					replaceFullMsg(op, newOp);
-				}
-				for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
-					el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
-					if(aib.isTrunc(el)) {
-						replaceFullMsg(el, els[omt + i]);
-					}
+		showMainReply();
+		$del($id('de-menu'));
+		$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
+		omt = thr.omitted;
+		pCnt = thr.pCount - omt - 1;
+		if(!(lPosts = thr.loadedPosts)) {
+			lPosts = [op];
+			if(aib.isTrunc(op)) {
+				replaceFullMsg(op, newOp);
+			}
+			for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
+				el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
+				if(aib.isTrunc(el)) {
+					replaceFullMsg(el, els[omt + i]);
 				}
 			}
-			j = last !== 1 && last < len ? len - last : 0;
-			thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
-			parsePosts(thr, lPosts, els, j + 1, omt);
-			if(j !== 0) {
-				$after(thr.op, $new('div', {
-					'class': 'de-omitted',
-					'text': Lng.postsOmitted[lang] + j
-				}, null));
-			}
-			if(last > 5 || last === 1) {
-				thr.appendChild(
-					$add('<span class="de-expand">[<a href="#">' + Lng.collapseThrd[lang] + '</a>]</span>')
-				).onclick = function(e) {
-					$pd(e);
-					loadThread(op, 5, null);
-					op = null;
-				};
-			}
-			aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j + 1, len + 1)));
-			thr.loadedPosts = lPosts;
-			closeAlert($id('de-alert-load-thr'));
 		}
+		j = last !== 1 && last < len ? len - last : 0;
+		thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
+		parsePosts(thr, lPosts, els, j + 1, omt);
+		if(j !== 0) {
+			$after(thr.op, $new('div', {
+				'class': 'de-omitted',
+				'text': Lng.postsOmitted[lang] + j
+			}, null));
+		}
+		if(last > 5 || last === 1) {
+			thr.appendChild(
+				$add('<span class="de-expand">[<a href="#">' + Lng.collapseThrd[lang] + '</a>]</span>')
+			).onclick = function(e) {
+				$pd(e);
+				loadThread(op, 5, null);
+				op = null;
+			};
+		}
+		aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j + 1, len + 1)));
+		thr.loadedPosts = lPosts;
+		closeAlert($id('de-alert-load-thr'));
 		$focus(op);
-		if(Fn) {
-			Fn();
-		}
+		Fn && Fn();
 		last = Fn = null;
+	}, function(err) {
+		$alert(err, 'load-thr', false);
+		Fn && Fn();
+		Fn = null;
 	});
 }
 
@@ -4717,15 +4706,14 @@ function loadFavorThread() {
 }
 
 function loadPageHelper(page, i, Fn) {
-	ajaxGetPosts(aib.getPageUrl(brd, i), null, null, false, function(df, dc, err) {
-		var el;
-		df = doc.importNode($q(aib.qDForm, dc), true);
+	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(dc, el) {
+		var df = doc.importNode($q(aib.qDForm, dc), true);
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
 		Fn(replacePost(page), i);
 		Fn = page = i = null;
-	});
+	}, null);
 }
 
 function parsePages(pages) {
@@ -5053,31 +5041,23 @@ function loadNewPosts(Fn) {
 					}
 					infoNewPosts(null, np);
 				}
-				if(Fn) {
-					Fn();
-				}
+				Fn && Fn();
 				Fn = null;
 			}
 		);
 		return;
 	}
-	ajaxGetPosts(null, brd, TNum, true, function(els, op, err) {
-		if(err) {
-			infoNewPosts(err, 0);
-			if(Fn) {
-				Fn();
-			}
-			Fn = null;
-			return;
-		}
+	ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function(els, op) {
 		var data = parsePosts($c('de-thread', dForm), Posts, els, 0, 0);
 		checkBan(Posts[0], op);
-		infoNewPosts(err, data[1]);
+		infoNewPosts(null, data[1]);
 		savePostsVisib();
 		$id('de-panel-info').firstChild.textContent = data[0] + '/' + getPostImages(dForm).length;
-		if(Fn) {
-			Fn();
-		}
+		Fn && Fn();
+		Fn = null;
+	}, function(err) {
+		infoNewPosts(err, 0);
+		Fn && Fn();
 		Fn = null;
 	});
 }
