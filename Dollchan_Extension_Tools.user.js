@@ -7461,8 +7461,9 @@ function parseDelform(el, dc, Fn) {
 				return post;
 			};
 		if(aib.qTable) {
-			if((postWrapper = $q(aib.qTable, el)) && dc !== doc) {
-				postWrapper = doc.importNode(postWrapper, true);
+			if(postWrapper = $q(aib.qTable, el)) {
+				postWrapper = dc !== doc ? doc.importNode(postWrapper, true) :
+					postWrapper.cloneNode(true);
 			}
 		}
 	}
