@@ -4124,7 +4124,7 @@ function eventPostImg(post) {
 
 function addRefMap(post) {
 	var rM = '<div class="de-refmap">' +
-		post.ref.join(', ').replace(/(\d+)/g, '<a href="#">&gt;&gt;$1</a>') + '</div>';
+		post.ref.join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>') + '</div>';
 	try {
 		post.msg.insertAdjacentHTML('afterend', rM);
 	} catch(e) {
