@@ -4122,51 +4122,53 @@ function eventPostImg(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function addRefMap(post) {
-	var rM = '<div class="de-refmap">' +
-		post.ref.join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>') + '</div>';
-	try {
-		post.msg.insertAdjacentHTML('afterend', rM);
-	} catch(e) {
-		post.insertAdjacentHTML('beforeend', rM);
-	}
+function getAbsLink(num) {
+	return '<a href="' + this + '#' + num + '">&gt;&gt;' + num + '</a>';
 }
 
-function genRefMap(pBn) {
+function getRelLink(num) {
+	return '<a href="#' + num + '">&gt;&gt;' + num + '</a>';
+}
+
+function addRefMap(post) {
+	post.insertAdjacentHTML('beforeend', '<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>');
+}
+
+function genRefMap(posts, tNum) {
 	var refMap = [];
-	nav.forEach(pBn, function(pNum) {
-		for(var rNum, post, el, tc, i = 0, els = $T('a', this[pNum].msg); el = els[i++];) {
-			tc = el.textContent;
-			if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (post = this[rNum])) {
-				if(typeof post.ref === 'undefined') {
-					post.ref = [pNum];
-					refMap.push(post);
-				} else if(post.ref.indexOf(pNum) === -1) {
-					post.ref.push(pNum);
+	nav.forEach(posts, function(pNum) {
+		for(var tc, link, lNum, lPost, i = 0, links = $T('a', this[pNum].msg); link = links[i++];) {
+			tc = link.textContent;
+			if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = this[lNum])) {
+				if(typeof lPost.ref === 'undefined') {
+					lPost.ref = [pNum];
+					refMap.push(lPost);
+				} else if(lPost.ref.indexOf(pNum) === -1) {
+					lPost.ref.push(pNum);
 				}
 			}
 		}
 	});
-	refMap.forEach(addRefMap);
+	refMap.forEach(addRefMap.bind(tNum ? getAbsLink.bind(aib.getThrdUrl(brd, tNum)) : getRelLink));
 	refMap = null;
 }
 
 function updRefMap(post) {
-	for(var rNum, pst, el, tc, pNum = post.num, i = 0, els = $T('a', post.msg); el = els[i++];) {
-		tc = el.textContent;
-		if(tc.startsWith('>>') && (rNum = +tc.substr(2)) && (pst = pByNum[rNum])) {
-			if(typeof pst.ref === 'undefined') {
-				pst.ref = [pNum];
-			} else if(pst.ref.indexOf(pNum) === -1) {
-				pst.ref.push(pNum);
+	for(var tc, link, lNum, lPost, pNum = post.num, i = 0, links = $T('a', post.msg); link = links[i++];) {
+		tc = link.textContent;
+		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = pByNum[lNum])) {
+			if(typeof lPost.ref === 'undefined') {
+				lPost.ref = [pNum];
+			} else if(lPost.ref.indexOf(pNum) === -1) {
+				lPost.ref.push(pNum);
 			} else {
 				continue;
 			}
-			$del($c('de-refmap', pst));
-			addRefMap(pst);
-			eventRefLink($c('de-refmap', pst));
-			if(Cfg['hideRefPsts'] && pst.hide) {
-				hidePost(post, 'reference to >>' + rNum);
+			$del($c('de-refmap', lPost));
+			addRefMap.call(getRelLink, lPost);
+			eventRefLink($c('de-refmap', lPost));
+			if(Cfg['hideRefPsts'] && lPost.hide) {
+				hidePost(post, 'reference to >>' + lNum);
 			}
 		}
 	}
@@ -4433,7 +4435,7 @@ function showPview(link) {
 			pst.msg = $q(aib.qMsg, pst);
 			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 		}
-		genRefMap(Pviews.ajaxed[b]);
+		genRefMap(Pviews.ajaxed[b], tNum);
 		if(el && el.parentNode) {
 			getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, null);
 		}
@@ -4736,7 +4738,7 @@ function parsePages(pages) {
 	addLinkImg(dForm);
 	addImgSearch(dForm);
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum);
+		genRefMap(pByNum, null);
 	}
 	eventRefLink(dForm);
 	readPostsVisib();
@@ -7725,7 +7727,7 @@ function doScript() {
 		$log('addImgSearch');
 	}
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum);
+		genRefMap(pByNum, null);
 		$log('genRefMap');
 	}
 	if(Cfg['linksNavig']) {
