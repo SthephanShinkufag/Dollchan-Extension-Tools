@@ -4124,7 +4124,7 @@ function eventPostImg(post) {
 
 function addRefMap(post) {
 	var rM = '<div class="de-refmap">' +
-		post.ref.join(', ').replace(/(\d+)/g, '<a href="#">&gt;&gt;$1</a>') + '</div>';
+		post.ref.join(', ').replace(/(\d+)/g, '<a href="#$1">&gt;&gt;$1</a>') + '</div>';
 	try {
 		post.msg.insertAdjacentHTML('afterend', rM);
 	} catch(e) {
@@ -4159,6 +4159,8 @@ function updRefMap(post) {
 				pst.ref = [pNum];
 			} else if(pst.ref.indexOf(pNum) === -1) {
 				pst.ref.push(pNum);
+			} else {
+				continue;
 			}
 			$del($c('de-refmap', pst));
 			addRefMap(pst);
@@ -4643,6 +4645,7 @@ function loadThread(op, last, Fn) {
 			if(aib.isTrunc(op)) {
 				replaceFullMsg(op, newOp);
 			}
+			op.ref = void 0;
 			for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
 				el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
 				if(aib.isTrunc(el)) {
@@ -5000,6 +5003,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 				}
 			} else if(!TNum) {
 				aib.getWrap(el).classList.remove('de-hidden');
+				updRefMap(el);
 			}
 			checkBan(el, el_);
 		} else if(i >= from) {
