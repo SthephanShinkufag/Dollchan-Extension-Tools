@@ -384,7 +384,8 @@ Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
 oldTime, timeLog = [], dTime,
-ajaxInterval, lang, hideTubeDelay, quotetxt = '', liteMode, isExpImg,
+ajaxInterval, lang, hideTubeDelay, tubeTitles, quotetxt = '', liteMode, isExpImg,
+reTubeLink = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
 $each = Function.prototype.call.bind(aProto.forEach);
 
 
@@ -894,6 +895,7 @@ function readCfg() {
 		);
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
+	tubeTitles = JSON.parse(sessionStorage['de-yt-titles'] || '{}');
 	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
@@ -2589,7 +2591,7 @@ function doPostformChanges(el, sBtn) {
 		if(Cfg['favOnReply'] && pr.tNum) {
 			toggleFavorites(pByNum[pr.tNum], $c('de-btn-fav', pByNum[pr.tNum].btns));
 		}
-		if(pr.video && (val = pr.video.value) && (val = val.match(getTubePattern()))) {
+		if(pr.video && (val = pr.video.value) && (val = val.match(reTubeLink))) {
 			pr.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 		}
 		if(pr.isQuick) {
@@ -3637,71 +3639,47 @@ dateTime.prototype = {
 							ON LINKS VIDEO / MP3 PLAYERS
 ==============================================================================*/
 
-/** @constructor */
 function tubeTitleDownloader() {
-	if(Cfg['YTubeTitles']) {
-		try {
-			this.ytData = JSON.parse(sessionStorage['de-yt-titles']) || {};
-		} catch(e) {
-			this.ytData = {};
-		}
-		this.queue = new $queue(8, this._loadTitle.bind(this), this.saveTitles.bind(this));
-	} else {
-		this.loadTitle = this.noLoadTitle;
+	if(!Cfg['YTubeTitles']) {
+		return false;
 	}
-}
-tubeTitleDownloader.prototype = {
-	noLoadTitle: function(data) {
-		data[0].textContent = data[0].textContent.replace(/^http:\/\/youtu/, 'https:\/\/youtu');
-	},
-	saveTitles: function() {
-		sessionStorage['de-yt-titles'] = JSON.stringify(this.ytData);
-	},
-	saveLoaded: function() {
-		this.queue && this.queue.complete();
-	},
-	loadTitle: function(data) {
-		var title = this.ytData[data[1]];
-		if(title) {
-			this.setTitle(data[0], title);
-		} else {
-			this.queue.run(data);
-		}
-	},
-	setTitle: function(link, text) {
-		if(text) {
-			link.textContent = text;
-			link.textData = 2;
-		} else {
-			link.textData = 1;
-		}
-		if(link.spellFn) {
-			link.spellFn(text);
-			link.spellFn = null;
-		}
-	},
-	loaded: function(data, xhr) {
-		if(xhr.readyState === 4) {
-			var text;
-			if(xhr.status === 200) {
-				try {
-					text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-					this.ytData[data[1]] = text;
-				} catch(e) {}
-			}
-			this.setTitle(data[0], text);
-			this.queue.end();
-		}
-	},
-	_loadTitle: function(num, data) {
+	var queue = new $queue(8, (function(num, data) {
 		setTimeout(GM_xmlhttpRequest, 0, {
 			'method': 'GET',
 			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
 				'?alt=json&fields=title/text()',
-			'onreadystatechange': this.loaded.bind(this, data)
+			'onreadystatechange': (function(data, xhr) {
+				if(xhr.readyState === 4) {
+					var text;
+					if(xhr.status === 200) {
+						try {
+							text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+							tubeTitles[data[1]] = text;
+						} catch(e) {}
+					}
+					setTubeTitle(data[0], text);
+					this.end();
+				}
+			}).bind(queue, data)
 		});
+	}).bind(queue), function() {
+		sessionStorage['de-yt-titles'] = JSON.stringify(tubeTitles);
+	})
+	return queue;
+}
+
+function setTubeTitle(link, text) {
+	if(text) {
+		link.textContent = text;
+		link.textData = 2;
+	} else {
+		link.textData = 1;
 	}
-};
+	if(link.spellFn) {
+		link.spellFn(text);
+		link.spellFn = null;
+	}
+}
 
 function getTubeVideoLinks(id, Fn) {
 	setTimeout(GM_xmlhttpRequest, 0, {
@@ -3801,7 +3779,7 @@ function updateTubePlayer(post, ytObjSrc) {
 }
 
 function updateTubeLinks(post, oldLinks, newLinks, cloned) {
-	var i, j, m, el, link, ttd = !cloned && new tubeTitleDownloader,
+	var i, j, el, link, queue = !cloned && tubeTitleDownloader(),
 		len = newLinks.length;
 	for(i = 0, j = 0; i < len; i++) {
 		el = newLinks[i];
@@ -3809,14 +3787,12 @@ function updateTubeLinks(post, oldLinks, newLinks, cloned) {
 		if(cloned) {
 			el.ytInfo = link.ytInfo;
 			el.onclick = clickTubeLink;
-		} else if(getTubePattern().test(el.href)) {
-			m = link ? link.ytInfo : el.href.match(getTubePattern());
-			addLinkTube(el, m, post);
-			ttd.loadTitle([el, m[1]]);
+		} else if(reTubeLink.test(el.href)) {
+			addLinkTube(el, link ? link.ytInfo : el.href.match(reTubeLink), post, queue);
 			j++;
 		}
 	}
-	ttd && ttd.saveLoaded();
+	queue && queue.complete();
 }
 
 function eventTubePreview(el) {
@@ -3837,10 +3813,6 @@ function addTubePreview(el, m) {
 	}
 }
 
-function getTubePattern() {
-	return /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
-}
-
 function clickTubeLink(e) {
 	var m = this.ytInfo,
 		el = $c('de-ytube-obj', getPost(this));
@@ -3857,8 +3829,8 @@ function clickTubeLink(e) {
 	el.ytInfo = m;
 }
 
-function addLinkTube(link, m, post) {
-	var msg, prev, el;
+function addLinkTube(link, m, post, queue) {
+	var msg, prev, el, title;
 	if(!post.ytObj) {
 		post.ytObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
 		if(Cfg['addYouTube'] > 2) {
@@ -3881,15 +3853,23 @@ function addLinkTube(link, m, post) {
 	link.ytInfo = m;
 	link.className = 'de-ytube-link';
 	link.onclick = clickTubeLink;
+	if(Cfg['YTubeTitles'] && queue) {
+		title = tubeTitles[m[1]];
+		if(title) {
+			setTubeTitle(link, title);
+		} else {
+			queue.run([link, m[1]]);
+		}
+	}
 }
 
 function addLinksTube(post) {
 	if(!Cfg['addYouTube']) {
 		return;
 	}
-	var i, els, el, m, src, pst, ttd = new tubeTitleDownloader();
+	var i, els, el, m, src, pst, queue = tubeTitleDownloader();
 	for(i = 0, els = $Q('embed, object, iframe', post || dForm); el = els[i++];) {
-		if(!(m = (el.src || el.data).match(getTubePattern()))) {
+		if(!(m = (el.src || el.data).match(reTubeLink))) {
 			continue;
 		}
 		src = 'https://www.youtube.com/watch?v=' + m[1];
@@ -3902,13 +3882,11 @@ function addLinksTube(post) {
 		$del(el);
 	}
 	for(i = 0, els = $Q('a[href*="youtu"]', post || dForm); el = els[i++];) {
-		if(m = el.href.match(getTubePattern())) {
-			addLinkTube(el, m, post || getPost(el));
-			ttd.loadTitle([el, m[1]]);
+		if(m = el.href.match(reTubeLink)) {
+			addLinkTube(el, m, post || getPost(el), queue);
 		}
 	}
-	ttd.saveLoaded();
-	ttd = null;
+	queue && queue.complete();
 }
 
 function checkLinkTube(text) {
