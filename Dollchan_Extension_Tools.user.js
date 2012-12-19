@@ -3684,71 +3684,65 @@ function setTubeTitle(link, text) {
 }
 
 function addHTML5Video(el, id, time) {
-	var Fn = function(url) {
-		var src = url ? (Cfg['YTubeHD'] ? (url[45] || url[44] || url[43]) : url[43]) : false;
-		if(!src) {
-			addFlashVideo(el, id, time);
-			return;
-		}
-		el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
-			'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-			'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
-		if(time !== 0) {
-			el.firstChild.onloadedmetadata = function() {
-				this.currentTime = time;
-				time = null;
-			};
-		}
-		el = id = null;
-	};
 	setTimeout(GM_xmlhttpRequest, 0, {
 		'method': 'GET',
 		'url': 'https://www.youtube.com/watch?v=' + id,
 		'onload': function(xhr) {
-			var group, i, len, el, videoPair, j, pair, url, itag, sig, videoURL = [],
+			var group, i, len, x, videoPair, j, pair, url, itag, sig, src, videoURL = [],
 				formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
 				sep1 = '%2C',
 				sep2 = '%26',
 				sep3 = '%3D';
-			if(!formats) {
-				Fn(null);
-				Fn = null;
-				return;
-			}
-			formats = formats[1];
-			if(formats.contains(',')) { 
-				sep1 = ',';
-				sep2 = formats.contains('&') ? '&' : '\\u0026';
-				sep3 = '=';
-			}
-			for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
-				el = group[i].split(sep2);
-				videoPair = [];
-				for(j = 0; j < el.length; j++) {
-					pair = el[j].split(sep3);
-					if(pair.length === 2) {
-						videoPair[pair[0]] = pair[1];
+			if(formats) {
+				formats = formats[1];
+				if(formats.contains(',')) { 
+					sep1 = ',';
+					sep2 = formats.contains('&') ? '&' : '\\u0026';
+					sep3 = '=';
+				}
+				for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
+					x = group[i].split(sep2);
+					videoPair = [];
+					for(j = 0; j < x.length; j++) {
+						pair = x[j].split(sep3);
+						if(pair.length === 2) {
+							videoPair[pair[0]] = pair[1];
+						}
+					}
+					url = videoPair['url'];
+					if(!url) {
+						continue;
+					}
+					url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
+					itag = videoPair['itag'];
+					if(!itag) {
+						continue;
+					}
+					sig = videoPair['sig'];
+					if(sig) {
+						url += "&signature=" + sig;
+					}
+					if(url.toLowerCase().startsWith('http')) {
+						videoURL[itag] = url;
 					}
 				}
-				url = videoPair['url'];
-				if(!url) {
-					continue;
-				}
-				url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
-				itag = videoPair['itag'];
-				if(!itag) {
-					continue;
-				}
-				sig = videoPair['sig'];
-				if(sig) {
-					url += "&signature=" + sig;
-				}
-				if(url.toLowerCase().startsWith('http')) {
-					videoURL[itag] = url;
-				}
+				src = Cfg['YTubeHD'] ? (videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
 			}
-			Fn(videoURL);
-			Fn = null;
+			if(!src) {
+				addFlashVideo(el, id, time);
+				el = id = time = null;
+				return;
+			}
+			el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
+				'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
+				'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
+			if(time) {
+				el.firstChild.onloadedmetadata = function() {
+					this.currentTime = time;
+					time = null;
+				};
+			}
+			el = id = null;
 		}
 	});
 }
@@ -3889,7 +3883,7 @@ function checkTubeLink(text) {
 	}
 }
 
-function addLinkMP3(post) {
+function embedMP3Links(post) {
 	if(!Cfg['addMP3']) {
 		return;
 	}
@@ -4003,7 +3997,7 @@ function eventLinkImg(el) {
 	};
 }
 
-function addLinkImg(el) {
+function embedImgLinks(el) {
 	if(!Cfg['addImgs']) {
 		return;
 	}
@@ -4267,9 +4261,9 @@ function getPview(post, pNum, parent, link, txt) {
 		pView.num = pNum;
 		$each($C('de-img-full', pView), $del);
 		if(!inDoc) {
-			addLinkMP3(pView);
+			embedMP3Links(pView);
 			embedTubeLinks(pView);
-			addLinkImg(pView);
+			embedImgLinks(pView);
 			addImgSearch(pView);
 		} else {
 			if(Cfg['addYouTube']) {
@@ -4501,8 +4495,8 @@ function addPostFunc(post) {
 	}
 	updRefMap(post);
 	eventRefLink(post);
-	addLinkMP3(post);
-	addLinkImg(post);
+	embedMP3Links(post);
+	embedImgLinks(post);
 	if(isExpImg) {
 		expandAllPostImg(post, null);
 	}
@@ -4703,9 +4697,9 @@ function parsePages(pages) {
 	if(Cfg['expandPosts']) {
 		Posts.forEach(expandPost);
 	}
-	addLinkMP3(null);
+	embedMP3Links(null);
 	embedTubeLinks(null);
-	addLinkImg(dForm);
+	embedImgLinks(dForm);
 	addImgSearch(dForm);
 	if(Cfg['linksNavig'] === 2) {
 		genRefMap(pByNum, null);
@@ -7681,16 +7675,16 @@ function doScript() {
 		$log('expandPost');
 	}
 	if(Cfg['addMP3']) {
-		addLinkMP3(null);
-		$log('addLinkMP3');
+		embedMP3Links(null);
+		$log('embedMP3Links');
 	}
 	if(Cfg['addYouTube']) {
 		embedTubeLinks(null);
 		$log('embedTubeLinks');
 	}
 	if(Cfg['addImgs']) {
-		addLinkImg(dForm);
-		$log('addLinkImg');
+		embedImgLinks(dForm);
+		$log('embedImgLinks');
 	}
 	if(Cfg['imgSrcBtns']) {
 		addImgSearch(dForm);
