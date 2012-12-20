@@ -3639,34 +3639,35 @@ dateTime.prototype = {
 							ON LINKS VIDEO / MP3 PLAYERS
 ==============================================================================*/
 
-function onloadTubeTitle(data, xhr) {
-	if(xhr.readyState === 4) {
-		var text;
-		if(xhr.status === 200) {
-			try {
-				text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-				tubeTitles[data[1]] = text;
-			} catch(e) {}
-		}
-		setTubeTitle(data[0], text);
-		this.end();
-	}
-}
-
-function tubeTitleQueue(num, data) {
-	setTimeout(GM_xmlhttpRequest, 0, {
-		'method': 'GET',
-		'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
-		'onreadystatechange': onloadTubeTitle.bind(this, data)
-	});
-}
-
-function endTubeTitleQueue() {
-	sessionStorage['de-yt-titles'] = JSON.stringify(tubeTitles);
-}
-
 function getTubeTitle() {
-	return Cfg['YTubeTitles'] ? new $queue(8, tubeTitleQueue, endTubeTitleQueue) : false;
+	if(!Cfg['YTubeTitles']) {
+		return false;
+	}
+	var queue = new $queue(8, function(num, data) {
+		setTimeout(GM_xmlhttpRequest, 0, {
+			'method': 'GET',
+			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
+				'?alt=json&fields=title/text()',
+			'onreadystatechange': function(xhr) {
+				if(xhr.readyState === 4) {
+					var text;
+					if(xhr.status === 200) {
+						try {
+							text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+							tubeTitles[data[1]] = text;
+						} catch(e) {}
+					}
+					setTubeTitle(data[0], text);
+					queue.end();
+					data = null;
+				}
+			}
+		});
+	}, function() {
+		sessionStorage['de-yt-titles'] = JSON.stringify(tubeTitles);
+		queue = null;
+	})
+	return queue;
 }
 
 function setTubeTitle(link, text) {
@@ -3682,68 +3683,67 @@ function setTubeTitle(link, text) {
 	}
 }
 
-function setHTML5VideoTime(time) {
-	this.currentTime = time;
-}
-
-function onloadHTML5Video(el, id, time, xhr) {
-	var group, i, len, x, videoPair, j, pair, url, itag, sig, src, videoURL = [],
-		formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
-		sep1 = '%2C',
-		sep2 = '%26',
-		sep3 = '%3D';
-	if(formats) {
-		formats = formats[1];
-		if(formats.contains(',')) { 
-			sep1 = ',';
-			sep2 = formats.contains('&') ? '&' : '\\u0026';
-			sep3 = '=';
-		}
-		for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
-			x = group[i].split(sep2);
-			videoPair = [];
-			for(j = 0; j < x.length; j++) {
-				pair = x[j].split(sep3);
-				if(pair.length === 2) {
-					videoPair[pair[0]] = pair[1];
-				}
-			}
-			url = videoPair['url'];
-			if(!url) {
-				continue;
-			}
-			url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
-			itag = videoPair['itag'];
-			if(!itag) {
-				continue;
-			}
-			sig = videoPair['sig'];
-			if(sig) {
-				url += "&signature=" + sig;
-			}
-			if(url.toLowerCase().startsWith('http')) {
-				videoURL[itag] = url;
-			}
-		}
-		src = Cfg['YTubeHD'] ? (videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
-	}
-	if(!src) {
-		addFlashVideo(el, id, time);
-		return;
-	}
-	el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
-		'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-		'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
-	if(time) {
-		(el = el.firstChild).onloadedmetadata = setHTML5VideoTime.bind(el, time);
-	}
-}
-
 function addHTML5Video(el, id, time) {
 	setTimeout(GM_xmlhttpRequest, 0, {
 		'method': 'GET',
 		'url': 'https://www.youtube.com/watch?v=' + id,
-		'onload': onloadHTML5Video.bind(null, el, id, time)
+		'onload': function(xhr) {
+			var group, i, len, x, videoPair, j, pair, url, itag, sig, src, videoURL = [],
+				formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
+				sep1 = '%2C',
+				sep2 = '%26',
+				sep3 = '%3D';
+			if(formats) {
+				formats = formats[1];
+				if(formats.contains(',')) { 
+					sep1 = ',';
+					sep2 = formats.contains('&') ? '&' : '\\u0026';
+					sep3 = '=';
+				}
+				for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
+					x = group[i].split(sep2);
+					videoPair = [];
+					for(j = 0; j < x.length; j++) {
+						pair = x[j].split(sep3);
+						if(pair.length === 2) {
+							videoPair[pair[0]] = pair[1];
+						}
+					}
+					url = videoPair['url'];
+					if(!url) {
+						continue;
+					}
+					url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
+					itag = videoPair['itag'];
+					if(!itag) {
+						continue;
+					}
+					sig = videoPair['sig'];
+					if(sig) {
+						url += "&signature=" + sig;
+					}
+					if(url.toLowerCase().startsWith('http')) {
+						videoURL[itag] = url;
+					}
+				}
+				src = Cfg['YTubeHD'] ? (videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
+			}
+			if(!src) {
+				addFlashVideo(el, id, time);
+				el = id = time = null;
+				return;
+			}
+			el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
+				'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
+				'" width="' + Cfg['YTubeWidth'] + '" height="' + Cfg['YTubeHeigh'] + '"></video>';
+			if(time) {
+				el.firstChild.onloadedmetadata = function() {
+					this.currentTime = time;
+					time = null;
+				};
+			}
+			el = id = null;
+		}
 	});
 }
 
@@ -4407,23 +4407,19 @@ function showPview(link) {
 	}, null);
 }
 
-function overRefLink() {
-	if(this.textContent.length > 2) {
-		this.overDelay = setTimeout(showPview, Cfg['linksOver'], this);
-	}
-}
-
-function outRefLink() {
-	clearTimeout(this.overDelay);
-	markPviewToDel(Pviews.top, true);
-}
-
 function eventRefLink(el) {
 	if(Cfg['linksNavig']) {
 		var link, links = doc.evaluate('.//a[starts-with(text(),">>")]', el, null, 4, null);
 		while(link = links.iterateNext()) {
-			link.onmouseover = overRefLink;
-			link.onmouseout = outRefLink;
+			link.onmouseover = function() {
+				if(this.textContent.length > 2) {
+					this.overDelay = setTimeout(showPview, Cfg['linksOver'], this);
+				}
+			};
+			link.onmouseout = function() {
+				clearTimeout(this.overDelay);
+				markPviewToDel(Pviews.top, true);
+			};
 		}
 	}
 }
