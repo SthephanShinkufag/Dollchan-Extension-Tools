@@ -4090,7 +4090,12 @@ function getRelLink(num) {
 }
 
 function addRefMap(post) {
-	post.insertAdjacentHTML('beforeend', '<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>');
+	var html = '<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>';
+	if(post.isOp && post.msg) {
+		post.msg.insertAdjacentHTML('afterend', html);
+	} else {
+		post.insertAdjacentHTML('beforeend', html);
+	}
 }
 
 function genRefMap(posts, tNum) {
