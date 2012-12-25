@@ -4630,13 +4630,13 @@ function loadThread(op, last, Fn) {
 			if(aib.isTrunc(op)) {
 				replaceFullMsg(op, newOp);
 			}
-			op.ref = void 0;
 			for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
 				el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
 				if(aib.isTrunc(el)) {
 					replaceFullMsg(el, els[omt + i]);
 				}
 			}
+			op.ref = void 0;
 		}
 		j = last !== 1 && last < len ? len - last : 0;
 		thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
