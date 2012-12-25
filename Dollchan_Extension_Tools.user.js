@@ -245,7 +245,7 @@ Lng = {
 		'trip':		['Скрывать трип-код', 'Hide with trip-code'],
 		'img':		['Скрывать изображение', 'Hide with image'],
 		'ihash':	['Скрывать схожие изобр.', 'Hide similar images'],
-		'text':		['Скрывать схожий текст', 'Hide similar text'],
+		'text':		['Скрыть схожий текст', 'Hide similar text'],
 		'noimg':	['Скрывать без изображений', 'Hide without images'],
 		'notext':	['Скрывать без текста', 'Hide without text']
 	},
@@ -629,7 +629,7 @@ $queue.prototype = {
 };
 
 function regQuote(str) {
-	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+	return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
 }
 
 function getPost(el) {
@@ -1945,10 +1945,10 @@ function addMenu(el, isPanel, html) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
 			'bottom: 25' :
-			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
+			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + (offE.top + el.offsetHeight);
+		y = 'top: ' + (offE.top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		'" id="de-menu" style="position: ' + pos + '; ' + (
@@ -1983,19 +1983,41 @@ function addSpellMenu(e) {
 		};
 	});
 }
+function addSelSpell(selText) {
+	var start = this.startContainer,
+		end = this.endContainer;
+	if(start.nodeType === 3) {
+		start = start.parentNode;
+	}
+	if(end.nodeType === 3) {
+		end = end.parentNode;
+	}
+	if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
+		(nav.matchesSelector(start, '.' + aib.cTitle) && nav.matchesSelector(end, '.' + aib.cTitle))
+	) {
+		if(selText.contains('\n')) {
+			addSpell('#exp', '(/' + regQuote(selText).replace(/\n/g, '\\n').replace(/\r/g, '') + '/)');
+		} else {
+			addSpell('#words', '(' + selText.replace(/\)/g, '\\)').toLowerCase() + ')');
+		}
+	} else {
+		dummy.innerHTML = '';
+		dummy.appendChild(this.cloneContents());
+		addSpell('#exph', '(/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/)');
+	}
+}
 
 function addPostHideMenu(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	var el, menu = addMenu(post.btns.firstChild, false, ''),
+	var el, sel, ssel, menu = addMenu(post.btns.firstChild, false, ''),
 		add = function(name, Fn) {
 			menu.appendChild($add('<span>' + Lng.selHiderMenu[name][lang] + '</span>')).onclick = Fn;
 		};
-	if(!post.hide && (quotetxt = $txtSelect().trim())) {
-		add('sel', function() {
-			addSpell('#words', '(' + quotetxt + ')');
-		});
+	sel = nav.Opera ? doc.getSelection() : window.getSelection();
+	if(ssel = sel.toString()) {
+		add('sel', addSelSpell.bind(sel.getRangeAt(0), ssel));
 	}
 	if(el = $c('postertrip', post)) {
 		add('trip', function() {
@@ -7061,6 +7083,9 @@ function getNavigator() {
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
 		};
+	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
+		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
+	})(doc.documentElement));
 }
 
 
