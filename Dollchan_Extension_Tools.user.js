@@ -4102,10 +4102,6 @@ function eventPostImg(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getAbsLink(num) {
-	return this + num + '">&gt;&gt;' + num + '</a>';
-}
-
 function getRelLink(num) {
 	return '<a href="#' + num + '">&gt;&gt;' + num + '</a>';
 }
@@ -4130,7 +4126,9 @@ function genRefMap(posts, tUrl) {
 			}
 		}
 	});
-	refMap.forEach(addRefMap.bind(tUrl ? getAbsLink.bind('<a href="' + tUrl + '#') : getRelLink));
+	refMap.forEach(addRefMap.bind(tUrl ? (function(num) {
+		return this + num + '">&gt;&gt;' + num + '</a>';
+	}).bind('<a href="' + tUrl + '#') : getRelLink));
 	refMap = null;
 }
 
