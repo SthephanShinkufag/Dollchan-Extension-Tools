@@ -4126,10 +4126,10 @@ function genRefMap(posts, tUrl) {
 			}
 		}
 	});
-	refMap.forEach(addRefMap.bind(tUrl ? (function(num) {
-		return this + num + '">&gt;&gt;' + num + '</a>';
-	}).bind('<a href="' + tUrl + '#') : getRelLink));
-	refMap = null;
+	refMap.forEach(addRefMap.bind(tUrl ? function(num) {
+		return '<a href="' + tUrl + '#' + num + '">&gt;&gt;' + num + '</a>';
+	} : getRelLink));
+	refMap = tUrl = null;
 }
 
 function updRefMap(post) {
