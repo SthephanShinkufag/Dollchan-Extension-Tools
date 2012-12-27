@@ -1983,6 +1983,7 @@ function addSpellMenu(e) {
 		};
 	});
 }
+
 function addSelSpell(selText) {
 	var start = this.startContainer,
 		end = this.endContainer;
@@ -2037,9 +2038,7 @@ function addPostHideMenu(post) {
 		});
 	}
 	if(getText(post)) {
-		add('text', function() {
-			hideBySameText(post);
-		});
+		add('text', hideBySameText.bind(window, post));
 	} else {
 		add('notext', function() {
 			addSpell('(#all', ' & !#tlen)');
@@ -4104,7 +4103,7 @@ function eventPostImg(post) {
 ==============================================================================*/
 
 function getAbsLink(num) {
-	return '<a href="' + this + '#' + num + '">&gt;&gt;' + num + '</a>';
+	return this + num + '">&gt;&gt;' + num + '</a>';
 }
 
 function getRelLink(num) {
@@ -4116,7 +4115,7 @@ function addRefMap(post) {
 		'<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>');
 }
 
-function genRefMap(posts, tNum) {
+function genRefMap(posts, tUrl) {
 	var refMap = [];
 	nav.forEach(posts, function(pNum) {
 		for(var tc, link, lNum, lPost, i = 0, links = $T('a', this[pNum].msg); link = links[i++];) {
@@ -4131,7 +4130,7 @@ function genRefMap(posts, tNum) {
 			}
 		}
 	});
-	refMap.forEach(addRefMap.bind(tNum ? getAbsLink.bind(aib.getThrdUrl(brd, tNum)) : getRelLink));
+	refMap.forEach(addRefMap.bind(tUrl ? getAbsLink.bind('<a href="' + tUrl + '#') : getRelLink));
 	refMap = null;
 }
 
@@ -4366,29 +4365,11 @@ function getPview(post, pNum, parent, link, txt) {
 	return pView;
 }
 
-function getAjaxPview(b, pNum, tNum) {
-	if(!Pviews.ajaxed[b]) {
-		return null;
-	}
-	var i, els, link, pView = Pviews.ajaxed[b][pNum];
-	if(b === brd || !pView || pView.aRep) {
-		return pView;
-	}
-	pNum = fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt);
-	for(i = 0, els = $T('a', pView); link = els[i++];) {
-		if(/^>>\d+$/.test(link.textContent)) {
-			link.href = pNum;
-		}
-	}
-	pView.aRep = true;
-	return pView;
-}
-
 function showPview(link) {
 	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, ''),
 		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
+		post = pByNum[pNum] || (Pviews.ajaxed[b] && Pviews.ajaxed[b][pNum]),
 		parent = getPost(link),
 		el = parent.pView ? parent.kid : Pviews.top;
 	if(Cfg['noNavigHidd'] && post && post.hide) {
@@ -4412,7 +4393,7 @@ function showPview(link) {
 	el = getPview(null, pNum, parent, link, '<span class="de-wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(aib.getThrdUrl(b, tNum), true, function(els, op) {
-		var pst, i = 0;
+		var pst, rm, i = 0;
 		op.isOp = true;
 		op.count = 0;
 		op.msg = $q(aib.qMsg, op);
@@ -4422,9 +4403,18 @@ function showPview(link) {
 			pst.msg = $q(aib.qMsg, pst);
 			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 		}
-		genRefMap(Pviews.ajaxed[b], tNum);
+		genRefMap(Pviews.ajaxed[b], aib.getThrdUrl(b, tNum));
+		if(pst = Pviews.ajaxed[b][pNum]) {
+			if(!(rm = $c('de-refmap', pst))) {
+				pst.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
+				rm = pst.msg.nextSibling;
+			}
+			rm.insertAdjacentHTML('afterbegin', '<a href="#' + parent.num + '">&gt;&gt;/' + brd +
+				'/' + parent.num + '</a>' + (typeof pst.ref === 'undefined' ? '' : ', ')
+			);
+		}
 		if(el && el.parentNode) {
-			getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, null);
+			getPview(pst, pNum, parent, link, null);
 		}
 		b = pNum = tNum = parent = el = null;
 	}, null);
