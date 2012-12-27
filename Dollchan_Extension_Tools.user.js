@@ -7277,7 +7277,7 @@ function getImageboard() {
 		aib.tiny ? '.omitted' :
 		aib.futa ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
-		aib.hana ? '.abbrev' :
+		aib.hana ? '.abbrev > span' :
 		aib.fch ? '.summary.desktop' :
 		'.omittedposts';
 	aib.qTrunc =
