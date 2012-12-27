@@ -245,7 +245,7 @@ Lng = {
 		'trip':		['Скрывать трип-код', 'Hide with trip-code'],
 		'img':		['Скрывать изображение', 'Hide with image'],
 		'ihash':	['Скрывать схожие изобр.', 'Hide similar images'],
-		'text':		['Скрывать схожий текст', 'Hide similar text'],
+		'text':		['Скрыть схожий текст', 'Hide similar text'],
 		'noimg':	['Скрывать без изображений', 'Hide without images'],
 		'notext':	['Скрывать без текста', 'Hide without text']
 	},
@@ -629,7 +629,7 @@ $queue.prototype = {
 };
 
 function regQuote(str) {
-	return (str + '').replace(/([.?*+^$[\]\\(){}|-])/g, '\\$1');
+	return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
 }
 
 function getPost(el) {
@@ -1945,10 +1945,10 @@ function addMenu(el, isPanel, html) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
 			'bottom: 25' :
-			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
+			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + (offE.top + el.offsetHeight);
+		y = 'top: ' + (offE.top + el.offsetHeight - (nav.Firefox ? .5 : 0));
 	}
 	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		'" id="de-menu" style="position: ' + pos + '; ' + (
@@ -1984,18 +1984,41 @@ function addSpellMenu(e) {
 	});
 }
 
+function addSelSpell(selText) {
+	var start = this.startContainer,
+		end = this.endContainer;
+	if(start.nodeType === 3) {
+		start = start.parentNode;
+	}
+	if(end.nodeType === 3) {
+		end = end.parentNode;
+	}
+	if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
+		(nav.matchesSelector(start, '.' + aib.cTitle) && nav.matchesSelector(end, '.' + aib.cTitle))
+	) {
+		if(selText.contains('\n')) {
+			addSpell('#exp', '(/' + regQuote(selText).replace(/\n/g, '\\n').replace(/\r/g, '') + '/)');
+		} else {
+			addSpell('#words', '(' + selText.replace(/\)/g, '\\)').toLowerCase() + ')');
+		}
+	} else {
+		dummy.innerHTML = '';
+		dummy.appendChild(this.cloneContents());
+		addSpell('#exph', '(/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/)');
+	}
+}
+
 function addPostHideMenu(post) {
 	if(!Cfg['menuHiddBtn']) {
 		return;
 	}
-	var el, menu = addMenu(post.btns.firstChild, false, ''),
+	var el, sel, ssel, menu = addMenu(post.btns.firstChild, false, ''),
 		add = function(name, Fn) {
 			menu.appendChild($add('<span>' + Lng.selHiderMenu[name][lang] + '</span>')).onclick = Fn;
 		};
-	if(!post.hide && (quotetxt = $txtSelect().trim())) {
-		add('sel', function() {
-			addSpell('#words', '(' + quotetxt + ')');
-		});
+	sel = nav.Opera ? doc.getSelection() : window.getSelection();
+	if(ssel = sel.toString()) {
+		add('sel', addSelSpell.bind(sel.getRangeAt(0), ssel));
 	}
 	if(el = $c('postertrip', post)) {
 		add('trip', function() {
@@ -2015,9 +2038,7 @@ function addPostHideMenu(post) {
 		});
 	}
 	if(getText(post)) {
-		add('text', function() {
-			hideBySameText(post);
-		});
+		add('text', hideBySameText.bind(window, post));
 	} else {
 		add('notext', function() {
 			addSpell('(#all', ' & !#tlen)');
@@ -4081,10 +4102,6 @@ function eventPostImg(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getAbsLink(num) {
-	return '<a href="' + this + '#' + num + '">&gt;&gt;' + num + '</a>';
-}
-
 function getRelLink(num) {
 	return '<a href="#' + num + '">&gt;&gt;' + num + '</a>';
 }
@@ -4094,7 +4111,7 @@ function addRefMap(post) {
 		'<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>');
 }
 
-function genRefMap(posts, tNum) {
+function genRefMap(posts, tUrl) {
 	var refMap = [];
 	nav.forEach(posts, function(pNum) {
 		for(var tc, link, lNum, lPost, i = 0, links = $T('a', this[pNum].msg); link = links[i++];) {
@@ -4109,8 +4126,10 @@ function genRefMap(posts, tNum) {
 			}
 		}
 	});
-	refMap.forEach(addRefMap.bind(tNum ? getAbsLink.bind(aib.getThrdUrl(brd, tNum)) : getRelLink));
-	refMap = null;
+	refMap.forEach(addRefMap.bind(tUrl ? function(num) {
+		return '<a href="' + tUrl + '#' + num + '">&gt;&gt;' + num + '</a>';
+	} : getRelLink));
+	refMap = tUrl = null;
 }
 
 function updRefMap(post) {
@@ -4344,29 +4363,11 @@ function getPview(post, pNum, parent, link, txt) {
 	return pView;
 }
 
-function getAjaxPview(b, pNum, tNum) {
-	if(!Pviews.ajaxed[b]) {
-		return null;
-	}
-	var i, els, link, pView = Pviews.ajaxed[b][pNum];
-	if(b === brd || !pView || pView.aRep) {
-		return pView;
-	}
-	pNum = fixBrd(b) + aib.res + tNum + (aib.tire ? '.html' : docExt);
-	for(i = 0, els = $T('a', pView); link = els[i++];) {
-		if(/^>>\d+$/.test(link.textContent)) {
-			link.href = pNum;
-		}
-	}
-	pView.aRep = true;
-	return pView;
-}
-
 function showPview(link) {
 	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, ''),
 		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
-		post = pByNum[pNum] || getAjaxPview(b, pNum, tNum),
+		post = pByNum[pNum] || (Pviews.ajaxed[b] && Pviews.ajaxed[b][pNum]),
 		parent = getPost(link),
 		el = parent.pView ? parent.kid : Pviews.top;
 	if(Cfg['noNavigHidd'] && post && post.hide) {
@@ -4390,19 +4391,28 @@ function showPview(link) {
 	el = getPview(null, pNum, parent, link, '<span class="de-wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(aib.getThrdUrl(b, tNum), true, function(els, op) {
-		var pst, i = 0;
+		var pst, rm, i, prNum = parent.num;
 		op.isOp = true;
 		op.count = 0;
 		op.msg = $q(aib.qMsg, op);
 		Pviews.ajaxed[b][tNum] = op;
-		for(; pst = els[i++];) {
+		for(i = 0; pst = els[i++];) {
 			pst.count = i + 1;
 			pst.msg = $q(aib.qMsg, pst);
 			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 		}
-		genRefMap(Pviews.ajaxed[b], tNum);
+		genRefMap(Pviews.ajaxed[b], aib.getThrdUrl(b, tNum));
+		if((pst = Pviews.ajaxed[b][pNum]) && (brd !== b || !Pviews.ajaxed[b][prNum])) {
+			if(!(rm = $c('de-refmap', pst))) {
+				pst.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
+				rm = pst.msg.nextSibling;
+			}
+			rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
+				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (pst.ref ? ', ' : '')
+			);
+		}
 		if(el && el.parentNode) {
-			getPview(getAjaxPview(b, pNum, tNum), pNum, parent, link, null);
+			getPview(pst, pNum, parent, link, null);
 		}
 		b = pNum = tNum = parent = el = null;
 	}, null);
@@ -4608,13 +4618,13 @@ function loadThread(op, last, Fn) {
 			if(aib.isTrunc(op)) {
 				replaceFullMsg(op, newOp);
 			}
-			op.ref = void 0;
 			for(i = 0, omt = thr.omitted, opIdx = Posts.indexOf(op); i < pCnt; i++) {
 				el = lPosts[omt + i + 1] = Posts[opIdx + i + 1];
 				if(aib.isTrunc(el)) {
 					replaceFullMsg(el, els[omt + i]);
 				}
 			}
+			op.ref = void 0;
 		}
 		j = last !== 1 && last < len ? len - last : 0;
 		thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
@@ -7061,6 +7071,9 @@ function getNavigator() {
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
 		};
+	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
+		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
+	})(doc.documentElement));
 }
 
 
@@ -7264,7 +7277,7 @@ function getImageboard() {
 		aib.tiny ? '.omitted' :
 		aib.futa ? 'font[color="#707070"]' :
 		aib.krau ? '.omittedinfo' :
-		aib.hana ? '.abbrev' :
+		aib.hana ? '.abbrev > span' :
 		aib.fch ? '.summary.desktop' :
 		'.omittedposts';
 	aib.qTrunc =
