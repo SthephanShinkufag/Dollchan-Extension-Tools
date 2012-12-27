@@ -4393,24 +4393,24 @@ function showPview(link) {
 	el = getPview(null, pNum, parent, link, '<span class="de-wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(aib.getThrdUrl(b, tNum), true, function(els, op) {
-		var pst, rm, i = 0;
+		var pst, rm, i, prNum = parent.num;
 		op.isOp = true;
 		op.count = 0;
 		op.msg = $q(aib.qMsg, op);
 		Pviews.ajaxed[b][tNum] = op;
-		for(; pst = els[i++];) {
+		for(i = 0; pst = els[i++];) {
 			pst.count = i + 1;
 			pst.msg = $q(aib.qMsg, pst);
 			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 		}
 		genRefMap(Pviews.ajaxed[b], aib.getThrdUrl(b, tNum));
-		if(pst = Pviews.ajaxed[b][pNum]) {
+		if((pst = Pviews.ajaxed[b][pNum]) && (brd !== b || !Pviews.ajaxed[b][prNum])) {
 			if(!(rm = $c('de-refmap', pst))) {
 				pst.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 				rm = pst.msg.nextSibling;
 			}
-			rm.insertAdjacentHTML('afterbegin', '<a href="#' + parent.num + '">&gt;&gt;/' + brd +
-				'/' + parent.num + '</a>' + (typeof pst.ref === 'undefined' ? '' : ', ')
+			rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
+				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (pst.ref ? ', ' : '')
 			);
 		}
 		if(el && el.parentNode) {
