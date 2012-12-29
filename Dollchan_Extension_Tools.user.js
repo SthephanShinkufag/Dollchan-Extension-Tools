@@ -785,21 +785,21 @@ function getStoredObj(id, def) {
 	}
 }
 
-function readOldCfg() {
-	try {
-		var rv = JSON.parse(getStored('DESU_Config_' + aib.dm));
-		delStored('DESU_Config_' + aib.dm);
-		if(rv['version']) {
-			delete rv['version'];
-			delete rv['lastScrUpd'];
-			return rv;
-		}
-	} catch(e) {}
-	return false;
-}
-
 function getCfg(obj) {
-	return obj && !$isEmpty(obj) ? obj : readOldCfg();
+	if(obj && !$isEmpty(obj)) {
+		return obj;
+	} else {
+		try {
+			var rv = JSON.parse(getStored('DESU_Config_' + aib.dm));
+			delStored('DESU_Config_' + aib.dm);
+			if(rv['version']) {
+				delete rv['version'];
+				delete rv['lastScrUpd'];
+				return rv;
+			}
+		} catch(e) {}
+		return false;
+	}
 }
 
 function saveComCfg(dm, obj) {
@@ -1157,30 +1157,235 @@ function toggleContent(name, isUpd) {
 	}
 }
 
-function showContent(el, id, name, isUpd) {
-	el.innerHTML = el.style.backgroundColor = '';
-	if(!isUpd && el.id === id) {
-		el.removeAttribute('id');
+function addContentBlock(parent, title) {
+	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
+		$new('input', {'type': 'checkbox'}, {'click': function() {
+			for(var el, res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode); el = els[i++];) {
+				el.checked = res;
+			}
+		}}),
+		$new('b', {'text': title}, null)
+	]));
+}
+
+function showContent(cont, id, name, isUpd) {
+	var h, b, tNum, i, els, post, cln, block, obj;
+	cont.innerHTML = cont.style.backgroundColor = '';
+	if(!isUpd && cont.id === id) {
+		cont.removeAttribute('id');
 		return;
 	}
-	el.id = id;
+	cont.id = id;
 	if(name === 'cfg') {
-		addSettings(el);
-	} else {
-		if(Cfg['attachPanel']) {
-			el.style.backgroundColor = $getStyle(doc.body, 'background-color');
-		}
-		if(name === 'hid') {
-			readHiddenThreads();
-			addHiddenTable(el);
-		}
-		if(name === 'fav') {
-			readFavorites();
-			addFavoritesTable(el);
-		}
+		addSettings(cont);
+	} else if(Cfg['attachPanel']) {
+		cont.style.backgroundColor = $getStyle(doc.body, 'background-color');
 	}
+
+	if(name === 'hid') {
+		readHiddenThreads();
+		obj = comHThr[aib.dm];
+		for(i = 0, els = $C('de-post-hid', dForm); post = els[i++];) {
+			if(post.isOp) {
+				continue;
+			}
+			(cln = post.cloneNode(true)).removeAttribute('id');
+			cln.style.display = '';
+			cln.hide = true;
+			cln.pst = post;
+			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
+			cln.btn.parentNode.className = 'de-ppanel';
+			cln.btn.onmouseover = cln.btn.onmouseout = null;
+			cln.btn.onclick = function() {
+				var pst = getPost(this);
+				togglePostContent(pst, pst.hide = !pst.hide);
+			};
+			(block || (block = cont.appendChild(
+				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
+			))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
+		}
+		if(block) {
+			$append(cont, [
+				$btn(Lng.expandAll[lang], '', function() {
+					$each($Q('.de-entry > [de-post]', this.parentNode), function(el) {
+						togglePostContent(el, el.hide = !el.hide);
+					});
+					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
+				}),
+				$btn(Lng.save[lang], '', function() {
+					$each($Q('.de-entry > [de-post]', this.parentNode), function(el) {
+						if(!el.hide) {
+							setUserPostVisib(el.pst, false);
+						}
+					});
+					saveUserPostsVisib();
+				})
+			]);
+		} else {
+			cont.appendChild($new('b', {'text': Lng.noHidPosts[lang]}, null));
+		}
+		$append(cont, [
+			doc.createElement('hr'),
+			$new('b', {'text': ($isEmpty(obj) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
+		]);
+		if(!$isEmpty(obj)) {
+			for(b in obj) {
+				block = addContentBlock(cont, '/' + b);
+				for(tNum in obj[b]) {
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
+						tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
+						aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
+						obj[b][tNum] + '</div></div>');
+				}
+			}
+		}
+		$append(cont, [
+			doc.createElement('hr'),
+			addEditButton('hidden', comHThr[aib.dm], function() {
+				comHThr[aib.dm] = JSON.parse(
+					$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
+				);
+				setStored('DESU_Threads', JSON.stringify(comHThr));
+			}),
+			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
+				$each($Q('.de-entry[info]', this.parentNode), function(el) {
+					var arr = el.getAttribute('info').split(';');
+					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(err) {
+						delete comHThr[aib.dm][arr[0]][arr[1]];
+						cleanHiddenThreads(arr[0]);
+						saveHiddenThreads();
+						saveUserPostsVisib();
+						arr = null;
+					});
+				});
+			}),
+			$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+				$each($Q('.de-entry[info]', this.parentNode), function(el) {
+					var arr = el.getAttribute('info').split(';');
+					if($t('input', el).checked) {
+						if(pByNum[arr[1]]) {
+							setUserPostVisib(pByNum[arr[1]], false);
+						} else {
+							delete comHThr[aib.dm][arr[0]][arr[1]];
+							cleanHiddenThreads(arr[0]);
+						}
+					}
+				});
+				saveHiddenThreads();
+				saveUserPostsVisib();
+			})
+		]);
+	}
+
+	if(name === 'fav') {
+		readFavorites();
+		for(h in Favor) {
+			for(b in Favor[h]) {
+				block = addContentBlock(cont, h + '/' + b);
+				for(tNum in Favor[h][b]) {
+					if(!Favor[h][b][tNum]['url']) {
+						Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
+					}
+					block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
+						$New('div', {'class': aib.cReply}, [
+							$add('<input type="checkbox">'),
+							$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
+							$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
+							$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
+							$add('<span class="de-fav-inf-page"></span>'),
+							$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
+								Favor[h][b][tNum]['cnt'] + '</span>]</span>')
+						])
+					]));
+				}
+			}
+		}
+		cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
+		$append(cont, [
+			doc.createElement('hr'),
+			addEditButton('favor', Favor, function() {
+				Favor = JSON.parse(
+					$t('textarea', $id('de-alert-edit-favor')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
+				);
+				setStored('DESU_Favorites', JSON.stringify(Favor));
+			}),
+			$btn(Lng.info[lang], Lng.infoCount[lang], function() {
+				$each($C('de-entry', doc), function(el) {
+					var c, arr = el.getAttribute('info').split(';'),
+						f = Favor[arr[0]][arr[1]][arr[2]];
+					if(arr[0] !== aib.host) {
+						return;
+					}
+					c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
+					ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), true, function(els, op) {
+						var cnt = els.length + 1;
+						c.textContent = cnt;
+						if(cnt > f.cnt) {
+							c.className = 'de-fav-inf-new';
+							f.cnt = cnt;
+							setStored('DESU_Favorites', JSON.stringify(Favor));
+						} else {
+							c.className = 'de-fav-inf-old';
+						}
+						c = f = null;
+					}, function(err) {
+						c.textContent = err;
+						c.className = 'de-fav-inf-old';
+						c = null;
+					});
+				});
+			}),
+			$btn(Lng.page[lang], Lng.infoPage[lang], function() {
+				var i = 6,
+					loaded = 0;
+				$alert(Lng.loading[lang], 'load-pages', true);
+				while(i--) {
+					loadPageHelper(doc.createElement('div'), i, function(page, idx) {
+						for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
+							arr = el.getAttribute('info').split(';');
+							if(arr[0] === aib.host && arr[1] === brd) {
+								el = $c('de-fav-inf-page', el);
+								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
+									el.innerHTML = '@' + idx;
+								} else if(loaded === 5 && !el.textContent.contains('@')) {
+									el.innerHTML = '@?';
+								}
+							}
+						}
+						if(loaded === 5) {
+							closeAlert($id('de-alert-load-pages'));
+						}
+						loaded++;
+					});
+				}
+			}),
+			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
+				$each($C('de-entry', doc), function(el) {
+					var arr = el.getAttribute('info').split(';');
+					if(nav.Opera && arr[0] !== aib.host) {
+						return;
+					}
+					ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
+						removeFavorites(arr[0], arr[1], arr[2]);
+						saveFavorites(JSON.stringify(Favor));
+						arr = null;
+					});
+				});
+			}),
+			$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
+				$each($C('de-entry', doc), function(el) {
+					var arr = el.getAttribute('info').split(';');
+					if($t('input', el).checked) {
+						removeFavorites(arr[0], arr[1], arr[2]);
+					}
+				});
+				saveFavorites(JSON.stringify(Favor));
+			})
+		]);
+	}
+
 	if(Cfg['animation']) {
-		el.className = 'de-content de-cfg-open';
+		cont.className = 'de-content de-cfg-open';
 	}
 }
 
@@ -1189,14 +1394,13 @@ function showContent(el, id, name, isUpd) {
 								"SETTINGS" WINDOW
 ==============================================================================*/
 
-function toggleBox(state, arr) {
-	var i = arr.length;
-	while(i--) {
-		($q(arr[i], doc) || {}).disabled = !state;
-	}
-}
-
 function fixSettings() {
+	var toggleBox = function(state, arr) {
+		var i = arr.length;
+		while(i--) {
+			($q(arr[i], doc) || {}).disabled = !state;
+		}
+	};
 	toggleBox(Cfg['updThread'] === 1, [
 		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
@@ -1663,228 +1867,6 @@ function addSettings(Set) {
 	$c('de-cfg-tab', Set).click();
 	$id('de-spell-edit').setSelectionRange(0, 0);
 	updRowMeter();
-}
-
-
-/*==============================================================================
-									"HIDDEN" WINDOW
-==============================================================================*/
-
-function contentBlock(parent, title) {
-	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
-		$new('input', {'type': 'checkbox'}, {'click': function() {
-			for(var el, res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode); el = els[i++];) {
-				el.checked = res;
-			}
-		}}),
-		$new('b', {'text': title}, null)
-	]));
-}
-
-function addHiddenTable(hid) {
-	var i, els, post, cln, b, tNum, block, obj = comHThr[aib.dm];
-	for(i = 0, els = $C('de-post-hid', dForm); post = els[i++];) {
-		if(post.isOp) {
-			continue;
-		}
-		(cln = post.cloneNode(true)).removeAttribute('id');
-		cln.style.display = '';
-		cln.hide = true;
-		cln.pst = post;
-		cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
-		cln.btn.parentNode.className = 'de-ppanel';
-		cln.btn.onmouseover = cln.btn.onmouseout = null;
-		cln.btn.onclick = function() {
-			var pst = getPost(this);
-			togglePostContent(pst, pst.hide = !pst.hide);
-		};
-		(block || (block = hid.appendChild(
-			$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
-		))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
-	}
-	if(block) {
-		$append(hid, [
-			$btn(Lng.expandAll[lang], '', function() {
-				$each($Q('.de-entry > [de-post]', this.parentNode), function(el) {
-					togglePostContent(el, el.hide = !el.hide);
-				});
-				this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
-			}),
-			$btn(Lng.save[lang], '', function() {
-				$each($Q('.de-entry > [de-post]', this.parentNode), function(el) {
-					if(!el.hide) {
-						setUserPostVisib(el.pst, false);
-					}
-				});
-				saveUserPostsVisib();
-			})
-		]);
-	} else {
-		hid.appendChild($new('b', {'text': Lng.noHidPosts[lang]}, null));
-	}
-	$append(hid, [
-		doc.createElement('hr'),
-		$new('b', {'text': ($isEmpty(obj) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
-	]);
-	if(!$isEmpty(obj)) {
-		for(b in obj) {
-			block = contentBlock(hid, '/' + b);
-			for(tNum in obj[b]) {
-				block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
-					tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
-					aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
-					obj[b][tNum] + '</div></div>');
-			}
-		}
-	}
-	$append(hid, [
-		doc.createElement('hr'),
-		addEditButton('hidden', comHThr[aib.dm], function() {
-			comHThr[aib.dm] = JSON.parse(
-				$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
-			);
-			setStored('DESU_Threads', JSON.stringify(comHThr));
-		}),
-		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			$each($Q('.de-entry[info]', this.parentNode), function(el) {
-				var arr = el.getAttribute('info').split(';');
-				ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(err) {
-					delete comHThr[aib.dm][arr[0]][arr[1]];
-					cleanHiddenThreads(arr[0]);
-					saveHiddenThreads();
-					saveUserPostsVisib();
-					arr = null;
-				});
-			});
-		}),
-		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$each($Q('.de-entry[info]', this.parentNode), function(el) {
-				var arr = el.getAttribute('info').split(';');
-				if($t('input', el).checked) {
-					if(pByNum[arr[1]]) {
-						setUserPostVisib(pByNum[arr[1]], false);
-					} else {
-						delete comHThr[aib.dm][arr[0]][arr[1]];
-						cleanHiddenThreads(arr[0]);
-					}
-				}
-			});
-			saveHiddenThreads();
-			saveUserPostsVisib();
-		})
-	]);
-}
-
-
-/*==============================================================================
-								"FAVORITES" WINDOW
-==============================================================================*/
-
-function addFavoritesTable(fav) {
-	var h, b, tNum, block;
-	for(h in Favor) {
-		for(b in Favor[h]) {
-			block = contentBlock(fav, h + '/' + b);
-			for(tNum in Favor[h][b]) {
-				if(!Favor[h][b][tNum]['url']) {
-					Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
-				}
-				block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
-					$New('div', {'class': aib.cReply}, [
-						$add('<input type="checkbox">'),
-						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-						$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
-						$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
-						$add('<span class="de-fav-inf-page"></span>'),
-						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-							Favor[h][b][tNum]['cnt'] + '</span>]</span>')
-					])
-				]));
-			}
-		}
-	}
-	fav.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
-	$append(fav, [
-		doc.createElement('hr'),
-		addEditButton('favor', Favor, function() {
-			Favor = JSON.parse(
-				$t('textarea', $id('de-alert-edit-favor')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
-			);
-			setStored('DESU_Favorites', JSON.stringify(Favor));
-		}),
-		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
-			$each($C('de-entry', doc), function(el) {
-				var c, arr = el.getAttribute('info').split(';'),
-					f = Favor[arr[0]][arr[1]][arr[2]];
-				if(arr[0] !== aib.host) {
-					return;
-				}
-				c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
-				ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), true, function(els, op) {
-					var cnt = els.length + 1;
-					c.textContent = cnt;
-					if(cnt > f.cnt) {
-						c.className = 'de-fav-inf-new';
-						f.cnt = cnt;
-						setStored('DESU_Favorites', JSON.stringify(Favor));
-					} else {
-						c.className = 'de-fav-inf-old';
-					}
-					c = f = null;
-				}, function(err) {
-					c.textContent = err;
-					c.className = 'de-fav-inf-old';
-					c = null;
-				});
-			});
-		}),
-		$btn(Lng.page[lang], Lng.infoPage[lang], function() {
-			var i = 6,
-				loaded = 0;
-			$alert(Lng.loading[lang], 'load-pages', true);
-			while(i--) {
-				loadPageHelper(doc.createElement('div'), i, function(page, idx) {
-					for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
-						arr = el.getAttribute('info').split(';');
-						if(arr[0] === aib.host && arr[1] === brd) {
-							el = $c('de-fav-inf-page', el);
-							if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
-								el.innerHTML = '@' + idx;
-							} else if(loaded === 5 && !el.textContent.contains('@')) {
-								el.innerHTML = '@?';
-							}
-						}
-					}
-					if(loaded === 5) {
-						closeAlert($id('de-alert-load-pages'));
-					}
-					loaded++;
-				});
-			}
-		}),
-		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			$each($C('de-entry', doc), function(el) {
-				var arr = el.getAttribute('info').split(';');
-				if(nav.Opera && arr[0] !== aib.host) {
-					return;
-				}
-				ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
-					removeFavorites(arr[0], arr[1], arr[2]);
-					saveFavorites(JSON.stringify(Favor));
-					arr = null;
-				});
-			});
-		}),
-		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-			$each($C('de-entry', doc), function(el) {
-				var arr = el.getAttribute('info').split(';');
-				if($t('input', el).checked) {
-					removeFavorites(arr[0], arr[1], arr[2]);
-				}
-			});
-			saveFavorites(JSON.stringify(Favor));
-		})
-	]);
 }
 
 
@@ -6928,7 +6910,7 @@ function Initialization() {
 		return false;
 	}
 
-	// Delform detector
+	// Imageboard properties
 	var intrv, ua, url;
 	switch(aib.dm = window.location.hostname.match(
 		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
@@ -6971,7 +6953,187 @@ function Initialization() {
 		} : function(op) {
 			return $q('input[type="checkbox"]', op).value;
 		};
-	dForm = $q(aib.qDForm, doc);
+	if(dForm = $q(aib.qDForm, doc)) {
+		aib.kus = !!$q('script[src*="kusaba"]', doc);
+		aib.host = window.location.hostname;
+		switch(aib.dm) {
+		case '0chan.hk': aib.nul = aib.kus = true; break;
+		case '2--ch.ru': aib.tire = true; break;
+		case '410chan.org': aib._410 = true; break;
+		case 'hiddenchan.i2p': aib.hid = true; break;
+		case 'dfwk.ru': aib.dfwk = true; break;
+		case '7chan.org': aib._7ch = true; break;
+		case 'ponychan.net': aib.pony = true; break;
+		case 'mlpg.co': aib.mlpg = true; break;
+		case 'ernstchan.com':
+		case 'ernstchan.net': aib.erns = true; break;
+		default:
+			aib.abu = !!$id('ABU_css');
+			aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
+		}
+		aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || aib.dm === '02ch.net';
+		aib.cReply =
+			aib.krau ? 'postreply' :
+			aib.tiny || aib.fch ? 'post reply' :
+			'reply';
+		aib.cOPost =
+			aib.fch || aib.mlpg || aib.pony ? 'op' :
+			aib.kus ? 'postnode' :
+			'oppost';
+		aib.qThread =
+			aib.krau ? '.thread_body' :
+			aib._420 ? '[id*="thread"]' :
+			!aib.erns && $q('.thread', doc) ? '.thread' :
+			$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+			'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
+		aib.cName = aib.tiny || aib.fch ? 'name' : 'postername';
+		aib.cTrip = aib.tiny ? 'trip' : 'postertrip';
+		aib.cSubj =
+			aib.krau ? 'postsubject' :
+			aib.tiny || aib.fch ? 'subject' :
+			aib.hana ? 'replytitle' :
+			'filetitle';
+		aib.qRef =
+			aib.fch ? '.postInfo > .postNum' :
+			aib.tiny ? '.intro > .post_no + a' :
+			aib.krau ? '.postnumber' :
+			aib.futa ? '.del, font[color="#117743"]' :
+			'.reflink';
+		aib.cFileInfo =
+			aib.fch ? 'fileText' :
+			aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
+			'filesize';
+		aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
+			(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]:nth-of-type(1), ' +
+			(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]:nth-of-type(1), ' +
+			(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]:nth-of-type(1)'
+		);
+		aib.qMsg =
+			aib.hana ? '.postbody' :
+			aib.tiny ? '.body' :
+			aib._7ch ? '.message' :
+			'blockquote';
+		aib.qTrunc =
+			aib.krau ? 'p[id^="post_truncated"]' :
+			aib.hana ? '.abbrev > span' :
+			'.abbrev, .abbr, .omittedposts, .shortened';
+		aib.qOmitted =
+			aib.tiny ? '.omitted' :
+			aib.futa ? 'font[color="#707070"]' :
+			aib.krau ? '.omittedinfo' :
+			aib.hana ? '.abbrev > span' :
+			aib.fch ? '.summary.desktop' :
+			'.omittedposts';
+		aib.qBan =
+			aib.krau ? '.ban_mark' :
+			aib.fch ? 'strong[style="color: red;"]' :
+			false;
+		aib.qPostForm =
+			aib.futa ? 'form:nth-of-type(1)' :
+			aib.fch || aib.tiny ? 'form[name="post"]' :
+			'#postform';
+		aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
+		aib.res =
+			aib.krau ? 'thread-' :
+			aib.erns ? 'faden/' :
+			'res/';
+		aib.reCrossLinks = new RegExp(
+			'>https?:\\/\\/[^\\/]*' + aib.dm +
+			'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
+		);
+		aib.isTrunc = function(post) {
+			var el = $q(aib.qTrunc, post);
+			if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+				return el;
+			}
+			return null;
+		};
+		aib.getThrdUrl = function(b, tNum) {
+			return fixBrd(b) + (
+				aib.futa ? ('futaba.php?res=' + tNum) :
+				(aib.res + tNum + (aib.tire ? '.html' : docExt))
+			);
+		}
+		aib.getPageUrl = function(b, p) {
+			return fixBrd(b) + (
+				p > 0 ? (aib.erns ? 'wakaba.pl?task=show&page=' + p : p + docExt) :
+				aib.futa ? 'futaba.htm' :
+				aib.hana ? 'index.xhtml' : ''
+			);
+		};
+		aib.getPicWrap =
+			aib.hana ? function(el) {
+				if(!el.previousElementSibling) {
+					el = el.parentNode;
+				}
+				return el.parentNode;
+			} : aib.krau ? function(el) {
+				return el.parentNode;
+			} : getPost;
+		aib.getPosts =
+			aib.futa ? function(thr) {
+				return $Q('td:nth-child(2)', thr);
+			} : aib.tiny || aib.fch ? function(thr) {
+				return $C('reply', thr);
+			} : function(thr) {
+				return $C(aib.cReply, thr);
+			};
+		aib.getOp =
+			aib.brit ? function(thr, dc) {
+				var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
+					op = $c('originalpost', thr);
+				$after($c('postmenu', op), post);
+				while((el = thr.firstChild).tagName !== 'TABLE') {
+					$after(post, el);
+					post = el;
+				}
+				post = dc.createElement('div');
+				$before(thr.firstChild, post);
+				while(el = op.firstChild) {
+					post.appendChild(el);
+				}
+				$del($t('table', thr));
+				return post;
+			} : function(thr, dc) {
+				var el, op, opEnd;
+				op = $c(aib.cOPost, thr);
+				if(op) {
+					return op;
+				}
+				op = dc.createElement('div'),
+				opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
+				while((el = thr.firstChild) !== opEnd) {
+					op.appendChild(el);
+				}
+				if(thr.hasChildNodes()) {
+					$before(thr.firstChild, op);
+				} else {
+					thr.appendChild(op);
+				}
+				return op;
+			};
+		aib.getPNum =
+			aib.futa ? function(post) {
+				return $t('input', post).name;
+			} : function(post) {
+				return post.id.match(/\d+/)[0];
+			};
+		aib.getSage =
+			aib.fch ? function(post) {
+				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
+			} : aib.krau ? function(post) {
+				return !!$c('sage', post);
+			} : aib._410 ? function(post) {
+				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
+			} : aib.nul ? function(post) {
+				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
+			} : function(post) {
+				var a = $q('a[href^="mailto:"], a[href="sage"]', post);
+				return a && /sage/i.test(a.href);
+			};
+	}
+
+	// Check for frames loading
 	switch(window.name) {
 	case '': break;
 	case 'de-iframe-pform':
@@ -6995,185 +7157,6 @@ function Initialization() {
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
-
-	// Imageboard properties
-	aib.kus = !!$q('script[src*="kusaba"]', doc);
-	aib.host = window.location.hostname;
-	switch(aib.dm) {
-	case '0chan.hk': aib.nul = aib.kus = true; break;
-	case '2--ch.ru': aib.tire = true; break;
-	case '410chan.org': aib._410 = true; break;
-	case 'hiddenchan.i2p': aib.hid = true; break;
-	case 'dfwk.ru': aib.dfwk = true; break;
-	case '7chan.org': aib._7ch = true; break;
-	case 'ponychan.net': aib.pony = true; break;
-	case 'mlpg.co': aib.mlpg = true; break;
-	case 'ernstchan.com':
-	case 'ernstchan.net': aib.erns = true; break;
-	default:
-		aib.abu = !!$id('ABU_css');
-		aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
-	}
-	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || aib.dm === '02ch.net';
-	aib.cReply =
-		aib.krau ? 'postreply' :
-		aib.tiny || aib.fch ? 'post reply' :
-		'reply';
-	aib.cOPost =
-		aib.fch || aib.mlpg || aib.pony ? 'op' :
-		aib.kus ? 'postnode' :
-		'oppost';
-	aib.qThread =
-		aib.krau ? '.thread_body' :
-		aib._420 ? '[id*="thread"]' :
-		!aib.erns && $q('.thread', doc) ? '.thread' :
-		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
-		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
-	aib.cName = aib.tiny || aib.fch ? 'name' : 'postername';
-	aib.cTrip = aib.tiny ? 'trip' : 'postertrip';
-	aib.cSubj =
-		aib.krau ? 'postsubject' :
-		aib.tiny || aib.fch ? 'subject' :
-		aib.hana ? 'replytitle' :
-		'filetitle';
-	aib.qRef =
-		aib.fch ? '.postInfo > .postNum' :
-		aib.tiny ? '.intro > .post_no + a' :
-		aib.krau ? '.postnumber' :
-		aib.futa ? '.del, font[color="#117743"]' :
-		'.reflink';
-	aib.cFileInfo =
-		aib.fch ? 'fileText' :
-		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
-		'filesize';
-	aib.qImgLink = aib.brit ? '.fileinfo' : aib.krau ? '.filename > a' : (
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".jpg"]:nth-of-type(1), ' +
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]:nth-of-type(1), ' +
-		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]:nth-of-type(1)'
-	);
-	aib.qMsg =
-		aib.hana ? '.postbody' :
-		aib.tiny ? '.body' :
-		aib._7ch ? '.message' :
-		'blockquote';
-	aib.qTrunc =
-		aib.krau ? 'p[id^="post_truncated"]' :
-		aib.hana ? '.abbrev > span' :
-		'.abbrev, .abbr, .omittedposts, .shortened';
-	aib.qOmitted =
-		aib.tiny ? '.omitted' :
-		aib.futa ? 'font[color="#707070"]' :
-		aib.krau ? '.omittedinfo' :
-		aib.hana ? '.abbrev > span' :
-		aib.fch ? '.summary.desktop' :
-		'.omittedposts';
-	aib.qBan =
-		aib.krau ? '.ban_mark' :
-		aib.fch ? 'strong[style="color: red;"]' :
-		false;
-	aib.qPostForm =
-		aib.futa ? 'form:nth-of-type(1)' :
-		aib.fch || aib.tiny ? 'form[name="post"]' :
-		'#postform';
-	aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
-	aib.res =
-		aib.krau ? 'thread-' :
-		aib.erns ? 'faden/' :
-		'res/';
-	aib.reCrossLinks = new RegExp(
-		'>https?:\\/\\/[^\\/]*' + aib.dm +
-		'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
-	);
-	aib.isTrunc = function(post) {
-		var el = $q(aib.qTrunc, post);
-		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
-			return el;
-		}
-		return null;
-	};
-	aib.getThrdUrl = function(b, tNum) {
-		return fixBrd(b) + (
-			aib.futa ? ('futaba.php?res=' + tNum) :
-			(aib.res + tNum + (aib.tire ? '.html' : docExt))
-		);
-	}
-	aib.getPageUrl = function(b, p) {
-		return fixBrd(b) + (
-			p > 0 ? (aib.erns ? 'wakaba.pl?task=show&page=' + p : p + docExt) :
-			aib.futa ? 'futaba.htm' :
-			aib.hana ? 'index.xhtml' : ''
-		);
-	};
-	aib.getPicWrap =
-		aib.hana ? function(el) {
-			if(!el.previousElementSibling) {
-				el = el.parentNode;
-			}
-			return el.parentNode;
-		} : aib.krau ? function(el) {
-			return el.parentNode;
-		} : getPost;
-	aib.getPosts =
-		aib.futa ? function(thr) {
-			return $Q('td:nth-child(2)', thr);
-		} : aib.tiny || aib.fch ? function(thr) {
-			return $C('reply', thr);
-		} : function(thr) {
-			return $C(aib.cReply, thr);
-		};
-	aib.getOp =
-		aib.brit ? function(thr, dc) {
-			var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
-				op = $c('originalpost', thr);
-			$after($c('postmenu', op), post);
-			while((el = thr.firstChild).tagName !== 'TABLE') {
-				$after(post, el);
-				post = el;
-			}
-			post = dc.createElement('div');
-			$before(thr.firstChild, post);
-			while(el = op.firstChild) {
-				post.appendChild(el);
-			}
-			$del($t('table', thr));
-			return post;
-		} : function(thr, dc) {
-			var el, op, opEnd;
-			op = $c(aib.cOPost, thr);
-			if(op) {
-				return op;
-			}
-			op = dc.createElement('div'),
-			opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
-			while((el = thr.firstChild) !== opEnd) {
-				op.appendChild(el);
-			}
-			if(thr.hasChildNodes()) {
-				$before(thr.firstChild, op);
-			} else {
-				thr.appendChild(op);
-			}
-			return op;
-		};
-	aib.getPNum =
-		aib.futa ? function(post) {
-			return $t('input', post).name;
-		} : function(post) {
-			return post.id.match(/\d+/)[0];
-		};
-	aib.getSage =
-		aib.fch ? function(post) {
-			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
-		} : aib.krau ? function(post) {
-			return !!$c('sage', post);
-		} : aib._410 ? function(post) {
-			return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
-		} : aib.nul ? function(post) {
-			return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
-		} : function(post) {
-			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
-			return a && /sage/i.test(a.href);
-		};
 
 	// Browser features
 	ua = window.navigator.userAgent;
@@ -7606,6 +7589,8 @@ function initPage() {
 ==============================================================================*/
 
 function addDelformStuff(isLog) {
+	readFavorites();
+	$log('readFavorites');
 	Posts.forEach(addPostButtons);
 	saveFavorites(JSON.stringify(Favor));
 	isLog && $log('addPostButtons');
@@ -7652,8 +7637,6 @@ $event(doc, {'DOMContentLoaded': function() {
 		return;
 	}
 	$log('parseDelform');
-	readFavorites();
-	$log('readFavorites');
 	if(Cfg['keybNavig']) {
 		initKeyNavig();
 		$log('initKeyNavig');
