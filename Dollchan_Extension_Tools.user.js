@@ -924,7 +924,8 @@ function readPostsVisib() {
 
 function savePostsVisib() {
 	if(TNum) {
-		sessionStorage['de-hidden-' + brd + TNum] = (Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
+		sessionStorage['de-hidden-' + brd + TNum] =
+			(Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
 	}
 	toggleContent('hid', true);
 }
@@ -1020,15 +1021,17 @@ function toggleFavorites(post, btn) {
 }
 
 function readViewedPosts() {
-	var viewed = sessionStorage['de-viewed'];
-	if(viewed) {
-		viewed.split(',').forEach(function(pNum) {
-			var post = pByNum[pNum];
-			if(post) {
-				post.classList.add('de-viewed');
-				post.viewed = true;
-			}
-		});
+	if(Cfg['markViewed']) {
+		var data = sessionStorage['de-viewed'];
+		if(data) {
+			data.split(',').forEach(function(pNum) {
+				var post = pByNum[pNum];
+				if(post) {
+					post.classList.add('de-viewed');
+					post.viewed = true;
+				}
+			});
+		}
 	}
 }
 
@@ -3227,7 +3230,7 @@ function addPostButtons(post) {
 									CONTENT FEATURES
 ==============================================================================*/
 
-function prepareCFeatures() {
+function initMessageFunctions() {
 	$script(
 		'function de_removeSel() {\
 			var el = document.getElementById("de-menu");\
@@ -3470,6 +3473,9 @@ function downloadImgData(url, Fn) {
 }
 
 function preloadImages(post) {
+	if(!Cfg['preLoadImgs'] && !Cfg['openImgs']) {
+		return;
+	}
 	var lnk, url, iType, nExp, el, i, els, mReqs = post ? 1 : 4,
 		rjf = Cfg['findImgFile'] && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
@@ -4112,6 +4118,9 @@ function addRefMap(post) {
 }
 
 function genRefMap(posts, tUrl) {
+	if(Cfg['linksNavig'] !== 2) {
+		return;
+	}
 	var refMap = [];
 	nav.forEach(posts, function(pNum) {
 		for(var tc, link, lNum, lPost, i = 0, links = $T('a', this[pNum].msg); link = links[i++];) {
@@ -4535,9 +4544,7 @@ function newPost(thr, post, pNum, i, node) {
 	if(aib.tiny && !aib.mlpg) {
 		pst.insertAdjacentHTML('afterend', '<br>');
 	}
-	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
-		preloadImages(post);
-	}
+	preloadImages(post);
 	return +!post.hide;
 }
 
@@ -4693,39 +4700,14 @@ function loadPageHelper(page, i, Fn) {
 }
 
 function parsePages(pages) {
-	pages.forEach(function(page) {
-		tryToParse(page);
-		removePageTrash(page);
-	});
-	Posts.forEach(addPostButtons);
-	if(Cfg['expandImgs']) {
-		Posts.forEach(eventPostImg);
-	}
-	if(Cfg['expandPosts']) {
-		Posts.forEach(expandPost);
-	}
-	embedMP3Links(null);
-	embedTubeLinks(null);
-	embedImgLinks(dForm);
-	addImgSearch(dForm);
-	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum, null);
-	}
-	eventRefLink(dForm);
-	readPostsVisib();
-	if(Cfg['markViewed']) {
-		readViewedPosts();
-	}
-	setPostsVisib();
+	pages.forEach(tryToParse);
+	addDelformStuff(false);
 	if(isExpImg) {
 		Posts.forEach(function(post) {
 			expandAllPostImg(post, null);
 		});
 	}
 	closeAlert($id('de-alert-load-pages'));
-	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
-		preloadImages(null);
-	}
 }
 
 function preparePage() {
@@ -6937,7 +6919,7 @@ function checkForUpdates(isForce, Fn) {
 									INITIALIZATION
 ==============================================================================*/
 
-function isCompatible() {
+function Initialization() {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
@@ -6945,237 +6927,12 @@ function isCompatible() {
 		GM_log('WEBSTORAGE ERROR: please, enable webstorage!');
 		return false;
 	}
-	getImageboard();
-	switch(window.name) {
-	case '': break;
-	case 'de-iframe-pform':
-	case 'de-iframe-dform':
-		$script((
-			'window.top.postMessage("J' + window.name + '$#$' +
-			getSubmitResponse(doc, true).join('$#$') + '", "*");'
-		).replace(/\n|\r/g, '\\n'));
-		return false;
-	case 'de-iframe-fav':
-		var intrv = setInterval(function() {
-			$del($id('de-fav-script'));
-			$attr($script('window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'), {
-				'id': 'de-fav-script'
-			});
-		}, 1500);
-		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
-		liteMode = true;
-		pr = {};
-	}
-	if(aib.hana && window.location.pathname === '/settings') {
-		$event($q('input[type="button"]', doc), {'click': function() {
-			setCookie('de-rating', $id('rating').value, 1e12);
-		}});
-		return false;
-	}
-	if(!dForm || $id('de-panel')) {
-		return false;
-	}
-	getNavigator();
-	fixFunctions();
-	if((getStored('DESU_Exclude') || '').contains(aib.dm)) {
-		return false;
-	}
-	return true;
-}
 
-function getNavigator() {
-	var ua = window.navigator.userAgent;
-	if(!String.prototype.contains) {
-		String.prototype.contains = function(s) {
-			return this.indexOf(s) !== -1;
-		};
-		String.prototype.startsWith = function(s) {
-			return this.indexOf(s) === 0;
-		};
-	}
-	nav = {
-		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
-		Opera: window.opera ? +window.opera.version() : 0,
-		WebKit: ua.contains('WebKit/')
-	};
-	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
-	nav.Safari = nav.WebKit && !nav.Chrome;
-	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
-	nav.isGlobal = nav.isGM || !!scriptStorage;
-	nav.cssFix =
-		nav.WebKit ? '-webkit-' :
-		nav.Opera ? (nav.Opera < 12.1 ? '-o-' : '') :
-		nav.Firefox && nav.Firefox < 16 ? '-moz-' : '';
-	if(!nav.Opera || nav.Opera >= 12) {
-		nav.Anim = true;
-		nav.animName =
-			nav.WebKit ? 'webkitAnimationName' :
-			nav.Opera && nav.Opera < 12.1 ? 'OAnimationName' :
-			nav.Firefox && nav.Firefox < 16 ? 'MozAnimationName' :
-			'animationName';
-		nav.animEnd =
-			nav.WebKit ? 'webkitAnimationEnd' :
-			nav.Opera && nav.Opera < 12.1 ? 'oAnimationEnd' :
-			'animationend';
-		nav.animEvent = function(el, Fn) {
-			el.addEventListener(nav.animEnd, function aEvent() {
-				this.removeEventListener(nav.animEnd, aEvent, false);
-				Fn(this);
-				Fn = null;
-			}, false);
-		}
-	}
-	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
-	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
-	if(nav.Firefox > 17) {
-		$script(
-			'window["de-worker"] = function(url) {\
-				this.wrk = new Worker(url);\
-			};\
-			window["de-worker-proto"] = window["de-worker"].prototype = {\
-				set onmessage(Fn) {\
-					this.wrk.onmessage = Fn;\
-				},\
-				set onerror(Fn) {\
-					this.wrk.onerror = Fn;\
-				},\
-				_postMessage: function() {\
-					this.wrk.postMessage.apply(this.wrk, arguments);\
-				}\
-			};'
-		);
-	}
-	nav.forEach =
-		nav.Opera ? function(obj, Fn) {
-			for(var i in obj) {
-				if(obj.hasOwnProperty(i)) {
-					Fn.call(obj, i);
-				}
-			}
-		} : function(obj, Fn) {
-			Object.keys(obj).forEach(Fn, obj);
-		}; 
-	nav.fixLink =
-		nav.Safari ? function(url) {
-			return url[1] === '/' ? 'http:' + url :
-				url[0] === '/' ? 'http://' + aib.host + url :
-				url;
-		} : function(url) {
-			return url;
-		};
-	nav.toDOM =
-		nav.Firefox >= 12 ? function(html) {
-			return new DOMParser().parseFromString(html, 'text/html');
-		} : function(html) {
-			var myDoc = doc.implementation.createHTMLDocument('');
-			myDoc.documentElement.innerHTML = html;
-			return myDoc;
-		};
-	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
-		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
-	})(doc.documentElement));
-}
-
-
-function fixFunctions() {
-	if(aib.hid) {
-		window.setTimeout = function(Fn, num) {
-			var ev = document.createEvent('HTMLEvents'),
-				args = arguments;
-			if(typeof Fn === 'function') {
-				window.document.body.addEventListener('timeoutEvent', function() {
-					Fn.apply(null, aProto.slice.call(args, 2));
-					Fn = args = null;
-				}, false);
-				ev.initEvent('timeoutEvent', true, false);
-				window.document.body.dispatchEvent(ev);
-			}
-			return 1;
-		};
-	}
-	if(!window.GM_log) {
-		window.GM_log = function(msg) {
-			console.error(msg);
-		};
-	}
-	if(!window.GM_xmlhttpRequest) {
-		window.GM_xmlhttpRequest = $xhr;
-	}
-	if(nav.WebKit) {
-		window.URL = window.webkitURL;
-	}
-	if(nav.Firefox > 17) {
-		window.Worker = new Proxy(unsafeWindow['de-worker'], {});
-		window.Worker.prototype.postMessage = function() {
-			unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
-		};
-	}
-}
-
-function getPage() {
-	var url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]*?)\\/?)?' +
-		'(' + regQuote(aib.res) + ')?' +
-		'(\\d+|index|wakaba|futaba)?' +
-		'(\\.(?:[a-z]+))?$'
-	));
-	brd = url[1] || (aib.dfwk ? 'df' : '');
-	TNum =
-		url[2] ? url[3] :
-		aib.futa ? (window.location.search.match(/\d+/) || [false])[0] :
-		false;
-	pageNum = url[3] && !TNum ? +(
-		aib.erns ? (window.location.search.match(/\d+/) || [0])[0] : url[3]
-	) || 0 : 0;
-	docExt = (
-		aib.fch || aib.erns ? '' :
-		aib.futa ? '.htm' :
-		aib._420 ? '.php' :
-		url[4] || '.html'
-	);
-	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-}
-
-function getPostform(form) {
-	if(!form || aib.abu && $c('locked', form)) {
-		return {};
-	}
-	var tr = aib._7ch ? 'li' : 'tr',
-		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ',
-		recap = $q('#recaptcha_response_field', form);
-	return {
-		isQuick: false,
-		qButton: !aib.tiny || !!TNum,
-		tNum: TNum,
-		form: form,
-		recap: recap,
-		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
-		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
-		subm: $q(tr + ' input[type="submit"]', form),
-		file: $q(tr + ' input[type="file"]', form),
-		passw: $q(tr + ' input[type="password"]', form),
-		dpass: $q('input[type="password"]', dForm),
-		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
-		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
-		mail: $x(p + (
-			aib._410 ? '@name="sage"]' :
-			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
-		), form),
-		subj: $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form),
-		video: $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form),
-		getTR: aib._7ch ? function(el) {
-			return $x('ancestor::li[1]', el);
-		} : function(el) {
-			return $x('ancestor::tr[1]', el);
-		}
-	};
-}
-
-function getImageboard() {
-	var dm = window.location.hostname.match(
-			/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
-		)[0];
-	switch(dm) {
+	// Delform detector
+	var intrv, ua, url;
+	switch(aib.dm = window.location.hostname.match(
+		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
+	)[0]) {
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case 'britfa.gs': aib.brit = true; break;
@@ -7184,6 +6941,12 @@ function getImageboard() {
 		aib.hana = !!$q('script[src*="hanabira"]', doc);
 		aib.futa = !!$q('form[action*="futaba.php"]', doc);
 		aib.tiny = !!$q('form[name*="postcontrols"]', doc);
+	}
+	if(aib.hana && window.location.pathname === '/settings') {
+		$event($q('input[type="button"]', doc), {'click': function() {
+			setCookie('de-rating', $id('rating').value, 1e12);
+		}});
+		return false;
 	}
 	aib.qDForm =
 		aib.brit ? '.threadz' :
@@ -7209,12 +6972,34 @@ function getImageboard() {
 			return $q('input[type="checkbox"]', op).value;
 		};
 	dForm = $q(aib.qDForm, doc);
-	if(!dForm) {
-		return;
+	switch(window.name) {
+	case '': break;
+	case 'de-iframe-pform':
+	case 'de-iframe-dform':
+		$script((
+			'window.top.postMessage("J' + window.name + '$#$' +
+			getSubmitResponse(doc, true).join('$#$') + '", "*");'
+		).replace(/\n|\r/g, '\\n'));
+		return false;
+	case 'de-iframe-fav':
+		intrv = setInterval(function() {
+			$del($id('de-fav-script'));
+			$attr($script('window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'), {
+				'id': 'de-fav-script'
+			});
+		}, 1500);
+		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
+		liteMode = true;
+		pr = {};
 	}
+	if(!dForm || $id('de-panel')) {
+		return false;
+	}
+
+	// Imageboard properties
 	aib.kus = !!$q('script[src*="kusaba"]', doc);
 	aib.host = window.location.hostname;
-	switch(aib.dm = dm) {
+	switch(aib.dm) {
 	case '0chan.hk': aib.nul = aib.kus = true; break;
 	case '2--ch.ru': aib.tire = true; break;
 	case '410chan.org': aib._410 = true; break;
@@ -7229,7 +7014,7 @@ function getImageboard() {
 		aib.abu = !!$id('ABU_css');
 		aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 	}
-	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || dm === '02ch.net';
+	aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || aib.dm === '02ch.net';
 	aib.cReply =
 		aib.krau ? 'postreply' :
 		aib.tiny || aib.fch ? 'post reply' :
@@ -7387,6 +7172,193 @@ function getImageboard() {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 			return a && /sage/i.test(a.href);
 		};
+
+	// Browser features
+	ua = window.navigator.userAgent;
+	if(!String.prototype.contains) {
+		String.prototype.contains = function(s) {
+			return this.indexOf(s) !== -1;
+		};
+		String.prototype.startsWith = function(s) {
+			return this.indexOf(s) === 0;
+		};
+	}
+	nav = {
+		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
+		Opera: window.opera ? +window.opera.version() : 0,
+		WebKit: ua.contains('WebKit/')
+	};
+	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
+	nav.Safari = nav.WebKit && !nav.Chrome;
+	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
+	if((getStored('DESU_Exclude') || '').contains(aib.dm)) {
+		return false;
+	}
+	nav.isGlobal = nav.isGM || !!scriptStorage;
+	nav.cssFix =
+		nav.WebKit ? '-webkit-' :
+		nav.Opera ? (nav.Opera < 12.1 ? '-o-' : '') :
+		nav.Firefox && nav.Firefox < 16 ? '-moz-' : '';
+	if(!nav.Opera || nav.Opera >= 12) {
+		nav.Anim = true;
+		nav.animName =
+			nav.WebKit ? 'webkitAnimationName' :
+			nav.Opera && nav.Opera < 12.1 ? 'OAnimationName' :
+			nav.Firefox && nav.Firefox < 16 ? 'MozAnimationName' :
+			'animationName';
+		nav.animEnd =
+			nav.WebKit ? 'webkitAnimationEnd' :
+			nav.Opera && nav.Opera < 12.1 ? 'oAnimationEnd' :
+			'animationend';
+		nav.animEvent = function(el, Fn) {
+			el.addEventListener(nav.animEnd, function aEvent() {
+				this.removeEventListener(nav.animEnd, aEvent, false);
+				Fn(this);
+				Fn = null;
+			}, false);
+		}
+	}
+	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
+	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
+	if(nav.Firefox > 17) {
+		$script(
+			'window["de-worker"] = function(url) {\
+				this.wrk = new Worker(url);\
+			};\
+			window["de-worker-proto"] = window["de-worker"].prototype = {\
+				set onmessage(Fn) {\
+					this.wrk.onmessage = Fn;\
+				},\
+				set onerror(Fn) {\
+					this.wrk.onerror = Fn;\
+				},\
+				_postMessage: function() {\
+					this.wrk.postMessage.apply(this.wrk, arguments);\
+				}\
+			};'
+		);
+	}
+	nav.forEach =
+		nav.Opera ? function(obj, Fn) {
+			for(var i in obj) {
+				if(obj.hasOwnProperty(i)) {
+					Fn.call(obj, i);
+				}
+			}
+		} : function(obj, Fn) {
+			Object.keys(obj).forEach(Fn, obj);
+		}; 
+	nav.fixLink =
+		nav.Safari ? function(url) {
+			return url[1] === '/' ? 'http:' + url :
+				url[0] === '/' ? 'http://' + aib.host + url :
+				url;
+		} : function(url) {
+			return url;
+		};
+	nav.toDOM =
+		nav.Firefox >= 12 ? function(html) {
+			return new DOMParser().parseFromString(html, 'text/html');
+		} : function(html) {
+			var myDoc = doc.implementation.createHTMLDocument('');
+			myDoc.documentElement.innerHTML = html;
+			return myDoc;
+		};
+	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
+		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
+	})(doc.documentElement));
+	if(aib.hid) {
+		window.setTimeout = function(Fn, num) {
+			var ev = document.createEvent('HTMLEvents'),
+				args = arguments;
+			if(typeof Fn === 'function') {
+				window.document.body.addEventListener('timeoutEvent', function() {
+					Fn.apply(null, aProto.slice.call(args, 2));
+					Fn = args = null;
+				}, false);
+				ev.initEvent('timeoutEvent', true, false);
+				window.document.body.dispatchEvent(ev);
+			}
+			return 1;
+		};
+	}
+	if(!window.GM_log) {
+		window.GM_log = function(msg) {
+			console.error(msg);
+		};
+	}
+	if(!window.GM_xmlhttpRequest) {
+		window.GM_xmlhttpRequest = $xhr;
+	}
+	if(nav.WebKit) {
+		window.URL = window.webkitURL;
+	}
+	if(nav.Firefox > 17) {
+		window.Worker = new Proxy(unsafeWindow['de-worker'], {});
+		window.Worker.prototype.postMessage = function() {
+			unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
+		};
+	}
+
+	// Page properties
+	url = (window.location.pathname || '').match(new RegExp(
+		'^(?:\\/?([^\\.]*?)\\/?)?' +
+		'(' + regQuote(aib.res) + ')?' +
+		'(\\d+|index|wakaba|futaba)?' +
+		'(\\.(?:[a-z]+))?$'
+	));
+	brd = url[1] || (aib.dfwk ? 'df' : '');
+	TNum =
+		url[2] ? url[3] :
+		aib.futa ? (window.location.search.match(/\d+/) || [false])[0] :
+		false;
+	pageNum = url[3] && !TNum ? +(
+		aib.erns ? (window.location.search.match(/\d+/) || [0])[0] : url[3]
+	) || 0 : 0;
+	docExt = (
+		aib.fch || aib.erns ? '' :
+		aib.futa ? '.htm' :
+		aib._420 ? '.php' :
+		url[4] || '.html'
+	);
+	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+	dummy = doc.createElement('div');
+	return true;
+}
+
+function getPostform(form) {
+	if(!form || aib.abu && $c('locked', form)) {
+		return {};
+	}
+	var tr = aib._7ch ? 'li' : 'tr',
+		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ',
+		recap = $q('#recaptcha_response_field', form);
+	return {
+		isQuick: false,
+		qButton: !aib.tiny || !!TNum,
+		tNum: TNum,
+		form: form,
+		recap: recap,
+		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
+		subm: $q(tr + ' input[type="submit"]', form),
+		file: $q(tr + ' input[type="file"]', form),
+		passw: $q(tr + ' input[type="password"]', form),
+		dpass: $q('input[type="password"]', dForm),
+		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
+		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
+		mail: $x(p + (
+			aib._410 ? '@name="sage"]' :
+			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
+		), form),
+		subj: $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form),
+		video: $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form),
+		getTR: aib._7ch ? function(el) {
+			return $x('ancestor::li[1]', el);
+		} : function(el) {
+			return $x('ancestor::tr[1]', el);
+		}
+	};
 }
 
 function processPost(post, pNum, thr, i) {
@@ -7487,6 +7459,22 @@ function tryToParse(node) {
 		return false;
 	}
 	node.removeAttribute('id');
+	var i, el, els;
+	if(aib.abu) {
+		if(TNum && (el = $c('de-thread', node))) {
+			while(el.nextSibling) {
+				$del(el.nextSibling);
+			}
+			el.insertAdjacentHTML('afterend', '<hr>');
+		}
+	} else if(aib.brit) {
+		for(i = 0, els = $C('reflink', node); el = els[i++];) {
+			el = el.firstChild;
+			el.onclick = null;
+			el.href = aib.getThrdUrl(brd, el.textContent);
+			el.target = '_blank';
+		}
+	}
 	return true;
 }
 
@@ -7539,26 +7527,6 @@ function replaceDelform() {
 	}
 }
 
-function removePageTrash(el) {
-	var i, els;
-	if(aib.abu) {
-		if(TNum && (el = $c('de-thread', el).nextSibling)) {
-			while(i = el.nextSibling) {
-				$del(el);
-				el = i;
-			}
-			el.insertAdjacentHTML('afterend', '<hr>');
-		}
-	} else if(aib.brit) {
-		for(i = 0, els = $C('reflink', el); el = els[i++];) {
-			el = el.firstChild;
-			el.onclick = null;
-			el.href = aib.getThrdUrl(brd, el.textContent);
-			el.target = '_blank';
-		}
-	}
-}
-
 function onVis() {
 	Favico.focused = true;
 	if(Cfg['favIcoBlink'] && Favico.href) {
@@ -7576,57 +7544,57 @@ function onVis() {
 function initPage() {
 	pr = getPostform($q(aib.qPostForm, doc));
 	oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
-	if(TNum) {
-		if(Cfg['rePageTitle']) {
-			docTitle = '/' + brd + ' - ' + pByNum[TNum].tTitle;
-			doc.title = docTitle;
-		} else {
-			docTitle = doc.title;
-		}
-		if(Cfg['updThread'] === 1) {
-			if(nav.Firefox > 10 || nav.Chrome) {
-				doc.addEventListener(
-					(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
-					function() {
-						if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
-							Favico.focused = false;
-						} else {
-							onVis();
-						}
-					},
-					false
-				);
-				Favico.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
-			} else {
-				window.onblur = function() {
-					Favico.focused = false;
-				};
-				window.onfocus = onVis;
-				Favico.focused = false;
-				$event(window, {'mousemove': function mouseMove() {
-					Favico.focused = true;
-					$revent(window, {'mousemove': mouseMove});
-				}});
-			}
-			initThreadsUpdater();
-		}
-		if(Cfg['updThread'] === 2) {
-			$after($c('de-thread', doc), $event($add(
-				'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
-				'click': function(e) {
-					$pd(e);
-					$alert(Lng.loading[lang], 'newposts', true);
-					loadNewPosts(null);
-				}
-			}));
-		}
-	} else {
-		setTimeout(window.scrollTo, 20, 0, 0);
-	}
 	if(Cfg['updScript']) {
 		checkForUpdates(false, function(html) {
 			$alert(html, 'updavail', false);
 		});
+	}
+	if(!TNum) {
+		setTimeout(window.scrollTo, 20, 0, 0);
+		return;
+	}
+	if(Cfg['rePageTitle']) {
+		docTitle = '/' + brd + ' - ' + pByNum[TNum].tTitle;
+		doc.title = docTitle;
+	} else {
+		docTitle = doc.title;
+	}
+	if(Cfg['updThread'] === 1) {
+		if(nav.Firefox > 10 || nav.Chrome) {
+			doc.addEventListener(
+				(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
+				function() {
+					if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
+						Favico.focused = false;
+					} else {
+						onVis();
+					}
+				},
+				false
+			);
+			Favico.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
+		} else {
+			window.onblur = function() {
+				Favico.focused = false;
+			};
+			window.onfocus = onVis;
+			Favico.focused = false;
+			$event(window, {'mousemove': function mouseMove() {
+				Favico.focused = true;
+				$revent(window, {'mousemove': mouseMove});
+			}});
+		}
+		initThreadsUpdater();
+	}
+	if(Cfg['updThread'] === 2) {
+		$after($c('de-thread', doc), $event($add(
+			'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
+			'click': function(e) {
+				$pd(e);
+				$alert(Lng.loading[lang], 'newposts', true);
+				loadNewPosts(null);
+			}
+		}));
 	}
 }
 
@@ -7635,14 +7603,43 @@ function initPage() {
 										MAIN
 ==============================================================================*/
 
-function doScript() {
+function addDelformStuff(isLog) {
+	Posts.forEach(addPostButtons);
+	saveFavorites(JSON.stringify(Favor));
+	isLog && $log('addPostButtons');
+	preloadImages(null);
+	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('preloadImages');
+	if(Cfg['expandImgs']) {
+		Posts.forEach(eventPostImg);
+		isLog && $log('eventPostImg');
+	}
+	if(Cfg['expandPosts'] && !TNum) {
+		Posts.forEach(expandPost);
+		isLog && $log('expandPost');
+	}
+	embedMP3Links(null);
+	isLog && Cfg['addMP3'] && $log('embedMP3Links');
+	embedTubeLinks(null);
+	isLog && Cfg['addYouTube'] && $log('embedTubeLinks');
+	embedImgLinks(dForm);
+	isLog && Cfg['addImgs'] && $log('embedImgLinks');
+	addImgSearch(dForm);
+	isLog && Cfg['imgSrcBtns'] && $log('addImgSearch');
+	genRefMap(pByNum, null);
+	isLog && Cfg['linksNavig'] === 2 && $log('genRefMap');
+	eventRefLink(dForm);
+	isLog && Cfg['linksNavig'] && $log('eventRefLink');
+	readPostsVisib();
+	readViewedPosts();
+	setPostsVisib();
+}
+
+$event(doc, {'DOMContentLoaded': function() {
 	var initTime = oldTime = Date.now();
-	if(!isCompatible()) {
+	if(!Initialization()) {
 		return;
 	}
-	dummy = doc.createElement('div');
-	getPage();
-	$log('initBoard');
+	$log('Initialization');
 	readCfg();
 	$log('readCfg');
 	if(aib.rep || liteMode) {
@@ -7659,7 +7656,6 @@ function doScript() {
 		initKeyNavig();
 		$log('initKeyNavig');
 	}
-	removePageTrash(dForm);
 	if(!liteMode) {
 		initPage();
 		$log('initPage');
@@ -7668,61 +7664,14 @@ function doScript() {
 		initPostform();
 		$log('initPostform');
 	}
-	if(Cfg['preLoadImgs'] || Cfg['openImgs']) {
-		preloadImages(null);
-		$log('preloadImages');
-	}
-	prepareCFeatures();
-	Posts.forEach(addPostButtons);
-	saveFavorites(JSON.stringify(Favor));
-	$log('addPostButtons');
-	if(Cfg['expandImgs']) {
-		Posts.forEach(eventPostImg);
-		$log('eventPostImg');
-	}
-	if(Cfg['expandPosts'] && !TNum) {
-		Posts.forEach(expandPost);
-		$log('expandPost');
-	}
-	if(Cfg['addMP3']) {
-		embedMP3Links(null);
-		$log('embedMP3Links');
-	}
-	if(Cfg['addYouTube']) {
-		embedTubeLinks(null);
-		$log('embedTubeLinks');
-	}
-	if(Cfg['addImgs']) {
-		embedImgLinks(dForm);
-		$log('embedImgLinks');
-	}
-	if(Cfg['imgSrcBtns']) {
-		addImgSearch(dForm);
-		$log('addImgSearch');
-	}
-	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum, null);
-		$log('genRefMap');
-	}
-	if(Cfg['linksNavig']) {
-		eventRefLink(dForm);
-		$log('eventRefLink');
-	}
-	readPostsVisib();
-	if(Cfg['markViewed']) {
-		readViewedPosts();
-	}
-	setPostsVisib();
+	initMessageFunctions();
+	addDelformStuff(true);
 	savePostsVisib();
 	saveUserPostsVisib();
 	$log('readPosts');
 	scriptCSS();
 	$log('scriptCSS');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
-}
-
-if(window.opera) {
-	$event(doc, {'DOMContentLoaded': doScript});
-} else doScript();
+}});
 
 })(window.opera && window.opera.scriptStorage);
