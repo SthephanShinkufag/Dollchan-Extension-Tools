@@ -7590,7 +7590,7 @@ function initPage() {
 
 function addDelformStuff(isLog) {
 	readFavorites();
-	$log('readFavorites');
+	isLog && $log('readFavorites');
 	Posts.forEach(addPostButtons);
 	saveFavorites(JSON.stringify(Favor));
 	isLog && $log('addPostButtons');
