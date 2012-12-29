@@ -1997,7 +1997,7 @@ function addSelSpell(selText) {
 		end = end.parentNode;
 	}
 	if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
-		(nav.matchesSelector(start, '.' + aib.cTitle) && nav.matchesSelector(end, '.' + aib.cTitle))
+		(nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))
 	) {
 		if(selText.contains('\n')) {
 			addSpell('#exp', '(/' + regQuote(selText).replace(/\n/g, '\\n').replace(/\r/g, '') + '/)');
@@ -2023,7 +2023,7 @@ function addPostHideMenu(post) {
 	if(ssel = sel.toString()) {
 		add('sel', addSelSpell.bind(sel.getRangeAt(0), ssel));
 	}
-	if(el = $c('postertrip', post)) {
+	if(el = $c(aib.cTrip, post)) {
 		add('trip', function() {
 			addSpell('#trip', '(' + el.textContent.replace(/\)/g, '\\)') + ')');
 		});
@@ -5419,7 +5419,7 @@ Spells.prototype = {
 		},
 		// 6: #name
 		function(post, val) {
-			var pName = $q('.commentpostername, .postername', post);
+			var pName = $c(aib.cName, post);
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
@@ -5427,7 +5427,7 @@ Spells.prototype = {
 		},
 		// 7: #trip
 		function(post, val) {
-			var pTrip = $c('postertrip', post);
+			var pTrip = $c(aib.cTrip, post);
 			if(!pTrip) {
 				return false;
 			}
@@ -6826,7 +6826,7 @@ function updateCSS() {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
 	}
 	if(Cfg['noPostNames']) {
-		x += '.commentpostername, .postername, .postertrip { display: none; }';
+		x += '.' + aib.cName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if(Cfg['noSpoilers']) {
 		x += '.spoiler' + (aib.fch ? ', s' : '') + ' { background: #888 !important; color: #ccc !important; }';
@@ -7029,17 +7029,19 @@ function Initialization() {
 		!aib.erns && $q('.thread', doc) ? '.thread' :
 		$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 		'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
+	aib.cName = aib.tiny || aib.fch ? 'name' : 'postername';
+	aib.cTrip = aib.tiny ? 'trip' : 'postertrip';
+	aib.cSubj =
+		aib.krau ? 'postsubject' :
+		aib.tiny || aib.fch ? 'subject' :
+		aib.hana ? 'replytitle' :
+		'filetitle';
 	aib.qRef =
 		aib.fch ? '.postInfo > .postNum' :
 		aib.tiny ? '.intro > .post_no + a' :
 		aib.krau ? '.postnumber' :
 		aib.futa ? '.del, font[color="#117743"]' :
 		'.reflink';
-	aib.qMsg =
-		aib.hana ? '.postbody' :
-		aib.tiny ? '.body' :
-		aib._7ch ? '.message' :
-		'blockquote';
 	aib.cFileInfo =
 		aib.fch ? 'fileText' :
 		aib.krau || aib.tiny || aib.hana || aib.brit ? 'fileinfo' :
@@ -7049,15 +7051,15 @@ function Initialization() {
 		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".png"]:nth-of-type(1), ' +
 		(aib.futa ? '' : '.' + aib.cFileInfo) + ' a[href$=".gif"]:nth-of-type(1)'
 	);
-	aib.qPostForm =
-		aib.futa ? 'form:nth-of-type(1)' :
-		aib.fch || aib.tiny ? 'form[name="post"]' :
-		'#postform';
-	aib.cTitle =
-		aib.krau ? 'postsubject' :
-		aib.tiny || aib.fch ? 'subject' :
-		aib.hana ? 'replytitle' :
-		'filetitle';
+	aib.qMsg =
+		aib.hana ? '.postbody' :
+		aib.tiny ? '.body' :
+		aib._7ch ? '.message' :
+		'blockquote';
+	aib.qTrunc =
+		aib.krau ? 'p[id^="post_truncated"]' :
+		aib.hana ? '.abbrev > span' :
+		'.abbrev, .abbr, .omittedposts, .shortened';
 	aib.qOmitted =
 		aib.tiny ? '.omitted' :
 		aib.futa ? 'font[color="#707070"]' :
@@ -7065,14 +7067,14 @@ function Initialization() {
 		aib.hana ? '.abbrev > span' :
 		aib.fch ? '.summary.desktop' :
 		'.omittedposts';
-	aib.qTrunc =
-		aib.krau ? 'p[id^="post_truncated"]' :
-		aib.hana ? '.abbrev > span' :
-		'.abbrev, .abbr, .omittedposts, .shortened';
 	aib.qBan =
 		aib.krau ? '.ban_mark' :
 		aib.fch ? 'strong[style="color: red;"]' :
 		false;
+	aib.qPostForm =
+		aib.futa ? 'form:nth-of-type(1)' :
+		aib.fch || aib.tiny ? 'form[name="post"]' :
+		'#postform';
 	aib.qDelBut = (aib.fch ? '.deleteform.desktop > ' : '') + 'input[type="submit"]';
 	aib.res =
 		aib.krau ? 'thread-' :
@@ -7428,7 +7430,7 @@ function tryToParse(node) {
 				els = aProto.slice.call(aib.getPosts(thr));
 			processPost(op, thr.num = aib.getTNum(op), thr, 0);
 			op.isOp = true;
-			op.tTitle = ($c(aib.cTitle, op) || {}).textContent ||
+			op.tTitle = ($c(aib.cSubj, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
 			if(TNum) {
