@@ -7016,7 +7016,8 @@ function Initialization() {
 		aib.qTrunc =
 			aib.krau ? 'p[id^="post_truncated"]' :
 			aib.hana ? '.abbrev > span:nth-last-child(2)' :
-			'.abbrev, .abbr, .omittedposts, .shortened';
+			aib.tiny ? '.toolong' :
+			'.abbrev, .abbr, .shortened';
 		aib.qOmitted =
 			aib.tiny ? '.omitted' :
 			aib.futa ? 'font[color="#707070"]' :
@@ -7027,6 +7028,7 @@ function Initialization() {
 		aib.qBan =
 			aib.krau ? '.ban_mark' :
 			aib.fch ? 'strong[style="color: red;"]' :
+			aib._420 ? '.ban' :
 			false;
 		aib.qPostForm =
 			aib.futa ? 'form:nth-of-type(1)' :
