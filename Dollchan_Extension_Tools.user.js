@@ -1346,7 +1346,7 @@ function showContent(cont, id, name, isUpd) {
 							if(arr[0] === aib.host && arr[1] === brd) {
 								el = $c('de-fav-inf-page', el);
 								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
-									el.innerHTML = '@' + idx;
+									el.innerHTML = '@' + (aib.tiny ? idx + 1 : idx);
 								} else if(loaded === 5 && !el.textContent.contains('@')) {
 									el.innerHTML = '@?';
 								}
@@ -7057,6 +7057,9 @@ function Initialization() {
 			);
 		}
 		aib.getPageUrl = function(b, p) {
+			if(aib.tiny && p > 0) {
+				p++;
+			}
 			return fixBrd(b) + (
 				p > 0 ? (aib.erns ? 'wakaba.pl?task=show&page=' + p : p + docExt) :
 				aib.futa ? 'futaba.htm' :
@@ -7297,11 +7300,14 @@ function Initialization() {
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	TNum =
 		url[2] ? url[3] :
-		aib.futa ? (window.location.search.match(/\d+/) || [false])[0] :
+		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
 		false;
 	pageNum = url[3] && !TNum ? +(
-		aib.erns ? (window.location.search.match(/\d+/) || [0])[0] : url[3]
+		aib.erns ? +(window.location.search.match(/\d+/) || [0])[0] : url[3]
 	) || 0 : 0;
+	if(aib.tiny && pageNum > 0) {
+		pageNum--;
+	}
 	docExt = (
 		aib.fch || aib.erns ? '' :
 		aib.futa ? '.htm' :
