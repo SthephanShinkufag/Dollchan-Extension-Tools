@@ -978,8 +978,8 @@ function readFavorites() {
 	Favor = getStoredObj('DESU_Favorites', {});
 }
 
-function saveFavorites(txt) {
-	setStored('DESU_Favorites', txt);
+function saveFavorites() {
+	setStored('DESU_Favorites', JSON.stringify(Favor));
 	toggleContent('fav', true);
 }
 
@@ -1006,7 +1006,7 @@ function toggleFavorites(post, btn) {
 	readFavorites();
 	if(Favor[h] && Favor[h][b] && Favor[h][b][tNum]) {
 		removeFavorites(h, b, tNum);
-		saveFavorites(JSON.stringify(Favor));
+		saveFavorites();
 		return;
 	}
 	if(!Favor[h]) {
@@ -1017,7 +1017,7 @@ function toggleFavorites(post, btn) {
 	}
 	Favor[h][b][tNum] = {'cnt': post.thr.pCount, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
 	btn.className = 'de-btn-fav-sel';
-	saveFavorites(JSON.stringify(Favor));
+	saveFavorites();
 }
 
 function readViewedPosts() {
@@ -1367,7 +1367,7 @@ function showContent(cont, id, name, isUpd) {
 					}
 					ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
-						saveFavorites(JSON.stringify(Favor));
+						saveFavorites();
 						arr = null;
 					});
 				});
@@ -1379,7 +1379,7 @@ function showContent(cont, id, name, isUpd) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 					}
 				});
-				saveFavorites(JSON.stringify(Favor));
+				saveFavorites();
 			})
 		]);
 	}
@@ -7592,9 +7592,8 @@ function initPage() {
 
 function addDelformStuff(isLog) {
 	readFavorites();
-	isLog && $log('readFavorites');
 	Posts.forEach(addPostButtons);
-	saveFavorites(JSON.stringify(Favor));
+	saveFavorites();
 	isLog && $log('addPostButtons');
 	preloadImages(null);
 	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('preloadImages');
