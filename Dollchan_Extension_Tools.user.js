@@ -7015,18 +7015,20 @@ function Initialization() {
 			'blockquote';
 		aib.qTrunc =
 			aib.krau ? 'p[id^="post_truncated"]' :
-			aib.hana ? '.abbrev > span' :
-			'.abbrev, .abbr, .omittedposts, .shortened';
+			aib.hana ? '.abbrev > span:nth-last-child(2)' :
+			aib.tiny ? '.toolong' :
+			'.abbrev, .abbr, .shortened';
 		aib.qOmitted =
 			aib.tiny ? '.omitted' :
 			aib.futa ? 'font[color="#707070"]' :
 			aib.krau ? '.omittedinfo' :
-			aib.hana ? '.abbrev > span' :
+			aib.hana ? '.abbrev > span:last-child' :
 			aib.fch ? '.summary.desktop' :
 			'.omittedposts';
 		aib.qBan =
 			aib.krau ? '.ban_mark' :
 			aib.fch ? 'strong[style="color: red;"]' :
+			aib._420 ? '.ban' :
 			false;
 		aib.qPostForm =
 			aib.futa ? 'form:nth-of-type(1)' :
