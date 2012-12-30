@@ -7015,13 +7015,13 @@ function Initialization() {
 			'blockquote';
 		aib.qTrunc =
 			aib.krau ? 'p[id^="post_truncated"]' :
-			aib.hana ? '.abbrev > span' :
+			aib.hana ? '.abbrev > span:nth-last-child(2)' :
 			'.abbrev, .abbr, .omittedposts, .shortened';
 		aib.qOmitted =
 			aib.tiny ? '.omitted' :
 			aib.futa ? 'font[color="#707070"]' :
 			aib.krau ? '.omittedinfo' :
-			aib.hana ? '.abbrev > span' :
+			aib.hana ? '.abbrev > span:last-child' :
 			aib.fch ? '.summary.desktop' :
 			'.omittedposts';
 		aib.qBan =
