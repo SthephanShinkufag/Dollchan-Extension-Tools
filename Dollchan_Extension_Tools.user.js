@@ -6924,6 +6924,7 @@ function Initialization() {
 		aib.hana = !!$q('script[src*="hanabira"]', doc);
 		aib.futa = !!$q('form[action*="futaba.php"]', doc);
 		aib.tiny = !!$q('form[name*="postcontrols"]', doc);
+		aib.kus = !!$q('script[src*="kusaba"]', doc);
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
 		$event($q('input[type="button"]', doc), {'click': function() {
@@ -6955,7 +6956,6 @@ function Initialization() {
 			return $q('input[type="checkbox"]', op).value;
 		};
 	if(dForm = $q(aib.qDForm, doc)) {
-		aib.kus = !!$q('script[src*="kusaba"]', doc);
 		aib.host = window.location.hostname;
 		switch(aib.dm) {
 		case '0chan.hk': aib.nul = aib.kus = true; break;
