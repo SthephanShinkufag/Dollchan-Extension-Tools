@@ -4246,8 +4246,8 @@ function appendPviewPanel(post, pView) {
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
 			post.deleted ? '' :
-				'<i style="vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: ' +
-				'default;">' + (cnt === 0 ? 'OP' : cnt) + '</i>'
+				'<i style="vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default;">' +
+				(cnt === 0 ? 'OP' : cnt) + '</i>'
 		);
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
@@ -4600,7 +4600,7 @@ function loadThread(op, last, Fn) {
 			thr = op.thr;
 		showMainReply();
 		$del($id('de-menu'));
-		$each($Q(aib.qOmitted + ', .de-omitted, .de-expand', thr), $del);
+		$del($q(aib.qOmitted + ', .de-omitted', thr));
 		omt = thr.omitted;
 		pCnt = thr.pCount - omt - 1;
 		if(!(lPosts = thr.loadedPosts)) {
@@ -4620,18 +4620,16 @@ function loadThread(op, last, Fn) {
 		thr.style.counterReset = 'de-cnt ' + ((thr.omitted = j) + 1);
 		parsePosts(thr, lPosts, els, j + 1, omt);
 		if(j !== 0) {
-			$after(thr.op, $new('div', {
-				'class': 'de-omitted',
-				'text': Lng.postsOmitted[lang] + j
-			}, null));
+			thr.op.insertAdjacentHTML('afterend', '<div class="de-omitted">' + j + '</div>');
 		}
-		if(last > 5 || last === 1) {
-			thr.appendChild(
-				$add('<span class="de-expand">[<a href="#">' + Lng.collapseThrd[lang] + '</a>]</span>')
-			).onclick = function(e) {
+		el = $c('de-expand', thr);
+		if(last <= 5 && last !== 1) {
+			$del(el && el.parentNode);
+		} else if(!el) {
+			thr.insertAdjacentHTML('beforeend', '<span>[<a class="de-expand" href="#"></a>]</span>');
+			thr.lastChild.onclick = function(e) {
 				$pd(e);
-				loadThread(op, 5, null);
-				op = null;
+				loadThread(this.parentNode.op, 5, null);
 			};
 		}
 		aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j + 1, len + 1)));
@@ -6694,6 +6692,8 @@ function scriptCSS() {
 		#de-menu span, #de-menu a { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		#de-menu span:hover, #de-menu a:hover { background-color: #222; color: #fff; }\
 		.de-omitted { color: grey; font-style: italic; }\
+		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
+		.de-expand:before { content: "' + Lng.collapseThrd[lang] + '"; }\
 		#de-parea { text-align: center;}\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
@@ -6924,6 +6924,7 @@ function Initialization() {
 		aib.hana = !!$q('script[src*="hanabira"]', doc);
 		aib.futa = !!$q('form[action*="futaba.php"]', doc);
 		aib.tiny = !!$q('form[name*="postcontrols"]', doc);
+		aib.kus = !!$q('script[src*="kusaba"]', doc);
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
 		$event($q('input[type="button"]', doc), {'click': function() {
@@ -6955,7 +6956,6 @@ function Initialization() {
 			return $q('input[type="checkbox"]', op).value;
 		};
 	if(dForm = $q(aib.qDForm, doc)) {
-		aib.kus = !!$q('script[src*="kusaba"]', doc);
 		aib.host = window.location.hostname;
 		switch(aib.dm) {
 		case '0chan.hk': aib.nul = aib.kus = true; break;
