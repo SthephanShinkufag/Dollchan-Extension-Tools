@@ -2096,7 +2096,7 @@ function addImgSearchMenu(node) {
 	addMenu(
 		node, false, '<a class="de-src-iqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
 			'<a class="de-src-tineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-src-google" href="//google.ru/searchbyimage?image_url=' + p + 'Google</a>' +
+			'<a class="de-src-google" href="//google.com/searchbyimage?image_url=' + p + 'Google</a>' +
 			'<a class="de-src-saucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
 	);
 	str = null;
@@ -6599,7 +6599,7 @@ function scriptCSS() {
 	}
 
 	// Search images buttons
-	cont('.de-src-google', '//google.ru/favicon.ico');
+	cont('.de-src-google', '//google.com/favicon.ico');
 	cont('.de-src-tineye', '//tineye.com/favicon.ico');
 	cont('.de-src-iqdb', '//iqdb.org/favicon.ico');
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
