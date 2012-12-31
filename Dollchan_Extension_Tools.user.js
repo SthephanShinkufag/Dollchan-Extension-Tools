@@ -3778,7 +3778,8 @@ function addTubePlayer(el, m) {
 function addTubeImage(el, m) {
 	el.ytInfo = m;
 	el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="360" height="270"></a>';
+		'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="' + Cfg['YTubeWidth'] +
+		'" height="' + Cfg['YTubeHeight'] + '"></a>';
 	if(Cfg['addYouTube'] === 3) {
 		el.firstChild.onclick = clickTubeImage;
 	}
