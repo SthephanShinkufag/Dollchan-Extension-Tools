@@ -6606,8 +6606,8 @@ function scriptCSS() {
 	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
 
 	// Posts counter
-	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: italic bold 13px serif; cursor: default; }\
-		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: italic bold 13px serif; cursor: default; }';
+	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
+		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: bold 11px tahoma; cursor: default; }';
 
 	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
