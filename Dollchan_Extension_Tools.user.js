@@ -840,6 +840,9 @@ function readCfg() {
 			Cfg['ajaxReply'] = 1;
 		}
 	}
+	if((aib.nul || aib.tiny) && Cfg['ajaxReply'] === 2) {
+		Cfg['ajaxReply'] = 1;
+	}
 	if(!nav.Anim) {
 		Cfg['animations'] = 0;
 	}
@@ -7449,6 +7452,7 @@ function tryToParse(node) {
 			thr.classList.add('de-thread');
 			thr.pCount = i + omt;
 			thr.op = op;
+			thr.removeAttribute('id');
 		});
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (nav.WebKit ? e.stack :
