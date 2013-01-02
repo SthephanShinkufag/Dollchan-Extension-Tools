@@ -3078,18 +3078,19 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
-function addTextButton(bbBrds, id) {
-	var btn = $id('de-btn-' + id),
-		tag = this[id][0],
-		val = this[id][1];
+function addTextButton(id, key, bb) {
+	if(key['off']) {
+		return;
+	}
+	var btn = $id('de-btn-' + id);
 	if(!btn) {
 		btn = $new('span', {
 			'id': 'de-btn-' + id,
 			'title': Lng.txtBtn[id][lang],
-			'de-tag': tag,
-			'de-bb': bbBrds || (!!aib.fch && tag === 'spoiler')
+			'de-tag': key['tag'],
+			'de-bb': bb || !!key['bb']
 		}, null);
-		if(val !== '&gt;') {
+		if(id !== 'quote') {
 			btn.onclick = function(e) {
 				var m, txt, len, x = pr.txta,
 					start = x.selectionStart,
@@ -3104,7 +3105,7 @@ function addTextButton(bbBrds, id) {
 					txt = '';
 					x.value.substring(start, end).split('\n').forEach(function(line) {
 						var m = line.match(/^(\s*)(.*?)(\s*)$/);
-						txt += '\n' + m[1] + (tag ? tag + m[2] + tag
+						txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
 							: m[2] + new Array(m[2].length + 1).join('^H')
 						) + m[3];
 					});
@@ -3135,11 +3136,11 @@ function addTextButton(bbBrds, id) {
 	}
 	btn.innerHTML =
 		Cfg['addTextBtns'] === 2 ? (
-			(val === 'B' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val + '</a>' +
-			(val !== '&gt;' ? ' / ' : ' ]')
+			(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] + '</a>' +
+			(id !== 'quote' ? ' / ' : ' ]')
 		) :
 		Cfg['addTextBtns'] === 3 ?
-			('<input type="button" value="' + val + '" style="font-weight: bold;">') :
+			('<input type="button" value="' + key['val'] + '" style="font-weight: bold;">') :
 		'';
 }
 
@@ -3147,16 +3148,38 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
-		txtBtn = addTextButton.bind({
-			'bold': [aib._420 ? '**' : aib._4chon ? "'''" : bbBrds ? 'b' : '**', 'B'],
-			'italic': [aib._420 ? '*' : aib._4chon ? "''" : bbBrds ? 'i' : '*', 'i'],
-			'under': [bbBrds ? 'u' : '__', 'U'],
-			'strike': [aib.mlpg ? '-' : aib._410 ? '^^' : bbBrds ? 's' : '', 'S'],
-			'spoil': [aib._420 ? '%' : aib._4chon ? '**' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
-			'code': [aib._420 ? 'pre' : aib.mlpg ? 'c' : aib.krau ? 'aa' : bbBrds ? 'code' : '`', 'C'],
-			'quote': ['', '&gt;']
-		}, bbBrds);
+	var id, bb = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
+		btns = {
+			'bold': {
+				'val': 'B',
+				'tag': (bb ? (aib._420 ? '**' : 'b') : (aib.tiny ? "'''" : '**'))
+			},
+			'italic': {
+				'val': 'i',
+				'tag': (bb ? (aib._420 ? '*' : 'i') : (aib.tiny ? "''" : '*'))
+			},
+			'under': {
+				'val': 'U',
+				'tag': (bb ? 'u' : '__'),
+				'off': aib._420 || !bb
+			},
+			'strike': {
+				'val': 'S',
+				'tag': (bb ? (aib.mlpg ? '-' : 's') : (aib._410 ? '^^' : '^H')),
+				'off': aib._420 || aib._4chon
+			},
+			'spoil': {
+				'val': '%',
+				'tag': ((bb || aib.fch) ? (aib._420 ? '%' : 'spoiler') : (aib.tiny ? '**' : '%%')),
+				'bb': aib.fch
+			},
+			'code': {
+				'val': 'C',
+				'tag': (bb ? (aib._420 ? 'pre' : aib.mlpg ? 'c' : aib.krau ? 'aa' : 'code') : '`'),
+				'off': aib._4chon
+			},
+			'quote': {'val': '&gt;'}
+		}
 	$after(
 		Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || pr.txta :
 			aib._420 ? $c('popup', pr.form) :
@@ -3165,19 +3188,9 @@ function addTextPanel() {
 			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 		})
 	);
-	txtBtn('bold');
-	txtBtn('italic');
-	if(!aib._420 && bbBrds) {
-		txtBtn('under');
+	for(id in btns) {
+		addTextButton(id, btns[id], bb);
 	}
-	if(!aib._420 && !aib._4chon) {
-		txtBtn('strike');
-	}
-	txtBtn('spoil');
-	if(!aib._4chon) {
-		txtBtn('code');
-	}
-	txtBtn('quote');
 }
 
 
