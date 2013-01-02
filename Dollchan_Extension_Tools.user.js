@@ -3132,7 +3132,8 @@ function addTextButton(bbBrds, id) {
 	}
 	btn.innerHTML =
 		Cfg['addTextBtns'] === 2 ? (
-			(val === 'B' ? '[ ' : '') + '<a href="#">' + val + '</a>' + (val !== '&gt;' ? ' / ' : ' ]')
+			(val === 'B' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val + '</a>' +
+			(val !== '&gt;' ? ' / ' : ' ]')
 		) :
 		Cfg['addTextBtns'] === 3 ?
 			('<input type="button" value="' + val + '" style="font-weight: bold;">') :
@@ -3143,14 +3144,14 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var bbBrds = aib.kus || aib.krau || aib._420 || aib.mlpg || aib.abu,
+	var bbBrds = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
 		txtBtn = addTextButton.bind({
-			'bold': [aib._420 ? '**' : bbBrds ? 'b' : '**', 'B'],
-			'italic': [aib._420 ? '*' : bbBrds ? 'i' : '*', 'i'],
+			'bold': [aib._420 ? '**' : aib._4chon ? "'''" : bbBrds ? 'b' : '**', 'B'],
+			'italic': [aib._420 ? '*' : aib._4chon ? "''" : bbBrds ? 'i' : '*', 'i'],
 			'under': [bbBrds ? 'u' : '__', 'U'],
-			'strike': [aib.mlpg ? '-' : bbBrds ? 's' : aib._410 ? '^^' : '', 'S'],
-			'spoil': [aib.mlpg ? 's' : aib._420 ? '%' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
-			'code': [aib.mlpg ? 'c' : aib.krau ? 'aa' : aib._420 ? 'pre' : bbBrds ? 'code' : '`', 'C'],
+			'strike': [aib.mlpg ? '-' : aib._410 ? '^^' : bbBrds ? 's' : '', 'S'],
+			'spoil': [aib._420 ? '%' : aib._4chon ? '**' : bbBrds || aib.fch ? 'spoiler' : '%%', '%'],
+			'code': [aib._420 ? 'pre' : aib.mlpg ? 'c' : aib.krau ? 'aa' : bbBrds ? 'code' : '`', 'C'],
 			'quote': ['', '&gt;']
 		}, bbBrds);
 	$after(
@@ -3163,12 +3164,16 @@ function addTextPanel() {
 	);
 	txtBtn('bold');
 	txtBtn('italic');
-	if(!aib._420) {
+	if(!aib._420 && bbBrds) {
 		txtBtn('under');
+	}
+	if(!aib._420 && !aib._4chon) {
 		txtBtn('strike');
 	}
 	txtBtn('spoil');
-	txtBtn('code');
+	if(!aib._4chon) {
+		txtBtn('code');
+	}
 	txtBtn('quote');
 }
 
@@ -4525,7 +4530,7 @@ function newPost(thr, post, pNum, i, node) {
 	} else {
 		thr.appendChild(pst);
 	}
-	if(aib.tiny && !aib.mlpg) {
+	if(aib._4chon) {
 		pst.insertAdjacentHTML('afterend', '<br>');
 	}
 	preloadImages(post);
@@ -4925,7 +4930,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 					i++;
 				} else {
 					k = aib.getWrap(el);
-					if(aib.tiny && !aib.mlpg) {
+					if(aib._4chon) {
 						$del(k.nextSibling);
 					}
 					$del(k);
@@ -4946,7 +4951,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		} else if(i >= from) {
 			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl || thr.op);
 			fEl = aib.getWrap(el);
-			if(aib.tiny && !aib.mlpg) {
+			if(aib._4chon) {
 				fEl = fEl.nextSibling;
 			}
 		}
@@ -6707,7 +6712,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		.de-hidden' + (aib.tiny && !aib.mlpg ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
+		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
 		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
@@ -6973,6 +6978,7 @@ function Initialization() {
 			aib.abu = !!$id('ABU_css');
 			aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 		}
+		aib._4chon = aib.tiny && !aib.mlpg;
 		aib.ru = aib.hana || aib.nul || aib.tinyIb || aib.tire || aib.dm === '02ch.net';
 		aib.cReply =
 			aib.krau ? 'postreply' :
