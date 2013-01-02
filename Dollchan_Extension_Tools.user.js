@@ -7,6 +7,7 @@
 // @description		Doing some profit for imageboards
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Dollchan_Extension_Tools.meta.js
+// @run-at			document-start
 // @include			*
 // ==/UserScript==
 
