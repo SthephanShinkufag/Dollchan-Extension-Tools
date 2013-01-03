@@ -2414,16 +2414,14 @@ function processInput() {
 		'type': 'button'}, {
 		'click': function(e) {
 			$pd(e);
-			var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-					'id': 'de-file-rar',
+			var el = $id('de-input-rar') || doc.body.appendChild($new('input', {
+					'id': 'de-input-rar',
 					'type': 'file',
 					'style': 'display: none;'
-				}, null)),
-				inp = $q('input[type="file"]', this.parentNode),
-				btn = this;
-			el.onchange = function(e) {
-				$del(btn);
-				var file = this.files[0],
+				}, null));
+			el.onchange = (function(inp, e) {
+				$del(this);
+				var file = e.target.files[0],
 					fr = new FileReader();
 				inp.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
 					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
@@ -2431,16 +2429,15 @@ function processInput() {
 					if(input.nextSibling === node) {
 						$attr(node, {
 							'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-							'title': inp.files[0].name + ' + ' + this.name,
-							'text': inp.files[0].name.replace(/^.+\./, '') + ' + ' +
+							'title': input.files[0].name + ' + ' + this.name,
+							'text': input.files[0].name.replace(/^.+\./, '') + ' + ' +
 								this.name.replace(/^.+\./, '')
 						});
-						inp.imgFile = e.target.result;
+						input.imgFile = e.target.result;
 					}
 				}).bind(file, inp, inp.nextSibling);
 				fr.readAsArrayBuffer(file);
-				btn = inp = null;
-			};
+			}).bind(this, $q('input[type="file"]', this.parentNode));
 			el.click();
 		}
 	}));
