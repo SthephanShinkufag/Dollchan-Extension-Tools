@@ -3102,23 +3102,22 @@ function addTextButton(bb, tPanel, id) {
 			};
 		} else {
 			btn.onclick = function(e) {
-				var m, txt, len, x = pr.txta,
+				var txt, len, x = pr.txta,
 					start = x.selectionStart,
 					end = x.selectionEnd,
 					scrtop = x.scrollTop,
 					tag = this.getAttribute('de-tag');
 				$pd(e);
 				if(this.getAttribute('de-bb') === 'true') {
-					m = x.value.substring(start, end).match(/^(\s*)((?:.|\n|\r)*?)(\s*)$/);
-					txt = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
+					txt = '[' + tag + ']' + x.value.substring(start, end) + '[/' + tag + ']';
 				} else {
 					txt = '';
 					x.value.substring(start, end).split('\n').forEach(function(line) {
 						var m = line.match(/^(\s*)(.*?)(\s*)$/);
-						txt += '\n' + m[1] + (this !== '^H' ? this + m[2] + this
+						txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
 							: m[2] + new Array(m[2].length + 1).join('^H')
 						) + m[3];
-					}, tag);
+					});
 					txt = txt.slice(1);
 				}
 				len = start + txt.length;
@@ -3126,7 +3125,7 @@ function addTextButton(bb, tPanel, id) {
 				x.setSelectionRange(len, len);
 				x.focus();
 				x.scrollTop = scrtop;
-				txt = null;
+				txt = tag = null;
 			};
 		}
 		tPanel.appendChild(btn);
