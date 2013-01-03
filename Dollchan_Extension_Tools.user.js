@@ -3075,19 +3075,32 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
-function addTextButton(id, key, bb) {
+function addTextButton(bb, tPanel, id) {
+	var btn, key = this[id];
 	if(key['off']) {
 		return;
 	}
-	var btn = $id('de-btn-' + id);
-	if(!btn) {
+	if(!(btn = $id('de-btn-' + id))) {
 		btn = $new('span', {
 			'id': 'de-btn-' + id,
 			'title': Lng.txtBtn[id][lang],
 			'de-tag': key['tag'],
 			'de-bb': bb || !!key['bb']
 		}, null);
-		if(id !== 'quote') {
+		if(id === 'quote') {
+			btn.onmouseover = function() {
+				quotetxt = $txtSelect();
+			};
+			btn.onclick = function(e) {
+				var x = pr.txta,
+					start = x.selectionStart,
+					end = x.selectionEnd;
+				$pd(e);
+				$txtInsert(x, '> ' + (
+					start === end ? quotetxt : x.value.substring(start, end)
+				).replace(/\n/gm, '\n> '));
+			};
+		} else {
 			btn.onclick = function(e) {
 				var m, txt, len, x = pr.txta,
 					start = x.selectionStart,
@@ -3102,10 +3115,10 @@ function addTextButton(id, key, bb) {
 					txt = '';
 					x.value.substring(start, end).split('\n').forEach(function(line) {
 						var m = line.match(/^(\s*)(.*?)(\s*)$/);
-						txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
+						txt += '\n' + m[1] + (this !== '^H' ? this + m[2] + this
 							: m[2] + new Array(m[2].length + 1).join('^H')
 						) + m[3];
-					});
+					}, tag);
 					txt = txt.slice(1);
 				}
 				len = start + txt.length;
@@ -3113,23 +3126,10 @@ function addTextButton(id, key, bb) {
 				x.setSelectionRange(len, len);
 				x.focus();
 				x.scrollTop = scrtop;
-				txt = tag = null;
-			};
-		} else {
-			btn.onmouseover = function() {
-				quotetxt = $txtSelect();
-			};
-			btn.onclick = function(e) {
-				var x = pr.txta,
-					start = x.selectionStart,
-					end = x.selectionEnd;
-				$pd(e);
-				$txtInsert(x, '> ' + (
-					start === end ? quotetxt : x.value.substring(start, end)
-				).replace(/\n/gm, '\n> '));
+				txt = null;
 			};
 		}
-		$id('de-txt-panel').appendChild(btn);
+		tPanel.appendChild(btn);
 	}
 	btn.innerHTML =
 		Cfg['addTextBtns'] === 2 ? (
@@ -3145,7 +3145,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var id, bb = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
+	var tPanel, bb = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
 		btns = {
 			'bold': {
 				'val': 'B',
@@ -3181,13 +3181,11 @@ function addTextPanel() {
 		Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || pr.txta :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
-		$attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
+		tPanel = $attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
 			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 		})
 	);
-	for(id in btns) {
-		addTextButton(id, btns[id], bb);
-	}
+	nav.forEach(btns, addTextButton.bind(btns, bb, tPanel));
 }
 
 
