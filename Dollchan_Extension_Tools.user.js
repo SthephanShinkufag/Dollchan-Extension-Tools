@@ -377,7 +377,7 @@ Lng = {
 	seCol:			[', столбец ', ', column ']
 },
 
-doc = window.document, aProto = Array.prototype,
+uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
@@ -1085,7 +1085,7 @@ function addPanel() {
 					if(!TNum) {
 						addAjaxPagesMenu();
 					}
-				}, 'de_delSelection(event)'),
+				}, 'de_delsel(event)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
 				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
@@ -1125,7 +1125,7 @@ function addPanel() {
 					Audio.repeat = false;
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-menu'));
-				}, null, addAudioNotifMenu, 'de_delSelection(event)')),
+				}, null, addAudioNotifMenu, 'de_delsel(event)')),
 				$if(aib.nul || aib.fch, pButton(
 					'catalog', null,
 					'//' + aib.host + '/' + brd + '/catalog.html',
@@ -1522,7 +1522,7 @@ function getCfgFilters() {
 				'text': Lng.add[lang],
 				'href': '#',
 				'class': 'de-abtn',
-				'onmouseout': 'de_delSelection(event)'}, {
+				'onmouseout': 'de_delsel(event)'}, {
 				'click': $pd,
 				'mouseover': addSpellMenu
 			}),
@@ -1944,13 +1944,20 @@ function addMenu(el, isPanel, html) {
 			el.className === 'de-btn-src' ?
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="de_delSelection(event)">' + html + '</div>');
+		) + 'px; ' + y + 'px;" onmouseout="de_delsel(event)">' + html + '</div>');
 	el = $event(doc.body.lastChild, {'mouseover': (function() {
 		if(this) {
 			markPviewToDel(this, false);
 		}
 	}).bind(getPost(el))});
 	return html ? $Q('span', $id('de-menu')) : el;
+}
+
+function removeMenu(e) {
+	var rt = e.relatedTarget;
+	if(!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *')) {
+		$del($id('de-menu'));
+	}
 }
 
 function addSpellMenu(e) {
@@ -2092,7 +2099,7 @@ function addImgSearchMenu(node) {
 		c.forEach(function(el) {
 			var info = el.split(',');
 			str += '<a class="de-src' + info[0] + (!info[1] ?
-				'" onclick="de_cImgSearch(event, \'' + info[0] + '\')" de-url="' :
+				'" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' :
 				'" href="' + info[1]
 			) + p + info[0] + '</a>';
 		});
@@ -2414,16 +2421,14 @@ function processInput() {
 		'type': 'button'}, {
 		'click': function(e) {
 			$pd(e);
-			var el = $id('de-file-rar') || doc.body.appendChild($new('input', {
-					'id': 'de-file-rar',
+			var el = $id('de-input-rar') || doc.body.appendChild($new('input', {
+					'id': 'de-input-rar',
 					'type': 'file',
 					'style': 'display: none;'
-				}, null)),
-				inp = $q('input[type="file"]', this.parentNode),
-				btn = this;
-			el.onchange = function(e) {
-				$del(btn);
-				var file = this.files[0],
+				}, null));
+			el.onchange = (function(inp, e) {
+				$del(this);
+				var file = e.target.files[0],
 					fr = new FileReader();
 				inp.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
 					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
@@ -2431,16 +2436,15 @@ function processInput() {
 					if(input.nextSibling === node) {
 						$attr(node, {
 							'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-							'title': inp.files[0].name + ' + ' + this.name,
-							'text': inp.files[0].name.replace(/^.+\./, '') + ' + ' +
+							'title': input.files[0].name + ' + ' + this.name,
+							'text': input.files[0].name.replace(/^.+\./, '') + ' + ' +
 								this.name.replace(/^.+\./, '')
 						});
-						inp.imgFile = e.target.result;
+						input.imgFile = e.target.result;
 					}
 				}).bind(file, inp, inp.nextSibling);
 				fr.readAsArrayBuffer(file);
-				btn = inp = null;
-			};
+			}).bind(this, $q('input[type="file"]', this.parentNode));
 			el.click();
 		}
 	}));
@@ -2523,8 +2527,8 @@ function updateCaptcha() {
 }
 
 function updateABUCap() {
-	var cap = $id('captcha_div'), uwin = nav.Firefox ? unsafeWindow : window;
-	if(!uwin.Recaptcha) {
+	var cap = $id('captcha_div');
+	if(!uWindow.Recaptcha) {
 		doc.head.appendChild($new('script', {
 			'type': 'text/javascript',
 			'src': 'http://www.google.com/recaptcha/api/js/recaptcha_ajax.js'
@@ -2537,7 +2541,7 @@ function updateABUCap() {
 		'click': function(e) {
 			$pd(e);
 			this.parentNode.innerHTML = '';
-			(nav.Firefox ? unsafeWindow : window).Recaptcha
+			uWindow.Recaptcha
 				.create('6LdOEMMSAAAAAIGhmYodlkflEb2C-xgPjyATLnxx', 'captcha_div', {'theme': "red"});
 			var itrv = setInterval(function() {
 				var el = $id('recaptcha_response_field');
@@ -3078,29 +3082,41 @@ function insertRefLink(e) {
 								TEXT FORMATTING BUTTONS
 ==============================================================================*/
 
-function addTextButton(id, key, bb) {
+function addTextButton(bb, tPanel, id) {
+	var btn, key = this[id];
 	if(key['off']) {
 		return;
 	}
-	var btn = $id('de-btn-' + id);
-	if(!btn) {
+	if(!(btn = $id('de-btn-' + id))) {
 		btn = $new('span', {
 			'id': 'de-btn-' + id,
 			'title': Lng.txtBtn[id][lang],
 			'de-tag': key['tag'],
 			'de-bb': bb || !!key['bb']
 		}, null);
-		if(id !== 'quote') {
+		if(id === 'quote') {
+			btn.onmouseover = function() {
+				quotetxt = $txtSelect();
+			};
 			btn.onclick = function(e) {
-				var m, txt, len, x = pr.txta,
+				var x = pr.txta,
+					start = x.selectionStart,
+					end = x.selectionEnd;
+				$pd(e);
+				$txtInsert(x, '> ' + (
+					start === end ? quotetxt : x.value.substring(start, end)
+				).replace(/\n/gm, '\n> '));
+			};
+		} else {
+			btn.onclick = function(e) {
+				var txt, len, x = pr.txta,
 					start = x.selectionStart,
 					end = x.selectionEnd,
 					scrtop = x.scrollTop,
 					tag = this.getAttribute('de-tag');
 				$pd(e);
 				if(this.getAttribute('de-bb') === 'true') {
-					m = x.value.substring(start, end).match(/^(\s*)((?:.|\n|\r)*?)(\s*)$/);
-					txt = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
+					txt = '[' + tag + ']' + x.value.substring(start, end) + '[/' + tag + ']';
 				} else {
 					txt = '';
 					x.value.substring(start, end).split('\n').forEach(function(line) {
@@ -3118,21 +3134,8 @@ function addTextButton(id, key, bb) {
 				x.scrollTop = scrtop;
 				txt = tag = null;
 			};
-		} else {
-			btn.onmouseover = function() {
-				quotetxt = $txtSelect();
-			};
-			btn.onclick = function(e) {
-				var x = pr.txta,
-					start = x.selectionStart,
-					end = x.selectionEnd;
-				$pd(e);
-				$txtInsert(x, '> ' + (
-					start === end ? quotetxt : x.value.substring(start, end)
-				).replace(/\n/gm, '\n> '));
-			};
 		}
-		$id('de-txt-panel').appendChild(btn);
+		tPanel.appendChild(btn);
 	}
 	btn.innerHTML =
 		Cfg['addTextBtns'] === 2 ? (
@@ -3148,7 +3151,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var id, bb = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
+	var tPanel, bb = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
 		btns = {
 			'bold': {
 				'val': 'B',
@@ -3184,13 +3187,11 @@ function addTextPanel() {
 		Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || pr.txta :
 			aib._420 ? $c('popup', pr.form) :
 			pr.subm,
-		$attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
+		tPanel = $attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
 			'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 		})
 	);
-	for(id in btns) {
-		addTextButton(id, btns[id], bb);
-	}
+	nav.forEach(btns, addTextButton.bind(btns, bb, tPanel));
 }
 
 
@@ -3200,21 +3201,21 @@ function addTextPanel() {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideClick(this)" onmouseover="de_hideOver(this)" onmouseout="de_btnOut(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qReplyClick(this)" onmouseover="de_qReplyOver(this)"></span>' : '');
+		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
 	if(post.isOp) {
 		if(!TNum) {
-			html += '<span class="de-btn-expthr" onclick="de_expandClick(this)" onmouseover="de_expandOver(this)" onmouseout="de_btnOut(event)"></span>';
+			html += '<span class="de-btn-expthr" onclick="de_expclick(this)" onmouseover="de_expover(this)" onmouseout="de_out(event)"></span>';
 		}
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
-			html += '<span class="de-btn-fav-sel" onclick="de_favorClick(this)"></span>';
+			html += '<span class="de-btn-fav-sel" onclick="de_favclick(this)"></span>';
 			Favor[h][brd][post.num].cnt = post.thr.pCount;
 		} else {
-			html += '<span class="de-btn-fav" onclick="de_favorClick(this)"></span>';
+			html += '<span class="de-btn-fav" onclick="de_favclick(this)"></span>';
 		}
 	}
 	ref.insertAdjacentHTML('afterend', html + (
-		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageClick(this)"></span>' : ''
+		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageclick()"></span>' : ''
 	) + '</span>');
 	post.pref = ref;
 	post.btns = ref.nextSibling;
@@ -3235,79 +3236,48 @@ function addPostButtons(post) {
 ==============================================================================*/
 
 function initMessageFunctions() {
-	$script(
-		'function de_removeSel() {\
-			var el = document.getElementById("de-menu");\
-			if(el) {\
-				el.parentNode.removeChild(el);\
-			}\
-		}\
-		function de_delSelection(e) {\
-			if(e.relatedTarget && !document.evaluate("ancestor-or-self::div[@id=\'de-menu\']", e.relatedTarget, null, 3, null).booleanValue) {\
-				de_removeSel();\
-			}\
-		}\
-		function de_btnOut(e) {\
-			clearTimeout(e.target.de_overDelay);\
-			de_delSelection(e);\
-		}\
-		function de_btnOver(el, data) {\
-			el.de_overDelay = setTimeout(window.postMessage.bind(window), ' + Cfg['linksOver'] +
-			', data, "*");\
-		}\
-		function de_hideOver(el) {\
-			de_btnOver(el, "A" + el.parentNode.getAttribute("info"));\
-		}\
-		function de_imgSOver(el) {\
-			de_btnOver(el, "L" + el.getAttribute("de-id"));\
-		}\
-		function de_expandOver(el) {\
-			de_btnOver(el, "B" + el.parentNode.getAttribute("info"));\
-		}\
-		function de_hideClick(el) {\
-			window.postMessage("D" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function de_qReplyClick(el) {\
-			window.postMessage("F" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function de_qReplyOver(el) {\
-			window.postMessage("C" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function de_expandClick(el) {\
-			window.postMessage("E" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function de_favorClick(el) {\
-			window.postMessage("G" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function de_sageClick(el) {\
-			window.postMessage("H" + el.parentNode.getAttribute("info"), "*");\
-		}\
-		function de_cImgSearch(e, name) {\
-			e.preventDefault();\
-			window.postMessage("_" + name + ";" + e.target.getAttribute("de-url"), "*");\
-			de_removeSel();\
-		}'
-	);
+	uWindow['de_hideover'] = function(el) {
+		el.odelay = setTimeout(addPostHideMenu, Cfg['linksOver'], pByNum[+el.parentNode.getAttribute('info')]);
+	};
+	uWindow['de_srcover'] = function(el) {
+		el.odelay = setTimeout(addImgSearchMenu, Cfg['linksOver'], el);
+	};
+	uWindow['de_expover'] = function(el) {
+		el.odelay = setTimeout(addExpandThreadMenu, Cfg['linksOver'], pByNum[+el.parentNode.getAttribute('info')]);
+	};
+	uWindow['de_qrepover'] = function() {
+		quotetxt = $txtSelect();
+	};
+	uWindow['de_out'] = function(e) {
+		clearTimeout(e.target.odelay);
+		removeMenu(e);
+	};
+	uWindow['de_favclick'] = function(el) {
+		setTimeout(toggleFavorites, 0, pByNum[+el.parentNode.getAttribute('info')], el);
+	};
+	uWindow['de_hideclick'] = function(el) {
+		setTimeout(toggleUserPostVisib, 0, pByNum[+el.parentNode.getAttribute('info')]);
+	};
+	uWindow['de_expclick'] = function(el) {
+		loadThread(pByNum[+el.parentNode.getAttribute('info')], 1, null);
+	};
+	uWindow['de_qrepclick'] = function(el) {
+		showQuickReply(pByNum[+el.parentNode.getAttribute('info')]);
+	};
+	uWindow['de_sageclick'] = function() {
+		addSpell('#sage', '');
+	};
+	uWindow['de_isearch'] = function(e, name) {
+		$pd(e);
+		window.postMessage("_" + name + ";" + e.target.getAttribute("de-url"), "*");
+		$del($id('de-menu'));
+	};
+	uWindow['de_delsel'] = removeMenu;
 
 	$event(window, {'message': function(e) {
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
-		case 'A': addPostHideMenu(pByNum[+data]); return;
-		case 'B': addExpandThreadMenu(pByNum[+data]); return;
-		case 'C': quotetxt = $txtSelect(); return;
-		case 'D': toggleUserPostVisib(pByNum[+data]); return;
-		case 'E': loadThread(pByNum[+data], 1, null); return;
-		case 'F': showQuickReply(pByNum[+data]); return;
-		case 'G':
-			temp = pByNum[+data];
-			toggleFavorites(temp, $c('de-btn-fav', temp) || $c('de-btn-fav-sel', temp));
-			return;
-		case 'H': addSpell('#sage', ''); return;
-		case 'I':
-			$del($id('de-fav-wait'));
-			$id('de-iframe-fav').style.height = data + 'px';
-			return;
-		case 'J':
+		case 'A':
 			temp = data.split('$#$');
 			if(temp[0] === 'de-iframe-pform') {
 				checkUpload([temp[1], temp[2]]);
@@ -3316,7 +3286,10 @@ function initMessageFunctions() {
 			}
 			$id(temp[0]).src = 'about:blank';
 			return;
-		case 'L': addImgSearchMenu($q('.de-btn-src[de-id="' + data + '"]', dForm)); return;
+		case 'B':
+			$del($id('de-fav-wait'));
+			$id('de-iframe-fav').style.height = data + 'px';
+			return;
 		}
 	}});
 }
@@ -3383,7 +3356,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 		'self.onmessage = function(e) {\
 			self.postMessage((' + String(wrkFn) + ')(e["data"]), null);\
 		}'
-	]));
+	], {'type': 'text/javascript'}));
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.find = this._findWrk;
 	this.wrks = [];
@@ -4064,7 +4037,7 @@ function addImgSearch(el) {
 	if(!Cfg['imgSrcBtns']) {
 		return;
 	}
-	for(var num = el.num || '', link, i = 0, els = $Q(aib.qImgLink, el); link = els[i++];) {
+	for(var link, i = 0, els = $Q(aib.qImgLink, el); link = els[i++];) {
 		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
 			$del(link);
 			continue;
@@ -4072,9 +4045,7 @@ function addImgSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		link.insertAdjacentHTML('beforebegin', '<span de-id="' + num + i +
-			'" class="de-btn-src" onmouseover="de_imgSOver(this)" onmouseout="de_btnOut(event)"></span>'
-		);
+		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" onmouseover="de_srcover(this)" onmouseout="de_out(event)"></span>');
 	}
 }
 
@@ -4312,11 +4283,6 @@ function getPview(post, pNum, parent, link, txt) {
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', pView), function(el) {
 					eventLinkImg(el.parentNode);
-				});
-			}
-			if(Cfg['imgSrcBtns']) {
-				$each($C('de-btn-src', pView), function(el) {
-					el.setAttribute('de-id', 'pv' + el.getAttribute('de-id'));
 				});
 			}
 		}
@@ -6738,7 +6704,7 @@ function scriptCSS() {
 	if(aib.krau) {
 		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
 			div[id^="Wz"] { z-index: 10000 !important; }\
-			.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; }\
+			.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
 			.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
 			.de-ytube-obj + div { clear: left; }';
 	} else if(aib.fch) {
@@ -7168,14 +7134,14 @@ function Initialization() {
 	case 'de-iframe-pform':
 	case 'de-iframe-dform':
 		$script((
-			'window.top.postMessage("J' + window.name + '$#$' +
+			'window.top.postMessage("A' + window.name + '$#$' +
 			getSubmitResponse(doc, true).join('$#$') + '", "*");'
 		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
 		intrv = setInterval(function() {
 			$del($id('de-fav-script'));
-			$attr($script('window.top.postMessage("I' + (doc.body.offsetHeight + 5) + '", "*");'), {
+			$attr($script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");'), {
 				'id': 'de-fav-script'
 			});
 		}, 1500);
@@ -7281,6 +7247,14 @@ function Initialization() {
 	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
+	uWindow =
+		nav.Firefox ? unsafeWindow :
+		nav.Opera ? window :
+		(function() {
+			var el = doc.createElement('p');
+			el.setAttribute('onclick', 'return window;');
+			return el.onclick();
+		})();
 	if(aib.hid) {
 		window.setTimeout = function(Fn, num) {
 			var ev = document.createEvent('HTMLEvents'),
@@ -7308,9 +7282,9 @@ function Initialization() {
 		window.URL = window.webkitURL;
 	}
 	if(nav.Firefox > 17) {
-		window.Worker = new Proxy(unsafeWindow['de-worker'], {});
+		window.Worker = new Proxy(uWindow['de-worker'], {});
 		window.Worker.prototype.postMessage = function() {
-			unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
+			uWindow['de-worker-proto']._postMessage.apply(this, arguments);
 		};
 	}
 
