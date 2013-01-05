@@ -1955,7 +1955,7 @@ function addMenu(el, isPanel, html) {
 
 function removeMenu(e) {
 	var rt = e.relatedTarget;
-	if(rt && !nav.matchesSelector(rt, '#de-menu, #de-menu > *')) {
+	if(!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *')) {
 		$del($id('de-menu'));
 	}
 }
