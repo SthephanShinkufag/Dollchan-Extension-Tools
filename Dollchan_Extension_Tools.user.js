@@ -11,7 +11,7 @@
 // @include			*
 // ==/UserScript==
 
-(function(scriptStorage, uWindow) {
+(function(scriptStorage) {
 var version = '12.12.10.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
@@ -377,7 +377,7 @@ Lng = {
 	seCol:			[', столбец ', ', column ']
 },
 
-doc = window.document, aProto = Array.prototype,
+uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
@@ -3356,7 +3356,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 		'self.onmessage = function(e) {\
 			self.postMessage((' + String(wrkFn) + ')(e["data"]), null);\
 		}'
-	]));
+	], {'type': 'text/javascript'}));
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.find = this._findWrk;
 	this.wrks = [];
@@ -7247,6 +7247,14 @@ function Initialization() {
 	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
+	uWindow =
+		nav.Firefox ? unsafeWindow :
+		nav.Opera ? window :
+		(function() {
+			var el = doc.createElement('p');
+			el.setAttribute('onclick', 'return window;');
+			return el.onclick();
+		})();
 	if(aib.hid) {
 		window.setTimeout = function(Fn, num) {
 			var ev = document.createEvent('HTMLEvents'),
@@ -7657,4 +7665,4 @@ $event(doc, {'DOMContentLoaded': function() {
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }});
 
-})(window.opera && window.opera.scriptStorage, unsafeWindow || window);
+})(window.opera && window.opera.scriptStorage);
