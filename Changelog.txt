@@ -1,3 +1,32 @@
+Dec 30, 2012
+	- Fix post counter font
+		+ Новый шрифт для счетчика постов
+Dec 25, 2012
+	- Improve hiding of selected text
+		+ Automatically add #words, #exp or #exph depending on the selected text
+		+ Улучшенное скрытие по выделенному тексту
+			Автоматическое добавление #words, #exp или #exph в зависимости от выделенного текста
+Dec 11, 2012
+	- Add 'Clear' button into Hidden
+		+ Кнопка "Очистить" добавлена в "Скрытое"
+Dec 10, 2012
+	- Add counter to pView panel in thread, Add counter to ajaxed pViews, Fix counters on board
+		+ Post counter available in post previews and in posts on board
+		+ Счетчик постов отображается в превью и в постах на доске
+Dec 08, 2012
+	- Enable catalog button on 4chan
+		+ Добавлена кнопка каталога на 4chan.org
+Dec 02, 2012
+	- Enable global storage in safari
+		+ Включено глобальное хранение данных в Сафари
+Nov 22, 2012
+	- Drop old opera support
+		+ Opera requirements: version 11.6 and higher
+		+ Требования для Оперы: версия 11.6 и выше
+Nov 19, 2012
+	- Set minimum update interval in 15s
+		+ Minimum thread update interval is set to 15s
+		+ Установлен минимальный интервал обновления треда, равный 15с
 Nov 16, 2012
 	- Make storage editors in alert window
 		+ Settings editors are moved into the pop-up windows
