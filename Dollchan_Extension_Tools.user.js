@@ -5037,7 +5037,7 @@ function unhideByRef(post) {
 }
 
 function setPostsVisib() {
-	for(var vis, pNum, post, i = 0; post = Posts[i++];) {
+	for(var vis, pNum, post, i = 0; post = Posts[i]; i++) {
 		vis = sVis[i];
 		if(uVis[pNum = post.num]) {
 			if(post.isOp) {
@@ -5050,7 +5050,7 @@ function setPostsVisib() {
 				post.btns.firstChild.className = 'de-btn-hide-user';
 			}
 			if(typeof vis === 'undefined') {
-				sVis[i] = 1
+				sVis[i] = 1;
 				spells.check(post, function(pst, note) {
 					sVis[pst.count] = 0;
 				}, false);
