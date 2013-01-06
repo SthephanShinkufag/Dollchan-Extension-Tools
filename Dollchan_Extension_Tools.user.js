@@ -3271,7 +3271,7 @@ function initMessageFunctions() {
 		showQuickReply(pByNum[+el.parentNode.getAttribute('info')]);
 	};
 	uWindow['de_sageclick'] = function() {
-		addSpell('#sage', '');
+		setTimeout(addSpell, 0, '#sage', '');
 	};
 	uWindow['de_isearch'] = function(e, name) {
 		$pd(e);
@@ -7458,21 +7458,17 @@ function tryToParse(node) {
 		return false;
 	}
 	node.removeAttribute('id');
-	var i, el, els;
-	if(aib.abu) {
-		if(TNum && (el = $c('de-thread', node))) {
-			while(el.nextSibling) {
-				$del(el.nextSibling);
-			}
-			el.insertAdjacentHTML('afterend', '<hr>');
-		}
-	} else if(aib.brit) {
-		for(i = 0, els = $C('reflink', node); el = els[i++];) {
-			el = el.firstChild;
+	if(aib.brit) {
+		$each($Q('.reflink > a', node), function(el) {
 			el.onclick = null;
 			el.href = aib.getThrdUrl(brd, el.textContent);
 			el.target = '_blank';
+		});
+	} else if(aib.abu && TNum && (node = $c('de-thread', node))) {
+		while(node.nextSibling) {
+			$del(node.nextSibling);
 		}
+		node.insertAdjacentHTML('afterend', '<hr>');
 	}
 	return true;
 }
