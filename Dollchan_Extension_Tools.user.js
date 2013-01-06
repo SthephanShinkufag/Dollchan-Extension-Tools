@@ -7436,7 +7436,7 @@ function tryToParse(node) {
 				thr.omitted = omt = el && (el = el.textContent) ?
 					+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
 			}
-			for(i = 0; el = els[i++];) {
+			for(i = 0; el = els[i]; i++) {
 				processPost(el, aib.getPNum(el), thr, i + omt + 1);
 			}
 			Posts.push(op);
