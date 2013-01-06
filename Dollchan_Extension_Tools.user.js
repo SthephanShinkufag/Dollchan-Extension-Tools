@@ -567,9 +567,12 @@ function $isEmpty(obj) {
 }
 
 function $log(txt) {
-	var newTime = Date.now();
-	timeLog.push(txt + ': ' + (newTime - oldTime) + 'ms');
-	oldTime = newTime;
+	var newTime = Date.now(),
+		time = newTime - oldTime;
+	if(time > 1) {
+		timeLog.push(txt + ': ' + time + 'ms');
+		oldTime = newTime;
+	}
 }
 
 function $xhr(obj) {
@@ -1769,7 +1772,7 @@ function getCfgInfo() {
 		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
 			for(i in Cfg) {
-				if(Cfg[i] !== defaultCfg[i] && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
+				if(Cfg[i] !== defaultCfg[i] && i !== 'stats' && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
 					nCfg[i] = Cfg[i];
 				}
 			}
@@ -3199,6 +3202,19 @@ function addTextPanel() {
 									POST BUTTONS
 ==============================================================================*/
 
+function addPostRef(ref) {
+	if(pr.form && Cfg['insertNum']) {
+		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
+			$each($T('a', ref), function(el) {
+				el.onclick = null;
+			});
+		}
+		if(!aib.brit) {
+			ref.onclick = insertRefLink;
+		}
+	}
+}
+
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
 		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
@@ -3217,18 +3233,8 @@ function addPostButtons(post) {
 	ref.insertAdjacentHTML('afterend', html + (
 		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageclick()"></span>' : ''
 	) + '</span>');
-	post.pref = ref;
+	addPostRef(post.pref = ref);
 	post.btns = ref.nextSibling;
-	if(pr.form && Cfg['insertNum']) {
-		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
-			$each($T('a', ref), function(el) {
-				el.onclick = null;
-			});
-		}
-		if(!aib.brit) {
-			ref.onclick = insertRefLink;
-		}
-	}
 }
 
 /*==============================================================================
@@ -3265,7 +3271,7 @@ function initMessageFunctions() {
 		showQuickReply(pByNum[+el.parentNode.getAttribute('info')]);
 	};
 	uWindow['de_sageclick'] = function() {
-		addSpell('#sage', '');
+		setTimeout(addSpell, 0, '#sage', '');
 	};
 	uWindow['de_isearch'] = function(e, name) {
 		$pd(e);
@@ -4256,7 +4262,7 @@ function getPview(post, pNum, parent, link, txt) {
 	if(post) {
 		inDoc = post.ownerDocument === doc;
 		pView = inDoc ? post.cloneNode(true) : importPost(post);
-		pView.setAttribute('de-post', null);
+		pView.setAttribute('de-post', '');
 		pView.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		pView.style.display = '';
 		if(aib._7ch) {
@@ -4296,6 +4302,7 @@ function getPview(post, pNum, parent, link, txt) {
 			markRefMap(pView, parent.num);
 		}
 		eventRefLink(pView);
+		addPostRef($q(aib.qRef, pView));
 		appendPviewPanel(post, pView);
 		if(Cfg['markViewed']) {
 			pView.readDelay = setTimeout(function(pst, num) {
@@ -7358,7 +7365,7 @@ function processPost(post, pNum, thr, i) {
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
 	post.sage = aib.getSage(post);
-	post.setAttribute('de-post', null);
+	post.setAttribute('de-post', '');
 	pByNum[post.num = pNum] = post;
 }
 
@@ -7429,7 +7436,7 @@ function tryToParse(node) {
 				thr.omitted = omt = el && (el = el.textContent) ?
 					+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
 			}
-			for(i = 0; el = els[i++];) {
+			for(i = 0; el = els[i]; i++) {
 				processPost(el, aib.getPNum(el), thr, i + omt + 1);
 			}
 			Posts.push(op);
@@ -7451,21 +7458,17 @@ function tryToParse(node) {
 		return false;
 	}
 	node.removeAttribute('id');
-	var i, el, els;
-	if(aib.abu) {
-		if(TNum && (el = $c('de-thread', node))) {
-			while(el.nextSibling) {
-				$del(el.nextSibling);
-			}
-			el.insertAdjacentHTML('afterend', '<hr>');
-		}
-	} else if(aib.brit) {
-		for(i = 0, els = $C('reflink', node); el = els[i++];) {
-			el = el.firstChild;
+	if(aib.brit) {
+		$each($Q('.reflink > a', node), function(el) {
 			el.onclick = null;
 			el.href = aib.getThrdUrl(brd, el.textContent);
 			el.target = '_blank';
+		});
+	} else if(aib.abu && TNum && (node = $c('de-thread', node))) {
+		while(node.nextSibling) {
+			$del(node.nextSibling);
 		}
+		node.insertAdjacentHTML('afterend', '<hr>');
 	}
 	return true;
 }
