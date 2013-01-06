@@ -4794,12 +4794,12 @@ function infoNewPosts(err, i) {
 		}
 	}
 	doc.title = (i > 0 ? ' [' + i + '] ' : '') + docTitle;
-	if(nav.WebKit && Cfg['desktNotif'] && i > 0 && window.webkitNotifications.checkPermission() !== 0) {
+	if(nav.WebKit && Cfg['desktNotif'] && i > 0 && window.webkitNotifications.checkPermission() === 0) {
 		var notif = window.webkitNotifications.createNotification(
 				'/favicon.ico', docTitle, Lng.unreadMsg[lang].replace(/%m/g, i)
 			);
 		notif.ondisplay = function() {
-			setTimeout(this.cancel.bind(this), 8e3);
+			setTimeout(this.cancel.bind(this), 12e3);
 		};
 		notif.onclick = function () {
 			if(window.focus) {
