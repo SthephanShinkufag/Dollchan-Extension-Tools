@@ -567,9 +567,12 @@ function $isEmpty(obj) {
 }
 
 function $log(txt) {
-	var newTime = Date.now();
-	timeLog.push(txt + ': ' + (newTime - oldTime) + 'ms');
-	oldTime = newTime;
+	var newTime = Date.now(),
+		time = newTime - oldTime;
+	if(time > 1) {
+		timeLog.push(txt + ': ' + time + 'ms');
+		oldTime = newTime;
+	}
 }
 
 function $xhr(obj) {
@@ -1769,7 +1772,7 @@ function getCfgInfo() {
 		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
 			for(i in Cfg) {
-				if(Cfg[i] !== defaultCfg[i] && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
+				if(Cfg[i] !== defaultCfg[i] && i !== 'stats' && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
 					nCfg[i] = Cfg[i];
 				}
 			}
