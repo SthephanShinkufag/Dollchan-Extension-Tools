@@ -7425,14 +7425,12 @@ function tryToParse(node) {
 			op.tTitle = ($c(aib.cSubj, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
-			if(TNum) {
-				omt = 0;
-			} else {
+			if(!TNum) {
 				el = $q(aib.qOmitted, thr);
-				thr.omitted = omt = el && (el = el.textContent) ?
+				thr.omitted = el && (el = el.textContent) ?
 					+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
 			}
-			omt++;
+			omt = (thr.omitted || 0) + 1;
 			for(i = 0; el = els[i]; i++) {
 				processPost(el, aib.getPNum(el), thr, i + omt);
 			}
