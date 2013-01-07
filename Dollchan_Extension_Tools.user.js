@@ -4597,7 +4597,7 @@ function loadThread(op, last, Fn) {
 		$del($id('de-menu'));
 		$del($q(aib.qOmitted + ', .de-omitted', thr));
 		omt = thr.omitted;
-		pCnt = thr.pCount - omt - 1;
+		pCnt = thr.pCount - omt;
 		if(!(lPosts = thr.loadedPosts)) {
 			lPosts = [op];
 			if(aib.isTrunc(op)) {
