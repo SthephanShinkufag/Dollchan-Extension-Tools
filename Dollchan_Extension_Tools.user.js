@@ -1974,11 +1974,12 @@ function addSpellMenu(e) {
 				.split(',').join('</span><span>') + '</span></div>'
 	), function(el) {
 		el.onclick = function() {
-			var exp = this.textContent;
+			var exp = this.textContent,
+				idx = spells.names.indexOf(exp.substr(1));
 			$txtInsert($id('de-spell-edit'), exp + (
 				TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ?
 					'[' + brd + ',' + TNum + ']' : ''
-			) + (spells.needArg(exp.substr(1)) ? '(' : ''));
+			) + (idx < 5 || idx > 14 ? '(' : ''));
 		};
 	});
 }
@@ -5356,7 +5357,7 @@ Spells.retAsyncVal = function(post, oval, flags, sStack, hFunc, nhFunc, val, asy
 	}
 };
 Spells.prototype = {
-	_names: [
+	names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
 		'video', 'wipe', 'num'
 	],
@@ -5621,7 +5622,7 @@ Spells.prototype = {
 			this._lastErrCol = 0;
 			return 0;
 		}
-		type = this._names.indexOf(val[1]);
+		type = this.names.indexOf(val[1]);
 		this._lastType = 2;
 		if(type === -1) {
 			this._errorMessage = Lng.seUnknown[lang] + val[1];
@@ -5984,7 +5985,7 @@ Spells.prototype = {
 		return null;
 	},
 	_decompileSpell: function(type, neg, val, scope) {
-		var temp, temp_, spell = (neg ? '!#' : '#') + this._names[type] + (scope ? '[' +
+		var temp, temp_, spell = (neg ? '!#' : '#') + this.names[type] + (scope ? '[' +
 			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 		if(!val) {
 			return spell;
@@ -6098,26 +6099,6 @@ Spells.prototype = {
 			return;
 		}
 	},
-	_realCheck: function(post, hFunc, nhFunc) {
-		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, msg, async) {
-			hFunc(pst, msg);
-			if(async) {
-				clearTimeout(aSpellTO);
-				aSpellTO = setTimeout(savePostsVisib, 500);
-			}
-		}, nhFunc && function(pst, async) {
-			nhFunc(pst);
-			if(async) {
-				clearTimeout(aSpellTO);
-				aSpellTO = setTimeout(savePostsVisib, 500);
-			}
-		}, false);
-	},
-	_fakeCheck: function(post, hFunc, nhFunc) {
-		if(nhFunc) {
-			nhFunc(post);
-		}
-	},
 	_findReps: function(str) {
 		var reps = [],
 			outreps = [],
@@ -6165,7 +6146,7 @@ Spells.prototype = {
 		this._spells = this._initSpells(spells);
 		this._reps = this._initReps(reps);
 		this._outreps = this._initReps(outreps);
-		this.check = this._spells ? this._realCheck : this._fakeCheck;
+		this.enable = !!this._spells;
 		this.haveSpells = !!spells;
 		this.haveReps = !!reps;
 		this.haveOutreps = !!outreps;
@@ -6173,7 +6154,7 @@ Spells.prototype = {
 	_disable: function() {
 		this.hash = 0;
 		this.list = '';
-		this.check = this._fakeCheck;
+		this.enable = false;
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', 0);
 	},
@@ -6273,10 +6254,6 @@ Spells.prototype = {
 	},
 
 	readed: false,
-	needArg: function(spell) {
-		var idx = this._names.indexOf(spell);
-		return idx < 5 || idx > 14;
-	},
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
 		this._TEMP = {};
@@ -6346,35 +6323,54 @@ Spells.prototype = {
 		return this.hash = ELFHash(this.list);
 	},
 	update: function() {
-		if(this.read()) {
-			var data, lSpells, reps, outreps, readed = false;
-			try {
-				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
-				if(data && data[0] === this.hash) {
-					this._init(data[1], data[2], data[3]);
-					return;
-				}
-			} catch(e) {}
-			try {
-				data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
-				if(data && data[0] === this.hash) {
-					lSpells = data[1] ? this._removeBoards(data[1]) : false;
-					reps = this._optimizeReps(data[2]);
-					outreps = this._optimizeReps(data[3]);
-					this._init(lSpells, reps, outreps);
-					sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
-					return;
-				}
-			} catch(e) {}
-			data = this.parseText(this.list);
-			this.saveSpells(data ? data.join('\n\n').replace(/\n+$/, '') : '');
-			this.saveTemp();
-		} else {
+		if(!this.read()) {
 			this._disable();
+			return;
 		}
+		var data, lSpells, reps, outreps, readed = false;
+		try {
+			data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
+			if(data && data[0] === this.hash) {
+				this._init(data[1], data[2], data[3]);
+				return;
+			}
+		} catch(e) {}
+		try {
+			data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
+			if(data && data[0] === this.hash) {
+				lSpells = data[1] ? this._removeBoards(data[1]) : false;
+				reps = this._optimizeReps(data[2]);
+				outreps = this._optimizeReps(data[3]);
+				this._init(lSpells, reps, outreps);
+				sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+				return;
+			}
+		} catch(e) {}
+		data = this.parseText(this.list);
+		this.saveSpells(data ? data.join('\n\n').replace(/\n+$/, '') : '');
+		this.saveTemp();
 	},
-	disable: function() {
-		this.check = this._fakeCheck;
+	enable: false,
+	check: function(post, hFunc, nhFunc) {
+		if(!this.enable) {
+			if(post.hide && nhFunc) {
+				nhFunc(post);
+			}
+			return;
+		}
+		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, msg, async) {
+			hFunc(pst, msg);
+			if(async) {
+				clearTimeout(aSpellTO);
+				aSpellTO = setTimeout(savePostsVisib, 500);
+			}
+		}, nhFunc && function(pst, async) {
+			nhFunc(pst);
+			if(async) {
+				clearTimeout(aSpellTO);
+				aSpellTO = setTimeout(savePostsVisib, 500);
+			}
+		}, false);
 	},
 	replace: function(txt) {
 		for(var i = 0, len = this._reps.length; i < len; i++) {
@@ -6391,14 +6387,14 @@ Spells.prototype = {
 };
 
 function hideBySpells(post) {
-	spells.check(post, hidePost, post.hide && unhidePost);
+	spells.check(post, hidePost, unhidePost);
 }
 
 function disableSpells() {
 	closeAlert($id('de-alert-help-err-spell'));
 	if(spells.haveSpells) {
 		Posts.forEach(function(post) {
-			spells.check(post, unhidePost, null);
+			spells.check(post, unhidePost, false);
 		});
 	}
 }
@@ -6414,7 +6410,7 @@ function toggleSpells() {
 			if(Cfg['hideBySpell']) {
 				Posts.forEach(hideBySpells);
 			} else {
-				spells.disable();
+				spells.enable = false;
 			}
 			savePostsVisib();
 			return;
@@ -6458,7 +6454,7 @@ function addSpell(spell, arg) {
 			return;
 		}
 	}
-	spells.disable();
+	spells.enable = false;
 	if(fld) {
 		chk.checked = false;
 	}

@@ -1,3 +1,7 @@
+Jan 06, 2013
+	- Event post num in previews 
+		+ Insert post number on post preview number click
+		+ Вставка номера поста при нажатии на номер превью
 Dec 30, 2012
 	- Fix post counter font
 		+ Новый шрифт для счетчика постов
