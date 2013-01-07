@@ -4594,7 +4594,7 @@ function loadThread(op, last, Fn) {
 		$del($id('de-menu'));
 		$del($q(aib.qOmitted + ', .de-omitted', thr));
 		omt = thr.omitted;
-		pCnt = thr.pCount - omt;
+		pCnt = thr.pCount - omt - 1;
 		if(!(lPosts = thr.loadedPosts)) {
 			lPosts = [op];
 			if(aib.isTrunc(op)) {
@@ -7432,13 +7432,14 @@ function tryToParse(node) {
 				thr.omitted = omt = el && (el = el.textContent) ?
 					+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
 			}
+			omt++;
 			for(i = 0; el = els[i]; i++) {
-				processPost(el, aib.getPNum(el), thr, i + omt + 1);
+				processPost(el, aib.getPNum(el), thr, i + omt);
 			}
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
-			thr.style.counterReset = 'de-cnt ' + (omt + 1);
+			thr.style.counterReset = 'de-cnt ' + omt;
 			thr.classList.add('de-thread');
 			thr.pCount = i + omt;
 			thr.op = op;
