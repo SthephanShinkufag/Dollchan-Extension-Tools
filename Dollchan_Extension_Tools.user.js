@@ -4514,11 +4514,7 @@ function newPost(thr, post, pNum, i, node) {
 	} else {
 		pst = post;
 	}
-	if(node) {
-		$after(node, pst);
-	} else {
-		thr.appendChild(pst);
-	}
+	node.appendChild(pst);
 	if(aib._4chon) {
 		pst.insertAdjacentHTML('afterend', '<br>');
 	}
@@ -4891,14 +4887,19 @@ function checkBan(el, node) {
 }
 
 function parsePosts(thr, oPosts, nPosts, from, omt) {
-	var i, j, k, el, el_, temp, fEl, np = 0,
+	var i, j, k, el, el_, temp, np = 0,
 		len = oPosts.length,
 		lastdcount = oPosts[len - 1].dcount || 0,
-		len_ = nPosts.length;
+		len_ = nPosts.length,
+		df = doc.createDocumentFragment();
 	for(i = 1, j = 0; i < len || j < len_; ) {
 		el_ = nPosts[j];
 		if(i >= len) {
-			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, null);
+			if(i === len && df.hasChildNodes()) {
+				$after(thr.op, df);
+				df = doc.createDocumentFragment();
+			}
+			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, df);
 			el.dcount = lastdcount;
 		} else if(el = oPosts[i]) {
 			if(!el_ || el.num !== aib.getPNum(el_)) {
@@ -4938,11 +4939,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 			}
 			checkBan(el, el_);
 		} else if(i >= from) {
-			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, fEl || thr.op);
-			fEl = aib.getWrap(el);
-			if(aib._4chon) {
-				fEl = fEl.nextSibling;
-			}
+			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, df);
 		}
 		j++;
 		i++;
@@ -4950,6 +4947,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 	if(temp) {
 		sessionStorage['de-deleted-' + TNum] = temp;
 	}
+	thr.appendChild(df);
 	return [thr.pCount = len_ + 1, np];
 }
 
@@ -4965,13 +4963,15 @@ function loadNewPosts(Fn) {
 					var i, len, post,
 						np = 0,
 						el = (json['result'] || {})['posts'],
-						thr = $c('de-thread', dForm);
+						thr = $c('de-thread', dForm),
+						df = doc.createDocumentFragment();
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = replacePost(getHanaPost(el[i]));
-							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i, null);
+							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i, df);
 							Posts.push(post);
 						}
+						thr.appendChild(df);
 						thr.pCount += el.length;
 					}
 					infoNewPosts(null, np);
