@@ -4895,11 +4895,11 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		df = doc.createDocumentFragment();
 	for(i = 1, j = 0; i < len || j < len_; ) {
 		el_ = nPosts[j];
+		if(i === len - 1 && df.hasChildNodes()) {
+			$after(thr.op, df);
+			df = doc.createDocumentFragment();
+		}
 		if(i >= len) {
-			if(i === len && df.hasChildNodes()) {
-				$after(thr.op, df);
-				df = doc.createDocumentFragment();
-			}
 			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, df);
 			el.dcount = lastdcount;
 		} else if(el = oPosts[i]) {
@@ -7425,12 +7425,8 @@ function tryToParse(node) {
 			op.tTitle = ($c(aib.cSubj, op) || {}).textContent ||
 				getText(op).substring(0, 70).replace(/\s+/g, ' ');
 			op.count = 0;
-			if(!TNum) {
-				el = $q(aib.qOmitted, thr);
-				thr.omitted = el && (el = el.textContent) ?
-					+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0;
-			}
-			omt = (thr.omitted || 0) + 1;
+			omt = TNum ? 1 : (thr.omitted = (el = $q(aib.qOmitted, thr)) && (el = el.textContent) ?
+				+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0) + 1;
 			for(i = 0; el = els[i]; i++) {
 				processPost(el, aib.getPNum(el), thr, i + omt);
 			}
