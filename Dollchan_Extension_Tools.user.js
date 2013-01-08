@@ -4242,7 +4242,7 @@ function markRefMap(pView, pNum) {
 }
 
 function appendPviewPanel(post, pView) {
-	var cnt = post.count - (post.dcount || 0),
+	var cnt = post.count - (post.dcount || 0) + 1,
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
 			post.deleted ? '' :
@@ -4384,7 +4384,7 @@ function showPview(link) {
 		op.count = 0;
 		op.msg = $q(aib.qMsg, op);
 		Pviews.ajaxed[b][tNum] = op;
-		for(i = 0; pst = els[i++];) {
+		for(i = 0; pst = els[i]; i++) {
 			pst.count = i + 1;
 			pst.msg = $q(aib.qMsg, pst);
 			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
