@@ -4127,23 +4127,32 @@ function genRefMap(posts, tUrl) {
 	refMap = tUrl = null;
 }
 
-function updRefMap(post) {
-	for(var tc, link, lNum, lPost, pNum = post.num, i = 0, links = $T('a', post.msg); link = links[i++];) {
+function updRefMap(post, add) {
+	for(var tc, ref, idx, link, lNum, lPost, pNum = post.num, i = 0, links = $T('a', post.msg); link = links[i++];) {
 		tc = link.textContent;
 		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = pByNum[lNum])) {
-			if(typeof lPost.ref === 'undefined') {
-				lPost.ref = [pNum];
-			} else if(lPost.ref.indexOf(pNum) === -1) {
-				lPost.ref.push(pNum);
-			} else {
-				continue;
+			if(add) {
+				if(typeof lPost.ref === 'undefined') {
+					lPost.ref = [pNum];
+				} else if(lPost.ref.indexOf(pNum) === -1) {
+					lPost.ref.push(pNum);
+				} else {
+					continue;
+				}
+				if(Cfg['hideRefPsts'] && lPost.hide) {
+					hidePost(post, 'reference to >>' + lNum);
+				}
+			} else if((ref = lPost.ref) && (idx = ref.indexOf(pNum)) !== -1) {
+				ref.splice(idx, 1);
+				if(ref.length === 0) {
+					lPost.ref = void 0;
+					$del($c('de-refmap', lPost));
+					continue;
+				}
 			}
 			$del($c('de-refmap', lPost));
 			addRefMap.call(getRelLink, lPost);
 			eventRefLink($c('de-refmap', lPost));
-			if(Cfg['hideRefPsts'] && lPost.hide) {
-				hidePost(post, 'reference to >>' + lNum);
-			}
 		}
 	}
 }
@@ -4491,7 +4500,7 @@ function addPostFunc(post) {
 		sVis[post.count] = 1;
 		spells.check(post, hidePost, false);
 	}
-	updRefMap(post);
+	updRefMap(post, true);
 	eventRefLink(post);
 	embedMP3Links(post);
 	embedImgLinks(post);
@@ -4928,6 +4937,11 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 						$del(k.nextSibling);
 					}
 					$del(k);
+					delete pByNum[el.num];
+					if(el.hide) {
+						unhideByRef(el);
+					}
+					updRefMap(el, false);
 					oPosts.splice(i, 1);
 					len--;
 				}
@@ -4939,7 +4953,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 				}
 			} else if(!TNum) {
 				aib.getWrap(el).classList.remove('de-hidden');
-				updRefMap(el);
+				updRefMap(el, true);
 			}
 			checkBan(el, el_);
 		} else if(i >= from) {
