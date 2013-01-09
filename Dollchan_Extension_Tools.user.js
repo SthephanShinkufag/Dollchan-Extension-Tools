@@ -4245,12 +4245,12 @@ function markRefMap(pView, pNum) {
 }
 
 function appendPviewPanel(post, pView) {
-	var cnt = post.count - (post.dcount || 0) + 1,
+	var cnt = post.count - (post.dcount || 0),
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
 			post.deleted ? '' :
 				'<i style="vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default;">' +
-				(cnt === 0 ? 'OP' : cnt) + '</i>'
+				(cnt === 0 ? 'OP' : cnt + 1) + '</i>'
 		);
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
