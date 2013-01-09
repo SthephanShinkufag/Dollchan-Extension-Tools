@@ -2359,7 +2359,7 @@ function initPostform() {
 		dForm.appendChild($c('userdelete', doc.body));
 	}
 	if(pr.form) {
-		doPostformChanges(null, null, null);
+		doPostformChanges(null, null);
 	} else if(oeForm) {
 		ajaxGetPosts(aib.getThrdUrl(brd, Posts[0].num), false, doPostformChanges, null);
 	}
@@ -2532,6 +2532,9 @@ function updateCaptcha() {
 
 function updateABUCap() {
 	var cap = $id('captcha_div');
+	if(!cap) {
+		return;
+	}
 	if(!uWindow.Recaptcha) {
 		doc.head.appendChild($new('script', {
 			'type': 'text/javascript',
@@ -4893,14 +4896,14 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		lastdcount = oPosts[len - 1].dcount || 0,
 		len_ = nPosts.length,
 		df = doc.createDocumentFragment();
-	for(i = 1, j = 0; i < len || j < len_; ) {
+	for(i = 1, j = 0; i < len || j < len_;) {
 		el_ = nPosts[j];
 		if(i === len - 1 && df.hasChildNodes()) {
 			$after(thr.op, df);
 			df = doc.createDocumentFragment();
 		}
 		if(i >= len) {
-			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, df);
+			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i, df);
 			el.dcount = lastdcount;
 		} else if(el = oPosts[i]) {
 			if(!el_ || el.num !== aib.getPNum(el_)) {
@@ -4940,7 +4943,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 			}
 			checkBan(el, el_);
 		} else if(i >= from) {
-			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i + 1, df);
+			newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i, df);
 		}
 		j++;
 		i++;
