@@ -78,6 +78,8 @@ defaultCfg = {
 	'noGoto':		1,		// hide goto field
 	'noPassword':	1,		// hide password field
 	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
+	'userCSS':		0,		// user style
+	'userCSSTxt':	'',		//		text
 	'expandPanel':	0,		// show full main panel
 	'attachPanel':	1,		// attach main panel
 	'panelCounter':	1,		// posts/images counter in script panel
@@ -182,11 +184,11 @@ Lng = {
 		'noGoto':		['поле goto ', 'goto field '],
 		'noPassword':	['пароль', 'password'],
 
-		'excludeList':	['Список адресов, запрещающих запуск скрипта:', 'Address list, that excludes script launch:'],
 		'scriptStyle': {
 			sel:		[['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
 			txt:		['стиль скрипта', 'script style']
 		},
+		'userCSS':		['Пользовательский CSS ', 'User CSS '],
 		'attachPanel':	['Прикрепить главную панель', 'Attach main panel'],
 		'panelCounter':	['Счетчик постов/изображений на главной панели', 'Counter of posts/images on main panel'],
 		'rePageTitle':	['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
@@ -288,7 +290,8 @@ Lng = {
 	editor:			{
 		cfg:		['Редактирование настроек:', 'Edit settings:'],
 		hidden:		['Редактирование скрытых тредов:', 'Edit hidden threads:'],
-		favor:		['Редактирование избранного:', 'Edit favorites:']
+		favor:		['Редактирование избранного:', 'Edit favorites:'],
+		css:		['Редактирование CSS', 'Edit CSS']
 	},
 
 	add:			['Добавить', 'Add'],
@@ -1248,7 +1251,7 @@ function showContent(cont, id, name, isUpd) {
 		}
 		$append(cont, [
 			doc.createElement('hr'),
-			addEditButton('hidden', comHThr[aib.dm], function() {
+			addEditButton('hidden', comHThr[aib.dm], true, function() {
 				comHThr[aib.dm] = JSON.parse(
 					$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
 				);
@@ -1310,7 +1313,7 @@ function showContent(cont, id, name, isUpd) {
 		cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
 		$append(cont, [
 			doc.createElement('hr'),
-			addEditButton('favor', Favor, function() {
+			addEditButton('favor', Favor, true, function() {
 				Favor = JSON.parse(
 					$t('textarea', $id('de-alert-edit-favor')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
 				);
@@ -1721,18 +1724,17 @@ function getCfgForm() {
 
 function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
-		$if(nav.isGlobal, $New('div', null, [
-			$txt(Lng.cfg['excludeList'][lang]),
-			$new('textarea', {'value': getStored('DESU_Exclude') || '', 'rows': 6, 'cols': 50}, {
-				'keyup': function() {
-					setStored('DESU_Exclude', this.value);
-				}
-			})
-		])),
 		optSel('scriptStyle', true, function() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			$id('de-main').lang = getThemeLang();
 		}),
+		$New('div', null, [
+			lBox('userCSS', false, updateCSS),
+			addEditButton('css', Cfg['userCSSTxt'], false, function() {
+				saveCfg('userCSSTxt', $t('textarea', $id('de-alert-edit-css')).value);
+				updateCSS();
+			})
+		]),
 		lBox('attachPanel', true, function() {
 			toggleContent('cfg', false);
 			updateCSS();
@@ -1790,20 +1792,20 @@ function getCfgInfo() {
 	]);
 }
 
-function addEditButton(name, val, Fn) {
+function addEditButton(name, val, isJSON, Fn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
 		$alert('', 'edit-' + name, false);
 		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
 			$txt(Lng.editor[name][lang]),
-			$new('textarea', {'class': 'de-editor', 'value': getPrettyJSON(val, '')}, null),
-			$btn(Lng.save[lang], Lng.saveChanges[lang], function() {
+			$new('textarea', {'class': 'de-editor', 'value': isJSON ? getPrettyJSON(val, '') : val}, null),
+			$btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function() {
 				try {
 					Fn();
 					window.location.reload();
 				} catch(e) {
 					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
 				}
-			})
+			} : Fn)
 		]);
 	});
 }
@@ -1850,7 +1852,7 @@ function addSettings(Set) {
 					saveComCfg('global', obj);
 					toggleContent('cfg', true);
 				})),
-				addEditButton('cfg', Cfg, function() {
+				addEditButton('cfg', Cfg, true, function() {
 					saveComCfg(aib.dm, JSON.parse(
 						$t('textarea', $id('de-alert-edit-cfg')).value.trim().replace(/[\n\r\t]/g, '')
 					));
@@ -2457,7 +2459,6 @@ function processInput() {
 function updateCaptcha() {
 	var img, _img;
 	if(pr.recap) {
-		$attr(pr.subm, {'onclick': 'Recaptcha.focus_response_field = function() {}'});
 		if(img = $id('recaptcha_image')) {
 			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 		}
@@ -2466,12 +2467,6 @@ function updateCaptcha() {
 	}
 	if(!pr.cap) {
 		return;
-	}
-	if(aib.abu) {
-		setTimeout(function() {
-			refreshCapImg(0);
-			pr.cap.onclick = null;
-		}, 50);
 	}
 	pr.cap.autocomplete = 'off';
 	pr.cap.onfocus = null;
@@ -2564,7 +2559,7 @@ function updateABUCap() {
 }
 
 
-function doPostformChanges(el, sBtn) {
+function doPostformChanges(el, btn) {
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
 	if(nav.Firefox) {
@@ -2639,7 +2634,7 @@ function doPostformChanges(el, sBtn) {
 	}});
 	updateCaptcha();
 	if(Cfg['addSageBtn'] && pr.mail) {
-		sBtn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
+		btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
 			e.stopPropagation();
 			$pd(e);
 			toggleCfg('sageReply');
@@ -2648,10 +2643,10 @@ function doPostformChanges(el, sBtn) {
 		el = $x('ancestor::label', pr.mail) || pr.mail;
 		if(el.nextElementSibling || el.previousElementSibling) {
 			$disp(el);
-			$after(el, sBtn);
+			$after(el, btn);
 		} else {
 			$disp(pr.getTR(pr.mail));
-			$after(pr.name || pr.subm, sBtn);
+			$after(pr.name || pr.subm, btn);
 		}
 		setTimeout(doSageBtn, 0);
 	}
@@ -2661,8 +2656,8 @@ function doPostformChanges(el, sBtn) {
 			doHTML5Submit(pr.form, pr.subm, checkUpload);
 		};
 		dForm.onsubmit = $pd;
-		if(sBtn = $q(aib.qDelBut, dForm)) {
-			sBtn.onclick = function(e) {
+		if(btn = $q(aib.qDelBut, dForm)) {
+			btn.onclick = function(e) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
@@ -6782,6 +6777,7 @@ function scriptCSS() {
 
 	$attr($css(x), {'id': 'de-css'});
 	$attr($css(''), {'id': 'de-css-dynamic'});
+	$attr($css(''), {'id': 'de-css-user'});
 	x = gif = cont = null;
 	updateCSS();
 	$disp(dForm);
@@ -6838,6 +6834,7 @@ function updateCSS() {
 		}
 	}
 	$id('de-css-dynamic').textContent = x;
+	$id('de-css-user').textContent = Cfg['userCSS'] ? Cfg['userCSSTxt'] : '';
 }
 
 
@@ -7191,9 +7188,6 @@ function Initialization() {
 	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
 	nav.Safari = nav.WebKit && !nav.Chrome;
 	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
-	if((getStored('DESU_Exclude') || '').contains(aib.dm)) {
-		return false;
-	}
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
