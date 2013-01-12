@@ -1762,12 +1762,12 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
-		$add('<span style="width: 179px;"><b>' + Lng.version[lang] + version + '</b><br><br>' +
+		$add('<div style="width: 179px;"><b>' + Lng.version[lang] + version + '</b><br><br>' +
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
-			Lng.posts[lang] + Cfg['stats']['reply'] + '</span>'),
-		$add('<span style="padding-left: 7px; border-left: 1px solid grey;">' +
-			timeLog.join('<br>') + '</span>'),
+			Lng.posts[lang] + Cfg['stats']['reply'] + '</div>'),
+		$add('<div style="padding-left: 7px; border-left: 1px solid grey;">' +
+			timeLog.join('<br>') + '</div>'),
 		$add('<span><a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
 			'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
@@ -3329,7 +3329,7 @@ function detectImgFile(dat) {
 	}
 	// Ignore small files
 	if(i !== len && len - i > 60) {
-		for(len = i + 50; i < len; i++) {
+		for(len = i + 90; i < len; i++) {
 			// 7Z [37 7a bc af] = [7zјЇ]
 			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
 				return [i, 0];
@@ -6497,14 +6497,13 @@ function scriptCSS() {
 	// Settings window
 	x += '.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#de-cfg-info > span { display: inline-block; vertical-align: top; }\
+		#de-cfg-info > div { float: left; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
-		.de-cfg-body input[value=">"] { width: 20px; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
 		#de-cfg-btns { padding: 7px 2px 2px; }\
