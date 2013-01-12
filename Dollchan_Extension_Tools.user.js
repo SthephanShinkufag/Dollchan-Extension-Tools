@@ -4687,6 +4687,7 @@ function parsePages(pages) {
 			expandAllPostImg(post, null);
 		});
 	}
+	((pr.dpass  = $q('input[type="password"]', dForm)) || {}).value = Cfg['passwValue'];
 	closeAlert($id('de-alert-load-pages'));
 }
 
