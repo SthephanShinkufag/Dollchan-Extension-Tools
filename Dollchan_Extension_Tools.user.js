@@ -1715,7 +1715,7 @@ function getCfgForm() {
 			$if(pr.gothr, lBox('noGoto', false, function() {
 				$disp(pr.gothr);
 			})),
-			$if(pr.passw, lBox('noPassword', false, function() {
+			$if(!pr.hPassw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
 			}))
 		])
@@ -2621,7 +2621,7 @@ function doPostformChanges(el, btn) {
 	if(Cfg['noGoto'] && pr.gothr) {
 		$disp(pr.gothr);
 	}
-	if(Cfg['noPassword'] && pr.passw) {
+	if(Cfg['noPassword'] && !pr.hPassw) {
 		$disp(pr.getTR(pr.passw));
 	}
 	$event(window, {'load': function() {
@@ -7338,7 +7338,8 @@ function getPostform(form) {
 	}
 	var tr = aib._7ch ? 'li' : 'tr',
 		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ',
-		recap = $q('#recaptcha_response_field', form);
+		recap = $q('#recaptcha_response_field', form),
+		passw = $q(tr + ' input[type="password"]', form);
 	return {
 		isQuick: false,
 		qButton: !aib.tiny || !!TNum,
@@ -7349,8 +7350,9 @@ function getPostform(form) {
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
-		passw: $q(tr + ' input[type="password"]', form),
-		dpass: $q('input[type="password"]', dForm),
+		passw: passw || $q('input[name="password"]', form),
+		hPassw: !passw,
+		dpass: $q('input[type="password"], input[name="password"]', dForm),
 		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
 		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
 		mail: $x(p + (
