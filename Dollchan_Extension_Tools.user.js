@@ -4688,7 +4688,9 @@ function parsePages(pages) {
 		});
 	}
 	var node = pr.dpass = $q('input[type="password"], input[name="password"]', dForm);
-	node && node.value = Cfg['passwValue'];
+	if(node) {
+		node.value = Cfg['passwValue'];
+	}
 	closeAlert($id('de-alert-load-pages'));
 }
 
