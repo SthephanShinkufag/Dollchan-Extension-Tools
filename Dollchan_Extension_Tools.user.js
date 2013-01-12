@@ -3367,7 +3367,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 	this.wrks = [];
 	this.onErr = this._onErr.bind(this, errFn);
 	while(mReqs > 0) {
-		this.wrks.push(new Worker(this.url));
+		this.wrks.push(new nav.Worker(this.url));
 		mReqs--;
 	}
 }
@@ -7294,12 +7294,13 @@ function Initialization() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
-	if(nav.Firefox > 17) {
-		window.Worker = new Proxy(uWindow['de-worker'], {});
-		window.Worker.prototype.postMessage = function() {
-			uWindow['de-worker-proto']._postMessage.apply(this, arguments);
-		};
-	}
+	nav.Worker = nav.Firefox ? (
+		nav.Firefox < 18 ? null : (function(w) {
+			w.prototype.postMessage = function() {
+				uWindow['de-worker-proto']._postMessage.apply(this, arguments);
+			};
+			return w;
+		})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
 
 	// Page properties
 	url = (window.location.pathname || '').match(new RegExp(
