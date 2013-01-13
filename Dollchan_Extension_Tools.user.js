@@ -7265,8 +7265,8 @@ function Initialization() {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
 	uWindow =
-		nav.Firefox ? unsafeWindow :
 		nav.Opera ? window :
+		nav.Firefox ? unsafeWindow :
 		(function() {
 			var el = doc.createElement('p');
 			el.setAttribute('onclick', 'return window;');
