@@ -1715,7 +1715,7 @@ function getCfgForm() {
 			$if(pr.gothr, lBox('noGoto', false, function() {
 				$disp(pr.gothr);
 			})),
-			$if(!pr.hPassw, lBox('noPassword', false, function() {
+			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
 			}))
 		])
@@ -2621,7 +2621,7 @@ function doPostformChanges(el, btn) {
 	if(Cfg['noGoto'] && pr.gothr) {
 		$disp(pr.gothr);
 	}
-	if(Cfg['noPassword'] && !pr.hPassw) {
+	if(Cfg['noPassword'] && pr.passw) {
 		$disp(pr.getTR(pr.passw));
 	}
 	$event(window, {'load': function() {
@@ -4687,9 +4687,12 @@ function parsePages(pages) {
 			expandAllPostImg(post, null);
 		});
 	}
-	var node = pr.dpass = $q('input[type="password"], input[name="password"]', dForm);
-	if(node) {
+	var node = $q('input[type="password"], input[name="password"]', dForm);
+	if(pr.passw) {
+		pr.dpass = node;
 		node.value = Cfg['passwValue'];
+	} else if(node) {
+		node.parentNode.replaceChild(pr.dpass, node);
 	}
 	closeAlert($id('de-alert-load-pages'));
 }
@@ -7341,8 +7344,7 @@ function getPostform(form) {
 	}
 	var tr = aib._7ch ? 'li' : 'tr',
 		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ',
-		recap = $q('#recaptcha_response_field', form),
-		passw = $q(tr + ' input[type="password"]', form);
+		recap = $q('#recaptcha_response_field', form);
 	return {
 		isQuick: false,
 		qButton: !aib.tiny || !!TNum,
@@ -7353,8 +7355,7 @@ function getPostform(form) {
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
-		passw: passw || $q('input[name="password"]', form),
-		hPassw: !passw,
+		passw: $q(tr + ' input[type="password"]', form),
 		dpass: $q('input[type="password"], input[name="password"]', dForm),
 		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
 		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
