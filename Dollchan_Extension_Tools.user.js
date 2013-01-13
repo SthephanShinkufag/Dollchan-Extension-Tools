@@ -7,7 +7,6 @@
 // @description		Doing some profit for imageboards
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Dollchan_Extension_Tools.meta.js
-// @run-at			document-start
 // @include			*
 // ==/UserScript==
 
@@ -7639,7 +7638,7 @@ function addDelformStuff(isLog) {
 	setPostsVisib();
 }
 
-$event(doc, {'DOMContentLoaded': function() {
+function doScript() {
 	var initTime = oldTime = Date.now();
 	if(!Initialization()) {
 		return;
@@ -7675,6 +7674,10 @@ $event(doc, {'DOMContentLoaded': function() {
 	scriptCSS();
 	$log('scriptCSS');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
-}});
+}
+
+if(window.opera) {
+	$event(doc, {'DOMContentLoaded': doScript});
+} else doScript();
 
 })(window.opera && window.opera.scriptStorage);
