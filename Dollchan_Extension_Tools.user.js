@@ -7,7 +7,6 @@
 // @description		Doing some profit for imageboards
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Dollchan_Extension_Tools.meta.js
-// @run-at			document-start
 // @include			*
 // ==/UserScript==
 
@@ -3367,7 +3366,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 	this.wrks = [];
 	this.onErr = this._onErr.bind(this, errFn);
 	while(mReqs > 0) {
-		this.wrks.push(new Worker(this.url));
+		this.wrks.push(new nav.Worker(this.url));
 		mReqs--;
 	}
 }
@@ -4686,6 +4685,13 @@ function parsePages(pages) {
 		Posts.forEach(function(post) {
 			expandAllPostImg(post, null);
 		});
+	}
+	var node = $q('input[type="password"], input[name="password"]', dForm);
+	if(pr.passw) {
+		pr.dpass = node;
+		node.value = Cfg['passwValue'];
+	} else if(node) {
+		node.parentNode.replaceChild(pr.dpass, node);
 	}
 	closeAlert($id('de-alert-load-pages'));
 }
@@ -7261,8 +7267,8 @@ function Initialization() {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
 	uWindow =
-		nav.Firefox ? unsafeWindow :
 		nav.Opera ? window :
+		nav.Firefox ? unsafeWindow :
 		(function() {
 			var el = doc.createElement('p');
 			el.setAttribute('onclick', 'return window;');
@@ -7294,12 +7300,13 @@ function Initialization() {
 	if(nav.WebKit) {
 		window.URL = window.webkitURL;
 	}
-	if(nav.Firefox > 17) {
-		window.Worker = new Proxy(uWindow['de-worker'], {});
-		window.Worker.prototype.postMessage = function() {
-			uWindow['de-worker-proto']._postMessage.apply(this, arguments);
-		};
-	}
+	nav.Worker = nav.Firefox ? (
+		nav.Firefox < 18 ? null : (function(w) {
+			w.prototype.postMessage = function() {
+				uWindow['de-worker-proto']._postMessage.apply(this, arguments);
+			};
+			return w;
+		})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
 
 	// Page properties
 	url = (window.location.pathname || '').match(new RegExp(
@@ -7348,7 +7355,7 @@ function getPostform(form) {
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
 		passw: $q(tr + ' input[type="password"]', form),
-		dpass: $q('input[type="password"]', dForm),
+		dpass: $q('input[type="password"], input[name="password"]', dForm),
 		gothr: $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form),
 		name: $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form),
 		mail: $x(p + (
@@ -7631,7 +7638,7 @@ function addDelformStuff(isLog) {
 	setPostsVisib();
 }
 
-$event(doc, {'DOMContentLoaded': function() {
+function doScript() {
 	var initTime = oldTime = Date.now();
 	if(!Initialization()) {
 		return;
@@ -7667,6 +7674,10 @@ $event(doc, {'DOMContentLoaded': function() {
 	scriptCSS();
 	$log('scriptCSS');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
-}});
+}
+
+if(window.opera) {
+	$event(doc, {'DOMContentLoaded': doScript});
+} else doScript();
 
 })(window.opera && window.opera.scriptStorage);
