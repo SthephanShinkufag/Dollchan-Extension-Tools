@@ -593,7 +593,7 @@ function $xhr(obj) {
 	for(h in obj['headers']) {
 		xhr.setRequestHeader(h, obj['headers'][h]);
 	}
-	xhr.send(null);
+	xhr.send(obj['data'] || null);
 }
 
 /** @constructor */
@@ -7214,7 +7214,7 @@ function Initialization() {
 			}, false);
 		}
 	}
-	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
+	nav.isBlob = nav.Firefox > 14 || nav.Chrome || nav.Opera >= 12.10;
 	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
 	if(nav.Firefox > 17) {
 		$script(
