@@ -1,3 +1,18 @@
+Jan 14, 2013
+	- Fix abu captcha
+		+ Support for Solve Media captcha on 2ch.so
+		+ Поддержка Solve Media капчи на 2ch.so
+	- Force script processing
+		+ Script acceleration in large treads
+		+ Ускорение работы скрипта в больших тредах
+Jan 11, 2013
+	- Ability to add user CSS in settings
+		+ Ability to add and edit your CSS by script
+			Added option "Settings" > "Common" > "User CSS"
+			Removed option "Common" > "Address list, that excludes script launch:"
+		+ Возможность использовать и редактировать ваш CSS средствами скрипта
+			Добавлена опция "Настройки" > "Общее" > "Пользовательский CSS"
+			Убрана опция "Общее" > "Список адресов, запрещающих запуск скрипта:"
 Jan 06, 2013
 	- Event post num in previews 
 		+ Insert post number on post preview number click
