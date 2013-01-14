@@ -2549,7 +2549,7 @@ function updateABUCap(focus) {
 	setTimeout(function updcap() {
 		var el = $id('adcopy_response');
 		if(!el || el.old) {
-			setTimeout(updcap, 100);
+			setTimeout(updcap, 1e3);
 		} else {
 			eventCaptcha(pr.cap = el);
 			if(focus) {
@@ -2557,7 +2557,7 @@ function updateABUCap(focus) {
 			}
 			focus = null;
 		}
-	}, 100);
+	}, 1e3);
 }
 
 function doPostformChanges(el, btn) {
