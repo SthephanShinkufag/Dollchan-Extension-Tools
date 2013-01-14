@@ -2545,7 +2545,7 @@ function updateABUCap(focus) {
 	uWindow['ACPuzzle']['reload']('');
 	setTimeout(function updcap() {
 		var el = $id('adcopy_response');
-		if(!el.old) {
+		if(el && !el.old) {
 			eventCaptcha(pr.cap = el);
 			if(focus) {
 				pr.cap.focus();
