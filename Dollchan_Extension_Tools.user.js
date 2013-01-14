@@ -2457,6 +2457,15 @@ function processInput() {
 }
 
 function eventCaptcha() {
+	var el;
+	if(aib.abu) {
+		el = $id('adcopy-link-refresh');
+		el.href = '#';
+		el.onclick = function(e) {
+			$pd(e);
+			updateABUCap(true, true);
+		}
+	}
 	pr.cap.autocomplete = 'off';
 	pr.cap.onfocus = null;
 	pr.cap.onkeypress = (function() {
@@ -2539,7 +2548,8 @@ function updateABUCap(upd, focus) {
 		if(upd) {
 			uWindow['ACPuzzle']['reload']();
 			setTimeout(function() {
-				if(pr.cap = $q('input[name="adcopy_response"]', cap)) {
+				pr.cap = $id('adcopy_response');
+				if(pr.cap.tagName === 'INPUT') {
 					eventCaptcha();
 					if(focus) {
 						pr.cap.focus();
