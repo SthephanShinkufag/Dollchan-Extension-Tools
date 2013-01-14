@@ -2539,18 +2539,17 @@ function updateCaptcha() {
 }
 
 function updateABUCap(focus) {
-	pr.cap.old = true;
 	uWindow['ACPuzzle']['reload']('');
 	setTimeout(function updcap() {
 		var el = $id('adcopy_response');
-		if(el && !el.old) {
+		if(el === pr.cap) {
+			setTimeout(updcap, 100);
+		} else {
 			eventCaptcha(pr.cap = el);
 			if(focus) {
 				pr.cap.focus();
 			}
 			focus = null;
-		} else {
-			setTimeout(updcap, 100);
 		}
 	}, 100);
 }
