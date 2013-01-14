@@ -2493,7 +2493,7 @@ function updateCaptcha() {
 		}
 	}
 	if(aib.abu) {
-		updateABUCap(false);
+		updateABUCap(false, false);
 	}
 	if(!pr.cap) {
 		return;
@@ -2737,7 +2737,7 @@ function checkUpload(response) {
 		}
 		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
 			if(aib.abu) {
-				updateABUCap(true);
+				updateABUCap(true, true);
 			} else {
 				pr.cap.value = '';
 				pr.cap.focus();
@@ -2781,7 +2781,7 @@ function checkUpload(response) {
 				if(text.contains('OK') || text.contains('VIP')) {
 					pr.cap = null;
 				}
-				updateABUCap(true);
+				updateABUCap(true, false);
 			}
 		});
 	} else {
