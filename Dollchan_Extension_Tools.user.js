@@ -7641,6 +7641,7 @@ function doScript() {
 		$log('replaceDelform');
 	}
 	if(!tryToParse(dForm)) {
+		$disp(doc.body);
 		return;
 	}
 	$log('parseDelform');
