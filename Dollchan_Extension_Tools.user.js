@@ -2466,6 +2466,9 @@ function eventCaptcha() {
 			$pd(e);
 			updateABUCap(true);
 		}
+		if(pr.cap.tagName !== 'INPUT') {
+			return;
+		}
 	}
 	pr.cap.autocomplete = 'off';
 	pr.cap.onfocus = null;
@@ -2541,11 +2544,9 @@ function updateABUCap(focus) {
 	uWindow['ACPuzzle']['reload']();
 	setTimeout(function() {
 		pr.cap = $id('adcopy_response');
-		if(pr.cap.tagName === 'INPUT') {
-			eventCaptcha();
-			if(focus) {
-				pr.cap.focus();
-			}
+		eventCaptcha();
+		if(focus) {
+			pr.cap.focus();
 		}
 		focus = null;
 	}, 1000);
