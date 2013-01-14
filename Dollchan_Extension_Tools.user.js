@@ -2456,7 +2456,7 @@ function processInput() {
 	}));
 }
 
-function eventCaptcha() {
+function eventCaptcha(node) {
 	var el, el_;
 	if(aib.abu) {
 		el = $id('adcopy-link-refresh');
@@ -2466,13 +2466,13 @@ function eventCaptcha() {
 			$pd(e);
 			updateABUCap(true);
 		}
-		if(pr.cap.tagName !== 'INPUT') {
+		if(node.tagName !== 'INPUT') {
 			return;
 		}
 	}
-	pr.cap.autocomplete = 'off';
-	pr.cap.onfocus = null;
-	pr.cap.onkeypress = (function() {
+	node.autocomplete = 'off';
+	node.onfocus = null;
+	node.onkeypress = (function() {
 		var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 			en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 		return function(e) {
@@ -2508,7 +2508,7 @@ function updateCaptcha() {
 	if(!pr.cap) {
 		return;
 	}
-	eventCaptcha();
+	eventCaptcha(pr.cap);
 	if(aib.hana || aib.abu || pr.recap) {
 		return;
 	}
@@ -2541,15 +2541,20 @@ function updateCaptcha() {
 }
 
 function updateABUCap(focus) {
-	uWindow['ACPuzzle']['reload']();
-	setTimeout(function() {
-		pr.cap = $id('adcopy_response');
-		eventCaptcha();
-		if(focus) {
-			pr.cap.focus();
+	pr.cap.old = true;
+	uWindow['ACPuzzle']['reload']('');
+	setTimeout(function updcap() {
+		var el = $id('adcopy_response');
+		if(!el.old) {
+			eventCaptcha(pr.cap = el);
+			if(focus) {
+				pr.cap.focus();
+			}
+			focus = null;
+		} else {
+			setTimeout(updcap, 100);
 		}
-		focus = null;
-	}, 1000);
+	}, 100);
 }
 
 
