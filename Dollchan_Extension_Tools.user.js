@@ -2544,10 +2544,11 @@ function updateCaptcha() {
 }
 
 function updateABUCap(focus) {
+	pr.cap.old = true;
 	uWindow['ACPuzzle']['reload']('');
 	setTimeout(function updcap() {
 		var el = $id('adcopy_response');
-		if(el === pr.cap) {
+		if(!el || el.old) {
 			setTimeout(updcap, 100);
 		} else {
 			eventCaptcha(pr.cap = el);
