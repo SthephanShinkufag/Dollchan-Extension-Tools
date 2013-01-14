@@ -2580,8 +2580,9 @@ function updateABUCap(upd, focus) {
 			var itrv = setInterval(function() {
 				var el = $id('adcopy_response');
 				if(el) {
+					pr.cap = el;
 					if(el.tagName === 'INPUT') {
-						pr.cap = el;
+						eventCaptcha();
 					}
 					clearInterval(itrv);
 					itrv = null;
