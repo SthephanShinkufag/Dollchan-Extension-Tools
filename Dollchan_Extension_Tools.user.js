@@ -2464,7 +2464,7 @@ function eventCaptcha() {
 		el.href = '#';
 		el.onclick = el_.onclick = function(e) {
 			$pd(e);
-			updateABUCap(true, true);
+			updateABUCap(true);
 		}
 	}
 	pr.cap.autocomplete = 'off';
@@ -2502,9 +2502,6 @@ function updateCaptcha() {
 			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 		}
 	}
-	if(aib.abu) {
-		updateABUCap(false, false);
-	}
 	if(!pr.cap) {
 		return;
 	}
@@ -2540,56 +2537,18 @@ function updateCaptcha() {
 	}, 50, _img);
 }
 
-function updateABUCap(upd, focus) {
-	var cap = $id('captcha_div');
-	if(!cap) {
-		return;
-	}
-	if(pr.cap) {
-		if(upd) {
-			uWindow['ACPuzzle']['reload']();
-			setTimeout(function() {
-				pr.cap = $id('adcopy_response');
-				if(pr.cap.tagName === 'INPUT') {
-					eventCaptcha();
-					if(focus) {
-						pr.cap.focus();
-					}
-				}
-				focus = null;
-			}, 1000);
+function updateABUCap(focus) {
+	uWindow['ACPuzzle']['reload']();
+	setTimeout(function() {
+		pr.cap = $id('adcopy_response');
+		if(pr.cap.tagName === 'INPUT') {
+			eventCaptcha();
+			if(focus) {
+				pr.cap.focus();
+			}
 		}
-		return;
-	}
-	if(!uWindow['ACPuzzle']) {
-		doc.head.appendChild($new('script', {
-			'type': 'text/javascript',
-			'src': (doc.location.protocol === 'http:' ? '//api' : '//secure-api') +
-				'.solvemedia.com/papi/challenge.ajax'
-		}, null));
-	}
-	cap.innerHTML = '';
-	cap.appendChild($new('a', {
-		'href': '#',
-		'text': Lng.loadCaptcha[lang]}, {
-		'click': function(e) {
-			$pd(e);
-			this.parentNode.innerHTML = '';
-			uWindow['ACPuzzle']
-				.create('oIzJ06xKCH-H6PKr8OLVMa26G06kK3qh', 'captcha_div', {'theme': 'black', 'size': '300x150'});
-			var itrv = setInterval(function() {
-				var el = $id('adcopy_response');
-				if(el) {
-					pr.cap = el;
-					if(el.tagName === 'INPUT') {
-						eventCaptcha();
-					}
-					clearInterval(itrv);
-					itrv = null;
-				}
-			}, 500);
-		}
-	}));
+		focus = null;
+	}, 1000);
 }
 
 
@@ -2749,7 +2708,7 @@ function checkUpload(response) {
 		}
 		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
 			if(aib.abu) {
-				updateABUCap(true, true);
+				updateABUCap(true);
 			} else {
 				pr.cap.value = '';
 				pr.cap.focus();
@@ -2784,18 +2743,7 @@ function checkUpload(response) {
 		return;
 	}
 	if(aib.abu) {
-		err = getCookie('usercode');
-		$xhr({
-			'method': 'GET',
-			'url': '/makaba/captcha.fcgi' + (err ? '?usercode=' + err : ''),
-			'onload': function(xhr) {
-				var text = xhr.responseText;
-				if(text.contains('OK') || text.contains('VIP')) {
-					pr.cap = null;
-				}
-				updateABUCap(true, false);
-			}
-		});
+		updateABUCap(false);
 	} else {
 		pr.cap.value = '';
 		refreshCapImg(pr.tNum);
@@ -7391,7 +7339,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: $q(aib.abu ? 'input#adcopy_response' : 'input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: aib.abu ? $id('adcopy_response') : $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
