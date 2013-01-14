@@ -2278,29 +2278,6 @@ function initKeyNavig() {
 								POSTFORM CHANGES
 ==============================================================================*/
 
-function refreshCapSrc(src, tNum) {
-	if(aib.kus || aib.tinyIb) {
-		return src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
-	}
-	if(tNum > 0) {
-		src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
-	}
-	return src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
-}
-
-function refreshCapImg(tNum) {
-	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $t('img', pr.getTR(pr.cap));
-	if(aib.hana || pr.recap) {
-		e = doc.createEvent('MouseEvents');
-		e.initEvent('click', true, true);
-		img.dispatchEvent(e);
-	} else {
-		src = refreshCapSrc(img.getAttribute('src'), tNum);
-		img.src = '';
-		img.src = src;
-	}
-}
-
 function doSageBtn() {
 	var c = Cfg['sageReply'];
 	$id('de-sagebtn').innerHTML = '&nbsp;' + (
@@ -2456,7 +2433,30 @@ function processInput() {
 	}));
 }
 
-function eventCaptcha(node) {
+function refreshCapSrc(src, tNum) {
+	if(aib.kus || aib.tinyIb) {
+		return src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
+	}
+	if(tNum > 0) {
+		src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
+	}
+	return src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+}
+
+function refreshCapImg(tNum) {
+	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $t('img', pr.getTR(pr.cap));
+	if(aib.hana || pr.recap) {
+		e = doc.createEvent('MouseEvents');
+		e.initEvent('click', true, true);
+		img.dispatchEvent(e);
+	} else {
+		src = refreshCapSrc(img.getAttribute('src'), tNum);
+		img.src = '';
+		img.src = src;
+	}
+}
+
+function eventCapInp(node) {
 	if(aib.abu) {
 		var el = $id('adcopy-link-refresh');
 		el.href = '#';
@@ -2497,21 +2497,18 @@ function eventCaptcha(node) {
 }
 
 function updateCaptcha() {
-	var img, _img;
-	if(pr.recap) {
-		if(img = $id('recaptcha_image')) {
-			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
-		}
-	}
 	if(!pr.cap) {
 		return;
+	}
+	var img, _img;
+	if(pr.recap && (img = $id('recaptcha_image'))) {
+		$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 	}
 	if(aib.abu) {
 		updateABUCap(false);
 		return;
-	} else {
-		eventCaptcha(pr.cap);
 	}
+	eventCapInp(pr.cap);
 	if(aib.hana || pr.recap) {
 		return;
 	}
@@ -2551,7 +2548,7 @@ function updateABUCap(focus) {
 		if(!el || el.old) {
 			setTimeout(updcap, 1e3);
 		} else {
-			eventCaptcha(pr.cap = el);
+			eventCapInp(pr.cap = el);
 			if(focus) {
 				pr.cap.focus();
 			}
@@ -6488,7 +6485,6 @@ function getThemeLang() {
 }
 
 function scriptCSS() {
-	$disp(dForm);
 	var p, x = '',
 		gif = function(id, src) {
 			x += id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
@@ -6782,7 +6778,6 @@ function scriptCSS() {
 	$attr($css(''), {'id': 'de-css-user'});
 	x = gif = cont = null;
 	updateCSS();
-	$disp(dForm);
 }
 
 function updateCSS() {
@@ -7504,7 +7499,6 @@ function replacePost(el) {
 }
 
 function replaceDelform() {
-	$disp(doc.body);
 	var html = dForm.outerHTML || new XMLSerializer().serializeToString(dForm);
 	if(liteMode) {
 		doc.body.insertAdjacentHTML('afterbegin', html);
@@ -7513,14 +7507,12 @@ function replaceDelform() {
 			while(dForm.nextSibling) {
 				$del(dForm.nextSibling);
 			}
-			$disp(doc.body);
 		}});
 	} else {
 		dForm.insertAdjacentHTML('beforebegin', replaceString(html));
 		dForm.style.display = 'none';
 		dForm.id = 'de-dform-old';
 		dForm = dForm.previousSibling;
-		$disp(doc.body);
 		$event(window, {'load': function() {
 			$del($id('de-dform-old'));
 		}});
@@ -7643,6 +7635,7 @@ function doScript() {
 	$log('Initialization');
 	readCfg();
 	$log('readCfg');
+	$disp(doc.body);
 	if(aib.rep || liteMode) {
 		replaceDelform();
 		$log('replaceDelform');
@@ -7669,6 +7662,7 @@ function doScript() {
 	saveUserPostsVisib();
 	$log('readPosts');
 	scriptCSS();
+	$disp(doc.body);
 	$log('scriptCSS');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
