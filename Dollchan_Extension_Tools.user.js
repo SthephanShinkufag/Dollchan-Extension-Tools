@@ -2560,7 +2560,6 @@ function updateABUCap(focus) {
 	}, 100);
 }
 
-
 function doPostformChanges(el, btn) {
 	pr.form.style.display = 'inline-block';
 	pr.form.style.textAlign = 'left';
@@ -3006,7 +3005,7 @@ function showQuickReply(post) {
 			$id('de-parea').style.display = 'none';
 		}
 	}
-	if(pr.cap && !pr.recap && !aib.kus) {
+	if(pr.cap && !pr.recap && !aib.kus && !aib.abu) {
 		refreshCapImg(tNum);
 	}
 	if(aib._420 && pr.txta.value === 'Comment') {
