@@ -2457,12 +2457,10 @@ function processInput() {
 }
 
 function eventCaptcha(node) {
-	var el, el_;
 	if(aib.abu) {
-		el = $id('adcopy-link-refresh');
-		el_ = $id('adcopy-puzzle-image');
+		var el = $id('adcopy-link-refresh');
 		el.href = '#';
-		el.onclick = el_.onclick = function(e) {
+		$id('adcopy-puzzle-image').onclick = el.onclick = function(e) {
 			$pd(e);
 			updateABUCap(true);
 		}
