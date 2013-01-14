@@ -593,7 +593,7 @@ function $xhr(obj) {
 	for(h in obj['headers']) {
 		xhr.setRequestHeader(h, obj['headers'][h]);
 	}
-	xhr.send(null);
+	xhr.send(obj['data'] || null);
 }
 
 /** @constructor */
@@ -2456,21 +2456,21 @@ function processInput() {
 	}));
 }
 
-function updateCaptcha() {
-	var img, _img;
-	if(pr.recap) {
-		if(img = $id('recaptcha_image')) {
-			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+function eventCaptcha(node) {
+	if(aib.abu) {
+		var el = $id('adcopy-link-refresh');
+		el.href = '#';
+		$id('adcopy-puzzle-image').onclick = el.onclick = function(e) {
+			$pd(e);
+			updateABUCap(true);
 		}
-	} else if(aib.abu) {
-		updateABUCap();
+		if(node.tagName !== 'INPUT') {
+			return;
+		}
 	}
-	if(!pr.cap) {
-		return;
-	}
-	pr.cap.autocomplete = 'off';
-	pr.cap.onfocus = null;
-	pr.cap.onkeypress = (function() {
+	node.autocomplete = 'off';
+	node.onfocus = null;
+	node.onkeypress = (function() {
 		var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 			en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 		return function(e) {
@@ -2494,6 +2494,24 @@ function updateCaptcha() {
 			$txtInsert(e.target, chr);
 		};
 	})();
+}
+
+function updateCaptcha() {
+	var img, _img;
+	if(pr.recap) {
+		if(img = $id('recaptcha_image')) {
+			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+		}
+	}
+	if(!pr.cap) {
+		return;
+	}
+	if(aib.abu) {
+		updateABUCap(false);
+		return;
+	} else {
+		eventCaptcha(pr.cap);
+	}
 	if(aib.hana || pr.recap) {
 		return;
 	}
@@ -2525,39 +2543,22 @@ function updateCaptcha() {
 	}, 50, _img);
 }
 
-function updateABUCap() {
-	var cap = $id('captcha_div');
-	if(!cap) {
-		return;
-	}
-	if(!uWindow.Recaptcha) {
-		doc.head.appendChild($new('script', {
-			'type': 'text/javascript',
-			'src': 'http://www.google.com/recaptcha/api/js/recaptcha_ajax.js'
-		}, null));
-	}
-	cap.innerHTML = '';
-	cap.appendChild($new('a', {
-		'href': '#',
-		'text': Lng.loadCaptcha[lang]}, {
-		'click': function(e) {
-			$pd(e);
-			this.parentNode.innerHTML = '';
-			uWindow.Recaptcha
-				.create('6LdOEMMSAAAAAIGhmYodlkflEb2C-xgPjyATLnxx', 'captcha_div', {'theme': "red"});
-			var itrv = setInterval(function() {
-				var el = $id('recaptcha_response_field');
-				if(el) {
-					pr.cap = pr.recap = el;
-					updateCaptcha();
-					clearInterval(itrv);
-					itrv = null;
-				}
-			}, 500);
+function updateABUCap(focus) {
+	pr.cap.old = true;
+	uWindow['ACPuzzle']['reload']('');
+	setTimeout(function updcap() {
+		var el = $id('adcopy_response');
+		if(!el || el.old) {
+			setTimeout(updcap, 1e3);
+		} else {
+			eventCaptcha(pr.cap = el);
+			if(focus) {
+				pr.cap.focus();
+			}
+			focus = null;
 		}
-	}));
+	}, 1e3);
 }
-
 
 function doPostformChanges(el, btn) {
 	pr.form.style.display = 'inline-block';
@@ -2714,9 +2715,13 @@ function checkUpload(response) {
 			qArea.appendChild($id('de-pform'));
 		}
 		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
-			pr.cap.value = '';
-			pr.cap.focus();
-			refreshCapImg(pr.tNum);
+			if(aib.abu) {
+				updateABUCap(true);
+			} else {
+				pr.cap.value = '';
+				pr.cap.focus();
+				refreshCapImg(pr.tNum);
+			}
 		}
 		$alert(err, 'upload', false);
 		return;
@@ -2745,20 +2750,11 @@ function checkUpload(response) {
 	if(!pr.cap) {
 		return;
 	}
-	pr.cap.value = '';
-	refreshCapImg(pr.tNum);
 	if(aib.abu) {
-		$xhr({
-			'method': 'GET',
-			'url': '/makaba/captcha?usercode=' + (getCookie('usercode') || ''),
-			'onload': function(xhr) {
-				var text = xhr.responseText;
-				if(text.contains('OK') || text.contains('VIP')) {
-					pr.cap = pr.recap = null;
-					updateABUCap();
-				}
-			}
-		});
+		updateABUCap(false);
+	} else {
+		pr.cap.value = '';
+		refreshCapImg(pr.tNum);
 	}
 }
 
@@ -3009,7 +3005,7 @@ function showQuickReply(post) {
 			$id('de-parea').style.display = 'none';
 		}
 	}
-	if(pr.cap && !pr.recap && !aib.kus) {
+	if(pr.cap && !pr.recap && !aib.kus && !aib.abu) {
 		refreshCapImg(tNum);
 	}
 	if(aib._420 && pr.txta.value === 'Comment') {
@@ -7218,7 +7214,7 @@ function Initialization() {
 			}, false);
 		}
 	}
-	nav.isBlob = nav.Firefox > 14 || nav.Chrome;
+	nav.isBlob = nav.Firefox > 14 || nav.Chrome || nav.Opera >= 12.10;
 	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
 	if(nav.Firefox > 17) {
 		$script(
@@ -7351,7 +7347,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: aib.abu ? $id('adcopy_response') : $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
