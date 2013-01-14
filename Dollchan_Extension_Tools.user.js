@@ -2456,18 +2456,7 @@ function processInput() {
 	}));
 }
 
-function updateCaptcha() {
-	var img, _img;
-	if(pr.recap) {
-		if(img = $id('recaptcha_image')) {
-			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
-		}
-	} else if(aib.abu) {
-		updateABUCap();
-	}
-	if(!pr.cap) {
-		return;
-	}
+function eventCaptcha() {
 	pr.cap.autocomplete = 'off';
 	pr.cap.onfocus = null;
 	pr.cap.onkeypress = (function() {
@@ -2494,7 +2483,23 @@ function updateCaptcha() {
 			$txtInsert(e.target, chr);
 		};
 	})();
-	if(aib.hana || pr.recap) {
+}
+
+function updateCaptcha() {
+	var img, _img;
+	if(pr.recap) {
+		if(img = $id('recaptcha_image')) {
+			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+		}
+	}
+	if(aib.abu) {
+		updateABUCap(false);
+	}
+	if(!pr.cap) {
+		return;
+	}
+	eventCaptcha();
+	if(aib.hana || aib.abu || pr.recap) {
 		return;
 	}
 	img = $q('a, img', pr.getTR(pr.cap));
@@ -2525,15 +2530,31 @@ function updateCaptcha() {
 	}, 50, _img);
 }
 
-function updateABUCap() {
+function updateABUCap(upd, focus) {
 	var cap = $id('captcha_div');
 	if(!cap) {
 		return;
 	}
-	if(!uWindow.Recaptcha) {
+	if(pr.cap) {
+		if(upd) {
+			uWindow['ACPuzzle']['reload']();
+			setTimeout(function() {
+				if(pr.cap = $q('input[name="adcopy_response"]', cap)) {
+					eventCaptcha();
+					if(focus) {
+						pr.cap.focus();
+					}
+				}
+				focus = null;
+			}, 1000);
+		}
+		return;
+	}
+	if(!uWindow['ACPuzzle']) {
 		doc.head.appendChild($new('script', {
 			'type': 'text/javascript',
-			'src': 'http://www.google.com/recaptcha/api/js/recaptcha_ajax.js'
+			'src': (doc.location.protocol === 'http:' ? '//api' : '//secure-api') +
+				'.solvemedia.com/papi/challenge.ajax'
 		}, null));
 	}
 	cap.innerHTML = '';
@@ -2543,13 +2564,14 @@ function updateABUCap() {
 		'click': function(e) {
 			$pd(e);
 			this.parentNode.innerHTML = '';
-			uWindow.Recaptcha
-				.create('6LdOEMMSAAAAAIGhmYodlkflEb2C-xgPjyATLnxx', 'captcha_div', {'theme': "red"});
+			uWindow['ACPuzzle']
+				.create('oIzJ06xKCH-H6PKr8OLVMa26G06kK3qh', 'captcha_div', {'theme': 'black', 'size': '300x150'});
 			var itrv = setInterval(function() {
-				var el = $id('recaptcha_response_field');
+				var el = $id('adcopy_response');
 				if(el) {
-					pr.cap = pr.recap = el;
-					updateCaptcha();
+					if(el.tagName === 'INPUT') {
+						pr.cap = el;
+					}
 					clearInterval(itrv);
 					itrv = null;
 				}
@@ -2714,9 +2736,13 @@ function checkUpload(response) {
 			qArea.appendChild($id('de-pform'));
 		}
 		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
-			pr.cap.value = '';
-			pr.cap.focus();
-			refreshCapImg(pr.tNum);
+			if(aib.abu) {
+				updateABUCap(true);
+			} else {
+				pr.cap.value = '';
+				pr.cap.focus();
+				refreshCapImg(pr.tNum);
+			}
 		}
 		$alert(err, 'upload', false);
 		return;
@@ -2745,20 +2771,22 @@ function checkUpload(response) {
 	if(!pr.cap) {
 		return;
 	}
-	pr.cap.value = '';
-	refreshCapImg(pr.tNum);
 	if(aib.abu) {
+		err = getCookie('usercode');
 		$xhr({
 			'method': 'GET',
-			'url': '/makaba/captcha?usercode=' + (getCookie('usercode') || ''),
+			'url': '/makaba/captcha.fcgi' + (err ? '?usercode=' + err : ''),
 			'onload': function(xhr) {
 				var text = xhr.responseText;
 				if(text.contains('OK') || text.contains('VIP')) {
-					pr.cap = pr.recap = null;
-					updateABUCap();
+					pr.cap = null;
 				}
+				updateABUCap(true);
 			}
 		});
+	} else {
+		pr.cap.value = '';
+		refreshCapImg(pr.tNum);
 	}
 }
 
@@ -7351,7 +7379,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: $q(aib.abu ? 'input#adcopy_response' : 'input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
