@@ -2506,8 +2506,13 @@ function updateCaptcha() {
 	if(!pr.cap) {
 		return;
 	}
-	eventCaptcha(pr.cap);
-	if(aib.hana || aib.abu || pr.recap) {
+	if(aib.abu) {
+		updateABUCap(false);
+		return;
+	} else {
+		eventCaptcha(pr.cap);
+	}
+	if(aib.hana || pr.recap) {
 		return;
 	}
 	img = $q('a, img', pr.getTR(pr.cap));
