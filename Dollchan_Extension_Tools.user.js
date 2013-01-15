@@ -3431,9 +3431,9 @@ function downloadImgData(url, Fn) {
 			}
 			if(e.status === 200) {
 				if(nav.Firefox && aib.fch) {
-					Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })).buffer);
+					Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
 				} else {
-					Fn(e.response);
+					Fn(new Uint8Array(e.response));
 				}
 			} else {
 				Fn(null);
@@ -3468,15 +3468,11 @@ function preloadImages(post) {
 						$t('img', a).src = a.href;
 					}
 					if(rjf) {
-						rjf.find(data, addImgFileIcon.bind(a));
+						rjf.find(data.buffer, addImgFileIcon.bind(a));
 					}
 				}
 				a = eImg = type = null;
-				if(nav.Firefox) {
-					queue.end();
-				} else {
-					setTimeout(queue.end.bind(queue), 100);
-				}
+				queue.end();
 			});
 		}, function() {
 			rjf && rjf.clear();
