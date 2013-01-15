@@ -530,8 +530,8 @@ function $del(el) {
 function $offset(el) {
 	var box = el.getBoundingClientRect();
 	return {
-		top: Math.round(box.top + window.pageYOffset),
-		left: Math.round(box.left + window.pageXOffset)
+		top: box.top + window.pageYOffset,
+		left: box.left + window.pageXOffset
 	};
 }
 
@@ -1091,7 +1091,7 @@ function addPanel() {
 					if(!TNum) {
 						addAjaxPagesMenu();
 					}
-				}, 'de_delsel(event)'),
+				}, 'de_out(false)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
 				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
@@ -1131,7 +1131,7 @@ function addPanel() {
 					Audio.repeat = false;
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-menu'));
-				}, null, addAudioNotifMenu, 'de_delsel(event)')),
+				}, null, addAudioNotifMenu, 'de_out(false)')),
 				$if(aib.nul || aib.fch, pButton(
 					'catalog', null,
 					'//' + aib.host + '/' + brd + '/catalog.html',
@@ -1528,7 +1528,7 @@ function getCfgFilters() {
 				'text': Lng.add[lang],
 				'href': '#',
 				'class': 'de-abtn',
-				'onmouseout': 'de_delsel(event)'}, {
+				'onmouseout': 'de_out(false)'}, {
 				'click': $pd,
 				'mouseover': addSpellMenu
 			}),
@@ -1939,30 +1939,23 @@ function addMenu(el, isPanel, html) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
 			'bottom: 25' :
-			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
+			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + (offE.top + el.offsetHeight - (nav.Firefox ? .5 : 0));
+		y = 'top: ' + (offE.top + el.offsetHeight);
 	}
 	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		'" id="de-menu" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
 				'left: ' + offE.left :
-				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="de_delsel(event)">' + html + '</div>');
+				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
+		) + 'px; ' + y + 'px;" onmouseout="de_out(false)" onmouseover="de_overmenu(this)">' + html + '</div>');
 	el = $event(doc.body.lastChild, {'mouseover': (function() {
 		if(this) {
 			markPviewToDel(this, false);
 		}
 	}).bind(getPost(el))});
-	return html ? $Q('span', $id('de-menu')) : el;
-}
-
-function removeMenu(e) {
-	var rt = e.relatedTarget;
-	if(!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *')) {
-		$del($id('de-menu'));
-	}
+	return html ? $Q('span', el) : el;
 }
 
 function addSpellMenu(e) {
@@ -3209,10 +3202,10 @@ function addPostRef(ref) {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
+		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(this)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
 	if(post.isOp) {
 		if(!TNum) {
-			html += '<span class="de-btn-expthr" onclick="de_expclick(this)" onmouseover="de_expover(this)" onmouseout="de_out(event)"></span>';
+			html += '<span class="de-btn-expthr" onclick="de_expclick(this)" onmouseover="de_expover(this)" onmouseout="de_out(this)"></span>';
 		}
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
@@ -3246,9 +3239,13 @@ function initMessageFunctions() {
 	uWindow['de_qrepover'] = function() {
 		quotetxt = $txtSelect();
 	};
-	uWindow['de_out'] = function(e) {
-		clearTimeout(e.target.odelay);
-		removeMenu(e);
+	uWindow['de_out'] = function(el) {
+		if(el) {
+			clearTimeout(el.odelay);
+		}
+		if(el = $id('de-menu')) {
+			el.odelay = setTimeout($del, 75, el);
+		}
 	};
 	uWindow['de_favclick'] = function(el) {
 		setTimeout(toggleFavorites, 0, pByNum[+el.parentNode.getAttribute('info')], el);
@@ -3270,7 +3267,9 @@ function initMessageFunctions() {
 		window.postMessage("_" + name + ";" + e.target.getAttribute("de-url"), "*");
 		$del($id('de-menu'));
 	};
-	uWindow['de_delsel'] = removeMenu;
+	uWindow['de_overmenu'] = function(el) {
+		clearTimeout(el.odelay);
+	};
 
 	$event(window, {'message': function(e) {
 		var temp, data = e.data.substring(1);
@@ -4043,7 +4042,7 @@ function addImgSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" onmouseover="de_srcover(this)" onmouseout="de_out(event)"></span>');
+		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" onmouseover="de_srcover(this)" onmouseout="de_out(this)"></span>');
 	}
 }
 
