@@ -4428,7 +4428,7 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function ajaxGetPosts(url, isParse, Fn, errFn) {
-	GM_xmlhttpRequest({
+	setTimeout(GM_xmlhttpRequest, 0, {
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
