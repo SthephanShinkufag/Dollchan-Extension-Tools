@@ -1960,7 +1960,7 @@ function addMenu(el, isPanel, html) {
 
 function removeMenu(e) {
 	var menu, rt = e.relatedTarget;
-	if(!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *') && (menu = $id('de-menu'))) {
+	if((!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *')) && (menu = $id('de-menu'))) {
 		menu.odelay = setTimeout($del, Cfg['linksOver'], menu);
 	}
 }
