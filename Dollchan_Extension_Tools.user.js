@@ -530,8 +530,8 @@ function $del(el) {
 function $offset(el) {
 	var box = el.getBoundingClientRect();
 	return {
-		top: Math.round(box.top + window.pageYOffset),
-		left: Math.round(box.left + window.pageXOffset)
+		top: box.top + window.pageYOffset,
+		left: box.left + window.pageXOffset
 	};
 }
 
@@ -1939,16 +1939,16 @@ function addMenu(el, isPanel, html) {
 		pos = 'fixed';
 		y = el.id === 'de-btn-refresh' || el.id === 'de-btn-audio-off' ?
 			'bottom: 25' :
-			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight - (nav.Firefox ? .5 : 0));
+			'top: ' + (el.getBoundingClientRect().top + el.offsetHeight);
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + (offE.top + el.offsetHeight - (nav.Firefox ? .5 : 0));
+		y = 'top: ' + (offE.top + el.offsetHeight);
 	}
 	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
 		'" id="de-menu" style="position: ' + pos + '; ' + (
 			el.className === 'de-btn-src' ?
 				'left: ' + offE.left :
-				'right: ' + (doc.documentElement.clientWidth - $offset(el).left - el.offsetWidth)
+				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_delsel(event)">' + html + '</div>');
 	el = $event(doc.body.lastChild, {'mouseover': (function() {
 		if(this) {
