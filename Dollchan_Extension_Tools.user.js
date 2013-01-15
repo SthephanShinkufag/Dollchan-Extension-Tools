@@ -4429,7 +4429,7 @@ function eventRefLink(el) {
 ==============================================================================*/
 
 function ajaxGetPosts(url, isParse, Fn, errFn) {
-	$xhr({
+	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
