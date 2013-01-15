@@ -3291,8 +3291,9 @@ function initMessageFunctions() {
 	}});
 }
 
-function detectImgFile(dat) {
-	var i, j, len = dat.length;
+function detectImgFile(ab) {
+	var i, j, dat = new Uint8Array(ab),
+		len = dat.length;
 	// JPG [ff d8 ff e0] = [яШяа]
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0, j = 0; i < len - 1; i++) {
@@ -3317,30 +3318,30 @@ function detectImgFile(dat) {
 			}
 		}
 	} else {
-		return false;
+		return {};
 	}
 	// Ignore small files
 	if(i !== len && len - i > 60) {
 		for(len = i + 90; i < len; i++) {
 			// 7Z [37 7a bc af] = [7zјЇ]
 			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
-				return [i, 0];
+				return {'type': 0, 'idx': i, 'data': ab};
 			// ZIP [50 4b 03 04] = [PK..]
 			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
-				return [i, 1];
+				return {'type': 1, 'idx': i, 'data': ab};
 			// RAR [52 61 72 21] = [Rar!]
 			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
-				return [i, 2];
+				return {'type': 2, 'idx': i, 'data': ab};
 			// OGG [4f 67 67 53] = [OggS]
 			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
-				return [i, 3];
+				return {'type': 3, 'idx': i, 'data': ab};
 			// MP3 [0x49 0x44 0x33] = [ID3]
 			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
-				return [i, 4];
+				return {'type': 4, 'idx': i, 'data': ab};
 			}
 		}
 	}
-	return false;
+	return {};
 }
 
 /** @constructor */
@@ -3350,8 +3351,10 @@ function workerQueue(mReqs, wrkFn, errFn) {
 		return;
 	}
 	this.url = window.URL.createObjectURL(new Blob([
-		'self.onmessage = function(e) {\
-			self.postMessage((' + String(wrkFn) + ')(e["data"]), null);\
+		'var fn = ' + String(wrkFn) + ';\
+		self.onmessage = function(e) {\
+			var info = fn(e.data);\
+			self.postMessage(info, info.data ? [info.data] : null);\
 		}'
 	], {'type': 'text/javascript'}));
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
@@ -3382,7 +3385,7 @@ workerQueue.prototype = {
 		var w = this.wrks[num];
 		w.onmessage = data[1];
 		w.onerror = this.onErr;
-		w.postMessage(data[0], null, [data[0]]);
+		w.postMessage(data[0], [data[0]]);
 	},
 	clear: function() {
 		this.wrks = null;
@@ -3390,10 +3393,10 @@ workerQueue.prototype = {
 	}
 };
 
-function addImgFileIcon(data, info) {
-	if(info) {
-		var app, ext, type = info[1],
-			fName = this.getAttribute('download');
+function addImgFileIcon(info) {
+	var app, ext, fName, type = info['type'];
+	if(typeof type !== 'undefined') {
+		fName = this.getAttribute('download');
 		if(type === 2) {
 			app = 'application/x-rar-compressed';
 			ext = 'rar';
@@ -3411,7 +3414,7 @@ function addImgFileIcon(data, info) {
 			ext = 'mp3';
 		}
 		$q(aib.qImgLink, aib.getPicWrap(this)).insertAdjacentHTML('afterend',
-			'<a href="' + window.URL.createObjectURL(new Blob([data.subarray(info[0])], {'type': app})) +
+			'<a href="' + window.URL.createObjectURL(new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})) +
 			'" class="' + (type > 2 ? 'de-img-audio' : 'de-img-arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 		);
@@ -3465,15 +3468,11 @@ function preloadImages(post) {
 						$t('img', a).src = a.href;
 					}
 					if(rjf) {
-						rjf.find(data, addImgFileIcon.bind(a, data));
+						rjf.find(data.buffer, addImgFileIcon.bind(a));
 					}
 				}
 				a = eImg = type = null;
-				if(nav.Firefox) {
-					queue.end();
-				} else {
-					setTimeout(queue.end.bind(queue), 100);
-				}
+				queue.end();
 			});
 		}, function() {
 			rjf && rjf.clear();
