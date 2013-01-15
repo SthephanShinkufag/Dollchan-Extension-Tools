@@ -1091,7 +1091,7 @@ function addPanel() {
 					if(!TNum) {
 						addAjaxPagesMenu();
 					}
-				}, 'de_delsel(event)'),
+				}, 'de_outmenu(event)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
 				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
@@ -1131,7 +1131,7 @@ function addPanel() {
 					Audio.repeat = false;
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-menu'));
-				}, null, addAudioNotifMenu, 'de_delsel(event)')),
+				}, null, addAudioNotifMenu, 'de_outmenu(event)')),
 				$if(aib.nul || aib.fch, pButton(
 					'catalog', null,
 					'//' + aib.host + '/' + brd + '/catalog.html',
@@ -1528,7 +1528,7 @@ function getCfgFilters() {
 				'text': Lng.add[lang],
 				'href': '#',
 				'class': 'de-abtn',
-				'onmouseout': 'de_delsel(event)'}, {
+				'onmouseout': 'de_outmenu(event)'}, {
 				'click': $pd,
 				'mouseover': addSpellMenu
 			}),
@@ -1949,7 +1949,7 @@ function addMenu(el, isPanel, html) {
 			el.className === 'de-btn-src' ?
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
-		) + 'px; ' + y + 'px;" onmouseout="de_delsel(event)">' + html + '</div>');
+		) + 'px; ' + y + 'px;" onmouseout="de_outmenu(event)" onmouseover="de_overmenu(this)">' + html + '</div>');
 	el = $event(doc.body.lastChild, {'mouseover': (function() {
 		if(this) {
 			markPviewToDel(this, false);
@@ -1959,9 +1959,9 @@ function addMenu(el, isPanel, html) {
 }
 
 function removeMenu(e) {
-	var rt = e.relatedTarget;
-	if(!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *')) {
-		$del($id('de-menu'));
+	var menu, rt = e.relatedTarget;
+	if(!rt || !nav.matchesSelector(rt, '#de-menu, #de-menu > *') && (menu = $id('de-menu'))) {
+		menu.odelay = setTimeout($del, Cfg['linksOver'], menu);
 	}
 }
 
@@ -3270,7 +3270,10 @@ function initMessageFunctions() {
 		window.postMessage("_" + name + ";" + e.target.getAttribute("de-url"), "*");
 		$del($id('de-menu'));
 	};
-	uWindow['de_delsel'] = removeMenu;
+	uWindow['de_overmenu'] = function(menu) {
+		clearTimeout(menu.odelay);
+	};
+	uWindow['de_outmenu'] = removeMenu;
 
 	$event(window, {'message': function(e) {
 		var temp, data = e.data.substring(1);
