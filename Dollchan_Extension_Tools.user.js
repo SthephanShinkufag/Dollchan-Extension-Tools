@@ -1955,7 +1955,7 @@ function addMenu(el, isPanel, html) {
 			markPviewToDel(this, false);
 		}
 	}).bind(getPost(el))});
-	return html ? $Q('span', $id('de-menu')) : el;
+	return html ? $Q('span', el) : el;
 }
 
 function removeMenu(e) {
