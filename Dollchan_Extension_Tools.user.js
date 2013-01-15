@@ -3244,7 +3244,7 @@ function initMessageFunctions() {
 			clearTimeout(el.odelay);
 		}
 		if(el = $id('de-menu')) {
-			el.odelay = setTimeout($del, Cfg['linksOver'], el);
+			el.odelay = setTimeout($del, 75, el);
 		}
 	};
 	uWindow['de_favclick'] = function(el) {
