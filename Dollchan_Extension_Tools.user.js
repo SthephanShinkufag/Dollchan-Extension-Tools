@@ -2447,21 +2447,17 @@ function refreshCapImg(tNum) {
 	}
 }
 
-function eventCapInp(node) {
-	if(aib.abu) {
-		var el = $id('adcopy-link-refresh');
-		el.href = '#';
-		$id('adcopy-puzzle-image').onclick = el.onclick = function(e) {
-			$pd(e);
-			updateABUCap(true);
-		}
-		if(node.tagName !== 'INPUT') {
-			return;
-		}
+function updateCaptcha() {
+	if(!pr.cap || aib.abu) {
+		return;
 	}
-	node.autocomplete = 'off';
-	node.onfocus = null;
-	node.onkeypress = (function() {
+	var img, _img;
+	if(pr.recap && (img = $id('recaptcha_image'))) {
+		$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+	}
+	pr.cap.autocomplete = 'off';
+	pr.cap.onfocus = null;
+	pr.cap.onkeypress = (function() {
 		var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 			en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 		return function(e) {
@@ -2485,21 +2481,6 @@ function eventCapInp(node) {
 			$txtInsert(e.target, chr);
 		};
 	})();
-}
-
-function updateCaptcha() {
-	if(!pr.cap) {
-		return;
-	}
-	var img, _img;
-	if(pr.recap && (img = $id('recaptcha_image'))) {
-		$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
-	}
-	if(aib.abu) {
-		updateABUCap(false);
-		return;
-	}
-	eventCapInp(pr.cap);
 	if(aib.hana || pr.recap) {
 		return;
 	}
@@ -2532,20 +2513,11 @@ function updateCaptcha() {
 }
 
 function updateABUCap(focus) {
-	pr.cap.old = true;
-	uWindow['ACPuzzle']['reload']('');
-	setTimeout(function updcap() {
-		var el = $id('adcopy_response');
-		if(!el || el.old) {
-			setTimeout(updcap, 1e3);
-		} else {
-			eventCapInp(pr.cap = el);
-			if(focus) {
-				pr.cap.focus();
-			}
-			focus = null;
-		}
-	}, 1e3);
+	uWindow['GetCaptcha']('captcha_div');
+	pr.cap = $q('input[name="captcha_value"]', pr.form);
+	if(pr.cap && focus) {
+		pr.cap.focus();
+	}
 }
 
 function doPostformChanges(el, btn) {
@@ -7335,7 +7307,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: aib.abu ? $id('adcopy_response') : $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
