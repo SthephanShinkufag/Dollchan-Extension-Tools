@@ -1297,7 +1297,7 @@ function showContent(cont, id, name, isUpd) {
 						$New('div', {'class': aib.cReply}, [
 							$add('<input type="checkbox">'),
 							$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-							$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
+							$add('<a href="' + (h === aib.host ? '//' : 'http://') + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
 							$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 							$add('<span class="de-fav-inf-page"></span>'),
 							$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
