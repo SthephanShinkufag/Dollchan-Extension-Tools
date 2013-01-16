@@ -60,6 +60,7 @@ defaultCfg = {
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
 	'removeFName':	0,		// 		remove file name
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
+	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'noThrdForm':	1,		// hide thread-creating form
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
@@ -163,6 +164,7 @@ Lng = {
 			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
+		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
@@ -317,7 +319,6 @@ Lng = {
 	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
-	loadCaptcha:	['Загрузить капчу', 'Load captcha'],
 	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
 	dontShow:		['Не отображать: ', 'Do not show: '],
 	checkNow:		['Проверить сейчас', 'Check now'],
@@ -1678,6 +1679,7 @@ function getCfgForm() {
 			lBox('removeFName', true, null)
 		])),
 		$if(pr.form, optSel('addPostForm', true, null)),
+		$if(pr.form, lBox('scrAfterRep', true. null)),
 		$if(pr.form, lBox('noThrdForm', true, function() {
 			if(!TNum) {
 				$id('de-parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
@@ -2727,10 +2729,10 @@ function checkUpload(response) {
 	if(TNum) {
 		loadNewPosts(function(focus) {
 			closeAlert($id('de-alert-upload'));
-			if(focus) {
+			if(Cfg['scrAfterRep']) {
 				$focus(Posts[Posts.length - 1]);
 			}
-		}.bind(window, TNum && !pr.isQuick && Cfg['addPostForm'] === 1));
+		});
 	} else {
 		loadThread(pByNum[pr.tNum], 5, closeAlert.bind(window, $id('de-alert-upload')));
 	}
