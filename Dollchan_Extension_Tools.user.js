@@ -4654,20 +4654,16 @@ function loadFavorThread() {
 	);
 }
 
-function loadPageHelper(page, i, Fn) {
-	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(dc, el) {
-		var df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
-		while(el = df.firstChild) {
-			page.appendChild(el);
-		}
-		Fn(page, i);
-		Fn = page = i = null;
-	}, null);
+function loadPageHelper(i, Fn) {
+	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(idx, dc, el) {
+		this(replacePost(doc.importNode($q(aib.qDForm, dc), true)), idx);
+	}.bind(Fn, i), null);
 }
 
-function parsePages(pages, frag) {
-	$disp(dForm);
-	dForm.appendChild(frag);
+function parsePages(pages, node) {
+	$disp(node);
+	dForm.parentNode.replaceChild(node, dForm);
+	dForm = node;
 	pages.forEach(tryToParse);
 	addDelformStuff(false);
 	if(isExpImg) {
@@ -4682,7 +4678,7 @@ function parsePages(pages, frag) {
 			node.value = Cfg['passwValue'];
 		});
 	}
-	$disp(dForm);
+	$disp(node);
 	closeAlert($id('de-alert-load-pages'));
 }
 
@@ -4693,7 +4689,7 @@ function preparePage() {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
-	dForm.innerHTML = '';
+	$disp(dForm);
 	Posts = [];
 	Threads = [];
 	pByNum = {};
@@ -4701,28 +4697,25 @@ function preparePage() {
 }
 
 function updatePage() {
-	var df = doc.createDocumentFragment();
 	preparePage();
-	loadPageHelper(df, pageNum, function(pg, idx) {
-		parsePages([dForm], pg);
+	loadPageHelper(pageNum, function(pg, idx) {
+		parsePages([pg], pg);
 	});
 }
 
 function loadPages(len) {
-	var df = doc.createDocumentFragment();
 	preparePage();
-	for(var page, i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
-		page = $new('div', {'id': 'de-page' + i}, null);
-		$append(df, [
-			$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
-			doc.createElement('hr'),
-			page
-		]);
-		loadPageHelper(page, i, function(pg, idx) {
+	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
+		loadPageHelper(i, function(pg, idx) {
 			pages[idx] = pg;
+			$append(el, [
+				$new('center', {'text': idx + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
+				doc.createElement('hr'),
+				pg
+			]);
 			if(loaded === len) {
-				parsePages(pages, df);
-				loaded = pages = df = null;
+				parsePages(pages, el);
+				loaded = pages = el = null;
 			} else {
 				loaded++;
 			}
