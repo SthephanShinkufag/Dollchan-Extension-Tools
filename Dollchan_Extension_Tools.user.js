@@ -4708,12 +4708,14 @@ function loadPages(len) {
 	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
 		loadPageHelper(i, function(pg, idx) {
 			pages[idx] = pg;
-			$append(el, [
-				$new('center', {'text': idx + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
-				doc.createElement('hr'),
-				pg
-			]);
 			if(loaded === len) {
+				pages.forEach(function(page, pNum) {
+					$append(el, [
+						$new('center', {'text': pNum + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
+						doc.createElement('hr'),
+						page
+					]);
+				});
 				parsePages(pages, el);
 				loaded = pages = el = null;
 			} else {
