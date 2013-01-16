@@ -1950,11 +1950,11 @@ function addMenu(el, isPanel, html) {
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_out(false)" onmouseover="de_overmenu(this)">' + html + '</div>');
-	el = $event(doc.body.lastChild, {'mouseover': (function() {
+	el = $event(doc.body.lastChild, {'mouseover': function() {
 		if(this) {
 			markPviewToDel(this, false);
 		}
-	}).bind(getPost(el))});
+	}.bind(getPost(el))});
 	return html ? $Q('span', el) : el;
 }
 
@@ -2402,13 +2402,13 @@ function processInput() {
 					'type': 'file',
 					'style': 'display: none;'
 				}, null));
-			el.onchange = (function(inp, e) {
+			el.onchange = function(inp, e) {
 				$del(this);
 				var file = e.target.files[0],
 					fr = new FileReader();
 				inp.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
 					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-				fr.onload = (function(input, node, e) {
+				fr.onload = function(input, node, e) {
 					if(input.nextSibling === node) {
 						$attr(node, {
 							'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
@@ -2418,9 +2418,9 @@ function processInput() {
 						});
 						input.imgFile = e.target.result;
 					}
-				}).bind(file, inp, inp.nextSibling);
+				}.bind(file, inp, inp.nextSibling);
 				fr.readAsArrayBuffer(file);
-			}).bind(this, $q('input[type="file"]', this.parentNode));
+			}.bind(this, $q('input[type="file"]', this.parentNode));
 			el.click();
 		}
 	}));
@@ -7394,7 +7394,7 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce((function(prevVal, curVal, i, array) {
+		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce(function(prevVal, curVal, i, array) {
 			if(array[i + 1]) {
 				if(curVal.tagName === 'HR') {
 					$before(curVal, prevVal.lastChild);
@@ -7408,7 +7408,7 @@ function parseDelform(el, dc, Fn) {
 			}
 			$after(curVal, prevVal);
 			prevVal.appendChild(curVal);
-		}).bind(Fn), dc.createElement('div'));
+		}.bind(Fn), dc.createElement('div'));
 	} else {
 		$each(thrds, Fn);
 	}
