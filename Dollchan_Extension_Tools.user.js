@@ -2104,10 +2104,10 @@ function addImgSearchMenu(node) {
 		});
 	}
 	addMenu(
-		node, false, '<a class="de-src-iqdb" href="//iqdb.org/?url=' + p + 'IQDB</a>' +
-			'<a class="de-src-tineye" href="//tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-src-google" href="//google.com/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="de-src-saucenao" href="//saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
+		node, false, '<a class="de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
+			'<a class="de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
+			'<a class="de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
+			'<a class="de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
 	);
 	str = null;
 }
