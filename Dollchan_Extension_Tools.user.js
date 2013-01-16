@@ -1087,12 +1087,8 @@ function addPanel() {
 				}, null, null, null),
 				pButton('refresh', function(e) {
 					$pd(e);
-					window.location.reload();
-				}, null, function() {
-					if(!TNum) {
-						addAjaxPagesMenu();
-					}
-				}, 'de_out(false)'),
+					updatePage();
+				}, null, !TNum && addAjaxPagesMenu, 'de_out(false)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
 				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
@@ -2057,7 +2053,7 @@ function addExpandThreadMenu(post) {
 
 function addAjaxPagesMenu() {
 	$each(addMenu(
-		$id('de-btn-refresh'), true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
+		this, true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
 	), function(el) {
 		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
@@ -4660,16 +4656,18 @@ function loadFavorThread() {
 
 function loadPageHelper(page, i, Fn) {
 	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(dc, el) {
-		var df = doc.importNode($q(aib.qDForm, dc), true);
+		var df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
 		while(el = df.firstChild) {
 			page.appendChild(el);
 		}
-		Fn(replacePost(page), i);
+		Fn(page, i);
 		Fn = page = i = null;
 	}, null);
 }
 
-function parsePages(pages) {
+function parsePages(pages, frag) {
+	$disp(dForm);
+	dForm.appendChild(frag);
 	pages.forEach(tryToParse);
 	addDelformStuff(false);
 	if(isExpImg) {
@@ -4677,13 +4675,14 @@ function parsePages(pages) {
 			expandAllPostImg(post, null);
 		});
 	}
-	var node = $q('input[type="password"], input[name="password"]', dForm);
 	if(pr.passw) {
-		pr.dpass = node;
-		node.value = Cfg['passwValue'];
-	} else if(node) {
-		node.parentNode.replaceChild(pr.dpass, node);
+		pages.forEach(function(page) {
+			var node = $q('input[type="password"]', page);
+			pr.dpass = node;
+			node.value = Cfg['passwValue'];
+		});
 	}
+	$disp(dForm);
 	closeAlert($id('de-alert-load-pages'));
 }
 
@@ -4705,10 +4704,7 @@ function updatePage() {
 	var df = doc.createDocumentFragment();
 	preparePage();
 	loadPageHelper(df, pageNum, function(pg, idx) {
-		$disp(dForm);
-		dForm.appendChild(pg);
-		parsePages([dForm]);
-		$disp(dForm);
+		parsePages([dForm], pg);
 	});
 }
 
@@ -4725,8 +4721,7 @@ function loadPages(len) {
 		loadPageHelper(page, i, function(pg, idx) {
 			pages[idx] = pg;
 			if(loaded === len) {
-				parsePages(pages);
-				dForm.appendChild(df);
+				parsePages(pages, df);
 				loaded = pages = df = null;
 			} else {
 				loaded++;
