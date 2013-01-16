@@ -2690,13 +2690,6 @@ function getSubmitResponse(dc, isFrame) {
 	return [(isFrame ? window.location : form ? aib.getThrdUrl(brd, aib.getTNum(form)) : ''), err];
 }
 
-function endUpload() {
-	closeAlert($id('de-alert-upload'));
-	if(TNum) {
-		$focus(Posts[Posts.length - 1]);
-	}
-}
-
 function checkUpload(response) {
 	var qArea, el, err = response[1];
 	if(err) {
@@ -2731,20 +2724,24 @@ function checkUpload(response) {
 		window.location = response[0];
 		return;
 	}
-	showMainReply();
 	if(TNum) {
-		loadNewPosts(endUpload);
+		loadNewPosts(function(focus) {
+			closeAlert($id('de-alert-upload'));
+			if(focus) {
+				$focus(Posts[Posts.length - 1]);
+			}
+		}.bind(window, TNum && !pr.isQuick && Cfg['addPostForm'] === 1));
 	} else {
-		loadThread(pByNum[pr.tNum], 5, endUpload);
+		loadThread(pByNum[pr.tNum], 5, closeAlert.bind(window, $id('de-alert-upload')));
 	}
-	if(!pr.cap) {
-		return;
-	}
-	if(aib.abu) {
-		updateABUCap(false);
-	} else {
-		pr.cap.value = '';
-		refreshCapImg(pr.tNum);
+	showMainReply();
+	if(pr.cap) {
+		if(aib.abu) {
+			updateABUCap(false);
+		} else {
+			pr.cap.value = '';
+			refreshCapImg(pr.tNum);
+		}
 	}
 }
 
