@@ -1088,7 +1088,7 @@ function addPanel() {
 				pButton('refresh', function(e) {
 					$pd(e);
 					updatePage();
-				}, null, !TNum && addAjaxPagesMenu, 'de_out(false)'),
+				}, null, TNum ? null : addAjaxPagesMenu, 'de_out(false)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
 				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
