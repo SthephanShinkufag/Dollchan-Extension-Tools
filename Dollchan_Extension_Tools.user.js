@@ -1675,7 +1675,7 @@ function getCfgForm() {
 			lBox('removeFName', true, null)
 		])),
 		$if(pr.form, optSel('addPostForm', true, null)),
-		$if(pr.form, lBox('scrAfterRep', true. null)),
+		$if(pr.form, lBox('scrAfterRep', true, null)),
 		$if(pr.form, lBox('noThrdForm', true, function() {
 			if(!TNum) {
 				$id('de-parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
