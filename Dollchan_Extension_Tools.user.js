@@ -2060,7 +2060,7 @@ function addAjaxPagesMenu() {
 		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
 			if(i === 0) {
-				loadPage(pageNum);
+				updatePage();
 			} else {
 				loadPages(i + 1);
 			}
@@ -2207,7 +2207,7 @@ function initKeyNavig() {
 		if(kc === 116) {
 			if(!TNum) {
 				$pd(e);
-				loadPage(pageNum);
+				updatePage();
 			}
 			return;
 		}
@@ -4699,18 +4699,23 @@ function preparePage() {
 	Pviews.ajaxed = {};
 }
 
-function loadPage(pNum) {
+function updatePage() {
+	var df = doc.createDocumentFragment();
 	preparePage();
-	loadPageHelper(dForm, pNum, function(pg, idx) {
-		parsePages([pg]);
+	loadPageHelper(df, pageNum, function(pg, idx) {
+		$disp(dForm);
+		dForm.appendChild(pg);
+		parsePages([dForm]);
+		$disp(dForm);
 	});
 }
 
 function loadPages(len) {
+	var df = doc.createDocumentFragment();
 	preparePage();
 	for(var page, i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
 		page = $new('div', {'id': 'de-page' + i}, null);
-		$append(dForm, [
+		$append(df, [
 			$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
 			doc.createElement('hr'),
 			page
@@ -4719,7 +4724,8 @@ function loadPages(len) {
 			pages[idx] = pg;
 			if(loaded === len) {
 				parsePages(pages);
-				loaded = pages = null;
+				dForm.appendChild(df);
+				loaded = pages = df = null;
 			} else {
 				loaded++;
 			}
