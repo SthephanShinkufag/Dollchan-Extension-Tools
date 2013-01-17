@@ -1337,7 +1337,7 @@ function showContent(cont, id, name, isUpd) {
 					loaded = 0;
 				$alert(Lng.loading[lang], 'load-pages', true);
 				while(i--) {
-					loadPageHelper(doc.createElement('div'), i, function(page, idx) {
+					loadPageHelper(i, function(page, idx) {
 						for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
 							arr = el.getAttribute('info').split(';');
 							if(arr[0] === aib.host && arr[1] === brd) {
@@ -6911,9 +6911,9 @@ function Initialization() {
 		} : function(op) {
 			return $q('input[type="checkbox"]', op).value;
 		};
-	aib.host = window.location.hostname;
-	aib.prot = window.location.protocol;
 	if(dForm = $q(aib.qDForm, doc)) {
+		aib.host = window.location.hostname;
+		aib.prot = window.location.protocol;
 		switch(aib.dm) {
 		case '0chan.hk': aib.nul = aib.kus = true; break;
 		case '2--ch.ru': aib.tire = true; break;
