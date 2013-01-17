@@ -7278,7 +7278,7 @@ function Initialization() {
 		aib._420 ? '.php' :
 		url[4] || '.html'
 	);
-	docProt = window.location.protocol + '//';
+	docProt = window.location.protocol;
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 	dummy = doc.createElement('div');
 	return true;
