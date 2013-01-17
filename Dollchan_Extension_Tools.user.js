@@ -824,10 +824,10 @@ function readCfg() {
 			for(var i in comCfg['global']) {
 				Cfg[i] = comCfg['global'][i];
 			}
-			Cfg['captchaLang'] = aib.ru ? 2 : 1;
-			Cfg['timePattern'] = Cfg['timeOffset'] = '';
-			Cfg['correctTime'] = 0;
 		}
+		Cfg['captchaLang'] = aib.ru ? 2 : 1;
+		Cfg['timePattern'] = Cfg['timeOffset'] = '';
+		Cfg['correctTime'] = 0;
 	}
 	Cfg.__proto__ = defaultCfg;
 	if(!nav.isBlob) {
