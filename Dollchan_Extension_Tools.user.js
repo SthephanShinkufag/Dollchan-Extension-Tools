@@ -60,6 +60,7 @@ defaultCfg = {
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
 	'removeFName':	0,		// 		remove file name
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
+	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'noThrdForm':	1,		// hide thread-creating form
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
@@ -163,6 +164,7 @@ Lng = {
 			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
+		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
@@ -317,7 +319,6 @@ Lng = {
 	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
-	loadCaptcha:	['Загрузить капчу', 'Load captcha'],
 	unreadMsg:		['В треде %m непрочитанных сообщений.', 'There are %m unreaded messages in thread.'],
 	dontShow:		['Не отображать: ', 'Do not show: '],
 	checkNow:		['Проверить сейчас', 'Check now'],
@@ -1086,12 +1087,8 @@ function addPanel() {
 				}, null, null, null),
 				pButton('refresh', function(e) {
 					$pd(e);
-					window.location.reload();
-				}, null, function() {
-					if(!TNum) {
-						addAjaxPagesMenu();
-					}
-				}, 'de_out(false)'),
+					updatePage();
+				}, null, TNum ? null : addAjaxPagesMenu, 'de_out(false)'),
 				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
 				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
@@ -1300,7 +1297,7 @@ function showContent(cont, id, name, isUpd) {
 						$New('div', {'class': aib.cReply}, [
 							$add('<input type="checkbox">'),
 							$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-							$add('<a href="//' + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
+							$add('<a href="' + (h === aib.host ? '//' : 'http://') + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
 							$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
 							$add('<span class="de-fav-inf-page"></span>'),
 							$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
@@ -1678,6 +1675,7 @@ function getCfgForm() {
 			lBox('removeFName', true, null)
 		])),
 		$if(pr.form, optSel('addPostForm', true, null)),
+		$if(pr.form, lBox('scrAfterRep', true, null)),
 		$if(pr.form, lBox('noThrdForm', true, function() {
 			if(!TNum) {
 				$id('de-parea').style.display = Cfg['noThrdForm'] ? 'none' : '';
@@ -1950,11 +1948,11 @@ function addMenu(el, isPanel, html) {
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_out(false)" onmouseover="de_overmenu(this)">' + html + '</div>');
-	el = $event(doc.body.lastChild, {'mouseover': (function() {
+	el = $event(doc.body.lastChild, {'mouseover': function() {
 		if(this) {
 			markPviewToDel(this, false);
 		}
-	}).bind(getPost(el))});
+	}.bind(getPost(el))});
 	return html ? $Q('span', el) : el;
 }
 
@@ -2055,12 +2053,12 @@ function addExpandThreadMenu(post) {
 
 function addAjaxPagesMenu() {
 	$each(addMenu(
-		$id('de-btn-refresh'), true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
+		this, true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
 	), function(el) {
 		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
 			if(i === 0) {
-				loadPage(pageNum);
+				updatePage();
 			} else {
 				loadPages(i + 1);
 			}
@@ -2207,7 +2205,7 @@ function initKeyNavig() {
 		if(kc === 116) {
 			if(!TNum) {
 				$pd(e);
-				loadPage(pageNum);
+				updatePage();
 			}
 			return;
 		}
@@ -2402,13 +2400,13 @@ function processInput() {
 					'type': 'file',
 					'style': 'display: none;'
 				}, null));
-			el.onchange = (function(inp, e) {
+			el.onchange = function(inp, e) {
 				$del(this);
 				var file = e.target.files[0],
 					fr = new FileReader();
 				inp.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
 					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-				fr.onload = (function(input, node, e) {
+				fr.onload = function(input, node, e) {
 					if(input.nextSibling === node) {
 						$attr(node, {
 							'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
@@ -2418,9 +2416,9 @@ function processInput() {
 						});
 						input.imgFile = e.target.result;
 					}
-				}).bind(file, inp, inp.nextSibling);
+				}.bind(file, inp, inp.nextSibling);
 				fr.readAsArrayBuffer(file);
-			}).bind(this, $q('input[type="file"]', this.parentNode));
+			}.bind(this, $q('input[type="file"]', this.parentNode));
 			el.click();
 		}
 	}));
@@ -2449,21 +2447,17 @@ function refreshCapImg(tNum) {
 	}
 }
 
-function eventCapInp(node) {
-	if(aib.abu) {
-		var el = $id('adcopy-link-refresh');
-		el.href = '#';
-		$id('adcopy-puzzle-image').onclick = el.onclick = function(e) {
-			$pd(e);
-			updateABUCap(true);
-		}
-		if(node.tagName !== 'INPUT') {
-			return;
-		}
+function updateCaptcha() {
+	if(!pr.cap || aib.abu) {
+		return;
 	}
-	node.autocomplete = 'off';
-	node.onfocus = null;
-	node.onkeypress = (function() {
+	var img, _img;
+	if(pr.recap && (img = $id('recaptcha_image'))) {
+		$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+	}
+	pr.cap.autocomplete = 'off';
+	pr.cap.onfocus = null;
+	pr.cap.onkeypress = (function() {
 		var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 			en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 		return function(e) {
@@ -2487,21 +2481,6 @@ function eventCapInp(node) {
 			$txtInsert(e.target, chr);
 		};
 	})();
-}
-
-function updateCaptcha() {
-	if(!pr.cap) {
-		return;
-	}
-	var img, _img;
-	if(pr.recap && (img = $id('recaptcha_image'))) {
-		$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
-	}
-	if(aib.abu) {
-		updateABUCap(false);
-		return;
-	}
-	eventCapInp(pr.cap);
 	if(aib.hana || pr.recap) {
 		return;
 	}
@@ -2534,20 +2513,11 @@ function updateCaptcha() {
 }
 
 function updateABUCap(focus) {
-	pr.cap.old = true;
-	uWindow['ACPuzzle']['reload']('');
-	setTimeout(function updcap() {
-		var el = $id('adcopy_response');
-		if(!el || el.old) {
-			setTimeout(updcap, 1e3);
-		} else {
-			eventCapInp(pr.cap = el);
-			if(focus) {
-				pr.cap.focus();
-			}
-			focus = null;
-		}
-	}, 1e3);
+	uWindow['GetCaptcha']('captcha_div');
+	pr.cap = $q('input[name="captcha_value"]', pr.form);
+	if(pr.cap && focus) {
+		pr.cap.focus();
+	}
 }
 
 function doPostformChanges(el, btn) {
@@ -2690,13 +2660,6 @@ function getSubmitResponse(dc, isFrame) {
 	return [(isFrame ? window.location : form ? aib.getThrdUrl(brd, aib.getTNum(form)) : ''), err];
 }
 
-function endUpload() {
-	closeAlert($id('de-alert-upload'));
-	if(TNum) {
-		$focus(Posts[Posts.length - 1]);
-	}
-}
-
 function checkUpload(response) {
 	var qArea, el, err = response[1];
 	if(err) {
@@ -2731,20 +2694,24 @@ function checkUpload(response) {
 		window.location = response[0];
 		return;
 	}
-	showMainReply();
 	if(TNum) {
-		loadNewPosts(endUpload);
+		loadNewPosts(function(focus) {
+			closeAlert($id('de-alert-upload'));
+			if(Cfg['scrAfterRep']) {
+				$focus(Posts[Posts.length - 1]);
+			}
+		});
 	} else {
-		loadThread(pByNum[pr.tNum], 5, endUpload);
+		loadThread(pByNum[pr.tNum], 5, closeAlert.bind(window, $id('de-alert-upload')));
 	}
-	if(!pr.cap) {
-		return;
-	}
-	if(aib.abu) {
-		updateABUCap(false);
-	} else {
-		pr.cap.value = '';
-		refreshCapImg(pr.tNum);
+	showMainReply();
+	if(pr.cap) {
+		if(aib.abu) {
+			updateABUCap(false);
+		} else {
+			pr.cap.value = '';
+			refreshCapImg(pr.tNum);
+		}
 	}
 }
 
@@ -4659,18 +4626,16 @@ function loadFavorThread() {
 	);
 }
 
-function loadPageHelper(page, i, Fn) {
-	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(dc, el) {
-		var df = doc.importNode($q(aib.qDForm, dc), true);
-		while(el = df.firstChild) {
-			page.appendChild(el);
-		}
-		Fn(replacePost(page), i);
-		Fn = page = i = null;
-	}, null);
+function loadPageHelper(i, Fn) {
+	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(idx, dc, el) {
+		this(replacePost(doc.importNode($q(aib.qDForm, dc), true)), idx);
+	}.bind(Fn, i), null);
 }
 
-function parsePages(pages) {
+function parsePages(pages, node) {
+	$disp(node);
+	dForm.parentNode.replaceChild(node, dForm);
+	dForm = node;
 	pages.forEach(tryToParse);
 	addDelformStuff(false);
 	if(isExpImg) {
@@ -4678,13 +4643,14 @@ function parsePages(pages) {
 			expandAllPostImg(post, null);
 		});
 	}
-	var node = $q('input[type="password"], input[name="password"]', dForm);
 	if(pr.passw) {
-		pr.dpass = node;
-		node.value = Cfg['passwValue'];
-	} else if(node) {
-		node.parentNode.replaceChild(pr.dpass, node);
+		pages.forEach(function(page) {
+			var node = $q('input[type="password"]', page);
+			pr.dpass = node;
+			node.value = Cfg['passwValue'];
+		});
 	}
+	$disp(node);
 	closeAlert($id('de-alert-load-pages'));
 }
 
@@ -4695,34 +4661,35 @@ function preparePage() {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
-	dForm.innerHTML = '';
+	$disp(dForm);
 	Posts = [];
 	Threads = [];
 	pByNum = {};
 	Pviews.ajaxed = {};
 }
 
-function loadPage(pNum) {
+function updatePage() {
 	preparePage();
-	loadPageHelper(dForm, pNum, function(pg, idx) {
-		parsePages([pg]);
+	loadPageHelper(pageNum, function(pg, idx) {
+		parsePages([pg], pg);
 	});
 }
 
 function loadPages(len) {
 	preparePage();
-	for(var page, i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
-		page = $new('div', {'id': 'de-page' + i}, null);
-		$append(dForm, [
-			$new('center', {'text': i + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
-			doc.createElement('hr'),
-			page
-		]);
-		loadPageHelper(page, i, function(pg, idx) {
+	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
+		loadPageHelper(i, function(pg, idx) {
 			pages[idx] = pg;
 			if(loaded === len) {
-				parsePages(pages);
-				loaded = pages = null;
+				pages.forEach(function(page, pNum) {
+					$append(el, [
+						$new('center', {'text': pNum + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
+						doc.createElement('hr'),
+						page
+					]);
+				});
+				parsePages(pages, el);
+				loaded = pages = el = null;
 			} else {
 				loaded++;
 			}
@@ -7340,7 +7307,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: aib.abu ? $id('adcopy_response') : $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
@@ -7397,7 +7364,7 @@ function parseDelform(el, dc, Fn) {
 		}
 	}
 	if(thrds.length === 0) {
-		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce((function(prevVal, curVal, i, array) {
+		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce(function(prevVal, curVal, i, array) {
 			if(array[i + 1]) {
 				if(curVal.tagName === 'HR') {
 					$before(curVal, prevVal.lastChild);
@@ -7411,7 +7378,7 @@ function parseDelform(el, dc, Fn) {
 			}
 			$after(curVal, prevVal);
 			prevVal.appendChild(curVal);
-		}).bind(Fn), dc.createElement('div'));
+		}.bind(Fn), dc.createElement('div'));
 	} else {
 		$each(thrds, Fn);
 	}
