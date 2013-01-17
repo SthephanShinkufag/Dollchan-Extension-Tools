@@ -2940,7 +2940,7 @@ function showQuickReply(post) {
 			$id('de-parea').style.display = 'none';
 		}
 	}
-	if(!pr.recap && !aib.kus) {
+	if(!pr.recap && !aib.kus && !aib.abu) {
 		refreshCapImg(tNum);
 	}
 	if(aib._420 && pr.txta.value === 'Comment') {
