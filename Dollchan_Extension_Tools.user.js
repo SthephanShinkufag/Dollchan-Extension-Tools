@@ -383,7 +383,7 @@ Lng = {
 
 uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
+aib = {}, nav, brd, TNum, pageNum, docExt, docProt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
@@ -675,17 +675,6 @@ function getImgSize(post) {
 
 function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
-}
-
-function getThrdUrl(h, b, tNum) {
-	return fixBrd(b) + (
-		/(?:^|\.)krautchan\.net$/.test(h) ? 'thread-' : 'res/'
-	) + tNum + (
-		/(?:^|\.)(?:dobrochan\.(?:ru|org)|tenhou\.ru)$/.test(h) ? '.xhtml' :
-		/(?:^|\.)420chan\.org$/.test(h) ? '.php' :
-		/(?:^|\.)2chan\.net$/.test(h) ? '.htm' :
-		'.html'
-	);
 }
 
 function getPrettyJSON(obj, indent) {
@@ -1290,18 +1279,19 @@ function showContent(cont, id, name, isUpd) {
 			for(b in Favor[h]) {
 				block = addContentBlock(cont, h + '/' + b);
 				for(tNum in Favor[h][b]) {
-					if(!Favor[h][b][tNum]['url']) {
-						Favor[h][b][tNum]['url'] = getThrdUrl(h, b, tNum);
+					i = Favor[h][b][tNum];
+					if(!i['url'].startsWith('http')) {
+						i['url'] = (h === aib.host ? docProt + '//' : 'http://') + h + i['url'];
 					}
 					block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 						$New('div', {'class': aib.cReply}, [
 							$add('<input type="checkbox">'),
 							$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-							$add('<a href="' + (h === aib.host ? '//' : 'http://') + h + Favor[h][b][tNum]['url'] + '">№' + tNum + '</a>'),
-							$add('<span class="de-fav-title"> - ' + Favor[h][b][tNum]['txt'] + '</span>'),
+							$add('<a href="' + i['url'] + '">№' + tNum + '</a>'),
+							$add('<span class="de-fav-title"> - ' + i['txt'] + '</span>'),
 							$add('<span class="de-fav-inf-page"></span>'),
 							$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-								Favor[h][b][tNum]['cnt'] + '</span>]</span>')
+								i['cnt'] + '</span>]</span>')
 						])
 					]));
 				}
@@ -1372,7 +1362,7 @@ function showContent(cont, id, name, isUpd) {
 					if(nav.Opera && arr[0] !== aib.host) {
 						return;
 					}
-					ajaxGetPosts('//' + arr[0] + Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
+					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 						saveFavorites();
 						arr = null;
@@ -1766,8 +1756,8 @@ function getCfgInfo() {
 			Lng.posts[lang] + Cfg['stats']['reply'] + '</div>'),
 		$add('<div style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.join('<br>') + '</div>'),
-		$add('<span><a href="//www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
-			'<a href="//github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
+		$add('<span><a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
+			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
 		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
@@ -2231,9 +2221,9 @@ function initKeyNavig() {
 			if(TNum) {
 				showQuickReply(Posts[pIndex]);
 			} else if(nav.Firefox) {
-				GM_openInTab('//' + aib.host + aib.getThrdUrl(brd, Threads[curTh].num), false, true);
+				GM_openInTab(aib.getThrdUrl(brd, Threads[curTh].num), false, true);
 			} else {
-				window.open('//' + aib.host + aib.getThrdUrl(brd, Threads[curTh].num), '_blank');
+				window.open(aib.getThrdUrl(brd, Threads[curTh].num), '_blank');
 			}
 			return;
 		}
@@ -3613,8 +3603,7 @@ function getTubeTitle() {
 	var queue = new $queue(8, function(num, data) {
 		setTimeout(GM_xmlhttpRequest, 0, {
 			'method': 'GET',
-			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] +
-				'?alt=json&fields=title/text()',
+			'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
 			'onreadystatechange': function(xhr) {
 				if(xhr.readyState === 4) {
 					var text;
@@ -3865,7 +3854,7 @@ function embedMP3Links(post) {
 			$before(pst.msg || $q(aib.qMsg, pst), el);
 		}
 		if(!$q('object[FlashVars*="' + link.href + '"]', el)) {
-			el.innerHTML += '<object data="//junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"><br>';
+			el.innerHTML += '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"><br>';
 		}
 	}
 }
@@ -6564,10 +6553,10 @@ function scriptCSS() {
 	}
 
 	// Search images buttons
-	cont('.de-src-google', '//google.com/favicon.ico');
-	cont('.de-src-tineye', '//tineye.com/favicon.ico');
-	cont('.de-src-iqdb', '//iqdb.org/favicon.ico');
-	cont('.de-src-saucenao', '//saucenao.com/favicon.ico');
+	cont('.de-src-google', 'http://google.com/favicon.ico');
+	cont('.de-src-tineye', 'http://tineye.com/favicon.ico');
+	cont('.de-src-iqdb', 'http://iqdb.org/favicon.ico');
+	cont('.de-src-saucenao', 'http://saucenao.com/favicon.ico');
 
 	// Posts counter
 	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
@@ -6624,7 +6613,7 @@ function scriptCSS() {
 	}
 
 	// Embedders
-	cont('.de-ytube-link', '//youtube.com/favicon.ico');
+	cont('.de-ytube-link', 'https://youtube.com/favicon.ico');
 	cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
 	x += '.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
@@ -7020,7 +7009,7 @@ function Initialization() {
 			return null;
 		};
 		aib.getThrdUrl = function(b, tNum) {
-			return fixBrd(b) + (
+			return docProt + '//' + aib.host + fixBrd(b) + (
 				aib.futa ? ('futaba.php?res=' + tNum) :
 				(aib.res + tNum + (aib.tire ? '.html' : docExt))
 			);
@@ -7206,8 +7195,8 @@ function Initialization() {
 		}; 
 	nav.fixLink =
 		nav.Safari ? function(url) {
-			return url[1] === '/' ? 'http:' + url :
-				url[0] === '/' ? 'http://' + aib.host + url :
+			return url[1] === '/' ? docProt + url :
+				url[0] === '/' ? docProt + '//' + aib.host + url :
 				url;
 		} : function(url) {
 			return url;
@@ -7289,6 +7278,7 @@ function Initialization() {
 		aib._420 ? '.php' :
 		url[4] || '.html'
 	);
+	docProt = window.location.protocol + '//';
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 	dummy = doc.createElement('div');
 	return true;
