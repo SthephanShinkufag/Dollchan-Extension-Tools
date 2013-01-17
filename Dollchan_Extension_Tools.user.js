@@ -857,6 +857,8 @@ function readCfg() {
 		if(Cfg['YTubeType'] === 2) {
 			Cfg['YTubeType'] = 1;
 		}
+		Cfg['preLoadImgs'] = 0;
+		Cfg['findImgFile'] = 0;
 		Cfg['updScript'] = 0;
 	}
 	if(Cfg['updThrDelay'] < 15) {
@@ -1575,8 +1577,8 @@ function getCfgPosts() {
 		]),
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
-		$if(nav.isBlob, lBox('preLoadImgs', true, null)),
-		$if(nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
+		$if(nav.isBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
 		])),
 		$New('div', null, [
