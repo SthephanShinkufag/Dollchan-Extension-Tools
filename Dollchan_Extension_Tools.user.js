@@ -6631,7 +6631,7 @@ function scriptCSS() {
 		.de-content-block > a { color: inherit; font-weight: bold; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; }\
-		.de-entry { margin: 2px 0; }\
+		.de-entry { margin: 2px 0; white-space: nowrap; }\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
 		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 16px serif; }\
