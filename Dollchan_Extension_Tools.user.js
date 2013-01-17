@@ -2427,17 +2427,18 @@ function refreshCapSrc(src, tNum) {
 }
 
 function refreshCapImg(tNum, isFocus) {
-	if(aib.abu) {
-		uWindow['GetCaptcha']('captcha_div');
-		if(isFocus) {
-			$q('input[name="captcha_value"]', pr.form).focus();
-		}
-	}
 	if(!pr.cap) {
 		return;
 	}
+	if(aib.abu) {
+		uWindow['GetCaptcha']('captcha_div');
+		pr.cap = $q('input[name="captcha_value"]', pr.form);
+	}
 	if(isFocus) {
 		pr.cap.focus();
+	}
+	if(aib.abu) {
+		return;
 	}
 	pr.cap.value = '';
 	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $t('img', pr.getTR(pr.cap));
@@ -2453,7 +2454,7 @@ function refreshCapImg(tNum, isFocus) {
 }
 
 function updateCaptcha() {
-	if(!pr.cap) {
+	if(!pr.cap || aib.abu) {
 		return;
 	}
 	var img, _img;
@@ -7291,7 +7292,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: !aib.abu && $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
