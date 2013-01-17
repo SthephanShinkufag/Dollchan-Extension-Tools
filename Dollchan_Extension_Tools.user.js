@@ -383,7 +383,7 @@ Lng = {
 
 uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-aib = {}, nav, brd, TNum, pageNum, docExt, docProt, docTitle,
+aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
@@ -1281,7 +1281,7 @@ function showContent(cont, id, name, isUpd) {
 				for(tNum in Favor[h][b]) {
 					i = Favor[h][b][tNum];
 					if(!i['url'].startsWith('http')) {
-						i['url'] = (h === aib.host ? docProt + '//' : 'http://') + h + i['url'];
+						i['url'] = (h === aib.host ? aib.prot + '//' : 'http://') + h + i['url'];
 					}
 					block.appendChild($New('div', {'class': 'de-entry', 'info': h + ';' + b + ';' + tNum}, [
 						$New('div', {'class': aib.cReply}, [
@@ -6911,8 +6911,9 @@ function Initialization() {
 		} : function(op) {
 			return $q('input[type="checkbox"]', op).value;
 		};
+	aib.host = window.location.hostname;
+	aib.prot = window.location.protocol;
 	if(dForm = $q(aib.qDForm, doc)) {
-		aib.host = window.location.hostname;
 		switch(aib.dm) {
 		case '0chan.hk': aib.nul = aib.kus = true; break;
 		case '2--ch.ru': aib.tire = true; break;
@@ -7009,7 +7010,7 @@ function Initialization() {
 			return null;
 		};
 		aib.getThrdUrl = function(b, tNum) {
-			return docProt + '//' + aib.host + fixBrd(b) + (
+			return aib.prot + '//' + aib.host + fixBrd(b) + (
 				aib.futa ? ('futaba.php?res=' + tNum) :
 				(aib.res + tNum + (aib.tire ? '.html' : docExt))
 			);
@@ -7195,8 +7196,8 @@ function Initialization() {
 		}; 
 	nav.fixLink =
 		nav.Safari ? function(url) {
-			return url[1] === '/' ? docProt + url :
-				url[0] === '/' ? docProt + '//' + aib.host + url :
+			return url[1] === '/' ? aib.prot + url :
+				url[0] === '/' ? aib.prot + '//' + aib.host + url :
 				url;
 		} : function(url) {
 			return url;
@@ -7278,7 +7279,6 @@ function Initialization() {
 		aib._420 ? '.php' :
 		url[4] || '.html'
 	);
-	docProt = window.location.protocol;
 	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 	dummy = doc.createElement('div');
 	return true;
