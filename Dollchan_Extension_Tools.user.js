@@ -2427,6 +2427,13 @@ function refreshCapSrc(src, tNum) {
 }
 
 function refreshCapImg(tNum) {
+	if(aib.abu) {
+		uWindow['GetCaptcha']('captcha_div');
+	}
+	if(!pr.cap) {
+		return;
+	}
+	pr.cap.value = '';
 	var src, e, img = pr.recap ? $id('recaptcha_image') || pr.recap : $t('img', pr.getTR(pr.cap));
 	if(aib.hana || pr.recap) {
 		e = doc.createEvent('MouseEvents');
@@ -2440,7 +2447,7 @@ function refreshCapImg(tNum) {
 }
 
 function updateCaptcha() {
-	if(!pr.cap || aib.abu) {
+	if(!pr.cap) {
 		return;
 	}
 	var img, _img;
@@ -2502,14 +2509,6 @@ function updateCaptcha() {
 			TNum || 0
 		);
 	}, 50, _img);
-}
-
-function updateABUCap(focus) {
-	uWindow['GetCaptcha']('captcha_div');
-	pr.cap = $q('input[name="captcha_value"]', pr.form);
-	if(pr.cap && focus) {
-		pr.cap.focus();
-	}
 }
 
 function doPostformChanges(el, btn) {
@@ -2659,14 +2658,8 @@ function checkUpload(response) {
 			$disp(qArea = $id('de-qarea'));
 			qArea.appendChild($id('de-pform'));
 		}
-		if(pr.cap && /captch|капч|подтвер/i.test(err)) {
-			if(aib.abu) {
-				updateABUCap(true);
-			} else {
-				pr.cap.value = '';
-				pr.cap.focus();
-				refreshCapImg(pr.tNum);
-			}
+		if(/captch|капч|подтвер/i.test(err)) {
+			refreshCapImg(pr.tNum);
 		}
 		$alert(err, 'upload', false);
 		return;
@@ -2697,14 +2690,7 @@ function checkUpload(response) {
 		loadThread(pByNum[pr.tNum], 5, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	showMainReply();
-	if(pr.cap) {
-		if(aib.abu) {
-			updateABUCap(false);
-		} else {
-			pr.cap.value = '';
-			refreshCapImg(pr.tNum);
-		}
-	}
+	refreshCapImg(pr.tNum);
 }
 
 function endDelete() {
@@ -2954,7 +2940,7 @@ function showQuickReply(post) {
 			$id('de-parea').style.display = 'none';
 		}
 	}
-	if(pr.cap && !pr.recap && !aib.kus && !aib.abu) {
+	if(!pr.recap && !aib.kus) {
 		refreshCapImg(tNum);
 	}
 	if(aib._420 && pr.txta.value === 'Comment') {
@@ -7299,7 +7285,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: !aib.abu && $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
