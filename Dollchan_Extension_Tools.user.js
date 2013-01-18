@@ -1056,15 +1056,16 @@ function pButton(id, click, href, over, out) {
 	]);
 }
 
-function closePanel() {
+function closePanel(el) {
 	if(Cfg['animation']) {
-		nav.animEvent($id('de-panel'), function(node) {
-			$id('de-panel-btns').style.display = 'none';
-			$id('de-panel').removeAttribute('class');
+		nav.animEvent(el, function(node) {
+			node.lastChild.style.display = 'none';
+			node.removeAttribute('class');
+			node.attach = false;
 		});
-		$id('de-panel').className = 'de-panel-close';
+		el.className = 'de-panel-close';
 	} else {
-		$id('de-panel-btns').style.display = 'none';
+		el.lastChild.style.display = 'none';
 	}
 }
 
@@ -1075,8 +1076,7 @@ function addPanel() {
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				var el = this.parentNode;
 				if(Cfg['expandPanel']) {
-					closePanel();
-					el.attach = false;
+					closePanel(el);
 				} else {
 					el.attach = true;
 				}
@@ -1154,7 +1154,7 @@ function addPanel() {
 			'mouseover': function() {
 				if(!Cfg['expandPanel']) {
 					clearTimeout(this.odelay);
-					$id('de-panel-btns').style.display = 'inline-block';
+					this.lastChild.style.display = 'inline-block';
 					if(Cfg['animation']) {
 						this.className = 'de-panel-open';
 					}
@@ -1162,7 +1162,7 @@ function addPanel() {
 			},
 			'mouseout': function() {
 				if(!Cfg['expandPanel'] && !this.attach) {
-					this.odelay = setTimeout(closePanel, 500);
+					this.odelay = setTimeout(closePanel, 500, this);
 				}
 			}
 		}),
