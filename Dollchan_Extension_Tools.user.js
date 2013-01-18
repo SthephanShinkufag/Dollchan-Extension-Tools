@@ -1056,11 +1056,30 @@ function pButton(id, click, href, over, out) {
 	]);
 }
 
+function closePanel() {
+	if(Cfg['animation']) {
+		nav.animEvent($id('de-panel'), function(node) {
+			$id('de-panel-btns').style.display = 'none';
+			$id('de-panel').removeAttribute('class');
+		});
+		$id('de-panel').className = 'de-panel-close';
+	} else {
+		$id('de-panel-btns').style.display = 'none';
+	}
+}
+
 function addPanel() {
 	var imgLen = getPostImages(dForm).length;
 	$before(dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
 		$event($New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
+				var el = this.parentNode;
+				if(Cfg['expandPanel']) {
+					closePanel();
+					el.locked = false;
+				} else {
+					el.locked = true;
+				}
 				toggleCfg('expandPanel');
 			}}),
 			$New('ul', {
@@ -1142,18 +1161,8 @@ function addPanel() {
 				}
 			},
 			'mouseout': function() {
-				if(!Cfg['expandPanel'] && !$c('de-content', doc).hasChildNodes()) {
-					this.odelay = setTimeout(function() {
-						if(Cfg['animation']) {
-							nav.animEvent(this, function(node) {
-								$id('de-panel-btns').style.display = 'none';
-								$id('de-panel').removeAttribute('class');
-							});
-							$id('de-panel').className = 'de-panel-close';
-						} else {
-							$id('de-panel-btns').style.display = 'none';
-						}
-					}, 500);
+				if(!Cfg['expandPanel'] && !this.locked) {
+					this.odelay = setTimeout(closePanel, 500);
 				}
 			}
 		}),
@@ -1172,6 +1181,7 @@ function toggleContent(name, isUpd) {
 	if(isUpd && el.id !== id) {
 		return;
 	}
+	$id('de-panel').locked = isUpd || el.id !== id;
 	if(el.hasChildNodes() && Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			showContent(node, id, name, isUpd);
@@ -1195,7 +1205,7 @@ function addContentBlock(parent, title) {
 }
 
 function showContent(cont, id, name, isUpd) {
-	var h, b, tNum, i, els, post, cln, block, obj;
+	var h, b, tNum, els, post, cln, block, obj, i = $id('de-panel');
 	cont.innerHTML = cont.style.backgroundColor = '';
 	if(!isUpd && cont.id === id) {
 		cont.removeAttribute('id');
