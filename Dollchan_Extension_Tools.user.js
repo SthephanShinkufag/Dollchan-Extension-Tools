@@ -228,6 +228,7 @@ Lng = {
 	},
 
 	panelBtn: {
+		'attach':	['Прикрепить/Открепить', 'Attach/Detach'],
 		'settings':	['Настройки', 'Settings'],
 		'hidden':	['Скрытое', 'Hidden'],
 		'favor':	['Избранное', 'Favorites'],
@@ -1058,12 +1059,14 @@ function pButton(id, click, href, over, out) {
 function addPanel() {
 	var imgLen = getPostImages(dForm).length;
 	$before(dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
-		$New('div', {'id': 'de-panel'}, [
-			$new('span', {'id': 'de-btn-logo'}, {'click': function() {
+		$event($New('div', {'id': 'de-panel'}, [
+			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				toggleCfg('expandPanel');
-				updateCSS();
 			}}),
-			$New('ul', {'id': 'de-panel-btns'}, [
+			$New('ul', {
+				'id': 'de-panel-btns',
+				'style': 'display: ' + (Cfg['expandPanel'] ? 'inline-block;' : 'none;')
+			}, [
 				pButton('settings', function(e) {
 					$pd(e);
 					toggleContent('cfg', false);
@@ -1124,11 +1127,36 @@ function addPanel() {
 					'catalog', null,
 					'//' + aib.host + '/' + brd + '/catalog.html',
 					null, null
-				))
-			]),
-			$if(TNum, $add('<div id="de-panel-info"><span title="' +  Lng.panelBtn['counter'][lang] + '">' +
-				Posts.length + '/' + imgLen + '</span></div>'))
-		]),
+				)),
+				$if(TNum, $add('<div id="de-panel-info"><span title="' +  Lng.panelBtn['counter'][lang] + '">' +
+					Posts.length + '/' + imgLen + '</span></div>'))
+			])
+		]), {
+			'mouseover': function() {
+				if(!Cfg['expandPanel']) {
+					clearTimeout(this.odelay);
+					$id('de-panel-btns').style.display = 'inline-block';
+					if(Cfg['animation']) {
+						this.className = 'de-panel-open';
+					}
+				}
+			},
+			'mouseout': function() {
+				if(!Cfg['expandPanel'] && !$c('de-content', doc).hasChildNodes()) {
+					this.odelay = setTimeout(function() {
+						if(Cfg['animation']) {
+							nav.animEvent(this, function(node) {
+								$id('de-panel-btns').style.display = 'none';
+								$id('de-panel').removeAttribute('class');
+							});
+							$id('de-panel').className = 'de-panel-close';
+						} else {
+							$id('de-panel-btns').style.display = 'none';
+						}
+					}, 500);
+				}
+			}
+		}),
 		$new('div', {'class': 'de-content'}, null),
 		$new('div', {'id': 'de-alert'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
@@ -6483,7 +6511,7 @@ function scriptCSS() {
 	// Main panel
 	x += '#de-btn-logo { margin-right: 3px; cursor: pointer; }\
 		#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
-		#de-panel-btns { display: inline-block; padding: 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
+		#de-panel-btns { padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 		#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 		#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
 		#de-panel-btns > li { margin: 0 1px; padding: 0; }\
@@ -6492,7 +6520,7 @@ function scriptCSS() {
 		#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 		#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\
 		#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#de-panel-info { display: inline-block; vertical-align: top; padding: 0 6px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
+		#de-panel-info { display: inline-block; vertical-align: top; padding: 0 6px; margin: 0 0 0 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
 	gif('#de-btn-logo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	gif('#de-btn-settings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
@@ -6591,6 +6619,8 @@ function scriptCSS() {
 			}\
 			@keyframes de-cfg-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
 			@keyframes de-cfg-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
+			@keyframes de-panel-open { from { transform: translateX(92%); } to { transform: translateX(0); } }\
+			@keyframes de-panel-close { to { transform: translateX(92%); } }\
 			@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
@@ -6604,7 +6634,9 @@ function scriptCSS() {
 			.de-close { animation: de-close .7s ease-in both; }\
 			.de-blink { animation: de-blink .7s ease-in-out both; }\
 			.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\
-			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }';
+			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\
+			.de-panel-open { animation: de-panel-open .2s ease-out backwards; }\
+			.de-panel-close { animation: de-panel-close .2s ease-in both; }';
 	}
 
 	// Embedders
@@ -6747,9 +6779,6 @@ function updateCSS() {
 	}
 	if(!Cfg['panelCounter']) {
 		x += '#de-panel-info { display: none; }';
-	}
-	if(!Cfg['expandPanel']) {
-		x += '#de-panel-btns, #de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
 		x+= '.de-img-pre, .de-ytube-obj, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
