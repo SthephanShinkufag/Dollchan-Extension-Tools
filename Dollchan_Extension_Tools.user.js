@@ -1076,9 +1076,9 @@ function addPanel() {
 				var el = this.parentNode;
 				if(Cfg['expandPanel']) {
 					closePanel();
-					el.locked = false;
+					el.attach = false;
 				} else {
-					el.locked = true;
+					el.attach = true;
 				}
 				toggleCfg('expandPanel');
 			}}),
@@ -1161,7 +1161,7 @@ function addPanel() {
 				}
 			},
 			'mouseout': function() {
-				if(!Cfg['expandPanel'] && !this.locked) {
+				if(!Cfg['expandPanel'] && !this.attach) {
 					this.odelay = setTimeout(closePanel, 500);
 				}
 			}
@@ -1181,7 +1181,7 @@ function toggleContent(name, isUpd) {
 	if(isUpd && el.id !== id) {
 		return;
 	}
-	$id('de-panel').locked = isUpd || el.id !== id;
+	$id('de-panel').attach = isUpd || el.id !== id;
 	if(el.hasChildNodes() && Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			showContent(node, id, name, isUpd);
@@ -1205,7 +1205,7 @@ function addContentBlock(parent, title) {
 }
 
 function showContent(cont, id, name, isUpd) {
-	var h, b, tNum, els, post, cln, block, obj, i = $id('de-panel');
+	var h, b, tNum, i, els, post, cln, block, obj;
 	cont.innerHTML = cont.style.backgroundColor = '';
 	if(!isUpd && cont.id === id) {
 		cont.removeAttribute('id');
