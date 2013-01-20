@@ -854,6 +854,7 @@ function readCfg() {
 	if(nav.Opera) {
 		if(nav.Opera < 12) {
 			Cfg['YTubeTitles'] = 0;
+			Cfg['animation'] = 0;
 		}
 		if(Cfg['YTubeType'] === 2) {
 			Cfg['YTubeType'] = 1;
@@ -1060,12 +1061,13 @@ function closePanel(el) {
 	if(Cfg['animation']) {
 		nav.animEvent(el, function(node) {
 			node.lastChild.style.display = 'none';
-			node.removeAttribute('class');
 			node.attach = false;
+			node.removeAttribute('class');
 		});
 		el.className = 'de-panel-close';
 	} else {
 		el.lastChild.style.display = 'none';
+		el.attach = false;
 	}
 }
 
