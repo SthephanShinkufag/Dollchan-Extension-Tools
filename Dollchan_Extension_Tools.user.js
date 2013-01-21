@@ -850,7 +850,9 @@ function readCfg() {
 	}
 	if(nav.Opera) {
 		if(nav.Opera < 12) {
-			Cfg['YTubeTitles'] = 0;
+			if(!nav.isGM) {
+				Cfg['YTubeTitles'] = 0;
+			}
 			Cfg['animation'] = 0;
 		}
 		if(Cfg['YTubeType'] === 2) {
@@ -858,7 +860,9 @@ function readCfg() {
 		}
 		Cfg['preLoadImgs'] = 0;
 		Cfg['findImgFile'] = 0;
-		Cfg['updScript'] = 0;
+		if(!nav.isGM) {
+			Cfg['updScript'] = 0;
+		}
 	}
 	if(Cfg['updThrDelay'] < 15) {
 		Cfg['updThrDelay'] = 15;
@@ -1398,7 +1402,7 @@ function showContent(cont, id, name, isUpd) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($C('de-entry', doc), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					if(nav.Opera && arr[0] !== aib.host) {
+					if(nav.Opera && !nav.isGM && arr[0] !== aib.host) {
 						return;
 					}
 					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
@@ -1689,7 +1693,7 @@ function getCfgLinks() {
 				$txt(' '),
 				lBox('YTubeHD', false, null)
 			]),
-			$if(!(nav.Opera && nav.Opera < 12), lBox('YTubeTitles', false, null))
+			$if(!(nav.Opera && nav.Opera < 12 && !nav.isGM), lBox('YTubeTitles', false, null))
 		])
 	]);
 }
@@ -1769,7 +1773,7 @@ function getCfgCommon() {
 		lBox('rePageTitle', true, null),
 		$if(nav.Anim, lBox('animation', true, null)),
 		lBox('closePopups', true, null),
-		$if(!nav.Opera, $New('div', null, [
+		$if(!(nav.Opera && !nav.isGM), $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', true, null),
@@ -7179,7 +7183,7 @@ function Initialization() {
 	};
 	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
 	nav.Safari = nav.WebKit && !nav.Chrome;
-	nav.isGM = (nav.Firefox || nav.Safari) && typeof GM_setValue === 'function';
+	nav.isGM = !nav.Chrome && typeof GM_setValue === 'function';
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
@@ -7254,8 +7258,8 @@ function Initialization() {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
 	uWindow =
-		nav.Opera ? window :
-		nav.Firefox ? unsafeWindow :
+		nav.Opera && !nav.isGM ? window :
+		!nav.WebKit ? unsafeWindow :
 		(function() {
 			var el = doc.createElement('p');
 			el.setAttribute('onclick', 'return window;');
