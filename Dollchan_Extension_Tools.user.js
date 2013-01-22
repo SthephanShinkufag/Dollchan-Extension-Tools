@@ -2473,11 +2473,14 @@ function refreshCapImg(tNum, isFocus) {
 	if(aib.abu) {
 		uWindow['GetCaptcha']('captcha_div');
 		pr.cap = $q('input[name="captcha_value"]', pr.form);
+	} else if(aib.krau) {
+		uWindow['requestCaptcha'](true);
+		pr.cap.value = '';
 	}
 	if(isFocus) {
 		pr.cap.focus();
 	}
-	if(aib.abu) {
+	if(aib.abu || aib.krau) {
 		return;
 	}
 	pr.cap.value = '';
@@ -2500,6 +2503,13 @@ function updateCaptcha() {
 	var img, _img;
 	if(pr.recap && (img = $id('recaptcha_image'))) {
 		$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+	}
+	if(aib.krau) {
+		if(!uWindow['boardRequiresCaptcha']) {
+			pr.cap = void 0;
+			return;
+		}
+		$id('captcha_image').onclick = refreshCapImg.bind(window, 0, true);
 	}
 	pr.cap.autocomplete = 'off';
 	pr.cap.onfocus = null;
@@ -2527,7 +2537,7 @@ function updateCaptcha() {
 			$txtInsert(e.target, chr);
 		};
 	})();
-	if(aib.hana || pr.recap) {
+	if(aib.hana || aib.krau || pr.recap) {
 		return;
 	}
 	img = $q('a, img', pr.getTR(pr.cap));
@@ -2536,7 +2546,7 @@ function updateCaptcha() {
 		'title': Lng.refresh[lang],
 		'style': 'display: block; border: none; cursor: pointer;'}, {
 		'click': function() {
-			refreshCapImg(TNum || 0, false);
+			refreshCapImg(TNum || 0, true);
 		}
 	});
 	if(img) {
@@ -2987,7 +2997,7 @@ function showQuickReply(post) {
 			$id('de-parea').style.display = 'none';
 		}
 	}
-	if(!pr.recap && !aib.kus && !aib.abu) {
+	if(!pr.recap && !aib.kus && !aib.abu && !aib.krau) {
 		refreshCapImg(tNum, false);
 	}
 	if(aib._420 && pr.txta.value === 'Comment') {
@@ -7183,7 +7193,7 @@ function Initialization() {
 	};
 	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
 	nav.Safari = nav.WebKit && !nav.Chrome;
-	nav.isGM = !nav.Chrome && typeof GM_setValue === 'function';
+	nav.isGM = typeof GM_setValue === 'function' && (!nav.Chrome || !GM_setValue.toString().contains('not supported'));
 	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
@@ -7341,7 +7351,7 @@ function getPostform(form) {
 		tNum: TNum,
 		form: form,
 		recap: recap,
-		cap: $q('input[name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
+		cap: $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', form) || recap,
 		txta: $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form),
 		subm: $q(tr + ' input[type="submit"]', form),
 		file: $q(tr + ' input[type="file"]', form),
