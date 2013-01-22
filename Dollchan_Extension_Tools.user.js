@@ -7183,7 +7183,7 @@ function Initialization() {
 	nav.Safari = nav.WebKit && !nav.Chrome;
 	if(typeof GM_setValue !== 'function' || nav.Chrome && GM_setValue.toString().contains('not supported')) {
 		if(nav.Opera) {
-			alert('Please install extension https://addons.opera.com/extensions/violent-monkey/');
+			alert('Please install extension https://addons.opera.com/en/extensions/details/violent-monkey/');
 		} else if(nav.Chrome) {
 			alert('Please install extension https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo');
 		}
