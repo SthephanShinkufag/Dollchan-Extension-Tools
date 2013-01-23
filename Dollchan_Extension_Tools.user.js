@@ -1872,7 +1872,7 @@ function addSettings(Set) {
 				}),
 				addEditButton('cfg', Cfg, true, function() {
 					saveComCfg(aib.dm, JSON.parse(
-						$t('textarea', $id('de-alert-edit-cfg')).value.trim().replace(/[\n\r\t]/g, '')
+						$t('textarea', $id('de-alert-edit-cfg')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
 					));
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
@@ -2828,7 +2828,7 @@ function submitFormData() {
 		headers['Referer'] = '' + doc.location;
 	}
 	fData.data.push('--' + fData.boundary + '--\r\n');
-	GM_xmlhttpRequest({
+	$xhr({
 		'method': 'POST',
 		'headers': headers,
 		'data': new Blob(fData.data),
