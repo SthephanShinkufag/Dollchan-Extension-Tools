@@ -2823,14 +2823,10 @@ function submitFormData() {
 	if(fData.error || fData.busy) {
 		return;
 	}
-	var headers = {'Content-type': 'multipart/form-data; boundary=' + fData.boundary};
-	if(nav.Firefox) {
-		headers['Referer'] = '' + doc.location;
-	}
 	fData.data.push('--' + fData.boundary + '--\r\n');
 	$xhr({
 		'method': 'POST',
-		'headers': headers,
+		'headers': {'Content-type': 'multipart/form-data; boundary=' + fData.boundary},
 		'data': new Blob(fData.data),
 		'url': nav.fixLink(fData.url),
 		'onreadystatechange': function(xhr) {
