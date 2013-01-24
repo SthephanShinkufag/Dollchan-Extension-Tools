@@ -7566,14 +7566,16 @@ function initPage() {
 			Favico.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
 		} else {
 			Favico.focused = false;
-			doc.body.onfocus = onVis;
-			doc.body.onblur = function() {
-				Favico.focused = false;
-			};
-			doc.body.onmousemove = function() {
-				Favico.focused = true;
-				doc.body.onmousemove = null;
-			};
+			$event(window, {
+				'focus': onVis,
+				'blur': function() {
+					Favico.focused = false;
+				},
+				'mousemove': function mouseMove() {
+					Favico.focused = true;
+					$revent(window, {'mousemove': mouseMove});
+				}}
+			);
 		}
 		initThreadsUpdater();
 	}
