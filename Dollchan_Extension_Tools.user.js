@@ -7572,7 +7572,7 @@ function initPage() {
 					Favico.focused = false;
 				},
 				'mousemove': function mouseMove() {
-					Favico.focused = true;
+					onVis();
 					$revent(window, {'mousemove': mouseMove});
 				}}
 			);
