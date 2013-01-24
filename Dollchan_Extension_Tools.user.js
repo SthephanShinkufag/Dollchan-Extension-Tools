@@ -7129,6 +7129,8 @@ function Initialization() {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 			} : aib.nul ? function(post) {
 				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
+			} : aib.abu && $c('postertripid', dForm) ? function(post) {
+				return !$c('postertripid', post);
 			} : function(post) {
 				var a = $q('a[href^="mailto:"], a[href="sage"]', post);
 				return a && /sage/i.test(a.href);
