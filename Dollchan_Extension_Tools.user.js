@@ -7667,8 +7667,8 @@ function doScript() {
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
-if(doc.body) {
-	doScript()
+if(/interactive|complete/.test(doc.readyState)) {
+	doScript();
 } else {
 	$event(doc, {'DOMContentLoaded': doScript});
 }
