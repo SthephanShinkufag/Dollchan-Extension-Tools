@@ -836,7 +836,7 @@ function readCfg() {
 			Cfg['ajaxReply'] = 1;
 		}
 	}
-	if((aib.nul || aib.tiny) && Cfg['ajaxReply'] === 2) {
+	if(aib.tiny && Cfg['ajaxReply'] === 2) {
 		Cfg['ajaxReply'] = 1;
 	}
 	if(!nav.Firefox) {
@@ -7565,15 +7565,15 @@ function initPage() {
 			);
 			Favico.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
 		} else {
-			window.onblur = function() {
+			Favico.focused = false;
+			doc.body.onfocus = onVis;
+			doc.body.onblur = function() {
 				Favico.focused = false;
 			};
-			window.onfocus = onVis;
-			Favico.focused = false;
-			$event(window, {'mousemove': function mouseMove() {
+			doc.body.onmousemove = function() {
 				Favico.focused = true;
-				$revent(window, {'mousemove': mouseMove});
-			}});
+				doc.body.onmousemove = null;
+			};
 		}
 		initThreadsUpdater();
 	}
