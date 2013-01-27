@@ -7371,10 +7371,10 @@ function tryToParse(node) {
 			el.target = '_blank';
 		});
 	} else if(aib.abu && TNum && (node = $c('de-thread', node))) {
-		while(node.nextSibling) {
-			$del(node.nextSibling);
+		var el;
+		while((el = node.nextSibling) && el.tagName !== 'HR') {
+			$del(el);
 		}
-		node.insertAdjacentHTML('afterend', '<hr>');
 	}
 	return true;
 }
