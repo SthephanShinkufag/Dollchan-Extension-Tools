@@ -6915,10 +6915,13 @@ function Initialization() {
 	case 'britfa.gs': aib.brit = true; break;
 	case '420chan.org': aib._420 = true; break;
 	default:
-		aib.hana = !!$q('script[src*="hanabira"]', doc);
-		aib.futa = !!$q('form[action*="futaba.php"]', doc);
-		aib.tiny = !!$q('form[name*="postcontrols"]', doc);
-		aib.kus = !!$q('script[src*="kusaba"]', doc);
+		switch(true) {
+		case !!$q('script[src*="hanabira"]', doc): aib.hana = true; break;
+		case !!$q('form[action*="futaba.php"]', doc): aib.futa = true; break;
+		case !!$q('form[name*="postcontrols"]', doc): aib.tiny = true; break;
+		case !!$q('script[src*="kusaba"]', doc): aib.kus = true; break;
+		case !!$id('ABU_css'): aib.abu = true; break;
+		}
 	}
 	if(aib.hana && window.location.pathname === '/settings') {
 		$event($q('input[type="button"]', doc), {'click': function() {
@@ -6927,6 +6930,7 @@ function Initialization() {
 		return false;
 	}
 	aib.qDForm =
+		aib.abu ? '#posts_form' :
 		aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
 		aib.tiny ? 'form[name="postcontrols"]' :
@@ -6964,7 +6968,6 @@ function Initialization() {
 		case 'ernstchan.com':
 		case 'ernstchan.net': aib.erns = true; break;
 		default:
-			aib.abu = !!$id('ABU_css');
 			aib.tinyIb = !!$q('form[action*="imgboard.php?delete"]', doc);
 		}
 		aib._4chon = aib.tiny && !aib.mlpg;
