@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			13.1.14.0
+// @version			13.1.27.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 (function(scriptStorage) {
-var version = '13.1.14.0',
+var version = '13.1.27.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -750,9 +750,35 @@ function getCookie(id) {
 	return false;
 }
 
+function getStored(id) {
+	return nav.isGM ? GM_getValue(id) :
+		scriptStorage ? scriptStorage.getItem(id) :
+		localStorage.getItem(id);
+}
+
+function setStored(id, value) {
+	if(nav.isGM) {
+		GM_setValue(id, value);
+	} else if(scriptStorage) {
+		scriptStorage.setItem(id, value);
+	} else {
+		localStorage.setItem(id, value);
+	}
+}
+
+function delStored(id) {
+	if(nav.isGM) {
+		GM_deleteValue(id);
+	} else if(scriptStorage) {
+		scriptStorage.removeItem(id);
+	} else {
+		localStorage.removeItem(id);
+	}
+}
+
 function getStoredObj(id) {
 	try {
-		return JSON.parse(GM_getValue(id)) || {};
+		return JSON.parse(getStored(id)) || {};
 	} catch(e) {
 		return {};
 	}
@@ -768,7 +794,7 @@ function saveComCfg(dm, obj) {
 	} else {
 		delete comCfg[dm];
 	}
-	GM_setValue('DESU_Config', JSON.stringify(comCfg));
+	setStored('DESU_Config', JSON.stringify(comCfg) || '');
 }
 
 function saveCfg(id, val) {
@@ -778,53 +804,15 @@ function saveCfg(id, val) {
 	}
 }
 
-function convSStorage(id) {
-	var data = scriptStorage.getItem(id);
-	if(data) {
-		GM_setValue(id, data);
-		scriptStorage.removeItem(id);
-	}
-}
-
-function convLStorage(id, isCommon) {
-	var obj, target, data = localStorage.getItem(id);
-	try {
-		obj = JSON.parse(data);
-	} catch(e) {}
-	if(getCfg(obj)) {
-		if(isCommon) {
-			target = getStoredObj(id);
-			target[aib.dm] = obj[aib.dm];
-			GM_setValue(id, JSON.stringify(target));
-		} else {
-			GM_setValue(id, JSON.stringify(obj));
-		}
-		localStorage.removeItem(id);
-	}
-}
-
 function readCfg() {
-	if(nav.Opera && !!scriptStorage && scriptStorage.getItem('DESU_Config')) {
-		convSStorage('DESU_Config');
-		convSStorage('DESU_Favorites');
-		convSStorage('DESU_Threads');
-		convSStorage('DESU_Posts_' + aib.dm);
-		convSStorage('DESU_Spells_' + aib.dm);
-		convSStorage('DESU_CSpells_' + aib.dm);
-	} else if((nav.Opera || nav.Chrome) && localStorage.getItem('DESU_Config')) {
-		convLStorage('DESU_Config', true);
-		convLStorage('DESU_Favorites', true);
-		convLStorage('DESU_Threads', true);
-		convLStorage('DESU_Posts_' + aib.dm, false);
-		convLStorage('DESU_Spells_' + aib.dm, false);
-		convLStorage('DESU_CSpells_' + aib.dm, false);
-	}
 	comCfg = getStoredObj('DESU_Config');
 	Cfg = getCfg(comCfg[aib.dm]);
 	if(!Cfg) {
 		Cfg = {};
-		for(var i in comCfg['global']) {
-			Cfg[i] = comCfg['global'][i];
+		if(nav.isGlobal) {
+			for(var i in comCfg['global']) {
+				Cfg[i] = comCfg['global'][i];
+			}
 		}
 		Cfg['captchaLang'] = aib.ru ? 2 : 1;
 		Cfg['timePattern'] = Cfg['timeOffset'] = '';
@@ -850,6 +838,9 @@ function readCfg() {
 	}
 	if(nav.Opera) {
 		if(nav.Opera < 12) {
+			if(!nav.isGM) {
+				Cfg['YTubeTitles'] = 0;
+			}
 			Cfg['animation'] = 0;
 		}
 		if(Cfg['YTubeType'] === 2) {
@@ -857,6 +848,9 @@ function readCfg() {
 		}
 		Cfg['preLoadImgs'] = 0;
 		Cfg['findImgFile'] = 0;
+		if(!nav.isGM) {
+			Cfg['updScript'] = 0;
+		}
 	}
 	if(Cfg['updThrDelay'] < 15) {
 		Cfg['updThrDelay'] = 15;
@@ -940,7 +934,7 @@ function saveUserPostsVisib() {
 		});
 		str = JSON.stringify(uVis);
 	}
-	GM_setValue('DESU_Posts_' + aib.dm + '_' + brd, str);
+	setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
 	toggleContent('hid', true);
 }
 
@@ -961,7 +955,7 @@ function cleanHiddenThreads(b) {
 function saveHiddenThreads() {
 	(comHThr[aib.dm] || (comHThr[aib.dm] = {}))[brd] = hThr;
 	cleanHiddenThreads(brd);
-	GM_setValue('DESU_Threads', JSON.stringify(comHThr));
+	setStored('DESU_Threads', JSON.stringify(comHThr));
 }
 
 function toggleHiddenThread(post, vis) {
@@ -978,7 +972,7 @@ function readFavorites() {
 }
 
 function saveFavorites() {
-	GM_setValue('DESU_Favorites', JSON.stringify(Favor));
+	setStored('DESU_Favorites', JSON.stringify(Favor));
 	toggleContent('fav', true);
 }
 
@@ -1278,11 +1272,14 @@ function showContent(cont, id, name, isUpd) {
 				comHThr[aib.dm] = JSON.parse(
 					$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
 				);
-				GM_setValue('DESU_Threads', JSON.stringify(comHThr));
+				setStored('DESU_Threads', JSON.stringify(comHThr));
 			}),
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
 					var arr = el.getAttribute('info').split(';');
+					if(nav.Opera && !nav.isGM && arr[0] !== aib.host) {
+						return;
+					}
 					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(err) {
 						delete comHThr[aib.dm][arr[0]][arr[1]];
 						cleanHiddenThreads(arr[0]);
@@ -1341,7 +1338,7 @@ function showContent(cont, id, name, isUpd) {
 				Favor = JSON.parse(
 					$t('textarea', $id('de-alert-edit-favor')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
 				);
-				GM_setValue('DESU_Favorites', JSON.stringify(Favor));
+				setStored('DESU_Favorites', JSON.stringify(Favor));
 			}),
 			$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 				$each($C('de-entry', doc), function(el) {
@@ -1357,7 +1354,7 @@ function showContent(cont, id, name, isUpd) {
 						if(cnt > f.cnt) {
 							c.className = 'de-fav-inf-new';
 							f.cnt = cnt;
-							GM_setValue('DESU_Favorites', JSON.stringify(Favor));
+							setStored('DESU_Favorites', JSON.stringify(Favor));
 						} else {
 							c.className = 'de-fav-inf-old';
 						}
@@ -1684,7 +1681,7 @@ function getCfgLinks() {
 				$txt(' '),
 				lBox('YTubeHD', false, null)
 			]),
-			lBox('YTubeTitles', false, null)
+			$if(!(nav.Opera && nav.Opera < 12 && !nav.isGM), lBox('YTubeTitles', false, null))
 		])
 	]);
 }
@@ -1764,18 +1761,20 @@ function getCfgCommon() {
 		lBox('rePageTitle', true, null),
 		$if(nav.Anim, lBox('animation', true, null)),
 		lBox('closePopups', true, null),
-		lBox('updScript', true, null),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			optSel('scrUpdIntrv', true, null),
-			$btn(Lng.checkNow[lang], '', function() {
-				var el = $id('de-cfg-updresult');
-				el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
-				checkForUpdates(true, function(html) {
-					el.innerHTML = html;
-				});
-			})
-		]),
-		$new('div', {'id': 'de-cfg-updresult'}, null)
+		$if(!(nav.Opera && !nav.isGM), $New('div', null, [
+			lBox('updScript', true, null),
+			$New('div', {'class': 'de-cfg-depend'}, [
+				optSel('scrUpdIntrv', true, null),
+				$btn(Lng.checkNow[lang], '', function() {
+					var el = $id('de-cfg-updresult');
+					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
+					checkForUpdates(true, function(html) {
+						el.innerHTML = html;
+					});
+				})
+			]),
+			$new('div', {'id': 'de-cfg-updresult'}, null)
+		]))
 	]);
 }
 
@@ -1803,7 +1802,7 @@ function getCfgInfo() {
 				'nav': nav,
 				'cfg': nCfg,
 				'spells': spells.list.split('\n'),
-				'cSpells': GM_getValue('DESU_CSpells_' + aib.dm),
+				'cSpells': getStored('DESU_CSpells_' + aib.dm),
 				'oSpells': sessionStorage['de-spells-' + brd + TNum],
 				'perf': timeLog
 			}, '') + '</textarea>', 'help-debug', false);
@@ -1852,15 +1851,15 @@ function addSettings(Set) {
 				toggleContent('cfg', false);
 			}),
 			$New('div', {'style': 'float: right;'}, [
-				$btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
+				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(getCfg(comCfg['global'])) {
 						saveComCfg(aib.dm, null);
 						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 					}
-				}),
-				$btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
+				})),
+				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
 					var i, obj = {},
 						com = comCfg[aib.dm];
 					for(i in com) {
@@ -1870,7 +1869,7 @@ function addSettings(Set) {
 					}
 					saveComCfg('global', obj);
 					toggleContent('cfg', true);
-				}),
+				})),
 				addEditButton('cfg', Cfg, true, function() {
 					saveComCfg(aib.dm, JSON.parse(
 						$t('textarea', $id('de-alert-edit-cfg')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
@@ -1878,10 +1877,10 @@ function addSettings(Set) {
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
-						GM_deleteValue('DESU_Config');
-						GM_deleteValue('DESU_Favorites');
-						GM_deleteValue('DESU_Threads');
-						GM_setValue(
+						delStored('DESU_Config');
+						delStored('DESU_Favorites');
+						delStored('DESU_Threads');
+						setStored(
 							'DESU_Spells_' + aib.dm,
 							'[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]'
 						);
@@ -6280,7 +6279,7 @@ Spells.prototype = {
 	saveSpells: function(val) {
 		this.hash = ELFHash(val);
 		this.list = val;
-		GM_setValue('DESU_Spells_' + aib.dm, JSON.stringify([1, this.hash, this.list]));
+		setStored('DESU_Spells_' + aib.dm, JSON.stringify([1, this.hash, this.list]));
 		if(!val) {
 			this._disable();
 		}
@@ -6296,7 +6295,7 @@ Spells.prototype = {
 		if(outreps.length === 0) {
 			outreps = false;
 		}
-		GM_setValue('DESU_CSpells_' + aib.dm, JSON.stringify([this.hash, gSpells, reps, outreps]));
+		setStored('DESU_CSpells_' + aib.dm, JSON.stringify([this.hash, gSpells, reps, outreps]));
 		reps = this._optimizeReps(reps);
 		outreps = this._optimizeReps(outreps);
 		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
@@ -6304,7 +6303,7 @@ Spells.prototype = {
 		this.saveSpells(this._TEMP.list);
 	},
 	read: function() {
-		var arr, data = GM_getValue('DESU_Spells_' + aib.dm);
+		var arr, data = getStored('DESU_Spells_' + aib.dm);
 		this.readed = true;
 		if(data) {
 			try {
@@ -6340,7 +6339,7 @@ Spells.prototype = {
 			}
 		} catch(e) {}
 		try {
-			data = JSON.parse(GM_getValue('DESU_CSpells_' + aib.dm));
+			data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
 			if(data && data[0] === this.hash) {
 				lSpells = data[1] ? this._removeBoards(data[1]) : false;
 				reps = this._optimizeReps(data[2]);
@@ -6565,17 +6564,17 @@ function scriptCSS() {
 		.de-ppanel > span, .de-btn-src, .de-btn-expthr, .de-btn-sage { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
-		gif('.de-btn-hide-user', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==');
-		gif('.de-post-hid .de-btn-hide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ');
-		p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI';
-		gif('.de-btn-hide', p + 'dVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==');
-		gif('.de-post-hid .de-btn-hide', p + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7');
-		gif('.de-btn-rep', p + 'aVI55pu2vAIBISmrty7rx63FbN1LmiTCUUAAAOw==');
-		gif('.de-btn-expthr', p + 'bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=');
-		gif('.de-btn-fav', p + 'dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==');
-		gif('.de-btn-fav-sel', 'R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==');
-		gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7');
-		gif('.de-btn-src', p + 'fVI55pt0ADnRh1uispfvpLkEieGGiZ5IUGmJrw7xCAQA7');
+		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+		gif('.de-post-hid .de-btn-hide-user','R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
+		gif('.de-btn-hide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+		gif('.de-post-hid .de-btn-hide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.de-btn-rep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
+		gif('.de-btn-expthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
+		gif('.de-btn-fav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	} else {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
 			.de-btn-hide:after { content: "×"; }\
@@ -7183,14 +7182,9 @@ function Initialization() {
 	};
 	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
 	nav.Safari = nav.WebKit && !nav.Chrome;
-	if(typeof GM_setValue !== 'function' || nav.Chrome && GM_setValue.toString().contains('not supported')) {
-		if(nav.Opera) {
-			alert('Please install extension https://addons.opera.com/en/extensions/details/violent-monkey/');
-		} else if(nav.Chrome) {
-			alert('Please install extension https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo');
-		}
-		return false;
-	}
+	nav.isGM = typeof GM_setValue === 'function' &&
+		!(nav.Chrome && GM_setValue.toString().contains('not supported'));
+	nav.isGlobal = nav.isGM || !!scriptStorage;
 	nav.cssFix =
 		nav.WebKit ? '-webkit-' :
 		nav.Opera ? (nav.Opera < 12.1 ? '-o-' : '') :
@@ -7263,11 +7257,14 @@ function Initialization() {
 	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
-	uWindow = !nav.WebKit ? unsafeWindow : (function() {
-		var el = doc.createElement('p');
-		el.setAttribute('onclick', 'return window;');
-		return el.onclick();
-	})();
+	uWindow =
+		nav.Opera && !nav.isGM ? window :
+		!nav.WebKit ? unsafeWindow :
+		(function() {
+			var el = doc.createElement('p');
+			el.setAttribute('onclick', 'return window;');
+			return el.onclick();
+		})();
 	if(aib.hid) {
 		window.setTimeout = function(Fn, num) {
 			var ev = document.createEvent('HTMLEvents'),
