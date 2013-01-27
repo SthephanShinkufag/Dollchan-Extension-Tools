@@ -1,10 +1,22 @@
-Jan 14, 2013
-	- Fix abu captcha
-		+ Support for Solve Media captcha on 2ch.so
-		+ Поддержка Solve Media капчи на 2ch.so
-	- Force script processing
-		+ Script acceleration in large treads
-		+ Ускорение работы скрипта в больших тредах
+Jan 22, 2013
+	- Introduce working with greasemonkey-like addons
+		+ https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/installation-en
+		+ Работа с greasemonkey-подобными расширениями
+			https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/installation
+	- Add krautchan captcha support
+		+ Поддержка капчи на краутчане
+Jan 18, 2013
+	- Introduce panel animation
+		+ Добавлена анимация панели скрипта
+Jan 16, 2013
+	- Don;t focus on quick reply
+		+ Ability to select option 
+			"Form" > "Scroll to the bottom after reply"
+		+ Добавлена опция выбора фокуса
+			"Форма" > "Перемещаться в конец треда после отправки"
+Jan 15, 2013
+	- Add delay for menu
+		+ Добавлена задержка к пропаданию меню.
 Jan 11, 2013
 	- Ability to add user CSS in settings
 		+ Ability to add and edit your CSS by script
