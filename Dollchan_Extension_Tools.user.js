@@ -6170,91 +6170,6 @@ Spells.prototype = {
 				spell + scope + args
 		);
 	},
-	_convertOld: function(sList) {
-		var nS = [],
-			rS = [],
-			sS = [],
-			rv = '';
-		sList.forEach(function(str) {
-			if(!str) {
-				return;
-			}
-			var re, scope = '', spell, op = false;
-			if(re = str.match(/^#(?:([^\/]+)\/)?(\d+)? /)) {
-				scope = re[1] ? '[' + re[1] + (re[2] ? ',' + re[2] : '') + ']' : '';
-				str = str.substr(re[0].length);
-			}
-			if(str.startsWith('#op ')) {
-				str = str.substr(4);
-				op = true;
-			}
-			if(str[0] === '#') {
-				if(re = str.match(/^#([a-z]+)(?: (.*))?/)) {
-					switch(re[1]) {
-					case 'sage': this(op, scope, false, 'sage', '', nS); return;
-					case 'notxt': this(op, scope, true, 'tlen', '', nS); return;
-					case 'noimg': this(op, scope, true, 'img', '', nS); return;
-					case 'trip': this(op, scope, false, 'trip', '', nS); return;
-					case 'tmax':
-						this(op, scope, false, 'tlen', '(' + re[2] + '-20000)', nS);
-						return;
-					case 'name':
-						spell = re[2].split('!!');
-						if(spell[1]) {
-							this(op, scope, false, 'trip', '(!!' + spell[1] + ')', nS);
-						}
-						if(spell[0]) {
-							spell = spell[0].split('!');
-							if(spell[1]) {
-								this(op, scope, false, 'trip', '(!' + spell[1] + ')', nS);
-							}
-							if(spell[0]) {
-								this(op, scope, false, 'name', '(' + spell[0].replace(/\)/g, '\\)') + ')', nS);
-							}
-						}
-						return;
-					case 'skip': this(op, scope, true, 'num', '(' + re[2] + ')', sS); return;
-					case 'rep':
-					case 'outrep':
-						spell = re[2].match(/(\/.*?[^\\]\/[ig]*)(?: (.*))?/);
-						rS.push('#' + re[1] + scope + '(' + spell[1] + ',' + (spell[2] || '')
-							.replace(/\)/g, '\\)') + ')')
-						return;
-					case 'theme': re[1] = 'subj';
-					case 'exp':
-					case 'exph':
-					case 'imgn':
-					case 'video': this(op, scope, false, re[1], '(' + re[2] + ')', nS); return;
-					case 'vtag': return;
-					default:
-						this(op, scope, false, re[1], '(' + re[2].replace(/\)/g, '\\)') + ')', nS);
-					}
-				}
-			} else {
-				this(op, scope, false, 'words', '(' + str.replace(/\)/g, '\\)') + ')', nS);
-			}
-		}, this._pushSpell);
-		if(Cfg['hideByWipe'] !== 0) {
-			rv = [];
-			(Cfg['wipeSameLin'] !== 0) && rv.push('samelines');
-			(Cfg['wipeSameWrd'] !== 0) && rv.push('samewords');
-			(Cfg['wipeLongWrd'] !== 0) && rv.push('longwords');
-			(Cfg['wipeSpecial'] === 1) && rv.push('symbols');
-			(Cfg['wipeCAPS'] === 1) && rv.push('capslock');
-			(Cfg['wipeNumbers'] !== 0) && rv.push('numbers');
-			rv = rv.length === 0 ? '' : '#wipe(' + rv.join(',') + ')' + (nS.length !== 0 ? ' |\n' : '');
-		}
-		delete Cfg['hideByWipe'];
-		delete Cfg['wipeSameLin'];
-		delete Cfg['wipeSameWrd'];
-		delete Cfg['wipeLongWrd'];
-		delete Cfg['wipeSpecial'];
-		delete Cfg['wipeCAPS'];
-		delete Cfg['wipeNumbers'];
-		saveComCfg(aib.dm, Cfg);
-		return (sS.length !== 0 ? sS.join(' &\n') + ' &\n' : '') +
-			rv + nS.join(' |\n') + '\n\n' + rS.join('\n');
-	},
 
 	readed: false,
 	parseText: function(str) {
@@ -6308,21 +6223,13 @@ Spells.prototype = {
 		if(data) {
 			try {
 				arr = JSON.parse(data);
-				if(arr.length < 3) {
-					this.list = arr[1] ? this._convertOld(arr[1]) : '';
-					this.hash = ELFHash(this.list);
-				} else {
-					this.hash = arr[1];
-					this.list = arr[2];
-				}
-				return this.hash;
 			} catch(e) {}
+			if(arr && arr.length === 3) {
+				this.list = arr[2];
+				return this.hash = arr[1];
+			}
 		}
-		if(typeof data === 'string') {
-			this.list = this._convertOld(data.split('\n'));
-		} else {
-			this.list = '#wipe(samelines,samewords,longwords,numbers)';
-		}
+		this.list = '#wipe(samelines,samewords,longwords,numbers)';
 		return this.hash = ELFHash(this.list);
 	},
 	update: function() {
