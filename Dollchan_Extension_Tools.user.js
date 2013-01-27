@@ -8,7 +8,8 @@
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/stable/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
-// @include			*
+// @include			http://*
+// @include			https://*
 // ==/UserScript==
 
 (function(scriptStorage) {
