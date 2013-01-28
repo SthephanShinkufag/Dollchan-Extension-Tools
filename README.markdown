@@ -13,3 +13,8 @@
 
 >
 **[http://www.freedollchan.org/scripts](http://www.freedollchan.org/scripts)**
+
+### Userscripts.org
+
+>
+**[http://userscripts.org/scripts/show/157754](http://userscripts.org/scripts/show/157754)**
