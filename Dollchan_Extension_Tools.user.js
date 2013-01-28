@@ -17,6 +17,7 @@ var version = '13.1.27.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
+	'spells':		null,		// user defined spells
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
@@ -717,17 +718,6 @@ function getPrettyJSON(obj, indent) {
 	return sJSON += '\n' + indent + (isArr ? ']' : '}');
 }
 
-function ELFHash(str) {
-	for(var g, h = 0, i = 0, len = str.length; i < len; ++i) {
-		h = (h << 4) + str.charCodeAt(i);
-		if(g = h & 0xF0000000) {
-			h ^= g >>> 24;
-		}
-		h &= ~g;
-	}
-	return h;
-}
-
 
 /*==============================================================================
 								STORAGE / CONFIG
@@ -874,8 +864,7 @@ function readCfg() {
 			Cfg['timePattern'],
 			Cfg['timeOffset'],
 			lang,
-			sessionStorage['timeRPattern'],
-			sessionStorage['timeRPHash']
+			sessionStorage['timeRPattern']
 		);
 	}
 	if(aib.hana) {
@@ -883,8 +872,7 @@ function readCfg() {
 			'yyyy-nn-dd-hh-ii-ss',
 			Cfg['timeOffset'] || 0,
 			Cfg['correctTime'] ? lang : 1,
-			'1_d _m _y (_w) _h:_i ',
-			152203056
+			'1_d _m _y (_w) _h:_i '
 		);
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
@@ -918,8 +906,9 @@ function readPostsVisib() {
 function savePostsVisib() {
 	if(TNum) {
 		sessionStorage['de-hidden-' + brd + TNum] =
-			(Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
+			(Cfg['hideBySpell'] && Cfg['spells']? Cfg['spells'][0] + ',' : '0,') + sVis.join('');
 	}
+	saveHiddenThreads();
 	toggleContent('hid', true);
 }
 
@@ -964,7 +953,6 @@ function toggleHiddenThread(post, vis) {
 	} else {
 		delete hThr[post.num];
 	}
-	saveHiddenThreads();
 }
 
 function readFavorites() {
@@ -1513,8 +1501,15 @@ function cfgTab(name) {
 			}
 			el.className = 'de-cfg-body';
 			if(id === 'filters') {
-				spells.update();
-				$id('de-spell-edit').value = spells.list;
+				setTimeout(function() {
+					var oldS = Cfg['spells'],
+						newS = getStoredObj('DESU_Config')[aib.dm]['spells'];
+					if((!oldS ^ !newS) || (!!oldS && oldS[0] !== newS[0])) {
+						Cfg['spells'] = newS;
+						spells.update(newS);
+					}
+					$id('de-spell-edit').value = spells.list;
+				}, 0);
 			}
 			fixSettings();
 		}
@@ -1802,7 +1797,6 @@ function getCfgInfo() {
 				'nav': nav,
 				'cfg': nCfg,
 				'spells': spells.list.split('\n'),
-				'cSpells': getStored('DESU_CSpells_' + aib.dm),
 				'oSpells': sessionStorage['de-spells-' + brd + TNum],
 				'perf': timeLog
 			}, '') + '</textarea>', 'help-debug', false);
@@ -2010,14 +2004,14 @@ function addSelSpell(selText) {
 		(nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))
 	) {
 		if(selText.contains('\n')) {
-			addSpell('#exp', '(/' + regQuote(selText).replace(/\n/g, '\\n').replace(/\r/g, '') + '/)');
+			addSpell(1 /* #exp */, '/' + regQuote(selText).replace(/\n/g, '\\n').replace(/\r/g, '') + '/', false);
 		} else {
-			addSpell('#words', '(' + selText.replace(/\)/g, '\\)').toLowerCase() + ')');
+			addSpell(0 /* #words */, selText.replace(/\)/g, '\\)').toLowerCase(), false);
 		}
 	} else {
 		dummy.innerHTML = '';
 		dummy.appendChild(this.cloneContents());
-		addSpell('#exph', '(/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/)');
+		addSpell(2 /* #exph */, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 	}
 }
 
@@ -2035,26 +2029,28 @@ function addPostHideMenu(post) {
 	}
 	if(el = $c(aib.cTrip, post)) {
 		add('trip', function() {
-			addSpell('#trip', '(' + el.textContent.replace(/\)/g, '\\)') + ')');
+			addSpell(7 /* #trip */, el.textContent.replace(/\)/g, '\\)'), false);
 		});
 	}
 	if(post.img[0]) {
 		add('img', function() {
-			addSpell('#img', '(=' + getImgWeight(post) + '@' + getImgSize(post).join('x') + ')');
+			var w = getImgWeight(post),
+				s = getImgSize(post);
+			addSpell(8 /* #img */, [0,[w,w],[s[0],s[0],s[1],s[1]]], false);
 		});
 		add('ihash', function() {
-			addSpell('#ihash', '(' + getImgHash(post) + ')');
+			addSpell(4 /* #ihash */, getImgHash(post), false);
 		});
 	} else {
 		add('noimg', function() {
-			addSpell('(#all', ' & !#img)');
+			addSpell(0x108 /* (#all & !#img) */, '', true);
 		});
 	}
 	if(getText(post)) {
 		add('text', hideBySameText.bind(window, post));
 	} else {
 		add('notext', function() {
-			addSpell('(#all', ' & !#tlen)');
+			addSpell(0x10B /* (#all & !#tlen) */, '', true);
 		});
 	}
 	menu = null;
@@ -3254,7 +3250,7 @@ function initMessageFunctions() {
 		showQuickReply(pByNum[+el.parentNode.getAttribute('info')]);
 	};
 	uWindow['de_sageclick'] = function() {
-		setTimeout(addSpell, 0, '#sage', '');
+		setTimeout(addSpell, 0, 9, '', false);
 	};
 	uWindow['de_isearch'] = function(e, name) {
 		$pd(e);
@@ -3506,7 +3502,7 @@ function preloadImages(post) {
 ==============================================================================*/
 
 /** @constructor */
-function dateTime(pattern, diff, dtLang, info, hash) {
+function dateTime(pattern, diff, dtLang, info) {
 	if(dateTime.checkPattern(pattern)) {
 		this.disabled = true;
 		return;
@@ -3525,7 +3521,7 @@ function dateTime(pattern, diff, dtLang, info, hash) {
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
-	if(info && hash && ELFHash(info) === +hash) {
+	if(info) {
 		this.inited = true;
 		this.rPattern = info.substring(1);
 		this.fullM = !!+info[0];
@@ -3568,7 +3564,7 @@ dateTime.prototype = {
 			this.rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
-		sessionStorage['timeRPHash'] = ELFHash(sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern);
+		sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern;
 		this.inited = true;
 		return this;
 	},
@@ -5164,11 +5160,13 @@ function setPostVisib(post, hide, note) {
 		};
 	}
 	if(Cfg['strikeHidd']) {
-		setTimeout($each, 0, $Q('a[href*="#' + post.num + '"]', dForm), hide ? function(el) {
-			el.className = 'de-ref-hid';
-		} : function(el) {
-			el.className = null;
-		});
+		setTimeout(function(isHide) {
+			$each($Q('a[href*="#' + post.num + '"]', dForm), isHide ? function(el) {
+				el.className = 'de-ref-hid';
+			} : function(el) {
+				el.className = null;
+			});
+		}, 0, hide);
 	}
 }
 
@@ -5330,7 +5328,7 @@ function getImgHash(post) {
 /** @constructor */
 function Spells(read) {
 	if(read) {
-		this.update();
+		this.read();
 	} else {
 		this._disable();
 	}
@@ -6039,6 +6037,53 @@ Spells.prototype = {
 			return spell + '(' + String(val) + ')';
 		}
 	},
+	_decompileScope: function(scope, indent) {
+		var spell, type, temp, str, dScope = [], hScope = false, i = 0, j = 0, len = scope.length;
+		for(; i < len; i++, j++) {
+			spell = scope[i];
+			type = spell[0] & 0xFF;
+			if(type === 0xFF) {
+				hScope = true;
+				temp = this._decompileScope(spell[1], indent + '    ');
+				if(temp[1]) {
+					str = ((spell[0] & 0x100) ? '!(\n' : '(\n') + indent + '    ' +
+						temp[0].join('\n' + indent + '    ') + '\n' + indent + ')';
+					if(j === 0) {
+						dScope[0] = str;
+					} else {
+						dScope[--j] += ' ' + str;
+					}
+				} else {
+					dScope[j] = ((spell[0] & 0x100) ? '!(' : '(') + temp[0].join(' ') + ')';
+				}
+			} else {
+				dScope[j] = this._decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
+			}
+			if(i !== len - 1) {
+				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
+			}
+		}
+		return [dScope, dScope.length > 2 || hScope];
+	},
+	_decompileSpells: function(data) {
+		if(!data) {
+			return '';
+		}
+		var str = this._decompileScope(data[1], '')[0].join('\n'),
+			reps = data[2],
+			oreps = data[3];
+		if(reps || oreps) {
+			str += '\n\n';
+			reps && reps.forEach(function(rep) {
+				str += this._decompileRep(rep, false) + '\n';
+			}.bind(this));
+			oreps && oreps.forEach(function(orep) {
+				str += this._decompileRep(orep, true) + '\n';
+			}.bind(this));
+			str.substr(0, str.length - 1);
+		}
+		return str;
+	},
 	_getMsg: function(spell) {
 		var neg = spell[0] & 0x100,
 			type = spell[0] & 0xFF,
@@ -6105,26 +6150,26 @@ Spells.prototype = {
 	},
 	_findReps: function(str) {
 		var reps = [],
-			outreps = [],
-			rStr = '';
+			outreps = [];
 		str = str.replace(
 			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
 			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
 				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				rStr += fullExp + '\n';
 				return preOp || '';
 			}
 		).replace(
 			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
 			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
 				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				rStr += fullExp + '\n';
 				return preOp || '';
 			}
 		);
-		this._TEMP.reps = reps;
-		this._TEMP.outreps = outreps;
-		return [str, rStr];
+		return [str, reps.length === 0 ? false : reps, outreps.length === 0 ? false : outreps];
+	},
+	_decompileRep: function(rep, isOrep) {
+		return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] +
+			(rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' +
+			rep[3] + ')';
 	},
 	_optimizeReps: function(data) {
 		if(data) {
@@ -6156,112 +6201,63 @@ Spells.prototype = {
 		this.haveOutreps = !!outreps;
 	},
 	_disable: function() {
-		this.hash = 0;
-		this.list = '';
 		this.enable = false;
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
-		saveCfg('hideBySpell', 0);
+		saveCfg('hideBySpell', false);
 	},
-	_pushSpell: function(op, scope, not, spell, args, arr) {
-		spell = (not ? '!' : '') + '#' + spell;
-		arr.push(
-			op ? '(#op' + scope + ' & ' + spell + args + ')' :
-			not && scope && spell !== '!#num' ?
-				'(#all' + scope + ' & ' +spell + args + ')' :
-				spell + scope + args
-		);
-	},
+	_list: null,
 
-	readed: false,
+	get list() {
+		return this._list || (this._list = this._decompileSpells(Cfg['spells']));
+	},
+	enable: false,
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
-		this._TEMP = {};
-		var oStr = this._findReps(str),
-			data = this._compile(oStr[0]);
-		if(data !== false) {
-			this._TEMP.gSpells = data;
+		var data, reps = this._findReps(str),
+			spells = this._compile(reps[0]);
+		if(spells !== false) {
+			saveCfg('spells', data = [Date.now(), spells, reps[1], reps[2]]);
 		} else if(this._error) {
 			try {
 				$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
 			} catch(e) {
 				GM_log(Lng.error[lang] + ' ' + this._error);
 			}
-			this._TEMP.list = '';
 			return false;
 		}
-		this._TEMP.list = oStr.join('\n\n').replace(/[\s\n]+$/, '');
-		return oStr;
-	},
-	saveSpells: function(val) {
-		this.hash = ELFHash(val);
-		this.list = val;
-		setStored('DESU_Spells_' + aib.dm, JSON.stringify([1, this.hash, this.list]));
-		if(!val) {
-			this._disable();
-		}
-	},
-	saveTemp: function() {
-		var gSpells = this._TEMP.gSpells,
-			lSpells = gSpells ? this._removeBoards(gSpells) : false,
-			reps = this._TEMP.reps,
-			outreps = this._TEMP.outreps;
-		if(reps.length === 0) {
-			reps = false;
-		}
-		if(outreps.length === 0) {
-			outreps = false;
-		}
-		setStored('DESU_CSpells_' + aib.dm, JSON.stringify([this.hash, gSpells, reps, outreps]));
-		reps = this._optimizeReps(reps);
-		outreps = this._optimizeReps(outreps);
-		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
-		this._init(lSpells, reps, outreps);
-		this.saveSpells(this._TEMP.list);
+		return data;
 	},
 	read: function() {
-		var arr, data = getStored('DESU_Spells_' + aib.dm);
-		this.readed = true;
-		if(data) {
+		var spells, data;
+		if(spells = Cfg['spells']) {
 			try {
-				arr = JSON.parse(data);
+				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
 			} catch(e) {}
-			if(arr && arr.length === 3) {
-				this.list = arr[2];
-				return this.hash = arr[1];
-			}
-		}
-		this.list = '#wipe(samelines,samewords,longwords,numbers)';
-		return this.hash = ELFHash(this.list);
-	},
-	update: function() {
-		if(!this.read()) {
-			this._disable();
-			return;
-		}
-		var data, lSpells, reps, outreps, readed = false;
-		try {
-			data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
-			if(data && data[0] === this.hash) {
+			if(data && data[0] === spells[0]) {
 				this._init(data[1], data[2], data[3]);
 				return;
 			}
-		} catch(e) {}
-		try {
-			data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
-			if(data && data[0] === this.hash) {
-				lSpells = data[1] ? this._removeBoards(data[1]) : false;
-				reps = this._optimizeReps(data[2]);
-				outreps = this._optimizeReps(data[3]);
-				this._init(lSpells, reps, outreps);
-				sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([this.hash, lSpells, reps, outreps]);
+		} else {
+			try {
+				data = JSON.parse(getStored('DESU_CSpells_' + aib.dm));
+				delStored('DESU_CSpells_' + aib.dm);
+			} catch(e) {}
+			if(!data) {
+				this._disable();
 				return;
 			}
-		} catch(e) {}
-		data = this.parseText(this.list);
-		this.saveSpells(data ? data.join('\n\n').replace(/\n+$/, '') : '');
-		this.saveTemp();
+			saveCfg('spells', spells = data);
+		}
+		this.update(spells);
 	},
-	enable: false,
+	update: function(data) {
+		var spells = data[1] ? this._removeBoards(data[1]) : false,
+			reps = this._optimizeReps(data[2]),
+			outreps = this._optimizeReps(data[3]);
+		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
+		this._init(spells, reps, outreps);
+		this._list = this._decompileSpells(data);
+	},
 	check: function(post, hFunc, nhFunc) {
 		if(!this.enable) {
 			if(post.hide && nhFunc) {
@@ -6294,6 +6290,40 @@ Spells.prototype = {
 			txt = txt.replace(this._outreps[i][0], this._outreps[i][1]);
 		}
 		return txt;
+	},
+	addSpell: function(type, arg, scope, isNeg, data) {
+		if(!data) {
+			data = [Date.now(), [], false, false];
+		}
+		var idx, exists, sScope = String(scope),
+			sArg = String(arg);
+		exists = data[1].some(isNeg ? function(spell, i) {
+			var data;
+			if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
+				data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
+				String(data[1][1]) === sArg && String(data[0][2]) === sScope)
+			{
+				idx = i;
+				return true;
+			}
+			return false;
+		} : function(spell, i) {
+			if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
+				idx = i;
+				return true;
+			}
+			return false;
+		});
+		if(exists) {
+			data[1].splice(idx, 1);
+		} else if(isNeg) {
+			data[1].push([0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+		} else {
+			data[1].push([type, arg, scope]);
+		}
+		this.update(data);
+		idx = null;
+		return data;
 	}
 };
 
@@ -6313,63 +6343,53 @@ function disableSpells() {
 function toggleSpells() {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld.value;
-	if(val) {
-		if(temp = spells.parseText(val)) {
-			disableSpells();
-			spells.saveTemp();
-			fld.value = spells.list;
-			if(Cfg['hideBySpell']) {
-				Posts.forEach(hideBySpells);
-			} else {
-				spells.enable = false;
-			}
-			savePostsVisib();
-			return;
-		}
-	} else {
+	if(!val) {
 		disableSpells();
+		saveCfg('spells', null);
 		savePostsVisib();
+	} else if(temp = spells.parseText(val)) {
+		disableSpells();
+		spells.update(temp);
+		fld.value = spells.list;
+		if(Cfg['hideBySpell']) {
+			Posts.forEach(hideBySpells);
+		} else {
+			spells.enable = false;
+		}
+		savePostsVisib();
+		return;
 	}
-	spells.saveSpells('');
-	$q('input[info="hideBySpell"]', doc).checked = false;
+	saveCfg('hideBySpell', false);
+	$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 }
 
-function addSpell(spell, arg) {
+function addSpell(type, arg, isNeg) {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld && fld.value,
 		chk = $q('input[info="hideBySpell"]', doc);
-	if(!val) {
-		if(!spells.readed) {
-			spells.read();
-		}
+	if(!val || (temp = spells.parseText(val))) {
+		disableSpells();
+		temp = spells.addSpell(type, arg, TNum ? [brd, TNum] : 'undefined', isNeg, temp || Cfg['spells']);
+		spells.update(temp);
+		saveCfg('spells', temp);
 		val = spells.list;
-	}
-	if(temp = spells.parseText(val)) {
-		spell = spell + (TNum ? '[' + brd + ',' + TNum + ']' : '') + arg;
-		val = temp[0].split(new RegExp('(?:^|\\|?[\\s\\n]*)' + regQuote(spell) + '(?: \\|\\n|$)', 'g'));
-		if(val.length === 1) {
-			temp = spells.parseText(spell + (val[0] ? ' |\n' + val[0] : '') + '\n\n' + temp[1]);
+		saveCfg('hideBySpell', !!val);
+		if(val) {
+			Posts.forEach(hideBySpells);
 		} else {
-			temp = spells.parseText(val.join('') + '\n\n' + temp[1]);
+			saveCfg('spells', null);
+			spells.enable = false;
 		}
-		if(temp) {
-			disableSpells();
-			spells.saveTemp();
-			if(fld) {
-				chk.checked = !!(fld.value = spells.list);
-			}
-			if(spells.list) {
-				saveCfg('hideBySpell', 1);
-				Posts.forEach(hideBySpells);
-			}
-			return;
+		if(fld) {
+			chk.checked = !!(fld.value = val);
 		}
+		return;
 	}
+	saveCfg('hideBySpell', false);
 	spells.enable = false;
-	if(fld) {
+	if(chk) {
 		chk.checked = false;
 	}
-	saveCfg('hideBySpell', 0);
 }
 
 
