@@ -6258,7 +6258,6 @@ Spells.prototype = {
 		this._list = null;
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
-		saveCfg('spells', null);
 	},
 	check: function(post, hFunc, nhFunc) {
 		if(!this.enable) {
@@ -6348,6 +6347,7 @@ function toggleSpells() {
 	if(!val) {
 		disableSpells();
 		spells.disable();
+		saveCfg('spells', null);
 		savePostsVisib();
 	} else if(temp = spells.parseText(val)) {
 		disableSpells();
