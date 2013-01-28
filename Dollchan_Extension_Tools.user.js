@@ -888,7 +888,7 @@ function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden-' + brd + TNum] || '').split(',');
-		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
+		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] && Cfg['spells'] ? Cfg['spells'][0] : 0)) {
 			sVis = data[1].split('');
 			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
@@ -906,7 +906,7 @@ function readPostsVisib() {
 function savePostsVisib() {
 	if(TNum) {
 		sessionStorage['de-hidden-' + brd + TNum] =
-			(Cfg['hideBySpell'] && Cfg['spells']? Cfg['spells'][0] + ',' : '0,') + sVis.join('');
+			(Cfg['hideBySpell'] && Cfg['spells'] ? Cfg['spells'][0] + ',' : '0,') + sVis.join('');
 	}
 	saveHiddenThreads();
 	toggleContent('hid', true);
