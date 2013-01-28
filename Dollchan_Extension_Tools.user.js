@@ -4987,7 +4987,7 @@ function loadNewPosts(Fn) {
 		var data = parsePosts($c('de-thread', dForm), Posts, els, 0, 0);
 		checkBan(Posts[0], op);
 		infoNewPosts(null, data[1]);
-		savePostsVisib();
+		setTimeout(savePostsVisib, 0);
 		$id('de-panel-info').firstChild.textContent = data[0] + '/' + getPostImages(dForm).length;
 		Fn && Fn();
 		Fn = null;
