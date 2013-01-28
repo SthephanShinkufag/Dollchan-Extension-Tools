@@ -3996,7 +3996,10 @@ function embedImgLinks(el) {
 		return;
 	}
 	for(var a, link, i = 0, els = $Q(
-		aib.qMsg + ' a[href*=".jpg"], ' + aib.qMsg + ' a[href*=".png"], ' + aib.qMsg + ' a[href*=".gif"]', el
+		aib.qMsg + ' a[href*=".jpg"], ' +
+		aib.qMsg + ' a[href*=".png"], ' +
+		aib.qMsg + ' a[href*=".gif"], ' +
+		aib.qMsg + ' a[href*=".jpeg"]', el
 	); link = els[i++];) {
 		if(link.parentNode.tagName === 'SMALL') {
 			return;
@@ -4235,11 +4238,9 @@ function markRefMap(pView, pNum) {
 function appendPviewPanel(post, pView) {
 	var cnt = post.count - (post.dcount || 0),
 		panel = $c('de-ppanel', pView),
-		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') + (
-			post.deleted ? '' :
-				'<i style="vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default;">' +
-				(cnt === 0 ? 'OP' : cnt + 1) + '</i>'
-		);
+		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+			(post.deleted ? '' : '<i style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
+			'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</i>');
 	if(panel) {
 		panel.classList.remove('de-ppanel-cnt');
 		panel.innerHTML = pText;
@@ -6503,8 +6504,8 @@ function scriptCSS() {
 	cont('.de-src-saucenao', 'http://saucenao.com/favicon.ico');
 
 	// Posts counter
-	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; color: #727579; font: bold 11px tahoma; cursor: default; }';
+	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
+		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }';
 
 	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -6565,8 +6566,8 @@ function scriptCSS() {
 	cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
 	x += '.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
-		.de-img-pre, .de-img-full { display: block; margin: ' + (aib.krau ? 0 : '2px 10px') + '; border: none; outline: none; cursor: pointer; }\
-		.de-img-full { float: left; }\
+		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
+		.de-img-full { float: left; margin: ' + (aib.fch || aib.hana || aib.krau ? 0 : '2px 10px') + '; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }\
