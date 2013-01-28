@@ -5330,7 +5330,7 @@ function Spells(read) {
 	if(read) {
 		this.read();
 	} else {
-		this._disable();
+		this.disable();
 	}
 }
 Spells.checkArr = function(val, num) {
@@ -6200,11 +6200,6 @@ Spells.prototype = {
 		this.haveReps = !!reps;
 		this.haveOutreps = !!outreps;
 	},
-	_disable: function() {
-		this.enable = false;
-		this.haveSpells = this.haveReps = this.haveOutreps = false;
-		saveCfg('hideBySpell', false);
-	},
 	_list: null,
 
 	get list() {
@@ -6243,7 +6238,7 @@ Spells.prototype = {
 				delStored('DESU_CSpells_' + aib.dm);
 			} catch(e) {}
 			if(!data) {
-				this._disable();
+				this.disable();
 				return;
 			}
 			saveCfg('spells', spells = data);
@@ -6257,6 +6252,13 @@ Spells.prototype = {
 		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
 		this._init(spells, reps, outreps);
 		this._list = this._decompileSpells(data);
+	},
+	disable: function() {
+		this.enable = false;
+		this._list = null;
+		this.haveSpells = this.haveReps = this.haveOutreps = false;
+		saveCfg('hideBySpell', false);
+		saveCfg('spells', null);
 	},
 	check: function(post, hFunc, nhFunc) {
 		if(!this.enable) {
@@ -6345,7 +6347,7 @@ function toggleSpells() {
 		val = fld.value;
 	if(!val) {
 		disableSpells();
-		saveCfg('spells', null);
+		spells.disable();
 		savePostsVisib();
 	} else if(temp = spells.parseText(val)) {
 		disableSpells();
