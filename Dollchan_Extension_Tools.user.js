@@ -6371,7 +6371,7 @@ function addSpell(type, arg, isNeg) {
 		chk = $q('input[info="hideBySpell"]', doc);
 	if(!val || (temp = spells.parseText(val))) {
 		disableSpells();
-		temp = spells.addSpell(type, arg, TNum ? [brd, TNum] : 'undefined', isNeg, temp || Cfg['spells']);
+		temp = spells.addSpell(type, arg, TNum ? [brd, TNum] : void 0, isNeg, temp || Cfg['spells']);
 		spells.update(temp);
 		saveCfg('spells', temp);
 		val = spells.list;
