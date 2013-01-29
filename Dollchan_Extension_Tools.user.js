@@ -6154,8 +6154,8 @@ Spells.prototype = {
 		}
 	},
 	_endAsync: function() {
-		if(this._complete && this._asyncWrk === 0) {
-			this._complete = false;
+		if(this.complete && this._asyncWrk === 0) {
+			this.complete = false;
 			savePostsVisib();
 		}
 	},
