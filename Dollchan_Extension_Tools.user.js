@@ -904,6 +904,10 @@ function readPostsVisib() {
 }
 
 function savePostsVisib() {
+	if(spells.running) {
+		spells.complete = true;
+		return;
+	}
 	if(TNum) {
 		sessionStorage['de-hidden-' + brd + TNum] =
 			(Cfg['hideBySpell'] && Cfg['spells'] ? Cfg['spells'][0] + ',' : '0,') + sVis.join('');
@@ -3860,15 +3864,13 @@ function embedTubeLinks(post) {
 	queue && queue.complete();
 }
 
-function checkTubeLink(text) {
-	var post = this[0];
-	if(post) {
-		if(text && this[1].test(text)) {
-			Spells.retAsyncVal.apply(null, this.concat(true, true));
-			this[0] = false;
+function checkTubeLink(post, val, text) {
+	if(post.ytCount !== null) {
+		if(text && val.test(text)) {
+			spells._continueCheck(post, this, true, true);
 		} else if(--post.ytCount === 0) {
 			post.ytCount = null;
-			Spells.retAsyncVal.apply(null, this.concat(false, true));
+			spells._continueCheck(post, this, false, true);
 		}
 	}
 }
@@ -5347,17 +5349,6 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
-Spells.retAsyncVal = function(post, oval, flags, sStack, hFunc, nhFunc, val, async) {
-	var temp, rv = spells._checkRes(flags, val);
-	if(rv === null) {
-		spells._continueCheck(post, sStack, hFunc, nhFunc, async);
-	} else if(rv) {
-		temp = sStack.pop();
-		hFunc(post, spells._getMsg(temp[2][temp[0] - 1]), async);
-	} else if(nhFunc) {
-		nhFunc(post, async);
-	}
-};
 Spells.prototype = {
 	names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
@@ -5463,14 +5454,13 @@ Spells.prototype = {
 			return true;
 		},
 		// 13: #video
-		function(post, val) {
-			var args = aProto.slice.call(arguments);
+		function(post, val, ctx) {
 			if(!val) {
-				Spells.retAsyncVal.apply(null, args.concat(!!post.ytObj, false));
+				spells._continueCheck(post, ctx, !!post.ytObj, false);
 				return;
 			}
 			if(!post.ytObj || !Cfg['YTubeTitles']) {
-				Spells.retAsyncVal.apply(null, args.concat(false, false));
+				spells._continueCheck(post, ctx, false, false);
 				return;
 			}
 			var text, i, link, links = $C('de-ytube-link', post),
@@ -5481,20 +5471,19 @@ Spells.prototype = {
 				if(link.textData === 2) {
 					text = link.textContent;
 					if(text && val.test(text)) {
-						Spells.retAsyncVal.apply(null, args.concat(true, false));
+						spells._continueCheck(post, ctx, true, false);
 						post.ytCount = null;
-						args[0] = false;
 						return;
 					}
 					post.ytCount--;
 				} else if(link.textData === 1) {
 					post.ytCount--;
 				} else {
-					link.spellFn = checkTubeLink.bind(args);
+					link.spellFn = checkTubeLink.bind(ctx, post, val);
 				}
 			}
 			if(post.ytCount === 0) {
-				Spells.retAsyncVal.apply(null, args.concat(false, false));
+				spells._continueCheck(post, ctx, false, false);
 				post.ytCount = null;
 			}
 		},
@@ -6097,26 +6086,41 @@ Spells.prototype = {
 			return this._decompileSpell(type, neg, val, spell[2]);
 		}
 	},
-	_continueCheck: function(post, sStack, hFunc, nhFunc, async) {
-		var type, temp, val, rv = false,
-			cInfo = sStack.pop(),
-			i = cInfo[0],
-			len = cInfo[1],
-			scope = cInfo[2];
+	_continueCheck: function(post, ctx, val, async) {
+		var temp, rv = this._checkRes(ctx.pop(), val);
+		if(rv === null) {
+			if(this._check(post, ctx)) {
+				return;
+			}
+		} else if(rv) {
+			temp = ctx[0];
+			ctx[1](post, this._getMsg(ctx[temp - 2][ctx[temp] - 1]));
+		} else if(ctx[2]) {
+			ctx[2](post);
+		}
+		this._asyncWrk--;
+		this._endAsync();
+	},
+	_check: function(post, ctx) {
+		var cl = ctx[0],
+			scope = ctx[cl - 2],
+			len = ctx[cl - 1],
+			i = ctx[cl]
 		while(true) {
 			if(i < len) {
 				temp = scope[i][0];
 				type = temp & 0xFF;
 				if(type === 0xFF) {
-					sStack.push([i, len, scope]);
+					cl = ctx.push(scope, len, i) - 1;
 					scope = scope[i][1];
 					len = scope.length;
 					i = 0;
 					continue;
 				} else if(type === 13) {
-					sStack.push([i + 1, len, scope]);
-					this._funcs[type](post, scope[i][1], temp, sStack, hFunc, nhFunc);
-					return;
+					ctx[cl] = i + 1;
+					ctx.push(temp);
+					this._funcs[type](post, scope[i][1], ctx);
+					return true;
 				} else {
 					val = this._funcs[type](post, scope[i][1]);
 				}
@@ -6130,22 +6134,29 @@ Spells.prototype = {
 				this._lastPSpell = i -= 1;
 				rv = false;
 			}
-			if(cInfo = sStack.pop()) {
-				i = cInfo[0];
-				len = cInfo[1];
-				scope = cInfo[2];
+			if(cl !== 5) {
+				i = ctx.pop();
+				len = ctx.pop();
+				scope = ctx.pop();
 				rv = this._checkRes(scope[i][0], rv);
 				if(rv === null) {
 					i++;
+					cl -= 3;
 					continue;
 				}
 			}
 			if(rv) {
-				hFunc(post, this._getMsg(scope[i]), async);
-			} else if(nhFunc) {
-				nhFunc(post, async);
+				ctx[1](post, this._getMsg(scope[i]));
+			} else if(ctx[2]) {
+				ctx[2](post);
 			}
-			return;
+			return false;
+		}
+	},
+	_endAsync: function() {
+		if(this._complete && this._asyncWrk === 0) {
+			this._complete = false;
+			savePostsVisib();
 		}
 	},
 	_findReps: function(str) {
@@ -6193,6 +6204,7 @@ Spells.prototype = {
 	},
 	_init: function(spells, reps, outreps) {
 		this._spells = this._initSpells(spells);
+		this._sLength = spells && spells.length;
 		this._reps = this._initReps(reps);
 		this._outreps = this._initReps(outreps);
 		this.enable = !!this._spells;
@@ -6201,11 +6213,16 @@ Spells.prototype = {
 		this.haveOutreps = !!outreps;
 	},
 	_list: null,
+	_asyncWrk: 0,
 
+	complete: false,
+	enable: false,
 	get list() {
 		return this._list || (this._list = this._decompileSpells(Cfg['spells']));
 	},
-	enable: false,
+	get running() {
+		return this._asyncWrk !== 0;
+	},
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
 		var data, reps = this._findReps(str),
@@ -6266,19 +6283,9 @@ Spells.prototype = {
 			}
 			return;
 		}
-		this._continueCheck(post, [[0, this._spells.length, this._spells]], function(pst, msg, async) {
-			hFunc(pst, msg);
-			if(async) {
-				clearTimeout(aSpellTO);
-				aSpellTO = setTimeout(savePostsVisib, 500);
-			}
-		}, nhFunc && function(pst, async) {
-			nhFunc(pst);
-			if(async) {
-				clearTimeout(aSpellTO);
-				aSpellTO = setTimeout(savePostsVisib, 500);
-			}
-		}, false);
+		if(this._check(post, [5, hFunc, nhFunc, this._spells, this._sLength, 0])) {
+			this._asyncWrk++;
+		}
 	},
 	replace: function(txt) {
 		for(var i = 0, len = this._reps.length; i < len; i++) {
