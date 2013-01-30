@@ -6056,13 +6056,14 @@ Spells.prototype = {
 		}
 		return [dScope, dScope.length > 2 || hScope];
 	},
-	_decompileSpells: function(data) {
+	_decompileSpells: function() {
+		var str, reps, oreps, data = this._data;
 		if(!data) {
-			return '';
+			return this._list = '';
 		}
-		var str = this._decompileScope(data[1], '')[0].join('\n'),
-			reps = data[2],
-			oreps = data[3];
+		str = this._decompileScope(data[1], '')[0].join('\n');
+		reps = data[2];
+		oreps = data[3];
 		if(reps || oreps) {
 			str += '\n\n';
 			reps && reps.forEach(function(rep) {
@@ -6073,7 +6074,8 @@ Spells.prototype = {
 			}.bind(this));
 			str.substr(0, str.length - 1);
 		}
-		return str;
+		this._data = null;
+		return this._list = str;
 	},
 	_getMsg: function(spell) {
 		var neg = spell[0] & 0x100,
@@ -6214,14 +6216,15 @@ Spells.prototype = {
 		this.haveReps = !!reps;
 		this.haveOutreps = !!outreps;
 	},
-	_list: null,
 	_asyncWrk: 0,
+	_data: null,
+	_list: '',
 
 	hash: 0,
 	complete: false,
 	enable: false,
 	get list() {
-		return this._list || (this._list = this._decompileSpells(Cfg['spells']));
+		return this._list || this._decompileSpells();
 	},
 	get running() {
 		return this._asyncWrk !== 0;
@@ -6249,6 +6252,7 @@ Spells.prototype = {
 				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
 			} catch(e) {}
 			if(data && data[0] === spells[0]) {
+				this._data = data;
 				this._init(data[1], data[2], data[3]);
 				return;
 			}
@@ -6273,13 +6277,15 @@ Spells.prototype = {
 			outreps = this._optimizeReps(data[3]);
 		saveCfg('spells', JSON.stringify(data));
 		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
+		this._data = data;
+		this._list = '';
 		this.hash = data[0];
 		this._init(spells, reps, outreps);
-		this._list = this._decompileSpells(data);
 	},
 	disable: function() {
 		this.enable = false;
-		this._list = null;
+		this._list = '';
+		this._data = null;
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
 	},
