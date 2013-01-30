@@ -888,7 +888,7 @@ function readPostsVisib() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden-' + brd + TNum] || '').split(',');
-		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] && Cfg['spells'] ? Cfg['spells'][0] : 0)) {
+		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
 			sVis = data[1].split('');
 			if(data = sessionStorage['de-deleted']) {
 				data.split(',').forEach(function(dC) {
@@ -910,7 +910,7 @@ function savePostsVisib() {
 	}
 	if(TNum) {
 		sessionStorage['de-hidden-' + brd + TNum] =
-			(Cfg['hideBySpell'] && Cfg['spells'] ? Cfg['spells'][0] + ',' : '0,') + sVis.join('');
+			(Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
 	}
 	saveHiddenThreads();
 	toggleContent('hid', true);
@@ -1506,10 +1506,13 @@ function cfgTab(name) {
 			el.className = 'de-cfg-body';
 			if(id === 'filters') {
 				setTimeout(function() {
-					var oldS = Cfg['spells'],
+					var obj, oldS = Cfg['spells'],
 						newS = getStoredObj('DESU_Config')[aib.dm]['spells'];
-					if((!oldS ^ !newS) || (!!oldS && oldS[0] !== newS[0])) {
-						spells.update(newS);
+					if((!oldS ^ !newS) || !(!oldS || oldS.startsWith(newS))) {
+						try {
+							obj = JSON.parse(newS);
+						} catch(e) {}
+						obj && spells.update(obj);
 					}
 					$id('de-spell-edit').value = spells.list;
 				}, 0);
@@ -6214,6 +6217,7 @@ Spells.prototype = {
 	_list: null,
 	_asyncWrk: 0,
 
+	hash: 0,
 	complete: false,
 	enable: false,
 	get list() {
@@ -6269,6 +6273,7 @@ Spells.prototype = {
 			outreps = this._optimizeReps(data[3]);
 		saveCfg('spells', JSON.stringify(data));
 		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
+		this.hash = data[0];
 		this._init(spells, reps, outreps);
 		this._list = this._decompileSpells(data);
 	},
