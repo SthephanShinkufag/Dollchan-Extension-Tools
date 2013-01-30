@@ -1880,10 +1880,6 @@ function addSettings(Set) {
 						delStored('DESU_Config');
 						delStored('DESU_Favorites');
 						delStored('DESU_Threads');
-						setStored(
-							'DESU_Spells_' + aib.dm,
-							'[1,85765385,"#wipe(samelines,samewords,longwords,numbers)"]'
-						);
 						window.location.reload();
 					}
 				})
