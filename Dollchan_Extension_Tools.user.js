@@ -6303,9 +6303,9 @@ Spells.prototype = {
 		if(!data) {
 			data = [Date.now(), [], false, false];
 		}
-		var idx, exists, sScope = String(scope),
+		var idx, sScope = String(scope),
 			sArg = String(arg);
-		exists = data[1].some(isNeg ? function(spell, i) {
+		data[1].some(isNeg ? function(spell, i) {
 			var data;
 			if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
 				data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
@@ -6314,20 +6314,20 @@ Spells.prototype = {
 				idx = i;
 				return true;
 			}
-			return false;
+			return (spell[0] & 0x200) !== 0;
 		} : function(spell, i) {
 			if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
 				idx = i;
 				return true;
 			}
-			return false;
+			return (spell[0] & 0x200) !== 0;
 		});
-		if(exists) {
+		if(typeof idx !== 'undefined') {
 			data[1].splice(idx, 1);
 		} else if(isNeg) {
-			data[1].push([0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+			data[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
 		} else {
-			data[1].push([type, arg, scope]);
+			data[1].splice(0, 0, [type, arg, scope]);
 		}
 		this.update(data);
 		idx = null;
