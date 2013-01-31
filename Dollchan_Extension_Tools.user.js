@@ -6635,6 +6635,7 @@ function scriptCSS() {
 		x+= '.de-post-hid > .de-ppanel ~ * { display: none !important; }'
 		if(aib.abu) {
 			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center { display: none !important; }\
+				.reflink:before { content: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }';
 		} else if(aib.nul) {
