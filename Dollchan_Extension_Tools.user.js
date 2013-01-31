@@ -5400,7 +5400,7 @@ Spells.prototype = {
 		},
 		// 6: #name
 		function(post, val) {
-			var pName = $c(aib.cName, post);
+			var pName = $q(aib.qName, post);
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
@@ -6710,7 +6710,7 @@ function updateCSS() {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
 	}
 	if(Cfg['noPostNames']) {
-		x += '.' + aib.cName + ', .' + aib.cTrip + ' { display: none; }';
+		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if(Cfg['noSpoilers']) {
 		x += '.spoiler' + (aib.fch ? ', s' : '') + ' { background: #888 !important; color: #ccc !important; }';
@@ -6894,7 +6894,7 @@ function Initialization() {
 			!aib.erns && $q('.thread', doc) ? '.thread' :
 			$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 			'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
-		aib.cName = aib.tiny || aib.fch ? 'name' : 'postername';
+		aib.qName = aib.tiny || aib.fch ? '.name' : '.postername, .commentpostername';
 		aib.cTrip = aib.tiny ? 'trip' : 'postertrip';
 		aib.cSubj =
 			aib.krau ? 'postsubject' :
