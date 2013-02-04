@@ -6091,7 +6091,10 @@ Spells.prototype = {
 	_decompileSpells: function() {
 		var str, reps, oreps, data = this._data;
 		if(!data) {
-			return this._list = '';
+			this.read();
+			if(!(data = this._data)) {
+				return this._list = '';
+			}
 		}
 		str = this._decompileScope(data[1], '')[0].join('\n');
 		reps = data[2];
@@ -6129,8 +6132,8 @@ Spells.prototype = {
 				return;
 			}
 		} else if(rv) {
-			temp = ctx[0];
-			ctx[1](post, this._getMsg(ctx[temp - 2][ctx[temp] - 1]));
+			temp = ctx.pop();
+			ctx[1](post, this._getMsg(ctx.pop()[temp - 1]));
 		} else if(ctx[2]) {
 			ctx[2](post);
 		}
@@ -6138,23 +6141,24 @@ Spells.prototype = {
 		this._endAsync();
 	},
 	_check: function(post, ctx) {
-		var cl = ctx[0],
-			scope = ctx[cl - 2],
-			len = ctx[cl - 1],
-			i = ctx[cl]
+		var rv, type, temp, deep = ctx[0],
+			i = ctx.pop(),
+			scope = ctx.pop(),
+			len = ctx.pop();
 		while(true) {
 			if(i < len) {
 				temp = scope[i][0];
 				type = temp & 0xFF;
 				if(type === 0xFF) {
-					cl = ctx.push(scope, len, i) - 1;
+					ctx.push(len, scope, i);
 					scope = scope[i][1];
 					len = scope.length;
 					i = 0;
+					deep++;
 					continue;
 				} else if(type === 13) {
-					ctx[cl] = i + 1;
-					ctx.push(temp);
+					ctx.push(len, scope, i + 1, temp);
+					ctx[0] = deep;
 					this._funcs[type](post, scope[i][1], ctx);
 					return true;
 				} else {
@@ -6170,14 +6174,14 @@ Spells.prototype = {
 				this._lastPSpell = i -= 1;
 				rv = false;
 			}
-			if(cl !== 5) {
+			if(deep !== 0) {
 				i = ctx.pop();
-				len = ctx.pop();
 				scope = ctx.pop();
+				len = ctx.pop();
+				deep--;
 				rv = this._checkRes(scope[i][0], rv);
 				if(rv === null) {
 					i++;
-					cl -= 3;
 					continue;
 				}
 			}
@@ -6329,7 +6333,7 @@ Spells.prototype = {
 			}
 			return;
 		}
-		if(this._check(post, [5, hFunc, nhFunc, this._spells, this._sLength, 0])) {
+		if(this._check(post, [0, hFunc, nhFunc, this._sLength, this._spells, 0])) {
 			this._asyncWrk++;
 		}
 	},
