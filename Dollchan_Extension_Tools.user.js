@@ -6249,6 +6249,7 @@ Spells.prototype = {
 			} catch(e) {}
 			if(data && data[0] === spells[0]) {
 				this._data = data;
+				this.hash = data[0];
 				this._init(data[1], data[2], data[3]);
 				return;
 			}
@@ -6380,7 +6381,6 @@ function toggleSpells() {
 		savePostsVisib();
 		return;
 	}
-	saveCfg('hideBySpell', false);
 	$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 }
 
@@ -6402,9 +6402,9 @@ function addSpell(type, arg, isNeg) {
 		if(fld) {
 			chk.checked = !!(fld.value = val);
 		}
+		savePostsVisib();
 		return;
 	}
-	saveCfg('hideBySpell', false);
 	spells.enable = false;
 	if(chk) {
 		chk.checked = false;
