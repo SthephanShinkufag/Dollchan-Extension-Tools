@@ -2566,8 +2566,10 @@ function doPostformChanges(el, btn) {
 		addTextResizer();
 	}
 	addTextPanel();
-	pr.txta.style.cssText =
-		'padding: 0; width: ' + Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+	setTimeout(function() {
+		pr.txta.style.cssText = 'padding: 0; resize: both; width: ' +
+			Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+	}, 0);
 	$event(pr.txta, {'keypress': function(e) {
 		var code = e.charCode || e.keyCode;
 		if((code === 33 || code === 34) && e.which === 0) {
@@ -3029,26 +3031,6 @@ function toggleMainReply(e) {
 	$focus(pArea);
 }
 
-function insertRefLink(e) {
-	if(/Reply|Ответ/.test(e.target.textContent)) {
-		return;
-	}
-	e.stopPropagation();
-	$pd(e);
-	if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
-		$id('de-parea').style.display = '';
-	}
-	var pNum = getPost(e.target).num;
-	if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
-		showQuickReply(pByNum[pNum]);
-	} else {
-		if(aib._420 && pr.txta.value === 'Comment') {
-			pr.txta.value = '';
-		}
-		$txtInsert(pr.txta, '>>' + pNum);
-	}
-}
-
 
 /*==============================================================================
 								TEXT FORMATTING BUTTONS
@@ -3172,15 +3154,31 @@ function addTextPanel() {
 ==============================================================================*/
 
 function addPostRef(ref) {
-	if(pr.form && Cfg['insertNum']) {
+	if(pr.form && Cfg['insertNum'] && !aib.brit) {
 		if(aib.nul || TNum && (aib.kus || aib.tinyIb)) {
 			$each($T('a', ref), function(el) {
 				el.onclick = null;
 			});
 		}
-		if(!aib.brit) {
-			ref.onclick = insertRefLink;
-		}
+		ref.onclick = function(e) {
+			if(/Reply|Ответ/.test(e.target.textContent)) {
+				return;
+			}
+			e.stopPropagation();
+			$pd(e);
+			if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
+				$id('de-parea').style.display = '';
+			}
+			var pNum = getPost(e.target).num;
+			if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
+				showQuickReply(pByNum[pNum]);
+			} else {
+				if(aib._420 && pr.txta.value === 'Comment') {
+					pr.txta.value = '';
+				}
+				$txtInsert(pr.txta, '>>' + pNum);
+			}
+		};
 	}
 }
 
@@ -4072,8 +4070,14 @@ function eventPostImg(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRelLink(num) {
-	return '<a href="#' + num + '">&gt;&gt;' + num + '</a>';
+
+function getRelLink(num, tUrl) {
+	return '<a ' + (aib.fch ? '' : ('onclick="' + (
+		aib.kus ? "highlight('" + num + "', true)" :
+		aib.hana ? "Highlight(event, '" + num + "')" :
+		aib.krau ? "highlightPost('" + num + "');" :
+		'highlight(' + num + ')'
+	) + '"')) + ' href="' + (tUrl || '') + '#' + (aib.fch ? 'p' : '') + num + '">&gt;&gt;' + num + '</a>';
 }
 
 function addRefMap(post) {
@@ -4099,9 +4103,9 @@ function genRefMap(posts, tUrl) {
 			}
 		}
 	});
-	refMap.forEach(addRefMap.bind(tUrl ? function(num) {
-		return '<a href="' + tUrl + '#' + num + '">&gt;&gt;' + num + '</a>';
-	} : getRelLink));
+	refMap.forEach(addRefMap.bind(function(pNum) {
+		return getRelLink(pNum, tUrl);
+	}));
 	refMap = tUrl = null;
 }
 
@@ -5387,7 +5391,7 @@ Spells.prototype = {
 		},
 		// 6: #name
 		function(post, val) {
-			var pName = $c(aib.cName, post);
+			var pName = $q(aib.qName, post);
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
 			}
@@ -6750,7 +6754,7 @@ function updateCSS() {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
 	}
 	if(Cfg['noPostNames']) {
-		x += '.' + aib.cName + ', .' + aib.cTrip + ' { display: none; }';
+		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if(Cfg['noSpoilers']) {
 		x += '.spoiler' + (aib.fch ? ', s' : '') + ' { background: #888 !important; color: #ccc !important; }';
@@ -6934,7 +6938,7 @@ function Initialization() {
 			!aib.erns && $q('.thread', doc) ? '.thread' :
 			$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
 			'[id^="thread"]' + (aib._7ch ? ':not(#thread_controls)' : '');
-		aib.cName = aib.tiny || aib.fch ? 'name' : 'postername';
+		aib.qName = aib.tiny || aib.fch ? '.name' : '.postername, .commentpostername';
 		aib.cTrip = aib.tiny ? 'trip' : 'postertrip';
 		aib.cSubj =
 			aib.krau ? 'postsubject' :
