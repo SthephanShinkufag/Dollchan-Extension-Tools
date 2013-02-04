@@ -50,7 +50,7 @@ defaultCfg = {
 	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// mp3 player by links
-	'addImgs':		1,		// add images by links
+	'addImgs':		0,		// add images by links
 	'addYouTube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
 	'YTubeWidth':	360,	//		player width
