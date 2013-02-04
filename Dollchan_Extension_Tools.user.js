@@ -284,7 +284,7 @@ Lng = {
 	tpHelp:			[
 		'"s" - секунда (одна цифра),\n"i" - минута (одна цифра),\n"h" - час (одна цифра),\n"d" - день (одна цифра),\n' +
 		'"w" - неделя (строка)\n"n" - месяц (одна цифра),\n"m" - месяц (строка),\n"y" - год (одна цифра),\n' +
-		'"-" - лююой символ\n"+" - любой символ за исключением цифр\n"?" - предыдущий символ может отсутствовать\n\Примеры:\n',
+		'"-" - любой символ\n"+" - любой символ за исключением цифр\n"?" - предыдущий символ может отсутствовать\n\Примеры:\n',
 		'"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n' +
 		'"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n' +
 		'"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n'
@@ -292,11 +292,11 @@ Lng = {
 
 	trpHelp:			[
 		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения.\n' +
-		'"_s" - секунды,\n"_i" - минуты,\n"_h" - час,\n"_d" - день,\n"_w" - неделя\n"_n" - месяц (цифрами),\n' +
-		'"_m" - месяц (строка, сокращённый),\n"_M" - месяц (строка, полный),\n"_y" - год (2 цифры),\n"_Y" - год (4 цифры)\n\nПримеры:\n',
+		'"_s" - секунды,\n"_i" - минуты,\n"_h" - час,\n"_d" - день,\n"_w" - неделя\n"_n" - месяц (цифрами),\n"_m" - месяц (строка, сокращённый),\n' +
+		'"_M" - месяц (строка, полный),\n"_y" - год (2 цифры),\n"_Y" - год (4 цифры),\n_o - разница во времени\n\nПримеры:\n',
 		'Replace pattern may contains any symbols\nand following expressions which will be\nreplaced with the corresponding values.\n' +
-		'"_s" - seconds,\n"_i" - minutes,\n"_h" - hour,\n"_d" - day,\n"_w" - week\n"_n" - month (number),\n' +
-		'"_m" - month (string, abbr),\n"_M" - month (string, full),\n"_y" - year(2 digits),\n"_Y" - year(4 digits)\n\nExamples:\n'
+		'"_s" - seconds,\n"_i" - minutes,\n"_h" - hour,\n"_d" - day,\n"_w" - week\n"_n" - month (number),\n"_m" - month (string, abbr),\n' +
+		'"_M" - month (string, full),\n"_y" - year(2 digits),\n"_Y" - year(4 digits),\n_o - time difference\n\nExamples:\n'
 	],
 
 
@@ -3559,6 +3559,7 @@ function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
 		.replace(/m|w/g, '([a-zA-Zа-яА-Я]+)');
 	this.pattern = pattern.replace(/[\?\-\+]+/g, '').replace(/([a-z])\1+/g, '$1');
 	this.diff = parseInt(diff, 10);
+	this.sDiff = (this.diff < 0 ? '' : '+') + this.diff;
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
@@ -3640,6 +3641,7 @@ dateTime.prototype = {
 			dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
 			dtime.setHours(dtime.getHours() + this.diff);
 			return this.rPattern
+				.replace('_o', this.sDiff)
 				.replace('_s', this.pad2(dtime.getSeconds()))
 				.replace('_i', this.pad2(dtime.getMinutes()))
 				.replace('_h', this.pad2(dtime.getHours()))
