@@ -40,7 +40,8 @@ defaultCfg = {
 	'keybNavig':	0,		// keyboard navigation
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'',		//		offset in hours
-	'timePattern':	'',		//		replace pattern
+	'timePattern':	'',		//		find pattern
+	'timeRPattern':	'',		//		replace pattern
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':	100,	//		delay appearance in ms
 	'linksOut':		1500,	//		delay disappearance in ms
@@ -129,7 +130,8 @@ Lng = {
 		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
-		'timePattern':	['Шаблон замены', 'Replace pattern'],
+		'timePattern':	['Шаблон поиска', 'Find pattern'],
+		'timeRPattern':	['Шаблон замены', 'Replace pattern'],
 
 		'linksNavig': {
 			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -278,6 +280,25 @@ Lng = {
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
 		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
 	],
+
+	tpHelp:			[
+		'"s" - секунда (одна цифра),\n"i" - минута (одна цифра),\n"h" - час (одна цифра),\n"d" - день (одна цифра),\n' +
+		'"w" - неделя (строка)\n"n" - месяц (одна цифра),\n"m" - месяц (строка),\n"y" - год (одна цифра),\n' +
+		'"-" - лююой символ\n"+" - любой символ за исключением цифр\n"?" - предыдущий символ может отсутствовать\n\Примеры:\n',
+		'"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n' +
+		'"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n' +
+		'"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n'
+	],
+
+	trpHelp:			[
+		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения.\n' +
+		'"_s" - секунды,\n"_i" - минуты,\n"_h" - час,\n"_d" - день,\n"_w" - неделя\n"_n" - месяц (цифрами),\n' +
+		'"_m" - месяц (строка, сокращённый),\n"_M" - месяц (строка, полный),\n"_y" - год (2 цифры),\n"_Y" - год (4 цифры)\n\nПримеры:\n',
+		'Replace pattern may contains any symbols\nand following expressions which will be\nreplaced with the corresponding values.\n' +
+		'"_s" - seconds,\n"_i" - minutes,\n"_h" - hour,\n"_d" - day,\n"_w" - week\n"_n" - month (number),\n' +
+		'"_m" - month (string, abbr),\n"_M" - month (string, full),\n"_y" - year(2 digits),\n"_Y" - year(4 digits)\n\nExamples:\n'
+	],
+
 
 	month:			[
 		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
@@ -862,17 +883,21 @@ function readCfg() {
 	if(Cfg['correctTime']) {
 		dTime = new dateTime(
 			Cfg['timePattern'],
+			Cfg['timeRPattern'],
 			Cfg['timeOffset'],
 			lang,
-			sessionStorage['timeRPattern']
+			function(rp) {
+				saveCfg('timeRPattern', rp);
+			}
 		);
 	}
 	if(aib.hana) {
 		aib.hDTFix = new dateTime(
 			'yyyy-nn-dd-hh-ii-ss',
+			'_d _M _y (_w) _h:_i ',
 			Cfg['timeOffset'] || 0,
 			Cfg['correctTime'] ? lang : 1,
-			'1_d _m _y (_w) _h:_i '
+			null
 		);
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
@@ -1640,7 +1665,23 @@ function getCfgPosts() {
 				$new('a', {'text': Lng.cfg['timePattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert('"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\ndobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\nkrautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'help-correcttime', false);
+						$alert(Lng.tpHelp[lang] + '0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\n' +
+							'dobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n' +
+							'4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\n' +
+							'krautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'help-correcttime', false);
+					}
+				})
+			]),
+			$New('div', null, [
+				inpTxt('timeRPattern', 30, null),
+				$txt(' '),
+				$new('a', {'text': Lng.cfg['timeRPattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
+					'click': function(e) {
+						$pd(e);
+						$alert(Lng.trpHelp[lang] + '0chan.ru: "_w _Y _m _d _h:_i:_s"\n2ch.so: "_w _d _m _Y _h:_i:_s"\n' +
+							'iichan.ru: "_w _d _M _Y _h:_i:_s"\ndobrochan.ru: "_d _M _Y (_w) _h:_i:_s"\n' +
+							'410chan.org: "_d._n._Y (_w) _h:_i:_s"\n4chan.org: "_n/_d/_y(_w)_h:_i:_s"\n' +
+							'4chon.net: "_n/_d/_y (_w) _h:_i:_s"\nkrautchan.net: "_Y-_n-_d _h:_i:_s"', 'help-correcttime2', false);
 					}
 				})
 			])
@@ -3502,7 +3543,7 @@ function preloadImages(post) {
 ==============================================================================*/
 
 /** @constructor */
-function dateTime(pattern, diff, dtLang, info) {
+function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	if(dateTime.checkPattern(pattern)) {
 		this.disabled = true;
 		return;
@@ -3521,11 +3562,8 @@ function dateTime(pattern, diff, dtLang, info) {
 	this.arrW = Lng.week[dtLang];
 	this.arrM = Lng.month[dtLang];
 	this.arrFM = Lng.fullMonth[dtLang];
-	if(info) {
-		this.inited = true;
-		this.rPattern = info.substring(1);
-		this.fullM = !!+info[0];
-	}
+	this.rPattern = rPattern;
+	this.onRPat = onRPat;
 }
 
 dateTime.toggleSettings = function(el) {
@@ -3543,48 +3581,40 @@ dateTime.checkPattern = function(val) {
 };
 
 dateTime.prototype = {
-	init: function(txt) {
-		if(this.inited || this.disabled) {
-			return this;
-		}
+	getRPattern: function(txt) {
 		var k, p, a, str, i = 1,
 			j = 0,
 			m = txt.match(new RegExp(this.regex));
 		if(!m) {
 			this.disabled = true;
-			return this;
+			return false;
 		}
 		this.rPattern = '';
 		str = m[0];
 		while(a = m[i++]) {
-			if((p = this.pattern[i - 2]) === 'm') {
-				this.fullM = a.length > 3;
+			p = this.pattern[i - 2];
+			if((p === 'm' || p === 'y') && a.length > 3) {
+				p = p.toUpperCase();
 			}
 			k = str.indexOf(a, j);
 			this.rPattern += str.substring(j, k) + '_' + p;
 			j = k + a.length;
 		}
-		sessionStorage['timeRPattern'] = (this.fullM ? '1' : '0') + this.rPattern;
-		this.inited = true;
-		return this;
+		this.onRPat && this.onRPat(this.rPattern);
+		return true;
+	},
+	pad2: function(num) {
+		return num < 10 ? '0' + num : num;
 	},
 	fix: function(txt) {
-		if(this.disabled) {
+		if(this.disabled || (!this.rPattern && !this.getRPattern(txt))) {
 			return txt;
 		}
-		var arrW = this.arrW,
-			arrM = this.fullM ? this.arrFM : this.arrM,
-			tPat = this.pattern,
-			tRPat = this.rPattern,
-			diff = this.diff,
-			pad2 = function(num) {
-				return num < 10 ? '0' + num : num;
-			};
-		txt = txt.replace(new RegExp(this.regex, 'g'), function() {
+		return txt.replace(new RegExp(this.regex, 'g'), function() {
 			var i, a, t, second, minute, hour, day, month, year, dtime;
 			for(i = 1; i < 8; i++) {
 				a = arguments[i];
-				t = tPat[i - 1];
+				t = this.pattern[i - 1];
 				t === 's' ? second = a :
 				t === 'i' ? minute = a :
 				t === 'h' ? hour = a :
@@ -3608,19 +3638,19 @@ dateTime.prototype = {
 				);
 			}
 			dtime = new Date(year.length === 2 ? '20' + year : year, month, day, hour, minute, second || 0);
-			dtime.setHours(dtime.getHours() + diff);
-			return tRPat
-				.replace('_s', pad2(dtime.getSeconds()))
-				.replace('_i', pad2(dtime.getMinutes()))
-				.replace('_h', pad2(dtime.getHours()))
-				.replace('_d', pad2(dtime.getDate()))
-				.replace('_w', arrW[dtime.getDay()])
-				.replace('_n', pad2(dtime.getMonth() + 1))
-				.replace('_m', arrM[dtime.getMonth()])
-				.replace('_y', year.length === 2 ? ('' + dtime.getFullYear()).substring(2) : dtime.getFullYear());
-		});
-		arrW = arrM = tPat = tRPat = diff = pad2 = null;
-		return txt;
+			dtime.setHours(dtime.getHours() + this.diff);
+			return this.rPattern
+				.replace('_s', this.pad2(dtime.getSeconds()))
+				.replace('_i', this.pad2(dtime.getMinutes()))
+				.replace('_h', this.pad2(dtime.getHours()))
+				.replace('_d', this.pad2(dtime.getDate()))
+				.replace('_w', this.arrW[dtime.getDay()])
+				.replace('_n', this.pad2(dtime.getMonth() + 1))
+				.replace('_m', this.arrM[dtime.getMonth()])
+				.replace('_M', this.arrFM[dtime.getMonth()])
+				.replace('_y', ('' + dtime.getFullYear()).substring(2))
+				.replace('_Y', dtime.getFullYear());
+		}.bind(this));
 	}
 };
 
@@ -7426,7 +7456,7 @@ function tryToParse(node) {
 
 function replaceString(txt) {
 	if(dTime) {
-		txt = dTime.init(txt).fix(txt, null);
+		txt = dTime.fix(txt);
 	}
 	if(aib.fch || aib.krau) {
 		if(aib.fch) {
