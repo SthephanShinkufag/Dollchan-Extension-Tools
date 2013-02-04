@@ -6284,7 +6284,7 @@ Spells.prototype = {
 				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
 			} catch(e) {}
 			if(data && data[0] === spells[0]) {
-				this._data = data;
+				this._data = spells;
 				this.hash = data[0];
 				this._init(data[1], data[2], data[3]);
 				return;
