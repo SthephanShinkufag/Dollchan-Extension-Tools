@@ -299,7 +299,6 @@ Lng = {
 		'"_M" - month (string, full),\n"_y" - year(2 digits),\n"_Y" - year(4 digits),\n"_o" - time difference\n\nExamples:\n'
 	],
 
-
 	month:			[
 		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
 		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -5180,7 +5179,7 @@ function setPostVisib(post, hide, note) {
 				$del(el);
 				post.note = null;
 			} else if(note) {
-				el.innerText = ' autohide: ' + note + ' ';
+				el.innerText = 'autohide: ' + note;
 			}
 		} else if(hide) {
 			addPostNote(post, note);
