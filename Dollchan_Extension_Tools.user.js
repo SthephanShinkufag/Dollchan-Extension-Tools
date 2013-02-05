@@ -5125,15 +5125,11 @@ function togglePostContent(post, hide) {
 
 function addPostNote(post, note) {
 	if(note) {
-		post.btns.appendChild($new('a', {
-			'class': 'de-post-note de-abtn',
-			'text': ' autohide: ' + note + ' ',
-			'href': '#'}, {
-			'click': function(e) {
-				$pd(e);
-				$del(this);
-			}
-		}));
+		post.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note">autohide: ' +
+			note + '</span>');
+		post.note = post.btns.lastChild;
+	} else {
+		post.note = null;
 	}
 }
 
@@ -5179,9 +5175,10 @@ function setPostVisib(post, hide, note) {
 			$del(el.nextSibling);
 		}
 	} else {
-		if(el = $c('de-post-note', post)) {
+		if(el = post.note) {
 			if(!hide) {
 				$del(el);
+				post.note = null;
 			} else if(note) {
 				el.innerText = ' autohide: ' + note + ' ';
 			}
@@ -5216,7 +5213,7 @@ function hidePost(post, note) {
 		return;
 	}
 	if(post.hide) {
-		$del($c('de-post-note', post));
+		$del(post.note);
 		addPostNote(post, note);
 	} else {
 		sVis[post.count] = 0;
@@ -5231,7 +5228,8 @@ function unhidePost(post) {
 	sVis[post.count] = 1;
 	setPostVisib(post, false, null);
 	unhideByRef(post);
-	$del($c('de-post-note', post));
+	$del(post.note);
+	post.note = null;
 }
 
 function setUserPostVisib(post, hide) {
@@ -5281,7 +5279,8 @@ function findSameText(post, oNum, oHid, oWords) {
 	if(n < _olen * 0.4 || len > _olen * 3) {
 		return;
 	}
-	$del($c('de-post-note',  post));
+	$del(post.note);
+	post.note = null;
 	if(oHid) {
 		if(sVis[post.count] !== 0) {
 			setPostVisib(post, false, null);
@@ -6547,8 +6546,8 @@ function scriptCSS() {
 
 	// Post panel
 	x += '.de-ppanel { margin-left: 4px; }\
-		.de-post-note { color: inherit; font: italic bold 12px serif; }\
-		.de-ppanel > span, .de-btn-src, .de-btn-expthr, .de-btn-sage { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
+		.de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-fav, .de-btn-fav-sel, .de-btn-src, .de-btn-expthr, .de-btn-sage { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
 		x += 'padding: 0 14px 14px 0; }';
 		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
