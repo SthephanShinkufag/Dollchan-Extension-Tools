@@ -970,6 +970,7 @@ function cleanHiddenThreads(b) {
 }
 
 function saveHiddenThreads() {
+	comHThr = getStoredObj('DESU_Threads');
 	(comHThr[aib.dm] || (comHThr[aib.dm] = {}))[brd] = hThr;
 	cleanHiddenThreads(brd);
 	setStored('DESU_Threads', JSON.stringify(comHThr));
@@ -1261,6 +1262,7 @@ function showContent(cont, id, name, isUpd) {
 							setUserPostVisib(el.pst, false);
 						}
 					});
+					saveHiddenThreads();
 					saveUserPostsVisib();
 				})
 			]);
@@ -5111,6 +5113,9 @@ function setPostsVisib() {
 
 function toggleUserPostVisib(post) {
 	setUserPostVisib(post, !post.hide);
+	if(post.isOp) {
+		saveHiddenThreads();
+	}
 	saveUserPostsVisib();
 }
 
