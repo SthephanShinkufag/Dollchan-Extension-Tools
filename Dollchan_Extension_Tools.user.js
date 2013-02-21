@@ -391,8 +391,7 @@ Lng = {
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains tripcode'],
-	loadImage:	['Загружается изображение: ', 'Load image: '],
-	waitPreload:	['Ожидание завершения предзагрузки изображений', 'Waiting for preload complete'],
+	loadImage:		['Загружается изображение: ', 'Load image: '],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -414,7 +413,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-Images = {preloading: false, afterpreload: null},
+Images = {preloading: false, afterpreload: null, progressId: null},
 oldTime, timeLog = [], dTime,
 ajaxInterval, lang, hideTubeDelay, tubeTitles, quotetxt = '', liteMode, isExpImg,
 reTubeLink = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
@@ -663,6 +662,7 @@ $queue.prototype = {
 	}
 };
 
+/** @constructor */
 function $tar() {
 	this.data = [];
 }
@@ -1211,9 +1211,13 @@ function addPanel() {
 				)),
 				$if(TNum && nav.isBlob && !nav.Opera, pButton('imgload', function(e) {
 					$pd(e);
+					if($id('de-alert-imgload')) {
+						return;
+					}
 					if(Images.preloading) {
-						$alert(Lng.waitPreload[lang], 'imgload', true);
+						$alert(Lng.loading[lang], 'imgload', true);
 						Images.afterpreload = getImagesArchive;
+						Images.progressId = 'imgload';
 					} else {
 						getImagesArchive();
 					}
@@ -3549,39 +3553,42 @@ function preloadImages(post) {
 	if(!Cfg['preLoadImgs'] && !Cfg['openImgs']) {
 		return;
 	}
-	var lnk, url, iType, nExp, el, i, els, mReqs = post ? 1 : 4,
+	var lnk, url, iType, nExp, el, i, len, els, queue, mReqs = post ? 1 : 4, cImg = 1,
 		rjf = Cfg['findImgFile'] && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
-		}),
-		queue = Cfg['preLoadImgs'] && new $queue(mReqs, function(num, dat) {
-			var a = dat[0],
-				type = dat[2],
-				eImg = dat[3];
-			downloadImgData(dat[1], function(data) {
+		});
+	if(Cfg['preLoadImgs']) {
+		queue = new $queue(mReqs, function(num, dat) {
+			downloadImgData(dat[0], function(data) {
 				if(data) {
-					a.href = window.URL.createObjectURL(new Blob([data], {'type': type}));
-					if(eImg) {
-						$t('img', a).src = a.href;
+					var a = this[1];
+					a.href = window.URL.createObjectURL(new Blob([data], {'type': this[2]}));
+					if(this[3]) {
+						this[3].src = a.href;
 					}
 					if(rjf) {
 						rjf.find(data.buffer, addImgFileIcon.bind(a));
 					}
 				}
-				a = eImg = type = null;
 				queue.end();
-			});
+				if(Images.progressId) {
+					$alert(Lng.loadImage[lang] + cImg + '/' + len, Images.progressId, true);
+				}
+				cImg++;
+			}.bind(dat));
 		}, function() {
 			Images.preloading = false
 			if(Images.afterpreload) {
 				Images.afterpreload();
-				Images.afterpreload = null;
+				Images.afterpreload = Images.progressId = null;
 			}
 			rjf && rjf.clear();
-			rjf = queue = null;
+			rjf = queue = cImg = len = null;
 		});
-	Images.preloading = true;
-	for(i = 0, els = getPostImages(post || dForm); el = els[i++];) {
-		if(lnk = $x("ancestor::a[1]", el)) {
+		Images.preloading = true;
+	}
+	for(i = 0, els = getPostImages(post || dForm), len = els.length; i < len; i++) {
+		if(lnk = $x("ancestor::a[1]", el = els[i])) {
 			url = lnk.href;
 			nExp = !!Cfg['openImgs'];
 			if(/\.gif$/i.test(url)) {
@@ -3598,7 +3605,7 @@ function preloadImages(post) {
 			}
 			lnk.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 			if(queue) {
-				queue.run([lnk, url, iType, nExp]);
+				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
 				el.src = url;
 			}
@@ -3610,12 +3617,12 @@ function preloadImages(post) {
 function getImagesArchive() {
 	var i, lnk, url, cImg = 1,
 		els = getPostImages(dForm),
-		imgLen = els.length,
+		len = els.length,
 		tar = new $tar(),
 		queue = new $queue(4, function(num, dat) {
 			var name = dat[0];
 			downloadImgData(dat[1], function(data) {
-				$alert(Lng.loadImage[lang] + cImg++ + '/' + imgLen, 'imgload', true);
+				$alert(Lng.loadImage[lang] + cImg++ + '/' + len, 'imgload', true);
 				tar.addFile(name, data);
 				queue.end();
 				name = null;
@@ -3630,10 +3637,10 @@ function getImagesArchive() {
 				$del(el);
 			}, 0, a, u);
 			$del($id('de-alert-imgload'));
-			tar = queue = cImg = imgLen = null;
+			tar = queue = cImg = len = null;
 		});
-	$alert(Lng.loadImage[lang] + cImg++ + '/' + imgLen, 'imgload', true);
-	for(i = 0; i < imgLen; i++) {
+	$alert(Lng.loadImage[lang] + cImg++ + '/' + len, 'imgload', true);
+	for(i = 0; i < len; i++) {
 		if(lnk = $x("ancestor::a[1]", els[i])) {
 			url = lnk.href;
 			queue.run([lnk.download || url.substring(url.lastIndexOf("/") + 1), url]);
