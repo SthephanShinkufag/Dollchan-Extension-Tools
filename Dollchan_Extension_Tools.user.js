@@ -247,7 +247,8 @@ Lng = {
 		'upd-on':	['Автообновление треда', 'Thread autoupdate'],
 		'audio-off':['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':	['Каталог', 'Catalog'],
-		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread']
+		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread'],
+		'imgload':	['Сохранить изображения из треда', 'Save images from thread']
 	},
 
 	selHiderMenu:	{
@@ -390,6 +391,8 @@ Lng = {
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains tripcode'],
+	loadImage:	['Загружается изображение: ', 'Load image: '],
+	waitPreload:	['Ожидание завершения предзагрузки изображений', 'Waiting for preload complete'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -411,6 +414,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
+Images = {preloading: false, afterpreload: null},
 oldTime, timeLog = [], dTime,
 ajaxInterval, lang, hideTubeDelay, tubeTitles, quotetxt = '', liteMode, isExpImg,
 reTubeLink = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
@@ -656,6 +660,56 @@ $queue.prototype = {
 		} else {
 			this.completed = true;
 		}
+	}
+};
+
+function $tar() {
+	this.data = [];
+}
+$tar.prototype = {
+	padSet: function(data, offset, num, len) {
+		var i = 0, nLen = num.length;
+		len -= 2;
+		while(nLen < len) {
+			data[offset++] = 0x20; // ' '
+			len--;
+		}
+		while(i < nLen) {
+			data[offset++] = num.charCodeAt(i++);
+		}
+		data[offset] = 0x20; // ' '
+	},
+	addFile: function(filepath, input) {
+		var i, checksum, nameLen = filepath.length,
+			fileSize = input.length,
+			header = new Uint8Array(512);
+		if(nameLen > 99) {
+			nameLen = 100;
+			filepath = filepath.substring(0, 99);
+		} 
+		for(i = 0; i < nameLen; i++) {
+			header[i] = filepath.charCodeAt(i) & 0xFF;
+		}
+		this.padSet(header, 100, '100777', 8);										// fileMode
+		this.padSet(header, 108, '0', 8);											// uid
+		this.padSet(header, 116, '0', 8);											// gid
+		this.padSet(header, 124, fileSize.toString(8), 13);							// fileSize
+		this.padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
+		this.padSet(header, 148, '        ', 8);									// checksum
+		header[156] = 0x30;															// type ('0')
+		for(i = checksum = 0; i < 174; i++) {
+			checksum += header[i];
+		}
+		this.padSet(header, 148, checksum.toString(8), 8);							// checksum
+		this.data.push(header);
+		this.data.push(input);
+		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
+			this.data.push(new Uint8Array(i));
+		}
+	},
+	get: function() {
+		this.data.push(new Uint8Array(1024));
+		return new Blob(this.data, {'type': 'application/x-tar'});
 	}
 };
 
@@ -1155,6 +1209,15 @@ function addPanel() {
 					'//' + aib.host + '/' + brd + '/catalog.html',
 					null, null
 				)),
+				pButton('imgload', function(e) {
+					$pd(e);
+					if(Images.preloading) {
+						$alert(Lng.waitPreload[lang], 'imgload', true);
+						Images.afterpreload = getImagesArchive;
+					} else {
+						getImagesArchive();
+					}
+				}, null, null, null),
 				$if(TNum, $add('<div id="de-panel-info"><span title="' +  Lng.panelBtn['counter'][lang] + '">' +
 					Posts.length + '/' + imgLen + '</span></div>'))
 			])
@@ -1959,7 +2022,7 @@ function $alert(txt, id, wait) {
 		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
 		$t('span', el).textContent = tBtn;
 		clearTimeout(el.closeTimeout);
-		if(Cfg['animation']) {
+		if(!wait && Cfg['animation']) {
 			nav.animEvent(el, function(node) {
 				node.classList.remove('de-blink');
 			});
@@ -3461,18 +3524,19 @@ function downloadImgData(url, Fn) {
 			if(e.readyState !== 4) {
 				return;
 			}
-			if(e.status === 200) {
-				if(nav.Firefox && aib.fch) {
-					Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
-				} else {
-					Fn(new Uint8Array(e.response));
-				}
-			} else {
+			var isAb = e.responseType === 'arraybuffer';
+			if(e.status === 0 && isAb) {
+				Fn(new Uint8Array(e.response));
+			} else if(e.status !== 200) {
 				Fn(null);
+			} else if(isAb) {
+				Fn(new Uint8Array(e.response));
+			} else {
+				Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
 			}
 		}
 	};
-	if(nav.Firefox && aib.fch) {
+	if(nav.Firefox && aib.fch && !url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	} else {
@@ -3495,7 +3559,7 @@ function preloadImages(post) {
 				eImg = dat[3];
 			downloadImgData(dat[1], function(data) {
 				if(data) {
-					a.href = window.URL.createObjectURL(new Blob([data], {"type": type}));
+					a.href = window.URL.createObjectURL(new Blob([data], {'type': type}));
 					if(eImg) {
 						$t('img', a).src = a.href;
 					}
@@ -3507,36 +3571,75 @@ function preloadImages(post) {
 				queue.end();
 			});
 		}, function() {
+			Images.preloading = false
+			if(Images.afterpreload) {
+				Images.afterpreload();
+				Images.afterpreload = null;
+			}
 			rjf && rjf.clear();
 			rjf = queue = null;
 		});
+	Images.preloading = true;
 	for(i = 0, els = getPostImages(post || dForm); el = els[i++];) {
-		lnk = $x("ancestor::a[1]", el);
-		if(!lnk) {
-			continue;
-		}
-		url = lnk.href;
-		nExp = !!Cfg['openImgs'];
-		if(/\.gif$/i.test(url)) {
-			iType = 'image/gif';
-		} else {
-			if(/\.jpe?g$/i.test(url)) {
-				iType = 'image/jpeg';
-			} else if(/\.png$/i.test(url)) {
-				iType = 'image/png';
+		if(lnk = $x("ancestor::a[1]", el)) {
+			url = lnk.href;
+			nExp = !!Cfg['openImgs'];
+			if(/\.gif$/i.test(url)) {
+				iType = 'image/gif';
 			} else {
-				continue;
+				if(/\.jpe?g$/i.test(url)) {
+					iType = 'image/jpeg';
+				} else if(/\.png$/i.test(url)) {
+					iType = 'image/png';
+				} else {
+					continue;
+				}
+				nExp &= !Cfg['openGIFs'];
 			}
-			nExp &= !Cfg['openGIFs'];
-		}
-		lnk.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
-		if(queue) {
-			queue.run([lnk, url, iType, nExp]);
-		} else if(nExp) {
-			el.src = url;
+			lnk.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
+			if(queue) {
+				queue.run([lnk, url, iType, nExp]);
+			} else if(nExp) {
+				el.src = url;
+			}
 		}
 	}
 	queue && queue.complete();
+}
+
+function getImagesArchive() {
+	var i, lnk, url, cImg = 0,
+		els = getPostImages(dForm),
+		imgLen = els.length,
+		tar = new $tar(),
+		queue = new $queue(4, function(num, dat) {
+			var name = dat[0];
+			downloadImgData(dat[1], function(data) {
+				$alert(Lng.loadImage[lang] + cImg++ + '/' + imgLen, 'imgload', true);
+				tar.addFile(name, data);
+				queue.end();
+				name = null;
+			});
+		}, function() {
+			var u = window.URL.createObjectURL(tar.get()),
+				a = $new('a', {'href': u, 'download': aib.dm + '-t' + TNum + '-images.tar'}, null);
+			doc.body.appendChild(a);
+			a.click();
+			setTimeout(function(el, url) {
+				window.URL.revokeObjectURL(url);
+				$del(el);
+			}, 0, a, u);
+			$del($id('de-alert-imgload'));
+			tar = queue = null;
+		});
+	$alert(Lng.loadImage[lang] + cImg++ + '/' + imgLen, 'imgload', true);
+	for(i = 0; i < imgLen; i++) {
+		if(lnk = $x("ancestor::a[1]", els[i])) {
+			url = lnk.href;
+			queue.run([lnk.download || url.substring(url.lastIndexOf("/") + 1), url]);
+		}
+	}
+	queue.complete();
 }
 
 /*==============================================================================
@@ -6534,7 +6637,7 @@ function scriptCSS() {
 	gif('#de-btn-goback', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
 	gif('#de-btn-gonext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
 	gif('#de-btn-goup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
-	gif('#de-btn-godown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
+	gif('#de-btn-godown, #de-btn-imgload', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
 	gif('#de-btn-newthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
 	gif('#de-btn-expimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
 	gif('#de-btn-maskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
