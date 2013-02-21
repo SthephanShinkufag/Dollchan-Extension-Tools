@@ -4489,7 +4489,7 @@ function getPview(post, pNum, parent, link, txt) {
 function showPview(link) {
 	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, ''),
 		parent = getPost(link),
-		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,parent.thr && parent.thr.num])[1],
+		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || (Pviews.ajaxed[b] && Pviews.ajaxed[b][pNum]),
 		el = parent.pView ? parent.kid : Pviews.top;
