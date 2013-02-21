@@ -1209,7 +1209,7 @@ function addPanel() {
 					'//' + aib.host + '/' + brd + '/catalog.html',
 					null, null
 				)),
-				pButton('imgload', function(e) {
+				$if(TNum && nav.isBlob && !nav.Opera, pButton('imgload', function(e) {
 					$pd(e);
 					if(Images.preloading) {
 						$alert(Lng.waitPreload[lang], 'imgload', true);
@@ -1217,7 +1217,7 @@ function addPanel() {
 					} else {
 						getImagesArchive();
 					}
-				}, null, null, null),
+				}, null, null, null)),
 				$if(TNum, $add('<div id="de-panel-info"><span title="' +  Lng.panelBtn['counter'][lang] + '">' +
 					Posts.length + '/' + imgLen + '</span></div>'))
 			])
