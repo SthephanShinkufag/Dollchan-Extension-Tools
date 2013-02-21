@@ -3608,7 +3608,7 @@ function preloadImages(post) {
 }
 
 function getImagesArchive() {
-	var i, lnk, url, cImg = 0,
+	var i, lnk, url, cImg = 1,
 		els = getPostImages(dForm),
 		imgLen = els.length,
 		tar = new $tar(),
@@ -3630,7 +3630,7 @@ function getImagesArchive() {
 				$del(el);
 			}, 0, a, u);
 			$del($id('de-alert-imgload'));
-			tar = queue = null;
+			tar = queue = cImg = imgLen = null;
 		});
 	$alert(Lng.loadImage[lang] + cImg++ + '/' + imgLen, 'imgload', true);
 	for(i = 0; i < imgLen; i++) {
