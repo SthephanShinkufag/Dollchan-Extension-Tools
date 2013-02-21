@@ -4481,10 +4481,10 @@ function getPview(post, pNum, parent, link, txt) {
 
 function showPview(link) {
 	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, ''),
-		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
+		parent = getPost(link),
+		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,parent.thr.num])[1],
 		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || (Pviews.ajaxed[b] && Pviews.ajaxed[b][pNum]),
-		parent = getPost(link),
 		el = parent.pView ? parent.kid : Pviews.top;
 	if(Cfg['noNavigHidd'] && post && post.hide) {
 		return;
@@ -6202,7 +6202,7 @@ Spells.prototype = {
 				return this._list = '';
 			}
 		}
-		str = this._decompileScope(data[1], '')[0].join('\n');
+		str = data[1] ? this._decompileScope(data[1], '')[0].join('\n') : '';
 		reps = data[2];
 		oreps = data[3];
 		if(reps || oreps) {
@@ -6213,7 +6213,7 @@ Spells.prototype = {
 			oreps && oreps.forEach(function(orep) {
 				str += this._decompileRep(orep, true) + '\n';
 			}.bind(this));
-			str.substr(0, str.length - 1);
+			str = str.substr(0, str.length - 1);
 		}
 		this._data = null;
 		return this._list = str;
