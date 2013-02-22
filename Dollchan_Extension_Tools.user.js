@@ -7310,8 +7310,8 @@ function Initialization() {
 		}
 	}
 	nav.isBlob = nav.Firefox > 14 || nav.Chrome || nav.Opera >= 12.10;
-	nav.isWorker = nav.Firefox > 17 || nav.Chrome;
-	if(nav.Firefox > 17) {
+	nav.isWorker = nav.Firefox > 19 || nav.Chrome;
+	if(nav.Firefox > 19) {
 		$script(
 			'window["de-worker"] = function(url) {\
 				this.wrk = new Worker(url);\
@@ -7393,7 +7393,7 @@ function Initialization() {
 		window.URL = window.webkitURL;
 	}
 	nav.Worker = nav.Firefox ? (
-		nav.Firefox < 18 ? null : (function(w) {
+		nav.Firefox < 20 ? null : (function(w) {
 			w.prototype.postMessage = function() {
 				uWindow['de-worker-proto']._postMessage.apply(this, arguments);
 			};
