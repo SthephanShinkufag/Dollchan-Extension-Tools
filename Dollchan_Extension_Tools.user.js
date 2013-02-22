@@ -4458,7 +4458,7 @@ function getPview(post, pNum, parent, link, txt) {
 		pView = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
 			(txt || Lng.postNotFound[lang]) + '</div>');
 	}
-	doc.body.appendChild(pView);
+	(aib.arch ? doc.body : dForm).appendChild(pView);
 	setPviewPosition(link, pView, false);
 	pView.onmouseover = function() {
 		markPviewToDel(this, false);
