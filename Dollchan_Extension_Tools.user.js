@@ -722,7 +722,7 @@ function getPost(el) {
 }
 
 function getPostImages(el) {
-	return el.querySelectorAll('.thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
+	return el.querySelectorAll('.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
 }
 
 function getText(el) {
@@ -1160,12 +1160,12 @@ function addPanel() {
 					$pd(e);
 					toggleContent('fav', false);
 				}, null, null, null),
-				pButton('refresh', function(e) {
+				$if(!aib.arch, pButton('refresh', function(e) {
 					$pd(e);
 					window.location.reload();
-				}, null, TNum ? null : 'de_refover(this)', 'de_out(event)'),
-				pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null),
-				$if(!TNum, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
+				}, null, TNum ? null : 'de_refover(this)', 'de_out(event)')),
+				$if(!aib.arch, pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null)),
+				$if(!TNum && !aib.arch, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
 					$pd(e);
 					window.scrollTo(0, 0);
@@ -1183,7 +1183,7 @@ function addPanel() {
 						expandAllPostImg(post, isExpImg);
 					});
 				}, null, null, null)),
-				$if(pr.file || oeForm, pButton('maskimg', function(e) {
+				$if(imgLen > 0, pButton('maskimg', function(e) {
 					$pd(e);
 					toggleCfg('maskImgs');
 					updateCSS();
@@ -1204,7 +1204,7 @@ function addPanel() {
 					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-menu'));
 				}, null, 'de_audioover(this)', 'de_out(event)')),
-				$if(aib.nul || aib.fch, pButton(
+				$if(aib.nul || (aib.fch && !aib.arch), pButton(
 					'catalog', null,
 					'//' + aib.host + '/' + brd + '/catalog.html',
 					null, null
@@ -1222,8 +1222,8 @@ function addPanel() {
 						getImagesArchive();
 					}
 				}, null, null, null)),
-				$if(TNum, $add('<div id="de-panel-info"><span title="' +  Lng.panelBtn['counter'][lang] + '">' +
-					Posts.length + '/' + imgLen + '</span></div>'))
+				$if(TNum || aib.arch, $add('<div id="de-panel-info"><span title="' + 
+					Lng.panelBtn['counter'][lang] + '">' + Posts.length + '/' + imgLen + '</span></div>'))
 			])
 		]), {
 			'mouseover': function() {
@@ -3295,7 +3295,7 @@ function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
 		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
 	if(post.isOp) {
-		if(!TNum) {
+		if(!TNum && !aib.arch) {
 			html += '<span class="de-btn-expthr" onclick="de_expclick(this)" onmouseover="de_expover(this)" onmouseout="de_out(event)"></span>';
 		}
 		h = aib.host;
@@ -4458,7 +4458,7 @@ function getPview(post, pNum, parent, link, txt) {
 		pView = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
 			(txt || Lng.postNotFound[lang]) + '</div>');
 	}
-	dForm.appendChild(pView);
+	doc.body.appendChild(pView);
 	setPviewPosition(link, pView, false);
 	pView.onmouseover = function() {
 		markPviewToDel(this, false);
@@ -6816,7 +6816,7 @@ function scriptCSS() {
 			.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
 			.de-ytube-obj + div { clear: left; }';
 	} else if(aib.fch) {
-		x += '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, #mpostform, .navLinks, .postingMode { display: none !important; }';
+		x += '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, .de-post-hid > .de-refmap, #mpostform, .navLinks, .postingMode { display: none !important; }';
 	} else if(aib.tiny) {
 		x += 'form, form table { margin: 0; }\
 			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
@@ -6896,7 +6896,7 @@ function updateCSS() {
 		x += '#de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x+= '.de-img-pre, .de-ytube-obj, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+		x+= '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['delHiddPost']) {
@@ -7011,6 +7011,7 @@ function Initialization() {
 	switch(aib.dm = window.location.hostname.match(
 		/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/
 	)[0]) {
+	case 'chanarchive.org': aib.arch = true;
 	case '4chan.org': aib.fch = true; break;
 	case 'krautchan.net': aib.krau = true; break;
 	case 'britfa.gs': aib.brit = true; break;
@@ -7031,6 +7032,7 @@ function Initialization() {
 		return false;
 	}
 	aib.qDForm =
+		aib.arch ? '.board' :
 		aib.abu ? '#posts_form' :
 		aib.brit ? '.threadz' :
 		aib.hana || aib.krau ? 'form[action*="delete"]' :
@@ -7151,12 +7153,15 @@ function Initialization() {
 			}
 			return null;
 		};
-		aib.getThrdUrl = function(b, tNum) {
-			return aib.prot + '//' + aib.host + fixBrd(b) + (
-				aib.futa ? ('futaba.php?res=' + tNum) :
-				(aib.res + tNum + (aib.tire ? '.html' : docExt))
-			);
-		}
+		aib.getThrdUrl =
+			aib.arch ? function(b, tNum) {
+				return aib.prot + '//' + aib.host + '/' + b;
+			} : function(b, tNum) {
+				return aib.prot + '//' + aib.host + fixBrd(b) + (
+					aib.futa ? ('futaba.php?res=' + tNum) :
+					(aib.res + tNum + (aib.tire ? '.html' : docExt))
+				);
+			}
 		aib.getPageUrl = function(b, p) {
 			if(aib.tiny && p > 0) {
 				p++;
