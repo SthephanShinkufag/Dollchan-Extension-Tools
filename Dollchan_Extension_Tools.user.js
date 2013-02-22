@@ -1209,7 +1209,7 @@ function addPanel() {
 					'//' + aib.host + '/' + brd + '/catalog.html',
 					null, null
 				)),
-				$if(TNum && nav.isBlob && !nav.Opera, pButton('imgload', function(e) {
+				$if((TNum || aib.arch) && nav.isBlob && !nav.Opera, pButton('imgload', function(e) {
 					$pd(e);
 					if($id('de-alert-imgload')) {
 						return;
