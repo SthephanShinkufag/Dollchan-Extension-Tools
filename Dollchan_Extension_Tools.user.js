@@ -3643,7 +3643,7 @@ function getImagesArchive() {
 	for(i = 0; i < len; i++) {
 		if(lnk = $x("ancestor::a[1]", els[i])) {
 			url = lnk.href;
-			queue.run([lnk.download || url.substring(url.lastIndexOf("/") + 1), url]);
+			queue.run([lnk.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), url]);
 		}
 	}
 	queue.complete();
