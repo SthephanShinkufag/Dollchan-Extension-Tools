@@ -7129,6 +7129,7 @@ function Initialization() {
 			aib.fch ? '.summary.desktop' :
 			'.omittedposts';
 		aib.qBan =
+			aib.abu ? 'font[color="#C12267"]' :
 			aib.krau ? '.ban_mark' :
 			aib.fch ? 'strong[style="color: red;"]' :
 			aib._420 ? '.ban' :
