@@ -408,7 +408,7 @@ Lng = {
 
 uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-aib = {}, nav, brd, TNum, pageNum, docExt, Updater,
+aib = {}, nav, brd, TNum, pageNum, docExt, Updater, visPosts = 2,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Images = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -2852,7 +2852,7 @@ function checkUpload(response) {
 			}
 		});
 	} else {
-		loadThread(pByNum[pr.tNum], 5, closeAlert.bind(window, $id('de-alert-upload')));
+		loadThread(pByNum[pr.tNum], visPosts, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	showMainReply();
 	refreshCapImg(pr.tNum, false);
@@ -2884,7 +2884,7 @@ function checkDelete(response) {
 		});
 	} else {
 		tNums.forEach(function(tNum) {
-			loadThread(pByNum[tNum], 5, endDelete);
+			loadThread(pByNum[tNum], visPosts, endDelete);
 		});
 	}
 }
@@ -4855,13 +4855,13 @@ function loadThread(op, last, Fn) {
 			thr.op.insertAdjacentHTML('afterend', '<div class="de-omitted">' + j + '</div>');
 		}
 		el = $c('de-expand', thr);
-		if(last <= 5 && last !== 1) {
-			$del(el && el.parentNode);
+		if(last <= visPosts && last !== 1) {
+			$del(el);
 		} else if(!el) {
-			thr.insertAdjacentHTML('beforeend', '<span>[<a class="de-expand" href="#"></a>]</span>');
+			thr.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="#">' + Lng.collapseThrd[lang] + '</a>]</span>');
 			thr.lastChild.onclick = function(e) {
 				$pd(e);
-				loadThread(this.parentNode.op, 5, null);
+				loadThread(this.parentNode.op, visPosts, null);
 			};
 		}
 		aProto.splice.apply(Posts, [Posts.indexOf(op), pCnt + 1, op].concat(lPosts.slice(j + 1, len + 1)));
@@ -6810,7 +6810,6 @@ function scriptCSS() {
 		#de-menu span:hover, #de-menu a:hover { background-color: #222; color: #fff; }\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
-		.de-expand:before { content: "' + Lng.collapseThrd[lang] + '"; }\
 		#de-parea { text-align: center;}\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
@@ -7576,6 +7575,7 @@ function tryToParse(node) {
 			for(i = 0; el = els[i]; i++) {
 				processPost(el, aib.getPNum(el), thr, i + omt);
 			}
+			visPosts = Math.max(visPosts, i);
 			Posts.push(op);
 			Threads.push(op);
 			Posts = Posts.concat(els);
