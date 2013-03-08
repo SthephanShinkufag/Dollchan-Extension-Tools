@@ -5275,7 +5275,6 @@ function addPostNote(post, note) {
 
 function setPostVisib(post, hide, note) {
 	var el, a, pNum, thr = post.thr;
-	post.hide = hide;
 	if(post.isOp) {
 		thr.style.display = hide ? 'none' : '';
 		thr.hide = hide;
@@ -5304,14 +5303,14 @@ function setPostVisib(post, hide, note) {
 			};
 			toggleHiddenThread(post, 0);
 		}
+		post.hide = hide;
 		return;
 	}
-	togglePostContent(post, hide);
 	if(Cfg['delHiddPost']) {
 		if(hide) {
 			(el = aib.getWrap(post)).classList.add('de-hidden');
 			el.insertAdjacentHTML('beforebegin', '<span style="counter-increment: de-cnt 1;"></span>');
-		} else {
+		} else if(post.hide) {
 			(el = aib.getWrap(post)).classList.remove('de-hidden');
 			$del(el.previousSibling);
 		}
@@ -5333,6 +5332,8 @@ function setPostVisib(post, hide, note) {
 			togglePostContent(getPost(this), true);
 		};
 	}
+	post.hide = hide;
+	togglePostContent(post, hide);
 	if(Cfg['strikeHidd']) {
 		setTimeout(function(isHide) {
 			$each($Q('a[href*="#' + post.getAttribute('de-num') + '"]', dForm), isHide ? function(el) {
