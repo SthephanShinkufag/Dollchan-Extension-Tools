@@ -408,12 +408,10 @@ Lng = {
 
 uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-aib = {}, nav, brd, TNum, pageNum, docExt, docTitle,
+aib = {}, nav, brd, TNum, pageNum, docExt, Updater,
 pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
-Favico = {href: '', delay: null, focused: false},
-Audio = {enabled: false, el: null, repeat: false, running: false},
-Images = {preloading: false, afterpreload: null, progressId: null, canvas: null, warnings: '', current: 0, count: 0, tar: null},
+Images = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
 ajaxInterval, lang, hideTubeDelay, tubeTitles, quotetxt = '', liteMode, isExpImg,
 reTubeLink = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
@@ -801,6 +799,10 @@ function getPrettyJSON(obj, indent) {
 		iCount++;
 	});
 	return sJSON += '\n' + indent + (isArr ? ']' : '}');
+}
+
+function getErrorMessage(eCode, eMsg) {
+	return eCode === 0 ? Lng.noConnect[lang] : 'HTTP [' + eCode + '] ' + eMsg;
 }
 
 
@@ -1205,18 +1207,16 @@ function addPanel() {
 				}, null, null, null)),
 				$if(TNum && Cfg['updThread'] === 1, pButton('upd-on', function(e) {
 					$pd(e);
-					if(ajaxInterval) {
-						endPostsUpdate();
+					if(Updater.enabled) {
+						Updater.disable();
 					} else {
 						this.id = 'de-btn-upd-on';
-						initThreadsUpdater();
+						Updater.enable();
 					}
 				}, null, null, null)),
 				$if(!nav.Safari && TNum && Cfg['updThread'] === 1, pButton('audio-off', function(e) {
 					$pd(e);
-					toggleAudioNotif();
-					Audio.repeat = false;
-					this.id = Audio.enabled ? 'de-btn-audio-on' : 'de-btn-audio-off';
+					this.id = Updater.toggleAudio(0) ? 'de-btn-audio-on' : 'de-btn-audio-off';
 					$del($id('de-menu'));
 				}, null, 'de_audioover(this)', 'de_out(event)')),
 				$if(aib.nul || (aib.fch && !aib.arch), pButton(
@@ -1380,7 +1380,7 @@ function showContent(cont, id, name, isUpd) {
 					if(nav.Opera && !nav.isGM && arr[0] !== aib.host) {
 						return;
 					}
-					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(err) {
+					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(eCode, eMsg) {
 						delete comHThr[aib.dm][arr[0]][arr[1]];
 						cleanHiddenThreads(arr[0]);
 						saveHiddenThreads();
@@ -1459,8 +1459,8 @@ function showContent(cont, id, name, isUpd) {
 							c.className = 'de-fav-inf-old';
 						}
 						c = f = null;
-					}, function(err) {
-						c.textContent = err;
+					}, function(eCode, eMsg) {
+						c.textContent = getErrorMessage(eCode, eMsg);
 						c.className = 'de-fav-inf-old';
 						c = null;
 					});
@@ -1493,7 +1493,7 @@ function showContent(cont, id, name, isUpd) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($C('de-entry', doc), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(err) {
+					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(eCode, eMsg) {
 						removeFavorites(arr[0], arr[1], arr[2]);
 						saveFavorites();
 						arr = null;
@@ -2217,12 +2217,7 @@ function addAudioNotifMenu(node) {
 	), function(el) {
 		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
-			Audio.repeat =
-				i === 0 ? 3e4 :
-				i === 1 ? 6e4 :
-				i === 2 ? 12e4 :
-				3e5;
-			toggleAudioNotif();
+			Updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
 			$id('de-btn-audio-off').id = 'de-btn-audio-on';
 			$del(this.parentNode);
 		};
@@ -2849,7 +2844,8 @@ function checkUpload(response) {
 		return;
 	}
 	if(TNum) {
-		loadNewPosts(function(focus) {
+		loadNewPosts(function(eCode, eMsg, np) {
+			infoLoadErrors(eCode, eMsg, np);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
 				$focus(Posts[Posts.length - 1]);
@@ -2882,7 +2878,10 @@ function checkDelete(response) {
 		}
 	}
 	if(TNum) {
-		loadNewPosts(endDelete);
+		loadNewPosts(function(eCode, eMsg, np) {
+			infoLoadErrors(eCode, eMsg, np);
+			endDelete();
+		});
 	} else {
 		tNums.forEach(function(tNum) {
 			loadThread(pByNum[tNum], 5, endDelete);
@@ -4680,9 +4679,7 @@ function ajaxGetPosts(url, isParse, Fn, errFn) {
 				return;
 			}
 			if(xhr.status !== 200) {
-				errFn && errFn(
-					xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText
-				);
+				errFn && errFn(xhr.status, xhr.statusText);
 			} else if(Fn) {
 				var dc = nav.toDOM(xhr.responseText);
 				if(isParse) {
@@ -4873,8 +4870,8 @@ function loadThread(op, last, Fn) {
 		$focus(op);
 		Fn && Fn();
 		last = Fn = null;
-	}, function(err) {
-		$alert(err, 'load-thr', false);
+	}, function(eCode, eMsg) {
+		$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
 		Fn && Fn();
 		Fn = null;
 	});
@@ -4977,91 +4974,14 @@ function loadPages(len) {
 
 /*-------------------------------Threads updater------------------------------*/
 
-function setUpdButtonState(state) {
-	if(TNum && Cfg['updThread'] === 1) {
-		$q('a[id^="de-btn-upd"]', doc).id = 'de-btn-upd-' + state;
-	}
-}
-
-function endPostsUpdate() {
-	setUpdButtonState('off');
-	clearInterval(ajaxInterval);
-	ajaxInterval = undefined;
-}
-
-function toggleAudioNotif() {
-	if(!Audio.el) {
-		Audio.el = $new('audio', {
-			'preload': 'auto',
-			'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
-		}, null);
-	}
-	Audio.enabled = !Audio.enabled;
-}
-
-function audioNotification() {
-	if(Favico.focused) {
-		Audio.running = false;
+function infoLoadErrors(eCode, eMsg, np) {
+	if(eCode === 200) {
+		closeAlert($id('de-alert-newposts'));
+	} else if(eCode === 0) {
+		$alert(Lng.noConnect[lang], 'newposts', false);
 	} else {
-		Audio.el.play()
-		setTimeout(audioNotification, Audio.repeat);
-		Audio.running = true;
-	}
-}
-
-function infoNewPosts(err, i) {
-	if(err) {
-		if(err !== Lng.noConnect[lang]) {
-			$alert(Lng.thrNotFound[lang] + TNum + '): \n' + err, 'newposts', false);
-			doc.title = '{' + err.match(/(?:\[)(\d+)(?:\])/)[1] + '} ' + doc.title;
-			endPostsUpdate();
-		} else {
-			$alert(Lng.noConnect[lang], 'newposts', false);
-			setUpdButtonState('warn');
-		}
-		return;
-	}
-	closeAlert($id('de-alert-newposts'));
-	if(Cfg['updThread'] !== 1) {
-		return;
-	}
-	setUpdButtonState('on');
-	if(Favico.focused) {
-		return;
-	}
-	i += +(doc.title.match(/^\[(\d+)\]/) || [, 0])[1];
-	if(Cfg['favIcoBlink'] && Favico.href) {
-		clearInterval(Favico.delay);
-		if(i > 0) {
-			Favico.delay = setInterval(function() {
-				var href = $q('link[href="' + Favico.href + '"]', doc.head) ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : Favico.href;
-				$each($Q('link[rel="shortcut icon"]', doc.head), $del);
-				doc.head.appendChild($new('link', {'href': href, 'rel': 'shortcut icon'}, null));
-			}, 800);
-		}
-	}
-	doc.title = (i > 0 ? ' [' + i + '] ' : '') + docTitle;
-	if(nav.WebKit && Cfg['desktNotif'] && i > 0 && window.webkitNotifications.checkPermission() === 0) {
-		var notif = window.webkitNotifications.createNotification(
-				'/favicon.ico', docTitle, Lng.unreadMsg[lang].replace(/%m/g, i)
-			);
-		notif.ondisplay = function() {
-			setTimeout(this.cancel.bind(this), 12e3);
-		};
-		notif.onclick = function () {
-			if(window.focus) {
-				window.focus();
-			}
-			this.cancel();
-		};
-		notif.show();
-	}
-	if(Audio.enabled && !Audio.running && i > 0) {
-		if(Audio.repeat) {
-			audioNotification();
-		} else {
-			Audio.el.play()
-		}
+		$alert(Lng.thrNotFound[lang] + TNum + '): \n' + getErrorMessage(err), 'newposts', false);
+		doc.title = '{' + eCode + '} ' + doc.title;
 	}
 }
 
@@ -5212,10 +5132,11 @@ function loadNewPosts(Fn) {
 	if(aib.hana) {
 		getJsonPosts(
 			'//dobrochan.ru/api/thread/' + brd + '/' + TNum +
-				'/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].getAttribute('de-num'),
+				'/new.json?message_html&new_format&last_post=' +
+				Posts[Posts.length - 1].getAttribute('de-num'),
 			function(status, sText, json) {
 				if(status !== 200 || json['error']) {
-					infoNewPosts(status === 0 ? Lng.noConnect[lang] : (sText || json['message']), 0);
+					Fn(status, sText || json['message'], 0);
 				} else {
 					var i, len, post,
 						np = 0,
@@ -5232,10 +5153,8 @@ function loadNewPosts(Fn) {
 						thr.appendChild(df);
 						thr.setAttribute('de-pcount', pCount + len);
 					}
-					infoNewPosts(null, np);
+					Fn(200, '', np);
 				}
-				Fn && Fn();
-				Fn = null;
 			}
 		);
 		return;
@@ -5243,22 +5162,14 @@ function loadNewPosts(Fn) {
 	ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function(els, op) {
 		var data = parsePosts($c('de-thread', dForm), Posts, els, 0, 0);
 		checkBan(Posts[0], op);
-		infoNewPosts(null, data[1]);
+		Fn(200, '', data[1]);
+		Fn = null;
 		setTimeout(savePostsVisib, 0);
 		$id('de-panel-info').firstChild.textContent = data[0] + '/' + getPostImages(dForm).length;
-		Fn && Fn();
-		Fn = null;
-	}, function(err) {
-		infoNewPosts(err, 0);
-		Fn && Fn();
+	}, function(eCode, eMsg) {
+		Fn(eCode, eMsg, 0);
 		Fn = null;
 	});
-}
-
-function initThreadsUpdater() {
-	ajaxInterval = setInterval(function() {
-		loadNewPosts(null);
-	}, Cfg['updThrDelay']*1e3);
 }
 
 
@@ -7351,7 +7262,6 @@ function Initialization() {
 		aib._420 ? '.php' :
 		url[4] || '.html'
 	);
-	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 	dummy = doc.createElement('div');
 	return true;
 }
@@ -7750,21 +7660,174 @@ function replaceDelform() {
 	}
 }
 
-function onVis() {
-	Favico.focused = true;
-	if(Cfg['favIcoBlink'] && Favico.href) {
-		clearInterval(Favico.delay);
-		$each($Q('link[rel="shortcut icon"]', doc.head), $del);
-		doc.head.appendChild($new('link', {'href': Favico.href, 'rel': 'shortcut icon'}, null));
+/** @constructor */
+function threadUpdater(docTitle) {
+	this._delay = Cfg['updThrDelay'] * 1e3;
+	this.title = docTitle;
+	this.newPosts = 0;
+	this.favIntrv = 0;
+	this.favNorm = true;
+	this.favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+	this.audioEl = null;
+	this.audioRun = this.hasAudio = false;
+	this.audioRep = 0;
+	if(nav.Firefox > 10 || nav.Chrome) {
+		doc.addEventListener(
+			(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
+			function() {
+				if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
+					this.focused = false;
+				} else {
+					this.onVis();
+				}
+			}.bind(this), false
+		);
+		this.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
+	} else {
+		this.focused = false;
+		$event(window, {
+			'focus': onVis,
+			'blur': function() {
+				this.focused = false;
+			}.bind(this),
+			'mousemove': function mouseMove() {
+				this.onVis();
+				$revent(window, {'mousemove': mouseMove});
+			}.bind(this)}
+		);
 	}
-	if(Cfg['updThread'] === 1) {
-		setTimeout(function() {
+	this.loadPostsFun = loadNewPosts.bind(null, this.onLoaded.bind(this));
+	this.enable();
+}
+threadUpdater.prototype = {
+	enabled: false,
+	enable: function() {
+		if(!this.enabled) {
+			this.enabled = true;
+			this.checked404 = false;
+			this.delay = this._delay;
+			this.loadTO = setTimeout(this.loadPostsFun, this.delay);
+		}
+	},
+	disable: function() {
+		if(this.enabled) {
+			clearTimeout(this.loadTO);
+			this.enabled = false;
+			this.setState('off');
+		}
+	},
+	_stateButton: null,
+	get stateButton() {
+		return this._stateButton || $q('a[id^="de-btn-upd"]', doc);
+	},
+	setState: function(state) {
+		this.stateButton.id = 'de-btn-upd-' + state;
+	},
+	onLoaded: function(eCode, eMsg, newPosts) {
+		infoLoadErrors(eCode, eMsg, newPosts);
+		if(eCode !== 200) {
+			if(eCode === 404) {
+				if(this.checked404) {
+					this.disable();
+				} else {
+					this.checked404 = true;
+					this.setState('warn');
+				}
+			} else if(Math.floor(eCode / 500) !== 1) {
+				this.setState('warn');
+			} else {
+				this.disable();
+			}
+			return;
+		}
+		this.setState('on');
+		if(!this.focused) {
+			this.newPosts += newPosts;
+			if(Cfg['favIcoBlink'] && this.favHref) {
+				clearInterval(this.favIntrv);
+				this.favNorm = true;
+				if(this.newPosts !== 0) {
+					this.favIntrv = setInterval(function() {
+						$del($q('link[rel="shortcut icon"]', doc.head));
+						doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
+							this.favNorm ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : this.favHref +
+						'">');
+						this.favNorm = !this.favNorm;
+					}.bind(this), 800);
+				}
+			}
+			if(newPosts === 0) {
+				if(this.delay !== 12e4) {
+					this.delay = Math.min(this.delay + this._delay, 12e4);
+				}
+			} else {
+				this.delay = this._delay;
+				doc.title = ' [' + this.newPosts + '] ' + this.title;
+				if(nav.WebKit && Cfg['desktNotif'] && window.webkitNotifications.checkPermission() === 0) {
+					var notif = window.webkitNotifications.createNotification(
+							'/favicon.ico', this.title, Lng.unreadMsg[lang].replace(/%m/g, newPosts)
+						);
+					notif.ondisplay = function() {
+						setTimeout(this.cancel.bind(this), 12e3);
+					};
+					notif.onclick = function () {
+						if(window.focus) {
+							window.focus();
+						}
+						this.cancel();
+					};
+					notif.show();
+				}
+				if(this.hasAudio && !this.audioRun) {
+					if(this.audioRep) {
+						this.audioNotif();
+					} else {
+						this.audioEl.play()
+					}
+				}
+			}
+		}
+		this.loadTO = setTimeout(this.loadPostsFun, this.delay);
+	},
+	onVis: function onVis() {
+		if(Cfg['favIcoBlink'] && this.favHref) {
+			clearInterval(this.favIntrv);
+			this.favNorm = true;
+			$del($q('link[rel="shortcut icon"]', doc.head));
+			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + this.favHref + '">');
+		}
+		this.focused = true;
+		this.newPosts = 0;
+		this.delay = this._delay;
+		clearTimeout(this.loadTO);
+		this.loadPostsFun();
+		setTimeout(function(docTitle) {
 			doc.title = docTitle;
-		}, 200);
+		}, 200, this.title);
+	},
+	toggleAudio: function(audioRep) {
+		if(!this.audioEl) {
+			this.audioEl = $new('audio', {
+				'preload': 'auto',
+				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
+			}, null);
+		}
+		this.audioRep = audioRep;
+		return this.hasAudio = !this.hasAudio;
+	},
+	audioNotif: function() {
+		if(this.focused) {
+			this.hasAudio = false;
+		} else {
+			this.audioEl.play()
+			setTimeout(this.audioNotif.bind(this), this.audioRep);
+			this.hasAudio = true;
+		}
 	}
 }
 
 function initPage() {
+	var docTitle;
 	pr = getPostform($q(aib.qPostForm, doc));
 	oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
 	if(Cfg['updScript']) {
@@ -7783,41 +7846,14 @@ function initPage() {
 		docTitle = doc.title;
 	}
 	if(Cfg['updThread'] === 1) {
-		if(nav.Firefox > 10 || nav.Chrome) {
-			doc.addEventListener(
-				(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
-				function() {
-					if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
-						Favico.focused = false;
-					} else {
-						onVis();
-					}
-				},
-				false
-			);
-			Favico.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
-		} else {
-			Favico.focused = false;
-			$event(window, {
-				'focus': onVis,
-				'blur': function() {
-					Favico.focused = false;
-				},
-				'mousemove': function mouseMove() {
-					onVis();
-					$revent(window, {'mousemove': mouseMove});
-				}}
-			);
-		}
-		initThreadsUpdater();
-	}
-	if(Cfg['updThread'] === 2) {
+		Updater = new threadUpdater(docTitle);
+	} else if(Cfg['updThread'] === 2) {
 		$after($c('de-thread', doc), $event($add(
 			'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
 			'click': function(e) {
 				$pd(e);
 				$alert(Lng.loading[lang], 'newposts', true);
-				loadNewPosts(null);
+				loadNewPosts(infoLoadErrors);
 			}
 		}));
 	}
