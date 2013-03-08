@@ -4324,7 +4324,7 @@ function getRelLink(num, tUrl) {
 		aib.hana ? "Highlight(event, '" + num + "')" :
 		aib.krau ? "highlightPost('" + num + "');" :
 		'highlight(' + num + ')'
-	) + '"')) + ' href="' + (tUrl || '') + '#' + (aib.fch ? 'p' : '') + num + '">&gt;&gt;' + num + '</a>';
+	) + '"')) + ' href="' + tUrl + '#' + (aib.fch ? 'p' : '') + num + '">&gt;&gt;' + num + '</a>';
 }
 
 function addRefMap(post) {
@@ -4360,6 +4360,9 @@ function updRefMap(post, add) {
 	for(var tc, ref, idx, link, lNum, lPost, pNum = post.getAttribute('de-num'), i = 0, links = $T('a', post.msg); link = links[i++];) {
 		tc = link.textContent;
 		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = pByNum[lNum])) {
+			if(!TNum) {
+				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+			}
 			if(add) {
 				if(typeof lPost.ref === 'undefined') {
 					lPost.ref = [pNum];
@@ -4380,7 +4383,9 @@ function updRefMap(post, add) {
 				}
 			}
 			$del($c('de-refmap', lPost));
-			addRefMap.call(getRelLink, lPost);
+			addRefMap.call(function(pNum) {
+				return getRelLink(pNum, '');
+			}, lPost);
 			eventRefLink($c('de-refmap', lPost));
 		}
 	}
@@ -7908,7 +7913,7 @@ function addDelformStuff(isLog) {
 	isLog && Cfg['addImgs'] && $log('embedImgLinks');
 	addImgSearch(dForm);
 	isLog && Cfg['imgSrcBtns'] && $log('addImgSearch');
-	genRefMap(pByNum, null);
+	genRefMap(pByNum, '');
 	isLog && Cfg['linksNavig'] === 2 && $log('genRefMap');
 	eventRefLink(dForm);
 	isLog && Cfg['linksNavig'] && $log('eventRefLink');
