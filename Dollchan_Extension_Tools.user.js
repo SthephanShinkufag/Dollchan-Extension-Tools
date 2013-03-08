@@ -12,7 +12,7 @@
 // @include			https://*
 // ==/UserScript==
 
-(function(scriptStorage) {
+(function de_main_func(scriptStorage, minInf) {
 var version = '13.1.27.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
@@ -413,7 +413,7 @@ pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Favico = {href: '', delay: null, focused: false},
 Audio = {enabled: false, el: null, repeat: false, running: false},
-Images = {preloading: false, afterpreload: null, progressId: null},
+Images = {preloading: false, afterpreload: null, progressId: null, canvas: null, warnings: '', current: 0, count: 0, tar: null},
 oldTime, timeLog = [], dTime,
 ajaxInterval, lang, hideTubeDelay, tubeTitles, quotetxt = '', liteMode, isExpImg,
 reTubeLink = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
@@ -631,17 +631,19 @@ function $queue(maxNum, Fn, endFn) {
 	this.endFn = endFn;
 	this.mNum = maxNum;
 	this.cNum = 0;
-	this.completed = false;
+	this.completed = this.stopped = false;
 }
 $queue.prototype = {
 	run: function(data) {
-		var num = this.cNum;
-		if(num === this.mNum) {
-			this.array.push(data);
-			this.length++;
-		} else {
-			this.cNum++;
-			this.fn(num, data);
+		if(!this.stopped) {
+			var num = this.cNum;
+			if(num === this.mNum) {
+				this.array.push(data);
+				this.length++;
+			} else {
+				this.cNum++;
+				this.fn(num, data);
+			}
 		}
 	},
 	end: function() {
@@ -649,7 +651,7 @@ $queue.prototype = {
 		if(this.length !== 0) {
 			this.length--;
 			this.run(this.array.splice(0, 1)[0]);
-		} else if(this.completed && this.cNum === 0) {
+		} else if(this.completed && this.cNum <= 0) {
 			this.endFn();
 		}
 	},
@@ -659,6 +661,10 @@ $queue.prototype = {
 		} else {
 			this.completed = true;
 		}
+	},
+	stop: function() {
+		this.completed = this.stopped = true;
+		this.cNum = this.length = 0;
 	}
 };
 
@@ -678,6 +684,11 @@ $tar.prototype = {
 			data[offset++] = num.charCodeAt(i++);
 		}
 		data[offset] = 0x20; // ' '
+	},
+	addString: function(filepath, str) {
+		this.addFile(filepath, new Uint8Array(unescape(encodeURIComponent(str)).split('').map(
+			function(a) { return a.charCodeAt(); }
+		)));
 	},
 	addFile: function(filepath, input) {
 		var i, checksum, nameLen = filepath.length,
@@ -722,7 +733,7 @@ function getPost(el) {
 }
 
 function getPostImages(el) {
-	return el.querySelectorAll('.thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
+	return el.querySelectorAll('.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
 }
 
 function getText(el) {
@@ -1032,9 +1043,9 @@ function saveHiddenThreads() {
 
 function toggleHiddenThread(post, vis) {
 	if(vis === 0) {
-		hThr[post.num] = post.tTitle;
+		hThr[post.getAttribute('de-num')] = post.getAttribute('de-title');
 	} else {
-		delete hThr[post.num];
+		delete hThr[post.getAttribute('de-num')];
 	}
 }
 
@@ -1063,7 +1074,7 @@ function removeFavorites(h, b, tNum) {
 function toggleFavorites(post, btn) {
 	var h = aib.host,
 		b = brd,
-		tNum = post.num;
+		tNum = post.getAttribute('de-num');
 	if(!btn) {
 		return;
 	}
@@ -1079,7 +1090,11 @@ function toggleFavorites(post, btn) {
 	if(!Favor[h][b]) {
 		Favor[h][b] = {};
 	}
-	Favor[h][b][tNum] = {'cnt': post.thr.pCount, 'txt': post.tTitle, 'url': aib.getThrdUrl(brd, tNum)};
+	Favor[h][b][tNum] = {
+		'cnt': post.thr.getAttribute('de-pcount'),
+		'txt': post.getAttribute('de-title'),
+		'url': aib.getThrdUrl(brd, tNum)
+	};
 	btn.className = 'de-btn-fav-sel';
 	saveFavorites();
 }
@@ -1216,10 +1231,10 @@ function addPanel() {
 					}
 					if(Images.preloading) {
 						$alert(Lng.loading[lang], 'imgload', true);
-						Images.afterpreload = getImagesArchive;
+						Images.afterpreload = loadDocFiles.bind(null, true);
 						Images.progressId = 'imgload';
 					} else {
-						getImagesArchive();
+						loadDocFiles(true);
 					}
 				}, null, null, null)),
 				$if(TNum || aib.arch, $add('<div id="de-panel-info"><span title="' + 
@@ -2358,9 +2373,9 @@ function initKeyNavig() {
 			if(TNum) {
 				showQuickReply(Posts[pIndex]);
 			} else if(nav.Firefox) {
-				GM_openInTab(aib.getThrdUrl(brd, Threads[curTh].num), false, true);
+				GM_openInTab(aib.getThrdUrl(brd, Threads[curTh].getAttribute('de-num')), false, true);
 			} else {
-				window.open(aib.getThrdUrl(brd, Threads[curTh].num), '_blank');
+				window.open(aib.getThrdUrl(brd, Threads[curTh].getAttribute('de-num')), '_blank');
 			}
 			return;
 		}
@@ -2458,7 +2473,7 @@ function initPostform() {
 	if(pr.form) {
 		doPostformChanges(null, null);
 	} else if(oeForm) {
-		ajaxGetPosts(aib.getThrdUrl(brd, Posts[0].num), false, doPostformChanges, null);
+		ajaxGetPosts(aib.getThrdUrl(brd, Posts[0].getAttribute('de-num')), false, doPostformChanges, null);
 	}
 }
 
@@ -2862,7 +2877,7 @@ function checkDelete(response) {
 	}
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		el.checked = false;
-		if(!TNum && tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
+		if(!TNum && tNums.indexOf(tNum = getPost(el).thr.getAttribute('de-num')) === -1) {
 			tNums.push(tNum);
 		}
 	}
@@ -3055,7 +3070,7 @@ function clearImageData(dat, delExtraData) {
 ==============================================================================*/
 
 function showQuickReply(post) {
-	var tNum = post.thr.num,
+	var tNum = post.thr.getAttribute('de-num'),
 		qArea = $id('de-qarea');
 	pr.tNum = tNum;
 	if(pr.isQuick) {
@@ -3096,7 +3111,7 @@ function showQuickReply(post) {
 	if(aib._420 && pr.txta.value === 'Comment') {
 		pr.txta.value = '';
 	}
-	$txtInsert(pr.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
+	$txtInsert(pr.txta, '>>' + post.getAttribute('de-num') + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 	if(Cfg['addPostForm'] === 3) {
 		$attr($t('a', $id('de-qarea-target')), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
 	}
@@ -3278,7 +3293,7 @@ function addPostRef(ref) {
 			if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
 				$id('de-parea').style.display = '';
 			}
-			var pNum = getPost(e.target).num;
+			var pNum = getPost(e.target).getAttribute('de-num');
 			if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
 				showQuickReply(pByNum[pNum]);
 			} else {
@@ -3293,21 +3308,22 @@ function addPostRef(ref) {
 
 function addPostButtons(post) {
 	var h, ref = $q(aib.qRef, post),
-		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + post.num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
+		num = post.getAttribute('de-num'),
+		html = '<span class="de-ppanel ' + (post.isOp ? '' : 'de-ppanel-cnt') + '" info="' + num + '"><span class="de-btn-hide" onclick="de_hideclick(this)" onmouseover="de_hideover(this)" onmouseout="de_out(event)"></span>' + (pr.qButton || oeForm ? '<span class="de-btn-rep" onclick="de_qrepclick(this)" onmouseover="de_qrepover()"></span>' : '');
 	if(post.isOp) {
 		if(!TNum && !aib.arch) {
 			html += '<span class="de-btn-expthr" onclick="de_expclick(this)" onmouseover="de_expover(this)" onmouseout="de_out(event)"></span>';
 		}
 		h = aib.host;
-		if(Favor[h] && Favor[h][brd] && Favor[h][brd][post.num]) {
+		if(Favor[h] && Favor[h][brd] && Favor[h][brd][num]) {
 			html += '<span class="de-btn-fav-sel" onclick="de_favclick(this)"></span>';
-			Favor[h][brd][post.num].cnt = post.thr.pCount;
+			Favor[h][brd][num].cnt = post.thr.getAttribute('thr-pcount');
 		} else {
 			html += '<span class="de-btn-fav" onclick="de_favclick(this)"></span>';
 		}
 	}
 	ref.insertAdjacentHTML('afterend', html + (
-		post.sage ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageclick()"></span>' : ''
+		post.hasAttribute('de-sage') ? '<span class="de-btn-sage" title="SAGE" onclick="de_sageclick()"></span>' : ''
 	) + '</span>');
 	addPostRef(post.pref = ref);
 	post.btns = ref.nextSibling;
@@ -3542,10 +3558,14 @@ function downloadImgData(url, Fn) {
 	};
 	if(nav.Firefox && aib.fch && !url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
-		GM_xmlhttpRequest(obj);
+		setTimeout(GM_xmlhttpRequest, 0, obj);
 	} else {
 		obj['responseType'] = 'arraybuffer';
-		$xhr(obj);
+		try {
+			$xhr(obj);
+		} catch(e) {
+			Fn(null);
+		}
 	}
 }
 
@@ -3614,39 +3634,124 @@ function preloadImages(post) {
 	queue && queue.complete();
 }
 
-function getImagesArchive() {
-	var i, lnk, url, cImg = 1,
-		els = getPostImages(dForm),
-		len = els.length,
+function getDataFromImg(img) {
+	var cnv = Images.canvas || (Images.canvas = doc.createElement('canvas'));
+	cnv.width = img.width;
+	cnv.height = img.height;
+	cnv.getContext('2d').drawImage(img, 0, 0);
+	return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(function(a) { return a.charCodeAt(); }));
+}
+
+function loadDocFiles(imgOnly) {
+	var els, count = 0,
+		current = 1,
+		warnings = '',
 		tar = new $tar(),
-		queue = new $queue(4, function(num, dat) {
-			var name = dat[0];
-			downloadImgData(dat[1], function(data) {
-				$alert(Lng.loadImage[lang] + cImg++ + '/' + len, 'imgload', true);
+		files = !imgOnly && [Object.create(null), Object.create(null)],
+		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
+	Images.queue = new $queue(4, function(num, dat) {
+		downloadImgData(dat[0], function(data) {
+			var name = this[1].replace(/[\\\/:*?"<>|]/g, '_'), el = this[2];
+			if(!imgOnly) {
+				$alert('Загружается файл ' + current++ + '/' + count + warnings, 'imgload', true);
+			}
+			if(this[3]) {
+				if(!data) {
+					warnings += '<br>Не могу загрузить <a href="' + this[0] + '">' +
+						this[0] + '</a><br>Будет сохранено превью';
+					name = 'thumb-' + name.replace(/\.[a-z]+$/, '.png');
+					data = getDataFromImg(this[2]);
+				}
+				if(imgOnly) {
+					$alert(Lng.loadImage[lang] + current++ + '/' + count + warnings,
+						'imgload', true);
+				} else {
+					if(aib.abu) {
+						el.setAttribute('height', el.height);
+						el.setAttribute('width', el.width);
+					}
+					el.classList.add('de-thumb');
+					el.src = this[3].href = $q(aib.qImgLink, aib.getPicWrap(this[3])).href =
+						name = 'images/' + name;
+				}
 				tar.addFile(name, data);
-				queue.end();
-				name = null;
-			});
-		}, function() {
-			var u = window.URL.createObjectURL(tar.get()),
-				a = $new('a', {'href': u, 'download': aib.dm + '-t' + TNum + '-images.tar'}, null);
-			doc.body.appendChild(a);
-			a.click();
-			setTimeout(function(el, url) {
-				window.URL.revokeObjectURL(url);
+			} else if(data && data.length > 0) {
+				tar.addFile(el.href = el.src = 'data/' + name, data);
+			} else {
 				$del(el);
-			}, 0, a, u);
-			$del($id('de-alert-imgload'));
-			tar = queue = cImg = len = null;
-		});
-	$alert(Lng.loadImage[lang] + cImg++ + '/' + len, 'imgload', true);
-	for(i = 0; i < len; i++) {
-		if(lnk = $x("ancestor::a[1]", els[i])) {
-			url = lnk.href;
-			queue.run([lnk.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), url]);
+			}
+			Images.queue.end();
+		}.bind(dat));
+	}, function() {
+		var u, a, dt;
+		if(!imgOnly) {
+			dt = doc.doctype;
+			$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, {aib: ' + JSON.stringify(aib) + '});');
+			tar.addString(TNum + '.html', '<!DOCTYPE ' + dt.name +
+				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : '')
+				+ (!dt.publicId && dt.systemId ? ' SYSTEM' : '') 
+				+ (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
+			);
 		}
+		u = window.URL.createObjectURL(tar.get());
+		a = $new('a', {'href': u, 'download': aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') +
+			'-t' + TNum + (imgOnly ? '-images.tar' : '.tar')}, null);
+		doc.body.appendChild(a);
+		a.click();
+		setTimeout(function(el, url) {
+			window.URL.revokeObjectURL(url);
+			$del(el);
+		}, 0, a, u);
+		$del($id('de-alert-imgload'));
+		Images.queue = tar = warnings = count = current = imgOnly = null;
+	});
+	els = aProto.slice.call(getPostImages($q('[de-form]', dc)));
+	count += els.length;
+	els.forEach(function(el) {
+		var lnk, url;
+		if(lnk = $x("ancestor::a[1]", el)) {
+			url = lnk.href;
+			Images.queue.run([url, lnk.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, lnk]);
+		}
+	});
+	if(imgOnly) {
+		$alert(Lng.loadImage[lang] + '1/' + count, 'imgload', true);
+	} else {
+		$alert('Загружается файл ' + '1/' + count, 'imgload', true);
+		$each($Q('span[class^="de-btn-"], #de-main > div, #de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
+		$each($Q('link, *[src]', dc), function(el) {
+			if(els.indexOf(el) !== -1) {
+				return;
+			}
+			var temp, ext, url = el.tagName === 'LINK' ? el.href : el.src,
+				name = url.substring(url.lastIndexOf("/") + 1)
+				.replace(/[\\\/:*?"<>|]/g, '_')
+				.toLowerCase();
+			if(url in files[0]) {
+				files[1][name] = null;
+				return;
+			} else if(name in files[1]) {
+				temp = url.lastIndexOf('.');
+				ext = url.substring(temp);
+				url = url.substring(0, temp);
+				name = name.substring(0, name.lastIndexOf('.'));
+				temp = 0;
+				while((name + '(' + temp + ')' + ext) in files[1]) {
+					temp++;
+				}
+				files[0][url + '(' + temp + ')' + ext] = null;
+				files[1][name = name + '(' + temp + ')' + ext] = null;
+			} else {
+				files[0][url] = null;
+				files[1][name] = null;
+			}
+			Images.queue.run([url, name, el, null]);
+			count++;
+		});
 	}
-	queue.complete();
+	Images.queue.complete();
+	els = null;
 }
 
 /*==============================================================================
@@ -4253,7 +4358,7 @@ function genRefMap(posts, tUrl) {
 }
 
 function updRefMap(post, add) {
-	for(var tc, ref, idx, link, lNum, lPost, pNum = post.num, i = 0, links = $T('a', post.msg); link = links[i++];) {
+	for(var tc, ref, idx, link, lNum, lPost, pNum = post.getAttribute('de-num'), i = 0, links = $T('a', post.msg); link = links[i++];) {
 		tc = link.textContent;
 		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = pByNum[lNum])) {
 			if(add) {
@@ -4328,12 +4433,29 @@ function PviewMoved() {
 	}
 }
 
-function setPviewPosition(link, pView, isAnim) {
+function animPVMove(pView, lmw, top, oldCSS) {
+	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+	$attr($css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'), {
+		'class': 'de-css-move'
+	});
+	if(pView.newPos) {
+		pView.style.cssText = pView.newPos;
+		pView.removeEventListener(nav.animEnd, PviewMoved, false);
+	} else {
+		pView.style.cssText = oldCSS;
+	}
+	pView.newPos = lmw + ' top:' + top + ';';
+	pView.addEventListener(nav.animEnd, PviewMoved, false);
+	pView.classList.add('de-pview-anim');
+	pView.style[nav.animName] = uId;
+}
+
+function setPviewPosition(link, pView, animFun) {
 	if(pView.link === link) {
 		return;
 	}
 	pView.link = link;
-	var isTop, top, cr = link.getBoundingClientRect(),
+	var isTop, top, oldCSS, cr = link.getBoundingClientRect(),
 		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
 		offY = cr.top + window.pageYOffset,
 		bWidth = doc.documentElement.clientWidth,
@@ -4341,8 +4463,8 @@ function setPviewPosition(link, pView, isAnim) {
 		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
 		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
 			Math.min(parseInt(pView.offsetWidth, 10), tmp)) + 'px;';
-	if(isAnim) {
-		tmp = pView.style.cssText;
+	if(animFun) {
+		oldCSS = pView.style.cssText;
 		pView.style.cssText = 'opacity: 0; ' + lmw;
 	} else {
 		pView.style.cssText = lmw;
@@ -4352,24 +4474,11 @@ function setPviewPosition(link, pView, isAnim) {
 	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
 	pView.aLeft = isLeft;
 	pView.aTop = isTop;
-	if(!Cfg['animation'] || !isAnim) {
-		pView.style.top = top;
-		return;
-	}
-	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-	$attr($css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'), {
-		'class': 'de-css-move'
-	});
-	if(pView.newPos) {
-		pView.style.cssText = pView.newPos;
-		pView.removeEventListener(nav.animEnd, PviewMoved, false);
+	if(animFun) {
+		animFun(pView, lmw, top, oldCSS);
 	} else {
-		pView.style.cssText = tmp;
+		pView.style.top = top;
 	}
-	pView.newPos = lmw + ' top:' + top + ';';
-	pView.addEventListener(nav.animEnd, PviewMoved, false);
-	pView.classList.add('de-pview-anim');
-	pView.style[nav.animName] = uId;
 }
 
 function markRefMap(pView, pNum) {
@@ -4379,7 +4488,7 @@ function markRefMap(pView, pNum) {
 }
 
 function appendPviewPanel(post, pView) {
-	var cnt = post.count - (post.dcount || 0),
+	var cnt = post.getAttribute('de-count') - (post.dcount || 0),
 		panel = $c('de-ppanel', pView),
 		pText = (aib.getSage(post) ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 			(post.deleted ? '' : '<i style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
@@ -4405,7 +4514,6 @@ function getPview(post, pNum, parent, link, txt) {
 			pView.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
 			$del($c('doubledash', pView));
 		}
-		pView.num = pNum;
 		$each($C('de-img-full', pView), $del);
 		if(!inDoc) {
 			embedMP3Links(pView);
@@ -4435,7 +4543,7 @@ function getPview(post, pNum, parent, link, txt) {
 			eventPostImg(pView);
 		}
 		if(Cfg['linksNavig'] === 2) {
-			markRefMap(pView, parent.num);
+			markRefMap(pView, parent.getAttribute('de-num'));
 		}
 		eventRefLink(pView);
 		addPostRef($q(aib.qRef, pView));
@@ -4500,11 +4608,11 @@ function showPview(link) {
 		getPview(null, pNum, parent, link, Lng.postNotFound[lang]);
 		return;
 	}
-	if(el && el.num === pNum) {
+	if(el && el.getAttribute('de-num') === pNum) {
 		markPviewToDel(el, false);
 		delPviews(el.kid);
-		setPviewPosition(link, el, true);
-		markRefMap(el, parent.num);
+		setPviewPosition(link, el, Cfg['animation'] && animPVMove);
+		markRefMap(el, parent.getAttribute('de-num'));
 		return;
 	}
 	if(post) {
@@ -4514,13 +4622,13 @@ function showPview(link) {
 	el = getPview(null, pNum, parent, link, '<span class="de-wait">' + Lng.loading[lang] + '</span>');
 	Pviews.ajaxed[b] = [];
 	ajaxGetPosts(aib.getThrdUrl(b, tNum), true, function(els, op) {
-		var pst, rm, i, prNum = parent.num;
+		var pst, rm, i, prNum = parent.getAttribute('de-num');
 		op.isOp = true;
-		op.count = 0;
+		op.setAttribute('de-count', 0);
 		op.msg = $q(aib.qMsg, op);
 		Pviews.ajaxed[b][tNum] = op;
 		for(i = 0; pst = els[i]; i++) {
-			pst.count = i + 1;
+			pst.setAttribute('de-count', i + 1);
 			pst.msg = $q(aib.qMsg, pst);
 			Pviews.ajaxed[b][aib.getPNum(pst)] = pst;
 		}
@@ -4620,7 +4728,7 @@ function addPostFunc(post) {
 		eventPostImg(post);
 	}
 	if(!post.hide) {
-		sVis[post.count] = 1;
+		sVis[post.getAttribute('de-count')] = 1;
 		spells.check(post, hidePost, false);
 	}
 	updRefMap(post, true);
@@ -4686,12 +4794,12 @@ function getFullPost(node, isFunc) {
 		}
 		return;
 	}
-	ajaxGetPosts(aib.getThrdUrl(brd, post.thr.num), true, function(els, op) {
+	ajaxGetPosts(aib.getThrdUrl(brd, post.thr.getAttribute('de-num')), true, function(els, op) {
 		var i, el;
 		if(post.isOp) {
 			el = op;
 		} else {
-			for(i = 0; (el = els[i++]) && post.num !== aib.getPNum(el);) {}
+			for(i = 0; (el = els[i++]) && post.getAttribute('de-num') !== aib.getPNum(el);) {}
 		}
 		if(el) {
 			replaceFullMsg(post, el);
@@ -4722,14 +4830,14 @@ function loadThread(op, last, Fn) {
 	if(!Fn) {
 		$alert(Lng.loading[lang], 'load-thr', true);
 	}
-	ajaxGetPosts(aib.getThrdUrl(brd, op.num), true, function(els, newOp) {
+	ajaxGetPosts(aib.getThrdUrl(brd, op.getAttribute('de-num')), true, function(els, newOp) {
 		var i, j, opIdx, omt, lPosts, el, pCnt, len = els.length,
 			thr = op.thr;
 		showMainReply();
 		$del($id('de-menu'));
 		$del($q(aib.qOmitted + ', .de-omitted', thr));
 		omt = thr.omitted;
-		pCnt = thr.pCount - omt - 1;
+		pCnt = thr.getAttribute('de-pcount') - omt - 1;
 		if(!(lPosts = thr.loadedPosts)) {
 			lPosts = [op];
 			if(aib.isTrunc(op)) {
@@ -5045,7 +5153,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 			np += newPost(thr, el = oPosts[i] = importPost(el_), aib.getPNum(el_), i, df);
 			el.dcount = lastdcount;
 		} else if(el = oPosts[i]) {
-			if(!el_ || el.num !== aib.getPNum(el_)) {
+			if(!el_ || el.getAttribute('de-num') !== aib.getPNum(el_)) {
 				if(TNum) {
 					if(!el.deleted) {
 						el.deleted = true;
@@ -5067,7 +5175,7 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 						$del(k.nextSibling);
 					}
 					$del(k);
-					delete pByNum[el.num];
+					delete pByNum[el.getAttribute('de-num')];
 					if(el.hide) {
 						unhideByRef(el);
 					}
@@ -5096,14 +5204,15 @@ function parsePosts(thr, oPosts, nPosts, from, omt) {
 		sessionStorage['de-deleted-' + TNum] = temp;
 	}
 	thr.appendChild(df);
-	return [thr.pCount = len_ + 1, np];
+	thr.setAttribute('de-pcount', len_ + 1)
+	return [len_ + 1, np];
 }
 
 function loadNewPosts(Fn) {
 	if(aib.hana) {
 		getJsonPosts(
 			'//dobrochan.ru/api/thread/' + brd + '/' + TNum +
-				'/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].num,
+				'/new.json?message_html&new_format&last_post=' + Posts[Posts.length - 1].getAttribute('de-num'),
 			function(status, sText, json) {
 				if(status !== 200 || json['error']) {
 					infoNewPosts(status === 0 ? Lng.noConnect[lang] : (sText || json['message']), 0);
@@ -5112,15 +5221,16 @@ function loadNewPosts(Fn) {
 						np = 0,
 						el = (json['result'] || {})['posts'],
 						thr = $c('de-thread', dForm),
-						df = doc.createDocumentFragment();
+						df = doc.createDocumentFragment(),
+						pCount = thr.getAttribute('de-pcount');
 					if(el && el.length > 0) {
 						for(i = 0, len = el.length; i < len; i++) {
 							post = replacePost(getHanaPost(el[i]));
-							np += newPost(thr, post, el[i]['display_id'], thr.pCount + i, df);
+							np += newPost(thr, post, el[i]['display_id'], pCount + i, df);
 							Posts.push(post);
 						}
 						thr.appendChild(df);
-						thr.pCount += el.length;
+						thr.setAttribute('de-pcount', pCount + len);
 					}
 					infoNewPosts(null, np);
 				}
@@ -5163,7 +5273,7 @@ function hideByRef(post) {
 	post.ref.forEach(function(pNum) {
 		var pst = pByNum[pNum];
 		if(pst && !uVis[pNum]) {
-			doHidePost(pst, 'reference to >>' + post.num);
+			doHidePost(pst, 'reference to >>' + post.getAttribute('de-num'));
 		}
 	});
 	post = null;
@@ -5176,7 +5286,7 @@ function unhideByRef(post) {
 	post.ref.forEach(function(pNum) {
 		var pst = pByNum[pNum];
 		if(pst && !uVis[pNum]) {
-			if(sVis[pst.count] !== 0) {
+			if(sVis[pst.getAttribute('de-count')] !== 0) {
 				setPostVisib(pst, false, null);
 			}
 			unhideByRef(pst);
@@ -5187,7 +5297,7 @@ function unhideByRef(post) {
 function setPostsVisib() {
 	for(var vis, pNum, post, i = 0; post = Posts[i]; i++) {
 		vis = sVis[i];
-		if(uVis[pNum = post.num]) {
+		if(uVis[pNum = post.getAttribute('de-num')]) {
 			if(post.isOp) {
 				uVis[pNum][0] = typeof hThr[pNum] === 'undefined' ? 1 : 0;
 			}
@@ -5200,7 +5310,7 @@ function setPostsVisib() {
 			if(typeof vis === 'undefined') {
 				sVis[i] = 1;
 				spells.check(post, function(pst, note) {
-					sVis[pst.count] = 0;
+					sVis[pst.getAttribute('de-count')] = 0;
 				}, false);
 			}
 			continue;
@@ -5215,7 +5325,7 @@ function setPostsVisib() {
 		if(vis === '0') {
 			doHidePost(post, null);
 		} else if(vis !== '1') {
-			sVis[post.count] = 1;
+			sVis[post.getAttribute('de-count')] = 1;
 			spells.check(post, hidePost, false);
 		}
 	}
@@ -5253,7 +5363,7 @@ function setPostVisib(post, hide, note) {
 	if(post.isOp) {
 		thr.style.display = hide ? 'none' : '';
 		thr.hide = hide;
-		el = $id('de-thr-hid-' + (pNum = post.num));
+		el = $id('de-thr-hid-' + (pNum = post.getAttribute('de-num')));
 		if(!hide && el) {
 			$del(el);
 			toggleHiddenThread(post, 1);
@@ -5262,7 +5372,8 @@ function setPostVisib(post, hide, note) {
 			thr.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
 				' de-thr-hid" id="de-thr-hid-' + pNum + '">' + Lng.hiddenThrd[lang] +
 				' <a href="#">№' + pNum + '</a><i> (' + (
-					note ? 'autohide: ' + note : post.tTitle.replace(/</g, '&lt;').replace(/>/g, '&gt;')
+					note ? 'autohide: ' + note :
+						post.getAttribute('de-title').replace(/</g, '&lt;').replace(/>/g, '&gt;')
 				) + ')</i></div>');
 			a = $t('a', el = thr.previousSibling);
 			a.onclick = function(e) {
@@ -5308,7 +5419,7 @@ function setPostVisib(post, hide, note) {
 	}
 	if(Cfg['strikeHidd']) {
 		setTimeout(function(isHide) {
-			$each($Q('a[href*="#' + post.num + '"]', dForm), isHide ? function(el) {
+			$each($Q('a[href*="#' + post.getAttribute('de-num') + '"]', dForm), isHide ? function(el) {
 				el.className = 'de-ref-hid';
 			} : function(el) {
 				el.className = null;
@@ -5323,23 +5434,23 @@ function doHidePost(post, note) {
 }
 
 function hidePost(post, note) {
-	if(uVis[post.num]) {
+	if(uVis[post.getAttribute('de-num')]) {
 		return;
 	}
 	if(post.hide) {
 		$del(post.note);
 		addPostNote(post, note);
 	} else {
-		sVis[post.count] = 0;
+		sVis[post.getAttribute('de-count')] = 0;
 		doHidePost(post, note);
 	}
 }
 
 function unhidePost(post) {
-	if(uVis[post.num]) {
+	if(uVis[post.getAttribute('de-num')]) {
 		return;
 	}
-	sVis[post.count] = 1;
+	sVis[post.getAttribute('de-count')] = 1;
 	setPostVisib(post, false, null);
 	unhideByRef(post);
 	$del(post.note);
@@ -5347,7 +5458,7 @@ function unhidePost(post) {
 }
 
 function setUserPostVisib(post, hide) {
-	var pNum = post.num;
+	var pNum = post.getAttribute('de-num');
 	setPostVisib(post, hide, null);
 	post.btns.firstChild.className = 'de-btn-hide-user';
 	if(hide) {
@@ -5396,10 +5507,10 @@ function findSameText(post, oNum, oHid, oWords) {
 	$del(post.note);
 	post.note = null;
 	if(oHid) {
-		if(sVis[post.count] !== 0) {
+		if(sVis[post.getAttribute('de-count')] !== 0) {
 			setPostVisib(post, false, null);
 		}
-		if(uVis[i = post.num]) {
+		if(uVis[i = post.getAttribute('de-num')]) {
 			delete uVis[i];
 		}
 	} else {
@@ -5412,7 +5523,7 @@ function hideBySameText(post) {
 	var text = getText(post),
 		wrds = getWrds(text),
 		hid = post.hide,
-		num = post.num;
+		num = post.getAttribute('de-num');
 	Posts.forEach(function(target) {
 		findSameText(target, num, hid, wrds);
 	});
@@ -5459,10 +5570,7 @@ function getImgHash(post) {
 	if(img.hash) {
 		return img.hash;
 	}
-	cnv = $id('de-canvas') || doc.body.appendChild($new('canvas', {
-		'id': 'de-canvas',
-		'style': 'display: none;'
-	}, null));
+	cnv = Images.canvas || (Images.canvas = doc.createElement('canvas'));
 	w = cnv.width = img.width;
 	h = cnv.height = img.height;
 	ctx = cnv.getContext('2d');
@@ -5585,7 +5693,7 @@ Spells.prototype = {
 		},
 		// 9: #sage
 		function(post, val) {
-			return post.sage;
+			return post.hasAttribute('de-sage');
 		},
 		// 10: #op
 		function(post, val) {
@@ -5739,7 +5847,7 @@ Spells.prototype = {
 		},
 		// 15: #num
 		function(post, val) {
-			return Spells.checkArr(val, post.count + 1);
+			return Spells.checkArr(val, post.getAttribute('de-count') + 1);
 		}
 	],
 	_toRegExp: function(str, noG) {
@@ -6644,10 +6752,12 @@ function scriptCSS() {
 	gif('#de-btn-goback', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
 	gif('#de-btn-gonext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
 	gif('#de-btn-goup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
-	gif('#de-btn-godown, #de-btn-imgload', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
+	gif('#de-btn-godown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
 	gif('#de-btn-newthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
 	gif('#de-btn-expimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
 	gif('#de-btn-maskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
+	//gif('#de-btn-imgload', p + 'JGjI+pG4AA42PNxCsr3bz744DYxISPCX7q+qGbS1pjWp5XzOb63mEw5Qv+aLIbUYHy4RLJmQXYEEqGmqjyWbO5qFYphLcpAAA7')
+	gif('#de-btn-imgload', p + 'IrjI+pq+DP2Js02ovzpUA36IUZJxpkeYacU7bu66VwK89ireHbyqqV27NdCgA7');
 	if(aib.nul || aib.fch) {
 		gif('#de-btn-catalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	}
@@ -6677,9 +6787,9 @@ function scriptCSS() {
 		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	} else {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
-			.de-btn-hide:after { content: "×"; }\
+			.de-btn-hide:after { content: "?"; }\
 			.de-post-hid .de-btn-hide:after { content: "+"; }\
-			.de-btn-hide-user:after { content: "[×]"; }\
+			.de-btn-hide-user:after { content: "[?]"; }\
 			.de-post-hid .de-btn-hide-user:after { content: "[+]"; }\
 			.de-btn-rep:after { content: "R"; }\
 			.de-btn-expthr:after { content: "E"; }\
@@ -7147,104 +7257,7 @@ function Initialization() {
 			'>https?:\\/\\/[^\\/]*' + aib.dm +
 			'\\/([a-z0-9]+)\\/' + regQuote(aib.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
 		);
-		aib.isTrunc = function(post) {
-			var el = $q(aib.qTrunc, post);
-			if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
-				return el;
-			}
-			return null;
-		};
-		aib.getThrdUrl =
-			aib.arch ? function(b, tNum) {
-				return aib.prot + '//' + aib.host + '/' + b;
-			} : function(b, tNum) {
-				return aib.prot + '//' + aib.host + fixBrd(b) + (
-					aib.futa ? ('futaba.php?res=' + tNum) :
-					(aib.res + tNum + (aib.tire ? '.html' : docExt))
-				);
-			}
-		aib.getPageUrl = function(b, p) {
-			if(aib.tiny && p > 0) {
-				p++;
-			}
-			return fixBrd(b) + (
-				p > 0 ? (aib.erns ? 'wakaba.pl?task=show&page=' + p : p + docExt) :
-				aib.futa ? 'futaba.htm' :
-				aib.hana ? 'index.xhtml' : ''
-			);
-		};
-		aib.getPicWrap =
-			aib.hana ? function(el) {
-				if(!el.previousElementSibling) {
-					el = el.parentNode;
-				}
-				return el.parentNode;
-			} : aib.krau ? function(el) {
-				return el.parentNode;
-			} : getPost;
-		aib.getPosts =
-			aib.futa ? function(thr) {
-				return $Q('td:nth-child(2)', thr);
-			} : aib.tiny || aib.fch ? function(thr) {
-				return $C('reply', thr);
-			} : function(thr) {
-				return $C(aib.cReply, thr);
-			};
-		aib.getOp =
-			aib.brit ? function(thr, dc) {
-				var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
-					op = $c('originalpost', thr);
-				$after($c('postmenu', op), post);
-				while((el = thr.firstChild).tagName !== 'TABLE') {
-					$after(post, el);
-					post = el;
-				}
-				post = dc.createElement('div');
-				$before(thr.firstChild, post);
-				while(el = op.firstChild) {
-					post.appendChild(el);
-				}
-				$del($t('table', thr));
-				return post;
-			} : function(thr, dc) {
-				var el, op, opEnd;
-				op = $c(aib.cOPost, thr);
-				if(op) {
-					return op;
-				}
-				op = dc.createElement('div'),
-				opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
-				while((el = thr.firstChild) !== opEnd) {
-					op.appendChild(el);
-				}
-				if(thr.hasChildNodes()) {
-					$before(thr.firstChild, op);
-				} else {
-					thr.appendChild(op);
-				}
-				return op;
-			};
-		aib.getPNum =
-			aib.futa ? function(post) {
-				return $t('input', post).name;
-			} : function(post) {
-				return post.id.match(/\d+/)[0];
-			};
-		aib.getSage =
-			aib.fch ? function(post) {
-				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
-			} : aib.krau ? function(post) {
-				return !!$c('sage', post);
-			} : aib._410 ? function(post) {
-				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
-			} : aib.nul ? function(post) {
-				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
-			} : aib.abu && $c('postertripid', dForm) ? function(post) {
-				return !$c('postertripid', post);
-			} : function(post) {
-				var a = $q('a[href^="mailto:"], a[href="sage"]', post);
-				return a && /sage/i.test(a.href);
-			};
+		getBoardFuncs();
 	}
 
 	// Check for frames loading
@@ -7271,9 +7284,80 @@ function Initialization() {
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
+	fixBrowser();
+	if(aib.hid) {
+		window.setTimeout = function(Fn, num) {
+			var ev = document.createEvent('HTMLEvents'),
+				args = arguments;
+			if(typeof Fn === 'function') {
+				window.document.body.addEventListener('timeoutEvent', function() {
+					Fn.apply(null, aProto.slice.call(args, 2));
+					Fn = args = null;
+				}, false);
+				ev.initEvent('timeoutEvent', true, false);
+				window.document.body.dispatchEvent(ev);
+			}
+			return 1;
+		};
+	}
+	if(!window.GM_log) {
+		window.GM_log = function(msg) {
+			console.error(msg);
+		};
+	}
+	if(!window.GM_xmlhttpRequest) {
+		window.GM_xmlhttpRequest = $xhr;
+	}
+	if(nav.WebKit) {
+		window.URL = window.webkitURL;
+	}
+	uWindow =
+		(nav.Opera && !nav.isGM) ? window :
+		!nav.WebKit ? unsafeWindow :
+		(function() {
+			var el = doc.createElement('p');
+			el.setAttribute('onclick', 'return window;');
+			return el.onclick();
+		})();
+	nav.Worker = nav.Firefox ? (
+		nav.Firefox < 20 ? null : (function(w) {
+			w.prototype.postMessage = function() {
+				uWindow['de-worker-proto']._postMessage.apply(this, arguments);
+			};
+			return w;
+		})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
 
-	// Browser features
-	ua = window.navigator.userAgent;
+	// Page properties
+	url = (window.location.pathname || '').match(new RegExp(
+		'^(?:\\/?([^\\.]*?)\\/?)?' +
+		'(' + regQuote(aib.res) + ')?' +
+		'(\\d+|index|wakaba|futaba)?' +
+		'(\\.(?:[a-z]+))?$'
+	));
+	brd = url[1] || (aib.dfwk ? 'df' : '');
+	TNum =
+		url[2] ? url[3] :
+		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
+		false;
+	pageNum = url[3] && !TNum ? +(
+		aib.erns ? +(window.location.search.match(/\d+/) || [0])[0] : url[3]
+	) || 0 : 0;
+	if(aib.tiny && pageNum > 0) {
+		pageNum--;
+	}
+	docExt = (
+		aib.fch || aib.erns ? '' :
+		aib.futa ? '.htm' :
+		aib._420 ? '.php' :
+		url[4] || '.html'
+	);
+	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+	dummy = doc.createElement('div');
+	return true;
+}
+
+function fixBrowser() {
+	var ua = window.navigator.userAgent;
 	if(!String.prototype.contains) {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
@@ -7364,75 +7448,107 @@ function Initialization() {
 	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
-	uWindow =
-		nav.Opera && !nav.isGM ? window :
-		!nav.WebKit ? unsafeWindow :
-		(function() {
-			var el = doc.createElement('p');
-			el.setAttribute('onclick', 'return window;');
-			return el.onclick();
-		})();
-	if(aib.hid) {
-		window.setTimeout = function(Fn, num) {
-			var ev = document.createEvent('HTMLEvents'),
-				args = arguments;
-			if(typeof Fn === 'function') {
-				window.document.body.addEventListener('timeoutEvent', function() {
-					Fn.apply(null, aProto.slice.call(args, 2));
-					Fn = args = null;
-				}, false);
-				ev.initEvent('timeoutEvent', true, false);
-				window.document.body.dispatchEvent(ev);
-			}
-			return 1;
-		};
-	}
-	if(!window.GM_log) {
-		window.GM_log = function(msg) {
-			console.error(msg);
-		};
-	}
-	if(!window.GM_xmlhttpRequest) {
-		window.GM_xmlhttpRequest = $xhr;
-	}
-	if(nav.WebKit) {
-		window.URL = window.webkitURL;
-	}
-	nav.Worker = nav.Firefox ? (
-		nav.Firefox < 20 ? null : (function(w) {
-			w.prototype.postMessage = function() {
-				uWindow['de-worker-proto']._postMessage.apply(this, arguments);
-			};
-			return w;
-		})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
+}
 
-	// Page properties
-	url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]*?)\\/?)?' +
-		'(' + regQuote(aib.res) + ')?' +
-		'(\\d+|index|wakaba|futaba)?' +
-		'(\\.(?:[a-z]+))?$'
-	));
-	brd = url[1] || (aib.dfwk ? 'df' : '');
-	TNum =
-		url[2] ? url[3] :
-		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
-		false;
-	pageNum = url[3] && !TNum ? +(
-		aib.erns ? +(window.location.search.match(/\d+/) || [0])[0] : url[3]
-	) || 0 : 0;
-	if(aib.tiny && pageNum > 0) {
-		pageNum--;
-	}
-	docExt = (
-		aib.fch || aib.erns ? '' :
-		aib.futa ? '.htm' :
-		aib._420 ? '.php' :
-		url[4] || '.html'
-	);
-	Favico.href = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-	dummy = doc.createElement('div');
-	return true;
+function getBoardFuncs() {
+	aib.isTrunc = function(post) {
+		var el = $q(aib.qTrunc, post);
+		if(el && /long|full comment|gekurzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+			return el;
+		}
+		return null;
+	};
+	aib.getThrdUrl =
+		aib.arch ? function(b, tNum) {
+			return aib.prot + '//' + aib.host + '/' + b;
+		} : function(b, tNum) {
+			return aib.prot + '//' + aib.host + fixBrd(b) + (
+				aib.futa ? ('futaba.php?res=' + tNum) :
+				(aib.res + tNum + (aib.tire ? '.html' : docExt))
+			);
+		}
+	aib.getPageUrl = function(b, p) {
+		if(aib.tiny && p > 0) {
+			p++;
+		}
+		return fixBrd(b) + (
+			p > 0 ? (aib.erns ? 'wakaba.pl?task=show&page=' + p : p + docExt) :
+			aib.futa ? 'futaba.htm' :
+			aib.hana ? 'index.xhtml' : ''
+		);
+	};
+	aib.getPicWrap =
+		aib.hana ? function(el) {
+			if(!el.previousElementSibling) {
+				el = el.parentNode;
+			}
+			return el.parentNode;
+		} : aib.krau ? function(el) {
+			return el.parentNode;
+		} : getPost;
+	aib.getPosts =
+		aib.futa ? function(thr) {
+			return $Q('td:nth-child(2)', thr);
+		} : aib.tiny || aib.fch ? function(thr) {
+			return $C('reply', thr);
+		} : function(thr) {
+			return $C(aib.cReply, thr);
+		};
+	aib.getOp =
+		aib.brit ? function(thr, dc) {
+			var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
+				op = $c('originalpost', thr);
+			$after($c('postmenu', op), post);
+			while((el = thr.firstChild).tagName !== 'TABLE') {
+				$after(post, el);
+				post = el;
+			}
+			post = dc.createElement('div');
+			$before(thr.firstChild, post);
+			while(el = op.firstChild) {
+				post.appendChild(el);
+			}
+			$del($t('table', thr));
+			return post;
+		} : function(thr, dc) {
+			var el, op, opEnd;
+			op = $c(aib.cOPost, thr);
+			if(op) {
+				return op;
+			}
+			op = dc.createElement('div'),
+			opEnd = $q(aib.qTable + ', div[id^="repl"]', thr);
+			while((el = thr.firstChild) !== opEnd) {
+				op.appendChild(el);
+			}
+			if(thr.hasChildNodes()) {
+				$before(thr.firstChild, op);
+			} else {
+				thr.appendChild(op);
+			}
+			return op;
+		};
+	aib.getPNum =
+		aib.futa ? function(post) {
+			return $t('input', post).name;
+		} : function(post) {
+			return post.id.match(/\d+/)[0];
+		};
+	aib.getSage =
+		aib.fch ? function(post) {
+			return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
+		} : aib.krau ? function(post) {
+			return !!$c('sage', post);
+		} : aib._410 ? function(post) {
+			return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
+		} : aib.nul ? function(post) {
+			return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
+		} : aib.abu && $c('postertripid', dForm) ? function(post) {
+			return !$c('postertripid', post);
+		} : function(post) {
+			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
+			return a && /sage/i.test(a.href);
+		};
 }
 
 function getPostform(form) {
@@ -7472,12 +7588,15 @@ function getPostform(form) {
 
 function processPost(post, pNum, thr, i) {
 	post.thr = thr;
-	post.count = i;
 	post.msg = $q(aib.qMsg, post);
 	post.img = getPostImages(post);
-	post.sage = aib.getSage(post);
+	if(aib.getSage(post)) {
+		post.setAttribute('de-sage', '');
+	}
 	post.setAttribute('de-post', '');
-	pByNum[post.num = pNum] = post;
+	post.setAttribute('de-count', i);
+	post.setAttribute('de-num', pNum);
+	pByNum[pNum] = post;
 }
 
 function parseDelform(el, dc, Fn) {
@@ -7534,12 +7653,14 @@ function tryToParse(node) {
 				$del($c('clear', thr));
 			}
 			var i, el, omt, op = aib.getOp(thr, doc),
-				els = aProto.slice.call(aib.getPosts(thr));
-			processPost(op, thr.num = aib.getTNum(op), thr, 0);
+				els = aProto.slice.call(aib.getPosts(thr)),
+				tNum = aib.getTNum(op);
+			thr.setAttribute('de-num', tNum)
+			processPost(op, tNum, thr, 0);
 			op.isOp = true;
-			op.tTitle = ($c(aib.cSubj, op) || {}).textContent ||
-				getText(op).substring(0, 70).replace(/\s+/g, ' ');
-			op.count = 0;
+			op.setAttribute('de-title', ($c(aib.cSubj, op) || {}).textContent ||
+				getText(op).substring(0, 70).replace(/\s+/g, ' '));
+			op.setAttribute('de-count', 0);
 			omt = TNum ? 1 : (thr.omitted = (el = $q(aib.qOmitted, thr)) && (el = el.textContent) ?
 				+(el.match(/\d+/) || [0])[0] - (aib.tire ? els.length + 1 : 0) : 0) + 1;
 			for(i = 0; el = els[i]; i++) {
@@ -7550,7 +7671,7 @@ function tryToParse(node) {
 			Posts = Posts.concat(els);
 			thr.style.counterReset = 'de-cnt ' + omt;
 			thr.classList.add('de-thread');
-			thr.pCount = i + omt;
+			thr.setAttribute('de-pcount', i + omt);
 			thr.op = op;
 			thr.removeAttribute('id');
 		});
@@ -7563,6 +7684,7 @@ function tryToParse(node) {
 		));
 		return false;
 	}
+	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
 	if(aib.brit) {
 		$each($Q('.reflink > a', node), function(el) {
@@ -7655,7 +7777,7 @@ function initPage() {
 		return;
 	}
 	if(Cfg['rePageTitle']) {
-		docTitle = '/' + brd + ' - ' + pByNum[TNum].tTitle;
+		docTitle = '/' + brd + ' - ' + pByNum[TNum].getAttribute('de-title');
 		doc.title = docTitle;
 	} else {
 		docTitle = doc.title;
@@ -7699,6 +7821,27 @@ function initPage() {
 			}
 		}));
 	}
+}
+
+function doMiniScript() {
+	fixBrowser();
+	Posts = aProto.slice.call($Q('[de-post]', doc));
+	dForm = $q('[de-form]', doc);
+	dummy = doc.createElement('div');
+	pr = {};
+	Posts.forEach(function(post) {
+		pByNum[post.getAttribute('de-num')] = post;
+		post.img = getPostImages(post);
+	});
+	Cfg = Object.create(defaultCfg, {
+		'linksNavig': { writable: true, configurable: true, value: 2 },
+		'animation':  { writable: true, configurable: true, value: 0 },
+		'expandImgs': { writable: true, configurable: true, value: 1 }
+	});
+	aib = minInf['aib'];
+	getBoardFuncs();
+	eventRefLink(dForm);
+	Posts.forEach(eventPostImg);
 }
 
 
@@ -7780,9 +7923,13 @@ function doScript() {
 }
 
 if(/interactive|complete/.test(doc.readyState)) {
-	doScript();
+	if(minInf) {
+		doMiniScript();
+	} else {
+		doScript();
+	}
 } else {
-	$event(doc, {'DOMContentLoaded': doScript});
+	$event(doc, {'DOMContentLoaded': minInf ? doMiniScript : doScript});
 }
 
-})(window.opera && window.opera.scriptStorage);
+})(window.opera && window.opera.scriptStorage, null);
