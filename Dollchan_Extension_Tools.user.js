@@ -7724,7 +7724,7 @@ threadUpdater.prototype = {
 	},
 	_stateButton: null,
 	get stateButton() {
-		return this._stateButton || $q('a[id^="de-btn-upd"]', doc);
+		return this._stateButton || (this._stateButton = $q('a[id^="de-btn-upd"]', doc));
 	},
 	setState: function(state) {
 		this.stateButton.id = 'de-btn-upd-' + state;
