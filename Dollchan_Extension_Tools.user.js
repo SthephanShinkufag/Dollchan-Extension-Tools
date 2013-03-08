@@ -1686,9 +1686,9 @@ function getCfgFilters() {
 				var wrap = aib.getWrap(post),
 					hide = !wrap.classList.contains('de-hidden');
 				if(hide) {
-					wrap.insertAdjacentHTML('afterend', '<span style="counter-increment: de-cnt 1;"></span>');
+					wrap.insertAdjacentHTML('beforebegin', '<span style="counter-increment: de-cnt 1;"></span>');
 				} else {
-					$del(wrap.nextSibling);
+					$del(wrap.previousSibling);
 				}
 				wrap.classList.toggle('de-hidden');
 			});
@@ -5310,10 +5310,10 @@ function setPostVisib(post, hide, note) {
 	if(Cfg['delHiddPost']) {
 		if(hide) {
 			(el = aib.getWrap(post)).classList.add('de-hidden');
-			el.insertAdjacentHTML('afterend', '<span style="counter-increment: de-cnt 1;"></span>');
+			el.insertAdjacentHTML('beforebegin', '<span style="counter-increment: de-cnt 1;"></span>');
 		} else {
 			(el = aib.getWrap(post)).classList.remove('de-hidden');
-			$del(el.nextSibling);
+			$del(el.previousSibling);
 		}
 	} else {
 		if(el = post.note) {
@@ -7746,6 +7746,7 @@ threadUpdater.prototype = {
 			return;
 		}
 		this.setState('on');
+		this.checked404 = false;
 		if(!this.focused) {
 			this.newPosts += newPosts;
 			if(Cfg['favIcoBlink'] && this.favHref) {
