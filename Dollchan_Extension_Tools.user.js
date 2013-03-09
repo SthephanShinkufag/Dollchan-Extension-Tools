@@ -409,7 +409,7 @@ Lng = {
 uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
 aib, nav, brd, TNum, pageNum, Updater, visPosts = 2,
-pr, dForm, oeForm, dummy, postWrapper, spells, aSpellTO, fData,
+pr, dForm, oeForm, dummy, postWrapper, spells,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Images = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
@@ -2769,7 +2769,7 @@ function doPostformChanges(el, btn) {
 	if(Cfg['ajaxReply'] === 2) {
 		pr.form.onsubmit = function(e) {
 			$pd(e);
-			doHTML5Submit(pr.form, pr.subm, checkUpload);
+			new html5Submit(pr.form, pr.subm, checkUpload);
 		};
 		dForm.onsubmit = $pd;
 		if(btn = $q(aib.qDelBut, dForm)) {
@@ -2777,7 +2777,7 @@ function doPostformChanges(el, btn) {
 				$pd(e);
 				showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
-				doHTML5Submit(dForm, this, checkDelete);
+				new html5Submit(dForm, this, checkDelete);
 			};
 		}
 	} else if(Cfg['ajaxReply'] === 1) {
@@ -2889,179 +2889,175 @@ function checkDelete(response) {
 	}
 }
 
-function doHTML5Submit(form, button, Fn) {
-	fData = {
-		boundary: '---------------------------' + Math.round(Math.random() * 1e11),
-		data: [],
-		busy: 0,
-		error: false,
-		url: form.action,
-		fn: Fn
-	};
-	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), appendFormData);
-	appendFormData(button);
-	submitFormData();
+/** @constructor */
+function html5Submit(form, button, fn) {
+	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
+	this.data = [];
+	this.busy = 0;
+	this.error = false;
+	this.url = form.action;
+	this.fn = fn;
+	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
+	this.append(button);
+	this.submit();
 }
-
-function appendFormData(el) {
-	var file, fName, idx, fr,
-		pre = '--' + fData.boundary + '\r\nContent-Disposition: form-data; name="' + el.name + '"';
-	if(el.type === 'file' && el.files.length > 0) {
-		file = el.files[0];
-		fName = file.name;
-		fData.data.push(pre + '; filename="' + (
-			!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
-		) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
-		idx = fData.data.length - 2;
-		if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
-			fData.data[idx] = file;
-			return;
-		}
-		fr = new FileReader();
-		fr.onload = function(e) {
-			var dat = clearImageData(new Uint8Array(e.target.result), !!el.imgFile);
-			if(dat) {
-				if(el.imgFile) {
-					dat.push(el.imgFile);
-				}
-				if(Cfg['postSameImg']) {
-					dat.push(String(Math.round(Math.random() * 1e6)));
-				}
-				fData.data[idx] = new Blob(dat);
-				fData.busy--;
-				submitFormData();
-			} else {
-				fData.error = true;
-				$alert(Lng.fileCorrupt[lang] + fName, 'upload', false);
-			}
-		}
-		fr.readAsArrayBuffer(file);
-		fData.busy++;
-	} else if(el.type !== 'checkbox' || el.checked) {
-		fData.data.push(pre + '\r\n\r\n' + el.value + '\r\n');
-	}
-}
-
-function submitFormData() {
-	if(fData.error || fData.busy) {
-		return;
-	}
-	fData.data.push('--' + fData.boundary + '--\r\n');
-	$xhr({
-		'method': 'POST',
-		'headers': {'Content-type': 'multipart/form-data; boundary=' + fData.boundary},
-		'data': new Blob(fData.data),
-		'url': nav.fixLink(fData.url),
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState !== 4) {
+html5Submit.prototype = {
+	append: function(el) {
+		var file, fName, idx, fr,
+			pre = '--' + this.boundary + '\r\nContent-Disposition: form-data; name="' + el.name + '"';
+		if(el.type === 'file' && el.files.length > 0) {
+			file = el.files[0];
+			fName = file.name;
+			this.data.push(pre + '; filename="' + (
+				!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
+			) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
+			idx = this.data.length - 2;
+			if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
+				this.data[idx] = file;
 				return;
 			}
-			if(xhr.status === 200) {
-				fData.fn(getSubmitResponse(nav.toDOM(xhr.responseText), false));
+			fr = new FileReader();
+			fr.onload = function(name, e) {
+				var dat = this.clearImage(new Uint8Array(e.target.result), !!el.imgFile);
+				if(dat) {
+					if(el.imgFile) {
+						dat.push(el.imgFile);
+					}
+					if(Cfg['postSameImg']) {
+						dat.push(String(Math.round(Math.random() * 1e6)));
+					}
+					this.data[idx] = new Blob(dat);
+					this.busy--;
+					this.submit();
+				} else {
+					this.error = true;
+					$alert(Lng.fileCorrupt[lang] + name, 'upload', false);
+				}
+			}.bind(this, fName);
+			fr.readAsArrayBuffer(file);
+			this.busy++;
+		} else if(el.type !== 'checkbox' || el.checked) {
+			this.data.push(pre + '\r\n\r\n' + el.value + '\r\n');
+		}
+	},
+	submit: function() {
+		if(this.error || this.busy !== 0) {
+			return;
+		}
+		this.data.push('--' + this.boundary + '--\r\n');
+		$xhr({
+			'method': 'POST',
+			'headers': {'Content-type': 'multipart/form-data; boundary=' + this.boundary},
+			'data': new Blob(this.data),
+			'url': nav.fixLink(this.url),
+			'onreadystatechange': function(xhr) {
+				if(xhr.readyState !== 4) {
+					return;
+				}
+				if(xhr.status === 200) {
+					this(getSubmitResponse(nav.toDOM(xhr.responseText), false));
+				} else {
+					$alert(
+						xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
+						'upload', false
+					);
+				}
+			}.bind(this.fn)
+		});
+	},
+	readExif: function(exif, off, len) {
+		var i, j, dE, tag, tgLen, xRes = 0,
+			yRes = 0,
+			resT = 0,
+			le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
+			dv = new DataView(exif.buffer, off);
+		if(dv.getUint16(2, le) !== 0x2A) {
+			return null;
+		}
+		i = dv.getUint32(4, le);
+		if(i > len) {
+			return null;
+		}
+		for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+			if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
+				continue;
+			}
+			if(tag === 0x0128) {
+				resT = dv.getUint16(dE + 8, le) - 1;
 			} else {
-				$alert(
-					xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-					'upload', false
-				);
-			}
-			fData = null;
-		}
-	});
-}
-
-function readExifData(exif, off, len) {
-	var i, j, dE, tag, tgLen, xRes = 0,
-		yRes = 0,
-		resT = 0,
-		le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
-		dv = new DataView(exif.buffer, off);
-	if(dv.getUint16(2, le) !== 0x2A) {
-		return null;
-	}
-	i = dv.getUint32(4, le);
-	if(i > len) {
-		return null;
-	}
-	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-		if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
-			continue;
-		}
-		if(tag === 0x0128) {
-			resT = dv.getUint16(dE + 8, le) - 1;
-		} else {
-			dE = dv.getUint32(dE + 8, le);
-			if(dE > len) {
-				return null;
-			}
-			if(tag === 0x11A) {
-				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-			} else {
-				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				dE = dv.getUint32(dE + 8, le);
+				if(dE > len) {
+					return null;
+				}
+				if(tag === 0x11A) {
+					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				} else {
+					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				}
 			}
 		}
-	}
-	xRes = xRes || yRes;
-	yRes = yRes || xRes;
-	return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
-}
-
-function clearImageData(dat, delExtraData) {
-	var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
-	if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-		return [dat];
-	}
-	if(dat[0] === 0xFF && dat[1] === 0xD8) {
-		for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
-			if(dat[i] === 0xFF) {
-				if(rExif) {
-					if(!jpgDat && out === 1) {
-						if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
-							jpgDat = readExifData(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
-						} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
-							jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+		xRes = xRes || yRes;
+		yRes = yRes || xRes;
+		return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+	},
+	clearImage: function(dat, delExtraData) {
+		var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
+		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
+			return [dat];
+		}
+		if(dat[0] === 0xFF && dat[1] === 0xD8) {
+			for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
+				if(dat[i] === 0xFF) {
+					if(rExif) {
+						if(!jpgDat && out === 1) {
+							if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
+								jpgDat = this.readExif(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
+							} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
+								jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+							}
+						}
+						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
+							tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
+							j += tmp;
+							rData.push(i, i += tmp);
+							continue;
 						}
 					}
-					if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
-						tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
-						j += tmp;
-						rData.push(i, i += tmp);
-						continue;
+					if(dat[i + 1] === 0xD8) {
+						out++;
+					} else if(dat[i + 1] === 0xD9 && --out === 0) {
+						break;
 					}
 				}
-				if(dat[i + 1] === 0xD8) {
-					out++;
-				} else if(dat[i + 1] === 0xD9 && --out === 0) {
-					break;
-				}
+				i++;
 			}
-			i++;
+			i += 2;
+			if(!delExtraData && len - i > 75) {
+				i = len;
+			}
+			if(j === 0) {
+				return i === len ? [dat] : [new Uint8Array(dat, i)];
+			}
+			rData.push(i);
+			out = new Uint8Array(i - j + 18);
+			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]
+				.concat(jpgDat || [0, 0, 1, 0, 1]), 0
+			);
+			for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
+				out.set(dat.subarray(rData[i], rData[i + 1]), j);
+				j += rData[i + 1] - rData[i];
+			}
+			return [out];
 		}
-		i += 2;
-		if(!delExtraData && len - i > 75) {
-			i = len;
+		if(dat[0] === 0x89 && dat[1] === 0x50) {
+			for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
+			i += 8;
+			return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
 		}
-		if(j === 0) {
-			return i === len ? [dat] : [new Uint8Array(dat, i)];
-		}
-		rData.push(i);
-		out = new Uint8Array(i - j + 18);
-		out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]
-			.concat(jpgDat || [0, 0, 1, 0, 1]), 0
-		);
-		for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
-			out.set(dat.subarray(rData[i], rData[i + 1]), j);
-			j += rData[i + 1] - rData[i];
-		}
-		return [out];
+		return null;
 	}
-	if(dat[0] === 0x89 && dat[1] === 0x50) {
-		for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
-		i += 8;
-		return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
-	}
-	return null;
-}
+};
 
 
 /*==============================================================================
@@ -3316,7 +3312,7 @@ function addPostButtons(post) {
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][num]) {
 			html += '<span class="de-btn-fav-sel" onclick="de_favclick(this)"></span>';
-			Favor[h][brd][num].cnt = post.thr.getAttribute('thr-pcount');
+			Favor[h][brd][num]['cnt'] = post.thr.getAttribute('de-pcount');
 		} else {
 			html += '<span class="de-btn-fav" onclick="de_favclick(this)"></span>';
 		}
