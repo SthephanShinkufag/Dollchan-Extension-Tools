@@ -4225,12 +4225,7 @@ function embedImgLinks(el) {
 	if(!Cfg['addImgs']) {
 		return;
 	}
-	for(var a, link, i = 0, els = $Q(
-		aib.qMsg + ' a[href*=".jpg"], ' +
-		aib.qMsg + ' a[href*=".png"], ' +
-		aib.qMsg + ' a[href*=".gif"], ' +
-		aib.qMsg + ' a[href*=".jpeg"]', el
-	); link = els[i++];) {
+	for(var a, link, i = 0, els = $Q(aib.qMsgImgLink); link = els[i++];) {
 		if(link.parentNode.tagName === 'SMALL') {
 			return;
 		}
@@ -7175,6 +7170,7 @@ ImageBoard.prototype = {
 			_420: { value: true }
 		}],
 		'4chan.org': [{
+			cFileInfo: { value: 'fileText' },
 			cOpost: { value: 'op' },
 			cSubj: { value: 'subject' },
 			qBan: { value: 'strong[style="color: red;"]' },
@@ -7235,6 +7231,11 @@ ImageBoard.prototype = {
 			qDForm: { value: '.board' },
 			arch: { value: true }
 		}, null, '4chan.org'],
+		'choroypride.org': [{
+			getSage: { value: function(post) {
+				return !!$q('a[href="mailto:cejas"]', post);
+			} }
+		}, 'script[src*="kusaba"]'],
 		'dfwk.ru': [{
 			dfwk: { value: true }
 		}, 'script[src*="kusaba"]'],
@@ -7435,6 +7436,12 @@ ImageBoard.prototype = {
 				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1)';
 		},
 		qMsg: 'blockquote',
+		get qMsgImgLink() {
+			return this.qMsgImgLink = this.qMsg + ' a[href*=".jpg"], ' +
+				this.qMsg + ' a[href*=".png"], ' +
+				this.qMsg + ' a[href*=".gif"], ' +
+				this.qMsg + ' a[href*=".jpeg"]';
+		},
 		qName: '.postername, .commentpostername',
 		qOmitted: '.omittedposts',
 		qPostForm: '#postform',
@@ -7448,11 +7455,11 @@ ImageBoard.prototype = {
 		qTrunc: '.abbrev, .abbr, .shortened',
 		getOp: function(thr, dc) {
 			var el, op, opEnd;
-			if(op = $c(aib.cOPost, thr)) {
+			if(op = $c(this.cOPost, thr)) {
 				return op;
 			}
 			op = dc.createElement('div'),
-			opEnd = aib.qTable ? $q(aib.qTable + ', div[id^="repl"]', thr) : null;
+			opEnd = this.qTable ? $q(this.qTable + ', div[id^="repl"]', thr) : null;
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
@@ -7471,7 +7478,7 @@ ImageBoard.prototype = {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
 		getPosts: function(thr) {
-			return $C(aib.cReply, thr);
+			return $C(this.cReply, thr);
 		},
 		getSage: function(post) {
 			var a = $q('a[href^="mailto:"], a[href="sage"]', post);
