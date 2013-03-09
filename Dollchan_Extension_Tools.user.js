@@ -7468,7 +7468,7 @@ ImageBoard.prototype = {
 		getPNum: function(post) {
 			return post.id.match(/\d+/)[0];
 		},
-		getPageUrl: function(p, b) {
+		getPageUrl: function(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
 		getPosts: function(thr) {
