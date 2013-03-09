@@ -6975,8 +6975,7 @@ function checkForUpdates(isForce, Fn) {
 	}
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/' +
-			'master/Dollchan_Extension_Tools.meta.js',
+		'url': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
 		'headers': {'Content-Type': 'text/plain'},
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -7006,7 +7005,7 @@ function checkForUpdates(isForce, Fn) {
 				}
 				if(isUpd) {
 					Fn('<a style="color: blue; font-weight: bold;" href="' +
-						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+						'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/' +
 						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
@@ -7062,21 +7061,6 @@ function Initialization() {
 		return false;
 	}
 	fixBrowser();
-	if(aib.hid) {
-		window.setTimeout = function(Fn, num) {
-			var ev = document.createEvent('HTMLEvents'),
-				args = arguments;
-			if(typeof Fn === 'function') {
-				window.document.body.addEventListener('timeoutEvent', function() {
-					Fn.apply(null, aProto.slice.call(args, 2));
-					Fn = args = null;
-				}, false);
-				ev.initEvent('timeoutEvent', true, false);
-				window.document.body.dispatchEvent(ev);
-			}
-			return 1;
-		};
-	}
 	if(!window.GM_log) {
 		window.GM_log = function(msg) {
 			console.error(msg);
@@ -7145,7 +7129,7 @@ function ImageBoard(domain) {
 		aib = Object.create(this._base);
 	}
 	aib.dm = dm;
-	if(!aib.init || aib.init()) {
+	if(!aib.init || !aib.init()) {
 		dForm = $q(aib.qDForm, doc);
 	}
 }
@@ -7263,6 +7247,22 @@ ImageBoard.prototype = {
 			return ImageBoard.prototype._ernstchan;
 		},
 		'hiddenchan.i2p': [{
+			init: { value: function() {
+				window.setTimeout = function(Fn, num) {
+					var ev = document.createEvent('HTMLEvents'),
+						args = arguments;
+					if(typeof Fn === 'function') {
+						window.document.body.addEventListener('timeoutEvent', function() {
+							Fn.apply(null, aProto.slice.call(args, 2));
+							Fn = args = null;
+						}, false);
+						ev.initEvent('timeoutEvent', true, false);
+						window.document.body.dispatchEvent(ev);
+					}
+					return 1;
+				};
+			} },
+
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'krautchan.net': [{
@@ -7380,6 +7380,7 @@ ImageBoard.prototype = {
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.post-error, h2' },
 			qOmitted: { value: '.abbrev > span:last-child' },
+			qMsg: { value: '.postbody' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtm');
@@ -7399,7 +7400,7 @@ ImageBoard.prototype = {
 					$event($q('input[type="button"]', doc), {'click': function() {
 						setCookie('de-rating', $id('rating').value, 1e12);
 					}});
-					return false;
+					return true;
 				}
 			} },
 
