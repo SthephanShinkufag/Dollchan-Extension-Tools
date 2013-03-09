@@ -4225,7 +4225,7 @@ function embedImgLinks(el) {
 	if(!Cfg['addImgs']) {
 		return;
 	}
-	for(var a, link, i = 0, els = $Q(aib.qMsgImgLink); link = els[i++];) {
+	for(var a, link, i = 0, els = $Q(aib.qMsgImgLink, el); link = els[i++];) {
 		if(link.parentNode.tagName === 'SMALL') {
 			return;
 		}
