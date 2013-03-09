@@ -4602,7 +4602,7 @@ function showPview(link) {
 	var b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, ''),
 		parent = getPost(link),
 		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
-		pNum = (link.textContent.match(/\d+$/) || [tNum])[0],
+		pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
 		post = pByNum[pNum] || (Pviews.ajaxed[b] && Pviews.ajaxed[b][pNum]),
 		el = parent.pView ? parent.kid : Pviews.top;
 	if(Cfg['noNavigHidd'] && post && post.hide) {
