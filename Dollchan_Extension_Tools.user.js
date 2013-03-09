@@ -3228,7 +3228,7 @@ function addTextPanel() {
 	if(!pr.txta) {
 		return;
 	}
-	var tPanel, bb = (aib.kus && !aib._410) || aib.krau || aib._420 || aib.mlpg || aib.abu,
+	var tPanel, bb = aib.isBB,
 		btns = {
 			'bold': {
 				'val': 'B',
@@ -7129,7 +7129,7 @@ function Initialization() {
 }
 
 function ImageBoard(domain) {
-	var i, inf, dm, aib;
+	var i, inf, dm;
 	dm = domain || window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(inf = this._bDomains[dm]) {
 		aib = this._createBoard(inf);
@@ -7175,6 +7175,7 @@ ImageBoard.prototype = {
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 			} },
+			isBB: { value: false },
 
 			_410: { value: true }
 		}, 'script[src*="kusaba"]'],
@@ -7186,6 +7187,7 @@ ImageBoard.prototype = {
 				return $q('a[id]', op).id.match(/\d+/)[0];
 			} },
 			docExt: { value: '' },
+			isBB: { value: true },
 			ru: { value: false},
 
 			_420: { value: true }
@@ -7284,6 +7286,7 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
+			isBB: { value: true },
 			res: { value: 'thread-' },
 
 			krau: { value: true }
@@ -7291,6 +7294,7 @@ ImageBoard.prototype = {
 		'mlpg.co': [{
 			cOPost: { value: 'op' },
 			qTable: { value: '.replyContainer' },
+			isBB: { value: true },
 
 			mlpg: { value: true }
 		}, 'form[name*="postcontrols"]'],
@@ -7314,6 +7318,7 @@ ImageBoard.prototype = {
 				}
 				return this.getSage(post);
 			} },
+			isBB: { value: true },
 
 			abu: { value: true }
 		},
@@ -7403,6 +7408,7 @@ ImageBoard.prototype = {
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
+			isBB: { value: true },
 
 			kus: { value: true }
 		}
@@ -7478,6 +7484,7 @@ ImageBoard.prototype = {
 		getTNum: function(op) {
 			return $q('input[type="checkbox"]', op).value;
 		},
+		isBB: false,
 		isTrunc: function(post) {
 			var el = $q(this.qTrunc, post);
 			if(el && /long|full comment|gekurzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
