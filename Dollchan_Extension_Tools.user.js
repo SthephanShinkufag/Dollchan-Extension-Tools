@@ -408,7 +408,7 @@ Lng = {
 
 uWindow, doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, Posts = [], Threads = [], sVis, uVis,
-aib, nav, brd, TNum, pageNum, Updater, yTube, visPosts = 2,
+aib, nav, brd, TNum, pageNum, Updater, yTube, imgs, visPosts = 2,
 pr, dForm, oeForm, dummy, postWrapper, spells,
 Pviews = {deleted: [], ajaxed: {}, top: null, outDelay: null},
 Images = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -749,16 +749,6 @@ function getImgWeight(post) {
 	return inf[2] === 'M' ? (w * 1e3) | 0 : !inf[2] ? Math.round(w / 1e3) : w;
 }
 
-function getImgSize(post) {
-	var m, el = $c(aib.cFileInfo, post);
-	if(aib.brit) {
-		m = el.onclick.toString().split("', '");
-		return [m[3], m[4]];
-	}
-	m = el ? el.textContent.match(/(\d+)[x×](\d+)/) : false;
-	return m ? m.slice(1) : [null, null];
-}
-
 function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
 }
@@ -969,6 +959,7 @@ function readCfg() {
 	spells = new Spells(!!Cfg['hideBySpell']);
 	yTube = new YouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
 		Cfg['YTubeHD'], Cfg['YTubeTitles']);
+	imgs = new PostImages(Cfg['expandImgs'], Cfg['addImgs'], Cfg['imgSrcBtns']);
 	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
@@ -1198,7 +1189,7 @@ function addPanel() {
 					Cfg['expandImgs'] = 1;
 					isExpImg = !isExpImg;
 					Posts.forEach(function(post) {
-						expandAllPostImg(post, isExpImg);
+						imgs.expandAll(post, isExpImg);
 					});
 				}, null, null, null)),
 				$if(imgLen > 0, pButton('maskimg', function(e) {
@@ -1714,7 +1705,11 @@ function getCfgPosts() {
 			}))
 		]),
 		optSel('expandPosts', true, null),
-		optSel('expandImgs', true, null),
+		optSel('expandImgs', true, function() {
+			var type = this.selectedIndex;
+			saveCfg(this.getAttribute('info'), type);
+			imgs.setExpandType(type);
+		}),
 		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
 		$if(nav.isBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
@@ -2162,7 +2157,7 @@ function addPostHideMenu(post) {
 	if(post.img[0]) {
 		add('img', function() {
 			var w = getImgWeight(post),
-				s = getImgSize(post);
+				s = aib.getImgSize(post);
 			addSpell(8 /* #img */, [0,[w,w],[s[0],s[0],s[1],s[1]]], false);
 		});
 		add('ihash', function() {
@@ -2724,7 +2719,7 @@ function doPostformChanges(el, btn) {
 		if(Cfg['favOnReply'] && pr.tNum) {
 			toggleFavorites(pByNum[pr.tNum], $c('de-btn-fav', pByNum[pr.tNum].btns));
 		}
-		if(pr.video && (val = pr.video.value) && (val = val.match(reTubeLink))) {
+		if(pr.video && (val = pr.video.value) && (val = val.match(yTube.regex))) {
 			pr.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 		}
 		if(pr.isQuick) {
@@ -3875,27 +3870,27 @@ dateTime.prototype = {
 
 function YouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	if(embedType === 0) {
-		this.parseLinks = function(post) {};
+		this.parseLinks = this.fixEvents = function() {};
 		return;
 	}
 	if(loadTitles) {
-		this.titles = JSON.parse(sessionStorage['de-yt-titles'] || '{}');
+		this._titles = JSON.parse(sessionStorage['de-yt-titles'] || '{}');
 	} else {
-		this.titles = {};
-		this.getTitleLoader = function() { return null; }
+		this._titles = {};
+		this._getTitleLoader = function() { return null; }
 	}
-	this.eType = embedType;
-	this.vType = videoType;
-	this.width = width;
-	this.height = height;
-	this.isHD = isHD;
+	this._eType = embedType;
+	this._vType = videoType;
+	this._width = width;
+	this._height = height;
+	this._isHD = isHD;
 	this.clickImage = this._clickImage.bind(this);
 	this.clickLink = this._clickLink.bind(this);
 }
 YouTube.prototype = {
 	regex: /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
 	parseLinks: function(post) {
-		var i, els, el, m, src, pst, queue = this.getTitleLoader();
+		var i, els, el, m, src, pst, queue = this._getTitleLoader();
 		for(i = 0, els = $Q('embed, object, iframe', post || dForm); el = els[i++];) {
 			if(!(m = (el.src || el.data).match(this.regex))) {
 				continue;
@@ -3911,44 +3906,23 @@ YouTube.prototype = {
 		}
 		for(i = 0, els = $Q('a[href*="youtu"]', post || dForm); el = els[i++];) {
 			if(m = el.href.match(reTubeLink)) {
-				this.parseLink(el, m, post || getPost(el), queue);
+				this._parseLink(el, m, post || getPost(el), queue);
 			}
 		}
 		queue && queue.complete();
 	},
-	parseLink: function(link, m, post, queue) {
-		var msg, prev, el, title;
-		if(!post.ytObj) {
-			post.ytObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
-			if(this.eType > 2) {
-				this.addImage(el, m);
-			} else if(this.eType === 2) {
-				this.addPlayer(el, m);
-			}
-			msg = post.msg || $q(aib.qMsg, post);
-			if(aib.krau) {
-				msg = msg.parentNode;
-				prev = msg.previousElementSibling;
-				$before(prev.hasAttribute('style') ? prev : msg, el);
-			} else {
-				$before(msg, el);
+	fixEvents: function(pView, post) {
+		var ytObjSrc;
+		if(ytObjSrc = $c('de-ytube-obj', post)) {
+			(pView.ytObj = $c('de-ytube-obj', pView)).ytInfo = ytObjSrc.ytInfo;
+			if($t('img', ytObjSrc)) {
+				pView.ytObj.firstChild.onclick = this.clickImage;
 			}
 		}
-		link.href = link.href.replace(/^http:/, 'https:');
-		link.ytInfo = m;
-		link.className = 'de-ytube-link';
-		link.onclick = this.clickLink;
-		if(Cfg['YTubeTitles'] && queue) {
-			title = this.titles[m[1]];
-			if(title) {
-				this.setTitle(link, title);
-			} else {
-				queue.run([link, m[1]]);
-			}
-		}
+		this.updatePost(pView, $C('de-ytube-link', post), $C('de-ytube-link', pView), true);
 	},
 	updatePost: function(post, oldLinks, newLinks, cloned) {
-		var i, j, el, link, m, queue = !cloned && this.getTitleLoader(),
+		var i, j, el, link, m, queue = !cloned && this._getTitleLoader(),
 			len = newLinks.length;
 		for(i = 0, j = 0; i < len; i++) {
 			el = newLinks[i];
@@ -3957,76 +3931,40 @@ YouTube.prototype = {
 				el.ytInfo = link.ytInfo;
 				el.onclick = this.clickLink;
 			} else if(m = el.href.match(reTubeLink)) {
-				this.parseLink(el, link ? link.ytInfo : m, post, queue);
+				this._parseLink(el, link ? link.ytInfo : m, post, queue);
 				j++;
 			}
 		}
 		queue && queue.complete();
 	},
-	getTitleLoader: function() {
-		var queue = new $queue(8, function(num, data) {
-			setTimeout(GM_xmlhttpRequest, 0, {
-				'method': 'GET',
-				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
-				'onreadystatechange': function(data, xhr) {
-					if(xhr.readyState === 4) {
-						var text;
-						if(xhr.status === 200) {
-							try {
-								text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-								this.titles[data[1]] = text;
-							} catch(e) {}
-						}
-						this.setTitle(data[0], text);
-						queue.end();
-					}
-				}.bind(this, data)
-			});
-		}.bind(this), function() {
-			sessionStorage['de-yt-titles'] = JSON.stringify(this.titles);
-			queue = null;
-		}.bind(this))
-		return queue;
-	},
-	setTitle: function(link, text) {
-		if(text) {
-			link.textContent = text;
-			link.textData = 2;
-		} else {
-			link.textData = 1;
-		}
-		if(link.spellFn) {
-			link.spellFn(text);
-			link.spellFn = null;
-		}
-	},
-	addImage: function(el, m) {
+
+	_addImage: function(el, m) {
 		el.ytInfo = m;
 		el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-			'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="' + this.width +
-			'" height="' + this.height + '"></a>';
-		if(this.eType === 3) {
+			'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="' + this._width +
+			'" height="' + this._height + '"></a>';
+		if(this._eType === 3) {
 			el.firstChild.onclick = this.clickImage;
 		}
 	},
-	addPlayer: function(el, m) {
+	_addPlayer: function(el, m) {
 		var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 		el.ytInfo = m;
-		if(this.vType !== 2) {
-			this.addFlash(el, m[1], time);
+		if(this._vType !== 2) {
+			this._addFlash(el, m[1], time);
 		} else {
-			this.addHTML5(el, m[1], time);
+			this._addHTML5(el, m[1], time);
 		}
 	},
-	addFlash: function(el, id, time) {
-		var wh = ' width="' + this.width + '" height="' + this.height + '">';
-		el.innerHTML = this.vType === 1 ?
+	_addFlash: function(el, id, time) {
+		var wh = ' width="' + this._width + '" height="' + this._height + '">';
+		el.innerHTML = this._vType === 1 ?
 			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
-				(this.isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh :
+				(this._isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh :
 			'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
-				(this.isHD ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
+				(this._isHD ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
 	},
-	addHTML5: function(el, id, time) {
+	_addHTML5: function(el, id, time) {
 		setTimeout(GM_xmlhttpRequest, 0, {
 			'method': 'GET',
 			'url': 'https://www.youtube.com/watch?v=' + id,
@@ -4069,15 +4007,15 @@ YouTube.prototype = {
 							videoURL[itag] = url;
 						}
 					}
-					src = this.isHD ? (videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
+					src = this._isHD ? (videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
 				}
 				if(!src) {
-					this.addFlash(el, id, time);
+					this._addFlash(el, id, time);
 					return;
 				}
 				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
 					'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
-					'" width="' + this.width + '" height="' + this.height + '"></video>';
+					'" width="' + this._width + '" height="' + this._height + '"></video>';
 				if(time) {
 					el.firstChild.onloadedmetadata = function(e) {
 						e.target.currentTime = this;
@@ -4094,16 +4032,84 @@ YouTube.prototype = {
 		if(el.ytInfo === m) {
 			el.innerHTML = '';
 			el.ytInfo = null;
-		} else if(this.eType > 2) {
-			this.addImage(el, m);
+		} else if(this._eType > 2) {
+			this._addImage(el, m);
 		} else {
-			this.addPlayer(el, m);
+			this._addPlayer(el, m);
 		}
 	},
 	_clickImage: function(e) {
 		$pd(e);
 		var node = e.currentTarget.parentNode;
-		this.addPlayer(node, node.ytInfo);
+		this._addPlayer(node, node.ytInfo);
+	},
+	_getTitleLoader: function() {
+		var queue = new $queue(8, function(num, data) {
+			setTimeout(GM_xmlhttpRequest, 0, {
+				'method': 'GET',
+				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
+				'onreadystatechange': function(data, xhr) {
+					if(xhr.readyState === 4) {
+						var text;
+						if(xhr.status === 200) {
+							try {
+								text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
+								this._titles[data[1]] = text;
+							} catch(e) {}
+						}
+						this._setTitle(data[0], text);
+						queue.end();
+					}
+				}.bind(this, data)
+			});
+		}.bind(this), function() {
+			sessionStorage['de-yt-titles'] = JSON.stringify(this._titles);
+			queue = null;
+		}.bind(this))
+		return queue;
+	},
+	_parseLink: function(link, m, post, queue) {
+		var msg, prev, el, title;
+		if(!post.ytObj) {
+			post.ytObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
+			if(this._eType > 2) {
+				this._addImage(el, m);
+			} else if(this._eType === 2) {
+				this._addPlayer(el, m);
+			}
+			msg = post.msg || $q(aib.qMsg, post);
+			if(aib.krau) {
+				msg = msg.parentNode;
+				prev = msg.previousElementSibling;
+				$before(prev.hasAttribute('style') ? prev : msg, el);
+			} else {
+				$before(msg, el);
+			}
+		}
+		link.href = link.href.replace(/^http:/, 'https:');
+		link.ytInfo = m;
+		link.className = 'de-ytube-link';
+		link.onclick = this.clickLink;
+		if(Cfg['YTubeTitles'] && queue) {
+			title = this._titles[m[1]];
+			if(title) {
+				this._setTitle(link, title);
+			} else {
+				queue.run([link, m[1]]);
+			}
+		}
+	},
+	_setTitle: function(link, text) {
+		if(text) {
+			link.textContent = text;
+			link.textData = 2;
+		} else {
+			link.textData = 1;
+		}
+		if(link.spellFn) {
+			link.spellFn(text);
+			link.spellFn = null;
+		}
 	}
 };
 
@@ -4131,171 +4137,182 @@ function embedMP3Links(post) {
 									IMAGES VIEWER
 ==============================================================================*/
 
-function makeMoveable(el) {
-	var elMove = function(e) {
-			el.style.left = e.clientX - el.curX + 'px';
-			el.style.top = e.clientY - el.curY + 'px';
-			el.moved = true;
-		},
-		elStop = function() {
-			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-		};
-	el.onmousedown = function(e) {
-		$pd(e);
-		el.curX = e.clientX - parseInt(el.style.left, 10);
-		el.curY = e.clientY - parseInt(el.style.top, 10);
-		$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-	};
-}
-
-function resizeImg(e) {
-	var curX = e.clientX,
-		curY = e.clientY,
-		oldL = parseInt(this.style.left, 10),
-		oldT = parseInt(this.style.top, 10),
-		oldW = parseFloat(this.style.width || this.width),
-		oldH = parseFloat(this.style.height || this.height),
-		d = nav.Firefox ? -e.detail : e.wheelDelta,
-		newW = oldW * (d > 0 ? 1.25 : 0.8),
-		newH = oldH * (d > 0 ? 1.25 : 0.8);
-	$pd(e);
-	this.style.width = newW + 'px';
-	this.style.height = newH + 'px';
-	this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
-	this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
-}
-
-function addFullImg(a, sz, isExp) {
-	var newW = '',
-		newH = '',
-		fullW = +sz[0],
-		fullH = +sz[1],
-		scrW = doc.documentElement.clientWidth,
-		scrH = window.innerHeight,
-		full = $c('de-img-full', a);
-	if(full && isExp || !full && isExp === false) {
-		return;
-	}
-	if(Cfg['expandImgs'] === 1 && !$q('img[style*="fixed"]', a)) {
-		$disp($t('img', a));
-	}
-	if(full) {
-		if(full.moved) {
-			full.moved = false;
-		} else {
-			$disp(full);
-			setTimeout($del, 0, full);
-		}
-		return;
-	}
-	if(Cfg['expandImgs'] === 1) {
-		scrW -= $offset(a).left + 25;
+function PostImages(expandType, add, search, preload, expand) {
+	if(this.expandType === 0) {
+		this.eventPost = this.fixEvents = function() {};
 	} else {
-		$del($c('de-img-center', doc));
+		this.aImgClick = this._aImgClick.bind(this);
 	}
-	if(fullW && fullH) {
-		newW = fullW < scrW ? fullW : scrW;
-		newH = newW * fullH / fullW;
-		if(Cfg['expandImgs'] === 2 && newH > scrH) {
-			newH = scrH;
-			newW = newH * fullW / fullH;
-		}
+	if(add) {
+		this.preImgClick = this._preImgClick.bind(this);
+	} else {
+		this.embedLinks = this.fixEvents = function() {}
 	}
-	a.insertAdjacentHTML('beforeend', '<img class="de-img-full" src="' + a.href + '" alt="' +
-		a.href + '" width="' + newW + '" height="' + newH + '">');
-	if(Cfg['expandImgs'] === 2) {
-		full = a.lastChild;
-		full.classList.add('de-img-center');
-		full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
-		full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', resizeImg, false);
-		makeMoveable(full);
+	if(!search) {
+		this.addSearch = function() {};
 	}
+	this.eType = expandType;
 }
-
-function eventLinkImg(el) {
-	el.onclick = function(e) {
-		if(Cfg['expandImgs'] && e.button !== 1) {
-			$pd(e);
-			addFullImg(this, this.firstChild.title.split('x'), null);
+PostImages.prototype = {
+	eventPost: function(post) {
+		$each(post.img, function(img) {
+			var a = $x('ancestor::a[1]', img);
+			if(a) {
+				img.onclick = null;
+				if(aib.dfwk) {
+					img.parentNode.onclick = null;
+				}
+				img.alink = a;
+				a.onclick = this.aImgClick;
+			}
+		}, this);
+	},
+	expandAll: function(post, isExp) {
+		for(var el, i = 0; el = post.img[i++];) {
+			this._expand(el.alink, isExp);
 		}
-	};
-}
-
-function embedImgLinks(el) {
-	if(!Cfg['addImgs']) {
-		return;
-	}
-	for(var a, link, i = 0, els = $Q(aib.qMsgImgLink, el); link = els[i++];) {
-		if(link.parentNode.tagName === 'SMALL') {
-			return;
-		}
-		a = link.cloneNode(false);
-		a.target = '_blank';
-		$disp(a);
-		a.appendChild($new('img', {'class': 'de-img-pre', 'src': a.href, 'alt': a.href}, {'load': function() {
-			var fullW, fullH, k;
-			$disp(this.parentNode);
-			fullW = this.width;
-			fullH = this.height;
-			this.title = fullW + 'x' + fullH;
-			if(fullW <= 200 && fullH <= 200) {
+	},
+	embedLinks: function(el) {
+		for(var a, link, i = 0, els = $Q(aib.qMsgImgLink, el); link = els[i++];) {
+			if(link.parentNode.tagName === 'SMALL') {
 				return;
 			}
-			k = fullW/fullH;
-			this.width = k < 1 ? 200 * k : 200;
-			this.height = k < 1 ? 200 : 200/k;
-		}}));
-		eventLinkImg(a);
-		$before(link, a);
-	}
-}
-
-function addImgSearch(el) {
-	if(!Cfg['imgSrcBtns']) {
-		return;
-	}
-	for(var link, i = 0, els = $Q(aib.qImgLink, el); link = els[i++];) {
-		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
-			$del(link);
-			continue;
-		}
-		if(link.firstElementChild) {
-			continue;
-		}
-		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" onmouseover="de_srcover(this)" onmouseout="de_out(event)"></span>');
-	}
-}
-
-function expandPostImg(a, isExp) {
-	if(a && /\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
-		addFullImg(a, getImgSize(aib.getPicWrap(a)), isExp);
-	}
-}
-
-function expandAllPostImg(post, isExp) {
-	for(var el, i = 0; el = post.img[i++];) {
-		expandPostImg($x('ancestor::a[1]', el), isExp);
-	}
-}
-
-function eventPostImg(post) {
-	$each(post.img, function(img) {
-		var a = $x('ancestor::a[1]', img);
-		if(a) {
-			img.onclick = null;
-			if(aib.dfwk) {
-				img.parentNode.onclick = null;
-			}
-			a.onclick = function(e) {
-				if(e.button !== 1) {
-					$pd(e);
-					expandPostImg(this, null);
+			a = link.cloneNode(false);
+			a.target = '_blank';
+			$disp(a);
+			a.appendChild($new('img', {'class': 'de-img-pre', 'src': a.href, 'alt': a.href}, {'load': function() {
+				var fullW, fullH, k;
+				$disp(this.parentNode);
+				fullW = this.width;
+				fullH = this.height;
+				this.title = fullW + 'x' + fullH;
+				if(fullW <= 200 && fullH <= 200) {
+					return;
 				}
-			};
+				k = fullW/fullH;
+				this.width = k < 1 ? 200 * k : 200;
+				this.height = k < 1 ? 200 : 200/k;
+			}}));
+			a.onclick = this.preImgClick;
+			$before(link, a);
 		}
-	});
-}
+	},
+	fixEvents: function(post) {
+		$each($C('de-img-pre', post), function(el) {
+			el.parentNode.onclick = this.preImgClick;
+		}, this);
+	},
+	addSearch: function(el) {
+		for(var link, i = 0, els = $Q(aib.qImgLink, el); link = els[i++];) {
+			if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
+				$del(link);
+				continue;
+			}
+			if(link.firstElementChild) {
+				continue;
+			}
+			link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" onmouseover="de_srcover(this)" onmouseout="de_out(event)"></span>');
+		}
+	},
+	setExpandType: function(type) {
+		this.eType = type;
+	},
 
+	_addFull: function(a, sz, isExp) {
+		var newW = '',
+			newH = '',
+			fullW = +sz[0],
+			fullH = +sz[1],
+			scrW = doc.documentElement.clientWidth,
+			scrH = window.innerHeight,
+			full = $c('de-img-full', a);
+		if(full && isExp || !full && isExp === false) {
+			return;
+		}
+		if(this.eType === 1 && !$q('img[style*="fixed"]', a)) {
+			$disp($t('img', a));
+		}
+		if(full) {
+			if(full.moved) {
+				full.moved = false;
+			} else {
+				$disp(full);
+				setTimeout($del, 0, full);
+			}
+			return;
+		}
+		if(this.eType === 1) {
+			scrW -= $offset(a).left + 25;
+		} else {
+			$del($c('de-img-center', doc));
+		}
+		if(fullW && fullH) {
+			newW = fullW < scrW ? fullW : scrW;
+			newH = newW * fullH / fullW;
+			if(Cfg['expandImgs'] === 2 && newH > scrH) {
+				newH = scrH;
+				newW = newH * fullW / fullH;
+			}
+		}
+		a.insertAdjacentHTML('beforeend', '<img class="de-img-full" src="' + a.href + '" alt="' +
+			a.href + '" width="' + newW + '" height="' + newH + '">');
+		if(this.eType === 2) {
+			full = a.lastChild;
+			full.classList.add('de-img-center');
+			full.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
+			full.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
+				var curX = e.clientX,
+					curY = e.clientY,
+					oldL = parseInt(this.style.left, 10),
+					oldT = parseInt(this.style.top, 10),
+					oldW = parseFloat(this.style.width || this.width),
+					oldH = parseFloat(this.style.height || this.height),
+					d = nav.Firefox ? -e.detail : e.wheelDelta,
+					newW = oldW * (d > 0 ? 1.25 : 0.8),
+					newH = oldH * (d > 0 ? 1.25 : 0.8);
+				$pd(e);
+				this.style.width = newW + 'px';
+				this.style.height = newH + 'px';
+				this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
+				this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
+			}, false);
+			this._makeMovable(full);
+		}
+	},
+	_makeMovable: function(el) {
+		var elMove = function(e) {
+				el.style.left = e.clientX - el.curX + 'px';
+				el.style.top = e.clientY - el.curY + 'px';
+				el.moved = true;
+			},
+			elStop = function() {
+				$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
+			};
+		el.onmousedown = function(e) {
+			$pd(e);
+			el.curX = e.clientX - parseInt(el.style.left, 10);
+			el.curY = e.clientY - parseInt(el.style.top, 10);
+			$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
+		};
+	},
+	_expand: function(a, isExp) {
+		if(a && /\.jpe?g|\.png|.\gif|^blob:/i.test(a.href)) {
+			this._addFull(a, aib.getImgSize(aib.getPicWrap(a)), isExp);
+		}
+	},
+	_aImgClick: function(e) {
+		if(this.eType !== 0 && e.button !== 1) {
+			$pd(e);
+			this._expand(e.currentTarget, null);
+		}
+	},
+	_preImgClick: function(e) {
+		if(this.eType !== 0 && e.button !== 1) {
+			$pd(e);
+			this._addFull(e.currentTarget, e.target.title.split('x'), null);
+		}
+	}
+};
 
 /*==============================================================================
 								MAP OF >>REFLINKS
@@ -4491,7 +4508,7 @@ function appendPviewPanel(post, pView) {
 
 function getPview(post, pNum, parent, link, txt) {
 	clearTimeout(Pviews.outDelay);
-	var pView, inDoc, ytObjSrc;
+	var pView, inDoc;
 	if(post) {
 		inDoc = post.ownerDocument === doc;
 		pView = inDoc ? post.cloneNode(true) : importPost(post);
@@ -4506,30 +4523,16 @@ function getPview(post, pNum, parent, link, txt) {
 		if(!inDoc) {
 			embedMP3Links(pView);
 			yTube.parseLinks(pView);
-			embedImgLinks(pView);
-			addImgSearch(pView);
+			imgs.embedLinks(pView);
+			imgs.addSearch(pView);
 		} else {
-			if(Cfg['addYouTube']) {
-				if(ytObjSrc = $c('de-ytube-obj', post)) {
-					(pView.ytObj = $c('de-ytube-obj', pView)).ytInfo = ytObjSrc.ytInfo;
-					if($t('img', ytObjSrc)) {
-						pView.ytObj.firstChild.onclick = yTube.clickImage;
-					}
-				}
-				yTube.updatePost(pView, $C('de-ytube-link', post), $C('de-ytube-link', pView), true);
-			}
-			if(Cfg['addImgs']) {
-				$each($C('de-img-pre', pView), function(el) {
-					eventLinkImg(el.parentNode);
-				});
-			}
+			yTube.fixEvents(pView, post);
+			imgs.fixEvents(pView);
 		}
 		$each(pView.img = getPostImages(pView), function(img) {
 			img.style.display = '';
 		});
-		if(Cfg['expandImgs']) {
-			eventPostImg(pView);
-		}
+		imgs.eventPost(pView);
 		if(Cfg['linksNavig'] === 2) {
 			markRefMap(pView, parent.getAttribute('de-num'));
 		}
@@ -4710,9 +4713,7 @@ function importPost(post) {
 }
 
 function addPostFunc(post) {
-	if(Cfg['expandImgs']) {
-		eventPostImg(post);
-	}
+	imgs.eventPost(post);
 	if(!post.hide) {
 		sVis[post.getAttribute('de-count')] = 1;
 		spells.check(post, hidePost, false);
@@ -4720,9 +4721,9 @@ function addPostFunc(post) {
 	updRefMap(post, true);
 	eventRefLink(post);
 	embedMP3Links(post);
-	embedImgLinks(post);
+	imgs.embedLinks(post);
 	if(isExpImg) {
-		expandAllPostImg(post, null);
+		imgs.expandAll(post, null);
 	}
 }
 
@@ -4732,7 +4733,7 @@ function newPost(thr, post, pNum, i, node) {
 	addPostButtons(post);
 	yTube.parseLinks(post);
 	addPostFunc(post);
-	addImgSearch(post);
+	imgs.addSearch(post);
 	if(postWrapper) {
 		pst = postWrapper.cloneNode(true);
 		el = aib.getPosts(pst)[0];
@@ -4904,7 +4905,7 @@ function parsePages(pages, node) {
 	addDelformStuff(false);
 	if(isExpImg) {
 		Posts.forEach(function(post) {
-			expandAllPostImg(post, null);
+			imgs.expandAll(post, null);
 		});
 	}
 	if(pr.passw) {
@@ -5561,32 +5562,34 @@ Spells.prototype = {
 		},
 		// 8: #img
 		function(post, val) {
+			var temp, wh, w, h, i, img;
 			if(!post.img[0]) {
 				return false;
 			}
 			if(val) {
-				var temp, wh, w, h;
-				if(temp = val[1]) {
-					w = getImgWeight(post);
-					switch(val[0]) {
-					case 0: h = w >= temp[0] && w <= temp[1]; break;
-					case 1: h = w < temp[0]; break;
-					case 2: h = w > temp[0];
+				for(i = 0; img = post.img[i]; i++) {
+					if(temp = val[1]) {
+						w = getImgWeight(aib.getPicWrap(img));
+						switch(val[0]) {
+						case 0: h = w >= temp[0] && w <= temp[1]; break;
+						case 1: h = w < temp[0]; break;
+						case 2: h = w > temp[0];
+						}
+						if(!h) {
+							return false;
+						} else if(!val[2]) {
+							return true;
+						}
 					}
-					if(!h) {
-						return false;
-					} else if(!val[2]) {
-						return true;
-					}
-				}
-				if(temp = val[2]) {
-					wh = getImgSize(post);
-					w = +wh[0];
-					h = +wh[1];
-					switch(val[0]) {
-					case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
-					case 1: return w < temp[0] && h < temp[3];
-					case 2: return w > temp[0] && h > temp[3];
+					if(temp = val[2]) {
+						wh = aib.getImgSize(aib.getPicWrap(img));
+						w = +wh[0];
+						h = +wh[1];
+						switch(val[0]) {
+						case 0: return w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3];
+						case 1: return w < temp[0] && h < temp[3];
+						case 2: return w > temp[0] && h > temp[3];
+						}
 					}
 				}
 			}
@@ -6697,9 +6700,9 @@ function scriptCSS() {
 		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	} else {
 		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
-			.de-btn-hide:after { content: "?"; }\
+			.de-btn-hide:after { content: "×"; }\
 			.de-post-hid .de-btn-hide:after { content: "+"; }\
-			.de-btn-hide-user:after { content: "[?]"; }\
+			.de-btn-hide-user:after { content: "[×]"; }\
 			.de-post-hid .de-btn-hide-user:after { content: "[+]"; }\
 			.de-btn-rep:after { content: "R"; }\
 			.de-btn-expthr:after { content: "E"; }\
@@ -7205,6 +7208,10 @@ ImageBoard.prototype = {
 			qImgLink: { value: '.fileinfo' },
 			qDForm: { value: '.threadz' },
 			qTable: { value: 'div[id^="replies"] > table' },
+			getImgSize: { value: function(post) {
+				var m = $c(this.cFileInfo, post).onclick.toString().split("', '");
+				return [m[3], m[4]];
+			} },
 			getOp: { value: function(thr, dc) {
 				var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
 					op = $c('originalpost', thr);
@@ -7453,6 +7460,11 @@ ImageBoard.prototype = {
 				'div[id^="t"]:not([style])' : '[id^="thread"]';
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
+		getImgSize: function(post) {
+			var el = $c(aib.cFileInfo, post),
+				m = el ? el.textContent.match(/(\d+)[x×](\d+)/) : false;
+			return m ? m.slice(1) : [null, null];
+		},
 		getOp: function(thr, dc) {
 			var el, op, opEnd;
 			if(op = $c(this.cOPost, thr)) {
@@ -7493,7 +7505,7 @@ ImageBoard.prototype = {
 		isBB: false,
 		isTrunc: function(post) {
 			var el = $q(this.qTrunc, post);
-			if(el && /long|full comment|gekurzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+			if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 				return el;
 			}
 			return null;
@@ -7813,111 +7825,126 @@ function replaceDelform() {
 
 /** @constructor */
 function threadUpdater(docTitle) {
-	this._delay = Cfg['updThrDelay'] * 1e3;
-	this.title = docTitle;
-	this.newPosts = 0;
-	this.favIntrv = 0;
-	this.favNorm = true;
-	this.favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-	this.audioEl = null;
-	this.audioRun = this.hasAudio = false;
-	this.audioRep = 0;
+	this._initDelay = Cfg['updThrDelay'] * 1e3;
+	this._title = docTitle;
+	this._newPosts = 0;
+	this._favIntrv = 0;
+	this._favNorm = true;
+	this._favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+	this._audioEl = null;
+	this._audioRun = this._hasAudio = false;
+	this._audioRep = 0;
 	if(nav.Firefox > 10 || nav.Chrome) {
 		doc.addEventListener(
 			(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
 			function() {
 				if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
-					this.focused = false;
+					this._focused = false;
 				} else {
-					this.onVis();
+					this._onVis();
 				}
 			}.bind(this), false
 		);
-		this.focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
+		this._focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
 	} else {
-		this.focused = false;
+		this._focused = false;
 		$event(window, {
-			'focus': onVis,
+			'focus': this._onVis.bind(this),
 			'blur': function() {
-				this.focused = false;
+				this._focused = false;
 			}.bind(this),
-			'mousemove': function mouseMove() {
-				this.onVis();
-				$revent(window, {'mousemove': mouseMove});
+			'mousemove': this._mouseMove = function() {
+				this._onVis();
+				$revent(window, {'mousemove': this._mouseMove});
+				this._mouseMove = null;
 			}.bind(this)}
 		);
 	}
-	this.loadPostsFun = loadNewPosts.bind(null, this.onLoaded.bind(this));
+	this._loadPostsFun = loadNewPosts.bind(null, this._onLoaded.bind(this));
 	this.enable();
 }
 threadUpdater.prototype = {
-	enabled: false,
 	enable: function() {
-		if(!this.enabled) {
-			this.enabled = true;
-			this.checked404 = false;
-			this.delay = this._delay;
-			this.loadTO = setTimeout(this.loadPostsFun, this.delay);
+		if(!this._enabled) {
+			this._enabled = true;
+			this._checked404 = false;
+			this._delay = this._initDelay;
+			this._loadTO = setTimeout(this._loadPostsFun, this._delay);
 		}
 	},
 	disable: function() {
-		if(this.enabled) {
-			clearTimeout(this.loadTO);
-			this.enabled = false;
-			this.setState('off');
+		if(this._enabled) {
+			clearTimeout(this._loadTO);
+			this._enabled = false;
+			this._setState('off');
 		}
 	},
+	toggleAudio: function(audioRep) {
+		if(!this._audioEl) {
+			this._audioEl = $new('audio', {
+				'preload': 'auto',
+				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
+			}, null);
+		}
+		this._audioRep = audioRep;
+		return this._hasAudio = !this._hasAudio;
+	},
+
+	_enabled: false,
 	_stateButton: null,
-	get stateButton() {
-		return this._stateButton || (this._stateButton = $q('a[id^="de-btn-upd"]', doc));
+	_audioNotif: function() {
+		if(this._focused) {
+			this._hasAudio = false;
+		} else {
+			this._audioEl.play()
+			setTimeout(this._audioNotif.bind(this), this._audioRep);
+			this._hasAudio = true;
+		}
 	},
-	setState: function(state) {
-		this.stateButton.id = 'de-btn-upd-' + state;
-	},
-	onLoaded: function(eCode, eMsg, newPosts) {
+	_onLoaded: function(eCode, eMsg, newPosts) {
 		infoLoadErrors(eCode, eMsg, newPosts);
 		if(eCode !== 200) {
 			if(eCode === 404) {
-				if(this.checked404) {
+				if(this._checked404) {
 					this.disable();
 				} else {
-					this.checked404 = true;
-					this.setState('warn');
+					this._checked404 = true;
+					this._setState('warn');
 				}
 			} else if(Math.floor(eCode / 500) !== 1) {
-				this.setState('warn');
+				this._setState('warn');
 			} else {
 				this.disable();
 			}
 			return;
 		}
-		this.setState('on');
-		this.checked404 = false;
-		if(!this.focused) {
-			this.newPosts += newPosts;
-			if(Cfg['favIcoBlink'] && this.favHref) {
-				clearInterval(this.favIntrv);
-				this.favNorm = true;
-				if(this.newPosts !== 0) {
-					this.favIntrv = setInterval(function() {
+		this._setState('on');
+		this._checked404 = false;
+		if(!this._focused) {
+			this._newPosts += newPosts;
+			if(Cfg['favIcoBlink'] && this._favHref) {
+				clearInterval(this._favIntrv);
+				this._favNorm = true;
+				if(this._newPosts !== 0) {
+					this._favIntrv = setInterval(function() {
 						$del($q('link[rel="shortcut icon"]', doc.head));
 						doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
-							this.favNorm ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : this.favHref +
+							(this._favNorm ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : this._favHref) +
 						'">');
-						this.favNorm = !this.favNorm;
+						this._favNorm = !this._favNorm;
 					}.bind(this), 800);
 				}
 			}
 			if(newPosts === 0) {
-				if(this.delay !== 12e4) {
-					this.delay = Math.min(this.delay + this._delay, 12e4);
+				if(this._delay !== 12e4) {
+					this._delay = Math.min(this._delay + this._initDelay, 12e4);
 				}
 			} else {
-				this.delay = this._delay;
-				doc.title = ' [' + this.newPosts + '] ' + this.title;
+				this._delay = this._initDelay;
+				doc.title = ' [' + this._newPosts + '] ' + this._title;
 				if(nav.WebKit && Cfg['desktNotif'] && window.webkitNotifications.checkPermission() === 0) {
 					var notif = window.webkitNotifications.createNotification(
-							'/favicon.ico', this.title, Lng.unreadMsg[lang].replace(/%m/g, newPosts)
+							'/favicon.ico', this._title, Lng.unreadMsg[lang].replace(/%m/g, newPosts)
 						);
 					notif.ondisplay = function() {
 						setTimeout(this.cancel.bind(this), 12e3);
@@ -7930,53 +7957,38 @@ threadUpdater.prototype = {
 					};
 					notif.show();
 				}
-				if(this.hasAudio && !this.audioRun) {
-					if(this.audioRep) {
-						this.audioNotif();
+				if(this._hasAudio && !this._audioRun) {
+					if(this._audioRep) {
+						this._audioNotif();
 					} else {
-						this.audioEl.play()
+						this._audioEl.play()
 					}
 				}
 			}
 		}
-		this.loadTO = setTimeout(this.loadPostsFun, this.delay);
+		this._loadTO = setTimeout(this._loadPostsFun, this._delay);
 	},
-	onVis: function onVis() {
-		if(Cfg['favIcoBlink'] && this.favHref) {
-			clearInterval(this.favIntrv);
-			this.favNorm = true;
+	_onVis: function() {
+		if(Cfg['favIcoBlink'] && this._favHref) {
+			clearInterval(this._favIntrv);
+			this._favNorm = true;
 			$del($q('link[rel="shortcut icon"]', doc.head));
-			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + this.favHref + '">');
+			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + this._favHref + '">');
 		}
 		setTimeout(function(docTitle) {
 			doc.title = docTitle;
-		}, 200, this.title);
-		if(this.enabled) {
-			this.focused = true;
-			this.newPosts = 0;
-			this.delay = this._delay;
-			clearTimeout(this.loadTO);
-			this.loadPostsFun();
+		}, 200, this._title);
+		if(this._enabled) {
+			this._focused = true;
+			this._newPosts = 0;
+			this._delay = this._initDelay;
+			clearTimeout(this._loadTO);
+			this._loadPostsFun();
 		}
 	},
-	toggleAudio: function(audioRep) {
-		if(!this.audioEl) {
-			this.audioEl = $new('audio', {
-				'preload': 'auto',
-				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
-			}, null);
-		}
-		this.audioRep = audioRep;
-		return this.hasAudio = !this.hasAudio;
-	},
-	audioNotif: function() {
-		if(this.focused) {
-			this.hasAudio = false;
-		} else {
-			this.audioEl.play()
-			setTimeout(this.audioNotif.bind(this), this.audioRep);
-			this.hasAudio = true;
-		}
+	_setState: function(state) {
+		(this._stateButton || (this._stateButton = $q('a[id^="de-btn-upd"]', doc))).id =
+			'de-btn-upd-' + state;
 	}
 }
 
@@ -8030,7 +8042,7 @@ function doMiniScript() {
 	});
 	new ImageBoard(minInf['domain']);
 	eventRefLink(dForm);
-	Posts.forEach(eventPostImg);
+	Posts.forEach(imgs.eventPost, imgs);
 }
 
 
@@ -8046,8 +8058,8 @@ function addDelformStuff(isLog) {
 	preloadImages(null);
 	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('preloadImages');
 	if(Cfg['expandImgs']) {
-		Posts.forEach(eventPostImg);
-		isLog && $log('eventPostImg');
+		Posts.forEach(imgs.eventPost, imgs);
+		isLog && $log('imgs.eventPost');
 	}
 	if(Cfg['expandPosts'] && !TNum) {
 		Posts.forEach(expandPost);
@@ -8057,10 +8069,10 @@ function addDelformStuff(isLog) {
 	isLog && Cfg['addMP3'] && $log('embedMP3Links');
 	yTube.parseLinks(null);
 	isLog && Cfg['addYouTube'] && $log('yTube.parseLinks');
-	embedImgLinks(dForm);
-	isLog && Cfg['addImgs'] && $log('embedImgLinks');
-	addImgSearch(dForm);
-	isLog && Cfg['imgSrcBtns'] && $log('addImgSearch');
+	imgs.embedLinks(dForm);
+	isLog && Cfg['addImgs'] && $log('imgs.embedLinks');
+	imgs.addSearch(dForm);
+	isLog && Cfg['imgSrcBtns'] && $log('imgs.addSearch');
 	genRefMap(pByNum, '');
 	isLog && Cfg['linksNavig'] === 2 && $log('genRefMap');
 	eventRefLink(dForm);
