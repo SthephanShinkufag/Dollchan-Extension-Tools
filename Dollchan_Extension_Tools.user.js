@@ -2573,7 +2573,7 @@ function refreshCapImg(tNum, isFocus) {
 	}
 	if(aib.abu) {
 		uWindow['GetCaptcha']('captcha_div');
-		pr.cap = $q('input[name="captcha_value"]', pr.form);
+		pr.cap = $q('input[name^="captcha_value"]', pr.form);
 	} else if(aib.krau) {
 		uWindow['requestCaptcha'](true);
 		pr.cap.value = '';
@@ -7904,18 +7904,16 @@ threadUpdater.prototype = {
 	_onLoaded: function(eCode, eMsg, newPosts) {
 		infoLoadErrors(eCode, eMsg, newPosts);
 		if(eCode !== 200) {
-			if(eCode === 404) {
-				if(this._checked404) {
+			if(Math.floor(eCode / 500) === 0) {
+				if(eCode !== 404 || this._checked404) {
 					this.disable();
+					return;
 				} else {
 					this._checked404 = true;
-					this._setState('warn');
 				}
-			} else if(Math.floor(eCode / 500) !== 1) {
-				this._setState('warn');
-			} else {
-				this.disable();
 			}
+			this._setState('warn');
+			this._loadTO = setTimeout(this._loadPostsFun, this._delay);
 			return;
 		}
 		this._setState('on');
