@@ -5495,7 +5495,7 @@ function Spells(read) {
 Spells.checkArr = function(val, num) {
 	var i, arr;
 	for(arr = val[0], i = arr.length - 1; i >= 0; i--) {
-		if(arr[i] === num) {
+		if(arr[i] == num) {
 			return true;
 		}
 	}
@@ -6406,19 +6406,15 @@ Spells.prototype = {
 		if(spells !== false) {
 			return [Date.now(), spells, reps[1], reps[2]];
 		} else if(this._error) {
-			try {
-				$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
-			} catch(e) {
-				GM_log(Lng.error[lang] + ' ' + this._error);
-			}
+			$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
 		}
-		return false;
+		return null;
 	},
 	read: function() {
 		var spells, data;
-		if(spells = Cfg['spells']) {
+		if(Cfg.hasOwnProperty('spells')) {
 			try {
-				spells = JSON.parse(spells);
+				spells = JSON.parse(Cfg['spells']);
 				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
 			} catch(e) {}
 			if(data && data[0] === spells[0]) {
@@ -6433,10 +6429,12 @@ Spells.prototype = {
 				try {
 					spells = JSON.parse(data);
 				} catch(e) {}
-			}
-			if(!spells) {
-				this.disable();
-				return;
+				if(!spells) {
+					this.disable();
+					return;
+				}
+			} else {
+				spells = this.parseText('#wipe(samelines,samewords,longwords,numbers)');
 			}
 			saveCfg('spells', data);
 		}
