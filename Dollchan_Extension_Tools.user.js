@@ -8062,17 +8062,16 @@ function initThreadUpdater(title) {
 		}
 		if(!focused) {
 			newPosts += lPosts;
-			if(Cfg['favIcoBlink'] && favHref && newPosts === 0) {
-				favIntrv = setInterval(function() {
-					$del($q('link[rel="shortcut icon"]', doc.head));
-					doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
-						(favNorm ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : favHref) +
-					'">');
-					favNorm = !favNorm;
-				}, 800);
-			}
 			if(lPosts !== 0) {
-				delay = initDelay;
+				if(Cfg['favIcoBlink'] && favHref && newPosts === 0) {
+					favIntrv = setInterval(function() {
+						$del($q('link[rel="shortcut icon"]', doc.head));
+						doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
+							(favNorm ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : favHref) +
+						'">');
+						favNorm = !favNorm;
+					}, 800);
+				}
 				doc.title = ' [' + newPosts + '] ' + title;
 				if(nav.WebKit && Cfg['desktNotif'] && window.webkitNotifications.checkPermission() === 0) {
 					var notif = window.webkitNotifications.createNotification(
@@ -8096,6 +8095,7 @@ function initThreadUpdater(title) {
 						audioEl.play()
 					}
 				}
+				delay = initDelay;
 			} else if(delay !== 12e4) {
 				delay = Math.min(delay + initDelay, 12e4);
 			}
