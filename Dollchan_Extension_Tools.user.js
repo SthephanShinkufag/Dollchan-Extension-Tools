@@ -7300,7 +7300,7 @@ ImageBoard.prototype = {
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 			} },
 			getPicWrap: { value: function(el) {
-				return $x('ancestor::td[1]', el);
+				return $x('ancestor::td[1]', el) || $x('ancestor::*[@de-post]', el);
 			} },
 			docExt: { value: '.html' },
 			ru: { value: true },
