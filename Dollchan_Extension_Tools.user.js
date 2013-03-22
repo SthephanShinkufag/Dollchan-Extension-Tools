@@ -4212,13 +4212,13 @@ Spells.prototype = {
 		// 8: #img
 		function(post, val) {
 			var temp, w, h, i, len, pimg;
-			if(!post.img[0]) {
+			if(post.img.length === 0) {
 				return false;
 			}
 			if(val) {
 				for(i = 0, pimg = post.img, len = pimg.length; i < len; i++) {
 					if(temp = val[1]) {
-						w = pimg.weigth(i);
+						w = pimg.weight(i);
 						switch(val[0]) {
 						case 0: h = w >= temp[0] && w <= temp[1]; break;
 						case 1: h = w < temp[0]; break;
@@ -6747,7 +6747,7 @@ Post.prototype = {
 		}
 		sVis[this.index] = 1;
 		this.setVisib(false, null);
-		this.unhideRef();
+		this.unhideRefs();
 		$del(this.note);
 		this.note = null;
 	},
