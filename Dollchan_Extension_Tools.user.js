@@ -7545,6 +7545,17 @@ ImageBoard.prototype = {
 			futa: { value: true }
 		},
 		'form[action*="imgboard.php?delete"]': {
+			init: { value: function() {
+				nav = new Navigator(true);
+				with(uWindow) {
+					AJAX = delPostPreview = showPostPreview = showNewPosts = doRefPreview =
+						showRefMap = getRefMap = doRefMap = insertAfter = get_password =
+						update_captcha = getSelectedText = quote = insert = fixRefLinks =
+						highlight = invertAll = toggle = doTruncate = doParse = doExpand =
+						doStats = doShowHide = doDelForm = doPostForm = checkIn = doStars = emptyFn;
+				}
+				return false;
+			} },
 			ru: { value: true },
 
 			tinyIb: { value: true }
