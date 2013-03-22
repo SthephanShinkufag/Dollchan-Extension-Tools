@@ -738,7 +738,7 @@ function fixBrd(b) {
 }
 
 function getPrettyJSON(obj, indent) {
-	var sJSON, iCount, isArr = obj instanceof Array;
+	var sJSON, iCount, val, type, key, isArr = obj instanceof Array;
 	if(isArr) {
 		if(obj.length === 0) {
 			return '[]';
@@ -750,28 +750,30 @@ function getPrettyJSON(obj, indent) {
 		sJSON = '{';
 	}
 	iCount = 0;
-	nav.forEach(obj, function(key) {
-		var val = this[key],
-			type = typeof(val);
-		if(type === 'function') {
-			return;
-		} else if(type === 'object') {
-			type = val === null ? 'null' :
-				val instanceof Array ? 'array' :
-				val instanceof Date ? 'date' :
-				val instanceof RegExp ? 'regex' :
-				'object';
+	for(key in obj) {
+		if(obj.hasOwnProperty(key)) {
+			val = obj[key],
+			type = typeof val;
+			if(type === 'function') {
+				continue;
+			} else if(type === 'object') {
+				type = val === null ? 'null' :
+					val instanceof Array ? 'array' :
+					val instanceof Date ? 'date' :
+					val instanceof RegExp ? 'regex' :
+					'object';
+			}
+			if(iCount > 0) {
+				sJSON += ',';
+			}
+			sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
+				type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
+				type === 'boolean' || type === 'number' ? val.toString() :
+				type === 'string' ? '"' + val.replace(/(["\n\\])/g, '\\$1') + '"' : type
+			);
+			iCount++;
 		}
-		if(iCount > 0) {
-			sJSON += ',';
-		}
-		sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
-			type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
-			type === 'boolean' || type === 'number' ? val.toString() :
-			type === 'string' ? '"' + val.replace(/(["\n\\])/g, '\\$1') + '"' : type
-		);
-		iCount++;
-	});
+	}
 	return sJSON += '\n' + indent + (isArr ? ']' : '}');
 }
 
@@ -985,14 +987,14 @@ function savePostsVisib() {
 }
 
 function saveUserPostsVisib() {
-	var minDate, str = JSON.stringify(uVis);
+	var minDate, key, str = JSON.stringify(uVis);
 	if(str.length > 9000) {
 		minDate = Date.now() - 5 * 24 * 3600 * 1000;
-		nav.forEach(uVis, function(i) {
-			if(uVis[i][1] < minDate) {
-				delete uVis[i];
+		for(key in uVis) {
+			if(uVis.hasOwnProperty(key) && uVis[key][1] < minDate) {
+				delete uVis[key];
 			}
-		});
+		}
 		str = JSON.stringify(uVis);
 	}
 	setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
@@ -2656,83 +2658,6 @@ html5Submit.prototype = {
 
 
 /*==============================================================================
-									QUICK REPLY
-==============================================================================*/
-
-
-
-
-/*==============================================================================
-								TEXT FORMATTING BUTTONS
-==============================================================================*/
-
-function addTextButton(bb, tPanel, id) {
-	var btn, key = this[id];
-	if(key['off']) {
-		return;
-	}
-	if(!(btn = $id('de-btn-' + id))) {
-		btn = $new('span', {
-			'id': 'de-btn-' + id,
-			'title': Lng.txtBtn[id][lang],
-			'de-tag': key['tag'],
-			'de-bb': bb || !!key['bb']
-		}, null);
-		if(id === 'quote') {
-			btn.onmouseover = function() {
-				quotetxt = $txtSelect();
-			};
-			btn.onclick = function(e) {
-				var x = pr.txta,
-					start = x.selectionStart,
-					end = x.selectionEnd;
-				$pd(e);
-				$txtInsert(x, '> ' + (
-					start === end ? quotetxt : x.value.substring(start, end)
-				).replace(/\n/gm, '\n> '));
-			};
-		} else {
-			btn.onclick = function(e) {
-				var txt, len, x = pr.txta,
-					start = x.selectionStart,
-					end = x.selectionEnd,
-					scrtop = x.scrollTop,
-					tag = this.getAttribute('de-tag');
-				$pd(e);
-				if(this.getAttribute('de-bb') === 'true') {
-					txt = '[' + tag + ']' + x.value.substring(start, end) + '[/' + tag + ']';
-				} else {
-					txt = '';
-					x.value.substring(start, end).split('\n').forEach(function(line) {
-						var m = line.match(/^(\s*)(.*?)(\s*)$/);
-						txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
-							: m[2] + new Array(m[2].length + 1).join('^H')
-						) + m[3];
-					});
-					txt = txt.slice(1);
-				}
-				len = start + txt.length;
-				x.value = x.value.substr(0, start) + txt + x.value.substr(end);
-				x.setSelectionRange(len, len);
-				x.focus();
-				x.scrollTop = scrtop;
-				txt = tag = null;
-			};
-		}
-		tPanel.appendChild(btn);
-	}
-	btn.innerHTML =
-		Cfg['addTextBtns'] === 2 ? (
-			(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] + '</a>' +
-			(id !== 'quote' ? ' / ' : ' ]')
-		) :
-		Cfg['addTextBtns'] === 3 ?
-			('<input type="button" value="' + key['val'] + '" style="font-weight: bold;">') :
-		'';
-}
-
-
-/*==============================================================================
 									POST BUTTONS
 ==============================================================================*/
 
@@ -3590,12 +3515,6 @@ function embedMP3Links(post) {
 
 
 /*==============================================================================
-									IMAGES VIEWER
-==============================================================================*/
-
-
-
-/*==============================================================================
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
@@ -3618,20 +3537,22 @@ function genRefMap(posts, tUrl) {
 	if(Cfg['linksNavig'] !== 2) {
 		return;
 	}
-	var refMap = [];
-	nav.forEach(posts, function(pNum) {
-		for(var tc, link, lNum, lPost, i = 0, links = $T('a', this[pNum].msg); link = links[i++];) {
-			tc = link.textContent;
-			if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = this[lNum])) {
-				if(typeof lPost.ref === 'undefined') {
-					lPost.ref = [pNum];
-					refMap.push(lPost);
-				} else if(lPost.ref.indexOf(pNum) === -1) {
-					lPost.ref.push(pNum);
+	var tc, lNum, lPost, i, len, links, pNum, refMap = [];
+	for(pNum in posts) {
+		if(posts.hasOwnProperty(pNum)) {
+			for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; i++) {
+				tc = links[i].textContent;
+				if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = posts[lNum])) {
+					if(typeof lPost.ref === 'undefined') {
+						lPost.ref = [pNum];
+						refMap.push(lPost);
+					} else if(lPost.ref.indexOf(pNum) === -1) {
+						lPost.ref.push(pNum);
+					}
 				}
 			}
 		}
-	});
+	}
 	refMap.forEach(addRefMap.bind(function(pNum) {
 		return getRelLink(pNum, tUrl);
 	}));
@@ -3759,7 +3680,6 @@ function Pview(parent, link, tNum, pNum) {
 			this._showPost(post, false);
 		} else {
 			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-			this._cached[b] = {};
 			ajaxGetPosts(aib.getThrdUrl(b, tNum), false, this._onload.bind(this, b, tNum, pNum));
 		}
 	}
@@ -3874,7 +3794,7 @@ Pview.prototype = {
 	_onload: function(b, tNum, pNum, dc) {
 		var post, rm, prNum = this.parent.num,
 			df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
-		parseDelform(df, doc, false).pviewParse(tNum, this._cached[b]);
+		parseDelform(df, doc, false).pviewParse(tNum, this._cached[b] = {});
 		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
 		if((post = this._cached[b][pNum]) && (brd !== b || !this._cached[b][prNum])) {
 			if(!(rm = $c('de-refmap', post.el))) {
@@ -5879,7 +5799,7 @@ PostForm.prototype = {
 		if(!this.txta) {
 			return;
 		}
-		var tPanel, bb = aib.isBB,
+		var tPanel, btn, key, bb = aib.isBB,
 			btns = {
 				'bold': {
 					'val': 'B',
@@ -5919,7 +5839,72 @@ PostForm.prototype = {
 				'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 			})
 		);
-		nav.forEach(btns, addTextButton.bind(btns, bb, tPanel));
+		for(var id in btns) {
+			if(btns.hasOwnProperty(id)) {
+				key = btns[id];
+				if(key['off']) {
+					continue;
+				}
+				if(!(btn = $id('de-btn-' + id))) {
+					btn = $new('span', {
+						'id': 'de-btn-' + id,
+						'title': Lng.txtBtn[id][lang],
+						'de-tag': key['tag'],
+						'de-bb': bb || !!key['bb']
+					}, null);
+					if(id === 'quote') {
+						btn.onmouseover = function() {
+							quotetxt = $txtSelect();
+						};
+						btn.onclick = function(e) {
+							var x = pr.txta,
+								start = x.selectionStart,
+								end = x.selectionEnd;
+							$pd(e);
+							$txtInsert(x, '> ' + (
+								start === end ? quotetxt : x.value.substring(start, end)
+							).replace(/\n/gm, '\n> '));
+						};
+					} else {
+						btn.onclick = function(e) {
+							var txt, len, x = pr.txta,
+								start = x.selectionStart,
+								end = x.selectionEnd,
+								scrtop = x.scrollTop,
+								tag = this.getAttribute('de-tag');
+							$pd(e);
+							if(this.getAttribute('de-bb') === 'true') {
+								txt = '[' + tag + ']' + x.value.substring(start, end) + '[/' + tag + ']';
+							} else {
+								txt = '';
+								x.value.substring(start, end).split('\n').forEach(function(line) {
+									var m = line.match(/^(\s*)(.*?)(\s*)$/);
+									txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
+										: m[2] + new Array(m[2].length + 1).join('^H')
+									) + m[3];
+								});
+								txt = txt.slice(1);
+							}
+							len = start + txt.length;
+							x.value = x.value.substr(0, start) + txt + x.value.substr(end);
+							x.setSelectionRange(len, len);
+							x.focus();
+							x.scrollTop = scrtop;
+							txt = tag = null;
+						};
+					}
+					tPanel.appendChild(btn);
+				}
+				btn.innerHTML =
+					Cfg['addTextBtns'] === 2 ? (
+						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] + '</a>' +
+						(id !== 'quote' ? ' / ' : ' ]')
+					) :
+					Cfg['addTextBtns'] === 3 ?
+						('<input type="button" value="' + key['val'] + '" style="font-weight: bold;">') :
+					'';
+			}
+		}
 	},
 	refreshCapImg: function(tNum, isFocus) {
 		if(!this.cap) {
@@ -6275,8 +6260,8 @@ PostForm.prototype = {
 		if(img) {
 			img.parentNode.replaceChild(_img, img);
 		} else {
-			while(pr.cap.nextSibling) {
-				$del(pr.cap.nextSibling);
+			while(this.cap.nextSibling) {
+				$del(this.cap.nextSibling);
 			}
 			$after(this.cap, _img);
 		}
@@ -7245,33 +7230,9 @@ function Initialization() {
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
-	fixBrowser();
-	if(!window.GM_log) {
-		window.GM_log = function(msg) {
-			console.error(msg);
-		};
+	if(!nav) {
+		nav = new Navigator(true);
 	}
-	if(!window.GM_xmlhttpRequest) {
-		window.GM_xmlhttpRequest = $xhr;
-	}
-	if(nav.WebKit) {
-		window.URL = window.webkitURL;
-	}
-	uWindow =
-		(nav.Opera && !nav.isGM) ? window :
-		!nav.WebKit ? unsafeWindow :
-		(function() {
-			var el = doc.createElement('p');
-			el.setAttribute('onclick', 'return window;');
-			return el.onclick();
-		})();
-	nav.Worker = nav.Firefox ? (
-		nav.Firefox < 20 ? null : (function(w) {
-			w.prototype.postMessage = function() {
-				uWindow['de-worker-proto']._postMessage.apply(this, arguments);
-			};
-			return w;
-		})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
 
 	// Page properties
 	url = (window.location.pathname || '').match(new RegExp(
@@ -7333,15 +7294,29 @@ ImageBoard.prototype = {
 		}, 'script[src*="kusaba"]'],
 		'2--ch.ru': [{
 			qTable: { value: 'table:not(.postfiles)' },
+			_qThread: { value: '.threadz' },
 			getOmitted: { value: function(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 			} },
 			getPicWrap: { value: function(el) {
-				return $x('ancestor::td[0]', el);
+				return $x('ancestor::td[1]', el);
 			} },
+			docExt: { value: '.html' },
 			ru: { value: true },
-
+			init: { value: function() {
+				nav = new Navigator(true);
+				with(uWindow) {
+					$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =
+						doRefPreview = getRefMap = showRefMap = doRefMap = get_cookie = set_cookie =
+						save_cookies = get_password = insert = highlight = set_stylesheet =
+						set_preferred_stylesheet = get_active_stylesheet =
+						get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =
+						conf = expand = wipe = fastload_listen = threadHide = threadShow =
+						add_to_thread_cookie = remove_from_thread_cookie = toggleHidden = emptyFn;
+				}
+				return false;
+			} },
 			tire: { value: true }
 		}],
 		'410chan.org': [{
@@ -7367,7 +7342,7 @@ ImageBoard.prototype = {
 		}],
 		'4chan.org': [{
 			cFileInfo: { value: 'fileText' },
-			cOpost: { value: 'op' },
+			cOPost: { value: 'op' },
 			cSubj: { value: 'subject' },
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform.desktop > input[type="submit"]' },
@@ -7675,7 +7650,7 @@ ImageBoard.prototype = {
 		qOmitted: '.omittedposts',
 		qPostForm: '#postform',
 		qRef: '.reflink',
-		qTable: '',
+		qTable: 'form > table, div > table',
 		_qThread: '',
 		get qThread() {
 			return this._qThread || (this._qThread = $c('thread', doc) ? '.thread' :
@@ -7684,7 +7659,7 @@ ImageBoard.prototype = {
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
 		getImgSize: function(post) {
-			var el = $c(aib.cFileInfo, post),
+			var el = $c(this.cFileInfo, post),
 				m = el ? el.textContent.match(/(\d+)[x×](\d+)/) : false;
 			return m ? m.slice(1) : [null, null];
 		},
@@ -7710,7 +7685,7 @@ ImageBoard.prototype = {
 			return op;
 		},
 		getPicWrap: function(el) {
-			return $x('ancestor::*[@de-post]', el)
+			return $x('ancestor::*[@de-post]', el);
 		},
 		getPNum: function(post) {
 			return post.id.match(/\d+/)[0];
@@ -7732,8 +7707,9 @@ ImageBoard.prototype = {
 			return $q('input[type="checkbox"]', op).value;
 		},
 		getWrap: function(post) {
-			return post.el;
+			return post.isOp ? post.el : $x('ancestor::table[1]', post.el);
 		},
+		init: null,
 		isBB: false,
 		appendPost: function(el, parent) {
 			parent.appendChild(el);
@@ -7768,7 +7744,8 @@ ImageBoard.prototype = {
 	}
 };
 
-function fixBrowser() {
+
+function Navigator(initXtraFns) {
 	var ua = window.navigator.userAgent;
 	if(!String.prototype.contains) {
 		String.prototype.contains = function(s) {
@@ -7778,42 +7755,33 @@ function fixBrowser() {
 			return this.indexOf(s) === 0;
 		};
 	}
-	nav = {
-		Firefox: +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
-		Opera: window.opera ? +window.opera.version() : 0,
-		WebKit: ua.contains('WebKit/')
-	};
-	nav.Chrome = nav.WebKit && ua.contains('Chrome/');
-	nav.Safari = nav.WebKit && !nav.Chrome;
-	nav.isGM = typeof GM_setValue === 'function' &&
-		!(nav.Chrome && GM_setValue.toString().contains('not supported'));
-	nav.isGlobal = nav.isGM || !!scriptStorage;
-	nav.cssFix =
-		nav.WebKit ? '-webkit-' :
-		nav.Opera ? (nav.Opera < 12.1 ? '-o-' : '') :
-		nav.Firefox && nav.Firefox < 16 ? '-moz-' : '';
-	if(!nav.Opera || nav.Opera >= 12) {
-		nav.Anim = true;
-		nav.animName =
-			nav.WebKit ? 'webkitAnimationName' :
-			nav.Opera && nav.Opera < 12.1 ? 'OAnimationName' :
-			nav.Firefox && nav.Firefox < 16 ? 'MozAnimationName' :
+	this.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
+	this.Opera = window.opera ? +window.opera.version() : 0;
+	this.WebKit = ua.contains('WebKit/');
+	this.Chrome = this.WebKit && ua.contains('Chrome/');
+	this.Safari = this.WebKit && !this.Chrome;
+	this.isGM = typeof GM_setValue === 'function' &&
+		!(this.Chrome && GM_setValue.toString().contains('not supported'));
+	this.isGlobal = this.isGM || !!scriptStorage;
+	this.cssFix =
+		this.WebKit ? '-webkit-' :
+		this.Opera ? (this.Opera < 12.1 ? '-o-' : '') :
+		this.Firefox && this.Firefox < 16 ? '-moz-' : '';
+	if(!this.Opera || this.Opera >= 12) {
+		this.Anim = true;
+		this.animName =
+			this.WebKit ? 'webkitAnimationName' :
+			this.Opera && this.Opera < 12.1 ? 'OAnimationName' :
+			this.Firefox && this.Firefox < 16 ? 'MozAnimationName' :
 			'animationName';
-		nav.animEnd =
-			nav.WebKit ? 'webkitAnimationEnd' :
-			nav.Opera && nav.Opera < 12.1 ? 'oAnimationEnd' :
+		this.animEnd =
+			this.WebKit ? 'webkitAnimationEnd' :
+			this.Opera && this.Opera < 12.1 ? 'oAnimationEnd' :
 			'animationend';
-		nav.animEvent = function(el, Fn) {
-			el.addEventListener(nav.animEnd, function aEvent() {
-				this.removeEventListener(nav.animEnd, aEvent, false);
-				Fn(this);
-				Fn = null;
-			}, false);
-		}
 	}
-	nav.isBlob = nav.Firefox > 14 || nav.Chrome || nav.Opera >= 12.10;
-	nav.isWorker = nav.Firefox > 19 || nav.Chrome;
-	if(nav.Firefox > 19) {
+	this.isBlob = this.Firefox > 14 || this.Chrome || this.Opera >= 12.10;
+	this.isWorker = this.Firefox > 19 || this.Chrome;
+	if(initXtraFns && this.Firefox > 19) {
 		$script(
 			'window["de-worker"] = function(url) {\
 				this.wrk = new Worker(url);\
@@ -7831,49 +7799,74 @@ function fixBrowser() {
 			};'
 		);
 	}
-	nav.forEach =
-		nav.Opera ? function(obj, Fn) {
-			for(var i in obj) {
-				if(obj.hasOwnProperty(i)) {
-					Fn.call(obj, i);
-				}
-			}
-		} : function(obj, Fn) {
-			Object.keys(obj).forEach(Fn, obj);
-		};
-	nav.fixLink =
-		nav.Safari ? function(url) {
+	this.fixLink =
+		this.Safari ? function(url) {
 			return url[1] === '/' ? aib.prot + url :
 				url[0] === '/' ? aib.prot + '//' + aib.host + url :
 				url;
 		} : function(url) {
 			return url;
 		};
-	nav.toDOM =
-		nav.Firefox >= 12 ? function(html) {
+	this.toDOM =
+		this.Firefox >= 12 ? function(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
 		} : function(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
 		};
-	nav.matchesSelector = Function.prototype.call.bind((function(dE) {
+	this.matchesSelector = Function.prototype.call.bind((function(dE) {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
+	if(initXtraFns) {
+		if(!window.GM_log) {
+			window.GM_log = function(msg) {
+				console.error(msg);
+			};
+		}
+		if(!window.GM_xmlhttpRequest) {
+			window.GM_xmlhttpRequest = $xhr;
+		}
+		if(this.WebKit) {
+			window.URL = window.webkitURL;
+		}
+		uWindow = (this.Opera && !this.isGM) ? window :
+			!this.WebKit ? unsafeWindow :
+			(function() {
+				var el = doc.createElement('p');
+				el.setAttribute('onclick', 'return window;');
+				return el.onclick();
+			})();
+		this.Worker = this.Firefox ? (
+			this.Firefox < 20 ? null : (function(w) {
+				w.prototype.postMessage = function() {
+					uWindow['de-worker-proto']._postMessage.apply(this, arguments);
+				};
+				return w;
+			})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
+	}
 }
+Navigator.prototype = {
+	animEvent: function(el, Fn) {
+		el.addEventListener(nav.animEnd, function aEvent() {
+			this.removeEventListener(nav.animEnd, aEvent, false);
+			Fn(this);
+			Fn = null;
+		}, false);
+	}
+};
 
 function parseDelform(el, dc, parse) {
 	var i, thrds = $Q(aib.qThread, el),
 		len = thrds.length,
 		thr = null;
 	if(!firstThr || firstThr.gInfo.allPCount < 2) {
-		if(!aib.qTable && $q('td.' + aib.cReply, el)) {
-			aib.qTable = 'form > table, div > table';
+		if(!$q('td.' + aib.cReply, el)) {
+			aib.qTable = '';
 			aib.getWrap = function(post) {
-				return post.isOp ? post.el : $x('ancestor::table[1]', post.el);
+				return post.el;
 			};
-		}
-		if(aib.qTable && !postWrapper) {
+		}  else if(!postWrapper) {
 			if(postWrapper = $q(aib.qTable, el)) {
 				postWrapper = dc === doc ? postWrapper.cloneNode(true) :
 					doc.importNode(postWrapper, true);
