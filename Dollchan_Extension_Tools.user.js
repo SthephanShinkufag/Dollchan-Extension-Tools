@@ -8062,7 +8062,7 @@ function initThreadUpdater(title) {
 		}
 		if(!focused) {
 			newPosts += lPosts;
-			if(Cfg['favIcoBlink'] && favHref && newPosts !== 0) {
+			if(Cfg['favIcoBlink'] && favHref && newPosts === 0) {
 				favIntrv = setInterval(function() {
 					$del($q('link[rel="shortcut icon"]', doc.head));
 					doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
