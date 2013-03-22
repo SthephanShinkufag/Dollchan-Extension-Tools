@@ -6172,7 +6172,7 @@ PostForm.prototype = {
 				}.bind(this);
 			}
 		} else if(Cfg['ajaxReply'] === 1) {
-			$id('de-main').insertAdjacentHTML('beforeend',
+			dForm.insertAdjacentHTML('beforeend',
 				'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
 				'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
 			);
