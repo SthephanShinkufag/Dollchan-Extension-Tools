@@ -8061,7 +8061,6 @@ function initThreadUpdater(title) {
 			}
 		}
 		if(!focused) {
-			newPosts += lPosts;
 			if(lPosts !== 0) {
 				if(Cfg['favIcoBlink'] && favHref && newPosts === 0) {
 					favIntrv = setInterval(function() {
@@ -8072,6 +8071,7 @@ function initThreadUpdater(title) {
 						favNorm = !favNorm;
 					}, 800);
 				}
+				newPosts += lPosts;
 				doc.title = ' [' + newPosts + '] ' + title;
 				if(nav.WebKit && Cfg['desktNotif'] && window.webkitNotifications.checkPermission() === 0) {
 					var notif = window.webkitNotifications.createNotification(
