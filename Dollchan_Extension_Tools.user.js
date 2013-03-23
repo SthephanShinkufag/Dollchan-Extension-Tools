@@ -5492,63 +5492,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
-	if(aib.kus) {
-		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a, .postmessage > div:first-child { display: none !important; }\
-			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
-	} else if(aib.mlpg) {
-		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
-	}
-	if(aib.krau) {
-		x += '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
-			div[id^="Wz"] { z-index: 10000 !important; }\
-			.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
-			.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
-			.de-ytube-obj + div { clear: left; }';
-	} else if(aib.fch) {
-		x += '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, .de-post-hid > .de-refmap, #mpostform, .navLinks, .postingMode { display: none !important; }';
-	} else if(aib.tiny) {
-		x += 'form, form table { margin: 0; }\
-			.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }';
-	} else if(aib._420) {
-		x += '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #content > hr { display: none !important; }\
-			.de-thr-hid { margin: 1em 0; }';
-	} else {
-		x+= '.de-post-hid > .de-ppanel ~ * { display: none !important; }'
-		if(aib.abu) {
-			x += '.ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center, .logo + div { display: none !important; }\
-				#de-txt-panel { font-size: 16px !important; }\
-				.de-abtn { transition: none; }\
-				.reflink:before { content: none !important; }';
-		} else if(aib.nul) {
-			x += '#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
-				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-				.ui-resizable { display: inline !important; }\
-				form textarea { resize: both !important; }';
-		} else if(aib.hana) {
-			x += '#hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none; }\
-				.delete { background: none; }\
-				.delete_checkbox { position: static !important; }\
-				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
-				.de-ytube-obj + div { clear: left; }';
-		} else if(aib._7ch) {
-			x += '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }';
-		} else if(aib.futa) {
-			x += 'span { font-size: inherit; }\
-				.de-content, .de-cfg-body { font-family: arial; }\
-				.ftbl { width: auto; margin: 0; }\
-				.reply { background: #f0e0d6; }';
-		} else if(aib.brit) {
-			x += '.de-ppanel { float: left; margin-top: 0.45em; }\
-				a + .threadlinktext { position: relative; top: 17px; }\
-				.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
-				.de-btn-src { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
-		} else if(aib.pony) {
-			x += '#bodywrap3 > hr, .blotter { display: none !important; }';
-		} else if(aib.tire) {
-			x += 'span[id$="_display"] { display: none; }';
-		}
-	}
+		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }' + aib.css;
 
 	if(nav.Firefox < 16) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -7318,6 +7262,10 @@ ImageBoard.prototype = {
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
 			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, #postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
+				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
+				.ui-resizable { display: inline !important; }\
+				form textarea { resize: both !important; }' },
 			ru: { value: true },
 
 			nul: { value: true }
@@ -7332,6 +7280,7 @@ ImageBoard.prototype = {
 			getPicWrap: { value: function(el) {
 				return $x('ancestor::td[1]', el) || $x('ancestor::*[@de-post]', el);
 			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, span[id$="_display"] { display: none !important; }' },
 			docExt: { value: '.html' },
 			ru: { value: true },
 			init: { value: function() {
@@ -7347,7 +7296,19 @@ ImageBoard.prototype = {
 				}
 				return false;
 			} },
+
 			tire: { value: true }
+		}],
+		'2ch.nu': [{
+			qDForm: { value: '#delform' },
+			getImgSize: { value: function(post) {
+				var el = $c(this.cFileInfo, post),
+					m = el ? el.nextSibling.textContent.match(/(\d+)[x×](\d+)/) : false;
+				return m ? m.slice(1) : [null, null];
+			} },
+			css: { get: function() {
+				return ImageBoard.prototype._bEngines['#ABU_css'].css.value + '#ABU_fuck { display: none !important; }';
+			} }
 		}],
 		'410chan.org': [{
 			getSage: { value: function(post) {
@@ -7364,6 +7325,8 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('a[id]', op).id.match(/\d+/)[0];
 			} },
+			css: { value: '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #content > hr { display: none !important; }\
+				.de-thr-hid { margin: 1em 0; }' },
 			docExt: { value: '' },
 			isBB: { value: true },
 			ru: { value: false},
@@ -7394,6 +7357,7 @@ ImageBoard.prototype = {
 			getWrap: { value: function(post) {
 				return post.el.parentNode;
 			} },
+			css: { value: '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, .de-post-hid > .de-refmap, #mpostform, .navLinks, .postingMode { display: none !important; }' },
 			docExt: { value: '' },
 			rLinkClick: { value: '' },
 
@@ -7415,6 +7379,10 @@ ImageBoard.prototype = {
 		'7chan.org': [{
 			qMsg: { value: '.message' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
+			css: { get: function() {
+				return '.de-post-hid > .de-ppanel ~ * { display: none !important; }\
+					reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
+			} },
 			trTag: { value: 'li' },
 
 			_7ch: { value: true }
@@ -7447,6 +7415,10 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
 			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, .postthreadlinks, .pagethreadlinks, .pwpostblock { display: none !important; }\
+				.de-ppanel { float: left; margin-top: 0.45em; }\
+				a + .threadlinktext { position: relative; top: 17px; }\
+				.de-btn-src { padding: 0px 10px 10px 0px !important; background-size: cover !important; }' },
 
 			brit: { value: true }
 		}],
@@ -7513,6 +7485,13 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
+			css: { get: function() {
+				return '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
+					div[id^="Wz"] { z-index: 10000 !important; }\
+					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
+					.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
+					.de-ytube-obj + div { clear: left; }'
+			} },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
 			res: { value: 'thread-' },
@@ -7525,12 +7504,14 @@ ImageBoard.prototype = {
 			getWrap: { value: function(post) {
 				return post.el.parentNode;
 			} },
+			css: { value: '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
 			isBB: { value: true },
 
 			mlpg: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'ponychan.net': [{
 			cOPost: { value: 'op' },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, #bodywrap3 > hr, .blotter { display: none !important; }' },
 
 			pony: { value: true }
 		}, 'script[src*="kusaba"]']
@@ -7549,6 +7530,10 @@ ImageBoard.prototype = {
 				}
 				return this.getSage(post);
 			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, .ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center, .logo + div { display: none !important; }\
+				#de-txt-panel { font-size: 16px !important; }\
+				.de-abtn { transition: none; }\
+				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
 
 			abu: { value: true }
@@ -7572,6 +7557,11 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ * { display: none !important; }\
+				span { font-size: inherit; }\
+				.de-content, .de-cfg-body { font-family: arial; }\
+				.ftbl { width: auto; margin: 0; }\
+				.reply { background: #f0e0d6; }' },
 			docExt: { value: '.htm' },
 
 			futa: { value: true }
@@ -7613,6 +7603,8 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
+			css: { value: 'form, form table { margin: 0; }\
+				.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }' },
 
 			tiny: { value: true }
 		},
@@ -7636,6 +7628,11 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
 			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, #hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none !important; }\
+				.delete { background: none; }\
+				.delete_checkbox { position: static !important; }\
+				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
+				.de-ytube-obj + div { clear: left; }' },
 			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
 			ru: { value: true },
 			init: { value: function() {
@@ -7652,6 +7649,8 @@ ImageBoard.prototype = {
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
+			css: { value: '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a, .postmessage > div:first-child { display: none !important; }\
+				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' },
 
@@ -7754,6 +7753,7 @@ ImageBoard.prototype = {
 		getWrap: function(post) {
 			return post.isOp ? post.el : $x('ancestor::table[1]', post.el);
 		},
+		css: '.de-post-hid > .de-ppanel ~ * { display: none !important; }',
 		init: null,
 		isBB: false,
 		appendPost: function(el, parent) {
