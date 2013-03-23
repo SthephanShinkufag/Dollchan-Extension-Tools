@@ -2918,7 +2918,7 @@ function downloadImgData(url, Fn) {
 			}
 		}
 	};
-	if(nav.Firefox && aib.fch && !url.startsWith('blob')) {
+	if(true || nav.Firefox && aib.fch && !url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		setTimeout(GM_xmlhttpRequest, 0, obj);
 	} else {
@@ -3294,7 +3294,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 							videoURL[itag] = url;
 						}
 					}
-					src = isHD ? (videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
+					src = isHD ? (videoULR[46] || videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
 				}
 				if(!src) {
 					addFlash(el, id, time);
@@ -3303,8 +3303,11 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
 					'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 					'" width="' + width + '" height="' + height + '"></video>';
+				el = el.firstChild;
+				el.onplay = updater.addPlayingTag;
+				el.onpause = updater.removePlayingTag;
 				if(time) {
-					el.firstChild.onloadedmetadata = function(e) {
+					el.onloadedmetadata = function(e) {
 						e.target.currentTime = this;
 					}.bind(time);
 				}
@@ -3313,7 +3316,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function addImage(el, m) {
-		el.ytInfo = m;
 		el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 			'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="' + width +
 			'" height="' + height + '"></a>';
@@ -3324,7 +3326,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 
 	function addPlayer(el, m) {
 		var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-		el.ytInfo = m;
 		if(videoType === 2) {
 			addHTML5(el, m[1], time);
 		} else {
@@ -3334,31 +3335,34 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 
 	function clickImage(e) {
 		$pd(e);
-		var node = e.currentTarget.parentNode;
-		addPlayer(node, node.ytInfo);
+		var ytObj = getPost(this).ytObj;
+		addPlayer(ytObj[0], ytObj[1]);
 	}
 
 	function clickLink(e) {
 		var link = e.target,
 			m = link.ytInfo,
-			el = $c('de-ytube-obj', getPost(link));
+			el = getPost(link).ytObj;
 		$pd(e);
-		if(el.ytInfo === m) {
-			el.innerHTML = '';
-			el.ytInfo = null;
-		} else if(embedType > 2) {
-			addImage(el, m);
+		if(el[1] === m) {
+			el[0].innerHTML = '';
+			el[1].ytInfo = null;
+			return;
+		}
+		el[1] = m;
+		if(embedType > 2) {
+			addImage(el[0], m);
 		} else {
-			addPlayer(el, m);
+			addPlayer(el[0], m);
 		}
 	}
 
 	function fixEvents(pView, post) {
 		var ytObjSrc = post.ytObj;
 		if(ytObjSrc) {
-			(pView.ytObj = $c('de-ytube-obj', pView.el)).ytInfo = ytObjSrc.ytInfo;
-			if($t('img', ytObjSrc)) {
-				pView.ytObj.firstChild.onclick = clickImage;
+			pView.ytObj = [$c('de-ytube-obj', pView.el), ytObjSrc.ytInfo];
+			if($t('img', ytObjSrc[0])) {
+				pView.ytObj[0].firstChild.onclick = clickImage;
 			}
 		}
 		updatePost(pView, $C('de-ytube-link', post.el), $C('de-ytube-link', pView.el), true);
@@ -3393,7 +3397,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	function parseLink(link, m, post, queue) {
 		var msg, prev, el, title;
 		if(!post.ytObj) {
-			post.ytObj = el = $new('div', {'class': 'de-ytube-obj'}, null);
+			el = $new('div', {'class': 'de-ytube-obj'}, null);
+			post.ytObj = [el, m];
 			if(embedType > 2) {
 				addImage(el, m);
 			} else if(embedType === 2) {
@@ -3495,20 +3500,32 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 }
 
 function embedMP3Links(post) {
+	var pst, el, link, src, i, els, len;
 	if(!Cfg['addMP3']) {
 		return;
 	}
-	for(var pst, el, link, i = 0, els = $Q('a[href*=".mp3"]', post || dForm); link = els[i++];) {
-		if(!(link.target === '_blank' || link.rel === 'nofollow')) {
+	for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm), len = els.length; i < len; i++) {
+		link = els[i];
+		if(link.target !== '_blank' && link.rel !== 'nofollow') {
 			continue;
 		}
+		src = link.href;
 		pst = post || getPost(link);
-		if(!(el = $c('de-mp3', pst))) {
-			el = $new('div', {'class': 'de-mp3'}, null);
-			$before(pst.msg || $q(aib.qMsg, pst), el);
+		if(!pst.mp3Obj) {
+			pst.mp3Obj = el = $new('div', {'class': 'de-mp3'}, null);
+			$before(pst.msg, el);
 		}
-		if(!$q('object[FlashVars*="' + link.href + '"]', el)) {
-			el.innerHTML += '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + link.href + '"><br>';
+		if(nav.canPlayMP3) {
+			if(!$q('audio[src="' + src + '"]', el)) {
+				el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls loop></audio></p>');
+				link = el.lastChild.firstChild;
+				link.onplay = updater.addPlayingTag;
+				link.onpause = updater.removePlayingTag;
+			}
+		} else {
+			if(!$q('object[FlashVars*="' + src + '"]', el)) {
+				el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+			}
 		}
 	}
 }
@@ -3520,12 +3537,8 @@ function embedMP3Links(post) {
 
 
 function getRelLink(num, tUrl) {
-	return '<a ' + (aib.fch ? '' : ('onclick="' + (
-		aib.kus ? "highlight('" + num + "', true)" :
-		aib.hana ? "Highlight(event, '" + num + "')" :
-		aib.krau ? "highlightPost('" + num + "');" :
-		'highlight(' + num + ')'
-	) + '"')) + ' href="' + tUrl + '#' + (aib.fch ? 'p' : '') + num + '">&gt;&gt;' + num + '</a>';
+	return '<a ' + aib.rLinkClick + ' href="' + tUrl + '#' + (aib.fch ? 'p' : '') + num +
+		'">&gt;&gt;' + num + '</a>';
 }
 
 function addRefMap(post) {
@@ -3779,7 +3792,7 @@ Pview.prototype = {
 			}
 		} else {
 			$q(aib.qRef, el).insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
-			embedMP3Links(el);
+			embedMP3Links(post);
 			youTube.parseLinks(post);
 			if(Cfg['addImgs']) {
 				Images.embedLinks(el);
@@ -5436,6 +5449,7 @@ function scriptCSS() {
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; margin: ' + (aib.fch || aib.hana || aib.krau ? 0 : '2px 10px') + '; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
+		.de-ytube-obj { width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }\
 		video { background: black; }';
@@ -5935,10 +5949,12 @@ PostForm.prototype = {
 			img.src = '';
 			img.src = src;
 		}
+		if(this._lastCapUpdate !== 0) {
+			this._lastCapUpdate = Date.now();
+		}
 	},
 	showQuickReply: function(post) {
 		var tNum = post.thr.num;
-		this.tNum = tNum;
 		if(this.isQuick) {
 			if(post.wrap.nextElementSibling === this._qArea) {
 				$disp(this._qArea);
@@ -5971,9 +5987,12 @@ PostForm.prototype = {
 				this.pArea.style.display = 'none';
 			}
 		}
-		if(!this.recap && !aib.kus && !aib.abu && !aib.krau) {
+		if(this._lastCapUpdate !== 0 && ((!TNum && this.tNum !== tNum) ||
+			Date.now() - this._lastCapUpdate > 3e5))
+		{
 			this.refreshCapImg(tNum, false);
 		}
+		this.tNum = tNum;
 		if(aib._420 && this.txta.value === 'Comment') {
 			this.txta.value = '';
 		}
@@ -6016,6 +6035,7 @@ PostForm.prototype = {
 	},
 
 	_qArea: null,
+	_lastCapUpdate: 0,
 	_pForm: null,
 	_tReply: null,
 	_addResizer: function() {
@@ -6222,7 +6242,11 @@ PostForm.prototype = {
 			$id('captcha_image').onclick = this.refreshCapImg.bind(this, 0, true);
 		}
 		this.cap.autocomplete = 'off';
-		this.cap.onfocus = null;
+		this.cap.onfocus = function() {
+			if(this._lastCapUpdate !== 0 && Date.now() - this._lastCapUpdate > 3e5) {
+				this.refreshCapImg(tNum, false);
+			}
+		}.bind(this);
 		this.cap.onkeypress = (function() {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
@@ -6250,6 +6274,7 @@ PostForm.prototype = {
 		if(aib.hana || aib.krau || this.recap) {
 			return;
 		}
+		this._lastCapUpdate = Date.now();
 		img = $q('a, img', PostForm.getTR(this.cap));
 		_img = $new('img', {
 			'alt': Lng.loading[lang],
@@ -6528,16 +6553,18 @@ Post.prototype = {
 	hidden: false,
 	inited: false,
 	kid: null,
+	mp3Obj: null,
 	next: null,
 	parent: null,
 	prev: null,
 	thr: null,
 	viewed: false,
+	ytObj: null,
 	addFuncs: function() {
 		var el = this.el;
 		updRefMap(this, true);
 		eventRefLink(el);
-		embedMP3Links(el);
+		embedMP3Links(this);
 		if(Cfg['addImgs']) {
 			Images.embedLinks(el);
 		}
@@ -7365,6 +7392,7 @@ ImageBoard.prototype = {
 				return post.el.parentNode;
 			} },
 			docExt: { value: '' },
+			rLinkClick: { value: '' },
 
 			fch: { value: true }
 		}],
@@ -7483,6 +7511,7 @@ ImageBoard.prototype = {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			isBB: { value: true },
+			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
 			res: { value: 'thread-' },
 
 			krau: { value: true }
@@ -7604,6 +7633,7 @@ ImageBoard.prototype = {
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
 			} },
+			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
 			ru: { value: true },
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
@@ -7620,6 +7650,7 @@ ImageBoard.prototype = {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
 			isBB: { value: true },
+			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' },
 
 			kus: { value: true }
 		}
@@ -7742,6 +7773,7 @@ ImageBoard.prototype = {
 				regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g'
 			));
 		},
+		rLinkClick: 'onclick="highlight(this.textContent.substr(2))"',
 		docExt: '.html',
 		host: window.location.hostname,
 		prot: window.location.protocol,
@@ -7864,7 +7896,13 @@ Navigator.prototype = {
 			Fn(this);
 			Fn = null;
 		}, false);
-	}
+	},
+	get canPlayMP3() {
+		return this.hasOwnProperty('_canPlayMP3') ? this._canPlayMP3 : (this._canPlayMP3 =
+			!!new Audio().canPlayType('audio/mp3; codecs="mp3"'));
+	},
+
+	_canPlayMP3: false
 };
 
 function parseDelform(el, dc, parse) {
@@ -7990,18 +8028,51 @@ function replaceDelform() {
 	}
 }
 
-function initThreadUpdater(title) {
-	var delay, checked404, loadTO, audioRep, focused, loadPostsFun, enabled = false,
+function initThreadUpdater(title, enableUpdater) {
+	var delay, checked404, loadTO, audioRep, focused, loadPostsFun, audioEl, stateButton, hasAudio,
+		audioRun, initDelay, favIntrv, favNorm, favHref, enabled = false,
 		lastECode = 200,
-		audioEl = null,
-		stateButton = null,
-		hasAudio = false,
-		audioRun = false,
-		initDelay = Cfg['updThrDelay'] * 1e3,
 		newPosts = 0,
-		favIntrv = 0,
-		favNorm = true,
+		_title = title,
+		aPlayers = 0;
+
+	if(enableUpdater) {
+		audioEl = null;
+		stateButton = null;
+		hasAudio = false;
+		audioRun = false;
+		initDelay = Cfg['updThrDelay'] * 1e3;
+		favIntrv = 0;
+		favNorm = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+		if(nav.Firefox > 10 || nav.Chrome) {
+			doc.addEventListener(
+				(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
+				function() {
+					if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
+						focused = false;
+					} else {
+						onVis();
+					}
+				}, false
+			);
+			focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
+		} else {
+			focused = false;
+			$event(window, {
+				'focus': onVis,
+				'blur': function() {
+					focused = false;
+				},
+				'mousemove': function mouseMove() {
+					onVis();
+					$revent(window, {'mousemove': mouseMove});
+				}}
+			);
+		}
+		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded);
+		enable();
+	}
 
 	function enable() {
 		if(!enabled) {
@@ -8130,40 +8201,35 @@ function initThreadUpdater(title) {
 		}
 	}
 
-	if(nav.Firefox > 10 || nav.Chrome) {
-		doc.addEventListener(
-			(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
-			function() {
-				if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
-					focused = false;
-				} else {
-					onVis();
-				}
-			}, false
-		);
-		focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
-	} else {
-		focused = false;
-		$event(window, {
-			'focus': onVis,
-			'blur': function() {
-				focused = false;
-			},
-			'mousemove': function mouseMove() {
-				onVis();
-				$revent(window, {'mousemove': mouseMove});
-			}}
-		);
+	function setTitle(nTitle) {
+		title = nTitle;
+		doc.title = (lastECode === 200 ? '' : '{' + eCode + '} ') +
+			(newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
 	}
-	loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded);
-	enable();
+
+	function addPlayingTag() {
+		if(aPlayers === 0) {
+			setTitle('♫ ' + _title);
+		}
+		aPlayers++;
+	}
+
+	function removePlayingTag() {
+		aPlayers = Math.max(aPlayers - 1, 0);;
+		if(aPlayers === 0) {
+			setTitle(_title);
+		}
+	}
+
 	return {
 		get enabled() {
 			return enabled;
 		},
 		enable: enable,
 		disable: disable,
-		toggleAudio: toggleAudio
+		toggleAudio: toggleAudio,
+		addPlayingTag: addPlayingTag,
+		removePlayingTag: removePlayingTag
 	};
 }
 
@@ -8173,6 +8239,7 @@ function initPage() {
 			$alert(html, 'updavail', false);
 		});
 	}
+	updater = new initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
 	if(!TNum) {
 		setTimeout(window.scrollTo, 20, 0, 0);
 		return;
@@ -8180,9 +8247,7 @@ function initPage() {
 	if(Cfg['rePageTitle']) {
 		doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
 	}
-	if(Cfg['updThread'] === 1) {
-		updater = new initThreadUpdater(doc.title);
-	} else if(Cfg['updThread'] === 2) {
+	if(Cfg['updThread'] === 2) {
 		$after(firstThr.el, $event($add(
 			'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
 			'click': function(e) {
