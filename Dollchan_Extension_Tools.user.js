@@ -8212,7 +8212,6 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function addPlayingTag() {
-		console.log('add', aPlayers);
 		if(aPlayers === 0) {
 			setTitle('♫ ' + _title);
 		}
@@ -8220,7 +8219,6 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function removePlayingTag() {
-		console.log('remove', aPlayers);
 		aPlayers = Math.max(aPlayers - 1, 0);;
 		if(aPlayers === 0) {
 			setTitle(_title);
