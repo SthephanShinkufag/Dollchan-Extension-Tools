@@ -5158,6 +5158,9 @@ Spells.prototype = {
 		}
 		var idx, sScope = String(scope),
 			sArg = String(arg);
+		if(!data[1]) {
+			data[1] = [];
+		}
 		data[1].some(isNeg ? function(spell, i) {
 			var data;
 			if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
@@ -8121,11 +8124,11 @@ function initThreadUpdater(title, enableUpdater) {
 			doc.title = '{' + eCode + '} ' + (newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
 			lastECode = eCode;
 			if(eCode !== 0 && Math.floor(eCode / 500) === 0) {
-				if(eCode !== 404 || checked404) {
-					disable();
-					return;
+				if(eCode === 404 && !checked404) {
+					checked404 = true;
 				}
-				checked404 = true;
+				disable();
+				return;
 			}
 			setState('warn');
 			loadTO = setTimeout(loadPostsFun, delay);
@@ -8296,11 +8299,11 @@ function addDelformStuff(isLog) {
 	isLog && Cfg['addYouTube'] && $log('youTube.parseLinks');
 	if(Cfg['addImgs']) {
 		Images.embedLinks(dForm);
-		isLog && $log('imgs.embedLinks');
+		isLog && $log('Images.embedLinks');
 	}
 	if(Cfg['imgSrcBtns']) {
 		Images.addSearch(dForm);
-		isLog && $log('imgs.addSearch');
+		isLog && $log('Images.addSearch');
 	}
 	genRefMap(pByNum, '');
 	isLog && Cfg['linksNavig'] === 2 && $log('genRefMap');
