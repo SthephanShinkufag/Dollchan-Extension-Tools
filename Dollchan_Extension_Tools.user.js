@@ -5148,44 +5148,45 @@ Spells.prototype = {
 		}
 		return txt;
 	},
-	addSpell: function(type, arg, scope, isNeg, data) {
-		if(!data) {
+	addSpell: function(type, arg, scope, isNeg, spells) {
+		if(!spells) {
 			try {
-				data = JSON.parse(Cfg['spells']);
+				spells = JSON.parse(Cfg['spells']);
 			} catch(e) {
-				data = [Date.now(), [], false, false];
+				spells = [Date.now(), [], false, false];
 			}
 		}
 		var idx, sScope = String(scope),
 			sArg = String(arg);
-		if(!data[1]) {
-			data[1] = [];
-		}
-		data[1].some(isNeg ? function(spell, i) {
-			var data;
-			if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
-				data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
-				String(data[1][1]) === sArg && String(data[0][2]) === sScope)
-			{
-				idx = i;
-				return true;
-			}
-			return (spell[0] & 0x200) !== 0;
-		} : function(spell, i) {
-			if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
-				idx = i;
-				return true;
-			}
-			return (spell[0] & 0x200) !== 0;
-		});
-		if(typeof idx !== 'undefined') {
-			data[1].splice(idx, 1);
-		} else if(isNeg) {
-			data[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+		if(spells[1]) {
+			spells[1].some(isNeg ? function(spell, i) {
+				var data;
+				if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
+					data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
+					String(data[1][1]) === sArg && String(data[0][2]) === sScope)
+				{
+					idx = i;
+					return true;
+				}
+				return (spell[0] & 0x200) !== 0;
+			} : function(spell, i) {
+				if(spell[0] === type && String(spell[1]) === sArg && String(spell[2]) === sScope) {
+					idx = i;
+					return true;
+				}
+				return (spell[0] & 0x200) !== 0;
+			});
 		} else {
-			data[1].splice(0, 0, [type, arg, scope]);
+			spells[1] = [];
 		}
-		this.update(data);
+		if(typeof idx !== 'undefined') {
+			spells[1].splice(idx, 1);
+		} else if(isNeg) {
+			spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
+		} else {
+			spells[1].splice(0, 0, [type, arg, scope]);
+		}
+		this.update(spells);
 		idx = null;
 	}
 };
