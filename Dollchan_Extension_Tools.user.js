@@ -2062,7 +2062,11 @@ function addMenu(el, isPanel, html) {
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_out(event)" onmouseover="de_overmenu(this)">' + html + '</div>');
-	el = $event(doc.body.lastChild, {'mouseover': Pview.markToDel.bind(getPost(el))});
+	if(isPanel) {
+		el = doc.body.lastChild;
+	} else {
+		el = $event(doc.body.lastChild, {'mouseover': Pview.markToDel.bind(getPost(el))});
+	}
 	return html ? $Q('span', el) : el;
 }
 
@@ -2230,7 +2234,7 @@ function initKeyNavig() {
 		cThread = firstThr,
 		winHeight = window.innerHeight;
 
-	function getPost(post, toUp, isPost) {
+	function getNextPost(post, toUp, isPost) {
 		var thr, tPost = toUp ? post.prev : post.next;
 		if(tPost || !isPost) {
 			return tPost;
@@ -2241,7 +2245,7 @@ function initKeyNavig() {
 
 	function scrollToPost(post, toUp, scroll, toTop) {
 		var tempEl, isPost = post instanceof Post,
-			temp = getPost(post, toUp, isPost);
+			temp = getNextPost(post, toUp, isPost);
 		if(temp) {
 			post = temp;
 		} else {
@@ -2249,7 +2253,7 @@ function initKeyNavig() {
 		}
 		while(true) {
 			if(post.hidden) {
-				if(temp = getPost(post, toUp, isPost)) {
+				if(temp = getNextPost(post, toUp, isPost)) {
 					post = temp;
 					continue;
 				}
@@ -3304,8 +3308,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 					'" width="' + width + '" height="' + height + '"></video>';
 				el = el.firstChild;
-				el.onplay = updater.addPlayingTag;
-				el.onpause = updater.removePlayingTag;
+				el.addEventListener('play', updater.addPlayingTag);
+				el.addEventListener('pause', updater.removePlayingTag);
 				if(time) {
 					el.onloadedmetadata = function(e) {
 						e.target.currentTime = this;
@@ -3519,8 +3523,8 @@ function embedMP3Links(post) {
 			if(!$q('audio[src="' + src + '"]', el)) {
 				el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls loop></audio></p>');
 				link = el.lastChild.firstChild;
-				link.onplay = updater.addPlayingTag;
-				link.onpause = updater.removePlayingTag;
+				link.addEventListener('play', updater.addPlayingTag);
+				link.addEventListener('pause', updater.removePlayingTag);
 			}
 		} else {
 			if(!$q('object[FlashVars*="' + src + '"]', el)) {
@@ -4131,7 +4135,7 @@ function genImgHash(data, oldw, oldh) {
 }
 
 function getImgHash(post) {
-	var w, h, cnv, ctx, img = post.img[0];
+	var w, h, cnv, ctx, img = post.img.els[0];
 	if(img.hash) {
 		return img.hash;
 	}
@@ -4196,7 +4200,7 @@ Spells.prototype = {
 		},
 		// 4: #ihash
 		function(post, val) {
-			return post.img[0] && getImgHash(post) === val;
+			return post.img.length !== 0 && getImgHash(post) === val;
 		},
 		// 5: #subj
 		function(post, val) {
@@ -8208,6 +8212,7 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function addPlayingTag() {
+		console.log('add', aPlayers);
 		if(aPlayers === 0) {
 			setTitle('♫ ' + _title);
 		}
@@ -8215,6 +8220,7 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function removePlayingTag() {
+		console.log('remove', aPlayers);
 		aPlayers = Math.max(aPlayers - 1, 0);;
 		if(aPlayers === 0) {
 			setTitle(_title);
@@ -8239,24 +8245,24 @@ function initPage() {
 			$alert(html, 'updavail', false);
 		});
 	}
-	updater = new initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
-	if(!TNum) {
+	if(TNum) {
+		if(Cfg['rePageTitle']) {
+			doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
+		}
+		if(Cfg['updThread'] === 2) {
+			$after(firstThr.el, $event($add(
+				'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
+				'click': function(e) {
+					$pd(e);
+					$alert(Lng.loading[lang], 'newposts', true);
+					firstThr.loadNew(infoLoadErrors);
+				}
+			}));
+		}
+	} else {
 		setTimeout(window.scrollTo, 20, 0, 0);
-		return;
 	}
-	if(Cfg['rePageTitle']) {
-		doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
-	}
-	if(Cfg['updThread'] === 2) {
-		$after(firstThr.el, $event($add(
-			'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
-			'click': function(e) {
-				$pd(e);
-				$alert(Lng.loading[lang], 'newposts', true);
-				firstThr.loadNew(infoLoadErrors);
-			}
-		}));
-	}
+	updater = new initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
 }
 
 /*function doMiniScript() {
