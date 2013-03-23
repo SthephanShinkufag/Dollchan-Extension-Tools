@@ -3430,7 +3430,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function parseLinks(post) {
-		var i, els, el, m, src, pst, queue = loadTitles && getTitleLoader();
+		var i, els, el, m, src, queue = loadTitles && getTitleLoader();
 		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm); el = els[i++];) {
 			if(!(m = (el.src || el.data).match(regex))) {
 				continue;
@@ -3439,13 +3439,11 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			if(m[4] || m[3] || m[2]) {
 				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 			}
-			pst = post || getPost(el);
-			pst.msg.insertAdjacentHTML('beforeend',
+			(post || getPost(el)).msg.insertAdjacentHTML('beforeend',
 				'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
 			$del(el);
-			parseLink(pst.msg.lastChild.firstChild, m, pst, queue);
 		}
-		for(i = 0, els = $Q('a[href*="youtu"]:not(.de-ytube-link)', post ? post.el : dForm); el = els[i++];) {
+		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm); el = els[i++];) {
 			if(m = el.href.match(regex)) {
 				parseLink(el, m, post || getPost(el), queue);
 			}
@@ -3681,7 +3679,6 @@ function markRefMap(pView, pNum) {
 
 function Pview(parent, link, tNum, pNum) {
 	var b, post = pByNum[pNum];
-	clearTimeout(Pview.delTO);
 	if(Cfg['noNavigHidd'] && post && post.hidden) {
 		return;
 	}
@@ -3705,8 +3702,8 @@ Pview.add = function(link) {
 		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
 		pv = post instanceof Post ? Pview.top : post.kid;
+	clearTimeout(Pview.delTO);
 	if(pv && pv.num === pNum) {
-		clearTimeout(Pview.delTO);
 		Pview.del(pv.kid);
 		setPviewPosition(link, pv.el, Cfg['animation'] && animPVMove);
 		if(pv.parent.num !== post.num) {
@@ -5498,7 +5495,7 @@ function scriptCSS() {
 		.de-pview-link { font-weight: bold; }\
 		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }';
 	if(aib.kus) {
-		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
+		x += '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a, .postmessage > div:first-child { display: none !important; }\
 			.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }';
 	} else if(aib.mlpg) {
 		x += '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
