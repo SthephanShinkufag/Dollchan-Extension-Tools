@@ -6740,9 +6740,12 @@ Post.prototype = {
 			.trim());
 	},
 	get title() {
-		var subj;
-		return this._title || (this._title = (subj = $c(aib.cSubj, this.el)) ?
-			subj.textContent : this.text.substring(0, 70).replace(/\s+/g, ' '));
+		if(this.hasOwnProperty('_title')) {
+			return this._title;
+		}
+		var subj = $c(aib.cSubj, this.el)
+		return this._title = (subj && subj.textContent) ||
+			this.text.substring(0, 70).replace(/\s+/g, ' ');
 	},
 	toggleContent: function(hide) {
 		if(hide) {
