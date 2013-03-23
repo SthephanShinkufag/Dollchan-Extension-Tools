@@ -1289,7 +1289,6 @@ function showContent(cont, id, name, isUpd) {
 			}
 			(cln = post.cloneNode(true)).removeAttribute('id');
 			cln.style.display = '';
-			cln.hide = true;
 			cln.post = Object.create(cln.clone = post.post);
 			cln.post.el = cln;
 			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
@@ -2449,7 +2448,7 @@ function checkUpload(response) {
 			infoLoadErrors(eCode, eMsg, 0);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
-				$focus(firstThr.last);
+				$focus(firstThr.last.el);
 			}
 		});
 	} else {
@@ -3432,11 +3431,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 
 	function parseLinks(post) {
 		var i, els, el, m, src, pst, queue = loadTitles && getTitleLoader();
-		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm); el = els[i++];) {
-			if(m = el.href.match(regex)) {
-				parseLink(el, m, post || getPost(el), queue);
-			}
-		}
 		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm); el = els[i++];) {
 			if(!(m = (el.src || el.data).match(regex))) {
 				continue;
@@ -3450,6 +3444,11 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
 			$del(el);
 			parseLink(pst.msg.lastChild.firstChild, m, pst, queue);
+		}
+		for(i = 0, els = $Q('a[href*="youtu"]:not(.de-ytube-link)', post ? post.el : dForm); el = els[i++];) {
+			if(m = el.href.match(regex)) {
+				parseLink(el, m, post || getPost(el), queue);
+			}
 		}
 		queue && queue.complete();
 	}
@@ -3931,9 +3930,8 @@ function getJsonPosts(url, Fn) {
 }
 
 function loadFavorThread() {
-	var el = this.parentNode.parentNode,
+	var post, el = this.parentNode.parentNode,
 		ifrm = $t('iframe', el),
-		tNum = el.getAttribute('info').split(';')[2],
 		cont = $c('de-content', doc);
 	$del($id('de-fav-wait'));
 	if(ifrm) {
@@ -3941,8 +3939,8 @@ function loadFavorThread() {
 		cont.style.overflowY = 'auto';
 		return;
 	}
-	if((tNum = pByNum[tNum]) && !tNum.hide) {
-		$focus(tNum);
+	if((post = pByNum[el.getAttribute('info').split(';')[2]]) && !post.hidden) {
+		$focus(post);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -7024,7 +7022,7 @@ Thread.prototype = {
 							for(i = 0, len = el.length; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
-								np += +!last.hide;
+								np += +!last.hidden;
 							}
 							this.last = last;
 							this.el.appendChild(this._postsCache);
