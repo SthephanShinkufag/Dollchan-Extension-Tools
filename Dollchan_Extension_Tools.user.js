@@ -5452,7 +5452,6 @@ function scriptCSS() {
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-full { float: left; margin: ' + (aib.fch || aib.hana || aib.krau ? 0 : '2px 10px') + '; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
-		.de-ytube-obj { width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }\
 		video { background: black; }';
@@ -6245,7 +6244,7 @@ PostForm.prototype = {
 		this.cap.autocomplete = 'off';
 		this.cap.onfocus = function() {
 			if(this._lastCapUpdate !== 0 && Date.now() - this._lastCapUpdate > 3e5) {
-				this.refreshCapImg(tNum, false);
+				this.refreshCapImg(this.tNum || 0, false);
 			}
 		}.bind(this);
 		this.cap.onkeypress = (function() {
