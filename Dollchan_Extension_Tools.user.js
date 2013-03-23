@@ -5543,8 +5543,6 @@ function scriptCSS() {
 				a + .threadlinktext { position: relative; top: 17px; }\
 				.postthreadlinks, .pagethreadlinks, .pwpostblock { display: none; }\
 				.de-btn-src { padding: 0px 10px 10px 0px !important; background-size: cover !important; }';
-		} else if(aib.tinyIb) {
-			x += 'br.clear { display: none !important; }';
 		} else if(aib.pony) {
 			x += '#bodywrap3 > hr, .blotter { display: none !important; }';
 		} else if(aib.tire) {
@@ -7929,7 +7927,7 @@ function parseDelform(el, dc, parse) {
 	}
 	if(len === 0) {
 		thrds = [];
-		aProto.slice.call($t('hr', el).parentNode.childNodes).reduce(function(prevVal, curVal, i, array) {
+		aProto.slice.call(el.childNodes).reduce(function(prevVal, curVal, i, array) {
 			if(array[i + 1]) {
 				if(curVal.tagName === 'HR') {
 					$before(curVal, prevVal.lastChild);
