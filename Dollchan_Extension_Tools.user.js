@@ -2312,11 +2312,7 @@ function initKeyNavig() {
 			if(kc === 27) {
 				e.target.blur();
 			} else if(kc === 13 && e.altKey && e.target === pr.txta) {
-				if(pr.cap && !pr.cap.value) {
-					pr.cap.focus();
-				} else {
-					pr.subm.click();
-				}
+				pr.subm.click();
 				e.stopPropagation();
 				$pd(e);
 			}
