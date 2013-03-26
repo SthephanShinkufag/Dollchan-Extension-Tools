@@ -3778,7 +3778,9 @@ Pview.prototype = {
 			$del($c('doubledash', el));
 		}
 		$each($C('de-img-full', el), $del);
-		Images.eventPost(el);
+		$each(Images.eventPost(el), function(el) {
+			el.style.display = '';
+		});
 		if(Cfg['linksNavig'] === 2) {
 			markRefMap(el, this.parent.num);
 		}
@@ -3972,13 +3974,10 @@ function parsePages(pages, node) {
 	readPostsVisib();
 	pages.forEach(tryToParse);
 	addDelformStuff(false);
+	firstThr.checkSpells();
 	saveFavorites();
 	savePostsVisib();
-	if(isExpImg) {
-		Posts.forEach(function(post) {
-			imgs.expandAll(post, null);
-		});
-	}
+	saveUserPostsVisib();
 	if(pr.passw) {
 		pages.forEach(function(page) {
 			var node = $q('input[type="password"]', page);
@@ -4000,6 +3999,7 @@ function preparePage() {
 	$disp(dForm);
 	pByNum = {};
 	Pview.clearCache();
+	isExpImg = false;
 }
 
 function updatePage() {
@@ -6575,7 +6575,7 @@ Post.prototype = {
 			prev.next = this;
 		}
 		this._addButtons(el, this.num, this.sage, this.isOp);
-		this._checkVisib(this.num, this.index, this.isOp);
+		this._checkVisib(this.num, this.index, this.isOp, thr);
 		if(!this.hidden) {
 			this._expand(el);
 		}
@@ -6789,7 +6789,7 @@ Post.prototype = {
 			this.note = null;
 		}
 	},
-	_checkVisib: function(num, i, isOp) {
+	_checkVisib: function(num, i, isOp, thr) {
 		var vis = sVis[i];
 		if(uVis[num]) {
 			if(isOp) {
@@ -6820,7 +6820,7 @@ Post.prototype = {
 			this._doHide(null);
 		} else if(vis !== '1') {
 			sVis[i] = 1;
-			spells.check(this, this.hide, null);
+			thr.gInfo.hPosts.push(this);
 		}
 	},
 	_doHide: function(note) {
@@ -6893,7 +6893,8 @@ function Thread(el, next, parse) {
 Thread.prototype = {
 	hidden: false,
 	gInfo: {
-		allPCount: 0
+		allPCount: 0,
+		hPosts: []
 	},
 	prev: null,
 	forAll: function(fn) {
@@ -6904,6 +6905,17 @@ Thread.prototype = {
 			}
 		} while(thr = thr.next);
 		return false;
+	},
+	checkSpells: function() {
+		var i, post, posts = this.gInfo.hPosts,
+			len = posts.length;
+		if(len !== 0) {
+			for(i = 0; i < len; i++) {
+				post = posts[i];
+				spells.check(post, post.hide, null);
+			}
+		}
+		this.gInfo.hPosts = [];
 	},
 	load: function(last, Fn) {
 		if(!Fn) {
@@ -7271,10 +7283,13 @@ ImageBoard.prototype = {
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
 			} },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, #postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
-				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-				.ui-resizable { display: inline !important; }\
-				form textarea { resize: both !important; }' },
+			css: { get: function() {
+				return Object.getPrototypeOf(this).css +
+					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
+					.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
+					.ui-resizable { display: inline !important; }\
+					form textarea { resize: both !important; }'
+			} },
 			ru: { value: true },
 
 			nul: { value: true }
@@ -7388,8 +7403,8 @@ ImageBoard.prototype = {
 			qMsg: { value: '.message' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
-				return '.de-post-hid > .de-ppanel ~ * { display: none !important; }\
-					reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
+				return Object.getPrototypeOf(this).css +
+					'reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
 			} },
 			trTag: { value: 'li' },
 
@@ -7512,14 +7527,20 @@ ImageBoard.prototype = {
 			getWrap: { value: function(post) {
 				return post.el.parentNode;
 			} },
-			css: { value: '#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
+			css: { get: function() {
+				return Object.getPrototypeOf(this).css +
+					'#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
+			} },
 			isBB: { value: true },
 
 			mlpg: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'ponychan.net': [{
 			cOPost: { value: 'op' },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, #bodywrap3 > hr, .blotter { display: none !important; }' },
+			css: { get: function() {
+				return Object.getPrototypeOf(this).css +
+					'#bodywrap3 > hr, .blotter { display: none !important; }';
+			} },
 
 			pony: { value: true }
 		}, 'script[src*="kusaba"]']
@@ -7657,7 +7678,7 @@ ImageBoard.prototype = {
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
-			css: { value: '#newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a, .postmessage > div:first-child { display: none !important; }\
+			css: { value: '.de-post-hid > .de-ppanel ~ *, #newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a, .postmessage > div:first-child { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' },
@@ -8351,12 +8372,14 @@ function doScript() {
 	}
 	initMessageFunctions();
 	addDelformStuff(true);
-	savePostsVisib();
-	saveUserPostsVisib();
-	$log('readPosts');
 	scriptCSS();
 	$disp(doc.body);
 	$log('scriptCSS');
+	firstThr.checkSpells();
+	$log('firstThr.checkSpells');
+	savePostsVisib();
+	saveUserPostsVisib();
+	$log('readPosts');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
