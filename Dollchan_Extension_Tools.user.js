@@ -3345,18 +3345,18 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	function clickLink(e) {
 		var link = e.target,
 			m = link.ytInfo,
-			el = getPost(link).ytObj;
+			ytObj = getPost(link).ytObj;
 		$pd(e);
-		if(el[1] === m) {
-			el[0].innerHTML = '';
-			el[1].ytInfo = null;
+		if(ytObj[1] === m) {
+			ytObj[0].innerHTML = '';
+			ytObj[1] = null;
 			return;
 		}
-		el[1] = m;
+		ytObj[1] = m;
 		if(embedType > 2) {
-			addImage(el[0], m);
+			addImage(ytObj[0], m);
 		} else {
-			addPlayer(el[0], m);
+			addPlayer(ytObj[0], m);
 		}
 	}
 
@@ -3401,11 +3401,15 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		var msg, prev, el, title;
 		if(!post.ytObj) {
 			el = $new('div', {'class': 'de-ytube-obj'}, null);
-			post.ytObj = [el, m];
-			if(embedType > 2) {
-				addImage(el, m);
-			} else if(embedType === 2) {
-				addPlayer(el, m);
+			if(embedType < 2) {
+				post.ytObj = [el, null];
+			} else {
+				post.ytObj = [el, m];
+				if(embedType === 2) {
+					addPlayer(el, m);
+				} else {
+					addImage(el, m);
+				}
 			}
 			if(aib.krau) {
 				msg = post.msg.parentNode;
@@ -3686,13 +3690,13 @@ function Pview(parent, link, tNum, pNum) {
 	this._link = link;
 	this.num = pNum;
 	if(post) {
-		this._showPost(post, true);
+		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
 		if(post = this._cached[b] && this._cached[b][pNum]) {
-			this._showPost(post, false);
+			this._showPost(post);
 		} else {
-			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
+			this._showPost('<span class="de-wait">' + Lng.loading[lang] + '</span>');
 			ajaxGetPosts(aib.getThrdUrl(b, tNum), false, this._onload.bind(this, b, tNum, pNum));
 		}
 	}
@@ -3702,7 +3706,6 @@ Pview.add = function(link) {
 		tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 		pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
 		pv = post instanceof Post ? Pview.top : post.kid;
-	clearTimeout(Pview.delTO);
 	if(pv && pv.num === pNum) {
 		Pview.del(pv.kid);
 		setPviewPosition(link, pv.el, Cfg['animation'] && animPVMove);
@@ -3800,7 +3803,6 @@ Pview.prototype = {
 			if(Cfg['imgSrcBtns']) {
 				Images.addSearch(el);
 			}
-			post.inited = true;
 		}
 		this._showPview(el);
 	},
@@ -3819,24 +3821,15 @@ Pview.prototype = {
 			);
 		}
 		if(this.parent.kid === this) {
-			Pview.del(this.parent.kid);
-			this._eventPview(post, this.el = post.el);
-		}
-	},
-	_showPost: function(post, clone) {
-		if(post) {
-			if(clone) {
+			Pview.close(this.el);
+			if(post) {
 				this._eventPview(post, this.el = post.el.cloneNode(true));
-			} else if(post.inited) {
-				this._showPview(this.el = post.el);
 			} else {
-				this._eventPview(post, this.el = post.el);
+				this._showText(Lng.postNotFound[lang]);
 			}
-		} else {
-			this._showText(Lng.postNotFound[lang]);
 		}
 	},
-	_showPview: function(el) {
+	_showPost: function(post) {
 		if(this.parent instanceof Post) {
 			Pview.del(Pview.top);
 			Pview.top = this;
@@ -3844,6 +3837,13 @@ Pview.prototype = {
 			Pview.del(this.parent.kid);
 		}
 		this.parent.kid = this;
+		if(post instanceof Post) {
+			this._eventPview(post, this.el = post.el.cloneNode(true));
+		} else {
+			this._showText(post);
+		}
+	},
+	_showPview: function(el) {
 		el.onmouseover = Pview.markToDel.bind(this);
 		el.onmouseout = Pview.markToDel.bind(Pview);
 		(aib.arch ? doc.body : dForm).appendChild(el);
@@ -3868,6 +3868,7 @@ function eventRefLink(el) {
 		var link, links = doc.evaluate('.//a[starts-with(text(),">>")]', el, null, 4, null);
 		while(link = links.iterateNext()) {
 			link.onmouseover = function() {
+				clearTimeout(Pview.delTO);
 				this.overDelay = setTimeout(Pview.add, Cfg['linksOver'], this);
 			};
 			link.onmouseout = function() {
@@ -7300,7 +7301,6 @@ ImageBoard.prototype = {
 			tire: { value: true }
 		}],
 		'2ch.nu': [{
-			qDForm: { value: '#delform' },
 			getImgSize: { value: function(post) {
 				var el = $c(this.cFileInfo, post),
 					m = el ? el.nextSibling.textContent.match(/(\d+)[x×](\d+)/) : false;
