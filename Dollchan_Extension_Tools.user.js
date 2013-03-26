@@ -1702,13 +1702,6 @@ function getCfgPosts() {
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('noPostScrl', true, updateCSS),
-		$New('div', null, [
-			lBox('keybNavig', false, null),
-			$new('a', {'text': '?', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
-				$pd(e);
-				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
-			}})
-		]),
 		lBox('correctTime', true, dateTime.toggleSettings),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
@@ -1859,6 +1852,13 @@ function getCfgCommon() {
 		lBox('rePageTitle', true, null),
 		$if(nav.Anim, lBox('animation', true, null)),
 		lBox('closePopups', true, null),
+		$New('div', null, [
+			lBox('keybNavig', false, null),
+			$new('a', {'text': '?', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
+				$pd(e);
+				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
+			}})
+		]),
 		$if(!(nav.Opera && !nav.isGM), $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
@@ -2311,6 +2311,14 @@ function initKeyNavig() {
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
 			if(kc === 27) {
 				e.target.blur();
+			} else if(kc === 13 && e.altKey && e.target === pr.txta) {
+				if(pr.cap && !pr.cap.value) {
+					pr.cap.focus();
+				} else {
+					pr.subm.click();
+				}
+				e.stopPropagation();
+				$pd(e);
 			}
 			return;
 		}
