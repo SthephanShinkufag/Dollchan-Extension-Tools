@@ -2925,7 +2925,7 @@ function downloadImgData(url, Fn) {
 			}
 		}
 	};
-	if(true || nav.Firefox && aib.fch && !url.startsWith('blob')) {
+	if(nav.Firefox && aib.fch && !url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		setTimeout(GM_xmlhttpRequest, 0, obj);
 	} else {
