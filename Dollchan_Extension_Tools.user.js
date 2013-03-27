@@ -3700,7 +3700,7 @@ function Pview(parent, link, tNum, pNum) {
 		if(post = this._cached[b] && this._cached[b][pNum]) {
 			this._showPost(post);
 		} else {
-			this._showPost('<span class="de-wait">' + Lng.loading[lang] + '</span>');
+			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
 			ajaxGetPosts(aib.getThrdUrl(b, tNum), false, this._onload.bind(this, b, tNum, pNum));
 		}
 	}
@@ -3761,8 +3761,32 @@ Pview.prototype = {
 
 	_cached: {},
 	_readDelay: 0,
-	_eventPview: function(post, el) {
+	_onload: function(b, tNum, pNum, dc) {
+		var post, rm, prNum = this.parent.num,
+			df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
+		parseDelform(df, doc, false).pviewParse(tNum, this._cached[b] = {});
+		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
+		if((post = this._cached[b][pNum]) && (brd !== b || !this._cached[b][prNum])) {
+			if(!(rm = $c('de-refmap', post.el))) {
+				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
+				rm = post.msg.nextSibling;
+			}
+			rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
+				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.ref ? ', ' : '')
+			);
+		}
+		if(this.parent.kid === this) {
+			Pview.del(this);
+			if(post) {
+				this._showPost(post);
+			} else {
+				this._showText(Lng.postNotFound[lang]);
+			}
+		}
+	},
+	_showPost: function(post) {
 		var panel, cnt = post.count - post.dcount,
+			el = this.el = post.el.cloneNode(true),
 			pText = (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 			(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 			'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
@@ -3812,30 +3836,7 @@ Pview.prototype = {
 		}
 		this._showPview(el);
 	},
-	_onload: function(b, tNum, pNum, dc) {
-		var post, rm, prNum = this.parent.num,
-			df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
-		parseDelform(df, doc, false).pviewParse(tNum, this._cached[b] = {});
-		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
-		if((post = this._cached[b][pNum]) && (brd !== b || !this._cached[b][prNum])) {
-			if(!(rm = $c('de-refmap', post.el))) {
-				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
-				rm = post.msg.nextSibling;
-			}
-			rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
-				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.ref ? ', ' : '')
-			);
-		}
-		if(this.parent.kid === this) {
-			Pview.close(this.el);
-			if(post) {
-				this._eventPview(post, this.el = post.el.cloneNode(true));
-			} else {
-				this._showText(Lng.postNotFound[lang]);
-			}
-		}
-	},
-	_showPost: function(post) {
+	_showPview: function(el) {
 		if(this.parent instanceof Post) {
 			Pview.del(Pview.top);
 			Pview.top = this;
@@ -3843,13 +3844,6 @@ Pview.prototype = {
 			Pview.del(this.parent.kid);
 		}
 		this.parent.kid = this;
-		if(post instanceof Post) {
-			this._eventPview(post, this.el = post.el.cloneNode(true));
-		} else {
-			this._showText(post);
-		}
-	},
-	_showPview: function(el) {
 		el.onmouseover = Pview.markToDel.bind(this);
 		el.onmouseout = Pview.markToDel.bind(Pview);
 		(aib.arch ? doc.body : dForm).appendChild(el);
