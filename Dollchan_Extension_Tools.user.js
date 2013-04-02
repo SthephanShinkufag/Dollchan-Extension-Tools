@@ -2064,7 +2064,7 @@ function addMenu(el, isPanel, html) {
 	if(isPanel) {
 		el = doc.body.lastChild;
 	} else {
-		el = $event(doc.body.lastChild, {'mouseover': Pview.markToDel.bind(getPost(el))});
+		el = $event(doc.body.lastChild, {'mouseover': Pview.markToDel.bind(null, getPost(el).kid)});
 	}
 	return html ? $Q('span', el) : el;
 }
@@ -3611,7 +3611,7 @@ function updRefMap(post, add) {
 			addRefMap.call(function(pNum) {
 				return getRelLink(pNum, '');
 			}, lPost);
-			eventRefLink($c('de-refmap', lPost.el));
+			eventRefLink($c('de-refmap', lPost.el), null);
 		}
 	}
 }
@@ -3746,12 +3746,26 @@ Pview.del = function(pv) {
 		} while(pv = pv.kid);
 	}
 };
-Pview.markToDel = function() {
-	var pv = this === Pview ? Pview.top : this.kid;
+Pview.getPview = function(el) {
+	if(!el) {
+		return false;
+	}
+	if(el.nodeType === 3) {
+		el = el.parentNode;
+	}
+	while(el && !el.classList.contains('de-pview')) {
+		el = el.parentElement;
+	}
+	return !!el;
+};
+Pview.markToDel = function(pv) {
 	clearTimeout(Pview.delTO);
 	if(pv) {
 		Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], pv);
 	}
+};
+Pview.markAllToDel = function() {
+	Pview.markToDel(Pview.top);
 };
 Pview.delTO = 0;
 Pview.top = null;
@@ -3791,6 +3805,7 @@ Pview.prototype = {
 			(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 			'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
 		el.post = this;
+		el.id = 'de-pview-' + this.num;
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
 		if(aib._7ch) {
@@ -3804,7 +3819,10 @@ Pview.prototype = {
 		if(Cfg['linksNavig'] === 2) {
 			markRefMap(el, this.parent.num);
 		}
-		eventRefLink(el);
+		eventRefLink(el, function(e) {
+			clearTimeout(e.target.overDelay);
+			Pview.markToDel(this.kid);
+		}.bind(this));
 		addPostRef($q(aib.qRef, el));
 		if(post.inited) {
 			panel = $c('de-ppanel', el);
@@ -3836,7 +3854,7 @@ Pview.prototype = {
 		}
 		this._showPview(el);
 	},
-	_showPview: function(el) {
+	_showPview: function(el, id) {
 		if(this.parent instanceof Post) {
 			Pview.del(Pview.top);
 			Pview.top = this;
@@ -3844,8 +3862,17 @@ Pview.prototype = {
 			Pview.del(this.parent.kid);
 		}
 		this.parent.kid = this;
-		el.onmouseover = Pview.markToDel.bind(this);
-		el.onmouseout = Pview.markToDel.bind(Pview);
+		el[nav.WebKit ? 'onmouseover' : 'onmouseenter'] = function(e) {
+			var pv = Pview.getPview(e.relatedTarget);
+			if(!pv || pv.id !== this) {
+				Pview.markToDel(e.currentTarget.post.kid);
+			}
+		}.bind('de-pview-' + this.num);
+		el[nav.WebKit ? 'onmouseout' : 'onmouseleave'] = function(e) {
+			if(!Pview.getPview(e.relatedTarget)) {
+				Pview.markAllToDel();
+			}
+		};
 		(aib.arch ? doc.body : dForm).appendChild(el);
 		setPviewPosition(this._link, el, false);
 		if(Cfg['animation']) {
@@ -3858,25 +3885,25 @@ Pview.prototype = {
 		}
 	},
 	_showText: function(txt) {
-		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
-			txt + '</div>'));
+		this._showPview(this.el = $add('<div id="de-pview-' + this.num + '" class="' + aib.cReply +
+			' de-pview-info de-pview">' + txt + '</div>'));
 	}
 }
 
-function eventRefLink(el) {
+function eventRefLink(el, ouFn) {
 	if(Cfg['linksNavig']) {
-		var link, links = doc.evaluate('.//a[starts-with(text(),">>")]', el, null, 4, null);
-		while(link = links.iterateNext()) {
-			link.onmouseover = function() {
+		var link, links = doc.evaluate('.//a[starts-with(text(),">>")]', el, null, 4, null),
+			ovFunc = function() {
 				clearTimeout(Pview.delTO);
 				this.overDelay = setTimeout(Pview.add, Cfg['linksOver'], this);
-			};
-			link.onmouseout = function() {
+			},
+			ouFunc = ouFn || function() {
 				clearTimeout(this.overDelay);
-				if(Pview.top) {
-					Pview.markToDel();
-				}
+				Pview.markAllToDel();
 			};
+		while(link = links.iterateNext()) {
+			link.onmouseover = ovFunc;
+			link.onmouseout = ouFunc;
 		}
 	}
 }
@@ -6506,7 +6533,7 @@ Post.prototype = {
 	addFuncs: function() {
 		var el = this.el;
 		updRefMap(this, true);
-		eventRefLink(el);
+		eventRefLink(el, null);
 		embedMP3Links(this);
 		if(Cfg['addImgs']) {
 			Images.embedLinks(el);
@@ -6514,6 +6541,7 @@ Post.prototype = {
 		if(isExpImg) {
 			this.img.expandAll(null);
 		}
+		spells.check(this, this.hide, null);
 	},
 	forAll: function(fn) {
 		var post = this;
@@ -6730,8 +6758,10 @@ Post.prototype = {
 				: doc.importNode($q(aib.qMsg, fullPost), true),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
-		origMsg.parentNode.replaceChild(this.msg = replacePost(repMsg), origMsg);
-		this.img = new Images(this.el);
+		origMsg.parentNode.replaceChild(this._msg = replacePost(repMsg), origMsg);
+		if(Cfg['addImgs']) {
+			Images.embedLinks(this.msg);
+		}
 		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', this.msg), false);
 		if(ytExt) {
 			this.msg.appendChild(ytExt);
@@ -7086,6 +7116,7 @@ Thread.prototype = {
 			lastdcount = this.last.dcount,
 			len = nPosts.length;
 		this._postsCache = doc.createDocumentFragment();
+	parseLoop:
 		for(i = 0; i <= len || post; ) {
 			if(!post) {
 				if(!TNum && this._postsCache.hasChildNodes()) {
@@ -7096,7 +7127,7 @@ Thread.prototype = {
 					do {
 						el = nPosts[i];
 						last = this._addPost(replacePost(doc.importNode(el, true)),
-							aib.getPNum(el), i + 1, last);
+							aib.getPNum(el), i + dCount, last);
 						np += +!last.hidden;
 						last.dcount = lastdcount;
 					} while(++i < len);
@@ -7106,25 +7137,31 @@ Thread.prototype = {
 				this.pcount = len + 1;
 				this._postsCache = null;
 				break;
-			} else if(post.count - dCount === i) {
+			}
+			while(post.deleted) {
+				post = post.next;
+				if(!post) {
+					continue parseLoop;
+				}
+				dCount++;
+			}
+			if(post.count - dCount === i) {
 				if(i >= len || post.num !== aib.getPNum(nPosts[i])) {
 					if(TNum) {
-						if(!post.deleted) {
-							post.deleted = true;
-							if(!delStuff) {
-								delStuff = sessionStorage['de-deleted-' + brd + TNum];
-							}
-							delStuff = (delStuff ? delStuff + ',' : '') + post.count;
-							tPost = post;
-							do {
-								tPost.dcount++;
-							} while(tPost = tPost.next);
-							post.btns.classList.remove('de-ppanel-cnt');
-							post.btns.classList.add('de-ppanel-del');
-							($q('input[type="checkbox"]', post.el) || {}).disabled = true;
-							lastdcount++;
-							dCount++;
+						post.deleted = true;
+						if(!delStuff) {
+							delStuff = sessionStorage['de-deleted-' + brd + TNum];
 						}
+						delStuff = (delStuff ? delStuff + ',' : '') + post.count;
+						tPost = post;
+						do {
+							tPost.dcount++;
+						} while(tPost = tPost.next);
+						post.btns.classList.remove('de-ppanel-cnt');
+						post.btns.classList.add('de-ppanel-del');
+						($q('input[type="checkbox"]', post.el) || {}).disabled = true;
+						lastdcount++;
+						dCount++;
 						last = post;
 					} else {
 						aib.removePost(post);
@@ -7152,7 +7189,7 @@ Thread.prototype = {
 					i++;
 				}
 				post = post.next;
-			} else if(i >= from) {
+			} else if(!TNum && i >= from) {
 				for(cnt = post.count - 1; i < cnt; i++) {
 					el = nPosts[i];
 					last = this._addPost(replacePost(doc.importNode(el, true)), aib.getPNum(el),
@@ -8297,7 +8334,7 @@ function initPage() {
 		'expandImgs': { writable: true, configurable: true, value: 1 }
 	});
 	new ImageBoard(minInf['domain']);
-	eventRefLink(dForm);
+	eventRefLink(dForm, null);
 	Posts.forEach(imgs.eventPost, imgs);
 }*/
 
@@ -8323,7 +8360,7 @@ function addDelformStuff(isLog) {
 	}
 	genRefMap(pByNum, '');
 	isLog && Cfg['linksNavig'] === 2 && $log('genRefMap');
-	eventRefLink(dForm);
+	eventRefLink(dForm, null);
 	isLog && Cfg['linksNavig'] && $log('eventRefLink');
 }
 
