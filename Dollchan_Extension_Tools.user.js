@@ -2061,16 +2061,11 @@ function addMenu(el, isPanel, html) {
 				'left: ' + offE.left :
 				'right: ' + (doc.documentElement.clientWidth - offE.left - el.offsetWidth)
 		) + 'px; ' + y + 'px;" onmouseout="de_out(event)" onmouseover="de_overmenu(this)">' + html + '</div>');
-	if(isPanel) {
-		el = doc.body.lastChild;
-	} else {
-		el = $event(doc.body.lastChild, {'mouseover': Pview.markToDel.bind(null, getPost(el).kid)});
-	}
-	return html ? $Q('span', el) : el;
+	return doc.body.lastChild;
 }
 
 function addSpellMenu(node) {
-	$each(addMenu(
+	$each($Q('span', addMenu(
 		node, true,
 		'<div style="display: inline-block; border-right: 1px solid grey;"><span>' +
 			('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
@@ -2078,7 +2073,7 @@ function addSpellMenu(node) {
 			'</span></div><div style="display: inline-block;"><span>' +
 			('#sage,#op,#tlen,#all,#video,#num,#wipe,#rep,#outrep')
 				.split(',').join('</span><span>') + '</span></div>'
-	), function(el) {
+	)), function(el) {
 		el.onclick = function() {
 			var exp = this.textContent,
 				idx = spells.names.indexOf(exp.substr(1));
@@ -2157,9 +2152,9 @@ function addPostHideMenu(post) {
 }
 
 function addExpandThreadMenu(post) {
-	$each(addMenu($c('de-btn-expthr', post.btns), false,
+	$each($Q('span', addMenu($c('de-btn-expthr', post.btns), false,
 		'<span>' + Lng.selExpandThrd[lang].join('</span><span>') + '</span>'
-	), function(el) {
+	)), function(el) {
 		el.onclick = function() {
 			post.thr.load(parseInt(this.textContent, 10), null);
 		};
@@ -2167,9 +2162,9 @@ function addExpandThreadMenu(post) {
 }
 
 function addAjaxPagesMenu(node) {
-	$each(addMenu(
+	$each($Q('span', addMenu(
 		node, true, '<span>' + Lng.selAjaxPages[lang].join('</span><span>') + '</span>'
-	), function(el) {
+	)), function(el) {
 		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
 			if(i === 0) {
@@ -2185,9 +2180,9 @@ function addAudioNotifMenu(node) {
 	if(node.id !== 'de-btn-audio-off') {
 		return;
 	}
-	$each(addMenu(node, true,
+	$each($Q('span', addMenu(node, true,
 		'<span>' + Lng.selAudioNotif[lang].join('</span><span>') + '</span>'
-	), function(el) {
+	)), function(el) {
 		el.onclick = function() {
 			var i = aProto.indexOf.call(this.parentNode.children, this);
 			updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
@@ -2211,12 +2206,12 @@ function addImgSearchMenu(node) {
 			) + p + info[0] + '</a>';
 		});
 	}
-	addMenu(
-		node, false, '<a class="de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
-			'<a class="de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
-	);
+	addMenu(node, false,
+		'<a class="de-imgmenu de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
+		'<a class="de-imgmenu de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
+		'<a class="de-imgmenu de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
+		'<a class="de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str
+	).classList.add('de-imgmenu');
 	str = null;
 }
 
@@ -3747,16 +3742,10 @@ Pview.del = function(pv) {
 	}
 };
 Pview.getPview = function(el) {
-	if(!el) {
-		return false;
-	}
-	if(el.nodeType === 3) {
-		el = el.parentNode;
-	}
 	while(el && !el.classList.contains('de-pview')) {
 		el = el.parentElement;
 	}
-	return !!el;
+	return el;
 };
 Pview.markToDel = function(pv) {
 	clearTimeout(Pview.delTO);
@@ -3774,6 +3763,7 @@ Pview.prototype = {
 	parent: null,
 
 	_cached: {},
+	_outFun: null,
 	_readDelay: 0,
 	_onload: function(b, tNum, pNum, dc) {
 		var post, rm, prNum = this.parent.num,
@@ -3805,7 +3795,6 @@ Pview.prototype = {
 			(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 			'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
 		el.post = this;
-		el.id = 'de-pview-' + this.num;
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
 		if(aib._7ch) {
@@ -3819,9 +3808,12 @@ Pview.prototype = {
 		if(Cfg['linksNavig'] === 2) {
 			markRefMap(el, this.parent.num);
 		}
-		eventRefLink(el, function(e) {
+		eventRefLink(el, this._outFun = function(e) {
+			var rt = e.relatedTarget;
 			clearTimeout(e.target.overDelay);
-			Pview.markToDel(this.kid);
+			if(rt.tagName !== 'A' || rt.onmouseout !== this._outFun) {
+				Pview.markToDel(this.kid);
+			}
 		}.bind(this));
 		addPostRef($q(aib.qRef, el));
 		if(post.inited) {
@@ -3862,14 +3854,22 @@ Pview.prototype = {
 			Pview.del(this.parent.kid);
 		}
 		this.parent.kid = this;
-		el[nav.WebKit ? 'onmouseover' : 'onmouseenter'] = function(e) {
-			var pv = Pview.getPview(e.relatedTarget);
-			if(!pv || pv.id !== this) {
+		if(nav.WebKit) {
+			el.onmouseover = function(e) {
+				var pv = Pview.getPview(e.relatedTarget),
+					cpv = e.currentTarget;
+				if(!pv || pv !== cpv) {
+					Pview.markToDel(cpv.post.kid);
+				}
+			};
+		} else {
+			el.onmouseenter = function(e) {
 				Pview.markToDel(e.currentTarget.post.kid);
-			}
-		}.bind('de-pview-' + this.num);
+			};
+		}
 		el[nav.WebKit ? 'onmouseout' : 'onmouseleave'] = function(e) {
-			if(!Pview.getPview(e.relatedTarget)) {
+			var rt = e.relatedTarget;
+			if(!rt.classList.contains('de-imgmenu') && !Pview.getPview(rt)) {
 				Pview.markAllToDel();
 			}
 		};
@@ -3885,8 +3885,8 @@ Pview.prototype = {
 		}
 	},
 	_showText: function(txt) {
-		this._showPview(this.el = $add('<div id="de-pview-' + this.num + '" class="' + aib.cReply +
-			' de-pview-info de-pview">' + txt + '</div>'));
+		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
+			txt + '</div>'));
 	}
 }
 
@@ -5363,8 +5363,8 @@ function scriptCSS() {
 	gif('#de-btn-newthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
 	gif('#de-btn-expimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
 	gif('#de-btn-maskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
-	//gif('#de-btn-imgload', p + 'JGjI+pG4AA42PNxCsr3bz744DYxISPCX7q+qGbS1pjWp5XzOb63mEw5Qv+aLIbUYHy4RLJmQXYEEqGmqjyWbO5qFYphLcpAAA7')
-	gif('#de-btn-imgload', p + 'IrjI+pq+DP2Js02ovzpUA36IUZJxpkeYacU7bu66VwK89ireHbyqqV27NdCgA7');
+	gif('#de-btn-imgload', p + 'JGjI+pG4AA42PNxCsr3bz744DYxISPCX7q+qGbS1pjWp5XzOb63mEw5Qv+aLIbUYHy4RLJmQXYEEqGmqjyWbO5qFYphLcpAAA7')
+	//gif('#de-btn-imgload', p + 'IrjI+pq+DP2Js02ovzpUA36IUZJxpkeYacU7bu66VwK89ireHbyqqV27NdCgA7');
 	if(aib.nul || aib.fch) {
 		gif('#de-btn-catalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	}
@@ -5518,7 +5518,9 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }' + aib.css;
+		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], div[id^="preview"], div[id^="pstprev"], body > hr, .theader, .postarea { display: none !important; }\
+		form > hr { clear: both }\
+		' + aib.css;
 
 	if(nav.Firefox < 16) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -7750,7 +7752,7 @@ ImageBoard.prototype = {
 		qOmitted: '.omittedposts',
 		qPostForm: '#postform',
 		qRef: '.reflink',
-		qTable: 'form > table, div > table',
+		qTable: '',
 		_qThread: '',
 		get qThread() {
 			return this._qThread || (this._qThread = $c('thread', doc) ? '.thread' :
@@ -7969,16 +7971,20 @@ function parseDelform(el, dc, parse) {
 		len = thrds.length,
 		thr = null;
 	if(!firstThr || firstThr.gInfo.allPCount < 2) {
-		if(!$q('td.' + aib.cReply, el)) {
-			aib.qTable = '';
-			aib.getWrap = function(post) {
-				return post.el;
-			};
-		}  else if(!postWrapper) {
-			if(postWrapper = $q(aib.qTable, el)) {
-				postWrapper = dc === doc ? postWrapper.cloneNode(true) :
-					doc.importNode(postWrapper, true);
+		if(!aib.qTable) {
+			if($q('td.' + aib.cReply, el)) {
+				aib.qTable = 'form > table, div > table';
+				aib.getWrap = function(post) {
+					return post.isOp ? post.el : $x('ancestor::table[1]', post.el);
+				};
+			} else {
+				aib.getWrap = function(post) {
+					return post.el;
+				};
 			}
+		}
+		if(aib.qTable && !postWrapper && (postWrapper = $q(aib.qTable, el))) {
+			postWrapper = dc === doc ? postWrapper.cloneNode(true) : doc.importNode(postWrapper, true);
 		}
 	}
 	if(len === 0) {
