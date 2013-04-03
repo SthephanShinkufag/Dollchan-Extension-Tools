@@ -6730,8 +6730,8 @@ Post.prototype = {
 				: doc.importNode($q(aib.qMsg, fullPost), true),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
-		origMsg.parentNode.replaceChild(this.msg = replacePost(repMsg), origMsg);
-		this.img = new Images(this.el);
+		origMsg.parentNode.replaceChild(this._msg = replacePost(repMsg), origMsg);
+		this._img = new Images(this.el);
 		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', this.msg), false);
 		if(ytExt) {
 			this.msg.appendChild(ytExt);
@@ -7713,7 +7713,7 @@ ImageBoard.prototype = {
 		qOmitted: '.omittedposts',
 		qPostForm: '#postform',
 		qRef: '.reflink',
-		qTable: 'form > table, div > table',
+		qTable: '',
 		_qThread: '',
 		get qThread() {
 			return this._qThread || (this._qThread = $c('thread', doc) ? '.thread' :
@@ -7932,16 +7932,20 @@ function parseDelform(el, dc, parse) {
 		len = thrds.length,
 		thr = null;
 	if(!firstThr || firstThr.gInfo.allPCount < 2) {
-		if(!$q('td.' + aib.cReply, el)) {
-			aib.qTable = '';
-			aib.getWrap = function(post) {
-				return post.el;
-			};
-		}  else if(!postWrapper) {
-			if(postWrapper = $q(aib.qTable, el)) {
-				postWrapper = dc === doc ? postWrapper.cloneNode(true) :
-					doc.importNode(postWrapper, true);
+		if(!aib.qTable) {
+			if($q('td.' + aib.cReply, el)) {
+				aib.qTable = 'form > table, div > table';
+				aib.getWrap = function(post) {
+					return post.isOp ? post.el : $x('ancestor::table[1]', post.el);
+				};
+			} else {
+				aib.getWrap = function(post) {
+					return post.el;
+				};
 			}
+		}
+		if(aib.qTable && !postWrapper && (postWrapper = $q(aib.qTable, el))) {
+			postWrapper = dc === doc ? postWrapper.cloneNode(true) : doc.importNode(postWrapper, true);
 		}
 	}
 	if(len === 0) {
