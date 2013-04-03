@@ -6280,8 +6280,8 @@ function Images(el) {
 	this._widths = [];
 	this.els = getPostImages(el);
 }
-Images.addFull = function(a, sz, isExp) {
-	var newW = '',
+Images.addFull = function(a, sz, isExp, e) {
+	var el, box, newW = '',
 		newH = '',
 		fullW = +sz[0],
 		fullH = +sz[1],
@@ -6299,6 +6299,12 @@ Images.addFull = function(a, sz, isExp) {
 			full.moved = false;
 		} else {
 			$disp(full);
+			if(nav.Firefox && (el = Pview.getPview(a))) {
+				var box = el.getBoundingClientRect();
+				if(e.pageX > box.right || e.pageY > box.bottom) {
+					Pview.markAllToDel();
+				}
+			}
 			setTimeout($del, 0, full);
 		}
 		return;
@@ -6366,7 +6372,7 @@ Images.eventPost = function(el) {
 			a.onclick = function(e) {
 				if(Cfg['expandImgs'] && e.button !== 1) {
 					$pd(e);
-					Images.expand(e.currentTarget, null);
+					Images.expand(e.currentTarget, null, e);
 				}
 			};
 		}
@@ -6398,9 +6404,9 @@ Images.embedLinks = function(el) {
 		$before(link, a);
 	}
 };
-Images.expand = function(a, isExp) {
+Images.expand = function(a, isExp, e) {
 	if(a && /\.jpe?g|\.png|\.gif|^blob:/i.test(a.href)) {
-		Images.addFull(a, aib.getImgSize(aib.getPicWrap(a)), isExp);
+		Images.addFull(a, aib.getImgSize(aib.getPicWrap(a)), isExp, e);
 	}
 };
 Images.fixEvents = function(post) {
@@ -6427,7 +6433,7 @@ Images.makeMovable = function(el) {
 Images.preImgClick = function(e) {
 	if(Cfg['expandImgs'] && e.button !== 1) {
 		$pd(e);
-		Images.addFull(e.currentTarget, e.target.title.split('x'), null);
+		Images.addFull(e.currentTarget, e.target.title.split('x'), null, e);
 	}
 };
 Images.prototype = {
