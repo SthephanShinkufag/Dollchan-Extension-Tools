@@ -3811,7 +3811,9 @@ Pview.prototype = {
 		eventRefLink(el, this._outFun = function(e) {
 			var rt = e.relatedTarget;
 			clearTimeout(e.target.overDelay);
-			if(rt.tagName !== 'A' || rt.onmouseout !== this._outFun) {
+			if(!rt) {
+				Pview.markAllToDel();
+			} else if(rt.tagName !== 'A' || rt.onmouseout !== this._outFun) {
 				Pview.markToDel(this.kid);
 			}
 		}.bind(this));
@@ -3869,7 +3871,7 @@ Pview.prototype = {
 		}
 		el[nav.WebKit ? 'onmouseout' : 'onmouseleave'] = function(e) {
 			var rt = e.relatedTarget;
-			if(!rt.classList.contains('de-imgmenu') && !Pview.getPview(rt)) {
+			if(!rt || !rt.classList.contains('de-imgmenu') && !Pview.getPview(rt)) {
 				Pview.markAllToDel();
 			}
 		};
@@ -7061,7 +7063,9 @@ Thread.prototype = {
 		youTube.parseLinks(post);
 		Images.eventPost(el);
 		post.addFuncs();
-		Images.addSearch(el);
+		if(Cfg['imgSrcBtns']) {
+			Images.addSearch(el);
+		}
 		if(postWrapper) {
 			pst = postWrapper.cloneNode(true);
 			node = aib.getPosts(pst)[0];
@@ -8149,6 +8153,7 @@ function initThreadUpdater(title, enableUpdater) {
 		if(!enabled) {
 			enabled = true;
 			checked404 = false;
+			newPosts = 0;
 			delay = initDelay;
 			loadTO = setTimeout(loadPostsFun, delay);
 		}
