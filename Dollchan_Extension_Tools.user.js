@@ -3170,6 +3170,13 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		});
 	}
 
+	function addImage(el, m) {
+		el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] +
+			'" target="_blank">' +
+			'<img class="de-ytube-image" src="https://i.ytimg.com/vi/' + m[1] +
+			'/0.jpg" width="' + width + '" height="' + height + '"></a>';
+	}
+
 	function addPlayer(el, m) {
 		var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 		if(videoType === 2) {
@@ -3224,10 +3231,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				if(embedType === 2) {
 					addPlayer(el, m);
 				} else {
-					el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] +
-						'" class="de-ytube-image" target="_blank">' +
-						'<img src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg" width="' + width +
-						'" height="' + height + '"></a>';
+					addImage(el, m);
 				}
 			}
 			if(aib.krau) {
@@ -3304,7 +3308,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	
 	if(embedType === 0) {
 		return {
-			addPlayer: emptyFn,
 			parseLinks: emptyFn,
 			fixEvents: emptyFn,
 			updatePost: emptyFn,
@@ -3315,6 +3318,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		titles = JSON.parse(sessionStorage['de-yt-titles'] || '{}');
 	}
 	return {
+		addImage: addImage,
 		addPlayer: addPlayer,
 		parseLinks: parseLinks,
 		fixEvents: fixEvents,
@@ -6002,7 +6006,12 @@ Post.prototype = {
 				return;
 			}
 			if(el.tagName === 'IMG') {
-				if(Cfg['expandImgs'] !== 0) {
+				if(el.className === 'de-ytube-image') {
+					if(Cfg['addYouTube'] === 3) {
+						youTube.addPlayer(this.ytObj[0], this.ytObj[1]);
+						e.preventDefault();
+					}
+				} else if(Cfg['expandImgs'] !== 0) {
 					this._clickImage(el, e);
 					e.preventDefault();
 					e.stopPropagation();
@@ -6029,20 +6038,16 @@ Post.prototype = {
 			case 'de-btn-sage':
 				addSpell(9, '', false);
 				return;
-			case 'de-ytube-image':
-				if(Cfg['addYouTube'] === 3) {
-					youTube.addPlayer(this.ytObj[0], this.ytObj[1]);
-					e.preventDefault();
-				}
-				return;
 			case 'de-ytube-link':
 				var m = el.ytInfo,
 					ytObj = this.ytObj;
 				if(ytObj[1] === m) {
 					ytObj[0].innerHTML = '';
 					ytObj[1] = null;
-				} else {
+				} else if(Cfg['addYouTube'] === 2) {
 					youTube.addPlayer(ytObj[0], ytObj[1] = m);
+				} else {
+					youTube.addImage(ytObj[0], ytObj[1] = m);
 				}
 				e.preventDefault();
 				return;
