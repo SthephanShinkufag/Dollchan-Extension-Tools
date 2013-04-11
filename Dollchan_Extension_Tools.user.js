@@ -108,8 +108,8 @@ Lng = {
 			txt:		['AJAX обновление треда* ', 'AJAX thread update* ']
 		},
 		'updThrDelay':	[' (сек)', ' (sec)'],
-		'favIcoBlink':	['мигать фавиконом при новых постах*', 'Favicon blinking on new posts*'],
-		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
+		'favIcoBlink':	['мигать фавиконом при новых постах', 'favicon blinking on new posts'],
+		'desktNotif':	['уведомления на рабочем столе', 'desktop notifications'],
 		'expandPosts': {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
