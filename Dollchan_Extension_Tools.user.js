@@ -2613,7 +2613,7 @@ function initMessageFunctions() {
 			} else {
 				checkDelete([temp[1], temp[2]]);
 			}
-			$id(temp[0]).src = 'about:blank';
+			$q('iframe[name="' + temp[0] + '"]', doc).src = 'about:blank';
 			return;
 		case 'B':
 			$del($id('de-fav-wait'));
