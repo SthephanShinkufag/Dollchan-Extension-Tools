@@ -7900,7 +7900,11 @@ ImageBoard.prototype = {
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
 		getImgLink: function(img) {
-			return img.parentNode;
+			var el = img.parentNode;
+			while(el && el.tagName !== 'A') {
+				el = el.parentNode;
+			}
+			return el;
 		},
 		getImgSize: function(post) {
 			var el = $c(this.cFileInfo, post),
