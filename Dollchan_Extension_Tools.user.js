@@ -1126,7 +1126,7 @@ function closePanel(el) {
 
 function addPanel() {
 	var imgLen = getPostImages(dForm).length;
-	$before(pr.pArea || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
+	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
 		$event($New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				var el = this.parentNode;
