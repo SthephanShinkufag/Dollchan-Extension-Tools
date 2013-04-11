@@ -970,7 +970,7 @@ function readPostsVisib() {
 				data.split(',').forEach(function(dC) {
 					sVis.splice(dC, 1);
 				});
-				delete sessionStorage['de-deleted'];
+				delete sessionStorage['de-deleted-' + brd + TNum];
 			}
 		}
 	}
@@ -3801,7 +3801,7 @@ Spells.prototype = {
 		},
 		// 2: #exph
 		function(post, val) {
-			return val.test(post.el.innerHTML);
+			return val.test(post.html);
 		},
 		// 3: #imgn
 		function(post, val) {
@@ -6155,6 +6155,9 @@ Post.prototype = {
 			}
 		}, this);
 	},
+	get html() {
+		return this._html || (this._html = this.el.innerHTML);
+	},
 	get imagesData() {
 		if(this._imagesData) {
 			return this._imagesData;
@@ -6182,6 +6185,7 @@ Post.prototype = {
 		}
 		if(len > 0) {
 			Object.defineProperty(data, '$first', { value: data[els[0].src] });
+			Object.defineProperty(data, '$firstSrc', { value: els[0].src });
 		}
 		return this._imagesData = data;
 	},
@@ -6425,6 +6429,7 @@ Post.prototype = {
 		_eventAdded: false,
 		_iOffsets: []
 	},
+	_html: '',
 	_imagesData: null,
 	_isPview: false,
 	_linkDelay: 0,
@@ -8442,7 +8447,7 @@ function initThreadUpdater(title, enableUpdater) {
 					nav.showNotification(getNotifMessage(newPosts),
 						firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
 						brd + TNum,
-						(firstThr.last.imagesData['$first'] || {}).src
+						firstThr.last.imagesData['$firstSrc']
 					);
 				}
 				if(hasAudio && !audioRun) {
