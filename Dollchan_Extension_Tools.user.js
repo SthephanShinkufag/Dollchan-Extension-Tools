@@ -37,7 +37,7 @@ defaultCfg = {
 	'noSpoilers':	1,		// open spoilers
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
-	'keybNavig':	0,		// keyboard navigation
+	'keybNavig':	1,		// keyboard navigation
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'',		//		offset in hours
 	'timePattern':	'',		//		find pattern
@@ -6043,10 +6043,10 @@ Post.prototype = {
 				if(ytObj[1] === m) {
 					ytObj[0].innerHTML = '';
 					ytObj[1] = null;
-				} else if(Cfg['addYouTube'] === 2) {
-					youTube.addPlayer(ytObj[0], ytObj[1] = m);
-				} else {
+				} else if(Cfg['addYouTube'] > 2) {
 					youTube.addImage(ytObj[0], ytObj[1] = m);
+				} else {
+					youTube.addPlayer(ytObj[0], ytObj[1] = m);
 				}
 				e.preventDefault();
 				return;
@@ -7850,7 +7850,7 @@ ImageBoard.prototype = {
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, #newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a, .postmessage > div:first-child { display: none !important; }\
+			css: { value: '.de-post-hid > .de-ppanel ~ *, #newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' },
