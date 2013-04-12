@@ -5211,7 +5211,7 @@ function checkForUpdates(isForce, Fn) {
 	}
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
+		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
 		'headers': {'Content-Type': 'text/plain'},
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -5241,7 +5241,7 @@ function checkForUpdates(isForce, Fn) {
 				}
 				if(isUpd) {
 					Fn('<a style="color: blue; font-weight: bold;" href="' +
-						'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/' +
+						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
 						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
