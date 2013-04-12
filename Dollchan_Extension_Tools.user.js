@@ -6182,7 +6182,7 @@ Post.prototype = {
 			if(!/\.jpe?g|\.png|\.gif|^blob:/i.test(fullSrc)) {
 				data[el.src] = null;
 			} else {
-				wrap = aib.getPicWrap(el);
+				wrap = aib.getPicWrap(el.parentNode);
 				size = aib.getImgSize(wrap);
 				wi = $c(aib.cFileInfo, wrap).textContent.match(/(\d+(?:\.\d+)?)\s*([mkк])?[bб]/i);
 				data[el.src] = {
@@ -6710,7 +6710,7 @@ Post.prototype = {
 		case 'thumb':
 		case 'ca_thumb':
 		default:
-			if(!nav.matchesSelector(el, 'img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]')) {
+			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
 			}
 			data = this.imagesData[el.src];
