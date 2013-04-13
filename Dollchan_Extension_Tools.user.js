@@ -410,7 +410,7 @@ Lng = {
 	seCol:			[', столбец ', ', column ']
 },
 
-uWindow, doc = window.document, aProto = Array.prototype,
+doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, sVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, firstThr, visPosts = 2,
 pr, dForm, dummy, postWrapper, spells,
@@ -2335,7 +2335,7 @@ function checkUpload(response) {
 			$disp(pr._qArea);
 			pr._qArea.appendChild(pr._pForm);
 		}
-		if(/captch|капч|подтвер/i.test(err)) {
+		if(/captch|капч|подтвер|verifizie/i.test(err)) {
 			pr.refreshCapImg(pr.tNum, true);
 		}
 		$alert(err, 'upload', false);
@@ -5468,26 +5468,12 @@ PostForm.prototype = {
 		}
 	},
 	refreshCapImg: function(tNum, isFocus) {
-		if(!this.cap) {
+		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
 			return;
 		}
-		if(aib.abu) {
-			uWindow['GetCaptcha']('captcha_div');
-			this.cap = $q('input[name^="captcha_value"]', this.form);
-		} else if(aib.krau) {
-			uWindow['requestCaptcha'](true);
-			this.cap.value = '';
-		}
-		if(isFocus) {
-			this.cap.focus();
-		}
-		if(aib.abu || aib.krau) {
-			return;
-		}
-		this.cap.value = '';
 		var src, e, img = this.recap ? $id('recaptcha_image') || this.recap :
 			$t('img', PostForm.getTR(this.cap));
-		if(aib.hana || this.recap) {
+		if(aib.hana || aib.abu || aib.krau || this.recap) {
 			e = doc.createEvent('MouseEvents');
 			e.initEvent('click', true, true);
 			img.dispatchEvent(e);
@@ -5495,6 +5481,14 @@ PostForm.prototype = {
 			src = this._refreshCapSrc(img.getAttribute('src'), tNum);
 			img.src = '';
 			img.src = src;
+		}
+		if(aib.abu) {
+			this.cap = $q('input[name^="captcha_value"]', this.form);
+		} else {
+			this.cap.value = '';
+		}
+		if(isFocus) {
+			this.cap.focus();
 		}
 		if(this._lastCapUpdate !== 0) {
 			this._lastCapUpdate = Date.now();
@@ -5782,11 +5776,7 @@ PostForm.prototype = {
 			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 		}
 		if(aib.krau) {
-			if(!uWindow['boardRequiresCaptcha']) {
-				this.cap = void 0;
-				return;
-			}
-			$id('captcha_image').onclick = this.refreshCapImg.bind(this, 0, true);
+			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
 		}
 		this.cap.autocomplete = 'off';
 		this.cap.onfocus = function() {
@@ -7399,9 +7389,7 @@ function Initialization() {
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
-	if(!nav) {
-		nav = new Navigator(true);
-	}
+	nav = new Navigator(true);
 
 	// Page properties
 	url = (window.location.pathname || '').match(new RegExp(
@@ -7482,16 +7470,14 @@ ImageBoard.prototype = {
 			docExt: { value: '.html' },
 			ru: { value: true },
 			init: { value: function() {
-				nav = new Navigator(true);
-				with(uWindow) {
-					$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =
-						doRefPreview = getRefMap = showRefMap = doRefMap = get_cookie = set_cookie =
-						save_cookies = get_password = insert = highlight = set_stylesheet =
-						set_preferred_stylesheet = get_active_stylesheet =
-						get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =
-						conf = expand = wipe = fastload_listen = threadHide = threadShow =
-						add_to_thread_cookie = remove_from_thread_cookie = toggleHidden = emptyFn;
-				}
+				$script('$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =\
+					doRefPreview = getRefMap = showRefMap = doRefMap = get_cookie = set_cookie =\
+					save_cookies = get_password = insert = highlight = set_stylesheet =\
+					set_preferred_stylesheet = get_active_stylesheet =\
+					get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =\
+					conf = expand = wipe = fastload_listen = threadHide = threadShow =\
+					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};'
+				);
 				return false;
 			} },
 
@@ -7772,14 +7758,12 @@ ImageBoard.prototype = {
 		},
 		'form[action*="imgboard.php?delete"]': {
 			init: { value: function() {
-				nav = new Navigator(true);
-				with(uWindow) {
-					AJAX = delPostPreview = showPostPreview = showNewPosts = doRefPreview =
-						showRefMap = getRefMap = doRefMap = insertAfter = get_password =
-						update_captcha = getSelectedText = quote = insert = fixRefLinks =
-						highlight = invertAll = toggle = doTruncate = doParse = doExpand =
-						doStats = doShowHide = doDelForm = doPostForm = checkIn = doStars = emptyFn;
-				}
+				$script('AJAX = delPostPreview = showPostPreview = showNewPosts = doRefPreview =\
+					showRefMap = getRefMap = doRefMap = insertAfter = get_password =\
+					update_captcha = getSelectedText = quote = insert = fixRefLinks =\
+					highlight = invertAll = toggle = doTruncate = doParse = doExpand =\
+					doStats = doShowHide = doDelForm = doPostForm = checkIn = doStars = function(){};'
+				);
 				return false;
 			} },
 			ru: { value: true },
@@ -8087,21 +8071,14 @@ function Navigator(initXtraFns) {
 		if(this.WebKit) {
 			window.URL = window.webkitURL;
 		}
-		uWindow = (this.Opera && !this.isGM) ? window :
-			!this.WebKit ? unsafeWindow :
-			(function() {
-				var el = doc.createElement('p');
-				el.setAttribute('onclick', 'return window;');
-				return el.onclick();
-			})();
 		try {
 			this.Worker = this.Firefox ? (
 				this.Firefox < 20 ? null : (function(w) {
 					w.prototype.postMessage = function() {
-						uWindow['de-worker-proto']._postMessage.apply(this, arguments);
+						unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
 					};
 					return w;
-				})(new Proxy(uWindow['de-worker'], {}))) : window.Worker;
+				})(new Proxy(unsafeWindow['de-worker'], {}))) : window.Worker;
 		} catch(e) {
 			this.Worker = null;
 			this.isWorker = false;
