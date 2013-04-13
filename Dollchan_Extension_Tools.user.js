@@ -5468,7 +5468,7 @@ PostForm.prototype = {
 		}
 	},
 	refreshCapImg: function(tNum, isFocus) {
-		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', pr.form).hasAttribute('value'))) {
+		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
 			return;
 		}
 		var src, e, img = this.recap ? $id('recaptcha_image') || this.recap :
