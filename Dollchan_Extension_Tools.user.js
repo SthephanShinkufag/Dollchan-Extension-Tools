@@ -6709,6 +6709,8 @@ Post.prototype = {
 			break;
 		case 'thumb':
 		case 'ca_thumb':
+			data = this.imagesData[el.src];
+			break;
 		default:
 			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
