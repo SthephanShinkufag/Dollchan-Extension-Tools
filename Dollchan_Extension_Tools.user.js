@@ -6008,6 +6008,7 @@ Post.prototype = {
 					if(temp === this.trunc) {
 						this._getFull(temp, false);
 						e.preventDefault();
+						e.stopPropagation();
 					} else if(aib.brit) {
 						if(temp.className === 'reflink') {
 							el.removeAttribute('onclick');
