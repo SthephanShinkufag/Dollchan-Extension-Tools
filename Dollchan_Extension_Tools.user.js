@@ -6999,9 +6999,9 @@ Pview.prototype._showPost = function(post) {
 			}, 2e3, post);
 		}
 	} else {
-		$q(aib.qRef, el).insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
-		embedMP3Links(post);
-		youTube.parseLinks(post);
+		this._pref.insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
+		embedMP3Links(this);
+		youTube.parseLinks(this);
 		if(Cfg['addImgs']) {
 			embedImagesLinks(el);
 		}
