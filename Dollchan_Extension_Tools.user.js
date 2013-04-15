@@ -3562,8 +3562,10 @@ function parsePages(pages, node) {
 	if(pr.passw) {
 		pages.forEach(function(page) {
 			var node = $q('input[type="password"]', page);
-			pr.dpass = node;
-			node.value = Cfg['passwValue'];
+			if(node) {
+				pr.dpass = node;
+				node.value = Cfg['passwValue'];
+			}
 		});
 	}
 	if(pr.txta) {
@@ -5627,6 +5629,7 @@ PostForm.prototype = {
 		if(aib.tire) {
 			$each($Q('input[type="hidden"]', dForm), $del);
 			dForm.appendChild($c('userdelete', doc.body));
+			this.dpass = $q('input[type="password"]', dForm);
 		}
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
@@ -7468,6 +7471,9 @@ ImageBoard.prototype = {
 			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, span[id$="_display"] { display: none !important; }' },
 			docExt: { value: '.html' },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+			} },
 			ru: { value: true },
 			init: { value: function() {
 				$script('$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =\
@@ -7736,7 +7742,7 @@ ImageBoard.prototype = {
 			qRef: { value: '.del' },
 			qTable: { value: 'form > table, div > table' },
 			getPageUrl: { value: function(b, p) {
-				fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 			} },
 			getPNum: { value: function(post) {
 				return $t('input', post).name;
