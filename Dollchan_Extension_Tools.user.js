@@ -12,7 +12,7 @@
 // @include			https://*
 // ==/UserScript==
 
-(function de_main_func(scriptStorage, minInf) {
+(function de_main_func(scriptStorage) {
 var version = '13.4.14.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
@@ -954,9 +954,6 @@ function readCfg() {
 	youTube = initYouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
 		Cfg['YTubeHD'], Cfg['YTubeTitles']);
 	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
-	readFavorites();
-	readPostsVisib();
-	readViewedPosts();
 }
 
 function toggleCfg(id) {
@@ -3562,8 +3559,10 @@ function parsePages(pages, node) {
 	if(pr.passw) {
 		pages.forEach(function(page) {
 			var node = $q('input[type="password"]', page);
-			pr.dpass = node;
-			node.value = Cfg['passwValue'];
+			if(node) {
+				pr.dpass = node;
+				node.value = Cfg['passwValue'];
+			}
 		});
 	}
 	if(pr.txta) {
@@ -5627,6 +5626,7 @@ PostForm.prototype = {
 		if(aib.tire) {
 			$each($Q('input[type="hidden"]', dForm), $del);
 			dForm.appendChild($c('userdelete', doc.body));
+			this.dpass = $q('input[type="password"]', dForm);
 		}
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
@@ -7469,6 +7469,9 @@ ImageBoard.prototype = {
 			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, span[id$="_display"] { display: none !important; }' },
 			docExt: { value: '.html' },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
+			} },
 			ru: { value: true },
 			init: { value: function() {
 				$script('$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =\
@@ -7737,7 +7740,7 @@ ImageBoard.prototype = {
 			qRef: { value: '.del' },
 			qTable: { value: 'form > table, div > table' },
 			getPageUrl: { value: function(b, p) {
-				fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 			} },
 			getPNum: { value: function(post) {
 				return $t('input', post).name;
@@ -8529,25 +8532,6 @@ function initPage() {
 	updater = new initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
 }
 
-/*function doMiniScript() {
-	fixBrowser();
-	Posts = aProto.slice.call($Q('[de-post]', doc));
-	dForm = $q('[de-form]', doc);
-	dummy = doc.createElement('div');
-	pr = {};
-	Posts.forEach(function(post) {
-		pByNum[post.getAttribute('de-num')] = post;
-		post.img = getPostImages(post);
-	});
-	Cfg = Object.create(defaultCfg, {
-		'linksNavig': { writable: true, configurable: true, value: 2 },
-		'animation':  { writable: true, configurable: true, value: 0 },
-		'expandImgs': { writable: true, configurable: true, value: 1 }
-	});
-	new ImageBoard(minInf['domain']);
-	Posts.forEach(imgs.eventPost, imgs);
-}*/
-
 
 /*==============================================================================
 										MAIN
@@ -8555,21 +8539,21 @@ function initPage() {
 
 function addDelformStuff(isLog) {
 	preloadImages(null);
-	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('preloadImages');
+	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('Preload images');
 	embedMP3Links(null);
-	isLog && Cfg['addMP3'] && $log('embedMP3Links');
+	isLog && Cfg['addMP3'] && $log('MP3 links');
 	youTube.parseLinks(null);
-	isLog && Cfg['addYouTube'] && $log('youTube.parseLinks');
+	isLog && Cfg['addYouTube'] && $log('YouTube links');
 	if(Cfg['addImgs']) {
 		embedImagesLinks(dForm);
-		isLog && $log('embedImagesLinks');
+		isLog && $log('Image links');
 	}
 	if(Cfg['imgSrcBtns']) {
 		addImagesSearch(dForm);
-		isLog && $log('addImagesSearch');
+		isLog && $log('Sauce buttons');
 	}
 	genRefMap(pByNum, '');
-	isLog && Cfg['linksNavig'] === 2 && $log('genRefMap');
+	isLog && Cfg['linksNavig'] === 2 && $log('Reflinks map');
 }
 
 function doScript() {
@@ -8577,13 +8561,16 @@ function doScript() {
 	if(!Initialization()) {
 		return;
 	}
-	$log('Initialization');
+	$log('Init');
 	readCfg();
-	$log('readCfg');
+	readFavorites();
+	readPostsVisib();
+	readViewedPosts();
+	$log('Read config');
 	$disp(doc.body);
 	if(aib.rep || liteMode) {
 		replaceDelform();
-		$log('replaceDelform');
+		$log('Replace delform');
 	}
 	pr = new PostForm($q(aib.qPostForm, doc), !liteMode);
 	if(!tryToParse(dForm)) {
@@ -8591,38 +8578,34 @@ function doScript() {
 		return;
 	}
 	saveFavorites();
-	$log('parseDelform');
+	$log('Parse delform');
 	if(Cfg['keybNavig']) {
 		initKeyNavig();
-		$log('initKeyNavig');
+		$log('Init keybinds');
 	}
 	if(!liteMode) {
 		initPage();
-		$log('initPage');
+		$log('Init page');
 		addPanel();
-		$log('addPanel');
+		$log('Add panel');
 	}
 	initMessageFunctions();
 	addDelformStuff(true);
 	scriptCSS();
 	$disp(doc.body);
-	$log('scriptCSS');
+	$log('Apply CSS');
 	firstThr.checkSpells();
-	$log('firstThr.checkSpells');
+	$log('Apply spells');
 	savePostsVisib();
 	saveUserPostsVisib();
-	$log('readPosts');
+	$log('Save posts');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
 if(/interactive|complete/.test(doc.readyState)) {
-	if(minInf) {
-		doMiniScript();
-	} else {
-		doScript();
-	}
+	doScript();
 } else {
-	$event(doc, {'DOMContentLoaded': minInf ? doMiniScript : doScript});
+	$event(doc, {'DOMContentLoaded': doScript});
 }
 
-})(window.opera && window.opera.scriptStorage, null);
+})(window.opera && window.opera.scriptStorage);
