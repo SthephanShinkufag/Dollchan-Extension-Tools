@@ -6830,7 +6830,7 @@ Post.prototype = {
 		}
 	},
 	_removeFullImage: function(e, full, thumb, data) {
-		var pEl, pv, box, x, y, inPost = data && data.expanded;
+		var pEl, pv, box, x, y, inPost = data ? data.expanded : Cfg['expandImgs'] === 1;
 		if(data) {
 			data.expanded = false;
 		}
