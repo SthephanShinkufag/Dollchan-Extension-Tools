@@ -6973,6 +6973,7 @@ Pview.prototype._showPost = function(post) {
 		this._markLink(this.parent.num);
 	}
 	this._pref = $q(aib.qRef, el);
+	this.thr = post.thr;
 	if(post.inited) {
 		panel = $c('de-ppanel', el);
 		panel.classList.remove('de-ppanel-cnt');
