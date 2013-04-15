@@ -6685,13 +6685,14 @@ Post.prototype = {
 			}
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			this._removeFullImage(e, el, iEl, this.imagesData[iEl.src]);
+			this._removeFullImage(e, el, iEl, this.imagesData[iEl.src] || iEl.data);
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
 				iEl = new Image();
 				iEl.src = el.src;
 				data = el.data = {
+					expanded: false,
 					width: iEl.width,
 					height: iEl.height,
 					src: el.src
@@ -6830,13 +6831,11 @@ Post.prototype = {
 		}
 	},
 	_removeFullImage: function(e, full, thumb, data) {
-		var pEl, pv, box, x, y, inPost = data ? data.expanded : Cfg['expandImgs'] === 1;
-		if(data) {
-			data.expanded = false;
-		}
+		var pEl, pv, box, x, y, inPost = data.expanded;
 		if(inPost) {
 			thumb.style.display = '';
 		}
+		data.expanded = false;
 		if(nav.Firefox && (pEl = Pview.getPview(full))) {
 			box = pEl.getBoundingClientRect();
 			x = e.pageX;
