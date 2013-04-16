@@ -6165,7 +6165,7 @@ Post.prototype = {
 		if(this._imagesData) {
 			return this._imagesData;
 		}
-		var i, len, wrap, size, wi, els = getPostImages(this.el),
+		var i, len, data, els = getPostImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
@@ -6173,16 +6173,14 @@ Post.prototype = {
 			if(!/\.jpe?g|\.png|\.gif|^blob:/i.test(fullSrc)) {
 				data[el.src] = null;
 			} else {
-				wrap = aib.getPicWrap(el.parentNode);
-				size = aib.getImgSize(wrap);
-				wi = $c(aib.cFileInfo, wrap).textContent.match(/(\d+(?:\.\d+)?)\s*([mkк])?[bб]/i);
+				data = aib.getImgData(aib.getPicWrap(el.parentNode));
 				data[el.src] = {
 					el: el,
 					expanded: false,
-					height: size[1],
+					height: data[1],
 					src: fullSrc,
-					weight: wi[2] === 'M' ? (wi[1] * 1e3) | 0 : !wi[2] ? Math.round(wi[1] / 1e3) : wi[1],
-					width: size[0]
+					weight: data[2],
+					width: data[0]
 				};
 			}
 		}
@@ -7486,16 +7484,6 @@ ImageBoard.prototype = {
 
 			tire: { value: true }
 		}],
-		'2ch.nu': [{
-			getImgSize: { value: function(post) {
-				var el = $c(this.cFileInfo, post),
-					m = el ? el.nextSibling.textContent.match(/(\d+)[x×](\d+)/) : false;
-				return m ? m.slice(1) : [null, null];
-			} },
-			css: { get: function() {
-				return ImageBoard.prototype._bEngines['#ABU_css'].css.value + '#ABU_fuck { display: none !important; }';
-			} }
-		}],
 		'410chan.org': [{
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
@@ -7579,9 +7567,9 @@ ImageBoard.prototype = {
 			qImgLink: { value: '.fileinfo' },
 			qDForm: { value: '.threadz' },
 			qTable: { value: 'div[id^="replies"] > table' },
-			getImgSize: { value: function(post) {
+			getImgData: { value: function(post) {
 				var m = $c(this.cFileInfo, post).onclick.toString().split("', '");
-				return [m[3], m[4]];
+				return [m[3], m[4], -1];
 			} },
 			getOp: { value: function(thr, dc) {
 				var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
@@ -7907,10 +7895,15 @@ ImageBoard.prototype = {
 			}
 			return el;
 		},
-		getImgSize: function(post) {
-			var el = $c(this.cFileInfo, post),
-				m = el ? el.textContent.match(/(\d+)[x×](\d+)/) : false;
-			return m ? m.slice(1) : [null, null];
+		getImgData: function(post) {
+			var w, sz, text, el = $c(this.cFileInfo, post);
+			if(el) {
+				text = el.textContent;
+				w = text.match(/(\d+)[x×](\d+)/);
+				sz = text.match(/(\d+(?:\.\d+)?)\s*([mkк])?[bб]/i);
+				return [sz[1], sz[2], w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1]];
+			}
+			return [null, null, null];
 		},
 		getOmitted: function(el, len) {
 			var txt;
