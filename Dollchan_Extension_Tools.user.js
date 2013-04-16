@@ -6165,7 +6165,7 @@ Post.prototype = {
 		if(this._imagesData) {
 			return this._imagesData;
 		}
-		var i, len, data, els = getPostImages(this.el),
+		var i, len, dat, els = getPostImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
@@ -6173,14 +6173,14 @@ Post.prototype = {
 			if(!/\.jpe?g|\.png|\.gif|^blob:/i.test(fullSrc)) {
 				data[el.src] = null;
 			} else {
-				data = aib.getImgData(aib.getPicWrap(el.parentNode));
+				dat = aib.getImgData(aib.getPicWrap(el.parentNode));
 				data[el.src] = {
 					el: el,
 					expanded: false,
-					height: data[1],
+					height: dat[1],
 					src: fullSrc,
-					weight: data[2],
-					width: data[0]
+					weight: dat[2],
+					width: dat[0]
 				};
 			}
 		}
