@@ -8395,9 +8395,10 @@ function initThreadUpdater(title, enableUpdater) {
 			if(eCode !== 0 && Math.floor(eCode / 500) === 0) {
 				if(eCode === 404 && !checked404) {
 					checked404 = true;
+				} else {
+					disable();
+					return;
 				}
-				disable();
-				return;
 			}
 			setState('warn');
 			loadTO = setTimeout(loadPostsFun, delay);
