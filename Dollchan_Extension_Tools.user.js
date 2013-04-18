@@ -3487,7 +3487,7 @@ function ajaxGetPosts(url, isParse, Fn, errFn) {
 			} else if(Fn) {
 				var thr, dc = nav.toDOM(xhr.responseText);
 				if(isParse) {
-					thr = parseDelform($q(aib.qDForm, dc), dc, false).el;
+					thr = parsePage($q(aib.qDForm, dc), dc, null, false).el;
 					Fn(aib.getPosts(thr), aib.getOp(thr, dc));
 				} else {
 					Fn(dc, null);
@@ -3550,7 +3550,9 @@ function parsePages(pages, node) {
 	dForm = node;
 	readFavorites();
 	readPostsVisib();
-	pages.forEach(tryToParse);
+	firstThr = pages.reduceRight(function(lThr, page) {
+		return tryToParse(page, lThr);
+	}, null);
 	addDelformStuff(false);
 	firstThr.checkSpells();
 	saveFavorites();
@@ -6674,7 +6676,7 @@ Post.prototype = {
 		}
 	},
 	_clickImage: function(el, e) {
-		var data, iEl;
+		var data, iEl, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
 		switch(el.className) {
 		case 'de-img-full de-img-center':
 			if(el.moved) {
@@ -6708,10 +6710,10 @@ Post.prototype = {
 			data = this.imagesData[el.src];
 		}
 		if(data) {
-			if(Cfg['expandImgs'] === 2 && (iEl = $c('de-img-center', el.parentNode))) {
+			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
 			} else {
-				this._addFullImage(el, data, Cfg['expandImgs'] === 1, !this._isPview);
+				this._addFullImage(el, data, inPost, !this._isPview);
 			}
 		}
 		e.preventDefault();
@@ -6933,7 +6935,7 @@ Pview.prototype._readDelay = 0;
 Pview.prototype._onload = function(b, tNum, pNum, dc) {
 	var post, rm, prNum = this.parent.num,
 		df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
-	parseDelform(df, doc, false).pviewParse(tNum, this._cached[b] = {});
+	parsePage(df, doc, null, false).pviewParse(tNum, this._cached[b] = {});
 	genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
 	if((post = this._cached[b][pNum]) && (brd !== b || !this._cached[b][prNum])) {
 		if(!(rm = $c('de-refmap', post.el))) {
@@ -8155,10 +8157,9 @@ Navigator.prototype = {
 	}
 };
 
-function parseDelform(el, dc, parse) {
+function parsePage(el, dc, lThr, parse) {
 	var i, thrds = $Q(aib.qThread, el),
-		len = thrds.length,
-		thr = null;
+		len = thrds.length;
 	if(!firstThr || firstThr.gInfo.allPCount < 2) {
 		if(!aib.qTable) {
 			if($q('td.' + aib.cReply, el)) {
@@ -8196,16 +8197,17 @@ function parseDelform(el, dc, parse) {
 		len = thrds.length;
 	}
 	for(i = len - 1; i >= 0; i--) {
-		thr = new Thread(thrds[i], thr, parse);
+		lThr = new Thread(thrds[i], lThr, parse);
 	}
 	thrds = null;
-	return thr;
+	return lThr;
 }
 
-function tryToParse(node) {
+function tryToParse(node, lastThr) {
+	var el, lThr, thr;
 	$each($T('script', node), $del);
 	try {
-		firstThr = parseDelform(node, doc, true);
+		thr = parsePage(node, doc, lastThr, true);
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (e.stack ? (nav.WebKit ? e.stack :
 			e.name + ': ' + e.message + '\n' +
@@ -8213,17 +8215,17 @@ function tryToParse(node) {
 				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 			}) : e.stack)
 		) : e.name + ': ' + e.message));
-		return false;
+		return null;
 	}
 	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
 	if(aib.abu && TNum) {
-		var el, lThr = firstThr.el;
+		lThr = thr.el;
 		while((el = lThr.nextSibling) && el.tagName !== 'HR') {
 			$del(el);
 		}
 	}
-	return true;
+	return thr;
 }
 
 function replaceString(txt) {
@@ -8565,7 +8567,8 @@ function doScript() {
 		$log('Replace delform');
 	}
 	pr = new PostForm($q(aib.qPostForm, doc), !liteMode);
-	if(!tryToParse(dForm)) {
+	firstThr = tryToParse(dForm, null);
+	if(!firstThr) {
 		$disp(doc.body);
 		return;
 	}
