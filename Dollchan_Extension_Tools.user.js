@@ -5249,8 +5249,7 @@ function PostForm(form, init) {
 	this.tNum = TNum;
 	this.form = form;
 	this.recap = $id('recaptcha_response_field');
-	this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])',
-		form) || this.recap;
+	this.cap = this._getCaptchaEl() || this.recap;
 	this.txta = $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q(tr + ' input[type="submit"]', form);
 	this.file = $q(tr + ' input[type="file"]', form);
@@ -5473,7 +5472,7 @@ PostForm.prototype = {
 			return;
 		}
 		var src, e, img = this.recap ? $id('recaptcha_image') || this.recap :
-			$t('img', PostForm.getTR(this.cap));
+			$t('img', PostForm.getTR(aib.abu ? this._getCaptchaEl() : this.cap));
 		if(aib.hana || aib.abu || aib.krau || this.recap) {
 			e = doc.createEvent('MouseEvents');
 			e.initEvent('click', true, true);
@@ -5484,7 +5483,7 @@ PostForm.prototype = {
 			img.src = src;
 		}
 		if(aib.abu) {
-			this.cap = $q('input[name^="captcha_value"]', this.form);
+			this.cap = this._getCaptchaEl();
 		} else {
 			this.cap.value = '';
 		}
@@ -5595,6 +5594,9 @@ PostForm.prototype = {
 			$pd(e);
 			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
 		}}));
+	},
+	_getCaptchaEl: function() {
+		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form);
 	},
 	_init: function() {
 		var el, btn, pArea = $New('div', {'id': 'de-parea'}, [
