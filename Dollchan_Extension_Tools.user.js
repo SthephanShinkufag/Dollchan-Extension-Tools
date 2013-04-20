@@ -7605,7 +7605,7 @@ ImageBoard.prototype = {
 			qDForm: { value: '.board' },
 			arch: { value: true }
 		}, null, '4chan.org'],
-		'choroypride.org': [{
+		'choroychan.org': [{
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:cejas"]', post);
 			} }
