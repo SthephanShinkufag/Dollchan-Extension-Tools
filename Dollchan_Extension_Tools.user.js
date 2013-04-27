@@ -1465,9 +1465,11 @@ function showContent(cont, id, name, isUpd) {
 				$each($C('de-entry', doc), function(el) {
 					var arr = el.getAttribute('info').split(';');
 					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(eCode, eMsg) {
-						removeFavorites(arr[0], arr[1], arr[2]);
-						saveFavorites();
-						arr = null;
+						if(eCode === 404) {
+							removeFavorites(arr[0], arr[1], arr[2]);
+							saveFavorites();
+							arr = null;
+						}
 					});
 				});
 			}),
