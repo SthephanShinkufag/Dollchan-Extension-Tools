@@ -411,7 +411,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, comCfg, hThr, comHThr, Favor, pByNum = {}, sVis, uVis,
+Cfg, comCfg, hThr, Favor, pByNum = {}, sVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, firstThr, visPosts = 2,
 pr, dForm, dummy, postWrapper, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -773,10 +773,13 @@ function getPrettyJSON(obj, indent) {
 			if(iCount > 0) {
 				sJSON += ',';
 			}
+			if(type === 'object' && $isEmpty(val)) {
+				continue;
+			}
 			sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 				type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 				type === 'boolean' || type === 'number' ? val.toString() :
-				type === 'string' ? '"' + val.replace(/(["\n\\])/g, '\\$1') + '"' : type
+				type === 'string' ? '"' + val.replace(/(["\n\r\\])/g, '\\$1') + '"' : type
 			);
 			iCount++;
 		}
@@ -975,7 +978,10 @@ function readPostsVisib() {
 		}
 	}
 	uVis = getStoredObj('DESU_Posts_' + aib.dm + '_' + brd);
-	readHiddenThreads();
+	hThr = getStoredObj('DESU_Threads_' + aib.dm);
+	if(!(brd in hThr)) {
+		hThr[brd] = {};
+	}
 }
 
 function savePostsVisib() {
@@ -987,7 +993,7 @@ function savePostsVisib() {
 		sessionStorage['de-hidden-' + brd + TNum] =
 			(Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
 	}
-	saveHiddenThreads();
+	saveHiddenThreads(false);
 	toggleContent('hid', true);
 }
 
@@ -1006,25 +1012,11 @@ function saveUserPostsVisib() {
 	toggleContent('hid', true);
 }
 
-function readHiddenThreads() {
-	comHThr = getStoredObj('DESU_Threads');
-	hThr = (comHThr[aib.dm] || {})[brd] || {};
-}
-
-function cleanHiddenThreads(b) {
-	if($isEmpty(comHThr[aib.dm][b])) {
-		delete comHThr[aib.dm][b];
+function saveHiddenThreads(updContent) {
+	setStored('DESU_Threads_' + aib.dm, JSON.stringify(hThr));
+	if(updContent) {
+		toggleContent('hid', true);
 	}
-	if($isEmpty(comHThr[aib.dm])) {
-		delete comHThr[aib.dm];
-	}
-}
-
-function saveHiddenThreads() {
-	comHThr = getStoredObj('DESU_Threads');
-	(comHThr[aib.dm] || (comHThr[aib.dm] = {}))[brd] = hThr;
-	cleanHiddenThreads(brd);
-	setStored('DESU_Threads', JSON.stringify(comHThr));
 }
 
 function readFavorites() {
@@ -1272,7 +1264,7 @@ function addContentBlock(parent, title) {
 }
 
 function showContent(cont, id, name, isUpd) {
-	var h, b, tNum, i, els, post, cln, block, obj;
+	var h, b, tNum, i, els, post, cln, block;
 	cont.innerHTML = cont.style.backgroundColor = '';
 	if(!isUpd && cont.id === id) {
 		cont.removeAttribute('id');
@@ -1286,8 +1278,6 @@ function showContent(cont, id, name, isUpd) {
 	}
 
 	if(name === 'hid') {
-		readHiddenThreads();
-		obj = comHThr[aib.dm];
 		for(i = 0, els = $C('de-post-hid', dForm); post = els[i++];) {
 			if(post.isOp) {
 				continue;
@@ -1322,7 +1312,6 @@ function showContent(cont, id, name, isUpd) {
 							el.clone.setUserVisib(false);
 						}
 					});
-					saveHiddenThreads();
 					saveUserPostsVisib();
 				})
 			]);
@@ -1331,56 +1320,62 @@ function showContent(cont, id, name, isUpd) {
 		}
 		$append(cont, [
 			doc.createElement('hr'),
-			$new('b', {'text': ($isEmpty(obj) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
+			$new('b', {'text': ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
 		]);
-		if(!$isEmpty(obj)) {
-			for(b in obj) {
+		if(!$isEmpty(hThr)) {
+			for(b in hThr) {
+				if($isEmpty(hThr[b])) {
+					continue;
+				}
 				block = addContentBlock(cont, '/' + b);
-				for(tNum in obj[b]) {
+				for(tNum in hThr[b]) {
 					block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
 						tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
 						aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
-						obj[b][tNum] + '</div></div>');
+						hThr[b][tNum] + '</div></div>');
 				}
 			}
 		}
 		$append(cont, [
 			doc.createElement('hr'),
-			addEditButton('hidden', comHThr[aib.dm], true, function() {
-				comHThr[aib.dm] = JSON.parse(
-					$t('textarea', $id('de-alert-edit-hidden')).value.trim().replace(/[\n\r\t]/g, '')
-				);
-				setStored('DESU_Threads', JSON.stringify(comHThr));
+			addEditButton('hidden', hThr, true, function(data) {
+				hThr = data;
+				if(!(brd in hThr)) {
+					hThr[brd] = {};
+				}
+				firstThr.updateHidden(hThr[brd]);
+				saveHiddenThreads(true);
+				localStorage['__de-threads'] = JSON.stringify(hThr);
+				localStorage.removeItem('__de-threads');
 			}),
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					if(nav.Opera && !nav.isGM && arr[0] !== aib.host) {
-						return;
-					}
 					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(eCode, eMsg) {
-						delete comHThr[aib.dm][arr[0]][arr[1]];
-						cleanHiddenThreads(arr[0]);
-						saveHiddenThreads();
-						saveUserPostsVisib();
-						arr = null;
-					});
+						if(eCode === 404) {
+							delete hThr[this[0]][this[1]];
+							saveHiddenThreads(true);
+						}
+					}.bind(arr));
 				});
 			}),
 			$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
-					var arr = el.getAttribute('info').split(';');
+					var post, arr = el.getAttribute('info').split(';');
 					if($t('input', el).checked) {
-						if(pByNum[arr[1]]) {
+						if(arr[1] in pByNum) {
 							pByNum[arr[1]].setUserVisib(false);
-						} else {
-							delete comHThr[aib.dm][arr[0]][arr[1]];
-							cleanHiddenThreads(arr[0]);
 						}
+						delete hThr[arr[0]][arr[1]];
+						localStorage['__de-thread'] = JSON.stringify({
+							'brd': arr[0],
+							'num': arr[1],
+							'title': ''
+						});
+						localStorage.removeItem('__de-thread');
+						saveHiddenThreads(true);
 					}
 				});
-				saveHiddenThreads();
-				saveUserPostsVisib();
 			})
 		]);
 	}
@@ -1413,9 +1408,7 @@ function showContent(cont, id, name, isUpd) {
 		$append(cont, [
 			doc.createElement('hr'),
 			addEditButton('favor', Favor, true, function() {
-				Favor = JSON.parse(
-					$t('textarea', $id('de-alert-edit-favor')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
-				);
+				Favor = data;
 				setStored('DESU_Favorites', JSON.stringify(Favor));
 			}),
 			$btn(Lng.info[lang], Lng.infoCount[lang], function() {
@@ -1846,7 +1839,7 @@ function getCfgCommon() {
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
 			addEditButton('css', Cfg['userCSSTxt'], false, function() {
-				saveCfg('userCSSTxt', $t('textarea', $id('de-alert-edit-css')).value);
+				saveCfg('userCSSTxt', this.value);
 				updateCSS();
 			})
 		]),
@@ -1915,18 +1908,23 @@ function getCfgInfo() {
 
 function addEditButton(name, val, isJSON, Fn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
+		var ta = $new('textarea', {'class': 'de-editor', 'value': isJSON ? getPrettyJSON(val, '') : val}, null);
 		$alert('', 'edit-' + name, false);
 		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
 			$txt(Lng.editor[name][lang]),
-			$new('textarea', {'class': 'de-editor', 'value': isJSON ? getPrettyJSON(val, '') : val}, null),
-			$btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function() {
+			ta,
+			$btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function(fun, aName) {
+				var data;
 				try {
-					Fn();
-					window.location.reload();
+					data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
 				} catch(e) {
 					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+					return;
 				}
-			} : Fn)
+				fun(data);
+				closeAlert($id('de-alert-edit-' + aName));
+				closeAlert($id('de-alert-err-invaliddata'));
+			}.bind(ta, Fn, name) : Fn.bind(ta))
 		]);
 	});
 }
@@ -1973,10 +1971,8 @@ function addSettings(Set) {
 					saveComCfg('global', obj);
 					toggleContent('cfg', true);
 				})),
-				addEditButton('cfg', Cfg, true, function() {
-					saveComCfg(aib.dm, JSON.parse(
-						$t('textarea', $id('de-alert-edit-cfg')).value.trim().replace(/\\\n|[\n\r\t]/g, '')
-					));
+				addEditButton('cfg', Cfg, true, function(data) {
+					saveComCfg(aib.dm, data);
 				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
@@ -6143,6 +6139,9 @@ Post.prototype = {
 		if(uVis[this.num]) {
 			return;
 		}
+		if(this.isOp) {
+			this._setOpVisib(!this.hidden);
+		}
 		if(this.hidden) {
 			$del(this.note);
 			this._addNote(note);
@@ -6251,7 +6250,6 @@ Post.prototype = {
 			el = $id('de-thr-hid-' + (num = this.num));
 			if(!hide && el) {
 				$del(el);
-				this._setOpVisib(true);
 			}
 			if(hide && !el) {
 				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
@@ -6271,7 +6269,6 @@ Post.prototype = {
 				el.onmouseout = function() {
 					this.style.display = 'none';
 				}.bind(tEl);
-				this._setOpVisib(false);
 			}
 			return;
 		}
@@ -6337,10 +6334,11 @@ Post.prototype = {
 		}
 	},
 	toggleUserVisib: function() {
-		this.setUserVisib(!this.hidden);
 		if(this.isOp) {
-			saveHiddenThreads();
+			this._setOpVisib(!this.hidden);
+			saveHiddenThreads(false);
 		}
+		this.setUserVisib(!this.hidden);
 		saveUserPostsVisib();
 	},
 	get trip() {
@@ -6647,7 +6645,7 @@ Post.prototype = {
 		var vis = sVis[i];
 		if(uVis[num]) {
 			if(isOp) {
-				uVis[num][0] = num in hThr ? 0 : 1;
+				uVis[num][0] = (num in hThr[brd]) ? 0 : 1;
 			}
 			if(uVis[num][0] === 0) {
 				this.setUserVisib(true);
@@ -6664,7 +6662,7 @@ Post.prototype = {
 			return;
 		}
 		if(isOp) {
-			if(num in hThr) {
+			if(num in hThr[brd]) {
 				sVis[i] = vis = '0';
 			} else if(vis === '0') {
 				vis = null;
@@ -6866,12 +6864,18 @@ Post.prototype = {
 		}
 		$del(full);
 	},
-	_setOpVisib: function(visible) {
-		if(visible) {
-			delete hThr[this.num];
+	_setOpVisib: function(hide) {
+		if(hide) {
+			hThr[brd][this.num] = this.title;
 		} else {
-			hThr[this.num] = this.title;
+			delete hThr[brd][this.num];
 		}
+		localStorage['__de-thread'] = JSON.stringify({
+			'brd': brd,
+			'num': this.num,
+			'title': hide ? this.title : ''
+		});
+		localStorage.removeItem('__de-thread');
 	}
 }
 
@@ -7182,6 +7186,20 @@ Thread.prototype = {
 		}
 		return posts;
 	},
+	updateHidden: function(data) {
+		var thr = this, realHid;
+		do {
+			realHid = thr.num in data;
+			if(thr.hidden ^ realHid) {
+				if(realHid) {
+					thr.op.setUserVisib(true);
+					data[thr.num] = thr.op.title;
+				} else if(thr.hidden) {
+					thr.op.setUserVisib(false);
+				}
+			}
+		} while(thr = thr.next);
+	},
 
 	_length: 0,
 	_loadedOnce: false,
@@ -7392,6 +7410,53 @@ function Initialization() {
 		return false;
 	}
 	nav = new Navigator(true);
+
+	window.addEventListener('storage', function(e) {
+		var data, temp, post, val = e.newValue;
+		if(!val) {
+			return;
+		}
+		switch(e.key) {
+		case '__de-thread': {
+			try {
+				data = JSON.parse(val);
+			} catch(e) {
+				return;
+			}
+			temp = !!data['title'];
+			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
+				post.setUserVisib(temp);
+			}
+			if(!(data['brd'] in hThr)) {
+				if(temp) {
+					hThr[data['brd']] = {};
+				} else {
+					break;
+				}
+			}
+			if(temp) {
+				hThr[data['brd']][data['num']] = data['title'];
+			} else {
+				delete hThr[data['brd']][data['num']];
+			}
+			break;
+		}
+		case '__de-threads': {
+			try {
+				hThr = JSON.parse(val);
+			} catch(e) {
+				return;
+			}
+			if(!(brd in hThr)) {
+				hThr[brd] = {};
+			}
+			firstThr.updateHidden(hThr[brd]);
+			break;
+		}
+		default: return;
+		}
+		toggleContent('hid', true);
+	}, false);
 
 	// Page properties
 	url = (window.location.pathname || '').match(new RegExp(
@@ -7605,7 +7670,7 @@ ImageBoard.prototype = {
 			qDForm: { value: '.board' },
 			arch: { value: true }
 		}, null, '4chan.org'],
-		'choroychan.org': [{
+		'choroypride.org': [{
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:cejas"]', post);
 			} }
