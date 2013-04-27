@@ -5399,70 +5399,77 @@ PostForm.prototype = {
 			})
 		);
 		for(var id in btns) {
-			if(btns.hasOwnProperty(id)) {
-				key = btns[id];
-				if(key['off']) {
-					continue;
-				}
-				if(!(btn = $id('de-btn-' + id))) {
-					btn = $new('span', {
-						'id': 'de-btn-' + id,
-						'title': Lng.txtBtn[id][lang],
-						'de-tag': key['tag'],
-						'de-bb': bb || !!key['bb']
-					}, null);
-					if(id === 'quote') {
-						btn.onmouseover = function() {
-							quotetxt = $txtSelect();
-						};
-						btn.onclick = function(e) {
-							var x = pr.txta,
-								start = x.selectionStart,
-								end = x.selectionEnd;
-							$pd(e);
-							$txtInsert(x, '> ' + (
-								start === end ? quotetxt : x.value.substring(start, end)
-							).replace(/\n/gm, '\n> '));
-						};
-					} else {
-						btn.onclick = function(e) {
-							var txt, len, x = pr.txta,
-								start = x.selectionStart,
-								end = x.selectionEnd,
-								scrtop = x.scrollTop,
-								tag = this.getAttribute('de-tag');
-							$pd(e);
-							if(this.getAttribute('de-bb') === 'true') {
-								txt = '[' + tag + ']' + x.value.substring(start, end) + '[/' + tag + ']';
-							} else {
-								txt = '';
-								x.value.substring(start, end).split('\n').forEach(function(line) {
-									var m = line.match(/^(\s*)(.*?)(\s*)$/);
-									txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
-										: m[2] + new Array(m[2].length + 1).join('^H')
-									) + m[3];
-								});
-								txt = txt.slice(1);
-							}
-							len = start + txt.length;
-							x.value = x.value.substr(0, start) + txt + x.value.substr(end);
-							x.setSelectionRange(len, len);
-							x.focus();
-							x.scrollTop = scrtop;
-							txt = tag = null;
-						};
-					}
-					tPanel.appendChild(btn);
-				}
-				btn.innerHTML =
-					Cfg['addTextBtns'] === 2 ? (
-						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] + '</a>' +
-						(id !== 'quote' ? ' / ' : ' ]')
-					) :
-					Cfg['addTextBtns'] === 3 ?
-						('<input type="button" value="' + key['val'] + '" style="font-weight: bold;">') :
-					'';
+			if(!btns.hasOwnProperty(id)) {
+				continue;
 			}
+			key = btns[id];
+			if(key['off']) {
+				continue;
+			}
+			if(!(btn = $id('de-btn-' + id))) {
+				btn = $new('span', {
+					'id': 'de-btn-' + id,
+					'title': Lng.txtBtn[id][lang],
+					'de-tag': key['tag'],
+					'de-bb': bb || !!key['bb']
+				}, null);
+				if(id === 'quote') {
+					btn.onmouseover = function() {
+						quotetxt = $txtSelect();
+					};
+					btn.onclick = function(e) {
+						var x = pr.txta,
+							start = x.selectionStart,
+							end = x.selectionEnd;
+						$pd(e);
+						$txtInsert(x, '> ' + (
+							start === end ? quotetxt : x.value.substring(start, end)
+						).replace(/\n/gm, '\n> '));
+					};
+				} else {
+					btn.onclick = function(e) {
+						var txt, temp, len, x = pr.txta,
+							start = x.selectionStart,
+							end = x.selectionEnd,
+							scrtop = x.scrollTop,
+							tag = this.getAttribute('de-tag');
+						$pd(e);
+						if(this.getAttribute('de-bb') === 'true') {
+							txt = x.value.substring(start, end);
+							if(txt.contains('\n')) {
+								txt = '[' + tag + ']' + txt + '[/' + tag + ']';
+							} else {
+								temp = txt.match(/^(\s*)(.*?)(\s*)$/);
+								txt = temp[1] + '[' + tag + ']' + temp[2] + '[/' + tag + ']' + temp[3];
+							}
+						} else {
+							txt = '';
+							x.value.substring(start, end).split('\n').forEach(function(line) {
+								var m = line.match(/^(\s*)(.*?)(\s*)$/);
+								txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
+									: m[2] + new Array(m[2].length + 1).join('^H')
+								) + m[3];
+							});
+							txt = txt.slice(1);
+						}
+						len = start + txt.length;
+						x.value = x.value.substr(0, start) + txt + x.value.substr(end);
+						x.setSelectionRange(len, len);
+						x.focus();
+						x.scrollTop = scrtop;
+						txt = tag = null;
+					};
+				}
+				tPanel.appendChild(btn);
+			}
+			btn.innerHTML =
+				Cfg['addTextBtns'] === 2 ? (
+					(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] + '</a>' +
+					(id !== 'quote' ? ' / ' : ' ]')
+				) :
+				Cfg['addTextBtns'] === 3 ?
+					('<input type="button" value="' + key['val'] + '" style="font-weight: bold;">') :
+				'';
 		}
 	},
 	refreshCapImg: function(tNum, isFocus) {
