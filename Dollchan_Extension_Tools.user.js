@@ -5232,7 +5232,7 @@ function PostForm(form, init) {
 	}
 	if(!form) {
 		if(this.oeForm) {
-			ajaxGetPosts(aib.getThrdUrl(brd, firstThr.num), false, function(dc) {
+			ajaxGetPosts(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc) {
 				pr = new PostForm(doc.importNode($q(aib.qPostForm, dc), true), init);
 			});
 		} else {
