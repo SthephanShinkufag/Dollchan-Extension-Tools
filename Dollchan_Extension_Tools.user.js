@@ -1319,7 +1319,7 @@ function showContent(cont, id, name, isUpd) {
 				$btn(Lng.save[lang], '', function() {
 					$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
 						if(!el.post.hidden) {
-							el.clone.setUserVisib(false, date);
+							el.clone.setUserVisib(false, date, true);
 						}
 					}.bind(null, Date.now()));
 					saveUserPostsVisib();
@@ -1374,20 +1374,21 @@ function showContent(cont, id, name, isUpd) {
 					var post, arr = el.getAttribute('info').split(';');
 					if($t('input', el).checked) {
 						if(arr[1] in pByNum) {
-							pByNum[arr[1]].setUserVisib(false, date);
+							pByNum[arr[1]].setUserVisib(false, date, true);
+						} else {
+							localStorage['__de-post'] = JSON.stringify({
+								'brd': arr[0],
+								'date': date,
+								'isOp': true,
+								'num': arr[1],
+								'title': ''
+							});
+							localStorage.removeItem('__de-post');
 						}
 						delete hThr[arr[0]][arr[1]];
-						localStorage['__de-post'] = JSON.stringify({
-							'brd': arr[0],
-							'date': date,
-							'isOp': true,
-							'num': arr[1],
-							'title': ''
-						});
-						localStorage.removeItem('__de-post');
-						saveHiddenThreads(true);
 					}
 				}.bind(null, Date.now()));
+				saveHiddenThreads(true);
 			})
 		]);
 	}
@@ -5932,7 +5933,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 			delete uVis[i];
 		}
 	} else {
-		post.setUserVisib(true, date);
+		post.setUserVisib(true, date, true);
 		post._addNote('similar to >>' + oNum);
 	}
 	return false;
@@ -6243,8 +6244,8 @@ Post.prototype = {
 	get sage() {
 		return this.hasOwnProperty('_sage') ? this._sage : (this._sage = aib.getSage(this.el));
 	},
-	setUserVisib: function(hide, date) {
-		var num = this.num;
+	setUserVisib: function(hide, date, sync) {
+		var isOp, num = this.num;
 		this.setVisib(hide, null);
 		this.btns.firstChild.className = 'de-btn-hide-user';
 		if(hide) {
@@ -6253,6 +6254,17 @@ Post.prototype = {
 			this.unhideRefs();
 		}
 		uVis[num] = [+!hide, date];
+		if(sync) {
+			isOp = this.isOp;
+			localStorage['__de-post'] = JSON.stringify({
+				'brd': brd,
+				'date': date,
+				'isOp': isOp,
+				'num': this.num,
+				'title': hide ? isOp ? this.title : '1' : ''
+			});
+			localStorage.removeItem('__de-post');
+		}
 	},
 	setVisib: function(hide, note) {
 		var el, a, num, tEl, thr;
@@ -6351,7 +6363,7 @@ Post.prototype = {
 		var isOp = this.isOp,
 			hide = !this.hidden,
 			date = Date.now();
-		this.setUserVisib(hide, date);
+		this.setUserVisib(hide, date, true);
 		if(isOp) {
 			if(hide) {
 				hThr[brd][this.num] = this.title;
@@ -6361,14 +6373,6 @@ Post.prototype = {
 			saveHiddenThreads(false);
 		}
 		saveUserPostsVisib();
-		localStorage['__de-post'] = JSON.stringify({
-			'brd': brd,
-			'date': date,
-			'isOp': isOp,
-			'num': this.num,
-			'title': hide ? isOp ? this.title : '1' : ''
-		});
-		localStorage.removeItem('__de-post');
 	},
 	get trip() {
 		var el;
@@ -6677,7 +6681,7 @@ Post.prototype = {
 				uVis[num][0] = (num in hThr[brd]) ? 0 : 1;
 			}
 			if(uVis[num][0] === 0) {
-				this.setUserVisib(true, Date.now());
+				this.setUserVisib(true, Date.now(), false);
 			} else {
 				uVis[num][1] = Date.now();
 				this.btns.firstChild.className = 'de-btn-hide-user';
@@ -7209,10 +7213,10 @@ Thread.prototype = {
 			realHid = thr.num in data;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
-					thr.op.setUserVisib(true, date);
+					thr.op.setUserVisib(true, date, false);
 					data[thr.num] = thr.op.title;
 				} else if(thr.hidden) {
-					thr.op.setUserVisib(false, date);
+					thr.op.setUserVisib(false, date, false);
 				}
 			}
 		} while(thr = thr.next);
@@ -7442,7 +7446,7 @@ function Initialization() {
 			}
 			temp = !!data['title'];
 			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
-				post.setUserVisib(temp, data['date']);
+				post.setUserVisib(temp, data['date'], false);
 			} else {
 				if(!(data['brd'] in bUVis)) {
 					bUVis[data['brd']] = {};
