@@ -411,7 +411,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, comCfg, hThr, Favor, pByNum = {}, sVis, uVis,
+Cfg, comCfg, hThr, Favor, pByNum = {}, sVis, bUVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, firstThr, visPosts = 2,
 pr, dForm, dummy, postWrapper, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -779,7 +779,7 @@ function getPrettyJSON(obj, indent) {
 			sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 				type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 				type === 'boolean' || type === 'number' ? val.toString() :
-				type === 'string' ? '"' + val.replace(/(["\n\r\\])/g, '\\$1') + '"' : type
+				type === 'string' ? '"' + val.replace(/("|\\)/g, '\\$1').replace(/\r/g, '').replace(/\n/g, '\\n') + '"' : type
 			);
 			iCount++;
 		}
@@ -977,7 +977,12 @@ function readPostsVisib() {
 			}
 		}
 	}
-	uVis = getStoredObj('DESU_Posts_' + aib.dm + '_' + brd);
+	bUVis = getStoredObj('DESU_Posts_' + aib.dm);
+	uVis = bUVis[brd];
+	if(!uVis) {
+		bUVis[brd] = uVis = getStoredObj('DESU_Posts_' + aib.dm + '_' + brd);
+		delStored('DESU_Posts_' + aib.dm + '_' + brd);
+	}
 	hThr = getStoredObj('DESU_Threads_' + aib.dm);
 	if(!(brd in hThr)) {
 		hThr[brd] = {};
@@ -998,17 +1003,22 @@ function savePostsVisib() {
 }
 
 function saveUserPostsVisib() {
-	var minDate, key, str = JSON.stringify(uVis);
-	if(str.length > 9000) {
+	var minDate, b, vis, key, str = JSON.stringify(bUVis);
+	if(str.length > 1e6) {
 		minDate = Date.now() - 5 * 24 * 3600 * 1000;
-		for(key in uVis) {
-			if(uVis.hasOwnProperty(key) && uVis[key][1] < minDate) {
-				delete uVis[key];
+		for(b in bUVis) {
+			if(bUVis.hasOwnProperty(b)) {
+				vis = bUVis[b];
+				for(key in vis) {
+					if(vis.hasOwnProperty(key) && vis[key][1] < minDate) {
+						delete vis[key];
+					}
+				}
 			}
 		}
-		str = JSON.stringify(uVis);
+		str = JSON.stringify(bUVis);
 	}
-	setStored('DESU_Posts_' + aib.dm + '_' + brd, str);
+	setStored('DESU_Posts_' + aib.dm, str);
 	toggleContent('hid', true);
 }
 
@@ -1307,11 +1317,11 @@ function showContent(cont, id, name, isUpd) {
 					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 				}),
 				$btn(Lng.save[lang], '', function() {
-					$each($Q('.de-cloned-post', this.parentNode), function(el) {
+					$each($Q('.de-cloned-post', this.parentNode), function(date, el) {
 						if(!el.post.hidden) {
-							el.clone.setUserVisib(false);
+							el.clone.setUserVisib(false, date);
 						}
-					});
+					}.bind(null, Date.now()));
 					saveUserPostsVisib();
 				})
 			]);
@@ -1360,22 +1370,24 @@ function showContent(cont, id, name, isUpd) {
 				});
 			}),
 			$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
-				$each($Q('.de-entry[info]', this.parentNode), function(el) {
+				$each($Q('.de-entry[info]', this.parentNode), function(date, el) {
 					var post, arr = el.getAttribute('info').split(';');
 					if($t('input', el).checked) {
 						if(arr[1] in pByNum) {
-							pByNum[arr[1]].setUserVisib(false);
+							pByNum[arr[1]].setUserVisib(false, date);
 						}
 						delete hThr[arr[0]][arr[1]];
-						localStorage['__de-thread'] = JSON.stringify({
+						localStorage['__de-post'] = JSON.stringify({
 							'brd': arr[0],
+							'date': date,
+							'isOp': true,
 							'num': arr[1],
 							'title': ''
 						});
-						localStorage.removeItem('__de-thread');
+						localStorage.removeItem('__de-post');
 						saveHiddenThreads(true);
 					}
-				});
+				}.bind(null, Date.now()));
 			})
 		]);
 	}
@@ -1604,12 +1616,12 @@ function cfgTab(name) {
 }
 
 function updRowMeter() {
-	var top = this.scrollTop,
+	var str, top = this.scrollTop,
 		el = $id('de-spell-rowmeter'),
 		num = el.numLines || 1,
-		str = '',
 		i = 19;
-	if(num - i < (top / 12) | 0 + 1) {
+	if(num - i < ((top / 12) | 0 + 1)) {
+		str = '';
 		while(i--) {
 			str += num++ + '<br>';
 		}
@@ -5885,7 +5897,7 @@ function Post(el, isOp, num, count) {
 Post.getWrds = function(text) {
 	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').substring(0, 800).split(' ');
 };
-Post.findSameText = function(oNum, oHid, oWords, post) {
+Post.findSameText = function(oNum, oHid, oWords, date, post) {
 	var j, words = Post.getWrds(post.text),
 		len = words.length,
 		i = oWords.length,
@@ -5920,7 +5932,7 @@ Post.findSameText = function(oNum, oHid, oWords, post) {
 			delete uVis[i];
 		}
 	} else {
-		post.setUserVisib(true);
+		post.setUserVisib(true, date);
 		post._addNote('similar to >>' + oNum);
 	}
 	return false;
@@ -6148,9 +6160,6 @@ Post.prototype = {
 		if(uVis[this.num]) {
 			return;
 		}
-		if(this.isOp) {
-			this._setOpVisib(!this.hidden);
-		}
 		if(this.hidden) {
 			$del(this.note);
 			this._addNote(note);
@@ -6234,7 +6243,7 @@ Post.prototype = {
 	get sage() {
 		return this.hasOwnProperty('_sage') ? this._sage : (this._sage = aib.getSage(this.el));
 	},
-	setUserVisib: function(hide) {
+	setUserVisib: function(hide, date) {
 		var num = this.num;
 		this.setVisib(hide, null);
 		this.btns.firstChild.className = 'de-btn-hide-user';
@@ -6243,11 +6252,7 @@ Post.prototype = {
 		} else {
 			this.unhideRefs();
 		}
-		if(!uVis[num]) {
-			uVis[num] = new Array(2);
-		}
-		uVis[num][0] = +!hide;
-		uVis[num][1] = Date.now();
+		uVis[num] = [+!hide, date];
 	},
 	setVisib: function(hide, note) {
 		var el, a, num, tEl, thr;
@@ -6343,12 +6348,27 @@ Post.prototype = {
 		}
 	},
 	toggleUserVisib: function() {
-		if(this.isOp) {
-			this._setOpVisib(!this.hidden);
+		var isOp = this.isOp,
+			hide = !this.hidden,
+			date = Date.now();
+		this.setUserVisib(hide, date);
+		if(isOp) {
+			if(hide) {
+				hThr[brd][this.num] = this.title;
+			} else {
+				delete hThr[brd][this.num];
+			}
 			saveHiddenThreads(false);
 		}
-		this.setUserVisib(!this.hidden);
 		saveUserPostsVisib();
+		localStorage['__de-post'] = JSON.stringify({
+			'brd': brd,
+			'date': date,
+			'isOp': isOp,
+			'num': this.num,
+			'title': hide ? isOp ? this.title : '1' : ''
+		});
+		localStorage.removeItem('__de-post');
 	},
 	get trip() {
 		var el;
@@ -6657,7 +6677,7 @@ Post.prototype = {
 				uVis[num][0] = (num in hThr[brd]) ? 0 : 1;
 			}
 			if(uVis[num][0] === 0) {
-				this.setUserVisib(true);
+				this.setUserVisib(true, Date.now());
 			} else {
 				uVis[num][1] = Date.now();
 				this.btns.firstChild.className = 'de-btn-hide-user';
@@ -6767,7 +6787,7 @@ Post.prototype = {
 		case 'spell-ihash': addSpell(4 /* #ihash */, getImgHash(this), false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
-			firstThr.forAll(Post.findSameText.bind(null, this.num, this.hidden, Post.getWrds(this.text)));
+			firstThr.forAll(Post.findSameText.bind(null, this.num, this.hidden, Post.getWrds(this.text), Date.now()));
 			saveUserPostsVisib();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
@@ -6872,19 +6892,6 @@ Post.prototype = {
 			}
 		}
 		$del(full);
-	},
-	_setOpVisib: function(hide) {
-		if(hide) {
-			hThr[brd][this.num] = this.title;
-		} else {
-			delete hThr[brd][this.num];
-		}
-		localStorage['__de-thread'] = JSON.stringify({
-			'brd': brd,
-			'num': this.num,
-			'title': hide ? this.title : ''
-		});
-		localStorage.removeItem('__de-thread');
 	}
 }
 
@@ -7196,15 +7203,16 @@ Thread.prototype = {
 		return posts;
 	},
 	updateHidden: function(data) {
-		var thr = this, realHid;
+		var realHid, date = Date.now(),
+			thr = this;
 		do {
 			realHid = thr.num in data;
 			if(thr.hidden ^ realHid) {
 				if(realHid) {
-					thr.op.setUserVisib(true);
+					thr.op.setUserVisib(true, date);
 					data[thr.num] = thr.op.title;
 				} else if(thr.hidden) {
-					thr.op.setUserVisib(false);
+					thr.op.setUserVisib(false, date);
 				}
 			}
 		} while(thr = thr.next);
@@ -7426,7 +7434,7 @@ function Initialization() {
 			return;
 		}
 		switch(e.key) {
-		case '__de-thread': {
+		case '__de-post': {
 			try {
 				data = JSON.parse(val);
 			} catch(e) {
@@ -7434,19 +7442,21 @@ function Initialization() {
 			}
 			temp = !!data['title'];
 			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
-				post.setUserVisib(temp);
+				post.setUserVisib(temp, data['date']);
 			}
-			if(!(data['brd'] in hThr)) {
-				if(temp) {
-					hThr[data['brd']] = {};
-				} else {
-					break;
+			if(data['isOp']) {
+				if(!(data['brd'] in hThr)) {
+					if(temp) {
+						hThr[data['brd']] = {};
+					} else {
+						break;
+					}
 				}
-			}
-			if(temp) {
-				hThr[data['brd']][data['num']] = data['title'];
-			} else {
-				delete hThr[data['brd']][data['num']];
+				if(temp) {
+					hThr[data['brd']][data['num']] = data['title'];
+				} else {
+					delete hThr[data['brd']][data['num']];
+				}
 			}
 			break;
 		}
