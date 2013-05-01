@@ -7443,6 +7443,11 @@ function Initialization() {
 			temp = !!data['title'];
 			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
 				post.setUserVisib(temp, data['date']);
+			} else {
+				if(!(data['brd'] in bUVis)) {
+					bUVis[data['brd']] = {};
+				}
+				bUVis[data['brd']][data['num']] = [+!temp, data['date']];
 			}
 			if(data['isOp']) {
 				if(!(data['brd'] in hThr)) {
