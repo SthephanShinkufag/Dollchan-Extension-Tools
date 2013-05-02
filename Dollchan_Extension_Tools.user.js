@@ -842,7 +842,7 @@ function delStored(id) {
 function getStoredObj(id) {
 	try {
 		return JSON.parse(getStored(id)) || {};
-	} finally {
+	} catch(e) {
 		return {};
 	}
 }
@@ -3187,14 +3187,15 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				'onreadystatechange': function(xhr) {
 					if(xhr.readyState === 4) {
 						var text;
-						if(xhr.status === 200) {
-							try {
+						try {
+							if(xhr.status === 200) {
 								text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
 								titles[this[1]] = text;
-							} catch(e) {}
+							}
+						} finally {
+							setTitle(this[0], text);
+							queue.end();
 						}
-						setTitle(this[0], text);
-						queue.end();
 					}
 				}.bind(data)
 			});
@@ -8116,7 +8117,6 @@ function Navigator(initXtraFns) {
 			'animationend';
 	}
 	this.isBlob = this.Firefox > 14 || this.Chrome || this.Opera >= 12.10;
-	this.isWorker = this.Firefox > 19 || this.Chrome;
 	if(initXtraFns && this.Firefox > 19) {
 		$script(
 			'window["de-worker"] = function(url) {\
@@ -8166,18 +8166,6 @@ function Navigator(initXtraFns) {
 		if(this.WebKit) {
 			window.URL = window.webkitURL;
 		}
-		try {
-			this.Worker = this.Firefox ? (
-				this.Firefox < 20 ? null : (function(w) {
-					w.prototype.postMessage = function() {
-						unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
-					};
-					return w;
-				})(new Proxy(unsafeWindow['de-worker'], {}))) : window.Worker;
-		} catch(e) {
-			this.Worker = null;
-			this.isWorker = false;
-		}
 	}
 }
 Navigator.prototype = {
@@ -8201,6 +8189,10 @@ Navigator.prototype = {
 		}
 		return this._hasNotifications = ('Notification' in window) ||
 			('webkitNotifications' in window);
+	},
+
+	get isWorker() {
+		return this.hasOwnProperty('_isWorker') ? this._isWorker : (this._isWorker = !!this.Worker);
 	},
 
 	get notifGranted() {
@@ -8231,9 +8223,21 @@ Navigator.prototype = {
 		}
 	},
 
+	get Worker() {
+		return this._Worker || (this._Worker = this.Firefox ? unsafeWindow['de-worker'] ? (
+			this.Firefox < 20 ? null : (function(w) {
+				w.prototype.postMessage = function() {
+					unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
+				};
+				return w;
+			})(new Proxy(unsafeWindow['de-worker'], {}))) : null : window.Worker);
+	},
+
 	_canPlayMP3: false,
 	_hasNotifications: false,
+	_isWorker: false,
 	_notifGranted: false,
+	_Worker: null,
 
 	_showNotifNative: function(title, text, tag, image) {
 		var notif, obj = {body: text, tag: tag};
