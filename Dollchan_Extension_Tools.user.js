@@ -842,7 +842,7 @@ function delStored(id) {
 function getStoredObj(id) {
 	try {
 		return JSON.parse(getStored(id)) || {};
-	} catch(e) {
+	} finally {
 		return {};
 	}
 }
@@ -1932,13 +1932,15 @@ function addEditButton(name, val, isJSON, Fn) {
 				var data;
 				try {
 					data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
-				} catch(e) {
-					$alert(Lng.invalidData[lang], 'err-invaliddata', false);
-					return;
+				} finally {
+					if(data) {
+						fun(data);
+						closeAlert($id('de-alert-edit-' + aName));
+						closeAlert($id('de-alert-err-invaliddata'));
+					} else {
+						$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+					}
 				}
-				fun(data);
-				closeAlert($id('de-alert-edit-' + aName));
-				closeAlert($id('de-alert-err-invaliddata'));
 			}.bind(ta, Fn, name) : Fn.bind(ta))
 		]);
 	});
@@ -7797,7 +7799,7 @@ ImageBoard.prototype = {
 	_bEngines: {
 		'#ABU_css': {
 			qBan: { value: 'font[color="#C12267"]' },
-			qDForm: { value: '#posts_form' },
+			qDForm: { value: '#posts_form, #delform' },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
 					this.getSage = function(post) {
