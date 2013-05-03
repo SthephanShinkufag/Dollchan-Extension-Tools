@@ -533,8 +533,11 @@ function $btn(val, ttl, Fn) {
 	return $new('input', {'type': 'button', 'value': val, 'title': ttl}, {'click': Fn});
 }
 
-function $script(text) {
-	return doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null));
+function $script(text, del) {
+	var s = doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null));
+	if(del) {
+		$del(s);
+	}
 }
 
 function $css(text) {
@@ -840,10 +843,11 @@ function delStored(id) {
 }
 
 function getStoredObj(id) {
+	var data;
 	try {
-		return JSON.parse(getStored(id)) || {};
-	} catch(e) {
-		return {};
+		data = JSON.parse(getStored(id))
+	} finally {
+		return data || {};
 	}
 }
 
@@ -1602,13 +1606,14 @@ function cfgTab(name) {
 				setTimeout(function() {
 					var obj, oldS = Cfg['spells'],
 						newS = getStoredObj('DESU_Config')[aib.dm]['spells'];
-					if((!oldS ^ !newS) || !(!oldS || oldS.startsWith(newS))) {
-						try {
+					try {
+						if((!oldS ^ !newS) || !(!oldS || oldS.startsWith(newS))) {
 							obj = JSON.parse(newS);
-						} catch(e) {}
+						}
+					} finally {
 						obj && spells.update(obj);
+						$id('de-spell-edit').value = spells.list;
 					}
-					$id('de-spell-edit').value = spells.list;
 				}, 0);
 			}
 			fixSettings();
@@ -3784,30 +3789,30 @@ Spells.prototype = {
 	],
 	_funcs: [
 		// 0: #words
-		function(post, val) {
+		function spell_words(post, val) {
 			var pTitle;
 			return post.text.toLowerCase().contains(val) ||
 				(pTitle = $c(aib.cSubj, post.el)) && pTitle.textContent.toLowerCase().contains(val);
 		},
 		// 1: #exp
-		function(post, val) {
+		function spell_exp(post, val) {
 			return val.test(post.text);
 		},
 		// 2: #exph
-		function(post, val) {
+		function spell_exph(post, val) {
 			return val.test(post.html);
 		},
 		// 3: #imgn
-		function(post, val) {
+		function spell_imgn(post, val) {
 			var inf = $c(aib.cFileInfo, post.el);
 			return inf && val.test(inf.textContent);
 		},
 		// 4: #ihash
-		function(post, val) {
+		function spell_ihash(post, val) {
 			return ('$first' in post.imagesData) && getImgHash(post) === val;
 		},
 		// 5: #subj
-		function(post, val) {
+		function spell_subj(post, val) {
 			var pTitle = $q('.replytitle, .filetitle', post.el);
 			if(!pTitle || !(pTitle = pTitle.textContent)) {
 				return false;
@@ -3815,7 +3820,7 @@ Spells.prototype = {
 			return !val || val.test(pTitle);
 		},
 		// 6: #name
-		function(post, val) {
+		function spell_name(post, val) {
 			var pName = $q(aib.qName, post.el);
 			if(!pName || !(pName = pName.textContent)) {
 				return false;
@@ -3823,7 +3828,7 @@ Spells.prototype = {
 			return !val || pName.contains(val);
 		},
 		// 7: #trip
-		function(post, val) {
+		function spell_trip(post, val) {
 			var pTrip = $c(aib.cTrip, post.el);
 			if(!pTrip) {
 				return false;
@@ -3831,7 +3836,7 @@ Spells.prototype = {
 			return !val || pTrip.textContent.contains(val);
 		},
 		// 8: #img
-		function(post, val) {
+		function spell_img(post, val) {
 			var temp, w, h, hide, name, dat, iData = post.imagesData;
 			if(!val) {
 				return !$isEmpty(iData);
@@ -3877,24 +3882,24 @@ Spells.prototype = {
 			return false;
 		},
 		// 9: #sage
-		function(post, val) {
+		function spell_sage(post, val) {
 			return post.sage;
 		},
 		// 10: #op
-		function(post, val) {
+		function spell_op(post, val) {
 			return post.isOp;
 		},
 		// 11: #tlen
-		function(post, val) {
+		function spell_tlen(post, val) {
 			var text = post.text;
 			return !val ? !!text : Spells.checkArr(val, text.replace(/\n/g, '').length);
 		},
 		// 12: #all
-		function(post, val) {
+		function spell_all(post, val) {
 			return true;
 		},
 		// 13: #video
-		function(post, val, ctx) {
+		function spell_video(post, val, ctx) {
 			if(!val) {
 				spells._continueCheck(post, ctx, !!post.ytObj, false);
 				return;
@@ -3937,7 +3942,7 @@ Spells.prototype = {
 			}
 		},
 		// 14: #wipe
-		function(post, val) {
+		function spell_wipe(post, val) {
 			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = post.text;
 			// (1 << 0): samelines
 			if(val & 1) {
@@ -4040,7 +4045,7 @@ Spells.prototype = {
 			return Spells._lastWipeMsg = false;
 		},
 		// 15: #num
-		function(post, val) {
+		function spell_num(post, val) {
 			return Spells.checkArr(val, post.count + 1);
 		}
 	],
@@ -5263,7 +5268,7 @@ function PostForm(form, init) {
 	this.tNum = TNum;
 	this.form = form;
 	this.recap = $id('recaptcha_response_field');
-	this.cap = this._getCaptchaEl() || this.recap;
+	this.cap = !aib.abu && ($q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) || this.recap);
 	this.txta = $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q(tr + ' input[type="submit"]', form);
 	this.file = $q(tr + ' input[type="file"]', form);
@@ -5489,25 +5494,29 @@ PostForm.prototype = {
 		}
 	},
 	refreshCapImg: function(tNum, isFocus) {
+		var src, img;
+		if(aib.abu) {
+			img = $id('captcha_div');
+			if(img) {
+				if(isFocus) {
+					img.setAttribute('de-focus', 'yeah');
+				}
+				aib.updateCap();
+			}
+			return;
+		}
 		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
 			return;
 		}
-		var src, e, img = this.recap ? $id('recaptcha_image') || this.recap :
-			$t('img', PostForm.getTR(aib.abu ? this._getCaptchaEl() : this.cap));
-		if(aib.hana || aib.abu || aib.krau || this.recap) {
-			e = doc.createEvent('MouseEvents');
-			e.initEvent('click', true, true);
-			img.dispatchEvent(e);
+		img = this.recap ? $id('recaptcha_image') || this.recap : $t('img', PostForm.getTR(this.cap));
+		if(aib.hana || aib.krau || this.recap) {
+			img.click();
 		} else {
 			src = this._refreshCapSrc(img.getAttribute('src'), tNum);
 			img.src = '';
 			img.src = src;
 		}
-		if(aib.abu) {
-			this.cap = this._getCaptchaEl();
-		} else {
-			this.cap.value = '';
-		}
+		this.cap.value = '';
 		if(isFocus) {
 			this.cap.focus();
 		}
@@ -5615,9 +5624,6 @@ PostForm.prototype = {
 			$pd(e);
 			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
 		}}));
-	},
-	_getCaptchaEl: function() {
-		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form);
 	},
 	_init: function() {
 		var el, btn, pArea = $New('div', {'id': 'de-parea'}, [
@@ -7229,14 +7235,9 @@ Thread.prototype = {
 	_loadedOnce: false,
 	_offset: 0,
 	_postsCache: null,
-	_addPost: function newPost(el, num, i, prev) {
+	_addPost: function(el, num, i, prev) {
 		var pst, node, post = new Post(el, false, num, i).init(this._offset, prev, this);
 		pByNum[num] = post;
-		youTube.parseLinks(post);
-		post.addFuncs();
-		if(Cfg['imgSrcBtns']) {
-			addImagesSearch(el);
-		}
 		if(postWrapper) {
 			pst = postWrapper.cloneNode(true);
 			node = aib.getPosts(pst)[0];
@@ -7249,6 +7250,11 @@ Thread.prototype = {
 			pst = el;
 		}
 		aib.appendPost(pst, this._postsCache);
+		youTube.parseLinks(post);
+		if(Cfg['imgSrcBtns']) {
+			addImagesSearch(el);
+		}
+		post.addFuncs();
 		preloadImages(el);
 		this.allPCount++;
 		return post;
@@ -7417,14 +7423,11 @@ function Initialization() {
 		$script((
 			'window.top.postMessage("A' + window.name + '$#$' +
 			getSubmitResponse(doc, true).join('$#$') + '", "*");'
-		).replace(/\n|\r/g, '\\n'));
+		).replace(/\n|\r/g, '\\n'), true);
 		return false;
 	case 'de-iframe-fav':
 		intrv = setInterval(function() {
-			$del($id('de-fav-script'));
-			$attr($script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");'), {
-				'id': 'de-fav-script'
-			});
+			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");', true);
 		}, 1500);
 		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
 		liteMode = true;
@@ -7577,7 +7580,7 @@ ImageBoard.prototype = {
 					set_preferred_stylesheet = get_active_stylesheet =\
 					get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =\
 					conf = expand = wipe = fastload_listen = threadHide = threadShow =\
-					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};'
+					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};', true
 				);
 				return false;
 			} },
@@ -7816,6 +7819,35 @@ ImageBoard.prototype = {
 				.de-abtn { transition: none; }\
 				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
+			init: { value: function() {
+				var cd = $id('captcha_div');
+				if(cd) {
+					cd.addEventListener('click', function(e) {
+						if(e.target.tagName === 'IMG') {
+							this.updateCap();
+							e.preventDefault();
+							e.stopPropagation();
+						}
+					}.bind(this), true);
+				}
+			} },
+			updateCap: { value: function() {
+				$script('var i = 4, el, cd = document.getElementById("captcha_div");\
+					do {\
+						GetCaptcha("captcha_div");\
+						i--;\
+					} while(i > 0 && !/<img|не нужно/i.test(cd.innerHTML));\
+					if(cd.hasAttribute("de-focus")) {\
+						cd.removeAttribute("de-focus");\
+						if(i !== 0) {\
+							el = cd.querySelector("input[type=\\"text\\"]");\
+							if(el) {\
+								el.focus();\
+							}\
+						}\
+					}', true
+				);
+			} },
 
 			abu: { value: true }
 		},
@@ -7853,7 +7885,7 @@ ImageBoard.prototype = {
 					showRefMap = getRefMap = doRefMap = insertAfter = get_password =\
 					update_captcha = getSelectedText = quote = insert = fixRefLinks =\
 					highlight = invertAll = toggle = doTruncate = doParse = doExpand =\
-					doStats = doShowHide = doDelForm = doPostForm = checkIn = doStars = function(){};'
+					doStats = doShowHide = doDelForm = doPostForm = checkIn = doStars = function(){};', true
 				);
 				return false;
 			} },
@@ -8132,7 +8164,7 @@ function Navigator(initXtraFns) {
 				_postMessage: function() {\
 					this.wrk.postMessage.apply(this.wrk, arguments);\
 				}\
-			};'
+			};', false
 		);
 	}
 	this.fixLink =
