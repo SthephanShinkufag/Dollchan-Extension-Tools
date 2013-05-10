@@ -5,8 +5,8 @@
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
 // @description		Doing some profit for imageboards
-// @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
-// @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @icon			https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Icon.png
+// @updateURL		https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
 // @include			http://*
 // @include			https://*
@@ -1894,7 +1894,7 @@ function getCfgInfo() {
 		$add('<div style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.join('<br>') + '</div>'),
 		$add('<span><a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
-			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
+			'<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
 		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
@@ -3080,9 +3080,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	function addFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
 		el.innerHTML = videoType === 1 ?
-			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
-				(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1" frameborder="0"' + wh :
-			'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
+			'<iframe type="text/html" src="https://www.youtube-nocookie.com/embed/' + id +
+				(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
+			'<embed type="application/x-shockwave-flash" src="https://www.youtube-nocookie.com/v/' + id +
 				(isHD ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
 	}
 
@@ -5209,7 +5209,7 @@ function checkForUpdates(isForce, Fn) {
 	}
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
+		'url': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
 		'headers': {'Content-Type': 'text/plain'},
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -5239,7 +5239,7 @@ function checkForUpdates(isForce, Fn) {
 				}
 				if(isUpd) {
 					Fn('<a style="color: blue; font-weight: bold;" href="' +
-						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+						'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/' +
 						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
@@ -8518,7 +8518,7 @@ function initThreadUpdater(title, enableUpdater) {
 		if(!audioEl) {
 			audioEl = $new('audio', {
 				'preload': 'auto',
-				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
+				'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/signal.ogg'
 			}, null);
 		}
 		audioRep = aRep;
