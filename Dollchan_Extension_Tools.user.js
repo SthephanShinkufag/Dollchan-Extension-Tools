@@ -8687,6 +8687,7 @@ function addDelformStuff(isLog) {
 }
 
 function doScript() {
+	delete Array.prototype.toJSON;
 	var initTime = oldTime = Date.now();
 	if(!Initialization()) {
 		return;
