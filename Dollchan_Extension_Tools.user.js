@@ -856,6 +856,7 @@ function getCfg(obj) {
 }
 
 function saveComCfg(dm, obj) {
+	comCfg = getStoredObj('DESU_Config');
 	if(obj) {
 		comCfg[dm] = obj;
 	} else {
@@ -1603,18 +1604,7 @@ function cfgTab(name) {
 			}
 			el.className = 'de-cfg-body';
 			if(id === 'filters') {
-				setTimeout(function() {
-					var obj, oldS = Cfg['spells'],
-						newS = getStoredObj('DESU_Config')[aib.dm]['spells'];
-					try {
-						if((!oldS ^ !newS) || !(!oldS || oldS.startsWith(newS))) {
-							obj = JSON.parse(newS);
-						}
-					} finally {
-						obj && spells.update(obj);
-						$id('de-spell-edit').value = spells.list;
-					}
-				}, 0);
+				$id('de-spell-edit').value = spells.list;
 			}
 			fixSettings();
 		}
@@ -1661,7 +1651,7 @@ function getCfgFilters() {
 				$id('de-spell-edit').value = '';
 				toggleSpells();
 			}}),
-			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
+			$add('<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/Spells-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">' + Lng.help[lang] + '</a>')
 		]),
 		$New('div', {'id': 'de-spell-div'}, [
@@ -3086,7 +3076,7 @@ dateTime.prototype = {
 
 function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	var titles, regex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
-	
+
 	function addFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
 		el.innerHTML = videoType === 1 ?
@@ -3353,7 +3343,6 @@ function embedMP3Links(post) {
 /*==============================================================================
 								MAP OF >>REFLINKS
 ==============================================================================*/
-
 
 function getRelLink(num, tUrl) {
 	return '<a ' + aib.rLinkClick + ' href="' + tUrl + '#' + (aib.fch ? 'p' : '') + num +
@@ -3763,9 +3752,9 @@ function getImgHash(post) {
 /** @constructor */
 function Spells(read) {
 	if(read) {
-		this.read(true);
+		this._read(true);
 	} else {
-		this.disable();
+		this.disable(false);
 	}
 }
 Spells.checkArr = function(val, num) {
@@ -4511,7 +4500,7 @@ Spells.prototype = {
 	_decompileSpells: function() {
 		var str, reps, oreps, data = this._data;
 		if(!data) {
-			this.read(false);
+			this._read(false);
 			if(!(data = this._data)) {
 				return this._list = '';
 			}
@@ -4672,6 +4661,42 @@ Spells.prototype = {
 		this.haveReps = !!reps;
 		this.haveOutreps = !!outreps;
 	},
+	_read: function(init) {
+		var spells, data;
+		if(Cfg.hasOwnProperty('spells')) {
+			try {
+				spells = JSON.parse(Cfg['spells']);
+				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
+			} catch(e) {}
+			if(data && data[0] === spells[0]) {
+				this._data = spells;
+				if(init) {
+					this.hash = data[0];
+					this._init(data[1], data[2], data[3]);
+				}
+				return;
+			}
+		} else {
+			if(data = getStored('DESU_CSpells_' + aib.dm)) {
+				delStored('DESU_CSpells_' + aib.dm);
+				try {
+					spells = JSON.parse(data);
+				} catch(e) {}
+				if(!spells) {
+					this.disable(false);
+					return;
+				}
+			} else {
+				spells = this.parseText('#wipe(samelines,samewords,longwords,numbers)');
+			}
+			saveCfg('spells', data);
+		}
+		if(init) {
+			this.update(spells, false, false);
+		} else {
+			this._data = spells;
+		}
+	},
 	_asyncWrk: 0,
 	_data: null,
 	_list: '',
@@ -4696,43 +4721,7 @@ Spells.prototype = {
 		}
 		return null;
 	},
-	read: function(init) {
-		var spells, data;
-		if(Cfg.hasOwnProperty('spells')) {
-			try {
-				spells = JSON.parse(Cfg['spells']);
-				data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
-			} catch(e) {}
-			if(data && data[0] === spells[0]) {
-				this._data = spells;
-				if(init) {
-					this.hash = data[0];
-					this._init(data[1], data[2], data[3]);
-				}
-				return;
-			}
-		} else {
-			if(data = getStored('DESU_CSpells_' + aib.dm)) {
-				delStored('DESU_CSpells_' + aib.dm);
-				try {
-					spells = JSON.parse(data);
-				} catch(e) {}
-				if(!spells) {
-					this.disable();
-					return;
-				}
-			} else {
-				spells = this.parseText('#wipe(samelines,samewords,longwords,numbers)');
-			}
-			saveCfg('spells', data);
-		}
-		if(init) {
-			this.update(spells);
-		} else {
-			this._data = spells;
-		}
-	},
-	update: function(data) {
+	update: function(data, sync, isHide) {
 		var spells = data[1] ? this._removeBoards(data[1]) : false,
 			reps = this._optimizeReps(data[2]),
 			outreps = this._optimizeReps(data[3]);
@@ -4741,9 +4730,25 @@ Spells.prototype = {
 		this._data = data;
 		this._list = '';
 		this.hash = data[0];
+		if(sync) {
+			localStorage['__de-spells'] = JSON.stringify({
+				'hide': (!!this.list && !!isHide),
+				'data': data
+			});
+			localStorage.removeItem('__de-spells');
+		}
 		this._init(spells, reps, outreps);
 	},
-	disable: function() {
+	setSpells: function(spells, sync) {
+		this.update(spells, sync, Cfg['hideBySpell']);
+		if(Cfg['hideBySpell']) {
+			firstThr.forAll(hideBySpells);
+		} else {
+			this.enable = false;
+		}
+		savePostsVisib();
+	},
+	disable: function(sync) {
 		this.enable = false;
 		this._list = '';
 		this._data = null;
@@ -4809,7 +4814,7 @@ Spells.prototype = {
 		} else {
 			spells[1].splice(0, 0, [type, arg, scope]);
 		}
-		this.update(spells);
+		this.update(spells, true, true);
 		idx = null;
 	}
 };
@@ -4832,24 +4837,23 @@ function disableSpells() {
 function toggleSpells() {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld.value;
-	if(!val) {
+	if(val && (temp = spells.parseText(val))) {
 		disableSpells();
-		spells.disable();
-		saveCfg('spells', '');
-		savePostsVisib();
-	} else if(temp = spells.parseText(val)) {
-		disableSpells();
-		spells.update(temp);
+		spells.setSpells(temp, true);
 		fld.value = spells.list;
-		if(Cfg['hideBySpell']) {
-			firstThr.forAll(hideBySpells);
+	} else {
+		if(!val) {
+			disableSpells();
+			spells.disable();
+			saveCfg('spells', '');
+			savePostsVisib();
+			localStorage['__de-spells'] = '{"hide": false, "data": ""}';
 		} else {
-			spells.enable = false;
+			localStorage['__de-spells'] = '{"hide": false, "data": null}';
 		}
-		savePostsVisib();
-		return;
+		localStorage.removeItem('__de-spells');
+		$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 	}
-	$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 }
 
 function addSpell(type, arg, isNeg) {
@@ -7487,6 +7491,36 @@ function Initialization() {
 			firstThr.updateHidden(hThr[brd]);
 			break;
 		}
+		case '__de-spells': {
+			try {
+				data = JSON.parse(val);
+			} catch(e) {
+				return;
+			}
+			Cfg['hideBySpell'] = data['hide'];
+			if(temp = $q('input[info="hideBySpell"]', doc)) {
+				temp.checked = data['hide'];
+			}
+			doc.body.style.display = 'none';
+			disableSpells();
+			if(data['data'] === '') {
+				spells.disable();
+				if(temp = $id('de-spell-edit')) {
+					temp.value = '';
+				}
+				saveCfg('spells', '');
+				savePostsVisib();
+			} else if(data['data'] !== null) {
+				spells.setSpells(data['data'], false);
+				if(temp = $id('de-spell-edit')) {
+					temp.value = spells.list;
+				}
+				doc.body.style.display = '';
+				return;
+			}
+			spells.enable = false;
+			doc.body.style.display = '';
+		}
 		default: return;
 		}
 		toggleContent('hid', true);
@@ -8124,6 +8158,7 @@ function Navigator(initXtraFns) {
 			return this.indexOf(s) === 0;
 		};
 	}
+	delete Array.prototype.toJSON;
 	this.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
 	this.Opera = window.opera ? +window.opera.version() : 0;
 	this.WebKit = ua.contains('WebKit/');
@@ -8687,7 +8722,6 @@ function addDelformStuff(isLog) {
 }
 
 function doScript() {
-	delete Array.prototype.toJSON;
 	var initTime = oldTime = Date.now();
 	if(!Initialization()) {
 		return;
