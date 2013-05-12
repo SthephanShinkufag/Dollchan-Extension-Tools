@@ -1789,7 +1789,7 @@ function getCfgLinks() {
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
-		$if(nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(pr.form && nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('postSameImg', true, null),
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
@@ -1808,7 +1808,7 @@ function getCfgForm() {
 		])),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		optSel('captchaLang', true, null),
-		$if(pr.form, $New('div', null, [
+		$if(pr.txta, $New('div', null, [
 			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
 				pr.addTextPanel();
@@ -5008,6 +5008,9 @@ function scriptCSS() {
 			.de-btn-sage:after { content: "Sage!"; }\
 			.de-btn-src:after { content: "[Sauce]"; }';
 	}
+	if(!pr.form && !pr.oeForm) {
+		x += '.de-btn-rep { display: none; }';
+	}
 
 	// Search images buttons
 	cont('.de-src-google', 'http://google.com/favicon.ico');
@@ -5251,16 +5254,21 @@ function checkForUpdates(isForce, Fn) {
 	});
 }
 
-function PostForm(form, init) {
+function PostForm(form, ignoreForm, init) {
 	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
-	if(aib.abu && $c('locked', form)) {
+	if(aib.abu && ($c('locked', form) || this.oeForm)) {
 		this.form = null;
+		if(this.oeForm) {
+			this._init();
+		}
 		return;
 	}
-	if(!form) {
+	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxGetPosts(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc) {
-				pr = new PostForm(doc.importNode($q(aib.qPostForm, dc), true), init);
+				pr = new PostForm(doc.importNode($q(aib.qPostForm, dc), true), true, init);
+			}, function(eCode, eMsg) {
+				pr = new PostForm(null, true, init);
 			});
 		} else {
 			this.form = null;
@@ -5380,10 +5388,8 @@ PostForm.prototype = {
 	isQuick: false,
 	pArea: null,
 	addTextPanel: function() {
-		if(!this.txta) {
-			return;
-		}
-		var tPanel, btn, key, bb = aib.isBB,
+		var tPanel, key, html = '',
+			bb = aib.isBB,
 			btns = {
 				'bold': {
 					'val': 'B',
@@ -5431,70 +5437,68 @@ PostForm.prototype = {
 			if(key['off']) {
 				continue;
 			}
-			if(!(btn = $id('de-btn-' + id))) {
-				btn = $new('span', {
-					'id': 'de-btn-' + id,
-					'title': Lng.txtBtn[id][lang],
-					'de-tag': key['tag'],
-					'de-bb': bb || !!key['bb']
-				}, null);
-				if(id === 'quote') {
-					btn.onmouseover = function() {
-						quotetxt = $txtSelect();
-					};
-					btn.onclick = function(e) {
-						var x = pr.txta,
-							start = x.selectionStart,
-							end = x.selectionEnd;
-						$pd(e);
-						$txtInsert(x, '> ' + (
-							start === end ? quotetxt : x.value.substring(start, end)
-						).replace(/\n/gm, '\n> '));
-					};
+			html += '<span id="de-btn-' + id + '" title="' + Lng.txtBtn[id][lang] + '" de-tag="' +
+				key['tag'] + '" de-bb="' + (bb || !!key['bb']) + '">' + (
+					Cfg['addTextBtns'] === 2 ?
+						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] +
+						'</a>' + (id !== 'quote' ? ' / ' : ' ]') :
+					Cfg['addTextBtns'] === 3 ?
+						'<input type="button" value="' + key['val'] + '" style="font-weight: bold;">' : ''
+				) + '</span>';
+		}
+		tPanel.innerHTML = html;
+		return tPanel;
+	},
+	handleEvent: function(e) {
+		var x, start, end, scrtop, tag, txt, temp, el = e.target,
+			id = el.id,
+			type = e.type;
+		if(id.startsWith('de-btn')) {
+			if(type === 'mouseover') {
+				if(id === 'de-btn-quote') {
+					quotetxt = $txtSelect();
 				} else {
-					btn.onclick = function(e) {
-						var txt, temp, len, x = pr.txta,
-							start = x.selectionStart,
-							end = x.selectionEnd,
-							scrtop = x.scrollTop,
-							tag = this.getAttribute('de-tag');
-						$pd(e);
-						if(this.getAttribute('de-bb') === 'true') {
-							txt = x.value.substring(start, end);
-							if(txt.contains('\n')) {
-								txt = '[' + tag + ']' + txt + '[/' + tag + ']';
-							} else {
-								temp = txt.match(/^(\s*)(.*?)(\s*)$/);
-								txt = temp[1] + '[' + tag + ']' + temp[2] + '[/' + tag + ']' + temp[3];
-							}
-						} else {
-							txt = '';
-							x.value.substring(start, end).split('\n').forEach(function(line) {
-								var m = line.match(/^(\s*)(.*?)(\s*)$/);
-								txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
-									: m[2] + new Array(m[2].length + 1).join('^H')
-								) + m[3];
-							});
-							txt = txt.slice(1);
-						}
-						len = start + txt.length;
-						x.value = x.value.substr(0, start) + txt + x.value.substr(end);
-						x.setSelectionRange(len, len);
-						x.focus();
-						x.scrollTop = scrtop;
-						txt = tag = null;
-					};
+					return;
 				}
-				tPanel.appendChild(btn);
+			} else {
+				x = pr.txta;
+				start = x.selectionStart;
+				end = x.selectionEnd;
+				if(id === 'de-btn-quote') {
+					$txtInsert(x, '> ' + (
+						start === end ? quotetxt : x.value.substring(start, end)
+					).replace(/\n/gm, '\n> '));
+				} else {
+					scrtop = x.scrollTop;
+					tag = el.getAttribute('de-tag');
+					if(el.getAttribute('de-bb') === 'true') {
+						txt = x.value.substring(start, end);
+						if(txt.contains('\n')) {
+							txt = '[' + tag + ']' + txt + '[/' + tag + ']';
+						} else {
+							temp = txt.match(/^(\s*)(.*?)(\s*)$/);
+							txt = temp[1] + '[' + tag + ']' + temp[2] + '[/' + tag + ']' + temp[3];
+						}
+					} else {
+						txt = '';
+						x.value.substring(start, end).split('\n').forEach(function(line) {
+							var m = line.match(/^(\s*)(.*?)(\s*)$/);
+							txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
+								: m[2] + new Array(m[2].length + 1).join('^H')
+							) + m[3];
+						});
+						txt = txt.slice(1);
+					}
+					len = start + txt.length;
+					x.value = x.value.substr(0, start) + txt + x.value.substr(end);
+					x.setSelectionRange(len, len);
+					x.focus();
+					x.scrollTop = scrtop;
+					txt = tag = null;
+				}
 			}
-			btn.innerHTML =
-				Cfg['addTextBtns'] === 2 ? (
-					(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] + '</a>' +
-					(id !== 'quote' ? ' / ' : ' ]')
-				) :
-				Cfg['addTextBtns'] === 3 ?
-					('<input type="button" value="' + key['val'] + '" style="font-weight: bold;">') :
-				'';
+			e.preventDefault();
+			e.stopPropagation();
 		}
 	},
 	refreshCapImg: function(tNum, isFocus) {
@@ -5541,26 +5545,31 @@ PostForm.prototype = {
 			this._qArea.appendChild(this._pForm);
 			$disp(this._tReply);
 			if(!TNum && !aib.kus && !aib.hana) {
-				$del($q('#thr_id, input[name="parent"]', this.form));
-				this.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
-					aib.fch || aib.futa ? 'resto' :
-					aib.tiny ? 'thread' :
-					'parent'
-				) + '">');
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
 					this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' +
 						tNum + '" name="oek_parent">');
+				}
+				if(this.form) {
+					$del($q('#thr_id, input[name="parent"]', this.form));
+					this.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
+						aib.fch || aib.futa ? 'resto' :
+						aib.tiny ? 'thread' :
+						'parent'
+					) + '">');
 				}
 			}
 		}
 		$after(post.wrap, this._qArea);
 		this._qArea.style.display = '';
 		if(!TNum) {
-			this.toggleQuickReply(tNum);
+			this._toggleQuickReply(tNum);
 			if(Cfg['noThrdForm']) {
 				this.pArea.style.display = 'none';
 			}
+		}
+		if(!this.form) {
+			return;
 		}
 		if(this._lastCapUpdate !== 0 && ((!TNum && this.tNum !== tNum) ||
 			Date.now() - this._lastCapUpdate > 3e5))
@@ -5580,7 +5589,7 @@ PostForm.prototype = {
 		if(this.isQuick) {
 			this.isQuick = false;
 			if(!TNum) {
-				this.toggleQuickReply(0);
+				this._toggleQuickReply(0);
 				$del($id('thr_id'));
 			}
 			$disp(this._tReply);
@@ -5598,15 +5607,6 @@ PostForm.prototype = {
 			$disp(this.pArea);
 		}
 		$focus(this.pArea);
-	},
-	toggleQuickReply: function(tNum) {
-		$q('#thr_id, input[name*="thread"]', this.form).value = tNum;
-		if(this.oeForm) {
-			$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
-		}
-		if(aib.pony) {
-			$q('input[name="quickreply"]', this.form).value = tNum || '';
-		}
 	},
 
 	_qArea: null,
@@ -5663,6 +5663,11 @@ PostForm.prototype = {
 			dForm.appendChild($c('userdelete', doc.body));
 			this.dpass = $q('input[type="password"]', dForm);
 		}
+		if(this.form) {
+			this._initForm();
+		}
+	},
+	_initForm: function() {
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
@@ -5673,7 +5678,9 @@ PostForm.prototype = {
 		} else {
 			this._addResizer();
 		}
-		this.addTextPanel();
+		el = this.addTextPanel();
+		el.addEventListener('click', this, true);
+		el.addEventListener('mouseover', this, true);
 		this.txta.style.cssText = 'padding: 0; resize: both; width: ' +
 			Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 		$event(this.txta, {'keypress': function(e) {
@@ -5800,6 +5807,17 @@ PostForm.prototype = {
 			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
 		} else {
 			this.mail.checked = c;
+		}
+	},
+	_toggleQuickReply: function(tNum) {
+		if(this.oeForm) {
+			$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
+		}
+		if(this.form) {
+			$q('#thr_id, input[name*="thread"]', this.form).value = tNum;
+			if(aib.pony) {
+				$q('input[name="quickreply"]', this.form).value = tNum || '';
+			}
 		}
 	},
 	_updateCaptcha: function() {
@@ -8737,7 +8755,7 @@ function doScript() {
 		replaceDelform();
 		$log('Replace delform');
 	}
-	pr = new PostForm($q(aib.qPostForm, doc), !liteMode);
+	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
 	firstThr = tryToParse(dForm, null);
 	if(!firstThr) {
 		$disp(doc.body);
