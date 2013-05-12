@@ -5991,7 +5991,6 @@ Post.prototype = {
 		if(isExpImg) {
 			this.toggleImages(true);
 		}
-		spells.check(this, this.hide, null);
 	},
 	toggleImages: function(expand) {
 		var i, dat;
@@ -6460,6 +6459,7 @@ Post.prototype = {
 			this.msg.appendChild(ytExt);
 		}
 		this.addFuncs();
+		spells.check(this, this.hide, null);
 		this._trunc = null;
 	},
 	get wrap() {
@@ -7122,15 +7122,20 @@ Thread.prototype = {
 		return false;
 	},
 	checkSpells: function() {
-		var i, post, posts = this.gInfo.hPosts,
+		var i, post, hPosts = 0,
+			posts = this.gInfo.hPosts,
 			len = posts.length;
 		if(len !== 0) {
 			for(i = 0; i < len; i++) {
 				post = posts[i];
-				spells.check(post, post.hide, null);
+				spells.check(post, function() {
+					this.hide();
+					hPosts++;
+				}, null);
 			}
+			this.gInfo.hPosts = [];
 		}
-		this.gInfo.hPosts = [];
+		return hPosts;
 	},
 	load: function(last, Fn) {
 		if(!Fn) {
@@ -7155,7 +7160,7 @@ Thread.prototype = {
 					}
 				}
 			}
-			nP = this._parsePosts(els, nOmt, this.omitted - 1);
+			nP = this._parsePosts(els, nOmt, this.omitted);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt !== 0) {
@@ -7206,6 +7211,7 @@ Thread.prototype = {
 							this.el.appendChild(this._postsCache);
 							this.pcount = pCount + len;
 							this._postsCache = null;
+							this.checkSpells();
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7215,11 +7221,13 @@ Thread.prototype = {
 			return;
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function(els, op) {
+			var newPosts = this._parsePosts(els, 0, 0),
+				hiddenPosts = this.checkSpells();
 			this._checkBan(this.op, op);
-			Fn(200, '', this._parsePosts(els, 0, 0));
-			Fn = null;
+			Fn(200, '', newPosts - hiddenPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getPostImages(dForm).length;
 			savePostsVisib();
+			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
 			Fn(eCode, eMsg, 0);
 			Fn = null;
@@ -7334,11 +7342,11 @@ Thread.prototype = {
 					this._postsCache = doc.createDocumentFragment();
 				}
 				if(i < len) {
+					np = len - i;
 					do {
 						el = nPosts[i];
 						last = this._addPost(replacePost(doc.importNode(el, true)),
 							aib.getPNum(el), i + dCount, last);
-						np += +!last.hidden;
 						last.dcount = lastdcount;
 					} while(++i < len);
 					this.el.appendChild(this._postsCache);
