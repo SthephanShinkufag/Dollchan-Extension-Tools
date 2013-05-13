@@ -5390,38 +5390,7 @@ PostForm.prototype = {
 	pArea: null,
 	addTextPanel: function() {
 		var tPanel, key, html = '',
-			bb = aib.isBB,
-			btns = {
-				'bold': {
-					'val': 'B',
-					'tag': (bb ? (aib._420 ? '**' : 'b') : (aib.tiny ? "'''" : '**'))
-				},
-				'italic': {
-					'val': 'i',
-					'tag': (bb ? (aib._420 ? '*' : 'i') : (aib.tiny ? "''" : '*'))
-				},
-				'under': {
-					'val': 'U',
-					'tag': (bb ? 'u' : '__'),
-					'off': aib._420 || !bb
-				},
-				'strike': {
-					'val': 'S',
-					'tag': (bb ? (aib.mlpg ? '-' : 's') : (aib._410 ? '^^' : '^H')),
-					'off': aib._420 || aib._4chon
-				},
-				'spoil': {
-					'val': '%',
-					'tag': ((bb || aib.fch) ? (aib._420 ? '%' : 'spoiler') : (aib.tiny ? '**' : '%%')),
-					'bb': aib.fch
-				},
-				'code': {
-					'val': 'C',
-					'tag': (bb ? (aib._420 ? 'pre' : aib.mlpg ? 'c' : aib.krau ? 'aa' : 'code') : '`'),
-					'off': aib._4chon
-				},
-				'quote': {'val': '&gt;'}
-			}
+			btns = aib.formButtons;
 		$after(
 			Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
 				aib._420 ? $c('popup', this.form) :
@@ -5439,7 +5408,7 @@ PostForm.prototype = {
 				continue;
 			}
 			html += '<span id="de-btn-' + id + '" title="' + Lng.txtBtn[id][lang] + '" de-tag="' +
-				key['tag'] + '" de-bb="' + (bb || !!key['bb']) + '">' + (
+				key['tag'] + '" de-bb="' + key['bb'] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
 						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] +
 						'</a>' + (id !== 'quote' ? ' / ' : ' ]') :
@@ -7649,6 +7618,11 @@ ImageBoard.prototype = {
 			tire: { value: true }
 		}],
 		'410chan.org': [{
+			formButtons: { get: function() {
+				var pFB = Object.getPrototypeOf(this).formButtons;
+				pFB['strike']['tag'] = '^^';
+				return pFB;
+			} },
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 			} },
@@ -7657,6 +7631,16 @@ ImageBoard.prototype = {
 			_410: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'420chan.org': [{
+			formButtons: { get: function() {
+				var pFB = Object.getPrototypeOf(this).formButtons;
+				pFB['bold']['tag'] = '**';
+				pFB['italic']['tag'] = '*';
+				pFB['under']['off'] = true;
+				pFB['strike']['off'] = true;
+				pFB['spoil']['tag'] = '%';
+				pFB['code']['tag'] = 'pre';
+				return pFB;
+			} },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
 			qThread: { value: '[id*="thread"]' },
@@ -7676,6 +7660,14 @@ ImageBoard.prototype = {
 			cOPost: { value: 'op' },
 			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
+			formButtons: { get: function() {
+				var pFB = Object.getPrototypeOf(this).formButtons;
+				pFB['spoil']['tag'] = 'spoiler';
+				pFB['spoil']['bb'] = true;
+				pFB['code']['tag'] = 'code';
+				pFB['code']['bb'] = true;
+				return pFB;
+			} },
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform.desktop > input[type="submit"]' },
 			qError: { value: '#errmsg' },
@@ -7703,6 +7695,12 @@ ImageBoard.prototype = {
 			fch: { value: true }
 		}],
 		'4chon.net': [{
+			formButtons: { get: function() {
+				var pFB = Object.getPrototypeOf(this).formButtons;
+				pFB['strike']['off'] = true;
+				pFB['code']['off'] = true;
+				return pFB;
+			} },
 			appendPost: { value: function(el, parent) {
 				parent.appendChild(el);
 				el.insertAdjacentHTML('afterend', '<br>');
@@ -7850,6 +7848,12 @@ ImageBoard.prototype = {
 		}],
 		'mlpg.co': [{
 			cOPost: { value: 'op' },
+			formButtons: { get: function() {
+				var pFB = Object.getPrototypeOf(this).formButtons;
+				pFB['strike']['tag'] = '-';
+				pFB['code']['tag'] = 'c';
+				return pFB;
+			} },
 			qTable: { value: '.replyContainer' },
 			getWrap: { value: function(post) {
 				return post.el.parentNode;
@@ -7858,9 +7862,7 @@ ImageBoard.prototype = {
 				return Object.getPrototypeOf(this).css +
 					'#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
 			} },
-			isBB: { value: true },
-
-			mlpg: { value: true }
+			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'ponychan.net': [{
 			cOPost: { value: 'op' },
@@ -7970,6 +7972,13 @@ ImageBoard.prototype = {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
+			formButtons: { get: function() {
+				var pFB = Object.getPrototypeOf(this).formButtons;
+				pFB['bold']['tag'] = "'''";
+				pFB['italic']['tag'] = "''";
+				pFB['spoil']['tag'] = '**';
+				return pFB;
+			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
@@ -8060,6 +8069,52 @@ ImageBoard.prototype = {
 		cReply: 'reply',
 		cSubj: 'filetitle',
 		cTrip: 'postertrip',
+		get formButtons() {
+			var bb = this.isBB;
+			return {
+				'bold': {
+					'val': 'B',
+					'tag': bb ? 'b' : '**',
+					'bb': bb,
+					'off': false
+				},
+				'italic': {
+					'val': 'i',
+					'tag': bb ? 'i' : '*',
+					'bb': bb,
+					'off': false
+				},
+				'under': {
+					'val': 'U',
+					'tag': bb ? 'u' : '__',
+					'bb': bb,
+					'off': !bb
+				},
+				'strike': {
+					'val': 'S',
+					'tag': bb ? 's' : '^H',
+					'bb': bb,
+					'off': false
+				},
+				'spoil': {
+					'val': '%',
+					'tag': bb ? 'spoiler' : '%%',
+					'bb': bb,
+					'off': false
+				},
+				'code': {
+					'val': 'C',
+					'tag': bb ? 'code' : '`',
+					'bb': bb,
+					'off': false
+				},
+				'quote': {
+					'val': '&gt;',
+					'bb': bb,
+					'off': false
+				}
+			};
+		},
 		qBan: '',
 		qDelBut: 'input[type="submit"]',
 		qDForm: '#delform, form[name="delform"]',
