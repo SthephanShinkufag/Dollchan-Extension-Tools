@@ -212,15 +212,15 @@ Lng = {
 		}
 	},
 
-	txtBtn: {
-		'bold':		['Жирный', 'Bold'],
-		'italic':	['Наклонный', 'Italic'],
-		'under':	['Подчеркнутый', 'Underlined'],
-		'strike':	['Зачеркнутый', 'Strike'],
-		'spoil':	['Спойлер', 'Spoiler'],
-		'code':		['Код', 'Code'],
-		'quote':	['Цитировать выделенное', 'Quote selected']
-	},
+	txtBtn: [
+		['Жирный', 'Bold'],
+		['Наклонный', 'Italic'],
+		['Подчеркнутый', 'Underlined'],
+		['Зачеркнутый', 'Strike'],
+		['Спойлер', 'Spoiler'],
+		['Код', 'Code'],
+		['Цитировать выделенное', 'Quote selected']
+	],
 
 	cfgTab: {
 		'filters':	['Фильтры', 'Filters'],
@@ -5389,7 +5389,7 @@ PostForm.prototype = {
 	isQuick: false,
 	pArea: null,
 	addTextPanel: function() {
-		var i, len, id, tag, tPanel, html = '',
+		var i, len, tag, tPanel, html = '',
 			btns = aib.formButtons;
 		$after(
 			Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
@@ -5400,16 +5400,15 @@ PostForm.prototype = {
 			})
 		);
 		for(i = 0, len = btns['id'].length; i < len; ++i) {
-			tag = btns['val'][i];
+			tag = btns['tag'][i];
 			if(tag === '') {
 				continue;
 			}
-			id = btns['id'][i];
-			html += '<span id="de-btn-' + id + '" title="' + Lng.txtBtn[id][lang] + '" de-tag="' +
-				btns['tag'][i] + '" de-bb="' + btns['bb'][i] + '">' + (
+			html += '<span id="de-btn-' + btns['id'][i] + '" title="' + Lng.txtBtn[i][lang] +
+				'" de-tag="' + btns['tag'][i] + '" de-bb="' + btns['bb'][i] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
-						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
-						'</a>' + (id !== 'quote' ? ' / ' : ' ]') :
+						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
+						'</a>' + (i !== len - 1 ? ' / ' : ' ]') :
 					Cfg['addTextBtns'] === 3 ?
 						'<input type="button" value="' + btns['val'][i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
