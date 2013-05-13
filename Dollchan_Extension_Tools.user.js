@@ -7617,7 +7617,7 @@ ImageBoard.prototype = {
 		'410chan.org': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '^^', '%%', '`', '&gt;'] }
+					'tag': { value: ['**', '*', '__', '^^', '%%', '`', 'q'] }
 				});
 			} },
 			getSage: { value: function(post) {
@@ -7630,7 +7630,7 @@ ImageBoard.prototype = {
 		'420chan.org': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '', '', '%', 'pre', '&gt;'] }
+					'tag': { value: ['**', '*', '', '', '%', 'pre', 'q'] }
 				});
 			} },
 			qBan: { value: '.ban' },
@@ -7654,7 +7654,7 @@ ImageBoard.prototype = {
 			cReply: { value: 'post reply' },
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', '&gt;'] },
+					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', 'q'] },
 					'bb': { value: [false, false, false, false, true, true, false] }
 				});
 			} },
@@ -7687,7 +7687,7 @@ ImageBoard.prototype = {
 		'4chon.net': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '', '%%', '', '&gt;'] }
+					'tag': { value: ['**', '*', '__', '', '%%', '', 'q'] }
 				});
 			} },
 			appendPost: { value: function(el, parent) {
@@ -7839,7 +7839,7 @@ ImageBoard.prototype = {
 			cOPost: { value: 'op' },
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '&gt;'] },
+					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', 'q'] },
 				});
 			} },
 			qTable: { value: '.replyContainer' },
@@ -7962,7 +7962,7 @@ ImageBoard.prototype = {
 			cTrip: { value: 'trip' },
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ["'''", "''", '__', '^H', '**', '`', '&gt;'] },
+					'tag': { value: ["'''", "''", '__', '^H', '**', '`', 'q'] },
 				});
 			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
@@ -8060,7 +8060,7 @@ ImageBoard.prototype = {
 			return {
 				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'quote'],
 				'val': ['B', 'i', 'U', 'S', '%', 'C', '&gt;'],
-				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '&gt;'] : ['**', '*', '', '^H', '%%', '`', '&gt;'],
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', 'q'] : ['**', '*', '', '^H', '%%', '`', 'q'],
 				'bb': [bb, bb, bb, bb, bb, bb, bb]
 			};
 		},
