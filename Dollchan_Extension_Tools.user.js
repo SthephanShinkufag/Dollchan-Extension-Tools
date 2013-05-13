@@ -1425,9 +1425,10 @@ function showContent(cont, id, name, isUpd) {
 		cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
 		$append(cont, [
 			doc.createElement('hr'),
-			addEditButton('favor', Favor, true, function() {
+			addEditButton('favor', Favor, true, function(data) {
 				Favor = data;
 				setStored('DESU_Favorites', JSON.stringify(Favor));
+				toggleContent('fav', true);
 			}),
 			$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 				$each($C('de-entry', doc), function(el) {
