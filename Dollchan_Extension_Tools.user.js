@@ -5025,9 +5025,7 @@ function scriptCSS() {
 
 	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
-		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }\
-		#de-txt-panel:lang(en) { display: none; }\
-		#de-txt-panel:lang(ru) { float: right; }';
+		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }';
 	p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
 	gif('#de-btn-bold:empty', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
 	gif('#de-btn-italic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
@@ -5389,17 +5387,20 @@ PostForm.prototype = {
 	isQuick: false,
 	pArea: null,
 	addTextPanel: function() {
-		var i, len, tag, tPanel, html = '',
-			btns = aib.formButtons;
-		$after(
-			Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
-				aib._420 ? $c('popup', this.form) :
-				this.subm,
-			tPanel = $attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
-				'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
-			})
+		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
+		if(!Cfg['addTextBtns']) {
+			$del(tPanel);
+			return;
+		}
+		if(!tPanel) {
+			tPanel = $new('span', {'id': 'de-txt-panel'}, null);
+		}
+		tPanel.style.cssFloat = Cfg['txtBtnsLoc'] ? 'none' : 'right';
+		$after(Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
+			aib._420 ? $c('popup', this.form) :
+			this.subm, tPanel
 		);
-		for(i = 0, len = btns['id'].length; i < len; ++i) {
+		for(html = '', i = 0, btns = aib.formButtons, len = btns['id'].length; i < len; ++i) {
 			tag = btns['tag'][i];
 			if(tag === '') {
 				continue;
