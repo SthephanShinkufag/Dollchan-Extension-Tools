@@ -219,6 +219,8 @@ Lng = {
 		['Зачеркнутый', 'Strike'],
 		['Спойлер', 'Spoiler'],
 		['Код', 'Code'],
+		['Верхний индекс', 'Superscript'],
+		['Нижний индекс', 'Subscript'],
 		['Цитировать выделенное', 'Quote selected']
 	],
 
@@ -5033,6 +5035,8 @@ function scriptCSS() {
 	gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
 	gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
 	gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#de-btn-sup:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#de-btn-sub:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
 	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
@@ -5411,7 +5415,7 @@ PostForm.prototype = {
 				'" de-tag="' + tag + '" de-bb="' + btns['bb'][i] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
 						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
-						'</a>' + (i == len - 1 ? ' ]' : ' / ') :
+						'</a>' + (i === len - 1 ? ' ]' : ' / ') :
 					Cfg['addTextBtns'] === 3 ?
 						'<input type="button" value="' + btns['val'][i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
@@ -7619,21 +7623,20 @@ ImageBoard.prototype = {
 		}],
 		'410chan.org': [{
 			formButtons: { get: function() {
-				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '^^', '%%', '`', 'q'] }
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
 				});
 			} },
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 			} },
-			isBB: { value: false },
 
 			_410: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'420chan.org': [{
 			formButtons: { get: function() {
-				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '', '', '%', 'pre', 'q'] }
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
 				});
 			} },
 			qBan: { value: '.ban' },
@@ -7656,9 +7659,9 @@ ImageBoard.prototype = {
 			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
 			formButtons: { get: function() {
-				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', 'q'] },
-					'bb': { value: [false, false, false, false, true, true, false] }
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
+					'bb': { value: [false, false, false, false, true, true, false, false, false] }
 				});
 			} },
 			qBan: { value: 'strong[style="color: red;"]' },
@@ -7689,8 +7692,8 @@ ImageBoard.prototype = {
 		}],
 		'4chon.net': [{
 			formButtons: { get: function() {
-				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '', '%%', '', 'q'] }
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
 				});
 			} },
 			appendPost: { value: function(el, parent) {
@@ -7841,8 +7844,8 @@ ImageBoard.prototype = {
 		'mlpg.co': [{
 			cOPost: { value: 'op' },
 			formButtons: { get: function() {
-				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', 'q'] },
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
 				});
 			} },
 			qTable: { value: '.replyContainer' },
@@ -7867,6 +7870,11 @@ ImageBoard.prototype = {
 	},
 	_bEngines: {
 		'#ABU_css': {
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+				});
+			} },
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
 			getSage: { writable: true, value: function(post) {
@@ -7964,8 +7972,8 @@ ImageBoard.prototype = {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			formButtons: { get: function() {
-				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ["'''", "''", '__', '^H', '**', '`', 'q'] },
+				return Object.create(this._formButtons(), {
+					'tag': { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 				});
 			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
@@ -8059,13 +8067,7 @@ ImageBoard.prototype = {
 		cSubj: 'filetitle',
 		cTrip: 'postertrip',
 		get formButtons() {
-			var bb = this.isBB;
-			return {
-				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'quote'],
-				'val': ['B', 'i', 'U', 'S', '%', 'C', '&gt;'],
-				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', 'q'] : ['**', '*', '', '^H', '%%', '`', 'q'],
-				'bb': [bb, bb, bb, bb, bb, bb, bb]
-			};
+			return this._formButtons();
 		},
 		qBan: '',
 		qDelBut: 'input[type="submit"]',
@@ -8170,6 +8172,15 @@ ImageBoard.prototype = {
 		},
 		removePost: function(post) {
 			$del(post.wrap);
+		},
+		_formButtons: function() {
+			var bb = this.isBB;
+			return {
+				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
+				'val': ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'],
+				'bb': [bb, bb, bb, bb, bb, bb, bb, bb, bb]
+			};
 		},
 		_reCrossLinks: null,
 		get reCrossLinks() {
