@@ -5400,8 +5400,7 @@ PostForm.prototype = {
 		}
 		tPanel.style.cssFloat = Cfg['txtBtnsLoc'] ? 'none' : 'right';
 		$after(Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
-			aib._420 ? $c('popup', this.form) :
-			this.subm, tPanel
+			aib._420 ? $c('popup', this.form) : this.subm, tPanel
 		);
 		for(html = '', i = 0, btns = aib.formButtons, len = btns['id'].length; i < len; ++i) {
 			tag = btns['tag'][i];
@@ -5412,13 +5411,12 @@ PostForm.prototype = {
 				'" de-tag="' + tag + '" de-bb="' + btns['bb'][i] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
 						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
-						'</a>' + (i !== len - 1 ? ' / ' : ' ]') :
+						'</a>' + (i == len - 1 ? ' ]' : ' / ') :
 					Cfg['addTextBtns'] === 3 ?
 						'<input type="button" value="' + btns['val'][i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;
-		return tPanel;
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, tag, txt, temp, id, el = e.target,
