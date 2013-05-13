@@ -8060,7 +8060,7 @@ ImageBoard.prototype = {
 			var bb = this.isBB;
 			return {
 				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'quote'],
-				'val': ['B', 'i', 'U', 'S', '%', 'C', '$gt'],
+				'val': ['B', 'i', 'U', 'S', '%', 'C', '&gt;'],
 				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', ''] : ['**', '*', '__', '^H', '%%', '`', ''],
 				'bb': [bb, bb, bb, bb, bb, bb, bb],
 				'off': [false, false, !bb, false, false, false, false]
