@@ -5389,7 +5389,7 @@ PostForm.prototype = {
 	isQuick: false,
 	pArea: null,
 	addTextPanel: function() {
-		var tPanel, key, html = '',
+		var i, len, id, tPanel, html = '',
 			btns = aib.formButtons;
 		$after(
 			Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
@@ -5399,21 +5399,18 @@ PostForm.prototype = {
 				'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
 			})
 		);
-		for(var id in btns) {
-			if(!btns.hasOwnProperty(id)) {
+		for(i = 0, len = btns['id'].length; i < len; ++i) {
+			if(btns['off'][i]) {
 				continue;
 			}
-			key = btns[id];
-			if(key['off']) {
-				continue;
-			}
+			id = btns['id'][i];
 			html += '<span id="de-btn-' + id + '" title="' + Lng.txtBtn[id][lang] + '" de-tag="' +
-				key['tag'] + '" de-bb="' + key['bb'] + '">' + (
+				btns['tag'][i] + '" de-bb="' + btns['bb'][i] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
-						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] +
+						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
 						'</a>' + (id !== 'quote' ? ' / ' : ' ]') :
 					Cfg['addTextBtns'] === 3 ?
-						'<input type="button" value="' + key['val'] + '" style="font-weight: bold;">' : ''
+						'<input type="button" value="' + btns['val'][i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;
@@ -7619,9 +7616,9 @@ ImageBoard.prototype = {
 		}],
 		'410chan.org': [{
 			formButtons: { get: function() {
-				var pFB = Object.getPrototypeOf(this).formButtons;
-				pFB['strike']['tag'] = '^^';
-				return pFB;
+				return Object.create(Object.getPrototypeOf(this).formButtons, {
+					'tag': { value: ['**', '*', '__', '^^', '%%', '`', ''] }
+				});
 			} },
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
@@ -7632,14 +7629,10 @@ ImageBoard.prototype = {
 		}, 'script[src*="kusaba"]'],
 		'420chan.org': [{
 			formButtons: { get: function() {
-				var pFB = Object.getPrototypeOf(this).formButtons;
-				pFB['bold']['tag'] = '**';
-				pFB['italic']['tag'] = '*';
-				pFB['under']['off'] = true;
-				pFB['strike']['off'] = true;
-				pFB['spoil']['tag'] = '%';
-				pFB['code']['tag'] = 'pre';
-				return pFB;
+				return Object.create(Object.getPrototypeOf(this).formButtons, {
+					'tag': { value: ['**', '*', '', '', '%', 'pre', ''] },
+					'off': { value: [false, false, true, true, false, false, false] }
+				});
 			} },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
@@ -7661,12 +7654,10 @@ ImageBoard.prototype = {
 			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
 			formButtons: { get: function() {
-				var pFB = Object.getPrototypeOf(this).formButtons;
-				pFB['spoil']['tag'] = 'spoiler';
-				pFB['spoil']['bb'] = true;
-				pFB['code']['tag'] = 'code';
-				pFB['code']['bb'] = true;
-				return pFB;
+				return Object.create(Object.getPrototypeOf(this).formButtons, {
+					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', ''] },
+					'bb': { value: [false, false, false, false, true, true, false] }
+				});
 			} },
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform.desktop > input[type="submit"]' },
@@ -7696,10 +7687,9 @@ ImageBoard.prototype = {
 		}],
 		'4chon.net': [{
 			formButtons: { get: function() {
-				var pFB = Object.getPrototypeOf(this).formButtons;
-				pFB['strike']['off'] = true;
-				pFB['code']['off'] = true;
-				return pFB;
+				return Object.create(Object.getPrototypeOf(this).formButtons, {
+					'off': { value: [false, false, false, true, false, true, false] }
+				});
 			} },
 			appendPost: { value: function(el, parent) {
 				parent.appendChild(el);
@@ -7849,10 +7839,9 @@ ImageBoard.prototype = {
 		'mlpg.co': [{
 			cOPost: { value: 'op' },
 			formButtons: { get: function() {
-				var pFB = Object.getPrototypeOf(this).formButtons;
-				pFB['strike']['tag'] = '-';
-				pFB['code']['tag'] = 'c';
-				return pFB;
+				return Object.create(Object.getPrototypeOf(this).formButtons, {
+					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', ''] },
+				});
 			} },
 			qTable: { value: '.replyContainer' },
 			getWrap: { value: function(post) {
@@ -7973,11 +7962,9 @@ ImageBoard.prototype = {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			formButtons: { get: function() {
-				var pFB = Object.getPrototypeOf(this).formButtons;
-				pFB['bold']['tag'] = "'''";
-				pFB['italic']['tag'] = "''";
-				pFB['spoil']['tag'] = '**';
-				return pFB;
+				return Object.create(Object.getPrototypeOf(this).formButtons, {
+					'tag': { value: ["'''", "''", '__', '^H', '**', '`', ''] },
+				});
 			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
 			qMsg: { value: '.body' },
@@ -8072,47 +8059,11 @@ ImageBoard.prototype = {
 		get formButtons() {
 			var bb = this.isBB;
 			return {
-				'bold': {
-					'val': 'B',
-					'tag': bb ? 'b' : '**',
-					'bb': bb,
-					'off': false
-				},
-				'italic': {
-					'val': 'i',
-					'tag': bb ? 'i' : '*',
-					'bb': bb,
-					'off': false
-				},
-				'under': {
-					'val': 'U',
-					'tag': bb ? 'u' : '__',
-					'bb': bb,
-					'off': !bb
-				},
-				'strike': {
-					'val': 'S',
-					'tag': bb ? 's' : '^H',
-					'bb': bb,
-					'off': false
-				},
-				'spoil': {
-					'val': '%',
-					'tag': bb ? 'spoiler' : '%%',
-					'bb': bb,
-					'off': false
-				},
-				'code': {
-					'val': 'C',
-					'tag': bb ? 'code' : '`',
-					'bb': bb,
-					'off': false
-				},
-				'quote': {
-					'val': '&gt;',
-					'bb': bb,
-					'off': false
-				}
+				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'quote'],
+				'val': ['B', 'i', 'U', 'S', '%', 'C', '$gt'],
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', ''] : ['**', '*', '__', '^H', '%%', '`', ''],
+				'bb': [bb, bb, bb, bb, bb, bb, bb],
+				'off': [false, false, !bb, false, false, false, false]
 			};
 		},
 		qBan: '',
