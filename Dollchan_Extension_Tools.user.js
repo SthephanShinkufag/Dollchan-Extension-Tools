@@ -5400,7 +5400,7 @@ PostForm.prototype = {
 			})
 		);
 		for(i = 0, len = btns['id'].length; i < len; ++i) {
-			if(btns['off'][i]) {
+			if(!btns['enabled'][i]) {
 				continue;
 			}
 			id = btns['id'][i];
@@ -7631,7 +7631,7 @@ ImageBoard.prototype = {
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
 					'tag': { value: ['**', '*', '', '', '%', 'pre', ''] },
-					'off': { value: [false, false, true, true, false, false, false] }
+					'enabled': { value: [true, true, false, false, true, true, true] }
 				});
 			} },
 			qBan: { value: '.ban' },
@@ -7688,7 +7688,7 @@ ImageBoard.prototype = {
 		'4chon.net': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'off': { value: [false, false, false, true, false, true, false] }
+					'enabled': { value: [true, true, true, false, true, false, true] }
 				});
 			} },
 			appendPost: { value: function(el, parent) {
@@ -8063,7 +8063,7 @@ ImageBoard.prototype = {
 				'val': ['B', 'i', 'U', 'S', '%', 'C', '&gt;'],
 				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', ''] : ['**', '*', '__', '^H', '%%', '`', ''],
 				'bb': [bb, bb, bb, bb, bb, bb, bb],
-				'off': [false, false, !bb, false, false, false, false]
+				'enabled': [true, true, bb, true, true, true, true]
 			};
 		},
 		qBan: '',
