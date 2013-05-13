@@ -5389,7 +5389,7 @@ PostForm.prototype = {
 	isQuick: false,
 	pArea: null,
 	addTextPanel: function() {
-		var i, len, id, tPanel, html = '',
+		var i, len, id, tag, tPanel, html = '',
 			btns = aib.formButtons;
 		$after(
 			Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
@@ -5400,7 +5400,8 @@ PostForm.prototype = {
 			})
 		);
 		for(i = 0, len = btns['id'].length; i < len; ++i) {
-			if(!btns['enabled'][i]) {
+			tag = btns['val'][i];
+			if(tag === '') {
 				continue;
 			}
 			id = btns['id'][i];
@@ -7617,7 +7618,7 @@ ImageBoard.prototype = {
 		'410chan.org': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '^^', '%%', '`', ''] }
+					'tag': { value: ['**', '*', '__', '^^', '%%', '`', '&gt;'] }
 				});
 			} },
 			getSage: { value: function(post) {
@@ -7630,8 +7631,7 @@ ImageBoard.prototype = {
 		'420chan.org': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '', '', '%', 'pre', ''] },
-					'enabled': { value: [true, true, false, false, true, true, true] }
+					'tag': { value: ['**', '*', '', '', '%', 'pre', '&gt;'] }
 				});
 			} },
 			qBan: { value: '.ban' },
@@ -7655,7 +7655,7 @@ ImageBoard.prototype = {
 			cReply: { value: 'post reply' },
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', ''] },
+					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', '&gt;'] },
 					'bb': { value: [false, false, false, false, true, true, false] }
 				});
 			} },
@@ -7688,7 +7688,7 @@ ImageBoard.prototype = {
 		'4chon.net': [{
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'enabled': { value: [true, true, true, false, true, false, true] }
+					'tag': { value: ['**', '*', '__', '', '%%', '', '&gt;'] }
 				});
 			} },
 			appendPost: { value: function(el, parent) {
@@ -7840,7 +7840,7 @@ ImageBoard.prototype = {
 			cOPost: { value: 'op' },
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', ''] },
+					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '&gt;'] },
 				});
 			} },
 			qTable: { value: '.replyContainer' },
@@ -7963,7 +7963,7 @@ ImageBoard.prototype = {
 			cTrip: { value: 'trip' },
 			formButtons: { get: function() {
 				return Object.create(Object.getPrototypeOf(this).formButtons, {
-					'tag': { value: ["'''", "''", '__', '^H', '**', '`', ''] },
+					'tag': { value: ["'''", "''", '__', '^H', '**', '`', '&gt;'] },
 				});
 			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
@@ -8061,9 +8061,8 @@ ImageBoard.prototype = {
 			return {
 				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'quote'],
 				'val': ['B', 'i', 'U', 'S', '%', 'C', '&gt;'],
-				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', ''] : ['**', '*', '__', '^H', '%%', '`', ''],
-				'bb': [bb, bb, bb, bb, bb, bb, bb],
-				'enabled': [true, true, bb, true, true, true, true]
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '&gt;'] : ['**', '*', '', '^H', '%%', '`', '&gt;'],
+				'bb': [bb, bb, bb, bb, bb, bb, bb]
 			};
 		},
 		qBan: '',
