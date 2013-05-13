@@ -7716,6 +7716,7 @@ ImageBoard.prototype = {
 			_4chon: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'7chan.org': [{
+			cFileInfo: { value: 'file_size' },
 			qMsg: { value: '.message' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
@@ -7768,6 +7769,16 @@ ImageBoard.prototype = {
 		'choroychan.org': [{
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:cejas"]', post);
+			} },
+
+			init: { value: function() {
+				for(var src, el, i = 0, els = $Q('span[id^="pv-"]', doc.body), len = els.length; i < len; ++i) {
+					el = els[i];
+					src = 'https://www.youtube.com/watch?v=' + el.id.substring(3);
+					el.parentNode.insertAdjacentHTML('beforeend',
+						'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
+					$del(el);
+				}
 			} }
 		}, 'script[src*="kusaba"]'],
 		'dfwk.ru': [{
