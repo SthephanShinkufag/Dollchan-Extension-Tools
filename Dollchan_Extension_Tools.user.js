@@ -5405,7 +5405,7 @@ PostForm.prototype = {
 				continue;
 			}
 			html += '<span id="de-btn-' + btns['id'][i] + '" title="' + Lng.txtBtn[i][lang] +
-				'" de-tag="' + btns['tag'][i] + '" de-bb="' + btns['bb'][i] + '">' + (
+				'" de-tag="' + tag + '" de-bb="' + btns['bb'][i] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
 						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
 						'</a>' + (i !== len - 1 ? ' / ' : ' ]') :
