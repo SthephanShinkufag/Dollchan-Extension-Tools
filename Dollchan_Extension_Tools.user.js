@@ -5393,7 +5393,10 @@ PostForm.prototype = {
 			return;
 		}
 		if(!tPanel) {
-			tPanel = $new('span', {'id': 'de-txt-panel'}, null);
+			tPanel = $new('span', {'id': 'de-txt-panel'}, {
+				'click': this,
+				'mouseover': this
+			});
 		}
 		tPanel.style.cssFloat = Cfg['txtBtnsLoc'] ? 'none' : 'right';
 		$after(Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
@@ -5646,9 +5649,7 @@ PostForm.prototype = {
 		} else {
 			this._addResizer();
 		}
-		el = this.addTextPanel();
-		el.addEventListener('click', this, true);
-		el.addEventListener('mouseover', this, true);
+		this.addTextPanel();
 		this.txta.style.cssText = 'padding: 0; resize: both; width: ' +
 			Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 		$event(this.txta, {'keypress': function(e) {
