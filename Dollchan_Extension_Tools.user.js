@@ -7582,7 +7582,7 @@ ImageBoard.prototype = {
 			} },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
+					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 					.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 					.ui-resizable { display: inline !important; }\
 					form textarea { resize: both !important; }'
