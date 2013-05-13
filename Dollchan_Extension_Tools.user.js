@@ -1,19 +1,19 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			13.4.14.0
+// @version			13.5.13.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
 // @description		Doing some profit for imageboards
-// @icon			https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Icon.png
-// @updateURL		https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
+// @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
 // @include			http://*
 // @include			https://*
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
-var version = '13.4.14.0',
+var version = '13.5.13.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -1651,7 +1651,7 @@ function getCfgFilters() {
 				$id('de-spell-edit').value = '';
 				toggleSpells();
 			}}),
-			$add('<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/Spells-' +
+			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">' + Lng.help[lang] + '</a>')
 		]),
 		$New('div', {'id': 'de-spell-div'}, [
@@ -1894,7 +1894,7 @@ function getCfgInfo() {
 		$add('<div style="padding-left: 7px; border-left: 1px solid grey;">' +
 			timeLog.join('<br>') + '</div>'),
 		$add('<span><a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
-			'<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/' +
+			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
 		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
@@ -5212,7 +5212,7 @@ function checkForUpdates(isForce, Fn) {
 	}
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
+		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
 		'headers': {'Content-Type': 'text/plain'},
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -5242,7 +5242,7 @@ function checkForUpdates(isForce, Fn) {
 				}
 				if(isUpd) {
 					Fn('<a style="color: blue; font-weight: bold;" href="' +
-						'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/' +
+						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
 						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
@@ -8544,7 +8544,7 @@ function initThreadUpdater(title, enableUpdater) {
 		if(!audioEl) {
 			audioEl = $new('audio', {
 				'preload': 'auto',
-				'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/signal.ogg'
+				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
 			}, null);
 		}
 		audioRep = aRep;
