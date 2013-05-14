@@ -7166,7 +7166,7 @@ Thread.prototype = {
 		if(aib.hana) {
 			getJsonPosts('//dobrochan.ru/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
-				function(status, sText, json) {
+				function parseNewPosts(status, sText, json) {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
@@ -7186,6 +7186,7 @@ Thread.prototype = {
 							this.pcount = pCount + len;
 							this._postsCache = null;
 							this.checkSpells();
+							savePostsVisib();
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7194,13 +7195,15 @@ Thread.prototype = {
 			);
 			return;
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function(els, op) {
+		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(els, op) {
 			var newPosts = this._parsePosts(els, 0, 0),
 				hiddenPosts = this.checkSpells();
 			this._checkBan(this.op, op);
 			Fn(200, '', newPosts - hiddenPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getPostImages(dForm).length;
-			savePostsVisib();
+			if(newPosts > 0) {
+				savePostsVisib();
+			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
 			Fn(eCode, eMsg, 0);
@@ -8259,17 +8262,17 @@ function Navigator(initXtraFns) {
 		);
 	}
 	this.fixLink =
-		this.Safari ? function(url) {
+		this.Safari ? function fixLink(url) {
 			return url[1] === '/' ? aib.prot + url :
 				url[0] === '/' ? aib.prot + '//' + aib.host + url :
 				url;
-		} : function(url) {
+		} : function fixLink(url) {
 			return url;
 		};
 	this.toDOM =
-		this.Firefox >= 12 ? function(html) {
+		this.Firefox >= 12 ? function toDOM(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
-		} : function(html) {
+		} : function toDOM(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
