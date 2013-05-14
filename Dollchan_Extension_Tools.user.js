@@ -212,15 +212,17 @@ Lng = {
 		}
 	},
 
-	txtBtn: {
-		'bold':		['Жирный', 'Bold'],
-		'italic':	['Наклонный', 'Italic'],
-		'under':	['Подчеркнутый', 'Underlined'],
-		'strike':	['Зачеркнутый', 'Strike'],
-		'spoil':	['Спойлер', 'Spoiler'],
-		'code':		['Код', 'Code'],
-		'quote':	['Цитировать выделенное', 'Quote selected']
-	},
+	txtBtn: [
+		['Жирный', 'Bold'],
+		['Наклонный', 'Italic'],
+		['Подчеркнутый', 'Underlined'],
+		['Зачеркнутый', 'Strike'],
+		['Спойлер', 'Spoiler'],
+		['Код', 'Code'],
+		['Верхний индекс', 'Superscript'],
+		['Нижний индекс', 'Subscript'],
+		['Цитировать выделенное', 'Quote selected']
+	],
 
 	cfgTab: {
 		'filters':	['Фильтры', 'Filters'],
@@ -5025,9 +5027,7 @@ function scriptCSS() {
 
 	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
-		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }\
-		#de-txt-panel:lang(en) { display: none; }\
-		#de-txt-panel:lang(ru) { float: right; }';
+		#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }';
 	p = 'R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ';
 	gif('#de-btn-bold:empty', p + 'T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==');
 	gif('#de-btn-italic:empty', p + 'K3IKpq4YAYxRCSmUhzTfx3z3c9iEHg6JnAJYYSFpvRlXcLNUg3srBmgr+RL0MzxILsYpGzyepfEIjR43t5kResUQmtdpKOIQpQwEAOw==');
@@ -5035,6 +5035,8 @@ function scriptCSS() {
 	gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
 	gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
 	gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#de-btn-sup:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#de-btn-sub:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
 	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
@@ -5389,71 +5391,44 @@ PostForm.prototype = {
 	isQuick: false,
 	pArea: null,
 	addTextPanel: function() {
-		var tPanel, key, html = '',
-			bb = aib.isBB,
-			btns = {
-				'bold': {
-					'val': 'B',
-					'tag': (bb ? (aib._420 ? '**' : 'b') : (aib.tiny ? "'''" : '**'))
-				},
-				'italic': {
-					'val': 'i',
-					'tag': (bb ? (aib._420 ? '*' : 'i') : (aib.tiny ? "''" : '*'))
-				},
-				'under': {
-					'val': 'U',
-					'tag': (bb ? 'u' : '__'),
-					'off': aib._420 || !bb
-				},
-				'strike': {
-					'val': 'S',
-					'tag': (bb ? (aib.mlpg ? '-' : 's') : (aib._410 ? '^^' : '^H')),
-					'off': aib._420 || aib._4chon
-				},
-				'spoil': {
-					'val': '%',
-					'tag': ((bb || aib.fch) ? (aib._420 ? '%' : 'spoiler') : (aib.tiny ? '**' : '%%')),
-					'bb': aib.fch
-				},
-				'code': {
-					'val': 'C',
-					'tag': (bb ? (aib._420 ? 'pre' : aib.mlpg ? 'c' : aib.krau ? 'aa' : 'code') : '`'),
-					'off': aib._4chon
-				},
-				'quote': {'val': '&gt;'}
-			}
-		$after(
-			Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
-				aib._420 ? $c('popup', this.form) :
-				this.subm,
-			tPanel = $attr($id('de-txt-panel') || $new('span', {'id': 'de-txt-panel'}, null), {
-				'lang': (!Cfg['addTextBtns'] ? 'en' : !Cfg['txtBtnsLoc'] ? 'ru' : '')
-			})
+		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
+		if(!Cfg['addTextBtns']) {
+			$del(tPanel);
+			return;
+		}
+		if(!tPanel) {
+			tPanel = $new('span', {'id': 'de-txt-panel'}, {
+				'click': this,
+				'mouseover': this
+			});
+		}
+		tPanel.style.cssFloat = Cfg['txtBtnsLoc'] ? 'none' : 'right';
+		$after(Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
+			aib._420 ? $c('popup', this.form) : this.subm, tPanel
 		);
-		for(var id in btns) {
-			if(!btns.hasOwnProperty(id)) {
+		for(html = '', i = 0, btns = aib.formButtons, len = btns['id'].length; i < len; ++i) {
+			tag = btns['tag'][i];
+			if(tag === '') {
 				continue;
 			}
-			key = btns[id];
-			if(key['off']) {
-				continue;
-			}
-			html += '<span id="de-btn-' + id + '" title="' + Lng.txtBtn[id][lang] + '" de-tag="' +
-				key['tag'] + '" de-bb="' + (bb || !!key['bb']) + '">' + (
+			html += '<span id="de-btn-' + btns['id'][i] + '" title="' + Lng.txtBtn[i][lang] +
+				'" de-tag="' + tag + '" de-bb="' + btns['bb'][i] + '">' + (
 					Cfg['addTextBtns'] === 2 ?
-						(id === 'bold' ? '[ ' : '') + '<a class="de-abtn" href="#">' + key['val'] +
-						'</a>' + (id !== 'quote' ? ' / ' : ' ]') :
+						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
+						'</a>' + (i === len - 1 ? ' ]' : ' / ') :
 					Cfg['addTextBtns'] === 3 ?
-						'<input type="button" value="' + key['val'] + '" style="font-weight: bold;">' : ''
+						'<input type="button" value="' + btns['val'][i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;
-		return tPanel;
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, tag, txt, temp, el = e.target,
-			id = el.id,
+		var x, start, end, scrtop, tag, txt, temp, id, el = e.target,
 			type = e.type;
+		if(el.tagName !== 'SPAN') {
+			el = el.parentNode;
+		}
+		id = el.id;
 		if(id.startsWith('de-btn')) {
 			if(type === 'mouseover') {
 				if(id === 'de-btn-quote') {
@@ -5679,9 +5654,7 @@ PostForm.prototype = {
 		} else {
 			this._addResizer();
 		}
-		el = this.addTextPanel();
-		el.addEventListener('click', this, true);
-		el.addEventListener('mouseover', this, true);
+		this.addTextPanel();
 		this.txta.style.cssText = 'padding: 0; resize: both; width: ' +
 			Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
 		$event(this.txta, {'keypress': function(e) {
@@ -7193,26 +7166,27 @@ Thread.prototype = {
 		if(aib.hana) {
 			getJsonPosts('//dobrochan.ru/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
-				function(status, sText, json) {
+				function parseNewPosts(status, sText, json) {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, len, last = this.last,
+						var i, last = this.last,
 							np = 0,
 							el = (json['result'] || {})['posts'],
+							len = el.length,
 							pCount = this.pcount;
-						if(el && el.length > 0) {
+						if(el && len > 0) {
 							this._postsCache = doc.createDocumentFragment();
-							for(i = 0, len = el.length; i < len; i++) {
+							for(i = 0; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
-								np += +!last.hidden;
 							}
 							this.last = last;
 							this.el.appendChild(this._postsCache);
 							this.pcount = pCount + len;
 							this._postsCache = null;
-							this.checkSpells();
+							np = len - this.checkSpells();
+							savePostsVisib();
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7221,13 +7195,15 @@ Thread.prototype = {
 			);
 			return;
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function(els, op) {
+		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(els, op) {
 			var newPosts = this._parsePosts(els, 0, 0),
-				hiddenPosts = this.checkSpells();
+				hiddenPosts = newPosts > 0 ? this.checkSpells() : 0;
 			this._checkBan(this.op, op);
 			Fn(200, '', newPosts - hiddenPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getPostImages(dForm).length;
-			savePostsVisib();
+			if(newPosts > 0) {
+				savePostsVisib();
+			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
 			Fn(eCode, eMsg, 0);
@@ -7609,7 +7585,7 @@ ImageBoard.prototype = {
 			} },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
+					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 					.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 					.ui-resizable { display: inline !important; }\
 					form textarea { resize: both !important; }'
@@ -7649,14 +7625,23 @@ ImageBoard.prototype = {
 			tire: { value: true }
 		}],
 		'410chan.org': [{
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
+				});
+			} },
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 			} },
-			isBB: { value: false },
 
 			_410: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'420chan.org': [{
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
+				});
+			} },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
 			qThread: { value: '[id*="thread"]' },
@@ -7676,6 +7661,12 @@ ImageBoard.prototype = {
 			cOPost: { value: 'op' },
 			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
+					'bb': { value: [false, false, false, false, true, true, false, false, false] }
+				});
+			} },
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform.desktop > input[type="submit"]' },
 			qError: { value: '#errmsg' },
@@ -7703,6 +7694,11 @@ ImageBoard.prototype = {
 			fch: { value: true }
 		}],
 		'4chon.net': [{
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
+				});
+			} },
 			appendPost: { value: function(el, parent) {
 				parent.appendChild(el);
 				el.insertAdjacentHTML('afterend', '<br>');
@@ -7850,6 +7846,11 @@ ImageBoard.prototype = {
 		}],
 		'mlpg.co': [{
 			cOPost: { value: 'op' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
+				});
+			} },
 			qTable: { value: '.replyContainer' },
 			getWrap: { value: function(post) {
 				return post.el.parentNode;
@@ -7858,9 +7859,7 @@ ImageBoard.prototype = {
 				return Object.getPrototypeOf(this).css +
 					'#de-pform > div, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }';
 			} },
-			isBB: { value: true },
-
-			mlpg: { value: true }
+			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'ponychan.net': [{
 			cOPost: { value: 'op' },
@@ -7874,6 +7873,11 @@ ImageBoard.prototype = {
 	},
 	_bEngines: {
 		'#ABU_css': {
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+				});
+			} },
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
 			getSage: { writable: true, value: function(post) {
@@ -7970,6 +7974,11 @@ ImageBoard.prototype = {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
+				});
+			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
@@ -8060,6 +8069,9 @@ ImageBoard.prototype = {
 		cReply: 'reply',
 		cSubj: 'filetitle',
 		cTrip: 'postertrip',
+		get formButtons() {
+			return this._formButtons();
+		},
 		qBan: '',
 		qDelBut: 'input[type="submit"]',
 		qDForm: '#delform, form[name="delform"]',
@@ -8164,6 +8176,15 @@ ImageBoard.prototype = {
 		removePost: function(post) {
 			$del(post.wrap);
 		},
+		_formButtons: function() {
+			var bb = this.isBB;
+			return {
+				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
+				'val': ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'],
+				'bb': [bb, bb, bb, bb, bb, bb, bb, bb, bb]
+			};
+		},
 		_reCrossLinks: null,
 		get reCrossLinks() {
 			return this._reCrossLinks || (this._reCrossLinks = new RegExp(
@@ -8241,17 +8262,17 @@ function Navigator(initXtraFns) {
 		);
 	}
 	this.fixLink =
-		this.Safari ? function(url) {
+		this.Safari ? function fixLink(url) {
 			return url[1] === '/' ? aib.prot + url :
 				url[0] === '/' ? aib.prot + '//' + aib.host + url :
 				url;
-		} : function(url) {
+		} : function fixLink(url) {
 			return url;
 		};
 	this.toDOM =
-		this.Firefox >= 12 ? function(html) {
+		this.Firefox >= 12 ? function toDOM(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
-		} : function(html) {
+		} : function toDOM(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
