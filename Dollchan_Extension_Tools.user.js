@@ -1726,7 +1726,7 @@ function getCfgPosts() {
 				$new('a', {'text': Lng.cfg['timePattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert(Lng.tpHelp[lang] + '0chan.ru: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\n' +
+						$alert(Lng.tpHelp[lang] + '0chan.hk: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.so: "w+dd+m+yyyy+hh+ii+ss"\n' +
 							'dobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n' +
 							'4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\n' +
 							'krautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'help-correcttime', false);
@@ -1739,7 +1739,7 @@ function getCfgPosts() {
 				$new('a', {'text': Lng.cfg['timeRPattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert(Lng.trpHelp[lang] + '0chan.ru: "_w _Y _m _d _h:_i:_s"\n2ch.so: "_w _d _m _Y _h:_i:_s"\n' +
+						$alert(Lng.trpHelp[lang] + '0chan.hk: "_w _Y _m _d _h:_i:_s"\n2ch.so: "_w _d _m _Y _h:_i:_s"\n' +
 							'iichan.ru: "_w _d _M _Y _h:_i:_s"\ndobrochan.ru: "_d _M _Y (_w) _h:_i:_s"\n' +
 							'410chan.org: "_d._n._Y (_w) _h:_i:_s"\n4chan.org: "_n/_d/_y(_w)_h:_i:_s"\n' +
 							'4chon.net: "_n/_d/_y (_w) _h:_i:_s"\nkrautchan.net: "_Y-_n-_d _h:_i:_s"', 'help-correcttime2', false);
@@ -7585,13 +7585,16 @@ ImageBoard.prototype = {
 			} },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
+					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
 					.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 					.ui-resizable { display: inline !important; }\
 					form textarea { resize: both !important; }'
 			} },
 			ru: { value: true },
 
+			init: { value: function() {
+				$each($Q('span[style="float: right;"]', doc.body), $del);
+			} },
 			nul: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'2--ch.ru': [{
