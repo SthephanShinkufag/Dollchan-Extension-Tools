@@ -2233,14 +2233,20 @@ function initKeyNavig() {
 		winHeight = window.innerHeight;
 	};
 
-	doc.addEventListener('keydown', function (e) {
+	doc.addEventListener('keydown', function(e) {
 		var pyOffset, curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
 			if(kc === 27) {
 				e.target.blur();
-			} else if(kc === 13 && e.altKey && e.target === pr.txta) {
-				pr.subm.click();
+			} else if(e.altKey) {
+				if(kc === 13 && e.target === pr.txta) {
+					pr.subm.click();
+					e.stopPropagation();
+					$pd(e);
+				}
+			} else if(kc === 116 && !e.ctrlKey && !e.shiftKey) {
+				updatePage();
 				e.stopPropagation();
 				$pd(e);
 			}
@@ -2262,6 +2268,7 @@ function initKeyNavig() {
 		if(kc === 116) {
 			if(!TNum) {
 				$pd(e);
+				e.stopPropagation();
 				updatePage();
 			}
 			return;
