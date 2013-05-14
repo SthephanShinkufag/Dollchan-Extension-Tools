@@ -7180,13 +7180,12 @@ Thread.prototype = {
 							for(i = 0; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
-								np += +!last.hidden;
 							}
 							this.last = last;
 							this.el.appendChild(this._postsCache);
 							this.pcount = pCount + len;
 							this._postsCache = null;
-							this.checkSpells();
+							np = len - this.checkSpells();
 							savePostsVisib();
 						}
 						Fn(200, '', np);
