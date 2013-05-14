@@ -7170,13 +7170,14 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, len, last = this.last,
+						var i, last = this.last,
 							np = 0,
 							el = (json['result'] || {})['posts'],
+							len = el.length,
 							pCount = this.pcount;
-						if(el && el.length > 0) {
+						if(el && len > 0) {
 							this._postsCache = doc.createDocumentFragment();
-							for(i = 0, len = el.length; i < len; i++) {
+							for(i = 0; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
 								np += +!last.hidden;
@@ -7197,7 +7198,7 @@ Thread.prototype = {
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(els, op) {
 			var newPosts = this._parsePosts(els, 0, 0),
-				hiddenPosts = this.checkSpells();
+				hiddenPosts = newPosts > 0 ? this.checkSpells() : 0;
 			this._checkBan(this.op, op);
 			Fn(200, '', newPosts - hiddenPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getPostImages(dForm).length;
