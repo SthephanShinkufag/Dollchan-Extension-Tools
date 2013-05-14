@@ -5035,8 +5035,8 @@ function scriptCSS() {
 	gif('#de-btn-strike:empty', p + 'S3IKpq4YAoRBR0qqqnVeD7IUaKHIecjCqmgbiu3jcfCbAjOfTZ0fmVnu8YIHW6lgUDkOkCo7Z8+2AmCiVqHTSgi6pZlrN3nJQ8TISO4cdyJWhAAA7');
 	gif('#de-btn-spoil:empty', 'R0lGODlhFwAWAJEAAPDw8GRkZP///wAAACH5BAEAAAIALAAAAAAXABYAQAJBlIKpq4YAmHwxwYtzVrprXk0LhBziGZiBx44hur4kTIGsZ99fSk+mjrMAd7XerEg7xnpLIVM5JMaiFxc14WBiBQUAOw==');
 	gif('#de-btn-code:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
-	gif('#de-btn-sup:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
-	gif('#de-btn-sub:empty', p + 'O3IKpq4YAoZgR0KpqnFxokH2iFm7eGCEHw7JrgI6L2F1YotloKek6iIvJAq+WkfgQinjKVLBS45CePSXzt6RaTjHmNjpNNm9aq6p4XBgKADs=');
+	gif('#de-btn-sup:empty', p + 'Q3IKpq4YAgZiSQhGByrzn7YURGFGWhxzMuqqBGC7wRUNkeU7nnWNoMosFXKzi8BHs3EQnDRAHLY2e0BxnWfEJkRdT80NNTrliG3aWcBhZhgIAOw==');
+	gif('#de-btn-sub:empty', p + 'R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=');
 	gif('#de-btn-quote:empty', p + 'L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=');
 
 	// Show/close animation
@@ -8170,20 +8170,21 @@ ImageBoard.prototype = {
 		css: '.de-post-hid > .de-ppanel ~ * { display: none !important; }',
 		init: null,
 		isBB: false,
-		appendPost: function(el, parent) {
-			parent.appendChild(el);
-		},
-		removePost: function(post) {
-			$del(post.wrap);
-		},
 		_formButtons: function() {
 			var bb = this.isBB;
 			return {
 				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
 				'val': ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
-				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] : ['**', '*', '', '^H', '%%', '`', '', '', 'q'],
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q']
+						: ['**', '*', '', '^H', '%%', '`', '', '', 'q'],
 				'bb': [bb, bb, bb, bb, bb, bb, bb, bb, bb]
 			};
+		},
+		appendPost: function(el, parent) {
+			parent.appendChild(el);
+		},
+		removePost: function(post) {
+			$del(post.wrap);
 		},
 		_reCrossLinks: null,
 		get reCrossLinks() {
