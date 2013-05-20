@@ -7141,7 +7141,7 @@ Thread.prototype = {
 					}
 				}
 			}
-			nP = this._parsePosts(els, nOmt, this.omitted);
+			nP = this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt !== 0) {
@@ -7318,7 +7318,7 @@ Thread.prototype = {
 			lastdcount = this.last.dcount,
 			len = nPosts.length;
 		this._postsCache = doc.createDocumentFragment();
-	parseLoop:
+		parseLoop:
 		for(i = 0; i <= len || post; ) {
 			if(!post) {
 				if(!TNum && this._postsCache.hasChildNodes()) {
