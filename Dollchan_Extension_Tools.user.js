@@ -1547,6 +1547,7 @@ function fixSettings() {
 	]);
 	toggleBox(Cfg['addTextBtns'], ['input[info="txtBtnsLoc"]']);
 	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
+	toggleBox(Cfg['keybNavig'], ['input[info="loadPages"]']);
 }
 
 
