@@ -38,6 +38,7 @@ defaultCfg = {
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
 	'keybNavig':	1,		// keyboard navigation
+	'loadPages':	1,		//		number of pages that are loaded on F5
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'',		//		offset in hours
 	'timePattern':	'',		//		find pattern
@@ -128,6 +129,7 @@ Lng = {
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
 		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
 		'timePattern':	['Шаблон поиска', 'Find pattern'],
@@ -1871,6 +1873,10 @@ function getCfgCommon() {
 				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
 			}})
 		]),
+		$New('div', {'class': 'de-cfg-depend'}, [
+			inpTxt('loadPages', 4, null),
+			$txt(Lng.cfg['loadPages'][lang])
+		]),
 		$if(!(nav.Opera && !nav.isGM), $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
@@ -2125,16 +2131,11 @@ function addSpellMenu(el) {
 }
 
 function addAjaxPagesMenu(el) {
-	showMenu(el, '<span class="de-menu-item">' +
-		Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-	function(el) {
-		var i = aProto.indexOf.call(el.parentNode.children, el);
-		if(i === 0) {
-			updatePage();
-		} else {
-			loadPages(i + 1);
+	showMenu(el, '<span class="de-menu-item">' +Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') +
+		'</span>', true, function(el) {
+			loadPages(aProto.indexOf.call(el.parentNode.children, el));
 		}
-	});
+	);
 }
 
 function addAudioNotifMenu(el) {
@@ -2246,9 +2247,9 @@ function initKeyNavig() {
 					$pd(e);
 				}
 			} else if(kc === 116 && !e.ctrlKey && !e.shiftKey) {
-				updatePage();
 				e.stopPropagation();
 				$pd(e);
+				loadPages(+Cfg['loadPages']);
 			}
 			return;
 		}
@@ -2267,9 +2268,9 @@ function initKeyNavig() {
 		}
 		if(kc === 116) {
 			if(!TNum) {
-				$pd(e);
 				e.stopPropagation();
-				updatePage();
+				$pd(e);
+				loadPages(+Cfg['loadPages']);
 			}
 			return;
 		}
@@ -3604,13 +3605,6 @@ function preparePage() {
 	pByNum = {};
 	Pview.clearCache();
 	isExpImg = false;
-}
-
-function updatePage() {
-	preparePage();
-	loadPageHelper(pageNum, function(pg, idx) {
-		parsePages([pg], pg);
-	});
 }
 
 function loadPages(len) {
