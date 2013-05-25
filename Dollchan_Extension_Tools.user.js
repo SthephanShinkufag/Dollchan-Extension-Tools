@@ -5492,10 +5492,7 @@ PostForm.prototype = {
 		if(aib.abu) {
 			img = $id('captcha_div');
 			if(img) {
-				if(isFocus) {
-					img.setAttribute('de-focus', 'yeah');
-				}
-				aib.updateCap();
+				aib.updateCap(isFocus);
 			}
 			return;
 		}
@@ -7921,28 +7918,26 @@ ImageBoard.prototype = {
 				if(cd) {
 					cd.addEventListener('click', function(e) {
 						if(e.target.tagName === 'IMG') {
-							this.updateCap();
+							this.updateCap(true);
 							e.preventDefault();
 							e.stopPropagation();
 						}
 					}.bind(this), true);
 				}
 			} },
-			updateCap: { value: function() {
+			updateCap: { value: function(focus) {
 				$script('var i = 4, el, cd = document.getElementById("captcha_div");\
 					do {\
-						GetCaptcha("captcha_div");\
+						GetCaptcha("captcha_div", true);\
 						i--;\
-					} while(i > 0 && !/<img|не нужно/i.test(cd.innerHTML));\
-					if(cd.hasAttribute("de-focus")) {\
-						cd.removeAttribute("de-focus");\
-						if(i !== 0) {\
+					} while(i > 0 && !/<img|не нужно/i.test(cd.innerHTML));' + (!focus ? '' :
+						'if(i !== 0) {\
 							el = cd.querySelector("input[type=\\"text\\"]");\
 							if(el) {\
 								el.focus();\
 							}\
-						}\
-					}', true
+						}'
+					), true
 				);
 			} },
 
