@@ -2245,7 +2245,7 @@ function initKeyNavig() {
 					e.stopPropagation();
 					$pd(e);
 				}
-			} else if(kc === 116 && !e.ctrlKey && !e.shiftKey) {
+			} else if(!TNum && kc === 116 && !e.ctrlKey && !e.shiftKey) {
 				updatePage();
 				e.stopPropagation();
 				$pd(e);
@@ -3354,72 +3354,75 @@ function embedMP3Links(post) {
 								MAP OF >>REFLINKS
 ==============================================================================*/
 
-function getRelLink(num, tUrl) {
-	return '<a ' + aib.rLinkClick + ' href="' + tUrl + '#' + (aib.fch ? 'p' : '') + num +
+function getRelLink(num) {
+	return '<a ' + aib.rLinkClick + ' href="' + this + '#' + (aib.fch ? 'p' : '') + num +
 		'" class="de-reflink">&gt;&gt;' + num + '</a>';
 }
 
-function addRefMap(post) {
+function addRefMap(post, tUrl) {
 	post.msg.insertAdjacentHTML('afterend',
-		'<div class="de-refmap">' + post.ref.map(this).join(', ') + '</div>');
+		'<div class="de-refmap">' + post.ref.map(getRelLink, tUrl).join(', ') + '</div>');
 }
 
 function genRefMap(posts, tUrl) {
 	if(Cfg['linksNavig'] !== 2) {
 		return;
 	}
-	var tc, lNum, lPost, i, len, links, pNum, refMap = [];
+	var tc, lNum, post, ref, i, len, links, pNum;
 	for(pNum in posts) {
-		if(posts.hasOwnProperty(pNum)) {
-			for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; i++) {
-				tc = links[i].textContent;
-				if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = posts[lNum])) {
-					if(typeof lPost.ref === 'undefined') {
-						lPost.ref = [pNum];
-						refMap.push(lPost);
-					} else if(lPost.ref.indexOf(pNum) === -1) {
-						lPost.ref.push(pNum);
-					}
+		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
+			tc = links[i].textContent;
+			if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in posts)) {
+				post = posts[lNum];
+				ref = post.ref;
+				if(ref.indexOf(pNum) === -1) {
+					ref.push(pNum);
+					post.hasRef = true;
 				}
 			}
 		}
 	}
-	refMap.forEach(addRefMap.bind(function(pNum) {
-		return getRelLink(pNum, tUrl);
-	}));
-	refMap = tUrl = null;
+	for(pNum in posts) {
+		post = posts[pNum];
+		if(post.hasRef) {
+			addRefMap(post, tUrl);
+		}
+	}
 }
 
 function updRefMap(post, add) {
 	for(var tc, ref, idx, link, lNum, lPost, pNum = post.num, i = 0, links = $T('a', post.msg); link = links[i++];) {
 		tc = link.textContent;
-		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lPost = pByNum[lNum])) {
+		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
+			lPost = pByNum[lNum];
 			if(!TNum) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
 			if(add) {
-				if(typeof lPost.ref === 'undefined') {
-					lPost.ref = [pNum];
-				} else if(lPost.ref.indexOf(pNum) === -1) {
+				if(lPost.ref.indexOf(pNum) === -1) {
 					lPost.ref.push(pNum);
+					post.hasRef = true;
+					if(Cfg['hideRefPsts'] && lPost.hidden) {
+						post.hide('reference to >>' + lNum);
+					}
 				} else {
 					continue;
 				}
-				if(Cfg['hideRefPsts'] && lPost.hidden) {
-					post.hide('reference to >>' + lNum);
+			} else if(lPost.hasRef) {
+				ref = lPost.ref;
+				idx = ref.indexOf(pNum);
+				if(idx === -1) {
+					continue;
 				}
-			} else if((ref = lPost.ref) && (idx = ref.indexOf(pNum)) !== -1) {
 				ref.splice(idx, 1);
 				if(ref.length === 0) {
-					lPost.ref = void 0;
+					lPost.hasRef = false;
 					$del($c('de-refmap', lPost.el));
 					continue;
 				}
 			}
 			$del($c('de-refmap', lPost.el));
-			addRefMap.call(function(pNum) {
-				return getRelLink(pNum, '');
-			}, lPost);
+			addRefMap(lPost, '');
 		}
 	}
 }
@@ -5952,6 +5955,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 };
 Post.prototype = {
 	deleted: false,
+	hasRef: false,
 	hidden: false,
 	inited: false,
 	kid: null,
@@ -6252,6 +6256,9 @@ Post.prototype = {
 	get offsetTop() {
 		return this.el.getBoundingClientRect().top + window.pageYOffset;
 	},
+	get ref() {
+		return this._ref || (this._ref = []);
+	},
 	get sage() {
 		return this.hasOwnProperty('_sage') ? this._sage : (this._sage = aib.getSage(this.el));
 	},
@@ -6496,6 +6503,7 @@ Post.prototype = {
 	_menuDelay: 0,
 	_msg: null,
 	_pref: null,
+	_ref: null,
 	_sage: false,
 	_selRange: null,
 	_selText: '',
@@ -6971,17 +6979,20 @@ Pview.prototype._cached = {};
 Pview.prototype._isPview = true;
 Pview.prototype._readDelay = 0;
 Pview.prototype._onload = function(b, tNum, pNum, dc) {
-	var post, rm, prNum = this.parent.num,
-		df = replacePost(doc.importNode($q(aib.qDForm, dc), true));
-	parsePage(df, doc, null, false).pviewParse(tNum, this._cached[b] = {});
+	var post, rm, prNum = this.parent.num;
+	parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
+		.pviewParse(tNum, this._cached[b] = {});
 	genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
-	if((post = this._cached[b][pNum]) && (brd !== b || !this._cached[b][prNum])) {
-		if(!(rm = $c('de-refmap', post.el))) {
+	post = this._cached[b][pNum];
+	if(post && (brd !== b || !post.hasRef || post.ref.indexOf(brd + prNum) === -1)) {
+		if(post.hasRef) {
+			rm = $c('de-refmap', post.el)
+		} else {
 			post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 			rm = post.msg.nextSibling;
 		}
 		rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
-			(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.ref ? ', ' : '')
+			(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.hasRef ? ', ' : '')
 		);
 	}
 	if(this.parent.kid === this) {
