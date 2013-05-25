@@ -413,7 +413,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, comCfg, hThr, Favor, pByNum = {}, sVis, bUVis, uVis,
+Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, firstThr, visPosts = 2,
 pr, dForm, dummy, postWrapper, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -3569,6 +3569,7 @@ function parsePages(pages, node) {
 	$disp(node);
 	dForm.parentNode.replaceChild(node, dForm);
 	dForm = node;
+	pByNum = Object.create(null);
 	readFavorites();
 	readPostsVisib();
 	firstThr = pages.reduceRight(function(lThr, page) {
@@ -3604,7 +3605,6 @@ function preparePage() {
 	}
 	pr.showMainReply();
 	$disp(dForm);
-	pByNum = {};
 	Pview.clearCache();
 	isExpImg = false;
 }
@@ -8814,6 +8814,7 @@ function doScript() {
 		$log('Replace delform');
 	}
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
+	pByNum = Object.create(null);
 	firstThr = tryToParse(dForm, null);
 	if(!firstThr) {
 		$disp(doc.body);
