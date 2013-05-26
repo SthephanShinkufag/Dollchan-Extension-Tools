@@ -3397,7 +3397,10 @@ function genRefMap(posts, opNums, tUrl) {
 }
 
 function updRefMap(post, add) {
-	for(var tc, ref, idx, link, lNum, lPost, pNum = post.num, i = 0, links = $T('a', post.msg); link = links[i++];) {
+	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
+		opNums = add && firstThr.tNums;
+	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
+		link = links[i];
 		tc = link.textContent;
 		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
 			lPost = pByNum[lNum];
@@ -3405,6 +3408,9 @@ function updRefMap(post, add) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
 			if(add) {
+				if(opNums.indexOf(lNum) !== -1) {
+					link.classList.add('de-opref');
+				}
 				if(lPost.ref.indexOf(pNum) === -1) {
 					lPost.ref.push(pNum);
 					post.hasRef = true;
@@ -3576,6 +3582,7 @@ function parsePages(pages, node) {
 	dForm.parentNode.replaceChild(node, dForm);
 	dForm = node;
 	pByNum = Object.create(null);
+	firstThr.gInfo.tNums = [];
 	readFavorites();
 	readPostsVisib();
 	firstThr = pages.reduceRight(function(lThr, page) {
@@ -7273,9 +7280,7 @@ Thread.prototype = {
 		return posts;
 	},
 	get tNums() {
-		var rv = this.gInfo.tNums;
-		this.gInfo.tNums = [];
-		return rv;
+		return this.gInfo.tNums;
 	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
