@@ -6967,122 +6967,125 @@ Pview.getPview = function(el) {
 };
 Pview.delTO = 0;
 Pview.top = null;
-Pview.prototype = Object.create(Post.prototype);
-Pview.prototype.markToDel = function() {
-	clearTimeout(Pview.delTO);
-	Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], this);
-};
-Pview.prototype._cached = {};
-Pview.prototype._isPview = true;
-Pview.prototype._readDelay = 0;
-Pview.prototype._onload = function(b, tNum, pNum, dc) {
-	var post, rm, prNum = this.parent.num;
-	parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
-		.pviewParse(tNum, this._cached[b] = {});
-	genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
-	post = this._cached[b][pNum];
-	if(post && (brd !== b || !post.hasRef || post.ref.indexOf(brd + prNum) === -1)) {
-		if(post.hasRef) {
-			rm = $c('de-refmap', post.el)
-		} else {
-			post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
-			rm = post.msg.nextSibling;
+Pview.prototype = Object.create(Post.prototype, {
+	markToDel: { value: function pvMarkToDel() {
+		clearTimeout(Pview.delTO);
+		Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], this);
+	} },
+
+	_isPview: { value: true },
+	_cached: { value: null, writable: true },
+	_readDelay: { value: 0, writable: true },
+
+	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
+		var post, rm, prNum = this.parent.num;
+		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
+			.pviewParse(tNum, this._cached[b] = Object.create(null));
+		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
+		post = this._cached[b][pNum];
+		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(brd + prNum) === -1)) {
+			if(post.hasRef) {
+				rm = $c('de-refmap', post.el)
+			} else {
+				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
+				rm = post.msg.nextSibling;
+			}
+			rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
+				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.hasRef ? ', ' : '')
+			);
 		}
-		rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
-			(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.hasRef ? ', ' : '')
-		);
-	}
-	if(this.parent.kid === this) {
-		Pview.del(this);
-		if(post) {
-			this._showPost(post);
-		} else {
-			this._showText(Lng.postNotFound[lang]);
+		if(this.parent.kid === this) {
+			Pview.del(this);
+			if(post) {
+				this._showPost(post);
+			} else {
+				this._showText(Lng.postNotFound[lang]);
+			}
 		}
-	}
-};
-Pview.prototype._showPost = function(post) {
-	var panel, cnt = post.count - post.dcount,
-		el = this.el = post.el.cloneNode(true),
-		pText = (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
-		(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
-		'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
-	el.post = this;
-	el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
-	el.style.display = '';
-	if(aib._7ch) {
-		el.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
-		$del($c('doubledash', el));
-	}
-	if(Cfg['linksNavig'] === 2) {
-		this._markLink(this.parent.num);
-	}
-	this._pref = $q(aib.qRef, el);
-	this.thr = post.thr;
-	if(post.inited) {
-		panel = $c('de-ppanel', el);
-		panel.classList.remove('de-ppanel-cnt');
-		panel.innerHTML = pText;
-		$each($C('de-img-full', el), $del);
-		$each(getPostImages(el), function(el) {
-			el.style.display = '';
-		});
-		youTube.fixEvents(this, post);
-		if(Cfg['addImgs']) {
-			$each($C('de-img-pre', el), function(el) {
+	} },
+	_showPost: { value: function pvShowPost(post) {
+		var panel, cnt = post.count - post.dcount,
+			el = this.el = post.el.cloneNode(true),
+			pText = (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+			(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
+			'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
+		el.post = this;
+		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
+		el.style.display = '';
+		if(aib._7ch) {
+			el.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
+			$del($c('doubledash', el));
+		}
+		if(Cfg['linksNavig'] === 2) {
+			this._markLink(this.parent.num);
+		}
+		this._pref = $q(aib.qRef, el);
+		this.thr = post.thr;
+		if(post.inited) {
+			panel = $c('de-ppanel', el);
+			panel.classList.remove('de-ppanel-cnt');
+			panel.innerHTML = pText;
+			$each($C('de-img-full', el), $del);
+			$each(getPostImages(el), function(el) {
 				el.style.display = '';
 			});
+			youTube.fixEvents(this, post);
+			if(Cfg['addImgs']) {
+				$each($C('de-img-pre', el), function(el) {
+					el.style.display = '';
+				});
+			}
+			if(Cfg['markViewed']) {
+				this._readDelay = setTimeout(function(pst) {
+					if(!pst.viewed) {
+						pst.el.classList.add('de-viewed');
+						pst.viewed = true;
+					}
+					var arr = (sessionStorage['de-viewed'] || '').split(',');
+					arr.push(pst.num);
+					sessionStorage['de-viewed'] = arr;
+				}, 2e3, post);
+			}
+		} else {
+			this._pref.insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
+			embedMP3Links(this);
+			youTube.parseLinks(this);
+			if(Cfg['addImgs']) {
+				embedImagesLinks(el);
+			}
+			if(Cfg['imgSrcBtns']) {
+				addImagesSearch(el);
+			}
 		}
-		if(Cfg['markViewed']) {
-			this._readDelay = setTimeout(function(pst) {
-				if(!pst.viewed) {
-					pst.el.classList.add('de-viewed');
-					pst.viewed = true;
-				}
-				var arr = (sessionStorage['de-viewed'] || '').split(',');
-				arr.push(pst.num);
-				sessionStorage['de-viewed'] = arr;
-			}, 2e3, post);
+		el.addEventListener('click', this, true);
+		this._showPview(el);
+	} },
+	_showPview: { value: function pvShowPview(el, id) {
+		if(this.parent._isPview) {
+			Pview.del(this.parent.kid);
+		} else {
+			Pview.del(Pview.top);
+			Pview.top = this;
 		}
-	} else {
-		this._pref.insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
-		embedMP3Links(this);
-		youTube.parseLinks(this);
-		if(Cfg['addImgs']) {
-			embedImagesLinks(el);
+		this.parent.kid = this;
+		el.addEventListener('mouseover', this, true);
+		el.addEventListener('mouseout', this, true);
+		(aib.arch ? doc.body : dForm).appendChild(el);
+		setPviewPosition(this._link, el, false);
+		if(Cfg['animation']) {
+			nav.animEvent(el, function(node) {
+				node.classList.remove('de-pview-anim');
+				node.style[nav.animName] = '';
+			});
+			el.classList.add('de-pview-anim');
+			el.style[nav.animName] = 'de-post-open-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
 		}
-		if(Cfg['imgSrcBtns']) {
-			addImagesSearch(el);
-		}
-	}
-	el.addEventListener('click', this, true);
-	this._showPview(el);
-};
-Pview.prototype._showPview = function(el, id) {
-	if(this.parent._isPview) {
-		Pview.del(this.parent.kid);
-	} else {
-		Pview.del(Pview.top);
-		Pview.top = this;
-	}
-	this.parent.kid = this;
-	el.addEventListener('mouseover', this, true);
-	el.addEventListener('mouseout', this, true);
-	(aib.arch ? doc.body : dForm).appendChild(el);
-	setPviewPosition(this._link, el, false);
-	if(Cfg['animation']) {
-		nav.animEvent(el, function(node) {
-			node.classList.remove('de-pview-anim');
-			node.style[nav.animName] = '';
-		});
-		el.classList.add('de-pview-anim');
-		el.style[nav.animName] = 'de-post-open-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
-	}
-};
-Pview.prototype._showText = function(txt) {
-	this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
-		txt + '</div>'));
-};
+	} },
+	_showText: { value: function pvShowText(txt) {
+		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
+			txt + '</div>'));
+	} }
+});
 
 function Thread(el, next, parse) {
 	this.el = el;
