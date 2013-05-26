@@ -2134,7 +2134,7 @@ function addSpellMenu(el) {
 function addAjaxPagesMenu(el) {
 	showMenu(el, '<span class="de-menu-item">' +Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') +
 		'</span>', true, function(el) {
-			loadPages(aProto.indexOf.call(el.parentNode.children, el));
+			loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
 		}
 	);
 }
@@ -3622,7 +3622,7 @@ function loadPages(len) {
 			pages[idx] = pg;
 			if(loaded === len) {
 				pages.forEach(function(page, pNum) {
-					$append(el, [
+					$append(el, pNum === 0 ? [page] : [
 						$new('center', {'text': pNum + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
 						doc.createElement('hr'),
 						page
@@ -7274,7 +7274,7 @@ Thread.prototype = {
 	},
 	get tNums() {
 		var rv = this.gInfo.tNums;
-		this.gInfo.tNums = void 0;
+		this.gInfo.tNums = [];
 		return rv;
 	},
 	updateHidden: function(data) {
