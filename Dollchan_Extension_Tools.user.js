@@ -6970,7 +6970,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 
 	_isPview: { value: true },
-	_cached: { value: null, writable: true },
+	_cached: { value: {}, writable: true },
 	_readDelay: { value: 0, writable: true },
 
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
@@ -6979,14 +6979,14 @@ Pview.prototype = Object.create(Post.prototype, {
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
 		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
 		post = this._cached[b][pNum];
-		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(brd + prNum) === -1)) {
+		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(prNum) === -1)) {
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el)
 			} else {
 				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 				rm = post.msg.nextSibling;
 			}
-			rm.insertAdjacentHTML('afterbegin', '<a href="#' + prNum + '">&gt;&gt;' +
+			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="#' + prNum + '">&gt;&gt;' +
 				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.hasRef ? ', ' : '')
 			);
 		}
