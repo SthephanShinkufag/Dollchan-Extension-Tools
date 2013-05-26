@@ -1729,7 +1729,7 @@ function getCfgPosts() {
 				$new('a', {'text': Lng.cfg['timePattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
 					'click': function(e) {
 						$pd(e);
-						$alert(Lng.tpHelp[lang] + '0chan.hk: "w+yyyy+m+dd+hh+ii+ss"\niichan.ru, 2ch.hk: "w+dd+m+yyyy+hh+ii+ss"\n' +
+						$alert(Lng.tpHelp[lang] + '0chan.hk: "w+yyyy+m+dd+hh+ii+ss"\niichan.hk, 2ch.hk: "w+dd+m+yyyy+hh+ii+ss"\n' +
 							'dobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n' +
 							'4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\n' +
 							'krautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'help-correcttime', false);
