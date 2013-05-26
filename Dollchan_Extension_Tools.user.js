@@ -6974,20 +6974,24 @@ Pview.prototype = Object.create(Post.prototype, {
 	_readDelay: { value: 0, writable: true },
 
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
-		var post, rm, prNum = this.parent.num;
+		var post, rm, num = this.parent.num;
 		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
 		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
+		if(!TNum) {
+			post = this.parent.thr.op;
+			this._updateOP(post, this._cached[b][post.num]);
+		}
 		post = this._cached[b][pNum];
-		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(prNum) === -1)) {
+		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el)
 			} else {
 				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 				rm = post.msg.nextSibling;
 			}
-			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="#' + prNum + '">&gt;&gt;' +
-				(brd !== b ? '/' + brd + '/' : '') + prNum + '</a>' + (post.hasRef ? ', ' : '')
+			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="#' + num + '">&gt;&gt;' +
+				(brd !== b ? '/' + brd + '/' : '') + num + '</a>' + (post.hasRef ? ', ' : '')
 			);
 		}
 		if(this.parent.kid === this) {
@@ -7080,6 +7084,30 @@ Pview.prototype = Object.create(Post.prototype, {
 	_showText: { value: function pvShowText(txt) {
 		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
 			txt + '</div>'));
+	} },
+	_updateOP: { value: function(op, nOp) {
+		if(!nOp) {
+			return;
+		}
+		var i, j, len, num, oRef = op.ref, nRef = nOp.ref, rRef = [];
+		for(i = j = 0, len = nRef.length; j < len; ++j) {
+			num = nRef[j];
+			if(oRef[i] === num) {
+				i++;
+			} else if(oRef.indexOf(num) !== -1) {
+				continue;
+			}
+			rRef.push(num)
+		}
+		for(len = oRef.length; i < len; i++) {
+			rRef.push(oRef[i]);
+		}
+		op._ref = rRef;
+		$del($c('de-refmap', op.el));
+		if(rRef.length !== 0) {
+			op.hasRef = true;
+			addRefMap(op, '');
+		}
 	} }
 });
 
