@@ -8852,7 +8852,6 @@ function doScript() {
 	readCfg();
 	readFavorites();
 	readPostsVisib();
-	readViewedPosts();
 	$log('Read config');
 	$disp(doc.body);
 	if(aib.rep || liteMode) {
@@ -8866,6 +8865,7 @@ function doScript() {
 		$disp(doc.body);
 		return;
 	}
+	readViewedPosts();
 	saveFavorites();
 	$log('Parse delform');
 	if(Cfg['keybNavig']) {
