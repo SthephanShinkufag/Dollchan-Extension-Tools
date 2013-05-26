@@ -38,6 +38,7 @@ defaultCfg = {
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
 	'keybNavig':	1,		// keyboard navigation
+	'loadPages':	1,		//		number of pages that are loaded on F5
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'',		//		offset in hours
 	'timePattern':	'',		//		find pattern
@@ -128,6 +129,7 @@ Lng = {
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
 		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
 		'timePattern':	['Шаблон поиска', 'Find pattern'],
@@ -1545,6 +1547,7 @@ function fixSettings() {
 	]);
 	toggleBox(Cfg['addTextBtns'], ['input[info="txtBtnsLoc"]']);
 	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
+	toggleBox(Cfg['keybNavig'], ['input[info="loadPages"]']);
 }
 
 
@@ -1871,6 +1874,10 @@ function getCfgCommon() {
 				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
 			}})
 		]),
+		$New('div', {'class': 'de-cfg-depend'}, [
+			inpTxt('loadPages', 4, null),
+			$txt(Lng.cfg['loadPages'][lang])
+		]),
 		$if(!(nav.Opera && !nav.isGM), $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
@@ -2125,16 +2132,11 @@ function addSpellMenu(el) {
 }
 
 function addAjaxPagesMenu(el) {
-	showMenu(el, '<span class="de-menu-item">' +
-		Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-	function(el) {
-		var i = aProto.indexOf.call(el.parentNode.children, el);
-		if(i === 0) {
-			updatePage();
-		} else {
-			loadPages(i + 1);
+	showMenu(el, '<span class="de-menu-item">' +Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') +
+		'</span>', true, function(el) {
+			loadPages(aProto.indexOf.call(el.parentNode.children, el));
 		}
-	});
+	);
 }
 
 function addAudioNotifMenu(el) {
@@ -2249,6 +2251,7 @@ function initKeyNavig() {
 				updatePage();
 				e.stopPropagation();
 				$pd(e);
+				loadPages(+Cfg['loadPages']);
 			}
 			return;
 		}
@@ -2267,9 +2270,9 @@ function initKeyNavig() {
 		}
 		if(kc === 116) {
 			if(!TNum) {
-				$pd(e);
 				e.stopPropagation();
-				updatePage();
+				$pd(e);
+				loadPages(+Cfg['loadPages']);
 			}
 			return;
 		}
@@ -3607,13 +3610,6 @@ function preparePage() {
 	$disp(dForm);
 	Pview.clearCache();
 	isExpImg = false;
-}
-
-function updatePage() {
-	preparePage();
-	loadPageHelper(pageNum, function(pg, idx) {
-		parsePages([pg], pg);
-	});
 }
 
 function loadPages(len) {
@@ -7152,7 +7148,7 @@ Thread.prototype = {
 					}
 				}
 			}
-			nP = this._parsePosts(els, nOmt, this.omitted);
+			nP = this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt !== 0) {
@@ -7188,12 +7184,12 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, last = this.last,
+						var i, len, last = this.last,
 							np = 0,
 							el = (json['result'] || {})['posts'],
-							len = el.length,
 							pCount = this.pcount;
-						if(el && len > 0) {
+						if(el) {
+							len = el.length;
 							this._postsCache = doc.createDocumentFragment();
 							for(i = 0; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
@@ -7329,7 +7325,7 @@ Thread.prototype = {
 			lastdcount = this.last.dcount,
 			len = nPosts.length;
 		this._postsCache = doc.createDocumentFragment();
-	parseLoop:
+		parseLoop:
 		for(i = 0; i <= len || post; ) {
 			if(!post) {
 				if(!TNum && this._postsCache.hasChildNodes()) {
