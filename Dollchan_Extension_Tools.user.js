@@ -7149,6 +7149,9 @@ Thread.prototype = {
 				}
 			}
 			nP = this._parsePosts(els, nOmt, this.omitted - 1);
+			if(nP > 0) {
+				this.checkSpells();
+			}
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt !== 0) {
