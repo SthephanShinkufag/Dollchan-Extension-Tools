@@ -6928,7 +6928,7 @@ function Pview(parent, link, tNum, pNum) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(post = this._cached[b] && this._cached[b][pNum]) {
+		if(post = this._cached && this._cached[b] && this._cached[b][pNum]) {
 			this._showPost(post);
 		} else {
 			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
