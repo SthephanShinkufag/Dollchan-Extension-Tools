@@ -3367,7 +3367,7 @@ function addRefMap(post, tUrl) {
 		'<div class="de-refmap">' + post.ref.map(getRelLink, tUrl).join(', ') + '</div>');
 }
 
-function genRefMap(posts, tUrl) {
+function genRefMap(posts, opNums, tUrl) {
 	if(Cfg['linksNavig'] !== 2) {
 		return;
 	}
@@ -3381,6 +3381,9 @@ function genRefMap(posts, tUrl) {
 				if(ref.indexOf(pNum) === -1) {
 					ref.push(pNum);
 					post.hasRef = true;
+				}
+				if(opNums.indexOf(lNum) !== -1) {
+					links[i].classList.add('de-opref');
 				}
 			}
 		}
@@ -5134,6 +5137,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
+		.de-opref::after { content: " [OP]"; }\
 		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], body > hr, .theader, .postarea { display: none !important; }\
 		form > hr { clear: both }\
 		' + aib.css;
@@ -6974,15 +6978,15 @@ Pview.prototype = Object.create(Post.prototype, {
 	_readDelay: { value: 0, writable: true },
 
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
-		var post, rm, num = this.parent.num;
+		var num, rm, post = this.parent.thr.op;
 		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
-		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
+		genRefMap(this._cached[b], [+post.num], aib.getThrdUrl(b, tNum));
 		if(!TNum) {
-			post = this.parent.thr.op;
 			this._updateOP(post, this._cached[b][post.num]);
 		}
 		post = this._cached[b][pNum];
+		num = this.parent.num
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el)
@@ -7125,6 +7129,7 @@ Thread.prototype = {
 	hidden: false,
 	gInfo: {
 		allPCount: 0,
+		tNums: [],
 		hPosts: []
 	},
 	prev: null,
@@ -7267,6 +7272,11 @@ Thread.prototype = {
 		}
 		return posts;
 	},
+	get tNums() {
+		var rv = this.gInfo.tNums;
+		this.gInfo.tNums = void 0;
+		return rv;
+	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
 			thr = this;
@@ -7334,6 +7344,7 @@ Thread.prototype = {
 			offset = this.prev ? this.prev._offset + this.prev._length: 0,
 			omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, node), len);
 		this.num = num;
+		this.gInfo.tNums.push(+num);
 		this.gInfo.allPCount += len;
 		this.pcount = omt + len;
 		this._offset = offset;
@@ -8823,7 +8834,7 @@ function addDelformStuff(isLog) {
 		addImagesSearch(dForm);
 		isLog && $log('Sauce buttons');
 	}
-	genRefMap(pByNum, '');
+	genRefMap(pByNum, firstThr.tNums, '');
 	isLog && Cfg['linksNavig'] === 2 && $log('Reflinks map');
 }
 
