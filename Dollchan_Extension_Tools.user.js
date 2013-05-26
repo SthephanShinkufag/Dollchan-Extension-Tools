@@ -7184,13 +7184,13 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, len, last = this.last,
+						var i, pCount, last = this.last,
 							np = 0,
 							el = (json['result'] || {})['posts'],
-							pCount = this.pcount;
-						if(el) {
-							len = el.length;
+							len = el ? el.length : 0;
+						if(len > 0) {
 							this._postsCache = doc.createDocumentFragment();
+							pCount = this.pcount;
 							for(i = 0; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
