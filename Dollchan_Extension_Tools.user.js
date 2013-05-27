@@ -5497,10 +5497,7 @@ PostForm.prototype = {
 	refreshCapImg: function(tNum, isFocus) {
 		var src, img;
 		if(aib.abu) {
-			img = $id('captcha_div');
-			if(img) {
-				aib.updateCap(isFocus);
-			}
+			aib.updateCap(isFocus);
 			return;
 		}
 		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
@@ -7960,7 +7957,9 @@ ImageBoard.prototype = {
 				var cd = $id('captcha_div');
 				if(cd) {
 					cd.addEventListener('click', function(e) {
-						if(e.target.tagName === 'IMG') {
+						switch(e.target.tagName) {
+						case 'IMG':
+						case 'P':
 							this.updateCap(true);
 							e.preventDefault();
 							e.stopPropagation();
