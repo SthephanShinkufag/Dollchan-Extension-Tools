@@ -6931,7 +6931,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	if(post) {
+	if(post && (parent.inited || !post.isOp)) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
@@ -6990,7 +6990,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
 		genRefMap(this._cached[b], [+post.num], aib.getThrdUrl(b, tNum));
 		if(!TNum) {
-			this._updateOP(post, this._cached[b][post.num]);
+			this._updateOP(this._cached[b][post.num], post);
 		}
 		post = this._cached[b][pNum];
 		num = this.parent.num
@@ -7097,9 +7097,6 @@ Pview.prototype = Object.create(Post.prototype, {
 			txt + '</div>'));
 	} },
 	_updateOP: { value: function(op, nOp) {
-		if(!nOp) {
-			return;
-		}
 		var i, j, len, num, oRef = op.ref, nRef = nOp.ref, rRef = [];
 		for(i = j = 0, len = nRef.length; j < len; ++j) {
 			num = nRef[j];
