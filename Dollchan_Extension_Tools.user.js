@@ -6931,7 +6931,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	if(post && (parent.inited || !post.isOp)) {
+	if(post && (parent.inited || !post.isOp || post.thr.loadedOnce)) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
@@ -7136,6 +7136,7 @@ Thread.prototype = {
 		tNums: [],
 		hPosts: []
 	},
+	loadedOnce: false,
 	prev: null,
 	forAll: function(fn) {
 		var thr = this;
@@ -7174,7 +7175,7 @@ Thread.prototype = {
 				nOmt = last !== 1 && last < len ? len - last : 0;
 			pr.showMainReply();
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
-			if(!this._loadedOnce) {
+			if(!this.loadedOnce) {
 				if(op.trunc) {
 					op.updateMsg(newOp);
 				}
@@ -7205,7 +7206,7 @@ Thread.prototype = {
 					this.load(visPosts, null);
 				}.bind(this);
 			}
-			this._loadedOnce = true;
+			this.loadedOnce = true;
 			closeAlert($id('de-alert-load-thr'));
 			$focus(opEl);
 			Fn && Fn();
@@ -7296,7 +7297,6 @@ Thread.prototype = {
 	},
 
 	_length: 0,
-	_loadedOnce: false,
 	_offset: 0,
 	_postsCache: null,
 	_addPost: function(el, num, i, prev) {
