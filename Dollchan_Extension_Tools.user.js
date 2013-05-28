@@ -6987,7 +6987,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
 		genRefMap(this._cached[b], [+post.num], aib.getThrdUrl(b, tNum));
-		if(!TNum) {
+		if(!TNum && b === brd) {
 			this._updateOP(this._cached[b][post.num], post);
 		}
 		post = this._cached[b][pNum];
