@@ -3142,7 +3142,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 							videoURL[itag] = url;
 						}
 					}
-					src = isHD ? (videoULR[46] || videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
+					src = isHD ? (videoURL[46] || videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
 				}
 				if(!src) {
 					addFlash(el, id, time);
