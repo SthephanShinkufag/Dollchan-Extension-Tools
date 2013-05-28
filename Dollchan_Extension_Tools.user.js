@@ -6946,23 +6946,24 @@ Pview.clearCache = function() {
 };
 Pview.del = function(pv) {
 	var el;
-	if(pv) {
-		pv.parent.kid = null;
-		if(!pv.parent._isPview) {
-			Pview.top = null;
-		}
-		do {
-			clearTimeout(pv._readDelay);
-			el = pv.el;
-			if(Cfg['animation']) {
-				nav.animEvent(el, $del);
-				el.classList.add('de-pview-anim');
-				el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
-			} else {
-				$del(el);
-			}
-		} while(pv = pv.kid);
+	if(!pv) {
+		return;
 	}
+	pv.parent.kid = null;
+	if(!pv.parent._isPview) {
+		Pview.top = null;
+	}
+	do {
+		clearTimeout(pv._readDelay);
+		el = pv.el;
+		if(Cfg['animation']) {
+			nav.animEvent(el, $del);
+			el.classList.add('de-pview-anim');
+			el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
+		} else {
+			$del(el);
+		}
+	} while(pv = pv.kid);
 };
 Pview.getPview = function(el) {
 	while(el && !el.classList.contains('de-pview')) {
@@ -6987,7 +6988,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
 		genRefMap(this._cached[b], [+post.num], aib.getThrdUrl(b, tNum));
-		if(!TNum && b === brd) {
+		if(!TNum) {
 			this._updateOP(this._cached[b][post.num], post);
 		}
 		post = this._cached[b][pNum];
@@ -7095,6 +7096,9 @@ Pview.prototype = Object.create(Post.prototype, {
 			txt + '</div>'));
 	} },
 	_updateOP: { value: function(op, nOp) {
+		if(!op) {
+			return;
+		}
 		var i, j, len, num, oRef = op.ref, nRef = nOp.ref, rRef = [];
 		for(i = j = 0, len = nRef.length; j < len; ++j) {
 			num = nRef[j];
