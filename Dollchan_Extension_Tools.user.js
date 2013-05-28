@@ -3292,6 +3292,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			link = oldLinks[j];
 			if(cloned) {
 				el.ytInfo = link.ytInfo;
+				j++;
 			} else if(m = el.href.match(regex)) {
 				parseLink(el, link ? link.ytInfo : m, post, queue);
 				j++;
