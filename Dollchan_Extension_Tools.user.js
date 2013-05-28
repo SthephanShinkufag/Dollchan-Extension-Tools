@@ -3180,9 +3180,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function fixEvents(pView, post) {
-		var ytObjSrc = post.ytObj;
-		if(ytObjSrc) {
-			pView.ytObj = [$c('de-ytube-obj', pView.el), ytObjSrc.ytInfo];
+		var ytObj = post.ytObj;
+		if(ytObj) {
+			pView.ytObj = [$c('de-ytube-obj', pView.el), ytObj[1]];
 		}
 		updatePost(pView, $C('de-ytube-link', post.el), $C('de-ytube-link', pView.el), true);
 	}
@@ -5490,7 +5490,7 @@ PostForm.prototype = {
 					txt = tag = null;
 				}
 			}
-			e.preventDefault();
+			$pd(e);
 			e.stopPropagation();
 		}
 	},
@@ -6012,7 +6012,7 @@ Post.prototype = {
 				if(el.className === 'de-ytube-image') {
 					if(Cfg['addYouTube'] === 3) {
 						youTube.addPlayer(this.ytObj[0], this.ytObj[1]);
-						e.preventDefault();
+						$pd(e);
 					}
 				} else if(Cfg['expandImgs'] !== 0) {
 					this._clickImage(el, e);
@@ -6030,12 +6030,12 @@ Post.prototype = {
 					} else {
 						youTube.addPlayer(ytObj[0], ytObj[1] = m);
 					}
-					e.preventDefault();
+					$pd(e);
 				} else {
 					temp = el.parentNode;
 					if(temp === this.trunc) {
 						this._getFull(temp, false);
-						e.preventDefault();
+						$pd(e);
 						e.stopPropagation();
 					} else if(aib.brit) {
 						if(temp.className === 'reflink') {
@@ -6061,7 +6061,7 @@ Post.prototype = {
 							}
 							$txtInsert(pr.txta, '>>' + this.num);
 						}
-						e.preventDefault();
+						$pd(e);
 						e.stopPropagation();
 					}
 				}
@@ -6103,7 +6103,7 @@ Post.prototype = {
 				} else {
 					this._eventRefLinkOut(e);
 				}
-				e.preventDefault();
+				$pd(e);
 				e.stopPropagation();
 			}
 			return;
@@ -6148,7 +6148,7 @@ Post.prototype = {
 				el.className = 'de-preflink ' + el.className;
 				clearTimeout(Pview.delTO);
 				this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg['linksOver']);
-				e.preventDefault();
+				$pd(e);
 				e.stopPropagation();
 			} else {
 				el.lchecked = true;
@@ -6770,7 +6770,7 @@ Post.prototype = {
 				this._addFullImage(el, data, inPost, !this._isPview);
 			}
 		}
-		e.preventDefault();
+		$pd(e);
 		e.stopPropagation();
 		return;
 	},
@@ -7961,7 +7961,7 @@ ImageBoard.prototype = {
 						case 'IMG':
 						case 'P':
 							this.updateCap(true);
-							e.preventDefault();
+							$pd(e);
 							e.stopPropagation();
 						}
 					}.bind(this), true);
