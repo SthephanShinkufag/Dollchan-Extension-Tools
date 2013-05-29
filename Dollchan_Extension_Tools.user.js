@@ -425,9 +425,9 @@ $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = function() {};
 
 
-/*==============================================================================
-									UTILITES
-==============================================================================*/
+//============================================================================================================
+//												UTILITIES
+//============================================================================================================
 
 function $x(path, root) {
 	return doc.evaluate(path, root, null, 8, null).singleNodeValue;
@@ -743,7 +743,7 @@ function getPost(el) {
 	return el.post;
 }
 
-function getPostImages(el) {
+function getImages(el) {
 	return el.querySelectorAll('.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
 }
 
@@ -799,9 +799,9 @@ function getErrorMessage(eCode, eMsg) {
 }
 
 
-/*==============================================================================
-								STORAGE / CONFIG
-==============================================================================*/
+//============================================================================================================
+//											STORAGE & CONFIG
+//============================================================================================================
 
 function setCookie(id, value, life) {
 	doc.cookie = escape(id) + '=' + escape(value) + ';expires=' +
@@ -972,7 +972,7 @@ function toggleCfg(id) {
 	saveCfg(id, !Cfg[id] ? 1 : 0);
 }
 
-function readPostsVisib() {
+function readPosts() {
 	sVis = [];
 	if(TNum) {
 		var data = (sessionStorage['de-hidden-' + brd + TNum] || '').split(',');
@@ -998,7 +998,7 @@ function readPostsVisib() {
 	}
 }
 
-function savePostsVisib() {
+function savePosts() {
 	if(spells.running) {
 		spells.complete = true;
 		return;
@@ -1011,7 +1011,7 @@ function savePostsVisib() {
 	toggleContent('hid', true);
 }
 
-function saveUserPostsVisib() {
+function saveUserPosts() {
 	var minDate, b, vis, key, str = JSON.stringify(bUVis);
 	if(str.length > 1e6) {
 		minDate = Date.now() - 5 * 24 * 3600 * 1000;
@@ -1103,9 +1103,10 @@ function readViewedPosts() {
 	}
 }
 
-/*==============================================================================
-									MAIN PANEL
-==============================================================================*/
+
+//============================================================================================================
+//												MAIN PANEL
+//============================================================================================================
 
 function pButton(id, click, href, over, out) {
 	return $New('li', null, [
@@ -1136,7 +1137,7 @@ function closePanel(el) {
 }
 
 function addPanel() {
-	var imgLen = getPostImages(dForm).length;
+	var imgLen = getImages(dForm).length;
 	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
 		$event($New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
@@ -1331,7 +1332,7 @@ function showContent(cont, id, name, isUpd) {
 							el.clone.setUserVisib(false, date, true);
 						}
 					}.bind(null, Date.now()));
-					saveUserPostsVisib();
+					saveUserPosts();
 				})
 			]);
 		} else {
@@ -1514,9 +1515,9 @@ function showContent(cont, id, name, isUpd) {
 }
 
 
-/*==============================================================================
-								"SETTINGS" WINDOW
-==============================================================================*/
+//============================================================================================================
+//											SETTINGS WINDOW
+//============================================================================================================
 
 function fixSettings() {
 	var toggleBox = function(state, arr) {
@@ -1549,7 +1550,6 @@ function fixSettings() {
 	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
 	toggleBox(Cfg['keybNavig'], ['input[info="loadPages"]']);
 }
-
 
 function lBox(id, isBlock, Fn) {
 	var el = $new('input', {'info': id, 'type': 'checkbox'}, {'click': function() {
@@ -2014,9 +2014,9 @@ function addSettings(Set) {
 }
 
 
-/*==============================================================================
-								POPUP ALERT MESSAGES
-==============================================================================*/
+//============================================================================================================
+//												MENUS & POPUPS
+//============================================================================================================
 
 function closeAlert(el) {
 	if(el) {
@@ -2062,11 +2062,6 @@ function $alert(txt, id, wait) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
-
-
-/*==============================================================================
-								DROPDOWN SELECT MENU
-==============================================================================*/
 
 function showMenu(el, html, inPanel, onclick) {
 	var y, pos, menu, cr = el.getBoundingClientRect();
@@ -2151,9 +2146,9 @@ function addAudioNotifMenu(el) {
 }
 
 
-/*==============================================================================
-								KEYBOARD NAVIGATION
-==============================================================================*/
+//============================================================================================================
+//											KEYBOARD NAVIGATION
+//============================================================================================================
 
 function initKeyNavig() {
 	var scrScroll = false,
@@ -2328,9 +2323,10 @@ function initKeyNavig() {
 	}, true);
 }
 
-/*==============================================================================
-							FORM SUBMIT FUNCTIONS
-==============================================================================*/
+
+//============================================================================================================
+//												FORM SUBMIT
+//============================================================================================================
 
 function getSubmitResponse(dc, isFrame) {
 	var i, els, el, err = '', form = $q(aib.qDForm, dc);
@@ -2591,9 +2587,9 @@ html5Submit.prototype = {
 };
 
 
-/*==============================================================================
-									CONTENT FEATURES
-==============================================================================*/
+//============================================================================================================
+//											CONTENT FEATURES
+//============================================================================================================
 
 function initMessageFunctions() {
 	$event(window, {'message': function(e) {
@@ -2817,7 +2813,7 @@ function preloadImages(post) {
 		});
 		Images_.preloading = true;
 	}
-	for(i = 0, els = getPostImages(post || dForm), len = els.length; i < len; i++) {
+	for(i = 0, els = getImages(post || dForm), len = els.length; i < len; i++) {
 		if(lnk = $x("ancestor::a[1]", el = els[i])) {
 			url = lnk.href;
 			nExp = !!Cfg['openImgs'];
@@ -2916,7 +2912,7 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-alert-imgload'));
 		Images_.queue = tar = warnings = count = current = imgOnly = null;
 	});
-	els = aProto.slice.call(getPostImages($q('[de-form]', dc)));
+	els = aProto.slice.call(getImages($q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
 		var lnk, url;
@@ -2964,9 +2960,10 @@ function loadDocFiles(imgOnly) {
 	els = null;
 }
 
-/*==============================================================================
-									TIME CORRECTION
-==============================================================================*/
+
+//============================================================================================================
+//												TIME CORRECTION
+//============================================================================================================
 
 /** @constructor */
 function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
@@ -3083,9 +3080,9 @@ dateTime.prototype = {
 };
 
 
-/*==============================================================================
-							ON LINKS VIDEO / MP3 PLAYERS
-==============================================================================*/
+//============================================================================================================
+//													PLAYERS
+//============================================================================================================
 
 function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	var titles, regex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
@@ -3354,159 +3351,9 @@ function embedMP3Links(post) {
 }
 
 
-/*==============================================================================
-								MAP OF >>REFLINKS
-==============================================================================*/
-
-function getRelLink(num) {
-	return '<a ' + aib.rLinkClick + ' href="' + this + '#' + (aib.fch ? 'p' : '') + num +
-		'" class="de-reflink">&gt;&gt;' + num + '</a>';
-}
-
-function addRefMap(post, tUrl) {
-	post.msg.insertAdjacentHTML('afterend',
-		'<div class="de-refmap">' + post.ref.map(getRelLink, tUrl).join(', ') + '</div>');
-}
-
-function genRefMap(posts, opNums, tUrl) {
-	if(Cfg['linksNavig'] !== 2) {
-		return;
-	}
-	var tc, lNum, post, ref, i, len, links, pNum;
-	for(pNum in posts) {
-		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
-			tc = links[i].textContent;
-			if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in posts)) {
-				post = posts[lNum];
-				ref = post.ref;
-				if(ref.indexOf(pNum) === -1) {
-					ref.push(pNum);
-					post.hasRef = true;
-				}
-				if(opNums.indexOf(lNum) !== -1) {
-					links[i].classList.add('de-opref');
-				}
-			}
-		}
-	}
-	for(pNum in posts) {
-		post = posts[pNum];
-		if(post.hasRef) {
-			addRefMap(post, tUrl);
-		}
-	}
-}
-
-function updRefMap(post, add) {
-	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
-		opNums = add && firstThr.tNums;
-	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
-		link = links[i];
-		tc = link.textContent;
-		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
-			lPost = pByNum[lNum];
-			if(!TNum) {
-				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
-			}
-			if(add) {
-				if(opNums.indexOf(lNum) !== -1) {
-					link.classList.add('de-opref');
-				}
-				if(lPost.ref.indexOf(pNum) === -1) {
-					lPost.ref.push(pNum);
-					post.hasRef = true;
-					if(Cfg['hideRefPsts'] && lPost.hidden) {
-						post.hide('reference to >>' + lNum);
-					}
-				} else {
-					continue;
-				}
-			} else if(lPost.hasRef) {
-				ref = lPost.ref;
-				idx = ref.indexOf(pNum);
-				if(idx === -1) {
-					continue;
-				}
-				ref.splice(idx, 1);
-				if(ref.length === 0) {
-					lPost.hasRef = false;
-					$del($c('de-refmap', lPost.el));
-					continue;
-				}
-			}
-			$del($c('de-refmap', lPost.el));
-			addRefMap(lPost, '');
-		}
-	}
-}
-
-
-/*==============================================================================
-							ON >>REFLINKS POSTS PREVIEW
-==============================================================================*/
-
-function PviewMoved() {
-	if(this.style[nav.animName]) {
-		this.classList.remove('de-pview-anim');
-		this.style.cssText = this.newPos;
-		this.newPos = false;
-		$each($C('de-css-move', doc.head), $del);
-		this.removeEventListener(nav.animEnd, PviewMoved, false);
-	}
-}
-
-function animPVMove(pView, lmw, top, oldCSS) {
-	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-	$attr($css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'), {
-		'class': 'de-css-move'
-	});
-	if(pView.newPos) {
-		pView.style.cssText = pView.newPos;
-		pView.removeEventListener(nav.animEnd, PviewMoved, false);
-	} else {
-		pView.style.cssText = oldCSS;
-	}
-	pView.newPos = lmw + ' top:' + top + ';';
-	pView.addEventListener(nav.animEnd, PviewMoved, false);
-	pView.classList.add('de-pview-anim');
-	pView.style[nav.animName] = uId;
-}
-
-function setPviewPosition(link, pView, animFun) {
-	if(pView.link === link) {
-		return;
-	}
-	pView.link = link;
-	var isTop, top, oldCSS, cr = link.getBoundingClientRect(),
-		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
-		offY = cr.top + window.pageYOffset,
-		bWidth = doc.documentElement.clientWidth,
-		isLeft = offX < bWidth / 2,
-		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
-		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
-			Math.min(parseInt(pView.offsetWidth, 10), tmp)) + 'px;';
-	if(animFun) {
-		oldCSS = pView.style.cssText;
-		pView.style.cssText = 'opacity: 0; ' + lmw;
-	} else {
-		pView.style.cssText = lmw;
-	}
-	top = pView.offsetHeight;
-	isTop = top + cr.top + link.offsetHeight < window.innerHeight || cr.top - top < 5;
-	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
-	pView.aLeft = isLeft;
-	pView.aTop = isTop;
-	if(animFun) {
-		animFun(pView, lmw, top, oldCSS);
-	} else {
-		pView.style.top = top;
-	}
-}
-
-
-/*==============================================================================
-									AJAX FUNCTIONS
-==============================================================================*/
+//============================================================================================================
+//													AJAX
+//============================================================================================================
 
 function ajaxGetPosts(url, isParse, Fn, errFn) {
 	GM_xmlhttpRequest({
@@ -3585,15 +3432,15 @@ function parsePages(pages, node) {
 	pByNum = Object.create(null);
 	firstThr.gInfo.tNums = [];
 	readFavorites();
-	readPostsVisib();
+	readPosts();
 	firstThr = pages.reduceRight(function(lThr, page) {
 		return tryToParse(page, lThr);
 	}, null);
 	addDelformStuff(false);
 	firstThr.checkSpells();
 	saveFavorites();
-	savePostsVisib();
-	saveUserPostsVisib();
+	savePosts();
+	saveUserPosts();
 	if(pr.passw) {
 		pages.forEach(function(page) {
 			var node = $q('input[type="password"]', page);
@@ -3644,8 +3491,6 @@ function loadPages(len) {
 		});
 	}
 }
-
-/*-------------------------------Threads updater------------------------------*/
 
 function infoLoadErrors(eCode, eMsg, newPosts) {
 	if(eCode === 200) {
@@ -3765,9 +3610,10 @@ function getImgHash(post) {
 	return img.hash = genImgHash(ctx.getImageData(0, 0, w || 1, h || 1).data, w, h);
 }
 
-/*==============================================================================
-								SPELLS AND EXPRESSIONS
-==============================================================================*/
+
+//============================================================================================================
+//													SPELLS
+//============================================================================================================
 
 /** @constructor */
 function Spells(read) {
@@ -4625,7 +4471,7 @@ Spells.prototype = {
 	_endAsync: function() {
 		if(this.complete && this._asyncWrk === 0) {
 			this.complete = false;
-			savePostsVisib();
+			savePosts();
 		}
 	},
 	_findReps: function(str) {
@@ -4766,7 +4612,7 @@ Spells.prototype = {
 		} else {
 			this.enable = false;
 		}
-		savePostsVisib();
+		savePosts();
 	},
 	disable: function(sync) {
 		this.enable = false;
@@ -4866,7 +4712,7 @@ function toggleSpells() {
 			disableSpells();
 			spells.disable();
 			saveCfg('spells', '');
-			savePostsVisib();
+			savePosts();
 			localStorage['__de-spells'] = '{"hide": false, "data": ""}';
 		} else {
 			localStorage['__de-spells'] = '{"hide": false, "data": null}';
@@ -4894,7 +4740,7 @@ function addSpell(type, arg, isNeg) {
 		if(fld) {
 			chk.checked = !!(fld.value = val);
 		}
-		savePostsVisib();
+		savePosts();
 		return;
 	}
 	spells.enable = false;
@@ -4904,9 +4750,9 @@ function addSpell(type, arg, isNeg) {
 }
 
 
-/*==============================================================================
-									SCRIPT CSS
-==============================================================================*/
+//============================================================================================================
+//													STYLES
+//============================================================================================================
 
 function getThemeLang() {
 	return !Cfg['scriptStyle'] ? 'fr' :
@@ -5212,9 +5058,9 @@ function updateCSS() {
 }
 
 
-/*==============================================================================
-									SCRIPT UPDATING
-==============================================================================*/
+//============================================================================================================
+//												SCRIPT UPDATING
+//============================================================================================================
 
 function checkForUpdates(isForce, Fn) {
 	var day, temp = Cfg['scrUpdIntrv'];
@@ -5274,6 +5120,11 @@ function checkForUpdates(isForce, Fn) {
 		}
 	});
 }
+
+
+//============================================================================================================
+//													POSTFORM
+//============================================================================================================
 
 function PostForm(form, ignoreForm, init) {
 	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
@@ -5904,6 +5755,11 @@ function embedImagesLinks(el) {
 	}
 } 
 
+
+//============================================================================================================
+//													POST
+//============================================================================================================
+
 function Post(el, isOp, num, count) {
 	this.el = el;
 	this.isOp = isOp;
@@ -6204,7 +6060,7 @@ Post.prototype = {
 		if(this._imagesData) {
 			return this._imagesData;
 		}
-		var i, len, dat, els = getPostImages(this.el),
+		var i, len, dat, els = getImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
@@ -6392,7 +6248,7 @@ Post.prototype = {
 			}
 			saveHiddenThreads(false);
 		}
-		saveUserPostsVisib();
+		saveUserPosts();
 	},
 	get trip() {
 		var el;
@@ -6814,7 +6670,7 @@ Post.prototype = {
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			firstThr.forAll(Post.findSameText.bind(null, this.num, this.hidden, Post.getWrds(this.text), Date.now()));
-			saveUserPostsVisib();
+			saveUserPosts();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
 		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), null); return;
@@ -6920,6 +6776,11 @@ Post.prototype = {
 		$del(full);
 	}
 }
+
+
+//============================================================================================================
+//													PREVIEW
+//============================================================================================================
 
 function Pview(parent, link, tNum, pNum) {
 	var b, post = pByNum[pNum];
@@ -7036,7 +6897,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			panel.classList.remove('de-ppanel-cnt');
 			panel.innerHTML = pText;
 			$each($C('de-img-full', el), $del);
-			$each(getPostImages(el), function(el) {
+			$each(getImages(el), function(el) {
 				el.style.display = '';
 			});
 			youTube.fixEvents(this, post);
@@ -7120,6 +6981,151 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 	} }
 });
+
+function PviewMoved() {
+	if(this.style[nav.animName]) {
+		this.classList.remove('de-pview-anim');
+		this.style.cssText = this.newPos;
+		this.newPos = false;
+		$each($C('de-css-move', doc.head), $del);
+		this.removeEventListener(nav.animEnd, PviewMoved, false);
+	}
+}
+
+function animPVMove(pView, lmw, top, oldCSS) {
+	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+	$attr($css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'), {
+		'class': 'de-css-move'
+	});
+	if(pView.newPos) {
+		pView.style.cssText = pView.newPos;
+		pView.removeEventListener(nav.animEnd, PviewMoved, false);
+	} else {
+		pView.style.cssText = oldCSS;
+	}
+	pView.newPos = lmw + ' top:' + top + ';';
+	pView.addEventListener(nav.animEnd, PviewMoved, false);
+	pView.classList.add('de-pview-anim');
+	pView.style[nav.animName] = uId;
+}
+
+function setPviewPosition(link, pView, animFun) {
+	if(pView.link === link) {
+		return;
+	}
+	pView.link = link;
+	var isTop, top, oldCSS, cr = link.getBoundingClientRect(),
+		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
+		offY = cr.top + window.pageYOffset,
+		bWidth = doc.documentElement.clientWidth,
+		isLeft = offX < bWidth / 2,
+		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
+		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
+			Math.min(parseInt(pView.offsetWidth, 10), tmp)) + 'px;';
+	if(animFun) {
+		oldCSS = pView.style.cssText;
+		pView.style.cssText = 'opacity: 0; ' + lmw;
+	} else {
+		pView.style.cssText = lmw;
+	}
+	top = pView.offsetHeight;
+	isTop = top + cr.top + link.offsetHeight < window.innerHeight || cr.top - top < 5;
+	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
+	pView.aLeft = isLeft;
+	pView.aTop = isTop;
+	if(animFun) {
+		animFun(pView, lmw, top, oldCSS);
+	} else {
+		pView.style.top = top;
+	}
+}
+
+function getRelLink(num) {
+	return '<a ' + aib.rLinkClick + ' href="' + this + '#' + (aib.fch ? 'p' : '') + num +
+		'" class="de-reflink">&gt;&gt;' + num + '</a>';
+}
+
+function addRefMap(post, tUrl) {
+	post.msg.insertAdjacentHTML('afterend',
+		'<div class="de-refmap">' + post.ref.map(getRelLink, tUrl).join(', ') + '</div>');
+}
+
+function genRefMap(posts, opNums, tUrl) {
+	if(Cfg['linksNavig'] !== 2) {
+		return;
+	}
+	var tc, lNum, post, ref, i, len, links, pNum;
+	for(pNum in posts) {
+		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
+			tc = links[i].textContent;
+			if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in posts)) {
+				post = posts[lNum];
+				ref = post.ref;
+				if(ref.indexOf(pNum) === -1) {
+					ref.push(pNum);
+					post.hasRef = true;
+				}
+				if(opNums.indexOf(lNum) !== -1) {
+					links[i].classList.add('de-opref');
+				}
+			}
+		}
+	}
+	for(pNum in posts) {
+		post = posts[pNum];
+		if(post.hasRef) {
+			addRefMap(post, tUrl);
+		}
+	}
+}
+
+function updRefMap(post, add) {
+	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
+		opNums = add && firstThr.tNums;
+	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
+		link = links[i];
+		tc = link.textContent;
+		if(tc.startsWith('>>') && (lNum = +tc.substr(2)) && (lNum in pByNum)) {
+			lPost = pByNum[lNum];
+			if(!TNum) {
+				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
+			}
+			if(add) {
+				if(opNums.indexOf(lNum) !== -1) {
+					link.classList.add('de-opref');
+				}
+				if(lPost.ref.indexOf(pNum) === -1) {
+					lPost.ref.push(pNum);
+					post.hasRef = true;
+					if(Cfg['hideRefPsts'] && lPost.hidden) {
+						post.hide('reference to >>' + lNum);
+					}
+				} else {
+					continue;
+				}
+			} else if(lPost.hasRef) {
+				ref = lPost.ref;
+				idx = ref.indexOf(pNum);
+				if(idx === -1) {
+					continue;
+				}
+				ref.splice(idx, 1);
+				if(ref.length === 0) {
+					lPost.hasRef = false;
+					$del($c('de-refmap', lPost.el));
+					continue;
+				}
+			}
+			$del($c('de-refmap', lPost.el));
+			addRefMap(lPost, '');
+		}
+	}
+}
+
+
+//============================================================================================================
+//													THREAD
+//============================================================================================================
 
 function Thread(el, next, parse) {
 	this.el = el;
@@ -7243,7 +7249,7 @@ Thread.prototype = {
 							this.pcount = pCount + len;
 							this._postsCache = null;
 							np = len - this.checkSpells();
-							savePostsVisib();
+							savePosts();
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7257,9 +7263,9 @@ Thread.prototype = {
 				hiddenPosts = newPosts > 0 ? this.checkSpells() : 0;
 			this._checkBan(this.op, op);
 			Fn(200, '', newPosts - hiddenPosts);
-			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getPostImages(dForm).length;
+			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			if(newPosts > 0) {
-				savePostsVisib();
+				savePosts();
 			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
@@ -7464,158 +7470,13 @@ Thread.prototype = {
 };
 
 
-/*==============================================================================
-									INITIALIZATION
-==============================================================================*/
+//============================================================================================================
+//													IMAGEBOARD
+//============================================================================================================
 
-function Initialization() {
-	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
-		return false;
-	}
-	if(!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)) {
-		GM_log('WEBSTORAGE ERROR: please, enable webstorage!');
-		return false;
-	}
-
-	// Imageboard properties
-	var intrv, ua, url;
-	new ImageBoard();
-	//console.log(aib);
-
-	// Check for frames loading
-	switch(window.name) {
-	case '': break;
-	case 'de-iframe-pform':
-	case 'de-iframe-dform':
-		$script((
-			'window.top.postMessage("A' + window.name + '$#$' +
-			getSubmitResponse(doc, true).join('$#$') + '", "*");'
-		).replace(/\n|\r/g, '\\n'), true);
-		return false;
-	case 'de-iframe-fav':
-		intrv = setInterval(function() {
-			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");', true);
-		}, 1500);
-		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
-		liteMode = true;
-		pr = {};
-	}
-	if(!dForm || $id('de-panel')) {
-		return false;
-	}
-	nav = new Navigator(true);
-
-	window.addEventListener('storage', function(e) {
-		var data, temp, post, val = e.newValue;
-		if(!val) {
-			return;
-		}
-		switch(e.key) {
-		case '__de-post': {
-			try {
-				data = JSON.parse(val);
-			} catch(e) {
-				return;
-			}
-			temp = !!data['title'];
-			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
-				post.setUserVisib(temp, data['date'], false);
-			} else {
-				if(!(data['brd'] in bUVis)) {
-					bUVis[data['brd']] = {};
-				}
-				bUVis[data['brd']][data['num']] = [+!temp, data['date']];
-			}
-			if(data['isOp']) {
-				if(!(data['brd'] in hThr)) {
-					if(temp) {
-						hThr[data['brd']] = {};
-					} else {
-						break;
-					}
-				}
-				if(temp) {
-					hThr[data['brd']][data['num']] = data['title'];
-				} else {
-					delete hThr[data['brd']][data['num']];
-				}
-			}
-			break;
-		}
-		case '__de-threads': {
-			try {
-				hThr = JSON.parse(val);
-			} catch(e) {
-				return;
-			}
-			if(!(brd in hThr)) {
-				hThr[brd] = {};
-			}
-			firstThr.updateHidden(hThr[brd]);
-			break;
-		}
-		case '__de-spells': {
-			try {
-				data = JSON.parse(val);
-			} catch(e) {
-				return;
-			}
-			Cfg['hideBySpell'] = data['hide'];
-			if(temp = $q('input[info="hideBySpell"]', doc)) {
-				temp.checked = data['hide'];
-			}
-			doc.body.style.display = 'none';
-			disableSpells();
-			if(data['data'] === '') {
-				spells.disable();
-				if(temp = $id('de-spell-edit')) {
-					temp.value = '';
-				}
-				saveCfg('spells', '');
-				savePostsVisib();
-			} else if(data['data'] !== null) {
-				spells.setSpells(data['data'], false);
-				if(temp = $id('de-spell-edit')) {
-					temp.value = spells.list;
-				}
-				doc.body.style.display = '';
-				return;
-			}
-			spells.enable = false;
-			doc.body.style.display = '';
-		}
-		default: return;
-		}
-		toggleContent('hid', true);
-	}, false);
-
-	// Page properties
-	url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]*?)\\/?)?' +
-		'(' + regQuote(aib.res) + ')?' +
-		'(\\d+|index|wakaba|futaba)?' +
-		'(\\.(?:[a-z]+))?$'
-	));
-	brd = url[1] || (aib.dfwk ? 'df' : '');
-	TNum = url[2] ? url[3] :
-		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
-		false;
-	pageNum = url[3] && !TNum ? +(
-		aib.erns ? +(window.location.search.match(/\d+/) || [0])[0] : url[3]
-	) || 0 : 0;
-	if(aib.tiny && pageNum > 0) {
-		pageNum--;
-	}
-	if(!aib.hasOwnProperty('docExt') && url[4]) {
-		aib.docExt = url[4];
-	}
-	dummy = doc.createElement('div');
-	return true;
-}
-
-function ImageBoard(domain) {
+function ImageBoard() {
 	var i, inf, dm;
-	dm = domain || window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	dm = window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(inf = this._bDomains[dm]) {
 		aib = this._createBoard(inf);
 	} else {
@@ -8271,7 +8132,11 @@ ImageBoard.prototype = {
 };
 
 
-function Navigator(initXtraFns) {
+//============================================================================================================
+//													BROWSER
+//============================================================================================================
+
+function Navigator() {
 	var ua = window.navigator.userAgent;
 	if(!String.prototype.contains) {
 		String.prototype.contains = function(s) {
@@ -8307,7 +8172,7 @@ function Navigator(initXtraFns) {
 			'animationend';
 	}
 	this.isBlob = this.Firefox > 14 || this.Chrome || this.Opera >= 12.10;
-	if(initXtraFns && this.Firefox > 19) {
+	if(this.Firefox > 19) {
 		$script(
 			'window["de-worker"] = function(url) {\
 				this.wrk = new Worker(url);\
@@ -8344,18 +8209,16 @@ function Navigator(initXtraFns) {
 	this.matchesSelector = Function.prototype.call.bind((function(dE) {
 		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
 	})(doc.documentElement));
-	if(initXtraFns) {
-		if(!window.GM_log) {
-			window.GM_log = function(msg) {
-				console.error(msg);
-			};
-		}
-		if(!window.GM_xmlhttpRequest) {
-			window.GM_xmlhttpRequest = $xhr;
-		}
-		if(this.WebKit) {
-			window.URL = window.webkitURL;
-		}
+	if(!window.GM_log) {
+		window.GM_log = function(msg) {
+			console.error(msg);
+		};
+	}
+	if(!window.GM_xmlhttpRequest) {
+		window.GM_xmlhttpRequest = $xhr;
+	}
+	if(this.WebKit) {
+		window.URL = window.webkitURL;
 	}
 }
 Navigator.prototype = {
@@ -8447,6 +8310,150 @@ Navigator.prototype = {
 		notif.show();
 	}
 };
+
+
+//============================================================================================================
+//												INITIALIZATION
+//============================================================================================================
+
+function Initialization() {
+	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
+		return false;
+	}
+	if(!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)) {
+		GM_log('WEBSTORAGE ERROR: please, enable webstorage!');
+		return false;
+	}
+	var intrv, ua, url;
+	new ImageBoard();
+	switch(window.name) {
+	case '': break;
+	case 'de-iframe-pform':
+	case 'de-iframe-dform':
+		$script((
+			'window.top.postMessage("A' + window.name + '$#$' +
+			getSubmitResponse(doc, true).join('$#$') + '", "*");'
+		).replace(/\n|\r/g, '\\n'), true);
+		return false;
+	case 'de-iframe-fav':
+		intrv = setInterval(function() {
+			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");', true);
+		}, 1500);
+		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
+		liteMode = true;
+		pr = {};
+	}
+	if(!dForm || $id('de-panel')) {
+		return false;
+	}
+	nav = new Navigator();
+
+	window.addEventListener('storage', function(e) {
+		var data, temp, post, val = e.newValue;
+		if(!val) {
+			return;
+		}
+		switch(e.key) {
+		case '__de-post': {
+			try {
+				data = JSON.parse(val);
+			} catch(e) {
+				return;
+			}
+			temp = !!data['title'];
+			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
+				post.setUserVisib(temp, data['date'], false);
+			} else {
+				if(!(data['brd'] in bUVis)) {
+					bUVis[data['brd']] = {};
+				}
+				bUVis[data['brd']][data['num']] = [+!temp, data['date']];
+			}
+			if(data['isOp']) {
+				if(!(data['brd'] in hThr)) {
+					if(temp) {
+						hThr[data['brd']] = {};
+					} else {
+						break;
+					}
+				}
+				if(temp) {
+					hThr[data['brd']][data['num']] = data['title'];
+				} else {
+					delete hThr[data['brd']][data['num']];
+				}
+			}
+			break;
+		}
+		case '__de-threads': {
+			try {
+				hThr = JSON.parse(val);
+			} catch(e) {
+				return;
+			}
+			if(!(brd in hThr)) {
+				hThr[brd] = {};
+			}
+			firstThr.updateHidden(hThr[brd]);
+			break;
+		}
+		case '__de-spells': {
+			try {
+				data = JSON.parse(val);
+			} catch(e) {
+				return;
+			}
+			Cfg['hideBySpell'] = data['hide'];
+			if(temp = $q('input[info="hideBySpell"]', doc)) {
+				temp.checked = data['hide'];
+			}
+			doc.body.style.display = 'none';
+			disableSpells();
+			if(data['data'] === '') {
+				spells.disable();
+				if(temp = $id('de-spell-edit')) {
+					temp.value = '';
+				}
+				saveCfg('spells', '');
+				savePosts();
+			} else if(data['data'] !== null) {
+				spells.setSpells(data['data'], false);
+				if(temp = $id('de-spell-edit')) {
+					temp.value = spells.list;
+				}
+				doc.body.style.display = '';
+				return;
+			}
+			spells.enable = false;
+			doc.body.style.display = '';
+		}
+		default: return;
+		}
+		toggleContent('hid', true);
+	}, false);
+
+	url = (window.location.pathname || '').match(new RegExp(
+		'^(?:\\/?([^\\.]*?)\\/?)?' +
+		'(' + regQuote(aib.res) + ')?' +
+		'(\\d+|index|wakaba|futaba)?' +
+		'(\\.(?:[a-z]+))?$'
+	));
+	brd = url[1] || (aib.dfwk ? 'df' : '');
+	TNum = url[2] ? url[3] :
+		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
+		false;
+	pageNum = url[3] && !TNum ? +(
+		aib.erns ? +(window.location.search.match(/\d+/) || [0])[0] : url[3]
+	) || 0 : 0;
+	if(aib.tiny && pageNum > 0) {
+		pageNum--;
+	}
+	if(!aib.hasOwnProperty('docExt') && url[4]) {
+		aib.docExt = url[4];
+	}
+	dummy = doc.createElement('div');
+	return true;
+}
 
 function parsePage(el, dc, lThr, parse) {
 	var i, thrds = $Q(aib.qThread, el),
@@ -8821,9 +8828,9 @@ function initPage() {
 }
 
 
-/*==============================================================================
-										MAIN
-==============================================================================*/
+//============================================================================================================
+//													MAIN
+//============================================================================================================
 
 function addDelformStuff(isLog) {
 	preloadImages(null);
@@ -8852,7 +8859,7 @@ function doScript() {
 	$log('Init');
 	readCfg();
 	readFavorites();
-	readPostsVisib();
+	readPosts();
 	$log('Read config');
 	$disp(doc.body);
 	if(aib.rep || liteMode) {
@@ -8886,8 +8893,8 @@ function doScript() {
 	$log('Apply CSS');
 	firstThr.checkSpells();
 	$log('Apply spells');
-	savePostsVisib();
-	saveUserPostsVisib();
+	savePosts();
+	saveUserPosts();
 	$log('Save posts');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
