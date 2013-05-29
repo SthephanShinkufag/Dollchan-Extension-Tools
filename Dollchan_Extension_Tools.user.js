@@ -6790,7 +6790,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	if(post && (parent.inited || !post.isOp || post.thr.loadedOnce)) {
+	if(post && (parent.inited || !post.isOp || TNum || post.thr.loadedOnce)) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
