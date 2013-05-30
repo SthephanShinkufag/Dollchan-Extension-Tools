@@ -1095,7 +1095,7 @@ function readViewedPosts() {
 			data.split(',').forEach(function(pNum) {
 				var post = pByNum[pNum];
 				if(post) {
-					post.classList.add('de-viewed');
+					post.el.classList.add('de-viewed');
 					post.viewed = true;
 				}
 			});
