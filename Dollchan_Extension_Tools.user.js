@@ -8040,7 +8040,7 @@ ImageBoard.prototype = {
 			if(el) {
 				text = el.textContent;
 				sz = text.match(/(\d+)[x×](\d+)/);
-				w = text.match(/(\d+(?:\.\d+)?)\s*([mkк])?[bб]/i);
+				w = text.match(/(\d+(?:\.\d+)?)\s*([mkк])?i?[bб]/i);
 				return [sz[1], sz[2], w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1]];
 			}
 			return [null, null, null];
