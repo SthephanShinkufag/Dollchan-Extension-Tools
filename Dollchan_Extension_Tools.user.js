@@ -736,11 +736,11 @@ function regQuote(str) {
 	return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
 }
 
-function getPost(el) {
+function getPostEl(el) {
 	while(!el.hasAttribute('de-post')) {
 		el = el.parentNode;
 	}
-	return el.post;
+	return el;
 }
 
 function getImages(el) {
@@ -749,6 +749,11 @@ function getImages(el) {
 
 function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
+}
+
+function getAbsLink(url) {
+	return url[1] === '/' ? aib.prot + url :
+		url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
 }
 
 function getPrettyJSON(obj, indent) {
@@ -1310,7 +1315,7 @@ function showContent(cont, id, name, isUpd) {
 			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
 			cln.btn.parentNode.className = 'de-ppanel';
 			cln.btn.onclick = function() {
-				var post = getPost(this);
+				var post = getPostEl(this).post;
 				post.toggleContent(post.hidden = !post.hidden);
 			};
 			(block || (block = cont.appendChild(
@@ -2400,7 +2405,7 @@ function checkDelete(response) {
 	}
 	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
 		el.checked = false;
-		if(!TNum && tNums.indexOf(tNum = getPost(el).thr.num) === -1) {
+		if(!TNum && tNums.indexOf(tNum = getPostEl(el).post.thr.num) === -1) {
 			tNums.push(tNum);
 		}
 	}
@@ -2849,17 +2854,16 @@ function getDataFromImg(img) {
 }
 
 function loadDocFiles(imgOnly) {
-	var els, count = 0,
+	var els, files, count = 0,
 		current = 1,
 		warnings = '',
 		tar = new $tar(),
-		files = !imgOnly && [Object.create(null), Object.create(null)],
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
 	Images_.queue = new $queue(4, function(num, dat) {
 		downloadImgData(dat[0], function(data) {
 			var name = this[1].replace(/[\\\/:*?"<>|]/g, '_'), el = this[2];
 			if(!imgOnly) {
-				$alert('Загружается файл ' + current++ + '/' + count + warnings, 'imgload', true);
+				$alert('Загружается файл: ' + current++ + '/' + count + warnings, 'imgload', true);
 			}
 			if(this[3]) {
 				if(!data) {
@@ -2872,10 +2876,6 @@ function loadDocFiles(imgOnly) {
 					$alert(Lng.loadImage[lang] + current++ + '/' + count + warnings,
 						'imgload', true);
 				} else {
-					if(aib.abu) {
-						el.setAttribute('height', el.height);
-						el.setAttribute('width', el.width);
-					}
 					el.classList.add('de-thumb');
 					el.src = this[3].href = $q(aib.qImgLink, aib.getPicWrap(this[3])).href =
 						name = 'images/' + name;
@@ -2892,8 +2892,8 @@ function loadDocFiles(imgOnly) {
 		var u, a, dt;
 		if(!imgOnly) {
 			dt = doc.doctype;
-			$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
-			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, {aib: ' + JSON.stringify(aib) + '});');
+			//$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+			//tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, {aib: ' + JSON.stringify(aib) + '});');
 			tar.addString(TNum + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : '')
 				+ (!dt.publicId && dt.systemId ? ' SYSTEM' : '')
@@ -2909,7 +2909,11 @@ function loadDocFiles(imgOnly) {
 			window.URL.revokeObjectURL(url);
 			$del(el);
 		}, 0, a, u);
-		$del($id('de-alert-imgload'));
+		if(warnings) {
+			$alert('Во время загрузки произошли ошибки:' + warnings, 'imgload', false);
+		} else {
+			$del($id('de-alert-imgload'));
+		}
 		Images_.queue = tar = warnings = count = current = imgOnly = null;
 	});
 	els = aProto.slice.call(getImages($q('[de-form]', dc)));
@@ -2924,37 +2928,46 @@ function loadDocFiles(imgOnly) {
 	if(imgOnly) {
 		$alert(Lng.loadImage[lang] + '1/' + count, 'imgload', true);
 	} else {
+		files = [];
 		$alert('Загружается файл ' + '1/' + count, 'imgload', true);
-		$each($Q('span[class^="de-btn-"], #de-main > div, #de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
+		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"], #de-main > div, #de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
+		$each($T('a', dc), function(el) {
+			var num, tc = el.textContent;
+			if(tc.startsWith('>>') && (num = +tc.substr(2)) && (num in pByNum)) {
+				el.href = aib.getPostAnchor(num);
+			} else {
+				el.href = getAbsLink(el.href);
+			}
+		});
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
 				return;
 			}
-			var temp, ext, url = el.tagName === 'LINK' ? el.href : el.src,
-				name = url.substring(url.lastIndexOf("/") + 1)
-				.replace(/[\\\/:*?"<>|]/g, '_')
-				.toLowerCase();
-			if(url in files[0]) {
-				files[1][name] = null;
+			var temp, i, ext, name, url = el.tagName === 'LINK' ? el.href : el.src;
+			if(!this.test(url)) {
+				$del(el);
 				return;
-			} else if(name in files[1]) {
+			}
+			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_')
+				.toLowerCase();
+			if(files.indexOf(name) === -1) {
+				files.push(name);
+			} else {
 				temp = url.lastIndexOf('.');
 				ext = url.substring(temp);
 				url = url.substring(0, temp);
 				name = name.substring(0, name.lastIndexOf('.'));
-				temp = 0;
-				while((name + '(' + temp + ')' + ext) in files[1]) {
-					temp++;
+				for(i = 0; ; ++i) {
+					temp = name + '(' + i + ')' + ext;
+					if(files.indexOf(temp) === -1) {
+						break;
+					}
 				}
-				files[0][url + '(' + temp + ')' + ext] = null;
-				files[1][name = name + '(' + temp + ')' + ext] = null;
-			} else {
-				files[0][url] = null;
-				files[1][name] = null;
+				files.push(name = temp);
 			}
 			Images_.queue.run([url, name, el, null]);
 			count++;
-		});
+		}.bind(new RegExp('^\\/\\/?|^https?:\\/\\/[^\\/]*' + regQuote(aib.dm), 'i')));
 	}
 	Images_.queue.complete();
 	els = null;
@@ -3256,13 +3269,13 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			if(m[4] || m[3] || m[2]) {
 				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 			}
-			(post || getPost(el)).msg.insertAdjacentHTML('beforeend',
+			(post || getPostEl(el).post).msg.insertAdjacentHTML('beforeend',
 				'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
 			$del(el);
 		}
 		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm); el = els[i++];) {
 			if(m = el.href.match(regex)) {
-				parseLink(el, m, post || getPost(el), queue);
+				parseLink(el, m, post || getPostEl(el).post, queue);
 			}
 		}
 		queue && queue.complete();
@@ -3330,7 +3343,7 @@ function embedMP3Links(post) {
 			continue;
 		}
 		src = link.href;
-		pst = post || getPost(link);
+		pst = post || getPostEl(link).post;
 		if(!pst.mp3Obj) {
 			pst.mp3Obj = el = $new('div', {'class': 'de-mp3'}, null);
 			$before(pst.msg, el);
@@ -6194,10 +6207,10 @@ Post.prototype = {
 				this._addNote(note);
 			}
 			this._pref.onmouseover = hide && function() {
-				getPost(this).toggleContent(false);
+				getPostEl(this).post.toggleContent(false);
 			};
 			this._pref.onmouseout = hide && function() {
-				getPost(this).toggleContent(true);
+				getPostEl(this).post.toggleContent(true);
 			};
 		}
 		this.hidden = hide;
@@ -7041,7 +7054,7 @@ function setPviewPosition(link, pView, animFun) {
 }
 
 function getRelLink(num) {
-	return '<a ' + aib.rLinkClick + ' href="' + this + '#' + (aib.fch ? 'p' : '') + num +
+	return '<a ' + aib.rLinkClick + ' href="' + this + aib.getPostAnchor(num) +
 		'" class="de-reflink">&gt;&gt;' + num + '</a>';
 }
 
@@ -7526,7 +7539,7 @@ ImageBoard.prototype = {
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 			} },
 			getPicWrap: { value: function(el) {
-				return $x('ancestor::td[1]', el) || getPost(el).el;
+				return $x('ancestor::td[1]', el) || getPostEl(el);
 			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, span[id$="_display"] { display: none !important; }' },
 			docExt: { value: '.html' },
@@ -7599,6 +7612,9 @@ ImageBoard.prototype = {
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
+			getPostAnchor: { value: function(num) {
+				return '#p' + num;
+			} },
 			getPosts: { value: function(thr) {
 				return $C('reply', thr);
 			} },
@@ -7738,6 +7754,11 @@ ImageBoard.prototype = {
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'postreply' },
 			cSubj: { value: 'postsubject' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons(), {
+					'tag': { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
+				});
+			} },
 			qBan: { value: '.ban_mark' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.message_text' },
@@ -7839,11 +7860,9 @@ ImageBoard.prototype = {
 						GetCaptcha("captcha_div", true);\
 						i--;\
 					} while(i > 0 && !/<img|не нужно/i.test(cd.innerHTML));' + (!focus ? '' :
-						'if(i !== 0) {\
-							el = cd.querySelector("input[type=\\"text\\"]");\
-							if(el) {\
-								el.focus();\
-							}\
+						'el = cd.querySelector("input[type=\\"text\\"]");\
+						if(el) {\
+							el.focus();\
 						}'
 					), true
 				);
@@ -8067,13 +8086,16 @@ ImageBoard.prototype = {
 			return op;
 		},
 		getPicWrap: function(el) {
-			return getPost(el).el;
+			return getPostEl(el);
 		},
 		getPNum: function(post) {
 			return post.id.match(/\d+/)[0];
 		},
 		getPageUrl: function(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
+		},
+		getPostAnchor: function(num) {
+			return '#' + num;
 		},
 		getPosts: function(thr) {
 			return $C(this.cReply, thr);
@@ -8190,14 +8212,9 @@ function Navigator() {
 			};', false
 		);
 	}
-	this.fixLink =
-		this.Safari ? function fixLink(url) {
-			return url[1] === '/' ? aib.prot + url :
-				url[0] === '/' ? aib.prot + '//' + aib.host + url :
-				url;
-		} : function fixLink(url) {
-			return url;
-		};
+	this.fixLink = this.Safari ? getAbsLink : function fixLink(url) {
+		return url;
+	};
 	this.toDOM =
 		this.Firefox >= 12 ? function toDOM(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
