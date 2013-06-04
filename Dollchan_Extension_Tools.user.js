@@ -7632,6 +7632,7 @@ ImageBoard.prototype = {
 			fch: { value: true }
 		}],
 		'4chon.net': [{
+			cOPost: { value: 'post op' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons(), {
 					'tag': { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
