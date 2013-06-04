@@ -7632,7 +7632,6 @@ ImageBoard.prototype = {
 			fch: { value: true }
 		}],
 		'4chon.net': [{
-			cOPost: { value: 'post op' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons(), {
 					'tag': { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
@@ -7790,7 +7789,6 @@ ImageBoard.prototype = {
 			krau: { value: true }
 		}],
 		'mlpg.co': [{
-			cOPost: { value: 'op' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons(), {
 					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
@@ -7914,6 +7912,7 @@ ImageBoard.prototype = {
 		},
 		'form[name*="postcontrols"]': {
 			cFileInfo: { value: 'fileinfo' },
+			cOPost: { value: 'op' },
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
