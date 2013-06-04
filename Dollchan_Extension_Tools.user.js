@@ -7650,12 +7650,13 @@ ImageBoard.prototype = {
 			_4chon: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'7chan.org': [{
+			cOPost: { value: 'op' },
 			cFileInfo: { value: 'file_size' },
 			qMsg: { value: '.message' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-					'reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
+					'.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
 			} },
 			trTag: { value: 'li' },
 
