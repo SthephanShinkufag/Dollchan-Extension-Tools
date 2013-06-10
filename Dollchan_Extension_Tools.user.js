@@ -7247,7 +7247,7 @@ Thread.prototype = {
 	},
 	loadNew: function(Fn, useAPI) {
 		if(aib.hana && useAPI) {
-			getJsonPosts('//dobrochan.ru/api/thread/' + brd + '/' + TNum +
+			getJsonPosts('/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
 				function parseNewPosts(status, sText, json) {
 					if(status !== 200 || json['error']) {
