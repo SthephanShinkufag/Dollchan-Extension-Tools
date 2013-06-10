@@ -2895,8 +2895,7 @@ function loadDocFiles(imgOnly) {
 			//$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
 			//tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, {aib: ' + JSON.stringify(aib) + '});');
 			tar.addString(TNum + '.html', '<!DOCTYPE ' + dt.name +
-				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : '')
-				+ (!dt.publicId && dt.systemId ? ' SYSTEM' : '')
+				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '')
 				+ (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
 			);
 		}
@@ -2950,9 +2949,7 @@ function loadDocFiles(imgOnly) {
 			}
 			name = url.substring(url.lastIndexOf("/") + 1).replace(/[\\\/:*?"<>|]/g, '_')
 				.toLowerCase();
-			if(files.indexOf(name) === -1) {
-				files.push(name);
-			} else {
+			if(files.indexOf(name) !== -1) {
 				temp = url.lastIndexOf('.');
 				ext = url.substring(temp);
 				url = url.substring(0, temp);
@@ -2963,11 +2960,12 @@ function loadDocFiles(imgOnly) {
 						break;
 					}
 				}
-				files.push(name = temp);
+				name = temp;
 			}
+			files.push(name);
 			Images_.queue.run([url, name, el, null]);
 			count++;
-		}.bind(new RegExp('^\\/\\/?|^https?:\\/\\/[^\\/]*' + regQuote(aib.dm), 'i')));
+		}.bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
 	}
 	Images_.queue.complete();
 	els = null;
@@ -3103,9 +3101,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	function addFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
 		el.innerHTML = videoType === 1 ?
-			'<iframe type="text/html" src="https://www.youtube-nocookie.com/embed/' + id +
+			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
 				(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
-			'<embed type="application/x-shockwave-flash" src="https://www.youtube-nocookie.com/v/' + id +
+			'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
 				(isHD ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
 	}
 
@@ -3910,6 +3908,13 @@ Spells.prototype = {
 					return true;
 				}
 			}
+			// (1 << 5): whitespace
+			if(val & 64) {
+				if(/(?:\n\s*){5}/i.test(txt)) {
+					Spells._lastWipeMsg = 'whitespace';
+					return true;
+				}
+			}
 			return Spells._lastWipeMsg = false;
 		},
 		// 15: #num
@@ -4009,6 +4014,7 @@ Spells.prototype = {
 					case 'symbols': temp |= 8; return false;
 					case 'capslock': temp |= 16; return false;
 					case 'numbers': temp |= 32; return false;
+					case 'whitespace': temp |= 64; return false;
 					default: return true;
 					}
 				})) {
@@ -4322,6 +4328,7 @@ Spells.prototype = {
 			(val & 8) && temp.push('symbols');
 			(val & 16) && temp.push('capslock');
 			(val & 32) && temp.push('numbers');
+			(val & 64) && temp.push('whitespace');
 			return spell + '(' + temp.join(',') + ')';
 		}
 		// #num, #tlen
@@ -7589,7 +7596,6 @@ ImageBoard.prototype = {
 				.de-thr-hid { margin: 1em 0; }' },
 			docExt: { value: '' },
 			isBB: { value: true },
-			ru: { value: false},
 
 			_420: { value: true }
 		}],
