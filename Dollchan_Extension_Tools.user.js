@@ -2382,7 +2382,7 @@ function checkUpload(response) {
 			if(Cfg['scrAfterRep']) {
 				$focus(firstThr.last.el);
 			}
-		});
+		}, true);
 	} else {
 		pByNum[pr.tNum].thr.load(visPosts, closeAlert.bind(window, $id('de-alert-upload')));
 	}
@@ -2413,7 +2413,7 @@ function checkDelete(response) {
 		firstThr.loadNew(function(eCode, eMsg, np) {
 			infoLoadErrors(eCode, eMsg, 0);
 			endDelete();
-		});
+		}, false);
 	} else {
 		tNums.forEach(function(tNum) {
 			pByNum[tNum].thr.load(visPosts, endDelete);
@@ -7245,8 +7245,8 @@ Thread.prototype = {
 			}
 		}.bind(Fn));
 	},
-	loadNew: function(Fn) {
-		if(aib.hana) {
+	loadNew: function(Fn, useAPI) {
+		if(aib.hana && useAPI) {
 			getJsonPosts('//dobrochan.ru/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
 				function parseNewPosts(status, sText, json) {
@@ -8645,7 +8645,7 @@ function initThreadUpdater(title, enableUpdater) {
 		if(Cfg['desktNotif']) {
 			nav.notifGranted;
 		}
-		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded);
+		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded, true);
 		enable();
 	}
 
@@ -8840,7 +8840,7 @@ function initPage() {
 				'click': function(e) {
 					$pd(e);
 					$alert(Lng.loading[lang], 'newposts', true);
-					firstThr.loadNew(infoLoadErrors);
+					firstThr.loadNew(infoLoadErrors, true);
 				}
 			}));
 		}
