@@ -6155,6 +6155,9 @@ Post.prototype = {
 		Object.defineProperty(this, 'msg', { value: val });
 		return val;
 	},
+	set msg(val) {
+		Object.defineProperty(this, 'msg', { value: val });
+	},
 	get offsetTop() {
 		return this.el.getBoundingClientRect().top + window.pageYOffset;
 	},
@@ -6314,6 +6317,9 @@ Post.prototype = {
 		Object.defineProperty(this, 'trunc', { value: val });
 		return val;
 	},
+	set trunc(val) {
+		Object.defineProperty(this, 'trunc', { value: val });
+	},
 	unhideRefs: function() {
 		if(!Cfg['hideRefPsts'] || !this.hasRef) {
 			return;
@@ -6344,7 +6350,7 @@ Post.prototype = {
 				: doc.importNode($q(aib.qMsg, fullPost), true),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
-		origMsg.parentNode.replaceChild(this._msg = replacePost(repMsg), origMsg);
+		origMsg.parentNode.replaceChild(this.msg = replacePost(repMsg), origMsg);
 		if(Cfg['addImgs']) {
 			embedImagesLinks(this.msg);
 		}
@@ -6354,7 +6360,7 @@ Post.prototype = {
 		}
 		this.addFuncs();
 		spells.check(this, this.hide, null);
-		this._trunc = null;
+		this.trunc = null;
 	},
 	get wrap() {
 		var val = aib.getWrap(this);
@@ -6364,8 +6370,8 @@ Post.prototype = {
 
 	_glob: {
 		handleEvent: function() {
-			this._wHeight = window.innerHeight;
-			this._wWidth = doc.documentElement.clientWidth;
+			this.wHeight = window.innerHeight;
+			this.wWidth = doc.documentElement.clientWidth;
 		},
 		get wHeight() {
 			var val = window.innerHeight;
