@@ -6152,22 +6152,16 @@ Post.prototype = {
 	},
 	get msg() {
 		var val = $q(aib.qMsg, this.el);
-		Object.defineProperty(this, 'msg', { writable: true, value: val });
+		Object.defineProperty(this, 'msg', { configurable: true, value: val });
 		return val;
-	},
-	set msg(val) {
-		Object.defineProperty(this, 'msg', { writable: true, value: val });
 	},
 	get offsetTop() {
 		return this.el.getBoundingClientRect().top + window.pageYOffset;
 	},
 	get ref() {
 		var val = [];
-		Object.defineProperty(this, 'ref', { writable: true, value: val });
+		Object.defineProperty(this, 'ref', { configurable: true, value: val });
 		return val;
-	},
-	set ref(val) {
-		Object.defineProperty(this, 'ref', { writable: true, value: val });
 	},
 	get sage() {
 		var val = aib.getSage(this.el);
@@ -6350,15 +6344,16 @@ Post.prototype = {
 				: doc.importNode($q(aib.qMsg, fullPost), true),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
-		origMsg.parentNode.replaceChild(this.msg = replacePost(repMsg), origMsg);
+		origMsg.parentNode.replaceChild(replacePost(repMsg), origMsg);
+		this.trunc = null;
+		delete this.html;
+		delete this.msg;
+		delete this.text;
 		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', this.msg), false);
 		if(ytExt) {
 			this.msg.appendChild(ytExt);
 		}
 		this.addFuncs();
-		this.trunc = null;
-		delete this.text;
-		delete this.html;
 		spells.check(this, this.hide, null);
 	},
 	get wrap() {
@@ -7002,7 +6997,9 @@ Pview.prototype = Object.create(Post.prototype, {
 		if(!op) {
 			return;
 		}
-		var i, j, len, num, oRef = op.ref, nRef = nOp.ref, rRef = [];
+		var i, j, len, num, rRef, oRef = op.ref, nRef = nOp.ref;
+		delete op.ref;
+		rRef = op.ref;
 		for(i = j = 0, len = nRef.length; j < len; ++j) {
 			num = nRef[j];
 			if(oRef[i] === num) {
@@ -7015,7 +7012,6 @@ Pview.prototype = Object.create(Post.prototype, {
 		for(len = oRef.length; i < len; i++) {
 			rRef.push(oRef[i]);
 		}
-		op.ref = rRef;
 		$del($c('de-refmap', op.el));
 		if(rRef.length !== 0) {
 			op.hasRef = true;
@@ -7229,7 +7225,7 @@ Thread.prototype = {
 				if(op.trunc) {
 					op.updateMsg(newOp);
 				}
-				op.ref = [];
+				delete op.ref;
 				for(post = op.next; post; post = post.next) {
 					if(post.trunc) {
 						post.updateMsg(els[post.count - 1]);
