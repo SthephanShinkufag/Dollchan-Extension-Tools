@@ -6086,7 +6086,7 @@ Post.prototype = {
 		}
 	},
 	hideRefs: function() {
-		if(!Cfg['hideRefPsts'] || !this.ref) {
+		if(!Cfg['hideRefPsts'] || !this.hasRef) {
 			return;
 		}
 		this.ref.forEach(function(num) {
@@ -6315,7 +6315,7 @@ Post.prototype = {
 		return val;
 	},
 	unhideRefs: function() {
-		if(!Cfg['hideRefPsts'] || !this.ref) {
+		if(!Cfg['hideRefPsts'] || !this.hasRef) {
 			return;
 		}
 		this.ref.forEach(function(num) {
@@ -7199,8 +7199,8 @@ Thread.prototype = {
 		if(len !== 0) {
 			for(i = 0; i < len; i++) {
 				post = posts[i];
-				spells.check(post, function() {
-					this.hide();
+				spells.check(post, function(msg) {
+					this.hide(msg);
 					hPosts++;
 				}, null);
 			}
@@ -7224,7 +7224,7 @@ Thread.prototype = {
 				if(op.trunc) {
 					op.updateMsg(newOp);
 				}
-				op.ref = void 0;
+				op.ref = [];
 				for(post = op.next; post; post = post.next) {
 					if(post.trunc) {
 						post.updateMsg(els[post.count - 1]);
@@ -7348,7 +7348,7 @@ Thread.prototype = {
 	_offset: 0,
 	_postsCache: null,
 	_addPost: function(el, num, i, prev) {
-		var pst, node, post = new Post(el, false, num, i).init(this._offset, prev, this);
+		var pst, node, post = new Post(el, this, num, i).init(this._offset, prev);
 		pByNum[num] = post;
 		if(postWrapper) {
 			pst = postWrapper.cloneNode(true);
