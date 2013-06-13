@@ -5865,7 +5865,6 @@ Post.prototype = {
 	next: null,
 	parent: null,
 	prev: null,
-	thr: null,
 	viewed: false,
 	ytObj: null,
 	addFuncs: function() {
