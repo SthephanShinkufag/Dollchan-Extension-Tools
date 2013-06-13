@@ -6308,11 +6308,8 @@ Post.prototype = {
 		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 			val = el;
 		}
-		Object.defineProperty(this, 'trunc', { writable: true, value: val });
+		Object.defineProperty(this, 'trunc', { configurable: true, value: val });
 		return val;
-	},
-	set trunc(val) {
-		Object.defineProperty(this, 'trunc', { writable: true, value: val });
 	},
 	unhideRefs: function() {
 		if(!Cfg['hideRefPsts'] || !this.hasRef) {
@@ -6345,7 +6342,7 @@ Post.prototype = {
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 		origMsg.parentNode.replaceChild(replacePost(repMsg), origMsg);
-		this.trunc = null;
+		Object.defineProperty(this, 'trunc', { configurable: true, value: null });
 		delete this.html;
 		delete this.msg;
 		delete this.text;
