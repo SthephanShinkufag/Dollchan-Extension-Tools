@@ -2943,7 +2943,7 @@ function loadDocFiles(imgOnly) {
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc.startsWith('>>') && (num = +tc.substr(2)) && (num in pByNum)) {
-				el.href = aib.getPostAnchor(num);
+				el.href = aib.anchor + num;
 			} else {
 				el.href = getAbsLink(el.href);
 			}
@@ -7078,7 +7078,7 @@ function setPviewPosition(link, pView, animFun) {
 }
 
 function getRelLink(num) {
-	return '<a ' + aib.rLinkClick + ' href="' + this + aib.getPostAnchor(num) +
+	return '<a ' + aib.rLinkClick + ' href="' + this + aib.anchor + num +
 		'" class="de-reflink">&gt;&gt;' + num + '</a>';
 }
 
@@ -7640,9 +7640,6 @@ ImageBoard.prototype = {
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
-			getPostAnchor: { value: function(num) {
-				return '#p' + num;
-			} },
 			getPosts: { value: function(thr) {
 				return $C('reply', thr);
 			} },
@@ -7655,6 +7652,7 @@ ImageBoard.prototype = {
 			getWrap: { value: function(post) {
 				return post.el.parentNode;
 			} },
+			anchor: { value: '#p' },
 			css: { value: '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, .de-post-hid > .de-refmap, #mpostform, .navLinks, .postingMode { display: none !important; }' },
 			docExt: { value: '' },
 			rLinkClick: { value: '' },
@@ -7680,12 +7678,13 @@ ImageBoard.prototype = {
 			_4chon: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'7chan.org': [{
+			cOPost: { value: 'op' },
 			cFileInfo: { value: 'file_size' },
 			qMsg: { value: '.message' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-					'reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
+					'.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
 			} },
 			trTag: { value: 'li' },
 
@@ -7818,7 +7817,6 @@ ImageBoard.prototype = {
 			krau: { value: true }
 		}],
 		'mlpg.co': [{
-			cOPost: { value: 'op' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
@@ -7942,6 +7940,7 @@ ImageBoard.prototype = {
 		},
 		'form[name*="postcontrols"]': {
 			cFileInfo: { value: 'fileinfo' },
+			cOPost: { value: 'op' },
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
@@ -8133,9 +8132,6 @@ ImageBoard.prototype = {
 		getPageUrl: function(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
-		getPostAnchor: function(num) {
-			return '#' + num;
-		},
 		getPosts: function(thr) {
 			return $C(this.cReply, thr);
 		},
@@ -8168,6 +8164,7 @@ ImageBoard.prototype = {
 			return val;
 		},
 		rLinkClick: 'onclick="highlight(this.textContent.substr(2))"',
+		anchor: '#',
 		docExt: '.html',
 		host: window.location.hostname,
 		prot: window.location.protocol,
