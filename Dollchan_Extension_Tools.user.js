@@ -3206,7 +3206,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function getTitleLoader() {
-		var queue = new $queue(8, function(num, data) {
+		var queue = new $queue(1, function(num, data) {
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
@@ -5803,9 +5803,9 @@ function embedImagesLinks(el) {
 //													POST
 //============================================================================================================
 
-function Post(el, isOp, num, count) {
+function Post(el, thr, num, count) {
 	this.el = el;
-	this.isOp = isOp;
+	this.thr = thr;
 	this.count = count;
 	this.num = num;
 	this.dcount = 0;
@@ -5859,6 +5859,7 @@ Post.prototype = {
 	hasRef: false,
 	hidden: false,
 	inited: false,
+	isOp: false,
 	kid: null,
 	mp3Obj: null,
 	next: null,
@@ -6134,12 +6135,11 @@ Post.prototype = {
 		this.index = offset + this.count;
 		this.inited = true;
 		this.prev = prev;
-		this.thr = thr;
 		if(prev) {
 			prev.next = this;
 		}
 		this._addButtons(el, this.num, this.sage, this.isOp);
-		this._checkVisib(this.num, this.index, this.isOp, thr);
+		this._checkVisib(this.num, this.index, this.isOp, this.thr);
 		if(!this.hidden && Cfg['expandPosts'] === 1) {
 			var node = this.trunc;
 			if(node) {
@@ -6882,15 +6882,15 @@ Pview.prototype = Object.create(Post.prototype, {
 	_readDelay: { value: 0, writable: true },
 
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
-		var num, rm, post = this.parent.thr.op;
+		var rm, post = this.parent.thr.op,
+			num = this.parent.num;
 		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
-		genRefMap(this._cached[b], [+post.num], aib.getThrdUrl(b, tNum));
+		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
 		if(!TNum) {
 			this._updateOP(this._cached[b][post.num], post);
 		}
 		post = this._cached[b][pNum];
-		num = this.parent.num
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el)
@@ -6898,7 +6898,8 @@ Pview.prototype = Object.create(Post.prototype, {
 				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 				rm = post.msg.nextSibling;
 			}
-			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="#' + num + '">&gt;&gt;' +
+			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
+				aib.getThrdUrl(b, this.parent.thr.num) + aib.anchor + num + '">&gt;&gt;' +
 				(brd !== b ? '/' + brd + '/' : '') + num + '</a>' + (post.hasRef ? ', ' : '')
 			);
 		}
@@ -7087,11 +7088,11 @@ function addRefMap(post, tUrl) {
 		'<div class="de-refmap">' + post.ref.map(getRelLink, tUrl).join(', ') + '</div>');
 }
 
-function genRefMap(posts, opNums, tUrl) {
+function genRefMap(posts, tUrl) {
 	if(Cfg['linksNavig'] !== 2) {
 		return;
 	}
-	var tc, lNum, post, ref, i, len, links, pNum;
+	var tc, lNum, post, ref, i, len, links, pNum, opNums = firstThr.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
 			tc = links[i].textContent;
@@ -7314,11 +7315,14 @@ Thread.prototype = {
 		return this.el.getBoundingClientRect().top + window.pageYOffset;
 	},
 	pviewParse: function(tNum, posts) {
-		var i, len, num, el, els = aib.getPosts(this.el)
-		posts[tNum] = new Post(aib.getOp(this.el, doc), true, tNum, 0);
+		var i, len, num, el, els = aib.getPosts(this.el);
+		this.num = tNum;
+		this.gInfo.tNums.push(+num);
+		posts[tNum] = this.op = new Post(aib.getOp(this.el, doc), this, tNum, 0);
+		this.op.isOp = true;
 		for(i = 0, len = els.length; i < len; i++) {
 			num = aib.getPNum(el = els[i]);
-			posts[num] = new Post(el, false, num, i + 1);
+			posts[num] = new Post(el, this, num, i + 1);
 		}
 		return posts;
 	},
@@ -7396,10 +7400,12 @@ Thread.prototype = {
 		this.pcount = omt + len;
 		this._offset = offset;
 		this._length = len;
-		pByNum[num] = lastPost = this.op = new Post(aib.getOp(node, doc), true, num, 0).init(offset, null, this);
+		pByNum[num] = lastPost = this.op = new Post(aib.getOp(node, doc), this, num, 0);
+		lastPost.isOp = true;
+		lastPost.init(offset, null);
 		for(i = 0; i < len; i++) {
 			num = aib.getPNum(el = els[i]);
-			pByNum[num] = lastPost = new Post(el, false, num, omt + i).init(offset, lastPost, this);
+			pByNum[num] = lastPost = new Post(el, this, num, omt + i).init(offset, lastPost);
 		}
 		this.last = lastPost;
 		node.style.counterReset = 'de-cnt ' + omt;
@@ -8880,7 +8886,7 @@ function addDelformStuff(isLog) {
 		addImagesSearch(dForm);
 		isLog && $log('Sauce buttons');
 	}
-	genRefMap(pByNum, firstThr.tNums, '');
+	genRefMap(pByNum, '');
 	isLog && Cfg['linksNavig'] === 2 && $log('Reflinks map');
 }
 
