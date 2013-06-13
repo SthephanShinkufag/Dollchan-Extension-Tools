@@ -6098,7 +6098,7 @@ Post.prototype = {
 	},
 	get html() {
 		var val = this.el.innerHTML;
-		Object.defineProperty(this, 'html', { value: val });
+		Object.defineProperty(this, 'html', { configurable: true,  value: val });
 		return val;
 	},
 	get imagesData() {
@@ -6152,22 +6152,22 @@ Post.prototype = {
 	},
 	get msg() {
 		var val = $q(aib.qMsg, this.el);
-		Object.defineProperty(this, 'msg', { value: val });
+		Object.defineProperty(this, 'msg', { writable: true, value: val });
 		return val;
 	},
 	set msg(val) {
-		Object.defineProperty(this, 'msg', { value: val });
+		Object.defineProperty(this, 'msg', { writable: true, value: val });
 	},
 	get offsetTop() {
 		return this.el.getBoundingClientRect().top + window.pageYOffset;
 	},
 	get ref() {
 		var val = [];
-		Object.defineProperty(this, 'ref', { value: val });
+		Object.defineProperty(this, 'ref', { writable: true, value: val });
 		return val;
 	},
 	set ref(val) {
-		Object.defineProperty(this, 'ref', { value: val });
+		Object.defineProperty(this, 'ref', { writable: true, value: val });
 	},
 	get sage() {
 		var val = aib.getSage(this.el);
@@ -6273,7 +6273,7 @@ Post.prototype = {
 			.replace(/&gt;/g, '>')
 			.replace(/&lt;/g, '<')
 			.trim();
-		Object.defineProperty(this, 'text', { value: val });
+		Object.defineProperty(this, 'text', { configurable: true, value: val });
 		return val;
 	},
 	get title() {
@@ -6314,11 +6314,11 @@ Post.prototype = {
 		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
 			val = el;
 		}
-		Object.defineProperty(this, 'trunc', { value: val });
+		Object.defineProperty(this, 'trunc', { writable: true, value: val });
 		return val;
 	},
 	set trunc(val) {
-		Object.defineProperty(this, 'trunc', { value: val });
+		Object.defineProperty(this, 'trunc', { writable: true, value: val });
 	},
 	unhideRefs: function() {
 		if(!Cfg['hideRefPsts'] || !this.hasRef) {
@@ -6351,16 +6351,15 @@ Post.prototype = {
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 		origMsg.parentNode.replaceChild(this.msg = replacePost(repMsg), origMsg);
-		if(Cfg['addImgs']) {
-			embedImagesLinks(this.msg);
-		}
 		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', this.msg), false);
 		if(ytExt) {
 			this.msg.appendChild(ytExt);
 		}
 		this.addFuncs();
-		spells.check(this, this.hide, null);
 		this.trunc = null;
+		delete this.text;
+		delete this.html;
+		spells.check(this, this.hide, null);
 	},
 	get wrap() {
 		var val = aib.getWrap(this);
@@ -6379,7 +6378,7 @@ Post.prototype = {
 				window.addEventListener('resize', this, false);
 				this._eventAdded = true;
 			}
-			Object.defineProperty(this, 'wHeight', { value: val });
+			Object.defineProperty(this, 'wHeight', { writable: true, value: val });
 			return val;
 		},
 		get wWidth() {
@@ -6388,7 +6387,7 @@ Post.prototype = {
 				window.addEventListener('resize', this, false);
 				this._eventAdded = true;
 			}
-			Object.defineProperty(this, 'wWidth', { value: val });
+			Object.defineProperty(this, 'wWidth', { writable: true, value: val });
 			return val;
 		},
 		getOffset: function(el) {
