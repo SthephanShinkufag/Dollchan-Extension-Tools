@@ -2747,10 +2747,10 @@ function addImgFileIcon(info) {
 }
 
 function downloadImgData(url, Fn) {
-	var obj = {
+	downloadObjInfo({
 		'method': 'GET',
 		'url': url,
-		'onreadystatechange': function(e) {
+		'onreadystatechange': function onDownloaded(url, e) {
 			if(e.readyState !== 4) {
 				return;
 			}
@@ -2758,15 +2758,26 @@ function downloadImgData(url, Fn) {
 			if(e.status === 0 && isAb) {
 				Fn(new Uint8Array(e.response));
 			} else if(e.status !== 200) {
-				Fn(null);
+				if(e.status === 404 || !url) {
+					Fn(null);
+				} else {
+					downloadObjInfo({
+						'method': 'GET',
+						'url': url,
+						'onreadystatechange': onDownloaded.bind(null, null)
+					});
+				}
 			} else if(isAb) {
 				Fn(new Uint8Array(e.response));
 			} else {
 				Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
 			}
-		}
-	};
-	if(nav.Firefox && aib.fch && !url.startsWith('blob')) {
+		}.bind(null, url)
+	});
+}
+
+function downloadObjInfo(obj) {
+	if(nav.Firefox && aib.fch && !obj.url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	} else {
@@ -5170,8 +5181,8 @@ function PostForm(form, ignoreForm, init) {
 		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = TNum;
 	this.form = form;
-	this.recap = $id('recaptcha_response_field');
-	this.cap = !aib.abu && ($q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) || this.recap);
+	this.recap = this._getReCaptcha();
+	this.cap = !aib.abu && this._getCaptcha();
 	this.txta = $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q(tr + ' input[type="submit"]', form);
 	this.file = $q(tr + ' input[type="file"]', form);
@@ -5187,6 +5198,14 @@ function PostForm(form, ignoreForm, init) {
 	this.video = $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form);
 	if(init) {
 		this._init();
+	}
+	if(!aib.abu && !this.cap) {
+		window.addEventListener('load', function() {
+			this.recap = this._getReCaptcha();
+			if(this.cap = this._getCaptcha()) {
+				this._updateCaptcha();
+			}
+		}.bind(this), false);
 	}
 }
 PostForm.setUserName = function() {
@@ -5487,6 +5506,12 @@ PostForm.prototype = {
 			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
 		}}));
 	},
+	_getCaptcha: function() {
+		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) || this.recap;
+	},
+	_getReCaptcha: function() {
+		return $id('recaptcha_response_field');
+	},
 	_init: function() {
 		var el, btn, pArea = $New('div', {'id': 'de-parea'}, [
 			this._tReply = $New('div', {'style': 'display: none;'}, [
@@ -5598,7 +5623,9 @@ PostForm.prototype = {
 				setTimeout(PostForm.setUserPassw, 1e3);
 			}
 		}.bind(this)});
-		this._updateCaptcha();
+		if(this.cap) {
+			this._updateCaptcha();
+		}
 		if(Cfg['addSageBtn'] && this.mail) {
 			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
 				e.stopPropagation();
@@ -5677,9 +5704,6 @@ PostForm.prototype = {
 		}
 	},
 	_updateCaptcha: function() {
-		if(!this.cap || aib.abu) {
-			return;
-		}
 		var img, _img;
 		if(this.recap && (img = $id('recaptcha_image'))) {
 			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
