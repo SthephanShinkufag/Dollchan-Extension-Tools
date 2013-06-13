@@ -3206,7 +3206,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function getTitleLoader() {
-		var queue = new $queue(1, function(num, data) {
+		var queue = new $queue(8, function(num, data) {
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
