@@ -4194,79 +4194,72 @@ Spells.prototype = {
 		}
 		return data.length === 0 ? null : data;
 	},
-	_clearScope: function(nScope, item, i, len) {
-		var temp, neg = (item & 0x100) !== 0;
-		if(i === len - 1) {
-			if(i === 0) {
-				return neg ? [[12,'',null]] : null;
-			}
-			temp = nScope.length - 1;
-			if(neg) {
-				while(nScope[temp] && (nScope[temp][0] & 0x200) === 0) {
-					delete nScope[temp];
-					temp -= 2;
-				}
-				if(nScope[temp]) {
-					nScope[temp][0] &= 0x1FF;
-				}
-				if(temp < 0) {
-					return [[12,'',null]];
-				}
-			} else {
-				while(nScope[temp] && (nScope[temp][0] & 0x200) !== 0) {
-					delete nScope[temp];
-					temp -= 2;
-				}
-				if(temp < 0) {
-					return null;
-				}
-			}
-			return nScope.length === 1 && nScope[0][0] === 0xFF ? nScope[0][1] : nScope;
-		} else if((item & 0x200) !== 0) {
-			if(!neg) {
-				return null;
-			}
-		} else if(neg) {
-			return [[12,'',null]];
-		}
-		return false;
-	},
-	_removeBoards: function(scope) {
-		for(var i = 0, len = scope.length, nScope = [], type, spell, temp; i < len; i++) {
-			spell = scope[i];
-			type = spell[0] & 0xFF;
+	_optimizeSpells: function(spells) {
+		var i, len, flags, type, spell, neg, scope, parensSpells, newSpells = [];
+		for(i = 0, len = spells.length; i < len; ++i) {
+			spell = spells[i];
+			flags = spell[0];
+			type = flags & 0xFF;
+			neg = (flags & 0x100) !== 0;
 			if(type === 0xFF) {
-				if(temp = this._removeBoards(spell[1])) {
-					if(temp.length === 1) {
-						temp = temp[0];
-						temp[0] |= spell[0] & 0x200;
-						temp[0] ^= spell[0] & 0x100;
-						nScope.push(temp);
+				parensSpells = this._optimizeSpells(spell[1]);
+				if(parensSpells) {
+					if(parensSpells.length === 1) {
+						newSpells.push([parensSpells[0][0],
+							(parensSpells[0][1] | (flags & 0x200)) ^ (flags & 0x100)]);
 					} else {
-						nScope.push([spell[0], temp]);
+						newSpells.push([flags, temp]);
 					}
 					continue;
-				} else {
-					temp = this._clearScope(nScope, spell[0], i, len);
 				}
 			} else {
-				temp = spell[2];
-				if(temp && (temp[0] !== brd || (temp[1] === -1 ? TNum : temp[1] && temp[1] !== TNum))) {
-					temp = this._clearScope(nScope, spell[0], i, len);
-				} else if(type === 12) {
-					temp = this._clearScope(nScope, spell[0] ^ 0x100, i, len);
-				} else {
-					nScope.push(spell);
-					continue;
+				scope = spell[2];
+				if(!scope || (scope[0] === brd && scope[1] === -1 ? TNum : !scope[1] || scope[1] === TNum)) {
+					if(type === 12) {
+						neg = !neg;
+					} else {
+						newSpells.push([flags, spell[1]]);
+						continue;
+					}
 				}
 			}
-			if(temp !== false) {
-				return temp;
+			if(i === len - 1) {
+				if(i === 0) {
+					return neg ? [[12, '']] : null;
+				}
+				i = newSpells.length - 1;
+				if(neg) {
+					while(newSpells[i] && (newSpells[i][0] & 0x200) === 0) {
+						delete newSpells[i];
+						i -= 2;
+					}
+					if(i < 0) {
+						return [[12, '']];
+					}
+					if(newSpells[i]) {
+						newSpells[i][0] &= 0x1FF;
+					}
+				} else {
+					while(newSpells[i] && (newSpells[i][0] & 0x200) !== 0) {
+						delete newSpells[i];
+						i -= 2;
+					}
+					if(i < 0) {
+						return null;
+					}
+				}
+				return newSpells.length === 1 && newSpells[0][0] === 0xFF ? newSpells[0][1] : newSpells;
+			}
+			if((flags & 0x200) !== 0) {
+				if(!neg) {
+					return null;
+				}
+			} else if(neg) {
+				return [[12, '']];
 			}
 		}
-		return nScope.length === 0 ? null :
-			nScope.length === 1 && nScope[0][0] === 0xFF ? nScope[0][1] :
-			nScope;
+		return newSpells.length === 0 ? null : newSpells.length === 1 && newSpells[0][0] === 0xFF ?
+			newSpells[0][1] : newSpells;
 	},
 	_initSpells: function(data) {
 		if(data) {
@@ -4600,7 +4593,7 @@ Spells.prototype = {
 		return null;
 	},
 	update: function(data, sync, isHide) {
-		var spells = data[1] ? this._removeBoards(data[1]) : false,
+		var spells = data[1] ? this._optimizeSpells(data[1]) : false,
 			reps = this._optimizeReps(data[2]),
 			outreps = this._optimizeReps(data[3]);
 		saveCfg('spells', JSON.stringify(data));
@@ -6097,11 +6090,11 @@ Post.prototype = {
 		if(uVis[this.num]) {
 			return;
 		}
+		sVis[this.index] = 0;
 		if(this.hidden) {
 			$del(this.note);
 			this._addNote(note);
 		} else {
-			sVis[this.index] = 0;
 			this._doHide(note);
 		}
 	},
