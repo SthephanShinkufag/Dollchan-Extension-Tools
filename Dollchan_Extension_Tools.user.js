@@ -6422,7 +6422,7 @@ Post.prototype = {
 		this.btns = ref.nextSibling;
 	},
 	_addFullImage: function(el, data, inPost, isFast) {
-		var elMove, elStop, newW, newH, srcH, scrW = Post.sizing.wWidth;
+		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			el.style.display = 'none';
 			scrW -= isFast ? Post.sizing.getCachedOffset(this.count, el) : Post.sizing.getOffset(el);
@@ -6437,13 +6437,25 @@ Post.prototype = {
 			newH = scrH;
 			newW = newH * data.width / data.height;
 		}
-		el.insertAdjacentHTML('afterend', '<img class="de-img-full" src="' + data.src + '" alt="' +
-			data.src + '" width="' + newW + '" height="' + newH + '">');
+		img = $add('<img class="de-img-full" src="' + data.src + '" alt="' + data.src +
+			'" width="' + newW + '" height="' + newH + '">');
+		img.onload = function(e) {
+			if(this.naturalHeight + this.naturalWidth === 0) {
+				this.onerror();
+				return;
+			}
+		};
+		img.onerror = function() {
+			 if(!this.onceLoaded) {
+				this.src = this.src;
+				this.onceLoaded = true;
+			}
+		};
+		$after(el, img);
 		if(!inPost) {
-			el = el.nextSibling;
-			el.classList.add('de-img-center');
-			el.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
-			el.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
+			img.classList.add('de-img-center');
+			img.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
+			img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
 				var curX = e.clientX,
 					curY = e.clientY,
 					oldL = parseInt(this.style.left, 10),
@@ -6460,17 +6472,17 @@ Post.prototype = {
 				this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
 			}, false);
 			elMove = function(e) {
-				el.style.left = e.clientX - el.curX + 'px';
-				el.style.top = e.clientY - el.curY + 'px';
-				el.moved = true;
-			};
+				this.style.left = e.clientX - this.curX + 'px';
+				this.style.top = e.clientY - this.curY + 'px';
+				this.moved = true;
+			}.bind(img);
 			elStop = function() {
 				$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 			};
-			el.onmousedown = function(e) {
+			img.onmousedown = function(e) {
 				$pd(e);
-				el.curX = e.clientX - parseInt(el.style.left, 10);
-				el.curY = e.clientY - parseInt(el.style.top, 10);
+				this.curX = e.clientX - parseInt(this.style.left, 10);
+				this.curY = e.clientY - parseInt(this.style.top, 10);
 				$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 			};
 		}
