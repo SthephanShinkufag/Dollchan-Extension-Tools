@@ -3663,9 +3663,7 @@ Spells.prototype = {
 	_funcs: [
 		// 0: #words
 		function spell_words(post, val) {
-			var pTitle;
-			return post.text.toLowerCase().contains(val) ||
-				(pTitle = $c(aib.cSubj, post.el)) && pTitle.textContent.toLowerCase().contains(val);
+			return post.text.toLowerCase().contains(val) || post.subj.toLowerCase().contains(val);
 		},
 		// 1: #exp
 		function spell_exp(post, val) {
@@ -3686,27 +3684,18 @@ Spells.prototype = {
 		},
 		// 5: #subj
 		function spell_subj(post, val) {
-			var pTitle = $q('.replytitle, .filetitle', post.el);
-			if(!pTitle || !(pTitle = pTitle.textContent)) {
-				return false;
-			}
-			return !val || val.test(pTitle);
+			var pSubj = post.subj;
+			return pSubj ? !val || val.test(pSubj) : false;
 		},
 		// 6: #name
 		function spell_name(post, val) {
-			var pName = $q(aib.qName, post.el);
-			if(!pName || !(pName = pName.textContent)) {
-				return false;
-			}
-			return !val || pName.contains(val);
+			var pName = post.posterName;
+			return pName ? !val || pName.contains(val) : false;
 		},
 		// 7: #trip
 		function spell_trip(post, val) {
-			var pTrip = $c(aib.cTrip, post.el);
-			if(!pTrip) {
-				return false;
-			}
-			return !val || pTrip.textContent.contains(val);
+			var pTrip = post.posterName;
+			return pTrip ? !val || pTrip.contains(val) : false;
 		},
 		// 8: #img
 		function spell_img(post, val) {
@@ -6190,6 +6179,16 @@ Post.prototype = {
 		Object.defineProperty(this, 'offsetTop', { configurable: true, value: val });
 		return val;
 	},
+	get posterName() {
+		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent : '';
+		Object.defineProperty(this, 'posterName', { value: val });
+		return val;
+	},
+	get posterTrip() {
+		var pTrip = $q(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
+		Object.defineProperty(this, 'posterTrip', { value: val });
+		return val;
+	},
 	get ref() {
 		var val = [];
 		Object.defineProperty(this, 'ref', { configurable: true, value: val });
@@ -6292,6 +6291,11 @@ Post.prototype = {
 			}.bind(this, hide), 1e3);
 		}
 	},
+	get subj() {
+		var subj = $c(aib.cSubj, this.el), val = subj ? subj.textContent : '';
+		Object.defineProperty(this, 'subj', { value: val });
+		return val;
+	},
 	get text() {
 		var val = this.msg.innerHTML
 			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
@@ -6303,8 +6307,7 @@ Post.prototype = {
 		return val;
 	},
 	get title() {
-		var subj = $c(aib.cSubj, this.el), val = subj ? subj.textContent :
-			this.text.substring(0, 70).replace(/\s+/g, ' ')
+		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ')
 		Object.defineProperty(this, 'title', { value: val });
 		return val;
 	},
