@@ -4214,7 +4214,7 @@ Spells.prototype = {
 				}
 			} else {
 				scope = spell[2];
-				if(!scope || (scope[0] === brd && (scope[1] === -1 ? TNum : (!scope[1] || scope[1] === TNum)))) {
+				if(!scope || (scope[0] === brd && (scope[1] === -1 ? !TNum : (!scope[1] || scope[1] === TNum)))) {
 					if(type === 12) {
 						neg = !neg;
 					} else {
