@@ -399,7 +399,11 @@ Lng = {
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains tripcode'],
-	loadImage:		['Загружается изображение: ', 'Load image: '],
+	loadImage:		['Загружаются изображения: ', 'Loading images: '],
+	loadFile:		['Загружаются файлы: ', 'Loading files: '],
+	cantLoad:		['Не могу загрузить ', 'Can\'t load '],
+	willSavePview:	['Будет сохранено превью', 'Thumb will be saved'],
+	loadErrors:		['Во время загрузки произошли ошибки:', 'Warning:'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -2037,11 +2041,11 @@ function closeAlert(el) {
 
 function $alert(txt, id, wait) {
 	var el = $id('de-alert-' + id),
-		cMsg = 'de-alert-msg' + (wait ? ' de-wait' : ''),
+		cBtn = 'de-alert-btn' + (wait ? ' de-wait' : ''),
 		tBtn = wait ? '' : '× ';
 	if(el) {
-		$attr($t('div', el), {'class': cMsg}).innerHTML = txt.trim();
-		$t('span', el).textContent = tBtn;
+		$t('div', el).innerHTML = txt.trim();
+		$attr($t('span', el), {'class': cBtn}).textContent = tBtn;
 		clearTimeout(el.closeTimeout);
 		if(!wait && Cfg['animation']) {
 			nav.animEvent(el, function(node) {
@@ -2051,10 +2055,10 @@ function $alert(txt, id, wait) {
 		}
 	} else {
 		el = $id('de-alert').appendChild($New('div', {'class': aib.cReply, 'id': 'de-alert-' + id}, [
-			$new('span', {'class': 'de-alert-btn', 'text': tBtn}, {'click': function() {
+			$new('span', {'class': cBtn, 'text': tBtn}, {'click': function() {
 				closeAlert(this.parentNode);
 			}}),
-			$add('<div class="' + cMsg + '">' + txt.trim() + '</div>')
+			$add('<div class="de-alert-msg">' + txt.trim() + '</div>')
 		]));
 		if(Cfg['animation']) {
 			nav.animEvent(el, function(node) {
@@ -2861,7 +2865,7 @@ function getDataFromImg(img) {
 }
 
 function loadDocFiles(imgOnly) {
-	var els, files, count = 0,
+	var els, files, progress, counter, count = 0,
 		current = 1,
 		warnings = '',
 		tar = new $tar(),
@@ -2869,20 +2873,18 @@ function loadDocFiles(imgOnly) {
 	Images_.queue = new $queue(4, function(num, dat) {
 		downloadImgData(dat[0], function(data) {
 			var name = this[1].replace(/[\\\/:*?"<>|]/g, '_'), el = this[2];
-			if(!imgOnly) {
-				$alert('Загружается файл: ' + current++ + '/' + count + warnings, 'imgload', true);
-			}
+			progress.value = current;
+			counter.innerHTML = current;
+			current++;
 			if(this[3]) {
 				if(!data) {
-					warnings += '<br>Не могу загрузить <a href="' + this[0] + '">' +
-						this[0] + '</a><br>Будет сохранено превью';
+					warnings += '<br>' + Lng.cantLoad[lang] + '<a href="' + this[0] + '">' +
+						this[0] + '</a><br>' + Lng.willSavePview[lang];
+					$alert(Lng.loadErrors[lang] + warnings, 'floadwarn', false);
 					name = 'thumb-' + name.replace(/\.[a-z]+$/, '.png');
 					data = getDataFromImg(this[2]);
 				}
-				if(imgOnly) {
-					$alert(Lng.loadImage[lang] + current++ + '/' + count + warnings,
-						'imgload', true);
-				} else {
+				if(!imgOnly) {
 					el.classList.add('de-thumb');
 					el.src = this[3].href = $q(aib.qImgLink, aib.getPicWrap(this[3])).href =
 						name = 'images/' + name;
@@ -2915,12 +2917,8 @@ function loadDocFiles(imgOnly) {
 			window.URL.revokeObjectURL(url);
 			$del(el);
 		}, 0, a, u);
-		if(warnings) {
-			$alert('Во время загрузки произошли ошибки:' + warnings, 'imgload', false);
-		} else {
-			$del($id('de-alert-imgload'));
-		}
-		Images_.queue = tar = warnings = count = current = imgOnly = null;
+		$del($id('de-alert-filesload'));
+		Images_.queue = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
 	els = aProto.slice.call(getImages($q('[de-form]', dc)));
 	count += els.length;
@@ -2931,11 +2929,8 @@ function loadDocFiles(imgOnly) {
 			Images_.queue.run([url, lnk.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, lnk]);
 		}
 	});
-	if(imgOnly) {
-		$alert(Lng.loadImage[lang] + '1/' + count, 'imgload', true);
-	} else {
+	if(!imgOnly) {
 		files = [];
-		$alert('Загружается файл ' + '1/' + count, 'imgload', true);
 		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"], #de-main > div, #de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
@@ -2974,6 +2969,11 @@ function loadDocFiles(imgOnly) {
 			count++;
 		}.bind(new RegExp('^\\/\\/?|^https?:\\/\\/([^\\/]*\.)?' + regQuote(aib.dm) + '\\/', 'i')));
 	}
+	$alert((imgOnly ? Lng.loadImage[lang] : Lng.loadFile[lang]) +
+		'<br><progress id="de-loadprogress" value="0" max="' + count + '"></progress> <span>1</span>/' +
+		count, 'filesload', true);
+	progress = $id('de-loadprogress');
+	counter = progress.nextElementSibling;
 	Images_.queue.complete();
 	els = null;
 }
