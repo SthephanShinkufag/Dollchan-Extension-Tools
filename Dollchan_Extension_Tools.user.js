@@ -3694,7 +3694,7 @@ Spells.prototype = {
 		},
 		// 7: #trip
 		function spell_trip(post, val) {
-			var pTrip = post.posterName;
+			var pTrip = post.posterTrip;
 			return pTrip ? !val || pTrip.contains(val) : false;
 		},
 		// 8: #img
