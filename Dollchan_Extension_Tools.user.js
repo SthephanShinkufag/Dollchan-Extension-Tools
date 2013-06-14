@@ -2161,6 +2161,7 @@ function initKeyNavig() {
 		tScroll = true,
 		cPost = null,
 		cThread = firstThr,
+		selPost = null,
 		winHeight = window.innerHeight;
 
 	function getNextPost(post, toUp, isPost) {
@@ -2201,19 +2202,20 @@ function initKeyNavig() {
 			window.scrollTo(0, toTop ? post.offsetTop : post.offsetTop - winHeight / 2 +
 				post.el.clientHeight / 2);
 		}
-		if(tempEl = $c('de-selected', doc)) {
-			tempEl.classList.remove('de-selected');
+		if(selPost) {
+			selPost.classList.remove('de-selected');
 		}
+		selPost = post.el;
 		if(isPost) {
 			pScroll = true;
 			if(post.isOp) {
-				post.thr.el.classList.add('de-selected');
+				selPost = post.thr.el;
 				return post;
 			}
 		} else {
 			tScroll = true;
 		}
-		post.el.classList.add('de-selected');
+		selPost.classList.add('de-selected');
 		return post;
 	}
 
@@ -2222,18 +2224,21 @@ function initKeyNavig() {
 			cPost.el.clientHeight / 2, false);
 	}
 
-	window.onscroll = function() {
+	window.addEventListener('scroll', function() {
 		if(scrScroll) {
 			scrScroll = false;
 		} else {
 			pScroll = true;
 			tScroll = true;
 		}
-	};
+	}, false);
 
-	window.onresize = function() {
+	window.addEventListener('resize', function() {
 		winHeight = window.innerHeight;
-	};
+		firstThr.forAll(function(post) {
+			delete post.offsetTop;
+		});
+	}, false);
 
 	doc.addEventListener('keydown', function(e) {
 		var pyOffset, curTh = e.target.tagName,
@@ -6148,7 +6153,9 @@ Post.prototype = {
 		return val;
 	},
 	get offsetTop() {
-		return this.el.getBoundingClientRect().top + window.pageYOffset;
+		var val = this.el.getBoundingClientRect().top + window.pageYOffset;
+		Object.defineProperty(this, 'offsetTop', { configurable: true, value: val });
+		return val;
 	},
 	get ref() {
 		var val = [];
