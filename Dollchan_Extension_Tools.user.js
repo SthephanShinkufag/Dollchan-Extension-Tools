@@ -4208,13 +4208,13 @@ Spells.prototype = {
 						newSpells.push([parensSpells[0][0],
 							(parensSpells[0][1] | (flags & 0x200)) ^ (flags & 0x100)]);
 					} else {
-						newSpells.push([flags, temp]);
+						newSpells.push([flags, parensSpells]);
 					}
 					continue;
 				}
 			} else {
 				scope = spell[2];
-				if(!scope || (scope[0] === brd && scope[1] === -1 ? TNum : !scope[1] || scope[1] === TNum)) {
+				if(!scope || (scope[0] === brd && (scope[1] === -1 ? TNum : (!scope[1] || scope[1] === TNum)))) {
 					if(type === 12) {
 						neg = !neg;
 					} else {
@@ -4250,12 +4250,8 @@ Spells.prototype = {
 				}
 				return newSpells.length === 1 && newSpells[0][0] === 0xFF ? newSpells[0][1] : newSpells;
 			}
-			if((flags & 0x200) !== 0) {
-				if(!neg) {
-					return null;
-				}
-			} else if(neg) {
-				return [[12, '']];
+			if(((flags & 0x200) !== 0) ^ neg) {
+				return neg ? [[12, '']] : null;
 			}
 		}
 		return newSpells.length === 0 ? null : newSpells.length === 1 && newSpells[0][0] === 0xFF ?
