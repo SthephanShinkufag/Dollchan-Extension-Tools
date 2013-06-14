@@ -4439,8 +4439,6 @@ Spells.prototype = {
 		} else if(rv) {
 			temp = ctx.pop();
 			ctx[1].call(post, this._getMsg(ctx.pop()[temp - 1]));
-		} else if(ctx[2]) {
-			ctx[2].call(post);
 		}
 		this._asyncWrk--;
 		this._endAsync();
@@ -4492,8 +4490,6 @@ Spells.prototype = {
 			}
 			if(rv) {
 				ctx[1].call(post, this._getMsg(scope[i]));
-			} else if(ctx[2]) {
-				ctx[2].call(post);
 			}
 			return false;
 		}
@@ -4638,7 +4634,10 @@ Spells.prototype = {
 	setSpells: function(spells, sync) {
 		this.update(spells, sync, Cfg['hideBySpell']);
 		if(Cfg['hideBySpell']) {
-			firstThr.forAll(hideBySpells);
+			firstThr.forAll(function(post) {
+				this.check(post, post.hide);
+				return false;
+			}.bind(this));
 		} else {
 			this.enable = false;
 		}
@@ -4651,12 +4650,8 @@ Spells.prototype = {
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
 	},
-	check: function(post, hFunc, nhFunc) {
-		if(!this.enable) {
-			if(post.hidden && nhFunc) {
-				nhFunc();
-			}
-		} else if(this._check(post, [0, hFunc, nhFunc, this._sLength, this._spells, 0])) {
+	check: function(post, hFunc) {
+		if(this.enable && this._check(post, [0, hFunc, this._sLength, this._spells, 0])) {
 			this._asyncWrk++;
 		}
 	},
@@ -4715,16 +4710,11 @@ Spells.prototype = {
 	}
 };
 
-function hideBySpells(post) {
-	spells.check(post, post.hide, post.unhide);
-	return false;
-}
-
 function disableSpells() {
 	closeAlert($id('de-alert-help-err-spell'));
 	if(spells.haveSpells) {
 		firstThr.forAll(function(post) {
-			spells.check(post, post.unhide, false);
+			spells.check(post, post.unhide);
 			return false;
 		});
 	}
@@ -4762,7 +4752,10 @@ function addSpell(type, arg, isNeg) {
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
-			firstThr.forAll(hideBySpells);
+			firstThr.forAll(function(post) {
+				spells.check(post, post.hide);
+				return false;
+			});
 		} else {
 			saveCfg('spells', '');
 			spells.enable = false;
@@ -6122,13 +6115,15 @@ Post.prototype = {
 			}
 		}
 		if(len > 0) {
-			Object.defineProperty(data, '$first', { value: data[els[0].src] });
-			Object.defineProperty(data, '$firstSrc', { value: els[0].src });
+			Object.defineProperties(data, {
+				'$first': { value: data[els[0].src] },
+				'$firstSrc': { value: els[0].src }
+			});
 		}
 		Object.defineProperty(this, 'imagesData', { value: data });
 		return data;
 	},
-	init: function(offset, prev, thr) {
+	init: function(offset, prev) {
 		var el = this.el;
 		el.post = this;
 		this.index = offset + this.count;
@@ -6139,11 +6134,8 @@ Post.prototype = {
 		}
 		this._addButtons(el, this.num, this.sage, this.isOp);
 		this._checkVisib(this.num, this.index, this.isOp, this.thr);
-		if(!this.hidden && Cfg['expandPosts'] === 1) {
-			var node = this.trunc;
-			if(node) {
-				this._getFull(node, false);
-			}
+		if(!this.hidden && Cfg['expandPosts'] === 1 && this.trunc) {
+			this._getFull(this.trunc, false);
 		}
 		el.addEventListener('click', this, true);
 		el.addEventListener('mouseover', this, true);
@@ -6318,7 +6310,7 @@ Post.prototype = {
 		this.ref.forEach(function(num) {
 			var pst = pByNum[num];
 			if(pst && !uVis[num]) {
-				if(sVis[pst.index] !== 0) {
+				if(sVis[pst.index] !== 0 && pst.hidden) {
 					pst.setVisib(false, null);
 				}
 				pst.unhideRefs();
@@ -6337,21 +6329,23 @@ Post.prototype = {
 	},
 	updateMsg: function(fullPost) {
 		var origMsg = aib.hana ? this.msg.firstElementChild : this.msg,
-			repMsg = aib.hana ? $q('.alternate > div', this.el)
-				: doc.importNode($q(aib.qMsg, fullPost), true),
+			newMsg = replacePost(aib.hana ? $q('.alternate > div', this.el)
+				: doc.importNode($q(aib.qMsg, fullPost), true)),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
-		origMsg.parentNode.replaceChild(replacePost(repMsg), origMsg);
-		Object.defineProperty(this, 'trunc', { configurable: true, value: null });
+		origMsg.parentNode.replaceChild(newMsg, origMsg);
+		Object.defineProperties(this, {
+			'msg': { configurable: true, value: newMsg },
+			'trunc': { configurable: true, value: null }
+		});
 		delete this.html;
-		delete this.msg;
 		delete this.text;
-		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', this.msg), false);
+		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', newMsg), false);
 		if(ytExt) {
-			this.msg.appendChild(ytExt);
+			newMsg.appendChild(ytExt);
 		}
 		this.addFuncs();
-		spells.check(this, this.hide, null);
+		spells.check(this, this.hide);
 	},
 	get wrap() {
 		var val = aib.getWrap(this);
@@ -6601,7 +6595,7 @@ Post.prototype = {
 				sVis[i] = 1;
 				spells.check(this, function(note) {
 					sVis[this.index] = 0;
-				}, null);
+				});
 			}
 			return;
 		}
@@ -7200,7 +7194,7 @@ Thread.prototype = {
 				spells.check(post, function(msg) {
 					this.hide(msg);
 					hPosts++;
-				}, null);
+				});
 			}
 			this.gInfo.hPosts = [];
 		}
