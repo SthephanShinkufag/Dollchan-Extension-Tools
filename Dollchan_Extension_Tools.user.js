@@ -2161,8 +2161,7 @@ function initKeyNavig() {
 		tScroll = true,
 		cPost = null,
 		cThread = firstThr,
-		selPost = null,
-		winHeight = window.innerHeight;
+		selPost = null;
 
 	function getNextPost(post, toUp, isPost) {
 		var thr, tPost = toUp ? post.prev : post.next;
@@ -2199,7 +2198,7 @@ function initKeyNavig() {
 			break;
 		}
 		if(scroll) {
-			window.scrollTo(0, toTop ? post.offsetTop : post.offsetTop - winHeight / 2 +
+			window.scrollTo(0, toTop ? post.offsetTop : post.offsetTop - Post.sizing.wHeight / 2 +
 				post.el.clientHeight / 2);
 		}
 		if(selPost) {
@@ -2220,7 +2219,7 @@ function initKeyNavig() {
 	}
 
 	function scrollDownToPost() {
-		cPost = scrollToPost(cPost, false, cPost.isOp || cPost.offsetTop > winHeight / 2 -
+		cPost = scrollToPost(cPost, false, cPost.isOp || cPost.offsetTop > Post.sizing.wHeight / 2 -
 			cPost.el.clientHeight / 2, false);
 	}
 
@@ -2231,13 +2230,6 @@ function initKeyNavig() {
 			pScroll = true;
 			tScroll = true;
 		}
-	}, false);
-
-	window.addEventListener('resize', function() {
-		winHeight = window.innerHeight;
-		firstThr.forAll(function(post) {
-			delete post.offsetTop;
-		});
 	}, false);
 
 	doc.addEventListener('keydown', function(e) {
@@ -5852,6 +5844,47 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 	}
 	return false;
 };
+Post.sizing = {
+	get wHeight() {
+		var val = window.innerHeight;
+		if(!this._enabled) {
+			window.addEventListener('resize', this, false);
+			this._enabled = true;
+		}
+		Object.defineProperty(this, 'wHeight', { writable: true, value: val });
+		return val;
+	},
+	get wWidth() {
+		var val = doc.documentElement.clientWidth;
+		if(!this._enabled) {
+			window.addEventListener('resize', this, false);
+			this._enabled = true;
+		}
+		Object.defineProperty(this, 'wWidth', { writable: true, value: val });
+		return val;
+	},
+	getOffset: function(el) {
+		return el.parentNode.getBoundingClientRect().left + window.pageXOffset + 25;
+	},
+	getCachedOffset: function(pCount, el) {
+		pCount = Math.min(pCount, 5);
+		if(pCount in this._iOffsets) {
+			return this._iOffsets[pCount];
+		}
+		return this._iOffsets[pCount] = this.getOffset(el);
+	},
+	handleEvent: function() {
+		this.wHeight = window.innerHeight;
+		this.wWidth = doc.documentElement.clientWidth;
+		firstThr.forAll(function(post) {
+			delete post.offsetTop;
+			return false;
+		});
+	},
+
+	_enabled: false,
+	_iOffsets: []
+};
 Post.prototype = {
 	deleted: false,
 	hasRef: false,
@@ -6360,43 +6393,6 @@ Post.prototype = {
 		return val;
 	},
 
-	_glob: {
-		handleEvent: function() {
-			this.wHeight = window.innerHeight;
-			this.wWidth = doc.documentElement.clientWidth;
-		},
-		get wHeight() {
-			var val = window.innerHeight;
-			if(!this._eventAdded) {
-				window.addEventListener('resize', this, false);
-				this._eventAdded = true;
-			}
-			Object.defineProperty(this, 'wHeight', { writable: true, value: val });
-			return val;
-		},
-		get wWidth() {
-			var val = doc.documentElement.clientWidth;
-			if(!this._eventAdded) {
-				window.addEventListener('resize', this, false);
-				this._eventAdded = true;
-			}
-			Object.defineProperty(this, 'wWidth', { writable: true, value: val });
-			return val;
-		},
-		getOffset: function(el) {
-			return el.parentNode.getBoundingClientRect().left + window.pageXOffset + 25;
-		},
-		getCachedOffset: function(pCount, el) {
-			if(pCount < 5) {
-				return this._iOffsets[pCount] || (this._iOffsets[pCount] = this.getOffset(el));
-			} else {
-				return this._iOffsets[5] || (this._iOffsets[5] = this.getOffset(el));
-			}
-		},
-
-		_eventAdded: false,
-		_iOffsets: []
-	},
 	_isPview: false,
 	_linkDelay: 0,
 	_menu: null,
@@ -6426,10 +6422,10 @@ Post.prototype = {
 		this.btns = ref.nextSibling;
 	},
 	_addFullImage: function(el, data, inPost, isFast) {
-		var elMove, elStop, newW, newH, srcH, scrW = this._glob.wWidth;
+		var elMove, elStop, newW, newH, srcH, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			el.style.display = 'none';
-			scrW -= isFast ? this._glob.getCachedOffset(this.count, el) : this._glob.getOffset(el);
+			scrW -= isFast ? Post.sizing.getCachedOffset(this.count, el) : Post.sizing.getOffset(el);
 		} else {
 			$del($c('de-img-center', doc));
 		}
@@ -6437,7 +6433,7 @@ Post.prototype = {
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
-		} else if(newH > (scrH = this._glob.wHeight)) {
+		} else if(newH > (scrH = Post.sizing.wHeight)) {
 			newH = scrH;
 			newW = newH * data.width / data.height;
 		}
