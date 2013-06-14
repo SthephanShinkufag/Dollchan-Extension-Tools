@@ -3318,7 +3318,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 		queue && queue.complete();
 	}
-	
+
 	if(embedType === 0) {
 		return {
 			parseLinks: emptyFn,
@@ -5789,7 +5789,7 @@ function embedImagesLinks(el) {
 		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '" alt="' + a.href + '">';
 		$before(link, a);
 	}
-} 
+}
 
 
 //============================================================================================================
@@ -5971,7 +5971,7 @@ Post.prototype = {
 				toggleFavorites(this, el);
 				return;
 			case 'de-btn-hide':
-			case 'de-btn-hide-user': 
+			case 'de-btn-hide-user':
 				this.toggleUserVisib();
 				$del(this._menu);
 				this._menu = null;
@@ -6470,11 +6470,11 @@ Post.prototype = {
 				el.curY = e.clientY - parseInt(el.style.top, 10);
 				$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
 			};
-		} 
+		}
 	},
 	_addMenu: function(el, type) {
 		var html, cr = el.getBoundingClientRect(),
-			isLeft = false, 
+			isLeft = false,
 			className = 'de-menu ' + aib.cReply,
 			xOffset = window.pageXOffset;
 		switch(type) {
@@ -8071,7 +8071,7 @@ ImageBoard.prototype = {
 		qTable: '',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
-				$q('div[id*="_info"][style*="float"]', doc) ? 
+				$q('div[id*="_info"][style*="float"]', doc) ?
 				'div[id^="t"]:not([style])' : '[id^="thread"]';
 			Object.defineProperty(this, 'qThread', { value: val });
 			return val;
@@ -8696,7 +8696,7 @@ function initThreadUpdater(title, enableUpdater) {
 		var rv = aib.dm + '/' + brd + '/' + TNum + ': ' + np;
 		switch(np % 10) {
 		case 1:
-			if(lang === 0) { 
+			if(lang === 0) {
 				rv += Lng.newPost[lang][np % 100 === 11 ? 2 : 1];
 			} else {
 				rv += Lng.newPost[lang][1];
@@ -8776,7 +8776,7 @@ function initThreadUpdater(title, enableUpdater) {
 	function setState(state) {
 		(stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc))).id = 'de-btn-upd-' + state;
 	}
-	
+
 	function onVis() {
 		if(Cfg['favIcoBlink'] && favHref) {
 			clearInterval(favIntrv);
