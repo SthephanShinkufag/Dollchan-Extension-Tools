@@ -6205,7 +6205,6 @@ Post.prototype = {
 		return val;
 	},
 	setUserVisib: function(hide, date, sync) {
-		var isOp, num = this.num;
 		this.setVisib(hide);
 		this.btns.firstChild.className = 'de-btn-hide-user';
 		if(hide) {
@@ -6214,13 +6213,12 @@ Post.prototype = {
 		} else {
 			this.unhideRefs();
 		}
-		uVis[num] = [+!hide, date];
+		uVis[this.num] = [+!hide, date];
 		if(sync) {
-			isOp = this.isOp;
 			localStorage['__de-post'] = JSON.stringify({
 				'brd': brd,
 				'date': date,
-				'isOp': isOp,
+				'isOp': this.isOp,
 				'num': this.num,
 				'hide': hide
 			});
