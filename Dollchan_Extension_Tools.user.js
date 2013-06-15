@@ -1400,7 +1400,7 @@ function showContent(cont, id, name, isUpd) {
 								'date': date,
 								'isOp': true,
 								'num': arr[1],
-								'title': ''
+								'hide': false
 							});
 							localStorage.removeItem('__de-post');
 						}
@@ -5811,14 +5811,14 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 		$del(post.note);
 		post.note = null;
 		if(sVis[post.index] !== 0) {
-			post.setVisib(false, null);
+			post.setVisib(false);
 		}
 		if(uVis[i = post.num]) {
 			delete uVis[i];
 		}
 	} else {
 		post.setUserVisib(true, date, true);
-		post._addNote('similar to >>' + oNum);
+		post.note = 'similar to >>' + oNum;
 	}
 	return false;
 };
@@ -6087,12 +6087,11 @@ Post.prototype = {
 			return;
 		}
 		sVis[this.index] = 0;
-		if(this.hidden) {
-			$del(this.note);
-			this._addNote(note);
-		} else {
-			this._doHide(note);
+		if(!this.hidden) {
+			this.hideRefs();
 		}
+		this.setVisib(true);
+		this.note = note;
 	},
 	hideRefs: function() {
 		if(!Cfg['hideRefPsts'] || !this.hasRef) {
@@ -6101,7 +6100,9 @@ Post.prototype = {
 		this.ref.forEach(function(num) {
 			var pst = pByNum[num];
 			if(pst && !uVis[num]) {
-				pst._doHide('reference to >>' + this.num);
+				pst.setVisib(true);
+				pst.note = 'reference to >>' + this.num;
+				pst.hideRefs();
 			}
 		}, this);
 	},
@@ -6163,6 +6164,21 @@ Post.prototype = {
 		Object.defineProperty(this, 'msg', { configurable: true, value: val });
 		return val;
 	},
+	set note(val) {
+		if(this.isOp) {
+			if(this.hidden) {
+				this.noteEl.innerText = val ? 'autohide: ' + val : this.title;
+			}
+		} else if(!Cfg['delHiddPost']) {
+			this.noteEl.innerText = val ? 'autohide: ' + val : '';
+		}
+	},
+	get noteEl() {
+		this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
+		var val = this.btns.lastChild;
+		Object.defineProperty(this, 'noteEl', { configurable: this.isOp, value: val });
+		return val;
+	},
 	get offsetTop() {
 		var val = this.el.getBoundingClientRect().top + window.pageYOffset;
 		Object.defineProperty(this, 'offsetTop', { configurable: true, value: val });
@@ -6190,9 +6206,10 @@ Post.prototype = {
 	},
 	setUserVisib: function(hide, date, sync) {
 		var isOp, num = this.num;
-		this.setVisib(hide, null);
+		this.setVisib(hide);
 		this.btns.firstChild.className = 'de-btn-hide-user';
 		if(hide) {
+			this.note = '';
 			this.hideRefs();
 		} else {
 			this.unhideRefs();
@@ -6205,29 +6222,24 @@ Post.prototype = {
 				'date': date,
 				'isOp': isOp,
 				'num': this.num,
-				'title': hide ? isOp ? this.title : '1' : ''
+				'hide': hide
 			});
 			localStorage.removeItem('__de-post');
 		}
 	},
-	setVisib: function(hide, note) {
-		var el, a, num, tEl, thr;
+	setVisib: function(hide) {
+		var el, a, tEl;
+		if(this.hidden === hide) {
+			return;
+		}
 		if(this.isOp) {
-			thr = this.thr;
-			tEl = thr.el;
+			this.hidden = this.thr.hidden = hide;
+			tEl = this.thr.el;
 			tEl.style.display = hide ? 'none' : '';
-			this.hidden = thr.hidden = hide;
-			el = $id('de-thr-hid-' + (num = this.num));
-			if(!hide && el) {
-				$del(el);
-			}
-			if(hide && !el) {
+			if(hide) {
 				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
-					' de-thr-hid" id="de-thr-hid-' + num + '">' + Lng.hiddenThrd[lang] +
-					' <a href="#">№' + num + '</a><i> (' + (
-						note ? 'autohide: ' + note :
-							this.title.replace(/</g, '&lt;').replace(/>/g, '&gt;')
-					) + ')</i></div>');
+					' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] +
+					' <a href="#">№' + this.num + '</a><i> (<span class="de-thread-note"></span>)</i></div>');
 				a = $t('a', el = tEl.previousSibling);
 				a.onclick = function(e) {
 					$pd(e);
@@ -6239,6 +6251,10 @@ Post.prototype = {
 				el.onmouseout = function() {
 					this.style.display = 'none';
 				}.bind(tEl);
+				Object.defineProperty(this, 'noteEl', { configurable: true, value: $c('de-thread-note', el) });
+			} else {
+				delete this.noteEl;
+				$del($id('de-thr-hid-' + this.num));
 			}
 			return;
 		}
@@ -6251,15 +6267,8 @@ Post.prototype = {
 				$del(this.wrap.previousSibling);
 			}
 		} else {
-			if(el = this.note) {
-				if(!hide) {
-					$del(el);
-					this.note = null;
-				} else if(note) {
-					el.innerText = 'autohide: ' + note;
-				}
-			} else if(hide) {
-				this._addNote(note);
+			if(!hide) {
+				this.note = '';
 			}
 			this._pref.onmouseover = hide && function() {
 				getPostEl(this).post.toggleContent(false);
@@ -6343,7 +6352,7 @@ Post.prototype = {
 			var pst = pByNum[num];
 			if(pst && !uVis[num]) {
 				if(sVis[pst.index] !== 0 && pst.hidden) {
-					pst.setVisib(false, null);
+					pst.setVisib(false);
 				}
 				pst.unhideRefs();
 			}
@@ -6354,10 +6363,8 @@ Post.prototype = {
 			return;
 		}
 		sVis[this.index] = 1;
-		this.setVisib(false, null);
+		this.setVisib(false);
 		this.unhideRefs();
-		$del(this.note);
-		this.note = null;
 	},
 	updateMsg: function(fullPost) {
 		var origMsg = aib.hana ? this.msg.firstElementChild : this.msg,
@@ -6577,15 +6584,6 @@ Post.prototype = {
 			this.kid = new Pview(this, link, tNum, pNum);
 		}
 	},
-	_addNote: function(note) {
-		if(note) {
-			this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note">autohide: ' +
-				note + '</span>');
-			this.note = this.btns.lastChild;
-		} else {
-			this.note = null;
-		}
-	},
 	_checkVisib: function(num, i, isOp, thr) {
 		var vis = sVis[i];
 		if(uVis[num]) {
@@ -6614,7 +6612,7 @@ Post.prototype = {
 			}
 		}
 		if(vis === '0') {
-			this._doHide(null);
+			this.setVisib(true);
 		} else if(vis !== '1') {
 			sVis[i] = 1;
 			thr.gInfo.hPosts.push(this);
@@ -6718,10 +6716,6 @@ Post.prototype = {
 				this._menu = null;
 			}.bind(this), 75);
 		}
-	},
-	_doHide: function(note) {
-		this.setVisib(true, note);
-		this.hideRefs();
 	},
 	_eventRefLinkOut: function(e) {
 		var rt = e.relatedTarget,
@@ -7090,7 +7084,8 @@ function genRefMap(posts, tUrl) {
 	if(Cfg['linksNavig'] !== 2) {
 		return;
 	}
-	var tc, lNum, post, ref, i, len, links, pNum, opNums = firstThr.tNums;
+	var tc, lNum, post, ref, i, len, links, pNum, hideRefs = !!Cfg['hideRefPsts'],
+		opNums = firstThr.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
 			tc = links[i].textContent;
@@ -7100,6 +7095,12 @@ function genRefMap(posts, tUrl) {
 				if(ref.indexOf(pNum) === -1) {
 					ref.push(pNum);
 					post.hasRef = true;
+					if(hideRefs && post.hidden) {
+						post = posts[pNum];
+						post.setVisib(true);
+						post.note = 'reference to >>' + lNum;
+						post.hideRefs();
+					}
 				}
 				if(opNums.indexOf(lNum) !== -1) {
 					links[i].classList.add('de-opref');
@@ -8394,7 +8395,7 @@ function Initialization() {
 			} catch(e) {
 				return;
 			}
-			temp = !!data['title'];
+			temp = data['hide'];
 			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
 				post.setUserVisib(temp, data['date'], false);
 			} else {
@@ -8817,7 +8818,7 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function removePlayingTag() {
-		aPlayers = Math.max(aPlayers - 1, 0);;
+		aPlayers = Math.max(aPlayers - 1, 0);
 		if(aPlayers === 0) {
 			setTitle(_title);
 		}
