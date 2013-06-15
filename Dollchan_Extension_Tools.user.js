@@ -4844,6 +4844,7 @@ function scriptCSS() {
 
 	// Post panel
 	x += '.de-ppanel { margin-left: 4px; }\
+		.de-thread-note { font-style: italic; }\
 		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 		.de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-fav, .de-btn-fav-sel, .de-btn-src, .de-btn-expthr, .de-btn-sage { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(!Cfg['postBtnsTxt']) {
@@ -6166,17 +6167,20 @@ Post.prototype = {
 	},
 	set note(val) {
 		if(this.isOp) {
-			if(this.hidden) {
-				this.noteEl.innerText = val ? 'autohide: ' + val : this.title;
-			}
+			this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
 		} else if(!Cfg['delHiddPost']) {
-			this.noteEl.innerText = val ? 'autohide: ' + val : '';
+			this.noteEl.textContent = val ? 'autohide: ' + val : '';
 		}
 	},
 	get noteEl() {
-		this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
-		var val = this.btns.lastChild;
-		Object.defineProperty(this, 'noteEl', { configurable: this.isOp, value: val });
+		var val;
+		if(this.isOp) {
+			val = this.thr.el.previousElementSibling.lastChild;
+		} else {
+			this.btns.insertAdjacentHTML('beforeend', '<span class="de-post-note"></span>');
+			val = this.btns.lastChild;
+		}
+		Object.defineProperty(this, 'noteEl', { value: val });
 		return val;
 	},
 	get offsetTop() {
@@ -6234,10 +6238,13 @@ Post.prototype = {
 			this.hidden = this.thr.hidden = hide;
 			tEl = this.thr.el;
 			tEl.style.display = hide ? 'none' : '';
-			if(hide) {
+			el = $id('de-thr-hid-' + this.num);
+			if(el) {
+				el.style.display = hide ? '' : 'none';
+			} else {
 				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
 					' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] +
-					' <a href="#">№' + this.num + '</a><i> (<span class="de-thread-note"></span>)</i></div>');
+					' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
 				a = $t('a', el = tEl.previousSibling);
 				a.onclick = function(e) {
 					$pd(e);
@@ -6247,12 +6254,10 @@ Post.prototype = {
 					this.style.display = '';
 				}.bind(tEl);
 				el.onmouseout = function() {
-					this.style.display = 'none';
-				}.bind(tEl);
-				Object.defineProperty(this, 'noteEl', { configurable: true, value: $c('de-thread-note', el) });
-			} else {
-				delete this.noteEl;
-				$del($id('de-thr-hid-' + this.num));
+					if(this.hidden) {
+						this.thr.el.style.display = 'none';
+					}
+				}.bind(this);
 			}
 			return;
 		}
