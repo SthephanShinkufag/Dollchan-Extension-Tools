@@ -1866,6 +1866,7 @@ function getCfgCommon() {
 			addEditButton('css', Cfg['userCSSTxt'], false, function() {
 				saveCfg('userCSSTxt', this.value);
 				updateCSS();
+				toggleContent('cfg', true);
 			})
 		]),
 		lBox('attachPanel', true, function() {
