@@ -638,45 +638,60 @@ function $xhr(obj) {
 /** @constructor */
 function $queue(maxNum, Fn, endFn) {
 	this.array = [];
-	this.length = 0;
+	this.length = this.index = this.running = 0;
+	this.num = 1;
 	this.fn = Fn;
 	this.endFn = endFn;
-	this.mNum = maxNum;
-	this.cNum = 0;
-	this.completed = this.stopped = false;
+	this.max = maxNum;
+	this.freeSlots = [];
+	while(maxNum--) {
+		this.freeSlots.push(maxNum);
+	}
+	this.completed = this.paused = false;
 }
 $queue.prototype = {
 	run: function(data) {
-		if(!this.stopped) {
-			var num = this.cNum;
-			if(num === this.mNum) {
-				this.array.push(data);
-				this.length++;
-			} else {
-				this.cNum++;
-				this.fn(num, data);
-			}
+		if(this.paused || this.freeSlots.length === 0) {
+			this.array.push(data);
+			this.length++;
+		} else {
+			this.fn(this.freeSlots.pop(), this.num++, data);
+			this.running++;
 		}
 	},
-	end: function() {
-		this.cNum--;
-		if(this.length !== 0) {
-			this.length--;
-			this.run(this.array.splice(0, 1)[0]);
-		} else if(this.completed && this.cNum <= 0) {
+	end: function(qIdx) {
+		if(!this.paused && this.index < this.length) {
+			this.fn(qIdx, this.num++, this.array[this.index++]);
+			return;
+		}
+		this.running--;
+		this.freeSlots.push(qIdx);
+		if(!this.paused && this.completed && this.running === 0) {
 			this.endFn();
 		}
 	},
 	complete: function() {
-		if((this.length | this.cNum) === 0) {
+		if(this.index >= this.length) {
 			this.endFn();
 		} else {
 			this.completed = true;
 		}
 	},
-	stop: function() {
-		this.completed = this.stopped = true;
-		this.cNum = this.length = 0;
+	pause: function() {
+		this.paused = true;
+	},
+	'continue': function() {
+		this.paused = false;
+		if(this.index >= this.length) {
+			if(this.completed) {
+				this.endFn();
+			}
+			return;
+		}
+		while(this.index < this.length && this.freeSlots.length !== 0) {
+			this.fn(this.freeSlots.pop(), this.num++, this.array[this.index++]);
+			this.running++;
+		}
 	}
 };
 
@@ -2680,14 +2695,14 @@ function workerQueue(mReqs, wrkFn, errFn) {
 	this.url = window.URL.createObjectURL(new Blob([
 		'var fn = ' + String(wrkFn) + ';\
 		self.onmessage = function(e) {\
-			var info = fn(e.data);\
-			self.postMessage(info, info.data ? [info.data] : null);\
+			var info = fn(e.data[1]);\
+			self.postMessage([e.data[0], info], info.data ? [info.data] : null);\
 		}'
 	], {'type': 'text/javascript'}));
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.find = this._findWrk;
 	this.wrks = [];
-	this.onErr = this._onErr.bind(this, errFn);
+	this.errFn = errFn;
 	while(mReqs > 0) {
 		this.wrks.push(new nav.Worker(this.url));
 		mReqs--;
@@ -2698,21 +2713,21 @@ workerQueue.prototype = {
 		Fn(this(data));
 	},
 	onMess: function(Fn, e) {
-		this.queue.end();
-		Fn(e.data);
+		this.queue.end(e.data[0]);
+		Fn(e.data[1]);
 	},
-	_onErr: function(Fn, e) {
-		this.queue.end();
-		Fn(e);
+	onErr: function(qIdx, e) {
+		this.queue.end(qIdx);
+		this.errFn(e);
 	},
 	_findWrk: function(data, Fn) {
 		this.queue.run([data, this.onMess.bind(this, Fn)]);
 	},
-	_createWrk: function(num, data) {
-		var w = this.wrks[num];
+	_createWrk: function(qIdx, num, data) {
+		var w = this.wrks[qIdx];
 		w.onmessage = data[1];
-		w.onerror = this.onErr;
-		w.postMessage(data[0], [data[0]]);
+		w.onerror = this.onErr.bind(this, qIdx);
+		w.postMessage([qIdx, data[0]], [data[0]]);
 	},
 	clear: function() {
 		this.wrks = null;
@@ -2801,8 +2816,8 @@ function preloadImages(post) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		});
 	if(Cfg['preLoadImgs']) {
-		queue = new $queue(mReqs, function(num, dat) {
-			downloadImgData(dat[0], function(data) {
+		queue = new $queue(mReqs, function(qIdx, num, dat) {
+			downloadImgData(dat[0], function(idx, data) {
 				if(data) {
 					var a = this[1];
 					a.href = window.URL.createObjectURL(new Blob([data], {'type': this[2]}));
@@ -2813,12 +2828,12 @@ function preloadImages(post) {
 						rjf.find(data.buffer, addImgFileIcon.bind(a));
 					}
 				}
-				queue.end();
+				queue.end(idx);
 				if(Images_.progressId) {
 					$alert(Lng.loadImage[lang] + cImg + '/' + len, Images_.progressId, true);
 				}
 				cImg++;
-			}.bind(dat));
+			}.bind(dat, qIdx));
 		}, function() {
 			Images_.preloading = false
 			if(Images_.afterpreload) {
@@ -2871,8 +2886,8 @@ function loadDocFiles(imgOnly) {
 		warnings = '',
 		tar = new $tar(),
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	Images_.queue = new $queue(4, function(num, dat) {
-		downloadImgData(dat[0], function(data) {
+	Images_.queue = new $queue(4, function(qIdx, num, dat) {
+		downloadImgData(dat[0], function(idx, data) {
 			var name = this[1].replace(/[\\\/:*?"<>|]/g, '_'), el = this[2];
 			progress.value = current;
 			counter.innerHTML = current;
@@ -2896,8 +2911,8 @@ function loadDocFiles(imgOnly) {
 			} else {
 				$del(el);
 			}
-			Images_.queue.end();
-		}.bind(dat));
+			Images_.queue.end(idx);
+		}.bind(dat, qIdx));
 	}, function() {
 		var u, a, dt;
 		if(!imgOnly) {
@@ -3204,11 +3219,15 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function getTitleLoader() {
-		var queue = new $queue(8, function(num, data) {
+		var queueEnd, queue = new $queue(4, function(qIdx, num, data) {
+			if(num % 50 === 0) {
+				queue.pause();
+				setTimeout(queue.continue.bind(queue), 3e3);
+			}
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
-				'onreadystatechange': function(xhr) {
+				'onreadystatechange': function(idx, xhr) {
 					if(xhr.readyState === 4) {
 						var text;
 						try {
@@ -3218,15 +3237,16 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 							}
 						} finally {
 							setTitle(this[0], text);
-							queue.end();
+							setTimeout(queueEnd, 150, idx);
 						}
 					}
-				}.bind(data)
+				}.bind(data, qIdx)
 			});
 		}, function() {
 			sessionStorage['de-yt-titles'] = JSON.stringify(titles);
-			queue = null;
-		})
+			queue = queueEnd = null;
+		});
+		queueEnd = queue.end.bind(queue);
 		return queue;
 	}
 
