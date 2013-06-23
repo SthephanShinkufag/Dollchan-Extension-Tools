@@ -5672,6 +5672,10 @@ PostForm.prototype = {
 	},
 	_updateCaptcha: function() {
 		var img, _img;
+		if(aib.fch && !$id('captchaContainer')) {
+			this.cap = this.recap = null;
+			return;
+		}
 		if(this.recap && (img = $id('recaptcha_image'))) {
 			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
 		}
