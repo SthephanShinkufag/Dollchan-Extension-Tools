@@ -5858,7 +5858,7 @@ Post.prototype = {
 			} else if(youTube.embedType > 2) {
 				youTube.addImage(this.ytObj, this.ytInfo = m);
 			}
-		} else if(!link && $q('.de-ytube-link[href*="' + m[1] + '"]', this.msg)) {
+		} else if(!link && $q('.de-ytube-link[href*="v=' + m[1] + '"]', this.msg)) {
 			return;
 		}
 		if(loader && (dataObj = youTube.vData[m[1]])) {
