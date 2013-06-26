@@ -5875,8 +5875,8 @@ Post.prototype = {
 				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 			}
 			this.msg.insertAdjacentHTML('beforeend',
-				'<p class="de-ytube-ext"><a ' + (dataObj[1] ? 'de-author="' + dataObj[1] + '"' : '') +
-					'class="de-ytube-link" href="' + src + '">' + (dataObj[0] || src) + '</a></p>');
+				'<p class="de-ytube-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '"' : '') +
+					'class="de-ytube-link" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 			link = this.msg.lastChild.firstChild;
 		}
 		link.ytInfo = m;
