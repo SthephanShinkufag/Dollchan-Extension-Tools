@@ -2688,7 +2688,7 @@ function detectImgFile(ab) {
 
 /** @constructor */
 function workerQueue(mReqs, wrkFn, errFn) {
-	if(!nav.isWorker) {
+	if(!nav.Worker) {
 		this.find = this._findSync.bind(wrkFn);
 		return;
 	}
@@ -3119,7 +3119,7 @@ dateTime.prototype = {
 //============================================================================================================
 
 function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
-	var titles, regex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+	var vData, regex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
 	function addFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
@@ -3183,8 +3183,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 					'" width="' + width + '" height="' + height + '"></video>';
 				el = el.firstChild;
-				el.addEventListener('play', updater.addPlayingTag);
-				el.addEventListener('pause', updater.removePlayingTag);
+				el.addEventListener('play', updater.addPlayingTag, false);
+				el.addEventListener('pause', updater.removePlayingTag, false);
 				if(time) {
 					el.onloadedmetadata = function(e) {
 						e.target.currentTime = this;
@@ -3210,14 +3210,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
-	function fixEvents(pView, post) {
-		var ytObj = post.ytObj;
-		if(ytObj) {
-			pView.ytObj = [$c('de-ytube-obj', pView.el), ytObj[1]];
-		}
-		updatePost(pView, $C('de-ytube-link', post.el), $C('de-ytube-link', pView.el), true);
-	}
-
 	function getTitleLoader() {
 		var queueEnd, queue = new $queue(4, function(qIdx, num, data) {
 			if(num % 50 === 0) {
@@ -3226,102 +3218,64 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			}
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[1] + '?alt=json&fields=title/text()',
+				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[2] + '?alt=json&fields=title/text(),author/name',
 				'onreadystatechange': function(idx, xhr) {
 					if(xhr.readyState === 4) {
-						var text;
+						var entry, title, author, data, post = this[0], link = this[1];
 						try {
 							if(xhr.status === 200) {
-								text = JSON.parse(xhr.responseText)['entry']['title']['$t'];
-								titles[this[1]] = text;
+								entry = JSON.parse(xhr.responseText)['entry'];
+								title = entry['title']['$t'];
+								author = entry['author'][0]['name']['$t'];
 							}
 						} finally {
-							setTitle(this[0], text);
+							if(title) {
+								link.textContent = title;
+								link.setAttribute('de-author', author);
+								vData[this[2]] = data = [title, author];
+								post.ytData.push(dara);
+								post.ytLinksLoading--;
+								if(post.ytHideFun !== null) {
+									post.ytHideFun(data);
+								}
+							}
 							setTimeout(queueEnd, 150, idx);
 						}
 					}
 				}.bind(data, qIdx)
 			});
 		}, function() {
-			sessionStorage['de-yt-titles'] = JSON.stringify(titles);
+			sessionStorage['de-yt-vdata'] = JSON.stringify(vData);
 			queue = queueEnd = null;
 		});
 		queueEnd = queue.end.bind(queue);
 		return queue;
 	}
 
-	function parseLink(link, m, post, queue) {
-		var msg, prev, el, title;
-		if(!post.ytObj) {
-			el = $new('div', {'class': 'de-ytube-obj'}, null);
-			if(embedType < 2) {
-				post.ytObj = [el, null];
-			} else {
-				post.ytObj = [el, m];
-				if(embedType === 2) {
-					addPlayer(el, m);
-				} else {
-					addImage(el, m);
-				}
-			}
-			if(aib.krau) {
-				msg = post.msg.parentNode;
-				prev = msg.previousElementSibling;
-				$before(prev.hasAttribute('style') ? prev : msg, el);
-			} else {
-				$before(post.msg, el);
-			}
-		}
-		link.href = link.href.replace(/^http:/, 'https:');
-		link.ytInfo = m;
-		link.className = 'de-ytube-link';
-		if(queue) {
-			title = titles[m[1]];
-			if(title) {
-				setTitle(link, title);
-			} else {
-				queue.run([link, m[1]]);
-			}
-		}
-	}
-
 	function parseLinks(post) {
-		var i, els, el, m, src, queue = loadTitles && getTitleLoader();
-		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm); el = els[i++];) {
-			if(!(m = (el.src || el.data).match(regex))) {
-				continue;
+		var i, len, els, el, m, embedTube = [],
+			loader = loadTitles && getTitleLoader();
+		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm), len = els.length; i < len; ++i) {
+			el = els[i];
+			if(m = (el.src || el.data).match(regex)) {
+				embedTube.push(post || getPostEl(el).post, m);
+				$del(el);
 			}
-			src = 'https://www.youtube.com/watch?v=' + m[1];
-			if(m[4] || m[3] || m[2]) {
-				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
-			}
-			(post || getPostEl(el).post).msg.insertAdjacentHTML('beforeend',
-				'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
-			$del(el);
 		}
-		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm); el = els[i++];) {
+		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
+			el = els[i];
 			if(m = el.href.match(regex)) {
-				parseLink(el, m, post || getPostEl(el).post, queue);
+				(post || getPostEl(el).post).addYTubeLink(m, loader, el);
 			}
 		}
-		queue && queue.complete();
-	}
-
-	function setTitle(link, text) {
-		if(text) {
-			link.textContent = text;
-			link.textData = 2;
-		} else {
-			link.textData = 1;
+		for(i = 0, len = embedTube.length; i < len; i += 2) {
+			embedTube[i].addYTubeLink(embedTube[i + 1], loader, null);
 		}
-		if(link.spellFn) {
-			link.spellFn(text);
-			link.spellFn = null;
-		}
+		loader && loader.complete();
 	}
 
 	function updatePost(post, oldLinks, newLinks, cloned) {
-		var i, j, el, link, m, queue = !cloned && loadTitles && getTitleLoader(),
+		var i, j, el, link, m, loader = !cloned && loadTitles && getTitleLoader(),
 			len = newLinks.length;
 		for(i = 0, j = 0; i < len; i++) {
 			el = newLinks[i];
@@ -3330,56 +3284,52 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				el.ytInfo = link.ytInfo;
 				j++;
 			} else if(m = el.href.match(regex)) {
-				parseLink(el, link ? link.ytInfo : m, post, queue);
+				post.addYTubeLink(m, loader, el);
 				j++;
 			}
 		}
-		queue && queue.complete();
+		loader && loader.complete();
 	}
 
 	if(embedType === 0) {
 		return {
 			parseLinks: emptyFn,
-			fixEvents: emptyFn,
 			updatePost: emptyFn,
 			regex: regex
 		};
 	}
 	if(loadTitles) {
-		titles = JSON.parse(sessionStorage['de-yt-titles'] || '{}');
+		vData = JSON.parse(sessionStorage['de-yt-vdata'] || '{}');
 	}
 	return {
 		addImage: addImage,
 		addPlayer: addPlayer,
+		embedType: embedType,
 		parseLinks: parseLinks,
-		fixEvents: fixEvents,
 		updatePost: updatePost,
-		regex: regex
+		regex: regex,
+		vData: vData
 	};
 }
 
 function embedMP3Links(post) {
-	var pst, el, link, src, i, els, len;
+	var el, link, src, i, els, len;
 	if(!Cfg['addMP3']) {
 		return;
 	}
-	for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm), len = els.length; i < len; i++) {
+	for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 		link = els[i];
 		if(link.target !== '_blank' && link.rel !== 'nofollow') {
 			continue;
 		}
 		src = link.href;
-		pst = post || getPostEl(link).post;
-		if(!pst.mp3Obj) {
-			pst.mp3Obj = el = $new('div', {'class': 'de-mp3'}, null);
-			$before(pst.msg, el);
-		}
+		el = (post || getPostEl(link).post).mp3Obj;
 		if(nav.canPlayMP3) {
 			if(!$q('audio[src="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls loop></audio></p>');
+				el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
 				link = el.lastChild.firstChild;
-				link.addEventListener('play', updater.addPlayingTag);
-				link.addEventListener('pause', updater.removePlayingTag);
+				link.addEventListener('play', updater.addPlayingTag, false);
+				link.addEventListener('pause', updater.removePlayingTag, false);
 			}
 		} else {
 			if(!$q('object[FlashVars*="' + src + '"]', el)) {
@@ -3676,10 +3626,36 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
+Spells.YTubeSpell = function spell_youtube(post, val, ctx) {
+	if(!val) {
+		return !!post.hasYTube;
+	}
+	if(!post.hasYTube || !Cfg['YTubeTitles']) {
+		return false;
+	}
+	var i, data, len, isAuthorSpell = typeof val === 'string';
+	for(i = 0, data = post.ytData, len = data.length; i < len; ++i) {
+		if(isAuthorSpell ? val === data[i][1] : val.test(data[i][0])) {
+			return true;
+		}
+	}
+	if(post.ytLinksLoading === 0) {
+		return false;
+	}
+	post.ytHideFun = function(ctx, isASpell, val, data) {
+		if(isASpell ? val === data[1] : val.test(data[0])) {
+			this.ytHideFun = null;
+			spells._continueCheck(this, ctx, true);
+		} else if(post.ytLinksLoading === 0) {
+			spells._continueCheck(this, ctx, false);
+		}
+	}.bind(post, ctx, isAuthorSpell, val);
+	return null;
+};
 Spells.prototype = {
 	names: [
 		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
-		'video', 'wipe', 'num'
+		'video', 'wipe', 'num', 'vauthor'
 	],
 	_funcs: [
 		// 0: #words
@@ -3724,7 +3700,6 @@ Spells.prototype = {
 			if(!val) {
 				return !$isEmpty(iData);
 			}
-		checkImage:
 			for(name in iData) {
 				dat = iData[name];
 				if(temp = val[1]) {
@@ -3748,17 +3723,16 @@ Spells.prototype = {
 						if(w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3]) {
 							return true
 						}
-						continue checkImage;
+						break;
 					case 1:
 						if(w < temp[0] && h < temp[3]) {
 							return true
 						}
-						continue checkImage;
+						break;
 					case 2:
 						if(w > temp[0] && h > temp[3]) {
 							return true
 						}
-						continue checkImage;
 					}
 				}
 			}
@@ -3782,48 +3756,7 @@ Spells.prototype = {
 			return true;
 		},
 		// 13: #video
-		function spell_video(post, val, ctx) {
-			if(!val) {
-				spells._continueCheck(post, ctx, !!post.ytObj, false);
-				return;
-			}
-			if(!post.ytObj || !Cfg['YTubeTitles']) {
-				spells._continueCheck(post, ctx, false, false);
-				return;
-			}
-			var text, i, link, links = $C('de-ytube-link', post.el),
-				len = links.length;
-			post.ytCount = len;
-			for(i = 0; i < len; i++) {
-				link = links[i];
-				if(link.textData === 2) {
-					text = link.textContent;
-					if(text && val.test(text)) {
-						spells._continueCheck(post, ctx, true, false);
-						post.ytCount = null;
-						return;
-					}
-					post.ytCount--;
-				} else if(link.textData === 1) {
-					post.ytCount--;
-				} else {
-					link.spellFn = function(post, val, text) {
-						if(post.ytCount !== null) {
-							if(text && val.test(text)) {
-								spells._continueCheck(post, this, true, true);
-							} else if(--post.ytCount === 0) {
-								post.ytCount = null;
-								spells._continueCheck(post, this, false, true);
-							}
-						}
-					}.bind(ctx, post, val);
-				}
-			}
-			if(post.ytCount === 0) {
-				spells._continueCheck(post, ctx, false, false);
-				post.ytCount = null;
-			}
-		},
+		Spells.YTubeSpell,
 		// 14: #wipe
 		function spell_wipe(post, val) {
 			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = post.text;
@@ -3937,7 +3870,9 @@ Spells.prototype = {
 		// 15: #num
 		function spell_num(post, val) {
 			return Spells.checkArr(val, post.count + 1);
-		}
+		},
+		// 16: #vauthor
+		Spells.YTubeSpell
 	],
 	_toRegExp: function(str, noG) {
 		var l = str.lastIndexOf('/'),
@@ -4105,7 +4040,7 @@ Spells.prototype = {
 				tokens.push([rType, '', opt]);
 				return val[0].length + temp;
 			}
-		// #name, #words
+		// #name, #words, #vauthor
 		default:
 			exp = str.match(/^\((.*?[^\\])\)/);
 			if(!exp) {
@@ -4354,8 +4289,8 @@ Spells.prototype = {
 			}
 			return spell + ')';
 		}
-		// #words, #name, #trip
-		else if(type === 0 || type === 6 || type === 7) {
+		// #words, #name, #trip, #vauthor
+		else if(type === 0 || type === 6 || type === 7 || type === 16) {
 			return spell + '(' + val.replace(/\)/g, '\\)') + ')';
 		} else {
 			return spell + '(' + String(val) + ')';
@@ -4426,7 +4361,7 @@ Spells.prototype = {
 			return this._decompileSpell(type, neg, val, spell[2]);
 		}
 	},
-	_continueCheck: function(post, ctx, val, async) {
+	_continueCheck: function(post, ctx, val) {
 		var temp, rv = this._checkRes(ctx.pop(), val);
 		if(rv === null) {
 			if(this._check(post, ctx)) {
@@ -4440,7 +4375,7 @@ Spells.prototype = {
 		this._endAsync();
 	},
 	_check: function(post, ctx) {
-		var rv, type, temp, deep = ctx[0],
+		var rv, type, val, temp, deep = ctx[0],
 			i = ctx.pop(),
 			scope = ctx.pop(),
 			len = ctx.pop();
@@ -4448,19 +4383,24 @@ Spells.prototype = {
 			if(i < len) {
 				temp = scope[i][0];
 				type = temp & 0xFF;
-				if(type === 0xFF) {
+				switch(type) {
+				case 0xFF:
 					ctx.push(len, scope, i);
 					scope = scope[i][1];
 					len = scope.length;
 					i = 0;
 					deep++;
 					continue;
-				} else if(type === 13) {
+				case 13: // #video
+				case 16: // #vauthor
 					ctx.push(len, scope, i + 1, temp);
 					ctx[0] = deep;
-					this._funcs[type](post, scope[i][1], ctx);
-					return true;
-				} else {
+					val = this._funcs[type](post, scope[i][1], ctx);
+					if(val === null) {
+						return true;
+					}
+					break;
+				default:
 					val = this._funcs[type](post, scope[i][1]);
 				}
 				rv = this._checkRes(temp, val);
@@ -5796,7 +5736,6 @@ function Post(el, thr, num, count) {
 	this.thr = thr;
 	this.count = count;
 	this.num = num;
-	this.dcount = 0;
 	el.setAttribute('de-post', null);
 }
 Post.getWrds = function(text) {
@@ -5884,27 +5823,66 @@ Post.sizing = {
 	_iOffsets: []
 };
 Post.prototype = {
+	dcount: 0,
 	deleted: false,
 	hasRef: false,
+	hasYTube: false,
 	hidden: false,
+	index: 0,
 	inited: false,
 	isOp: false,
 	kid: null,
-	mp3Obj: null,
 	next: null,
 	parent: null,
 	prev: null,
 	viewed: false,
-	ytObj: null,
+	ytHideFun: null,
+	ytInfo: null,
+	ytLinksLoading: 0,
 	addFuncs: function() {
-		var el = this.el;
 		updRefMap(this, true);
 		embedMP3Links(this);
 		if(Cfg['addImgs']) {
-			embedImagesLinks(el);
+			embedImagesLinks(this.el);
 		}
 		if(isExpImg) {
 			this.toggleImages(true);
+		}
+	},
+	addYTubeLink: function(m, loader, link) {
+		var msg, src, dataObj;
+		this.hasYTube = true;
+		if(this.ytInfo === null) {
+			if(youTube.embedType === 2) {
+				youTube.addPlayer(this.ytObj, this.ytInfo = m);
+			} else if(youTube.embedType > 2) {
+				youTube.addImage(this.ytObj, this.ytInfo = m);
+			}
+		}
+		if(loader && (dataObj = youTube.vData[m[1]])) {
+			this.ytData.push(dataObj);
+		}
+		if(link) {
+			link.href = link.href.replace(/^http:/, 'https:');
+			link.className = 'de-ytube-link';
+			if(dataObj) {
+				link.textContent = dataObj[0];
+				link.setAttribute('de-author', dataObj[1]);
+			}
+		} else {
+			src = 'https://www.youtube.com/watch?v=' + m[1];
+			if(m[4] || m[3] || m[2]) {
+				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
+			}
+			this.msg.insertAdjacentHTML('beforeend',
+				'<p class="de-ytube-ext"><a ' + (dataObj[1] ? 'de-author="' + dataObj[1] + '"' : '') +
+					'class="de-ytube-link" href="' + src + '">' + (dataObj[0] || src) + '</a></p>');
+			link = this.msg.lastChild.firstChild;
+		}
+		link.ytInfo = m;
+		if(loader && !dataObj) {
+			this.ytLinksLoading++;
+			loader.run([this, link, m[1]]);
 		}
 	},
 	toggleImages: function(expand) {
@@ -5940,7 +5918,7 @@ Post.prototype = {
 			case 'IMG':
 				if(el.className === 'de-ytube-image') {
 					if(Cfg['addYouTube'] === 3) {
-						youTube.addPlayer(this.ytObj[0], this.ytObj[1]);
+						youTube.addPlayer(this.ytObj, this.ytInfo);
 						$pd(e);
 					}
 				} else if(Cfg['expandImgs'] !== 0) {
@@ -5949,15 +5927,14 @@ Post.prototype = {
 				return;
 			case 'A':
 				if(el.className === 'de-ytube-link') {
-					var m = el.ytInfo,
-						ytObj = this.ytObj;
-					if(ytObj[1] === m) {
-						ytObj[0].innerHTML = '';
-						ytObj[1] = null;
+					var m = el.ytInfo;
+					if(this.ytInfo === m) {
+						this.ytObj.innerHTML = '';
+						this.ytInfo = null;
 					} else if(Cfg['addYouTube'] > 2) {
-						youTube.addImage(ytObj[0], ytObj[1] = m);
+						youTube.addImage(this.ytObj, this.ytInfo = m);
 					} else {
-						youTube.addPlayer(ytObj[0], ytObj[1] = m);
+						youTube.addPlayer(this.ytObj, this.ytInfo = m);
 					}
 					$pd(e);
 				} else {
@@ -6171,13 +6148,19 @@ Post.prototype = {
 		}
 		this._addButtons(el, this.num, this.sage, this.isOp);
 		this._checkVisib(this.num, this.index, this.isOp, this.thr);
-		if(!this.hidden && Cfg['expandPosts'] === 1 && this.trunc) {
+		if(Cfg['expandPosts'] === 1 && this.trunc) {
 			this._getFull(this.trunc, false);
 		}
 		el.addEventListener('click', this, true);
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
 		return this;
+	},
+	get mp3Obj() {
+		var val = $new('div', {'class': 'de-mp3'}, null);
+		$before(this.msg, val);
+		Object.defineProperty(this, 'mp3Obj', { value: val });
+		return val;
 	},
 	get msg() {
 		var val = $q(aib.qMsg, this.el);
@@ -6411,6 +6394,23 @@ Post.prototype = {
 	get wrap() {
 		var val = aib.getWrap(this);
 		Object.defineProperty(this, 'wrap', { value: val });
+		return val;
+	},
+	get ytData() {
+		var val = [];
+		Object.defineProperty(this, 'ytData', { value: val });
+		return val;
+	},
+	get ytObj() {
+		var msg, prev, val = $new('div', {'class': 'de-ytube-obj'}, null);
+		if(aib.krau) {
+			msg = this.msg.parentNode;
+			prev = msg.previousElementSibling;
+			$before(prev.hasAttribute('style') ? prev : msg, val);
+		} else {
+			$before(this.msg, val);
+		}
+		Object.defineProperty(this, 'ytObj', { value: val });
 		return val;
 	},
 
@@ -6951,7 +6951,13 @@ Pview.prototype = Object.create(Post.prototype, {
 			$each(getImages(el), function(el) {
 				el.style.display = '';
 			});
-			youTube.fixEvents(this, post);
+			if(post.hasYTube) {
+				if(post.ytInfo !== null) {
+					Object.defineProperty(this, 'ytObj', { value: $c('de-ytube-obj', el) });
+					this.ytInfo = post.ytInfo;
+				}
+				youTube.updatePost(this, $C('de-ytube-link', post.el), $C('de-ytube-link', el), true);
+			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', el), function(el) {
 					el.style.display = '';
@@ -8207,7 +8213,7 @@ ImageBoard.prototype = {
 
 function Navigator() {
 	var ua = window.navigator.userAgent;
-	if(!String.prototype.contains) {
+	if(!('contains' in String.prototype)) {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
 		};
@@ -8215,14 +8221,16 @@ function Navigator() {
 			return this.indexOf(s) === 0;
 		};
 	}
-	delete Array.prototype.toJSON;
+	if('toJSON' in aProto) {
+		delete aProto.toJSON;
+	}
 	this.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
 	this.Opera = window.opera ? +window.opera.version() : 0;
 	this.WebKit = ua.contains('WebKit/');
 	this.Chrome = this.WebKit && ua.contains('Chrome/');
 	this.Safari = this.WebKit && !this.Chrome;
 	this.isGM = typeof GM_setValue === 'function' &&
-		!(this.Chrome && GM_setValue.toString().contains('not supported'));
+		(!this.Chrome || !GM_setValue.toString().contains('not supported'));
 	this.isGlobal = this.isGM || !!scriptStorage;
 	this.cssFix =
 		this.WebKit ? '-webkit-' :
@@ -8270,9 +8278,6 @@ function Navigator() {
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
 		};
-	this.matchesSelector = Function.prototype.call.bind((function(dE) {
-		return dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector;
-	})(doc.documentElement));
 	if(!window.GM_log) {
 		window.GM_log = function(msg) {
 			console.error(msg);
@@ -8300,19 +8305,18 @@ Navigator.prototype = {
 		Object.defineProperty(this, 'canPlayMP3', { value: val });
 		return val;
 	},
-
 	get hasNotifications() {
 		var val = ('Notification' in window) || ('webkitNotifications' in window);
 		Object.defineProperty(this, 'hasNotifications', { value: val });
 		return val;
 	},
-
-	get isWorker() {
-		var val = !!this.Worker;
-		Object.defineProperty(this, 'isWorker', { value: val });
+	get matchesSelector() {
+		var dE = doc.documentElement,
+			fun = dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector,
+			val = Function.prototype.call.bind(fun);
+		Object.defineProperty(this, 'matchesSelector', { value: val });
 		return val;
 	},
-
 	get notifGranted() {
 		var val = false;
 		if('Notification' in window) {
@@ -8328,7 +8332,6 @@ Navigator.prototype = {
 		Object.defineProperty(this, 'notifGranted', { value: val });
 		return val;
 	},
-
 	requestNotifPermission: function() {
 		if('Notification' in window) {
 			Notification.requestPermission()
@@ -8336,15 +8339,20 @@ Navigator.prototype = {
 			webkitNotifications.requestPermission();
 		}
 	},
-
 	get Worker() {
-		var val = this.Firefox ? unsafeWindow['de-worker'] ? (
-			this.Firefox < 20 ? null : (function(w) {
-				w.prototype.postMessage = function() {
+		var val;
+		if(nav.Firefox && nav.Firefox > 19) {
+			if(unsafeWindow['de-worker']) {
+				val = new Proxy(unsafeWindow['de-worker'], {});
+				val.prototype.postMessage = function() {
 					unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
 				};
-				return w;
-			})(new Proxy(unsafeWindow['de-worker'], {}))) : null : window.Worker;
+			} else {
+				val = null;
+			}
+		} else {
+			val = window.Worker;
+		}
 		Object.defineProperty(this, 'Worker', { value: val });
 		return val;
 	},
@@ -8360,7 +8368,7 @@ Navigator.prototype = {
 		};
 	},
 	_showNotifWebkit: function(title, text, tag, image) {
-		var notif = window.webkitNotifications.createNotification(image, title, text);
+		var notif = webkitNotifications.createNotification(image, title, text);
 		notif.ondisplay = function() {
 			setTimeout(this.cancel.bind(this), 12e3);
 		};
@@ -8721,7 +8729,6 @@ function initThreadUpdater(title, enableUpdater) {
 			hasAudio = true;
 		}
 	}
-
 	function getNotifMessage(np) {
 		var rv = aib.dm + '/' + brd + '/' + TNum + ': ' + np;
 		switch(np % 10) {
