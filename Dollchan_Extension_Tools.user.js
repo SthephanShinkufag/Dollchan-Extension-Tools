@@ -651,7 +651,7 @@ function $queue(maxNum, Fn, endFn) {
 }
 $queue.prototype = {
 	run: function(data) {
-		if(this.paused || this.freeSlots.length === 0) {
+		if(this.paused || this.running === this.max) {
 			this.array.push(data);
 			this.length++;
 		} else {
@@ -688,7 +688,7 @@ $queue.prototype = {
 			}
 			return;
 		}
-		while(this.index < this.length && this.freeSlots.length !== 0) {
+		while(this.index < this.length && this.running !== this.max) {
 			this.fn(this.freeSlots.pop(), this.num++, this.array[this.index++]);
 			this.running++;
 		}
@@ -3233,7 +3233,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 								link.textContent = title;
 								link.setAttribute('de-author', author);
 								vData[this[2]] = data = [title, author];
-								post.ytData.push(dara);
+								post.ytData.push(data);
 								post.ytLinksLoading--;
 								if(post.ytHideFun !== null) {
 									post.ytHideFun(data);
