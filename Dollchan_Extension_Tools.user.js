@@ -6198,7 +6198,7 @@ Post.prototype = {
 		return val;
 	},
 	get posterTrip() {
-		var pTrip = $q(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
+		var pTrip = $c(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value: val });
 		return val;
 	},
@@ -6337,11 +6337,6 @@ Post.prototype = {
 			saveHiddenThreads(false);
 		}
 		saveUserPosts();
-	},
-	get trip() {
-		var el = $c(aib.cTrip, this.el), val = el ? el.textContent : '';
-		Object.defineProperty(this, 'trip', { value: val });
-		return val;
 	},
 	get trunc() {
 		var el = $q(aib.qTrunc, this.el), val = null;
@@ -6557,7 +6552,7 @@ Post.prototype = {
 			this._selRange = sel.getRangeAt(0);
 			addItem('sel');
 		}
-		if(this.trip) {
+		if(this.posterTrip) {
 			addItem('trip');
 		}
 		if($isEmpty(this.imagesData)) {
@@ -6714,7 +6709,7 @@ Post.prototype = {
 				addSpell(2 /* #exph */, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
-		case 'spell-trip': addSpell(7 /* #trip */, this.trip.replace(/\)/g, '\\)'), false); return;
+		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
 			var img = this.imagesData['$first'],
 				w = img.weight,
