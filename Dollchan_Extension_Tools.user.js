@@ -2136,10 +2136,10 @@ function removeMenu(e) {
 
 function addSpellMenu(el) {
 	showMenu(el, '<div style="display: inline-block; border-right: 1px solid grey;"><span class="de-menu-item">' +
-		('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img')
+		('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
 			.split(',').join('</span><span class="de-menu-item">') +
 		'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
-		('#sage,#op,#tlen,#all,#video,#num,#wipe,#rep,#outrep')
+		('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
 			.split(',').join('</span><span class="de-menu-item">') + '</span></div>', false,
 	function(el) {
 		var exp = el.textContent,
@@ -3119,7 +3119,7 @@ dateTime.prototype = {
 //============================================================================================================
 
 function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
-	var vData, regex = /^https?:\/\/(?:www\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+	var vData, regex = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
 	function addFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
@@ -3647,6 +3647,7 @@ Spells.YTubeSpell = function spell_youtube(post, val, ctx) {
 			this.ytHideFun = null;
 			spells._continueCheck(this, ctx, true);
 		} else if(post.ytLinksLoading === 0) {
+			this.ytHideFun = null;
 			spells._continueCheck(this, ctx, false);
 		}
 	}.bind(post, ctx, isAuthorSpell, val);
@@ -5858,7 +5859,7 @@ Post.prototype = {
 			} else if(youTube.embedType > 2) {
 				youTube.addImage(this.ytObj, this.ytInfo = m);
 			}
-		} else if(!link && $q('.de-ytube-link[href*="v=' + m[1] + '"]', this.msg)) {
+		} else if(!link && $q('.de-ytube-link[href*="' + m[1] + '"]', this.msg)) {
 			return;
 		}
 		if(loader && (dataObj = youTube.vData[m[1]])) {
