@@ -7239,7 +7239,7 @@ Thread.prototype = {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, this.num), true, function(last, Fn, els, newOp) {
-			var post, nP, len = els.length,
+			var post, len = els.length,
 				op = this.op,
 				opEl = op.el,
 				thrEl = this.el,
@@ -7257,8 +7257,7 @@ Thread.prototype = {
 					}
 				}
 			}
-			nP = this._parsePosts(els, nOmt, this.omitted - 1);
-			if(nP > 0) {
+			if(this._parsePosts(els, nOmt, this.omitted - 1) > 0) {
 				this.checkSpells();
 			}
 			this.omitted = nOmt;
@@ -7266,10 +7265,9 @@ Thread.prototype = {
 			if(nOmt !== 0) {
 				opEl.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 			}
-			if(last <= visPosts && last !== 1) {
+			if(this.pcount - nOmt - 1 <= visPosts) {
 				$del($c('de-expand', thrEl));
-			} else if(nP > 0 || !$c('de-expand', thrEl)) {
-				$del($c('de-expand', thrEl));
+			} else if(!$c('de-expand', thrEl)) {
 				thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="#">' +
 					Lng.collapseThrd[lang] + '</a>]</span>');
 				thrEl.lastChild.onclick = function(e) {
