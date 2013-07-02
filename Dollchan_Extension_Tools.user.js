@@ -6152,7 +6152,7 @@ Post.prototype = {
 		this._addButtons(el, this.num, this.sage, this.isOp);
 		this._checkVisib(this.num, this.index, this.isOp, this.thr);
 		if(Cfg['expandPosts'] === 1 && this.trunc) {
-			this._getFull(this.trunc, false);
+			this._getFull(this.trunc, true);
 		}
 		el.addEventListener('click', this, true);
 		el.addEventListener('mouseover', this, true);
@@ -6388,6 +6388,7 @@ Post.prototype = {
 		}
 		this.addFuncs();
 		spells.check(this, this.hide);
+		closeAlert($id('de-alert-load-fullmsg'));
 	},
 	get wrap() {
 		var val = aib.getWrap(this);
@@ -6749,17 +6750,20 @@ Post.prototype = {
 			this.kid.markToDel();
 		}
 	},
-	_getFull: function(node, isFunc) {
+	_getFull: function(node, isInit) {
 		if(aib.hana) {
 			$del(node.nextSibling);
 			$del(node.previousSibling);
 			$del(node);
-			if(isFunc) {
-				this.updateMsg(null);
-			} else {
+			if(isInit) {
 				this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
+			} else {
+				this.updateMsg(null);
 			}
 			return;
+		}
+		if(!isInit) {
+			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, this.thr.num), true, function(node, els, op) {
 			var i, len, el;
