@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			13.5.29.0
+// @version			13.7.4.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
-var version = '13.5.29.0',
+var version = '13.7.4.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -2083,7 +2083,7 @@ function $alert(txt, id, wait) {
 			el.classList.add('de-open');
 		}
 	}
-	if(Cfg['closePopups'] && !wait && !id.contains('help')) {
+	if(Cfg['closePopups'] && !wait && !id.contains('help') && !id.contains('edit')) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
@@ -4908,7 +4908,7 @@ function scriptCSS() {
 	x += '.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
-		.de-img-full { float: left; margin: ' + (aib.fch || aib.hana || aib.krau ? 0 : '2px 10px') + '; }\
+		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }\
@@ -4989,8 +4989,11 @@ function updateCSS() {
 		x += '#de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x+= '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+		x += '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
+	}
+	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.hana || aib.krau)) {
+		x += '.de-img-full { margin: 2px 10px; }';
 	}
 	if(Cfg['delHiddPost']) {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
@@ -6449,12 +6452,12 @@ Post.prototype = {
 		} else {
 			$del($c('de-img-center', doc));
 		}
-		newW = data.width < scrW ? data.width : scrW;
+		newW = data.width < scrW ? data.width : scrW - 2;
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
 		} else if(newH > (scrH = Post.sizing.wHeight)) {
-			newH = scrH;
+			newH = scrH - 2;
 			newW = newH * data.width / data.height;
 		}
 		img = $add('<img class="de-img-full" src="' + data.src + '" alt="' + data.src +
@@ -6472,40 +6475,42 @@ Post.prototype = {
 			}
 		};
 		$after(el, img);
-		if(!inPost) {
-			img.classList.add('de-img-center');
-			img.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
-			img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
-				var curX = e.clientX,
-					curY = e.clientY,
-					oldL = parseInt(this.style.left, 10),
-					oldT = parseInt(this.style.top, 10),
-					oldW = parseFloat(this.style.width || this.width),
-					oldH = parseFloat(this.style.height || this.height),
-					d = nav.Firefox ? -e.detail : e.wheelDelta,
-					newW = oldW * (d > 0 ? 1.25 : 0.8),
-					newH = oldH * (d > 0 ? 1.25 : 0.8);
-				$pd(e);
-				this.style.width = newW + 'px';
-				this.style.height = newH + 'px';
-				this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
-				this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
-			}, false);
-			elMove = function(e) {
-				this.style.left = e.clientX - this.curX + 'px';
-				this.style.top = e.clientY - this.curY + 'px';
-				this.moved = true;
-			}.bind(img);
-			elStop = function() {
-				$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-			};
-			img.onmousedown = function(e) {
-				$pd(e);
-				this.curX = e.clientX - parseInt(this.style.left, 10);
-				this.curY = e.clientY - parseInt(this.style.top, 10);
-				$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-			};
+		if(inPost) {
+			return;
 		}
+		img.classList.add('de-img-center');
+		img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
+			'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
+		img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
+			var curX = e.clientX,
+				curY = e.clientY,
+				oldL = parseInt(this.style.left, 10),
+				oldT = parseInt(this.style.top, 10),
+				oldW = parseFloat(this.style.width || this.width),
+				oldH = parseFloat(this.style.height || this.height),
+				d = nav.Firefox ? -e.detail : e.wheelDelta,
+				newW = oldW * (d > 0 ? 1.25 : 0.8),
+				newH = oldH * (d > 0 ? 1.25 : 0.8);
+			$pd(e);
+			this.style.width = newW + 'px';
+			this.style.height = newH + 'px';
+			this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
+			this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
+		}, false);
+		elMove = function(e) {
+			this.style.left = e.clientX - this.curX + 'px';
+			this.style.top = e.clientY - this.curY + 'px';
+			this.moved = true;
+		}.bind(img);
+		elStop = function() {
+			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
+		};
+		img.onmousedown = function(e) {
+			$pd(e);
+			this.curX = e.clientX - parseInt(this.style.left, 10);
+			this.curY = e.clientY - parseInt(this.style.top, 10);
+			$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
+		};
 	},
 	_addMenu: function(el, type) {
 		var html, cr = el.getBoundingClientRect(),
