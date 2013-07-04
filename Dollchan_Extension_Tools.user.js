@@ -2083,7 +2083,7 @@ function $alert(txt, id, wait) {
 			el.classList.add('de-open');
 		}
 	}
-	if(Cfg['closePopups'] && !wait && !id.contains('help')) {
+	if(Cfg['closePopups'] && !wait && !id.contains('help') && !id.contains('edit')) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
