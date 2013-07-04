@@ -4989,8 +4989,11 @@ function updateCSS() {
 		x += '#de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x+= '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+		x += '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
+	}
+	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.hana || aib.krau)) {
+		x += '.de-img-full { margin: 2px 10px; }';
 	}
 	if(Cfg['delHiddPost']) {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
@@ -6449,17 +6452,13 @@ Post.prototype = {
 		} else {
 			$del($c('de-img-center', doc));
 		}
-		newW = data.width < scrW ? data.width : scrW;
+		newW = data.width < scrW ? data.width : scrW - 2;
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
-		} else {
-			if(newH > (scrH = Post.sizing.wHeight)) {
-				newH = scrH;
-				newW = newH * data.width / data.height;
-			}
-			newH = newH - 2;
-			newW = newW - 2;
+		} else if(newH > (scrH = Post.sizing.wHeight)) {
+			newH = scrH - 2;
+			newW = newH * data.width / data.height;
 		}
 		img = $add('<img class="de-img-full" src="' + data.src + '" alt="' + data.src +
 			'" width="' + newW + '" height="' + newH + '">');
@@ -6477,7 +6476,6 @@ Post.prototype = {
 		};
 		$after(el, img);
 		if(inPost) {
-			this.style.margin = aib.fch || aib.hana || aib.krau ? 0 : '2px 10px';
 			return;
 		}
 		img.classList.add('de-img-center');
