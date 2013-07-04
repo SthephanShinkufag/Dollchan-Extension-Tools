@@ -671,7 +671,7 @@ $queue.prototype = {
 		}
 	},
 	complete: function() {
-		if(this.index >= this.length) {
+		if(this.index >= this.length && this.running === 0) {
 			this.endFn();
 		} else {
 			this.completed = true;
@@ -5727,7 +5727,6 @@ function embedImagesLinks(el) {
 	}
 }
 
-
 //============================================================================================================
 //													POST
 //============================================================================================================
@@ -5894,7 +5893,7 @@ Post.prototype = {
 			dat = this.imagesData[i];
 			if(dat.expanded ^ expand) {
 				if(expand) {
-					this._addFullImage(dat.el, dat, true, true);
+					this._addFullImage(dat.el, dat, true);
 				} else {
 					this._removeFullImage(null, dat.el.nextSibling, dat.el, dat);
 				}
@@ -6229,7 +6228,8 @@ Post.prototype = {
 				'date': date,
 				'isOp': this.isOp,
 				'num': this.num,
-				'hide': hide
+				'hide': hide,
+				'title': this.isOp ? this.title : ''
 			});
 			localStorage.removeItem('__de-post');
 		}
@@ -6441,11 +6441,11 @@ Post.prototype = {
 		) + '</span>');
 		this.btns = ref.nextSibling;
 	},
-	_addFullImage: function(el, data, inPost, isFast) {
+	_addFullImage: function(el, data, inPost) {
 		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			el.style.display = 'none';
-			scrW -= isFast ? Post.sizing.getCachedOffset(this.count, el) : Post.sizing.getOffset(el);
+			scrW -= this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
 		} else {
 			$del($c('de-img-center', doc));
 		}
@@ -6677,7 +6677,7 @@ Post.prototype = {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
 			} else {
-				this._addFullImage(el, data, inPost, !this._isPview);
+				this._addFullImage(el, data, inPost);
 			}
 		}
 		$pd(e);
