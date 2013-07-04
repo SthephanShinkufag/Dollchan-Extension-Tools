@@ -4908,7 +4908,7 @@ function scriptCSS() {
 	x += '.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
-		.de-img-full { float: left; margin: ' + (aib.fch || aib.hana || aib.krau ? 0 : '2px 10px') + '; }\
+		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
 		td > a + .de-ytube-obj { display: inline-block; }\
@@ -6453,9 +6453,13 @@ Post.prototype = {
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
-		} else if(newH > (scrH = Post.sizing.wHeight)) {
-			newH = scrH;
-			newW = newH * data.width / data.height;
+		} else {
+			if(newH > (scrH = Post.sizing.wHeight)) {
+				newH = scrH;
+				newW = newH * data.width / data.height;
+			}
+			newH = newH - 2;
+			newW = newW - 2;
 		}
 		img = $add('<img class="de-img-full" src="' + data.src + '" alt="' + data.src +
 			'" width="' + newW + '" height="' + newH + '">');
@@ -6472,40 +6476,43 @@ Post.prototype = {
 			}
 		};
 		$after(el, img);
-		if(!inPost) {
-			img.classList.add('de-img-center');
-			img.style.cssText = 'left: ' + (scrW - newW) / 2 + 'px; top: ' + (scrH - newH) / 2 + 'px;';
-			img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
-				var curX = e.clientX,
-					curY = e.clientY,
-					oldL = parseInt(this.style.left, 10),
-					oldT = parseInt(this.style.top, 10),
-					oldW = parseFloat(this.style.width || this.width),
-					oldH = parseFloat(this.style.height || this.height),
-					d = nav.Firefox ? -e.detail : e.wheelDelta,
-					newW = oldW * (d > 0 ? 1.25 : 0.8),
-					newH = oldH * (d > 0 ? 1.25 : 0.8);
-				$pd(e);
-				this.style.width = newW + 'px';
-				this.style.height = newH + 'px';
-				this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
-				this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
-			}, false);
-			elMove = function(e) {
-				this.style.left = e.clientX - this.curX + 'px';
-				this.style.top = e.clientY - this.curY + 'px';
-				this.moved = true;
-			}.bind(img);
-			elStop = function() {
-				$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-			};
-			img.onmousedown = function(e) {
-				$pd(e);
-				this.curX = e.clientX - parseInt(this.style.left, 10);
-				this.curY = e.clientY - parseInt(this.style.top, 10);
-				$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-			};
+		if(inPost) {
+			this.style.margin = aib.fch || aib.hana || aib.krau ? 0 : '2px 10px';
+			return;
 		}
+		img.classList.add('de-img-center');
+		img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
+			'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
+		img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
+			var curX = e.clientX,
+				curY = e.clientY,
+				oldL = parseInt(this.style.left, 10),
+				oldT = parseInt(this.style.top, 10),
+				oldW = parseFloat(this.style.width || this.width),
+				oldH = parseFloat(this.style.height || this.height),
+				d = nav.Firefox ? -e.detail : e.wheelDelta,
+				newW = oldW * (d > 0 ? 1.25 : 0.8),
+				newH = oldH * (d > 0 ? 1.25 : 0.8);
+			$pd(e);
+			this.style.width = newW + 'px';
+			this.style.height = newH + 'px';
+			this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
+			this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
+		}, false);
+		elMove = function(e) {
+			this.style.left = e.clientX - this.curX + 'px';
+			this.style.top = e.clientY - this.curY + 'px';
+			this.moved = true;
+		}.bind(img);
+		elStop = function() {
+			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
+		};
+		img.onmousedown = function(e) {
+			$pd(e);
+			this.curX = e.clientX - parseInt(this.style.left, 10);
+			this.curY = e.clientY - parseInt(this.style.top, 10);
+			$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
+		};
 	},
 	_addMenu: function(el, type) {
 		var html, cr = el.getBoundingClientRect(),
