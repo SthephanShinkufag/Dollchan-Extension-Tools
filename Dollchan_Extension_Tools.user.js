@@ -2466,7 +2466,7 @@ html5Submit.prototype = {
 			}
 			fr = new FileReader();
 			fr.onload = function(name, e) {
-				var dat = this.clearImage(new Uint8Array(e.target.result), !!el.imgFile);
+				var dat = this.clearImage(e.target.result, !!el.imgFile);
 				if(dat) {
 					if(el.imgFile) {
 						dat.push(el.imgFile);
@@ -2513,12 +2513,12 @@ html5Submit.prototype = {
 			}.bind(this.fn)
 		});
 	},
-	readExif: function(exif, off, len) {
+	readExif: function(data, off, len) {
 		var i, j, dE, tag, tgLen, xRes = 0,
 			yRes = 0,
 			resT = 0,
-			le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
-			dv = new DataView(exif.buffer, off);
+			dv = new DataView(data, off),
+			le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 		if(dv.getUint16(2, le) !== 0x2A) {
 			return null;
 		}
@@ -2547,34 +2547,58 @@ html5Submit.prototype = {
 		}
 		xRes = xRes || yRes;
 		yRes = yRes || xRes;
-		return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+		return new Uint8Array([resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
-	clearImage: function(dat, delExtraData) {
-		var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
+	clearImage: function(data, delExtraData) {
+		var tmp, i, len, deep, rv, lIdx, mSize, jpgDat, img = new Uint8Array(data),
+			rExif = !!Cfg['removeEXIF'];
 		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-			return [dat];
+			return [img];
 		}
-		if(dat[0] === 0xFF && dat[1] === 0xD8) {
-			for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
-				if(dat[i] === 0xFF) {
+		if(img[0] === 0xFF && img[1] === 0xD8) {
+			for(i = 2, deep = 1, len = img.length - 1, rv = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+				if(img[i] === 0xFF) {
 					if(rExif) {
-						if(!jpgDat && out === 1) {
-							if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
-								jpgDat = this.readExif(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
-							} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
-								jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+						if(!jpgDat && deep === 1) {
+							if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
+								jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
+							} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46) {
+								jpgDat = img.subarray(i + 11, i + 15);
 							}
 						}
-						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
-							tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
-							j += tmp;
-							rData.push(i, i += tmp);
+						if((img[i + 1] >> 4) === 0xE || img[i + 1] === 0xFE) {
+							if(lIdx !== i) {
+								rv.push(img.subarray(lIdx, i));
+							}
+							mSize = (img[i + 2] << 8) + img[i + 3];
+							if(img[i + 1] === 0xFE) {
+								i += 2 + mSize;
+							} else {
+								i += 2;
+								while(mSize--) {
+									if(img[i] === 0xFF && img[i + 1] === 0xD8) {
+										i += 2;
+										while(img[i] !== 0xFF || img[i + 1] !== 0xD9) {
+											i++;
+										}
+										i += 2;
+										if(i === len) {
+											return null;
+										}
+										break;
+									}
+									i++;
+								}
+							}
+							lIdx = i;
 							continue;
 						}
+					} else if(img[i + 1] === 0xD8) {
+						deep++;
+						i++;
+						continue;
 					}
-					if(dat[i + 1] === 0xD8) {
-						out++;
-					} else if(dat[i + 1] === 0xD9 && --out === 0) {
+					if(img[i + 1] === 0xD9 && --deep === 0) {
 						break;
 					}
 				}
@@ -2584,24 +2608,18 @@ html5Submit.prototype = {
 			if(!delExtraData && len - i > 75) {
 				i = len;
 			}
-			if(j === 0) {
-				return i === len ? [dat] : [new Uint8Array(dat, i)];
+			if(lIdx === 2) {
+				return i === len ? [img] : [new Uint8Array(data, 0, i)];
 			}
-			rData.push(i);
-			out = new Uint8Array(i - j + 18);
-			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]
-				.concat(jpgDat || [0, 0, 1, 0, 1]), 0
-			);
-			for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
-				out.set(dat.subarray(rData[i], rData[i + 1]), j);
-				j += rData[i + 1] - rData[i];
-			}
-			return [out];
+			rv[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0D, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
+			rv[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
+			rv.push(img.subarray(lIdx, i));
+			return rv;
 		}
-		if(dat[0] === 0x89 && dat[1] === 0x50) {
-			for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
+		if(img[0] === 0x89 && img[1] === 0x50) {
+			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
-			return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
+			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
 	}
