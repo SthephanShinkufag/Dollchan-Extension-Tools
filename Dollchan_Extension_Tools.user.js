@@ -2207,6 +2207,7 @@ function initKeyNavig() {
 
 	function scrollToPost(toUp, toThread) {
 		var thr, el, next;
+		scrolling = true;
 		if(!cPost) {
 			next = firstThr.op;
 		} else {
@@ -2232,7 +2233,6 @@ function initKeyNavig() {
 			}
 			cPost.unselect();
 		}
-		scrolling = true;
 		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
 		$scroll(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
 			next.el.clientHeight / 2), function() {
@@ -2292,6 +2292,7 @@ function initKeyNavig() {
 					break;
 				}
 			}
+			lastPageOffset = pyOffset;
 		}
 		scrolling = false;
 		if(kc === 86) {
