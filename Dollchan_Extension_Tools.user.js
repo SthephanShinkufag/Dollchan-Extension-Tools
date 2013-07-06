@@ -2302,7 +2302,12 @@ KeyNavigation.prototype = {
 				window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
 			}
 		} else if(kc === 72) {
-			post.toggleUserVisib();
+			if(!post) {
+				this.cPost = post = firstThr.op;
+			}
+			if(post.toggleUserVisib()) {
+				this._scroll(post, false, true);
+			}
 		} else {
 			if(kc === 75) {
 				this._scroll(post, true, !TNum);
@@ -6377,6 +6382,7 @@ Post.prototype = {
 		for(var post = this.next; post; post = post.next) {
 			delete post.offsetTop;
 		}
+		return hide;
 	},
 	get trunc() {
 		var el = $q(aib.qTrunc, this.el), val = null;
