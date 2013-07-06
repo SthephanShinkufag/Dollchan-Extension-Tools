@@ -128,7 +128,7 @@ Lng = {
 		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
-		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		'keybNavig':	['Навигация с помощью клавиатуры', 'Navigation with keyboard'],
 		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
@@ -420,7 +420,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
-aib, nav, brd, TNum, pageNum, updater, youTube, firstThr, visPosts = 2,
+aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, postWrapper, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
@@ -1918,7 +1918,17 @@ function getCfgCommon() {
 		$if(nav.Anim, lBox('animation', true, null)),
 		lBox('closePopups', true, null),
 		$New('div', null, [
-			lBox('keybNavig', false, null),
+			lBox('keybNavig', false, function() {
+				if(Cfg['keybNavig']) {
+					if(keyNav) {
+						keyNav.enable();
+					} else {
+						keyNav = new KeyNavigation();
+					}
+				} else if(keyNav) {
+					keyNav.disable();
+				}
+			}),
 			$new('a', {'text': '?', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
 				$pd(e);
 				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
@@ -2200,52 +2210,37 @@ function addAudioNotifMenu(el) {
 //											KEYBOARD NAVIGATION
 //============================================================================================================
 
-function initKeyNavig() {
-	var lastPageOffset = 0,
-		scrolling = false,
-		cPost = null;
-
-	function scrollToPost(toUp, toThread) {
-		var thr, el, next;
-		scrolling = true;
-		if(!cPost) {
-			next = firstThr.op;
-		} else {
-			if(toThread) {
-				thr = cPost.thr;
-				if(thr = toUp ? thr.prev : thr.next) {
-					next = thr.op;
-				} else {
-					return;
-				}
-			} else {
-				if(next = toUp ? cPost.prev : cPost.next) {
-					if(!next.isOp && next.thr.hidden) {
-						if(thr = toUp ? next.thr.prev : next.thr.next) {
-							next = thr.op;
-						} else {
-							return;
-						}
-					}
-				} else {
-					return;
-				}
+function KeyNavigation() {
+	this.lastPageOffset = 0;
+	this.scrolling = false;
+	this.cPost = null;
+	this.enabled = true;
+	doc.addEventListener('keydown', this, true);
+}
+KeyNavigation.prototype = {
+	clear: function() {
+		this.lastPageOffset = 0;
+		this.scrolling = false;
+		this.cPost = null;
+	},
+	disable: function() {
+		if(this.enabled) {
+			if(this.cPost) {
+				this.cPost.unselect();
 			}
-			cPost.unselect();
+			doc.removeEventListener('keydown', this, true);
+			this.enabled = false;
 		}
-		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
-		$scroll(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
-			next.el.clientHeight / 2), function() {
-			return scrolling;
-		}, function() {
-			lastPageOffset = pageYOffset;
-		});
-		next.select();
-		cPost = next;
-	}
-
-	doc.addEventListener('keydown', function(e) {
-		var pyOffset, curTh = e.target.tagName,
+	},
+	enable: function() {
+		if(!this.enabled) {
+			this.clear();
+			doc.addEventListener('keydown', this, true);
+			this.enabled = true;
+		}
+	},
+	handleEvent: function(e) {
+		var pyOffset, post, curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
 			if(kc === 27) {
@@ -2286,37 +2281,78 @@ function initKeyNavig() {
 		}
 		$pd(e);
 		e.stopPropagation();
-		if(!scrolling && lastPageOffset !== (pyOffset = pageYOffset)) {
-			for(cPost = firstThr.op; cPost; cPost = cPost.next) {
-				if(cPost.offsetTop >= pyOffset) {
+		if(!this.scrolling && this.lastPageOffset !== (pyOffset = pageYOffset)) {
+			for(post = firstThr.op; post; post = post.next) {
+				if(post.offsetTop >= pyOffset) {
 					break;
 				}
 			}
-			lastPageOffset = pyOffset;
+			this.cPost = post;
+			this.lastPageOffset = pyOffset;
+		} else {
+			post = this.cPost;
+			this.scrolling = false;
 		}
-		scrolling = false;
 		if(kc === 86) {
 			if(TNum) {
-				pr.showQuickReply(cPost);
+				pr.showQuickReply(post);
 			} else if(nav.Firefox) {
-				GM_openInTab(aib.getThrdUrl(brd, cPost.thr.num), false, true);
+				GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
 			} else {
-				window.open(aib.getThrdUrl(brd, cPost.thr.num), '_blank');
+				window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
 			}
 		} else if(kc === 72) {
-			cPost.toggleUserVisib();
+			post.toggleUserVisib();
 		} else {
 			if(kc === 75) {
-				scrollToPost(true, !TNum);
+				this._scroll(post, true, !TNum);
 			} else if(kc === 74) {
-				scrollToPost(false, !TNum);
+				this._scroll(post, false, !TNum);
 			} else if(!TNum && kc === 77) {
-				scrollToPost(true, false);
+				this._scroll(post, true, false);
 			} else if(!TNum && kc === 78) {
-				scrollToPost(false, false);
+				this._scroll(post, false, false);
 			}
 		}
-	}, true);
+	},
+	_scroll: function(post, toUp, toThread) {
+		var thr, el, next;
+		this.scrolling = true;
+		if(!post) {
+			next = firstThr.op;
+		} else {
+			if(toThread) {
+				thr = post.thr;
+				if(thr = toUp ? thr.prev : thr.next) {
+					next = thr.op;
+				} else {
+					return;
+				}
+			} else {
+				if(next = toUp ? post.prev : post.next) {
+					if(!next.isOp && next.thr.hidden) {
+						if(thr = toUp ? next.thr.prev : next.thr.next) {
+							next = thr.op;
+						} else {
+							return;
+						}
+					}
+				} else {
+					return;
+				}
+			}
+			post.unselect();
+		}
+		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
+		$scroll(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
+			next.el.clientHeight / 2), function() {
+				return this.scrolling;
+			}.bind(this), function() {
+				this.lastPageOffset = pageYOffset;
+			}.bind(this));
+		next.select();
+		this.cPost = next;
+	}
 }
 
 
@@ -3434,6 +3470,9 @@ function parsePages(pages, node) {
 	}
 	if(pr.txta) {
 		pr.txta.value = '';
+	}
+	if(keyNav) {
+		keyNav.clear();
 	}
 	$disp(node);
 	closeAlert($id('de-alert-load-pages'));
@@ -8967,7 +9006,7 @@ function doScript() {
 	saveFavorites();
 	$log('Parse delform');
 	if(Cfg['keybNavig']) {
-		initKeyNavig();
+		keyNav = new KeyNavigation();
 		$log('Init keybinds');
 	}
 	if(!liteMode) {
