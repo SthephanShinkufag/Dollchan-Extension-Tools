@@ -2306,7 +2306,7 @@ KeyNavigation.prototype = {
 				this.cPost = post = firstThr.op;
 			}
 			if(post.toggleUserVisib()) {
-				this._scroll(post, false, true);
+				this._scroll(post, false, post.isOp);
 			}
 		} else {
 			if(kc === 75) {
@@ -2336,7 +2336,9 @@ KeyNavigation.prototype = {
 			} else {
 				if(next = toUp ? post.prev : post.next) {
 					if(!next.isOp && next.thr.hidden) {
-						if(thr = toUp ? next.thr.prev : next.thr.next) {
+						if(next.thr !== post.thr) {
+							next = next.thr.op;
+						} else if(thr = toUp ? next.thr.prev : next.thr.next) {
 							next = thr.op;
 						} else {
 							return;
