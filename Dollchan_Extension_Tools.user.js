@@ -597,7 +597,7 @@ function $scroll(distance, runFn, endFn) {
 			}
 			return;
 		}
-		scrollTo(0, pageOffset + step * (currentTime - beginTime));
+		scrollTo(0, pageOffset + ((step * (currentTime - beginTime)) | 0));
 		if(!runFn || runFn()) {
 			requestAnimationFrame(makeStep);
 		}
