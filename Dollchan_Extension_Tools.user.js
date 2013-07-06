@@ -128,7 +128,7 @@ Lng = {
 		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
-		'keybNavig':	['Навигация с помощью клавиатуры', 'Navigation with keyboard'],
+		'keybNavig':	['Навигация с помощью клавиатуры ', 'Navigation with keyboard '],
 		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
@@ -278,10 +278,10 @@ Lng = {
 	],
 
 	keyNavHelp:		[
-		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n\n' +
+		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n"H" - срыть текущий пост/тред.\n\n' +
 		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n' +
 		'"V" - вход в тред.\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
-		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n\n' +
+		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n"H" - Hide current post/thread.\n\n' +
 		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
 		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
 	],
