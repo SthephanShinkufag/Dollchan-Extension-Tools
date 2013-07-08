@@ -40,8 +40,8 @@ defaultCfg = {
 	'keybNavig':	1,		// keyboard navigation
 	'loadPages':	1,		//		number of pages that are loaded on F5
 	'correctTime':	0,		// correct time in posts
-	'timeOffset':	'',		//		offset in hours
-	'timePattern':	'+0',		//		find pattern
+	'timeOffset':	'+0',	//		offset in hours
+	'timePattern':	'',		//		find pattern
 	'timeRPattern':	'',		//		replace pattern
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':	100,	//		delay appearance in ms
@@ -918,10 +918,14 @@ function readCfg() {
 		}
 		Cfg['captchaLang'] = aib.ru ? 2 : 1;
 		Cfg['correctTime'] = 0;
-		Cfg['timeOffset'] = '+0';
-		Cfg['timePattern'] = aib.timePattern;
 	}
 	Cfg.__proto__ = defaultCfg;
+	if(!Cfg['timeOffset']) {
+		Cfg['timeOffset'] = '+0';
+	}
+	if(!Cfg['timePattern']) {
+		Cfg['timePattern'] = aib.timePattern;
+	}
 	if(!nav.isBlob) {
 		Cfg['preLoadImgs'] = 0;
 		if(Cfg['ajaxReply'] === 2) {
