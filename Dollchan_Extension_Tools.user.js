@@ -132,8 +132,8 @@ Lng = {
 		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
-		'timePattern':	['Шаблон поиска', 'Find pattern'],
-		'timeRPattern':	['Шаблон замены', 'Replace pattern'],
+		'timePattern':	[' Шаблон поиска', ' Find pattern'],
+		'timeRPattern':	[' Шаблон замены', ' Replace pattern'],
 
 		'linksNavig': {
 			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -332,7 +332,6 @@ Lng = {
 	add:			['Добавить', 'Add'],
 	apply:			['Применить', 'Apply'],
 	clear:			['Очистить', 'Clear'],
-	help:			['Помощь', 'Help'],
 	refresh:		['Обновить', 'Refresh'],
 	load:			['Загрузить', 'Load'],
 	save:			['Сохранить', 'Save'],
@@ -1706,7 +1705,7 @@ function getCfgFilters() {
 				toggleSpells();
 			}}),
 			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
-				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">' + Lng.help[lang] + '</a>')
+				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'id': 'de-spell-div'}, [
 			$add('<div><div id="de-spell-rowmeter"></div></div>'),
@@ -1765,7 +1764,12 @@ function getCfgPosts() {
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('noPostScrl', true, updateCSS),
-		lBox('correctTime', true, dateTime.toggleSettings),
+		$New('div', null, [
+			lBox('correctTime', false, dateTime.toggleSettings),
+			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' +
+				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
+		]),
+		
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
@@ -1773,29 +1777,11 @@ function getCfgPosts() {
 			]),
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
-				$txt(' '),
-				$new('a', {'text': Lng.cfg['timePattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
-					'click': function(e) {
-						$pd(e);
-						$alert(Lng.tpHelp[lang] + '0chan.hk: "w+yyyy+m+dd+hh+ii+ss"\niichan.hk, 2ch.hk: "w+dd+m+yyyy+hh+ii+ss"\n' +
-							'dobrochan.ru: "dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?"\n410chan.org: "dd+nn+yyyy++w++hh+ii+ss"\n' +
-							'4chan.org: "nn+dd+yy+w+hh+ii-?s?s?"\n4chon.net: "nn+dd+yy++w++hh+ii+ss"\n' +
-							'krautchan.net: "yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?"', 'help-correcttime', false);
-					}
-				})
+				$txt(Lng.cfg['timePattern'][lang])
 			]),
 			$New('div', null, [
 				inpTxt('timeRPattern', 30, null),
-				$txt(' '),
-				$new('a', {'text': Lng.cfg['timeRPattern'][lang], 'href': '#', 'class': 'de-abtn'}, {
-					'click': function(e) {
-						$pd(e);
-						$alert(Lng.trpHelp[lang] + '0chan.hk: "_w _Y _m _d _h:_i:_s"\n2ch.hk: "_w _d _m _Y _h:_i:_s"\n' +
-							'iichan.hk: "_w _d _M _Y _h:_i:_s"\ndobrochan.ru: "_d _M _Y (_w) _h:_i:_s"\n' +
-							'410chan.org: "_d._n._Y (_w) _h:_i:_s"\n4chan.org: "_n/_d/_y(_w)_h:_i:_s"\n' +
-							'4chon.net: "_n/_d/_y (_w) _h:_i:_s"\nkrautchan.net: "_Y-_n-_d _h:_i:_s"', 'help-correcttime2', false);
-					}
-				})
+				$txt(Lng.cfg['timeRPattern'][lang])
 			])
 		])
 	]);
@@ -1928,7 +1914,7 @@ function getCfgCommon() {
 					keyNav.disable();
 				}
 			}),
-			$new('a', {'text': '?', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
+			$new('a', {'text': '[?]', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
 				$pd(e);
 				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
 			}})
