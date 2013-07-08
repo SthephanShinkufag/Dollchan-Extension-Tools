@@ -41,7 +41,7 @@ defaultCfg = {
 	'loadPages':	1,		//		number of pages that are loaded on F5
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'',		//		offset in hours
-	'timePattern':	'',		//		find pattern
+	'timePattern':	'+0',		//		find pattern
 	'timeRPattern':	'',		//		replace pattern
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':	100,	//		delay appearance in ms
@@ -284,24 +284,6 @@ Lng = {
 		'"Ctrl+&larr;" – previous page\n"Ctrl+&rarr;" – next page\n"H" – Hide current post/thread\n\n' +
 		'On board:\n"J" – thread below\n"K" – thread above\n"N" – post below\n"M" – post above\n' +
 		'"V" – enter thread\n\nIn thread:\n"J" – post below\n"K" – post above\n"V" – quick reply'
-	],
-
-	tpHelp:			[
-		'"s" – секунда (одна цифра)\n"i" – минута (одна цифра)\n"h" – час (одна цифра)\n"d" – день (одна цифра)\n' +
-		'"w" – неделя (строка)\n"n" – месяц (одна цифра)\n"m" – месяц (строка)\n"y" – год (одна цифра)\n' +
-		'"-" – любой символ\n"+" – любой символ за исключением цифр\n"?" – предыдущий символ может отсутствовать\n\nПримеры:\n',
-		'"s" – second (one digit)\n"i" – minute (one digit)\n"h" – hour (one digit)\n"d" – day (one digit)\n' +
-		'"w" – week (string)\n"n" – month (one digit)\n"m" – month (string)\n"y" – year (one digit)\n' +
-		'"-" – any symbol\n"+" – any symbol except digits\n"?" – previous char may be absent\n\nExamples:\n'
-	],
-
-	trpHelp:			[
-		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения:\n' +
-		'"_s" – секунды\n"_i" – минуты\n"_h" – час\n"_d" – день\n"_w" – неделя\n"_n" – месяц (цифрами)\n"_m" – месяц (строка, сокращённый)\n' +
-		'"_M" – месяц (строка, полный)\n"_y" – год (2 цифры)\n"_Y" – год (4 цифры)\n"_o" – разница во времени\n\nПримеры:\n',
-		'Replace pattern may contain any symbols\nand following expressions which will be\nreplaced with the corresponding values:\n' +
-		'"_s" – seconds\n"_i" – minutes\n"_h" – hour\n"_d" – day\n"_w" – week\n"_n" – month (number)\n"_m" – month (string, abbr)\n' +
-		'"_M" – month (string, full)\n"_y" – year (2 digits)\n"_Y" – year (4 digits)\n"_o" – time difference\n\nExamples:\n'
 	],
 
 	month:			[
@@ -935,8 +917,9 @@ function readCfg() {
 			}
 		}
 		Cfg['captchaLang'] = aib.ru ? 2 : 1;
-		Cfg['timePattern'] = Cfg['timeOffset'] = '';
 		Cfg['correctTime'] = 0;
+		Cfg['timeOffset'] = '+0';
+		Cfg['timePattern'] = aib.timePattern;
 	}
 	Cfg.__proto__ = defaultCfg;
 	if(!nav.isBlob) {
@@ -7615,7 +7598,8 @@ function ImageBoard() {
 ImageBoard.prototype = {
 	_bDomains: {
 		'02ch.net': [{
-			ru: { value: true }
+			ru: { value: true },
+			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
 		'0chan.hk': [{
 			getSage: { value: function(post) {
@@ -7629,6 +7613,7 @@ ImageBoard.prototype = {
 					form textarea { resize: both !important; }'
 			} },
 			ru: { value: true },
+			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' },
 
 			init: { value: function() {
 				$each($Q('span[style="float: right;"]', doc.body), $del);
@@ -7651,6 +7636,7 @@ ImageBoard.prototype = {
 				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 			} },
 			ru: { value: true },
+			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' },
 			init: { value: function() {
 				$script('$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =\
 					doRefPreview = getRefMap = showRefMap = doRefMap = get_cookie = set_cookie =\
@@ -7674,6 +7660,7 @@ ImageBoard.prototype = {
 			getSage: { value: function(post) {
 				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
 			} },
+			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' },
 
 			_410: { value: true }
 		}, 'script[src*="kusaba"]'],
@@ -7715,6 +7702,7 @@ ImageBoard.prototype = {
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
+			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
 			getPosts: { value: function(thr) {
 				return $C('reply', thr);
 			} },
@@ -7761,6 +7749,7 @@ ImageBoard.prototype = {
 				return Object.getPrototypeOf(this).css +
 					'.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
 			} },
+			timePattern: { value: 'yy+dd+nn+w+hh+ii+ss' },
 			trTag: { value: 'li' },
 
 			_7ch: { value: true }
@@ -7820,6 +7809,7 @@ ImageBoard.prototype = {
 			} }
 		}, 'script[src*="kusaba"]'],
 		'dfwk.ru': [{
+			timePattern: { value: 'w+yy+nn+dd+hh+ii' },
 			dfwk: { value: true }
 		}, 'script[src*="kusaba"]'],
 		get 'ernstchan.com'() {
@@ -7852,6 +7842,9 @@ ImageBoard.prototype = {
 
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
+		'iichan.hk': [{
+			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' }
+		}],
 		'krautchan.net': [{
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'postreply' },
@@ -7869,6 +7862,7 @@ ImageBoard.prototype = {
 			qRef: { value: '.postnumber' },
 			qThread: { value: '.thread_body' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
+			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' },
 			getPicWrap: { value: function(el) {
 				return el.parentNode;
 			} },
@@ -7926,6 +7920,7 @@ ImageBoard.prototype = {
 			} },
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
+			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
 					this.getSage = function(post) {
@@ -8010,6 +8005,7 @@ ImageBoard.prototype = {
 				return false;
 			} },
 			ru: { value: true },
+			timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' },
 
 			tinyIb: { value: true }
 		},
@@ -8031,6 +8027,7 @@ ImageBoard.prototype = {
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.post_no:nth-of-type(2)' },
 			qTrunc: { value: '.toolong' },
+			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
 			getPageUrl: { value: function(b, p) {
 				return p > 0 ? fixBrd(b) + (p + 1) + this.docExt : fixBrd(b);
 			} },
@@ -8053,6 +8050,7 @@ ImageBoard.prototype = {
 			qOmitted: { value: '.abbrev > span:last-child' },
 			qMsg: { value: '.postbody' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
+			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' },
 			getImgLink: { value: function(img) {
 				var el = img.parentNode;
 				if(el.tagName === 'A') {
@@ -8152,6 +8150,7 @@ ImageBoard.prototype = {
 		qPostForm: '#postform',
 		qRef: '.reflink',
 		qTable: '',
+		timePattern: { value: '' },
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
 				$q('div[id*="_info"][style*="float"]', doc) ?
