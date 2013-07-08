@@ -128,7 +128,7 @@ Lng = {
 		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
-		'keybNavig':	['Навигация с помощью клавиатуры* ', 'Navigation with keyboard* '],
+		'keybNavig':	['Навигация с помощью клавиатуры ', 'Navigation with keyboard '],
 		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
 		'timeOffset':	[' Разница во времени', ' Time difference'],
@@ -278,30 +278,30 @@ Lng = {
 	],
 
 	keyNavHelp:		[
-		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n\n' +
-		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n' +
-		'"V" - вход в тред.\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
-		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n\n' +
-		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
-		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
+		'"Ctrl+&larr;" – предыдущая страница\n"Ctrl+&rarr;" – следующая страница\n"H" – скрыть текущий пост/тред\n\n' +
+		'На доске:\n"J" – тред ниже\n"K" – тред выше\n"N" – пост ниже\n"M" – пост выше\n' +
+		'"V" – вход в тред\n\nВ треде:\n"J" – пост ниже\n"K" – пост выше\n"V" – быстрый ответ',
+		'"Ctrl+&larr;" – previous page\n"Ctrl+&rarr;" – next page\n"H" – Hide current post/thread\n\n' +
+		'On board:\n"J" – thread below\n"K" – thread above\n"N" – post below\n"M" – post above\n' +
+		'"V" – enter thread\n\nIn thread:\n"J" – post below\n"K" – post above\n"V" – quick reply'
 	],
 
 	tpHelp:			[
-		'"s" - секунда (одна цифра),\n"i" - минута (одна цифра),\n"h" - час (одна цифра),\n"d" - день (одна цифра),\n' +
-		'"w" - неделя (строка)\n"n" - месяц (одна цифра),\n"m" - месяц (строка),\n"y" - год (одна цифра),\n' +
-		'"-" - любой символ\n"+" - любой символ за исключением цифр\n"?" - предыдущий символ может отсутствовать\n\Примеры:\n',
-		'"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n' +
-		'"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n' +
-		'"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n'
+		'"s" – секунда (одна цифра)\n"i" – минута (одна цифра)\n"h" – час (одна цифра)\n"d" – день (одна цифра)\n' +
+		'"w" – неделя (строка)\n"n" – месяц (одна цифра)\n"m" – месяц (строка)\n"y" – год (одна цифра)\n' +
+		'"-" – любой символ\n"+" – любой символ за исключением цифр\n"?" – предыдущий символ может отсутствовать\n\nПримеры:\n',
+		'"s" – second (one digit)\n"i" – minute (one digit)\n"h" – hour (one digit)\n"d" – day (one digit)\n' +
+		'"w" – week (string)\n"n" – month (one digit)\n"m" – month (string)\n"y" – year (one digit)\n' +
+		'"-" – any symbol\n"+" – any symbol except digits\n"?" – previous char may be absent\n\nExamples:\n'
 	],
 
 	trpHelp:			[
-		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения.\n' +
-		'"_s" - секунды,\n"_i" - минуты,\n"_h" - час,\n"_d" - день,\n"_w" - неделя\n"_n" - месяц (цифрами),\n"_m" - месяц (строка, сокращённый),\n' +
-		'"_M" - месяц (строка, полный),\n"_y" - год (2 цифры),\n"_Y" - год (4 цифры),\n"_o" - разница во времени\n\nПримеры:\n',
-		'Replace pattern may contains any symbols\nand following expressions which will be\nreplaced with the corresponding values.\n' +
-		'"_s" - seconds,\n"_i" - minutes,\n"_h" - hour,\n"_d" - day,\n"_w" - week\n"_n" - month (number),\n"_m" - month (string, abbr),\n' +
-		'"_M" - month (string, full),\n"_y" - year(2 digits),\n"_Y" - year(4 digits),\n"_o" - time difference\n\nExamples:\n'
+		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения:\n' +
+		'"_s" – секунды\n"_i" – минуты\n"_h" – час\n"_d" – день\n"_w" – неделя\n"_n" – месяц (цифрами)\n"_m" – месяц (строка, сокращённый)\n' +
+		'"_M" – месяц (строка, полный)\n"_y" – год (2 цифры)\n"_Y" – год (4 цифры)\n"_o" – разница во времени\n\nПримеры:\n',
+		'Replace pattern may contain any symbols\nand following expressions which will be\nreplaced with the corresponding values:\n' +
+		'"_s" – seconds\n"_i" – minutes\n"_h" – hour\n"_d" – day\n"_w" – week\n"_n" – month (number)\n"_m" – month (string, abbr)\n' +
+		'"_M" – month (string, full)\n"_y" – year (2 digits)\n"_Y" – year (4 digits)\n"_o" – time difference\n\nExamples:\n'
 	],
 
 	month:			[
@@ -420,7 +420,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
-aib, nav, brd, TNum, pageNum, updater, youTube, firstThr, visPosts = 2,
+aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, postWrapper, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
@@ -578,8 +578,33 @@ function $getStyle(el, prop) {
 	return getComputedStyle(el).getPropertyValue(prop);
 }
 
-function $focus(el) {
-	window.scrollTo(0, $offset(el).top);
+function $scroll(distance, runFn, endFn) {
+	var beginTime, endTime, pageOffset = pageYOffset,
+		DURATION = 400,
+		step = distance / DURATION;
+	if(!Cfg['animation'] || Math.abs(distance) < 50) {
+		scrollTo(0, pageOffset + distance);
+		if(endFn) {
+			endFn();
+		}
+		return;
+	}
+	function makeStep(currentTime) {
+		if(currentTime >= endTime) {
+			scrollTo(0, pageOffset + distance);
+			if(endFn) {
+				setTimeout(endFn, 0);
+			}
+			return;
+		}
+		scrollTo(0, pageOffset + ((step * (currentTime - beginTime)) | 0));
+		if(!runFn || runFn()) {
+			requestAnimationFrame(makeStep);
+		}
+	}
+	beginTime = performance.now();
+	endTime = beginTime + DURATION;
+	requestAnimationFrame(makeStep);
 }
 
 function $pd(e) {
@@ -671,7 +696,7 @@ $queue.prototype = {
 		}
 	},
 	complete: function() {
-		if(this.index >= this.length) {
+		if(this.index >= this.length && this.running === 0) {
 			this.endFn();
 		} else {
 			this.completed = true;
@@ -1197,21 +1222,20 @@ function addPanel() {
 				$if(!TNum && !aib.arch, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
 					$pd(e);
-					window.scrollTo(0, 0);
+					$scroll(-pageYOffset, null, null);
 				}, null, null, null),
 				pButton('godown', function(e) {
 					$pd(e);
-					window.scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
+					$scroll(doc.body.scrollHeight || doc.body.offsetHeight - pageYOffset, null, null);
 				}, null, null, null),
 				$if(!TNum && (pr.form || pr.oeForm), pButton('newthr', pr.toggleMainReply.bind(pr), null, null, null)),
 				$if(imgLen > 0, pButton('expimg', function(e) {
 					$pd(e);
 					isExpImg = !isExpImg;
 					$del($c('de-img-center', doc));
-					firstThr.forAll(function(post) {
+					for(var post = firstThr.op; post; post = post.next) {
 						post.toggleImages(isExpImg);
-						return false;
-					});
+					}
 				}, null, null, null)),
 				$if(imgLen > 0, pButton('maskimg', function(e) {
 					$pd(e);
@@ -1893,7 +1917,17 @@ function getCfgCommon() {
 		$if(nav.Anim, lBox('animation', true, null)),
 		lBox('closePopups', true, null),
 		$New('div', null, [
-			lBox('keybNavig', false, null),
+			lBox('keybNavig', false, function() {
+				if(Cfg['keybNavig']) {
+					if(keyNav) {
+						keyNav.enable();
+					} else {
+						keyNav = new KeyNavigation();
+					}
+				} else if(keyNav) {
+					keyNav.disable();
+				}
+			}),
 			$new('a', {'text': '?', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
 				$pd(e);
 				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
@@ -2175,85 +2209,37 @@ function addAudioNotifMenu(el) {
 //											KEYBOARD NAVIGATION
 //============================================================================================================
 
-function initKeyNavig() {
-	var scrScroll = false,
-		pScroll = true,
-		tScroll = true,
-		cPost = null,
-		cThread = firstThr,
-		selPost = null;
-
-	function getNextPost(post, toUp, isPost) {
-		var thr, tPost = toUp ? post.prev : post.next;
-		if(tPost || !isPost) {
-			return tPost;
-		}
-		thr = toUp ? post.thr.prev : post.thr.next;
-		return thr ? toUp ? thr.last : thr.op : post;
-	}
-
-	function scrollToPost(post, toUp, scroll, toTop) {
-		var tempEl, isPost = post instanceof Post,
-			temp = getNextPost(post, toUp, isPost);
-		if(temp) {
-			post = temp;
-		} else {
-			return post;
-		}
-		while(true) {
-			if(post.hidden) {
-				if(temp = getNextPost(post, toUp, isPost)) {
-					post = temp;
-					continue;
-				}
-				return post;
+function KeyNavigation() {
+	this.lastPageOffset = 0;
+	this.scrolling = false;
+	this.cPost = null;
+	this.enabled = true;
+	doc.addEventListener('keydown', this, true);
+}
+KeyNavigation.prototype = {
+	clear: function() {
+		this.lastPageOffset = 0;
+		this.scrolling = false;
+		this.cPost = null;
+	},
+	disable: function() {
+		if(this.enabled) {
+			if(this.cPost) {
+				this.cPost.unselect();
 			}
-			if(isPost && post.thr.hidden) {
-				if(temp = toUp ? post.thr.prev : post.thr.next) {
-					post = toUp ? temp.last : temp.op;
-					continue;
-				}
-				return post;
-			}
-			break;
+			doc.removeEventListener('keydown', this, true);
+			this.enabled = false;
 		}
-		if(scroll) {
-			window.scrollTo(0, toTop ? post.offsetTop : post.offsetTop - Post.sizing.wHeight / 2 +
-				post.el.clientHeight / 2);
+	},
+	enable: function() {
+		if(!this.enabled) {
+			this.clear();
+			doc.addEventListener('keydown', this, true);
+			this.enabled = true;
 		}
-		if(selPost) {
-			selPost.classList.remove('de-selected');
-		}
-		selPost = post.el;
-		if(isPost) {
-			pScroll = true;
-			if(post.isOp) {
-				selPost = post.thr.el;
-				return post;
-			}
-		} else {
-			tScroll = true;
-		}
-		selPost.classList.add('de-selected');
-		return post;
-	}
-
-	function scrollDownToPost() {
-		cPost = scrollToPost(cPost, false, cPost.isOp || cPost.offsetTop > Post.sizing.wHeight / 2 -
-			cPost.el.clientHeight / 2, false);
-	}
-
-	window.addEventListener('scroll', function() {
-		if(scrScroll) {
-			scrScroll = false;
-		} else {
-			pScroll = true;
-			tScroll = true;
-		}
-	}, false);
-
-	doc.addEventListener('keydown', function(e) {
-		var pyOffset, curTh = e.target.tagName,
+	},
+	handleEvent: function(e) {
+		var pyOffset, post, curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
 			if(kc === 27) {
@@ -2280,7 +2266,7 @@ function initKeyNavig() {
 			return;
 		}
 		if(e.altKey || e.shiftKey || kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 &&
-			kc !== 86 && kc !== 116
+			kc !== 86 && kc !== 116 && kc !== 72
 		) {
 			return;
 		}
@@ -2294,54 +2280,83 @@ function initKeyNavig() {
 		}
 		$pd(e);
 		e.stopPropagation();
-		if(tScroll) {
-			if(pScroll) {
-				cPost = null;
-				pyOffset = window.pageYOffset;
-				firstThr.forAll(function(post) {
-					if(post.offsetTop > pyOffset) {
-						cPost = post.isOp ? post : post.prev;
-						return true;
-					}
-					return false;
-				});
-			} else {
-				cPost = cThread.op;
+		if(!this.scrolling && this.lastPageOffset !== (pyOffset = pageYOffset)) {
+			for(post = firstThr.op; post; post = post.next) {
+				if(post.offsetTop >= pyOffset) {
+					break;
+				}
 			}
+			this.cPost = post;
+			this.lastPageOffset = pyOffset;
+		} else {
+			post = this.cPost;
+			this.scrolling = false;
 		}
-		if(!TNum && pScroll && cPost && (cPost.isOp || tScroll)) {
-			cThread = cPost.thr;
-		}
-		pScroll = tScroll = false;
 		if(kc === 86) {
 			if(TNum) {
-				pr.showQuickReply(cPost);
+				pr.showQuickReply(post);
 			} else if(nav.Firefox) {
-				GM_openInTab(aib.getThrdUrl(brd, cThread.num), false, true);
+				GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
 			} else {
-				window.open(aib.getThrdUrl(brd, cThread.num), '_blank');
+				window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
 			}
-			return;
-		}
-		scrScroll = true;
-		if(kc === 75) {
-			if(TNum) {
-				cPost = scrollToPost(cPost, true, true, false);
-			} else {
-				cThread = scrollToPost(cThread, true, true, true);
+		} else if(kc === 72) {
+			if(!post) {
+				this.cPost = post = firstThr.op;
 			}
+			if(post.toggleUserVisib()) {
+				this._scroll(post, false, post.isOp);
+			}
+		} else if(kc === 75) {
+			this._scroll(post, true, !TNum);
 		} else if(kc === 74) {
-			if(TNum) {
-				scrollDownToPost();
-			} else {
-				cThread = scrollToPost(cThread, false, true, true);
-			}
+			this._scroll(post, false, !TNum);
 		} else if(!TNum && kc === 77) {
-			cPost = scrollToPost(cPost, true, true, false);
+			this._scroll(post, true, false);
 		} else if(!TNum && kc === 78) {
-			scrollDownToPost();
+			this._scroll(post, false, false);
 		}
-	}, true);
+	},
+	_scroll: function(post, toUp, toThread) {
+		var thr, el, next;
+		this.scrolling = true;
+		if(!post) {
+			next = firstThr.op;
+		} else {
+			if(toThread) {
+				thr = post.thr;
+				if(thr = toUp ? thr.prev : thr.next) {
+					next = thr.op;
+				} else {
+					return;
+				}
+			} else {
+				if(next = toUp ? post.prev : post.next) {
+					if(!next.isOp && next.thr.hidden) {
+						if(next.thr !== post.thr) {
+							next = next.thr.op;
+						} else if(thr = toUp ? next.thr.prev : next.thr.next) {
+							next = thr.op;
+						} else {
+							return;
+						}
+					}
+				} else {
+					return;
+				}
+			}
+			post.unselect();
+		}
+		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
+		$scroll(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
+			next.el.clientHeight / 2), function() {
+				return this.scrolling;
+			}.bind(this), function() {
+				this.lastPageOffset = pageYOffset;
+			}.bind(this));
+		next.select();
+		this.cPost = next;
+	}
 }
 
 
@@ -2396,7 +2411,7 @@ function checkUpload(response) {
 			infoLoadErrors(eCode, eMsg, 0);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
-				$focus(firstThr.last.el);
+				$scroll(firstThr.last.el.getBoundingClientRect().top, null, null);
 			}
 		}, true);
 	} else {
@@ -2466,7 +2481,7 @@ html5Submit.prototype = {
 			}
 			fr = new FileReader();
 			fr.onload = function(name, e) {
-				var dat = this.clearImage(new Uint8Array(e.target.result), !!el.imgFile);
+				var dat = this.clearImage(e.target.result, !!el.imgFile);
 				if(dat) {
 					if(el.imgFile) {
 						dat.push(el.imgFile);
@@ -2513,12 +2528,12 @@ html5Submit.prototype = {
 			}.bind(this.fn)
 		});
 	},
-	readExif: function(exif, off, len) {
+	readExif: function(data, off, len) {
 		var i, j, dE, tag, tgLen, xRes = 0,
 			yRes = 0,
 			resT = 0,
-			le = String.fromCharCode(exif[off], exif[off + 1]) !== 'MM',
-			dv = new DataView(exif.buffer, off);
+			dv = new DataView(data, off),
+			le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 		if(dv.getUint16(2, le) !== 0x2A) {
 			return null;
 		}
@@ -2547,34 +2562,58 @@ html5Submit.prototype = {
 		}
 		xRes = xRes || yRes;
 		yRes = yRes || xRes;
-		return [resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF];
+		return new Uint8Array([resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
-	clearImage: function(dat, delExtraData) {
-		var tmp, i, j, len, out, jpgDat, rData, rExif = !!Cfg['removeEXIF'];
+	clearImage: function(data, delExtraData) {
+		var tmp, i, len, deep, rv, lIdx, mSize, jpgDat, img = new Uint8Array(data),
+			rExif = !!Cfg['removeEXIF'];
 		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-			return [dat];
+			return [img];
 		}
-		if(dat[0] === 0xFF && dat[1] === 0xD8) {
-			for(i = 2, j = 0, out = 1, len = dat.length - 1, rData = [2], jpgDat = null; i < len; ) {
-				if(dat[i] === 0xFF) {
+		if(img[0] === 0xFF && img[1] === 0xD8) {
+			for(i = 2, deep = 1, len = img.length - 1, rv = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+				if(img[i] === 0xFF) {
 					if(rExif) {
-						if(!jpgDat && out === 1) {
-							if(dat[i + 1] === 0xE1 && dat[i + 4] === 0x45) {
-								jpgDat = this.readExif(dat, i + 10, (dat[i + 2] << 8) + dat[i + 3]);
-							} else if(dat[i + 1] === 0xE0 && dat[i + 7] === 0x46) {
-								jpgDat = [dat[i + 11], dat[i + 12], dat[i + 13], dat[i + 14]];
+						if(!jpgDat && deep === 1) {
+							if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
+								jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
+							} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46) {
+								jpgDat = img.subarray(i + 11, i + 15);
 							}
 						}
-						if((dat[i + 1] >> 4) === 0xE || dat[i + 1] === 0xFE) {
-							tmp = 2 + (dat[i + 2] << 8) + dat[i + 3];
-							j += tmp;
-							rData.push(i, i += tmp);
+						if((img[i + 1] >> 4) === 0xE || img[i + 1] === 0xFE) {
+							if(lIdx !== i) {
+								rv.push(img.subarray(lIdx, i));
+							}
+							mSize = (img[i + 2] << 8) + img[i + 3];
+							if(img[i + 1] === 0xFE) {
+								i += 2 + mSize;
+							} else {
+								i += 2;
+								while(mSize--) {
+									if(img[i] === 0xFF && img[i + 1] === 0xD8) {
+										i += 2;
+										while(img[i] !== 0xFF || img[i + 1] !== 0xD9) {
+											i++;
+										}
+										i += 2;
+										if(i === len) {
+											return null;
+										}
+										break;
+									}
+									i++;
+								}
+							}
+							lIdx = i;
 							continue;
 						}
+					} else if(img[i + 1] === 0xD8) {
+						deep++;
+						i++;
+						continue;
 					}
-					if(dat[i + 1] === 0xD8) {
-						out++;
-					} else if(dat[i + 1] === 0xD9 && --out === 0) {
+					if(img[i + 1] === 0xD9 && --deep === 0) {
 						break;
 					}
 				}
@@ -2584,24 +2623,18 @@ html5Submit.prototype = {
 			if(!delExtraData && len - i > 75) {
 				i = len;
 			}
-			if(j === 0) {
-				return i === len ? [dat] : [new Uint8Array(dat, i)];
+			if(lIdx === 2) {
+				return i === len ? [img] : [new Uint8Array(data, 0, i)];
 			}
-			rData.push(i);
-			out = new Uint8Array(i - j + 18);
-			out.set([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x10, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]
-				.concat(jpgDat || [0, 0, 1, 0, 1]), 0
-			);
-			for(i = 0, j = 20, len = rData.length; i < len; i += 2) {
-				out.set(dat.subarray(rData[i], rData[i + 1]), j);
-				j += rData[i + 1] - rData[i];
-			}
-			return [out];
+			rv[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0D, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
+			rv[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
+			rv.push(img.subarray(lIdx, i));
+			return rv;
 		}
-		if(dat[0] === 0x89 && dat[1] === 0x50) {
-			for(i = 0, len = dat.length - 7; i < len && (dat[i] !== 0x49 || dat[i + 1] !== 0x45 || dat[i + 2] !== 0x4E || dat[i + 3] !== 0x44); i++) {}
+		if(img[0] === 0x89 && img[1] === 0x50) {
+			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
-			return i === len || (!delExtraData && len - i > 75) ? [dat] : [new Uint8Array(dat, i)];
+			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
 	}
@@ -2917,8 +2950,8 @@ function loadDocFiles(imgOnly) {
 		var u, a, dt;
 		if(!imgOnly) {
 			dt = doc.doctype;
-			//$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
-			//tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, {aib: ' + JSON.stringify(aib) + '});');
+			$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, true);');
 			tar.addString(TNum + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '')
 				+ (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
@@ -2955,6 +2988,12 @@ function loadDocFiles(imgOnly) {
 			} else {
 				el.href = getAbsLink(el.href);
 			}
+			if(!el.classList.contains('de-preflink')) {
+				el.className = 'de-preflink ' + el.className;
+			}
+		});
+		$each($Q('[de-post]', dc), function(post, i) {
+			post.setAttribute('de-num', i === 0 ? TNum : aib.getPNum(post));
 		});
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
@@ -3396,7 +3435,7 @@ function loadFavorThread() {
 		return;
 	}
 	if((post = pByNum[el.getAttribute('info').split(';')[2]]) && !post.hidden) {
-		$focus(post);
+		$scroll(post.getBoundingClientRect().top, null, null);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -3441,6 +3480,9 @@ function parsePages(pages, node) {
 	}
 	if(pr.txta) {
 		pr.txta.value = '';
+	}
+	if(keyNav) {
+		keyNav.clear();
 	}
 	$disp(node);
 	closeAlert($id('de-alert-load-pages'));
@@ -4571,10 +4613,10 @@ Spells.prototype = {
 	setSpells: function(spells, sync) {
 		this.update(spells, sync, Cfg['hideBySpell']);
 		if(Cfg['hideBySpell']) {
-			firstThr.forAll(function(post) {
+			for(var post = firstThr.op; post; post = post.next) {
+				delete post.offsetTop;
 				this.check(post, post.hide);
-				return false;
-			}.bind(this));
+			}
 		} else {
 			this.enable = false;
 		}
@@ -4650,10 +4692,10 @@ Spells.prototype = {
 function disableSpells() {
 	closeAlert($id('de-alert-help-err-spell'));
 	if(spells.haveSpells) {
-		firstThr.forAll(function(post) {
+		for(var post = firstThr.op; post; post = post.next) {
+			delete post.offsetTop;
 			spells.check(post, post.unhide);
-			return false;
-		});
+		}
 	}
 }
 
@@ -4689,10 +4731,10 @@ function addSpell(type, arg, isNeg) {
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
-			firstThr.forAll(function(post) {
+			for(var post = firstThr.op; post; post = post.next) {
+				delete post.offsetTop;
 				spells.check(post, post.hide);
-				return false;
-			});
+			}
 		} else {
 			saveCfg('spells', '');
 			spells.enable = false;
@@ -5415,7 +5457,7 @@ PostForm.prototype = {
 		} else {
 			$disp(this.pArea);
 		}
-		$focus(this.pArea);
+		$scroll(this.pArea.getBoundingClientRect().top, null, null);
 	},
 
 	_qArea: null,
@@ -5730,7 +5772,6 @@ function embedImagesLinks(el) {
 	}
 }
 
-
 //============================================================================================================
 //													POST
 //============================================================================================================
@@ -5808,7 +5849,7 @@ Post.sizing = {
 		return el.parentNode.getBoundingClientRect().left + window.pageXOffset + 25;
 	},
 	getCachedOffset: function(pCount, el) {
-		pCount = Math.min(pCount, 5);
+		pCount = Math.min(pCount, 10);
 		if(pCount in this._iOffsets) {
 			return this._iOffsets[pCount];
 		}
@@ -5817,10 +5858,9 @@ Post.sizing = {
 	handleEvent: function() {
 		this.wHeight = window.innerHeight;
 		this.wWidth = doc.documentElement.clientWidth;
-		firstThr.forAll(function(post) {
+		for(var post = firstThr.op; post; post = post.next) {
 			delete post.offsetTop;
-			return false;
-		});
+		}
 	},
 
 	_enabled: false,
@@ -5890,28 +5930,6 @@ Post.prototype = {
 			this.ytLinksLoading++;
 			loader.run([this, link, m[1]]);
 		}
-	},
-	toggleImages: function(expand) {
-		var i, dat;
-		for(i in this.imagesData) {
-			dat = this.imagesData[i];
-			if(dat.expanded ^ expand) {
-				if(expand) {
-					this._addFullImage(dat.el, dat, true, true);
-				} else {
-					this._removeFullImage(null, dat.el.nextSibling, dat.el, dat);
-				}
-			}
-		}
-	},
-	forAll: function(fn) {
-		var post = this;
-		do {
-			if(fn(post)) {
-				return true;
-			}
-		} while(post = post.next);
-		return false;
 	},
 	handleEvent: function(e) {
 		var temp, el = e.target,
@@ -6192,7 +6210,8 @@ Post.prototype = {
 		return val;
 	},
 	get offsetTop() {
-		var val = this.el.getBoundingClientRect().top + window.pageYOffset;
+		var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el,
+			val = el.getBoundingClientRect().top + window.pageYOffset;
 		Object.defineProperty(this, 'offsetTop', { configurable: true, value: val });
 		return val;
 	},
@@ -6216,6 +6235,16 @@ Post.prototype = {
 		Object.defineProperty(this, 'sage', { value: val });
 		return val;
 	},
+	select: function() {
+		if(this.isOp) {
+			if(this.hidden) {
+				this.thr.el.previousElementSibling.classList.add('de-selected');
+			}
+			this.thr.el.classList.add('de-selected');
+		} else {
+			this.el.classList.add('de-selected');
+		}
+	},
 	setUserVisib: function(hide, date, sync) {
 		this.setVisib(hide);
 		this.btns.firstChild.className = 'de-btn-hide-user';
@@ -6232,7 +6261,8 @@ Post.prototype = {
 				'date': date,
 				'isOp': this.isOp,
 				'num': this.num,
-				'hide': hide
+				'hide': hide,
+				'title': this.isOp ? this.title : ''
 			});
 			localStorage.removeItem('__de-post');
 		}
@@ -6327,6 +6357,19 @@ Post.prototype = {
 			this.el.classList.remove('de-post-hid');
 		}
 	},
+	toggleImages: function(expand) {
+		var i, dat;
+		for(i in this.imagesData) {
+			dat = this.imagesData[i];
+			if(dat.expanded ^ expand) {
+				if(expand) {
+					this._addFullImage(dat.el, dat, true);
+				} else {
+					this._removeFullImage(null, dat.el.nextSibling, dat.el, dat);
+				}
+			}
+		}
+	},
 	toggleUserVisib: function() {
 		var isOp = this.isOp,
 			hide = !this.hidden,
@@ -6341,6 +6384,10 @@ Post.prototype = {
 			saveHiddenThreads(false);
 		}
 		saveUserPosts();
+		for(var post = this.next; post; post = post.next) {
+			delete post.offsetTop;
+		}
+		return hide;
 	},
 	get trunc() {
 		var el = $q(aib.qTrunc, this.el), val = null;
@@ -6371,6 +6418,17 @@ Post.prototype = {
 		sVis[this.index] = 1;
 		this.setVisib(false);
 		this.unhideRefs();
+	},
+	unselect: function() {
+		if(this.isOp) {
+			var el = $id('de-thr-hid-' + this.num);
+			if(el) {
+				el.classList.remove('de-selected');
+			}
+			this.thr.el.classList.remove('de-selected');
+		} else {
+			this.el.classList.remove('de-selected');
+		}
 	},
 	updateMsg: function(fullPost) {
 		var origMsg = aib.hana ? this.msg.firstElementChild : this.msg,
@@ -6444,11 +6502,11 @@ Post.prototype = {
 		) + '</span>');
 		this.btns = ref.nextSibling;
 	},
-	_addFullImage: function(el, data, inPost, isFast) {
+	_addFullImage: function(el, data, inPost) {
 		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			el.style.display = 'none';
-			scrW -= isFast ? Post.sizing.getCachedOffset(this.count, el) : Post.sizing.getOffset(el);
+			scrW -= this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
 		} else {
 			$del($c('de-img-center', doc));
 		}
@@ -6682,7 +6740,7 @@ Post.prototype = {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
 			} else {
-				this._addFullImage(el, data, inPost, !this._isPview);
+				this._addFullImage(el, data, inPost);
 			}
 		}
 		$pd(e);
@@ -6727,7 +6785,13 @@ Post.prototype = {
 		case 'spell-ihash': addSpell(4 /* #ihash */, getImgHash(this), false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
-			firstThr.forAll(Post.findSameText.bind(null, this.num, this.hidden, Post.getWrds(this.text), Date.now()));
+			var num = this.num,
+				hidden = this.hidden,
+				wrds = Post.getWrds(this.text),
+				time = Date.now();
+			for(var post = firstThr.op; post; post = post.next) {
+				Post.findSameText(num, hidden, wrds, time, post);
+			}
 			saveUserPosts();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
@@ -7199,11 +7263,11 @@ function updRefMap(post, add) {
 //													THREAD
 //============================================================================================================
 
-function Thread(el, next, parse) {
+function Thread(el, prev, parse) {
 	this.el = el;
-	this.next = next;
-	if(next) {
-		next.prev = this;
+	this.prev = prev;
+	if(prev) {
+		prev.next = this;
 	}
 	if(parse) {
 		this._parseThread(el);
@@ -7216,17 +7280,10 @@ Thread.prototype = {
 		tNums: [],
 		hPosts: []
 	},
+	last: null,
 	loadedOnce: false,
-	prev: null,
-	forAll: function(fn) {
-		var thr = this;
-		do {
-			if(thr.op.forAll(fn)) {
-				return true;
-			}
-		} while(thr = thr.next);
-		return false;
-	},
+	next: null,
+	op: null,
 	checkSpells: function() {
 		var i, post, hPosts = 0,
 			posts = this.gInfo.hPosts,
@@ -7260,7 +7317,7 @@ Thread.prototype = {
 					op.updateMsg(newOp);
 				}
 				delete op.ref;
-				for(post = op.next; post; post = post.next) {
+				for(post = op.next; post && post.count !== 0; post = post.next) {
 					if(post.trunc) {
 						post.updateMsg(els[post.count - 1]);
 					}
@@ -7286,7 +7343,7 @@ Thread.prototype = {
 			}
 			this.loadedOnce = true;
 			closeAlert($id('de-alert-load-thr'));
-			$focus(opEl);
+			$scroll(opEl.getBoundingClientRect().top, null, null);
 			Fn && Fn();
 		}.bind(this, last, Fn), function(eCode, eMsg) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
@@ -7342,9 +7399,6 @@ Thread.prototype = {
 			Fn(eCode, eMsg, 0);
 			Fn = null;
 		});
-	},
-	get offsetTop() {
-		return this.el.getBoundingClientRect().top + window.pageYOffset;
 	},
 	pviewParse: function(tNum, posts) {
 		var i, len, num, el, els = aib.getPosts(this.el);
@@ -7424,7 +7478,8 @@ Thread.prototype = {
 			els = aib.getPosts(node),
 			len = els.length,
 			num = aib.getTNum(node),
-			offset = this.prev ? this.prev._offset + this.prev._length: 0,
+			prev = this.prev,
+			offset = prev ? prev._offset + prev._length : 0,
 			omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, node), len);
 		this.num = num;
 		this.gInfo.tNums.push(+num);
@@ -7434,7 +7489,7 @@ Thread.prototype = {
 		this._length = len;
 		pByNum[num] = lastPost = this.op = new Post(aib.getOp(node, doc), this, num, 0);
 		lastPost.isOp = true;
-		lastPost.init(offset, null);
+		lastPost.init(offset, prev ? prev.last : null);
 		for(i = 0; i < len; i++) {
 			num = aib.getPNum(el = els[i]);
 			pByNum[num] = lastPost = new Post(el, this, num, omt + i).init(offset, lastPost);
@@ -7454,7 +7509,7 @@ Thread.prototype = {
 		this._postsCache = doc.createDocumentFragment();
 		parseLoop:
 		for(i = 0; i <= len || post; ) {
-			if(!post) {
+			if(!post || post.count === 0) {
 				if(!TNum && this._postsCache.hasChildNodes()) {
 					$after(this.op.el, this._postsCache);
 					this._postsCache = doc.createDocumentFragment();
@@ -7475,6 +7530,7 @@ Thread.prototype = {
 				break;
 			}
 			while(post.deleted) {
+				last = post;
 				post = post.next;
 				if(!post) {
 					continue parseLoop;
@@ -8294,6 +8350,17 @@ function Navigator() {
 	if(this.WebKit) {
 		window.URL = window.webkitURL;
 	}
+	if(!('requestAnimationFrame' in window)) {
+		window.requestAnimationFrame = window.mozRequestAnimationFrame ||
+			window.webkitRequestAnimationFrame || function(callback) {
+				setTimeout(function(fn) {
+					fn(performance.now());
+				}, 1000 / 60, callback);
+			};
+	}
+	if(!('performance' in window)) {
+		window.performance = {now: Date.now};
+	}
 }
 Navigator.prototype = {
 	showNotification: null,
@@ -8526,7 +8593,7 @@ function Initialization() {
 }
 
 function parsePage(el, dc, lThr, parse) {
-	var i, thrds = $Q(aib.qThread, el),
+	var i, fThr, thrds = $Q(aib.qThread, el),
 		len = thrds.length;
 	if(!firstThr || firstThr.gInfo.allPCount < 2) {
 		if(!aib.qTable) {
@@ -8563,12 +8630,16 @@ function parsePage(el, dc, lThr, parse) {
 			prevVal.appendChild(curVal);
 		}, dc.createElement('div'));
 		len = thrds.length;
+		if(len === 0) {
+			return null;
+		}
 	}
-	for(i = len - 1; i >= 0; i--) {
+	fThr = lThr = new Thread(thrds[0], lThr, parse);
+	for(i = 1; i < len; i++) {
 		lThr = new Thread(thrds[i], lThr, parse);
 	}
 	thrds = null;
-	return lThr;
+	return fThr;
 }
 
 function tryToParse(node, lastThr) {
@@ -8946,7 +9017,7 @@ function doScript() {
 	saveFavorites();
 	$log('Parse delform');
 	if(Cfg['keybNavig']) {
-		initKeyNavig();
+		keyNav = new KeyNavigation();
 		$log('Init keybinds');
 	}
 	if(!liteMode) {
