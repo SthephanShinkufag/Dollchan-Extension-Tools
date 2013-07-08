@@ -2302,11 +2302,13 @@ KeyNavigation.prototype = {
 			}
 		} else if(kc === 72) {
 			if(!post) {
-				this.cPost = post = firstThr.op;
+				post = this._getNextVisPost(null, true, false);
+				if(!post) {
+					return;
+				}
 			}
-			if(post.toggleUserVisib()) {
-				this._scroll(post, false, post.isOp);
-			}
+			post.toggleUserVisib();
+			this._scroll(post, false, post.isOp);
 		} else if(kc === 75) {
 			this._scroll(post, true, !TNum);
 		} else if(kc === 74) {
@@ -2317,34 +2319,34 @@ KeyNavigation.prototype = {
 			this._scroll(post, false, false);
 		}
 	},
-	_scroll: function(post, toUp, toThread) {
-		var thr, el, next;
-		this.scrolling = true;
-		if(!post) {
-			next = firstThr.op;
-		} else {
-			if(toThread) {
-				thr = post.thr;
-				if(thr = toUp ? thr.prev : thr.next) {
-					next = thr.op;
-				} else {
-					return;
-				}
-			} else {
-				if(next = toUp ? post.prev : post.next) {
-					if(!next.isOp && next.thr.hidden) {
-						if(next.thr !== post.thr) {
-							next = next.thr.op;
-						} else if(thr = toUp ? next.thr.prev : next.thr.next) {
-							next = thr.op;
-						} else {
-							return;
-						}
-					}
-				} else {
-					return;
-				}
+	_getNextVisPost: function(cPost, isOp, toUp) {
+		var thr, post;
+		if(isOp) {
+			thr = cPost ? toUp ? cPost.thr.prev : cPost.thr.next : firstThr;
+			while(thr && thr.hidden) {
+				thr = toUp ? thr.prev : thr.next;
 			}
+			return thr ? thr.op : null;
+		}
+		post = cPost ? toUp ? cPost.prev : cPost.next : firstThr.op;
+		while(post) {
+			if(post.thr.hidden) {
+				post = toUp ? post.thr.op.prev : post.thr.last.next;
+			} else if(post.hidden) {
+				post = toUp ? post.prev : post.next
+			} else {
+				return post;
+			}
+		}
+		return null;
+	},
+	_scroll: function(post, toUp, toThread) {
+		var el, next = this._getNextVisPost(post, toThread, toUp);
+		this.scrolling = true;
+		if(!next) {
+			return;
+		}
+		if(post) {
 			post.unselect();
 		}
 		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
@@ -6387,7 +6389,6 @@ Post.prototype = {
 		for(var post = this.next; post; post = post.next) {
 			delete post.offsetTop;
 		}
-		return hide;
 	},
 	get trunc() {
 		var el = $q(aib.qTrunc, this.el), val = null;
