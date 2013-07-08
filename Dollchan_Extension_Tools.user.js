@@ -5849,7 +5849,7 @@ Post.sizing = {
 		return el.parentNode.getBoundingClientRect().left + window.pageXOffset + 25;
 	},
 	getCachedOffset: function(pCount, el) {
-		pCount = Math.min(pCount, 5);
+		pCount = Math.min(pCount, 10);
 		if(pCount in this._iOffsets) {
 			return this._iOffsets[pCount];
 		}
