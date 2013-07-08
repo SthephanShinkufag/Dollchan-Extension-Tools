@@ -278,30 +278,30 @@ Lng = {
 	],
 
 	keyNavHelp:		[
-		'"Ctrl+Влево" - предыдущая страница,\n"Ctrl+Вправо" - следующая страница.\n"H" - срыть текущий пост/тред.\n\n' +
-		'На доске:\n"J" - тред ниже,\n"K" - тред выше,\n"N" - пост ниже,\n"M" - пост выше,\n' +
-		'"V" - вход в тред.\n\nВ треде:\n"J" - пост ниже,\n"K" - пост выше,\n"V" - быстрый ответ',
-		'"Ctrl+Left" - previous page\n"Ctrl+Right" - next page.\n"H" - Hide current post/thread.\n\n' +
-		'On board:\n"J" - thread below,\n"K" - thread above,\n"N" - post below,\n"M" - post above,\n' +
-		'"V" - enter a thread.\n\nIn thread:\n"J" - post below,\n"K" - post above,\n"V" - quick reply.'
+		'"Ctrl+&larr;" – предыдущая страница\n"Ctrl+&rarr;" – следующая страница\n"H" – скрыть текущий пост/тред\n\n' +
+		'На доске:\n"J" – тред ниже\n"K" – тред выше\n"N" – пост ниже\n"M" – пост выше\n' +
+		'"V" – вход в тред\n\nВ треде:\n"J" – пост ниже\n"K" – пост выше\n"V" – быстрый ответ',
+		'"Ctrl+&larr;" – previous page\n"Ctrl+&rarr;" – next page\n"H" – Hide current post/thread\n\n' +
+		'On board:\n"J" – thread below\n"K" – thread above\n"N" – post below\n"M" – post above\n' +
+		'"V" – enter thread\n\nIn thread:\n"J" – post below\n"K" – post above\n"V" – quick reply'
 	],
 
 	tpHelp:			[
-		'"s" - секунда (одна цифра),\n"i" - минута (одна цифра),\n"h" - час (одна цифра),\n"d" - день (одна цифра),\n' +
-		'"w" - неделя (строка)\n"n" - месяц (одна цифра),\n"m" - месяц (строка),\n"y" - год (одна цифра),\n' +
-		'"-" - любой символ\n"+" - любой символ за исключением цифр\n"?" - предыдущий символ может отсутствовать\n\Примеры:\n',
-		'"s" - second (one digit),\n"i" - minute (one digit),\n"h" - hour (one digit),\n"d" - day (one digit),\n' +
-		'"w" - week (string)\n"n" - month (one digit),\n"m" - month (string),\n"y" - year (one digit),\n' +
-		'"-" - any symbol\n"+" - any symbol except digits\n"?" - previous char may not be\n\nExamples:\n'
+		'"s" – секунда (одна цифра)\n"i" – минута (одна цифра)\n"h" – час (одна цифра)\n"d" – день (одна цифра)\n' +
+		'"w" – неделя (строка)\n"n" – месяц (одна цифра)\n"m" – месяц (строка)\n"y" – год (одна цифра)\n' +
+		'"-" – любой символ\n"+" – любой символ за исключением цифр\n"?" – предыдущий символ может отсутствовать\n\nПримеры:\n',
+		'"s" – second (one digit)\n"i" – minute (one digit)\n"h" – hour (one digit)\n"d" – day (one digit)\n' +
+		'"w" – week (string)\n"n" – month (one digit)\n"m" – month (string)\n"y" – year (one digit)\n' +
+		'"-" – any symbol\n"+" – any symbol except digits\n"?" – previous char may be absent\n\nExamples:\n'
 	],
 
 	trpHelp:			[
-		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения.\n' +
-		'"_s" - секунды,\n"_i" - минуты,\n"_h" - час,\n"_d" - день,\n"_w" - неделя\n"_n" - месяц (цифрами),\n"_m" - месяц (строка, сокращённый),\n' +
-		'"_M" - месяц (строка, полный),\n"_y" - год (2 цифры),\n"_Y" - год (4 цифры),\n"_o" - разница во времени\n\nПримеры:\n',
-		'Replace pattern may contains any symbols\nand following expressions which will be\nreplaced with the corresponding values.\n' +
-		'"_s" - seconds,\n"_i" - minutes,\n"_h" - hour,\n"_d" - day,\n"_w" - week\n"_n" - month (number),\n"_m" - month (string, abbr),\n' +
-		'"_M" - month (string, full),\n"_y" - year(2 digits),\n"_Y" - year(4 digits),\n"_o" - time difference\n\nExamples:\n'
+		'Шaблон замены может содержать любые символы\nи следующие специальные выражения, которые\nбудут заменены на соответствующие значения:\n' +
+		'"_s" – секунды\n"_i" – минуты\n"_h" – час\n"_d" – день\n"_w" – неделя\n"_n" – месяц (цифрами)\n"_m" – месяц (строка, сокращённый)\n' +
+		'"_M" – месяц (строка, полный)\n"_y" – год (2 цифры)\n"_Y" – год (4 цифры)\n"_o" – разница во времени\n\nПримеры:\n',
+		'Replace pattern may contain any symbols\nand following expressions which will be\nreplaced with the corresponding values:\n' +
+		'"_s" – seconds\n"_i" – minutes\n"_h" – hour\n"_d" – day\n"_w" – week\n"_n" – month (number)\n"_m" – month (string, abbr)\n' +
+		'"_M" – month (string, full)\n"_y" – year (2 digits)\n"_Y" – year (4 digits)\n"_o" – time difference\n\nExamples:\n'
 	],
 
 	month:			[
@@ -1235,7 +1235,6 @@ function addPanel() {
 					$del($c('de-img-center', doc));
 					for(var post = firstThr.op; post; post = post.next) {
 						post.toggleImages(isExpImg);
-						return false;
 					}
 				}, null, null, null)),
 				$if(imgLen > 0, pButton('maskimg', function(e) {
@@ -2308,16 +2307,14 @@ KeyNavigation.prototype = {
 			if(post.toggleUserVisib()) {
 				this._scroll(post, false, post.isOp);
 			}
-		} else {
-			if(kc === 75) {
-				this._scroll(post, true, !TNum);
-			} else if(kc === 74) {
-				this._scroll(post, false, !TNum);
-			} else if(!TNum && kc === 77) {
-				this._scroll(post, true, false);
-			} else if(!TNum && kc === 78) {
-				this._scroll(post, false, false);
-			}
+		} else if(kc === 75) {
+			this._scroll(post, true, !TNum);
+		} else if(kc === 74) {
+			this._scroll(post, false, !TNum);
+		} else if(!TNum && kc === 77) {
+			this._scroll(post, true, false);
+		} else if(!TNum && kc === 78) {
+			this._scroll(post, false, false);
 		}
 	},
 	_scroll: function(post, toUp, toThread) {
@@ -2953,8 +2950,8 @@ function loadDocFiles(imgOnly) {
 		var u, a, dt;
 		if(!imgOnly) {
 			dt = doc.doctype;
-			//$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
-			//tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, {aib: ' + JSON.stringify(aib) + '});');
+			$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, true);');
 			tar.addString(TNum + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '')
 				+ (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
@@ -2991,6 +2988,12 @@ function loadDocFiles(imgOnly) {
 			} else {
 				el.href = getAbsLink(el.href);
 			}
+			if(!el.classList.contains('de-preflink')) {
+				el.className = 'de-preflink ' + el.className;
+			}
+		});
+		$each($Q('[de-post]', dc), function(post, i) {
+			post.setAttribute('de-num', i === 0 ? TNum : aib.getPNum(post));
 		});
 		$each($Q('link, *[src]', dc), function(el) {
 			if(els.indexOf(el) !== -1) {
