@@ -578,34 +578,45 @@ function $getStyle(el, prop) {
 	return getComputedStyle(el).getPropertyValue(prop);
 }
 
-function $scroll(distance, runFn, endFn) {
-	var beginTime, endTime, pageOffset = pageYOffset,
-		DURATION = 400,
-		step = distance / DURATION;
-	if(!Cfg['animation'] || Math.abs(distance) < 50) {
+function $scroller(distance, endFn) {
+	var pageOffset = pageYOffset;
+	distance = Math.round(distance);
+	if(!Cfg['animation'] || Math.abs(distance) < 250) {
 		scrollTo(0, pageOffset + distance);
 		if(endFn) {
 			endFn();
 		}
 		return;
 	}
-	function makeStep(currentTime) {
-		if(currentTime >= endTime) {
-			scrollTo(0, pageOffset + distance);
-			if(endFn) {
-				setTimeout(endFn, 0);
+	this.absDistance = Math.abs(distance);
+	this.distance = distance;
+	this.endFn = endFn;
+	this.pageOffset = pageOffset;
+	this.scrolled = 0;
+	this.step = distance > 0 ? this.SPEED : -this.SPEED;
+	this.stepFun = this._stepFun.bind(this)
+	this._stepFun();
+}
+$scroller.prototype = {
+	SPEED: 200,
+	scrolling: true,
+	stop: function() {
+		this.scrolling = false;
+	},
+
+	_stepFun: function() {
+		this.scrolled += this.step;
+		if(Math.abs(this.scrolled) >= this.absDistance) {
+			scrollTo(0, this.pageOffset + this.distance);
+			if(this.endFn) {
+				this.endFn();
 			}
-			return;
-		}
-		scrollTo(0, pageOffset + ((step * (currentTime - beginTime)) | 0));
-		if(!runFn || runFn()) {
-			requestAnimationFrame(makeStep);
+		} else if(this.scrolling) {
+			scrollTo(0, this.pageOffset + this.scrolled);
+			setTimeout(this.stepFun, 50);
 		}
 	}
-	beginTime = performance.now();
-	endTime = beginTime + DURATION;
-	requestAnimationFrame(makeStep);
-}
+};
 
 function $pd(e) {
 	e.preventDefault();
@@ -852,23 +863,6 @@ function getErrorMessage(eCode, eMsg) {
 //											STORAGE & CONFIG
 //============================================================================================================
 
-function setCookie(id, value, life) {
-	doc.cookie = escape(id) + '=' + escape(value) + ';expires=' +
-		(new Date(Date.now() + life)).toGMTString() + ';path=/';
-}
-
-function getCookie(id) {
-	var one, arr = doc.cookie.split('; '),
-		i = arr.length;
-	while(i--) {
-		one = arr[i].split('=');
-		if(one[0] === escape(id)) {
-			return unescape(one[1]);
-		}
-	}
-	return false;
-}
-
 function getStored(id) {
 	return nav.isGM ? GM_getValue(id) :
 		scriptStorage ? scriptStorage.getItem(id) :
@@ -904,10 +898,6 @@ function getStoredObj(id) {
 	}
 }
 
-function getCfg(obj) {
-	return obj && !$isEmpty(obj) ? obj : false;
-}
-
 function saveComCfg(dm, obj) {
 	comCfg = getStoredObj('DESU_Config');
 	if(obj) {
@@ -927,8 +917,7 @@ function saveCfg(id, val) {
 
 function readCfg() {
 	comCfg = getStoredObj('DESU_Config');
-	Cfg = getCfg(comCfg[aib.dm]);
-	if(!Cfg) {
+	if(!(aib.dm in comCfg) || $isEmpty(Cfg = comCfg[aib.dm])) {
 		Cfg = {};
 		if(nav.isGlobal) {
 			for(var i in comCfg['global']) {
@@ -1011,10 +1000,6 @@ function readCfg() {
 			null
 		);
 	}
-	spells = new Spells(!!Cfg['hideBySpell']);
-	youTube = initYouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
-		Cfg['YTubeHD'], Cfg['YTubeTitles']);
-	aib.rep = aib.fch || aib.krau || dTime || spells.haveReps || Cfg['crossLinks'];
 }
 
 function toggleCfg(id) {
@@ -1222,11 +1207,11 @@ function addPanel() {
 				$if(!TNum && !aib.arch, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
 					$pd(e);
-					$scroll(-pageYOffset, null, null);
+					new $scroller(-pageYOffset, null);
 				}, null, null, null),
 				pButton('godown', function(e) {
 					$pd(e);
-					$scroll(doc.body.scrollHeight || doc.body.offsetHeight - pageYOffset, null, null);
+					new $scroller((doc.body.scrollHeight || doc.body.offsetHeight) - pageYOffset, null);
 				}, null, null, null),
 				$if(!TNum && (pr.form || pr.oeForm), pButton('newthr', pr.toggleMainReply.bind(pr), null, null, null)),
 				$if(imgLen > 0, pButton('expimg', function(e) {
@@ -2034,7 +2019,7 @@ function addSettings(Set) {
 			}),
 			$New('div', {'style': 'float: right;'}, [
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(getCfg(comCfg['global'])) {
+					if(('global' in comCfg) && !$isEmpty(comCfg['global'])) {
 						saveComCfg(aib.dm, null);
 						window.location.reload();
 					} else {
@@ -2211,7 +2196,7 @@ function addAudioNotifMenu(el) {
 
 function KeyNavigation() {
 	this.lastPageOffset = 0;
-	this.scrolling = false;
+	this.scroller = null;
 	this.cPost = null;
 	this.enabled = true;
 	doc.addEventListener('keydown', this, true);
@@ -2219,7 +2204,7 @@ function KeyNavigation() {
 KeyNavigation.prototype = {
 	clear: function() {
 		this.lastPageOffset = 0;
-		this.scrolling = false;
+		this.scroller = null;
 		this.cPost = null;
 	},
 	disable: function() {
@@ -2280,17 +2265,19 @@ KeyNavigation.prototype = {
 		}
 		$pd(e);
 		e.stopPropagation();
-		if(!this.scrolling && this.lastPageOffset !== (pyOffset = pageYOffset)) {
+		if(!this.scroller && this.lastPageOffset !== (pyOffset = pageYOffset)) {
 			for(post = firstThr.op; post; post = post.next) {
 				if(post.offsetTop >= pyOffset) {
 					break;
 				}
 			}
-			this.cPost = post;
+			if(this.cPost) {
+				this.cPost.unselect();
+			}
+			this.cPost = post = post.prev;
 			this.lastPageOffset = pyOffset;
 		} else {
 			post = this.cPost;
-			this.scrolling = false;
 		}
 		if(kc === 86) {
 			if(TNum) {
@@ -2350,11 +2337,13 @@ KeyNavigation.prototype = {
 			post.unselect();
 		}
 		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
-		$scroll(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
+		if(this.scroller) {
+			this.scroller.stop();
+		}
+		this.scroller = new $scroller(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
 			next.el.clientHeight / 2), function() {
-				return this.scrolling;
-			}.bind(this), function() {
 				this.lastPageOffset = pageYOffset;
+				this.scroller = null;
 			}.bind(this));
 		next.select();
 		this.cPost = next;
@@ -2413,7 +2402,7 @@ function checkUpload(response) {
 			infoLoadErrors(eCode, eMsg, 0);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
-				$scroll(firstThr.last.el.getBoundingClientRect().top, null, null);
+				new $scroller(firstThr.last.el.getBoundingClientRect().top, null);
 			}
 		}, true);
 	} else {
@@ -3437,7 +3426,7 @@ function loadFavorThread() {
 		return;
 	}
 	if((post = pByNum[el.getAttribute('info').split(';')[2]]) && !post.hidden) {
-		$scroll(post.getBoundingClientRect().top, null, null);
+		new $scroller(post.getBoundingClientRect().top, null);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -3545,7 +3534,7 @@ function getHanaFile(file, id) {
 		thumbH = file['thumb_height'],
 		size = file['size'],
 		rating = file['rating'],
-		maxRating = getCookie('de-rating') || 'r-15',
+		maxRating = Cfg['__hanarating'] || 'r-15',
 		kb = 1024,
 		mb = 1048576,
 		gb = 1073741824;
@@ -5459,7 +5448,7 @@ PostForm.prototype = {
 		} else {
 			$disp(this.pArea);
 		}
-		$scroll(this.pArea.getBoundingClientRect().top, null, null);
+		new $scroller(this.pArea.getBoundingClientRect().top, null);
 	},
 
 	_qArea: null,
@@ -5561,11 +5550,10 @@ PostForm.prototype = {
 			if(Cfg['userSignat'] && sVal) {
 				val += '\n' + sVal;
 			}
-			if(this.tNum && ($c('filetitle', pByNum[this.tNum].el) || {}).textContent ===
-				'Dollchan Extension Tools' && !/`\-{50}`$/.test(val)) {
-				val += '\n\n`--------------------------------------------------`\n' +
-					'`' + window.navigator.userAgent + '`\n`v' + version + '`' +
-					'\n`--------------------------------------------------`';
+			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools' && !/`\-{50}`$/.test(val)) {
+				val += '\n\n`' + new Array(51).join('-') + '`\n' +
+					'`' + navigator.userAgent + '`\n`v' + version + '`' +
+					'\n`' + new Array(51).join('-') + '`';
 			}
 			this.txta.value = val;
 			if(Cfg['ajaxReply']) {
@@ -7344,7 +7332,7 @@ Thread.prototype = {
 			}
 			this.loadedOnce = true;
 			closeAlert($id('de-alert-load-thr'));
-			$scroll(opEl.getBoundingClientRect().top, null, null);
+			new $scroller(opEl.getBoundingClientRect().top, null);
 			Fn && Fn();
 		}.bind(this, last, Fn), function(eCode, eMsg) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
@@ -7746,6 +7734,7 @@ ImageBoard.prototype = {
 			css: { value: '.de-post-hid > .file, .de-post-hid > blockquote, .de-post-hid > .de-ytube-obj, .de-post-hid > .de-refmap, #mpostform, .navLinks, .postingMode { display: none !important; }' },
 			docExt: { value: '' },
 			rLinkClick: { value: '' },
+			rep: { value: true },
 
 			fch: { value: true }
 		}],
@@ -7902,6 +7891,7 @@ ImageBoard.prototype = {
 			} },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
+			rep: { value: true },
 			res: { value: 'thread-' },
 
 			krau: { value: true }
@@ -8096,8 +8086,10 @@ ImageBoard.prototype = {
 			ru: { value: true },
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
+					nav = new Navigator();
 					$event($q('input[type="button"]', doc), {'click': function() {
-						setCookie('de-rating', $id('rating').value, 1e12);
+						readCfg();
+						saveCfg('__hanarating', $id('rating').value);
 					}});
 					return true;
 				}
@@ -8258,6 +8250,11 @@ ImageBoard.prototype = {
 		docExt: '.html',
 		host: window.location.hostname,
 		prot: window.location.protocol,
+		get rep() {
+			var val = dTime || spells.haveReps || Cfg['crossLinks'];
+			Object.defineProperty(this, 'rep', { value: val });
+			return val;
+		},
 		res: 'res/',
 		ru: false,
 		trTag: 'tr'
@@ -8350,17 +8347,6 @@ function Navigator() {
 	}
 	if(this.WebKit) {
 		window.URL = window.webkitURL;
-	}
-	if(!('requestAnimationFrame' in window)) {
-		window.requestAnimationFrame = window.mozRequestAnimationFrame ||
-			window.webkitRequestAnimationFrame || function(callback) {
-				setTimeout(function(fn) {
-					fn(performance.now());
-				}, 1000 / 60, callback);
-			};
-	}
-	if(!('performance' in window)) {
-		window.performance = {now: Date.now};
 	}
 }
 Navigator.prototype = {
@@ -8999,6 +8985,9 @@ function doScript() {
 	}
 	$log('Init');
 	readCfg();
+	spells = new Spells(!!Cfg['hideBySpell']);
+	youTube = initYouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
+		Cfg['YTubeHD'], Cfg['YTubeTitles']);
 	readFavorites();
 	readPosts();
 	$log('Read config');
