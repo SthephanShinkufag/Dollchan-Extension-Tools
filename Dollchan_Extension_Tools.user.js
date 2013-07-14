@@ -578,46 +578,6 @@ function $getStyle(el, prop) {
 	return getComputedStyle(el).getPropertyValue(prop);
 }
 
-function $scroller(distance, endFn) {
-	var pageOffset = pageYOffset;
-	distance = Math.round(distance);
-	if(!Cfg['animation'] || Math.abs(distance) < 250) {
-		scrollTo(0, pageOffset + distance);
-		if(endFn) {
-			endFn();
-		}
-		return;
-	}
-	this.absDistance = Math.abs(distance);
-	this.distance = distance;
-	this.endFn = endFn;
-	this.pageOffset = pageOffset;
-	this.scrolled = 0;
-	this.step = distance > 0 ? this.SPEED : -this.SPEED;
-	this.stepFun = this._stepFun.bind(this)
-	this._stepFun();
-}
-$scroller.prototype = {
-	SPEED: 200,
-	scrolling: true,
-	stop: function() {
-		this.scrolling = false;
-	},
-
-	_stepFun: function() {
-		this.scrolled += this.step;
-		if(Math.abs(this.scrolled) >= this.absDistance) {
-			scrollTo(0, this.pageOffset + this.distance);
-			if(this.endFn) {
-				this.endFn();
-			}
-		} else if(this.scrolling) {
-			scrollTo(0, this.pageOffset + this.scrolled);
-			setTimeout(this.stepFun, 50);
-		}
-	}
-};
-
 function $pd(e) {
 	e.preventDefault();
 }
@@ -1207,11 +1167,11 @@ function addPanel() {
 				$if(!TNum && !aib.arch, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
 				pButton('goup', function(e) {
 					$pd(e);
-					new $scroller(-pageYOffset, null);
+					scrollTo(0, 0);
 				}, null, null, null),
 				pButton('godown', function(e) {
 					$pd(e);
-					new $scroller((doc.body.scrollHeight || doc.body.offsetHeight) - pageYOffset, null);
+					scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
 				}, null, null, null),
 				$if(!TNum && (pr.form || pr.oeForm), pButton('newthr', pr.toggleMainReply.bind(pr), null, null, null)),
 				$if(imgLen > 0, pButton('expimg', function(e) {
@@ -2196,7 +2156,6 @@ function addAudioNotifMenu(el) {
 
 function KeyNavigation() {
 	this.lastPageOffset = 0;
-	this.scroller = null;
 	this.cPost = null;
 	this.enabled = true;
 	doc.addEventListener('keydown', this, true);
@@ -2204,7 +2163,6 @@ function KeyNavigation() {
 KeyNavigation.prototype = {
 	clear: function() {
 		this.lastPageOffset = 0;
-		this.scroller = null;
 		this.cPost = null;
 	},
 	disable: function() {
@@ -2265,7 +2223,7 @@ KeyNavigation.prototype = {
 		}
 		$pd(e);
 		e.stopPropagation();
-		if(!this.scroller && this.lastPageOffset !== (pyOffset = pageYOffset)) {
+		if(this.lastPageOffset !== (pyOffset = pageYOffset)) {
 			for(post = firstThr.op; post; post = post.next) {
 				if(post.offsetTop >= pyOffset) {
 					break;
@@ -2328,7 +2286,7 @@ KeyNavigation.prototype = {
 		return null;
 	},
 	_scroll: function(post, toUp, toThread) {
-		var el, next = this._getNextVisPost(post, toThread, toUp);
+		var next = this._getNextVisPost(post, toThread, toUp);
 		this.scrolling = true;
 		if(!next) {
 			return;
@@ -2336,15 +2294,11 @@ KeyNavigation.prototype = {
 		if(post) {
 			post.unselect();
 		}
-		el = next.isOp && next.hidden ? next.thr.el.previousElementSibling : next.el;
-		if(this.scroller) {
-			this.scroller.stop();
-		}
-		this.scroller = new $scroller(el.getBoundingClientRect().top - (toThread ? 0 : Post.sizing.wHeight / 2 -
-			next.el.clientHeight / 2), function() {
-				this.lastPageOffset = pageYOffset;
-				this.scroller = null;
-			}.bind(this));
+		scrollTo(0, this.lastPageOffset = Math.round(
+			pageYOffset + (next.isOp && next.hidden ?
+			next.thr.el.previousElementSibling : next.el).getBoundingClientRect().top -
+			(toThread ? 0 : Post.sizing.wHeight / 2 - next.el.clientHeight / 2)
+		));
 		next.select();
 		this.cPost = next;
 	}
@@ -2402,7 +2356,7 @@ function checkUpload(response) {
 			infoLoadErrors(eCode, eMsg, 0);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
-				new $scroller(firstThr.last.el.getBoundingClientRect().top, null);
+				scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
 			}
 		}, true);
 	} else {
@@ -3426,7 +3380,7 @@ function loadFavorThread() {
 		return;
 	}
 	if((post = pByNum[el.getAttribute('info').split(';')[2]]) && !post.hidden) {
-		new $scroller(post.getBoundingClientRect().top, null);
+		scrollTo(0, pageYOffset + post.getBoundingClientRect().top);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -5448,7 +5402,7 @@ PostForm.prototype = {
 		} else {
 			$disp(this.pArea);
 		}
-		new $scroller(this.pArea.getBoundingClientRect().top, null);
+		scrollTo(0, pageYOffset + this.pArea.getBoundingClientRect().top);
 	},
 
 	_qArea: null,
@@ -7332,7 +7286,7 @@ Thread.prototype = {
 			}
 			this.loadedOnce = true;
 			closeAlert($id('de-alert-load-thr'));
-			new $scroller(opEl.getBoundingClientRect().top, null);
+			scrollTo(0, pageYOffset + opEl.getBoundingClientRect().top);
 			Fn && Fn();
 		}.bind(this, last, Fn), function(eCode, eMsg) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
