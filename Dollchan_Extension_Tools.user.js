@@ -2262,6 +2262,10 @@ KeyNavigation.prototype = {
 		var next = this._getNextVisPost(post, toThread, toUp);
 		this.scrolling = true;
 		if(!next) {
+			if(!TNum) {
+				window.location.pathname = toUp ? aib.getPageUrl(brd, pageNum === 0 ? 0 : pageNum - 1)
+					: aib.getPageUrl(brd, pageNum + 1);
+			}
 			return;
 		}
 		if(post) {
