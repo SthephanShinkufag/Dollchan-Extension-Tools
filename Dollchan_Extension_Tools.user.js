@@ -904,7 +904,7 @@ function readCfg() {
 	if(nav.WebKit) {
 		Cfg['favIcoBlink'] = 0;
 	}
-	if(!nav.hasNotifications) {
+	if(!('Notification' in window)) {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
@@ -1687,9 +1687,9 @@ function getCfgPosts() {
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$if(!nav.WebKit, lBox('favIcoBlink', true, null)),
-			$if(nav.hasNotifications, lBox('desktNotif', true, function() {
+			$if('Notification' in window, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
-					nav.requestNotifPermission();
+					Notification.requestPermission();
 				}
 			}))
 		]),
@@ -2286,7 +2286,7 @@ KeyNavigation.prototype = {
 		return null;
 	},
 	_scroll: function(post, toUp, toThread) {
-		var newOffset, next = this._getNextVisPost(post, toThread, toUp);
+		var next = this._getNextVisPost(post, toThread, toUp);
 		this.scrolling = true;
 		if(!next) {
 			return;
@@ -8303,8 +8303,6 @@ function Navigator() {
 	}
 }
 Navigator.prototype = {
-	showNotification: null,
-
 	animEvent: function(el, Fn) {
 		el.addEventListener(nav.animEnd, function aEvent() {
 			this.removeEventListener(nav.animEnd, aEvent, false);
@@ -8317,39 +8315,12 @@ Navigator.prototype = {
 		Object.defineProperty(this, 'canPlayMP3', { value: val });
 		return val;
 	},
-	get hasNotifications() {
-		var val = ('Notification' in window) || ('webkitNotifications' in window);
-		Object.defineProperty(this, 'hasNotifications', { value: val });
-		return val;
-	},
 	get matchesSelector() {
 		var dE = doc.documentElement,
 			fun = dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector,
 			val = Function.prototype.call.bind(fun);
 		Object.defineProperty(this, 'matchesSelector', { value: val });
 		return val;
-	},
-	get notifGranted() {
-		var val = false;
-		if('Notification' in window) {
-			this.showNotification = this._showNotifNative;
-			switch(Notification.permission) {
-			case 'default': this.requestNotifPermission(); return false;
-			case 'granted': val = true;
-			}
-		} else if('webkitNotifications' in window) {
-			this.showNotification = this._showNotifWebkit;
-			val = webkitNotifications.checkPermission() === 0;
-		}
-		Object.defineProperty(this, 'notifGranted', { value: val });
-		return val;
-	},
-	requestNotifPermission: function() {
-		if('Notification' in window) {
-			Notification.requestPermission()
-		} else if('webkitNotifications' in window) {
-			webkitNotifications.requestPermission();
-		}
 	},
 	get Worker() {
 		var val;
@@ -8367,24 +8338,6 @@ Navigator.prototype = {
 		}
 		Object.defineProperty(this, 'Worker', { value: val });
 		return val;
-	},
-
-	_showNotifNative: function(title, text, tag, image) {
-		var notif, obj = {body: text, tag: tag};
-		if(image) {
-			obj.icon = image;
-		}
-		notif = new Notification(title, obj);
-		notif.onshow = function() {
-			setTimeout(this.close.bind(this), 12e3);
-		};
-	},
-	_showNotifWebkit: function(title, text, tag, image) {
-		var notif = webkitNotifications.createNotification(image, title, text);
-		notif.ondisplay = function() {
-			setTimeout(this.cancel.bind(this), 12e3);
-		};
-		notif.show();
 	}
 };
 
@@ -8659,34 +8612,33 @@ function replaceDelform() {
 }
 
 function initThreadUpdater(title, enableUpdater) {
-	var delay, checked404, loadTO, audioRep, focused, loadPostsFun, audioEl, stateButton, hasAudio,
+	var delay, checked404, loadTO, audioRep, loadPostsFun, audioEl, stateButton, hasAudio,
 		audioRun, initDelay, favIntrv, favNorm, favHref, enabled = false,
 		lastECode = 200,
 		newPosts = 0,
 		_title = title,
-		aPlayers = 0;
+		aPlayers = 0,
+		focused = !(doc.hidden || doc.webkitHidden);
 
 	if(enableUpdater) {
 		audioEl = null;
 		stateButton = null;
-		hasAudio = false;
-		audioRun = false;
+		hasAudio = audioRun = false;
 		initDelay = Cfg['updThrDelay'] * 1e3;
 		favIntrv = 0;
-		favNorm = true;
+		favNorm = notifGranted = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-		if(nav.Firefox > 10 || nav.Chrome) {
+		if(nav.Firefox > 18 || nav.Chrome) {
 			doc.addEventListener(
-				(nav.WebKit ? 'webkit' : nav.Firefox < 18 ? 'moz' : '') + 'visibilitychange',
+				(nav.WebKit ? 'webkit' : '') + 'visibilitychange',
 				function() {
-					if(doc.hidden || doc.mozHidden || doc.webkitHidden) {
+					if(doc.hidden || doc.webkitHidden) {
 						focused = false;
 					} else {
 						onVis();
 					}
 				}, false
 			);
-			focused = !(doc.hidden || doc.mozHidden || doc.webkitHidden);
 		} else {
 			focused = false;
 			$event(window, {
@@ -8700,16 +8652,21 @@ function initThreadUpdater(title, enableUpdater) {
 				}}
 			);
 		}
-		if(Cfg['desktNotif']) {
-			nav.notifGranted;
-		}
 		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded, true);
 		enable();
+	}
+	if(focused && Cfg['desktNotif'] && ('permission' in Notification)) {
+		switch(Notification.permission.toLowerCase()) {
+		case 'default': requestNotifPermission(); break;
+		case 'denied':
+			notifGranted = false;
+			saveCfg('desktNotif', 0);
+		}
 	}
 
 	function enable() {
 		if(!enabled) {
-			enabled = focused = true;
+			enabled = true;
 			checked404 = false;
 			newPosts = 0;
 			delay = initDelay;
@@ -8745,7 +8702,8 @@ function initThreadUpdater(title, enableUpdater) {
 			hasAudio = true;
 		}
 	}
-	function getNotifMessage(np) {
+
+	function getNotifTitle(np) {
 		var rv = aib.dm + '/' + brd + '/' + TNum + ': ' + np;
 		switch(np % 10) {
 		case 1:
@@ -8762,9 +8720,21 @@ function initThreadUpdater(title, enableUpdater) {
 				rv += Lng.newPost[lang][3];
 				break;
 			}
-		default: rv += Lng.newPost[lang][2]; break;
+		default: rv += Lng.newPost[lang][2];
 		}
 		return rv + Lng.newPost[lang][0];
+	}
+
+	function requestNotifPermission() {
+		notifGranted = false;
+		Notification.requestPermission(function(state) {
+			if(state.toLowerCase() === 'denied') {
+				notifGranted = false;
+				saveCfg('desktNotif', 0);
+			} else {
+				notifGranted = true;
+			}
+		});
 	}
 
 	function onLoaded(eCode, eMsg, lPosts) {
@@ -8804,12 +8774,22 @@ function initThreadUpdater(title, enableUpdater) {
 				}
 				newPosts += lPosts;
 				doc.title = ' [' + newPosts + '] ' + title;
-				if(Cfg['desktNotif'] && nav.notifGranted) {
-					nav.showNotification(getNotifMessage(newPosts),
-						firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
-						brd + TNum,
-						firstThr.last.imagesData['$firstSrc']
-					);
+				if(Cfg['desktNotif'] && notifGranted) {
+					var notif = new Notification(getNotifTitle(newPosts), {
+						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
+						'tag': aib.dm + brd + TNum,
+						'icon': firstThr.last.imagesData['$firstSrc'] || favHref
+					});
+					notif.onshow = function() {
+						setTimeout(this.close.bind(this), 12e3);
+					};
+					notif.onclick = function() {
+						window.focus();
+					};
+					notif.onerror = function() {
+						window.focus();
+						requestNotifPermission();
+					};
 				}
 				if(hasAudio && !audioRun) {
 					if(audioRep) {
