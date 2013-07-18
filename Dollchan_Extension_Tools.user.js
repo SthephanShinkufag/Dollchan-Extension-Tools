@@ -8650,9 +8650,7 @@ function initThreadUpdater(title, enableUpdater) {
 	if(focused && Cfg['desktNotif'] && ('permission' in Notification)) {
 		switch(Notification.permission.toLowerCase()) {
 		case 'default': requestNotifPermission(); break;
-		case 'denied':
-			notifGranted = false;
-			saveCfg('desktNotif', 0);
+		case 'denied': saveCfg('desktNotif', 0);
 		}
 	}
 
