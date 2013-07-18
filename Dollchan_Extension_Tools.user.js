@@ -2175,7 +2175,7 @@ KeyNavigation.prototype = {
 		}
 		if(e.ctrlKey) {
 			if(kc === 37) {
-				window.location.pathname = aib.getPageUrl(brd, TNum || pageNum === 0 ? 0 : pageNum - 1);
+				window.location.pathname = aib.getPageUrl(brd, TNum || pageNum - 1);
 			} else if(!TNum && kc === 39) {
 				window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
 			}
@@ -2263,8 +2263,7 @@ KeyNavigation.prototype = {
 		this.scrolling = true;
 		if(!next) {
 			if(!TNum) {
-				window.location.pathname = toUp ? aib.getPageUrl(brd, pageNum === 0 ? 0 : pageNum - 1)
-					: aib.getPageUrl(brd, pageNum + 1);
+				window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : pageNum + 1);
 			}
 			return;
 		}
