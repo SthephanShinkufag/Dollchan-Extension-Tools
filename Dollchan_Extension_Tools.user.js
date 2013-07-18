@@ -8699,7 +8699,7 @@ function initThreadUpdater(title, enableUpdater) {
 
 	function enable() {
 		if(!enabled) {
-			enabled = focused = true;
+			enabled = true;
 			checked404 = false;
 			newPosts = 0;
 			delay = initDelay;
