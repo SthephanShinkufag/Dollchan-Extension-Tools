@@ -731,7 +731,7 @@ $tar.prototype = {
 		this.padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
 		this.padSet(header, 148, '        ', 8);									// checksum
 		header[156] = 0x30;															// type ('0')
-		for(i = checksum = 0; i < 174; i++) {
+		for(i = checksum = 0; i < 157; i++) {
 			checksum += header[i];
 		}
 		this.padSet(header, 148, checksum.toString(8), 8);							// checksum
@@ -2286,7 +2286,7 @@ KeyNavigation.prototype = {
 		return null;
 	},
 	_scroll: function(post, toUp, toThread) {
-		var next = this._getNextVisPost(post, toThread, toUp);
+		var newOffset, next = this._getNextVisPost(post, toThread, toUp);
 		this.scrolling = true;
 		if(!next) {
 			return;
@@ -2295,8 +2295,7 @@ KeyNavigation.prototype = {
 			post.unselect();
 		}
 		scrollTo(0, this.lastPageOffset = Math.round(
-			pageYOffset + (next.isOp && next.hidden ?
-			next.thr.el.previousElementSibling : next.el).getBoundingClientRect().top -
+			pageYOffset + next.el.getBoundingClientRect().top -
 			(toThread ? 0 : Post.sizing.wHeight / 2 - next.el.clientHeight / 2)
 		));
 		next.select();
@@ -3760,7 +3759,7 @@ Spells.prototype = {
 							j++;
 						}
 						if(j > 4 && j > n && x) {
-							Spells._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + j;
+							Spells._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + (j + 1);
 							return true;
 						}
 					}
@@ -3782,7 +3781,7 @@ Spells.prototype = {
 								pop = j;
 							}
 							if(pop >= n) {
-								Spells._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + pop;
+								Spells._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + (pop + 1);
 								return true;
 							}
 						}
@@ -3853,7 +3852,7 @@ Spells.prototype = {
 					return true;
 				}
 			}
-			return Spells._lastWipeMsg = false;
+			return false;
 		},
 		// 15: #num
 		function spell_num(post, val) {
