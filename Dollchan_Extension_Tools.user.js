@@ -8720,7 +8720,6 @@ function initThreadUpdater(title, enableUpdater) {
 		notifGranted = false;
 		Notification.requestPermission(function(state) {
 			if(state.toLowerCase() === 'denied') {
-				notifGranted = false;
 				saveCfg('desktNotif', 0);
 			} else {
 				notifGranted = true;
@@ -8808,16 +8807,16 @@ function initThreadUpdater(title, enableUpdater) {
 			$del($q('link[rel="shortcut icon"]', doc.head));
 			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
 		}
+		focused = true;
+		newPosts = 0;
 		setTimeout(function() {
-			doc.title = title;
+			setTitle(title);
+			if(enabled) {
+				clearTimeout(loadTO);
+				delay = initDelay;
+				loadPostsFun();
+			}
 		}, 200);
-		if(enabled) {
-			focused = true;
-			newPosts = 0;
-			delay = initDelay;
-			clearTimeout(loadTO);
-			loadPostsFun();
-		}
 	}
 
 	function setTitle(nTitle) {
