@@ -8104,7 +8104,7 @@ ImageBoard.prototype = {
 		qPostForm: '#postform',
 		qRef: '.reflink',
 		qTable: '',
-		timePattern: { value: '' },
+		timePattern: '',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
 				$q('div[id*="_info"][style*="float"]', doc) ?
