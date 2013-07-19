@@ -337,7 +337,6 @@ Lng = {
 	checkNow:		['Проверить сейчас', 'Check now'],
 	updAvail:		['Доступно обновление!', 'Update available!'],
 	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
-	version:		['Версия: ', 'Version: '],
 	storage:		['Хранение: ', 'Storage: '],
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
 	thrCreated:		['Тредов создано: ', 'Threads created: '],
@@ -1874,16 +1873,19 @@ function getCfgCommon() {
 
 function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
-		$add('<div style="width: 179px;"><b>' + Lng.version[lang] + version + '</b><br><br>' +
+		$add('<div style="padding-bottom: 10px;">' +
+			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' +
+			'target="_blank">v' + version + '</a>&nbsp;|&nbsp;' +
+			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
+			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
+			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
+		$add('<div style="display: inline-block; vertical-align: top; width: 179px; height: 295px;">' +
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
 			Lng.posts[lang] + Cfg['stats']['reply'] + '</div>'),
-		$add('<div style="padding-left: 7px; border-left: 1px solid grey;">' +
-			timeLog.join('<br>') + '</div>'),
-		$add('<span><a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;' +
-			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
-			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></span>'),
-		$attr($btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
+		$add('<div style="display: inline-block; padding-left: 7px; height: 295px; ' +
+			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div>'),
+		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
 			for(i in Cfg) {
 				if(Cfg[i] !== defaultCfg[i] && i !== 'stats' && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
@@ -1899,7 +1901,7 @@ function getCfgInfo() {
 				'oSpells': sessionStorage['de-spells-' + brd + TNum],
 				'perf': timeLog
 			}, '') + '</textarea>', 'help-debug', false);
-		}), {'style': 'float: right;'})
+		})
 	]);
 }
 
@@ -4694,7 +4696,6 @@ function scriptCSS() {
 	// Settings window
 	x += '.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
-		#de-cfg-info > div { float: left; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
