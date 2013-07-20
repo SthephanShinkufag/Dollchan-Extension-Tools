@@ -2297,8 +2297,9 @@ function checkUpload(response) {
 	var el, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
-			$disp(pr._qArea);
-			pr._qArea.appendChild(pr._pForm);
+			$disp(pr.pForm);
+			$disp(pr.qArea);
+			pr.qArea.appendChild(pr.pForm);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
 			pr.refreshCapImg(pr.tNum, true);
@@ -5299,16 +5300,16 @@ PostForm.prototype = {
 	showQuickReply: function(post) {
 		var tNum = post.thr.num;
 		if(this.isQuick) {
-			if(post.wrap.nextElementSibling === this._qArea) {
-				$disp(this._pForm);
-				$disp(this._qArea);
+			if(post.wrap.nextElementSibling === this.qArea) {
+				$disp(this.pForm);
+				$disp(this.qArea);
 				this.showMainReply();
 				return;
 			}
 		} else {
 			this.isQuick = true;
-			this._qArea.appendChild(this._pForm);
-			this._pForm.style.display = '';
+			this.qArea.appendChild(this.pForm);
+			this.pForm.style.display = '';
 			$t('a', this._formBtn).textContent = TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
 			if(!TNum && !aib.kus && !aib.hana) {
 				if(this.oeForm) {
@@ -5326,8 +5327,8 @@ PostForm.prototype = {
 				}
 			}
 		}
-		$after(post.wrap, this._qArea);
-		this._qArea.style.display = '';
+		$after(post.wrap, this.qArea);
+		this.qArea.style.display = '';
 		if(!TNum) {
 			this._toggleQuickReply(tNum);
 		}
@@ -5345,7 +5346,7 @@ PostForm.prototype = {
 		}
 		$txtInsert(this.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 		if(Cfg['addPostForm'] === 3) {
-			$attr($t('a', this._qArea.firstChild), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
+			$attr($t('a', this.qArea.firstChild), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
 		}
 	},
 	showMainReply: function() {
@@ -5355,32 +5356,31 @@ PostForm.prototype = {
 				this._toggleQuickReply(0);
 				$del($id('thr_id'));
 			}
-			this._qArea.style.display = 'none';
-			$after(this.pArea, this._qArea);
-			$after(this._formBtn, this._pForm);
+			this.qArea.style.display = 'none';
+			$after(this.pArea, this.qArea);
+			$after(this._formBtn, this.pForm);
 		}
-		this.toggleFormBtn();
 	},
 	toggleMainReply: function(e) {
 		$pd(e);
 		if(this.isQuick) {
-			this._pForm.style.display = '';
+			this.pForm.style.display = '';
 			this.showMainReply();
 		} else {
-			$disp(this._pForm);
-			this.toggleFormBtn();
+			$disp(this.pForm);
 		}
-		scrollTo(0, pageYOffset + this._pForm.getBoundingClientRect().top);
+		this.toggleFormBtn();
+		scrollTo(0, pageYOffset + this.pForm.getBoundingClientRect().top);
 	},
 	toggleFormBtn: function() {
 		$t('a', this._formBtn).textContent =
-			this._pForm.style.display === '' ? Lng.hideForm[lang] :
+			this.pForm.style.display === '' ? Lng.hideForm[lang] :
 			TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
 	},
 
-	_qArea: null,
+	qArea: null,
+	pForm: null,
 	_lastCapUpdate: 0,
-	_pForm: null,
 	_formBtn: null,
 	_addResizer: function() {
 		var resMove = function(e) {
@@ -5416,7 +5416,7 @@ PostForm.prototype = {
 				}),
 				$txt(']')
 			]),
-			this._pForm = $New('div', {'id': 'de-pform', 'style': 'display: none;'}, [this.form, this.oeForm]),
+			this.pForm = $New('div', {'id': 'de-pform', 'style': 'display: none;'}, [this.form, this.oeForm]),
 			doc.createElement('hr')
 		]);
 		if(TNum && Cfg['addPostForm'] === 1) {
@@ -5429,9 +5429,9 @@ PostForm.prototype = {
 		}
 		pArea.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 		this.pArea = pArea;
-		this._qArea = pArea.nextSibling;
+		this.qArea = pArea.nextSibling;
 		if(Cfg['addPostForm'] === 3) {
-			$append(this._qArea, [
+			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
 				$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': this.showMainReply.bind(this)})
 			]);
@@ -5496,8 +5496,9 @@ PostForm.prototype = {
 				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
-				$disp(this._qArea);
-				$after(this._formBtn, this._pForm);
+				$disp(this.pForm);
+				$disp(this.qArea);
+				$after(this._formBtn, this.pForm);
 			}
 		}.bind(this)});
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
