@@ -63,7 +63,7 @@ defaultCfg = {
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
 	'removeFName':	0,		// 		remove file name
-	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
+	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
 	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
@@ -166,8 +166,8 @@ Lng = {
 		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
-			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
-			txt:		['форма ответа в треде* ', 'reply form in thread* ']
+			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hide', 'Hanging']],
+			txt:		['форма ответа* ', 'reply form* ']
 		},
 		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
@@ -5421,18 +5421,22 @@ PostForm.prototype = {
 		return $id('recaptcha_response_field');
 	},
 	_init: function() {
+		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
+		if(Cfg['addPostForm'] > 1) {
+			$disp(this.pForm);
+		}
 		this.pArea1 = $New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [
 			this._formBtn1 = $New('div', null, [
 				$txt('['),
 				$new('a', {
-					'text': TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
+					'text': Cfg['addPostForm'] === 0 ? Lng.hideForm[lang] :
+						TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
 					'href': '#',
 					'class': 'de-abtn'}, {
 					'click': this.toggleMainReply.bind(this)
 				}),
 				$txt(']')
 			]),
-			this.pForm = $New('div', {'id': 'de-pform', 'style': 'display: none;'}, [this.form, this.oeForm]),
 			doc.createElement('hr')
 		]);
 		$before(dForm, this.pArea1);
@@ -5440,7 +5444,8 @@ PostForm.prototype = {
 			this._formBtn2 = $New('div', null, [
 				$txt('['),
 				$new('a', {
-					'text': TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
+					'text': Cfg['addPostForm'] === 1 ? Lng.hideForm[lang] :
+						TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
 					'href': '#',
 					'class': 'de-abtn'}, {
 					'click': this.toggleMainReply.bind(this)
@@ -5450,6 +5455,8 @@ PostForm.prototype = {
 			doc.createElement('hr')
 		]);
 		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea2);
+		this._isUp = Cfg['addPostForm'] !== 1;
+		$after(this._isUp ? this._formBtn1 : this._formBtn2, this.pForm);
 		this.pArea1.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
 			aib.cReply + '" style="display: none;"></div>');
 		this.qArea = this.pArea1.nextSibling;
