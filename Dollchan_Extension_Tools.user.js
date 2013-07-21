@@ -65,7 +65,6 @@ defaultCfg = {
 	'removeFName':	0,		// 		remove file name
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
 	'scrAfterRep':	0,		// scroll to the bottom after reply
-	'noThrdForm':	1,		// hide thread-creating form
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
 	'warnSubjTrip':	0,		// warn if subject field contains tripcode
@@ -171,7 +170,6 @@ Lng = {
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
 		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
-		'noThrdForm':	['Прятать форму создания треда', 'Hide thread creating form'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
 		'warnSubjTrip':	['Предупреждать при наличии трип-кода в поле тема', 'Warn if field subject contains trip-code'],
@@ -245,7 +243,6 @@ Lng = {
 		'gonext':	['Следующая', 'Next'],
 		'goup':		['Наверх', 'To the top'],
 		'godown':	['В конец', 'To the bottom'],
-		'newthr':	['Создать тред', 'New thread'],
 		'expimg':	['Раскрыть картинки', 'Expand images'],
 		'maskimg':	['Маскировать картинки', 'Mask images'],
 		'upd-on':	['Автообновление треда', 'Thread autoupdate'],
@@ -371,7 +368,9 @@ Lng = {
 	getNewPosts:	['Получить новые посты', 'Get new posts'],
 	page:			['Страница', 'Page'],
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
-	expandForm:		['Раскрыть форму', 'Expand form'],
+	makeThrd:		['Создать тред', 'Create thread'],
+	makeReply:		['Ответить', 'Make reply'],
+	hideForm:		['Закрыть форму', 'Hide form'],
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
 	addFile:		['+ файл', '+ file'],
@@ -1158,7 +1157,6 @@ function addPanel() {
 					$pd(e);
 					scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
 				}, null, null, null),
-				$if(!TNum && (pr.form || pr.oeForm), pButton('newthr', pr.toggleMainReply.bind(pr), null, null, null)),
 				$if(imgLen > 0, pButton('expimg', function(e) {
 					$pd(e);
 					isExpImg = !isExpImg;
@@ -1767,11 +1765,6 @@ function getCfgForm() {
 		])),
 		$if(pr.form, optSel('addPostForm', true, null)),
 		$if(pr.form, lBox('scrAfterRep', true, null)),
-		$if(pr.form, lBox('noThrdForm', true, function() {
-			if(!TNum) {
-				pr.pArea.style.display = Cfg['noThrdForm'] ? 'none' : '';
-			}
-		})),
 		lBox('favOnReply', true, null),
 		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
@@ -2304,8 +2297,9 @@ function checkUpload(response) {
 	var el, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
-			$disp(pr._qArea);
-			pr._qArea.appendChild(pr._pForm);
+			$disp(pr.pForm);
+			$disp(pr.qArea);
+			pr.qArea.appendChild(pr.pForm);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
 			pr.refreshCapImg(pr.tNum, true);
@@ -4753,7 +4747,6 @@ function scriptCSS() {
 	gif('#de-btn-gonext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
 	gif('#de-btn-goup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
 	gif('#de-btn-godown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
-	gif('#de-btn-newthr', p + 'IyjI+pG+APQYMsWsuy3rzeLy2g05XcGJqqgmJiS63yTHtgLaPTY8Np4uO9gj0YbqM7bgoAOw==');
 	gif('#de-btn-expimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
 	gif('#de-btn-maskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
 	gif('#de-btn-imgload', p + 'JFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=')
@@ -4914,7 +4907,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-opref::after { content: " [OP]"; }\
-		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], body > hr, .theader, .postarea { display: none !important; }\
+		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
 		' + aib.css;
 
@@ -5307,15 +5300,17 @@ PostForm.prototype = {
 	showQuickReply: function(post) {
 		var tNum = post.thr.num;
 		if(this.isQuick) {
-			if(post.wrap.nextElementSibling === this._qArea) {
-				$disp(this._qArea);
+			if(post.wrap.nextElementSibling === this.qArea) {
+				$disp(this.pForm);
+				$disp(this.qArea);
 				this.showMainReply();
 				return;
 			}
 		} else {
 			this.isQuick = true;
-			this._qArea.appendChild(this._pForm);
-			$disp(this._tReply);
+			this.qArea.appendChild(this.pForm);
+			this.pForm.style.display = '';
+			$t('a', this._formBtn).textContent = TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
 			if(!TNum && !aib.kus && !aib.hana) {
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
@@ -5332,13 +5327,10 @@ PostForm.prototype = {
 				}
 			}
 		}
-		$after(post.wrap, this._qArea);
-		this._qArea.style.display = '';
+		$after(post.wrap, this.qArea);
+		this.qArea.style.display = '';
 		if(!TNum) {
 			this._toggleQuickReply(tNum);
-			if(Cfg['noThrdForm']) {
-				this.pArea.style.display = 'none';
-			}
 		}
 		if(!this.form) {
 			return;
@@ -5354,7 +5346,7 @@ PostForm.prototype = {
 		}
 		$txtInsert(this.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 		if(Cfg['addPostForm'] === 3) {
-			$attr($t('a', this._qArea.firstChild), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
+			$attr($t('a', this.qArea.firstChild), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
 		}
 	},
 	showMainReply: function() {
@@ -5364,27 +5356,32 @@ PostForm.prototype = {
 				this._toggleQuickReply(0);
 				$del($id('thr_id'));
 			}
-			$disp(this._tReply);
-			this._qArea.style.display = 'none';
-			$after(this.pArea, this._qArea);
-			$after(this._tReply, this._pForm);
+			this.qArea.style.display = 'none';
+			$after(this.pArea, this.qArea);
+			$after(this._formBtn, this.pForm);
 		}
 	},
 	toggleMainReply: function(e) {
 		$pd(e);
 		if(this.isQuick) {
-			this.pArea.style.display = '';
+			this.pForm.style.display = '';
 			this.showMainReply();
 		} else {
-			$disp(this.pArea);
+			$disp(this.pForm);
 		}
-		scrollTo(0, pageYOffset + this.pArea.getBoundingClientRect().top);
+		this.toggleFormBtn();
+		scrollTo(0, pageYOffset + this.pForm.getBoundingClientRect().top);
+	},
+	toggleFormBtn: function() {
+		$t('a', this._formBtn).textContent =
+			this.pForm.style.display === '' ? Lng.hideForm[lang] :
+			TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
 	},
 
-	_qArea: null,
+	qArea: null,
+	pForm: null,
 	_lastCapUpdate: 0,
-	_pForm: null,
-	_tReply: null,
+	_formBtn: null,
 	_addResizer: function() {
 		var resMove = function(e) {
 				var p = $offset(this);
@@ -5409,14 +5406,17 @@ PostForm.prototype = {
 	},
 	_init: function() {
 		var el, btn, pArea = $New('div', {'id': 'de-parea'}, [
-			this._tReply = $New('div', {'style': 'display: none;'}, [
+			this._formBtn = $New('div', null, [
 				$txt('['),
-				$new('a', {'text': Lng.expandForm[lang], 'href': '#', 'class': 'de-abtn'}, {
+				$new('a', {
+					'text': TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
+					'href': '#',
+					'class': 'de-abtn'}, {
 					'click': this.toggleMainReply.bind(this)
 				}),
 				$txt(']')
 			]),
-			this._pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]),
+			this.pForm = $New('div', {'id': 'de-pform', 'style': 'display: none;'}, [this.form, this.oeForm]),
 			doc.createElement('hr')
 		]);
 		if(TNum && Cfg['addPostForm'] === 1) {
@@ -5424,14 +5424,14 @@ PostForm.prototype = {
 		} else {
 			$before(dForm, pArea);
 		}
-		if(TNum && Cfg['addPostForm'] > 1 || !TNum && Cfg['noThrdForm']) {
+		if(TNum && Cfg['addPostForm'] > 1) {
 			$disp(pArea);
 		}
 		pArea.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 		this.pArea = pArea;
-		this._qArea = pArea.nextSibling;
+		this.qArea = pArea.nextSibling;
 		if(Cfg['addPostForm'] === 3) {
-			$append(this._qArea, [
+			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
 				$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': this.showMainReply.bind(this)})
 			]);
@@ -5496,8 +5496,9 @@ PostForm.prototype = {
 				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
-				$disp(this._qArea);
-				$after(this._tReply, this._pForm);
+				$disp(this.pForm);
+				$disp(this.qArea);
+				$after(this._formBtn, this.pForm);
 			}
 		}.bind(this)});
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
@@ -5897,12 +5898,7 @@ Post.prototype = {
 								el.href = aib.getThrdUrl(brd, this.thr.num) + '#' + this.num;
 							}
 						}
-					} else if(Cfg['insertNum'] && pr.form && temp === this._pref &&
-						!/Reply|Ответ/.test(el.textContent))
-					{
-						if(!TNum && Cfg['noThrdForm'] && !pr.isQuick) {
-							pr.pArea.style.display = '';
-						}
+					} else if(Cfg['insertNum'] && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
 						if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
 							pr.showQuickReply(this);
 						} else {
