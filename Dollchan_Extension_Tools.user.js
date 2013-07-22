@@ -166,7 +166,7 @@ Lng = {
 		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
-			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hide', 'Hanging']],
+			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
 			txt:		['форма ответа* ', 'reply form* ']
 		},
 		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
@@ -610,7 +610,6 @@ function $xhr(obj) {
 	xhr.send(obj['data'] || null);
 }
 
-/** @constructor */
 function $queue(maxNum, Fn, endFn) {
 	this.array = [];
 	this.length = this.index = this.running = 0;
@@ -670,7 +669,6 @@ $queue.prototype = {
 	}
 };
 
-/** @constructor */
 function $tar() {
 	this.data = [];
 }
@@ -947,7 +945,7 @@ function readCfg() {
 }
 
 function toggleCfg(id) {
-	saveCfg(id, !Cfg[id] ? 1 : 0);
+	saveCfg(id, +!Cfg[id]);
 }
 
 function readPosts() {
@@ -1116,7 +1114,7 @@ function closePanel(el) {
 
 function addPanel() {
 	var imgLen = getImages(dForm).length;
-	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea1) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
+	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea[0]) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
 		$event($New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				var el = this.parentNode;
@@ -2368,7 +2366,6 @@ function checkDelete(response) {
 	}
 }
 
-/** @constructor */
 function html5Submit(form, button, fn) {
 	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
 	this.data = [];
@@ -2635,7 +2632,6 @@ function detectImgFile(ab) {
 	return {};
 }
 
-/** @constructor */
 function workerQueue(mReqs, wrkFn, errFn) {
 	if(!nav.Worker) {
 		this.find = this._findSync.bind(wrkFn);
@@ -2954,7 +2950,6 @@ function loadDocFiles(imgOnly) {
 //												TIME CORRECTION
 //============================================================================================================
 
-/** @constructor */
 function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	if(dateTime.checkPattern(pattern)) {
 		this.disabled = true;
@@ -3562,7 +3557,6 @@ function getImgHash(post) {
 //													SPELLS
 //============================================================================================================
 
-/** @constructor */
 function Spells(read) {
 	if(read) {
 		this._read(true);
@@ -4895,6 +4889,9 @@ function scriptCSS() {
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-parea { text-align: center;}\
+		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '"}\
+		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '"}\
+		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '"}\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
@@ -5186,9 +5183,9 @@ PostForm.processInput = function() {
 };
 PostForm.prototype = {
 	isQuick: false,
+	select: 0,
 	pForm: null,
-	pArea1: null,
-	pArea2: null,
+	pArea: {},
 	qArea: null,
 	addTextPanel: function() {
 		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
@@ -5315,8 +5312,8 @@ PostForm.prototype = {
 			this.isQuick = true;
 			this.qArea.appendChild(this.pForm);
 			this.pForm.style.display = '';
-			$t('a', this._isUp ? this._formBtn1 : this._formBtn2).textContent =
-				TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
+			$t('a', this.pArea[this.select].btn).className =
+				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
 			if(!TNum && !aib.kus && !aib.hana) {
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
@@ -5365,38 +5362,38 @@ PostForm.prototype = {
 				$del($id('thr_id'));
 			}
 			this.qArea.style.display = 'none';
-			$after(this._isUp ? this.pArea1 : this.pArea2, this.qArea);
-			$after(this._isUp ? this._formBtn1 : this._formBtn2, this.pForm);
+			$after(this.pArea[this.select], this.qArea);
+			$after(this.pArea[this.select].btn, this.pForm);
 		}
 	},
 	toggleMainReply: function(e) {
 		$pd(e);
-		var isUp = e.target.parentNode.parentNode.id === 'de-parea-up';
+		var select = +!(e.target.parentNode.parentNode.id === 'de-parea-up');
 		if(this.isQuick) {
 			this.pForm.style.display = '';
-			this._isUp = isUp;
+			this.select = select;
 			this.showMainReply();
 		} else {
-			if(this._isUp === isUp) {
+			if(this.select === select) {
 				$disp(this.pForm);
 			} else {
 				this.pForm.style.display = '';
-				$after(isUp ? this._formBtn1 : this._formBtn2, this.pForm);
+				$after(this.pArea[select].btn, this.pForm);
 			}
-			this._isUp = isUp;
+			this.select = select;
 		}
-		$t('a', this._isUp ? this._formBtn1 : this._formBtn2).textContent =
-			this.pForm.style.display === '' ? Lng.hideForm[lang] :
-			TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
-		$t('a', this._isUp ? this._formBtn2 : this._formBtn1).textContent =
-			TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
+		this.updatePAreaBtns();
 		scrollTo(0, pageYOffset + this.pForm.getBoundingClientRect().top);
+	},
+	updatePAreaBtns: function() {
+		var txt = 'de-abtn de-parea-btn-',
+			rep = TNum ? 'reply' : 'thrd';
+		$t('a', this.pArea[this.select].btn).className = txt +
+			(this.pForm.style.display === '' ? 'close' : rep);
+		$t('a', this.pArea[+!this.select].btn).className = txt + rep;
 	},
 
 	_lastCapUpdate: 0,
-	_formBtn1: null,
-	_formBtn2: null,
-	_isUp: true,
 	_addResizer: function() {
 		var resMove = function(e) {
 				var p = $offset(this);
@@ -5425,41 +5422,24 @@ PostForm.prototype = {
 		if(Cfg['addPostForm'] > 1) {
 			$disp(this.pForm);
 		}
-		this.pArea1 = $New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [
-			this._formBtn1 = $New('div', null, [
-				$txt('['),
-				$new('a', {
-					'text': Cfg['addPostForm'] === 0 ? Lng.hideForm[lang] :
-						TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
-					'href': '#',
-					'class': 'de-abtn'}, {
-					'click': this.toggleMainReply.bind(this)
-				}),
-				$txt(']')
-			]),
-			doc.createElement('hr')
+		var btn = $New('div', null, [
+			$txt('['),
+			$new('a', {'href': '#'}, {'click': this.toggleMainReply.bind(this)}),
+			$txt(']')
 		]);
-		$before(dForm, this.pArea1);
-		this.pArea2 = $New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [
-			this._formBtn2 = $New('div', null, [
-				$txt('['),
-				$new('a', {
-					'text': Cfg['addPostForm'] === 1 ? Lng.hideForm[lang] :
-						TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
-					'href': '#',
-					'class': 'de-abtn'}, {
-					'click': this.toggleMainReply.bind(this)
-				}),
-				$txt(']')
-			]),
-			doc.createElement('hr')
-		]);
-		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea2);
-		this._isUp = Cfg['addPostForm'] !== 1;
-		$after(this._isUp ? this._formBtn1 : this._formBtn2, this.pForm);
-		this.pArea1.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
+		$before(dForm, this.pArea[0] =
+			$New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [btn, doc.createElement('hr')]));
+		this.pArea[0].btn = btn;
+		btn = btn.cloneNode(true);
+		$event($t('a', btn), {'click': this.toggleMainReply.bind(this)});
+		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea[1] =
+			$New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [btn, doc.createElement('hr')]));
+		this.pArea[1].btn = btn;
+		this.updatePAreaBtns();
+		$after(this.pArea[this.select = +(Cfg['addPostForm'] === 1)].btn, this.pForm);
+		this.pArea[this.select].insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
 			aib.cReply + '" style="display: none;"></div>');
-		this.qArea = this.pArea1.nextSibling;
+		this.qArea = this.pArea[this.select].nextSibling;
 		if(Cfg['addPostForm'] === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
@@ -5528,7 +5508,7 @@ PostForm.prototype = {
 			if(this.isQuick) {
 				$disp(this.pForm);
 				$disp(this.qArea);
-				$after(this._formBtn1, this.pForm);
+				$after(this.pArea[this.select].btn, this.pForm);
 			}
 		}.bind(this)});
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
@@ -6617,7 +6597,7 @@ Post.prototype = {
 		var vis = sVis[i];
 		if(uVis[num]) {
 			if(isOp) {
-				uVis[num][0] = (num in hThr[brd]) ? 0 : 1;
+				uVis[num][0] = +!(num in hThr[brd]);
 			}
 			if(uVis[num][0] === 0) {
 				this.setUserVisib(true, Date.now(), false);
