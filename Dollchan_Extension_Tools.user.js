@@ -5291,7 +5291,9 @@ PostForm.prototype = {
 		var tNum = post.thr.num;
 		if(this.isQuick) {
 			if(post.wrap.nextElementSibling === this.qArea) {
-				$disp(this.pForm);
+				if(Cfg['addPostForm'] > 1) {
+					$disp(this.pForm);
+				}
 				$disp(this.qArea);
 				this.showMainReply();
 				return;
