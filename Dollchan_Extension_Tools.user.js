@@ -1345,7 +1345,7 @@ function showContent(cont, id, name, isUpd) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), false, null, function(eCode, eMsg) {
+					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), null, function(eCode, eMsg) {
 						if(eCode === 404) {
 							delete hThr[this[0]][this[1]];
 							saveHiddenThreads(true);
@@ -1417,8 +1417,8 @@ function showContent(cont, id, name, isUpd) {
 						return;
 					}
 					c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
-					ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), true, function(els, op) {
-						var cnt = els.length + 1;
+					ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), function(dc) {
+						var cnt = aib.getPosts(parsePage($q(aib.qDForm, dc), dc, null, false).el).length + 1;
 						c.textContent = cnt;
 						if(cnt > f.cnt) {
 							c.className = 'de-fav-inf-new';
@@ -1440,12 +1440,12 @@ function showContent(cont, id, name, isUpd) {
 					loaded = 0;
 				$alert(Lng.loading[lang], 'load-pages', true);
 				while(i--) {
-					loadPageHelper(i, function(page, idx) {
-						for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
-							arr = el.getAttribute('info').split(';');
+					ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
+						for(var arr, el, len = this.length, i = 0; i < len; ++i) {
+							arr = this[i].getAttribute('info').split(';');
 							if(arr[0] === aib.host && arr[1] === brd) {
-								el = $c('de-fav-inf-page', el);
-								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
+								el = $c('de-fav-inf-page', this[i]);
+								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test($q(aib.qDForm, dc).innerHTML)) {
 									el.innerHTML = '@' + (aib.tiny ? idx + 1 : idx);
 								} else if(loaded === 5 && !el.textContent.contains('@')) {
 									el.innerHTML = '@?';
@@ -1456,13 +1456,18 @@ function showContent(cont, id, name, isUpd) {
 							closeAlert($id('de-alert-load-pages'));
 						}
 						loaded++;
+					}.bind($C('de-entry', doc), i), function() {
+						if(loaded === 5) {
+							closeAlert($id('de-alert-load-pages'));
+						}
+						loaded++;
 					});
 				}
 			}),
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($C('de-entry', doc), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(eCode, eMsg) {
+					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], null, function(eCode, eMsg) {
 						if(eCode === 404) {
 							removeFavorites(arr[0], arr[1], arr[2]);
 							saveFavorites();
@@ -2168,7 +2173,7 @@ KeyNavigation.prototype = {
 		}
 		if(e.ctrlKey) {
 			if(kc === 37) {
-				window.location.pathname = aib.getPageUrl(brd, TNum || pageNum - 1);
+				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 			} else if(!TNum && kc === 39) {
 				window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
 			}
@@ -3294,45 +3299,34 @@ function embedMP3Links(post) {
 //													AJAX
 //============================================================================================================
 
-function ajaxGetPosts(url, isParse, Fn, errFn) {
-	GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': nav.fixLink(url),
-		'onreadystatechange': function(xhr) {
-			if(xhr.readyState !== 4) {
-				return;
-			}
+function ajaxGetPosts(url, Fn, errFn) {
+	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(Fn, errFn, xhr) {
+		if(xhr.readyState === 4) {
 			if(xhr.status !== 200) {
 				errFn && errFn(xhr.status, xhr.statusText);
 			} else if(Fn) {
-				var thr, dc = nav.toDOM(xhr.responseText);
-				if(isParse) {
-					thr = parsePage($q(aib.qDForm, dc), dc, null, false).el;
-					Fn(aib.getPosts(thr), aib.getOp(thr, dc));
-				} else {
-					Fn(dc, null);
-				}
+				Fn(nav.toDOM(xhr.responseText), null);
 			}
-			isParse = Fn = errFn = dc = null;
 		}
-	});
+	}.bind(null, Fn, errFn)});
 }
 
 function getJsonPosts(url, Fn) {
-	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(xhr) {
+	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(Fn, xhr) {
 		if(xhr.readyState === 4) {
 			if(xhr.status === 304) {
 				closeAlert($id('de-alert-newposts'));
 			} else {
 				try {
-					Fn(xhr.status, xhr.statusText, JSON.parse(xhr.responseText));
+					var json = JSON.parse(xhr.responseText);
 				} catch(e) {
 					Fn(1, e.toString(), null);
+					return;
 				}
-				Fn = null;
+				Fn(xhr.status, xhr.statusText, json);
 			}
 		}
-	}});
+	}.bind(null, Fn)});
 }
 
 function loadFavorThread() {
@@ -3356,12 +3350,6 @@ function loadFavorThread() {
 		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"><div id="de-fav-wait" ' +
 		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>'
 	);
-}
-
-function loadPageHelper(i, Fn) {
-	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(idx, dc) {
-		this(replacePost(doc.importNode($q(aib.qDForm, dc), true)), idx);
-	}.bind(Fn, i), null);
 }
 
 function parsePages(pages, node) {
@@ -3406,7 +3394,7 @@ function preparePage() {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
-	pr.showMainReply();
+	//pr.showMainReply();
 	$disp(dForm);
 	Pview.clearCache();
 	isExpImg = false;
@@ -3415,8 +3403,8 @@ function preparePage() {
 function loadPages(len) {
 	preparePage();
 	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
-		loadPageHelper(i, function(pg, idx) {
-			pages[idx] = pg;
+		ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
+			pages[idx] = replacePost(doc.importNode($q(aib.qDForm, dc), true));
 			if(loaded === len) {
 				pages.forEach(function(page, pNum) {
 					$append(el, pNum === 0 ? [page] : [
@@ -3430,7 +3418,7 @@ function loadPages(len) {
 			} else {
 				loaded++;
 			}
-		});
+		}.bind(null, i));
 	}
 }
 
@@ -5052,7 +5040,7 @@ function PostForm(form, ignoreForm, init) {
 	}
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
-			ajaxGetPosts(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc) {
+			ajaxGetPosts(aib.getThrdUrl(brd, aib.getTNum(dForm)), function(dc) {
 				pr = new PostForm(doc.importNode($q(aib.qPostForm, dc), true), true, init);
 			}, function(eCode, eMsg) {
 				pr = new PostForm(null, true, init);
@@ -6759,12 +6747,12 @@ Post.prototype = {
 		if(!isInit) {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.thr.num), true, function(node, els, op) {
-			var i, len, el;
+		ajaxGetPosts(aib.getThrdUrl(brd, this.thr.num), function(node, dc) {
+			var i, els, len, el, thr = parsePage($q(aib.qDForm, dc), dc, null, false).el;
 			if(this.isOp) {
-				el = op;
+				el = aib.getOp(thr, dc);
 			} else {
-				for(i = 0, len = els.length; i < len; i++) {
+				for(i = 0, els = aib.getPosts(thr), len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
 						el = els[i];
 						break;
@@ -6844,7 +6832,7 @@ function Pview(parent, link, tNum, pNum) {
 			this._showPost(post);
 		} else {
 			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-			ajaxGetPosts(aib.getThrdUrl(b, tNum), false, this._onload.bind(this, b, tNum, pNum));
+			ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b, tNum, pNum));
 		}
 	}
 }
@@ -7229,8 +7217,10 @@ Thread.prototype = {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.num), true, function(last, Fn, els, newOp) {
-			var post, len = els.length,
+		ajaxGetPosts(aib.getThrdUrl(brd, this.num), function(last, Fn, dc) {
+			var post, thr = parsePage($q(aib.qDForm, dc), dc, null, false).el,
+				els = aib.getPosts(thr),
+				len = els.length,
 				op = this.op,
 				opEl = op.el,
 				thrEl = this.el,
@@ -7239,7 +7229,7 @@ Thread.prototype = {
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
 				if(op.trunc) {
-					op.updateMsg(newOp);
+					op.updateMsg(aib.getOp(thr, dc));
 				}
 				delete op.ref;
 				for(post = op.next; post && post.count !== 0; post = post.next) {
@@ -7310,10 +7300,11 @@ Thread.prototype = {
 			);
 			return;
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(els, op) {
-			var newPosts = this._parsePosts(els, 0, 0),
+		ajaxGetPosts(aib.getThrdUrl(brd, TNum), function parseNewPosts(dc) {
+			var thr = parsePage($q(aib.qDForm, dc), dc, null, false).el,
+				newPosts = this._parsePosts(aib.getPosts(thr), 0, 0),
 				hiddenPosts = newPosts > 0 ? this.checkSpells() : 0;
-			this._checkBan(this.op, op);
+			this._checkBan(this.op, aib.getOp(thr, dc));
 			Fn(200, '', newPosts - hiddenPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			if(newPosts > 0) {
@@ -8726,7 +8717,6 @@ function initThreadUpdater(title, enableUpdater) {
 		notifGranted = false;
 		Notification.requestPermission(function(state) {
 			if(state.toLowerCase() === 'denied') {
-				notifGranted = false;
 				saveCfg('desktNotif', 0);
 			} else {
 				notifGranted = true;
@@ -8814,22 +8804,22 @@ function initThreadUpdater(title, enableUpdater) {
 			$del($q('link[rel="shortcut icon"]', doc.head));
 			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
 		}
+		focused = true;
+		newPosts = 0;
 		setTimeout(function() {
-			doc.title = title;
+			setTitle(title);
+			if(enabled) {
+				clearTimeout(loadTO);
+				delay = initDelay;
+				loadPostsFun();
+			}
 		}, 200);
-		if(enabled) {
-			focused = true;
-			newPosts = 0;
-			delay = initDelay;
-			clearTimeout(loadTO);
-			loadPostsFun();
-		}
 	}
 
 	function setTitle(nTitle) {
 		title = nTitle;
-		doc.title = (lastECode === 200 ? '' : '{' + eCode + '} ') +
-			(newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
+		doc.title = (lastECode === 200 ? '' : '{' + lastECode + '} ') +
+			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
 	function addPlayingTag() {
@@ -8881,7 +8871,7 @@ function initPage() {
 	} else {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
-	updater = new initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
+	updater = initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
 }
 
 
