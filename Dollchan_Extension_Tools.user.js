@@ -1442,18 +1442,23 @@ function showContent(cont, id, name, isUpd) {
 					loaded = 0;
 				$alert(Lng.loading[lang], 'load-pages', true);
 				while(i--) {
-					loadPageHelper(i, function(page, idx) {
-						for(var arr, el, j = 0, els = $C('de-entry', doc); el = els[j++];) {
-							arr = el.getAttribute('info').split(';');
+					ajaxGetPosts(aib.getPageUrl(brd, i), false, function(idx, dc) {
+						for(var arr, el, len = this.length, i = 0; i < len; ++i) {
+							arr = this[i].getAttribute('info').split(';');
 							if(arr[0] === aib.host && arr[1] === brd) {
-								el = $c('de-fav-inf-page', el);
-								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test(page.innerHTML)) {
+								el = $c('de-fav-inf-page', this[i]);
+								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test($q(aib.qDForm, dc).innerHTML)) {
 									el.innerHTML = '@' + (aib.tiny ? idx + 1 : idx);
 								} else if(loaded === 5 && !el.textContent.contains('@')) {
 									el.innerHTML = '@?';
 								}
 							}
 						}
+						if(loaded === 5) {
+							closeAlert($id('de-alert-load-pages'));
+						}
+						loaded++;
+					}.bind($C('de-entry', doc), i), function() {
 						if(loaded === 5) {
 							closeAlert($id('de-alert-load-pages'));
 						}
@@ -3363,12 +3368,6 @@ function loadFavorThread() {
 	);
 }
 
-function loadPageHelper(i, Fn) {
-	ajaxGetPosts(aib.getPageUrl(brd, i), false, function(idx, dc) {
-		this(replacePost(doc.importNode($q(aib.qDForm, dc), true)), idx);
-	}.bind(Fn, i), null);
-}
-
 function parsePages(pages, node) {
 	$disp(node);
 	dForm.parentNode.replaceChild(node, dForm);
@@ -3411,7 +3410,7 @@ function preparePage() {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
-	pr.showMainReply();
+	//pr.showMainReply();
 	$disp(dForm);
 	Pview.clearCache();
 	isExpImg = false;
@@ -3420,8 +3419,8 @@ function preparePage() {
 function loadPages(len) {
 	preparePage();
 	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
-		loadPageHelper(i, function(pg, idx) {
-			pages[idx] = pg;
+		ajaxGetPosts(aib.getPageUrl(brd, i), false, function(idx, dc) {
+			pages[idx] = replacePost(doc.importNode($q(aib.qDForm, dc), true));
 			if(loaded === len) {
 				pages.forEach(function(page, pNum) {
 					$append(el, pNum === 0 ? [page] : [
@@ -3435,7 +3434,7 @@ function loadPages(len) {
 			} else {
 				loaded++;
 			}
-		});
+		}.bind(null, i));
 	}
 }
 
