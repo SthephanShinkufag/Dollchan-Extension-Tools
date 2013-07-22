@@ -1114,7 +1114,7 @@ function closePanel(el) {
 
 function addPanel() {
 	var imgLen = getImages(dForm).length;
-	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea[0]) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
+	$before(pr.pArea[0] || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
 		$event($New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				var el = this.parentNode;
@@ -5173,7 +5173,7 @@ PostForm.prototype = {
 	isQuick: false,
 	select: 0,
 	pForm: null,
-	pArea: {},
+	pArea: [],
 	qArea: null,
 	addTextPanel: function() {
 		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
@@ -5300,7 +5300,7 @@ PostForm.prototype = {
 			this.isQuick = true;
 			this.qArea.appendChild(this.pForm);
 			this.pForm.style.display = '';
-			$t('a', this.pArea[this.select].btn).className =
+			$t('a', this._pBtn[this.select]).className =
 				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
 			if(!TNum && !aib.kus && !aib.hana) {
 				if(this.oeForm) {
@@ -5351,7 +5351,7 @@ PostForm.prototype = {
 			}
 			this.qArea.style.display = 'none';
 			$after(this.pArea[this.select], this.qArea);
-			$after(this.pArea[this.select].btn, this.pForm);
+			$after(this._pBtn[this.select], this.pForm);
 		}
 	},
 	toggleMainReply: function(e) {
@@ -5366,7 +5366,7 @@ PostForm.prototype = {
 				$disp(this.pForm);
 			} else {
 				this.pForm.style.display = '';
-				$after(this.pArea[select].btn, this.pForm);
+				$after(this._pBtn[select], this.pForm);
 			}
 			this.select = select;
 		}
@@ -5376,12 +5376,13 @@ PostForm.prototype = {
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
 			rep = TNum ? 'reply' : 'thrd';
-		$t('a', this.pArea[this.select].btn).className = txt +
+		$t('a', this._pBtn[this.select]).className = txt +
 			(this.pForm.style.display === '' ? 'close' : rep);
-		$t('a', this.pArea[+!this.select].btn).className = txt + rep;
+		$t('a', this._pBtn[+!this.select]).className = txt + rep;
 	},
 
 	_lastCapUpdate: 0,
+	_pBtn: [],
 	_addResizer: function() {
 		var resMove = function(e) {
 				var p = $offset(this);
@@ -5407,7 +5408,7 @@ PostForm.prototype = {
 	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		if(Cfg['addPostForm'] > 1) {
+		if(!TNum || Cfg['addPostForm'] > 1) {
 			$disp(this.pForm);
 		}
 		var btn = $New('div', null, [
@@ -5417,14 +5418,14 @@ PostForm.prototype = {
 		]);
 		$before(dForm, this.pArea[0] =
 			$New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [btn, doc.createElement('hr')]));
-		this.pArea[0].btn = btn;
+		this._pBtn[0] = btn;
 		btn = btn.cloneNode(true);
 		$event($t('a', btn), {'click': this.toggleMainReply.bind(this)});
 		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea[1] =
 			$New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [btn, doc.createElement('hr')]));
-		this.pArea[1].btn = btn;
+		this._pBtn[1] = btn;
+		$after(this._pBtn[this.select = +(Cfg['addPostForm'] === 1)], this.pForm);
 		this.updatePAreaBtns();
-		$after(this.pArea[this.select = +(Cfg['addPostForm'] === 1)].btn, this.pForm);
 		this.pArea[this.select].insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
 			aib.cReply + '" style="display: none;"></div>');
 		this.qArea = this.pArea[this.select].nextSibling;
@@ -5496,7 +5497,7 @@ PostForm.prototype = {
 			if(this.isQuick) {
 				$disp(this.pForm);
 				$disp(this.qArea);
-				$after(this.pArea[this.select].btn, this.pForm);
+				$after(this._pBtn[this.select], this.pForm);
 			}
 		}.bind(this)});
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
