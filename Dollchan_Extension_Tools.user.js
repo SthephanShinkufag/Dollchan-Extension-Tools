@@ -8818,7 +8818,7 @@ function initThreadUpdater(title, enableUpdater) {
 
 	function setTitle(nTitle) {
 		title = nTitle;
-		doc.title = (lastECode === 200 ? '' : '{' + eCode + '} ') +
+		doc.title = (lastECode === 200 ? '' : '{' + lastECode + '} ') +
 			(newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
 	}
 
@@ -8871,7 +8871,7 @@ function initPage() {
 	} else {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
-	updater = new initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
+	updater = initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
 }
 
 
