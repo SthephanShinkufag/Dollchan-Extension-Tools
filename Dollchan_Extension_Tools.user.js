@@ -8819,7 +8819,7 @@ function initThreadUpdater(title, enableUpdater) {
 	function setTitle(nTitle) {
 		title = nTitle;
 		doc.title = (lastECode === 200 ? '' : '{' + lastECode + '} ') +
-			(newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
+			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
 	function addPlayingTag() {
