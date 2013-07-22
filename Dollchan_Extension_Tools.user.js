@@ -5293,6 +5293,8 @@ PostForm.prototype = {
 			if(post.wrap.nextElementSibling === this.qArea) {
 				if(Cfg['addPostForm'] > 1) {
 					$disp(this.pForm);
+				} else {
+					this.updatePAreaBtns();
 				}
 				$disp(this.qArea);
 				this.showMainReply();
