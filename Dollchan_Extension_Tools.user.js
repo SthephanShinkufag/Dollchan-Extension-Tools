@@ -63,7 +63,7 @@ defaultCfg = {
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
 	'removeFName':	0,		// 		remove file name
-	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=inline, 3=hanging]
+	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
 	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
@@ -166,8 +166,8 @@ Lng = {
 		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
-			sel:		[['Сверху', 'Внизу', 'В постах', 'Отдельная'], ['At top', 'At bottom', 'Inline', 'Hanging']],
-			txt:		['форма ответа в треде* ', 'reply form in thread* ']
+			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hide', 'Hanging']],
+			txt:		['форма ответа* ', 'reply form* ']
 		},
 		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
@@ -1116,7 +1116,7 @@ function closePanel(el) {
 
 function addPanel() {
 	var imgLen = getImages(dForm).length;
-	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
+	$before(((!TNum || Cfg['addPostForm'] !== 1) && pr.pArea1) || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
 		$event($New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				var el = this.parentNode;
@@ -2896,7 +2896,7 @@ function loadDocFiles(imgOnly) {
 	});
 	if(!imgOnly) {
 		files = [];
-		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"], #de-main > div, #de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
+		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"], #de-main > div, .de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc.startsWith('>>') && (num = +tc.substr(2)) && (num in pByNum)) {
@@ -4894,7 +4894,7 @@ function scriptCSS() {
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
-		#de-parea { text-align: center;}\
+		.de-parea { text-align: center;}\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
@@ -5135,7 +5135,9 @@ PostForm.processInput = function() {
 				$pd(e);
 				var el = this.parentNode;
 				PostForm.delFileUtils(el);
-				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {'change': PostForm.processInput});
+				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {
+					'change': PostForm.processInput
+				});
 			}
 		}));
 	} else if(this.imgFile) {
@@ -5184,7 +5186,10 @@ PostForm.processInput = function() {
 };
 PostForm.prototype = {
 	isQuick: false,
-	pArea: null,
+	pForm: null,
+	pArea1: null,
+	pArea2: null,
+	qArea: null,
 	addTextPanel: function() {
 		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
 		if(!Cfg['addTextBtns']) {
@@ -5310,7 +5315,8 @@ PostForm.prototype = {
 			this.isQuick = true;
 			this.qArea.appendChild(this.pForm);
 			this.pForm.style.display = '';
-			$t('a', this._formBtn).textContent = TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
+			$t('a', this._isUp ? this._formBtn1 : this._formBtn2).textContent =
+				TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
 			if(!TNum && !aib.kus && !aib.hana) {
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
@@ -5319,11 +5325,13 @@ PostForm.prototype = {
 				}
 				if(this.form) {
 					$del($q('#thr_id, input[name="parent"]', this.form));
-					this.form.insertAdjacentHTML('afterbegin', '<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
-						aib.fch || aib.futa ? 'resto' :
-						aib.tiny ? 'thread' :
-						'parent'
-					) + '">');
+					this.form.insertAdjacentHTML('afterbegin',
+						'<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
+							aib.fch || aib.futa ? 'resto' :
+							aib.tiny ? 'thread' :
+							'parent'
+						) + '">'
+					);
 				}
 			}
 		}
@@ -5357,31 +5365,38 @@ PostForm.prototype = {
 				$del($id('thr_id'));
 			}
 			this.qArea.style.display = 'none';
-			$after(this.pArea, this.qArea);
-			$after(this._formBtn, this.pForm);
+			$after(this._isUp ? this.pArea1 : this.pArea2, this.qArea);
+			$after(this._isUp ? this._formBtn1 : this._formBtn2, this.pForm);
 		}
 	},
 	toggleMainReply: function(e) {
 		$pd(e);
+		var isUp = e.target.parentNode.parentNode.id === 'de-parea-up';
 		if(this.isQuick) {
 			this.pForm.style.display = '';
+			this._isUp = isUp;
 			this.showMainReply();
 		} else {
-			$disp(this.pForm);
+			if(this._isUp === isUp) {
+				$disp(this.pForm);
+			} else {
+				this.pForm.style.display = '';
+				$after(isUp ? this._formBtn1 : this._formBtn2, this.pForm);
+			}
+			this._isUp = isUp;
 		}
-		this.toggleFormBtn();
-		scrollTo(0, pageYOffset + this.pForm.getBoundingClientRect().top);
-	},
-	toggleFormBtn: function() {
-		$t('a', this._formBtn).textContent =
+		$t('a', this._isUp ? this._formBtn1 : this._formBtn2).textContent =
 			this.pForm.style.display === '' ? Lng.hideForm[lang] :
 			TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
+		$t('a', this._isUp ? this._formBtn2 : this._formBtn1).textContent =
+			TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang];
+		scrollTo(0, pageYOffset + this.pForm.getBoundingClientRect().top);
 	},
 
-	qArea: null,
-	pForm: null,
 	_lastCapUpdate: 0,
-	_formBtn: null,
+	_formBtn1: null,
+	_formBtn2: null,
+	_isUp: true,
 	_addResizer: function() {
 		var resMove = function(e) {
 				var p = $offset(this);
@@ -5399,37 +5414,52 @@ PostForm.prototype = {
 		}}));
 	},
 	_getCaptcha: function() {
-		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) || this.recap;
+		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) ||
+			this.recap;
 	},
 	_getReCaptcha: function() {
 		return $id('recaptcha_response_field');
 	},
 	_init: function() {
-		var el, btn, pArea = $New('div', {'id': 'de-parea'}, [
-			this._formBtn = $New('div', null, [
+		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
+		if(Cfg['addPostForm'] > 1) {
+			$disp(this.pForm);
+		}
+		this.pArea1 = $New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [
+			this._formBtn1 = $New('div', null, [
 				$txt('['),
 				$new('a', {
-					'text': TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
+					'text': Cfg['addPostForm'] === 0 ? Lng.hideForm[lang] :
+						TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
 					'href': '#',
 					'class': 'de-abtn'}, {
 					'click': this.toggleMainReply.bind(this)
 				}),
 				$txt(']')
 			]),
-			this.pForm = $New('div', {'id': 'de-pform', 'style': 'display: none;'}, [this.form, this.oeForm]),
 			doc.createElement('hr')
 		]);
-		if(TNum && Cfg['addPostForm'] === 1) {
-			$after(aib.fch ? $t('hr', dForm) : dForm, pArea);
-		} else {
-			$before(dForm, pArea);
-		}
-		if(TNum && Cfg['addPostForm'] > 1) {
-			$disp(pArea);
-		}
-		pArea.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
-		this.pArea = pArea;
-		this.qArea = pArea.nextSibling;
+		$before(dForm, this.pArea1);
+		this.pArea2 = $New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [
+			this._formBtn2 = $New('div', null, [
+				$txt('['),
+				$new('a', {
+					'text': Cfg['addPostForm'] === 1 ? Lng.hideForm[lang] :
+						TNum ? Lng.makeReply[lang] : Lng.makeThrd[lang],
+					'href': '#',
+					'class': 'de-abtn'}, {
+					'click': this.toggleMainReply.bind(this)
+				}),
+				$txt(']')
+			]),
+			doc.createElement('hr')
+		]);
+		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea2);
+		this._isUp = Cfg['addPostForm'] !== 1;
+		$after(this._isUp ? this._formBtn1 : this._formBtn2, this.pForm);
+		this.pArea1.insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
+			aib.cReply + '" style="display: none;"></div>');
+		this.qArea = this.pArea1.nextSibling;
 		if(Cfg['addPostForm'] === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
@@ -5498,7 +5528,7 @@ PostForm.prototype = {
 			if(this.isQuick) {
 				$disp(this.pForm);
 				$disp(this.qArea);
-				$after(this._formBtn, this.pForm);
+				$after(this._formBtn1, this.pForm);
 			}
 		}.bind(this)});
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
