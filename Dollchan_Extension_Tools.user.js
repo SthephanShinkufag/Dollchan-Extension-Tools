@@ -7620,7 +7620,7 @@ ImageBoard.prototype = {
 		'410chan.org': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
+					tag: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
 				});
 			} },
 			getSage: { value: function(post) {
@@ -7634,7 +7634,7 @@ ImageBoard.prototype = {
 		'420chan.org': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
+					tag: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
 				});
 			} },
 			qBan: { value: '.ban' },
@@ -7657,8 +7657,8 @@ ImageBoard.prototype = {
 			cReply: { value: 'post reply' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
-					'bb': { value: [false, false, false, false, true, true, false, false, false] }
+					tag: { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
+					bb: { value: [false, false, false, false, true, true, false, false, false] }
 				});
 			} },
 			qBan: { value: 'strong[style="color: red;"]' },
@@ -7693,7 +7693,7 @@ ImageBoard.prototype = {
 		'4chon.net': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
+					tag: { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
 				});
 			} },
 			appendPost: { value: function(el, parent) {
@@ -7819,7 +7819,7 @@ ImageBoard.prototype = {
 			cSubj: { value: 'postsubject' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
 				});
 			} },
 			qBan: { value: '.ban_mark' },
@@ -7857,7 +7857,7 @@ ImageBoard.prototype = {
 		'mlpg.co': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
+					tag: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
 				});
 			} },
 			qTable: { value: '.replyContainer' },
@@ -7884,7 +7884,7 @@ ImageBoard.prototype = {
 		'#ABU_css': {
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
 				});
 			} },
 			qBan: { value: 'font[color="#C12267"]' },
@@ -7986,7 +7986,7 @@ ImageBoard.prototype = {
 			cTrip: { value: 'trip' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					'tag': { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
+					tag: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 				});
 			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
@@ -8086,11 +8086,11 @@ ImageBoard.prototype = {
 		get _formButtons() {
 			var bb = this.isBB;
 			return {
-				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
-				'val': ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
-				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
+				id: ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
+				val: ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
+				tag: bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
 					['**', '*', '', '^H', '%%', '`', '', '', 'q'],
-				'bb': [bb, bb, bb, bb, bb, bb, bb, bb, bb]
+				bb: [bb, bb, bb, bb, bb, bb, bb, bb, bb]
 			};
 		},
 		get formButtons() {
