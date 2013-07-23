@@ -783,7 +783,7 @@ function getPrettyJSON(obj, indent) {
 			sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 				type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 				type === 'boolean' || type === 'number' ? val.toString() :
-				type === 'string' ? '"' + val.replace(/("|\\)/g, '\\$1').replace(/\r\n/g, '\\n') + '"' : type
+				type === 'string' ? '"' + val.replace(/("|\\)/g, '\\$1').replace(/\r?\n/g, '\\n') + '"' : type
 			);
 			iCount++;
 		}
@@ -6694,7 +6694,7 @@ Post.prototype = {
 			) {
 				if(this._selText.contains('\n')) {
 					addSpell(1 /* #exp */, '/' +
-						regQuote(this._selText).replace(/\r\n/g, '\\n') + '/', false);
+						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
 				} else {
 					addSpell(0 /* #words */, this._selText.replace(/\)/g, '\\)').toLowerCase(), false);
 				}
