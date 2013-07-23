@@ -425,8 +425,7 @@ function $q(path, root) {
 }
 
 function $C(id, root) {
-	return nav.Firefox ? root.getElementsByClassName(id) :
-		root.querySelectorAll('.' + id);
+	return nav.Firefox ? root.getElementsByClassName(id) : root.querySelectorAll('.' + id);
 }
 
 function $c(id, root) {
@@ -686,9 +685,9 @@ $tar.prototype = {
 		data[offset] = 0x20; // ' '
 	},
 	addString: function(filepath, str) {
-		this.addFile(filepath, new Uint8Array(unescape(encodeURIComponent(str)).split('').map(
-			function(a) { return a.charCodeAt(); }
-		)));
+		this.addFile(filepath, new Uint8Array(unescape(encodeURIComponent(str)).split('').map(function(a) {
+			return a.charCodeAt();
+		})));
 	},
 	addFile: function(filepath, input) {
 		var i, checksum, nameLen = filepath.length,
@@ -736,7 +735,8 @@ function getPostEl(el) {
 }
 
 function getImages(el) {
-	return el.querySelectorAll('.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
+	return el.querySelectorAll('.thumb, .de-thumb, .ca_thumb, ' +
+		'img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
 }
 
 function fixBrd(b) {
@@ -783,7 +783,7 @@ function getPrettyJSON(obj, indent) {
 			sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
 				type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
 				type === 'boolean' || type === 'number' ? val.toString() :
-				type === 'string' ? '"' + val.replace(/("|\\)/g, '\\$1').replace(/\r/g, '').replace(/\n/g, '\\n') + '"' : type
+				type === 'string' ? '"' + val.replace(/("|\\)/g, '\\$1').replace(/\r\n/g, '\\n') + '"' : type
 			);
 			iCount++;
 		}
@@ -923,15 +923,9 @@ function readCfg() {
 	saveComCfg(aib.dm, Cfg);
 	lang = Cfg['language'];
 	if(Cfg['correctTime']) {
-		dTime = new dateTime(
-			Cfg['timePattern'],
-			Cfg['timeRPattern'],
-			Cfg['timeOffset'],
-			lang,
-			function(rp) {
-				saveCfg('timeRPattern', rp);
-			}
-		);
+		dTime = new dateTime(Cfg['timePattern'], Cfg['timeRPattern'], Cfg['timeOffset'], lang, function(rp) {
+			saveCfg('timeRPattern', rp);
+		});
 	}
 	if(aib.hana) {
 		aib.hDTFix = new dateTime(
@@ -1249,7 +1243,8 @@ function toggleContent(name, isUpd) {
 function addContentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function() {
-			for(var el, res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode); el = els[i++];) {
+			var el, res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode);
+			for(; el = els[i++];) {
 				el.checked = res;
 			}
 		}}),
@@ -1445,7 +1440,9 @@ function showContent(cont, id, name, isUpd) {
 							arr = this[i].getAttribute('info').split(';');
 							if(arr[0] === aib.host && arr[1] === brd) {
 								el = $c('de-fav-inf-page', this[i]);
-								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<')).test($q(aib.qDForm, dc).innerHTML)) {
+								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<'))
+									.test($q(aib.qDForm, dc).innerHTML))
+								{
 									el.innerHTML = '@' + (aib.tiny ? idx + 1 : idx);
 								} else if(loaded === 5 && !el.textContent.contains('@')) {
 									el.innerHTML = '@?';
@@ -1653,7 +1650,8 @@ function getCfgFilters() {
 				var wrap = el.post.wrap,
 					hide = !wrap.classList.contains('de-hidden');
 				if(hide) {
-					wrap.insertAdjacentHTML('beforebegin', '<span style="counter-increment: de-cnt 1;"></span>');
+					wrap.insertAdjacentHTML('beforebegin',
+						'<span style="counter-increment: de-cnt 1;"></span>');
 				} else {
 					$del(wrap.previousSibling);
 				}
@@ -1884,7 +1882,9 @@ function getCfgInfo() {
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			var i, nCfg = {};
 			for(i in Cfg) {
-				if(Cfg[i] !== defaultCfg[i] && i !== 'stats' && i !== 'nameValue' && i !== 'passwValue' && i !== 'signatValue') {
+				if(Cfg[i] !== defaultCfg[i] && i !== 'stats' && i !== 'nameValue' &&
+					i !== 'passwValue' && i !== 'signatValue')
+				{
 					nCfg[i] = Cfg[i];
 				}
 			}
@@ -2047,10 +2047,9 @@ function showMenu(el, html, inPanel, onclick) {
 		pos = 'absolute';
 		y = 'top: ' + (window.pageYOffset + cr.bottom);
 	}
-	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply +
-		' de-menu" style="position: ' + pos + '; right: ' +
-		(doc.documentElement.clientWidth - cr.right - window.pageXOffset)
-		+ 'px; ' + y + 'px;">' + html + '</div>');
+	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply + ' de-menu" style="position: ' +
+		pos + '; right: ' + (doc.documentElement.clientWidth - cr.right - window.pageXOffset) +
+		'px; ' + y + 'px;">' + html + '</div>');
 	menu = doc.body.lastChild;
 	menu.addEventListener('mouseover', function(e) {
 		clearTimeout(e.currentTarget.odelay);
@@ -2085,8 +2084,8 @@ function removeMenu(e) {
 }
 
 function addSpellMenu(el) {
-	showMenu(el, '<div style="display: inline-block; border-right: 1px solid grey;"><span class="de-menu-item">' +
-		('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
+	showMenu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
+		'<span class="de-menu-item">' + ('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
 			.split(',').join('</span><span class="de-menu-item">') +
 		'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
 		('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
@@ -2095,18 +2094,17 @@ function addSpellMenu(el) {
 		var exp = el.textContent,
 			idx = spells.names.indexOf(exp.substr(1));
 		$txtInsert($id('de-spell-edit'), exp + (
-			TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ?
-				'[' + brd + ',' + TNum + ']' : ''
+			TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ? '[' + brd + ',' + TNum + ']' : ''
 		) + (idx < 5 || idx > 14 ? '(' : ''));
 	});
 }
 
 function addAjaxPagesMenu(el) {
-	showMenu(el, '<span class="de-menu-item">' +Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') +
-		'</span>', true, function(el) {
-			loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
-		}
-	);
+	showMenu(el, '<span class="de-menu-item">' +
+		Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
+	function(el) {
+		loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
+	});
 }
 
 function addAudioNotifMenu(el) {
@@ -2378,7 +2376,8 @@ function html5Submit(form, button, fn) {
 	this.error = false;
 	this.url = form.action;
 	this.fn = fn;
-	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form), this.append.bind(this));
+	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form),
+		this.append.bind(this));
 	this.append(button);
 	this.submit();
 }
@@ -2438,10 +2437,8 @@ html5Submit.prototype = {
 				if(xhr.status === 200) {
 					this(getSubmitResponse(nav.toDOM(xhr.responseText), false));
 				} else {
-					$alert(
-						xhr.status === 0 ? Lng.noConnect[lang] : 'HTTP [' + xhr.status + '] ' + xhr.statusText,
-						'upload', false
-					);
+					$alert(xhr.status === 0 ? Lng.noConnect[lang] :
+						'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
 				}
 			}.bind(this.fn)
 		});
@@ -2550,7 +2547,8 @@ html5Submit.prototype = {
 			return rv;
 		}
 		if(img[0] === 0x89 && img[1] === 0x50) {
-			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 || img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
+			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
+				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
 		}
@@ -2705,9 +2703,10 @@ function addImgFileIcon(info) {
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		$q(aib.qImgLink, aib.getPicWrap(this)).insertAdjacentHTML('afterend',
-			'<a href="' + window.URL.createObjectURL(new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})) +
-			'" class="' + (type > 2 ? 'de-img-audio' : 'de-img-arch') + '" title="' + Lng.downloadFile[lang] +
+		$q(aib.qImgLink, aib.getPicWrap(this)).insertAdjacentHTML('afterend', '<a href="' + 
+			window.URL.createObjectURL(
+				new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})
+			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 		);
 	}
@@ -2737,7 +2736,9 @@ function downloadImgData(url, Fn) {
 			} else if(isAb) {
 				Fn(new Uint8Array(e.response));
 			} else {
-				Fn(new Uint8Array(e.responseText.split('').map(function(a) { return a.charCodeAt(); })));
+				Fn(new Uint8Array(e.responseText.split('').map(function(a) {
+					return a.charCodeAt();
+				})));
 			}
 		}.bind(null, url)
 	});
@@ -2827,7 +2828,9 @@ function getDataFromImg(img) {
 	cnv.width = img.width;
 	cnv.height = img.height;
 	cnv.getContext('2d').drawImage(img, 0, 0);
-	return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(function(a) { return a.charCodeAt(); }));
+	return new Uint8Array(atob(cnv.toDataURL("image/png").split(',')[1]).split('').map(function(a) {
+		return a.charCodeAt();
+	}));
 }
 
 function loadDocFiles(imgOnly) {
@@ -2867,11 +2870,13 @@ function loadDocFiles(imgOnly) {
 		var u, a, dt;
 		if(!imgOnly) {
 			dt = doc.doctype;
-			$t('head', dc).insertAdjacentHTML('beforeend', '<script type="text/javascript" src="data/dollscript.js"></script>');
+			$t('head', dc).insertAdjacentHTML('beforeend',
+				'<script type="text/javascript" src="data/dollscript.js"></script>');
 			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, true);');
-			tar.addString(TNum + '.html', '<!DOCTYPE ' + dt.name +
-				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '')
-				+ (dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
+			tar.addString(
+				TNum + '.html', '<!DOCTYPE ' + dt.name +
+				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
+				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
 			);
 		}
 		u = window.URL.createObjectURL(tar.get());
@@ -2892,12 +2897,14 @@ function loadDocFiles(imgOnly) {
 		var lnk, url;
 		if(lnk = $x("ancestor::a[1]", el)) {
 			url = lnk.href;
-			Images_.queue.run([url, lnk.getAttribute('download') || url.substring(url.lastIndexOf("/") + 1), el, lnk]);
+			Images_.queue.run([url, lnk.getAttribute('download') ||
+				url.substring(url.lastIndexOf("/") + 1), el, lnk]);
 		}
 	});
 	if(!imgOnly) {
 		files = [];
-		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"], #de-main > div, .de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
+		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"],' +
+			' #de-main > div, .de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc.startsWith('>>') && (num = +tc.substr(2)) && (num in pByNum)) {
@@ -3134,8 +3141,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					addFlash(el, id, time);
 					return;
 				}
-				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id + '/0.jpg" controls="controls" ' +
-					'preload="none" src="' + src + (nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
+				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
+					'/0.jpg" controls="controls" preload="none" src="' + src +
+					(nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 					'" width="' + width + '" height="' + height + '"></video>';
 				el = el.firstChild;
 				el.addEventListener('play', updater.addPlayingTag, false);
@@ -3150,8 +3158,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function addImage(el, m) {
-		el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] +
-			'" target="_blank">' +
+		el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 			'<img class="de-ytube-image" src="https://i.ytimg.com/vi/' + m[1] +
 			'/0.jpg" width="' + width + '" height="' + height + '"></a>';
 	}
@@ -3173,7 +3180,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			}
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[2] + '?alt=json&fields=title/text(),author/name',
+				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[2] +
+					'?alt=json&fields=title/text(),author/name',
 				'onreadystatechange': function(idx, xhr) {
 					if(xhr.readyState === 4) {
 						var entry, title, author, data, post = this[0], link = this[1];
@@ -3281,7 +3289,8 @@ function embedMP3Links(post) {
 		el = (post || getPostEl(link).post).mp3Obj;
 		if(nav.canPlayMP3) {
 			if(!$q('audio[src="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend', '<p><audio src="' + src + '" preload="none" controls></audio></p>');
+				el.insertAdjacentHTML('beforeend',
+					'<p><audio src="' + src + '" preload="none" controls></audio></p>');
 				link = el.lastChild.firstChild;
 				link.addEventListener('play', updater.addPlayingTag, false);
 				link.addEventListener('pause', updater.removePlayingTag, false);
@@ -3348,8 +3357,7 @@ function loadFavorThread() {
 	el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-fav" id="de-iframe-fav" src="' +
 		$t('a', el).href + '" scrolling="no" style="border: none; width: ' +
 		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"><div id="de-fav-wait" ' +
-		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>'
-	);
+		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>');
 }
 
 function parsePages(pages, node) {
@@ -3408,7 +3416,10 @@ function loadPages(len) {
 			if(loaded === len) {
 				pages.forEach(function(page, pNum) {
 					$append(el, pNum === 0 ? [page] : [
-						$new('center', {'text': pNum + ' ' + Lng.page[lang], 'style': 'font-size: 2em;'}, null),
+						$new('center', {
+							'text': pNum + ' ' + Lng.page[lang],
+							'style': 'font-size: 2em;'
+						}, null),
 						doc.createElement('hr'),
 						page
 					]);
@@ -3454,8 +3465,7 @@ function getHanaFile(file, id) {
 			name = name.substring(0, 17) + '...';
 		}
 	}
-	thumb =
-		rating === 'r-18g' && maxRating !== 'r-18g' ? 'images/r-18g.png' :
+	thumb = rating === 'r-18g' && maxRating !== 'r-18g' ? 'images/r-18g.png' :
 		rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18') ? 'images/r-18.png' :
 		rating === 'r-15' && maxRating === 'sfw' ? 'images/r-15.png' :
 		rating === 'illegal' ? 'images/illegal.png' :
@@ -3464,12 +3474,12 @@ function getHanaFile(file, id) {
 		thumbW = 200;
 		thumbH = 200;
 	}
-	return '<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">'
-		+ name + '</a><br><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
-			size < kb ? size + ' B'
-			: size < mb ? (size / kb).toFixed(2) + ' KB'
-			: size < gb ? (size / mb).toFixed(2) + ' MB'
-			: (size / gb).toFixed(2) + ' GB'
+	return '<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' +
+		name + '</a><br><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
+			size < kb ? size + ' B' :
+			size < mb ? (size / kb).toFixed(2) + ' KB' :
+			size < gb ? (size / mb).toFixed(2) + ' MB' :
+			(size / gb).toFixed(2) + ' GB'
 		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
 		'</em><br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
 		'"><img title="edit" alt="edit" src="/images/blank.png"></a></div><a href="/' + src +
@@ -4042,8 +4052,7 @@ Spells.prototype = {
 				break;
 			case '(':
 				if(this._lastType === 2 || this._lastType === 4) {
-					this._error = Lng.seMissOp[lang] +
-						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
+					this._error = Lng.seMissOp[lang] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
 					return false;
 				}
 				scopes.push(scope);
@@ -4111,7 +4120,9 @@ Spells.prototype = {
 				}
 			} else {
 				scope = spell[2];
-				if(!scope || (scope[0] === brd && (scope[1] === -1 ? !TNum : (!scope[1] || scope[1] === TNum)))) {
+				if(!scope || (scope[0] === brd &&
+					(scope[1] === -1 ? !TNum : (!scope[1] || scope[1] === TNum))))
+				{
 					if(type === 12) {
 						neg = !neg;
 					} else {
@@ -4151,8 +4162,9 @@ Spells.prototype = {
 				return neg ? [[12, '']] : null;
 			}
 		}
-		return newSpells.length === 0 ? null : newSpells.length === 1 && newSpells[0][0] === 0xFF ?
-			newSpells[0][1] : newSpells;
+		return newSpells.length === 0 ? null :
+			newSpells.length === 1 && newSpells[0][0] === 0xFF ? newSpells[0][1] :
+			newSpells;
 	},
 	_initSpells: function(data) {
 		if(data) {
@@ -4396,9 +4408,9 @@ Spells.prototype = {
 		return [str, reps.length === 0 ? false : reps, outreps.length === 0 ? false : outreps];
 	},
 	_decompileRep: function(rep, isOrep) {
-		return (isOrep ? '#outrep' : '#rep') + (rep[0] ? '[' + rep[0] +
-			(rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') + '(' + rep[2] + ',' +
-			rep[3] + ')';
+		return (isOrep ? '#outrep' : '#rep') +
+			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
+			'(' + rep[2] + ',' + rep[3] + ')';
 	},
 	_optimizeReps: function(data) {
 		if(data) {
@@ -5189,8 +5201,7 @@ PostForm.prototype = {
 		}
 		tPanel.style.cssFloat = Cfg['txtBtnsLoc'] ? 'none' : 'right';
 		$after(Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
-			aib._420 ? $c('popup', this.form) : this.subm, tPanel
-		);
+			aib._420 ? $c('popup', this.form) : this.subm, tPanel);
 		for(html = '', i = 0, btns = aib.formButtons, len = btns['id'].length; i < len; ++i) {
 			tag = btns['tag'][i];
 			if(tag === '') {
@@ -5226,9 +5237,8 @@ PostForm.prototype = {
 				start = x.selectionStart;
 				end = x.selectionEnd;
 				if(id === 'de-btn-quote') {
-					$txtInsert(x, '> ' + (
-						start === end ? quotetxt : x.value.substring(start, end)
-					).replace(/\n/gm, '\n> '));
+					$txtInsert(x, '> ' + (start === end ? quotetxt : x.value.substring(start, end))
+						.replace(/\n/gm, '\n> '));
 				} else {
 					scrtop = x.scrollTop;
 					tag = el.getAttribute('de-tag');
@@ -5244,8 +5254,8 @@ PostForm.prototype = {
 						txt = '';
 						x.value.substring(start, end).split('\n').forEach(function(line) {
 							var m = line.match(/^(\s*)(.*?)(\s*)$/);
-							txt += '\n' + m[1] + (tag !== '^H' ? tag + m[2] + tag
-								: m[2] + new Array(m[2].length + 1).join('^H')
+							txt += '\n' + m[1] + (
+								tag !== '^H' ? tag + m[2] + tag : m[2] + new Array(m[2].length + 1).join('^H')
 							) + m[3];
 						});
 						txt = txt.slice(1);
@@ -5380,8 +5390,7 @@ PostForm.prototype = {
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
 			rep = TNum ? 'reply' : 'thrd';
-		$t('a', this._pBtn[this.select]).className = txt +
-			(this.pForm.style.display === '' ? 'close' : rep);
+		$t('a', this._pBtn[this.select]).className = txt + (this.pForm.style.display === '' ? 'close' : rep);
 		$t('a', this._pBtn[+!this.select]).className = txt + rep;
 	},
 
@@ -5483,10 +5492,9 @@ PostForm.prototype = {
 			if(Cfg['userSignat'] && sVal) {
 				val += '\n' + sVal;
 			}
-			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools' && !/`\-{50}`$/.test(val)) {
-				val += '\n\n`' + new Array(51).join('-') + '`\n' +
-					'`' + navigator.userAgent + '`\n`v' + version + '`' +
-					'\n`' + new Array(51).join('-') + '`';
+			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools' && !/`\-{50}`/.test(val)) {
+				val += '\n\n`' + new Array(51).join('-') +
+					'`\n`' + navigator.userAgent + '`\n`v' + version + '`';
 			}
 			this.txta.value = val;
 			if(Cfg['ajaxReply']) {
@@ -5662,8 +5670,8 @@ PostForm.prototype = {
 			i.src = this._refreshCapSrc(
 				aib._410 ? ('/faptcha.php?board=' + brd) :
 					aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
-					aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random()
-					: (img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
+					aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random() :
+					(img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
 				TNum || 0
 			);
 		}.bind(this, _img), 50);
@@ -5901,7 +5909,9 @@ Post.prototype = {
 								el.href = aib.getThrdUrl(brd, this.thr.num) + '#' + this.num;
 							}
 						}
-					} else if(Cfg['insertNum'] && pr.form && temp === this._pref && !/Reply|Ответ/.test(el.textContent)) {
+					} else if(Cfg['insertNum'] && pr.form && temp === this._pref &&
+						!/Reply|Ответ/.test(el.textContent))
+					{
 						if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
 							pr.showQuickReply(this);
 						} else {
@@ -6221,7 +6231,8 @@ Post.prototype = {
 		if(Cfg['delHiddPost']) {
 			if(hide) {
 				this.wrap.classList.add('de-hidden');
-				this.wrap.insertAdjacentHTML('beforebegin', '<span style="counter-increment: de-cnt 1;"></span>');
+				this.wrap.insertAdjacentHTML('beforebegin',
+					'<span style="counter-increment: de-cnt 1;"></span>');
 			} else if(this.hidden) {
 				this.wrap.classList.remove('de-hidden');
 				$del(this.wrap.previousSibling);
@@ -6350,8 +6361,8 @@ Post.prototype = {
 	},
 	updateMsg: function(fullPost) {
 		var origMsg = aib.hana ? this.msg.firstElementChild : this.msg,
-			newMsg = replacePost(aib.hana ? $q('.alternate > div', this.el)
-				: doc.importNode($q(aib.qMsg, fullPost), true)),
+			newMsg = replacePost(aib.hana ? $q('.alternate > div', this.el) :
+				doc.importNode($q(aib.qMsg, fullPost), true)),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 		origMsg.parentNode.replaceChild(newMsg, origMsg);
@@ -6682,14 +6693,16 @@ Post.prototype = {
 				(nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))
 			) {
 				if(this._selText.contains('\n')) {
-					addSpell(1 /* #exp */, '/' + regQuote(this._selText).replace(/\n/g, '\\n').replace(/\r/g, '') + '/', false);
+					addSpell(1 /* #exp */, '/' +
+						regQuote(this._selText).replace(/\r\n/g, '\\n') + '/', false);
 				} else {
 					addSpell(0 /* #words */, this._selText.replace(/\)/g, '\\)').toLowerCase(), false);
 				}
 			} else {
 				dummy.innerHTML = '';
 				dummy.appendChild(this._selRange.cloneContents());
-				addSpell(2 /* #exph */, '/' + regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
+				addSpell(2 /* #exph */, '/' +
+					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
@@ -6918,8 +6931,8 @@ Pview.prototype = Object.create(Post.prototype, {
 		var panel, cnt = post.count - post.dcount,
 			el = this.el = post.el.cloneNode(true),
 			pText = (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
-			(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
-			'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
+				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
+				'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
 		el.post = this;
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
@@ -7528,7 +7541,8 @@ Thread.prototype = {
 
 function ImageBoard() {
 	var i, inf, dm;
-	dm = window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	dm = window.location.hostname
+		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(inf = this._bDomains[dm]) {
 		aib = this._createBoard(inf);
 	} else {
@@ -7610,7 +7624,8 @@ ImageBoard.prototype = {
 				});
 			} },
 			getSage: { value: function(post) {
-				return !!$x('.//span[@class="filetitle" and contains(text(),"' + unescape('%u21E9') + '")]', post);
+				return !!$x('.//span[@class="filetitle" and contains(text(),"' +
+					unescape('%u21E9') + '")]', post);
 			} },
 			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' },
 
@@ -8073,8 +8088,8 @@ ImageBoard.prototype = {
 			return {
 				'id': ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
 				'val': ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
-				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q']
-						: ['**', '*', '', '^H', '%%', '`', '', '', 'q'],
+				'tag': bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
+					['**', '*', '', '^H', '%%', '`', '', '', 'q'],
 				'bb': [bb, bb, bb, bb, bb, bb, bb, bb, bb]
 			};
 		},
@@ -8109,8 +8124,8 @@ ImageBoard.prototype = {
 		timePattern: '',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
-				$q('div[id*="_info"][style*="float"]', doc) ?
-				'div[id^="t"]:not([style])' : '[id^="thread"]';
+				$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
+				'[id^="thread"]';
 			Object.defineProperty(this, 'qThread', { value: val });
 			return val;
 		},
@@ -8128,7 +8143,8 @@ ImageBoard.prototype = {
 				text = el.textContent;
 				sz = text.match(/(\d+)[x×](\d+)/);
 				w = text.match(/(\d+(?:\.\d+)?)\s*([mkк])?i?[bб]/i);
-				return [sz[1], sz[2], w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1]];
+				return [sz[1], sz[2], w[2] === 'M' ? (w[1] * 1e3) | 0 :
+					!w[2] ? Math.round(w[1] / 1e3) : w[1]];
 			}
 			return [null, null, null];
 		},
@@ -8208,8 +8224,11 @@ ImageBoard.prototype = {
 		trTag: 'tr'
 	},
 	_createBoard: function(info) {
-		return Object.create(info[2] ? this._createBoard(this._bDomains[info[2]]) :
-			info[1] ? Object.create(this._base, this._bEngines[info[1]]) : this._base, info[0]);
+		return Object.create(
+			info[2] ? this._createBoard(this._bDomains[info[2]]) :
+			info[1] ? Object.create(this._base, this._bEngines[info[1]]) :
+			this._base, info[0]
+		);
 	}
 };
 
@@ -8312,7 +8331,8 @@ Navigator.prototype = {
 	},
 	get matchesSelector() {
 		var dE = doc.documentElement,
-			fun = dE.matchesSelector || dE.mozMatchesSelector || dE.webkitMatchesSelector || dE.oMatchesSelector,
+			fun = dE.matchesSelector || dE.mozMatchesSelector ||
+				dE.webkitMatchesSelector || dE.oMatchesSelector,
 			val = Function.prototype.call.bind(fun);
 		Object.defineProperty(this, 'matchesSelector', { value: val });
 		return val;
@@ -8458,10 +8478,8 @@ function Initialization() {
 	}, false);
 
 	url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]*?)\\/?)?' +
-		'(' + regQuote(aib.res) + ')?' +
-		'(\\d+|index|wakaba|futaba)?' +
-		'(\\.(?:[a-z]+))?$'
+		'^(?:\\/?([^\\.]*?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
+		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?$'
 	));
 	brd = url[1] || (aib.dfwk ? 'df' : '');
 	TNum = url[2] ? url[3] :
@@ -8624,16 +8642,13 @@ function initThreadUpdater(title, enableUpdater) {
 		favNorm = notifGranted = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 		if(nav.Firefox > 18 || nav.Chrome) {
-			doc.addEventListener(
-				(nav.WebKit ? 'webkit' : '') + 'visibilitychange',
-				function() {
-					if(doc.hidden || doc.webkitHidden) {
-						focused = false;
-					} else {
-						onVis();
-					}
-				}, false
-			);
+			doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
+				if(doc.hidden || doc.webkitHidden) {
+					focused = false;
+				} else {
+					onVis();
+				}
+			}, false);
 		} else {
 			focused = false;
 			$event(window, {
@@ -8759,8 +8774,9 @@ function initThreadUpdater(title, enableUpdater) {
 					favIntrv = setInterval(function() {
 						$del($q('link[rel="shortcut icon"]', doc.head));
 						doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
-							(favNorm ? 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVRIx2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=' : favHref) +
-						'">');
+							(!favNorm ? favHref : 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAA' +
+							'AQEAYAAABPYyMiAAAABmJLR0T///////8JWPfcAAAACXBIWXMAAABIAAAASABGyWs+AAAAF0lEQVR' +
+							'Ix2NgGAWjYBSMglEwCkbBSAcACBAAAeaR9cIAAAAASUVORK5CYII=') + '">');
 						favNorm = !favNorm;
 					}, 800);
 				}
