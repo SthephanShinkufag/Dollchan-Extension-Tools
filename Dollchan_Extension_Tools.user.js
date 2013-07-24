@@ -6062,7 +6062,7 @@ Post.prototype = {
 		return val;
 	},
 	get imagesData() {
-		var i, len, dat, els = getImages(this.el),
+		var i, len, dat, wrap, els = getImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
@@ -6070,14 +6070,16 @@ Post.prototype = {
 			if(!/\.jpe?g|\.png|\.gif|^blob:/i.test(fullSrc)) {
 				data[el.src] = null;
 			} else {
-				dat = aib.getImgData(aib.getPicWrap(el.parentNode));
+				wrap = aib.hasPicWrap ? aib.getPicWrap(el.parentNode) : this.el;
+				dat = aib.getImgData(wrap);
 				data[el.src] = {
 					el: el,
 					expanded: false,
 					height: dat[1],
 					src: fullSrc,
 					weight: dat[2],
-					width: dat[0]
+					width: dat[0],
+					wrap: wrap
 				};
 			}
 		}
@@ -6434,8 +6436,10 @@ Post.prototype = {
 	_addFullImage: function(el, data, inPost) {
 		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
-			el.style.display = 'none';
+			(aib.hasPicWrap ? data.wrap : el).insertAdjacentHTML('afterend',
+				'<div style="clear:left;"></div>');
 			scrW -= this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
+			el.style.display = 'none';
 		} else {
 			$del($c('de-img-center', doc));
 		}
@@ -6795,20 +6799,13 @@ Post.prototype = {
 	},
 	_removeFullImage: function(e, full, thumb, data) {
 		var pEl, pv, box, x, y, inPost = data.expanded;
-		if(inPost) {
-			thumb.style.display = '';
-		}
 		data.expanded = false;
-		if(nav.Firefox && (pEl = Pview.getPview(full))) {
-			box = pEl.getBoundingClientRect();
+		if(nav.Firefox && this._isPview) {
+			box = this.el.getBoundingClientRect();
 			x = e.pageX;
 			y = e.pageY;
-			if(inPost) {
-				if(x > box.right || y > box.bottom && Pview.top) {
-					Pview.top.markToDel();
-				}
-			} else {
-				pv = pEl.post;
+			if(!inPost) {
+				pv = this;
 				while(x > box.right || x < box.left || y > box.bottom || y < box.top) {
 					if(pv = pv.parent) {
 						box = pv.el.getBoundingClientRect();
@@ -6823,9 +6820,15 @@ Post.prototype = {
 				if(pv.kid) {
 					pv.kid.markToDel();
 				}
+			} else if(x > box.right || y > box.bottom && Pview.top) {
+				Pview.top.markToDel();
 			}
 		}
 		$del(full);
+		if(inPost) {
+			thumb.style.display = '';
+			$del((aib.hasPicWrap ? data.wrap : thumb).nextSibling);
+		}
 	}
 }
 
@@ -7601,6 +7604,7 @@ ImageBoard.prototype = {
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 			} },
+			hasPicWrap: { value: true },
 			ru: { value: true },
 			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' },
 			init: { value: function() {
@@ -7847,6 +7851,7 @@ ImageBoard.prototype = {
 					.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
 					.de-ytube-obj + div { clear: left; }'
 			} },
+			hasPicWrap: { value: true },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
 			rep: { value: true },
@@ -8044,6 +8049,7 @@ ImageBoard.prototype = {
 				.delete_checkbox { position: static !important; }\
 				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
 				.de-ytube-obj + div { clear: left; }' },
+			hasPicWrap: { value: true },
 			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
 			ru: { value: true },
 			init: { value: function() {
@@ -8213,6 +8219,7 @@ ImageBoard.prototype = {
 		anchor: '#',
 		docExt: '.html',
 		host: window.location.hostname,
+		hasPicWrap: false,
 		prot: window.location.protocol,
 		get rep() {
 			var val = dTime || spells.haveReps || Cfg['crossLinks'];
