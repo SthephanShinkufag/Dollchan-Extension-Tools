@@ -6798,7 +6798,7 @@ Post.prototype = {
 		}
 	},
 	_removeFullImage: function(e, full, thumb, data) {
-		var pEl, pv, box, x, y, inPost = data.expanded;
+		var pv, box, x, y, inPost = data.expanded;
 		data.expanded = false;
 		if(nav.Firefox && this._isPview) {
 			box = this.el.getBoundingClientRect();
