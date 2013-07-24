@@ -8629,7 +8629,6 @@ function initThreadUpdater(title, enableUpdater) {
 		audioRun, initDelay, favIntrv, favNorm, favHref, enabled = false,
 		lastECode = 200,
 		newPosts = 0,
-		_title = title,
 		aPlayers = 0,
 		focused = !(doc.hidden || doc.webkitHidden);
 
@@ -8765,7 +8764,7 @@ function initThreadUpdater(title, enableUpdater) {
 			setState('on');
 			checked404 = false;
 			if(lPosts === 0) {
-				doc.title = (newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
+				updateTitle();
 			}
 		}
 		if(!focused) {
@@ -8781,7 +8780,7 @@ function initThreadUpdater(title, enableUpdater) {
 					}, 800);
 				}
 				newPosts += lPosts;
-				doc.title = ' [' + newPosts + '] ' + title;
+				updateTitle();
 				if(Cfg['desktNotif'] && notifGranted) {
 					var notif = new Notification(getNotifTitle(newPosts), {
 						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
@@ -8828,7 +8827,7 @@ function initThreadUpdater(title, enableUpdater) {
 		focused = true;
 		newPosts = 0;
 		setTimeout(function() {
-			setTitle(title);
+			updateTitle();
 			if(enabled) {
 				clearTimeout(loadTO);
 				delay = initDelay;
@@ -8837,23 +8836,23 @@ function initThreadUpdater(title, enableUpdater) {
 		}, 200);
 	}
 
-	function setTitle(nTitle) {
-		title = nTitle;
-		doc.title = (lastECode === 200 ? '' : '{' + lastECode + '} ') +
+	function updateTitle() {
+		doc.title = (aPlayers === 0 ? '' : '♫ ') +
+			(lastECode === 200 ? '' : '{' + lastECode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
 	function addPlayingTag() {
-		if(aPlayers === 0) {
-			setTitle('♫ ' + _title);
-		}
 		aPlayers++;
+		if(aPlayers === 1) {
+			updateTitle();
+		}
 	}
 
 	function removePlayingTag() {
 		aPlayers = Math.max(aPlayers - 1, 0);
 		if(aPlayers === 0) {
-			setTitle(_title);
+			updateTitle();
 		}
 	}
 
