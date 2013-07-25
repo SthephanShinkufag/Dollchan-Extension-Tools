@@ -3625,7 +3625,7 @@ Spells.prototype = {
 			return false;
 		},
 		// 4: #ihash
-		function spell_ihash(post, val) {
+		function spell_ihash(post, val, ctx) {
 			var src, data = post.imagesData;
 			for(src in data) {
 				if(data[src].getHash(null) === val) {
@@ -4348,6 +4348,7 @@ Spells.prototype = {
 					i = 0;
 					deep++;
 					continue;
+				case 4:  // #ihash
 				case 13: // #video
 				case 16: // #vauthor
 					ctx.push(len, scope, i + 1, temp);
