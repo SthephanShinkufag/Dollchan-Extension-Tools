@@ -3628,11 +3628,23 @@ Spells.prototype = {
 		function spell_ihash(post, val, ctx) {
 			var src, data = post.imagesData;
 			for(src in data) {
-				if(data[src].getHash(null) === val) {
+				if(data[src].hash === val) {
 					return true;
 				}
 			}
-			return false;
+			if(post.hashImgsBusy === 0) {
+				return false;
+			}
+			post.hashHideFun = function(ctx, val, hash) {
+				if(val === hash) {
+					this.hashHideFun = null;
+					spells._continueCheck(this, ctx, true);
+				} else if(post.hashImgsBusy === 0) {
+					this.hashHideFun = null;
+					spells._continueCheck(this, ctx, false);
+				}
+			}.bind(post, ctx, val);
+			return null;
 		},
 		// 5: #subj
 		function spell_subj(post, val) {
@@ -5714,12 +5726,22 @@ function embedImagesLinks(el) {
 //													IMAGE DATA
 //============================================================================================================
 
-function ImageData(el) {
+function ImageData(post, el) {
 	this.el = el;
+	this.post = post;
 }
 ImageData.prototype = {
 	expanded: false,
 
+	get data() {
+		var img = this.el,
+			cnv = this._glob.canvas,
+			w = cnv.width = img.naturalWidth,
+			h = cnv.height = img.naturalHeight,
+			ctx = cnv.getContext('2d');
+		ctx.drawImage(img, 0, 0);
+		return [ctx.getImageData(0, 0, w, h).data, w, h];
+	},
 	get infoEl() {
 		var val = $c(aib.cFileInfo, this.wrap);
 		Object.defineProperty(this, 'infoEl', { value: val });
@@ -5735,20 +5757,21 @@ ImageData.prototype = {
 		Object.defineProperty(this, 'isImage', { value: val });
 		return val;
 	},
-	getHash: function(Fn) {
-		if(this.loaded) {
-			if(this.hasOwnProperty('_hash')) {
-				return this._hash;
+	get hash() {
+		var val, data, img = this.el;
+		if(img.complete) {
+			if(img.naturalWidth + img.naturalHeight === 0) {
+				val = -1;
+			} else {
+				data = this.data;
+				val = genImgHash(data[0], data[1], data[2]);
 			}
-			var img = this.el, cnv = this._glob.canvas,
-				w = cnv.width = img.naturalWidth,
-				h = cnv.height = img.naturalHeight,
-				ctx = cnv.getContext('2d');
-			ctx.drawImage(img, 0, 0);
-			return this._hash = genImgHash(ctx.getImageData(0, 0, w, h).data, w, h);
-		} else {
-			return -1;
+			Object.defineProperty(this, 'hash', { value: val });
+			return val;
 		}
+		this.post.hashImgsBusy++;
+		img.onload = img.onerror = this._onload.bind(this);
+		return null;
 	},
 	get height() {
 		var dat = aib.getImgSize(this.infoEl, this.info);
@@ -5757,13 +5780,6 @@ ImageData.prototype = {
 			'height': { value: dat[1] }
 		});
 		return dat[1];
-	},
-	get loaded() {
-		var val = this.el.naturalWidth + this.el.naturalHeight !== 0;
-		if(val) {
-			Object.defineProperty(this, 'loaded', { value: val });
-		}
-		return val;
 	},
 	get src() {
 		var val = aib.getImgLink(this.el).href;
@@ -5796,7 +5812,20 @@ ImageData.prototype = {
 			return val;
 		}
 	},
-	_hash: 0
+	_onload: function(Fn, arg) {
+		var data, val;
+		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
+			val = -1;
+		} else {
+			data = this.data;
+			val = genImgHash(data[0], data[1], data[2]);
+		}
+		Object.defineProperty(this, 'hash', { value: val });
+		this.post.hashImgsBusy--;
+		if(this.post.hashHideFun !== null) {
+			this.post.hashHideFun(val);
+		}
+	}
 }
 
 
@@ -5900,6 +5929,8 @@ Post.prototype = {
 	hasRef: false,
 	hasYTube: false,
 	hidden: false,
+	hashHideFun: null,
+	hashImgsBusy: 0,
 	index: 0,
 	inited: false,
 	isOp: false,
@@ -6162,7 +6193,7 @@ Post.prototype = {
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			data[el.src] = new ImageData(el);
+			data[el.src] = new ImageData(this, el);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
@@ -6799,7 +6830,7 @@ Post.prototype = {
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].getHash(null), false); return;
+		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].hash, false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
