@@ -3543,19 +3543,6 @@ function genImgHash(data, oldw, oldh) {
 	return hash;
 }
 
-function getImgHash(post) {
-	var w, h, cnv, ctx, img = post.imagesData['$first'].el;
-	if(img.hash) {
-		return img.hash;
-	}
-	cnv = Images_.canvas || (Images_.canvas = doc.createElement('canvas'));
-	w = cnv.width = img.width;
-	h = cnv.height = img.height;
-	ctx = cnv.getContext('2d');
-	ctx.drawImage(img, 0, 0);
-	return img.hash = genImgHash(ctx.getImageData(0, 0, w || 1, h || 1).data, w, h);
-}
-
 
 //============================================================================================================
 //													SPELLS
@@ -3639,7 +3626,13 @@ Spells.prototype = {
 		},
 		// 4: #ihash
 		function spell_ihash(post, val) {
-			return ('$first' in post.imagesData) && getImgHash(post) === val;
+			var src, data = post.imagesData;
+			for(src in data) {
+				if(data[src].getHash(null) === val) {
+					return true;
+				}
+			}
+			return false;
 		},
 		// 5: #subj
 		function spell_subj(post, val) {
@@ -5741,6 +5734,21 @@ ImageData.prototype = {
 		Object.defineProperty(this, 'isImage', { value: val });
 		return val;
 	},
+	getHash: function(Fn) {
+		if(this.loaded) {
+			if(this.hasOwnProperty('_hash')) {
+				return this._hash;
+			}
+			var img = this.el, cnv = this._glob.canvas,
+				w = cnv.width = img.naturalWidth,
+				h = cnv.height = img.naturalHeight,
+				ctx = cnv.getContext('2d');
+			ctx.drawImage(img, 0, 0);
+			return this._hash = genImgHash(ctx.getImageData(0, 0, w, h).data, w, h);
+		} else {
+			return -1;
+		}
+	},
 	get height() {
 		var dat = aib.getImgSize(this.infoEl, this.info);
 		Object.defineProperties(this, {
@@ -5748,6 +5756,13 @@ ImageData.prototype = {
 			'height': { value: dat[1] }
 		});
 		return dat[1];
+	},
+	get loaded() {
+		var val = this.el.naturalWidth + this.el.naturalHeight !== 0;
+		if(val) {
+			Object.defineProperty(this, 'loaded', { value: val });
+		}
+		return val;
 	},
 	get src() {
 		var val = aib.getImgLink(this.el).href;
@@ -5772,6 +5787,15 @@ ImageData.prototype = {
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	},
+
+	_glob: {
+		get canvas() {
+			var val = doc.createElement('canvas');
+			Object.defineProperty(this, 'canvas', { value: val });
+			return val;
+		}
+	},
+	_hash: 0
 }
 
 
@@ -6774,7 +6798,7 @@ Post.prototype = {
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash': addSpell(4 /* #ihash */, getImgHash(this), false); return;
+		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].getHash(null), false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
