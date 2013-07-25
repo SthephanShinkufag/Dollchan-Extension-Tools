@@ -3623,8 +3623,13 @@ Spells.prototype = {
 		},
 		// 3: #imgn
 		function spell_imgn(post, val) {
-			var inf = $c(aib.cFileInfo, post.el);
-			return inf && val.test(inf.textContent);
+			var src, data = post.imagesData;
+			for(src in data) {
+				if(val.test(data[src].info)) {
+					return true;
+				}
+			}
+			return false;
 		},
 		// 4: #ihash
 		function spell_ihash(post, val) {
@@ -5705,6 +5710,65 @@ function embedImagesLinks(el) {
 }
 
 //============================================================================================================
+//													IMAGE DATA
+//============================================================================================================
+
+function ImageData(el) {
+	this.el = el;
+}
+ImageData.prototype = {
+	expanded: false,
+
+	get infoEl() {
+		var val = $c(aib.cFileInfo, this.wrap);
+		Object.defineProperty(this, 'infoEl', { value: val });
+		return val;
+	},
+	get info() {
+		var el = this.infoEl, val = el ? el.textContent : '';
+		Object.defineProperty(this, 'info', { value: val });
+		return val;
+	},
+	get isImage() {
+		var val = /\.jpe?g|\.png|\.gif|^blob:/i.test(this.src);
+		Object.defineProperty(this, 'isImage', { value: val });
+		return val;
+	},
+	get height() {
+		var dat = aib.getImgSize(this.infoEl, this.info);
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[1];
+	},
+	get src() {
+		var val = aib.getImgLink(this.el).href;
+		Object.defineProperty(this, 'src', { value: val });
+		return val;
+	},
+	get weight() {
+		var val = aib.getImgWeight(this.info);
+		Object.defineProperty(this, 'weight', { value: val });
+		return val;
+	},
+	get width() {
+		var dat = aib.getImgSize(this.infoEl, this.info);
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[0];
+	},
+	get wrap() {
+		var val = aib.getPicWrap(this.el.parentNode);
+		Object.defineProperty(this, 'wrap', { value: val });
+		return val;
+	},
+}
+
+
+//============================================================================================================
 //													POST
 //============================================================================================================
 
@@ -6062,26 +6126,11 @@ Post.prototype = {
 		return val;
 	},
 	get imagesData() {
-		var i, len, dat, wrap, els = getImages(this.el),
+		var i, len, els = getImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			fullSrc = aib.getImgLink(el).href;
-			if(!/\.jpe?g|\.png|\.gif|^blob:/i.test(fullSrc)) {
-				data[el.src] = null;
-			} else {
-				wrap = aib.hasPicWrap ? aib.getPicWrap(el.parentNode) : this.el;
-				dat = aib.getImgData(wrap);
-				data[el.src] = {
-					el: el,
-					expanded: false,
-					height: dat[1],
-					src: fullSrc,
-					weight: dat[2],
-					width: dat[0],
-					wrap: wrap
-				};
-			}
+			data[el.src] = new ImageData(el);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
@@ -6293,7 +6342,7 @@ Post.prototype = {
 		var i, dat;
 		for(i in this.imagesData) {
 			dat = this.imagesData[i];
-			if(dat.expanded ^ expand) {
+			if(dat.isImage && (dat.expanded ^ expand)) {
 				if(expand) {
 					this._addFullImage(dat.el, dat, true);
 				} else {
@@ -6653,6 +6702,7 @@ Post.prototype = {
 				iEl.src = el.src;
 				data = el.data = {
 					expanded: false,
+					isImage: true,
 					width: iEl.width,
 					height: iEl.height,
 					src: el.src
@@ -6669,7 +6719,7 @@ Post.prototype = {
 			}
 			data = this.imagesData[el.src];
 		}
-		if(data) {
+		if(data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
 			} else {
@@ -7731,9 +7781,12 @@ ImageBoard.prototype = {
 			qImgLink: { value: '.fileinfo' },
 			qDForm: { value: '.threadz' },
 			qTable: { value: 'div[id^="replies"] > table' },
-			getImgData: { value: function(post) {
-				var m = $c(this.cFileInfo, post).onclick.toString().split("', '");
-				return [m[3], m[4], -1];
+			getImgSize: { value: function(infoEl, info) {
+				var m = infoEl.onclick.toString().split("', '");
+				return [m[3], m[4]];
+			} },
+			getImgWeight: { value: function(info) {
+				return -1;
 			} },
 			getOp: { value: function(thr, dc) {
 				var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
@@ -8143,16 +8196,16 @@ ImageBoard.prototype = {
 			}
 			return el;
 		},
-		getImgData: function(post) {
-			var w, sz, text, el = $c(this.cFileInfo, post);
-			if(el) {
-				text = el.textContent;
-				sz = text.match(/(\d+)[x×](\d+)/);
-				w = text.match(/(\d+(?:\.\d+)?)\s*([mkк])?i?[bб]/i);
-				return [sz[1], sz[2], w[2] === 'M' ? (w[1] * 1e3) | 0 :
-					!w[2] ? Math.round(w[1] / 1e3) : w[1]];
+		getImgSize: function(infoEl, info) {
+			if(info) {
+				var sz = info.match(/(\d+)[x×](\d+)/);
+				return [sz[1], sz[2]];
 			}
-			return [null, null, null];
+			return [-1, -1];
+		},
+		getImgWeight: function(info) {
+			var w = info.match(/(\d+(?:\.\d+)?)\s*([mkк])?i?[bб]/i);
+			return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
 		},
 		getOmitted: function(el, len) {
 			var txt;
