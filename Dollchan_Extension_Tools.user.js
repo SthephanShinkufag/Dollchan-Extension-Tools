@@ -2289,7 +2289,7 @@ function getSubmitResponse(dc, isFrame) {
 		if(!(err = err.replace(/<a [^>]+>Назад.+|<br.+/, ''))) {
 			err = Lng.error[lang] + '\n' + dc.body.innerHTML;
 		}
-		err = /successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
+		err = /:null|successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
 	}
 	return [(isFrame ? window.location : form ? aib.getThrdUrl(brd, aib.getTNum(form)) : ''), err];
 }
@@ -5327,7 +5327,7 @@ PostForm.prototype = {
 					this.form.insertAdjacentHTML('afterbegin',
 						'<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
 							aib.fch || aib.futa ? 'resto' :
-							aib.tiny ? 'thread' :
+							aib.abu || aib.tiny ? 'thread' :
 							'parent'
 						) + '">'
 					);
