@@ -383,6 +383,7 @@ Lng = {
 	cantLoad:		['Не могу загрузить ', 'Can\'t load '],
 	willSavePview:	['Будет сохранено превью', 'Thumb will be saved'],
 	loadErrors:		['Во время загрузки произошли ошибки:', 'Warning:'],
+	textCorrupted:	['Сервер отправил повреждённые данные', 'Server sent corrupted data'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -3314,7 +3315,12 @@ function ajaxGetPosts(url, Fn, errFn) {
 			if(xhr.status !== 200) {
 				errFn && errFn(xhr.status, xhr.statusText);
 			} else if(Fn) {
-				Fn(nav.toDOM(xhr.responseText), null);
+				var text = xhr.responseText;
+				if(/<\/html>[\s\n\r]*$/.test(text)) {
+					Fn(nav.toDOM(text), null);
+				} else if(errFn) {
+					errFn(0, Lng.textCorrupted[lang]);
+				}
 			}
 		}
 	}.bind(null, Fn, errFn)});
