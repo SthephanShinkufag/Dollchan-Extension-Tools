@@ -8015,7 +8015,7 @@ ImageBoard.prototype = {
 			} },
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
-			qOmitted: { value: '.mess_post' },
+			qOmitted: { value: '.mess_post, .omittedposts' },
 			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
