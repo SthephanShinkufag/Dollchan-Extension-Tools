@@ -5237,7 +5237,7 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, tag, txt, temp, id, el = e.target,
+		var x, start, end, scrtop, id, el = e.target,
 			type = e.type;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
@@ -5259,31 +5259,13 @@ PostForm.prototype = {
 						.replace(/\n/gm, '\n> '));
 				} else {
 					scrtop = x.scrollTop;
-					tag = el.getAttribute('de-tag');
-					if(el.getAttribute('de-bb') === 'true') {
-						txt = x.value.substring(start, end);
-						if(txt.contains('\n')) {
-							txt = '[' + tag + ']' + txt + '[/' + tag + ']';
-						} else {
-							temp = txt.match(/^(\s*)(.*?)(\s*)$/);
-							txt = temp[1] + '[' + tag + ']' + temp[2] + '[/' + tag + ']' + temp[3];
-						}
-					} else {
-						txt = '';
-						x.value.substring(start, end).split('\n').forEach(function(line) {
-							var m = line.match(/^(\s*)(.*?)(\s*)$/);
-							txt += '\n' + m[1] + (
-								tag !== '^H' ? tag + m[2] + tag : m[2] + new Array(m[2].length + 1).join('^H')
-							) + m[3];
-						});
-						txt = txt.slice(1);
-					}
+					txt = this._wrapText(el.getAttribute('de-bb') === 'true',
+						el.getAttribute('de-tag'), x.value.substring(start, end));
 					len = start + txt.length;
 					x.value = x.value.substr(0, start) + txt + x.value.substr(end);
 					x.setSelectionRange(len, len);
 					x.focus();
 					x.scrollTop = scrtop;
-					txt = tag = null;
 				}
 			}
 			$pd(e);
@@ -5497,7 +5479,7 @@ PostForm.prototype = {
 			}
 		}});
 		$event(this.subm, {'click': function(e) {
-			var val = this.txta.value,
+			var temp, val = this.txta.value,
 				sVal = Cfg['signatValue'];
 			if(Cfg['warnSubjTrip'] && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
@@ -5510,9 +5492,12 @@ PostForm.prototype = {
 			if(Cfg['userSignat'] && sVal) {
 				val += '\n' + sVal;
 			}
-			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools' && !/`\-{50}`/.test(val)) {
-				val += '\n\n`' + new Array(51).join('-') +
-					'`\n`' + navigator.userAgent + '`\n`v' + version + '`';
+			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
+				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
+					new Array(51).join('-') + '\n' + navigator.userAgent + '\nv' + version);
+				if(!val.contains(temp)) {
+					val += temp;
+				}
 			}
 			this.txta.value = val;
 			if(Cfg['ajaxReply']) {
@@ -5693,6 +5678,27 @@ PostForm.prototype = {
 				TNum || 0
 			);
 		}.bind(this, _img), 50);
+	},
+	_wrapText: function(isBB, tag, text) {
+		var rv, temp;
+		if(isBB) {
+			if(text.contains('\n')) {
+				rv = '[' + tag + ']' + text + '[/' + tag + ']';
+			} else {
+				temp = text.match(/^(\s*)(.*?)(\s*)$/);
+				rv = temp[1] + '[' + tag + ']' + temp[2] + '[/' + tag + ']' + temp[3];
+			}
+		} else {
+			rv = '';
+			text.split('\n').forEach(function(line) {
+				var m = line.match(/^(\s*)(.*?)(\s*)$/);
+				rv += '\n' + m[1] + (
+					tag !== '^H' ? tag + m[2] + tag : m[2] + new Array(m[2].length + 1).join('^H')
+				) + m[3];
+			});
+			rv = rv.slice(1);
+		}
+		return rv;
 	}
 }
 
@@ -5732,7 +5738,6 @@ function ImageData(post, el) {
 }
 ImageData.prototype = {
 	expanded: false,
-
 	get data() {
 		var img = this.el,
 			cnv = this._glob.canvas,
