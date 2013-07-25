@@ -3443,7 +3443,7 @@ function infoLoadErrors(eCode, eMsg, newPosts) {
 	if(eCode === 200) {
 		closeAlert($id('de-alert-newposts'));
 	} else if(eCode === 0) {
-		$alert(Lng.noConnect[lang], 'newposts', false);
+		$alert(eMsg || Lng.noConnect[lang], 'newposts', false);
 	} else {
 		$alert(Lng.thrNotFound[lang] + TNum + '): \n' + getErrorMessage(eCode, eMsg), 'newposts', false);
 		if(newPosts !== -1) {
@@ -6390,6 +6390,7 @@ Post.prototype = {
 			.replace(/<[^>]+?>/g,'')
 			.replace(/&gt;/g, '>')
 			.replace(/&lt;/g, '<')
+			.replace(/$nbsp;/g, String.fromCharCode(0x00A0))
 			.trim();
 		Object.defineProperty(this, 'text', { configurable: true, value: val });
 		return val;
@@ -8875,8 +8876,8 @@ function initThreadUpdater(title, enableUpdater) {
 	function onLoaded(eCode, eMsg, lPosts) {
 		infoLoadErrors(eCode, eMsg, -1);
 		if(eCode !== 200) {
-			doc.title = '{' + eCode + '} ' + (newPosts === 0 ? '' : ' [' + newPosts + '] ') + title;
 			lastECode = eCode;
+			updateTitle();
 			if(eCode !== 0 && Math.floor(eCode / 500) === 0) {
 				if(eCode === 404 && !checked404) {
 					checked404 = true;
@@ -8888,7 +8889,8 @@ function initThreadUpdater(title, enableUpdater) {
 			setState('warn');
 			loadTO = setTimeout(loadPostsFun, delay);
 			return;
-		} else if(lastECode !== 200) {
+		}
+		if(lastECode !== 200) {
 			lastECode = 200;
 			setState('on');
 			checked404 = false;
