@@ -1950,7 +1950,7 @@ function addSettings(Set) {
 			cfgTab('filters'),
 			cfgTab('posts'),
 			cfgTab('links'),
-			$if(pr.form || pr.oeform, cfgTab('form')),
+			$if(pr.form || pr.oeForm, cfgTab('form')),
 			cfgTab('common'),
 			cfgTab('info')
 		]),
