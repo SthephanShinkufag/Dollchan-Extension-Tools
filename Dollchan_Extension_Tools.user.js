@@ -1073,18 +1073,9 @@ function readViewedPosts() {
 //												MAIN PANEL
 //============================================================================================================
 
-function pButton(id, click, href, over, out) {
-	return $New('li', null, [
-		$new('a', {
-			'id': 'de-btn-' + id,
-			'class': 'de-abtn',
-			'title': Lng.panelBtn[id][lang],
-			'href': href || '#'}, {
-			'mouseover': over,
-			'mouseout': out,
-			'click': click
-		})
-	]);
+function pButton(id, href) {
+	return '<li><a id="de-btn-' + id + '" class="de-abtn" title="' + Lng.panelBtn[id][lang] +
+		'" href="' + href + '"></a></li>';
 }
 
 function closePanel(el) {
@@ -1103,106 +1094,103 @@ function closePanel(el) {
 
 function addPanel() {
 	var panel, imgLen = getImages(dForm).length;
-	$before(pr.pArea[0] || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
-		panel = $New('div', {'id': 'de-panel'}, [
-			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
-				var el = this.parentNode;
-				if(Cfg['expandPanel']) {
-					closePanel(el);
-				} else {
-					el.attach = true;
-				}
-				toggleCfg('expandPanel');
-			}}),
-			$New('ul', {
-				'id': 'de-panel-btns',
-				'style': 'display: ' + (Cfg['expandPanel'] ? 'inline-block;' : 'none;')
-			}, [
-				pButton('settings', function(e) {
-					$pd(e);
-					toggleContent('cfg', false);
-				}, null, null, null),
-				pButton('hidden', function(e) {
-					$pd(e);
-					toggleContent('hid', false);
-				}, null, null, null),
-				pButton('favor', function(e) {
-					$pd(e);
-					toggleContent('fav', false);
-				}, null, null, null),
-				$if(!aib.arch, pButton('refresh', function(e) {
-					$pd(e);
-					window.location.reload();
-				}, null, TNum ? null : addMenu, removeMenu)),
-				$if(!aib.arch, pButton('goback', null, aib.getPageUrl(brd, pageNum - 1), null, null)),
-				$if(!TNum && !aib.arch, pButton('gonext', null, aib.getPageUrl(brd, pageNum + 1), null, null)),
-				pButton('goup', function(e) {
-					$pd(e);
-					scrollTo(0, 0);
-				}, null, null, null),
-				pButton('godown', function(e) {
-					$pd(e);
-					scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight);
-				}, null, null, null),
-				$if(imgLen > 0, pButton('expimg', function(e) {
-					$pd(e);
-					isExpImg = !isExpImg;
-					$del($c('de-img-center', doc));
-					for(var post = firstThr.op; post; post = post.next) {
-						post.toggleImages(isExpImg);
-					}
-				}, null, null, null)),
-				$if(imgLen > 0, pButton('maskimg', function(e) {
-					$pd(e);
-					toggleCfg('maskImgs');
-					updateCSS();
-				}, null, null, null)),
-				$if(TNum, pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', function(e) {
-					$pd(e);
-					if(updater.enabled) {
-						updater.disable();
-					} else {
-						updater.enable();
-					}
-				}, null, null, null)),
-				$if(!nav.Safari && TNum, pButton('audio-off', function(e) {
-					$pd(e);
-					if(updater.toggleAudio(0)) {
-						updater.enable();
-						this.id = 'de-btn-audio-on';
-					} else {
-						this.id = 'de-btn-audio-off';
-					}
-					$del($c('de-menu', doc));
-				}, null, addMenu, removeMenu)),
-				$if(aib.nul || aib.abu || (aib.fch && !aib.arch), pButton(
-					'catalog', null, '//' + aib.host + '/' +
-						(aib.abu ? 'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'),
-					null, null
-				)),
-				$if((TNum || aib.arch) && nav.isBlob && !nav.Opera, pButton('imgload', function(e) {
-					$pd(e);
-					if($id('de-alert-imgload')) {
-						return;
-					}
-					if(Images_.preloading) {
-						$alert(Lng.loading[lang], 'imgload', true);
-						Images_.afterpreload = loadDocFiles.bind(null, true);
-						Images_.progressId = 'imgload';
-					} else {
-						loadDocFiles(true);
-					}
-				}, null, null, null)),
-				$if(TNum || aib.arch, $add('<div id="de-panel-info"><span title="' +
-					Lng.panelBtn['counter'][lang] + '">' + firstThr.pcount + '/' + imgLen + '</span></div>'))
-			])
-		]),
-		$new('div', {'class': 'de-content'}, null),
-		$new('div', {'id': 'de-alert'}, null),
-		$new('hr', {'style': 'clear: both;'}, null)
-	]));
+	(pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
+		'<div id="de-main" lang="' + getThemeLang() + '">' +
+			'<div id="de-panel">' +
+				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
+				'<ul id="de-panel-btns" style="display: ' + (Cfg['expandPanel'] ? 'inline-block' : 'none') + '">' +
+					pButton('settings', '#') +
+					pButton('hidden', '#') +
+					pButton('favor', '#') +
+					(aib.arch ? '' :
+						pButton('refresh', '#') +
+						pButton('goback', aib.getPageUrl(brd, pageNum - 1)) +
+						(TNum ? '' : pButton('gonext', aib.getPageUrl(brd, pageNum + 1)))) +
+					pButton('goup', '#') +
+					pButton('godown', '#') +
+					(imgLen === 0 ? '' :
+						pButton('expimg', '#') +
+						pButton('maskimg', '#')) +
+					(!TNum ? '' :
+						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#') +
+						(nav.Safari ? '' : pButton('audio-off', '#'))) +
+					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
+						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
+							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'))) +
+					(!TNum && !aib.arch? '' :
+						(nav.Opera || !nav.isBlob ? '' : pButton('imgload', '#')) +
+						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
+							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
+				'</ul>' +
+				'<div class="de-content"></div>' +
+				'<div id="de-alert"></div>' +
+				'<hr style="clear: both;">' +
+			'</div>' +
+		'</div>'
+	);
+	panel = $id('de-panel');
+	panel.addEventListener('click', function(e) {
+		switch(e.target.id) {
+		case 'de-btn-logo':
+			if(Cfg['expandPanel']) {
+				closePanel(e.currentTarget);
+			} else {
+				e.currentTarget.attach = true;
+			}
+			toggleCfg('expandPanel');
+			return;
+		case 'de-btn-settings': toggleContent('cfg', false); break;
+		case 'de-btn-hidden': toggleContent('hid', false); break
+		case 'de-btn-favor': toggleContent('fav', false); break;
+		case 'de-btn-refresh': window.location.reload(); break;
+		case 'de-btn-goup': scrollTo(0, 0); break;
+		case 'de-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
+		case 'de-btn-expimg':
+			isExpImg = !isExpImg;
+			$del($c('de-img-center', doc));
+			for(var post = firstThr.op; post; post = post.next) {
+				post.toggleImages(isExpImg);
+			}
+			break;
+		case 'de-btn-maskimg':
+			toggleCfg('maskImgs');
+			updateCSS();
+			break;
+		case 'de-btn-upd-on':
+		case 'de-btn-upd-off':
+			if(updater.enabled) {
+				updater.disable();
+			} else {
+				updater.enable();
+			}
+			break;
+		case 'de-btn-audio-on':
+		case 'de-btn-audio-off':
+			if(updater.toggleAudio(0)) {
+				updater.enable();
+				this.id = 'de-btn-audio-on';
+			} else {
+				this.id = 'de-btn-audio-off';
+			}
+			$del($c('de-menu', doc));
+			break;
+		case 'de-btn-imgload':
+			if($id('de-alert-imgload')) {
+				break;
+			}
+			if(Images_.preloading) {
+				$alert(Lng.loading[lang], 'imgload', true);
+				Images_.afterpreload = loadDocFiles.bind(null, true);
+				Images_.progressId = 'imgload';
+			} else {
+				loadDocFiles(true);
+			}
+			break;
+		default: return;
+		}
+		$pd(e);
+	}, true);
 	panel.addEventListener('mouseover', function(e) {
-		var el = e.target
 		if(!Cfg['expandPanel']) {
 			clearTimeout(this.odelay);
 			this.lastChild.style.display = 'inline-block';
@@ -1210,10 +1198,24 @@ function addPanel() {
 				this.className = 'de-panel-open';
 			}
 		}
+		switch(e.target.id) {
+		case 'de-btn-refresh':
+			if(TNum) {
+				return;
+			}
+		case 'de-btn-audio-off':
+			addMenu(e);
+		}
 	}, false);
-	panel.addEventListener('mouseout', function() {
+	panel.addEventListener('mouseout', function(e) {
 		if(!Cfg['expandPanel'] && !this.attach) {
 			this.odelay = setTimeout(closePanel, 500, this);
+		}
+		switch(e.target.id) {
+		case 'de-btn-refresh':
+		case 'de-btn-audio-off':
+			removeMenu(e);
+			break;
 		}
 	}, false);
 }
@@ -2069,19 +2071,19 @@ function showMenu(el, html, inPanel, onclick) {
 	}.bind(onclick), false);
 }
 
-function addMenu() {
-	this.odelay = setTimeout(function(el) {
+function addMenu(e) {
+	e.target.odelay = setTimeout(function(el) {
 		switch(el.id) {
 		case 'de-btn-addspell': addSpellMenu(el); return;
 		case 'de-btn-refresh': addAjaxPagesMenu(el); return;
 		case 'de-btn-audio-off': addAudioNotifMenu(el); return;
 		}
-	}, Cfg['linksOver'], this);
+	}, Cfg['linksOver'], e.target);
 }
 
 function removeMenu(e) {
 	var el, rt = e.relatedTarget;
-	clearTimeout(this.odelay);
+	clearTimeout(e.target.odelay);
 	if(!rt || !nav.matchesSelector(rt, '.de-menu, .de-menu > div, .de-menu-item')) {
 		if(el = $c('de-menu', doc)) {
 			el.odelay = setTimeout($del, 75, el);
