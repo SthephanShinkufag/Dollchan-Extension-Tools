@@ -6922,7 +6922,7 @@ Post.prototype = {
 	},
 	_closeMenu: function(rt) {
 		clearTimeout(this._menuDelay);
-		if(this._menu && !rt || rt.className !== 'de-menu-item') {
+		if(this._menu && (!rt || rt.className !== 'de-menu-item')) {
 			this._menuDelay = setTimeout(function() {
 				$del(this._menu);
 				this._menu = null;
