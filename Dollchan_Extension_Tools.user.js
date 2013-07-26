@@ -970,10 +970,6 @@ function readPosts() {
 }
 
 function savePosts() {
-	if(spells.running) {
-		spells.addCompleteFunc(savePosts);
-		return;
-	}
 	if(TNum) {
 		sessionStorage['de-hidden-' + brd + TNum] =
 			(Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
@@ -3380,7 +3376,6 @@ function parsePages(pages, node) {
 	addDelformStuff(false);
 	firstThr.checkSpells();
 	saveFavorites();
-	savePosts();
 	saveUserPosts();
 	if(pr.passw) {
 		pages.forEach(function(page) {
@@ -4309,7 +4304,7 @@ Spells.prototype = {
 			ctx[1].call(post, this._getMsg(ctx.pop()[temp - 1]));
 		}
 		this._asyncWrk--;
-		this._endAsync();
+		this.end();
 	},
 	_check: function(post, ctx) {
 		var rv, type, val, temp, deep = ctx[0],
@@ -4366,14 +4361,6 @@ Spells.prototype = {
 				ctx[1].call(post, this._getMsg(scope[i]));
 			}
 			return false;
-		}
-	},
-	_endAsync: function() {
-		if(this._asyncWrk === 0 && this._completeFns.length !== 0) {
-			for(var i = 0, len = this._completeFns.length; i < len; ++i) {
-				this._completeFns[i]();
-			}
-			this._completeFns = [];
 		}
 	},
 	_findReps: function(str) {
@@ -4513,14 +4500,16 @@ Spells.prototype = {
 	setSpells: function(spells, sync) {
 		this.update(spells, sync, Cfg['hideBySpell']);
 		if(Cfg['hideBySpell']) {
+			this.addCompleteFunc(savePosts);
 			for(var post = firstThr.op; post; post = post.next) {
 				delete post.offsetTop;
 				this.check(post, post.hide);
 			}
+			this.end();
 		} else {
 			this.enable = false;
+			savePosts();
 		}
-		savePosts();
 	},
 	disable: function(sync) {
 		this.enable = false;
@@ -4528,6 +4517,14 @@ Spells.prototype = {
 		this._data = null;
 		this.haveSpells = this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
+	},
+	end: function() {
+		if(this._asyncWrk === 0 && this._completeFns.length !== 0) {
+			for(var i = 0, len = this._completeFns.length; i < len; ++i) {
+				this._completeFns[i]();
+			}
+			this._completeFns = [];
+		}
 	},
 	check: function(post, hFunc) {
 		if(this.enable && this._check(post, [0, hFunc, this._sLength, this._spells, 0])) {
@@ -4631,18 +4628,20 @@ function addSpell(type, arg, isNeg) {
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
+			spells.addCompleteFunc(savePosts);
 			for(var post = firstThr.op; post; post = post.next) {
 				delete post.offsetTop;
 				spells.check(post, post.hide);
 			}
+			spells.end();
 		} else {
 			saveCfg('spells', '');
 			spells.enable = false;
+			savePosts();
 		}
 		if(fld) {
 			chk.checked = !!(fld.value = val);
 		}
-		savePosts();
 		return;
 	}
 	spells.enable = false;
@@ -7379,6 +7378,7 @@ Thread.prototype = {
 			posts = this.gInfo.hPosts,
 			len = posts.length;
 		if(len !== 0) {
+			spells.addCompleteFunc(savePosts);
 			for(i = 0; i < len; i++) {
 				post = posts[i];
 				spells.check(post, function(msg) {
@@ -7387,6 +7387,7 @@ Thread.prototype = {
 				});
 			}
 			this.gInfo.hPosts = [];
+			spells.end();
 		}
 		return hPosts;
 	},
@@ -7468,7 +7469,6 @@ Thread.prototype = {
 							this.pcount = pCount + len;
 							this._postsCache = null;
 							np = len - this.checkSpells();
-							savePosts();
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7484,9 +7484,6 @@ Thread.prototype = {
 			this._checkBan(this.op, aib.getOp(thr, dc));
 			Fn(200, '', newPosts - hiddenPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
-			if(newPosts > 0) {
-				savePosts();
-			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
 			Fn(eCode, eMsg, 0);
@@ -9135,7 +9132,6 @@ function doScript() {
 	$log('Apply CSS');
 	firstThr.checkSpells();
 	$log('Apply spells');
-	savePosts();
 	saveUserPosts();
 	$log('Save posts');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
