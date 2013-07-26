@@ -6446,7 +6446,7 @@ Post.prototype = {
 			.replace(/<[^>]+?>/g,'')
 			.replace(/&gt;/g, '>')
 			.replace(/&lt;/g, '<')
-			.replace(/$nbsp;/g, String.fromCharCode(0x00A0))
+			.replace(/&nbsp;/g, String.fromCharCode(0x00A0))
 			.trim();
 		Object.defineProperty(this, 'text', { configurable: true, value: val });
 		return val;
