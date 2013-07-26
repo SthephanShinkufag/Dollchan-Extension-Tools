@@ -910,9 +910,9 @@ function readCfg() {
 		Cfg['updThrDelay'] = 10;
 	}
 	if('updThread' in Cfg) {
-		switch(Cfg['updThread']) {
-		case 1: Cfg['ajaxUpdThr'] = 1; break;
-		default:
+		if(Cfg['updThread'] === 1) {
+			Cfg['ajaxUpdThr'] = 1;
+		} else {
 			Cfg['ajaxUpdThr'] = 0;
 			Cfg['addUpdBtn'] = 1;
 		}
