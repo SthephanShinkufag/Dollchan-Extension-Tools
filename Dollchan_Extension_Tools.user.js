@@ -5731,9 +5731,10 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 
-function ImageData(post, el) {
+function ImageData(post, src, el) {
 	this.el = el;
 	this.post = post;
+	this.src = src;
 }
 ImageData.prototype = {
 	expanded: false,
@@ -5792,7 +5793,7 @@ ImageData.prototype = {
 		});
 		return dat[1];
 	},
-	get src() {
+	get fullSrc() {
 		var val = aib.getImgLink(this.el).href;
 		Object.defineProperty(this, 'src', { value: val });
 		return val;
@@ -5822,6 +5823,18 @@ ImageData.prototype = {
 			Object.defineProperty(this, 'canvas', { value: val });
 			return val;
 		},
+		get storage() {
+			try {
+				var val = JSON.parse(sessionStorage['de-imageshash']);
+			} finally {
+				if(!val) {
+					val = {};
+				}
+				spells.addCompleteFunc(this._saveStorage.bind(this));
+				Object.defineProperty(this, 'storage', { value: val });
+				return val;
+			}
+		},
 		get workers() {
 			var val = new workerQueue(4, genImgHash, function(e) {});
 			spells.addCompleteFunc(this._clearWorkers.bind(this));
@@ -5829,6 +5842,9 @@ ImageData.prototype = {
 			return val;
 		},
 
+		_saveStorage: function() {
+			sessionStorage['de-imageshash'] = JSON.stringify(this.storage);
+		},
 		_clearWorkers: function() {
 			this.workers.clear();
 			delete this.workers;
@@ -5838,6 +5854,8 @@ ImageData.prototype = {
 		var data, val;
 		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
 			val = -1;
+		} else if(this.src in this._glob.storage) {
+			val = this._glob.storage[this.src];
 		} else {
 			data = this.data;
 			if(sync) {
@@ -5855,7 +5873,7 @@ ImageData.prototype = {
 		if(hash !== null) {
 			this.post.hashImgsBusy--;
 			if(this.post.hashHideFun !== null) {
-				this.post.hashHideFun(val);
+				this.post.hashHideFun(hash);
 			}
 		}
 	},
@@ -5866,6 +5884,7 @@ ImageData.prototype = {
 		if(this.post.hashHideFun !== null) {
 			this.post.hashHideFun(hash);
 		}
+		this._glob.storage[this.src] = hash;
 	}
 }
 
@@ -6230,11 +6249,12 @@ Post.prototype = {
 		return val;
 	},
 	get imagesData() {
-		var i, len, els = getImages(this.el),
+		var i, len, src, els = getImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			data[el.src] = new ImageData(this, el);
+			src = el.src;
+			data[src] = new ImageData(this, src, el);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
@@ -6605,16 +6625,10 @@ Post.prototype = {
 			newH = scrH - 2;
 			newW = newH * data.width / data.height;
 		}
-		img = $add('<img class="de-img-full" src="' + data.src + '" alt="' + data.src +
+		img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 			'" width="' + newW + '" height="' + newH + '">');
-		img.onload = function(e) {
-			if(this.naturalHeight + this.naturalWidth === 0) {
-				this.onerror();
-				return;
-			}
-		};
-		img.onerror = function() {
-			 if(!this.onceLoaded) {
+		img.onload = img.onerror = function(e) {
+			if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
 				this.src = this.src;
 				this.onceLoaded = true;
 			}
@@ -6810,7 +6824,7 @@ Post.prototype = {
 					isImage: true,
 					width: iEl.width,
 					height: iEl.height,
-					src: el.src
+					fullSrc: el.src
 				};
 			}
 			break;
