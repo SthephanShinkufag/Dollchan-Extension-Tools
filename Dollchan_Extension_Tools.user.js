@@ -5226,7 +5226,7 @@ PostForm.prototype = {
 				continue;
 			}
 			html += '<span id="de-btn-' + btns['id'][i] + '" title="' + Lng.txtBtn[i][lang] +
-				'" de-tag="' + tag + '" de-bb="' + btns['bb'][i] + '">' + (
+				'" de-tag="' + tag + '"' + (btns['bb'][i] ? 'de-bb' : '') + '>' + (
 					Cfg['addTextBtns'] === 2 ?
 						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
 						'</a>' + (i === len - 1 ? ' ]' : ' / ') :
@@ -5237,36 +5237,33 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, id, el = e.target,
-			type = e.type;
+		var x, start, end, scrtop, id, el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
 		id = el.id;
 		if(id.startsWith('de-btn')) {
-			if(type === 'mouseover') {
+			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
 					quotetxt = $txtSelect();
-				} else {
-					return;
 				}
+				return;
+			}
+			x = pr.txta;
+			start = x.selectionStart;
+			end = x.selectionEnd;
+			if(id === 'de-btn-quote') {
+				$txtInsert(x, '> ' + (start === end ? quotetxt : x.value.substring(start, end))
+					.replace(/\n/gm, '\n> '));
 			} else {
-				x = pr.txta;
-				start = x.selectionStart;
-				end = x.selectionEnd;
-				if(id === 'de-btn-quote') {
-					$txtInsert(x, '> ' + (start === end ? quotetxt : x.value.substring(start, end))
-						.replace(/\n/gm, '\n> '));
-				} else {
-					scrtop = x.scrollTop;
-					txt = this._wrapText(el.getAttribute('de-bb') === 'true',
-						el.getAttribute('de-tag'), x.value.substring(start, end));
-					len = start + txt.length;
-					x.value = x.value.substr(0, start) + txt + x.value.substr(end);
-					x.setSelectionRange(len, len);
-					x.focus();
-					x.scrollTop = scrtop;
-				}
+				scrtop = x.scrollTop;
+				txt = this._wrapText(el.hasAttribute('de-bb'), el.getAttribute('de-tag'),
+					x.value.substring(start, end));
+				len = start + txt.length;
+				x.value = x.value.substr(0, start) + txt + x.value.substr(end);
+				x.setSelectionRange(len, len);
+				x.focus();
+				x.scrollTop = scrtop;
 			}
 			$pd(e);
 			e.stopPropagation();
@@ -5494,7 +5491,7 @@ PostForm.prototype = {
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
-					new Array(51).join('-') + '\n' + navigator.userAgent + '\nv' + version);
+					'-'.repeat(50) + '\n' + navigator.userAgent + '\nv' + version);
 				if(!val.contains(temp)) {
 					val += temp;
 				}
@@ -5680,25 +5677,20 @@ PostForm.prototype = {
 		}.bind(this, _img), 50);
 	},
 	_wrapText: function(isBB, tag, text) {
-		var rv, temp;
+		var m;
 		if(isBB) {
 			if(text.contains('\n')) {
-				rv = '[' + tag + ']' + text + '[/' + tag + ']';
-			} else {
-				temp = text.match(/^(\s*)(.*?)(\s*)$/);
-				rv = temp[1] + '[' + tag + ']' + temp[2] + '[/' + tag + ']' + temp[3];
+				return '[' + tag + ']' + text + '[/' + tag + ']';
 			}
-		} else {
-			rv = '';
-			text.split('\n').forEach(function(line) {
-				var m = line.match(/^(\s*)(.*?)(\s*)$/);
-				rv += '\n' + m[1] + (
-					tag !== '^H' ? tag + m[2] + tag : m[2] + new Array(m[2].length + 1).join('^H')
-				) + m[3];
-			});
-			rv = rv.slice(1);
+			m = text.match(/^(\s*)(.*?)(\s*)$/);
+			return m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
 		}
-		return rv;
+		for(var rv = '', i = 0, arr = text.split('\n'), len = arr.length; i < len; ++i) {
+			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
+			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) :
+				tag + m[2] + tag) + m[3];
+		}
+		return rv.slice(1);
 	}
 }
 
@@ -8377,6 +8369,11 @@ function Navigator() {
 			return this.indexOf(s) === 0;
 		};
 	}
+	if(!('repeat' in String.prototype)) {
+		String.prototype.repeat = function(nTimes) {
+		  return new Array(nTimes + 1).join(this.valueOf());
+		};
+	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
@@ -8427,7 +8424,7 @@ function Navigator() {
 		return url;
 	};
 	this.toDOM =
-		this.Firefox >= 12 ? function toDOM(html) {
+		this.Firefox ? function toDOM(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
 		} : function toDOM(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
@@ -8734,9 +8731,8 @@ function replacePost(el) {
 }
 
 function replaceDelform() {
-	var html = dForm.outerHTML || new XMLSerializer().serializeToString(dForm);
 	if(liteMode) {
-		doc.body.insertAdjacentHTML('afterbegin', html);
+		doc.body.insertAdjacentHTML('afterbegin', dForm.outerHTML);
 		dForm = doc.body.firstChild;
 		$event(window, {'load': function() {
 			while(dForm.nextSibling) {
@@ -8744,7 +8740,7 @@ function replaceDelform() {
 			}
 		}});
 	} else {
-		dForm.insertAdjacentHTML('beforebegin', replaceString(html));
+		dForm.insertAdjacentHTML('beforebegin', replaceString(dForm.outerHTML));
 		dForm.style.display = 'none';
 		dForm.id = 'de-dform-old';
 		dForm = dForm.previousSibling;
