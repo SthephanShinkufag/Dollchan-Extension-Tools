@@ -793,7 +793,7 @@ function getPrettyJSON(obj, indent) {
 }
 
 function getErrorMessage(eCode, eMsg) {
-	return eCode === 0 ? Lng.noConnect[lang] : 'HTTP [' + eCode + '] ' + eMsg;
+	return eCode === 0 ? eMsg || Lng.noConnect[lang] : 'HTTP [' + eCode + '] ' + eMsg;
 }
 
 
@@ -7032,7 +7032,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	if(post && (parent.inited || !post.isOp || TNum || post.thr.loadedOnce)) {
+	if(post && (!post.inited || !post.isOp || TNum)) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
@@ -7040,7 +7040,10 @@ function Pview(parent, link, tNum, pNum) {
 			this._showPost(post);
 		} else {
 			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-			ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b, tNum, pNum));
+			ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b, tNum, pNum), function(eCode, eMsg) {
+				Pview.del(this);
+				this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
+			}.bind(this));
 		}
 	}
 }
