@@ -21,10 +21,11 @@ defaultCfg = {
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
-	'updThread':	1,		// update threads [0=off, 1=auto, 2=click]
+	'ajaxUpdThr':	1,		// auto update threads
 	'updThrDelay':	60,		//		threads update interval in sec
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
+	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'maskImgs':		0,		// mask images
@@ -103,13 +104,11 @@ Lng = {
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
 
-		'updThread': {
-			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
-			txt:		['AJAX обновление треда* ', 'AJAX thread update* ']
-		},
+		'ajaxUpdThr':	['AJAX обновление треда ', 'AJAX thread update '],
 		'updThrDelay':	[' (сек)', ' (sec)'],
 		'favIcoBlink':	['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
 		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
+		'addUpdBtn':	['Добавить кнопку обновления треда', 'Add thread update button'],
 		'expandPosts': {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
@@ -245,7 +244,8 @@ Lng = {
 		'godown':	['В конец', 'To the bottom'],
 		'expimg':	['Раскрыть картинки', 'Expand images'],
 		'maskimg':	['Маскировать картинки', 'Mask images'],
-		'upd-on':	['Автообновление треда', 'Thread autoupdate'],
+		'upd-on':	['Выключить автообновление треда', 'Disable thread autoupdate'],
+		'upd-off':	['Включить автообновление треда', 'Enable thread autoupdate'],
 		'audio-off':['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':	['Каталог', 'Catalog'],
 		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread'],
@@ -906,8 +906,17 @@ function readCfg() {
 			Cfg['updScript'] = 0;
 		}
 	}
-	if(Cfg['updThrDelay'] < 15) {
-		Cfg['updThrDelay'] = 15;
+	if(Cfg['updThrDelay'] < 10) {
+		Cfg['updThrDelay'] = 10;
+	}
+	if('updThread' in Cfg) {
+		switch(Cfg['updThread']) {
+		case 1: Cfg['ajaxUpdThr'] = 1; break;
+		default:
+			Cfg['ajaxUpdThr'] = 0;
+			Cfg['addUpdBtn'] = 1;
+		}
+		delete Cfg['updThread'];
 	}
 	if(!Cfg['saveSage']) {
 		Cfg['sageReply'] = 0;
@@ -1159,18 +1168,22 @@ function addPanel() {
 					toggleCfg('maskImgs');
 					updateCSS();
 				}, null, null, null)),
-				$if(TNum && Cfg['updThread'] === 1, pButton('upd-on', function(e) {
+				$if(TNum, pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', function(e) {
 					$pd(e);
 					if(updater.enabled) {
 						updater.disable();
 					} else {
-						this.id = 'de-btn-upd-on';
 						updater.enable();
 					}
 				}, null, null, null)),
-				$if(!nav.Safari && TNum && Cfg['updThread'] === 1, pButton('audio-off', function(e) {
+				$if(!nav.Safari && TNum, pButton('audio-off', function(e) {
 					$pd(e);
-					this.id = updater.toggleAudio(0) ? 'de-btn-audio-on' : 'de-btn-audio-off';
+					if(updater.toggleAudio(0)) {
+						updater.enable();
+						this.id = 'de-btn-audio-on';
+					} else {
+						this.id = 'de-btn-audio-off';
+					}
 					$del($c('de-menu', doc));
 				}, null, addMenu, removeMenu)),
 				$if(aib.nul || aib.abu || (aib.fch && !aib.arch), pButton(
@@ -1499,9 +1512,7 @@ function fixSettings() {
 			($q(arr[i], doc) || {}).disabled = !state;
 		}
 	};
-	toggleBox(Cfg['updThread'] === 1, [
-		'input[info="updThrDelay"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
-	]);
+	toggleBox(Cfg['ajaxUpdThr'], ['input[info="favIcoBlink"]', 'input[info="desktNotif"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
@@ -1661,7 +1672,13 @@ function getCfgFilters() {
 
 function getCfgPosts() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-posts'}, [
-		optSel('updThread', false, null),
+		lBox('ajaxUpdThr', false, TNum ? function() {
+			if(Cfg['ajaxUpdThr']) {
+				updater.enable();
+			} else {
+				updater.disable();
+			}
+		} : null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
 			$txt(Lng.cfg['updThrDelay'][lang])
@@ -1674,6 +1691,9 @@ function getCfgPosts() {
 				}
 			}))
 		]),
+		lBox('addUpdBtn', true, TNum ? function() {
+			Thread.processUpdBtn(Cfg['addUpdBtn']);
+		} : null),
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
 		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
@@ -1769,7 +1789,7 @@ function getCfgForm() {
 			lBox('saveSage', false, null)
 		])),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
-		optSel('captchaLang', true, null),
+		$if(pr.cap, optSel('captchaLang', true, null)),
 		$if(pr.txta, $New('div', null, [
 			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
@@ -1790,7 +1810,7 @@ function getCfgForm() {
 			lBox('userSignat', false, null)
 		])),
 		$New('div', null, [
-			$if(pr.form || pr.oeForm, $txt(Lng.dontShow[lang])),
+			$txt(Lng.dontShow[lang]),
 			lBox('noBoardRule', false, updateCSS),
 			$if(pr.gothr, lBox('noGoto', false, function() {
 				$disp(pr.gothr);
@@ -1930,7 +1950,7 @@ function addSettings(Set) {
 			cfgTab('filters'),
 			cfgTab('posts'),
 			cfgTab('links'),
-			cfgTab('form'),
+			$if(pr.form || pr.oeform, cfgTab('form')),
 			cfgTab('common'),
 			cfgTab('info')
 		]),
@@ -2109,6 +2129,7 @@ function addAudioNotifMenu(el) {
 		Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 	function(el) {
 		var i = aProto.indexOf.call(el.parentNode.children, el);
+		updater.enable();
 		updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
 		$id('de-btn-audio-off').id = 'de-btn-audio-on';
 		$del(el.parentNode);
@@ -7373,6 +7394,20 @@ function Thread(el, prev, parse) {
 		this._parseThread(el);
 	}
 }
+Thread.processUpdBtn = function(add) {
+	if(add) {
+		$after(firstThr.el, $event($add(
+			'<span class="de-thrupdbtn">[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
+			'click': function(e) {
+				$pd(e);
+				$alert(Lng.loading[lang], 'newposts', true);
+				firstThr.loadNew(infoLoadErrors, true);
+			}
+		}));
+	} else {
+		$del($c('de-thrupdbtn', dForm));
+	}
+};
 Thread.prototype = {
 	hidden: false,
 	gInfo: {
@@ -8806,19 +8841,30 @@ function replaceDelform() {
 
 function initThreadUpdater(title, enableUpdater) {
 	var delay, checked404, loadTO, audioRep, loadPostsFun, audioEl, stateButton, hasAudio,
-		audioRun, initDelay, favIntrv, favNorm, favHref, enabled = false,
+		initDelay, favIntrv, favNorm, favHref, enabled = false,
+		inited = false,
 		lastECode = 200,
 		newPosts = 0,
 		aPlayers = 0,
 		focused = !(doc.hidden || doc.webkitHidden);
 
 	if(enableUpdater) {
+		init();
+	}
+	if(focused && Cfg['desktNotif'] && ('permission' in Notification)) {
+		switch(Notification.permission.toLowerCase()) {
+		case 'default': requestNotifPermission(); break;
+		case 'denied': saveCfg('desktNotif', 0);
+		}
+	}
+
+	function init() {
 		audioEl = null;
 		stateButton = null;
-		hasAudio = audioRun = false;
+		hasAudio = false;
 		initDelay = Cfg['updThrDelay'] * 1e3;
 		favIntrv = 0;
-		favNorm = notifGranted = true;
+		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 		if(nav.Firefox > 18 || nav.Chrome) {
 			doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
@@ -8844,12 +8890,6 @@ function initThreadUpdater(title, enableUpdater) {
 		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded, true);
 		enable();
 	}
-	if(focused && Cfg['desktNotif'] && ('permission' in Notification)) {
-		switch(Notification.permission.toLowerCase()) {
-		case 'default': requestNotifPermission(); break;
-		case 'denied': saveCfg('desktNotif', 0);
-		}
-	}
 
 	function enable() {
 		if(!enabled) {
@@ -8864,8 +8904,12 @@ function initThreadUpdater(title, enableUpdater) {
 	function disable() {
 		if(enabled) {
 			clearTimeout(loadTO);
-			enabled = false;
+			enabled = hasAudio = false;
 			setState('off');
+			var btn = $id('de-btn-audio-on');
+			if(btn) {
+				btn.id = 'de-btn-audio-off';
+			}
 		}
 	}
 
@@ -8979,7 +9023,7 @@ function initThreadUpdater(title, enableUpdater) {
 						requestNotifPermission();
 					};
 				}
-				if(hasAudio && !audioRun) {
+				if(hasAudio) {
 					if(audioRep) {
 						audioNotif();
 					} else {
@@ -9041,7 +9085,16 @@ function initThreadUpdater(title, enableUpdater) {
 		get enabled() {
 			return enabled;
 		},
-		enable: enable,
+		enable: function() {
+			if(!inited) {
+				init();
+			} else if(!enabled) {
+				enable();
+			} else {
+				return;
+			}
+			setState('on');
+		},
 		disable: disable,
 		toggleAudio: toggleAudio,
 		addPlayingTag: addPlayingTag,
@@ -9059,20 +9112,13 @@ function initPage() {
 		if(Cfg['rePageTitle']) {
 			doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
 		}
-		if(Cfg['updThread'] === 2) {
-			$after(firstThr.el, $event($add(
-				'<span>[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
-				'click': function(e) {
-					$pd(e);
-					$alert(Lng.loading[lang], 'newposts', true);
-					firstThr.loadNew(infoLoadErrors, true);
-				}
-			}));
+		if(Cfg['addUpdBtn']) {
+			Thread.processUpdBtn(true);
 		}
 	} else {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
-	updater = initThreadUpdater(doc.title, TNum && Cfg['updThread'] === 1);
+	updater = initThreadUpdater(doc.title, TNum && Cfg['ajaxUpdThr']);
 }
 
 
