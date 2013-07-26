@@ -1203,8 +1203,7 @@ function addPanel() {
 			if(TNum) {
 				return;
 			}
-		case 'de-btn-audio-off':
-			addMenu(e);
+		case 'de-btn-audio-off': addMenu(e);
 		}
 	}, false);
 	panel.addEventListener('mouseout', function(e) {
@@ -1213,9 +1212,7 @@ function addPanel() {
 		}
 		switch(e.target.id) {
 		case 'de-btn-refresh':
-		case 'de-btn-audio-off':
-			removeMenu(e);
-			break;
+		case 'de-btn-audio-off': removeMenu(e); break;
 		}
 	}, false);
 }
@@ -5304,7 +5301,7 @@ PostForm.prototype = {
 					this.form.insertAdjacentHTML('afterbegin',
 						'<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
 							aib.fch || aib.futa ? 'resto' :
-							aib.abu || aib.tiny ? 'thread' :
+							aib.tiny ? 'thread' :
 							'parent'
 						) + '">'
 					);
