@@ -1551,7 +1551,7 @@ function optSel(id, isBlock, Fn) {
 	el.addEventListener('change', Fn || function() {
 		saveCfg(this.getAttribute('info'), this.selectedIndex);
 		fixSettings();
-	});
+	}, false);
 	el.selectedIndex = Cfg[id];
 	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
@@ -2065,7 +2065,7 @@ function showMenu(el, html, inPanel, onclick) {
 		if(el.className = 'de-menu-item') {
 			this(el);
 		}
-	}.bind(onclick));
+	}.bind(onclick), false);
 }
 
 function addMenu(e) {
@@ -2585,7 +2585,7 @@ function initMessageFunctions() {
 			$id('de-iframe-fav').style.height = data + 'px';
 			return;
 		}
-	});
+	}, false);
 }
 
 function detectImgFile(ab) {
@@ -3152,8 +3152,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					(nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 					'" width="' + width + '" height="' + height + '"></video>';
 				el = el.firstChild;
-				el.addEventListener('play', updater.addPlayingTag);
-				el.addEventListener('pause', updater.removePlayingTag);
+				el.addEventListener('play', updater.addPlayingTag, false);
+				el.addEventListener('pause', updater.removePlayingTag, false);
 				if(time) {
 					el.onloadedmetadata = function(e) {
 						e.target.currentTime = this;
@@ -3298,8 +3298,8 @@ function embedMP3Links(post) {
 				el.insertAdjacentHTML('beforeend',
 					'<p><audio src="' + src + '" preload="none" controls></audio></p>');
 				link = el.lastChild.firstChild;
-				link.addEventListener('play', updater.addPlayingTag);
-				link.addEventListener('pause', updater.removePlayingTag);
+				link.addEventListener('play', updater.addPlayingTag, false);
+				link.addEventListener('pause', updater.removePlayingTag, false);
 			}
 		} else {
 			if(!$q('object[FlashVars*="' + src + '"]', el)) {
@@ -5086,7 +5086,7 @@ function PostForm(form, ignoreForm, init) {
 			if(this.cap = this._getCaptcha()) {
 				this._updateCaptcha();
 			}
-		}.bind(this));
+		}.bind(this), false);
 	}
 }
 PostForm.setUserName = function() {
@@ -5111,7 +5111,7 @@ PostForm.delFileUtils = function(el) {
 };
 PostForm.eventFiles = function(tr) {
 	$each($Q('input[type="file"]', tr), function(el) {
-		el.addEventListener('change', PostForm.processInput);
+		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
 PostForm.getTR = function(el) {
@@ -5129,7 +5129,7 @@ PostForm.processInput = function() {
 				var el = this.parentNode;
 				PostForm.delFileUtils(el);
 				pr.file = $q('input[type="file"]', $html(el, el.innerHTML));
-				pr.file.addEventListener('change', PostForm.processInput);
+				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
 	} else if(this.imgFile) {
@@ -5423,7 +5423,7 @@ PostForm.prototype = {
 			this.txta.addEventListener('mouseup', function() {
 				saveCfg('textaWidth', parseInt(this.style.width, 10));
 				saveCfg('textaHeight', parseInt(this.style.height, 10));
-			});
+			}, false);
 		} else {
 			this.txta.insertAdjacentHTML('afterend', '<div id="de-txt-resizer"></div>');
 			this.txta.nextSibling.addEventListener('mousedown', {
@@ -5432,8 +5432,8 @@ PostForm.prototype = {
 				handleEvent: function(e) {
 					switch(e.type) {
 					case 'mousedown':
-						doc.body.addEventListener('mousemove', this);
-						doc.body.addEventListener('mouseup', this);
+						doc.body.addEventListener('mousemove', this, false);
+						doc.body.addEventListener('mouseup', this, false);
 						$pd(e);
 						return
 					case 'mousemove':
@@ -5442,8 +5442,8 @@ PostForm.prototype = {
 						this.elStyle.height = e.pageY - p.top + 'px';
 						return;
 					default: // mouseup
-						doc.body.removeEventListener('mousemove', this);
-						doc.body.removeEventListener('mouseup', this);
+						doc.body.removeEventListener('mousemove', this, false);
+						doc.body.removeEventListener('mouseup', this, false);
 						saveCfg('textaWidth', parseInt(this.elStyle.width, 10));
 						saveCfg('textaHeight', parseInt(this.elStyle.height, 10));
 					}
@@ -5459,7 +5459,7 @@ PostForm.prototype = {
 				e.target.blur();
 				window.focus();
 			}
-		});
+		}, false);
 		this.subm.addEventListener('click', function(e) {
 			var temp, val = this.txta.value,
 				sVal = Cfg['signatValue'];
@@ -5496,7 +5496,7 @@ PostForm.prototype = {
 				$disp(this.qArea);
 				$after(this._pBtn[this.select], this.pForm);
 			}
-		}.bind(this));
+		}.bind(this), false);
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
 			node.size = 30;
 		});
@@ -5513,7 +5513,7 @@ PostForm.prototype = {
 			if(this.passw) {
 				setTimeout(PostForm.setUserPassw, 1e3);
 			}
-		}.bind(this));
+		}.bind(this), false);
 		if(this.cap) {
 			this._updateCaptcha();
 		}
@@ -5904,8 +5904,8 @@ ImageData.prototype = {
 function ImageMover(img) {
 	this.el = img;
 	this.elStyle = img.style;
-	img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this);
-	img.addEventListener('mousedown', this);
+	img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, false);
+	img.addEventListener('mousedown', this, false);
 }
 ImageMover.prototype = {
 	curX: 0,
@@ -5916,8 +5916,8 @@ ImageMover.prototype = {
 		case 'mousedown':
 			this.curX = e.clientX - parseInt(this.elStyle.left, 10);
 			this.curY = e.clientY - parseInt(this.elStyle.top, 10);
-			doc.body.addEventListener('mousemove', this);
-			doc.body.addEventListener('mouseup', this);
+			doc.body.addEventListener('mousemove', this, false);
+			doc.body.addEventListener('mouseup', this, false);
 			break;
 		case 'mousemove':
 			this.elStyle.left = e.clientX - this.curX + 'px';
@@ -5925,8 +5925,8 @@ ImageMover.prototype = {
 			this.moved = true;
 			return;
 		case 'mouseup':
-			doc.body.removeEventListener('mousemove', this);
-			doc.body.removeEventListener('mouseup', this);
+			doc.body.removeEventListener('mousemove', this, false);
+			doc.body.removeEventListener('mouseup', this, false);
 			return;
 		default: // wheel event
 			var curX = e.clientX,
@@ -6005,7 +6005,7 @@ Post.sizing = {
 	get wHeight() {
 		var val = window.innerHeight;
 		if(!this._enabled) {
-			window.addEventListener('resize', this);
+			window.addEventListener('resize', this, false);
 			this._enabled = true;
 		}
 		Object.defineProperty(this, 'wHeight', { writable: true, value: val });
@@ -6014,7 +6014,7 @@ Post.sizing = {
 	get wWidth() {
 		var val = doc.documentElement.clientWidth;
 		if(!this._enabled) {
-			window.addEventListener('resize', this);
+			window.addEventListener('resize', this, false);
 			this._enabled = true;
 		}
 		Object.defineProperty(this, 'wWidth', { writable: true, value: val });
@@ -6731,9 +6731,9 @@ Post.prototype = {
 			$del(this._menu);
 		}
 		this._menu = doc.body.lastChild;
-		this._menu.addEventListener('click', this);
-		this._menu.addEventListener('mouseover', this);
-		this._menu.addEventListener('mouseout', this);
+		this._menu.addEventListener('click', this, false);
+		this._menu.addEventListener('mouseover', this, false);
+		this._menu.addEventListener('mouseout', this, false);
 	},
 	_addMenuHide: function() {
 		var sel, ssel, str = '', addItem = function(name) {
@@ -7254,7 +7254,7 @@ function PviewMoved() {
 		this.style.cssText = this.newPos;
 		this.newPos = false;
 		$each($C('de-css-move', doc.head), $del);
-		this.removeEventListener(nav.animEnd, PviewMoved);
+		this.removeEventListener(nav.animEnd, PviewMoved, false);
 	}
 }
 
@@ -7265,12 +7265,12 @@ function animPVMove(pView, lmw, top, oldCSS) {
 	});
 	if(pView.newPos) {
 		pView.style.cssText = pView.newPos;
-		pView.removeEventListener(nav.animEnd, PviewMoved);
+		pView.removeEventListener(nav.animEnd, PviewMoved, false);
 	} else {
 		pView.style.cssText = oldCSS;
 	}
 	pView.newPos = lmw + ' top:' + top + ';';
-	pView.addEventListener(nav.animEnd, PviewMoved);
+	pView.addEventListener(nav.animEnd, PviewMoved, false);
 	pView.classList.add('de-pview-anim');
 	pView.style[nav.animName] = uId;
 }
@@ -7418,7 +7418,7 @@ Thread.processUpdBtn = function(add) {
 			$pd(e);
 			$alert(Lng.loading[lang], 'newposts', true);
 			firstThr.loadNew(infoLoadErrors, true);
-		});
+		}, false);
 	} else {
 		$del($c('de-thrupdbtn', dForm));
 	}
@@ -8021,7 +8021,7 @@ ImageBoard.prototype = {
 						window.document.body.addEventListener('timeoutEvent', function() {
 							Fn.apply(null, aProto.slice.call(args, 2));
 							Fn = args = null;
-						});
+						}, false);
 						ev.initEvent('timeoutEvent', true, false);
 						window.document.body.dispatchEvent(ev);
 					}
@@ -8276,7 +8276,7 @@ ImageBoard.prototype = {
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						readCfg();
 						saveCfg('__hanarating', $id('rating').value);
-					});
+					}, false);
 					return true;
 				}
 			} },
@@ -8549,10 +8549,10 @@ function Navigator() {
 Navigator.prototype = {
 	animEvent: function(el, Fn) {
 		el.addEventListener(nav.animEnd, function aEvent() {
-			this.removeEventListener(nav.animEnd, aEvent);
+			this.removeEventListener(nav.animEnd, aEvent, false);
 			Fn(this);
 			Fn = null;
-		});
+		}, false);
 	},
 	get canPlayMP3() {
 		var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
@@ -8614,7 +8614,7 @@ function Initialization() {
 		intrv = setInterval(function() {
 			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");', true);
 		}, 1500);
-		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv));
+		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
 		liteMode = true;
 		pr = {};
 	}
@@ -8706,7 +8706,7 @@ function Initialization() {
 		default: return;
 		}
 		toggleContent('hid', true);
-	});
+	}, false);
 
 	url = (window.location.pathname || '').match(new RegExp(
 		'^(?:\\/?([^\\.]*?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
@@ -8842,7 +8842,7 @@ function replaceDelform() {
 			while(dForm.nextSibling) {
 				$del(dForm.nextSibling);
 			}
-		});
+		}, false);
 	} else {
 		dForm.insertAdjacentHTML('beforebegin', replaceString(dForm.outerHTML));
 		dForm.style.display = 'none';
@@ -8850,7 +8850,7 @@ function replaceDelform() {
 		dForm = dForm.previousSibling;
 		window.addEventListener('load', function() {
 			$del($id('de-dform-old'));
-		});
+		}, false);
 	}
 }
 
@@ -8888,17 +8888,17 @@ function initThreadUpdater(title, enableUpdater) {
 				} else {
 					onVis();
 				}
-			});
+			}, false);
 		} else {
 			focused = false;
-			window.addEventListener('focus', onVis);
+			window.addEventListener('focus', onVis, false);
 			window.addEventListener('blur', function() {
 				focused = false;
-			});
+			}, false);
 			window.addEventListener('mousemove', function mouseMove() {
-				window.removeEventListener('mousemove', mouseMove);
+				window.removeEventListener('mousemove', mouseMove, false);
 				onVis();
-			});
+			}, false);
 		}
 		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded, true);
 		enable();
@@ -9211,7 +9211,7 @@ function doScript() {
 if(/interactive|complete/.test(doc.readyState)) {
 	doScript();
 } else {
-	doc.addEventListener('DOMContentLoaded', doScript);
+	doc.addEventListener('DOMContentLoaded', doScript, false);
 }
 
 })(window.opera && window.opera.scriptStorage);
