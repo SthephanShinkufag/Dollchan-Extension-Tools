@@ -971,7 +971,7 @@ function readPosts() {
 
 function savePosts() {
 	if(spells.running) {
-		spells.complete = true;
+		spells.addCompleteFunc(savePosts);
 		return;
 	}
 	if(TNum) {
@@ -2638,7 +2638,7 @@ function detectImgFile(ab) {
 
 function workerQueue(mReqs, wrkFn, errFn) {
 	if(!nav.Worker) {
-		this.find = this._findSync.bind(wrkFn);
+		this.run = this._runSync.bind(wrkFn);
 		return;
 	}
 	this.url = window.URL.createObjectURL(new Blob([
@@ -2649,7 +2649,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 		}'
 	], {'type': 'text/javascript'}));
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
-	this.find = this._findWrk;
+	this.run = this._runWrk;
 	this.wrks = [];
 	this.errFn = errFn;
 	while(mReqs > 0) {
@@ -2658,7 +2658,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 	}
 }
 workerQueue.prototype = {
-	_findSync: function(data, Fn) {
+	_runSync: function(data, transferObjs, Fn) {
 		Fn(this(data));
 	},
 	onMess: function(Fn, e) {
@@ -2669,14 +2669,14 @@ workerQueue.prototype = {
 		this.queue.end(qIdx);
 		this.errFn(e);
 	},
-	_findWrk: function(data, Fn) {
-		this.queue.run([data, this.onMess.bind(this, Fn)]);
+	_runWrk: function(data, transObjs, Fn) {
+		this.queue.run([data, transObjs, this.onMess.bind(this, Fn)]);
 	},
 	_createWrk: function(qIdx, num, data) {
 		var w = this.wrks[qIdx];
-		w.onmessage = data[1];
+		w.onmessage = data[2];
 		w.onerror = this.onErr.bind(this, qIdx);
-		w.postMessage([qIdx, data[0]], [data[0]]);
+		w.postMessage([qIdx, data[0]], data[1]);
 	},
 	clear: function() {
 		this.wrks = null;
@@ -2777,7 +2777,7 @@ function preloadImages(post) {
 						this[3].src = a.href;
 					}
 					if(rjf) {
-						rjf.find(data.buffer, addImgFileIcon.bind(a));
+						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(a));
 					}
 				}
 				queue.end(idx);
@@ -3509,38 +3509,6 @@ function getHanaPost(postJson) {
 	post.innerHTML = html + (len > 1 ? '<div style="clear: both;"></div>' : '') +
 		'<div class="postbody">' + postJson['message_html'] + '</div><div class="abbrev"></div>';
 	return post;
-}
-
-function genImgHash(data, oldw, oldh) {
-	var i, j, l, c, t, u, g, tmp = oldw * oldh,
-		newh = 8,
-		neww = 8,
-		levels = 3,
-		areas = 256 / levels,
-		values = 256 / (levels - 1),
-		hash = 0;
-	for(i = 0, j = 0; i < tmp; i++, j += 4) {
-		data[i] = data[j] * 0.3 + data[j + 1] * 0.59 + data[j + 2] * 0.11;
-	}
-	for(i = 0; i < newh; i++) {
-		for(j = 0; j < neww; j++) {
-			tmp = i / (newh - 1) * (oldh - 1);
-			l = Math.min(tmp | 0, oldh - 2);
-			u = tmp - l;
-			tmp = j / (neww - 1) * (oldw - 1);
-			c = Math.min(tmp | 0, oldw - 2);
-			t = tmp - c;
-			hash = (hash << 4) + Math.min(values * (((data[l * oldw + c] * ((1 - t) * (1 - u)) +
-				data[l * oldw + c + 1] * (t * (1 - u)) +
-				data[(l + 1) * oldw + c + 1] * (t * u) +
-				data[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
-			if(g = hash & 0xF0000000) {
-				hash ^= g >>> 24;
-			}
-			hash &= ~g;
-		}
-	}
-	return hash;
 }
 
 
@@ -4401,9 +4369,11 @@ Spells.prototype = {
 		}
 	},
 	_endAsync: function() {
-		if(this.complete && this._asyncWrk === 0) {
-			this.complete = false;
-			savePosts();
+		if(this._asyncWrk === 0 && this._completeFns.length !== 0) {
+			for(var i = 0, len = this._completeFns.length; i < len; ++i) {
+				this._completeFns[i]();
+			}
+			this._completeFns = [];
 		}
 	},
 	_findReps: function(str) {
@@ -4496,17 +4466,20 @@ Spells.prototype = {
 		}
 	},
 	_asyncWrk: 0,
+	_completeFns: [],
 	_data: null,
 	_list: '',
 
 	hash: 0,
-	complete: false,
 	enable: false,
 	get list() {
 		return this._list || this._decompileSpells();
 	},
 	get running() {
 		return this._asyncWrk !== 0;
+	},
+	addCompleteFunc: function(Fn) {
+		this._completeFns.push(Fn);
 	},
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
@@ -5724,6 +5697,41 @@ function embedImagesLinks(el) {
 //													IMAGE DATA
 //============================================================================================================
 
+function genImgHash(data) {
+	var i, j, l, c, t, u, g, buf = new Uint8Array(data[0]),
+		oldw = data[1],
+		oldh = data[2],
+		tmp = oldw * oldh,
+		newh = 8,
+		neww = 8,
+		levels = 3,
+		areas = 256 / levels,
+		values = 256 / (levels - 1),
+		hash = 0;
+	for(i = 0, j = 0; i < tmp; i++, j += 4) {
+		buf[i] = buf[j] * 0.3 + buf[j + 1] * 0.59 + buf[j + 2] * 0.11;
+	}
+	for(i = 0; i < newh; i++) {
+		for(j = 0; j < neww; j++) {
+			tmp = i / (newh - 1) * (oldh - 1);
+			l = Math.min(tmp | 0, oldh - 2);
+			u = tmp - l;
+			tmp = j / (neww - 1) * (oldw - 1);
+			c = Math.min(tmp | 0, oldw - 2);
+			t = tmp - c;
+			hash = (hash << 4) + Math.min(values * (((buf[l * oldw + c] * ((1 - t) * (1 - u)) +
+				buf[l * oldw + c + 1] * (t * (1 - u)) +
+				buf[(l + 1) * oldw + c + 1] * (t * u) +
+				buf[(l + 1) * oldw + c] * ((1 - t) * u)) / areas) | 0), 255);
+			if(g = hash & 0xF0000000) {
+				hash ^= g >>> 24;
+			}
+			hash &= ~g;
+		}
+	}
+	return {hash: hash};
+}
+
 function ImageData(post, el) {
 	this.el = el;
 	this.post = post;
@@ -5737,7 +5745,7 @@ ImageData.prototype = {
 			h = cnv.height = img.naturalHeight,
 			ctx = cnv.getContext('2d');
 		ctx.drawImage(img, 0, 0);
-		return [ctx.getImageData(0, 0, w, h).data, w, h];
+		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
 	},
 	get infoEl() {
 		var val = $c(aib.cFileInfo, this.wrap);
@@ -5755,20 +5763,27 @@ ImageData.prototype = {
 		return val;
 	},
 	get hash() {
-		var val, data, img = this.el;
-		if(img.complete) {
-			if(img.naturalWidth + img.naturalHeight === 0) {
-				val = -1;
-			} else {
-				data = this.data;
-				val = genImgHash(data[0], data[1], data[2]);
+		var hash;
+		if(this.el.complete) {
+			hash = this._getHash(false);
+			if(hash !== null) {
+				return hash;
 			}
-			Object.defineProperty(this, 'hash', { value: val });
-			return val;
+		} else {
+			this.el.onload = this.el.onerror = this._onload.bind(this);
 		}
 		this.post.hashImgsBusy++;
-		img.onload = img.onerror = this._onload.bind(this);
 		return null;
+	},
+	get hashSync() {
+		var hash;
+		if(this.hasOwnProperty('hash')) {
+			hash = this.hash;
+		} else {
+			hash = this._getHash(true);
+		}
+		Object.defineProperty(this, 'hashSync', { value: hash });
+		return hash;
 	},
 	get height() {
 		var dat = aib.getImgSize(this.infoEl, this.info);
@@ -5807,20 +5822,50 @@ ImageData.prototype = {
 			var val = doc.createElement('canvas');
 			Object.defineProperty(this, 'canvas', { value: val });
 			return val;
-		}
+		},
+		get workers() {
+			var val = new workerQueue(4, genImgHash, function(e) {});
+			spells.addCompleteFunc(this._clearWorkers.bind(this));
+			Object.defineProperty(this, 'workers', { value: val, configurable: true });
+			return val;
+		},
+
+		_clearWorkers: function() {
+			this.workers.clear();
+			delete this.workers;
+		},
 	},
-	_onload: function(Fn, arg) {
+	_getHash: function(sync) {
 		var data, val;
 		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
 			val = -1;
 		} else {
 			data = this.data;
-			val = genImgHash(data[0], data[1], data[2]);
+			if(sync) {
+				val = genImgHash(data).hash;
+			} else {
+				this._glob.workers.run(data, [data[0]], this._wrkEnd.bind(this));
+				return null;
+			}
 		}
 		Object.defineProperty(this, 'hash', { value: val });
+		return val;
+	},
+	_onload: function(Fn, arg) {
+		var hash = this._getHash(false);
+		if(hash !== null) {
+			this.post.hashImgsBusy--;
+			if(this.post.hashHideFun !== null) {
+				this.post.hashHideFun(val);
+			}
+		}
+	},
+	_wrkEnd: function(data) {
+		var hash = data.hash;
+		Object.defineProperty(this, 'hash', { value: hash });
 		this.post.hashImgsBusy--;
 		if(this.post.hashHideFun !== null) {
-			this.post.hashHideFun(val);
+			this.post.hashHideFun(hash);
 		}
 	}
 }
@@ -6828,7 +6873,7 @@ Post.prototype = {
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].hash, false); return;
+		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].hashSync, false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
