@@ -4463,9 +4463,6 @@ Spells.prototype = {
 	get list() {
 		return this._list || this._decompileSpells();
 	},
-	get running() {
-		return this._asyncWrk !== 0;
-	},
 	addCompleteFunc: function(Fn) {
 		this._completeFns.push(Fn);
 		this._hasComplFns = true;
