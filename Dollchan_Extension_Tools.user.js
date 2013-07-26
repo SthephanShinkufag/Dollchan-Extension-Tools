@@ -461,19 +461,6 @@ function $attr(el, attr) {
 	return el;
 }
 
-function $event(el, events) {
-	for(var key in events) {
-		el.addEventListener(key, events[key], false);
-	}
-	return el;
-}
-
-function $revent(el, events) {
-	for(var key in events) {
-		el.removeEventListener(key, events[key], false);
-	}
-}
-
 function $append(el, nodes) {
 	for(var i = 0, len = nodes.length; i < len; i++) {
 		if(nodes[i]) {
@@ -501,7 +488,9 @@ function $new(tag, attr, events) {
 		$attr(el, attr);
 	}
 	if(events) {
-		$event(el, events);
+		for(var key in events) {
+			el.addEventListener(key, events[key], false);
+		}
 	}
 	return el;
 }
@@ -1113,9 +1102,9 @@ function closePanel(el) {
 }
 
 function addPanel() {
-	var imgLen = getImages(dForm).length;
+	var panel, imgLen = getImages(dForm).length;
 	$before(pr.pArea[0] || dForm, $New('div', {'id': 'de-main', 'lang': getThemeLang()}, [
-		$event($New('div', {'id': 'de-panel'}, [
+		panel = $New('div', {'id': 'de-panel'}, [
 			$new('span', {'id': 'de-btn-logo', 'title': Lng.panelBtn['attach'][lang]}, {'click': function() {
 				var el = this.parentNode;
 				if(Cfg['expandPanel']) {
@@ -1207,26 +1196,26 @@ function addPanel() {
 				$if(TNum || aib.arch, $add('<div id="de-panel-info"><span title="' +
 					Lng.panelBtn['counter'][lang] + '">' + firstThr.pcount + '/' + imgLen + '</span></div>'))
 			])
-		]), {
-			'mouseover': function() {
-				if(!Cfg['expandPanel']) {
-					clearTimeout(this.odelay);
-					this.lastChild.style.display = 'inline-block';
-					if(Cfg['animation']) {
-						this.className = 'de-panel-open';
-					}
-				}
-			},
-			'mouseout': function() {
-				if(!Cfg['expandPanel'] && !this.attach) {
-					this.odelay = setTimeout(closePanel, 500, this);
-				}
-			}
-		}),
+		]),
 		$new('div', {'class': 'de-content'}, null),
 		$new('div', {'id': 'de-alert'}, null),
 		$new('hr', {'style': 'clear: both;'}, null)
 	]));
+	panel.addEventListener('mouseover', function(e) {
+		var el = e.target
+		if(!Cfg['expandPanel']) {
+			clearTimeout(this.odelay);
+			this.lastChild.style.display = 'inline-block';
+			if(Cfg['animation']) {
+				this.className = 'de-panel-open';
+			}
+		}
+	}, false);
+	panel.addEventListener('mouseout', function() {
+		if(!Cfg['expandPanel'] && !this.attach) {
+			this.odelay = setTimeout(closePanel, 500, this);
+		}
+	}, false);
 }
 
 function toggleContent(name, isUpd) {
@@ -1559,12 +1548,12 @@ function optSel(id, isBlock, Fn) {
 	for(var i = 0, x = Lng.cfg[id], len = x.sel[lang].length, el, opt = ''; i < len; i++) {
 		opt += '<option value="' + i + '">' + x.sel[lang][i] + '</option>';
 	}
-	(el = $event($add('<select info="' + id + '">' + opt + '</select>'), {
-		'change': Fn ? Fn : function() {
-			saveCfg(this.getAttribute('info'), this.selectedIndex);
-			fixSettings();
-		}
-	})).selectedIndex = Cfg[id];
+	el = $add('<select info="' + id + '">' + opt + '</select>');
+	el.addEventListener('change', Fn || function() {
+		saveCfg(this.getAttribute('info'), this.selectedIndex);
+		fixSettings();
+	}, false);
+	el.selectedIndex = Cfg[id];
 	return $New('label', isBlock ? {'class': 'de-block'} : null, [el, $txt(' ' + x.txt[lang])]);
 }
 
@@ -2580,7 +2569,7 @@ html5Submit.prototype = {
 //============================================================================================================
 
 function initMessageFunctions() {
-	$event(window, {'message': function(e) {
+	window.addEventListener('message', function(e) {
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
 		case 'A':
@@ -2597,7 +2586,7 @@ function initMessageFunctions() {
 			$id('de-iframe-fav').style.height = data + 'px';
 			return;
 		}
-	}});
+	}, false);
 }
 
 function detectImgFile(ab) {
@@ -5123,7 +5112,7 @@ PostForm.delFileUtils = function(el) {
 };
 PostForm.eventFiles = function(tr) {
 	$each($Q('input[type="file"]', tr), function(el) {
-		$event(el, {'change': PostForm.processInput});
+		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
 PostForm.getTR = function(el) {
@@ -5140,9 +5129,8 @@ PostForm.processInput = function() {
 				$pd(e);
 				var el = this.parentNode;
 				PostForm.delFileUtils(el);
-				$event(pr.file = $q('input[type="file"]', $html(el, el.innerHTML)), {
-					'change': PostForm.processInput
-				});
+				pr.file = $q('input[type="file"]', $html(el, el.innerHTML));
+				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
 	} else if(this.imgFile) {
@@ -5383,22 +5371,6 @@ PostForm.prototype = {
 
 	_lastCapUpdate: 0,
 	_pBtn: [],
-	_addResizer: function() {
-		var resMove = function(e) {
-				var p = $offset(this);
-				this.style.width = e.pageX - p.left + 'px';
-				this.style.height = e.pageY - p.top + 'px';
-			}.bind(this.txta),
-			resStop = function() {
-				$revent(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-				saveCfg('textaWidth', parseInt(this.style.width, 10));
-				saveCfg('textaHeight', parseInt(this.style.height, 10));
-			}.bind(this.txta);
-		$after(this.txta, $new('div', {'id': 'de-txt-resizer'}, {'mousedown': function(e) {
-			$pd(e);
-			$event(doc.body, {'mousemove': resMove, 'mouseup': resStop});
-		}}));
-	},
 	_getCaptcha: function() {
 		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) ||
 			this.recap;
@@ -5413,14 +5385,15 @@ PostForm.prototype = {
 		}
 		var btn = $New('div', null, [
 			$txt('['),
-			$new('a', {'href': '#'}, {'click': this.toggleMainReply.bind(this)}),
+			$new('a', {'href': '#'}, null),
 			$txt(']')
 		]);
 		$before(dForm, this.pArea[0] =
 			$New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [btn, doc.createElement('hr')]));
 		this._pBtn[0] = btn;
+		btn.addEventListener('click', this.toggleMainReply.bind(this), true);
 		btn = btn.cloneNode(true);
-		$event($t('a', btn), {'click': this.toggleMainReply.bind(this)});
+		btn.addEventListener('click', this.toggleMainReply.bind(this), true);
 		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea[1] =
 			$New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [btn, doc.createElement('hr')]));
 		this._pBtn[1] = btn;
@@ -5448,24 +5421,47 @@ PostForm.prototype = {
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
-			$event(this.txta, {'mouseup': function() {
+			this.txta.addEventListener('mouseup', function() {
 				saveCfg('textaWidth', parseInt(this.style.width, 10));
 				saveCfg('textaHeight', parseInt(this.style.height, 10));
-			}});
+			}, false);
 		} else {
-			this._addResizer();
+			this.txta.insertAdjacentHTML('afterend', '<div id="de-txt-resizer"></div>');
+			this.txta.nextSibling.addEventListener('mousedown', {
+				el: this.txta,
+				elStyle: this.txta.style,
+				handleEvent: function(e) {
+					switch(e.type) {
+					case 'mousedown':
+						doc.body.addEventListener('mousemove', this, false);
+						doc.body.addEventListener('mouseup', this, false);
+						$pd(e);
+						return
+					case 'mousemove':
+						var p = $offset(this.el);
+						this.elStyle.width = e.pageX - p.left + 'px';
+						this.elStyle.height = e.pageY - p.top + 'px';
+						return;
+					default: // mouseup
+						doc.body.removeEventListener('mousemove', this, false);
+						doc.body.removeEventListener('mouseup', this, false);
+						saveCfg('textaWidth', parseInt(this.elStyle.width, 10));
+						saveCfg('textaHeight', parseInt(this.elStyle.height, 10));
+					}
+				}
+			}, false);
 		}
 		this.addTextPanel();
 		this.txta.style.cssText = 'padding: 0; resize: both; width: ' +
 			Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
-		$event(this.txta, {'keypress': function(e) {
+		this.txta.addEventListener('keypress', function(e) {
 			var code = e.charCode || e.keyCode;
 			if((code === 33 || code === 34) && e.which === 0) {
 				e.target.blur();
 				window.focus();
 			}
-		}});
-		$event(this.subm, {'click': function(e) {
+		}, false);
+		this.subm.addEventListener('click', function(e) {
 			var temp, val = this.txta.value,
 				sVal = Cfg['signatValue'];
 			if(Cfg['warnSubjTrip'] && this.subj && /#.|##./.test(this.subj.value)) {
@@ -5501,7 +5497,7 @@ PostForm.prototype = {
 				$disp(this.qArea);
 				$after(this._pBtn[this.select], this.pForm);
 			}
-		}.bind(this)});
+		}.bind(this), false);
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
 			node.size = 30;
 		});
@@ -5511,14 +5507,14 @@ PostForm.prototype = {
 		if(Cfg['noPassword'] && this.passw) {
 			$disp(PostForm.getTR(this.passw));
 		}
-		$event(window, {'load': function() {
+		window.addEventListener('load', function() {
 			if(Cfg['userName'] && this.name) {
 				setTimeout(PostForm.setUserName, 1e3);
 			}
 			if(this.passw) {
 				setTimeout(PostForm.setUserPassw, 1e3);
 			}
-		}.bind(this)});
+		}.bind(this), false);
 		if(this.cap) {
 			this._updateCaptcha();
 		}
@@ -5711,7 +5707,7 @@ function embedImagesLinks(el) {
 }
 
 //============================================================================================================
-//													IMAGE DATA
+//												IMAGES FUNCTIONS
 //============================================================================================================
 
 function genImgHash(data) {
@@ -5906,6 +5902,51 @@ ImageData.prototype = {
 	}
 }
 
+function ImageMover(img) {
+	this.el = img;
+	this.elStyle = img.style;
+	img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, false);
+	img.addEventListener('mousedown', this, false);
+}
+ImageMover.prototype = {
+	curX: 0,
+	curY: 0,
+	moved: false,
+	handleEvent: function(e) {
+		switch(e.type) {
+		case 'mousedown':
+			this.curX = e.clientX - parseInt(this.elStyle.left, 10);
+			this.curY = e.clientY - parseInt(this.elStyle.top, 10);
+			doc.body.addEventListener('mousemove', this, false);
+			doc.body.addEventListener('mouseup', this, false);
+			break;
+		case 'mousemove':
+			this.elStyle.left = e.clientX - this.curX + 'px';
+			this.elStyle.top = e.clientY - this.curY + 'px';
+			this.moved = true;
+			return;
+		case 'mouseup':
+			doc.body.removeEventListener('mousemove', this, false);
+			doc.body.removeEventListener('mouseup', this, false);
+			return;
+		default: // wheel event
+			var curX = e.clientX,
+				curY = e.clientY,
+				oldL = parseInt(this.elStyle.left, 10),
+				oldT = parseInt(this.elStyle.top, 10),
+				oldW = parseFloat(this.elStyle.width || this.el.width),
+				oldH = parseFloat(this.elStyle.height || this.el.height),
+				d = nav.Firefox ? -e.detail : e.wheelDelta,
+				newW = oldW * (d > 0 ? 1.25 : 0.8),
+				newH = oldH * (d > 0 ? 1.25 : 0.8);
+			this.elStyle.width = newW + 'px';
+			this.elStyle.height = newH + 'px';
+			this.elStyle.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
+			this.elStyle.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
+		}
+		$pd(e);
+	}
+};
 
 //============================================================================================================
 //													POST
@@ -6652,42 +6693,12 @@ Post.prototype = {
 			}
 		};
 		$after(el, img);
-		if(inPost) {
-			return;
+		if(!inPost) {
+			img.classList.add('de-img-center');
+			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
+				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
+			img.mover = new ImageMover(img);
 		}
-		img.classList.add('de-img-center');
-		img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
-			'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
-		img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', function(e) {
-			var curX = e.clientX,
-				curY = e.clientY,
-				oldL = parseInt(this.style.left, 10),
-				oldT = parseInt(this.style.top, 10),
-				oldW = parseFloat(this.style.width || this.width),
-				oldH = parseFloat(this.style.height || this.height),
-				d = nav.Firefox ? -e.detail : e.wheelDelta,
-				newW = oldW * (d > 0 ? 1.25 : 0.8),
-				newH = oldH * (d > 0 ? 1.25 : 0.8);
-			$pd(e);
-			this.style.width = newW + 'px';
-			this.style.height = newH + 'px';
-			this.style.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
-			this.style.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
-		}, false);
-		elMove = function(e) {
-			this.style.left = e.clientX - this.curX + 'px';
-			this.style.top = e.clientY - this.curY + 'px';
-			this.moved = true;
-		}.bind(img);
-		elStop = function() {
-			$revent(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-		};
-		img.onmousedown = function(e) {
-			$pd(e);
-			this.curX = e.clientX - parseInt(this.style.left, 10);
-			this.curY = e.clientY - parseInt(this.style.top, 10);
-			$event(doc.body, {'mousemove': elMove, 'mouseup': elStop});
-		};
 	},
 	_addMenu: function(el, type) {
 		var html, cr = el.getBoundingClientRect(),
@@ -6822,13 +6833,15 @@ Post.prototype = {
 		}
 	},
 	_clickImage: function(el, e) {
-		var data, iEl, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
+		var data, iEl, mover, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
 		switch(el.className) {
 		case 'de-img-full de-img-center':
-			if(el.moved) {
-				el.moved = false;
+			mover= el.mover;
+			if(mover.moved) {
+				mover.moved = false;
 				break;
 			}
+			el.mover = null;
 		case 'de-img-full':
 			iEl = el.previousSibling;
 			this._removeFullImage(e, el, iEl, this.imagesData[iEl.src] || iEl.data);
@@ -7040,10 +7053,8 @@ function Pview(parent, link, tNum, pNum) {
 			this._showPost(post);
 		} else {
 			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-			ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b, tNum, pNum), function(eCode, eMsg) {
-				Pview.del(this);
-				this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
-			}.bind(this));
+			ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b, tNum, pNum),
+				this._onerror.bind(this));
 		}
 	}
 }
@@ -7088,7 +7099,10 @@ Pview.prototype = Object.create(Post.prototype, {
 	_isPview: { value: true },
 	_cached: { value: {}, writable: true },
 	_readDelay: { value: 0, writable: true },
-
+	_onerror: { value: function(eCode, eMsg) {
+		Pview.del(this);
+		this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
+	} },
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
 		var rm, post = this.parent.thr.op,
 			num = this.parent.num;
@@ -7399,14 +7413,13 @@ function Thread(el, prev, parse) {
 }
 Thread.processUpdBtn = function(add) {
 	if(add) {
-		$after(firstThr.el, $event($add(
-			'<span class="de-thrupdbtn">[<a href="#">' + Lng.getNewPosts[lang] + '</a>]</span>'), {
-			'click': function(e) {
-				$pd(e);
-				$alert(Lng.loading[lang], 'newposts', true);
-				firstThr.loadNew(infoLoadErrors, true);
-			}
-		}));
+		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
+			Lng.getNewPosts[lang] + '</a>]</span>');
+		firstThr.el.nextSibling.addEventListener('click', function(e) {
+			$pd(e);
+			$alert(Lng.loading[lang], 'newposts', true);
+			firstThr.loadNew(infoLoadErrors, true);
+		}, false);
 	} else {
 		$del($c('de-thrupdbtn', dForm));
 	}
@@ -8261,10 +8274,10 @@ ImageBoard.prototype = {
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
 					nav = new Navigator();
-					$event($q('input[type="button"]', doc), {'click': function() {
+					$q('input[type="button"]', doc).addEventListener('click', function() {
 						readCfg();
 						saveCfg('__hanarating', $id('rating').value);
-					}});
+					}, false);
 					return true;
 				}
 			} },
@@ -8602,7 +8615,7 @@ function Initialization() {
 		intrv = setInterval(function() {
 			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");', true);
 		}, 1500);
-		$event(window, {'load': setTimeout.bind(window, clearInterval, 3e4, intrv)});
+		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
 		liteMode = true;
 		pr = {};
 	}
@@ -8826,19 +8839,19 @@ function replaceDelform() {
 	if(liteMode) {
 		doc.body.insertAdjacentHTML('afterbegin', dForm.outerHTML);
 		dForm = doc.body.firstChild;
-		$event(window, {'load': function() {
+		window.addEventListener('load', function() {
 			while(dForm.nextSibling) {
 				$del(dForm.nextSibling);
 			}
-		}});
+		}, false);
 	} else {
 		dForm.insertAdjacentHTML('beforebegin', replaceString(dForm.outerHTML));
 		dForm.style.display = 'none';
 		dForm.id = 'de-dform-old';
 		dForm = dForm.previousSibling;
-		$event(window, {'load': function() {
+		window.addEventListener('load', function() {
 			$del($id('de-dform-old'));
-		}});
+		}, false);
 	}
 }
 
@@ -8879,16 +8892,14 @@ function initThreadUpdater(title, enableUpdater) {
 			}, false);
 		} else {
 			focused = false;
-			$event(window, {
-				'focus': onVis,
-				'blur': function() {
-					focused = false;
-				},
-				'mousemove': function mouseMove() {
-					onVis();
-					$revent(window, {'mousemove': mouseMove});
-				}}
-			);
+			window.addEventListener('focus', onVis, false);
+			window.addEventListener('blur', function() {
+				focused = false;
+			}, false);
+			window.addEventListener('mousemove', function mouseMove() {
+				window.removeEventListener('mousemove', mouseMove, false);
+				onVis();
+			}, false);
 		}
 		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded, true);
 		enable();
@@ -9201,7 +9212,7 @@ function doScript() {
 if(/interactive|complete/.test(doc.readyState)) {
 	doScript();
 } else {
-	$event(doc, {'DOMContentLoaded': doScript});
+	doc.addEventListener('DOMContentLoaded', doScript, false);
 }
 
 })(window.opera && window.opera.scriptStorage);
