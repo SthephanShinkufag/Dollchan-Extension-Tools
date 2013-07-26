@@ -4454,6 +4454,7 @@ Spells.prototype = {
 	},
 	_asyncWrk: 0,
 	_completeFns: [],
+	_hasComplFns: false,
 	_data: null,
 	_list: '',
 
@@ -4467,6 +4468,7 @@ Spells.prototype = {
 	},
 	addCompleteFunc: function(Fn) {
 		this._completeFns.push(Fn);
+		this._hasComplFns = true;
 	},
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
@@ -4500,15 +4502,12 @@ Spells.prototype = {
 	setSpells: function(spells, sync) {
 		this.update(spells, sync, Cfg['hideBySpell']);
 		if(Cfg['hideBySpell']) {
-			this.addCompleteFunc(savePosts);
 			for(var post = firstThr.op; post; post = post.next) {
 				delete post.offsetTop;
 				this.check(post, post.hide);
 			}
-			this.end();
 		} else {
 			this.enable = false;
-			savePosts();
 		}
 	},
 	disable: function(sync) {
@@ -4519,11 +4518,12 @@ Spells.prototype = {
 		saveCfg('hideBySpell', false);
 	},
 	end: function() {
-		if(this._asyncWrk === 0 && this._completeFns.length !== 0) {
+		if(this._asyncWrk === 0 && this._hasComplFns) {
 			for(var i = 0, len = this._completeFns.length; i < len; ++i) {
 				this._completeFns[i]();
 			}
 			this._completeFns = [];
+			this._hasComplFns = false;
 		}
 	},
 	check: function(post, hFunc) {
@@ -4599,6 +4599,7 @@ function disableSpells() {
 function toggleSpells() {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld.value;
+	spells.addCompleteFunc(savePosts);
 	if(val && (temp = spells.parseText(val))) {
 		disableSpells();
 		spells.setSpells(temp, true);
@@ -4608,7 +4609,6 @@ function toggleSpells() {
 			disableSpells();
 			spells.disable();
 			saveCfg('spells', '');
-			savePosts();
 			localStorage['__de-spells'] = '{"hide": false, "data": ""}';
 		} else {
 			localStorage['__de-spells'] = '{"hide": false, "data": null}';
@@ -4616,6 +4616,7 @@ function toggleSpells() {
 		localStorage.removeItem('__de-spells');
 		$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 	}
+	spells.end();
 }
 
 function addSpell(type, arg, isNeg) {
@@ -4623,22 +4624,21 @@ function addSpell(type, arg, isNeg) {
 		val = fld && fld.value,
 		chk = $q('input[info="hideBySpell"]', doc);
 	if(!val || (temp = spells.parseText(val))) {
+		spells.addCompleteFunc(savePosts);
 		disableSpells();
 		spells.addSpell(type, arg, TNum ? [brd, TNum] : void 0, isNeg, temp);
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
-			spells.addCompleteFunc(savePosts);
 			for(var post = firstThr.op; post; post = post.next) {
 				delete post.offsetTop;
 				spells.check(post, post.hide);
 			}
-			spells.end();
 		} else {
 			saveCfg('spells', '');
 			spells.enable = false;
-			savePosts();
 		}
+		spells.end();
 		if(fld) {
 			chk.checked = !!(fld.value = val);
 		}
@@ -8622,24 +8622,25 @@ function Initialization() {
 				temp.checked = data['hide'];
 			}
 			doc.body.style.display = 'none';
+			spells.addCompleteFunc(savePosts);
 			disableSpells();
-			if(data['data'] === '') {
-				spells.disable();
-				if(temp = $id('de-spell-edit')) {
-					temp.value = '';
-				}
-				saveCfg('spells', '');
-				savePosts();
-			} else if(data['data'] !== null) {
+			if(data['data']) {
 				spells.setSpells(data['data'], false);
 				if(temp = $id('de-spell-edit')) {
 					temp.value = spells.list;
 				}
-				doc.body.style.display = '';
-				return;
+			} else {
+				if(data['data'] === '') {
+					spells.disable();
+					if(temp = $id('de-spell-edit')) {
+						temp.value = '';
+					}
+					saveCfg('spells', '');
+				}
+				spells.enable = false;
 			}
-			spells.enable = false;
 			doc.body.style.display = '';
+			spells.end();
 		}
 		default: return;
 		}
