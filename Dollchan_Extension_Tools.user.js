@@ -529,14 +529,6 @@ function $del(el) {
 	}
 }
 
-function $offset(el) {
-	var box = el.getBoundingClientRect();
-	return {
-		top: box.top + window.pageYOffset,
-		left: box.left + window.pageXOffset
-	};
-}
-
 function $getStyle(el, prop) {
 	return getComputedStyle(el).getPropertyValue(prop);
 }
@@ -5436,9 +5428,9 @@ PostForm.prototype = {
 						$pd(e);
 						return
 					case 'mousemove':
-						var p = $offset(this.el);
-						this.elStyle.width = e.pageX - p.left + 'px';
-						this.elStyle.height = e.pageY - p.top + 'px';
+						var cr = this.el.getBoundingClientRect();
+						this.elStyle.width = (e.pageX - cr.left + window.pageXOffset) + 'px';
+						this.elStyle.height = (e.pageY - cr.top + window.pageYOffset) + 'px';
 						return;
 					default: // mouseup
 						doc.body.removeEventListener('mousemove', this, false);
@@ -6223,7 +6215,7 @@ Post.prototype = {
 			return;
 		case 'de-btn-rep':
 			if(type === 'mouseover') {
-				quotetxt = $txtSelect(); return;
+				quotetxt = $txtSelect();
 			}
 			return;
 		case 'de-btn-expthr':
