@@ -1117,10 +1117,10 @@ function addPanel() {
 						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
 				'</ul>' +
-				'<div class="de-content"></div>' +
-				'<div id="de-alert"></div>' +
-				'<hr style="clear: both;">' +
 			'</div>' +
+			'<div class="de-content"></div>' +
+			'<div id="de-alert"></div>' +
+			'<hr style="clear: both;">' +
 		'</div>'
 	);
 	panel = $id('de-panel');
