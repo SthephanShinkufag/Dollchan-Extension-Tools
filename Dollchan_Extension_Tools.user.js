@@ -2328,11 +2328,11 @@ function checkUpload(response) {
 	} else {
 		pByNum[pr.tNum].thr.load(visPosts, closeAlert.bind(window, $id('de-alert-upload')));
 	}
-	pr.showMainReply();
-	if(TNum && Cfg['addPostForm'] < 2) {
+	if(TNum && pr.isQuick && Cfg['addPostForm'] < 2) {
 		$disp(pr.pForm);
 		pr.updatePAreaBtns();
 	}
+	pr.showMainReply();
 	pr.refreshCapImg(pr.tNum, false);
 }
 
