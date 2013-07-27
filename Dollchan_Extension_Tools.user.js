@@ -1138,6 +1138,7 @@ function addPanel() {
 			break;
 		case 'de-btn-upd-on':
 		case 'de-btn-upd-off':
+		case 'de-btn-upd-warn':
 			if(updater.enabled) {
 				updater.disable();
 			} else {
@@ -9049,7 +9050,7 @@ function initThreadUpdater(title, enableUpdater) {
 	function setState(state) {
 		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
 		btn.id = 'de-btn-upd-' + state;
-		btn.title = Lng.panelBtn['upd-' + (state === 'on' ? 'on' : 'off')][lang];
+		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
 	}
 
 	function onVis() {
