@@ -445,13 +445,6 @@ function $t(id, root) {
 	return root.getElementsByTagName(id)[0];
 }
 
-function $html(el, html) {
-	var cln = el.cloneNode(false);
-	cln.innerHTML = html;
-	el.parentNode.replaceChild(cln, el);
-	return cln;
-}
-
 function $append(el, nodes) {
 	for(var i = 0, len = nodes.length; i < len; i++) {
 		if(nodes[i]) {
@@ -2292,7 +2285,7 @@ function getSubmitResponse(dc, isFrame) {
 }
 
 function checkUpload(response) {
-	var el, err = response[1];
+	var el, cln, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
 			$disp(pr.pForm);
@@ -2308,7 +2301,10 @@ function checkUpload(response) {
 	pr.txta.value = '';
 	if(pr.file) {
 		PostForm.delFileUtils(el = PostForm.getTR(pr.file));
-		pr.file = $q('input[type="file"]', el = $html(el, el.innerHTML));
+		cln = el.cloneNode(false);
+		cln.innerHTML = el.innerHTML;
+		el.parentNode.replaceChild(cln, el);
+		pr.file = $q('input[type="file"]', el = cln);
 		PostForm.eventFiles(el);
 	}
 	if(pr.video) {
@@ -5117,9 +5113,12 @@ PostForm.processInput = function() {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				var el = this.parentNode;
+				var el = this.parentNode,
+					cln = el.cloneNode(false);
 				PostForm.delFileUtils(el);
-				pr.file = $q('input[type="file"]', $html(el, el.innerHTML));
+				cln.innerHTML = el.innerHTML;
+				el.parentNode.replaceChild(cln, el);
+				pr.file = $q('input[type="file"]', cln);
 				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
@@ -6991,17 +6990,17 @@ Post.prototype = {
 		}
 	},
 	_removeFullImage: function(e, full, thumb, data) {
-		var pv, box, x, y, inPost = data.expanded;
+		var pv, cr, x, y, inPost = data.expanded;
 		data.expanded = false;
 		if(nav.Firefox && this._isPview) {
-			box = this.el.getBoundingClientRect();
+			cr = this.el.getBoundingClientRect();
 			x = e.pageX;
 			y = e.pageY;
 			if(!inPost) {
 				pv = this;
-				while(x > box.right || x < box.left || y > box.bottom || y < box.top) {
+				while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 					if(pv = pv.parent) {
-						box = pv.el.getBoundingClientRect();
+						cr = pv.el.getBoundingClientRect();
 					} else {
 						if(Pview.top) {
 							Pview.top.markToDel();
@@ -7013,7 +7012,7 @@ Post.prototype = {
 				if(pv.kid) {
 					pv.kid.markToDel();
 				}
-			} else if(x > box.right || y > box.bottom && Pview.top) {
+			} else if(x > cr.right || y > cr.bottom && Pview.top) {
 				Pview.top.markToDel();
 			}
 		}
