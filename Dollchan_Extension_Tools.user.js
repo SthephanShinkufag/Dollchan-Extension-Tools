@@ -166,7 +166,7 @@ Lng = {
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
-			txt:		['форма ответа* ', 'reply form* ']
+			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
 		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
@@ -2328,6 +2328,10 @@ function checkUpload(response) {
 		pByNum[pr.tNum].thr.load(visPosts, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	pr.showMainReply();
+	if(Cfg['addPostForm'] < 2) {
+		$disp(pr.pForm);
+		pr.updatePAreaBtns();
+	}
 	pr.refreshCapImg(pr.tNum, false);
 }
 
@@ -3399,7 +3403,6 @@ function preparePage() {
 			window.URL.revokeObjectURL(a.href);
 		});
 	}
-	//pr.showMainReply();
 	$disp(dForm);
 	Pview.clearCache();
 	isExpImg = false;
@@ -5268,7 +5271,6 @@ PostForm.prototype = {
 				} else {
 					this.updatePAreaBtns();
 				}
-				$disp(this.qArea);
 				this.showMainReply();
 				return;
 			}
@@ -5388,9 +5390,9 @@ PostForm.prototype = {
 		this._pBtn[1] = btn;
 		$after(this._pBtn[this.select = +(Cfg['addPostForm'] === 1)], this.pForm);
 		this.updatePAreaBtns();
-		this.pArea[this.select].insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
+		this.pArea[0].insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
 			aib.cReply + '" style="display: none;"></div>');
-		this.qArea = this.pArea[this.select].nextSibling;
+		this.qArea = this.pArea[0].nextSibling;
 		if(Cfg['addPostForm'] === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
