@@ -2328,7 +2328,7 @@ function checkUpload(response) {
 		pByNum[pr.tNum].thr.load(visPosts, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	pr.showMainReply();
-	if(Cfg['addPostForm'] < 2) {
+	if(TNum && Cfg['addPostForm'] < 2) {
 		$disp(pr.pForm);
 		pr.updatePAreaBtns();
 	}
@@ -5266,7 +5266,7 @@ PostForm.prototype = {
 		var el, tNum = post.thr.num;
 		if(this.isQuick) {
 			if(post.wrap.nextElementSibling === this.qArea) {
-				if(Cfg['addPostForm'] > 1) {
+				if(!TNum || Cfg['addPostForm'] > 1) {
 					$disp(this.pForm);
 				} else {
 					this.updatePAreaBtns();
