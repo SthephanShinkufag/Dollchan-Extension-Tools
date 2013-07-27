@@ -5392,7 +5392,7 @@ PostForm.prototype = {
 		btn.addEventListener('click', this.toggleMainReply.bind(this), true);
 		btn = btn.cloneNode(true);
 		btn.addEventListener('click', this.toggleMainReply.bind(this), true);
-		$after(aib.fch ? $t('hr', dForm) : dForm, this.pArea[1] =
+		$after(aib.fch ? $c('board', dForm) : dForm, this.pArea[1] =
 			$New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [btn, doc.createElement('hr')]));
 		this._pBtn[1] = btn;
 		$after(this._pBtn[this.select = +(Cfg['addPostForm'] === 1)], this.pForm);
