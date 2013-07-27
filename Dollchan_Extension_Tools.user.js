@@ -9052,7 +9052,9 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function setState(state) {
-		(stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc))).id = 'de-btn-upd-' + state;
+		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
+		btn.id = 'de-btn-upd-' + state;
+		btn.title = Lng.panelBtn['upd-' + state][lang];
 	}
 
 	function onVis() {
