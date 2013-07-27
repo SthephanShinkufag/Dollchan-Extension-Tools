@@ -5598,7 +5598,7 @@ PostForm.prototype = {
 	_updateCaptcha: function() {
 		var img, _img;
 		if(this.recap && (img = $id('recaptcha_image'))) {
-			img.onclick = 'Recaptcha.reload()';
+			img.setAttribute('onclick', 'Recaptcha.reload()');
 			img.style.cssText = 'width: 300px; cursor: pointer;';
 		}
 		if(aib.krau) {
