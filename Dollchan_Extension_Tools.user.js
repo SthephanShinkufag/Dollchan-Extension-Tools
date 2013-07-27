@@ -452,15 +452,6 @@ function $html(el, html) {
 	return cln;
 }
 
-function $attr(el, attr) {
-	for(var key in attr) {
-		key === 'text' ? el.textContent = attr[key] :
-		key === 'value' ? el.value = attr[key] :
-		el.setAttribute(key, attr[key]);
-	}
-	return el;
-}
-
 function $append(el, nodes) {
 	for(var i = 0, len = nodes.length; i < len; i++) {
 		if(nodes[i]) {
@@ -485,7 +476,11 @@ function $add(html) {
 function $new(tag, attr, events) {
 	var el = doc.createElement(tag);
 	if(attr) {
-		$attr(el, attr);
+		for(var key in attr) {
+			key === 'text' ? el.textContent = attr[key] :
+			key === 'value' ? el.value = attr[key] :
+			el.setAttribute(key, attr[key]);
+		}
 	}
 	if(events) {
 		for(var key in events) {
@@ -1409,7 +1404,9 @@ function showContent(cont, id, name, isUpd) {
 					if(arr[0] !== aib.host) {
 						return;
 					}
-					c = $attr($c('de-fav-inf-posts', el).firstElementChild, {'class': 'de-wait', 'text': ''});
+					c = $c('de-fav-inf-posts', el).firstElementChild;
+					c.className = 'de-wait';
+					c.textContent = '';
 					ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), function(dc) {
 						var cnt = aib.getPosts(parsePage($q(aib.qDForm, dc), dc, null, false).el).length + 1;
 						c.textContent = cnt;
@@ -2011,12 +2008,14 @@ function closeAlert(el) {
 }
 
 function $alert(txt, id, wait) {
-	var el = $id('de-alert-' + id),
+	var node, el = $id('de-alert-' + id),
 		cBtn = 'de-alert-btn' + (wait ? ' de-wait' : ''),
 		tBtn = wait ? '' : '× ';
 	if(el) {
 		$t('div', el).innerHTML = txt.trim();
-		$attr($t('span', el), {'class': cBtn}).textContent = tBtn;
+		node = $t('span', el);
+		node.className = cBtn;
+		node.textContent = tBtn;
 		clearTimeout(el.closeTimeout);
 		if(!wait && Cfg['animation']) {
 			nav.animEvent(el, function(node) {
@@ -4911,9 +4910,9 @@ function scriptCSS() {
 		}
 	}
 
-	$attr($css(x), {'id': 'de-css'});
-	$attr($css(''), {'id': 'de-css-dynamic'});
-	$attr($css(''), {'id': 'de-css-user'});
+	$css(x).id = 'de-css';
+	$css('').id = 'de-css-dynamic';
+	$css('').id = 'de-css-user';
 	x = gif = cont = null;
 	updateCSS();
 }
@@ -5161,12 +5160,10 @@ PostForm.processInput = function() {
 					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
 				fr.onload = function(input, node, e) {
 					if(input.nextSibling === node) {
-						$attr(node, {
-							'style': 'font-weight: bold; margin: 0 5px; cursor: default;',
-							'title': input.files[0].name + ' + ' + this.name,
-							'text': input.files[0].name.replace(/^.+\./, '') + ' + ' +
-								this.name.replace(/^.+\./, '')
-						});
+						node.style.cssText = 'font-weight: bold; margin: 0 5px; cursor: default;';
+						node.title = input.files[0].name + ' + ' + this.name;
+						node.textContent = input.files[0].name.replace(/^.+\./, '') + ' + ' +
+							this.name.replace(/^.+\./, '')
 						input.imgFile = e.target.result;
 					}
 				}.bind(file, inp, inp.nextSibling);
@@ -5272,7 +5269,7 @@ PostForm.prototype = {
 		}
 	},
 	showQuickReply: function(post) {
-		var tNum = post.thr.num;
+		var el, tNum = post.thr.num;
 		if(this.isQuick) {
 			if(post.wrap.nextElementSibling === this.qArea) {
 				if(Cfg['addPostForm'] > 1) {
@@ -5327,7 +5324,9 @@ PostForm.prototype = {
 		}
 		$txtInsert(this.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
 		if(Cfg['addPostForm'] === 3) {
-			$attr($t('a', this.qArea.firstChild), {'href': aib.getThrdUrl(brd, tNum), 'text': '#' + tNum});
+			el = $t('a', this.qArea.firstChild);
+			el.href = aib.getThrdUrl(brd, tNum);
+			el.textContent = '#' + tNum;
 		}
 	},
 	showMainReply: function() {
@@ -5553,8 +5552,10 @@ PostForm.prototype = {
 				'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
 				'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
 			);
-			$attr(this.form, {'target': 'de-iframe-pform'}).onsubmit = null;
-			$attr(dForm, {'target': 'de-iframe-dform'}).onsubmit = function() {
+			this.form.target = 'de-iframe-pform';
+			this.form.onsubmit = null;
+			dForm.target = 'de-iframe-dform';
+			dForm.onsubmit = function() {
 				this.showMainReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
 			}.bind(this);
@@ -5597,7 +5598,8 @@ PostForm.prototype = {
 	_updateCaptcha: function() {
 		var img, _img;
 		if(this.recap && (img = $id('recaptcha_image'))) {
-			$attr(img, {'onclick': 'Recaptcha.reload()', 'style': 'width: 300px; cursor: pointer;'});
+			img.onclick = 'Recaptcha.reload()';
+			img.style.cssText = 'width: 300px; cursor: pointer;';
 		}
 		if(aib.krau) {
 			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
@@ -7260,9 +7262,8 @@ function PviewMoved() {
 
 function animPVMove(pView, lmw, top, oldCSS) {
 	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
-	$attr($css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}'), {
-		'class': 'de-css-move'
-	});
+	$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}').className =
+		'de-css-move';
 	if(pView.newPos) {
 		pView.style.cssText = pView.newPos;
 		pView.removeEventListener(nav.animEnd, PviewMoved, false);
@@ -7953,8 +7954,9 @@ ImageBoard.prototype = {
 				return -1;
 			} },
 			getOp: { value: function(thr, dc) {
-				var el, post = $attr(dc.createElement('div'), {'style': 'clear: left;'}),
+				var el, post = dc.createElement('div'),
 					op = $c('originalpost', thr);
+				post.style.cssText = 'clear: left;';
 				$after($c('postmenu', op), post);
 				while((el = thr.firstChild).tagName !== 'TABLE') {
 					$after(post, el);
