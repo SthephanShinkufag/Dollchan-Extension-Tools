@@ -1825,7 +1825,8 @@ function getCfgInfo() {
 		$add('<div style="display: inline-block; padding-left: 7px; height: 295px; ' +
 			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-			$alert(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor">' + JSON.stringify({
+			$alert(Lng.infoDebug[lang] + ':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
+			$id('de-debug-info').value = JSON.stringify({
 				'version': version,
 				'location': String(window.location),
 				'nav': nav,
@@ -1842,7 +1843,7 @@ function getCfgInfo() {
 					}
 				}
 				return key === 'stats' ? void 0 : value;
-			}, '\t') + '</textarea>', 'help-debug', false);
+			}, '\t');
 		})
 	]);
 }
