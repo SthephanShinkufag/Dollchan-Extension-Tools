@@ -6017,7 +6017,7 @@ Post.sizing = {
 		return val;
 	},
 	getOffset: function(el) {
-		return el.parentNode.getBoundingClientRect().left + window.pageXOffset + 25;
+		return el.getBoundingClientRect().left + window.pageXOffset + 25;
 	},
 	getCachedOffset: function(pCount, el) {
 		pCount = Math.min(pCount, 10);
@@ -6664,7 +6664,7 @@ Post.prototype = {
 	_addFullImage: function(el, data, inPost) {
 		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
-			(aib.hasPicWrap ? data.wrap : el).insertAdjacentHTML('afterend',
+			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
 			scrW -= this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
 			el.style.display = 'none';
@@ -7022,7 +7022,7 @@ Post.prototype = {
 		$del(full);
 		if(inPost) {
 			thumb.style.display = '';
-			$del((aib.hasPicWrap ? data.wrap : thumb).nextSibling);
+			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
 		}
 	}
 }
