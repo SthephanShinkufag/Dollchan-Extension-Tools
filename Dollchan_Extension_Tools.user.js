@@ -5968,11 +5968,13 @@ Post.sizing = {
 		return el.getBoundingClientRect().left + window.pageXOffset + 25;
 	},
 	getCachedOffset: function(pCount, el) {
-		pCount = Math.min(pCount, 10);
-		if(pCount in this._iOffsets) {
-			return this._iOffsets[pCount];
+		if(pCount === 0) {
+			return this._opOffset === -1 ? this._opOffset = this.getOffset(el) : this._opOffset;
 		}
-		return this._iOffsets[pCount] = this.getOffset(el);
+		if(pCount > 4) {
+			return this._pOffset === -1 ? this._pOffset = this.getOffset(el) : this._pOffset;
+		}
+		return this.getOffset(el);
 	},
 	handleEvent: function() {
 		this.wHeight = window.innerHeight;
@@ -5983,7 +5985,8 @@ Post.sizing = {
 	},
 
 	_enabled: false,
-	_iOffsets: []
+	_opOffset: -1,
+	_pOffset: -1
 };
 Post.prototype = {
 	dcount: 0,
