@@ -4640,7 +4640,7 @@ function scriptCSS() {
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		.de-cfg-body { width: 385px; min-height: 256px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
-		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
+		.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 0; margin: 0; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
 		#de-cfg-btns { padding: 7px 2px 2px; }\
