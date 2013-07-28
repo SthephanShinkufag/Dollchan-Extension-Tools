@@ -28,6 +28,7 @@ defaultCfg = {
 	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'resizeImgs':	1,		// 		resize large images
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
@@ -117,6 +118,7 @@ Lng = {
 			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
 			txt:		['раскрывать изображения ', 'expand images ']
 		},
+		'resizeImgs':   ['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Раскрывать изображения', 'Open images'],
@@ -1624,6 +1626,7 @@ function getCfgPosts() {
 		} : null),
 		optSel('expandPosts', true, null),
 		optSel('expandImgs', true, null),
+		$New('div', {'style': 'padding-left: 25px;'}, [ lBox('resizeImgs')]),
 		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
 		$if(nav.isBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
@@ -4630,7 +4633,7 @@ function scriptCSS() {
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.de-cfg-body { width: 372px; min-height: 370px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
@@ -6619,11 +6622,11 @@ Post.prototype = {
 		} else {
 			$del($c('de-img-center', doc));
 		}
-		newW = data.width < scrW ? data.width : scrW - 2;
+		newW = !Cfg['resizeImgs'] || data.width < scrW ? data.width : scrW - 2;
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
-		} else if(newH > (scrH = Post.sizing.wHeight)) {
+		} else if(newH > (scrH = Post.sizing.wHeight) && Cfg['resizeImgs']) {
 			newH = scrH - 2;
 			newW = newH * data.width / data.height;
 		}
