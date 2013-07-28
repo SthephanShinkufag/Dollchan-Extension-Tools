@@ -5296,11 +5296,8 @@ PostForm.prototype = {
 		if(this.isQuick) {
 			this.select = select;
 			this.closeQReply();
-			this.pArea.style.display = '';
-			this.updatePAreaBtns();
 		} else {
 			if(this.select === select) {
-				this.select = select;
 				$disp(this.pForm);
 				this.updatePAreaBtns();
 			} else {
