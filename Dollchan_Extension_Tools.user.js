@@ -718,49 +718,6 @@ function getAbsLink(url) {
 		url[0] === '/' ? aib.prot + '//' + aib.host + url : url;
 }
 
-function getPrettyJSON(obj, indent) {
-	var sJSON, iCount, val, type, key, isArr = obj instanceof Array;
-	if(isArr) {
-		if(obj.length === 0) {
-			return '[]';
-		}
-		sJSON = '[';
-	} else if($isEmpty(obj)) {
-		return '{}';
-	} else {
-		sJSON = '{';
-	}
-	iCount = 0;
-	for(key in obj) {
-		if(obj.hasOwnProperty(key)) {
-			val = obj[key],
-			type = typeof val;
-			if(type === 'function') {
-				continue;
-			} else if(type === 'object') {
-				type = val === null ? 'null' :
-					val instanceof Array ? 'array' :
-					val instanceof Date ? 'date' :
-					val instanceof RegExp ? 'regex' :
-					'object';
-			}
-			if(iCount > 0) {
-				sJSON += ',';
-			}
-			if(type === 'object' && $isEmpty(val)) {
-				continue;
-			}
-			sJSON += '\n' + indent + '    ' + (isArr ? '' : '"' + key + '"' + ': ') + (
-				type === 'array' || type === 'object' ? getPrettyJSON(val, indent + '    ') :
-				type === 'boolean' || type === 'number' ? val.toString() :
-				type === 'string' ? '"' + val.replace(/("|\\)/g, '\\$1').replace(/\r?\n/g, '\\n') + '"' : type
-			);
-			iCount++;
-		}
-	}
-	return sJSON += '\n' + indent + (isArr ? ']' : '}');
-}
-
 function getErrorMessage(eCode, eMsg) {
 	return eCode === 0 ? eMsg || Lng.noConnect[lang] : 'HTTP [' + eCode + '] ' + eMsg;
 }
@@ -1868,30 +1825,31 @@ function getCfgInfo() {
 		$add('<div style="display: inline-block; padding-left: 7px; height: 295px; ' +
 			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-			var i, nCfg = {};
-			for(i in Cfg) {
-				if(Cfg[i] !== defaultCfg[i] && i !== 'stats' && i !== 'nameValue' &&
-					i !== 'passwValue' && i !== 'signatValue')
-				{
-					nCfg[i] = Cfg[i];
-				}
-			}
-			$alert(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor">' + getPrettyJSON({
+			$alert(Lng.infoDebug[lang] + ':<textarea readonly class="de-editor">' + JSON.stringify({
 				'version': version,
 				'location': String(window.location),
 				'nav': nav,
-				'cfg': nCfg,
-				'spells': spells.list.split('\n'),
+				'cfg': Cfg,
+				'sSpells': spells.list.split('\n'),
 				'oSpells': sessionStorage['de-spells-' + brd + TNum],
 				'perf': timeLog
-			}, '') + '</textarea>', 'help-debug', false);
+			}, function(key, value) {
+				if(key in defaultCfg) {
+					if(value === defaultCfg[key] || key === 'nameValue' || key === 'passwValue' ||
+						key === 'signatValue')
+					{
+						return void 0;
+					}
+				}
+				return key === 'stats' ? void 0 : value;
+			}, '\t') + '</textarea>', 'help-debug', false);
 		})
 	]);
 }
 
 function addEditButton(name, val, isJSON, Fn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-		var ta = $new('textarea', {'class': 'de-editor', 'value': isJSON ? getPrettyJSON(val, '') : val}, null);
+		var ta = $new('textarea', {'class': 'de-editor', 'value': isJSON ? JSON.stringify(val, null, '\t') : val}, null);
 		$alert('', 'edit-' + name, false);
 		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
 			$txt(Lng.editor[name][lang]),
@@ -4862,7 +4820,7 @@ function scriptCSS() {
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
-		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; }\
+		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 		.de-entry { margin: 2px 0; ' + (nav.Opera ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
@@ -6017,7 +5975,7 @@ Post.sizing = {
 		return val;
 	},
 	getOffset: function(el) {
-		return el.parentNode.getBoundingClientRect().left + window.pageXOffset + 25;
+		return el.getBoundingClientRect().left + window.pageXOffset + 25;
 	},
 	getCachedOffset: function(pCount, el) {
 		pCount = Math.min(pCount, 10);
@@ -6664,7 +6622,7 @@ Post.prototype = {
 	_addFullImage: function(el, data, inPost) {
 		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
-			(aib.hasPicWrap ? data.wrap : el).insertAdjacentHTML('afterend',
+			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
 			scrW -= this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
 			el.style.display = 'none';
@@ -7022,7 +6980,7 @@ Post.prototype = {
 		$del(full);
 		if(inPost) {
 			thumb.style.display = '';
-			$del((aib.hasPicWrap ? data.wrap : thumb).nextSibling);
+			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
 		}
 	}
 }
