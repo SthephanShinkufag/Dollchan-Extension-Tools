@@ -1849,7 +1849,10 @@ function getCfgInfo() {
 
 function addEditButton(name, val, isJSON, Fn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-		var ta = $new('textarea', {'class': 'de-editor', 'value': isJSON ? JSON.stringify(val, null, '\t') : val}, null);
+		var ta = $new('textarea', {
+			'class': 'de-editor',
+			'value': isJSON ? JSON.stringify(val, null, '\t') : val
+		}, null);
 		$alert('', 'edit-' + name, false);
 		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
 			$txt(Lng.editor[name][lang]),
@@ -2247,9 +2250,7 @@ function checkUpload(response) {
 	var el, cln, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
-			$disp(pr.pForm);
-			$disp(pr.qArea);
-			pr.qArea.appendChild(pr.pForm);
+			pr.setReply(true, true);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
 			pr.refreshCapImg(pr.tNum, true);
@@ -2286,11 +2287,7 @@ function checkUpload(response) {
 	} else {
 		pByNum[pr.tNum].thr.load(visPosts, closeAlert.bind(window, $id('de-alert-upload')));
 	}
-	if(TNum && pr.isQuick && Cfg['addPostForm'] < 2) {
-		$disp(pr.pForm);
-		pr.updatePAreaBtns();
-	}
-	pr.showMainReply();
+	pr.closeQReply();
 	pr.refreshCapImg(pr.tNum, false);
 }
 
@@ -5223,20 +5220,9 @@ PostForm.prototype = {
 	},
 	showQuickReply: function(post) {
 		var el, tNum = post.thr.num;
-		if(this.isQuick) {
-			if(post.wrap.nextElementSibling === this.qArea) {
-				if(!TNum || Cfg['addPostForm'] > 1) {
-					$disp(this.pForm);
-				} else {
-					this.updatePAreaBtns();
-				}
-				this.showMainReply();
-				return;
-			}
-		} else {
+		if(!this.isQuick) {
 			this.isQuick = true;
-			this.qArea.appendChild(this.pForm);
-			this.pForm.style.display = '';
+			this.setReply(true, true);
 			$t('a', this._pBtn[this.select]).className =
 				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
 			if(!TNum && !aib.kus && !aib.hana) {
@@ -5256,9 +5242,11 @@ PostForm.prototype = {
 					);
 				}
 			}
+		} else if(post.wrap.nextElementSibling === this.qArea) {
+			this.closeQReply();
+			return;
 		}
 		$after(post.wrap, this.qArea);
-		this.qArea.style.display = '';
 		if(!TNum) {
 			this._toggleQuickReply(tNum);
 		}
@@ -5281,36 +5269,45 @@ PostForm.prototype = {
 			el.textContent = '#' + tNum;
 		}
 	},
-	showMainReply: function() {
+	closeQReply: function() {
 		if(this.isQuick) {
 			this.isQuick = false;
 			if(!TNum) {
 				this._toggleQuickReply(0);
 				$del($id('thr_id'));
 			}
-			this.qArea.style.display = 'none';
+			this.setReply(false, TNum && Cfg['addPostForm'] < 2);
+		}
+	},
+	setReply: function(quick, visible) {
+		if(quick) {
+			this.qArea.appendChild(this.pForm);
+		} else {
 			$after(this.pArea[this.select], this.qArea);
 			$after(this._pBtn[this.select], this.pForm);
 		}
+		this.qArea.style.display = quick ? '' : 'none';
+		this.pForm.style.display = visible ? '' : 'none';
+		this.updatePAreaBtns();
 	},
 	toggleMainReply: function(e) {
 		$pd(e);
 		var select = +!(e.target.parentNode.parentNode.id === 'de-parea-up');
 		if(this.isQuick) {
-			this.pForm.style.display = '';
 			this.select = select;
-			this.showMainReply();
+			this.closeQReply();
+			this.pArea.style.display = '';
+			this.updatePAreaBtns();
 		} else {
 			if(this.select === select) {
+				this.select = select;
 				$disp(this.pForm);
+				this.updatePAreaBtns();
 			} else {
-				this.pForm.style.display = '';
-				$after(this._pBtn[select], this.pForm);
+				this.select = select;
+				this.setReply(false, true);
 			}
-			this.select = select;
 		}
-		this.updatePAreaBtns();
-		scrollTo(0, pageYOffset + this.pForm.getBoundingClientRect().top);
 	},
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
@@ -5330,9 +5327,6 @@ PostForm.prototype = {
 	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		if(!TNum || Cfg['addPostForm'] > 1) {
-			$disp(this.pForm);
-		}
 		var btn = $New('div', null, [
 			$txt('['),
 			$new('a', {'href': '#'}, null),
@@ -5347,15 +5341,13 @@ PostForm.prototype = {
 		$after(aib.fch ? $c('board', dForm) : dForm, this.pArea[1] =
 			$New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [btn, doc.createElement('hr')]));
 		this._pBtn[1] = btn;
-		$after(this._pBtn[this.select = +(Cfg['addPostForm'] === 1)], this.pForm);
-		this.updatePAreaBtns();
-		this.pArea[0].insertAdjacentHTML('afterend', '<div id="de-qarea" class="' +
-			aib.cReply + '" style="display: none;"></div>');
-		this.qArea = this.pArea[0].nextSibling;
+		this.qArea = $add('<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
+		this.select = +(Cfg['addPostForm'] === 1);
+		this.setReply(false, TNum && Cfg['addPostForm'] < 2);
 		if(Cfg['addPostForm'] === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
-				$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': this.showMainReply.bind(this)})
+				$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': this.closeQReply.bind(this)})
 			]);
 		}
 		if(aib.tire) {
@@ -5494,7 +5486,7 @@ PostForm.prototype = {
 			if(btn = $q(aib.qDelBut, dForm)) {
 				btn.onclick = function(e) {
 					$pd(e);
-					this.showMainReply();
+					this.closeQReply();
 					$alert(Lng.deleting[lang], 'deleting', true);
 					new html5Submit(dForm, e.target, checkDelete);
 				}.bind(this);
@@ -5508,7 +5500,7 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 			dForm.target = 'de-iframe-dform';
 			dForm.onsubmit = function() {
-				this.showMainReply();
+				this.closeQReply();
 				$alert(Lng.deleting[lang], 'deleting', true);
 			}.bind(this);
 		}
@@ -7417,7 +7409,7 @@ Thread.prototype = {
 				opEl = op.el,
 				thrEl = this.el,
 				nOmt = last !== 1 && last < len ? len - last : 0;
-			pr.showMainReply();
+			pr.closeQReply();
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
 				if(op.trunc) {
