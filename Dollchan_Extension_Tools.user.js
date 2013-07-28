@@ -1445,6 +1445,7 @@ function fixSettings() {
 		}
 	};
 	toggleBox(Cfg['ajaxUpdThr'], ['input[info="favIcoBlink"]', 'input[info="desktNotif"]']);
+	toggleBox(Cfg['expandImgs'], ['input[info="resizeImgs"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
