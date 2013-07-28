@@ -1539,7 +1539,7 @@ function updRowMeter() {
 	var str, top = this.scrollTop,
 		el = $id('de-spell-rowmeter'),
 		num = el.numLines || 1,
-		i = 19;
+		i = 13;
 	if(num - i < ((top / 12) | 0 + 1)) {
 		str = '';
 		while(i--) {
