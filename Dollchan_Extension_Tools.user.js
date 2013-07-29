@@ -7476,27 +7476,22 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, pCount, tPost, last, el = (json['result'] || {})['posts'],
+						var i, pCount, fragm, last, el = (json['result'] || {})['posts'],
 							len = el ? el.length : 0,
 							np = len;
 						if(len > 0) {
-							this._postsCache = doc.createDocumentFragment();
+							fragm = doc.createDocumentFragment();
 							pCount = this.pcount;
-							tPost = last = this.last;
+							last = this.last;
 							for(i = 0; i < len; i++) {
-								last = this._addPost(replacePost(getHanaPost(el[i])),
+								last = this._addPost(fragm, replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
+								np -= spells.check(last)
 							}
+							spells.end(savePosts);
 							this.last = last;
-							this.el.appendChild(this._postsCache);
+							this.el.appendChild(fragm);
 							this.pcount = pCount + len;
-							this._postsCache = null;
-							if(spells.enable) {
-								while(tPost = tPost.next) {
-									np -= spells.check(tPost);
-								}
-								spells.end(savePosts);
-							}
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7545,9 +7540,7 @@ Thread.prototype = {
 		} while(thr = thr.next);
 	},
 
-	_length: 0,
-	_postsCache: null,
-	_addPost: function(el, num, i, prev) {
+	_addPost: function(parent, el, num, i, prev) {
 		var pst, node, post = new Post(el, this, num, i).init(prev);
 		pByNum[num] = post;
 		if(postWrapper) {
@@ -7561,7 +7554,7 @@ Thread.prototype = {
 		} else {
 			pst = el;
 		}
-		aib.appendPost(pst, this._postsCache);
+		aib.appendPost(pst, parent);
 		youTube.parseLinks(post);
 		if(Cfg['imgSrcBtns']) {
 			addImagesSearch(el);
@@ -7597,7 +7590,6 @@ Thread.prototype = {
 		this.gInfo.tNums.push(+num);
 		this.gInfo.allPCount += len;
 		this.pcount = omt + len;
-		this._length = len;
 		pByNum[num] = lastPost = this.op = new Post(aib.getOp(node, doc), this, num, 0);
 		lastPost.isOp = true;
 		lastPost.init(prev ? prev.last : null);
@@ -7611,18 +7603,17 @@ Thread.prototype = {
 		visPosts = Math.max(visPosts, len);
 	},
 	_parsePosts: function(nPosts, from, omt) {
-		var i, el, cnt, tPost, newPosts = 0,
-			isDelPosts = false,
+		var i, len, el, cnt, tPost, fragm, newPosts = 0,
+			firstDelPost = null,
 			rerunSpells = spells.hasNumSpell,
 			spellsRunned = false,
-			last = this.op,
-			post = last.nextNotDeleted,
-			len = nPosts.length;
-		this._postsCache = doc.createDocumentFragment();
-		for(i = 0; i <= len && post; ) {
+			post = this.op.nextNotDeleted;
+		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - 1 === i) {
 				if(i >= len || post.num !== aib.getPNum(nPosts[i])) {
-					isDelPosts = true;
+					if(!firstDelPost) {
+						firstDelPost = post;
+					}
 					if(!rerunSpells) {
 						sVis.splice(post.count, 1);
 					}
@@ -7635,7 +7626,6 @@ Thread.prototype = {
 						post.btns.classList.remove('de-ppanel-cnt');
 						post.btns.classList.add('de-ppanel-del');
 						($q('input[type="checkbox"]', post.el) || {}).disabled = true;
-						last = post;
 					} else {
 						aib.removePost(post);
 						delete pByNum[post.num];
@@ -7643,10 +7633,12 @@ Thread.prototype = {
 							post.unhideRefs();
 						}
 						updRefMap(post, false);
-						if(last.next = post.next) {
-							last.next.prev = last;
+						if(post.prev.next = post.next) {
+							post.next.prev = post.prev;
 						}
-						last = post.prev;
+						if(this.last === post) {
+							this.last = post.prev;
+						}
 					}
 				} else {
 					if(i < from) {
@@ -7658,53 +7650,50 @@ Thread.prototype = {
 						updRefMap(post, true);
 					}
 					this._checkBan(post, nPosts[i]);
-					last = post;
 					i++;
 				}
 				post = post.nextNotDeleted;
 			} else if(!TNum && i >= from) {
+				fragm = doc.createDocumentFragment();
+				tPost = this.op;
 				for(cnt = post.count - 1; i < cnt; i++) {
 					el = nPosts[i];
-					last = this._addPost(replacePost(doc.importNode(el, true)), aib.getPNum(el),
-						i + 1, last);
+					tPost = this._addPost(fragm, replacePost(doc.importNode(el, true)),
+						aib.getPNum(el), i + 1, tPost);
+					spells.check(tPost);
 				}
-				last.next = post;
-				post.prev = last;
+				$after(this.op.el, fragm);
+				tPost.next = post;
+				post.prev = tPost;
 			} else {
 				i++;
 			}
 		}
-		if(!TNum && this._postsCache.hasChildNodes()) {
-			$after(this.op.el, this._postsCache);
-			this._postsCache = doc.createDocumentFragment();
-		}
 		this.pcount = len + 1;
-		if(isDelPosts && rerunSpells) {
+		if(firstDelPost && rerunSpells) {
 			disableSpells();
-			for(tPost = this.op; tPost; tPost = tPost.nextInThread) {
-				spells.check(tPost);
+			for(post = firstDelPost.nextInThread; post; post = post.nextInThread) {
+				spells.check(post);
 			}
 			spellsRunned = true;
 		}
 		if(i < len) {
 			newPosts = len - i;
-			tPost = last;
+			post = this.last;
+			fragm = doc.createDocumentFragment();
 			do {
 				el = nPosts[i];
-				last = this._addPost(replacePost(doc.importNode(el, true)),
-					aib.getPNum(el), i + 1, last);
+				post = this._addPost(fragm, replacePost(doc.importNode(el, true)),
+					aib.getPNum(el), i + 1, post);
+				newPosts -= spells.check(post);
 			} while(++i < len);
-			while(tPost = tPost.next) {
-				newPosts -= spells.check(tPost);
-			}
+			this.el.appendChild(fragm);
+			this.last = post;
 			spellsRunned = true;
-			this.el.appendChild(this._postsCache);
 		}
 		if(spellsRunned) {
 			spells.end(savePosts);
 		}
-		this.last = last;
-		this._postsCache = null;
 		return newPosts;
 	}
 };
