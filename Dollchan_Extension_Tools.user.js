@@ -3797,7 +3797,7 @@ Spells.prototype = {
 		} else {
 			rType = type;
 		}
-		opt = val[2] && [val[2], val[4] ? val[4] : val[3] ? -1 : false];
+		opt = val[2] ? [val[2], val[4] ? val[4] : val[3] ? -1 : false] : null;
 		str = str.substr(offset + 1 + val[0].length);
 		temp = str[0] !== '(' ? 0 : str[1] === ')' ? 2 : false;
 		noBkt = temp !== false;
