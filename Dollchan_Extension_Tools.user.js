@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			13.7.4.0
+// @version			13.7.28.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
-var version = '13.7.4.0',
+var version = '13.7.28.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -28,6 +28,7 @@ defaultCfg = {
 	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'resizeImgs':	1,		// 		resize large images
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
@@ -113,16 +114,7 @@ Lng = {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
 		},
-		'expandImgs': {
-			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
-			txt:		['раскрывать изображения ', 'expand images ']
-		},
-		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
-		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
-		'openImgs':		['Раскрывать изображения', 'Open images'],
-		'openGIFs':		['только GIFы', 'GIFs only'],
 		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
-		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
@@ -132,6 +124,17 @@ Lng = {
 		'timeOffset':	[' Разница во времени', ' Time difference'],
 		'timePattern':	[' Шаблон поиска', ' Find pattern'],
 		'timeRPattern':	[' Шаблон замены', ' Replace pattern'],
+
+		'expandImgs': {
+			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
+			txt:		['раскрывать изображения по клику', 'expand images on click']
+		},
+		'resizeImgs':   ['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
+		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
+		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
+		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
+		'openGIFs':		['Скачивать только GIFы*', 'Download GIFs only*'],
+		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
 
 		'linksNavig': {
 			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -226,6 +229,7 @@ Lng = {
 	cfgTab: {
 		'filters':	['Фильтры', 'Filters'],
 		'posts':	['Посты', 'Posts'],
+		'images':	['Картинки', 'Images'],
 		'links':	['Ссылки', 'Links'],
 		'form':		['Форма', 'Form'],
 		'common':	['Общее', 'Common'],
@@ -1443,6 +1447,7 @@ function fixSettings() {
 		}
 	};
 	toggleBox(Cfg['ajaxUpdThr'], ['input[info="favIcoBlink"]', 'input[info="desktNotif"]']);
+	toggleBox(Cfg['expandImgs'], ['input[info="resizeImgs"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
@@ -1516,6 +1521,7 @@ function cfgTab(name) {
 			if(!(el = $id('de-cfg-' + (id = this.getAttribute('info'))))) {
 				$after($id('de-cfg-bar'), el =
 					id === 'posts' ? getCfgPosts() :
+					id === 'images' ? getCfgImages() :
 					id === 'links' ? getCfgLinks() :
 					id === 'form' ? getCfgForm() :
 					id === 'common' ? getCfgCommon() :
@@ -1535,7 +1541,7 @@ function updRowMeter() {
 	var str, top = this.scrollTop,
 		el = $id('de-spell-rowmeter'),
 		num = el.numLines || 1,
-		i = 19;
+		i = 15;
 	if(num - i < ((top / 12) | 0 + 1)) {
 		str = '';
 		while(i--) {
@@ -1625,19 +1631,7 @@ function getCfgPosts() {
 			Thread.processUpdBtn(Cfg['addUpdBtn']);
 		} : null),
 		optSel('expandPosts', true, null),
-		optSel('expandImgs', true, null),
-		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
-		$if(nav.isBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
-			lBox('findImgFile', true, null)
-		])),
-		$New('div', null, [
-			lBox('openImgs', false, null),
-			$txt(' ('),
-			lBox('openGIFs', false, null),
-			$txt(')*')
-		]),
 		lBox('postBtnsTxt', true, null),
-		lBox('imgSrcBtns', true, null),
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('noPostScrl', true, updateCSS),
@@ -1646,7 +1640,6 @@ function getCfgPosts() {
 			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
 		]),
-		
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
@@ -1663,6 +1656,21 @@ function getCfgPosts() {
 		])
 	]);
 }
+
+function getCfgImages() {
+	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
+		optSel('expandImgs', true, null),
+		$New('div', {'style': 'padding-left: 25px;'}, [ lBox('resizeImgs', false, null)]),
+		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
+		$if(nav.isBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
+			lBox('findImgFile', true, null)
+		])),
+		lBox('openImgs', true, null),
+		$New('div', {'class': 'de-cfg-depend'}, [ lBox('openGIFs', false, null)]),
+		lBox('imgSrcBtns', true, null)
+	]);
+}
+
 
 function getCfgLinks() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-links'}, [
@@ -1820,14 +1828,15 @@ function getCfgInfo() {
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
-		$add('<div style="display: inline-block; vertical-align: top; width: 179px; height: 295px;">' +
+		$add('<div style="display: inline-block; vertical-align: top; width: 179px; height: 235px;">' +
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
 			Lng.posts[lang] + Cfg['stats']['reply'] + '</div>'),
-		$add('<div style="display: inline-block; padding-left: 7px; height: 295px; ' +
+		$add('<div style="display: inline-block; padding-left: 7px; height: 235px; ' +
 			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
-			$alert(Lng.infoDebug[lang] + ':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
+			$alert(Lng.infoDebug[lang] +
+				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
 			$id('de-debug-info').value = JSON.stringify({
 				'version': version,
 				'location': String(window.location),
@@ -1884,6 +1893,7 @@ function addSettings(Set) {
 		$New('div', {'id': 'de-cfg-bar'}, [
 			cfgTab('filters'),
 			cfgTab('posts'),
+			cfgTab('images'),
 			cfgTab('links'),
 			$if(pr.form || pr.oeForm, cfgTab('form')),
 			cfgTab('common'),
@@ -4669,8 +4679,8 @@ function scriptCSS() {
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { width: 372px; min-height: 348px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
-		.de-cfg-body input[type="text"] { width: auto; padding: 0px; }\
+		.de-cfg-body { width: 386px; min-height: 288px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 0 !important; margin: 0 !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
 		#de-cfg-btns { padding: 7px 2px 2px; }\
@@ -4678,7 +4688,7 @@ function scriptCSS() {
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 25px; }\
-		.de-cfg-tab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 14px arial; text-align: center; cursor: default; }\
+		.de-cfg-tab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
 		.de-cfg-tab-back { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
 		.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
@@ -4694,8 +4704,8 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px; width: 340px; height: 255px; border: none !important; outline: none !important; }\
-		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 257px; text-align: right; color: #fff; font: 12px courier new; }\
+		#de-spell-edit { padding: 2px; width: 350px; height: 200px; border: none !important; outline: none !important; }\
+		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 202px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';
 
@@ -6005,7 +6015,7 @@ Post.sizing = {
 		return val;
 	},
 	getOffset: function(el) {
-		return el.getBoundingClientRect().left + window.pageXOffset + 25;
+		return el.getBoundingClientRect().left + window.pageXOffset;
 	},
 	getCachedOffset: function(pCount, el) {
 		if(pCount === 0) {
@@ -6658,7 +6668,7 @@ Post.prototype = {
 		this.btns = ref.nextSibling;
 	},
 	_addFullImage: function(el, data, inPost) {
-		var elMove, elStop, newW, newH, srcH, img, scrW = Post.sizing.wWidth;
+		var elMove, elStop, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
@@ -6667,13 +6677,16 @@ Post.prototype = {
 		} else {
 			$del($c('de-img-center', doc));
 		}
-		newW = data.width < scrW ? data.width : scrW - 2;
+		newW = !Cfg['resizeImgs'] || data.width < scrW ? data.width : scrW - 2;
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
-		} else if(newH > (scrH = Post.sizing.wHeight)) {
-			newH = scrH - 2;
-			newW = newH * data.width / data.height;
+		} else {
+			scrH = Post.sizing.wHeight;
+			if(Cfg['resizeImgs'] && newH > scrH) {
+				newH = scrH - 2;
+				newW = newH * data.width / data.height;
+			}
 		}
 		img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 			'" width="' + newW + '" height="' + newH + '">');
