@@ -5982,8 +5982,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 		return;
 	}
 	if(oHid) {
-		$del(post.note);
-		post.note = null;
+		post.note = '';
 		if(!post.spellHidden) {
 			post.setVisib(false);
 		}
@@ -6420,7 +6419,7 @@ Post.prototype = {
 		}
 	},
 	setVisib: function(hide) {
-		var el, a, tEl;
+		var el, tEl;
 		if(this.hidden === hide) {
 			return;
 		}
@@ -6435,17 +6434,18 @@ Post.prototype = {
 				tEl.insertAdjacentHTML('beforebegin', '<div class="' + aib.cReply +
 					' de-thr-hid" id="de-thr-hid-' + this.num + '">' + Lng.hiddenThrd[lang] +
 					' <a href="#">№' + this.num + '</a> <span class="de-thread-note"></span></div>');
-				a = $t('a', el = tEl.previousSibling);
-				a.onclick = function(e) {
-					$pd(e);
-					this.toggleUserVisib();
-				}.bind(this);
-				a.onmouseover = function() {
-					this.style.display = '';
-				}.bind(tEl);
-				el.onmouseout = function() {
-					if(this.hidden) {
-						this.thr.el.style.display = 'none';
+				el = $t('a', tEl.previousSibling);
+				el.onclick = el.onmouseover = el.onmouseout = function(e) {
+					switch(e.type) {
+					case 'click':
+						this.toggleUserVisib();
+						$pd(e);
+						return;
+					case 'mouseover': this.thr.el.style.display = ''; return;
+					default: // mouseout
+						if(this.hidden) {
+							this.thr.el.style.display = 'none';
+						}
 					}
 				}.bind(this);
 			}
@@ -6464,11 +6464,8 @@ Post.prototype = {
 			if(!hide) {
 				this.note = '';
 			}
-			this._pref.onmouseover = hide && function() {
-				getPostEl(this).post.toggleContent(false);
-			};
-			this._pref.onmouseout = hide && function() {
-				getPostEl(this).post.toggleContent(true);
+			this._pref.onmouseover = this._pref.onmouseout = hide && function(e) {
+				getPostEl(this).post.toggleContent(e.type === 'mouseout');
 			};
 		}
 		this.hidden = hide;
