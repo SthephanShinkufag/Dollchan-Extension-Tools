@@ -2698,9 +2698,10 @@ function downloadImgData(url, Fn) {
 			} else if(isAb) {
 				Fn(new Uint8Array(e.response));
 			} else {
-				Fn(new Uint8Array(e.responseText.split('').map(function(a) {
-					return a.charCodeAt();
-				})));
+				for(var len, i = 0, txt = e.responseText, rv = new Uint8Array(len = txt.length); i < len; ++i) {
+					rv[i] = txt.charCodeAt(i) & 0xFF;
+				}
+				Fn(rv);
 			}
 		}.bind(null, url)
 	});
@@ -7724,7 +7725,7 @@ ImageBoard.prototype = {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'0chan.hk': [{
+		'@0chan': [{
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
 			} },
@@ -7743,6 +7744,12 @@ ImageBoard.prototype = {
 			} },
 			nul: { value: true }
 		}, 'script[src*="kusaba"]'],
+		get '0-chan.ru'() {
+			return this['@0chan'];
+		},
+		get '0chan.hk'() {
+			return this['@0chan'];
+		},
 		'2--ch.ru': [{
 			qTable: { value: 'table:not(.postfiles)' },
 			_qThread: { value: '.threadz' },
@@ -7942,11 +7949,18 @@ ImageBoard.prototype = {
 			timePattern: { value: 'w+yy+nn+dd+hh+ii' },
 			dfwk: { value: true }
 		}, 'script[src*="kusaba"]'],
+		'@ernstchan': [{
+			qThread: { value: 'div[id^="thread"]' },
+			docExt: { value: '' },
+			res: { value: 'faden/' },
+
+			erns: { value: true }
+		}],
 		get 'ernstchan.com'() {
-			return ImageBoard.prototype._ernstchan;
+			return this['@ernstchan'];
 		},
 		get 'ernstchan.net'() {
-			return ImageBoard.prototype._ernstchan;
+			return this['@ernstchan'];
 		},
 		'geekly.info': [{
 			getPosts: { value: function(thr) {
@@ -8235,13 +8249,6 @@ ImageBoard.prototype = {
 			kus: { value: true }
 		}
 	},
-	_ernstchan: [{
-		qThread: { value: 'div[id^="thread"]' },
-		docExt: { value: '' },
-		res: { value: 'faden/' },
-
-		erns: { value: true }
-	}],
 	_base: {
 		cFileInfo: 'filesize',
 		cOPost: 'oppost',
