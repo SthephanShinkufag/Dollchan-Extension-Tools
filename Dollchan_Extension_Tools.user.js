@@ -2116,7 +2116,7 @@ KeyNavigation.prototype = {
 		}
 	},
 	handleEvent: function(e) {
-		var pyOffset, post, curTh = e.target.tagName,
+		var post, curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
 			if(kc === 27) {
@@ -2157,17 +2157,13 @@ KeyNavigation.prototype = {
 		}
 		$pd(e);
 		e.stopPropagation();
-		if(this.lastPageOffset !== (pyOffset = pageYOffset)) {
-			for(post = firstThr.op; post; post = post.next) {
-				if(post.topCoord >= 0) {
-					break;
-				}
-			}
+		if(this.lastPageOffset !== pageYOffset) {
+			for(post = firstThr.op; post.topCoord < 0; post = post.next) {}
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
 			this.cPost = post = post.prev;
-			this.lastPageOffset = pyOffset;
+			this.lastPageOffset = pageYOffset;
 		} else {
 			post = this.cPost;
 		}
@@ -4565,7 +4561,7 @@ function disableSpells() {
 	if(spells.enable) {
 		sVis = TNum ? '1'.repeat(firstThr.pcount).split('') : [];
 		for(var post = firstThr.op; post; post = post.next) {
-			if(post.spellHidden && !this.userToggled) {
+			if(post.spellHidden && !post.userToggled) {
 				post.spellUnhide();
 			}
 		}
@@ -4580,13 +4576,13 @@ function toggleSpells() {
 		spells.setSpells(temp, true);
 		fld.value = spells.list;
 	} else {
-		if(!val) {
+		if(val) {
+			localStorage['__de-spells'] = '{"hide": false, "data": null}';
+		} else {
 			disableSpells();
 			spells.disable();
 			saveCfg('spells', '');
 			localStorage['__de-spells'] = '{"hide": false, "data": ""}';
-		} else {
-			localStorage['__de-spells'] = '{"hide": false, "data": null}';
 		}
 		localStorage.removeItem('__de-spells');
 		$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
