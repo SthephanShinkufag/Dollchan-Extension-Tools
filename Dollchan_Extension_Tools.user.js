@@ -879,19 +879,20 @@ function toggleCfg(id) {
 }
 
 function readPosts() {
-	sVis = [];
-	if(TNum) {
-		var data = (sessionStorage['de-hidden-' + brd + TNum] || '').split(',');
-		if(data.length === 2 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0)) {
-			sVis = data[1].split('');
-			if(data = sessionStorage['de-deleted-' + brd + TNum]) {
-				data.split(',').forEach(function(dC) {
-					sVis.splice(dC, 1);
-				});
-				delete sessionStorage['de-deleted-' + brd + TNum];
-			}
+	var data, str = TNum ? sessionStorage['de-hidden-' + brd + TNum] : null;
+	if(typeof str === 'string') {
+		data = str.split(',');
+		if(data.length === 4 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0) &&
+			(data[1] in pByNum) && pByNum[data[1]].count === +data[2])
+		{
+			sVis = data[3].split('');
+			return;
 		}
 	}
+	sVis = [];
+}
+
+function readUserPosts() {
 	bUVis = getStoredObj('DESU_Posts_' + aib.dm);
 	uVis = bUVis[brd];
 	if(!uVis) {
@@ -906,8 +907,9 @@ function readPosts() {
 
 function savePosts() {
 	if(TNum) {
-		sessionStorage['de-hidden-' + brd + TNum] =
-			(Cfg['hideBySpell'] ? spells.hash + ',' : '0,') + sVis.join('');
+		var lPost = firstThr.lastNotDeleted;
+		sessionStorage['de-hidden-' + brd + TNum] = (Cfg['hideBySpell'] ? spells.hash : '0') +
+			',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
 	}
 	saveHiddenThreads(false);
 	toggleContent('hid', true);
@@ -2147,7 +2149,7 @@ KeyNavigation.prototype = {
 		e.stopPropagation();
 		if(this.lastPageOffset !== (pyOffset = pageYOffset)) {
 			for(post = firstThr.op; post; post = post.next) {
-				if(post.offsetTop >= pyOffset) {
+				if(post.topCoord >= 0) {
 					break;
 				}
 			}
@@ -2939,7 +2941,6 @@ function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	this.rPattern = rPattern;
 	this.onRPat = onRPat;
 }
-
 dateTime.toggleSettings = function(el) {
 	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['timeOffset']) || dateTime.checkPattern(Cfg['timePattern']))) {
 		$alert(Lng.cTimeError[lang], 'err-correcttime', false);
@@ -2947,13 +2948,11 @@ dateTime.toggleSettings = function(el) {
 		el.checked = false;
 	}
 };
-
 dateTime.checkPattern = function(val) {
 	return !val.contains('i') || !val.contains('h') || !val.contains('d') || !val.contains('y') ||
 		!(val.contains('n') || val.contains('m')) ||
 		/[^\?\-\+sihdmwny]|mm|ww|\?\?|([ihdny]\?)\1+/.test(val);
 };
-
 dateTime.prototype = {
 	getRPattern: function(txt) {
 		var k, p, a, str, i = 1,
@@ -3270,7 +3269,7 @@ function ajaxGetPosts(url, Fn, errFn) {
 			} else if(Fn) {
 				var text = xhr.responseText;
 				if(/<\/html>[\s\n\r]*$/.test(text)) {
-					Fn(nav.toDOM(text), null);
+					Fn(nav.toDOM(text));
 				} else if(errFn) {
 					errFn(0, Lng.textCorrupted[lang]);
 				}
@@ -3326,12 +3325,12 @@ function parsePages(pages, node) {
 	pByNum = Object.create(null);
 	firstThr.gInfo.tNums = [];
 	readFavorites();
-	readPosts();
 	firstThr = pages.reduceRight(function(lThr, page) {
 		return tryToParse(page, lThr);
 	}, null);
 	addDelformStuff(false);
-	firstThr.checkSpells();
+	readUserPosts();
+	checkPostsVisib();
 	saveFavorites();
 	saveUserPosts();
 	if(pr.passw) {
@@ -3488,7 +3487,7 @@ Spells.checkArr = function(val, num) {
 	}
 	return false;
 };
-Spells.YTubeSpell = function spell_youtube(post, val, ctx) {
+Spells.YTubeSpell = function spell_youtube(post, val, ctx, cxTail) {
 	if(!val) {
 		return !!post.hasYTube;
 	}
@@ -3504,15 +3503,15 @@ Spells.YTubeSpell = function spell_youtube(post, val, ctx) {
 	if(post.ytLinksLoading === 0) {
 		return false;
 	}
-	post.ytHideFun = function(ctx, isASpell, val, data) {
+	post.ytHideFun = function(ctx, cxTail, isASpell, val, data) {
 		if(isASpell ? val === data[1] : val.test(data[0])) {
 			this.ytHideFun = null;
-			spells._continueCheck(this, ctx, true);
+			spells._continueCheck(this, ctx.concat(cxTail), true);
 		} else if(post.ytLinksLoading === 0) {
 			this.ytHideFun = null;
-			spells._continueCheck(this, ctx, false);
+			spells._continueCheck(this, ctx.concat(cxTail), false);
 		}
-	}.bind(post, ctx, isAuthorSpell, val);
+	}.bind(post, ctx, cxTail, isAuthorSpell, val);
 	return null;
 };
 Spells.prototype = {
@@ -3544,7 +3543,7 @@ Spells.prototype = {
 			return false;
 		},
 		// 4: #ihash
-		function spell_ihash(post, val, ctx) {
+		function spell_ihash(post, val, ctx, cxTail) {
 			var src, data = post.imagesData;
 			for(src in data) {
 				if(data[src].hash === val) {
@@ -3554,15 +3553,15 @@ Spells.prototype = {
 			if(post.hashImgsBusy === 0) {
 				return false;
 			}
-			post.hashHideFun = function(ctx, val, hash) {
+			post.hashHideFun = function(ctx, cxTail, val, hash) {
 				if(val === hash) {
 					this.hashHideFun = null;
-					spells._continueCheck(this, ctx, true);
+					spells._continueCheck(this, ctx.concat(cxTail), true);
 				} else if(post.hashImgsBusy === 0) {
 					this.hashHideFun = null;
-					spells._continueCheck(this, ctx, false);
+					spells._continueCheck(this, ctx.concat(cxTail), false);
 				}
-			}.bind(post, ctx, val);
+			}.bind(post, ctx, cxTail, val);
 			return null;
 		},
 		// 5: #subj
@@ -4257,7 +4256,9 @@ Spells.prototype = {
 			}
 		} else if(rv) {
 			temp = ctx.pop();
-			ctx[1].call(post, this._getMsg(ctx.pop()[temp - 1]));
+			post.spellHide(this._getMsg(ctx.pop()[temp - 1]));
+		} else if(!post.deleted) {
+			sVis[post.count] = 1;
 		}
 		this._asyncWrk--;
 		this.end();
@@ -4282,13 +4283,15 @@ Spells.prototype = {
 				case 4:  // #ihash
 				case 13: // #video
 				case 16: // #vauthor
-					ctx.push(len, scope, i + 1, temp);
 					ctx[0] = deep;
-					val = this._funcs[type](post, scope[i][1], ctx);
+					val = this._funcs[type](post, scope[i][1], ctx, [len, scope, i + 1, temp]);
 					if(val === null) {
-						return true;
+						this._asyncWrk++;
+						return 0;
 					}
 					break;
+				case 15: // #num
+					this.hasNumSpell = true;
 				default:
 					val = this._funcs[type](post, scope[i][1]);
 				}
@@ -4314,9 +4317,11 @@ Spells.prototype = {
 				}
 			}
 			if(rv) {
-				ctx[1].call(post, this._getMsg(scope[i]));
+				post.spellHide(this._getMsg(scope[i]));
+			} else if(!post.deleted) {
+				sVis[post.count] = 1;
 			}
-			return false;
+			return +rv;
 		}
 	},
 	_findReps: function(str) {
@@ -4368,7 +4373,6 @@ Spells.prototype = {
 		this._reps = this._initReps(reps);
 		this._outreps = this._initReps(outreps);
 		this.enable = !!this._spells;
-		this.haveSpells = !!spells;
 		this.haveReps = !!reps;
 		this.haveOutreps = !!outreps;
 	},
@@ -4415,6 +4419,7 @@ Spells.prototype = {
 	_list: '',
 
 	hash: 0,
+	hasNumSpell: false,
 	enable: false,
 	get list() {
 		return this._list || this._decompileSpells();
@@ -4456,8 +4461,7 @@ Spells.prototype = {
 		this.update(spells, sync, Cfg['hideBySpell']);
 		if(Cfg['hideBySpell']) {
 			for(var post = firstThr.op; post; post = post.next) {
-				delete post.offsetTop;
-				this.check(post, post.hide);
+				this.check(post);
 			}
 		} else {
 			this.enable = false;
@@ -4467,7 +4471,7 @@ Spells.prototype = {
 		this.enable = false;
 		this._list = '';
 		this._data = null;
-		this.haveSpells = this.haveReps = this.haveOutreps = false;
+		this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
 	},
 	end: function() {
@@ -4479,10 +4483,11 @@ Spells.prototype = {
 			this._hasComplFns = false;
 		}
 	},
-	check: function(post, hFunc) {
-		if(this.enable && this._check(post, [0, hFunc, this._sLength, this._spells, 0])) {
-			this._asyncWrk++;
+	check: function(post) {
+		if(this.enable) {
+			return this._check(post, [0, this._sLength, this._spells, 0]);
 		}
+		return 0;
 	},
 	replace: function(txt) {
 		for(var i = 0, len = this._reps.length; i < len; i++) {
@@ -4541,10 +4546,12 @@ Spells.prototype = {
 
 function disableSpells() {
 	closeAlert($id('de-alert-help-err-spell'));
-	if(spells.haveSpells) {
+	if(spells.enable) {
+		sVis = TNum ? '1'.repeat(firstThr.pcount).split('') : [];
 		for(var post = firstThr.op; post; post = post.next) {
-			delete post.offsetTop;
-			spells.check(post, post.unhide);
+			if(post.spellHidden && !this.userToggled) {
+				post.spellUnhide();
+			}
 		}
 	}
 }
@@ -4584,8 +4591,7 @@ function addSpell(type, arg, isNeg) {
 		saveCfg('hideBySpell', !!val);
 		if(val) {
 			for(var post = firstThr.op; post; post = post.next) {
-				delete post.offsetTop;
-				spells.check(post, post.hide);
+				spells.check(post);
 			}
 		} else {
 			saveCfg('spells', '');
@@ -4603,6 +4609,39 @@ function addSpell(type, arg, isNeg) {
 	}
 }
 
+function checkPostsVisib() {
+	spells.addCompleteFunc(savePosts);
+	for(var vis, num, date = Date.now(), post = firstThr.op; post; post = post.next) {
+		num = post.num;
+		if(num in uVis) {
+			if(post.isOp) {
+				uVis[num][0] = +!(num in hThr[brd]);
+			}
+			if(uVis[num][0] === 0) {
+				post.setUserVisib(true, date, false);
+			} else {
+				uVis[num][1] = date;
+				post.btns.firstChild.className = 'de-btn-hide-user';
+				post.userToggled = true;
+			}
+		} else {
+			vis = sVis[post.count];
+			if(post.isOp) {
+				if(num in hThr[brd]) {
+					vis = '0';
+				} else if(vis === '0') {
+					vis = null;
+				}
+			}
+			if(vis === '0') {
+				post.setVisib(true);
+			} else if(vis !== '1') {
+				spells.check(post);
+			}
+		}
+	}
+	spells.end();
+}
 
 //============================================================================================================
 //													STYLES
@@ -5933,10 +5972,11 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 	if(oHid) {
 		$del(post.note);
 		post.note = null;
-		if(sVis[post.index] !== 0) {
+		if(post.hidden && !post.spellHidden) {
 			post.setVisib(false);
 		}
-		if(uVis[i = post.num]) {
+		i = post.num;
+		if(i in uVis) {
 			delete uVis[i];
 		}
 	} else {
@@ -5979,9 +6019,6 @@ Post.sizing = {
 	handleEvent: function() {
 		this.wHeight = window.innerHeight;
 		this.wWidth = doc.documentElement.clientWidth;
-		for(var post = firstThr.op; post; post = post.next) {
-			delete post.offsetTop;
-		}
 	},
 
 	_enabled: false,
@@ -5989,7 +6026,6 @@ Post.sizing = {
 	_pOffset: -1
 };
 Post.prototype = {
-	dcount: 0,
 	deleted: false,
 	hasRef: false,
 	hasYTube: false,
@@ -6003,6 +6039,8 @@ Post.prototype = {
 	next: null,
 	parent: null,
 	prev: null,
+	spellHidden: false,
+	userToggled: false,
 	viewed: false,
 	ytHideFun: null,
 	ytInfo: null,
@@ -6224,24 +6262,13 @@ Post.prototype = {
 			}
 		}
 	},
-	hide: function(note) {
-		if(uVis[this.num]) {
-			return;
-		}
-		sVis[this.index] = 0;
-		if(!this.hidden) {
-			this.hideRefs();
-		}
-		this.setVisib(true);
-		this.note = note;
-	},
 	hideRefs: function() {
 		if(!Cfg['hideRefPsts'] || !this.hasRef) {
 			return;
 		}
 		this.ref.forEach(function(num) {
 			var pst = pByNum[num];
-			if(pst && !uVis[num]) {
+			if(pst && !pst.userToggled) {
 				pst.setVisib(true);
 				pst.note = 'reference to >>' + this.num;
 				pst.hideRefs();
@@ -6270,17 +6297,15 @@ Post.prototype = {
 		Object.defineProperty(this, 'imagesData', { value: data });
 		return data;
 	},
-	init: function(offset, prev) {
+	init: function(prev) {
 		var el = this.el;
 		el.post = this;
-		this.index = offset + this.count;
 		this.inited = true;
 		this.prev = prev;
 		if(prev) {
 			prev.next = this;
 		}
 		this._addButtons(el, this.num, this.sage, this.isOp);
-		this._checkVisib(this.num, this.index, this.isOp, this.thr);
 		if(Cfg['expandPosts'] === 1 && this.trunc) {
 			this._getFull(this.trunc, true);
 		}
@@ -6300,6 +6325,17 @@ Post.prototype = {
 		Object.defineProperty(this, 'msg', { configurable: true, value: val });
 		return val;
 	},
+	get nextInThread() {
+		var post = this.next;
+		return !post || post.count === 0 ? null : post;
+	},
+	get nextNotDeleted() {
+		var post = this.nextInThread;
+		while(post && post.deleted) {
+			post = post.nextInThread;
+		}
+		return post;
+	},
 	set note(val) {
 		if(this.isOp) {
 			this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
@@ -6316,12 +6352,6 @@ Post.prototype = {
 			val = this.btns.lastChild;
 		}
 		Object.defineProperty(this, 'noteEl', { value: val });
-		return val;
-	},
-	get offsetTop() {
-		var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el,
-			val = el.getBoundingClientRect().top + window.pageYOffset;
-		Object.defineProperty(this, 'offsetTop', { configurable: true, value: val });
 		return val;
 	},
 	get posterName() {
@@ -6357,6 +6387,7 @@ Post.prototype = {
 	setUserVisib: function(hide, date, sync) {
 		this.setVisib(hide);
 		this.btns.firstChild.className = 'de-btn-hide-user';
+		this.userToggled = true;
 		if(hide) {
 			this.note = '';
 			this.hideRefs();
@@ -6440,6 +6471,29 @@ Post.prototype = {
 			}.bind(this, hide), 1e3);
 		}
 	},
+	spellHide: function(note) {
+		this.spellHidden = true;
+		if(!this.userToggled) {
+			if(TNum && !this.deleted) {
+				sVis[this.count] = 0;
+			}
+			if(!this.hidden) {
+				this.hideRefs();
+			}
+			this.setVisib(true);
+			this.note = note;
+		}
+	},
+	spellUnhide: function() {
+		this.spellHidden = false;
+		if(!this.userToggled) {
+			if(TNum && !this.deleted) {
+				sVis[this.count] = 1;
+			}
+			this.setVisib(false);
+			this.unhideRefs();
+		}
+	},
 	get subj() {
 		var subj = $c(aib.cSubj, this.el), val = subj ? subj.textContent : '';
 		Object.defineProperty(this, 'subj', { value: val });
@@ -6495,9 +6549,10 @@ Post.prototype = {
 			saveHiddenThreads(false);
 		}
 		saveUserPosts();
-		for(var post = this.next; post; post = post.next) {
-			delete post.offsetTop;
-		}
+	},
+	get topCoord() {
+		var el = this.isOp && this.hidden ? this.thr.el.previousElementSibling : this.el;
+		return el.getBoundingClientRect().top;
 	},
 	get trunc() {
 		var el = $q(aib.qTrunc, this.el), val = null;
@@ -6513,21 +6568,11 @@ Post.prototype = {
 		}
 		this.ref.forEach(function(num) {
 			var pst = pByNum[num];
-			if(pst && !uVis[num]) {
-				if(sVis[pst.index] !== 0 && pst.hidden) {
-					pst.setVisib(false);
-				}
+			if(pst && !this.userToggled && !pst.spellHidden) {
+				pst.setVisib(false);
 				pst.unhideRefs();
 			}
 		});
-	},
-	unhide: function() {
-		if(uVis[this.num]) {
-			return;
-		}
-		sVis[this.index] = 1;
-		this.setVisib(false);
-		this.unhideRefs();
 	},
 	unselect: function() {
 		if(this.isOp) {
@@ -6558,7 +6603,7 @@ Post.prototype = {
 			newMsg.appendChild(ytExt);
 		}
 		this.addFuncs();
-		spells.check(this, this.hide);
+		spells.check(this);
 		closeAlert($id('de-alert-load-fullmsg'));
 	},
 	get wrap() {
@@ -6742,40 +6787,6 @@ Post.prototype = {
 			pv.parent = this;
 		} else {
 			this.kid = new Pview(this, link, tNum, pNum);
-		}
-	},
-	_checkVisib: function(num, i, isOp, thr) {
-		var vis = sVis[i];
-		if(uVis[num]) {
-			if(isOp) {
-				uVis[num][0] = +!(num in hThr[brd]);
-			}
-			if(uVis[num][0] === 0) {
-				this.setUserVisib(true, Date.now(), false);
-			} else {
-				uVis[num][1] = Date.now();
-				this.btns.firstChild.className = 'de-btn-hide-user';
-			}
-			if(typeof vis === 'undefined') {
-				sVis[i] = 1;
-				spells.check(this, function(note) {
-					sVis[this.index] = 0;
-				});
-			}
-			return;
-		}
-		if(isOp) {
-			if(num in hThr[brd]) {
-				sVis[i] = vis = '0';
-			} else if(vis === '0') {
-				vis = null;
-			}
-		}
-		if(vis === '0') {
-			this.setVisib(true);
-		} else if(vis !== '1') {
-			sVis[i] = 1;
-			thr.gInfo.hPosts.push(this);
 		}
 	},
 	_clickImage: function(el, e) {
@@ -7081,11 +7092,10 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 	} },
 	_showPost: { value: function pvShowPost(post) {
-		var panel, cnt = post.count - post.dcount,
-			el = this.el = post.el.cloneNode(true),
+		var panel, el = this.el = post.el.cloneNode(true),
 			pText = (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
-				'font: bold 11px tahoma; cursor: default;">' + (cnt === 0 ? 'OP' : cnt + 1) + '</span>');
+				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 		el.post = this;
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
@@ -7267,7 +7277,7 @@ function genRefMap(posts, tUrl) {
 		return;
 	}
 	var tc, lNum, post, ref, i, len, links, pNum, hideRefs = !!Cfg['hideRefPsts'],
-		opNums = firstThr.tNums;
+		opNums = firstThr.gInfo.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
 			tc = links[i].textContent;
@@ -7300,7 +7310,7 @@ function genRefMap(posts, tUrl) {
 
 function updRefMap(post, add) {
 	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
-		opNums = add && firstThr.tNums;
+		opNums = add && firstThr.gInfo.tNums;
 	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
 		link = links[i];
 		tc = link.textContent;
@@ -7317,7 +7327,11 @@ function updRefMap(post, add) {
 					lPost.ref.push(pNum);
 					post.hasRef = true;
 					if(Cfg['hideRefPsts'] && lPost.hidden) {
-						post.hide('reference to >>' + lNum);
+						if(!post.hidden) {
+							post.hideRefs();
+						}
+						post.setVisib(true);
+						post.note = 'reference to >>' + lNum;
 					}
 				} else {
 					continue;
@@ -7373,30 +7387,19 @@ Thread.prototype = {
 	hidden: false,
 	gInfo: {
 		allPCount: 0,
-		tNums: [],
-		hPosts: []
+		tNums: []
 	},
 	last: null,
 	loadedOnce: false,
 	next: null,
 	op: null,
-	checkSpells: function() {
-		var i, post, hPosts = 0,
-			posts = this.gInfo.hPosts,
-			len = posts.length;
-		if(len !== 0) {
-			spells.addCompleteFunc(savePosts);
-			for(i = 0; i < len; i++) {
-				post = posts[i];
-				spells.check(post, function(msg) {
-					this.hide(msg);
-					hPosts++;
-				});
-			}
-			this.gInfo.hPosts = [];
-			spells.end();
+	pcount: 0,
+	get lastNotDeleted() {
+		var post = this.last;
+		while(post.deleted) {
+			post = post.prev;
 		}
-		return hPosts;
+		return post;
 	},
 	load: function(last, Fn) {
 		if(!Fn) {
@@ -7417,15 +7420,13 @@ Thread.prototype = {
 					op.updateMsg(aib.getOp(thr, dc));
 				}
 				delete op.ref;
-				for(post = op.next; post && post.count !== 0; post = post.next) {
+				for(post = op.next; post; post = post.nextInThread) {
 					if(post.trunc) {
 						post.updateMsg(els[post.count - 1]);
 					}
 				}
 			}
-			if(this._parsePosts(els, nOmt, this.omitted - 1) > 0) {
-				this.checkSpells();
-			}
+			this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt !== 0) {
@@ -7460,13 +7461,13 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, pCount, last = this.last,
-							np = 0,
-							el = (json['result'] || {})['posts'],
-							len = el ? el.length : 0;
+						var i, pCount, tPost, last, el = (json['result'] || {})['posts'],
+							len = el ? el.length : 0,
+							np = len;
 						if(len > 0) {
 							this._postsCache = doc.createDocumentFragment();
 							pCount = this.pcount;
+							tPost = last = this.last;
 							for(i = 0; i < len; i++) {
 								last = this._addPost(replacePost(getHanaPost(el[i])),
 									el[i]['display_id'], pCount + i, last);
@@ -7475,7 +7476,11 @@ Thread.prototype = {
 							this.el.appendChild(this._postsCache);
 							this.pcount = pCount + len;
 							this._postsCache = null;
-							np = len - this.checkSpells();
+							if(spells.enable) {
+								while(tPost = tPost.next) {
+									np -= spells.check(tPost);
+								}
+							}
 						}
 						Fn(200, '', np);
 						Fn = null;
@@ -7486,10 +7491,9 @@ Thread.prototype = {
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, TNum), function parseNewPosts(dc) {
 			var thr = parsePage($q(aib.qDForm, dc), dc, null, false).el,
-				newPosts = this._parsePosts(aib.getPosts(thr), 0, 0),
-				hiddenPosts = newPosts > 0 ? this.checkSpells() : 0;
+				newPosts = this._parsePosts(aib.getPosts(thr), 0, 0);
 			this._checkBan(this.op, aib.getOp(thr, dc));
-			Fn(200, '', newPosts - hiddenPosts);
+			Fn(200, '', newPosts);
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
@@ -7509,9 +7513,6 @@ Thread.prototype = {
 		}
 		return posts;
 	},
-	get tNums() {
-		return this.gInfo.tNums;
-	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
 			thr = this;
@@ -7529,10 +7530,9 @@ Thread.prototype = {
 	},
 
 	_length: 0,
-	_offset: 0,
 	_postsCache: null,
 	_addPost: function(el, num, i, prev) {
-		var pst, node, post = new Post(el, this, num, i).init(this._offset, prev);
+		var pst, node, post = new Post(el, this, num, i).init(prev);
 		pByNum[num] = post;
 		if(postWrapper) {
 			pst = postWrapper.cloneNode(true);
@@ -7576,20 +7576,18 @@ Thread.prototype = {
 			len = els.length,
 			num = aib.getTNum(node),
 			prev = this.prev,
-			offset = prev ? prev._offset + prev._length : 0,
 			omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, node), len);
 		this.num = num;
 		this.gInfo.tNums.push(+num);
 		this.gInfo.allPCount += len;
 		this.pcount = omt + len;
-		this._offset = offset;
 		this._length = len;
 		pByNum[num] = lastPost = this.op = new Post(aib.getOp(node, doc), this, num, 0);
 		lastPost.isOp = true;
-		lastPost.init(offset, prev ? prev.last : null);
+		lastPost.init(prev ? prev.last : null);
 		for(i = 0; i < len; i++) {
 			num = aib.getPNum(el = els[i]);
-			pByNum[num] = lastPost = new Post(el, this, num, omt + i).init(offset, lastPost);
+			pByNum[num] = lastPost = new Post(el, this, num, omt + i).init(lastPost);
 		}
 		this.last = lastPost;
 		node.style.counterReset = 'de-cnt ' + omt;
@@ -7597,60 +7595,29 @@ Thread.prototype = {
 		visPosts = Math.max(visPosts, len);
 	},
 	_parsePosts: function(nPosts, from, omt) {
-		var i, el, cnt, delStuff, tPost, np = 0,
+		var i, el, cnt, tPost, newPosts = 0,
+			isDelPosts = false,
+			rerunSpells = spells.hasNumSpell,
 			last = this.op,
-			post = last.next,
-			dCount = 1,
-			lastdcount = this.last.dcount,
+			post = last.nextNotDeleted,
 			len = nPosts.length;
 		this._postsCache = doc.createDocumentFragment();
-		parseLoop:
-		for(i = 0; i <= len || post; ) {
-			if(!post || post.count === 0) {
-				if(!TNum && this._postsCache.hasChildNodes()) {
-					$after(this.op.el, this._postsCache);
-					this._postsCache = doc.createDocumentFragment();
-				}
-				if(i < len) {
-					np = len - i;
-					do {
-						el = nPosts[i];
-						last = this._addPost(replacePost(doc.importNode(el, true)),
-							aib.getPNum(el), i + dCount, last);
-						last.dcount = lastdcount;
-					} while(++i < len);
-					this.el.appendChild(this._postsCache);
-				}
-				this.last = last;
-				this.pcount = len + 1;
-				this._postsCache = null;
-				break;
-			}
-			while(post.deleted) {
-				last = post;
-				post = post.next;
-				if(!post) {
-					continue parseLoop;
-				}
-				dCount++;
-			}
-			if(post.count - dCount === i) {
+		for(i = 0; i <= len && post; ) {
+			if(post.count - 1 === i) {
 				if(i >= len || post.num !== aib.getPNum(nPosts[i])) {
+					isDelPosts = true;
+					if(!rerunSpells) {
+						sVis.splice(post.count, 1);
+					}
 					if(TNum) {
 						post.deleted = true;
-						if(!delStuff) {
-							delStuff = sessionStorage['de-deleted-' + brd + TNum];
-						}
-						delStuff = (delStuff ? delStuff + ',' : '') + post.count;
 						tPost = post;
-						do {
-							tPost.dcount++;
-						} while(tPost = tPost.next);
+						while(tPost = tPost.next) {
+							tPost.count--;
+						}
 						post.btns.classList.remove('de-ppanel-cnt');
 						post.btns.classList.add('de-ppanel-del');
 						($q('input[type="checkbox"]', post.el) || {}).disabled = true;
-						lastdcount++;
-						dCount++;
 						last = post;
 					} else {
 						aib.removePost(post);
@@ -7660,7 +7627,7 @@ Thread.prototype = {
 						}
 						updRefMap(post, false);
 						if(last.next = post.next) {
-							post.next.prev = last;
+							last.next.prev = last;
 						}
 						last = post.prev;
 					}
@@ -7677,7 +7644,7 @@ Thread.prototype = {
 					last = post;
 					i++;
 				}
-				post = post.next;
+				post = post.nextNotDeleted;
 			} else if(!TNum && i >= from) {
 				for(cnt = post.count - 1; i < cnt; i++) {
 					el = nPosts[i];
@@ -7690,10 +7657,35 @@ Thread.prototype = {
 				i++;
 			}
 		}
-		if(delStuff) {
-			sessionStorage['de-deleted-' + brd + TNum] = delStuff;
+		if(!TNum && this._postsCache.hasChildNodes()) {
+			$after(this.op.el, this._postsCache);
+			this._postsCache = doc.createDocumentFragment();
 		}
-		return np;
+		this.pcount = len + 1;
+		if(isDelPosts && rerunSpells) {
+			spells.addCompleteFunc(savePosts);
+			disableSpells();
+			for(tPost = this.op; tPost; tPost = tPost.nextInThread) {
+				spells.check(tPost);
+			}
+		}
+		if(i < len) {
+			newPosts = len - i;
+			tPost = last;
+			do {
+				el = nPosts[i];
+				last = this._addPost(replacePost(doc.importNode(el, true)),
+					aib.getPNum(el), i + 1, last);
+			} while(++i < len);
+			while(tPost = tPost.next) {
+				newPosts -= spells.check(tPost);
+			}
+			this.el.appendChild(this._postsCache);
+		}
+		spells.end();
+		this.last = last;
+		this._postsCache = null;
+		return newPosts;
 	}
 };
 
@@ -9118,7 +9110,6 @@ function doScript() {
 	youTube = initYouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
 		Cfg['YTubeHD'], Cfg['YTubeTitles']);
 	readFavorites();
-	readPosts();
 	$log('Read config');
 	$disp(doc.body);
 	if(aib.rep || liteMode) {
@@ -9150,10 +9141,11 @@ function doScript() {
 	scriptCSS();
 	$disp(doc.body);
 	$log('Apply CSS');
-	firstThr.checkSpells();
-	$log('Apply spells');
+	readPosts();
+	readUserPosts();
+	checkPostsVisib();
 	saveUserPosts();
-	$log('Save posts');
+	$log('Apply spells');
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
