@@ -4271,7 +4271,7 @@ Spells.prototype = {
 			sVis[post.count] = 1;
 		}
 		this._asyncWrk--;
-		this.end();
+		this.end(null);
 	},
 	_check: function(post, ctx) {
 		var rv, type, val, temp, deep = ctx[0],
@@ -4473,6 +4473,7 @@ Spells.prototype = {
 			for(var post = firstThr.op; post; post = post.next) {
 				this.check(post);
 			}
+			this.end(savePosts);
 		} else {
 			this.enable = false;
 		}
@@ -4484,13 +4485,18 @@ Spells.prototype = {
 		this.haveReps = this.haveOutreps = false;
 		saveCfg('hideBySpell', false);
 	},
-	end: function() {
-		if(this._asyncWrk === 0 && this._hasComplFns) {
-			for(var i = 0, len = this._completeFns.length; i < len; ++i) {
-				this._completeFns[i]();
+	end: function(Fn) {
+		if(this._asyncWrk === 0) {
+			Fn && Fn();
+			if(this._hasComplFns) {
+				for(var i = 0, len = this._completeFns.length; i < len; ++i) {
+					this._completeFns[i]();
+				}
+				this._completeFns = [];
+				this._hasComplFns = false;
 			}
-			this._completeFns = [];
-			this._hasComplFns = false;
+		} else {
+			this.addCompleteFunc(Fn);
 		}
 	},
 	check: function(post) {
@@ -4569,7 +4575,6 @@ function disableSpells() {
 function toggleSpells() {
 	var temp, fld = $id('de-spell-edit'),
 		val = fld.value;
-	spells.addCompleteFunc(savePosts);
 	if(val && (temp = spells.parseText(val))) {
 		disableSpells();
 		spells.setSpells(temp, true);
@@ -4586,7 +4591,6 @@ function toggleSpells() {
 		localStorage.removeItem('__de-spells');
 		$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 	}
-	spells.end();
 }
 
 function addSpell(type, arg, isNeg) {
@@ -4594,7 +4598,6 @@ function addSpell(type, arg, isNeg) {
 		val = fld && fld.value,
 		chk = $q('input[info="hideBySpell"]', doc);
 	if(!val || (temp = spells.parseText(val))) {
-		spells.addCompleteFunc(savePosts);
 		disableSpells();
 		spells.addSpell(type, arg, TNum ? [brd, TNum] : void 0, isNeg, temp);
 		val = spells.list;
@@ -4603,11 +4606,11 @@ function addSpell(type, arg, isNeg) {
 			for(var post = firstThr.op; post; post = post.next) {
 				spells.check(post);
 			}
+			spells.end(savePosts);
 		} else {
 			saveCfg('spells', '');
 			spells.enable = false;
 		}
-		spells.end();
 		if(fld) {
 			chk.checked = !!(fld.value = val);
 		}
@@ -4620,7 +4623,6 @@ function addSpell(type, arg, isNeg) {
 }
 
 function checkPostsVisib() {
-	spells.addCompleteFunc(savePosts);
 	for(var vis, num, date = Date.now(), post = firstThr.op; post; post = post.next) {
 		num = post.num;
 		if(num in uVis) {
@@ -4650,7 +4652,7 @@ function checkPostsVisib() {
 			}
 		}
 	}
-	spells.end();
+	spells.end(savePosts);
 }
 
 //============================================================================================================
@@ -7493,6 +7495,7 @@ Thread.prototype = {
 								while(tPost = tPost.next) {
 									np -= spells.check(tPost);
 								}
+								spells.end(savePosts);
 							}
 						}
 						Fn(200, '', np);
@@ -7611,6 +7614,7 @@ Thread.prototype = {
 		var i, el, cnt, tPost, newPosts = 0,
 			isDelPosts = false,
 			rerunSpells = spells.hasNumSpell,
+			spellsRunned = false,
 			last = this.op,
 			post = last.nextNotDeleted,
 			len = nPosts.length;
@@ -7676,11 +7680,11 @@ Thread.prototype = {
 		}
 		this.pcount = len + 1;
 		if(isDelPosts && rerunSpells) {
-			spells.addCompleteFunc(savePosts);
 			disableSpells();
 			for(tPost = this.op; tPost; tPost = tPost.nextInThread) {
 				spells.check(tPost);
 			}
+			spellsRunned = true;
 		}
 		if(i < len) {
 			newPosts = len - i;
@@ -7693,9 +7697,12 @@ Thread.prototype = {
 			while(tPost = tPost.next) {
 				newPosts -= spells.check(tPost);
 			}
+			spellsRunned = true;
 			this.el.appendChild(this._postsCache);
 		}
-		spells.end();
+		if(spellsRunned) {
+			spells.end(savePosts);
+		}
 		this.last = last;
 		this._postsCache = null;
 		return newPosts;
@@ -8635,7 +8642,6 @@ function Initialization() {
 				temp.checked = data['hide'];
 			}
 			doc.body.style.display = 'none';
-			spells.addCompleteFunc(savePosts);
 			disableSpells();
 			if(data['data']) {
 				spells.setSpells(data['data'], false);
@@ -8653,7 +8659,6 @@ function Initialization() {
 				spells.enable = false;
 			}
 			doc.body.style.display = '';
-			spells.end();
 		}
 		default: return;
 		}
