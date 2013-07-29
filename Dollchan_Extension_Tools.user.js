@@ -1970,7 +1970,7 @@ function closeAlert(el) {
 function $alert(txt, id, wait) {
 	var node, el = $id('de-alert-' + id),
 		cBtn = 'de-alert-btn' + (wait ? ' de-wait' : ''),
-		tBtn = wait ? '' : '× ';
+		tBtn = wait ? '' : '\u2716 ';
 	if(el) {
 		$t('div', el).innerHTML = txt.trim();
 		node = $t('span', el);
@@ -4761,17 +4761,17 @@ function scriptCSS() {
 		gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
 		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
 	} else {
-		x += 'color: ' + $getStyle($t('a', doc), 'color') + '; font-size:14px; }\
-			.de-btn-hide:after { content: "×"; }\
-			.de-post-hid .de-btn-hide:after { content: "+"; }\
-			.de-btn-hide-user:after { content: "[×]"; }\
-			.de-post-hid .de-btn-hide-user:after { content: "[+]"; }\
-			.de-btn-rep:after { content: "R"; }\
-			.de-btn-expthr:after { content: "E"; }\
-			.de-btn-fav:after { content: "F"; }\
-			.de-btn-fav-sel:after { content: "[F]"; }\
-			.de-btn-sage:after { content: "Sage!"; }\
-			.de-btn-src:after { content: "[Sauce]"; }';
+		x += 'color: #4F7942; font-size:14px; }\
+			.de-btn-hide:after { content: "\u2716"; }\
+			.de-post-hid .de-btn-hide:after { content: "\u271a"; }\
+			.de-btn-hide-user:after { content: "[\u2716]"; }\
+			.de-post-hid .de-btn-hide-user:after { content: "[\u271a]"; }\
+			.de-btn-rep:after { content: "\u25b6"; }\
+			.de-btn-expthr:after { content: "\u21d5"; }\
+			.de-btn-fav:after { content: "\u2605"; }\
+			.de-btn-fav-sel:after { content: "[\u2605]"; }\
+			.de-btn-sage:after { content: "\u274e"; }\
+			.de-btn-src:after { content: "[S]"; }';
 	}
 	if(!pr.form && !pr.oeForm) {
 		x += '.de-btn-rep { display: none; }';
@@ -4860,7 +4860,7 @@ function scriptCSS() {
 		.de-after-fimg { clear: left; }\
 		#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
-		.de-alert-btn { display: inline-block; vertical-align: top; font-size: 150%; color: green; cursor: pointer; }\
+		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 		.de-alert-msg { display: inline-block; margin-top: .25em; }\
 		.de-content { text-align: left; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
@@ -5393,7 +5393,7 @@ PostForm.prototype = {
 		if(Cfg['addPostForm'] === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
-				$new('span', {'id': 'de-qarea-close', 'text': '×'}, {'click': this.closeQReply.bind(this)})
+				$new('span', {'id': 'de-qarea-close', 'text': '\u2716'}, {'click': this.closeQReply.bind(this)})
 			]);
 		}
 		if(aib.tire) {
