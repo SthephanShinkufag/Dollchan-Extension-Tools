@@ -4644,6 +4644,7 @@ function checkPostsVisib() {
 			}
 			if(vis === '0') {
 				post.setVisib(true);
+				post.spellHidden = true;
 			} else if(vis !== '1') {
 				spells.check(post);
 			}
@@ -5983,9 +5984,9 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 		if(!post.spellHidden) {
 			post.setVisib(false);
 		}
-		i = post.num;
-		if(i in uVis) {
-			delete uVis[i];
+		if(post.userToggled) {
+			delete uVis[post.num];
+			post.userToggled = false;
 		}
 	} else {
 		post.setUserVisib(true, date, true);
@@ -7495,10 +7496,9 @@ Thread.prototype = {
 			return;
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, TNum), function parseNewPosts(dc) {
-			var thr = parsePage($q(aib.qDForm, dc), dc, null, false).el,
-				newPosts = this._parsePosts(aib.getPosts(thr), 0, 0);
+			var thr = parsePage($q(aib.qDForm, dc), dc, null, false).el;
 			this._checkBan(this.op, aib.getOp(thr, dc));
-			Fn(200, '', newPosts);
+			Fn(200, '', this._parsePosts(aib.getPosts(thr), 0, 0));
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
@@ -7613,10 +7613,6 @@ Thread.prototype = {
 					}
 					if(TNum) {
 						post.deleted = true;
-						tPost = post;
-						while(tPost = tPost.next) {
-							tPost.count--;
-						}
 						post.btns.classList.remove('de-ppanel-cnt');
 						post.btns.classList.add('de-ppanel-del');
 						($q('input[type="checkbox"]', post.el) || {}).disabled = true;
@@ -7633,6 +7629,10 @@ Thread.prototype = {
 						if(this.last === post) {
 							this.last = post.prev;
 						}
+					}
+					tPost = post;
+					while(tPost = tPost.nextInThread) {
+						tPost.count--;
 					}
 				} else {
 					if(i < from) {
