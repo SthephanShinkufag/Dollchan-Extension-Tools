@@ -4516,16 +4516,15 @@ Spells.prototype = {
 	},
 	addSpell: function(type, arg, scope, isNeg, spells) {
 		if(!spells) {
-			try {
-				spells = JSON.parse(Cfg['spells']);
-			} catch(e) {
-				spells = [Date.now(), [], false, false];
+			if(!this._data) {
+				this._read(false);
 			}
+			spells = this._data || [Date.now(), [], false, false];
 		}
 		var idx, sScope = String(scope),
 			sArg = String(arg);
 		if(spells[1]) {
-			spells[1].some(isNeg ? function(spell, i) {
+			spells[1].some(scope && isNeg ? function(spell, i) {
 				var data;
 				if(spell[0] === 0xFF && ((data = spell[1]) instanceof Array) && data.length === 2 &&
 					data[0][0] === 0x20C && data[1][0] === type && data[1][2] == null &&
@@ -4547,7 +4546,7 @@ Spells.prototype = {
 		}
 		if(typeof idx !== 'undefined') {
 			spells[1].splice(idx, 1);
-		} else if(isNeg) {
+		} else if(scope && isNeg) {
 			spells[1].splice(0, 0, [0xFF, [[0x20C, '', scope], [type, arg, void 0]], void 0]);
 		} else {
 			spells[1].splice(0, 0, [type, arg, scope]);
@@ -4596,7 +4595,7 @@ function addSpell(type, arg, isNeg) {
 		chk = $q('input[info="hideBySpell"]', doc);
 	if(!val || (temp = spells.parseText(val))) {
 		disableSpells();
-		spells.addSpell(type, arg, TNum ? [brd, TNum] : void 0, isNeg, temp);
+		spells.addSpell(type, arg, TNum ? [brd, TNum] : null, isNeg, temp);
 		val = spells.list;
 		saveCfg('hideBySpell', !!val);
 		if(val) {
@@ -7630,8 +7629,7 @@ Thread.prototype = {
 							this.last = post.prev;
 						}
 					}
-					tPost = post;
-					while(tPost = tPost.nextInThread) {
+					for(tPost = post.nextInThread; tPost; tPost = tPost.nextInThread) {
 						tPost.count--;
 					}
 				} else {
