@@ -5975,7 +5975,7 @@ Post.sizing = {
 		return val;
 	},
 	getOffset: function(el) {
-		return el.getBoundingClientRect().left + window.pageXOffset + 25;
+		return el.getBoundingClientRect().left + window.pageXOffset;
 	},
 	getCachedOffset: function(pCount, el) {
 		pCount = Math.min(pCount, 10);
