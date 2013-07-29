@@ -5982,7 +5982,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 	if(oHid) {
 		$del(post.note);
 		post.note = null;
-		if(post.hidden && !post.spellHidden) {
+		if(!post.spellHidden) {
 			post.setVisib(false);
 		}
 		i = post.num;
@@ -6578,7 +6578,7 @@ Post.prototype = {
 		}
 		this.ref.forEach(function(num) {
 			var pst = pByNum[num];
-			if(pst && !this.userToggled && !pst.spellHidden) {
+			if(pst && pst.hidden && !pst.userToggled && !pst.spellHidden) {
 				pst.setVisib(false);
 				pst.unhideRefs();
 			}
