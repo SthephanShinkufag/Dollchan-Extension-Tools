@@ -27,24 +27,22 @@ defaultCfg = {
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
 	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
-	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
-	'resizeImgs':	1,		// 		resize large images
-	'maskImgs':		0,		// mask images
-	'preLoadImgs':	0,		// pre-load images
-	'findImgFile':	0,		// 		detect built-in files in images
-	'openImgs':		0,		// 		open images in posts
-	'openGIFs':		0,		// 		open only GIFs in posts
 	'postBtnsTxt':	0,		// show post buttons as text
-	'imgSrcBtns':	1,		// add image search buttons
 	'noSpoilers':	1,		// open spoilers
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
-	'keybNavig':	1,		// keyboard navigation
-	'loadPages':	1,		//		number of pages that are loaded on F5
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'+0',	//		offset in hours
 	'timePattern':	'',		//		find pattern
 	'timeRPattern':	'',		//		replace pattern
+	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'resizeImgs':	1,		// 		resize large images
+	'maskImgs':		0,		// mask images
+	'prLoadImgs':	0,		// pre-load images
+	'findImgFile':	0,		// 		detect built-in files in images
+	'openImgs':		0,		// open images in posts
+	'openGIFs':		0,		// 		open only GIFs in posts
+	'imgSrcBtns':	1,		// add image search buttons
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':	100,	//		delay appearance in ms
 	'linksOut':		1500,	//		delay disappearance in ms
@@ -69,9 +67,9 @@ defaultCfg = {
 	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
-	'warnSubjTrip':	0,		// warn if subject field contains tripcode
-	'saveSage':		1,		//		remember sage
+	'saveSage':		1,		// remember sage
 	'sageReply':	0,		//		reply with sage
+	'warnSubjTrip':	0,		// warn if subject field contains tripcode
 	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
 	'txtBtnsLoc':	0,		//		located at [0=top, 1=bottom]
@@ -85,13 +83,15 @@ defaultCfg = {
 	'noPassword':	1,		// hide password field
 	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
 	'userCSS':		0,		// user style
-	'userCSSTxt':	'',		//		text
+	'userCSSTxt':	'',		//		css text
 	'expandPanel':	0,		// show full main panel
 	'attachPanel':	1,		// attach main panel
 	'panelCounter':	1,		// posts/images counter in script panel
 	'rePageTitle':	1,		// replace page title in threads
 	'animation':	1,		// animation in script
 	'closePopups':	0,		// auto-close popups
+	'keybNavig':	1,		// keyboard navigation
+	'loadPages':	1,		//		number of pages that are loaded on F5
 	'updScript':	1,		// check for script's update
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
 	'textaWidth':	500,	// textarea width
@@ -4861,7 +4861,7 @@ function scriptCSS() {
 		#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
-		.de-alert-msg { display: inline-block; margin-top: .25em; }\
+		.de-alert-msg { display: inline-block; margin-top: .15em; }\
 		.de-content { text-align: left; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
