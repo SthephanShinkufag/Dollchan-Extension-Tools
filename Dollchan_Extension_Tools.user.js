@@ -5424,11 +5424,11 @@ PostForm.prototype = {
 						doc.body.addEventListener('mousemove', this, false);
 						doc.body.addEventListener('mouseup', this, false);
 						$pd(e);
-						return
+						return;
 					case 'mousemove':
 						var cr = this.el.getBoundingClientRect();
-						this.elStyle.width = (e.pageX - cr.left + window.pageXOffset) + 'px';
-						this.elStyle.height = (e.pageY - cr.top + window.pageYOffset) + 'px';
+						this.elStyle.width = (e.pageX - cr.left - window.pageXOffset) + 'px';
+						this.elStyle.height = (e.pageY - cr.top - window.pageYOffset) + 'px';
 						return;
 					default: // mouseup
 						doc.body.removeEventListener('mousemove', this, false);
