@@ -1539,7 +1539,7 @@ function cfgTab(name) {
 
 function updRowMeter() {
 	var str, top = this.scrollTop,
-		el = $id('de-spell-rowmeter'),
+		el = this.parentNode.previousSibling.firstChild,
 		num = el.numLines || 1,
 		i = 15;
 	if(num - i < ((top / 12) | 0 + 1)) {
@@ -1946,8 +1946,7 @@ function addSettings(Set) {
 		])
 	]));
 	$c('de-cfg-tab', Set).click();
-	$id('de-spell-edit').setSelectionRange(0, 0);
-	updRowMeter();
+	updRowMeter.call($id('de-spell-edit'));
 }
 
 
@@ -4492,7 +4491,7 @@ Spells.prototype = {
 				this._completeFns = [];
 				this._hasComplFns = false;
 			}
-		} else {
+		} else if(Fn) {
 			this.addCompleteFunc(Fn);
 		}
 	},
@@ -7011,7 +7010,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	if(post && (!post.inited || !post.isOp || TNum)) {
+	if(post && (!post.inited || !post.isOp || TNum || post.thr.loadedOnce)) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
@@ -7534,20 +7533,21 @@ Thread.prototype = {
 	},
 
 	_addPost: function(parent, el, num, i, prev) {
-		var pst, node, post = new Post(el, this, num, i).init(prev);
+		var wrap, node, post = new Post(el, this, num, i).init(prev);
 		pByNum[num] = post;
 		if(postWrapper) {
-			pst = postWrapper.cloneNode(true);
-			node = aib.getPosts(pst)[0];
+			wrap = postWrapper.cloneNode(true);
+			node = aib.getPosts(wrap)[0];
 			if(node) {
 				node.parentNode.replaceChild(el, node);
 			} else {
-				pst = el;
+				wrap = el;
 			}
 		} else {
-			pst = el;
+			wrap = el;
 		}
-		aib.appendPost(pst, parent);
+		Object.defineProperty(post, 'wrap', { value: wrap });
+		aib.appendPost(wrap, parent);
 		youTube.parseLinks(post);
 		if(Cfg['imgSrcBtns']) {
 			addImagesSearch(el);
