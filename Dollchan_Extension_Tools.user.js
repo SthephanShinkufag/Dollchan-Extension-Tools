@@ -2781,6 +2781,7 @@ function preloadImages(post) {
 			} else if(nExp) {
 				el.src = url;
 			}
+			el.classList.add('de-img-pre');
 		}
 	}
 	queue && queue.complete();
