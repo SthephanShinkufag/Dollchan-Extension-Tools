@@ -7596,13 +7596,14 @@ Thread.prototype = {
 		visPosts = Math.max(visPosts, len);
 	},
 	_parsePosts: function(nPosts, from, omt) {
-		var i, len, el, cnt, tPost, fragm, newPosts = 0,
+		var i, len, el, tPost, fragm, newPosts = 0,
+			cnt = 1,
 			firstDelPost = null,
 			rerunSpells = spells.hasNumSpell,
 			spellsRunned = false,
 			post = this.op.nextNotDeleted;
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
-			if(post.count - 1 === i) {
+			if(post.count - cnt === i) {
 				if(i >= len || post.num !== aib.getPNum(nPosts[i])) {
 					if(!firstDelPost) {
 						firstDelPost = post;
@@ -7632,6 +7633,7 @@ Thread.prototype = {
 					for(tPost = post.nextInThread; tPost; tPost = tPost.nextInThread) {
 						tPost.count--;
 					}
+					cnt++;
 				} else {
 					if(i < from) {
 						if(i >= omt) {
@@ -7654,6 +7656,7 @@ Thread.prototype = {
 						aib.getPNum(el), i + 1, tPost);
 					spells.check(tPost);
 				}
+				cnt = 1;
 				$after(this.op.el, fragm);
 				tPost.next = post;
 				post.prev = tPost;
