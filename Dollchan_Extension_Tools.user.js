@@ -1115,9 +1115,9 @@ function addPanel() {
 		case 'de-btn-audio-off':
 			if(updater.toggleAudio(0)) {
 				updater.enable();
-				this.id = 'de-btn-audio-on';
+				e.target.id = 'de-btn-audio-on';
 			} else {
-				this.id = 'de-btn-audio-off';
+				e.target.id = 'de-btn-audio-off';
 			}
 			$del($c('de-menu', doc));
 			break;
