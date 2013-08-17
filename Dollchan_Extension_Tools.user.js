@@ -308,8 +308,8 @@ Lng = {
 	},
 
 	newPost:		[
-		['. Последний:', ' новый пост', ' новых постов', ' новых поста'],
-		['. Latest: ', ' new post', ' new posts', ' new posts']
+		[' новый пост', ' новых поста', ' новых постов', '. Последний:'],
+		[' new post', ' new posts', ' new posts', '. Latest: ']
 	],
 
 	add:			['Добавить', 'Add'],
@@ -8894,28 +8894,6 @@ function initThreadUpdater(title, enableUpdater) {
 		}
 	}
 
-	function getNotifTitle(np) {
-		var rv = aib.dm + '/' + brd + '/' + TNum + ': ' + np;
-		switch(np % 10) {
-		case 1:
-			if(lang === 0) {
-				rv += Lng.newPost[lang][np % 100 === 11 ? 2 : 1];
-			} else {
-				rv += Lng.newPost[lang][1];
-			}
-			break;
-		case 2:
-		case 3:
-		case 4:
-			if(lang === 0 && Math.floor((np % 100) / 10) !== 1) {
-				rv += Lng.newPost[lang][3];
-				break;
-			}
-		default: rv += Lng.newPost[lang][2];
-		}
-		return rv + Lng.newPost[lang][0];
-	}
-
 	function requestNotifPermission() {
 		notifGranted = false;
 		Notification.requestPermission(function(state) {
@@ -8967,7 +8945,11 @@ function initThreadUpdater(title, enableUpdater) {
 				newPosts += lPosts;
 				updateTitle();
 				if(Cfg['desktNotif'] && notifGranted) {
-					var notif = new Notification(getNotifTitle(newPosts), {
+					var notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
+						Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
+						(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+						(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+					{
 						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
 						'tag': aib.dm + brd + TNum,
 						'icon': firstThr.last.imagesData['$firstSrc'] || favHref
