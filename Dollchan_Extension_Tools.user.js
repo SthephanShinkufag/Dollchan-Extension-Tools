@@ -27,24 +27,22 @@ defaultCfg = {
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
 	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
-	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
-	'resizeImgs':	1,		// 		resize large images
-	'maskImgs':		0,		// mask images
-	'preLoadImgs':	0,		// pre-load images
-	'findImgFile':	0,		// 		detect built-in files in images
-	'openImgs':		0,		// 		open images in posts
-	'openGIFs':		0,		// 		open only GIFs in posts
-	'postBtnsTxt':	0,		// show post buttons as text
-	'imgSrcBtns':	1,		// add image search buttons
+	'postBtnsCSS':	2,		// post buttons style [0=text, 1=classic, 2=solid grey]
 	'noSpoilers':	1,		// open spoilers
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
-	'keybNavig':	1,		// keyboard navigation
-	'loadPages':	1,		//		number of pages that are loaded on F5
 	'correctTime':	0,		// correct time in posts
 	'timeOffset':	'+0',	//		offset in hours
 	'timePattern':	'',		//		find pattern
 	'timeRPattern':	'',		//		replace pattern
+	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
+	'resizeImgs':	1,		// 		resize large images
+	'maskImgs':		0,		// mask images
+	'prLoadImgs':	0,		// pre-load images
+	'findImgFile':	0,		// 		detect built-in files in images
+	'openImgs':		0,		// open images in posts
+	'openGIFs':		0,		// 		open only GIFs in posts
+	'imgSrcBtns':	1,		// add image search buttons
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
 	'linksOver':	100,	//		delay appearance in ms
 	'linksOut':		1500,	//		delay disappearance in ms
@@ -69,9 +67,9 @@ defaultCfg = {
 	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
-	'warnSubjTrip':	0,		// warn if subject field contains tripcode
-	'saveSage':		1,		//		remember sage
+	'saveSage':		1,		// remember sage
 	'sageReply':	0,		//		reply with sage
+	'warnSubjTrip':	0,		// warn if subject field contains tripcode
 	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
 	'txtBtnsLoc':	0,		//		located at [0=top, 1=bottom]
@@ -85,13 +83,15 @@ defaultCfg = {
 	'noPassword':	1,		// hide password field
 	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
 	'userCSS':		0,		// user style
-	'userCSSTxt':	'',		//		text
+	'userCSSTxt':	'',		//		css text
 	'expandPanel':	0,		// show full main panel
 	'attachPanel':	1,		// attach main panel
 	'panelCounter':	1,		// posts/images counter in script panel
 	'rePageTitle':	1,		// replace page title in threads
 	'animation':	1,		// animation in script
 	'closePopups':	0,		// auto-close popups
+	'keybNavig':	1,		// keyboard navigation
+	'loadPages':	1,		//		number of pages that are loaded on F5
 	'updScript':	1,		// check for script's update
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
 	'textaWidth':	500,	// textarea width
@@ -114,7 +114,10 @@ Lng = {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
 		},
-		'postBtnsTxt':	['Кнопки постов в виде текста*', 'Show post buttons as text*'],
+		'postBtnsCSS': {
+			sel:		[['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
+			txt:		['Стиль кнопок постов*', 'Post buttons style*']
+		},
 		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
 		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
@@ -1112,9 +1115,9 @@ function addPanel() {
 		case 'de-btn-audio-off':
 			if(updater.toggleAudio(0)) {
 				updater.enable();
-				this.id = 'de-btn-audio-on';
+				e.target.id = 'de-btn-audio-on';
 			} else {
-				this.id = 'de-btn-audio-off';
+				e.target.id = 'de-btn-audio-off';
 			}
 			$del($c('de-menu', doc));
 			break;
@@ -1631,7 +1634,7 @@ function getCfgPosts() {
 			Thread.processUpdBtn(Cfg['addUpdBtn']);
 		} : null),
 		optSel('expandPosts', true, null),
-		lBox('postBtnsTxt', true, null),
+		optSel('postBtnsCSS', true, null),
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
 		lBox('noPostScrl', true, updateCSS),
@@ -2780,6 +2783,7 @@ function preloadImages(post) {
 			} else if(nExp) {
 				el.src = url;
 			}
+			el.classList.add('de-img-pre');
 		}
 	}
 	queue && queue.complete();
@@ -4746,20 +4750,7 @@ function scriptCSS() {
 		.de-thread-note { font-style: italic; }\
 		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 		.de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-fav, .de-btn-fav-sel, .de-btn-src, .de-btn-expthr, .de-btn-sage { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
-	if(!Cfg['postBtnsTxt']) {
-		x += 'padding: 0 14px 14px 0; }';
-		gif('.de-btn-hide-user','R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-		gif('.de-post-hid .de-btn-hide-user','R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
-		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
-		gif('.de-btn-hide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
-		gif('.de-post-hid .de-btn-hide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
-		gif('.de-btn-rep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
-		gif('.de-btn-expthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
-		gif('.de-btn-fav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-		gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
-		gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
-		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
-	} else {
+	if(Cfg['postBtnsCSS'] === 0) {
 		x += 'color: #4F7942; font-size: 14px; }\
 			.de-btn-hide:after { content: "\u2716"; }\
 			.de-post-hid .de-btn-hide:after { content: "\u271a"; }\
@@ -4771,6 +4762,32 @@ function scriptCSS() {
 			.de-btn-fav-sel:after { content: "[\u2605]"; }\
 			.de-btn-sage:after { content: "\u274e"; }\
 			.de-btn-src:after { content: "[S]"; }';
+	} else if(Cfg['postBtnsCSS'] === 1) {
+		x += 'padding: 0 14px 14px 0; }';
+		gif('.de-btn-hide-user', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+		gif('.de-post-hid .de-btn-hide-user', 'R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM';
+		gif('.de-btn-hide', p + '8SLLcS2MNQGsUMYi6uB5BKI5hFgojel5YBbDDNcmvpJLkcgLq1jcuSgPmgkUmlJgFAyqNmoEBJEatxggJADs=');
+		gif('.de-post-hid .de-btn-hide', p + '5SLLcS2ONCcCMIoYdRBVcN4Qkp4ULmWVV20ZTM1SYBJbqvXmA3jk8IMzlgtVYFtkoNCENIJdolJAAADs=');
+		gif('.de-btn-rep', p + '4SLLcS2MNQGsUMQRRwdLbAI5kpn1kKHUWdk3AcDFmOqKcJ5AOq0srX0QWpBAlIo3MNoDInlAZIQEAOw==');
+		gif('.de-btn-expthr', p + '7SLLcS6MNACKLIQjKgcjCkI2DOAbYuHlnKFHWUl5dnKpfm2vd7iyUXywEk1gmnYrMlEEyUZCSdFoiJAAAOw==');
+		gif('.de-btn-fav', p + '5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AQAM5SLLcS2MNQGsUl1XgRvhg+EWhQAllNG0WplLXqqIlDS7lWZvsJkm92Au2Aqg8gQFyhBxAlNCokpAAADs=');
+		gif('.de-btn-sage', 'R0lGODlhDgAOAJEAAPDw8EtLS////wAAACH5BAEAAAIALAAAAAAOAA4AQAIZVI55duDvFIKy2vluoJfrD4Yi5lWRwmhCAQA7');
+		gif('.de-btn-src', p + '9SLLcS0MMQMesUoQg6PKbtFnDaI0a53VAml2ARcVSFC0WY6ecyy+hFajnWDVssyQtB5NhTs1mYAAhWa2EBAA7');
+	} else {
+		x += 'padding: 0 14px 14px 0; }';
+		gif('.de-btn-hide-user', 'R0lGODlhDgAOAJEAAL//v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==');
+		gif('.de-post-hid .de-btn-hide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ');
+		p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI';
+		gif('.de-btn-hide', p + 'dVI55pu2vQJIN2GNpzPdxGHwep01d5pQlyDoMKBQAOw==');
+		gif('.de-post-hid .de-btn-hide', p + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7');
+		gif('.de-btn-rep', p + 'aVI55pu2vAIBISmrty7rx63FbN1LmiTCUUAAAOw==');
+		gif('.de-btn-expthr', p + 'bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=');
+		gif('.de-btn-fav', p + 'dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==');
+		gif('.de-btn-fav-sel','R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==');
+		gif('.de-btn-sage','R0lGODlhDgAOAJEAAPDw8FBQUP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu0AgZs0SoqTzdnu5l1P1ImcwmBCAQA7');
+		gif('.de-btn-src', p + 'fVI55pt0ADnRh1uispfvpLkEieGGiZ5IUGmJrw7xCAQA7');
 	}
 	if(!pr.form && !pr.oeForm) {
 		x += '.de-btn-rep { display: none; }';
@@ -4860,7 +4877,7 @@ function scriptCSS() {
 		#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
-		.de-alert-msg { display: inline-block; margin-top: .25em; }\
+		.de-alert-msg { display: inline-block; margin-top: .15em; }\
 		.de-content { text-align: left; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
@@ -5423,11 +5440,11 @@ PostForm.prototype = {
 						doc.body.addEventListener('mousemove', this, false);
 						doc.body.addEventListener('mouseup', this, false);
 						$pd(e);
-						return
+						return;
 					case 'mousemove':
 						var cr = this.el.getBoundingClientRect();
-						this.elStyle.width = (e.pageX - cr.left + window.pageXOffset) + 'px';
-						this.elStyle.height = (e.pageY - cr.top + window.pageYOffset) + 'px';
+						this.elStyle.width = (e.pageX - cr.left - window.pageXOffset) + 'px';
+						this.elStyle.height = (e.pageY - cr.top - window.pageYOffset) + 'px';
 						return;
 					default: // mouseup
 						doc.body.removeEventListener('mousemove', this, false);
