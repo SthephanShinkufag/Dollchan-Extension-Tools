@@ -5260,8 +5260,8 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function(tNum, isFocus) {
 		var src, img;
-		if(aib.abu) {
-			aib.updateCap(isFocus);
+		if(aib.abu && (img = $id('captcha_div'))) {
+			img.onclick(isFocus, true);
 			return;
 		}
 		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
@@ -8102,31 +8102,23 @@ ImageBoard.prototype = {
 				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
 			init: { value: function() {
-				var cd = $id('captcha_div');
-				if(cd) {
-					cd.addEventListener('click', function(e) {
-						switch(e.target.tagName) {
-						case 'IMG':
-						case 'P':
-							this.updateCap(true);
-							$pd(e);
-							e.stopPropagation();
-						}
-					}.bind(this), true);
+				var cd = $id('captcha_div'),
+					img = cd && $t('img', cd);
+				if(img) {
+					cd.setAttribute('onclick', ['var i = 4, el;',
+						"if(!arguments[1] && event.target.tagName !== 'IMG') {",
+							'return;',
+						'}',
+						'do {', img.getAttribute('onclick'), '} while(--i > 0 && !/<img|не нужно/i.test(this.innerHTML));',
+						"if(el = this.getElementsByTagName('img')[0]) {",
+							"el.removeAttribute('onclick');",
+							"if(event && (el = this.querySelector('input[type=\\'text\\']'))) {",
+								'el.focus();',
+							'}',
+						'}'
+					].join(''));
+					img.removeAttribute('onclick');
 				}
-			} },
-			updateCap: { value: function(focus) {
-				$script('var i = 4, el, cd = document.getElementById("captcha_div");\
-					do {\
-						GetCaptcha("captcha_div", true);\
-						i--;\
-					} while(i > 0 && !/<img|не нужно/i.test(cd.innerHTML));' + (!focus ? '' :
-						'el = cd.querySelector("input[type=\\"text\\"]");\
-						if(el) {\
-							el.focus();\
-						}'
-					), true
-				);
 			} },
 
 			abu: { value: true }
