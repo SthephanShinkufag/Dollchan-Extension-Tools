@@ -8411,8 +8411,7 @@ ImageBoard.prototype = {
 //													BROWSER
 //============================================================================================================
 
-function Navigator() {
-	var ua = window.navigator.userAgent;
+function getNavFuncs() {
 	if(!('contains' in String.prototype)) {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
@@ -8429,32 +8428,18 @@ function Navigator() {
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
-	this.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
-	this.Opera = window.opera ? +window.opera.version() : 0;
-	this.WebKit = ua.contains('WebKit/');
-	this.Chrome = this.WebKit && ua.contains('Chrome/');
-	this.Safari = this.WebKit && !this.Chrome;
-	this.isGM = typeof GM_setValue === 'function' &&
-		(!this.Chrome || !GM_setValue.toString().contains('not supported'));
-	this.isGlobal = this.isGM || !!scriptStorage;
-	this.cssFix =
-		this.WebKit ? '-webkit-' :
-		this.Opera ? (this.Opera < 12.1 ? '-o-' : '') :
-		this.Firefox && this.Firefox < 16 ? '-moz-' : '';
-	if(!this.Opera || this.Opera >= 12) {
-		this.Anim = true;
-		this.animName =
-			this.WebKit ? 'webkitAnimationName' :
-			this.Opera && this.Opera < 12.1 ? 'OAnimationName' :
-			this.Firefox && this.Firefox < 16 ? 'MozAnimationName' :
-			'animationName';
-		this.animEnd =
-			this.WebKit ? 'webkitAnimationEnd' :
-			this.Opera && this.Opera < 12.1 ? 'oAnimationEnd' :
-			'animationend';
+	if(!('URL' in window)) {
+		window.URL = window.webkitURL;
 	}
-	this.isBlob = this.Firefox > 14 || this.Chrome || this.Opera >= 12.10;
-	if(this.Firefox > 19) {
+	var ua = window.navigator.userAgent,
+		firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
+		opera = window.opera ? +window.opera.version() : 0,
+		webkit = ua.contains('WebKit/'),
+		chrome = webkit && ua.contains('Chrome/'),
+		safari = webkit && !chrome,
+		isGM = typeof GM_setValue === 'function' && 
+			(!chrome || !GM_setValue.toString().contains('not supported'));
+	if(firefox > 19) {
 		$script(
 			'window["de-worker"] = function(url) {\
 				this.wrk = new Worker(url);\
@@ -8472,68 +8457,73 @@ function Navigator() {
 			};', false
 		);
 	}
-	this.fixLink = this.Safari ? getAbsLink : function fixLink(url) {
-		return url;
-	};
-	this.toDOM =
-		this.Firefox ? function toDOM(html) {
+	if(!window.GM_xmlhttpRequest) {
+		window.GM_xmlhttpRequest = $xhr;
+	}
+	return {
+		Firefox: firefox,
+		Opera: opera,
+		WebKit: webkit,
+		Chrome: chrome,
+		Safari: safari,
+		isGM: isGM,
+		isGlobal: isGM || !!scriptStorage,
+		cssFix: webkit ? '-webkit-' : opera && opera < 12.1 ? '-o-' : firefox && firefox < 16 ? '-moz-' : '',
+		Anim: !opera || opera >= 12,
+		animName: webkit ? 'webkitAnimationName' : opera && opera < 12.1 ? 'OAnimationName' :
+			firefox && firefox < 16 ? 'MozAnimationName' : 'animationName',
+		animEnd: webkit ? 'webkitAnimationEnd' : opera && opera < 12.1 ? 'oAnimationEnd' :
+			'animationend',
+		animEvent: function(el, Fn) {
+			el.addEventListener(this.animEnd, function aEvent() {
+				this.removeEventListener(nav.animEnd, aEvent, false);
+				Fn(this);
+				Fn = null;
+			}, false);
+		},
+		isBlob: firefox > 14 || chrome || opera >= 12.10,
+		fixLink: safari ? getAbsLink : function fixLink(url) {
+			return url;
+		},
+		toDOM: firefox ? function toDOM(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
 		} : function toDOM(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
-		};
-	if(!window.GM_log) {
-		window.GM_log = function(msg) {
-			console.error(msg);
-		};
-	}
-	if(!window.GM_xmlhttpRequest) {
-		window.GM_xmlhttpRequest = $xhr;
-	}
-	if(this.WebKit) {
-		window.URL = window.webkitURL;
-	}
-}
-Navigator.prototype = {
-	animEvent: function(el, Fn) {
-		el.addEventListener(nav.animEnd, function aEvent() {
-			this.removeEventListener(nav.animEnd, aEvent, false);
-			Fn(this);
-			Fn = null;
-		}, false);
-	},
-	get canPlayMP3() {
-		var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
-		Object.defineProperty(this, 'canPlayMP3', { value: val });
-		return val;
-	},
-	get matchesSelector() {
-		var dE = doc.documentElement,
-			fun = dE.matchesSelector || dE.mozMatchesSelector ||
-				dE.webkitMatchesSelector || dE.oMatchesSelector,
-			val = Function.prototype.call.bind(fun);
-		Object.defineProperty(this, 'matchesSelector', { value: val });
-		return val;
-	},
-	get Worker() {
-		var val;
-		if(nav.Firefox && nav.Firefox > 19) {
-			if(unsafeWindow['de-worker']) {
-				val = new Proxy(unsafeWindow['de-worker'], {});
-				val.prototype.postMessage = function() {
-					unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
-				};
+		},
+		get canPlayMP3() {
+			var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
+			Object.defineProperty(this, 'canPlayMP3', { value: val });
+			return val;
+		},
+		get matchesSelector() {
+			var dE = doc.documentElement,
+				fun = dE.matchesSelector || dE.mozMatchesSelector ||
+					dE.webkitMatchesSelector || dE.oMatchesSelector,
+				val = Function.prototype.call.bind(fun);
+			Object.defineProperty(this, 'matchesSelector', { value: val });
+			return val;
+		},
+		get Worker() {
+			var val;
+			if(nav.Firefox && nav.Firefox > 19) {
+				if(unsafeWindow['de-worker']) {
+					val = new Proxy(unsafeWindow['de-worker'], {});
+					val.prototype.postMessage = function() {
+						unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
+					};
+				} else {
+					val = null;
+				}
 			} else {
-				val = null;
+				val = window.Worker;
 			}
-		} else {
-			val = window.Worker;
+			Object.defineProperty(this, 'Worker', { value: val });
+			return val;
 		}
-		Object.defineProperty(this, 'Worker', { value: val });
-		return val;
-	}
-};
+	};
+}
 
 
 //============================================================================================================
@@ -8570,7 +8560,7 @@ function Initialization() {
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
-	nav = new Navigator();
+	nav = getNavFuncs();
 
 	window.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
@@ -9139,7 +9129,7 @@ function doScript() {
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
-if(/interactive|complete/.test(doc.readyState)) {
+if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doScript();
 } else {
 	doc.addEventListener('DOMContentLoaded', doScript, false);
