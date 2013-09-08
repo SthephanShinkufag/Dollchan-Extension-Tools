@@ -646,10 +646,45 @@ $queue.prototype = {
 };
 
 function $tar() {
-	this.data = [];
+	this._data = [];
 }
 $tar.prototype = {
-	padSet: function(data, offset, num, len) {
+	addFile: function(filepath, input) {
+		var i, checksum, nameLen, fileSize = input.length,
+			header = new Uint8Array(512);
+		for(i = 0, nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
+			header[i] = filepath.charCodeAt(i) & 0xFF;
+		}
+		this._padSet(header, 100, '100777', 8);										// fileMode
+		this._padSet(header, 108, '0', 8);											// uid
+		this._padSet(header, 116, '0', 8);											// gid
+		this._padSet(header, 124, fileSize.toString(8), 13);						// fileSize
+		this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
+		this._padSet(header, 148, '        ', 8);									// checksum
+		header[156] = 0x30;															// type ('0')
+		for(i = checksum = 0; i < 157; i++) {
+			checksum += header[i];
+		}
+		this._padSet(header, 148, checksum.toString(8), 8);							// checksum
+		this._data.push(header);
+		this._data.push(input);
+		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
+			this.data.push(new Uint8Array(i));
+		}
+	},
+	addString: function(filepath, str) {
+		var i, len, data, sDat = unescape(encodeURIComponent(str));
+		for(i = 0, len = sDat.length, data = new Uint8Array(len); i < len; ++i) {
+			data[i] = sDat.charCodeAt(i) & 0xFF;
+		}
+		this.addFile(filepath, data);
+	},
+	get: function() {
+		this._data.push(new Uint8Array(1024));
+		return new Blob(this._data, {'type': 'application/x-tar'});
+	},
+
+	_padSet: function(data, offset, num, len) {
 		var i = 0, nLen = num.length;
 		len -= 2;
 		while(nLen < len) {
@@ -660,43 +695,6 @@ $tar.prototype = {
 			data[offset++] = num.charCodeAt(i++);
 		}
 		data[offset] = 0x20; // ' '
-	},
-	addString: function(filepath, str) {
-		this.addFile(filepath, new Uint8Array(unescape(encodeURIComponent(str)).split('').map(function(a) {
-			return a.charCodeAt();
-		})));
-	},
-	addFile: function(filepath, input) {
-		var i, checksum, nameLen = filepath.length,
-			fileSize = input.length,
-			header = new Uint8Array(512);
-		if(nameLen > 99) {
-			nameLen = 100;
-			filepath = filepath.substring(0, 99);
-		}
-		for(i = 0; i < nameLen; i++) {
-			header[i] = filepath.charCodeAt(i) & 0xFF;
-		}
-		this.padSet(header, 100, '100777', 8);										// fileMode
-		this.padSet(header, 108, '0', 8);											// uid
-		this.padSet(header, 116, '0', 8);											// gid
-		this.padSet(header, 124, fileSize.toString(8), 13);							// fileSize
-		this.padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
-		this.padSet(header, 148, '        ', 8);									// checksum
-		header[156] = 0x30;															// type ('0')
-		for(i = checksum = 0; i < 157; i++) {
-			checksum += header[i];
-		}
-		this.padSet(header, 148, checksum.toString(8), 8);							// checksum
-		this.data.push(header);
-		this.data.push(input);
-		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
-			this.data.push(new Uint8Array(i));
-		}
-	},
-	get: function() {
-		this.data.push(new Uint8Array(1024));
-		return new Blob(this.data, {'type': 'application/x-tar'});
 	}
 };
 
@@ -3485,12 +3483,12 @@ function Spells(read) {
 }
 Spells.checkArr = function(val, num) {
 	var i, arr;
-	for(arr = val[0], i = arr.length - 1; i >= 0; i--) {
+	for(arr = val[0], i = arr.length - 1; i >= 0; --i) {
 		if(arr[i] === num) {
 			return true;
 		}
 	}
-	for(arr = val[1], i = arr.length - 1; i >= 0; i--) {
+	for(arr = val[1], i = arr.length - 1; i >= 0; --i) {
 		if(num >= arr[i][0] && num <= arr[i][1]) {
 			return true;
 		}
@@ -4754,8 +4752,8 @@ function scriptCSS() {
 		x += 'color: #4F7942; font-size: 14px; }\
 			.de-btn-hide:after { content: "\u2716"; }\
 			.de-post-hid .de-btn-hide:after { content: "\u271a"; }\
-			.de-btn-hide-user:after { content: "[\u2716]"; }\
-			.de-post-hid .de-btn-hide-user:after { content: "[\u271a]"; }\
+			.de-btn-hide-user:after { content: "\u2716"; color: red !important; }\
+			.de-post-hid .de-btn-hide-user:after { content: "\u271a"; }\
 			.de-btn-rep:after { content: "\u25b6"; }\
 			.de-btn-expthr:after { content: "\u21d5"; }\
 			.de-btn-fav:after { content: "\u2605"; }\
@@ -8096,7 +8094,7 @@ ImageBoard.prototype = {
 				}
 				return this.getSage(post);
 			} },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, .ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center, .logo + div { display: none !important; }\
+			css: { value: '#ABU_alert_wait, .de-post-hid > .de-ppanel ~ *, .ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center, .logo + div { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }\
 				.reflink:before { content: none !important; }' },
@@ -8237,7 +8235,7 @@ ImageBoard.prototype = {
 			ru: { value: true },
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
-					nav = new Navigator();
+					nav = getNavFuncs();
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						readCfg();
 						saveCfg('__hanarating', $id('rating').value);
