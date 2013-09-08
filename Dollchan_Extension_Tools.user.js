@@ -311,8 +311,8 @@ Lng = {
 	},
 
 	newPost:		[
-		['. Последний:', ' новый пост', ' новых постов', ' новых поста'],
-		['. Latest: ', ' new post', ' new posts', ' new posts']
+		[' новый пост', ' новых поста', ' новых постов', '. Последний:'],
+		[' new post', ' new posts', ' new posts', '. Latest: ']
 	],
 
 	add:			['Добавить', 'Add'],
@@ -646,10 +646,45 @@ $queue.prototype = {
 };
 
 function $tar() {
-	this.data = [];
+	this._data = [];
 }
 $tar.prototype = {
-	padSet: function(data, offset, num, len) {
+	addFile: function(filepath, input) {
+		var i, checksum, nameLen, fileSize = input.length,
+			header = new Uint8Array(512);
+		for(i = 0, nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
+			header[i] = filepath.charCodeAt(i) & 0xFF;
+		}
+		this._padSet(header, 100, '100777', 8);										// fileMode
+		this._padSet(header, 108, '0', 8);											// uid
+		this._padSet(header, 116, '0', 8);											// gid
+		this._padSet(header, 124, fileSize.toString(8), 13);						// fileSize
+		this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
+		this._padSet(header, 148, '        ', 8);									// checksum
+		header[156] = 0x30;															// type ('0')
+		for(i = checksum = 0; i < 157; i++) {
+			checksum += header[i];
+		}
+		this._padSet(header, 148, checksum.toString(8), 8);							// checksum
+		this._data.push(header);
+		this._data.push(input);
+		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
+			this.data.push(new Uint8Array(i));
+		}
+	},
+	addString: function(filepath, str) {
+		var i, len, data, sDat = unescape(encodeURIComponent(str));
+		for(i = 0, len = sDat.length, data = new Uint8Array(len); i < len; ++i) {
+			data[i] = sDat.charCodeAt(i) & 0xFF;
+		}
+		this.addFile(filepath, data);
+	},
+	get: function() {
+		this._data.push(new Uint8Array(1024));
+		return new Blob(this._data, {'type': 'application/x-tar'});
+	},
+
+	_padSet: function(data, offset, num, len) {
 		var i = 0, nLen = num.length;
 		len -= 2;
 		while(nLen < len) {
@@ -660,43 +695,6 @@ $tar.prototype = {
 			data[offset++] = num.charCodeAt(i++);
 		}
 		data[offset] = 0x20; // ' '
-	},
-	addString: function(filepath, str) {
-		this.addFile(filepath, new Uint8Array(unescape(encodeURIComponent(str)).split('').map(function(a) {
-			return a.charCodeAt();
-		})));
-	},
-	addFile: function(filepath, input) {
-		var i, checksum, nameLen = filepath.length,
-			fileSize = input.length,
-			header = new Uint8Array(512);
-		if(nameLen > 99) {
-			nameLen = 100;
-			filepath = filepath.substring(0, 99);
-		}
-		for(i = 0; i < nameLen; i++) {
-			header[i] = filepath.charCodeAt(i) & 0xFF;
-		}
-		this.padSet(header, 100, '100777', 8);										// fileMode
-		this.padSet(header, 108, '0', 8);											// uid
-		this.padSet(header, 116, '0', 8);											// gid
-		this.padSet(header, 124, fileSize.toString(8), 13);							// fileSize
-		this.padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
-		this.padSet(header, 148, '        ', 8);									// checksum
-		header[156] = 0x30;															// type ('0')
-		for(i = checksum = 0; i < 157; i++) {
-			checksum += header[i];
-		}
-		this.padSet(header, 148, checksum.toString(8), 8);							// checksum
-		this.data.push(header);
-		this.data.push(input);
-		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
-			this.data.push(new Uint8Array(i));
-		}
-	},
-	get: function() {
-		this.data.push(new Uint8Array(1024));
-		return new Blob(this.data, {'type': 'application/x-tar'});
 	}
 };
 
@@ -3485,12 +3483,12 @@ function Spells(read) {
 }
 Spells.checkArr = function(val, num) {
 	var i, arr;
-	for(arr = val[0], i = arr.length - 1; i >= 0; i--) {
+	for(arr = val[0], i = arr.length - 1; i >= 0; --i) {
 		if(arr[i] === num) {
 			return true;
 		}
 	}
-	for(arr = val[1], i = arr.length - 1; i >= 0; i--) {
+	for(arr = val[1], i = arr.length - 1; i >= 0; --i) {
 		if(num >= arr[i][0] && num <= arr[i][1]) {
 			return true;
 		}
@@ -4754,8 +4752,8 @@ function scriptCSS() {
 		x += 'color: #4F7942; font-size: 14px; }\
 			.de-btn-hide:after { content: "\u2716"; }\
 			.de-post-hid .de-btn-hide:after { content: "\u271a"; }\
-			.de-btn-hide-user:after { content: "[\u2716]"; }\
-			.de-post-hid .de-btn-hide-user:after { content: "[\u271a]"; }\
+			.de-btn-hide-user:after { content: "\u2716"; color: red !important; }\
+			.de-post-hid .de-btn-hide-user:after { content: "\u271a"; }\
 			.de-btn-rep:after { content: "\u25b6"; }\
 			.de-btn-expthr:after { content: "\u21d5"; }\
 			.de-btn-fav:after { content: "\u2605"; }\
@@ -5260,8 +5258,8 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function(tNum, isFocus) {
 		var src, img;
-		if(aib.abu) {
-			aib.updateCap(isFocus);
+		if(aib.abu && (img = $id('captcha_div'))) {
+			img.onclick(isFocus, true);
 			return;
 		}
 		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
@@ -8096,37 +8094,29 @@ ImageBoard.prototype = {
 				}
 				return this.getSage(post);
 			} },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, .ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center, .logo + div { display: none !important; }\
+			css: { value: '#ABU_alert_wait, .de-post-hid > .de-ppanel ~ *, .ABU_refmap, .postpanel, #CommentToolbar, #usrFlds + tbody > tr:first-child, #postform > div:nth-child(2), #BottomNormalReply, body > center, .logo + div { display: none !important; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.de-abtn { transition: none; }\
 				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
 			init: { value: function() {
-				var cd = $id('captcha_div');
-				if(cd) {
-					cd.addEventListener('click', function(e) {
-						switch(e.target.tagName) {
-						case 'IMG':
-						case 'P':
-							this.updateCap(true);
-							$pd(e);
-							e.stopPropagation();
-						}
-					}.bind(this), true);
+				var cd = $id('captcha_div'),
+					img = cd && $t('img', cd);
+				if(img) {
+					cd.setAttribute('onclick', ['var i = 4, el;',
+						"if(!arguments[1] && event.target.tagName !== 'IMG') {",
+							'return;',
+						'}',
+						'do {', img.getAttribute('onclick'), '} while(--i > 0 && !/<img|не нужно/i.test(this.innerHTML));',
+						"if(el = this.getElementsByTagName('img')[0]) {",
+							"el.removeAttribute('onclick');",
+							"if(event && (el = this.querySelector('input[type=\\'text\\']'))) {",
+								'el.focus();',
+							'}',
+						'}'
+					].join(''));
+					img.removeAttribute('onclick');
 				}
-			} },
-			updateCap: { value: function(focus) {
-				$script('var i = 4, el, cd = document.getElementById("captcha_div");\
-					do {\
-						GetCaptcha("captcha_div", true);\
-						i--;\
-					} while(i > 0 && !/<img|не нужно/i.test(cd.innerHTML));' + (!focus ? '' :
-						'el = cd.querySelector("input[type=\\"text\\"]");\
-						if(el) {\
-							el.focus();\
-						}'
-					), true
-				);
 			} },
 
 			abu: { value: true }
@@ -8245,7 +8235,7 @@ ImageBoard.prototype = {
 			ru: { value: true },
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
-					nav = new Navigator();
+					nav = getNavFuncs();
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						readCfg();
 						saveCfg('__hanarating', $id('rating').value);
@@ -8428,8 +8418,7 @@ ImageBoard.prototype = {
 //													BROWSER
 //============================================================================================================
 
-function Navigator() {
-	var ua = window.navigator.userAgent;
+function getNavFuncs() {
 	if(!('contains' in String.prototype)) {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
@@ -8446,32 +8435,18 @@ function Navigator() {
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
-	this.Firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1];
-	this.Opera = window.opera ? +window.opera.version() : 0;
-	this.WebKit = ua.contains('WebKit/');
-	this.Chrome = this.WebKit && ua.contains('Chrome/');
-	this.Safari = this.WebKit && !this.Chrome;
-	this.isGM = typeof GM_setValue === 'function' &&
-		(!this.Chrome || !GM_setValue.toString().contains('not supported'));
-	this.isGlobal = this.isGM || !!scriptStorage;
-	this.cssFix =
-		this.WebKit ? '-webkit-' :
-		this.Opera ? (this.Opera < 12.1 ? '-o-' : '') :
-		this.Firefox && this.Firefox < 16 ? '-moz-' : '';
-	if(!this.Opera || this.Opera >= 12) {
-		this.Anim = true;
-		this.animName =
-			this.WebKit ? 'webkitAnimationName' :
-			this.Opera && this.Opera < 12.1 ? 'OAnimationName' :
-			this.Firefox && this.Firefox < 16 ? 'MozAnimationName' :
-			'animationName';
-		this.animEnd =
-			this.WebKit ? 'webkitAnimationEnd' :
-			this.Opera && this.Opera < 12.1 ? 'oAnimationEnd' :
-			'animationend';
+	if(!('URL' in window)) {
+		window.URL = window.webkitURL;
 	}
-	this.isBlob = this.Firefox > 14 || this.Chrome || this.Opera >= 12.10;
-	if(this.Firefox > 19) {
+	var ua = window.navigator.userAgent,
+		firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
+		opera = window.opera ? +window.opera.version() : 0,
+		webkit = ua.contains('WebKit/'),
+		chrome = webkit && ua.contains('Chrome/'),
+		safari = webkit && !chrome,
+		isGM = typeof GM_setValue === 'function' && 
+			(!chrome || !GM_setValue.toString().contains('not supported'));
+	if(firefox > 19) {
 		$script(
 			'window["de-worker"] = function(url) {\
 				this.wrk = new Worker(url);\
@@ -8489,68 +8464,73 @@ function Navigator() {
 			};', false
 		);
 	}
-	this.fixLink = this.Safari ? getAbsLink : function fixLink(url) {
-		return url;
-	};
-	this.toDOM =
-		this.Firefox ? function toDOM(html) {
+	if(!window.GM_xmlhttpRequest) {
+		window.GM_xmlhttpRequest = $xhr;
+	}
+	return {
+		Firefox: firefox,
+		Opera: opera,
+		WebKit: webkit,
+		Chrome: chrome,
+		Safari: safari,
+		isGM: isGM,
+		isGlobal: isGM || !!scriptStorage,
+		cssFix: webkit ? '-webkit-' : opera && opera < 12.1 ? '-o-' : firefox && firefox < 16 ? '-moz-' : '',
+		Anim: !opera || opera >= 12,
+		animName: webkit ? 'webkitAnimationName' : opera && opera < 12.1 ? 'OAnimationName' :
+			firefox && firefox < 16 ? 'MozAnimationName' : 'animationName',
+		animEnd: webkit ? 'webkitAnimationEnd' : opera && opera < 12.1 ? 'oAnimationEnd' :
+			'animationend',
+		animEvent: function(el, Fn) {
+			el.addEventListener(this.animEnd, function aEvent() {
+				this.removeEventListener(nav.animEnd, aEvent, false);
+				Fn(this);
+				Fn = null;
+			}, false);
+		},
+		isBlob: firefox > 14 || chrome || opera >= 12.10,
+		fixLink: safari ? getAbsLink : function fixLink(url) {
+			return url;
+		},
+		toDOM: firefox ? function toDOM(html) {
 			return new DOMParser().parseFromString(html, 'text/html');
 		} : function toDOM(html) {
 			var myDoc = doc.implementation.createHTMLDocument('');
 			myDoc.documentElement.innerHTML = html;
 			return myDoc;
-		};
-	if(!window.GM_log) {
-		window.GM_log = function(msg) {
-			console.error(msg);
-		};
-	}
-	if(!window.GM_xmlhttpRequest) {
-		window.GM_xmlhttpRequest = $xhr;
-	}
-	if(this.WebKit) {
-		window.URL = window.webkitURL;
-	}
-}
-Navigator.prototype = {
-	animEvent: function(el, Fn) {
-		el.addEventListener(nav.animEnd, function aEvent() {
-			this.removeEventListener(nav.animEnd, aEvent, false);
-			Fn(this);
-			Fn = null;
-		}, false);
-	},
-	get canPlayMP3() {
-		var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
-		Object.defineProperty(this, 'canPlayMP3', { value: val });
-		return val;
-	},
-	get matchesSelector() {
-		var dE = doc.documentElement,
-			fun = dE.matchesSelector || dE.mozMatchesSelector ||
-				dE.webkitMatchesSelector || dE.oMatchesSelector,
-			val = Function.prototype.call.bind(fun);
-		Object.defineProperty(this, 'matchesSelector', { value: val });
-		return val;
-	},
-	get Worker() {
-		var val;
-		if(nav.Firefox && nav.Firefox > 19) {
-			if(unsafeWindow['de-worker']) {
-				val = new Proxy(unsafeWindow['de-worker'], {});
-				val.prototype.postMessage = function() {
-					unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
-				};
+		},
+		get canPlayMP3() {
+			var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
+			Object.defineProperty(this, 'canPlayMP3', { value: val });
+			return val;
+		},
+		get matchesSelector() {
+			var dE = doc.documentElement,
+				fun = dE.matchesSelector || dE.mozMatchesSelector ||
+					dE.webkitMatchesSelector || dE.oMatchesSelector,
+				val = Function.prototype.call.bind(fun);
+			Object.defineProperty(this, 'matchesSelector', { value: val });
+			return val;
+		},
+		get Worker() {
+			var val;
+			if(nav.Firefox && nav.Firefox > 19) {
+				if(unsafeWindow['de-worker']) {
+					val = new Proxy(unsafeWindow['de-worker'], {});
+					val.prototype.postMessage = function() {
+						unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
+					};
+				} else {
+					val = null;
+				}
 			} else {
-				val = null;
+				val = window.Worker;
 			}
-		} else {
-			val = window.Worker;
+			Object.defineProperty(this, 'Worker', { value: val });
+			return val;
 		}
-		Object.defineProperty(this, 'Worker', { value: val });
-		return val;
-	}
-};
+	};
+}
 
 
 //============================================================================================================
@@ -8587,7 +8567,7 @@ function Initialization() {
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
-	nav = new Navigator();
+	nav = getNavFuncs();
 
 	window.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
@@ -8911,28 +8891,6 @@ function initThreadUpdater(title, enableUpdater) {
 		}
 	}
 
-	function getNotifTitle(np) {
-		var rv = aib.dm + '/' + brd + '/' + TNum + ': ' + np;
-		switch(np % 10) {
-		case 1:
-			if(lang === 0) {
-				rv += Lng.newPost[lang][np % 100 === 11 ? 2 : 1];
-			} else {
-				rv += Lng.newPost[lang][1];
-			}
-			break;
-		case 2:
-		case 3:
-		case 4:
-			if(lang === 0 && Math.floor((np % 100) / 10) !== 1) {
-				rv += Lng.newPost[lang][3];
-				break;
-			}
-		default: rv += Lng.newPost[lang][2];
-		}
-		return rv + Lng.newPost[lang][0];
-	}
-
 	function requestNotifPermission() {
 		notifGranted = false;
 		Notification.requestPermission(function(state) {
@@ -8984,7 +8942,11 @@ function initThreadUpdater(title, enableUpdater) {
 				newPosts += lPosts;
 				updateTitle();
 				if(Cfg['desktNotif'] && notifGranted) {
-					var notif = new Notification(getNotifTitle(newPosts), {
+					var notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
+						Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
+						(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+						(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+					{
 						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
 						'tag': aib.dm + brd + TNum,
 						'icon': firstThr.last.imagesData['$firstSrc'] || favHref
@@ -9174,7 +9136,7 @@ function doScript() {
 	timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
 }
 
-if(/interactive|complete/.test(doc.readyState)) {
+if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doScript();
 } else {
 	doc.addEventListener('DOMContentLoaded', doScript, false);
