@@ -8074,7 +8074,7 @@ ImageBoard.prototype = {
 		}, 'script[src*="kusaba"]']
 	},
 	_bEngines: {
-		'#ABU_css': {
+		'#ABU_css, #ShowLakeSettings': {
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
