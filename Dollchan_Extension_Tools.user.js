@@ -815,9 +815,6 @@ function readCfg() {
 	if(!nav.Firefox) {
 		defaultCfg['favIcoBlink'] = 0;
 	}
-	if(nav.WebKit) {
-		Cfg['favIcoBlink'] = 0;
-	}
 	if(!('Notification' in window)) {
 		Cfg['desktNotif'] = 0;
 	}
@@ -1621,7 +1618,7 @@ function getCfgPosts() {
 			$txt(Lng.cfg['updThrDelay'][lang])
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
-			$if(!nav.WebKit, lBox('favIcoBlink', true, null)),
+			lBox('favIcoBlink', true, null),
 			$if('Notification' in window, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					Notification.requestPermission();
@@ -5258,7 +5255,7 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function(tNum, isFocus) {
 		var src, img;
-		if(aib.abu && (img = $id('captcha_div'))) {
+		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
 			img.onclick(isFocus, true);
 			return;
 		}
