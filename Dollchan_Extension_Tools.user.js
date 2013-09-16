@@ -6801,7 +6801,7 @@ Post.prototype = {
 			Pview.del(pv.kid);
 			setPviewPosition(link, pv.el, Cfg['animation'] && animPVMove);
 			if(pv.parent.num !== this.num) {
-				$each($C('de-pview-link', this.msg), function(el) {
+				$each($C('de-pview-link', this.el), function(el) {
 					el.classList.remove('de-pview-link');
 				});
 				pv._markLink(this.num);
@@ -6967,7 +6967,7 @@ Post.prototype = {
 		}.bind(this, node), null);
 	},
 	_markLink: function(pNum) {
-		$each($Q('a[href*="#' + pNum + '"]', this.msg), function(el) {
+		$each($Q('a[href*="#' + pNum + '"]', this.el), function(el) {
 			el.classList.add('de-pview-link');
 		});
 	},
