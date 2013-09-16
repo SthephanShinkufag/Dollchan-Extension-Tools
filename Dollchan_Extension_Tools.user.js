@@ -6595,10 +6595,8 @@ Post.prototype = {
 			this.el.classList.remove('de-selected');
 		}
 	},
-	updateMsg: function(fullPost) {
+	updateMsg: function(newMsg) {
 		var origMsg = aib.hana ? this.msg.firstElementChild : this.msg,
-			newMsg = replacePost(aib.hana ? $q('.alternate > div', this.el) :
-				doc.importNode($q(aib.qMsg, fullPost), true)),
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 		origMsg.parentNode.replaceChild(newMsg, origMsg);
@@ -6932,7 +6930,7 @@ Post.prototype = {
 			if(isInit) {
 				this.msg.replaceChild($q('.alternate > div', this.el), this.msg.firstElementChild);
 			} else {
-				this.updateMsg(null);
+				this.updateMsg($q('.alternate > div', this.el));
 			}
 			return;
 		}
@@ -6940,20 +6938,19 @@ Post.prototype = {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, this.thr.num), function(node, dc) {
-			var i, els, len, el, thr = parsePage($q(aib.qDForm, dc), dc, null, false).el;
+			var i, els, len, df = $q(aib.qDForm, dc),
+				msgs = $Q(aib.qMsg, df);
 			if(this.isOp) {
-				el = aib.getOp(thr);
+				this.updateMsg(replacePost(msgs[0]));
+				$del(node);
 			} else {
-				for(i = 0, els = aib.getPosts(thr), len = els.length; i < len; i++) {
+				for(i = 0, els = aib.getPosts(df), len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						el = els[i];
-						break;
+						this.updateMsg(replacePost(msgs[i + 1]));
+						$del(node);
+						return;
 					}
 				}
-			}
-			if(el) {
-				this.updateMsg(el);
-				$del(node);
 			}
 		}.bind(this, node), null);
 	},
