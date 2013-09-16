@@ -7397,7 +7397,6 @@ Thread.processUpdBtn = function(add) {
 Thread.prototype = {
 	hidden: false,
 	gInfo: {
-		allPCount: 0,
 		tNums: []
 	},
 	last: null,
@@ -7549,7 +7548,6 @@ Thread.prototype = {
 		}
 		post.addFuncs();
 		preloadImages(el);
-		this.allPCount++;
 		return post;
 	},
 	_checkBans: function(op, thrNode) {
@@ -7581,7 +7579,6 @@ Thread.prototype = {
 			omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, node), len);
 		this.num = num;
 		this.gInfo.tNums.push(+num);
-		this.gInfo.allPCount += len;
 		this.pcount = omt + len;
 		pByNum[num] = lastPost = this.op = node.post = new Post(aib.getOp(node), this, num, 0);
 		lastPost.isOp = true;
