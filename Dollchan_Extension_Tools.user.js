@@ -3173,7 +3173,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 
 	function getTitleLoader() {
 		var queueEnd, queue = new $queue(4, function(qIdx, num, data) {
-			if(num % 50 === 0) {
+			if(num % 30 === 0) {
 				queue.pause();
 				setTimeout(queue.continue.bind(queue), 3e3);
 			}
