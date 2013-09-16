@@ -8313,7 +8313,6 @@ function getImageBoard() {
 			}
 			if(thr.hasChildNodes()) {
 				thr.insertBefore(op, thr.firstChild);
-				$before(thr.firstChild, op);
 			} else {
 				thr.appendChild(op);
 			}
