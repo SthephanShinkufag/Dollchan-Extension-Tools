@@ -7014,6 +7014,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
+	this.thr = post ? post.thr : parent.thr;
 	if(post && (!post.isOp || !parent._isPview || !parent._loaded)) {
 		this._showPost(post);
 	} else {
@@ -7076,7 +7077,8 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
 		var rm, num = this.parent.num,
-			cache = this._cache[b] = new PviewsCache(dc, b, tNum, this.parent.thr.op),
+			thr = this.parent.thr,
+			cache = this._cache[b] = new PviewsCache(dc, b, tNum, thr.op),
 			post = cache.getPost(pNum);
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
 			if(post.hasRef) {
@@ -7086,7 +7088,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				rm = post.msg.nextSibling;
 			}
 			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
-				aib.getThrdUrl(b, this.parent.thr.num) + aib.anchor + num + '">&gt;&gt;' +
+				aib.getThrdUrl(b, thr.num) + aib.anchor + num + '">&gt;&gt;' +
 				(brd !== b ? '/' + brd + '/' : '') + num + '</a><span class="de-refcomma">, </span>'
 			);
 		}
@@ -8330,7 +8332,7 @@ function getImageBoard() {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
 		getPostEl: function(el) {
-			while(el && !el.classList.contains(aib.cRPost) && !el.hasAttribute('de-thread')) {
+			while(el && !el.classList.contains(this.cRPost) && !el.hasAttribute('de-thread')) {
 				el = el.parentElement;
 			}
 			return el;
