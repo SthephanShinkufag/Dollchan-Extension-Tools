@@ -7408,14 +7408,35 @@ function updRefMap(post, add) {
 //													THREAD
 //============================================================================================================
 
-function Thread(el, prev, parse) {
+function Thread(el, prev) {
+	if(aib._420 || aib.tiny) {
+		$after(el, el.lastChild);
+		$del($c('clear', el));
+	}
+	var i, pEl, lastPost,
+		els = aib.getPosts(el),
+		len = els.length,
+		num = aib.getTNum(el),
+		omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, el), len);
+	this.num = num;
+	this.gInfo.tNums.push(+num);
+	this.pcount = omt + len;
+	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0);
+	lastPost.isOp = true;
+	lastPost.init(prev ? prev.last : null);
+	for(i = 0; i < len; i++) {
+		num = aib.getPNum(pEl = els[i]);
+		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i).init(lastPost);
+	}
+	this.last = lastPost;
+	el.style.counterReset = 'de-cnt ' + omt;
+	el.removeAttribute('id');
+	el.setAttribute('de-thread', null);
+	visPosts = Math.max(visPosts, len);
 	this.el = el;
 	this.prev = prev;
 	if(prev) {
 		prev.next = this;
-	}
-	if(parse) {
-		this._parseThread(el);
 	}
 }
 Thread.processUpdBtn = function(add) {
@@ -7436,11 +7457,8 @@ Thread.prototype = {
 	gInfo: {
 		tNums: []
 	},
-	last: null,
 	loadedOnce: false,
 	next: null,
-	op: null,
-	pcount: 0,
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -7590,33 +7608,6 @@ Thread.prototype = {
 				}
 			}
 		}
-	},
-	_parseThread: function(node) {
-		if(aib._420 || aib.tiny) {
-			$after(node, node.lastChild);
-			$del($c('clear', node));
-		}
-		var i, el, lastPost,
-			els = aib.getPosts(node),
-			len = els.length,
-			num = aib.getTNum(node),
-			prev = this.prev,
-			omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, node), len);
-		this.num = num;
-		this.gInfo.tNums.push(+num);
-		this.pcount = omt + len;
-		pByNum[num] = lastPost = this.op = node.post = new Post(aib.getOp(node), this, num, 0);
-		lastPost.isOp = true;
-		lastPost.init(prev ? prev.last : null);
-		for(i = 0; i < len; i++) {
-			num = aib.getPNum(el = els[i]);
-			pByNum[num] = lastPost = new Post(el, this, num, omt + i).init(lastPost);
-		}
-		this.last = lastPost;
-		node.style.counterReset = 'de-cnt ' + omt;
-		node.removeAttribute('id');
-		node.setAttribute('de-thread', null);
-		visPosts = Math.max(visPosts, len);
 	},
 	_parsePosts: function(nPosts, from, omt) {
 		var i, len, el, tPost, fragm, newPosts = 0,
@@ -8691,44 +8682,38 @@ function Initialization() {
 	return true;
 }
 
-function parsePage(el, dc, lThr, parse) {
-	var i, fThr, thrds = $Q(aib.qThread, el),
+function tryToParse(node, lThr) {
+	var i, fThr, thrds = $Q(aib.qThread, node),
 		len = thrds.length;
-	if(len === 0) {
-		thrds = [];
-		aProto.slice.call(el.childNodes).reduce(function(prevVal, curVal, i, array) {
-			if(array[i + 1]) {
-				if(curVal.tagName === 'HR') {
-					$before(curVal, prevVal.lastChild);
-					$before(curVal, prevVal);
-					$after(prevVal, prevVal.lastChild);
-					thrds.push(prevVal);
-					return dc.createElement('div');
-				}
-				prevVal.appendChild(curVal);
-				return prevVal;
-			}
-			$after(curVal, prevVal);
-			prevVal.appendChild(curVal);
-		}, dc.createElement('div'));
-		len = thrds.length;
-		if(len === 0) {
-			return null;
-		}
-	}
-	fThr = lThr = new Thread(thrds[0], lThr, parse);
-	for(i = 1; i < len; i++) {
-		lThr = new Thread(thrds[i], lThr, parse);
-	}
-	thrds = null;
-	return fThr;
-}
-
-function tryToParse(node, lastThr) {
-	var el, lThr, thr;
 	$each($T('script', node), $del);
 	try {
-		thr = parsePage(node, doc, lastThr, true);
+		if(len === 0) {
+			thrds = [];
+			aProto.slice.call(el.childNodes).reduce(function(prevVal, curVal, i, array) {
+				if(array[i + 1]) {
+					if(curVal.tagName === 'HR') {
+						$before(curVal, prevVal.lastChild);
+						$before(curVal, prevVal);
+						$after(prevVal, prevVal.lastChild);
+						thrds.push(prevVal);
+						return doc.createElement('div');
+					}
+					prevVal.appendChild(curVal);
+					return prevVal;
+				}
+				$after(curVal, prevVal);
+				prevVal.appendChild(curVal);
+			}, doc.createElement('div'));
+			len = thrds.length;
+			if(len === 0) {
+				return null;
+			}
+		}
+		fThr = lThr = new Thread(thrds[0], lThr);
+		for(i = 1; i < len; i++) {
+			lThr = new Thread(thrds[i], lThr);
+		}
+		thrds = null;
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + (e.stack ? (nav.WebKit ? e.stack :
 			e.name + ': ' + e.message + '\n' +
@@ -8741,12 +8726,12 @@ function tryToParse(node, lastThr) {
 	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
 	if(aib.abu && TNum) {
-		lThr = thr.el;
-		while((el = lThr.nextSibling) && el.tagName !== 'HR') {
-			$del(el);
+		lThr = fThr.el;
+		while((node = lThr.nextSibling) && node.tagName !== 'HR') {
+			$del(node);
 		}
 	}
-	return thr;
+	return fThr;
 }
 
 function replaceString(txt) {
