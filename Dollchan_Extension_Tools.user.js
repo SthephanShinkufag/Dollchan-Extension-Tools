@@ -3375,7 +3375,7 @@ function loadPages(len) {
 	preparePage();
 	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
 		ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
-			pages[idx] = replacePost(doc.importNode($q(aib.qDForm, dc), true));
+			pages[idx] = replacePost($q(aib.qDForm, dc));
 			if(loaded === len) {
 				pages.forEach(function(page, pNum) {
 					$append(el, pNum === 0 ? [page] : [
@@ -5057,7 +5057,7 @@ function PostForm(form, ignoreForm, init) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxGetPosts(aib.getThrdUrl(brd, aib.getTNum(dForm)), function(dc) {
-				pr = new PostForm(doc.importNode($q(aib.qPostForm, dc), true), true, init);
+				pr = new PostForm($q(aib.qPostForm, dc), true, init);
 			}, function(eCode, eMsg) {
 				pr = new PostForm(null, true, init);
 			});
@@ -7080,7 +7080,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
 		var rm, post = this.parent.thr.op,
 			num = this.parent.num;
-		parsePage(replacePost(doc.importNode($q(aib.qDForm, dc), true)), doc, null, false)
+		parsePage(replacePost($q(aib.qDForm, dc)), doc, null, false)
 			.pviewParse(tNum, this._cached[b] = Object.create(null));
 		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
 		if(!TNum) {
