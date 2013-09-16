@@ -7021,11 +7021,12 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	if(post && (!post.inited || !post.isOp || TNum || post.thr.loadedOnce)) {
+	if(post && (!post.isOp || !parent._isPview || !parent._loaded)) {
 		this._showPost(post);
 	} else {
 		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(post = this._cached && this._cached[b] && this._cached[b][pNum]) {
+		if(post = this._cache && this._cache[b] && this._cache[b].getPost(pNum)) {
+			this._loaded = true;
 			this._showPost(post);
 		} else {
 			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
@@ -7035,7 +7036,7 @@ function Pview(parent, link, tNum, pNum) {
 	}
 }
 Pview.clearCache = function() {
-	Pview.prototype._cached = {};
+	Pview.prototype._cache = {};
 };
 Pview.del = function(pv) {
 	var el;
@@ -7073,22 +7074,17 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 
 	_isPview: { value: true },
-	_cached: { value: {}, writable: true },
+	_loaded: { value: false, writable: true },
+	_cache: { value: {}, writable: true },
 	_readDelay: { value: 0, writable: true },
 	_onerror: { value: function(eCode, eMsg) {
 		Pview.del(this);
 		this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
 	} },
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
-		var rm, post = this.parent.thr.op,
-			num = this.parent.num;
-		parsePage(replacePost($q(aib.qDForm, dc)), doc, null, false)
-			.pviewParse(tNum, this._cached[b] = Object.create(null));
-		genRefMap(this._cached[b], aib.getThrdUrl(b, tNum));
-		if(!TNum) {
-			this._updateOP(this._cached[b][post.num], post);
-		}
-		post = this._cached[b][pNum];
+		var rm, num = this.parent.num,
+			cache = this._cache[b] = new PviewsCache(dc, brd, tNum, this.parent.thr.op),
+			post = cache.getPost(pNum);
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el)
@@ -7104,6 +7100,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		if(this.parent.kid === this) {
 			Pview.del(this);
 			if(post) {
+				this._loaded = true;
 				this._showPost(post);
 			} else {
 				this._showText(Lng.postNotFound[lang]);
@@ -7126,7 +7123,6 @@ Pview.prototype = Object.create(Post.prototype, {
 			this._markLink(this.parent.num);
 		}
 		this._pref = $q(aib.qRef, el);
-		this.thr = post.thr;
 		if(post.inited) {
 			panel = $c('de-ppanel', el);
 			panel.classList.remove('de-ppanel-cnt');
@@ -7197,13 +7193,54 @@ Pview.prototype = Object.create(Post.prototype, {
 		this._showPview(this.el = $add('<div class="' + aib.cReply + ' de-pview-info de-pview">' +
 			txt + '</div>'));
 	} },
-	_updateOP: { value: function(op, nOp) {
-		if(!op) {
-			return;
+});
+
+function PviewsCache(dc, brd, tNum, op) {
+	var i, len, post, pBn = {},
+		pProto = Post.prototype,
+		df = $q(aib.qDForm, dc),
+		thr = replacePost($q(aib.qThread, df) || df),
+		posts = aib.getPosts(thr);
+	for(i = 0, len = posts.length; i < len; ++i) {
+		post = posts[i];
+		pBn[aib.getPNum(post)] = Object.create(pProto, {
+			count: { value: i + 1 },
+			el: { value: post },
+			refInited: { value: false, writable: true }
+		});
+	}
+	pBn[tNum] = this._opObj = Object.create(pProto, {
+		isOp: { value: true },
+		msg: { value: $q(aib.qMsg, thr) },
+		ref: { value: [], writable: true }
+	});
+	if(Cfg['linksNavig'] === 2) {
+		genRefMap(pBn, false);
+	}
+	this._origOp = op;
+	this._thr = thr;
+	this._tNum = tNum;
+	this._tUrl = aib.getThrdUrl(brd, tNum);
+	this._posts = pBn;
+}
+PviewsCache.prototype = {
+	getPost: function(num) {
+		if(num === this._tNum) {
+			return this._op;
 		}
-		var i, j, len, num, rRef, oRef = op.ref, nRef = nOp.ref;
-		delete op.ref;
-		rRef = op.ref;
+		var pst = this._posts[num];
+		if(pst && !pst.refInited && pst.hasRef) {
+			addRefMap(pst, this._tUrl);
+			pst.refInited = true;
+		}
+		return pst;
+	},
+	get _op() {
+		var i, j, len, num, op = this._opObj,
+			opEl = op.el = aib.getOp(this._thr),
+			nRef = this._origOp.ref,
+			oRef = op.ref,
+			rRef = [];
 		for(i = j = 0, len = nRef.length; j < len; ++j) {
 			num = nRef[j];
 			if(oRef[i] === num) {
@@ -7216,13 +7253,15 @@ Pview.prototype = Object.create(Post.prototype, {
 		for(len = oRef.length; i < len; i++) {
 			rRef.push(oRef[i]);
 		}
-		$del($c('de-refmap', op.el));
+		op.ref = rRef;
 		if(rRef.length !== 0) {
 			op.hasRef = true;
-			addRefMap(op, '');
+			addRefMap(op, this._tUrl);
 		}
-	} }
-});
+		Object.defineProperty(this, '_op', { value: op });
+		return op;
+	}
+};
 
 function PviewMoved() {
 	if(this.style[nav.animName]) {
@@ -7291,12 +7330,8 @@ function addRefMap(post, tUrl) {
 	post.msg.insertAdjacentHTML('afterend', str + '</div>');
 }
 
-function genRefMap(posts, tUrl) {
-	if(Cfg['linksNavig'] !== 2) {
-		return;
-	}
-	var tc, lNum, post, ref, i, len, links, pNum, hideRefs = !!Cfg['hideRefPsts'],
-		opNums = firstThr.gInfo.tNums;
+function genRefMap(posts, hideRefs) {
+	var tc, lNum, post, ref, i, len, links, pNum, opNums = firstThr.gInfo.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
 			tc = links[i].textContent;
@@ -7317,12 +7352,6 @@ function genRefMap(posts, tUrl) {
 					links[i].classList.add('de-opref');
 				}
 			}
-		}
-	}
-	for(pNum in posts) {
-		post = posts[pNum];
-		if(post.hasRef) {
-			addRefMap(post, tUrl);
 		}
 	}
 }
@@ -7515,18 +7544,6 @@ Thread.prototype = {
 			Fn(eCode, eMsg, 0);
 			Fn = null;
 		});
-	},
-	pviewParse: function(tNum, posts) {
-		var i, len, num, el, els = aib.getPosts(this.el);
-		this.num = tNum;
-		this.gInfo.tNums.push(+num);
-		posts[tNum] = this.op = new Post(aib.getOp(this.el), this, tNum, 0);
-		this.op.isOp = true;
-		for(i = 0, len = els.length; i < len; i++) {
-			num = aib.getPNum(el = els[i]);
-			posts[num] = new Post(el, this, num, i + 1);
-		}
-		return posts;
 	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
@@ -9052,6 +9069,7 @@ function initPage() {
 //============================================================================================================
 
 function addDelformStuff(isLog) {
+	var pNum, post;
 	preloadImages(null);
 	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('Preload images');
 	embedMP3Links(null);
@@ -9066,8 +9084,16 @@ function addDelformStuff(isLog) {
 		addImagesSearch(dForm);
 		isLog && $log('Sauce buttons');
 	}
-	genRefMap(pByNum, '');
-	isLog && Cfg['linksNavig'] === 2 && $log('Reflinks map');
+	if(Cfg['linksNavig'] === 2) {
+		genRefMap(pByNum, !!Cfg['hideRefPsts']);
+		for(pNum in pByNum) {
+			post = pByNum[pNum];
+			if(post.hasRef) {
+				addRefMap(post, '');
+			}
+		}
+		isLog && $log('Reflinks map');
+	}
 }
 
 function doScript() {
