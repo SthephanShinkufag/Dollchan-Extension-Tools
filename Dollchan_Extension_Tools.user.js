@@ -7076,7 +7076,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
 		var rm, num = this.parent.num,
-			cache = this._cache[b] = new PviewsCache(dc, brd, tNum, this.parent.thr.op),
+			cache = this._cache[b] = new PviewsCache(dc, b, tNum, this.parent.thr.op),
 			post = cache.getPost(pNum);
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
 			if(post.hasRef) {
@@ -7188,7 +7188,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 });
 
-function PviewsCache(dc, brd, tNum, op) {
+function PviewsCache(dc, b, tNum, op) {
 	var i, len, post, pBn = {},
 		pProto = Post.prototype,
 		df = $q(aib.qDForm, dc),
@@ -7215,7 +7215,7 @@ function PviewsCache(dc, brd, tNum, op) {
 	this._origOp = op;
 	this._thr = thr;
 	this._tNum = tNum;
-	this._tUrl = aib.getThrdUrl(brd, tNum);
+	this._tUrl = aib.getThrdUrl(b, tNum);
 	this._posts = pBn;
 }
 PviewsCache.prototype = {
