@@ -1351,7 +1351,7 @@ function showContent(cont, id, name, isUpd) {
 					c.className = 'de-wait';
 					c.textContent = '';
 					ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), function(dc) {
-						var cnt = aib.getPosts(parsePage($q(aib.qDForm, dc), dc, null, false).el).length + 1;
+						var cnt = aib.getPosts($q(aib.qDForm, dc)).length + 1;
 						c.textContent = cnt;
 						if(cnt > f.cnt) {
 							c.className = 'de-fav-inf-new';
