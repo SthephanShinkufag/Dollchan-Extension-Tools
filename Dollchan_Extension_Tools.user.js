@@ -6037,6 +6037,7 @@ Post.sizing = {
 	_pOffset: -1
 };
 Post.prototype = {
+	banned: false,
 	deleted: false,
 	hasRef: false,
 	hasYTube: false,
@@ -7417,46 +7418,45 @@ Thread.prototype = {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.num), function(last, Fn, dc) {
-			var post, thr = parsePage($q(aib.qDForm, dc), dc, null, false).el,
-				els = aib.getPosts(thr),
-				len = els.length,
+		ajaxGetPosts(aib.getThrdUrl(brd, this.num), function threadOnload(last, Fn, dc) {
+			var nForm = $q(aib.qDForm, dc),
+				els = aib.getPosts(nForm),
 				op = this.op,
-				opEl = op.el,
 				thrEl = this.el,
-				nOmt = last !== 1 && last < len ? len - last : 0;
+				expEl = $c('de-expand', thrEl),
+				nOmt = last === 1 ? 0 : Math.max(els.length - last, 0);
 			pr.closeQReply();
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
 				if(op.trunc) {
-					op.updateMsg(aib.getOp(thr));
+					op.updateMsg(replacePost($q(aib.qMsg, nForm)));
 				}
 				delete op.ref;
-				for(post = op.next; post; post = post.nextInThread) {
-					if(post.trunc) {
-						post.updateMsg(els[post.count - 1]);
-					}
-				}
+				this.loadedOnce = true;
 			}
+			this._checkBans(op, nForm);
 			this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt !== 0) {
-				opEl.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
+				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 			}
 			if(this.pcount - nOmt - 1 <= visPosts) {
-				$del($c('de-expand', thrEl));
-			} else if(!$c('de-expand', thrEl)) {
+				$del(expEl);
+			} else if(!expEl) {
 				thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="#">' +
 					Lng.collapseThrd[lang] + '</a>]</span>');
 				thrEl.lastChild.onclick = function(e) {
 					$pd(e);
 					this.load(visPosts, null);
 				}.bind(this);
+			} else if(expEl !== thrEl.lastChild) {
+				thrEl.appendChild(expEl);
 			}
-			this.loadedOnce = true;
 			closeAlert($id('de-alert-load-thr'));
-			scrollTo(0, pageYOffset + opEl.getBoundingClientRect().top);
+			setTimeout(function(op) {
+				scrollTo(0, pageYOffset + op.el.getBoundingClientRect().top);
+			}, 100, op)
 			Fn && Fn();
 		}.bind(this, last, Fn), function(eCode, eMsg) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
@@ -7481,8 +7481,8 @@ Thread.prototype = {
 							pCount = this.pcount;
 							last = this.last;
 							for(i = 0; i < len; i++) {
-								last = this._addPost(fragm, replacePost(getHanaPost(el[i])),
-									el[i]['display_id'], pCount + i, last);
+								last = this._addPost(fragm, el[i]['display_id'],
+									replacePost(getHanaPost(el[i])), pCount + i, last);
 								np -= spells.check(last)
 							}
 							spells.end(savePosts);
@@ -7498,10 +7498,13 @@ Thread.prototype = {
 			return;
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, TNum), function parseNewPosts(dc) {
-			var thr = parsePage($q(aib.qDForm, dc), dc, null, false).el;
-			this._checkBan(this.op, aib.getOp(thr));
-			Fn(200, '', this._parsePosts(aib.getPosts(thr), 0, 0));
-			$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
+			var info, nForm = $q(aib.qDForm, dc);
+			this._checkBans(firstThr.op, nForm);
+			info = this._parsePosts(aib.getPosts(nForm), 0, 0);
+			Fn(200, '', info[1]);
+			if(info[0] !== 0) {
+				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
+			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
 			Fn(eCode, eMsg, 0);
@@ -7536,7 +7539,7 @@ Thread.prototype = {
 		} while(thr = thr.next);
 	},
 
-	_addPost: function(parent, el, num, i, prev) {
+	_addPost: function(parent, num, el, i, prev) {
 		var wrap, node, post = new Post(el, this, num, i).init(prev);
 		pByNum[num] = post;
 		if(postWrapper) {
@@ -7561,14 +7564,19 @@ Thread.prototype = {
 		this.allPCount++;
 		return post;
 	},
-	_checkBan: function(post, node) {
-		if(aib.qBan && !post.isBan) {
-			var isBan = $q(aib.qBan, node);
-			if(isBan) {
-				if(!$q(aib.qBan, post.el)) {
-					post.msg.appendChild(doc.importNode(isBan, true));
+	_checkBans: function(op, thrNode) {
+		var pEl, bEl, post, i, bEls, len;
+		if(aib.qBan) {
+			for(i = 0, banEls = $Q(aib.qBan, thrNode), len = banEls.length; i < len; ++i) {
+				bEl = banEls[i];
+				pEl = aib.getPostEl(bEl);
+				post = pEl ? pByNum[aib.getPNum(pEl)] : op;
+				if(post && !post.banned) {
+					if(!$q(aib.qBan, post.el)) {
+						post.msg.appendChild(bEl);
+					}
+					post.banned = true;
 				}
-				post.isBan = true;
 			}
 		}
 	},
@@ -7602,10 +7610,11 @@ Thread.prototype = {
 	},
 	_parsePosts: function(nPosts, from, omt) {
 		var i, len, el, tPost, fragm, newPosts = 0,
+			newVisPosts = 0,
 			cnt = 1,
 			firstDelPost = null,
 			rerunSpells = spells.hasNumSpell,
-			spellsRunned = false,
+			saveSpells = false,
 			post = this.op.nextNotDeleted;
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - cnt === i) {
@@ -7645,10 +7654,12 @@ Thread.prototype = {
 							post.wrap.classList.add('de-hidden');
 						}
 					} else if(!TNum) {
+						if(post.trunc) {
+							post.updateMsg(replacePost($q(aib.qMsg, nPosts[i])));
+						}
 						post.wrap.classList.remove('de-hidden');
 						updRefMap(post, true);
 					}
-					this._checkBan(post, nPosts[i]);
 					i++;
 				}
 				post = post.nextNotDeleted;
@@ -7657,8 +7668,7 @@ Thread.prototype = {
 				tPost = this.op;
 				for(cnt = post.count - 1; i < cnt; i++) {
 					el = nPosts[i];
-					tPost = this._addPost(fragm, replacePost(doc.importNode(el, true)),
-						aib.getPNum(el), i + 1, tPost);
+					tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el), i + 1, tPost);
 					spells.check(tPost);
 				}
 				cnt = 1;
@@ -7666,6 +7676,7 @@ Thread.prototype = {
 				tPost.next = post;
 				post.prev = tPost;
 			} else {
+				console.error('Loaded thread has extra post: ' + aib.getPNum(nPosts[i]));
 				i++;
 			}
 		}
@@ -7675,26 +7686,25 @@ Thread.prototype = {
 			for(post = firstDelPost.nextInThread; post; post = post.nextInThread) {
 				spells.check(post);
 			}
-			spellsRunned = true;
+			saveSpells = true;
 		}
 		if(i < len) {
-			newPosts = len - i;
+			newPosts = newVisPosts = len - i;
 			post = this.last;
 			fragm = doc.createDocumentFragment();
 			do {
 				el = nPosts[i];
-				post = this._addPost(fragm, replacePost(doc.importNode(el, true)),
-					aib.getPNum(el), i + 1, post);
-				newPosts -= spells.check(post);
+				post = this._addPost(fragm, aib.getPNum(el), replacePost(el), i + 1, post);
+				newVisPosts -= spells.check(post);
 			} while(++i < len);
 			this.el.appendChild(fragm);
 			this.last = post;
-			spellsRunned = true;
+			saveSpells = true;
 		}
-		if(spellsRunned) {
+		if(saveSpells) {
 			spells.end(savePosts);
 		}
-		return newPosts;
+		return [newPosts, newVisPosts];
 	}
 };
 
