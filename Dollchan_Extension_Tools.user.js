@@ -5996,11 +5996,43 @@ ImageMover.prototype = {
 //													POST
 //============================================================================================================
 
-function Post(el, thr, num, count) {
-	this.el = el;
-	this.thr = thr;
+function Post(el, thr, num, count, isOp, prev) {
+	var h, ref, html;
 	this.count = count;
+	this.el = el;
+	this.isOp = isOp;
 	this.num = num;
+	this._pref = ref = $q(aib.qRef, el);
+	this.prev = prev;
+	this.thr = thr;
+	if(prev) {
+		prev.next = this;
+	}
+	el.post = this;
+	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
+		'"><span class="de-btn-hide"></span><span class="de-btn-rep"></span>';
+	if(isOp) {
+		if(!TNum && !aib.arch) {
+			html += '<span class="de-btn-expthr"></span>';
+		}
+		h = aib.host;
+		if(Favor[h] && Favor[h][brd] && Favor[h][brd][num]) {
+			html += '<span class="de-btn-fav-sel"></span>';
+			Favor[h][brd][num]['cnt'] = thr.pcount;
+		} else {
+			html += '<span class="de-btn-fav"></span>';
+		}
+	}
+	ref.insertAdjacentHTML('afterend', html + (
+		this.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : ''
+	) + '</span>');
+	this.btns = ref.nextSibling;
+	if(Cfg['expandPosts'] === 1 && this.trunc) {
+		this._getFull(this.trunc, true);
+	}
+	el.addEventListener('click', this, true);
+	el.addEventListener('mouseover', this, true);
+	el.addEventListener('mouseout', this, true);
 }
 Post.getWrds = function(text) {
 	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').substring(0, 800).split(' ');
@@ -6094,8 +6126,7 @@ Post.prototype = {
 	hashHideFun: null,
 	hashImgsBusy: 0,
 	index: 0,
-	inited: false,
-	isOp: false,
+	inited: true,
 	kid: null,
 	next: null,
 	parent: null,
@@ -6319,23 +6350,6 @@ Post.prototype = {
 		}
 		Object.defineProperty(this, 'imagesData', { value: data });
 		return data;
-	},
-	init: function(prev) {
-		var el = this.el;
-		el.post = this;
-		this.inited = true;
-		this.prev = prev;
-		if(prev) {
-			prev.next = this;
-		}
-		this._addButtons(el, this.num, this.sage, this.isOp);
-		if(Cfg['expandPosts'] === 1 && this.trunc) {
-			this._getFull(this.trunc, true);
-		}
-		el.addEventListener('click', this, true);
-		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
-		return this;
 	},
 	get mp3Obj() {
 		var val = $new('div', {'class': 'de-mp3'}, null);
@@ -6655,27 +6669,6 @@ Post.prototype = {
 	_pref: null,
 	_selRange: null,
 	_selText: '',
-	_addButtons: function(el, num, isSage, isOp) {
-		var h, ref = this._pref = $q(aib.qRef, el),
-			html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
-				'"><span class="de-btn-hide"></span><span class="de-btn-rep"></span>';
-		if(isOp) {
-			if(!TNum && !aib.arch) {
-				html += '<span class="de-btn-expthr"></span>';
-			}
-			h = aib.host;
-			if(Favor[h] && Favor[h][brd] && Favor[h][brd][num]) {
-				html += '<span class="de-btn-fav-sel"></span>';
-				Favor[h][brd][num]['cnt'] = this.thr.pcount;
-			} else {
-				html += '<span class="de-btn-fav"></span>';
-			}
-		}
-		ref.insertAdjacentHTML('afterend', html + (
-			isSage ? '<span class="de-btn-sage" title="SAGE"></span>' : ''
-		) + '</span>');
-		this.btns = ref.nextSibling;
-	},
 	_addFullImage: function(el, data, inPost) {
 		var elMove, elStop, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
@@ -7206,10 +7199,12 @@ function PviewsCache(dc, brd, tNum, op) {
 		pBn[aib.getPNum(post)] = Object.create(pProto, {
 			count: { value: i + 1 },
 			el: { value: post },
+			inited: { value: false },
 			refInited: { value: false, writable: true }
 		});
 	}
 	pBn[tNum] = this._opObj = Object.create(pProto, {
+		inited: { value: false },
 		isOp: { value: true },
 		msg: { value: $q(aib.qMsg, thr) },
 		ref: { value: [], writable: true }
@@ -7421,12 +7416,11 @@ function Thread(el, prev) {
 	this.num = num;
 	this.gInfo.tNums.push(+num);
 	this.pcount = omt + len;
-	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0);
-	lastPost.isOp = true;
-	lastPost.init(prev ? prev.last : null);
+	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
+		prev ? prev.last : null);
 	for(i = 0; i < len; i++) {
 		num = aib.getPNum(pEl = els[i]);
-		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i).init(lastPost);
+		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
 	}
 	this.last = lastPost;
 	el.style.counterReset = 'de-cnt ' + omt;
@@ -7580,7 +7574,7 @@ Thread.prototype = {
 	},
 
 	_addPost: function(parent, num, el, i, prev) {
-		var post = new Post(el, this, num, i).init(prev),
+		var post = new Post(el, this, num, i, false, prev),
 			wrap = aib.getWrap(el, false);
 		pByNum[num] = post;
 		Object.defineProperty(post, 'wrap', { value: wrap });
