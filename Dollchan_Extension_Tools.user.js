@@ -4900,6 +4900,7 @@ function scriptCSS() {
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-reflink { text-decoration: none; }\
+		.de-refcomma:last-child { display: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
 		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
@@ -7096,7 +7097,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			}
 			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
 				aib.getThrdUrl(b, this.parent.thr.num) + aib.anchor + num + '">&gt;&gt;' +
-				(brd !== b ? '/' + brd + '/' : '') + num + '</a>' + (post.hasRef ? ', ' : '')
+				(brd !== b ? '/' + brd + '/' : '') + num + '</a><span class="de-refcomma">, </span>'
 			);
 		}
 		if(this.parent.kid === this) {
@@ -7279,14 +7280,14 @@ function setPviewPosition(link, pView, animFun) {
 	}
 }
 
-function getRelLink(num) {
-	return '<a ' + aib.rLinkClick + ' href="' + this + aib.anchor + num +
-		'" class="de-reflink">&gt;&gt;' + num + '</a>';
-}
-
 function addRefMap(post, tUrl) {
-	post.msg.insertAdjacentHTML('afterend',
-		'<div class="de-refmap">' + post.ref.map(getRelLink, tUrl).join(', ') + '</div>');
+	var i, ref, len, bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
+		str = '<div class="de-refmap">';
+	for(i = 0, ref = post.ref, len = ref.length; i < len; ++i) {
+		str += bStr + ref[i] + '" class="de-reflink">&gt;&gt;' + ref[i] +
+			'</a><span class="de-refcomma">, </span>';
+	}
+	post.msg.insertAdjacentHTML('afterend', str + '</div>');
 }
 
 function genRefMap(posts, tUrl) {
