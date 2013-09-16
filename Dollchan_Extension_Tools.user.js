@@ -525,6 +525,12 @@ function $del(el) {
 	}
 }
 
+function $DOM(html) {
+	var myDoc = doc.implementation.createHTMLDocument('');
+	myDoc.documentElement.innerHTML = html;
+	return myDoc;
+}
+
 function $getStyle(el, prop) {
 	return getComputedStyle(el).getPropertyValue(prop);
 }
@@ -2390,7 +2396,7 @@ html5Submit.prototype = {
 					return;
 				}
 				if(xhr.status === 200) {
-					this(getSubmitResponse(nav.toDOM(xhr.responseText), false));
+					this(getSubmitResponse($DOM(xhr.responseText), false));
 				} else {
 					$alert(xhr.status === 0 ? Lng.noConnect[lang] :
 						'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
@@ -3270,7 +3276,7 @@ function ajaxGetPosts(url, Fn, errFn) {
 			} else if(Fn) {
 				var text = xhr.responseText;
 				if(/<\/html>[\s\n\r]*$/.test(text)) {
-					Fn(nav.toDOM(text));
+					Fn($DOM(text));
 				} else if(errFn) {
 					errFn(0, Lng.textCorrupted[lang]);
 				}
@@ -8492,13 +8498,6 @@ function getNavFuncs() {
 		isBlob: firefox > 14 || chrome || opera >= 12.10,
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
-		},
-		toDOM: firefox ? function toDOM(html) {
-			return new DOMParser().parseFromString(html, 'text/html');
-		} : function toDOM(html) {
-			var myDoc = doc.implementation.createHTMLDocument('');
-			myDoc.documentElement.innerHTML = html;
-			return myDoc;
 		},
 		get canPlayMP3() {
 			var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
