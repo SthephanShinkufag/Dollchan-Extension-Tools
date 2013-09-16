@@ -3132,6 +3132,45 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
+	function addYTubeLink(post, m, loader, link) {
+		var msg, src, dataObj;
+		post.hasYTube = true;
+		if(post.ytInfo === null) {
+			if(youTube.embedType === 2) {
+				youTube.addPlayer(post.ytObj, post.ytInfo = m);
+			} else if(youTube.embedType > 2) {
+				youTube.addImage(post.ytObj, post.ytInfo = m);
+			}
+		} else if(!link && $q('.de-ytube-link[href*="' + m[1] + '"]', post.msg)) {
+			return;
+		}
+		if(loader && (dataObj = youTube.vData[m[1]])) {
+			post.ytData.push(dataObj);
+		}
+		if(link) {
+			link.href = link.href.replace(/^http:/, 'https:');
+			link.className = 'de-ytube-link';
+			if(dataObj) {
+				link.textContent = dataObj[0];
+				link.setAttribute('de-author', dataObj[1]);
+			}
+		} else {
+			src = 'https://www.youtube.com/watch?v=' + m[1];
+			if(m[4] || m[3] || m[2]) {
+				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
+			}
+			post.msg.insertAdjacentHTML('beforeend',
+				'<p class="de-ytube-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '"' : '') +
+					'class="de-ytube-link" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
+			link = post.msg.lastChild.firstChild;
+		}
+		link.ytInfo = m;
+		if(loader && !dataObj) {
+			post.ytLinksLoading++;
+			loader.run([post, link, m[1]]);
+		}
+	}
+
 	function getTitleLoader() {
 		var queueEnd, queue = new $queue(4, function(qIdx, num, data) {
 			if(num % 50 === 0) {
@@ -3162,7 +3201,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 									post.ytHideFun(data);
 								}
 							}
-							setTimeout(queueEnd, 150, idx);
+							setTimeout(queueEnd, 250, idx);
 						}
 					}
 				}.bind(data, qIdx)
@@ -3188,11 +3227,11 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 			el = els[i];
 			if(m = el.href.match(regex)) {
-				(post || aib.getPostEl(el).post).addYTubeLink(m, loader, el);
+				addYTubeLink(post || aib.getPostEl(el).post, m, loader, el);
 			}
 		}
 		for(i = 0, len = embedTube.length; i < len; i += 2) {
-			embedTube[i].addYTubeLink(embedTube[i + 1], loader, null);
+			addYTubeLink(embedTube[i], embedTube[i + 1], loader, null);
 		}
 		loader && loader.complete();
 	}
@@ -3207,7 +3246,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				el.ytInfo = link.ytInfo;
 				j++;
 			} else if(m = el.href.match(regex)) {
-				post.addYTubeLink(m, loader, el);
+				addYTubeLink(post, m, loader, el);
 				j++;
 			}
 		}
@@ -6075,44 +6114,6 @@ Post.prototype = {
 		}
 		if(isExpImg) {
 			this.toggleImages(true);
-		}
-	},
-	addYTubeLink: function(m, loader, link) {
-		var msg, src, dataObj;
-		this.hasYTube = true;
-		if(this.ytInfo === null) {
-			if(youTube.embedType === 2) {
-				youTube.addPlayer(this.ytObj, this.ytInfo = m);
-			} else if(youTube.embedType > 2) {
-				youTube.addImage(this.ytObj, this.ytInfo = m);
-			}
-		} else if(!link && $q('.de-ytube-link[href*="' + m[1] + '"]', this.msg)) {
-			return;
-		}
-		if(loader && (dataObj = youTube.vData[m[1]])) {
-			this.ytData.push(dataObj);
-		}
-		if(link) {
-			link.href = link.href.replace(/^http:/, 'https:');
-			link.className = 'de-ytube-link';
-			if(dataObj) {
-				link.textContent = dataObj[0];
-				link.setAttribute('de-author', dataObj[1]);
-			}
-		} else {
-			src = 'https://www.youtube.com/watch?v=' + m[1];
-			if(m[4] || m[3] || m[2]) {
-				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
-			}
-			this.msg.insertAdjacentHTML('beforeend',
-				'<p class="de-ytube-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '"' : '') +
-					'class="de-ytube-link" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
-			link = this.msg.lastChild.firstChild;
-		}
-		link.ytInfo = m;
-		if(loader && !dataObj) {
-			this.ytLinksLoading++;
-			loader.run([this, link, m[1]]);
 		}
 	},
 	handleEvent: function(e) {
