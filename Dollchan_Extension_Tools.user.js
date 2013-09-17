@@ -671,7 +671,7 @@ $tar.prototype = {
 		this._data.push(header);
 		this._data.push(input);
 		if((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
-			this.data.push(new Uint8Array(i));
+			this._data.push(new Uint8Array(i));
 		}
 	},
 	addString: function(filepath, str) {
@@ -7122,7 +7122,8 @@ Pview.prototype = Object.create(Post.prototype, {
 			panel = $c('de-ppanel', el);
 			panel.classList.remove('de-ppanel-cnt');
 			panel.innerHTML = pText;
-			$each($Q('.de-img-full, .de-after-fimg', el), $del);
+			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
+				'.de-img-full, .de-after-fimg', el), $del);
 			$each(getImages(el), function(el) {
 				el.style.display = '';
 			});
