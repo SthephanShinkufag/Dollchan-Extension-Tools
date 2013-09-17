@@ -6962,9 +6962,11 @@ Post.prototype = {
 		}.bind(this, node), null);
 	},
 	_markLink: function(pNum) {
-		$each($Q('a[href*="#' + pNum + '"]', this.el), function(el) {
-			el.classList.add('de-pview-link');
-		});
+		$each($Q('a[href*="' + pNum + '"]', this.el), function(num, el) {
+			if(el.textContent === '>>' + num) {
+				el.classList.add('de-pview-link');
+			}
+		}.bind(null, pNum));
 	},
 	_removeFullImage: function(e, full, thumb, data) {
 		var pv, cr, x, y, inPost = data.expanded;
