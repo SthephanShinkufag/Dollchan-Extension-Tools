@@ -7014,19 +7014,18 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	this.thr = post ? post.thr : parent.thr;
+	this.tNum = tNum;
 	if(post && (!post.isOp || !parent._isPview || !parent._loaded)) {
 		this._showPost(post);
+		return;
+	}
+	b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
+	if(post = this._cache && this._cache[b + tNum] && this._cache[b + tNum].getPost(pNum)) {
+		this._loaded = true;
+		this._showPost(post);
 	} else {
-		b = link.pathname.match(/^\/?(.+\/)/)[1].replace(aib.res, '').replace(/\/$/, '');
-		if(post = this._cache && this._cache[b] && this._cache[b].getPost(pNum)) {
-			this._loaded = true;
-			this._showPost(post);
-		} else {
-			this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-			ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b, tNum, pNum),
-				this._onerror.bind(this));
-		}
+		this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
+		ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b), this._onerror.bind(this));
 	}
 }
 Pview.clearCache = function() {
@@ -7075,12 +7074,12 @@ Pview.prototype = Object.create(Post.prototype, {
 		Pview.del(this);
 		this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
 	} },
-	_onload: { value: function pvOnload(b, tNum, pNum, dc) {
-		var rm, num = this.parent.num,
-			thr = this.parent.thr,
-			cache = this._cache[b] = new PviewsCache(dc, b, tNum, thr.op),
-			post = cache.getPost(pNum);
-		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(num) === -1)) {
+	_onload: { value: function pvOnload(b, dc) {
+		var rm, parent = this.parent,
+			parentNum = parent.num,
+			cache = this._cache[b + this.tNum] = new PviewsCache(dc, b, this.tNum),
+			post = cache.getPost(this.num);
+		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
 			if(post.hasRef) {
 				rm = $c('de-refmap', post.el)
 			} else {
@@ -7088,11 +7087,11 @@ Pview.prototype = Object.create(Post.prototype, {
 				rm = post.msg.nextSibling;
 			}
 			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
-				aib.getThrdUrl(b, thr.num) + aib.anchor + num + '">&gt;&gt;' +
-				(brd !== b ? '/' + brd + '/' : '') + num + '</a><span class="de-refcomma">, </span>'
-			);
+				aib.getThrdUrl(b, parent._isPview ? parent.tNum : parent.thr.num) + aib.anchor +
+				parentNum + '">&gt;&gt;' + (brd === b ? '' : '/' + brd + '/') + parentNum +
+				'</a><span class="de-refcomma">, </span>');
 		}
-		if(this.parent.kid === this) {
+		if(parent.kid === this) {
 			Pview.del(this);
 			if(post) {
 				this._loaded = true;
@@ -7191,7 +7190,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 });
 
-function PviewsCache(dc, b, tNum, op) {
+function PviewsCache(dc, b, tNum) {
 	var i, len, post, pBn = {},
 		pProto = Post.prototype,
 		df = $q(aib.qDForm, dc),
@@ -7215,7 +7214,7 @@ function PviewsCache(dc, b, tNum, op) {
 	if(Cfg['linksNavig'] === 2) {
 		genRefMap(pBn, false);
 	}
-	this._origOp = op;
+	this._brd = b;
 	this._thr = thr;
 	this._tNum = tNum;
 	this._tUrl = aib.getThrdUrl(b, tNum);
@@ -7234,26 +7233,29 @@ PviewsCache.prototype = {
 		return pst;
 	},
 	get _op() {
-		var i, j, len, num, op = this._opObj,
-			opEl = op.el = aib.getOp(this._thr),
-			nRef = this._origOp.ref,
-			oRef = op.ref,
+		var i, j, len, num, nRef, oRef, rRef, oOp, op = this._opObj;
+		op.el = aib.getOp(this._thr);
+		if(this._brd === brd && (oOp = pByNum[this._tNum])) {
+			oRef = op.ref;
 			rRef = [];
-		for(i = j = 0, len = nRef.length; j < len; ++j) {
-			num = nRef[j];
-			if(oRef[i] === num) {
-				i++;
-			} else if(oRef.indexOf(num) !== -1) {
-				continue;
+			for(i = j = 0, nRef = oOp.ref, len = nRef.length; j < len; ++j) {
+				num = nRef[j];
+				if(oRef[i] === num) {
+					i++;
+				} else if(oRef.indexOf(num) !== -1) {
+					continue;
+				}
+				rRef.push(num)
 			}
-			rRef.push(num)
-		}
-		for(len = oRef.length; i < len; i++) {
-			rRef.push(oRef[i]);
-		}
-		op.ref = rRef;
-		if(rRef.length !== 0) {
-			op.hasRef = true;
+			for(len = oRef.length; i < len; i++) {
+				rRef.push(oRef[i]);
+			}
+			op.ref = rRef;
+			if(rRef.length !== 0) {
+				op.hasRef = true;
+				addRefMap(op, this._tUrl);
+			}
+		} else if(op.hasRef) {
 			addRefMap(op, this._tUrl);
 		}
 		Object.defineProperty(this, '_op', { value: op });
