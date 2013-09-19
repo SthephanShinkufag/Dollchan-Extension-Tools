@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			13.7.28.0
+// @version			13.9.19.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
-var version = '13.7.28.0',
+var version = '13.9.19.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -8100,6 +8100,7 @@ ImageBoard.prototype = {
 				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
 			init: { value: function() {
+				throw true;
 				var cd = $id('captcha_div'),
 					img = cd && $t('img', cd);
 				if(img) {
