@@ -8055,7 +8055,6 @@ function getImageBoard() {
 				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
 			init: { value: function() {
-				throw true;
 				var cd = $id('captcha_div'),
 					img = cd && $t('img', cd);
 				if(img) {
