@@ -2216,7 +2216,6 @@ KeyNavigation.prototype = {
 	},
 	_scroll: function(post, toUp, toThread) {
 		var next = this._getNextVisPost(post, toThread, toUp);
-		this.scrolling = true;
 		if(!next) {
 			if(!TNum) {
 				window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : pageNum + 1);
@@ -7806,7 +7805,7 @@ function getImageBoard() {
 				});
 			} },
 			qBan: { value: 'strong[style="color: red;"]' },
-			qDelBut: { value: '.deleteform.desktop > input[type="submit"]' },
+			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
