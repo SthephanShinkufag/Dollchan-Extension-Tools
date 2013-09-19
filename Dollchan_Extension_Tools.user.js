@@ -2121,7 +2121,7 @@ KeyNavigation.prototype = {
 			if(kc === 27) {
 				e.target.blur();
 			} else if(e.altKey) {
-				if(kc === 13 && e.target === pr.txta) {
+				if(kc === 13 && (e.target === pr.txta || e.target === pr.cap)) {
 					pr.subm.click();
 					e.stopPropagation();
 					$pd(e);
@@ -2312,7 +2312,7 @@ function checkDelete(response) {
 		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
 		return;
 	}
-	for(var el, tNum, tNums = [], i = 0, els = $Q('[de-post] input:checked', dForm); el = els[i++];) {
+	for(var el, tNum, tNums = [], i = 0, els = $Q('.' + aib.cRPost + ' input:checked', dForm); el = els[i++];) {
 		el.checked = false;
 		if(!TNum && tNums.indexOf(tNum = aib.getPostEl(el).post.thr.num) === -1) {
 			tNums.push(tNum);
@@ -2879,7 +2879,7 @@ function loadDocFiles(imgOnly) {
 				el.className = 'de-preflink ' + el.className;
 			}
 		});
-		$each($Q('[de-post]', dc), function(post, i) {
+		$each($Q('.' + aib.cRPost, dc), function(post, i) {
 			post.setAttribute('de-num', i === 0 ? TNum : aib.getPNum(post));
 		});
 		$each($Q('link, *[src]', dc), function(el) {
@@ -3365,6 +3365,7 @@ function loadFavorThread() {
 }
 
 function loadPages(len) {
+	var i = len === 1 ? pageNum : 0, pages = [], loaded = 1;
 	$alert(Lng.loading[lang], 'load-pages', true);
 	$each($Q('a[href^="blob:"]', dForm), function(a) {
 		window.URL.revokeObjectURL(a.href);
@@ -3375,12 +3376,13 @@ function loadPages(len) {
 	firstThr.gInfo.tNums = [];
 	$disp(dForm);
 	dForm.innerHTML = '';
-	for(var i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
+	do {
 		ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
+			var el, df, j;
 			pages[idx] = replacePost($q(aib.qDForm, dc));
 			if(loaded === len) {
-				for(var el, df, j = 0; j < len; j++) {
-					if(j !== 0) {
+				for(j in pages) {
+					if(len !== 1 && j != 0) {
 						dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
 							j + '</center><hr>');
 					}
@@ -3413,7 +3415,7 @@ function loadPages(len) {
 				loaded++;
 			}
 		}.bind(null, i));
-	}
+	} while(++i < len);
 }
 
 function infoLoadErrors(eCode, eMsg, newPosts) {
