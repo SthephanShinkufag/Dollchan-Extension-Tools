@@ -3364,70 +3364,51 @@ function loadFavorThread() {
 		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>');
 }
 
-function parsePages(pages, node) {
-	$disp(node);
-	dForm.parentNode.replaceChild(node, dForm);
-	dForm = node;
-	pByNum = Object.create(null);
-	firstThr.gInfo.tNums = [];
-	readFavorites();
-	firstThr = pages.reduceRight(function(lThr, page) {
-		return tryToParse(page, lThr);
-	}, null);
-	addDelformStuff(false);
-	readUserPosts();
-	checkPostsVisib();
-	saveFavorites();
-	saveUserPosts();
-	if(pr.passw) {
-		pages.forEach(function(page) {
-			var node = $q('input[type="password"]', page);
-			if(node) {
-				pr.dpass = node;
-				node.value = Cfg['passwValue'];
-			}
-		});
-	}
-	if(pr.txta) {
-		pr.txta.value = '';
-	}
-	if(keyNav) {
-		keyNav.clear();
-	}
-	$disp(node);
-	closeAlert($id('de-alert-load-pages'));
-}
-
-function preparePage() {
+function loadPages(len) {
 	$alert(Lng.loading[lang], 'load-pages', true);
-	if(Cfg['preLoadImgs']) {
-		$each($Q('a[href^="blob:"]', dForm), function(a) {
-			window.URL.revokeObjectURL(a.href);
-		});
-	}
-	$disp(dForm);
+	$each($Q('a[href^="blob:"]', dForm), function(a) {
+		window.URL.revokeObjectURL(a.href);
+	});
 	Pview.clearCache();
 	isExpImg = false;
-}
-
-function loadPages(len) {
-	preparePage();
-	for(var el = doc.createElement('div'), i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
+	pByNum = Object.create(null);
+	firstThr.gInfo.tNums = [];
+	$disp(dForm);
+	dForm.innerHTML = '';
+	for(var i = 0, pages = new Array(len), loaded = 1; i < len; i++) {
 		ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
 			pages[idx] = replacePost($q(aib.qDForm, dc));
 			if(loaded === len) {
-				pages.forEach(function(page, pNum) {
-					$append(el, pNum === 0 ? [page] : [
-						$new('center', {
-							'text': pNum + ' ' + Lng.page[lang],
-							'style': 'font-size: 2em;'
-						}, null),
-						doc.createElement('hr'),
-						page
-					]);
+				for(var el, df, j = 0; j < len; j++) {
+					if(j !== 0) {
+						dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
+							j + '</center><hr>');
+					}
+					df = pages[j];
+					while(el = df.firstChild) {
+						dForm.appendChild(el);
+					}
+				}
+				firstThr = tryToParse(dForm);
+				readFavorites();
+				addDelformStuff(false);
+				readUserPosts();
+				checkPostsVisib();
+				saveFavorites();
+				saveUserPosts();
+				$each($Q('input[type="password"]', dForm), function(pEl) {
+					pr.dpass = pEl;
+					pEl.value = Cfg['passwValue'];
 				});
-				parsePages(pages, el);
-				loaded = pages = el = null;
+				if(pr.txta) {
+					pr.txta.value = '';
+				}
+				if(keyNav) {
+					keyNav.clear();
+				}
+				$disp(dForm);
+				closeAlert($id('de-alert-load-pages'));
+				loaded = pages = len = null;
 			} else {
 				loaded++;
 			}
@@ -8683,8 +8664,8 @@ function Initialization() {
 	return true;
 }
 
-function tryToParse(node, lThr) {
-	var i, fThr, thrds = $Q(aib.qThread, node),
+function tryToParse(node) {
+	var i, fThr, lThr, thrds = $Q(aib.qThread, node),
 		len = thrds.length;
 	$each($T('script', node), $del);
 	try {
@@ -8710,7 +8691,7 @@ function tryToParse(node, lThr) {
 				return null;
 			}
 		}
-		fThr = lThr = new Thread(thrds[0], lThr);
+		fThr = lThr = new Thread(thrds[0], null);
 		for(i = 1; i < len; i++) {
 			lThr = new Thread(thrds[i], lThr);
 		}
@@ -9101,7 +9082,7 @@ function doScript() {
 	}
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
 	pByNum = Object.create(null);
-	firstThr = tryToParse(dForm, null);
+	firstThr = tryToParse(dForm);
 	if(!firstThr) {
 		$disp(doc.body);
 		return;
