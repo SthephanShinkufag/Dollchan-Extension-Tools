@@ -6927,15 +6927,14 @@ Post.prototype = {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, this.thr.num), function(node, dc) {
-			var i, els, len, df = $q(aib.qDForm, dc),
-				msgs = $Q(aib.qMsg, df);
+			var i, els, len, df = $q(aib.qDForm, dc);
 			if(this.isOp) {
-				this.updateMsg(replacePost(msgs[0]));
+				this.updateMsg(replacePost($q(aib.qMsg, df)));
 				$del(node);
 			} else {
 				for(i = 0, els = aib.getPosts(df), len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
-						this.updateMsg(replacePost(msgs[i + 1]));
+						this.updateMsg(replacePost($q(aib.qMsg, els[i])));
 						$del(node);
 						return;
 					}
