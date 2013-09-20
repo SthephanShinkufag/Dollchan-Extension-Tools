@@ -8672,7 +8672,7 @@ function tryToParse(node) {
 	try {
 		if(len === 0) {
 			thrds = [];
-			aProto.slice.call(el.childNodes).reduce(function(prevVal, curVal, i, array) {
+			aProto.slice.call(node.childNodes).reduce(function(prevVal, curVal, i, array) {
 				if(array[i + 1]) {
 					if(curVal.tagName === 'HR') {
 						$before(curVal, prevVal.lastChild);
