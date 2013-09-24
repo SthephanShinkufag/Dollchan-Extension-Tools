@@ -405,7 +405,7 @@ Lng = {
 	seCol:			[', столбец ', ', column ']
 },
 
-doc = window.document, aProto = Array.prototype,
+doc = window.document, aProto = Array.prototype, Worker,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, spells,
@@ -2545,24 +2545,24 @@ function initMessageFunctions() {
 function detectImgFile(ab) {
 	var i, j, dat = new Uint8Array(ab),
 		len = dat.length;
-	// JPG [ff d8 ff e0] = [яШяа]
+	/* JPG [ff d8 ff e0] = [яШяа] */
 	if(dat[0] === 0xFF && dat[1] === 0xD8) {
 		for(i = 0, j = 0; i < len - 1; i++) {
 			if(dat[i] === 0xFF) {
-				// Built-in JPG
+				/* Built-in JPG */
 				if(dat[i + 1] === 0xD8) {
 					j++;
-				// JPG end [ff d9]
+				/* JPG end [ff d9] */
 				} else if(dat[i + 1] === 0xD9 && --j === 0) {
 					i += 2;
 					break;
 				}
 			}
 		}
-	// PNG [89 50 4e 47] = [‰PNG]
+	/* PNG [89 50 4e 47] = [‰PNG] */
 	} else if(dat[0] === 0x89 && dat[1] === 0x50) {
 		for(i = 0; i < len - 7; i++) {
-			// PNG end [49 45 4e 44 ae 42 60 82]
+			/* PNG end [49 45 4e 44 ae 42 60 82] */
 			if(dat[i] === 0x49 && dat[i + 1] === 0x45 && dat[i + 2] === 0x4E && dat[i + 3] === 0x44) {
 				i += 8;
 				break;
@@ -2571,22 +2571,22 @@ function detectImgFile(ab) {
 	} else {
 		return {};
 	}
-	// Ignore small files
+	/* Ignore small files */
 	if(i !== len && len - i > 60) {
 		for(len = i + 90; i < len; i++) {
-			// 7Z [37 7a bc af] = [7zјЇ]
+			/* 7Z [37 7a bc af] = [7zјЇ] */
 			if(dat[i] === 0x37 && dat[i + 1] === 0x7A && dat[i + 2] === 0xBC) {
 				return {'type': 0, 'idx': i, 'data': ab};
-			// ZIP [50 4b 03 04] = [PK..]
+			/* ZIP [50 4b 03 04] = [PK..] */
 			} else if(dat[i] === 0x50 && dat[i + 1] === 0x4B && dat[i + 2] === 0x03) {
 				return {'type': 1, 'idx': i, 'data': ab};
-			// RAR [52 61 72 21] = [Rar!]
+			/* RAR [52 61 72 21] = [Rar!] */
 			} else if(dat[i] === 0x52 && dat[i + 1] === 0x61 && dat[i + 2] === 0x72) {
 				return {'type': 2, 'idx': i, 'data': ab};
-			// OGG [4f 67 67 53] = [OggS]
+			/* OGG [4f 67 67 53] = [OggS] */
 			} else if(dat[i] === 0x4F && dat[i + 1] === 0x67 && dat[i + 2] === 0x67) {
 				return {'type': 3, 'idx': i, 'data': ab};
-			// MP3 [0x49 0x44 0x33] = [ID3]
+			/* MP3 [0x49 0x44 0x33] = [ID3] */
 			} else if(dat[i] === 0x49 && dat[i + 1] === 0x44 && dat[i + 2] === 0x33) {
 				return {'type': 4, 'idx': i, 'data': ab};
 			}
@@ -2596,23 +2596,20 @@ function detectImgFile(ab) {
 }
 
 function workerQueue(mReqs, wrkFn, errFn) {
-	if(!nav.Worker) {
+	if(!Worker) {
 		this.run = this._runSync.bind(wrkFn);
 		return;
 	}
-	this.url = window.URL.createObjectURL(new Blob([
-		'var fn = ' + String(wrkFn) + ';\
-		self.onmessage = function(e) {\
-			var info = fn(e.data[1]);\
-			self.postMessage([e.data[0], info], info.data ? [info.data] : null);\
-		}'
-	], {'type': 'text/javascript'}));
+	var wrkUrl = 'data:text/javascript,self.onmessage = function(e) {\
+		var info = (' + String(wrkFn) + ')(e.data[1]);\
+		self.postMessage([e.data[0], info], info.data ? [info.data] : null);\
+	}';
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.run = this._runWrk;
 	this.wrks = [];
 	this.errFn = errFn;
 	while(mReqs > 0) {
-		this.wrks.push(new nav.Worker(this.url));
+		this.wrks.push(new Worker(wrkUrl));
 		mReqs--;
 	}
 }
@@ -2639,7 +2636,6 @@ workerQueue.prototype = {
 	},
 	clear: function() {
 		this.wrks = null;
-		window.URL.revokeObjectURL(this.url);
 	}
 };
 
@@ -8444,27 +8440,10 @@ function getNavFuncs() {
 		safari = webkit && !chrome,
 		isGM = typeof GM_setValue === 'function' && 
 			(!chrome || !GM_setValue.toString().contains('not supported'));
-	if(firefox > 19) {
-		$script(
-			'window["de-worker"] = function(url) {\
-				this.wrk = new Worker(url);\
-			};\
-			window["de-worker-proto"] = window["de-worker"].prototype = {\
-				set onmessage(Fn) {\
-					this.wrk.onmessage = Fn;\
-				},\
-				set onerror(Fn) {\
-					this.wrk.onerror = Fn;\
-				},\
-				_postMessage: function() {\
-					this.wrk.postMessage.apply(this.wrk, arguments);\
-				}\
-			};', false
-		);
-	}
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
 	}
+	Worker = firefox ? unsafeWindow.Worker : window.Worker;
 	return {
 		Firefox: firefox,
 		Opera: opera,
@@ -8501,23 +8480,6 @@ function getNavFuncs() {
 					dE.webkitMatchesSelector || dE.oMatchesSelector,
 				val = Function.prototype.call.bind(fun);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
-			return val;
-		},
-		get Worker() {
-			var val;
-			if(nav.Firefox && nav.Firefox > 19) {
-				if(unsafeWindow['de-worker']) {
-					val = new Proxy(unsafeWindow['de-worker'], {});
-					val.prototype.postMessage = function() {
-						unsafeWindow['de-worker-proto']._postMessage.apply(this, arguments);
-					};
-				} else {
-					val = null;
-				}
-			} else {
-				val = window.Worker;
-			}
-			Object.defineProperty(this, 'Worker', { value: val });
 			return val;
 		}
 	};
