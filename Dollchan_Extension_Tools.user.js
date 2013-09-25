@@ -2133,8 +2133,10 @@ KeyNavigation.prototype = {
 				}
 			} else if(e.ctrlKey) {
 				if(kc === 37) {
-					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
-				} else if(!TNum && kc === 39) {
+					if(TNum || pageNum > 0) {
+						window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+					}
+				} else if(!TNum && kc === 39 && this.lastPage < aib.pagesCount) {
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 				}
 			} else if(!TNum && kc === 116 && !e.shiftKey) {
@@ -2146,8 +2148,10 @@ KeyNavigation.prototype = {
 		}
 		if(e.ctrlKey) {
 			if(kc === 37) {
-				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
-			} else if(!TNum && kc === 39) {
+				if(TNum || pageNum > 0) {
+					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+				}
+			} else if(!TNum && kc === 39 && this.lastPage < aib.pagesCount) {
 				window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 			}
 			return;
