@@ -1215,15 +1215,18 @@ function showContent(cont, id, name, isUpd) {
 			}
 			(cln = post.cloneNode(true)).removeAttribute('id');
 			cln.style.display = '';
-			cln.classList.add('de-cloned-post');
+			if(cln.classList.contains(aib.cRPost)) {
+				cln.classList.add('de-cloned-post');
+			} else {
+				cln.className = aib.cReply + ' de-cloned-post';
+			}
 			cln.post = Object.create(cln.clone = post.post);
 			cln.post.el = cln;
 			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
 			cln.btn.parentNode.className = 'de-ppanel';
 			cln.btn.onclick = function() {
-				var post = aib.getPostEl(this).post;
-				post.toggleContent(post.hidden = !post.hidden);
-			};
+				this.toggleContent(this.hidden = !this.hidden);
+			}.bind(cln);
 			(block || (block = cont.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
 			))).appendChild($New('div', {'class': 'de-entry'}, [cln]));
@@ -2311,10 +2314,17 @@ function checkDelete(response) {
 		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
 		return;
 	}
-	for(var el, tNum, tNums = [], i = 0, els = $Q('.' + aib.cRPost + ' input:checked', dForm); el = els[i++];) {
+	var el, i, els, len, post, tNums = [],
+		num = doc.location.hash.match(/\d+/)[0];
+	if(num && (post = pByNum[num])) {
+		post.el.className = aib.cReply;
+		doc.location.hash = '';
+	}
+	for(i = 0, els = $Q('.' + aib.cRPost + ' input:checked', dForm), len = els.length; i < len; ++i) {
+		el = els[i];
 		el.checked = false;
-		if(!TNum && tNums.indexOf(tNum = aib.getPostEl(el).post.thr.num) === -1) {
-			tNums.push(tNum);
+		if(!TNum && tNums.indexOf(num = aib.getPostEl(el).post.thr.num) === -1) {
+			tNums.push(num);
 		}
 	}
 	if(TNum) {
@@ -2775,7 +2785,6 @@ function preloadImages(post) {
 			} else if(nExp) {
 				el.src = url;
 			}
-			el.classList.add('de-img-pre');
 		}
 	}
 	queue && queue.complete();
@@ -4877,7 +4886,6 @@ function scriptCSS() {
 	cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
 	x += '.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
-		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
@@ -6469,8 +6477,8 @@ Post.prototype = {
 				this.note = '';
 			}
 			this._pref.onmouseover = this._pref.onmouseout = hide && function(e) {
-				aib.getPostEl(this).post.toggleContent(e.type === 'mouseout');
-			};
+				this.toggleContent(e.type === 'mouseout');
+			}.bind(this);
 		}
 		this.hidden = hide;
 		this.toggleContent(hide);
@@ -7731,7 +7739,7 @@ function getImageBoard() {
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 			} },
 			getPicWrap: { value: function(el) {
-				return getAncestor(el, 'TD') || this.getPostEl(el);
+				return el.parentNode.parentNode;
 			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, span[id$="_display"] { display: none !important; }' },
 			docExt: { value: '.html' },
@@ -8202,6 +8210,9 @@ function getImageBoard() {
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
+			getPicWrap: { value: function(el) {
+				return el.parentNode.parentNode;
+			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, #newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			isBB: { value: true },
@@ -8305,7 +8316,8 @@ function getImageBoard() {
 			return op;
 		},
 		getPicWrap: function(el) {
-			return this.getPostEl(el);
+			var node = el.parentNode;
+			return node.tagName === 'SPAN' ? node.parentNode : node;
 		},
 		getPNum: function(post) {
 			return post.id.match(/\d+/)[0];
