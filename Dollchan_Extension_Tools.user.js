@@ -8072,7 +8072,7 @@ function getImageBoard() {
 			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a' },
 			pagesCount: { configurable: true, get: function() {
 				var val = $Q(this.qPages, doc).length;
-				Object.defineProperty(this, 'reCrossLinks', { value: val });
+				Object.defineProperty(this, 'pagesCount', { value: val });
 				return val;
 			} },
 			css: { get: function() {
@@ -8425,7 +8425,7 @@ function getImageBoard() {
 		},
 		get pagesCount() {
 			var val = $Q(this.qPages, dForm.parentNode).length;
-			Object.defineProperty(this, 'reCrossLinks', { value: val });
+			Object.defineProperty(this, 'pagesCount', { value: val });
 			return val;
 		},
 		get reCrossLinks() {
