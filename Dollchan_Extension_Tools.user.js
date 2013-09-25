@@ -1914,6 +1914,9 @@ function addSettings(Set) {
 				toggleContent('cfg', false);
 			}),
 			$New('div', {'style': 'float: right;'}, [
+				addEditButton('cfg', Cfg, true, function(data) {
+					saveComCfg(aib.dm, data);
+				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(('global' in comCfg) && !$isEmpty(comCfg['global'])) {
 						saveComCfg(aib.dm, null);
@@ -1933,9 +1936,6 @@ function addSettings(Set) {
 					saveComCfg('global', obj);
 					toggleContent('cfg', true);
 				})),
-				addEditButton('cfg', Cfg, true, function(data) {
-					saveComCfg(aib.dm, data);
-				}),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
 						delStored('DESU_Config');
@@ -3397,18 +3397,22 @@ function loadPages(count) {
 			pages[idx] = replacePost($q(aib.qDForm, eCodeOrDc));
 		}
 		if(loaded === count) {
-			var el, df, j;
+			var el, df, j, parseThrs = Thread.parsed,
+				threads = parseThrs ? [] : null;
 			for(j in pages) {
 				if(loaded !== 1 && j != pageNum) {
 					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
 						j + '</center><hr>');
 				}
 				df = pages[j];
+				if(parseThrs) {
+					threads = parseThreadNodes(df, threads);
+				}
 				while(el = df.firstChild) {
 					dForm.appendChild(el);
 				}
 			}
-			firstThr = tryToParse(dForm);
+			firstThr = tryToParse(dForm, parseThrs ? threads : $Q(aib.qThread, dForm));
 			readFavorites();
 			addDelformStuff(false);
 			readUserPosts();
@@ -7452,6 +7456,7 @@ function Thread(el, prev) {
 		prev.next = this;
 	}
 }
+Thread.parsed = false;
 Thread.processUpdBtn = function(add) {
 	if(add) {
 		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
@@ -8695,28 +8700,33 @@ function Initialization() {
 	return true;
 }
 
-function tryToParse(node) {
-	var i, fThr, lThr, thrds = $Q(aib.qThread, node),
-		len = thrds.length;
+function parseThreadNodes(form, threads) {
+	var i, len, node, fNodes = aProto.slice.call(form.childNodes),
+		cThr = doc.createElement('div');
+	for(i = 0, len = fNodes.length - 1; i < len; ++i) {
+		node = fNodes[i];
+		if(node.tagName === 'HR') {
+			form.insertBefore(cThr.lastChild, node);
+			form.insertBefore(cThr, node);
+			form.insertBefore(cThr.lastChild, cThr.nextSibling);
+			threads.push(cThr);
+			cThr = doc.createElement('div');
+		} else {
+			cThr.appendChild(node);
+		}
+	}
+	cThr.appendChild(fNodes[i]);
+	form.appendChild(cThr);
+	return threads;
+}
+
+function tryToParse(node, thrds) {
+	var i, fThr, lThr, len = thrds.length;
 	$each($T('script', node), $del);
 	try {
 		if(len === 0) {
-			thrds = [];
-			aProto.slice.call(node.childNodes).reduce(function(prevVal, curVal, i, array) {
-				if(array[i + 1]) {
-					if(curVal.tagName === 'HR') {
-						$before(curVal, prevVal.lastChild);
-						$before(curVal, prevVal);
-						$after(prevVal, prevVal.lastChild);
-						thrds.push(prevVal);
-						return doc.createElement('div');
-					}
-					prevVal.appendChild(curVal);
-					return prevVal;
-				}
-				$after(curVal, prevVal);
-				prevVal.appendChild(curVal);
-			}, doc.createElement('div'));
+			Thread.parsed = true;
+			thrds = parseThreadNodes(dForm, []);
 			len = thrds.length;
 			if(len === 0) {
 				return null;
@@ -9113,7 +9123,7 @@ function doScript() {
 	}
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
 	pByNum = Object.create(null);
-	firstThr = tryToParse(dForm);
+	firstThr = tryToParse(dForm, $Q(aib.qThread, dForm));
 	if(!firstThr) {
 		$disp(doc.body);
 		return;
