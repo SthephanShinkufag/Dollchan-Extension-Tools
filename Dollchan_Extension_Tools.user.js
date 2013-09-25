@@ -1047,8 +1047,8 @@ function addPanel() {
 					pButton('favor', '#') +
 					(aib.arch ? '' :
 						pButton('refresh', '#') +
-						pButton('goback', aib.getPageUrl(brd, pageNum - 1)) +
-						(TNum ? '' : pButton('gonext', aib.getPageUrl(brd, pageNum + 1)))) +
+						(!TNum && pageNum === 0 ? '' : pButton('goback', aib.getPageUrl(brd, pageNum - 1))) +
+						(TNum || pageNum === aib.pagesCount ? '' : pButton('gonext', aib.getPageUrl(brd, pageNum + 1)))) +
 					pButton('goup', '#') +
 					pButton('godown', '#') +
 					(imgLen === 0 ? '' :
@@ -2091,15 +2091,17 @@ function addAudioNotifMenu(el) {
 //============================================================================================================
 
 function KeyNavigation() {
-	this.lastPageOffset = 0;
 	this.cPost = null;
 	this.enabled = true;
+	this.lastPage = pageNum;
+	this.lastPageOffset = 0;
 	doc.addEventListener('keydown', this, true);
 }
 KeyNavigation.prototype = {
-	clear: function() {
-		this.lastPageOffset = 0;
+	clear: function(lastPage) {
 		this.cPost = null;
+		this.lastPage = lastPage;
+		this.lastPageOffset = 0;
 	},
 	disable: function() {
 		if(this.enabled) {
@@ -2129,7 +2131,13 @@ KeyNavigation.prototype = {
 					e.stopPropagation();
 					$pd(e);
 				}
-			} else if(!TNum && kc === 116 && !e.ctrlKey && !e.shiftKey) {
+			} else if(e.ctrlKey) {
+				if(kc === 37) {
+					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+				} else if(!TNum && kc === 39) {
+					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+				}
+			} else if(!TNum && kc === 116 && !e.shiftKey) {
 				e.stopPropagation();
 				$pd(e);
 				loadPages(+Cfg['loadPages']);
@@ -2140,7 +2148,7 @@ KeyNavigation.prototype = {
 			if(kc === 37) {
 				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 			} else if(!TNum && kc === 39) {
-				window.location.pathname = aib.getPageUrl(brd, pageNum + 1);
+				window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 			}
 			return;
 		}
@@ -2220,8 +2228,8 @@ KeyNavigation.prototype = {
 	_scroll: function(post, toUp, toThread) {
 		var next = this._getNextVisPost(post, toThread, toUp);
 		if(!next) {
-			if(!TNum) {
-				window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : pageNum + 1);
+			if(!TNum && (toUp ? pageNum > 0 : this.lastPage < aib.pagesCount)) {
+				window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
 			}
 			return;
 		}
@@ -3368,8 +3376,57 @@ function loadFavorThread() {
 		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>');
 }
 
-function loadPages(len) {
-	var i = len === 1 ? pageNum : 0, pages = [], loaded = 1;
+function loadPages(count) {
+	var fun, i = pageNum,
+		len = Math.min(aib.pagesCount + 1, i + count),
+		pages = [],
+		loaded = 1;
+	count = len - i;
+
+	function onLoadOrError(idx, eCodeOrDc, maybeEMsg) {
+		if(typeof eCodeOrDc === 'number') {
+			pages[idx] = $add('<div><center style="font-size: 2em">' +
+				getErrorMessage(eCodeOrDc, maybeEMsg) + '</center><hr></div>');
+		} else {
+			pages[idx] = replacePost($q(aib.qDForm, eCodeOrDc));
+		}
+		if(loaded === count) {
+			var el, df, j;
+			for(j in pages) {
+				if(loaded !== 1 && j != pageNum) {
+					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
+						j + '</center><hr>');
+				}
+				df = pages[j];
+				while(el = df.firstChild) {
+					dForm.appendChild(el);
+				}
+			}
+			firstThr = tryToParse(dForm);
+			readFavorites();
+			addDelformStuff(false);
+			readUserPosts();
+			checkPostsVisib();
+			saveFavorites();
+			saveUserPosts();
+			$each($Q('input[type="password"]', dForm), function(pEl) {
+				pr.dpass = pEl;
+				pEl.value = Cfg['passwValue'];
+			});
+			if(pr.txta) {
+				pr.txta.value = '';
+			}
+			if(keyNav) {
+				keyNav.clear(pageNum + count - 1);
+			}
+			$disp(dForm);
+			closeAlert($id('de-alert-load-pages'));
+			loaded = pages = count = null;
+		} else {
+			loaded++;
+		}
+	}
+
 	$alert(Lng.loading[lang], 'load-pages', true);
 	$each($Q('a[href^="blob:"]', dForm), function(a) {
 		window.URL.revokeObjectURL(a.href);
@@ -3380,46 +3437,10 @@ function loadPages(len) {
 	firstThr.gInfo.tNums = [];
 	$disp(dForm);
 	dForm.innerHTML = '';
-	do {
-		ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
-			var el, df, j;
-			pages[idx] = replacePost($q(aib.qDForm, dc));
-			if(loaded === len) {
-				for(j in pages) {
-					if(len !== 1 && j != 0) {
-						dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
-							j + '</center><hr>');
-					}
-					df = pages[j];
-					while(el = df.firstChild) {
-						dForm.appendChild(el);
-					}
-				}
-				firstThr = tryToParse(dForm);
-				readFavorites();
-				addDelformStuff(false);
-				readUserPosts();
-				checkPostsVisib();
-				saveFavorites();
-				saveUserPosts();
-				$each($Q('input[type="password"]', dForm), function(pEl) {
-					pr.dpass = pEl;
-					pEl.value = Cfg['passwValue'];
-				});
-				if(pr.txta) {
-					pr.txta.value = '';
-				}
-				if(keyNav) {
-					keyNav.clear();
-				}
-				$disp(dForm);
-				closeAlert($id('de-alert-load-pages'));
-				loaded = pages = len = null;
-			} else {
-				loaded++;
-			}
-		}.bind(null, i));
-	} while(++i < len);
+	while(i < len) {
+		fun = onLoadOrError.bind(null, i);
+		ajaxGetPosts(aib.getPageUrl(brd, i++), fun, fun);
+	}
 }
 
 function infoLoadErrors(eCode, eMsg, newPosts) {
@@ -7732,6 +7753,7 @@ function getImageBoard() {
 			return this['@0chan'];
 		},
 		'2--ch.ru': [{
+			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 			qTable: { value: 'table:not(.postfiles)' },
 			_qThread: { value: '.threadz' },
 			getOmitted: { value: function(el, len) {
@@ -7785,6 +7807,7 @@ function getImageBoard() {
 			} },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
+			qPages: { value: '.pagelist > a:not(:first-of-type)' },
 			qThread: { value: '[id*="thread"]' },
 			getTNum: { value: function(op) {
 				return $q('a[id]', op).id.match(/\d+/)[0];
@@ -7812,6 +7835,7 @@ function getImageBoard() {
 			qError: { value: '#errmsg' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
+			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a' },
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
@@ -7855,6 +7879,7 @@ function getImageBoard() {
 			cOPost: { value: 'op' },
 			cFileInfo: { value: 'file_size' },
 			qMsg: { value: '.message' },
+			qPages: { value: '#paging > ul > li:not([id]):not(:nth-child(2))' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
@@ -7867,8 +7892,8 @@ function getImageBoard() {
 		}, 'script[src*="kusaba"]'],
 		'britfa.gs': [{
 			cFileInfo: { value: 'fileinfo' },
+			qBan: { value: 'font[color="#F00"]' },
 			qImgLink: { value: '.fileinfo' },
-			qDForm: { value: '.threadz' },
 			qTable: { value: 'div[id^="replies"] > table' },
 			getImgSize: { value: function(infoEl, info) {
 				var m = infoEl.onclick.toString().split("', '");
@@ -7900,32 +7925,26 @@ function getImageBoard() {
 			brit: { value: true }
 		}],
 		'chanarchive.org': [{
+			// FIXME: check qPages property
 			qDForm: { value: '.board' },
 			arch: { value: true }
 		}, null, '4chan.org'],
-		'choroychan.org': [{
-			getSage: { value: function(post) {
-				return !!$q('a[href="mailto:cejas"]', post);
-			} },
-
-			init: { value: function() {
-				for(var src, el, i = 0, els = $Q('span[id^="pv-"]', doc.body), len = els.length; i < len; ++i) {
-					el = els[i];
-					src = 'https://www.youtube.com/watch?v=' + el.id.substring(3);
-					el.parentNode.insertAdjacentHTML('beforeend',
-						'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
-					$del(el);
-				}
-			} }
-		}, 'script[src*="kusaba"]'],
 		'dfwk.ru': [{
-			timePattern: { value: 'w+yy+nn+dd+hh+ii' },
-			dfwk: { value: true }
+			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
 		}, 'script[src*="kusaba"]'],
 		'@ernstchan': [{
-			qThread: { value: 'div[id^="thread"]' },
+			// TODO: make it works
+			cOPost: { value: 'thread_OP' },
+			cReply: { value: 'post' },
+			CRPost: { value: 'post' },
+			cSubj: { value: 'subject' },
+			cTrip: { value: 'tripcode' },
+			qThread: { value: 'div[id^="thread_"]' },
 			docExt: { value: '' },
 			res: { value: 'faden/' },
+			init: { value: function() {
+				return true;
+			} },
 
 			erns: { value: true }
 		}],
@@ -7977,6 +7996,11 @@ function getImageBoard() {
 			qError: { value: '.message_text' },
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
+			qPages: { configurable: true, get: function() {
+				var val = 'form[de-form] > div > ' + Object.getPrototypeOf(this).qPages;
+				Object.defineProperty(this, 'qPages', { value: val });
+				return val;
+			} },
 			qRef: { value: '.postnumber' },
 			qThread: { value: '.thread_body' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
@@ -8021,8 +8045,30 @@ function getImageBoard() {
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
+		'nido.org': [{
+			qPages: { value: '.pagenavi > tbody > tr > td > a' },
+			getSage: { value: function(post) {
+				return !!$q('a[href="mailto:cejas"]', post);
+			} },
+
+			init: { value: function() {
+				for(var src, el, i = 0, els = $Q('span[id^="pv-"]', doc.body), len = els.length; i < len; ++i) {
+					el = els[i];
+					src = 'https://www.youtube.com/watch?v=' + el.id.substring(3);
+					el.parentNode.insertAdjacentHTML('beforeend',
+						'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
+					$del(el);
+				}
+			} }
+		}, 'script[src*="kusaba"]'],
 		'ponychan.net': [{
 			cOPost: { value: 'op' },
+			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a' },
+			pagesCount: { configurable: true, get: function() {
+				var val = $Q(this.qPages, doc).length;
+				Object.defineProperty(this, 'reCrossLinks', { value: val });
+				return val;
+			} },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
 					'#bodywrap3 > hr, .blotter { display: none !important; }';
@@ -8143,6 +8189,7 @@ function getImageBoard() {
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.omitted' },
+			qPages: { value: '.pages > a[href]:not(:last-of-type)' },
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.post_no:nth-of-type(2)' },
 			qTrunc: { value: '.toolong' },
@@ -8159,6 +8206,7 @@ function getImageBoard() {
 			tiny: { value: true }
 		},
 		'script[src*="hanabira"]': {
+			// FIXME: check qPages property
 			cSubj: { value: 'replytitle' },
 			cFileInfo: { value: 'fileinfo' },
 			qDForm: { value: 'form[action*="delete"]' },
@@ -8264,6 +8312,7 @@ function getImageBoard() {
 		},
 		qName: '.postername, .commentpostername',
 		qOmitted: '.omittedposts',
+		qPages: 'table[border="1"] tr:first-of-type > td:nth-child(2) a',
 		qPostForm: '#postform',
 		qRef: '.reflink',
 		qTable: 'form > table, div > table',
@@ -8368,6 +8417,11 @@ function getImageBoard() {
 		removePost: function(post) {
 			$del(post.wrap);
 		},
+		get pagesCount() {
+			var val = $Q(this.qPages, dForm.parentNode).length;
+			Object.defineProperty(this, 'reCrossLinks', { value: val });
+			return val;
+		},
 		get reCrossLinks() {
 			var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 				regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
@@ -8391,7 +8445,7 @@ function getImageBoard() {
 		trTag: 'TR'
 	};
 
-	var i, ibObj, dm = window.location.hostname
+	var i, ibObj = ibBase, dm = window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(dm in ibDomains) {
 		ibObj = (function createBoard(info) {
@@ -8408,9 +8462,6 @@ function getImageBoard() {
 				break;
 			}
 		}
-	}
-	if(!ibObj) {
-		ibObj = ibBase;
 	}
 	ibObj.dm = dm;
 	if(!ibObj.init || !ibObj.init()) {
@@ -8621,7 +8672,7 @@ function Initialization() {
 		'^(?:\\/?([^\\.]*?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
 		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?$'
 	));
-	brd = url[1] || (aib.dfwk ? 'df' : '');
+	brd = url[1];
 	TNum = url[2] ? url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
 		false;
