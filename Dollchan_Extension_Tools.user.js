@@ -2329,7 +2329,9 @@ function checkDelete(response) {
 	var el, i, els, len, post, tNums = [],
 		num = doc.location.hash.match(/\d+/)[0];
 	if(num && (post = pByNum[num])) {
-		post.el.className = aib.cReply;
+		if(!post.isOp) {
+			post.el.className = aib.cReply;
+		}
 		doc.location.hash = '';
 	}
 	for(i = 0, els = $Q('.' + aib.cRPost + ' input:checked', dForm), len = els.length; i < len; ++i) {
