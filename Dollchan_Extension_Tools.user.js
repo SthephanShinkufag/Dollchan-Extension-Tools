@@ -2120,7 +2120,7 @@ KeyNavigation.prototype = {
 		}
 	},
 	handleEvent: function(e) {
-		var post, curTh = e.target.tagName,
+		var post, tPost, scrollToThread, curTh = e.target.tagName,
 			kc = e.keyCode;
 		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
 			if(kc === 27) {
@@ -2156,8 +2156,8 @@ KeyNavigation.prototype = {
 			}
 			return;
 		}
-		if(e.altKey || e.shiftKey || kc !== 74 && kc !== 75 && kc !== 77 && kc !== 78 &&
-			kc !== 86 && kc !== 116 && kc !== 72
+		if(e.altKey || e.shiftKey || kc !== 74 && kc !== 75 && kc !== 86 && kc !== 116 && kc !== 72
+			&& (kc !== 77 && kc !== 78 || TNum)
 		) {
 			return;
 		}
@@ -2171,12 +2171,20 @@ KeyNavigation.prototype = {
 		}
 		$pd(e);
 		e.stopPropagation();
+		scrollToThread = !TNum && (kc === 75 || kc === 74);
 		if(this.lastPageOffset !== pageYOffset) {
-			for(post = firstThr.op; post.topCoord < 0; post = post.next) {}
+			post = scrollToThread ? firstThr : firstThr.op;
+			while(post.topCoord < 0) {
+				tPost = post.next;
+				if(!tPost) {
+					break;
+				}
+				post = tPost;
+			}
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
-			this.cPost = post = post.prev;
+			this.cPost = post = scrollToThread ? post.op.prev : post.prev;
 			this.lastPageOffset = pageYOffset;
 		} else {
 			post = this.cPost;
@@ -2198,14 +2206,8 @@ KeyNavigation.prototype = {
 			}
 			post.toggleUserVisib();
 			this._scroll(post, false, post.isOp);
-		} else if(kc === 75) {
-			this._scroll(post, true, !TNum);
-		} else if(kc === 74) {
-			this._scroll(post, false, !TNum);
-		} else if(!TNum && kc === 77) {
-			this._scroll(post, true, false);
-		} else if(!TNum && kc === 78) {
-			this._scroll(post, false, false);
+		} else {
+			this._scroll(post, kc === 75 || kc === 77, scrollToThread);
 		}
 	},
 	_getNextVisPost: function(cPost, isOp, toUp) {
@@ -2240,8 +2242,12 @@ KeyNavigation.prototype = {
 		if(post) {
 			post.unselect();
 		}
-		scrollTo(0, Math.round(pageYOffset + next.el.getBoundingClientRect().top - (toThread ? 0 :
-			Post.sizing.wHeight / 2 - next.el.clientHeight / 2)));
+		if(toThread) {
+			next.el.scrollIntoView();
+		} else {
+			scrollTo(0, pageYOffset + next.el.getBoundingClientRect().top -
+				Post.sizing.wHeight / 2 - next.el.clientHeight / 2);
+		}
 		this.lastPageOffset = pageYOffset;
 		next.select();
 		this.cPost = next;
@@ -7579,6 +7585,9 @@ Thread.prototype = {
 			Fn(eCode, eMsg, 0);
 			Fn = null;
 		});
+	},
+	get topCoord() {
+		return this.op.topCoord;
 	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
