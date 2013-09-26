@@ -2240,10 +2240,9 @@ KeyNavigation.prototype = {
 		if(post) {
 			post.unselect();
 		}
-		scrollTo(0, this.lastPageOffset = Math.round(
-			pageYOffset + next.el.getBoundingClientRect().top -
-			(toThread ? 0 : Post.sizing.wHeight / 2 - next.el.clientHeight / 2)
-		));
+		scrollTo(0, Math.round(pageYOffset + next.el.getBoundingClientRect().top - (toThread ? 0 :
+			Post.sizing.wHeight / 2 - next.el.clientHeight / 2)));
+		this.lastPageOffset = pageYOffset;
 		next.select();
 		this.cPost = next;
 	}
@@ -8007,11 +8006,6 @@ function getImageBoard() {
 			qError: { value: '.message_text' },
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
-			qPages: { configurable: true, get: function() {
-				var val = 'form[de-form] > div > ' + Object.getPrototypeOf(this).qPages;
-				Object.defineProperty(this, 'qPages', { value: val });
-				return val;
-			} },
 			qRef: { value: '.postnumber' },
 			qThread: { value: '.thread_body' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
@@ -8024,6 +8018,12 @@ function getImageBoard() {
 			} },
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			} },
+			pagesCount: { configurable: true, get: function() {
+				var val = $T('a', $T('td',
+					dForm.lastElementChild.previousElementSibling)[pageNum === 0 ? 1 : 2]).length;
+				Object.defineProperty(this, 'pagesCount', { value: val });
+				return val;
 			} },
 			css: { get: function() {
 				return '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
