@@ -2097,6 +2097,21 @@ function KeyNavigation() {
 	this.lastPageOffset = 0;
 	doc.addEventListener('keydown', this, true);
 }
+KeyNavigation.defGlobKeyCodes = [
+	/* One post/thread above     */ 0x004B /* = J                 */,
+	/* One post/thread below     */ 0x004A /* = K                 */,
+	/* Open thread or reply      */ 0x0056 /* = V                 */,
+	/* Hide selected thread/post */ 0x0048 /* = H                 */,
+	/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
+	/* Open previous page (txt)  */ 0x9025 /* = Ctrl + left arrow */,
+	/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */
+];
+KeyNavigation.defNonThrKeyCodes = [
+	/* One post above       */ 0x004D /* = M                  */,
+	/* One post below       */ 0x004E /* = N                  */,
+	/* Open next page       */ 0x1027 /* = Ctrl + right arrow */,
+	/* Open next page (txt) */ 0x9027 /* = Ctrl + right arrow */
+];
 KeyNavigation.prototype = {
 	clear: function(lastPage) {
 		this.cPost = null;
@@ -2120,95 +2135,86 @@ KeyNavigation.prototype = {
 		}
 	},
 	handleEvent: function(e) {
-		var post, tPost, scrollToThread, curTh = e.target.tagName,
-			kc = e.keyCode;
-		if(curTh === 'TEXTAREA' || (curTh === 'INPUT' && e.target.type === 'text')) {
-			if(kc === 27) {
-				e.target.blur();
-			} else if(e.altKey) {
-				if(kc === 13 && (e.target === pr.txta || e.target === pr.cap)) {
-					pr.subm.click();
-					e.stopPropagation();
-					$pd(e);
-				}
-			} else if(e.ctrlKey) {
-				if(kc === 37) {
-					if(TNum || pageNum > 0) {
-						window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
-					}
-				} else if(!TNum && kc === 39 && this.lastPage < aib.pagesCount) {
-					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
-				}
-			} else if(!TNum && kc === 116 && !e.shiftKey) {
-				e.stopPropagation();
-				$pd(e);
-				loadPages(+Cfg['loadPages']);
-			}
-			return;
-		}
-		if(e.ctrlKey) {
-			if(kc === 37) {
-				if(TNum || pageNum > 0) {
-					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
-				}
-			} else if(!TNum && kc === 39 && this.lastPage < aib.pagesCount) {
-				window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
-			}
-			return;
-		}
-		if(e.altKey || e.shiftKey || kc !== 74 && kc !== 75 && kc !== 86 && kc !== 116 && kc !== 72
-			&& (kc !== 77 && kc !== 78 || TNum)
-		) {
-			return;
-		}
-		if(kc === 116) {
-			if(!TNum) {
-				e.stopPropagation();
-				$pd(e);
-				loadPages(+Cfg['loadPages']);
-			}
-			return;
-		}
-		$pd(e);
-		e.stopPropagation();
-		scrollToThread = !TNum && (kc === 75 || kc === 74);
-		if(this.lastPageOffset !== pageYOffset) {
-			post = scrollToThread ? firstThr : firstThr.op;
-			while(post.topCoord < 0) {
-				tPost = post.next;
-				if(!tPost) {
-					break;
-				}
-				post = tPost;
-			}
-			if(this.cPost) {
-				this.cPost.unselect();
-			}
-			this.cPost = post = scrollToThread ? post.op.prev : post.prev;
-			this.lastPageOffset = pageYOffset;
-		} else {
-			post = this.cPost;
-		}
-		if(kc === 86) {
+		var post, tPost, scrollToThread, globIdx, ntIdx, curTh = e.target.tagName,
+			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
+				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
+				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
+		if(kc === 0x74 || kc === 0x8074) { // F5
 			if(TNum) {
-				pr.showQuickReply(post);
-			} else if(nav.Firefox) {
-				GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
-			} else {
-				window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
+				return;
 			}
-		} else if(kc === 72) {
-			if(!post) {
-				post = this._getNextVisPost(null, true, false);
-				if(!post) {
+			loadPages(+Cfg['loadPages']);
+		} else if(kc === 0x801B) { // ESC
+			e.target.blur();
+		} else {
+			globIdx = KeyNavigation.defGlobKeyCodes.indexOf(kc);
+			if(globIdx === -1) {
+				if(TNum || (ntIdx = KeyNavigation.defNonThrKeyCodes.indexOf(kc)) === -1) {
 					return;
 				}
 			}
-			post.toggleUserVisib();
-			this._scroll(post, false, post.isOp);
-		} else {
-			this._scroll(post, kc === 75 || kc === 77, scrollToThread);
+			if(globIdx === 4 || globIdx === 5) { // Open previous page
+				if(pageNum === 0) {
+					return;
+				}
+				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+			} else if(ntIdx === 2 || ntIdx === 3) { // Open next page
+				if(this.lastPage === aib.pagesCount) {
+					return;
+				}
+				window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+			} else if(globIdx === 6) { // Send post
+				if(e.target !== pr.txta && e.target !== pr.cap) {
+					return;
+				}
+				pr.subm.click();
+			} else if((kc & 0x8000) === 0) {
+				scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
+				if(this.lastPageOffset !== pageYOffset) {
+					post = scrollToThread ? firstThr : firstThr.op;
+					while(post.topCoord < 0) {
+						tPost = post.next;
+						if(!tPost) {
+							break;
+						}
+						post = tPost;
+					}
+					if(this.cPost) {
+						this.cPost.unselect();
+					}
+					this.cPost = post = scrollToThread ? post.op.prev : post.prev;
+					this.lastPageOffset = pageYOffset;
+				} else {
+					post = this.cPost;
+				}
+				switch(globIdx) {
+				case 2: // Open thread or reply
+					if(TNum) {
+						pr.showQuickReply(post);
+					} else if(nav.Firefox) {
+						GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
+					} else {
+						window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
+					}
+					break;
+				case 3: // Hide selected thread/post
+					if(!post) {
+						post = this._getNextVisPost(null, true, false);
+						if(!post) {
+							break;
+						}
+					}
+					post.toggleUserVisib();
+					this._scroll(post, false, post.isOp);
+					break;
+				default: this._scroll(post, globIdx === 0 || ntIdx === 0, scrollToThread);
+				}
+			} else {
+				return;
+			}
 		}
+		e.stopPropagation();
+		$pd(e);
 	},
 	_getNextVisPost: function(cPost, isOp, toUp) {
 		var thr, post;
@@ -2246,7 +2252,7 @@ KeyNavigation.prototype = {
 			next.el.scrollIntoView();
 		} else {
 			scrollTo(0, pageYOffset + next.el.getBoundingClientRect().top -
-				Post.sizing.wHeight / 2 - next.el.clientHeight / 2);
+				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
 		this.lastPageOffset = pageYOffset;
 		next.select();
