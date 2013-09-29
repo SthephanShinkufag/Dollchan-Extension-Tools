@@ -2098,9 +2098,9 @@ function KeyNavigation() {
 	doc.addEventListener('keydown', this, true);
 }
 KeyNavigation.defGlobKeyCodes = [
-	/* One post/thread above     */ 0x004B /* = J                 */,
-	/* One post/thread below     */ 0x004A /* = K                 */,
-	/* Open thread or reply      */ 0x0056 /* = V                 */,
+	/* One post/thread above     */ 0x004B /* = K                 */,
+	/* One post/thread below     */ 0x004A /* = J                 */,
+	/* Reply or create thread    */ 0x0052 /* = R                 */,
 	/* Hide selected thread/post */ 0x0048 /* = H                 */,
 	/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
 	/* Open previous page (txt)  */ 0x9025 /* = Ctrl + left arrow */,
@@ -2109,6 +2109,7 @@ KeyNavigation.defGlobKeyCodes = [
 KeyNavigation.defNonThrKeyCodes = [
 	/* One post above       */ 0x004D /* = M                  */,
 	/* One post below       */ 0x004E /* = N                  */,
+	/* Open thread          */ 0x0056 /* = V                  */,
 	/* Open next page       */ 0x1027 /* = Ctrl + right arrow */,
 	/* Open next page (txt) */ 0x9027 /* = Ctrl + right arrow */
 ];
@@ -2135,7 +2136,7 @@ KeyNavigation.prototype = {
 		}
 	},
 	handleEvent: function(e) {
-		var post, tPost, scrollToThread, globIdx, ntIdx, curTh = e.target.tagName,
+		var post, scrollToThread, globIdx, ntIdx, curTh = e.target.tagName,
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
@@ -2144,77 +2145,97 @@ KeyNavigation.prototype = {
 				return;
 			}
 			loadPages(+Cfg['loadPages']);
-		} else if(kc === 0x801B) { // ESC
+		} else if(kc === 0x1B) { // ESC
+			if(this.cPost) {
+				this.cPost.unselect();
+				this.cPost = null;
+			}
+			this.lastPageOffset = 0;
+		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
 			globIdx = KeyNavigation.defGlobKeyCodes.indexOf(kc);
-			if(globIdx === -1) {
-				if(TNum || (ntIdx = KeyNavigation.defNonThrKeyCodes.indexOf(kc)) === -1) {
+			switch(globIdx) {
+			case 2: // Reply or create thread
+				if(this.cPost) {
+					pr.showQuickReply(this.cPost);
+				} else if(!TNum) {
+					// TODO: create thread
 					return;
 				}
-			}
-			if(globIdx === 4 || globIdx === 5) { // Open previous page
-				if(pageNum === 0) {
+				break;
+			case 3: // Hide selected thread/post
+				post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+				if(post) {
+					post.toggleUserVisib();
+					this._scroll(post, false, post.isOp);
+				}
+				break;
+			case 4: // Open previous page
+			case 5: // Open previous page (txt)
+				if(!TNum && pageNum === 0) {
 					return;
 				}
 				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
-			} else if(ntIdx === 2 || ntIdx === 3) { // Open next page
-				if(this.lastPage === aib.pagesCount) {
-					return;
-				}
-				window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
-			} else if(globIdx === 6) { // Send post
+				break;
+			case 6: // Send post
 				if(e.target !== pr.txta && e.target !== pr.cap) {
 					return;
 				}
 				pr.subm.click();
-			} else if((kc & 0x8000) === 0) {
-				scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
-				if(this.lastPageOffset !== pageYOffset) {
-					post = scrollToThread ? firstThr : firstThr.op;
-					while(post.topCoord < 0) {
-						tPost = post.next;
-						if(!tPost) {
-							break;
+				break;
+			case -1:
+				if(TNum || (ntIdx = KeyNavigation.defNonThrKeyCodes.indexOf(kc)) === -1) {
+					return;
+				}
+				if(ntIdx === 2) { // Open thread
+					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+					if(post) {
+						if(nav.Firefox) {
+							GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
+						} else {
+							window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
 						}
-						post = tPost;
 					}
-					if(this.cPost) {
-						this.cPost.unselect();
+					break;
+				} else if(ntIdx === 3 || ntIdx === 4) { // Open next page
+					if(this.lastPage === aib.pagesCount) {
+						return;
 					}
-					this.cPost = post = scrollToThread ? post.op.prev : post.prev;
-					this.lastPageOffset = pageYOffset;
+					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+					break;
+				}
+			default:
+				if((kc & 0x8000) === 0) {
+					scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
+					this._scroll(this._getFirstVisPost(scrollToThread),
+						globIdx === 0 || ntIdx === 0, scrollToThread);
 				} else {
-					post = this.cPost;
+					return;
 				}
-				switch(globIdx) {
-				case 2: // Open thread or reply
-					if(TNum) {
-						pr.showQuickReply(post);
-					} else if(nav.Firefox) {
-						GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
-					} else {
-						window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
-					}
-					break;
-				case 3: // Hide selected thread/post
-					if(!post) {
-						post = this._getNextVisPost(null, true, false);
-						if(!post) {
-							break;
-						}
-					}
-					post.toggleUserVisib();
-					this._scroll(post, false, post.isOp);
-					break;
-				default: this._scroll(post, globIdx === 0 || ntIdx === 0, scrollToThread);
-				}
-			} else {
-				return;
 			}
 		}
 		e.stopPropagation();
 		$pd(e);
+	},
+	_getFirstVisPost: function(getThread) {
+		var post, tPost;
+		if(this.lastPageOffset !== pageYOffset) {
+			post = getThread ? firstThr : firstThr.op;
+			while(post.topCoord < 0) {
+				tPost = post.next;
+				if(!tPost) {
+					break;
+				}
+				post = tPost;
+			}
+			if(this.cPost) {
+				this.cPost.unselect();
+			}
+			this.cPost = getThread ? post.op.prev : post.prev;
+			this.lastPageOffset = pageYOffset;
+		}
+		return this.cPost;
 	},
 	_getNextVisPost: function(cPost, isOp, toUp) {
 		var thr, post;
@@ -3411,7 +3432,7 @@ function loadPages(count) {
 			var el, df, j, parseThrs = Thread.parsed,
 				threads = parseThrs ? [] : null;
 			for(j in pages) {
-				if(loaded !== 1 && j != pageNum) {
+				if(j != pageNum) {
 					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
 						j + '</center><hr>');
 				}
