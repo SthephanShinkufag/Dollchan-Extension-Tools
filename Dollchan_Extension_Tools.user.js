@@ -2103,15 +2103,13 @@ KeyNavigation.defGlobKeyCodes = [
 	/* Reply or create thread    */ 0x0052 /* = R                 */,
 	/* Hide selected thread/post */ 0x0048 /* = H                 */,
 	/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
-	/* Open previous page (txt)  */ 0x9025 /* = Ctrl + left arrow */,
 	/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */
 ];
 KeyNavigation.defNonThrKeyCodes = [
-	/* One post above       */ 0x004D /* = M                  */,
-	/* One post below       */ 0x004E /* = N                  */,
-	/* Open thread          */ 0x0056 /* = V                  */,
-	/* Open next page       */ 0x1027 /* = Ctrl + right arrow */,
-	/* Open next page (txt) */ 0x9027 /* = Ctrl + right arrow */
+	/* One post above */ 0x004D /* = M                  */,
+	/* One post below */ 0x004E /* = N                  */,
+	/* Open thread    */ 0x0056 /* = V                  */,
+	/* Open next page */ 0x1027 /* = Ctrl + right arrow */
 ];
 KeyNavigation.prototype = {
 	clear: function(lastPage) {
@@ -2172,13 +2170,12 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 4: // Open previous page
-			case 5: // Open previous page (txt)
 				if(!TNum && pageNum === 0) {
 					return;
 				}
 				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				break;
-			case 6: // Send post
+			case 5: // Send post (txt)
 				if(e.target !== pr.txta && e.target !== pr.cap) {
 					return;
 				}
@@ -2198,7 +2195,7 @@ KeyNavigation.prototype = {
 						}
 					}
 					break;
-				} else if(ntIdx === 3 || ntIdx === 4) { // Open next page
+				} else if(ntIdx === 3) { // Open next page
 					if(this.lastPage === aib.pagesCount) {
 						return;
 					}
@@ -2206,13 +2203,9 @@ KeyNavigation.prototype = {
 					break;
 				}
 			default:
-				if((kc & 0x8000) === 0) {
-					scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
-					this._scroll(this._getFirstVisPost(scrollToThread),
-						globIdx === 0 || ntIdx === 0, scrollToThread);
-				} else {
-					return;
-				}
+				scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
+				this._scroll(this._getFirstVisPost(scrollToThread), globIdx === 0 || ntIdx === 0,
+					scrollToThread);
 			}
 		}
 		e.stopPropagation();
@@ -6846,7 +6839,7 @@ Post.prototype = {
 			Pview.del(pv.kid);
 			setPviewPosition(link, pv.el, Cfg['animation'] && animPVMove);
 			if(pv.parent.num !== this.num) {
-				$each($C('de-pview-link', this.el), function(el) {
+				$each($C('de-pview-link', pv.el), function(el) {
 					el.classList.remove('de-pview-link');
 				});
 				pv._markLink(this.num);
@@ -7245,7 +7238,7 @@ function PviewsCache(dc, b, tNum) {
 	var i, len, post, pBn = {},
 		pProto = Post.prototype,
 		df = $q(aib.qDForm, dc),
-		thr = replacePost($q(aib.qThread, df) || df),
+		thr = $q(aib.qThread, df) || df,
 		posts = aib.getPosts(thr);
 	for(i = 0, len = posts.length; i < len; ++i) {
 		post = posts[i];
@@ -7253,13 +7246,13 @@ function PviewsCache(dc, b, tNum) {
 			count: { value: i + 1 },
 			el: { value: post },
 			inited: { value: false },
-			refInited: { value: false, writable: true }
+			pvInited: { value: false, writable: true }
 		});
 	}
 	pBn[tNum] = this._opObj = Object.create(pProto, {
 		inited: { value: false },
 		isOp: { value: true },
-		msg: { value: $q(aib.qMsg, thr) },
+		msg: { value: $q(aib.qMsg, thr), writable: true },
 		ref: { value: [], writable: true }
 	});
 	if(Cfg['linksNavig'] === 2) {
@@ -7277,15 +7270,20 @@ PviewsCache.prototype = {
 			return this._op;
 		}
 		var pst = this._posts[num];
-		if(pst && !pst.refInited && pst.hasRef) {
-			addRefMap(pst, this._tUrl);
-			pst.refInited = true;
+		if(pst && !pst.pvInited) {
+			pst.el = replacePost(pst.el);
+			delete pst.msg;
+			if(pst.hasRef) {
+				addRefMap(pst, this._tUrl);
+			}
+			pst.pvInited = true;
 		}
 		return pst;
 	},
 	get _op() {
 		var i, j, len, num, nRef, oRef, rRef, oOp, op = this._opObj;
-		op.el = aib.getOp(this._thr);
+		op.el = replacePost(aib.getOp(this._thr));
+		op.msg = $q(aib.qMsg, op.el);
 		if(this._brd === brd && (oOp = pByNum[this._tNum])) {
 			oRef = op.ref;
 			rRef = [];
