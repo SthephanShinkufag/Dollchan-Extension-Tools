@@ -2524,6 +2524,13 @@ html5Submit.prototype = {
 										if(i === len) {
 											return null;
 										}
+										while(img[i] !== 0xFF) {
+											i++;
+										}
+										if(i + 2 === len) {
+											return null;
+										}
+										i--;
 										break;
 									}
 									i++;
