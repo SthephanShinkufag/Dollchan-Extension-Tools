@@ -2477,7 +2477,7 @@ KeyEditListener.prototype = {
 				this.errorInput = true;
 			} else {
 				this.cKey = key | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
-					(e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x4000 : 0);
+					(e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x8000 : 0);
 				this.errorInput = false;
 				str += keyStr;
 			}
