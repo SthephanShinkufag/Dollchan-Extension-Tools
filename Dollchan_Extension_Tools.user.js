@@ -91,6 +91,7 @@ defaultCfg = {
 	'animation':	1,		// animation in script
 	'closePopups':	0,		// auto-close popups
 	'keybNavig':	1,		// keyboard navigation
+	'kNavigKeys':	null,	// 		navigation hot-keys
 	'loadPages':	1,		//		number of pages that are loaded on F5
 	'updScript':	1,		// check for script's update
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
@@ -281,13 +282,27 @@ Lng = {
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']
 	],
 
-	keyNavHelp:		[
-		'"Ctrl+&larr;" – предыдущая страница\n"Ctrl+&rarr;" – следующая страница\n"H" – скрыть текущий пост/тред\n\n' +
-		'На доске:\n"J" – тред ниже\n"K" – тред выше\n"N" – пост ниже\n"M" – пост выше\n' +
-		'"V" – вход в тред\n\nВ треде:\n"J" – пост ниже\n"K" – пост выше\n"V" – быстрый ответ',
-		'"Ctrl+&larr;" – previous page\n"Ctrl+&rarr;" – next page\n"H" – Hide current post/thread\n\n' +
-		'On board:\n"J" – thread below\n"K" – thread above\n"N" – post below\n"M" – post above\n' +
-		'"V" – enter thread\n\nIn thread:\n"J" – post below\n"K" – post above\n"V" – quick reply'
+	keyNavEdit:		[
+		'%l%i24 – предыдущая страница%/l' +
+		'%l%i33 – следующая страница%/l' +
+		'%l%i23 – скрыть текущий пост/тред%/l' +
+		'%l%i22 – быстрый ответ или создать тред%/l' +
+		'%l%i25t – отправить пост%/l' +
+		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l' +
+		'%l%i20 – тред (на доске)/пост (в треде) выше%/l' +
+		'%l%i31 – на доске пост ниже%/l' +
+		'%l%i30 – на доске пост выше%/l' +
+		'%l%i32 – открыть тред%/l',
+		'%l%i24 – previous page%/l' +
+		'%l%i33 – next page%/l' +
+		'%l%i23 – hide current post/thread%/l' +
+		'%l%i22 – quick reply or create thread%/l' +
+		'%l%i25t – send post%/l' +
+		'%l%i21 – thread (on board) / post (in thread) below%/l' +
+		'%l%i20 – thread (on board) / post (in thread) above%/l' +
+		'%l%i31 – on board post below%/l' +
+		'%l%i30 – on board post above%/l' +
+		'%l%i32 – open thread%/l'
 	],
 
 	month:			[
@@ -1797,10 +1812,22 @@ function getCfgCommon() {
 					keyNav.disable();
 				}
 			}),
-			$new('a', {'text': '[?]', 'href': '#', 'class': 'de-abtn'}, {'click': function(e) {
+			$btn(Lng.edit[lang], '', function(e) {
 				$pd(e);
-				$alert(Lng.keyNavHelp[lang], 'help-keybnavig', false);
-			}})
+				if($id('de-alert-edit-keybnavig')) {
+					return;
+				}
+				var aEl, evtListener, keys =  KeyNavigation.readKeys(true),
+					temp = KeyEditListener.getEditMarkup(keys);
+				$alert(temp[1], 'edit-keybnavig', false);
+				aEl = $id('de-alert-edit-keybnavig');
+				evtListener = new KeyEditListener(aEl, keys, temp[0]);
+				aEl.addEventListener('focus', evtListener, true);
+				aEl.addEventListener('blur', evtListener, true);
+				aEl.addEventListener('click', evtListener, true);
+				aEl.addEventListener('keydown', evtListener, true);
+				aEl.addEventListener('keyup', evtListener, true);
+			})
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			inpTxt('loadPages', 4, null),
@@ -2095,22 +2122,55 @@ function KeyNavigation() {
 	this.enabled = true;
 	this.lastPage = pageNum;
 	this.lastPageOffset = 0;
+	this.resume(KeyNavigation.readKeys(false));
 	doc.addEventListener('keydown', this, true);
 }
-KeyNavigation.defGlobKeyCodes = [
-	/* One post/thread above     */ 0x004B /* = K                 */,
-	/* One post/thread below     */ 0x004A /* = J                 */,
-	/* Reply or create thread    */ 0x0052 /* = R                 */,
-	/* Hide selected thread/post */ 0x0048 /* = H                 */,
-	/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
-	/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */
-];
-KeyNavigation.defNonThrKeyCodes = [
-	/* One post above */ 0x004D /* = M                  */,
-	/* One post below */ 0x004E /* = N                  */,
-	/* Open thread    */ 0x0056 /* = V                  */,
-	/* Open next page */ 0x1027 /* = Ctrl + right arrow */
-];
+KeyNavigation.version = 1;
+KeyNavigation.readKeys = function(createNew) {
+	var keys = Cfg['kNavigKeys'];
+	if(!keys) {
+		return KeyNavigation.getDefaultKeys();
+	}
+	if(keys[1] ^ !!nav.Firefox) {
+		var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+			switch(key) {
+			case 189: return 173;
+			case 187: return 61;
+			case 186: return 59;
+			default: return key;
+			}
+		} : function mapFuncNonFF(key) {
+			switch(key) {
+			case 173: return 189;
+			case 61: return 187;
+			case 59: return 186;
+			default: return key;
+			}
+		}
+		keys[2] = keys[2].map(mapFunc);
+		keys[3] = keys[3].map(mapFunc);
+		saveCfg('kNavigKeys', keys);
+	}
+	return createNew ? JSON.parse(JSON.stringify(keys)) : keys;
+};
+KeyNavigation.getDefaultKeys = function() {
+	var isFirefox = !!nav.Firefox;
+	var globKeys = [
+		/* One post/thread above     */ 0x004B /* = K                 */,
+		/* One post/thread below     */ 0x004A /* = J                 */,
+		/* Reply or create thread    */ 0x0052 /* = R                 */,
+		/* Hide selected thread/post */ 0x0048 /* = H                 */,
+		/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
+		/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */
+	];
+	var nonThrKeys = [
+		/* One post above */ 0x004D /* = M                  */,
+		/* One post below */ 0x004E /* = N                  */,
+		/* Open thread    */ 0x0056 /* = V                  */,
+		/* Open next page */ 0x1027 /* = Ctrl + right arrow */
+	];
+	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys];
+};
 KeyNavigation.prototype = {
 	clear: function(lastPage) {
 		this.cPost = null;
@@ -2128,12 +2188,15 @@ KeyNavigation.prototype = {
 	},
 	enable: function() {
 		if(!this.enabled) {
-			this.clear();
+			this.clear(pageNum);
 			doc.addEventListener('keydown', this, true);
 			this.enabled = true;
 		}
 	},
 	handleEvent: function(e) {
+		if(this.paused) {
+			return;
+		}
 		var post, scrollToThread, globIdx, ntIdx, curTh = e.target.tagName,
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
@@ -2152,7 +2215,7 @@ KeyNavigation.prototype = {
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
 		} else {
-			globIdx = KeyNavigation.defGlobKeyCodes.indexOf(kc);
+			globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Reply or create thread
 				if(this.cPost) {
@@ -2182,7 +2245,7 @@ KeyNavigation.prototype = {
 				pr.subm.click();
 				break;
 			case -1:
-				if(TNum || (ntIdx = KeyNavigation.defNonThrKeyCodes.indexOf(kc)) === -1) {
+				if(TNum || (ntIdx = this.ntKeys.indexOf(kc)) === -1) {
 					return;
 				}
 				if(ntIdx === 2) { // Open thread
@@ -2210,6 +2273,14 @@ KeyNavigation.prototype = {
 		}
 		e.stopPropagation();
 		$pd(e);
+	},
+	pause: function() {
+		this.paused = true;
+	},
+	resume: function(keys) {
+		this.gKeys = keys[2];
+		this.ntKeys = keys[3];
+		this.paused = false;
 	},
 	_getFirstVisPost: function(getThread) {
 		var post, tPost;
@@ -2273,6 +2344,201 @@ KeyNavigation.prototype = {
 		this.cPost = next;
 	}
 }
+
+function KeyEditListener(alertEl, keys, allKeys) {
+	var j, k, i, len, aInputs = aProto.slice.call($C('de-input-key', alertEl));
+	for(i = 0, len = allKeys.length; i < len; ++i) {
+		k = allKeys[i];
+		for(j = i + 1; j < len; ++j) {
+			if(k === allKeys[j]) {
+				aInputs[i].classList.add('de-error-key');
+				aInputs[j].classList.add('de-error-key');
+				break;
+			}
+		}
+	}
+	this.aEl = alertEl;
+	this.keys = keys;
+	this.allKeys = allKeys;
+	this.allInputs = aInputs;
+	this.errCount = $C('de-error-key', alertEl).length;
+	if(this.errCount !== 0) {
+		this.saveButton.disabled = true;
+	}
+}
+// Browsers have different codes for these keys (see KeyNavigation.readKeys):
+//		Firefox - '-' - 173, '=' - 61, ';' - 59
+//		Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+KeyEditListener.keyCodes = [,,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift','Ctrl','Alt',
+	/* Pause/Break */,/* Caps Lock */,,,,,,,/* Escape */,,,,,'Space',/* Page Up */,
+	/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,/* Delete */,,'0','1','2',
+	'3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F','G','H','I','J','K','L','M',
+	'N','O','P','Q','R','S','T','U','V','W','X','Y','Z',/* Left WIN Key */,/* Right WIN Key */,
+	/* Select key */,,,'Numpad 0','Numpad 1','Numpad 2','Numpad 3','Numpad 4','Numpad 5','Numpad 6',
+	'Numpad 7','Numpad 8','Numpad 9','Numpad *','Numpad +',,'Numpad -','Numpad .','Numpad /',
+	/* F1 */,/* F2 */,/* F3 */,/* F4 */,/* F5 */,/* F6 */,/* F7 */,/* F8 */,/* F9 */,/* F10 */,
+	/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,
+	,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
+];
+KeyEditListener.getEditMarkup = function(keys) {
+	var allKeys = [];
+	var html = Lng.keyNavEdit[lang]
+		.replace(/%l/g, '<label class="de-block">')
+		.replace(/%\/l/g, '</label>')
+		.replace(/%i([2,3])([0-9]+)(t)?/g, function(aKeys, all, id1, id2, isText) {
+			var key = this[+id1][+id2],
+				str = '';
+			aKeys.push(key);
+			if(key & 0x1000) {
+				str += 'Ctrl + ';
+			}
+			if(key & 0x2000) {
+				str += 'Shift + ';
+			}
+			if(key & 0x4000) {
+				str += 'Alt + ';
+			}
+			str += KeyEditListener.keyCodes[key & 0xFFF];
+			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
+				'" size="30" value="' + str + (isText ? '" de-text' : '"' ) + ' readonly></input>';
+		}.bind(keys, allKeys)) +
+	'<input type="button" id="de-keys-save" value="' + Lng.save[lang] + '"></input>' +
+	'<input type="button" id="de-keys-reset" value="' + Lng.reset[lang] + '"></input>';
+	return [allKeys, html];
+};
+KeyEditListener.prototype = {
+	cEl: null,
+	cKey: -1,
+	errorInput: false,
+	get saveButton() {
+		var val = $id('de-keys-save');
+		Object.defineProperty(this, 'saveButton', { value: val, configurable: true });
+		return val;
+	},
+	handleEvent: function(e) {
+		var key, keyStr, str, id, temp, el = e.target;
+		switch(e.type) {
+		case 'blur':
+			if(keyNav && this.errCount === 0) {
+				keyNav.resume(this.keys);
+			}
+			this.cEl = null;
+			return;
+		case 'focus':
+			if(keyNav) {
+				keyNav.pause();
+			}
+			this.cEl = el;
+			return;
+		case 'click':
+			if(el.id === 'de-keys-save') {
+				saveCfg('kNavigKeys', this.keys);
+			} else if(el.id === 'de-keys-reset') {
+				this.keys = KeyNavigation.getDefaultKeys();
+				if(keyNav) {
+					keyNav.resume(this.keys);
+				}
+				temp = KeyEditListener.getEditMarkup(this.keys);
+				this.allKeys = temp[0];
+				$c('de-alert-msg', this.aEl).innerHTML = temp[1];
+				this.allInputs = aProto.slice.call($C('de-input-key', this.aEl));
+				this.errCount = 0;
+				delete this.saveButton;
+				break;
+			} else if(el.className !== 'de-alert-btn') {
+				return;
+			}
+			if(keyNav) {
+				keyNav.resume(Cfg['kNavigKeys']);
+			}
+			closeAlert($id('de-alert-edit-keybnavig'));
+			break;
+		case 'keydown':
+			if(!this.cEl) {
+				return;
+			}
+			key = e.keyCode;
+			keyStr = KeyEditListener.keyCodes[key];
+			if(!keyStr) {
+				this.cKey = -1;
+				return;
+			}
+			str = '';
+			if(e.ctrlKey) {
+				str += 'Ctrl + ';
+			}
+			if(e.shiftKey) {
+				str += 'Shift + ';
+			}
+			if(e.altKey) {
+				str += 'Alt + ';
+			}
+			if(key === 16 || key === 17 || key === 18) {
+				this.errorInput = true;
+			} else {
+				this.cKey = key | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
+					(e.altKey ? 0x4000 : 0) | (this.cEl.hasAttribute('de-text') ? 0x4000 : 0);
+				this.errorInput = false;
+				str += keyStr;
+			}
+			this.cEl.value = str;
+			break;
+		case 'keyup':
+			var idx, rIdx, oKey, rEl, isError, el = this.cEl,
+				key = this.cKey;
+			if(!el || key === -1) {
+				return;
+			}
+			isError = el.classList.contains('de-error-key');
+			if(!this.errorInput && key !== -1) {
+				idx = this.allInputs.indexOf(el);
+				oKey = this.allKeys[idx];
+				if(oKey === key) {
+					this.errorInput = false;
+					break;
+				}
+				rIdx = this.allKeys.indexOf(key);
+				this.allKeys[idx] = key;
+				if(isError) {
+					idx = this.allKeys.indexOf(oKey);
+					if(idx !== -1 && this.allKeys.indexOf(oKey, idx + 1) === -1) {
+						rEl = this.allInputs[idx];
+						if(rEl.classList.contains('de-error-key')) {
+							this.errCount--;
+							rEl.classList.remove('de-error-key');
+						}
+					}
+					if(rIdx === -1) {
+						this.errCount--;
+						el.classList.remove('de-error-key');
+					}
+				}
+				if(rIdx === -1) {
+					this.keys[+el.getAttribute('de-id1')][+el.getAttribute('de-id2')] = key;
+					if(this.errCount === 0) {
+						this.saveButton.disabled = false;
+					}
+					this.errorInput = false;
+					break;
+				}
+				rEl = this.allInputs[rIdx];
+				if(!rEl.classList.contains('de-error-key')) {
+					this.errCount++;
+					rEl.classList.add('de-error-key');
+				}
+			}
+			if(!isError) {
+				this.errCount++;
+				el.classList.add('de-error-key');
+			}
+			if(this.errCount !== 0) {
+				this.saveButton.disabled = true;
+			}
+			this.errorInput = false;
+		}
+		$pd(e);
+	}
+};
 
 
 //============================================================================================================
@@ -4991,7 +5257,7 @@ function scriptCSS() {
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
-		.de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+		.de-error-key, .de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
@@ -8012,22 +8278,6 @@ function getImageBoard() {
 			}}
 		}],
 		'hiddenchan.i2p': [{
-			init: { value: function() {
-				window.setTimeout = function(Fn, num) {
-					var ev = document.createEvent('HTMLEvents'),
-						args = arguments;
-					if(typeof Fn === 'function') {
-						window.document.body.addEventListener('timeoutEvent', function() {
-							Fn.apply(null, aProto.slice.call(args, 2));
-							Fn = args = null;
-						}, false);
-						ev.initEvent('timeoutEvent', true, false);
-						window.document.body.dispatchEvent(ev);
-					}
-					return 1;
-				};
-			} },
-
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'iichan.hk': [{
