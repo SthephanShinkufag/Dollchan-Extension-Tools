@@ -2641,7 +2641,7 @@ function checkDelete(response) {
 		return;
 	}
 	var el, i, els, len, post, tNums = [],
-		num = doc.location.hash.match(/\d+/)[0];
+		num = (doc.location.hash.match(/\d+/) || [null])[0];
 	if(num && (post = pByNum[num])) {
 		if(!post.isOp) {
 			post.el.className = aib.cReply;
@@ -7954,45 +7954,48 @@ Thread.prototype = {
 		}
 	},
 	_parsePosts: function(nPosts, from, omt) {
-		var i, len, el, tPost, fragm, newPosts = 0,
+		var i, c, len, el, tPost, fragm, newPosts = 0,
 			newVisPosts = 0,
-			cnt = 1,
 			firstDelPost = null,
 			rerunSpells = spells.hasNumSpell,
 			saveSpells = false,
 			post = this.op.nextNotDeleted;
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
-			if(post.count - cnt === i) {
+			if(post.count - 1 === i) {
 				if(i >= len || post.num !== aib.getPNum(nPosts[i])) {
 					if(!firstDelPost) {
 						firstDelPost = post;
 					}
+					c = 0;
+					do {
+						if(TNum) {
+							post.deleted = true;
+							post.btns.classList.remove('de-ppanel-cnt');
+							post.btns.classList.add('de-ppanel-del');
+							($q('input[type="checkbox"]', post.el) || {}).disabled = true;
+						} else {
+							aib.removePost(post);
+							delete pByNum[post.num];
+							if(post.hidden) {
+								post.unhideRefs();
+							}
+							updRefMap(post, false);
+							if(post.prev.next = post.next) {
+								post.next.prev = post.prev;
+							}
+							if(this.last === post) {
+								this.last = post.prev;
+							}
+						}
+						post = post.nextNotDeleted;
+						c++;
+					} while(post && (i >= len || post.num !== aib.getPNum(nPosts[i])));
 					if(!rerunSpells) {
-						sVis.splice(post.count, 1);
+						sVis.splice(i + 1, c);
 					}
-					if(TNum) {
-						post.deleted = true;
-						post.btns.classList.remove('de-ppanel-cnt');
-						post.btns.classList.add('de-ppanel-del');
-						($q('input[type="checkbox"]', post.el) || {}).disabled = true;
-					} else {
-						aib.removePost(post);
-						delete pByNum[post.num];
-						if(post.hidden) {
-							post.unhideRefs();
-						}
-						updRefMap(post, false);
-						if(post.prev.next = post.next) {
-							post.next.prev = post.prev;
-						}
-						if(this.last === post) {
-							this.last = post.prev;
-						}
+					for(tPost = post; tPost; tPost = tPost.nextInThread) {
+						tPost.count -= c;
 					}
-					for(tPost = post.nextInThread; tPost; tPost = tPost.nextInThread) {
-						tPost.count--;
-					}
-					cnt++;
 				} else {
 					if(i < from) {
 						if(i >= omt) {
@@ -8006,17 +8009,16 @@ Thread.prototype = {
 						updRefMap(post, true);
 					}
 					i++;
+					post = post.nextNotDeleted;
 				}
-				post = post.nextNotDeleted;
 			} else if(!TNum && i >= from) {
 				fragm = doc.createDocumentFragment();
 				tPost = this.op;
-				for(cnt = post.count - 1; i < cnt; i++) {
+				for(c = post.count - 1; i < c; i++) {
 					el = nPosts[i];
 					tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el), i + 1, tPost);
 					spells.check(tPost);
 				}
-				cnt = 1;
 				$after(this.op.el, fragm);
 				tPost.next = post;
 				post.prev = tPost;
