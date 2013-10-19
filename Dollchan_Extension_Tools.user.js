@@ -3828,8 +3828,8 @@ function getHanaPost(postJson) {
 	var i, html, id = postJson['display_id'],
 		files = postJson['files'],
 		len = files.length,
-		post = $new('td', {'id': 'reply' + id, 'class': 'reply', 'de-post': null}, null);
-	html = '<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
+		wrap = $new('table', {'id': 'post_' + id, 'class': 'replypost post'}, null);
+	html = '<tbody><tr><td class="doubledash">&gt;&gt;</td><td id="reply' + id + '" class="reply"><a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
 		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
 		'"></a><span class="postername">' + postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
@@ -3837,9 +3837,10 @@ function getHanaPost(postJson) {
 	for(i = 0; i < len; i++) {
 		html += getHanaFile(files[i], postJson['post_id']);
 	}
-	post.innerHTML = html + (len > 1 ? '<div style="clear: both;"></div>' : '') +
-		'<div class="postbody">' + postJson['message_html'] + '</div><div class="abbrev"></div>';
-	return post;
+	wrap.innerHTML = html + (len > 1 ? '<div style="clear: both;"></div>' : '') +
+		'<div class="postbody">' + postJson['message_html'] +
+		'</div><div class="abbrev"></div></td></tr></tbody>';
+	return [wrap, wrap.firstChild.firstChild.lastChild];
 }
 
 
@@ -7866,7 +7867,7 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0);
 					} else {
-						var i, pCount, fragm, last, el = (json['result'] || {})['posts'],
+						var i, pCount, fragm, last, temp, el = (json['result'] || {})['posts'],
 							len = el ? el.length : 0,
 							np = len;
 						if(len > 0) {
@@ -7874,8 +7875,9 @@ Thread.prototype = {
 							pCount = this.pcount;
 							last = this.last;
 							for(i = 0; i < len; i++) {
+								temp = getHanaPost(el[i]);
 								last = this._addPost(fragm, el[i]['display_id'],
-									replacePost(getHanaPost(el[i])), pCount + i, last);
+									replacePost(temp[1]), temp[0], pCount + i, last);
 								np -= spells.check(last)
 							}
 							spells.end(savePosts);
@@ -7923,9 +7925,8 @@ Thread.prototype = {
 		} while(thr = thr.next);
 	},
 
-	_addPost: function(parent, num, el, i, prev) {
-		var post = new Post(el, this, num, i, false, prev),
-			wrap = aib.getWrap(el, false);
+	_addPost: function(parent, num, el, wrap, i, prev) {
+		var post = new Post(el, this, num, i, false, prev);
 		pByNum[num] = post;
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		aib.appendPost(wrap, parent);
@@ -8016,7 +8017,8 @@ Thread.prototype = {
 				tPost = this.op;
 				for(c = post.count - 1; i < c; i++) {
 					el = nPosts[i];
-					tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el), i + 1, tPost);
+					tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el),
+						aib.getWrap(el, false), i + 1, tPost);
 					spells.check(tPost);
 				}
 				$after(this.op.el, fragm);
@@ -8041,7 +8043,8 @@ Thread.prototype = {
 			fragm = doc.createDocumentFragment();
 			do {
 				el = nPosts[i];
-				post = this._addPost(fragm, aib.getPNum(el), replacePost(el), i + 1, post);
+				post = this._addPost(fragm, aib.getPNum(el), replacePost(el),
+					aib.getWrap(el, false), i + 1, post);
 				newVisPosts -= spells.check(post);
 			} while(++i < len);
 			this.el.appendChild(fragm);
