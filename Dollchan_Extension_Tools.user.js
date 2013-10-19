@@ -420,7 +420,7 @@ Lng = {
 	seCol:			[', столбец ', ', column ']
 },
 
-doc = window.document, aProto = Array.prototype, Worker,
+doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, spells,
@@ -712,6 +712,29 @@ $tar.prototype = {
 			data[offset++] = num.charCodeAt(i++);
 		}
 		data[offset] = 0x20; // ' '
+	}
+};
+
+function $workers(source, count) {
+	var i, wrk, wUrl;
+	if(nav.Firefox) {
+		wUrl = 'data:text/javascript,' + source;
+		wrk = unsafeWindow.Worker;
+	} else {
+		wUrl = window.URL.createObjectURL(new Blob([source], {'type': 'text/javascript'}));
+		this.url = wUrl;
+		wrk = Worker;
+	}
+	for(i = 0; i < count; ++i) {
+		this[i] = new wrk(wUrl);
+	}
+}
+$workers.prototype = {
+	url: null,
+	clear: function() {
+		if(this.url !== null) {
+			window.URL.revokeObjectURL(this.url);
+		}
 	}
 };
 
@@ -2918,22 +2941,17 @@ function detectImgFile(ab) {
 }
 
 function workerQueue(mReqs, wrkFn, errFn) {
-	if(!Worker) {
+	if(!nav.hasWorker) {
 		this.run = this._runSync.bind(wrkFn);
 		return;
 	}
-	var wrkUrl = 'data:text/javascript,self.onmessage = function(e) {\
-		var info = (' + String(wrkFn) + ')(e.data[1]);\
-		self.postMessage([e.data[0], info], info.data ? [info.data] : null);\
-	}';
 	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
 	this.run = this._runWrk;
-	this.wrks = [];
+	this.wrks = new $workers('self.onmessage = function(e) {\
+		var info = (' + String(wrkFn) + ')(e.data[1]);\
+		self.postMessage([e.data[0], info], info.data ? [info.data] : null);\
+	}', mReqs);
 	this.errFn = errFn;
-	while(mReqs > 0) {
-		this.wrks.push(new Worker(wrkUrl));
-		mReqs--;
-	}
 }
 workerQueue.prototype = {
 	_runSync: function(data, transferObjs, Fn) {
@@ -2957,6 +2975,7 @@ workerQueue.prototype = {
 		w.postMessage([qIdx, data[0]], data[1]);
 	},
 	clear: function() {
+		this.wrks.clear();
 		this.wrks = null;
 	}
 };
@@ -8809,7 +8828,6 @@ function getNavFuncs() {
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
 	}
-	Worker = firefox ? unsafeWindow.Worker : window.Worker;
 	return {
 		Firefox: firefox,
 		Opera: opera,
@@ -8834,6 +8852,11 @@ function getNavFuncs() {
 		isBlob: firefox > 14 || chrome || opera >= 12.10,
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
+		},
+		get hasWorker() {
+			var val = 'Worker' in (this.Firefox ? unsafeWindow : Window);
+			Object.defineProperty(this, 'hasWorker', { value: val });
+			return val;
 		},
 		get canPlayMP3() {
 			var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
