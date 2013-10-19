@@ -8530,7 +8530,6 @@ function getImageBoard() {
 			tiny: { value: true }
 		},
 		'script[src*="hanabira"]': {
-			// FIXME: check qPages property
 			cSubj: { value: 'replytitle' },
 			cFileInfo: { value: 'fileinfo' },
 			qDForm: { value: 'form[action*="delete"]' },
@@ -8557,6 +8556,13 @@ function getImageBoard() {
 			} },
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
+			} },
+			pagesCount: { configurable: true, get: function() {
+				var a = $T('a', $c('pages', doc)),
+					aCnt = a.length,
+					val = +a[aCnt === 1 ? aCnt - 1 : aCnt - 2].textContent || 1;
+				Object.defineProperty(this, 'pagesCount', { value: val });
+				return val;
 			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, #hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
