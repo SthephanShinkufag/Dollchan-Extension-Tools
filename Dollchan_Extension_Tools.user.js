@@ -3700,7 +3700,7 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 				if(xhr.status !== 200) {
 					errFn && errFn(xhr.status, xhr.statusText);
 				} else if(Fn) {
-					var dc, text = xhr.responseText;
+					var el, text = xhr.responseText;
 					if(/<\/html>[\s\n\r]*$/.test(text)) {
 						el = $DOM(text);
 						if(!loadForm || (el = $q(aib.qDForm, el))) {
