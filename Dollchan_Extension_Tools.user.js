@@ -1327,7 +1327,7 @@ function showContent(cont, id, name, isUpd) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxGetPosts(aib.getThrdUrl(arr[0], arr[1]), null, function(eCode, eMsg) {
+					ajaxLoad(aib.getThrdUrl(arr[0], arr[1]), false, null, function(eCode, eMsg) {
 						if(eCode === 404) {
 							delete hThr[this[0]][this[1]];
 							saveHiddenThreads(true);
@@ -1401,8 +1401,8 @@ function showContent(cont, id, name, isUpd) {
 					c = $c('de-fav-inf-posts', el).firstElementChild;
 					c.className = 'de-wait';
 					c.textContent = '';
-					ajaxGetPosts(aib.getThrdUrl(arr[1], arr[2]), function(dc) {
-						var cnt = aib.getPosts($q(aib.qDForm, dc)).length + 1;
+					ajaxLoad(aib.getThrdUrl(arr[1], arr[2]), true, function(form) {
+						var cnt = aib.getPosts(form).length + 1;
 						c.textContent = cnt;
 						if(cnt > f.cnt) {
 							c.className = 'de-fav-inf-new';
@@ -1424,13 +1424,13 @@ function showContent(cont, id, name, isUpd) {
 					loaded = 0;
 				$alert(Lng.loading[lang], 'load-pages', true);
 				while(i--) {
-					ajaxGetPosts(aib.getPageUrl(brd, i), function(idx, dc) {
+					ajaxLoad(aib.getPageUrl(brd, i), true, function(idx, form) {
 						for(var arr, el, len = this.length, i = 0; i < len; ++i) {
 							arr = this[i].getAttribute('info').split(';');
 							if(arr[0] === aib.host && arr[1] === brd) {
 								el = $c('de-fav-inf-page', this[i]);
 								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<'))
-									.test($q(aib.qDForm, dc).innerHTML))
+									.test(form.innerHTML))
 								{
 									el.innerHTML = '@' + (aib.tiny ? idx + 1 : idx);
 								} else if(loaded === 5 && !el.textContent.contains('@')) {
@@ -1453,7 +1453,7 @@ function showContent(cont, id, name, isUpd) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($C('de-entry', doc), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxGetPosts(Favor[arr[0]][arr[1]][arr[2]]['url'], null, function(eCode, eMsg) {
+					ajaxLoad(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(eCode, eMsg) {
 						if(eCode === 404) {
 							removeFavorites(arr[0], arr[1], arr[2]);
 							saveFavorites();
@@ -3686,21 +3686,30 @@ function embedMP3Links(post) {
 //													AJAX
 //============================================================================================================
 
-function ajaxGetPosts(url, Fn, errFn) {
-	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(Fn, errFn, xhr) {
-		if(xhr.readyState === 4) {
-			if(xhr.status !== 200) {
-				errFn && errFn(xhr.status, xhr.statusText);
-			} else if(Fn) {
-				var text = xhr.responseText;
-				if(/<\/html>[\s\n\r]*$/.test(text)) {
-					Fn($DOM(text));
-				} else if(errFn) {
-					errFn(0, Lng.textCorrupted[lang]);
+function ajaxLoad(url, loadForm, Fn, errFn) {
+	GM_xmlhttpRequest({
+		'method': 'GET',
+		'url': nav.fixLink(url),
+		'onreadystatechange': function(loadForm, Fn, errFn, xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status !== 200) {
+					errFn && errFn(xhr.status, xhr.statusText);
+				} else if(Fn) {
+					var dc, text = xhr.responseText;
+					if(/<\/html>[\s\n\r]*$/.test(text)) {
+						el = $DOM(text);
+						if(!loadForm || (el = $q(aib.qDForm, el))) {
+							Fn(el);
+							return;
+						}
+					}
+					if(errFn) {
+						errFn(0, Lng.textCorrupted[lang]);
+					}
 				}
 			}
-		}
-	}.bind(null, Fn, errFn)});
+		}.bind(null, loadForm, Fn, errFn)
+	});
 }
 
 function getJsonPosts(url, Fn) {
@@ -3750,12 +3759,12 @@ function loadPages(count) {
 		loaded = 1;
 	count = len - i;
 
-	function onLoadOrError(idx, eCodeOrDc, maybeEMsg) {
-		if(typeof eCodeOrDc === 'number') {
+	function onLoadOrError(idx, eCodeOrForm, maybeEMsg) {
+		if(typeof eCodeOrForm === 'number') {
 			pages[idx] = $add('<div><center style="font-size: 2em">' +
-				getErrorMessage(eCodeOrDc, maybeEMsg) + '</center><hr></div>');
+				getErrorMessage(eCodeOrForm, maybeEMsg) + '</center><hr></div>');
 		} else {
-			pages[idx] = replacePost($q(aib.qDForm, eCodeOrDc));
+			pages[idx] = replacePost(eCodeOrForm);
 		}
 		if(loaded === count) {
 			var el, df, j, parseThrs = Thread.parsed,
@@ -3810,7 +3819,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	while(i < len) {
 		fun = onLoadOrError.bind(null, i);
-		ajaxGetPosts(aib.getPageUrl(brd, i++), fun, fun);
+		ajaxLoad(aib.getPageUrl(brd, i++), true, fun, fun);
 	}
 }
 
@@ -5476,7 +5485,7 @@ function PostForm(form, ignoreForm, init) {
 	}
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
-			ajaxGetPosts(aib.getThrdUrl(brd, aib.getTNum(dForm)), function(dc) {
+			ajaxLoad(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc) {
 				pr = new PostForm($q(aib.qPostForm, dc), true, init);
 			}, function(eCode, eMsg) {
 				pr = new PostForm(null, true, init);
@@ -7328,13 +7337,12 @@ Post.prototype = {
 		if(!isInit) {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.tNum), function(node, dc) {
-			var i, els, len, df = $q(aib.qDForm, dc);
+		ajaxLoad(aib.getThrdUrl(brd, this.tNum), true, function(node, form) {
 			if(this.isOp) {
-				this.updateMsg(replacePost($q(aib.qMsg, df)));
+				this.updateMsg(replacePost($q(aib.qMsg, form)));
 				$del(node);
 			} else {
-				for(i = 0, els = aib.getPosts(df), len = els.length; i < len; i++) {
+				for(var i = 0, els = aib.getPosts(form), len = els.length; i < len; i++) {
 					if(this.num === aib.getPNum(els[i])) {
 						this.updateMsg(replacePost($q(aib.qMsg, els[i])));
 						$del(node);
@@ -7410,7 +7418,7 @@ function Pview(parent, link, tNum, pNum) {
 		this._showPost(post);
 	} else {
 		this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-		ajaxGetPosts(aib.getThrdUrl(b, tNum), this._onload.bind(this, b), this._onerror.bind(this));
+		ajaxLoad(aib.getThrdUrl(b, tNum), true, this._onload.bind(this, b), this._onerror.bind(this));
 	}
 }
 Pview.clearCache = function() {
@@ -7459,10 +7467,10 @@ Pview.prototype = Object.create(Post.prototype, {
 		Pview.del(this);
 		this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
 	} },
-	_onload: { value: function pvOnload(b, dc) {
+	_onload: { value: function pvOnload(b, form) {
 		var rm, parent = this.parent,
 			parentNum = parent.num,
-			cache = this._cache[b + this.tNum] = new PviewsCache(dc, b, this.tNum),
+			cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
 			post = cache.getPost(this.num);
 		if(post && (brd !== b || !post.hasRef || post.ref.indexOf(parentNum) === -1)) {
 			if(post.hasRef) {
@@ -7575,11 +7583,10 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 });
 
-function PviewsCache(dc, b, tNum) {
+function PviewsCache(form, b, tNum) {
 	var i, len, post, pBn = {},
 		pProto = Post.prototype,
-		df = $q(aib.qDForm, dc),
-		thr = $q(aib.qThread, df) || df,
+		thr = $q(aib.qThread, form) || form,
 		posts = aib.getPosts(thr);
 	for(i = 0, len = posts.length; i < len; ++i) {
 		post = posts[i];
@@ -7860,9 +7867,8 @@ Thread.prototype = {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.num), function threadOnload(last, scrollEl, Fn, dc) {
-			var nForm = $q(aib.qDForm, dc),
-				els = aib.getPosts(nForm),
+		ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, scrollEl, Fn, form) {
+			var els = aib.getPosts(form),
 				op = this.op,
 				thrEl = this.el,
 				expEl = $c('de-expand', thrEl),
@@ -7871,12 +7877,12 @@ Thread.prototype = {
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
 				if(op.trunc) {
-					op.updateMsg(replacePost($q(aib.qMsg, nForm)));
+					op.updateMsg(replacePost($q(aib.qMsg, form)));
 				}
 				delete op.ref;
 				this.loadedOnce = true;
 			}
-			this._checkBans(op, nForm);
+			this._checkBans(op, form);
 			this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
@@ -7940,17 +7946,12 @@ Thread.prototype = {
 			);
 			return;
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, TNum), function parseNewPosts(dc) {
-			var info, nForm = $q(aib.qDForm, dc);
-			if(nForm) {
-				this._checkBans(firstThr.op, nForm);
-				info = this._parsePosts(aib.getPosts(nForm), 0, 0);
-				Fn(200, '', info[1]);
-				if(info[0] !== 0) {
-					$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
-				}
-			} else {
-				Fn(0, Lng.textCorrupted[lang], 0);
+		ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form) {
+			this._checkBans(firstThr.op, form);
+			var info = this._parsePosts(aib.getPosts(form), 0, 0);
+			Fn(200, '', info[1]);
+			if(info[0] !== 0) {
+				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
