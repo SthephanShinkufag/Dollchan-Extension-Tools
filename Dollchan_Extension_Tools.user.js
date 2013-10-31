@@ -2015,7 +2015,12 @@ function closeAlert(el) {
 	if(el) {
 		el.closeTimeout = null;
 		if(Cfg['animation']) {
-			nav.animEvent(el, $del);
+			nav.animEvent(el, function(node) {
+				var p = node && node.parentNode;
+				if(p) {
+					p.removeChild(node);
+				}
+			});
 			el.classList.add('de-close');
 		} else {
 			$del(el);
