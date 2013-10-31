@@ -5,8 +5,8 @@
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
 // @description		Doing some profit for imageboards
-// @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
-// @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @icon			https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Icon.png
+// @updateURL		https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
 // @include			http://*
 // @include			https://*
@@ -290,9 +290,13 @@ Lng = {
 		'%l%i25t – отправить пост%/l' +
 		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l' +
 		'%l%i20 – тред (на доске)/пост (в треде) выше%/l' +
-		'%l%i31 – на доске пост ниже%/l' +
-		'%l%i30 – на доске пост выше%/l' +
-		'%l%i32 – открыть тред%/l',
+		'%l%i31 – пост (на доске) ниже%/l' +
+		'%l%i30 – пост (на доске) выше%/l' +
+		'%l%i32 – открыть тред%/l' +
+		'%l%i26 – открыть/закрыть избранное%/l' +
+		'%l%i27 – открыть/закрыть скрытые посты%/l' +
+		'%l%i28 – открыть/закрыть панель%/l' +
+		'%l%i29 – включить/выключить маскировку изображений%/l',
 		'%l%i24 – previous page%/l' +
 		'%l%i33 – next page%/l' +
 		'%l%i23 – hide current post/thread%/l' +
@@ -1618,7 +1622,7 @@ function getCfgFilters() {
 				$id('de-spell-edit').value = '';
 				toggleSpells();
 			}}),
-			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Spells-' +
+			$add('<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/Spells-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'id': 'de-spell-div'}, [
@@ -1678,7 +1682,7 @@ function getCfgPosts() {
 		lBox('noPostScrl', true, updateCSS),
 		$New('div', null, [
 			lBox('correctTime', false, dateTime.toggleSettings),
-			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' +
+			$add('<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/Settings-time-' +
 				(lang ? 'en' : 'ru') + '" class="de-abtn" target="_blank">[?]</a>')
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
@@ -1876,10 +1880,10 @@ function getCfgCommon() {
 function getCfgInfo() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
 		$add('<div style="padding-bottom: 10px;">' +
-			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' +
+			'<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/versions" ' +
 			'target="_blank">v' + version + '</a>&nbsp;|&nbsp;' +
 			'<a href="http://www.freedollchan.org/scripts/" target="_blank">Freedollchan</a>&nbsp;|&nbsp;' +
-			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
+			'<a href="https://github.com/Y0ba/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
 		$add('<div><div style="display: inline-block; vertical-align: top; width: 186px; height: 235px;">' +
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
@@ -2170,6 +2174,7 @@ KeyNavigation.readKeys = function(createNew) {
 			default: return key;
 			}
 		}
+		keys[1] = !!nav.Firefox;
 		keys[2] = keys[2].map(mapFunc);
 		keys[3] = keys[3].map(mapFunc);
 		saveCfg('kNavigKeys', keys);
@@ -2184,13 +2189,18 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Reply or create thread    */ 0x0052 /* = R                 */,
 		/* Hide selected thread/post */ 0x0048 /* = H                 */,
 		/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
-		/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */
+		/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */,
+		/* Open/close favorites posts*/ 0x4046 /* = Alt + F           */,
+		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
+		/* Open/close panel          */ 0x0050 /* = P                 */,
+		/* Mask/unmask images        */ 0x0042 /* = B                 */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
 		/* One post below */ 0x004E /* = N                  */,
 		/* Open thread    */ 0x0056 /* = V                  */,
-		/* Open next page */ 0x1027 /* = Ctrl + right arrow */
+		/* Open next page */ 0x1027 /* = Ctrl + right arrow */,
+		/* Expand thread  */ 0x0045 /* = E                  */
 	];
 	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys];
 };
@@ -2267,6 +2277,19 @@ KeyNavigation.prototype = {
 				}
 				pr.subm.click();
 				break;
+			case 6: // Open/close favorites posts
+				toggleContent('fav', false);
+				break;
+			case 7: // Open/close hidden posts
+				toggleContent('hid', false);
+				break;
+			case 8: // Open/close panel
+				// TODO: implement this
+				break;
+			case 9: // Mask/unmask images
+				toggleCfg('maskImgs');
+				updateCSS();
+				break;
 			case -1:
 				if(TNum || (ntIdx = this.ntKeys.indexOf(kc)) === -1) {
 					return;
@@ -2275,9 +2298,9 @@ KeyNavigation.prototype = {
 					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(nav.Firefox) {
-							GM_openInTab(aib.getThrdUrl(brd, post.thr.num), false, true);
+							GM_openInTab(aib.getThrdUrl(brd, post.tNum), false, true);
 						} else {
-							window.open(aib.getThrdUrl(brd, post.thr.num), '_blank');
+							window.open(aib.getThrdUrl(brd, post.tNum), '_blank');
 						}
 					}
 					break;
@@ -2286,6 +2309,20 @@ KeyNavigation.prototype = {
 						return;
 					}
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+					break;
+				} else if(ntIdx === 4) { // Expand/collapse thread
+					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+					if(post) {
+						if(post.thr.omitted === 0) {
+							post.thr.load(visPosts, post.el, null);
+						} else {
+							post.thr.load(1, post.thr.op.el, null);
+							if(this.cPost && this.cPost !== post) {
+								this.cPost.unselect();
+								this.cPost = post;
+							}
+						}
+					}
 					break;
 				}
 			default:
@@ -2309,7 +2346,7 @@ KeyNavigation.prototype = {
 		var post, tPost;
 		if(this.lastPageOffset !== pageYOffset) {
 			post = getThread ? firstThr : firstThr.op;
-			while(post.topCoord < 0) {
+			while(post.topCoord < 1) {
 				tPost = post.next;
 				if(!tPost) {
 					break;
@@ -2337,7 +2374,7 @@ KeyNavigation.prototype = {
 		while(post) {
 			if(post.thr.hidden) {
 				post = toUp ? post.thr.op.prev : post.thr.last.next;
-			} else if(post.hidden) {
+			} else if(post.hidden || post.omitted) {
 				post = toUp ? post.prev : post.next
 			} else {
 				return post;
@@ -2372,11 +2409,13 @@ function KeyEditListener(alertEl, keys, allKeys) {
 	var j, k, i, len, aInputs = aProto.slice.call($C('de-input-key', alertEl));
 	for(i = 0, len = allKeys.length; i < len; ++i) {
 		k = allKeys[i];
-		for(j = i + 1; j < len; ++j) {
-			if(k === allKeys[j]) {
-				aInputs[i].classList.add('de-error-key');
-				aInputs[j].classList.add('de-error-key');
-				break;
+		if(k !== 0) {
+			for(j = i + 1; j < len; ++j) {
+				if(k === allKeys[j]) {
+					aInputs[i].classList.add('de-error-key');
+					aInputs[j].classList.add('de-error-key');
+					break;
+				}
 			}
 		}
 	}
@@ -2392,7 +2431,7 @@ function KeyEditListener(alertEl, keys, allKeys) {
 // Browsers have different codes for these keys (see KeyNavigation.readKeys):
 //		Firefox - '-' - 173, '=' - 61, ';' - 59
 //		Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
-KeyEditListener.keyCodes = [,,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift','Ctrl','Alt',
+KeyEditListener.keyCodes = ['',,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift','Ctrl','Alt',
 	/* Pause/Break */,/* Caps Lock */,,,,,,,/* Escape */,,,,,'Space',/* Page Up */,
 	/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,/* Delete */,,'0','1','2',
 	'3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F','G','H','I','J','K','L','M',
@@ -2481,8 +2520,14 @@ KeyEditListener.prototype = {
 				return;
 			}
 			key = e.keyCode;
+			if(key === 0x1B || key === 0x2E) { // ESC, DEL
+				this.cEl.value = '';
+				this.cKey = 0;
+				this.errorInput = false;
+				break;
+			}
 			keyStr = KeyEditListener.keyCodes[key];
-			if(!keyStr) {
+			if(keyStr == null) {
 				this.cKey = -1;
 				return;
 			}
@@ -2520,7 +2565,7 @@ KeyEditListener.prototype = {
 					this.errorInput = false;
 					break;
 				}
-				rIdx = this.allKeys.indexOf(key);
+				rIdx = key === 0 ? -1 : this.allKeys.indexOf(key);
 				this.allKeys[idx] = key;
 				if(isError) {
 					idx = this.allKeys.indexOf(oKey);
@@ -2557,7 +2602,6 @@ KeyEditListener.prototype = {
 			if(this.errCount !== 0) {
 				this.saveButton.disabled = true;
 			}
-			this.errorInput = false;
 		}
 		$pd(e);
 	}
@@ -2621,7 +2665,7 @@ function checkUpload(response) {
 			}
 		}, true);
 	} else {
-		pByNum[pr.tNum].thr.load(visPosts, closeAlert.bind(window, $id('de-alert-upload')));
+		pByNum[pr.tNum].thr.load(visPosts, null, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(pr.tNum, false);
@@ -2651,7 +2695,7 @@ function checkDelete(response) {
 	for(i = 0, els = $Q('.' + aib.cRPost + ' input:checked', dForm), len = els.length; i < len; ++i) {
 		el = els[i];
 		el.checked = false;
-		if(!TNum && tNums.indexOf(num = aib.getPostEl(el).post.thr.num) === -1) {
+		if(!TNum && tNums.indexOf(num = aib.getPostEl(el).post.tNum) === -1) {
 			tNums.push(num);
 		}
 	}
@@ -2662,7 +2706,7 @@ function checkDelete(response) {
 		}, false);
 	} else {
 		tNums.forEach(function(tNum) {
-			pByNum[tNum].thr.load(visPosts, endDelete);
+			pByNum[tNum].thr.load(visPosts, null, endDelete);
 		});
 	}
 }
@@ -5374,7 +5418,7 @@ function checkForUpdates(isForce, Fn) {
 	}
 	GM_xmlhttpRequest({
 		'method': 'GET',
-		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
+		'url': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
 		'headers': {'Content-Type': 'text/plain'},
 		'onreadystatechange': function(xhr) {
 			if(xhr.readyState !== 4) {
@@ -5404,7 +5448,7 @@ function checkForUpdates(isForce, Fn) {
 				}
 				if(isUpd) {
 					Fn('<a style="color: blue; font-weight: bold;" href="' +
-						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+						'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/' +
 						'Dollchan_Extension_Tools.user.js">' + Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
@@ -5657,7 +5701,7 @@ PostForm.prototype = {
 		}
 	},
 	showQuickReply: function(post) {
-		var el, tNum = post.thr.num;
+		var el, tNum = post.tNum;
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, true);
@@ -6465,6 +6509,7 @@ Post.prototype = {
 	inited: true,
 	kid: null,
 	next: null,
+	omitted: false,
 	parent: null,
 	prev: null,
 	spellHidden: false,
@@ -6526,7 +6571,7 @@ Post.prototype = {
 							if(this.isOp) {
 								el.href = aib.getThrdUrl(brd, this.num);
 							} else {
-								el.href = aib.getThrdUrl(brd, this.thr.num) + '#' + this.num;
+								el.href = aib.getThrdUrl(brd, this.tNum) + '#' + this.num;
 							}
 						}
 					} else if(Cfg['insertNum'] && pr.form && temp === this._pref &&
@@ -6548,7 +6593,7 @@ Post.prototype = {
 			}
 			switch(el.className) {
 			case 'de-btn-expthr':
-				this.thr.load(1, null);
+				this.thr.load(1, this.el, null);
 				$del(this._menu);
 				this._menu = null;
 				return;
@@ -6885,6 +6930,9 @@ Post.prototype = {
 		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ')
 		Object.defineProperty(this, 'title', { value: val });
 		return val;
+	},
+	get tNum() {
+		return this.thr.num;
 	},
 	toggleContent: function(hide) {
 		if(hide) {
@@ -7241,7 +7289,7 @@ Post.prototype = {
 			saveUserPosts();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
-		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), null); return;
+		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), this.el, null); return;
 		}
 	},
 	_closeMenu: function(rt) {
@@ -7280,7 +7328,7 @@ Post.prototype = {
 		if(!isInit) {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.thr.num), function(node, dc) {
+		ajaxGetPosts(aib.getThrdUrl(brd, this.tNum), function(node, dc) {
 			var i, els, len, df = $q(aib.qDForm, dc);
 			if(this.isOp) {
 				this.updateMsg(replacePost($q(aib.qMsg, df)));
@@ -7351,7 +7399,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
-	this.tNum = tNum;
+	Object.defineProperty(this, 'tNum', { value: tNum });
 	if(post && (!post.isOp || !parent._isPview || !parent._loaded)) {
 		this._showPost(post);
 		return;
@@ -7424,7 +7472,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				rm = post.msg.nextSibling;
 			}
 			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
-				aib.getThrdUrl(b, parent._isPview ? parent.tNum : parent.thr.num) + aib.anchor +
+				aib.getThrdUrl(b, parent._isPview ? parent.tNum : parent.tNum) + aib.anchor +
 				parentNum + '">&gt;&gt;' + (brd === b ? '' : '/' + brd + '/') + parentNum +
 				'</a><span class="de-refcomma">, </span>');
 		}
@@ -7808,11 +7856,11 @@ Thread.prototype = {
 		}
 		return post;
 	},
-	load: function(last, Fn) {
+	load: function(last, scrollEl, Fn) {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxGetPosts(aib.getThrdUrl(brd, this.num), function threadOnload(last, Fn, dc) {
+		ajaxGetPosts(aib.getThrdUrl(brd, this.num), function threadOnload(last, scrollEl, Fn, dc) {
 			var nForm = $q(aib.qDForm, dc),
 				els = aib.getPosts(nForm),
 				op = this.op,
@@ -7842,17 +7890,17 @@ Thread.prototype = {
 					Lng.collapseThrd[lang] + '</a>]</span>');
 				thrEl.lastChild.onclick = function(e) {
 					$pd(e);
-					this.load(visPosts, null);
+					this.load(visPosts, this.el, null);
 				}.bind(this);
 			} else if(expEl !== thrEl.lastChild) {
 				thrEl.appendChild(expEl);
 			}
 			closeAlert($id('de-alert-load-thr'));
-			setTimeout(function(op) {
-				scrollTo(0, pageYOffset + op.el.getBoundingClientRect().top);
-			}, 100, op)
+			setTimeout(function(sEl) {
+				scrollTo(0, pageYOffset + sEl.getBoundingClientRect().top);
+			}, 100, scrollEl)
 			Fn && Fn();
-		}.bind(this, last, Fn), function(eCode, eMsg) {
+		}.bind(this, last, scrollEl, Fn), function(eCode, eMsg) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
 			if(typeof this === 'function') {
 				this();
@@ -7894,11 +7942,15 @@ Thread.prototype = {
 		}
 		ajaxGetPosts(aib.getThrdUrl(brd, TNum), function parseNewPosts(dc) {
 			var info, nForm = $q(aib.qDForm, dc);
-			this._checkBans(firstThr.op, nForm);
-			info = this._parsePosts(aib.getPosts(nForm), 0, 0);
-			Fn(200, '', info[1]);
-			if(info[0] !== 0) {
-				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
+			if(nForm) {
+				this._checkBans(firstThr.op, nForm);
+				info = this._parsePosts(aib.getPosts(nForm), 0, 0);
+				Fn(200, '', info[1]);
+				if(info[0] !== 0) {
+					$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
+				}
+			} else {
+				Fn(0, Lng.textCorrupted[lang], 0);
 			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg) {
@@ -8001,12 +8053,14 @@ Thread.prototype = {
 					if(i < from) {
 						if(i >= omt) {
 							post.wrap.classList.add('de-hidden');
+							post.omitted = true;
 						}
 					} else if(!TNum) {
 						if(post.trunc) {
 							post.updateMsg(replacePost($q(aib.qMsg, nPosts[i])));
 						}
 						post.wrap.classList.remove('de-hidden');
+						post.omitted = false;
 						updRefMap(post, true);
 					}
 					i++;
@@ -9209,7 +9263,7 @@ function initThreadUpdater(title, enableUpdater) {
 		if(!audioEl) {
 			audioEl = $new('audio', {
 				'preload': 'auto',
-				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
+				'src': 'https://raw.github.com/Y0ba/Dollchan-Extension-Tools/master/signal.ogg'
 			}, null);
 		}
 		audioRep = aRep;
