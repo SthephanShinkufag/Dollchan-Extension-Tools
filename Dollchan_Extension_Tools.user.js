@@ -409,7 +409,7 @@ Lng = {
 	cantLoad:		['Не могу загрузить ', 'Can\'t load '],
 	willSavePview:	['Будет сохранено превью', 'Thumb will be saved'],
 	loadErrors:		['Во время загрузки произошли ошибки:', 'Warning:'],
-	textCorrupted:	['Сервер отправил повреждённые данные', 'Server sent corrupted data'],
+	errCorruptData:	['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
 
 	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
 	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
@@ -3709,7 +3709,7 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 						}
 					}
 					if(errFn) {
-						errFn(0, Lng.textCorrupted[lang]);
+						errFn(0, Lng.errCorruptData[lang]);
 					}
 				}
 			}
