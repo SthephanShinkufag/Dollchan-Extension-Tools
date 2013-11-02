@@ -5689,10 +5689,14 @@ PostForm.prototype = {
 			e.stopPropagation();
 		}
 	},
-	refreshCapImg: function(tNum, isFocus) {
+	refreshCapImg: function(tNum, focus) {
 		var src, img;
 		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
-			img.onclick(isFocus, true);
+			img.dispatchEvent(new CustomEvent('click', {
+				'bubbles': true,
+				'cancelable': true,
+				'detail': {'isCustom': true, 'focus': focus}
+			}));
 			return;
 		}
 		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
@@ -5707,7 +5711,7 @@ PostForm.prototype = {
 			img.src = src;
 		}
 		this.cap.value = '';
-		if(isFocus) {
+		if(focus) {
 			this.cap.focus();
 		}
 		if(this._lastCapUpdate !== 0) {
@@ -8495,14 +8499,15 @@ function getImageBoard() {
 				var cd = $id('captcha_div'),
 					img = cd && $t('img', cd);
 				if(img) {
-					cd.setAttribute('onclick', ['var i = 4, el;',
-						"if(!arguments[1] && event.target.tagName !== 'IMG') {",
+					cd.setAttribute('onclick', ['var el, i = 4,',
+						'isCustom = (typeof event.detail === "object") && event.detail.isCustom;',
+						"if(!isCustom && event.target.tagName !== 'IMG') {",
 							'return;',
 						'}',
 						'do {', img.getAttribute('onclick'), '} while(--i > 0 && !/<img|не нужно/i.test(this.innerHTML));',
 						"if(el = this.getElementsByTagName('img')[0]) {",
 							"el.removeAttribute('onclick');",
-							"if(event && (el = this.querySelector('input[type=\\'text\\']'))) {",
+							"if((!isCustom || event.detail.focus) && (el = this.querySelector('input[type=\\'text\\']'))) {",
 								'el.focus();',
 							'}',
 						'}'
