@@ -4842,7 +4842,7 @@ Spells.prototype = {
 					return;
 				}
 			} else {
-				spells = this.parseText('#wipe(samelines,samewords,longwords,numbers)');
+				spells = this.parseText('#wipe(samelines,samewords,longwords,numbers,whitespace)');
 			}
 			saveCfg('spells', data);
 		}
