@@ -2262,6 +2262,9 @@ KeyNavigation.prototype = {
 				this.cPost.unselect();
 				this.cPost = null;
 			}
+			for(post = firstThr; post; post = post.next) {
+				post.clearPostsMarks();
+			}
 			this.lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
 			e.target.blur();
