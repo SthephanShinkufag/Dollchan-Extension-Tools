@@ -306,7 +306,11 @@ Lng = {
 		'%l%i20 – thread (on board) / post (in thread) above%/l' +
 		'%l%i31 – on board post below%/l' +
 		'%l%i30 – on board post above%/l' +
-		'%l%i32 – open thread%/l'
+		'%l%i32 – open thread%/l' +
+		'%l%i26 – open/close Favorites%/l' +
+		'%l%i27 – open/close Hidden Posts Table%/l' +
+		'%l%i28 – open/close the main panel%/l' +
+		'%l%i29 – turn on/off masking images%/l'
 	],
 
 	month:			[
@@ -2256,11 +2260,12 @@ KeyNavigation.prototype = {
 			globIdx = this.gKeys.indexOf(kc);
 			switch(globIdx) {
 			case 2: // Reply or create thread
-				if(this.cPost) {
-					pr.showQuickReply(this.cPost);
-				} else if(!TNum) {
-					// TODO: create thread
-					return;
+				if(pr.form) {
+					if(this.cPost) {
+						pr.showQuickReply(this.cPost);
+					} else {
+						pr.showMainReply(TNum && Cfg['addPostForm'] !== 0, null);
+					}
 				}
 				break;
 			case 3: // Hide selected thread/post
@@ -2271,10 +2276,9 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 4: // Open previous page
-				if(!TNum && pageNum === 0) {
-					return;
+				if(TNum || pageNum !== 0) {
+					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				}
-				window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				break;
 			case 5: // Send post (txt)
 				if(e.target !== pr.txta && e.target !== pr.cap) {
@@ -2310,10 +2314,9 @@ KeyNavigation.prototype = {
 					}
 					break;
 				} else if(ntIdx === 3) { // Open next page
-					if(this.lastPage === aib.pagesCount) {
-						return;
+					if(this.lastPage !== aib.pagesCount) {
+						window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 					}
-					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 					break;
 				} else if(ntIdx === 4) { // Expand/collapse thread
 					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
@@ -2467,7 +2470,7 @@ KeyEditListener.getEditMarkup = function(keys) {
 			}
 			str += KeyEditListener.keyCodes[key & 0xFFF];
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
-				'" size="30" value="' + str + (isText ? '" de-text' : '"' ) + ' readonly></input>';
+				'" size="26" value="' + str + (isText ? '" de-text' : '"' ) + ' readonly></input>';
 		}.bind(keys, allKeys)) +
 	'<input type="button" id="de-keys-save" value="' + Lng.save[lang] + '"></input>' +
 	'<input type="button" id="de-keys-reset" value="' + Lng.reset[lang] + '"></input>';
@@ -2635,7 +2638,7 @@ function checkUpload(response) {
 	var el, cln, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
-			pr.setReply(true, true);
+			pr.setReply(true, false);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
 			pr.refreshCapImg(pr.tNum, true);
@@ -5620,8 +5623,9 @@ PostForm.processInput = function() {
 	}));
 };
 PostForm.prototype = {
+	isHidden: false,
 	isQuick: false,
-	select: 0,
+	isTopForm: false,
 	pForm: null,
 	pArea: [],
 	qArea: null,
@@ -5722,8 +5726,8 @@ PostForm.prototype = {
 		var el, tNum = post.tNum;
 		if(!this.isQuick) {
 			this.isQuick = true;
-			this.setReply(true, true);
-			$t('a', this._pBtn[this.select]).className =
+			this.setReply(true, false);
+			$t('a', this._pBtn[+this.isTopForm]).className =
 				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
 			if(!TNum && !aib.kus && !aib.hana) {
 				if(this.oeForm) {
@@ -5769,6 +5773,23 @@ PostForm.prototype = {
 			el.textContent = '#' + tNum;
 		}
 	},
+	showMainReply: function(isTop, evt) {
+		this.closeQReply();
+		if(this.isTopForm === isTop) {
+			this.pForm.style.display = this.isHidden ? '' : 'none';
+			this.isHidden = !this.isHidden;
+			this.updatePAreaBtns();
+		} else {
+			this.isTopForm = isTop;
+			this.setReply(false, false);
+		}
+		if(!this.isHidden) {
+			this.txta.focus();
+		}
+		if(evt) {
+			$pd(evt);
+		}
+	},
 	closeQReply: function() {
 		if(this.isQuick) {
 			this.isQuick = false;
@@ -5776,41 +5797,26 @@ PostForm.prototype = {
 				this._toggleQuickReply(0);
 				$del($id('thr_id'));
 			}
-			this.setReply(false, TNum && Cfg['addPostForm'] < 2);
+			this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
 		}
 	},
-	setReply: function(quick, visible) {
+	setReply: function(quick, hide) {
 		if(quick) {
 			this.qArea.appendChild(this.pForm);
 		} else {
-			$after(this.pArea[this.select], this.qArea);
-			$after(this._pBtn[this.select], this.pForm);
+			$after(this.pArea[+this.isTopForm], this.qArea);
+			$after(this._pBtn[+this.isTopForm], this.pForm);
 		}
+		this.isHidden = hide;
 		this.qArea.style.display = quick ? '' : 'none';
-		this.pForm.style.display = visible ? '' : 'none';
+		this.pForm.style.display = hide ? 'none' : '';
 		this.updatePAreaBtns();
-	},
-	toggleMainReply: function(e) {
-		$pd(e);
-		var select = +!(e.target.parentNode.parentNode.id === 'de-parea-up');
-		if(this.isQuick) {
-			this.select = select;
-			this.closeQReply();
-		} else {
-			if(this.select === select) {
-				$disp(this.pForm);
-				this.updatePAreaBtns();
-			} else {
-				this.select = select;
-				this.setReply(false, true);
-			}
-		}
 	},
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
 			rep = TNum ? 'reply' : 'thrd';
-		$t('a', this._pBtn[this.select]).className = txt + (this.pForm.style.display === '' ? 'close' : rep);
-		$t('a', this._pBtn[+!this.select]).className = txt + rep;
+		$t('a', this._pBtn[+this.isTopForm]).className = txt + (this.pForm.style.display === '' ? 'close' : rep);
+		$t('a', this._pBtn[+!this.isTopForm]).className = txt + rep;
 	},
 
 	_lastCapUpdate: 0,
@@ -5829,18 +5835,17 @@ PostForm.prototype = {
 			$new('a', {'href': '#'}, null),
 			$txt(']')
 		]);
-		$before(dForm, this.pArea[0] =
-			$New('div', {'class': 'de-parea', 'id': 'de-parea-up'}, [btn, doc.createElement('hr')]));
+		$before(dForm, this.pArea[0] = $New('div', {'class': 'de-parea'}, [btn, doc.createElement('hr')]));
 		this._pBtn[0] = btn;
-		btn.addEventListener('click', this.toggleMainReply.bind(this), true);
+		btn.firstElementChild.addEventListener('click', this.showMainReply.bind(this, false), true);
 		btn = btn.cloneNode(true);
-		btn.addEventListener('click', this.toggleMainReply.bind(this), true);
+		btn.firstElementChild.addEventListener('click', this.showMainReply.bind(this, true), true);
 		$after(aib.fch ? $c('board', dForm) : dForm, this.pArea[1] =
-			$New('div', {'class': 'de-parea', 'id': 'de-parea-down'}, [btn, doc.createElement('hr')]));
+			$New('div', {'class': 'de-parea'}, [btn, doc.createElement('hr')]));
 		this._pBtn[1] = btn;
 		this.qArea = $add('<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
-		this.select = +(Cfg['addPostForm'] === 1);
-		this.setReply(false, TNum && Cfg['addPostForm'] < 2);
+		this.isTopForm = Cfg['addPostForm'] !== 0;
+		this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
 		if(Cfg['addPostForm'] === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
@@ -5934,7 +5939,7 @@ PostForm.prototype = {
 			if(this.isQuick) {
 				$disp(this.pForm);
 				$disp(this.qArea);
-				$after(this._pBtn[this.select], this.pForm);
+				$after(this._pBtn[+this.isTopForm], this.pForm);
 			}
 		}.bind(this), false);
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
