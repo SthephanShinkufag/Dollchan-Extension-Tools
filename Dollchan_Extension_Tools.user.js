@@ -1069,27 +1069,13 @@ function pButton(id, href) {
 		'" href="' + href + '"></a></li>';
 }
 
-function closePanel(el) {
-	if(Cfg['animation']) {
-		nav.animEvent(el, function(node) {
-			node.lastChild.style.display = 'none';
-			node.attach = false;
-			node.removeAttribute('class');
-		});
-		el.className = 'de-panel-close';
-	} else {
-		el.lastChild.style.display = 'none';
-		el.attach = false;
-	}
-}
-
 function addPanel() {
-	var panel, imgLen = getImages(dForm).length;
+	var panel, evtObject, imgLen = getImages(dForm).length;
 	(pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
-				'<ul id="de-panel-btns" style="display: ' + (Cfg['expandPanel'] ? 'inline-block' : 'none') + '">' +
+				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
 					pButton('settings', '#') +
 					pButton('hidden', '#') +
 					pButton('favor', '#') +
@@ -1120,113 +1106,130 @@ function addPanel() {
 		'</div>'
 	);
 	panel = $id('de-panel');
-	panel.addEventListener('click', function(e) {
-		switch(e.target.id) {
-		case 'de-btn-logo':
-			if(Cfg['expandPanel']) {
-				closePanel(e.currentTarget);
-			} else {
-				e.currentTarget.attach = true;
-			}
-			toggleCfg('expandPanel');
-			return;
-		case 'de-btn-settings': toggleContent('cfg', false); break;
-		case 'de-btn-hidden': toggleContent('hid', false); break
-		case 'de-btn-favor': toggleContent('fav', false); break;
-		case 'de-btn-refresh': window.location.reload(); break;
-		case 'de-btn-goup': scrollTo(0, 0); break;
-		case 'de-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
-		case 'de-btn-expimg':
-			isExpImg = !isExpImg;
-			$del($c('de-img-center', doc));
-			for(var post = firstThr.op; post; post = post.next) {
-				post.toggleImages(isExpImg);
-			}
-			break;
-		case 'de-btn-maskimg':
-			toggleCfg('maskImgs');
-			updateCSS();
-			break;
-		case 'de-btn-upd-on':
-		case 'de-btn-upd-off':
-		case 'de-btn-upd-warn':
-			if(updater.enabled) {
-				updater.disable();
-			} else {
-				updater.enable();
-			}
-			break;
-		case 'de-btn-audio-on':
-		case 'de-btn-audio-off':
-			if(updater.toggleAudio(0)) {
-				updater.enable();
-				e.target.id = 'de-btn-audio-on';
-			} else {
-				e.target.id = 'de-btn-audio-off';
-			}
-			$del($c('de-menu', doc));
-			break;
-		case 'de-btn-imgload':
-			if($id('de-alert-imgload')) {
-				break;
-			}
-			if(Images_.preloading) {
-				$alert(Lng.loading[lang], 'imgload', true);
-				Images_.afterpreload = loadDocFiles.bind(null, true);
-				Images_.progressId = 'imgload';
-			} else {
-				loadDocFiles(true);
-			}
-			break;
-		default: return;
-		}
-		$pd(e);
-	}, true);
-	panel.addEventListener('mouseover', function(e) {
-		if(!Cfg['expandPanel']) {
-			clearTimeout(this.odelay);
-			this.lastChild.style.display = 'inline-block';
-			if(Cfg['animation']) {
-				this.className = 'de-panel-open';
-			}
-		}
-		switch(e.target.id) {
-		case 'de-btn-refresh':
-			if(TNum) {
+	evtObject = {
+		attach: false,
+		odelay: 0,
+		panel: panel,
+		handleEvent: function(e) {
+			switch(e.type) {
+			case 'click':
+				switch(e.target.id) {
+				case 'de-btn-logo':
+					if(Cfg['expandPanel']) {
+						this.panel.lastChild.style.display = 'none';
+						this.attach = false;
+					} else {
+						this.attach = true;
+					}
+					toggleCfg('expandPanel');
+					return;
+				case 'de-btn-settings': this.attach = toggleContent('cfg', false); break;
+				case 'de-btn-hidden': this.attach = toggleContent('hid', false); break
+				case 'de-btn-favor': this.attach = toggleContent('fav', false); break;
+				case 'de-btn-refresh': window.location.reload(); break;
+				case 'de-btn-goup': scrollTo(0, 0); break;
+				case 'de-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
+				case 'de-btn-expimg':
+					isExpImg = !isExpImg;
+					$del($c('de-img-center', doc));
+					for(var post = firstThr.op; post; post = post.next) {
+						post.toggleImages(isExpImg);
+					}
+					break;
+				case 'de-btn-maskimg':
+					toggleCfg('maskImgs');
+					updateCSS();
+					break;
+				case 'de-btn-upd-on':
+				case 'de-btn-upd-off':
+				case 'de-btn-upd-warn':
+					if(updater.enabled) {
+						updater.disable();
+					} else {
+						updater.enable();
+					}
+					break;
+				case 'de-btn-audio-on':
+				case 'de-btn-audio-off':
+					if(updater.toggleAudio(0)) {
+						updater.enable();
+						e.target.id = 'de-btn-audio-on';
+					} else {
+						e.target.id = 'de-btn-audio-off';
+					}
+					$del($c('de-menu', doc));
+					break;
+				case 'de-btn-imgload':
+					if($id('de-alert-imgload')) {
+						break;
+					}
+					if(Images_.preloading) {
+						$alert(Lng.loading[lang], 'imgload', true);
+						Images_.afterpreload = loadDocFiles.bind(null, true);
+						Images_.progressId = 'imgload';
+					} else {
+						loadDocFiles(true);
+					}
+					break;
+				default: return;
+				}
+				$pd(e);
 				return;
+			case 'mouseover':
+				if(!Cfg['expandPanel']) {
+					clearTimeout(this.odelay);
+					this.panel.lastChild.style.display = '';
+				}
+				switch(e.target.id) {
+				case 'de-btn-refresh':
+					if(TNum) {
+						return;
+					}
+				case 'de-btn-audio-off': addMenu(e);
+				}
+				return;
+			default: // mouseout
+				if(!Cfg['expandPanel'] && !this.attach) {
+					this.odelay = setTimeout(function(obj) {
+						obj.panel.lastChild.style.display = 'none';
+						obj.attach = false;
+					}, 500, this);
+				}
+				switch(e.target.id) {
+				case 'de-btn-refresh':
+				case 'de-btn-audio-off': removeMenu(e); break;
+				}
 			}
-		case 'de-btn-audio-off': addMenu(e);
 		}
-	}, false);
-	panel.addEventListener('mouseout', function(e) {
-		if(!Cfg['expandPanel'] && !this.attach) {
-			this.odelay = setTimeout(closePanel, 500, this);
-		}
-		switch(e.target.id) {
-		case 'de-btn-refresh':
-		case 'de-btn-audio-off': removeMenu(e); break;
-		}
-	}, false);
+	};
+	panel.addEventListener('click', evtObject, true);
+	panel.addEventListener('mouseover', evtObject, false);
+	panel.addEventListener('mouseout', evtObject, false);
 }
 
 function toggleContent(name, isUpd) {
 	if(liteMode) {
-		return;
+		return false;
 	}
-	var el = $c('de-content', doc),
+	var remove, el = $c('de-content', doc),
 		id = 'de-content-' + name;
-	if(!el || (isUpd && el.id !== id)) {
-		return;
+	if(!el) {
+		return false;
 	}
-	$id('de-panel').attach = isUpd || el.id !== id;
+	if(isUpd && el.id !== id) {
+		return true;
+	}
+	remove = !isUpd && el.id === id;
 	if(el.hasChildNodes() && Cfg['animation']) {
 		nav.animEvent(el, function(node) {
-			showContent(node, id, name, isUpd);
-			id = name = isUpd = null;
+			showContent(node, id, name, remove);
+			id = name = remove = null;
 		});
 		el.className = 'de-content de-cfg-close';
+		return !remove;
 	} else {
-		showContent(el, id, name, isUpd);
+		showContent(el, id, name, remove);
+		return !remove;
 	}
 }
 
@@ -1242,10 +1245,10 @@ function addContentBlock(parent, title) {
 	]));
 }
 
-function showContent(cont, id, name, isUpd) {
+function showContent(cont, id, name, remove) {
 	var h, b, tNum, i, els, post, cln, block;
 	cont.innerHTML = cont.style.backgroundColor = '';
-	if(!isUpd && cont.id === id) {
+	if(remove) {
 		cont.removeAttribute('id');
 		return;
 	}
@@ -1499,9 +1502,7 @@ function fixSettings() {
 		}
 	}
 	toggleBox(Cfg['ajaxUpdThr'], [
-		'input[info="noErrInTitle"]',
-		'input[info="favIcoBlink"]',
-		'input[info="desktNotif"]'
+		'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg['expandImgs'], ['input[info="resizeImgs"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
@@ -2301,7 +2302,7 @@ KeyNavigation.prototype = {
 				toggleContent('hid', false);
 				break;
 			case 8: // Open/close panel
-				// TODO: implement this
+				$disp($id('de-panel').lastChild);
 				break;
 			case 9: // Mask/unmask images
 				toggleCfg('maskImgs');
@@ -5155,7 +5156,7 @@ function scriptCSS() {
 	// Main panel
 	x += '#de-btn-logo { margin-right: 3px; cursor: pointer; }\
 		#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\
-		#de-panel-btns { padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
+		#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\
 		#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\
 		#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\
 		#de-panel-btns > li { margin: 0 1px; padding: 0; }\
@@ -5278,8 +5279,6 @@ function scriptCSS() {
 			}\
 			@keyframes de-cfg-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
 			@keyframes de-cfg-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\
-			@keyframes de-panel-open { from { transform: translateX(92%); } to { transform: translateX(0); } }\
-			@keyframes de-panel-close { to { transform: translateX(92%); } }\
 			@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
@@ -5293,9 +5292,7 @@ function scriptCSS() {
 			.de-close { animation: de-close .7s ease-in both; }\
 			.de-blink { animation: de-blink .7s ease-in-out both; }\
 			.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\
-			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\
-			.de-panel-open { animation: de-panel-open .2s ease-out backwards; }\
-			.de-panel-close { animation: de-panel-close .2s ease-in both; }';
+			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }';
 	}
 
 	// Embedders
