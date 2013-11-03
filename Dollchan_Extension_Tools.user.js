@@ -2674,6 +2674,7 @@ function checkUpload(response) {
 		return;
 	}
 	if(TNum) {
+		firstThr.clearPostsMarks();
 		firstThr.loadNew(function(eCode, eMsg, np) {
 			infoLoadErrors(eCode, eMsg, 0);
 			closeAlert($id('de-alert-upload'));
@@ -2717,6 +2718,7 @@ function checkDelete(response) {
 		}
 	}
 	if(TNum) {
+		firstThr.clearPostsMarks();
 		firstThr.loadNew(function(eCode, eMsg, np) {
 			infoLoadErrors(eCode, eMsg, 0);
 			endDelete();
@@ -5343,6 +5345,7 @@ function scriptCSS() {
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
+		.de-new-post { ' + (nav.Opera ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
 		.de-error-key, .de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		.de-viewed { color: #888 !important; }\
@@ -6533,7 +6536,6 @@ Post.prototype = {
 	hidden: false,
 	hashHideFun: null,
 	hashImgsBusy: 0,
-	index: 0,
 	inited: true,
 	kid: null,
 	next: null,
@@ -7862,6 +7864,7 @@ Thread.processUpdBtn = function(add) {
 		firstThr.el.nextSibling.addEventListener('click', function(e) {
 			$pd(e);
 			$alert(Lng.loading[lang], 'newposts', true);
+			firstThr.clearPostsMarks();
 			firstThr.loadNew(infoLoadErrors, true);
 		}, false);
 	} else {
@@ -7869,6 +7872,7 @@ Thread.processUpdBtn = function(add) {
 	}
 };
 Thread.prototype = {
+	hasNew: false,
 	hidden: false,
 	gInfo: {
 		tNums: []
@@ -7881,6 +7885,14 @@ Thread.prototype = {
 			post = post.prev;
 		}
 		return post;
+	},
+	clearPostsMarks: function() {
+		if(this.hasNew) {
+			this.hasNew = false;
+			$each($Q('.de-new-post', this.el), function(el) {
+				el.classList.remove('de-new-post');
+			});
+		}
 	},
 	load: function(last, scrollEl, Fn) {
 		if(!Fn) {
@@ -7902,6 +7914,7 @@ Thread.prototype = {
 				this.loadedOnce = true;
 			}
 			this._checkBans(op, form);
+			this.clearPostsMarks();
 			this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
@@ -7999,6 +8012,12 @@ Thread.prototype = {
 
 	_addPost: function(parent, num, el, wrap, i, prev) {
 		var post = new Post(el, this, num, i, false, prev);
+		if(!TNum || !updater.focused) {
+			this.hasNew = true;
+			el.classList.add('de-new-post');
+		} else {
+			this.clearPostsMarks();
+		}
 		pByNum[num] = post;
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		aib.appendPost(wrap, parent);
@@ -9238,7 +9257,7 @@ function initThreadUpdater(title, enableUpdater) {
 		if(nav.Firefox > 18 || nav.Chrome) {
 			doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
 				if(doc.hidden || doc.webkitHidden) {
-					focused = false;
+					onBlur();
 				} else {
 					onVis();
 				}
@@ -9246,9 +9265,7 @@ function initThreadUpdater(title, enableUpdater) {
 		} else {
 			focused = false;
 			window.addEventListener('focus', onVis, false);
-			window.addEventListener('blur', function() {
-				focused = false;
-			}, false);
+			window.addEventListener('blur', onBlur, false);
 			window.addEventListener('mousemove', function mouseMove() {
 				window.removeEventListener('mousemove', mouseMove, false);
 				onVis();
@@ -9396,6 +9413,11 @@ function initThreadUpdater(title, enableUpdater) {
 		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
 	}
 
+	function onBlur() {
+		focused = false;
+		firstThr.clearPostsMarks();
+	}
+
 	function onVis() {
 		if(Cfg['favIcoBlink'] && favHref) {
 			clearInterval(favIntrv);
@@ -9438,6 +9460,9 @@ function initThreadUpdater(title, enableUpdater) {
 	return {
 		get enabled() {
 			return enabled;
+		},
+		get focused() {
+			return focused;
 		},
 		enable: function() {
 			if(!inited) {
