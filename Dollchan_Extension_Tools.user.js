@@ -9464,6 +9464,11 @@ function initPage() {
 	}
 	if(TNum) {
 		if(Cfg['rePageTitle']) {
+			if(aib.abu) {
+				window.addEventListener('load', function() {
+					doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
+				}, false);
+			}
 			doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
 		}
 		if(Cfg['addUpdBtn']) {
