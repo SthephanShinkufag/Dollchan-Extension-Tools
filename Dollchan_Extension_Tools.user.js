@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			13.9.19.0
+// @version			13.11.03.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -13,7 +13,7 @@
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
-var version = '13.9.19.0',
+var version = '13.11.03.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
@@ -23,6 +23,7 @@ defaultCfg = {
 	'delHiddPost':	0,		// delete hidden posts
 	'ajaxUpdThr':	1,		// auto update threads
 	'updThrDelay':	60,		//		threads update interval in sec
+	'noErrInTitle': 0,		//		don't show error number in title except 404
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
 	'addUpdBtn':	0,		// add update thread button
@@ -108,6 +109,7 @@ Lng = {
 
 		'ajaxUpdThr':	['AJAX обновление треда ', 'AJAX thread update '],
 		'updThrDelay':	[' (сек)', ' (sec)'],
+		'noErrInTitle':	['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
 		'favIcoBlink':	['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
 		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
 		'addUpdBtn':	['Добавить кнопку обновления треда', 'Add thread update button'],
@@ -1489,13 +1491,18 @@ function showContent(cont, id, name, isUpd) {
 //============================================================================================================
 
 function fixSettings() {
-	var toggleBox = function(state, arr) {
-		var i = arr.length;
+	function toggleBox(state, arr) {
+		var i = arr.length,
+			nState = !state;
 		while(i--) {
-			($q(arr[i], doc) || {}).disabled = !state;
+			($q(arr[i], doc) || {}).disabled = nState;
 		}
-	};
-	toggleBox(Cfg['ajaxUpdThr'], ['input[info="favIcoBlink"]', 'input[info="desktNotif"]']);
+	}
+	toggleBox(Cfg['ajaxUpdThr'], [
+		'input[info="noErrInTitle"]',
+		'input[info="favIcoBlink"]',
+		'input[info="desktNotif"]'
+	]);
 	toggleBox(Cfg['expandImgs'], ['input[info="resizeImgs"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
@@ -1669,6 +1676,7 @@ function getCfgPosts() {
 			$txt(Lng.cfg['updThrDelay'][lang])
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
+			lBox('noErrInTitle', true, null),
 			lBox('favIcoBlink', true, null),
 			$if('Notification' in window, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
@@ -9311,11 +9319,14 @@ function initThreadUpdater(title, enableUpdater) {
 		infoLoadErrors(eCode, eMsg, -1);
 		if(eCode !== 200) {
 			lastECode = eCode;
-			updateTitle();
+			if(!Cfg['noErrInTitle']) {
+				updateTitle();
+			}
 			if(eCode !== 0 && Math.floor(eCode / 500) === 0) {
 				if(eCode === 404 && !checked404) {
 					checked404 = true;
 				} else {
+					updateTitle();
 					disable();
 					return;
 				}
@@ -9328,7 +9339,7 @@ function initThreadUpdater(title, enableUpdater) {
 			lastECode = 200;
 			setState('on');
 			checked404 = false;
-			if(lPosts === 0) {
+			if(lPosts === 0 && !Cfg['noErrInTitle']) {
 				updateTitle();
 			}
 		}
