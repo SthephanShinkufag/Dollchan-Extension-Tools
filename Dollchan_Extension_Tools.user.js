@@ -2262,8 +2262,8 @@ KeyNavigation.prototype = {
 				this.cPost.unselect();
 				this.cPost = null;
 			}
-			for(post = firstThr; post; post = post.next) {
-				post.clearPostsMarks();
+			if(TNum) {
+				firstThr.clearPostsMarks();
 			}
 			this.lastPageOffset = 0;
 		} else if(kc === 0x801B) { // ESC (txt)
@@ -7917,7 +7917,6 @@ Thread.prototype = {
 				this.loadedOnce = true;
 			}
 			this._checkBans(op, form);
-			this.clearPostsMarks();
 			this._parsePosts(els, nOmt, this.omitted - 1);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
@@ -8015,12 +8014,6 @@ Thread.prototype = {
 
 	_addPost: function(parent, num, el, wrap, i, prev) {
 		var post = new Post(el, this, num, i, false, prev);
-		if(!TNum || !updater.focused) {
-			this.hasNew = true;
-			el.classList.add('de-new-post');
-		} else {
-			this.clearPostsMarks();
-		}
 		pByNum[num] = post;
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		aib.appendPost(wrap, parent);
@@ -8030,6 +8023,14 @@ Thread.prototype = {
 		}
 		post.addFuncs();
 		preloadImages(el);
+		if(TNum) {
+			if(updater.focused) {
+				this.clearPostsMarks();
+			} else {
+				this.hasNew = true;
+				el.classList.add('de-new-post');
+			}
+		}
 		return post;
 	},
 	_checkBans: function(op, thrNode) {
