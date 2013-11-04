@@ -25,6 +25,7 @@ defaultCfg = {
 	'updThrDelay':	60,		//		threads update interval in sec
 	'noErrInTitle': 0,		//		don't show error number in title except 404
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
+	'markNewPosts': 1,		//		new posts marking on page focus
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
 	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
@@ -111,6 +112,7 @@ Lng = {
 		'updThrDelay':	[' (сек)', ' (sec)'],
 		'noErrInTitle':	['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
 		'favIcoBlink':	['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
+		'markNewPosts':	['Выделять новые посты при переключении на тред', 'Mark new posts on page focus'],
 		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
 		'addUpdBtn':	['Добавить кнопку обновления треда', 'Add thread update button'],
 		'expandPosts': {
@@ -1502,7 +1504,10 @@ function fixSettings() {
 		}
 	}
 	toggleBox(Cfg['ajaxUpdThr'], [
-		'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]', 'input[info="desktNotif"]'
+		'input[info="noErrInTitle"]',
+		'input[info="favIcoBlink"]',
+		'input[info="markNewPosts"]',
+		'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg['expandImgs'], ['input[info="resizeImgs"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
@@ -1679,6 +1684,9 @@ function getCfgPosts() {
 		$New('div', {'class': 'de-cfg-depend'}, [
 			lBox('noErrInTitle', true, null),
 			lBox('favIcoBlink', true, null),
+			lBox('markNewPosts', true, function() {
+				firstThr.clearPostsMarks();
+			}),
 			$if('Notification' in window, lBox('desktNotif', true, function() {
 				if(Cfg['desktNotif']) {
 					Notification.requestPermission();
@@ -8023,7 +8031,7 @@ Thread.prototype = {
 		}
 		post.addFuncs();
 		preloadImages(el);
-		if(TNum) {
+		if(TNum && Cfg['markNewPosts']) {
 			if(updater.focused) {
 				this.clearPostsMarks();
 			} else {
