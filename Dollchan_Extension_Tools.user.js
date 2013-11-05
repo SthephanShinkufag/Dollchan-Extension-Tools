@@ -93,7 +93,6 @@ defaultCfg = {
 	'animation':	1,		// animation in script
 	'closePopups':	0,		// auto-close popups
 	'keybNavig':	1,		// keyboard navigation
-	'kNavigKeys':	null,	// 		navigation hot-keys
 	'loadPages':	1,		//		number of pages that are loaded on F5
 	'updScript':	1,		// check for script's update
 	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
@@ -811,9 +810,8 @@ function delStored(id) {
 }
 
 function getStoredObj(id) {
-	var data;
 	try {
-		data = JSON.parse(getStored(id))
+		var data = JSON.parse(getStored(id));
 	} finally {
 		return data || {};
 	}
@@ -1865,7 +1863,7 @@ function getCfgCommon() {
 				if($id('de-alert-edit-keybnavig')) {
 					return;
 				}
-				var aEl, evtListener, keys =  KeyNavigation.readKeys(true),
+				var aEl, evtListener, keys = KeyNavigation.readKeys(),
 					temp = KeyEditListener.getEditMarkup(keys);
 				$alert(temp[1], 'edit-keybnavig', false);
 				aEl = $id('de-alert-edit-keybnavig');
@@ -2171,41 +2169,50 @@ function addAudioNotifMenu(el) {
 //============================================================================================================
 
 function KeyNavigation() {
+	var keys = KeyNavigation.readKeys();
 	this.cPost = null;
 	this.enabled = true;
 	this.lastPage = pageNum;
 	this.lastPageOffset = 0;
-	this.resume(KeyNavigation.readKeys(false));
+	this.gKeys = keys[2];
+	this.ntKeys = keys[3];
 	doc.addEventListener('keydown', this, true);
 }
 KeyNavigation.version = 1;
 KeyNavigation.readKeys = function(createNew) {
-	var keys = Cfg['kNavigKeys'];
-	if(!keys) {
+	var keys, str = getStored('DESU_keys');
+	if(!str) {
 		return KeyNavigation.getDefaultKeys();
 	}
-	if(keys[1] ^ !!nav.Firefox) {
-		var mapFunc = nav.Firefox ? function mapFuncFF(key) {
-			switch(key) {
-			case 189: return 173;
-			case 187: return 61;
-			case 186: return 59;
-			default: return key;
-			}
-		} : function mapFuncNonFF(key) {
-			switch(key) {
-			case 173: return 189;
-			case 61: return 187;
-			case 59: return 186;
-			default: return key;
-			}
+	try {
+		keys = JSON.parse(str);
+	} finally {
+		if(!keys) {
+			return KeyNavigation.getDefaultKeys();
 		}
-		keys[1] = !!nav.Firefox;
-		keys[2] = keys[2].map(mapFunc);
-		keys[3] = keys[3].map(mapFunc);
-		saveCfg('kNavigKeys', keys);
+		if(keys[1] ^ !!nav.Firefox) {
+			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+				switch(key) {
+				case 189: return 173;
+				case 187: return 61;
+				case 186: return 59;
+				default: return key;
+				}
+			} : function mapFuncNonFF(key) {
+				switch(key) {
+				case 173: return 189;
+				case 61: return 187;
+				case 59: return 186;
+				default: return key;
+				}
+			};
+			keys[1] = !!nav.Firefox;
+			keys[2] = keys[2].map(mapFunc);
+			keys[3] = keys[3].map(mapFunc);
+			setStored('DESU_keys', JSON.stringify(keys));
+		}
+		return keys;
 	}
-	return createNew ? JSON.parse(JSON.stringify(keys)) : keys;
 };
 KeyNavigation.getDefaultKeys = function() {
 	var isFirefox = !!nav.Firefox;
@@ -2231,6 +2238,7 @@ KeyNavigation.getDefaultKeys = function() {
 	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys];
 };
 KeyNavigation.prototype = {
+	paused: false,
 	clear: function(lastPage) {
 		this.cPost = null;
 		this.lastPage = lastPage;
@@ -2449,6 +2457,7 @@ function KeyEditListener(alertEl, keys, allKeys) {
 	}
 	this.aEl = alertEl;
 	this.keys = keys;
+	this.initKeys = JSON.parse(JSON.stringify(keys));
 	this.allKeys = allKeys;
 	this.allInputs = aInputs;
 	this.errCount = $C('de-error-key', alertEl).length;
@@ -2506,7 +2515,7 @@ KeyEditListener.prototype = {
 		return val;
 	},
 	handleEvent: function(e) {
-		var key, keyStr, str, id, temp, el = e.target;
+		var key, keyStr, keys, str, id, temp, el = e.target;
 		switch(e.type) {
 		case 'blur':
 			if(keyNav && this.errCount === 0) {
@@ -2521,10 +2530,9 @@ KeyEditListener.prototype = {
 			this.cEl = el;
 			return;
 		case 'click':
-			if(el.id === 'de-keys-save') {
-				saveCfg('kNavigKeys', this.keys);
-			} else if(el.id === 'de-keys-reset') {
+			if(el.id === 'de-keys-reset') {
 				this.keys = KeyNavigation.getDefaultKeys();
+				this.initKeys = KeyNavigation.getDefaultKeys();
 				if(keyNav) {
 					keyNav.resume(this.keys);
 				}
@@ -2535,11 +2543,16 @@ KeyEditListener.prototype = {
 				this.errCount = 0;
 				delete this.saveButton;
 				break;
-			} else if(el.className !== 'de-alert-btn') {
+			} else if(el.id === 'de-keys-save') {
+				keys = this.keys;
+				setStored('DESU_keys', JSON.stringify(keys));
+			} else if(el.className === 'de-alert-btn') {
+				keys = this.initKeys;
+			} else {
 				return;
 			}
 			if(keyNav) {
-				keyNav.resume(Cfg['kNavigKeys']);
+				keyNav.resume(keys);
 			}
 			closeAlert($id('de-alert-edit-keybnavig'));
 			break;
