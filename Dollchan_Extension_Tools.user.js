@@ -3204,7 +3204,6 @@ function preloadImages(post) {
 				}
 				nExp &= !Cfg['openGIFs'];
 			}
-			lnk.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
