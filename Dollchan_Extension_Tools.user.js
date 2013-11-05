@@ -311,7 +311,7 @@ Lng = {
 		'%l%i31 – on board post below%/l' +
 		'%l%i30 – on board post above%/l' +
 		'%l%i32 – open thread%/l' +
-		'%l%i210 – open/close Options%/l' +
+		'%l%i210 – open/close Settings%/l' +
 		'%l%i26 – open/close Favorites%/l' +
 		'%l%i27 – open/close Hidden Posts Table%/l' +
 		'%l%i28 – open/close the main panel%/l' +
@@ -2229,7 +2229,7 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
 		/* Open/close panel          */ 0x0050 /* = P                 */,
 		/* Mask/unmask images        */ 0x0042 /* = B                 */,
-		/* Open/close options        */ 0x4050 /* = Alt + P           */
+		/* Open/close settings       */ 0x4050 /* = Alt + P           */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
@@ -2330,7 +2330,7 @@ KeyNavigation.prototype = {
 				toggleCfg('maskImgs');
 				updateCSS();
 				break;
-			case 10: // Open/close options
+			case 10: // Open/close settings
 				toggleContent('cfg', false);
 				break;
 			case -1:
