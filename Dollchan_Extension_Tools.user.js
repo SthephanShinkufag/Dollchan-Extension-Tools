@@ -2179,7 +2179,7 @@ function KeyNavigation() {
 	doc.addEventListener('keydown', this, true);
 }
 KeyNavigation.version = 1;
-KeyNavigation.readKeys = function(createNew) {
+KeyNavigation.readKeys = function() {
 	var keys, str = getStored('DESU_keys');
 	if(!str) {
 		return KeyNavigation.getDefaultKeys();
