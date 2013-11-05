@@ -788,14 +788,14 @@ function getAncestor(el, tagName) {
 
 function getStored(id) {
 	return nav.isGM ? GM_getValue(id) :
-		scriptStorage ? scriptStorage.getItem(id) :
+		nav.isSStorage ? scriptStorage.getItem(id) :
 		localStorage.getItem(id);
 }
 
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(scriptStorage) {
+	} else if(nav.isSStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
 		localStorage.setItem(id, value);
@@ -805,7 +805,7 @@ function setStored(id, value) {
 function delStored(id) {
 	if(nav.isGM) {
 		GM_deleteValue(id);
-	} else if(scriptStorage) {
+	} else if(nav.isSStorage) {
 		scriptStorage.removeItem(id);
 	} else {
 		localStorage.removeItem(id);
@@ -8965,7 +8965,8 @@ function getNavFuncs() {
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
 		isGM = typeof GM_setValue === 'function' && 
-			(!chrome || !GM_setValue.toString().contains('not supported'));
+			(!chrome || !GM_setValue.toString().contains('not supported')),
+		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
 	}
@@ -8976,7 +8977,8 @@ function getNavFuncs() {
 		Chrome: chrome,
 		Safari: safari,
 		isGM: isGM,
-		isGlobal: isGM || !!scriptStorage,
+		isGlobal: isGM || isScriptStorage,
+		isSStorage: isScriptStorage,
 		cssFix: webkit ? '-webkit-' : opera && opera < 12.1 ? '-o-' : firefox && firefox < 16 ? '-moz-' : '',
 		Anim: !opera || opera >= 12,
 		animName: webkit ? 'webkitAnimationName' : opera && opera < 12.1 ? 'OAnimationName' :
