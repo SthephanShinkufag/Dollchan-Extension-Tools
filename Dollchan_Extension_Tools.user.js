@@ -2229,7 +2229,7 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
 		/* Open/close panel          */ 0x0050 /* = P                 */,
 		/* Mask/unmask images        */ 0x0042 /* = B                 */,
-		/* Open/close settings       */ 0x4050 /* = Alt + P           */
+		/* Open/close settings       */ 0x4053 /* = Alt + S           */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
