@@ -266,6 +266,7 @@ Lng = {
 
 	selHiderMenu:	{
 		'sel':		['Скрывать выделенное', 'Hide selected text'],
+		'name':		['Скрывать имя', 'Hide name'],
 		'trip':		['Скрывать трип-код', 'Hide with trip-code'],
 		'img':		['Скрывать изображение', 'Hide with image'],
 		'ihash':	['Скрывать схожие изобр.', 'Hide similar images'],
@@ -7178,6 +7179,9 @@ Post.prototype = {
 			this._selRange = sel.getRangeAt(0);
 			addItem('sel');
 		}
+		if(this.posterName) {
+			addItem('name');
+		}
 		if(this.posterTrip) {
 			addItem('trip');
 		}
@@ -7309,6 +7313,7 @@ Post.prototype = {
 					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
+		case 'spell-name': addSpell(6 /* #name */, this.posterName, false); return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
 			var img = this.imagesData['$first'],
