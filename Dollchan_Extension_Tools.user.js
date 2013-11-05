@@ -2330,7 +2330,7 @@ KeyNavigation.prototype = {
 				toggleCfg('maskImgs');
 				updateCSS();
 				break;
-			case 10:
+			case 10: // Open/close options
 				toggleContent('cfg', false);
 				break;
 			case -1:
