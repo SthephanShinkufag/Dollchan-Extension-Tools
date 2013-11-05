@@ -7313,7 +7313,7 @@ Post.prototype = {
 					regQuote(dummy.innerHTML.replace(/^<[^>]+>|<[^>]+>$/g, '')) + '/', false);
 			}
 			return;
-		case 'spell-name': addSpell(6 /* #name */, this.posterName, false); return;
+		case 'spell-name': addSpell(6 /* #name */, this.posterName.replace(/\)/g, '\\)'), false); return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
 			var img = this.imagesData['$first'],
