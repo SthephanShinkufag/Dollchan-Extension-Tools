@@ -296,6 +296,7 @@ Lng = {
 		'%l%i31 – пост (на доске) ниже%/l' +
 		'%l%i30 – пост (на доске) выше%/l' +
 		'%l%i32 – открыть тред%/l' +
+		'%l%i210 – открыть/закрыть настройки%/l' +
 		'%l%i26 – открыть/закрыть избранное%/l' +
 		'%l%i27 – открыть/закрыть скрытые посты%/l' +
 		'%l%i28 – открыть/закрыть панель%/l' +
@@ -310,6 +311,7 @@ Lng = {
 		'%l%i31 – on board post below%/l' +
 		'%l%i30 – on board post above%/l' +
 		'%l%i32 – open thread%/l' +
+		'%l%i210 – open/close Options%/l' +
 		'%l%i26 – open/close Favorites%/l' +
 		'%l%i27 – open/close Hidden Posts Table%/l' +
 		'%l%i28 – open/close the main panel%/l' +
@@ -2226,7 +2228,8 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Open/close favorites posts*/ 0x4046 /* = Alt + F           */,
 		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
 		/* Open/close panel          */ 0x0050 /* = P                 */,
-		/* Mask/unmask images        */ 0x0042 /* = B                 */
+		/* Mask/unmask images        */ 0x0042 /* = B                 */,
+		/* Open/close options        */ 0x4050 /* = Alt + P           */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
@@ -2326,6 +2329,9 @@ KeyNavigation.prototype = {
 			case 9: // Mask/unmask images
 				toggleCfg('maskImgs');
 				updateCSS();
+				break;
+			case 10:
+				toggleContent('cfg', false);
 				break;
 			case -1:
 				if(TNum || (ntIdx = this.ntKeys.indexOf(kc)) === -1) {
