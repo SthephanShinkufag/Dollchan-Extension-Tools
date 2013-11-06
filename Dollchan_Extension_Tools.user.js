@@ -3204,7 +3204,7 @@ function preloadImages(post) {
 				}
 				nExp &= !Cfg['openGIFs'];
 			}
-			lnk.setAttribute('download', url.substring(url.lastIndexOf("/") + 1));
+			el.classList.add('de-img-pre');
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
@@ -8679,7 +8679,7 @@ function getImageBoard() {
 				return $q('.fileinfo > a', el.parentNode);
 			} },
 			getPageUrl: { value: function(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtm');
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 			} },
 			getPicWrap: { value: function(el) {
 				if(!el.previousElementSibling) {
