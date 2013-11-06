@@ -8679,7 +8679,7 @@ function getImageBoard() {
 				return $q('.fileinfo > a', el.parentNode);
 			} },
 			getPageUrl: { value: function(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtm');
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 			} },
 			getPicWrap: { value: function(el) {
 				if(!el.previousElementSibling) {
