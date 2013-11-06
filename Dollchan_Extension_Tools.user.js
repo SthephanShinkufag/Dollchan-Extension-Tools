@@ -3074,10 +3074,12 @@ workerQueue.prototype = {
 	}
 };
 
-function addImgFileIcon(info) {
-	var app, ext, fName, type = info['type'];
+function addImgFileIcon(url, info) {
+	var app, ext, type = info['type'],
+		fName = url.substring(url.lastIndexOf("/") + 1),
+		aEl = $q(aib.qImgLink, aib.getPicWrap(this));
+	aEl.setAttribute('download', fName);
 	if(typeof type !== 'undefined') {
-		fName = this.getAttribute('download');
 		if(type === 2) {
 			app = 'application/x-rar-compressed';
 			ext = 'rar';
@@ -3094,8 +3096,7 @@ function addImgFileIcon(info) {
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		$q(aib.qImgLink, aib.getPicWrap(this)).insertAdjacentHTML('afterend', '<a href="' + 
-			window.URL.createObjectURL(
+		aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
 				new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})
 			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
@@ -3168,7 +3169,7 @@ function preloadImages(post) {
 						this[3].src = a.href;
 					}
 					if(rjf) {
-						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(a));
+						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(a, this[0]));
 					}
 				}
 				queue.end(idx);
@@ -3204,7 +3205,9 @@ function preloadImages(post) {
 				}
 				nExp &= !Cfg['openGIFs'];
 			}
-			el.classList.add('de-img-pre');
+			if(nExp) {
+				el.setAttribute('de-thumb-url', el.getAttribute('src'));
+			}
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
@@ -4019,7 +4022,7 @@ Spells.prototype = {
 		},
 		// 3: #imgn
 		function spell_imgn(post, val) {
-			var src, data = post.imagesData;
+			var src, data = post.images.all;
 			for(src in data) {
 				if(val.test(data[src].info)) {
 					return true;
@@ -4029,7 +4032,7 @@ Spells.prototype = {
 		},
 		// 4: #ihash
 		function spell_ihash(post, val, ctx, cxTail) {
-			var src, data = post.imagesData;
+			var src, data = post.images.all;
 			for(src in data) {
 				if(data[src].hash === val) {
 					return true;
@@ -4066,7 +4069,7 @@ Spells.prototype = {
 		},
 		// 8: #img
 		function spell_img(post, val) {
-			var temp, w, h, hide, name, dat, iData = post.imagesData;
+			var temp, w, h, hide, name, dat, iData = post.images.all;
 			if(!val) {
 				return !$isEmpty(iData);
 			}
@@ -6776,22 +6779,30 @@ Post.prototype = {
 		Object.defineProperty(this, 'html', { configurable: true,  value: val });
 		return val;
 	},
-	get imagesData() {
-		var i, len, src, els = getImages(this.el),
-			data = {};
-		for(i = 0, len = els.length; i < len; i++) {
-			el = els[i];
-			src = el.src;
-			data[src] = new ImageData(this, src, el);
-		}
-		if(len > 0) {
-			Object.defineProperties(data, {
-				'$first': { value: data[els[0].src] },
-				'$firstSrc': { value: els[0].src }
-			});
-		}
-		Object.defineProperty(this, 'imagesData', { value: data });
-		return data;
+	get images() {
+		var val = {
+			first: null,
+			post: this,
+			get all() {
+				var i, len, src, els = getImages(this.post.el),
+					data = {};
+				for(i = 0, len = els.length; i < len; i++) {
+					el = els[i];
+					src = el.src;
+					data[src] = new ImageData(this.post, src, el);
+					if(i === 0) {
+						this.first = data[src];
+					}
+				}
+				Object.defineProperty(this, 'all', { value: data });
+				return data;
+			},
+			get: function(el) {
+				return this.all[el.src] || this.all[el.getAttribute('de-thumb-url')]
+			}
+		};
+		Object.defineProperty(this, 'images', { value: val });
+		return val;
 	},
 	get mp3Obj() {
 		var val = $new('div', {'class': 'de-mp3'}, null);
@@ -7003,9 +7014,9 @@ Post.prototype = {
 		}
 	},
 	toggleImages: function(expand) {
-		var i, dat;
-		for(i in this.imagesData) {
-			dat = this.imagesData[i];
+		var i, dat, images = this.images.all;
+		for(i in images) {
+			dat = images[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
 				if(expand) {
 					this._addFullImage(dat.el, dat, true);
@@ -7204,7 +7215,7 @@ Post.prototype = {
 		if(this.posterTrip) {
 			addItem('trip');
 		}
-		if($isEmpty(this.imagesData)) {
+		if($isEmpty(this.images.all)) {
 			addItem('noimg');
 		} else {
 			addItem('img');
@@ -7267,7 +7278,7 @@ Post.prototype = {
 			el.mover = null;
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			this._removeFullImage(e, el, iEl, this.imagesData[iEl.src] || iEl.data);
+			this._removeFullImage(e, el, iEl, this.images.get(iEl) || iEl.data);
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7284,13 +7295,13 @@ Post.prototype = {
 			break;
 		case 'thumb':
 		case 'ca_thumb':
-			data = this.imagesData[el.src];
+			data = this.images.get(el);
 			break;
 		default:
 			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
 			}
-			data = this.imagesData[el.src];
+			data = this.images.get(el);
 		}
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
@@ -7335,13 +7346,13 @@ Post.prototype = {
 		case 'spell-name': addSpell(6 /* #name */, this.posterName.replace(/\)/g, '\\)'), false); return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
-			var img = this.imagesData['$first'],
+			var img = this.images.first,
 				w = img.weight,
 				wi = img.width,
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].hashSync, false); return;
+		case 'spell-ihash': addSpell(4 /* #ihash */, this.images.first.hashSync, false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
@@ -9417,7 +9428,7 @@ function initThreadUpdater(title, enableUpdater) {
 					{
 						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
 						'tag': aib.dm + brd + TNum,
-						'icon': firstThr.last.imagesData['$firstSrc'] || favHref
+						'icon': firstThr.last.images.first.src || favHref
 					});
 					notif.onshow = function() {
 						setTimeout(this.close.bind(this), 12e3);
