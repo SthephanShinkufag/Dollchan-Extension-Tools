@@ -3204,6 +3204,7 @@ function preloadImages(post) {
 				}
 				nExp &= !Cfg['openGIFs'];
 			}
+			el.classList.add('de-img-pre');
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
