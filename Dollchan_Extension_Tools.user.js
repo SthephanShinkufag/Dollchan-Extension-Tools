@@ -4022,7 +4022,7 @@ Spells.prototype = {
 		},
 		// 3: #imgn
 		function spell_imgn(post, val) {
-			var src, data = post.images.all;
+			var src, data = post.imagesData;
 			for(src in data) {
 				if(val.test(data[src].info)) {
 					return true;
@@ -4032,7 +4032,7 @@ Spells.prototype = {
 		},
 		// 4: #ihash
 		function spell_ihash(post, val, ctx, cxTail) {
-			var src, data = post.images.all;
+			var src, data = post.imagesData;
 			for(src in data) {
 				if(data[src].hash === val) {
 					return true;
@@ -4069,7 +4069,7 @@ Spells.prototype = {
 		},
 		// 8: #img
 		function spell_img(post, val) {
-			var temp, w, h, hide, name, dat, iData = post.images.all;
+			var temp, w, h, hide, name, dat, iData = post.imagesData;
 			if(!val) {
 				return !$isEmpty(iData);
 			}
@@ -6779,30 +6779,25 @@ Post.prototype = {
 		Object.defineProperty(this, 'html', { configurable: true,  value: val });
 		return val;
 	},
-	get images() {
-		var val = {
-			first: null,
-			post: this,
-			get all() {
-				var i, len, src, els = getImages(this.post.el),
-					data = {};
-				for(i = 0, len = els.length; i < len; i++) {
-					el = els[i];
-					src = el.src;
-					data[src] = new ImageData(this.post, src, el);
-					if(i === 0) {
-						this.first = data[src];
-					}
-				}
-				Object.defineProperty(this, 'all', { value: data });
-				return data;
-			},
-			get: function(el) {
-				return this.all[el.src] || this.all[el.getAttribute('de-thumb-url')]
-			}
-		};
-		Object.defineProperty(this, 'images', { value: val });
-		return val;
+	get imagesData() {
+		var i, len, src, els = getImages(this.el),
+			data = {};
+		for(i = 0, len = els.length; i < len; i++) {
+			el = els[i];
+			src = el.src;
+			data[src] = new ImageData(this, src, el);
+		}
+		if(len > 0) {
+			Object.defineProperties(data, {
+				'$first': { value: data[els[0].src] },
+				'$firstSrc': { value: els[0].src },
+				'get': { value: function(el) {
+					return this[el.src] || this[el.getAttribute('de-thumb-url')];
+				} }
+			});
+		}
+		Object.defineProperty(this, 'imagesData', { value: data });
+		return data;
 	},
 	get mp3Obj() {
 		var val = $new('div', {'class': 'de-mp3'}, null);
@@ -7014,9 +7009,9 @@ Post.prototype = {
 		}
 	},
 	toggleImages: function(expand) {
-		var i, dat, images = this.images.all;
-		for(i in images) {
-			dat = images[i];
+		var i, dat;
+		for(i in this.imagesData) {
+			dat = this.imagesData[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
 				if(expand) {
 					this._addFullImage(dat.el, dat, true);
@@ -7215,7 +7210,7 @@ Post.prototype = {
 		if(this.posterTrip) {
 			addItem('trip');
 		}
-		if($isEmpty(this.images.all)) {
+		if($isEmpty(this.imagesData)) {
 			addItem('noimg');
 		} else {
 			addItem('img');
@@ -7278,7 +7273,7 @@ Post.prototype = {
 			el.mover = null;
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			this._removeFullImage(e, el, iEl, this.images.get(iEl) || iEl.data);
+			this._removeFullImage(e, el, iEl, this.imagesData.get(iEl) || iEl.data);
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7295,13 +7290,13 @@ Post.prototype = {
 			break;
 		case 'thumb':
 		case 'ca_thumb':
-			data = this.images.get(el);
+			data = this.imagesData.get(el);
 			break;
 		default:
 			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
 			}
-			data = this.images.get(el);
+			data = this.imagesData.get(el);
 		}
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
@@ -7346,13 +7341,13 @@ Post.prototype = {
 		case 'spell-name': addSpell(6 /* #name */, this.posterName.replace(/\)/g, '\\)'), false); return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
-			var img = this.images.first,
+			var img = this.imagesData['$first'],
 				w = img.weight,
 				wi = img.width,
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash': addSpell(4 /* #ihash */, this.images.first.hashSync, false); return;
+		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].hashSync, false); return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
@@ -9428,7 +9423,7 @@ function initThreadUpdater(title, enableUpdater) {
 					{
 						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
 						'tag': aib.dm + brd + TNum,
-						'icon': firstThr.last.images.first.src || favHref
+						'icon': firstThr.last.imagesData['$firstSrc'] || favHref
 					});
 					notif.onshow = function() {
 						setTimeout(this.close.bind(this), 12e3);
