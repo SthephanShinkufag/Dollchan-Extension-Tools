@@ -856,7 +856,7 @@ function readCfg() {
 	if(!Cfg['timePattern']) {
 		Cfg['timePattern'] = aib.timePattern;
 	}
-	if(!nav.isBlob) {
+	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
 		if(Cfg['ajaxReply'] === 2) {
 			Cfg['ajaxReply'] = 1;
@@ -872,7 +872,7 @@ function readCfg() {
 		Cfg['desktNotif'] = 0;
 	}
 	if(nav.Opera) {
-		if(nav.Opera < 12) {
+		if(nav.oldOpera) {
 			if(!nav.isGM) {
 				Cfg['YTubeTitles'] = 0;
 			}
@@ -1098,7 +1098,7 @@ function addPanel() {
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'))) +
 					(!TNum && !aib.arch? '' :
-						(nav.Opera || !nav.isBlob ? '' : pButton('imgload', '#')) +
+						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#')) +
 						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
 				'</ul>' +
@@ -1728,8 +1728,8 @@ function getCfgImages() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
 		optSel('expandImgs', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [ lBox('resizeImgs', false, null)]),
-		$if(nav.isBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
-		$if(nav.isBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(!nav.noBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
+		$if(!nav.noBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
 		])),
 		lBox('openImgs', true, null),
@@ -1773,7 +1773,7 @@ function getCfgLinks() {
 				$txt(' '),
 				lBox('YTubeHD', false, null)
 			]),
-			$if(!(nav.Opera && nav.Opera < 12 && !nav.isGM), lBox('YTubeTitles', false, null))
+			$if(!nav.oldOpera || nav.isGM, lBox('YTubeTitles', false, null))
 		])
 	]);
 }
@@ -1781,7 +1781,7 @@ function getCfgLinks() {
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
-		$if(pr.form && nav.isBlob, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(pr.form && !nav.noBlob, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('postSameImg', true, null),
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null)
@@ -1882,7 +1882,7 @@ function getCfgCommon() {
 			inpTxt('loadPages', 4, null),
 			$txt(Lng.cfg['loadPages'][lang])
 		]),
-		$if(!(nav.Opera && !nav.isGM), $New('div', null, [
+		$if(!nav.Opera || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', true, null),
@@ -3535,7 +3535,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				}
 				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
 					'/0.jpg" controls="controls" preload="none" src="' + src +
-					(nav.Firefox && nav.Firefox < 14 ? '&' + Math.random() : '') +
 					'" width="' + width + '" height="' + height + '"></video>';
 				el = el.firstChild;
 				el.addEventListener('play', updater.addPlayingTag, false);
@@ -5391,7 +5390,7 @@ function scriptCSS() {
 		form > hr { clear: both }\
 		' + aib.css;
 
-	if(nav.Firefox < 16) {
+	if(!nav.Firefox) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
 		if(!nav.Opera) {
 			x = x.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
@@ -5628,7 +5627,7 @@ PostForm.processInput = function() {
 	}
 	$del($c('de-file-rar', this.parentNode));
 	PostForm.eventFiles(getAncestor(this, aib.trTag));
-	if(!nav.isBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+	if(nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 		return;
 	}
 	$after(this, $new('button', {
@@ -6234,10 +6233,9 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 
-function ImageData(post, src, el) {
+function ImageData(post, el) {
 	this.el = el;
 	this.post = post;
-	this.src = src;
 }
 ImageData.prototype = {
 	expanded: false,
@@ -6296,9 +6294,14 @@ ImageData.prototype = {
 		});
 		return dat[1];
 	},
+	get src() {
+		var val = this.el.src;
+		Object.defineProperty(this, 'src', { value: val });
+		return val;
+	},
 	get fullSrc() {
 		var val = aib.getImgLink(this.el).href;
-		Object.defineProperty(this, 'src', { value: val });
+		Object.defineProperty(this, 'fullSrc', { value: val });
 		return val;
 	},
 	get weight() {
@@ -6780,19 +6783,18 @@ Post.prototype = {
 		return val;
 	},
 	get imagesData() {
-		var i, len, src, els = getImages(this.el),
+		var i, len, els = getImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			src = el.src;
-			data[src] = new ImageData(this, src, el);
+			data[el.getAttribute('src')] = new ImageData(this, el);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
-				'$first': { value: data[els[0].src] },
-				'$firstSrc': { value: els[0].src },
+				'$first': { get: function() { return this[this['$firstSrc']]; } },
+				'$firstSrc': { value: els[0].getAttribute('src') },
 				'get': { value: function(el) {
-					return this[el.src] || this[el.getAttribute('de-thumb-url')];
+					return this[el.getAttribute('src')] || this[el.getAttribute('de-thumb-url')];
 				} }
 			});
 		}
@@ -8965,8 +8967,8 @@ function getNavFuncs() {
 		window.URL = window.webkitURL;
 	}
 	var ua = window.navigator.userAgent,
-		firefox = +(ua.match(/mozilla.*? rv:(\d+)/i) || [,0])[1],
 		opera = window.opera ? +window.opera.version() : 0,
+		isOldOpera = opera ? opera < 12.1 : false,
 		webkit = ua.contains('WebKit/'),
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
@@ -8977,20 +8979,19 @@ function getNavFuncs() {
 		window.GM_xmlhttpRequest = $xhr;
 	}
 	return {
-		Firefox: firefox,
-		Opera: opera,
+		Firefox: ua.contains('Gecko/'),
+		Opera: !!opera,
+		oldOpera: isOldOpera,
 		WebKit: webkit,
 		Chrome: chrome,
 		Safari: safari,
 		isGM: isGM,
 		isGlobal: isGM || isScriptStorage,
 		isSStorage: isScriptStorage,
-		cssFix: webkit ? '-webkit-' : opera && opera < 12.1 ? '-o-' : firefox && firefox < 16 ? '-moz-' : '',
-		Anim: !opera || opera >= 12,
-		animName: webkit ? 'webkitAnimationName' : opera && opera < 12.1 ? 'OAnimationName' :
-			firefox && firefox < 16 ? 'MozAnimationName' : 'animationName',
-		animEnd: webkit ? 'webkitAnimationEnd' : opera && opera < 12.1 ? 'oAnimationEnd' :
-			'animationend',
+		cssFix: webkit ? '-webkit-' : isOldOpera ? '-o-' : '',
+		Anim: !isOldOpera,
+		animName: webkit ? 'webkitAnimationName' : isOldOpera ? 'OAnimationName' : 'animationName',
+		animEnd: webkit ? 'webkitAnimationEnd' : isOldOpera ? 'oAnimationEnd' : 'animationend',
 		animEvent: function(el, Fn) {
 			el.addEventListener(this.animEnd, function aEvent() {
 				this.removeEventListener(nav.animEnd, aEvent, false);
@@ -8998,7 +8999,7 @@ function getNavFuncs() {
 				Fn = null;
 			}, false);
 		},
-		isBlob: firefox > 14 || chrome || opera >= 12.10,
+		noBlob: isOldOpera,
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
@@ -9298,7 +9299,7 @@ function initThreadUpdater(title, enableUpdater) {
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-		if(nav.Firefox > 18 || nav.Chrome) {
+		if(('hidden' in doc) || ('webkitHidden' in doc)) {
 			doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
 				if(doc.hidden || doc.webkitHidden) {
 					onBlur();
