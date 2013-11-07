@@ -1069,33 +1069,32 @@ function readViewedPosts() {
 
 function pButton(id, href, key) {
 	return '<li><a id="de-btn-' + id + '" class="de-abtn" title="' + Lng.panelBtn[id][lang] +
-		(key && Cfg['keybNavig'] ? ' [' + key + ']' : '') + '" href="' + href + '"></a></li>';
+		(key && Cfg['keybNavig'] ?
+			' [' + KeyEditListener.getStrKey(KeyNavigation.readKeys()[+key[0]][+key.substr(1)]) + ']' : '') +
+		'" href="' + href + '"></a></li>';
 }
 
 function addPanel() {
-	var panel, evtObject, imgLen = getImages(dForm).length,
-		fn = function(id1, id2) {
-			return KeyEditListener.getStrKey(KeyNavigation.readKeys()[id1][id2]);
-		};
+	var panel, evtObject, imgLen = getImages(dForm).length;
 	(pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
-					pButton('settings', '#', fn(2, 10)) +
-					pButton('hidden', '#', fn(2, 7)) +
-					pButton('favor', '#', fn(2, 6)) +
+					pButton('settings', '#', '210') +
+					pButton('hidden', '#', '27') +
+					pButton('favor', '#', '26') +
 					(aib.arch ? '' :
 						pButton('refresh', '#', '') +
 						(!TNum && pageNum === 0 ? '' :
-							pButton('goback', aib.getPageUrl(brd, pageNum - 1), fn(2, 4))) +
+							pButton('goback', aib.getPageUrl(brd, pageNum - 1), '24')) +
 						(TNum || pageNum === aib.pagesCount ? '' :
-							pButton('gonext', aib.getPageUrl(brd, pageNum + 1), fn(3, 3)))
+							pButton('gonext', aib.getPageUrl(brd, pageNum + 1), '33'))
 					) + pButton('goup', '#', '') +
 					pButton('godown', '#', '') +
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', '') +
-						pButton('maskimg', '#', fn(2, 9))) +
+						pButton('maskimg', '#', '29')) +
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', '') +
 						(nav.Safari ? '' : pButton('audio-off', '#', ''))) +
