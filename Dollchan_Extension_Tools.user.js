@@ -788,14 +788,14 @@ function getAncestor(el, tagName) {
 
 function getStored(id) {
 	return nav.isGM ? GM_getValue(id) :
-		scriptStorage ? scriptStorage.getItem(id) :
+		nav.isSStorage ? scriptStorage.getItem(id) :
 		localStorage.getItem(id);
 }
 
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(scriptStorage) {
+	} else if(nav.isSStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
 		localStorage.setItem(id, value);
@@ -805,7 +805,7 @@ function setStored(id, value) {
 function delStored(id) {
 	if(nav.isGM) {
 		GM_deleteValue(id);
-	} else if(scriptStorage) {
+	} else if(nav.isSStorage) {
 		scriptStorage.removeItem(id);
 	} else {
 		localStorage.removeItem(id);
@@ -3074,10 +3074,12 @@ workerQueue.prototype = {
 	}
 };
 
-function addImgFileIcon(info) {
-	var app, ext, fName, type = info['type'];
+function addImgFileIcon(url, info) {
+	var app, ext, type = info['type'],
+		fName = url.substring(url.lastIndexOf("/") + 1),
+		aEl = $q(aib.qImgLink, aib.getPicWrap(this));
+	aEl.setAttribute('download', fName);
 	if(typeof type !== 'undefined') {
-		fName = this.getAttribute('download');
 		if(type === 2) {
 			app = 'application/x-rar-compressed';
 			ext = 'rar';
@@ -3094,8 +3096,7 @@ function addImgFileIcon(info) {
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		$q(aib.qImgLink, aib.getPicWrap(this)).insertAdjacentHTML('afterend', '<a href="' + 
-			window.URL.createObjectURL(
+		aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
 				new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})
 			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
@@ -3168,7 +3169,7 @@ function preloadImages(post) {
 						this[3].src = a.href;
 					}
 					if(rjf) {
-						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(a));
+						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(a, this[0]));
 					}
 				}
 				queue.end(idx);
@@ -3204,7 +3205,9 @@ function preloadImages(post) {
 				}
 				nExp &= !Cfg['openGIFs'];
 			}
-			el.classList.add('de-img-pre');
+			if(nExp) {
+				el.setAttribute('de-thumb-url', el.getAttribute('src'));
+			}
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
@@ -6787,7 +6790,10 @@ Post.prototype = {
 		if(len > 0) {
 			Object.defineProperties(data, {
 				'$first': { value: data[els[0].src] },
-				'$firstSrc': { value: els[0].src }
+				'$firstSrc': { value: els[0].src },
+				'get': { value: function(el) {
+					return this[el.src] || this[el.getAttribute('de-thumb-url')];
+				} }
 			});
 		}
 		Object.defineProperty(this, 'imagesData', { value: data });
@@ -7267,7 +7273,7 @@ Post.prototype = {
 			el.mover = null;
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			this._removeFullImage(e, el, iEl, this.imagesData[iEl.src] || iEl.data);
+			this._removeFullImage(e, el, iEl, this.imagesData.get(iEl) || iEl.data);
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7284,13 +7290,13 @@ Post.prototype = {
 			break;
 		case 'thumb':
 		case 'ca_thumb':
-			data = this.imagesData[el.src];
+			data = this.imagesData.get(el);
 			break;
 		default:
 			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
 			}
-			data = this.imagesData[el.src];
+			data = this.imagesData.get(el);
 		}
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
@@ -8965,7 +8971,8 @@ function getNavFuncs() {
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
 		isGM = typeof GM_setValue === 'function' && 
-			(!chrome || !GM_setValue.toString().contains('not supported'));
+			(!chrome || !GM_setValue.toString().contains('not supported')),
+		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
 	}
@@ -8976,7 +8983,8 @@ function getNavFuncs() {
 		Chrome: chrome,
 		Safari: safari,
 		isGM: isGM,
-		isGlobal: isGM || !!scriptStorage,
+		isGlobal: isGM || isScriptStorage,
+		isSStorage: isScriptStorage,
 		cssFix: webkit ? '-webkit-' : opera && opera < 12.1 ? '-o-' : firefox && firefox < 16 ? '-moz-' : '',
 		Anim: !opera || opera >= 12,
 		animName: webkit ? 'webkitAnimationName' : opera && opera < 12.1 ? 'OAnimationName' :
