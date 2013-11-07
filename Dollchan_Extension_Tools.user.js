@@ -1069,7 +1069,7 @@ function readViewedPosts() {
 
 function pButton(id, href, key) {
 	return '<li><a id="de-btn-' + id + '" class="de-abtn" title="' + Lng.panelBtn[id][lang] +
-		(key ? ' [' + key + ']' : '') + '" href="' + href + '"></a></li>';
+		(key && Cfg['keybNavig'] ? ' [' + key + ']' : '') + '" href="' + href + '"></a></li>';
 }
 
 function addPanel() {
