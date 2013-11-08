@@ -1067,11 +1067,9 @@ function readViewedPosts() {
 //												MAIN PANEL
 //============================================================================================================
 
-function pButton(id, href, key) {
-	return '<li><a id="de-btn-' + id + '" class="de-abtn" title="' + Lng.panelBtn[id][lang] +
-		(key && Cfg['keybNavig'] ?
-			' [' + KeyEditListener.getStrKey(KeyNavigation.readKeys()[+key[0]][+key.substr(1)]) + ']' : '') +
-		'" href="' + href + '"></a></li>';
+function pButton(id, href, hasHotkey) {
+	return '<li><a id="de-btn-' + id + '" class="de-abtn" ' + (hasHotkey ? 'de-' : '') + 'title="' +
+		Lng.panelBtn[id][lang] +'" href="' + href + '"></a></li>';
 }
 
 function addPanel() {
@@ -1081,28 +1079,28 @@ function addPanel() {
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
-					pButton('settings', '#', '210') +
-					pButton('hidden', '#', '27') +
-					pButton('favor', '#', '26') +
+					pButton('settings', '#', true) +
+					pButton('hidden', '#', true) +
+					pButton('favor', '#', true) +
 					(aib.arch ? '' :
-						pButton('refresh', '#', '') +
+						pButton('refresh', '#', false) +
 						(!TNum && pageNum === 0 ? '' :
-							pButton('goback', aib.getPageUrl(brd, pageNum - 1), '24')) +
+							pButton('goback', aib.getPageUrl(brd, pageNum - 1), true)) +
 						(TNum || pageNum === aib.pagesCount ? '' :
-							pButton('gonext', aib.getPageUrl(brd, pageNum + 1), '33'))
-					) + pButton('goup', '#', '') +
-					pButton('godown', '#', '') +
+							pButton('gonext', aib.getPageUrl(brd, pageNum + 1), true))
+					) + pButton('goup', '#', false) +
+					pButton('godown', '#', false) +
 					(imgLen === 0 ? '' :
-						pButton('expimg', '#', '') +
-						pButton('maskimg', '#', '29')) +
+						pButton('expimg', '#', false) +
+						pButton('maskimg', '#', true)) +
 					(!TNum ? '' :
-						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', '') +
-						(nav.Safari ? '' : pButton('audio-off', '#', ''))) +
+						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
+						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
 					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
-							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), '')) +
+							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					(!TNum && !aib.arch? '' :
-						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#', '')) +
+						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#', false)) +
 						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
 				'</ul>' +
@@ -1117,6 +1115,13 @@ function addPanel() {
 		attach: false,
 		odelay: 0,
 		panel: panel,
+		setTitleWithKey: function(el, isGlob, idx) {
+			var title = el.getAttribute('de-title');
+			if(keyNav) {
+				title += ' [' + KeyEditListener.getStrKey(isGlob ? keyNav.gKeys[idx] : keyNav.ntKeys[idx]) + ']';
+			}
+			el.title = title;
+		},
 		handleEvent: function(e) {
 			switch(e.type) {
 			case 'click':
@@ -1188,6 +1193,12 @@ function addPanel() {
 					this.panel.lastChild.style.display = '';
 				}
 				switch(e.target.id) {
+				case 'de-btn-settings': this.setTitleWithKey(e.target, true, 10); break;
+				case 'de-btn-hidden': this.setTitleWithKey(e.target, true, 7); break;
+				case 'de-btn-favor': this.setTitleWithKey(e.target, true, 6); break;
+				case 'de-btn-goback': this.setTitleWithKey(e.target, true, 4); break;
+				case 'de-btn-gonext': this.setTitleWithKey(e.target, false, 3); break;
+				case 'de-btn-maskimg': this.setTitleWithKey(e.target, true, 9); break;
 				case 'de-btn-refresh':
 					if(TNum) {
 						return;
