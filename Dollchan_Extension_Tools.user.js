@@ -1067,8 +1067,10 @@ function readViewedPosts() {
 //												MAIN PANEL
 //============================================================================================================
 
-function pButton(id, href) {
+function pButton(id, href, key) {
 	return '<li><a id="de-btn-' + id + '" class="de-abtn" title="' + Lng.panelBtn[id][lang] +
+		(key && Cfg['keybNavig'] ?
+			' [' + KeyEditListener.getStrKey(KeyNavigation.readKeys()[+key[0]][+key.substr(1)]) + ']' : '') +
 		'" href="' + href + '"></a></li>';
 }
 
@@ -1079,26 +1081,28 @@ function addPanel() {
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
-					pButton('settings', '#') +
-					pButton('hidden', '#') +
-					pButton('favor', '#') +
+					pButton('settings', '#', '210') +
+					pButton('hidden', '#', '27') +
+					pButton('favor', '#', '26') +
 					(aib.arch ? '' :
-						pButton('refresh', '#') +
-						(!TNum && pageNum === 0 ? '' : pButton('goback', aib.getPageUrl(brd, pageNum - 1))) +
-						(TNum || pageNum === aib.pagesCount ? '' : pButton('gonext', aib.getPageUrl(brd, pageNum + 1)))) +
-					pButton('goup', '#') +
-					pButton('godown', '#') +
+						pButton('refresh', '#', '') +
+						(!TNum && pageNum === 0 ? '' :
+							pButton('goback', aib.getPageUrl(brd, pageNum - 1), '24')) +
+						(TNum || pageNum === aib.pagesCount ? '' :
+							pButton('gonext', aib.getPageUrl(brd, pageNum + 1), '33'))
+					) + pButton('goup', '#', '') +
+					pButton('godown', '#', '') +
 					(imgLen === 0 ? '' :
-						pButton('expimg', '#') +
-						pButton('maskimg', '#')) +
+						pButton('expimg', '#', '') +
+						pButton('maskimg', '#', '29')) +
 					(!TNum ? '' :
-						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#') +
-						(nav.Safari ? '' : pButton('audio-off', '#'))) +
+						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', '') +
+						(nav.Safari ? '' : pButton('audio-off', '#', ''))) +
 					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
-							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'))) +
+							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), '')) +
 					(!TNum && !aib.arch? '' :
-						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#')) +
+						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#', '')) +
 						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
 				'</ul>' +
@@ -2486,27 +2490,31 @@ KeyEditListener.keyCodes = ['',,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift'
 	/* F11 */,/* F12 */,,,,,,,,,,,,,,,,,,,,,/* Num Lock */,/* Scroll Lock */,,,,,,,,,,,,,,,,,,,,,,,,
 	,,,,'-',,,,,,,,,,,,,';','=',',','-','.','/','`',,,,,,,,,,,,,,,,,,,,,,,,,,,'[','\\',']','\''
 ];
+KeyEditListener.getStrKey = function(key) {
+	var str = '';
+	if(key & 0x1000) {
+		str += 'Ctrl + ';
+	}
+	if(key & 0x2000) {
+		str += 'Shift + ';
+	}
+	if(key & 0x4000) {
+		str += 'Alt + ';
+	}
+	str += KeyEditListener.keyCodes[key & 0xFFF];
+	return str;
+}
 KeyEditListener.getEditMarkup = function(keys) {
 	var allKeys = [];
 	var html = Lng.keyNavEdit[lang]
 		.replace(/%l/g, '<label class="de-block">')
 		.replace(/%\/l/g, '</label>')
 		.replace(/%i([2,3])([0-9]+)(t)?/g, function(aKeys, all, id1, id2, isText) {
-			var key = this[+id1][+id2],
-				str = '';
+			var key = this[+id1][+id2];
 			aKeys.push(key);
-			if(key & 0x1000) {
-				str += 'Ctrl + ';
-			}
-			if(key & 0x2000) {
-				str += 'Shift + ';
-			}
-			if(key & 0x4000) {
-				str += 'Alt + ';
-			}
-			str += KeyEditListener.keyCodes[key & 0xFFF];
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
-				'" size="26" value="' + str + (isText ? '" de-text' : '"' ) + ' readonly></input>';
+				'" size="26" value="' + KeyEditListener.getStrKey(key) +
+				(isText ? '" de-text' : '"' ) + ' readonly></input>';
 		}.bind(keys, allKeys)) +
 	'<input type="button" id="de-keys-save" value="' + Lng.save[lang] + '"></input>' +
 	'<input type="button" id="de-keys-reset" value="' + Lng.reset[lang] + '"></input>';
