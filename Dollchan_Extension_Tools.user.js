@@ -9417,7 +9417,7 @@ function initThreadUpdater(title, enableUpdater) {
 			lastECode = 200;
 			setState('on');
 			checked404 = false;
-			if(lPosts === 0 && !Cfg['noErrInTitle']) {
+			if((focused || lPosts === 0) && !Cfg['noErrInTitle']) {
 				updateTitle();
 			}
 		}
