@@ -615,6 +615,7 @@ function $xhr(obj) {
 		xhr.setRequestHeader(h, obj['headers'][h]);
 	}
 	xhr.send(obj['data'] || null);
+	return xhr;
 }
 
 function $queue(maxNum, Fn, endFn) {
@@ -3758,7 +3759,7 @@ function embedMP3Links(post) {
 //============================================================================================================
 
 function ajaxLoad(url, loadForm, Fn, errFn) {
-	GM_xmlhttpRequest({
+	return GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(loadForm, Fn, errFn, xhr) {
@@ -3784,21 +3785,25 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 }
 
 function getJsonPosts(url, Fn) {
-	GM_xmlhttpRequest({'method': 'GET', 'url': nav.fixLink(url), 'onreadystatechange': function(Fn, xhr) {
-		if(xhr.readyState === 4) {
-			if(xhr.status === 304) {
-				closeAlert($id('de-alert-newposts'));
-			} else {
-				try {
-					var json = JSON.parse(xhr.responseText);
-				} catch(e) {
-					Fn(1, e.toString(), null);
-					return;
+	return GM_xmlhttpRequest({
+		'method': 'GET',
+		'url': nav.fixLink(url),
+		'onreadystatechange': function(Fn, xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status === 304) {
+					closeAlert($id('de-alert-newposts'));
+				} else {
+					try {
+						var json = JSON.parse(xhr.responseText);
+					} catch(e) {
+						Fn(1, e.toString(), null);
+						return;
+					}
+					Fn(xhr.status, xhr.statusText, json);
 				}
-				Fn(xhr.status, xhr.statusText, json);
 			}
-		}
-	}.bind(null, Fn)});
+		}.bind(null, Fn)
+	});
 }
 
 function loadFavorThread() {
@@ -7927,7 +7932,7 @@ Thread.processUpdBtn = function(add) {
 			$pd(e);
 			$alert(Lng.loading[lang], 'newposts', true);
 			firstThr.clearPostsMarks();
-			firstThr.loadNew(infoLoadErrors, true);
+			updater.forceLoad();
 		}, false);
 	} else {
 		$del($c('de-thrupdbtn', dForm));
@@ -8008,7 +8013,7 @@ Thread.prototype = {
 	},
 	loadNew: function(Fn, useAPI) {
 		if(aib.hana && useAPI) {
-			getJsonPosts('/api/thread/' + brd + '/' + TNum +
+			return getJsonPosts('/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
 				function parseNewPosts(status, sText, json) {
 					if(status !== 200 || json['error']) {
@@ -8037,9 +8042,8 @@ Thread.prototype = {
 					}
 				}.bind(this)
 			);
-			return;
 		}
-		ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form) {
+		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form) {
 			this._checkBans(firstThr.op, form);
 			var info = this._parsePosts(aib.getPosts(form), 0, 0);
 			Fn(200, '', info[1]);
@@ -9292,7 +9296,7 @@ function replaceDelform() {
 }
 
 function initThreadUpdater(title, enableUpdater) {
-	var delay, checked404, loadTO, audioRep, loadPostsFun, audioEl, stateButton, hasAudio,
+	var delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
 		initDelay, favIntrv, favNorm, favHref, enabled = false,
 		inited = false,
 		lastECode = 200,
@@ -9335,7 +9339,6 @@ function initThreadUpdater(title, enableUpdater) {
 				onVis();
 			}, false);
 		}
-		loadPostsFun = firstThr.loadNew.bind(firstThr, onLoaded, true);
 		enable();
 	}
 
@@ -9393,7 +9396,21 @@ function initThreadUpdater(title, enableUpdater) {
 		});
 	}
 
+	function loadPostsFun() {
+		currentXHR = firstThr.loadNew(onLoaded, true);
+	}
+
+	function forceLoadPosts() {
+		if(currentXHR) {
+			currentXHR.abort();
+		}
+		clearTimeout(loadTO);
+		delay = initDelay;
+		loadPostsFun();
+	}
+
 	function onLoaded(eCode, eMsg, lPosts) {
+		currentXHR = null;
 		infoLoadErrors(eCode, eMsg, -1);
 		if(eCode !== 200) {
 			lastECode = eCode;
@@ -9494,9 +9511,7 @@ function initThreadUpdater(title, enableUpdater) {
 		setTimeout(function() {
 			updateTitle();
 			if(enabled) {
-				clearTimeout(loadTO);
-				delay = initDelay;
-				loadPostsFun();
+				forceLoadPosts();
 			}
 		}, 200);
 	}
@@ -9528,6 +9543,7 @@ function initThreadUpdater(title, enableUpdater) {
 		get focused() {
 			return focused;
 		},
+		forceLoad: forceLoadPosts,
 		enable: function() {
 			if(!inited) {
 				init();
