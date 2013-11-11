@@ -8492,8 +8492,7 @@ function getImageBoard() {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			pagesCount: { configurable: true, get: function() {
-				var val = $T('a', $T('td',
-					dForm.lastElementChild.previousElementSibling)[pageNum === 0 ? 1 : 2]).length;
+				var val = $T('a', $T('td', $q('table[border="1"]', dForm))[pageNum === 0 ? 1 : 2]).length;
 				Object.defineProperty(this, 'pagesCount', { value: val });
 				return val;
 			} },
