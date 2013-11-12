@@ -1355,7 +1355,7 @@ function showContent(cont, id, name, remove) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxLoad(aib.getThrdUrl(arr[0], arr[1]), false, null, function(eCode, eMsg) {
+					ajaxLoad(aib.getThrdUrl(arr[0], arr[1]), false, null, function(eCode, eMsg, xhr) {
 						if(eCode === 404) {
 							delete hThr[this[0]][this[1]];
 							saveHiddenThreads(true);
@@ -1429,7 +1429,7 @@ function showContent(cont, id, name, remove) {
 					c = $c('de-fav-inf-posts', el).firstElementChild;
 					c.className = 'de-wait';
 					c.textContent = '';
-					ajaxLoad(aib.getThrdUrl(arr[1], arr[2]), true, function(form) {
+					ajaxLoad(aib.getThrdUrl(arr[1], arr[2]), true, function(form, xhr) {
 						var cnt = aib.getPosts(form).length + 1;
 						c.textContent = cnt;
 						if(cnt > f.cnt) {
@@ -1440,7 +1440,7 @@ function showContent(cont, id, name, remove) {
 							c.className = 'de-fav-inf-old';
 						}
 						c = f = null;
-					}, function(eCode, eMsg) {
+					}, function(eCode, eMsg, xhr) {
 						c.textContent = getErrorMessage(eCode, eMsg);
 						c.className = 'de-fav-inf-old';
 						c = null;
@@ -1452,7 +1452,7 @@ function showContent(cont, id, name, remove) {
 					loaded = 0;
 				$alert(Lng.loading[lang], 'load-pages', true);
 				while(i--) {
-					ajaxLoad(aib.getPageUrl(brd, i), true, function(idx, form) {
+					ajaxLoad(aib.getPageUrl(brd, i), true, function(idx, form, xhr) {
 						for(var arr, el, len = this.length, i = 0; i < len; ++i) {
 							arr = this[i].getAttribute('info').split(';');
 							if(arr[0] === aib.host && arr[1] === brd) {
@@ -1470,7 +1470,7 @@ function showContent(cont, id, name, remove) {
 							closeAlert($id('de-alert-load-pages'));
 						}
 						loaded++;
-					}.bind($C('de-entry', doc), i), function() {
+					}.bind($C('de-entry', doc), i), function(eCode, eMsg, xhr) {
 						if(loaded === 5) {
 							closeAlert($id('de-alert-load-pages'));
 						}
@@ -1481,7 +1481,7 @@ function showContent(cont, id, name, remove) {
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($C('de-entry', doc), function(el) {
 					var arr = el.getAttribute('info').split(';');
-					ajaxLoad(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(eCode, eMsg) {
+					ajaxLoad(Favor[arr[0]][arr[1]][arr[2]]['url'], false, null, function(eCode, eMsg, xhr) {
 						if(eCode === 404) {
 							removeFavorites(arr[0], arr[1], arr[2]);
 							saveFavorites();
@@ -2726,7 +2726,7 @@ function checkUpload(response) {
 	}
 	if(TNum) {
 		firstThr.clearPostsMarks();
-		firstThr.loadNew(function(eCode, eMsg, np) {
+		firstThr.loadNew(function(eCode, eMsg, np, xhr) {
 			infoLoadErrors(eCode, eMsg, 0);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
@@ -2770,7 +2770,7 @@ function checkDelete(response) {
 	}
 	if(TNum) {
 		firstThr.clearPostsMarks();
-		firstThr.loadNew(function(eCode, eMsg, np) {
+		firstThr.loadNew(function(eCode, eMsg, np, xhr) {
 			infoLoadErrors(eCode, eMsg, 0);
 			endDelete();
 		}, false);
@@ -3765,18 +3765,18 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 		'onreadystatechange': function(loadForm, Fn, errFn, xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status !== 200) {
-					errFn && errFn(xhr.status, xhr.statusText);
+					errFn && errFn(xhr.status, xhr.statusText, xhr);
 				} else if(Fn) {
 					var el, text = xhr.responseText;
 					if(/<\/html>[\s\n\r]*$/.test(text)) {
 						el = $DOM(text);
 						if(!loadForm || (el = $q(aib.qDForm, el))) {
-							Fn(el);
+							Fn(el, xhr);
 							return;
 						}
 					}
 					if(errFn) {
-						errFn(0, Lng.errCorruptData[lang]);
+						errFn(0, Lng.errCorruptData[lang], xhr);
 					}
 				}
 			}
@@ -3796,10 +3796,10 @@ function getJsonPosts(url, Fn) {
 					try {
 						var json = JSON.parse(xhr.responseText);
 					} catch(e) {
-						Fn(1, e.toString(), null);
+						Fn(1, e.toString(), null, xhr);
 						return;
 					}
-					Fn(xhr.status, xhr.statusText, json);
+					Fn(xhr.status, xhr.statusText, json, xhr);
 				}
 			}
 		}.bind(null, Fn)
@@ -3835,7 +3835,7 @@ function loadPages(count) {
 		loaded = 1;
 	count = len - i;
 
-	function onLoadOrError(idx, eCodeOrForm, maybeEMsg) {
+	function onLoadOrError(idx, eCodeOrForm, maybeEMsg, xhr) {
 		if(typeof eCodeOrForm === 'number') {
 			pages[idx] = $add('<div><center style="font-size: 2em">' +
 				getErrorMessage(eCodeOrForm, maybeEMsg) + '</center><hr></div>');
@@ -5558,9 +5558,9 @@ function PostForm(form, ignoreForm, init) {
 	}
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
-			ajaxLoad(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc) {
+			ajaxLoad(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc, xhr) {
 				pr = new PostForm($q(aib.qPostForm, dc), true, init);
-			}, function(eCode, eMsg) {
+			}, function(eCode, eMsg, xhr) {
 				pr = new PostForm(null, true, init);
 			});
 		} else {
@@ -7425,7 +7425,7 @@ Post.prototype = {
 		if(!isInit) {
 			$alert(Lng.loading[lang], 'load-fullmsg', true);
 		}
-		ajaxLoad(aib.getThrdUrl(brd, this.tNum), true, function(node, form) {
+		ajaxLoad(aib.getThrdUrl(brd, this.tNum), true, function(node, form, xhr) {
 			if(this.isOp) {
 				this.updateMsg(replacePost($q(aib.qMsg, form)));
 				$del(node);
@@ -7551,11 +7551,11 @@ Pview.prototype = Object.create(Post.prototype, {
 	_loaded: { value: false, writable: true },
 	_cache: { value: {}, writable: true },
 	_readDelay: { value: 0, writable: true },
-	_onerror: { value: function(eCode, eMsg) {
+	_onerror: { value: function(eCode, eMsg, xhr) {
 		Pview.del(this);
 		this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
 	} },
-	_onload: { value: function pvOnload(b, form) {
+	_onload: { value: function pvOnload(b, form, xhr) {
 		var rm, parent = this.parent,
 			parentNum = parent.num,
 			cache = this._cache[b + this.tNum] = new PviewsCache(form, b, this.tNum),
@@ -7965,7 +7965,7 @@ Thread.prototype = {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, scrollEl, Fn, form) {
+		ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, scrollEl, Fn, form, xhr) {
 			var els = aib.getPosts(form),
 				op = this.op,
 				thrEl = this.el,
@@ -8004,7 +8004,7 @@ Thread.prototype = {
 				scrollTo(0, pageYOffset + sEl.getBoundingClientRect().top);
 			}, 100, scrollEl)
 			Fn && Fn();
-		}.bind(this, last, scrollEl, Fn), function(eCode, eMsg) {
+		}.bind(this, last, scrollEl, Fn), function(eCode, eMsg, xhr) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
 			if(typeof this === 'function') {
 				this();
@@ -8015,9 +8015,9 @@ Thread.prototype = {
 		if(aib.hana && useAPI) {
 			return getJsonPosts('/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
-				function parseNewPosts(status, sText, json) {
+				function parseNewPosts(status, sText, json, xhr) {
 					if(status !== 200 || json['error']) {
-						Fn(status, sText || json['message'], 0);
+						Fn(status, sText || json['message'], 0, xhr);
 					} else {
 						var i, pCount, fragm, last, temp, el = (json['result'] || {})['posts'],
 							len = el ? el.length : 0,
@@ -8037,22 +8037,22 @@ Thread.prototype = {
 							this.el.appendChild(fragm);
 							this.pcount = pCount + len;
 						}
-						Fn(200, '', np);
+						Fn(200, '', np, xhr);
 						Fn = null;
 					}
 				}.bind(this)
 			);
 		}
-		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form) {
+		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
 			this._checkBans(firstThr.op, form);
 			var info = this._parsePosts(aib.getPosts(form), 0, 0);
-			Fn(200, '', info[1]);
+			Fn(200, '', info[1], xhr);
 			if(info[0] !== 0) {
 				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			}
 			Fn = null;
-		}.bind(this), function(eCode, eMsg) {
-			Fn(eCode, eMsg, 0);
+		}.bind(this), function(eCode, eMsg, xhr) {
+			Fn(eCode, eMsg, 0, xhr);
 			Fn = null;
 		});
 	},
@@ -9411,7 +9411,10 @@ function initThreadUpdater(title, enableUpdater) {
 		loadPostsFun();
 	}
 
-	function onLoaded(eCode, eMsg, lPosts) {
+	function onLoaded(eCode, eMsg, lPosts, xhr) {
+		if(currentXHR !== xhr && eCode === 0) { // Loading aborted
+			return;
+		}
 		currentXHR = null;
 		infoLoadErrors(eCode, eMsg, -1);
 		if(eCode !== 200) {
