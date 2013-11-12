@@ -8185,7 +8185,9 @@ Thread.prototype = {
 				tPost.next = post;
 				post.prev = tPost;
 			} else {
-				console.error('Loaded thread has extra post: ' + aib.getPNum(nPosts[i]));
+				console.error('Loaded thread has extra post, num:', aib.getPNum(nPosts[i]),
+					'count:', i, '. Latest in thread post num:', post.num, 'count:', post.count,
+					'. Posts count in thread:', this.pcount, 'Posts count loaded:', len + 1);
 				i++;
 			}
 		}
@@ -9001,6 +9003,7 @@ function getNavFuncs() {
 		window.GM_xmlhttpRequest = $xhr;
 	}
 	return {
+		ua: ua,
 		Firefox: ua.contains('Gecko/'),
 		Opera: !!opera,
 		oldOpera: isOldOpera,
