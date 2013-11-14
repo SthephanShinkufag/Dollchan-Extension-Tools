@@ -9224,7 +9224,6 @@ function tryToParse(node, thrds) {
 			thrds = parseThreadNodes(dForm, []);
 			len = thrds.length;
 			if(len === 0) {
-				Thread.parsed = false;
 				return null;
 			}
 		}
