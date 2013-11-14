@@ -3759,36 +3759,42 @@ function embedMP3Links(post) {
 //============================================================================================================
 
 function ajaxLoad(url, loadForm, Fn, errFn) {
-	return GM_xmlhttpRequest({
+	var origXHR = GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
-		'onreadystatechange': function(loadForm, Fn, errFn, xhr) {
+		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status !== 200) {
-					errFn && errFn(xhr.status, xhr.statusText, xhr);
-				} else if(Fn) {
-					var el, text = xhr.responseText;
-					if(/<\/html>[\s\n\r]*$/.test(text)) {
-						el = $DOM(text);
-						if(!loadForm || (el = $q(aib.qDForm, el))) {
-							Fn(el, xhr);
-							return;
-						}
-					}
 					if(errFn) {
-						errFn(0, Lng.errCorruptData[lang], xhr);
+						errFn(xhr.status, xhr.statusText, origXHR);
 					}
+				} else if(Fn) {
+					do {
+						var el, text = xhr.responseText;
+						if(/<\/html>[\s\n\r]*$/.test(text)) {
+							el = $DOM(text);
+							if(!loadForm || (el = $q(aib.qDForm, el))) {
+								Fn(el, origXHR);
+								break;
+							}
+						}
+						if(errFn) {
+							errFn(0, Lng.errCorruptData[lang], origXHR);
+						}
+					} while(false);
 				}
+				loadForm = Fn = errFn = origXHR = null;
 			}
-		}.bind(null, loadForm, Fn, errFn)
+		}
 	});
+	return origXHR;
 }
 
 function getJsonPosts(url, Fn) {
-	return GM_xmlhttpRequest({
+	var origXHR = GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
-		'onreadystatechange': function(Fn, xhr) {
+		'onreadystatechange': function(xhr) {
 			if(xhr.readyState === 4) {
 				if(xhr.status === 304) {
 					closeAlert($id('de-alert-newposts'));
@@ -3796,13 +3802,16 @@ function getJsonPosts(url, Fn) {
 					try {
 						var json = JSON.parse(xhr.responseText);
 					} catch(e) {
-						Fn(1, e.toString(), null, xhr);
-						return;
+						Fn(1, e.toString(), null, origXHR);
+					} finally {
+						if(json) {
+							Fn(xhr.status, xhr.statusText, json, origXHR);
+						}
+						Fn = origXHR = null;
 					}
-					Fn(xhr.status, xhr.statusText, json, xhr);
 				}
 			}
-		}.bind(null, Fn)
+		}
 	});
 }
 
@@ -9412,7 +9421,7 @@ function initThreadUpdater(title, enableUpdater) {
 	}
 
 	function onLoaded(eCode, eMsg, lPosts, xhr) {
-		if(currentXHR !== xhr && eCode === 0) { // Loading aborted
+		if(!enabled || (currentXHR !== xhr && eCode === 0)) { // Loading aborted
 			return;
 		}
 		currentXHR = null;
