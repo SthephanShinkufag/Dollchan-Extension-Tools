@@ -3835,10 +3835,10 @@ function loadPages(count) {
 		loaded = 1;
 	count = len - i;
 
-	function onLoadOrError(idx, eCodeOrForm, maybeEMsg, xhr) {
+	function onLoadOrError(idx, eCodeOrForm, eMsgOrXhr, maybeXhr) {
 		if(typeof eCodeOrForm === 'number') {
 			pages[idx] = $add('<div><center style="font-size: 2em">' +
-				getErrorMessage(eCodeOrForm, maybeEMsg) + '</center><hr></div>');
+				getErrorMessage(eCodeOrForm, eMsgOrXhr) + '</center><hr></div>');
 		} else {
 			pages[idx] = replacePost(eCodeOrForm);
 		}
@@ -3858,22 +3858,27 @@ function loadPages(count) {
 					dForm.appendChild(el);
 				}
 			}
-			firstThr = tryToParse(dForm, parseThrs ? threads : $Q(aib.qThread, dForm));
-			readFavorites();
-			addDelformStuff(false);
-			readUserPosts();
-			checkPostsVisib();
-			saveFavorites();
-			saveUserPosts();
-			$each($Q('input[type="password"]', dForm), function(pEl) {
-				pr.dpass = pEl;
-				pEl.value = Cfg['passwValue'];
-			});
-			if(pr.txta) {
-				pr.txta.value = '';
+			if(!parseThrs) {
+				threads = $Q(aib.qThread, dForm);
 			}
-			if(keyNav) {
-				keyNav.clear(pageNum + count - 1);
+			if(threads.length !== 0) {
+				firstThr = tryToParse(dForm, threads);
+				readFavorites();
+				addDelformStuff(false);
+				readUserPosts();
+				checkPostsVisib();
+				saveFavorites();
+				saveUserPosts();
+				$each($Q('input[type="password"]', dForm), function(pEl) {
+					pr.dpass = pEl;
+					pEl.value = Cfg['passwValue'];
+				});
+				if(pr.txta) {
+					pr.txta.value = '';
+				}
+				if(keyNav) {
+					keyNav.clear(pageNum + count - 1);
+				}
 			}
 			$disp(dForm);
 			closeAlert($id('de-alert-load-pages'));
@@ -9219,6 +9224,7 @@ function tryToParse(node, thrds) {
 			thrds = parseThreadNodes(dForm, []);
 			len = thrds.length;
 			if(len === 0) {
+				Thread.parsed = false;
 				return null;
 			}
 		}
