@@ -891,15 +891,6 @@ function readCfg() {
 	if(Cfg['updThrDelay'] < 10) {
 		Cfg['updThrDelay'] = 10;
 	}
-	if('updThread' in Cfg) {
-		if(Cfg['updThread'] === 1) {
-			Cfg['ajaxUpdThr'] = 1;
-		} else {
-			Cfg['ajaxUpdThr'] = 0;
-			Cfg['addUpdBtn'] = 1;
-		}
-		delete Cfg['updThread'];
-	}
 	if(!Cfg['saveSage']) {
 		Cfg['sageReply'] = 0;
 	}
@@ -5904,7 +5895,7 @@ PostForm.prototype = {
 	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		var btn = $New('div', null, [
+		var btn = $New('div', {'class': 'de-' + (TNum ? 'make-reply' : 'create-thread')}, [
 			$txt('['),
 			$new('a', {'href': '#'}, null),
 			$txt(']')
