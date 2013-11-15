@@ -1360,7 +1360,7 @@ function showContent(cont, id, name, remove) {
 							delete hThr[this[0]][this[1]];
 							saveHiddenThreads(true);
 						}
-					}.bind(arr));
+					}.bind(arr), false);
 				});
 			}),
 			$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
@@ -1444,7 +1444,7 @@ function showContent(cont, id, name, remove) {
 						c.textContent = getErrorMessage(eCode, eMsg);
 						c.className = 'de-fav-inf-old';
 						c = null;
-					});
+					}, false);
 				});
 			}),
 			$btn(Lng.page[lang], Lng.infoPage[lang], function() {
@@ -1475,7 +1475,7 @@ function showContent(cont, id, name, remove) {
 							closeAlert($id('de-alert-load-pages'));
 						}
 						loaded++;
-					});
+					}, false);
 				}
 			}),
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
@@ -1487,7 +1487,7 @@ function showContent(cont, id, name, remove) {
 							saveFavorites();
 							arr = null;
 						}
-					});
+					}, false);
 				});
 			}),
 			$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
@@ -3758,8 +3758,8 @@ function embedMP3Links(post) {
 //													AJAX
 //============================================================================================================
 
-function ajaxLoad(url, loadForm, Fn, errFn) {
-	var origXHR = GM_xmlhttpRequest({
+function ajaxLoad(url, loadForm, Fn, errFn, bypassCache) {
+	var origXHR, params = {
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
@@ -3786,8 +3786,11 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 				loadForm = Fn = errFn = origXHR = null;
 			}
 		}
-	});
-	return origXHR;
+	};
+	if(bypassCache) {
+		params['headers'] = {'If-Modified-Since': 'Sat, 1 Jan 2005 00:00:00 GMT'};
+	}
+	return origXHR = GM_xmlhttpRequest(params);
 }
 
 function getJsonPosts(url, Fn) {
@@ -3916,7 +3919,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	while(i < len) {
 		fun = onLoadOrError.bind(null, i);
-		ajaxLoad(aib.getPageUrl(brd, i++), true, fun, fun);
+		aib.ajaxLoad(aib.getPageUrl(brd, i++), true, fun, fun);
 	}
 }
 
@@ -5583,7 +5586,7 @@ function PostForm(form, ignoreForm, init) {
 				pr = new PostForm($q(aib.qPostForm, dc), true, init);
 			}, function(eCode, eMsg, xhr) {
 				pr = new PostForm(null, true, init);
-			});
+			}, false);
 		} else {
 			this.form = null;
 		}
@@ -7459,7 +7462,7 @@ Post.prototype = {
 					}
 				}
 			}
-		}.bind(this, node), null);
+		}.bind(this, node), null, false);
 	},
 	_markLink: function(pNum) {
 		$each($Q('a[href*="' + pNum + '"]', this.el), function(num, el) {
@@ -7527,7 +7530,7 @@ function Pview(parent, link, tNum, pNum) {
 		this._showPost(post);
 	} else {
 		this._showText('<span class="de-wait">' + Lng.loading[lang] + '</span>');
-		ajaxLoad(aib.getThrdUrl(b, tNum), true, this._onload.bind(this, b), this._onerror.bind(this));
+		aib.ajaxLoad(aib.getThrdUrl(b, tNum), true, this._onload.bind(this, b), this._onerror.bind(this));
 	}
 }
 Pview.clearCache = function() {
@@ -7986,7 +7989,7 @@ Thread.prototype = {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, scrollEl, Fn, form, xhr) {
+		aib.ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, scrollEl, Fn, form, xhr) {
 			var els = aib.getPosts(form),
 				op = this.op,
 				thrEl = this.el,
@@ -8064,7 +8067,7 @@ Thread.prototype = {
 				}.bind(this)
 			);
 		}
-		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
+		return aib.ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
 			this._checkBans(firstThr.op, form);
 			var info = this._parsePosts(aib.getPosts(form), 0, 0);
 			Fn(200, '', info[1], xhr);
@@ -8613,6 +8616,26 @@ function getImageBoard() {
 				.de-abtn { transition: none; }\
 				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
+			'@ajax502': { writable: true, value: []},
+			ajaxLoad: { value: function(url, loadForm, Fn, errFn) {
+				var idx = this['@ajax502'].indexOf(url),
+					is502 = idx !== -1;
+				return ajaxLoad(url, loadForm, is502 ? function abu502LoadFunc(i, el, xhr) {
+					this['@ajax502'].splice(i, 1);
+					if(Fn) {
+						Fn(el, xhr);
+					}
+					Fn = errFn = url = null;
+				}.bind(this, idx) : Fn, is502 ? errFn : function abu502ErrFunc(eCode, eMsg, xhr) {
+					if(eCode === 502) {
+						this['@ajax502'].push(url);
+					}
+					if(errFn) {
+						errFn(eCode, eMsg, xhr);
+					}
+					Fn = errFn = url = null;
+				}.bind(this), is502);
+			} },
 			init: { value: function() {
 				var cd = $id('captcha_div'),
 					img = cd && $t('img', cd);
@@ -8927,6 +8950,9 @@ function getImageBoard() {
 		css: '.de-post-hid > .de-ppanel ~ * { display: none !important; }',
 		init: null,
 		isBB: false,
+		ajaxLoad: function(url, loadForm, Fn, errFn) {
+			return ajaxLoad(url, loadForm, Fn, errFn, false);
+		},
 		appendPost: function(el, parent) {
 			parent.appendChild(el);
 		},
