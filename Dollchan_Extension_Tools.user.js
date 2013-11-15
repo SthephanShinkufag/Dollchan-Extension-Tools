@@ -782,6 +782,15 @@ function getAncestor(el, tagName) {
 	return el;
 }
 
+function getPrettyErrorMessage(e) {
+	return e.stack ? (nav.WebKit ? e.stack :
+			e.name + ': ' + e.message + '\n' +
+			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
+				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
+			}) : e.stack)
+		) : e.name + ': ' + e.message;
+}
+
 
 //============================================================================================================
 //											STORAGE & CONFIG
@@ -3861,27 +3870,34 @@ function loadPages(count) {
 			if(!parseThrs) {
 				threads = $Q(aib.qThread, dForm);
 			}
-			if(threads.length !== 0) {
-				firstThr = tryToParse(dForm, threads);
-				readFavorites();
-				addDelformStuff(false);
-				readUserPosts();
-				checkPostsVisib();
-				saveFavorites();
-				saveUserPosts();
-				$each($Q('input[type="password"]', dForm), function(pEl) {
-					pr.dpass = pEl;
-					pEl.value = Cfg['passwValue'];
-				});
-				if(pr.txta) {
-					pr.txta.value = '';
+			do {
+				if(threads.length !== 0) {
+					try {
+						parseDelform(dForm, threads);
+					} catch(e) {
+						$alert(getPrettyErrorMessage(e), 'load-pages', true);
+						break;
+					}
+					readFavorites();
+					addDelformStuff(false);
+					readUserPosts();
+					checkPostsVisib();
+					saveFavorites();
+					saveUserPosts();
+					$each($Q('input[type="password"]', dForm), function(pEl) {
+						pr.dpass = pEl;
+						pEl.value = Cfg['passwValue'];
+					});
+					if(pr.txta) {
+						pr.txta.value = '';
+					}
+					if(keyNav) {
+						keyNav.clear(pageNum + count - 1);
+					}
 				}
-				if(keyNav) {
-					keyNav.clear(pageNum + count - 1);
-				}
-			}
+				closeAlert($id('de-alert-load-pages'));
+			} while(false);
 			$disp(dForm);
-			closeAlert($id('de-alert-load-pages'));
 			loaded = pages = count = null;
 		} else {
 			loaded++;
@@ -9215,41 +9231,29 @@ function parseThreadNodes(form, threads) {
 	return threads;
 }
 
-function tryToParse(node, thrds) {
-	var i, fThr, lThr, len = thrds.length;
+function parseDelform(node, thrds) {
+	var i, lThr, len = thrds.length;
 	$each($T('script', node), $del);
-	try {
+	if(len === 0) {
+		Thread.parsed = true;
+		thrds = parseThreadNodes(dForm, []);
+		len = thrds.length;
 		if(len === 0) {
-			Thread.parsed = true;
-			thrds = parseThreadNodes(dForm, []);
-			len = thrds.length;
-			if(len === 0) {
-				return null;
-			}
+			throw new Error('No threads');
 		}
-		fThr = lThr = new Thread(thrds[0], null);
-		for(i = 1; i < len; i++) {
-			lThr = new Thread(thrds[i], lThr);
-		}
-		thrds = null;
-	} catch(e) {
-		GM_log('DELFORM ERROR:\n' + (e.stack ? (nav.WebKit ? e.stack :
-			e.name + ': ' + e.message + '\n' +
-			(nav.Firefox ? e.stack.replace(/^([^@]*).*\/(.+)$/gm, function(str, fName, line) {
-				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
-			}) : e.stack)
-		) : e.name + ': ' + e.message));
-		return null;
+	}
+	firstThr = lThr = new Thread(thrds[0], null);
+	for(i = 1; i < len; i++) {
+		lThr = new Thread(thrds[i], lThr);
 	}
 	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
 	if(aib.abu && TNum) {
-		lThr = fThr.el;
+		lThr = firstThr.el;
 		while((node = lThr.nextSibling) && node.tagName !== 'HR') {
 			$del(node);
 		}
 	}
-	return fThr;
 }
 
 function replaceString(txt) {
@@ -9647,8 +9651,10 @@ function doScript() {
 	}
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
 	pByNum = Object.create(null);
-	firstThr = tryToParse(dForm, $Q(aib.qThread, dForm));
-	if(!firstThr) {
+	try {
+		parseDelform(dForm, $Q(aib.qThread, dForm));
+	} catch(e) {
+		GM_log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
 		$disp(doc.body);
 		return;
 	}
