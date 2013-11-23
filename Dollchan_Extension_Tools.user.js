@@ -8145,7 +8145,7 @@ Thread.prototype = {
 			post = this.op.nextNotDeleted;
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - 1 === i) {
-				if(i >= len || post.num !== aib.getPNum(nPosts[i])) {
+				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
 					if(!firstDelPost) {
 						firstDelPost = post;
 					}
@@ -8172,7 +8172,7 @@ Thread.prototype = {
 						}
 						post = post.nextNotDeleted;
 						c++;
-					} while(post && (i >= len || post.num !== aib.getPNum(nPosts[i])));
+					} while(post && (i === len || post.num !== aib.getPNum(nPosts[i])));
 					if(!rerunSpells) {
 						sVis.splice(i + 1, c);
 					}
@@ -9447,7 +9447,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function onLoaded(eCode, eMsg, lPosts, xhr) {
-		if(!enabled || (currentXHR !== xhr && eCode === 0)) { // Loading aborted
+		if(currentXHR !== xhr && eCode === 0) { // Loading aborted
 			return;
 		}
 		currentXHR = null;
