@@ -2219,6 +2219,7 @@ KeyNavigation.readKeys = function() {
 			keys[0] = KeyNavigation.version;
 			keys[2][11] = tKeys[2][11];
 			keys[4] = tKeys[4];
+			setStored('DESU_keys', JSON.stringify(keys));
 		}
 		if(keys[1] ^ !!nav.Firefox) {
 			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
