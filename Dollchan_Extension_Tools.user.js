@@ -9332,7 +9332,7 @@ function replaceDelform() {
 	}
 }
 
-function initThreadUpdater(title, enableUpdater) {
+function initThreadUpdater(title, enableUpdate) {
 	var delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
 		initDelay, favIntrv, favNorm, favHref, enabled = false,
 		inited = false,
@@ -9341,7 +9341,7 @@ function initThreadUpdater(title, enableUpdater) {
 		aPlayers = 0,
 		focused = !(doc.hidden || doc.webkitHidden);
 
-	if(enableUpdater) {
+	if(enableUpdate) {
 		init();
 	}
 	if(focused && Cfg['desktNotif'] && ('permission' in Notification)) {
@@ -9467,7 +9467,9 @@ function initThreadUpdater(title, enableUpdater) {
 				}
 			}
 			setState('warn');
-			loadTO = setTimeout(loadPostsFun, delay);
+			if(enabled) {
+				loadTO = setTimeout(loadPostsFun, delay);
+			}
 			return;
 		}
 		if(lastECode !== 200) {
@@ -9525,7 +9527,9 @@ function initThreadUpdater(title, enableUpdater) {
 				delay = Math.min(delay + initDelay, 12e4);
 			}
 		}
-		loadTO = setTimeout(loadPostsFun, delay);
+		if(enabled) {
+			loadTO = setTimeout(loadPostsFun, delay);
+		}
 	}
 
 	function setState(state) {
