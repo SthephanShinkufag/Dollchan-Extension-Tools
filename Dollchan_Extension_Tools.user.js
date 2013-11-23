@@ -301,7 +301,9 @@ Lng = {
 		'%l%i26 – открыть/закрыть избранное%/l' +
 		'%l%i27 – открыть/закрыть скрытые посты%/l' +
 		'%l%i28 – открыть/закрыть панель%/l' +
-		'%l%i29 – включить/выключить маскировку изображений%/l',
+		'%l%i29 – включить/выключить маскировку изображений%/l' +
+		'%l%i40 – обновить тред%/l' +
+		'%l%i211 – раскрыть изображение текущего поста%/l',
 		'%l%i24 – previous page%/l' +
 		'%l%i33 – next page%/l' +
 		'%l%i23 – hide current post/thread%/l' +
@@ -316,7 +318,9 @@ Lng = {
 		'%l%i26 – open/close Favorites%/l' +
 		'%l%i27 – open/close Hidden Posts Table%/l' +
 		'%l%i28 – open/close the main panel%/l' +
-		'%l%i29 – turn on/off masking images%/l'
+		'%l%i29 – turn on/off masking images%/l' +
+		'%l%i40 – update thread%/l' +
+		'%l%i211 – expand current post\'s images%/l'
 	],
 
 	month:			[
@@ -2195,11 +2199,12 @@ function KeyNavigation() {
 	this.lastPageOffset = 0;
 	this.gKeys = keys[2];
 	this.ntKeys = keys[3];
+	this.tKeys = keys[4];
 	doc.addEventListener('keydown', this, true);
 }
-KeyNavigation.version = 1;
+KeyNavigation.version = 2;
 KeyNavigation.readKeys = function() {
-	var keys, str = getStored('DESU_keys');
+	var tKeys, keys, str = getStored('DESU_keys');
 	if(!str) {
 		return KeyNavigation.getDefaultKeys();
 	}
@@ -2208,6 +2213,12 @@ KeyNavigation.readKeys = function() {
 	} finally {
 		if(!keys) {
 			return KeyNavigation.getDefaultKeys();
+		}
+		if(keys[0] === 1) {
+			tKeys = KeyNavigation.getDefaultKeys();
+			keys[0] = KeyNavigation.version;
+			keys[2][11] = tKeys[2][11];
+			keys[4] = tKeys[4];
 		}
 		if(keys[1] ^ !!nav.Firefox) {
 			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
@@ -2246,7 +2257,8 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
 		/* Open/close panel          */ 0x0050 /* = P                 */,
 		/* Mask/unmask images        */ 0x0042 /* = B                 */,
-		/* Open/close settings       */ 0x4053 /* = Alt + S           */
+		/* Open/close settings       */ 0x4053 /* = Alt + S           */,
+		/* Expand current image      */ 0x0049 /* = I                 */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
@@ -2255,7 +2267,10 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Open next page */ 0x1027 /* = Ctrl + right arrow */,
 		/* Expand thread  */ 0x0045 /* = E                  */
 	];
-	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys];
+	var thrKeys = [
+		/* Update thread  */ 0x0055 /* = U                  */
+	];
+	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys, thrKeys];
 };
 KeyNavigation.prototype = {
 	paused: false,
@@ -2284,7 +2299,7 @@ KeyNavigation.prototype = {
 		if(this.paused) {
 			return;
 		}
-		var post, scrollToThread, globIdx, ntIdx, curTh = e.target.tagName,
+		var post, scrollToThread, globIdx, idx, curTh = e.target.tagName,
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
@@ -2350,11 +2365,25 @@ KeyNavigation.prototype = {
 			case 10: // Open/close settings
 				toggleContent('cfg', false);
 				break;
+			case 11: // Expand current image
+				post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+				if(post) {
+					post.toggleImages(!post.imagesExpanded);
+				}
+				break;
 			case -1:
-				if(TNum || (ntIdx = this.ntKeys.indexOf(kc)) === -1) {
+				if(TNum) {
+					idx = this.tKeys.indexOf(kc);
+					if(idx === 0) { // Update thread
+						Thread.loadNewPosts(null);
+						break;
+					}
 					return;
 				}
-				if(ntIdx === 2) { // Open thread
+				idx = this.ntKeys.indexOf(kc);
+				if(idx === -1) {
+					return;
+				} else if(idx === 2) { // Open thread
 					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(nav.Firefox) {
@@ -2364,12 +2393,12 @@ KeyNavigation.prototype = {
 						}
 					}
 					break;
-				} else if(ntIdx === 3) { // Open next page
+				} else if(idx === 3) { // Open next page
 					if(this.lastPage !== aib.pagesCount) {
 						window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 					}
 					break;
-				} else if(ntIdx === 4) { // Expand/collapse thread
+				} else if(idx === 4) { // Expand/collapse thread
 					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.omitted === 0) {
@@ -2386,7 +2415,7 @@ KeyNavigation.prototype = {
 				}
 			default:
 				scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
-				this._scroll(this._getFirstVisPost(scrollToThread), globIdx === 0 || ntIdx === 0,
+				this._scroll(this._getFirstVisPost(scrollToThread), globIdx === 0 || idx === 0,
 					scrollToThread);
 			}
 		}
@@ -2399,6 +2428,7 @@ KeyNavigation.prototype = {
 	resume: function(keys) {
 		this.gKeys = keys[2];
 		this.ntKeys = keys[3];
+		this.tKeys = keys[4];
 		this.paused = false;
 	},
 	_getFirstVisPost: function(getThread) {
@@ -2521,7 +2551,7 @@ KeyEditListener.getEditMarkup = function(keys) {
 	var html = Lng.keyNavEdit[lang]
 		.replace(/%l/g, '<label class="de-block">')
 		.replace(/%\/l/g, '</label>')
-		.replace(/%i([2,3])([0-9]+)(t)?/g, function(aKeys, all, id1, id2, isText) {
+		.replace(/%i([2-4])([0-9]+)(t)?/g, function(aKeys, all, id1, id2, isText) {
 			var key = this[+id1][+id2];
 			aKeys.push(key);
 			return '<input class="de-input-key" type="text" de-id1="' + id1 + '" de-id2="' + id2 +
@@ -6621,6 +6651,7 @@ Post.prototype = {
 	hidden: false,
 	hashHideFun: null,
 	hashImgsBusy: 0,
+	imagesExpanded: false,
 	inited: true,
 	kid: null,
 	next: null,
@@ -7070,6 +7101,7 @@ Post.prototype = {
 				}
 			}
 		}
+		this.imagesExpanded = expand;
 	},
 	toggleUserVisib: function() {
 		var isOp = this.isOp,
@@ -7952,16 +7984,19 @@ Thread.processUpdBtn = function(add) {
 	if(add) {
 		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
 			Lng.getNewPosts[lang] + '</a>]</span>');
-		firstThr.el.nextSibling.addEventListener('click', function(e) {
-			$pd(e);
-			$alert(Lng.loading[lang], 'newposts', true);
-			firstThr.clearPostsMarks();
-			updater.forceLoad();
-		}, false);
+		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 	} else {
 		$del($c('de-thrupdbtn', dForm));
 	}
 };
+Thread.loadNewPosts = function(e) {
+	if(e) {
+		$pd(e);
+	}
+	$alert(Lng.loading[lang], 'newposts', true);
+	firstThr.clearPostsMarks();
+	updater.forceLoad();
+}
 Thread.prototype = {
 	hasNew: false,
 	hidden: false,
