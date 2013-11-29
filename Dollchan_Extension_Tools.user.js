@@ -9375,7 +9375,7 @@ function initThreadUpdater(title, enableUpdate) {
 		lastECode = 200,
 		newPosts = 0,
 		aPlayers = 0,
-		focused = !(doc.hidden || doc.webkitHidden);
+		focused = true;
 
 	if(enableUpdate) {
 		init();
@@ -9396,6 +9396,7 @@ function initThreadUpdater(title, enableUpdate) {
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 		if(('hidden' in doc) || ('webkitHidden' in doc)) {
+			focused = !(doc.hidden || doc.webkitHidden);
 			doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
 				if(doc.hidden || doc.webkitHidden) {
 					onBlur();
