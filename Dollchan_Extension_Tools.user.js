@@ -4911,7 +4911,7 @@ Spells.prototype = {
 	_decompileRep: function(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
 			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
-			'(' + rep[2] + ',' + rep[3] + ')';
+			'(' + rep[2] + ',' + rep[3].replace(/\)/g, '\\)') + ')';
 	},
 	_optimizeReps: function(data) {
 		if(data) {
