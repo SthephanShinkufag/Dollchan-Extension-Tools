@@ -2326,7 +2326,7 @@ KeyNavigation.prototype = {
 			case 2: // Reply or create thread
 				if(pr.form) {
 					if(this.cPost) {
-						pr.showQuickReply(this.cPost);
+						pr.showQuickReply(this.cPost, this.cPost.num, true);
 					} else {
 						pr.showMainReply(TNum && Cfg['addPostForm'] !== 0, null);
 					}
@@ -5746,6 +5746,7 @@ PostForm.prototype = {
 	isHidden: false,
 	isQuick: false,
 	isTopForm: false,
+	lastQuickPNum: -1,
 	pForm: null,
 	pArea: [],
 	qArea: null,
@@ -5842,7 +5843,7 @@ PostForm.prototype = {
 			this._lastCapUpdate = Date.now();
 		}
 	},
-	showQuickReply: function(post) {
+	showQuickReply: function(post, pNum, closeReply) {
 		var el, tNum = post.tNum;
 		if(!this.isQuick) {
 			this.isQuick = true;
@@ -5866,7 +5867,7 @@ PostForm.prototype = {
 					);
 				}
 			}
-		} else if(post.wrap.nextElementSibling === this.qArea) {
+		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
 			this.closeQReply();
 			return;
 		}
@@ -5886,12 +5887,15 @@ PostForm.prototype = {
 		if(aib._420 && this.txta.value === 'Comment') {
 			this.txta.value = '';
 		}
-		$txtInsert(this.txta, '>>' + post.num + (quotetxt || '').replace(/(?:^|\n)(.)/gm, '\n> $1') + '\n');
+		$txtInsert(this.txta, (this.txta.value === '' || this.txta.value.slice(-1) === '\n' ? '' : '\n') +
+			(this.lastQuickPNum === pNum && this.txta.value.contains('>>' + pNum) ? '' : '>>' + pNum + '\n') +
+			(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
 		if(Cfg['addPostForm'] === 3) {
 			el = $t('a', this.qArea.firstChild);
 			el.href = aib.getThrdUrl(brd, tNum);
 			el.textContent = '#' + tNum;
 		}
+		this.lastQuickPNum = pNum;
 	},
 	showMainReply: function(isTop, evt) {
 		this.closeQReply();
@@ -5913,6 +5917,7 @@ PostForm.prototype = {
 	closeQReply: function() {
 		if(this.isQuick) {
 			this.isQuick = false;
+			this.lastQuickPNum = -1;
 			if(!TNum) {
 				this._toggleQuickReply(0);
 				$del($id('thr_id'));
@@ -6725,7 +6730,7 @@ Post.prototype = {
 						!/Reply|Ответ/.test(el.textContent))
 					{
 						if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
-							pr.showQuickReply(this);
+							pr.showQuickReply(this, this.num, true);
 						} else {
 							if(aib._420 && pr.txta.value === 'Comment') {
 								pr.txta.value = '';
@@ -6754,7 +6759,9 @@ Post.prototype = {
 				$del(this._menu);
 				this._menu = null;
 				return;
-			case 'de-btn-rep': pr.showQuickReply(this); return;
+			case 'de-btn-rep':
+				pr.showQuickReply(this._isPview ? this.getTopParent() : this, this.num, !this._isPview);
+				return;
 			case 'de-btn-sage':
 				addSpell(9, '', false);
 				return;
@@ -7599,6 +7606,13 @@ Pview.getPview = function(el) {
 Pview.delTO = 0;
 Pview.top = null;
 Pview.prototype = Object.create(Post.prototype, {
+	getTopParent: { value: function pvGetBoardParent() {
+		var post = this.parent;
+		while(post._isPview) {
+			post = post.parent;
+		}
+		return post;
+	} },
 	markToDel: { value: function pvMarkToDel() {
 		clearTimeout(Pview.delTO);
 		Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], this);
@@ -7641,7 +7655,8 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_showPost: { value: function pvShowPost(post) {
 		var panel, el = this.el = post.el.cloneNode(true),
-			pText = (post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
+			pText = '<span class="de-btn-rep"></span>' +
+				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 		el.post = this;
