@@ -8197,6 +8197,9 @@ Thread.prototype = {
 			rerunSpells = spells.hasNumSpell,
 			saveSpells = false,
 			post = this.op.nextNotDeleted;
+		if(nav.WebKit) {
+			nPosts = aProto.slice.call(nPosts);
+		}
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - 1 === i) {
 				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
