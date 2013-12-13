@@ -8374,7 +8374,7 @@ function getImageBoard() {
 			} },
 			css: { value: '.de-post-hid > .replyheader ~ *, .opqrbtn, .qrbtn, .ignorebtn, .hidethread, noscript, #content > hr { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
-			docExt: { value: '' },
+			docExt: { value: '.php' },
 			isBB: { value: true },
 
 			_420: { value: true }
