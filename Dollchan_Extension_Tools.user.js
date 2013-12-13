@@ -8312,7 +8312,7 @@ function getImageBoard() {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'2--ch.ru': [{
+		'2--ch.su': [{
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 			qTable: { value: 'table:not(.postfiles)' },
 			_qThread: { value: '.threadz' },
