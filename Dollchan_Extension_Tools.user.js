@@ -1101,7 +1101,7 @@ function addPanel() {
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
+					(!aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					(!TNum && !aib.arch? '' :
@@ -6058,7 +6058,7 @@ PostForm.prototype = {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
 			if(this.video && (val = this.video.value) && (val = val.match(youTube.regex))) {
-				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
+				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
 				$disp(this.pForm);
@@ -8312,31 +8312,6 @@ function getImageBoard() {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'@0chan': [{
-			getSage: { value: function(post) {
-				return !!$q('a[href="mailto:sage"], a[href^="http://www.cloudflare.com"]', post);
-			} },
-			css: { get: function() {
-				return Object.getPrototypeOf(this).css +
-					'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
-					.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-					.ui-resizable { display: inline !important; }\
-					form textarea { resize: both !important; }'
-			} },
-			ru: { value: true },
-			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' },
-
-			init: { value: function() {
-				$each($Q('span[style="float: right;"]', doc.body), $del);
-			} },
-			nul: { value: true }
-		}, 'script[src*="kusaba"]'],
-		get '0-chan.ru'() {
-			return this['@0chan'];
-		},
-		get '0chan.hk'() {
-			return this['@0chan'];
-		},
 		'2--ch.ru': [{
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 			qTable: { value: 'table:not(.postfiles)' },
@@ -8509,41 +8484,9 @@ function getImageBoard() {
 
 			brit: { value: true }
 		}],
-		'chanarchive.org': [{
-			// FIXME: check qPages property
-			qDForm: { value: '.board' },
-			arch: { value: true }
-		}, null, '4chan.org'],
 		'dfwk.ru': [{
 			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
 		}, 'script[src*="kusaba"]'],
-		'@ernstchan': [{
-			// TODO: make it works
-			cOPost: { value: 'thread_OP' },
-			cReply: { value: 'post' },
-			CRPost: { value: 'post' },
-			cSubj: { value: 'subject' },
-			cTrip: { value: 'tripcode' },
-			qThread: { value: 'div[id^="thread_"]' },
-			docExt: { value: '' },
-			res: { value: 'faden/' },
-			init: { value: function() {
-				return true;
-			} },
-
-			erns: { value: true }
-		}],
-		get 'ernstchan.com'() {
-			return this['@ernstchan'];
-		},
-		get 'ernstchan.net'() {
-			return this['@ernstchan'];
-		},
-		'geekly.info': [{
-			getPosts: { value: function(thr) {
-				return $Q('tr:first-child > .reply', thr);
-			}}
-		}],
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
@@ -8748,21 +8691,6 @@ function getImageBoard() {
 			docExt: { value: '.htm' },
 
 			futa: { value: true }
-		},
-		'form[action*="imgboard.php?delete"]': {
-			init: { value: function() {
-				$script('AJAX = delPostPreview = showPostPreview = showNewPosts = doRefPreview =\
-					showRefMap = getRefMap = doRefMap = insertAfter = get_password =\
-					update_captcha = getSelectedText = quote = insert = fixRefLinks =\
-					highlight = invertAll = toggle = doTruncate = doParse = doExpand =\
-					doStats = doShowHide = doDelForm = doPostForm = checkIn = doStars = function(){};', true
-				);
-				return false;
-			} },
-			ru: { value: true },
-			timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' },
-
-			tinyIb: { value: true }
 		},
 		'form[name*="postcontrols"]': {
 			cFileInfo: { value: 'fileinfo' },
@@ -9281,9 +9209,7 @@ function Initialization() {
 	TNum = url[2] ? url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
 		false;
-	pageNum = url[3] && !TNum ? +(
-		aib.erns ? +(window.location.search.match(/\d+/) || [0])[0] : url[3]
-	) || 0 : 0;
+	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
 	if(aib.tiny && pageNum > 0) {
 		pageNum--;
 	}
