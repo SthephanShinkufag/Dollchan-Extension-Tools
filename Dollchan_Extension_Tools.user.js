@@ -8961,7 +8961,7 @@ function getImageBoard() {
 			return op;
 		},
 		getPicWrap: function(el) {
-			var node = el.parentNode;
+			var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 			return node.tagName === 'SPAN' ? node.parentNode : node;
 		},
 		getPNum: function(post) {
