@@ -3532,7 +3532,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
 				(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
 			'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
-				(isHD ? '?hd=1&' : '?') + 'start=' + time + '" wmode="transparent"' + wh;
+				(isHD ? '?hd=1&' : '?') + 'start=' + time + '" allowfullscreen="true" wmode="transparent"' + wh;
 	}
 
 	function addHTML5(el, id, time) {
