@@ -8303,7 +8303,7 @@ Thread.prototype = {
 //													IMAGEBOARD
 //============================================================================================================
 
-function getImageBoard() {
+function getImageBoard(checkDomains, checkOther) {
 	var ibDomains = {
 		'02ch.net': [{
 			ru: { value: true },
@@ -8325,6 +8325,13 @@ function getImageBoard() {
 
 			nul: { value: true }
 		}, 'script[src*="kusaba"]'],
+		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.pm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.re'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.tf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.wf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.yt'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		'2--ch.su': [{
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 			qTable: { value: 'table:not(.postfiles)' },
@@ -8351,8 +8358,7 @@ function getImageBoard() {
 					set_preferred_stylesheet = get_active_stylesheet =\
 					get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =\
 					conf = expand = wipe = fastload_listen = threadHide = threadShow =\
-					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};'
-				);
+					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};');
 				return false;
 			} },
 
@@ -8962,29 +8968,38 @@ function getImageBoard() {
 		trTag: 'TR'
 	};
 
-	var i, ibObj = ibBase, dm = window.location.hostname
+	var i, ibObj, dm = window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
-	if(dm in ibDomains) {
-		ibObj = (function createBoard(info) {
-			return Object.create(
-				info[2] ? createBoard(ibDomains[info[2]]) :
-				info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
-				ibBase, info[0]
-			);
-		})(ibDomains[dm]);
-	} else {
+	if(checkDomains) {
+		if(dm in ibDomains) {
+			ibObj = (function createBoard(info) {
+				return Object.create(
+					info[2] ? createBoard(ibDomains[info[2]]) :
+					info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
+					ibBase, info[0]
+				);
+			})(ibDomains[dm]);
+			checkOther = false;
+		}
+	}
+	if(checkOther) {
 		for(i in ibEngines) {
 			if($q(i, doc)) {
 				ibObj = Object.create(ibBase, ibEngines[i]);
 				break;
 			}
 		}
+		if(!ibObj) {
+			ibObj = ibBase;
+		}
 	}
-	ibObj.dm = dm;
-	if(!ibObj.init || !ibObj.init()) {
-		dForm = $q(ibObj.qDForm, doc);
+	if(ibObj) {
+		ibObj.dm = dm;
+		if(!ibObj.init || !ibObj.init()) {
+			return ibObj;
+		}
 	}
-	return ibObj;
+	return null;
 };
 
 
@@ -9076,7 +9091,7 @@ function getNavFuncs() {
 //												INITIALIZATION
 //============================================================================================================
 
-function Initialization() {
+function Initialization(checkDomains) {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
@@ -9085,7 +9100,9 @@ function Initialization() {
 		return false;
 	}
 	var intrv, url;
-	aib = getImageBoard();
+	if(!aib) {
+		aib = getImageBoard(checkDomains, true);
+	}
 	switch(window.name) {
 	case '': break;
 	case 'de-iframe-pform':
@@ -9103,6 +9120,7 @@ function Initialization() {
 		liteMode = true;
 		pr = {};
 	}
+	dForm = $q(aib.qDForm, doc);
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
@@ -9636,9 +9654,9 @@ function addDelformStuff(isLog) {
 	}
 }
 
-function doScript() {
+function doScript(checkDomains) {
 	var initTime = oldTime = Date.now();
-	if(!Initialization()) {
+	if(!Initialization(checkDomains)) {
 		return;
 	}
 	$log('Init');
@@ -9689,9 +9707,10 @@ function doScript() {
 }
 
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
-	doScript();
+	doScript(true);
 } else {
-	doc.addEventListener('DOMContentLoaded', doScript, false);
+	aib = getImageBoard(true, false);
+	doc.addEventListener('DOMContentLoaded', doScript.bind(null, false), false);
 }
 
 })(window.opera && window.opera.scriptStorage);
