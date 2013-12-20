@@ -6394,8 +6394,7 @@ ImageData.prototype = {
 		return dat[0];
 	},
 	get wrap() {
-		var a = this.el.parentNode,
-			val = aib.getPicWrap(a.tagName === 'A' ? a : this.el);
+		var val = aib.getPicWrap(this.el.parentNode);
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	},
@@ -8746,10 +8745,8 @@ function getImageBoard(checkDomains, checkOther) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 			} },
 			getPicWrap: { value: function(el) {
-				if(!el.previousElementSibling) {
-					el = el.parentNode;
-				}
-				return (el.previousElementSibling ? el : el.parentNode).parentNode;
+				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
+					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
 			} },
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
@@ -8785,9 +8782,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
-			getPicWrap: { value: function(el) {
-				return el.parentNode.parentNode;
-			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, #newposts_get, .extrabtns, .ui-resizable-handle, .replymode, blockquote + a { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			isBB: { value: true },
@@ -8854,10 +8848,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qTrunc: '.abbrev, .abbr, .shortened',
 		getImgLink: function(img) {
 			var el = img.parentNode;
-			while(el && el.tagName !== 'A') {
-				el = el.parentNode;
-			}
-			return el;
+			return el.tagName === 'SPAN' ? el.parentNode : el;
 		},
 		getImgSrc: function(el) {
 			return el.getAttribute('src');
@@ -8895,8 +8886,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return op;
 		},
 		getPicWrap: function(el) {
-			var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
-			return node.tagName === 'SPAN' ? node.parentNode : node;
+			return (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 		},
 		getPNum: function(post) {
 			return post.id.match(/\d+/)[0];
