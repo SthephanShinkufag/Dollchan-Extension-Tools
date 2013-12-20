@@ -533,11 +533,8 @@ function $btn(val, ttl, Fn) {
 	return $new('input', {'type': 'button', 'value': val, 'title': ttl}, {'click': Fn});
 }
 
-function $script(text, del) {
-	var s = doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null));
-	if(del) {
-		$del(s);
-	}
+function $script(text) {
+	$del(doc.head.appendChild($new('script', {'type': 'text/javascript', 'text': text}, null)));
 }
 
 function $css(text) {
@@ -3777,10 +3774,8 @@ function embedMP3Links(post) {
 				link.addEventListener('play', updater.addPlayingTag, false);
 				link.addEventListener('pause', updater.removePlayingTag, false);
 			}
-		} else {
-			if(!$q('object[FlashVars*="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
-			}
+		} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
+			el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
 		}
 	}
 }
@@ -3861,7 +3856,7 @@ function loadFavorThread() {
 		return;
 	}
 	if((post = pByNum[el.getAttribute('info').split(';')[2]]) && !post.hidden) {
-		scrollTo(0, pageYOffset + post.getBoundingClientRect().top);
+		scrollTo(0, pageYOffset + post.el.getBoundingClientRect().top);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -8357,7 +8352,7 @@ function getImageBoard() {
 					set_preferred_stylesheet = get_active_stylesheet =\
 					get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =\
 					conf = expand = wipe = fastload_listen = threadHide = threadShow =\
-					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};', true
+					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};'
 				);
 				return false;
 			} },
@@ -9122,11 +9117,11 @@ function Initialization() {
 		$script((
 			'window.top.postMessage("A' + window.name + '$#$' +
 			getSubmitResponse(doc, true).join('$#$') + '", "*");'
-		).replace(/\n|\r/g, '\\n'), true);
+		).replace(/\n|\r/g, '\\n'));
 		return false;
 	case 'de-iframe-fav':
 		intrv = setInterval(function() {
-			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");', true);
+			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
 		}, 1500);
 		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
 		liteMode = true;
