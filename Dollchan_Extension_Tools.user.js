@@ -3126,7 +3126,7 @@ workerQueue.prototype = {
 function addImgFileIcon(url, info) {
 	var app, ext, type = info['type'],
 		fName = url.substring(url.lastIndexOf("/") + 1),
-		aEl = $q(aib.qImgLink, aib.getPicWrap(this));
+		aEl = $q(aib.qImgLink, aib.getImgWrap(this));
 	aEl.setAttribute('download', fName);
 	if(typeof type !== 'undefined') {
 		if(type === 2) {
@@ -3299,7 +3299,7 @@ function loadDocFiles(imgOnly) {
 				}
 				if(!imgOnly) {
 					el.classList.add('de-thumb');
-					el.src = this[3].href = $q(aib.qImgLink, aib.getPicWrap(this[3])).href =
+					el.src = this[3].href = $q(aib.qImgLink, aib.getImgWrap(this[3])).href =
 						name = 'images/' + name;
 				}
 				tar.addFile(name, data);
@@ -6394,7 +6394,7 @@ ImageData.prototype = {
 		return dat[0];
 	},
 	get wrap() {
-		var val = aib.getPicWrap(this.el.parentNode);
+		var val = aib.getImgWrap(this.el.parentNode);
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	},
@@ -8340,9 +8340,6 @@ function getImageBoard(checkDomains, checkOther) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 			} },
-			getPicWrap: { value: function(el) {
-				return el.parentNode.parentNode;
-			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, span[id$="_display"] { display: none !important; }' },
 			docExt: { value: '.html' },
 			getPageUrl: { value: function(b, p) {
@@ -8531,7 +8528,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qThread: { value: '.thread_body' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' },
-			getPicWrap: { value: function(el) {
+			getImgWrap: { value: function(el) {
 				return el.parentNode;
 			} },
 			getSage: { value: function(post) {
@@ -8744,7 +8741,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
 			} },
-			getPicWrap: { value: function(el) {
+			getImgWrap: { value: function(el) {
 				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
 					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
 			} },
@@ -8864,6 +8861,10 @@ function getImageBoard(checkDomains, checkOther) {
 			var w = info.match(/(\d+(?:\.\d+)?)\s*([mkк])?i?[bб]/i);
 			return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
 		},
+		getImgWrap: function(el) {
+			var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
+			return node.tagName === 'SPAN' ? node.parentNode : node;
+		},
 		getOmitted: function(el, len) {
 			var txt;
 			return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] + 1 : 1;
@@ -8884,9 +8885,6 @@ function getImageBoard(checkDomains, checkOther) {
 				thr.appendChild(op);
 			}
 			return op;
-		},
-		getPicWrap: function(el) {
-			return (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
 		},
 		getPNum: function(post) {
 			return post.id.match(/\d+/)[0];
