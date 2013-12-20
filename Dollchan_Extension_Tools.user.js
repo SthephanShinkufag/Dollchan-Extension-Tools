@@ -212,7 +212,7 @@ Lng = {
 		'updScript':	['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
 		'scrUpdIntrv': {
 			sel:		[['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
-			txt:		['интервал проверки', 'check interval']
+			txt:		['', '']
 		},
 
 		'language': {
@@ -1534,6 +1534,7 @@ function fixSettings() {
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
+		'input[info="linksOver"]',
 		'input[info="linksOut"]',
 		'input[info="markViewed"]',
 		'input[info="strikeHidd"]',
@@ -1905,7 +1906,7 @@ function getCfgCommon() {
 		$if(!nav.Opera || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
-				optSel('scrUpdIntrv', true, null),
+				optSel('scrUpdIntrv', false, null),
 				$btn(Lng.checkNow[lang], '', function() {
 					var el = $id('de-cfg-updresult');
 					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
