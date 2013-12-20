@@ -3255,7 +3255,7 @@ function preloadImages(post) {
 				nExp &= !Cfg['openGIFs'];
 			}
 			if(nExp) {
-				el.setAttribute('de-thumb-url', el.getAttribute('src'));
+				el.setAttribute('de-thumb-url', aib.getImgSrc(el));
 			}
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
@@ -6394,7 +6394,8 @@ ImageData.prototype = {
 		return dat[0];
 	},
 	get wrap() {
-		var val = aib.getPicWrap(this.el.parentNode);
+		var a = this.el.parentNode,
+			val = aib.getPicWrap(a.tagName === 'A' ? a : this.el);
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	},
@@ -6870,14 +6871,14 @@ Post.prototype = {
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			data[el.getAttribute('src')] = new ImageData(this, el);
+			data[aib.getImgSrc(el)] = new ImageData(this, el);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
 				'$first': { get: function() { return this[this['$firstSrc']]; } },
-				'$firstSrc': { value: els[0].getAttribute('src') },
+				'$firstSrc': { value: aib.getImgSrc(els[0]) },
 				'get': { value: function(el) {
-					return this[el.getAttribute('src')] || this[el.getAttribute('de-thumb-url')];
+					return this[aib.getImgSrc(el)] || this[el.getAttribute('de-thumb-url')];
 				} }
 			});
 		} else {
@@ -7355,7 +7356,7 @@ Post.prototype = {
 		var data, iEl, mover, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
 		switch(el.className) {
 		case 'de-img-full de-img-center':
-			mover= el.mover;
+			mover = el.mover;
 			if(mover.moved) {
 				mover.moved = false;
 				break;
@@ -8736,7 +8737,10 @@ function getImageBoard(checkDomains, checkOther) {
 				if(el.tagName === 'A') {
 					return el;
 				}
-				return $q('.fileinfo > a', el.parentNode);
+				return $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+			} },
+			getImgSrc: { value: function(el) {
+				return this.getImgLink(el).href;
 			} },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
@@ -8745,7 +8749,7 @@ function getImageBoard(checkDomains, checkOther) {
 				if(!el.previousElementSibling) {
 					el = el.parentNode;
 				}
-				return el.parentNode;
+				return (el.previousElementSibling ? el : el.parentNode).parentNode;
 			} },
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
@@ -8854,6 +8858,9 @@ function getImageBoard(checkDomains, checkOther) {
 				el = el.parentNode;
 			}
 			return el;
+		},
+		getImgSrc: function(el) {
+			return el.getAttribute('src');
 		},
 		getImgSize: function(infoEl, info) {
 			if(info) {
