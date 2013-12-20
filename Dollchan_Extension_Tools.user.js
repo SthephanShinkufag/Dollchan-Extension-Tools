@@ -6750,7 +6750,12 @@ Post.prototype = {
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
-				this.toggleUserVisib();
+				if(this._isPview) {
+					pByNum[this.num].toggleUserVisib();
+					Pview.del(this);
+				} else {
+					this.toggleUserVisib();
+				}
 				$del(this._menu);
 				this._menu = null;
 				return;
@@ -7654,7 +7659,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_showPost: { value: function pvShowPost(post) {
 		var panel, el = this.el = post.el.cloneNode(true),
-			pText = '<span class="de-btn-rep"></span>' +
+			pText = '<span class="de-btn-hide"></span><span class="de-btn-rep"></span>' +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
@@ -8314,16 +8319,14 @@ function getImageBoard() {
 			} },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-				'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr { display: none !important; }\
+				'#postform nobr, .replieslist, #captcha_status, .postnode + a, .postblock + td > small, .content-background > hr, span[style="float: right;"] { display: none !important; }\
 				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
 				.ui-resizable { display: inline !important; }\
 				form textarea { resize: both !important; }'
 			} },
 			ru: { value: true },
 			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' },
-			init: { value: function() {
-				$each($Q('span[style="float: right;"]', doc.body), $del);
-			} },
+
 			nul: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'2--ch.su': [{
