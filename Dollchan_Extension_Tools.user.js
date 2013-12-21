@@ -8479,6 +8479,7 @@ function getImageBoard(checkDomains, checkOther) {
 		'britfa.gs': [{
 			cFileInfo: { value: 'fileinfo' },
 			qBan: { value: 'font[color="#F00"]' },
+			qDForm: { value: '.threadz' },
 			qImgLink: { value: '.fileinfo' },
 			qTable: { value: 'div[id^="replies"] > table' },
 			getImgSize: { value: function(infoEl, info) {
