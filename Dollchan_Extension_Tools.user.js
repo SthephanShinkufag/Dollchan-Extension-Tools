@@ -8467,7 +8467,7 @@ function getImageBoard(checkDomains, checkOther) {
 			_7ch: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'britfa.gs': [{
-			return true;
+			init: { value: function() { return true; } }
 		}],
 		'dfwk.ru': [{
 			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
@@ -8932,7 +8932,7 @@ function getImageBoard(checkDomains, checkOther) {
 		trTag: 'TR'
 	};
 
-	var i, ibObj, dm = window.location.hostname
+	var i, ibObj = null, dm = window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
@@ -8959,11 +8959,8 @@ function getImageBoard(checkDomains, checkOther) {
 	}
 	if(ibObj) {
 		ibObj.dm = dm;
-		if(!ibObj.init || !ibObj.init()) {
-			return ibObj;
-		}
 	}
-	return null;
+	return ibObj;
 };
 
 
@@ -9066,6 +9063,9 @@ function Initialization(checkDomains) {
 	var intrv, url;
 	if(!aib) {
 		aib = getImageBoard(checkDomains, true);
+	}
+	if(aib.init && aib.init()) {
+		return false;
 	}
 	switch(window.name) {
 	case '': break;
