@@ -6708,16 +6708,6 @@ Post.prototype = {
 						this._getFull(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(aib.brit) {
-						if(temp.className === 'reflink') {
-							el.removeAttribute('onclick');
-							el.target = '_blank';
-							if(this.isOp) {
-								el.href = aib.getThrdUrl(brd, this.num);
-							} else {
-								el.href = aib.getThrdUrl(brd, this.tNum) + '#' + this.num;
-							}
-						}
 					} else if(Cfg['insertNum'] && pr.form && temp === this._pref &&
 						!/Reply|Ответ/.test(el.textContent))
 					{
@@ -8477,39 +8467,7 @@ function getImageBoard(checkDomains, checkOther) {
 			_7ch: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'britfa.gs': [{
-			cFileInfo: { value: 'fileinfo' },
-			qBan: { value: 'font[color="#F00"]' },
-			qDForm: { value: '.threadz' },
-			qImgLink: { value: '.fileinfo' },
-			qTable: { value: 'div[id^="replies"] > table' },
-			getImgSize: { value: function(infoEl, info) {
-				var m = infoEl.onclick.toString().split("', '");
-				return [m[3], m[4]];
-			} },
-			getImgWeight: { value: function(info) {
-				return -1;
-			} },
-			getOp: { value: function(thr) {
-				var op = $c('originalpost', thr),
-					msg = $t('blockquote', op);
-				msg.insertAdjacentHTML('beforebegin', '<div style="clear: left;"></div>');
-				while((el = thr.firstChild).tagName !== 'TABLE') {
-					op.insertBefore(el, msg);
-				}
-				thr.replaceChild(op, thr.firstChild);
-				op.removeAttribute('class');
-				op.style.display = 'block';
-				return op;
-			} },
-			getTNum: { value: function(op) {
-				return $q('.reflink > a', op).textContent;
-			} },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, .postthreadlinks, .pagethreadlinks, .pwpostblock { display: none !important; }\
-				.de-ppanel { float: left; margin-top: 0.45em; }\
-				a + .threadlinktext { position: relative; top: 17px; }\
-				.de-btn-src { padding: 0px 10px 10px 0px !important; background-size: cover !important; }' },
-
-			brit: { value: true }
+			return true;
 		}],
 		'dfwk.ru': [{
 			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
