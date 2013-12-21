@@ -6749,6 +6749,12 @@ Post.prototype = {
 			case 'de-btn-hide-user':
 				if(this._isPview) {
 					pByNum[this.num].toggleUserVisib();
+					this.btns.firstChild.className = 'de-btn-hide-user';
+					if(pByNum[this.num].hidden) {
+						this.btns.classList.add('de-post-hid');
+					} else {
+						this.btns.classList.remove('de-post-hid');
+					}
 				} else {
 					this.toggleUserVisib();
 				}
@@ -7654,7 +7660,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 	} },
 	_showPost: { value: function pvShowPost(post) {
-		var panel, el = this.el = post.el.cloneNode(true),
+		var btns, el = this.el = post.el.cloneNode(true),
 			pText = '<span class="de-btn-rep"></span>' +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
@@ -7671,9 +7677,13 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 		this._pref = $q(aib.qRef, el);
 		if(post.inited) {
-			panel = $c('de-ppanel', el);
-			panel.classList.remove('de-ppanel-cnt');
-			panel.innerHTML = '<span class="de-btn-hide"></span>' + pText;
+			this.btns = btns = $c('de-ppanel', el);
+			btns.classList.remove('de-ppanel-cnt');
+			if(post.hidden) {
+				btns.classList.add('de-post-hid');
+			}
+			btns.innerHTML = '<span class="de-btn-hide' +
+				(post.userToggled ? '-user' : '') + '"></span>' + pText;
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
 			$each(getImages(el), function(el) {
