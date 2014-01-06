@@ -3942,7 +3942,8 @@ function loadPages(count) {
 	Pview.clearCache();
 	isExpImg = false;
 	pByNum = Object.create(null);
-	firstThr.gInfo.tNums = [];
+	Thread.tNums = [];
+	Post.hiddenNums = [];
 	$disp(dForm);
 	dForm.innerHTML = '';
 	while(i < len) {
@@ -6585,6 +6586,7 @@ function Post(el, thr, num, count, isOp, prev) {
 	el.addEventListener('mouseover', this, true);
 	el.addEventListener('mouseout', this, true);
 }
+Post.hiddenNums = [];
 Post.getWrds = function(text) {
 	return text.replace(/\s+/g, ' ').replace(/[^a-zа-яё ]/ig, '').substring(0, 800).split(' ');
 };
@@ -7057,13 +7059,7 @@ Post.prototype = {
 		this.hidden = hide;
 		this.toggleContent(hide);
 		if(Cfg['strikeHidd']) {
-			setTimeout(function(isHide) {
-				$each($Q('a[href*="#' + this.num + '"]', dForm), isHide ? function(el) {
-					el.classList.add('de-ref-hid');
-				} : function(el) {
-					el.classList.remove('de-ref-hid');
-				});
-			}.bind(this, hide), 1e3);
+			setTimeout(this._strikePostNum.bind(this, hide), 1e3);
 		}
 	},
 	spellHide: function(note) {
@@ -7570,6 +7566,22 @@ Post.prototype = {
 			thumb.style.display = '';
 			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
 		}
+	},
+	_strikePostNum: function(isHide) {
+		var idx, num = this.num;
+		if(isHide) {
+			Post.hiddenNums.push(+num);
+		} else {
+			idx = Post.hiddenNums.indexOf(+num);
+			if(idx !== -1) {
+				Post.hiddenNums.splice(idx, 1);
+			}
+		}
+		$each($Q('a[href*="#' + num + '"]', dForm), isHide ? function(el) {
+			el.classList.add('de-ref-hid');
+		} : function(el) {
+			el.classList.remove('de-ref-hid');
+		});
 	}
 }
 
@@ -7919,7 +7931,7 @@ function addRefMap(post, tUrl) {
 }
 
 function genRefMap(posts, hideRefs) {
-	var tc, lNum, post, ref, i, len, links, pNum, opNums = firstThr.gInfo.tNums;
+	var tc, lNum, post, ref, i, len, links, pNum, opNums = Thread.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
 			tc = links[i].textContent;
@@ -7946,7 +7958,8 @@ function genRefMap(posts, hideRefs) {
 
 function updRefMap(post, add) {
 	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
-		opNums = add && firstThr.gInfo.tNums;
+		strNums = add && Cfg['strikeHidd'] && Post.hiddenNums.length !== 0 ? Post.hiddenNums : null,
+		opNums = add && Thread.tNums;
 	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
 		link = links[i];
 		tc = link.textContent;
@@ -7956,6 +7969,9 @@ function updRefMap(post, add) {
 				link.href = '#' + (aib.fch ? 'p' : '') + lNum;
 			}
 			if(add) {
+				if(strNums && strNums.lastIndexOf(lNum) !== -1) {
+					link.classList.add('de-ref-hid');
+				}
 				if(opNums.indexOf(lNum) !== -1) {
 					link.classList.add('de-opref');
 				}
@@ -8007,7 +8023,7 @@ function Thread(el, prev) {
 		num = aib.getTNum(el),
 		omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, el), len);
 	this.num = num;
-	this.gInfo.tNums.push(+num);
+	Thread.tNums.push(+num);
 	this.pcount = omt + len;
 	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
 		prev ? prev.last : null);
@@ -8043,13 +8059,11 @@ Thread.loadNewPosts = function(e) {
 	$alert(Lng.loading[lang], 'newposts', true);
 	firstThr.clearPostsMarks();
 	updater.forceLoad();
-}
+};
+Thread.tNums = [];
 Thread.prototype = {
 	hasNew: false,
 	hidden: false,
-	gInfo: {
-		tNums: []
-	},
 	loadedOnce: false,
 	next: null,
 	get lastNotDeleted() {
