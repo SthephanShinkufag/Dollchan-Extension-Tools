@@ -3092,7 +3092,11 @@ function workerQueue(mReqs, wrkFn, errFn) {
 	this.run = this._runWrk;
 	this.wrks = new $workers('self.onmessage = function(e) {\
 		var info = (' + String(wrkFn) + ')(e.data[1]);\
-		self.postMessage([e.data[0], info], info.data ? [info.data] : null);\
+		if(info.data) {\
+			self.postMessage([e.data[0], info], [info.data]);\
+		} else {\
+			self.postMessage([e.data[0], info]);\
+		}\
 	}', mReqs);
 	this.errFn = errFn;
 }
@@ -6324,6 +6328,42 @@ ImageData.prototype = {
 		ctx.drawImage(img, 0, 0);
 		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
 	},
+	getHash: function(Fn) {
+		if(this.hasOwnProperty('hash')) {
+			Fn(this.hash);
+		} else {
+			this.callback = Fn;
+			if(!this._processing) {
+				var hash = this._maybeGetHash();
+				if(hash !== null) {
+					Fn(hash);
+				}
+			}
+		}
+	},
+	get hash() {
+		var hash;
+		if(this._processing) {
+			this._needToHide = true;
+		} else if(aib.fch || this.el.complete) {
+			hash = this._maybeGetHash(null);
+			if(hash !== null) {
+				return hash;
+			}
+		} else {
+			this.el.onload = this.el.onerror = this._onload.bind(this);
+		}
+		this.post.hashImgsBusy++;
+		return null;
+	},
+	get height() {
+		var dat = aib.getImgSize(this.infoEl, this.info);
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[1];
+	},
 	get infoEl() {
 		var val = $c(aib.cFileInfo, this.wrap);
 		Object.defineProperty(this, 'infoEl', { value: val });
@@ -6338,37 +6378,6 @@ ImageData.prototype = {
 		var val = /\.jpe?g|\.png|\.gif|^blob:/i.test(this.src);
 		Object.defineProperty(this, 'isImage', { value: val });
 		return val;
-	},
-	get hash() {
-		var hash;
-		if(this.el.complete) {
-			hash = this._getHash(false);
-			if(hash !== null) {
-				return hash;
-			}
-		} else {
-			this.el.onload = this.el.onerror = this._onload.bind(this);
-		}
-		this.post.hashImgsBusy++;
-		return null;
-	},
-	get hashSync() {
-		var hash;
-		if(this.hasOwnProperty('hash')) {
-			hash = this.hash;
-		} else {
-			hash = this._getHash(true);
-		}
-		Object.defineProperty(this, 'hashSync', { value: hash });
-		return hash;
-	},
-	get height() {
-		var dat = aib.getImgSize(this.infoEl, this.info);
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[1];
 	},
 	get src() {
 		var val = this.el.src;
@@ -6432,39 +6441,57 @@ ImageData.prototype = {
 			delete this.workers;
 		},
 	},
-	_getHash: function(sync) {
+	_callback: null,
+	_processing: false,
+	_needToHide: false,
+	_endLoad: function(hash) {
+		this.post.hashImgsBusy--;
+		if(this.post.hashHideFun !== null) {
+			this.post.hashHideFun(hash);
+		}
+	},
+	_maybeGetHash: function() {
 		var data, val;
-		if(this.el.naturalWidth + this.el.naturalHeight === 0) {
-			val = -1;
-		} else if(this.src in this._glob.storage) {
+		if(this.src in this._glob.storage) {
 			val = this._glob.storage[this.src];
+		} else if(aib.fch) {
+			downloadImgData(this.el.src, this._onload4chan.bind(this));
+			this._callback = null;
+			return null;
+		} else if(this.el.naturalWidth + this.el.naturalHeight === 0) {
+			val = -1;
 		} else {
 			data = this.data;
-			if(sync) {
-				val = genImgHash(data).hash;
-			} else {
-				this._glob.workers.run(data, [data[0]], this._wrkEnd.bind(this));
-				return null;
-			}
+			this._glob.workers.run(data, [data[0]], this._wrkEnd.bind(this));
+			this._callback = null;
+			return null;
 		}
 		Object.defineProperty(this, 'hash', { value: val });
 		return val;
 	},
-	_onload: function(Fn, arg) {
-		var hash = this._getHash(false);
+	_onload: function() {
+		var hash = this._maybeGetHash(null);
 		if(hash !== null) {
-			this.post.hashImgsBusy--;
-			if(this.post.hashHideFun !== null) {
-				this.post.hashHideFun(hash);
-			}
+			this._endLoad(hash);
+		}
+	},
+	_onload4chan: function(maybeData) {
+		if(maybeData === null) {
+			Object.defineProperty(this, 'hash', { value: -1 });
+			this._endLoad(-1);
+		} else {
+			var buffer = maybeData.buffer,
+				data = [buffer, this.el.naturalWidth, this.el.naturalHeight];
+			this._glob.workers.run(data, [buffer], this._wrkEnd.bind(this));
 		}
 	},
 	_wrkEnd: function(data) {
 		var hash = data.hash;
 		Object.defineProperty(this, 'hash', { value: hash });
-		this.post.hashImgsBusy--;
-		if(this.post.hashHideFun !== null) {
-			this.post.hashHideFun(hash);
+		this._endLoad(hash);
+		if(this.callback) {
+			this.callback(hash);
+			this.callback = null;
 		}
 		this._glob.storage[this.src] = hash;
 	}
@@ -7032,9 +7059,9 @@ Post.prototype = {
 		if(Cfg['strikeHidd']) {
 			setTimeout(function(isHide) {
 				$each($Q('a[href*="#' + this.num + '"]', dForm), isHide ? function(el) {
-					el.className = 'de-ref-hid';
+					el.classList.add('de-ref-hid');
 				} : function(el) {
-					el.className = null;
+					el.classList.remove('de-ref-hid');
 				});
 			}.bind(this, hide), 1e3);
 		}
@@ -7433,7 +7460,11 @@ Post.prototype = {
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
-		case 'spell-ihash': addSpell(4 /* #ihash */, this.imagesData['$first'].hashSync, false); return;
+		case 'spell-ihash':
+			this.imagesData['$first'].getHash(function(hash) {
+				addSpell(4 /* #ihash */, hash, false);
+			});
+			return;
 		case 'spell-noimg': addSpell(0x108 /* (#all & !#img) */, '', true); return;
 		case 'spell-text':
 			var num = this.num,
