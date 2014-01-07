@@ -8377,7 +8377,9 @@ function getImageBoard(checkDomains, checkOther) {
 		get '2ch.wf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.yt'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
-		'2--ch.su': [{
+		get '2-ch.su'() { return this['@tirech']; },
+		get '2--ch.su'() { return this['@tirech']; },
+		'@tirech': [{
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 			qTable: { value: 'table:not(.postfiles)' },
 			_qThread: { value: '.threadz' },
