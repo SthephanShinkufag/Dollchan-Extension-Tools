@@ -8377,6 +8377,9 @@ function getImageBoard(checkDomains, checkOther) {
 		get '2ch.wf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.yt'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		'2chru.net': [{
+			ru: { value: true }
+		}],
 		get '2-ch.su'() { return this['@tirech']; },
 		get '2--ch.su'() { return this['@tirech']; },
 		'@tirech': [{
@@ -8394,7 +8397,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			ru: { value: true },
-			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' },
 			init: { value: function() {
 				$script('$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =\
 					doRefPreview = getRefMap = showRefMap = doRefMap = get_cookie = set_cookie =\
@@ -8525,9 +8527,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
-		'iichan.hk': [{
-			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' }
-		}],
 		'krautchan.net': [{
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'postreply' },
@@ -8635,7 +8634,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
 			qOmitted: { value: '.mess_post, .omittedposts' },
-			timePattern: { value: 'w+dd+m+yyyy+hh+ii+ss' },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
 					this.getSage = function(post) {
@@ -8853,7 +8851,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qPostForm: '#postform',
 		qRef: '.reflink',
 		qTable: 'form > table, div > table',
-		timePattern: '',
+		timePattern: 'w+dd+m+yyyy+hh+ii+ss',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
 				$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
