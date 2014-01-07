@@ -8506,6 +8506,9 @@ function getImageBoard(checkDomains, checkOther) {
 				return Object.getPrototypeOf(this).css +
 					'.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
 			} },
+			getImgWrap: { value: function(el) {
+				return el.parentNode.parentNode;
+			} },
 			timePattern: { value: 'yy+dd+nn+w+hh+ii+ss' },
 			trTag: { value: 'LI' },
 
