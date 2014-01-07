@@ -8377,9 +8377,6 @@ function getImageBoard(checkDomains, checkOther) {
 		get '2ch.wf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.yt'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
-		'2chru.net': [{
-			ru: { value: true }
-		}],
 		get '2-ch.su'() { return this['@tirech']; },
 		get '2--ch.su'() { return this['@tirech']; },
 		'@tirech': [{
@@ -8704,6 +8701,10 @@ function getImageBoard(checkDomains, checkOther) {
 			docExt: { value: '.htm' },
 
 			futa: { value: true }
+		},
+		'form[action*="imgboard.php?delete"]': {
+			ru: { value: true },
+			tinyIb: { value: true }
 		},
 		'form[name*="postcontrols"]': {
 			cFileInfo: { value: 'fileinfo' },
