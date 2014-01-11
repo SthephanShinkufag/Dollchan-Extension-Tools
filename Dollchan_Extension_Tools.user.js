@@ -5822,7 +5822,7 @@ PostForm.prototype = {
 			if(tag === '') {
 				continue;
 			}
-			html += '<span id="de-btn-' + btns['id'][i] + '" title="' + Lng.txtBtn[i][lang] +
+			html += '<span id="de-btn-' + btns['id'][i] + '" de-title="' + Lng.txtBtn[i][lang] +
 				'" de-tag="' + tag + '"' + (btns['bb'][i] ? 'de-bb' : '') + '>' + (
 					Cfg['addTextBtns'] === 2 ?
 						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
@@ -5834,11 +5834,22 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, id, el = e.target;
+		var x, start, end, scrtop, el = e.target,
+			title = el.getAttribute('de-title'),
+			id = el.id,
+			_id = id.substr(7);
+		if(keyNav && _id !== 'under' && _id !== 'sup' && _id !== 'sub' && _id !== 'quote') {
+			title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[
+				_id === 'bold' ? 12 :
+				_id === 'italic' ? 13 :
+				_id === 'strike' ? 14 :
+				_id === 'spoil' ? 15 : 16
+			]) + ']';
+		}
+		el.title = title;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
-		id = el.id;
 		if(id.startsWith('de-btn')) {
 			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
