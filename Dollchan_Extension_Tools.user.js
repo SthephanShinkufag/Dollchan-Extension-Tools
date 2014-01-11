@@ -303,7 +303,12 @@ Lng = {
 		'%l%i28 – открыть/закрыть панель%/l' +
 		'%l%i29 – включить/выключить маскировку изображений%/l' +
 		'%l%i40 – обновить тред%/l' +
-		'%l%i211 – раскрыть изображение текущего поста%/l',
+		'%l%i211 – раскрыть изображение текущего поста%/l' +
+		'%l%i212t – жирный%/l' +
+		'%l%i213t – курсив%/l' +
+		'%l%i214t – зачеркнутый%/l' +
+		'%l%i215t – спойлер%/l' +
+		'%l%i216t – код%/l',
 		'%l%i24 – previous page%/l' +
 		'%l%i33 – next page%/l' +
 		'%l%i23 – hide current post/thread%/l' +
@@ -320,7 +325,12 @@ Lng = {
 		'%l%i28 – open/close the main panel%/l' +
 		'%l%i29 – turn on/off masking images%/l' +
 		'%l%i40 – update thread%/l' +
-		'%l%i211 – expand current post\'s images%/l'
+		'%l%i211 – expand current post\'s images%/l' +
+		'%l%i212t – bold%/l' +
+		'%l%i213t – italic%/l' +
+		'%l%i214t – strike%/l' +
+		'%l%i215t – spoiler%/l' +
+		'%l%i216t – code%/l'
 	],
 
 	month:			[
@@ -2035,6 +2045,7 @@ function addSettings(Set) {
 						delStored('DESU_Config');
 						delStored('DESU_Favorites');
 						delStored('DESU_Threads');
+						delStored('DESU_keys');
 						window.location.reload();
 					}
 				})
@@ -2257,7 +2268,12 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Open/close panel          */ 0x0050 /* = P                 */,
 		/* Mask/unmask images        */ 0x0042 /* = B                 */,
 		/* Open/close settings       */ 0x4053 /* = Alt + S           */,
-		/* Expand current image      */ 0x0049 /* = I                 */
+		/* Expand current image      */ 0x0049 /* = I                 */,
+		/* Bold text                 */ 0x4042 /* = Alt + B           */,
+		/* Italic text               */ 0x4049 /* = Alt + I           */,
+		/* Strike text               */ 0x4054 /* = Alt + T           */,
+		/* Spoiler text              */ 0x4051 /* = Alt + P           */,
+		/* Code text                 */ 0x4043 /* = Alt + C           */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
@@ -2369,6 +2385,36 @@ KeyNavigation.prototype = {
 				if(post) {
 					post.toggleImages(!post.imagesExpanded);
 				}
+				break;
+			case 12: // Bold text (txt)
+				if(e.target !== pr.txta) {
+					return;
+				}
+				$id('de-btn-bold').click();
+				break;
+			case 13: // Italic text (txt)
+				if(e.target !== pr.txta) {
+					return;
+				}
+				$id('de-btn-italic').click();
+				break;
+			case 14: // Strike text (txt)
+				if(e.target !== pr.txta) {
+					return;
+				}
+				$id('de-btn-strike').click();
+				break;
+			case 15: // Spoiler text (txt)
+				if(e.target !== pr.txta) {
+					return;
+				}
+				$id('de-btn-spoil').click();
+				break;
+			case 16: // Code text (txt)
+				if(e.target !== pr.txta) {
+					return;
+				}
+				$id('de-btn-code').click();
 				break;
 			case -1:
 				if(TNum) {
