@@ -2278,11 +2278,11 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Mask/unmask images        */ 0x0042 /* = B                 */,
 		/* Open/close settings       */ 0x4053 /* = Alt + S           */,
 		/* Expand current image      */ 0x0049 /* = I                 */,
-		/* Bold text                 */ 0x4042 /* = Alt + B           */,
-		/* Italic text               */ 0x4049 /* = Alt + I           */,
-		/* Strike text               */ 0x4054 /* = Alt + T           */,
-		/* Spoiler text              */ 0x4051 /* = Alt + P           */,
-		/* Code text                 */ 0x4043 /* = Alt + C           */
+		/* Bold text                 */ 0xC042 /* = Alt + B           */,
+		/* Italic text               */ 0xC049 /* = Alt + I           */,
+		/* Strike text               */ 0xC054 /* = Alt + T           */,
+		/* Spoiler text              */ 0xC050 /* = Alt + P           */,
+		/* Code text                 */ 0xC043 /* = Alt + C           */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
