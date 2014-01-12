@@ -7125,7 +7125,7 @@ Post.prototype = {
 		this.hidden = hide;
 		this.toggleContent(hide);
 		if(Cfg['strikeHidd']) {
-			setTimeout(this._strikePostNum.bind(this, hide), 1e3);
+			setTimeout(this._strikePostNum.bind(this, hide), 50);
 		}
 	},
 	spellHide: function(note) {
