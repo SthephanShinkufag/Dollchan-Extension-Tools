@@ -930,7 +930,7 @@ function readCfg() {
 			saveCfg('timeRPattern', rp);
 		});
 	}
-	if(aib.hana) {
+	if(aib.dobr) {
 		aib.hDTFix = new dateTime(
 			'yyyy-nn-dd-hh-ii-ss',
 			'_d _M _y (_w) _h:_i ',
@@ -5558,7 +5558,7 @@ function updateCSS() {
 		x += '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
-	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.hana || aib.krau)) {
+	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.dobr || aib.krau)) {
 		x += '.de-img-full { margin: 2px 10px; }';
 	}
 	if(Cfg['delHiddPost']) {
@@ -5891,7 +5891,7 @@ PostForm.prototype = {
 			return;
 		}
 		img = this.recap ? $id('recaptcha_image') || this.recap : $t('img', getAncestor(this.cap, aib.trTag));
-		if(aib.hana || aib.krau || this.recap) {
+		if(aib.dobr || aib.krau || this.recap) {
 			img.click();
 		} else {
 			src = this._refreshCapSrc(img.getAttribute('src'), tNum);
@@ -5913,7 +5913,7 @@ PostForm.prototype = {
 			this.setReply(true, false);
 			$t('a', this._pBtn[+this.isTopForm]).className =
 				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
-			if(!TNum && !aib.kus && !aib.hana) {
+			if(!TNum && !aib.kus && !aib.dobr) {
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
 					this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' +
@@ -6268,7 +6268,7 @@ PostForm.prototype = {
 				$txtInsert(e.target, chr);
 			};
 		})();
-		if(aib.hana || aib.krau || this.recap) {
+		if(aib.dobr || aib.krau || this.recap) {
 			return;
 		}
 		this._lastCapUpdate = Date.now();
@@ -7243,7 +7243,7 @@ Post.prototype = {
 		}
 	},
 	updateMsg: function(newMsg) {
-		var origMsg = aib.hana ? this.msg.firstElementChild : this.msg,
+		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
 			ytExt = $c('de-ytube-ext', origMsg),
 			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
 		origMsg.parentNode.replaceChild(newMsg, origMsg);
@@ -7560,7 +7560,7 @@ Post.prototype = {
 		}
 	},
 	_getFull: function(node, isInit) {
-		if(aib.hana) {
+		if(aib.dobr) {
 			$del(node.nextSibling);
 			$del(node.previousSibling);
 			$del(node);
@@ -8194,7 +8194,7 @@ Thread.prototype = {
 		}.bind(Fn));
 	},
 	loadNew: function(Fn, useAPI) {
-		if(aib.hana && useAPI) {
+		if(aib.dobr && useAPI) {
 			return getJsonPosts('/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
 				function parseNewPosts(status, sText, json, xhr) {
@@ -8583,6 +8583,63 @@ function getImageBoard(checkDomains, checkOther) {
 		'dfwk.ru': [{
 			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
 		}, 'script[src*="kusaba"]'],
+		'dobrochan.com': [{
+			cSubj: { value: 'replytitle' },
+			cFileInfo: { value: 'fileinfo' },
+			qDForm: { value: 'form[action*="delete"]' },
+			qError: { value: '.post-error, h2' },
+			qOmitted: { value: '.abbrev > span:last-child' },
+			qMsg: { value: '.postbody' },
+			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
+			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' },
+			getImgLink: { value: function(img) {
+				var el = img.parentNode;
+				if(el.tagName === 'A') {
+					return el;
+				}
+				return $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+			} },
+			getImgSrc: { value: function(el) {
+				return this.getImgLink(el).href;
+			} },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+			} },
+			getImgWrap: { value: function(el) {
+				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
+					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
+			} },
+			getTNum: { value: function(op) {
+				return $q('a[name]', op).name.match(/\d+/)[0];
+			} },
+			pagesCount: { configurable: true, get: function() {
+				var a = $T('a', $c('pages', doc)),
+					aCnt = a.length,
+					val = +a[aCnt === 1 ? aCnt - 1 : aCnt - 2].textContent || 1;
+				Object.defineProperty(this, 'pagesCount', { value: val });
+				return val;
+			} },
+			css: { value: '.de-post-hid > .de-ppanel ~ *, #hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none !important; }\
+				.delete { background: none; }\
+				.delete_checkbox { position: static !important; }\
+				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
+				.de-ytube-obj + div { clear: left; }' },
+			hasPicWrap: { value: true },
+			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
+			ru: { value: true },
+			init: { value: function() {
+				if(window.location.pathname === '/settings') {
+					nav = getNavFuncs();
+					$q('input[type="button"]', doc).addEventListener('click', function() {
+						readCfg();
+						saveCfg('__hanarating', $id('rating').value);
+					}, false);
+					return true;
+				}
+			} },
+
+			dobr: { value: true }
+		}],
 		'ernstchan.com': [{
 			cFileInfo: { value: 'filesize' },
 			cOPost: { value: 'thread_OP' },
@@ -8819,63 +8876,6 @@ function getImageBoard(checkDomains, checkOther) {
 				.de-post-hid > .intro ~ *, .post-hover, div.banner { display: none !important; }' },
 
 			tiny: { value: true }
-		},
-		'script[src*="hanabira"]': {
-			cSubj: { value: 'replytitle' },
-			cFileInfo: { value: 'fileinfo' },
-			qDForm: { value: 'form[action*="delete"]' },
-			qError: { value: '.post-error, h2' },
-			qOmitted: { value: '.abbrev > span:last-child' },
-			qMsg: { value: '.postbody' },
-			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
-			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' },
-			getImgLink: { value: function(img) {
-				var el = img.parentNode;
-				if(el.tagName === 'A') {
-					return el;
-				}
-				return $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
-			} },
-			getImgSrc: { value: function(el) {
-				return this.getImgLink(el).href;
-			} },
-			getPageUrl: { value: function(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
-			} },
-			getImgWrap: { value: function(el) {
-				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
-					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
-			} },
-			getTNum: { value: function(op) {
-				return $q('a[name]', op).name.match(/\d+/)[0];
-			} },
-			pagesCount: { configurable: true, get: function() {
-				var a = $T('a', $c('pages', doc)),
-					aCnt = a.length,
-					val = +a[aCnt === 1 ? aCnt - 1 : aCnt - 2].textContent || 1;
-				Object.defineProperty(this, 'pagesCount', { value: val });
-				return val;
-			} },
-			css: { value: '.de-post-hid > .de-ppanel ~ *, #hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none !important; }\
-				.delete { background: none; }\
-				.delete_checkbox { position: static !important; }\
-				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
-				.de-ytube-obj + div { clear: left; }' },
-			hasPicWrap: { value: true },
-			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
-			ru: { value: true },
-			init: { value: function() {
-				if(window.location.pathname === '/settings') {
-					nav = getNavFuncs();
-					$q('input[type="button"]', doc).addEventListener('click', function() {
-						readCfg();
-						saveCfg('__hanarating', $id('rating').value);
-					}, false);
-					return true;
-				}
-			} },
-
-			hana: { value: true }
 		},
 		'script[src*="kusaba"]': {
 			cOPost: { value: 'postnode' },
