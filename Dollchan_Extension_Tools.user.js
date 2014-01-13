@@ -1096,9 +1096,9 @@ function addPanel() {
 					pButton('favor', '#', true) +
 					(aib.arch ? '' :
 						pButton('refresh', '#', false) +
-						(!TNum && pageNum === 0 ? '' :
+						(!TNum && (pageNum === aib.firstPage) ? '' :
 							pButton('goback', aib.getPageUrl(brd, pageNum - 1), true)) +
-						(TNum || pageNum === aib.pagesCount ? '' :
+						(TNum || pageNum === aib.lastPage ? '' :
 							pButton('gonext', aib.getPageUrl(brd, pageNum + 1), true))
 					) + pButton('goup', '#', false) +
 					pButton('godown', '#', false) +
@@ -1471,7 +1471,7 @@ function showContent(cont, id, name, remove) {
 								if((new RegExp('(?:№|No.|>)\\s*' + arr[2] + '\\s*<'))
 									.test(form.innerHTML))
 								{
-									el.innerHTML = '@' + (aib.tiny ? idx + 1 : idx);
+									el.innerHTML = '@' + idx;
 								} else if(loaded === 5 && !el.textContent.contains('@')) {
 									el.innerHTML = '@?';
 								}
@@ -2363,7 +2363,7 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 4: // Open previous page
-				if(TNum || pageNum !== 0) {
+				if(TNum || pageNum !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				}
 				break;
@@ -2448,7 +2448,7 @@ KeyNavigation.prototype = {
 					}
 					break;
 				} else if(idx === 3) { // Open next page
-					if(this.lastPage !== aib.pagesCount) {
+					if(this.lastPage !== aib.lastPage) {
 						window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 					}
 					break;
@@ -2528,7 +2528,7 @@ KeyNavigation.prototype = {
 	_scroll: function(post, toUp, toThread) {
 		var next = this._getNextVisPost(post, toThread, toUp);
 		if(!next) {
-			if(!TNum && (toUp ? pageNum > 0 : this.lastPage < aib.pagesCount)) {
+			if(!TNum && (toUp ? pageNum > aib.firstPage : this.lastPage < aib.lastPage)) {
 				window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
 			}
 			return;
@@ -3925,7 +3925,7 @@ function loadFavorThread() {
 
 function loadPages(count) {
 	var fun, i = pageNum,
-		len = Math.min(aib.pagesCount + 1, i + count),
+		len = Math.min(aib.lastPage + 1, i + count),
 		pages = [],
 		loaded = 1;
 	count = len - i;
@@ -8440,6 +8440,7 @@ function getImageBoard(checkDomains, checkOther) {
 		get '2ch.yt'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2-ch.su'() { return this['@tirech']; },
+		get '2--ch.ru'() { return this['@tirech']; },
 		get '2--ch.su'() { return this['@tirech']; },
 		'@tirech': [{
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
@@ -8491,7 +8492,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
-			qPages: { value: '.pagelist > a:not(:first-of-type)' },
+			qPages: { value: '.pagelist > a:last-child' },
 			qThread: { value: '[id*="thread"]' },
 			getTNum: { value: function(op) {
 				return $q('a[id]', op).id.match(/\d+/)[0];
@@ -8519,7 +8520,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qError: { value: '#errmsg' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
-			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a' },
+			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
@@ -8563,7 +8564,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cOPost: { value: 'op' },
 			cFileInfo: { value: 'file_size' },
 			qMsg: { value: '.message' },
-			qPages: { value: '#paging > ul > li:not([id]):not(:nth-child(2))' },
+			qPages: { value: '#paging > ul > li:nth-last-child(2)' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
@@ -8590,6 +8591,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qError: { value: '.post-error, h2' },
 			qOmitted: { value: '.abbrev > span:last-child' },
 			qMsg: { value: '.postbody' },
+			qPages: { value: '.pages > tbody > tr > td' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
 			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' },
 			getImgLink: { value: function(img) {
@@ -8611,13 +8613,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
-			} },
-			pagesCount: { configurable: true, get: function() {
-				var a = $T('a', $c('pages', doc)),
-					aCnt = a.length,
-					val = +a[aCnt === 1 ? aCnt - 1 : aCnt - 2].textContent || 1;
-				Object.defineProperty(this, 'pagesCount', { value: val });
-				return val;
 			} },
 			css: { value: '.de-post-hid > .de-ppanel ~ *, #hideinfotd, .reply_, .delete > img, .popup, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
@@ -8648,6 +8643,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
 			qMsg: { value: '.text' },
+			qPages: { value: '.pagelist > li:nth-last-child(2)' },
 			qTable: { value: 'article' },
 			qThread: { value: 'div[id^="thread_"]' },
 			getImgWrap: { value: function(el) {
@@ -8679,6 +8675,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qError: { value: '.message_text' },
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
+			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
 			qRef: { value: '.postnumber' },
 			qThread: { value: '.thread_body' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
@@ -8691,11 +8688,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
-			} },
-			pagesCount: { configurable: true, get: function() {
-				var val = $T('a', $T('td', $q('table[border="1"]', dForm))[pageNum === 0 ? 1 : 2]).length;
-				Object.defineProperty(this, 'pagesCount', { value: val });
-				return val;
 			} },
 			css: { get: function() {
 				return '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
@@ -8729,11 +8721,10 @@ function getImageBoard(checkDomains, checkOther) {
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'nido.org': [{
-			qPages: { value: '.pagenavi > tbody > tr > td > a' },
+			qPages: { value: '.pagenavi > tbody > tr > td:nth-child(2) > a:last-of-type' },
 			getSage: { value: function(post) {
 				return !!$q('a[href="mailto:cejas"]', post);
 			} },
-
 			init: { value: function() {
 				for(var src, el, i = 0, els = $Q('span[id^="pv-"]', doc.body), len = els.length; i < len; ++i) {
 					el = els[i];
@@ -8746,12 +8737,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'script[src*="kusaba"]'],
 		'ponychan.net': [{
 			cOPost: { value: 'op' },
-			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a' },
-			pagesCount: { configurable: true, get: function() {
-				var val = $Q(this.qPages, doc).length;
-				Object.defineProperty(this, 'pagesCount', { value: val });
-				return val;
-			} },
+			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a:last-of-type' },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
 					'#bodywrap3 > hr, .blotter { display: none !important; }';
@@ -8861,13 +8847,14 @@ function getImageBoard(checkDomains, checkOther) {
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.omitted' },
-			qPages: { value: '.pages > a[href]:not(:last-of-type)' },
+			qPages: { value: '.pages > a:nth-last-of-type(2)' },
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.post_no:nth-of-type(2)' },
 			qTrunc: { value: '.toolong' },
+			firstPage: { value: 1 },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
 			getPageUrl: { value: function(b, p) {
-				return p > 0 ? fixBrd(b) + (p + 1) + this.docExt : fixBrd(b);
+				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 			} },
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
@@ -8931,7 +8918,7 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		qName: '.postername, .commentpostername',
 		qOmitted: '.omittedposts',
-		qPages: 'table[border="1"] tr:first-of-type > td:nth-child(2) a',
+		qPages: 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type',
 		qPostForm: '#postform',
 		qRef: '.reflink',
 		qTable: 'form > table, div > table',
@@ -9036,8 +9023,12 @@ function getImageBoard(checkDomains, checkOther) {
 		removePost: function(post) {
 			$del(post.wrap);
 		},
-		get pagesCount() {
-			var val = $Q(this.qPages, dForm.parentNode).length;
+		get lastPage() {
+			var val = $q(this.qPages, doc).textContent.match(/\d+/g);
+			val = +val[val.length - 1];
+			if(pageNum === val + +!this.krau) {
+				val++;
+			}
 			Object.defineProperty(this, 'pagesCount', { value: val });
 			return val;
 		},
@@ -9051,6 +9042,7 @@ function getImageBoard(checkDomains, checkOther) {
 		anchor: '#',
 		docExt: '.html',
 		dm: '',
+		firstPage: 0,
 		host: window.location.hostname,
 		hasPicWrap: false,
 		prot: window.location.protocol,
@@ -9313,10 +9305,7 @@ function Initialization(checkDomains) {
 	TNum = url[2] ? url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
 		false;
-	pageNum = url[3] && !TNum ? +url[3] || 0 : 0;
-	if(aib.tiny && pageNum > 0) {
-		pageNum--;
-	}
+	pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
 	if(!aib.hasOwnProperty('docExt') && url[4]) {
 		aib.docExt = url[4];
 	}
