@@ -6424,20 +6424,16 @@ ImageData.prototype = {
 		return null;
 	},
 	get height() {
-		var dat = aib.getImgSize(this.infoEl, this.info);
+		var dat = aib.getImgSize(this.info);
 		Object.defineProperties(this, {
 			'width': { value: dat[0] },
 			'height': { value: dat[1] }
 		});
 		return dat[1];
 	},
-	get infoEl() {
-		var val = $c(aib.cFileInfo, this.wrap);
-		Object.defineProperty(this, 'infoEl', { value: val });
-		return val;
-	},
 	get info() {
-		var el = this.infoEl, val = el ? el.textContent : '';
+		var el = $c(aib.cFileInfo, this.wrap),
+			val = el ? el.textContent : '';
 		Object.defineProperty(this, 'info', { value: val });
 		return val;
 	},
@@ -6462,7 +6458,7 @@ ImageData.prototype = {
 		return val;
 	},
 	get width() {
-		var dat = aib.getImgSize(this.infoEl, this.info);
+		var dat = aib.getImgSize(this.info);
 		Object.defineProperties(this, {
 			'width': { value: dat[0] },
 			'height': { value: dat[1] }
@@ -8587,6 +8583,27 @@ function getImageBoard(checkDomains, checkOther) {
 		'dfwk.ru': [{
 			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
 		}, 'script[src*="kusaba"]'],
+		'ernstchan.com': [{
+			cFileInfo: { value: 'filesize' },
+			cOPost: { value: 'thread_OP' },
+			cReply: { value: 'post' },
+			cRPost: { value: 'thread_reply' },
+			cSubj: { value: 'subject' },
+			cTrip: { value: 'tripcode' },
+			qMsg: { value: '.text' },
+			qTable: { value: 'article' },
+			qThread: { value: 'div[id^="thread_"]' },
+			getImgWrap: { value: function(el) {
+				return el.parentNode.parentNode;
+			} },
+			css: { get: function() {
+				return '.de-post-hid > .post > section:not(.post_head) { display: none !important; }'
+			} },
+			docExt: { value: '' },
+			res: { value: 'thread/' },
+			
+			erns: { value: true }
+		}],
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
@@ -8934,15 +8951,15 @@ function getImageBoard(checkDomains, checkOther) {
 		getImgSrc: function(el) {
 			return el.getAttribute('src');
 		},
-		getImgSize: function(infoEl, info) {
+		getImgSize: function(info) {
 			if(info) {
-				var sz = info.match(/(\d+)[x×](\d+)/);
+				var sz = info.match(/(\d+)\s?[x×]\s?(\d+)/);
 				return [sz[1], sz[2]];
 			}
 			return [-1, -1];
 		},
 		getImgWeight: function(info) {
-			var w = info.match(/(\d+(?:\.\d+)?)\s*([mkк])?i?[bб]/i);
+			var w = info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
 			return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
 		},
 		getImgWrap: function(el) {
