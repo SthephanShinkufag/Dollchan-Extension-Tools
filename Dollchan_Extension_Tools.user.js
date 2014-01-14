@@ -8643,13 +8643,16 @@ function getImageBoard(checkDomains, checkOther) {
 
 			dobr: { value: true }
 		}],
-		'ernstchan.com': [{
+		get '22chan.net'() { return this['@erns']; },
+		get 'ernstchan.com'() { return this['@erns']; },
+		'@erns': [{
 			cFileInfo: { value: 'filesize' },
 			cOPost: { value: 'thread_OP' },
 			cReply: { value: 'post' },
 			cRPost: { value: 'thread_reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
+			qError: { value: '.error' },
 			qMsg: { value: '.text' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
 			qTable: { value: 'article' },
@@ -8661,6 +8664,12 @@ function getImageBoard(checkDomains, checkOther) {
 				return '.de-post-hid > .post > section:not(.post_head) { display: none !important; }'
 			} },
 			docExt: { value: '' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] },
+				});
+			} },
+			isBB: { value: true },
 			res: { value: 'thread/' },
 			
 			erns: { value: true }
