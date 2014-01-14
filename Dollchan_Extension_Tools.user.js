@@ -8750,6 +8750,19 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 
 			pony: { value: true }
+		}, 'script[src*="kusaba"]'],
+		'urupchan.ru': [{
+			init: { value: function() {
+				for(var src, el, i = 0, els = $Q('blockquote > span[style="float: left;"]', doc.body), len = els.length; i < len; ++i) {
+					el = els[i];
+					src = $t('a', el).href;
+					el.parentNode.insertAdjacentHTML('beforeend', '<a href="' + src + '">' + src + '</a>');
+					$del(el);
+				}
+			} },
+			css: { get: function() {
+				return Object.getPrototypeOf(this).css + '.replybacklinks { display: none !important }'
+			} }
 		}, 'script[src*="kusaba"]']
 	};
 
