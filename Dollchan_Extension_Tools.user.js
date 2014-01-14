@@ -9024,10 +9024,13 @@ function getImageBoard(checkDomains, checkOther) {
 			$del(post.wrap);
 		},
 		get lastPage() {
-			var val = $q(this.qPages, doc).textContent.match(/\d+/g);
-			val = +val[val.length - 1];
-			if(pageNum === val + 1) {
-				val++;
+			var val = $q(this.qPages, doc) || 0;
+			if(val) {
+				val = val.textContent.match(/\d+/g);
+				val = +val[val.length - 1];
+				if(pageNum === val + 1) {
+					val++;
+				}
 			}
 			Object.defineProperty(this, 'pagesCount', { value: val });
 			return val;
