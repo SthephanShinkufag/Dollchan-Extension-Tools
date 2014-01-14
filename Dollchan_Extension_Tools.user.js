@@ -8262,6 +8262,12 @@ Thread.prototype = {
 		pByNum[num] = post;
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		aib.appendPost(wrap, parent);
+		if(TNum && Cfg['animation']) {
+			nav.animEvent(post.el, function(node) {
+				node.classList.remove('de-open');
+			});
+			post.el.classList.add('de-open');
+		}
 		youTube.parseLinks(post);
 		if(Cfg['imgSrcBtns']) {
 			addImagesSearch(el);
