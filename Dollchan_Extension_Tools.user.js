@@ -6272,7 +6272,7 @@ PostForm.prototype = {
 			return;
 		}
 		this._lastCapUpdate = Date.now();
-		img = $q('a, img', getAncestor(this.cap, aib.trTag));
+		img = $q(aib.erns? 'img' : 'a, img', getAncestor(this.cap, aib.trTag));
 		_img = $new('img', {
 			'alt': Lng.loading[lang],
 			'title': Lng.refresh[lang],
