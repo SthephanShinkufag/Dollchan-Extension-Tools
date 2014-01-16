@@ -192,7 +192,7 @@ Lng = {
 			txt:		['кнопки форматирования текста ', 'text format buttons ']
 		},
 		'txtBtnsLoc':	['внизу', 'at bottom'],
-		'userPassw':	[' Постоянный пароль', ' Fixed password'],
+		'userPassw':	[' Постоянный пароль ', ' Fixed password '],
 		'userName':		['Постоянное имя', 'Fixed name'],
 		'userSignat':	['Постоянная подпись', 'Fixed signature'],
 		'noBoardRule':	['правила ', 'rules '],
@@ -369,6 +369,7 @@ Lng = {
 	remove:			['Удалить', 'Remove'],
 	info:			['Инфо', 'Info'],
 	undo:			['Отмена', 'Undo'],
+	change:			['Сменить', 'Change'],
 	loading:		['Загрузка...', 'Loading...'],
 	checking:		['Проверка...', 'Checking...'],
 	deleting:		['Удаление...', 'Deleting...'],
@@ -1832,7 +1833,11 @@ function getCfgForm() {
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('passwValue', 20, PostForm.setUserPassw),
-			$txt(Lng.cfg['userPassw'][lang])
+			$txt(Lng.cfg['userPassw'][lang]),
+			$btn(Lng.change[lang], '', function() {
+				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
+				PostForm.setUserPassw();
+			})
 		])),
 		$if(pr.name, $New('div', null, [
 			inpTxt('nameValue', 20, PostForm.setUserName),
