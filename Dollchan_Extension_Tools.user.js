@@ -8422,6 +8422,7 @@ function getImageBoard(checkDomains, checkOther) {
 	var ibDomains = {
 		'02ch.net': [{
 			ru: { value: true },
+			isBB: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
 		'0chan.hk': [{
@@ -8488,6 +8489,7 @@ function getImageBoard(checkDomains, checkOther) {
 				var el = $c('filetitle', post);
 				return el && el.textContent.contains('\u21E9');
 			} },
+			isBB: { value: false },
 			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' },
 
 			_410: { value: true }
@@ -8677,6 +8679,9 @@ function getImageBoard(checkDomains, checkOther) {
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
+		'inach.org': [{
+			isBB: { value: true }
+		}],
 		'krautchan.net': [{
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'postreply' },
