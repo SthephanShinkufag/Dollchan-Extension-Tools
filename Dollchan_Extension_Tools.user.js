@@ -3943,7 +3943,7 @@ function loadPages(count) {
 			for(j in pages) {
 				if(j != pageNum) {
 					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
-						j + '</center><hr>');
+						j + ' ' + Lng.page[lang] + '</center><hr>');
 				}
 				df = pages[j];
 				if(parseThrs) {
@@ -3964,6 +3964,7 @@ function loadPages(count) {
 						$alert(getPrettyErrorMessage(e), 'load-pages', true);
 						break;
 					}
+					initDelformAjax()
 					readFavorites();
 					addDelformStuff(false);
 					readUserPosts();
@@ -5459,8 +5460,8 @@ function scriptCSS() {
 			.de-open { animation: de-open .7s ease-out both; }\
 			.de-close { animation: de-close .7s ease-in both; }\
 			.de-blink { animation: de-blink .7s ease-in-out both; }\
-			.de-cfg-open { animation: de-cfg-open .3s ease-out backwards; }\
-			.de-cfg-close { animation: de-cfg-close .3s ease-in both; }\
+			.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\
+			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\
 			.de-post-new { animation: de-post-new .2s ease-out both; }';
 	}
 
@@ -5684,7 +5685,7 @@ function PostForm(form, ignoreForm, init) {
 		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = TNum;
 	this.form = form;
-	this.recap = this._getReCaptcha();
+	this.recap = $id('recaptcha_response_field');
 	this.cap = !aib.abu && this._getCaptcha();
 	this.txta = $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q(tr + ' input[type="submit"]', form);
@@ -5702,9 +5703,9 @@ function PostForm(form, ignoreForm, init) {
 	if(init) {
 		this._init();
 	}
-	if(!aib.abu && !this.cap) {
+	if(!this.cap) {
 		window.addEventListener('load', function() {
-			this.recap = this._getReCaptcha();
+			this.recap = $id('recaptcha_response_field');
 			if(this.cap = this._getCaptcha()) {
 				this._updateCaptcha();
 			}
@@ -6015,9 +6016,6 @@ PostForm.prototype = {
 		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) ||
 			this.recap;
 	},
-	_getReCaptcha: function() {
-		return $id('recaptcha_response_field');
-	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
 		var btn = $New('div', {'class': 'de-' + (TNum ? 'make-reply' : 'create-thread')}, [
@@ -6047,11 +6045,9 @@ PostForm.prototype = {
 			dForm.appendChild($c('userdelete', doc.body));
 			this.dpass = $q('input[type="password"]', dForm);
 		}
-		if(this.form) {
-			this._initForm();
+		if(!this.form) {
+			return;
 		}
-	},
-	_initForm: function() {
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
@@ -6174,27 +6170,9 @@ PostForm.prototype = {
 				$pd(e);
 				new html5Submit(this.form, this.subm, checkUpload);
 			}.bind(this);
-			dForm.onsubmit = $pd;
-			if(btn = $q(aib.qDelBut, dForm)) {
-				btn.onclick = function(e) {
-					$pd(e);
-					this.closeQReply();
-					$alert(Lng.deleting[lang], 'deleting', true);
-					new html5Submit(dForm, e.target, checkDelete);
-				}.bind(this);
-			}
 		} else if(Cfg['ajaxReply'] === 1) {
-			dForm.insertAdjacentHTML('beforeend',
-				'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
-				'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
-			);
 			this.form.target = 'de-iframe-pform';
 			this.form.onsubmit = null;
-			dForm.target = 'de-iframe-dform';
-			dForm.onsubmit = function() {
-				this.closeQReply();
-				$alert(Lng.deleting[lang], 'deleting', true);
-			}.bind(this);
 		}
 		if(this.file) {
 			PostForm.eventFiles(getAncestor(this.file, aib.trTag));
@@ -6314,32 +6292,6 @@ PostForm.prototype = {
 				tag + m[2] + tag) + m[3];
 		}
 		return rv.slice(1);
-	}
-}
-
-function addImagesSearch(el) {
-	for(var link, i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
-		link = els[i];
-		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
-			$del(link);
-			continue;
-		}
-		if(link.firstElementChild) {
-			continue;
-		}
-		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src"></span>');
-	}
-}
-
-function embedImagesLinks(el) {
-	for(var a, link, i = 0, els = $Q(aib.qMsgImgLink, el); link = els[i++];) {
-		if(link.parentNode.tagName === 'SMALL') {
-			return;
-		}
-		a = link.cloneNode(false);
-		a.target = '_blank';
-		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '" alt="' + a.href + '">';
-		$before(link, a);
 	}
 }
 
@@ -6607,6 +6559,32 @@ ImageMover.prototype = {
 		$pd(e);
 	}
 };
+
+function addImagesSearch(el) {
+	for(var link, i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
+		link = els[i];
+		if(/google\.|tineye\.com|iqdb\.org/.test(link.href)) {
+			$del(link);
+			continue;
+		}
+		if(link.firstElementChild) {
+			continue;
+		}
+		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src"></span>');
+	}
+}
+
+function embedImagesLinks(el) {
+	for(var a, link, i = 0, els = $Q(aib.qMsgImgLink, el); link = els[i++];) {
+		if(link.parentNode.tagName === 'SMALL') {
+			return;
+		}
+		a = link.cloneNode(false);
+		a.target = '_blank';
+		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '" alt="' + a.href + '">';
+		$before(link, a);
+	}
+}
 
 //============================================================================================================
 //													POST
@@ -9432,7 +9410,7 @@ function replaceDelform() {
 				$del(dForm.nextSibling);
 			}
 		}, false);
-	} else {
+	} else if(aib.rep) {
 		dForm.insertAdjacentHTML('beforebegin', replaceString(dForm.outerHTML));
 		dForm.style.display = 'none';
 		dForm.id = 'de-dform-old';
@@ -9440,6 +9418,31 @@ function replaceDelform() {
 		window.addEventListener('load', function() {
 			$del($id('de-dform-old'));
 		}, false);
+	}
+}
+
+function initDelformAjax() {
+	var btn;
+	if(Cfg['ajaxReply'] === 2) {
+		dForm.onsubmit = $pd;
+		if(btn = $q(aib.qDelBut, dForm)) {
+			btn.onclick = function(e) {
+				$pd(e);
+				pr.closeQReply();
+				$alert(Lng.deleting[lang], 'deleting', true);
+				new html5Submit(dForm, e.target, checkDelete);
+			};
+		}
+	} else if(Cfg['ajaxReply'] === 1) {
+		dForm.insertAdjacentHTML('beforeend',
+			'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
+			'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
+		);
+		dForm.target = 'de-iframe-dform';
+		dForm.onsubmit = function() {
+			pr.closeQReply();
+			$alert(Lng.deleting[lang], 'deleting', true);
+		};
 	}
 }
 
@@ -9787,10 +9790,8 @@ function doScript(checkDomains) {
 	readFavorites();
 	$log('Read config');
 	$disp(doc.body);
-	if(aib.rep || liteMode) {
-		replaceDelform();
-		$log('Replace delform');
-	}
+	replaceDelform();
+	$log('Replace delform');
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
 	pByNum = Object.create(null);
 	try {
@@ -9800,6 +9801,7 @@ function doScript(checkDomains) {
 		$disp(doc.body);
 		return;
 	}
+	initDelformAjax();
 	readViewedPosts();
 	saveFavorites();
 	$log('Parse delform');
