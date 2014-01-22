@@ -1927,16 +1927,7 @@ function getCfgCommon() {
 					});
 				})
 			]),
-			$new('div', {'id': 'de-cfg-updresult'}, null),
-			$btn('Test', '', function () {
-				GM_xmlhttpRequest({
-					'method': 'GET',
-					'url': '/' + brd + '/api/requires-captcha',
-					'onreadystatechange': function(xhr) {
-						alert(JSON.parse(xhr.responseText)['requires-captcha']);
-					}
-				});
-			})
+			$new('div', {'id': 'de-cfg-updresult'}, null)
 		]))
 	]);
 }
@@ -8456,7 +8447,7 @@ Thread.prototype = {
 function getImageBoard(checkDomains, checkOther) {
 	var ibDomains = {
 		'02ch.in': [{
-			css: { value: 'span[id$="_display"] { display: none !important; } ' },
+			css: { value: 'span[id$="_display"] { display: none !important; }' },
 			isBB: { value: true }
 		}],
 		'02ch.net': [{
@@ -8629,6 +8620,15 @@ function getImageBoard(checkDomains, checkOther) {
 
 			_7ch: { value: true }
 		}, 'script[src*="kusaba"]'],
+		'9ch.ru': [{
+			qRef: { value: '[color="#117743"]' },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.htm');
+			} },
+			getThrdUrl: { value: function(b, tNum) {
+				return this.prot + '//' + this.host + fixBrd(b) + 'index.php?res=' + tNum;
+			} }
+		}, 'form[action*="futaba.php"]'],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
@@ -9386,14 +9386,17 @@ function Initialization(checkDomains) {
 }
 
 function parseThreadNodes(form, threads) {
-	var i, len, node, fNodes = aProto.slice.call(form.childNodes),
+	var el, i, len, node, fNodes = aProto.slice.call(form.childNodes),
 		cThr = doc.createElement('div');
 	for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 		node = fNodes[i];
 		if(node.tagName === 'HR') {
-			form.insertBefore(cThr.lastChild, node);
 			form.insertBefore(cThr, node);
-			form.insertBefore(cThr.lastChild, cThr.nextSibling);
+			form.insertBefore(cThr.lastElementChild, node);
+			el = cThr.lastElementChild;
+			if(el.tagName === 'BR') {
+				form.insertBefore(el, node);
+			}
 			threads.push(cThr);
 			cThr = doc.createElement('div');
 		} else {
@@ -9416,6 +9419,7 @@ function parseDelform(node, thrds) {
 			throw new Error('No threads');
 		}
 	}
+	//alert(thrds[0].outerHTML)
 	firstThr = lThr = new Thread(thrds[0], null);
 	for(i = 1; i < len; i++) {
 		lThr = new Thread(thrds[i], lThr);
