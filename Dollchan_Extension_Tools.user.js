@@ -1927,7 +1927,16 @@ function getCfgCommon() {
 					});
 				})
 			]),
-			$new('div', {'id': 'de-cfg-updresult'}, null)
+			$new('div', {'id': 'de-cfg-updresult'}, null),
+			$btn('Test', '', function () {
+				GM_xmlhttpRequest({
+					'method': 'GET',
+					'url': '/' + brd + '/api/requires-captcha',
+					'onreadystatechange': function(xhr) {
+						alert(JSON.parse(xhr.responseText)['requires-captcha']);
+					}
+				});
+			})
 		]))
 	]);
 }
@@ -2932,14 +2941,13 @@ html5Submit.prototype = {
 			'data': new Blob(this.data),
 			'url': nav.fixLink(this.url),
 			'onreadystatechange': function(xhr) {
-				if(xhr.readyState !== 4) {
-					return;
-				}
-				if(xhr.status === 200) {
-					this(getSubmitResponse($DOM(xhr.responseText), false));
-				} else {
-					$alert(xhr.status === 0 ? Lng.noConnect[lang] :
-						'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
+				if(xhr.readyState === 4) {
+					if(xhr.status === 200) {
+						this(getSubmitResponse($DOM(xhr.responseText), false));
+					} else {
+						$alert(xhr.status === 0 ? Lng.noConnect[lang] :
+							'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
+					}
 				}
 			}.bind(this.fn)
 		});
@@ -3726,27 +3734,28 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[2] +
 					'?alt=json&fields=title/text(),author/name',
 				'onreadystatechange': function(idx, xhr) {
-					if(xhr.readyState === 4) {
-						var entry, title, author, data, post = this[0], link = this[1];
-						try {
-							if(xhr.status === 200) {
-								entry = JSON.parse(xhr.responseText)['entry'];
-								title = entry['title']['$t'];
-								author = entry['author'][0]['name']['$t'];
-							}
-						} finally {
-							if(title) {
-								link.textContent = title;
-								link.setAttribute('de-author', author);
-								vData[this[2]] = data = [title, author];
-								post.ytData.push(data);
-								post.ytLinksLoading--;
-								if(post.ytHideFun !== null) {
-									post.ytHideFun(data);
-								}
-							}
-							setTimeout(queueEnd, 250, idx);
+					if(xhr.readyState !== 4) {
+						return;
+					}
+					var entry, title, author, data, post = this[0], link = this[1];
+					try {
+						if(xhr.status === 200) {
+							entry = JSON.parse(xhr.responseText)['entry'];
+							title = entry['title']['$t'];
+							author = entry['author'][0]['name']['$t'];
 						}
+					} finally {
+						if(title) {
+							link.textContent = title;
+							link.setAttribute('de-author', author);
+							vData[this[2]] = data = [title, author];
+							post.ytData.push(data);
+							post.ytLinksLoading--;
+							if(post.ytHideFun !== null) {
+								post.ytHideFun(data);
+							}
+						}
+						setTimeout(queueEnd, 250, idx);
 					}
 				}.bind(data, qIdx)
 			});
@@ -3854,28 +3863,29 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status !== 200) {
-					if(errFn) {
-						errFn(xhr.status, xhr.statusText, origXHR);
-					}
-				} else if(Fn) {
-					do {
-						var el, text = xhr.responseText;
-						if(/<\/html>[\s\n\r]*$/.test(text)) {
-							el = $DOM(text);
-							if(!loadForm || (el = $q(aib.qDForm, el))) {
-								Fn(el, origXHR);
-								break;
-							}
-						}
-						if(errFn) {
-							errFn(0, Lng.errCorruptData[lang], origXHR);
-						}
-					} while(false);
-				}
-				loadForm = Fn = errFn = origXHR = null;
+			if(xhr.readyState !== 4) {
+				return;
 			}
+			if(xhr.status !== 200) {
+				if(errFn) {
+					errFn(xhr.status, xhr.statusText, origXHR);
+				}
+			} else if(Fn) {
+				do {
+					var el, text = xhr.responseText;
+					if(/<\/html>[\s\n\r]*$/.test(text)) {
+						el = $DOM(text);
+						if(!loadForm || (el = $q(aib.qDForm, el))) {
+							Fn(el, origXHR);
+							break;
+						}
+					}
+					if(errFn) {
+						errFn(0, Lng.errCorruptData[lang], origXHR);
+					}
+				} while(false);
+			}
+			loadForm = Fn = errFn = origXHR = null;
 		}
 	});
 	return origXHR;
@@ -3886,20 +3896,21 @@ function getJsonPosts(url, Fn) {
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 304) {
-					closeAlert($id('de-alert-newposts'));
-				} else {
-					try {
-						var json = JSON.parse(xhr.responseText);
-					} catch(e) {
-						Fn(1, e.toString(), null, origXHR);
-					} finally {
-						if(json) {
-							Fn(xhr.status, xhr.statusText, json, origXHR);
-						}
-						Fn = origXHR = null;
+			if(xhr.readyState !== 4) {
+				return;
+			}
+			if(xhr.status === 304) {
+				closeAlert($id('de-alert-newposts'));
+			} else {
+				try {
+					var json = JSON.parse(xhr.responseText);
+				} catch(e) {
+					Fn(1, e.toString(), null, origXHR);
+				} finally {
+					if(json) {
+						Fn(xhr.status, xhr.statusText, json, origXHR);
 					}
+					Fn = origXHR = null;
 				}
 			}
 		}
@@ -6099,6 +6110,47 @@ PostForm.prototype = {
 		this.subm.addEventListener('click', function(e) {
 			var temp, val = this.txta.value,
 				sVal = Cfg['signatValue'];
+			if(aib._2chru && !aib.reqCaptcha) {
+				GM_xmlhttpRequest({
+					'method': 'GET',
+					'url': '/' + brd + '/api/requires-captcha',
+					'onreadystatechange': function(xhr) {
+						if(xhr.readyState === 4 && xhr.status === 200) {
+							aib.reqCaptcha = true;
+							if(JSON.parse(xhr.responseText)['requires-captcha'] === '1') {
+								$id('captcha_tr').style.display = 'table-row';
+								$after(this.cap, $new('span', {
+									'class': 'shortened',
+									'style': 'margin: 0px 0.5em;',
+									'text': 'проверить капчу'}, {
+									'click': function() {
+										GM_xmlhttpRequest({
+											'method': 'POST',
+											'url': '/' + brd + '/api/validate-captcha',
+											'onreadystatechange': function(str) {
+												if(str.readyState === 4 && str.status === 200) {
+													if(JSON.parse(str.responseText)['status'] === 'ok') {
+														this.innerHTML = 'можно постить';
+													} else {
+														this.innerHTML = 'неверная капча';
+														setTimeout(function() {
+															this.innerHTML = 'проверить капчу';
+														}.bind(this), 1000);
+													}
+												}
+											}.bind(this)
+										})
+									}
+								}))
+							} else {
+								this.subm.click();
+							}
+						}
+					}.bind(this)
+				});
+				$pd(e);
+				return;
+			}
 			if(Cfg['warnSubjTrip'] && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$alert(Lng.subjHasTrip[lang], 'upload', false);
@@ -8403,9 +8455,12 @@ Thread.prototype = {
 
 function getImageBoard(checkDomains, checkOther) {
 	var ibDomains = {
+		'02ch.in': [{
+			css: { value: 'span[id$="_display"] { display: none !important; } ' },
+			isBB: { value: true }
+		}],
 		'02ch.net': [{
 			ru: { value: true },
-			isBB: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
 		'0chan.hk': [{
@@ -8461,6 +8516,9 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 
 			tire: { value: true }
+		}],
+		'2chru.net': [{
+			_2chru: { value: true }
 		}],
 		'410chan.org': [{
 			formButtons: { get: function() {
@@ -8645,9 +8703,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
-			css: { get: function() {
-				return '.de-post-hid > .post > section:not(.post_head) { display: none !important; }'
-			} },
+			css: { value: '.de-post-hid > .post > section:not(.post_head) { display: none !important; }' },
 			docExt: { value: '' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -8694,13 +8750,11 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
-			css: { get: function() {
-				return '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
+			css: { value: '.de-post-hid > div:not(.postheader), img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, h2, form > div:first-of-type > hr { display: none !important; }\
 					div[id^="Wz"] { z-index: 10000 !important; }\
 					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
 					.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
-					.de-ytube-obj + div { clear: left; }'
-			} },
+					.de-ytube-obj + div { clear: left; }' },
 			hasPicWrap: { value: true },
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
