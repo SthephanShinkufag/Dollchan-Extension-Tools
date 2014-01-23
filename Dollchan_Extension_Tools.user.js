@@ -2138,8 +2138,12 @@ function showMenu(el, html, inPanel, onclick) {
 	menu.addEventListener('mouseout', removeMenu, true);
 	menu.addEventListener('click', function(e) {
 		var el = e.target;
-		if(el.className = 'de-menu-item') {
+		if(el.className === 'de-menu-item') {
 			this(el);
+			do {
+				el = el.parentElement;
+			} while (!el.classList.contains('de-menu'));
+			$del(el);
 		}
 	}.bind(onclick), false);
 }
@@ -2196,7 +2200,6 @@ function addAudioNotifMenu(el) {
 		updater.enable();
 		updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
 		$id('de-btn-audio-off').id = 'de-btn-audio-on';
-		$del(el.parentNode);
 	});
 }
 
