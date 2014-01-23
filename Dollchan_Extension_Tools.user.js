@@ -5847,11 +5847,11 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, title, el = e.target,
-			id = el.id;
+		var x, start, end, scrtop, title, id, el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
+		id = el.id;
 		if(id.startsWith('de-btn')) {
 			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
