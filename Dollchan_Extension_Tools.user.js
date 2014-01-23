@@ -6164,7 +6164,7 @@ PostForm.prototype = {
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
-					'-'.repeat(50) + '\n' + navigator.userAgent + '\nv' + version);
+					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version);
 				if(!val.contains(temp)) {
 					val += temp;
 				}
@@ -9207,7 +9207,9 @@ function getNavFuncs() {
 		window.GM_xmlhttpRequest = $xhr;
 	}
 	return {
-		ua: ua,
+		get ua() {
+			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
+		},
 		Firefox: ua.contains('Gecko/'),
 		Opera: !!opera,
 		oldOpera: isOldOpera,
