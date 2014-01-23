@@ -8206,8 +8206,9 @@ Thread.prototype = {
 			if(this.pcount - nOmt - 1 <= visPosts) {
 				$del(expEl);
 			} else if(!expEl) {
-				thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="#">' +
-					Lng.collapseThrd[lang] + '</a>]</span>');
+				thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="' +
+					aib.getThrdUrl(brd, this.num) + aib.anchor + this.last.num + '">' +
+					Lng['collapseThrd'][lang] + '</a>]</span>');
 				thrEl.lastChild.onclick = function(e) {
 					$pd(e);
 					this.load(visPosts, this.el, null);
@@ -9425,7 +9426,6 @@ function parseDelform(node, thrds) {
 			throw new Error('No threads');
 		}
 	}
-	//alert(thrds[0].outerHTML)
 	firstThr = lThr = new Thread(thrds[0], null);
 	for(i = 1; i < len; i++) {
 		lThr = new Thread(thrds[i], lThr);
