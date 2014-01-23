@@ -5844,19 +5844,8 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, el = e.target,
-			title = el.getAttribute('de-title'),
-			id = el.id,
-			_id = id.substr(7);
-		if(keyNav && _id !== 'under' && _id !== 'sup' && _id !== 'sub' && _id !== 'quote') {
-			title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[
-				_id === 'bold' ? 12 :
-				_id === 'italic' ? 13 :
-				_id === 'strike' ? 14 :
-				_id === 'spoil' ? 15 : 16
-			]) + ']';
-		}
-		el.title = title;
+		var x, start, end, scrtop, title, el = e.target,
+			id = el.id;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
@@ -5864,6 +5853,23 @@ PostForm.prototype = {
 			if(e.type === 'mouseover') {
 				if(id === 'de-btn-quote') {
 					quotetxt = $txtSelect();
+				}
+				if(keyNav) {
+					switch(id.substr(7)) {
+					case 'under':
+					case 'sup':
+					case 'sub':
+					case 'quote':
+						el.title = el.getAttribute('de-title');
+						return;
+					case 'bold': x = 12; break;
+					case 'italic': x = 13; break;
+					case 'strike': x = 14; break;
+					case 'spoil': x = 15; break;
+					default: x = 16; break;
+					}
+					el.title = el.getAttribute('de-title') + ' [' +
+						KeyEditListener.getStrKey(keyNav.gKeys[x]) + ']';
 				}
 				return;
 			}
