@@ -5857,23 +5857,18 @@ PostForm.prototype = {
 				if(id === 'de-btn-quote') {
 					quotetxt = $txtSelect();
 				}
+				x = -1;
 				if(keyNav) {
 					switch(id.substr(7)) {
-					case 'under':
-					case 'sup':
-					case 'sub':
-					case 'quote':
-						el.title = el.getAttribute('de-title');
-						return;
 					case 'bold': x = 12; break;
 					case 'italic': x = 13; break;
 					case 'strike': x = 14; break;
 					case 'spoil': x = 15; break;
-					default: x = 16; break;
+					case 'code': x = 16; break;
 					}
-					el.title = el.getAttribute('de-title') + ' [' +
-						KeyEditListener.getStrKey(keyNav.gKeys[x]) + ']';
 				}
+				el.title = el.getAttribute('de-title') + (x === -1 ? '' : ' [' +
+					KeyEditListener.getStrKey(keyNav.gKeys[x]) + ']');
 				return;
 			}
 			x = pr.txta;
