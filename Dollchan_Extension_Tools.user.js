@@ -27,7 +27,6 @@ defaultCfg = {
 	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
 	'markNewPosts': 1,		//		new posts marking on page focus
 	'desktNotif':	0,		//		desktop notifications, if new posts detected
-	'addUpdBtn':	0,		// add update thread button
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	'postBtnsCSS':	2,		// post buttons style [0=text, 1=classic, 2=solid grey]
 	'noSpoilers':	1,		// open spoilers
@@ -113,7 +112,6 @@ Lng = {
 		'favIcoBlink':	['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
 		'markNewPosts':	['Выделять новые посты при переключении на тред', 'Mark new posts on page focus'],
 		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
-		'addUpdBtn':	['Добавить кнопку обновления треда', 'Add thread update button'],
 		'expandPosts': {
 			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
@@ -1723,9 +1721,6 @@ function getCfgPosts() {
 				}
 			}))
 		]),
-		lBox('addUpdBtn', true, TNum ? function() {
-			Thread.processUpdBtn(Cfg['addUpdBtn']);
-		} : null),
 		optSel('expandPosts', true, null),
 		optSel('postBtnsCSS', true, null),
 		lBox('noSpoilers', true, updateCSS),
@@ -8143,15 +8138,6 @@ function Thread(el, prev) {
 	}
 }
 Thread.parsed = false;
-Thread.processUpdBtn = function(add) {
-	if(add) {
-		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
-			Lng.getNewPosts[lang] + '</a>]</span>');
-		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
-	} else {
-		$del($c('de-thrupdbtn', dForm));
-	}
-};
 Thread.loadNewPosts = function(e) {
 	if(e) {
 		$pd(e);
@@ -9810,9 +9796,9 @@ function initPage() {
 			}
 			doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
 		}
-		if(Cfg['addUpdBtn']) {
-			Thread.processUpdBtn(true);
-		}
+		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
+			Lng.getNewPosts[lang] + '</a>]</span>');
+		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 	} else {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
