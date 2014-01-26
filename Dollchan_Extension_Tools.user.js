@@ -8729,7 +8729,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			css: { get: function() {
 				return Object.getPrototypeOf(this).css +
-					'.content > hr, .togglethread, .sage { display: none !important; }';
+					'.content > hr, .togglethread { display: none !important; }';
 			} },
 			docExt: { value: '' },
 			formButtons: { get: function() {
