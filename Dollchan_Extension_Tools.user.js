@@ -8702,7 +8702,10 @@ function getImageBoard(checkDomains, checkOther) {
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
-			css: { value: '.de-post-hid > .post > section:not(.post_head) { display: none !important; }' },
+			getSage: { value: function(post) {
+				return !!$q('.sage', post);
+			} },
+			css: { value: '.content > hr, .de-post-hid > .post > section:not(.post_head) { display: none !important; }' },
 			docExt: { value: '' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -8713,6 +8716,32 @@ function getImageBoard(checkDomains, checkOther) {
 			res: { value: 'thread/' },
 			
 			erns: { value: true }
+		}],
+		'lambdadelta.net': [{
+			cFileInfo: { value: 'filesize' },
+			cSubj: { value: 'subject' },
+			cTrip: { value: 'tripcode' },
+			qPages: { value: '.pagelist > li:nth-last-child(2)' },
+			qThread: { value: 'div[id^="thread_"]' },
+			getImgWrap: { value: function(el) {
+				return el.parentNode.parentNode;
+			} },
+			getSage: { value: function(post) {
+				return !!$q('.sage', post);
+			} },
+			css: { get: function() {
+				return Object.getPrototypeOf(this).css +
+					'.content > hr, .togglethread { display: none !important; }';
+			} },
+			docExt: { value: '' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] },
+				});
+			} },
+
+			isBB: { value: true },
+			res: { value: 'thread/' }
 		}],
 		'hiddenchan.i2p': [{
 			hid: { value: true }
