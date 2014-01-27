@@ -3742,6 +3742,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 						if(title) {
 							link.textContent = title;
 							link.setAttribute('de-author', author);
+							link.classList.add('de-ytube-titlelink');
 							vData[this[2]] = data = [title, author];
 							post.ytData.push(data);
 							post.ytLinksLoading--;
