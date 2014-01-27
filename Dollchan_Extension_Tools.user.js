@@ -3954,7 +3954,7 @@ function loadPages(count) {
 			for(j in pages) {
 				if(j != pageNum) {
 					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
-						j + ' ' + Lng.page[lang] + '</center><hr>');
+						Lng.page[lang] + ' ' + j + '</center><hr>');
 				}
 				df = pages[j];
 				if(parseThrs) {
