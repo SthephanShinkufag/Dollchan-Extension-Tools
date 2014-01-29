@@ -5534,7 +5534,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-opref::after { content: " [OP]"; }\
-		.de-hidden' + (aib._4chon ? ', .de-hidden + br' : '') + ', small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
+		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
 		' + aib.css;
 
@@ -8288,7 +8288,7 @@ Thread.prototype = {
 		var post = new Post(el, this, num, i, false, prev);
 		pByNum[num] = post;
 		Object.defineProperty(post, 'wrap', { value: wrap });
-		aib.appendPost(wrap, parent);
+		parent.appendChild(wrap);
 		if(TNum && Cfg['animation']) {
 			nav.animEvent(post.el, function(node) {
 				node.classList.remove('de-post-new');
@@ -8351,7 +8351,7 @@ Thread.prototype = {
 							post.btns.classList.add('de-ppanel-del');
 							($q('input[type="checkbox"]', post.el) || {}).disabled = true;
 						} else {
-							aib.removePost(post);
+							$del(post.wrap);
 							delete pByNum[post.num];
 							if(post.hidden) {
 								post.unhideRefs();
@@ -8583,24 +8583,6 @@ function getImageBoard(checkDomains, checkOther) {
 			rLinkClick: { value: '' },
 			rep: { value: true }
 		}],
-		'4chon.net': [{
-			_4chon: { value: true },
-			
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['**', '*', '__', '', '%%', '', '', '', 'q'] }
-				});
-			} },
-			appendPost: { value: function(el, parent) {
-				parent.appendChild(el);
-				el.insertAdjacentHTML('afterend', '<br>');
-			} },
-			removePost: { value: function(post) {
-				var w = post.wrap;
-				$del(w.nextSibling);
-				$del(w);
-			} }
-		}, 'form[name*="postcontrols"]'],
 		'7chan.org': [{
 			_7ch: { value: true },
 			
@@ -9089,12 +9071,6 @@ function getImageBoard(checkDomains, checkOther) {
 		css: '.de-post-hid > .de-ppanel ~ * { display: none !important; }',
 		init: null,
 		isBB: false,
-		appendPost: function(el, parent) {
-			parent.appendChild(el);
-		},
-		removePost: function(post) {
-			$del(post.wrap);
-		},
 		get lastPage() {
 			var el = $q(this.qPages, doc),
 				val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
