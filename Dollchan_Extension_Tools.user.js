@@ -6133,7 +6133,9 @@ PostForm.prototype = {
 				window.focus();
 			}
 		}, false);
-		this.subm.value = Lng.reply[lang];
+		if(!aib.tiny) {
+			this.subm.value = Lng.reply[lang];
+		}
 		this.subm.addEventListener('click', function(e) {
 			var temp, val = this.txta.value,
 				sVal = Cfg['signatValue'];
@@ -8759,6 +8761,13 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a:last-of-type' },
 			css: { value: '#bodywrap3 > hr { display: none !important; }' }
 		}, 'script[src*="kusaba"]'],
+		'syn-ch.ru': [{
+			css: { value: '.fa-sort, .image_id { display: none !important; }\
+				time:after { content: none; }' },
+			init: { value: function() {
+				$script('$ = function(){};');
+			} }
+		}, 'form[name*="postcontrols"]'],
 		'urupchan.ru': [{
 			urup: { value: true },
 			init: { value: function() {
@@ -8797,7 +8806,8 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			cssEn: { value: '#ABU_alert_wait, .ABU_refmap, #captcha_div + font, #CommentToolbar, .postpanel, #usrFlds + tbody > tr:first-child, body > center { display: none !important; }\
 				.de-abtn { transition: none; }\
-				#de-txt-panel { font-size: 16px !important; }' },
+				#de-txt-panel { font-size: 16px !important; }\
+				.reflink:before { content: none !important; }' },
 			isBB: { value: true },
 			init: { value: function() {
 				var cd = $id('captcha_div'),
