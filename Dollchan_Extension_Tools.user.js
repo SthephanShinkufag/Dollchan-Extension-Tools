@@ -6095,9 +6095,31 @@ PostForm.prototype = {
 				}
 			}, false);
 		}
-		if(aib.urup) {
+		if(aib.kus) {
 			while(this.subm.nextSibling) {
 				$del(this.subm.nextSibling);
+			}
+		}
+		if(Cfg['addSageBtn'] && this.mail) {
+			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
+				e.stopPropagation();
+				$pd(e);
+				toggleCfg('sageReply');
+				this._setSage();
+			}.bind(this)});
+			el = getAncestor(this.mail, 'LABEL') || this.mail;
+			if(el.nextElementSibling || el.previousElementSibling) {
+				$disp(el);
+				$after(el, btn);
+			} else {
+				$disp(getAncestor(this.mail, aib.trTag));
+				$after(this.name || this.subm, btn);
+			}
+			this._setSage();
+			if(aib.urup || aib._2chru) {
+				while(btn.nextSibling) {
+					$del(btn.nextSibling);
+				}
 			}
 		}
 		this.addTextPanel();
@@ -6207,28 +6229,6 @@ PostForm.prototype = {
 		}.bind(this), false);
 		if(this.cap) {
 			this._updateCaptcha();
-		}
-		if(Cfg['addSageBtn'] && this.mail) {
-			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
-				e.stopPropagation();
-				$pd(e);
-				toggleCfg('sageReply');
-				this._setSage();
-			}.bind(this)});
-			el = getAncestor(this.mail, 'LABEL') || this.mail;
-			if(el.nextElementSibling || el.previousElementSibling) {
-				$disp(el);
-				$after(el, btn);
-			} else {
-				$disp(getAncestor(this.mail, aib.trTag));
-				$after(this.name || this.subm, btn);
-			}
-			this._setSage();
-			if(aib.urup) {
-				while(btn.nextSibling) {
-					$del(btn.nextSibling);
-				}
-			}
 		}
 		if(Cfg['ajaxReply'] === 2) {
 			this.form.onsubmit = function(e) {
@@ -8497,7 +8497,8 @@ function getImageBoard(checkDomains, checkOther) {
 					conf = expand = wipe = fastload_listen = threadHide = threadShow =\
 					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};');
 				return false;
-			} }
+			} },
+			isBB: { value: true }
 		}],
 		get '2-ch.su'() { return this['2--ch.ru']; },
 		get '2--ch.su'() { return this['2--ch.ru']; },
@@ -8675,6 +8676,7 @@ function getImageBoard(checkDomains, checkOther) {
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'inach.org': [{
+			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			isBB: { value: true }
 		}],
 		'krautchan.net': [{
@@ -8791,7 +8793,7 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 				return this.getSage(post);
 			} },
-			cssEn: { value: '#ABU_alert_wait, .ABU_refmap, #CommentToolbar, .postpanel, #usrFlds + tbody > tr:first-child, body > center { display: none !important; }\
+			cssEn: { value: '#ABU_alert_wait, .ABU_refmap, #captcha_div + font, #CommentToolbar, .postpanel, #usrFlds + tbody > tr:first-child, body > center { display: none !important; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
 			isBB: { value: true },
