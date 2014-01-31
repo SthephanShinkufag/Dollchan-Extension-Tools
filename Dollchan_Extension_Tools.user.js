@@ -368,6 +368,7 @@ Lng = {
 	info:			['Инфо', 'Info'],
 	undo:			['Отмена', 'Undo'],
 	change:			['Сменить', 'Change'],
+	reply:			['Ответ', 'Reply'],
 	loading:		['Загрузка...', 'Loading...'],
 	checking:		['Проверка...', 'Checking...'],
 	deleting:		['Удаление...', 'Deleting...'],
@@ -6132,6 +6133,7 @@ PostForm.prototype = {
 				window.focus();
 			}
 		}, false);
+		this.subm.value = Lng.reply[lang];
 		this.subm.addEventListener('click', function(e) {
 			var temp, val = this.txta.value,
 				sVal = Cfg['signatValue'];
