@@ -8764,9 +8764,15 @@ function getImageBoard(checkDomains, checkOther) {
 		'syn-ch.ru': [{
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] },
+				});
+			} },
 			init: { value: function() {
 				$script('$ = function(){};');
-			} }
+			} },
+			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'urupchan.ru': [{
 			urup: { value: true },
