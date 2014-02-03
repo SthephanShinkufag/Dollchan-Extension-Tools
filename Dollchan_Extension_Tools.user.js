@@ -8794,6 +8794,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			init: { value: function() {
 				$script('$ = function(){};');
+				$each($Q('.mentioned.unimportant', doc), $del);
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
