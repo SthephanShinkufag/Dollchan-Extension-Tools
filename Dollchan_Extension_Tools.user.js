@@ -3685,7 +3685,19 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			post.ytData.push(dataObj);
 		}
 		if(m[4] || m[3] || m[2]) {
-			time = (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
+			if(m[4] >= 60) {
+				m[3] = (m[3] || 0) + Math.floor(m[4] / 60);
+				m[4] %= 60;
+			}
+			if(m[3] >= 60) {
+				m[2] = (m[2] || 0) + Math.floor(m[3] / 60);
+				m[3] %= 60;
+			}
+			if(m[3] || m[2]) {
+				time = (m[2] || 0) + ':' + (m[3] || 0) + ':' + (m[4] || 0);
+			} else {
+				time = m[4] + 's';
+			}
 		}
 		if(link) {
 			link.href = link.href.replace(/^http:/, 'https:');
@@ -3702,7 +3714,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		} else {
 			src = 'https://www.youtube.com/watch?v=' + m[1];
 			if(time) {
-				src += '#t=' + time;
+				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');;
 			}
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-ytube-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
