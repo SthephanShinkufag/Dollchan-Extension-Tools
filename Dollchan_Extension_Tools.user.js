@@ -6684,8 +6684,8 @@ function Post(el, thr, num, count, isOp, prev) {
 		prev.next = this;
 	}
 	el.post = this;
-	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') + '"><span class="de-btn-hide"></span>' +
-		(!(aib.tiny && !TNum) ? '<span class="de-btn-rep"></span>' : '');
+	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
+		'"><span class="de-btn-hide"></span><span class="de-btn-rep"></span>';
 	if(isOp) {
 		if(!TNum && !aib.arch) {
 			html += '<span class="de-btn-expthr"></span>';
@@ -7817,7 +7817,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_showPost: { value: function pvShowPost(post) {
 		var btns, el = this.el = post.el.cloneNode(true),
-			pText = (!(aib.tiny && !TNum) ? '<span class="de-btn-rep"></span>' : '') +
+			pText = '<span class="de-btn-rep"></span>' +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
@@ -8759,7 +8759,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el, isOp) {
 				return el.parentNode;
 			} },
-			css: { value: '.image-hover, .mentioned, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
+			css: { value: '.image-hover, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		'nido.org': [{
@@ -8794,7 +8794,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			init: { value: function() {
 				$script('$ = function(){};');
-				$each($Q('.mentioned.unimportant', doc), $del);
+				$each($Q('.mentioned', doc), $del);
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
@@ -8925,8 +8925,10 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
-			cssEn: { value: '.banner, .mentioned, .post-hover { display: none !important; }\
-				form, form table { margin: 0; }' },
+			cssEn: { get: function() {
+				return '.banner, .mentioned, .post-hover' + (TNum ? '' : ', .de-btn-rep') + ' { display: none !important; }\
+				form, form table { margin: 0; }';
+			} },
 			cssHide: { value: '.de-post-hid > .intro ~ *'}
 		},
 		'script[src*="kusaba"]': {
