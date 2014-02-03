@@ -6684,8 +6684,8 @@ function Post(el, thr, num, count, isOp, prev) {
 		prev.next = this;
 	}
 	el.post = this;
-	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
-		'"><span class="de-btn-hide"></span><span class="de-btn-rep"></span>';
+	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') + '"><span class="de-btn-hide"></span>' +
+		(!(aib.tiny && !TNum) ? '<span class="de-btn-rep"></span>' : '');
 	if(isOp) {
 		if(!TNum && !aib.arch) {
 			html += '<span class="de-btn-expthr"></span>';
@@ -7817,7 +7817,7 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_showPost: { value: function pvShowPost(post) {
 		var btns, el = this.el = post.el.cloneNode(true),
-			pText = '<span class="de-btn-rep"></span>' +
+			pText = (!(aib.tiny && !TNum) ? '<span class="de-btn-rep"></span>' : '') +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
