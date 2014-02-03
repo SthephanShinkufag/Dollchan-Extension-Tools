@@ -1108,7 +1108,7 @@ function addPanel() {
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.abu && (!aib.fch || aib.arch) ? '' :
+					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					(!TNum && !aib.arch? '' :
@@ -3714,7 +3714,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		} else {
 			src = 'https://www.youtube.com/watch?v=' + m[1];
 			if(time) {
-				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');;
+				src += '#t=' + (m[2] ? m[2] + 'h' : '') + (m[3] ? m[3] + 'm' : '') + (m[4] ? m[4] + 's' : '');
 			}
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-ytube-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
@@ -6145,7 +6145,7 @@ PostForm.prototype = {
 				window.focus();
 			}
 		}, false);
-		if(!aib.tiny) {
+		if(!aib.tiny && !aib.nul) {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function(e) {
@@ -6218,7 +6218,7 @@ PostForm.prototype = {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
 			if(this.video && (val = this.video.value) && (val = val.match(youTube.regex))) {
-				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
+				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
 				$disp(this.pForm);
@@ -8479,6 +8479,17 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
+		'0chan.hk': [{
+			nul: { value: true },
+			
+			css: { value: '#captcha_status, .content-background > hr, #postform nobr, .postnode + a, .replieslist, label[for="save"], span[style="float: right;"] { display: none !important; }\
+				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
+				.ui-resizable { display: inline !important; }\
+				form textarea { resize: both !important; }'
+			},
+			ru: { value: true },
+			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' }
+		}, 'script[src*="kusaba"]'],
 		get '22chan.net'() { return this['ernstchan.com']; },
 		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.pm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
