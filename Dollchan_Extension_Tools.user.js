@@ -39,7 +39,7 @@ defaultCfg = {
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		// 		resize large images
 	'maskImgs':		0,		// mask images
-	'prLoadImgs':	0,		// pre-load images
+	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
 	'openImgs':		0,		// open images in posts
 	'openGIFs':		0,		// 		open only GIFs in posts
@@ -252,6 +252,7 @@ Lng = {
 		'goup':		['Наверх', 'To the top'],
 		'godown':	['В конец', 'To the bottom'],
 		'expimg':	['Раскрыть картинки', 'Expand images'],
+		'preimg':	['Предзагрузка картинок', 'Preload images'],
 		'maskimg':	['Маскировать картинки', 'Mask images'],
 		'upd-on':	['Выключить автообновление треда', 'Disable thread autoupdate'],
 		'upd-off':	['Включить автообновление треда', 'Enable thread autoupdate'],
@@ -1104,6 +1105,7 @@ function addPanel() {
 					pButton('godown', '#', false) +
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', false) +
+						(Cfg['preLoadImgs'] || nav.Opera || nav.noBlob ? '' : pButton('preimg', '#', false)) +
 						pButton('maskimg', '#', true)) +
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
@@ -1148,7 +1150,7 @@ function addPanel() {
 					toggleCfg('expandPanel');
 					return;
 				case 'de-btn-settings': this.attach = toggleContent('cfg', false); break;
-				case 'de-btn-hidden': this.attach = toggleContent('hid', false); break
+				case 'de-btn-hidden': this.attach = toggleContent('hid', false); break;
 				case 'de-btn-favor': this.attach = toggleContent('fav', false); break;
 				case 'de-btn-refresh': window.location.reload(); break;
 				case 'de-btn-goup': scrollTo(0, 0); break;
@@ -1160,6 +1162,7 @@ function addPanel() {
 						post.toggleImages(isExpImg);
 					}
 					break;
+				case 'de-btn-preimg': preloadImages(null, true); break;
 				case 'de-btn-maskimg':
 					toggleCfg('maskImgs');
 					updateCSS();
@@ -3265,15 +3268,15 @@ function downloadObjInfo(obj) {
 	}
 }
 
-function preloadImages(post) {
-	if(!Cfg['preLoadImgs'] && !Cfg['openImgs']) {
+function preloadImages(post, isForce) {
+	if(!Cfg['preLoadImgs'] && !Cfg['openImgs'] && !isForce) {
 		return;
 	}
 	var lnk, url, iType, nExp, el, i, len, els, queue, mReqs = post ? 1 : 4, cImg = 1,
-		rjf = Cfg['findImgFile'] && new workerQueue(mReqs, detectImgFile, function(e) {
+		rjf = (isForce || Cfg['findImgFile']) && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		});
-	if(Cfg['preLoadImgs']) {
+	if(isForce || Cfg['preLoadImgs']) {
 		queue = new $queue(mReqs, function(qIdx, num, dat) {
 			downloadImgData(dat[0], function(idx, data) {
 				if(data) {
@@ -5366,6 +5369,7 @@ function scriptCSS() {
 	x += gif('#de-btn-goup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
 	x += gif('#de-btn-godown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
 	x += gif('#de-btn-expimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
+	x += gif('#de-btn-preimg', p + 'JFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=');
 	x += gif('#de-btn-maskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
 	x += gif('#de-btn-imgload', p + 'JFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=')
 	x += gif('#de-btn-catalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
@@ -8322,7 +8326,7 @@ Thread.prototype = {
 			addImagesSearch(el);
 		}
 		post.addFuncs();
-		preloadImages(el);
+		preloadImages(el, false);
 		if(TNum && Cfg['markNewPosts']) {
 			if(updater.focused) {
 				this.clearPostsMarks();
@@ -9824,7 +9828,7 @@ function initPage() {
 
 function addDelformStuff(isLog) {
 	var pNum, post;
-	preloadImages(null);
+	preloadImages(null, false);
 	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('Preload images');
 	embedMP3Links(null);
 	isLog && Cfg['addMP3'] && $log('MP3 links');
