@@ -4541,7 +4541,7 @@ Spells.prototype = {
 		case 1:
 		case 2:
 		case 3:
-			exp = !noBkt && str.match(/^\((\/.*?[^\\]\/[ig]*)\)/);
+			exp = !noBkt && str.match(/^\((\/.*?[^\\]\/[igm]*)\)/);
 			if(!exp) {
 				this._errorMessage = Lng.seSyntaxErr[lang];
 				this._lastErrCol = val[0].length;
