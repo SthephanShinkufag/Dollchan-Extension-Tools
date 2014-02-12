@@ -2352,10 +2352,13 @@ KeyNavigation.prototype = {
 			switch(globIdx) {
 			case 2: // Reply or create thread
 				if(pr.form) {
+					if(TNum && Cfg['addPostForm'] === 3) {
+						this.cPost = firstThr.op;
+					}
 					if(this.cPost) {
 						pr.showQuickReply(this.cPost, this.cPost.num, true);
 					} else {
-						pr.showMainReply(TNum && Cfg['addPostForm'] !== 0, null);
+						pr.showMainReply(Cfg['addPostForm'] === 1, null);
 					}
 				}
 				break;
