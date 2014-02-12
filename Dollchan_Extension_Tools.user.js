@@ -6662,7 +6662,7 @@ function embedImagesLinks(el) {
 		}
 		a = link.cloneNode(false);
 		a.target = '_blank';
-		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '" alt="' + a.href + '">';
+		a.innerHTML = '<img class="de-img-pre" src="' + a.href + '">';
 		$before(link, a);
 	}
 }
