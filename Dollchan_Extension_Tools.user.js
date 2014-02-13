@@ -3593,10 +3593,10 @@ dateTime.prototype = {
 //============================================================================================================
 
 function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
-	var vData, vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(\d+)$/,
+	var vData, vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/,
 		ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
-	function addFlash(el, id, time) {
+	function addYtubeFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
 		el.innerHTML = videoType === 1 ?
 			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
@@ -3605,7 +3605,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				(isHD ? '?hd=1&' : '?') + 'start=' + time + '" allowfullscreen="true" wmode="transparent"' + wh;
 	}
 
-	function addHTML5(el, id, time) {
+	function addYtubeHTML5(el, id, time) {
 		GM_xmlhttpRequest({
 			'method': 'GET',
 			'url': 'https://www.youtube.com/watch?v=' + id,
@@ -3651,7 +3651,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					src = isHD ? (videoURL[46] || videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
 				}
 				if(!src) {
-					addFlash(el, id, time);
+					addYtubeFlash(el, id, time);
 					return;
 				}
 				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
@@ -3664,7 +3664,13 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		});
 	}
 
-	function addImage(el, m, isYouTube) {
+	function addVimeoPlayer(el, id) {
+		el.innerHTML = '<iframe src="//player.vimeo.com/video/' + id +
+			'" width="' + width + '" height="' + height +
+			'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+	}
+
+	function addThumb(el, m, isYouTube) {
 		if(isYouTube) {
 			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] +
@@ -3682,12 +3688,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
-	function addVimeoPlayer(el, id) {
-		el.innerHTML = '<iframe src="//player.vimeo.com/video/' + id +
-			'" width="' + width + '" height="' + height +
-			'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
-	}
-
 	function addPlayer(el, m, isYouTube) {
 		if(!isYouTube) {
 			addVimeoPlayer(el, m[1]);
@@ -3695,20 +3695,20 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 		var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 		if(videoType === 2) {
-			addHTML5(el, m[1], time);
+			addYtubeHTML5(el, m[1], time);
 		} else {
-			addFlash(el, m[1], time);
+			addYtubeFlash(el, m[1], time);
 		}
 	}
 
-	function addYTubeLink(post, m, loader, link, isYouTube) {
+	function addLink(post, m, loader, link, isYouTube) {
 		var msg, src, time, dataObj;
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
 			if(youTube.embedType === 2) {
 				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYouTube);
 			} else if(youTube.embedType > 2) {
-				youTube.addImage(post.ytObj, post.ytInfo = m, isYouTube);
+				youTube.addThumb(post.ytObj, post.ytInfo = m, isYouTube);
 			}
 		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', post.msg)) {
 			return;
@@ -3802,31 +3802,36 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function parseLinks(post) {
-		var i, len, els, el, m, embedTube = [],
+		var i, len, els, el, src, m, embedTube = [],
 			loader = loadTitles && getTitleLoader();
 		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm), len = els.length; i < len; ++i) {
 			el = els[i];
-			if(m = (el.src || el.data).match(ytReg)) {
-				embedTube.push(post || aib.getPostEl(el).post, m);
+			src = el.src || el.data;
+			if(m = src.match(ytReg)) {
+				embedTube.push(post || aib.getPostEl(el).post, m, true);
+				$del(el);
+			}
+			if(Cfg['addVimeo'] && (m = src.match(vimReg))) {
+				embedTube.push(post || aib.getPostEl(el).post, m, false);
 				$del(el);
 			}
 		}
 		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 			el = els[i];
 			if(m = el.href.match(ytReg)) {
-				addYTubeLink(post || aib.getPostEl(el).post, m, loader, el, true);
+				addLink(post || aib.getPostEl(el).post, m, loader, el, true);
 			}
 		}
 		if(Cfg['addVimeo']) {
 			for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 				el = els[i];
 				if(m = el.href.match(vimReg)) {
-					addYTubeLink(post || aib.getPostEl(el).post, m, null, el, false);
+					addLink(post || aib.getPostEl(el).post, m, null, el, false);
 				}
 			}
 		}
-		for(i = 0, len = embedTube.length; i < len; i += 2) {
-			addYTubeLink(embedTube[i], embedTube[i + 1], loader, null, true);
+		for(i = 0, len = embedTube.length; i < len; i += 3) {
+			addLink(embedTube[i], embedTube[i + 1], loader, null, embedTube[i + 2]);
 		}
 		loader && loader.complete();
 	}
@@ -3841,7 +3846,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				el.ytInfo = link.ytInfo;
 				j++;
 			} else if(m = el.href.match(ytReg)) {
-				addYTubeLink(post, m, loader, el, true);
+				addLink(post, m, loader, el, true);
 				j++;
 			}
 		}
@@ -3859,7 +3864,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		vData = JSON.parse(sessionStorage['de-yt-vdata'] || '{}');
 	}
 	return {
-		addImage: addImage,
+		addThumb: addThumb,
 		addPlayer: addPlayer,
 		embedType: embedType,
 		parseLinks: parseLinks,
@@ -6885,7 +6890,7 @@ Post.prototype = {
 						this.ytObj.innerHTML = '';
 						this.ytInfo = null;
 					} else if(Cfg['addYouTube'] > 2) {
-						youTube.addImage(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+						youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					} else {
 						youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					}
