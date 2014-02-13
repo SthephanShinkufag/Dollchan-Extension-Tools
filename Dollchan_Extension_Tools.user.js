@@ -3640,7 +3640,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 						if(!itag) {
 							continue;
 						}
-						sig = videoPair['sig'];
+						sig = videoPair['sig'] || videoPair['s'];
 						if(sig) {
 							url += "&signature=" + sig;
 						}
@@ -3674,8 +3674,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				'allowscriptaccess="always" allowfullscreen="true"' + wh;
 	}
 
-	function addThumb(el, m, isYouTube) {
-		if(isYouTube) {
+	function addThumb(el, m, isYtube) {
+		if(isYtube) {
 			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] +
 				'/0.jpg" width="' + width + '" height="' + height + '"></a>';
@@ -3692,8 +3692,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
-	function addPlayer(el, m, isYouTube) {
-		if(isYouTube) {
+	function addPlayer(el, m, isYtube) {
+		if(isYtube) {
 			var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 			if(videoType === 2) {
 				addYtubeHTML5(el, m[1], time);
@@ -3705,14 +3705,14 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
-	function addLink(post, m, loader, link, isYouTube) {
+	function addLink(post, m, loader, link, isYtube) {
 		var msg, src, time, dataObj;
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
 			if(youTube.embedType === 2) {
-				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYouTube);
+				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYtube);
 			} else if(youTube.embedType > 2) {
-				youTube.addThumb(post.ytObj, post.ytInfo = m, isYouTube);
+				youTube.addThumb(post.ytObj, post.ytInfo = m, isYtube);
 			}
 		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', post.msg)) {
 			return;
@@ -3741,15 +3741,15 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				link.className = 'de-video-link de-ytube de-video-title';
 				link.setAttribute('de-author', dataObj[1]);
 			} else {
-				link.className = 'de-video-link ' + (isYouTube ? 'de-ytube' : 'de-vimeo');
+				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 			}
 		} else {
-			src = isYouTube ? 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
+			src = isYtube ? 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
 				: 'https://vimeo.com/' + m[1];
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
 					(time ? 'de-time="' + time + '" ' : '') +
-					'class="de-video-link ' + (isYouTube ? 'de-ytube' : 'de-vimeo') +
+					'class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
 					(dataObj ? ' de-video-title' : '') +
 					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 			link = post.msg.lastChild.firstChild;
