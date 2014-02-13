@@ -52,14 +52,15 @@ defaultCfg = {
 	'noNavigHidd':	0,		//		don't show previews for hidden posts
 	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
-	'addMP3':		1,		// mp3 player by links
-	'addImgs':		0,		// add images by links
-	'addYouTube':	3,		// YouTube links embedder [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
+	'addMP3':		1,		// embed mp3 links
+	'addImgs':		0,		// embed links to images
+	'addYouTube':	3,		// embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
 	'YTubeWidth':	360,	//		player width
 	'YTubeHeigh':	270,	//		player height
 	'YTubeHD':		0,		//		hd video quality
 	'YTubeTitles':	0,		//		convert links to titles
+	'addVimeo':		1,		// 		embed vimeo links
 	'ajaxReply':	2,		// posting with AJAX (0=no, 1=iframe, 2=HTML5)
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
@@ -152,7 +153,8 @@ Lng = {
 		'noNavigHidd':	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'crossLinks':	['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		'addMP3':		['Добавлять плейер к mp3-ссылкам* ', 'Add player to mp3-links* '],
+		'addMP3':		['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
+		'addVimeo':		['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
 		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
@@ -1801,7 +1803,8 @@ function getCfgLinks() {
 				$txt(' '),
 				lBox('YTubeHD', false, null)
 			]),
-			$if(!nav.oldOpera || nav.isGM, lBox('YTubeTitles', false, null))
+			$if(!nav.oldOpera || nav.isGM, lBox('YTubeTitles', false, null)),
+			lBox('addVimeo', true, null)
 		])
 	]);
 }
@@ -3590,7 +3593,8 @@ dateTime.prototype = {
 //============================================================================================================
 
 function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
-	var vData, regex = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+	var vData, vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(\d+)$/,
+		ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
 	function addFlash(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
@@ -3660,13 +3664,40 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		});
 	}
 
-	function addImage(el, m) {
-		el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-			'<img class="de-ytube-image" src="https://i.ytimg.com/vi/' + m[1] +
-			'/0.jpg" width="' + width + '" height="' + height + '"></a>';
+	function addImage(el, id, isYouTube) {
+		if(isYouTube) {
+			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + id + '" target="_blank">' +
+				'<img class="de-ytube-image" src="https://i.ytimg.com/vi/' + id +
+				'/0.jpg" width="' + width + '" height="' + height + '"></a>';
+		} else {
+			el.innerHTML = '<a href="https://vimeo.com/' + id + '" target="_blank">' +
+				'<img class="de-ytube-image" id="de-vimeo-' + id + '" src="" width="'
+				+ width + '" height="' + height + '"></a>';
+			GM_xmlhttpRequest({
+				'method': 'GET',
+				'url': 'http://vimeo.com/api/v2/video/' + id + '.json',
+				'onload': function(xhr){
+					this.setAttribute('src', JSON.parse(xhr.responseText)[0]['thumbnail_large']);
+				}.bind(el.firstChild.firstChild)
+			});
+		}
 	}
 
-	function addPlayer(el, m) {
+	function showVimeoThumb(data) {
+		document.getElementById('vimeo-' + data[0]['id']).setAttribute('src', data[0]['thumbnail_medium']);
+	}
+
+	function addVimeoPlayer(el, id) {
+		el.innerHTML = '<iframe src="//player.vimeo.com/video/' + id +
+			'" width="' + width + '" height="' + height +
+			'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+	}
+
+	function addPlayer(el, m, isYouTube) {
+		if(!isYouTube) {
+			addVimeoPlayer(el, m[1]);
+			return;
+		}
 		var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 		if(videoType === 2) {
 			addHTML5(el, m[1], time);
@@ -3675,16 +3706,19 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
-	function addYTubeLink(post, m, loader, link) {
+	function addYTubeLink(post, m, loader, link, isYouTube) {
 		var msg, src, time, dataObj;
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
 			if(youTube.embedType === 2) {
-				youTube.addPlayer(post.ytObj, post.ytInfo = m);
+				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYouTube);
 			} else if(youTube.embedType > 2) {
-				youTube.addImage(post.ytObj, post.ytInfo = m);
+				youTube.addImage(post.ytObj, (post.ytInfo = m)[1], isYouTube);
 			}
 		} else if(!link && $q('.de-ytube-link[href*="' + m[1] + '"]', post.msg)) {
+			return;
+		}
+		if(!isYouTube) {
 			return;
 		}
 		if(loader && (dataObj = youTube.vData[m[1]])) {
@@ -3779,19 +3813,27 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			loader = loadTitles && getTitleLoader();
 		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm), len = els.length; i < len; ++i) {
 			el = els[i];
-			if(m = (el.src || el.data).match(regex)) {
+			if(m = (el.src || el.data).match(ytReg)) {
 				embedTube.push(post || aib.getPostEl(el).post, m);
 				$del(el);
 			}
 		}
 		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 			el = els[i];
-			if(m = el.href.match(regex)) {
-				addYTubeLink(post || aib.getPostEl(el).post, m, loader, el);
+			if(m = el.href.match(ytReg)) {
+				addYTubeLink(post || aib.getPostEl(el).post, m, loader, el, true);
+			}
+		}
+		if(Cfg['addVimeo']) {
+			for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
+				el = els[i];
+				if(m = el.href.match(vimReg)) {
+					addYTubeLink(post || aib.getPostEl(el).post, m, null, el, false);
+				}
 			}
 		}
 		for(i = 0, len = embedTube.length; i < len; i += 2) {
-			addYTubeLink(embedTube[i], embedTube[i + 1], loader, null);
+			addYTubeLink(embedTube[i], embedTube[i + 1], loader, null, true);
 		}
 		loader && loader.complete();
 	}
@@ -3805,8 +3847,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			if(cloned) {
 				el.ytInfo = link.ytInfo;
 				j++;
-			} else if(m = el.href.match(regex)) {
-				addYTubeLink(post, m, loader, el);
+			} else if(m = el.href.match(ytReg)) {
+				addYTubeLink(post, m, loader, el, true);
 				j++;
 			}
 		}
@@ -3817,7 +3859,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		return {
 			parseLinks: emptyFn,
 			updatePost: emptyFn,
-			regex: regex
+			ytReg: ytReg
 		};
 	}
 	if(loadTitles) {
@@ -3829,7 +3871,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		embedType: embedType,
 		parseLinks: parseLinks,
 		updatePost: updatePost,
-		regex: regex,
+		ytReg: ytReg,
 		vData: vData
 	};
 }
@@ -6217,7 +6259,7 @@ PostForm.prototype = {
 			if(Cfg['favOnReply'] && this.tNum) {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
-			if(this.video && (val = this.video.value) && (val = val.match(youTube.regex))) {
+			if(this.video && (val = this.video.value) && (val = val.match(youTube.ytReg))) {
 				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
