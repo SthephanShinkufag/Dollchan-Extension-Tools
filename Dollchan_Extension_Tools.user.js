@@ -5480,7 +5480,7 @@ function scriptCSS() {
 			@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
-			@keyframes de-post-new { from { transform: translateX(-100%); } }\
+			@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
 			.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
 			.de-open { animation: de-open .7s ease-out both; }\
 			.de-close { animation: de-close .7s ease-in both; }\
