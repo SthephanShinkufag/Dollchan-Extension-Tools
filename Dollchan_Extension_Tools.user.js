@@ -8230,14 +8230,14 @@ Thread.prototype = {
 				thrEl.lastChild.onclick = function(e) {
 					$pd(e);
 					this.load(visPosts, this.el, null);
+					setTimeout(function(sEl) {
+						scrollTo(0, pageYOffset + sEl.getBoundingClientRect().top);
+					}, 100, scrollEl);
 				}.bind(this);
 			} else if(expEl !== thrEl.lastChild) {
 				thrEl.appendChild(expEl);
 			}
 			closeAlert($id('de-alert-load-thr'));
-			setTimeout(function(sEl) {
-				scrollTo(0, pageYOffset + sEl.getBoundingClientRect().top);
-			}, 100, scrollEl)
 			Fn && Fn();
 		}.bind(this, last, scrollEl, Fn), function(eCode, eMsg, xhr) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
@@ -9815,8 +9815,6 @@ function initPage() {
 		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
 			Lng.getNewPosts[lang] + '</a>]</span>');
 		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
-	} else {
-		setTimeout(window.scrollTo, 20, 0, 0);
 	}
 	updater = initThreadUpdater(doc.title, TNum && Cfg['ajaxUpdThr']);
 }
