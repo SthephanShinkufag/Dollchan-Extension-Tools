@@ -3596,7 +3596,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	var vData, vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/,
 		ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
-	function addYtubeFlash(el, id, time) {
+	function addYtubePlayer(el, id, time) {
 		var wh = ' width="' + width + '" height="' + height + '">';
 		el.innerHTML = videoType === 1 ?
 			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
@@ -3651,7 +3651,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					src = isHD ? (videoURL[46] || videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
 				}
 				if(!src) {
-					addYtubeFlash(el, id, time);
+					addYtubePlayer(el, id, time);
 					return;
 				}
 				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
@@ -3665,9 +3665,13 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function addVimeoPlayer(el, id) {
-		el.innerHTML = '<iframe src="//player.vimeo.com/video/' + id +
-			'" width="' + width + '" height="' + height +
-			'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe>';
+		var wh = ' width="' + width + '" height="' + height + '">';
+		el.innerHTML = videoType === 1 ?
+			'<iframe src="//player.vimeo.com/video/' + id +
+				'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
+			'<embed type="application/x-shockwave-flash" src="http://vimeo.com/moogaloop.swf?clip_id=' + id +
+				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
+				'allowscriptaccess="always" allowfullscreen="true"' + wh
 	}
 
 	function addThumb(el, m, isYouTube) {
@@ -3689,15 +3693,15 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function addPlayer(el, m, isYouTube) {
-		if(!isYouTube) {
-			addVimeoPlayer(el, m[1]);
-			return;
-		}
-		var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-		if(videoType === 2) {
-			addYtubeHTML5(el, m[1], time);
+		if(isYouTube) {
+			var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
+			if(videoType === 2) {
+				addYtubeHTML5(el, m[1], time);
+			} else {
+				addYtubePlayer(el, m[1], time);
+			}
 		} else {
-			addYtubeFlash(el, m[1], time);
+			addVimeoPlayer(el, m[1]);
 		}
 	}
 
