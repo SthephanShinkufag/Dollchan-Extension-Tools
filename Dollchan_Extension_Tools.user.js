@@ -3671,7 +3671,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
 			'<embed type="application/x-shockwave-flash" src="http://vimeo.com/moogaloop.swf?clip_id=' + id +
 				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
-				'allowscriptaccess="always" allowfullscreen="true"' + wh
+				'allowscriptaccess="always" allowfullscreen="true"' + wh;
 	}
 
 	function addThumb(el, m, isYouTube) {
@@ -3744,7 +3744,8 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				link.className = 'de-video-link ' + (isYouTube ? 'de-ytube' : 'de-vimeo');
 			}
 		} else {
-			src = 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '');
+			src = isYouTube ? 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
+				: 'https://vimeo.com/' + m[1];
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
 					(time ? 'de-time="' + time + '" ' : '') +
