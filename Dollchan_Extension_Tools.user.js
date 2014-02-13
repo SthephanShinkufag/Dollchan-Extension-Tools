@@ -3664,27 +3664,22 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		});
 	}
 
-	function addImage(el, id, isYouTube) {
+	function addImage(el, m, isYouTube) {
 		if(isYouTube) {
-			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + id + '" target="_blank">' +
-				'<img class="de-ytube-image" src="https://i.ytimg.com/vi/' + id +
+			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
+				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] +
 				'/0.jpg" width="' + width + '" height="' + height + '"></a>';
 		} else {
-			el.innerHTML = '<a href="https://vimeo.com/' + id + '" target="_blank">' +
-				'<img class="de-ytube-image" id="de-vimeo-' + id + '" src="" width="'
-				+ width + '" height="' + height + '"></a>';
+			el.innerHTML = '<a href="https://vimeo.com/' + m[1] + '" target="_blank">' +
+				'<img class="de-video-thumb de-vimeo" src="" width="' + width + '" height="' + height + '"></a>';
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': 'http://vimeo.com/api/v2/video/' + id + '.json',
+				'url': 'http://vimeo.com/api/v2/video/' + m[1] + '.json',
 				'onload': function(xhr){
 					this.setAttribute('src', JSON.parse(xhr.responseText)[0]['thumbnail_large']);
 				}.bind(el.firstChild.firstChild)
 			});
 		}
-	}
-
-	function showVimeoThumb(data) {
-		document.getElementById('vimeo-' + data[0]['id']).setAttribute('src', data[0]['thumbnail_medium']);
 	}
 
 	function addVimeoPlayer(el, id) {
@@ -3713,12 +3708,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			if(youTube.embedType === 2) {
 				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYouTube);
 			} else if(youTube.embedType > 2) {
-				youTube.addImage(post.ytObj, (post.ytInfo = m)[1], isYouTube);
+				youTube.addImage(post.ytObj, post.ytInfo = m, isYouTube);
 			}
-		} else if(!link && $q('.de-ytube-link[href*="' + m[1] + '"]', post.msg)) {
-			return;
-		}
-		if(!isYouTube) {
+		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', post.msg)) {
 			return;
 		}
 		if(loader && (dataObj = youTube.vData[m[1]])) {
@@ -3742,17 +3734,18 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			}
 			if(dataObj) {
 				link.textContent = dataObj[0];
-				link.className = 'de-ytube-link de-ytube-titlelink';
+				link.className = 'de-video-link de-ytube de-video-title';
 				link.setAttribute('de-author', dataObj[1]);
 			} else {
-				link.className = 'de-ytube-link';
+				link.className = 'de-video-link ' + (isYouTube ? 'de-ytube' : 'de-vimeo');
 			}
 		} else {
 			src = 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '');
 			post.msg.insertAdjacentHTML('beforeend',
-				'<p class="de-ytube-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
+				'<p class="de-video-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
 					(time ? 'de-time="' + time + '" ' : '') +
-					'class="de-ytube-link' + (dataObj ? ' de-ytube-titlelink' : '') +
+					'class="de-video-link ' + (isYouTube ? 'de-ytube' : 'de-vimeo') +
+					(dataObj ? ' de-video-title' : '') +
 					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 			link = post.msg.lastChild.firstChild;
 		}
@@ -3788,7 +3781,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 						if(title) {
 							link.textContent = title;
 							link.setAttribute('de-author', author);
-							link.classList.add('de-ytube-titlelink');
+							link.classList.add('de-video-title');
 							vData[this[2]] = data = [title, author];
 							post.ytData.push(data);
 							post.ytLinksLoading--;
@@ -5533,17 +5526,18 @@ function scriptCSS() {
 	}
 
 	// Embedders
-	x += cont('.de-ytube-link', 'https://youtube.com/favicon.ico');
+	x += cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico');
+	x += cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
-	x += '.de-ytube-titlelink[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
+	x += '.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
-		.de-mp3, .de-ytube-obj { margin: 5px 20px; }\
-		td > a + .de-ytube-obj { display: inline-block; }\
+		.de-mp3, .de-video-obj { margin: 5px 20px; }\
+		td > a + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
 
 	// Other
@@ -5626,8 +5620,8 @@ function updateCSS() {
 		x += '#de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x += '.de-img-pre, .de-ytube-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
-			.de-img-pre:hover, .de-ytube-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
+		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+			.de-img-pre:hover, .de-video-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.dobr || aib.krau)) {
 		x += '.de-img-full { margin: 2px 10px; }';
@@ -6875,9 +6869,9 @@ Post.prototype = {
 			}
 			switch(el.tagName) {
 			case 'IMG':
-				if(el.className === 'de-ytube-image') {
+				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg['addYouTube'] === 3) {
-						youTube.addPlayer(this.ytObj, this.ytInfo);
+						youTube.addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
 				} else if(Cfg['expandImgs'] !== 0) {
@@ -6885,15 +6879,15 @@ Post.prototype = {
 				}
 				return;
 			case 'A':
-				if(el.classList.contains('de-ytube-link')) {
+				if(el.classList.contains('de-video-link')) {
 					var m = el.ytInfo;
 					if(this.ytInfo === m) {
 						this.ytObj.innerHTML = '';
 						this.ytInfo = null;
 					} else if(Cfg['addYouTube'] > 2) {
-						youTube.addImage(this.ytObj, this.ytInfo = m);
+						youTube.addImage(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					} else {
-						youTube.addPlayer(this.ytObj, this.ytInfo = m);
+						youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					}
 					$pd(e);
 				} else {
@@ -7347,8 +7341,8 @@ Post.prototype = {
 	},
 	updateMsg: function(newMsg) {
 		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-			ytExt = $c('de-ytube-ext', origMsg),
-			ytLinks = $Q(':not(.de-ytube-ext) > .de-ytube-link', origMsg);
+			ytExt = $c('de-video-ext', origMsg),
+			ytLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		origMsg.parentNode.replaceChild(newMsg, origMsg);
 		Object.defineProperties(this, {
 			'msg': { configurable: true, value: newMsg },
@@ -7375,7 +7369,7 @@ Post.prototype = {
 		return val;
 	},
 	get ytObj() {
-		var msg, prev, val = $new('div', {'class': 'de-ytube-obj'}, null);
+		var msg, prev, val = $new('div', {'class': 'de-video-obj'}, null);
 		if(aib.krau) {
 			msg = this.msg.parentNode;
 			prev = msg.previousElementSibling;
@@ -7889,10 +7883,10 @@ Pview.prototype = Object.create(Post.prototype, {
 			});
 			if(post.hasYTube) {
 				if(post.ytInfo !== null) {
-					Object.defineProperty(this, 'ytObj', { value: $c('de-ytube-obj', el) });
+					Object.defineProperty(this, 'ytObj', { value: $c('de-video-obj', el) });
 					this.ytInfo = post.ytInfo;
 				}
-				youTube.updatePost(this, $C('de-ytube-link', post.el), $C('de-ytube-link', el), true);
+				youTube.updatePost(this, $C('de-video-link', post.el), $C('de-video-link', el), true);
 			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', el), function(el) {
@@ -8717,8 +8711,8 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
 				.delete_checkbox { position: static !important; }\
-				.file + .de-ytube-obj { float: left; margin: 5px 20px 5px 5px; }\
-				.de-ytube-obj + div { clear: left; }' },
+				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
+				.de-video-obj + div { clear: left; }' },
 			hasPicWrap: { value: true },
 			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
 			ru: { value: true },
@@ -8782,8 +8776,8 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2 { display: none !important; }\
 					div[id^="Wz"] { z-index: 10000 !important; }\
 					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
-					.file_reply + .de-ytube-obj, .file_thread + .de-ytube-obj { margin: 5px 20px 5px 5px; float: left; }\
-					.de-ytube-obj + div { clear: left; }' },
+					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
+					.de-video-obj + div { clear: left; }' },
 			cssHide: { value: '.de-post-hid > div:not(.postheader)' },
 			hasPicWrap: { value: true },
 			isBB: { value: true },
@@ -8814,7 +8808,7 @@ function getImageBoard(checkDomains, checkOther) {
 					el = els[i];
 					src = 'https://www.youtube.com/watch?v=' + el.id.substring(3);
 					el.parentNode.insertAdjacentHTML('beforeend',
-						'<p class="de-ytube-ext"><a href="' + src + '">' + src + '</a></p>');
+						'<p class="de-video-ext"><a href="' + src + '">' + src + '</a></p>');
 					$del(el);
 				}
 			} }
@@ -8846,7 +8840,8 @@ function getImageBoard(checkDomains, checkOther) {
 				for(var src, el, i = 0, els = $Q('blockquote > span[style="float: left;"]', doc.body), len = els.length; i < len; ++i) {
 					el = els[i];
 					src = $t('a', el).href;
-					el.parentNode.insertAdjacentHTML('beforeend', '<a href="' + src + '">' + src + '</a>');
+					el.parentNode.insertAdjacentHTML('beforeend',
+						'<p class="de-video-ext"><a href="' + src + '">' + src + '</a></p>');
 					$del(el);
 				}
 			} },
