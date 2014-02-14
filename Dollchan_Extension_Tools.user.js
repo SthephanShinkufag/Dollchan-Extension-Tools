@@ -452,7 +452,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis, needScroll,
+Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
 aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -9084,6 +9084,7 @@ function getImageBoard(checkDomains, checkOther) {
 		firstPage: 0,
 		host: window.location.hostname,
 		hasPicWrap: false,
+		needScroll: false,
 		prot: window.location.protocol,
 		get rep() {
 			var val = dTime || spells.haveReps || Cfg['crossLinks'];
@@ -9769,7 +9770,7 @@ function initPage() {
 		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
 			Lng.getNewPosts[lang] + '</a>]</span>');
 		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
-	} else if(needScroll) {
+	} else if(aib.needScroll) {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
 	updater = initThreadUpdater(doc.title, TNum && Cfg['ajaxUpdThr']);
@@ -9860,13 +9861,12 @@ function doScript(checkDomains) {
 }
 
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
-	needScroll = false;
 	doScript(true);
 } else {
 	aib = getImageBoard(true, false);
-	needScroll = true;
+	aib.needScroll = true;
 	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
-		needScroll = false;
+		aib.needScroll = false;
 		doc.removeEventListener(e.type, wheelFunc, false);
 	}, false);
 	doc.addEventListener('DOMContentLoaded', doScript.bind(null, false), false);
