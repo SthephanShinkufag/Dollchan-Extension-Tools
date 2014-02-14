@@ -2988,7 +2988,7 @@ html5Submit.prototype = {
 		return new Uint8Array([resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
 	clearImage: function(data, delExtraData) {
-		var tmp, i, len, deep, rv, lIdx, mSize, jpgDat, img = new Uint8Array(data),
+		var tmp, i, len, deep, rv, lIdx, jpgDat, img = new Uint8Array(data),
 			rExif = !!Cfg['removeEXIF'];
 		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
 			return [img];
@@ -3001,40 +3001,14 @@ html5Submit.prototype = {
 							if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 								jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
 							} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46) {
-								jpgDat = img.subarray(i + 11, i + 15);
+								jpgDat = img.subarray(i + 11, i + 16);
 							}
 						}
 						if((img[i + 1] >> 4) === 0xE || img[i + 1] === 0xFE) {
 							if(lIdx !== i) {
 								rv.push(img.subarray(lIdx, i));
 							}
-							mSize = (img[i + 2] << 8) + img[i + 3];
-							if(img[i + 1] === 0xFE) {
-								i += 2 + mSize;
-							} else {
-								i += 2;
-								while(mSize--) {
-									if(img[i] === 0xFF && img[i + 1] === 0xD8) {
-										i += 2;
-										while(img[i] !== 0xFF || img[i + 1] !== 0xD9) {
-											i++;
-										}
-										i += 2;
-										if(i === len) {
-											return null;
-										}
-										while(img[i] !== 0xFF) {
-											i++;
-										}
-										if(i + 2 === len) {
-											return null;
-										}
-										i--;
-										break;
-									}
-									i++;
-								}
-							}
+							i += 2 + (img[i + 2] << 8) + img[i + 3];
 							lIdx = i;
 							continue;
 						}
