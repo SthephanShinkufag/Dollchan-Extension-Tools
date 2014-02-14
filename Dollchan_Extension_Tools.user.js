@@ -55,7 +55,7 @@ defaultCfg = {
 	'addMP3':		1,		// embed mp3 links
 	'addImgs':		0,		// embed links to images
 	'addYouTube':	3,		// embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
-	'YTubeType':	0,		//		player type [0=flash, 1=HTML5 <iframe>, 2=HTML5 <video>]
+	'YTubeType':	0,		//		player type [0=flash, 1=HTML5]
 	'YTubeWidth':	360,	//		player width
 	'YTubeHeigh':	270,	//		player height
 	'YTubeHD':		0,		//		hd video quality
@@ -161,7 +161,7 @@ Lng = {
 			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
 		},
 		'YTubeType': {
-			sel:		[['Flash', 'HTML5 iframe', 'HTML5 video'], ['Flash', 'HTML5 iframe', 'HTML5 video']],
+			sel:		[['Flash', 'HTML5'], ['Flash', 'HTML5']],
 			txt:		['', '']
 		},
 		'YTubeHD':		['HD ', 'HD '],
@@ -3596,84 +3596,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	var vData, vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/,
 		ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
-	function addYtubePlayer(el, id, time) {
-		var wh = ' width="' + width + '" height="' + height + '">';
-		el.innerHTML = videoType === 1 ?
-			'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
-				(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
-			'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
-				(isHD ? '?hd=1&' : '?') + 'start=' + time + '" allowfullscreen="true" wmode="transparent"' + wh;
-	}
-
-	function addYtubeHTML5(el, id, time) {
-		GM_xmlhttpRequest({
-			'method': 'GET',
-			'url': 'https://www.youtube.com/watch?v=' + id,
-			'onload': function(el, id, time, xhr) {
-				var group, i, len, x, videoPair, j, pair, url, itag, sig, src, videoURL = [],
-					formats = xhr.responseText.match(/\"url_encoded_fmt_stream_map\":\s*\"([^\"]+)\"/),
-					sep1 = '%2C',
-					sep2 = '%26',
-					sep3 = '%3D';
-				if(formats) {
-					formats = formats[1];
-					if(formats.contains(',')) {
-						sep1 = ',';
-						sep2 = formats.contains('&') ? '&' : '\\u0026';
-						sep3 = '=';
-					}
-					for(i = 0, group = formats.split(sep1), len = group.length; i < len; i++) {
-						x = group[i].split(sep2);
-						videoPair = [];
-						for(j = 0; j < x.length; j++) {
-							pair = x[j].split(sep3);
-							if(pair.length === 2) {
-								videoPair[pair[0]] = pair[1];
-							}
-						}
-						url = videoPair['url'];
-						if(!url) {
-							continue;
-						}
-						url = unescape(unescape(url)).replace(/\\\//g, '/').replace(/\\u0026/g, '&');
-						itag = videoPair['itag'];
-						if(!itag) {
-							continue;
-						}
-						sig = videoPair['sig'] || videoPair['s'];
-						if(sig) {
-							url += "&signature=" + sig;
-						}
-						if(url.toLowerCase().startsWith('http')) {
-							videoURL[itag] = url;
-						}
-					}
-					src = isHD ? (videoURL[46] || videoURL[45] || videoURL[44] || videoURL[43]) : videoURL[43];
-				}
-				if(!src) {
-					addYtubePlayer(el, id, time);
-					return;
-				}
-				el.innerHTML = '<video poster="https://i.ytimg.com/vi/' + id +
-					'/0.jpg" controls="controls" preload="none" src="' + src + (time ? '#t=' + time : '') +
-					'" width="' + width + '" height="' + height + '"></video>';
-				el = el.firstChild;
-				el.addEventListener('play', updater.addPlayingTag, false);
-				el.addEventListener('pause', updater.removePlayingTag, false);
-			}.bind(null, el, id, time)
-		});
-	}
-
-	function addVimeoPlayer(el, id) {
-		var wh = ' width="' + width + '" height="' + height + '">';
-		el.innerHTML = videoType === 1 ?
-			'<iframe src="//player.vimeo.com/video/' + id +
-				'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
-			'<embed type="application/x-shockwave-flash" src="http://vimeo.com/moogaloop.swf?clip_id=' + id +
-				'&server=vimeo.com&color=00adef&fullscreen=1" ' +
-				'allowscriptaccess="always" allowfullscreen="true"' + wh;
-	}
-
 	function addThumb(el, m, isYtube) {
 		if(isYtube) {
 			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
@@ -3693,15 +3615,22 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function addPlayer(el, m, isYtube) {
+		var time, id = m[1],
+			wh = ' width="' + width + '" height="' + height + '">';
 		if(isYtube) {
-			var time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-			if(videoType === 2) {
-				addYtubeHTML5(el, m[1], time);
-			} else {
-				addYtubePlayer(el, m[1], time);
-			}
+			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
+			el.innerHTML = videoType === 1 ?
+				'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
+					(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
+				'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
+					(isHD ? '?hd=1&' : '?') + 'start=' + time + '" allowfullscreen="true" wmode="transparent"' + wh;
 		} else {
-			addVimeoPlayer(el, m[1]);
+			el.innerHTML = videoType === 1 ?
+				'<iframe src="//player.vimeo.com/video/' + id +
+					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
+				'<embed type="application/x-shockwave-flash" src="http://vimeo.com/moogaloop.swf?clip_id=' + id +
+					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
+					'allowscriptaccess="always" allowfullscreen="true"' + wh;
 		}
 	}
 
