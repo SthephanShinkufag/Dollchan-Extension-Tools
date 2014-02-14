@@ -9864,11 +9864,13 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doScript(true);
 } else {
 	aib = getImageBoard(true, false);
-	aib.needScroll = true;
-	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
-		aib.needScroll = false;
-		doc.removeEventListener(e.type, wheelFunc, false);
-	}, false);
+	if(aib) {
+		aib.needScroll = true;
+		doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
+			aib.needScroll = false;
+			doc.removeEventListener(e.type, wheelFunc, false);
+		}, false);
+	}
 	doc.addEventListener('DOMContentLoaded', doScript.bind(null, false), false);
 }
 
