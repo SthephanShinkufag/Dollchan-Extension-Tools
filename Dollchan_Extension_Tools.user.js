@@ -8655,6 +8655,7 @@ function getImageBoard(checkDomains, checkOther) {
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
+		get 'iichan.hk'() { return null; },
 		'inach.org': [{
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			isBB: { value: true }
@@ -9100,13 +9101,17 @@ function getImageBoard(checkDomains, checkOther) {
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
-			ibObj = (function createBoard(info) {
-				return Object.create(
-					info[2] ? createBoard(ibDomains[info[2]]) :
-					info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
-					ibBase, info[0]
-				);
-			})(ibDomains[dm]);
+			if(ibDomains[dm]) {
+				ibObj = (function createBoard(info) {
+					return Object.create(
+						info[2] ? createBoard(ibDomains[info[2]]) :
+						info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
+						ibBase, info[0]
+					);
+				})(ibDomains[dm]);
+			} else {
+				ibObj = ibBase;
+			}
 			checkOther = false;
 		}
 	}
