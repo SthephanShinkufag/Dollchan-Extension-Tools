@@ -3597,13 +3597,14 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 
 	function addThumb(el, m, isYtube) {
+		var wh = ' width="' + width + '" height="' + height + '"></a>';
 		if(isYtube) {
 			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] +
-				'/0.jpg" width="' + width + '" height="' + height + '"></a>';
+				'/0.jpg"' + wh;
 		} else {
 			el.innerHTML = '<a href="https://vimeo.com/' + m[1] + '" target="_blank">' +
-				'<img class="de-video-thumb de-vimeo" src="" width="' + width + '" height="' + height + '"></a>';
+				'<img class="de-video-thumb de-vimeo" src=""' + wh;
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'http://vimeo.com/api/v2/video/' + m[1] + '.json',
@@ -3690,7 +3691,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		}
 	}
 
-	function getTitleLoader() {
+	function getYtubeTitleLoader() {
 		var queueEnd, queue = new $queue(4, function(qIdx, num, data) {
 			if(num % 30 === 0) {
 				queue.pause();
@@ -3728,7 +3729,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				}.bind(data, qIdx)
 			});
 		}, function() {
-			sessionStorage['de-yt-vdata'] = JSON.stringify(vData);
+			sessionStorage['de-ytube-data'] = JSON.stringify(vData);
 			queue = queueEnd = null;
 		});
 		queueEnd = queue.end.bind(queue);
@@ -3737,7 +3738,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 
 	function parseLinks(post) {
 		var i, len, els, el, src, m, embedTube = [],
-			loader = loadTitles && getTitleLoader();
+			loader = loadTitles && getYtubeTitleLoader();
 		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm), len = els.length; i < len; ++i) {
 			el = els[i];
 			src = el.src || el.data;
@@ -3771,7 +3772,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 	}
 
 	function updatePost(post, oldLinks, newLinks, cloned) {
-		var i, j, el, link, m, loader = !cloned && loadTitles && getTitleLoader(),
+		var i, j, el, link, m, loader = !cloned && loadTitles && getYtubeTitleLoader(),
 			len = newLinks.length;
 		for(i = 0, j = 0; i < len; i++) {
 			el = newLinks[i];
@@ -3795,7 +3796,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		};
 	}
 	if(loadTitles) {
-		vData = JSON.parse(sessionStorage['de-yt-vdata'] || '{}');
+		vData = JSON.parse(sessionStorage['de-ytube-data'] || '{}');
 	}
 	return {
 		addThumb: addThumb,
@@ -8579,6 +8580,9 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '#mpostform, .navLinks, .postingMode { display: none !important; }' },
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
+			init: { value: function() {
+				$script('loadRecaptcha()');
+			} },
 			rLinkClick: { value: '' },
 			rep: { value: true }
 		}],
