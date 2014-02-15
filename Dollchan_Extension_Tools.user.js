@@ -5707,15 +5707,6 @@ PostForm.eventFiles = function(tr) {
 		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
-PostForm.clearFileInput = function(el, eventFiles) {
-	var cln = el.cloneNode(false);
-	cln.innerHTML = el.innerHTML;
-	el.parentNode.replaceChild(cln, el);
-	if(eventFiles) {
-		PostForm.eventFiles(cln);
-	}
-	return $q('input[type="file"]', cln);
-};
 PostForm.processInput = function() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
@@ -5815,7 +5806,7 @@ PostForm.prototype = {
 		$each($Q('input[type="file"]', el), function(node) {
 			node.imgFile = null;
 		});
-		this.file = PostForm.clearFileInput(el, eventFiles);
+		this._clearFileInput(el, eventFiles);
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, title, id, el = e.target;
@@ -5994,6 +5985,15 @@ PostForm.prototype = {
 
 	_lastCapUpdate: 0,
 	_pBtn: [],
+	_clearFileInput: function(el, eventFiles) {
+		var cln = el.cloneNode(false);
+		cln.innerHTML = el.innerHTML;
+		el.parentNode.replaceChild(cln, el);
+		if(eventFiles) {
+			PostForm.eventFiles(cln);
+		}
+		this.file = $q('input[type="file"]', cln);
+	},
 	_getCaptcha: function() {
 		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) ||
 			this.recap;
@@ -6212,7 +6212,7 @@ PostForm.prototype = {
 		}
 		if(this.file) {
 			if('files' in this.file && this.file.files.length > 0) {
-				this.file = PostForm.clearFileInput(getAncestor(this.file, aib.trTag), true);
+				this._clearFileInput(getAncestor(this.file, aib.trTag), true);
 			} else {
 				PostForm.eventFiles(getAncestor(this.file, aib.trTag));
 			}
