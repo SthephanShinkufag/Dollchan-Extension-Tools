@@ -3609,8 +3609,10 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
 			if(youTube.embedType === 2) {
+				post.ytLink = link;
 				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYtube);
 			} else if(youTube.embedType > 2) {
+				post.ytLink = link;
 				youTube.addThumb(post.ytObj, post.ytInfo = m, isYtube);
 			}
 		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', post.msg)) {
@@ -3654,7 +3656,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			link = post.msg.lastChild.firstChild;
 		}
 		link.ytInfo = m;
-		post.ytLink = link;
 		if(loader && !dataObj) {
 			post.ytLinksLoading++;
 			loader.run([post, link, m[1]]);
@@ -6798,6 +6799,7 @@ Post.prototype = {
 			case 'IMG':
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg['addYouTube'] === 3) {
+						this.ytLink.classList.add('de-current');
 						youTube.addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
