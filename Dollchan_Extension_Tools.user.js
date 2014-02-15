@@ -2358,7 +2358,7 @@ KeyNavigation.prototype = {
 			switch(globIdx) {
 			case 2: // Reply or create thread
 				if(pr.form) {
-					if(TNum && Cfg['addPostForm'] === 3) {
+					if(!this.cPost && TNum && Cfg['addPostForm'] === 3) {
 						this.cPost = firstThr.op;
 					}
 					if(this.cPost) {
