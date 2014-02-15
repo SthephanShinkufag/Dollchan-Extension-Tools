@@ -1553,7 +1553,7 @@ function fixSettings() {
 		'input[info="noNavigHidd"]'
 	]);
 	toggleBox(Cfg['addYouTube'] && Cfg['addYouTube'] !== 4, [
-		'select[info="YTubeType"]', 'input[info="YTubeHD"]'
+		'select[info="YTubeType"]', 'input[info="YTubeHD"]', 'input[info="addVimeo"]'
 	]);
 	toggleBox(Cfg['addYouTube'], [
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
@@ -6807,8 +6807,16 @@ Post.prototype = {
 				if(el.classList.contains('de-video-link')) {
 					var m = el.ytInfo;
 					if(this.ytInfo === m) {
-						this.ytObj.innerHTML = '';
-						this.ytInfo = null;
+						if(Cfg['addYouTube'] === 3) {
+							if($c('de-video-thumb', this.ytObj)) {
+								youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+							} else {
+								youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+							}
+						} else {
+							this.ytObj.innerHTML = '';
+							this.ytInfo = null;
+						}
 					} else if(Cfg['addYouTube'] > 2) {
 						youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					} else {
