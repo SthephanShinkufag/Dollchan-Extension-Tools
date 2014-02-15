@@ -2807,7 +2807,7 @@ function checkUpload(response) {
 	if(pr.file) {
 		el = getAncestor(pr.file, aib.trTag);
 		PostForm.delFileUtils(el);
-		PostForm.clearFile(el, true);
+		pr.file = PostForm.clearFileInput(el, true);
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -5710,7 +5710,7 @@ PostForm.eventFiles = function(tr) {
 		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
-PostForm.clearFile = function(el, eventFiles) {
+PostForm.clearFileInput = function(el, eventFiles) {
 	var cln = el.cloneNode(false);
 	cln.innerHTML = el.innerHTML;
 	el.parentNode.replaceChild(cln, el);
@@ -5730,7 +5730,7 @@ PostForm.processInput = function() {
 				$pd(e);
 				var el = this.parentNode;
 				PostForm.delFileUtils(el);
-				pr.file = PostForm.clearFile(el, false);
+				pr.file = PostForm.clearFileInput(el, false);
 				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
@@ -6210,7 +6210,7 @@ PostForm.prototype = {
 		}
 		if(this.file) {
 			if('files' in this.file && this.file.files.length > 0) {
-				this.file = PostForm.clearFile(getAncestor(this.file, aib.trTag), true);
+				this.file = PostForm.clearFileInput(getAncestor(this.file, aib.trTag), true);
 			} else {
 				PostForm.eventFiles(getAncestor(this.file, aib.trTag));
 			}
