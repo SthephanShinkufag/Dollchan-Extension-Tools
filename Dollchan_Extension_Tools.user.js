@@ -2792,7 +2792,7 @@ function getSubmitResponse(dc, isFrame) {
 }
 
 function checkUpload(response) {
-	var el, err = response[1];
+	var err = response[1];
 	if(err) {
 		if(pr.isQuick) {
 			pr.setReply(true, false);
@@ -2805,9 +2805,7 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		el = getAncestor(pr.file, aib.trTag);
-		PostForm.delFileUtils(el);
-		pr.file = PostForm.clearFileInput(el, true);
+		PostForm.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -3893,7 +3891,7 @@ function loadFavorThread() {
 }
 
 function loadPages(count) {
-	var el, fun, i = pageNum,
+	var fun, i = pageNum,
 		len = Math.min(aib.lastPage + 1, i + count),
 		pages = [],
 		loaded = 1;
@@ -3970,9 +3968,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
 		if(pr.file) {
-			el = getAncestor(pr.file, aib.trTag);
-			PostForm.delFileUtils(el);
-			pr.file = PostForm.clearFileInput(el, true);
+			PostForm.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 		}
 		if(pr.txta) {
 			pr.txta.value = '';
@@ -5706,12 +5702,6 @@ PostForm.setUserPassw = function() {
 	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
-PostForm.delFileUtils = function(el) {
-	$each($Q('.de-file-util', el), $del);
-	$each($Q('input[type="file"]', el), function(node) {
-		node.imgFile = null;
-	});
-};
 PostForm.eventFiles = function(tr) {
 	$each($Q('input[type="file"]', tr), function(el) {
 		el.addEventListener('change', PostForm.processInput, false);
@@ -5726,6 +5716,13 @@ PostForm.clearFileInput = function(el, eventFiles) {
 	}
 	return $q('input[type="file"]', cln);
 };
+PostForm.delFileUtils = function(el, eventFiles) {
+	$each($Q('.de-file-util', el), $del);
+	$each($Q('input[type="file"]', el), function(node) {
+		node.imgFile = null;
+	});
+	this.file = PostForm.clearFileInput(el, eventFiles);
+};
 PostForm.processInput = function() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
@@ -5735,9 +5732,7 @@ PostForm.processInput = function() {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				var el = this.parentNode;
-				PostForm.delFileUtils(el);
-				pr.file = PostForm.clearFileInput(el, false);
+				PostForm.delFileUtils(this.parentNode, false);
 				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
