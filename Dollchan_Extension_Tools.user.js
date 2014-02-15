@@ -3968,13 +3968,15 @@ function loadPages(count) {
 	Post.hiddenNums = [];
 	$disp(dForm);
 	dForm.innerHTML = '';
-	if(pr.file) {
-		el = getAncestor(pr.file, aib.trTag);
-		PostForm.delFileUtils(el);
-		pr.file = PostForm.clearFileInput(el, true);
-	}
-	if(pr.txta) {
-		pr.txta.value = '';
+	if(pr.isQuick) {
+		if(pr.file) {
+			el = getAncestor(pr.file, aib.trTag);
+			PostForm.delFileUtils(el);
+			pr.file = PostForm.clearFileInput(el, true);
+		}
+		if(pr.txta) {
+			pr.txta.value = '';
+		}
 	}
 	while(i < len) {
 		fun = onLoadOrError.bind(null, i);
