@@ -2792,7 +2792,7 @@ function getSubmitResponse(dc, isFrame) {
 }
 
 function checkUpload(response) {
-	var el, cln, err = response[1];
+	var el, err = response[1];
 	if(err) {
 		if(pr.isQuick) {
 			pr.setReply(true, false);
@@ -2805,12 +2805,9 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		PostForm.delFileUtils(el = getAncestor(pr.file, aib.trTag));
-		cln = el.cloneNode(false);
-		cln.innerHTML = el.innerHTML;
-		el.parentNode.replaceChild(cln, el);
-		pr.file = $q('input[type="file"]', el = cln);
-		PostForm.eventFiles(el);
+		el = getAncestor(pr.file, aib.trTag);
+		PostForm.delFileUtils(el);
+		PostForm.clearFile(el, true);
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -5713,6 +5710,15 @@ PostForm.eventFiles = function(tr) {
 		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
+PostForm.clearFile = function(el, eventFiles) {
+	var cln = el.cloneNode(false);
+	cln.innerHTML = el.innerHTML;
+	el.parentNode.replaceChild(cln, el);
+	if(eventFiles) {
+		PostForm.eventFiles(cln);
+	}
+	return $q('input[type="file"]', cln);
+};
 PostForm.processInput = function() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
@@ -5722,12 +5728,9 @@ PostForm.processInput = function() {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				var el = this.parentNode,
-					cln = el.cloneNode(false);
+				var el = this.parentNode;
 				PostForm.delFileUtils(el);
-				cln.innerHTML = el.innerHTML;
-				el.parentNode.replaceChild(cln, el);
-				pr.file = $q('input[type="file"]', cln);
+				pr.file = PostForm.clearFile(el, false);
 				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
@@ -6206,7 +6209,11 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(this.file) {
-			PostForm.eventFiles(getAncestor(this.file, aib.trTag));
+			if('files' in this.file && this.file.files.length > 0) {
+				this.file = PostForm.clearFile(getAncestor(this.file, aib.trTag), true);
+			} else {
+				PostForm.eventFiles(getAncestor(this.file, aib.trTag));
+			}
 		}
 	},
 	_refreshCapSrc: function(src, tNum) {
