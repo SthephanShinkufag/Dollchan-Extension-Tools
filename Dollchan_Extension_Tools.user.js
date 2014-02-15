@@ -3654,6 +3654,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 			link = post.msg.lastChild.firstChild;
 		}
 		link.ytInfo = m;
+		post.ytLink = link;
 		if(loader && !dataObj) {
 			post.ytLinksLoading++;
 			loader.run([post, link, m[1]]);
@@ -5444,13 +5445,14 @@ function scriptCSS() {
 	x += cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
-	x += '.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
+	x += '.de-current:after { content: "\u25c4"; }\
 		.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
+		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
 
@@ -6809,17 +6811,26 @@ Post.prototype = {
 					if(this.ytInfo === m) {
 						if(Cfg['addYouTube'] === 3) {
 							if($c('de-video-thumb', this.ytObj)) {
+								el.classList.add('de-current');
 								youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 							} else {
+								el.classList.remove('de-current');
 								youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 							}
 						} else {
+							el.classList.remove('de-current');
 							this.ytObj.innerHTML = '';
 							this.ytInfo = null;
 						}
 					} else if(Cfg['addYouTube'] > 2) {
+						this.ytLink.classList.remove('de-current');
+						this.ytLink = el;
+						el.classList.add('de-current');
 						youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					} else {
+						this.ytLink.classList.remove('de-current');
+						this.ytLink = el;
+						el.classList.add('de-current');
 						youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					}
 					$pd(e);
