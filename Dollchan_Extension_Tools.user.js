@@ -5477,26 +5477,28 @@ function scriptCSS() {
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
+		.de-new-post { ' + (nav.Opera ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
+		.de-opref::after { content: " [OP]"; }\
 		.de-parea { text-align: center;}\
-		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '"}\
-		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '"}\
-		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '"}\
+		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
+		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
+		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
+		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
+		.de-pview-info { padding: 3px 6px !important; }\
+		.de-pview-link { font-weight: bold; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
-		.de-new-post { ' + (nav.Opera ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
-		.de-error-key, .de-selected { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+		.de-selected, .de-error-key { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
+		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
+		#de-updater-div { margin: 10px 0 0 22px; }\
 		.de-viewed { color: #888 !important; }\
-		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey; margin: 0 !important; display: block !important; }\
-		.de-pview-info { padding: 3px 6px !important; }\
-		.de-pview-link { font-weight: bold; }\
-		.de-opref::after { content: " [OP]"; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
 		' + aib.css + aib.cssEn + aib.cssHide + ' { display: none !important; }';
@@ -9775,8 +9777,8 @@ function initPage() {
 			}
 			doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
 		}
-		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
-			Lng.getNewPosts[lang] + '</a>]</span>');
+		firstThr.el.insertAdjacentHTML('afterend',
+			'<div id="de-updater-div">[<a class="de-abtn" id="de-updater-btn" href="#"></a>]</div>');
 		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 	} else if(needScroll) {
 		setTimeout(window.scrollTo, 20, 0, 0);
