@@ -3893,7 +3893,7 @@ function loadFavorThread() {
 }
 
 function loadPages(count) {
-	var fun, i = pageNum,
+	var el, fun, i = pageNum,
 		len = Math.min(aib.lastPage + 1, i + count),
 		pages = [],
 		loaded = 1;
@@ -3944,9 +3944,6 @@ function loadPages(count) {
 						pr.dpass = pEl;
 						pEl.value = Cfg['passwValue'];
 					});
-					if(pr.txta) {
-						pr.txta.value = '';
-					}
 					if(keyNav) {
 						keyNav.clear(pageNum + count - 1);
 					}
@@ -3972,7 +3969,12 @@ function loadPages(count) {
 	$disp(dForm);
 	dForm.innerHTML = '';
 	if(pr.file) {
-		pr.file = PostForm.clearFileInput(getAncestor(pr.file, aib.trTag), true);
+		el = getAncestor(pr.file, aib.trTag);
+		PostForm.delFileUtils(el);
+		pr.file = PostForm.clearFileInput(el, true);
+	}
+	if(pr.txta) {
+		pr.txta.value = '';
 	}
 	while(i < len) {
 		fun = onLoadOrError.bind(null, i);
