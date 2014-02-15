@@ -452,7 +452,7 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype,
-Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis,
+Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis, needScroll,
 aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
@@ -8655,7 +8655,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
-		get 'iichan.hk'() { return null; },
 		'inach.org': [{
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			isBB: { value: true }
@@ -9085,7 +9084,6 @@ function getImageBoard(checkDomains, checkOther) {
 		firstPage: 0,
 		host: window.location.hostname,
 		hasPicWrap: false,
-		needScroll: false,
 		prot: window.location.protocol,
 		get rep() {
 			var val = dTime || spells.haveReps || Cfg['crossLinks'];
@@ -9101,17 +9099,13 @@ function getImageBoard(checkDomains, checkOther) {
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
-			if(ibDomains[dm]) {
-				ibObj = (function createBoard(info) {
-					return Object.create(
-						info[2] ? createBoard(ibDomains[info[2]]) :
-						info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
-						ibBase, info[0]
-					);
-				})(ibDomains[dm]);
-			} else {
-				ibObj = ibBase;
-			}
+			ibObj = (function createBoard(info) {
+				return Object.create(
+					info[2] ? createBoard(ibDomains[info[2]]) :
+					info[1] ? Object.create(ibBase, ibEngines[info[1]]) :
+					ibBase, info[0]
+				);
+			})(ibDomains[dm]);
 			checkOther = false;
 		}
 	}
@@ -9775,7 +9769,7 @@ function initPage() {
 		firstThr.el.insertAdjacentHTML('afterend', '<span class="de-thrupdbtn">[<a href="#">' +
 			Lng.getNewPosts[lang] + '</a>]</span>');
 		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
-	} else if(aib.needScroll) {
+	} else if(needScroll) {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
 	updater = initThreadUpdater(doc.title, TNum && Cfg['ajaxUpdThr']);
@@ -9866,16 +9860,15 @@ function doScript(checkDomains) {
 }
 
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
+	needScroll = false;
 	doScript(true);
 } else {
 	aib = getImageBoard(true, false);
-	if(aib) {
-		aib.needScroll = true;
-		doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
-			aib.needScroll = false;
-			doc.removeEventListener(e.type, wheelFunc, false);
-		}, false);
-	}
+	needScroll = true;
+	doc.addEventListener(doc.onmousewheel !== undefined ? "mousewheel" : "DOMMouseScroll", function wheelFunc(e) {
+		needScroll = false;
+		doc.removeEventListener(e.type, wheelFunc, false);
+	}, false);
 	doc.addEventListener('DOMContentLoaded', doScript.bind(null, false), false);
 }
 
