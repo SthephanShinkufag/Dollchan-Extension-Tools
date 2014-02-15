@@ -2805,7 +2805,7 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		PostForm.delFileUtils(getAncestor(pr.file, aib.trTag), true);
+		pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -3968,7 +3968,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
 		if(pr.file) {
-			PostForm.delFileUtils(getAncestor(pr.file, aib.trTag), true);
+			pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 		}
 		if(pr.txta) {
 			pr.txta.value = '';
@@ -5716,13 +5716,6 @@ PostForm.clearFileInput = function(el, eventFiles) {
 	}
 	return $q('input[type="file"]', cln);
 };
-PostForm.delFileUtils = function(el, eventFiles) {
-	$each($Q('.de-file-util', el), $del);
-	$each($Q('input[type="file"]', el), function(node) {
-		node.imgFile = null;
-	});
-	this.file = PostForm.clearFileInput(el, eventFiles);
-};
 PostForm.processInput = function() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
@@ -5732,7 +5725,7 @@ PostForm.processInput = function() {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				PostForm.delFileUtils(this.parentNode, false);
+				pr.delFileUtils(this.parentNode, false);
 				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		}));
@@ -5816,6 +5809,13 @@ PostForm.prototype = {
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;
+	},
+	delFileUtils: function(el, eventFiles) {
+		$each($Q('.de-file-util', el), $del);
+		$each($Q('input[type="file"]', el), function(node) {
+			node.imgFile = null;
+		});
+		this.file = PostForm.clearFileInput(el, eventFiles);
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, title, id, el = e.target;
