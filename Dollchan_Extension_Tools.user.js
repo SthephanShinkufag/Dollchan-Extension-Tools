@@ -3971,6 +3971,9 @@ function loadPages(count) {
 	Post.hiddenNums = [];
 	$disp(dForm);
 	dForm.innerHTML = '';
+	if(pr.file) {
+		pr.file = PostForm.clearFileInput(getAncestor(pr.file, aib.trTag), true);
+	}
 	while(i < len) {
 		fun = onLoadOrError.bind(null, i);
 		ajaxLoad(aib.getPageUrl(brd, i++), true, fun, fun);
