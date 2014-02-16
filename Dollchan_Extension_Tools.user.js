@@ -2470,7 +2470,7 @@ KeyNavigation.prototype = {
 				} else if(idx === 4) { // Expand/collapse thread
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
-						if(post.thr.omitted === 0) {
+						if(post.thr.loadedOnce && post.thr.omitted === 0) {
 							if(post.thr.next) {
 								scrollTo(0, pageYOffset + post.thr.next.topCoord);
 								post.thr.load(visPosts, true, null);
