@@ -2453,7 +2453,8 @@ KeyNavigation.prototype = {
 				if(idx === -1) {
 					return;
 				} else if(idx === 2) { // Open thread
-					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+					post = this._getFirstVisPost(false);
+					post = post ? post.next : this._getNextVisPost(null, true, false);
 					if(post) {
 						if(nav.Firefox) {
 							GM_openInTab(aib.getThrdUrl(brd, post.tNum), false, true);
@@ -2468,11 +2469,19 @@ KeyNavigation.prototype = {
 					}
 					break;
 				} else if(idx === 4) { // Expand/collapse thread
-					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+					post = this._getFirstVisPost(false);
+					post = post ? post.next : this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.omitted === 0) {
-							post.thr.load(visPosts, false, null);
+							if(post.thr.next) {
+								scrollTo(0, pageYOffset + post.thr.next.topCoord);
+								post.thr.load(visPosts, true, null);
+							} else {
+								scrollTo(0, pageYOffset + post.thr.topCoord);
+								post.thr.load(visPosts, false, null);
+							}
 						} else {
+							scrollTo(0, pageYOffset + post.thr.topCoord);
 							post.thr.load(1, false, null);
 							if(this.cPost && this.cPost !== post) {
 								this.cPost.unselect();
