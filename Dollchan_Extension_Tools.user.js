@@ -459,7 +459,7 @@ aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
-ajaxInterval, lang, quotetxt = '', liteMode, isExpImg,
+ajaxInterval, lang, quotetxt = '', liteMode, isExpImg, isPreImg,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = function() {};
 
@@ -1163,7 +1163,10 @@ function addPanel() {
 						post.toggleImages(isExpImg);
 					}
 					break;
-				case 'de-btn-preimg': preloadImages(null, true); break;
+				case 'de-btn-preimg':
+					isPreImg = !isPreImg;
+					preloadImages(null);
+				break;
 				case 'de-btn-maskimg':
 					toggleCfg('maskImgs');
 					updateCSS();
@@ -3235,15 +3238,15 @@ function downloadObjInfo(obj) {
 	}
 }
 
-function preloadImages(post, isForce) {
-	if(!Cfg['preLoadImgs'] && !Cfg['openImgs'] && !isForce) {
+function preloadImages(post) {
+	if(!Cfg['preLoadImgs'] && !Cfg['openImgs'] && !isPreImg) {
 		return;
 	}
 	var lnk, url, iType, nExp, el, i, len, els, queue, mReqs = post ? 1 : 4, cImg = 1,
-		rjf = (isForce || Cfg['findImgFile']) && new workerQueue(mReqs, detectImgFile, function(e) {
+		rjf = (isPreImg || Cfg['findImgFile']) && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		});
-	if(isForce || Cfg['preLoadImgs']) {
+	if(isPreImg || Cfg['preLoadImgs']) {
 		queue = new $queue(mReqs, function(qIdx, num, dat) {
 			downloadImgData(dat[0], function(idx, data) {
 				if(data) {
@@ -8309,7 +8312,7 @@ Thread.prototype = {
 			addImagesSearch(el);
 		}
 		post.addFuncs();
-		preloadImages(el, false);
+		preloadImages(el);
 		if(TNum && Cfg['markNewPosts']) {
 			if(updater.focused) {
 				this.clearPostsMarks();
@@ -9811,7 +9814,7 @@ function initPage() {
 
 function addDelformStuff(isLog) {
 	var pNum, post;
-	preloadImages(null, false);
+	preloadImages(null);
 	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('Preload images');
 	embedMP3Links(null);
 	isLog && Cfg['addMP3'] && $log('MP3 links');
