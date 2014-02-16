@@ -2371,7 +2371,7 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 3: // Hide selected thread/post
-				post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
 					post.toggleUserVisib();
 					this._scroll(post, false, post.isOp);
@@ -2405,7 +2405,7 @@ KeyNavigation.prototype = {
 				toggleContent('cfg', false);
 				break;
 			case 11: // Expand current image
-				post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
+				post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 				if(post) {
 					post.toggleImages(!post.imagesExpanded);
 				}
@@ -2453,8 +2453,7 @@ KeyNavigation.prototype = {
 				if(idx === -1) {
 					return;
 				} else if(idx === 2) { // Open thread
-					post = this._getFirstVisPost(false);
-					post = post ? post.next : this._getNextVisPost(null, true, false);
+					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(nav.Firefox) {
 							GM_openInTab(aib.getThrdUrl(brd, post.tNum), false, true);
@@ -2469,8 +2468,7 @@ KeyNavigation.prototype = {
 					}
 					break;
 				} else if(idx === 4) { // Expand/collapse thread
-					post = this._getFirstVisPost(false);
-					post = post ? post.next : this._getNextVisPost(null, true, false);
+					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.omitted === 0) {
 							if(post.thr.next) {
@@ -2493,7 +2491,7 @@ KeyNavigation.prototype = {
 				}
 			default:
 				scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
-				this._scroll(this._getFirstVisPost(scrollToThread), globIdx === 0 || idx === 0,
+				this._scroll(this._getFirstVisPost(scrollToThread, false), globIdx === 0 || idx === 0,
 					scrollToThread);
 			}
 		}
@@ -2509,7 +2507,7 @@ KeyNavigation.prototype = {
 		this.tKeys = keys[4];
 		this.paused = false;
 	},
-	_getFirstVisPost: function(getThread) {
+	_getFirstVisPost: function(getThread, getFull) {
 		var post, tPost;
 		if(this.lastPageOffset !== pageYOffset) {
 			post = getThread ? firstThr : firstThr.op;
@@ -2523,7 +2521,7 @@ KeyNavigation.prototype = {
 			if(this.cPost) {
 				this.cPost.unselect();
 			}
-			this.cPost = getThread ? post.op.prev : post.prev;
+			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
 			this.lastPageOffset = pageYOffset;
 		}
 		return this.cPost;
