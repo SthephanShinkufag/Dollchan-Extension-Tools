@@ -2469,9 +2469,9 @@ KeyNavigation.prototype = {
 					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.omitted === 0) {
-							post.thr.load(visPosts, post.el, null);
+							post.thr.load(visPosts, true, null);
 						} else {
-							post.thr.load(1, post.thr.op.el, null);
+							post.thr.load(1, false, null);
 							if(this.cPost && this.cPost !== post) {
 								this.cPost.unselect();
 								this.cPost = post;
@@ -2826,7 +2826,7 @@ function checkUpload(response) {
 			}
 		}, true);
 	} else {
-		pByNum[pr.tNum].thr.load(visPosts, null, closeAlert.bind(window, $id('de-alert-upload')));
+		pByNum[pr.tNum].thr.load(visPosts, false, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(pr.tNum, false);
@@ -2868,7 +2868,7 @@ function checkDelete(response) {
 		}, false);
 	} else {
 		tNums.forEach(function(tNum) {
-			pByNum[tNum].thr.load(visPosts, null, endDelete);
+			pByNum[tNum].thr.load(visPosts, false, endDelete);
 		});
 	}
 }
@@ -6861,7 +6861,7 @@ Post.prototype = {
 			}
 			switch(el.className) {
 			case 'de-btn-expthr':
-				this.thr.load(1, this.el, null);
+				this.thr.load(1, false, null);
 				$del(this._menu);
 				this._menu = null;
 				return;
@@ -7578,7 +7578,7 @@ Post.prototype = {
 			saveUserPosts();
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
-		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), this.el, null); return;
+		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), false, null); return;
 		}
 	},
 	_closeMenu: function(rt) {
@@ -8177,16 +8177,23 @@ Thread.prototype = {
 			});
 		}
 	},
-	load: function(last, scrollEl, Fn) {
+	load: function(last, smartScroll, Fn) {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
 		}
-		ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, scrollEl, Fn, form, xhr) {
-			var els = aib.getPosts(form),
+		ajaxLoad(aib.getThrdUrl(brd, this.num), true, function threadOnload(last, smartScroll, Fn, form, xhr) {
+			var nextCoord, els = aib.getPosts(form),
 				op = this.op,
 				thrEl = this.el,
 				expEl = $c('de-expand', thrEl),
 				nOmt = last === 1 ? 0 : Math.max(els.length - last, 0);
+			if(smartScroll) {
+				if(this.next) {
+					nextCoord = this.next.topCoord;
+				} else {
+					smartScroll = false;
+				}
+			}
 			pr.closeQReply();
 			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
@@ -8211,17 +8218,17 @@ Thread.prototype = {
 					Lng['collapseThrd'][lang] + '</a>]</span>');
 				thrEl.lastChild.onclick = function(e) {
 					$pd(e);
-					this.load(visPosts, this.el, null);
-					setTimeout(function(sEl) {
-						scrollTo(0, pageYOffset + sEl.getBoundingClientRect().top);
-					}, 100, scrollEl);
+					this.load(visPosts, true, null);
 				}.bind(this);
 			} else if(expEl !== thrEl.lastChild) {
 				thrEl.appendChild(expEl);
 			}
+			if(smartScroll) {
+				scrollTo(pageXOffset, pageYOffset - (nextCoord - this.next.topCoord));
+			}
 			closeAlert($id('de-alert-load-thr'));
 			Fn && Fn();
-		}.bind(this, last, scrollEl, Fn), function(eCode, eMsg, xhr) {
+		}.bind(this, last, smartScroll, Fn), function(eCode, eMsg, xhr) {
 			$alert(getErrorMessage(eCode, eMsg), 'load-thr', false);
 			if(typeof this === 'function') {
 				this();
