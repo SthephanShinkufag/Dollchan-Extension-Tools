@@ -2469,7 +2469,7 @@ KeyNavigation.prototype = {
 					post = this._getFirstVisPost(false) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.omitted === 0) {
-							post.thr.load(visPosts, true, null);
+							post.thr.load(visPosts, false, null);
 						} else {
 							post.thr.load(1, false, null);
 							if(this.cPost && this.cPost !== post) {
