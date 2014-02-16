@@ -2335,7 +2335,7 @@ KeyNavigation.prototype = {
 		if(this.paused) {
 			return;
 		}
-		var post, scrollToThread, globIdx, idx, curTh = e.target.tagName,
+		var temp, post, scrollToThread, globIdx, idx, curTh = e.target.tagName,
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
@@ -2471,20 +2471,17 @@ KeyNavigation.prototype = {
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.loadedOnce && post.thr.omitted === 0) {
-							if(post.thr.next) {
-								scrollTo(0, pageYOffset + post.thr.next.topCoord);
-								post.thr.load(visPosts, true, null);
-							} else {
-								scrollTo(0, pageYOffset + post.thr.topCoord);
-								post.thr.load(visPosts, false, null);
-							}
+							temp = post.thr.nextNotHidden;
+							post.thr.load(visPosts, !!temp, null);
+							post = (temp || post.thr).op;
 						} else {
-							scrollTo(0, pageYOffset + post.thr.topCoord);
 							post.thr.load(1, false, null);
-							if(this.cPost && this.cPost !== post) {
-								this.cPost.unselect();
-								this.cPost = post;
-							}
+							post = post.thr.op;
+						}
+						scrollTo(0, pageYOffset + post.topCoord);
+						if(this.cPost && this.cPost !== post) {
+							this.cPost.unselect();
+							this.cPost = post;
 						}
 					}
 					break;
@@ -2529,10 +2526,8 @@ KeyNavigation.prototype = {
 	_getNextVisPost: function(cPost, isOp, toUp) {
 		var thr, post;
 		if(isOp) {
-			thr = cPost ? toUp ? cPost.thr.prev : cPost.thr.next : firstThr;
-			while(thr && thr.hidden) {
-				thr = toUp ? thr.prev : thr.next;
-			}
+			thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
+				firstThr.hidden ? firstThr.nextNotHidden : firstThr;
 			return thr ? thr.op : null;
 		}
 		post = cPost ? toUp ? cPost.prev : cPost.next : firstThr.op;
@@ -8177,6 +8172,14 @@ Thread.prototype = {
 			post = post.prev;
 		}
 		return post;
+	},
+	get nextNotHidden() {
+		for(var thr = this.next; thr && thr.hidden; thr = thr.next) {}
+		return thr;
+	},
+	get prevNotHidden() {
+		for(var thr = this.prev; thr && thr.hidden; thr = thr.prev) {}
+		return thr;
 	},
 	clearPostsMarks: function() {
 		if(this.hasNew) {
