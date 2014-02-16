@@ -291,6 +291,7 @@ Lng = {
 		'%l%i24 – предыдущая страница%/l' +
 		'%l%i33 – следующая страница%/l' +
 		'%l%i23 – скрыть текущий пост/тред%/l' +
+		'%l%i34 – раскрыть текущий тред%/l' +
 		'%l%i22 – быстрый ответ или создать тред%/l' +
 		'%l%i25t – отправить пост%/l' +
 		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l' +
@@ -313,6 +314,7 @@ Lng = {
 		'%l%i24 – previous page%/l' +
 		'%l%i33 – next page%/l' +
 		'%l%i23 – hide current post/thread%/l' +
+		'%l%i34 – expand current thread%/l' +
 		'%l%i22 – quick reply or create thread%/l' +
 		'%l%i25t – send post%/l' +
 		'%l%i21 – thread (on board) / post (in thread) below%/l' +
