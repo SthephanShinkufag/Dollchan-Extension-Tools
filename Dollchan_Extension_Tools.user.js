@@ -393,8 +393,7 @@ Lng = {
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
 	thrCreated:		['Тредов создано: ', 'Threads created: '],
 	thrHidden:		['Тредов скрыто: ', 'Threads hidden: '],
-	postsSended:	['Постов отправлено: ', 'Posts sended: '],
-	posts:			['Постов: ', 'Posts: '],
+	postsSent:		['Постов отправлено: ', 'Posts sent: '],
 	total:			['Всего: ', 'Total: '],
 	debug:			['Отладка', 'Debug'],
 	infoDebug:		['Информация для отладки', 'Information for debugging'],
@@ -1961,7 +1960,7 @@ function getCfgInfo() {
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
 			Lng.thrHidden[lang] + getHiddenThrCount() + '<br>' +
-			Lng.postsSended[lang] + Cfg['stats']['reply'] + '</div>' +
+			Lng.postsSent[lang] + Cfg['stats']['reply'] + '</div>' +
 			'<div style="display: inline-block; padding-left: 7px; height: 235px; ' +
 			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
@@ -5461,7 +5460,7 @@ function scriptCSS() {
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
-		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black; }\
+		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj { display: inline-block; }\
