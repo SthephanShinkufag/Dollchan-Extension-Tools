@@ -1346,12 +1346,14 @@ function showContent(cont, id, name, remove) {
 			$new('b', {'text': ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
 		]);
 		for(b in hThr) {
-			block = addContentBlock(cont, '/' + b);
-			for(tNum in hThr[b]) {
-				block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
-					tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
-					aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
-					hThr[b][tNum] + '</div></div>');
+			if(!$isEmpty(hThr[b])) {
+				block = addContentBlock(cont, '/' + b);
+				for(tNum in hThr[b]) {
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
+						tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
+						aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
+						hThr[b][tNum] + '</div></div>');
+				}
 			}
 		}
 		$append(cont, [
