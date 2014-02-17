@@ -1935,6 +1935,19 @@ function getCfgCommon() {
 }
 
 function getCfgInfo() {
+	var getHiddenThrCount = function () {
+		var b, tNum, count = 0;
+		if(!$isEmpty(hThr)) {
+			for(b in hThr) {
+				if(!$isEmpty(hThr[b])) {
+					for(tNum in hThr[b]) {
+						count++;
+					}
+				}
+			}
+		}
+		return count;
+	}
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-info'}, [
 		$add('<div style="padding-bottom: 10px;">' +
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/versions" ' +
@@ -1945,7 +1958,8 @@ function getCfgInfo() {
 		$add('<div><div style="display: inline-block; vertical-align: top; width: 186px; height: 235px;">' +
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
-			Lng.posts[lang] + Cfg['stats']['reply'] + '</div>' +
+			Lng.posts[lang] + Cfg['stats']['reply'] + '<br>' +
+			Lng.hiddenThrds[lang] + ': ' + getHiddenThrCount() + '</div>' +
 			'<div style="display: inline-block; padding-left: 7px; height: 235px; ' +
 			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
