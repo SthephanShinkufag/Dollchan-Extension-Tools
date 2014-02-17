@@ -8751,7 +8751,10 @@ function getImageBoard(checkDomains, checkOther) {
 			rep: { value: true },
 			res: { value: 'thread-' }
 		}],
-		'lambdadelta.net': [{}, 'link[href$="phutaba.css"]'],
+		'lambdadelta.net': [{
+			css: { value: '.content > hr { display: none !important }' },
+			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' }
+		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
