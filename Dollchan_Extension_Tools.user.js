@@ -1091,6 +1091,7 @@ function addPanel() {
 	var panel, evtObject, imgLen = getImages(dForm).length;
 	(pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
+			'<div class="de-content"></div>' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
@@ -1121,7 +1122,6 @@ function addPanel() {
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
 				'</ul>' +
 			'</div>' +
-			'<div class="de-content"></div>' +
 			'<div id="de-alert"></div>' +
 			'<hr style="clear: both;">' +
 		'</div>'
@@ -5263,7 +5263,7 @@ function scriptCSS() {
 
 	// Settings window
 	x += '.de-block { display: block; }\
-		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+		#de-content-cfg > div { border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
@@ -5467,7 +5467,6 @@ function scriptCSS() {
 		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 		.de-alert-msg { display: inline-block; margin-top: .15em; }\
-		.de-content { text-align: left; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
@@ -5527,7 +5526,7 @@ function updateCSS() {
 		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
 		#de-panel { position: fixed; right: 0; bottom: 0; }'
 	} else {
-		x = '.de-content { clear: both; float: left; }\
+		x = '.de-content { clear: both; float: right; }\
 		#de-panel { float: right; clear: both; }'
 	}
 	if(Cfg['addPostForm'] === 3) {
