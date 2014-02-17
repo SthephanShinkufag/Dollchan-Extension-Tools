@@ -7909,14 +7909,14 @@ function PviewsCache(form, b, tNum) {
 		msg: { value: $q(aib.qMsg, thr), writable: true },
 		ref: { value: [], writable: true }
 	});
-	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pBn, false);
-	}
 	this._brd = b;
 	this._thr = thr;
 	this._tNum = tNum;
 	this._tUrl = aib.getThrdUrl(b, tNum);
 	this._posts = pBn;
+	if(Cfg['linksNavig'] === 2) {
+		genRefMap(pBn, false, this._tUrl);
+	}
 }
 PviewsCache.prototype = {
 	getPost: function(num) {
@@ -8033,8 +8033,8 @@ function addRefMap(post, tUrl) {
 	post.msg.insertAdjacentHTML('afterend', str + '</div>');
 }
 
-function genRefMap(posts, hideRefs) {
-	var tc, lNum, post, ref, i, len, links, pNum, opNums = Thread.tNums;
+function genRefMap(posts, hideRefs, thrURL) {
+	var tc, lNum, post, ref, i, len, links, url, pNum, opNums = Thread.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
 			tc = links[i].textContent;
@@ -8053,6 +8053,12 @@ function genRefMap(posts, hideRefs) {
 				}
 				if(opNums.indexOf(lNum) !== -1) {
 					links[i].classList.add('de-opref');
+				}
+				if(thrURL) {
+					url = links[i].getAttribute('href');
+					if(url[0] === '#') {
+						links[i].setAttribute('href', thrURL + url);
+					}
 				}
 			}
 		}
@@ -9836,7 +9842,7 @@ function addDelformStuff(isLog) {
 		isLog && $log('Sauce buttons');
 	}
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum, !!Cfg['hideRefPsts']);
+		genRefMap(pByNum, !!Cfg['hideRefPsts'], '');
 		for(pNum in pByNum) {
 			post = pByNum[pNum];
 			if(post.hasRef) {
