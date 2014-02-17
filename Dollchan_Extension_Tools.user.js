@@ -3169,11 +3169,8 @@ workerQueue.prototype = {
 	}
 };
 
-function addImgFileIcon(url, info) {
-	var app, ext, type = info['type'],
-		fName = url.substring(url.lastIndexOf("/") + 1),
-		aEl = $q(aib.qImgLink, aib.getImgWrap(this));
-	aEl.setAttribute('download', fName);
+function addImgFileIcon(fName, info) {
+	var app, ext, type = info['type'];
 	if(typeof type !== 'undefined') {
 		if(type === 2) {
 			app = 'application/x-rar-compressed';
@@ -3191,7 +3188,7 @@ function addImgFileIcon(url, info) {
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
+		this.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
 				new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})
 			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
@@ -3258,13 +3255,17 @@ function preloadImages(post) {
 		queue = new $queue(mReqs, function(qIdx, num, dat) {
 			downloadImgData(dat[0], function(idx, data) {
 				if(data) {
-					var a = this[1];
+					var a = this[1],
+						fName = this[0].substring(this[0].lastIndexOf("/") + 1),
+						aEl = $q(aib.qImgLink, aib.getImgWrap(a));
+					aEl.setAttribute('download', fName);
 					a.href = window.URL.createObjectURL(new Blob([data], {'type': this[2]}));
+					a.setAttribute('de-name', fName);
 					if(this[3]) {
 						this[3].src = a.href;
 					}
 					if(rjf) {
-						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(a, this[0]));
+						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(aEl, fName));
 					}
 				}
 				queue.end(idx);
@@ -3387,7 +3388,7 @@ function loadDocFiles(imgOnly) {
 		var lnk, url;
 		if(lnk = getAncestor(el, 'A')) {
 			url = lnk.href;
-			Images_.queue.run([url, lnk.getAttribute('download') ||
+			Images_.queue.run([url, lnk.getAttribute('de-name') ||
 				url.substring(url.lastIndexOf("/") + 1), el, lnk]);
 		}
 	});
