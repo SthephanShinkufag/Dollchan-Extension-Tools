@@ -3613,11 +3613,10 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		var msg, src, time, dataObj;
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
+			post.ytLink = link;
 			if(youTube.embedType === 2) {
-				post.ytLink = link;
 				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYtube);
 			} else if(youTube.embedType > 2) {
-				post.ytLink = link;
 				youTube.addThumb(post.ytObj, post.ytInfo = m, isYtube);
 			}
 		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', post.msg)) {
