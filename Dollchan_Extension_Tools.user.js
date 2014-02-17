@@ -392,6 +392,8 @@ Lng = {
 	storage:		['Хранение: ', 'Storage: '],
 	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
 	thrCreated:		['Тредов создано: ', 'Threads created: '],
+	thrHidden:		['Тредов скрыто: ', 'Threads hidden: '],
+	postsSended:	['Постов отправлено: ', 'Posts sended: '],
 	posts:			['Постов: ', 'Posts: '],
 	total:			['Всего: ', 'Total: '],
 	debug:			['Отладка', 'Debug'],
@@ -1958,8 +1960,8 @@ function getCfgInfo() {
 		$add('<div><div style="display: inline-block; vertical-align: top; width: 186px; height: 235px;">' +
 			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
 			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
-			Lng.posts[lang] + Cfg['stats']['reply'] + '<br>' +
-			Lng.hiddenThrds[lang] + ': ' + getHiddenThrCount() + '</div>' +
+			Lng.thrHidden[lang] + getHiddenThrCount() + '<br>' +
+			Lng.postsSended[lang] + Cfg['stats']['reply'] + '</div>' +
 			'<div style="display: inline-block; padding-left: 7px; height: 235px; ' +
 			'border-left: 1px solid grey;">' + timeLog.join('<br>') + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
