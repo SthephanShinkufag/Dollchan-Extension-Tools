@@ -6247,6 +6247,9 @@ PostForm.prototype = {
 	_captchaInit: function(html) {
 		this.txta.onkeypress = this.file.onclick = emptyFn;
 		this.capTr.innerHTML = html;
+		if(aib.iich) {
+			$c('postblock', this.capTr).textContent = 'Капча';
+		}
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
 		if(aib.fch) {
 			$script('loadRecaptcha()');
@@ -8689,6 +8692,9 @@ function getImageBoard(checkDomains, checkOther) {
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
+		'iichan.hk': [{
+			iich: { value: true }
+		}],
 		'inach.org': [{
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			isBB: { value: true }
