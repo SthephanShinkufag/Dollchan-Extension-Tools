@@ -3613,7 +3613,6 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		var msg, src, time, dataObj;
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
-			post.ytLink = link;
 			if(youTube.embedType === 2) {
 				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYtube);
 			} else if(youTube.embedType > 2) {
@@ -3658,6 +3657,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 					(dataObj ? ' de-video-title' : '') +
 					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 			link = post.msg.lastChild.firstChild;
+		}
+		if(!post.ytInfo || post.ytInfo === m) {
+			post.ytLink = link;
 		}
 		link.ytInfo = m;
 		if(loader && !dataObj) {
@@ -5278,7 +5280,7 @@ function scriptCSS() {
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 25px; }\
 		.de-cfg-tab { padding: 4px 6px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
-		.de-cfg-tab-back { display: table-cell !important; float: none !important; min-width: 0; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
+		.de-cfg-tab-back { display: table-cell !important; float: none !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
 		.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
 		.de-cfg-tab-back[selected="true"] { border-bottom: none !important; }\
@@ -8617,7 +8619,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '#paging > ul > li:nth-last-child(2)' },
 			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
 			css: { get: function() {
-				return 'reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
+				return '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
 			} },
 			cssHide: { value: '.de-post-hid > div > .post_header ~ *' },
 			getImgWrap: { value: function(el) {
