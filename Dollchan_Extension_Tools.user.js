@@ -5914,9 +5914,6 @@ PostForm.prototype = {
 			this.isTopForm = isTop;
 			this.setReply(false, false);
 		}
-		if(!this.isHidden) {
-			this.txta.focus();
-		}
 		if(evt) {
 			$pd(evt);
 		}
@@ -6200,7 +6197,8 @@ PostForm.prototype = {
 		}.bind(this), false);
 		if(this.cap) {
 			this.capTr = getAncestor(this.cap, aib.trTag);
-			this.txta.onkeypress = this.file.onclick = this._captchaInit.bind(this, this.capTr.innerHTML);
+			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+			this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 			$disp(this.capTr);
 			this.capTr.innerHTML = '';
 			this.cap = null;
@@ -6245,7 +6243,9 @@ PostForm.prototype = {
 		}
 	},
 	_captchaInit: function(html) {
-		this.txta.onkeypress = this.file.onclick = emptyFn;
+		if(this.capInited) {
+			return
+		}
 		this.capTr.innerHTML = html;
 		if(aib.iich) {
 			$c('postblock', this.capTr).textContent = 'Капча';
@@ -6269,6 +6269,7 @@ PostForm.prototype = {
 			setTimeout(this._captchaUpd.bind(this), 100);
 			return;
 		}
+		this.capInited = true;
 		this.cap.autocomplete = 'off';
 		this.cap.onfocus = function() {
 			if(this._lastCapUpdate !== 0 && Date.now() - this._lastCapUpdate > 3e5) {
