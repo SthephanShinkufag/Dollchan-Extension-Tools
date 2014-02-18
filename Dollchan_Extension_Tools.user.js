@@ -1823,7 +1823,7 @@ function getCfgForm() {
 			lBox('saveSage', false, null)
 		])),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
-		$if(pr.cap, optSel('captchaLang', true, null)),
+		$if(pr.capTr, optSel('captchaLang', true, null)),
 		$if(pr.txta, $New('div', null, [
 			optSel('addTextBtns', false, function() {
 				saveCfg('addTextBtns', this.selectedIndex);
@@ -5667,8 +5667,7 @@ function PostForm(form, ignoreForm, init) {
 		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = TNum;
 	this.form = form;
-	this.recap = $id('recaptcha_response_field');
-	this.cap = !aib.abu && this._getCaptcha();
+	this.cap = $q('input[type="text"][name*="aptcha"], div[id*="captcha"]', form);
 	this.txta = $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q(tr + ' input[type="submit"]', form);
 	this.file = $q(tr + ' input[type="file"]', form);
@@ -5684,14 +5683,6 @@ function PostForm(form, ignoreForm, init) {
 	this.video = $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form);
 	if(init) {
 		this._init();
-	}
-	if(!this.cap) {
-		window.addEventListener('load', function() {
-			this.recap = $id('recaptcha_response_field');
-			if(this.cap = this._getCaptcha()) {
-				this._updateCaptcha();
-			}
-		}.bind(this), false);
 	}
 }
 PostForm.setUserName = function() {
@@ -5859,35 +5850,6 @@ PostForm.prototype = {
 			e.stopPropagation();
 		}
 	},
-	refreshCapImg: function(tNum, focus) {
-		var src, img;
-		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
-			img.dispatchEvent(new CustomEvent('click', {
-				'bubbles': true,
-				'cancelable': true,
-				'detail': {'isCustom': true, 'focus': focus}
-			}));
-			return;
-		}
-		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
-			return;
-		}
-		img = this.recap ? $id('recaptcha_image') || this.recap : $t('img', getAncestor(this.cap, aib.trTag));
-		if(aib.dobr || aib.krau || this.recap) {
-			img.click();
-		} else {
-			src = this._refreshCapSrc(img.getAttribute('src'), tNum);
-			img.src = '';
-			img.src = src;
-		}
-		this.cap.value = '';
-		if(focus) {
-			this.cap.focus();
-		}
-		if(this._lastCapUpdate !== 0) {
-			this._lastCapUpdate = Date.now();
-		}
-	},
 	showQuickReply: function(post, pNum, closeReply) {
 		var el, tNum = post.tNum;
 		if(!this.isQuick) {
@@ -5923,8 +5885,8 @@ PostForm.prototype = {
 		if(!this.form) {
 			return;
 		}
-		if(this._lastCapUpdate !== 0 && ((!TNum && this.tNum !== tNum) ||
-			Date.now() - this._lastCapUpdate > 3e5))
+		if(this._lastCapUpdate !== 0 &&
+			((!TNum && this.tNum !== tNum) || Date.now() - this._lastCapUpdate > 3e5))
 		{
 			this.refreshCapImg(tNum, false);
 		}
@@ -5970,6 +5932,42 @@ PostForm.prototype = {
 			this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
 		}
 	},
+	refreshCapImg: function(tNum, focus) {
+		var src, img;
+		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
+			img.dispatchEvent(new CustomEvent('click', {
+				'bubbles': true,
+				'cancelable': true,
+				'detail': {'isCustom': true, 'focus': focus}
+			}));
+			return;
+		}
+		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
+			return;
+		}
+		img = this.recap ? $id('recaptcha_image') : $t('img', getAncestor(this.cap, aib.trTag));
+		if(aib.dobr || aib.krau || this.recap) {
+			img.click();
+		} else {
+			src = this._refreshCapSrc(img.getAttribute('src'), tNum);
+			if(aib.kus || aib.tinyIb) {
+				src = src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
+			} else if(tNum > 0) {
+				src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
+			} else {
+				scr = src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+			}
+			img.src = '';
+			img.src = src;
+		}
+		this.cap.value = '';
+		if(focus) {
+			this.cap.focus();
+		}
+		if(this._lastCapUpdate !== 0) {
+			this._lastCapUpdate = Date.now();
+		}
+	},
 	setReply: function(quick, hide) {
 		if(quick) {
 			this.qArea.appendChild(this.pForm);
@@ -5999,10 +5997,6 @@ PostForm.prototype = {
 			PostForm.eventFiles(cln);
 		}
 		this.file = $q('input[type="file"]', cln);
-	},
-	_getCaptcha: function() {
-		return $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.form) ||
-			this.recap;
 	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
@@ -6205,7 +6199,11 @@ PostForm.prototype = {
 			}
 		}.bind(this), false);
 		if(this.cap) {
-			this._updateCaptcha();
+			this.capTr = getAncestor(this.cap, aib.trTag);
+			this.txta.onkeypress = this.file.onclick = this._captchaInit.bind(this, this.capTr.innerHTML);
+			$disp(this.capTr);
+			this.capTr.innerHTML = '';
+			this.cap = null;
 		}
 		if(Cfg['ajaxReply'] === 2) {
 			this.form.onsubmit = function(e) {
@@ -6223,15 +6221,6 @@ PostForm.prototype = {
 				PostForm.eventFiles(getAncestor(this.file, aib.trTag));
 			}
 		}
-	},
-	_refreshCapSrc: function(src, tNum) {
-		if(aib.kus || aib.tinyIb) {
-			return src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
-		}
-		if(tNum > 0) {
-			src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
-		}
-		return src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
 	},
 	_setSage: function() {
 		var c = Cfg['sageReply'];
@@ -6255,14 +6244,27 @@ PostForm.prototype = {
 			}
 		}
 	},
-	_updateCaptcha: function() {
-		var img, _img;
-		if(this.recap && (img = $id('recaptcha_image'))) {
-			img.setAttribute('onclick', 'Recaptcha.reload()');
-			img.style.cssText = 'width: 300px; cursor: pointer;';
+	_captchaInit: function(html) {
+		this.txta.onkeypress = this.file.onclick = emptyFn;
+		this.capTr.innerHTML = html;
+		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
+		if(aib.fch) {
+			$script('loadRecaptcha()');
 		}
 		if(aib.krau) {
 			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
+		}
+		setTimeout(this._captchaUpd.bind(this), 100);
+	},
+	_captchaUpd: function() {
+		var img, a;
+		if((this.recap = $id('recaptcha_response_field')) && (img = $id('recaptcha_image'))) {
+			this.cap = this.recap;
+			img.setAttribute('onclick', 'Recaptcha.reload()');
+			img.style.cssText = 'width: 300px; cursor: pointer;';
+		} else if(aib.fch) {
+			setTimeout(this._captchaUpd.bind(this), 100);
+			return;
 		}
 		this.cap.autocomplete = 'off';
 		this.cap.onfocus = function() {
@@ -6294,34 +6296,19 @@ PostForm.prototype = {
 				$txtInsert(e.target, chr);
 			};
 		})();
-		if(aib.dobr || aib.krau || this.recap) {
-			return;
-		}
-		this._lastCapUpdate = Date.now();
-		img = $q(aib.phut ? 'img' : 'a, img', getAncestor(this.cap, aib.trTag));
-		_img = $new('img', {
-			'alt': Lng.loading[lang],
-			'title': Lng.refresh[lang],
-			'style': 'display: block; border: none; cursor: pointer;'}, {
-			'click': this.refreshCapImg.bind(this, TNum || 0, true)
-		});
-		if(img) {
-			img.parentNode.replaceChild(_img, img);
-		} else {
-			while(this.cap.nextSibling) {
-				$del(this.cap.nextSibling);
+		if(!aib.dobr && !aib.krau && !this.recap) {
+			this._lastCapUpdate = Date.now();
+			img = $q('img', getAncestor(this.cap, aib.trTag));
+			img.title = Lng.refresh[lang];
+			img.alt = Lng.loading[lang];
+			img.style.cssText = 'display: block; border: none; cursor: pointer;';
+			img.onclick = this.refreshCapImg.bind(this, TNum || 0, true);
+			if((a = img.parentNode).tagName === 'A') {
+				$after(a, img);
+				$del(a);
 			}
-			$after(this.cap, _img);
 		}
-		setTimeout(function(i) {
-			i.src = this._refreshCapSrc(
-				aib._410 ? ('/faptcha.php?board=' + brd) :
-					aib.hid ? ('/securimage/securimage_show.php?' + Math.random()) :
-					aib.kus ? '/' + brd.substr(0, brd.indexOf('/') + 1) + 'captcha.php?' + Math.random() :
-					(img ? img.src : '/' + brd + '/captcha.pl?key=mainpage&amp;dummy=' + Math.random()),
-				TNum || 0
-			);
-		}.bind(this, _img), 50);
+		$disp(this.capTr);
 	},
 	_wrapText: function(isBB, tag, text) {
 		var m;
@@ -8604,9 +8591,6 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '#mpostform, .navLinks, .postingMode { display: none !important; }' },
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
-			init: { value: function() {
-				$script('loadRecaptcha()');
-			} },
 			rLinkClick: { value: '' },
 			rep: { value: true }
 		}],
