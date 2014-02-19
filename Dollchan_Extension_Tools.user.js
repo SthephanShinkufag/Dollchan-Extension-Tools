@@ -18,6 +18,7 @@ defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
 	'spells':		'',		// user defined spells
+	'sortSpells':	0,		// sort spells when applying
 	'menuHiddBtn':	1,		// menu on hide button
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
@@ -103,6 +104,7 @@ defaultCfg = {
 Lng = {
 	cfg: {
 		'hideBySpell':	['Заклинания: ', 'Magic spells: '],
+		'sortSpells':	['Сортировать и удалять дубликаты и более слабые спеллы', 'Sort and delete duplicates and weaker spells'],
 		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
 		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
 		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
@@ -1682,6 +1684,11 @@ function getCfgFilters() {
 				'scroll': updRowMeter
 			})])
 		]),
+		lBox('sortSpells', true, function() {
+			if (Cfg['sortSpells']) {
+				toggleSpells();
+			}
+		}),
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
@@ -5030,11 +5037,45 @@ Spells.prototype = {
 		var reps = this._findReps(str),
 			spells = this._compile(reps[0]);
 		if(spells !== false) {
+			if(Cfg['sortSpells']) {
+				this.sort(spells);
+			}
 			return [Date.now(), spells, reps[1], reps[2]];
 		} else if(this._error) {
 			$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
 		}
 		return null;
+	},
+sort: function(sp) {
+		// Wraps AND-spells with brackets for proper sorting
+		for(var i = 0, len = sp.length-1; i < len; i++) {
+			if(sp[i][0] > 0x200) {
+				var temp = [0xFF, []];
+				do {
+					temp[1].push(sp.splice(i, 1)[0]);
+					len--;
+				} while (sp[i][0] > 0x200);
+				temp[1].push(sp.splice(i, 1)[0]);
+				sp.splice(i, 0, temp);
+			}
+		}
+		sp = sp.sort();
+		for(var i = 0, len = sp.length-1; i < len; i++) {
+			// Removes duplicates and weaker spells
+			if(sp[i][0] == sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
+			  (sp[i][2] === null || // Stronger spell with 3 parameters
+			   sp[i][2] === undefined || // Equal spells with 2 parameters
+			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2]))) { // Equal spells with 3 parameters
+				sp.splice(i+1, 1);
+				i--;
+				len--;
+			// Moves brackets to the end of the list
+			} else if(sp[i][0] == 0xFF) {
+				sp.push(sp.splice(i, 1)[0]);
+				i--;
+				len--;
+			}
+		}
 	},
 	update: function(data, sync, isHide) {
 		var spells = data[1] ? this._optimizeSpells(data[1]) : false,
@@ -5293,8 +5334,8 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px; width: 350px; height: 200px; border: none !important; outline: none !important; }\
-		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 202px; text-align: right; color: #fff; font: 12px courier new; }\
+		#de-spell-edit { padding: 2px !important; width: 350px; height: 185px; border: none !important; outline: none !important; }\
+		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 187px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';
 
