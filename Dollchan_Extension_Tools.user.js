@@ -2805,7 +2805,7 @@ function checkUpload(response) {
 			pr.setReply(true, false);
 		}
 		if(/captch|капч|подтвер|verifizie/i.test(err)) {
-			pr.refreshCapImg(pr.tNum, true);
+			pr.refreshCapImg(true);
 		}
 		$alert(err, 'upload', false);
 		return;
@@ -2836,7 +2836,7 @@ function checkUpload(response) {
 		pByNum[pr.tNum].thr.load(visPosts, false, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	pr.closeQReply();
-	pr.refreshCapImg(pr.tNum, false);
+	pr.refreshCapImg(false);
 }
 
 function endDelete() {
@@ -5883,10 +5883,9 @@ PostForm.prototype = {
 		if(!this.form) {
 			return;
 		}
-		if(this._lastCapUpdate !== 0 &&
-			((!TNum && this.tNum !== tNum) || Date.now() - this._lastCapUpdate > 3e5))
-		{
-			this.refreshCapImg(tNum, false);
+		if(this._lastCapUpdate && ((!TNum && this.tNum !== tNum) || (Date.now() - this._lastCapUpdate > 3e5))) {
+			this.tNum = tNum;
+			this.refreshCapImg(false);
 		}
 		this.tNum = tNum;
 		if(aib._420 && this.txta.value === 'Comment') {
@@ -5927,7 +5926,7 @@ PostForm.prototype = {
 			this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
 		}
 	},
-	refreshCapImg: function(tNum, focus) {
+	refreshCapImg: function(focus) {
 		var src, img;
 		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
 			img.dispatchEvent(new CustomEvent('click', {
@@ -5940,19 +5939,21 @@ PostForm.prototype = {
 		if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
 			return;
 		}
-		img = this.recap ? $id('recaptcha_image') : $t('img', getAncestor(this.cap, aib.trTag));
+		img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
 		if(aib.dobr || aib.krau || this.recap) {
 			img.click();
-		} else {
+		} else if(img) {
 			src = img.getAttribute('src');
 			if(aib.kus || aib.tinyIb) {
 				src = src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
 			} else {
-				src = src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random())
-					.replace(/pl$/, 'pl?key=mainpage&amp;dummy=' + Math.random());
-				if(tNum > 0) {
-					src = src.replace(/mainpage|res\d+/, 'res' + tNum);
+				src = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=');
+				if(this.tNum) {
+					src = src.replace(/mainpage|res\d+/, 'res' + this.tNum);
+				} else {
+					src = src.replace(/res\d+/, 'mainpage');
 				}
+				src = src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random())
 			}
 			img.src = '';
 			img.src = src;
@@ -5961,7 +5962,7 @@ PostForm.prototype = {
 		if(focus) {
 			this.cap.focus();
 		}
-		if(this._lastCapUpdate !== 0) {
+		if(this._lastCapUpdate) {
 			this._lastCapUpdate = Date.now();
 		}
 	},
@@ -6201,7 +6202,9 @@ PostForm.prototype = {
 			if(this.file) {
 				this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 			}
-			$disp(this.capTr);
+			if(!aib.krau) {
+				$disp(this.capTr);
+			}
 			this.capTr.innerHTML = '';
 			this.cap = null;
 		}
@@ -6249,10 +6252,10 @@ PostForm.prototype = {
 			return
 		}
 		this.capTr.innerHTML = html;
+		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
 		if(aib.iich) {
 			$c('postblock', this.capTr).textContent = 'Капча';
 		}
-		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
 		if(aib.fch) {
 			$script('loadRecaptcha()');
 		}
@@ -6260,6 +6263,7 @@ PostForm.prototype = {
 			$script('show_captcha()');
 		}
 		if(aib.krau) {
+			$script('if(boardRequiresCaptcha) { requestCaptcha(true); }');
 			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
 		}
 		setTimeout(this._captchaUpd.bind(this), 100);
@@ -6276,11 +6280,6 @@ PostForm.prototype = {
 		}
 		this.capInited = true;
 		this.cap.autocomplete = 'off';
-		this.cap.onfocus = function() {
-			if(this._lastCapUpdate !== 0 && Date.now() - this._lastCapUpdate > 3e5) {
-				this.refreshCapImg(this.tNum || 0, false);
-			}
-		}.bind(this);
 		this.cap.onkeypress = (function() {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
@@ -6305,17 +6304,26 @@ PostForm.prototype = {
 				$txtInsert(e.target, chr);
 			};
 		})();
-		if(!aib.dobr && !aib.krau && !this.recap) {
-			this._lastCapUpdate = Date.now();
-			if(img = $q('img', getAncestor(this.cap, aib.trTag))) {
-				img.title = Lng.refresh[lang];
-				img.alt = Lng.loading[lang];
-				img.style.cssText = 'display: block; border: none; cursor: pointer;';
-				img.onclick = this.refreshCapImg.bind(this, TNum || 0, true);
-				if((a = img.parentNode).tagName === 'A') {
-					$after(a, img);
-					$del(a);
-				}
+		if(aib.krau) {
+			return;
+		}
+		if(!aib.dobr && !this.recap && (img = $q('img', this.capTr))) {
+			if(!aib.kus && !aib.tinyIb) { // wakaba only
+				this._lastCapUpdate = Date.now();
+				this.refreshCapImg(false);
+				this.cap.onfocus = function() {
+					if(this._lastCapUpdate && (Date.now() - this._lastCapUpdate > 3e5)) {
+						this.refreshCapImg(false);
+					}
+				}.bind(this);
+			}
+			img.title = Lng.refresh[lang];
+			img.alt = Lng.loading[lang];
+			img.style.cssText = 'display: block; border: none; cursor: pointer;';
+			img.onclick = this.refreshCapImg.bind(this, true);
+			if((a = img.parentNode).tagName === 'A') {
+				$after(a, img);
+				$del(a);
 			}
 		}
 		$disp(this.capTr);
@@ -8679,7 +8687,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} }
 		}],
 		'ernstchan.com': [{
-			css: { value: '.content > hr, form > hr { display: none !important }' },
+			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
 			cOPost: { value: 'thread_OP' },
 			cReply: { value: 'post' },
 			cRPost: { value: 'thread_reply' },
