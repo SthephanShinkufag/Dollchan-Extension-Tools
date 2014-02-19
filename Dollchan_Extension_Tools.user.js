@@ -5944,13 +5944,15 @@ PostForm.prototype = {
 		if(aib.dobr || aib.krau || this.recap) {
 			img.click();
 		} else {
-			src = this._refreshCapSrc(img.getAttribute('src'), tNum);
+			src = img.getAttribute('src');
 			if(aib.kus || aib.tinyIb) {
 				src = src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
-			} else if(tNum > 0) {
-				src = src.replace(/mainpage|res\d+/ig, 'res' + tNum);
 			} else {
-				scr = src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+				src = src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random())
+					.replace(/pl$/, 'pl?key=mainpage&amp;dummy=' + Math.random());
+				if(tNum > 0) {
+					src = src.replace(/mainpage|res\d+/, 'res' + tNum);
+				}
 			}
 			img.src = '';
 			img.src = src;
@@ -6254,6 +6256,9 @@ PostForm.prototype = {
 		if(aib.fch) {
 			$script('loadRecaptcha()');
 		}
+		if(aib.tire) {
+			$script('show_captcha()');
+		}
 		if(aib.krau) {
 			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
 		}
@@ -6302,14 +6307,15 @@ PostForm.prototype = {
 		})();
 		if(!aib.dobr && !aib.krau && !this.recap) {
 			this._lastCapUpdate = Date.now();
-			img = $q('img', getAncestor(this.cap, aib.trTag));
-			img.title = Lng.refresh[lang];
-			img.alt = Lng.loading[lang];
-			img.style.cssText = 'display: block; border: none; cursor: pointer;';
-			img.onclick = this.refreshCapImg.bind(this, TNum || 0, true);
-			if((a = img.parentNode).tagName === 'A') {
-				$after(a, img);
-				$del(a);
+			if(img = $q('img', getAncestor(this.cap, aib.trTag))) {
+				img.title = Lng.refresh[lang];
+				img.alt = Lng.loading[lang];
+				img.style.cssText = 'display: block; border: none; cursor: pointer;';
+				img.onclick = this.refreshCapImg.bind(this, TNum || 0, true);
+				if((a = img.parentNode).tagName === 'A') {
+					$after(a, img);
+					$del(a);
+				}
 			}
 		}
 		$disp(this.capTr);
@@ -8506,16 +8512,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			ru: { value: true },
-			init: { value: function() {
-				$script('$X = $x = $del = $each = AJAX = delPostPreview = showPostPreview =\
-					doRefPreview = getRefMap = showRefMap = doRefMap = get_cookie = set_cookie =\
-					save_cookies = get_password = insert = highlight = set_stylesheet =\
-					set_preferred_stylesheet = get_active_stylesheet =\
-					get_preferred_stylesheet = set_inputs = set_delpass = do_ban = lazyadmin =\
-					conf = expand = wipe = fastload_listen = threadHide = threadShow =\
-					add_to_thread_cookie = remove_from_thread_cookie = toggleHidden =function(){};');
-				return false;
-			} },
 			isBB: { value: true }
 		}],
 		get '2-ch.su'() { return this['2--ch.ru']; },
