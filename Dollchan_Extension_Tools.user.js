@@ -5947,13 +5947,10 @@ PostForm.prototype = {
 			if(aib.kus || aib.tinyIb) {
 				src = src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
 			} else {
-				src = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=');
-				if(this.tNum) {
-					src = src.replace(/mainpage|res\d+/, 'res' + this.tNum);
-				} else {
-					src = src.replace(/res\d+/, 'mainpage');
-				}
-				src = src.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random())
+				src = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
+					.replace(/dummy=[\d\.]*/, 'dummy=' + Math.random());
+				src = this.tNum ? src.replace(/mainpage|res\d+/, 'res' + this.tNum) :
+					src.replace(/res\d+/, 'mainpage');
 			}
 			img.src = '';
 			img.src = src;
@@ -6310,12 +6307,14 @@ PostForm.prototype = {
 		if(!aib.dobr && !this.recap && (img = $q('img', this.capTr))) {
 			if(!aib.kus && !aib.tinyIb) { // wakaba only
 				this._lastCapUpdate = Date.now();
-				this.refreshCapImg(false);
 				this.cap.onfocus = function() {
 					if(this._lastCapUpdate && (Date.now() - this._lastCapUpdate > 3e5)) {
 						this.refreshCapImg(false);
 					}
 				}.bind(this);
+				if(!TNum && this.isQuick) {
+					this.refreshCapImg(false);
+				}
 			}
 			img.title = Lng.refresh[lang];
 			img.alt = Lng.loading[lang];
