@@ -6284,8 +6284,8 @@ PostForm.prototype = {
 		}
 		this.capTr.innerHTML = html;
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
-		if(aib.iich) {
-			$c('postblock', this.capTr).textContent = 'Капча';
+		if(aib.iich || aib.abu) {
+			$t('td', this.capTr).textContent = 'Капча';
 		}
 		if(aib.fch) {
 			$script('loadRecaptcha()');
