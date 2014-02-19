@@ -6304,26 +6304,28 @@ PostForm.prototype = {
 		if(aib.krau) {
 			return;
 		}
-		if(!aib.dobr && !this.recap && (img = $q('img', this.capTr))) {
-			if(!aib.kus && !aib.tinyIb) { // wakaba only
-				this._lastCapUpdate = Date.now();
-				this.cap.onfocus = function() {
-					if(this._lastCapUpdate && (Date.now() - this._lastCapUpdate > 3e5)) {
-						this.refreshCapImg(false);
-					}
-				}.bind(this);
-				if(!TNum && this.isQuick) {
+		if(aib.abu || aib.dobr || this.recap || !(img = $q('img', this.capTr))) {
+			$disp(this.capTr);
+			return;
+		}
+		if(!aib.kus && !aib.tinyIb) {
+			this._lastCapUpdate = Date.now();
+			this.cap.onfocus = function() {
+				if(this._lastCapUpdate && (Date.now() - this._lastCapUpdate > 3e5)) {
 					this.refreshCapImg(false);
 				}
+			}.bind(this);
+			if(!TNum && this.isQuick) {
+				this.refreshCapImg(false);
 			}
-			img.title = Lng.refresh[lang];
-			img.alt = Lng.loading[lang];
-			img.style.cssText = 'display: block; border: none; cursor: pointer;';
-			img.onclick = this.refreshCapImg.bind(this, true);
-			if((a = img.parentNode).tagName === 'A') {
-				$after(a, img);
-				$del(a);
-			}
+		}
+		img.title = Lng.refresh[lang];
+		img.alt = Lng.loading[lang];
+		img.style.cssText = 'display: block; border: none; cursor: pointer;';
+		img.onclick = this.refreshCapImg.bind(this, true);
+		if((a = img.parentNode).tagName === 'A') {
+			$after(a, img);
+			$del(a);
 		}
 		$disp(this.capTr);
 	},
