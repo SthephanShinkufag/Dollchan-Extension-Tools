@@ -4051,8 +4051,9 @@ function getHanaPost(postJson) {
 		files = postJson['files'],
 		len = files.length,
 		wrap = $new('table', {'id': 'post_' + id, 'class': 'replypost post'}, null);
-	html = '<tbody><tr><td class="doubledash">&gt;&gt;</td><td id="reply' + id + '" class="reply"><a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
-		id + '" class="delete_checkbox" value="' + postJson['post_id'] + '" id="' + id +
+	html = '<tbody><tr><td class="doubledash">&gt;&gt;</td><td id="reply' + id + '" class="reply">' +
+		'<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
+		id + '" class="delete_checkbox" value="' + postJson['thread_id'] + '" name="' + id +
 		'"></a><span class="replytitle">' + postJson['subject'] + '</span> <span class="postername">' +
 		postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
