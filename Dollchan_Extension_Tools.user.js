@@ -3977,9 +3977,7 @@ function loadPages(count) {
 		if(pr.file) {
 			pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 		}
-		if(pr.txta) {
-			pr.txta.value = '';
-		}
+		pr.txta.value = '';
 	}
 	while(i < len) {
 		fun = onLoadOrError.bind(null, i);
@@ -6198,7 +6196,9 @@ PostForm.prototype = {
 		if(this.cap) {
 			this.capTr = getAncestor(this.cap, aib.trTag);
 			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+			if(this.file) {
+				this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+			}
 			$disp(this.capTr);
 			this.capTr.innerHTML = '';
 			this.cap = null;
