@@ -7856,6 +7856,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		this._pref = $q(aib.qRef, el);
 		if(post.inited) {
 			this.btns = btns = $c('de-ppanel', el);
+			this.isOp = post.isOp;
 			btns.classList.remove('de-ppanel-cnt');
 			if(post.hidden) {
 				btns.classList.add('de-post-hid');
