@@ -8588,7 +8588,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '.pagelist > a:last-child' },
 			qThread: { value: '[id*="thread"]' },
 			getTNum: { value: function(op) {
-				return $q('a[id]', op).id.match(/\d+/)[0];
+				return +$q('a[id]', op).id.match(/\d+/)[0];
 			} },
 			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
@@ -8623,7 +8623,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 			} },
 			getTNum: { value: function(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			getWrap: { value: function(el, isOp) {
 				return el.parentNode;
@@ -8698,7 +8698,7 @@ function getImageBoard(checkDomains, checkOther) {
 					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
 			} },
 			getTNum: { value: function(op) {
-				return $q('a[name]', op).name.match(/\d+/)[0];
+				return +$q('a[name]', op).name.match(/\d+/)[0];
 			} },
 			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
@@ -8766,7 +8766,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return !!$c('sage', post);
 			} },
 			getTNum: { value: function(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2 { display: none !important; }\
 					div[id^="Wz"] { z-index: 10000 !important; }\
@@ -8919,7 +8919,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return $Q('td:nth-child(2)', thr);
 			} },
 			getTNum: { value: function(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { value: '.de-cfg-body, .de-content { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
@@ -8958,7 +8958,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 			} },
 			getTNum: { value: function(op) {
-				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { get: function() {
 				return '.banner, .mentioned, .post-hover' + (TNum ? '' : ', .de-btn-rep') + ' { display: none !important; }\
@@ -9121,7 +9121,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 		},
 		getTNum: function(op) {
-			return $q('input[type="checkbox"]', op).value;
+			return +$q('input[type="checkbox"]', op).value;
 		},
 		getWrap: function(el, isOp) {
 			if(isOp) {
@@ -9422,9 +9422,9 @@ function Initialization(checkDomains) {
 		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?$'
 	));
 	brd = url[1];
-	TNum = url[2] ? url[3] :
+	TNum = url[2] ? +url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
-		false;
+		0;
 	pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
 	if(!aib.hasOwnProperty('docExt') && url[4]) {
 		aib.docExt = url[4];
