@@ -2860,7 +2860,7 @@ function checkDelete(response) {
 		return;
 	}
 	var el, i, els, len, post, tNums = [],
-		num = +(doc.location.hash.match(/\d+/) || [null])[0];
+		num = +(doc.location.hash.match(/\d+/) || [0])[0];
 	if(num && (post = pByNum[num])) {
 		if(!post.isOp) {
 			post.el.className = aib.cReply;
@@ -9424,7 +9424,7 @@ function Initialization(checkDomains) {
 	));
 	brd = url[1];
 	TNum = url[2] ? +url[3] :
-		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
+		aib.futa ? +(window.location.search.match(/\d+/) || [0])[0] :
 		0;
 	pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
 	if(!aib.hasOwnProperty('docExt') && url[4]) {
