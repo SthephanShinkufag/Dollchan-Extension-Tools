@@ -8402,9 +8402,6 @@ Thread.prototype = {
 			rerunSpells = spells.hasNumSpell,
 			saveSpells = false,
 			post = this.op.nextNotDeleted;
-		if(nav.WebKit) {
-			nPosts = aProto.slice.call(nPosts);
-		}
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - 1 === i) {
 				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
@@ -8910,7 +8907,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 			} },
 			getPNum: { value: function(post) {
-				return $t('input', post).name;
+				return +$t('input', post).name;
 			} },
 			getPostEl: { value: function(el) {
 				while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
@@ -9102,7 +9099,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return op;
 		},
 		getPNum: function(post) {
-			return post.id.match(/\d+/)[0];
+			return +post.id.match(/\d+/)[0];
 		},
 		getPageUrl: function(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
