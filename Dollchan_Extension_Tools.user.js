@@ -2860,7 +2860,7 @@ function checkDelete(response) {
 		return;
 	}
 	var el, i, els, len, post, tNums = [],
-		num = (doc.location.hash.match(/\d+/) || [null])[0];
+		num = +(doc.location.hash.match(/\d+/) || [null])[0];
 	if(num && (post = pByNum[num])) {
 		if(!post.isOp) {
 			post.el.className = aib.cReply;
@@ -7498,8 +7498,8 @@ Post.prototype = {
 			'<a class="de-menu-item de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str;
 	},
 	_addPview: function(link) {
-		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
-			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
+		var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
+			pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0],
 			pv = this._isPview ? this.kid : Pview.top;
 		if(pv && pv.num === pNum) {
 			Pview.del(pv.kid);
@@ -8174,7 +8174,7 @@ function Thread(el, prev) {
 		num = aib.getTNum(el),
 		omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, el), len);
 	this.num = num;
-	Thread.tNums.push(+num);
+	Thread.tNums.push(num);
 	this.pcount = omt + len;
 	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
 		prev ? prev.last : null);
