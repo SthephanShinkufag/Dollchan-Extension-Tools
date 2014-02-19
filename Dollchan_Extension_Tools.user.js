@@ -4382,15 +4382,13 @@ Spells.prototype = {
 			return 0;
 		}
 		type = this.names.indexOf(val[1]);
-		this._lastType = 2;
 		if(type === -1) {
 			this._errorMessage = Lng.seUnknown[lang] + val[1];
 			this._lastErrCol = 1;
 			return 0;
 		}
-		if(this._opNeg) {
+		if(this._lastType === 1) {
 			rType = type | 0x100;
-			this._opNeg = false;
 		} else {
 			rType = type;
 		}
@@ -4542,26 +4540,11 @@ Spells.prototype = {
 			return val[0].length + exp[0].length;
 		}
 	},
-	_setOperator: function(scope, op) {
-		if(op === 2) {
-			if(!this._lastType || this._lastType === 3) {
-				this._lastType = 1;
-				return this._opNeg = true;
-			}
-		} else if(this._lastType === 2 || this._lastType === 4) {
-			this._lastType = 0;
-			if(op === 1) {
-				scope[scope.length - 1][0] |= 0x200;
-			}
-			return true;
-		}
-		return false;
-	},
 	_compile: function(sList) {
 		if(!sList) {
 			return null;
 		}
-		this._lastType = this._opNeg = null;
+		this._lastType = null;
 		var d, data = [],
 			scopes = [],
 			scope = data,
@@ -4587,6 +4570,7 @@ Spells.prototype = {
 					i += d;
 					col += d;
 				}
+				this._lastType = 2;
 				break;
 			case '(':
 				if(this._lastType === 2 || this._lastType === 4) {
@@ -4594,11 +4578,10 @@ Spells.prototype = {
 					return false;
 				}
 				scopes.push(scope);
-				scope.push([this._opNeg ? 0x1FF : 0xFF, []])
+				scope.push([this._lastType === 1 ? 0x1FF : 0xFF, []])
 				scope = scope[scope.length - 1][1];
 				bkt++;
 				this._lastType = 3;
-				this._opNeg = false;
 				break;
 			case ')':
 				if(this._lastType === 0 || this._lastType === 1) {
@@ -4619,7 +4602,16 @@ Spells.prototype = {
 			case '|':
 			case '&':
 			case '!':
-				if(this._setOperator(scope, sList[i] === '|' ? 0 : sList[i] === '&' ? 1 : 2)) {
+				if(sList[i] === '!') {
+					if(!this._lastType || this._lastType === 3) {
+						this._lastType = 1;
+						break;
+					}
+				} else if(this._lastType === 2 || this._lastType === 4) {
+					if(sList[i] === '&') {
+						scope[scope.length - 1][0] |= 0x200;
+					}
+					this._lastType = 0;
 					break;
 				}
 			default:
@@ -5046,7 +5038,7 @@ Spells.prototype = {
 		}
 		return null;
 	},
-sort: function(sp) {
+	sort: function(sp) {
 		// Wraps AND-spells with brackets for proper sorting
 		for(var i = 0, len = sp.length-1; i < len; i++) {
 			if(sp[i][0] > 0x200) {
@@ -5065,7 +5057,8 @@ sort: function(sp) {
 			if(sp[i][0] == sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
 			  (sp[i][2] === null || // Stronger spell with 3 parameters
 			   sp[i][2] === undefined || // Equal spells with 2 parameters
-			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2]))) { // Equal spells with 3 parameters
+			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2])))
+			{ // Equal spells with 3 parameters
 				sp.splice(i+1, 1);
 				i--;
 				len--;
