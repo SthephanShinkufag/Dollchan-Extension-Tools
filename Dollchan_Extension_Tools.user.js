@@ -2860,7 +2860,7 @@ function checkDelete(response) {
 		return;
 	}
 	var el, i, els, len, post, tNums = [],
-		num = +(doc.location.hash.match(/\d+/) || [0])[0];
+		num = (doc.location.hash.match(/\d+/) || [null])[0];
 	if(num && (post = pByNum[num])) {
 		if(!post.isOp) {
 			post.el.className = aib.cReply;
@@ -7498,8 +7498,8 @@ Post.prototype = {
 			'<a class="de-menu-item de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str;
 	},
 	_addPview: function(link) {
-		var tNum = +(link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
-			pNum = +(link.textContent.trim().match(/\d+$/) || [tNum])[0],
+		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
+			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
 			pv = this._isPview ? this.kid : Pview.top;
 		if(pv && pv.num === pNum) {
 			Pview.del(pv.kid);
@@ -8174,7 +8174,7 @@ function Thread(el, prev) {
 		num = aib.getTNum(el),
 		omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, el), len);
 	this.num = num;
-	Thread.tNums.push(num);
+	Thread.tNums.push(+num);
 	this.pcount = omt + len;
 	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
 		prev ? prev.last : null);
@@ -8403,6 +8403,9 @@ Thread.prototype = {
 			rerunSpells = spells.hasNumSpell,
 			saveSpells = false,
 			post = this.op.nextNotDeleted;
+		if(nav.WebKit) {
+			nPosts = aProto.slice.call(nPosts);
+		}
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - 1 === i) {
 				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
@@ -8591,7 +8594,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '.pagelist > a:last-child' },
 			qThread: { value: '[id*="thread"]' },
 			getTNum: { value: function(op) {
-				return +$q('a[id]', op).id.match(/\d+/)[0];
+				return $q('a[id]', op).id.match(/\d+/)[0];
 			} },
 			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
@@ -8626,7 +8629,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 			} },
 			getTNum: { value: function(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			getWrap: { value: function(el, isOp) {
 				return el.parentNode;
@@ -8701,7 +8704,7 @@ function getImageBoard(checkDomains, checkOther) {
 					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
 			} },
 			getTNum: { value: function(op) {
-				return +$q('a[name]', op).name.match(/\d+/)[0];
+				return $q('a[name]', op).name.match(/\d+/)[0];
 			} },
 			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
@@ -8769,7 +8772,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return !!$c('sage', post);
 			} },
 			getTNum: { value: function(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2 { display: none !important; }\
 					div[id^="Wz"] { z-index: 10000 !important; }\
@@ -8910,7 +8913,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 			} },
 			getPNum: { value: function(post) {
-				return +$t('input', post).name;
+				return $t('input', post).name;
 			} },
 			getPostEl: { value: function(el) {
 				while(el && el.tagName !== 'TD' && !el.hasAttribute('de-thread')) {
@@ -8922,7 +8925,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return $Q('td:nth-child(2)', thr);
 			} },
 			getTNum: { value: function(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { value: '.de-cfg-body, .de-content { font-family: arial; }\
 				.ftbl { width: auto; margin: 0; }\
@@ -8961,7 +8964,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
 			} },
 			getTNum: { value: function(op) {
-				return +$q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { get: function() {
 				return '.banner, .mentioned, .post-hover' + (TNum ? '' : ', .de-btn-rep') + ' { display: none !important; }\
@@ -9102,7 +9105,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return op;
 		},
 		getPNum: function(post) {
-			return +post.id.match(/\d+/)[0];
+			return post.id.match(/\d+/)[0];
 		},
 		getPageUrl: function(b, p) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
@@ -9124,7 +9127,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 		},
 		getTNum: function(op) {
-			return +$q('input[type="checkbox"]', op).value;
+			return $q('input[type="checkbox"]', op).value;
 		},
 		getWrap: function(el, isOp) {
 			if(isOp) {
@@ -9425,9 +9428,9 @@ function Initialization(checkDomains) {
 		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?$'
 	));
 	brd = url[1];
-	TNum = url[2] ? +url[3] :
-		aib.futa ? +(window.location.search.match(/\d+/) || [0])[0] :
-		0;
+	TNum = url[2] ? url[3] :
+		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
+		false;
 	pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
 	if(!aib.hasOwnProperty('docExt') && url[4]) {
 		aib.docExt = url[4];
