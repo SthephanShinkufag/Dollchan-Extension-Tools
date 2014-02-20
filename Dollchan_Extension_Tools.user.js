@@ -8469,9 +8469,11 @@ Thread.prototype = {
 				tPost.next = post;
 				post.prev = tPost;
 			} else {
-				console.error('Loaded thread has extra post, num:', aib.getPNum(nPosts[i]),
-					'count:', i, '. Latest in thread post num:', post.num, 'count:', post.count,
-					'. Posts count in thread:', this.pcount, 'Posts count loaded:', len + 1);
+				if(TNum) {
+					console.error('Loaded thread has extra post, num:', aib.getPNum(nPosts[i]),
+						'count:', i, '. Latest in thread post num:', post.num, 'count:', post.count,
+						'. Posts count in thread:', this.pcount, 'Posts count loaded:', len + 1);
+				}
 				i++;
 			}
 		}
@@ -8676,7 +8678,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cFileInfo: { value: 'fileinfo' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.post-error, h2' },
-			qOmitted: { value: '.abbrev > span:last-child' },
+			qOmitted: { value: '.abbrev > span:first-of-type' },
 			qMsg: { value: '.postbody' },
 			qPages: { value: '.pages > tbody > tr > td' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
