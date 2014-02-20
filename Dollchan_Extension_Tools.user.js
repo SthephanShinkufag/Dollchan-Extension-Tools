@@ -8306,7 +8306,7 @@ Thread.prototype = {
 							last = this.last;
 							for(i = 0; i < len; i++) {
 								temp = getHanaPost(el[i]);
-								last = this._addPost(fragm, el[i]['display_id'],
+								last = this._addPost(fragm, el[i]['display_id'].toString(),
 									replacePost(temp[1]), temp[0], pCount + i, last);
 								np -= spells.check(last)
 							}
@@ -8403,9 +8403,6 @@ Thread.prototype = {
 			rerunSpells = spells.hasNumSpell,
 			saveSpells = false,
 			post = this.op.nextNotDeleted;
-		if(nav.WebKit) {
-			nPosts = aProto.slice.call(nPosts);
-		}
 		for(i = 0, len = nPosts.length; i <= len && post; ) {
 			if(post.count - 1 === i) {
 				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
