@@ -2861,6 +2861,10 @@ function checkUpload(response) {
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(false);
+	if(aib.krau) {
+		$id('postform_submit').removeAttribute('disabled');
+		$id('postform_row_progress').setAttribute('style', 'display: none;');
+	}
 }
 
 function endDelete() {
