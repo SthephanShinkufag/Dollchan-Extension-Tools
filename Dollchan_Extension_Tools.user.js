@@ -2824,13 +2824,17 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		if (aib.krau && unsafeWindow.fileCounter && unsafeWindow.fileCounter > 1) {
-			unsafeWindow.fileCounter = 1;
-			$each($Q('input[type="file"]', getAncestor(pr.file, aib.trTag)), function(input, index) {
-				if (index) {
-					input.parentNode.remove();
-				}
-			});
+		if(aib.krau) {
+			var fileInputs = $Q('input[type="file"]', getAncestor(pr.file, aib.trTag));
+			if(fileInputs.length > 1) {
+				$each(fileInputs, function(input, index) {
+					if(index) {
+						input.parentNode.remove();
+					}
+				});
+				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="window.fileCounter = 1"></div>');
+				var el = doc.body.lastChild; el.click(); el.remove();
+			}
 		}
 		pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 	}
@@ -5719,26 +5723,29 @@ PostForm.eventFiles = function(tr) {
 PostForm.processInput = function() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		$after(this, $new('button', {
+		var delBtn = $new('button', {
 			'class': 'de-file-util de-file-del',
 			'text': Lng.clear[lang],
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				if (aib.krau && unsafeWindow.fileCounter) {
+				if(aib.krau) {
 					var current = $q('input[type="file"]', this.parentNode).name.match(/\d+/)[0];
 					$each($Q('input[type="file"]', getAncestor(this, aib.trTag)), function(input, index) {
-						if (index > current)
+						if(index > current)
 							input.name = "file_" + (index-1);
 					});
-					unsafeWindow.fileCounter-=1;
 					this.parentNode.remove();
 				} else {
 					pr.delFileUtils(this.parentNode, false);
 					pr.file.addEventListener('change', PostForm.processInput, false);
 				}
 			}
-		}));
+		});
+		$after(this, delBtn);
+		if(aib.krau) {
+			delBtn.setAttribute('onclick','window.fileCounter-=1');
+		}
 	} else if(this.imgFile) {
 		this.imgFile = null;
 		$del(this.nextSibling);
