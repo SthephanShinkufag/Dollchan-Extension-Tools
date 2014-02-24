@@ -5018,7 +5018,7 @@ SpellsCodegen.prototype = {
 				lastType = this.TYPE_NOT;
 				break;
 			case ')':
-				if(this._lastType === this.TYPE_ANDOR || this._lastType === this.TYPE_NOT) {
+				if(lastType === this.TYPE_ANDOR || lastType === this.TYPE_NOT) {
 					this._setError(Lng.seMissSpell[lang], null);
 					return null;
 				}
