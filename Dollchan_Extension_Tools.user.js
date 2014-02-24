@@ -5725,8 +5725,18 @@ PostForm.processInput = function() {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				pr.delFileUtils(this.parentNode, false);
-				pr.file.addEventListener('change', PostForm.processInput, false);
+				if (aib.krau && unsafeWindow.fileCounter) {
+					var current = $q('input[type="file"]', this.parentNode).name.match(/\d+/)[0];
+					$each($Q('input[type="file"]', getAncestor(this, aib.trTag)), function(input, index) {
+						if (index > current)
+							input.name = "file_" + (index-1);
+					});
+					unsafeWindow.fileCounter-=1;
+					this.parentNode.remove();
+				} else {
+					pr.delFileUtils(this.parentNode, false);
+					pr.file.addEventListener('change', PostForm.processInput, false);
+				}
 			}
 		}));
 	} else if(this.imgFile) {
