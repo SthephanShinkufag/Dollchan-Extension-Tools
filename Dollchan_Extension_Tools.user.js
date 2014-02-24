@@ -8045,9 +8045,9 @@ function setPviewPosition(link, pView, animFun) {
 		offY = cr.top + window.pageYOffset,
 		bWidth = doc.documentElement.clientWidth,
 		isLeft = offX < bWidth / 2,
-		tmp = (isLeft ? (bWidth - offX) : offX) - 10,
-		lmw = 'max-width:' + tmp + 'px; left:' + (isLeft ? offX : offX -
-			Math.min(parseInt(pView.offsetWidth, 10), tmp)) + 'px;';
+		tmp = (isLeft ? offX : offX -
+			Math.min(parseInt(pView.offsetWidth, 10), offX - 10)),
+		lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
 	if(animFun) {
 		oldCSS = pView.style.cssText;
 		pView.style.cssText = 'opacity: 0; ' + lmw;
