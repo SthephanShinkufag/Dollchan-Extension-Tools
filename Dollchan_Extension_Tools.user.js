@@ -443,14 +443,12 @@ Lng = {
 	loadErrors:		['Во время загрузки произошли ошибки:', 'Warning:'],
 	errCorruptData:	['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
 
-	seSyntaxErr:	['синтаксическая ошибка', 'syntax error'],
-	seUnknown:		['неизвестный спелл: ', 'unknown spell: '],
+	seSyntaxErr:	['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
+	seUnknown:		['неизвестный спелл: %s', 'unknown spell: %s'],
 	seMissOp:		['пропущен оператор', 'missing operator'],
 	seMissSpell:	['пропущен спелл', 'missing spell'],
-	seErrConvNum:	['ошибка преобразования %1 в число', 'can\'t convert %1 to number'],
-	seErrRegex:		['синтаксическая ошибка в регулярном выражении: ', 'syntax error in regular expression: '],
-	seUnexpChar:	['неожиданный символ ', 'unexpected character '],
-	seMissOpBkt:	['пропущена открывающаяся скобка', 'missing ( in parenthetical'],
+	seErrRegex:		['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
+	seUnexpChar:	['неожиданный символ: %s', 'unexpected character: %s'],
 	seMissClBkt:	['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
 	seRow:			[' (строка ', ' (row '],
 	seCol:			[', столбец ', ', column ']
@@ -807,6 +805,12 @@ function getPrettyErrorMessage(e) {
 				return '    at ' + (fName ? fName + ' (' + line + ')' : line);
 			}) : e.stack)
 		) : e.name + ': ' + e.message;
+}
+
+function toRegExp(str, noG) {
+	var l = str.lastIndexOf('/'),
+		flags = str.substr(l + 1);
+	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 }
 
 //============================================================================================================
@@ -2196,7 +2200,7 @@ function addSpellMenu(el) {
 			idx = Spells.names.indexOf(exp.substr(1));
 		$txtInsert($id('de-spell-edit'), exp + (
 			TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ? '[' + brd + ',' + TNum + ']' : ''
-		) + (idx < 5 || idx > 14 ? '(' : ''));
+		) + (Spells.needArg(idx) ? '(' : ''));
 	});
 }
 
@@ -4079,8 +4083,14 @@ function Spells(read) {
 	}
 }
 Spells.names = [
-	'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
-	'video', 'wipe', 'num', 'vauthor'
+	'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen',
+	'all', 'video', 'wipe', 'num', 'vauthor'
+];
+Spells.needArg = [
+	/* words */ true, /* exp */ true, /* exph */ true, /* imgn */ true, /* ihash */ true,
+	/* subj */ false, /* name */ true, /* trip */ false, /* img */ false, /* sage */ false,
+	/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
+	/* num */ true, /* vauthor */ true
 ];
 Spells.checkArr = function(val, num) {
 	var i, arr;
@@ -4364,273 +4374,6 @@ Spells.prototype = {
 		// 16: #vauthor
 		Spells.YTubeSpell
 	],
-	_toRegExp: function(str, noG) {
-		var l = str.lastIndexOf('/'),
-			flags = str.substr(l + 1);
-		return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
-	},
-	_parseSpell: function(tokens, str, offset) {
-		if(this._lastType === 2 || this._lastType === 4) {
-			this._errorMessage = Lng.seMissOp[lang];
-			this._lastErrCol = 0;
-			return 0;
-		}
-		var opt, type, rType, exp, temp, noBkt,
-			val = str.substr(offset + 1).match(/^([a-z]+)(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?/);
-		if(!val) {
-			this._errorMessage = Lng.seSyntaxErr[lang];
-			this._lastErrCol = 0;
-			return 0;
-		}
-		type = Spells.names.indexOf(val[1]);
-		if(type === -1) {
-			this._errorMessage = Lng.seUnknown[lang] + val[1];
-			this._lastErrCol = 1;
-			return 0;
-		}
-		if(this._lastType === 1) {
-			rType = type | 0x100;
-		} else {
-			rType = type;
-		}
-		opt = val[2] ? [val[2], val[4] ? val[4] : val[3] ? -1 : false] : null;
-		str = str.substr(offset + 1 + val[0].length);
-		temp = str[0] !== '(' ? 0 : str[1] === ')' ? 2 : false;
-		noBkt = temp !== false;
-		switch(type) {
-		// #ihash
-		case 4:
-			exp = !noBkt && str.match(/^\((?:(\d+)|(.*?))\)/);
-			if(!exp) {
-				this._errorMessage = Lng.seSyntaxErr[lang];
-			} else if(!exp[1]) {
-				this._errorMessage = Lng.seErrConvNum[lang].replace('%1', exp[2]);
-			} else {
-				tokens.push([rType, +exp[1], opt]);
-				return val[0].length + exp[0].length;
-			}
-			this._lastErrCol = val[0].length;
-			return 0;
-		// #img
-		case 8:
-			if(noBkt) {
-				tokens.push([rType, '', opt]);
-				return val[0].length + temp;
-			}
-			exp = str.match(/^\(([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?\)/);
-			if(!exp || (!exp[2] && !exp[4])) {
-				this._errorMessage = Lng.seSyntaxErr[lang];
-				this._lastErrCol = val[0].length;
-				return 0;
-			}
-			tokens.push([rType, [
-				exp[1] === '=' ? 0 : exp[1] === '<' ? 1 : 2,
-				exp[2] && [
-					+exp[2],
-					exp[3] ? +exp[3] : +exp[2]
-				],
-				exp[4] && [
-					+exp[4],
-					exp[5] ? +exp[5] : +exp[4],
-					+exp[6],
-					exp[7] ? +exp[7] : +exp[6]
-				]
-			], opt]);
-			return val[0].length + exp[0].length;
-		// #wipe
-		case 14:
-			if(noBkt) {
-				tokens.push([rType, 0x3F, opt]);
-				return val[0].length + temp;
-			}
-			exp = str.match(/^\(([a-z, ]+)\)/);
-			if(exp) {
-				temp = 0;
-				if(!exp[1].split(/, */).some(function(v) {
-					switch(v) {
-					case 'samelines': temp |= 1; return false;
-					case 'samewords': temp |= 2; return false;
-					case 'longwords': temp |= 4; return false;
-					case 'symbols': temp |= 8; return false;
-					case 'capslock': temp |= 16; return false;
-					case 'numbers': temp |= 32; return false;
-					case 'whitespace': temp |= 64; return false;
-					default: return true;
-					}
-				})) {
-					tokens.push([rType, temp, opt]);
-					return val[0].length + exp[0].length;
-				}
-			}
-			this._errorMessage = Lng.seSyntaxErr[lang];
-			this._lastErrCol = val[0].length;
-			return 0;
-		// #tlen
-		case 11:
-			if(noBkt) {
-				tokens.push([rType, '', opt]);
-				return val[0].length + temp;
-			}
-		// #num
-		case 15:
-			exp = !noBkt && str.match(/^\(([\d-, ]+)\)/);
-			if(exp) {
-				exp[1].split(/, */).forEach(function(v) {
-					if(v.contains('-')) {
-						var nums = v.split('-');
-						nums[0] = +nums[0];
-						nums[1] = +nums[1];
-						this[1].push(nums);
-					} else {
-						this[0].push(+v);
-					}
-				}, temp = [[], []]);
-				tokens.push([rType, temp, opt]);
-				return val[0].length + exp[0].length;
-			} else {
-				this._errorMessage = Lng.seSyntaxErr[lang];
-				this._lastErrCol = val[0].length;
-				return 0;
-			}
-		// #video, #subj
-		case 13:
-		case 5:
-			if(noBkt) {
-				tokens.push([rType, '', opt]);
-				return val[0].length + temp;
-			}
-		// #exp, #exph, #imgn
-		case 1:
-		case 2:
-		case 3:
-			exp = !noBkt && str.match(/^\((\/.*?[^\\]\/[igm]*)\)/);
-			if(!exp) {
-				this._errorMessage = Lng.seSyntaxErr[lang];
-				this._lastErrCol = val[0].length;
-				return 0;
-			}
-			temp = exp[1];
-			try {
-				this._toRegExp(temp, true);
-			} catch(e) {
-				this._errorMessage = Lng.seErrRegex[lang] + temp;
-				this._lastErrCol = val[0].length;
-				return 0;
-			}
-			tokens.push([rType, temp, opt]);
-			return val[0].length + exp[0].length;
-		// #sage, #op, #all, #trip
-		case 7:
-		case 9:
-		case 10:
-		case 12:
-			if(noBkt) {
-				tokens.push([rType, '', opt]);
-				return val[0].length + temp;
-			}
-		// #name, #words, #vauthor
-		default:
-			exp = str.match(/^\((.*?[^\\])\)/);
-			if(!exp) {
-				this._errorMessage = Lng.seSyntaxErr[lang];
-				this._lastErrCol = 0;
-				return false;
-			}
-			temp = exp[1].replace(/\\\)/g, ')');
-			tokens.push([rType, type === 0 ? temp.toLowerCase() : temp, opt]);
-			return val[0].length + exp[0].length;
-		}
-	},
-	_compile: function(sList) {
-		if(!sList) {
-			return null;
-		}
-		this._lastType = null;
-		var d, data = [],
-			scopes = [],
-			scope = data,
-			bkt = 0,
-			col = 1,
-			line = 1,
-			i = 0,
-			len = sList.length;
-		for(; i < len; i++, col++) {
-			switch(sList[i]) {
-			case '\n':
-				line++;
-				col = 0;
-			case '\r':
-			case ' ': continue;
-			case '#':
-				d = this._parseSpell(scope, sList, i);
-				if(d === 0) {
-					 this._error = this._errorMessage + Lng.seRow[lang] + line +
-						Lng.seCol[lang] + (col + this._lastErrCol) + ')';
-					 return false;
-				} else {
-					i += d;
-					col += d;
-				}
-				this._lastType = 2;
-				break;
-			case '(':
-				if(this._lastType === 2 || this._lastType === 4) {
-					this._error = Lng.seMissOp[lang] + Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
-					return false;
-				}
-				scopes.push(scope);
-				scope.push([this._lastType === 1 ? 0x1FF : 0xFF, []])
-				scope = scope[scope.length - 1][1];
-				bkt++;
-				this._lastType = 3;
-				break;
-			case ')':
-				if(this._lastType === 0 || this._lastType === 1) {
-					this._error = Lng.seMissSpell[lang] +
-						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
-					return false;
-				}
-				if(bkt > 0) {
-					scope = scopes.pop();
-					bkt--;
-				} else {
-					this._error = Lng.seMissOpBkt[lang] +
-						Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
-					return false;
-				}
-				this._lastType = 4;
-				break;
-			case '|':
-			case '&':
-			case '!':
-				if(sList[i] === '!') {
-					if(!this._lastType || this._lastType === 3) {
-						this._lastType = 1;
-						break;
-					}
-				} else if(this._lastType === 2 || this._lastType === 4) {
-					if(sList[i] === '&') {
-						scope[scope.length - 1][0] |= 0x200;
-					}
-					this._lastType = 0;
-					break;
-				}
-			default:
-				this._error = Lng.seUnexpChar[lang] + sList[i] +
-					Lng.seRow[lang] + line + Lng.seCol[lang] + col + ')';
-				return false;
-			}
-		}
-		if(this._lastType !== 2 && this._lastType !== 4) {
-			this._error = Lng.seSyntaxErr[lang] + Lng.seRow[lang] + line + ')';
-			return false;
-		}
-		if(bkt > 0) {
-			this._error = Lng.seMissClBkt[lang] + Lng.seRow[lang] + line + ')';
-			return false;
-		}
-		return data.length === 0 ? null : data;
-	},
 	_optimizeSpells: function(spells) {
 		var i, len, flags, type, spell, neg, scope, parensSpells, newSpells = [];
 		for(i = 0, len = spells.length; i < len; ++i) {
@@ -4707,11 +4450,11 @@ Spells.prototype = {
 					case 2:
 					case 3:
 					case 5:
-					case 13: item[1] = this(val, true); break;
-					case 0xFF: val.forEach(initExps, this);
+					case 13: item[1] = toRegExp(val, true); break;
+					case 0xFF: val.forEach(initExps);
 					}
 				}
-			}, this._toRegExp);
+			});
 		}
 		return data;
 	},
@@ -4959,7 +4702,7 @@ Spells.prototype = {
 	_initReps: function(data) {
 		if(data) {
 			for(var i = data.length - 1; i >= 0; i--) {
-				data[i][0] = this._toRegExp(data[i][0], false);
+				data[i][0] = toRegExp(data[i][0], false);
 			}
 		}
 		return data;
@@ -5028,14 +4771,15 @@ Spells.prototype = {
 	parseText: function(str) {
 		str = String(str).replace(/[\s\n]+$/, '');
 		var reps = this._findReps(str),
-			spells = this._compile(reps[0]);
-		if(spells !== false) {
+			codeGen = new SpellsCodegen(reps[0]),
+			spells = codeGen.generate();
+		if(spells) {
 			if(Cfg['sortSpells']) {
 				this.sort(spells);
 			}
 			return [Date.now(), spells, reps[1], reps[2]];
-		} else if(this._error) {
-			$alert(Lng.error[lang] + ' ' + this._error, 'help-err-spell', false);
+		} else if(codeGen.hasError) {
+			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
 		}
 		return null;
 	},
@@ -5178,6 +4922,237 @@ Spells.prototype = {
 		}
 		this.update(spells, true, true);
 		idx = null;
+	}
+};
+
+function SpellsCodegen(sList) {
+	this._line = 1;
+	this._col = 1;
+	this._sList = sList;
+	this.hasError = false;
+}
+SpellsCodegen.prototype = {
+	TYPE_UNKNOWN: 0,
+	TYPE_ANDOR: 1,
+	TYPE_NOT: 2,
+	TYPE_SPELL: 3,
+	TYPE_PARENTHESES: 4,
+
+	generate: function() {
+		return this._sList ? this._generate(this._sList, false) : null;
+	},
+	get error() {
+		if(!this.hasError) {
+			return '';
+		}
+		return (this._errMsgArg ? this._errMsg.replace('%s', this._errMsgArg) : this._errMsg) +
+			Lng.seRow[lang] + this._line + Lng.seCol[lang] + this._col + ')';
+	},
+
+	_errMsg: '',
+	_errMsgArg: null,
+	_generate: function(sList, inParens) {
+		var res, name, i = 0,
+			len = sList.length,
+			data = [],
+			lastType = this.TYPE_UNKNOWN;
+		for(; i < len; i++, this._col++) {
+			switch(sList[i]) {
+			case '\n':
+				this._line++;
+				this._col = 0;
+			case '\r':
+			case ' ': continue;
+			case '#':
+				if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
+					this._setError(Lng.seMissOp[lang], null);
+					return null;
+				}
+				name = '';
+				i++;
+				this._col++;
+				while((sList[i] >= 'a' && sList[i] <= 'z') || (sList[i] >= 'A' && sList[i] <= 'Z')) {
+					name += sList[i].toLowerCase();
+					i++;
+					this._col++;
+				}
+				res = this._doSpell(name, sList.substr(i), lastType === this.TYPE_NOT)
+				if(!res) {
+					return null;
+				}
+				i += res[0];
+				this._col += res[0];
+				data.push(res[1]);
+				lastType = this.TYPE_SPELL;
+				break;
+			case '(':
+				if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
+					this._setError(Lng.seMissOp[lang], null);
+					return null;
+				}
+				res = this._generate(sList.substr(i + 1), true);
+				if(!res) {
+					return null;
+				}
+				i += res[0];
+				data.push([this.lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[2]]);
+				this.lastType = this.TYPE_PARENTHESES;
+				break;
+			case '|':
+			case '&':
+				if(lastType !== this.TYPE_SPELL && lastType !== this.TYPE_PARENTHESES) {
+					this._setError(Lng.seMissSpell[lang], null);
+					return null;
+				}
+				if(sList[i] === '&') {
+					data[data.length - 1][0] |= 0x200;
+				}
+				lastType = this.TYPE_ANDOR;
+				break;
+			case '!':
+				if(lastType !== this.TYPE_ANDOR && lastType !== this.TYPE_UNKNOWN) {
+					this._setError(Lng.seMissOp[lang], null);
+					return null;
+				}
+				lastType = this.TYPE_NOT;
+				break;
+			case ')':
+				if(this._lastType === this.TYPE_ANDOR || this._lastType === this.TYPE_NOT) {
+					this._setError(Lng.seMissSpell[lang], null);
+					return null;
+				}
+				if(inParens) {
+					return [i, data];
+				}
+			default:
+				this._setError(Lng.seUnexpChar[lang], sList[i]);
+				return null;
+			}
+		}
+		if(inParens) {
+			this._setError(Lng.seMissClBkt[lang], null);
+			return null;
+		}
+		if(lastType !== this.TYPE_SPELL && lastType !== this.TYPE_PARENTHESES) {
+			this._setError(Lng.seMissSpell[lang], null);
+			return null;
+		}
+		return data;
+	},
+	_doSpell: function(name, str, isNeg) {
+		var scope, m, spellType, val, i = 0,
+			spellIdx = Spells.names.indexOf(name);
+		if(spellIdx === -1) {
+			this._setError(Lng.seUnknown[lang], name);
+			return null;
+		}
+		spellType = isNeg ? spellIdx | 0x100 : spellIdx;
+		m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		if(m) {
+			i = m[0].length;
+			str = str.substring(i);
+			scope = [m[1], m[3] ? m[3] : m[2] ? -1 : false];
+		} else {
+			scope = null;
+		}
+		if(str[0] !== '(' || str[1] === ')') {
+			if(Spells.needArg[spellIdx]) {
+				this._setError(Lng.seMissArg[lang], name);
+				return null;
+			}
+			return [str[0] === '(' ? i + 2 : i, [spellType, spellIdx === 14 ? 0x3F : '', scope]];
+		}
+		switch(spellIdx) {
+		// #ihash
+		case 4:
+			m = str.match(/^\((\d+)\)/);
+			if(+m[1] === +m[1]) {
+				return [i + m[0].length, [spellType, +m[1], scope]];
+			}
+			break;
+		// #img
+		case 8:
+			m = str.match(/^\(([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?\)/);
+			if(m && (m[2] || m[4])) {
+				return [i + m[0].length, [spellType, [
+					m[1] === '=' ? 0 : m[1] === '<' ? 1 : 2,
+					m[2] && [+m[2], m[3] ? +m[3] : +m[2]],
+					m[4] && [+m[4], m[5] ? +m[5] : +m[4], +m[6], m[7] ? +m[7] : +m[6]]
+				], scope]];
+			}
+			break;
+		// #wipe
+		case 14:
+			m = str.match(/^\(([a-z, ]+)\)/);
+			if(m) {
+				val = 0;
+				if(!m[1].split(/, */).some(function(v) {
+					switch(v) {
+					case 'samelines': val |= 1; return false;
+					case 'samewords': val |= 2; return false;
+					case 'longwords': val |= 4; return false;
+					case 'symbols': val |= 8; return false;
+					case 'capslock': val |= 16; return false;
+					case 'numbers': val |= 32; return false;
+					case 'whitespace': val |= 64; return false;
+					default: return true;
+					}
+				})) {
+					return [i + m[0].length, [spellType, val, scope]];
+				}
+			}
+			break;
+		// #tlen, #num
+		case 11:
+		case 15:
+			m = str.match(/^\(([\d-, ]+)\)/);
+			if(m) {
+				exp[1].split(/, */).forEach(function(v) {
+					if(v.contains('-')) {
+						var nums = v.split('-');
+						nums[0] = +nums[0];
+						nums[1] = +nums[1];
+						this[1].push(nums);
+					} else {
+						this[0].push(+v);
+					}
+				}, val = [[], []]);
+				return [i + m[0].length, [spellType, val, scope]];
+			}
+			break;
+		// #exp, #exph, #imgn, #subj, #video
+		case 1:
+		case 2:
+		case 3:
+		case 5:
+		case 13:
+			m = str.match(/^\((\/.*?[^\\]\/[igm]*)\)/);
+			if(m) {
+				val = m[1];
+				try {
+					toRegExp(val, true);
+				} catch(e) {
+					this._setError(Lng.seErrRegex[lang], val);
+					return null;
+				}
+				return [i + m[0].length, [spellType, val, scope]];
+			}
+			break;
+		// #sage, #op, #all, #trip, #name, #words, #vauthor
+		default:
+			m = str.match(/^\((.*?[^\\])\)/);
+			if(m) {
+				val = m[1].replace(/\\\)/g, ')');
+				return [i + m[0].length, [spellType, spellIdx === 0 ? val.toLowerCase() : val, scope]];
+			}
+		}
+		this._setError(Lng.seSyntaxErr[lang], name);
+		return null;
+	},
+	_setError: function(msg, arg) {
+		this.hasError = true;
+		this._errMsg = msg;
+		this._errMsgArg = arg;
 	}
 };
 
