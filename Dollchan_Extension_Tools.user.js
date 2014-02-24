@@ -5086,19 +5086,19 @@ SpellsCodegen.prototype = {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = 0;
-				if(!m[1].split(/, */).some(function(v) {
-					switch(v) {
-					case 'samelines': val |= 1; return false;
-					case 'samewords': val |= 2; return false;
-					case 'longwords': val |= 4; return false;
-					case 'symbols': val |= 8; return false;
-					case 'capslock': val |= 16; return false;
-					case 'numbers': val |= 32; return false;
-					case 'whitespace': val |= 64; return false;
-					default: return true;
+				val = str.split(/, */).reduce(function(val, str) {
+					switch(str) {
+					case 'samelines': return val |= 1;
+					case 'samewords': return val |= 2;
+					case 'longwords': return val |= 4;
+					case 'symbols': return val |= 8;
+					case 'capslock': return val |= 16;
+					case 'numbers': return val |= 32;
+					case 'whitespace': return val |= 64;
+					default: return -1;
 					}
-				})) {
+				}, 0);
+				if(val !== -1) {
 					return [i + m[0].length, [spellType, val, scope]];
 				}
 			}
