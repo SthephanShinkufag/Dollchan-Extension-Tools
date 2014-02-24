@@ -2193,7 +2193,7 @@ function addSpellMenu(el) {
 			.split(',').join('</span><span class="de-menu-item">') + '</span></div>', false,
 	function(el) {
 		var exp = el.textContent,
-			idx = spells.names.indexOf(exp.substr(1));
+			idx = Spells.names.indexOf(exp.substr(1));
 		$txtInsert($id('de-spell-edit'), exp + (
 			TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ? '[' + brd + ',' + TNum + ']' : ''
 		) + (idx < 5 || idx > 14 ? '(' : ''));
@@ -4078,6 +4078,10 @@ function Spells(read) {
 		this.disable(false);
 	}
 }
+Spells.names = [
+	'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
+	'video', 'wipe', 'num', 'vauthor'
+];
 Spells.checkArr = function(val, num) {
 	var i, arr;
 	for(arr = val[0], i = arr.length - 1; i >= 0; --i) {
@@ -4120,10 +4124,6 @@ Spells.YTubeSpell = function spell_youtube(post, val, ctx, cxTail) {
 	return null;
 };
 Spells.prototype = {
-	names: [
-		'words', 'exp', 'exph', 'imgn', 'ihash', 'subj', 'name', 'trip', 'img', 'sage', 'op', 'tlen', 'all',
-		'video', 'wipe', 'num', 'vauthor'
-	],
 	_funcs: [
 		// 0: #words
 		function spell_words(post, val) {
@@ -4382,7 +4382,7 @@ Spells.prototype = {
 			this._lastErrCol = 0;
 			return 0;
 		}
-		type = this.names.indexOf(val[1]);
+		type = Spells.names.indexOf(val[1]);
 		if(type === -1) {
 			this._errorMessage = Lng.seUnknown[lang] + val[1];
 			this._lastErrCol = 1;
@@ -4729,7 +4729,7 @@ Spells.prototype = {
 		return null;
 	},
 	_decompileSpell: function(type, neg, val, scope) {
-		var temp, temp_, spell = (neg ? '!#' : '#') + this.names[type] + (scope ? '[' +
+		var temp, temp_, spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
 			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 		if(!val) {
 			return spell;
