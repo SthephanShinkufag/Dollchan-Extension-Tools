@@ -4376,7 +4376,7 @@ Spells.prototype = {
 		Spells.YTubeSpell
 	],
 	_optimizeSpells: function(spells) {
-		var i, len, flags, type, spell, neg, scope, parensSpells, newSpells = [];
+		var i, len, flags, type, spell, scope, neg, parensSpells, newSpells = [];
 		for(i = 0, len = spells.length; i < len; ++i) {
 			spell = spells[i];
 			flags = spell[0];
@@ -4406,40 +4406,35 @@ Spells.prototype = {
 					}
 				}
 			}
-			if(i === len - 1) {
-				if(i === 0) {
-					return neg ? [[12, '']] : null;
-				}
-				i = newSpells.length - 1;
-				if(neg) {
-					while(newSpells[i] && (newSpells[i][0] & 0x200) === 0) {
-						delete newSpells[i];
-						i -= 2;
-					}
-					if(i < 0) {
-						return [[12, '']];
-					}
-					if(newSpells[i]) {
-						newSpells[i][0] &= 0x1FF;
-					}
-				} else {
-					while(newSpells[i] && (newSpells[i][0] & 0x200) !== 0) {
-						delete newSpells[i];
-						i -= 2;
-					}
-					if(i < 0) {
-						return null;
-					}
-				}
-				return newSpells.length === 1 && newSpells[0][0] === 0xFF ? newSpells[0][1] : newSpells;
-			}
 			if(((flags & 0x200) !== 0) ^ neg) {
 				return neg ? [[12, '']] : null;
 			}
 		}
-		return newSpells.length === 0 ? null :
-			newSpells.length === 1 && newSpells[0][0] === 0xFF ? newSpells[0][1] :
-			newSpells;
+		i = len = newSpells.length - 1;
+		if(i === -1) {
+			return neg ? [[12, '']] : null;
+		} else if(i !== 0) {
+			if(neg) {
+				while(i >= 0 && (newSpells[i][0] & 0x200) === 0) {
+					i--;
+				}
+				if(i < 0) {
+					return [[12, '']];
+				}
+				newSpells[i][0] &= 0x1FF;
+			} else {
+				while(i >= 0 && (newSpells[i][0] & 0x200) !== 0) {
+					i--;
+				}
+				if(i < 0) {
+					return null;
+				}
+			}
+			if(i !== len) {
+				newSpells = newSpells.slice(0, i + 1);
+			}
+		}
+		return newSpells;
 	},
 	_initSpells: function(data) {
 		if(data) {
