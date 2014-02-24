@@ -446,6 +446,7 @@ Lng = {
 	seSyntaxErr:	['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 	seUnknown:		['неизвестный спелл: %s', 'unknown spell: %s'],
 	seMissOp:		['пропущен оператор', 'missing operator'],
+	seMissArg:		['пропущен аргумент спелла: %s', 'missing argument of spell: %s'],
 	seMissSpell:	['пропущен спелл', 'missing spell'],
 	seErrRegex:		['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
 	seUnexpChar:	['неожиданный символ: %s', 'unexpected character: %s'],
@@ -4385,8 +4386,8 @@ Spells.prototype = {
 				parensSpells = this._optimizeSpells(spell[1]);
 				if(parensSpells) {
 					if(parensSpells.length === 1) {
-						newSpells.push([parensSpells[0][0],
-							(parensSpells[0][1] | (flags & 0x200)) ^ (flags & 0x100)]);
+						newSpells.push([(parensSpells[0][0] | (flags & 0x200)) ^ (flags & 0x100),
+							parensSpells[0][1]]);
 					} else {
 						newSpells.push([flags, parensSpells]);
 					}
@@ -4980,8 +4981,8 @@ SpellsCodegen.prototype = {
 				if(!res) {
 					return null;
 				}
-				i += res[0];
-				this._col += res[0];
+				i += res[0] - 1;
+				this._col += res[0] - 1;
 				data.push(res[1]);
 				lastType = this.TYPE_SPELL;
 				break;
@@ -4994,9 +4995,9 @@ SpellsCodegen.prototype = {
 				if(!res) {
 					return null;
 				}
-				i += res[0];
-				data.push([this.lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[2]]);
-				this.lastType = this.TYPE_PARENTHESES;
+				i += res[0] + 1;
+				data.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
+				lastType = this.TYPE_PARENTHESES;
 				break;
 			case '|':
 			case '&':
