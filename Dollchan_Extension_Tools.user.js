@@ -5086,7 +5086,7 @@ SpellsCodegen.prototype = {
 		case 14:
 			m = str.match(/^\(([a-z, ]+)\)/);
 			if(m) {
-				val = str.split(/, */).reduce(function(val, str) {
+				val = m[1].split(/, */).reduce(function(val, str) {
 					switch(str) {
 					case 'samelines': return val |= 1;
 					case 'samewords': return val |= 2;
