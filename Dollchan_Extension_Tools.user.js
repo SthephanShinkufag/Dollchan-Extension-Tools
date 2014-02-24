@@ -2824,6 +2824,14 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
+		if (aib.krau && unsafeWindow.fileCounter && unsafeWindow.fileCounter > 1) {
+			unsafeWindow.fileCounter = 1;
+			$each($Q('input[type="file"]', getAncestor(pr.file, aib.trTag)), function(input, index) {
+				if (index) {
+					input.parentNode.remove();
+				}
+			});
+		}
 		pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 	}
 	if(pr.video) {
