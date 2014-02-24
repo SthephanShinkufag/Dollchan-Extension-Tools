@@ -5108,7 +5108,7 @@ SpellsCodegen.prototype = {
 		case 15:
 			m = str.match(/^\(([\d-, ]+)\)/);
 			if(m) {
-				exp[1].split(/, */).forEach(function(v) {
+				m[1].split(/, */).forEach(function(v) {
 					if(v.contains('-')) {
 						var nums = v.split('-');
 						nums[0] = +nums[0];
