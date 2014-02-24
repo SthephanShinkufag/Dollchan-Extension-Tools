@@ -2201,7 +2201,7 @@ function addSpellMenu(el) {
 			idx = Spells.names.indexOf(exp.substr(1));
 		$txtInsert($id('de-spell-edit'), exp + (
 			TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ? '[' + brd + ',' + TNum + ']' : ''
-		) + (Spells.needArg(idx) ? '(' : ''));
+		) + (Spells.needArg[idx] ? '(' : ''));
 	});
 }
 
