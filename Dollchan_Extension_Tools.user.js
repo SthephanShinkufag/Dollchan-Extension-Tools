@@ -1131,6 +1131,9 @@ function addPanel() {
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
 				'</ul>' +
 			'</div>' +
+			'<div id="de-img-btns" style="display: none">' +
+				'<div id="de-img-btn-next" title="' + Lng.nextImg[lang] + '"><div></div></div>' +
+				'<div id="de-img-btn-prev" title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
 			'<div id="de-alert"></div>' +
 			'<hr style="clear: both;">' +
 		'</div>'
@@ -7386,12 +7389,6 @@ Post.prototype = {
 				newH = scrH - 2;
 				newW = newH * data.width / data.height;
 			}
-			doc.body.insertAdjacentHTML('beforeend', '<div id="de-img-btn-next" title="' +
-				Lng.nextImg[lang] + '"><div></div></div>');
-			doc.body.insertAdjacentHTML('beforeend', '<div id="de-img-btn-prev" title="' +
-				Lng.prevImg[lang] + '"><div></div></div>');
-			$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
-			$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
 		}
 		img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 			'" width="' + newW + '" height="' + newH + '">');
@@ -7407,6 +7404,9 @@ Post.prototype = {
 			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
 				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
 			img.mover = new ImageMover(img);
+			$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
+			$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
+			$id('de-img-btns').style.display = '';
 		}
 	},
 	_addMenu: function(el, type) {
@@ -7526,6 +7526,7 @@ Post.prototype = {
 		case 'de-img-full':
 			iEl = el.previousSibling;
 			this._removeFullImage(e, el, iEl, this.imagesData.get(iEl) || iEl.data);
+			$id('de-img-btns').style.display = 'none';
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7553,6 +7554,7 @@ Post.prototype = {
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
+				$id('de-img-btns').style.display = 'none';
 			} else {
 				this._addFullImage(el, data, inPost);
 			}
@@ -7733,9 +7735,6 @@ Post.prototype = {
 		if(inPost) {
 			thumb.style.display = '';
 			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
-		} else {
-			$del($id('de-img-btn-next'));
-			$del($id('de-img-btn-prev'));
 		}
 	},
 	_strikePostNum: function(isHide) {
