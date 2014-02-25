@@ -2808,10 +2808,10 @@ function getSubmitResponse(dc, isFrame) {
 
 function checkUpload(response) {
 	if(aib.krau) {
-		$id('postform').action=$id('postform').action.split('?')[0];
+		pr.form.action=pr.form.action.split('?')[0];
 		$id('postform_row_progress').setAttribute('style', 'display: none;');
 		doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="window.lastUpdateTime = 0"></div>');
-		var el = doc.body.lastChild; el.click(); el.remove();
+		var el = doc.body.lastChild; el.click(); $del(el);
 	}
 	var err = response[1];
 	if(err) {
@@ -2832,11 +2832,11 @@ function checkUpload(response) {
 			if(fileInputs.length > 1) {
 				$each(fileInputs, function(input, index) {
 					if(index > 0) {
-						input.parentNode.remove();
+						$del(input.parentNode);
 					}
 				});
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="window.fileCounter = 1"></div>');
-				var el = doc.body.lastChild; el.click(); el.remove();
+				var el = doc.body.lastChild; el.click(); $del(el);
 			}
 		}
 	}
@@ -5739,7 +5739,7 @@ PostForm.processInput = function() {
 						if(index > current)
 							input.name = "file_" + (index-1);
 					});
-					this.parentNode.remove();
+					$del(this.parentNode);
 					if($q('input[type="file"]', $id('files_parent').lastElementChild).value) {
 						setTimeout(function(){PostForm.eventFiles($id('files_parent'));}, 100);
 					}
@@ -6250,13 +6250,13 @@ PostForm.prototype = {
 		}
 		if(Cfg['ajaxReply'] === 2) {
 			if(aib.krau) {
-				$id('postform').setAttribute('onsubmit', 'return(false)');
+				this.form.removeAttribute('onsubmit');
 			}
 			this.form.onsubmit = function(e) {
 				$pd(e);
 				if(aib.krau) {
 					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="setupProgressTracking()"></div>');
-					var el = doc.body.lastChild; el.click(); el.remove();
+					var el = doc.body.lastChild; el.click(); $del(el);
 				}
 				new html5Submit(this.form, this.subm, checkUpload);
 			}.bind(this);
