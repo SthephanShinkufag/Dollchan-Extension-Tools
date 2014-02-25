@@ -3309,9 +3309,6 @@ function preloadImages(post) {
 				}
 				nExp &= !Cfg['openGIFs'];
 			}
-			if(nExp) {
-				el.setAttribute('de-thumb-url', aib.getImgSrc(el));
-			}
 			if(queue) {
 				queue.run([url, lnk, iType, nExp && el]);
 			} else if(nExp) {
@@ -6393,11 +6390,10 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 
-function ImageData(post, el, idx, src) {
+function ImageData(post, el, idx) {
 	this.el = el;
 	this.idx = idx;
 	this.post = post;
-	this.src = src;
 }
 ImageData.prototype = {
 	expanded: false,
@@ -6478,6 +6474,11 @@ ImageData.prototype = {
 	get fullSrc() {
 		var val = aib.getImgLink(this.el).href;
 		Object.defineProperty(this, 'fullSrc', { value: val });
+		return val;
+	},
+	get src() {
+		var val = aib.getImgSrc(this.el);
+		Object.defineProperty(this, 'src', { value: val });
 		return val;
 	},
 	get weight() {
@@ -7037,26 +7038,12 @@ Post.prototype = {
 		return val;
 	},
 	get images() {
-		var i, len, el, src, els = getImages(this.el),
-			srcs = {},
+		var i, len, el, els = getImages(this.el),
 			imgs = [];
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			src = aib.getImgSrc(el);
-			imgs[i] = new ImageData(this, el, i, src);
-			srcs[src] = i;
-		}
-		if(len > 0) {
-			Object.defineProperties(imgs, {
-				'$srcs': { value: srcs },
-				'get': { value: function(el) {
-					var srcs = this['$srcs'],
-						idx = srcs[aib.getImgSrc(el)];
-					return this[idx === void 0 ? srcs[el.getAttribute('de-thumb-url')] : idx];
-				} }
-			});
-		} else {
-			Object.defineProperty(imgs, 'get', { value: function(el) { return void 0; }});
+			el.imgIdx = i;
+			imgs[i] = new ImageData(this, el, i);
 		}
 		Object.defineProperty(this, 'images', { value: imgs });
 		return imgs;
@@ -7533,7 +7520,7 @@ Post.prototype = {
 			el.mover = null;
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			this._removeFullImage(e, el, iEl, this.images.get(iEl) || iEl.data);
+			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
 			$id('de-img-btns').style.display = 'none';
 			break;
 		case 'de-img-pre':
@@ -7551,13 +7538,13 @@ Post.prototype = {
 			break;
 		case 'thumb':
 		case 'ca_thumb':
-			data = this.images.get(el);
+			data = this.images[el.imgIdx];
 			break;
 		default:
 			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
 			}
-			data = this.images.get(el);
+			data = this.images[el.imgIdx];
 		}
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
@@ -7690,7 +7677,7 @@ Post.prototype = {
 	_navigateImages: function(isNext) {
 		var el = $c('de-img-full', doc),
 			iEl = el.previousSibling,
-			data = this.images.get(iEl);
+			data = this.images[iEl.imgIdx];
 		this._removeFullImage(null, el, iEl, data);
 		data = data.getAdjacentImage(!isNext);
 		data.post._addFullImage(data.el, data, false);
