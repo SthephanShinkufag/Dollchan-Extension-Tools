@@ -2808,10 +2808,9 @@ function getSubmitResponse(dc, isFrame) {
 
 function checkUpload(response) {
 	if(aib.krau) {
-		pr.form.action=pr.form.action.split('?')[0];
-		$id('postform_row_progress').setAttribute('style', 'display: none;');
-		doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="window.lastUpdateTime = 0"></div>');
-		var el = doc.body.lastChild; el.click(); $del(el);
+		pr.form.action = pr.form.action.split('?')[0];
+		$id('postform_row_progress').style.display = 'none';
+		aib.btnZeroLUTime.click();
 	}
 	var err = response[1];
 	if(err) {
@@ -2835,8 +2834,7 @@ function checkUpload(response) {
 						$del(input.parentNode);
 					}
 				});
-				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="window.fileCounter = 1"></div>');
-				var el = doc.body.lastChild; el.click(); $del(el);
+				aib.btnSetFCntToOne.click();
 			}
 		}
 	}
@@ -5752,7 +5750,7 @@ PostForm.processInput = function() {
 		if(aib.krau) {
 			delBtn.addEventListener('focus', function() {
 				if(this.parentNode.nextSibling) {
-					this.setAttribute('onclick', 'window.fileCounter-=1;' + ($q('input[type="file"]', $id('files_parent').lastElementChild).value ? 'updateFileFields();' : ''));
+					this.setAttribute('onclick', 'window.fileCounter -= 1;' + ($q('input[type="file"]', $id('files_parent').lastElementChild).value ? 'updateFileFields();' : ''));
 				}
 			}, false);
 		}
@@ -6250,13 +6248,11 @@ PostForm.prototype = {
 		}
 		if(Cfg['ajaxReply'] === 2) {
 			if(aib.krau) {
-				this.form.removeAttribute('onsubmit');
+				this.form.setAttribute('onsubmit', 'setupProgressTracking(); event.preventDefault();');
 			}
 			this.form.onsubmit = function(e) {
-				$pd(e);
-				if(aib.krau) {
-					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="setupProgressTracking()"></div>');
-					var el = doc.body.lastChild; el.click(); $del(el);
+				if(!aib.krau) {
+					$pd(e);
 				}
 				new html5Submit(this.form, this.subm, checkUpload);
 			}.bind(this);
@@ -6310,7 +6306,7 @@ PostForm.prototype = {
 			$script('show_captcha()');
 		}
 		if(aib.krau) {
-			$script('if(boardRequiresCaptcha) { requestCaptcha(true); }');
+			aib.initCaptcha.click();
 			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
 		}
 		setTimeout(this._captchaUpd.bind(this), 100);
@@ -8829,7 +8825,18 @@ function getImageBoard(checkDomains, checkOther) {
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
 			rep: { value: true },
-			res: { value: 'thread-' }
+			res: { value: 'thread-' },
+			init: { value: function() {
+				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+					'<div onclick="window.lastUpdateTime = 0;"></div' +
+					'<div onclick="window.fileCounter = 1;"></div>' +
+					'<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' +
+				'</div>');
+				var els = doc.body.lastChild.children;
+				this.btnZeroLUTime = els[0];
+				this.btnSetFCntToOne = els[1];
+				this.initCaptcha = els[2];
+			} }
 		}],
 		'lambdadelta.net': [{
 			css: { value: '.content > hr { display: none !important }' },
