@@ -7689,22 +7689,16 @@ Post.prototype = {
 			data = data.next;
 			if(!data) {
 				do {
-					post = post.next;
-					if(!post) {
-						post = firstThr.op;
-					}
-				} while($isEmpty(post.imagesData));
+					post = post.next || firstThr.op;
+				} while($isEmpty(post.imagesData) || post.thr.hidden || post.hidden);
 				data = post.imagesData['$first'];
 			}
 		} else {
 			data = data.prev;
 			if(!data) {
 				do {
-					post = post.prev;
-					if(!post) {
-						post = firstThr.last;
-					}
-				} while($isEmpty(post.imagesData));
+					post = post.prev || firstThr.last;
+				} while($isEmpty(post.imagesData) || post.thr.hidden || post.hidden);
 				data = post.imagesData['$last'];
 			}
 		}
