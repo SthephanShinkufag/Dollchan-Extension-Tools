@@ -442,6 +442,8 @@ Lng = {
 	willSavePview:	['Будет сохранено превью', 'Thumb will be saved'],
 	loadErrors:		['Во время загрузки произошли ошибки:', 'Warning:'],
 	errCorruptData:	['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
+	nextImg:		['Следующее изображение', 'Next image'],
+	prevImg:		['Предыдущее изображение', 'Previous image'],
 
 	seSyntaxErr:	['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 	seUnknown:		['неизвестный спелл: %s', 'unknown spell: %s'],
@@ -5460,6 +5462,12 @@ function scriptCSS() {
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
 		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; }\
+		#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }' +
+		gif('#de-img-btn-next > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7') +
+		gif('#de-img-btn-prev > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=') +
+		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; }\
+		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
+		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj { display: inline-block; }\
@@ -7011,15 +7019,27 @@ Post.prototype = {
 		var i, len, els = getImages(this.el),
 			data = {};
 		for(i = 0, len = els.length; i < len; i++) {
-			el = els[i];
-			data[aib.getImgSrc(el)] = new ImageData(this, el);
+			data[aib.getImgSrc(els[i])] = new ImageData(this, els[i]);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
 				'$first': { get: function() { return this[this['$firstSrc']]; } },
 				'$firstSrc': { value: aib.getImgSrc(els[0]) },
+				'$last': { get: function() { return this[this['$lastSrc']]; } },
+				'$lastSrc': { value: aib.getImgSrc(els[els.length - 1]) },
 				'get': { value: function(el) {
-					return this[aib.getImgSrc(el)] || this[el.getAttribute('de-thumb-url')];
+					var dat = this[aib.getImgSrc(el)] || this[el.getAttribute('de-thumb-url')];
+					for(i = 0, len = els.length; i < len; i++) {
+						if(el === els[i]) {
+							if(i > 0) {
+								dat.prev = this[aib.getImgSrc(els[i - 1])];
+							}
+							if(i < len - 1) {
+								dat.next = this[aib.getImgSrc(els[i + 1])];
+							}
+							return dat;
+						}
+					}
 				} }
 			});
 		} else {
@@ -7366,6 +7386,12 @@ Post.prototype = {
 				newH = scrH - 2;
 				newW = newH * data.width / data.height;
 			}
+			doc.body.insertAdjacentHTML('beforeend', '<div id="de-img-btn-next" title="' +
+				Lng.nextImg[lang] + '"><div></div></div>');
+			doc.body.insertAdjacentHTML('beforeend', '<div id="de-img-btn-prev" title="' +
+				Lng.prevImg[lang] + '"><div></div></div>');
+			$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
+			$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
 		}
 		img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 			'" width="' + newW + '" height="' + newH + '">');
@@ -7651,6 +7677,31 @@ Post.prototype = {
 			}
 		}.bind(null, pNum));
 	},
+	_navigateImages: function(isNext) {
+		var post = this,
+			el = $c('de-img-full', doc),
+			iEl = el.previousSibling,
+			data = this.imagesData.get(iEl);
+		this._removeFullImage(null, el, iEl, data);
+		if(isNext) {
+			data = data.next;
+			if(!data) {
+				do {
+					post = post.next;
+				} while($isEmpty(post.imagesData));
+				data = post.imagesData['$first'];
+			}
+		} else {
+			data = data.prev;
+			if(!data) {
+				do {
+					post = post.prev;
+				} while($isEmpty(post.imagesData));
+				data = post.imagesData['$last'];
+			}
+		}
+		post._addFullImage(data.el, data, false);
+	},
 	_removeFullImage: function(e, full, thumb, data) {
 		var pv, cr, x, y, inPost = data.expanded;
 		data.expanded = false;
@@ -7682,6 +7733,9 @@ Post.prototype = {
 		if(inPost) {
 			thumb.style.display = '';
 			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
+		} else {
+			$del($id('de-img-btn-next'));
+			$del($id('de-img-btn-prev'));
 		}
 	},
 	_strikePostNum: function(isHide) {
