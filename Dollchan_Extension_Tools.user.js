@@ -459,7 +459,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis, needScroll,
-aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, visPosts = 2,
+aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, lastThr, visPosts = 2,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
@@ -2545,23 +2545,14 @@ KeyNavigation.prototype = {
 		return this.cPost;
 	},
 	_getNextVisPost: function(cPost, isOp, toUp) {
-		var thr, post;
+		var thr;
 		if(isOp) {
 			thr = cPost ? toUp ? cPost.thr.prevNotHidden : cPost.thr.nextNotHidden :
 				firstThr.hidden ? firstThr.nextNotHidden : firstThr;
 			return thr ? thr.op : null;
 		}
-		post = cPost ? toUp ? cPost.prev : cPost.next : firstThr.op;
-		while(post) {
-			if(post.thr.hidden) {
-				post = toUp ? post.thr.op.prev : post.thr.last.next;
-			} else if(post.hidden || post.omitted) {
-				post = toUp ? post.prev : post.next
-			} else {
-				return post;
-			}
-		}
-		return null;
+		return cPost ? toUp ? cPost.prevNotHidden : cPost.nextNotHidden : firstTht.hidden ||
+			firstThr.op.hidden ? toUp ? null : firstThr.op.nextNotHidden : firstThr.op;
 	},
 	_scroll: function(post, toUp, toThread) {
 		var next = this._getNextVisPost(post, toThread, toUp);
@@ -6403,12 +6394,31 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 
-function ImageData(post, el) {
+function ImageData(post, el, idx) {
 	this.el = el;
+	this.idx = idx;
 	this.post = post;
 }
 ImageData.prototype = {
 	expanded: false,
+	getAdjacentImage: function(toUp) {
+		var post = this.post,
+			dat = post.imagesData;
+		if(toUp ? this.idx === 0 : this.idx + 1 === dat['$length']) {
+			do {
+				post = toUp ? post.prevNotHidden : post.nextNotHidden;
+				if(!post) {
+					post = toUp ? lastThr.last : firstThr.op;
+					if(post.hidden || post.thr.hidden) {
+						post = toUp ? post.prevNotHidden : post.nextNotHidden;
+					}
+				}
+				dat = post.imagesData;
+			} while(dat['$length'] === void 0);
+			return dat[toUp ? '$last' : '$first'];
+		}
+		return dat['$data'][toUp ? this.idx - 1 : this.idx + 1];
+	},
 	get data() {
 		var img = this.el,
 			cnv = this._glob.canvas,
@@ -6466,7 +6476,7 @@ ImageData.prototype = {
 		return val;
 	},
 	get src() {
-		var val = this.el.src;
+		var val = aib.getImgSrc(this.el);
 		Object.defineProperty(this, 'src', { value: val });
 		return val;
 	},
@@ -7019,36 +7029,25 @@ Post.prototype = {
 		return val;
 	},
 	get imagesData() {
-		var i, len, els = getImages(this.el),
-			data = {};
+		var i, len, el, els = getImages(this.el),
+			data = {},
+			iArr = [];
 		for(i = 0, len = els.length; i < len; i++) {
-			data[aib.getImgSrc(els[i])] = new ImageData(this, els[i]);
+			el = els[i];
+			data[aib.getImgSrc(el)] = iArr[i] = new ImageData(this, el, i);
 		}
 		if(len > 0) {
 			Object.defineProperties(data, {
-				'$first': { get: function() { return this[this['$firstSrc']]; } },
-				'$firstSrc': { value: aib.getImgSrc(els[0]) },
-				'$last': { get: function() { return this[this['$lastSrc']]; } },
-				'$lastSrc': { value: aib.getImgSrc(els[els.length - 1]) },
+				'$first': { get: function() { return this['$data'][0]; } },
+				'$last': { get: function() { return this['$data'][this['$length'] - 1]; } },
+				'$data': { value: iArr },
+				'$length': { value: len },
 				'get': { value: function(el) {
-					var dat = this[aib.getImgSrc(el)] || this[el.getAttribute('de-thumb-url')];
-					for(i = 0, len = els.length; i < len; i++) {
-						if(el === els[i]) {
-							if(i > 0) {
-								dat.prev = this[aib.getImgSrc(els[i - 1])];
-							}
-							if(i < len - 1) {
-								dat.next = this[aib.getImgSrc(els[i + 1])];
-							}
-							return dat;
-						}
-					}
+					return this[aib.getImgSrc(el)] || this[el.getAttribute('de-thumb-url')];
 				} }
 			});
 		} else {
-			Object.defineProperty(data, 'get', { value: function(el) {
-				return void 0;
-			} });
+			Object.defineProperty(data, 'get', { value: function(el) { return void 0; }});
 		}
 		Object.defineProperty(this, 'imagesData', { value: data });
 		return data;
@@ -7074,6 +7073,19 @@ Post.prototype = {
 			post = post.nextInThread;
 		}
 		return post;
+	},
+	get nextNotHidden() {
+		var post = this.next;
+		while(post) {
+			if(post.thr.hidden) {
+				post = post.thr.last.next;
+			} else if(post.hidden || post.omitted) {
+				post = post.next
+			} else {
+				return post;
+			}
+		}
+		return null;
 	},
 	set note(val) {
 		if(this.isOp) {
@@ -7102,6 +7114,19 @@ Post.prototype = {
 		var pTrip = $c(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value: val });
 		return val;
+	},
+	get prevNotHidden() {
+		var post = this.prev;
+		while(post) {
+			if(post.thr.hidden) {
+				post = post.thr.last.prev;
+			} else if(post.hidden || post.omitted) {
+				post = post.prev
+			} else {
+				return post;
+			}
+		}
+		return null;
 	},
 	get ref() {
 		var val = [];
@@ -7680,29 +7705,12 @@ Post.prototype = {
 		}.bind(null, pNum));
 	},
 	_navigateImages: function(isNext) {
-		var post = this,
-			el = $c('de-img-full', doc),
+		var el = $c('de-img-full', doc),
 			iEl = el.previousSibling,
 			data = this.imagesData.get(iEl);
 		this._removeFullImage(null, el, iEl, data);
-		if(isNext) {
-			data = data.next;
-			if(!data) {
-				do {
-					post = post.next || firstThr.op;
-				} while($isEmpty(post.imagesData) || post.thr.hidden || post.hidden);
-				data = post.imagesData['$first'];
-			}
-		} else {
-			data = data.prev;
-			if(!data) {
-				do {
-					post = post.prev || firstThr.last;
-				} while($isEmpty(post.imagesData) || post.thr.hidden || post.hidden);
-				data = post.imagesData['$last'];
-			}
-		}
-		post._addFullImage(data.el, data, false);
+		data = data.getAdjacentImage(!isNext);
+		data.post._addFullImage(data.el, data, false);
 	},
 	_removeFullImage: function(e, full, thumb, data) {
 		var pv, cr, x, y, inPost = data.expanded;
@@ -9497,6 +9505,7 @@ function parseDelform(node, thrds) {
 	for(i = 1; i < len; i++) {
 		lThr = new Thread(thrds[i], lThr);
 	}
+	lastThr = lThr;
 	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
 	if(aib.abu && TNum) {
@@ -9753,7 +9762,7 @@ function initThreadUpdater(title, enableUpdate) {
 					{
 						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
 						'tag': aib.dm + brd + TNum,
-						'icon': firstThr.last.imagesData['$firstSrc'] || favHref
+						'icon': (firstThr.last.imagesData['$first'] || {}).src || favHref
 					});
 					notif.onshow = function() {
 						setTimeout(this.close.bind(this), 12e3);
