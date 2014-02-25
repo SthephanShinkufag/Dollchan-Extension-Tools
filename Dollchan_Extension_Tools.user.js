@@ -6248,11 +6248,12 @@ PostForm.prototype = {
 		}
 		if(Cfg['ajaxReply'] === 2) {
 			if(aib.krau) {
-				this.form.setAttribute('onsubmit', 'setupProgressTracking(); event.preventDefault();');
+				this.form.removeAttribute('onsubmit');
 			}
 			this.form.onsubmit = function(e) {
-				if(!aib.krau) {
-					$pd(e);
+				$pd(e);
+				if(aib.krau) {
+					aib.addProgressTrack.click();
 				}
 				new html5Submit(this.form, this.subm, checkUpload);
 			}.bind(this);
@@ -8828,14 +8829,16 @@ function getImageBoard(checkDomains, checkOther) {
 			res: { value: 'thread-' },
 			init: { value: function() {
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-					'<div onclick="window.lastUpdateTime = 0;"></div' +
+					'<div onclick="window.lastUpdateTime = 0;"></div>' +
 					'<div onclick="window.fileCounter = 1;"></div>' +
 					'<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' +
+					'<div onclick="setupProgressTracking();"></div>' +
 				'</div>');
 				var els = doc.body.lastChild.children;
 				this.btnZeroLUTime = els[0];
 				this.btnSetFCntToOne = els[1];
 				this.initCaptcha = els[2];
+				this.addProgressTrack = els[3];
 			} }
 		}],
 		'lambdadelta.net': [{
