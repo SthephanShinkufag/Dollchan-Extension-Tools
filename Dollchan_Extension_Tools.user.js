@@ -7690,6 +7690,9 @@ Post.prototype = {
 			if(!data) {
 				do {
 					post = post.next;
+					if(!post) {
+						post = firstThr.op;
+					}
 				} while($isEmpty(post.imagesData));
 				data = post.imagesData['$first'];
 			}
@@ -7698,6 +7701,9 @@ Post.prototype = {
 			if(!data) {
 				do {
 					post = post.prev;
+					if(!post) {
+						post = firstThr.last;
+					}
 				} while($isEmpty(post.imagesData));
 				data = post.imagesData['$last'];
 			}
