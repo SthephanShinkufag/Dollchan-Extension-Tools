@@ -2551,8 +2551,8 @@ KeyNavigation.prototype = {
 				firstThr.hidden ? firstThr.nextNotHidden : firstThr;
 			return thr ? thr.op : null;
 		}
-		return cPost ? toUp ? cPost.prevNotHidden : cPost.nextNotHidden : firstTht.hidden ||
-			firstThr.op.hidden ? toUp ? null : firstThr.op.nextNotHidden : firstThr.op;
+		return cPost ? cPost.getAdjacentVisPost(toUp) : firstTht.hidden ||
+			firstThr.op.hidden ? firstThr.op.getAdjacentVisPost(toUp) : firstThr.op;
 	},
 	_scroll: function(post, toUp, toThread) {
 		var next = this._getNextVisPost(post, toThread, toUp);
@@ -6406,11 +6406,11 @@ ImageData.prototype = {
 			imgs = post.images;
 		if(toUp ? this.idx === 0 : this.idx + 1 === imgs.length) {
 			do {
-				post = toUp ? post.prevNotHidden : post.nextNotHidden;
+				post = post.getAdjacentVisPost(toUp);
 				if(!post) {
 					post = toUp ? lastThr.last : firstThr.op;
 					if(post.hidden || post.thr.hidden) {
-						post = toUp ? post.prevNotHidden : post.nextNotHidden;
+						post = post.getAdjacentVisPost(toUp);
 					}
 				}
 				imgs = post.images;
@@ -7018,6 +7018,19 @@ Post.prototype = {
 			}
 		}, this);
 	},
+	getAdjacentVisPost: function(toUp) {
+		var post = toUp ? this.prev : this.next;
+		while(post) {
+			if(post.thr.hidden) {
+				post = toUp ? post.thr.op.prev : post.thr.last.next;
+			} else if(post.hidden || post.omitted) {
+				post = toUp ? post.prev : post.next
+			} else {
+				return post;
+			}
+		}
+		return null;
+	},
 	get html() {
 		var val = this.el.innerHTML;
 		Object.defineProperty(this, 'html', { configurable: true,  value: val });
@@ -7070,19 +7083,6 @@ Post.prototype = {
 		}
 		return post;
 	},
-	get nextNotHidden() {
-		var post = this.next;
-		while(post) {
-			if(post.thr.hidden) {
-				post = post.thr.last.next;
-			} else if(post.hidden || post.omitted) {
-				post = post.next
-			} else {
-				return post;
-			}
-		}
-		return null;
-	},
 	set note(val) {
 		if(this.isOp) {
 			this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
@@ -7110,19 +7110,6 @@ Post.prototype = {
 		var pTrip = $c(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
 		Object.defineProperty(this, 'posterTrip', { value: val });
 		return val;
-	},
-	get prevNotHidden() {
-		var post = this.prev;
-		while(post) {
-			if(post.thr.hidden) {
-				post = post.thr.last.prev;
-			} else if(post.hidden || post.omitted) {
-				post = post.prev
-			} else {
-				return post;
-			}
-		}
-		return null;
 	},
 	get ref() {
 		var val = [];
