@@ -4146,9 +4146,8 @@ Spells.prototype = {
 		},
 		// 3: #imgn
 		function spell_imgn(post, val) {
-			var src, data = post.imagesData;
-			for(src in data) {
-				if(val.test(data[src].info)) {
+			for(var i = 0, imgs = post.images, len = imgs.length; i < len; ++i) {
+				if(val.test(imgs[i].info)) {
 					return true;
 				}
 			}
@@ -4156,9 +4155,8 @@ Spells.prototype = {
 		},
 		// 4: #ihash
 		function spell_ihash(post, val, ctx, cxTail) {
-			var src, data = post.imagesData;
-			for(src in data) {
-				if(data[src].hash === val) {
+			for(var i = 0, imgs = post.images, len = imgs.length; i < len; ++i) {
+				if(imgs[i].hash === val) {
 					return true;
 				}
 			}
@@ -4193,14 +4191,15 @@ Spells.prototype = {
 		},
 		// 8: #img
 		function spell_img(post, val) {
-			var temp, w, h, hide, name, dat, iData = post.imagesData;
+			var temp, w, h, hide, img, i, imgs = post.images,
+				len = imgs.length;
 			if(!val) {
-				return !$isEmpty(iData);
+				return len !== 0;
 			}
-			for(name in iData) {
-				dat = iData[name];
+			for(i = 0; i < len; ++i) {
+				img = imgs[i];
 				if(temp = val[1]) {
-					w = dat.weight;
+					w = img.weight;
 					switch(val[0]) {
 					case 0: hide = w >= temp[0] && w <= temp[1]; break;
 					case 1: hide = w < temp[0]; break;
@@ -4213,8 +4212,8 @@ Spells.prototype = {
 					}
 				}
 				if(temp = val[2]) {
-					w = dat.width;
-					h = dat.height;
+					w = img.width;
+					h = img.height;
 					switch(val[0]) {
 					case 0:
 						if(w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3]) {
@@ -6394,17 +6393,18 @@ function genImgHash(data) {
 	return {hash: hash};
 }
 
-function ImageData(post, el, idx) {
+function ImageData(post, el, idx, src) {
 	this.el = el;
 	this.idx = idx;
 	this.post = post;
+	this.src = src;
 }
 ImageData.prototype = {
 	expanded: false,
 	getAdjacentImage: function(toUp) {
 		var post = this.post,
-			dat = post.imagesData;
-		if(toUp ? this.idx === 0 : this.idx + 1 === dat['$length']) {
+			imgs = post.images;
+		if(toUp ? this.idx === 0 : this.idx + 1 === imgs.length) {
 			do {
 				post = toUp ? post.prevNotHidden : post.nextNotHidden;
 				if(!post) {
@@ -6413,11 +6413,11 @@ ImageData.prototype = {
 						post = toUp ? post.prevNotHidden : post.nextNotHidden;
 					}
 				}
-				dat = post.imagesData;
-			} while(dat['$length'] === void 0);
-			return dat[toUp ? '$last' : '$first'];
+				imgs = post.images;
+			} while(imgs.length === 0);
+			return imgs[toUp ? imgs.length - 1 : 0];
 		}
-		return dat['$data'][toUp ? this.idx - 1 : this.idx + 1];
+		return imgs[toUp ? this.idx - 1 : this.idx + 1];
 	},
 	get data() {
 		var img = this.el,
@@ -6473,11 +6473,6 @@ ImageData.prototype = {
 	get isImage() {
 		var val = /\.jpe?g|\.png|\.gif|^blob:/i.test(this.src);
 		Object.defineProperty(this, 'isImage', { value: val });
-		return val;
-	},
-	get src() {
-		var val = aib.getImgSrc(this.el);
-		Object.defineProperty(this, 'src', { value: val });
 		return val;
 	},
 	get fullSrc() {
@@ -7028,29 +7023,30 @@ Post.prototype = {
 		Object.defineProperty(this, 'html', { configurable: true,  value: val });
 		return val;
 	},
-	get imagesData() {
-		var i, len, el, els = getImages(this.el),
-			data = {},
-			iArr = [];
+	get images() {
+		var i, len, el, src, els = getImages(this.el),
+			srcs = {},
+			imgs = [];
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
-			data[aib.getImgSrc(el)] = iArr[i] = new ImageData(this, el, i);
+			src = aib.getImgSrc(el);
+			imgs[i] = new ImageData(this, el, i, src);
+			srcs[src] = i;
 		}
 		if(len > 0) {
-			Object.defineProperties(data, {
-				'$first': { get: function() { return this['$data'][0]; } },
-				'$last': { get: function() { return this['$data'][this['$length'] - 1]; } },
-				'$data': { value: iArr },
-				'$length': { value: len },
+			Object.defineProperties(imgs, {
+				'$srcs': { value: srcs },
 				'get': { value: function(el) {
-					return this[aib.getImgSrc(el)] || this[el.getAttribute('de-thumb-url')];
+					var srcs = this['$srcs'],
+						idx = srcs[aib.getImgSrc(el)];
+					return this[idx === void 0 ? srcs[el.getAttribute('de-thumb-url')] : idx];
 				} }
 			});
 		} else {
-			Object.defineProperty(data, 'get', { value: function(el) { return void 0; }});
+			Object.defineProperty(imgs, 'get', { value: function(el) { return void 0; }});
 		}
-		Object.defineProperty(this, 'imagesData', { value: data });
-		return data;
+		Object.defineProperty(this, 'images', { value: imgs });
+		return imgs;
 	},
 	get mp3Obj() {
 		var val = $new('div', {'class': 'de-mp3'}, null);
@@ -7283,8 +7279,8 @@ Post.prototype = {
 	},
 	toggleImages: function(expand) {
 		var i, dat;
-		for(i in this.imagesData) {
-			dat = this.imagesData[i];
+		for(var dat, i = 0, imgs = this.images, len = imgs.length; i < len; ++i) {
+			dat = imgs[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
 				if(expand) {
 					this._addFullImage(dat.el, dat, true);
@@ -7487,7 +7483,7 @@ Post.prototype = {
 		if(this.posterTrip) {
 			addItem('trip');
 		}
-		if($isEmpty(this.imagesData)) {
+		if(this.images.length === 0) {
 			addItem('noimg');
 		} else {
 			addItem('img');
@@ -7550,7 +7546,7 @@ Post.prototype = {
 			el.mover = null;
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			this._removeFullImage(e, el, iEl, this.imagesData.get(iEl) || iEl.data);
+			this._removeFullImage(e, el, iEl, this.images.get(iEl) || iEl.data);
 			$id('de-img-btns').style.display = 'none';
 			break;
 		case 'de-img-pre':
@@ -7568,13 +7564,13 @@ Post.prototype = {
 			break;
 		case 'thumb':
 		case 'ca_thumb':
-			data = this.imagesData.get(el);
+			data = this.images.get(el);
 			break;
 		default:
 			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
 				return;
 			}
-			data = this.imagesData.get(el);
+			data = this.images.get(el);
 		}
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
@@ -7620,14 +7616,14 @@ Post.prototype = {
 		case 'spell-name': addSpell(6 /* #name */, this.posterName.replace(/\)/g, '\\)'), false); return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
-			var img = this.imagesData['$first'],
+			var img = this.images[0],
 				w = img.weight,
 				wi = img.width,
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'spell-ihash':
-			this.imagesData['$first'].getHash(function(hash) {
+			this.images[0].getHash(function(hash) {
 				addSpell(4 /* #ihash */, hash, false);
 			});
 			return;
@@ -7707,7 +7703,7 @@ Post.prototype = {
 	_navigateImages: function(isNext) {
 		var el = $c('de-img-full', doc),
 			iEl = el.previousSibling,
-			data = this.imagesData.get(iEl);
+			data = this.images.get(iEl);
 		this._removeFullImage(null, el, iEl, data);
 		data = data.getAdjacentImage(!isNext);
 		data.post._addFullImage(data.el, data, false);
@@ -9755,15 +9751,17 @@ function initThreadUpdater(title, enableUpdate) {
 				newPosts += lPosts;
 				updateTitle();
 				if(Cfg['desktNotif'] && notifGranted) {
-					var notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
-						Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
-						(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
-						(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
-					{
-						'body': firstThr.last.text.substring(0, 250).replace(/\s+/g, ' '),
-						'tag': aib.dm + brd + TNum,
-						'icon': (firstThr.last.imagesData['$first'] || {}).src || favHref
-					});
+					var post = firstThr.last,
+						imgs = post.images,
+						notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
+							Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : (newPosts % 10) > 4 ||
+							(newPosts % 10) === 0 || (((newPosts % 100) / 10) | 0) === 1 ? 2 :
+							(newPosts % 10) === 1 ? 0 : 1] + Lng.newPost[lang][3],
+						{
+							'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
+							'tag': aib.dm + brd + TNum,
+							'icon': imgs.length === 0 ? favHref : imgs[0].src
+						});
 					notif.onshow = function() {
 						setTimeout(this.close.bind(this), 12e3);
 					};
