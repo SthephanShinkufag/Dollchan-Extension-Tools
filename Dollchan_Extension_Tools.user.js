@@ -7442,9 +7442,13 @@ Post.prototype = {
 			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
 				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
 			img.mover = new ImageMover(img);
-			$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
-			$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
-			$id('de-img-btns').style.display = '';
+			if(this._isPview) {
+				$id('de-img-btns').style.display = 'none';
+			} else {
+				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
+				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
+				$id('de-img-btns').style.display = '';
+			}
 		}
 	},
 	_addMenu: function(el, type) {
