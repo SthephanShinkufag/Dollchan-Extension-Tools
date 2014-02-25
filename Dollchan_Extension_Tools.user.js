@@ -2811,6 +2811,12 @@ function getSubmitResponse(dc, isFrame) {
 }
 
 function checkUpload(response) {
+	if(aib.krau) {
+		$id('postform').action=$id('postform').action.split('?')[0];
+		$id('postform_row_progress').setAttribute('style', 'display: none;');
+		doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="window.lastUpdateTime = 0"></div>');
+		var el = doc.body.lastChild; el.click(); el.remove();
+	}
 	var err = response[1];
 	if(err) {
 		if(pr.isQuick) {
@@ -2824,11 +2830,12 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
+		pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 		if(aib.krau) {
-			var fileInputs = $Q('input[type="file"]', getAncestor(pr.file, aib.trTag));
+			var fileInputs = $Q('input[type="file"]', $id('files_parent'));
 			if(fileInputs.length > 1) {
 				$each(fileInputs, function(input, index) {
-					if(index) {
+					if(index > 0) {
 						input.parentNode.remove();
 					}
 				});
@@ -2836,7 +2843,6 @@ function checkUpload(response) {
 				var el = doc.body.lastChild; el.click(); el.remove();
 			}
 		}
-		pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -2861,10 +2867,6 @@ function checkUpload(response) {
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(false);
-	if(aib.krau) {
-		$id('postform_submit').removeAttribute('disabled');
-		$id('postform_row_progress').setAttribute('style', 'display: none;');
-	}
 }
 
 function endDelete() {
@@ -5733,23 +5735,31 @@ PostForm.processInput = function() {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				if(aib.krau) {
-					var current = $q('input[type="file"]', this.parentNode).name.match(/\d+/)[0];
+				if(aib.krau && this.parentNode.nextSibling) {
+					var current = $q('input[type="file"]', this.parentNode).name.match(/\d/)[0];
 					$each($Q('input[type="file"]', getAncestor(this, aib.trTag)), function(input, index) {
 						if(index > current)
 							input.name = "file_" + (index-1);
 					});
 					this.parentNode.remove();
+					if($q('input[type="file"]', $id('files_parent').lastElementChild).value) {
+						setTimeout(function(){PostForm.eventFiles($id('files_parent'));}, 100);
+					}
 				} else {
 					pr.delFileUtils(this.parentNode, false);
 					pr.file.addEventListener('change', PostForm.processInput, false);
 				}
 			}
 		});
-		$after(this, delBtn);
 		if(aib.krau) {
-			delBtn.setAttribute('onclick','window.fileCounter-=1');
+			delBtn.addEventListener('focus', function() {
+				if(this.parentNode.nextSibling) {
+					this.setAttribute('onclick', 'window.fileCounter-=1;' + ($q('input[type="file"]', $id('files_parent').lastElementChild).value ? 'updateFileFields();' : ''));
+				}
+			}, false);
 		}
+		$after(this, delBtn);
+
 	} else if(this.imgFile) {
 		this.imgFile = null;
 		$del(this.nextSibling);
@@ -6241,8 +6251,15 @@ PostForm.prototype = {
 			this.cap = null;
 		}
 		if(Cfg['ajaxReply'] === 2) {
+			if(aib.krau) {
+				$id('postform').setAttribute('onsubmit', 'return(false)');
+			}
 			this.form.onsubmit = function(e) {
 				$pd(e);
+				if(aib.krau) {
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;" onclick="setupProgressTracking()"></div>');
+					var el = doc.body.lastChild; el.click(); el.remove();
+				}
 				new html5Submit(this.form, this.subm, checkUpload);
 			}.bind(this);
 		} else if(Cfg['ajaxReply'] === 1) {
