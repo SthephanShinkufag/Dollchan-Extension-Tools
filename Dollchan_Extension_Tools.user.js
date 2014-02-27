@@ -5486,7 +5486,8 @@ function scriptCSS() {
 		#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
 		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
-		.de-alert-msg { display: inline-block; margin-top: .15em; }\
+		.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
+		.de-alert-msg { display: inline-block; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
