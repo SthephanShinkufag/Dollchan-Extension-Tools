@@ -6658,7 +6658,7 @@ function ImgBtnsShowHider(btns) {
 	btns.addEventListener('mouseout', this, false);
 }
 ImgBtnsShowHider.prototype = {
-	init: function(btns) {
+	init: function() {
 		this._show();
 		window.addEventListener('mousemove', this, false);
 	},
