@@ -5471,7 +5471,8 @@ function scriptCSS() {
 		#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }' +
 		gif('#de-img-btn-next > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7') +
 		gif('#de-img-btn-prev > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=') +
-		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; }\
+		'#de-img-btns { position: fixed; z-index: 10000; cursor: pointer; }\
+		#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; margin-top: -8px; background-color: black; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
@@ -7448,7 +7449,62 @@ Post.prototype = {
 			} else {
 				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
 				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
-				$id('de-img-btns').style.display = '';
+				if ($id('de-img-btns').style.display) {
+					var btns = $id('de-img-btns');
+					btns.style.display = '';
+					btns.style.opacity = 0;
+					_setFadeOutDelay = function() {
+						clearTimeout(btns._fadeOutDelay);
+						btns._fadeOutDelay = setTimeout(function() {
+							clearInterval(btns._fadeOut);
+							btns._fadeOut = setInterval(function() {
+								if(+btns.style.opacity > 0) {
+									btns.style.opacity = +btns.style.opacity - 0.05;
+								} else {
+									clearInterval(btns._fadeOut);
+								}
+							}, 25);
+						}, 2000);
+					}
+					window.addEventListener('mousemove', btns._imgBtnsFade = function() {
+						if(!btns._fadeIn && !btns._isOverBtns) {
+							clearTimeout(btns._fadeOutDelay);
+							clearInterval(btns._fadeOut);
+							btns._fadeIn = setInterval(function() {
+								if(+btns.style.opacity < 1) {
+									btns.style.opacity =+ btns.style.opacity + 0.05;
+								} else {
+									clearInterval(btns._fadeIn); btns._fadeIn = 0;
+									_setFadeOutDelay();
+								}
+							}, 25);
+						}
+					}, false);
+					btns.addEventListener('mouseover', btns._imgBtnsOverCheck = function() {
+						if(!btns._overChecker) {
+							this.style.opacity = 1;
+							btns._overChecker = setInterval(function() {
+								if(btns.parentElement.querySelector(':hover') === btns) {
+									clearTimeout(btns._fadeOutDelay);
+									btns._isOverBtns = true;
+								} else {
+									clearInterval(btns._overChecker); btns._overChecker = 0;
+									btns._isOverBtns = false;
+									_setFadeOutDelay();
+								}
+							}, 100);
+						}
+					}, false)
+					window.addEventListener('keypress', btns._leftRightNavig = function(e) {
+						if(e.keyCode == 37) {
+							$pd(e);
+							$id('de-img-btn-prev').click();
+						} else if(e.keyCode == 39) {
+							$pd(e);
+							$id('de-img-btn-next').click();
+						}
+					}, false)
+				}
 			}
 		}
 	},
@@ -7558,6 +7614,17 @@ Post.prototype = {
 	},
 	_clickImage: function(el, e) {
 		var data, iEl, mover, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
+		var clearBtns = function() {
+			var btns = $id('de-img-btns');
+			btns.style.display = 'none';
+			window.removeEventListener('mousemove', btns._imgBtnsFade, false);
+			btns.removeEventListener('mouseover', btns._imgBtnsOverCheck, false);
+			window.removeEventListener('keypress', btns._leftRightNavig, false);
+			clearInterval(btns._fadeIn); btns._fadeIn = 0;
+			clearInterval(btns._fadeOut);
+			clearTimeout(btns._fadeOutDelay);
+			clearInterval(btns._overChecker); btns._overChecker = 0;
+		}
 		switch(el.className) {
 		case 'de-img-full de-img-center':
 			mover = el.mover;
@@ -7569,7 +7636,7 @@ Post.prototype = {
 		case 'de-img-full':
 			iEl = el.previousSibling;
 			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
-			$id('de-img-btns').style.display = 'none';
+			clearBtns();
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7597,7 +7664,7 @@ Post.prototype = {
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
-				$id('de-img-btns').style.display = 'none';
+				clearBtns();
 			} else {
 				this._addFullImage(el, data, inPost);
 			}
