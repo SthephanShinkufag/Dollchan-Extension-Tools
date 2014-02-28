@@ -2334,6 +2334,9 @@ KeyNavigation.getDefaultKeys = function() {
 };
 KeyNavigation.prototype = {
 	paused: false,
+	get _fullImage() {
+		return $c('de-img-full de-img-center', doc);
+	},
 	clear: function(lastPage) {
 		this.cPost = null;
 		this.lastPage = lastPage;
@@ -2360,7 +2363,6 @@ KeyNavigation.prototype = {
 			return;
 		}
 		var temp, post, scrollToThread, globIdx, idx, curTh = e.target.tagName,
-			fcImg = $c('de-img-full de-img-center', doc),
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
@@ -2368,13 +2370,13 @@ KeyNavigation.prototype = {
 			if(TNum) {
 				return;
 			}
-			if(fcImg) {
-				fcImg.click();
+			if(this._fullImage) {
+				this._fullImage.click();
 			}
 			loadPages(+Cfg['loadPages']);
 		} else if(kc === 0x1B) { // ESC
-			if(fcImg) {
-				fcImg.click();
+			if(this._fullImage) {
+				this._fullImage.click();
 				return;
 			}
 			if(this.cPost) {
@@ -2410,7 +2412,7 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 4: // Open previous page/picture
-				if(fcImg) {
+				if(this._fullImage) {
 					$id('de-img-btn-prev').click();
 				} else if(TNum || pageNum !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
@@ -2475,7 +2477,7 @@ KeyNavigation.prototype = {
 				$id('de-btn-code').click();
 				break;
 			case 17: // Open next page/picture
-				if(fcImg) {
+				if(this._fullImage) {
 					$id('de-img-btn-next').click();
 				} else if(!TNum && this.lastPage !== aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
@@ -6650,12 +6652,13 @@ ImageData.prototype = {
 
 function ImgBtnsShowHider() {}
 ImgBtnsShowHider.prototype = {
-	_btns: null,
 	hideTmt: 0,
 	isOverBtns: false,
 	overCheckerInt: 0,
+	get _btns() {
+		return $id('de-img-btns');
+	},
 	init: function() {
-		this._btns = $id('de-img-btns');
 		this.show();
 		window.addEventListener('mousemove', this.show, false);
 		this._btns.addEventListener('mouseover', this.overCheck, false)
