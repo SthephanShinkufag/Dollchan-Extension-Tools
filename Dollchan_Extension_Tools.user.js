@@ -2334,9 +2334,6 @@ KeyNavigation.getDefaultKeys = function() {
 };
 KeyNavigation.prototype = {
 	paused: false,
-	get _fullImage() {
-		return $c('de-img-full de-img-center', doc);
-	},
 	clear: function(lastPage) {
 		this.cPost = null;
 		this.lastPage = lastPage;
@@ -2370,8 +2367,8 @@ KeyNavigation.prototype = {
 			if(TNum) {
 				return;
 			}
-			if(this._fullImage) {
-				this._fullImage.click();
+			if(temp = this._fullImage) {
+				temp.click();
 			}
 			loadPages(+Cfg['loadPages']);
 		} else if(kc === 0x1B) { // ESC
@@ -2541,6 +2538,10 @@ KeyNavigation.prototype = {
 		this.ntKeys = keys[3];
 		this.tKeys = keys[4];
 		this.paused = false;
+	},
+
+	get _fullImage() {
+		return $c('de-img-full de-img-center', doc);
 	},
 	_getFirstVisPost: function(getThread, getFull) {
 		var post, tPost;
@@ -6650,52 +6651,57 @@ ImageData.prototype = {
 	}
 }
 
-function ImgBtnsShowHider() {}
+function ImgBtnsShowHider(btns) {
+	this._btns = btns;
+	this._btnsStyle = btns.style;
+	btns.addEventListener('mouseover', this, false);
+	btns.addEventListener('mouseout', this, false);
+}
 ImgBtnsShowHider.prototype = {
-	hideTmt: 0,
-	isOverBtns: false,
-	overCheckerInt: 0,
-	get _btns() {
-		return $id('de-img-btns');
-	},
-	init: function() {
-		this.show();
-		window.addEventListener('mousemove', this.show, false);
-		this._btns.addEventListener('mouseover', this.overCheck, false)
+	init: function(btns) {
+		this._show();
+		window.addEventListener('mousemove', this, false);
 	},
 	end: function() {
-		this._btns.style.display = 'none';
-		window.removeEventListener('mousemove', this.show, false);
-		this._btns.removeEventListener('mouseover', this.overCheck, false);
-		clearTimeout(this.hideTmt);
-		clearInterval(this.overCheckerInt); this.overCheckerInt = 0;
+		this._btnsStyle.display = 'none';
+		this._hidden = true;
+		window.removeEventListener('mousemove', this, false);
+		clearTimeout(this._hideTmt);
 	},
-	overCheck: function() {
-		var btns = $id('de-img-btns'), sh = btns.showhider;
-		if(!sh.overCheckerInt) {
-			sh.overCheckerInt = setInterval(function() {
-				if(btns.parentElement.querySelector(':hover') === btns) {
-					clearTimeout(sh.hideTmt);
-					sh.isOverBtns = true;
-				} else {
-					clearInterval(sh.overCheckerInt); sh.overCheckerInt = 0;
-					sh.isOverBtns = false;
-					sh.setHideTmt();
-				}
-			}, 100);
+	handleEvent: function(e) {
+		switch(e.type) {
+		case 'mousemove':
+			this._show();
+			break;
+		case 'mouseover':
+			if(this._hidden) {
+				this._btnsStyle.display = '';
+				this._hidden = false;
+			} else {
+				clearTimeout(this._hideTmt);
+			}
+			break;
+		case 'mouseout':
+			this._setHideTmt();
+			break;
 		}
 	},
-	setHideTmt: function() {
-		var btns = $id('de-img-btns'), sh = btns.showhider;
-		clearTimeout(sh.hideTmt);
-		sh.hideTmt = setTimeout(function() {
-			btns.style.display = 'none';
-		}, 750);
+
+	_hideTmt: 0,
+	_hidden: true,
+	_setHideTmt: function() {
+		clearTimeout(this._hideTmt);
+		this._hideTmt = setTimeout(function() {
+			this._btnsStyle.display = 'none';
+			this._hidden = true;
+		}.bind(this), 750);
 	},
-	show: function() {
-		var btns = $id('de-img-btns');
-		btns.style.display = '';
-		btns.showhider.setHideTmt();
+	_show: function() {
+		if(this._hidden) {
+			this._btnsStyle.display = '';
+			this._hidden = false;
+			this._setHideTmt();
+		}
 	}
 }
 
@@ -7515,7 +7521,7 @@ Post.prototype = {
 			} else {
 				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
 				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
-				btns.showhider = btns.showhider || new ImgBtnsShowHider;
+				btns.showhider = btns.showhider || new ImgBtnsShowHider(btns);
 				btns.showhider.init();
 			}
 		}
