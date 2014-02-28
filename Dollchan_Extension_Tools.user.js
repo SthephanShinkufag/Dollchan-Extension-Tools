@@ -291,9 +291,9 @@ Lng = {
 
 	keyNavEdit:		[
 		'%l%i24 – предыдущая страница%/l' +
-		'%l%i33 – следующая страница%/l' +
+		'%l%i217 – следующая страница%/l' +
 		'%l%i23 – скрыть текущий пост/тред%/l' +
-		'%l%i34 – раскрыть текущий тред%/l' +
+		'%l%i33 – раскрыть текущий тред%/l' +
 		'%l%i22 – быстрый ответ или создать тред%/l' +
 		'%l%i25t – отправить пост%/l' +
 		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l' +
@@ -314,9 +314,9 @@ Lng = {
 		'%l%i215t – спойлер%/l' +
 		'%l%i216t – код%/l',
 		'%l%i24 – previous page%/l' +
-		'%l%i33 – next page%/l' +
+		'%l%i217 – next page%/l' +
 		'%l%i23 – hide current post/thread%/l' +
-		'%l%i34 – expand current thread%/l' +
+		'%l%i33 – expand current thread%/l' +
 		'%l%i22 – quick reply or create thread%/l' +
 		'%l%i25t – send post%/l' +
 		'%l%i21 – thread (on board) / post (in thread) below%/l' +
@@ -2244,7 +2244,7 @@ function KeyNavigation() {
 	this.tKeys = keys[4];
 	doc.addEventListener('keydown', this, true);
 }
-KeyNavigation.version = 3;
+KeyNavigation.version = 4;
 KeyNavigation.readKeys = function() {
 	var tKeys, keys, str = getStored('DESU_keys');
 	if(!str) {
@@ -2268,6 +2268,9 @@ KeyNavigation.readKeys = function() {
 				keys[2][14] = tKeys[2][14];
 				keys[2][15] = tKeys[2][15];
 				keys[2][16] = tKeys[2][16];
+			case 3:
+				keys[2][17] = keys[3][3];
+				keys[3][3] = keys[3].splice(4, 1)[0];
 			}
 			keys[0] = KeyNavigation.version;
 			setStored('DESU_keys', JSON.stringify(keys));
@@ -2315,13 +2318,13 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Italic text               */ 0xC049 /* = Alt + I           */,
 		/* Strike text               */ 0xC054 /* = Alt + T           */,
 		/* Spoiler text              */ 0xC050 /* = Alt + P           */,
-		/* Code text                 */ 0xC043 /* = Alt + C           */
+		/* Code text                 */ 0xC043 /* = Alt + C           */,
+		/* Open next page/picture    */ 0x1027 /* = Ctrl + right arrow*/
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M                  */,
 		/* One post below */ 0x004E /* = N                  */,
 		/* Open thread    */ 0x0056 /* = V                  */,
-		/* Open next page */ 0x1027 /* = Ctrl + right arrow */,
 		/* Expand thread  */ 0x0045 /* = E                  */
 	];
 	var thrKeys = [
@@ -2366,6 +2369,10 @@ KeyNavigation.prototype = {
 			}
 			loadPages(+Cfg['loadPages']);
 		} else if(kc === 0x1B) { // ESC
+			if($c('de-img-full de-img-center', doc)) {
+				$c('de-img-full de-img-center', doc).click();
+				return;
+			}
 			if(this.cPost) {
 				this.cPost.unselect();
 				this.cPost = null;
@@ -2398,8 +2405,10 @@ KeyNavigation.prototype = {
 					this._scroll(post, false, post.isOp);
 				}
 				break;
-			case 4: // Open previous page
-				if(TNum || pageNum !== aib.firstPage) {
+			case 4: // Open previous page/picture
+				if($c('de-img-full de-img-center', doc)) {
+					$id('de-img-btn-prev').click();
+				} else if(TNum || pageNum !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				}
 				break;
@@ -2461,6 +2470,13 @@ KeyNavigation.prototype = {
 				}
 				$id('de-btn-code').click();
 				break;
+			case 17: // Open next page/picture
+				if($c('de-img-full de-img-center', doc)) {
+					$id('de-img-btn-next').click();
+				} else if(!TNum && this.lastPage !== aib.lastPage) {
+					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+				}
+				break;
 			case -1:
 				if(TNum) {
 					idx = this.tKeys.indexOf(kc);
@@ -2483,12 +2499,7 @@ KeyNavigation.prototype = {
 						}
 					}
 					break;
-				} else if(idx === 3) { // Open next page
-					if(this.lastPage !== aib.lastPage) {
-						window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
-					}
-					break;
-				} else if(idx === 4) { // Expand/collapse thread
+				} else if(idx === 3) { // Expand/collapse thread
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
 						if(post.thr.loadedOnce && post.thr.omitted === 0) {
@@ -7495,15 +7506,6 @@ Post.prototype = {
 							}, 100);
 						}
 					}, false)
-					window.addEventListener('keypress', btns._leftRightNavig = function(e) {
-						if(e.keyCode == 37) {
-							$pd(e);
-							$id('de-img-btn-prev').click();
-						} else if(e.keyCode == 39) {
-							$pd(e);
-							$id('de-img-btn-next').click();
-						}
-					}, false)
 				}
 			}
 		}
@@ -7619,7 +7621,6 @@ Post.prototype = {
 			btns.style.display = 'none';
 			window.removeEventListener('mousemove', btns._imgBtnsFade, false);
 			btns.removeEventListener('mouseover', btns._imgBtnsOverCheck, false);
-			window.removeEventListener('keypress', btns._leftRightNavig, false);
 			clearInterval(btns._fadeIn); btns._fadeIn = 0;
 			clearInterval(btns._fadeOut);
 			clearTimeout(btns._fadeOutDelay);
