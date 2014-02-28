@@ -7640,10 +7640,12 @@ Post.prototype = {
 				break;
 			}
 			el.mover = null;
+			if(!this._isPview) {
+				$id('de-img-btns').showhider.end();
+			}
 		case 'de-img-full':
 			iEl = el.previousSibling;
 			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
-			$id('de-img-btns').showhider.end();
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7671,7 +7673,9 @@ Post.prototype = {
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
-				$id('de-img-btns').showhider.end();
+				if(!this._isPview) {
+					$id('de-img-btns').showhider.end();
+				}
 			} else {
 				this._addFullImage(el, data, inPost);
 			}
