@@ -2270,8 +2270,7 @@ KeyNavigation.readKeys = function() {
 				keys[2][16] = tKeys[2][16];
 			case 3:
 				keys[2][17] = keys[3][3];
-				keys[3][3] = keys[3][4];
-				keys[3].splice(4, 1);
+				keys[3][3] = keys[3].splice(4, 1)[0];
 			}
 			keys[0] = KeyNavigation.version;
 			setStored('DESU_keys', JSON.stringify(keys));
@@ -2307,7 +2306,7 @@ KeyNavigation.getDefaultKeys = function() {
 		/* One post/thread below     */ 0x004A /* = J                 */,
 		/* Reply or create thread    */ 0x0052 /* = R                 */,
 		/* Hide selected thread/post */ 0x0048 /* = H                 */,
-		/* Open previous page        */ 0x1025 /* = Ctrl + left arrow */,
+		/* Open previous page/picture*/ 0x1025 /* = Ctrl + left arrow */,
 		/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */,
 		/* Open/close favorites posts*/ 0x4046 /* = Alt + F           */,
 		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
@@ -5487,8 +5486,7 @@ function scriptCSS() {
 		#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }' +
 		gif('#de-img-btn-next > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7') +
 		gif('#de-img-btn-prev > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=') +
-		'#de-img-btns { position: fixed; z-index: 10000; cursor: pointer; }\
-		#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; margin-top: -8px; background-color: black; }\
+		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
@@ -7514,9 +7512,7 @@ Post.prototype = {
 			} else {
 				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
 				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
-				if (!btns.showhider) {
-					btns.showhider = new ImgBtnsShowHider;
-				}
+				btns.showhider = btns.showhider || new ImgBtnsShowHider;
 				btns.showhider.init();
 			}
 		}
