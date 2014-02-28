@@ -6650,6 +6650,54 @@ ImageData.prototype = {
 	}
 }
 
+function ImgBtnsShowHider() {}
+ImgBtnsShowHider.prototype = {
+	_btns: null,
+	hideTmt: 0,
+	isOverBtns: false,
+	overCheckerInt: 0,
+	init: function() {
+		this._btns = $id('de-img-btns');
+		this.show();
+		window.addEventListener('mousemove', this.show, false);
+		this._btns.addEventListener('mouseover', this.overCheck, false)
+	},
+	end: function() {
+		this._btns.style.display = 'none';
+		window.removeEventListener('mousemove', this.show, false);
+		this._btns.removeEventListener('mouseover', this.overCheck, false);
+		clearTimeout(this.hideTmt);
+		clearInterval(this.overCheckerInt); this.overCheckerInt = 0;
+	},
+	overCheck: function() {
+		var btns = $id('de-img-btns'), sh = btns.showhider;
+		if(!sh.overCheckerInt) {
+			sh.overCheckerInt = setInterval(function() {
+				if(btns.parentElement.querySelector(':hover') === btns) {
+					clearTimeout(sh.hideTmt);
+					sh.isOverBtns = true;
+				} else {
+					clearInterval(sh.overCheckerInt); sh.overCheckerInt = 0;
+					sh.isOverBtns = false;
+					sh.setHideTmt();
+				}
+			}, 100);
+		}
+	},
+	setHideTmt: function() {
+		var btns = $id('de-img-btns'), sh = btns.showhider;
+		clearTimeout(sh.hideTmt);
+		sh.hideTmt = setTimeout(function() {
+			btns.style.display = 'none';
+		}, 750);
+	},
+	show: function() {
+		var btns = $id('de-img-btns');
+		btns.style.display = '';
+		btns.showhider.setHideTmt();
+	}
+}
+
 function ImageMover(img) {
 	this.el = img;
 	this.elStyle = img.style;
@@ -7466,32 +7514,10 @@ Post.prototype = {
 			} else {
 				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
 				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
-				btns.style.display = '';
-				_setFadeOutDelay = function() {
-					clearTimeout(btns._fadeOutDelay);
-					btns._fadeOutDelay = setTimeout(function() {
-						btns.style.display = 'none';
-					}, 750);
+				if (!btns.showhider) {
+					btns.showhider = new ImgBtnsShowHider;
 				}
-				_setFadeOutDelay();
-				window.addEventListener('mousemove', btns._imgBtnsFade = function() {
-					btns.style.display = '';
-					_setFadeOutDelay();
-				}, false);
-				btns.addEventListener('mouseover', btns._imgBtnsOverCheck = function() {
-					if(!btns._overChecker) {
-						btns._overChecker = setInterval(function() {
-							if(btns.parentElement.querySelector(':hover') === btns) {
-								clearTimeout(btns._fadeOutDelay);
-								btns._isOverBtns = true;
-							} else {
-								clearInterval(btns._overChecker); btns._overChecker = 0;
-								btns._isOverBtns = false;
-								_setFadeOutDelay();
-							}
-						}, 100);
-					}
-				}, false)
+				btns.showhider.init();
 			}
 		}
 	},
@@ -7601,16 +7627,6 @@ Post.prototype = {
 	},
 	_clickImage: function(el, e) {
 		var data, iEl, mover, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
-		var clearBtns = function() {
-			var btns = $id('de-img-btns');
-			btns.style.display = 'none';
-			window.removeEventListener('mousemove', btns._imgBtnsFade, false);
-			btns.removeEventListener('mouseover', btns._imgBtnsOverCheck, false);
-			clearInterval(btns._fadeIn); btns._fadeIn = 0;
-			clearInterval(btns._fadeOut);
-			clearTimeout(btns._fadeOutDelay);
-			clearInterval(btns._overChecker); btns._overChecker = 0;
-		}
 		switch(el.className) {
 		case 'de-img-full de-img-center':
 			mover = el.mover;
@@ -7622,7 +7638,7 @@ Post.prototype = {
 		case 'de-img-full':
 			iEl = el.previousSibling;
 			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
-			clearBtns();
+			$id('de-img-btns').showhider.end();
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7650,7 +7666,7 @@ Post.prototype = {
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
 				$del(iEl);
-				clearBtns();
+				$id('de-img-btns').showhider.end();
 			} else {
 				this._addFullImage(el, data, inPost);
 			}
