@@ -2256,20 +2256,20 @@ KeyNavigation.readKeys = function() {
 		if(!keys) {
 			return KeyNavigation.getDefaultKeys();
 		}
-		if(keys[0] === 1) {
+		if(keys[0] !== KeyNavigation.version) {
 			tKeys = KeyNavigation.getDefaultKeys();
+			switch(keys[0]) {
+			case 1:
+				keys[2][11] = tKeys[2][11];
+				keys[4] = tKeys[4];
+			case 2:
+				keys[2][12] = tKeys[2][12];
+				keys[2][13] = tKeys[2][13];
+				keys[2][14] = tKeys[2][14];
+				keys[2][15] = tKeys[2][15];
+				keys[2][16] = tKeys[2][16];
+			}
 			keys[0] = KeyNavigation.version;
-			keys[2][11] = tKeys[2][11];
-			keys[4] = tKeys[4];
-			setStored('DESU_keys', JSON.stringify(keys));
-		} else if(keys[0] === 2) {
-			tKeys = KeyNavigation.getDefaultKeys();
-			keys[0] = KeyNavigation.version;
-			keys[2][12] = tKeys[2][12];
-			keys[2][13] = tKeys[2][13];
-			keys[2][14] = tKeys[2][14];
-			keys[2][15] = tKeys[2][15];
-			keys[2][16] = tKeys[2][16];
 			setStored('DESU_keys', JSON.stringify(keys));
 		}
 		if(keys[1] ^ !!nav.Firefox) {
