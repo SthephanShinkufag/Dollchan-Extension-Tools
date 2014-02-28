@@ -2270,7 +2270,8 @@ KeyNavigation.readKeys = function() {
 				keys[2][16] = tKeys[2][16];
 			case 3:
 				keys[2][17] = keys[3][3];
-				keys[3][3] = keys[3].splice(4, 1)[0];
+				keys[3][3] = keys[3][4];
+				keys[3].splice(4, 1);
 			}
 			keys[0] = KeyNavigation.version;
 			setStored('DESU_keys', JSON.stringify(keys));
@@ -2360,6 +2361,7 @@ KeyNavigation.prototype = {
 			return;
 		}
 		var temp, post, scrollToThread, globIdx, idx, curTh = e.target.tagName,
+			fcImg = $c('de-img-full de-img-center', doc),
 			kc = e.keyCode | (e.ctrlKey ? 0x1000 : 0) | (e.shiftKey ? 0x2000 : 0) |
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
@@ -2367,10 +2369,13 @@ KeyNavigation.prototype = {
 			if(TNum) {
 				return;
 			}
+			if(fcImg) {
+				fcImg.click();
+			}
 			loadPages(+Cfg['loadPages']);
 		} else if(kc === 0x1B) { // ESC
-			if($c('de-img-full de-img-center', doc)) {
-				$c('de-img-full de-img-center', doc).click();
+			if(fcImg) {
+				fcImg.click();
 				return;
 			}
 			if(this.cPost) {
@@ -2406,7 +2411,7 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 4: // Open previous page/picture
-				if($c('de-img-full de-img-center', doc)) {
+				if(fcImg) {
 					$id('de-img-btn-prev').click();
 				} else if(TNum || pageNum !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
@@ -2471,7 +2476,7 @@ KeyNavigation.prototype = {
 				$id('de-btn-code').click();
 				break;
 			case 17: // Open next page/picture
-				if($c('de-img-full de-img-center', doc)) {
+				if(fcImg) {
 					$id('de-img-btn-next').click();
 				} else if(!TNum && this.lastPage !== aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
@@ -7455,58 +7460,38 @@ Post.prototype = {
 			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
 				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
 			img.mover = new ImageMover(img);
+			var btns = $id('de-img-btns');
 			if(this._isPview) {
-				$id('de-img-btns').style.display = 'none';
+				btns.style.display = 'none';
 			} else {
 				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
 				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
-				if ($id('de-img-btns').style.display) {
-					var btns = $id('de-img-btns');
-					btns.style.display = '';
-					btns.style.opacity = 0;
-					_setFadeOutDelay = function() {
-						clearTimeout(btns._fadeOutDelay);
-						btns._fadeOutDelay = setTimeout(function() {
-							clearInterval(btns._fadeOut);
-							btns._fadeOut = setInterval(function() {
-								if(+btns.style.opacity > 0) {
-									btns.style.opacity = +btns.style.opacity - 0.05;
-								} else {
-									clearInterval(btns._fadeOut);
-								}
-							}, 25);
-						}, 2000);
-					}
-					window.addEventListener('mousemove', btns._imgBtnsFade = function() {
-						if(!btns._fadeIn && !btns._isOverBtns) {
-							clearTimeout(btns._fadeOutDelay);
-							clearInterval(btns._fadeOut);
-							btns._fadeIn = setInterval(function() {
-								if(+btns.style.opacity < 1) {
-									btns.style.opacity =+ btns.style.opacity + 0.05;
-								} else {
-									clearInterval(btns._fadeIn); btns._fadeIn = 0;
-									_setFadeOutDelay();
-								}
-							}, 25);
-						}
-					}, false);
-					btns.addEventListener('mouseover', btns._imgBtnsOverCheck = function() {
-						if(!btns._overChecker) {
-							this.style.opacity = 1;
-							btns._overChecker = setInterval(function() {
-								if(btns.parentElement.querySelector(':hover') === btns) {
-									clearTimeout(btns._fadeOutDelay);
-									btns._isOverBtns = true;
-								} else {
-									clearInterval(btns._overChecker); btns._overChecker = 0;
-									btns._isOverBtns = false;
-									_setFadeOutDelay();
-								}
-							}, 100);
-						}
-					}, false)
+				btns.style.display = '';
+				_setFadeOutDelay = function() {
+					clearTimeout(btns._fadeOutDelay);
+					btns._fadeOutDelay = setTimeout(function() {
+						btns.style.display = 'none';
+					}, 750);
 				}
+				_setFadeOutDelay();
+				window.addEventListener('mousemove', btns._imgBtnsFade = function() {
+					btns.style.display = '';
+					_setFadeOutDelay();
+				}, false);
+				btns.addEventListener('mouseover', btns._imgBtnsOverCheck = function() {
+					if(!btns._overChecker) {
+						btns._overChecker = setInterval(function() {
+							if(btns.parentElement.querySelector(':hover') === btns) {
+								clearTimeout(btns._fadeOutDelay);
+								btns._isOverBtns = true;
+							} else {
+								clearInterval(btns._overChecker); btns._overChecker = 0;
+								btns._isOverBtns = false;
+								_setFadeOutDelay();
+							}
+						}, 100);
+					}
+				}, false)
 			}
 		}
 	},
