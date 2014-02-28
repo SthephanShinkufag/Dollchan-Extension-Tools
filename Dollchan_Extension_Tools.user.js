@@ -2372,8 +2372,8 @@ KeyNavigation.prototype = {
 			}
 			loadPages(+Cfg['loadPages']);
 		} else if(kc === 0x1B) { // ESC
-			if(this._fullImage) {
-				this._fullImage.click();
+			if(temp = this._fullImage) {
+				temp.click();
 				return;
 			}
 			if(this.cPost) {
