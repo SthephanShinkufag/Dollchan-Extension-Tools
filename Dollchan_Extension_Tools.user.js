@@ -1132,8 +1132,8 @@ function addPanel() {
 				'</ul>' +
 			'</div>' +
 			'<div id="de-img-btns" style="display: none">' +
-				'<div id="de-img-btn-next" title="' + Lng.nextImg[lang] + '"><div></div></div>' +
-				'<div id="de-img-btn-prev" title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
+				'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"><div></div></div>' +
+				'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
 			'<div id="de-alert"></div>' +
 			'<hr style="clear: both;">' +
 		'</div>'
@@ -1143,10 +1143,10 @@ function addPanel() {
 		attach: false,
 		odelay: 0,
 		panel: panel,
-		setTitleWithKey: function(el, isGlob, idx) {
+		setTitleWithKey: function(el, idx) {
 			var title = el.getAttribute('de-title');
 			if(keyNav) {
-				title += ' [' + KeyEditListener.getStrKey(isGlob ? keyNav.gKeys[idx] : keyNav.ntKeys[idx]) + ']';
+				title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
 			}
 			el.title = title;
 		},
@@ -1225,12 +1225,12 @@ function addPanel() {
 					this.panel.lastChild.style.display = '';
 				}
 				switch(e.target.id) {
-				case 'de-btn-settings': this.setTitleWithKey(e.target, true, 10); break;
-				case 'de-btn-hidden': this.setTitleWithKey(e.target, true, 7); break;
-				case 'de-btn-favor': this.setTitleWithKey(e.target, true, 6); break;
-				case 'de-btn-goback': this.setTitleWithKey(e.target, true, 4); break;
-				case 'de-btn-gonext': this.setTitleWithKey(e.target, false, 3); break;
-				case 'de-btn-maskimg': this.setTitleWithKey(e.target, true, 9); break;
+				case 'de-btn-settings': this.setTitleWithKey(e.target, 10); break;
+				case 'de-btn-hidden': this.setTitleWithKey(e.target, 7); break;
+				case 'de-btn-favor': this.setTitleWithKey(e.target, 6); break;
+				case 'de-btn-goback': this.setTitleWithKey(e.target, 4); break;
+				case 'de-btn-gonext': this.setTitleWithKey(e.target, 17); break;
+				case 'de-btn-maskimg': this.setTitleWithKey(e.target, 9); break;
 				case 'de-btn-refresh':
 					if(TNum) {
 						return;
@@ -6668,22 +6668,27 @@ ImgBtnsShowHider.prototype = {
 		window.removeEventListener('mousemove', this, false);
 		clearTimeout(this._hideTmt);
 	},
+	setTitle: function (el, idx) {
+		var title = el.getAttribute('de-title');
+		if(keyNav) {
+			title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
+		}
+		el.title = title;
+	},
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousemove':
 			this._show();
 			break;
 		case 'mouseover':
-			if(this._hidden) {
-				this._btnsStyle.display = '';
-				this._hidden = false;
-			} else {
+			if(!this._hidden) {
 				clearTimeout(this._hideTmt);
+				this.setTitle(this._btns.firstChild, 17);
+				this.setTitle(this._btns.lastChild, 4);
 			}
 			break;
 		case 'mouseout':
 			this._setHideTmt();
-			break;
 		}
 	},
 
