@@ -290,8 +290,8 @@ Lng = {
 	],
 
 	keyNavEdit:		[
-		'%l%i24 – предыдущая страница%/l' +
-		'%l%i217 – следующая страница%/l' +
+		'%l%i24 – предыдущая страница / изображение%/l' +
+		'%l%i217 – следующая страница / изображение%/l' +
 		'%l%i23 – скрыть текущий пост/тред%/l' +
 		'%l%i33 – раскрыть текущий тред%/l' +
 		'%l%i22 – быстрый ответ или создать тред%/l' +
@@ -2629,13 +2629,13 @@ KeyEditListener.keyCodes = ['',,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift'
 KeyEditListener.getStrKey = function(key) {
 	var str = '';
 	if(key & 0x1000) {
-		str += 'Ctrl + ';
+		str += 'Ctrl+';
 	}
 	if(key & 0x2000) {
-		str += 'Shift + ';
+		str += 'Shift+';
 	}
 	if(key & 0x4000) {
-		str += 'Alt + ';
+		str += 'Alt+';
 	}
 	str += KeyEditListener.keyCodes[key & 0xFFF];
 	return str;
@@ -2658,7 +2658,7 @@ KeyEditListener.getEditMarkup = function(keys) {
 };
 KeyEditListener.setTitle = function(el, idx) {
 	var title = el.getAttribute('de-title');
-	if(keyNav) {
+	if(keyNav && idx !== -1) {
 		title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
 	}
 	el.title = title;
@@ -5884,8 +5884,7 @@ PostForm.prototype = {
 					case 'code': x = 16; break;
 					}
 				}
-				el.title = el.getAttribute('de-title') + (x === -1 ? '' : ' [' +
-					KeyEditListener.getStrKey(keyNav.gKeys[x]) + ']');
+				KeyEditListener.setTitle(el, x);
 				return;
 			}
 			x = pr.txta;
