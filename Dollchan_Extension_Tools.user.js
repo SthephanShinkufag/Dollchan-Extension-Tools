@@ -1143,13 +1143,6 @@ function addPanel() {
 		attach: false,
 		odelay: 0,
 		panel: panel,
-		setTitleWithKey: function(el, idx) {
-			var title = el.getAttribute('de-title');
-			if(keyNav) {
-				title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
-			}
-			el.title = title;
-		},
 		handleEvent: function(e) {
 			switch(e.type) {
 			case 'click':
@@ -1225,12 +1218,12 @@ function addPanel() {
 					this.panel.lastChild.style.display = '';
 				}
 				switch(e.target.id) {
-				case 'de-btn-settings': this.setTitleWithKey(e.target, 10); break;
-				case 'de-btn-hidden': this.setTitleWithKey(e.target, 7); break;
-				case 'de-btn-favor': this.setTitleWithKey(e.target, 6); break;
-				case 'de-btn-goback': this.setTitleWithKey(e.target, 4); break;
-				case 'de-btn-gonext': this.setTitleWithKey(e.target, 17); break;
-				case 'de-btn-maskimg': this.setTitleWithKey(e.target, 9); break;
+				case 'de-btn-settings': KeyEditListener.setTitle(e.target, 10); break;
+				case 'de-btn-hidden': KeyEditListener.setTitle(e.target, 7); break;
+				case 'de-btn-favor': KeyEditListener.setTitle(e.target, 6); break;
+				case 'de-btn-goback': KeyEditListener.setTitle(e.target, 4); break;
+				case 'de-btn-gonext': KeyEditListener.setTitle(e.target, 17); break;
+				case 'de-btn-maskimg': KeyEditListener.setTitle(e.target, 9); break;
 				case 'de-btn-refresh':
 					if(TNum) {
 						return;
@@ -2646,7 +2639,7 @@ KeyEditListener.getStrKey = function(key) {
 	}
 	str += KeyEditListener.keyCodes[key & 0xFFF];
 	return str;
-}
+};
 KeyEditListener.getEditMarkup = function(keys) {
 	var allKeys = [];
 	var html = Lng.keyNavEdit[lang]
@@ -2662,6 +2655,13 @@ KeyEditListener.getEditMarkup = function(keys) {
 	'<input type="button" id="de-keys-save" value="' + Lng.save[lang] + '"></input>' +
 	'<input type="button" id="de-keys-reset" value="' + Lng.reset[lang] + '"></input>';
 	return [allKeys, html];
+};
+KeyEditListener.setTitle = function(el, idx) {
+	var title = el.getAttribute('de-title');
+	if(keyNav) {
+		title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
+	}
+	el.title = title;
 };
 KeyEditListener.prototype = {
 	cEl: null,
@@ -6668,13 +6668,6 @@ ImgBtnsShowHider.prototype = {
 		window.removeEventListener('mousemove', this, false);
 		clearTimeout(this._hideTmt);
 	},
-	setTitle: function (el, idx) {
-		var title = el.getAttribute('de-title');
-		if(keyNav) {
-			title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
-		}
-		el.title = title;
-	},
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousemove':
@@ -6683,8 +6676,8 @@ ImgBtnsShowHider.prototype = {
 		case 'mouseover':
 			if(!this._hidden) {
 				clearTimeout(this._hideTmt);
-				this.setTitle(this._btns.firstChild, 17);
-				this.setTitle(this._btns.lastChild, 4);
+				KeyEditListener.setTitle(this._btns.firstChild, 17);
+				KeyEditListener.setTitle(this._btns.lastChild, 4);
 			}
 			break;
 		case 'mouseout':
@@ -7486,7 +7479,7 @@ Post.prototype = {
 	_selRange: null,
 	_selText: '',
 	_addFullImage: function(el, data, inPost) {
-		var elMove, elStop, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
+		var btns, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
@@ -7520,12 +7513,12 @@ Post.prototype = {
 			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
 				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
 			img.mover = new ImageMover(img);
-			var btns = $id('de-img-btns');
+			btns = $id('de-img-btns');
 			if(this._isPview) {
 				btns.style.display = 'none';
 			} else {
-				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
-				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
+				btns.firstChild.onclick = this._navigateImages.bind(this, true);
+				btns.lastChild.onclick = this._navigateImages.bind(this, false);
 				btns.showhider = btns.showhider || new ImgBtnsShowHider(btns);
 				btns.showhider.init();
 			}
