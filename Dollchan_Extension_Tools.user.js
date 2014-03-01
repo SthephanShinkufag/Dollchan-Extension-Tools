@@ -290,8 +290,8 @@ Lng = {
 	],
 
 	keyNavEdit:		[
-		'%l%i24 – предыдущая страница / изображение%/l' +
-		'%l%i217 – следующая страница / изображение%/l' +
+		'%l%i24 – предыдущая страница/изображение%/l' +
+		'%l%i217 – следующая страница/изображение%/l' +
 		'%l%i23 – скрыть текущий пост/тред%/l' +
 		'%l%i33 – раскрыть текущий тред%/l' +
 		'%l%i22 – быстрый ответ или создать тред%/l' +
@@ -2295,33 +2295,33 @@ KeyNavigation.readKeys = function() {
 KeyNavigation.getDefaultKeys = function() {
 	var isFirefox = !!nav.Firefox;
 	var globKeys = [
-		/* One post/thread above     */ 0x004B /* = K                 */,
-		/* One post/thread below     */ 0x004A /* = J                 */,
-		/* Reply or create thread    */ 0x0052 /* = R                 */,
-		/* Hide selected thread/post */ 0x0048 /* = H                 */,
-		/* Open previous page/picture*/ 0x1025 /* = Ctrl + left arrow */,
-		/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */,
-		/* Open/close favorites posts*/ 0x4046 /* = Alt + F           */,
-		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
-		/* Open/close panel          */ 0x0050 /* = P                 */,
-		/* Mask/unmask images        */ 0x0042 /* = B                 */,
-		/* Open/close settings       */ 0x4053 /* = Alt + S           */,
-		/* Expand current image      */ 0x0049 /* = I                 */,
-		/* Bold text                 */ 0xC042 /* = Alt + B           */,
-		/* Italic text               */ 0xC049 /* = Alt + I           */,
-		/* Strike text               */ 0xC054 /* = Alt + T           */,
-		/* Spoiler text              */ 0xC050 /* = Alt + P           */,
-		/* Code text                 */ 0xC043 /* = Alt + C           */,
-		/* Open next page/picture    */ 0x1027 /* = Ctrl + right arrow*/
+		/* One post/thread above      */ 0x004B /* = K          */,
+		/* One post/thread below      */ 0x004A /* = J          */,
+		/* Reply or create thread     */ 0x0052 /* = R          */,
+		/* Hide selected thread/post  */ 0x0048 /* = H          */,
+		/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+		/* Send post (txt)            */ 0xC00D /* = Alt+Enter  */,
+		/* Open/close favorites posts */ 0x4046 /* = Alt+F      */,
+		/* Open/close hidden posts    */ 0x4048 /* = Alt+H      */,
+		/* Open/close panel           */ 0x0050 /* = P          */,
+		/* Mask/unmask images         */ 0x0042 /* = B          */,
+		/* Open/close settings        */ 0x4053 /* = Alt+S      */,
+		/* Expand current image       */ 0x0049 /* = I          */,
+		/* Bold text                  */ 0xC042 /* = Alt+B      */,
+		/* Italic text                */ 0xC049 /* = Alt+I      */,
+		/* Strike text                */ 0xC054 /* = Alt+T      */,
+		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+		/* Code text                  */ 0xC043 /* = Alt+C      */,
+		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */
 	];
 	var nonThrKeys = [
-		/* One post above */ 0x004D /* = M                  */,
-		/* One post below */ 0x004E /* = N                  */,
-		/* Open thread    */ 0x0056 /* = V                  */,
-		/* Expand thread  */ 0x0045 /* = E                  */
+		/* One post above */ 0x004D /* = M */,
+		/* One post below */ 0x004E /* = N */,
+		/* Open thread    */ 0x0056 /* = V */,
+		/* Expand thread  */ 0x0045 /* = E */
 	];
 	var thrKeys = [
-		/* Update thread  */ 0x0055 /* = U                  */
+		/* Update thread  */ 0x0055 /* = U */
 	];
 	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys, thrKeys];
 };
@@ -2732,13 +2732,13 @@ KeyEditListener.prototype = {
 			}
 			str = '';
 			if(e.ctrlKey) {
-				str += 'Ctrl + ';
+				str += 'Ctrl+';
 			}
 			if(e.shiftKey) {
-				str += 'Shift + ';
+				str += 'Shift+';
 			}
 			if(e.altKey) {
-				str += 'Alt + ';
+				str += 'Alt+';
 			}
 			if(key === 16 || key === 17 || key === 18) {
 				this.errorInput = true;
