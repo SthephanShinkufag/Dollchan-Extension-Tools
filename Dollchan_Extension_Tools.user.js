@@ -3793,6 +3793,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		for(i = 0, j = 0; i < len; i++) {
 			el = newLinks[i];
 			link = oldLinks[j];
+			if(link.classList.contains('de-current')) {
+				post.ytLink = el;
+			}
 			if(cloned) {
 				el.ytInfo = link.ytInfo;
 				j++;
@@ -3801,7 +3804,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				j++;
 			}
 		}
-		post.ytLink = newLinks[0];
+		post.ytLink = post.ytLink || newLinks[0];
 		loader && loader.complete();
 	}
 
