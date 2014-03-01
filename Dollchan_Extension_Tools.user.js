@@ -3801,6 +3801,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				j++;
 			}
 		}
+		post.ytLink = newLinks[0];
 		loader && loader.complete();
 	}
 
