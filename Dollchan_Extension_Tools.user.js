@@ -313,14 +313,14 @@ Lng = {
 		'%l%i214t – зачеркнутый%/l' +
 		'%l%i215t – спойлер%/l' +
 		'%l%i216t – код%/l',
-		'%l%i24 – previous page%/l' +
-		'%l%i217 – next page%/l' +
+		'%l%i24 – previous page/image%/l' +
+		'%l%i217 – next page/image%/l' +
 		'%l%i23 – hide current post/thread%/l' +
 		'%l%i33 – expand current thread%/l' +
 		'%l%i22 – quick reply or create thread%/l' +
 		'%l%i25t – send post%/l' +
-		'%l%i21 – thread (on board) / post (in thread) below%/l' +
-		'%l%i20 – thread (on board) / post (in thread) above%/l' +
+		'%l%i21 – thread (on board)/post (in thread) below%/l' +
+		'%l%i20 – thread (on board)/post (in thread) above%/l' +
 		'%l%i31 – on board post below%/l' +
 		'%l%i30 – on board post above%/l' +
 		'%l%i32 – open thread%/l' +
