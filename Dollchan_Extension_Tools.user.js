@@ -4799,8 +4799,8 @@ Spells.prototype = {
 		var reps = this._findReps(str),
 			codeGen = new SpellsCodegen(reps[0]),
 			spells = codeGen.generate();
-		if(spells) {
-			if(Cfg['sortSpells']) {
+		if(spells || reps[1] || reps[2]) {
+			if(spells && Cfg['sortSpells']) {
 				this.sort(spells);
 			}
 			return [Date.now(), spells, reps[1], reps[2]];
