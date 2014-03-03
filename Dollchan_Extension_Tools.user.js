@@ -4690,24 +4690,6 @@ Spells.prototype = {
 			return +rv;
 		}
 	},
-	_findReps: function(str) {
-		var reps = [],
-			outreps = [];
-		str = str.replace(
-			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
-			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				return preOp || '';
-			}
-		).replace(
-			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
-			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				return preOp || '';
-			}
-		);
-		return [str, reps.length === 0 ? false : reps, outreps.length === 0 ? false : outreps];
-	},
 	_decompileRep: function(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
 			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
@@ -4795,15 +4777,34 @@ Spells.prototype = {
 		this._hasComplFns = true;
 	},
 	parseText: function(str) {
-		str = String(str).replace(/[\s\n]+$/, '');
-		var reps = this._findReps(str),
-			codeGen = new SpellsCodegen(reps[0]),
-			spells = codeGen.generate();
-		if(spells || reps[1] || reps[2]) {
+		var codeGen, spells, reps = [],
+			outreps = [];
+		str = String(str).replace(/[\s\n]+$/, '').replace(
+			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
+			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
+				return preOp || '';
+			}
+		).replace(
+			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
+			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
+				return preOp || '';
+			}
+		);
+		if(reps.length === 0) {
+			reps = false;
+		}
+		if(outreps.length === 0) {
+			outreps = false;
+		}
+		codeGen = new SpellsCodegen(str);
+		spells = codeGen.generate();
+		if(spells || reps || outreps) {
 			if(spells && Cfg['sortSpells']) {
 				this.sort(spells);
 			}
-			return [Date.now(), spells, reps[1], reps[2]];
+			return [Date.now(), spells, reps, outreps];
 		} else if(codeGen.hasError) {
 			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
 		}
