@@ -4800,13 +4800,13 @@ Spells.prototype = {
 		}
 		codeGen = new SpellsCodegen(str);
 		spells = codeGen.generate();
-		if(spells || reps || outreps) {
+		if(codeGen.hasError) {
+			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
+		} else if(spells || reps || outreps) {
 			if(spells && Cfg['sortSpells']) {
 				this.sort(spells);
 			}
 			return [Date.now(), spells, reps, outreps];
-		} else if(codeGen.hasError) {
-			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
 		}
 		return null;
 	},
