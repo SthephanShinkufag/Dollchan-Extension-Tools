@@ -7370,7 +7370,6 @@ Post.prototype = {
 		}
 	},
 	toggleImages: function(expand) {
-		var i, dat;
 		for(var dat, i = 0, imgs = this.images, len = imgs.length; i < len; ++i) {
 			dat = imgs[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
