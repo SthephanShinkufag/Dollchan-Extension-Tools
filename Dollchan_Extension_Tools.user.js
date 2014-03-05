@@ -5587,7 +5587,7 @@ function updateCSS() {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
-	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.dobr || aib.krau)) {
+	if(!(aib.fch || aib.dobr || aib.krau)) {
 		x += '.de-img-full { margin: 2px 10px; }';
 	}
 	if(Cfg['delHiddPost']) {
