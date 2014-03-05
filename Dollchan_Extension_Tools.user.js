@@ -5605,7 +5605,7 @@ function updateCSS() {
 	if(Cfg['noBoardRule']) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu) {
+	if(aib.abu || aib.toho) {
 		if(Cfg['addYouTube']) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
@@ -8978,6 +8978,12 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
+		'touhouchan.org': [{
+			toho: { value: true },
+
+			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
+			isBB: { value: true }
+		}],
 		'urupchan.ru': [{
 			urup: { value: true },
 			init: { value: function() {
