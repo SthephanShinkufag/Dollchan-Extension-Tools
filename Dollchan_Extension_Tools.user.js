@@ -8662,6 +8662,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'script[src*="kusaba"]'],
 		get '22chan.net'() { return this['ernstchan.com']; },
 		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.cm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.pm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.re'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.tf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
