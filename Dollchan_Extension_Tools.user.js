@@ -7492,7 +7492,7 @@ Post.prototype = {
 		} else {
 			$del($c('de-img-center', doc));
 		}
-		newW = !Cfg['resizeImgs'] || data.width < scrW ? data.width : scrW - 5;
+		newW = !Cfg['resizeImgs'] || data.width < (scrW - 5) ? data.width : scrW - 5;
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
