@@ -6382,6 +6382,9 @@ PostForm.prototype = {
 		}
 		if(aib.abu || aib.dobr || this.recap || !(img = $q('img', this.capTr))) {
 			$disp(this.capTr);
+			if(aib.abu && (temp = $t('script', this.capTr))) {
+				$del(temp);
+			}
 			return;
 		}
 		if(!aib.kus && !aib.tinyIb) {
