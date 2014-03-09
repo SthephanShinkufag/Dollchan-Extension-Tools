@@ -290,8 +290,8 @@ Lng = {
 	],
 
 	keyNavEdit:		[
-		'%l%i24 – предыдущая страница%/l' +
-		'%l%i217 – следующая страница%/l' +
+		'%l%i24 – предыдущая страница/изображение%/l' +
+		'%l%i217 – следующая страница/изображение%/l' +
 		'%l%i23 – скрыть текущий пост/тред%/l' +
 		'%l%i33 – раскрыть текущий тред%/l' +
 		'%l%i22 – быстрый ответ или создать тред%/l' +
@@ -313,14 +313,14 @@ Lng = {
 		'%l%i214t – зачеркнутый%/l' +
 		'%l%i215t – спойлер%/l' +
 		'%l%i216t – код%/l',
-		'%l%i24 – previous page%/l' +
-		'%l%i217 – next page%/l' +
+		'%l%i24 – previous page/image%/l' +
+		'%l%i217 – next page/image%/l' +
 		'%l%i23 – hide current post/thread%/l' +
 		'%l%i33 – expand current thread%/l' +
 		'%l%i22 – quick reply or create thread%/l' +
 		'%l%i25t – send post%/l' +
-		'%l%i21 – thread (on board) / post (in thread) below%/l' +
-		'%l%i20 – thread (on board) / post (in thread) above%/l' +
+		'%l%i21 – thread (on board)/post (in thread) below%/l' +
+		'%l%i20 – thread (on board)/post (in thread) above%/l' +
 		'%l%i31 – on board post below%/l' +
 		'%l%i30 – on board post above%/l' +
 		'%l%i32 – open thread%/l' +
@@ -1132,8 +1132,8 @@ function addPanel() {
 				'</ul>' +
 			'</div>' +
 			'<div id="de-img-btns" style="display: none">' +
-				'<div id="de-img-btn-next" title="' + Lng.nextImg[lang] + '"><div></div></div>' +
-				'<div id="de-img-btn-prev" title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
+				'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"><div></div></div>' +
+				'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
 			'<div id="de-alert"></div>' +
 			'<hr style="clear: both;">' +
 		'</div>'
@@ -1143,13 +1143,6 @@ function addPanel() {
 		attach: false,
 		odelay: 0,
 		panel: panel,
-		setTitleWithKey: function(el, isGlob, idx) {
-			var title = el.getAttribute('de-title');
-			if(keyNav) {
-				title += ' [' + KeyEditListener.getStrKey(isGlob ? keyNav.gKeys[idx] : keyNav.ntKeys[idx]) + ']';
-			}
-			el.title = title;
-		},
 		handleEvent: function(e) {
 			switch(e.type) {
 			case 'click':
@@ -1225,12 +1218,12 @@ function addPanel() {
 					this.panel.lastChild.style.display = '';
 				}
 				switch(e.target.id) {
-				case 'de-btn-settings': this.setTitleWithKey(e.target, true, 10); break;
-				case 'de-btn-hidden': this.setTitleWithKey(e.target, true, 7); break;
-				case 'de-btn-favor': this.setTitleWithKey(e.target, true, 6); break;
-				case 'de-btn-goback': this.setTitleWithKey(e.target, true, 4); break;
-				case 'de-btn-gonext': this.setTitleWithKey(e.target, false, 3); break;
-				case 'de-btn-maskimg': this.setTitleWithKey(e.target, true, 9); break;
+				case 'de-btn-settings': KeyEditListener.setTitle(e.target, 10); break;
+				case 'de-btn-hidden': KeyEditListener.setTitle(e.target, 7); break;
+				case 'de-btn-favor': KeyEditListener.setTitle(e.target, 6); break;
+				case 'de-btn-goback': KeyEditListener.setTitle(e.target, 4); break;
+				case 'de-btn-gonext': KeyEditListener.setTitle(e.target, 17); break;
+				case 'de-btn-maskimg': KeyEditListener.setTitle(e.target, 9); break;
 				case 'de-btn-refresh':
 					if(TNum) {
 						return;
@@ -2302,33 +2295,33 @@ KeyNavigation.readKeys = function() {
 KeyNavigation.getDefaultKeys = function() {
 	var isFirefox = !!nav.Firefox;
 	var globKeys = [
-		/* One post/thread above     */ 0x004B /* = K                 */,
-		/* One post/thread below     */ 0x004A /* = J                 */,
-		/* Reply or create thread    */ 0x0052 /* = R                 */,
-		/* Hide selected thread/post */ 0x0048 /* = H                 */,
-		/* Open previous page/picture*/ 0x1025 /* = Ctrl + left arrow */,
-		/* Send post (txt)           */ 0xC00D /* = Alt + Enter       */,
-		/* Open/close favorites posts*/ 0x4046 /* = Alt + F           */,
-		/* Open/close hidden posts   */ 0x4048 /* = Alt + H           */,
-		/* Open/close panel          */ 0x0050 /* = P                 */,
-		/* Mask/unmask images        */ 0x0042 /* = B                 */,
-		/* Open/close settings       */ 0x4053 /* = Alt + S           */,
-		/* Expand current image      */ 0x0049 /* = I                 */,
-		/* Bold text                 */ 0xC042 /* = Alt + B           */,
-		/* Italic text               */ 0xC049 /* = Alt + I           */,
-		/* Strike text               */ 0xC054 /* = Alt + T           */,
-		/* Spoiler text              */ 0xC050 /* = Alt + P           */,
-		/* Code text                 */ 0xC043 /* = Alt + C           */,
-		/* Open next page/picture    */ 0x1027 /* = Ctrl + right arrow*/
+		/* One post/thread above      */ 0x004B /* = K          */,
+		/* One post/thread below      */ 0x004A /* = J          */,
+		/* Reply or create thread     */ 0x0052 /* = R          */,
+		/* Hide selected thread/post  */ 0x0048 /* = H          */,
+		/* Open previous page/picture */ 0x1025 /* = Ctrl+Left  */,
+		/* Send post (txt)            */ 0xC00D /* = Alt+Enter  */,
+		/* Open/close favorites posts */ 0x4046 /* = Alt+F      */,
+		/* Open/close hidden posts    */ 0x4048 /* = Alt+H      */,
+		/* Open/close panel           */ 0x0050 /* = P          */,
+		/* Mask/unmask images         */ 0x0042 /* = B          */,
+		/* Open/close settings        */ 0x4053 /* = Alt+S      */,
+		/* Expand current image       */ 0x0049 /* = I          */,
+		/* Bold text                  */ 0xC042 /* = Alt+B      */,
+		/* Italic text                */ 0xC049 /* = Alt+I      */,
+		/* Strike text                */ 0xC054 /* = Alt+T      */,
+		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
+		/* Code text                  */ 0xC043 /* = Alt+C      */,
+		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */
 	];
 	var nonThrKeys = [
-		/* One post above */ 0x004D /* = M                  */,
-		/* One post below */ 0x004E /* = N                  */,
-		/* Open thread    */ 0x0056 /* = V                  */,
-		/* Expand thread  */ 0x0045 /* = E                  */
+		/* One post above */ 0x004D /* = M */,
+		/* One post below */ 0x004E /* = N */,
+		/* Open thread    */ 0x0056 /* = V */,
+		/* Expand thread  */ 0x0045 /* = E */
 	];
 	var thrKeys = [
-		/* Update thread  */ 0x0055 /* = U                  */
+		/* Update thread  */ 0x0055 /* = U */
 	];
 	return [KeyNavigation.version, isFirefox, globKeys, nonThrKeys, thrKeys];
 };
@@ -2636,17 +2629,17 @@ KeyEditListener.keyCodes = ['',,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift'
 KeyEditListener.getStrKey = function(key) {
 	var str = '';
 	if(key & 0x1000) {
-		str += 'Ctrl + ';
+		str += 'Ctrl+';
 	}
 	if(key & 0x2000) {
-		str += 'Shift + ';
+		str += 'Shift+';
 	}
 	if(key & 0x4000) {
-		str += 'Alt + ';
+		str += 'Alt+';
 	}
 	str += KeyEditListener.keyCodes[key & 0xFFF];
 	return str;
-}
+};
 KeyEditListener.getEditMarkup = function(keys) {
 	var allKeys = [];
 	var html = Lng.keyNavEdit[lang]
@@ -2662,6 +2655,13 @@ KeyEditListener.getEditMarkup = function(keys) {
 	'<input type="button" id="de-keys-save" value="' + Lng.save[lang] + '"></input>' +
 	'<input type="button" id="de-keys-reset" value="' + Lng.reset[lang] + '"></input>';
 	return [allKeys, html];
+};
+KeyEditListener.setTitle = function(el, idx) {
+	var title = el.getAttribute('de-title');
+	if(keyNav && idx !== -1) {
+		title += ' [' + KeyEditListener.getStrKey(keyNav.gKeys[idx]) + ']';
+	}
+	el.title = title;
 };
 KeyEditListener.prototype = {
 	cEl: null,
@@ -2732,13 +2732,13 @@ KeyEditListener.prototype = {
 			}
 			str = '';
 			if(e.ctrlKey) {
-				str += 'Ctrl + ';
+				str += 'Ctrl+';
 			}
 			if(e.shiftKey) {
-				str += 'Shift + ';
+				str += 'Shift+';
 			}
 			if(e.altKey) {
-				str += 'Alt + ';
+				str += 'Alt+';
 			}
 			if(key === 16 || key === 17 || key === 18) {
 				this.errorInput = true;
@@ -3793,6 +3793,9 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		for(i = 0, j = 0; i < len; i++) {
 			el = newLinks[i];
 			link = oldLinks[j];
+			if(link.classList.contains('de-current')) {
+				post.ytLink = el;
+			}
 			if(cloned) {
 				el.ytInfo = link.ytInfo;
 				j++;
@@ -3801,6 +3804,7 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 				j++;
 			}
 		}
+		post.ytLink = post.ytLink || newLinks[0];
 		loader && loader.complete();
 	}
 
@@ -4677,24 +4681,6 @@ Spells.prototype = {
 			return +rv;
 		}
 	},
-	_findReps: function(str) {
-		var reps = [],
-			outreps = [];
-		str = str.replace(
-			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
-			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				return preOp || '';
-			}
-		).replace(
-			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
-			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				return preOp || '';
-			}
-		);
-		return [str, reps.length === 0 ? false : reps, outreps.length === 0 ? false : outreps];
-	},
 	_decompileRep: function(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
 			(rep[0] ? '[' + rep[0] + (rep[1] ? ',' + (rep[1] === -1 ? '' : rep[1]) : '') + ']' : '') +
@@ -4782,17 +4768,36 @@ Spells.prototype = {
 		this._hasComplFns = true;
 	},
 	parseText: function(str) {
-		str = String(str).replace(/[\s\n]+$/, '');
-		var reps = this._findReps(str),
-			codeGen = new SpellsCodegen(reps[0]),
-			spells = codeGen.generate();
-		if(spells) {
-			if(Cfg['sortSpells']) {
+		var codeGen, spells, reps = [],
+			outreps = [];
+		str = String(str).replace(/[\s\n]+$/, '').replace(
+			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
+			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
+				return preOp || '';
+			}
+		).replace(
+			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
+			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
+				return preOp || '';
+			}
+		);
+		if(reps.length === 0) {
+			reps = false;
+		}
+		if(outreps.length === 0) {
+			outreps = false;
+		}
+		codeGen = new SpellsCodegen(str);
+		spells = codeGen.generate();
+		if(codeGen.hasError) {
+			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
+		} else if(spells || reps || outreps) {
+			if(spells && Cfg['sortSpells']) {
 				this.sort(spells);
 			}
-			return [Date.now(), spells, reps[1], reps[2]];
-		} else if(codeGen.hasError) {
-			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
+			return [Date.now(), spells, reps, outreps];
 		}
 		return null;
 	},
@@ -5573,7 +5578,7 @@ function updateCSS() {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
-	if(Cfg['expandImgs'] === 1 && !(aib.fch || aib.dobr || aib.krau)) {
+	if(!(aib.fch || aib.dobr || aib.krau)) {
 		x += '.de-img-full { margin: 2px 10px; }';
 	}
 	if(Cfg['delHiddPost']) {
@@ -5591,7 +5596,7 @@ function updateCSS() {
 	if(Cfg['noBoardRule']) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu) {
+	if(aib.abu || aib.toho) {
 		if(Cfg['addYouTube']) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
@@ -5875,8 +5880,7 @@ PostForm.prototype = {
 					case 'code': x = 16; break;
 					}
 				}
-				el.title = el.getAttribute('de-title') + (x === -1 ? '' : ' [' +
-					KeyEditListener.getStrKey(keyNav.gKeys[x]) + ']');
+				KeyEditListener.setTitle(el, x);
 				return;
 			}
 			x = pr.txta;
@@ -6665,16 +6669,14 @@ ImgBtnsShowHider.prototype = {
 			this._show();
 			break;
 		case 'mouseover':
-			if(this._hidden) {
-				this._btnsStyle.display = '';
-				this._hidden = false;
-			} else {
+			if(!this._hidden) {
 				clearTimeout(this._hideTmt);
+				KeyEditListener.setTitle(this._btns.firstChild, 17);
+				KeyEditListener.setTitle(this._btns.lastChild, 4);
 			}
 			break;
 		case 'mouseout':
 			this._setHideTmt();
-			break;
 		}
 	},
 
@@ -6685,7 +6687,7 @@ ImgBtnsShowHider.prototype = {
 		this._hideTmt = setTimeout(function() {
 			this._btnsStyle.display = 'none';
 			this._hidden = true;
-		}.bind(this), 750);
+		}.bind(this), 2000);
 	},
 	_show: function() {
 		if(this._hidden) {
@@ -7359,7 +7361,6 @@ Post.prototype = {
 		}
 	},
 	toggleImages: function(expand) {
-		var i, dat;
 		for(var dat, i = 0, imgs = this.images, len = imgs.length; i < len; ++i) {
 			dat = imgs[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
@@ -7472,7 +7473,7 @@ Post.prototype = {
 	_selRange: null,
 	_selText: '',
 	_addFullImage: function(el, data, inPost) {
-		var elMove, elStop, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
+		var btns, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
 		if(inPost) {
 			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
@@ -7481,7 +7482,7 @@ Post.prototype = {
 		} else {
 			$del($c('de-img-center', doc));
 		}
-		newW = !Cfg['resizeImgs'] || data.width < scrW ? data.width : scrW - 5;
+		newW = !Cfg['resizeImgs'] || data.width < (scrW - 5) ? data.width : scrW - 5;
 		newH = newW * data.height / data.width;
 		if(inPost) {
 			data.expanded = true;
@@ -7506,12 +7507,12 @@ Post.prototype = {
 			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
 				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
 			img.mover = new ImageMover(img);
-			var btns = $id('de-img-btns');
+			btns = $id('de-img-btns');
 			if(this._isPview) {
 				btns.style.display = 'none';
 			} else {
-				$id('de-img-btn-next').onclick = this._navigateImages.bind(this, true);
-				$id('de-img-btn-prev').onclick = this._navigateImages.bind(this, false);
+				btns.firstChild.onclick = this._navigateImages.bind(this, true);
+				btns.lastChild.onclick = this._navigateImages.bind(this, false);
 				btns.showhider = btns.showhider || new ImgBtnsShowHider(btns);
 				btns.showhider.init();
 			}
@@ -8967,6 +8968,12 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
+		'touhouchan.org': [{
+			toho: { value: true },
+
+			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
+			isBB: { value: true }
+		}],
 		'urupchan.ru': [{
 			urup: { value: true },
 			init: { value: function() {
