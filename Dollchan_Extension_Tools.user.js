@@ -4402,7 +4402,8 @@ Spells.prototype = {
 		Spells.YTubeSpell
 	],
 	_optimizeSpells: function(spells) {
-		var i, len, flags, type, spell, scope, neg, parensSpells, newSpells = [];
+		var i, j, len, flags, type, spell, scope, neg, parensSpells, lastSpell = -1,
+			newSpells = [];
 		for(i = 0, len = spells.length; i < len; ++i) {
 			spell = spells[i];
 			flags = spell[0];
@@ -4411,13 +4412,18 @@ Spells.prototype = {
 			if(type === 0xFF) {
 				parensSpells = this._optimizeSpells(spell[1]);
 				if(parensSpells) {
-					if(parensSpells.length === 1) {
+					if(parensSpells.length !== 1) {
+						newSpells.push([flags, parensSpells]);
+						lastSpell++;
+						continue;
+					} else if((parensSpells[0][0] & 0xFF) !== 12) {
 						newSpells.push([(parensSpells[0][0] | (flags & 0x200)) ^ (flags & 0x100),
 							parensSpells[0][1]]);
-					} else {
-						newSpells.push([flags, parensSpells]);
+						lastSpell++;
+						continue;
 					}
-					continue;
+					flags = parensSpells[0][0];
+					neg = !(neg ^ ((flags & 0x100) !== 0));
 				}
 			} else {
 				scope = spell[2];
@@ -4428,39 +4434,24 @@ Spells.prototype = {
 						neg = !neg;
 					} else {
 						newSpells.push([flags, spell[1]]);
+						lastSpell++;
 						continue;
 					}
 				}
 			}
+			for(j = lastSpell; j >= 0 && (((newSpells[j][0] & 0x200) !== 0) ^ neg); --j) {}
+			if(j !== lastSpell) {
+				newSpells = newSpells.slice(0, j + 1);
+				lastSpell = j;
+			}
+			if(neg && j !== -1) {
+				newSpells[j][0] &= 0x1FF;
+			}
 			if(((flags & 0x200) !== 0) ^ neg) {
-				return neg ? [[12, '']] : null;
+				break;
 			}
 		}
-		i = len = newSpells.length - 1;
-		if(i === -1) {
-			return neg ? [[12, '']] : null;
-		} else if(i !== 0) {
-			if(neg) {
-				while(i >= 0 && (newSpells[i][0] & 0x200) === 0) {
-					i--;
-				}
-				if(i < 0) {
-					return [[12, '']];
-				}
-				newSpells[i][0] &= 0x1FF;
-			} else {
-				while(i >= 0 && (newSpells[i][0] & 0x200) !== 0) {
-					i--;
-				}
-				if(i < 0) {
-					return null;
-				}
-			}
-			if(i !== len) {
-				newSpells = newSpells.slice(0, i + 1);
-			}
-		}
-		return newSpells;
+		return lastSpell === -1 ? neg ? [[12, '']] : null : newSpells;
 	},
 	_initSpells: function(data) {
 		if(data) {
