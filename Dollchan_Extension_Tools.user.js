@@ -6264,6 +6264,9 @@ PostForm.prototype = {
 			}
 		}.bind(this), false);
 		if(this.cap) {
+			if(aib.abu && (temp = $t('script', this.cap))) {
+				$del(temp);
+			}
 			this.capTr = getAncestor(this.cap, aib.trTag);
 			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 			if(this.file) {
@@ -6322,7 +6325,7 @@ PostForm.prototype = {
 	},
 	_captchaInit: function(html) {
 		if(this.capInited) {
-			return
+			return;
 		}
 		this.capTr.innerHTML = html;
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
@@ -6382,9 +6385,6 @@ PostForm.prototype = {
 		}
 		if(aib.abu || aib.dobr || this.recap || !(img = $q('img', this.capTr))) {
 			$disp(this.capTr);
-			if(aib.abu && (temp = $t('script', this.capTr))) {
-				$del(temp);
-			}
 			return;
 		}
 		if(!aib.kus && !aib.tinyIb) {
