@@ -1290,6 +1290,9 @@ function addContentBlock(parent, title) {
 
 function showContent(cont, id, name, remove) {
 	var h, b, tNum, i, els, post, cln, block;
+	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] [info]', doc))) {
+		var tab = temp.getAttribute('info');
+	}
 	cont.innerHTML = cont.style.backgroundColor = '';
 	if(remove) {
 		cont.removeAttribute('id');
@@ -1298,6 +1301,9 @@ function showContent(cont, id, name, remove) {
 	cont.id = id;
 	if(name === 'cfg') {
 		addSettings(cont);
+		if(tab) {
+			$q('.de-cfg-tab-back [info="' + tab + '"]', doc).click();
+		}
 	} else if(Cfg['attachPanel']) {
 		cont.style.backgroundColor = $getStyle(doc.body, 'background-color');
 	}
@@ -6249,6 +6255,9 @@ PostForm.prototype = {
 			}
 		}.bind(this), false);
 		if(this.cap) {
+			if(aib.abu && (temp = $t('script', this.cap))) {
+				$del(temp);
+			}
 			this.capTr = getAncestor(this.cap, aib.trTag);
 			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 			if(this.file) {
@@ -6307,7 +6316,7 @@ PostForm.prototype = {
 	},
 	_captchaInit: function(html) {
 		if(this.capInited) {
-			return
+			return;
 		}
 		this.capTr.innerHTML = html;
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
