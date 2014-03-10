@@ -5909,7 +5909,7 @@ PostForm.prototype = {
 		}
 	},
 	get isVisible() {
-		if(!this.isHidden && this.isTopForm && updater.focused) {
+		if(!this.isHidden && !this.isQuick && this.isTopForm && updater.focused) {
 			var cr = this.pForm.getBoundingClientRect();
 			return cr.bottom > 0 && cr.top < window.innerHeight;
 		}
