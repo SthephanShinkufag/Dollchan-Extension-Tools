@@ -8418,6 +8418,14 @@ Thread.prototype = {
 		}.bind(Fn));
 	},
 	loadNew: function(Fn, useAPI) {
+		if (!pr.isHidden && pr.isTopForm && (temp = pr.pForm.getClientRects()[0]) && temp.top < window.innerHeight && temp.bottom > 0) {
+			var oldOffset = pr.pForm.offsetTop;
+		}
+		function scrollpForm() {
+			if (oldOffset && (temp = pr.pForm.offsetTop - oldOffset)) {
+				window.scrollBy(0, temp);
+			}
+		}
 		if(aib.dobr && useAPI) {
 			return getJsonPosts('/api/thread/' + brd + '/' + TNum +
 				'/new.json?message_html&new_format&last_post=' + this.last.num,
@@ -8445,6 +8453,7 @@ Thread.prototype = {
 						}
 						Fn(200, '', np, xhr);
 						Fn = null;
+						scrollpForm();
 					}
 				}.bind(this)
 			);
@@ -8457,6 +8466,7 @@ Thread.prototype = {
 				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
 			}
 			Fn = null;
+			scrollpForm();
 		}.bind(this), function(eCode, eMsg, xhr) {
 			Fn(eCode, eMsg, 0, xhr);
 			Fn = null;
