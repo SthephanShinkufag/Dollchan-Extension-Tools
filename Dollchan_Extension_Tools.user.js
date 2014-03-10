@@ -5909,7 +5909,7 @@ PostForm.prototype = {
 		}
 	},
 	get isVisible() {
-		return !this.isHidden && this.isTopForm &&
+		return !this.isHidden && this.isTopForm && updater.focused &&
 			this.pForm.getBoundingClientRect().top < window.innerHeight;
 	},
 	showQuickReply: function(post, pNum, closeReply) {
