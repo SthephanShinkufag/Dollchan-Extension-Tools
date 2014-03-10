@@ -13,6 +13,7 @@
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
+'use strict';
 var version = '14.2.17.0',
 defaultCfg = {
 	'language':		0,		// script language [0=ru, 1=en]
@@ -417,7 +418,6 @@ Lng = {
 	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
 	favThrds:		['Избранные треды:', 'Favorite threads:'],
 	noFavThrds:		['Нет избранных тредов...', 'Favorites is empty...'],
-	reply:			['Ответ', 'Reply'],
 	replyTo:		['Ответ в', 'Reply to'],
 	replies:		['Ответы:', 'Replies:'],
 	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
@@ -5908,6 +5908,10 @@ PostForm.prototype = {
 			e.stopPropagation();
 		}
 	},
+	get isVisible() {
+		return !this.isHidden && this.isTopForm &&
+			this.pForm.getBoundingClientRect().top < window.innerHeight;
+	},
 	showQuickReply: function(post, pNum, closeReply) {
 		var el, tNum = post.tNum;
 		if(!this.isQuick) {
@@ -6055,7 +6059,7 @@ PostForm.prototype = {
 	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		var btn = $New('div', {'class': 'de-' + (TNum ? 'make-reply' : 'create-thread')}, [
+		var temp, el, btn = $New('div', {'class': 'de-' + (TNum ? 'make-reply' : 'create-thread')}, [
 			$txt('['),
 			$new('a', {'href': '#'}, null),
 			$txt(']')
@@ -8336,6 +8340,9 @@ Thread.prototype = {
 	hidden: false,
 	loadedOnce: false,
 	next: null,
+	get bottomCoord() {
+		return this.el.getBoundingClientRect().bottom;
+	},
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -8425,7 +8432,7 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0, xhr);
 					} else {
-						var i, pCount, fragm, last, temp, el = (json['result'] || {})['posts'],
+						var i, lastOffset, pCount, fragm, last, temp, el = (json['result'] || {})['posts'],
 							len = el ? el.length : 0,
 							np = len;
 						if(len > 0) {
@@ -8440,7 +8447,11 @@ Thread.prototype = {
 							}
 							spells.end(savePosts);
 							this.last = last;
+							lastOffset = pr.isVisible ? this.bottomCoord : null;
 							this.el.appendChild(fragm);
+							if(lastOffset !== null) {
+								scrollTo(pageXOffset, pageYOffset - (lastOffset - this.bottomCoord));
+							}
 							this.pcount = pCount + len;
 						}
 						Fn(200, '', np, xhr);
@@ -8451,7 +8462,11 @@ Thread.prototype = {
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
 			this._checkBans(firstThr.op, form);
-			var info = this._parsePosts(aib.getPosts(form), 0, 0);
+			var lastOffset = pr.isVisible ? this.bottomCoord : null,
+				info = this._parsePosts(aib.getPosts(form), 0, 0);
+			if(lastOffset !== null) {
+				scrollTo(pageXOffset, pageYOffset - (lastOffset - this.bottomCoord));
+			}
 			Fn(200, '', info[1], xhr);
 			if(info[0] !== 0) {
 				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
@@ -8511,8 +8526,8 @@ Thread.prototype = {
 	_checkBans: function(op, thrNode) {
 		var pEl, bEl, post, i, bEls, len;
 		if(aib.qBan) {
-			for(i = 0, banEls = $Q(aib.qBan, thrNode), len = banEls.length; i < len; ++i) {
-				bEl = banEls[i];
+			for(i = 0, bEls = $Q(aib.qBan, thrNode), len = bEls.length; i < len; ++i) {
+				bEl = bEls[i];
 				pEl = aib.getPostEl(bEl);
 				post = pEl ? pByNum[aib.getPNum(pEl)] : op;
 				if(post && !post.banned) {
@@ -9709,7 +9724,7 @@ function initDelformAjax() {
 
 function initThreadUpdater(title, enableUpdate) {
 	var delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
-		initDelay, favIntrv, favNorm, favHref, enabled = false,
+		initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
 		inited = false,
 		lastECode = 200,
 		newPosts = 0,
