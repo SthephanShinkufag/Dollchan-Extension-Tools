@@ -8076,7 +8076,7 @@ function PviewsCache(form, b, tNum) {
 		post = posts[i];
 		pBn[aib.getPNum(post)] = Object.create(pProto, {
 			count: { value: i + 1 },
-			el: { value: post },
+			el: { value: post, writable: true },
 			inited: { value: false },
 			pvInited: { value: false, writable: true }
 		});
