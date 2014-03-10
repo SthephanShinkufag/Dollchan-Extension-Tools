@@ -1289,9 +1289,9 @@ function addContentBlock(parent, title) {
 }
 
 function showContent(cont, id, name, remove) {
-	var h, b, tNum, i, els, post, cln, block;
-	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] [info]', doc))) {
-		var tab = temp.getAttribute('info');
+	var h, b, tNum, i, els, post, cln, block, temp, cfgTabId;
+	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] > .de-cfg-tab', cont))) {
+		cfgTabId = temp.getAttribute('info');
 	}
 	cont.innerHTML = cont.style.backgroundColor = '';
 	if(remove) {
@@ -1300,10 +1300,7 @@ function showContent(cont, id, name, remove) {
 	}
 	cont.id = id;
 	if(name === 'cfg') {
-		addSettings(cont);
-		if(tab) {
-			$q('.de-cfg-tab-back [info="' + tab + '"]', doc).click();
-		}
+		addSettings(cont, cfgTabId);
 	} else if(Cfg['attachPanel']) {
 		cont.style.backgroundColor = $getStyle(doc.body, 'background-color');
 	}
@@ -1626,6 +1623,7 @@ function cfgTab(name) {
 			pN.setAttribute('selected', true);
 			if(!(el = $id('de-cfg-' + (id = this.getAttribute('info'))))) {
 				$after($id('de-cfg-bar'), el =
+					id === 'filters' ? getCfgFilters() :
 					id === 'posts' ? getCfgPosts() :
 					id === 'images' ? getCfgImages() :
 					id === 'links' ? getCfgLinks() :
@@ -1633,6 +1631,9 @@ function cfgTab(name) {
 					id === 'common' ? getCfgCommon() :
 					getCfgInfo()
 				);
+				if(id === 'filters') {
+					updRowMeter.call($id('de-spell-edit'));
+				}
 			}
 			el.className = 'de-cfg-body';
 			if(id === 'filters') {
@@ -2025,7 +2026,7 @@ function addEditButton(name, val, isJSON, Fn) {
 	});
 }
 
-function addSettings(Set) {
+function addSettings(Set, id) {
 	Set.appendChild($New('div', {'class': aib.cReply}, [
 		$new('div', {'id': 'de-cfg-head', 'text': 'Dollchan Extension Tools'}, null),
 		$New('div', {'id': 'de-cfg-bar'}, [
@@ -2037,7 +2038,6 @@ function addSettings(Set) {
 			cfgTab('common'),
 			cfgTab('info')
 		]),
-		getCfgFilters(),
 		$New('div', {'id': 'de-cfg-btns'}, [
 			optSel('language', false, function() {
 				saveCfg('language', lang = this.selectedIndex);
@@ -2084,8 +2084,7 @@ function addSettings(Set) {
 			$new('div', {'style': 'clear: both;'}, null)
 		])
 	]));
-	$c('de-cfg-tab', Set).click();
-	updRowMeter.call($id('de-spell-edit'));
+	$q('.de-cfg-tab[info="' + (id || 'filters') + '"]', Set).click();
 }
 
 //============================================================================================================
