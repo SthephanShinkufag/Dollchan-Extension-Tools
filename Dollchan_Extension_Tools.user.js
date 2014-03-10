@@ -5865,7 +5865,7 @@ PostForm.prototype = {
 		this._clearFileInput(el, eventFiles);
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, title, id, el = e.target;
+		var x, start, end, scrtop, title, id, txt, len, el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
