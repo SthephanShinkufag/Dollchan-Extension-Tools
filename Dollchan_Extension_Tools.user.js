@@ -5909,8 +5909,11 @@ PostForm.prototype = {
 		}
 	},
 	get isVisible() {
-		return !this.isHidden && this.isTopForm && updater.focused &&
-			this.pForm.getBoundingClientRect().top < window.innerHeight;
+		if(!this.isHidden && this.isTopForm && updater.focused) {
+			var cr = this.pForm.getBoundingClientRect();
+			return cr.bottom > 0 && cr.top < window.innerHeight;
+		}
+		return false;
 	},
 	showQuickReply: function(post, pNum, closeReply) {
 		var el, tNum = post.tNum;
