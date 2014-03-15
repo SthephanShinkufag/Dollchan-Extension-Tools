@@ -6668,6 +6668,8 @@ function ImgBtnsShowHider(btns) {
 	btns.addEventListener('mouseout', this, false);
 }
 ImgBtnsShowHider.prototype = {
+	oldX: null,
+	oldY: null,
 	init: function() {
 		this._show();
 		window.addEventListener('mousemove', this, false);
@@ -6681,7 +6683,13 @@ ImgBtnsShowHider.prototype = {
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousemove':
-			this._show();
+			var curX = e.clientX,
+			    curY = e.clientY;
+			if(this.oldX === null || this.oldX != curX || this.oldY === null || this.oldY != curY) {
+				this.oldX = curX;
+				this.oldY = curY;
+				this._show();
+			}
 			break;
 		case 'mouseover':
 			if(!this._hidden) {
