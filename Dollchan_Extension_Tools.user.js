@@ -6720,21 +6720,27 @@ function ImageMover(img) {
 	img.addEventListener('mousedown', this, false);
 }
 ImageMover.prototype = {
-	curX: 0,
-	curY: 0,
+	oldX: 0,
+	oldY: 0,
 	moved: false,
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousedown':
-			this.curX = e.clientX - parseInt(this.elStyle.left, 10);
-			this.curY = e.clientY - parseInt(this.elStyle.top, 10);
+			this.oldX = e.clientX;
+			this.oldY = e.clientY;
 			doc.body.addEventListener('mousemove', this, false);
 			doc.body.addEventListener('mouseup', this, false);
 			break;
 		case 'mousemove':
-			this.elStyle.left = e.clientX - this.curX + 'px';
-			this.elStyle.top = e.clientY - this.curY + 'px';
-			this.moved = true;
+			var curX = e.clientX,
+			    curY = e.clientY;
+			if(curX != this.oldX || curY != this.oldY) {
+				this.elStyle.left = parseInt(this.elStyle.left, 10) + curX - this.oldX + 'px';
+				this.elStyle.top = parseInt(this.elStyle.top, 10) + curY - this.oldY + 'px';
+				this.oldX = curX;
+				this.oldY = curY;
+				this.moved = true;
+			}
 			return;
 		case 'mouseup':
 			doc.body.removeEventListener('mousemove', this, false);
