@@ -4822,7 +4822,7 @@ Spells.prototype = {
 		sp = sp.sort();
 		for(var i = 0, len = sp.length-1; i < len; i++) {
 			// Removes duplicates and weaker spells
-			if(sp[i][0] == sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
+			if(sp[i][0] === sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
 			  (sp[i][2] === null || // Stronger spell with 3 parameters
 			   sp[i][2] === undefined || // Equal spells with 2 parameters
 			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2])))
@@ -4831,7 +4831,7 @@ Spells.prototype = {
 				i--;
 				len--;
 			// Moves brackets to the end of the list
-			} else if(sp[i][0] == 0xFF) {
+			} else if(sp[i][0] === 0xFF) {
 				sp.push(sp.splice(i, 1)[0]);
 				i--;
 				len--;
@@ -6668,15 +6668,14 @@ function ImgBtnsShowHider(btns) {
 	btns.addEventListener('mouseout', this, false);
 }
 ImgBtnsShowHider.prototype = {
-	oldX: null,
-	oldY: null,
+	_oldX: -1,
+	_oldY: -1,
 	init: function() {
 		this._show();
 		window.addEventListener('mousemove', this, false);
 	},
 	end: function() {
-		this._btnsStyle.display = 'none';
-		this._hidden = true;
+		this._hide();
 		window.removeEventListener('mousemove', this, false);
 		clearTimeout(this._hideTmt);
 	},
@@ -6685,9 +6684,9 @@ ImgBtnsShowHider.prototype = {
 		case 'mousemove':
 			var curX = e.clientX,
 			    curY = e.clientY;
-			if(this.oldX === null || this.oldX != curX || this.oldY === null || this.oldY != curY) {
-				this.oldX = curX;
-				this.oldY = curY;
+			if(this._oldX !== curX || this._oldY !== curY) {
+				this._oldX = curX;
+				this._oldY = curY;
 				this._show();
 			}
 			break;
@@ -6705,11 +6704,15 @@ ImgBtnsShowHider.prototype = {
 
 	_hideTmt: 0,
 	_hidden: true,
+	_hide: function() {
+		this._btnsStyle.display = 'none';
+		this._hidden = true;
+		this._oldX = this._oldY = -1;
+	},
 	_setHideTmt: function() {
 		clearTimeout(this._hideTmt);
 		this._hideTmt = setTimeout(function() {
-			this._btnsStyle.display = 'none';
-			this._hidden = true;
+			this._hide();
 		}.bind(this), 2000);
 	},
 	_show: function() {
@@ -6728,25 +6731,25 @@ function ImageMover(img) {
 	img.addEventListener('mousedown', this, false);
 }
 ImageMover.prototype = {
-	oldX: 0,
-	oldY: 0,
+	_oldX: null,
+	_oldY: null,
 	moved: false,
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousedown':
-			this.oldX = e.clientX;
-			this.oldY = e.clientY;
+			this._oldX = e.clientX;
+			this._oldY = e.clientY;
 			doc.body.addEventListener('mousemove', this, false);
 			doc.body.addEventListener('mouseup', this, false);
 			break;
 		case 'mousemove':
 			var curX = e.clientX,
 			    curY = e.clientY;
-			if(curX != this.oldX || curY != this.oldY) {
-				this.elStyle.left = parseInt(this.elStyle.left, 10) + curX - this.oldX + 'px';
-				this.elStyle.top = parseInt(this.elStyle.top, 10) + curY - this.oldY + 'px';
-				this.oldX = curX;
-				this.oldY = curY;
+			if(curX !== this._oldX || curY !== this._oldY) {
+				this.elStyle.left = parseInt(this.elStyle.left, 10) + curX - this._oldX + 'px';
+				this.elStyle.top = parseInt(this.elStyle.top, 10) + curY - this._oldY + 'px';
+				this._oldX = curX;
+				this._oldY = curY;
 				this.moved = true;
 			}
 			return;
