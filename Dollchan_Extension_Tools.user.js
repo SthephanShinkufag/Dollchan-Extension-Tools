@@ -6711,9 +6711,7 @@ ImgBtnsShowHider.prototype = {
 	},
 	_setHideTmt: function() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(function() {
-			this._hide();
-		}.bind(this), 2000);
+		this._hideTmt = setTimeout(this._hide().bind(this), 2000);
 	},
 	_show: function() {
 		if(this._hidden) {
