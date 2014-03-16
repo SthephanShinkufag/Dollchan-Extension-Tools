@@ -4774,20 +4774,37 @@ Spells.prototype = {
 	},
 	parseText: function(str) {
 		var codeGen, spells, reps = [],
-			outreps = [];
+			outreps = [], regexError = false,
+			checkRegex = function(exp, reg) {
+				if(!regexError) {
+					try {
+						toRegExp(reg, false);
+					} catch(e) {
+						var line = str.substr(0, str.indexOf(exp)).match(/\n/g).length + 1;
+						$alert(Lng.error[lang] + ' ' + Lng.seErrRegex[lang].replace('%s', reg) + Lng.seRow[lang] + line + ')', 'help-err-spell', false);
+						regexError = true;
+					}
+				}
+			};
 		str = String(str).replace(/[\s\n]+$/, '').replace(
 			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
 			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				checkRegex(fullExp, reg);
 				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
 				return preOp || '';
 			}
 		).replace(
 			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
 			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
+				checkRegex(fullExp, reg);
 				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
 				return preOp || '';
 			}
 		);
+		checkRegex = null;
+		if(regexError) {
+			return null;
+		}
 		if(reps.length === 0) {
 			reps = false;
 		}
