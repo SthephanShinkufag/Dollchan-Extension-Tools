@@ -5909,11 +5909,14 @@ PostForm.prototype = {
 		}
 	},
 	get isVisible() {
-		if(!this.isHidden && !this.isQuick && this.isTopForm && updater.focused) {
+		if(!this.isHidden && this.isTopForm && $q(':focus', this.pForm)) {
 			var cr = this.pForm.getBoundingClientRect();
 			return cr.bottom > 0 && cr.top < window.innerHeight;
 		}
 		return false;
+	},
+	get topCoord() {
+		return this.pForm.getBoundingClientRect().top;
 	},
 	showQuickReply: function(post, pNum, closeReply) {
 		var el, tNum = post.tNum;
@@ -8358,9 +8361,6 @@ Thread.prototype = {
 	hidden: false,
 	loadedOnce: false,
 	next: null,
-	get bottomCoord() {
-		return this.el.getBoundingClientRect().bottom;
-	},
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -8465,10 +8465,10 @@ Thread.prototype = {
 							}
 							spells.end(savePosts);
 							this.last = last;
-							lastOffset = pr.isVisible ? this.bottomCoord : null;
+							lastOffset = pr.isVisible ? pr.topCoord : null;
 							this.el.appendChild(fragm);
 							if(lastOffset !== null) {
-								scrollTo(pageXOffset, pageYOffset - (lastOffset - this.bottomCoord));
+								scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
 							}
 							this.pcount = pCount + len;
 						}
@@ -8480,10 +8480,10 @@ Thread.prototype = {
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
 			this._checkBans(firstThr.op, form);
-			var lastOffset = pr.isVisible ? this.bottomCoord : null,
+			var lastOffset = pr.isVisible ? pr.topCoord : null,
 				info = this._parsePosts(aib.getPosts(form), 0, 0);
 			if(lastOffset !== null) {
-				scrollTo(pageXOffset, pageYOffset - (lastOffset - this.bottomCoord));
+				scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
 			}
 			Fn(200, '', info[1], xhr);
 			if(info[0] !== 0) {
