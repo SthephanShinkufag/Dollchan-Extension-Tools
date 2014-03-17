@@ -4839,7 +4839,7 @@ Spells.prototype = {
 		sp = sp.sort();
 		for(var i = 0, len = sp.length-1; i < len; i++) {
 			// Removes duplicates and weaker spells
-			if(sp[i][0] == sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
+			if(sp[i][0] === sp[i+1][0] && sp[i][1] <= sp[i+1][1] && sp[i][1] >= sp[i+1][1] &&
 			  (sp[i][2] === null || // Stronger spell with 3 parameters
 			   sp[i][2] === undefined || // Equal spells with 2 parameters
 			  (sp[i][2] <= sp[i+1][2] && sp[i][2] >= sp[i+1][2])))
@@ -4848,7 +4848,7 @@ Spells.prototype = {
 				i--;
 				len--;
 			// Moves brackets to the end of the list
-			} else if(sp[i][0] == 0xFF) {
+			} else if(sp[i][0] === 0xFF) {
 				sp.push(sp.splice(i, 1)[0]);
 				i--;
 				len--;
@@ -5926,11 +5926,14 @@ PostForm.prototype = {
 		}
 	},
 	get isVisible() {
-		if(!this.isHidden && !this.isQuick && this.isTopForm && updater.focused) {
+		if(!this.isHidden && this.isTopForm && $q(':focus', this.pForm)) {
 			var cr = this.pForm.getBoundingClientRect();
 			return cr.bottom > 0 && cr.top < window.innerHeight;
 		}
 		return false;
+	},
+	get topCoord() {
+		return this.pForm.getBoundingClientRect().top;
 	},
 	showQuickReply: function(post, pNum, closeReply) {
 		var el, tNum = post.tNum;
@@ -6685,20 +6688,27 @@ function ImgBtnsShowHider(btns) {
 	btns.addEventListener('mouseout', this, false);
 }
 ImgBtnsShowHider.prototype = {
+	_oldX: -1,
+	_oldY: -1,
 	init: function() {
 		this._show();
 		window.addEventListener('mousemove', this, false);
 	},
 	end: function() {
-		this._btnsStyle.display = 'none';
-		this._hidden = true;
+		this._hide();
 		window.removeEventListener('mousemove', this, false);
 		clearTimeout(this._hideTmt);
 	},
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousemove':
-			this._show();
+			var curX = e.clientX,
+			    curY = e.clientY;
+			if(this._oldX !== curX || this._oldY !== curY) {
+				this._oldX = curX;
+				this._oldY = curY;
+				this._show();
+			}
 			break;
 		case 'mouseover':
 			if(!this._hidden) {
@@ -6714,12 +6724,14 @@ ImgBtnsShowHider.prototype = {
 
 	_hideTmt: 0,
 	_hidden: true,
+	_hide: function() {
+		this._btnsStyle.display = 'none';
+		this._hidden = true;
+		this._oldX = this._oldY = -1;
+	},
 	_setHideTmt: function() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(function() {
-			this._btnsStyle.display = 'none';
-			this._hidden = true;
-		}.bind(this), 2000);
+		this._hideTmt = setTimeout(this._hide.bind(this), 2000);
 	},
 	_show: function() {
 		if(this._hidden) {
@@ -6737,21 +6749,27 @@ function ImageMover(img) {
 	img.addEventListener('mousedown', this, false);
 }
 ImageMover.prototype = {
-	curX: 0,
-	curY: 0,
+	_oldX: 0,
+	_oldY: 0,
 	moved: false,
 	handleEvent: function(e) {
 		switch(e.type) {
 		case 'mousedown':
-			this.curX = e.clientX - parseInt(this.elStyle.left, 10);
-			this.curY = e.clientY - parseInt(this.elStyle.top, 10);
+			this._oldX = e.clientX;
+			this._oldY = e.clientY;
 			doc.body.addEventListener('mousemove', this, false);
 			doc.body.addEventListener('mouseup', this, false);
 			break;
 		case 'mousemove':
-			this.elStyle.left = e.clientX - this.curX + 'px';
-			this.elStyle.top = e.clientY - this.curY + 'px';
-			this.moved = true;
+			var curX = e.clientX,
+			    curY = e.clientY;
+			if(curX !== this._oldX || curY !== this._oldY) {
+				this.elStyle.left = parseInt(this.elStyle.left, 10) + curX - this._oldX + 'px';
+				this.elStyle.top = parseInt(this.elStyle.top, 10) + curY - this._oldY + 'px';
+				this._oldX = curX;
+				this._oldY = curY;
+				this.moved = true;
+			}
 			return;
 		case 'mouseup':
 			doc.body.removeEventListener('mousemove', this, false);
@@ -8360,9 +8378,6 @@ Thread.prototype = {
 	hidden: false,
 	loadedOnce: false,
 	next: null,
-	get bottomCoord() {
-		return this.el.getBoundingClientRect().bottom;
-	},
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -8467,10 +8482,10 @@ Thread.prototype = {
 							}
 							spells.end(savePosts);
 							this.last = last;
-							lastOffset = pr.isVisible ? this.bottomCoord : null;
+							lastOffset = pr.isVisible ? pr.topCoord : null;
 							this.el.appendChild(fragm);
 							if(lastOffset !== null) {
-								scrollTo(pageXOffset, pageYOffset - (lastOffset - this.bottomCoord));
+								scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
 							}
 							this.pcount = pCount + len;
 						}
@@ -8482,10 +8497,10 @@ Thread.prototype = {
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
 			this._checkBans(firstThr.op, form);
-			var lastOffset = pr.isVisible ? this.bottomCoord : null,
+			var lastOffset = pr.isVisible ? pr.topCoord : null,
 				info = this._parsePosts(aib.getPosts(form), 0, 0);
 			if(lastOffset !== null) {
-				scrollTo(pageXOffset, pageYOffset - (lastOffset - this.bottomCoord));
+				scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
 			}
 			Fn(200, '', info[1], xhr);
 			if(info[0] !== 0) {
