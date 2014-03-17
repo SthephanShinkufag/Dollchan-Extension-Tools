@@ -6714,7 +6714,7 @@ ImgBtnsShowHider.prototype = {
 	},
 	_setHideTmt: function() {
 		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(this._hide().bind(this), 2000);
+		this._hideTmt = setTimeout(this._hide.bind(this), 2000);
 	},
 	_show: function() {
 		if(this._hidden) {
@@ -6732,8 +6732,8 @@ function ImageMover(img) {
 	img.addEventListener('mousedown', this, false);
 }
 ImageMover.prototype = {
-	_oldX: null,
-	_oldY: null,
+	_oldX: 0,
+	_oldY: 0,
 	moved: false,
 	handleEvent: function(e) {
 		switch(e.type) {
