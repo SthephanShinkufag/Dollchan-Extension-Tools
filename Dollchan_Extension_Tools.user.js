@@ -4034,7 +4034,7 @@ function loadPages(count) {
 }
 
 function infoLoadErrors(eCode, eMsg, newPosts) {
-	if(eCode === 200) {
+	if(eCode === 200 || eCode === 304) {
 		closeAlert($id('de-alert-newposts'));
 	} else if(eCode === 0) {
 		$alert(eMsg || Lng.noConnect[lang], 'newposts', false);
