@@ -264,7 +264,8 @@ Lng = {
 		'audio-off':['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':	['Каталог', 'Catalog'],
 		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread'],
-		'imgload':	['Сохранить изображения из треда', 'Save images from thread']
+		'imgload':	['Сохранить изображения из треда', 'Save images from thread'],
+		'enable':	['Включить/выключить скрипт', 'Turn on/off the script']
 	},
 
 	selHiderMenu:	{
@@ -1104,6 +1105,7 @@ function addPanel() {
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
+				(Cfg['isDisabled'] ? pButton('enable', '#', false) :
 					pButton('settings', '#', true) +
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
@@ -1125,17 +1127,21 @@ function addPanel() {
 					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
+					pButton('enable', '#', false) +
 					(!TNum && !aib.arch? '' :
 						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#', false)) +
 						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
-							'">' + firstThr.pcount + '/' + imgLen + '</span></div>') +
+							'">' + firstThr.pcount + '/' + imgLen + '</span></div>')
+				) +
 				'</ul>' +
 			'</div>' +
+		(Cfg['isDisabled'] ? '' :
 			'<div id="de-img-btns" style="display: none">' +
 				'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"><div></div></div>' +
 				'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
 			'<div id="de-alert"></div>' +
-			'<hr style="clear: both;">' +
+			'<hr style="clear: both;">'
+		) +
 		'</div>'
 	);
 	panel = $id('de-panel');
@@ -1207,6 +1213,10 @@ function addPanel() {
 					} else {
 						loadDocFiles(true);
 					}
+					break;
+				case 'de-btn-enable':
+					toggleCfg('isDisabled');
+					window.location.reload();
 					break;
 				default: return;
 				}
@@ -5361,27 +5371,36 @@ function scriptCSS() {
 		#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\
 		#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
 		#de-panel-info { display: inline-block; vertical-align: 6px; padding: 0 6px; margin: 0 0 0 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
-	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkAQA';
-	x += gif('#de-btn-logo', p + 'I5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
-	x += gif('#de-btn-settings', p + 'JAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
-	x += gif('#de-btn-hidden', p + 'I5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
-	x += gif('#de-btn-favor', p + 'IzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
-	x += gif('#de-btn-refresh', p + 'JAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
-	x += gif('#de-btn-goback', p + 'IrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
-	x += gif('#de-btn-gonext', p + 'IrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
-	x += gif('#de-btn-goup', p + 'IsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
-	x += gif('#de-btn-godown', p + 'ItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
-	x += gif('#de-btn-expimg', p + 'I9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
-	x += gif('#de-btn-preimg', p + 'JFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=');
-	x += gif('#de-btn-maskimg', p + 'JQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
-	x += gif('#de-btn-imgload', p + 'JFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=')
-	x += gif('#de-btn-catalog', p + 'I2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
-	x += gif('#de-btn-audio-off', p + 'I7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==');
-	x += gif('#de-btn-audio-on', p + 'JHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==');
+	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA';
+	x += gif('#de-btn-logo', p + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
+	x += gif('#de-btn-settings', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
+	x += gif('#de-btn-hidden', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
+	x += gif('#de-btn-favor', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
+	x += gif('#de-btn-refresh', p + 'QAJAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
+	x += gif('#de-btn-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
+	x += gif('#de-btn-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
+	x += gif('#de-btn-goup', p + 'QAIsjI+pm+DvmDRw2ouzrbq9DmKcBpVfN4ZpyLYuCbgmaK7iydpw1OqZf+O9LgUAOw==');
+	x += gif('#de-btn-godown', p + 'QAItjI+pu+DA4ps02osznrq9DnZceIxkYILUd7bue6WhrLInLdokHq96tnI5YJoCADs=');
+	x += gif('#de-btn-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
+	x += gif('#de-btn-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=');
+	x += gif('#de-btn-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
+	x += gif('#de-btn-imgload', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=')
+	x += gif('#de-btn-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
+	x += gif('#de-btn-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==');
+	x += gif('#de-btn-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==');
+	x += gif('#de-btn-enable', p + 'AAJAjI+py+0Po5wUWKoswOF27z2aMX6bo51lioal2bzwISPyHSZ1lts9fwKKfjQiyXgkslq95TAFnUCdUirnis0eCgA7');
 	p = 'Dw8P///wAAACH5BAEAAAIALAAAAAAZABkAQAJElI+pe2EBoxOTNYmr3bz7OwHiCDzQh6bq06QSCUhcZMCmNrfrzvf+XsF1MpjhCSainBg0AbKkFCJko6g0MSGyftwuowAAOw==';
 	x += gif('#de-btn-upd-on', 'R0lGODlhGQAZAJEAADL/Mv' + p);
 	x += gif('#de-btn-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p);
 	x += gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
+
+	if(Cfg['isDisabled']) {
+		$css(x).id = 'de-css';
+		$css('').id = 'de-css-dynamic';
+		$css('').id = 'de-css-user';
+		updateCSS();
+		return;
+	}
 
 	// Post panel
 	x += '.de-ppanel { margin-left: 4px; }\
@@ -10111,6 +10130,12 @@ function doScript(checkDomains) {
 	}
 	$log('Init');
 	readCfg();
+	if(Cfg['isDisabled']) {
+		pr = new PostForm($q(aib.qPostForm, doc), true, liteMode);
+		addPanel();
+		scriptCSS();
+		return;
+	}
 	spells = new Spells(!!Cfg['hideBySpell']);
 	youTube = initYouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
 		Cfg['YTubeHD'], Cfg['YTubeTitles']);
