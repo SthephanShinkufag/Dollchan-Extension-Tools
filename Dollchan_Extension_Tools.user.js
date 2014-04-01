@@ -6048,7 +6048,7 @@ PostForm.prototype = {
 			return;
 		}
 		img = this.recap ? $id('recaptcha_image') : $t('img', this.capTr);
-		if(aib.dobr || aib.krau || this.recap) {
+		if(aib.dobr || aib.krau || aib.dvachnet || this.recap) {
 			img.click();
 		} else if(img) {
 			src = img.getAttribute('src');
@@ -6380,6 +6380,9 @@ PostForm.prototype = {
 			aib.initCaptcha.click();
 			$id('captcha_image').setAttribute('onclick',  'requestCaptcha(true);');
 		}
+		if(aib.dvachnet) {
+			$script('get_captcha()');
+		}
 		setTimeout(this._captchaUpd.bind(this), 100);
 	},
 	_captchaUpd: function() {
@@ -6421,7 +6424,7 @@ PostForm.prototype = {
 		if(aib.krau) {
 			return;
 		}
-		if(aib.abu || aib.dobr || this.recap || !(img = $q('img', this.capTr))) {
+		if(aib.abu || aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
 			$disp(this.capTr);
 			return;
 		}
@@ -8941,6 +8944,9 @@ function getImageBoard(checkDomains, checkOther) {
 					return true;
 				}
 			} }
+		}],
+		'dva-ch.net': [{
+			dvachnet: { value: true },
 		}],
 		'ernstchan.com': [{
 			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
