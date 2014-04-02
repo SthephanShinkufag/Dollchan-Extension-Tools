@@ -9812,15 +9812,17 @@ function initThreadUpdater(title, enableUpdate) {
 			window.removeEventListener('mousemove', mouseMove, false);
 			onVis();
 		}, false);
-		enable();
+		enable(true);
 	}
 
-	function enable() {
+	function enable(startLoading) {
 		enabled = true;
 		checked404 = false;
 		newPosts = 0;
 		delay = initDelay;
-		loadTO = setTimeout(loadPostsFun, delay);
+		if(startLoading) {
+			loadTO = setTimeout(loadPostsFun, delay);
+		}
 	}
 
 	function disable(byUser) {
@@ -9877,7 +9879,7 @@ function initThreadUpdater(title, enableUpdate) {
 			currentXHR.abort();
 		}
 		if(!enabled && !disabledByUser) {
-			enable();
+			enable(false);
 		} else {
 			clearTimeout(loadTO);
 			delay = initDelay;
@@ -10033,7 +10035,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!inited) {
 				init();
 			} else if(!enabled) {
-				enable();
+				enable(true);
 			} else {
 				return;
 			}
