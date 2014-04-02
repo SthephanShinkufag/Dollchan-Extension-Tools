@@ -2503,7 +2503,7 @@ KeyNavigation.prototype = {
 				} else if(idx === 3) { // Expand/collapse thread
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
-						if(post.thr.loadedOnce && post.thr.omitted === 0) {
+						if(post.thr.omitted === 0) {
 							temp = post.thr.nextNotHidden;
 							post.thr.load(visPosts, !!temp, null);
 							post = (temp || post.thr).op;
@@ -8342,7 +8342,7 @@ function Thread(el, prev) {
 		els = aib.getPosts(el),
 		len = els.length,
 		num = aib.getTNum(el),
-		omt = TNum ? 1 : this.omitted = aib.getOmitted($q(aib.qOmitted, el), len);
+		omt = TNum ? 1 : this.omitted = aib.getOmitted(this.omtEl = $q(aib.qOmitted, el), len);
 	this.num = num;
 	Thread.tNums.push(+num);
 	this.pcount = omt + len;
@@ -8378,6 +8378,7 @@ Thread.prototype = {
 	hidden: false,
 	loadedOnce: false,
 	next: null,
+	omitted: 0,
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -8419,7 +8420,6 @@ Thread.prototype = {
 				}
 			}
 			pr.closeQReply();
-			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
 				if(op.trunc) {
 					op.updateMsg(replacePost($q(aib.qMsg, form)));
@@ -8428,11 +8428,15 @@ Thread.prototype = {
 				this.loadedOnce = true;
 			}
 			this._checkBans(op, form);
-			this._parsePosts(els, nOmt, this.omitted - 1);
+			this._parsePosts(els);
+			this._processExpandThread(els, last === 1 ? els.length : last);
 			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
-			if(nOmt !== 0) {
-				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
+			if(nOmt === 0) {
+				this.omtEl.style.display = 'none';
+			} else {
+				this.omtEl.style.display = '';
+				this.omtEl.innerHTML = Lng.postsOmitted[lang] + nOmt;
 			}
 			if(this.pcount - nOmt - 1 <= visPosts) {
 				$del(expEl);
@@ -8498,7 +8502,7 @@ Thread.prototype = {
 		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
 			this._checkBans(firstThr.op, form);
 			var lastOffset = pr.isVisible ? pr.topCoord : null,
-				info = this._parsePosts(aib.getPosts(form), 0, 0);
+				info = this._parsePosts(aib.getPosts(form));
 			if(lastOffset !== null) {
 				scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
 			}
@@ -8574,113 +8578,129 @@ Thread.prototype = {
 			}
 		}
 	},
-	_parsePosts: function(nPosts, from, omt) {
-		var i, c, len, el, tPost, fragm, newPosts = 0,
+	_deletePosts: function(post, delAll, pNum) {
+		var tPost, idx = post.count, count = 0;
+		do {
+			if(TNum) {
+				post.deleted = true;
+				post.btns.classList.remove('de-ppanel-cnt');
+				post.btns.classList.add('de-ppanel-del');
+				($q('input[type="checkbox"]', post.el) || {}).disabled = true;
+			} else {
+				$del(post.wrap);
+				delete pByNum[post.num];
+				if(post.hidden) {
+					post.unhideRefs();
+				}
+				updRefMap(post, false);
+				if(post.prev.next = post.next) {
+					post.next.prev = post.prev;
+				}
+				if(this.last === post) {
+					this.last = post.prev;
+				}
+			}
+			post = post.nextNotDeleted;
+			count++;
+		} while(post && (delAll || post.num !== pNum));
+		if(!spells.hasNumSpell) {
+			sVis.splice(idx, count);
+		}
+		for(tPost = post; tPost; tPost = tPost.nextInThread) {
+			tPost.count -= count;
+		}
+		this.pcount -= count;
+		return post;
+	},
+	_parsePosts: function(nPosts) {
+		var i, fragm, el, firstDelPost, saveSpells = false,
+			newPosts = 0,
 			newVisPosts = 0,
-			firstDelPost = null,
-			rerunSpells = spells.hasNumSpell,
-			saveSpells = false,
+			len = nPosts.length,
+			post = this.lastNotDeleted;
+		if(post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
+			firstDelPost = null;
 			post = this.op.nextNotDeleted;
-		for(i = 0, len = nPosts.length; i <= len && post; ) {
-			if(post.count - 1 === i) {
+			for(i = post.count - 1; i <= len && post; ) {
 				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
 					if(!firstDelPost) {
 						firstDelPost = post;
 					}
-					c = 0;
-					do {
-						if(TNum) {
-							post.deleted = true;
-							post.btns.classList.remove('de-ppanel-cnt');
-							post.btns.classList.add('de-ppanel-del');
-							($q('input[type="checkbox"]', post.el) || {}).disabled = true;
-						} else {
-							$del(post.wrap);
-							delete pByNum[post.num];
-							if(post.hidden) {
-								post.unhideRefs();
-							}
-							updRefMap(post, false);
-							if(post.prev.next = post.next) {
-								post.next.prev = post.prev;
-							}
-							if(this.last === post) {
-								this.last = post.prev;
-							}
-						}
-						post = post.nextNotDeleted;
-						c++;
-					} while(post && (i === len || post.num !== aib.getPNum(nPosts[i])));
-					if(!rerunSpells) {
-						sVis.splice(i + 1, c);
-					}
-					for(tPost = post; tPost; tPost = tPost.nextInThread) {
-						tPost.count -= c;
-					}
+					post = this._deletePosts(post, i === len, i === len ? '' : aib.getPNum(nPosts[i]));
 				} else {
-					if(i < from) {
-						if(i >= omt) {
-							post.wrap.classList.add('de-hidden');
-							post.omitted = true;
-						}
-					} else if(!TNum) {
-						if(post.trunc) {
-							post.updateMsg(replacePost($q(aib.qMsg, nPosts[i])));
-						}
-						post.wrap.classList.remove('de-hidden');
-						post.omitted = false;
-						updRefMap(post, true);
-					}
 					i++;
 					post = post.nextNotDeleted;
 				}
-			} else if(!TNum && i >= from) {
-				fragm = doc.createDocumentFragment();
-				tPost = this.op;
-				for(c = post.count - 1; i < c; i++) {
-					el = nPosts[i];
-					tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el),
-						aib.getWrap(el, false), i + 1, tPost);
-					spells.check(tPost);
+			}
+			if(firstDelPost && spells.hasNumSpell) {
+				disableSpells();
+				for(post = firstDelPost.nextInThread; post; post = post.nextInThread) {
+					spells.check(post);
 				}
-				$after(this.op.el, fragm);
-				tPost.next = post;
-				post.prev = tPost;
-			} else {
-				if(TNum) {
-					console.error('Loaded thread has extra post, num:', aib.getPNum(nPosts[i]),
-						'count:', i, '. Latest in thread post num:', post.num, 'count:', post.count,
-						'. Posts count in thread:', this.pcount, 'Posts count loaded:', len + 1);
-				}
-				i++;
+				saveSpells = true;
 			}
 		}
-		this.pcount = len + 1;
-		if(firstDelPost && rerunSpells) {
-			disableSpells();
-			for(post = firstDelPost.nextInThread; post; post = post.nextInThread) {
-				spells.check(post);
-			}
-			saveSpells = true;
-		}
-		if(i < len) {
-			newPosts = newVisPosts = len - i;
-			post = this.last;
+		if(len + 1 > this.pcount) {
 			fragm = doc.createDocumentFragment();
-			do {
+			post = this.last;
+			newPosts = newVisPosts = 1 + len - this.pcount;
+			for(i = this.lastNotDeleted.count; i < len; ++i) {
 				el = nPosts[i];
 				post = this._addPost(fragm, aib.getPNum(el), replacePost(el),
 					aib.getWrap(el, false), i + 1, post);
 				newVisPosts -= spells.check(post);
-			} while(++i < len);
+			}
 			this.el.appendChild(fragm);
 			this.last = post;
+			this.pcount = len + 1;
 			saveSpells = true;
 		}
 		if(saveSpells) {
 			spells.end(savePosts);
 		}
 		return [newPosts, newVisPosts];
+	},
+	_processExpandThread: function(nPosts, num) {
+		var i, fragm, el, tPost, len, post = this.last,
+			vPosts = 0;
+		if(post.count !== 0) {
+			while(vPosts !== num) {
+				if(post.count === 0) {
+					break;
+				}
+				if(post.trunc) {
+					post.updateMsg(replacePost($q(aib.qMsg, nPosts[post.count - 1])));
+				}
+				if(post.omitted) {
+					post.wrap.classList.remove('de-hidden');
+					post.omitted = false;
+				}
+				updRefMap(post, true);
+				vPosts++;
+				post = post.prev;
+			}
+		}
+		if(vPosts === num) {
+			while(post.count !== 0 && !post.omitted) {
+				post.wrap.classList.add('de-hidden');
+				post.omitted = true;
+				post = post.prev;
+			}
+		} else {
+			fragm = doc.createDocumentFragment();
+			post = this.op;
+			tPost = post.next;
+			len = nPosts.length;
+			for(i = Math.max(0, len - num), len -= vPosts; i < len; ++i) {
+				el = nPosts[i];
+				post = this._addPost(fragm, aib.getPNum(el), replacePost(el),
+					aib.getWrap(el, false), i + 1, post);
+				spells.check(post);
+			}
+			$after(this.op.el, fragm);
+			post.next = tPost;
+			tPost.prev = post;
+		}
 	}
 };
 
