@@ -1333,7 +1333,7 @@ function showContent(cont, id, name, remove) {
 			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
 			cln.btn.parentNode.className = 'de-ppanel';
 			cln.btn.onclick = function() {
-				this.toggleContent(this.hidden = !this.hidden);
+				this.hideContent(this.hidden = !this.hidden);
 			}.bind(cln);
 			(block || (block = cont.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
@@ -1344,7 +1344,7 @@ function showContent(cont, id, name, remove) {
 				$btn(Lng.expandAll[lang], '', function() {
 					$each($Q('.de-cloned-post', this.parentNode), function(el) {
 						var post = el.post;
-						post.toggleContent(post.hidden = !post.hidden);
+						post.hideContent(post.hidden = !post.hidden);
 					});
 					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 				}),
@@ -7371,11 +7371,11 @@ Post.prototype = {
 				this.note = '';
 			}
 			this._pref.onmouseover = this._pref.onmouseout = hide && function(e) {
-				this.toggleContent(e.type === 'mouseout');
+				this.hideContent(e.type === 'mouseout');
 			}.bind(this);
 		}
 		this.hidden = hide;
-		this.toggleContent(hide);
+		this.hideContent(hide);
 		if(Cfg['strikeHidd']) {
 			setTimeout(this._strikePostNum.bind(this, hide), 50);
 		}
@@ -7427,7 +7427,7 @@ Post.prototype = {
 	get tNum() {
 		return this.thr.num;
 	},
-	toggleContent: function(hide) {
+	hideContent: function(hide) {
 		if(hide) {
 			this.el.classList.add('de-post-hid');
 		} else {
@@ -7551,7 +7551,13 @@ Post.prototype = {
 		if(inPost) {
 			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
-			scrW -= this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
+			if(this.hidden) {
+				this.hideContent(false);
+				scrW -= this._getOffset(el);
+				this.hideContent(true);
+			} else {
+				scrW -= this._getOffset(el);
+			}
 			el.style.display = 'none';
 		} else {
 			$del($c('de-img-center', doc));
@@ -7858,6 +7864,9 @@ Post.prototype = {
 				}
 			}
 		}.bind(this, node), null);
+	},
+	_getOffset: function(el) {
+		return this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
 	},
 	_markLink: function(pNum) {
 		$each($Q('a[href*="' + pNum + '"]', this.el), function(num, el) {
