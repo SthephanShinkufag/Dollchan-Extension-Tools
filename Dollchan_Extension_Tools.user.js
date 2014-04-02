@@ -16,6 +16,7 @@
 'use strict';
 var version = '14.2.17.0',
 defaultCfg = {
+	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
 	'hideBySpell':	1,		// hide posts by spells
 	'spells':		'',		// user defined spells
@@ -1099,13 +1100,13 @@ function pButton(id, href, hasHotkey) {
 
 function addPanel() {
 	var panel, evtObject, imgLen = getImages(dForm).length;
-	(pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
+	(pr && pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div class="de-content"></div>' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
-				(Cfg['isDisabled'] ? pButton('enable', '#', false) :
+				(Cfg['disabled'] ? pButton('enable', '#', false) :
 					pButton('settings', '#', true) +
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
@@ -1135,7 +1136,7 @@ function addPanel() {
 				) +
 				'</ul>' +
 			'</div>' +
-		(Cfg['isDisabled'] ? '' :
+		(Cfg['disabled'] ? '' :
 			'<div id="de-img-btns" style="display: none">' +
 				'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"><div></div></div>' +
 				'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
@@ -1215,7 +1216,7 @@ function addPanel() {
 					}
 					break;
 				case 'de-btn-enable':
-					toggleCfg('isDisabled');
+					toggleCfg('disabled');
 					window.location.reload();
 					break;
 				default: return;
@@ -5320,12 +5321,6 @@ function scriptCSS() {
 	function gif(id, src) {
 		return id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
 	}
-	function applyCSS(x) {
-		$css(x).id = 'de-css';
-		$css('').id = 'de-css-dynamic';
-		$css('').id = 'de-css-user';
-		updateCSS();
-	}
 
 	// Settings window
 	x += '.de-block { display: block; }\
@@ -5400,7 +5395,7 @@ function scriptCSS() {
 	x += gif('#de-btn-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p);
 	x += gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
-	if(Cfg['isDisabled']) {
+	if(Cfg['disabled']) {
 		applyCSS(x);
 		return;
 	}
@@ -5594,6 +5589,13 @@ function scriptCSS() {
 	}
 
 	applyCSS(x);
+}
+
+function applyCSS(x) {
+	$css(x).id = 'de-css';
+	$css('').id = 'de-css-dynamic';
+	$css('').id = 'de-css-user';
+	updateCSS();
 }
 
 function updateCSS() {
@@ -10130,8 +10132,7 @@ function doScript(checkDomains) {
 	}
 	$log('Init');
 	readCfg();
-	if(Cfg['isDisabled']) {
-		pr = new PostForm($q(aib.qPostForm, doc), true, liteMode);
+	if(Cfg['disabled']) {
 		addPanel();
 		scriptCSS();
 		return;
