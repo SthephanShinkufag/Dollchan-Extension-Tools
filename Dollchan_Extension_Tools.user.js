@@ -5320,6 +5320,12 @@ function scriptCSS() {
 	function gif(id, src) {
 		return id + ' { background: url(data:image/gif;base64,' + src + ') no-repeat center !important; }';
 	}
+	function applyCSS(x) {
+		$css(x).id = 'de-css';
+		$css('').id = 'de-css-dynamic';
+		$css('').id = 'de-css-user';
+		updateCSS();
+	}
 
 	// Settings window
 	x += '.de-block { display: block; }\
@@ -5395,10 +5401,7 @@ function scriptCSS() {
 	x += gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	if(Cfg['isDisabled']) {
-		$css(x).id = 'de-css';
-		$css('').id = 'de-css-dynamic';
-		$css('').id = 'de-css-user';
-		updateCSS();
+		applyCSS(x);
 		return;
 	}
 
@@ -5590,10 +5593,7 @@ function scriptCSS() {
 		}
 	}
 
-	$css(x).id = 'de-css';
-	$css('').id = 'de-css-dynamic';
-	$css('').id = 'de-css-user';
-	updateCSS();
+	applyCSS(x);
 }
 
 function updateCSS() {
