@@ -9780,6 +9780,7 @@ function initDelformAjax() {
 function initThreadUpdater(title, enableUpdate) {
 	var delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
 		initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
+		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
 		newPosts = 0,
@@ -9815,16 +9816,15 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function enable() {
-		if(!enabled) {
-			enabled = true;
-			checked404 = false;
-			newPosts = 0;
-			delay = initDelay;
-			loadTO = setTimeout(loadPostsFun, delay);
-		}
+		enabled = true;
+		checked404 = false;
+		newPosts = 0;
+		delay = initDelay;
+		loadTO = setTimeout(loadPostsFun, delay);
 	}
 
-	function disable() {
+	function disable(byUser) {
+		disabledByUser = byUser;
 		if(enabled) {
 			clearTimeout(loadTO);
 			enabled = hasAudio = false;
@@ -9876,8 +9876,12 @@ function initThreadUpdater(title, enableUpdate) {
 		if(currentXHR) {
 			currentXHR.abort();
 		}
-		clearTimeout(loadTO);
-		delay = initDelay;
+		if(!enabled && !disabledByUser) {
+			enable();
+		} else {
+			clearTimeout(loadTO);
+			delay = initDelay;
+		}
 		loadPostsFun();
 	}
 
@@ -9897,7 +9901,7 @@ function initThreadUpdater(title, enableUpdate) {
 					checked404 = true;
 				} else {
 					updateTitle();
-					disable();
+					disable(false);
 					return;
 				}
 			}
@@ -10035,7 +10039,9 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			setState('on');
 		},
-		disable: disable,
+		disable: function() {
+			disable(true);
+		},
 		toggleAudio: toggleAudio,
 		addPlayingTag: addPlayingTag,
 		removePlayingTag: removePlayingTag
