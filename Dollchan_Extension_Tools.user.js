@@ -9804,24 +9804,13 @@ function initThreadUpdater(title, enableUpdate) {
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-		if(('hidden' in doc) || ('webkitHidden' in doc)) {
-			focused = !(doc.hidden || doc.webkitHidden);
-			doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
-				if(doc.hidden || doc.webkitHidden) {
-					onBlur();
-				} else {
-					onVis();
-				}
-			}, false);
-		} else {
-			focused = false;
-			window.addEventListener('focus', onVis, false);
-			window.addEventListener('blur', onBlur, false);
-			window.addEventListener('mousemove', function mouseMove() {
-				window.removeEventListener('mousemove', mouseMove, false);
-				onVis();
-			}, false);
-		}
+		focused = false;
+		window.addEventListener('focus', onVis, false);
+		window.addEventListener('blur', onBlur, false);
+		window.addEventListener('mousemove', function mouseMove() {
+			window.removeEventListener('mousemove', mouseMove, false);
+			onVis();
+		}, false);
 		enable();
 	}
 
