@@ -8696,7 +8696,7 @@ Thread.prototype = {
 	},
 	_processExpandThread: function(nPosts, num) {
 		var i, fragm, el, tPost, len, needRMUpdate, post = this.op.next,
-			vPosts = this.last.count - post.count + 1;
+			vPosts = this.pcount === 1 ? 0 : this.last.count - post.count + 1;
 		if(vPosts > num) {
 			while(vPosts-- !== num) {
 				post.wrap.classList.add('de-hidden');
