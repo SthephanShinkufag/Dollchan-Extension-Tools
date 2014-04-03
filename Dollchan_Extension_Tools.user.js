@@ -1120,9 +1120,10 @@ function addPanel() {
 					pButton('godown', '#', false) +
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', false) +
-						pButton('maskimg', '#', true)) +
-						(Cfg['preLoadImgs'] || nav.Opera || nav.noBlob ? '' : pButton('preimg', '#', false)) +
-						(!TNum && !aib.arch && (nav.Opera || nav.noBlob) ? '' : pButton('imgload', '#', false)) +
+						pButton('maskimg', '#', true) +
+						(nav.Opera || nav.noBlob ? '' : 
+							(Cfg['preLoadImgs'] ? '' : pButton('preimg', '#', false)) +
+							(!TNum && !aib.arch ? '' : pButton('imgload', '#', false)))) +
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
