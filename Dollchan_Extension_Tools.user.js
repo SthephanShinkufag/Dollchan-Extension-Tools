@@ -1127,7 +1127,7 @@ function addPanel() {
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.abu && (!aib.fch || aib.arch) ? '' :
+					(!aib.nultire && !aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
@@ -8751,6 +8751,11 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
+		'0-chan.hk': [{
+			css: { value: '.content-background > hr { display: none !important; }' },
+			nultire: { value: true }
+		}, 'script[src*="kusaba"]'],
+		get '0-chan.ru'() { return this['0-chan.hk']; },
 		get '22chan.net'() { return this['ernstchan.com']; },
 		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.cm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
