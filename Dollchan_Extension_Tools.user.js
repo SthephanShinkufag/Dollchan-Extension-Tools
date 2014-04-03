@@ -8716,9 +8716,9 @@ Thread.prototype = {
 			tPost.next = post;
 			post.prev = tPost;
 			needRMUpdate = true;
-			num = Math.min(len, num);
+			num = Math.min(len + vPosts, num);
 		} else {
-			return num === visPosts;
+			return num <= visPosts;
 		}
 		while(vPosts-- !== 0) {
 			if(post.trunc) {
@@ -8733,7 +8733,7 @@ Thread.prototype = {
 			}
 			post = post.next;
 		}
-		return num === visPosts;
+		return num <= visPosts;
 	}
 };
 
