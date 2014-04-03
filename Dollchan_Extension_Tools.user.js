@@ -8752,7 +8752,8 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
 		'0-chan.hk': [{
-			css: { value: '.content-background > hr { display: none !important; }' },
+			css: { value: '.content-background > hr, #postform nobr { display: none !important; }\
+				form textarea { resize: both !important; }' },
 			nultire: { value: true }
 		}, 'script[src*="kusaba"]'],
 		get '0-chan.ru'() { return this['0-chan.hk']; },
