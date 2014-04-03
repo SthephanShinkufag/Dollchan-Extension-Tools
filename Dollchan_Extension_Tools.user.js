@@ -8695,45 +8695,44 @@ Thread.prototype = {
 		return [newPosts, newVisPosts];
 	},
 	_processExpandThread: function(nPosts, num) {
-		var i, fragm, el, tPost, len, post = this.last,
-			vPosts = 0;
-		if(post.count !== 0) {
-			while(vPosts !== num) {
-				if(post.count === 0) {
-					break;
-				}
-				if(post.trunc) {
-					post.updateMsg(replacePost($q(aib.qMsg, nPosts[post.count - 1])));
-				}
-				if(post.omitted) {
-					post.wrap.classList.remove('de-hidden');
-					post.omitted = false;
-				}
-				updRefMap(post, true);
-				vPosts++;
-				post = post.prev;
-			}
-		}
-		if(vPosts === num) {
-			while(post.count !== 0 && !post.omitted) {
+		var i, fragm, el, tPost, len, needRMUpdate, post = this.op.next,
+			vPosts = this.last.count - post.count + 1;
+		if(vPosts > num) {
+			while(vPosts-- !== num) {
 				post.wrap.classList.add('de-hidden');
 				post.omitted = true;
-				post = post.prev;
+				post = post.next;
 			}
-		} else {
+			needRMUpdate = false;
+		} else if(vPosts < num) {
 			fragm = doc.createDocumentFragment();
-			post = this.op;
-			tPost = post.next;
+			tPost = this.op;
 			len = nPosts.length;
 			for(i = Math.max(0, len - num), len -= vPosts; i < len; ++i) {
 				el = nPosts[i];
-				post = this._addPost(fragm, aib.getPNum(el), replacePost(el),
-					aib.getWrap(el, false), i + 1, post);
-				spells.check(post);
+				tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el),
+					aib.getWrap(el, false), i + 1, tPost);
+				spells.check(tPost);
 			}
 			$after(this.op.el, fragm);
-			post.next = tPost;
-			tPost.prev = post;
+			tPost.next = post;
+			post.prev = tPost;
+			needRMUpdate = true;
+		} else {
+			return;
+		}
+		while(vPosts-- !== 0) {
+			if(post.trunc) {
+				post.updateMsg(replacePost($q(aib.qMsg, nPosts[post.count - 1])));
+			}
+			if(post.omitted) {
+				post.wrap.classList.remove('de-hidden');
+				post.omitted = false;
+			}
+			if(needRMUpdate) {
+				updRefMap(post, true);
+			}
+			post = post.next;
 		}
 	}
 };
