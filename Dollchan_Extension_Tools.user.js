@@ -8244,10 +8244,15 @@ function setPviewPosition(link, pView, animFun) {
 		return;
 	}
 	pView.link = link;
-	var isTop, top, oldCSS, cr = link.getBoundingClientRect(),
-		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
-		offY = cr.top + window.pageYOffset,
-		bWidth = doc.documentElement.clientWidth,
+	var isTop, top, oldCSS, crtop = link.getBoundingClientRect().top,
+		offH = link.offsetHeight,
+		offX = link.offsetWidth / 2,
+		offY = 0;
+	do {
+		offX += link.offsetLeft;
+		offY += link.offsetTop;
+	} while(link = link.offsetParent);
+	var bWidth = doc.documentElement.clientWidth,
 		isLeft = offX < bWidth / 2,
 		tmp = (isLeft ? offX : offX -
 			Math.min(parseInt(pView.offsetWidth, 10), offX - 10)),
@@ -8259,8 +8264,8 @@ function setPviewPosition(link, pView, animFun) {
 		pView.style.cssText = lmw;
 	}
 	top = pView.offsetHeight;
-	isTop = top + cr.top + link.offsetHeight < window.innerHeight || cr.top - top < 5;
-	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
+	isTop = top + crtop + offH < window.innerHeight || crtop - top < 5;
+	top = (isTop ? offY + offH : offY - top) + 'px';
 	pView.aLeft = isLeft;
 	pView.aTop = isTop;
 	if(animFun) {
