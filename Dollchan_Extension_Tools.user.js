@@ -1125,7 +1125,7 @@ function addPanel() {
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
+					(!aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
@@ -6187,7 +6187,7 @@ PostForm.prototype = {
 				$after(this.name || this.subm, btn);
 			}
 			this._setSage();
-			if(aib.urup || aib._2chru) {
+			if(aib._2chru) {
 				while(btn.nextSibling) {
 					$del(btn.nextSibling);
 				}
@@ -6203,7 +6203,7 @@ PostForm.prototype = {
 				window.focus();
 			}
 		}, false);
-		if(!aib.tiny && !aib.nul) {
+		if(!aib.tiny) {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function(e) {
@@ -6276,7 +6276,7 @@ PostForm.prototype = {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
 			if(this.video && (val = this.video.value) && (val = val.match(youTube.ytReg))) {
-				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
+				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
 				$disp(this.pForm);
@@ -8739,17 +8739,6 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'0chan.hk': [{
-			nul: { value: true },
-			
-			css: { value: '#captcha_status, .content-background > hr, #postform nobr, .postnode + a, .replieslist, label[for="save"], span[style="float: right;"] { display: none !important; }\
-				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-				.ui-resizable { display: inline !important; }\
-				form textarea { resize: both !important; }'
-			},
-			ru: { value: true },
-			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' }
-		}, 'script[src*="kusaba"]'],
 		get '22chan.net'() { return this['ernstchan.com']; },
 		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.cm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
@@ -9073,20 +9062,7 @@ function getImageBoard(checkDomains, checkOther) {
 
 			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
 			isBB: { value: true }
-		}],
-		'urupchan.ru': [{
-			urup: { value: true },
-			init: { value: function() {
-				for(var src, el, i = 0, els = $Q('blockquote > span[style="float: left;"]', doc.body), len = els.length; i < len; ++i) {
-					el = els[i];
-					src = $t('a', el).href;
-					el.parentNode.insertAdjacentHTML('beforeend',
-						'<p class="de-video-ext"><a href="' + src + '">' + src + '</a></p>');
-					$del(el);
-				}
-			} },
-			css: { value: '#captchaimage, .replybacklinks, .messagehelperC { display: none !important }' }
-		}, 'script[src*="kusaba"]']
+		}]
 	};
 
 	var ibEngines = {
