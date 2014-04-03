@@ -2515,7 +2515,7 @@ KeyNavigation.prototype = {
 				} else if(idx === 3) { // Expand/collapse thread
 					post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 					if(post) {
-						if(post.thr.omitted === 0) {
+						if(post.thr.loadedOnce && post.thr.op.next.count === 1) {
 							temp = post.thr.nextNotHidden;
 							post.thr.load(visPosts, !!temp, null);
 							post = (temp || post.thr).op;
@@ -8376,7 +8376,7 @@ function Thread(el, prev) {
 		els = aib.getPosts(el),
 		len = els.length,
 		num = aib.getTNum(el),
-		omt = TNum ? 1 : this.omitted = aib.getOmitted(this.omtEl = $q(aib.qOmitted, el), len);
+		omt = TNum ? 1 : aib.getOmitted(this.omtEl = $q(aib.qOmitted, el), len);
 	this.num = num;
 	Thread.tNums.push(+num);
 	this.pcount = omt + len;
@@ -8463,8 +8463,6 @@ Thread.prototype = {
 			}
 			this._checkBans(op, form);
 			this._parsePosts(els);
-			this._processExpandThread(els, last === 1 ? els.length : last);
-			this.omitted = nOmt;
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
 			if(nOmt === 0) {
 				this.omtEl.style.display = 'none';
@@ -8472,7 +8470,7 @@ Thread.prototype = {
 				this.omtEl.style.display = '';
 				this.omtEl.innerHTML = Lng.postsOmitted[lang] + nOmt;
 			}
-			if(this.pcount - nOmt - 1 <= visPosts) {
+			if(this._processExpandThread(els, last === 1 ? els.length : last)) {
 				$del(expEl);
 			} else if(!expEl) {
 				thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="' +
@@ -8718,8 +8716,9 @@ Thread.prototype = {
 			tPost.next = post;
 			post.prev = tPost;
 			needRMUpdate = true;
+			num = Math.min(len, num);
 		} else {
-			return;
+			return num === visPosts;
 		}
 		while(vPosts-- !== 0) {
 			if(post.trunc) {
@@ -8734,6 +8733,7 @@ Thread.prototype = {
 			}
 			post = post.next;
 		}
+		return num === visPosts;
 	}
 };
 
