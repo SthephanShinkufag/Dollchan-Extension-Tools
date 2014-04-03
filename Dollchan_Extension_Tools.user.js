@@ -1120,16 +1120,17 @@ function addPanel() {
 					pButton('godown', '#', false) +
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', false) +
-						(Cfg['preLoadImgs'] || nav.Opera || nav.noBlob ? '' : pButton('preimg', '#', false)) +
 						pButton('maskimg', '#', true)) +
+						(Cfg['preLoadImgs'] || nav.Opera || nav.noBlob ? '' : pButton('preimg', '#', false)) +
+						(!TNum && !aib.arch && (nav.Opera || nav.noBlob) ? '' : pButton('imgload', '#', false)) +
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
 					(!aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
-					(!TNum && !aib.arch? pButton('enable', '#', false) :
-						(nav.Opera || nav.noBlob ? '' : pButton('imgload', '#', false)) + pButton('enable', '#', false) +
+					pButton('enable', '#', false) +
+					(!TNum && !aib.arch ? '' :
 						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>')
 				) +
