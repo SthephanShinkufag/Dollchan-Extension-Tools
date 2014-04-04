@@ -8458,9 +8458,6 @@ Thread.prototype = {
 			this._checkBans(op, form);
 			this._parsePosts(els);
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
-			if(nOmt !== 0) {
-				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
-			}
 			if(this._processExpandThread(els, last === 1 ? els.length : last)) {
 				$del(expEl);
 			} else if(!expEl) {
@@ -8473,6 +8470,9 @@ Thread.prototype = {
 				}.bind(this);
 			} else if(expEl !== thrEl.lastChild) {
 				thrEl.appendChild(expEl);
+			}
+			if(nOmt !== 0) {
+				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 			}
 			if(smartScroll) {
 				scrollTo(pageXOffset, pageYOffset - (nextCoord - this.next.topCoord));
@@ -9820,7 +9820,10 @@ function initThreadUpdater(title, enableUpdate) {
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 		focused = false;
 		window.addEventListener('focus', onVis, false);
-		window.addEventListener('blur', onBlur, false);
+		window.addEventListener('blur', function() {
+			focused = false;
+			firstThr.clearPostsMarks();
+		}, false);
 		window.addEventListener('mousemove', function mouseMove() {
 			window.removeEventListener('mousemove', mouseMove, false);
 			onVis();
@@ -9992,11 +9995,6 @@ function initThreadUpdater(title, enableUpdate) {
 		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
 		btn.id = 'de-btn-upd-' + state;
 		btn.title = Lng.panelBtn['upd-' + (state === 'off' ? 'off' : 'on')][lang];
-	}
-
-	function onBlur() {
-		focused = false;
-		firstThr.clearPostsMarks();
 	}
 
 	function onVis() {
