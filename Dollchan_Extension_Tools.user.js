@@ -6186,7 +6186,7 @@ PostForm.prototype = {
 				$after(this.name || this.subm, btn);
 			}
 			this._setSage();
-			if(aib._2chru) {
+			if(aib.urup || aib._2chru) {
 				while(btn.nextSibling) {
 					$del(btn.nextSibling);
 				}
@@ -9066,7 +9066,20 @@ function getImageBoard(checkDomains, checkOther) {
 
 			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
 			isBB: { value: true }
-		}]
+		}],
+		'urupchan.org': [{
+			urup: { value: true },
+			init: { value: function() {
+				for(var src, el, i = 0, els = $Q('blockquote > span[style="float: left;"]', doc.body), len = els.length; i < len; ++i) {
+					el = els[i];
+					src = $t('a', el).href;
+					el.parentNode.insertAdjacentHTML('beforeend',
+						'<p class="de-video-ext"><a href="' + src + '">' + src + '</a></p>');
+					$del(el);
+				}
+			} },
+			css: { value: '#captchaimage, .replybacklinks, .messagehelperC { display: none !important }' }
+		}, 'script[src*="kusaba"]']
 	};
 
 	var ibEngines = {
