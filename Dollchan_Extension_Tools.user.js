@@ -25,70 +25,70 @@ defaultCfg = {
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
 	'ajaxUpdThr':	1,		// auto update threads
-	'updThrDelay':	60,		//		threads update interval in sec
-	'noErrInTitle': 0,		//		don't show error number in title except 404
-	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
-	'markNewPosts': 1,		//		new posts marking on page focus
-	'desktNotif':	0,		//		desktop notifications, if new posts detected
+	'updThrDelay':	60,		// threads update interval in sec
+	'noErrInTitle': 0,		// don't show error number in title except 404
+	'favIcoBlink':	1,		// favicon blinking, if new posts detected
+	'markNewPosts': 1,		// new posts marking on page focus
+	'desktNotif':	0,		// desktop notifications, if new posts detected
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	'postBtnsCSS':	2,		// post buttons style [0=text, 1=classic, 2=solid grey]
 	'noSpoilers':	1,		// open spoilers
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
 	'correctTime':	0,		// correct time in posts
-	'timeOffset':	'+0',	//		offset in hours
-	'timePattern':	'',		//		find pattern
-	'timeRPattern':	'',		//		replace pattern
+	'timeOffset':	'+0',	// offset in hours
+	'timePattern':	'',		// search pattern
+	'timeRPattern':	'',		// replace pattern
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
-	'resizeImgs':	1,		// 		resize large images
+	'resizeImgs':	1,		// resize large images
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
-	'findImgFile':	0,		// 		detect built-in files in images
+	'findImgFile':	0,		// detect built-in files in images
 	'openImgs':		0,		// open images in posts
-	'openGIFs':		0,		// 		open only GIFs in posts
+	'openGIFs':		0,		// open only GIFs in posts
 	'imgSrcBtns':	1,		// add image search buttons
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
-	'linksOver':	100,	//		delay appearance in ms
-	'linksOut':		1500,	//		delay disappearance in ms
-	'markViewed':	0,		//		mark viewed posts
-	'strikeHidd':	0,		//		strike >>links to hidden posts
-	'noNavigHidd':	0,		//		don't show previews for hidden posts
+	'linksOver':	100,	// appearance delay in ms
+	'linksOut':		1500,	// disappearance delay in ms
+	'markViewed':	0,		// mark viewed posts
+	'strikeHidd':	0,		// strike >>links to hidden posts
+	'noNavigHidd':	0,		// don't show previews for hidden posts
 	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// embed mp3 links
 	'addImgs':		0,		// embed links to images
 	'addYouTube':	3,		// embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
-	'YTubeType':	0,		//		player type [0=flash, 1=HTML5]
-	'YTubeWidth':	360,	//		player width
-	'YTubeHeigh':	270,	//		player height
-	'YTubeHD':		0,		//		hd video quality
-	'YTubeTitles':	0,		//		convert links to titles
-	'addVimeo':		1,		// 		embed vimeo links
+	'YTubeType':	0,		// player type [0=flash, 1=HTML5]
+	'YTubeWidth':	360,	// player width
+	'YTubeHeigh':	270,	// player height
+	'YTubeHD':		0,		// hd video quality
+	'YTubeTitles':	0,		// convert links to titles
+	'addVimeo':		1,		// embed vimeo links
 	'ajaxReply':	2,		// posting with AJAX (0=no, 1=iframe, 2=HTML5)
-	'postSameImg':	1,		// 		ability to post same images
-	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
-	'removeFName':	0,		// 		remove file name
+	'postSameImg':	1,		// ability to post same images
+	'removeEXIF':	1,		// remove EXIF data from JPEGs
+	'removeFName':	0,		// remove file name
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
 	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
 	'addSageBtn':	1,		// email field -> sage btn
 	'saveSage':		1,		// remember sage
-	'sageReply':	0,		//		reply with sage
+	'sageReply':	0,		// reply with sage
 	'warnSubjTrip':	0,		// warn if subject field contains tripcode
 	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
-	'txtBtnsLoc':	0,		//		located at [0=top, 1=bottom]
+	'txtBtnsLoc':	0,		// located at [0=top, 1=bottom]
 	'passwValue':	'',		// user password value
 	'userName':		0,		// user name
-	'nameValue':	'',		//		value
+	'nameValue':	'',		// value
 	'userSignat':	0,		// user signature
-	'signatValue':	'',		//		value
+	'signatValue':	'',		// value
 	'noBoardRule':	1,		// hide board rules
 	'noGoto':		1,		// hide goto field
 	'noPassword':	1,		// hide password field
 	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
 	'userCSS':		0,		// user style
-	'userCSSTxt':	'',		//		css text
+	'userCSSTxt':	'',		// css text
 	'expandPanel':	0,		// show full main panel
 	'attachPanel':	1,		// attach main panel
 	'panelCounter':	1,		// posts/images counter in script panel
@@ -96,9 +96,9 @@ defaultCfg = {
 	'animation':	1,		// animation in script
 	'closePopups':	0,		// auto-close popups
 	'keybNavig':	1,		// keyboard navigation
-	'loadPages':	1,		//		number of pages that are loaded on F5
+	'loadPages':	1,		// number of pages that are loaded on F5
 	'updScript':	1,		// check for script's update
-	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
+	'scrUpdIntrv':	1,		// check interval in days (every val+1 day)
 	'textaWidth':	500,	// textarea width
 	'textaHeight':	160		// textarea height
 },
