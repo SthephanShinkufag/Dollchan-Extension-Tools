@@ -581,10 +581,6 @@ function $DOM(html) {
 	return myDoc;
 }
 
-function $getStyle(el, prop) {
-	return getComputedStyle(el).getPropertyValue(prop);
-}
-
 function $pd(e) {
 	e.preventDefault();
 }
@@ -1317,7 +1313,7 @@ function showContent(cont, id, name, remove) {
 	if(name === 'cfg') {
 		addSettings(cont, cfgTabId);
 	} else if(Cfg['attachPanel']) {
-		cont.style.backgroundColor = $getStyle(doc.body, 'background-color');
+		cont.style.backgroundColor = getComputedStyle(doc.body).getPropertyValue('background-color');
 	}
 
 	if(name === 'hid') {
@@ -2863,7 +2859,7 @@ function checkUpload(response) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
+		pr.delFileUtils(getAncestor(pr.file, 'TR'), true);
 		if(aib.krau) {
 			var fileInputs = $Q('input[type="file"]', $id('files_parent'));
 			if(fileInputs.length > 1) {
@@ -4038,7 +4034,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
 		if(pr.file) {
-			pr.delFileUtils(getAncestor(pr.file, aib.trTag), true);
+			pr.delFileUtils(getAncestor(pr.file, 'TR'), true);
 		}
 		pr.txta.value = '';
 	}
@@ -5743,15 +5739,14 @@ function PostForm(form, ignoreForm, init) {
 	function $x(path, root) {
 		return doc.evaluate(path, root, null, 8, null).singleNodeValue;
 	}
-	var tr = aib.trTag,
-		p = './/' + tr + '[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
+	var p = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = TNum;
 	this.form = form;
 	this.cap = $q('input[type="text"][name*="aptcha"], div[id*="captcha"]', form);
-	this.txta = $q(tr + ':not([style*="none"]) textarea:not([style*="display:none"])', form);
-	this.subm = $q(tr + ' input[type="submit"]', form);
-	this.file = $q(tr + ' input[type="file"]', form);
-	this.passw = $q(tr + ' input[type="password"]', form);
+	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
+	this.subm = $q('tr input[type="submit"]', form);
+	this.file = $q('tr input[type="file"]', form);
+	this.passw = $q('tr input[type="password"]', form);
 	this.dpass = $q('input[type="password"], input[name="password"]', dForm);
 	this.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form);
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
@@ -5760,7 +5755,7 @@ function PostForm(form, ignoreForm, init) {
 			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
 		), form);
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
-	this.video = $q(tr + ' input[name="video"], ' + tr + ' input[name="embed"]', form);
+	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
 	if(init) {
 		this._init();
 	}
@@ -5795,7 +5790,7 @@ PostForm.processInput = function() {
 				$pd(e);
 				if(aib.krau && this.parentNode.nextSibling) {
 					var current = $q('input[type="file"]', this.parentNode).name.match(/\d/)[0];
-					$each($Q('input[type="file"]', getAncestor(this, aib.trTag)), function(input, index) {
+					$each($Q('input[type="file"]', getAncestor(this, 'TR')), function(input, index) {
 						if(index > current)
 							input.name = "file_" + (index-1);
 					});
@@ -5823,7 +5818,7 @@ PostForm.processInput = function() {
 		$del(this.nextSibling);
 	}
 	$del($c('de-file-rar', this.parentNode));
-	PostForm.eventFiles(getAncestor(this, aib.trTag));
+	PostForm.eventFiles(getAncestor(this, 'TR'));
 	if(nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 		return;
 	}
@@ -6187,7 +6182,7 @@ PostForm.prototype = {
 				$disp(el);
 				$after(el, btn);
 			} else {
-				$disp(getAncestor(this.mail, aib.trTag));
+				$disp(getAncestor(this.mail, 'TR'));
 				$after(this.name || this.subm, btn);
 			}
 			this._setSage();
@@ -6295,7 +6290,7 @@ PostForm.prototype = {
 			$disp(this.gothr);
 		}
 		if(Cfg['noPassword'] && this.passw) {
-			$disp(getAncestor(this.passw, aib.trTag));
+			$disp(getAncestor(this.passw, 'TR'));
 		}
 		window.addEventListener('load', function() {
 			if(Cfg['userName'] && this.name) {
@@ -6309,7 +6304,7 @@ PostForm.prototype = {
 			if(aib.abu && (temp = $t('script', this.cap))) {
 				$del(temp);
 			}
-			this.capTr = getAncestor(this.cap, aib.trTag);
+			this.capTr = getAncestor(this.cap, 'TR');
 			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 			if(this.file) {
 				this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
@@ -6337,9 +6332,9 @@ PostForm.prototype = {
 		}
 		if(this.file) {
 			if('files' in this.file && this.file.files.length > 0) {
-				this._clearFileInput(getAncestor(this.file, aib.trTag), true);
+				this._clearFileInput(getAncestor(this.file, 'TR'), true);
 			} else {
-				PostForm.eventFiles(getAncestor(this.file, aib.trTag));
+				PostForm.eventFiles(getAncestor(this.file, 'TR'));
 			}
 		}
 	},
@@ -8053,10 +8048,6 @@ Pview.prototype = Object.create(Post.prototype, {
 		el.post = this;
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
-		if(aib._7ch) {
-			el.firstElementChild.style.cssText = 'max-width: 100%; margin: 0;';
-			$del($c('doubledash', el));
-		}
 		if(Cfg['linksNavig'] === 2) {
 			this._markLink(this.parent.num);
 		}
@@ -8873,23 +8864,8 @@ function getImageBoard(checkDomains, checkOther) {
 			rep: { value: true }
 		}],
 		'7chan.org': [{
-			_7ch: { value: true },
-			
-			cOPost: { value: 'op' },
-			cFileInfo: { value: 'file_size' },
-			qMsg: { value: '.message' },
-			qPages: { value: '#paging > ul > li:nth-last-child(2)' },
-			qThread: { value: '[id^="thread"]:not(#thread_controls)' },
-			css: { get: function() {
-				return '.reply { background-color: ' + $getStyle(doc.body, 'background-color') + '; }'
-			} },
-			cssHide: { value: '.de-post-hid > div > .post_header ~ *' },
-			getImgWrap: { value: function(el) {
-				return el.parentNode.parentNode;
-			} },
-			timePattern: { value: 'yy+dd+nn+w+hh+ii+ss' },
-			trTag: { value: 'LI' }
-		}, 'script[src*="kusaba"]'],
+			init: { value: function() { return true; } }
+		}],
 		'9ch.ru': [{
 			qRef: { value: '[color="#117743"]' },
 			getPageUrl: { value: function(b, p) {
@@ -9418,8 +9394,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		res: 'res/',
-		ru: false,
-		trTag: 'TR'
+		ru: false
 	};
 
 	var i, ibObj = null, dm = window.location.hostname
