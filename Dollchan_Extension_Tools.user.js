@@ -8376,7 +8376,7 @@ function Thread(el, prev) {
 		els = aib.getPosts(el),
 		len = els.length,
 		num = aib.getTNum(el),
-		omt = TNum ? 1 : aib.getOmitted(this.omtEl = $q(aib.qOmitted, el), len);
+		omt = TNum ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 	this.num = num;
 	Thread.tNums.push(+num);
 	this.pcount = omt + len;
