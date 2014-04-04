@@ -461,7 +461,7 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis, needScroll,
-aib, nav, brd, TNum, pageNum, updater, youTube, keyNav, firstThr, lastThr, visPosts = 2,
+aib, nav, brd, TNum, pageNum, updater, YouTube, keyNav, firstThr, lastThr, visPosts = 2,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
@@ -3621,9 +3621,9 @@ dateTime.prototype = {
 //													PLAYERS
 //============================================================================================================
 
-function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
-	var vData, vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/,
-		ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
+YouTube = new function() {
+	var instance, vData, embedType, videoType, width, height, isHD, loadTitles,
+		vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/;
 
 	function addThumb(el, m, isYtube) {
 		var wh = ' width="' + width + '" height="' + height + '"></a>';
@@ -3668,15 +3668,15 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		var msg, src, time, dataObj;
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
-			if(youTube.embedType === 2) {
-				youTube.addPlayer(post.ytObj, post.ytInfo = m, isYtube);
-			} else if(youTube.embedType > 2) {
-				youTube.addThumb(post.ytObj, post.ytInfo = m, isYtube);
+			if(embedType === 2) {
+				addPlayer(post.ytObj, post.ytInfo = m, isYtube);
+			} else if(embedType > 2) {
+				addThumb(post.ytObj, post.ytInfo = m, isYtube);
 			}
 		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', post.msg)) {
 			return;
 		}
-		if(loader && (dataObj = youTube.vData[m[1]])) {
+		if(loader && (dataObj = vData[m[1]])) {
 			post.ytData.push(dataObj);
 		}
 		if(m[4] || m[3] || m[2]) {
@@ -3768,81 +3768,89 @@ function initYouTube(embedType, videoType, width, height, isHD, loadTitles) {
 		return queue;
 	}
 
-	function parseLinks(post) {
-		var i, len, els, el, src, m, embedTube = [],
-			loader = loadTitles && getYtubeTitleLoader();
-		for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm), len = els.length; i < len; ++i) {
-			el = els[i];
-			src = el.src || el.data;
-			if(m = src.match(ytReg)) {
-				embedTube.push(post || aib.getPostEl(el).post, m, true);
-				$del(el);
-			}
-			if(Cfg['addVimeo'] && (m = src.match(vimReg))) {
-				embedTube.push(post || aib.getPostEl(el).post, m, false);
-				$del(el);
-			}
+	function YouTubeSingleton() {
+		if(instance) {
+			return instance;
 		}
-		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
-			el = els[i];
-			if(m = el.href.match(ytReg)) {
-				addLink(post || aib.getPostEl(el).post, m, loader, el, true);
-			}
+		instance = this;
+		embedType = Cfg['addYouTube'];
+		if(embedType === 0) {
+			this.parseLinks = emptyFn;
+			this.updatePost = emptyFn;
 		}
-		if(Cfg['addVimeo']) {
-			for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
+		loadTitles = Cfg['YTubeTitles'];
+		if(loadTitles) {
+			vData = JSON.parse(sessionStorage['de-ytube-data'] || '{}');
+		}
+		videoType = Cfg['YTubeType'];
+		width = Cfg['YTubeWidth'];
+		height = Cfg['YTubeHeigh'];
+		isHD = Cfg['YTubeHD'];
+	}
+	YouTubeSingleton.prototype = {
+		embedType: embedType,
+		ytReg: /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([^&#?]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
+		vData: vData,
+
+		addPlayer: addPlayer,
+		addThumb: addThumb,
+		parseLinks: function(post) {
+			var i, len, els, el, src, m, embedTube = [],
+				loader = loadTitles && getYtubeTitleLoader();
+			for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm), len = els.length; i < len; ++i) {
 				el = els[i];
-				if(m = el.href.match(vimReg)) {
-					addLink(post || aib.getPostEl(el).post, m, null, el, false);
+				src = el.src || el.data;
+				if(m = src.match(this.ytReg)) {
+					embedTube.push(post || aib.getPostEl(el).post, m, true);
+					$del(el);
+				}
+				if(Cfg['addVimeo'] && (m = src.match(vimReg))) {
+					embedTube.push(post || aib.getPostEl(el).post, m, false);
+					$del(el);
 				}
 			}
-		}
-		for(i = 0, len = embedTube.length; i < len; i += 3) {
-			addLink(embedTube[i], embedTube[i + 1], loader, null, embedTube[i + 2]);
-		}
-		loader && loader.complete();
-	}
-
-	function updatePost(post, oldLinks, newLinks, cloned) {
-		var i, j, el, link, m, loader = !cloned && loadTitles && getYtubeTitleLoader(),
-			len = newLinks.length;
-		for(i = 0, j = 0; i < len; i++) {
-			el = newLinks[i];
-			link = oldLinks[j];
-			if(link.classList.contains('de-current')) {
-				post.ytLink = el;
+			for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
+				el = els[i];
+				if(m = el.href.match(this.ytReg)) {
+					addLink(post || aib.getPostEl(el).post, m, loader, el, true);
+				}
 			}
-			if(cloned) {
-				el.ytInfo = link.ytInfo;
-				j++;
-			} else if(m = el.href.match(ytReg)) {
-				addLink(post, m, loader, el, true);
-				j++;
+			if(Cfg['addVimeo']) {
+				for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
+					el = els[i];
+					if(m = el.href.match(vimReg)) {
+						addLink(post || aib.getPostEl(el).post, m, null, el, false);
+					}
+				}
 			}
+			for(i = 0, len = embedTube.length; i < len; i += 3) {
+				addLink(embedTube[i], embedTube[i + 1], loader, null, embedTube[i + 2]);
+			}
+			loader && loader.complete();
+		},
+		updatePost: function(post, oldLinks, newLinks, cloned) {
+			var i, j, el, link, m, loader = !cloned && loadTitles && getYtubeTitleLoader(),
+				len = newLinks.length;
+			for(i = 0, j = 0; i < len; i++) {
+				el = newLinks[i];
+				link = oldLinks[j];
+				if(link.classList.contains('de-current')) {
+					post.ytLink = el;
+				}
+				if(cloned) {
+					el.ytInfo = link.ytInfo;
+					j++;
+				} else if(m = el.href.match(this.ytReg)) {
+					addLink(post, m, loader, el, true);
+					j++;
+				}
+			}
+			post.ytLink = post.ytLink || newLinks[0];
+			loader && loader.complete();
 		}
-		post.ytLink = post.ytLink || newLinks[0];
-		loader && loader.complete();
-	}
-
-	if(embedType === 0) {
-		return {
-			parseLinks: emptyFn,
-			updatePost: emptyFn,
-			ytReg: ytReg
-		};
-	}
-	if(loadTitles) {
-		vData = JSON.parse(sessionStorage['de-ytube-data'] || '{}');
-	}
-	return {
-		addThumb: addThumb,
-		addPlayer: addPlayer,
-		embedType: embedType,
-		parseLinks: parseLinks,
-		updatePost: updatePost,
-		ytReg: ytReg,
-		vData: vData
 	};
+
+	return YouTubeSingleton;
 }
 
 function embedMP3Links(post) {
@@ -6274,7 +6282,7 @@ PostForm.prototype = {
 			if(Cfg['favOnReply'] && this.tNum) {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
-			if(this.video && (val = this.video.value) && (val = val.match(youTube.ytReg))) {
+			if(this.video && (val = this.video.value) && (val = val.match(new YouTube().ytReg))) {
 				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
@@ -7012,7 +7020,7 @@ Post.prototype = {
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg['addYouTube'] === 3) {
 						this.ytLink.classList.add('de-current');
-						youTube.addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
+						new YouTube().addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
 				} else if(Cfg['expandImgs'] !== 0) {
@@ -7026,10 +7034,10 @@ Post.prototype = {
 						if(Cfg['addYouTube'] === 3) {
 							if($c('de-video-thumb', this.ytObj)) {
 								el.classList.add('de-current');
-								youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+								new YouTube().addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 							} else {
 								el.classList.remove('de-current');
-								youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+								new YouTube().addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 							}
 						} else {
 							el.classList.remove('de-current');
@@ -7039,12 +7047,12 @@ Post.prototype = {
 					} else if(Cfg['addYouTube'] > 2) {
 						this.ytLink.classList.remove('de-current');
 						this.ytLink = el;
-						youTube.addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+						new YouTube().addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					} else {
 						this.ytLink.classList.remove('de-current');
 						this.ytLink = el;
 						el.classList.add('de-current');
-						youTube.addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
+						new YouTube().addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
 					}
 					$pd(e);
 				} else {
@@ -7507,7 +7515,7 @@ Post.prototype = {
 		});
 		delete this.html;
 		delete this.text;
-		youTube.updatePost(this, ytLinks, $Q('a[href*="youtu"]', newMsg), false);
+		new YouTube().updatePost(this, ytLinks, $Q('a[href*="youtu"]', newMsg), false);
 		if(ytExt) {
 			newMsg.appendChild(ytExt);
 		}
@@ -8071,7 +8079,7 @@ Pview.prototype = Object.create(Post.prototype, {
 					Object.defineProperty(this, 'ytObj', { value: $c('de-video-obj', el) });
 					this.ytInfo = post.ytInfo;
 				}
-				youTube.updatePost(this, $C('de-video-link', post.el), $C('de-video-link', el), true);
+				new YouTube().updatePost(this, $C('de-video-link', post.el), $C('de-video-link', el), true);
 			}
 			if(Cfg['addImgs']) {
 				$each($C('de-img-pre', el), function(el) {
@@ -8092,7 +8100,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		} else {
 			this._pref.insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
 			embedMP3Links(this);
-			youTube.parseLinks(this);
+			new YouTube().parseLinks(this);
 			if(Cfg['addImgs']) {
 				embedImagesLinks(el);
 			}
@@ -8569,7 +8577,7 @@ Thread.prototype = {
 			});
 			post.el.classList.add('de-post-new');
 		}
-		youTube.parseLinks(post);
+		new YouTube().parseLinks(post);
 		if(Cfg['imgSrcBtns']) {
 			addImagesSearch(el);
 		}
@@ -10095,7 +10103,7 @@ function addDelformStuff(isLog) {
 	isLog && (Cfg['preLoadImgs'] || Cfg['openImgs']) && $log('Preload images');
 	embedMP3Links(null);
 	isLog && Cfg['addMP3'] && $log('MP3 links');
-	youTube.parseLinks(null);
+	new YouTube().parseLinks(null);
 	isLog && Cfg['addYouTube'] && $log('YouTube links');
 	if(Cfg['addImgs']) {
 		embedImagesLinks(dForm);
@@ -10130,8 +10138,6 @@ function doScript(checkDomains) {
 		return;
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
-	youTube = initYouTube(Cfg['addYouTube'], Cfg['YTubeType'], Cfg['YTubeWidth'], Cfg['YTubeHeigh'],
-		Cfg['YTubeHD'], Cfg['YTubeTitles']);
 	readFavorites();
 	$log('Read config');
 	$disp(doc.body);
