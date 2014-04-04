@@ -8795,7 +8795,9 @@ function getImageBoard(checkDomains, checkOther) {
 		get '2--ch.su'() { return this['2--ch.ru']; },
 		'2chru.net': [{
 			_2chru: { value: true }
-		}],
+		}, 'form[action*="imgboard.php?delete"]'],
+		get '2-chru.net'() { return this['2chru.net']; },
+		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'410chan.org': [{
 			_410: { value: true },
 			
