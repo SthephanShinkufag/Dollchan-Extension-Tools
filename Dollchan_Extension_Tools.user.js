@@ -8412,7 +8412,6 @@ Thread.prototype = {
 	hidden: false,
 	loadedOnce: false,
 	next: null,
-	omitted: 0,
 	get lastNotDeleted() {
 		var post = this.last;
 		while(post.deleted) {
@@ -8454,6 +8453,7 @@ Thread.prototype = {
 				}
 			}
 			pr.closeQReply();
+			$del($q(aib.qOmitted + ', .de-omitted', thrEl));
 			if(!this.loadedOnce) {
 				if(op.trunc) {
 					op.updateMsg(replacePost($q(aib.qMsg, form)));
@@ -8464,11 +8464,8 @@ Thread.prototype = {
 			this._checkBans(op, form);
 			this._parsePosts(els);
 			thrEl.style.counterReset = 'de-cnt ' + (nOmt + 1);
-			if(nOmt === 0) {
-				this.omtEl.style.display = 'none';
-			} else {
-				this.omtEl.style.display = '';
-				this.omtEl.innerHTML = Lng.postsOmitted[lang] + nOmt;
+			if(nOmt !== 0) {
+				op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 			}
 			if(this._processExpandThread(els, last === 1 ? els.length : last)) {
 				$del(expEl);
