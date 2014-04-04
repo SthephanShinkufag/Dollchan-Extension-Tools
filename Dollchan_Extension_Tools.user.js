@@ -884,12 +884,11 @@ function readCfg() {
 	var obj;
 	comCfg = getStoredObj('DESU_Config');
 	if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
-		Cfg = new Config(nav.isGlobal ? comCfg['global'] : {});
-		Cfg['captchaLang'] = aib.ru ? 2 : 1;
-		Cfg['correctTime'] = 0;
-	} else {
-		Cfg = new Config(obj);
+		obj = nav.isGlobal ? comCfg['global'] : {};
+		obj['captchaLang'] = aib.ru ? 2 : 1;
+		obj['correctTime'] = 0;
 	}
+	Cfg = new Config(obj);
 	if(!Cfg['timeOffset']) {
 		Cfg['timeOffset'] = '+0';
 	}
