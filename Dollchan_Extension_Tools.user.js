@@ -873,19 +873,23 @@ function saveCfg(id, val) {
 	}
 }
 
+function Config(obj) {
+	for(var i in obj) {
+		this[i] = obj[i];
+	}
+}
+Config.prototype = defaultCfg;
+
 function readCfg() {
+	var obj;
 	comCfg = getStoredObj('DESU_Config');
-	if(!(aib.dm in comCfg) || $isEmpty(Cfg = comCfg[aib.dm])) {
-		Cfg = {};
-		if(nav.isGlobal) {
-			for(var i in comCfg['global']) {
-				Cfg[i] = comCfg['global'][i];
-			}
-		}
+	if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
+		Cfg = new Config(nav.isGlobal ? comCfg['global'] : {});
 		Cfg['captchaLang'] = aib.ru ? 2 : 1;
 		Cfg['correctTime'] = 0;
+	} else {
+		Cfg = new Config(obj);
 	}
-	Cfg.__proto__ = defaultCfg;
 	if(!Cfg['timeOffset']) {
 		Cfg['timeOffset'] = '+0';
 	}
