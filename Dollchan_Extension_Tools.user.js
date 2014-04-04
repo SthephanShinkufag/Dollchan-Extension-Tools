@@ -884,7 +884,7 @@ function readCfg() {
 	var obj;
 	comCfg = getStoredObj('DESU_Config');
 	if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
-		obj = nav.isGlobal ? comCfg['global'] : {};
+		obj = nav.isGlobal ? comCfg['global'] || {} : {};
 		obj['captchaLang'] = aib.ru ? 2 : 1;
 		obj['correctTime'] = 0;
 	}
