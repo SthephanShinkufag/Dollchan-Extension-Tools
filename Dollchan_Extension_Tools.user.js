@@ -258,7 +258,7 @@ Lng = {
 		'goup':		['Наверх', 'To the top'],
 		'godown':	['В конец', 'To the bottom'],
 		'expimg':	['Раскрыть картинки', 'Expand images'],
-		'preimg':	['Предзагрузка картинок', 'Preload images'],
+		'preimg':	['Предзагрузка картинок ([Ctrl+Click] только для новых постов)', 'Preload images ([Ctrl+Click] for new posts only)'],
 		'maskimg':	['Маскировать картинки', 'Mask images'],
 		'upd-on':	['Выключить автообновление треда', 'Disable thread autoupdate'],
 		'upd-off':	['Включить автообновление треда', 'Enable thread autoupdate'],
@@ -1178,7 +1178,9 @@ function addPanel() {
 					break;
 				case 'de-btn-preimg':
 					isPreImg = !isPreImg;
-					preloadImages(null);
+					if(!e.ctrlKey) {
+						preloadImages(null);
+					}
 				break;
 				case 'de-btn-maskimg':
 					toggleCfg('maskImgs');
