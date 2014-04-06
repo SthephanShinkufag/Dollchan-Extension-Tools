@@ -3356,6 +3356,8 @@ function preloadImages(post) {
 					iType = 'image/jpeg';
 				} else if(/\.png$/i.test(url)) {
 					iType = 'image/png';
+				} else if(/\.webm$/i.test(url)) {
+					iType = 'video/webm';
 				} else {
 					continue;
 				}
@@ -7583,7 +7585,7 @@ Post.prototype = {
 				newW = newH * data.width / data.height;
 			}
 		}
-		img = $add(/webm$/.test(data.fullSrc) ?
+		img = $add(/\.webm/.test(data.info) ?
 			'<video class="de-img-full" src="' + data.fullSrc + '" loop="" autoplay="" ' +
 				'width="' + newW + '" height="' + newH + '"></video>' :
 			'<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
@@ -9278,7 +9280,7 @@ function getImageBoard(checkDomains, checkOther) {
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
-				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1)' +
+				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".webm"]:nth-of-type(1)';
 			Object.defineProperty(this, 'qImgLink', { value: val });
 			return val;
