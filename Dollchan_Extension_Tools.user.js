@@ -159,7 +159,7 @@ Lng = {
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
 		'addVimeo':		['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
-		'addImgs':		['Загружать изображения к .jpg-, .png-, .gif-ссылкам*', 'Load images to .jpg-, .png-, .gif-links*'],
+		'addImgs':		['Загружать изображения к jpg, png, gif, webm ссылкам*', 'Load images to jpg, png, gif, webm links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
 			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
@@ -7017,6 +7017,7 @@ Post.prototype = {
 			}
 			switch(el.tagName) {
 			case 'IMG':
+			case 'VIDEO':
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg['addYouTube'] === 3) {
 						this.ytLink.classList.add('de-current');
@@ -7580,8 +7581,11 @@ Post.prototype = {
 				newW = newH * data.width / data.height;
 			}
 		}
-		img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
-			'" width="' + newW + '" height="' + newH + '">');
+		img = $add(/webm$/.test(data.fullSrc) ?
+			'<video class="de-img-full" src="' + data.fullSrc + '" loop="" autoplay="" ' +
+				'width="' + newW + '" height="' + newH + '"></video>' :
+			'<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
+				'" width="' + newW + '" height="' + newH + '">');
 		img.onload = img.onerror = function(e) {
 			if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
 				this.src = this.src;
@@ -9272,7 +9276,8 @@ function getImageBoard(checkDomains, checkOther) {
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
-				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1)';
+				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1)' +
+				'.' + this.cFileInfo + ' a[href$=".webm"]:nth-of-type(1)';
 			Object.defineProperty(this, 'qImgLink', { value: val });
 			return val;
 		},
