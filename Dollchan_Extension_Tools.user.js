@@ -7586,7 +7586,7 @@ Post.prototype = {
 			}
 		}
 		img = $add(/\.webm/.test(data.info) ?
-			'<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay' +
+			'<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay ' +
 				'width="' + newW + '" height="' + newH + '"></video>' :
 			'<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 				'" width="' + newW + '" height="' + newH + '">');
