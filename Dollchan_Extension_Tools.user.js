@@ -159,7 +159,7 @@ Lng = {
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
 		'addVimeo':		['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
-		'addImgs':		['Загружать изображения к jpg, png, gif, webm ссылкам*', 'Load images to jpg, png, gif, webm links*'],
+		'addImgs':		['Загружать изображения к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
 			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
