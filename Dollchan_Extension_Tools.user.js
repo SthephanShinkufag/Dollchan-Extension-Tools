@@ -9003,7 +9003,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
-			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .postheader > .sage { display: none !important; }\
+			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\
 					div[id^="Wz"] { z-index: 10000 !important; }\
 					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
 					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
