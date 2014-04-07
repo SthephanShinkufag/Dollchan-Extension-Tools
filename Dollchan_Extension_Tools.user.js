@@ -9113,6 +9113,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
 			qOmitted: { value: '.mess_post, .omittedposts' },
+			getImgWrap: { value: function(el) {
+				return el.parentNode.parentNode;
+			} },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
 					this.getSage = function(post) {
