@@ -3838,7 +3838,7 @@ YouTube = new function() {
 			for(i = 0, j = 0; i < len; i++) {
 				el = newLinks[i];
 				link = oldLinks[j];
-				if(link.classList.contains('de-current')) {
+				if(link && link.classList.contains('de-current')) {
 					post.ytLink = el;
 				}
 				if(cloned) {
@@ -7961,6 +7961,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
+	this.thr = parent.thr;
 	Object.defineProperty(this, 'tNum', { value: tNum });
 	if(post && (!post.isOp || !parent._isPview || !parent._loaded)) {
 		this._showPost(post);
