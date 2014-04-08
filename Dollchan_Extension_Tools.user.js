@@ -143,7 +143,7 @@ Lng = {
 		},
 		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmVolume':	[' Громкость по умолчанию для webm-файлов', ' Default volume for webm files'],
+		'webmVolume':	[' Громкость по умолчанию для webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
@@ -7610,7 +7610,7 @@ Post.prototype = {
 				'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
 				'width="' + newW + '" height="' + newH + '"></video>');
 			img.oncanplay = function() {
-				this.volume = Cfg['webmVolume'];
+				this.volume = Cfg['webmVolume'] / 100;
 			};
 		} else {
 			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
