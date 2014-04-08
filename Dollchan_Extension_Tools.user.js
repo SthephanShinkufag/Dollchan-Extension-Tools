@@ -388,7 +388,7 @@ Lng = {
 	loading:		['Загрузка...', 'Loading...'],
 	checking:		['Проверка...', 'Checking...'],
 	deleting:		['Удаление...', 'Deleting...'],
-	error:			['Ошибка:', 'Error:'],
+	error:			['Ошибка', 'Error'],
 	noConnect:		['Ошибка подключения', 'Connection failed'],
 	thrNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
 	succDeleted:	['Успешно удалено!', 'Succesfully deleted!'],
@@ -2852,7 +2852,7 @@ function getSubmitResponse(dc, isFrame) {
 			err += el.innerHTML + '\n';
 		}
 		if(!(err = err.replace(/<a [^>]+>Назад.+|<br.+/, ''))) {
-			err = Lng.error[lang] + '\n' + dc.body.innerHTML;
+			err = Lng.error[lang] + ':\n' + dc.body.innerHTML;
 		}
 		err = /:null|successful|uploaded|updating|обновл|удален[о\.]/i.test(err) ? '' : err.replace(/"/g, "'");
 	}
@@ -4823,7 +4823,8 @@ Spells.prototype = {
 						toRegExp(reg, false);
 					} catch(e) {
 						var line = str.substr(0, str.indexOf(exp)).match(/\n/g).length + 1;
-						$alert(Lng.error[lang] + ' ' + Lng.seErrRegex[lang].replace('%s', reg) + Lng.seRow[lang] + line + ')', 'help-err-spell', false);
+						$alert(Lng.error[lang] + ': ' + Lng.seErrRegex[lang].replace('%s', reg) +
+							Lng.seRow[lang] + line + ')', 'help-err-spell', false);
 						regexError = true;
 					}
 				}
@@ -4856,7 +4857,7 @@ Spells.prototype = {
 		codeGen = new SpellsCodegen(str);
 		spells = codeGen.generate();
 		if(codeGen.hasError) {
-			$alert(Lng.error[lang] + ' ' + codeGen.error, 'help-err-spell', false);
+			$alert(Lng.error[lang] + ': ' + codeGen.error, 'help-err-spell', false);
 		} else if(spells || reps || outreps) {
 			if(spells && Cfg['sortSpells']) {
 				this.sort(spells);
@@ -10074,7 +10075,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function updateTitle() {
 		doc.title = (aPlayers === 0 ? '' : '♫ ') +
-			(sendError === true ? '{‼} ' : '') +
+			(sendError === true ? '{' + Lng.error[lang] + '} ' : '') +
 			(lastECode === 200 ? '' : '{' + lastECode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
