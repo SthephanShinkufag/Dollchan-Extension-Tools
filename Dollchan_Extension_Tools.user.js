@@ -7767,7 +7767,7 @@ Post.prototype = {
 			data = this.images[el.imgIdx];
 		}
 		if(data && data.isImage) {
-			if(!inPost && (iEl = $c('de-img-center', el.parentNode))) {
+			if(!inPost && (iEl = $c('de-img-center', doc))) {
 				$del(iEl);
 				if(!this._isPview) {
 					$id('de-img-btns').showhider.end();
@@ -7936,7 +7936,7 @@ Post.prototype = {
 		$del(full);
 		if(inPost) {
 			thumb.style.display = '';
-			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
+			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).parentNode.nextSibling);
 		}
 	},
 	_strikePostNum: function(isHide) {
