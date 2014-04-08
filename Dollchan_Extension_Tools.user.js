@@ -7480,7 +7480,7 @@ Post.prototype = {
 				if(expand) {
 					this._addFullImage(dat.el, dat, true);
 				} else {
-					this._removeFullImage(null, dat.el.nextSibling, dat.el, dat);
+					this._removeFullImage(null, dat.el.parentNode.nextSibling, dat.el, dat);
 				}
 			}
 		}
@@ -7791,7 +7791,7 @@ Post.prototype = {
 			data = this.images[el.imgIdx];
 		}
 		if(data && data.isImage) {
-			if(!inPost && (iEl = $c('de-img-center', doc))) {
+			if(!inPost && (iEl = $c('de-img-center', el.parentNode.parentNode))) {
 				$del(iEl);
 				if(!this._isPview) {
 					$id('de-img-btns').showhider.end();
