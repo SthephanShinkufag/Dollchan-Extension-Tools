@@ -7757,7 +7757,7 @@ Post.prototype = {
 				$id('de-img-btns').showhider.end();
 			}
 		case 'de-img-full':
-			iEl = el.previousSibling.firstChild;
+			iEl = el.previousSibling.firstElementChild;
 			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
 			break;
 		case 'de-img-pre':
@@ -7917,7 +7917,7 @@ Post.prototype = {
 	},
 	_navigateImages: function(isNext) {
 		var el = $c('de-img-full', doc),
-			iEl = el.previousSibling.firstChild,
+			iEl = el.previousSibling.firstElementChild,
 			data = this.images[iEl.imgIdx];
 		this._removeFullImage(null, el, iEl, data);
 		data = data.getAdjacentImage(!isNext);
@@ -7953,7 +7953,7 @@ Post.prototype = {
 		$del(full);
 		if(inPost) {
 			thumb.style.display = '';
-			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).parentNode.nextSibling);
+			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
 		}
 	},
 	_strikePostNum: function(isHide) {
