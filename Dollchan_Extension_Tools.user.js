@@ -6829,8 +6829,8 @@ ImageMover.prototype = {
 				curY = e.clientY,
 				oldL = parseInt(this.elStyle.left, 10),
 				oldT = parseInt(this.elStyle.top, 10),
-				oldW = parseFloat(this.elStyle.width || this.el.width),
-				oldH = parseFloat(this.elStyle.height || this.el.height),
+				oldW = parseFloat(this.elStyle.width),
+				oldH = parseFloat(this.elStyle.height),
 				d = nav.Firefox ? -e.detail : e.wheelDelta,
 				newW = oldW * (d > 0 ? 1.25 : 0.8),
 				newH = oldH * (d > 0 ? 1.25 : 0.8);
@@ -7608,14 +7608,13 @@ Post.prototype = {
 		if(/\.webm/.test(data.info)) {
 			img = $add('<video class="de-img-full" src="' + data.fullSrc +
 				'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
-				'width="' + newW + '" height="' + newH +
-				'" style="width: ' + newW + 'px; height: ' + newH + 'px;"></video>');
+				'style="width: ' + newW + 'px; height: ' + newH + 'px;"></video>');
 			img.oncanplay = function() {
 				this.volume = Cfg['webmVolume'] / 100;
 			};
 		} else {
 			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
-				'" width="' + newW + '" height="' + newH + '">');
+				'" style="width: ' + newW + 'px; height: ' + newH + 'px;">');
 			img.onload = img.onerror = function(e) {
 				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
 					this.src = this.src;
@@ -7626,8 +7625,8 @@ Post.prototype = {
 		$after(el.parentNode, img);
 		if(!inPost) {
 			img.classList.add('de-img-center');
-			img.style.cssText += 'left: ' + ((scrW - newW) / 2 - 1) +
-				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
+			img.style.left = ((scrW - newW) / 2 - 1) + 'px';
+			img.style.top = ((scrH - newH) / 2 - 1) + 'px';
 			img.mover = new ImageMover(img);
 			btns = $id('de-img-btns');
 			if(this._isPview) {
