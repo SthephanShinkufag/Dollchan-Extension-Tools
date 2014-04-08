@@ -7021,7 +7021,6 @@ Post.prototype = {
 			}
 			switch(el.tagName) {
 			case 'IMG':
-			case 'VIDEO':
 				if(el.classList.contains('de-video-thumb')) {
 					if(Cfg['addYouTube'] === 3) {
 						this.ytLink.classList.add('de-current');
@@ -7029,6 +7028,11 @@ Post.prototype = {
 						$pd(e);
 					}
 				} else if(Cfg['expandImgs'] !== 0) {
+					this._clickImage(el, e);
+				}
+				return;
+			case 'VIDEO':
+				if(Cfg['expandImgs'] !== 0 && e.clientY < (parseInt(el.style.top, 10) + el.height - 30)) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -7586,7 +7590,7 @@ Post.prototype = {
 			}
 		}
 		if(/\.webm/.test(data.info)) {
-			img = $add('<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay ' +
+			img = $add('<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay controls ' +
 				'width="' + newW + '" height="' + newH + '"></video>');
 			img.oncanplay = function() {
 				this.volume = 0;
@@ -7601,7 +7605,7 @@ Post.prototype = {
 				}
 			};
 		}
-		$after(el, img);
+		$after(el.parentNode, img);
 		if(!inPost) {
 			img.classList.add('de-img-center');
 			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
@@ -7736,7 +7740,7 @@ Post.prototype = {
 				$id('de-img-btns').showhider.end();
 			}
 		case 'de-img-full':
-			iEl = el.previousSibling;
+			iEl = el.previousSibling.firstChild;
 			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
 			break;
 		case 'de-img-pre':
@@ -7774,7 +7778,6 @@ Post.prototype = {
 		}
 		$pd(e);
 		e.stopPropagation();
-		return;
 	},
 	_clickMenu: function(el) {
 		$del(this._menu);
@@ -7897,7 +7900,7 @@ Post.prototype = {
 	},
 	_navigateImages: function(isNext) {
 		var el = $c('de-img-full', doc),
-			iEl = el.previousSibling,
+			iEl = el.previousSibling.firstChild,
 			data = this.images[iEl.imgIdx];
 		this._removeFullImage(null, el, iEl, data);
 		data = data.getAdjacentImage(!isNext);
