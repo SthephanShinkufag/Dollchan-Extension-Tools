@@ -5562,7 +5562,7 @@ function scriptCSS() {
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
-		td > a + .de-video-obj { display: inline-block; }\
+		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
 
 	// Other
