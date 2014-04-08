@@ -2983,7 +2983,7 @@ html5Submit.prototype = {
 				!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
 			) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
 			idx = this.data.length - 2;
-			if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
+			if(!/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type)) {
 				this.data[idx] = file;
 				return;
 			}
@@ -3075,6 +3075,7 @@ html5Submit.prototype = {
 		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
 			return [img];
 		}
+		// JPG
 		if(img[0] === 0xFF && img[1] === 0xD8) {
 			for(i = 2, deep = 1, len = img.length - 1, rv = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
 				if(img[i] === 0xFF) {
@@ -3117,11 +3118,18 @@ html5Submit.prototype = {
 			rv.push(img.subarray(lIdx, i));
 			return rv;
 		}
+		// PNG
 		if(img[0] === 0x89 && img[1] === 0x50) {
 			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
 				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
+		}
+		// WEBM
+		if(img[0] === 0x1a && img[1] === 0x45) {
+			for(i = 0, len = img.length; i < len && (img[i] !== 0xf7 || img[i + 1] !== 0x81 ||
+				img[i + 2] !== 0x01 || img[i + 3] !== 0xf1 || img[i + 3] !== 0x82); i++) {}
+			return i === len ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
 	}
