@@ -70,6 +70,7 @@ defaultCfg = {
 	'postSameImg':	1,		// 		ability to post same images
 	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
 	'removeFName':	0,		// 		remove file name
+	'sendErrNotif': 1,		//		inform about post send error if page is blurred
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
 	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
@@ -182,6 +183,7 @@ Lng = {
 		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
+		'sendErrNotif':	['Оповещать об ошибке отправки поста в заголовке', 'Inform in title about post send error'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
@@ -1585,7 +1587,7 @@ function fixSettings() {
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
 	]);
 	toggleBox(Cfg['ajaxReply'] === 2, [
-		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
+		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]'
 	]);
 	toggleBox(Cfg['addTextBtns'], ['input[info="txtBtnsLoc"]']);
 	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
@@ -1857,7 +1859,8 @@ function getCfgForm() {
 		$if(pr.form && !nav.noBlob, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('postSameImg', true, null),
 			lBox('removeEXIF', true, null),
-			lBox('removeFName', true, null)
+			lBox('removeFName', true, null),
+			lBox('sendErrNotif', true, null)
 		])),
 		$if(pr.form, optSel('addPostForm', true, null)),
 		$if(pr.form, lBox('scrAfterRep', true, null)),
@@ -2871,6 +2874,7 @@ function checkUpload(response) {
 			pr.refreshCapImg(true);
 		}
 		$alert(err, 'upload', false);
+		updater.sendErrNotif();
 		return;
 	}
 	pr.txta.value = '';
@@ -2924,6 +2928,7 @@ function endDelete() {
 function checkDelete(response) {
 	if(response[1]) {
 		$alert(Lng.errDelete[lang] + response[1], 'deleting', false);
+		updater.sendErrNotif();
 		return;
 	}
 	var el, i, els, len, post, tNums = [],
@@ -9844,9 +9849,21 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
+		sendError = false,
 		newPosts = 0,
 		aPlayers = 0,
-		focused = true;
+		focused = false;
+	window.addEventListener('focus', onVis, false);
+	window.addEventListener('blur', function() {
+		focused = false;
+		if(enabled) {
+			firstThr.clearPostsMarks();
+		}
+	}, false);
+	window.addEventListener('mousemove', function mouseMove() {
+		window.removeEventListener('mousemove', mouseMove, false);
+		onVis();
+	}, false);
 
 	if(enableUpdate) {
 		init();
@@ -9866,16 +9883,6 @@ function initThreadUpdater(title, enableUpdate) {
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
-		focused = false;
-		window.addEventListener('focus', onVis, false);
-		window.addEventListener('blur', function() {
-			focused = false;
-			firstThr.clearPostsMarks();
-		}, false);
-		window.addEventListener('mousemove', function mouseMove() {
-			window.removeEventListener('mousemove', mouseMove, false);
-			onVis();
-		}, false);
 		enable(true);
 	}
 
@@ -10046,14 +10053,17 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function onVis() {
-		if(Cfg['favIcoBlink'] && favHref) {
-			clearInterval(favIntrv);
-			favNorm = true;
-			$del($q('link[rel="shortcut icon"]', doc.head));
-			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
+		if(enabled) {
+			if(Cfg['favIcoBlink'] && favHref) {
+				clearInterval(favIntrv);
+				favNorm = true;
+				$del($q('link[rel="shortcut icon"]', doc.head));
+				doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
+			}
+			newPosts = 0;
 		}
 		focused = true;
-		newPosts = 0;
+		sendError = false;
 		setTimeout(function() {
 			updateTitle();
 			if(enabled) {
@@ -10064,6 +10074,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function updateTitle() {
 		doc.title = (aPlayers === 0 ? '' : '♫ ') +
+			(sendError === true ? '{‼} ' : '') +
 			(lastECode === 200 ? '' : '{' + lastECode + '} ') +
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
@@ -10078,6 +10089,13 @@ function initThreadUpdater(title, enableUpdate) {
 	function removePlayingTag() {
 		aPlayers = Math.max(aPlayers - 1, 0);
 		if(aPlayers === 0) {
+			updateTitle();
+		}
+	}
+
+	function sendErrNotif() {
+		if(Cfg['sendErrNotif'] && !focused) {
+			sendError = true;
 			updateTitle();
 		}
 	}
@@ -10105,7 +10123,8 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		toggleAudio: toggleAudio,
 		addPlayingTag: addPlayingTag,
-		removePlayingTag: removePlayingTag
+		removePlayingTag: removePlayingTag,
+		sendErrNotif: sendErrNotif
 	};
 }
 
