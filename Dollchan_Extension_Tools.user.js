@@ -1796,7 +1796,8 @@ function getCfgImages() {
 			lBox('resizeImgs', true, null),
 			lBox('webmControl', true, null),
 			inpTxt('webmVolume', 6, function() {
-				saveCfg('webmVolume', +this.value < 100 ? +this.value : 100);
+				var val = +this.value;
+				saveCfg('webmVolume', val < 100 ? val : 100);
 			}),
 			$txt(Lng.cfg['webmVolume'][lang])
 		]),
@@ -7046,7 +7047,7 @@ Post.prototype = {
 				return;
 			case 'VIDEO':
 				if(Cfg['expandImgs'] !== 0 &&
-					!(Cfg['webmControl'] && e.clientY > (parseInt(el.style.top, 10) + el.height - 30)))
+					!(Cfg['webmControl'] && e.clientY > (parseInt(el.style.top || 0, 10) + el.height - 30)))
 				{
 					this._clickImage(el, e);
 				}
