@@ -41,6 +41,8 @@ defaultCfg = {
 	'timeRPattern':	'',		//		replace pattern
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		// 		resize large images
+	'webmControl':	1,		//		control bar fow webm files
+	'webmVolume':	0,		//		default volume for webm files
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
@@ -139,7 +141,9 @@ Lng = {
 			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
 			txt:		['раскрывать изображения по клику', 'expand images on click']
 		},
-		'resizeImgs':   ['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
+		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
+		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
+		'webmVolume':	[' Громкость по умолчанию для webm-файлов', ' Default volume for webm files'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
@@ -1562,7 +1566,9 @@ function fixSettings() {
 		'input[info="markNewPosts"]',
 		'input[info="desktNotif"]'
 	]);
-	toggleBox(Cfg['expandImgs'], ['input[info="resizeImgs"]']);
+	toggleBox(Cfg['expandImgs'], [
+		'input[info="resizeImgs"]', 'input[info="webmControl"]', 'input[info="webmVolume"]'
+	]);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
@@ -1786,7 +1792,14 @@ function getCfgPosts() {
 function getCfgImages() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
 		optSel('expandImgs', true, null),
-		$New('div', {'style': 'padding-left: 25px;'}, [ lBox('resizeImgs', false, null)]),
+		$New('div', {'style': 'padding-left: 25px;'}, [
+			lBox('resizeImgs', true, null),
+			lBox('webmControl', true, null),
+			inpTxt('webmVolume', 6, function() {
+				saveCfg('webmVolume', +this.value < 100 ? +this.value : 100);
+			}),
+			$txt(Lng.cfg['webmVolume'][lang])
+		]),
 		$if(!nav.noBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
 		$if(!nav.noBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
@@ -7032,7 +7045,9 @@ Post.prototype = {
 				}
 				return;
 			case 'VIDEO':
-				if(Cfg['expandImgs'] !== 0 && e.clientY < (parseInt(el.style.top, 10) + el.height - 30)) {
+				if(Cfg['expandImgs'] !== 0 &&
+					!(Cfg['webmControl'] && e.clientY > (parseInt(el.style.top, 10) + el.height - 30)))
+				{
 					this._clickImage(el, e);
 				}
 				return;
@@ -7590,10 +7605,11 @@ Post.prototype = {
 			}
 		}
 		if(/\.webm/.test(data.info)) {
-			img = $add('<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay controls ' +
+			img = $add('<video class="de-img-full" src="' + data.fullSrc +
+				'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
 				'width="' + newW + '" height="' + newH + '"></video>');
 			img.oncanplay = function() {
-				this.volume = 0;
+				this.volume = Cfg['webmVolume'];
 			};
 		} else {
 			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
