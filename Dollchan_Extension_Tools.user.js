@@ -143,7 +143,7 @@ Lng = {
 		},
 		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmVolume':	[' Громкость по умолчанию для webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
+		'webmVolume':	[' Громкость webm-файлов по умолчанию [0-100]', ' Default volume for webm files [0-100]'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
@@ -7046,8 +7046,8 @@ Post.prototype = {
 				}
 				return;
 			case 'VIDEO':
-				if(Cfg['expandImgs'] !== 0 &&
-					!(Cfg['webmControl'] && e.clientY > (parseInt(el.style.top || 0, 10) + el.height - 30)))
+				if(Cfg['expandImgs'] !== 0 && !(Cfg['webmControl'] && e.clientY >
+					(el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
 				{
 					this._clickImage(el, e);
 				}
@@ -7608,7 +7608,8 @@ Post.prototype = {
 		if(/\.webm/.test(data.info)) {
 			img = $add('<video class="de-img-full" src="' + data.fullSrc +
 				'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
-				'width="' + newW + '" height="' + newH + '"></video>');
+				'width="' + newW + '" height="' + newH +
+				'" style="width: ' + newW + 'px; height: ' + newH + 'px;"></video>');
 			img.oncanplay = function() {
 				this.volume = Cfg['webmVolume'] / 100;
 			};
@@ -7625,7 +7626,7 @@ Post.prototype = {
 		$after(el.parentNode, img);
 		if(!inPost) {
 			img.classList.add('de-img-center');
-			img.style.cssText = 'left: ' + ((scrW - newW) / 2 - 1) +
+			img.style.cssText += 'left: ' + ((scrW - newW) / 2 - 1) +
 				'px; top: ' + ((scrH - newH) / 2 - 1) + 'px;';
 			img.mover = new ImageMover(img);
 			btns = $id('de-img-btns');
