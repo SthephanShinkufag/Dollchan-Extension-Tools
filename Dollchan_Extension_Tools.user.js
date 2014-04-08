@@ -7585,17 +7585,22 @@ Post.prototype = {
 				newW = newH * data.width / data.height;
 			}
 		}
-		img = $add(/\.webm/.test(data.info) ?
-			'<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay ' +
-				'width="' + newW + '" height="' + newH + '"></video>' :
-			'<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
+		if(/\.webm/.test(data.info)) {
+			img = $add('<video class="de-img-full" src="' + data.fullSrc + '" loop autoplay ' +
+				'width="' + newW + '" height="' + newH + '"></video>');
+			img.oncanplay = function() {
+				this.volume = 0;
+			};
+		} else {
+			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 				'" width="' + newW + '" height="' + newH + '">');
-		img.onload = img.onerror = function(e) {
-			if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
-				this.src = this.src;
-				this.onceLoaded = true;
-			}
-		};
+			img.onload = img.onerror = function(e) {
+				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
+					this.src = this.src;
+					this.onceLoaded = true;
+				}
+			};
+		}
 		$after(el, img);
 		if(!inPost) {
 			img.classList.add('de-img-center');
