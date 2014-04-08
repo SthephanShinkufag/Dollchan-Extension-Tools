@@ -3127,8 +3127,9 @@ html5Submit.prototype = {
 		}
 		// WEBM
 		if(img[0] === 0x1a && img[1] === 0x45) {
-			for(i = 0, len = img.length; i < len && (img[i] !== 0xf7 || img[i + 1] !== 0x81 ||
-				img[i + 2] !== 0x01 || img[i + 3] !== 0xf1 || img[i + 4] !== 0x82); i++) {}
+			for(i = img.length - 5; i >= 0 && (img[i] !== 0xf7 || img[i + 1] !== 0x81 ||
+				img[i + 2] !== 0x01 || img[i + 3] !== 0xf1 || img[i + 4] !== 0x82); --i) {}
+			i += 5;
 			return i === len ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
