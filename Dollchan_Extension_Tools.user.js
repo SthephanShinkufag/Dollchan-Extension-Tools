@@ -183,7 +183,7 @@ Lng = {
 		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
 		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
 		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
-		'sendErrNotif':	['Оповещать об ошибке отправки поста в заголовке', 'Inform in title about post send error'],
+		'sendErrNotif':	['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
@@ -1586,8 +1586,9 @@ function fixSettings() {
 	toggleBox(Cfg['addYouTube'], [
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
 	]);
+	toggleBox(Cfg['ajaxReply'], ['input[info="sendErrNotif"]']);
 	toggleBox(Cfg['ajaxReply'] === 2, [
-		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]', 'input[info="sendErrNotif"]'
+		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
 	]);
 	toggleBox(Cfg['addTextBtns'], ['input[info="txtBtnsLoc"]']);
 	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
