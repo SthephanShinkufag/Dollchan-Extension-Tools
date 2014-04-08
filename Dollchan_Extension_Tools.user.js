@@ -9966,7 +9966,7 @@ function initThreadUpdater(title, enableUpdate) {
 		}
 		currentXHR = null;
 		infoLoadErrors(eCode, eMsg, -1);
-		if(eCode !== 200) {
+		if(eCode !== 200 && eCode !== 304) {
 			lastECode = eCode;
 			if(!Cfg['noErrInTitle']) {
 				updateTitle();
