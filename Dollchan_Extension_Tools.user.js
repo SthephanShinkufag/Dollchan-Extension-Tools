@@ -2983,7 +2983,7 @@ html5Submit.prototype = {
 				!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
 			) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
 			idx = this.data.length - 2;
-			if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
+			if(!/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type)) {
 				this.data[idx] = file;
 				return;
 			}
@@ -3124,6 +3124,24 @@ html5Submit.prototype = {
 				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
+		}
+		// WEBM
+		if(img[0] === 0x1a && img[1] === 0x45) {
+			for(len = img.length, i = len - 7; i >= 0 && (img[i] !== 0xf7 || img[i + 1] !== 0x81 ||
+				img[i + 2] !== 0x01 || img[i + 3] !== 0xf1); --i) {}
+			if(img[i + 4] === 0x83) {
+				i += 8;
+			} else if(img[i + 4] === 0x82) {
+				i += 7;
+			}
+			if(img[i] === 0xf0) {
+				if(img[i + 1] === 0x81) {
+					i += 3;
+				} else if(img[i + 1] === 0x82) {
+					i += 4;
+				}
+			}
+			return i === 0 ? null : i === len ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
 	}
