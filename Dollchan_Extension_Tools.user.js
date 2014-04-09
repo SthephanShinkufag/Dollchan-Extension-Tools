@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.4.8.1
+// @version			14.4.9.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -14,7 +14,7 @@
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.4.8.1',
+var version = '14.4.9.0',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -2983,7 +2983,7 @@ html5Submit.prototype = {
 				!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
 			) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
 			idx = this.data.length - 2;
-			if(!/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type)) {
+			if(!/^image\/(?:png|jpeg)$/.test(file.type)) {
 				this.data[idx] = file;
 				return;
 			}
@@ -3124,13 +3124,6 @@ html5Submit.prototype = {
 				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
-		}
-		// WEBM
-		if(img[0] === 0x1a && img[1] === 0x45) {
-			for(len = img.length, i = len - 5; i >= 0 && (img[i] !== 0xf7 || img[i + 1] !== 0x81 ||
-				img[i + 2] !== 0x01 || img[i + 3] !== 0xf1 || img[i + 4] !== 0x82); --i) {}
-			i += 5;
-			return i === 0 ? null : i === len ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
 	}
