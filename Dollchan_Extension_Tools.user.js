@@ -9543,6 +9543,11 @@ function getNavFuncs() {
 		  return new Array(nTimes + 1).join(this.valueOf());
 		};
 	}
+	if(!('clz32' in Math)) {
+		Math.clz32 = function(x) {
+			return x < 1 ? x === 0 ? 32 : 0 : 31 - ((Math.log(x) / Math.LN2) >> 0);
+		};
+	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
