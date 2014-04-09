@@ -7628,6 +7628,15 @@ Post.prototype = {
 			img.oncanplay = function() {
 				this.volume = Cfg['webmVolume'] / 100;
 			};
+			img.onerror = function() {
+				if(!this.onceLoaded) {
+					this.load();
+					this.onceLoaded = true;
+				}
+			};
+			img.onvolumechange = function() {
+				saveCfg('webmVolume', Math.round(this.volume * 100));
+			};
 		} else {
 			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 				'" style="width: ' + newW + 'px; height: ' + newH + 'px;">');
