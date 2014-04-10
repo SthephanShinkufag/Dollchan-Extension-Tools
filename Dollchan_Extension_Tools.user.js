@@ -3249,7 +3249,7 @@ WebmParser = function(data) {
 	}
 	Parser.prototype = {
 		addData: function(data) {
-			var head, size;
+			var size;
 			if(this.error) {
 				return;
 			}
@@ -3258,18 +3258,11 @@ WebmParser = function(data) {
 			} else {
 				size = data.byteLength;
 			}
-			if(size > (-1 >>> 0)) {
+			if(size > 127) {
 				this.error = true;
 				return;
 			}
-			head = new Uint8Array(9);
-			head[0] = voidId;
-			head[1] = 0x01;
-			head[5] = (size >>> 24) & 0xFF;
-			head[6] = (size >>> 16) & 0xFF;
-			head[7] = (size >>> 8) & 0xFF;
-			head[8] = size & 0xFF;
-			this.rv.push(head);
+			this.rv.push(new Uint8Array([voidId, 0x8 | (size >>> 4), size & 0xF]););
 			this.rv.push(data);
 		},
 		getData: function() {
