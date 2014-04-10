@@ -3203,7 +3203,7 @@ WebmParser = function(data) {
 				break;
 			}
 			this.EBML = el;
-			offset = el.headSize + el.size;
+			offset += el.headSize + el.size;
 			while(true) {
 				el = new WebmElement(dv, len, offset);
 				if(el.error) {
@@ -3222,7 +3222,7 @@ WebmParser = function(data) {
 				} else {
 					break error;
 				}
-				offset = el.headSize + el.size;
+				offset += el.headSize + el.size;
 			}
 			this.segment = segment;
 			this.voids = voids;
