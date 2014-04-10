@@ -3139,9 +3139,6 @@ html5Submit.prototype = {
 		if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
 			tmp = new WebmParser(data);
 			if(!tmp.error) {
-				if(extraData) {
-					tmp.addData(extraData);
-				}
 				if(rand) {
 					tmp.addData(rand);
 				}
@@ -3214,7 +3211,6 @@ WebmParser = function(data) {
 			len = data.byteLength,
 			el = new WebmElement(dv, len, 0),
 			offset = 0,
-			segment = null,
 			voids = [];
 		error: do {
 			if(el.error || el.id !== EBMLId) {
@@ -3228,10 +3224,8 @@ WebmParser = function(data) {
 					break error;
 				}
 				if(el.id === segmentId) {
-					if(segment !== null) { // We don't support more than one segment
-						break error;
-					}
-					segment = el;
+					this.segment = el;
+					break; // Ignore everything after first segment
 				} else if(el.id === voidId) {
 					voids.push(el);
 				} else if(el.id === 0) {
@@ -3241,7 +3235,6 @@ WebmParser = function(data) {
 				}
 				offset += el.headSize + el.size;
 			}
-			this.segment = segment;
 			this.voids = voids;
 			this.data = data;
 			this.length = len;
@@ -6015,7 +6008,7 @@ PostForm.processInput = function() {
 	}
 	$del($c('de-file-rar', this.parentNode));
 	PostForm.eventFiles(getAncestor(this, 'TR'));
-	if(nav.noBlob || !/^image\/(?:png|jpeg)$|^video\/webm$/.test(this.files[0].type)) {
+	if(nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 		return;
 	}
 	$after(this, $new('button', {
