@@ -3262,7 +3262,7 @@ WebmParser = function(data) {
 				this.error = true;
 				return;
 			}
-			this.rv.push(new Uint8Array([voidId, 0x80 | size]););
+			this.rv.push(new Uint8Array([voidId, 0x80 | size]));
 			this.rv.push(data);
 		},
 		getData: function() {
