@@ -3214,7 +3214,6 @@ WebmParser = function(data) {
 						break error;
 					}
 					segment = el;
-					break;
 				} else if(el.id === voidId) {
 					voids.push(el);
 				} else if(el.id === 0) {
