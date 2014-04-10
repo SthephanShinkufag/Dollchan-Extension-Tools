@@ -467,7 +467,8 @@ Lng = {
 
 doc = window.document, aProto = Array.prototype,
 Cfg, comCfg, hThr, Favor, pByNum, sVis, bUVis, uVis, needScroll,
-aib, nav, brd, TNum, pageNum, updater, YouTube, keyNav, firstThr, lastThr, visPosts = 2,
+aib, nav, brd, TNum, pageNum, updater, keyNav, firstThr, lastThr, visPosts = 2,
+YouTube, WebmParser,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
 oldTime, timeLog = [], dTime,
@@ -3126,26 +3127,114 @@ html5Submit.prototype = {
 			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		// WEBM
-		if(img[0] === 0x1a && img[1] === 0x45) {
-			for(len = img.length, i = len - 7; i >= 0 && (img[i] !== 0xf7 || img[i + 1] !== 0x81 ||
-				img[i + 2] !== 0x01 || img[i + 3] !== 0xf1); --i) {}
-			if(img[i + 4] === 0x83) {
-				i += 8;
-			} else if(img[i + 4] === 0x82) {
-				i += 7;
+		if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
+			tmp = new WebmParser(data);
+			if(!tmp.error) {
+				len = tmp.segment.endOffset;
+				return len === img.length ? [img] : [new Uint8Array(data, 0, len)];
 			}
-			if(img[i] === 0xf0) {
-				if(img[i + 1] === 0x81) {
-					i += 3;
-				} else if(img[i + 1] === 0x82) {
-					i += 4;
-				}
-			}
-			return i === 0 ? null : i === len ? [img] : [new Uint8Array(data, 0, i)];
 		}
 		return null;
 	}
 };
+
+WebmParser = function(data) {
+	var EBMLId = 0x1A45DFA3,
+		segmentId = 0x18538067,
+		voidId = 0xEC;
+	function WebmElement(data, dataLength, offset) {
+		var num, clz, id, size, headSize = 0;
+		if(offset + 4 >= dataLength) {
+			return;
+		}
+		num = data.getUint32(offset);
+		clz = Math.clz32(num);
+		if(clz > 3) {
+			this.error = true;
+			return;
+		}
+		id = num >>> (8 * (3 - clz));
+		headSize += clz + 1;
+		offset += clz + 1;
+		if(offset + 4 >= dataLength) {
+			this.error = true;
+			return;
+		}
+		num = data.getUint32(offset);
+		clz = Math.clz32(num);
+		if(clz > 3) {
+			if((num & (0xFFFFFFFF >>> (clz + 1))) !== 0) {
+				this.error = true;
+				return; // We cannot handle webm-files with size greater than 4Gb :(
+			}
+			if(offset + 8 >= dataLength) {
+				this.error = true;
+				return;
+			}
+			headSize += 4;
+			offset += 4;
+			num = data.getUint32(offset);
+			clz -= 4;
+		}
+		size = num >>> (8 * (3 - clz));
+		headSize += clz + 1;
+		offset += clz + 1;
+		if(offset + size > dataLength) {
+			this.error = true;
+			return;
+		}
+		this.data = data;
+		this.offset = offset;
+		this.endOffset = offset + size;
+		this.id = id;
+		this.headSize = headSize;
+		this.size = size;
+	}
+
+	function Parser(data) {
+		var dv = new DataView(data),
+			len = data.byteLength,
+			el = new WebmElement(dv, len, 0),
+			offset = 0,
+			segment = null,
+			voids = [];
+		error: do {
+			if(el.error || el.id !== EBMLId) {
+				break;
+			}
+			this.EBML = el;
+			offset = el.headSize + el.size;
+			while(true) {
+				el = new WebmElement(dv, len, offset);
+				if(el.error) {
+					break error;
+				}
+				if(el.id === segmentId) {
+					if(segment !== null) { // We don't support more than one segment
+						break error;
+					}
+					segment = el;
+					break;
+				} else if(el.id === voidId) {
+					voids.push(el);
+				} else if(el.id === 0) {
+					break;
+				} else {
+					break error;
+				}
+				offset = el.headSize + el.size;
+			}
+			this.segment = segment;
+			this.voids = voids;
+			this.error = false;
+			return;
+		} while(false);
+		this.error = true;
+	}
+
+	WebmParser = Parser;
+	return new Parser(data);
+}
 
 //============================================================================================================
 //											CONTENT FEATURES
