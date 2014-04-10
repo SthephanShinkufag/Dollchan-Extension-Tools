@@ -6961,6 +6961,8 @@ ImageMover.prototype = {
 	_oldY: 0,
 	moved: false,
 	handleEvent: function(e) {
+		if(Cfg['webmControl'] && e.target.tagName === 'VIDEO' && e.clientY >
+			(e.target.getBoundingClientRect().top + parseInt(e.target.style.height, 10) - 30)) { return; }
 		switch(e.type) {
 		case 'mousedown':
 			this._oldX = e.clientX;
