@@ -3262,19 +3262,16 @@ WebmParser = function(data) {
 			} else {
 				size = data.byteLength;
 			}
-			if(size > 34359738366) {
+			if(size > (-1 >>> 0)) {
 				this.error = true;
 				return;
 			}
 			head = new Uint8Array(9);
 			head[0] = voidId;
 			head[1] = 0x01;
-			head[2] = (size >>> 24) & 0xFF;
-			head[3] = (size >>> 20) & 0xFF;
-			head[4] = (size >>> 16) & 0xFF;
-			head[5] = (size >>> 12) & 0xFF;
-			head[6] = (size >>> 8) & 0xFF;
-			head[7] = (size >>> 4) & 0xFF;
+			head[5] = (size >>> 24) & 0xFF;
+			head[6] = (size >>> 16) & 0xFF;
+			head[7] = (size >>> 8) & 0xFF;
 			head[8] = size & 0xFF;
 			this.rv.push(head);
 			this.rv.push(data);
@@ -6018,7 +6015,7 @@ PostForm.processInput = function() {
 	}
 	$del($c('de-file-rar', this.parentNode));
 	PostForm.eventFiles(getAncestor(this, 'TR'));
-	if(nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+	if(nav.noBlob || !/^image\/(?:png|jpeg)$|^video\/webm$/.test(this.files[0].type)) {
 		return;
 	}
 	$after(this, $new('button', {
