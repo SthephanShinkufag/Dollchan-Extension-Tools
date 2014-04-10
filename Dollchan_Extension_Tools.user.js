@@ -2990,14 +2990,9 @@ html5Submit.prototype = {
 			}
 			fr = new FileReader();
 			fr.onload = function(name, e) {
-				var dat = this.clearImage(e.target.result, !!el.imgFile);
+				var dat = this.clearImage(e.target.result, el.imgFile,
+					Cfg['postSameImg'] && String(Math.round(Math.random() * 1e6)));
 				if(dat) {
-					if(el.imgFile) {
-						dat.push(el.imgFile);
-					}
-					if(Cfg['postSameImg']) {
-						dat.push(String(Math.round(Math.random() * 1e6)));
-					}
 					this.data[idx] = new Blob(dat);
 					this.busy--;
 					this.submit();
@@ -3070,15 +3065,17 @@ html5Submit.prototype = {
 		yRes = yRes || xRes;
 		return new Uint8Array([resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
-	clearImage: function(data, delExtraData) {
-		var tmp, i, len, deep, rv, lIdx, jpgDat, img = new Uint8Array(data),
-			rExif = !!Cfg['removeEXIF'];
-		if(!Cfg['postSameImg'] && !rExif && !delExtraData) {
-			return [img];
+	clearImage: function(data, extraData, rand) {
+		var tmp, i, len, deep, val, lIdx, jpgDat, img = new Uint8Array(data),
+			rExif = !!Cfg['removeEXIF'],
+			rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
+				[img, rand] : [img];
+		if(!Cfg['postSameImg'] && !rExif && !extraData) {
+			return rv;
 		}
 		// JPG
 		if(img[0] === 0xFF && img[1] === 0xD8) {
-			for(i = 2, deep = 1, len = img.length - 1, rv = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+			for(i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
 				if(img[i] === 0xFF) {
 					if(rExif) {
 						if(!jpgDat && deep === 1) {
@@ -3090,7 +3087,7 @@ html5Submit.prototype = {
 						}
 						if((img[i + 1] >> 4) === 0xE || img[i + 1] === 0xFE) {
 							if(lIdx !== i) {
-								rv.push(img.subarray(lIdx, i));
+								val.push(img.subarray(lIdx, i));
 							}
 							i += 2 + (img[i + 2] << 8) + img[i + 3];
 							lIdx = i;
@@ -3108,30 +3105,47 @@ html5Submit.prototype = {
 				i++;
 			}
 			i += 2;
-			if(!delExtraData && len - i > 75) {
+			if(!extraData && len - i > 75) {
 				i = len;
 			}
 			if(lIdx === 2) {
-				return i === len ? [img] : [new Uint8Array(data, 0, i)];
+				if(i !== len) {
+					rv[0] = new Uint8Array(data, 0, i);
+				}
+				return rv;
 			}
-			rv[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0D, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
-			rv[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
-			rv.push(img.subarray(lIdx, i));
-			return rv;
+			val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0D, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
+			val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
+			val.push(img.subarray(lIdx, i));
+			if(extraData) {
+				val.push(extraData);
+			}
+			if(rand) {
+				val.push(rand);
+			}
+			return val;
 		}
 		// PNG
 		if(img[0] === 0x89 && img[1] === 0x50) {
 			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
 				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
-			return i === len || (!delExtraData && len - i > 75) ? [img] : [new Uint8Array(data, 0, i)];
+			if(i !== len && (extraData || len - i <= 75)) {
+				rv[0] = new Uint8Array(data, 0, i);
+			}
+			return rv;
 		}
 		// WEBM
 		if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
 			tmp = new WebmParser(data);
 			if(!tmp.error) {
-				len = tmp.segment.endOffset;
-				return len === img.length ? [img] : [new Uint8Array(data, 0, len)];
+				if(extraData) {
+					tmp.addData(extraData);
+				}
+				if(rand) {
+					tmp.addData(rand);
+				}
+				return tmp.getData();
 			}
 		}
 		return null;
@@ -3190,6 +3204,10 @@ WebmParser = function(data) {
 		this.headSize = headSize;
 		this.size = size;
 	}
+	WebmElement.prototype = {
+		error: false,
+		id: 0
+	};
 
 	function Parser(data) {
 		var dv = new DataView(data),
@@ -3225,11 +3243,51 @@ WebmParser = function(data) {
 			}
 			this.segment = segment;
 			this.voids = voids;
+			this.data = data;
+			this.length = len;
+			this.rv = [null];
 			this.error = false;
 			return;
 		} while(false);
 		this.error = true;
 	}
+	Parser.prototype = {
+		addData: function(data) {
+			var head, size;
+			if(this.error) {
+				return;
+			}
+			if(typeof data === 'string') {
+				size = data.length;
+			} else {
+				size = data.byteLength;
+			}
+			if(size > 34359738366) {
+				this.error = true;
+				return;
+			}
+			head = new Uint8Array(9);
+			head[0] = voidId;
+			head[1] = 0x01;
+			head[2] = (size >>> 24) & 0xFF;
+			head[3] = (size >>> 20) & 0xFF;
+			head[4] = (size >>> 16) & 0xFF;
+			head[5] = (size >>> 12) & 0xFF;
+			head[6] = (size >>> 8) & 0xFF;
+			head[7] = (size >>> 4) & 0xFF;
+			head[8] = size & 0xFF;
+			this.rv.push(head);
+			this.rv.push(data);
+		},
+		getData: function() {
+			if(this.error) {
+				return null;
+			}
+			var len = this.segment.endOffset;
+			this.rv[0] = len === this.length ? this.data : new Uint8Array(data, 0, len);
+			return this.rv;
+		}
+	};
 
 	WebmParser = Parser;
 	return new Parser(data);
