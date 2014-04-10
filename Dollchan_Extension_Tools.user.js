@@ -3264,7 +3264,7 @@ WebmParser = function(data) {
 				return null;
 			}
 			var len = this.segment.endOffset;
-			this.rv[0] = len === this.length ? this.data : new Uint8Array(data, 0, len);
+			this.rv[0] = len === this.length ? this.data : new Uint8Array(this.data, 0, len);
 			return this.rv;
 		}
 	};
