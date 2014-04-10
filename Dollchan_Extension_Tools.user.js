@@ -3249,21 +3249,15 @@ WebmParser = function(data) {
 	}
 	Parser.prototype = {
 		addData: function(data) {
-			var size;
 			if(this.error) {
 				return;
 			}
-			if(typeof data === 'string') {
-				size = data.length;
-			} else {
-				size = data.byteLength;
-			}
+			var size = typeof data === 'string' ? data.length : data.byteLength;
 			if(size > 127) {
 				this.error = true;
 				return;
 			}
-			this.rv.push(new Uint8Array([voidId, 0x80 | size]));
-			this.rv.push(data);
+			this.rv.push(new Uint8Array([voidId, 0x80 | size]), data);
 		},
 		getData: function() {
 			if(this.error) {
