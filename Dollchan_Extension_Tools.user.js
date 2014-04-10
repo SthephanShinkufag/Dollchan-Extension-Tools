@@ -3229,7 +3229,10 @@ WebmParser = function(data) {
 				} else if(el.id === voidId) {
 					voids.push(el);
 				} else if(el.id === 0) {
-					break;
+					if(this.segment) {
+						break;
+					}
+					break error;
 				} else {
 					break error;
 				}
