@@ -4068,7 +4068,7 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 			} else if(Fn) {
 				do {
 					var el, text = xhr.responseText;
-					if(/<\/html>[\s\n\r]*$/.test(text)) {
+					if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 						el = $DOM(text);
 						if(!loadForm || (el = $q(aib.qDForm, el))) {
 							Fn(el, origXHR);
@@ -9345,7 +9345,7 @@ function getImageBoard(checkDomains, checkOther) {
 			futa: { value: true },
 			
 			qDForm: { value: 'form:not([enctype])' },
-			qImgLink: { value: 'a[href$=".jpg"]:nth-of-type(1), a[href$=".png"]:nth-of-type(1), a[href$=".gif"]:nth-of-type(1)' },
+			qImgLink: { value: 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]' },
 			qOmitted: { value: 'font[color="#707070"]' },
 			qPostForm: { value: 'form:nth-of-type(1)' },
 			qRef: { value: '.del' },
