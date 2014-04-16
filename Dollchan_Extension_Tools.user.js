@@ -3239,7 +3239,7 @@ WebmParser = function(data) {
 	Parser.prototype = {
 		addData: function(data) {
 			if(this.error || !data) {
-				return;
+				return this;
 			}
 			var size = typeof data === 'string' ? data.length : data.byteLength;
 			if(size > 127) {
