@@ -6934,9 +6934,10 @@ ImgBtnsShowHider.prototype = {
 	}
 }
 
-function ImageMover(img) {
+function ImageMover(img, clickFn) {
 	this.el = img;
 	this.elStyle = img.style;
+	this.clickFn = clickFn;
 	img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, false);
 	img.addEventListener('mousedown', this, false);
 }
@@ -6945,7 +6946,7 @@ ImageMover.prototype = {
 	_oldY: 0,
 	moved: false,
 	handleEvent: function(e) {
-		if(Cfg['webmControl'] && e.target.tagName === 'VIDEO' && e.clientY >
+		if(Cfg['webmControl'] && (e.target.tagName === 'VIDEO' || this.clickFn) && e.clientY >
 			(e.target.getBoundingClientRect().top + parseInt(e.target.style.height, 10) - 30)) { return; }
 		switch(e.type) {
 		case 'mousedown':
@@ -6966,6 +6967,9 @@ ImageMover.prototype = {
 			}
 			return;
 		case 'mouseup':
+			if(this.clickFn) {
+				this.clickFn(this.el, e);
+			}
 			doc.body.removeEventListener('mousemove', this, false);
 			doc.body.removeEventListener('mouseup', this, false);
 			return;
@@ -7724,7 +7728,8 @@ Post.prototype = {
 	_selRange: null,
 	_selText: '',
 	_addFullImage: function(el, data, inPost) {
-		var btns, newW, newH, scrH, img, scrW = Post.sizing.wWidth;
+		var btns, newW, newH, scrH, img, scrW = Post.sizing.wWidth,
+			clickFn = null;
 		if(inPost) {
 			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
 				'<div class="de-after-fimg"></div>');
@@ -7751,21 +7756,37 @@ Post.prototype = {
 			}
 		}
 		if(/\.webm/.test(data.info)) {
-			img = $add('<video class="de-img-full" src="' + data.fullSrc +
-				'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
-				'style="width: ' + newW + 'px; height: ' + newH + 'px;"></video>');
-			img.oncanplay = function() {
-				this.volume = Cfg['webmVolume'] / 100;
-			};
-			img.onerror = function() {
-				if(!this.onceLoaded) {
-					this.load();
-					this.onceLoaded = true;
-				}
-			};
-			img.onvolumechange = function() {
-				saveCfg('webmVolume', Math.round(this.volume * 100));
-			};
+			if(nav.canPlayWebm) {
+				img = $add('<video class="de-img-full" src="' + data.fullSrc +
+					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
+					'style="width: ' + newW + 'px; height: ' + newH + 'px;"></video>');
+				img.oncanplay = function() {
+					this.volume = Cfg['webmVolume'] / 100;
+				};
+				img.onerror = function() {
+					if(!this.onceLoaded) {
+						this.load();
+						this.onceLoaded = true;
+					}
+				};
+				img.onvolumechange = function() {
+					saveCfg('webmVolume', Math.round(this.volume * 100));
+				};
+			} else {
+				img = $add('<object class="de-img-full" data="' + data.fullSrc +'" type="video/quicktime" ' +
+					'style="width: ' + newW + 'px; height: ' + (Cfg['webmControl'] ? newH + 16 : newH) + 'px;">' +
+					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
+					'<param name="controller" value="' + (Cfg['webmControl'] ? 'true' : 'false') + '" />' +
+					'<param name="autoplay" value="true" />' +
+					'<param name="scale" value="tofit" />' +
+					'<param name="volume" value="' + Math.round(Cfg['webmVolume'] * 2.55) + '" />' +
+					'<param name="wmode" value="transparent" /></object>');
+					if(inPost) {
+						img.mover = new ImageMover(img, this._clickImage.bind(this));
+					} else {
+						clickFn = this._clickImage.bind(this);
+					}
+			}
 		} else {
 			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
 				'" style="width: ' + newW + 'px; height: ' + newH + 'px;">');
@@ -7781,7 +7802,7 @@ Post.prototype = {
 			img.classList.add('de-img-center');
 			img.style.left = ((scrW - newW) / 2 - 1) + 'px';
 			img.style.top = ((scrH - newH) / 2 - 1) + 'px';
-			img.mover = new ImageMover(img);
+			img.mover = new ImageMover(img, clickFn);
 			btns = $id('de-img-btns');
 			if(this._isPview) {
 				btns.style.display = 'none';
@@ -9720,6 +9741,11 @@ function getNavFuncs() {
 		get canPlayMP3() {
 			var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
 			Object.defineProperty(this, 'canPlayMP3', { value: val });
+			return val;
+		},
+		get canPlayWebm() {
+			var val = !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
+			Object.defineProperty(this, 'canPlayWebm', { value: val });
 			return val;
 		},
 		get matchesSelector() {
