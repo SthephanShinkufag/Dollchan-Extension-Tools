@@ -3137,13 +3137,7 @@ html5Submit.prototype = {
 		}
 		// WEBM
 		if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-			tmp = new WebmParser(data);
-			if(!tmp.error) {
-				if(rand) {
-					tmp.addData(rand);
-				}
-				return tmp.getData();
-			}
+			return new WebmParser(data).addData(rand).getData();
 		}
 		return null;
 	}
@@ -3228,11 +3222,6 @@ WebmParser = function(data) {
 					break; // Ignore everything after first segment
 				} else if(el.id === voidId) {
 					voids.push(el);
-				} else if(el.id === 0) {
-					if(this.segment) {
-						break;
-					}
-					break error;
 				} else {
 					break error;
 				}
@@ -3249,7 +3238,7 @@ WebmParser = function(data) {
 	}
 	Parser.prototype = {
 		addData: function(data) {
-			if(this.error) {
+			if(this.error || !data) {
 				return;
 			}
 			var size = typeof data === 'string' ? data.length : data.byteLength;
@@ -3258,6 +3247,7 @@ WebmParser = function(data) {
 				return;
 			}
 			this.rv.push(new Uint8Array([voidId, 0x80 | size]), data);
+			return this;
 		},
 		getData: function() {
 			if(this.error) {
