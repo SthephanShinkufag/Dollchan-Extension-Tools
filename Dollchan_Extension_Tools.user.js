@@ -9889,7 +9889,7 @@ function Initialization(checkDomains) {
 
 	url = (window.location.pathname || '').match(new RegExp(
 		'^(?:\\/?([^\\.]*?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
-		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?$'
+		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
 	));
 	brd = url[1];
 	TNum = url[2] ? url[3] :
