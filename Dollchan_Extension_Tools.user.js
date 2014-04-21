@@ -781,11 +781,6 @@ function regQuote(str) {
 	return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
 }
 
-function getImages(el) {
-	return el.querySelectorAll('.thumb, .de-thumb, .ca_thumb, ' +
-		'img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]');
-}
-
 function fixBrd(b) {
 	return '/' + b + (b ? '/' : '');
 }
@@ -1105,7 +1100,7 @@ function pButton(id, href, hasHotkey) {
 }
 
 function addPanel() {
-	var panel, evtObject, imgLen = getImages(dForm).length;
+	var panel, evtObject, imgLen = $Q(aib.qThumbImages, dForm).length;
 	(pr && pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div class="de-content"></div>' +
@@ -3501,7 +3496,7 @@ function preloadImages(post) {
 		});
 		Images_.preloading = true;
 	}
-	for(i = 0, els = getImages(post || dForm), len = els.length; i < len; i++) {
+	for(i = 0, els = $Q(aib.qThumbImages, post || dForm), len = els.length; i < len; i++) {
 		if(lnk = getAncestor(el = els[i], 'A')) {
 			url = lnk.href;
 			nExp = !!Cfg['openImgs'];
@@ -3597,7 +3592,7 @@ function loadDocFiles(imgOnly) {
 		$del($id('de-alert-filesload'));
 		Images_.queue = tar = warnings = count = current = imgOnly = progress = counter = null;
 	});
-	els = aProto.slice.call(getImages($q('[de-form]', dc)));
+	els = aProto.slice.call($Q(aib.qThumbImages, $q('[de-form]', dc)));
 	count += els.length;
 	els.forEach(function(el) {
 		var lnk, url;
@@ -6967,7 +6962,7 @@ ImageMover.prototype = {
 			}
 			return;
 		case 'mouseup':
-			if(this.clickFn) {
+			if(e.button === 1 && this.clickFn) {
 				this.clickFn(this.el, e);
 			}
 			doc.body.removeEventListener('mousemove', this, false);
@@ -7402,7 +7397,7 @@ Post.prototype = {
 		return val;
 	},
 	get images() {
-		var i, len, el, els = getImages(this.el),
+		var i, len, el, els = $Q(aib.qThumbImages, this.el),
 			imgs = [];
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
@@ -7953,10 +7948,11 @@ Post.prototype = {
 			data = this.images[el.imgIdx];
 			break;
 		default:
-			if(!/thumb|\/spoiler|^blob:/i.test(el.src)) {
+			data = this.images;
+			if(el.imgIdx === undefined) {
 				return;
 			}
-			data = this.images[el.imgIdx];
+			data = data[el.imgIdx];
 		}
 		if(data && data.isImage) {
 			if(!inPost && (iEl = $c('de-img-center', el.parentNode.parentNode))) {
@@ -8280,7 +8276,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				(post.userToggled ? '-user' : '') + '"></span>' + pText;
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
-			$each(getImages(el), function(el) {
+			$each($Q(aib.qThumbImages, el), function(el) {
 				el.style.display = '';
 			});
 			if(post.hasYTube) {
@@ -8748,7 +8744,8 @@ Thread.prototype = {
 			}
 			Fn(200, '', info[1], xhr);
 			if(info[0] !== 0) {
-				$id('de-panel-info').firstChild.textContent = this.pcount + '/' + getImages(dForm).length;
+				$id('de-panel-info').firstChild.textContent = this.pcount + '/' +
+					$Q(aib.qThumbImages, dForm).length;
 			}
 			Fn = null;
 		}.bind(this), function(eCode, eMsg, xhr) {
@@ -9059,12 +9056,14 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
+			qImgLink: { value: '.fileThumb' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
 			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
 			qPostForm: { value: 'form[name="post"]' },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
+			qThumbImages: { value: '.fileThumb > img' },
 			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
 			getSage: { value: function(post) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
@@ -9080,7 +9079,8 @@ function getImageBoard(checkDomains, checkOther) {
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
 			rLinkClick: { value: '' },
-			rep: { value: true }
+			rep: { value: true },
+			res: { value: 'thread/' }
 		}],
 		'7chan.org': [{
 			init: { value: function() { return true; } }
@@ -9192,6 +9192,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
 			qRef: { value: '.postnumber' },
 			qThread: { value: '.thread_body' },
+			qThumbImages: { value: 'img[id^="thumbnail_"]' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' },
 			getImgWrap: { value: function(el) {
@@ -9360,6 +9361,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: 'font[color="#707070"]' },
 			qPostForm: { value: 'form:nth-of-type(1)' },
 			qRef: { value: '.del' },
+			qThumbImages: { value: 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img' },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'futaba.htm');
 			} },
@@ -9504,6 +9506,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qPostForm: '#postform',
 		qRef: '.reflink',
 		qTable: 'form > table, div > table',
+		qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
 		timePattern: 'w+dd+m+yyyy+hh+ii+ss',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
