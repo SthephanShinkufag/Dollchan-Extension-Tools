@@ -7051,9 +7051,7 @@ function Post(el, thr, num, count, isOp, prev) {
 	if(Cfg['expandPosts'] === 1 && this.trunc) {
 		this._getFull(this.trunc, true);
 	}
-	el.addEventListener('click', this, true);
 	el.addEventListener('mouseover', this, true);
-	el.addEventListener('mouseout', this, true);
 }
 Post.hiddenNums = [];
 Post.getWrds = function(text) {
@@ -7284,6 +7282,11 @@ Post.prototype = {
 				this._clickMenu(el);
 			}
 			return;
+		}
+		if(!this._hasEvents) {
+			this._hasEvents = true;
+			this.el.addEventListener('click', this, true);
+			this.el.addEventListener('mouseout', this, true);
 		}
 		switch(el.classList[0]) {
 		case 'de-reflink':
@@ -7715,6 +7718,7 @@ Post.prototype = {
 		return val;
 	},
 
+	_hasEvents: false,
 	_isPview: false,
 	_linkDelay: 0,
 	_menu: null,
