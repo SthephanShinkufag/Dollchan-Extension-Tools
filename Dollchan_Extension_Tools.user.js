@@ -6468,15 +6468,17 @@ PostForm.prototype = {
 			if(aib.abu && (temp = $t('script', this.cap))) {
 				$del(temp);
 			}
-			this.capTr = getAncestor(this.cap, 'TR');
-			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			if(this.file) {
-				this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+			if(!(aib.fch && doc.cookie.indexOf('pass_enabled=1') > -1)) {
+				this.capTr = getAncestor(this.cap, 'TR');
+				this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+				if(this.file) {
+					this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+				}
+				if(!aib.krau) {
+					$disp(this.capTr);
+				}
+				this.capTr.innerHTML = '';
 			}
-			if(!aib.krau) {
-				$disp(this.capTr);
-			}
-			this.capTr.innerHTML = '';
 			this.cap = null;
 		}
 		if(Cfg['ajaxReply'] === 2) {
