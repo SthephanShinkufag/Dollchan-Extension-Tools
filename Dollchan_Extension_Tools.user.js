@@ -9051,6 +9051,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cOPost: { value: 'op' },
 			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
+			firstPage: { value: 1 },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
@@ -9069,6 +9070,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
 			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 1 ? p : '');
+			} },
 			getSage: { value: function(post) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 			} },
