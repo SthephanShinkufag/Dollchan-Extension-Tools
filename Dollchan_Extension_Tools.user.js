@@ -9067,7 +9067,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
-			qImgLink: { value: '.fileThumb' },
+			qImgLink: { value: '.fileText > a' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
 			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
@@ -9089,7 +9089,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			anchor: { value: '#p' },
-			css: { value: '#mpostform, .navLinks, .postingMode, #togglePostFormLink { display: none !important; }\
+			css: { value: 'hr.desktop, #mpostform, .navLinks, .postingMode, #togglePostFormLink { display: none !important; }\
 				.postForm { display: table !important; }' },
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
