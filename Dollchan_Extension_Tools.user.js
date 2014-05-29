@@ -6748,7 +6748,7 @@ ImageData.prototype = {
 		return val;
 	},
 	get isImage() {
-		var val = /\.jpe?g|\.png|\.gif|^blob:/i.test(this.src);
+		var val = /\.jpe?g|\.png|\.gif|\.webm|^blob:/i.test(this.src);
 		Object.defineProperty(this, 'isImage', { value: val });
 		return val;
 	},
@@ -7756,7 +7756,7 @@ Post.prototype = {
 				newW = newH * data.width / data.height;
 			}
 		}
-		if(/\.webm/.test(data.info)) {
+		if(/\.webm|WebM,/.test(data.info)) {
 			if(nav.canPlayWebm) {
 				img = $add('<video class="de-img-full" src="' + data.fullSrc +
 					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
