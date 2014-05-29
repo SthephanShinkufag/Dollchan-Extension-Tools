@@ -1131,7 +1131,7 @@ function addPanel() {
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
+					(!aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
@@ -6369,7 +6369,7 @@ PostForm.prototype = {
 				window.focus();
 			}
 		}, false);
-		if(!aib.tiny && !aib.nul) {
+		if(!aib.tiny) {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function(e) {
@@ -6442,7 +6442,7 @@ PostForm.prototype = {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
 			if(this.video && (val = this.video.value) && (val = val.match(new YouTube().ytReg))) {
-				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
+				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
 				$disp(this.pForm);
@@ -8966,19 +8966,6 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'0chan.hk': [{
-			nul: { value: true },
-			
-			css: { value: '#captcha_status, .content-background > hr, #postform nobr, .postnode + a, .replieslist, label[for="save"], span[style="float: right;"] { display: none !important; }\
-				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-				.ui-resizable { display: inline !important; }\
-				form textarea { resize: both !important; }'
-			},
-			ru: { value: true },
-			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' }
-		}, 'script[src*="kusaba"]'],
-		get '0-chan.hk'() { return this['0chan.hk']; },
-		get '0-chan.ru'() { return this['0chan.hk']; },
 		get '22chan.net'() { return this['ernstchan.com']; },
 		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.cm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
@@ -9100,15 +9087,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'7chan.org': [{
 			init: { value: function() { return true; } }
 		}],
-		'9ch.ru': [{
-			qRef: { value: '[color="#117743"]' },
-			getPageUrl: { value: function(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.htm');
-			} },
-			getThrdUrl: { value: function(b, tNum) {
-				return this.prot + '//' + this.host + fixBrd(b) + 'index.php?res=' + tNum;
-			} }
-		}, 'form[action*="futaba.php"]'],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
