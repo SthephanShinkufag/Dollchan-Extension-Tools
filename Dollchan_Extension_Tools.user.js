@@ -10042,27 +10042,36 @@ function initDelformAjax() {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
+	var focused, delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
 		initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0,
-		aPlayers = 0,
+		aPlayers = 0;
+	if(('hidden' in doc) || ('webkitHidden' in doc)) {
+		focused = !(doc.hidden || doc.webkitHidden);
+		doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
+			if(doc.hidden || doc.webkitHidden) {
+				focused = false;
+				firstThr.clearPostsMarks();
+			} else {
+				onVis();
+			}
+		}, false);
+	} else {
 		focused = false;
-	window.addEventListener('focus', onVis, false);
-	window.addEventListener('blur', function() {
-		focused = false;
-		if(enabled) {
+		window.addEventListener('focus', onVis, false);
+		window.addEventListener('blur', function() {
+			focused = false;
 			firstThr.clearPostsMarks();
-		}
-	}, false);
-	window.addEventListener('mousemove', function mouseMove() {
-		window.removeEventListener('mousemove', mouseMove, false);
-		onVis();
-	}, false);
-
+		}, false);
+		window.addEventListener('mousemove', function mouseMove() {
+			window.removeEventListener('mousemove', mouseMove, false);
+			onVis();
+		}, false);
+	}
 	if(enableUpdate) {
 		init();
 	}
@@ -10251,15 +10260,13 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function onVis() {
-		if(enabled) {
-			if(Cfg['favIcoBlink'] && favHref) {
-				clearInterval(favIntrv);
-				favNorm = true;
-				$del($q('link[rel="shortcut icon"]', doc.head));
-				doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
-			}
-			newPosts = 0;
+		if(Cfg['favIcoBlink'] && favHref) {
+			clearInterval(favIntrv);
+			favNorm = true;
+			$del($q('link[rel="shortcut icon"]', doc.head));
+			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
 		}
+		newPosts = 0;
 		focused = true;
 		sendError = false;
 		setTimeout(function() {
