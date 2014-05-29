@@ -9083,7 +9083,8 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			anchor: { value: '#p' },
-			css: { value: '#mpostform, .navLinks, .postingMode { display: none !important; }' },
+			css: { value: '#mpostform, .navLinks, .postingMode, #togglePostFormLink { display: none !important; }\
+				.postForm { display: table !important; }' },
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
 			rLinkClick: { value: '' },
