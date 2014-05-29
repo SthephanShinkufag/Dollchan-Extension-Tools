@@ -899,6 +899,9 @@ function readCfg() {
 			Cfg['ajaxReply'] = 1;
 		}
 	}
+	if(aib.fch && Cfg['ajaxReply'] === 2) {
+		Cfg['ajaxReply'] = 1;
+	}
 	if(aib.tiny && Cfg['ajaxReply'] === 2) {
 		Cfg['ajaxReply'] = 1;
 	}
@@ -5983,7 +5986,7 @@ PostForm.processInput = function() {
 	}
 	$del($c('de-file-rar', this.parentNode));
 	PostForm.eventFiles(getAncestor(this, 'TR'));
-	if(nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+	if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 		return;
 	}
 	$after(this, $new('button', {
