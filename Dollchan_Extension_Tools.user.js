@@ -42,7 +42,7 @@ defaultCfg = {
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		// 		resize large images
 	'webmControl':	1,		//		control bar fow webm files
-	'webmVolume':	0,		//		default volume for webm files
+	'webmVolume':	100,	//		default volume for webm files
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
@@ -4140,6 +4140,9 @@ function loadPages(count) {
 			var el, df, j, parseThrs = Thread.parsed,
 				threads = parseThrs ? [] : null;
 			for(j in pages) {
+				if(!pages.hasOwnProperty(j)) {
+					continue;
+				}
 				if(j != pageNum) {
 					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
 						Lng.page[lang] + ' ' + j + '</center><hr>');
