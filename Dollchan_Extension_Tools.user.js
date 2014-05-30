@@ -4197,6 +4197,10 @@ function loadPages(count) {
 	pByNum = Object.create(null);
 	Thread.tNums = [];
 	Post.hiddenNums = [];
+	if(Attachment.viewer) {
+		Attachment.viewer.close(null);
+		Attachment.viewer = null;
+	}
 	$disp(dForm);
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
@@ -6884,7 +6888,7 @@ AttachmentViewer.prototype = {
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
 		}
-		$after(data.el.parentNode, obj);
+		dForm.appendChild(obj);
 	},
 	_remove: function(e) {
 		$del(this._obj);
@@ -8270,16 +8274,20 @@ Pview.clearCache = function() {
 	Pview.prototype._cache = {};
 };
 Pview.del = function(pv) {
-	var el;
 	if(!pv) {
 		return;
 	}
+	var el, vPost = Attachment.viewer && Attachment.viewer.data.post;
 	pv.parent.kid = null;
 	if(!pv.parent._isPview) {
 		Pview.top = null;
 	}
 	do {
 		clearTimeout(pv._readDelay);
+		if(vPost === pv) {
+			Attachment.viewer.close(null);
+			Attachment.viewer = vPost = null;
+		}
 		el = pv.el;
 		if(Cfg['animation']) {
 			nav.animEvent(el, $del);
