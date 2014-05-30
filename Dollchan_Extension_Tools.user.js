@@ -1139,9 +1139,6 @@ function addPanel() {
 				'</ul>' +
 			'</div>' +
 		(Cfg['disabled'] ? '' :
-			'<div id="de-img-btns" style="display: none">' +
-				'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"><div></div></div>' +
-				'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"><div></div></div></div>' +
 			'<div id="de-alert"></div>' +
 			'<hr style="clear: both;">'
 		) +
@@ -2434,8 +2431,8 @@ KeyNavigation.prototype = {
 				}
 				break;
 			case 4: // Open previous page/picture
-				if(this._fullImage) {
-					$id('de-img-btn-prev').click();
+				if(Attachment.viewer) {
+					Attachment.viewer.navigate(false);
 				} else if(TNum || pageNum !== aib.firstPage) {
 					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				}
@@ -2499,8 +2496,8 @@ KeyNavigation.prototype = {
 				$id('de-btn-code').click();
 				break;
 			case 17: // Open next page/picture
-				if(this._fullImage) {
-					$id('de-img-btn-next').click();
+				if(Attachment.viewer) {
+					Attachment.viewer.navigate(true);
 				} else if(!TNum && this.lastPage !== aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 				}
@@ -3473,7 +3470,11 @@ function preloadImages(post) {
 					a.href = window.URL.createObjectURL(new Blob([data], {'type': this[2]}));
 					a.setAttribute('de-name', fName);
 					if(this[3]) {
-						this[3].src = a.href;
+						if(this[2] === 'video/webm') {
+							this[3].setAttribute('de-video', '');
+						} else {
+							this[3].src = a.href;
+						}
 					}
 					if(rjf) {
 						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(aEl, fName));
@@ -3486,7 +3487,7 @@ function preloadImages(post) {
 				cImg++;
 			}.bind(dat, qIdx));
 		}, function() {
-			Images_.preloading = false
+			Images_.preloading = false;
 			if(Images_.afterpreload) {
 				Images_.afterpreload();
 				Images_.afterpreload = Images_.progressId = null;
@@ -4006,7 +4007,7 @@ YouTube = new function() {
 	};
 
 	return YouTubeSingleton;
-}
+};
 
 function embedMP3Links(post) {
 	var el, link, src, i, els, len;
@@ -6668,32 +6669,233 @@ function genImgHash(data) {
 	}
 	return {hash: hash};
 }
+function ImgBtnsShowHider(nextFn, prevFn) {
+	dForm.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+		'<div id="de-img-btn-next" de-title="' + Lng.nextImg[lang] + '"><div></div></div>' +
+		'<div id="de-img-btn-prev" de-title="' + Lng.prevImg[lang] + '"><div></div></div></div>');
+	var btns = dForm.lastChild;
+	this._btns = btns;
+	this._btnsStyle = btns.style;
+	this._nextFn = nextFn;
+	this._prevFn = prevFn;
+	window.addEventListener('mousemove', this, false);
+	btns.addEventListener('mouseover', this, false);
+}
+ImgBtnsShowHider.prototype = {
+	handleEvent: function(e) {
+		switch(e.type) {
+		case 'mousemove':
+			var curX = e.clientX,
+				curY = e.clientY;
+			if(this._oldX !== curX || this._oldY !== curY) {
+				this._oldX = curX;
+				this._oldY = curY;
+				this.show();
+			}
+			break;
+		case 'mouseover':
+			if(!this.hasEvents) {
+				this.hasEvents = true;
+				this._btns.addEventListener('mouseout', this, false);
+				this._btns.addEventListener('click', this, false);
+			}
+			if(!this._hidden) {
+				clearTimeout(this._hideTmt);
+				KeyEditListener.setTitle(this._btns.firstChild, 17);
+				KeyEditListener.setTitle(this._btns.lastChild, 4);
+			}
+			break;
+		case 'mouseout':
+			this._setHideTmt();
+			break;
+		case 'click':
+			switch(e.target.parentNode.id) {
+			case 'de-img-btn-next': this._nextFn(); return;
+			case 'de-img-btn-prev': this._nextFn(); return;
+			default: return;
+			}
+		}
+	},
+	hide: function() {
+		this._btnsStyle.display = 'none';
+		this._hidden = true;
+		this._oldX = this._oldY = -1;
+	},
+	remove: function() {
+		$del(this._btns);
+		window.removeEventListener('mousemove', this, false);
+		clearTimeout(this._hideTmt);
+	},
+	show: function() {
+		if(this._hidden) {
+			this._btnsStyle.display = '';
+			this._hidden = false;
+			this._setHideTmt();
+		}
+	},
 
-function ImageData(post, el, idx) {
+	_hasEvents: false,
+	_hideTmt: 0,
+	_hidden: true,
+	_oldX: -1,
+	_oldY: -1,
+	_setHideTmt: function() {
+		clearTimeout(this._hideTmt);
+		this._hideTmt = setTimeout(this.hide.bind(this), 2000);
+	}
+};
+
+function AttachmentViewer(data) {
+	this._show(data);
+}
+AttachmentViewer.prototype = {
+	close: function(e) {
+		if(this.hasOwnProperty('_btns')) {
+			this._btns.remove();
+		}
+		this._remove(e);
+	},
+	handleEvent: function(e) {
+		if(Cfg['webmControl'] && e.target.tagName === 'VIDEO' && e.clientY >
+			(e.target.getBoundingClientRect().top + parseInt(this._elStyle.height, 10) - 30))
+		{
+			return;
+		}
+		switch(e.type) {
+		case 'mousedown':
+			this._oldX = e.clientX;
+			this._oldY = e.clientY;
+			doc.body.addEventListener('mousemove', this, true);
+			doc.body.addEventListener('mouseup', this, true);
+			break;
+		case 'mousemove':
+			var curX = e.clientX,
+				curY = e.clientY;
+			if(curX !== this._oldX || curY !== this._oldY) {
+				this._elStyle.left = parseInt(this._elStyle.left, 10) + curX - this._oldX + 'px';
+				this._elStyle.top = parseInt(this._elStyle.top, 10) + curY - this._oldY + 'px';
+				this._oldX = curX;
+				this._oldY = curY;
+				this._moved = true;
+			}
+			return;
+		case 'mouseup':
+			doc.body.removeEventListener('mousemove', this, true);
+			doc.body.removeEventListener('mouseup', this, true);
+			return;
+		case 'click':
+			if(e.button === 0) {
+				if(this._moved) {
+					this._moved = false;
+				} else {
+					this.close(e);
+					Attachment.viewer = null;
+				}
+				e.stopPropagation();
+				break;
+			}
+			return;
+		default: // wheel event
+			var curX = e.clientX,
+				curY = e.clientY,
+				oldL = parseInt(this._elStyle.left, 10),
+				oldT = parseInt(this._elStyle.top, 10),
+				oldW = parseFloat(this._elStyle.width),
+				oldH = parseFloat(this._elStyle.height),
+				d = nav.Firefox ? -e.detail : e.wheelDelta,
+				newW = oldW * (d > 0 ? 1.25 : 0.8),
+				newH = oldH * (d > 0 ? 1.25 : 0.8);
+			this._elStyle.width = newW + 'px';
+			this._elStyle.height = newH + 'px';
+			this._elStyle.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
+			this._elStyle.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
+		}
+		$pd(e);
+	},
+	navigate: function(isForward) {
+		var data, post = this._data.post,
+			imgs = post.images;
+		if(isForward ? this._data.idx + 1 === imgs.length : this._data.idx === 0) {
+			do {
+				post = post.getAdjacentVisPost(!isForward);
+				if(!post) {
+					post = isForward ? firstThr.op : lastThr.last;
+					if(post.hidden || post.thr.hidden) {
+						post = post.getAdjacentVisPost(!isForward);
+					}
+				}
+				imgs = post.images;
+			} while (imgs.length === 0);
+			data = imgs[firstThr.op ? 0 : imgs.length - 1];
+		} else {
+			data = imgs[isForward ? this.idx + 1 : this.idx - 1]
+		}
+		this.update(data, null);
+	},
+	update: function(data, e) {
+		this._remove(e);
+		this._show(data);
+	},
+
+	_data: null,
+	_elStyle: null,
+	_obj: null,
+	_oldX: 0,
+	_oldY: 0,
+	_moved: false,
+	get _btns() {
+		var data = this._data,
+			val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
+		Object.defineProperty(this, '_btns', { value: val });
+		return val;
+	},
+	_getHolder: function(data) {
+		var obj, html, size = data.computeFullSize(false),
+			el = data.getFullObject(),
+			screenWidth = Post.sizing.wWidth,
+			screenHeight = Post.sizing.wHeight;
+		html = '<div class="de-pic-holder" style="top:' +
+			((screenHeight - size[1]) / 2 - 1) + 'px; left:' +
+			((screenWidth - size[0]) / 2 - 1) + 'px; width:' +
+			size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
+		obj = $add(html);
+		obj.appendChild(el);
+		return obj;
+	},
+	_show: function(data) {
+		var btns, obj = this._getHolder(data),
+			style = obj.style;
+		this._elStyle = style;
+		this._data = data;
+		this._obj = obj;
+		obj.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, true);
+		obj.addEventListener('mousedown', this, true);
+		obj.addEventListener('click', this, true)
+		obj.classList.add('de-img-center');
+		btns = $id('de-img-btns');
+		if(!data.post._isPview) {
+			this._btns.show();
+		} else if(this.hasOwnProperty('_btns')) {
+			this._btns.hide();
+		}
+		$after(data.el.parentNode, obj);
+	},
+	_remove: function(e) {
+		$del(this._obj);
+		if(e) {
+			this._data.sendCloseEvent(e, false);
+		}
+	}
+};
+
+function Attachment(post, el, idx) {
 	this.el = el;
 	this.idx = idx;
 	this.post = post;
 }
-ImageData.prototype = {
+Attachment.viewer = null;
+Attachment.prototype = {
 	expanded: false,
-	getAdjacentImage: function(toUp) {
-		var post = this.post,
-			imgs = post.images;
-		if(toUp ? this.idx === 0 : this.idx + 1 === imgs.length) {
-			do {
-				post = post.getAdjacentVisPost(toUp);
-				if(!post) {
-					post = toUp ? lastThr.last : firstThr.op;
-					if(post.hidden || post.thr.hidden) {
-						post = post.getAdjacentVisPost(toUp);
-					}
-				}
-				imgs = post.images;
-			} while(imgs.length === 0);
-			return imgs[toUp ? imgs.length - 1 : 0];
-		}
-		return imgs[toUp ? this.idx - 1 : this.idx + 1];
-	},
 	get data() {
 		var img = this.el,
 			cnv = this._glob.canvas,
@@ -6704,7 +6906,7 @@ ImageData.prototype = {
 		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
 	},
 	getHash: function(Fn) {
-		if(this.hasOwnProperty('hash')) {
+		if (this.hasOwnProperty('hash')) {
 			Fn(this.hash);
 		} else {
 			this.callback = Fn;
@@ -6746,8 +6948,15 @@ ImageData.prototype = {
 		return val;
 	},
 	get isImage() {
-		var val = /\.jpe?g|\.png|\.gif|^blob:/i.test(this.src);
+		var val = /\.jpe?g|\.png|\.gif/i.test(this.src) ||
+			(this.src.startsWith('blob:') && !this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isImage', { value: val });
+		return val;
+	},
+	get isVideo() {
+		var val = /\.webm$/i.test(this.src) ||
+			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
+		Object.defineProperty(this, 'isVideo', { value: val });
 		return val;
 	},
 	get fullSrc() {
@@ -6778,6 +6987,127 @@ ImageData.prototype = {
 		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	},
+	computeFullSize: function(inPost) {
+		var newH, newW, scrH, scrW = inPost ? Post.sizing.wWidth : Post.sizing.wWidth - this._offset;
+		newW = !Cfg['resizeImgs'] || this.width < (scrW - 5) ? this.width : scrW - 5;
+		newH = newW * this.height / this.width;
+		if(!inPost) {
+			scrH = Post.sizing.wHeight;
+			if(Cfg['resizeImgs'] && newH > scrH) {
+				newH = scrH - 2;
+				newW = newH * this.width / this.height;
+			}
+		}
+		return [newW, newH]
+	},
+	collapse: function(e) {
+		this.expanded = false;
+		$del(this._fullEl);
+		this._fullEl = null;
+		this.el.style.display = '';
+		$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
+		if(e) {
+			this.sendCloseEvent(e, true);
+		}
+	},
+	expand: function(inPost, e) {
+		var size, img, el = this.el,
+			clickFn = null;
+		if(!inPost) {
+			if(Attachment.viewer) {
+				if(Attachment.viewer.data === this) {
+					Attachment.viewer.close(e);
+					Attachment.viewer = null;
+					return;
+				}
+				Attachment.viewer.update(this, e);
+			} else {
+				Attachment.viewer = new AttachmentViewer(this);
+			}
+			return;
+		}
+		this.expanded = true;
+		(aib.hasPicWrap ? this.wrap : el.parentNode).insertAdjacentHTML('afterend',
+			'<div class="de-after-fimg"></div>');
+		el.style.display = 'none';
+		size = this.computeFullSize(inPost);
+		this._fullEl = this.getFullObject();
+		img = this._fullEl.firstChild;
+		this._fullEl.className = 'de-img-full';
+		img.style.width = size[0];
+		img.style.height = size[1];
+		$after(el.parentNode, this._fullEl);
+	},
+	getFullObject: function() {
+		var obj;
+		if(this.isVideo) {
+			if(nav.canPlayWebm) {
+				obj = $add('<video style="width: 100%; height: 100%" src="' +
+					this.fullSrc +
+					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
+					(Cfg['webmVolume'] === 0 ? 'muted ' : '') + '></video>');
+				if(Cfg['webmVolume'] !== 0) {
+					obj.oncanplay = function() {
+						this.volume = Cfg['webmVolume'] / 100;
+					};
+				}
+				obj.onerror = function() {
+					if(!this.onceLoaded) {
+						this.load();
+						this.onceLoaded = true;
+					}
+				};
+				obj.onvolumechange = function() {
+					saveCfg('webmVolume', Math.round(this.volume * 100));
+				};
+			} else {
+				obj = $add('<object style="width: 100%; height: 100%" data="' +
+					this.fullSrc + '" type="video/quicktime">' +
+					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
+					'<param name="controller" value="' + (Cfg['webmControl'] ? 'true' : 'false') + '" />' +
+					'<param name="autoplay" value="true" />' +
+					'<param name="scale" value="tofit" />' +
+					'<param name="volume" value="' + Math.round(Cfg['webmVolume'] * 2.55) + '" />' +
+					'<param name="wmode" value="transparent" /></object>');
+			}
+		} else {
+			obj = $add('<a href="' + this.fullSrc + '">' +
+				'<img style="width: 100%; height: 100%" src="' +
+				this.fullSrc + '" alt="' + this.fullSrc + '"></a>');
+			obj.onload = obj.onerror = function(e) {
+				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
+					this.src = this.src;
+					this.onceLoaded = true;
+				}
+			};
+		}
+		return obj;
+	},
+	sendCloseEvent: function(e, inPost) {
+		var cr, x, y, pv = this.post;
+		if(nav.Firefox && pv._isPview) {
+			cr = pv.el.getBoundingClientRect();
+			x = e.pageX;
+			y = e.pageY;
+			if(!inPost) {
+				while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
+					if(pv = pv.parent) {
+						cr = pv.el.getBoundingClientRect();
+					} else {
+						if(Pview.top) {
+							Pview.top.markToDel();
+						}
+						return;
+					}
+				}
+				if(pv.kid) {
+					pv.kid.markToDel();
+				}
+			} else if(x > cr.right || y > cr.bottom && Pview.top) {
+				Pview.top.markToDel();
+			}
+		}
+	},
 
 	_glob: {
 		get canvas() {
@@ -6798,21 +7128,25 @@ ImageData.prototype = {
 			}
 		},
 		get workers() {
-			var val = new workerQueue(4, genImgHash, function(e) {});
+			var val = new workerQueue(4, genImgHash, function(e) {
+			});
 			spells.addCompleteFunc(this._clearWorkers.bind(this));
 			Object.defineProperty(this, 'workers', { value: val, configurable: true });
 			return val;
 		},
 
+		_expAttach: null,
+		_offset: -1,
 		_saveStorage: function() {
 			sessionStorage['de-imageshash'] = JSON.stringify(this.storage);
 		},
 		_clearWorkers: function() {
 			this.workers.clear();
 			delete this.workers;
-		},
+		}
 	},
 	_callback: null,
+	_fullEl: null,
 	_processing: false,
 	_needToHide: false,
 	_endLoad: function(hash) {
@@ -6820,6 +7154,28 @@ ImageData.prototype = {
 		if(this.post.hashHideFun !== null) {
 			this.post.hashHideFun(hash);
 		}
+	},
+	get _offset() {
+		var post = this.post,
+			isGlob = !post._isPview && post.count > 4,
+			val = -1;
+		if(isGlob) {
+			val = this._glob._offset;
+		}
+		if(val === -1) {
+			if(post.hidden) {
+				this.post.hideContent(false);
+				val = this.el.getBoundingClientRect().left + window.pageXOffset;
+				this.post.hideContent(true);
+			} else {
+				val = this.el.getBoundingClientRect().left + window.pageXOffset;
+			}
+			if(isGlob) {
+				this._glob._offset = val;
+			}
+		}
+		Object.defineProperty(this, '_offset', { value: val });
+		return val;
 	},
 	_maybeGetHash: function() {
 		var data, val;
@@ -6865,125 +7221,6 @@ ImageData.prototype = {
 			this.callback = null;
 		}
 		this._glob.storage[this.src] = hash;
-	}
-}
-
-function ImgBtnsShowHider(btns) {
-	this._btns = btns;
-	this._btnsStyle = btns.style;
-	btns.addEventListener('mouseover', this, false);
-	btns.addEventListener('mouseout', this, false);
-}
-ImgBtnsShowHider.prototype = {
-	_oldX: -1,
-	_oldY: -1,
-	init: function() {
-		this._show();
-		window.addEventListener('mousemove', this, false);
-	},
-	end: function() {
-		this._hide();
-		window.removeEventListener('mousemove', this, false);
-		clearTimeout(this._hideTmt);
-	},
-	handleEvent: function(e) {
-		switch(e.type) {
-		case 'mousemove':
-			var curX = e.clientX,
-			    curY = e.clientY;
-			if(this._oldX !== curX || this._oldY !== curY) {
-				this._oldX = curX;
-				this._oldY = curY;
-				this._show();
-			}
-			break;
-		case 'mouseover':
-			if(!this._hidden) {
-				clearTimeout(this._hideTmt);
-				KeyEditListener.setTitle(this._btns.firstChild, 17);
-				KeyEditListener.setTitle(this._btns.lastChild, 4);
-			}
-			break;
-		case 'mouseout':
-			this._setHideTmt();
-		}
-	},
-
-	_hideTmt: 0,
-	_hidden: true,
-	_hide: function() {
-		this._btnsStyle.display = 'none';
-		this._hidden = true;
-		this._oldX = this._oldY = -1;
-	},
-	_setHideTmt: function() {
-		clearTimeout(this._hideTmt);
-		this._hideTmt = setTimeout(this._hide.bind(this), 2000);
-	},
-	_show: function() {
-		if(this._hidden) {
-			this._btnsStyle.display = '';
-			this._hidden = false;
-			this._setHideTmt();
-		}
-	}
-}
-
-function ImageMover(img, clickFn) {
-	this.el = img;
-	this.elStyle = img.style;
-	this.clickFn = clickFn;
-	img.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, false);
-	img.addEventListener('mousedown', this, false);
-}
-ImageMover.prototype = {
-	_oldX: 0,
-	_oldY: 0,
-	moved: false,
-	handleEvent: function(e) {
-		if(Cfg['webmControl'] && (e.target.tagName === 'VIDEO' || this.clickFn) && e.clientY >
-			(e.target.getBoundingClientRect().top + parseInt(e.target.style.height, 10) - 30)) { return; }
-		switch(e.type) {
-		case 'mousedown':
-			this._oldX = e.clientX;
-			this._oldY = e.clientY;
-			doc.body.addEventListener('mousemove', this, false);
-			doc.body.addEventListener('mouseup', this, false);
-			break;
-		case 'mousemove':
-			var curX = e.clientX,
-			    curY = e.clientY;
-			if(curX !== this._oldX || curY !== this._oldY) {
-				this.elStyle.left = parseInt(this.elStyle.left, 10) + curX - this._oldX + 'px';
-				this.elStyle.top = parseInt(this.elStyle.top, 10) + curY - this._oldY + 'px';
-				this._oldX = curX;
-				this._oldY = curY;
-				this.moved = true;
-			}
-			return;
-		case 'mouseup':
-			if(e.button === 1 && this.clickFn) {
-				this.clickFn(this.el, e);
-			}
-			doc.body.removeEventListener('mousemove', this, false);
-			doc.body.removeEventListener('mouseup', this, false);
-			return;
-		default: // wheel event
-			var curX = e.clientX,
-				curY = e.clientY,
-				oldL = parseInt(this.elStyle.left, 10),
-				oldT = parseInt(this.elStyle.top, 10),
-				oldW = parseFloat(this.elStyle.width),
-				oldH = parseFloat(this.elStyle.height),
-				d = nav.Firefox ? -e.detail : e.wheelDelta,
-				newW = oldW * (d > 0 ? 1.25 : 0.8),
-				newH = oldH * (d > 0 ? 1.25 : 0.8);
-			this.elStyle.width = newW + 'px';
-			this.elStyle.height = newH + 'px';
-			this.elStyle.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
-			this.elStyle.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
-		}
-		$pd(e);
 	}
 };
 
@@ -7046,7 +7283,7 @@ function Post(el, thr, num, count, isOp, prev) {
 	}
 	ref.insertAdjacentHTML('afterend', html + (
 		this.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : ''
-	) + '</span>');
+		) + '</span>');
 	this.btns = ref.nextSibling;
 	if(Cfg['expandPosts'] === 1 && this.trunc) {
 		this._getFull(this.trunc, true);
@@ -7104,7 +7341,10 @@ Post.sizing = {
 			window.addEventListener('resize', this, false);
 			this._enabled = true;
 		}
-		Object.defineProperty(this, 'wHeight', { writable: true, value: val });
+		Object.defineProperties(this, {
+			'wWidth': { writable: true, configurable: true, value: doc.documentElement.clientWidth },
+			'wHeight': { writable: true, configurable: true, value: val }
+		});
 		return val;
 	},
 	get wWidth() {
@@ -7113,29 +7353,18 @@ Post.sizing = {
 			window.addEventListener('resize', this, false);
 			this._enabled = true;
 		}
-		Object.defineProperty(this, 'wWidth', { writable: true, value: val });
+		Object.defineProperties(this, {
+			'wWidth': { writable: true, configurable: true, value: val },
+			'wHeight': { writable: true, configurable: true, value: window.innerHeight }
+		});
 		return val;
-	},
-	getOffset: function(el) {
-		return el.getBoundingClientRect().left + window.pageXOffset;
-	},
-	getCachedOffset: function(pCount, el) {
-		if(pCount === 0) {
-			return this._opOffset === -1 ? this._opOffset = this.getOffset(el) : this._opOffset;
-		}
-		if(pCount > 4) {
-			return this._pOffset === -1 ? this._pOffset = this.getOffset(el) : this._pOffset;
-		}
-		return this.getOffset(el);
 	},
 	handleEvent: function() {
 		this.wHeight = window.innerHeight;
 		this.wWidth = doc.documentElement.clientWidth;
 	},
 
-	_enabled: false,
-	_opOffset: -1,
-	_pOffset: -1
+	_enabled: false
 };
 Post.prototype = {
 	banned: false,
@@ -7405,7 +7634,7 @@ Post.prototype = {
 		for(i = 0, len = els.length; i < len; i++) {
 			el = els[i];
 			el.imgIdx = i;
-			imgs[i] = new ImageData(this, el, i);
+			imgs[i] = new Attachment(this, el, i);
 		}
 		Object.defineProperty(this, 'images', { value: imgs });
 		return imgs;
@@ -7618,9 +7847,9 @@ Post.prototype = {
 			dat = imgs[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
 				if(expand) {
-					this._addFullImage(dat.el, dat, true);
+					dat.expand(true, null);
 				} else {
-					this._removeFullImage(null, dat.el.parentNode.nextSibling, dat.el, dat);
+					dat.collapse(null);
 				}
 			}
 		}
@@ -7726,93 +7955,6 @@ Post.prototype = {
 	_pref: null,
 	_selRange: null,
 	_selText: '',
-	_addFullImage: function(el, data, inPost) {
-		var btns, newW, newH, scrH, img, scrW = Post.sizing.wWidth,
-			clickFn = null;
-		if(inPost) {
-			(aib.hasPicWrap ? data.wrap : el.parentNode).insertAdjacentHTML('afterend',
-				'<div class="de-after-fimg"></div>');
-			if(this.hidden) {
-				this.hideContent(false);
-				scrW -= this._getOffset(el);
-				this.hideContent(true);
-			} else {
-				scrW -= this._getOffset(el);
-			}
-			el.style.display = 'none';
-		} else {
-			$del($c('de-img-center', doc));
-		}
-		newW = !Cfg['resizeImgs'] || data.width < (scrW - 5) ? data.width : scrW - 5;
-		newH = newW * data.height / data.width;
-		if(inPost) {
-			data.expanded = true;
-		} else {
-			scrH = Post.sizing.wHeight;
-			if(Cfg['resizeImgs'] && newH > scrH) {
-				newH = scrH - 2;
-				newW = newH * data.width / data.height;
-			}
-		}
-		if(/\.webm/.test(data.info)) {
-			if(nav.canPlayWebm) {
-				img = $add('<video class="de-img-full" src="' + data.fullSrc +
-					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
-					'style="width: ' + newW + 'px; height: ' + newH + 'px;"></video>');
-				img.oncanplay = function() {
-					this.volume = Cfg['webmVolume'] / 100;
-				};
-				img.onerror = function() {
-					if(!this.onceLoaded) {
-						this.load();
-						this.onceLoaded = true;
-					}
-				};
-				img.onvolumechange = function() {
-					saveCfg('webmVolume', Math.round(this.volume * 100));
-				};
-			} else {
-				img = $add('<object class="de-img-full" data="' + data.fullSrc +'" type="video/quicktime" ' +
-					'style="width: ' + newW + 'px; height: ' + (Cfg['webmControl'] ? newH + 16 : newH) + 'px;">' +
-					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
-					'<param name="controller" value="' + (Cfg['webmControl'] ? 'true' : 'false') + '" />' +
-					'<param name="autoplay" value="true" />' +
-					'<param name="scale" value="tofit" />' +
-					'<param name="volume" value="' + Math.round(Cfg['webmVolume'] * 2.55) + '" />' +
-					'<param name="wmode" value="transparent" /></object>');
-					if(inPost) {
-						img.mover = new ImageMover(img, this._clickImage.bind(this));
-					} else {
-						clickFn = this._clickImage.bind(this);
-					}
-			}
-		} else {
-			img = $add('<img class="de-img-full" src="' + data.fullSrc + '" alt="' + data.fullSrc +
-				'" style="width: ' + newW + 'px; height: ' + newH + 'px;">');
-			img.onload = img.onerror = function(e) {
-				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
-					this.src = this.src;
-					this.onceLoaded = true;
-				}
-			};
-		}
-		$after(el.parentNode, img);
-		if(!inPost) {
-			img.classList.add('de-img-center');
-			img.style.left = ((scrW - newW) / 2 - 1) + 'px';
-			img.style.top = ((scrH - newH) / 2 - 1) + 'px';
-			img.mover = new ImageMover(img, clickFn);
-			btns = $id('de-img-btns');
-			if(this._isPview) {
-				btns.style.display = 'none';
-			} else {
-				btns.firstChild.onclick = this._navigateImages.bind(this, true);
-				btns.lastChild.onclick = this._navigateImages.bind(this, false);
-				btns.showhider = btns.showhider || new ImgBtnsShowHider(btns);
-				btns.showhider.init();
-			}
-		}
-	},
 	_addMenu: function(el, type) {
 		var html, cr = el.getBoundingClientRect(),
 			isLeft = false,
@@ -7837,8 +7979,8 @@ Post.prototype = {
 		}
 		doc.body.insertAdjacentHTML('beforeend', '<div class="' + className +
 			'" style="position: absolute; ' + (
-				isLeft ? 'left: ' + (cr.left + xOffset) :
-					'right: ' + (doc.documentElement.clientWidth - cr.right - xOffset)
+			isLeft ? 'left: ' + (cr.left + xOffset) :
+				'right: ' + (doc.documentElement.clientWidth - cr.right - xOffset)
 			) + 'px; top: ' + (window.pageYOffset + cr.bottom) + 'px;">' + html + '</div>');
 		if(this._menu) {
 			clearTimeout(this._menuDelay);
@@ -7851,9 +7993,9 @@ Post.prototype = {
 	},
 	_addMenuHide: function() {
 		var sel, ssel, str = '', addItem = function(name) {
-				str += '<span info="spell-' + name + '" class="de-menu-item">' +
-					Lng.selHiderMenu[name][lang] + '</span>';
-			};
+			str += '<span info="spell-' + name + '" class="de-menu-item">' +
+				Lng.selHiderMenu[name][lang] + '</span>';
+		};
 		sel = nav.Opera ? doc.getSelection() : window.getSelection();
 		if(ssel = sel.toString()) {
 			this._selText = ssel;
@@ -7890,7 +8032,7 @@ Post.prototype = {
 				str += '<a class="de-src' + info[0] + (!info[1] ?
 					'" onclick="de_isearch(event, \'' + info[0] + '\')" de-url="' :
 					'" href="' + info[1]
-				) + p + info[0] + '</a>';
+					) + p + info[0] + '</a>';
 			});
 		}
 		return '<a class="de-menu-item de-imgmenu de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
@@ -7918,21 +8060,13 @@ Post.prototype = {
 		}
 	},
 	_clickImage: function(el, e) {
-		var data, iEl, mover, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
+		var data, iEl, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
 		switch(el.className) {
 		case 'de-img-full de-img-center':
-			mover = el.mover;
-			if(mover.moved) {
-				mover.moved = false;
-				break;
-			}
-			el.mover = null;
-			if(!this._isPview) {
-				$id('de-img-btns').showhider.end();
-			}
+			return;
 		case 'de-img-full':
 			iEl = el.previousSibling.firstElementChild;
-			this._removeFullImage(e, el, iEl, this.images[iEl.imgIdx] || iEl.data);
+			(this.images[iEl.imgIdx] || iEl.data).collapse(e);
 			break;
 		case 'de-img-pre':
 			if(!(data = el.data)) {
@@ -7958,14 +8092,9 @@ Post.prototype = {
 			}
 			data = data[el.imgIdx];
 		}
-		if(data && data.isImage) {
-			if(!inPost && (iEl = $c('de-img-center', el.parentNode.parentNode))) {
-				$del(iEl);
-				if(!this._isPview) {
-					$id('de-img-btns').showhider.end();
-				}
-			} else {
-				this._addFullImage(el, data, inPost);
+		if(data) {
+			if(data.isImage || data.isVideo) {
+				data.expand(inPost, e);
 			}
 		}
 		$pd(e);
@@ -7986,7 +8115,7 @@ Post.prototype = {
 			}
 			if((nav.matchesSelector(start, aib.qMsg + ' *') && nav.matchesSelector(end, aib.qMsg + ' *')) ||
 				(nav.matchesSelector(start, '.' + aib.cSubj) && nav.matchesSelector(end, '.' + aib.cSubj))
-			) {
+				) {
 				if(this._selText.contains('\n')) {
 					addSpell(1 /* #exp */, '/' +
 						regQuote(this._selText).replace(/\r?\n/g, '\\n') + '/', false);
@@ -8080,56 +8209,12 @@ Post.prototype = {
 			}
 		}.bind(this, node), null);
 	},
-	_getOffset: function(el) {
-		return this._isPview ? Post.sizing.getOffset(el) : Post.sizing.getCachedOffset(this.count, el);
-	},
 	_markLink: function(pNum) {
 		$each($Q('a[href*="' + pNum + '"]', this.el), function(num, el) {
 			if(el.textContent === '>>' + num) {
 				el.classList.add('de-pview-link');
 			}
 		}.bind(null, pNum));
-	},
-	_navigateImages: function(isNext) {
-		var el = $c('de-img-full', doc),
-			iEl = el.previousSibling.firstElementChild,
-			data = this.images[iEl.imgIdx];
-		this._removeFullImage(null, el, iEl, data);
-		data = data.getAdjacentImage(!isNext);
-		data.post._addFullImage(data.el, data, false);
-	},
-	_removeFullImage: function(e, full, thumb, data) {
-		var pv, cr, x, y, inPost = data.expanded;
-		data.expanded = false;
-		if(nav.Firefox && this._isPview) {
-			cr = this.el.getBoundingClientRect();
-			x = e.pageX;
-			y = e.pageY;
-			if(!inPost) {
-				pv = this;
-				while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-					if(pv = pv.parent) {
-						cr = pv.el.getBoundingClientRect();
-					} else {
-						if(Pview.top) {
-							Pview.top.markToDel();
-						}
-						$del(full);
-						return;
-					}
-				}
-				if(pv.kid) {
-					pv.kid.markToDel();
-				}
-			} else if(x > cr.right || y > cr.bottom && Pview.top) {
-				Pview.top.markToDel();
-			}
-		}
-		$del(full);
-		if(inPost) {
-			thumb.style.display = '';
-			$del((aib.hasPicWrap ? data.wrap : thumb.parentNode).nextSibling);
-		}
 	},
 	_strikePostNum: function(isHide) {
 		var idx, num = this.num;
@@ -8147,7 +8232,7 @@ Post.prototype = {
 			el.classList.remove('de-ref-hid');
 		});
 	}
-}
+};
 
 //============================================================================================================
 //													PREVIEW
@@ -9069,6 +9154,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
 			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
+			getImgSrc: { value: function(el) {
+				return el.parentNode.href;
+			} },
 			getSage: { value: function(post) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 			} },
@@ -9320,6 +9408,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.mess_post, .omittedposts' },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
+			} },
+			getImgSrc: { value: function(el) {
+				return el.parentNode.href;
 			} },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
