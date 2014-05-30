@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.4.9.0
+// @version			14.5.29.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -14,7 +14,7 @@
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.4.9.0',
+var version = '14.5.29.0',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -899,6 +899,9 @@ function readCfg() {
 			Cfg['ajaxReply'] = 1;
 		}
 	}
+	if(aib.fch && Cfg['ajaxReply'] === 2) {
+		Cfg['ajaxReply'] = 1;
+	}
 	if(aib.tiny && Cfg['ajaxReply'] === 2) {
 		Cfg['ajaxReply'] = 1;
 	}
@@ -1128,7 +1131,7 @@ function addPanel() {
 					(!TNum ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.nul && !aib.abu && (!aib.fch || aib.arch) ? '' :
+					(!aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
@@ -5783,8 +5786,8 @@ function updateCSS() {
 		x += '#de-panel-info { display: none; }';
 	}
 	if(Cfg['maskImgs']) {
-		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
-			.de-img-pre:hover, .de-video-obj:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
+		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
+			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(!(aib.fch || aib.dobr || aib.krau)) {
 		x += '.de-img-full { margin: 2px 10px; }';
@@ -5984,7 +5987,7 @@ PostForm.processInput = function() {
 	}
 	$del($c('de-file-rar', this.parentNode));
 	PostForm.eventFiles(getAncestor(this, 'TR'));
-	if(nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+	if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
 		return;
 	}
 	$after(this, $new('button', {
@@ -6367,7 +6370,7 @@ PostForm.prototype = {
 				window.focus();
 			}
 		}, false);
-		if(!aib.tiny && !aib.nul) {
+		if(!aib.tiny) {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function(e) {
@@ -6440,7 +6443,7 @@ PostForm.prototype = {
 				toggleFavorites(pByNum[this.tNum], $c('de-btn-fav', pByNum[this.tNum].btns));
 			}
 			if(this.video && (val = this.video.value) && (val = val.match(new YouTube().ytReg))) {
-				this.video.value = aib.nul ? val[1] : 'http://www.youtube.com/watch?v=' + val[1];
+				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
 				$disp(this.pForm);
@@ -6469,15 +6472,17 @@ PostForm.prototype = {
 			if(aib.abu && (temp = $t('script', this.cap))) {
 				$del(temp);
 			}
-			this.capTr = getAncestor(this.cap, 'TR');
-			this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
-			if(this.file) {
-				this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+			if(!(aib.fch && doc.cookie.indexOf('pass_enabled=1') > -1)) {
+				this.capTr = getAncestor(this.cap, 'TR');
+				this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+				if(this.file) {
+					this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
+				}
+				if(!aib.krau) {
+					$disp(this.capTr);
+				}
+				this.capTr.innerHTML = '';
 			}
-			if(!aib.krau) {
-				$disp(this.capTr);
-			}
-			this.capTr.innerHTML = '';
 			this.cap = null;
 		}
 		if(Cfg['ajaxReply'] === 2) {
@@ -9045,19 +9050,6 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'0chan.hk': [{
-			nul: { value: true },
-			
-			css: { value: '#captcha_status, .content-background > hr, #postform nobr, .postnode + a, .replieslist, label[for="save"], span[style="float: right;"] { display: none !important; }\
-				.ui-wrapper { position: static !important; margin: 0 !important; overflow: visible !important; }\
-				.ui-resizable { display: inline !important; }\
-				form textarea { resize: both !important; }'
-			},
-			ru: { value: true },
-			timePattern: { value: 'w+yyyy+m+dd+hh+ii+ss' }
-		}, 'script[src*="kusaba"]'],
-		get '0-chan.hk'() { return this['0chan.hk']; },
-		get '0-chan.ru'() { return this['0chan.hk']; },
 		get '22chan.net'() { return this['ernstchan.com']; },
 		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.cm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
@@ -9136,6 +9128,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cOPost: { value: 'op' },
 			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
+			firstPage: { value: 1 },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
@@ -9145,7 +9138,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
-			qImgLink: { value: '.fileThumb' },
+			qImgLink: { value: '.fileText > a' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
 			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
@@ -9154,6 +9147,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
 			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 1 ? p : '');
+			} },
 			getImgSrc: { value: function(el) {
 				return el.parentNode.href;
 			} },
@@ -9167,7 +9163,8 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			anchor: { value: '#p' },
-			css: { value: '#mpostform, .navLinks, .postingMode { display: none !important; }' },
+			css: { value: 'hr.desktop, #mpostform, .navLinks, .postingMode, #togglePostFormLink { display: none !important; }\
+				.postForm { display: table !important; }' },
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
 			rLinkClick: { value: '' },
@@ -9177,15 +9174,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'7chan.org': [{
 			init: { value: function() { return true; } }
 		}],
-		'9ch.ru': [{
-			qRef: { value: '[color="#117743"]' },
-			getPageUrl: { value: function(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.htm');
-			} },
-			getThrdUrl: { value: function(b, tNum) {
-				return this.prot + '//' + this.host + fixBrd(b) + 'index.php?res=' + tNum;
-			} }
-		}, 'form[action*="futaba.php"]'],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
@@ -10122,27 +10110,36 @@ function initDelformAjax() {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
+	var focused, delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
 		initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0,
-		aPlayers = 0,
+		aPlayers = 0;
+	if(('hidden' in doc) || ('webkitHidden' in doc)) {
+		focused = !(doc.hidden || doc.webkitHidden);
+		doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
+			if(doc.hidden || doc.webkitHidden) {
+				focused = false;
+				firstThr.clearPostsMarks();
+			} else {
+				onVis();
+			}
+		}, false);
+	} else {
 		focused = false;
-	window.addEventListener('focus', onVis, false);
-	window.addEventListener('blur', function() {
-		focused = false;
-		if(enabled) {
+		window.addEventListener('focus', onVis, false);
+		window.addEventListener('blur', function() {
+			focused = false;
 			firstThr.clearPostsMarks();
-		}
-	}, false);
-	window.addEventListener('mousemove', function mouseMove() {
-		window.removeEventListener('mousemove', mouseMove, false);
-		onVis();
-	}, false);
-
+		}, false);
+		window.addEventListener('mousemove', function mouseMove() {
+			window.removeEventListener('mousemove', mouseMove, false);
+			onVis();
+		}, false);
+	}
 	if(enableUpdate) {
 		init();
 	}
@@ -10331,15 +10328,13 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function onVis() {
-		if(enabled) {
-			if(Cfg['favIcoBlink'] && favHref) {
-				clearInterval(favIntrv);
-				favNorm = true;
-				$del($q('link[rel="shortcut icon"]', doc.head));
-				doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
-			}
-			newPosts = 0;
+		if(Cfg['favIcoBlink'] && favHref) {
+			clearInterval(favIntrv);
+			favNorm = true;
+			$del($q('link[rel="shortcut icon"]', doc.head));
+			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
 		}
+		newPosts = 0;
 		focused = true;
 		sendError = false;
 		setTimeout(function() {
