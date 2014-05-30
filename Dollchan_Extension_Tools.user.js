@@ -6754,6 +6754,7 @@ function AttachmentViewer(data) {
 	this._show(data);
 }
 AttachmentViewer.prototype = {
+	data: null,
 	close: function(e) {
 		if(this.hasOwnProperty('_btns')) {
 			this._btns.remove();
@@ -6818,9 +6819,9 @@ AttachmentViewer.prototype = {
 		$pd(e);
 	},
 	navigate: function(isForward) {
-		var data, post = this._data.post,
+		var data, post = this.data.post,
 			imgs = post.images;
-		if(isForward ? this._data.idx + 1 === imgs.length : this._data.idx === 0) {
+		if(isForward ? this.data.idx + 1 === imgs.length : this.data.idx === 0) {
 			do {
 				post = post.getAdjacentVisPost(!isForward);
 				if(!post) {
@@ -6849,7 +6850,7 @@ AttachmentViewer.prototype = {
 	_oldY: 0,
 	_moved: false,
 	get _btns() {
-		var data = this._data,
+		var data = this.data,
 			val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
 		Object.defineProperty(this, '_btns', { value: val });
 		return val;
@@ -6871,7 +6872,7 @@ AttachmentViewer.prototype = {
 		var btns, obj = this._getHolder(data),
 			style = obj.style;
 		this._elStyle = style;
-		this._data = data;
+		this.data = data;
 		this._obj = obj;
 		obj.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
@@ -6888,7 +6889,7 @@ AttachmentViewer.prototype = {
 	_remove: function(e) {
 		$del(this._obj);
 		if(e) {
-			this._data.sendCloseEvent(e, false);
+			this.data.sendCloseEvent(e, false);
 		}
 	}
 };
