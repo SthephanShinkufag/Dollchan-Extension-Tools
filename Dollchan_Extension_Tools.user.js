@@ -1713,7 +1713,7 @@ function getCfgFilters() {
 			})])
 		]),
 		lBox('sortSpells', true, function() {
-			if (Cfg['sortSpells']) {
+			if(Cfg['sortSpells']) {
 				toggleSpells();
 			}
 		}),
@@ -6716,7 +6716,7 @@ ImgBtnsShowHider.prototype = {
 		case 'click':
 			switch(e.target.parentNode.id) {
 			case 'de-img-btn-next': this._nextFn(); return;
-			case 'de-img-btn-prev': this._nextFn(); return;
+			case 'de-img-btn-prev': this._prevFn(); return;
 			default: return;
 			}
 		}
@@ -6831,7 +6831,7 @@ AttachmentViewer.prototype = {
 					}
 				}
 				imgs = post.images;
-			} while (imgs.length === 0);
+			} while(imgs.length === 0);
 			data = imgs[firstThr.op ? 0 : imgs.length - 1];
 		} else {
 			data = imgs[isForward ? this.idx + 1 : this.idx - 1]
@@ -6912,7 +6912,7 @@ Attachment.prototype = {
 		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
 	},
 	getHash: function(Fn) {
-		if (this.hasOwnProperty('hash')) {
+		if(this.hasOwnProperty('hash')) {
 			Fn(this.hash);
 		} else {
 			this.callback = Fn;
@@ -7134,8 +7134,7 @@ Attachment.prototype = {
 			}
 		},
 		get workers() {
-			var val = new workerQueue(4, genImgHash, function(e) {
-			});
+			var val = new workerQueue(4, genImgHash, function(e) {});
 			spells.addCompleteFunc(this._clearWorkers.bind(this));
 			Object.defineProperty(this, 'workers', { value: val, configurable: true });
 			return val;
@@ -7163,20 +7162,20 @@ Attachment.prototype = {
 	},
 	get _offset() {
 		var post = this.post,
-			isGlob = !post._isPview && post.count > 4,
+			useCachedValue = !post._isPview && post.count > 4,
 			val = -1;
-		if(isGlob) {
+		if(useCachedValue) {
 			val = this._glob._offset;
 		}
 		if(val === -1) {
 			if(post.hidden) {
-				this.post.hideContent(false);
+				post.hideContent(false);
 				val = this.el.getBoundingClientRect().left + window.pageXOffset;
-				this.post.hideContent(true);
+				post.hideContent(true);
 			} else {
 				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 			}
-			if(isGlob) {
+			if(useCachedValue) {
 				this._glob._offset = val;
 			}
 		}
