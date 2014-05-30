@@ -2184,7 +2184,7 @@ function showMenu(el, html, inPanel, onclick) {
 		'px; ' + y + 'px;">' + html + '</div>');
 	menu = doc.body.lastChild;
 	nav.addMouseEvent(menu, 'mouseenter', function(e) {
-		clearTimeout(this.odelay);
+		clearTimeout(e.target.odelay);
 	});
 	nav.addMouseEvent(menu, 'mouseleave', removeMenu);
 	menu.addEventListener('click', function(e) {
@@ -6872,16 +6872,21 @@ AttachmentViewer.prototype = {
 			el = data.getFullObject(),
 			screenWidth = Post.sizing.wWidth,
 			screenHeight = Post.sizing.wHeight;
-		html = '<div class="de-pic-holder" style="top:' +
+		html = '<div class="de-pic-holder de-img-center" style="top:' +
 			((screenHeight - size[1]) / 2 - 1) + 'px; left:' +
 			((screenWidth - size[0]) / 2 - 1) + 'px; width:' +
 			size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
 		obj = $add(html);
-		obj.appendChild(el);
+		if(data.isImage) {
+			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.fullSrc + '"></a>');
+			obj.firstChild.appendChild(el);
+		} else {
+			obj.appendChild(el);
+		}
 		return obj;
 	},
 	_show: function(data) {
-		var btns, obj = this._getHolder(data),
+		var obj = this._getHolder(data),
 			style = obj.style;
 		this._elStyle = style;
 		this.data = data;
@@ -6893,8 +6898,6 @@ AttachmentViewer.prototype = {
 			nav.addMouseEvent(obj, 'mouseenter', this);
 			nav.addMouseEvent(obj, 'mouseleave', this);
 		}
-		obj.classList.add('de-img-center');
-		btns = $id('de-img-btns');
 		if(!data.post._isPview) {
 			this._btns.show();
 		} else if(this.hasOwnProperty('_btns')) {
@@ -7033,8 +7036,7 @@ Attachment.prototype = {
 		}
 	},
 	expand: function(inPost, e) {
-		var size, img, el = this.el,
-			clickFn = null;
+		var size, el = this.el;
 		if(!inPost) {
 			if(Attachment.viewer) {
 				if(Attachment.viewer.data === this) {
@@ -7054,11 +7056,10 @@ Attachment.prototype = {
 		el.style.display = 'none';
 		size = this.computeFullSize(inPost);
 		this._fullEl = this.getFullObject();
-		img = this._fullEl.firstChild;
 		this._fullEl.className = 'de-img-full';
-		img.style.width = size[0];
-		img.style.height = size[1];
-		$after(el.parentNode, this._fullEl);
+		this._fullEl.style.width = size[0] + 'px';
+		this._fullEl.style.height = size[1] + 'px';
+		$after(el, this._fullEl);
 	},
 	getFullObject: function() {
 		var obj;
@@ -7093,7 +7094,7 @@ Attachment.prototype = {
 					'<param name="wmode" value="transparent" /></object>');
 			}
 		} else {
-			obj = $add('<a href="' + this.fullSrc + '">' +
+			obj = $add(
 				'<img style="width: 100%; height: 100%" src="' +
 				this.fullSrc + '" alt="' + this.fullSrc + '"></a>');
 			obj.onload = obj.onerror = function(e) {
@@ -7109,8 +7110,8 @@ Attachment.prototype = {
 		var cr, x, y, pv = this.post;
 		if(nav.Firefox && pv._isPview) {
 			cr = pv.el.getBoundingClientRect();
-			x = e.pageX;
-			y = e.pageY;
+			x = e.pageX - pageXOffset;
+			y = e.pageY - pageYOffset;
 			if(!inPost) {
 				while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 					if(pv = pv.parent) {
@@ -7124,6 +7125,8 @@ Attachment.prototype = {
 				}
 				if(pv.kid) {
 					pv.kid.markToDel();
+				} else {
+					clearTimeout(Pview.delTO);
 				}
 			} else if(x > cr.right || y > cr.bottom && Pview.top) {
 				Pview.top.markToDel();
@@ -8072,7 +8075,7 @@ Post.prototype = {
 		case 'de-img-full de-img-center':
 			return;
 		case 'de-img-full':
-			iEl = el.previousSibling.firstElementChild;
+			iEl = el.previousSibling;
 			(this.images[iEl.imgIdx] || iEl.data).collapse(e);
 			break;
 		case 'de-img-pre':
@@ -9822,7 +9825,7 @@ function getNavFuncs() {
 			return url;
 		},
 		get hasMouseEnterLeave() {
-			var val = 'onmouseenter' in doc;
+			var val = ('onmouseenter' in doc) && !this.Chrome;
 			Object.defineProperty(this, 'hasMouseEnterLeave', { value: val });
 			return val;
 		},
