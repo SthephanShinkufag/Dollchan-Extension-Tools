@@ -2183,10 +2183,10 @@ function showMenu(el, html, inPanel, onclick) {
 		pos + '; right: ' + (doc.documentElement.clientWidth - cr.right - window.pageXOffset) +
 		'px; ' + y + 'px;">' + html + '</div>');
 	menu = doc.body.lastChild;
-	menu.addEventListener('mouseover', function(e) {
-		clearTimeout(e.currentTarget.odelay);
-	}, true);
-	menu.addEventListener('mouseout', removeMenu, true);
+	nav.addMouseEvent(menu, 'mouseenter', function(e) {
+		clearTimeout(this.odelay);
+	});
+	nav.addMouseEvent(menu, 'mouseleave', removeMenu);
 	menu.addEventListener('click', function(e) {
 		var el = e.target;
 		if(el.className === 'de-menu-item') {
@@ -2210,12 +2210,10 @@ function addMenu(e) {
 }
 
 function removeMenu(e) {
-	var el, rt = e.relatedTarget;
+	var el = $c('de-menu', doc);
 	clearTimeout(e.target.odelay);
-	if(!rt || !nav.matchesSelector(rt, '.de-menu, .de-menu > div, .de-menu-item')) {
-		if(el = $c('de-menu', doc)) {
-			el.odelay = setTimeout($del, 75, el);
-		}
+	if(el) {
+		el.odelay = setTimeout($del, 75, el);
 	}
 }
 
@@ -6766,6 +6764,7 @@ AttachmentViewer.prototype = {
 		this._remove(e);
 	},
 	handleEvent: function(e) {
+		var temp;
 		if(Cfg['webmControl'] && e.target.tagName === 'VIDEO' && e.clientY >
 			(e.target.getBoundingClientRect().top + parseInt(this._elStyle.height, 10) - 30))
 		{
@@ -6803,6 +6802,15 @@ AttachmentViewer.prototype = {
 				}
 				e.stopPropagation();
 				break;
+			}
+			return;
+		case 'mouseenter':
+			Pview.mouseEnter({'target': this.data.post.el});
+			return;
+		case 'mouseleave':
+			temp = this.data.post.el;
+			if(temp !== e.relatedTarget && !temp.contains(e.relatedTarget)) {
+				Pview.mouseLeave(e);
 			}
 			return;
 		default: // wheel event
@@ -6880,7 +6888,11 @@ AttachmentViewer.prototype = {
 		this._obj = obj;
 		obj.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
-		obj.addEventListener('click', this, true)
+		obj.addEventListener('click', this, true);
+		if(data.post._isPview) {
+			nav.addMouseEvent(obj, 'mouseenter', this);
+			nav.addMouseEvent(obj, 'mouseleave', this);
+		}
 		obj.classList.add('de-img-center');
 		btns = $id('de-img-btns');
 		if(!data.post._isPview) {
@@ -7534,7 +7546,10 @@ Post.prototype = {
 					clearTimeout(Pview.delTO);
 					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg['linksOver']);
 				} else {
-					this._eventRefLinkOut(e);
+					clearTimeout(this._linkDelay);
+					if(this.kid) {
+						this.kid.markToDel();
+					}
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -7587,23 +7602,6 @@ Post.prototype = {
 				el.lchecked = true;
 			}
 			return;
-		}
-		if(this._isPview) {
-			if(type === 'mouseout') {
-				temp = e.relatedTarget;
-				if(Pview.top && (!temp || (!Pview.getPview(temp) && !temp.classList.contains('de-imgmenu')))) {
-					Pview.top.markToDel();
-				}
-			} else {
-				temp = Pview.getPview(e.relatedTarget);
-				if(!temp || temp.post !== this) {
-					if(this.kid) {
-						this.kid.markToDel();
-					} else {
-						clearTimeout(Pview.delTO);
-					}
-				}
-			}
 		}
 	},
 	hideRefs: function() {
@@ -8176,18 +8174,6 @@ Post.prototype = {
 			}.bind(this), 75);
 		}
 	},
-	_eventRefLinkOut: function(e) {
-		var rt = e.relatedTarget,
-			pv = Pview.getPview(rt);
-		clearTimeout(this._linkDelay);
-		if(!rt || !pv) {
-			if(Pview.top) {
-				Pview.top.markToDel();
-			}
-		} else if(pv.post === this && this.kid && rt.className !== 'de-reflink') {
-			this.kid.markToDel();
-		}
-	},
 	_getFull: function(node, isInit) {
 		if(aib.dobr) {
 			$del(node.nextSibling);
@@ -8298,12 +8284,19 @@ Pview.del = function(pv) {
 		}
 	} while(pv = pv.kid);
 };
-Pview.getPview = function(el) {
-	while(el && !el.classList.contains('de-pview')) {
-		el = el.parentElement;
+Pview.mouseEnter = function(e) {
+	var post = e.target.post;
+	if(post.kid) {
+		post.kid.markToDel();
+	} else {
+		clearTimeout(Pview.delTO);
 	}
-	return el;
 };
+Pview.mouseLeave = function(e) {
+	if(Pview.top && (!e.relatedTarget.classList.contains('de-imgmenu'))) {
+		Pview.top.markToDel();
+	}
+}
 Pview.delTO = 0;
 Pview.top = null;
 Pview.prototype = Object.create(Post.prototype, {
@@ -8426,8 +8419,9 @@ Pview.prototype = Object.create(Post.prototype, {
 			Pview.top = this;
 		}
 		this.parent.kid = this;
+		nav.addMouseEvent(el, 'mouseenter', Pview.mouseEnter);
+		nav.addMouseEvent(el, 'mouseleave', Pview.mouseLeave);
 		el.addEventListener('mouseover', this, true);
-		el.addEventListener('mouseout', this, true);
 		(aib.arch ? doc.body : dForm).appendChild(el);
 		setPviewPosition(this._link, el, false);
 		if(Cfg['animation']) {
@@ -9827,6 +9821,11 @@ function getNavFuncs() {
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
+		get hasMouseEnterLeave() {
+			var val = 'onmouseenter' in doc;
+			Object.defineProperty(this, 'hasMouseEnterLeave', { value: val });
+			return val;
+		},
 		get hasWorker() {
 			var val = 'Worker' in (this.Firefox ? unsafeWindow : Window);
 			Object.defineProperty(this, 'hasWorker', { value: val });
@@ -9849,6 +9848,20 @@ function getNavFuncs() {
 				val = Function.prototype.call.bind(fun);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
 			return val;
+		},
+		addMouseEvent: function(el, event, fun) {
+			if(this.hasMouseEnterLeave) {
+				el.addEventListener(event, fun, false);
+			} else {
+				el.addEventListener(event === 'mouseenter' ? 'mouseover' : 'mouseout', function nav_addMouseEnterEvent(fun, e) {
+					var related = e.relatedTarget;
+					if(!related || (related !== this && !this.contains(related))) {
+						fun(Object.create(e, {
+							'type': { value: e.type === 'mouseover' ? 'mouseenter' : 'mouseleave' }
+						}));
+					}
+				}.bind(el, fun), false);
+			}
 		}
 	};
 }
