@@ -7762,8 +7762,8 @@ Post.prototype = {
 				newW = newH * data.width / data.height;
 			}
 		}
-		img = data.el.parentNode;
-		if(/\.webm$/.test(img.href) || /\.webm$/.test(img.getAttribute('de-name'))) {
+		img = data.el && data.el.parentNode;
+		if(img && (/\.webm$/.test(img.href) || /\.webm$/.test(img.getAttribute('de-name')))) {
 			if(nav.canPlayWebm) {
 				img = $add('<video class="de-img-full" src="' + data.fullSrc +
 					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
