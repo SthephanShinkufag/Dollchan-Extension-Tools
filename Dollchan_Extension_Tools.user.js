@@ -9147,6 +9147,7 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 			} }
 		}],
+		get 'dobrochan.org'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
