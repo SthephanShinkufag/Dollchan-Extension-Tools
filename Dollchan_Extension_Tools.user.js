@@ -3411,6 +3411,19 @@ function addImgFileIcon(fName, info) {
 }
 
 function downloadImgData(url, Fn) {
+	var downloadObjInfo = function(obj) {
+		if(aib.fch && (nav.Firefox || nav.Chrome) && !obj.url.startsWith('blob')) {
+			obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
+			GM_xmlhttpRequest(obj);
+		} else {
+			obj['responseType'] = 'arraybuffer';
+			try {
+				$xhr(obj);
+			} catch(e) {
+				Fn(null);
+			}
+		}
+	}
 	downloadObjInfo({
 		'method': 'GET',
 		'url': url,
@@ -3441,20 +3454,6 @@ function downloadImgData(url, Fn) {
 			}
 		}.bind(null, url)
 	});
-}
-
-function downloadObjInfo(obj) {
-	if(nav.Firefox && aib.fch && !obj.url.startsWith('blob')) {
-		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
-		GM_xmlhttpRequest(obj);
-	} else {
-		obj['responseType'] = 'arraybuffer';
-		try {
-			$xhr(obj);
-		} catch(e) {
-			Fn(null);
-		}
-	}
 }
 
 function preloadImages(post) {
@@ -8999,6 +8998,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		get '2-ch.su'() { return this['2--ch.ru']; },
 		get '2--ch.su'() { return this['2--ch.ru']; },
+		get 'honokakawai.com'() { return this['2--ch.ru']; },
 		'2chru.net': [{
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
