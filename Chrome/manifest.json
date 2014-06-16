@@ -1,12 +1,12 @@
 {
 	"name": "Dollchan Extension Tools",
-	"version": "14.6.17.0",
+	"version": "14.6.17.1",
 	"description": "The best way to browse imageboards",
 	"homepage_url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/",
 	"content_scripts": [ {
 		"all_frames": true,
 		"js": [ "Dollchan_Extension_Tools.user.js" ],
-		"matches": [ "http://*", "https://*" ],
+		"matches": [ "http://*/*", "https://*/*" ],
 		"run_at": "document_start"
 	} ],
 	"icons": {
