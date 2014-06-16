@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.5.29.0
+// @version			14.6.17.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -8,13 +8,12 @@
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
-// @include			http://*
-// @include			https://*
+// @include			*
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.5.29.0',
+var version = '14.6.17.0',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -3444,7 +3443,7 @@ function downloadImgData(url, Fn) {
 }
 
 function downloadObjInfo(Fn, obj) {
-	if(aib.fch && (nav.Firefox || nav.Chrome) && !obj.url.startsWith('blob')) {
+	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	} else {
