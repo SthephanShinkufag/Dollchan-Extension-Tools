@@ -3411,20 +3411,7 @@ function addImgFileIcon(fName, info) {
 }
 
 function downloadImgData(url, Fn) {
-	var downloadObjInfo = function(obj) {
-		if(aib.fch && (nav.Firefox || nav.Chrome) && !obj.url.startsWith('blob')) {
-			obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
-			GM_xmlhttpRequest(obj);
-		} else {
-			obj['responseType'] = 'arraybuffer';
-			try {
-				$xhr(obj);
-			} catch(e) {
-				Fn(null);
-			}
-		}
-	}
-	downloadObjInfo({
+	downloadObjInfo(Fn, {
 		'method': 'GET',
 		'url': url,
 		'onreadystatechange': function onDownloaded(url, e) {
@@ -3438,7 +3425,7 @@ function downloadImgData(url, Fn) {
 				if(e.status === 404 || !url) {
 					Fn(null);
 				} else {
-					downloadObjInfo({
+					downloadObjInfo(Fn, {
 						'method': 'GET',
 						'url': url,
 						'onreadystatechange': onDownloaded.bind(null, null)
@@ -3454,6 +3441,20 @@ function downloadImgData(url, Fn) {
 			}
 		}.bind(null, url)
 	});
+}
+
+function downloadObjInfo(Fn, obj) {
+	if(aib.fch && (nav.Firefox || nav.Chrome) && !obj.url.startsWith('blob')) {
+		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
+		GM_xmlhttpRequest(obj);
+	} else {
+		obj['responseType'] = 'arraybuffer';
+		try {
+			$xhr(obj);
+		} catch(e) {
+			Fn(null);
+		}
+	}
 }
 
 function preloadImages(post) {
