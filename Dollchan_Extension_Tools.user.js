@@ -6788,9 +6788,7 @@ AttachmentViewer.prototype = {
 	},
 	handleEvent: function(e) {
 		var temp, isOverEvent = false;
-		if(Cfg['webmControl'] && e.target.tagName === 'VIDEO' && e.clientY >
-			(e.target.getBoundingClientRect().top + parseInt(this._elStyle.height, 10) - 30))
-		{
+		if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
 			return;
 		}
 		switch(e.type) {
@@ -6989,14 +6987,18 @@ IAttachmentData.prototype = {
 		return val;
 	},
 	collapse: function(e) {
-		this.expanded = false;
-		$del(this._fullEl);
-		this._fullEl = null;
-		this.el.style.display = '';
-		$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
-		if(e && this.inPview) {
-			this.sendCloseEvent(e, true);
+		if(!this.isVideo || !this.isControlClick(e, this._fullEl.style.height)) {
+			this.expanded = false;
+			$del(this._fullEl);
+			this._fullEl = null;
+			this.el.style.display = '';
+			$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
+			if(e && this.inPview) {
+				this.sendCloseEvent(e, true);
+			}
+			return true;
 		}
+		return false;
 	},
 	computeFullSize: function(inPost) {
 		var newH, newW, scrH, scrW = inPost ? Post.sizing.wWidth : Post.sizing.wWidth - this._offset;
@@ -7035,7 +7037,7 @@ IAttachmentData.prototype = {
 		this._fullEl.className = 'de-img-full';
 		this._fullEl.style.width = size[0] + 'px';
 		this._fullEl.style.height = size[1] + 'px';
-		$after(el, this._fullEl);
+		$after(el.parentNode, this._fullEl);
 	},
 	getFullObject: function() {
 		var obj;
@@ -7080,6 +7082,10 @@ IAttachmentData.prototype = {
 			};
 		}
 		return obj;
+	},
+	isControlClick: function(e, styleHeight) {
+		return Cfg['webmControl'] && e.clientY >
+			(e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30);
 	},
 	sendCloseEvent: function(e, inPost) {
 		var pv = this.post,
@@ -8140,27 +8146,16 @@ Post.prototype = {
 		}
 	},
 	_clickImage: function(el, e) {
-		var data, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
-		switch(el.className) {
-		case 'de-img-full':
-			this.allImages[el.previousSibling.imgIdx].collapse(e);
-			break;
-		case 'de-img-pre':
-		case 'thumb':
-		case 'ca_thumb':
-			data = this.allImages[el.imgIdx];
-			break;
-		default:
-			data = this.images;
-			if(el.imgIdx === undefined) {
+		// We need to get allImages getter before imgIdx property, do not remove allImgs var
+		var data, allImgs = this.allImages;
+		if(el.classList.contains('de-img-full')) {
+			if(!allImgs[el.previousSibling.firstElementChild.imgIdx].collapse(e)) {
 				return;
 			}
-			data = data[el.imgIdx];
-		}
-		if(data) {
-			if(data.isImage || data.isVideo) {
-				data.expand(inPost, e);
-			}
+		} else if(el.imgIdx !== undefined && (data = allImgs[el.imgIdx]) &&
+		         (data.isImage || data.isVideo))
+		{
+			data.expand((Cfg['expandImgs'] === 1) ^ e.ctrlKey, e);
 		}
 		$pd(e);
 		e.stopPropagation();
