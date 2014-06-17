@@ -2232,7 +2232,7 @@ function removeMenu(e) {
 	var el = $c('de-menu', doc),
 		rt = e.relatedTarget;
 	clearTimeout(e.target.odelay);
-	if(el && (!rt || !el.contains(rt))) {
+	if(el && (!rt || (rt !== el && !el.contains(rt)))) {
 		el.odelay = setTimeout($del, 75, el);
 	}
 }
