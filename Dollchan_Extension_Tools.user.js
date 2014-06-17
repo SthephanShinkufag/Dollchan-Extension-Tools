@@ -3490,12 +3490,11 @@ function preloadImages(post) {
 					aEl.setAttribute('download', fName);
 					a.href = window.URL.createObjectURL(new Blob([data], {'type': this[2]}));
 					a.setAttribute('de-name', fName);
+					if(this[2] === 'video/webm') {
+						this[4].setAttribute('de-video', '');
+					}
 					if(this[3]) {
-						if(this[2] === 'video/webm') {
-							this[3].setAttribute('de-video', '');
-						} else {
-							this[3].src = a.href;
-						}
+						this[4].src = a.href;
 					}
 					if(rjf) {
 						rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(aEl, fName));
@@ -3537,7 +3536,7 @@ function preloadImages(post) {
 				nExp &= !Cfg['openGIFs'];
 			}
 			if(queue) {
-				queue.run([url, lnk, iType, nExp && el]);
+				queue.run([url, lnk, iType, nExp, el]);
 			} else if(nExp) {
 				el.src = url;
 			}
@@ -7925,7 +7924,7 @@ Post.prototype = {
 		}
 	},
 	toggleImages: function(expand) {
-		for(var dat, i = 0, imgs = this.images, len = imgs.length; i < len; ++i) {
+		for(var dat, i = 0, imgs = this.allImages, len = imgs.length; i < len; ++i) {
 			dat = imgs[i];
 			if(dat.isImage && (dat.expanded ^ expand)) {
 				if(expand) {
