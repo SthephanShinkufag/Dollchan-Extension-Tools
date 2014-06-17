@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.5.29.0
+// @version			14.6.17.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -8,13 +8,12 @@
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
-// @include			http://*
-// @include			https://*
+// @include			*
 // ==/UserScript==
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.5.29.0',
+var version = '14.6.17.0',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -42,7 +41,7 @@ defaultCfg = {
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		// 		resize large images
 	'webmControl':	1,		//		control bar fow webm files
-	'webmVolume':	0,		//		default volume for webm files
+	'webmVolume':	100,	//		default volume for webm files
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		// 		detect built-in files in images
@@ -821,15 +820,29 @@ function toRegExp(str, noG) {
 //============================================================================================================
 
 function getStored(id) {
-	return nav.isGM ? GM_getValue(id) :
-		nav.isSStorage ? scriptStorage.getItem(id) :
-		localStorage.getItem(id);
+	if(nav.isGM) {
+		return GM_getValue(id);
+/*	} else if(nav.isChromeStorage) {
+		chrome.storage.local.get(id, function(obj) {
+			console.log('read', obj[id]);
+		});
+*/	} else if(nav.isScriptStorage) {
+		return scriptStorage.getItem(id);
+	} else {
+		return localStorage.getItem(id);
+	}
 }
 
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(nav.isSStorage) {
+/*	} else if(nav.isChromeStorage) {
+		var obj = {};
+		obj[id] = value;
+		chrome.storage.local.set(obj, function() {
+			console.log('write', obj);
+		});
+*/	} else if(nav.isScriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
 		localStorage.setItem(id, value);
@@ -839,7 +852,13 @@ function setStored(id, value) {
 function delStored(id) {
 	if(nav.isGM) {
 		GM_deleteValue(id);
-	} else if(nav.isSStorage) {
+/*	} else if(nav.isChromeStorage) {
+		var obj = {};
+		obj[id] = value;
+		chrome.storage.local.remove(obj, function() {
+			console.log('delete', obj);
+		});
+*/	} else if(nav.isScriptStorage) {
 		scriptStorage.removeItem(id);
 	} else {
 		localStorage.removeItem(id);
@@ -3407,7 +3426,7 @@ function addImgFileIcon(fName, info) {
 }
 
 function downloadImgData(url, Fn) {
-	downloadObjInfo({
+	downloadObjInfo(Fn, {
 		'method': 'GET',
 		'url': url,
 		'onreadystatechange': function onDownloaded(url, e) {
@@ -3421,7 +3440,7 @@ function downloadImgData(url, Fn) {
 				if(e.status === 404 || !url) {
 					Fn(null);
 				} else {
-					downloadObjInfo({
+					downloadObjInfo(Fn, {
 						'method': 'GET',
 						'url': url,
 						'onreadystatechange': onDownloaded.bind(null, null)
@@ -3439,8 +3458,8 @@ function downloadImgData(url, Fn) {
 	});
 }
 
-function downloadObjInfo(obj) {
-	if(nav.Firefox && aib.fch && !obj.url.startsWith('blob')) {
+function downloadObjInfo(Fn, obj) {
+	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
 		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	} else {
@@ -4140,6 +4159,9 @@ function loadPages(count) {
 			var el, df, j, parseThrs = Thread.parsed,
 				threads = parseThrs ? [] : null;
 			for(j in pages) {
+				if(!pages.hasOwnProperty(j)) {
+					continue;
+				}
 				if(j != pageNum) {
 					dForm.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
 						Lng.page[lang] + ' ' + j + '</center><hr>');
@@ -9100,6 +9122,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}],
 		get '2-ch.su'() { return this['2--ch.ru']; },
 		get '2--ch.su'() { return this['2--ch.ru']; },
+		get 'honokakawai.com'() { return this['2--ch.ru']; },
 		'2chru.net': [{
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
@@ -9251,6 +9274,7 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 			} }
 		}],
+		get 'dobrochan.org'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
@@ -9807,6 +9831,7 @@ function getNavFuncs() {
 		safari = webkit && !chrome,
 		isGM = typeof GM_setValue === 'function' && 
 			(!chrome || !GM_setValue.toString().contains('not supported')),
+		isChromeStorage = chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
@@ -9822,8 +9847,9 @@ function getNavFuncs() {
 		Chrome: chrome,
 		Safari: safari,
 		isGM: isGM,
-		isGlobal: isGM || isScriptStorage,
-		isSStorage: isScriptStorage,
+		isChromeStorage: isChromeStorage,
+		isScriptStorage: isScriptStorage,
+		isGlobal: isGM || /* isChromeStorage || */ isScriptStorage,
 		cssFix: webkit ? '-webkit-' : isOldOpera ? '-o-' : '',
 		Anim: !isOldOpera,
 		animName: webkit ? 'webkitAnimationName' : isOldOpera ? 'OAnimationName' : 'animationName',
