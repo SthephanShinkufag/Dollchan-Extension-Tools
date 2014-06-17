@@ -820,15 +820,29 @@ function toRegExp(str, noG) {
 //============================================================================================================
 
 function getStored(id) {
-	return nav.isGM ? GM_getValue(id) :
-		nav.isSStorage ? scriptStorage.getItem(id) :
-		localStorage.getItem(id);
+	if(nav.isGM) {
+		return GM_getValue(id);
+/*	} else if(nav.isChromeStorage) {
+		chrome.storage.local.get(id, function(obj) {
+			console.log('read', obj[id]);
+		});
+*/	} else if(nav.isScriptStorage) {
+		return scriptStorage.getItem(id);
+	} else {
+		return localStorage.getItem(id);
+	}
 }
 
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
-	} else if(nav.isSStorage) {
+/*	} else if(nav.isChromeStorage) {
+		var obj = {};
+		obj[id] = value;
+		chrome.storage.local.set(obj, function() {
+			console.log('write', obj);
+		});
+*/	} else if(nav.isScriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
 		localStorage.setItem(id, value);
@@ -838,7 +852,13 @@ function setStored(id, value) {
 function delStored(id) {
 	if(nav.isGM) {
 		GM_deleteValue(id);
-	} else if(nav.isSStorage) {
+/*	} else if(nav.isChromeStorage) {
+		var obj = {};
+		obj[id] = value;
+		chrome.storage.local.remove(obj, function() {
+			console.log('delete', obj);
+		});
+*/	} else if(nav.isScriptStorage) {
 		scriptStorage.removeItem(id);
 	} else {
 		localStorage.removeItem(id);
@@ -9701,6 +9721,7 @@ function getNavFuncs() {
 		safari = webkit && !chrome,
 		isGM = typeof GM_setValue === 'function' && 
 			(!chrome || !GM_setValue.toString().contains('not supported')),
+		isChromeStorage = chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
@@ -9716,8 +9737,9 @@ function getNavFuncs() {
 		Chrome: chrome,
 		Safari: safari,
 		isGM: isGM,
-		isGlobal: isGM || isScriptStorage,
-		isSStorage: isScriptStorage,
+		isChromeStorage: isChromeStorage,
+		isScriptStorage: isScriptStorage,
+		isGlobal: isGM || /* isChromeStorage || */ isScriptStorage,
 		cssFix: webkit ? '-webkit-' : isOldOpera ? '-o-' : '',
 		Anim: !isOldOpera,
 		animName: webkit ? 'webkitAnimationName' : isOldOpera ? 'OAnimationName' : 'animationName',
