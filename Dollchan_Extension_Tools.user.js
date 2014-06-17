@@ -6872,7 +6872,7 @@ AttachmentViewer.prototype = {
 			} while(imgs.length === 0);
 			data = imgs[firstThr.op ? 0 : imgs.length - 1];
 		} else {
-			data = imgs[isForward ? this.idx + 1 : this.idx - 1]
+			data = imgs[isForward ? this.data.idx + 1 : this.data.idx - 1]
 		}
 		this.update(data, null);
 	},
@@ -7710,7 +7710,7 @@ Post.prototype = {
 			for(i = 0, els = $C('de-img-pre', this.el), len = els.length; i < len; ++i, ++allIdx) {
 				el = els[i];
 				el.imgIdx = allIdx;
-				val.push(new EmbeddedImage(this, el, i));
+				val.push(new EmbeddedImage(this, el, allIdx));
 			}
 		}
 		Object.defineProperty(this, 'allImages', { value: val });
