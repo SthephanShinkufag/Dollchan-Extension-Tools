@@ -8135,11 +8135,10 @@ Post.prototype = {
 		}
 	},
 	_clickImage: function(el, e) {
-		var data, iEl, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
+		var data, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
 		switch(el.className) {
 		case 'de-img-full':
-			iEl = el.previousSibling;
-			this.allImages[iEl.imgIdx].collapse(e);
+			this.allImages[el.previousSibling.imgIdx].collapse(e);
 			break;
 		case 'de-img-pre':
 		case 'thumb':
