@@ -6775,8 +6775,8 @@ ImgBtnsShowHider.prototype = {
 	}
 };
 
-function AttachmentViewer(data) {
-	this._show(data);
+function AttachmentViewer(data, showButtons) {
+	this._show(data, showButtons);
 }
 AttachmentViewer.prototype = {
 	data: null,
@@ -6875,9 +6875,9 @@ AttachmentViewer.prototype = {
 		}
 		this.update(data, null);
 	},
-	update: function(data, e) {
+	update: function(data, showButtons, e) {
 		this._remove(e);
-		this._show(data);
+		this._show(data, showButtons);
 	},
 
 	_data: null,
@@ -6887,8 +6887,7 @@ AttachmentViewer.prototype = {
 	_oldY: 0,
 	_moved: false,
 	get _btns() {
-		var data = this.data,
-			val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
+		var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
 		Object.defineProperty(this, '_btns', { value: val });
 		return val;
 	},
@@ -6903,14 +6902,14 @@ AttachmentViewer.prototype = {
 			size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
 		obj = $add(html);
 		if(data.isImage) {
-			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.fullSrc + '"></a>');
+			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.src + '"></a>');
 			obj.firstChild.appendChild(el);
 		} else {
 			obj.appendChild(el);
 		}
 		return obj;
 	},
-	_show: function(data) {
+	_show: function(data, showButtons) {
 		var obj = this._getHolder(data),
 			style = obj.style;
 		this._elStyle = style;
@@ -6923,7 +6922,7 @@ AttachmentViewer.prototype = {
 			obj.addEventListener('mouseover', this, true);
 			obj.addEventListener('mouseout', this, true);
 		}
-		if(!data.inPview) {
+		if(showButtons) {
 			this._btns.show();
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
@@ -6938,68 +6937,19 @@ AttachmentViewer.prototype = {
 	}
 };
 
-function Attachment(post, el, idx) {
-	this.el = el;
-	this.idx = idx;
+function AttachmentData(post, el, src, width, height) {
 	this.post = post;
+	this.el = el;
+	this.wrap = el.parentNode;
+	this.src = src;
+	this.width = width;
+	this.height = height;
 }
-Attachment.viewer = null;
-Attachment.prototype = {
+AttachmentData.prototype = {
 	expanded: false,
-	get data() {
-		var img = this.el,
-			cnv = this._glob.canvas,
-			w = cnv.width = img.naturalWidth,
-			h = cnv.height = img.naturalHeight,
-			ctx = cnv.getContext('2d');
-		ctx.drawImage(img, 0, 0);
-		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
-	},
-	getHash: function(Fn) {
-		if(this.hasOwnProperty('hash')) {
-			Fn(this.hash);
-		} else {
-			this.callback = Fn;
-			if(!this._processing) {
-				var hash = this._maybeGetHash();
-				if(hash !== null) {
-					Fn(hash);
-				}
-			}
-		}
-	},
-	get hash() {
-		var hash;
-		if(this._processing) {
-			this._needToHide = true;
-		} else if(aib.fch || this.el.complete) {
-			hash = this._maybeGetHash(null);
-			if(hash !== null) {
-				return hash;
-			}
-		} else {
-			this.el.onload = this.el.onerror = this._onload.bind(this);
-		}
-		this.post.hashImgsBusy++;
-		return null;
-	},
-	get height() {
-		var dat = aib.getImgSize(this.info);
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[1];
-	},
 	get inPview() {
 		var val = this.post.isPview;
 		Object.defineProperty(this, 'inPview', { value: val });
-		return val;
-	},
-	get info() {
-		var el = $c(aib.cFileInfo, this.wrap),
-			val = el ? el.textContent : '';
-		Object.defineProperty(this, 'info', { value: val });
 		return val;
 	},
 	get isImage() {
@@ -7014,33 +6964,15 @@ Attachment.prototype = {
 		Object.defineProperty(this, 'isVideo', { value: val });
 		return val;
 	},
-	get fullSrc() {
-		var val = aib.getImgLink(this.el).href;
-		Object.defineProperty(this, 'fullSrc', { value: val });
-		return val;
-	},
-	get src() {
-		var val = aib.getImgSrc(this.el);
-		Object.defineProperty(this, 'src', { value: val });
-		return val;
-	},
-	get weight() {
-		var val = aib.getImgWeight(this.info);
-		Object.defineProperty(this, 'weight', { value: val });
-		return val;
-	},
-	get width() {
-		var dat = aib.getImgSize(this.info);
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[0];
-	},
-	get wrap() {
-		var val = aib.getImgWrap(this.el.parentNode);
-		Object.defineProperty(this, 'wrap', { value: val });
-		return val;
+	collapse: function(e) {
+		this.expanded = false;
+		$del(this._fullEl);
+		this._fullEl = null;
+		this.el.style.display = '';
+		$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
+		if(e && this.inPview) {
+			this.sendCloseEvent(e, true);
+		}
 	},
 	computeFullSize: function(inPost) {
 		var newH, newW, scrH, scrW = inPost ? Post.sizing.wWidth : Post.sizing.wWidth - this._offset;
@@ -7055,16 +6987,6 @@ Attachment.prototype = {
 		}
 		return [newW, newH]
 	},
-	collapse: function(e) {
-		this.expanded = false;
-		$del(this._fullEl);
-		this._fullEl = null;
-		this.el.style.display = '';
-		$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
-		if(e && this.inPview) {
-			this.sendCloseEvent(e, true);
-		}
-	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
 		if(!inPost) {
@@ -7074,9 +6996,9 @@ Attachment.prototype = {
 					Attachment.viewer = null;
 					return;
 				}
-				Attachment.viewer.update(this, e);
+				Attachment.viewer.update(this, this._showButtons, e);
 			} else {
-				Attachment.viewer = new AttachmentViewer(this);
+				Attachment.viewer = new AttachmentViewer(this, this._showButtons);
 			}
 			return;
 		}
@@ -7096,7 +7018,7 @@ Attachment.prototype = {
 		if(this.isVideo) {
 			if(nav.canPlayWebm) {
 				obj = $add('<video style="width: 100%; height: 100%" src="' +
-					this.fullSrc +
+					this.src +
 					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
 					(Cfg['webmVolume'] === 0 ? 'muted ' : '') + '></video>');
 				if(Cfg['webmVolume'] !== 0) {
@@ -7115,7 +7037,7 @@ Attachment.prototype = {
 				};
 			} else {
 				obj = $add('<object style="width: 100%; height: 100%" data="' +
-					this.fullSrc + '" type="video/quicktime">' +
+					this.src + '" type="video/quicktime">' +
 					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
 					'<param name="controller" value="' + (Cfg['webmControl'] ? 'true' : 'false') + '" />' +
 					'<param name="autoplay" value="true" />' +
@@ -7125,7 +7047,7 @@ Attachment.prototype = {
 			}
 		} else {
 			obj = $add('<img style="width: 100%; height: 100%" src="' +
-				this.fullSrc + '" alt="' + this.fullSrc + '"></a>');
+				this.src + '" alt="' + this.fullSrc + '"></a>');
 			obj.onload = obj.onerror = function(e) {
 				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
 					this.src = this.src;
@@ -7161,7 +7083,114 @@ Attachment.prototype = {
 		}
 	},
 
-	_glob: {
+	_fullEl: null,
+	_showButtons: false,
+	_useCache: false,
+	get _offset() {
+		var val = -1;
+		if(this._useCache) {
+			val = this._glob._offset;
+		}
+		if(val === -1) {
+			if(this.post.hidden) {
+				this.post.hideContent(false);
+				val = this.el.getBoundingClientRect().left + window.pageXOffset;
+				this.post.hideContent(true);
+			} else {
+				val = this.el.getBoundingClientRect().left + window.pageXOffset;
+			}
+			if(this._useCache) {
+				this._glob._offset = val;
+			}
+		}
+		Object.defineProperty(this, '_offset', { value: val });
+		return val;
+	}
+};
+
+function Attachment(post, el, idx) {
+	this.el = el;
+	this.idx = idx;
+	this.post = post;
+}
+Attachment.viewer = null;
+Attachment.prototype = Object.create(AttachmentData.prototype, {
+	data: { get: function() {
+		var img = this.el,
+			cnv = this._glob.canvas,
+			w = cnv.width = img.naturalWidth,
+			h = cnv.height = img.naturalHeight,
+			ctx = cnv.getContext('2d');
+		ctx.drawImage(img, 0, 0);
+		return [ctx.getImageData(0, 0, w, h).data.buffer, w, h];
+	} },
+	hash: { configurable: true, get: function() {
+		var hash;
+		if(this._processing) {
+			this._needToHide = true;
+		} else if(aib.fch || this.el.complete) {
+			hash = this._maybeGetHash(null);
+			if(hash !== null) {
+				return hash;
+			}
+		} else {
+			this.el.onload = this.el.onerror = this._onload.bind(this);
+		}
+		this.post.hashImgsBusy++;
+		return null;
+	} },
+	height: { configurable: true, get: function() {
+		var dat = aib.getImgSize(this.info);
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[1];
+	} },
+	info: { configurable: true, get: function() {
+		var el = $c(aib.cFileInfo, this.wrap),
+			val = el ? el.textContent : '';
+		Object.defineProperty(this, 'info', { value: val });
+		return val;
+	} },
+	src: { configurable: true, get: function() {
+		var val = aib.getImgLink(this.el).href;
+		Object.defineProperty(this, 'src', { value: val });
+		return val;
+	} },
+	weight: { configurable: true, get: function() {
+		var val = aib.getImgWeight(this.info);
+		Object.defineProperty(this, 'weight', { value: val });
+		return val;
+	} },
+	width: { configurable: true, get: function() {
+		var dat = aib.getImgSize(this.info);
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[0];
+	} },
+	wrap: { configurable: true, get: function() {
+		var val = aib.getImgWrap(this.el.parentNode);
+		Object.defineProperty(this, 'wrap', { value: val });
+		return val;
+	} },
+	getHash: { value: function atGetHash(Fn) {
+		if(this.hasOwnProperty('hash')) {
+			Fn(this.hash);
+		} else {
+			this.callback = Fn;
+			if(!this._processing) {
+				var hash = this._maybeGetHash();
+				if(hash !== null) {
+					Fn(hash);
+				}
+			}
+		}
+	} },
+
+	_glob: { value: {
 		get canvas() {
 			var val = doc.createElement('canvas');
 			Object.defineProperty(this, 'canvas', { value: val });
@@ -7195,40 +7224,27 @@ Attachment.prototype = {
 			this.workers.clear();
 			delete this.workers;
 		}
-	},
-	_callback: null,
-	_fullEl: null,
-	_processing: false,
-	_needToHide: false,
-	_endLoad: function(hash) {
+	} },
+	_callback: { writable: true, value: null },
+	_processing: { writable: true, value: false },
+	_needToHide: { writable: true, value: false },
+	_showButtons: { configurable: true, get: function() {
+		var val = !this.inPview;
+		Object.defineProperty(this, '_showButtons', { value: val });
+		return val;
+	} },
+	_useCache: { configurable: true, get: function() {
+		var val = !this.inPview && this.post.count > 4;
+		Object.defineProperty(this, '_useCache', { value: val });
+		return val;
+	} },
+	_endLoad: { value: function atEndLoad(hash) {
 		this.post.hashImgsBusy--;
 		if(this.post.hashHideFun !== null) {
 			this.post.hashHideFun(hash);
 		}
-	},
-	get _offset() {
-		var post = this.post,
-			useCachedValue = !this.inPview && post.count > 4,
-			val = -1;
-		if(useCachedValue) {
-			val = this._glob._offset;
-		}
-		if(val === -1) {
-			if(post.hidden) {
-				post.hideContent(false);
-				val = this.el.getBoundingClientRect().left + window.pageXOffset;
-				post.hideContent(true);
-			} else {
-				val = this.el.getBoundingClientRect().left + window.pageXOffset;
-			}
-			if(useCachedValue) {
-				this._glob._offset = val;
-			}
-		}
-		Object.defineProperty(this, '_offset', { value: val });
-		return val;
-	},
-	_maybeGetHash: function() {
+	} },
+	_maybeGetHash: { value: function atMaybeGetHash() {
 		var data, val;
 		if(this.src in this._glob.storage) {
 			val = this._glob.storage[this.src];
@@ -7246,14 +7262,14 @@ Attachment.prototype = {
 		}
 		Object.defineProperty(this, 'hash', { value: val });
 		return val;
-	},
-	_onload: function() {
+	} },
+	_onload: { value: function atOnLoad() {
 		var hash = this._maybeGetHash(null);
 		if(hash !== null) {
 			this._endLoad(hash);
 		}
-	},
-	_onload4chan: function(maybeData) {
+	} },
+	_onload4chan: { value: function atOnload4chan(maybeData) {
 		if(maybeData === null) {
 			Object.defineProperty(this, 'hash', { value: -1 });
 			this._endLoad(-1);
@@ -7262,8 +7278,8 @@ Attachment.prototype = {
 				data = [buffer, this.el.naturalWidth, this.el.naturalHeight];
 			this._glob.workers.run(data, [buffer], this._wrkEnd.bind(this));
 		}
-	},
-	_wrkEnd: function(data) {
+	} },
+	_wrkEnd: { value: function atWrkEnd(data) {
 		var hash = data.hash;
 		Object.defineProperty(this, 'hash', { value: hash });
 		this._endLoad(hash);
@@ -7272,8 +7288,8 @@ Attachment.prototype = {
 			this.callback = null;
 		}
 		this._glob.storage[this.src] = hash;
-	}
-};
+	} }
+});
 
 function addImagesSearch(el) {
 	for(var link, i = 0, els = $Q(aib.qImgLink, el), len = els.length; i < len; i++) {
@@ -8093,8 +8109,6 @@ Post.prototype = {
 	_clickImage: function(el, e) {
 		var data, iEl, inPost = (Cfg['expandImgs'] === 1) ^ e.ctrlKey;
 		switch(el.className) {
-		case 'de-img-full de-img-center':
-			return;
 		case 'de-img-full':
 			iEl = el.previousSibling;
 			(this.images[iEl.imgIdx] || iEl.data).collapse(e);
@@ -8103,13 +8117,7 @@ Post.prototype = {
 			if(!(data = el.data)) {
 				iEl = new Image();
 				iEl.src = el.src;
-				data = el.data = {
-					expanded: false,
-					isImage: true,
-					width: iEl.width,
-					height: iEl.height,
-					fullSrc: el.src
-				};
+				data = el.data = new AttachmentData(this, el, el.src, iEl.width, iEl.height);
 			}
 			break;
 		case 'thumb':
@@ -9179,9 +9187,6 @@ function getImageBoard(checkDomains, checkOther) {
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 1 ? p : '');
 			} },
-			getImgSrc: { value: function(el) {
-				return el.parentNode.href;
-			} },
 			getSage: { value: function(post) {
 				return !!$q('.id_Heaven, .useremail[href^="mailto:sage"]', post);
 			} },
@@ -9227,9 +9232,6 @@ function getImageBoard(checkDomains, checkOther) {
 					return el;
 				}
 				return $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
-			} },
-			getImgSrc: { value: function(el) {
-				return this.getImgLink(el).href;
 			} },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
@@ -9426,9 +9428,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.mess_post, .omittedposts' },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
-			} },
-			getImgSrc: { value: function(el) {
-				return el.parentNode.href;
 			} },
 			getSage: { writable: true, value: function(post) {
 				if($c('postertripid', dForm)) {
@@ -9632,9 +9631,6 @@ function getImageBoard(checkDomains, checkOther) {
 		getImgLink: function(img) {
 			var el = img.parentNode;
 			return el.tagName === 'SPAN' ? el.parentNode : el;
-		},
-		getImgSrc: function(el) {
-			return el.getAttribute('src');
 		},
 		getImgSize: function(info) {
 			if(info) {
