@@ -6919,11 +6919,11 @@ AttachmentViewer.prototype = {
 		obj.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
 		obj.addEventListener('click', this, true);
-		if(data.post._isPview) {
+		if(data.inPview) {
 			obj.addEventListener('mouseover', this, true);
 			obj.addEventListener('mouseout', this, true);
 		}
-		if(!data.post._isPview) {
+		if(!data.inPview) {
 			this._btns.show();
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
@@ -6932,7 +6932,7 @@ AttachmentViewer.prototype = {
 	},
 	_remove: function(e) {
 		$del(this._obj);
-		if(e) {
+		if(e && this.data.inPview) {
 			this.data.sendCloseEvent(e, false);
 		}
 	}
@@ -6990,6 +6990,11 @@ Attachment.prototype = {
 			'height': { value: dat[1] }
 		});
 		return dat[1];
+	},
+	get inPview() {
+		var val = this.post.isPview;
+		Object.defineProperty(this, 'inPview', { value: val });
+		return val;
 	},
 	get info() {
 		var el = $c(aib.cFileInfo, this.wrap),
@@ -7056,7 +7061,7 @@ Attachment.prototype = {
 		this._fullEl = null;
 		this.el.style.display = '';
 		$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
-		if(e) {
+		if(e && this.inPview) {
 			this.sendCloseEvent(e, true);
 		}
 	},
@@ -7131,30 +7136,28 @@ Attachment.prototype = {
 		return obj;
 	},
 	sendCloseEvent: function(e, inPost) {
-		var cr, x, y, pv = this.post;
-		if(nav.Firefox && pv._isPview) {
-			cr = pv.el.getBoundingClientRect();
-			x = e.pageX - pageXOffset;
+		var pv = this.post,
+			cr = pv.el.getBoundingClientRect(),
+			x = e.pageX - pageXOffset,
 			y = e.pageY - pageYOffset;
-			if(!inPost) {
-				while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
-					if(pv = pv.parent) {
-						cr = pv.el.getBoundingClientRect();
-					} else {
-						if(Pview.top) {
-							Pview.top.markToDel();
-						}
-						return;
-					}
-				}
-				if(pv.kid) {
-					pv.kid.markToDel();
+		if(!inPost) {
+			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
+				if(pv = pv.parent) {
+					cr = pv.el.getBoundingClientRect();
 				} else {
-					clearTimeout(Pview.delTO);
+					if(Pview.top) {
+						Pview.top.markToDel();
+					}
+					return;
 				}
-			} else if(x > cr.right || y > cr.bottom && Pview.top) {
-				Pview.top.markToDel();
 			}
+			if(pv.kid) {
+				pv.kid.markToDel();
+			} else {
+				clearTimeout(Pview.delTO);
+			}
+		} else if(x > cr.right || y > cr.bottom && Pview.top) {
+			Pview.top.markToDel();
 		}
 	},
 
@@ -7205,7 +7208,7 @@ Attachment.prototype = {
 	},
 	get _offset() {
 		var post = this.post,
-			useCachedValue = !post._isPview && post.count > 4,
+			useCachedValue = !this.inPview && post.count > 4,
 			val = -1;
 		if(useCachedValue) {
 			val = this._glob._offset;
@@ -7424,6 +7427,7 @@ Post.prototype = {
 	hashImgsBusy: 0,
 	imagesExpanded: false,
 	inited: true,
+	isPview: false,
 	kid: null,
 	next: null,
 	omitted: false,
@@ -7535,7 +7539,7 @@ Post.prototype = {
 				return;
 			case 'de-btn-hide':
 			case 'de-btn-hide-user':
-				if(this._isPview) {
+				if(this.isPview) {
 					pByNum[this.num].toggleUserVisib();
 					this.btns.firstChild.className = 'de-btn-hide-user';
 					if(pByNum[this.num].hidden) {
@@ -7550,7 +7554,7 @@ Post.prototype = {
 				this._menu = null;
 				return;
 			case 'de-btn-rep':
-				pr.showQuickReply(this._isPview ? this.getTopParent() : this, this.num, !this._isPview);
+				pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview);
 				return;
 			case 'de-btn-sage':
 				addSpell(9, '', false);
@@ -7565,7 +7569,7 @@ Post.prototype = {
 			this._hasEvents = true;
 			this.el.addEventListener('click', this, true);
 			this.el.addEventListener('mouseout', this, true);
-		} else if(this._isPview && isOutEvent) {
+		} else if(this.isPview && isOutEvent) {
 			this._handleMouseEvents(e.relatedTarget, false);
 		}
 		switch(el.classList[0]) {
@@ -7621,7 +7625,7 @@ Post.prototype = {
 			}
 			return;
 		}
-		if(this._isPview && !isOutEvent) {
+		if(this.isPview && !isOutEvent) {
 			this._handleMouseEvents(e.relatedTarget, true);
 		}
 	},
@@ -7976,7 +7980,6 @@ Post.prototype = {
 	},
 
 	_hasEvents: false,
-	_isPview: false,
 	_linkDelay: 0,
 	_menu: null,
 	_menuDelay: 0,
@@ -8071,7 +8074,7 @@ Post.prototype = {
 	_addPview: function(link) {
 		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
 			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
-			pv = this._isPview ? this.kid : Pview.top;
+			pv = this.isPview ? this.kid : Pview.top;
 		if(pv && pv.num === pNum) {
 			Pview.del(pv.kid);
 			setPviewPosition(link, pv.el, Cfg['animation'] && animPVMove);
@@ -8264,7 +8267,7 @@ function Pview(parent, link, tNum, pNum) {
 	this.num = pNum;
 	this.thr = parent.thr;
 	Object.defineProperty(this, 'tNum', { value: tNum });
-	if(post && (!post.isOp || !parent._isPview || !parent._loaded)) {
+	if(post && (!post.isOp || !parent.isPview || !parent._loaded)) {
 		this._showPost(post);
 		return;
 	}
@@ -8286,7 +8289,7 @@ Pview.del = function(pv) {
 	}
 	var el, vPost = Attachment.viewer && Attachment.viewer.data.post;
 	pv.parent.kid = null;
-	if(!pv.parent._isPview) {
+	if(!pv.parent.isPview) {
 		Pview.top = null;
 	}
 	do {
@@ -8315,9 +8318,10 @@ Pview.mouseEnter = function(post) {
 Pview.delTO = 0;
 Pview.top = null;
 Pview.prototype = Object.create(Post.prototype, {
+	isPview: { value: true },
 	getTopParent: { value: function pvGetBoardParent() {
 		var post = this.parent;
-		while(post._isPview) {
+		while(post.isPview) {
 			post = post.parent;
 		}
 		return post;
@@ -8327,7 +8331,6 @@ Pview.prototype = Object.create(Post.prototype, {
 		Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], this);
 	} },
 
-	_isPview: { value: true },
 	_loaded: { value: false, writable: true },
 	_cache: { value: {}, writable: true },
 	_readDelay: { value: 0, writable: true },
@@ -8357,7 +8360,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				rm = post.msg.nextSibling;
 			}
 			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
-				aib.getThrdUrl(b, parent._isPview ? parent.tNum : parent.tNum) + aib.anchor +
+				aib.getThrdUrl(b, parent.tNum) + aib.anchor +
 				parentNum + '">&gt;&gt;' + (brd === b ? '' : '/' + brd + '/') + parentNum +
 				'</a><span class="de-refcomma">, </span>');
 		}
@@ -8436,7 +8439,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		this._showPview(el);
 	} },
 	_showPview: { value: function pvShowPview(el, id) {
-		if(this.parent._isPview) {
+		if(this.parent.isPview) {
 			Pview.del(this.parent.kid);
 		} else {
 			Pview.del(Pview.top);
