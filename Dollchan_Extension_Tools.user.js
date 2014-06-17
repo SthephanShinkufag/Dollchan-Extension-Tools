@@ -6775,8 +6775,8 @@ ImgBtnsShowHider.prototype = {
 	}
 };
 
-function AttachmentViewer(data, showButtons) {
-	this._show(data, showButtons);
+function AttachmentViewer(data) {
+	this._show(data);
 }
 AttachmentViewer.prototype = {
 	data: null,
@@ -6857,7 +6857,7 @@ AttachmentViewer.prototype = {
 	},
 	navigate: function(isForward) {
 		var data, post = this.data.post,
-			imgs = post.images;
+			imgs = post.allImages;
 		if(isForward ? this.data.idx + 1 === imgs.length : this.data.idx === 0) {
 			do {
 				post = post.getAdjacentVisPost(!isForward);
@@ -6867,7 +6867,7 @@ AttachmentViewer.prototype = {
 						post = post.getAdjacentVisPost(!isForward);
 					}
 				}
-				imgs = post.images;
+				imgs = post.allImages;
 			} while(imgs.length === 0);
 			data = imgs[firstThr.op ? 0 : imgs.length - 1];
 		} else {
@@ -6909,7 +6909,7 @@ AttachmentViewer.prototype = {
 		}
 		return obj;
 	},
-	_show: function(data, showButtons) {
+	_show: function(data) {
 		var obj = this._getHolder(data),
 			style = obj.style;
 		this._elStyle = style;
@@ -6922,7 +6922,7 @@ AttachmentViewer.prototype = {
 			obj.addEventListener('mouseover', this, true);
 			obj.addEventListener('mouseout', this, true);
 		}
-		if(showButtons) {
+		if(!data.inPview) {
 			this._btns.show();
 		} else if(this.hasOwnProperty('_btns')) {
 			this._btns.hide();
@@ -6937,15 +6937,8 @@ AttachmentViewer.prototype = {
 	}
 };
 
-function AttachmentData(post, el, src, width, height) {
-	this.post = post;
-	this.el = el;
-	this.wrap = el.parentNode;
-	this.src = src;
-	this.width = width;
-	this.height = height;
-}
-AttachmentData.prototype = {
+function IAttachmentData() {}
+IAttachmentData.prototype = {
 	expanded: false,
 	get inPview() {
 		var val = this.post.isPview;
@@ -6962,6 +6955,32 @@ AttachmentData.prototype = {
 		var val = /\.webm$/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value: val });
+		return val;
+	},
+	get height() {
+		var dat = this._getImageSize();
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[1];
+	},
+	get src() {
+		var val = this._getImageSrc();;
+		Object.defineProperty(this, 'src', { value: val });
+		return val;
+	},
+	get width() {
+		var dat = this._getImageSize();
+		Object.defineProperties(this, {
+			'width': { value: dat[0] },
+			'height': { value: dat[1] }
+		});
+		return dat[0];
+	},
+	get wrap() {
+		var val = this._getImageWrap();
+		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	},
 	collapse: function(e) {
@@ -6996,9 +7015,9 @@ AttachmentData.prototype = {
 					Attachment.viewer = null;
 					return;
 				}
-				Attachment.viewer.update(this, this._showButtons, e);
+				Attachment.viewer.update(this, e);
 			} else {
-				Attachment.viewer = new AttachmentViewer(this, this._showButtons);
+				Attachment.viewer = new AttachmentViewer(this);
 			}
 			return;
 		}
@@ -7084,8 +7103,6 @@ AttachmentData.prototype = {
 	},
 
 	_fullEl: null,
-	_showButtons: false,
-	_useCache: false,
 	get _offset() {
 		var val = -1;
 		if(this._useCache) {
@@ -7108,13 +7125,33 @@ AttachmentData.prototype = {
 	}
 };
 
-function Attachment(post, el, idx) {
+function EmbeddedImage(post, el, idx) {
+	this.post = post;
 	this.el = el;
 	this.idx = idx;
+}
+EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
+	_useCache: { value: false },
+	_getImageSize: { value: function() {
+		var iEl = new Image();
+		iEl.src = this.el.src;
+		return [iEl.width, iEl.height];
+	} },
+	_getImageSrc: { value: function() {
+		return this.el.src;
+	} },
+	_getImageWrap: { value: function() {
+		return this.el.parentNode;
+	} }
+});
+
+function Attachment(post, el, idx) {
 	this.post = post;
+	this.el = el;
+	this.idx = idx;
 }
 Attachment.viewer = null;
-Attachment.prototype = Object.create(AttachmentData.prototype, {
+Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	data: { get: function() {
 		var img = this.el,
 			cnv = this._glob.canvas,
@@ -7139,41 +7176,15 @@ Attachment.prototype = Object.create(AttachmentData.prototype, {
 		this.post.hashImgsBusy++;
 		return null;
 	} },
-	height: { configurable: true, get: function() {
-		var dat = aib.getImgSize(this.info);
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[1];
-	} },
 	info: { configurable: true, get: function() {
 		var el = $c(aib.cFileInfo, this.wrap),
 			val = el ? el.textContent : '';
 		Object.defineProperty(this, 'info', { value: val });
 		return val;
 	} },
-	src: { configurable: true, get: function() {
-		var val = aib.getImgLink(this.el).href;
-		Object.defineProperty(this, 'src', { value: val });
-		return val;
-	} },
 	weight: { configurable: true, get: function() {
 		var val = aib.getImgWeight(this.info);
 		Object.defineProperty(this, 'weight', { value: val });
-		return val;
-	} },
-	width: { configurable: true, get: function() {
-		var dat = aib.getImgSize(this.info);
-		Object.defineProperties(this, {
-			'width': { value: dat[0] },
-			'height': { value: dat[1] }
-		});
-		return dat[0];
-	} },
-	wrap: { configurable: true, get: function() {
-		var val = aib.getImgWrap(this.el.parentNode);
-		Object.defineProperty(this, 'wrap', { value: val });
 		return val;
 	} },
 	getHash: { value: function atGetHash(Fn) {
@@ -7228,15 +7239,19 @@ Attachment.prototype = Object.create(AttachmentData.prototype, {
 	_callback: { writable: true, value: null },
 	_processing: { writable: true, value: false },
 	_needToHide: { writable: true, value: false },
-	_showButtons: { configurable: true, get: function() {
-		var val = !this.inPview;
-		Object.defineProperty(this, '_showButtons', { value: val });
-		return val;
-	} },
 	_useCache: { configurable: true, get: function() {
 		var val = !this.inPview && this.post.count > 4;
 		Object.defineProperty(this, '_useCache', { value: val });
 		return val;
+	} },
+	_getImageSize: { value: function atGetImgSize() {
+		return aib.getImgSize(this.info);
+	} },
+	_getImageSrc: { value: function atGetImageSrc() {
+		return aib.getImgLink(this.el).href;
+	} },
+	_getImageWrap: { value: function atGetImageWrap() {
+		return aib.getImgWrap(this.el.parentNode);
 	} },
 	_endLoad: { value: function atEndLoad(hash) {
 		this.post.hashImgsBusy--;
@@ -7679,13 +7694,26 @@ Post.prototype = {
 	get images() {
 		var i, len, el, els = $Q(aib.qThumbImages, this.el),
 			imgs = [];
-		for(i = 0, len = els.length; i < len; i++) {
+		for(i = 0, len = els.length; i < len; ++i) {
 			el = els[i];
 			el.imgIdx = i;
-			imgs[i] = new Attachment(this, el, i);
+			imgs.push(new Attachment(this, el, i));
 		}
 		Object.defineProperty(this, 'images', { value: imgs });
 		return imgs;
+	},
+	get allImages() {
+		var i, len, el, els, val = this.images.slice(),
+			allIdx = val.length;
+		if(Cfg['addImgs']) {
+			for(i = 0, els = $C('de-img-pre', this.el), len = els.length; i < len; ++i, ++allIdx) {
+				el = els[i];
+				el.imgIdx = allIdx;
+				val.push(new EmbeddedImage(this, el, i));
+			}
+		}
+		Object.defineProperty(this, 'allImages', { value: val });
+		return val;
 	},
 	get mp3Obj() {
 		var val = $new('div', {'class': 'de-mp3'}, null);
@@ -8111,18 +8139,12 @@ Post.prototype = {
 		switch(el.className) {
 		case 'de-img-full':
 			iEl = el.previousSibling;
-			(this.images[iEl.imgIdx] || iEl.data).collapse(e);
+			this.allImages[iEl.imgIdx].collapse(e);
 			break;
 		case 'de-img-pre':
-			if(!(data = el.data)) {
-				iEl = new Image();
-				iEl.src = el.src;
-				data = el.data = new AttachmentData(this, el, el.src, iEl.width, iEl.height);
-			}
-			break;
 		case 'thumb':
 		case 'ca_thumb':
-			data = this.images[el.imgIdx];
+			data = this.allImages[el.imgIdx];
 			break;
 		default:
 			data = this.images;
