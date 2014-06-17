@@ -6325,6 +6325,7 @@ PostForm.prototype = {
 		if(!this.form) {
 			return;
 		}
+		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
@@ -9100,10 +9101,12 @@ Thread.prototype = {
 function getImageBoard(checkDomains, checkOther) {
 	var ibDomains = {
 		'02ch.in': [{
+			qPostRedir: { value: 'input[name="gotothread"]' },
 			css: { value: 'span[id$="_display"] { display: none !important; }' },
 			isBB: { value: true }
 		}],
 		'02ch.net': [{
+			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
@@ -9118,7 +9121,8 @@ function getImageBoard(checkDomains, checkOther) {
 		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		'2--ch.ru': [{
 			tire: { value: true },
-			
+
+			qPostRedir: { value: null },
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
 			qTable: { value: 'table:not(.postfiles)' },
 			_qThread: { value: '.threadz' },
@@ -9145,7 +9149,8 @@ function getImageBoard(checkDomains, checkOther) {
 		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'410chan.org': [{
 			_410: { value: true },
-			
+
+			qPostRedir: { value: 'input#noko' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
@@ -9169,6 +9174,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
 			qPages: { value: '.pagelist > a:last-child' },
+			qPostRedir: { value: null },
 			qThread: { value: '[id*="thread"]' },
 			getTNum: { value: function(op) {
 				return $q('a[id]', op).id.match(/\d+/)[0];
@@ -9201,6 +9207,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.summary.desktop' },
 			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
 			qPostForm: { value: 'form[name="post"]' },
+			qPostRedir: { value: null },
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
@@ -9245,6 +9252,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.abbrev > span:first-of-type' },
 			qMsg: { value: '.postbody' },
 			qPages: { value: '.pages > tbody > tr > td' },
+			qPostRedir: { value: 'select[name="goto"]' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
 			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' },
 			getImgLink: { value: function(img) {
@@ -9263,6 +9271,9 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
+			} },
+			disableRedirection: { value: function(el) {
+				($q(this.qPostRedir, el) || {}).selectedIndex = 1
 			} },
 			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
@@ -9286,6 +9297,8 @@ function getImageBoard(checkDomains, checkOther) {
 		get 'dobrochan.org'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
+
+			qPostRedir: { value: null },
 		}],
 		'ernstchan.com': [{
 			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
@@ -9302,6 +9315,7 @@ function getImageBoard(checkDomains, checkOther) {
 			iich: { value: true }
 		}],
 		'inach.org': [{
+			qPostRedir: { value: null }, // FIXME: real value
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			isBB: { value: true }
 		}],
@@ -9323,6 +9337,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
 			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
+			qPostRedir: { value: 'input#forward_thread' },
 			qRef: { value: '.postnumber' },
 			qThread: { value: '.thread_body' },
 			qThumbImages: { value: 'img[id^="thumbnail_"]' },
@@ -9417,11 +9432,14 @@ function getImageBoard(checkDomains, checkOther) {
 		'touhouchan.org': [{
 			toho: { value: true },
 
+			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
 			isBB: { value: true }
 		}],
 		'urupchan.org': [{
 			urup: { value: true },
+
+			qPostRedir: { value: 'input[name="redirecttothread"][value="1"]' },
 			init: { value: function() {
 				for(var src, el, i = 0, els = $Q('blockquote > span[style="float: left;"]', doc.body), len = els.length; i < len; ++i) {
 					el = els[i];
@@ -9447,6 +9465,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
 			qOmitted: { value: '.mess_post, .omittedposts' },
+			qPostRedir: { value: null },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
@@ -9493,6 +9512,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qImgLink: { value: 'a[href$=".jpg"], a[href$=".png"], a[href$=".gif"]' },
 			qOmitted: { value: 'font[color="#707070"]' },
 			qPostForm: { value: 'form:nth-of-type(1)' },
+			qPostRedir: { value: null },
 			qRef: { value: '.del' },
 			qThumbImages: { value: 'a[href$=".jpg"] > img, a[href$=".png"] > img, a[href$=".gif"] > img' },
 			getPageUrl: { value: function(b, p) {
@@ -9521,6 +9541,8 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		'form[action*="imgboard.php?delete"]': {
 			tinyIb: { value: true },
+
+			qPostRedir: { value: null },
 			ru: { value: true }
 		},
 		'form[name*="postcontrols"]': {
@@ -9542,6 +9564,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.omitted' },
 			qPages: { value: '.pages > a:nth-last-of-type(2)' },
 			qPostForm: { value: 'form[name="post"]' },
+			qPostRedir: { value: null },
 			qRef: { value: '.post_no:nth-of-type(2)' },
 			qTrunc: { value: '.toolong' },
 			firstPage: { value: 1 },
@@ -9563,6 +9586,7 @@ function getImageBoard(checkDomains, checkOther) {
 			
 			cOPost: { value: 'postnode' },
 			qError: { value: 'h1, h2, div[style*="1.25em"]' },
+			qPostRedir: { value: null },
 			cssEn: { value: '.extrabtns, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
 			isBB: { value: true },
@@ -9574,6 +9598,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
+			qPostRedir: { value: null },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
@@ -9637,6 +9662,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qOmitted: '.omittedposts',
 		qPages: 'table[border="1"] > tbody > tr > td:nth-child(2) > a:last-of-type',
 		qPostForm: '#postform',
+		qPostRedir: 'input[name="postredir"][value="1"]',
 		qRef: '.reflink',
 		qTable: 'form > table, div > table',
 		qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
@@ -9649,6 +9675,11 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
+		disableRedirection: function(el) {
+			if(this.qPostRedir) {
+				($q(this.qPostRedir, el) || {}).checked = true;
+			}
+		},
 		getImgLink: function(img) {
 			var el = img.parentNode;
 			return el.tagName === 'SPAN' ? el.parentNode : el;
