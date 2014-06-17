@@ -6870,7 +6870,7 @@ AttachmentViewer.prototype = {
 				}
 				imgs = post.allImages;
 			} while(imgs.length === 0);
-			data = imgs[firstThr.op ? 0 : imgs.length - 1];
+			data = imgs[isForward ? 0 : imgs.length - 1];
 		} else {
 			data = imgs[isForward ? this.data.idx + 1 : this.data.idx - 1]
 		}
