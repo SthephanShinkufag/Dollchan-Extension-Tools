@@ -6787,7 +6787,7 @@ AttachmentViewer.prototype = {
 		this._remove(e);
 	},
 	handleEvent: function(e) {
-		var temp, isOver = false;
+		var temp, isOverEvent = false;
 		if(Cfg['webmControl'] && e.target.tagName === 'VIDEO' && e.clientY >
 			(e.target.getBoundingClientRect().top + parseInt(this._elStyle.height, 10) - 30))
 		{
@@ -6827,14 +6827,14 @@ AttachmentViewer.prototype = {
 				break;
 			}
 			return;
-		case 'mouseover': isOver = true;
+		case 'mouseover': isOverEvent = true;
 		case 'mouseout':
 			temp = e.relatedTarget;
 			if(!temp || (temp !== this._obj && !this._obj.contains(temp))) {
-				if(isOver) {
+				if(isOverEvent) {
 					Pview.mouseEnter(this.data.post);
-				} else if(this.data.post.el !== temp && !this.data.post.el.contains(temp)) {
-					Pview.mouseLeave(temp);
+				} else if(Pview.top && this.data.post.el !== temp && !this.data.post.el.contains(temp)) {
+					Pview.top.markToDel();
 				}
 			}
 			return;
@@ -7282,7 +7282,7 @@ function addImagesSearch(el) {
 		if(link.firstElementChild) {
 			continue;
 		}
-		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src"></span>');
+		link.insertAdjacentHTML('beforebegin', '<span class="de-btn-src" de-menu="imgsrc"></span>');
 	}
 }
 
@@ -7316,10 +7316,10 @@ function Post(el, thr, num, count, isOp, prev) {
 	}
 	el.post = this;
 	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
-		'"><span class="de-btn-hide"></span><span class="de-btn-rep"></span>';
+		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 	if(isOp) {
 		if(!TNum && !aib.arch) {
-			html += '<span class="de-btn-expthr"></span>';
+			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
 		}
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][num]) {
@@ -7446,8 +7446,9 @@ Post.prototype = {
 		}
 	},
 	handleEvent: function(e) {
-		var isOut, temp, el = e.target,
-			type = e.type;
+		var temp, el = e.target,
+			type = e.type,
+			isOutEvent = type === 'mouseout';
 		if(type === 'click') {
 			if(e.button !== 0) {
 				return;
@@ -7564,57 +7565,47 @@ Post.prototype = {
 			this._hasEvents = true;
 			this.el.addEventListener('click', this, true);
 			this.el.addEventListener('mouseout', this, true);
+		} else if(this._isPview && isOutEvent) {
+			this._handleMouseEvents(e.relatedTarget, false);
 		}
 		switch(el.classList[0]) {
 		case 'de-reflink':
 		case 'de-preflink':
 			if(Cfg['linksNavig']) {
-				if(type === 'mouseover') {
-					clearTimeout(Pview.delTO);
-					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg['linksOver']);
-				} else {
+				if(isOutEvent) {
 					clearTimeout(this._linkDelay);
 					if(this.kid) {
 						this.kid.markToDel();
 					}
+				} else {
+					clearTimeout(Pview.delTO);
+					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg['linksOver']);
 				}
 				$pd(e);
 				e.stopPropagation();
 			}
 			return;
+		case 'de-btn-expthr':
 		case 'de-btn-hide':
 		case 'de-btn-hide-user':
-			if(type === 'mouseover') {
-				this._menuDelay = setTimeout(this._addMenu.bind(this, el, 'hide'), Cfg['linksOver']);
-			} else {
+		case 'de-btn-src':
+			if(isOutEvent) {
 				this._closeMenu(e.relatedTarget);
+			} else {
+				this._menuDelay = setTimeout(this._addMenu.bind(this, el), Cfg['linksOver']);
 			}
 			return;
 		case 'de-btn-rep':
-			if(type === 'mouseover') {
+			if(!isOutEvent) {
 				quotetxt = $txtSelect();
 			}
 			return;
-		case 'de-btn-expthr':
-			if(type === 'mouseover') {
-				this._menuDelay = setTimeout(this._addMenu.bind(this, el, 'expand'), Cfg['linksOver']);
-			} else {
-				this._closeMenu(e.relatedTarget);
-			}
-			return;
-		case 'de-btn-src':
-			if(type === 'mouseover') {
-				this._menuDelay = setTimeout(this._addMenu.bind(this, el, 'imgsrc'), Cfg['linksOver']);
-			} else {
-				this._closeMenu(e.relatedTarget);
-			}
-			break;
 		case 'de-menu':
 		case 'de-menu-item':
-			if(type === 'mouseover') {
-				clearTimeout(this._menuDelay);
-			} else {
+			if(isOutEvent) {
 				this._closeMenu(e.relatedTarget);
+			} else {
+				clearTimeout(this._menuDelay);
 			}
 			return;
 		}
@@ -7630,20 +7621,8 @@ Post.prototype = {
 			}
 			return;
 		}
-		if(this._isPview) {
-			isOut = false;
-			switch(type) {
-			case 'mouseout': isOut = true;
-			case 'mouseover':
-				temp = e.relatedTarget;
-				if(!temp || (temp !== this.el || !this.el.contains(temp))) {
-					if(isOut) {
-						Pview.mouseLeave(temp);
-					} else {
-						Pview.mouseEnter(this);
-					}
-				}
-			}
+		if(this._isPview && !isOutEvent) {
+			this._handleMouseEvents(e.relatedTarget, true);
 		}
 	},
 	hideRefs: function() {
@@ -8004,12 +7983,12 @@ Post.prototype = {
 	_pref: null,
 	_selRange: null,
 	_selText: '',
-	_addMenu: function(el, type) {
+	_addMenu: function(el) {
 		var html, cr = el.getBoundingClientRect(),
 			isLeft = false,
 			className = 'de-menu ' + aib.cReply,
 			xOffset = window.pageXOffset;
-		switch(type) {
+		switch(el.getAttribute('de-menu')) {
 		case 'hide':
 			if(!Cfg['menuHiddBtn']) {
 				return;
@@ -8333,11 +8312,6 @@ Pview.mouseEnter = function(post) {
 		clearTimeout(Pview.delTO);
 	}
 };
-Pview.mouseLeave = function(where) {
-	if(Pview.top && (!where.classList.contains('de-imgmenu'))) {
-		Pview.top.markToDel();
-	}
-}
 Pview.delTO = 0;
 Pview.top = null;
 Pview.prototype = Object.create(Post.prototype, {
@@ -8357,6 +8331,15 @@ Pview.prototype = Object.create(Post.prototype, {
 	_loaded: { value: false, writable: true },
 	_cache: { value: {}, writable: true },
 	_readDelay: { value: 0, writable: true },
+	_handleMouseEvents: { value: function pvHandleMouseEvents(el, isOverEvent) {
+		if(!el || (el !== this.el && !this.el.contains(el))) {
+			if(isOverEvent) {
+				Pview.mouseEnter(this);
+			} else if(Pview.top && (!this._menu || (this._menu !== el && !this._menu.contains(el)))) {
+				Pview.top.markToDel();
+			}
+		}
+	} },
 	_onerror: { value: function(eCode, eMsg, xhr) {
 		Pview.del(this);
 		this._showText(eCode === 404 ? Lng.postNotFound[lang] : getErrorMessage(eCode, eMsg));
@@ -8409,7 +8392,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				btns.classList.add('de-post-hid');
 			}
 			btns.innerHTML = '<span class="de-btn-hide' +
-				(post.userToggled ? '-user' : '') + '"></span>' + pText;
+				(post.userToggled ? '-user' : '') + '" de-menu="hide"></span>' + pText;
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
 			$each($Q(aib.qThumbImages, el), function(el) {
