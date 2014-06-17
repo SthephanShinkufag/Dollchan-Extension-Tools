@@ -6857,23 +6857,10 @@ AttachmentViewer.prototype = {
 		$pd(e);
 	},
 	navigate: function(isForward) {
-		var data, post = this.data.post,
-			imgs = post.allImages;
-		if(isForward ? this.data.idx + 1 === imgs.length : this.data.idx === 0) {
-			do {
-				post = post.getAdjacentVisPost(!isForward);
-				if(!post) {
-					post = isForward ? firstThr.op : lastThr.last;
-					if(post.hidden || post.thr.hidden) {
-						post = post.getAdjacentVisPost(!isForward);
-					}
-				}
-				imgs = post.allImages;
-			} while(imgs.length === 0);
-			data = imgs[isForward ? 0 : imgs.length - 1];
-		} else {
-			data = imgs[isForward ? this.data.idx + 1 : this.data.idx - 1]
-		}
+		var data = this.data;
+		do {
+			data = this._navigateHelper(data, isForward);
+		} while(!data.isVideo && !data.isImage);
 		this.update(data, null);
 	},
 	update: function(data, showButtons, e) {
@@ -6909,6 +6896,24 @@ AttachmentViewer.prototype = {
 			obj.appendChild(el);
 		}
 		return obj;
+	},
+	_navigateHelper: function(data, isForward) {
+		var post = data.post,
+			imgs = post.allImages;
+		if(isForward ? data.idx + 1 === imgs.length : data.idx === 0) {
+			do {
+				post = post.getAdjacentVisPost(!isForward);
+				if(!post) {
+					post = isForward ? firstThr.op : lastThr.last;
+					if(post.hidden || post.thr.hidden) {
+						post = post.getAdjacentVisPost(!isForward);
+					}
+				}
+				imgs = post.allImages;
+			} while(imgs.length === 0);
+			return imgs[isForward ? 0 : imgs.length - 1];
+		}
+		return imgs[isForward ? data.idx + 1 : data.idx - 1]
 	},
 	_show: function(data) {
 		var obj = this._getHolder(data),
@@ -7067,7 +7072,7 @@ IAttachmentData.prototype = {
 			}
 		} else {
 			obj = $add('<img style="width: 100%; height: 100%" src="' +
-				this.src + '" alt="' + this.fullSrc + '"></a>');
+				this.src + '" alt="' + this.src + '"></a>');
 			obj.onload = obj.onerror = function(e) {
 				if(this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
 					this.src = this.src;
