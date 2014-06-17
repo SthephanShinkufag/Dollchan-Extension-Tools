@@ -3016,7 +3016,7 @@ html5Submit.prototype = {
 			}.bind(this, fName);
 			fr.readAsArrayBuffer(file);
 			this.busy++;
-		} else if(el.type !== 'checkbox' || el.checked) {
+		} else if((el.type !== 'checkbox' && el.type !== 'radio') || el.checked) {
 			this.data.push(pre + '\r\n\r\n' + el.value + '\r\n');
 		}
 	},
