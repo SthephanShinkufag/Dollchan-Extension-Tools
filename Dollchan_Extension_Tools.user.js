@@ -143,7 +143,7 @@ Lng = {
 		},
 		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmVolume':	[' Громкость webm-файлов по умолчанию [0-100]', ' Default volume for webm files [0-100]'],
+		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
@@ -5521,7 +5521,7 @@ function scriptCSS() {
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { min-height: 288px; min-width: 371px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
+		.de-cfg-body { min-height: 289px; min-width: 371px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif; }\
 		.de-cfg-body input[type="text"], .de-cfg-body select { width: auto; padding: 0 !important; margin: 0 !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
@@ -5813,7 +5813,7 @@ function updateCSS() {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
-	if(!(aib.fch || aib.dobr || aib.krau)) {
+	if(!(aib.dobr || aib.krau)) {
 		x += '.de-img-full { margin: 2px 10px; }';
 	}
 	if(Cfg['delHiddPost']) {
@@ -6991,7 +6991,7 @@ IAttachmentData.prototype = {
 			this.expanded = false;
 			$del(this._fullEl);
 			this._fullEl = null;
-			this.el.style.display = '';
+			this.el.parentNode.style.display = '';
 			$del((aib.hasPicWrap ? this.wrap : this.el.parentNode).nextSibling);
 			if(e && this.inPview) {
 				this.sendCloseEvent(e, true);
@@ -7032,7 +7032,7 @@ IAttachmentData.prototype = {
 		(aib.hasPicWrap ? this.wrap : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
 		size = this.computeFullSize(inPost);
-		el.style.display = 'none';
+		el.parentNode.style.display = 'none';
 		this._fullEl = this.getFullObject();
 		this._fullEl.className = 'de-img-full';
 		this._fullEl.style.width = size[0] + 'px';
