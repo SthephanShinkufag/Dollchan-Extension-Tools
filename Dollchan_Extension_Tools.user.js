@@ -8152,15 +8152,15 @@ Post.prototype = {
 			if(!allImgs[el.previousSibling.firstElementChild.imgIdx].collapse(e)) {
 				return;
 			}
-		} else if(el.imgIdx !== undefined && (data = allImgs[el.imgIdx]) &&
-		         (data.isImage || data.isVideo))
+		} else if(el.imgIdx === undefined || !(data = allImgs[el.imgIdx]) ||
+				!(data.isImage || data.isVideo))
 		{
+			return;
+		} else {
 			data.expand((Cfg['expandImgs'] === 1) ^ e.ctrlKey, e);
 		}
-		if(data.isImage || data.isVideo) {
-			$pd(e);
-			e.stopPropagation();
-		}
+		$pd(e);
+		e.stopPropagation();
 	},
 	_clickMenu: function(el) {
 		$del(this._menu);
