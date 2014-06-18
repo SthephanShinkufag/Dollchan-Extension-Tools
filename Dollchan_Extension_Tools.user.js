@@ -7001,7 +7001,7 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var newH, newW, scrH, scrW = inPost ? Post.sizing.wWidth : Post.sizing.wWidth - this._offset;
+		var newH, newW, scrH, scrW = inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth;
 		newW = !Cfg['resizeImgs'] || this.width < (scrW - 5) ? this.width : scrW - 5;
 		newH = newW * this.height / this.width;
 		if(!inPost) {
@@ -7031,8 +7031,8 @@ IAttachmentData.prototype = {
 		this.expanded = true;
 		(aib.hasPicWrap ? this.wrap : el.parentNode).insertAdjacentHTML('afterend',
 			'<div class="de-after-fimg"></div>');
-		el.style.display = 'none';
 		size = this.computeFullSize(inPost);
+		el.style.display = 'none';
 		this._fullEl = this.getFullObject();
 		this._fullEl.className = 'de-img-full';
 		this._fullEl.style.width = size[0] + 'px';
