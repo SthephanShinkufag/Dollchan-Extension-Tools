@@ -7507,7 +7507,7 @@ Post.prototype = {
 						new YouTube().addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
-				} else if(Cfg['expandImgs'] !== 0 && /de-/.test(el.className)) {
+				} else if(Cfg['expandImgs'] !== 0 && !(aib.abu && el.parentNode.className === 'post_video_pic')) {
 					this._clickImage(el, e);
 				}
 				return;
