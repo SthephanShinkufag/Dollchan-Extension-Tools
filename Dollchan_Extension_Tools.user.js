@@ -8153,7 +8153,7 @@ Post.prototype = {
 				return;
 			}
 		} else if(el.imgIdx === undefined || !(data = allImgs[el.imgIdx]) ||
-				!(data.isImage || data.isVideo))
+		          !(data.isImage || data.isVideo))
 		{
 			return;
 		} else {
