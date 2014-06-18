@@ -8890,8 +8890,7 @@ Thread.prototype = {
 			);
 		}
 		return ajaxLoad(aib.getThrdUrl(brd, TNum), true, function parseNewPosts(form, xhr) {
-			this.loadNewFromForm(form);
-			Fn(200, '', info[1], xhr);
+			Fn(200, '', this.loadNewFromForm(form), xhr);
 			Fn = null;
 		}.bind(this), function(eCode, eMsg, xhr) {
 			Fn(eCode, eMsg, 0, xhr);
@@ -8909,6 +8908,7 @@ Thread.prototype = {
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' +
 				$Q(aib.qThumbImages, dForm).length;
 		}
+		return info[1];
 	},
 	get topCoord() {
 		return this.op.topCoord;
