@@ -7507,7 +7507,7 @@ Post.prototype = {
 						new YouTube().addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
-				} else if(Cfg['expandImgs'] !== 0 && !(aib.abu && el.parentNode.className === 'post_video_pic')) {
+				} else if(Cfg['expandImgs'] !== 0) {
 					this._clickImage(el, e);
 				}
 				return;
@@ -8157,8 +8157,10 @@ Post.prototype = {
 		{
 			data.expand((Cfg['expandImgs'] === 1) ^ e.ctrlKey, e);
 		}
-		$pd(e);
-		e.stopPropagation();
+		if(data.isImage || data.isVideo) {
+			$pd(e);
+			e.stopPropagation();
+		}
 	},
 	_clickMenu: function(el) {
 		$del(this._menu);
