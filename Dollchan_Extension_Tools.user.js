@@ -5531,7 +5531,7 @@ function scriptCSS() {
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 25px; }\
 		.de-cfg-tab { padding: 4px 5px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
-		.de-cfg-tab-back { display: table-cell !important; float: none !important; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
+		.de-cfg-tab-back { display: table-cell !important; float: none !important; width:auto; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
 		.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
 		.de-cfg-tab-back[selected="true"] { border-bottom: none !important; }\
