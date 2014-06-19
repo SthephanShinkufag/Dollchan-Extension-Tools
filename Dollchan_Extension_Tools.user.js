@@ -5594,9 +5594,9 @@ function scriptCSS() {
 
 	// Post panel
 	x += '.de-ppanel { margin-left: 4px; }\
-		.de-thread-note { font-style: italic; }\
 		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
-		.de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-fav, .de-btn-fav-sel, .de-btn-src, .de-btn-expthr, .de-btn-sage, .de-btn-stick, .de-btn-stick-on { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
+		.de-thread-note { font-style: italic; }\
+		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(Cfg['postBtnsCSS'] === 0) {
 		x += 'color: #4F7942; font-size: 14px; }\
 			.de-post-hid .de-btn-hide:after { content: "\u271a"; }\
@@ -8372,8 +8372,14 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	markToDel: { value: function pvMarkToDel() {
 		clearTimeout(Pview.delTO);
-		if(!this.sticked) {
-			Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], this);
+		var lastSticked, el = this;
+		do {
+			if(el.sticked) {
+				lastSticked = el;
+			}
+		} while(el = el.kid);
+		if(!lastSticked || lastSticked.kid) {
+			Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], lastSticked ? lastSticked.kid : this);
 		}
 	} },
 
