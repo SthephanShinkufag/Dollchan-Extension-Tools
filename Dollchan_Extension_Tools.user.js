@@ -417,7 +417,7 @@ Lng = {
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:		['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
 	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
-	hiddenPosts:	['Скрытые посты на странице', 'Hidden posts on page'],
+	hiddenPosts:	['Скрытые посты на странице', 'Hidden posts on the page'],
 	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
 	noHidPosts:		['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
 	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
@@ -435,22 +435,27 @@ Lng = {
 	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
 	makeThrd:		['Создать тред', 'Create thread'],
 	makeReply:		['Ответить', 'Make reply'],
-	hideForm:		['Закрыть форму', 'Hide form'],
+	hideForm:		['Скрыть форму', 'Hide form'],
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
 	addFile:		['+ файл', '+ file'],
 	helpAddFile:	['Добавить .ogg, .rar, .zip, или .7z к картинке', 'Add .ogg, .rar, .zip, or .7z to image '],
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
-	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains tripcode'],
+	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
 	loadImage:		['Загружаются изображения: ', 'Loading images: '],
 	loadFile:		['Загружаются файлы: ', 'Loading files: '],
 	cantLoad:		['Не могу загрузить ', 'Can\'t load '],
-	willSavePview:	['Будет сохранено превью', 'Thumb will be saved'],
-	loadErrors:		['Во время загрузки произошли ошибки:', 'Warning:'],
+	willSavePview:	['Будет сохранено превью', 'Thumbnail will be saved'],
+	loadErrors:		['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData:	['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
 	nextImg:		['Следующее изображение', 'Next image'],
 	prevImg:		['Предыдущее изображение', 'Previous image'],
+	togglePost:		['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
+	replyToPost:	['Ответить на пост', 'Reply to post'],
+	expandThrd:		['Раскрыть весь тред', 'Expand all thread'],
+	toggleFav:		['Добавить/Убрать Избранное', 'Add/Remove Favorites'],
+	attachPview:	['Закрепить превью', 'Attach preview'],
 
 	seSyntaxErr:	['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 	seUnknown:		['неизвестный спелл: %s', 'unknown spell: %s'],
@@ -7368,17 +7373,18 @@ function Post(el, thr, num, count, isOp, prev) {
 	}
 	el.post = this;
 	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
-		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
+		'"><span class="de-btn-hide" de-menu="hide" title="' + Lng.togglePost[lang] +
+		'"></span><span class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"></span>';
 	if(isOp) {
 		if(!TNum && !aib.arch) {
-			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
+			html += '<span class="de-btn-expthr" de-menu="expand" title="' + Lng.expandThrd[lang] + '"></span>';
 		}
 		h = aib.host;
 		if(Favor[h] && Favor[h][brd] && Favor[h][brd][num]) {
-			html += '<span class="de-btn-fav-sel"></span>';
+			html += '<span class="de-btn-fav-sel" title="' + Lng.toggleFav[lang] + '"></span>';
 			Favor[h][brd][num]['cnt'] = thr.pcount;
 		} else {
-			html += '<span class="de-btn-fav"></span>';
+			html += '<span class="de-btn-fav" title="' + Lng.toggleFav[lang] + '"></span>';
 		}
 	}
 	ref.insertAdjacentHTML('afterend', html + (
@@ -8428,9 +8434,9 @@ Pview.prototype = Object.create(Post.prototype, {
 	} },
 	_showPost: { value: function pvShowPost(post) {
 		var btns, el = this.el = post.el.cloneNode(true),
-			pText = '<span class="de-btn-rep"></span>' +
+			pText = '<span class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"></span>' +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
-				'<span class="de-btn-stick"></span>' +
+				'<span class="de-btn-stick" title="' + Lng.attachPview[lang] + '"></span>' +
 				(post.deleted ? '' : '<span style="margin-right: 4px; vertical-align: 1px; color: #4f7942; ' +
 				'font: bold 11px tahoma; cursor: default;">' + (post.isOp ? 'OP' : post.count + 1) + '</span>');
 		el.post = this;
@@ -8447,8 +8453,8 @@ Pview.prototype = Object.create(Post.prototype, {
 			if(post.hidden) {
 				btns.classList.add('de-post-hid');
 			}
-			btns.innerHTML = '<span class="de-btn-hide' +
-				(post.userToggled ? '-user' : '') + '" de-menu="hide"></span>' + pText;
+			btns.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + 
+				'" de-menu="hide" title="' + Lng.togglePost[lang] + '"></span>' + pText;
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
 			$each($Q(aib.qThumbImages, el), function(el) {
