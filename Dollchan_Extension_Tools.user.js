@@ -8481,7 +8481,7 @@ Pview.prototype = Object.create(Post.prototype, {
 					var arr = (sessionStorage['de-viewed'] || '').split(',');
 					arr.push(pst.num);
 					sessionStorage['de-viewed'] = arr;
-				}, 2e3, post);
+				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
 		} else {
 			this._pref.insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
