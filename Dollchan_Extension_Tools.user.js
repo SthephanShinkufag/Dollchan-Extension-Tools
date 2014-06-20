@@ -456,6 +456,8 @@ Lng = {
 	expandThrd:		['Раскрыть весь тред', 'Expand all thread'],
 	toggleFav:		['Добавить/Убрать Избранное', 'Add/Remove Favorites'],
 	attachPview:	['Закрепить превью', 'Attach preview'],
+	author:			['автор: ', 'author: '],
+	views:			['просмотров: ', 'views: '],
 
 	seSyntaxErr:	['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
 	seUnknown:		['неизвестный спелл: %s', 'unknown spell: %s'],
@@ -3880,6 +3882,7 @@ YouTube = new function() {
 				link.textContent = dataObj[0];
 				link.className = 'de-video-link de-ytube de-video-title';
 				link.setAttribute('de-author', dataObj[1]);
+				link.title = Lng.author[lang] + dataObj[1] + ', ' + Lng.views[lang] + dataObj[2];
 			} else {
 				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 			}
@@ -3887,10 +3890,10 @@ YouTube = new function() {
 			src = isYtube ? 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
 				: 'https://vimeo.com/' + m[1];
 			post.msg.insertAdjacentHTML('beforeend',
-				'<p class="de-video-ext"><a ' + (dataObj ? 'de-author="' + dataObj[1] + '" ' : '') +
-					(time ? 'de-time="' + time + '" ' : '') +
-					'class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
-					(dataObj ? ' de-video-title' : '') +
+				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
+					(dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' +
+						Lng.views[lang] + dataObj[2] + ' de-author="' + dataObj[1] : '') +
+					(time ? '" de-time="' + time : '') +
 					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 			link = post.msg.lastChild.firstChild;
 		}
@@ -3913,24 +3916,26 @@ YouTube = new function() {
 			GM_xmlhttpRequest({
 				'method': 'GET',
 				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[2] +
-					'?alt=json&fields=title/text(),author/name',
+					'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount',
 				'onreadystatechange': function(idx, xhr) {
 					if(xhr.readyState !== 4) {
 						return;
 					}
-					var entry, title, author, data, post = this[0], link = this[1];
+					var entry, title, author, views, data, post = this[0], link = this[1];
 					try {
 						if(xhr.status === 200) {
 							entry = JSON.parse(xhr.responseText)['entry'];
 							title = entry['title']['$t'];
 							author = entry['author'][0]['name']['$t'];
+							views = entry['yt$statistics']['viewCount'];
 						}
 					} finally {
 						if(title) {
 							link.textContent = title;
 							link.setAttribute('de-author', author);
 							link.classList.add('de-video-title');
-							vData[this[2]] = data = [title, author];
+							link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views;
+							vData[this[2]] = data = [title, author, views];
 							post.ytData.push(data);
 							post.ytLinksLoading--;
 							if(post.ytHideFun !== null) {
