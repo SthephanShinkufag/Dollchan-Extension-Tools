@@ -2887,7 +2887,7 @@ function checkUpload(dc) {
 		$id('postform_row_progress').style.display = 'none';
 		aib.btnZeroLUTime.click();
 	}
-	var err = getSubmitError(dc);
+	var el, err = getSubmitError(dc);
 	if(err) {
 		if(pr.isQuick) {
 			pr.setReply(true, false);
@@ -2930,9 +2930,11 @@ function checkUpload(dc) {
 		if(Cfg['scrAfterRep']) {
 			scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
 		}
-	} else {
-		pByNum[pr.tNum].thr.loadFromForm(visPosts, false, $q(aib.qDForm, dc));
+	} else if(el = $q(aib.qDForm, dc)) {
+		pByNum[pr.tNum].thr.loadFromForm(visPosts, false, el);
 		closeAlert($id('de-alert-upload'));
+	} else {
+		pByNum[pr.tNum].thr.load(visPosts, false, closeAlert.bind(window, $id('de-alert-upload')));
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(false);
