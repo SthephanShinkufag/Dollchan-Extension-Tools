@@ -2927,7 +2927,7 @@ function checkUpload(dc) {
 	if(TNum) {
 		firstThr.clearPostsMarks();
 		if(el) {
-			firstThr.loadNewFromForm($q(aib.qDForm, dc));
+			firstThr.loadNewFromForm(el);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg['scrAfterRep']) {
 				scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
@@ -9126,7 +9126,9 @@ Thread.prototype = {
 			}
 			$after(this.op.el, fragm);
 			tPost.next = post;
-			post.prev = tPost;
+			if(post) {
+				post.prev = tPost;
+			}
 			needRMUpdate = true;
 			num = Math.min(len + vPosts, num);
 		} else {
