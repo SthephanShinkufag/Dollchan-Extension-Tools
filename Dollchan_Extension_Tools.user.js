@@ -2923,7 +2923,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = $q(aib.qDForm, dc);
+	el = $q(aib.qPostRedir, dc) && $q(aib.qDForm, dc);
 	if(TNum) {
 		firstThr.clearPostsMarks();
 		if(el) {
