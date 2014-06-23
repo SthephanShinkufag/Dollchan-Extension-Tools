@@ -2923,18 +2923,31 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
+	el = $q(aib.qDForm, dc);
 	if(TNum) {
 		firstThr.clearPostsMarks();
-		firstThr.loadNewFromForm($q(aib.qDForm, dc));
-		closeAlert($id('de-alert-upload'));
-		if(Cfg['scrAfterRep']) {
-			scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
+		if(el) {
+			firstThr.loadNewFromForm($q(aib.qDForm, dc));
+			closeAlert($id('de-alert-upload'));
+			if(Cfg['scrAfterRep']) {
+				scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
+			}
+		} else {
+			firstThr.loadNew(function(eCode, eMsg, np, xhr) {
+				infoLoadErrors(eCode, eMsg, 0);
+				closeAlert($id('de-alert-upload'));
+				if(Cfg['scrAfterRep']) {
+					scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
+				}
+			}, true);
 		}
-	} else if(el = $q(aib.qDForm, dc)) {
-		pByNum[pr.tNum].thr.loadFromForm(visPosts, false, el);
-		closeAlert($id('de-alert-upload'));
 	} else {
-		pByNum[pr.tNum].thr.load(visPosts, false, closeAlert.bind(window, $id('de-alert-upload')));
+		if(el) {
+			pByNum[pr.tNum].thr.loadFromForm(visPosts, false, el);
+			closeAlert($id('de-alert-upload'));
+		} else {
+			pByNum[pr.tNum].thr.load(visPosts, false, closeAlert.bind(window, $id('de-alert-upload')));
+		}
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(false);
