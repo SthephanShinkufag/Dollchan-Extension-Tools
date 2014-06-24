@@ -2923,7 +2923,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = aib.qPostRedir === null || $q(aib.qPostRedir, dc) ? $q(aib.qDForm, dc) : null;
+	el = !(aib.waka || aib.belch || aib.nower || aib.dvachnet) && $q(aib.qDForm, dc);
 	if(TNum) {
 		firstThr.clearPostsMarks();
 		if(el) {
@@ -5863,7 +5863,7 @@ function updateCSS() {
 	if(Cfg['noBoardRule']) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu || aib.toho) {
+	if(aib.abu) {
 		if(Cfg['addYouTube']) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
@@ -6411,7 +6411,7 @@ PostForm.prototype = {
 				$after(this.name || this.subm, btn);
 			}
 			this._setSage();
-			if(aib.urup || aib._2chru) {
+			if(aib._2chru) {
 				while(btn.nextSibling) {
 					$del(btn.nextSibling);
 				}
@@ -9157,11 +9157,6 @@ Thread.prototype = {
 
 function getImageBoard(checkDomains, checkOther) {
 	var ibDomains = {
-		'02ch.in': [{
-			qPostRedir: { value: 'input[name="gotothread"]' },
-			css: { value: 'span[id$="_display"] { display: none !important; }' },
-			isBB: { value: true }
-		}],
 		'02ch.net': [{
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			ru: { value: true },
@@ -9293,6 +9288,9 @@ function getImageBoard(checkDomains, checkOther) {
 		'7chan.org': [{
 			init: { value: function() { return true; } }
 		}],
+		'belchan.org': [{
+			belch: { value: true }
+		}, 'script[src*="kusaba"]'],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
@@ -9434,10 +9432,6 @@ function getImageBoard(checkDomains, checkOther) {
 				this.addProgressTrack = els[3];
 			} }
 		}],
-		'lambdadelta.net': [{
-			css: { value: '.content > hr { display: none !important }' },
-			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' }
-		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -9465,6 +9459,9 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 			} }
 		}, 'script[src*="kusaba"]'],
+		'nowere.net': [{
+			nower: { value: true }
+		}],
 		'ponychan.net': [{
 			pony: { value: true },
 			
@@ -9486,28 +9483,9 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
-		'touhouchan.org': [{
-			toho: { value: true },
-
-			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
-			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
-			isBB: { value: true }
-		}],
-		'urupchan.org': [{
-			urup: { value: true },
-
-			qPostRedir: { value: 'input[name="redirecttothread"][value="1"]' },
-			init: { value: function() {
-				for(var src, el, i = 0, els = $Q('blockquote > span[style="float: left;"]', doc.body), len = els.length; i < len; ++i) {
-					el = els[i];
-					src = $t('a', el).href;
-					el.parentNode.insertAdjacentHTML('beforeend',
-						'<p class="de-video-ext"><a href="' + src + '">' + src + '</a></p>');
-					$del(el);
-				}
-			} },
-			css: { value: '#captchaimage, .replybacklinks, .messagehelperC { display: none !important }' }
-		}, 'script[src*="kusaba"]']
+		'wakachan.org': [{
+			waka: { value: true }
+		}]
 	};
 
 	var ibEngines = {
