@@ -2923,7 +2923,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !(aib.waka || aib.belch || aib.nower || aib.dvachnet) && $q(aib.qDForm, dc);
+	el = !(aib.waka || aib.belch || aib.nower || aib.dvachnet || aib.lambda) && $q(aib.qDForm, dc);
 	if(TNum) {
 		firstThr.clearPostsMarks();
 		if(el) {
@@ -5799,7 +5799,7 @@ function scriptCSS() {
 		.de-selected, .de-error-key { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
-		#de-updater-div { margin-top: 10px; }\
+		#de-updater-div { clear: left; margin-top: 10px; }\
 		.de-viewed { color: #888 !important; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
@@ -5863,7 +5863,7 @@ function updateCSS() {
 	if(Cfg['noBoardRule']) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if(aib.abu) {
+	if(aib.abu || aib.toho) {
 		if(Cfg['addYouTube']) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
@@ -9432,6 +9432,11 @@ function getImageBoard(checkDomains, checkOther) {
 				this.addProgressTrack = els[3];
 			} }
 		}],
+		'lambdadelta.net': [{
+			lambda: { value: true },
+			css: { value: '.content > hr { display: none !important }' },
+			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' },
+		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -9477,12 +9482,17 @@ function getImageBoard(checkDomains, checkOther) {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] },
 				});
 			} },
-			init: { value: function() {
-				$script('$ = function(){};');
-				$each($Q('.mentioned', doc), $del);
-			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
+		get 'syn-ch.com'() { return this['syn-ch.ru']; },
+		get 'syn-ch.org'() { return this['syn-ch.ru']; },
+		'touhouchan.org': [{
+			toho: { value: true },
+
+			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
+			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
+			isBB: { value: true }
+		}],
 		'wakachan.org': [{
 			waka: { value: true }
 		}]
