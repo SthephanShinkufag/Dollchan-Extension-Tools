@@ -10,6 +10,11 @@
 // @run-at			document-start
 // @grant			GM_getValue
 // @grant			GM_setValue
+// @grant			GM_deleteValue
+// @grant			GM_openInTab
+// @grant			GM_xmlhttpRequest
+// @grant			GM_log
+// @grant			unsafeWindow
 // @include			*
 // ==/UserScript==
 
