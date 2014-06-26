@@ -8,6 +8,8 @@
 // @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
 // @run-at			document-start
+// @grant			GM_getValue
+// @grant			GM_setValue
 // @include			*
 // ==/UserScript==
 
