@@ -8485,7 +8485,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
 			$each($Q(aib.qThumbImages, el), function(el) {
-				el.style.display = '';
+				el.parentNode.style.display = '';
 			});
 			if(post.hasYTube) {
 				if(post.ytInfo !== null) {
