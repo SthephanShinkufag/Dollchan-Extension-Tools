@@ -226,6 +226,7 @@ Lng = {
 		'animation':	['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':	['Автоматически закрывать уведомления', 'Close popups automatically'],
 		'updScript':	['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
+		'turnOff':		['Включать скрипт только на этом сайте', 'Enable script only on this site'],
 		'scrUpdIntrv': {
 			sel:		[['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
 			txt:		['', '']
@@ -2005,7 +2006,15 @@ function getCfgCommon() {
 				})
 			]),
 			$new('div', {'id': 'de-cfg-updresult'}, null)
-		]))
+		])),
+		lBox('turnOff', true, function() {
+			for(var dm in comCfg) {
+				if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+					comCfg[dm]['disabled'] = Cfg['turnOff'];
+				}
+			}
+			setStored('DESU_Config', JSON.stringify(comCfg) || '');
+		})
 	]);
 }
 
@@ -8894,7 +8903,7 @@ Thread.prototype = {
 		} else if(!expEl) {
 			thrEl.insertAdjacentHTML('beforeend', '<span class="de-expand">[<a href="' +
 				aib.getThrdUrl(brd, this.num) + aib.anchor + this.last.num + '">' +
-				Lng['collapseThrd'][lang] + '</a>]</span>');
+				Lng.collapseThrd[lang] + '</a>]</span>');
 			thrEl.lastChild.onclick = function(e) {
 				$pd(e);
 				this.load(visPosts, true, null);
@@ -9295,6 +9304,8 @@ function getImageBoard(checkDomains, checkOther) {
 		'7chan.org': [{
 			init: { value: function() { return true; } }
 		}],
+		'55ch.org': [{
+		}, 'form[name*="postcontrols"]'],
 		'belchan.org': [{
 			belch: { value: true }
 		}, 'script[src*="kusaba"]'],
