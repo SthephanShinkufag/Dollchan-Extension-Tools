@@ -2939,7 +2939,8 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !(aib.waka || aib.belch || aib.nower || aib.dvachnet || aib.lambda || aib._55ch) && $q(aib.qDForm, dc);
+	el = !aib.dvachnet && !aib._55ch && !aib.belch &&
+		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(TNum) {
 		firstThr.clearPostsMarks();
 		if(el) {
@@ -9457,9 +9458,9 @@ function getImageBoard(checkDomains, checkOther) {
 			} }
 		}],
 		'lambdadelta.net': [{
-			lambda: { value: true },
 			css: { value: '.content > hr { display: none !important }' },
 			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' },
+			qPostRedir: { value: 'input[name="gb2"][value="thread"]' }
 		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
 			formButtons: { get: function() {
@@ -9488,9 +9489,6 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 			} }
 		}, 'script[src*="kusaba"]'],
-		'nowere.net': [{
-			nower: { value: true }
-		}],
 		'ponychan.net': [{
 			pony: { value: true },
 			
@@ -9516,9 +9514,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
 			isBB: { value: true }
-		}],
-		'wakachan.org': [{
-			waka: { value: true }
 		}]
 	};
 
