@@ -2939,7 +2939,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !aib.dvachnet && !aib._55ch && !aib.belch &&
+	el = !aib._55ch && !aib.belch &&
 		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(TNum) {
 		firstThr.clearPostsMarks();
@@ -9377,8 +9377,6 @@ function getImageBoard(checkDomains, checkOther) {
 		get 'dobrochan.org'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
-
-			qPostRedir: { value: null },
 		}],
 		'ernstchan.com': [{
 			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
