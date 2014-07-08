@@ -2939,7 +2939,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !(aib.waka || aib.belch || aib.nower || aib.dvachnet || aib.lambda) && $q(aib.qDForm, dc);
+	el = !(aib.waka || aib.belch || aib.nower || aib.dvachnet || aib.lambda || aib._55ch) && $q(aib.qDForm, dc);
 	if(TNum) {
 		firstThr.clearPostsMarks();
 		if(el) {
@@ -3923,7 +3923,7 @@ YouTube = new function() {
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
 					(dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' +
-						Lng.views[lang] + dataObj[2] + ' de-author="' + dataObj[1] : '') +
+						Lng.views[lang] + dataObj[2] + '" de-author="' + dataObj[1] : '') +
 					(time ? '" de-time="' + time : '') +
 					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
 			link = post.msg.lastChild.firstChild;
@@ -9305,6 +9305,12 @@ function getImageBoard(checkDomains, checkOther) {
 			init: { value: function() { return true; } }
 		}],
 		'55ch.org': [{
+			_55ch: { value: true },
+			
+			css: { value: 'div.post.reply { float: left; clear: left; display: block; }' },
+			init: { value: function() {
+				$script('$ = function() {}');
+			} }
 		}, 'form[name*="postcontrols"]'],
 		'belchan.org': [{
 			belch: { value: true }
@@ -9622,6 +9628,7 @@ function getImageBoard(checkDomains, checkOther) {
 				});
 			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
+			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.omitted' },
