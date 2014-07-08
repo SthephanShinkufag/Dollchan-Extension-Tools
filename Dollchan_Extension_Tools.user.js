@@ -3320,6 +3320,7 @@ WebmParser = function(data) {
 
 function initMessageFunctions() {
 	window.addEventListener('message', function(e) {
+		console.log(e.data)
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
 		case 'A':
@@ -4101,7 +4102,7 @@ function embedMP3Links(post) {
 //============================================================================================================
 
 function ajaxLoad(url, loadForm, Fn, errFn) {
-	var origXHR = GM_xmlhttpRequest({
+	return GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
@@ -4110,7 +4111,7 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 			}
 			if(xhr.status !== 200) {
 				if(errFn) {
-					errFn(xhr.status, xhr.statusText, origXHR);
+					errFn(xhr.status, xhr.statusText, this);
 				}
 			} else if(Fn) {
 				do {
@@ -4118,23 +4119,22 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 					if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 						el = $DOM(text);
 						if(!loadForm || (el = $q(aib.qDForm, el))) {
-							Fn(el, origXHR);
+							Fn(el, this);
 							break;
 						}
 					}
 					if(errFn) {
-						errFn(0, Lng.errCorruptData[lang], origXHR);
+						errFn(0, Lng.errCorruptData[lang], this);
 					}
 				} while(false);
 			}
-			loadForm = Fn = errFn = origXHR = null;
+			loadForm = Fn = errFn = null;
 		}
-	});
-	return origXHR;
+	});;
 }
 
 function getJsonPosts(url, Fn) {
-	var origXHR = GM_xmlhttpRequest({
+	GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
@@ -4147,12 +4147,12 @@ function getJsonPosts(url, Fn) {
 				try {
 					var json = JSON.parse(xhr.responseText);
 				} catch(e) {
-					Fn(1, e.toString(), null, origXHR);
+					Fn(1, e.toString(), null, this);
 				} finally {
 					if(json) {
-						Fn(xhr.status, xhr.statusText, json, origXHR);
+						Fn(xhr.status, xhr.statusText, json, this);
 					}
-					Fn = origXHR = null;
+					Fn = null;
 				}
 			}
 		}
@@ -5955,8 +5955,8 @@ function checkForUpdates(isForce, Fn) {
 //													POSTFORM
 //============================================================================================================
 
-function PostForm(form, ignoreForm, init) {
-	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', doc);
+function PostForm(form, ignoreForm, init, dc) {
+	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
 	if(aib.abu && ($c('locked', form) || this.oeForm)) {
 		this.form = null;
 		if(this.oeForm) {
@@ -5967,9 +5967,9 @@ function PostForm(form, ignoreForm, init) {
 	if(!ignoreForm && !form) {
 		if(this.oeForm) {
 			ajaxLoad(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function(dc, xhr) {
-				pr = new PostForm($q(aib.qPostForm, dc), true, init);
+				pr = new PostForm($q(aib.qPostForm, dc), true, init, dc);
 			}, function(eCode, eMsg, xhr) {
-				pr = new PostForm(null, true, init);
+				pr = new PostForm(null, true, init, dc);
 			});
 		} else {
 			this.form = null;
@@ -5977,7 +5977,7 @@ function PostForm(form, ignoreForm, init) {
 		return;
 	}
 	function $x(path, root) {
-		return doc.evaluate(path, root, null, 8, null).singleNodeValue;
+		return dc.evaluate(path, root, null, 8, null).singleNodeValue;
 	}
 	var p = './/tr[not(contains(@style,"none"))]//input[not(@type="hidden") and ';
 	this.tNum = TNum;
@@ -9646,7 +9646,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { get: function() {
-				return '.banner, .mentioned, .post-hover' + (TNum ? '' : ', .de-btn-rep') + ' { display: none !important; }\
+				return '.banner, .mentioned, .post-hover { display: none !important; }\
 				form, form table { margin: 0; }';
 			} },
 			cssHide: { value: '.de-post-hid > .intro ~ *'}
@@ -10622,7 +10622,7 @@ function doScript(checkDomains) {
 	$disp(doc.body);
 	replaceDelform();
 	$log('Replace delform');
-	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode);
+	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
 	pByNum = Object.create(null);
 	try {
 		parseDelform(dForm, $Q(aib.qThread, dForm));
