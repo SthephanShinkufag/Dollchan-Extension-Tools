@@ -5989,7 +5989,6 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.file = $q('tr input[type="file"]', form);
 	this.passw = $q('tr input[type="password"]', form);
 	this.dpass = $q('input[type="password"], input[name="password"]', dForm);
-	this.gothr = $x('.//tr[@id="trgetback"]|.//input[@type="radio" or @name="gotothread"]/ancestor::tr[1]', form);
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
 	this.mail = $x(p + (
 			aib._410 ? '@name="sage"]' :
@@ -5997,6 +5996,7 @@ function PostForm(form, ignoreForm, init, dc) {
 		), form);
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
+	this.gothr = aib.qPostRedir && (p = $q(aib.qPostRedir, form)) && getAncestor(p, 'TR');
 	if(init) {
 		this._init();
 	}
@@ -6373,7 +6373,13 @@ PostForm.prototype = {
 		if(!this.form) {
 			return;
 		}
-		aib.disableRedirection(this.form);
+		if(aib.dobr) {
+			($q(this.qPostRedir, this.form) || {}).selectedIndex = 1;
+		} else {
+			if(this.qPostRedir) {
+				($q(this.qPostRedir, this.form) || {}).checked = true;
+			}
+		}
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
@@ -9180,66 +9186,59 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
 		get '22chan.net'() { return this['ernstchan.com']; },
-		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		'2chru.net': [{
+			_2chru: { value: true }
+		}, 'form[action*="imgboard.php?delete"]'],
+		get '2-chru.net'() { return this['2chru.net']; },
 		get '2ch.cm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2ch.hk'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.pm'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.re'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.tf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.wf'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2ch.yt'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
 		get '2-ch.so'() { return [ibEngines['#ABU_css, #ShowLakeSettings']]; },
+		get '2-ch.su'() { return this['2--ch.ru']; },
 		'2--ch.ru': [{
 			tire: { value: true },
 
-			qPostRedir: { value: null },
 			qPages: { value: 'table[border="1"] tr:first-of-type > td:first-of-type a' },
+			qPostRedir: { value: null },
 			qTable: { value: 'table:not(.postfiles)' },
-			_qThread: { value: '.threadz' },
+			qThread: { value: '.threadz' },
 			getOmitted: { value: function(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
 			} },
-			docExt: { value: '.html' },
-			css: { value: 'span[id$="_display"] { display: none !important; }' },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 0 ? p : 0) + '.memhtml';
 			} },
+			css: { value: 'span[id$="_display"], #fastload { display: none !important; }' },
+			docExt: { value: '.html' },
 			hasPicWrap: { value: true },
-			ru: { value: true },
-			isBB: { value: true }
+			isBB: { value: true },
+			ru: { value: true }
 		}],
-		get '2-ch.su'() { return this['2--ch.ru']; },
-		get '2--ch.su'() { return this['2--ch.ru']; },
-		get 'honokakawai.com'() { return this['2--ch.ru']; },
-		'2chru.net': [{
-			_2chru: { value: true }
-		}, 'form[action*="imgboard.php?delete"]'],
-		get '2-chru.net'() { return this['2chru.net']; },
-		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'410chan.org': [{
 			_410: { value: true },
 
 			qPostRedir: { value: 'input#noko' },
+			getSage: { value: function(post) {
+				var el = $c('filetitle', post);
+				return el && el.textContent.contains('\u21E9');
+			} },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
 				});
 			} },
-			getSage: { value: function(post) {
-				var el = $c('filetitle', post);
-				return el && el.textContent.contains('\u21E9');
-			} },
 			isBB: { value: false },
+
 			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' }
 		}, 'script[src*="kusaba"]'],
-		'420chan.org': [{
+		'420chan.org': [{ // Posting doesn't work (antispam protection)
 			_420: { value: true },
 			
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
-				});
-			} },
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
 			qPages: { value: '.pagelist > a:last-child' },
@@ -9252,6 +9251,11 @@ function getImageBoard(checkDomains, checkOther) {
 				.de-thr-hid { margin: 1em 0; }' },
 			cssHide: { value: '.de-post-hid > .replyheader ~ *' },
 			docExt: { value: '.php' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
+				});
+			} },
 			isBB: { value: true }
 		}],
 		'4chan.org': [{
@@ -9259,15 +9263,8 @@ function getImageBoard(checkDomains, checkOther) {
 			
 			cFileInfo: { value: 'fileText' },
 			cOPost: { value: 'op' },
-			cSubj: { value: 'subject' },
 			cReply: { value: 'post reply' },
-			firstPage: { value: 1 },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
-					bb: { value: [false, false, false, false, true, true, false, false, false] }
-				});
-			} },
+			cSubj: { value: 'subject' },
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
@@ -9280,7 +9277,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
-			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 1 ? p : '');
 			} },
@@ -9298,12 +9294,17 @@ function getImageBoard(checkDomains, checkOther) {
 				.postForm { display: table !important; }' },
 			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
+			firstPage: { value: 1 },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
+					bb: { value: [false, false, false, false, true, true, false, false, false] }
+				});
+			} },
 			rLinkClick: { value: '' },
 			rep: { value: true },
-			res: { value: 'thread/' }
-		}],
-		'7chan.org': [{
-			init: { value: function() { return true; } }
+			res: { value: 'thread/' },
+			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' }
 		}],
 		'55ch.org': [{
 			_55ch: { value: true },
@@ -9313,28 +9314,28 @@ function getImageBoard(checkDomains, checkOther) {
 				$script('$ = function() {}');
 			} }
 		}, 'form[name*="postcontrols"]'],
+		'7chan.org': [{
+			init: { value: function() { return true; } }
+		}],
 		'belchan.org': [{
 			belch: { value: true }
 		}, 'script[src*="kusaba"]'],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
-		'dfwk.ru': [{
-			timePattern: { value: 'w+yy+nn+dd+hh+ii' }
-		}, 'script[src*="kusaba"]'],
+		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'dobrochan.com': [{
 			dobr: { value: true },
 			
-			cSubj: { value: 'replytitle' },
 			cFileInfo: { value: 'fileinfo' },
+			cSubj: { value: 'replytitle' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.post-error, h2' },
-			qOmitted: { value: '.abbrev > span:first-of-type' },
 			qMsg: { value: '.postbody' },
+			qOmitted: { value: '.abbrev > span:first-of-type' },
 			qPages: { value: '.pages > tbody > tr > td' },
 			qPostRedir: { value: 'select[name="goto"]' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
-			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' },
 			getImgLink: { value: function(img) {
 				var el = img.parentNode;
 				if(el.tagName === 'A') {
@@ -9342,18 +9343,15 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 				return $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 			} },
-			getPageUrl: { value: function(b, p) {
-				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
-			} },
 			getImgWrap: { value: function(el) {
 				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
 					el.firstElementChild.tagName === 'IMG' ? el.parentNode : el;
 			} },
+			getPageUrl: { value: function(b, p) {
+				return fixBrd(b) + (p > 0 ? p + this.docExt : 'index.xhtml');
+			} },
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
-			} },
-			disableRedirection: { value: function(el) {
-				($q(this.qPostRedir, el) || {}).selectedIndex = 1
 			} },
 			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
@@ -9361,8 +9359,6 @@ function getImageBoard(checkDomains, checkOther) {
 				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
 				.de-video-obj + div { clear: left; }' },
 			hasPicWrap: { value: true },
-			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
-			ru: { value: true },
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
 					nav = getNavFuncs();
@@ -9372,28 +9368,32 @@ function getImageBoard(checkDomains, checkOther) {
 					}, false);
 					return true;
 				}
-			} }
+			} },
+			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
+			ru: { value: true },
+			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
 		}],
 		get 'dobrochan.org'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
 		'ernstchan.com': [{
-			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
 			cOPost: { value: 'thread_OP' },
 			cReply: { value: 'post' },
 			cRPost: { value: 'thread_reply' },
 			qError: { value: '.error' },
-			qMsg: { value: '.text' }
+			qMsg: { value: '.text' },
+			css: { value: '.content > hr, .de-parea > hr { display: none !important }' }
 		}, 'link[href$="phutaba.css"]'],
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
+		get 'honokakawai.com'() { return this['2--ch.ru']; },
 		'iichan.hk': [{
 			iich: { value: true }
 		}],
 		'inach.org': [{
-			qPostRedir: { value: null }, // FIXME: real value
+			qPostRedir: { value: 'input[name="fieldnoko"]' },
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
 			isBB: { value: true }
 		}],
@@ -9404,11 +9404,6 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'postreply' },
 			cRPost: { value: 'postreply' },
 			cSubj: { value: 'postsubject' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
-				});
-			} },
 			qBan: { value: '.ban_mark' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.message_text' },
@@ -9420,7 +9415,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qThread: { value: '.thread_body' },
 			qThumbImages: { value: 'img[id^="thumbnail_"]' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
-			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' },
 			getImgWrap: { value: function(el) {
 				return el.parentNode;
 			} },
@@ -9436,11 +9430,12 @@ function getImageBoard(checkDomains, checkOther) {
 					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
 					.de-video-obj + div { clear: left; }' },
 			cssHide: { value: '.de-post-hid > div:not(.postheader)' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
+				});
+			} },
 			hasPicWrap: { value: true },
-			isBB: { value: true },
-			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
-			rep: { value: true },
-			res: { value: 'thread-' },
 			init: { value: function() {
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 					'<div onclick="window.lastUpdateTime = 0;"></div>' +
@@ -9453,40 +9448,29 @@ function getImageBoard(checkDomains, checkOther) {
 				this.btnSetFCntToOne = els[1];
 				this.initCaptcha = els[2];
 				this.addProgressTrack = els[3];
-			} }
+			} },
+			isBB: { value: true },
+			rep: { value: true },
+			res: { value: 'thread-' },
+			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
+			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
 		'lambdadelta.net': [{
 			css: { value: '.content > hr { display: none !important }' },
-			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' },
-			qPostRedir: { value: 'input[name="gb2"][value="thread"]' }
+			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' }
 		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
+			getWrap: { value: function(el, isOp) {
+				return el.parentNode;
+			} },
+			css: { value: '.image-hover, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
 				});
 			} },
-			getWrap: { value: function(el, isOp) {
-				return el.parentNode;
-			} },
-			css: { value: '.image-hover, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
-		'nido.org': [{
-			qPages: { value: '.pagenavi > tbody > tr > td:nth-child(2) > a:last-of-type' },
-			getSage: { value: function(post) {
-				return !!$q('a[href="mailto:cejas"]', post);
-			} },
-			init: { value: function() {
-				for(var src, el, i = 0, els = $Q('span[id^="pv-"]', doc.body), len = els.length; i < len; ++i) {
-					el = els[i];
-					src = 'https://www.youtube.com/watch?v=' + el.id.substring(3);
-					el.parentNode.insertAdjacentHTML('beforeend',
-						'<p class="de-video-ext"><a href="' + src + '">' + src + '</a></p>');
-					$del(el);
-				}
-			} }
-		}, 'script[src*="kusaba"]'],
 		'ponychan.net': [{
 			pony: { value: true },
 			
@@ -9501,6 +9485,9 @@ function getImageBoard(checkDomains, checkOther) {
 				return Object.create(this._formButtons, {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] },
 				});
+			} },
+			init: { value: function() {
+				$script('$ = function() {}');
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
@@ -9519,11 +9506,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'#ABU_css, #ShowLakeSettings': {
 			abu: { value: true },
 			
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
-				});
-			} },
 			qBan: { value: 'font[color="#C12267"]' },
 			qDForm: { value: '#posts_form, #delform' },
 			qOmitted: { value: '.mess_post, .omittedposts' },
@@ -9545,7 +9527,11 @@ function getImageBoard(checkDomains, checkOther) {
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.reflink:before { content: none !important; }' },
-			isBB: { value: true },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+				});
+			} },
 			init: { value: function() {
 				var cd = $id('captcha_div'),
 					img = cd && $t('img', cd);
@@ -9565,7 +9551,8 @@ function getImageBoard(checkDomains, checkOther) {
 					].join(''));
 					img.removeAttribute('onclick');
 				}
-			} }
+			} },
+			isBB: { value: true }
 		},
 		'form[action*="futaba.php"]': {
 			futa: { value: true },
@@ -9615,11 +9602,6 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
-				});
-			} },
 			qDForm: { value: 'form[name="postcontrols"]' },
 			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
@@ -9631,6 +9613,11 @@ function getImageBoard(checkDomains, checkOther) {
 			qRef: { value: '.post_no:nth-of-type(2)' },
 			qTrunc: { value: '.toolong' },
 			firstPage: { value: 1 },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
+				});
+			} },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
 			getPageUrl: { value: function(b, p) {
 				return p > 1 ? fixBrd(b) + p + this.docExt : fixBrd(b);
@@ -9656,12 +9643,10 @@ function getImageBoard(checkDomains, checkOther) {
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' }
 		},
 		'link[href$="phutaba.css"]': {
-			phut: { value: true },
-			
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
-			qPostRedir: { value: null },
+			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
@@ -9687,19 +9672,6 @@ function getImageBoard(checkDomains, checkOther) {
 		cRPost: 'reply',
 		cSubj: 'filetitle',
 		cTrip: 'postertrip',
-		get _formButtons() {
-			var bb = this.isBB;
-			return {
-				id: ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
-				val: ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
-				tag: bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
-					['**', '*', '', '^H', '%%', '`', '', '', 'q'],
-				bb: [bb, bb, bb, bb, bb, bb, bb, bb, bb]
-			};
-		},
-		get formButtons() {
-			return this._formButtons;
-		},
 		qBan: '',
 		qDelBut: 'input[type="submit"]',
 		qDForm: '#delform, form[name="delform"]',
@@ -9729,7 +9701,6 @@ function getImageBoard(checkDomains, checkOther) {
 		qRef: '.reflink',
 		qTable: 'form > table, div > table',
 		qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
-		timePattern: 'w+dd+m+yyyy+hh+ii+ss',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
 				$q('div[id*="_info"][style*="float"]', doc) ? 'div[id^="t"]:not([style])' :
@@ -9738,11 +9709,6 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
-		disableRedirection: function(el) {
-			if(this.qPostRedir) {
-				($q(this.qPostRedir, el) || {}).checked = true;
-			}
-		},
 		getImgLink: function(img) {
 			var el = img.parentNode;
 			return el.tagName === 'SPAN' ? el.parentNode : el;
@@ -9823,9 +9789,28 @@ function getImageBoard(checkDomains, checkOther) {
 			}
 			return this.getWrap(el, isOp);
 		},
+		anchor: '#',
 		css: '',
 		cssEn: '',
 		cssHide: '.de-post-hid > .de-ppanel ~ *',
+		dm: '',
+		docExt: '.html',
+		firstPage: 0,
+		get _formButtons() {
+			var bb = this.isBB;
+			return {
+				id: ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
+				val: ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
+				tag: bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
+					['**', '*', '', '^H', '%%', '`', '', '', 'q'],
+				bb: [bb, bb, bb, bb, bb, bb, bb, bb, bb]
+			};
+		},
+		get formButtons() {
+			return this._formButtons;
+		},
+		hasPicWrap: false,
+		host: window.location.hostname,
 		init: null,
 		isBB: false,
 		get lastPage() {
@@ -9837,27 +9822,22 @@ function getImageBoard(checkDomains, checkOther) {
 			Object.defineProperty(this, 'pagesCount', { value: val });
 			return val;
 		},
+		prot: window.location.protocol,
 		get reCrossLinks() {
 			var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 				regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
 			Object.defineProperty(this, 'reCrossLinks', { value: val });
 			return val;
 		},
-		rLinkClick: 'onclick="highlight(this.textContent.substr(2))"',
-		anchor: '#',
-		docExt: '.html',
-		dm: '',
-		firstPage: 0,
-		host: window.location.hostname,
-		hasPicWrap: false,
-		prot: window.location.protocol,
 		get rep() {
 			var val = dTime || spells.haveReps || Cfg['crossLinks'];
 			Object.defineProperty(this, 'rep', { value: val });
 			return val;
 		},
 		res: 'res/',
-		ru: false
+		rLinkClick: 'onclick="highlight(this.textContent.substr(2))"',
+		ru: false,
+		timePattern: 'w+dd+m+yyyy+hh+ii+ss'
 	};
 
 	var i, ibObj = null, dm = window.location.hostname
