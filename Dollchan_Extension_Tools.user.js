@@ -9345,7 +9345,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'55ch.org': [{
 			_55ch: { value: true },
 			
-			css: { value: 'div.post.reply { float: left; clear: left; display: block; }' },
 			init: { value: function() {
 				$script('$ = function() {}');
 			} }
@@ -9666,6 +9665,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			cssEn: { get: function() {
 				return '.banner, .mentioned, .post-hover { display: none !important; }\
+				div.post.reply { float: left; clear: left; display: block; }\
 				form, form table { margin: 0; }';
 			} },
 			cssHide: { value: '.de-post-hid > .intro ~ *'}
