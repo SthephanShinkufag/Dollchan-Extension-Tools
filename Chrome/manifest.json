@@ -1,6 +1,6 @@
 {
 	"name": "Dollchan Extension Tools",
-	"version": "14.6.18.1",
+	"version": "14.7.10.0",
 	"description": "The best way to browse imageboards",
 	"homepage_url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/",
 	"content_scripts": [ {
