@@ -6399,13 +6399,7 @@ PostForm.prototype = {
 		if(!this.form) {
 			return;
 		}
-		if(aib.dobr) {
-			($q(this.qPostRedir, this.form) || {}).selectedIndex = 1;
-		} else {
-			if(this.qPostRedir) {
-				($q(this.qPostRedir, this.form) || {}).checked = true;
-			}
-		}
+		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		if(nav.Firefox) {
@@ -9397,6 +9391,9 @@ function getImageBoard(checkDomains, checkOther) {
 				.delete_checkbox { position: static !important; }\
 				.file + .de-video-obj { float: left; margin: 5px 20px 5px 5px; }\
 				.de-video-obj + div { clear: left; }' },
+			disableRedirection: { value: function(el) {
+				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
+			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				if(window.location.pathname === '/settings') {
@@ -9832,6 +9829,11 @@ function getImageBoard(checkDomains, checkOther) {
 		css: '',
 		cssEn: '',
 		cssHide: '.de-post-hid > .de-ppanel ~ *',
+		disableRedirection: function(el) {
+			if(this.qPostRedir) {
+				($q(this.qPostRedir, el) || {}).checked = true;
+			}
+		},
 		dm: '',
 		docExt: '.html',
 		firstPage: 0,
