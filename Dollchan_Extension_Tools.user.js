@@ -5793,6 +5793,9 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
+		.de-file-preview { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
+		.de-file-preview > img { max-height: 85px; max-width: 85px; }\
+		.de-file-preview ~ * { vertical-align: top; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
@@ -6020,10 +6023,20 @@ PostForm.eventFiles = function(tr) {
 		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
-PostForm.processInput = function() {
+PostForm.processInput = function(e) {
+	var delBtn, fr, files = e.target.files;
+	if(files && files[0]) {
+		fr = new FileReader();
+		fr.onload = function (e) {
+			$del(this.previousSibling);
+			this.insertAdjacentHTML('beforebegin', '<div class="de-file-preview"><img src="' +
+				e.target.result + '" /></div>');
+		}.bind(e.target);
+		fr.readAsDataURL(files[0]);
+	}
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		var delBtn = $new('button', {
+		delBtn = $new('button', {
 			'class': 'de-file-util de-file-del',
 			'text': Lng.clear[lang],
 			'type': 'button'}, {
@@ -6032,8 +6045,9 @@ PostForm.processInput = function() {
 				if(aib.krau && this.parentNode.nextSibling) {
 					var current = $q('input[type="file"]', this.parentNode).name.match(/\d/)[0];
 					$each($Q('input[type="file"]', getAncestor(this, 'TR')), function(input, index) {
-						if(index > current)
+						if(index > current) {
 							input.name = "file_" + (index-1);
+						}
 					});
 					$del(this.parentNode);
 					if($q('input[type="file"]', $id('files_parent').lastElementChild).value) {
@@ -6053,7 +6067,6 @@ PostForm.processInput = function() {
 			}, false);
 		}
 		$after(this, delBtn);
-
 	} else if(this.imgFile) {
 		this.imgFile = null;
 		$del(this.nextSibling);
@@ -6136,7 +6149,7 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	delFileUtils: function(el, eventFiles) {
-		$each($Q('.de-file-util', el), $del);
+		$each($Q('.de-file-util, .de-file-preview', el), $del);
 		$each($Q('input[type="file"]', el), function(node) {
 			node.imgFile = null;
 		});
