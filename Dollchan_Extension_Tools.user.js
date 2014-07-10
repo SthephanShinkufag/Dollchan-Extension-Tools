@@ -5814,7 +5814,7 @@ function scriptCSS() {
 		.de-viewed { color: #888 !important; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
-		' + aib.css + aib.cssEn + aib.cssHide + ' { display: none !important; }';
+		' + aib.css + aib.cssEn + aib.qHide + ' { display: none !important; }';
 
 	if(!nav.Firefox) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -9255,6 +9255,7 @@ function getImageBoard(checkDomains, checkOther) {
 			
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
+			qHide: { value: '.de-post-hid > .replyheader ~ *' },
 			qPages: { value: '.pagelist > a:last-child' },
 			qPostRedir: { value: null },
 			qThread: { value: '[id*="thread"]' },
@@ -9263,7 +9264,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
-			cssHide: { value: '.de-post-hid > .replyheader ~ *' },
 			docExt: { value: '.php' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -9282,6 +9282,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
+			qHide: { value: '.de-post-hid > .postInfo ~ *' },
 			qImgLink: { value: '.fileText > a' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
@@ -9306,7 +9307,6 @@ function getImageBoard(checkDomains, checkOther) {
 			anchor: { value: '#p' },
 			css: { value: 'hr.desktop, #mpostform, .navLinks, .postingMode, #togglePostFormLink { display: none !important; }\
 				.postForm { display: table !important; }' },
-			cssHide: { value: '.de-post-hid > .postInfo ~ *' },
 			docExt: { value: '' },
 			firstPage: { value: 1 },
 			formButtons: { get: function() {
@@ -9423,6 +9423,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: '.ban_mark' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.message_text' },
+			qHide: { value: '.de-post-hid > div:not(.postheader)' },
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
 			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
@@ -9445,7 +9446,6 @@ function getImageBoard(checkDomains, checkOther) {
 					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
 					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
 					.de-video-obj + div { clear: left; }' },
-			cssHide: { value: '.de-post-hid > div:not(.postheader)' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
@@ -9470,8 +9470,8 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
 		'lambdadelta.net': [{
-			css: { value: '.content > hr { display: none !important }' },
-			cssHide: { value: '.de-post-hid > .de-ppanel ~ *' }
+			qHide: { value: '.de-post-hid > .de-ppanel ~ *' },
+			css: { value: '.content > hr { display: none !important }' }
 		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
 			getWrap: { value: function(el, isOp) {
@@ -9617,6 +9617,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			qDForm: { value: 'form[name="postcontrols"]' },
+			qHide: { value: '.de-post-hid > .intro ~ *'},
 			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
@@ -9643,8 +9644,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return '.banner, .mentioned, .post-hover { display: none !important; }\
 				div.post.reply { float: left; clear: left; display: block; }\
 				form, form table { margin: 0; }';
-			} },
-			cssHide: { value: '.de-post-hid > .intro ~ *'}
+			} }
 		},
 		'script[src*="kusaba"]': {
 			kus: { value: true },
@@ -9660,6 +9660,7 @@ function getImageBoard(checkDomains, checkOther) {
 		'link[href$="phutaba.css"]': {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
+			qHide: { value: '.de-post-hid > .post > .post_body' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			getImgWrap: { value: function(el) {
@@ -9668,7 +9669,6 @@ function getImageBoard(checkDomains, checkOther) {
 			getSage: { value: function(post) {
 				return !!$q('.sage', post);
 			} },
-			cssHide: { value: '.de-post-hid > .post > .post_body' },
 			docExt: { value: '' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -9691,6 +9691,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qDelBut: 'input[type="submit"]',
 		qDForm: '#delform, form[name="delform"]',
 		qError: 'h1, h2, font[size="5"]',
+		qHide: '.de-post-hid > .de-ppanel ~ *',
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
@@ -9807,7 +9808,6 @@ function getImageBoard(checkDomains, checkOther) {
 		anchor: '#',
 		css: '',
 		cssEn: '',
-		cssHide: '.de-post-hid > .de-ppanel ~ *',
 		disableRedirection: function(el) {
 			if(this.qPostRedir) {
 				($q(this.qPostRedir, el) || {}).checked = true;
