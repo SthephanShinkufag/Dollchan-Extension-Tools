@@ -447,6 +447,7 @@ Lng = {
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
 	addFile:		['+ файл', '+ file'],
+	noFile:			['Нет файла', 'No file'],
 	helpAddFile:	['Добавить .ogg, .rar, .zip, или .7z к картинке', 'Add .ogg, .rar, .zip, or .7z to image '],
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
@@ -5793,9 +5794,10 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file-preview { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
-		.de-file-preview > img { max-height: 85px; max-width: 85px; }\
-		.de-file-preview ~ * { vertical-align: top; }\
+		.de-file-prev { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
+		.de-file-prev > img { max-height: 85px; max-width: 85px; }\
+		.de-file-prev ~ * { vertical-align: top; }\
+		#de-file-prev-td { width: 100px; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
@@ -6019,22 +6021,23 @@ PostForm.setUserPassw = function() {
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
 PostForm.eventFiles = function(tr) {
-	$each($Q('input[type="file"]', tr), function(el) {
+	$each($Q('input[type="file"]', tr), function(el, i) {
 		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
+PostForm.delFilePreview = function() {}
 PostForm.processInput = function(e) {
 	var delBtn, fr, files = e.target.files;
 	if(files && files[0]) {
 		fr = new FileReader();
 		fr.onload = function (e) {
-			var img = this.previousSibling;
+			var img = $id('de-file-prev-' + this.getAttribute('de-file')).firstChild;
 			if(img) {
 				window.URL.revokeObjectURL(img.src);
-				$del(img);
+				img.style.display = '';
+				img.nextSibling.style.display = 'none';
 			}
-			this.insertAdjacentHTML('beforebegin', '<div class="de-file-preview"><img src="' +
-				window.URL.createObjectURL(new Blob([e.target.result])) + '" /></div>');
+			img.src = window.URL.createObjectURL(new Blob([e.target.result]));
 		}.bind(e.target);
 		fr.readAsArrayBuffer(files[0]);
 	}
@@ -6155,10 +6158,11 @@ PostForm.prototype = {
 	delFileUtils: function(el, eventFiles) {
 		$each($Q('.de-file-util', el), $del);
 		$each($Q('input[type="file"]', el), function(node) {
-			var img = node.previousSibling;
+			var img = $id('de-file-prev-' + node.getAttribute('de-file')).firstChild;
 			if(img) {
 				window.URL.revokeObjectURL(img.src);
-				$del(img);
+				img.style.display = 'none';
+				img.nextSibling.style.display = '';
 			}
 			node.imgFile = null;
 		});
@@ -6603,10 +6607,23 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(this.file) {
+			el = getAncestor(this.file, 'TR');
+			$each($Q('input[type="file"]', el), function(node, i) {
+				node.setAttribute('de-file', i);
+				i = '<div class="de-file-prev" id="de-file-prev-' + i +
+					'"><img src="" style="display: none;" /><span>' + Lng.noFile[lang] + '</span></div>';
+				if(aib.iich || aib.abu) {
+					node = $t('td', getAncestor(this.txta, 'TR'));
+					node.id = 'de-file-prev-td';
+					node.innerHTML = i;
+				} else {
+					node.insertAdjacentHTML('beforebegin', i);
+				}
+			}.bind(this));
 			if('files' in this.file && this.file.files.length > 0) {
-				this._clearFileInput(getAncestor(this.file, 'TR'), true);
+				this._clearFileInput(el, true);
 			} else {
-				PostForm.eventFiles(getAncestor(this.file, 'TR'));
+				PostForm.eventFiles(el);
 			}
 		}
 	},
