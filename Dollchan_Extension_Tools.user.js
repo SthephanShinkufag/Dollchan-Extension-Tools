@@ -6158,8 +6158,11 @@ PostForm.prototype = {
 	delFileUtils: function(el, eventFiles) {
 		$each($Q('.de-file-util', el), $del);
 		$each($Q('input[type="file"]', el), function(node) {
-			var img = $id('de-file-prev-' + node.getAttribute('de-file')).firstChild;
-			if(img) {
+			var img, attr = node.getAttribute('de-file');
+			if(!attr) {
+				return;
+			}
+			if(img = $id('de-file-prev-' + attr).firstChild) {
 				window.URL.revokeObjectURL(img.src);
 				img.style.display = 'none';
 				img.nextSibling.style.display = '';
