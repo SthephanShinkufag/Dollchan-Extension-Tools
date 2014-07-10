@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.7.10.0
+// @version			14.7.10.1
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -20,7 +20,7 @@
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.7.10.0',
+var version = '14.7.10.1',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -6021,11 +6021,10 @@ PostForm.setUserPassw = function() {
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
 PostForm.eventFiles = function(tr) {
-	$each($Q('input[type="file"]', tr), function(el, i) {
+	$each($Q('input[type="file"]', tr), function(el) {
 		el.addEventListener('change', PostForm.processInput, false);
 	});
 };
-PostForm.delFilePreview = function() {}
 PostForm.processInput = function(e) {
 	var delBtn, fr, files = e.target.files;
 	if(files && files[0]) {
