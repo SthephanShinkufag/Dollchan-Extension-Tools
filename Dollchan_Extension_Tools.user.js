@@ -6028,11 +6028,15 @@ PostForm.processInput = function(e) {
 	if(files && files[0]) {
 		fr = new FileReader();
 		fr.onload = function (e) {
-			$del(this.previousSibling);
+			var img = this.previousSibling;
+			if(img) {
+				window.URL.revokeObjectURL(img.src);
+				$del(img);
+			}
 			this.insertAdjacentHTML('beforebegin', '<div class="de-file-preview"><img src="' +
-				e.target.result + '" /></div>');
+				window.URL.createObjectURL(new Blob([e.target.result])) + '" /></div>');
 		}.bind(e.target);
-		fr.readAsDataURL(files[0]);
+		fr.readAsArrayBuffer(files[0]);
 	}
 	if(!this.haveBtns) {
 		this.haveBtns = true;
@@ -6149,8 +6153,13 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	delFileUtils: function(el, eventFiles) {
-		$each($Q('.de-file-util, .de-file-preview', el), $del);
+		$each($Q('.de-file-util', el), $del);
 		$each($Q('input[type="file"]', el), function(node) {
+			var img = node.previousSibling;
+			if(img) {
+				window.URL.revokeObjectURL(img.src);
+				$del(img);
+			}
 			node.imgFile = null;
 		});
 		this._clearFileInput(el, eventFiles);
