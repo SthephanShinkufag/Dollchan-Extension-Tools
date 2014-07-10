@@ -2919,17 +2919,6 @@ function checkUpload(dc) {
 	pr.txta.value = '';
 	if(pr.file) {
 		pr.delFileUtils(getAncestor(pr.file, 'TR'), true);
-		if(aib.krau) {
-			var fileInputs = $Q('input[type="file"]', $id('files_parent'));
-			if(fileInputs.length > 1) {
-				$each(fileInputs, function(input, index) {
-					if(index > 0) {
-						$del(input.parentNode);
-					}
-				});
-				aib.btnSetFCntToOne.click();
-			}
-		}
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -6021,23 +6010,34 @@ PostForm.setUserPassw = function() {
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
 PostForm.eventFiles = function(tr) {
-	$each($Q('input[type="file"]', tr), function(el) {
+	var td = $id('de-file-prev-td');
+	$each($Q('input[type="file"]', tr), function(el, i) {
 		el.addEventListener('change', PostForm.processInput, false);
+		el.setAttribute('de-file', i);
+		if(!$id('de-file-prev-' + i)) {
+			td.insertAdjacentHTML('beforeend', '<div class="de-file-prev" id="de-file-prev-' + i +
+				(i > 0 ? '" style="display: none;"' : '"') +
+				'><img src="" style="display: none;" /><span>' + Lng.noFile[lang] + '</span></div>');
+		}
 	});
 };
-PostForm.processInput = function(e) {
-	var delBtn, fr, files = e.target.files;
+PostForm.processInput = function() {
+	var delBtn, fr, files = this.files;
 	if(files && files[0]) {
 		fr = new FileReader();
 		fr.onload = function (e) {
-			var img = $id('de-file-prev-' + this.getAttribute('de-file')).firstChild;
+			var el, img = $id('de-file-prev-' + this.getAttribute('de-file')).firstChild;
 			if(img) {
 				window.URL.revokeObjectURL(img.src);
+				img.src = window.URL.createObjectURL(new Blob([e.target.result]));
 				img.style.display = '';
+				img.parentNode.style.display = '';
 				img.nextSibling.style.display = 'none';
+				if(el = img.parentNode.nextSibling) {
+					el.style.display = '';
+				}
 			}
-			img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-		}.bind(e.target);
+		}.bind(this);
 		fr.readAsArrayBuffer(files[0]);
 	}
 	if(!this.haveBtns) {
@@ -6048,30 +6048,10 @@ PostForm.processInput = function(e) {
 			'type': 'button'}, {
 			'click': function(e) {
 				$pd(e);
-				if(aib.krau && this.parentNode.nextSibling) {
-					var current = $q('input[type="file"]', this.parentNode).name.match(/\d/)[0];
-					$each($Q('input[type="file"]', getAncestor(this, 'TR')), function(input, index) {
-						if(index > current) {
-							input.name = "file_" + (index-1);
-						}
-					});
-					$del(this.parentNode);
-					if($q('input[type="file"]', $id('files_parent').lastElementChild).value) {
-						setTimeout(function(){PostForm.eventFiles($id('files_parent'));}, 100);
-					}
-				} else {
-					pr.delFileUtils(this.parentNode, false);
-					pr.file.addEventListener('change', PostForm.processInput, false);
-				}
+				pr.delFileUtils(this.parentNode, false);
+				pr.file.addEventListener('change', PostForm.processInput, false);
 			}
 		});
-		if(aib.krau) {
-			delBtn.addEventListener('focus', function() {
-				if(this.parentNode.nextSibling) {
-					this.setAttribute('onclick', 'window.fileCounter -= 1;' + ($q('input[type="file"]', $id('files_parent').lastElementChild).value ? 'updateFileFields();' : ''));
-				}
-			}, false);
-		}
 		$after(this, delBtn);
 	} else if(this.imgFile) {
 		this.imgFile = null;
@@ -6165,10 +6145,18 @@ PostForm.prototype = {
 				window.URL.revokeObjectURL(img.src);
 				img.style.display = 'none';
 				img.nextSibling.style.display = '';
+				img.src = '';
 			}
 			node.imgFile = null;
 		});
 		this._clearFileInput(el, eventFiles);
+		el = $id('de-file-prev-td').lastChild;
+		var _el = el.previousSibling;
+		while(_el && el.firstChild.style.display === 'none' && _el.firstChild.style.display === 'none') {
+			el.style.display = 'none';
+			el = el.previousSibling;
+			_el = _el.previousSibling;
+		}
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, title, id, txt, len, el = e.target;
@@ -6603,19 +6591,10 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(this.file) {
+			el = $t('td', getAncestor(this.txta, 'TR'));
+			el.id = 'de-file-prev-td';
+			el.innerHTML = '';
 			el = getAncestor(this.file, 'TR');
-			$each($Q('input[type="file"]', el), function(node, i) {
-				node.setAttribute('de-file', i);
-				i = '<div class="de-file-prev" id="de-file-prev-' + i +
-					'"><img src="" style="display: none;" /><span>' + Lng.noFile[lang] + '</span></div>';
-				if(aib.iich || aib.abu) {
-					node = $t('td', getAncestor(this.txta, 'TR'));
-					node.id = 'de-file-prev-td';
-					node.innerHTML = i;
-				} else {
-					node.insertAdjacentHTML('beforebegin', i);
-				}
-			}.bind(this));
 			if('files' in this.file && this.file.files.length > 0) {
 				this._clearFileInput(el, true);
 			} else {
@@ -9476,15 +9455,13 @@ function getImageBoard(checkDomains, checkOther) {
 			init: { value: function() {
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
 					'<div onclick="window.lastUpdateTime = 0;"></div>' +
-					'<div onclick="window.fileCounter = 1;"></div>' +
 					'<div onclick="if(boardRequiresCaptcha) { requestCaptcha(true); }"></div>' +
 					'<div onclick="setupProgressTracking();"></div>' +
 				'</div>');
 				var els = doc.body.lastChild.children;
 				this.btnZeroLUTime = els[0];
-				this.btnSetFCntToOne = els[1];
-				this.initCaptcha = els[2];
-				this.addProgressTrack = els[3];
+				this.initCaptcha = els[1];
+				this.addProgressTrack = els[2];
 			} },
 			isBB: { value: true },
 			rep: { value: true },
