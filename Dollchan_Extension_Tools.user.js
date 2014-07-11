@@ -446,9 +446,8 @@ Lng = {
 	hideForm:		['Скрыть форму', 'Hide form'],
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
-	addFile:		['+ файл', '+ file'],
 	noFile:			['Нет файла', 'No file'],
-	helpAddFile:	['Добавить .ogg, .rar, .zip, или .7z к картинке', 'Add .ogg, .rar, .zip, or .7z to image '],
+	helpAddFile:	['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image '],
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
@@ -2918,7 +2917,7 @@ function checkUpload(dc) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		pr.delFileUtils(getAncestor(pr.file, 'TR'), true);
+		pr.delFileUtils(getAncestor(pr.file, 'TR'));
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -4257,7 +4256,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
 		if(pr.file) {
-			pr.delFileUtils(getAncestor(pr.file, 'TR'), true);
+			pr.delFileUtils(getAncestor(pr.file, 'TR'));
 		}
 		pr.txta.value = '';
 	}
@@ -5783,10 +5782,19 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file-prev { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
-		.de-file-prev > img { max-height: 85px; max-width: 85px; }\
-		.de-file-prev ~ * { vertical-align: top; }\
-		#de-file-prev-td { width: 100px; }\
+		.de-file-del { float: right; }\
+		.de-file-del, .de-file-rar { display: inline-block; margin-top: 2px; width: 16px; height: 16px; cursor: pointer; }';
+	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
+	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
+	x += '.de-file-img { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
+		.de-file-img > div { cursor: pointer; }\
+		.de-file-img > div > img, .de-file-img > div > video { max-height: 85px; max-width: 85px; }\
+		#de-file-img-td { width: 100px; }\
+		.de-file-off + .de-file-off { display: none; }\
+		.de-file-off > div > img, .de-file-off > div > video { display: none; }\
+		.de-file-off > div > span { display: block; }\
+		.de-file-on > div > img, .de-file-on > div > video { display: block; }\
+		.de-file-on > div > span { display: none; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
@@ -6009,66 +6017,47 @@ PostForm.setUserPassw = function() {
 	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
-PostForm.eventFiles = function(tr) {
-	var td = $id('de-file-prev-td');
-	$each($Q('input[type="file"]', tr), function(el, i) {
-		el.addEventListener('change', PostForm.processInput, false);
-		el.setAttribute('de-file', i);
-		if(!$id('de-file-prev-' + i)) {
-			td.insertAdjacentHTML('beforeend', '<div class="de-file-prev" id="de-file-prev-' + i +
-				(i > 0 ? '" style="display: none;"' : '"') +
-				'><img src="" style="display: none;" /><span>' + Lng.noFile[lang] + '</span></div>');
-		}
-	});
-};
 PostForm.processInput = function() {
-	var delBtn, fr, files = this.files;
+	var fr, files = this.files;
 	if(files && files[0]) {
 		fr = new FileReader();
-		fr.onload = function (e) {
-			var el, img = $id('de-file-prev-' + this.getAttribute('de-file')).firstChild;
-			if(img) {
-				window.URL.revokeObjectURL(img.src);
-				img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-				img.style.display = '';
-				img.parentNode.style.display = '';
-				img.nextSibling.style.display = 'none';
-				if(el = img.parentNode.nextSibling) {
-					el.style.display = '';
-				}
-			}
+		fr.onload = function(e) {
+			pr.eventFiles();
+			var img = this.img,
+				i = img.id.substr(12);
+			img.className = 'de-file-img de-file-on';
+			img = img.firstChild;
+			img.insertAdjacentHTML('afterbegin', this.files[i].type === 'video/webm' ?
+				'<video loop autoplay muted src=""></video>' : '<img src="">');
+			img = img.firstChild;
+			img.src = window.URL.createObjectURL(new Blob([e.target.result]));
+			//img.title = JSON.stringify(this.files[i]); // Returns '{}' o_0
+			img = img.nextSibling;
+			window.URL.revokeObjectURL(img.src);
+			$del(img);
 		}.bind(this);
 		fr.readAsArrayBuffer(files[0]);
 	}
 	if(!this.haveBtns) {
 		this.haveBtns = true;
-		delBtn = $new('button', {
-			'class': 'de-file-util de-file-del',
-			'text': Lng.clear[lang],
-			'type': 'button'}, {
-			'click': function(e) {
-				$pd(e);
-				pr.delFileUtils(this.parentNode, false);
-				pr.file.addEventListener('change', PostForm.processInput, false);
-			}
-		});
-		$after(this, delBtn);
+		$after(this.img.firstChild, $new('span', {
+			'class': 'de-file-util de-file-del'}, {
+			'click': function() {
+				pr.delFileUtils(this.parentNode);
+			}.bind(this)
+		}));
 	} else if(this.imgFile) {
 		this.imgFile = null;
-		$del(this.nextSibling);
+		$del(this.img.firstChild.nextSibling);
 	}
-	$del($c('de-file-rar', this.parentNode));
-	PostForm.eventFiles(getAncestor(this, 'TR'));
-	if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.files[0].type)) {
+	$del($c('de-file-rar', this.img));
+	if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(files[0].type)) {
 		return;
 	}
-	$after(this, $new('button', {
+	$after(this.img.firstChild, $new('span', {
 		'class': 'de-file-util de-file-rar',
-		'text': Lng.addFile[lang],
-		'title': Lng.helpAddFile[lang],
-		'type': 'button'}, {
+		'title': Lng.helpAddFile[lang]}, {
 		'click': function(e) {
-			$pd(e);
 			var el = $id('de-input-rar') || doc.body.appendChild($new('input', {
 					'id': 'de-input-rar',
 					'type': 'file',
@@ -6077,22 +6066,23 @@ PostForm.processInput = function() {
 			el.onchange = function(inp, e) {
 				$del(this);
 				var file = e.target.files[0],
-					fr = new FileReader();
-				inp.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
+					fr = new FileReader(),
+					img = inp.img.firstChild;
+				img.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
 					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
 				fr.onload = function(input, node, e) {
-					if(input.nextSibling === node) {
-						node.style.cssText = 'font-weight: bold; margin: 0 5px; cursor: default;';
+					if(input.img.firstChild.nextSibling === node) {
+						node.style.cssText = 'font: bold 11px tahoma; margin: 0 5px; cursor: default;';
 						node.title = input.files[0].name + ' + ' + this.name;
 						node.textContent = input.files[0].name.replace(/^.+\./, '') + ' + ' +
 							this.name.replace(/^.+\./, '')
 						input.imgFile = e.target.result;
 					}
-				}.bind(file, inp, inp.nextSibling);
+				}.bind(file, inp, img.nextSibling);
 				fr.readAsArrayBuffer(file);
-			}.bind(this, $q('input[type="file"]', this.parentNode));
+			}.bind(e.target, this);
 			el.click();
-		}
+		}.bind(this)
 	}));
 };
 PostForm.prototype = {
@@ -6134,29 +6124,33 @@ PostForm.prototype = {
 		}
 		tPanel.innerHTML = html;
 	},
-	delFileUtils: function(el, eventFiles) {
-		$each($Q('.de-file-util', el), $del);
+	delFileUtils: function(el) {
 		$each($Q('input[type="file"]', el), function(node) {
-			var img, attr = node.getAttribute('de-file');
-			if(!attr) {
-				return;
-			}
-			if(img = $id('de-file-prev-' + attr).firstChild) {
-				window.URL.revokeObjectURL(img.src);
-				img.style.display = 'none';
-				img.nextSibling.style.display = '';
-				img.src = '';
-			}
+			var img = node.img;
+			$each($Q('.de-file-util', img), $del);
+			img.className = 'de-file-img de-file-off';
+			img = img.firstChild.firstChild;
+			window.URL.revokeObjectURL(img.src);
+			img.src = '';
 			node.imgFile = null;
 		});
-		this._clearFileInput(el, eventFiles);
-		el = $id('de-file-prev-td').lastChild;
-		var _el = el.previousSibling;
-		while(_el && el.firstChild.style.display === 'none' && _el.firstChild.style.display === 'none') {
-			el.style.display = 'none';
-			el = el.previousSibling;
-			_el = _el.previousSibling;
-		}
+		this._clearFileInput(el);
+	},
+	eventFiles: function() {
+		var td = $id('de-file-img-td');
+		$each($Q('input[type="file"]', getAncestor(this.file, 'TR')), function(el, i) {
+			el.addEventListener('change', PostForm.processInput, false);
+			el.img = $id('de-file-img-' + i);
+			if(!el.img) {
+				td.insertAdjacentHTML('beforeend',
+					'<div class="de-file-img de-file-off" id="de-file-img-' + i +
+					'"><div><img src=""><span>' + Lng.noFile[lang] + '</span></div></div>');
+				el.img = td.lastChild;
+			}
+			el.img.firstChild.onclick = function() {
+				el.click();
+			}
+		});
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, title, id, txt, len, el = e.target;
@@ -6348,14 +6342,12 @@ PostForm.prototype = {
 
 	_lastCapUpdate: 0,
 	_pBtn: [],
-	_clearFileInput: function(el, eventFiles) {
+	_clearFileInput: function(el) {
 		var cln = el.cloneNode(false);
 		cln.innerHTML = el.innerHTML;
 		el.parentNode.replaceChild(cln, el);
-		if(eventFiles) {
-			PostForm.eventFiles(cln);
-		}
 		this.file = $q('input[type="file"]', cln);
+		this.eventFiles();
 	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
@@ -6591,14 +6583,15 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(this.file) {
-			el = $t('td', getAncestor(this.txta, 'TR'));
-			el.id = 'de-file-prev-td';
+			el = $t(aib.tiny ? 'th' : 'td', getAncestor(this.txta, 'TR'));
+			el.id = 'de-file-img-td';
 			el.innerHTML = '';
 			el = getAncestor(this.file, 'TR');
+			el.style.display = 'none';
 			if('files' in this.file && this.file.files.length > 0) {
-				this._clearFileInput(el, true);
+				this._clearFileInput(el);
 			} else {
-				PostForm.eventFiles(el);
+				this.eventFiles();
 			}
 		}
 	},
