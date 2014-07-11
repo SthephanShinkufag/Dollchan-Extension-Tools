@@ -6023,15 +6023,14 @@ PostForm.processInput = function() {
 		fr = new FileReader();
 		fr.onload = function(e) {
 			pr.eventFiles();
-			var img = this.img,
-				i = img.id.substr(12);
+			var img = this.img;
 			img.className = 'de-file-img de-file-on';
 			img = img.firstChild;
-			img.insertAdjacentHTML('afterbegin', this.files[i].type === 'video/webm' ?
+			img.insertAdjacentHTML('afterbegin', this.files[0].type === 'video/webm' ?
 				'<video loop autoplay muted src=""></video>' : '<img src="">');
 			img = img.firstChild;
 			img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-			//img.title = JSON.stringify(this.files[i]); // Returns '{}' o_0
+			//img.title = JSON.stringify(this.files[0]); // Returns '{}' o_0
 			img = img.nextSibling;
 			window.URL.revokeObjectURL(img.src);
 			$del(img);
