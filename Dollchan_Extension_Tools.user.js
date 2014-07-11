@@ -447,6 +447,8 @@ Lng = {
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
 	noFile:			['Нет файла', 'No file'],
+	clickToAdd:		['Нажмите, чтобы добавть файл', 'Click to add file'],
+	removeFile:		['Удалить файл', 'Remove file'],
 	helpAddFile:	['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image '],
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
@@ -6040,7 +6042,8 @@ PostForm.processInput = function() {
 	if(!this.haveBtns) {
 		this.haveBtns = true;
 		$after(this.img.firstChild, $new('span', {
-			'class': 'de-file-util de-file-del'}, {
+			'class': 'de-file-util de-file-del',
+			'title': Lng.removeFile[lang]}, {
 			'click': function() {
 				pr.delFileUtils(this.parentNode);
 			}.bind(this)
@@ -6143,7 +6146,8 @@ PostForm.prototype = {
 			if(!el.img) {
 				td.insertAdjacentHTML('beforeend',
 					'<div class="de-file-img de-file-off" id="de-file-img-' + i +
-					'"><div><img src=""><span>' + Lng.noFile[lang] + '</span></div></div>');
+					'"><div><img src=""><span title="' + Lng.clickToAdd[lang] + '">' +
+					Lng.noFile[lang] + '</span></div></div>');
 				el.img = td.lastChild;
 			}
 			el.img.firstChild.onclick = function() {
