@@ -5789,13 +5789,14 @@ function scriptCSS() {
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-file-del { float: right; }\
+		.de-file-rar { float: left; }\
 		.de-file-del, .de-file-rar { display: inline-block; margin-top: 2px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
 	x += '.de-file-img { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
 		.de-file-img > div { cursor: pointer; }\
 		.de-file-img > div > img, .de-file-img > div > video { max-height: 100px; max-width: 100px; }\
-		#de-file-img-td { width: 115px; }\
+		#de-file-img-td { width: 115px; text-align: center; }\
 		.de-file-off + .de-file-off { display: none; }\
 		.de-file-off > div > img, .de-file-off > div > video { display: none; }\
 		.de-file-off > div > span { display: block; }\
