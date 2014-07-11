@@ -5790,8 +5790,8 @@ function scriptCSS() {
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
 	x += '.de-file-img { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
 		.de-file-img > div { cursor: pointer; }\
-		.de-file-img > div > img, .de-file-img > div > video { max-height: 85px; max-width: 85px; }\
-		#de-file-img-td { width: 100px; }\
+		.de-file-img > div > img, .de-file-img > div > video { max-height: 100px; max-width: 100px; }\
+		#de-file-img-td { width: 115px; }\
 		.de-file-off + .de-file-off { display: none; }\
 		.de-file-off > div > img, .de-file-off > div > video { display: none; }\
 		.de-file-off > div > span { display: block; }\
