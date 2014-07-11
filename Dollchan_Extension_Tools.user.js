@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.7.10.1
+// @version			14.7.11.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -20,7 +20,7 @@
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.7.10.1',
+var version = '14.7.11.0',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -6594,7 +6594,9 @@ PostForm.prototype = {
 			el.id = 'de-file-img-td';
 			el.innerHTML = '';
 			el = getAncestor(this.file, 'TR');
-			el.style.display = 'none';
+			if(!aib.dobr) {
+				el.style.display = 'none';
+			}
 			if('files' in this.file && this.file.files.length > 0) {
 				this._clearFileInput(el);
 			} else {
