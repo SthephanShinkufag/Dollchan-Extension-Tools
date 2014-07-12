@@ -5636,18 +5636,18 @@ function scriptCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(Cfg['postBtnsCSS'] === 0) {
 		x += 'color: #4F7942; font-size: 14px; }\
-			.de-post-hid .de-btn-hide:after { content: "\u271a"; }\
-			.de-post-hid .de-btn-hide-user:after { content: "\u271a"; }\
-			.de-btn-expthr:after { content: "\u21d5"; }\
+			.de-post-hid .de-btn-hide:after { content: "\u271A"; }\
+			.de-post-hid .de-btn-hide-user:after { content: "\u271A"; }\
+			.de-btn-expthr:after { content: "\u21D5"; }\
 			.de-btn-fav:after { content: "\u2605"; }\
 			.de-btn-fav-sel:after { content: "[\u2605]"; }\
 			.de-btn-hide:after { content: "\u2716"; }\
 			.de-btn-hide-user:after { content: "\u2716"; color: red !important; }\
-			.de-btn-rep:after { content: "\u25b6"; }\
-			.de-btn-sage:after { content: "\u274e"; }\
+			.de-btn-rep:after { content: "\u25B6"; }\
+			.de-btn-sage:after { content: "\u274E"; }\
 			.de-btn-src:after { content: "[S]"; }\
-			.de-btn-stick:after { content: "\u25fb"; }\
-			.de-btn-stick-on:after { content: "\u25fc"; }';
+			.de-btn-stick:after { content: "\u25FB"; }\
+			.de-btn-stick-on:after { content: "\u25FC"; }';
 	} else if(Cfg['postBtnsCSS'] === 1) {
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM';
 		x += 'padding: 0 14px 14px 0; }';
@@ -5751,7 +5751,7 @@ function scriptCSS() {
 	x += cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
-	x += '.de-current:after { content: "\u25c4"; }\
+	x += '.de-current:after { content: "\u25C4"; }\
 		.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
@@ -5790,11 +5790,11 @@ function scriptCSS() {
 		.de-fav-title { margin-right: 15px; }\
 		.de-file-del { float: right; }\
 		.de-file-rar { float: left; }\
-		.de-file-del, .de-file-rar { display: inline-block; margin-top: 2px; width: 16px; height: 16px; cursor: pointer; }';
+		.de-file-del, .de-file-rar { display: inline-block; margin: 0 7px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
-	x += '.de-file-img { display: inline-block; margin: 1px 4px 1px 1px; padding: 4px; border: 1px dashed grey; }\
-		.de-file-img > div { cursor: pointer; }\
+	x += '.de-file-img { display: inline-block; }\
+		.de-file-img > div { margin: 3px 4px; padding: 4px; border: 1px dashed grey; cursor: pointer; }\
 		.de-file-img > div > img, .de-file-img > div > video { max-height: 100px; max-width: 100px; }\
 		#de-file-img-td { width: 115px; text-align: center; }\
 		.de-file-off + .de-file-off { display: none; }\
@@ -6030,14 +6030,15 @@ PostForm.processInput = function() {
 		fr = new FileReader();
 		fr.onload = function(e) {
 			pr.eventFiles();
-			var img = this.img;
+			var file = this.files[0],
+				img = this.img;
 			img.className = 'de-file-img de-file-on';
 			img = img.firstChild;
-			img.insertAdjacentHTML('afterbegin', this.files[0].type === 'video/webm' ?
+			img.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
 				'<video loop autoplay muted src=""></video>' : '<img src="">');
 			img = img.firstChild;
 			img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-			//img.title = JSON.stringify(this.files[0]); // Returns '{}' o_0
+			img.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
 			img = img.nextSibling;
 			window.URL.revokeObjectURL(img.src);
 			$del(img);
