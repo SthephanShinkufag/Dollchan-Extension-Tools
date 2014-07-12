@@ -10115,10 +10115,10 @@ function Initialization(checkDomains) {
 	}, false);
 
 	url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]*?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
+		'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
 		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
 	));
-	brd = url[1];
+	brd = url[1].replace(/\/$/, '');
 	TNum = url[2] ? url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
 		false;
