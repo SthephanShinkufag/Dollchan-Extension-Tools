@@ -95,6 +95,7 @@ defaultCfg = {
 	'noBoardRule':	1,		// hide board rules
 	'noGoto':		1,		// hide goto field
 	'noPassword':	1,		// hide password field
+	'noFile':		1,		// hide file field
 	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
 	'userCSS':		0,		// user style
 	'userCSSTxt':	'',		//		css text
@@ -214,6 +215,7 @@ Lng = {
 		'noBoardRule':	['правила ', 'rules '],
 		'noGoto':		['поле goto ', 'goto field '],
 		'noPassword':	['пароль', 'password'],
+		'noFile':		['поле файла', 'file field'],
 
 		'scriptStyle': {
 			sel:		[['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
@@ -403,7 +405,7 @@ Lng = {
 	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
 	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
 	postNotFound:	['Пост не найден', 'Post not found'],
-	dontShow:		['Не отображать: ', 'Do not show: '],
+	dontShow:		['Скрыть: ', 'Hide: '],
 	checkNow:		['Проверить сейчас', 'Check now'],
 	updAvail:		['Доступно обновление!', 'Update available!'],
 	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
@@ -979,14 +981,8 @@ function readCfg() {
 	if(TNum) {
 		Cfg['stats']['view']++;
 	}
-	saveComCfg(aib.dm, Cfg);
-	lang = Cfg['language'];
-	if(Cfg['correctTime']) {
-		dTime = new dateTime(Cfg['timePattern'], Cfg['timeRPattern'], Cfg['timeOffset'], lang, function(rp) {
-			saveCfg('timeRPattern', rp);
-		});
-	}
 	if(aib.dobr) {
+		Cfg['noFile'] = 0;
 		aib.hDTFix = new dateTime(
 			'yyyy-nn-dd-hh-ii-ss',
 			'_d _M _y (_w) _h:_i ',
@@ -994,6 +990,13 @@ function readCfg() {
 			Cfg['correctTime'] ? lang : 1,
 			null
 		);
+	}
+	saveComCfg(aib.dm, Cfg);
+	lang = Cfg['language'];
+	if(Cfg['correctTime']) {
+		dTime = new dateTime(Cfg['timePattern'], Cfg['timeRPattern'], Cfg['timeOffset'], lang, function(rp) {
+			saveCfg('timeRPattern', rp);
+		});
 	}
 }
 
@@ -1936,6 +1939,9 @@ function getCfgForm() {
 			})),
 			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
+			})),
+			$if(pr.file, lBox('noFile', false, function() {
+				$disp(getAncestor(pr.file, 'TR'));
 			}))
 		])
 	]);
@@ -6596,7 +6602,7 @@ PostForm.prototype = {
 			el.id = 'de-file-img-td';
 			el.innerHTML = '';
 			el = getAncestor(this.file, 'TR');
-			if(!aib.dobr) {
+			if(Cfg['noFile']) {
 				el.style.display = 'none';
 			}
 			if('files' in this.file && this.file.files.length > 0) {
