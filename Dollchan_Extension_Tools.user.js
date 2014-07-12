@@ -212,8 +212,8 @@ Lng = {
 		'userPassw':	[' Постоянный пароль ', ' Fixed password '],
 		'userName':		['Постоянное имя', 'Fixed name'],
 		'userSignat':	['Постоянная подпись', 'Fixed signature'],
-		'noBoardRule':	['правила ', 'rules '],
-		'noGoto':		['поле goto ', 'goto field '],
+		'noBoardRule':	['правила', 'rules'],
+		'noGoto':		['поле goto', 'goto field'],
 		'noPassword':	['пароль', 'password'],
 		'noFile':		['поле файла', 'file field'],
 
@@ -934,14 +934,8 @@ function readCfg() {
 	}
 	if(nav.noBlob) {
 		Cfg['preLoadImgs'] = 0;
-		if(Cfg['ajaxReply'] === 2) {
-			Cfg['ajaxReply'] = 1;
-		}
 	}
-	if(aib.fch && Cfg['ajaxReply'] === 2) {
-		Cfg['ajaxReply'] = 1;
-	}
-	if(aib.tiny && Cfg['ajaxReply'] === 2) {
+	if((nav.noBlob || aib.fch || aib.tiny) && Cfg['ajaxReply'] === 2) {
 		Cfg['ajaxReply'] = 1;
 	}
 	if(!nav.Firefox) {
@@ -1940,7 +1934,7 @@ function getCfgForm() {
 			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
 			})),
-			$if(pr.file, lBox('noFile', false, function() {
+			$if(pr.file && !aib.dobr, lBox('noFile', false, function() {
 				$disp(getAncestor(pr.file, 'TR'));
 			}))
 		])
