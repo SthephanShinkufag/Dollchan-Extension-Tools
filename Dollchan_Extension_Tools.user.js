@@ -2001,14 +2001,12 @@ function getCfgCommon() {
 			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', false, null),
 				$btn(Lng.checkNow[lang], '', function() {
-					var el = $id('de-cfg-updresult');
-					el.innerHTML = '<span class="de-wait">' + Lng.checking[lang] + '</div>';
+					$alert(Lng.loading[lang], 'updavail', true);
 					checkForUpdates(true, function(html) {
-						el.innerHTML = html;
+						$alert(html, 'updavail', false);
 					});
 				})
-			]),
-			$new('div', {'id': 'de-cfg-updresult'}, null)
+			])
 		])),
 		lBox('turnOff', true, function() {
 			for(var dm in comCfg) {
@@ -5578,7 +5576,6 @@ function scriptCSS() {
 		.de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected="false"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\
 		.de-cfg-tab::' + (nav.Firefox ? '-moz-' : '') + 'selection { background: transparent; }\
 		.de-cfg-unvis { display: none; }\
-		#de-cfg-updresult { padding: 3px 0; font-size: 1.1em; text-align: center; }\
 		#de-spell-panel { float: right; }\
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
