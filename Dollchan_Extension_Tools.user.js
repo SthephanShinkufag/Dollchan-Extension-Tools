@@ -2057,7 +2057,9 @@ function getCfgForm() {
 				$disp(pr.passw.parentNode.parentNode);
 			})),
 			$if(pr.file && !aib.dobr, lBox('noFile', false, function() {
-				$disp(getAncestor(pr.file, 'TR'));
+				for(var i = 0, ins = pr.fileInputs, len = ins.length; i < len; ++i) {
+					ins[i].updateUtils();
+				}
 			}))
 		])
 	]);
@@ -3056,7 +3058,7 @@ function checkUpload(dc) {
 	}
 	pr.txta.value = '';
 	if(pr.file) {
-		pr.delFileUtils(getAncestor(pr.file, 'TR'));
+		pr.delFilesUtils();
 	}
 	if(pr.video) {
 		pr.video.value = '';
@@ -3170,7 +3172,7 @@ html5Submit.prototype = {
 			}
 			fr = new FileReader();
 			fr.onload = function(name, e) {
-				var dat = this.clearImage(e.target.result, el.imgFile,
+				var dat = this.clearImage(e.target.result, el.obj.imgFile,
 					Cfg['postSameImg'] && String(Math.round(Math.random() * 1e6)));
 				if(dat) {
 					this.data[idx] = new Blob(dat);
@@ -4395,7 +4397,7 @@ function loadPages(count) {
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
 		if(pr.file) {
-			pr.delFileUtils(getAncestor(pr.file, 'TR'));
+			pr.delFilesUtils();
 		}
 		pr.txta.value = '';
 	}
@@ -5873,8 +5875,8 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file-del { float: right; }\
-		.de-file-rar { float: left; }\
+		.de-file-del.de-file-inpview { float: right; }\
+		.de-file-rar.de-file-inpview { float: left; }\
 		.de-file-del, .de-file-rar { display: inline-block; margin: 0 7px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
@@ -6081,6 +6083,7 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q('tr input[type="submit"]', form);
 	this.file = $q('tr input[type="file"]', form);
+	this.fileInputs = [];
 	this.passw = $q('tr input[type="password"]', form);
 	this.dpass = $q('input[type="password"], input[name="password"]', dForm);
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
@@ -6109,75 +6112,6 @@ PostForm.setUserPassw = function() {
 	}
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
-PostForm.processInput = function() {
-	var fr, files = this.files;
-	if(files && files[0]) {
-		fr = new FileReader();
-		fr.onload = function(e) {
-			pr.eventFiles();
-			var file = this.files[0],
-				img = this.img;
-			img.className = 'de-file-img de-file-on';
-			img = img.firstChild;
-			img.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
-				'<video loop autoplay muted src=""></video>' : '<img src="">');
-			img = img.firstChild;
-			img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-			img.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-			img = img.nextSibling;
-			window.URL.revokeObjectURL(img.src);
-			$del(img);
-		}.bind(this);
-		fr.readAsArrayBuffer(files[0]);
-	}
-	if(!this.haveBtns) {
-		this.haveBtns = true;
-		$after(this.img.firstChild, $new('span', {
-			'class': 'de-file-util de-file-del',
-			'title': Lng.removeFile[lang]}, {
-			'click': function() {
-				pr.delFileUtils(this.parentNode);
-			}.bind(this)
-		}));
-	} else if(this.imgFile) {
-		this.imgFile = null;
-		$del(this.img.firstChild.nextSibling);
-	}
-	$del($c('de-file-rar', this.img));
-	if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(files[0].type)) {
-		return;
-	}
-	$after(this.img.firstChild, $new('span', {
-		'class': 'de-file-util de-file-rar',
-		'title': Lng.helpAddFile[lang]}, {
-		'click': function(e) {
-			var el = $id('de-input-rar') || doc.body.appendChild($new('input', {
-					'id': 'de-input-rar',
-					'type': 'file',
-					'style': 'display: none;'
-				}, null));
-			el.onchange = function(inp, e) {
-				$del(this);
-				var file = e.target.files[0],
-					fr = new FileReader(),
-					img = inp.img.firstChild;
-				img.insertAdjacentHTML('afterend', '<span class="de-file-util" style="margin: 0 5px;">' +
-					'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
-				fr.onload = function(input, node, e) {
-					if(input.img.firstChild.nextSibling === node) {
-						node.style.cssText = 'font: bold 11px tahoma; margin: 0 5px; cursor: default;';
-						node.title = input.files[0].name + ' + ' + this.name;
-						node.textContent = input.files[0].name.replace(/^.+\./, '') + ' + ' +
-							this.name.replace(/^.+\./, '')
-						input.imgFile = e.target.result;
-					}
-				}.bind(file, inp, img.nextSibling);
-				fr.readAsArrayBuffer(file);
-			}.bind(e.target, this);
-			el.click();
-		}.bind(this)
-	}));
-};
 PostForm.prototype = {
 	isHidden: false,
 	isQuick: false,
@@ -6186,6 +6120,17 @@ PostForm.prototype = {
 	pForm: null,
 	pArea: [],
 	qArea: null,
+	get fileImageTD() {
+		var val = $t(aib.tiny ? 'th' : 'td', getAncestor(this.txta, 'TR'));
+		val.innerHTML = '';
+		Object.defineProperty(this, 'fileImageTD', { value: val });
+		return val;
+	},
+	get rarInput() {
+		var val = doc.body.appendChild($new('input', {'type': 'file', 'style': 'display: none;'}, null))
+		Object.defineProperty(this, 'rarInput', { value: val });
+		return val;
+	},
 	addTextPanel: function() {
 		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
 		if(!Cfg['addTextBtns']) {
@@ -6217,34 +6162,19 @@ PostForm.prototype = {
 		}
 		tPanel.innerHTML = html;
 	},
-	delFileUtils: function(el) {
-		$each($Q('input[type="file"]', el), function(node) {
-			var img = node.img;
-			$each($Q('.de-file-util', img), $del);
-			img.className = 'de-file-img de-file-off';
-			img = img.firstChild.firstChild;
-			window.URL.revokeObjectURL(img.src);
-			img.src = '';
-			node.imgFile = null;
-		});
-		this._clearFileInput(el);
+	delFilesUtils: function() {
+		for(var i = 0, ins = this.fileInputs, len = ins.length; i < len; ++i) {
+			ins[i].delUtils();
+		}
 	},
-	eventFiles: function() {
-		var td = $id('de-file-img-td');
-		$each($Q('input[type="file"]', getAncestor(this.file, 'TR')), function(el, i) {
-			el.addEventListener('change', PostForm.processInput, false);
-			el.img = $id('de-file-img-' + i);
-			if(!el.img) {
-				td.insertAdjacentHTML('beforeend',
-					'<div class="de-file-img de-file-off" id="de-file-img-' + i +
-					'"><div><img src=""><span title="' + Lng.clickToAdd[lang] + '">' +
-					Lng.noFile[lang] + '</span></div></div>');
-				el.img = td.lastChild;
+	eventFiles: function(filesEl) {
+		this.fileInputs = [];
+		$each($Q('input[type="file"]', filesEl), function(el) {
+			if(!el.obj) {
+				el.obj = new FileInput(this, el);
 			}
-			el.img.firstChild.onclick = function() {
-				el.click();
-			}
-		});
+			this.fileInputs.push(el.obj);
+		}.bind(this));
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, title, id, txt, len, el = e.target;
@@ -6436,13 +6366,6 @@ PostForm.prototype = {
 
 	_lastCapUpdate: 0,
 	_pBtn: [],
-	_clearFileInput: function(el) {
-		var cln = el.cloneNode(false);
-		cln.innerHTML = el.innerHTML;
-		el.parentNode.replaceChild(cln, el);
-		this.file = $q('input[type="file"]', cln);
-		this.eventFiles();
-	},
 	_init: function() {
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
 		var temp, el, btn = $New('div', {'class': 'de-' + (TNum ? 'make-reply' : 'create-thread')}, [
@@ -6677,17 +6600,11 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(this.file) {
-			el = $t(aib.tiny ? 'th' : 'td', getAncestor(this.txta, 'TR'));
-			el.id = 'de-file-img-td';
-			el.innerHTML = '';
-			el = getAncestor(this.file, 'TR');
-			if(Cfg['noFile']) {
-				el.style.display = 'none';
-			}
 			if('files' in this.file && this.file.files.length > 0) {
-				this._clearFileInput(el);
+				this.file.obj = new FileInput(this, this.file);
+				this.file.obj.clear();
 			} else {
-				this.eventFiles();
+				this.eventFiles(getAncestor(this.file, 'TR'));
 			}
 		}
 	},
@@ -6819,6 +6736,172 @@ PostForm.prototype = {
 	}
 }
 
+function FileInput(form, el) {
+	this.el = el;
+	this.form = form;
+	el.addEventListener('change', this, false);
+	this.init(false);
+}
+FileInput.prototype = {
+	haveBtns: false,
+	imgFile: null,
+	preview: null,
+	clear: function() {
+		var tr = this._inputTR,
+			cln = tr.cloneNode(false);
+		cln.innerHTML = tr.innerHTML;
+		tr.parentNode.replaceChild(cln, tr);
+		this.el = $q('input[type="file"]', cln);
+		this.el.obj = this;
+		this.el.addEventListener('change', this, false);
+		Object.defineProperty(this, '_inputTR', { configurable: true, value: cln });
+		this.form.eventFiles(cln);
+		this.init(false);
+	},
+	delUtils: function() {
+		if(Cfg['noFile']) {
+			this._delPview();
+		} else {
+			$del(this._delUtil);
+			$del(this._rjUtil);
+		}
+		this.imgFile = this._delUtil = this._rjUtil = null;
+		this.haveBtns = false;
+		this.clear();
+	},
+	updateUtils: function() {
+		this.init(true);
+		if(this._delUtil) {
+			$after(this._buttonsPlace, this._delUtil);
+		}
+		if(this._rjUtil) {
+			$after(this._buttonsPlace, this._rjUtil);
+		}
+	},
+	handleEvent: function(e) {
+		switch(e.type) {
+		case 'change': this._onFileChange(); break;
+		case 'click':
+			if(e.target === this._delUtil) {
+				this.delUtils();
+			} else if(e.target === this._rjUtil) {
+				this._addRarJpeg();
+			} else if(e.target.classList.contains('de-file-img-elem')) {
+				this.el.click();
+			}
+			$pd(e);
+		}
+	},
+	init: function(inited) {
+		var td;
+		if(Cfg['noFile']) {
+			this._inputTR.style.display = 'none';
+			td = this.form.fileImageTD;
+			td.insertAdjacentHTML('beforeend',
+				'<div class="de-file-img de-file-off"><div><img src=""><span class="de-file-img-elem" title="' +
+				Lng.clickToAdd[lang] + '">' + Lng.noFile[lang] + '</span></div></div>');
+			this.preview = td.lastChild;
+			this.preview.addEventListener('click', this, false);
+			if(inited) {
+				this._showPviewImage();
+			}
+		} else if(inited) {
+			this._inputTR.style.display = '';
+			this._delPview();
+		}
+	},
+
+	_delUtil: null,
+	_rjUtil: null,
+	get _inputTR() {
+		var val = getAncestor(this.el, 'TR');
+		Object.defineProperty(this, '_inputTR', { configurable: true, value: val });
+		return val;
+	},
+	get _buttonsPlace() {
+		return Cfg['noFile'] ? this.preview.firstChild : this.el;
+	},
+	_addRarJpeg: function() {
+		var el = this.form.rarInput;
+		el.onchange = function(e) {
+			$del(this._rjUtil);
+			var file = this.el.files[0],
+				fr = new FileReader(),
+				btnsPlace = this._buttonsPlace;
+			btnsPlace.insertAdjacentHTML('afterend', '<span style="margin: 0 5px;">' +
+				'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+			this._rjUtil = btnsPlace.nextSibling;
+			fr.onload = function(file, node, e) {
+				if(this._buttonsPlace.nextSibling === node) {
+					node.style.cssText = 'font: bold 11px tahoma; margin: 0 5px; cursor: default;';
+					node.title = this.el.files[0].name + ' + ' + file.name;
+					node.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
+						file.name.replace(/^.+\./, '')
+					this.imgFile = e.target.result;
+				}
+			}.bind(this, file, btnsPlace.nextSibling);
+			fr.readAsArrayBuffer(file);
+		}.bind(this);
+		el.click();
+	},
+	_delPview: function() {
+		window.URL.revokeObjectURL(this.preview.firstChild.firstChild.src);
+		$del(this.preview);
+		this.preview = null;
+	},
+	_onFileChange: function() {
+		if(Cfg['noFile']) {
+			this._showPviewImage();
+		}
+		if(!this.haveBtns) {
+			this.haveBtns = true;
+			$after(this._buttonsPlace, this._delUtil = $new('span', {
+				'class': 'de-file-del' + (Cfg['noFile'] ? ' de-file-inpview' : ''),
+				'title': Lng.removeFile[lang]}, {
+				'click': this
+			}));
+		} else if(this.imgFile) {
+			this.imgFile = null;
+		}
+		if(this._rjUtil) {
+			$del(this._rjUtil);
+			this._rjUtil = null;
+		}
+		if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
+			return;
+		}
+		$after(this._buttonsPlace, this._rjUtil = $new('span', {
+			'class': 'de-file-rar' + (Cfg['noFile'] ? ' de-file-inpview' : ''),
+			'title': Lng.helpAddFile[lang]}, {
+			'click': this
+		}));
+	},
+	_showPviewImage: function() {
+		var fr, files = this.el.files;
+		if(files && files[0]) {
+			fr = new FileReader();
+			fr.onload = function(e) {
+				this.form.eventFiles(this._inputTR);
+				var file = this.el.files[0],
+					preview = this.preview;
+				if(!preview) {
+					return;
+				}
+				preview.className = 'de-file-img de-file-on';
+				preview = preview.firstChild;
+				preview.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
+					'<video class="de-file-img-elem" loop autoplay muted src=""></video>' : '<img class="de-file-img-elem" src="">');
+				preview = preview.firstChild;
+				preview.src = window.URL.createObjectURL(new Blob([e.target.result]));
+				preview.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
+				preview = preview.nextSibling;
+				window.URL.revokeObjectURL(preview.src);
+				$del(preview);
+			}.bind(this);
+			fr.readAsArrayBuffer(files[0]);
+		}
+	}
+}
 //============================================================================================================
 //													IMAGES
 //============================================================================================================
