@@ -9188,7 +9188,7 @@ Thread.prototype = {
 				removeFavoriteEntry(fav, h, b, num, false);
 			}
 			saveFavorites(fav);
-		});
+		}.bind(this));
 	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
