@@ -1486,17 +1486,17 @@ function showContent(cont, id, name, remove, data) {
 		}
 		$append(cont, [
 			doc.createElement('hr'),
-			addEditButton('hidden', function() {
-				return hThr;
-			}, true, function(data) {
-				hThr = data;
-				if(!(brd in hThr)) {
-					hThr[brd] = {};
-				}
-				firstThr.updateHidden(hThr[brd]);
-				saveHiddenThreads(true);
-				localStorage['__de-threads'] = JSON.stringify(hThr);
-				localStorage.removeItem('__de-threads');
+			addEditButton('hidden', function(Fn) {
+				Fn(hThr, true, function(data) {
+					hThr = data;
+					if(!(brd in hThr)) {
+						hThr[brd] = {};
+					}
+					firstThr.updateHidden(hThr[brd]);
+					saveHiddenThreads(true);
+					localStorage['__de-threads'] = JSON.stringify(hThr);
+					localStorage.removeItem('__de-threads');
+				});
 			}),
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 				$each($Q('.de-entry[info]', this.parentNode), function(el) {
@@ -1587,10 +1587,11 @@ function showFavoriteTable(cont, data) {
 	cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
 	$append(cont, [
 		doc.createElement('hr'),
-		addEditButton('favor', function() {
-			// TODO: unbreak this
-			return 'broken'; // getStoredObj('DESU_Favorites', fn);
-		}, true, saveFavorites),
+		addEditButton('favor', function(Fn) {
+			getStoredObj('DESU_Favorites', function(Fn, val) {
+				Fn(val, true, saveFavorites);
+			}.bind(null, Fn));
+		}),
 		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
 			getStoredObj('DESU_Favorites', function(fav) {
 				var i, els, len, update = false;
@@ -2070,10 +2071,12 @@ function getCfgCommon() {
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
-			addEditButton('css', Cfg['userCSSTxt'], false, function() {
-				saveCfg('userCSSTxt', this.value);
-				updateCSS();
-				toggleContent('cfg', true);
+			addEditButton('css', function(Fn) {
+				Fn(Cfg['userCSSTxt'], false, function() {
+					saveCfg('userCSSTxt', this.value);
+					updateCSS();
+					toggleContent('cfg', true);
+				});
 			})
 		]),
 		lBox('attachPanel', true, function() {
@@ -2190,32 +2193,35 @@ function getCfgInfo() {
 	]);
 }
 
-function addEditButton(name, getVal, isJSON, Fn) {
-	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function() {
-		var ta = $new('textarea', {
-			'class': 'de-editor',
-			'value': isJSON ? JSON.stringify(getVal(), null, '\t') : getVal()
-		}, null);
-		$alert('', 'edit-' + name, false);
-		$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
-			$txt(Lng.editor[name][lang]),
-			ta,
-			$btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function(fun, aName) {
-				var data;
-				try {
-					data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
-				} finally {
-					if(data) {
-						fun(data);
-						closeAlert($id('de-alert-edit-' + aName));
-						closeAlert($id('de-alert-err-invaliddata'));
-					} else {
-						$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+function addEditButton(name, getDataFn) {
+	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function(getData) {
+		$alert('Loading', 'edit-' + name, false);
+		getData(function(val, isJSON, saveFn) {
+			var ta = $new('textarea', {
+				'class': 'de-editor',
+				'value': isJSON ? JSON.stringify(val, null, '\t') : val
+			}, null);
+			$alert('', 'edit-' + name, false);
+			$append($c('de-alert-msg', $id('de-alert-edit-' + name)), [
+				$txt(Lng.editor[name][lang]),
+				ta,
+				$btn(Lng.save[lang], Lng.saveChanges[lang], isJSON ? function(fun) {
+					var data;
+					try {
+						data = JSON.parse(this.value.trim().replace(/[\n\r\t]/g, '') || '{}');
+					} finally {
+						if(data) {
+							fun(data);
+							closeAlert($id('de-alert-edit-' + name));
+							closeAlert($id('de-alert-err-invaliddata'));
+						} else {
+							$alert(Lng.invalidData[lang], 'err-invaliddata', false);
+						}
 					}
-				}
-			}.bind(ta, Fn, name) : Fn.bind(ta))
-		]);
-	});
+				}.bind(ta, saveFn) : Fn.bind(ta))
+			]);
+		});
+	}.bind(null, getDataFn));
 }
 
 function addSettings(Set, id) {
@@ -2241,10 +2247,8 @@ function addSettings(Set, id) {
 				toggleContent('cfg', false);
 			}),
 			$New('div', {'style': 'float: right;'}, [
-				addEditButton('cfg', function() {
-					return Cfg;
-				}, true, function(data) {
-					saveComCfg(aib.dm, data);
+				addEditButton('cfg', function(Fn) {
+					Fn(Cfg, true, saveComCfg.bind(null, aib.dm));
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(('global' in comCfg) && !$isEmpty(comCfg['global'])) {
