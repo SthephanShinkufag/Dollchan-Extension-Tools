@@ -3224,12 +3224,9 @@ html5Submit.prototype = {
 		}
 		for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
 			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-			if(tag !== 0x011A && tag !== 0x011B && tag !== 0x0128) {
-				continue;
-			}
 			if(tag === 0x0128) {
 				resT = dv.getUint16(dE + 8, le) - 1;
-			} else {
+			} else if(tag === 0x011A || tag === 0x011B) {
 				dE = dv.getUint32(dE + 8, le);
 				if(dE > len) {
 					return null;
@@ -3243,7 +3240,7 @@ html5Submit.prototype = {
 		}
 		xRes = xRes || yRes;
 		yRes = yRes || xRes;
-		return new Uint8Array([resT, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
+		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
 	clearImage: function(data, extraData, rand) {
 		var tmp, i, len, deep, val, lIdx, jpgDat, img = new Uint8Array(data),
@@ -3261,7 +3258,10 @@ html5Submit.prototype = {
 						if(!jpgDat && deep === 1) {
 							if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
 								jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
-							} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46) {
+							} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
+							          (img[i + 2] !== 0 || img[i + 3] >= 0x0E ||
+							          img[i + 15] !== 0xFF))
+							{
 								jpgDat = img.subarray(i + 11, i + 16);
 							}
 						}
@@ -3294,7 +3294,7 @@ html5Submit.prototype = {
 				}
 				return rv;
 			}
-			val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0D, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
+			val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0E, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
 			val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
 			val.push(img.subarray(lIdx, i));
 			if(extraData) {
