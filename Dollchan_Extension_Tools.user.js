@@ -5875,8 +5875,8 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file-del.de-file-inpview { float: right; }\
-		.de-file-rar.de-file-inpview { float: left; }\
+		.de-file-img > .de-file-del { float: right; }\
+		.de-file-img > .de-file-rar { float: left; }\
 		.de-file-del, .de-file-rar { display: inline-block; margin: 0 7px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
