@@ -6602,7 +6602,7 @@ PostForm.prototype = {
 		if(this.file) {
 			if('files' in this.file && this.file.files.length > 0) {
 				this.file.obj = new FileInput(this, this.file);
-				this.file.obj.clear();
+				this.file.obj.clear(true);
 			} else {
 				this.eventFiles(getAncestor(this.file, 'TR'));
 			}
@@ -6746,15 +6746,17 @@ FileInput.prototype = {
 	haveBtns: false,
 	imgFile: null,
 	preview: null,
-	clear: function() {
-		var tr = this._inputTR,
-			cln = tr.cloneNode(false);
-		cln.innerHTML = tr.innerHTML;
-		tr.parentNode.replaceChild(cln, tr);
+	clear: function(isAll) {
+		var parent = isAll ? this._inputTR : this.el.parentNode,
+			cln = parent.cloneNode(false);
+		cln.innerHTML = parent.innerHTML;
+		parent.parentNode.replaceChild(cln, parent);
 		this.el = $q('input[type="file"]', cln);
 		this.el.obj = this;
 		this.el.addEventListener('change', this, false);
-		Object.defineProperty(this, '_inputTR', { configurable: true, value: cln });
+		if(isAll) {
+			Object.defineProperty(this, '_inputTR', { configurable: true, value: cln });
+		}
 		this.form.eventFiles(cln);
 		this.init(false);
 	},
@@ -6767,7 +6769,7 @@ FileInput.prototype = {
 		}
 		this.imgFile = this._delUtil = this._rjUtil = null;
 		this.haveBtns = false;
-		this.clear();
+		this.clear(false);
 	},
 	updateUtils: function() {
 		this.init(true);
@@ -6852,6 +6854,8 @@ FileInput.prototype = {
 	_onFileChange: function() {
 		if(Cfg['noFile']) {
 			this._showPviewImage();
+		} else {
+			this.form.eventFiles(this._inputTR);
 		}
 		if(!this.haveBtns) {
 			this.haveBtns = true;
