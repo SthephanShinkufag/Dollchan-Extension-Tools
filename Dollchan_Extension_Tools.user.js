@@ -1635,6 +1635,7 @@ function showFavoriteTable(cont, data) {
 				for(i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 					queue.run(els[i]);
 				}
+				queue.complete();
 			});
 		}),
 		$btn(Lng.page[lang], Lng.infoPage[lang], function() {
@@ -1670,24 +1671,29 @@ function showFavoriteTable(cont, data) {
 			}
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			var queue = new $queue(4, function(qIdx, num, el) {
+			var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
+				var c = $c('de-fav-inf-posts', el).firstElementChild;
+				c.className = 'de-wait';
 				ajaxLoad(el.getAttribute('de-url'), false, function() {
+					c.className = 'de-fav-inf-old';
 					queue.end(qIdx);
-					qIdx = null;
+					c = qIdx = null;
 				}, function(eCode, eMsg, xhr) {
 					if(eCode === 404) {
+						c.textContent = getErrorMessage(eCode, eMsg);
 						el.setAttribute('de-removed', '');
 					}
 					queue.end(qIdx);
-					qIdx = el = null;
+					c = qIdx = el = null;
 				});
 			}, function() {
 				queue = null;
 				clearFavoriteTable();
-			}), i, len, els;
+			});
 			for(i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 				queue.run(els[i]);
 			}
+			queue.complete();
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($C('de-entry', doc), function(el) {
