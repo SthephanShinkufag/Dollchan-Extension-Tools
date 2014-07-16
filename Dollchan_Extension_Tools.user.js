@@ -4503,287 +4503,59 @@ Spells.needArg = [
 	/* op */ false, /* tlen */ false, /* all */ false, /* video */ false, /* wipe */ false,
 	/* num */ true, /* vauthor */ true
 ];
-Spells.checkArr = function(val, num) {
-	var i, arr;
-	for(arr = val[0], i = arr.length - 1; i >= 0; --i) {
-		if(arr[i] === num) {
-			return true;
-		}
-	}
-	for(arr = val[1], i = arr.length - 1; i >= 0; --i) {
-		if(num >= arr[i][0] && num <= arr[i][1]) {
-			return true;
-		}
-	}
-	return false;
-};
-Spells.YTubeSpell = function spell_youtube(post, val, ctx, cxTail) {
+Spells.decompileSpell = function(type, neg, val, scope) {
+	var temp, temp_, spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
+		scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
 	if(!val) {
-		return !!post.hasYTube;
+		return spell;
 	}
-	if(!post.hasYTube || !Cfg['YTubeTitles']) {
-		return false;
+	// #img
+	if(type === 8) {
+		return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
+			(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
+			(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
+			val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
 	}
-	var i, data, len, isAuthorSpell = typeof val === 'string';
-	for(i = 0, data = post.ytData, len = data.length; i < len; ++i) {
-		if(isAuthorSpell ? val === data[i][1] : val.test(data[i][0])) {
-			return true;
+	// #wipe
+	else if(type === 14) {
+		if(val === 0x3F) {
+			return spell;
 		}
+		temp = [];
+		(val & 1) && temp.push('samelines');
+		(val & 2) && temp.push('samewords');
+		(val & 4) && temp.push('longwords');
+		(val & 8) && temp.push('symbols');
+		(val & 16) && temp.push('capslock');
+		(val & 32) && temp.push('numbers');
+		(val & 64) && temp.push('whitespace');
+		return spell + '(' + temp.join(',') + ')';
 	}
-	if(post.ytLinksLoading === 0) {
-		return false;
-	}
-	post.ytHideFun = function(ctx, cxTail, isASpell, val, data) {
-		if(isASpell ? val === data[1] : val.test(data[0])) {
-			this.ytHideFun = null;
-			spells._continueCheck(this, ctx.concat(cxTail), true);
-		} else if(post.ytLinksLoading === 0) {
-			this.ytHideFun = null;
-			spells._continueCheck(this, ctx.concat(cxTail), false);
+	// #num, #tlen
+	else if(type === 15 || type === 11) {
+		if((temp = val[1].length - 1) !== -1) {
+			for(temp_ = []; temp >= 0; temp--) {
+				temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
+			}
+			temp_.reverse();
 		}
-	}.bind(post, ctx, cxTail, isAuthorSpell, val);
-	return null;
+		spell += '(';
+		if(val[0].length !== 0) {
+			spell += val[0].join(',') + (temp_ ? ',' : '');
+		}
+		if(temp_) {
+			spell += temp_.join(',');
+		}
+		return spell + ')';
+	}
+	// #words, #name, #trip, #vauthor
+	else if(type === 0 || type === 6 || type === 7 || type === 16) {
+		return spell + '(' + val.replace(/\)/g, '\\)') + ')';
+	} else {
+		return spell + '(' + String(val) + ')';
+	}
 };
 Spells.prototype = {
-	_funcs: [
-		// 0: #words
-		function spell_words(post, val) {
-			return post.text.toLowerCase().contains(val) || post.subj.toLowerCase().contains(val);
-		},
-		// 1: #exp
-		function spell_exp(post, val) {
-			return val.test(post.text);
-		},
-		// 2: #exph
-		function spell_exph(post, val) {
-			return val.test(post.html);
-		},
-		// 3: #imgn
-		function spell_imgn(post, val) {
-			for(var i = 0, imgs = post.images, len = imgs.length; i < len; ++i) {
-				if(val.test(imgs[i].info)) {
-					return true;
-				}
-			}
-			return false;
-		},
-		// 4: #ihash
-		function spell_ihash(post, val, ctx, cxTail) {
-			for(var i = 0, imgs = post.images, len = imgs.length; i < len; ++i) {
-				if(imgs[i].hash === val) {
-					return true;
-				}
-			}
-			if(post.hashImgsBusy === 0) {
-				return false;
-			}
-			post.hashHideFun = function(ctx, cxTail, val, hash) {
-				if(val === hash) {
-					this.hashHideFun = null;
-					spells._continueCheck(this, ctx.concat(cxTail), true);
-				} else if(post.hashImgsBusy === 0) {
-					this.hashHideFun = null;
-					spells._continueCheck(this, ctx.concat(cxTail), false);
-				}
-			}.bind(post, ctx, cxTail, val);
-			return null;
-		},
-		// 5: #subj
-		function spell_subj(post, val) {
-			var pSubj = post.subj;
-			return pSubj ? !val || val.test(pSubj) : false;
-		},
-		// 6: #name
-		function spell_name(post, val) {
-			var pName = post.posterName;
-			return pName ? !val || pName.contains(val) : false;
-		},
-		// 7: #trip
-		function spell_trip(post, val) {
-			var pTrip = post.posterTrip;
-			return pTrip ? !val || pTrip.contains(val) : false;
-		},
-		// 8: #img
-		function spell_img(post, val) {
-			var temp, w, h, hide, img, i, imgs = post.images,
-				len = imgs.length;
-			if(!val) {
-				return len !== 0;
-			}
-			for(i = 0; i < len; ++i) {
-				img = imgs[i];
-				if(temp = val[1]) {
-					w = img.weight;
-					switch(val[0]) {
-					case 0: hide = w >= temp[0] && w <= temp[1]; break;
-					case 1: hide = w < temp[0]; break;
-					case 2: hide = w > temp[0];
-					}
-					if(!hide) {
-						continue;
-					} else if(!val[2]) {
-						return true;
-					}
-				}
-				if(temp = val[2]) {
-					w = img.width;
-					h = img.height;
-					switch(val[0]) {
-					case 0:
-						if(w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3]) {
-							return true
-						}
-						break;
-					case 1:
-						if(w < temp[0] && h < temp[3]) {
-							return true
-						}
-						break;
-					case 2:
-						if(w > temp[0] && h > temp[3]) {
-							return true
-						}
-					}
-				}
-			}
-			return false;
-		},
-		// 9: #sage
-		function spell_sage(post, val) {
-			return post.sage;
-		},
-		// 10: #op
-		function spell_op(post, val) {
-			return post.isOp;
-		},
-		// 11: #tlen
-		function spell_tlen(post, val) {
-			var text = post.text;
-			return !val ? !!text : Spells.checkArr(val, text.replace(/\n/g, '').length);
-		},
-		// 12: #all
-		function spell_all(post, val) {
-			return true;
-		},
-		// 13: #video
-		Spells.YTubeSpell,
-		// 14: #wipe
-		function spell_wipe(post, val) {
-			var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = post.text;
-			// (1 << 0): samelines
-			if(val & 1) {
-				arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
-				if((len = arr.length) > 5) {
-					arr.sort();
-					for(i = 0, n = len / 4; i < len;) {
-						x = arr[i];
-						j = 0;
-						while(arr[i++] === x) {
-							j++;
-						}
-						if(j > 4 && j > n && x) {
-							Spells._lastWipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + (j + 1);
-							return true;
-						}
-					}
-				}
-			}
-			// (1 << 1): samewords
-			if(val & 2) {
-				arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
-				if((len = arr.length) > 3) {
-					arr.sort();
-					for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
-						x = arr[i];
-						j = 0;
-						while(arr[i++] === x) {
-							j++;
-						}
-						if(len > 25) {
-							if(j > pop && x.length > 2) {
-								pop = j;
-							}
-							if(pop >= n) {
-								Spells._lastWipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + (pop + 1);
-								return true;
-							}
-						}
-					}
-					x = keys / len;
-					if(x < 0.25) {
-						Spells._lastWipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
-						return true;
-					}
-				}
-			}
-			// (1 << 2): longwords
-			if(val & 4) {
-				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
-				if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
-					Spells._lastWipeMsg = 'long words';
-					return true;
-				}
-			}
-			// (1 << 3): symbols
-			if(val & 8) {
-				_txt = txt.replace(/\s+/g, '');
-				if((len = _txt.length) > 30 &&
-					(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
-				{
-					Spells._lastWipeMsg = 'specsymbols: ' + (x * 100).toFixed(0) + '%';
-					return true;
-				}
-			}
-			// (1 << 4): capslock
-			if(val & 16) {
-				arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
-				if((len = arr.length) > 4) {
-					for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
-						x = arr[i];
-						if((x.match(/[a-zа-я]/ig) || []).length < 5) {
-							continue;
-						}
-						if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
-							casew++;
-						}
-						if(x === x.toUpperCase()) {
-							capsw++;
-						}
-						n++;
-					}
-					if(capsw / n >= 0.3 && n > 4) {
-						Spells._lastWipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
-						return true;
-					} else if(casew / n >= 0.3 && n > 8) {
-						Spells._lastWipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
-						return true;
-					}
-				}
-			}
-			// (1 << 5): numbers
-			if(val & 32) {
-				_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
-				if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
-					Spells._lastWipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
-					return true;
-				}
-			}
-			// (1 << 5): whitespace
-			if(val & 64) {
-				if(/(?:\n\s*){5}/i.test(txt)) {
-					Spells._lastWipeMsg = 'whitespace';
-					return true;
-				}
-			}
-			return false;
-		},
-		// 15: #num
-		function spell_num(post, val) {
-			return Spells.checkArr(val, post.count + 1);
-		},
-		// 16: #vauthor
-		Spells.YTubeSpell
-	],
 	_optimizeSpells: function(spells) {
 		var i, j, len, flags, type, spell, scope, neg, parensSpells, lastSpell = -1,
 			newSpells = [];
@@ -4854,71 +4626,6 @@ Spells.prototype = {
 		}
 		return data;
 	},
-	_checkRes: function(flags, val) {
-		if((flags & 0x100) !== 0) {
-			val = !val;
-		}
-		if((flags & 0x200) !== 0) {
-			if(!val) {
-				return false;
-			}
-		} else if(val) {
-			return true;
-		}
-		return null;
-	},
-	_decompileSpell: function(type, neg, val, scope) {
-		var temp, temp_, spell = (neg ? '!#' : '#') + Spells.names[type] + (scope ? '[' +
-			scope[0] + (scope[1] ? ',' + (scope[1] === -1 ? '' : scope[1]) : '') + ']' : '');
-		if(!val) {
-			return spell;
-		}
-		// #img
-		if(type === 8) {
-			return spell + '(' + (val[0] === 2 ? '>' : val[0] === 1 ? '<' : '=') +
-				(val[1] ? val[1][0] + (val[1][1] === val[1][0] ? '' : '-' + val[1][1]) : '') +
-				(val[2] ? '@' + val[2][0] + (val[2][0] === val[2][1] ? '' : '-' + val[2][1]) + 'x' +
-				val[2][2] + (val[2][2] === val[2][3] ? '' : '-' + val[2][3]) : '') + ')';
-		}
-		// #wipe
-		else if(type === 14) {
-			if(val === 0x3F) {
-				return spell;
-			}
-			temp = [];
-			(val & 1) && temp.push('samelines');
-			(val & 2) && temp.push('samewords');
-			(val & 4) && temp.push('longwords');
-			(val & 8) && temp.push('symbols');
-			(val & 16) && temp.push('capslock');
-			(val & 32) && temp.push('numbers');
-			(val & 64) && temp.push('whitespace');
-			return spell + '(' + temp.join(',') + ')';
-		}
-		// #num, #tlen
-		else if(type === 15 || type === 11) {
-			if((temp = val[1].length - 1) !== -1) {
-				for(temp_ = []; temp >= 0; temp--) {
-					temp_.push(val[1][temp][0] + '-' + val[1][temp][1]);
-				}
-				temp_.reverse();
-			}
-			spell += '(';
-			if(val[0].length !== 0) {
-				spell += val[0].join(',') + (temp_ ? ',' : '');
-			}
-			if(temp_) {
-				spell += temp_.join(',');
-			}
-			return spell + ')';
-		}
-		// #words, #name, #trip, #vauthor
-		else if(type === 0 || type === 6 || type === 7 || type === 16) {
-			return spell + '(' + val.replace(/\)/g, '\\)') + ')';
-		} else {
-			return spell + '(' + String(val) + ')';
-		}
-	},
 	_decompileScope: function(scope, indent) {
 		var spell, type, temp, str, dScope = [], hScope = false, i = 0, j = 0, len = scope.length;
 		for(; i < len; i++, j++) {
@@ -4939,7 +4646,7 @@ Spells.prototype = {
 					dScope[j] = ((spell[0] & 0x100) ? '!(' : '(') + temp[0].join(' ') + ')';
 				}
 			} else {
-				dScope[j] = this._decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
+				dScope[j] = Spells.decompileSpell(type, spell[0] & 0x100, spell[1], spell[2]);
 			}
 			if(i !== len - 1) {
 				dScope[j] += (spell[0] & 0x200) ? ' &' : ' |';
@@ -4970,95 +4677,6 @@ Spells.prototype = {
 		}
 		this._data = null;
 		return this._list = str;
-	},
-	_getMsg: function(spell) {
-		var neg = spell[0] & 0x100,
-			type = spell[0] & 0xFF,
-			val = spell[1];
-		if(type === 0xFF) {
-			return this._getMsg(val[this._lastPSpell]);
-		}
-		if(type === 14) {
-			return (neg ? '!#wipe' : '#wipe') + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
-		} else {
-			return this._decompileSpell(type, neg, val, spell[2]);
-		}
-	},
-	_continueCheck: function(post, ctx, val) {
-		var temp, rv = this._checkRes(ctx.pop(), val);
-		if(rv === null) {
-			if(this._check(post, ctx)) {
-				return;
-			}
-		} else if(rv) {
-			temp = ctx.pop();
-			post.spellHide(this._getMsg(ctx.pop()[temp - 1]));
-		} else if(!post.deleted) {
-			sVis[post.count] = 1;
-		}
-		this._asyncWrk--;
-		this.end(null);
-	},
-	_check: function(post, ctx) {
-		var rv, type, val, temp, deep = ctx[0],
-			i = ctx.pop(),
-			scope = ctx.pop(),
-			len = ctx.pop();
-		while(true) {
-			if(i < len) {
-				temp = scope[i][0];
-				type = temp & 0xFF;
-				switch(type) {
-				case 0xFF:
-					ctx.push(len, scope, i);
-					scope = scope[i][1];
-					len = scope.length;
-					i = 0;
-					deep++;
-					continue;
-				case 4:  // #ihash
-				case 13: // #video
-				case 16: // #vauthor
-					ctx[0] = deep;
-					val = this._funcs[type](post, scope[i][1], ctx, [len, scope, i + 1, temp]);
-					if(val === null) {
-						this._asyncWrk++;
-						return 0;
-					}
-					break;
-				case 15: // #num
-					this.hasNumSpell = true;
-				default:
-					val = this._funcs[type](post, scope[i][1]);
-				}
-				rv = this._checkRes(temp, val);
-				if(rv === null) {
-					i++;
-					continue;
-				}
-				this._lastPSpell = i;
-			} else {
-				this._lastPSpell = i -= 1;
-				rv = false;
-			}
-			if(deep !== 0) {
-				i = ctx.pop();
-				scope = ctx.pop();
-				len = ctx.pop();
-				deep--;
-				rv = this._checkRes(scope[i][0], rv);
-				if(rv === null) {
-					i++;
-					continue;
-				}
-			}
-			if(rv) {
-				post.spellHide(this._getMsg(scope[i]));
-			} else if(!post.deleted) {
-				sVis[post.count] = 1;
-			}
-			return +rv;
-		}
 	},
 	_decompileRep: function(rep, isOrep) {
 		return (isOrep ? '#outrep' : '#rep') +
@@ -5117,7 +4735,12 @@ Spells.prototype = {
 			this._data = spells;
 		}
 	},
-	_asyncWrk: 0,
+	_asyncSpellComplete: function(interp) {
+		this.hasNumSpell |= interp.hasNumSpell;
+		this._asyncJobs--;
+		this.end(null);
+	},
+	_asyncJobs: 0,
 	_completeFns: [],
 	_hasComplFns: false,
 	_data: null,
@@ -5254,7 +4877,7 @@ Spells.prototype = {
 		saveCfg('hideBySpell', false);
 	},
 	end: function(Fn) {
-		if(this._asyncWrk === 0) {
+		if(this._asyncJobs === 0) {
 			Fn && Fn();
 			if(this._hasComplFns) {
 				for(var i = 0, len = this._completeFns.length; i < len; ++i) {
@@ -5268,9 +4891,16 @@ Spells.prototype = {
 		}
 	},
 	check: function(post) {
-		if(this.enable) {
-			return this._check(post, [0, this._sLength, this._spells, 0]);
+		if(!this.enable) {
+			return 0;
 		}
+		var interp = new SpellsInterpreter(post, this._spells, this._sLength);
+		if(interp.run()) {
+			this.hasNumSpell |= interp.hasNumSpell;
+			return interp.postHidden ? 1 : 0;
+		}
+		interp.setEndFn(this._asyncSpellComplete.bind(this));
+		this._asyncJobs++;
 		return 0;
 	},
 	replace: function(txt) {
@@ -5557,6 +5187,411 @@ SpellsCodegen.prototype = {
 		this._errMsgArg = arg;
 	}
 };
+
+function SpellsInterpreter(post, spells, length) {
+	this._post = post;
+	this._ctx = [length, spells, 0];
+	this._deep = 0;
+}
+SpellsInterpreter.prototype = {
+	hasNumSpell: false,
+	postHidden: false,
+	run: function() {
+		var rv, type, val, i = this._ctx.pop(),
+			scope = this._ctx.pop(),
+			len = this._ctx.pop();
+		while(true) {
+			if(i < len) {
+				type = scope[i][0] & 0xFF;
+				if(type === 0xFF) {
+					this._deep++;
+					this._ctx.push(len, scope, i);
+					scope = scope[i][1];
+					len = scope.length;
+					i = 0;
+					continue;
+				}
+				val = this._runSpell(type, scope[i][1]);
+				if(this._asyncWait) {
+					this._ctx.push(len, scope, i, scope[i][0]);
+					return false;
+				}
+				rv = this._checkRes(scope[i][0], val);
+				if(rv === null) {
+					i++;
+					continue;
+				}
+				this._lastSpellIdx = i;
+			} else {
+				this._lastSpellIdx = i -= 1;
+				rv = false;
+			}
+			if(this._deep !== 0) {
+				this._deep--;
+				i = this._ctx.pop();
+				scope = this._ctx.pop();
+				len = this._ctx.pop();
+				rv = this._checkRes(scope[i][0], rv);
+				if(rv === null) {
+					i++;
+					continue;
+				}
+			}
+			if(rv) {
+				this._post.spellHide(this._getMsg(scope[i]));
+				this.postHidden = true;
+			} else if(!this._post.deleted) {
+				sVis[this._post.count] = 1;
+			}
+			return true;
+		}
+	},
+	setEndFn: function(Fn) {
+		this._endFn = Fn;
+	},
+
+	_asyncWait: false,
+	_endFn: null,
+	_lastSpellIdx: 0,
+	_wipeMsg: '',
+	_asyncContinue: function() {
+		this._asyncWait = false;
+		var temp, rv = this._checkRes(this._ctx.pop(), val);
+		if(rv === null) {
+			if(!this.run()) {
+				return;
+			}
+		} else if(rv) {
+			temp = this._ctx.pop();
+			this._post.spellHide(this._getMsg(this._ctx.pop()[temp - 1]));
+			this.postHidden = true;
+		} else if(!this._post.deleted) {
+			sVis[this._post.count] = 1;
+		}
+		if(this._endFn) {
+			this._endFn(this);
+		}
+	},
+	_checkRes: function(flags, val) {
+		if((flags & 0x100) !== 0) {
+			val = !val;
+		}
+		if((flags & 0x200) !== 0) {
+			if(!val) {
+				return false;
+			}
+		} else if(val) {
+			return true;
+		}
+		return null;
+	},
+	_getMsg: function(spell) {
+		var neg = spell[0] & 0x100,
+			type = spell[0] & 0xFF,
+			val = spell[1];
+		if(type === 0xFF) {
+			return this._getMsg(val[this._lastSpellIdx]);
+		}
+		if(type === 14) {
+			return (neg ? '!#wipe' : '#wipe') + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
+		} else {
+			return Spells.decompileSpell(type, neg, val, spell[2]);
+		}
+	},
+	_runSpell: function(spellId, val) {
+		switch(spellId) {
+		case 0: return this._words(val);
+		case 1: return this._exp(val);
+		case 2: return this._exph(val);
+		case 3: return this._imgn(val);
+		case 4: return this._ihash(val);
+		case 5: return this._subj(val);
+		case 6: return this._name(val);
+		case 7: return this._trip(val);
+		case 8: return this._img(val);
+		case 9: return this._sage(val);
+		case 10: return this._op(val);
+		case 11: return this._tlen(val);
+		case 12: return this._all(val);
+		case 13: return this._video(val);
+		case 14: return this._wipe(val);
+		case 15:
+			this.hasNumSpell = true;
+			return this._num(val);
+		case 16: return this._vauthor(val);
+		}
+	},
+	_words: function(val) {
+		return this._post.text.toLowerCase().contains(val) || this._post.subj.toLowerCase().contains(val);
+	},
+	_exp: function(val) {
+		return val.test(this._post.text);
+	},
+	_exph: function(val) {
+		return val.test(this._post.html);
+	},
+	_imgn: function(val) {
+		for(var i = 0, imgs = this._post.images, len = imgs.length; i < len; ++i) {
+			if(val.test(imgs[i].info)) {
+				return true;
+			}
+		}
+		return false;
+	},
+	_ihash: function(val) {
+		for(var i = 0, imgs = this._post.images, len = imgs.length; i < len; ++i) {
+			if(imgs[i].hash === val) {
+				return true;
+			}
+		}
+		if(this._post.hashImgsBusy === 0) {
+			return false;
+		}
+		this._post.hashHideFun = this._ihash_helper.bind(this, val);
+		this._asyncWait = true;
+		return false;
+	},
+	_ihash_helper: function(val, hash) {
+		if(val === hash) {
+			this._post.hashHideFun = null;
+			this._asyncContinue(true);
+		} else if(this._post.hashImgsBusy === 0) {
+			this.hashHideFun = null;
+			this._asyncContinue(false);
+		}
+	},
+	_subj: function(val) {
+		var pSubj = this._post.subj;
+		return pSubj ? !val || val.test(pSubj) : false;
+	},
+	_name: function(val) {
+		var pName = this._post.posterName;
+		return pName ? !val || pName.contains(val) : false;
+	},
+	_trip: function(val) {
+		var pTrip = this._post.posterTrip;
+		return pTrip ? !val || pTrip.contains(val) : false;
+	},
+	_img: function(val) {
+		var temp, w, h, hide, img, i, imgs = this._post.images,
+			len = imgs.length;
+		if(!val) {
+			return len !== 0;
+		}
+		for(i = 0; i < len; ++i) {
+			img = imgs[i];
+			if(temp = val[1]) {
+				w = img.weight;
+				switch(val[0]) {
+				case 0: hide = w >= temp[0] && w <= temp[1]; break;
+				case 1: hide = w < temp[0]; break;
+				case 2: hide = w > temp[0];
+				}
+				if(!hide) {
+					continue;
+				} else if(!val[2]) {
+					return true;
+				}
+			}
+			if(temp = val[2]) {
+				w = img.width;
+				h = img.height;
+				switch(val[0]) {
+				case 0:
+					if(w >= temp[0] && w <= temp[1] && h >= temp[2] && h <= temp[3]) {
+						return true
+					}
+					break;
+				case 1:
+					if(w < temp[0] && h < temp[3]) {
+						return true
+					}
+					break;
+				case 2:
+					if(w > temp[0] && h > temp[3]) {
+						return true
+					}
+				}
+			}
+		}
+		return false;
+	},
+	_sage: function(val) {
+		return this._post.sage;
+	},
+	_op: function(val) {
+		return this._post.isOp;
+	},
+	_tlen: function(val) {
+		var text = this._post.text;
+		return !val ? !!text : this._tlenNum_helper(val, text.replace(/\n/g, '').length);
+	},
+	_all: function(val) {
+		return true;
+	},
+	_video: function(val) {
+		return this._videoVauthor(val, false);
+	},
+	_wipe: function(val) {
+		var arr, len, i, j, n, x, keys, pop, capsw, casew, _txt, txt = this._post.text;
+		// (1 << 0): samelines
+		if(val & 1) {
+			arr = txt.replace(/>/g, '').split(/\s*\n\s*/);
+			if((len = arr.length) > 5) {
+				arr.sort();
+				for(i = 0, n = len / 4; i < len;) {
+					x = arr[i];
+					j = 0;
+					while(arr[i++] === x) {
+						j++;
+					}
+					if(j > 4 && j > n && x) {
+						this._wipeMsg = 'same lines: "' + x.substr(0, 20) + '" x' + (j + 1);
+						return true;
+					}
+				}
+			}
+		}
+		// (1 << 1): samewords
+		if(val & 2) {
+			arr = txt.replace(/[\s\.\?\!,>]+/g, ' ').toUpperCase().split(' ');
+			if((len = arr.length) > 3) {
+				arr.sort();
+				for(i = 0, n = len / 4, keys = 0, pop = 0; i < len; keys++) {
+					x = arr[i];
+					j = 0;
+					while(arr[i++] === x) {
+						j++;
+					}
+					if(len > 25) {
+						if(j > pop && x.length > 2) {
+							pop = j;
+						}
+						if(pop >= n) {
+							this._wipeMsg = 'same words: "' + x.substr(0, 20) + '" x' + (pop + 1);
+							return true;
+						}
+					}
+				}
+				x = keys / len;
+				if(x < 0.25) {
+					this._wipeMsg = 'uniq words: ' + (x * 100).toFixed(0) + '%';
+					return true;
+				}
+			}
+		}
+		// (1 << 2): longwords
+		if(val & 4) {
+			arr = txt.replace(/https*:\/\/.*?(\s|$)/g, '').replace(/[\s\.\?!,>:;-]+/g, ' ').split(' ');
+			if(arr[0].length > 50 || ((len = arr.length) > 1 && arr.join('').length / len > 10)) {
+				this._wipeMsg = 'long words';
+				return true;
+			}
+		}
+		// (1 << 3): symbols
+		if(val & 8) {
+			_txt = txt.replace(/\s+/g, '');
+			if((len = _txt.length) > 30 &&
+				(x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, '').length / len) > 0.4)
+			{
+				this._wipeMsg = 'specsymbols: ' + (x * 100).toFixed(0) + '%';
+				return true;
+			}
+		}
+		// (1 << 4): capslock
+		if(val & 16) {
+			arr = txt.replace(/[\s\.\?!;,-]+/g, ' ').trim().split(' ');
+			if((len = arr.length) > 4) {
+				for(i = 0, n = 0, capsw = 0, casew = 0; i < len; i++) {
+					x = arr[i];
+					if((x.match(/[a-zа-я]/ig) || []).length < 5) {
+						continue;
+					}
+					if((x.match(/[A-ZА-Я]/g) || []).length > 2) {
+						casew++;
+					}
+					if(x === x.toUpperCase()) {
+						capsw++;
+					}
+					n++;
+				}
+				if(capsw / n >= 0.3 && n > 4) {
+					this._wipeMsg = 'CAPSLOCK: ' + capsw / arr.length * 100 + '%';
+					return true;
+				} else if(casew / n >= 0.3 && n > 8) {
+					this._wipeMsg = 'cAsE words: ' + casew / arr.length * 100 + '%';
+					return true;
+				}
+			}
+		}
+		// (1 << 5): numbers
+		if(val & 32) {
+			_txt = txt.replace(/\s+/g, ' ').replace(/>>\d+|https*:\/\/.*?(?: |$)/g, '');
+			if((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, '').length) / len) > 0.4) {
+				this._wipeMsg = 'numbers: ' + Math.round(x * 100) + '%';
+				return true;
+			}
+		}
+		// (1 << 5): whitespace
+		if(val & 64) {
+			if(/(?:\n\s*){5}/i.test(txt)) {
+				this._wipeMsg = 'whitespace';
+				return true;
+			}
+		}
+		return false;
+	},
+	_num: function(val) {
+		return this._tlenNum_helper(val, this._post.count + 1);
+	},
+	_tlenNum_helper: function(val, num) {
+		var i, arr;
+		for(arr = val[0], i = arr.length - 1; i >= 0; --i) {
+			if(arr[i] === num) {
+				return true;
+			}
+		}
+		for(arr = val[1], i = arr.length - 1; i >= 0; --i) {
+			if(num >= arr[i][0] && num <= arr[i][1]) {
+				return true;
+			}
+		}
+		return false;
+	},
+	_vauthor: function(val) {
+		return this._videoVauthor(val, true);
+	},
+	_videoVauthor: function(val, isAuthorSpell) {
+		if(!val) {
+			return !!this._post.hasYTube;
+		}
+		if(!this._post.hasYTube || !Cfg['YTubeTitles']) {
+			return false;
+		}
+		var i, data, len;
+		for(i = 0, data = this._post.ytData, len = data.length; i < len; ++i) {
+			if(isAuthorSpell ? val === data[i][1] : val.test(data[i][0])) {
+				return true;
+			}
+		}
+		if(this._post.ytLinksLoading === 0) {
+			return false;
+		}
+		this._post.ytHideFun = this._videoVauthor_helper.bind(this, isAuthorSpell, val);
+		this._asyncWait = true;
+		return false;
+	},
+	_videoVauthor_helper: function(isAuthorSpell, val, data) {
+		if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
+			this._post.ytHideFun = null;
+			this._asyncContinue(true);
+		} else if(this._post.ytLinksLoading === 0) {
+			this._post.ytHideFun = null;
+			this._asyncContinue(false);
+		}
+	}
+}
+
 
 function disableSpells() {
 	closeAlert($id('de-alert-help-err-spell'));
