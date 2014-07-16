@@ -1603,6 +1603,7 @@ function showFavoriteTable(cont, data) {
 						f = fav[host][brd][num];
 					if(host !== aib.host) {
 						queue.end(qIdx);
+						return;
 					}
 					c = $c('de-fav-inf-posts', el).firstElementChild;
 					c.className = 'de-wait';
@@ -1618,7 +1619,7 @@ function showFavoriteTable(cont, data) {
 							c.className = 'de-fav-inf-old';
 						}
 						queue.end(qIdx);
-						c = f = qIdx = fav = null;
+						c = f = qIdx = null;
 					}, function(eCode, eMsg, xhr) {
 						c.textContent = getErrorMessage(eCode, eMsg);
 						c.className = 'de-fav-inf-old';
@@ -1634,6 +1635,7 @@ function showFavoriteTable(cont, data) {
 				for(i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 					queue.run(els[i]);
 				}
+				queue.complete();
 			});
 		}),
 		$btn(Lng.page[lang], Lng.infoPage[lang], function() {
@@ -1669,24 +1671,29 @@ function showFavoriteTable(cont, data) {
 			}
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
-			var queue = new $queue(4, function(qIdx, num, el) {
+			var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
+				var c = $c('de-fav-inf-posts', el).firstElementChild;
+				c.className = 'de-wait';
 				ajaxLoad(el.getAttribute('de-url'), false, function() {
+					c.className = 'de-fav-inf-old';
 					queue.end(qIdx);
-					qIdx = null;
+					c = qIdx = null;
 				}, function(eCode, eMsg, xhr) {
 					if(eCode === 404) {
+						c.textContent = getErrorMessage(eCode, eMsg);
 						el.setAttribute('de-removed', '');
 					}
 					queue.end(qIdx);
-					qIdx = el = null;
+					c = qIdx = el = null;
 				});
 			}, function() {
 				queue = null;
 				clearFavoriteTable();
-			}), i, len, els;
+			});
 			for(i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 				queue.run(els[i]);
 			}
+			queue.complete();
 		}),
 		$btn(Lng.remove[lang], Lng.clrSelected[lang], function() {
 			$each($C('de-entry', doc), function(el) {
@@ -2220,7 +2227,7 @@ function addEditButton(name, getDataFn) {
 							$alert(Lng.invalidData[lang], 'err-invaliddata', false);
 						}
 					}
-				}.bind(ta, saveFn) : Fn.bind(ta))
+				}.bind(ta, saveFn) : saveFn.bind(ta))
 			]);
 		});
 	}.bind(null, getDataFn));
@@ -4373,7 +4380,7 @@ function loadPages(count) {
 				}
 				closeAlert($id('de-alert-load-pages'));
 			} while(false);
-			$disp(dForm);
+			dForm.style.display = '';
 			loaded = pages = count = null;
 		} else {
 			loaded++;
@@ -4393,7 +4400,7 @@ function loadPages(count) {
 		Attachment.viewer.close(null);
 		Attachment.viewer = null;
 	}
-	$disp(dForm);
+	dForm.style.display = 'none';
 	dForm.innerHTML = '';
 	if(pr.isQuick) {
 		if(pr.file) {
@@ -6481,10 +6488,10 @@ PostForm.prototype = {
 			}.bind(this)});
 			el = getAncestor(this.mail, 'LABEL') || this.mail;
 			if(el.nextElementSibling || el.previousElementSibling) {
-				$disp(el);
+				el.style.display = 'none';
 				$after(el, btn);
 			} else {
-				$disp(getAncestor(this.mail, 'TR'));
+				getAncestor(this.mail, 'TR').style.display = 'none';
 				$after(this.name || this.subm, btn);
 			}
 			this._setSage();
@@ -6580,8 +6587,8 @@ PostForm.prototype = {
 				this.video.value = 'http://www.youtube.com/watch?v=' + val[1];
 			}
 			if(this.isQuick) {
-				$disp(this.pForm);
-				$disp(this.qArea);
+				this.pForm.style.display = 'none';
+				this.qArea.style.display = 'none';
 				$after(this._pBtn[+this.isTopForm], this.pForm);
 			}
 		}.bind(this), false);
@@ -6589,10 +6596,10 @@ PostForm.prototype = {
 			node.size = 30;
 		});
 		if(Cfg['noGoto'] && this.gothr) {
-			$disp(this.gothr);
+			this.gothr.style.display = 'none';
 		}
 		if(Cfg['noPassword'] && this.passw) {
-			$disp(getAncestor(this.passw, 'TR'));
+			getAncestor(this.passw, 'TR').style.display = 'none';
 		}
 		window.addEventListener('load', function() {
 			if(Cfg['userName'] && this.name) {
@@ -6613,7 +6620,7 @@ PostForm.prototype = {
 					this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 				}
 				if(!aib.krau) {
-					$disp(this.capTr);
+					this.capTr.style.display = 'none';
 				}
 				this.capTr.innerHTML = '';
 			}
@@ -6637,7 +6644,7 @@ PostForm.prototype = {
 		if(this.file) {
 			if('files' in this.file && this.file.files.length > 0) {
 				this.file.obj = new FileInput(this, this.file);
-				this.file.obj.clear();
+				this.file.obj.clear(true);
 			} else {
 				this.eventFiles(getAncestor(this.file, 'TR'));
 			}
@@ -6729,7 +6736,7 @@ PostForm.prototype = {
 			return;
 		}
 		if(aib.abu || aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
-			$disp(this.capTr);
+			this.capTr.style.display = '';
 			return;
 		}
 		if(!aib.kus && !aib.tinyIb) {
@@ -6751,7 +6758,7 @@ PostForm.prototype = {
 			$after(a, img);
 			$del(a);
 		}
-		$disp(this.capTr);
+		this.capTr.style.display = '';
 	},
 	_wrapText: function(isBB, tag, text) {
 		var m;
@@ -6781,15 +6788,17 @@ FileInput.prototype = {
 	haveBtns: false,
 	imgFile: null,
 	preview: null,
-	clear: function() {
-		var tr = this._inputTR,
-			cln = tr.cloneNode(false);
-		cln.innerHTML = tr.innerHTML;
-		tr.parentNode.replaceChild(cln, tr);
+	clear: function(isAll) {
+		var parent = isAll ? this._inputTR : this.el.parentNode,
+			cln = parent.cloneNode(false);
+		cln.innerHTML = parent.innerHTML;
+		parent.parentNode.replaceChild(cln, parent);
 		this.el = $q('input[type="file"]', cln);
 		this.el.obj = this;
 		this.el.addEventListener('change', this, false);
-		Object.defineProperty(this, '_inputTR', { configurable: true, value: cln });
+		if(isAll) {
+			Object.defineProperty(this, '_inputTR', { configurable: true, value: cln });
+		}
 		this.form.eventFiles(cln);
 		this.init(false);
 	},
@@ -6802,7 +6811,7 @@ FileInput.prototype = {
 		}
 		this.imgFile = this._delUtil = this._rjUtil = null;
 		this.haveBtns = false;
-		this.clear();
+		this.clear(false);
 	},
 	updateUtils: function() {
 		this.init(true);
@@ -6887,6 +6896,8 @@ FileInput.prototype = {
 	_onFileChange: function() {
 		if(Cfg['noFile']) {
 			this._showPviewImage();
+		} else {
+			this.form.eventFiles(this._inputTR);
 		}
 		if(!this.haveBtns) {
 			this.haveBtns = true;
@@ -9223,7 +9234,7 @@ Thread.prototype = {
 				removeFavoriteEntry(fav, h, b, num, false);
 			}
 			saveFavorites(fav);
-		});
+		}.bind(this));
 	},
 	updateHidden: function(data) {
 		var realHid, date = Date.now(),
@@ -10841,7 +10852,7 @@ function doScript() {
 	}
 	spells = new Spells(!!Cfg['hideBySpell']);
 	new Logger().log('Parsing spells');
-	$disp(doc.body);
+	doc.body.style.display = 'none';
 	replaceDelform();
 	new Logger().log('Replace delform');
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
@@ -10850,7 +10861,7 @@ function doScript() {
 		parseDelform(dForm, $Q(aib.qThread, dForm));
 	} catch(e) {
 		GM_log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
-		$disp(doc.body);
+		doc.body.style.display = '';
 		return;
 	}
 	initDelformAjax();
@@ -10869,7 +10880,7 @@ function doScript() {
 	initMessageFunctions();
 	addDelformStuff(true);
 	scriptCSS();
-	$disp(doc.body);
+	doc.body.style.display = '';
 	new Logger().log('Apply CSS');
 	readPosts();
 	readUserPosts();
