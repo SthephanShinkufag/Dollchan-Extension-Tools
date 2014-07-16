@@ -2220,7 +2220,7 @@ function addEditButton(name, getDataFn) {
 							$alert(Lng.invalidData[lang], 'err-invaliddata', false);
 						}
 					}
-				}.bind(ta, saveFn) : Fn.bind(ta))
+				}.bind(ta, saveFn) : saveFn.bind(ta))
 			]);
 		});
 	}.bind(null, getDataFn));
