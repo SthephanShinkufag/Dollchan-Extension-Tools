@@ -1596,9 +1596,6 @@ function showFavoriteTable(cont, data) {
 			getStoredObj('DESU_Favorites', function(fav) {
 				var i, els, len, update = false;
 				var queue = new $queue(4, function(qIdx, num, el) {
-					if(!fav) {
-						return;
-					}
 					var c, host = el.getAttribute('de-host'),
 						brd = el.getAttribute('de-board'),
 						num = el.getAttribute('de-num'),
@@ -1606,6 +1603,7 @@ function showFavoriteTable(cont, data) {
 						f = fav[host][brd][num];
 					if(host !== aib.host) {
 						queue.end(qIdx);
+						return;
 					}
 					c = $c('de-fav-inf-posts', el).firstElementChild;
 					c.className = 'de-wait';
@@ -1621,7 +1619,7 @@ function showFavoriteTable(cont, data) {
 							c.className = 'de-fav-inf-old';
 						}
 						queue.end(qIdx);
-						c = f = qIdx = fav = null;
+						c = f = qIdx = null;
 					}, function(eCode, eMsg, xhr) {
 						c.textContent = getErrorMessage(eCode, eMsg);
 						c.className = 'de-fav-inf-old';
