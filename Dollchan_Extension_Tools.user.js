@@ -3707,6 +3707,7 @@ function preloadImages(post) {
 					iType = 'image/png';
 				} else if(/\.webm$/i.test(url)) {
 					iType = 'video/webm';
+					nExp = false;
 				} else {
 					continue;
 				}
@@ -3715,7 +3716,7 @@ function preloadImages(post) {
 			if(queue) {
 				queue.run([url, lnk, iType, nExp, el]);
 			} else if(nExp) {
-				el.src = url;
+				el.src = url; // !
 			}
 		}
 	}
