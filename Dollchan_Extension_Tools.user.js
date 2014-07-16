@@ -1596,6 +1596,9 @@ function showFavoriteTable(cont, data) {
 			getStoredObj('DESU_Favorites', function(fav) {
 				var i, els, len, update = false;
 				var queue = new $queue(4, function(qIdx, num, el) {
+					if(!fav) {
+						return;
+					}
 					var c, host = el.getAttribute('de-host'),
 						brd = el.getAttribute('de-board'),
 						num = el.getAttribute('de-num'),
