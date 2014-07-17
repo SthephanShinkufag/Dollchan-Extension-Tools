@@ -6795,8 +6795,7 @@ function FileInput(form, el) {
 FileInput.prototype = {
 	haveBtns: false,
 	imgFile: null,
-	img: null,
-	moved: false,
+	thumb: null,
 	clear: function(parent) {
 		var form = this.form,
 			cln = parent.cloneNode(false);
@@ -6850,15 +6849,15 @@ FileInput.prototype = {
 			imgTd = this.form.fileImageTD;
 			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-			this.img = imgTd.lastChild;
-			this.img.addEventListener('click', this, false);
-			this.img.ondragover = function() {
-				this.img.classList.add('de-file-hover');
-				$after(this.img, this.el);
+			this.thumb = imgTd.lastChild;
+			this.thumb.addEventListener('click', this, false);
+			this.thumb.ondragover = function() {
+				this.thumb.classList.add('de-file-hover');
+				$after(this.thumb, this.el);
 			}.bind(this);
 			this.el.ondragleave = this.el.ondrop = function() {
 				setTimeout(function() {
-					this.img.classList.remove('de-file-hover');
+					this.thumb.classList.remove('de-file-hover');
 					var el = this.place.firstChild;
 					if(el) {
 						$before(el, this.el);
@@ -6882,7 +6881,7 @@ FileInput.prototype = {
 	_delUtil: null,
 	_rjUtil: null,
 	get _buttonsPlace() {
-		return Cfg['noFile'] ? this.img.firstChild : this.el;
+		return Cfg['noFile'] ? this.thumb.firstChild : this.el;
 	},
 	_addRarJpeg: function() {
 		var el = this.form.rarInput;
@@ -6908,12 +6907,12 @@ FileInput.prototype = {
 		el.click();
 	},
 	_delPview: function() {
-		var img = this.img.firstChild.firstChild.firstChild;
-		if(img) {
-			window.URL.revokeObjectURL(img.src);
+		var thumb = this.thumb.firstChild.firstChild.firstChild;
+		if(thumb) {
+			window.URL.revokeObjectURL(thumb.src);
 		}
-		$del(this.img);
-		this.img = null;
+		$del(this.thumb);
+		this.thumb = null;
 	},
 	_onFileChange: function() {
 		if(Cfg['noFile']) {
@@ -6951,22 +6950,22 @@ FileInput.prototype = {
 			fr.onload = function(e) {
 				this.form.eventFiles(null);
 				var file = this.el.files[0],
-					img = this.img;
-				if(!img) {
+					thumb = this.thumb;
+				if(!thumb) {
 					return;
 				}
-				img.className = 'de-file de-file-on de-file-drop';
-				img = img.firstChild.firstChild;
-				img.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-				img.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
+				thumb.className = 'de-file de-file-on de-file-drop';
+				thumb = thumb.firstChild.firstChild;
+				thumb.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
+				thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
 					'<video class="de-file-img" loop autoplay muted src=""></video>' :
 					'<img class="de-file-img" src="">');
-				img = img.firstChild;
-				img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-				img = img.nextSibling;
-				if(img) {
-					window.URL.revokeObjectURL(img.src);
-					$del(img);
+				thumb = thumb.firstChild;
+				thumb.src = window.URL.createObjectURL(new Blob([e.target.result]));
+				thumb = thumb.nextSibling;
+				if(thumb) {
+					window.URL.revokeObjectURL(thumb.src);
+					$del(thumb);
 				}
 			}.bind(this);
 			fr.readAsArrayBuffer(files[0]);
