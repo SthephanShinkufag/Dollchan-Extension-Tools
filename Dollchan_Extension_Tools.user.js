@@ -5918,15 +5918,14 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 2px dotted #666; color: #666; font: bold 16px arial; cursor: pointer; }\
-		.de-file > div { display : table; width: 100%; }\
+		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
+		.de-file > div { display : table; width: 100%; cursor: pointer; }\
 		.de-file > div > div { display: table-cell; vertical-align: middle; }\
-		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -134px; vertical-align: top; width: 134px; height: 134px; cursor: pointer; }\
-		.de-file-drop { border: 2px dotted #666; border-radius: 0; }\
+		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px; vertical-align: top; width: 132px; height: 132px; cursor: pointer; }\
+		.de-file-drop { border: 1px dashed grey; }\
 		.de-file-drop > div { height: 114px; }\
-		.de-file-hover { background: rgba(88, 88, 88, 0.4); border: 2px solid #666; color: #666; }\
+		.de-file-hover { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
 		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 110px; }\
-		.de-file-off { border-radius: 20px; }\
 		.de-file-off > div { height: 100%; }\
 		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
 		.de-file-off + .de-file-off { display: none; }\
