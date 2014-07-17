@@ -449,7 +449,7 @@ Lng = {
 	search:			['Искать в ', 'Search in '],
 	wait:			['Ждите', 'Wait'],
 	noFile:			['Нет файла', 'No file'],
-	clickToAdd:		['Нажмите, чтобы добавить файл', 'Click to add file'],
+	clickToAdd:		['Выберите, либо перетащите файл', 'Select or drag and drop file'],
 	removeFile:		['Удалить файл', 'Remove file'],
 	helpAddFile:	['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
@@ -6848,8 +6848,8 @@ FileInput.prototype = {
 		if(Cfg['noFile']) {
 			fileTr.style.display = 'none';
 			imgTd = this.form.fileImageTD;
-			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off">' +
-				'<div class="de-file-img"><div class="de-file-img"></div></div></div>');
+			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
+				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 			this.img = imgTd.lastChild;
 			this.img.addEventListener('click', this, false);
 			this.img.ondragover = function() {
@@ -6957,12 +6957,12 @@ FileInput.prototype = {
 				}
 				img.className = 'de-file de-file-on de-file-drop';
 				img = img.firstChild.firstChild;
+				img.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
 				img.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
 					'<video class="de-file-img" loop autoplay muted src=""></video>' :
 					'<img class="de-file-img" src="">');
 				img = img.firstChild;
 				img.src = window.URL.createObjectURL(new Blob([e.target.result]));
-				img.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
 				img = img.nextSibling;
 				if(img) {
 					window.URL.revokeObjectURL(img.src);
