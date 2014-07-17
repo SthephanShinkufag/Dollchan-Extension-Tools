@@ -5918,21 +5918,24 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file-img > .de-file-del { float: right; }\
-		.de-file-img > .de-file-rar { float: left; }\
+		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 2px dotted #666; color: #666; font: bold 16px arial; cursor: pointer; }\
+		.de-file > div { display : table; width: 100%; }\
+		.de-file > div > div { display: table-cell; vertical-align: middle; }\
+		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -134px; vertical-align: top; width: 134px; height: 134px; cursor: pointer; }\
+		.de-file-drop { border: 2px dotted #666; border-radius: 0; }\
+		.de-file-drop > div { height: 114px; }\
+		.de-file-hover { background: rgba(88, 88, 88, 0.4); border: 2px solid #666; color: #666; }\
+		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 110px; }\
+		.de-file-off { border-radius: 20px; }\
+		.de-file-off > div { height: 100%; }\
+		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
+		.de-file-off + .de-file-off { display: none; }\
+		.de-file > .de-file-del { float: right; }\
+		.de-file > .de-file-rar { float: left; }\
 		.de-file-del, .de-file-rar { display: inline-block; margin: 0 7px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
-	x += '.de-file-img { display: inline-block; }\
-		.de-file-img > div { margin: 3px 4px; padding: 4px; border: 1px dashed grey; cursor: pointer; }\
-		.de-file-img > div > img, .de-file-img > div > video { max-height: 200px; max-width: 100px; }\
-		#de-file-img-td { padding: 4px 0; width: 115px; text-align: center; }\
-		.de-file-off + .de-file-off { display: none; }\
-		.de-file-off > div > img, .de-file-off > div > video { display: none; }\
-		.de-file-off > div > span { display: block; }\
-		.de-file-on > div > img, .de-file-on > div > video { display: block; }\
-		.de-file-on > div > span { display: none; }\
-		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
+	x += '.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
 		.de-new-post { ' + (nav.Opera ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
@@ -6126,7 +6129,11 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.txta = $q('tr:not([style*="none"]) textarea:not([style*="display:none"])', form);
 	this.subm = $q('tr input[type="submit"]', form);
 	this.file = $q('tr input[type="file"]', form);
-	this.fileInputs = [];
+	if(this.file) {
+		this.fileTd = getAncestor(this.file, 'TD');
+		this.fileImgTd = getAncestor(this.txta, 'TD').previousElementSibling;
+		this.fileInputs = [];
+	}
 	this.passw = $q('tr input[type="password"]', form);
 	this.dpass = $q('input[type="password"], input[name="password"]', dForm);
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
@@ -6210,11 +6217,12 @@ PostForm.prototype = {
 			ins[i].delUtils();
 		}
 	},
-	eventFiles: function(filesEl) {
+	eventFiles: function(parent) {
 		this.fileInputs = [];
-		$each($Q('input[type="file"]', filesEl), function(el) {
+		$each($Q('input[type="file"]', parent || this.fileTd), function(el) {
 			if(!el.obj) {
 				el.obj = new FileInput(this, el);
+				el.obj.init(false);
 			}
 			this.fileInputs.push(el.obj);
 		}.bind(this));
@@ -6642,12 +6650,12 @@ PostForm.prototype = {
 			this.form.target = 'de-iframe-pform';
 			this.form.onsubmit = null;
 		}
-		if(this.file) {
-			if('files' in this.file && this.file.files.length > 0) {
-				this.file.obj = new FileInput(this, this.file);
-				this.file.obj.clear(true);
+		if(el = this.file) {
+			if('files' in el && el.files.length > 0) {
+				el.obj = new FileInput(this, el);
+				el.obj.clear(this.fileTd);
 			} else {
-				this.eventFiles(getAncestor(this.file, 'TR'));
+				this.eventFiles(null);
 			}
 		}
 	},
@@ -6781,27 +6789,25 @@ PostForm.prototype = {
 
 function FileInput(form, el) {
 	this.el = el;
+	this.place = el.parentNode;
 	this.form = form;
-	el.addEventListener('change', this, false);
-	this.init(false);
 }
 FileInput.prototype = {
 	haveBtns: false,
 	imgFile: null,
-	preview: null,
-	clear: function(isAll) {
-		var parent = isAll ? this._inputTR : this.el.parentNode,
+	img: null,
+	moved: false,
+	clear: function(parent) {
+		var form = this.form,
 			cln = parent.cloneNode(false);
 		cln.innerHTML = parent.innerHTML;
 		parent.parentNode.replaceChild(cln, parent);
-		this.el = $q('input[type="file"]', cln);
 		this.el.obj = this;
-		this.el.addEventListener('change', this, false);
-		if(isAll) {
-			Object.defineProperty(this, '_inputTR', { configurable: true, value: cln });
+		form.file = this.el = $q('input[type="file"]', cln);
+		if(!form.fileTd.parentNode) {
+			form.fileTd = cln;
 		}
-		this.form.eventFiles(cln);
-		this.init(false);
+		form.eventFiles(cln);
 	},
 	delUtils: function() {
 		if(Cfg['noFile']) {
@@ -6812,7 +6818,7 @@ FileInput.prototype = {
 		}
 		this.imgFile = this._delUtil = this._rjUtil = null;
 		this.haveBtns = false;
-		this.clear(false);
+		this.clear(this.el.parentNode);
 	},
 	updateUtils: function() {
 		this.init(true);
@@ -6831,40 +6837,52 @@ FileInput.prototype = {
 				this.delUtils();
 			} else if(e.target === this._rjUtil) {
 				this._addRarJpeg();
-			} else if(e.target.classList.contains('de-file-img-elem')) {
+			} else if(e.target.className === 'de-file-img') {
 				this.el.click();
 			}
 			$pd(e);
 		}
 	},
 	init: function(inited) {
-		var td;
+		var imgTd, fileTr = this.form.fileTd.parentNode;
 		if(Cfg['noFile']) {
-			this._inputTR.style.display = 'none';
-			td = this.form.fileImageTD;
-			td.insertAdjacentHTML('beforeend',
-				'<div class="de-file-img de-file-off"><div><img src=""><span class="de-file-img-elem" title="' +
-				Lng.clickToAdd[lang] + '">' + Lng.noFile[lang] + '</span></div></div>');
-			this.preview = td.lastChild;
-			this.preview.addEventListener('click', this, false);
+			fileTr.style.display = 'none';
+			imgTd = this.form.fileImageTD;
+			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off">' +
+				'<div class="de-file-img"><div class="de-file-img"></div></div></div>');
+			this.img = imgTd.lastChild;
+			this.img.addEventListener('click', this, false);
+			this.img.ondragover = function() {
+				this.img.classList.add('de-file-hover');
+				$after(this.img, this.el);
+			}.bind(this);
+			this.el.ondragleave = this.el.ondrop = function() {
+				setTimeout(function() {
+					this.img.classList.remove('de-file-hover');
+					var el = this.place.firstChild;
+					if(el) {
+						$before(el, this.el);
+					} else {
+						this.place.appendChild(this.el);
+					}
+				}.bind(this), 10);
+			}.bind(this);
 			if(inited) {
 				this._showPviewImage();
 			}
 		} else if(inited) {
-			this._inputTR.style.display = '';
+			fileTr.style.display = '';
 			this._delPview();
+		}
+		if(!inited) {
+			this.el.addEventListener('change', this, false);
 		}
 	},
 
 	_delUtil: null,
 	_rjUtil: null,
-	get _inputTR() {
-		var val = getAncestor(this.el, 'TR');
-		Object.defineProperty(this, '_inputTR', { configurable: true, value: val });
-		return val;
-	},
 	get _buttonsPlace() {
-		return Cfg['noFile'] ? this.preview.firstChild : this.el;
+		return Cfg['noFile'] ? this.img.firstChild : this.el;
 	},
 	_addRarJpeg: function() {
 		var el = this.form.rarInput;
@@ -6890,15 +6908,18 @@ FileInput.prototype = {
 		el.click();
 	},
 	_delPview: function() {
-		window.URL.revokeObjectURL(this.preview.firstChild.firstChild.src);
-		$del(this.preview);
-		this.preview = null;
+		var img = this.img.firstChild.firstChild.firstChild;
+		if(img) {
+			window.URL.revokeObjectURL(img.src);
+		}
+		$del(this.img);
+		this.img = null;
 	},
 	_onFileChange: function() {
 		if(Cfg['noFile']) {
 			this._showPviewImage();
 		} else {
-			this.form.eventFiles(this._inputTR);
+			this.form.eventFiles(null);
 		}
 		if(!this.haveBtns) {
 			this.haveBtns = true;
@@ -6921,29 +6942,32 @@ FileInput.prototype = {
 			'class': 'de-file-rar' + (Cfg['noFile'] ? ' de-file-inpview' : ''),
 			'title': Lng.helpAddFile[lang]}, {
 			'click': this
-		}));
+			}));
 	},
 	_showPviewImage: function() {
 		var fr, files = this.el.files;
 		if(files && files[0]) {
 			fr = new FileReader();
 			fr.onload = function(e) {
-				this.form.eventFiles(this._inputTR);
+				this.form.eventFiles(null);
 				var file = this.el.files[0],
-					preview = this.preview;
-				if(!preview) {
+					img = this.img;
+				if(!img) {
 					return;
 				}
-				preview.className = 'de-file-img de-file-on';
-				preview = preview.firstChild;
-				preview.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
-					'<video class="de-file-img-elem" loop autoplay muted src=""></video>' : '<img class="de-file-img-elem" src="">');
-				preview = preview.firstChild;
-				preview.src = window.URL.createObjectURL(new Blob([e.target.result]));
-				preview.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
-				preview = preview.nextSibling;
-				window.URL.revokeObjectURL(preview.src);
-				$del(preview);
+				img.className = 'de-file de-file-on de-file-drop';
+				img = img.firstChild.firstChild;
+				img.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
+					'<video class="de-file-img" loop autoplay muted src=""></video>' :
+					'<img class="de-file-img" src="">');
+				img = img.firstChild;
+				img.src = window.URL.createObjectURL(new Blob([e.target.result]));
+				img.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
+				img = img.nextSibling;
+				if(img) {
+					window.URL.revokeObjectURL(img.src);
+					$del(img);
+				}
 			}.bind(this);
 			fr.readAsArrayBuffer(files[0]);
 		}
