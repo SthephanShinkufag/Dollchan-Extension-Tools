@@ -8842,7 +8842,8 @@ function PviewsCache(form, b, tNum) {
 			count: { value: i + 1 },
 			el: { value: post, writable: true },
 			inited: { value: false },
-			pvInited: { value: false, writable: true }
+			pvInited: { value: false, writable: true },
+			ref: { value: [], writable: true }
 		});
 	}
 	pBn[tNum] = this._opObj = Object.create(pProto, {
