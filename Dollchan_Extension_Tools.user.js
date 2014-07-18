@@ -9161,7 +9161,7 @@ Thread.prototype = {
 			if(op.trunc) {
 				op.updateMsg(replacePost($q(aib.qMsg, form)));
 			}
-			delete op.ref;
+			op.ref = [];
 			this.loadedOnce = true;
 		}
 		this._checkBans(op, form);
