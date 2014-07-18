@@ -1045,9 +1045,13 @@ function readUserPosts() {
 		bUVis = val;
 		getStoredObj('DESU_Threads_' + aib.dm, function(val) {
 			hThr = val;
-			var vis, num, post, date = Date.now(),
-				update = false,
-				uVis = bUVis[brd] || {};
+			var uVis, vis, num, post, date = Date.now(),
+				update = false;
+			if(brd in bUVis) {
+				uVis = bUVis[brd];
+			} else {
+				uVis = bUVis[brd] = {};
+			}
 			if(!(brd in hThr)) {
 				hThr[brd] = {};
 			}
@@ -1075,6 +1079,7 @@ function readUserPosts() {
 					}
 					if(vis === '0') {
 						post.setVisib(true);
+						post.hideRefs();
 						post.spellHidden = true;
 					} else if(vis !== '1') {
 						spells.check(post);
