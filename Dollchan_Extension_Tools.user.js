@@ -7658,14 +7658,15 @@ function embedImagesLinks(el) {
 //============================================================================================================
 
 function Post(el, thr, num, count, isOp, prev) {
-	var h, ref, html;
+	var refEl, html;
 	this.count = count;
 	this.el = el;
 	this.isOp = isOp;
 	this.num = num;
-	this._pref = ref = $q(aib.qRef, el);
+	this._pref = refEl = $q(aib.qRef, el);
 	this.prev = prev;
 	this.thr = thr;
+	this.ref = [];
 	if(prev) {
 		prev.next = this;
 	}
@@ -7678,10 +7679,11 @@ function Post(el, thr, num, count, isOp, prev) {
 		}
 		html += '<span class="de-btn-fav"></span>';
 	}
-	ref.insertAdjacentHTML('afterend', html + (
-		this.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : ''
-	) + '</span>');
-	this.btns = ref.nextSibling;
+	if(this.sage = aib.getSage(this.el)) {
+		html += '<span class="de-btn-sage" title="SAGE"></span>';
+	}
+	refEl.insertAdjacentHTML('afterend', html + '</span>');
+	this.btns = refEl.nextSibling;
 	if(Cfg['expandPosts'] === 1 && this.trunc) {
 		this._getFull(this.trunc, true);
 	}
@@ -8086,16 +8088,6 @@ Post.prototype = {
 		Object.defineProperty(this, 'posterTrip', { value: val });
 		return val;
 	},
-	get ref() {
-		var val = [];
-		Object.defineProperty(this, 'ref', { configurable: true, value: val });
-		return val;
-	},
-	get sage() {
-		var val = aib.getSage(this.el);
-		Object.defineProperty(this, 'sage', { value: val });
-		return val;
-	},
 	select: function() {
 		if(this.isOp) {
 			if(this.hidden) {
@@ -8348,7 +8340,6 @@ Post.prototype = {
 	_linkDelay: 0,
 	_menu: null,
 	_menuDelay: 0,
-	_pref: null,
 	_selRange: null,
 	_selText: '',
 	_addButtonTitle: function(el) {
