@@ -8850,7 +8850,7 @@ function PviewsCache(form, b, tNum) {
 	this._tUrl = aib.getThrdUrl(b, tNum);
 	this._posts = pBn;
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pBn, false, this._tUrl);
+		genRefMap(pBn, this._tUrl);
 	}
 }
 PviewsCache.prototype = {
@@ -8960,15 +8960,16 @@ function setPviewPosition(link, pView, animFun) {
 
 function addRefMap(post, tUrl) {
 	var i, ref, len, bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
-		str = '<div class="de-refmap">';
+		html = ['<div class="de-refmap">'];
 	for(i = 0, ref = post.ref, len = ref.length; i < len; ++i) {
-		str += bStr + ref[i] + '" class="de-reflink">&gt;&gt;' + ref[i] +
-			'</a><span class="de-refcomma">, </span>';
+		html.push(bStr, ref[i], '" class="de-reflink">&gt;&gt;', ref[i],
+			'</a><span class="de-refcomma">, </span>');
 	}
-	post.msg.insertAdjacentHTML('afterend', str + '</div>');
+	html.push('</div>');
+	post.msg.insertAdjacentHTML('afterend', html.join(''));
 }
 
-function genRefMap(posts, hideRefs, thrURL) {
+function genRefMap(posts, thrURL) {
 	var tc, lNum, post, ref, i, len, links, url, pNum, opNums = Thread.tNums;
 	for(pNum in posts) {
 		for(i = 0, links = $T('a', posts[pNum].msg), len = links.length; i < len; ++i) {
@@ -8979,12 +8980,6 @@ function genRefMap(posts, hideRefs, thrURL) {
 				if(ref.indexOf(pNum) === -1) {
 					ref.push(pNum);
 					post.hasRef = true;
-					if(hideRefs && post.hidden) {
-						post = posts[pNum];
-						post.setVisib(true);
-						post.note = 'reference to >>' + lNum;
-						post.hideRefs();
-					}
 				}
 				if(opNums.indexOf(lNum) !== -1) {
 					links[i].classList.add('de-opref');
@@ -10821,10 +10816,10 @@ function initPage() {
 		if(Cfg['rePageTitle']) {
 			if(aib.abu) {
 				window.addEventListener('load', function() {
-					doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
+					doc.title = '/' + brd + ' - ' + firstThr.op.title;
 				}, false);
 			}
-			doc.title = '/' + brd + ' - ' + pByNum[TNum].title;
+			doc.title = '/' + brd + ' - ' + firstThr.op.title;
 		}
 		firstThr.el.insertAdjacentHTML('afterend',
 			'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]</div>');
@@ -10840,7 +10835,6 @@ function initPage() {
 //============================================================================================================
 
 function addDelformStuff(isLog) {
-	var pNum, post;
 	preloadImages(null);
 	isLog && new Logger().log('Preload images');
 	embedMP3Links(null);
@@ -10856,9 +10850,8 @@ function addDelformStuff(isLog) {
 		isLog && new Logger().log('Sauce buttons');
 	}
 	if(Cfg['linksNavig'] === 2) {
-		genRefMap(pByNum, !!Cfg['hideRefPsts'], '');
-		for(pNum in pByNum) {
-			post = pByNum[pNum];
+		genRefMap(pByNum, '');
+		for(var post = firstThr.op; post; post = post.next) {
 			if(post.hasRef) {
 				addRefMap(post, '');
 			}
