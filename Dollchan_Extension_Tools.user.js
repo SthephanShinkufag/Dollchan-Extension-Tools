@@ -1078,8 +1078,10 @@ function readUserPosts() {
 						}
 					}
 					if(vis === '0') {
-						post.setVisib(true);
-						post.hideRefs();
+						if(!post.hidden) {
+							post.setVisib(true);
+							post.hideRefs();
+						}
 						post.spellHidden = true;
 					} else if(vis !== '1') {
 						spells.check(post);
