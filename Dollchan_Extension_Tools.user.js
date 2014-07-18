@@ -7670,12 +7670,11 @@ function Post(el, thr, num, count, isOp, prev) {
 		prev.next = this;
 	}
 	el.post = this;
-	html = '<span class="de-ppanel ' + (isOp ? '' : 'de-ppanel-cnt') +
-		'"><span class="de-btn-hide" de-menu="hide" title="' + Lng.togglePost[lang] +
-		'"></span><span class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"></span>';
+	html = '<span class="de-ppanel' + (isOp ? '' : ' de-ppanel-cnt') +
+		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 	if(isOp) {
 		if(!TNum && !aib.arch) {
-			html += '<span class="de-btn-expthr" de-menu="expand" title="' + Lng.expandThrd[lang] + '"></span>';
+			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
 		}
 		html += '<span class="de-btn-fav"></span>';
 	}
@@ -7943,6 +7942,7 @@ Post.prototype = {
 		case 'de-btn-expthr':
 		case 'de-btn-hide':
 		case 'de-btn-hide-user':
+			this._addButtonTitle(el);
 		case 'de-btn-src':
 			if(isOutEvent) {
 				this._closeMenu(e.relatedTarget);
@@ -7951,6 +7951,7 @@ Post.prototype = {
 			}
 			return;
 		case 'de-btn-rep':
+			this._addButtonTitle(el);
 			if(!isOutEvent) {
 				quotetxt = $txtSelect();
 			}
@@ -8350,6 +8351,24 @@ Post.prototype = {
 	_pref: null,
 	_selRange: null,
 	_selText: '',
+	_addButtonTitle: function(el) {
+		if(el.hasTitle) {
+			return;
+		}
+		el.hasTitle = true;
+		switch(el.className) {
+		case 'de-btn-hide':
+		case 'de-btn-hide-user':
+			el.title = Lng.togglePost[lang];
+			return;
+		case 'de-btn-expthr':
+			el.title = Lng.expandThrd[lang];
+			return;
+		case 'de-btn-rep':
+			el.title = Lng.replyToPost[lang];
+			return;
+		}
+	},
 	_addMenu: function(el) {
 		var html, cr = el.getBoundingClientRect(),
 			isLeft = false,
