@@ -620,7 +620,7 @@ function $txtInsert(el, txt) {
 }
 
 function $txtSelect() {
-	return (nav.Opera ? doc.getSelection() : window.getSelection()).toString();
+	return (nav.Presto ? doc.getSelection() : window.getSelection()).toString();
 }
 
 function $isEmpty(obj) {
@@ -958,10 +958,7 @@ function readCfg(Fn) {
 		if(!Cfg['timePattern']) {
 			Cfg['timePattern'] = aib.timePattern;
 		}
-		if(nav.noBlob) {
-			Cfg['preLoadImgs'] = 0;
-		}
-		if((nav.noBlob || aib.fch || aib.tiny) && Cfg['ajaxReply'] === 2) {
+		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg['ajaxReply'] === 2) {
 			Cfg['ajaxReply'] = 1;
 		}
 		if(!nav.Firefox) {
@@ -970,8 +967,8 @@ function readCfg(Fn) {
 		if(!('Notification' in window)) {
 			Cfg['desktNotif'] = 0;
 		}
-		if(nav.Opera) {
-			if(nav.oldOpera) {
+		if(nav.Presto) {
+			if(nav.Opera11) {
 				if(!nav.isGM) {
 					Cfg['YTubeTitles'] = 0;
 				}
@@ -985,6 +982,7 @@ function readCfg(Fn) {
 			if(!nav.isGM) {
 				Cfg['updScript'] = 0;
 			}
+			Cfg['noFile'] = 0;
 		}
 		if(Cfg['updThrDelay'] < 10) {
 			Cfg['updThrDelay'] = 10;
@@ -1225,7 +1223,7 @@ function addPanel() {
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', false) +
 						pButton('maskimg', '#', true) +
-						(nav.Opera || nav.noBlob ? '' : 
+						(nav.Presto ? '' : 
 							(Cfg['preLoadImgs'] ? '' : pButton('preimg', '#', false)) +
 							(!TNum && !aib.arch ? '' : pButton('imgload', '#', false)))) +
 					(!TNum ? '' :
@@ -1970,8 +1968,8 @@ function getCfgImages() {
 			}),
 			$txt(Lng.cfg['webmVolume'][lang])
 		]),
-		$if(!nav.noBlob && !nav.Opera, lBox('preLoadImgs', true, null)),
-		$if(!nav.noBlob && !nav.Opera, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
+		$if(!nav.Presto, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
 		])),
 		lBox('openImgs', true, null),
@@ -2014,7 +2012,7 @@ function getCfgLinks() {
 				$txt(' '),
 				lBox('YTubeHD', false, null)
 			]),
-			$if(!nav.oldOpera || nav.isGM, lBox('YTubeTitles', false, null)),
+			$if(!nav.Opera11 || nav.isGM, lBox('YTubeTitles', false, null)),
 			lBox('addVimeo', true, null)
 		])
 	]);
@@ -2023,7 +2021,7 @@ function getCfgLinks() {
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
-		$if(pr.form && !nav.noBlob, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(pr.form && !nav.Opera11, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('postSameImg', true, null),
 			lBox('removeEXIF', true, null),
 			lBox('removeFName', true, null),
@@ -2070,7 +2068,7 @@ function getCfgForm() {
 			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
 			})),
-			$if(pr.file && !aib.dobr, lBox('noFile', false, function() {
+			$if(pr.file && !aib.dobr && !nav.Presto, lBox('noFile', false, function() {
 				for(var i = 0, ins = pr.fileInputs, len = ins.length; i < len; ++i) {
 					ins[i].updateUtils();
 				}
@@ -2137,7 +2135,7 @@ function getCfgCommon() {
 			inpTxt('loadPages', 4, null),
 			$txt(Lng.cfg['loadPages'][lang])
 		]),
-		$if(!nav.Opera || nav.isGM, $New('div', null, [
+		$if(!nav.Presto || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', false, null),
@@ -5914,11 +5912,11 @@ function scriptCSS() {
 		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 		.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 		.de-alert-msg { display: inline-block; }\
-		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Opera ? '' : 'resize: none !important; ') + '}\
+		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-		.de-entry { margin: 2px 0; ' + (nav.Opera ? 'white-space: nowrap; ' : '') + '}\
+		.de-entry { margin: 2px 0; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
 		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 16px serif; }\
@@ -5944,7 +5942,7 @@ function scriptCSS() {
 	x += '.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
-		.de-new-post { ' + (nav.Opera ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
+		.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-opref::after { content: " [OP]"; }\
@@ -5961,7 +5959,7 @@ function scriptCSS() {
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
-		.de-selected, .de-error-key { ' + (nav.Opera ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
+		.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 6px; margin: -2px -12px; vertical-align: bottom; border-bottom: 2px solid #555; border-right: 2px solid #444; cursor: se-resize; }\
 		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
 		#de-updater-div { clear: left; margin-top: 10px; }\
@@ -5972,7 +5970,7 @@ function scriptCSS() {
 
 	if(!nav.Firefox) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
-		if(!nav.Opera) {
+		if(!nav.Presto) {
 			x = x.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
 		}
 	}
@@ -6936,12 +6934,12 @@ FileInput.prototype = {
 		} else if(this.imgFile) {
 			this.imgFile = null;
 		}
+		if(aib.fch || nav.Presto || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
+			return;
+		}
 		if(this._rjUtil) {
 			$del(this._rjUtil);
 			this._rjUtil = null;
-		}
-		if(aib.fch || nav.noBlob || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
-			return;
 		}
 		$after(this._buttonsPlace, this._rjUtil = $new('span', {
 			'class': 'de-file-rar' + (Cfg['noFile'] ? ' de-file-inpview' : ''),
@@ -8408,7 +8406,7 @@ Post.prototype = {
 			str += '<span info="spell-' + name + '" class="de-menu-item">' +
 				Lng.selHiderMenu[name][lang] + '</span>';
 		};
-		sel = nav.Opera ? doc.getSelection() : window.getSelection();
+		sel = nav.Presto ? doc.getSelection() : window.getSelection();
 		if(ssel = sel.toString()) {
 			this._selText = ssel;
 			this._selRange = sel.getRangeAt(0);
@@ -10195,7 +10193,8 @@ function getNavFuncs() {
 	}
 	var ua = window.navigator.userAgent,
 		opera = window.opera ? +window.opera.version() : 0,
-		isOldOpera = opera ? opera < 12.1 : false,
+		opera11 = opera ? opera < 12.1 : false,
+		presto = opera ? opera < 22 : false,
 		webkit = ua.contains('WebKit/'),
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
@@ -10212,7 +10211,8 @@ function getNavFuncs() {
 		},
 		Firefox: ua.contains('Gecko/'),
 		Opera: !!opera,
-		oldOpera: isOldOpera,
+		Opera11: opera11,
+		Presto: presto,
 		WebKit: webkit,
 		Chrome: chrome,
 		Safari: safari,
@@ -10220,10 +10220,10 @@ function getNavFuncs() {
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
 		isGlobal: isGM || /* isChromeStorage || */ isScriptStorage,
-		cssFix: webkit ? '-webkit-' : isOldOpera ? '-o-' : '',
-		Anim: !isOldOpera,
-		animName: webkit ? 'webkitAnimationName' : isOldOpera ? 'OAnimationName' : 'animationName',
-		animEnd: webkit ? 'webkitAnimationEnd' : isOldOpera ? 'oAnimationEnd' : 'animationend',
+		cssFix: webkit ? '-webkit-' : opera11 ? '-o-' : '',
+		Anim: !opera11,
+		animName: webkit ? 'webkitAnimationName' : opera11 ? 'OAnimationName' : 'animationName',
+		animEnd: webkit ? 'webkitAnimationEnd' : opera11 ? 'oAnimationEnd' : 'animationend',
 		animEvent: function(el, Fn) {
 			el.addEventListener(this.animEnd, function aEvent() {
 				this.removeEventListener(nav.animEnd, aEvent, false);
@@ -10231,7 +10231,6 @@ function getNavFuncs() {
 				Fn = null;
 			}, false);
 		},
-		noBlob: isOldOpera,
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
