@@ -10199,7 +10199,7 @@ function getNavFuncs() {
 		safari = webkit && !chrome,
 		isGM = typeof GM_setValue === 'function' && 
 			(!chrome || !GM_setValue.toString().contains('not supported')),
-		isChromeStorage = chrome && !!window.chrome.storage,
+		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
