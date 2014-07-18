@@ -10192,9 +10192,8 @@ function getNavFuncs() {
 		window.URL = window.webkitURL;
 	}
 	var ua = window.navigator.userAgent,
-		opera = window.opera ? +window.opera.version() : 0,
-		opera11 = opera ? opera < 12.1 : false,
-		presto = opera ? opera < 22 : false,
+		presto = window.opera ? +window.opera.version() : 0,
+		opera11 = presto ? presto < 12.1 : false,
 		webkit = ua.contains('WebKit/'),
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
@@ -10210,7 +10209,6 @@ function getNavFuncs() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
 		Firefox: ua.contains('Gecko/'),
-		Opera: !!opera,
 		Opera11: opera11,
 		Presto: presto,
 		WebKit: webkit,
