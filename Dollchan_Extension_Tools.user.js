@@ -31,84 +31,83 @@ defaultCfg = {
 	'hideRefPsts':	0,		// hide post with references to hidden posts
 	'delHiddPost':	0,		// delete hidden posts
 	'ajaxUpdThr':	1,		// auto update threads
-	'updThrDelay':	60,		//		threads update interval in sec
-	'noErrInTitle': 0,		//		don't show error number in title except 404
-	'favIcoBlink':	1,		//		favicon blinking, if new posts detected
-	'markNewPosts': 1,		//		new posts marking on page focus
-	'desktNotif':	0,		//		desktop notifications, if new posts detected
+	'updThrDelay':	60,		//    threads update interval in sec
+	'noErrInTitle': 0,		//    don't show error number in title except 404
+	'favIcoBlink':	1,		//    favicon blinking, if new posts detected
+	'markNewPosts': 1,		//    new posts marking on page focus
+	'desktNotif':	0,		//    desktop notifications, if new posts detected
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
 	'postBtnsCSS':	2,		// post buttons style [0=text, 1=classic, 2=solid grey]
 	'noSpoilers':	1,		// open spoilers
 	'noPostNames':	0,		// hide post names
 	'noPostScrl':	1,		// no scroll in posts
 	'correctTime':	0,		// correct time in posts
-	'timeOffset':	'+0',	//		offset in hours
-	'timePattern':	'',		//		find pattern
-	'timeRPattern':	'',		//		replace pattern
+	'timeOffset':	'+0',	//    offset in hours
+	'timePattern':	'',		//    find pattern
+	'timeRPattern':	'',		//    replace pattern
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
-	'resizeImgs':	1,		// 		resize large images
-	'webmControl':	1,		//		control bar fow webm files
-	'webmVolume':	100,	//		default volume for webm files
+	'resizeImgs':	1,		//    resize large images
+	'webmControl':	1,		//    control bar fow webm files
+	'webmVolume':	100,	//    default volume for webm files
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
-	'findImgFile':	0,		// 		detect built-in files in images
+	'findImgFile':	0,		//    detect built-in files in images
 	'openImgs':		0,		// open images in posts
-	'openGIFs':		0,		// 		open only GIFs in posts
+	'openGIFs':		0,		//    open only GIFs in posts
 	'imgSrcBtns':	1,		// add image search buttons
 	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
-	'linksOver':	100,	//		delay appearance in ms
-	'linksOut':		1500,	//		delay disappearance in ms
-	'markViewed':	0,		//		mark viewed posts
-	'strikeHidd':	0,		//		strike >>links to hidden posts
-	'noNavigHidd':	0,		//		don't show previews for hidden posts
+	'linksOver':	100,	//    delay appearance in ms
+	'linksOut':		1500,	//    delay disappearance in ms
+	'markViewed':	0,		//    mark viewed posts
+	'strikeHidd':	0,		//    strike >>links to hidden posts
+	'noNavigHidd':	0,		//    don't show previews for hidden posts
 	'crossLinks':	0,		// replace http: to >>/b/links
 	'insertNum':	1,		// insert >>link on postnumber click
 	'addMP3':		1,		// embed mp3 links
 	'addImgs':		0,		// embed links to images
 	'addYouTube':	3,		// embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
-	'YTubeType':	0,		//		player type [0=flash, 1=HTML5]
-	'YTubeWidth':	360,	//		player width
-	'YTubeHeigh':	270,	//		player height
-	'YTubeHD':		0,		//		hd video quality
-	'YTubeTitles':	0,		//		convert links to titles
-	'addVimeo':		1,		// 		embed vimeo links
+	'YTubeType':	0,		//    player type [0=flash, 1=HTML5]
+	'YTubeWidth':	360,	//    player width
+	'YTubeHeigh':	270,	//    player height
+	'YTubeHD':		0,		//    hd video quality
+	'YTubeTitles':	0,		//    convert links to titles
+	'addVimeo':		1,		//    embed vimeo links
 	'ajaxReply':	2,		// posting with AJAX (0=no, 1=iframe, 2=HTML5)
-	'postSameImg':	1,		// 		ability to post same images
-	'removeEXIF':	1,		// 		remove EXIF data from JPEGs
-	'removeFName':	0,		// 		remove file name
-	'sendErrNotif': 1,		//		inform about post send error if page is blurred
+	'postSameImg':	1,		//    ability to post same images
+	'removeEXIF':	1,		//    remove EXIF data from JPEGs
+	'removeFName':	0,		//    remove file name
+	'sendErrNotif': 1,		//    inform about post send error if page is blurred
+	'scrAfterRep':	0,		//    scroll to the bottom after reply
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
-	'scrAfterRep':	0,		// scroll to the bottom after reply
 	'favOnReply':	1,		// add thread to favorites on reply
-	'addSageBtn':	1,		// email field -> sage btn
-	'saveSage':		1,		// remember sage
-	'sageReply':	0,		//		reply with sage
 	'warnSubjTrip':	0,		// warn if subject field contains tripcode
+	'fileThumb':		1,		// file preview area instead of file button
+	'addSageBtn':	1,		// email field -> sage button
+	'saveSage':		1,		// remember sage
+	'sageReply':	0,		//    reply with sage
 	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
-	'txtBtnsLoc':	0,		//		located at [0=top, 1=bottom]
+	'txtBtnsLoc':	0,		//    located at [0=top, 1=bottom]
 	'passwValue':	'',		// user password value
 	'userName':		0,		// user name
-	'nameValue':	'',		//		value
-	'userSignat':	0,		// user signature
-	'signatValue':	'',		//		value
+	'nameValue':	'',		//    value
 	'noBoardRule':	1,		// hide board rules
 	'noGoto':		1,		// hide goto field
 	'noPassword':	1,		// hide password field
-	'noFile':		1,		// hide file field
 	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
 	'userCSS':		0,		// user style
-	'userCSSTxt':	'',		//		css text
+	'userCSSTxt':	'',		//    css text
 	'expandPanel':	0,		// show full main panel
 	'attachPanel':	1,		// attach main panel
 	'panelCounter':	1,		// posts/images counter in script panel
 	'rePageTitle':	1,		// replace page title in threads
-	'animation':	1,		// animation in script
+	'animation':	1,		// CSS3 animation in script
 	'closePopups':	0,		// auto-close popups
 	'keybNavig':	1,		// keyboard navigation
-	'loadPages':	1,		//		number of pages that are loaded on F5
+	'loadPages':	1,		//    number of pages that are loaded on F5
 	'updScript':	1,		// check for script's update
-	'scrUpdIntrv':	1,		// 		check interval in days (every val+1 day)
+	'scrUpdIntrv':	1,		//    check interval in days (every val+1 day)
+	'turnOff':		0,		// enable script only for this site
 	'textaWidth':	500,	// textarea width
 	'textaHeight':	160		// textarea height
 },
@@ -188,17 +187,18 @@ Lng = {
 			txt:		['AJAX отправка постов*', 'posting with AJAX*']
 		},
 		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
-		'removeEXIF':	['Удалять EXIF из отправляемых JPEG-изображений', 'Remove EXIF from uploaded JPEG-images'],
-		'removeFName':	['Удалять имя из отправляемых файлов', 'Remove names from uploaded files'],
+		'removeEXIF':	['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
+		'removeFName':	['Удалять имя из файлов', 'Remove names from files'],
 		'sendErrNotif':	['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
+		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'addPostForm': {
 			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
 			txt:		['форма ответа в треде* ', 'reply form in thread* ']
 		},
-		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		'addSageBtn':	['Sage вместо поля E-mail* ', 'Sage button instead of E-mail field* '],
-		'warnSubjTrip':	['Предупреждать при наличии трип-кода в поле тема', 'Warn if field subject contains trip-code'],
+		'warnSubjTrip':	['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
+		'fileThumb':	['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
+		'addSageBtn':	['Кнопка Sage вместо поля "E-mail"* ', 'Sage button instead of "E-mail" field* '],
 		'saveSage':		['запоминать сажу', 'remember sage'],
 		'captchaLang': {
 			sel:		[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
@@ -211,11 +211,9 @@ Lng = {
 		'txtBtnsLoc':	['внизу', 'at bottom'],
 		'userPassw':	[' Постоянный пароль ', ' Fixed password '],
 		'userName':		['Постоянное имя', 'Fixed name'],
-		'userSignat':	['Постоянная подпись', 'Fixed signature'],
 		'noBoardRule':	['правила', 'rules'],
 		'noGoto':		['поле goto', 'goto field'],
 		'noPassword':	['пароль', 'password'],
-		'noFile':		['поле файла', 'file field'],
 
 		'scriptStyle': {
 			sel:		[['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
@@ -982,7 +980,7 @@ function readCfg(Fn) {
 			if(!nav.isGM) {
 				Cfg['updScript'] = 0;
 			}
-			Cfg['noFile'] = 0;
+			Cfg['fileThumb'] = 0;
 		}
 		if(Cfg['updThrDelay'] < 10) {
 			Cfg['updThrDelay'] = 10;
@@ -1000,7 +998,7 @@ function readCfg(Fn) {
 			Cfg['stats']['view']++;
 		}
 		if(aib.dobr) {
-			Cfg['noFile'] = 0;
+			Cfg['fileThumb'] = 0;
 			aib.hDTFix = new dateTime(
 				'yyyy-nn-dd-hh-ii-ss',
 				'_d _M _y (_w) _h:_i ',
@@ -1750,7 +1748,7 @@ function fixSettings() {
 	toggleBox(Cfg['addYouTube'], [
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
 	]);
-	toggleBox(Cfg['ajaxReply'], ['input[info="sendErrNotif"]']);
+	toggleBox(Cfg['ajaxReply'], ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
 	toggleBox(Cfg['ajaxReply'] === 2, [
 		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
 	]);
@@ -2021,20 +2019,27 @@ function getCfgLinks() {
 function getCfgForm() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-form'}, [
 		optSel('ajaxReply', true, null),
-		$if(pr.form && !nav.Opera11, $New('div', {'class': 'de-cfg-depend'}, [
-			lBox('postSameImg', true, null),
-			lBox('removeEXIF', true, null),
-			lBox('removeFName', true, null),
-			lBox('sendErrNotif', true, null)
+		$if(pr.form, $New('div', {'class': 'de-cfg-depend'}, [
+			$if(!nav.Opera11, $New('div', null, [
+				lBox('postSameImg', true, null),
+				lBox('removeEXIF', false, null),
+				lBox('removeFName', false, null),
+				lBox('sendErrNotif', true, null)
+			])),
+			lBox('scrAfterRep', true, null)
 		])),
 		$if(pr.form, optSel('addPostForm', true, null)),
-		$if(pr.form, lBox('scrAfterRep', true, null)),
 		lBox('favOnReply', true, null),
+		$if(pr.subj, lBox('warnSubjTrip', false, null)),
+		$if(pr.file && !aib.dobr && !nav.Presto, lBox('fileThumb', true, function() {
+			for(var i = 0, ins = pr.fileInputs, len = ins.length; i < len; ++i) {
+				ins[i].updateUtils();
+			}
+		})),
 		$if(pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
 			lBox('saveSage', false, null)
 		])),
-		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		$if(pr.capTr, optSel('captchaLang', true, null)),
 		$if(pr.txta, $New('div', null, [
 			optSel('addTextBtns', false, function() {
@@ -2055,10 +2060,6 @@ function getCfgForm() {
 			inpTxt('nameValue', 20, PostForm.setUserName),
 			lBox('userName', false, PostForm.setUserName)
 		])),
-		$if(pr.txta, $New('div', null, [
-			inpTxt('signatValue', 20, null),
-			lBox('userSignat', false, null)
-		])),
 		$New('div', null, [
 			$txt(Lng.dontShow[lang]),
 			lBox('noBoardRule', false, updateCSS),
@@ -2067,11 +2068,6 @@ function getCfgForm() {
 			})),
 			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
-			})),
-			$if(pr.file && !aib.dobr && !nav.Presto, lBox('noFile', false, function() {
-				for(var i = 0, ins = pr.fileInputs, len = ins.length; i < len; ++i) {
-					ins[i].updateUtils();
-				}
 			}))
 		])
 	]);
@@ -2195,9 +2191,7 @@ function getCfgInfo() {
 				'perf': new Logger().get()
 			}, function(key, value) {
 				if(key in defaultCfg) {
-					if(value === defaultCfg[key] || key === 'nameValue' || key === 'passwValue' ||
-						key === 'signatValue')
-					{
+					if(value === defaultCfg[key] || key === 'nameValue' || key === 'passwValue') {
 						return void 0;
 					}
 				}
@@ -6528,8 +6522,7 @@ PostForm.prototype = {
 			this.subm.value = Lng.reply[lang];
 		}
 		this.subm.addEventListener('click', function(e) {
-			var temp, val = this.txta.value,
-				sVal = Cfg['signatValue'];
+			var temp, val = this.txta.value;
 			if(aib._2chru && !aib.reqCaptcha) {
 				GM_xmlhttpRequest({
 					'method': 'GET',
@@ -6578,9 +6571,6 @@ PostForm.prototype = {
 			}
 			if(spells.haveOutreps) {
 				val = spells.outReplace(val);
-			}
-			if(Cfg['userSignat'] && sVal) {
-				val += '\n' + sVal;
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
@@ -6813,7 +6803,7 @@ FileInput.prototype = {
 		form.eventFiles(cln);
 	},
 	delUtils: function() {
-		if(Cfg['noFile']) {
+		if(Cfg['fileThumb']) {
 			this._delPview();
 		} else {
 			$del(this._delUtil);
@@ -6848,7 +6838,7 @@ FileInput.prototype = {
 	},
 	init: function(inited) {
 		var imgTd, fileTr = this.form.fileTd.parentNode;
-		if(Cfg['noFile']) {
+		if(Cfg['fileThumb']) {
 			fileTr.style.display = 'none';
 			imgTd = this.form.fileImageTD;
 			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
@@ -6885,7 +6875,7 @@ FileInput.prototype = {
 	_delUtil: null,
 	_rjUtil: null,
 	get _buttonsPlace() {
-		return Cfg['noFile'] ? this.thumb.firstChild : this.el;
+		return Cfg['fileThumb'] ? this.thumb.firstChild : this.el;
 	},
 	_addRarJpeg: function() {
 		var el = this.form.rarInput;
@@ -6919,7 +6909,7 @@ FileInput.prototype = {
 		this.thumb = null;
 	},
 	_onFileChange: function() {
-		if(Cfg['noFile']) {
+		if(Cfg['fileThumb']) {
 			this._showPviewImage();
 		} else {
 			this.form.eventFiles(null);
@@ -6927,7 +6917,7 @@ FileInput.prototype = {
 		if(!this.haveBtns) {
 			this.haveBtns = true;
 			$after(this._buttonsPlace, this._delUtil = $new('span', {
-				'class': 'de-file-del' + (Cfg['noFile'] ? ' de-file-inpview' : ''),
+				'class': 'de-file-del' + (Cfg['fileThumb'] ? ' de-file-inpview' : ''),
 				'title': Lng.removeFile[lang]}, {
 				'click': this
 			}));
@@ -6942,7 +6932,7 @@ FileInput.prototype = {
 			this._rjUtil = null;
 		}
 		$after(this._buttonsPlace, this._rjUtil = $new('span', {
-			'class': 'de-file-rar' + (Cfg['noFile'] ? ' de-file-inpview' : ''),
+			'class': 'de-file-rar' + (Cfg['fileThumb'] ? ' de-file-inpview' : ''),
 			'title': Lng.helpAddFile[lang]}, {
 			'click': this
 			}));
