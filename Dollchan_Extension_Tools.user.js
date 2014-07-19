@@ -4440,7 +4440,7 @@ function getHanaFile(file, pId, dId, len) {
 		mb = 1048576,
 		gb = 1073741824;
 	if(brd === 'b' || brd === 'rf') {
-		name = thumb.substring(thumb.lastIndexOf("/") + 1).split('s').shift() + '.' + ext;
+		name = thumb.substring(thumb.lastIndexOf("/") + 1).split('s')[0] + '.' + ext;
 	} else {
 		name = src.substring(src.lastIndexOf("/") + 1);
 		if(name.length > 17) {
