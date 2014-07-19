@@ -4003,7 +4003,7 @@ YouTube = new function() {
 		if(isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 			el.innerHTML = videoType === 1 ?
-				'<iframe type="text/html" src="https://www.youtube.com/embed/' + id +
+				'<iframe type="text/html" src="//www.youtube.com/embed/' + id +
 					(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
 				'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
 					(isHD ? '?hd=1&' : '?') + 'start=' + time + '" allowfullscreen="true" wmode="transparent"' + wh;
@@ -4427,19 +4427,20 @@ function infoLoadErrors(eCode, eMsg, newPosts) {
 	}
 }
 
-function getHanaFile(file, id) {
-	var name, src = file['src'],
+function getHanaFile(file, pId, dId, len) {
+	var name, fileInfo, fileEdit, fileThumb, fileDiv, src = file['src'],
 		thumb = file['thumb'],
 		thumbW = file['thumb_width'],
 		thumbH = file['thumb_height'],
 		size = file['size'],
 		rating = file['rating'],
 		maxRating = Cfg['__hanarating'] || 'r-15',
+		ext = src.split('.').pop(),
 		kb = 1024,
 		mb = 1048576,
 		gb = 1073741824;
 	if(brd === 'b' || brd === 'rf') {
-		name = thumb.substring(thumb.lastIndexOf("/") + 1);
+		name = thumb.substring(thumb.lastIndexOf("/") + 1).slit('s').join('');
 	} else {
 		name = src.substring(src.lastIndexOf("/") + 1);
 		if(name.length > 17) {
@@ -4455,17 +4456,20 @@ function getHanaFile(file, id) {
 		thumbW = 200;
 		thumbH = 200;
 	}
-	return '<div class="file"><div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' +
-		name + '</a><br><em>' + file['thumb'].substring(file['thumb'].lastIndexOf('.') + 1) + ', ' + (
+	fileInfo = '<div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' +
+		name + '</a><br><em>' + ext.slice(0, 1).toUpperCase() + ext.slice(1) + ', ' + (
 			size < kb ? size + ' B' :
 			size < mb ? (size / kb).toFixed(2) + ' KB' :
 			size < gb ? (size / mb).toFixed(2) + ' MB' :
 			(size / gb).toFixed(2) + ' GB'
-		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] +
-		'</em><br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + id +
-		'"><img title="edit" alt="edit" src="/images/blank.png"></a></div><a href="/' + src +
-		'" target="_blank"><img class="thumb" src="/' + thumb + '" width="' + thumbW + '" height="' +
-		thumbH + '"></a></div>';
+		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] + '</em>';
+	fileEdit = '<br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + pId +
+		'"><img title="edit" alt="edit" src="/images/blank.png"></a></div>';
+	fileThumb = '<a href="/' + src + '" target="_blank"><img class="thumb" src="/' + thumb +
+		'" width="' + thumbW + '" height="' + thumbH + '"></a></div>';
+	fileDiv = '<div id="file_'+ dId + '_' + file['file_id'] + '" class="file">';
+	return len > 1 ? fileDiv + fileInfo + fileEdit + fileThumb :
+		fileInfo + ' - Нажмите на картинку для увеличения' + fileEdit + fileDiv + fileThumb;
 }
 
 function getHanaPost(postJson) {
@@ -4481,9 +4485,9 @@ function getHanaPost(postJson) {
 		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
 		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br>';
 	for(i = 0; i < len; i++) {
-		html += getHanaFile(files[i], postJson['post_id']);
+		html += getHanaFile(files[i], postJson['post_id'], id, len);
 	}
-	wrap.innerHTML = html + (len > 1 ? '<div style="clear: both;"></div>' : '') +
+	wrap.innerHTML = html + (len > 1 ? '<br style="clear: both">' : '') +
 		'<div class="postbody">' + postJson['message_html'] +
 		'</div><div class="abbrev"></div></td></tr></tbody>';
 	return [wrap, wrap.firstChild.firstChild.lastChild];
@@ -5949,7 +5953,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
-		.de-refmap { margin: 10px 4px 4px 4px; font-size: 70%; font-style: italic; }\
+		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
@@ -8335,6 +8339,8 @@ Post.prototype = {
 			msg = this.msg.parentNode;
 			prev = msg.previousElementSibling;
 			$before(prev.hasAttribute('style') ? prev : msg, val);
+		} else if(aib.dobr) {
+			$before($q('br[style="clear: both"]', this.el) || this.msg, val);
 		} else {
 			$before(this.msg, val);
 		}
