@@ -8340,7 +8340,8 @@ Post.prototype = {
 			prev = msg.previousElementSibling;
 			$before(prev.hasAttribute('style') ? prev : msg, val);
 		} else if(aib.dobr) {
-			$before($q('br[style="clear: both"]', this.el) || this.msg, val);
+			prev = this.msg.previousElementSibling;
+			$before(prev.tagName === 'BR' ? prev : this.msg, val);
 		} else {
 			$before(this.msg, val);
 		}
