@@ -5920,12 +5920,11 @@ function scriptCSS() {
 		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
 		.de-file > .de-file-del { float: right; }\
 		.de-file > .de-file-rar { float: left; }\
-		.de-file > .de-file-rarmsg { float: left; padding: 2px; color: #fff; background-color: rgba(44, 44, 44, 0.6); }\
+		.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\
 		.de-file > .de-file-utils { display: none; }\
 		.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
 		.de-file > div > div { display: table-cell; vertical-align: middle; }\
 		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px; vertical-align: top; width: 132px; height: 132px; border: none !important; cursor: pointer; }\
-		.de-file-drop { border: 1px dashed grey; }\
 		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
 		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
 		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 126px; }\
@@ -6960,7 +6959,7 @@ FileInput.prototype = {
 				if(!thumb) {
 					return;
 				}
-				thumb.className = 'de-file de-file-on de-file-drop';
+				thumb.className = 'de-file';
 				thumb = thumb.firstChild.firstChild;
 				thumb.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
 				thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
