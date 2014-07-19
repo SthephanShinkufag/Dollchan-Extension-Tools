@@ -5918,21 +5918,23 @@ function scriptCSS() {
 		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
-		.de-file > div { display : table; width: 100%; cursor: pointer; }\
-		.de-file > div > div { display: table-cell; vertical-align: middle; }\
-		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px; vertical-align: top; width: 132px; height: 132px; cursor: pointer; }\
-		.de-file-drop { border: 1px dashed grey; }\
-		.de-file-drop > div { height: 114px; }\
-		.de-file-hover { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
-		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 110px; }\
-		.de-file-off > div { height: 100%; }\
-		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
-		.de-file-off + .de-file-off { display: none; }\
 		.de-file > .de-file-del { float: right; }\
 		.de-file > .de-file-rar { float: left; }\
-		.de-file-del, .de-file-rar { display: inline-block; margin: 0 7px; width: 16px; height: 16px; cursor: pointer; }';
+		.de-file > .de-file-rarmsg { float: left; padding: 2px; color: #fff; background-color: rgba(44, 44, 44, 0.6); }\
+		.de-file > .de-file-utils { display: none; }\
+		.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
+		.de-file > div > div { display: table-cell; vertical-align: middle; }\
+		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px; vertical-align: top; width: 132px; height: 132px; border: none !important; cursor: pointer; }\
+		.de-file-drop { border: 1px dashed grey; }\
+		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
+		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
+		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 126px; }\
+		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
+		.de-file-off + .de-file-off { display: none; }\
+		.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
+		.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
-	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAARLsJS332Go6/r2k/3VOfzifdWrIqx0HfEZAf///////wAAAAAAAAAAAAAAAAAAACH5BAEAAAoALAAAAAAQABAAAARaUMkpqhWzmF1ACqAFSAZiGkCqAtW4vbBxfII73PhNzEGtGLiCkECQ0Ww3YYFo7CEHSibPB0wupcffIPaajg5g8CrV800kgg+oPDpPxim3HI2ZUy4tu2AtUkQAADs=');
+	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += '.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
@@ -6833,7 +6835,27 @@ FileInput.prototype = {
 			} else if(e.target.className === 'de-file-img') {
 				this.el.click();
 			}
+			e.stopPropagation();
 			$pd(e);
+			break;
+		case 'dragover':
+			this.thumb.classList.add('de-file-drag');
+			$after(this.thumb, this.el);
+			break;
+		case 'dragleave':
+		case 'drop':
+			setTimeout(function() {
+				this.thumb.classList.remove('de-file-drag');
+				var el = this.place.firstChild;
+				if(el) {
+					$before(el, this.el);
+				} else {
+					this.place.appendChild(this.el);
+				}
+			}.bind(this), 10);
+			break;
+		case 'mouseover': this.thumb.classList.add('de-file-hover'); break;
+		case 'mouseout': this.thumb.classList.remove('de-file-hover');
 		}
 	},
 	init: function(inited) {
@@ -6845,21 +6867,11 @@ FileInput.prototype = {
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 			this.thumb = imgTd.lastChild;
 			this.thumb.addEventListener('click', this, false);
-			this.thumb.ondragover = function() {
-				this.thumb.classList.add('de-file-hover');
-				$after(this.thumb, this.el);
-			}.bind(this);
-			this.el.ondragleave = this.el.ondrop = function() {
-				setTimeout(function() {
-					this.thumb.classList.remove('de-file-hover');
-					var el = this.place.firstChild;
-					if(el) {
-						$before(el, this.el);
-					} else {
-						this.place.appendChild(this.el);
-					}
-				}.bind(this), 10);
-			}.bind(this);
+			this.thumb.addEventListener('mouseover', this, false);
+			this.thumb.addEventListener('mouseout', this, false);
+			this.thumb.addEventListener('dragover', this, false);
+			this.el.addEventListener('dragleave', this, false);
+			this.el.addEventListener('drop', this, false);
 			if(inited) {
 				this._showPviewImage();
 			}
@@ -6884,12 +6896,12 @@ FileInput.prototype = {
 			var file = this.el.files[0],
 				fr = new FileReader(),
 				btnsPlace = this._buttonsPlace;
-			btnsPlace.insertAdjacentHTML('afterend', '<span style="margin: 0 5px;">' +
-				'<span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
+			btnsPlace.insertAdjacentHTML('afterend',
+				'<span><span class="de-wait"></span>' + Lng.wait[lang] + '</span>');
 			this._rjUtil = btnsPlace.nextSibling;
 			fr.onload = function(file, node, e) {
 				if(this._buttonsPlace.nextSibling === node) {
-					node.style.cssText = 'font: bold 11px tahoma; margin: 0 5px; cursor: default;';
+					node.className = 'de-file-rarmsg de-file-utils';
 					node.title = this.el.files[0].name + ' + ' + file.name;
 					node.textContent = this.el.files[0].name.replace(/^.+\./, '') + ' + ' +
 						file.name.replace(/^.+\./, '')
@@ -6917,7 +6929,7 @@ FileInput.prototype = {
 		if(!this.haveBtns) {
 			this.haveBtns = true;
 			$after(this._buttonsPlace, this._delUtil = $new('span', {
-				'class': 'de-file-del' + (Cfg['fileThumb'] ? ' de-file-inpview' : ''),
+				'class': 'de-file-del de-file-utils',
 				'title': Lng.removeFile[lang]}, {
 				'click': this
 			}));
@@ -6932,7 +6944,7 @@ FileInput.prototype = {
 			this._rjUtil = null;
 		}
 		$after(this._buttonsPlace, this._rjUtil = $new('span', {
-			'class': 'de-file-rar' + (Cfg['fileThumb'] ? ' de-file-inpview' : ''),
+			'class': 'de-file-rar de-file-utils',
 			'title': Lng.helpAddFile[lang]}, {
 			'click': this
 			}));
