@@ -6893,7 +6893,7 @@ FileInput.prototype = {
 		var el = this.form.rarInput;
 		el.onchange = function(e) {
 			$del(this._rjUtil);
-			var file = this.el.files[0],
+			var file = e.target.files[0],
 				fr = new FileReader(),
 				btnsPlace = this._buttonsPlace;
 			btnsPlace.insertAdjacentHTML('afterend',
