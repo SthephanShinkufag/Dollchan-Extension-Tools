@@ -4443,7 +4443,7 @@ function getHanaFile(file, pId, dId, len) {
 		name = thumb.substring(thumb.lastIndexOf("/") + 1).split('s')[0] + '.' + ext;
 	} else {
 		name = src.substring(src.lastIndexOf("/") + 1);
-		if(name.length > 17) {
+		if(len > 1 && name.length > 17) {
 			name = name.substring(0, 17) + '...';
 		}
 	}
