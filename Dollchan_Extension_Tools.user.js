@@ -9243,9 +9243,11 @@ Thread.prototype = {
 	},
 
 	_lastModified: '',
-	_addPost: function(parent, num, el, wrap, i, prev) {
-		var post = new Post(el, this, num, i, false, prev);
-		pByNum[num] = post;
+	_addPost: function(parent, el, i, prev) {
+		var post, num = aib.getPNum(el),
+			wrap = aib.getWrap(el, false);
+		el = replacePost(el);
+		pByNum[num] = post = new Post(el, this, num, i, false, prev);
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		parent.appendChild(wrap);
 		if(TNum && Cfg['animation']) {
@@ -9287,12 +9289,10 @@ Thread.prototype = {
 		}
 	},
 	_importPosts: function(last, newPosts, begin, end) {
-		var el, newCount, newVisCount, fragm = doc.createDocumentFragment(),
+		var newCount, newVisCount, fragm = doc.createDocumentFragment(),
 		newCount = newVisCount = end - begin;
 		for(; begin < end; ++begin) {
-			el = newPosts[begin];
-			last = this._addPost(fragm, aib.getPNum(el), replacePost(el),
-				aib.getWrap(el, false), begin + 1, last);
+			last = this._addPost(fragm, newPosts[begin], begin + 1, last);
 			newVisCount -= spells.check(last);
 		}
 		return [newCount, newVisCount, fragm, last];
@@ -9371,7 +9371,7 @@ Thread.prototype = {
 		return [newPosts, newVisPosts];
 	},
 	_processExpandThread: function(nPosts, num) {
-		var i, fragm, el, tPost, len, needRMUpdate, post = this.op.next,
+		var i, fragm, tPost, len, needRMUpdate, post = this.op.next,
 			vPosts = this.pcount === 1 ? 0 : this.last.count - post.count + 1;
 		if(vPosts > num) {
 			while(vPosts-- !== num) {
@@ -9385,9 +9385,7 @@ Thread.prototype = {
 			tPost = this.op;
 			len = nPosts.length;
 			for(i = Math.max(0, len - num), len -= vPosts; i < len; ++i) {
-				el = nPosts[i];
-				tPost = this._addPost(fragm, aib.getPNum(el), replacePost(el),
-					aib.getWrap(el, false), i + 1, tPost);
+				tPost = this._addPost(fragm, nPosts[i], i + 1, tPost);
 				spells.check(tPost);
 			}
 			$after(this.op.el, fragm);
