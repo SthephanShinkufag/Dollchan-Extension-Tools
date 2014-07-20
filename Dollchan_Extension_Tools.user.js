@@ -7692,6 +7692,7 @@ function Post(el, thr, num, count, isOp, prev) {
 	if(this.sage = aib.getSage(this.el)) {
 		html += '<span class="de-btn-sage" title="SAGE"></span>';
 	}
+	// html += '<span class="de-btn-udolil" style="font-weight: bold; color: red; cursor: pointer;">[УДОЛИЛ!!11]</span>';
 	refEl.insertAdjacentHTML('afterend', html + '</span>');
 	this.btns = refEl.nextSibling;
 	if(Cfg['expandPosts'] === 1 && this.trunc) {
@@ -7920,6 +7921,9 @@ Post.prototype = {
 			case 'de-btn-stick-on':
 				el.className = this.sticked ? 'de-btn-stick' : 'de-btn-stick-on';
 				this.sticked = !this.sticked;
+				return;
+			case 'de-btn-udolil':
+				this.thr.deletePost(this, false, true);
 				return;
 			}
 			if(el.classList[0] === 'de-menu-item') {
@@ -9125,6 +9129,40 @@ Thread.prototype = {
 			});
 		}
 	},
+	deletePost: function(post, delAll, removePost) {
+		var tPost, idx = post.count, count = 0;
+		do {
+			if(removePost) {
+				$del(post.wrap);
+				delete pByNum[post.num];
+				if(post.hidden) {
+					post.unhideRefs();
+				}
+				updRefMap(post, false);
+				if(post.prev.next = post.next) {
+					post.next.prev = post.prev;
+				}
+				if(this.last === post) {
+					this.last = post.prev;
+				}
+			} else {
+				post.deleted = true;
+				post.btns.classList.remove('de-ppanel-cnt');
+				post.btns.classList.add('de-ppanel-del');
+				($q('input[type="checkbox"]', post.el) || {}).disabled = true;
+			}
+			post = post.nextNotDeleted;
+			count++;
+		} while(delAll && post);
+		if(!spells.hasNumSpell) {
+			sVis.splice(idx, count);
+		}
+		for(tPost = post; tPost; tPost = tPost.nextInThread) {
+			tPost.count -= count;
+		}
+		this.pcount -= count;
+		return post;
+	},
 	load: function(last, smartScroll, Fn) {
 		if(!Fn) {
 			$alert(Lng.loading[lang], 'load-thr', true);
@@ -9327,40 +9365,6 @@ Thread.prototype = {
 			}
 		}
 	},
-	_deletePosts: function(post, delAll, pNum) {
-		var tPost, idx = post.count, count = 0;
-		do {
-			if(TNum) {
-				post.deleted = true;
-				post.btns.classList.remove('de-ppanel-cnt');
-				post.btns.classList.add('de-ppanel-del');
-				($q('input[type="checkbox"]', post.el) || {}).disabled = true;
-			} else {
-				$del(post.wrap);
-				delete pByNum[post.num];
-				if(post.hidden) {
-					post.unhideRefs();
-				}
-				updRefMap(post, false);
-				if(post.prev.next = post.next) {
-					post.next.prev = post.prev;
-				}
-				if(this.last === post) {
-					this.last = post.prev;
-				}
-			}
-			post = post.nextNotDeleted;
-			count++;
-		} while(post && (delAll || post.num !== pNum));
-		if(!spells.hasNumSpell) {
-			sVis.splice(idx, count);
-		}
-		for(tPost = post; tPost; tPost = tPost.nextInThread) {
-			tPost.count -= count;
-		}
-		this.pcount -= count;
-		return post;
-	},
 	_parsePosts: function(nPosts) {
 		var i, fragm, el, firstDelPost, saveSpells = false,
 			newPosts = 0,
@@ -9370,16 +9374,19 @@ Thread.prototype = {
 		if(post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
 			firstDelPost = null;
 			post = this.op.nextNotDeleted;
-			for(i = post.count - 1; i <= len && post; ) {
-				if(i === len || post.num !== aib.getPNum(nPosts[i])) {
+			for(i = post.count - 1; i < len && post; ) {
+				if(post.num !== aib.getPNum(nPosts[i])) {
 					if(!firstDelPost) {
 						firstDelPost = post;
 					}
-					post = this._deletePosts(post, i === len, i === len ? '' : aib.getPNum(nPosts[i]));
+					post = this.deletePost(post, false, !TNum);
 				} else {
 					i++;
 					post = post.nextNotDeleted;
 				}
+			}
+			if(i === len) {
+				this.deletePost(post, true, !TNum);
 			}
 			if(firstDelPost && spells.hasNumSpell) {
 				disableSpells();
