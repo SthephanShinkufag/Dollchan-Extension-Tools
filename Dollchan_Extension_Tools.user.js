@@ -9164,7 +9164,7 @@ Thread.prototype = {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0, xhr);
 					} else {
-						if(this._lastModified !== json['last_modified']) {
+						if(this._lastModified !== json['last_modified'] || this.pcount !== json['posts_count']) {
 							this._lastModified = json['last_modified'];
 							updater.updateXHR(this.loadNew(Fn, false));
 						} else {
