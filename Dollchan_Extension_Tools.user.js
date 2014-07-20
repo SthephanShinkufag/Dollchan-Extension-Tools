@@ -9068,8 +9068,8 @@ Thread.prototype = {
 			$each($Q('.de-new-post', this.el), function(el) {
 				el.classList.remove('de-new-post');
 			});
+			doc.removeEventListener('click', Thread.clearPostsMark, true);
 		}
-		doc.removeEventListener('click', Thread.clearPostsMark, true);
 	},
 	deletePost: function(post, delAll, removePost) {
 		var tPost, idx = post.count, count = 0;
