@@ -9027,6 +9027,9 @@ function Thread(el, prev) {
 	}
 }
 Thread.parsed = false;
+Thread.clearPostsMark = function() {
+	firstThr.clearPostsMarks();
+};
 Thread.loadNewPosts = function(e) {
 	if(e) {
 		$pd(e);
@@ -9066,6 +9069,7 @@ Thread.prototype = {
 				el.classList.remove('de-new-post');
 			});
 		}
+		doc.removeEventListener('click', Thread.clearPostsMark, true);
 	},
 	deletePost: function(post, delAll, removePost) {
 		var tPost, idx = post.count, count = 0;
@@ -9263,14 +9267,20 @@ Thread.prototype = {
 		post.addFuncs();
 		preloadImages(el);
 		if(TNum && Cfg['markNewPosts']) {
-			if(updater.focused) {
-				this.clearPostsMarks();
-			} else {
-				this.hasNew = true;
-				el.classList.add('de-new-post');
-			}
+			this._addPostMark(el);
 		}
 		return post;
+	},
+	_addPostMark: function(postEl) {
+		if(updater.focused) {
+			this.clearPostsMarks();
+		} else {
+			if(!this.hasNew) {
+				this.hasNew = true;
+				doc.addEventListener('click', Thread.clearPostsMark, true);
+			}
+			postEl.classList.add('de-new-post');
+		}
 	},
 	_checkBans: function(op, thrNode) {
 		var pEl, bEl, post, i, bEls, len;
