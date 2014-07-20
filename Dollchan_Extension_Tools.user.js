@@ -1001,7 +1001,7 @@ function readCfg(Fn) {
 			Cfg['fileThumb'] = 0;
 			aib.hDTFix = new dateTime(
 				'yyyy-nn-dd-hh-ii-ss',
-				'_d _M _y (_w) _h:_i ',
+				'_d _M _Y (_w) _h:_i ',
 				Cfg['timeOffset'] || 0,
 				Cfg['correctTime'] ? lang : 1,
 				null
@@ -4425,72 +4425,6 @@ function infoLoadErrors(eCode, eMsg, newPosts) {
 			doc.title = '{' + eCode + '} ' + doc.title;
 		}
 	}
-}
-
-function getHanaFile(file, pId, dId, len) {
-	var name, fileInfo, fileEdit, fileThumb, fileDiv, src = file['src'],
-		thumb = file['thumb'],
-		thumbW = file['thumb_width'],
-		thumbH = file['thumb_height'],
-		size = file['size'],
-		rating = file['rating'],
-		maxRating = Cfg['__hanarating'] || 'r-15',
-		ext = src.split('.').pop(),
-		kb = 1024,
-		mb = 1048576,
-		gb = 1073741824;
-	if(brd === 'b' || brd === 'rf') {
-		name = thumb.substring(thumb.lastIndexOf("/") + 1).split('s')[0] + '.' + ext;
-	} else {
-		name = src.substring(src.lastIndexOf("/") + 1);
-		if(len > 1 && name.length > 17) {
-			name = name.substring(0, 17) + '...';
-		}
-	}
-	thumb = rating === 'r-18g' && maxRating !== 'r-18g' ? 'images/r-18g.png' :
-		rating === 'r-18' && (maxRating !== 'r-18g' || maxRating !== 'r-18') ? 'images/r-18.png' :
-		rating === 'r-15' && maxRating === 'sfw' ? 'images/r-15.png' :
-		rating === 'illegal' ? 'images/illegal.png' :
-		file['thumb'];
-	if(thumb !== file['thumb']) {
-		thumbW = 200;
-		thumbH = 200;
-	}
-	fileInfo = '<div class="fileinfo">Файл: <a href="/' + src + '" target="_blank">' +
-		name + '</a><br><em>' + ext.slice(0, 1).toUpperCase() + ext.slice(1) + ', ' + (
-			size < kb ? size + ' B' :
-			size < mb ? (size / kb).toFixed(2) + ' KB' :
-			size < gb ? (size / mb).toFixed(2) + ' MB' :
-			(size / gb).toFixed(2) + ' GB'
-		) + ', ' + file['metadata']['width'] + 'x' + file['metadata']['height'] + '</em>';
-	fileEdit = '<br><a class="edit_ icon" href="/utils/image/edit/' + file['file_id'] + '/' + pId +
-		'"><img title="edit" alt="edit" src="/images/blank.png"></a></div>';
-	fileThumb = '<a href="/' + src + '" target="_blank"><img class="thumb" src="/' + thumb +
-		'" width="' + thumbW + '" height="' + thumbH + '"></a></div>';
-	fileDiv = '<div id="file_'+ dId + '_' + file['file_id'] + '" class="file">';
-	return len > 1 ? fileDiv + fileInfo + fileEdit + fileThumb :
-		fileInfo + ' - Нажмите на картинку для увеличения' + fileEdit + fileDiv + fileThumb;
-}
-
-function getHanaPost(postJson) {
-	var i, html, id = postJson['display_id'],
-		files = postJson['files'],
-		len = files.length,
-		wrap = $new('table', {'id': 'post_' + id, 'class': 'replypost post'}, null);
-	html = '<tbody><tr><td class="doubledash">&gt;&gt;</td><td id="reply' + id + '" class="reply">' +
-		'<a name="i' + id + '"></a><label><a class="delete icon"><input type="checkbox" id="delbox_' +
-		id + '" class="delete_checkbox" value="' + postJson['thread_id'] + '" name="' + id +
-		'"></a><span class="replytitle">' + postJson['subject'] + '</span> <span class="postername">' +
-		postJson['name'] + '</span> ' + aib.hDTFix.fix(postJson['date']) +
-		' </label><span class="reflink"><a onclick="Highlight(0, ' + id + ')" href="/' + brd +
-		'/res/' + TNum + '.xhtml#i' + id + '">No.' + id + '</a></span><br>';
-	for(i = 0; i < len; i++) {
-		html += getHanaFile(files[i], postJson['post_id'], id, len);
-	}
-	wrap.innerHTML = html + (len > 1 ? '<br style="clear: both">' : '') +
-		'<div class="postbody">' + postJson['message_html'] +
-		'</div><div class="abbrev"></div></td></tr></tbody>';
-	return [wrap, wrap.firstChild.firstChild.lastChild];
 }
 
 //============================================================================================================
@@ -9225,35 +9159,17 @@ Thread.prototype = {
 	},
 	loadNew: function(Fn, useAPI) {
 		if(aib.dobr && useAPI) {
-			return getJsonPosts('/api/thread/' + brd + '/' + TNum +
-				'/new.json?message_html&new_format&last_post=' + this.last.num,
-				function parseNewPosts(status, sText, json, xhr) {
+			return getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json',
+				function checkNewPosts(status, sText, json, xhr) {
 					if(status !== 200 || json['error']) {
 						Fn(status, sText || json['message'], 0, xhr);
 					} else {
-						var i, lastOffset, pCount, fragm, last, temp, el = (json['result'] || {})['posts'],
-							len = el ? el.length : 0,
-							np = len;
-						if(len > 0) {
-							fragm = doc.createDocumentFragment();
-							pCount = this.pcount;
-							last = this.last;
-							for(i = 0; i < len; i++) {
-								temp = getHanaPost(el[i]);
-								last = this._addPost(fragm, el[i]['display_id'].toString(),
-									replacePost(temp[1]), temp[0], pCount + i, last);
-								np -= spells.check(last)
-							}
-							spells.end(savePosts);
-							this.last = last;
-							lastOffset = pr.isVisible ? pr.topCoord : null;
-							this.el.appendChild(fragm);
-							if(lastOffset !== null) {
-								scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
-							}
-							this.pcount = pCount + len;
+						if(this._lastModified !== json['last_modified']) {
+							this._lastModified = json['last_modified'];
+							updater.updateXHR(this.loadNew(Fn, false));
+						} else {
+							Fn(200, '', 0, xhr);
 						}
-						Fn(200, '', np, xhr);
 						Fn = null;
 					}
 				}.bind(this)
@@ -9322,6 +9238,7 @@ Thread.prototype = {
 		} while(thr = thr.next);
 	},
 
+	_lastModified: '',
 	_addPost: function(parent, num, el, wrap, i, prev) {
 		var post = new Post(el, this, num, i, false, prev);
 		pByNum[num] = post;
@@ -9382,12 +9299,14 @@ Thread.prototype = {
 			newVisPosts = 0,
 			len = nPosts.length,
 			post = this.lastNotDeleted;
-		if(post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
+		if(aib.dobr || (post.count !== 0 &&
+		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
+		{
 			firstChangedPost = null;
 			post = this.op.nextNotDeleted;
 			for(i = post.count - 1; i < len && post; ) {
 				if(post.num !== aib.getPNum(nPosts[i])) {
-					if(+post.num > +aib.getPNum(nPosts[i])) { // add post(s)
+					if(+post.num > +aib.getPNum(nPosts[i])) {
 						if(!firstChangedPost) {
 							firstChangedPost = post.prev;
 						}
@@ -9406,7 +9325,7 @@ Thread.prototype = {
 						for(temp = post; temp; temp = temp.nextInThread) {
 							temp.count += cnt;
 						}
-					} else { // deleted post(s)
+					} else {
 						if(!firstChangedPost) {
 							firstChangedPost = post;
 						}
@@ -9426,6 +9345,11 @@ Thread.prototype = {
 					spells.check(post);
 				}
 				saveSpells = true;
+			}
+			if(newPosts !== 0) {
+				for(post = firstChangedPost; post; post = post.nextInThread) {
+					updRefMap(post, true);
+				}
 			}
 		}
 		if(len + 1 > this.pcount) {
@@ -9640,7 +9564,8 @@ function getImageBoard(checkDomains, checkOther) {
 		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'dobrochan.com': [{
 			dobr: { value: true },
-			
+
+			anchor: { value: '#i' },
 			cFileInfo: { value: 'fileinfo' },
 			cSubj: { value: 'replytitle' },
 			qDForm: { value: 'form[action*="delete"]' },
@@ -10851,6 +10776,9 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		disable: function() {
 			disable(true);
+		},
+		updateXHR: function(newXHR) {
+			currentXHR = newXHR;
 		},
 		toggleAudio: toggleAudio,
 		addPlayingTag: addPlayingTag,
