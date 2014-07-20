@@ -8334,17 +8334,7 @@ Post.prototype = {
 		return val;
 	},
 	get ytObj() {
-		var msg, prev, val = $new('div', {'class': 'de-video-obj'}, null);
-		if(aib.krau) {
-			msg = this.msg.parentNode;
-			prev = msg.previousElementSibling;
-			$before(prev.hasAttribute('style') ? prev : msg, val);
-		} else if(aib.dobr) {
-			prev = this.msg.previousElementSibling;
-			$before(prev.tagName === 'BR' ? prev : this.msg, val);
-		} else {
-			$before(this.msg, val);
-		}
+		var val = aib.insertYtPlayer(this.msg, '<div class="de-video-obj"></div>');
 		Object.defineProperty(this, 'ytObj', { value: val });
 		return val;
 	},
@@ -9644,6 +9634,12 @@ function getImageBoard(checkDomains, checkOther) {
 			getTNum: { value: function(op) {
 				return $q('a[name]', op).name.match(/\d+/)[0];
 			} },
+			insertYtPlayer: { value: function(msg, playerHtml) {
+				var prev = msg.previousElementSibling,
+					node = prev.tagName === 'BR' ? prev : msg;
+				node.insertAdjacentHTML('beforebegin', playerHtml);
+				return node.previousSibling;
+			} },
 			css: { value: '.delete > img, .popup, .reply_, .search_google, .search_iqdb { display: none !important; }\
 				.delete { background: none; }\
 				.delete_checkbox { position: static !important; }\
@@ -9719,6 +9715,13 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			getTNum: { value: function(op) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
+			} },
+			insertYtPlayer: { value: function(msg, playerHtml) {
+				var pMsg = msg.parentNode,
+					prev = pMsg.previousElementSibling,
+					node = prev.hasAttribute('style') ? prev : pMsg;
+				node.insertAdjacentHTML('beforebegin', playerHtml);
+				return node.previousSibling;
 			} },
 			css: { value: 'img[id^="translate_button"], img[src$="button-expand.gif"], img[src$="button-close.gif"], body > center > hr, form > div:first-of-type > hr, h2, .sage { display: none !important; }\
 					div[id^="Wz"] { z-index: 10000 !important; }\
@@ -10083,6 +10086,10 @@ function getImageBoard(checkDomains, checkOther) {
 				}});
 			}
 			return this.getWrap(el, isOp);
+		},
+		insertYtPlayer: function(msg, playerHtml) {
+			msg.insertAdjacentHTML('beforebegin', playerHtml);
+			return msg.previousSibling;
 		},
 		anchor: '#',
 		css: '',
