@@ -9385,7 +9385,7 @@ Thread.prototype = {
 					post = post.nextNotDeleted;
 				}
 			}
-			if(i === len) {
+			if(i === len && post) {
 				this.deletePost(post, true, !TNum);
 			}
 			if(firstDelPost && spells.hasNumSpell) {
