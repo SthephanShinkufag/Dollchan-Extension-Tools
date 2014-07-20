@@ -8908,7 +8908,11 @@ function addRefMap(post, tUrl) {
 			'</a><span class="de-refcomma">, </span>');
 	}
 	html.push('</div>');
-	post.msg.insertAdjacentHTML('afterend', html.join(''));
+	if(aib.dobr) {
+		post.msg.nextElementSibling.insertAdjacentHTML('beforeend', html.join(''));
+	} else {
+		post.msg.insertAdjacentHTML('afterend', html.join(''));
+	}
 }
 
 function genRefMap(posts, thrURL) {
