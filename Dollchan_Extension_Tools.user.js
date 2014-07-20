@@ -9365,21 +9365,53 @@ Thread.prototype = {
 			}
 		}
 	},
+	_importPosts: function(last, newPosts, begin, end) {
+		var el, newCount, newVisCount, fragm = doc.createDocumentFragment(),
+		newCount = newVisCount = end - begin;
+		for(; begin < end; ++begin) {
+			el = newPosts[begin];
+			last = this._addPost(fragm, aib.getPNum(el), replacePost(el),
+				aib.getWrap(el, false), begin + 1, last);
+			newVisCount -= spells.check(last);
+		}
+		return [newCount, newVisCount, fragm, last];
+	},
 	_parsePosts: function(nPosts) {
-		var i, fragm, el, firstDelPost, saveSpells = false,
+		var i, cnt, firstChangedPost, res, temp, saveSpells = false,
 			newPosts = 0,
 			newVisPosts = 0,
 			len = nPosts.length,
 			post = this.lastNotDeleted;
 		if(post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
-			firstDelPost = null;
+			firstChangedPost = null;
 			post = this.op.nextNotDeleted;
 			for(i = post.count - 1; i < len && post; ) {
 				if(post.num !== aib.getPNum(nPosts[i])) {
-					if(!firstDelPost) {
-						firstDelPost = post;
+					if(+post.num > +aib.getPNum(nPosts[i])) { // add post(s)
+						if(!firstChangedPost) {
+							firstChangedPost = post.prev;
+						}
+						cnt = 0;
+						do {
+							cnt++;
+							i++;
+						} while(+aib.getPNum(nPosts[i]) < +post.num);
+						res = this._importPosts(post.prev, nPosts, i - cnt, i);
+						newPosts += res[0];
+						this.pcount += res[0];
+						newVisPosts += res[1];
+						$after(post.prev.wrap, res[2]);
+						res[3].next = post;
+						post.prev = res[3];
+						for(temp = post; temp; temp = temp.nextInThread) {
+							temp.count += cnt;
+						}
+					} else { // deleted post(s)
+						if(!firstChangedPost) {
+							firstChangedPost = post;
+						}
+						post = this.deletePost(post, false, !TNum);
 					}
-					post = this.deletePost(post, false, !TNum);
 				} else {
 					i++;
 					post = post.nextNotDeleted;
@@ -9388,26 +9420,20 @@ Thread.prototype = {
 			if(i === len && post) {
 				this.deletePost(post, true, !TNum);
 			}
-			if(firstDelPost && spells.hasNumSpell) {
+			if(firstChangedPost && spells.hasNumSpell) {
 				disableSpells();
-				for(post = firstDelPost.nextInThread; post; post = post.nextInThread) {
+				for(post = firstChangedPost.nextInThread; post; post = post.nextInThread) {
 					spells.check(post);
 				}
 				saveSpells = true;
 			}
 		}
 		if(len + 1 > this.pcount) {
-			fragm = doc.createDocumentFragment();
-			post = this.last;
-			newPosts = newVisPosts = 1 + len - this.pcount;
-			for(i = this.lastNotDeleted.count; i < len; ++i) {
-				el = nPosts[i];
-				post = this._addPost(fragm, aib.getPNum(el), replacePost(el),
-					aib.getWrap(el, false), i + 1, post);
-				newVisPosts -= spells.check(post);
-			}
-			this.el.appendChild(fragm);
-			this.last = post;
+			res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len);
+			newPosts += res[0];
+			newVisPosts += res[1];
+			this.el.appendChild(res[2]);
+			this.last = res[3];
 			this.pcount = len + 1;
 			saveSpells = true;
 		}
