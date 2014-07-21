@@ -861,11 +861,11 @@ function toRegExp(str, noG) {
 function getStored(id, Fn) {
 	if(nav.isGM) {
 		Fn(GM_getValue(id));
-/*	} else if(nav.isChromeStorage) {
-		chrome.storage.local.get(id, function(obj) {
-			console.log('read', obj[id]);
+	} else if(nav.isChromeStorage) {
+		chrome.storage.sync.get(id, function(obj) {
+			Fn(obj[id]);
 		});
-*/	} else if(nav.isScriptStorage) {
+	} else if(nav.isScriptStorage) {
 		Fn(scriptStorage.getItem(id));
 	} else {
 		Fn(localStorage.getItem(id));
@@ -875,13 +875,11 @@ function getStored(id, Fn) {
 function setStored(id, value) {
 	if(nav.isGM) {
 		GM_setValue(id, value);
-/*	} else if(nav.isChromeStorage) {
+	} else if(nav.isChromeStorage) {
 		var obj = {};
 		obj[id] = value;
-		chrome.storage.local.set(obj, function() {
-			console.log('write', obj);
-		});
-*/	} else if(nav.isScriptStorage) {
+		chrome.storage.sync.set(obj, function() {});
+	} else if(nav.isScriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
 		localStorage.setItem(id, value);
@@ -891,13 +889,9 @@ function setStored(id, value) {
 function delStored(id) {
 	if(nav.isGM) {
 		GM_deleteValue(id);
-/*	} else if(nav.isChromeStorage) {
-		var obj = {};
-		obj[id] = value;
-		chrome.storage.local.remove(obj, function() {
-			console.log('delete', obj);
-		});
-*/	} else if(nav.isScriptStorage) {
+	} else if(nav.isChromeStorage) {
+		chrome.storage.sync.remove(id, function() {});
+	} else if(nav.isScriptStorage) {
 		scriptStorage.removeItem(id);
 	} else {
 		localStorage.removeItem(id);
@@ -10205,7 +10199,7 @@ function getNavFuncs() {
 		isGM: isGM,
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
-		isGlobal: isGM || /* isChromeStorage || */ isScriptStorage,
+		isGlobal: isGM || isChromeStorage || isScriptStorage,
 		cssFix: webkit ? '-webkit-' : opera11 ? '-o-' : '',
 		Anim: !opera11,
 		animName: webkit ? 'webkitAnimationName' : opera11 ? 'OAnimationName' : 'animationName',
