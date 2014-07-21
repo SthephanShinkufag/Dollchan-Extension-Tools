@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.7.21.1
+// @version			14.7.21.2
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -20,7 +20,7 @@
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.7.21.1',
+var version = '14.7.21.2',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -981,6 +981,9 @@ function readCfg(Fn) {
 				Cfg['updScript'] = 0;
 			}
 			Cfg['fileThumb'] = 0;
+		}
+		if(nav.Chrome && !nav.Safari && !nav.isGM) {
+			Cfg['updScript'] = 0;
 		}
 		if(Cfg['updThrDelay'] < 10) {
 			Cfg['updThrDelay'] = 10;
@@ -2131,7 +2134,7 @@ function getCfgCommon() {
 			inpTxt('loadPages', 4, null),
 			$txt(Lng.cfg['loadPages'][lang])
 		]),
-		$if(!nav.Presto || nav.isGM, $New('div', null, [
+		$if(!nav.Chrome && !nav.Presto || nav.Safari || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', false, null),
@@ -6018,11 +6021,8 @@ function checkForUpdates(isForce, Fn) {
 					i++;
 				}
 				if(isUpd) {
-					Fn('<a style="color: blue; font-weight: bold;" href="' +
-						(!nav.Chrome || nav.Safari || nav.isGM ?
-							'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js' :
-							'https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad'
-						) + '">' + Lng.updAvail[lang] + '</a>');
+					Fn('<a style="color: blue; font-weight: bold;" href="https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js">' +
+					Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					Fn(Lng.haveLatest[lang]);
 				}
