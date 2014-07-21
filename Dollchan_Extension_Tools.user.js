@@ -6302,7 +6302,7 @@ PostForm.prototype = {
 			img.dispatchEvent(new CustomEvent('click', {
 				'bubbles': true,
 				'cancelable': true,
-				'detail': {'isCustom': true, 'focus': focus}
+				'detail': cloneInto({'isCustom': true, 'focus': focus}, document.defaultView)
 			}));
 			return;
 		}
