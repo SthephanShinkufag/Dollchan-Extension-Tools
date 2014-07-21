@@ -10170,6 +10170,11 @@ function getNavFuncs() {
 			return x < 1 ? x === 0 ? 32 : 0 : 31 - ((Math.log(x) / Math.LN2) >> 0);
 		};
 	}
+	if(!('Components' in window)) {
+		window.cloneInto = function(obj, dc) {
+			return obj;
+		}
+	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
