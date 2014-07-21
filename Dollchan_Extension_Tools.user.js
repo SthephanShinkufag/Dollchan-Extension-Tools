@@ -6299,10 +6299,11 @@ PostForm.prototype = {
 	refreshCapImg: function(focus) {
 		var src, img;
 		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
+			src = {'isCustom': true, 'focus': focus};
 			img.dispatchEvent(new CustomEvent('click', {
 				'bubbles': true,
 				'cancelable': true,
-				'detail': cloneInto({'isCustom': true, 'focus': focus}, document.defaultView)
+				'detail': (nav.Firefox ? cloneInto(src, document.defaultView) : src)
 			}));
 			return;
 		}
@@ -10169,11 +10170,6 @@ function getNavFuncs() {
 		Math.clz32 = function(x) {
 			return x < 1 ? x === 0 ? 32 : 0 : 31 - ((Math.log(x) / Math.LN2) >> 0);
 		};
-	}
-	if(!('Components' in window)) {
-		window.cloneInto = function(obj, dc) {
-			return obj;
-		}
 	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
