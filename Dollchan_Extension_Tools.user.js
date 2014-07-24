@@ -4622,7 +4622,9 @@ Spells.prototype = {
 		reps = data[2];
 		oreps = data[3];
 		if(reps || oreps) {
-			str += '\n\n';
+			if(str) {
+				str += '\n\n';
+			}
 			reps && reps.forEach(function(rep) {
 				str += this._decompileRep(rep, false) + '\n';
 			}.bind(this));
@@ -5856,10 +5858,10 @@ function scriptCSS() {
 		.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 		.de-alert-msg { display: inline-block; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
-		.de-content-block > a { color: inherit; font-weight: bold; }\
+		.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-		.de-entry { margin: 2px 0; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
+		.de-entry { margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
 		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 16px serif; }\
