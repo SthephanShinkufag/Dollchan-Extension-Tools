@@ -3580,7 +3580,7 @@ workerQueue.prototype = {
 		w.postMessage([qIdx, data[0]], data[1]);
 	},
 	clear: function() {
-		this.wrks.clear();
+		this.wrks && this.wrks.clear();
 		this.wrks = null;
 	}
 };
