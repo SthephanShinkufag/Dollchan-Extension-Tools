@@ -1157,9 +1157,17 @@ function saveFavorites(fav) {
 }
 
 function removeFavoriteEntry(fav, h, b, num, clearPage) {
+	var _isEmpty = function(f) {
+		for(var i in f) {
+			if(i !== 'url' && f.hasOwnProperty(i)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	if((h in fav) && (b in fav[h]) && (num in fav[h][b])) {
 		delete fav[h][b][num];
-		if($isEmpty(fav[h][b])) {
+		if(_isEmpty(fav[h][b])) {
 			delete fav[h][b];
 			if($isEmpty(fav[h])) {
 				delete fav[h];
@@ -1392,7 +1400,7 @@ function addContentBlock(parent, title) {
 				el.checked = res;
 			}
 		}}),
-		$new('b', {'text': title}, null)
+		title
 	]));
 }
 
@@ -1475,7 +1483,7 @@ function showContent(cont, id, name, remove, data) {
 		]);
 		for(b in hThr) {
 			if(!$isEmpty(hThr[b])) {
-				block = addContentBlock(cont, '/' + b);
+				block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
 				for(tNum in hThr[b]) {
 					block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
 						tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
@@ -1557,8 +1565,14 @@ function showFavoriteTable(cont, data) {
 	var h, b, i, block, tNum;
 	for(h in data) {
 		for(b in data[h]) {
-			block = addContentBlock(cont, h + '/' + b);
+			i = data[h][b];
+			block = addContentBlock(cont, i['url'] ?
+				$new('a', {'href': i['url'], 'text': h + '/' + b}, null) :
+				$new('b', {'text': h + '/' + b}, null));
 			for(tNum in data[h][b]) {
+				if(tNum === 'url') {
+					continue;
+				}
 				i = data[h][b][tNum];
 				if(!i['url'].startsWith('http')) {
 					i['url'] = (h === aib.host ? aib.prot + '//' : 'http://') + h + i['url'];
@@ -9216,6 +9230,7 @@ Thread.prototype = {
 				if(!fav[h][brd]) {
 					fav[h][brd] = {};
 				}
+				fav[h][brd]['url'] = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
 				fav[h][brd][num] = {
 					'cnt': this.pcount,
 					'txt': this.op.title,
