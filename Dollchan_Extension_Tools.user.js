@@ -482,7 +482,7 @@ Lng = {
 	seCol:			[', столбец ', ', column ']
 },
 
-doc = window.document, aProto = Array.prototype,
+doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, comCfg, hThr, pByNum, sVis, bUVis, needScroll,
 aib, nav, brd, TNum, pageNum, updater, keyNav, firstThr, lastThr, visPosts = 2, dTime,
 YouTube, WebmParser, Logger,
@@ -868,7 +868,7 @@ function getStored(id, Fn) {
 	} else if(nav.isScriptStorage) {
 		Fn(scriptStorage.getItem(id));
 	} else {
-		Fn(localStorage.getItem(id));
+		Fn(locStorage.getItem(id));
 	}
 }
 
@@ -882,7 +882,7 @@ function setStored(id, value) {
 	} else if(nav.isScriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
-		localStorage.setItem(id, value);
+		locStorage.setItem(id, value);
 	}
 }
 
@@ -894,7 +894,7 @@ function delStored(id) {
 	} else if(nav.isScriptStorage) {
 		scriptStorage.removeItem(id);
 	} else {
-		localStorage.removeItem(id);
+		locStorage.removeItem(id);
 	}
 }
 
@@ -1020,7 +1020,7 @@ function toggleCfg(id) {
 }
 
 function readPosts() {
-	var data, str = TNum ? sessionStorage['de-hidden-' + brd + TNum] : null;
+	var data, str = TNum ? sesStorage['de-hidden-' + brd + TNum] : null;
 	if(typeof str === 'string') {
 		data = str.split(',');
 		if(data.length === 4 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0) &&
@@ -1093,7 +1093,7 @@ function readUserPosts() {
 function savePosts() {
 	if(TNum) {
 		var lPost = firstThr.lastNotDeleted;
-		sessionStorage['de-hidden-' + brd + TNum] = (Cfg['hideBySpell'] ? spells.hash : '0') +
+		sesStorage['de-hidden-' + brd + TNum] = (Cfg['hideBySpell'] ? spells.hash : '0') +
 			',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
 	}
 	saveHiddenThreads(false);
@@ -1181,7 +1181,7 @@ function removeFavoriteEntry(fav, h, b, num, clearPage) {
 
 function readViewedPosts() {
 	if(Cfg['markViewed']) {
-		var data = sessionStorage['de-viewed'];
+		var data = sesStorage['de-viewed'];
 		if(data) {
 			data.split(',').forEach(function(pNum) {
 				var post = pByNum[pNum];
@@ -1502,8 +1502,8 @@ function showContent(cont, id, name, remove, data) {
 					}
 					firstThr.updateHidden(hThr[brd]);
 					saveHiddenThreads(true);
-					localStorage['__de-threads'] = JSON.stringify(hThr);
-					localStorage.removeItem('__de-threads');
+					locStorage['__de-threads'] = JSON.stringify(hThr);
+					locStorage.removeItem('__de-threads');
 				});
 			}),
 			$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
@@ -1524,14 +1524,14 @@ function showContent(cont, id, name, remove, data) {
 						if(arr[1] in pByNum) {
 							pByNum[arr[1]].setUserVisib(false, date, true);
 						} else {
-							localStorage['__de-post'] = JSON.stringify({
+							locStorage['__de-post'] = JSON.stringify({
 								'brd': arr[0],
 								'date': date,
 								'isOp': true,
 								'num': arr[1],
 								'hide': false
 							});
-							localStorage.removeItem('__de-post');
+							locStorage.removeItem('__de-post');
 						}
 						delete hThr[arr[0]][arr[1]];
 					}
@@ -2198,7 +2198,7 @@ function getCfgInfo() {
 				'nav': nav,
 				'cfg': Cfg,
 				'sSpells': spells.list.split('\n'),
-				'oSpells': sessionStorage['de-spells-' + brd + TNum],
+				'oSpells': sesStorage['de-spells-' + brd + TNum],
 				'perf': new Logger().get()
 			}, function(key, value) {
 				if(key in defaultCfg) {
@@ -4130,7 +4130,7 @@ YouTube = new function() {
 				}.bind(data, qIdx)
 			});
 		}, function() {
-			sessionStorage['de-ytube-data'] = JSON.stringify(vData);
+			sesStorage['de-ytube-data'] = JSON.stringify(vData);
 			queue = queueEnd = null;
 		});
 		queueEnd = queue.end.bind(queue);
@@ -4149,7 +4149,7 @@ YouTube = new function() {
 		}
 		loadTitles = Cfg['YTubeTitles'];
 		if(loadTitles) {
-			vData = JSON.parse(sessionStorage['de-ytube-data'] || '{}');
+			vData = JSON.parse(sesStorage['de-ytube-data'] || '{}');
 		}
 		videoType = Cfg['YTubeType'];
 		width = Cfg['YTubeWidth'];
@@ -4672,7 +4672,7 @@ Spells.prototype = {
 		var spells, data;
 		try {
 			spells = JSON.parse(Cfg['spells']);
-			data = JSON.parse(sessionStorage['de-spells-' + brd + TNum]);
+			data = JSON.parse(sesStorage['de-spells-' + brd + TNum]);
 		} catch(e) {}
 		if(data && spells && data[0] === spells[0]) {
 			this._data = spells;
@@ -4801,16 +4801,16 @@ Spells.prototype = {
 			reps = this._optimizeReps(data[2]),
 			outreps = this._optimizeReps(data[3]);
 		saveCfg('spells', JSON.stringify(data));
-		sessionStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
+		sesStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
 		this._data = data;
 		this._list = '';
 		this.hash = data[0];
 		if(sync) {
-			localStorage['__de-spells'] = JSON.stringify({
+			locStorage['__de-spells'] = JSON.stringify({
 				'hide': (!!this.list && !!isHide),
 				'data': data
 			});
-			localStorage.removeItem('__de-spells');
+			locStorage.removeItem('__de-spells');
 		}
 		this._init(spells, reps, outreps);
 	},
@@ -5570,14 +5570,14 @@ function toggleSpells() {
 		fld.value = spells.list;
 	} else {
 		if(val) {
-			localStorage['__de-spells'] = '{"hide": false, "data": null}';
+			locStorage['__de-spells'] = '{"hide": false, "data": null}';
 		} else {
 			disableSpells();
 			spells.disable();
 			saveCfg('spells', '');
-			localStorage['__de-spells'] = '{"hide": false, "data": ""}';
+			locStorage['__de-spells'] = '{"hide": false, "data": ""}';
 		}
-		localStorage.removeItem('__de-spells');
+		locStorage.removeItem('__de-spells');
 		$q('input[info="hideBySpell"]', doc).checked = spells.enable = false;
 	}
 }
@@ -7484,7 +7484,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		},
 		get storage() {
 			try {
-				var val = JSON.parse(sessionStorage['de-imageshash']);
+				var val = JSON.parse(sesStorage['de-imageshash']);
 			} finally {
 				if(!val) {
 					val = {};
@@ -7504,7 +7504,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		_expAttach: null,
 		_offset: -1,
 		_saveStorage: function() {
-			sessionStorage['de-imageshash'] = JSON.stringify(this.storage);
+			sesStorage['de-imageshash'] = JSON.stringify(this.storage);
 		},
 		_clearWorkers: function() {
 			this.workers.clear();
@@ -8068,7 +8068,7 @@ Post.prototype = {
 		}
 		bUVis[brd][this.num] = [+!hide, date];
 		if(sync) {
-			localStorage['__de-post'] = JSON.stringify({
+			locStorage['__de-post'] = JSON.stringify({
 				'brd': brd,
 				'date': date,
 				'isOp': this.isOp,
@@ -8076,7 +8076,7 @@ Post.prototype = {
 				'hide': hide,
 				'title': this.isOp ? this.title : ''
 			});
-			localStorage.removeItem('__de-post');
+			locStorage.removeItem('__de-post');
 		}
 	},
 	setVisib: function(hide) {
@@ -8729,9 +8729,9 @@ Pview.prototype = Object.create(Post.prototype, {
 						pst.el.classList.add('de-viewed');
 						pst.viewed = true;
 					}
-					var arr = (sessionStorage['de-viewed'] || '').split(',');
+					var arr = (sesStorage['de-viewed'] || '').split(',');
 					arr.push(pst.num);
-					sessionStorage['de-viewed'] = arr;
+					sesStorage['de-viewed'] = arr;
 				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
 		} else {
@@ -10262,7 +10262,17 @@ function Initialization(checkDomains) {
 	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return false;
 	}
-	if(!(window.localStorage && typeof localStorage === 'object' && window.sessionStorage)) {
+	try {
+		locStorage = window.localStorage;
+		sesStorage = window.sessionStorage;
+		sesStorage['__de-test'] = 1;
+	} catch(e) {
+		if(typeof unsafeWindow !== 'undefined') {
+			locStorage = unsafeWindow.localStorage;
+			sesStorage = unsafeWindow.sessionStorage;
+		}
+	}
+	if(!(locStorage && typeof locStorage === 'object' && sesStorage)) {
 		GM_log('WEBSTORAGE ERROR: please, enable webstorage!');
 		return false;
 	}
