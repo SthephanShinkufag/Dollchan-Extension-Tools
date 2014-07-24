@@ -3468,7 +3468,6 @@ WebmParser = function(data) {
 
 function initMessageFunctions() {
 	window.addEventListener('message', function(e) {
-		console.log(e.data)
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
 		case 'A':
@@ -4315,13 +4314,12 @@ function loadFavorThread() {
 	var post, el = this.parentNode.parentNode,
 		ifrm = $t('iframe', el),
 		cont = $c('de-content', doc);
-	$del($id('de-fav-wait'));
 	if(ifrm) {
 		$del(ifrm);
 		cont.style.overflowY = 'auto';
 		return;
 	}
-	if((post = pByNum[el.getAttribute('info').split(';')[2]]) && !post.hidden) {
+	if((post = pByNum[el.getAttribute('de-num')]) && !post.hidden) {
 		scrollTo(0, pageYOffset + post.el.getBoundingClientRect().top);
 		return;
 	}
@@ -5743,7 +5741,6 @@ function scriptCSS() {
 		x += gif('.de-btn-src', p + '/SLLcqyEuKWKYF4Cl6/VCF26UJHaUIzaDMGjA8Gqt7MJ47Naw3O832kxnay1sx11g6KMtBxEZ9DkdEKTYLCEBADs=');
 		x += gif('.de-btn-stick', p + 'xSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7');
 		x += gif('.de-btn-stick-on', 'R0lGODlhDgAOAKIAAL//v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAMxSLLcqyHKGRe9wVYntQBgKGxMKDJDaQJouqzsMrgDTNO27Apzv88YCjAoGRB8yB4hAQA7');
-
 	} else {
 		p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI';
 		x += 'padding: 0 14px 14px 0; }';
