@@ -1157,7 +1157,7 @@ function saveFavorites(fav) {
 }
 
 function removeFavoriteEntry(fav, h, b, num, clearPage) {
-	var _isEmpty = function(f) {
+	function _isEmpty(f) {
 		for(var i in f) {
 			if(i !== 'url' && f.hasOwnProperty(i)) {
 				return false;
@@ -2166,7 +2166,7 @@ function getCfgCommon() {
 }
 
 function getCfgInfo() {
-	var getHiddenThrCount = function () {
+	function getHiddenThrCount() {
 		var b, tNum, count = 0;
 		for(b in hThr) {
 			for(tNum in hThr[b]) {
