@@ -33,7 +33,7 @@ defaultCfg = {
 	'ajaxUpdThr':	1,		// auto update threads
 	'updThrDelay':	60,		//    threads update interval in sec
 	'noErrInTitle': 0,		//    don't show error number in title except 404
-	'favIcoBlink':	1,		//    favicon blinking, if new posts detected
+	'favIcoBlink':	0,		//    favicon blinking, if new posts detected
 	'markNewPosts': 1,		//    new posts marking on page focus
 	'desktNotif':	0,		//    desktop notifications, if new posts detected
 	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
@@ -957,9 +957,6 @@ function readCfg(Fn) {
 		}
 		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg['ajaxReply'] === 2) {
 			Cfg['ajaxReply'] = 1;
-		}
-		if(!nav.Firefox) {
-			defaultCfg['favIcoBlink'] = 0;
 		}
 		if(!('Notification' in window)) {
 			Cfg['desktNotif'] = 0;
