@@ -5234,7 +5234,7 @@ SpellsInterpreter.prototype = {
 	_endFn: null,
 	_lastSpellIdx: 0,
 	_wipeMsg: '',
-	_asyncContinue: function() {
+	_asyncContinue: function(val) {
 		this._asyncWait = false;
 		var temp, rv = this._checkRes(this._ctx.pop(), val);
 		if(rv === null) {
