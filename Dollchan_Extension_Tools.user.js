@@ -939,7 +939,12 @@ function readCfg(Fn) {
 		var obj;
 		comCfg = val;
 		if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
-			obj = nav.isGlobal ? comCfg['global'] || {} : {};
+			if(nav.isChromeStorage && (obj = locStorage.getItem('DESU_Config'))) {
+				obj = JSON.parse(obj)[aib.dm];
+				locStorage.removeItem('DESU_Config');
+			} else {
+				obj = nav.isGlobal ? comCfg['global'] || {} : {};
+			}
 			obj['captchaLang'] = aib.ru ? 2 : 1;
 			obj['correctTime'] = 0;
 		}
@@ -976,7 +981,7 @@ function readCfg(Fn) {
 			}
 			Cfg['fileThumb'] = 0;
 		}
-		if(nav.Chrome && !nav.Safari && !nav.isGM) {
+		if(nav.isChromeStorage) {
 			Cfg['updScript'] = 0;
 		}
 		if(Cfg['updThrDelay'] < 10) {
@@ -1038,6 +1043,13 @@ function readUserPosts() {
 		bUVis = val;
 		getStoredObj('DESU_Threads_' + aib.dm, function(val) {
 			hThr = val;
+			if(nav.isChromeStorage && (val = locStorage.getItem('DESU_Posts_' + aib.dm))) {
+				bUVis = JSON.parse(val);
+				val = locStorage.getItem('DESU_Threads_' + aib.dm);
+				hThr = JSON.parse(val);
+				locStorage.removeItem('DESU_Posts_' + aib.dm);
+				locStorage.removeItem('DESU_Threads_' + aib.dm);
+			}
 			var uVis, vis, num, post, date = Date.now(),
 				update = false;
 			if(brd in bUVis) {
@@ -1130,14 +1142,25 @@ function saveHiddenThreads(updContent) {
 function readFavoritesPosts() {
 	getStoredObj('DESU_Favorites', function(fav) {
 		var thr, temp, update = false;
-		if(!(aib.host in fav)) {
-			return;
+		if(nav.isChromeStorage && (temp = locStorage.getItem('DESU_Favorites'))) {
+			temp = JSON.parse(temp);
+			locStorage.removeItem('DESU_Favorites');
+			if($isEmpty(temp)) {
+				return;
+			}
+			temp = temp[aib.host];
+			fav[aib.host] = temp;
+			temp = temp[brd];
+		} else {
+			if(!(aib.host in fav)) {
+				return;
+			}
+			temp = fav[aib.host];
+			if(!(brd in temp)) {
+				return;
+			}
+			temp = temp[brd];
 		}
-		temp = fav[aib.host];
-		if(!(brd in temp)) {
-			return;
-		}
-		temp = temp[brd];
 		for(thr = firstThr; thr; thr = thr.next) {
 			if(thr.num in temp) {
 				$c('de-btn-fav', thr.op.btns).className = 'de-btn-fav-sel';
@@ -2142,7 +2165,7 @@ function getCfgCommon() {
 			inpTxt('loadPages', 4, null),
 			$txt(Lng.cfg['loadPages'][lang])
 		]),
-		$if(!nav.Chrome && !nav.Presto || nav.Safari || nav.isGM, $New('div', null, [
+		$if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
 			$New('div', {'class': 'de-cfg-depend'}, [
 				optSel('scrUpdIntrv', false, null),
@@ -2292,7 +2315,8 @@ function addSettings(Set, id) {
 					if(confirm(Lng.conReset[lang])) {
 						delStored('DESU_Config');
 						delStored('DESU_Favorites');
-						delStored('DESU_Threads');
+						delStored('DESU_Posts_' + aib.dm);
+						delStored('DESU_Threads_' + aib.dm);
 						delStored('DESU_keys');
 						window.location.reload();
 					}
