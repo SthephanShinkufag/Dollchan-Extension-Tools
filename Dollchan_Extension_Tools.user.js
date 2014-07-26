@@ -10454,7 +10454,9 @@ function parseDelform(node, thrds) {
 		thrds = parseThreadNodes(dForm, []);
 		len = thrds.length;
 	}
-	if(len) {
+	if(len === 0) {
+		throw new Error('Where\'s threads?');
+	} else {
 		firstThr = lThr = new Thread(thrds[0], null);
 	}
 	for(i = 1; i < len; i++) {
