@@ -1057,6 +1057,9 @@ function readUserPosts() {
 			if(!(brd in hThr)) {
 				hThr[brd] = {};
 			}
+			if(!firstThr) {
+				return;
+			}
 			for(post = firstThr.op; post; post = post.next) {
 				num = post.num;
 				if(num in uVis) {
@@ -10127,7 +10130,6 @@ function getImageBoard(checkDomains, checkOther) {
 			if(pageNum === val + 1) {
 				val++;
 			}
-			Object.defineProperty(this, 'pagesCount', { value: val });
 			return val;
 		},
 		prot: window.location.protocol,
@@ -10454,9 +10456,7 @@ function parseDelform(node, thrds) {
 		thrds = parseThreadNodes(dForm, []);
 		len = thrds.length;
 	}
-	if(len === 0) {
-		throw new Error('Where are threads?');
-	} else {
+	if(len) {
 		firstThr = lThr = new Thread(thrds[0], null);
 	}
 	for(i = 1; i < len; i++) {
@@ -10562,7 +10562,7 @@ function initThreadUpdater(title, enableUpdate) {
 		doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
 			if(doc.hidden || doc.webkitHidden) {
 				focused = false;
-				firstThr.clearPostsMarks();
+				firstThr && firstThr.clearPostsMarks();
 			} else {
 				onVis();
 			}
@@ -10886,7 +10886,7 @@ function addDelformStuff(isLog) {
 		addImagesSearch(dForm);
 		isLog && new Logger().log('Sauce buttons');
 	}
-	if(Cfg['linksNavig'] === 2) {
+	if(firstThr && Cfg['linksNavig'] === 2) {
 		genRefMap(pByNum, '');
 		for(var post = firstThr.op; post; post = post.next) {
 			if(post.hasRef) {
