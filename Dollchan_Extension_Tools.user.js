@@ -5933,7 +5933,7 @@ function scriptCSS() {
 		.de-viewed { color: #888 !important; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
-		' + aib.css + aib.cssEn + aib.qHide + ' { display: none !important; }';
+		' + aib.css + aib.cssEn + '.de-post-hid > ' + aib.qHide + ' { display: none !important; }';
 
 	if(!nav.Firefox) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -8209,8 +8209,20 @@ Post.prototype = {
 	hideContent: function(hide) {
 		if(hide) {
 			this.el.classList.add('de-post-hid');
+			if(nav.Chrome) {
+				this.el.classList.remove('de-post-unhid');
+				doc.head.insertAdjacentHTML('beforeend',
+					'<style id="de-csshide" type="text/css">.de-post-hid > ' + aib.qHide + ' { display: none !important; }</style>');
+				$del(doc.head.lastChild);
+			}
 		} else {
 			this.el.classList.remove('de-post-hid');
+			if(nav.Chrome) {
+				this.el.classList.add('de-post-unhid');
+				doc.head.insertAdjacentHTML('beforeend',
+					'<style id="de-cssunhide" type="text/css">.de-post-unhid > ' + aib.qHide + ' { display: !important; }</style>');
+				$del(doc.head.lastChild);
+			}
 		}
 	},
 	toggleImages: function(expand) {
@@ -9527,7 +9539,7 @@ function getImageBoard(checkDomains, checkOther) {
 			
 			qBan: { value: '.ban' },
 			qError: { value: 'pre' },
-			qHide: { value: '.de-post-hid > .replyheader ~ *' },
+			qHide: { value: '.replyheader ~ *' },
 			qPages: { value: '.pagelist > a:last-child' },
 			qPostRedir: { value: null },
 			qThread: { value: '[id*="thread"]' },
@@ -9554,7 +9566,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: 'strong[style="color: red;"]' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
-			qHide: { value: '.de-post-hid > .postInfo ~ *' },
+			qHide: { value: '.postInfo ~ *' },
 			qImgLink: { value: '.fileText > a' },
 			qName: { value: '.name' },
 			qOmitted: { value: '.summary.desktop' },
@@ -9703,7 +9715,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qBan: { value: '.ban_mark' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.message_text' },
-			qHide: { value: '.de-post-hid > div:not(.postheader)' },
+			qHide: { value: 'div:not(.postheader)' },
 			qImgLink: { value: '.filename > a' },
 			qOmitted: { value: '.omittedinfo' },
 			qPages: { value: 'table[border="1"] > tbody > tr > td > a:nth-last-child(2) + a' },
@@ -9757,7 +9769,7 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
 		'lambdadelta.net': [{
-			qHide: { value: '.de-post-hid > .de-ppanel ~ *' },
+			qHide: { value: '.de-ppanel ~ *' },
 			css: { value: '.content > hr { display: none !important }' }
 		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
@@ -9904,7 +9916,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			qDForm: { value: 'form[name="postcontrols"]' },
-			qHide: { value: '.de-post-hid > .intro ~ *'},
+			qHide: { value: '.intro ~ *'},
 			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
 			qName: { value: '.name' },
@@ -9947,7 +9959,7 @@ function getImageBoard(checkDomains, checkOther) {
 		'link[href$="phutaba.css"]': {
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
-			qHide: { value: '.de-post-hid > .post > .post_body' },
+			qHide: { value: '.post > .post_body' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			getImgWrap: { value: function(el) {
@@ -9978,7 +9990,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qDelBut: 'input[type="submit"]',
 		qDForm: '#delform, form[name="delform"]',
 		qError: 'h1, h2, font[size="5"]',
-		qHide: '.de-post-hid > .de-ppanel ~ *',
+		qHide: '.de-ppanel ~ *',
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
