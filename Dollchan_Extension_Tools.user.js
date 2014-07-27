@@ -1457,7 +1457,7 @@ function showContent(cont, id, name, remove, data) {
 	}
 
 	if(name === 'hid') {
-		for(i = 0, els = $C('de-post-hid', dForm); post = els[i++];) {
+		for(i = 0, els = $C('de-post-hide', dForm); post = els[i++];) {
 			if(post.isOp) {
 				continue;
 			}
@@ -1472,8 +1472,9 @@ function showContent(cont, id, name, remove, data) {
 			cln.post.el = cln;
 			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
 			cln.btn.parentNode.className = 'de-ppanel';
-			cln.btn.onclick = function() {
+			cln.btn.onclick = function() { // doesn't work properly. TODO: Fix
 				this.hideContent(this.hidden = !this.hidden);
+				this.hideChrome();
 			}.bind(cln);
 			(block || (block = cont.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
@@ -1485,6 +1486,7 @@ function showContent(cont, id, name, remove, data) {
 					$each($Q('.de-cloned-post', this.parentNode), function(el) {
 						var post = el.post;
 						post.hideContent(post.hidden = !post.hidden);
+						post.hideChrome();
 					});
 					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 				}),
@@ -1920,7 +1922,7 @@ function getCfgFilters() {
 		lBox('menuHiddBtn', true, null),
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
-			$each($C('de-post-hid', dForm), function(el) {
+			$each($C('de-post-hide', dForm), function(el) {
 				var wrap = el.post.wrap,
 					hide = !wrap.classList.contains('de-hidden');
 				if(hide) {
@@ -5738,8 +5740,8 @@ function scriptCSS() {
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
 	if(Cfg['postBtnsCSS'] === 0) {
 		x += 'color: #4F7942; font-size: 14px; }\
-			.de-post-hid .de-btn-hide:after { content: "\u271A"; }\
-			.de-post-hid .de-btn-hide-user:after { content: "\u271A"; }\
+			.de-post-hide .de-btn-hide:after { content: "\u271A"; }\
+			.de-post-hide .de-btn-hide-user:after { content: "\u271A"; }\
 			.de-btn-expthr:after { content: "\u21D5"; }\
 			.de-btn-fav:after { content: "\u2605"; }\
 			.de-btn-fav-sel:after { content: "[\u2605]"; }\
@@ -5753,8 +5755,8 @@ function scriptCSS() {
 	} else if(Cfg['postBtnsCSS'] === 1) {
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM';
 		x += 'padding: 0 14px 14px 0; }';
-		x += gif('.de-post-hid .de-btn-hide', p + '4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==');
-		x += gif('.de-post-hid .de-btn-hide-user', 'R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==');
+		x += gif('.de-post-hide .de-btn-hide', p + '4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==');
+		x += gif('.de-post-hide .de-btn-hide-user', 'R0lGODlhDgAOAKIAAP+/v6CgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==');
 		x += gif('.de-btn-expthr', p + '5SLLcqyHGJaeoAoAr6dQaF3gZGFpO6AzNoLHMAC8uMAty+7ZwbfYzny02qNSKElkloDQSZNAolJAAADs=');
 		x += gif('.de-btn-fav', p + '4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==');
 		x += gif('.de-btn-fav-sel', 'R0lGODlhDgAOAKIAAP/hAKCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM4SLLcqyHGJaeoAoAradec1Wigk5FoOQhDSq7DyrpyvLRpDb84AO++m+YXiVWMAWRlmSTEntAnIQEAOw==');
@@ -5768,8 +5770,8 @@ function scriptCSS() {
 	} else {
 		p = 'R0lGODlhDgAOAJEAAPDw8IyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAI';
 		x += 'padding: 0 14px 14px 0; }';
-		x += gif('.de-post-hid .de-btn-hide', p + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7');
-		x += gif('.de-post-hid .de-btn-hide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ');
+		x += gif('.de-post-hide .de-btn-hide', p + 'ZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7');
+		x += gif('.de-post-hide .de-btn-hide-user', 'R0lGODlhDgAOAJEAAP+/v4yMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIZVI55pu3vAIBI0mOf3LtxDmWUGE7XSTFpAQA7 ');
 		x += gif('.de-btn-expthr', p + 'bVI55pu0BwEMxzlonlHp331kXxjlYWH4KowkFADs=');
 		x += gif('.de-btn-fav', p + 'dVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==');
 		x += gif('.de-btn-fav-sel', 'R0lGODlhDgAOAJEAAP/hAIyMjP///wAAACH5BAEAAAIALAAAAAAOAA4AAAIdVI55pu0BwEtxnlgb3ljxrnHP54AgJSGZxT6MJRQAOw==');
@@ -5933,7 +5935,7 @@ function scriptCSS() {
 		.de-viewed { color: #888 !important; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
-		' + aib.css + aib.cssEn + '.de-post-hid > ' + aib.qHide + ' { display: none !important; }';
+		' + aib.css + aib.cssEn + '.de-post-hide > ' + aib.qHide + ' { display: none !important; }';
 
 	if(!nav.Firefox) {
 		x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + '$1');
@@ -7410,8 +7412,10 @@ IAttachmentData.prototype = {
 		if(val === -1) {
 			if(this.post.hidden) {
 				this.post.hideContent(false);
+				this.post.hideChrome();
 				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 				this.post.hideContent(true);
+				this.post.hideChrome();
 			} else {
 				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 			}
@@ -7869,9 +7873,9 @@ Post.prototype = {
 					pByNum[this.num].toggleUserVisib();
 					this.btns.firstChild.className = 'de-btn-hide-user';
 					if(pByNum[this.num].hidden) {
-						this.btns.classList.add('de-post-hid');
+						this.btns.classList.add('de-post-hide');
 					} else {
-						this.btns.classList.remove('de-post-hid');
+						this.btns.classList.remove('de-post-hide');
 					}
 				} else {
 					this.toggleUserVisib();
@@ -7963,6 +7967,29 @@ Post.prototype = {
 		}
 		if(this.isPview && !isOutEvent) {
 			this._handleMouseEvents(e.relatedTarget, true);
+		}
+	},
+	hideChrome: function() {
+		if(nav.Chrome) {
+			doc.head.insertAdjacentHTML('beforeend',
+				'<style id="de-csshide" type="text/css">\
+					.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
+					.de-post-unhide > ' + aib.qHide + ' { display: !important; }\
+				</style>');
+			$del(doc.head.lastChild);
+		}
+	},
+	hideContent: function(hide) {
+		if(hide) {
+			this.el.classList.add('de-post-hide');
+			if(nav.Chrome) {
+				this.el.classList.remove('de-post-unhide');
+			}
+		} else {
+			this.el.classList.remove('de-post-hide');
+			if(nav.Chrome) {
+				this.el.classList.add('de-post-unhide');
+			}
 		}
 	},
 	hideRefs: function() {
@@ -8151,10 +8178,12 @@ Post.prototype = {
 			}
 			this._pref.onmouseover = this._pref.onmouseout = hide && function(e) {
 				this.hideContent(e.type === 'mouseout');
+				this.hideChrome();
 			}.bind(this);
 		}
 		this.hidden = hide;
 		this.hideContent(hide);
+		this.hideChrome();
 		if(Cfg['strikeHidd']) {
 			setTimeout(this._strikePostNum.bind(this, hide), 50);
 		}
@@ -8205,25 +8234,6 @@ Post.prototype = {
 	},
 	get tNum() {
 		return this.thr.num;
-	},
-	hideContent: function(hide) {
-		if(hide) {
-			this.el.classList.add('de-post-hid');
-			if(nav.Chrome) {
-				this.el.classList.remove('de-post-unhid');
-				doc.head.insertAdjacentHTML('beforeend',
-					'<style id="de-csshide" type="text/css">.de-post-hid > ' + aib.qHide + ' { display: none !important; }</style>');
-				$del(doc.head.lastChild);
-			}
-		} else {
-			this.el.classList.remove('de-post-hid');
-			if(nav.Chrome) {
-				this.el.classList.add('de-post-unhid');
-				doc.head.insertAdjacentHTML('beforeend',
-					'<style id="de-cssunhide" type="text/css">.de-post-unhid > ' + aib.qHide + ' { display: !important; }</style>');
-				$del(doc.head.lastChild);
-			}
-		}
 	},
 	toggleImages: function(expand) {
 		for(var dat, i = 0, imgs = this.allImages, len = imgs.length; i < len; ++i) {
@@ -8738,7 +8748,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			this.isOp = post.isOp;
 			btns.classList.remove('de-ppanel-cnt');
 			if(post.hidden) {
-				btns.classList.add('de-post-hid');
+				btns.classList.add('de-post-hide');
 			}
 			btns.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + 
 				'" de-menu="hide" title="' + Lng.togglePost[lang] + '"></span>' + pText;
