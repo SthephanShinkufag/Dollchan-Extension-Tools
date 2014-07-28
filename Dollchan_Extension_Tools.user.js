@@ -6585,9 +6585,6 @@ PostForm.prototype = {
 			}
 		}.bind(this), false);
 		if(this.cap) {
-			if(aib.abu && (el = $t('script', this.cap))) {
-				$del(el);
-			}
 			if(!(aib.fch && doc.cookie.indexOf('pass_enabled=1') > -1)) {
 				this.capTr = getAncestor(this.cap, 'TR');
 				this.txta.addEventListener('focus', this._captchaInit.bind(this, this.capTr.innerHTML), false);
@@ -10149,6 +10146,7 @@ function getImageBoard(checkDomains, checkOther) {
 			if(pageNum === val + 1) {
 				val++;
 			}
+			Object.defineProperty(this, 'lastPage', { value: val });
 			return val;
 		},
 		prot: window.location.protocol,
