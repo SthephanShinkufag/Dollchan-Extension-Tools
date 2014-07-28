@@ -488,7 +488,7 @@ aib, nav, brd, TNum, pageNum, updater, keyNav, firstThr, lastThr, visPosts = 2, 
 YouTube, WebmParser, Logger,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-ajaxInterval, lang, quotetxt = '', liteMode, isExpImg, isPreImg,
+ajaxInterval, lang, quotetxt = '', liteMode, isExpImg, isPreImg, chromeCssUpd,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = function() {};
 
@@ -1474,7 +1474,6 @@ function showContent(cont, id, name, remove, data) {
 			cln.btn.parentNode.className = 'de-ppanel';
 			cln.btn.onclick = function() { // doesn't work properly. TODO: Fix
 				this.hideContent(this.hidden = !this.hidden);
-				this.hideChrome();
 			}.bind(cln);
 			(block || (block = cont.appendChild(
 				$add('<div class="de-content-block"><b>' + Lng.hiddenPosts[lang] + ':</b></div>')
@@ -1486,7 +1485,6 @@ function showContent(cont, id, name, remove, data) {
 					$each($Q('.de-cloned-post', this.parentNode), function(el) {
 						var post = el.post;
 						post.hideContent(post.hidden = !post.hidden);
-						post.hideChrome();
 					});
 					this.value = this.value === Lng.undo[lang] ? Lng.expandAll[lang] : Lng.undo[lang];
 				}),
@@ -7406,10 +7404,8 @@ IAttachmentData.prototype = {
 		if(val === -1) {
 			if(this.post.hidden) {
 				this.post.hideContent(false);
-				this.post.hideChrome();
 				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 				this.post.hideContent(true);
-				this.post.hideChrome();
 			} else {
 				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 			}
@@ -7963,26 +7959,28 @@ Post.prototype = {
 			this._handleMouseEvents(e.relatedTarget, true);
 		}
 	},
-	hideChrome: function() {
-		if(nav.Chrome) {
-			doc.head.insertAdjacentHTML('beforeend',
-				'<style id="de-csshide" type="text/css">\
-					.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
-					.de-post-unhide > ' + aib.qHide + ' { display: !important; }\
-				</style>');
-			$del(doc.head.lastChild);
-		}
-	},
 	hideContent: function(hide) {
 		if(hide) {
 			this.el.classList.add('de-post-hide');
-			if(nav.Chrome) {
-				this.el.classList.remove('de-post-unhide');
-			}
 		} else {
 			this.el.classList.remove('de-post-hide');
-			if(nav.Chrome) {
+		}
+		if(nav.Chrome) {
+			if(hide) {
+				this.el.classList.remove('de-post-unhide');
+			} else {
 				this.el.classList.add('de-post-unhide');
+			}
+			if(!chromeCssUpd) {
+				chromeCssUpd = setTimeout(function() {
+					doc.head.insertAdjacentHTML('beforeend',
+						'<style id="de-csshide" type="text/css">\
+							.de-post-hide > ' + aib.qHide + ' { display: none !important; }\
+							.de-post-unhide > ' + aib.qHide + ' { display: !important; }\
+						</style>');
+					$del(doc.head.lastChild);
+					chromeCssUpd = null;
+				}, 200);
 			}
 		}
 	},
@@ -8172,12 +8170,10 @@ Post.prototype = {
 			}
 			this._pref.onmouseover = this._pref.onmouseout = hide && function(e) {
 				this.hideContent(e.type === 'mouseout');
-				this.hideChrome();
 			}.bind(this);
 		}
 		this.hidden = hide;
 		this.hideContent(hide);
-		this.hideChrome();
 		if(Cfg['strikeHidd']) {
 			setTimeout(this._strikePostNum.bind(this, hide), 50);
 		}
