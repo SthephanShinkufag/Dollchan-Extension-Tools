@@ -5915,7 +5915,7 @@ function scriptCSS() {
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-opref::after { content: " [OP]"; }\
-		.de-parea { text-align: center;}\
+		.de-parea { clear: both; text-align: center; }\
 		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
 		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
@@ -6391,20 +6391,17 @@ PostForm.prototype = {
 	_lastCapUpdate: 0,
 	_pBtn: [],
 	_init: function() {
+		var btn, el;
 		this.pForm = $New('div', {'id': 'de-pform'}, [this.form, this.oeForm]);
-		var temp, el, btn = $New('div', {'class': 'de-' + (TNum ? 'make-reply' : 'create-thread')}, [
-			$txt('['),
-			$new('a', {'href': '#'}, null),
-			$txt(']')
-		]);
-		$before(dForm, this.pArea[0] = $New('div', {'class': 'de-parea'}, [btn, doc.createElement('hr')]));
-		this._pBtn[0] = btn;
-		btn.firstElementChild.addEventListener('click', this.showMainReply.bind(this, false), true);
-		btn = btn.cloneNode(true);
-		btn.firstElementChild.addEventListener('click', this.showMainReply.bind(this, true), true);
-		$after(aib.fch ? $c('board', dForm) : dForm, this.pArea[1] =
-			$New('div', {'class': 'de-parea'}, [btn, doc.createElement('hr')]));
-		this._pBtn[1] = btn;
+		dForm.insertAdjacentHTML('beforebegin', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+		this.pArea[0] = dForm.previousSibling;
+		this._pBtn[0] = this.pArea[0].firstChild;
+		this._pBtn[0].firstElementChild.onclick = this.showMainReply.bind(this, false);
+		el = aib.fch ? $c('board', dForm) : dForm;
+		el.insertAdjacentHTML('afterend', '<div class="de-parea"><div>[<a href="#"></a>]</div><hr></div>');
+		this.pArea[1] = el.nextSibling;
+		this._pBtn[1] = this.pArea[1].firstChild;
+		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 		this.qArea = $add('<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
 		this.isTopForm = Cfg['addPostForm'] !== 0;
 		this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
@@ -6588,8 +6585,8 @@ PostForm.prototype = {
 			}
 		}.bind(this), false);
 		if(this.cap) {
-			if(aib.abu && (temp = $t('script', this.cap))) {
-				$del(temp);
+			if(aib.abu && (el = $t('script', this.cap))) {
+				$del(el);
 			}
 			if(!(aib.fch && doc.cookie.indexOf('pass_enabled=1') > -1)) {
 				this.capTr = getAncestor(this.cap, 'TR');
