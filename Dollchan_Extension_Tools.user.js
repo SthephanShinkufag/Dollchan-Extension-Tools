@@ -5913,7 +5913,7 @@ function scriptCSS() {
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-opref::after { content: " [OP]"; }\
-		.de-parea { clear: both; text-align: center; }\
+		.de-parea { text-align: center; }\
 		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
 		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
