@@ -2289,7 +2289,10 @@ function addSettings(Set, id) {
 			}),
 			$New('div', {'style': 'float: right;'}, [
 				addEditButton('cfg', function(Fn) {
-					Fn(Cfg, true, saveComCfg.bind(null, aib.dm));
+					Fn(Cfg, true, function(data) {
+						saveComCfg(aib.dm, data);
+						window.location.reload();
+					});
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(('global' in comCfg) && !$isEmpty(comCfg['global'])) {
