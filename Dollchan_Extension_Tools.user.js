@@ -7295,7 +7295,7 @@ IAttachmentData.prototype = {
 				newW = newH * this.width / this.height;
 			}
 		}
-		return [newW, newH]
+		return [newW / Post.sizing.dPxRatio, newH / Post.sizing.dPxRatio];
 	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
@@ -7709,6 +7709,11 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 	return false;
 };
 Post.sizing = {
+	get dPxRatio() {
+		var val = window.devicePixelRatio || 1;
+		Object.defineProperty(this, 'dPxRatio', { value: val });
+		return val;
+	},
 	get wHeight() {
 		var val = window.innerHeight;
 		if(!this._enabled) {
