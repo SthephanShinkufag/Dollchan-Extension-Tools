@@ -9589,8 +9589,9 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			anchor: { value: '#p' },
-			css: { value: 'hr.desktop, #mpostform, .navLinks, .postingMode, #togglePostFormLink { display: none !important; }\
-				.postForm { display: table !important; }' },
+			css: { value: '.backlink, .extButton, hr.desktop, .navLinks, .postMenuBtn, #togglePostFormLink { display: none !important; }\
+				.postForm { display: table !important; }\
+				textarea { margin-right: 0 !important; }' },
 			docExt: { value: '' },
 			firstPage: { value: 1 },
 			formButtons: { get: function() {
@@ -10492,7 +10493,7 @@ function replaceString(txt) {
 	}
 	if(aib.fch || aib.krau) {
 		if(aib.fch) {
-			txt = txt.replace(/<wbr>/g, '');
+			txt = txt.replace(/(?:<span>)?([^\s<>]+)<wbr>([^\s<>]+)(?:<\/span>)?/g, '$1$2');
 		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(<\/a>)?(?=$|<|\s)/ig, function(x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
