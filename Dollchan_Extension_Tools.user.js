@@ -2237,7 +2237,6 @@ function getCfgInfo() {
 
 function addEditButton(name, getDataFn) {
 	return $btn(Lng.edit[lang], Lng.editInTxt[lang], function(getData) {
-		$alert('Loading', 'edit-' + name, false);
 		getData(function(val, isJSON, saveFn) {
 			var ta = $new('textarea', {
 				'class': 'de-editor',
@@ -5874,7 +5873,7 @@ function scriptCSS() {
 	x += '.de-abtn { text-decoration: none !important; outline: none; }\
 		.de-after-fimg { clear: left; }\
 		#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\
-		#de-alert > div { float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
+		#de-alert > div { overflow: auto !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\
 		.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\
 		.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\
 		.de-alert-msg { display: inline-block; }\
@@ -5896,7 +5895,7 @@ function scriptCSS() {
 		.de-file > .de-file-utils { display: none; }\
 		.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
 		.de-file > div > div { display: table-cell; vertical-align: middle; }\
-		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px; vertical-align: top; width: 132px; height: 132px; border: none !important; cursor: pointer; }\
+		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px !important; vertical-align: top; width: 132px !important; height: 132px; border: none !important; cursor: pointer; }\
 		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
 		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
 		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 126px; }\
