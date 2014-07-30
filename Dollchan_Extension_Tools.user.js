@@ -1141,7 +1141,7 @@ function saveHiddenThreads(updContent) {
 
 function readFavoritesPosts() {
 	getStoredObj('DESU_Favorites', function(fav) {
-		var thr, temp, update = false;
+		var thr, temp, num, update = false;
 		if(nav.isChromeStorage && (temp = locStorage.getItem('DESU_Favorites'))) {
 			temp = JSON.parse(temp);
 			locStorage.removeItem('DESU_Favorites');
@@ -1162,13 +1162,13 @@ function readFavoritesPosts() {
 			temp = temp[brd];
 		}
 		for(thr = firstThr; thr; thr = thr.next) {
-			if(thr.num in temp) {
+			if((num = thr.num) in temp) {
 				$c('de-btn-fav', thr.op.btns).className = 'de-btn-fav-sel';
 				if(TNum) {
-					temp[thr.num]['cnt'] = thr.pcount;
-					temp[thr.num]['new'] = 0;
+					temp[num]['cnt'] = thr.pcount;
+					temp[num]['new'] = 0;
 				} else {
-					temp[thr.num]['new'] = thr.pcount - temp[thr.num]['cnt'];
+					temp[num]['new'] = thr.pcount - temp[num]['cnt'];
 				}
 				update = true;
 			}
@@ -1621,8 +1621,10 @@ function showFavoriteTable(cont, data) {
 						$add('<a href="' + i['url'] + '">№' + tNum + '</a>'),
 						$add('<span class="de-fav-title"> - ' + i['txt'] + '</span>'),
 						$add('<span class="de-fav-inf-page"></span>'),
-						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' + i['cnt'] +
-							'</span>][<span class="de-fav-inf-new">' + i['new'] + '</span>]</span>')
+						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
+							i['cnt'] + '</span>]<span class="de-fav-inf-new"' +
+							(i['new'] === 0 ? ' style="display: none;"' : '') +
+							'>' + i['new'] + '</span></span>')
 					])
 				]));
 			}
@@ -1644,7 +1646,7 @@ function showFavoriteTable(cont, data) {
 						b = el.getAttribute('de-board'),
 						num = el.getAttribute('de-num'),
 						f = fav[host][b][num];
-					if(host !== aib.host || TNum && num === TNum && b === brd) {
+					if(host !== aib.host) {
 						queue.end(qIdx);
 						return;
 					}
@@ -1655,7 +1657,10 @@ function showFavoriteTable(cont, data) {
 						var cnt = aib.getPosts(form).length + 1 - this.previousElementSibling.textContent;
 						this.textContent = cnt;
 						this.classList.remove('de-wait');
-						if(cnt > 0) {
+						if(cnt === 0) {
+							this.style.display = 'none';
+						} else {
+							this.style.display = '';
 							f['new'] = cnt;
 							update = true;
 						}
@@ -5894,6 +5899,7 @@ function scriptCSS() {
 		.de-entry > div > a { text-decoration: none; }\
 		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 16px serif; }\
 		.de-fav-inf-new { color: #424f79; }\
+		.de-fav-inf-new:before { content: " + "; }\
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
@@ -9441,7 +9447,9 @@ Thread.prototype = {
 				if(el = $id('de-content-fav')) {
 					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-old', el);
 					el.textContent = this.pcount;
-					el.nextElementSibling.textContent = 0;
+					el = el.nextElementSibling;
+					el.style.display = 'none';
+					el.textContent = 0;
 				}
 				f['cnt'] = this.pcount;
 				f['new'] = 0;
