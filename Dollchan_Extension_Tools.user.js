@@ -433,6 +433,9 @@ Lng = {
 	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
 	favThrds:		['Избранные треды:', 'Favorite threads:'],
 	noFavThrds:		['Нет избранных тредов...', 'Favorites is empty...'],
+	oldPosts:		['Постов при последнем посещении', 'Posts at the last visit'],
+	newPosts:		['Количество новых постов', 'Number of new posts'],
+	thrPage:		['Тред на @странице', 'Thread on @page'],
 	replyTo:		['Ответ в', 'Reply to'],
 	replies:		['Ответы:', 'Replies:'],
 	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
@@ -1612,10 +1615,11 @@ function showFavoriteTable(cont, data) {
 					b + '" de-num="' + tNum + '" de-url="' + i['url'] + '"><div class="' + aib.cReply +
 					'"><input type="checkbox"><span class="de-btn-expthr"></span><a href="' + i['url'] +
 					'">№' + tNum + '</a><span class="de-fav-title"> - ' + i['txt'] +
-					'</span><span class="de-fav-inf-page"></span><span class="de-fav-inf-posts">' +
-					'[<span class="de-fav-inf-old">' + i['cnt'] + '</span>]<span class="de-fav-inf-new"' +
-					(i['new'] ? '' : ' style="display: none;"') + '>' +
-					(i['new'] || 0) + '</span></span></div></div>');
+					'</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
+					Lng.oldPosts[lang] + '">' + i['cnt'] + '</span>]<span class="de-fav-inf-new" title="' +
+					Lng.newPosts[lang] + '"' + (i['new'] ? '>' : ' style="display: none;">') +
+					(i['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
+					Lng.thrPage[lang] + '"></span></span></div></div>');
 				block.lastChild.firstChild.firstChild.nextSibling.onclick = loadFavorThread;
 			}
 		}
@@ -5887,7 +5891,7 @@ function scriptCSS() {
 		.de-entry { margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
-		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 14px serif; }\
+		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-new:before { content: " + "; }\
 		.de-fav-inf-old { color: #4f7942; }\
