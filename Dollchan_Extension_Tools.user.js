@@ -1608,25 +1608,15 @@ function showFavoriteTable(cont, data) {
 				if(!i['url'].startsWith('http')) {
 					i['url'] = (h === aib.host ? aib.prot + '//' : 'http://') + h + i['url'];
 				}
-				block.appendChild($New('div', {
-					'class': 'de-entry',
-					'de-host': h,
-					'de-board': b,
-					'de-num': tNum,
-					'de-url': i['url']
-				}, [
-					$New('div', {'class': aib.cReply}, [
-						$add('<input type="checkbox">'),
-						$new('span', {'class': 'de-btn-expthr'}, {'click': loadFavorThread}),
-						$add('<a href="' + i['url'] + '">№' + tNum + '</a>'),
-						$add('<span class="de-fav-title"> - ' + i['txt'] + '</span>'),
-						$add('<span class="de-fav-inf-page"></span>'),
-						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-							i['cnt'] + '</span>]<span class="de-fav-inf-new"' +
-							(i['new'] ? '' : ' style="display: none;"') + '>' +
-							(i['new'] || 0) + '</span></span>')
-					])
-				]));
+				block.insertAdjacentHTML('beforeend', '<div class="de-entry" de-host="' + h + '" de-board="' +
+					b + '" de-num="' + tNum + '" de-url="' + i['url'] + '"><div class="' + aib.cReply +
+					'"><input type="checkbox"><span class="de-btn-expthr"></span><a href="' + i['url'] +
+					'">№' + tNum + '</a><span class="de-fav-title"> - ' + i['txt'] +
+					'</span><span class="de-fav-inf-page"></span><span class="de-fav-inf-posts">' +
+					'[<span class="de-fav-inf-old">' + i['cnt'] + '</span>]<span class="de-fav-inf-new"' +
+					(i['new'] ? '' : ' style="display: none;"') + '>' +
+					(i['new'] || 0) + '</span></span></div></div>');
+				block.lastChild.firstChild.firstChild.nextSibling.onclick = loadFavorThread;
 			}
 		}
 	}
