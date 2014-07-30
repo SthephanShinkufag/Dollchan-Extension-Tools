@@ -5897,7 +5897,7 @@ function scriptCSS() {
 		.de-entry { margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
-		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 16px serif; }\
+		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 14px serif; }\
 		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-new:before { content: " + "; }\
 		.de-fav-inf-old { color: #4f7942; }\
