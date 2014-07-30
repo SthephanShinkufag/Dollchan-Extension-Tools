@@ -1164,7 +1164,12 @@ function readFavoritesPosts() {
 		for(thr = firstThr; thr; thr = thr.next) {
 			if(thr.num in temp) {
 				$c('de-btn-fav', thr.op.btns).className = 'de-btn-fav-sel';
-				temp[thr.num]['cnt'] = thr.pcount;
+				if(TNum) {
+					temp[thr.num]['cnt'] = thr.pcount;
+					temp[thr.num]['new'] = 0;
+				} else {
+					temp[thr.num]['new'] = thr.pcount - temp[thr.num]['cnt'];
+				}
 				update = true;
 			}
 		}
@@ -1592,6 +1597,9 @@ function showFavoriteTable(cont, data) {
 			block = addContentBlock(cont, i['url'] ?
 				$new('a', {'href': i['url'], 'text': h + '/' + b}, null) :
 				$new('b', {'text': h + '/' + b}, null));
+			if(h === aib.host && b === brd) {
+				block.classList.add('de-fav-current');
+			}
 			for(tNum in data[h][b]) {
 				if(tNum === 'url') {
 					continue;
@@ -1605,7 +1613,6 @@ function showFavoriteTable(cont, data) {
 					'de-host': h,
 					'de-board': b,
 					'de-num': tNum,
-					'de-count': i['cnt'],
 					'de-url': i['url']
 				}, [
 					$New('div', {'class': aib.cReply}, [
@@ -1614,8 +1621,8 @@ function showFavoriteTable(cont, data) {
 						$add('<a href="' + i['url'] + '">№' + tNum + '</a>'),
 						$add('<span class="de-fav-title"> - ' + i['txt'] + '</span>'),
 						$add('<span class="de-fav-inf-page"></span>'),
-						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
-							i['cnt'] + '</span>]</span>')
+						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' + i['cnt'] +
+							'</span>][<span class="de-fav-inf-new">' + i['new'] + '</span>]</span>')
 					])
 				]));
 			}
@@ -1634,35 +1641,32 @@ function showFavoriteTable(cont, data) {
 				var i, els, len, update = false;
 				var queue = new $queue(4, function(qIdx, num, el) {
 					var c, host = el.getAttribute('de-host'),
-						brd = el.getAttribute('de-board'),
+						b = el.getAttribute('de-board'),
 						num = el.getAttribute('de-num'),
-						count = el.getAttribute('de-count'),
-						f = fav[host][brd][num];
-					if(host !== aib.host) {
+						f = fav[host][b][num];
+					if(host !== aib.host || TNum && num === TNum && b === brd) {
 						queue.end(qIdx);
 						return;
 					}
-					c = $c('de-fav-inf-posts', el).firstElementChild;
-					c.className = 'de-wait';
-					c.textContent = '';
-					ajaxLoad(aib.getThrdUrl(brd, num), true, function(form, xhr) {
-						var cnt = aib.getPosts(form).length + 1;
-						c.textContent = cnt;
-						if(cnt > count) {
-							c.className = 'de-fav-inf-new';
-							f.cnt = cnt;
+					el = $c('de-fav-inf-new', el);
+					el.classList.add('de-wait');
+					el.textContent = '';
+					ajaxLoad(aib.getThrdUrl(b, num), true, function(form, xhr) {
+						var cnt = aib.getPosts(form).length + 1 - this.previousElementSibling.textContent;
+						this.textContent = cnt;
+						this.classList.remove('de-wait');
+						if(cnt > 0) {
+							f['new'] = cnt;
 							update = true;
-						} else {
-							c.className = 'de-fav-inf-old';
 						}
 						queue.end(qIdx);
-						c = f = qIdx = null;
-					}, function(eCode, eMsg, xhr) {
-						c.textContent = getErrorMessage(eCode, eMsg);
-						c.className = 'de-fav-inf-old';
+						f = qIdx = null;
+					}.bind(el), function(eCode, eMsg, xhr) {
+						this.textContent = getErrorMessage(eCode, eMsg);
+						this.classList.remove('de-wait');
 						queue.end(qIdx);
-						c = qIdx = null;
-					});
+						qIdx = null;
+					}.bind(el));
 				}, function() {
 					if(update) {
 						setStored('DESU_Favorites', JSON.stringify(fav));
@@ -1709,20 +1713,21 @@ function showFavoriteTable(cont, data) {
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
-				var c = $c('de-fav-inf-posts', el).firstElementChild;
-				c.className = 'de-wait';
+				var node = $c('de-fav-inf-old', el);
+				node.className = 'de-wait';
 				ajaxLoad(el.getAttribute('de-url'), false, function() {
-					c.className = 'de-fav-inf-old';
+					this.classList.remove('de-wait');
 					queue.end(qIdx);
-					c = qIdx = null;
-				}, function(eCode, eMsg, xhr) {
+					qIdx = null;
+				}.bind(node), function(eCode, eMsg, xhr) {
 					if(eCode === 404) {
-						c.textContent = getErrorMessage(eCode, eMsg);
+						this.textContent = getErrorMessage(eCode, eMsg);
+						this.classList.remove('de-wait');
 						el.setAttribute('de-removed', '');
 					}
 					queue.end(qIdx);
-					c = qIdx = el = null;
-				});
+					qIdx = el = null;
+				}.bind(node));
 			}, function() {
 				queue = null;
 				clearFavoriteTable();
@@ -5888,8 +5893,8 @@ function scriptCSS() {
 		.de-entry > :first-child { float: none !important; }\
 		.de-entry > div > a { text-decoration: none; }\
 		.de-fav-inf-posts, .de-fav-inf-page { float: right; margin-right: 5px; font: bold 16px serif; }\
+		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-old { color: #4f7942; }\
-		.de-fav-inf-new { color: blue; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
 		.de-file > .de-file-del { float: right; }\
@@ -9275,6 +9280,7 @@ Thread.prototype = {
 				fav[h][brd]['url'] = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
 				fav[h][brd][num] = {
 					'cnt': this.pcount,
+					'new': 0,
 					'txt': this.op.title,
 					'url': aib.getThrdUrl(brd, num)
 				};
@@ -9429,6 +9435,19 @@ Thread.prototype = {
 			this.pcount = len + 1;
 			saveSpells = true;
 		}
+		getStoredObj('DESU_Favorites', function(fav) {
+			var el, f, h = aib.host;
+			if(fav[h] && fav[h][brd] && (f = fav[h][brd][this.op.num])) {
+				if(el = $id('de-content-fav')) {
+					el = $q('.de-fav-current > .de-entry[de-num="' + this.op.num + '"] .de-fav-inf-old', el);
+					el.textContent = this.pcount;
+					el.nextElementSibling.textContent = 0;
+				}
+				f['cnt'] = this.pcount;
+				f['new'] = 0;
+				saveFavorites(fav);
+			}
+		}.bind(this));
 		if(saveSpells) {
 			spells.end(savePosts);
 		}
