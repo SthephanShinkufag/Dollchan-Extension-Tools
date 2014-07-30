@@ -1708,8 +1708,8 @@ function showFavoriteTable(cont, data) {
 		}),
 		$btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 			var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
-				var node = $c('de-fav-inf-old', el);
-				node.className = 'de-wait';
+				var node = $c('de-fav-inf-page', el);
+				node.classList.add('de-wait');
 				ajaxLoad(el.getAttribute('de-url'), false, function() {
 					this.classList.remove('de-wait');
 					queue.end(qIdx);
