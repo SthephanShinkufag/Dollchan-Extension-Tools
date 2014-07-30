@@ -424,7 +424,11 @@ Lng = {
 	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
 	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
 	infoPage:		['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
-	clrDeleted:		['Очистить записи недоступных тредов', 'Clear notes of inaccessible threads'],
+	clrDeleted:		['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
+	oldPosts:		['Постов при последнем посещении', 'Posts at the last visit'],
+	newPosts:		['Количество новых постов', 'Number of new posts'],
+	thrPage:		['Тред на @странице', 'Thread on @page'],
+	findThrd:		['Найти/Загрузить тред', 'Find/Load thread'],
 	hiddenPosts:	['Скрытые посты на странице', 'Hidden posts on the page'],
 	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
 	noHidPosts:		['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
@@ -433,9 +437,6 @@ Lng = {
 	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
 	favThrds:		['Избранные треды:', 'Favorite threads:'],
 	noFavThrds:		['Нет избранных тредов...', 'Favorites is empty...'],
-	oldPosts:		['Постов при последнем посещении', 'Posts at the last visit'],
-	newPosts:		['Количество новых постов', 'Number of new posts'],
-	thrPage:		['Тред на @странице', 'Thread on @page'],
 	replyTo:		['Ответ в', 'Reply to'],
 	replies:		['Ответы:', 'Replies:'],
 	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
@@ -1613,10 +1614,10 @@ function showFavoriteTable(cont, data) {
 				}
 				block.insertAdjacentHTML('beforeend', '<div class="de-entry" de-host="' + h + '" de-board="' +
 					b + '" de-num="' + tNum + '" de-url="' + i['url'] + '"><div class="' + aib.cReply +
-					'"><input type="checkbox"><span class="de-btn-expthr"></span><a href="' + i['url'] +
-					'">№' + tNum + '</a><span class="de-fav-title"> - ' + i['txt'] +
-					'</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
-					Lng.oldPosts[lang] + '">' + i['cnt'] + '</span>]<span class="de-fav-inf-new" title="' +
+					'"><input type="checkbox"><span class="de-btn-expthr" title="' + Lng.findThrd[lang] +
+					'"></span><a href="' + i['url'] + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
+					i['txt'] + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
+					Lng.oldPosts[lang] + '">' + i['cnt'] + '</span>] <span class="de-fav-inf-new" title="' +
 					Lng.newPosts[lang] + '"' + (i['new'] ? '>' : ' style="display: none;">') +
 					(i['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
 					Lng.thrPage[lang] + '"></span></span></div></div>');
@@ -1632,7 +1633,7 @@ function showFavoriteTable(cont, data) {
 				Fn(val, true, saveFavorites);
 			}.bind(null, Fn));
 		}),
-		$btn(Lng.info[lang], Lng.infoCount[lang], function() {
+		$btn(Lng.refresh[lang], Lng.infoCount[lang], function() {
 			getStoredObj('DESU_Favorites', function(fav) {
 				var i, els, len, update = false;
 				var queue = new $queue(4, function(qIdx, num, el) {
@@ -5893,7 +5894,7 @@ function scriptCSS() {
 		.de-entry > div > a { text-decoration: none; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-inf-new { color: #424f79; }\
-		.de-fav-inf-new:before { content: " + "; }\
+		.de-fav-inf-new:before { content: "+ "; }\
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
