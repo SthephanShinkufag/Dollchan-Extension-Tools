@@ -2811,7 +2811,7 @@ KeyNavigation.prototype = {
 				firstThr.hidden ? firstThr.nextNotHidden : firstThr;
 			return thr ? thr.op : null;
 		}
-		return cPost ? cPost.getAdjacentVisPost(toUp) : firstTht.hidden ||
+		return cPost ? cPost.getAdjacentVisPost(toUp) : firstThr.hidden ||
 			firstThr.op.hidden ? firstThr.op.getAdjacentVisPost(toUp) : firstThr.op;
 	},
 	_init: function(keys) {
