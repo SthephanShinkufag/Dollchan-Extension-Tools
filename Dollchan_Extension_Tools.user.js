@@ -1623,8 +1623,8 @@ function showFavoriteTable(cont, data) {
 						$add('<span class="de-fav-inf-page"></span>'),
 						$add('<span class="de-fav-inf-posts">[<span class="de-fav-inf-old">' +
 							i['cnt'] + '</span>]<span class="de-fav-inf-new"' +
-							(i['new'] === 0 ? ' style="display: none;"' : '') +
-							'>' + i['new'] + '</span></span>')
+							(i['new'] ? '' : ' style="display: none;"') + '>' +
+							(i['new'] || 0) + '</span></span>')
 					])
 				]));
 			}
@@ -1651,16 +1651,16 @@ function showFavoriteTable(cont, data) {
 						return;
 					}
 					el = $c('de-fav-inf-new', el);
-					el.classList.add('de-wait');
+					el.style.display = '';
 					el.textContent = '';
+					el.className = 'de-wait';
 					ajaxLoad(aib.getThrdUrl(b, num), true, function(form, xhr) {
 						var cnt = aib.getPosts(form).length + 1 - this.previousElementSibling.textContent;
 						this.textContent = cnt;
-						this.classList.remove('de-wait');
+						this.className = 'de-fav-inf-new';
 						if(cnt === 0) {
 							this.style.display = 'none';
 						} else {
-							this.style.display = '';
 							f['new'] = cnt;
 							update = true;
 						}
