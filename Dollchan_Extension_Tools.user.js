@@ -7291,19 +7291,25 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var scrH, width = this.width / Post.sizing.dPxRatio,
-			height = this.height / Post.sizing.dPxRatio,
-			scrW = inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth,
-			newW = !Cfg['resizeImgs'] || width < (scrW - 5) ? width : scrW - 5,
-			newH = newW * height / width;
-		if(!inPost) {
-			scrH = Post.sizing.wHeight;
-			if(Cfg['resizeImgs'] && newH > scrH) {
-				newH = scrH - 2;
-				newW = newH * width / height;
+		var temp, ar, width = this.width / Post.sizing.dPxRatio,
+			height = this.height / Post.sizing.dPxRatio;
+		if(Cfg['resizeImgs']) {
+			temp = (inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth) - 5;
+			if(width > temp) {
+				ar = height / width;
+				width = temp;
+				height = temp * ar;
+			}
+			if(!inPost) {
+				temp = Post.sizing.wHeight - 2;
+				if(height > temp) {
+					ar = width / height;
+					height = temp;
+					width = temp * ar;
+				}
 			}
 		}
-		return [newW, newH];
+		return [width, height];
 	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
