@@ -7294,12 +7294,6 @@ IAttachmentData.prototype = {
 		var temp, ar, width = this.width / Post.sizing.dPxRatio,
 			height = this.height / Post.sizing.dPxRatio;
 		if(Cfg['resizeImgs']) {
-			temp = (inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth) - 5;
-			if(width > temp) {
-				ar = height / width;
-				width = temp;
-				height = temp * ar;
-			}
 			if(!inPost) {
 				temp = Post.sizing.wHeight - 2;
 				if(height > temp) {
@@ -7307,6 +7301,12 @@ IAttachmentData.prototype = {
 					height = temp;
 					width = temp * ar;
 				}
+			}
+			temp = (inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth) - 5;
+			if(width > temp) {
+				ar = height / width;
+				width = temp;
+				height = temp * ar;
 			}
 		}
 		return [width, height];
