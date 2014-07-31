@@ -7291,17 +7291,19 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var newH, newW, scrH, scrW = inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth;
-		newW = !Cfg['resizeImgs'] || this.width < (scrW - 5) ? this.width : scrW - 5;
-		newH = newW * this.height / this.width;
+		var scrH, width = this.width / Post.sizing.dPxRatio,
+			height = this.height / Post.sizing.dPxRatio,
+			scrW = inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth,
+			newW = !Cfg['resizeImgs'] || width < (scrW - 5) ? width : scrW - 5,
+			newH = newW * height / width;
 		if(!inPost) {
 			scrH = Post.sizing.wHeight;
 			if(Cfg['resizeImgs'] && newH > scrH) {
 				newH = scrH - 2;
-				newW = newH * this.width / this.height;
+				newW = newH * width / height;
 			}
 		}
-		return [newW / Post.sizing.dPxRatio, newH / Post.sizing.dPxRatio];
+		return [newW, newH];
 	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
