@@ -482,6 +482,8 @@ Lng = {
 	seErrRegex:		['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
 	seUnexpChar:	['неожиданный символ: %s', 'unexpected character: %s'],
 	seMissClBkt:	['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
+	seRepsInParens:	['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
+	seOpInReps:		['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'don\'t use operator %s with spells #rep & #outrep'],
 	seRow:			[' (строка ', ' (row '],
 	seCol:			[', столбец ', ', column ']
 },
@@ -4744,54 +4746,15 @@ Spells.prototype = {
 		this._hasComplFns = true;
 	},
 	parseText: function(str) {
-		var codeGen, spells, reps = [],
-			outreps = [], regexError = false,
-			checkRegex = function(exp, reg) {
-				if(!regexError) {
-					try {
-						toRegExp(reg, false);
-					} catch(e) {
-						var line = str.substr(0, str.indexOf(exp)).match(/\n/g).length + 1;
-						$alert(Lng.error[lang] + ': ' + Lng.seErrRegex[lang].replace('%s', reg) +
-							Lng.seRow[lang] + line + ')', 'help-err-spell', false);
-						regexError = true;
-					}
-				}
-			};
-		str = String(str).replace(/[\s\n]+$/, '').replace(
-			/([^\\]\)|^)?[\n\s]*(#rep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
-			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-				checkRegex(fullExp, reg);
-				reps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				return preOp || '';
-			}
-		).replace(
-			/([^\\]\)|^)?[\n\s]*(#outrep(?:\[([a-z0-9]+)(?:(,)|,(\s*[0-9]+))?\])?\((\/.*?[^\\]\/[ig]*)(?:,\)|,(.*?[^\\])?\)))[\n\s]*/g,
-			function(exp, preOp, fullExp, b, nt, t, reg, txt) {
-				checkRegex(fullExp, reg);
-				outreps.push([b, nt ? -1 : t, reg, (txt || '').replace(/\\\)/g, ')')]);
-				return preOp || '';
-			}
-		);
-		checkRegex = null;
-		if(regexError) {
-			return null;
-		}
-		if(reps.length === 0) {
-			reps = false;
-		}
-		if(outreps.length === 0) {
-			outreps = false;
-		}
-		codeGen = new SpellsCodegen(str);
-		spells = codeGen.generate();
+		var codeGen = new SpellsCodegen(str),
+			data = codeGen.generate();
 		if(codeGen.hasError) {
 			$alert(Lng.error[lang] + ': ' + codeGen.error, 'help-err-spell', false);
-		} else if(spells || reps || outreps) {
-			if(spells && Cfg['sortSpells']) {
-				this.sort(spells);
+		} else if(data) {
+			if(data[0] && Cfg['sortSpells']) {
+				this.sort(data[0]);
 			}
-			return [Date.now(), spells, reps, outreps];
+			return [Date.now(), data[0], data[1], data[2]];
 		}
 		return null;
 	},
@@ -4956,6 +4919,7 @@ SpellsCodegen.prototype = {
 	TYPE_NOT: 2,
 	TYPE_SPELL: 3,
 	TYPE_PARENTHESES: 4,
+	TYPE_REPLACER: 5,
 
 	generate: function() {
 		return this._sList ? this._generate(this._sList, false) : null;
@@ -4973,8 +4937,11 @@ SpellsCodegen.prototype = {
 	_generate: function(sList, inParens) {
 		var res, name, i = 0,
 			len = sList.length,
-			data = [],
-			lastType = this.TYPE_UNKNOWN;
+			spells = [],
+			reps = [],
+			outreps = [],
+			lastType = this.TYPE_UNKNOWN,
+			hasReps = false;
 		for(; i < len; i++, this._col++) {
 			switch(sList[i]) {
 			case '\n':
@@ -4983,10 +4950,6 @@ SpellsCodegen.prototype = {
 			case '\r':
 			case ' ': continue;
 			case '#':
-				if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
-					this._setError(Lng.seMissOp[lang], null);
-					return null;
-				}
 				name = '';
 				i++;
 				this._col++;
@@ -4995,16 +4958,66 @@ SpellsCodegen.prototype = {
 					i++;
 					this._col++;
 				}
-				res = this._doSpell(name, sList.substr(i), lastType === this.TYPE_NOT)
-				if(!res) {
-					return null;
+				if(name === 'rep' || name === 'outrep') {
+					if(!hasReps) {
+						if(inParens) {
+							this._col -= 1 + name.length;
+							this._setError(Lng.seRepsInParens[lang], '#' + name);
+							return null;
+						}
+						if(lastType === this.TYPE_ANDOR || lastType === this.TYPE_NOT) {
+							i -= 1 + name.length;
+							this._col -= 1 + name.length;
+							lookBack:
+							while(i >= 0) {
+								switch(sList[i]) {
+								case '\n':
+								case '\r':
+								case ' ':
+									i--;
+									this._col--;
+									break;
+								default:
+									break lookBack;
+								}
+							}
+							this._setError(Lng.seOpInReps[lang], sList[i]);
+							return null;
+						}
+						hasReps = true;
+					}
+					res = this._doRep(name, sList.substr(i));
+					if(!res) {
+						return null;
+					}
+					if(name === 'rep') {
+						reps.push(res[1]);
+					} else {
+						outreps.push(res[1]);
+					}
+					i += res[0] - 1;
+					this._col += res[0] - 1;
+					lastType = this.TYPE_REPLACER;
+				} else {
+					if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
+						this._setError(Lng.seMissOp[lang], null);
+						return null;
+					}
+					res = this._doSpell(name, sList.substr(i), lastType === this.TYPE_NOT)
+					if(!res) {
+						return null;
+					}
+					i += res[0] - 1;
+					this._col += res[0] - 1;
+					spells.push(res[1]);
+					lastType = this.TYPE_SPELL;
 				}
-				i += res[0] - 1;
-				this._col += res[0] - 1;
-				data.push(res[1]);
-				lastType = this.TYPE_SPELL;
 				break;
 			case '(':
+				if(hasReps) {
+					this._setError(Lng.seUnexpChar[lang], '(');
+					return null;
+				}
 				if(lastType === this.TYPE_SPELL || lastType === this.TYPE_PARENTHESES) {
 					this._setError(Lng.seMissOp[lang], null);
 					return null;
@@ -5014,21 +5027,29 @@ SpellsCodegen.prototype = {
 					return null;
 				}
 				i += res[0] + 1;
-				data.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
+				spells.push([lastType === this.TYPE_NOT ? 0x1FF : 0xFF, res[1]]);
 				lastType = this.TYPE_PARENTHESES;
 				break;
 			case '|':
 			case '&':
+				if(hasReps) {
+					this._setError(Lng.seUnexpChar[lang], sList[i]);
+					return null;
+				}
 				if(lastType !== this.TYPE_SPELL && lastType !== this.TYPE_PARENTHESES) {
 					this._setError(Lng.seMissSpell[lang], null);
 					return null;
 				}
 				if(sList[i] === '&') {
-					data[data.length - 1][0] |= 0x200;
+					spells[spells.length - 1][0] |= 0x200;
 				}
 				lastType = this.TYPE_ANDOR;
 				break;
 			case '!':
+				if(hasReps) {
+					this._setError(Lng.seUnexpChar[lang], '!');
+					return null;
+				}
 				if(lastType !== this.TYPE_ANDOR && lastType !== this.TYPE_UNKNOWN) {
 					this._setError(Lng.seMissOp[lang], null);
 					return null;
@@ -5036,12 +5057,16 @@ SpellsCodegen.prototype = {
 				lastType = this.TYPE_NOT;
 				break;
 			case ')':
+				if(hasReps) {
+					this._setError(Lng.seUnexpChar[lang], ')');
+					return null;
+				}
 				if(lastType === this.TYPE_ANDOR || lastType === this.TYPE_NOT) {
 					this._setError(Lng.seMissSpell[lang], null);
 					return null;
 				}
 				if(inParens) {
-					return [i, data];
+					return [i, spells];
 				}
 			default:
 				this._setError(Lng.seUnexpChar[lang], sList[i]);
@@ -5052,28 +5077,90 @@ SpellsCodegen.prototype = {
 			this._setError(Lng.seMissClBkt[lang], null);
 			return null;
 		}
-		if(lastType !== this.TYPE_SPELL && lastType !== this.TYPE_PARENTHESES) {
+		if(lastType !== this.TYPE_SPELL && lastType !== this.TYPE_PARENTHESES &&
+		   lastType !== this.TYPE_REPLACER)
+		{
 			this._setError(Lng.seMissSpell[lang], null);
 			return null;
 		}
-		return data;
+		if(reps.length === 0) {
+			reps = false;
+		}
+		if(outreps.length === 0) {
+			outreps = false;
+		}
+		return [spells, reps, outreps];
+	},
+	_getScope: function(str) {
+		var scope, m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
+		if(m) {
+			return [m[0].length, [m[1], m[3] ? m[3] : m[2] ? -1 : false]];
+		}
+		return null;
+	},
+	_getRegex: function(str, haveComma) {
+		var val, m = str.match(/^\((\/.*?[^\\]\/[igm]*)(?:\)|\s*(,))/);
+		if(m) {
+			if(haveComma !== !!m[2]) {
+				return null;
+			}
+			val = m[1];
+			try {
+				toRegExp(val, true);
+			} catch(e) {
+				this._setError(Lng.seErrRegex[lang], val);
+				return null;
+			}
+			return [m[0].length, val];
+		}
+		return null;
+	},
+	_getText: function(str, haveBracket) {
+		var m = str.match(/^(\()?(.*?[^\\])\)/);
+		if(m) {
+			if(haveBracket !== !!m[1]) {
+				return null;
+			}
+			return [m[0].length, m[2].replace(/\\\)/g, ')')];
+		}
+		return null;
+	},
+	_doRep: function(name, str) {
+		var regex, val, scope = this._getScope(str);
+		if(scope) {
+			str = str.substring(scope[0]);
+		} else {
+			scope = [0, ['', '']];
+		}
+		regex = this._getRegex(str, true);
+		if(regex) {
+			str = str.substring(regex[0]);
+			if(str[0] === ')') {
+				return [regex[0] + scope[0] + 1, [scope[1][0], scope[1][1], regex[1], '']];
+			}
+			val = this._getText(str, false);
+			if(val) {
+				return [val[0] + regex[0] + scope[0], [scope[1][0], scope[1][1], regex[1], val[1]]];
+			}
+		}
+		this._setError(Lng.seSyntaxErr[lang], name);
+		return null;
 	},
 	_doSpell: function(name, str, isNeg) {
-		var scope, m, spellType, val, i = 0,
+		var scope, m, spellType, val, temp, i = 0,
+			scope = null,
 			spellIdx = Spells.names.indexOf(name);
 		if(spellIdx === -1) {
 			this._setError(Lng.seUnknown[lang], name);
 			return null;
 		}
-		spellType = isNeg ? spellIdx | 0x100 : spellIdx;
-		m = str.match(/^\[([a-z0-9\/]+)(?:(,)|,(\s*[0-9]+))?\]/);
-		if(m) {
-			i = m[0].length;
-			str = str.substring(i);
-			scope = [m[1], m[3] ? m[3] : m[2] ? -1 : false];
-		} else {
-			scope = null;
+		temp = this._getScope(str);
+		if(temp) {
+			i += temp[0];
+			str = str.substring(temp[0]);
+			scope = temp[1];
 		}
+		spellType = isNeg ? spellIdx | 0x100 : spellIdx;
 		if(str[0] !== '(' || str[1] === ')') {
 			if(Spells.needArg[spellIdx]) {
 				this._setError(Lng.seMissArg[lang], name);
@@ -5145,24 +5232,16 @@ SpellsCodegen.prototype = {
 		case 3:
 		case 5:
 		case 13:
-			m = str.match(/^\((\/.*?[^\\]\/[igm]*)\)/);
-			if(m) {
-				val = m[1];
-				try {
-					toRegExp(val, true);
-				} catch(e) {
-					this._setError(Lng.seErrRegex[lang], val);
-					return null;
-				}
-				return [i + m[0].length, [spellType, val, scope]];
+			temp = this._getRegex(str, false);
+			if(temp) {
+				return [i + temp[0], [spellType, temp[1], scope]];
 			}
 			break;
 		// #sage, #op, #all, #trip, #name, #words, #vauthor
 		default:
-			m = str.match(/^\((.*?[^\\])\)/);
-			if(m) {
-				val = m[1].replace(/\\\)/g, ')');
-				return [i + m[0].length, [spellType, spellIdx === 0 ? val.toLowerCase() : val, scope]];
+			temp = this._getText(str, true);
+			if(temp) {
+				return [i + temp[0], [spellType, spellIdx === 0 ? temp[1].toLowerCase() : temp[1], scope]];
 			}
 		}
 		this._setError(Lng.seSyntaxErr[lang], name);
