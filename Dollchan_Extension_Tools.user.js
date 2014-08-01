@@ -3511,7 +3511,7 @@ function initMessageFunctions() {
 			}
 			return;
 		case 'B':
-			$del($id('de-fav-wait'));
+			closeAlert($id('de-alert-load-favthr'));
 			$id('de-iframe-fav').style.height = data + 'px';
 			return;
 		}
@@ -4356,10 +4356,10 @@ function loadFavorThread() {
 	}
 	$del($id('de-iframe-fav'));
 	$c('de-content', doc).style.overflowY = 'scroll';
+	$alert(Lng.loading[lang], 'load-favthr', true);
 	el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-fav" id="de-iframe-fav" src="' +
-		$t('a', el).href + '" scrolling="no" style="border: none; width: ' +
-		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"><div id="de-fav-wait" ' +
-		'class="de-wait" style="font-size: 1.1em; text-align: center">' + Lng.loading[lang] + '</div>');
+		$t('a', el).href + '" scrolling="no" style="display: block; border: none; width: ' +
+		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;">');
 }
 
 function loadPages(count) {
@@ -7078,9 +7078,6 @@ AttachmentViewer.prototype = {
 	},
 	handleEvent: function(e) {
 		var temp, isOverEvent = false;
-		if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
-			return;
-		}
 		switch(e.type) {
 		case 'mousedown':
 			this._oldX = e.clientX;
@@ -7104,6 +7101,9 @@ AttachmentViewer.prototype = {
 			doc.body.removeEventListener('mouseup', this, true);
 			return;
 		case 'click':
+			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
+				return;
+			}
 			if(e.button === 0) {
 				if(this._moved) {
 					this._moved = false;
