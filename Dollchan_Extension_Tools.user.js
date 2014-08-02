@@ -9968,20 +9968,10 @@ function getImageBoard(checkDomains, checkOther) {
 			getPNum: { value: function(post) {
 				return post.getAttribute('data-num');
 			} },
-			getSage: { writable: true, value: function(post) {
-				if($c('postertripid', dForm)) {
-					this.getSage = function(post) {
-						return !$c('postertripid', post);
-					};
-				} else {
-					this.getSage = Object.getPrototypeOf(this).getSage;
-				}
-				return this.getSage(post);
-			} },
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
 			formButtons: { get: function() {
