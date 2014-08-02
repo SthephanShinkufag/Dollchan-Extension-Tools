@@ -6860,7 +6860,6 @@ FileInput.prototype = {
 			oldEl = this.el;
 		oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
 		newEl = this.el.nextSibling;
-		newEl.obj = this;
 		if(form.file === oldEl) {
 			form.file = newEl;
 		}
