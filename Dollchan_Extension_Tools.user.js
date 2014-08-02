@@ -2486,7 +2486,7 @@ function addAudioNotifMenu(el) {
 function KeyNavigation() {
 	KeyNavigation.readKeys(this._init.bind(this));
 }
-KeyNavigation.version = 5;
+KeyNavigation.version = 6;
 KeyNavigation.readKeys = function(Fn) {
 	getStored('DESU_keys', function(str) {
 		var tKeys, keys;
@@ -2517,7 +2517,10 @@ KeyNavigation.readKeys = function(Fn) {
 					keys[2][17] = keys[3][3];
 					keys[3][3] = keys[3].splice(4, 1)[0];
 				case 4:
-					keys[2][18] = tKeys[2][18];
+				case 5:
+					if(keys[2][18]) {
+						delete keys[2][18];
+					}
 				}
 				keys[0] = KeyNavigation.version;
 				setStored('DESU_keys', JSON.stringify(keys));
@@ -2567,8 +2570,7 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Strike text                */ 0xC054 /* = Alt+T      */,
 		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 		/* Code text                  */ 0xC043 /* = Alt+C      */,
-		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
-		/* Goto captcha (txt)         */ 0x8009 /* = Tab         */
+		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M */,
@@ -2736,14 +2738,6 @@ KeyNavigation.prototype = {
 					Attachment.viewer.navigate(true);
 				} else if(!TNum && this.lastPage !== aib.lastPage) {
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
-				}
-				break;
-			case 18:
-				if(e.target !== pr.txta) {
-					return;
-				}
-				if(pr.cap) {
-					pr.cap.focus();
 				}
 				break;
 			case -1:
@@ -6772,6 +6766,7 @@ PostForm.prototype = {
 		}
 		if(aib.mak) {
 			aib.updateCaptcha(false);
+			pr.txta.tabIndex = 999;
 			this.capInited = true;
 			return;
 		}
@@ -10010,6 +10005,7 @@ function getImageBoard(checkDomains, checkOther) {
 						el = $id('captcha-value');
 						if(el) {
 							pr.cap = el;
+							el.tabIndex = 999;
 							if(focus) {
 								el.focus();
 							}
