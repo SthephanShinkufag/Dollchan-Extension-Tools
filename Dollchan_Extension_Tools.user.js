@@ -9975,6 +9975,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			cssEn: { value: '.ABU-refmap, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
+				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
 			formButtons: { get: function() {
@@ -9989,6 +9990,18 @@ function getImageBoard(checkDomains, checkOther) {
 					'<div onclick="loadCaptcha();"></div>' +
 				'</div>');
 				this.updateCaptcha = doc.body.lastChild.firstChild;
+				var el = $q('tr.images-area', doc.body);
+				if(el && (el = el.nextElementSibling) && !el.hasAttribute('class')) {
+					el.addEventListener('click', function(e) {
+						if(e.target.tagName === 'IMG') {
+							this.updateCaptcha.click();
+						}
+						var el = $id('captcha-value');
+						if(el) {
+							el.focus();
+						}
+					}.bind(this), true);
+				}
 			} },
 			isBB: { value: true },
 			lastPage: { configurable: true, get: function() {
