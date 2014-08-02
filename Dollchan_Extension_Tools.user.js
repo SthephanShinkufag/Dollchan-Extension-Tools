@@ -9567,7 +9567,7 @@ Thread.prototype = {
 				tPost = this._addPost(fragm, nPosts[i], i + 1, tPost);
 				spells.check(tPost);
 			}
-			$after(this.op.el, fragm);
+			$after(this.op.wrap, fragm);
 			tPost.next = post;
 			if(post) {
 				post.prev = tPost;
