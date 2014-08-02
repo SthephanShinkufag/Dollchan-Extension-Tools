@@ -1012,6 +1012,9 @@ function readCfg(Fn) {
 				null
 			);
 		}
+		if(aib.mak) {
+			Cfg['fileThumb'] = 0;
+		}
 		saveComCfg(aib.dm, Cfg);
 		lang = Cfg['language'];
 		if(Cfg['correctTime']) {
@@ -2077,7 +2080,7 @@ function getCfgForm() {
 				ins[i].updateUtils();
 			}
 		})),
-		$if(pr.mail, $New('div', null, [
+		$if(!aib.mak && pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
 			lBox('saveSage', false, null)
 		])),
@@ -6275,9 +6278,9 @@ PostForm.prototype = {
 			ins[i].delUtils();
 		}
 	},
-	eventFiles: function(parent) {
+	eventFiles: function() {
 		this.fileInputs = [];
-		$each($Q('input[type="file"]', parent || this.fileTd), function(el) {
+		$each($Q('input[type="file"]', this.fileTd), function(el) {
 			if(!el.obj) {
 				el.obj = new FileInput(this, el);
 				el.obj.init(false);
@@ -6548,7 +6551,7 @@ PostForm.prototype = {
 				$del(this.subm.nextSibling);
 			}
 		}
-		if(Cfg['addSageBtn'] && this.mail) {
+		if(Cfg['addSageBtn'] && this.mail && !aib.mak) {
 			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
 				e.stopPropagation();
 				$pd(e);
@@ -6706,9 +6709,9 @@ PostForm.prototype = {
 		if(el = this.file) {
 			if('files' in el && el.files.length > 0) {
 				el.obj = new FileInput(this, el);
-				el.obj.clear(this.fileTd);
+				el.obj.clear();
 			} else {
-				this.eventFiles(null);
+				this.eventFiles();
 			}
 		}
 	},
@@ -6853,16 +6856,17 @@ FileInput.prototype = {
 	imgFile: null,
 	thumb: null,
 	clear: function(parent) {
-		var form = this.form,
-			cln = parent.cloneNode(false);
-		cln.innerHTML = parent.innerHTML;
-		parent.parentNode.replaceChild(cln, parent);
-		this.el.obj = this;
-		form.file = this.el = $q('input[type="file"]', cln);
-		if(!form.fileTd.parentNode) {
-			form.fileTd = cln;
+		var newEl, form = this.form,
+			oldEl = this.el;
+		oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
+		newEl = this.el.nextSibling;
+		newEl.obj = this;
+		if(form.file === oldEl) {
+			form.file = newEl;
 		}
-		form.eventFiles(cln);
+		this.el = newEl;
+		$del(oldEl);
+		form.eventFiles();
 	},
 	delUtils: function() {
 		if(Cfg['fileThumb']) {
@@ -6873,7 +6877,7 @@ FileInput.prototype = {
 		}
 		this.imgFile = this._delUtil = this._rjUtil = null;
 		this.haveBtns = false;
-		this.clear(this.el.parentNode);
+		this.clear();
 	},
 	updateUtils: function() {
 		this.init(true);
@@ -6920,7 +6924,7 @@ FileInput.prototype = {
 	},
 	init: function(inited) {
 		var imgTd, fileTr = this.form.fileTd.parentNode;
-		if(!aib.mak && Cfg['fileThumb']) {
+		if(Cfg['fileThumb']) {
 			fileTr.style.display = 'none';
 			imgTd = this.form.fileImageTD;
 			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
@@ -6984,7 +6988,7 @@ FileInput.prototype = {
 		if(Cfg['fileThumb']) {
 			this._showPviewImage();
 		} else {
-			this.form.eventFiles(null);
+			this.form.eventFiles();
 		}
 		if(!this.haveBtns) {
 			this.haveBtns = true;
@@ -7014,7 +7018,7 @@ FileInput.prototype = {
 		if(files && files[0]) {
 			fr = new FileReader();
 			fr.onload = function(e) {
-				this.form.eventFiles(null);
+				this.form.eventFiles();
 				var file = this.el.files[0],
 					thumb = this.thumb;
 				if(!thumb) {
@@ -9978,8 +9982,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			// FIXME: remove #de-txt-panel
-			cssEn: { value: '#de-txt-panel, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
+			cssEn: { value: '.postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
 			formButtons: { get: function() {
