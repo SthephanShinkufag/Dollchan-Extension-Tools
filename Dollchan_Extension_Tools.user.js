@@ -9613,14 +9613,14 @@ function getImageBoard(checkDomains, checkOther) {
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
-		get '2ch.cm'() { return [ibEngines['section.posts']]; },
+		/* get '2ch.cm'() { return [ibEngines['section.posts']]; },
 		get '2ch.hk'() { return [ibEngines['section.posts']]; },
 		get '2ch.pm'() { return [ibEngines['section.posts']]; },
 		get '2ch.re'() { return [ibEngines['section.posts']]; },
 		get '2ch.tf'() { return [ibEngines['section.posts']]; },
 		get '2ch.wf'() { return [ibEngines['section.posts']]; },
 		get '2ch.yt'() { return [ibEngines['section.posts']]; },
-		get '2-ch.so'() { return [ibEngines['section.posts']]; },
+		get '2-ch.so'() { return [ibEngines['section.posts']]; }, */
 		get '2-ch.su'() { return this['2--ch.ru']; },
 		'2--ch.ru': [{
 			tire: { value: true },
