@@ -7167,6 +7167,9 @@ AttachmentViewer.prototype = {
 		var temp, isOverEvent = false;
 		switch(e.type) {
 		case 'mousedown':
+			if(this.data.isVideo && this.data.isControlClick(e, this._elStyle.height)) {
+				return;
+			}
 			this._oldX = e.clientX;
 			this._oldY = e.clientY;
 			doc.body.addEventListener('mousemove', this, true);
