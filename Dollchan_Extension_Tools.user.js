@@ -9976,7 +9976,7 @@ function getImageBoard(checkDomains, checkOther) {
 				#de-txt-panel { font-size: 16px !important; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+					tag: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] }
 				});
 			} },
 			hasPicWrap: { value: true },
