@@ -9974,7 +9974,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
+			cssEn: { value: '.thread-nav, .ABU-refmap, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
