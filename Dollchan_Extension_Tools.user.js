@@ -305,54 +305,54 @@ Lng = {
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']
 	],
 
-	keyNavEdit:		[
-		'%l%i24 – предыдущая страница/изображение%/l' +
-		'%l%i217 – следующая страница/изображение%/l' +
-		'%l%i23 – скрыть текущий пост/тред%/l' +
-		'%l%i33 – раскрыть текущий тред%/l' +
-		'%l%i22 – быстрый ответ или создать тред%/l' +
-		'%l%i25t – отправить пост%/l' +
-		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l' +
-		'%l%i20 – тред (на доске)/пост (в треде) выше%/l' +
-		'%l%i31 – пост (на доске) ниже%/l' +
-		'%l%i30 – пост (на доске) выше%/l' +
-		'%l%i32 – открыть тред%/l' +
-		'%l%i210 – открыть/закрыть настройки%/l' +
-		'%l%i26 – открыть/закрыть избранное%/l' +
-		'%l%i27 – открыть/закрыть скрытые посты%/l' +
-		'%l%i28 – открыть/закрыть панель%/l' +
-		'%l%i29 – включить/выключить маскировку изображений%/l' +
-		'%l%i40 – обновить тред%/l' +
-		'%l%i211 – раскрыть изображение текущего поста%/l' +
-		'%l%i212t – жирный%/l' +
-		'%l%i213t – курсив%/l' +
-		'%l%i214t – зачеркнутый%/l' +
-		'%l%i215t – спойлер%/l' +
-		'%l%i216t – код%/l',
-		'%l%i24 – previous page/image%/l' +
-		'%l%i217 – next page/image%/l' +
-		'%l%i23 – hide current post/thread%/l' +
-		'%l%i33 – expand current thread%/l' +
-		'%l%i22 – quick reply or create thread%/l' +
-		'%l%i25t – send post%/l' +
-		'%l%i21 – thread (on board)/post (in thread) below%/l' +
-		'%l%i20 – thread (on board)/post (in thread) above%/l' +
-		'%l%i31 – on board post below%/l' +
-		'%l%i30 – on board post above%/l' +
-		'%l%i32 – open thread%/l' +
-		'%l%i210 – open/close Settings%/l' +
-		'%l%i26 – open/close Favorites%/l' +
-		'%l%i27 – open/close Hidden Posts Table%/l' +
-		'%l%i28 – open/close the main panel%/l' +
-		'%l%i29 – turn on/off masking images%/l' +
-		'%l%i40 – update thread%/l' +
-		'%l%i211 – expand current post\'s images%/l' +
-		'%l%i212t – bold%/l' +
-		'%l%i213t – italic%/l' +
-		'%l%i214t – strike%/l' +
-		'%l%i215t – spoiler%/l' +
+	keyNavEdit:		[[
+		'%l%i24 – предыдущая страница/изображение%/l',
+		'%l%i217 – следующая страница/изображение%/l',
+		'%l%i23 – скрыть текущий пост/тред%/l',
+		'%l%i33 – раскрыть текущий тред%/l',
+		'%l%i22 – быстрый ответ или создать тред%/l',
+		'%l%i25t – отправить пост%/l',
+		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l',
+		'%l%i20 – тред (на доске)/пост (в треде) выше%/l',
+		'%l%i31 – пост (на доске) ниже%/l',
+		'%l%i30 – пост (на доске) выше%/l',
+		'%l%i32 – открыть тред%/l',
+		'%l%i210 – открыть/закрыть настройки%/l',
+		'%l%i26 – открыть/закрыть избранное%/l',
+		'%l%i27 – открыть/закрыть скрытые посты%/l',
+		'%l%i28 – открыть/закрыть панель%/l',
+		'%l%i29 – включить/выключить маскировку изображений%/l',
+		'%l%i40 – обновить тред%/l',
+		'%l%i211 – раскрыть изображение текущего поста%/l',
+		'%l%i212t – жирный%/l',
+		'%l%i213t – курсив%/l',
+		'%l%i214t – зачеркнутый%/l',
+		'%l%i215t – спойлер%/l',
+		'%l%i216t – код%/l'], [
+		'%l%i24 – previous page/image%/l',
+		'%l%i217 – next page/image%/l',
+		'%l%i23 – hide current post/thread%/l',
+		'%l%i33 – expand current thread%/l',
+		'%l%i22 – quick reply or create thread%/l',
+		'%l%i25t – send post%/l',
+		'%l%i21 – thread (on board)/post (in thread) below%/l',
+		'%l%i20 – thread (on board)/post (in thread) above%/l',
+		'%l%i31 – on board post below%/l',
+		'%l%i30 – on board post above%/l',
+		'%l%i32 – open thread%/l',
+		'%l%i210 – open/close Settings%/l',
+		'%l%i26 – open/close Favorites%/l',
+		'%l%i27 – open/close Hidden Posts Table%/l',
+		'%l%i28 – open/close the main panel%/l',
+		'%l%i29 – turn on/off masking images%/l',
+		'%l%i40 – update thread%/l',
+		'%l%i211 – expand current post\'s images%/l',
+		'%l%i212t – bold%/l',
+		'%l%i213t – italic%/l',
+		'%l%i214t – strike%/l',
+		'%l%i215t – spoiler%/l',
 		'%l%i216t – code%/l'
-	],
+	]],
 
 	month:			[
 		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
@@ -2486,7 +2486,7 @@ function addAudioNotifMenu(el) {
 function KeyNavigation() {
 	KeyNavigation.readKeys(this._init.bind(this));
 }
-KeyNavigation.version = 4;
+KeyNavigation.version = 5;
 KeyNavigation.readKeys = function(Fn) {
 	getStored('DESU_keys', function(str) {
 		var tKeys, keys;
@@ -2516,6 +2516,8 @@ KeyNavigation.readKeys = function(Fn) {
 				case 3:
 					keys[2][17] = keys[3][3];
 					keys[3][3] = keys[3].splice(4, 1)[0];
+				case 4:
+					keys[2][18] = tKeys[2][18];
 				}
 				keys[0] = KeyNavigation.version;
 				setStored('DESU_keys', JSON.stringify(keys));
@@ -2565,7 +2567,8 @@ KeyNavigation.getDefaultKeys = function() {
 		/* Strike text                */ 0xC054 /* = Alt+T      */,
 		/* Spoiler text               */ 0xC050 /* = Alt+P      */,
 		/* Code text                  */ 0xC043 /* = Alt+C      */,
-		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */
+		/* Open next page/picture     */ 0x1027 /* = Ctrl+Right */,
+		/* Goto captcha (txt)         */ 0x8009 /* = Tab         */
 	];
 	var nonThrKeys = [
 		/* One post above */ 0x004D /* = M */,
@@ -2735,6 +2738,14 @@ KeyNavigation.prototype = {
 					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 				}
 				break;
+			case 18:
+				if(e.target !== pr.txta) {
+					return;
+				}
+				if(pr.cap) {
+					pr.cap.focus();
+				}
+				break;
 			case -1:
 				if(TNum) {
 					idx = this.tKeys.indexOf(kc);
@@ -2882,7 +2893,7 @@ function KeyEditListener(alertEl, keys, allKeys) {
 // Browsers have different codes for these keys (see KeyNavigation.readKeys):
 //		Firefox - '-' - 173, '=' - 61, ';' - 59
 //		Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
-KeyEditListener.keyCodes = ['',,,,,,,,'Backspace',/* Tab */,,,,'Enter',,,'Shift','Ctrl','Alt',
+KeyEditListener.keyCodes = ['',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',
 	/* Pause/Break */,/* Caps Lock */,,,,,,,/* Escape */,,,,,'Space',/* Page Up */,
 	/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,/* Delete */,,'0','1','2',
 	'3','4','5','6','7','8','9',,';',,'=',,,,'A','B','C','D','E','F','G','H','I','J','K','L','M',
@@ -2909,7 +2920,7 @@ KeyEditListener.getStrKey = function(key) {
 };
 KeyEditListener.getEditMarkup = function(keys) {
 	var allKeys = [];
-	var html = Lng.keyNavEdit[lang]
+	var html = Lng.keyNavEdit[lang].join('')
 		.replace(/%l/g, '<label class="de-block">')
 		.replace(/%\/l/g, '</label>')
 		.replace(/%i([2-4])([0-9]+)(t)?/g, function(aKeys, all, id1, id2, isText) {
@@ -6432,7 +6443,7 @@ PostForm.prototype = {
 			return;
 		}
 		if(aib.mak) {
-			aib.updateCaptcha.click();
+			aib.updateCaptcha(focus);
 		} else {
 			if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
 				return;
@@ -6760,7 +6771,9 @@ PostForm.prototype = {
 			$script('get_captcha()');
 		}
 		if(aib.mak) {
-			aib.updateCaptcha.click();
+			aib.updateCaptcha(false);
+			this.capInited = true;
+			return;
 		}
 		setTimeout(this._captchaUpd.bind(this), 100);
 	},
@@ -9986,19 +9999,25 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				$script('window.FormData = void 0;');
-				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-					'<div onclick="loadCaptcha();"></div>' +
-				'</div>');
-				this.updateCaptcha = doc.body.lastChild.firstChild;
 				var el = $q('tr.images-area', doc.body);
 				if(el && (el = el.nextElementSibling) && !el.hasAttribute('class')) {
+					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+						'<div onclick="loadCaptcha();"></div>' +
+					'</div>');
+					this.updateCaptcha = function(el, focus) {
+						this.click();
+						el.style.display = '';
+						el = $id('captcha-value');
+						if(el) {
+							pr.cap = el;
+							if(focus) {
+								el.focus();
+							}
+						}
+					}.bind(doc.body.lastChild.firstChild, el);
 					el.addEventListener('click', function(e) {
 						if(e.target.tagName === 'IMG') {
-							this.updateCaptcha.click();
-						}
-						var el = $id('captcha-value');
-						if(el) {
-							el.focus();
+							this.updateCaptcha(true);
 						}
 					}.bind(this), true);
 				}
