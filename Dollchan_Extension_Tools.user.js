@@ -9951,7 +9951,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qMsg: { value: '.post-message' },
 			qName: { value: '.ananimas' },
 			qOmitted: { value: '.mess-post' },
-			qPages: { value: '.pager > a:last-of-type' },
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
 			qTrunc: { value: null },
@@ -9979,9 +9978,16 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
+			// FIXME: remove #de-txt-panel
+			cssEn: { value: '#de-txt-panel, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
+			formButtons: { get: function() {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+				});
+			} },
+			hasPicWrap: { value: true },
 			init: { value: function() {
 				$script('window.FormData = void 0;');
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
@@ -9989,13 +9995,13 @@ function getImageBoard(checkDomains, checkOther) {
 				'</div>');
 				this.updateCaptcha = doc.body.lastChild.firstChild;
 			} },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
-				});
-			} },
-			hasPicWrap: { value: true },
 			isBB: { value: true },
+			lastPage: { configurable: true, get: function() {
+				var els = $Q('.pager > a:not([class])', doc),
+					val = els ? els.length : 1;
+				Object.defineProperty(this, 'lastPage', { value: val });
+				return val;
+			} },
 			rLinkClick: { value: '' }
 		},
 		'#ABU_css, #ShowLakeSettings': {
