@@ -6920,7 +6920,7 @@ FileInput.prototype = {
 	},
 	init: function(inited) {
 		var imgTd, fileTr = this.form.fileTd.parentNode;
-		if(Cfg['fileThumb']) {
+		if(!aib.mak && Cfg['fileThumb']) {
 			fileTr.style.display = 'none';
 			imgTd = this.form.fileImageTD;
 			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
