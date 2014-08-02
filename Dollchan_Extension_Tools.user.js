@@ -6289,7 +6289,7 @@ PostForm.prototype = {
 		}.bind(this));
 	},
 	handleEvent: function(e) {
-		var x, start, end, scrtop, title, id, txt, len, el = e.target;
+		var x, start, end, scrtop, id, len, val, el = e.target;
 		if(el.tagName !== 'SPAN') {
 			el = el.parentNode;
 		}
@@ -6320,10 +6320,10 @@ PostForm.prototype = {
 					.replace(/\n/gm, '\n> '));
 			} else {
 				scrtop = x.scrollTop;
-				txt = this._wrapText(el.hasAttribute('de-bb'), el.getAttribute('de-tag'),
+				val = this._wrapText(el.hasAttribute('de-bb'), el.getAttribute('de-tag'),
 					x.value.substring(start, end));
-				len = start + txt.length;
-				x.value = x.value.substr(0, start) + txt + x.value.substr(end);
+				len = start + val[0];
+				x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
 				x.setSelectionRange(len, len);
 				x.focus();
 				x.scrollTop = scrtop;
@@ -6639,7 +6639,7 @@ PostForm.prototype = {
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
-					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version);
+					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version)[1];
 				if(!val.contains(temp)) {
 					val += temp;
 				}
@@ -6829,20 +6829,22 @@ PostForm.prototype = {
 		this.capTr.style.display = '';
 	},
 	_wrapText: function(isBB, tag, text) {
-		var m;
+		var str, m;
 		if(isBB) {
 			if(text.contains('\n')) {
-				return '[' + tag + ']' + text + '[/' + tag + ']';
+				str = '[' + tag + ']' + text + '[/' + tag + ']';
+				return [str.length, str];
 			}
 			m = text.match(/^(\s*)(.*?)(\s*)$/);
-			return m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
+			str = m[1] + '[' + tag + ']' + m[2] + '[/' + tag + ']' + m[3];
+			return [m[2].length === 0 ? m[1].length + tag.length + 2 : str.length, str];
 		}
 		for(var rv = '', i = 0, arr = text.split('\n'), len = arr.length; i < len; ++i) {
 			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
 			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) :
 				tag + m[2] + tag) + m[3];
 		}
-		return rv.slice(1);
+		return [i === 1 && m[2].length === 0 ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
 	}
 }
 
