@@ -6844,7 +6844,8 @@ PostForm.prototype = {
 			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) :
 				tag + m[2] + tag) + m[3];
 		}
-		return [i === 1 && m[2].length === 0 ? m[1].length + tag.length : rv.length - 1, rv.slice(1)];
+		return [i === 1 && m[2].length === 0 && tag !== '^H' ? m[1].length + tag.length :
+		        rv.length - 1, rv.slice(1)];
 	}
 }
 
