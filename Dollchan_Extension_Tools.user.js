@@ -9873,9 +9873,11 @@ function getImageBoard(checkDomains, checkOther) {
 				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
 			} },
 			fixFileInputs: { value: function(el) {
-				$each($Q('input[type="file"]', $id('files_parent')), function(el) {
+				el = $id('files_parent');
+				$each($Q('input[type="file"]', el), function(el) {
 					el.removeAttribute('onchange');
 				});
+				el.firstElementChild.value = 1;
 			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
