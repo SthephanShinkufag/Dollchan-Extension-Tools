@@ -6283,10 +6283,11 @@ PostForm.prototype = {
 			inp.delUtils();
 		}
 	},
-	eventFiles: function() {
-		var i, len, inp, els, last = null;
+	eventFiles: function(clear) {
+		var i, len, inp, els, el, last = null;
 		for(i = 0, els = $Q('input[type="file"]', this.fileTd), len = els.length; i < len; ++i) {
-			inp = els[i].obj;
+			el = els[i];
+			inp = el.obj;
 			if(inp) {
 				inp.prev = last;
 				if(last) {
@@ -6294,8 +6295,11 @@ PostForm.prototype = {
 				}
 				last = inp;
 			} else {
-				els[i].obj = last = new FileInput(this, els[i], last);
+				el.obj = last = new FileInput(this, el, last);
 				last.init(false);
+				if(clear && el.files && el.files.length !== 0) {
+					last.clear();
+				}
 			}
 		}
 		this.fileObj = els[0].obj;
@@ -6719,12 +6723,8 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(el = this.file) {
-			if(!aib.fixFileInputs(el) && 'files' in el && el.files.length > 0) {
-				el.obj = new FileInput(this, el, null);
-				el.obj.clear();
-			} else {
-				this.eventFiles();
-			}
+			aib.fixFileInputs(el);
+			this.eventFiles(true);
 		}
 	},
 	_setSage: function() {
@@ -7041,7 +7041,7 @@ FileInput.prototype = {
 		if(Cfg['fileThumb']) {
 			this._showPviewImage();
 		} else {
-			this.form.eventFiles();
+			this.form.eventFiles(false);
 		}
 		if(this.empty) {
 			this.empty = false;
@@ -7078,7 +7078,7 @@ FileInput.prototype = {
 		if(files && files[0]) {
 			fr = new FileReader();
 			fr.onload = function(e) {
-				this.form.eventFiles();
+				this.form.eventFiles(false);
 				var file = this.el.files[0],
 					thumb = this.thumb;
 				if(this.empty) {
@@ -9707,7 +9707,6 @@ function getImageBoard(checkDomains, checkOther) {
 					'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' +
 					'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
 				el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
-				return true;
 			} },
 			hasPicWrap: { value: true },
 			isBB: { value: true },
@@ -9869,7 +9868,6 @@ function getImageBoard(checkDomains, checkOther) {
 				$each($Q('input[type="file"]', $id('files_parent')), function(el) {
 					el.removeAttribute('onchange');
 				});
-				return false;
 			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
@@ -9963,7 +9961,6 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 				node.innerHTML = str;
 				node.removeAttribute('id');
-				return true;
 			} },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -10419,9 +10416,7 @@ function getImageBoard(checkDomains, checkOther) {
 		dm: '',
 		docExt: '.html',
 		firstPage: 0,
-		fixFileInputs: function(el) {
-			return false;
-		},
+		fixFileInputs: emptyFn,
 		get _formButtons() {
 			var bb = this.isBB;
 			return {
