@@ -1003,7 +1003,6 @@ function readCfg(Fn) {
 			Cfg['stats']['view']++;
 		}
 		if(aib.dobr) {
-			Cfg['fileThumb'] = 0;
 			aib.hDTFix = new dateTime(
 				'yyyy-nn-dd-hh-ii-ss',
 				'_d _M _Y (_w) _h:_i ',
@@ -2072,7 +2071,7 @@ function getCfgForm() {
 		$if(pr.form, optSel('addPostForm', true, null)),
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
-		$if(pr.file && !aib.dobr && !nav.Presto, lBox('fileThumb', true, function() {
+		$if(pr.file && !nav.Presto, lBox('fileThumb', true, function() {
 			for(var inp = pr.fileObj; true; inp = inp.next) {
 				inp.updateUtils();
 				if(!inp.next) {
@@ -7817,7 +7816,7 @@ function Post(el, thr, num, count, isOp, prev) {
 		}
 		html += '<span class="de-btn-fav"></span>';
 	}
-	if(this.sage = aib.getSage(this.el)) {
+	if(this.sage = aib.getSage(el)) {
 		html += '<span class="de-btn-sage" title="SAGE"></span>';
 	}
 	// html += '<span class="de-btn-udolil" style="font-weight: bold; color: red; cursor: pointer;">[УДОЛИЛ!!11]</span>';
@@ -9691,6 +9690,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: null },
 			qTable: { value: 'table:not(.postfiles)' },
 			qThread: { value: '.threadz' },
+			getFileWrap: { value: function(el) {
+				return el.parentNode;
+			} },
 			getOmitted: { value: function(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
@@ -9700,6 +9702,13 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			css: { value: 'span[id$="_display"], #fastload { display: none !important; }' },
 			docExt: { value: '.html' },
+			fixFileInputs: { value: function(el) {
+				var str = '><input name="file" maxlength="4" ' +
+					'accept="|sid|7z|bz2|m4a|flac|lzh|mo3|rar|spc|fla|nsf|jpg|mpp|aac|gz|xm|wav|' +
+					'mp3|png|it|lha|torrent|swf|zip|mpc|ogg|jpeg|gif|mod" type="file"></input></div>';
+				el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+				return true;
+			} },
 			hasPicWrap: { value: true },
 			isBB: { value: true },
 			ru: { value: true }
@@ -9857,7 +9866,7 @@ function getImageBoard(checkDomains, checkOther) {
 				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
 			} },
 			fixFileInputs: { value: function(el) {
-				$each($q('input[type="file"]', el.parentNode.parentNode), function(el) {
+				$each($q('input[type="file"]', $id('files_parent')), function(el) {
 					el.removeAttribute('onchange');
 				});
 				return false;
