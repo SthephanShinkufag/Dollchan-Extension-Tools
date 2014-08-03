@@ -10033,7 +10033,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'post-title' },
 			qBan: { value: 'font[color="#C12267"]' }, // FIXME
-			qDForm: { value: '#posts-form' },
+			qDForm: { value: '#posts-form, #posts_form, #delform' },
 			qHide: { value: '.post-details ~ *' },
 			qImgLink: { value: '.file-attr > .desktop' },
 			qMsg: { value: '.post-message' },
@@ -10105,7 +10105,7 @@ function getImageBoard(checkDomains, checkOther) {
 			abu: { value: true },
 			
 			qBan: { value: 'font[color="#C12267"]' },
-			qDForm: { value: '#posts_form, #delform' },
+			qDForm: { value: '#posts-form, #posts_form, #delform' },
 			qOmitted: { value: '.mess_post, .omittedposts' },
 			qPostRedir: { value: null },
 			getImgWrap: { value: function(el) {
