@@ -6354,7 +6354,7 @@ PostForm.prototype = {
 			this.setReply(true, false);
 			$t('a', this._pBtn[+this.isTopForm]).className =
 				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
-			if(!TNum && !aib.kus && !aib.dobr) {
+			if(!TNum && !aib.kus && !aib.dobr && !aib.mak) {
 				if(this.oeForm) {
 					$del($q('input[name="oek_parent"]', this.oeForm));
 					this.oeForm.insertAdjacentHTML('afterbegin', '<input type="hidden" value="' +
