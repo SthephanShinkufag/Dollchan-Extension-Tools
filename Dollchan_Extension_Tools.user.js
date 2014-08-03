@@ -1012,9 +1012,6 @@ function readCfg(Fn) {
 				null
 			);
 		}
-		if(aib.mak) {
-			Cfg['fileThumb'] = 0;
-		}
 		saveComCfg(aib.dm, Cfg);
 		lang = Cfg['language'];
 		if(Cfg['correctTime']) {
@@ -2076,8 +2073,14 @@ function getCfgForm() {
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		$if(pr.file && !aib.dobr && !nav.Presto, lBox('fileThumb', true, function() {
-			for(var i = 0, ins = pr.fileInputs, len = ins.length; i < len; ++i) {
-				ins[i].updateUtils();
+			for(var inp = pr.fileObj; true; inp = inp.next) {
+				inp.updateUtils();
+				if(!inp.next) {
+					break;
+				}
+			}
+			if(inp.empty) {
+				inp.hideInputs();
 			}
 		})),
 		$if(!aib.mak && pr.mail, $New('div', null, [
@@ -5996,7 +5999,6 @@ function scriptCSS() {
 		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
 		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 126px; }\
 		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
-		.de-file-off + .de-file-off { display: none; }\
 		.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
 		.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
@@ -6197,8 +6199,6 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.file = $q('tr input[type="file"]', form);
 	if(this.file) {
 		this.fileTd = getAncestor(this.file, 'TD');
-		this.fileImgTd = getAncestor(this.txta, 'TD').previousElementSibling;
-		this.fileInputs = [];
 	}
 	this.passw = $q('tr input[type="password"]', form);
 	this.dpass = $q('input[type="password"], input[name="password"]', dForm);
@@ -6229,6 +6229,7 @@ PostForm.setUserPassw = function() {
 	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
 };
 PostForm.prototype = {
+	fileObj: null,
 	isHidden: false,
 	isQuick: false,
 	isTopForm: false,
@@ -6279,19 +6280,26 @@ PostForm.prototype = {
 		tPanel.innerHTML = html;
 	},
 	delFilesUtils: function() {
-		for(var i = 0, ins = this.fileInputs, len = ins.length; i < len; ++i) {
-			ins[i].delUtils();
+		for(var inp = this.fileObj; inp; inp = inp.next) {
+			inp.delUtils();
 		}
 	},
 	eventFiles: function() {
-		this.fileInputs = [];
-		$each($Q('input[type="file"]', this.fileTd), function(el) {
-			if(!el.obj) {
-				el.obj = new FileInput(this, el);
-				el.obj.init(false);
+		var i, len, inp, els, last = null;
+		for(i = 0, els = $Q('input[type="file"]', this.fileTd), len = els.length; i < len; ++i) {
+			inp = els[i].obj;
+			if(inp) {
+				inp.prev = last;
+				if(last) {
+					last.next = inp;
+				}
+				last = inp;
+			} else {
+				els[i].obj = last = new FileInput(this, els[i], last);
+				last.init(false);
 			}
-			this.fileInputs.push(el.obj);
-		}.bind(this));
+		}
+		this.fileObj = els[0].obj;
 	},
 	handleEvent: function(e) {
 		var x, start, end, scrtop, id, len, val, el = e.target;
@@ -6712,8 +6720,8 @@ PostForm.prototype = {
 			this.form.onsubmit = null;
 		}
 		if(el = this.file) {
-			if('files' in el && el.files.length > 0) {
-				el.obj = new FileInput(this, el);
+			if(!aib.fixFileInputs(el) && 'files' in el && el.files.length > 0) {
+				el.obj = new FileInput(this, el, null);
 				el.obj.clear();
 			} else {
 				this.eventFiles();
@@ -6857,36 +6865,50 @@ PostForm.prototype = {
 	}
 }
 
-function FileInput(form, el) {
+function FileInput(form, el, prev) {
 	this.el = el;
 	this.place = el.parentNode;
 	this.form = form;
+	this.prev = prev;
+	if(prev) {
+		prev.next = this;
+	}
 }
 FileInput.prototype = {
-	haveBtns: false,
+	empty: true,
+	next: null,
 	imgFile: null,
 	thumb: null,
-	clear: function(parent) {
+	clear: function() {
 		var newEl, form = this.form,
 			oldEl = this.el;
 		oldEl.insertAdjacentHTML('afterend', oldEl.outerHTML);
 		newEl = this.el.nextSibling;
+		newEl.obj = this;
+		newEl.addEventListener('change', this, false);
 		if(form.file === oldEl) {
 			form.file = newEl;
 		}
 		this.el = newEl;
 		$del(oldEl);
-		form.eventFiles();
+		this.empty = true;
+		this.hideInputs();
 	},
 	delUtils: function() {
+		var mParent;
 		if(Cfg['fileThumb']) {
-			this._delPview();
-		} else {
-			$del(this._delUtil);
-			$del(this._rjUtil);
+			this.thumb.classList.add('de-file-off');
+			if(this._mediaEl) {
+				window.URL.revokeObjectURL(this._mediaEl.src);
+				mParent = this._mediaEl.parentNode;
+				mParent.title = Lng.clickToAdd[lang];
+				$del(this._mediaEl);
+				this._mediaEl = null;
+			}
 		}
+		$del(this._delUtil);
+		$del(this._rjUtil);
 		this.imgFile = this._delUtil = this._rjUtil = null;
-		this.haveBtns = false;
 		this.clear();
 	},
 	updateUtils: function() {
@@ -6932,36 +6954,66 @@ FileInput.prototype = {
 		case 'mouseout': this.thumb.classList.remove('de-file-hover');
 		}
 	},
-	init: function(inited) {
-		var imgTd, fileTr = this.form.fileTd.parentNode;
+	hideInputs: function() {
+		var hideThumbs = Cfg['fileThumb'], inp = this.next;
+		while(inp && inp.empty) {
+			inp = inp.next;
+		}
+		if(!inp) {
+			inp = this;
+			while(inp.prev && inp.prev.empty) {
+				inp = inp.prev;
+			}
+			while(inp = inp.next) {
+				if(hideThumbs) {
+					inp.thumb.style.display = 'none';
+				} else {
+					inp._wrap.style.display = 'none';
+				}
+			}
+		}
+	},
+	init: function(update) {
+		var imgTD;
 		if(Cfg['fileThumb']) {
-			fileTr.style.display = 'none';
-			imgTd = this.form.fileImageTD;
-			imgTd.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
+			this.form.fileTd.parentNode.style.display = 'none';
+			imgTD = this.form.fileImageTD;
+			imgTD.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
-			this.thumb = imgTd.lastChild;
-			this.thumb.addEventListener('click', this, false);
+			this.thumb = imgTD.lastChild;
 			this.thumb.addEventListener('mouseover', this, false);
 			this.thumb.addEventListener('mouseout', this, false);
+			this.thumb.addEventListener('click', this, false);
 			this.thumb.addEventListener('dragover', this, false);
 			this.el.addEventListener('dragleave', this, false);
 			this.el.addEventListener('drop', this, false);
-			if(inited) {
+			if(update) {
 				this._showPviewImage();
+			} else if(this.prev) {
+				this.thumb.style.display = 'none';
 			}
-		} else if(inited) {
-			fileTr.style.display = '';
-			this._delPview();
+		} else if(update) {
+			this._wrap.style.display = '';
+			this.form.fileTd.parentNode.style.display = '';
+			if(this._mediaE) {
+				window.URL.revokeObjectURL(this._mediaE.src);
+			}
+			$del(this.thumb);
+			this.thumb = this._mediaEl = null;
 		}
-		if(!inited) {
+		if(!update) {
 			this.el.addEventListener('change', this, false);
 		}
 	},
 
+	_mediaEl: null,
 	_delUtil: null,
 	_rjUtil: null,
 	get _buttonsPlace() {
 		return Cfg['fileThumb'] ? this.thumb.firstChild : this.el;
+	},
+	get _wrap() {
+		return aib.getFileWrap(this.el);
 	},
 	_addRarJpeg: function() {
 		var el = this.form.rarInput;
@@ -6986,22 +7038,14 @@ FileInput.prototype = {
 		}.bind(this);
 		el.click();
 	},
-	_delPview: function() {
-		var thumb = this.thumb.firstChild.firstChild.firstChild;
-		if(thumb) {
-			window.URL.revokeObjectURL(thumb.src);
-		}
-		$del(this.thumb);
-		this.thumb = null;
-	},
 	_onFileChange: function() {
 		if(Cfg['fileThumb']) {
 			this._showPviewImage();
 		} else {
 			this.form.eventFiles();
 		}
-		if(!this.haveBtns) {
-			this.haveBtns = true;
+		if(this.empty) {
+			this.empty = false;
 			$after(this._buttonsPlace, this._delUtil = $new('span', {
 				'class': 'de-file-del de-file-utils',
 				'title': Lng.removeFile[lang]}, {
@@ -7009,6 +7053,13 @@ FileInput.prototype = {
 			}));
 		} else if(this.imgFile) {
 			this.imgFile = null;
+		}
+		if(this.next) {
+			if(Cfg['fileThumb']) {
+				this.next.thumb.style.display = '';
+			} else {
+				this.next._wrap.style.display = '';
+			}
 		}
 		if(aib.fch || nav.Presto || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
 			return;
@@ -7021,7 +7072,7 @@ FileInput.prototype = {
 			'class': 'de-file-rar de-file-utils',
 			'title': Lng.helpAddFile[lang]}, {
 			'click': this
-			}));
+		}));
 	},
 	_showPviewImage: function() {
 		var fr, files = this.el.files;
@@ -7031,16 +7082,16 @@ FileInput.prototype = {
 				this.form.eventFiles();
 				var file = this.el.files[0],
 					thumb = this.thumb;
-				if(!thumb) {
+				if(this.empty) {
 					return;
 				}
-				thumb.className = 'de-file';
+				thumb.classList.remove('de-file-off');
 				thumb = thumb.firstChild.firstChild;
 				thumb.title = file.name + ', ' + (file.size/1024).toFixed(2) + 'KB';
 				thumb.insertAdjacentHTML('afterbegin', file.type === 'video/webm' ?
 					'<video class="de-file-img" loop autoplay muted src=""></video>' :
 					'<img class="de-file-img" src="">');
-				thumb = thumb.firstChild;
+				this._mediaEl = thumb = thumb.firstChild;
 				thumb.src = window.URL.createObjectURL(new Blob([e.target.result]));
 				thumb = thumb.nextSibling;
 				if(thumb) {
@@ -9771,6 +9822,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '.pages > tbody > tr > td' },
 			qPostRedir: { value: 'select[name="goto"]' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
+			getFileWrap: { value: function(el) {
+				return el.parentNode;
+			} },
 			getImgLink: { value: function(img) {
 				var el = img.parentNode;
 				if(el.tagName === 'A') {
@@ -9801,6 +9855,12 @@ function getImageBoard(checkDomains, checkOther) {
 				.de-video-obj + div { clear: left; }' },
 			disableRedirection: { value: function(el) {
 				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
+			} },
+			fixFileInputs: { value: function(el) {
+				$each($q('input[type="file"]', el.parentNode.parentNode), function(el) {
+					el.removeAttribute('onchange');
+				});
+				return false;
 			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
@@ -9861,6 +9921,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qThread: { value: '.thread_body' },
 			qThumbImages: { value: 'img[id^="thumbnail_"]' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
+			getFileWrap: { value: function(el) {
+				return el.parentNode;
+			} },
 			getImgWrap: { value: function(el) {
 				return el.parentNode;
 			} },
@@ -9882,6 +9945,17 @@ function getImageBoard(checkDomains, checkOther) {
 					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
 					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
 					.de-video-obj + div { clear: left; }' },
+			fixFileInputs: { value: function(el) {
+				var i, len, node = $id('files_parent'),
+					str = '';
+				for(i = 0, len = 4; i < len; ++i) {
+					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
+						'><input type="file" name="file_' +  i + '" tabindex="7"></input></div>';
+				}
+				node.innerHTML = str;
+				node.removeAttribute('id');
+				return true;
+			} },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
@@ -10235,6 +10309,9 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
+		getFileWrap: function(el) {
+			return el;
+		},
 		getImgLink: function(img) {
 			var el = img.parentNode;
 			return el.tagName === 'SPAN' ? el.parentNode : el;
@@ -10333,6 +10410,9 @@ function getImageBoard(checkDomains, checkOther) {
 		dm: '',
 		docExt: '.html',
 		firstPage: 0,
+		fixFileInputs: function(el) {
+			return false;
+		},
 		get _formButtons() {
 			var bb = this.isBB;
 			return {
