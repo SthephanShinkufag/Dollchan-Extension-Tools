@@ -6908,6 +6908,7 @@ FileInput.prototype = {
 		$del(this._delUtil);
 		$del(this._rjUtil);
 		this.imgFile = this._delUtil = this._rjUtil = null;
+		this._changeFilesCount(-1);
 		this.clear();
 	},
 	updateUtils: function() {
@@ -7037,6 +7038,12 @@ FileInput.prototype = {
 		}.bind(this);
 		el.click();
 	},
+	_changeFilesCount: function(val) {
+		if(aib.dobr) {
+			var el = this.form.fileTd.firstElementChild;
+			el.value = +el.value + val;
+		}
+	},
 	_onFileChange: function() {
 		if(Cfg['fileThumb']) {
 			this._showPviewImage();
@@ -7045,6 +7052,7 @@ FileInput.prototype = {
 		}
 		if(this.empty) {
 			this.empty = false;
+			this._changeFilesCount(+1);
 			$after(this._buttonsPlace, this._delUtil = $new('span', {
 				'class': 'de-file-del de-file-utils',
 				'title': Lng.removeFile[lang]}, {
