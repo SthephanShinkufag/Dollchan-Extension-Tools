@@ -9866,7 +9866,7 @@ function getImageBoard(checkDomains, checkOther) {
 				($q(this.qPostRedir, el) || {}).selectedIndex = 1;
 			} },
 			fixFileInputs: { value: function(el) {
-				$each($q('input[type="file"]', $id('files_parent')), function(el) {
+				$each($Q('input[type="file"]', $id('files_parent')), function(el) {
 					el.removeAttribute('onchange');
 				});
 				return false;
