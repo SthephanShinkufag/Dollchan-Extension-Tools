@@ -47,7 +47,7 @@ defaultCfg = {
 	'timeRPattern':	'',		//    replace pattern
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		//    resize large images
-	'resizeDPI':	1,		//    honor dpi settings
+	'resizeDPI':	0,		//    honor dpi settings
 	'webmControl':	1,		//    control bar fow webm files
 	'webmVolume':	100,	//    default volume for webm files
 	'maskImgs':		0,		// mask images
