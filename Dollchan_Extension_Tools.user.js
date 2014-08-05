@@ -48,6 +48,7 @@ defaultCfg = {
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		//    resize large images
 	'resizeDPI':	0,		//    honor dpi settings
+	'zoomFactor':	25,		//    zoom images by this factor on every wheel event
 	'webmControl':	1,		//    control bar fow webm files
 	'webmVolume':	100,	//    default volume for webm files
 	'maskImgs':		0,		// mask images
@@ -151,6 +152,7 @@ Lng = {
 		},
 		'resizeDPI':	['Отображать изображения пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
+		'zoomFactor':	[' Чувствительность зума изображений [1-100]', ' Sensibility of the images zoom [1-100]'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
@@ -2002,10 +2004,15 @@ function getCfgImages() {
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('resizeImgs', true, null),
 			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
+			inpTxt('zoomFactor', 6, function() {
+				var val = Math.min(Math.max(+this.value, 1), 100);
+				saveCfg('zoomFactor', val);
+			}),
+			$txt(Lng.cfg['zoomFactor'][lang]),
 			lBox('webmControl', true, null),
 			inpTxt('webmVolume', 6, function() {
 				var val = +this.value;
-				saveCfg('webmVolume', val < 100 ? val : 100);
+				saveCfg('webmVolume', Math.min(val, 100));
 			}),
 			$txt(Lng.cfg['webmVolume'][lang])
 		]),
@@ -7299,8 +7306,8 @@ AttachmentViewer.prototype = {
 				oldW = parseFloat(this._elStyle.width),
 				oldH = parseFloat(this._elStyle.height),
 				d = nav.Firefox ? -e.detail : e.wheelDelta,
-				newW = oldW * (d > 0 ? 1.25 : 0.8),
-				newH = oldH * (d > 0 ? 1.25 : 0.8);
+				newW = d > 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
+				newH = d > 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
 			this._elStyle.width = newW + 'px';
 			this._elStyle.height = newH + 'px';
 			this._elStyle.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
@@ -7329,6 +7336,11 @@ AttachmentViewer.prototype = {
 	get _btns() {
 		var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
 		Object.defineProperty(this, '_btns', { value: val });
+		return val;
+	},
+	get _zoomFactor() {
+		var val = 1 + (Cfg['zoomFactor'] / 100);
+		Object.defineProperty(this, '_zoomFactor', { value: val });
 		return val;
 	},
 	_getHolder: function(data) {
