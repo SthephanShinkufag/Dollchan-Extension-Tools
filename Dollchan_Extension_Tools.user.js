@@ -47,6 +47,7 @@ defaultCfg = {
 	'timeRPattern':	'',		//    replace pattern
 	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
 	'resizeImgs':	1,		//    resize large images
+	'resizeDPI':	1,		//    honor dpi settings
 	'webmControl':	1,		//    control bar fow webm files
 	'webmVolume':	100,	//    default volume for webm files
 	'maskImgs':		0,		// mask images
@@ -148,6 +149,7 @@ Lng = {
 			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
 			txt:		['раскрывать изображения по клику', 'expand images on click']
 		},
+		'resizeDPI':	['Отображать изображения пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
@@ -1771,7 +1773,7 @@ function fixSettings() {
 		'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg['expandImgs'], [
-		'input[info="resizeImgs"]', 'input[info="webmControl"]', 'input[info="webmVolume"]'
+		'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="webmControl"]', 'input[info="webmVolume"]'
 	]);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
@@ -1999,6 +2001,7 @@ function getCfgImages() {
 		optSel('expandImgs', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('resizeImgs', true, null),
+			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
 			lBox('webmControl', true, null),
 			inpTxt('webmVolume', 6, function() {
 				var val = +this.value;
@@ -7448,8 +7451,12 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var temp, ar, width = this.width / Post.sizing.dPxRatio,
-			height = this.height / Post.sizing.dPxRatio;
+		var temp, ar, width = this.width,
+			height = this.height;
+		if(Cfg['resizeDPI']) {
+			width /= Post.sizing.dPxRatio;
+			height /= Post.sizing.dPxRatio;
+		}
 		if(Cfg['resizeImgs']) {
 			if(!inPost) {
 				temp = Post.sizing.wHeight - 2;
