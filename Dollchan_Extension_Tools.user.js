@@ -880,9 +880,11 @@ function resizeImage(size, minSize, maxSize) {
 	if(+size[idx] < +minSize) {
 		setImageSize(size, idx, minSize);
 	}
-	idx = size[2] > maxSize[2] ? 0 : 1;
-	if(+size[idx] > +maxSize[idx]) {
-		setImageSize(size, idx, +maxSize[idx]);
+	if(maxSize) {
+		idx = size[2] > maxSize[2] ? 0 : 1;
+		if(+size[idx] > +maxSize[idx]) {
+			setImageSize(size, idx, +maxSize[idx]);
+		}
 	}
 	return size;
 }
