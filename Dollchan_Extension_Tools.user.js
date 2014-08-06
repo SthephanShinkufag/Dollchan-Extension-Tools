@@ -51,6 +51,7 @@ defaultCfg = {
 	'zoomFactor':	25,		//    zoom images by this factor on every wheel event
 	'webmControl':	1,		//    control bar fow webm files
 	'webmVolume':	100,	//    default volume for webm files
+	'minImgSize':	1,		//    minimal image's size
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		//    detect built-in files in images
@@ -155,6 +156,7 @@ Lng = {
 		'zoomFactor':	[' Чувствительность зума изображений [1-100]', ' Sensibility of the images zoom [1-100]'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
+		'minImgSize':	['px - Минимальный размер изображения', 'px - Minimal image\'s size'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
@@ -863,6 +865,28 @@ function toRegExp(str, noG) {
 		flags = str.substr(l + 1);
 	return new RegExp(str.substr(1, l - 1), noG ? flags.replace('g', '') : flags);
 }
+
+function setImageSize(size, idx, nVal) {
+	size[idx] = nVal;
+	if(idx === 0) {
+		size[1] = nVal / size[2];
+	} else {
+		size[0] = nVal * size[2];
+	}
+}
+
+function resizeImage(size, minSize, maxSize) {
+	var idx = size[2] > 1 ? 1 : 0;
+	if(+size[idx] < +minSize) {
+		setImageSize(size, idx, minSize);
+	}
+	idx = size[2] > maxSize[2] ? 0 : 1;
+	if(+size[idx] > +maxSize[idx]) {
+		setImageSize(size, idx, +maxSize[idx]);
+	}
+	return size;
+}
+
 
 //============================================================================================================
 //											STORAGE & CONFIG
@@ -1775,8 +1799,10 @@ function fixSettings() {
 		'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg['expandImgs'], [
-		'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="webmControl"]', 'input[info="webmVolume"]'
+		'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="webmControl"]',
+		'input[info="webmVolume"]', 'input[info="minImgSize"]'
 	]);
+	toggleBox(Cfg['expandImgs'] === 2, ['input[info="zoomFactor"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
@@ -2005,16 +2031,22 @@ function getCfgImages() {
 			lBox('resizeImgs', true, null),
 			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
 			inpTxt('zoomFactor', 6, function() {
-				var val = Math.min(Math.max(+this.value, 1), 100);
-				saveCfg('zoomFactor', val);
+				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 			}),
 			$txt(Lng.cfg['zoomFactor'][lang]),
 			lBox('webmControl', true, null),
-			inpTxt('webmVolume', 6, function() {
-				var val = +this.value;
-				saveCfg('webmVolume', Math.min(val, 100));
-			}),
-			$txt(Lng.cfg['webmVolume'][lang])
+			$New('div', null, [
+				inpTxt('webmVolume', 6, function() {
+					saveCfg('webmVolume', Math.min(+this.value, 100));
+				}),
+				$txt(Lng.cfg['webmVolume'][lang])
+			]),
+			$New('div', null, [
+				inpTxt('minImgSize', 6, function() {
+					saveCfg('minImgSize', Math.max(+this.value, 1));
+				}),
+				$txt(Lng.cfg['minImgSize'][lang])
+			])
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
 		$if(!nav.Presto, $New('div', {'class': 'de-cfg-depend'}, [
@@ -7261,8 +7293,8 @@ AttachmentViewer.prototype = {
 			var curX = e.clientX,
 				curY = e.clientY;
 			if(curX !== this._oldX || curY !== this._oldY) {
-				this._elStyle.left = parseInt(this._elStyle.left, 10) + curX - this._oldX + 'px';
-				this._elStyle.top = parseInt(this._elStyle.top, 10) + curY - this._oldY + 'px';
+				this._elStyle.left = (this._oldL = parseInt(this._elStyle.left, 10) + curX - this._oldX) + 'px';
+				this._elStyle.top = (this._oldT = parseInt(this._elStyle.top, 10) + curY - this._oldY) + 'px';
 				this._oldX = curX;
 				this._oldY = curY;
 				this._moved = true;
@@ -7299,19 +7331,24 @@ AttachmentViewer.prototype = {
 			}
 			return;
 		default: // wheel event
-			var curX = e.clientX,
+			var tmp, curX = e.clientX,
 				curY = e.clientY,
-				oldL = parseInt(this._elStyle.left, 10),
-				oldT = parseInt(this._elStyle.top, 10),
-				oldW = parseFloat(this._elStyle.width),
-				oldH = parseFloat(this._elStyle.height),
-				d = nav.Firefox ? -e.detail : e.wheelDelta,
-				newW = d > 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
-				newH = d > 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
-			this._elStyle.width = newW + 'px';
-			this._elStyle.height = newH + 'px';
-			this._elStyle.left = parseInt(curX - (newW/oldW) * (curX - oldL), 10) + 'px';
-			this._elStyle.top = parseInt(curY - (newH/oldH) * (curY - oldT), 10) + 'px';
+				oldW = this._curW,
+				oldH = this._curH,
+				d = nav.Firefox ? -e.detail : nav.Presto ? e.wheelDelta : e.wheelDeltaY,
+				width = d > 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
+				height = d > 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
+			if(d < 0) {
+				tmp = resizeImage([width, height, this._ar], Cfg['minImgSize'], this._maxSize);
+				width = tmp[0];
+				height = tmp[1];
+			}
+			this._curW = width;
+			this._curH = height;
+			this._elStyle.width = width + 'px';
+			this._elStyle.height = height + 'px';
+			this._elStyle.left = (this._oldL = parseInt(curX - (width/oldW) * (curX - this._oldL), 10)) + 'px';
+			this._elStyle.top = (this._oldT = parseInt(curY - (height/oldH) * (curY - this._oldT), 10)) + 'px';
 		}
 		$pd(e);
 	},
@@ -7327,11 +7364,17 @@ AttachmentViewer.prototype = {
 		this._show(data, showButtons);
 	},
 
+	_ar: 0,
 	_data: null,
 	_elStyle: null,
 	_obj: null,
+	_oldL: 0,
+	_oldT: 0,
+	_curH: 0,
+	_curW: 0,
 	_oldX: 0,
 	_oldY: 0,
+	_maxSize: 0,
 	_moved: false,
 	get _btns() {
 		var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
@@ -7348,10 +7391,14 @@ AttachmentViewer.prototype = {
 			el = data.getFullObject(),
 			screenWidth = Post.sizing.wWidth,
 			screenHeight = Post.sizing.wHeight;
-		html = '<div class="de-pic-holder de-img-center" style="top:' +
-			((screenHeight - size[1]) / 2 - 1) + 'px; left:' +
-			((screenWidth - size[0]) / 2 - 1) + 'px; width:' +
-			size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
+		this._ar = size[0] / size[1];
+		this._curW = size[0];
+		this._curH = size[1];
+		this._maxSize = size[2];
+		this._oldL = (screenWidth - size[0]) / 2 - 1;
+		this._oldT = (screenHeight - size[1]) / 2 - 1;
+		html = '<div class="de-pic-holder de-img-center" style="top:' + this._oldT + 'px; left:' +
+			this._oldL + 'px; width:' + size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
 		obj = $add(html);
 		if(data.isImage) {
 			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.src + '"></a>');
@@ -7463,29 +7510,25 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var temp, ar, width = this.width,
+		var maxWidth, maxHeight, maxSize, temp, width = this.width,
 			height = this.height;
 		if(Cfg['resizeDPI']) {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
 		}
 		if(Cfg['resizeImgs']) {
-			if(!inPost) {
-				temp = Post.sizing.wHeight - 2;
-				if(height > temp) {
-					ar = width / height;
-					height = temp;
-					width = temp * ar;
-				}
+			if(inPost) {
+				maxSize = [Post.sizing.wWidth - this._offset, Number.MAX_SAFE_INTEGER, 0];
+			} else {
+				maxWidth = Post.sizing.wWidth - 5;
+				maxHeight = Post.sizing.wHeight - 2;
+				maxSize = [maxWidth, maxHeight, maxWidth / maxHeight];
 			}
-			temp = (inPost ? Post.sizing.wWidth - this._offset : Post.sizing.wWidth) - 5;
-			if(width > temp) {
-				ar = height / width;
-				width = temp;
-				height = temp * ar;
-			}
+		} else {
+			maxSize = null;
 		}
-		return [width, height];
+		temp = resizeImage([width, height, width / height], Cfg['minImgSize'], maxSize);
+		return [temp[0], temp[1], maxSize];
 	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
