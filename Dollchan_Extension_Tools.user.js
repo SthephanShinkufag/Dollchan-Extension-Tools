@@ -51,7 +51,7 @@ defaultCfg = {
 	'zoomFactor':	25,		//    zoom images by this factor on every wheel event
 	'webmControl':	1,		//    control bar fow webm files
 	'webmVolume':	100,	//    default volume for webm files
-	'minImgSize':	1,		//    minimal image's size
+	'minImgSize':	100,	//    minimal image's size
 	'maskImgs':		0,		// mask images
 	'preLoadImgs':	0,		// pre-load images
 	'findImgFile':	0,		//    detect built-in files in images
@@ -156,7 +156,7 @@ Lng = {
 		'zoomFactor':	[' Чувствительность зума изображений [1-100]', ' Sensibility of the images zoom [1-100]'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
-		'minImgSize':	['px - Минимальный размер изображения', 'px - Minimal image\'s size'],
+		'minImgSize':	[' Минимальный размер изображения (px)', ' Minimal image\'s size (px)'],
 		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
 		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
 		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
@@ -1802,9 +1802,8 @@ function fixSettings() {
 	]);
 	toggleBox(Cfg['expandImgs'], [
 		'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="webmControl"]',
-		'input[info="webmVolume"]', 'input[info="minImgSize"]'
+		'input[info="webmVolume"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]'
 	]);
-	toggleBox(Cfg['expandImgs'] === 2, ['input[info="zoomFactor"]']);
 	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
 	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
 	toggleBox(Cfg['linksNavig'], [
@@ -5795,7 +5794,8 @@ function scriptCSS() {
 	}
 
 	// Settings window
-	x += '.de-block { display: block; }\
+	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
+		.de-block { display: block; }\
 		#de-content-cfg > div { border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
@@ -5997,7 +5997,7 @@ function scriptCSS() {
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
 		.de-img-full { float: left; }\
-		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; }\
+		.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\
 		#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }' +
 		gif('#de-img-btn-next > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7') +
 		gif('#de-img-btn-prev > div', 'R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=') +
@@ -7376,7 +7376,7 @@ AttachmentViewer.prototype = {
 	_curW: 0,
 	_oldX: 0,
 	_oldY: 0,
-	_maxSize: 0,
+	_maxSize: null,
 	_moved: false,
 	get _btns() {
 		var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
@@ -7399,7 +7399,7 @@ AttachmentViewer.prototype = {
 		this._maxSize = size[2];
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
-		html = '<div class="de-pic-holder de-img-center" style="top:' + this._oldT + 'px; left:' +
+		html = '<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
 			this._oldL + 'px; width:' + size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
 		obj = $add(html);
 		if(data.isImage) {
