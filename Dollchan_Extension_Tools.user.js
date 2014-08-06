@@ -7400,7 +7400,7 @@ AttachmentViewer.prototype = {
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
 		html = '<div class="de-pic-holder de-img-center" style="top:' + this._oldT + 'px; left:' +
-			this._oldL + 'px; width:' + size[0] + 'px; height:' + size[1] + 'px; display: block"></div>';
+			this._oldL + 'px; width:' + (parseInt(size[0]) + 2) + 'px; height:' + (parseInt(size[1]) + 2) + 'px; display: block"></div>';
 		obj = $add(html);
 		if(data.isImage) {
 			obj.insertAdjacentHTML('afterbegin', '<a href="' + data.src + '"></a>');
