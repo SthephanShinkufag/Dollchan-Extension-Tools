@@ -6129,7 +6129,6 @@ function updateCSS() {
 	}
 	if(Cfg['noPostScrl']) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
-		x += '.expand-large-comment { display: none !important; }';
 	}
 	if(Cfg['noBoardRule']) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
