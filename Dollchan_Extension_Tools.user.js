@@ -884,11 +884,8 @@ function resizeImage(size, minSize, maxSize) {
 		idx = size[2] > maxSize[2] ? 0 : 1;
 		if(+size[idx] > +maxSize[idx]) {
 			setImageSize(size, idx, +maxSize[idx]);
-			size[2] = maxSize;
-			return size;
 		}
 	}
-	size[2] = null;
 	return size;
 }
 
@@ -7398,7 +7395,7 @@ AttachmentViewer.prototype = {
 		this._ar = size[0] / size[1];
 		this._curW = size[0];
 		this._curH = size[1];
-		this._maxSize = size[2];
+		this._maxSize = Cfg['minImgSize'] > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
 		html = '<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
@@ -7514,7 +7511,7 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var maxWidth, maxHeight, maxSize, width = this.width,
+		var maxWidth, maxHeight, maxSize, temp, width = this.width,
 			height = this.height;
 		if(Cfg['resizeDPI']) {
 			width /= Post.sizing.dPxRatio;
@@ -7531,7 +7528,8 @@ IAttachmentData.prototype = {
 		} else {
 			maxSize = null;
 		}
-		return resizeImage([width, height, width / height], Cfg['minImgSize'], maxSize)
+		temp = resizeImage([width, height, width / height], Cfg['minImgSize'], maxSize);
+		return [temp[0], temp[1], maxSize];
 	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
