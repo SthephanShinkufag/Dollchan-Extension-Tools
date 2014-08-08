@@ -884,8 +884,11 @@ function resizeImage(size, minSize, maxSize) {
 		idx = size[2] > maxSize[2] ? 0 : 1;
 		if(+size[idx] > +maxSize[idx]) {
 			setImageSize(size, idx, +maxSize[idx]);
+			size[2] = maxSize;
+			return size;
 		}
 	}
+	size[2] = null;
 	return size;
 }
 
@@ -7511,7 +7514,7 @@ IAttachmentData.prototype = {
 		return false;
 	},
 	computeFullSize: function(inPost) {
-		var maxWidth, maxHeight, maxSize, temp, width = this.width,
+		var maxWidth, maxHeight, maxSize, width = this.width,
 			height = this.height;
 		if(Cfg['resizeDPI']) {
 			width /= Post.sizing.dPxRatio;
@@ -7528,8 +7531,7 @@ IAttachmentData.prototype = {
 		} else {
 			maxSize = null;
 		}
-		temp = resizeImage([width, height, width / height], Cfg['minImgSize'], maxSize);
-		return [temp[0], temp[1], maxSize];
+		return resizeImage([width, height, width / height], Cfg['minImgSize'], maxSize)
 	},
 	expand: function(inPost, e) {
 		var size, el = this.el;
