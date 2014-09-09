@@ -1637,28 +1637,29 @@ function showContent(cont, id, name, remove, data) {
 					el.classList.remove('de-current');
 				}
 			}
-			$id('de-video-btn-hide').onclick = function(e) {
-				var node = this.parentNode.nextSibling;
-				if(node.style.display === 'none') {
-					node.style.display = '';
-					this.textContent = '\u25B2';
-				} else {
-					node.style.display = 'none';
-					this.textContent = '\u25BC';
+			post.ytObj.nextSibling.onclick = function(e) {
+				$pd(e);
+				var node;
+				switch(e.target.id) {
+				case 'de-video-btn-hide':
+					node = this.el.lastChild;
+					if(node.style.display === 'none') {
+						node.style.display = '';
+						e.target.textContent = '\u25B2';
+					} else {
+						node.style.display = 'none';
+						e.target.textContent = '\u25BC';
+					}
+					break;
+				case 'de-video-btn-prev':
+					node = this.ytLink.parentNode.parentNode,
+					(node.previousSibling || node.parentNode.lastChild).firstChild.firstChild.click();
+					break;
+				case 'de-video-btn-next':
+					node = this.ytLink.parentNode.parentNode,
+					(node.nextSibling || node.parentNode.firstChild).firstChild.firstChild.click();
 				}
-			}
-			$id('de-video-btn-prev').onclick = function(e) {
-				$pd(e);
-				var node = post.ytLink.parentNode.parentNode,
-					prev = node.previousSibling;
-				(prev ? prev : node.parentNode.lastChild).firstChild.firstChild.click();
-			}
-			$id('de-video-btn-next').onclick = function(e) {
-				$pd(e);
-				var node = post.ytLink.parentNode.parentNode,
-					next = node.nextSibling;
-				(next ? next : node.parentNode.firstChild).firstChild.firstChild.click();
-			}
+			}.bind(post);
 			post.msg.onclick = function(e) {
 				$pd(e);
 				var node = e.target;
@@ -6101,7 +6102,7 @@ function scriptCSS() {
 		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
-		.de-mp3, div.de-video-obj { margin: 5px 20px; width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
+		.de-mp3, de-video-obj { margin: 5px 20px; width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
 		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 20) + 'px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
