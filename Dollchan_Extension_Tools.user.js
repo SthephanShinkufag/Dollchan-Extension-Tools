@@ -271,6 +271,7 @@ Lng = {
 		'settings':	['Настройки', 'Settings'],
 		'hidden':	['Скрытое', 'Hidden'],
 		'favor':	['Избранное', 'Favorites'],
+		'video':	['Видео-ссылки', 'Video links'],
 		'refresh':	['Обновить', 'Refresh'],
 		'goback':	['Назад', 'Go back'],
 		'gonext':	['Следующая', 'Next'],
@@ -443,6 +444,10 @@ Lng = {
 	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
 	favThrds:		['Избранные треды:', 'Favorite threads:'],
 	noFavThrds:		['Нет избранных тредов...', 'Favorites is empty...'],
+	noVideoLinks:	['Нет ссылок на видео...', 'No video links...'],
+	hideLnkList:	['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
+	prevVideo:		['Предыдущее видео', 'Previous video'],
+	nextVideo:		['Следующее видео', 'Next video'],
 	replyTo:		['Ответ в', 'Reply to'],
 	replies:		['Ответы:', 'Replies:'],
 	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
@@ -1278,6 +1283,7 @@ function addPanel() {
 					pButton('settings', '#', true) +
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
+					(!Cfg['addYouTube'] ? '' : pButton('video', '#', false)) +
 					(aib.arch ? '' :
 						pButton('refresh', '#', false) +
 						(!TNum && (pageNum === aib.firstPage) ? '' :
@@ -1332,6 +1338,7 @@ function addPanel() {
 				case 'de-btn-settings': this.attach = toggleContent('cfg', false); break;
 				case 'de-btn-hidden': this.attach = toggleContent('hid', false); break;
 				case 'de-btn-favor': this.attach = toggleContent('fav', false); break;
+				case 'de-btn-video': this.attach = toggleContent('vid', false); break;
 				case 'de-btn-refresh': window.location.reload(); break;
 				case 'de-btn-goup': scrollTo(0, 0); break;
 				case 'de-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
@@ -1468,7 +1475,7 @@ function addContentBlock(parent, title) {
 }
 
 function showContent(cont, id, name, remove, data) {
-	var tNum, i, b, els, post, cln, block, temp, cfgTabId;
+	var tNum, i, b, els, el, post, cln, block, temp, cfgTabId;
 	if(name === 'cfg' && !remove && (temp = $q('.de-cfg-tab-back[selected="true"] > .de-cfg-tab', cont))) {
 		cfgTabId = temp.getAttribute('info');
 	}
@@ -1538,12 +1545,10 @@ function showContent(cont, id, name, remove, data) {
 				})
 			]);
 		} else {
-			cont.appendChild($new('b', {'text': Lng.noHidPosts[lang]}, null));
+			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noHidPosts[lang] + '</b>');
 		}
-		$append(cont, [
-			doc.createElement('hr'),
-			$new('b', {'text': ($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':')}, null)
-		]);
+		cont.insertAdjacentHTML('beforeend', '<hr><b>' + 
+			($isEmpty(hThr) ? Lng.noHidThrds[lang] : Lng.hiddenThrds[lang] + ':') + '</b>');
 		for(b in hThr) {
 			if(!$isEmpty(hThr[b])) {
 				block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
@@ -1602,6 +1607,68 @@ function showContent(cont, id, name, remove, data) {
 				saveHiddenThreads(true);
 			})
 		]);
+	}
+
+	if(name === 'vid') {
+		els = $C('de-video-link', dForm);
+		if(els.length) {
+			cont.insertAdjacentHTML('beforeend', '<div class="de-video-obj"></div><center>' +
+				'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] +
+				'">&#x25C0;</a> <a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] +
+				'">&#x25B2;</a> <a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] +
+				'">&#x25B6;</a></center><div id="de-video-list"></div>');
+			post = {};
+			post.ytInfo = null;
+			post.ytObj = cont.firstChild;
+			post.msg = cont.lastChild;
+			post.el = cont;
+			temp = new YouTube();
+			for(i = 0; el = els[i++];) {
+				el = el.cloneNode(true);
+				post.msg.insertAdjacentHTML('beforeend', '<div class="de-entry"><div class="reply"></div></div>');
+				post.msg.lastChild.firstChild.appendChild(el);
+				b = el.classList.contains('de-ytube');
+				el.ytInfo = el.href.match(b ? temp.ytReg : temp.vimReg);
+				if(i === 1) {
+					el.classList.add('de-current');
+					post.ytLink = el;
+					temp.addPlayer(post.ytObj, post.ytInfo = el.ytInfo, b);
+				} else {
+					el.classList.remove('de-current');
+				}
+			}
+			$id('de-video-btn-hide').onclick = function(e) {
+				var node = this.parentNode.nextSibling;
+				if(node.style.display === 'none') {
+					node.style.display = '';
+					this.textContent = '\u25B2';
+				} else {
+					node.style.display = 'none';
+					this.textContent = '\u25BC';
+				}
+			}
+			$id('de-video-btn-prev').onclick = function(e) {
+				$pd(e);
+				var node = post.ytLink.parentNode.parentNode,
+					prev = node.previousSibling;
+				(prev ? prev : node.parentNode.lastChild).firstChild.firstChild.click();
+			}
+			$id('de-video-btn-next').onclick = function(e) {
+				$pd(e);
+				var node = post.ytLink.parentNode.parentNode,
+					next = node.nextSibling;
+				(next ? next : node.parentNode.firstChild).firstChild.firstChild.click();
+			}
+			post.msg.onclick = function(e) {
+				$pd(e);
+				var node = e.target;
+				if(node.classList.contains('de-video-link') && !node.classList.contains('de-current')) {
+					new YouTube().clickLink(post, node, 2);
+				}
+			}
+		} else {
+			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noVideoLinks[lang] + '</b>');
+		}
 	}
 
 	if(Cfg['animation']) {
@@ -4071,8 +4138,7 @@ dateTime.prototype = {
 //============================================================================================================
 
 YouTube = new function() {
-	var instance, vData, embedType, videoType, width, height, isHD, loadTitles,
-		vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/;
+	var instance, vData, embedType, videoType, width, height, isHD, loadTitles;
 
 	function addThumb(el, m, isYtube) {
 		var wh = ' width="' + width + '" height="' + height + '"></a>';
@@ -4174,6 +4240,34 @@ YouTube = new function() {
 		}
 	}
 
+	function clickLink(post, el, mode) {
+		var m = el.ytInfo;
+		if(post.ytInfo === m) {
+			if(mode === 3) {
+				if($c('de-video-thumb', post.ytObj)) {
+					el.classList.add('de-current');
+					addPlayer(post.ytObj, post.ytInfo = m, el.classList.contains('de-ytube'));
+				} else {
+					el.classList.remove('de-current');
+					addThumb(post.ytObj, post.ytInfo = m, el.classList.contains('de-ytube'));
+				}
+			} else {
+				el.classList.remove('de-current');
+				post.ytObj.innerHTML = '';
+				post.ytInfo = null;
+			}
+		} else if(mode > 2) {
+			post.ytLink.classList.remove('de-current');
+			post.ytLink = el;
+			addThumb(post.ytObj, post.ytInfo = m, el.classList.contains('de-ytube'));
+		} else {
+			post.ytLink.classList.remove('de-current');
+			post.ytLink = el;
+			el.classList.add('de-current');
+			addPlayer(post.ytObj, post.ytInfo = m, el.classList.contains('de-ytube'));
+		}
+	}
+
 	function getYtubeTitleLoader() {
 		var queueEnd, queue = new $queue(4, function(qIdx, num, data) {
 			if(num % 30 === 0) {
@@ -4245,10 +4339,12 @@ YouTube = new function() {
 	YouTubeSingleton.prototype = {
 		embedType: embedType,
 		ytReg: /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
+		vimReg: /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/,
 		vData: vData,
 
 		addPlayer: addPlayer,
-		addThumb: addThumb,
+		addLink: addLink,
+		clickLink: clickLink,
 		parseLinks: function(post) {
 			var i, len, els, el, src, m, embedTube = [],
 				loader = loadTitles && getYtubeTitleLoader();
@@ -4259,7 +4355,7 @@ YouTube = new function() {
 					embedTube.push(post || aib.getPostEl(el).post, m, true);
 					$del(el);
 				}
-				if(Cfg['addVimeo'] && (m = src.match(vimReg))) {
+				if(Cfg['addVimeo'] && (m = src.match(this.vimReg))) {
 					embedTube.push(post || aib.getPostEl(el).post, m, false);
 					$del(el);
 				}
@@ -4273,7 +4369,7 @@ YouTube = new function() {
 			if(Cfg['addVimeo']) {
 				for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 					el = els[i];
-					if(m = el.href.match(vimReg)) {
+					if(m = el.href.match(this.vimReg)) {
 						addLink(post || aib.getPostEl(el).post, m, null, el, false);
 					}
 				}
@@ -5848,6 +5944,7 @@ function scriptCSS() {
 	x += gif('#de-btn-settings', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
 	x += gif('#de-btn-hidden', p + 'QAI5jI+pa+CeHmRHgmCp3rxvO3WhMnomUqIXl2UmuLJSNJ/2jed4Tad96JLBbsEXLPbhFRc8lU8HTRQAADs=');
 	x += gif('#de-btn-favor', p + 'QAIzjI+py+AMjZs02ovzobzb1wDaeIkkwp3dpLEoeMbynJmzG6fYysNh3+IFWbqPb3OkKRUFADs=');
+	x += gif('#de-btn-video', p + 'AAI9jI+py+0Po0yg1nmsvnL7qBke8GzZ15hnyKCr1aqITNFvzM55vQeuQvsBc6MSzCfEjUidJUbUe0qn1KqjAAA7');
 	x += gif('#de-btn-refresh', p + 'QAJAjI+pe+AfHmRGLkuz3rzN+1HS2JWbhWlpVIXJ+roxSpr2jedOBIu0rKjxhEFgawcCqJBFZlPJIA6d0ZH01MtRCgA7');
 	x += gif('#de-btn-goback', p + 'QAIrjI+pmwAMm4u02gud3lzjD4biJgbd6VVPybbua61lGqIoY98ZPcvwD4QUAAA7');
 	x += gif('#de-btn-gonext', p + 'QAIrjI+pywjQonuy2iuf3lzjD4Zis0Xd6YnQyLbua61tSqJnbXcqHVLwD0QUAAA7');
@@ -5992,7 +6089,7 @@ function scriptCSS() {
 	x += cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
-	x += '.de-current:after { content: "\u25C4"; }\
+	x += '.de-current:after { content: " \u25C6"; }\
 		.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\
 		.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\
 		.de-img-pre { max-width: 200px; max-height: 200px; }\
@@ -6004,7 +6101,8 @@ function scriptCSS() {
 		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
-		.de-mp3, .de-video-obj { margin: 5px 20px; }\
+		.de-mp3, div.de-video-obj { margin: 5px 20px; width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
+		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 20) + 'px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
@@ -6020,11 +6118,13 @@ function scriptCSS() {
 		.de-alert-msg { display: inline-block; }\
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
-		#de-content-fav, #de-content-hid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+		.de-content-block > input { margin: 0 4px; }\
+		#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 		.de-entry { margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
-		.de-entry > :first-child { float: none !important; }\
-		.de-entry > div > a { text-decoration: none; }\
+		.de-entry > :first-child { float: none !important; width: 100%; }\
+		.de-entry > div > a { text-decoration: none; border: none; }\
+		.de-entry > div > input { margin-right: 4px; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-new:before { content: "+ "; }\
@@ -8041,31 +8141,7 @@ Post.prototype = {
 				return;
 			case 'A':
 				if(el.classList.contains('de-video-link')) {
-					var m = el.ytInfo;
-					if(this.ytInfo === m) {
-						if(Cfg['addYouTube'] === 3) {
-							if($c('de-video-thumb', this.ytObj)) {
-								el.classList.add('de-current');
-								new YouTube().addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
-							} else {
-								el.classList.remove('de-current');
-								new YouTube().addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
-							}
-						} else {
-							el.classList.remove('de-current');
-							this.ytObj.innerHTML = '';
-							this.ytInfo = null;
-						}
-					} else if(Cfg['addYouTube'] > 2) {
-						this.ytLink.classList.remove('de-current');
-						this.ytLink = el;
-						new YouTube().addThumb(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
-					} else {
-						this.ytLink.classList.remove('de-current');
-						this.ytLink = el;
-						el.classList.add('de-current');
-						new YouTube().addPlayer(this.ytObj, this.ytInfo = m, el.classList.contains('de-ytube'));
-					}
+					new YouTube().clickLink(this, el, Cfg['addYouTube']);
 					$pd(e);
 				} else {
 					temp = el.parentNode;
