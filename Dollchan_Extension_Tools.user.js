@@ -1664,9 +1664,10 @@ function showContent(cont, id, name, remove, data) {
 				$pd(e);
 				var node = e.target;
 				if(node.classList.contains('de-video-link') && !node.classList.contains('de-current')) {
-					new YouTube().clickLink(post, node, 2);
+					new YouTube().clickLink(this, node, 2);
+					this.ytObj.firstChild.src += '&autoplay=1';
 				}
-			}
+			}.bind(post);
 		} else {
 			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noVideoLinks[lang] + '</b>');
 		}
