@@ -3241,7 +3241,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !aib._55ch && !aib.belch &&
+	el = !aib._55ch && !aib.belch && !aib.tiny &&
 		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if(TNum) {
 		firstThr.clearPostsMarks();
