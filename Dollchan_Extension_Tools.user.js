@@ -6103,7 +6103,7 @@ function scriptCSS() {
 		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
-		.de-mp3, .de-video-obj { margin: 5px 20px; width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
+		.de-mp3, .de-video-obj { margin: 5px 20px; }\
 		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 20) + 'px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
@@ -9823,15 +9823,7 @@ function getImageBoard(checkDomains, checkOther) {
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
-		/* get '2ch.cm'() { return [ibEngines['section.posts']]; },
 		get '2ch.hk'() { return [ibEngines['section.posts']]; },
-		get '2ch.pm'() { return [ibEngines['section.posts']]; },
-		get '2ch.re'() { return [ibEngines['section.posts']]; },
-		get '2ch.tf'() { return [ibEngines['section.posts']]; },
-		get '2ch.wf'() { return [ibEngines['section.posts']]; },
-		get '2ch.yt'() { return [ibEngines['section.posts']]; },
-		get '2-ch.so'() { return [ibEngines['section.posts']]; }, */
-		get '2-ch.su'() { return this['2--ch.ru']; },
 		'2--ch.ru': [{
 			tire: { value: true },
 
@@ -10387,7 +10379,7 @@ function getImageBoard(checkDomains, checkOther) {
 				form, form table { margin: 0; }';
 			} }
 		},
-		'script[src*="kusaba"]': {
+		'script[src*="kusaba"], form[action$="board.php"]': {
 			kus: { value: true },
 			
 			cOPost: { value: 'postnode' },
