@@ -6103,7 +6103,7 @@ function scriptCSS() {
 		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
-		.de-mp3, de-video-obj { margin: 5px 20px; width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
+		.de-mp3, .de-video-obj { margin: 5px 20px; width: ' + Cfg['YTubeWidth'] + 'px; height: ' + Cfg['YTubeHeigh'] + 'px; }\
 		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 20) + 'px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
@@ -6197,7 +6197,7 @@ function applyCSS(x) {
 function updateCSS() {
 	var x;
 	if(Cfg['attachPanel']) {
-		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
+		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
 		#de-panel { position: fixed; right: 0; bottom: 0; }'
 	} else {
 		x = '.de-content { clear: both; float: right; }\
