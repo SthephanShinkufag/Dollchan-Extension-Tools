@@ -1650,7 +1650,7 @@ function showContent(cont, id, name, remove, data) {
 						node.style.display = 'none';
 						e.target.textContent = '\u25BC';
 					}
-					break;
+					return;
 				case 'de-video-btn-prev':
 					node = this.ytLink.parentNode.parentNode,
 					(node.previousSibling || node.parentNode.lastChild).firstChild.firstChild.click();
@@ -1659,13 +1659,13 @@ function showContent(cont, id, name, remove, data) {
 					node = this.ytLink.parentNode.parentNode,
 					(node.nextSibling || node.parentNode.firstChild).firstChild.firstChild.click();
 				}
+				this.ytObj.firstChild.src += '&autoplay=1';
 			}.bind(post);
 			post.msg.onclick = function(e) {
 				$pd(e);
-				var node = e.target;
-				if(node.classList.contains('de-video-link') && !node.classList.contains('de-current')) {
-					new YouTube().clickLink(this, node, 2);
-					this.ytObj.firstChild.src += '&autoplay=1';
+				var list = e.target.classList;
+				if(list.contains('de-video-link') && !list.contains('de-current')) {
+					new YouTube().clickLink(this, e.target, 2);
 				}
 			}.bind(post);
 		} else {
