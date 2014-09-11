@@ -1612,6 +1612,8 @@ function showContent(cont, id, name, remove, data) {
 	if(name === 'vid') {
 		els = $C('de-video-link', dForm);
 		if(els.length) {
+			!$id('de-ytube-api') && doc.head.appendChild(
+				$new('script', {'id': 'de-ytube-api', 'src': 'http://www.youtube.com/player_api'}, null));
 			cont.insertAdjacentHTML('beforeend', '<div class="de-video-obj"></div><center>' +
 				'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] +
 				'">&#x25C0;</a> <a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] +
@@ -1659,13 +1661,38 @@ function showContent(cont, id, name, remove, data) {
 					node = this.ytLink.parentNode.parentNode,
 					(node.nextSibling || node.parentNode.firstChild).firstChild.firstChild.click();
 				}
-				this.ytObj.firstChild.src += '&autoplay=1';
 			}.bind(post);
 			post.msg.onclick = function(e) {
 				$pd(e);
-				var list = e.target.classList;
+				var node, list = e.target.classList;
 				if(list.contains('de-video-link') && !list.contains('de-current')) {
 					new YouTube().clickLink(this, e.target, 2);
+					node = this.ytObj.firstChild;
+					node.id = 'de-ytplayer';
+					node.src += '&enablejsapi=1';
+					node.setAttribute('de-ytid', this.ytInfo[1]);
+					$script(
+						'var node = document.getElementById("de-ytplayer"),\
+							ytplayer = new YT.Player("de-ytplayer", {\
+								height: node.height,\
+								width: node.width,\
+								videoId: node.getAttribute("de-ytid"),\
+								events: {\
+									"onError": gotoNextVideo,\
+									"onReady": function(e) {\
+										e.target.playVideo();\
+									},\
+									"onStateChange": function(e) {\
+										if(e.data === 0) {\
+											gotoNextVideo();\
+										}\
+									}\
+								}\
+							});\
+						function gotoNextVideo() {\
+							document.getElementById("de-video-btn-next").click();\
+						}'
+					);
 				}
 			}.bind(post);
 		} else {
@@ -6900,9 +6927,6 @@ PostForm.prototype = {
 		}
 		this.capTr.innerHTML = html;
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
-		if(aib.iich || aib.abu || aib.mak) {
-			$t('td', this.capTr).textContent = 'Капча';
-		}
 		if(aib.fch) {
 			$script('loadRecaptcha()');
 		}
@@ -9824,6 +9848,7 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
 		get '2ch.hk'() { return [ibEngines['section.posts']]; },
+		get '2-ch.su'() { return this['2--ch.ru']; },
 		'2--ch.ru': [{
 			tire: { value: true },
 
@@ -10044,9 +10069,6 @@ function getImageBoard(checkDomains, checkOther) {
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
 		get 'honokakawai.com'() { return this['2--ch.ru']; },
-		'iichan.hk': [{
-			iich: { value: true }
-		}],
 		'inach.org': [{
 			qPostRedir: { value: 'input[name="fieldnoko"]' },
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
