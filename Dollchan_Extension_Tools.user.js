@@ -9842,7 +9842,6 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		get '22chan.net'() { return this['ernstchan.com']; },
 		'2chru.net': [{
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
@@ -10057,14 +10056,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
-		'ernstchan.com': [{
-			cOPost: { value: 'thread_OP' },
-			cReply: { value: 'post' },
-			cRPost: { value: 'thread_reply' },
-			qError: { value: '.error' },
-			qMsg: { value: '.text' },
-			css: { value: '.content > hr, .de-parea > hr { display: none !important }' }
-		}, 'link[href$="phutaba.css"]'],
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
@@ -10150,10 +10141,6 @@ function getImageBoard(checkDomains, checkOther) {
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
-		'lambdadelta.net': [{
-			qHide: { value: '.de-ppanel ~ *' },
-			css: { value: '.content > hr { display: none !important }' }
-		}, 'link[href$="phutaba.css"]'],
 		'mlpg.co': [{
 			getWrap: { value: function(el, isOp) {
 				return el.parentNode;
@@ -10413,11 +10400,18 @@ function getImageBoard(checkDomains, checkOther) {
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' }
 		},
 		'link[href$="phutaba.css"]': {
+			cOPost: { value: 'thread_OP' },
+			cReply: { value: 'post' },
+			cRPost: { value: 'thread_reply' },
+			qError: { value: '.error' },
+			qMsg: { value: '.text' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'tripcode' },
 			qHide: { value: '.post > .post_body' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
+			qImgLink: { value: '.filename > a' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
+			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
