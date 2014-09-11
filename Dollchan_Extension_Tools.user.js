@@ -10409,6 +10409,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cTrip: { value: 'tripcode' },
 			qHide: { value: '.post > .post_body' },
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
+			qTrunc: { value: '.tldr' },
 			qImgLink: { value: '.filename > a' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
