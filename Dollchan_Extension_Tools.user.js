@@ -1664,36 +1664,40 @@ function showContent(cont, id, name, remove, data) {
 			}.bind(post);
 			post.msg.onclick = function(e) {
 				$pd(e);
-				var node, list = e.target.classList;
-				if(list.contains('de-video-link') && !list.contains('de-current')) {
-					new YouTube().clickLink(this, e.target, 2);
-					node = this.ytObj.firstChild;
-					node.id = 'de-ytplayer';
-					node.src += '&enablejsapi=1';
-					node.setAttribute('de-ytid', this.ytInfo[1]);
-					$script(
-						'var node = document.getElementById("de-ytplayer"),\
-							ytplayer = new YT.Player("de-ytplayer", {\
-								height: node.height,\
-								width: node.width,\
-								videoId: node.getAttribute("de-ytid"),\
-								events: {\
-									"onError": gotoNextVideo,\
-									"onReady": function(e) {\
-										e.target.playVideo();\
-									},\
-									"onStateChange": function(e) {\
-										if(e.data === 0) {\
-											gotoNextVideo();\
-										}\
+				var node, c = e.target.classList;
+				if(c.contains('de-current') || !c.contains('de-video-link')) {
+					return;
+				}
+				new YouTube().clickLink(this, e.target, 2);
+				if(!c.contains('de-ytube')) {
+					return;
+				}
+				node = this.ytObj.firstChild;
+				node.id = 'de-ytplayer';
+				node.src += '&enablejsapi=1';
+				node.setAttribute('de-ytid', this.ytInfo[1]);
+				$script(
+					'var node = document.getElementById("de-ytplayer"),\
+						ytplayer = new YT.Player("de-ytplayer", {\
+							height: node.height,\
+							width: node.width,\
+							videoId: node.getAttribute("de-ytid"),\
+							events: {\
+								"onError": gotoNextVideo,\
+								"onReady": function(e) {\
+									e.target.playVideo();\
+								},\
+								"onStateChange": function(e) {\
+									if(e.data === 0) {\
+										gotoNextVideo();\
 									}\
 								}\
-							});\
-						function gotoNextVideo() {\
-							document.getElementById("de-video-btn-next").click();\
-						}'
-					);
-				}
+							}\
+						});\
+					function gotoNextVideo() {\
+						document.getElementById("de-video-btn-next").click();\
+					}'
+				);
 			}.bind(post);
 		} else {
 			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noVideoLinks[lang] + '</b>');
@@ -4193,11 +4197,9 @@ YouTube = new function() {
 			wh = ' width="' + width + '" height="' + height + '">';
 		if(isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-			el.innerHTML = videoType === 1 ?
-				'<iframe type="text/html" src="//www.youtube.com/embed/' + id +
-					(isHD ? '?hd=1&' : '?') + 'start=' + time + '&html5=1&rel=0" frameborder="0"' + wh :
-				'<embed type="application/x-shockwave-flash" src="https://www.youtube.com/v/' + id +
-					(isHD ? '?hd=1&' : '?') + 'start=' + time + '" allowfullscreen="true" wmode="transparent"' + wh;
+			el.innerHTML = '<iframe frameborder="0" allowfullscreen="1" src="//www.youtube.com/embed/' +
+				id + (isHD ? '?hd=1&' : '?') + 'start=' + time + (videoType === 1 ?
+					'&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') + wh;
 		} else {
 			el.innerHTML = videoType === 1 ?
 				'<iframe src="//player.vimeo.com/video/' + id +
