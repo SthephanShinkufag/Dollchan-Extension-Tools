@@ -1650,8 +1650,11 @@ function showContent(cont, id, name, remove, data) {
 			post.msg.onclick = function(e) {
 				$pd(e);
 				var c = e.target.classList;
-				if(c.contains('de-current') || !c.contains('de-video-link')) {
+				if(!c.contains('de-video-link')) {
 					return;
+				}
+				if(c.contains('de-current')) {
+					post.ytInfo = null;
 				}
 				new YouTube().clickLink(this, e.target, 2);
 				if(!c.contains('de-ytube')) {
@@ -1665,7 +1668,7 @@ function showContent(cont, id, name, remove, data) {
 					function onYouTubePlayerAPIReady() {\
 						initPlayer();\
 					}\
-					function initPlayer(readyFn) {\
+					function initPlayer() {\
 						var ytplayer = new YT.Player("de-ytplayer", { events: {\
 							"onError": gotoNextVideo,\
 							"onReady": function(e) {\
