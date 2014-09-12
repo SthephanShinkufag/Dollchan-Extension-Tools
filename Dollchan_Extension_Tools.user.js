@@ -1613,7 +1613,7 @@ function showContent(cont, id, name, remove, data) {
 		els = $C('de-video-link', dForm);
 		if(els.length) {
 			!$id('de-ytube-api') && doc.head.appendChild(
-				$new('script', {'id': 'de-ytube-api', 'src': 'http://www.youtube.com/player_api'}, null));
+				$new('script', {'id': 'de-ytube-api', 'src': '//www.youtube.com/player_api'}, null));
 			cont.insertAdjacentHTML('beforeend', '<div class="de-video-obj"></div><center>' +
 				'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] +
 				'">&#x25C0;</a> <a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] +
@@ -4179,15 +4179,15 @@ YouTube = new function() {
 	function addThumb(el, m, isYtube) {
 		var wh = ' width="' + width + '" height="' + height + '"></a>';
 		if(isYtube) {
-			el.innerHTML = '<a href="https://www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
+			el.innerHTML = '<a href="//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] +
 				'/0.jpg"' + wh;
 		} else {
-			el.innerHTML = '<a href="https://vimeo.com/' + m[1] + '" target="_blank">' +
+			el.innerHTML = '<a href="//vimeo.com/' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-vimeo" src=""' + wh;
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': 'http://vimeo.com/api/v2/video/' + m[1] + '.json',
+				'url': '//vimeo.com/api/v2/video/' + m[1] + '.json',
 				'onload': function(xhr){
 					this.setAttribute('src', JSON.parse(xhr.responseText)[0]['thumbnail_large']);
 				}.bind(el.firstChild.firstChild)
@@ -4208,7 +4208,7 @@ YouTube = new function() {
 			el.innerHTML = videoType === 1 ?
 				'<iframe src="//player.vimeo.com/video/' + id +
 					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
-				'<embed type="application/x-shockwave-flash" src="http://vimeo.com/moogaloop.swf?clip_id=' + id +
+				'<embed type="application/x-shockwave-flash" src="//vimeo.com/moogaloop.swf?clip_id=' + id +
 					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
 					'allowscriptaccess="always" allowfullscreen="true"' + wh;
 		}
@@ -4255,8 +4255,8 @@ YouTube = new function() {
 				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 			}
 		} else {
-			src = isYtube ? 'https://www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
-				: 'https://vimeo.com/' + m[1];
+			src = isYtube ? '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
+				: '//vimeo.com/' + m[1];
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
 					(dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' +
@@ -4311,7 +4311,7 @@ YouTube = new function() {
 			}
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': 'https://gdata.youtube.com/feeds/api/videos/' + data[2] +
+				'url': '//gdata.youtube.com/feeds/api/videos/' + data[2] +
 					'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
 				'onreadystatechange': function(idx, xhr) {
 					if(xhr.readyState !== 4) {
@@ -6120,8 +6120,8 @@ function scriptCSS() {
 	}
 
 	// Embedders
-	x += cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico');
-	x += cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico');
+	x += cont('.de-video-link.de-ytube', '//youtube.com/favicon.ico');
+	x += cont('.de-video-link.de-vimeo', '//vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
 	x += '.de-current:after { content: " \u25C6"; }\
