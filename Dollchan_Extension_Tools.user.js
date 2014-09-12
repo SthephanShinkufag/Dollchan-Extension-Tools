@@ -4205,11 +4205,12 @@ YouTube = new function() {
 				(isHD ? 'hd=1&' : '') + 'start=' + time + (videoType === 1 ?
 					'&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') + wh;
 		} else {
+			time = m[2] ? m[2] : '';
 			el.innerHTML = videoType === 1 ?
-				'<iframe src="//player.vimeo.com/video/' + id +
+				'<iframe src="//player.vimeo.com/video/' + id + time +
 					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
-				'<embed type="application/x-shockwave-flash" src="//vimeo.com/moogaloop.swf?clip_id=' + id +
-					'&server=vimeo.com&color=00adef&fullscreen=1" ' +
+				'<embed type="application/x-shockwave-flash" src="//vimeo.com/moogaloop.swf?clip_id=' +
+					id + time + '&server=vimeo.com&color=00adef&fullscreen=1" ' +
 					'allowscriptaccess="always" allowfullscreen="true"' + wh;
 		}
 	}
@@ -4253,6 +4254,9 @@ YouTube = new function() {
 					Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3];
 			} else {
 				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
+				if(!isYtube && Cfg['YTubeTitles']) {
+					getVimeoTitle(link, m);
+				}
 			}
 		} else {
 			src = isYtube ? '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
@@ -4301,6 +4305,20 @@ YouTube = new function() {
 			el.classList.add('de-current');
 			addPlayer(post.ytObj, post.ytInfo = m, el.classList.contains('de-ytube'));
 		}
+	}
+
+	function getVimeoTitle(link, m) {
+		GM_xmlhttpRequest({
+			'method': 'GET',
+			'url': '//vimeo.com/api/v2/video/' + m[1] + '.json',
+			'onreadystatechange': function(xhr) {
+				var json = JSON.parse(xhr.responseText)[0],
+					date = new RegExp (/(.*)\s(.*)?/).exec(json["upload_date"]);
+				link.textContent = json["title"];
+				link.title = Lng.author[lang] + json["user_name"] + ', ' +
+					Lng.views[lang] + json["stats_number_of_plays"] + ', ' + Lng.published[lang] + date[1];
+			}
+		});
 	}
 
 	function getYtubeTitleLoader() {
@@ -4374,7 +4392,7 @@ YouTube = new function() {
 	YouTubeSingleton.prototype = {
 		embedType: embedType,
 		ytReg: /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/,
-		vimReg: /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=)?(\d+).*?$/,
+		vimReg: /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/,
 		vData: vData,
 
 		addPlayer: addPlayer,
