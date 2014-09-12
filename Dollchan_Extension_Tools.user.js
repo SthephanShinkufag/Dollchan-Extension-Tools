@@ -1669,7 +1669,7 @@ function showContent(cont, id, name, remove, data) {
 						var ytplayer = new YT.Player("de-ytplayer", { events: {\
 							"onError": gotoNextVideo,\
 							"onReady": function(e) {\
-								e.target.playVideo();\
+								' + (post.firstCall ? '' : 'e.target.playVideo();') + '\
 							},\
 							"onStateChange": function(e) {\
 								if(e.data === 0) {\
@@ -1682,6 +1682,7 @@ function showContent(cont, id, name, remove, data) {
 						document.getElementById("de-video-btn-next").click();\
 					}'
 				);
+				post.firstCall = false;
 			}.bind(post);
 			temp = new YouTube();
 			for(i = 0; el = els[i++];) {
@@ -1692,6 +1693,7 @@ function showContent(cont, id, name, remove, data) {
 				el.ytInfo = el.href.match(b ? temp.ytReg : temp.vimReg);
 				if(i === 1) {
 					post.ytLink = el;
+					post.firstCall = true;
 					el.click();
 				} else {
 					el.classList.remove('de-current');
