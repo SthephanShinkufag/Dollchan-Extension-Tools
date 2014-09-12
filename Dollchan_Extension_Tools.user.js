@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name			Dollchan Extension Tools
-// @version			14.8.26.0
+// @version			14.9.12.0
 // @namespace		http://www.freedollchan.org/scripts/*
 // @author			Sthephan Shinkufag @ FreeDollChan
 // @copyright		(C)2084, Bender Bending Rodriguez
@@ -20,7 +20,7 @@
 
 (function de_main_func(scriptStorage) {
 'use strict';
-var version = '14.8.26.0',
+var version = '14.9.12.0',
 defaultCfg = {
 	'disabled':		0,		// script enabled by default
 	'language':		0,		// script language [0=ru, 1=en]
@@ -84,7 +84,7 @@ defaultCfg = {
 	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
 	'favOnReply':	1,		// add thread to favorites on reply
 	'warnSubjTrip':	0,		// warn if subject field contains tripcode
-	'fileThumb':		1,		// file preview area instead of file button
+	'fileThumb':	1,		// file preview area instead of file button
 	'addSageBtn':	1,		// email field -> sage button
 	'saveSage':		1,		// remember sage
 	'sageReply':	0,		//    reply with sage
