@@ -6134,7 +6134,7 @@ function scriptCSS() {
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
-		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 20) + 'px; }\
+		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 40) + 'px; max-height: ' + (Post.sizing.wHeight - +Cfg['YTubeHeigh'] - 100) + 'px; overflow: auto; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
