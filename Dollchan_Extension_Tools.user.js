@@ -1624,21 +1624,6 @@ function showContent(cont, id, name, remove, data) {
 			post.ytObj = cont.firstChild;
 			post.msg = cont.lastChild;
 			post.el = cont;
-			temp = new YouTube();
-			for(i = 0; el = els[i++];) {
-				el = el.cloneNode(true);
-				post.msg.insertAdjacentHTML('beforeend', '<div class="de-entry"><div class="reply"></div></div>');
-				post.msg.lastChild.firstChild.appendChild(el);
-				b = el.classList.contains('de-ytube');
-				el.ytInfo = el.href.match(b ? temp.ytReg : temp.vimReg);
-				if(i === 1) {
-					el.classList.add('de-current');
-					post.ytLink = el;
-					temp.addPlayer(post.ytObj, post.ytInfo = el.ytInfo, b);
-				} else {
-					el.classList.remove('de-current');
-				}
-			}
 			post.ytObj.nextSibling.onclick = function(e) {
 				$pd(e);
 				var node;
@@ -1674,22 +1659,44 @@ function showContent(cont, id, name, remove, data) {
 				}
 				this.ytObj.firstChild.id = 'de-ytplayer';
 				$script(
-					'var ytplayer = new YT.Player("de-ytplayer", { events: {\
-						"onError": gotoNextVideo,\
-						"onReady": function(e) {\
-							e.target.playVideo();\
-						},\
-						"onStateChange": function(e) {\
-							if(e.data === 0) {\
-								gotoNextVideo();\
+					'if("YT" in window && "Player" in window.YT) {\
+						initPlayer();\
+					}\
+					function onYouTubePlayerAPIReady() {\
+						initPlayer();\
+					}\
+					function initPlayer(readyFn) {\
+						var ytplayer = new YT.Player("de-ytplayer", { events: {\
+							"onError": gotoNextVideo,\
+							"onReady": function(e) {\
+								e.target.playVideo();\
+							},\
+							"onStateChange": function(e) {\
+								if(e.data === 0) {\
+									gotoNextVideo();\
+								}\
 							}\
-						}\
-					}});\
+						}});\
+					}\
 					function gotoNextVideo() {\
 						document.getElementById("de-video-btn-next").click();\
 					}'
 				);
 			}.bind(post);
+			temp = new YouTube();
+			for(i = 0; el = els[i++];) {
+				el = el.cloneNode(true);
+				post.msg.insertAdjacentHTML('beforeend', '<div class="de-entry"><div class="reply"></div></div>');
+				post.msg.lastChild.firstChild.appendChild(el);
+				b = el.classList.contains('de-ytube');
+				el.ytInfo = el.href.match(b ? temp.ytReg : temp.vimReg);
+				if(i === 1) {
+					post.ytLink = el;
+					el.click();
+				} else {
+					el.classList.remove('de-current');
+				}
+			}
 		} else {
 			cont.insertAdjacentHTML('beforeend', '<b>' + Lng.noVideoLinks[lang] + '</b>');
 		}
