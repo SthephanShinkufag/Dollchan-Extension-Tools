@@ -7545,7 +7545,8 @@ AttachmentViewer.prototype = {
 		this._ar = size[0] / size[1];
 		this._curW = size[0];
 		this._curH = size[1];
-		this._maxSize = Cfg['minImgSize'] > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
+		this._maxSize = !size[2] ? null :
+			Cfg['minImgSize'] > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
 		html = '<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
