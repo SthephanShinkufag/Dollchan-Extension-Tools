@@ -6155,7 +6155,7 @@ function scriptCSS() {
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
-		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 40) + 'px; max-height: ' + (Post.sizing.wHeight - +Cfg['YTubeHeigh'] - 100) + 'px; overflow: auto; }\
+		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 40) + 'px; max-height: ' + (window.innerHeight - +Cfg['YTubeHeigh'] - 100) + 'px; overflow: auto; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
@@ -7670,7 +7670,7 @@ IAttachmentData.prototype = {
 		}
 		if(Cfg['resizeImgs']) {
 			if(inPost) {
-				maxSize = [Post.sizing.wWidth - this._offset, Number.MAX_SAFE_INTEGER, 0];
+				maxSize = [Post.sizing.wWidth - this._offset - 5, Number.MAX_SAFE_INTEGER, 0];
 			} else {
 				maxWidth = Post.sizing.wWidth - 5;
 				maxHeight = Post.sizing.wHeight - 2;
@@ -7920,7 +7920,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	_processing: { writable: true, value: false },
 	_needToHide: { writable: true, value: false },
 	_useCache: { configurable: true, get: function() {
-		var val = !this.inPview && this.post.count > 4;
+		var val = !this.inPview && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
 		Object.defineProperty(this, '_useCache', { value: val });
 		return val;
 	} },
