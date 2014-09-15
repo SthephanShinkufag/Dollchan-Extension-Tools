@@ -6721,7 +6721,7 @@ PostForm.prototype = {
 			dForm.appendChild($c('userdelete', doc.body));
 			this.dpass = $q('input[type="password"]', dForm);
 		}
-		if(!this.form) {
+		if(!this.form || !this.txta) {
 			return;
 		}
 		aib.disableRedirection(this.form);
