@@ -6269,7 +6269,7 @@ function updateCSS() {
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(!aib.dobr && !aib.krau && !aib.mak) {
-		x += '.de-img-full { margin: 2px 10px; }';
+		x += '.de-img-full { margin: 2px 5px; }';
 	}
 	if(Cfg['delHiddPost']) {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
@@ -7670,9 +7670,9 @@ IAttachmentData.prototype = {
 		}
 		if(Cfg['resizeImgs']) {
 			if(inPost) {
-				maxSize = [Post.sizing.wWidth - this._offset - 13, Number.MAX_SAFE_INTEGER, 0];
+				maxSize = [Post.sizing.wWidth - this._offset - 3, Number.MAX_SAFE_INTEGER, 0];
 			} else {
-				maxWidth = Post.sizing.wWidth - 5;
+				maxWidth = Post.sizing.wWidth - 2;
 				maxHeight = Post.sizing.wHeight - 2;
 				maxSize = [maxWidth, maxHeight, maxWidth / maxHeight];
 			}
