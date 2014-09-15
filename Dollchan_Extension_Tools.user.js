@@ -7670,7 +7670,7 @@ IAttachmentData.prototype = {
 		}
 		if(Cfg['resizeImgs']) {
 			if(inPost) {
-				maxSize = [Post.sizing.wWidth - this._offset - 5, Number.MAX_SAFE_INTEGER, 0];
+				maxSize = [Post.sizing.wWidth - this._offset - 13, Number.MAX_SAFE_INTEGER, 0];
 			} else {
 				maxWidth = Post.sizing.wWidth - 5;
 				maxHeight = Post.sizing.wHeight - 2;
@@ -7920,7 +7920,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 	_processing: { writable: true, value: false },
 	_needToHide: { writable: true, value: false },
 	_useCache: { configurable: true, get: function() {
-		var val = !this.inPview && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
+		var val = !this.inPview && !this.post.isOp && !this.post.prev.omitted && !this.post.prev.isOp && this.post.count > 4;
 		Object.defineProperty(this, '_useCache', { value: val });
 		return val;
 	} },
