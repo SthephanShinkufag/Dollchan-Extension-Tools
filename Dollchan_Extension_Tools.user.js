@@ -10408,7 +10408,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			cssEn: { get: function() {
-				return '.banner, .mentioned, .post-hover { display: none !important; }\
+				return '.banner, ' + (TNum ? '' : '.de-btn-rep, ') + '.mentioned, .post-hover { display: none !important; }\
 				div.post.reply { float: left; clear: left; display: block; }\
 				form, form table { margin: 0; }';
 			} }
