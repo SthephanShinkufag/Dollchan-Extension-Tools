@@ -10646,7 +10646,7 @@ function getImageBoard(checkDomains, checkOther) {
 		timePattern: 'w+dd+m+yyyy+hh+ii+ss'
 	};
 
-	var i, ibObj = null, dm = window.location.hostname
+	var i, ibObj = null, dm = window.location.protocol === 'file:' ? '' : window.location.hostname
 		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
