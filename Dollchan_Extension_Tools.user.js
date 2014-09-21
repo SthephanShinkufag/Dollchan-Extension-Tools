@@ -13,7 +13,6 @@
 // @grant			GM_deleteValue
 // @grant			GM_openInTab
 // @grant			GM_xmlhttpRequest
-// @grant			GM_log
 // @grant			unsafeWindow
 // @include			*
 // ==/UserScript==
@@ -285,7 +284,7 @@ Lng = {
 		'audio-off':['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':	['Каталог', 'Catalog'],
 		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread'],
-		'imgload':	['Сохранить изображения из треда', 'Save images from thread'],
+		'savethr':	['Сохранить на локальный диск', 'Save to local disc'],
 		'enable':	['Включить/выключить скрипт', 'Turn on/off the script']
 	},
 
@@ -299,13 +298,17 @@ Lng = {
 		'noimg':	['Скрывать без изображений', 'Hide without images'],
 		'notext':	['Скрывать без текста', 'Hide without text']
 	},
-	selExpandThrd:	[
+	selExpandThr:	[
 		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
 		['5 posts', '15 posts', '30 posts', '50 posts', '100 posts']
 	],
 	selAjaxPages:	[
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages']
+	],
+	selSaveThr:		[
+		['Скачать всю страницу треда', 'Скачать все изображения'],
+		['Download entire thread page', 'Download all images']
 	],
 	selAudioNotif:	[
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
@@ -505,7 +508,7 @@ aib, nav, brd, TNum, pageNum, updater, keyNav, firstThr, lastThr, visPosts = 2, 
 YouTube, WebmParser, Logger,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-ajaxInterval, lang, quotetxt = '', liteMode, isExpImg, isPreImg, chromeCssUpd,
+ajaxInterval, lang, quotetxt = '', liteMode, localRun, isExpImg, isPreImg, chromeCssUpd,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = function() {};
 
@@ -1284,7 +1287,7 @@ function addPanel() {
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
 					(!Cfg['addYouTube'] ? '' : pButton('video', '#', false)) +
-					(aib.arch ? '' :
+					(aib.arch || localRun ? '' :
 						pButton('refresh', '#', false) +
 						(!TNum && (pageNum === aib.firstPage) ? '' :
 							pButton('goback', aib.getPageUrl(brd, pageNum - 1), true)) +
@@ -1295,14 +1298,14 @@ function addPanel() {
 					(imgLen === 0 ? '' :
 						pButton('expimg', '#', false) +
 						pButton('maskimg', '#', true) +
-						(nav.Presto ? '' : 
+						(nav.Presto || localRun ? '' : 
 							(Cfg['preLoadImgs'] ? '' : pButton('preimg', '#', false)) +
-							(!TNum && !aib.arch ? '' : pButton('imgload', '#', false)))) +
-					(!TNum ? '' :
+							(!TNum && !aib.arch ? '' : pButton('savethr', '#', false)))) +
+					(!TNum || localRun ? '' :
 						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
 					(!aib.abu && (!aib.fch || aib.arch) ? '' :
-						pButton('catalog', '//' + aib.host + '/' + (aib.abu ?
+						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
 					(!TNum && !aib.arch ? '' :
@@ -1378,18 +1381,7 @@ function addPanel() {
 					}
 					$del($c('de-menu', doc));
 					break;
-				case 'de-btn-imgload':
-					if($id('de-alert-imgload')) {
-						break;
-					}
-					if(Images_.preloading) {
-						$alert(Lng.loading[lang], 'imgload', true);
-						Images_.afterpreload = loadDocFiles.bind(null, true);
-						Images_.progressId = 'imgload';
-					} else {
-						loadDocFiles(true);
-					}
-					break;
+				case 'de-btn-savethr': break;
 				case 'de-btn-enable':
 					toggleCfg('disabled');
 					window.location.reload();
@@ -1414,6 +1406,7 @@ function addPanel() {
 					if(TNum) {
 						return;
 					}
+				case 'de-btn-savethr':
 				case 'de-btn-audio-off': addMenu(e);
 				}
 				return;
@@ -1426,6 +1419,7 @@ function addPanel() {
 				}
 				switch(e.target.id) {
 				case 'de-btn-refresh':
+				case 'de-btn-savethr':
 				case 'de-btn-audio-off': removeMenu(e); break;
 				}
 			}
@@ -1518,7 +1512,7 @@ function showContent(cont, id, name, remove, data) {
 			cln.post = Object.create(cln.clone = post.post);
 			cln.post.el = cln;
 			cln.btn = $q('.de-btn-hide, .de-btn-hide-user', cln);
-			cln.btn.parentNode.className = 'de-ppanel';
+			cln.btn.parentNode.className = 'de-post-btns';
 			cln.btn.onclick = function() { // doesn't work properly. TODO: Fix
 				this.hideContent(this.hidden = !this.hidden);
 			}.bind(cln);
@@ -1613,7 +1607,7 @@ function showContent(cont, id, name, remove, data) {
 		els = $C('de-video-link', dForm);
 		if(els.length) {
 			!$id('de-ytube-api') && doc.head.appendChild(
-				$new('script', {'id': 'de-ytube-api', 'src': '//www.youtube.com/player_api'}, null));
+				$new('script', {'id': 'de-ytube-api', 'src': aib.prot + '//www.youtube.com/player_api'}, null));
 			cont.insertAdjacentHTML('beforeend', '<div class="de-video-obj"></div><center>' +
 				'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] +
 				'">&#x25C0;</a> <a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] +
@@ -2564,7 +2558,7 @@ function showMenu(el, html, inPanel, onclick) {
 	menu.addEventListener('click', function(e) {
 		var el = e.target;
 		if(el.className === 'de-menu-item') {
-			this(el);
+			setTimeout(this, 10, el);
 			do {
 				el = el.parentElement;
 			} while (!el.classList.contains('de-menu'));
@@ -2578,6 +2572,7 @@ function addMenu(e) {
 		switch(el.id) {
 		case 'de-btn-addspell': addSpellMenu(el); return;
 		case 'de-btn-refresh': addAjaxPagesMenu(el); return;
+		case 'de-btn-savethr': addSaveThreadMenu(el); return;
 		case 'de-btn-audio-off': addAudioNotifMenu(el); return;
 		}
 	}, Cfg['linksOver'], e.target);
@@ -2613,6 +2608,23 @@ function addAjaxPagesMenu(el) {
 		Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
 	function(el) {
 		loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
+	});
+}
+
+function addSaveThreadMenu(el) {
+	showMenu(el, '<span class="de-menu-item">' +
+		Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true,
+	function(el) {
+		if(!$id('de-alert-savethr')) {
+			var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+			if(Images_.preloading) {
+				$alert(Lng.loading[lang], 'savethr', true);
+				Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
+				Images_.progressId = 'savethr';
+			} else {
+				loadDocFiles(imgOnly);
+			}
+		}
 	});
 }
 
@@ -4001,8 +4013,8 @@ function loadDocFiles(imgOnly) {
 	});
 	if(!imgOnly) {
 		files = [];
-		$each($Q('script, link[rel="alternate stylesheet"], span[class^="de-btn-"],' +
-			' #de-main > div, .de-parea, #de-qarea, ' + aib.qPostForm, dc), $del);
+		$each($Q('#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
+			' link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function(el) {
 			var num, tc = el.textContent;
 			if(tc[0] === '>' && tc[1] === '>' && (num = +tc.substr(2)) && (num in pByNum)) {
@@ -4179,15 +4191,14 @@ YouTube = new function() {
 	function addThumb(el, m, isYtube) {
 		var wh = ' width="' + width + '" height="' + height + '"></a>';
 		if(isYtube) {
-			el.innerHTML = '<a href="//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
-				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] +
-				'/0.jpg"' + wh;
+			el.innerHTML = '<a href="' + aib.prot + '//www.youtube.com/watch?v=' + m[1] + '" target="_blank">' +
+				'<img class="de-video-thumb de-ytube" src="https://i.ytimg.com/vi/' + m[1] + '/0.jpg"' + wh;
 		} else {
-			el.innerHTML = '<a href="//vimeo.com/' + m[1] + '" target="_blank">' +
+			el.innerHTML = '<a href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-vimeo" src=""' + wh;
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': '//vimeo.com/api/v2/video/' + m[1] + '.json',
+				'url': aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json',
 				'onload': function(xhr){
 					this.setAttribute('src', JSON.parse(xhr.responseText)[0]['thumbnail_large']);
 				}.bind(el.firstChild.firstChild)
@@ -4200,23 +4211,26 @@ YouTube = new function() {
 			wh = ' width="' + width + '" height="' + height + '">';
 		if(isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
-			el.innerHTML = '<iframe frameborder="0" allowfullscreen="1" src="//www.youtube.com/embed/' +
+			el.innerHTML = '<iframe frameborder="0" allowfullscreen="1" src="' + aib.prot + '//www.youtube.com/embed/' +
 				id + '?' + (el.parentNode.id === 'de-content-vid' ? 'enablejsapi=1&' : '') +
 				(isHD ? 'hd=1&' : '') + 'start=' + time + (videoType === 1 ?
 					'&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') + wh;
 		} else {
 			time = m[2] ? m[2] : '';
 			el.innerHTML = videoType === 1 ?
-				'<iframe src="//player.vimeo.com/video/' + id + time +
+				'<iframe src="' + aib.prot + '//player.vimeo.com/video/' + id + time +
 					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
-				'<embed type="application/x-shockwave-flash" src="//vimeo.com/moogaloop.swf?clip_id=' +
-					id + time + '&server=vimeo.com&color=00adef&fullscreen=1" ' +
+				'<embed type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf' +
+					'?clip_id=' + id + time + '&server=vimeo.com&color=00adef&fullscreen=1" ' +
 					'allowscriptaccess="always" allowfullscreen="true"' + wh;
 		}
 	}
 
 	function addLink(post, m, loader, link, isYtube) {
 		var msg, src, time, dataObj;
+		if(!post) {
+			return;
+		}
 		post.hasYTube = true;
 		if(post.ytInfo === null) {
 			if(embedType === 2) {
@@ -4259,8 +4273,8 @@ YouTube = new function() {
 				}
 			}
 		} else {
-			src = isYtube ? '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
-				: '//vimeo.com/' + m[1];
+			src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
+				: aib.prot + '//vimeo.com/' + m[1];
 			post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
 					(dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' +
@@ -4310,8 +4324,8 @@ YouTube = new function() {
 	function getVimeoTitle(link, m) {
 		GM_xmlhttpRequest({
 			'method': 'GET',
-			'url': '//vimeo.com/api/v2/video/' + m[1] + '.json',
-			'onreadystatechange': function(xhr) {
+			'url': aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json',
+			'onload': function(xhr) {
 				var json = JSON.parse(xhr.responseText)[0],
 					date = new RegExp (/(.*)\s(.*)?/).exec(json["upload_date"]);
 				link.textContent = json["title"];
@@ -4329,7 +4343,7 @@ YouTube = new function() {
 			}
 			GM_xmlhttpRequest({
 				'method': 'GET',
-				'url': '//gdata.youtube.com/feeds/api/videos/' + data[2] +
+				'url': aib.prot + '//gdata.youtube.com/feeds/api/videos/' + data[2] +
 					'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
 				'onreadystatechange': function(idx, xhr) {
 					if(xhr.readyState !== 4) {
@@ -6006,7 +6020,7 @@ function scriptCSS() {
 	x += gif('#de-btn-expimg', p + 'QAI9jI+pGwDn4GPL2Wep3rxXFEFel42mBE6kcYXqFqYnVc72jTPtS/KNr5OJOJMdq4diAXWvS065NNVwseehAAA7');
 	x += gif('#de-btn-preimg', p + 'QAJFjI+pGwCcHJPGWdoe3Lz7qh1WFJLXiX4qgrbXVEIYadLLnMX4yve+7ErBYorRjXiEeXagGguZAbWaSdHLOow4j8Hrj1EAADs=');
 	x += gif('#de-btn-maskimg', p + 'QAJQjI+pGwD3TGxtJgezrKz7DzLYRlKj4qTqmoYuysbtgk02ZCG1Rkk53gvafq+i8QiSxTozIY7IcZJOl9PNBx1de1Sdldeslq7dJ9gsUq6QnwIAOw==');
-	x += gif('#de-btn-imgload', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=')
+	x += gif('#de-btn-savethr', p + 'QAJFjI+pG+CQnHlwSYYu3rz7RoVipWib+aVUVD3YysAledKZHePpzvecPGnpDkBQEEV03Y7DkRMZ9ECNnemUlZMOQc+iT1EAADs=')
 	x += gif('#de-btn-catalog', p + 'QAI2jI+pa+DhAHyRNYpltbz7j1Rixo0aCaaJOZ2SxbIwKTMxqub6zuu32wP9WsHPcFMs0XDJ5qEAADs=');
 	x += gif('#de-btn-audio-off', p + 'QAI7jI+pq+DO1psvQHOj3rxTik1dCIzmSZqfmGXIWlkiB6L2jedhPqOfCitVYolgKcUwyoQuSe3WwzV1kQIAOw==');
 	x += gif('#de-btn-audio-on', p + 'QAJHjI+pq+AewJHs2WdoZLz7X11WRkEgNoHqimadOG7uAqOm+Y6atvb+D0TgfjHS6RIp8YQ1pbHRfA4n0eSTI7JqP8Wtahr0FAAAOw==');
@@ -6022,7 +6036,7 @@ function scriptCSS() {
 	}
 
 	// Post panel
-	x += '.de-ppanel { margin-left: 4px; }\
+	x += '.de-post-btns { margin-left: 4px; }\
 		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 		.de-thread-note { font-style: italic; }\
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
@@ -6082,8 +6096,8 @@ function scriptCSS() {
 	x += cont('.de-src-saucenao', 'http://saucenao.com/favicon.ico');
 
 	// Posts counter
-	x += '.de-ppanel-cnt:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-		.de-ppanel-del:after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }';
+	x += '.de-post-counter:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
+		.de-post-deleted:after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }';
 
 	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -6138,8 +6152,8 @@ function scriptCSS() {
 	}
 
 	// Embedders
-	x += cont('.de-video-link.de-ytube', '//youtube.com/favicon.ico');
-	x += cont('.de-video-link.de-vimeo', '//vimeo.com/favicon.ico');
+	x += cont('.de-video-link.de-ytube', 'http://youtube.com/favicon.ico');
+	x += cont('.de-video-link.de-vimeo', 'http://vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
 	x += '.de-current:after { content: " \u25C6"; }\
@@ -8030,7 +8044,7 @@ function Post(el, thr, num, count, isOp, prev) {
 		prev.next = this;
 	}
 	el.post = this;
-	html = '<span class="de-ppanel' + (isOp ? '' : ' de-ppanel-cnt') +
+	html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 	if(isOp) {
 		if(!TNum && !aib.arch) {
@@ -8728,7 +8742,7 @@ Post.prototype = {
 			html = this._addMenuHide();
 			break;
 		case 'expand':
-			html = '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThrd[lang]
+			html = '<span class="de-menu-item" info="thr-exp">' + Lng.selExpandThr[lang]
 				.join('</span><span class="de-menu-item" info="thr-exp">') + '</span>';
 			break;
 		case 'imgsrc':
@@ -9102,9 +9116,9 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 		this._pref = $q(aib.qRef, el);
 		if(post.inited) {
-			this.btns = btns = $c('de-ppanel', el);
+			this.btns = btns = $c('de-post-btns', el);
 			this.isOp = post.isOp;
-			btns.classList.remove('de-ppanel-cnt');
+			btns.classList.remove('de-post-counter');
 			if(post.hidden) {
 				btns.classList.add('de-post-hide');
 			}
@@ -9139,7 +9153,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				}, post.text.length > 100 ? 2e3 : 500, post);
 			}
 		} else {
-			this._pref.insertAdjacentHTML('afterend', '<span class="de-ppanel">' + pText + '</span');
+			this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
 			embedMP3Links(this);
 			new YouTube().parseLinks(this);
 			if(Cfg['addImgs']) {
@@ -9503,8 +9517,8 @@ Thread.prototype = {
 				}
 			} else {
 				post.deleted = true;
-				post.btns.classList.remove('de-ppanel-cnt');
-				post.btns.classList.add('de-ppanel-del');
+				post.btns.classList.remove('de-post-counter');
+				post.btns.classList.add('de-post-deleted');
 				($q('input[type="checkbox"]', post.el) || {}).disabled = true;
 			}
 			post = post.nextNotDeleted;
@@ -9861,6 +9875,8 @@ Thread.prototype = {
 //============================================================================================================
 
 function getImageBoard(checkDomains, checkOther) {
+	var prot = window.location.protocol;
+		localRun = prot === 'file:';
 	var ibDomains = {
 		'02ch.net': [{
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
@@ -10466,7 +10482,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qDelBut: 'input[type="submit"]',
 		qDForm: '#delform, form[name="delform"]',
 		qError: 'h1, h2, font[size="5"]',
-		qHide: '.de-ppanel ~ *',
+		qHide: '.de-post-btns ~ *',
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
@@ -10531,10 +10547,11 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		getOp: function(thr) {
 			var el, op, opEnd;
-			if(op = $c(this.cOPost, thr)) {
+			if(op = localRun && $q('div[de-oppost]', thr) || $c(this.cOPost, thr)) {
 				return op;
 			}
-			op = thr.ownerDocument.createElement('div'),
+			op = thr.ownerDocument.createElement('div');
+			op.setAttribute('de-oppost', '');
 			opEnd = $q(this.qTable + ', div[id^="repl"]', thr);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
@@ -10628,7 +10645,7 @@ function getImageBoard(checkDomains, checkOther) {
 			Object.defineProperty(this, 'lastPage', { value: val });
 			return val;
 		},
-		prot: window.location.protocol,
+		prot: (localRun ? 'http:' : prot),
 		get reCrossLinks() {
 			var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 				regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
@@ -10646,8 +10663,9 @@ function getImageBoard(checkDomains, checkOther) {
 		timePattern: 'w+dd+m+yyyy+hh+ii+ss'
 	};
 
-	var i, ibObj = null, dm = window.location.protocol === 'file:' ? '' : window.location.hostname
-		.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+	var i, ibObj = null, dm = localRun ? window.location.pathname.match(/\/([^\/]+)-[^-]+-t\d+/)[1] :
+		window.location.hostname
+			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
 			ibObj = (function createBoard(info) {
@@ -10792,7 +10810,7 @@ function Initialization(checkDomains) {
 		}
 	}
 	if(!(locStorage && typeof locStorage === 'object' && sesStorage)) {
-		GM_log('WEBSTORAGE ERROR: please, enable webstorage!');
+		console.log('WEBSTORAGE ERROR: please, enable webstorage!');
 		return false;
 	}
 	var intrv, url;
@@ -10816,7 +10834,7 @@ function Initialization(checkDomains) {
 	if(aib.init && aib.init()) {
 		return false;
 	}
-	dForm = $q(aib.qDForm, doc);
+	dForm = $q(aib.qDForm + ', form[de-form]', doc);
 	if(!dForm || $id('de-panel')) {
 		return false;
 	}
@@ -10905,10 +10923,13 @@ function Initialization(checkDomains) {
 		toggleContent('hid', true);
 	}, false);
 
-	url = (window.location.pathname || '').match(new RegExp(
-		'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
-		'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
-	));
+	url = (window.location.pathname || '').match(
+		localRun ? /\/[^\/]+-([^-])+-t(\d+)\/(\d+)\.([a-z]+)$/ :
+		new RegExp(
+			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
+			'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
+		)
+	);
 	brd = url[1].replace(/\/$/, '');
 	TNum = url[2] ? url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
@@ -10949,8 +10970,14 @@ function parseDelform(node, thrds) {
 	$each($T('script', node), $del);
 	if(len === 0) {
 		Thread.parsed = true;
-		thrds = parseThreadNodes(dForm, []);
-		len = thrds.length;
+		if(localRun) {
+			thrds = $Q('div[de-thread]', doc);
+			len = thrds.length;
+		}
+		if(len === 0) {
+			thrds = parseThreadNodes(dForm, []);
+			len = thrds.length;
+		}
 	}
 	if(len) {
 		firstThr = lThr = new Thread(thrds[0], null);
@@ -11354,9 +11381,11 @@ function initPage() {
 			}
 			doc.title = '/' + brd + ' - ' + firstThr.op.title;
 		}
-		firstThr.el.insertAdjacentHTML('afterend',
-			'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]</div>');
-		firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
+		if(!localRun) {
+			firstThr.el.insertAdjacentHTML('afterend',
+				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]</div>');
+			firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
+		}
 	} else if(needScroll) {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
@@ -11419,7 +11448,7 @@ function doScript() {
 	try {
 		parseDelform(dForm, $Q(aib.qThread, dForm));
 	} catch(e) {
-		GM_log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
+		console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
 		doc.body.style.display = '';
 		return;
 	}
@@ -11461,4 +11490,4 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doc.addEventListener('DOMContentLoaded', initScript.bind(null, false), false);
 }
 
-})(window.opera && window.opera.scriptStorage);
+})(null, true);
