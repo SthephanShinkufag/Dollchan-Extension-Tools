@@ -11490,4 +11490,4 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doc.addEventListener('DOMContentLoaded', initScript.bind(null, false), false);
 }
 
-})(null, true);
+})(window.opera && window.opera.scriptStorage);
