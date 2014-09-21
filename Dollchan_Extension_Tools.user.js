@@ -9876,7 +9876,6 @@ Thread.prototype = {
 
 function getImageBoard(checkDomains, checkOther) {
 	var prot = window.location.protocol;
-		localRun = prot === 'file:';
 	var ibDomains = {
 		'02ch.net': [{
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
@@ -10645,7 +10644,7 @@ function getImageBoard(checkDomains, checkOther) {
 			Object.defineProperty(this, 'lastPage', { value: val });
 			return val;
 		},
-		prot: (localRun ? 'http:' : prot),
+		prot: prot,
 		get reCrossLinks() {
 			var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
 				regQuote(this.res) + '(\\d+)(?:[^#<]+)?(?:#i?(\\d+))?<', 'g');
@@ -10663,7 +10662,8 @@ function getImageBoard(checkDomains, checkOther) {
 		timePattern: 'w+dd+m+yyyy+hh+ii+ss'
 	};
 
-	var i, ibObj = null, dm = localRun ? window.location.pathname.match(/\/([^\/]+)-[^-]+-t\d+/)[1] :
+	localRun = prot === 'file:';
+	var i, ibObj = null, dm = localRun ? window.location.pathname.match(/\/([^\/]+)-[^-]+-[^\/]+\//)[1] :
 		window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
@@ -10924,12 +10924,16 @@ function Initialization(checkDomains) {
 	}, false);
 
 	url = (window.location.pathname || '').match(
-		localRun ? /\/[^\/]+-([^-])+-t(\d+)\/(\d+)\.([a-z]+)$/ :
+		localRun ? /\/[^-]+-([^-])+-([^\/]+)\/(\d+)\.([a-z]+)$/ :
 		new RegExp(
 			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
 			'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
 		)
 	);
+	if(localRun) {
+		aib.prot = 'http:';
+		aib.host = aib.dm;
+	}
 	brd = url[1].replace(/\/$/, '');
 	TNum = url[2] ? url[3] :
 		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
