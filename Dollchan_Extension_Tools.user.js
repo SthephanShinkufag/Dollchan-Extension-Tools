@@ -148,19 +148,19 @@ Lng = {
 
 		'expandImgs': {
 			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
-			txt:		['раскрывать изображения по клику', 'expand images on click']
+			txt:		['раскрывать картинки по клику', 'expand images on click']
 		},
-		'resizeDPI':	['Отображать изображения пиксель в пиксель', 'Don\'t upscale images on retina displays'],
-		'resizeImgs':	['Уменьшать в экран большие изображения', 'Resize large images to fit screen'],
-		'zoomFactor':	[' Чувствительность зума изображений [1-100]', ' Sensibility of the images zoom [1-100]'],
+		'resizeDPI':	['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
+		'resizeImgs':	['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
+		'zoomFactor':	[' Чувствительность зума картинок [1-100]', ' Sensibility of the images zoom [1-100]'],
 		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
-		'minImgSize':	[' Минимальный размер изображения (px)', ' Minimal image\'s size (px)'],
-		'preLoadImgs':	['Предварительно загружать изображения*', 'Pre-load images*'],
-		'findImgFile':	['Распознавать встроенные файлы в изображениях*', 'Detect built-in files in images*'],
-		'openImgs':		['Скачивать полные версии изображений*', 'Download full version of images*'],
+		'minImgSize':	[' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
+		'preLoadImgs':	['Предварительно загружать картинки*', 'Pre-load images*'],
+		'findImgFile':	['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
+		'openImgs':		['Скачивать полные версии картинок*', 'Download full version of images*'],
 		'openGIFs':		['Скачивать только GIFы*', 'Download GIFs only*'],
-		'imgSrcBtns':	['Добавлять кнопки для поиска изображений*', 'Add image search buttons*'],
+		'imgSrcBtns':	['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 
 		'linksNavig': {
 			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
@@ -175,7 +175,7 @@ Lng = {
 		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':		['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
 		'addVimeo':		['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
-		'addImgs':		['Загружать изображения к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+		'addImgs':		['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
 			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
 			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
@@ -191,7 +191,7 @@ Lng = {
 			sel:		[['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
 			txt:		['AJAX отправка постов*', 'posting with AJAX*']
 		},
-		'postSameImg':	['Возможность отправки одинаковых изображений', 'Ability to post same images'],
+		'postSameImg':	['Возможность отправки одинаковых картинок', 'Ability to post same images'],
 		'removeEXIF':	['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
 		'removeFName':	['Удалять имя из файлов', 'Remove names from files'],
 		'sendErrNotif':	['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
@@ -226,7 +226,7 @@ Lng = {
 		},
 		'userCSS':		['Пользовательский CSS ', 'User CSS '],
 		'attachPanel':	['Прикрепить главную панель', 'Attach main panel'],
-		'panelCounter':	['Счетчик постов/изображений на главной панели', 'Counter of posts/images on main panel'],
+		'panelCounter':	['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
 		'rePageTitle':	['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
 		'animation':	['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':	['Автоматически закрывать уведомления', 'Close popups automatically'],
@@ -283,8 +283,8 @@ Lng = {
 		'upd-off':	['Включить автообновление треда', 'Enable thread autoupdate'],
 		'audio-off':['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
 		'catalog':	['Каталог', 'Catalog'],
-		'counter':	['Постов/Изображений в треде', 'Posts/Images in thread'],
-		'savethr':	['Сохранить на локальный диск', 'Save to local disc'],
+		'counter':	['Постов/картинок в треде', 'Posts/Images in thread'],
+		'savethr':	['Сохранить на диск', 'Save to disk'],
 		'enable':	['Включить/выключить скрипт', 'Turn on/off the script']
 	},
 
@@ -292,10 +292,10 @@ Lng = {
 		'sel':		['Скрывать выделенное', 'Hide selected text'],
 		'name':		['Скрывать имя', 'Hide name'],
 		'trip':		['Скрывать трип-код', 'Hide with trip-code'],
-		'img':		['Скрывать изображение', 'Hide with image'],
-		'ihash':	['Скрывать схожие изобр.', 'Hide similar images'],
+		'img':		['Скрывать картинку', 'Hide with image'],
+		'ihash':	['Скрывать схожие картинки', 'Hide similar images'],
 		'text':		['Скрыть схожий текст', 'Hide similar text'],
-		'noimg':	['Скрывать без изображений', 'Hide without images'],
+		'noimg':	['Скрывать без картинок', 'Hide without images'],
 		'notext':	['Скрывать без текста', 'Hide without text']
 	},
 	selExpandThr:	[
@@ -307,8 +307,8 @@ Lng = {
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages']
 	],
 	selSaveThr:		[
-		['Скачать всю страницу треда', 'Скачать все изображения'],
-		['Download entire thread page', 'Download all images']
+		['Скачать весь тред', 'Скачать картинки'],
+		['Download thread', 'Download images']
 	],
 	selAudioNotif:	[
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
@@ -316,8 +316,8 @@ Lng = {
 	],
 
 	keyNavEdit:		[[
-		'%l%i24 – предыдущая страница/изображение%/l',
-		'%l%i217 – следующая страница/изображение%/l',
+		'%l%i24 – предыдущая страница/картинка%/l',
+		'%l%i217 – следующая страница/картинка%/l',
 		'%l%i23 – скрыть текущий пост/тред%/l',
 		'%l%i33 – раскрыть текущий тред%/l',
 		'%l%i22 – быстрый ответ или создать тред%/l',
@@ -331,9 +331,9 @@ Lng = {
 		'%l%i26 – открыть/закрыть избранное%/l',
 		'%l%i27 – открыть/закрыть скрытые посты%/l',
 		'%l%i28 – открыть/закрыть панель%/l',
-		'%l%i29 – включить/выключить маскировку изображений%/l',
+		'%l%i29 – включить/выключить маскировку картинок%/l',
 		'%l%i40 – обновить тред%/l',
-		'%l%i211 – раскрыть изображение текущего поста%/l',
+		'%l%i211 – раскрыть картинку в текущем посте%/l',
 		'%l%i212t – жирный%/l',
 		'%l%i213t – курсив%/l',
 		'%l%i214t – зачеркнутый%/l',
@@ -471,14 +471,14 @@ Lng = {
 	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
 	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
 	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
-	loadImage:		['Загружаются изображения: ', 'Loading images: '],
+	loadImage:		['Загружаются картинки: ', 'Loading images: '],
 	loadFile:		['Загружаются файлы: ', 'Loading files: '],
 	cantLoad:		['Не могу загрузить ', 'Can\'t load '],
 	willSavePview:	['Будет сохранено превью', 'Thumbnail will be saved'],
 	loadErrors:		['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData:	['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-	nextImg:		['Следующее изображение', 'Next image'],
-	prevImg:		['Предыдущее изображение', 'Previous image'],
+	nextImg:		['Следующая картинка', 'Next image'],
+	prevImg:		['Предыдущая картинка', 'Previous image'],
 	togglePost:		['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
 	replyToPost:	['Ответить на пост', 'Reply to post'],
 	expandThrd:		['Раскрыть весь тред', 'Expand all thread'],
@@ -2782,7 +2782,7 @@ KeyNavigation.prototype = {
 				(e.altKey ? 0x4000 : 0) | (curTh === 'TEXTAREA' ||
 				(curTh === 'INPUT' && e.target.type === 'text') ? 0x8000 : 0);
 		if(kc === 0x74 || kc === 0x8074) { // F5
-			if(TNum) {
+			if(TNum || $id('de-alert-load-pages')) {
 				return;
 			}
 			if(Attachment.viewer) {
