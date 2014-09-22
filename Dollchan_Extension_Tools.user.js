@@ -4207,13 +4207,14 @@ YouTube = new function() {
 	}
 
 	function addPlayer(el, m, isYtube) {
-		var time, id = m[1],
+		var time, list, id = m[1],
 			wh = ' width="' + width + '" height="' + height + '">';
 		if(isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
+			list = m[0].match(/list=[^&#]+/);
 			el.innerHTML = '<iframe frameborder="0" allowfullscreen="1" src="' + aib.prot + '//www.youtube.com/embed/' +
 				id + '?' + (el.parentNode.id === 'de-content-vid' ? 'enablejsapi=1&' : '') +
-				(isHD ? 'hd=1&' : '') + 'start=' + time + (videoType === 1 ?
+				(isHD ? 'hd=1&' : '') + (list ? list[0] + '&' : '') + 'start=' + time + (videoType === 1 ?
 					'&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') + wh;
 		} else {
 			time = m[2] ? m[2] : '';
@@ -6186,7 +6187,7 @@ function scriptCSS() {
 		.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; ' + (nav.Presto ? '' : 'resize: none !important; ') + '}\
 		.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\
 		.de-content-block > input { margin: 0 4px; }\
-		#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; }\
+		#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
 		.de-entry { margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > :first-child { float: none !important; width: 100%; }\
