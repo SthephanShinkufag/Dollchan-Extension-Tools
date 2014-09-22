@@ -3977,21 +3977,20 @@ function loadDocFiles(imgOnly) {
 			Images_.queue.end(idx);
 		}.bind(dat, qIdx));
 	}, function() {
-		var u, a, dt;
+		var u, a, dt, name = aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') + '-' + TNum;
 		if(!imgOnly) {
 			dt = doc.doctype;
 			$t('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
 			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, true);');
 			tar.addString(
-				TNum + '.html', '<!DOCTYPE ' + dt.name +
+				name + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
 			);
 		}
 		u = window.URL.createObjectURL(tar.get());
-		a = $new('a', {'href': u, 'download': aib.dm + '-' + brd.replace(/[\\\/:*?"<>|]/g, '') +
-			'-t' + TNum + (imgOnly ? '-images.tar' : '.tar')}, null);
+		a = $new('a', {'href': u, 'download': name + (imgOnly ? '-images.tar' : '.tar')}, null);
 		doc.body.appendChild(a);
 		a.click();
 		setTimeout(function(el, url) {
@@ -10664,7 +10663,8 @@ function getImageBoard(checkDomains, checkOther) {
 	};
 
 	localRun = prot === 'file:';
-	var i, ibObj = null, dm = localRun ? window.location.pathname.match(/\/([^\/]+)-[^-]+-[^\/]+\//)[1] :
+	var i, ibObj = null, dm = localRun ?
+		(window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
 		window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
@@ -10924,24 +10924,27 @@ function Initialization(checkDomains) {
 		toggleContent('hid', true);
 	}, false);
 
-	url = (window.location.pathname || '').match(
-		localRun ? /\/[^-]+-([^-])+-([^\/]+)\/(\d+)\.([a-z]+)$/ :
-		new RegExp(
-			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
-			'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
-		)
-	);
 	if(localRun) {
+		url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 		aib.prot = 'http:';
 		aib.host = aib.dm;
-	}
-	brd = url[1].replace(/\/$/, '');
-	TNum = url[2] ? url[3] :
-		aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
-		false;
-	pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
-	if(!aib.hasOwnProperty('docExt') && url[4]) {
-		aib.docExt = url[4];
+		brd = url ? url[1] : '';
+		TNum = url ? url[2] : '';
+		pageNum = 0;
+		aib.docExt = '.html';
+	} else {
+		url = (window.location.pathname || '').match(new RegExp(
+			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
+			'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
+		));
+		brd = url[1].replace(/\/$/, '');
+		TNum = url[2] ? url[3] :
+			aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
+			false;
+		pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
+		if(!aib.hasOwnProperty('docExt') && url[4]) {
+			aib.docExt = url[4];
+		}
 	}
 	dummy = doc.createElement('div');
 	return true;
