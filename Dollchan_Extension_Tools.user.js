@@ -10208,9 +10208,6 @@ function getImageBoard(checkDomains, checkOther) {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] },
 				});
 			} },
-			init: { value: function() {
-				$script('$ = function() {}');
-			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		get 'syn-ch.com'() { return this['syn-ch.ru']; },
