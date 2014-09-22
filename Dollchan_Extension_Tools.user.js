@@ -10664,7 +10664,7 @@ function getImageBoard(checkDomains, checkOther) {
 	};
 
 	localRun = prot === 'file:';
-	var i, ibObj = null, dm = localRun ? window.location.pathname.match(/\/([^\/]+)-[^-]+-[^\/]+\//)[1] :
+	var i, ibObj = null, dm = localRun ? "" :
 		window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
@@ -10925,7 +10925,7 @@ function Initialization(checkDomains) {
 	}, false);
 
 	url = (window.location.pathname || '').match(
-		localRun ? /\/[^-]+-([^-])+-([^\/]+)\/(\d+)\.([a-z]+)$/ :
+//		localRun ? /\/[^-]+-([^-])+-([^\/]+)\/(\d+)\.([a-z]+)$/ :
 		new RegExp(
 			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res) + ')?' +
 			'(\\d+|index|wakaba|futaba)?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
