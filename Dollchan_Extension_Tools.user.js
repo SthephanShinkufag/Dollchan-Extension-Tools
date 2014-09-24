@@ -1002,6 +1002,9 @@ function readCfg(Fn) {
 		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg['ajaxReply'] === 2) {
 			Cfg['ajaxReply'] = 1;
 		}
+		if(aib.tiny) {
+			Cfg['fileThumb'] = 0;
+		}
 		if(!('Notification' in window)) {
 			Cfg['desktNotif'] = 0;
 		}
@@ -1048,6 +1051,11 @@ function readCfg(Fn) {
 				Cfg['correctTime'] ? lang : 1,
 				null
 			);
+		}
+		if(aib.synch) {
+			Cfg['timePattern'] = 'w+dd+m+yyyy+hh+ii+ss';
+			Cfg['timeOffset'] = 4,
+			Cfg['correctTime'] = 1;
 		}
 		saveComCfg(aib.dm, Cfg);
 		lang = Cfg['language'];
@@ -10202,12 +10210,22 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '#bodywrap3 > hr { display: none !important; }' }
 		}, 'script[src*="kusaba"]'],
 		'syn-ch.ru': [{
+			synch: { value: true },
+			
+			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] },
 				});
+			} },
+			init: { value: function() {
+				var val = '{"simpleNavbar":true,"textCountForm":true,"showInfo":true}';
+				if(locStorage.getItem('settings') !== val) {
+					locStorage.setItem('settings', val);
+					window.location.reload();
+				}
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
@@ -10392,7 +10410,6 @@ function getImageBoard(checkDomains, checkOther) {
 			tiny: { value: true },
 			
 			cFileInfo: { value: 'fileinfo' },
-			cOPost: { value: 'op' },
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
@@ -10406,6 +10423,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostForm: { value: 'form[name="post"]' },
 			qPostRedir: { value: null },
 			qRef: { value: '.post_no:nth-of-type(2)' },
+			qTable: { value: '.post.reply' },
 			qTrunc: { value: '.toolong' },
 			firstPage: { value: 1 },
 			formButtons: { get: function() {
@@ -10503,7 +10521,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qPostForm: '#postform',
 		qPostRedir: 'input[name="postredir"][value="1"]',
 		qRef: '.reflink',
-		qTable: 'form > table, div > table',
+		qTable: 'form > table, div > table, div[id^="repl"]',
 		qThumbImages: '.thumb, .de-thumb, .ca_thumb, img[src*="thumb"], img[src*="/spoiler"], img[src^="blob:"]',
 		get qThread() {
 			var val = $c('thread', doc) ? '.thread' :
@@ -10549,7 +10567,7 @@ function getImageBoard(checkDomains, checkOther) {
 			}
 			op = thr.ownerDocument.createElement('div');
 			op.setAttribute('de-oppost', '');
-			opEnd = $q(this.qTable + ', div[id^="repl"]', thr);
+			opEnd = $q(this.qTable, thr);
 			while((el = thr.firstChild) !== opEnd) {
 				op.appendChild(el);
 			}
