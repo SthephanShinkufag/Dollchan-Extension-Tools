@@ -6090,10 +6090,10 @@ function scriptCSS() {
 	}
 
 	// Search images buttons
-	x += cont('.de-src-google', 'http://google.com/favicon.ico');
-	x += cont('.de-src-tineye', 'http://tineye.com/favicon.ico');
-	x += cont('.de-src-iqdb', 'http://iqdb.org/favicon.ico');
-	x += cont('.de-src-saucenao', 'http://saucenao.com/favicon.ico');
+	x += cont('.de-src-google', 'https://google.com/favicon.ico');
+	x += cont('.de-src-tineye', 'https://tineye.com/favicon.ico');
+	x += cont('.de-src-iqdb', '//iqdb.org/favicon.ico');
+	x += cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico');
 
 	// Posts counter
 	x += '.de-post-counter:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
@@ -6152,8 +6152,8 @@ function scriptCSS() {
 	}
 
 	// Embedders
-	x += cont('.de-video-link.de-ytube', 'http://youtube.com/favicon.ico');
-	x += cont('.de-video-link.de-vimeo', 'http://vimeo.com/favicon.ico');
+	x += cont('.de-video-link.de-ytube', 'https://youtube.com/favicon.ico');
+	x += cont('.de-video-link.de-vimeo', 'https://vimeo.com/favicon.ico');
 	x += cont('.de-img-arch', 'data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 	x += cont('.de-img-audio', 'data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==');
 	x += '.de-current:after { content: " \u25C6"; }\
