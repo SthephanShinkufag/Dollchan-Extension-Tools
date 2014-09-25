@@ -583,16 +583,20 @@ function $add(html) {
 }
 
 function $new(tag, attr, events) {
-	var el = doc.createElement(tag);
+	var key, el = doc.createElement(tag);
 	if (attr) {
-		for (var key in attr) {
-			key === 'text' ? el.textContent = attr[key] :
-			key === 'value' ? el.value = attr[key] :
-			el.setAttribute(key, attr[key]);
+		for (key in attr) {
+			if (key === 'text') {
+				el.textContent = attr[key];
+			} else if (key === 'value') {
+				el.value = attr[key];
+			} else {
+				el.setAttribute(key, attr[key]);
+			}
 		}
 	}
 	if (events) {
-		for (var key in events) {
+		for (key in events) {
 			el.addEventListener(key, events[key], false);
 		}
 	}
@@ -6323,8 +6327,7 @@ function updateCSS() {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if (Cfg.noSpoilers) {
-		x += aib.fch ? 's { background: #888 !important; color: #ccc !important; }' :
-		'.spoiler { color: inherit !important; }';
+		x += '.spoiler' + (aib.fch ? ', s' : '') + ' { background: #888 !important; color: #ccc !important; }';
 	}
 	if (Cfg.noPostScrl) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
