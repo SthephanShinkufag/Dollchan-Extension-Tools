@@ -683,20 +683,20 @@ Logger = new function() {
 
 function $xhr(obj) {
 	var h, xhr = new XMLHttpRequest();
-	if(obj['onreadystatechange']) {
-		xhr.onreadystatechange = obj['onreadystatechange'].bind(window, xhr);
+	if(obj.onreadystatechange) {
+		xhr.onreadystatechange = obj.onreadystatechange.bind(window, xhr);
 	}
-	if(obj['onload']) {
-		xhr.onload = obj['onload'].bind(window, xhr);
+	if(obj.onload) {
+		xhr.onload = obj.onload.bind(window, xhr);
 	}
-	xhr.open(obj['method'], obj['url'], true);
-	if(obj['responseType']) {
-		xhr.responseType = obj['responseType'];
+	xhr.open(obj.method, obj.url, true);
+	if(obj.responseType) {
+		xhr.responseType = obj.responseType;
 	}
-	for(h in obj['headers']) {
-		xhr.setRequestHeader(h, obj['headers'][h]);
+	for(h in obj.headers) {
+		xhr.setRequestHeader(h, obj.headers[h]);
 	}
-	xhr.send(obj['data'] || null);
+	xhr.send(obj.data || null);
 	return xhr;
 }
 
@@ -987,80 +987,80 @@ function readCfg(Fn) {
 				obj = JSON.parse(obj)[aib.dm];
 				locStorage.removeItem('DESU_Config');
 			} else {
-				obj = nav.isGlobal ? comCfg['global'] || {} : {};
+				obj = nav.isGlobal ? comCfg.global || {} : {};
 			}
-			obj['captchaLang'] = aib.ru ? 2 : 1;
-			obj['correctTime'] = 0;
+			obj.captchaLang = aib.ru ? 2 : 1;
+			obj.correctTime = 0;
 		}
 		Cfg = new Config(obj);
-		if(!Cfg['timeOffset']) {
-			Cfg['timeOffset'] = '+0';
+		if(!Cfg.timeOffset) {
+			Cfg.timeOffset = '+0';
 		}
-		if(!Cfg['timePattern']) {
-			Cfg['timePattern'] = aib.timePattern;
+		if(!Cfg.timePattern) {
+			Cfg.timePattern = aib.timePattern;
 		}
-		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg['ajaxReply'] === 2) {
-			Cfg['ajaxReply'] = 1;
+		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+			Cfg.ajaxReply = 1;
 		}
 		if(aib.tiny) {
-			Cfg['fileThumb'] = 0;
+			Cfg.fileThumb = 0;
 		}
 		if(!('Notification' in window)) {
-			Cfg['desktNotif'] = 0;
+			Cfg.desktNotif = 0;
 		}
 		if(nav.Presto) {
 			if(nav.Opera11) {
 				if(!nav.isGM) {
-					Cfg['YTubeTitles'] = 0;
+					Cfg.YTubeTitles = 0;
 				}
-				Cfg['animation'] = 0;
+				Cfg.animation = 0;
 			}
-			if(Cfg['YTubeType'] === 2) {
-				Cfg['YTubeType'] = 1;
+			if(Cfg.YTubeType === 2) {
+				Cfg.YTubeType = 1;
 			}
-			Cfg['preLoadImgs'] = 0;
-			Cfg['findImgFile'] = 0;
+			Cfg.preLoadImgs = 0;
+			Cfg.findImgFile = 0;
 			if(!nav.isGM) {
-				Cfg['updScript'] = 0;
+				Cfg.updScript = 0;
 			}
-			Cfg['fileThumb'] = 0;
+			Cfg.fileThumb = 0;
 		}
 		if(nav.isChromeStorage) {
-			Cfg['updScript'] = 0;
+			Cfg.updScript = 0;
 		}
-		if(Cfg['updThrDelay'] < 10) {
-			Cfg['updThrDelay'] = 10;
+		if(Cfg.updThrDelay < 10) {
+			Cfg.updThrDelay = 10;
 		}
-		if(!Cfg['saveSage']) {
-			Cfg['sageReply'] = 0;
+		if(!Cfg.saveSage) {
+			Cfg.sageReply = 0;
 		}
-		if(!Cfg['passwValue']) {
-			Cfg['passwValue'] = Math.round(Math.random() * 1e15).toString(32);
+		if(!Cfg.passwValue) {
+			Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
 		}
-		if(!Cfg['stats']) {
-			Cfg['stats'] = {'view': 0, 'op': 0, 'reply': 0};
+		if(!Cfg.stats) {
+			Cfg.stats = {'view': 0, 'op': 0, 'reply': 0};
 		}
 		if(TNum) {
-			Cfg['stats']['view']++;
+			Cfg.stats.view++;
 		}
 		if(aib.dobr) {
 			aib.hDTFix = new dateTime(
 				'yyyy-nn-dd-hh-ii-ss',
 				'_d _M _Y (_w) _h:_i ',
-				Cfg['timeOffset'] || 0,
-				Cfg['correctTime'] ? lang : 1,
+				Cfg.timeOffset || 0,
+				Cfg.correctTime ? lang : 1,
 				null
 			);
 		}
 		if(aib.synch) {
-			Cfg['timePattern'] = 'w+dd+m+yyyy+hh+ii+ss';
-			Cfg['timeOffset'] = 4,
-			Cfg['correctTime'] = 1;
+			Cfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+			Cfg.timeOffset = 4;
+			Cfg.correctTime = 1;
 		}
 		saveComCfg(aib.dm, Cfg);
-		lang = Cfg['language'];
-		if(Cfg['correctTime']) {
-			dTime = new dateTime(Cfg['timePattern'], Cfg['timeRPattern'], Cfg['timeOffset'], lang, function(rp) {
+		lang = Cfg.language;
+		if(Cfg.correctTime) {
+			dTime = new dateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function(rp) {
 				saveCfg('timeRPattern', rp);
 			});
 		}
@@ -1076,7 +1076,7 @@ function readPosts() {
 	var data, str = TNum ? sesStorage['de-hidden-' + brd + TNum] : null;
 	if(typeof str === 'string') {
 		data = str.split(',');
-		if(data.length === 4 && +data[0] === (Cfg['hideBySpell'] ? spells.hash : 0) &&
+		if(data.length === 4 && +data[0] === (Cfg.hideBySpell ? spells.hash : 0) &&
 			(data[1] in pByNum) && pByNum[data[1]].count === +data[2])
 		{
 			sVis = data[3].split('');
@@ -1156,7 +1156,7 @@ function readUserPosts() {
 function savePosts() {
 	if(TNum) {
 		var lPost = firstThr.lastNotDeleted;
-		sesStorage['de-hidden-' + brd + TNum] = (Cfg['hideBySpell'] ? spells.hash : '0') +
+		sesStorage['de-hidden-' + brd + TNum] = (Cfg.hideBySpell ? spells.hash : '0') +
 			',' + lPost.num + ',' + lPost.count + ',' + sVis.join('');
 	}
 	saveHiddenThreads(false);
@@ -1216,10 +1216,10 @@ function readFavoritesPosts() {
 			if((num = thr.num) in temp) {
 				$c('de-btn-fav', thr.op.btns).className = 'de-btn-fav-sel';
 				if(TNum) {
-					temp[num]['cnt'] = thr.pcount;
+					temp[num].cnt = thr.pcount;
 					temp[num]['new'] = 0;
 				} else {
-					temp[num]['new'] = thr.pcount - temp[num]['cnt'];
+					temp[num]['new'] = thr.pcount - temp[num].cnt;
 				}
 				update = true;
 			}
@@ -1259,7 +1259,7 @@ function removeFavoriteEntry(fav, h, b, num, clearPage) {
 }
 
 function readViewedPosts() {
-	if(Cfg['markViewed']) {
+	if(Cfg.markViewed) {
 		var data = sesStorage['de-viewed'];
 		if(data) {
 			data.split(',').forEach(function(pNum) {
@@ -1288,13 +1288,13 @@ function addPanel() {
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div class="de-content"></div>' +
 			'<div id="de-panel">' +
-				'<span id="de-btn-logo" title="' + Lng.panelBtn['attach'][lang] + '"></span>' +
-				'<ul id="de-panel-btns"' + (Cfg['expandPanel'] ? '>' : ' style="display: none">') +
-				(Cfg['disabled'] ? pButton('enable', '#', false) :
+				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
+				'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none">') +
+				(Cfg.disabled ? pButton('enable', '#', false) :
 					pButton('settings', '#', true) +
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
-					(!Cfg['addYouTube'] ? '' : pButton('video', '#', false)) +
+					(!Cfg.addYouTube ? '' : pButton('video', '#', false)) +
 					(aib.arch || localRun ? '' :
 						pButton('refresh', '#', false) +
 						(!TNum && (pageNum === aib.firstPage) ? '' :
@@ -1307,25 +1307,22 @@ function addPanel() {
 						pButton('expimg', '#', false) +
 						pButton('maskimg', '#', true) +
 						(nav.Presto || localRun ? '' : 
-							(Cfg['preLoadImgs'] ? '' : pButton('preimg', '#', false)) +
+							(Cfg.preLoadImgs ? '' : pButton('preimg', '#', false)) +
 							(!TNum && !aib.arch ? '' : pButton('savethr', '#', false)))) +
 					(!TNum || localRun ? '' :
-						pButton(Cfg['ajaxUpdThr'] ? 'upd-on' : 'upd-off', '#', false) +
+						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
 					(!aib.abu && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.abu ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
 					(!TNum && !aib.arch ? '' :
-						'<div id="de-panel-info"><span title="' + Lng.panelBtn['counter'][lang] +
+						'<div id="de-panel-info"><span title="' + Lng.panelBtn.counter[lang] +
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>')
 				) +
 				'</ul>' +
 			'</div>' +
-		(Cfg['disabled'] ? '' :
-			'<div id="de-alert"></div>' +
-			'<hr style="clear: both;">'
-		) +
+		(Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') +
 		'</div>'
 	);
 	panel = $id('de-panel');
@@ -1338,7 +1335,7 @@ function addPanel() {
 			case 'click':
 				switch(e.target.id) {
 				case 'de-btn-logo':
-					if(Cfg['expandPanel']) {
+					if(Cfg.expandPanel) {
 						this.panel.lastChild.style.display = 'none';
 						this.attach = false;
 					} else {
@@ -1399,7 +1396,7 @@ function addPanel() {
 				$pd(e);
 				return;
 			case 'mouseover':
-				if(!Cfg['expandPanel']) {
+				if(!Cfg.expandPanel) {
 					clearTimeout(this.odelay);
 					this.panel.lastChild.style.display = '';
 				}
@@ -1419,7 +1416,7 @@ function addPanel() {
 				}
 				return;
 			default: // mouseout
-				if(!Cfg['expandPanel'] && !this.attach) {
+				if(!Cfg.expandPanel && !this.attach) {
 					this.odelay = setTimeout(function(obj) {
 						obj.panel.lastChild.style.display = 'none';
 						obj.attach = false;
@@ -1451,7 +1448,7 @@ function toggleContent(name, isUpd, data) {
 		return true;
 	}
 	remove = !isUpd && el.id === id;
-	if(el.hasChildNodes() && Cfg['animation']) {
+	if(el.hasChildNodes() && Cfg.animation) {
 		nav.animEvent(el, function(node) {
 			showContent(node, id, name, remove, data);
 			id = name = remove = data = null;
@@ -1489,7 +1486,7 @@ function showContent(cont, id, name, remove, data) {
 	cont.id = id;
 	if(name === 'cfg') {
 		addSettings(cont, cfgTabId);
-	} else if(Cfg['attachPanel']) {
+	} else if(Cfg.attachPanel) {
 		cont.style.backgroundColor = getComputedStyle(doc.body).getPropertyValue('background-color');
 	}
 
@@ -1709,7 +1706,7 @@ function showContent(cont, id, name, remove, data) {
 		}
 	}
 
-	if(Cfg['animation']) {
+	if(Cfg.animation) {
 		cont.className = 'de-content de-cfg-open';
 	}
 }
@@ -1734,8 +1731,8 @@ function showFavoriteTable(cont, data) {
 	for(h in data) {
 		for(b in data[h]) {
 			i = data[h][b];
-			block = addContentBlock(cont, i['url'] ?
-				$new('a', {'href': i['url'], 'text': h + '/' + b}, null) :
+			block = addContentBlock(cont, i.url ?
+				$new('a', {'href': i.url, 'text': h + '/' + b}, null) :
 				$new('b', {'text': h + '/' + b}, null));
 			if(h === aib.host && b === brd) {
 				block.classList.add('de-fav-current');
@@ -1745,15 +1742,15 @@ function showFavoriteTable(cont, data) {
 					continue;
 				}
 				i = data[h][b][tNum];
-				if(!i['url'].startsWith('http')) {
-					i['url'] = (h === aib.host ? aib.prot + '//' : 'http://') + h + i['url'];
+				if(!i.url.startsWith('http')) {
+					i.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + i.url;
 				}
 				block.insertAdjacentHTML('beforeend', '<div class="de-entry" de-host="' + h + '" de-board="' +
-					b + '" de-num="' + tNum + '" de-url="' + i['url'] + '"><div class="' + aib.cReply +
+					b + '" de-num="' + tNum + '" de-url="' + i.url + '"><div class="' + aib.cReply +
 					'"><input type="checkbox"><span class="de-btn-expthr" title="' + Lng.findThrd[lang] +
-					'"></span><a href="' + i['url'] + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
-					i['txt'] + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
-					Lng.oldPosts[lang] + '">' + i['cnt'] + '</span>] <span class="de-fav-inf-new" title="' +
+					'"></span><a href="' + i.url + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
+					i.txt + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
+					Lng.oldPosts[lang] + '">' + i.cnt + '</span>] <span class="de-fav-inf-new" title="' +
 					Lng.newPosts[lang] + '"' + (i['new'] ? '>' : ' style="display: none;">') +
 					(i['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
 					Lng.thrPage[lang] + '"></span></span></div></div>');
@@ -1882,7 +1879,7 @@ function showFavoriteTable(cont, data) {
 			clearFavoriteTable();
 		})
 	]);
-	if(Cfg['animation']) {
+	if(Cfg.animation) {
 		cont.className = 'de-content de-cfg-open';
 	}
 }
@@ -1899,38 +1896,38 @@ function fixSettings() {
 			($q(arr[i], doc) || {}).disabled = nState;
 		}
 	}
-	toggleBox(Cfg['ajaxUpdThr'], [
+	toggleBox(Cfg.ajaxUpdThr, [
 		'input[info="noErrInTitle"]',
 		'input[info="favIcoBlink"]',
 		'input[info="markNewPosts"]',
 		'input[info="desktNotif"]'
 	]);
-	toggleBox(Cfg['expandImgs'], [
+	toggleBox(Cfg.expandImgs, [
 		'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="webmControl"]',
 		'input[info="webmVolume"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]'
 	]);
-	toggleBox(Cfg['preLoadImgs'], ['input[info="findImgFile"]']);
-	toggleBox(Cfg['openImgs'], ['input[info="openGIFs"]']);
-	toggleBox(Cfg['linksNavig'], [
+	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
+	toggleBox(Cfg.openImgs, ['input[info="openGIFs"]']);
+	toggleBox(Cfg.linksNavig, [
 		'input[info="linksOver"]',
 		'input[info="linksOut"]',
 		'input[info="markViewed"]',
 		'input[info="strikeHidd"]',
 		'input[info="noNavigHidd"]'
 	]);
-	toggleBox(Cfg['addYouTube'] && Cfg['addYouTube'] !== 4, [
+	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
 		'select[info="YTubeType"]', 'input[info="YTubeHD"]', 'input[info="addVimeo"]'
 	]);
-	toggleBox(Cfg['addYouTube'], [
+	toggleBox(Cfg.addYouTube, [
 		'input[info="YTubeWidth"]', 'input[info="YTubeHeigh"]', 'input[info="YTubeTitles"]'
 	]);
-	toggleBox(Cfg['ajaxReply'], ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
-	toggleBox(Cfg['ajaxReply'] === 2, [
+	toggleBox(Cfg.ajaxReply, ['input[info="sendErrNotif"]', 'input[info="scrAfterRep"]']);
+	toggleBox(Cfg.ajaxReply === 2, [
 		'input[info="postSameImg"]', 'input[info="removeEXIF"]', 'input[info="removeFName"]'
 	]);
-	toggleBox(Cfg['addTextBtns'], ['input[info="txtBtnsLoc"]']);
-	toggleBox(Cfg['updScript'], ['select[info="scrUpdIntrv"]']);
-	toggleBox(Cfg['keybNavig'], ['input[info="loadPages"]']);
+	toggleBox(Cfg.addTextBtns, ['input[info="txtBtnsLoc"]']);
+	toggleBox(Cfg.updScript, ['select[info="scrUpdIntrv"]']);
+	toggleBox(Cfg.keybNavig, ['input[info="loadPages"]']);
 }
 
 function lBox(id, isBlock, Fn) {
@@ -2055,7 +2052,7 @@ function getCfgFilters() {
 			})])
 		]),
 		lBox('sortSpells', true, function() {
-			if(Cfg['sortSpells']) {
+			if(Cfg.sortSpells) {
 				toggleSpells();
 			}
 		}),
@@ -2081,7 +2078,7 @@ function getCfgFilters() {
 function getCfgPosts() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-posts'}, [
 		lBox('ajaxUpdThr', false, TNum ? function() {
-			if(Cfg['ajaxUpdThr']) {
+			if(Cfg.ajaxUpdThr) {
 				updater.enable();
 			} else {
 				updater.disable();
@@ -2089,7 +2086,7 @@ function getCfgPosts() {
 		} : null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
-			$txt(Lng.cfg['updThrDelay'][lang])
+			$txt(Lng.Cfg.updThrDelay[lang])
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			lBox('noErrInTitle', true, null),
@@ -2098,7 +2095,7 @@ function getCfgPosts() {
 				firstThr.clearPostsMarks();
 			}),
 			$if('Notification' in window, lBox('desktNotif', true, function() {
-				if(Cfg['desktNotif']) {
+				if(Cfg.desktNotif) {
 					Notification.requestPermission();
 				}
 			}))
@@ -2116,15 +2113,15 @@ function getCfgPosts() {
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
-				$txt(Lng.cfg['timeOffset'][lang])
+				$txt(Lng.Cfg.timeOffset[lang])
 			]),
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
-				$txt(Lng.cfg['timePattern'][lang])
+				$txt(Lng.Cfg.timePattern[lang])
 			]),
 			$New('div', null, [
 				inpTxt('timeRPattern', 30, null),
-				$txt(Lng.cfg['timeRPattern'][lang])
+				$txt(Lng.Cfg.timeRPattern[lang])
 			])
 		])
 	]);
@@ -2139,19 +2136,19 @@ function getCfgImages() {
 			inpTxt('zoomFactor', 6, function() {
 				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 			}),
-			$txt(Lng.cfg['zoomFactor'][lang]),
+			$txt(Lng.Cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
 			$New('div', null, [
 				inpTxt('webmVolume', 6, function() {
 					saveCfg('webmVolume', Math.min(+this.value, 100));
 				}),
-				$txt(Lng.cfg['webmVolume'][lang])
+				$txt(Lng.Cfg.webmVolume[lang])
 			]),
 			$New('div', null, [
 				inpTxt('minImgSize', 6, function() {
 					saveCfg('minImgSize', Math.max(+this.value, 1));
 				}),
-				$txt(Lng.cfg['minImgSize'][lang])
+				$txt(Lng.Cfg.minImgSize[lang])
 			])
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
@@ -2172,13 +2169,13 @@ function getCfgLinks() {
 				inpTxt('linksOver', 6, function() {
 					saveCfg('linksOver', +this.value | 0);
 				}),
-				$txt(Lng.cfg['linksOver'][lang])
+				$txt(Lng.Cfg.linksOver[lang])
 			]),
 			$New('div', null, [
 				inpTxt('linksOut', 6, function() {
 					saveCfg('linksOut', +this.value | 0);
 				}),
-				$txt(Lng.cfg['linksOut'][lang])
+				$txt(Lng.Cfg.linksOut[lang])
 			]),
 			lBox('markViewed', true, null),
 			lBox('strikeHidd', true, null),
@@ -2244,7 +2241,7 @@ function getCfgForm() {
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('passwValue', 20, PostForm.setUserPassw),
-			$txt(Lng.cfg['userPassw'][lang]),
+			$txt(Lng.Cfg.userPassw[lang]),
 			$btn(Lng.change[lang], '', function() {
 				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
 				PostForm.setUserPassw();
@@ -2276,7 +2273,7 @@ function getCfgCommon() {
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
 			addEditButton('css', function(Fn) {
-				Fn(Cfg['userCSSTxt'], false, function() {
+				Fn(Cfg.userCSSTxt, false, function() {
 					saveCfg('userCSSTxt', this.value);
 					updateCSS();
 					toggleContent('cfg', true);
@@ -2293,7 +2290,7 @@ function getCfgCommon() {
 		lBox('closePopups', true, null),
 		$New('div', null, [
 			lBox('keybNavig', false, function() {
-				if(Cfg['keybNavig']) {
+				if(Cfg.keybNavig) {
 					if(keyNav) {
 						keyNav.enable();
 					} else {
@@ -2323,7 +2320,7 @@ function getCfgCommon() {
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			inpTxt('loadPages', 4, null),
-			$txt(Lng.cfg['loadPages'][lang])
+			$txt(Lng.Cfg.loadPages[lang])
 		]),
 		$if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
@@ -2340,7 +2337,7 @@ function getCfgCommon() {
 		lBox('turnOff', true, function() {
 			for(var dm in comCfg) {
 				if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-					comCfg[dm]['disabled'] = Cfg['turnOff'];
+					comCfg[dm].disabled = Cfg.turnOff;
 				}
 			}
 			setStored('DESU_Config', JSON.stringify(comCfg) || '');
@@ -2366,10 +2363,10 @@ function getCfgInfo() {
 			'<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/' +
 			(lang ? 'home-en/' : '') + '" target="_blank">Github</a></div>'),
 		$add('<div><div style="display: inline-block; vertical-align: top; width: 186px; height: 230px;">' +
-			Lng.thrViewed[lang] + Cfg['stats']['view'] + '<br>' +
-			Lng.thrCreated[lang] + Cfg['stats']['op'] + '<br>' +
+			Lng.thrViewed[lang] + Cfg.stats.view + '<br>' +
+			Lng.thrCreated[lang] + Cfg.stats.op + '<br>' +
 			Lng.thrHidden[lang] + getHiddenThrCount() + '<br>' +
-			Lng.postsSent[lang] + Cfg['stats']['reply'] + '</div>' +
+			Lng.postsSent[lang] + Cfg.stats.reply + '</div>' +
 			'<div style="display: inline-block; padding-left: 7px; height: 230px; ' +
 			'border-left: 1px solid grey;">' + new Logger().get().join('<br>') + '</div></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
@@ -2455,7 +2452,7 @@ function addSettings(Set, id) {
 					});
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(('global' in comCfg) && !$isEmpty(comCfg['global'])) {
+					if(('global' in comCfg) && !$isEmpty(comCfg.global)) {
 						saveComCfg(aib.dm, null);
 						window.location.reload();
 					} else {
@@ -2497,7 +2494,7 @@ function addSettings(Set, id) {
 function closeAlert(el) {
 	if(el) {
 		el.closeTimeout = null;
-		if(Cfg['animation']) {
+		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
 				var p = node && node.parentNode;
 				if(p) {
@@ -2521,7 +2518,7 @@ function $alert(txt, id, wait) {
 		node.className = cBtn;
 		node.textContent = tBtn;
 		clearTimeout(el.closeTimeout);
-		if(!wait && Cfg['animation']) {
+		if(!wait && Cfg.animation) {
 			nav.animEvent(el, function(node) {
 				node.classList.remove('de-blink');
 			});
@@ -2534,21 +2531,21 @@ function $alert(txt, id, wait) {
 			}}),
 			$add('<div class="de-alert-msg">' + txt.trim() + '</div>')
 		]));
-		if(Cfg['animation']) {
+		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
 				node.classList.remove('de-open');
 			});
 			el.classList.add('de-open');
 		}
 	}
-	if(Cfg['closePopups'] && !wait && !id.contains('help') && !id.contains('edit')) {
+	if(Cfg.closePopups && !wait && !id.contains('help') && !id.contains('edit')) {
 		el.closeTimeout = setTimeout(closeAlert, 4e3, el);
 	}
 }
 
 function showMenu(el, html, inPanel, onclick) {
 	var y, pos, menu, cr = el.getBoundingClientRect();
-	if(Cfg['attachPanel'] && inPanel) {
+	if(Cfg.attachPanel && inPanel) {
 		pos = 'fixed';
 		y = 'bottom: 25';
 	} else {
@@ -2583,7 +2580,7 @@ function addMenu(e) {
 		case 'de-btn-savethr': addSaveThreadMenu(el); return;
 		case 'de-btn-audio-off': addAudioNotifMenu(el); return;
 		}
-	}, Cfg['linksOver'], e.target);
+	}, Cfg.linksOver, e.target);
 }
 
 function removeMenu(e) {
@@ -2797,7 +2794,7 @@ KeyNavigation.prototype = {
 				Attachment.viewer.close(null);
 				Attachment.viewer = null;
 			}
-			loadPages(+Cfg['loadPages']);
+			loadPages(+Cfg.loadPages);
 		} else if(kc === 0x1B) { // ESC
 			if(Attachment.viewer) {
 				Attachment.viewer.close(null);
@@ -2819,13 +2816,13 @@ KeyNavigation.prototype = {
 			switch(globIdx) {
 			case 2: // Reply or create thread
 				if(pr.form) {
-					if(!this.cPost && TNum && Cfg['addPostForm'] === 3) {
+					if(!this.cPost && TNum && Cfg.addPostForm === 3) {
 						this.cPost = firstThr.op;
 					}
 					if(this.cPost) {
 						pr.showQuickReply(this.cPost, this.cPost.num, true);
 					} else {
-						pr.showMainReply(Cfg['addPostForm'] === 1, null);
+						pr.showMainReply(Cfg.addPostForm === 1, null);
 					}
 				}
 				break;
@@ -3289,7 +3286,7 @@ function checkUpload(dc) {
 	if(pr.video) {
 		pr.video.value = '';
 	}
-	Cfg['stats'][pr.tNum ? 'reply' : 'op']++;
+	Cfg.stats[pr.tNum ? 'reply' : 'op']++;
 	saveComCfg(aib.dm, Cfg);
 	if(!pr.tNum) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
@@ -3302,14 +3299,14 @@ function checkUpload(dc) {
 		if(el) {
 			firstThr.loadNewFromForm(el);
 			closeAlert($id('de-alert-upload'));
-			if(Cfg['scrAfterRep']) {
+			if(Cfg.scrAfterRep) {
 				scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
 			}
 		} else {
 			firstThr.loadNew(function(eCode, eMsg, np, xhr) {
 				infoLoadErrors(eCode, eMsg, 0);
 				closeAlert($id('de-alert-upload'));
-				if(Cfg['scrAfterRep']) {
+				if(Cfg.scrAfterRep) {
 					scrollTo(0, pageYOffset + firstThr.last.el.getBoundingClientRect().top);
 				}
 			}, true);
@@ -3389,7 +3386,7 @@ html5Submit.prototype = {
 			file = el.files[0];
 			fName = file.name;
 			this.data.push(pre + '; filename="' + (
-				!Cfg['removeFName'] ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
+				!Cfg.removeFName ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
 			) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
 			idx = this.data.length - 2;
 			if(!/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type)) {
@@ -3399,7 +3396,7 @@ html5Submit.prototype = {
 			fr = new FileReader();
 			fr.onload = function(name, e) {
 				var dat = this.clearImage(e.target.result, el.obj.imgFile,
-					Cfg['postSameImg'] && String(Math.round(Math.random() * 1e6)));
+					Cfg.postSameImg && String(Math.round(Math.random() * 1e6)));
 				if(dat) {
 					this.data[idx] = new Blob(dat);
 					this.busy--;
@@ -3472,10 +3469,10 @@ html5Submit.prototype = {
 	},
 	clearImage: function(data, extraData, rand) {
 		var tmp, i, len, deep, val, lIdx, jpgDat, img = new Uint8Array(data),
-			rExif = !!Cfg['removeEXIF'],
+			rExif = !!Cfg.removeEXIF,
 			rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
 				[img, rand] : [img];
-		if(!Cfg['postSameImg'] && !rExif && !extraData) {
+		if(!Cfg.postSameImg && !rExif && !extraData) {
 			return rv;
 		}
 		// JPG
@@ -3794,7 +3791,7 @@ workerQueue.prototype = {
 };
 
 function addImgFileIcon(fName, info) {
-	var app, ext, type = info['type'];
+	var app, ext, type = info.type;
 	if(typeof type !== 'undefined') {
 		if(type === 2) {
 			app = 'application/x-rar-compressed';
@@ -3813,7 +3810,7 @@ function addImgFileIcon(fName, info) {
 			ext = 'mp3';
 		}
 		this.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-				new Blob([new Uint8Array(info['data']).subarray(info['idx'])], {'type': app})
+				new Blob([new Uint8Array(info.data).subarray(info.idx)], {'type': app})
 			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 		);
@@ -3855,10 +3852,10 @@ function downloadImgData(url, Fn) {
 
 function downloadObjInfo(Fn, obj) {
 	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
-		obj['overrideMimeType'] = 'text/plain; charset=x-user-defined';
+		obj.overrideMimeType = 'text/plain; charset=x-user-defined';
 		GM_xmlhttpRequest(obj);
 	} else {
-		obj['responseType'] = 'arraybuffer';
+		obj.responseType = 'arraybuffer';
 		try {
 			$xhr(obj);
 		} catch(e) {
@@ -3868,14 +3865,14 @@ function downloadObjInfo(Fn, obj) {
 }
 
 function preloadImages(post) {
-	if(!Cfg['preLoadImgs'] && !Cfg['openImgs'] && !isPreImg) {
+	if(!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 		return;
 	}
 	var lnk, url, iType, nExp, el, i, len, els, queue, mReqs = post ? 1 : 4, cImg = 1,
-		rjf = (isPreImg || Cfg['findImgFile']) && new workerQueue(mReqs, detectImgFile, function(e) {
+		rjf = (isPreImg || Cfg.findImgFile) && new workerQueue(mReqs, detectImgFile, function(e) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		});
-	if(isPreImg || Cfg['preLoadImgs']) {
+	if(isPreImg || Cfg.preLoadImgs) {
 		queue = new $queue(mReqs, function(qIdx, num, dat) {
 			downloadImgData(dat[0], function(idx, data) {
 				if(data) {
@@ -3915,7 +3912,7 @@ function preloadImages(post) {
 	for(i = 0, els = $Q(aib.qThumbImages, post || dForm), len = els.length; i < len; i++) {
 		if(lnk = getAncestor(el = els[i], 'A')) {
 			url = lnk.href;
-			nExp = !!Cfg['openImgs'];
+			nExp = !!Cfg.openImgs;
 			if(/\.gif$/i.test(url)) {
 				iType = 'image/gif';
 			} else {
@@ -3929,7 +3926,7 @@ function preloadImages(post) {
 				} else {
 					continue;
 				}
-				nExp &= !Cfg['openGIFs'];
+				nExp &= !Cfg.openGIFs;
 			}
 			if(queue) {
 				queue.run([url, lnk, iType, nExp, el]);
@@ -4102,7 +4099,7 @@ function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
 	this.onRPat = onRPat;
 }
 dateTime.toggleSettings = function(el) {
-	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg['timeOffset']) || dateTime.checkPattern(Cfg['timePattern']))) {
+	if(el.checked && (!/^[+-]\d{1,2}$/.test(Cfg.timeOffset) || dateTime.checkPattern(Cfg.timePattern))) {
 		$alert(Lng.cTimeError[lang], 'err-correcttime', false);
 		saveCfg('correctTime', 0);
 		el.checked = false;
@@ -4207,7 +4204,7 @@ YouTube = new function() {
 				'method': 'GET',
 				'url': aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json',
 				'onload': function(xhr){
-					this.setAttribute('src', JSON.parse(xhr.responseText)[0]['thumbnail_large']);
+					this.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 				}.bind(el.firstChild.firstChild)
 			});
 		}
@@ -4276,7 +4273,7 @@ YouTube = new function() {
 					Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3];
 			} else {
 				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
-				if(!isYtube && Cfg['YTubeTitles']) {
+				if(!isYtube && Cfg.YTubeTitles) {
 					getVimeoTitle(link, m);
 				}
 			}
@@ -4360,11 +4357,11 @@ YouTube = new function() {
 					var entry, title, author, views, publ, data, post = this[0], link = this[1];
 					try {
 						if(xhr.status === 200) {
-							entry = JSON.parse(xhr.responseText)['entry'];
-							title = entry['title']['$t'];
-							author = entry['author'][0]['name']['$t'];
-							views = entry['yt$statistics']['viewCount'];
-							publ = entry['published']['$t'].substr(0, 10);
+							entry = JSON.parse(xhr.responseText).entry;
+							title = entry.title.$t;
+							author = entry.author[0].name.$t;
+							views = entry.yt$statistics.viewCount;
+							publ = entry.published.$t.substr(0, 10);
 						}
 					} finally {
 						if(title) {
@@ -4397,19 +4394,19 @@ YouTube = new function() {
 			return instance;
 		}
 		instance = this;
-		embedType = Cfg['addYouTube'];
+		embedType = Cfg.addYouTube;
 		if(embedType === 0) {
 			this.parseLinks = emptyFn;
 			this.updatePost = emptyFn;
 		}
-		loadTitles = Cfg['YTubeTitles'];
+		loadTitles = Cfg.YTubeTitles;
 		if(loadTitles) {
 			vData = JSON.parse(sesStorage['de-ytube-data'] || '{}');
 		}
-		videoType = Cfg['YTubeType'];
-		width = Cfg['YTubeWidth'];
-		height = Cfg['YTubeHeigh'];
-		isHD = Cfg['YTubeHD'];
+		videoType = Cfg.YTubeType;
+		width = Cfg.YTubeWidth;
+		height = Cfg.YTubeHeigh;
+		isHD = Cfg.YTubeHD;
 	}
 	YouTubeSingleton.prototype = {
 		embedType: embedType,
@@ -4430,7 +4427,7 @@ YouTube = new function() {
 					embedTube.push(post || aib.getPostEl(el).post, m, true);
 					$del(el);
 				}
-				if(Cfg['addVimeo'] && (m = src.match(this.vimReg))) {
+				if(Cfg.addVimeo && (m = src.match(this.vimReg))) {
 					embedTube.push(post || aib.getPostEl(el).post, m, false);
 					$del(el);
 				}
@@ -4441,7 +4438,7 @@ YouTube = new function() {
 					addLink(post || aib.getPostEl(el).post, m, loader, el, true);
 				}
 			}
-			if(Cfg['addVimeo']) {
+			if(Cfg.addVimeo) {
 				for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
 					el = els[i];
 					if(m = el.href.match(this.vimReg)) {
@@ -4481,7 +4478,7 @@ YouTube = new function() {
 
 function embedMP3Links(post) {
 	var el, link, src, i, els, len;
-	if(!Cfg['addMP3']) {
+	if(!Cfg.addMP3) {
 		return;
 	}
 	for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm), len = els.length; i < len; ++i) {
@@ -4638,7 +4635,7 @@ function loadPages(count) {
 					readFavoritesPosts();
 					$each($Q('input[type="password"]', dForm), function(pEl) {
 						pr.dpass = pEl;
-						pEl.value = Cfg['passwValue'];
+						pEl.value = Cfg.passwValue;
 					});
 					if(keyNav) {
 						keyNav.clear(pageNum + count - 1);
@@ -4928,7 +4925,7 @@ Spells.prototype = {
 	_read: function(init) {
 		var spells, data;
 		try {
-			spells = JSON.parse(Cfg['spells']);
+			spells = JSON.parse(Cfg.spells);
 			data = JSON.parse(sesStorage['de-spells-' + brd + TNum]);
 		} catch(e) {}
 		if(data && spells && data[0] === spells[0]) {
@@ -4975,7 +4972,7 @@ Spells.prototype = {
 		if(codeGen.hasError) {
 			$alert(Lng.error[lang] + ': ' + codeGen.error, 'help-err-spell', false);
 		} else if(data) {
-			if(data[0] && Cfg['sortSpells']) {
+			if(data[0] && Cfg.sortSpells) {
 				this.sort(data[0]);
 			}
 			return [Date.now(), data[0], data[1], data[2]];
@@ -5033,8 +5030,8 @@ Spells.prototype = {
 		this._init(spells, reps, outreps);
 	},
 	setSpells: function(spells, sync) {
-		this.update(spells, sync, Cfg['hideBySpell']);
-		if(Cfg['hideBySpell']) {
+		this.update(spells, sync, Cfg.hideBySpell);
+		if(Cfg.hideBySpell) {
 			for(var post = firstThr.op; post; post = post.next) {
 				this.check(post);
 			}
@@ -5855,7 +5852,7 @@ SpellsInterpreter.prototype = {
 		if(!val) {
 			return !!this._post.hasYTube;
 		}
-		if(!this._post.hasYTube || !Cfg['YTubeTitles']) {
+		if(!this._post.hasYTube || !Cfg.YTubeTitles) {
 			return false;
 		}
 		var i, data, len;
@@ -5950,8 +5947,8 @@ function addSpell(type, arg, isNeg) {
 //============================================================================================================
 
 function getThemeLang() {
-	return !Cfg['scriptStyle'] ? 'fr' :
-		Cfg['scriptStyle'] === 1 ? 'en' :
+	return !Cfg.scriptStyle ? 'fr' :
+		Cfg.scriptStyle === 1 ? 'en' :
 		'de';
 }
 
@@ -6039,7 +6036,7 @@ function scriptCSS() {
 	x += gif('#de-btn-upd-off', 'R0lGODlhGQAZAJEAAP8yMv' + p);
 	x += gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
-	if(Cfg['disabled']) {
+	if(Cfg.disabled) {
 		applyCSS(x);
 		return;
 	}
@@ -6049,7 +6046,7 @@ function scriptCSS() {
 		.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\
 		.de-thread-note { font-style: italic; }\
 		.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ';
-	if(Cfg['postBtnsCSS'] === 0) {
+	if(Cfg.postBtnsCSS === 0) {
 		x += 'color: #4F7942; font-size: 14px; }\
 			.de-post-hide .de-btn-hide:after { content: "\u271A"; }\
 			.de-post-hide .de-btn-hide-user:after { content: "\u271A"; }\
@@ -6063,7 +6060,7 @@ function scriptCSS() {
 			.de-btn-src:after { content: "[S]"; }\
 			.de-btn-stick:after { content: "\u25FB"; }\
 			.de-btn-stick-on:after { content: "\u25FC"; }';
-	} else if(Cfg['postBtnsCSS'] === 1) {
+	} else if(Cfg.postBtnsCSS === 1) {
 		p = 'R0lGODlhDgAOAKIAAPDw8KCgoICAgEtLS////wAAAAAAAAAAACH5BAEAAAQALAAAAAAOAA4AAAM';
 		x += 'padding: 0 14px 14px 0; }';
 		x += gif('.de-post-hide .de-btn-hide', p + '4SLLcqyHKGRe1E1cARPaSwIGVI3bOIAxc26oD7LqwusZcbMcNC9gLHsMHvFFixwFlGRgQdNAoIQEAOw==');
@@ -6178,7 +6175,7 @@ function scriptCSS() {
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
-		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg['YTubeWidth'] + 40) + 'px; max-height: ' + (window.innerHeight - +Cfg['YTubeHeigh'] - 100) + 'px; overflow: auto; }\
+		#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (window.innerHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
@@ -6270,53 +6267,53 @@ function applyCSS(x) {
 
 function updateCSS() {
 	var x;
-	if(Cfg['attachPanel']) {
+	if(Cfg.attachPanel) {
 		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
 		#de-panel { position: fixed; right: 0; bottom: 0; }'
 	} else {
 		x = '.de-content { clear: both; float: right; }\
 		#de-panel { float: right; clear: both; }'
 	}
-	if(Cfg['addPostForm'] === 3) {
+	if(Cfg.addPostForm === 3) {
 		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
 			#de-qarea-target { font-weight: bold; }\
 			#de-qarea-close { float: right; color: green; font: bold 20px arial; cursor: pointer; }';
 	} else {
 		x += '#de-qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }';
 	}
-	if(!Cfg['panelCounter']) {
+	if(!Cfg.panelCounter) {
 		x += '#de-panel-info { display: none; }';
 	}
-	if(Cfg['maskImgs']) {
+	if(Cfg.maskImgs) {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
 			.de-img-pre:hover, .de-video-obj:hover, .thumb:hover, .ca_thumb:hover, .fileThumb:hover, img[src*="spoiler"]:hover, img[src*="thumb"]:hover, img[src^="blob"]:hover { opacity: 1 !important; }';
 	}
 	if(!aib.dobr && !aib.krau && !aib.mak) {
 		x += '.de-img-full { margin: 2px 5px; }';
 	}
-	if(Cfg['delHiddPost']) {
+	if(Cfg.delHiddPost) {
 		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
 	}
-	if(Cfg['noPostNames']) {
+	if(Cfg.noPostNames) {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
-	if(Cfg['noSpoilers']) {
+	if(Cfg.noSpoilers) {
 		x += aib.fch ? 's { background: #888 !important; color: #ccc !important; }' :
 		'.spoiler { color: inherit !important; }';
 	}
-	if(Cfg['noPostScrl']) {
+	if(Cfg.noPostScrl) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
 	}
-	if(Cfg['noBoardRule']) {
+	if(Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
 	if(aib.abu || aib.toho) {
-		if(Cfg['addYouTube']) {
+		if(Cfg.addYouTube) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
 	}
 	$id('de-css-dynamic').textContent = x;
-	$id('de-css-user').textContent = Cfg['userCSS'] ? Cfg['userCSSTxt'] : '';
+	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
 
 //============================================================================================================
@@ -6324,7 +6321,7 @@ function updateCSS() {
 //============================================================================================================
 
 function checkForUpdates(isForce, Fn) {
-	var day, temp = Cfg['scrUpdIntrv'];
+	var day, temp = Cfg.scrUpdIntrv;
 	if(!isForce) {
 		day = 2 * 1000 * 60 * 60 * 24;
 		switch(temp) {
@@ -6334,7 +6331,7 @@ function checkForUpdates(isForce, Fn) {
 		case 3: temp = day * 14; break;
 		default: temp = day * 30;
 		}
-		if(Date.now() - +comCfg['lastUpd'] < temp) {
+		if(Date.now() - +comCfg.lastUpd < temp) {
 			return;
 		}
 	}
@@ -6438,14 +6435,14 @@ PostForm.setUserName = function() {
 	if(el) {
 		saveCfg('nameValue', el.value);
 	}
-	pr.name.value = Cfg['userName'] ? Cfg['nameValue'] : '';
+	pr.name.value = Cfg.userName ? Cfg.nameValue : '';
 };
 PostForm.setUserPassw = function() {
 	var el = $q('input[info="passwValue"]', doc);
 	if(el) {
 		saveCfg('passwValue', el.value);
 	}
-	(pr.dpass || {}).value = pr.passw.value = Cfg['passwValue'];
+	(pr.dpass || {}).value = pr.passw.value = Cfg.passwValue;
 };
 PostForm.prototype = {
 	fileObj: null,
@@ -6469,7 +6466,7 @@ PostForm.prototype = {
 	},
 	addTextPanel: function() {
 		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
-		if(!Cfg['addTextBtns']) {
+		if(!Cfg.addTextBtns) {
 			$del(tPanel);
 			return;
 		}
@@ -6479,21 +6476,21 @@ PostForm.prototype = {
 				'mouseover': this
 			});
 		}
-		tPanel.style.cssFloat = Cfg['txtBtnsLoc'] ? 'none' : 'right';
-		$after(Cfg['txtBtnsLoc'] ? $id('de-txt-resizer') || this.txta :
+		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
+		$after(Cfg.txtBtnsLoc ? $id('de-txt-resizer') || this.txta :
 			aib._420 ? $c('popup', this.form) : this.subm, tPanel);
-		for(html = '', i = 0, btns = aib.formButtons, len = btns['id'].length; i < len; ++i) {
-			tag = btns['tag'][i];
+		for(html = '', i = 0, btns = aib.formButtons, len = btns.id.length; i < len; ++i) {
+			tag = btns.tag[i];
 			if(tag === '') {
 				continue;
 			}
-			html += '<span id="de-btn-' + btns['id'][i] + '" de-title="' + Lng.txtBtn[i][lang] +
-				'" de-tag="' + tag + '"' + (btns['bb'][i] ? 'de-bb' : '') + '>' + (
-					Cfg['addTextBtns'] === 2 ?
-						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns['val'][i] +
+			html += '<span id="de-btn-' + btns.id[i] + '" de-title="' + Lng.txtBtn[i][lang] +
+				'" de-tag="' + tag + '"' + (btns.bb[i] ? 'de-bb' : '') + '>' + (
+					Cfg.addTextBtns === 2 ?
+						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns.val[i] +
 						'</a>' + (i === len - 1 ? ' ]' : ' / ') :
-					Cfg['addTextBtns'] === 3 ?
-						'<input type="button" value="' + btns['val'][i] + '" style="font-weight: bold;">' : ''
+					Cfg.addTextBtns === 3 ?
+						'<input type="button" value="' + btns.val[i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;
@@ -6624,7 +6621,7 @@ PostForm.prototype = {
 		$txtInsert(this.txta, (this.txta.value === '' || this.txta.value.slice(-1) === '\n' ? '' : '\n') +
 			(this.lastQuickPNum === pNum && this.txta.value.contains('>>' + pNum) ? '' : '>>' + pNum + '\n') +
 			(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
-		if(Cfg['addPostForm'] === 3) {
+		if(Cfg.addPostForm === 3) {
 			el = $t('a', this.qArea.firstChild);
 			el.href = aib.getThrdUrl(brd, tNum);
 			el.textContent = '#' + tNum;
@@ -6653,7 +6650,7 @@ PostForm.prototype = {
 				this._toggleQuickReply(0);
 				$del($id('thr_id'));
 			}
-			this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
+			this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		}
 	},
 	refreshCapImg: function(focus) {
@@ -6732,9 +6729,9 @@ PostForm.prototype = {
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 		this.qArea = $add('<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
-		this.isTopForm = Cfg['addPostForm'] !== 0;
-		this.setReply(false, !TNum || Cfg['addPostForm'] > 1);
-		if(Cfg['addPostForm'] === 3) {
+		this.isTopForm = Cfg.addPostForm !== 0;
+		this.setReply(false, !TNum || Cfg.addPostForm > 1);
+		if(Cfg.addPostForm === 3) {
 			$append(this.qArea, [
 				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'),
 				$new('span', {'id': 'de-qarea-close', 'text': '\u2716'}, {'click': this.closeQReply.bind(this)})
@@ -6787,7 +6784,7 @@ PostForm.prototype = {
 				$del(this.subm.nextSibling);
 			}
 		}
-		if(Cfg['addSageBtn'] && this.mail && !aib.mak) {
+		if(Cfg.addSageBtn && this.mail && !aib.mak) {
 			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
 				e.stopPropagation();
 				$pd(e);
@@ -6811,7 +6808,7 @@ PostForm.prototype = {
 		}
 		this.addTextPanel();
 		this.txta.style.cssText = 'padding: 0; resize: both; width: ' +
-			Cfg['textaWidth'] + 'px; height: ' + Cfg['textaHeight'] + 'px;';
+			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
 		this.txta.addEventListener('keypress', function(e) {
 			var code = e.charCode || e.keyCode;
 			if((code === 33 || code === 34) && e.which === 0) {
@@ -6848,7 +6845,7 @@ PostForm.prototype = {
 								'url': '/' + brd + '/api/validate-captcha',
 								'onreadystatechange': function(str) {
 									if(str.readyState === 4 && str.status === 200) {
-										if(JSON.parse(str.responseText)['status'] === 'ok') {
+										if(JSON.parse(str.responseText).status === 'ok') {
 											this.innerHTML = 'можно постить';
 										} else {
 											this.innerHTML = 'неверная капча';
@@ -6865,7 +6862,7 @@ PostForm.prototype = {
 				$pd(e);
 				return;
 			}
-			if(Cfg['warnSubjTrip'] && this.subj && /#.|##./.test(this.subj.value)) {
+			if(Cfg.warnSubjTrip && this.subj && /#.|##./.test(this.subj.value)) {
 				$pd(e);
 				$alert(Lng.subjHasTrip[lang], 'upload', false);
 				return;
@@ -6881,10 +6878,10 @@ PostForm.prototype = {
 				}
 			}
 			this.txta.value = val;
-			if(Cfg['ajaxReply']) {
+			if(Cfg.ajaxReply) {
 				$alert(Lng.checking[lang], 'upload', true);
 			}
-			if(Cfg['favOnReply'] && this.tNum) {
+			if(Cfg.favOnReply && this.tNum) {
 				pByNum[this.tNum].thr.setFavorState(true);
 			}
 			if(this.video && (val = this.video.value) && (val = val.match(new YouTube().ytReg))) {
@@ -6899,14 +6896,14 @@ PostForm.prototype = {
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
 			node.size = 30;
 		});
-		if(Cfg['noGoto'] && this.gothr) {
+		if(Cfg.noGoto && this.gothr) {
 			this.gothr.style.display = 'none';
 		}
-		if(Cfg['noPassword'] && this.passw) {
+		if(Cfg.noPassword && this.passw) {
 			getAncestor(this.passw, 'TR').style.display = 'none';
 		}
 		window.addEventListener('load', function() {
-			if(Cfg['userName'] && this.name) {
+			if(Cfg.userName && this.name) {
 				setTimeout(PostForm.setUserName, 1e3);
 			}
 			if(this.passw) {
@@ -6927,7 +6924,7 @@ PostForm.prototype = {
 			}
 			this.cap = null;
 		}
-		if(Cfg['ajaxReply'] === 2) {
+		if(Cfg.ajaxReply === 2) {
 			if(aib.krau) {
 				this.form.removeAttribute('onsubmit');
 			}
@@ -6949,7 +6946,7 @@ PostForm.prototype = {
 					new html5Submit(this.form, this.subm, checkUpload);
 				}.bind(this);
 			}.bind(this), 0);
-		} else if(Cfg['ajaxReply'] === 1) {
+		} else if(Cfg.ajaxReply === 1) {
 			this.form.target = 'de-iframe-pform';
 			this.form.onsubmit = null;
 		}
@@ -6959,7 +6956,7 @@ PostForm.prototype = {
 		}
 	},
 	_setSage: function() {
-		var c = Cfg['sageReply'];
+		var c = Cfg.sageReply;
 		$id('de-sagebtn').innerHTML = '&nbsp;' + (
 			c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
 		);
@@ -7023,12 +7020,12 @@ PostForm.prototype = {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
 			return function(e) {
-				if(!Cfg['captchaLang'] || e.which === 0) {
+				if(!Cfg.captchaLang || e.which === 0) {
 					return;
 				}
 				var i, code = e.charCode || e.keyCode,
 					chr = String.fromCharCode(code).toLowerCase();
-				if(Cfg['captchaLang'] === 1) {
+				if(Cfg.captchaLang === 1) {
 					if(code < 0x0410 || code > 0x04FF || (i = ru.indexOf(chr)) === -1) {
 						return;
 					}
@@ -7123,7 +7120,7 @@ FileInput.prototype = {
 	},
 	delUtils: function() {
 		var mParent;
-		if(Cfg['fileThumb']) {
+		if(Cfg.fileThumb) {
 			this.thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
 				window.URL.revokeObjectURL(this._mediaEl.src);
@@ -7183,7 +7180,7 @@ FileInput.prototype = {
 		}
 	},
 	hideInputs: function() {
-		var hideThumbs = Cfg['fileThumb'], inp = this.next;
+		var hideThumbs = Cfg.fileThumb, inp = this.next;
 		while(inp && inp.empty) {
 			inp = inp.next;
 		}
@@ -7203,7 +7200,7 @@ FileInput.prototype = {
 	},
 	init: function(update) {
 		var imgTD;
-		if(Cfg['fileThumb']) {
+		if(Cfg.fileThumb) {
 			this.form.fileTd.parentNode.style.display = 'none';
 			imgTD = this.form.fileImageTD;
 			imgTD.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
@@ -7238,7 +7235,7 @@ FileInput.prototype = {
 	_delUtil: null,
 	_rjUtil: null,
 	get _buttonsPlace() {
-		return Cfg['fileThumb'] ? this.thumb.firstChild : this.el;
+		return Cfg.fileThumb ? this.thumb.firstChild : this.el;
 	},
 	get _wrap() {
 		return aib.getFileWrap(this.el);
@@ -7273,7 +7270,7 @@ FileInput.prototype = {
 		}
 	},
 	_onFileChange: function() {
-		if(Cfg['fileThumb']) {
+		if(Cfg.fileThumb) {
 			this._showPviewImage();
 		} else {
 			this.form.eventFiles(false);
@@ -7290,7 +7287,7 @@ FileInput.prototype = {
 			this.imgFile = null;
 		}
 		if(this.next) {
-			if(Cfg['fileThumb']) {
+			if(Cfg.fileThumb) {
 				this.next.thumb.style.display = '';
 			} else {
 				this.next._wrap.style.display = '';
@@ -7525,7 +7522,7 @@ AttachmentViewer.prototype = {
 				width = d > 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
 				height = d > 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
 			if(d < 0) {
-				tmp = resizeImage([width, height, this._ar], Cfg['minImgSize'], this._maxSize);
+				tmp = resizeImage([width, height, this._ar], Cfg.minImgSize, this._maxSize);
 				width = tmp[0];
 				height = tmp[1];
 			}
@@ -7568,7 +7565,7 @@ AttachmentViewer.prototype = {
 		return val;
 	},
 	get _zoomFactor() {
-		var val = 1 + (Cfg['zoomFactor'] / 100);
+		var val = 1 + (Cfg.zoomFactor / 100);
 		Object.defineProperty(this, '_zoomFactor', { value: val });
 		return val;
 	},
@@ -7581,7 +7578,7 @@ AttachmentViewer.prototype = {
 		this._curW = size[0];
 		this._curH = size[1];
 		this._maxSize = !size[2] ? null :
-			Cfg['minImgSize'] > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
+			Cfg.minImgSize > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
 		html = '<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
@@ -7699,11 +7696,11 @@ IAttachmentData.prototype = {
 	computeFullSize: function(inPost) {
 		var maxWidth, maxHeight, maxSize, temp, width = this.width,
 			height = this.height;
-		if(Cfg['resizeDPI']) {
+		if(Cfg.resizeDPI) {
 			width /= Post.sizing.dPxRatio;
 			height /= Post.sizing.dPxRatio;
 		}
-		if(Cfg['resizeImgs']) {
+		if(Cfg.resizeImgs) {
 			if(inPost) {
 				maxSize = [Post.sizing.wWidth - this._offset - 3, Number.MAX_SAFE_INTEGER, 0];
 			} else {
@@ -7714,7 +7711,7 @@ IAttachmentData.prototype = {
 		} else {
 			maxSize = null;
 		}
-		temp = resizeImage([width, height, width / height], Cfg['minImgSize'], maxSize);
+		temp = resizeImage([width, height, width / height], Cfg.minImgSize, maxSize);
 		return [temp[0], temp[1], maxSize];
 	},
 	expand: function(inPost, e) {
@@ -7749,11 +7746,11 @@ IAttachmentData.prototype = {
 			if(nav.canPlayWebm) {
 				obj = $add('<video style="width: 100%; height: 100%" src="' +
 					this.src +
-					'" loop autoplay ' + (Cfg['webmControl'] ? 'controls ' : '') +
-					(Cfg['webmVolume'] === 0 ? 'muted ' : '') + '></video>');
-				if(Cfg['webmVolume'] !== 0) {
+					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
+					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
+				if(Cfg.webmVolume !== 0) {
 					obj.oncanplay = function() {
-						this.volume = Cfg['webmVolume'] / 100;
+						this.volume = Cfg.webmVolume / 100;
 					};
 				}
 				obj.onerror = function() {
@@ -7769,10 +7766,10 @@ IAttachmentData.prototype = {
 				obj = $add('<object style="width: 100%; height: 100%" data="' +
 					this.src + '" type="video/quicktime">' +
 					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
-					'<param name="controller" value="' + (Cfg['webmControl'] ? 'true' : 'false') + '" />' +
+					'<param name="controller" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
 					'<param name="autoplay" value="true" />' +
 					'<param name="scale" value="tofit" />' +
-					'<param name="volume" value="' + Math.round(Cfg['webmVolume'] * 2.55) + '" />' +
+					'<param name="volume" value="' + Math.round(Cfg.webmVolume * 2.55) + '" />' +
 					'<param name="wmode" value="transparent" /></object>');
 			}
 		} else {
@@ -7788,7 +7785,7 @@ IAttachmentData.prototype = {
 		return obj;
 	},
 	isControlClick: function(e, styleHeight) {
-		return Cfg['webmControl'] && e.clientY >
+		return Cfg.webmControl && e.clientY >
 			(e.target.getBoundingClientRect().top + parseInt(styleHeight, 10) - 30);
 	},
 	sendCloseEvent: function(e, inPost) {
@@ -8079,7 +8076,7 @@ function Post(el, thr, num, count, isOp, prev) {
 	// html += '<span class="de-btn-udolil" style="font-weight: bold; color: red; cursor: pointer;">[УДОЛИЛ!!11]</span>';
 	refEl.insertAdjacentHTML('afterend', html + '</span>');
 	this.btns = refEl.nextSibling;
-	if(Cfg['expandPosts'] === 1 && this.trunc) {
+	if(Cfg.expandPosts === 1 && this.trunc) {
 		this._getFull(this.trunc, true);
 	}
 	el.addEventListener('mouseover', this, true);
@@ -8191,7 +8188,7 @@ Post.prototype = {
 	addFuncs: function() {
 		updRefMap(this, true);
 		embedMP3Links(this);
-		if(Cfg['addImgs']) {
+		if(Cfg.addImgs) {
 			embedImagesLinks(this.el);
 		}
 		if(isExpImg) {
@@ -8209,17 +8206,17 @@ Post.prototype = {
 			switch(el.tagName) {
 			case 'IMG':
 				if(el.classList.contains('de-video-thumb')) {
-					if(Cfg['addYouTube'] === 3) {
+					if(Cfg.addYouTube === 3) {
 						this.ytLink.classList.add('de-current');
 						new YouTube().addPlayer(this.ytObj, this.ytInfo, el.classList.contains('de-ytube'));
 						$pd(e);
 					}
-				} else if(Cfg['expandImgs'] !== 0) {
+				} else if(Cfg.expandImgs !== 0) {
 					this._clickImage(el, e);
 				}
 				return;
 			case 'VIDEO':
-				if(Cfg['expandImgs'] !== 0 && !(Cfg['webmControl'] && e.clientY >
+				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY >
 					(el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
 				{
 					this._clickImage(el, e);
@@ -8227,7 +8224,7 @@ Post.prototype = {
 				return;
 			case 'A':
 				if(el.classList.contains('de-video-link')) {
-					new YouTube().clickLink(this, el, Cfg['addYouTube']);
+					new YouTube().clickLink(this, el, Cfg.addYouTube);
 					$pd(e);
 				} else {
 					temp = el.parentNode;
@@ -8235,10 +8232,10 @@ Post.prototype = {
 						this._getFull(temp, false);
 						$pd(e);
 						e.stopPropagation();
-					} else if(Cfg['insertNum'] && pr.form && temp === this._pref &&
+					} else if(Cfg.insertNum && pr.form && temp === this._pref &&
 						!/Reply|Ответ/.test(el.textContent))
 					{
-						if(TNum && Cfg['addPostForm'] > 1 && !pr.isQuick) {
+						if(TNum && Cfg.addPostForm > 1 && !pr.isQuick) {
 							pr.showQuickReply(this, this.num, true);
 						} else {
 							if(aib._420 && pr.txta.value === 'Comment') {
@@ -8306,7 +8303,7 @@ Post.prototype = {
 		switch(el.classList[0]) {
 		case 'de-reflink':
 		case 'de-preflink':
-			if(Cfg['linksNavig']) {
+			if(Cfg.linksNavig) {
 				if(isOutEvent) {
 					clearTimeout(this._linkDelay);
 					if(this.kid) {
@@ -8314,7 +8311,7 @@ Post.prototype = {
 					}
 				} else {
 					clearTimeout(Pview.delTO);
-					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg['linksOver']);
+					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
 				}
 				$pd(e);
 				e.stopPropagation();
@@ -8328,7 +8325,7 @@ Post.prototype = {
 			if(isOutEvent) {
 				this._closeMenu(e.relatedTarget);
 			} else {
-				this._menuDelay = setTimeout(this._addMenu.bind(this, el), Cfg['linksOver']);
+				this._menuDelay = setTimeout(this._addMenu.bind(this, el), Cfg.linksOver);
 			}
 			return;
 		case 'de-btn-rep':
@@ -8346,11 +8343,11 @@ Post.prototype = {
 			}
 			return;
 		}
-		if(Cfg['linksNavig'] && el.tagName === 'A' && !el.lchecked) {
+		if(Cfg.linksNavig && el.tagName === 'A' && !el.lchecked) {
 			if(el.textContent.startsWith('>>')) {
 				el.className = 'de-preflink ' + el.className;
 				clearTimeout(Pview.delTO);
-				this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg['linksOver']);
+				this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
 				$pd(e);
 				e.stopPropagation();
 			} else {
@@ -8388,7 +8385,7 @@ Post.prototype = {
 		}
 	},
 	hideRefs: function() {
-		if(!Cfg['hideRefPsts'] || !this.hasRef) {
+		if(!Cfg.hideRefPsts || !this.hasRef) {
 			return;
 		}
 		this.ref.forEach(function(num) {
@@ -8432,7 +8429,7 @@ Post.prototype = {
 	get allImages() {
 		var i, len, el, els, val = this.images.slice(),
 			allIdx = val.length;
-		if(Cfg['addImgs']) {
+		if(Cfg.addImgs) {
 			for(i = 0, els = $C('de-img-pre', this.el), len = els.length; i < len; ++i, ++allIdx) {
 				el = els[i];
 				el.imgIdx = allIdx;
@@ -8467,7 +8464,7 @@ Post.prototype = {
 	set note(val) {
 		if(this.isOp) {
 			this.noteEl.textContent = val ? '(autohide: ' + val + ')' : '(' + this.title + ')';
-		} else if(!Cfg['delHiddPost']) {
+		} else if(!Cfg.delHiddPost) {
 			this.noteEl.textContent = val ? 'autohide: ' + val : '';
 		}
 	},
@@ -8558,7 +8555,7 @@ Post.prototype = {
 			}
 			return;
 		}
-		if(Cfg['delHiddPost']) {
+		if(Cfg.delHiddPost) {
 			if(hide) {
 				this.wrap.classList.add('de-hidden');
 				this.wrap.insertAdjacentHTML('beforebegin',
@@ -8577,7 +8574,7 @@ Post.prototype = {
 		}
 		this.hidden = hide;
 		this.hideContent(hide);
-		if(Cfg['strikeHidd']) {
+		if(Cfg.strikeHidd) {
 			setTimeout(this._strikePostNum.bind(this, hide), 50);
 		}
 	},
@@ -8669,7 +8666,7 @@ Post.prototype = {
 		return val;
 	},
 	unhideRefs: function() {
-		if(!Cfg['hideRefPsts'] || !this.hasRef) {
+		if(!Cfg.hideRefPsts || !this.hasRef) {
 			return;
 		}
 		this.ref.forEach(function(num) {
@@ -8757,7 +8754,7 @@ Post.prototype = {
 			xOffset = window.pageXOffset;
 		switch(el.getAttribute('de-menu')) {
 		case 'hide':
-			if(!Cfg['menuHiddBtn']) {
+			if(!Cfg.menuHiddBtn) {
 				return;
 			}
 			html = this._addMenuHide();
@@ -8841,7 +8838,7 @@ Post.prototype = {
 			pv = this.isPview ? this.kid : Pview.top;
 		if(pv && pv.num === pNum) {
 			Pview.del(pv.kid);
-			setPviewPosition(link, pv.el, Cfg['animation'] && animPVMove);
+			setPviewPosition(link, pv.el, Cfg.animation && animPVMove);
 			if(pv.parent.num !== this.num) {
 				$each($C('de-pview-link', pv.el), function(el) {
 					el.classList.remove('de-pview-link');
@@ -8866,7 +8863,7 @@ Post.prototype = {
 		{
 			return;
 		} else {
-			data.expand((Cfg['expandImgs'] === 1) ^ e.ctrlKey, e);
+			data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
 		}
 		$pd(e);
 		e.stopPropagation();
@@ -8999,7 +8996,7 @@ Post.prototype = {
 
 function Pview(parent, link, tNum, pNum) {
 	var b, post = pByNum[pNum];
-	if(Cfg['noNavigHidd'] && post && post.hidden) {
+	if(Cfg.noNavigHidd && post && post.hidden) {
 		return;
 	}
 	this.parent = parent;
@@ -9039,7 +9036,7 @@ Pview.del = function(pv) {
 			Attachment.viewer = vPost = null;
 		}
 		el = pv.el;
-		if(Cfg['animation']) {
+		if(Cfg.animation) {
 			nav.animEvent(el, $del);
 			el.classList.add('de-pview-anim');
 			el.style[nav.animName] = 'de-post-close-' + (el.aTop ? 't' : 'b') + (el.aLeft ? 'l' : 'r');
@@ -9075,7 +9072,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			}
 		} while(el = el.kid);
 		if(!lastSticked || lastSticked.kid) {
-			Pview.delTO = setTimeout(Pview.del, Cfg['linksOut'], lastSticked ? lastSticked.kid : this);
+			Pview.delTO = setTimeout(Pview.del, Cfg.linksOut, lastSticked ? lastSticked.kid : this);
 		}
 	} },
 
@@ -9132,7 +9129,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		el.post = this;
 		el.className = aib.cReply + ' de-pview' + (post.viewed ? ' de-viewed' : '');
 		el.style.display = '';
-		if(Cfg['linksNavig'] === 2) {
+		if(Cfg.linksNavig === 2) {
 			this._markLink(this.parent.num);
 		}
 		this._pref = $q(aib.qRef, el);
@@ -9157,12 +9154,12 @@ Pview.prototype = Object.create(Post.prototype, {
 				}
 				new YouTube().updatePost(this, $C('de-video-link', post.el), $C('de-video-link', el), true);
 			}
-			if(Cfg['addImgs']) {
+			if(Cfg.addImgs) {
 				$each($C('de-img-pre', el), function(el) {
 					el.style.display = '';
 				});
 			}
-			if(Cfg['markViewed']) {
+			if(Cfg.markViewed) {
 				this._readDelay = setTimeout(function(pst) {
 					if(!pst.viewed) {
 						pst.el.classList.add('de-viewed');
@@ -9177,10 +9174,10 @@ Pview.prototype = Object.create(Post.prototype, {
 			this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
 			embedMP3Links(this);
 			new YouTube().parseLinks(this);
-			if(Cfg['addImgs']) {
+			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
-			if(Cfg['imgSrcBtns']) {
+			if(Cfg.imgSrcBtns) {
 				addImagesSearch(el);
 			}
 		}
@@ -9199,7 +9196,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		el.addEventListener('mouseout', this, true);
 		(aib.arch ? doc.body : dForm).appendChild(el);
 		setPviewPosition(this._link, el, false);
-		if(Cfg['animation']) {
+		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
 				node.classList.remove('de-pview-anim');
 				node.style[nav.animName] = '';
@@ -9240,7 +9237,7 @@ function PviewsCache(form, b, tNum) {
 	this._tNum = tNum;
 	this._tUrl = aib.getThrdUrl(b, tNum);
 	this._posts = pBn;
-	if(Cfg['linksNavig'] === 2) {
+	if(Cfg.linksNavig === 2) {
 		genRefMap(pBn, this._tUrl);
 	}
 }
@@ -9392,7 +9389,7 @@ function genRefMap(posts, thrURL) {
 
 function updRefMap(post, add) {
 	var tc, ref, idx, link, lNum, lPost, i, len, links, pNum = post.num,
-		strNums = add && Cfg['strikeHidd'] && Post.hiddenNums.length !== 0 ? Post.hiddenNums : null,
+		strNums = add && Cfg.strikeHidd && Post.hiddenNums.length !== 0 ? Post.hiddenNums : null,
 		opNums = add && Thread.tNums;
 	for(i = 0, links = $T('a', post.msg), len = links.length; i < len; ++i) {
 		link = links[i];
@@ -9412,7 +9409,7 @@ function updRefMap(post, add) {
 				if(lPost.ref.indexOf(pNum) === -1) {
 					lPost.ref.push(pNum);
 					post.hasRef = true;
-					if(Cfg['hideRefPsts'] && lPost.hidden) {
+					if(Cfg.hideRefPsts && lPost.hidden) {
 						if(!post.hidden) {
 							post.hideRefs();
 						}
@@ -9618,11 +9615,11 @@ Thread.prototype = {
 		if(aib.dobr && useAPI) {
 			return getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json',
 				function checkNewPosts(status, sText, json, xhr) {
-					if(status !== 200 || json['error']) {
-						Fn(status, sText || json['message'], 0, xhr);
+					if(status !== 200 || json.error) {
+						Fn(status, sText || json.message, 0, xhr);
 					} else {
-						if(this._lastModified !== json['last_modified'] || this.pcount !== json['posts_count']) {
-							this._lastModified = json['last_modified'];
+						if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
+							this._lastModified = json.last_modified;
 							updater.updateXHR(this.loadNew(Fn, false));
 						} else {
 							Fn(200, '', 0, xhr);
@@ -9668,7 +9665,7 @@ Thread.prototype = {
 				if(!fav[h][brd]) {
 					fav[h][brd] = {};
 				}
-				fav[h][brd]['url'] = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
+				fav[h][brd].url = aib.prot + '//' + aib.host + aib.getPageUrl(brd, 0);
 				fav[h][brd][num] = {
 					'cnt': this.pcount,
 					'new': 0,
@@ -9705,19 +9702,19 @@ Thread.prototype = {
 		pByNum[num] = post = new Post(el, this, num, i, false, prev);
 		Object.defineProperty(post, 'wrap', { value: wrap });
 		parent.appendChild(wrap);
-		if(TNum && Cfg['animation']) {
+		if(TNum && Cfg.animation) {
 			nav.animEvent(post.el, function(node) {
 				node.classList.remove('de-post-new');
 			});
 			post.el.classList.add('de-post-new');
 		}
 		new YouTube().parseLinks(post);
-		if(Cfg['imgSrcBtns']) {
+		if(Cfg.imgSrcBtns) {
 			addImagesSearch(el);
 		}
 		post.addFuncs();
 		preloadImages(el);
-		if(TNum && Cfg['markNewPosts']) {
+		if(TNum && Cfg.markNewPosts) {
 			this._addPostMark(el);
 		}
 		return post;
@@ -9836,7 +9833,7 @@ Thread.prototype = {
 					el.style.display = 'none';
 					el.textContent = 0;
 				}
-				f['cnt'] = this.pcount;
+				f.cnt = this.pcount;
 				f['new'] = 0;
 				saveFavorites(fav);
 			}
@@ -10680,7 +10677,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		get rep() {
-			var val = dTime || spells.haveReps || Cfg['crossLinks'];
+			var val = dTime || spells.haveReps || Cfg.crossLinks;
 			Object.defineProperty(this, 'rep', { value: val });
 			return val;
 		},
@@ -10881,27 +10878,27 @@ function Initialization(checkDomains) {
 			} catch(e) {
 				return;
 			}
-			temp = data['hide'];
-			if(data['brd'] === brd && (post = pByNum[data['num']]) && (post.hidden ^ temp)) {
-				post.setUserVisib(temp, data['date'], false);
+			temp = data.hide;
+			if(data.brd === brd && (post = pByNum[data.num]) && (post.hidden ^ temp)) {
+				post.setUserVisib(temp, data.date, false);
 			} else {
-				if(!(data['brd'] in bUVis)) {
-					bUVis[data['brd']] = {};
+				if(!(data.brd in bUVis)) {
+					bUVis[data.brd] = {};
 				}
-				bUVis[data['brd']][data['num']] = [+!temp, data['date']];
+				bUVis[data.brd][data.num] = [+!temp, data.date];
 			}
-			if(data['isOp']) {
-				if(!(data['brd'] in hThr)) {
+			if(data.isOp) {
+				if(!(data.brd in hThr)) {
 					if(temp) {
-						hThr[data['brd']] = {};
+						hThr[data.brd] = {};
 					} else {
 						break;
 					}
 				}
 				if(temp) {
-					hThr[data['brd']][data['num']] = data['title'];
+					hThr[data.brd][data.num] = data.title;
 				} else {
-					delete hThr[data['brd']][data['num']];
+					delete hThr[data.brd][data.num];
 				}
 			}
 			break;
@@ -10924,19 +10921,19 @@ function Initialization(checkDomains) {
 			} catch(e) {
 				return;
 			}
-			Cfg['hideBySpell'] = data['hide'];
+			Cfg.hideBySpell = data.hide;
 			if(temp = $q('input[info="hideBySpell"]', doc)) {
-				temp.checked = data['hide'];
+				temp.checked = data.hide;
 			}
 			doc.body.style.display = 'none';
 			disableSpells();
-			if(data['data']) {
-				spells.setSpells(data['data'], false);
+			if(data.data) {
+				spells.setSpells(data.data, false);
 				if(temp = $id('de-spell-edit')) {
 					temp.value = spells.list;
 				}
 			} else {
-				if(data['data'] === '') {
+				if(data.data === '') {
 					spells.disable();
 					if(temp = $id('de-spell-edit')) {
 						temp.value = '';
@@ -11047,7 +11044,7 @@ function replaceString(txt) {
 	if(spells.haveReps) {
 		txt = spells.replace(txt);
 	}
-	if(Cfg['crossLinks']) {
+	if(Cfg.crossLinks) {
 		txt = txt.replace(aib.reCrossLinks, function(str, b, tNum, pNum) {
 			return '>&gt;&gt;/' + b + '/' + (pNum || tNum) + '<';
 		});
@@ -11084,7 +11081,7 @@ function replaceDelform() {
 
 function initDelformAjax() {
 	var btn;
-	if(Cfg['ajaxReply'] === 2) {
+	if(Cfg.ajaxReply === 2) {
 		dForm.onsubmit = $pd;
 		if(btn = $q(aib.qDelBut, dForm)) {
 			btn.onclick = function(e) {
@@ -11094,7 +11091,7 @@ function initDelformAjax() {
 				new html5Submit(dForm, e.target, checkDelete);
 			};
 		}
-	} else if(Cfg['ajaxReply'] === 1) {
+	} else if(Cfg.ajaxReply === 1) {
 		dForm.insertAdjacentHTML('beforeend',
 			'<iframe name="de-iframe-pform" src="about:blank" style="display: none;"></iframe>' +
 			'<iframe name="de-iframe-dform" src="about:blank" style="display: none;"></iframe>'
@@ -11141,7 +11138,7 @@ function initThreadUpdater(title, enableUpdate) {
 	if(enableUpdate) {
 		init();
 	}
-	if(focused && Cfg['desktNotif'] && ('permission' in Notification)) {
+	if(focused && Cfg.desktNotif && ('permission' in Notification)) {
 		switch(Notification.permission.toLowerCase()) {
 		case 'default': requestNotifPermission(); break;
 		case 'denied': saveCfg('desktNotif', 0);
@@ -11152,7 +11149,7 @@ function initThreadUpdater(title, enableUpdate) {
 		audioEl = null;
 		stateButton = null;
 		hasAudio = false;
-		initDelay = Cfg['updThrDelay'] * 1e3;
+		initDelay = Cfg.updThrDelay * 1e3;
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
@@ -11239,7 +11236,7 @@ function initThreadUpdater(title, enableUpdate) {
 		infoLoadErrors(eCode, eMsg, -1);
 		if(eCode !== 200 && eCode !== 304) {
 			lastECode = eCode;
-			if(!Cfg['noErrInTitle']) {
+			if(!Cfg.noErrInTitle) {
 				updateTitle();
 			}
 			if(eCode !== 0 && Math.floor(eCode / 500) === 0) {
@@ -11261,13 +11258,13 @@ function initThreadUpdater(title, enableUpdate) {
 			lastECode = 200;
 			setState('on');
 			checked404 = false;
-			if((focused || lPosts === 0) && !Cfg['noErrInTitle']) {
+			if((focused || lPosts === 0) && !Cfg.noErrInTitle) {
 				updateTitle();
 			}
 		}
 		if(!focused) {
 			if(lPosts !== 0) {
-				if(Cfg['favIcoBlink'] && favHref && newPosts === 0) {
+				if(Cfg.favIcoBlink && favHref && newPosts === 0) {
 					favIntrv = setInterval(function() {
 						$del($q('link[rel="shortcut icon"]', doc.head));
 						doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
@@ -11279,7 +11276,7 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 				newPosts += lPosts;
 				updateTitle();
-				if(Cfg['desktNotif'] && notifGranted) {
+				if(Cfg.desktNotif && notifGranted) {
 					var post = firstThr.last,
 						imgs = post.images,
 						notif = new Notification(aib.dm + '/' + brd + '/' + TNum + ': ' + newPosts +
@@ -11326,7 +11323,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function onVis() {
-		if(Cfg['favIcoBlink'] && favHref) {
+		if(Cfg.favIcoBlink && favHref) {
 			clearInterval(favIntrv);
 			favNorm = true;
 			$del($q('link[rel="shortcut icon"]', doc.head));
@@ -11365,7 +11362,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function sendErrNotif() {
-		if(Cfg['sendErrNotif'] && !focused) {
+		if(Cfg.sendErrNotif && !focused) {
 			sendError = true;
 			updateTitle();
 		}
@@ -11403,13 +11400,13 @@ function initThreadUpdater(title, enableUpdate) {
 }
 
 function initPage() {
-	if(Cfg['updScript']) {
+	if(Cfg.updScript) {
 		checkForUpdates(false, function(html) {
 			$alert(html, 'updavail', false);
 		});
 	}
 	if(TNum) {
-		if(Cfg['rePageTitle']) {
+		if(Cfg.rePageTitle) {
 			if(aib.abu) {
 				window.addEventListener('load', function() {
 					doc.title = '/' + brd + ' - ' + firstThr.op.title;
@@ -11425,7 +11422,7 @@ function initPage() {
 	} else if(needScroll) {
 		setTimeout(window.scrollTo, 20, 0, 0);
 	}
-	updater = initThreadUpdater(doc.title, TNum && Cfg['ajaxUpdThr']);
+	updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
 }
 
 //============================================================================================================
@@ -11439,15 +11436,15 @@ function addDelformStuff(isLog) {
 	isLog && new Logger().log('MP3 links');
 	new YouTube().parseLinks(null);
 	isLog && new Logger().log('YouTube links');
-	if(Cfg['addImgs']) {
+	if(Cfg.addImgs) {
 		embedImagesLinks(dForm);
 		isLog && new Logger().log('Image links');
 	}
-	if(Cfg['imgSrcBtns']) {
+	if(Cfg.imgSrcBtns) {
 		addImagesSearch(dForm);
 		isLog && new Logger().log('Sauce buttons');
 	}
-	if(firstThr && Cfg['linksNavig'] === 2) {
+	if(firstThr && Cfg.linksNavig === 2) {
 		genRefMap(pByNum, '');
 		for(var post = firstThr.op; post; post = post.next) {
 			if(post.hasRef) {
@@ -11469,12 +11466,12 @@ function initScript(checkDomains) {
 
 function doScript() {
 	new Logger().log('Config loading');
-	if(Cfg['disabled']) {
+	if(Cfg.disabled) {
 		addPanel();
 		scriptCSS();
 		return;
 	}
-	spells = new Spells(!!Cfg['hideBySpell']);
+	spells = new Spells(!!Cfg.hideBySpell);
 	new Logger().log('Parsing spells');
 	doc.body.style.display = 'none';
 	replaceDelform();
@@ -11491,7 +11488,7 @@ function doScript() {
 	initDelformAjax();
 	readViewedPosts();
 	new Logger().log('Parse delform');
-	if(Cfg['keybNavig']) {
+	if(Cfg.keybNavig) {
 		keyNav = new KeyNavigation();
 		new Logger().log('Init keybinds');
 	}
