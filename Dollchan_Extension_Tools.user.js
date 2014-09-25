@@ -6829,37 +6829,37 @@ PostForm.prototype = {
 					'method': 'GET',
 					'url': '/' + brd + '/api/requires-captcha',
 					'onreadystatechange': function(xhr) {
-						if(xhr.readyState === 4 && xhr.status === 200) {
-							aib.reqCaptcha = true;
-							if(JSON.parse(xhr.responseText)['requires-captcha'] === '1') {
-								$id('captcha_tr').style.display = 'table-row';
-								$after(this.cap, $new('span', {
-									'class': 'shortened',
-									'style': 'margin: 0px 0.5em;',
-									'text': 'проверить капчу'}, {
-									'click': function() {
-										GM_xmlhttpRequest({
-											'method': 'POST',
-											'url': '/' + brd + '/api/validate-captcha',
-											'onreadystatechange': function(str) {
-												if(str.readyState === 4 && str.status === 200) {
-													if(JSON.parse(str.responseText)['status'] === 'ok') {
-														this.innerHTML = 'можно постить';
-													} else {
-														this.innerHTML = 'неверная капча';
-														setTimeout(function() {
-															this.innerHTML = 'проверить капчу';
-														}.bind(this), 1000);
-													}
-												}
-											}.bind(this)
-										})
-									}
-								}))
-							} else {
-								this.subm.click();
-							}
+						if(xhr.readyState !== 4 || xhr.status !== 200) {
+							return;
 						}
+						aib.reqCaptcha = true;
+						if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
+							this.subm.click();
+							return;
+						}
+						$id('captcha_tr').style.display = 'table-row';
+						$id('captchaimage').src = '/' + brd + '/captcha?' + Math.random();
+						$after(this.cap, $new('span', {
+							'class': 'shortened',
+							'style': 'margin: 0px 0.5em;',
+							'text': 'проверить капчу'}, {
+							'click': function() { GM_xmlhttpRequest({
+								'method': 'POST',
+								'url': '/' + brd + '/api/validate-captcha',
+								'onreadystatechange': function(str) {
+									if(str.readyState === 4 && str.status === 200) {
+										if(JSON.parse(str.responseText)['status'] === 'ok') {
+											this.innerHTML = 'можно постить';
+										} else {
+											this.innerHTML = 'неверная капча';
+											setTimeout(function() {
+												this.innerHTML = 'проверить капчу';
+											}.bind(this), 1000);
+										}
+									}
+								}.bind(this)
+							}) }
+						}))
 					}.bind(this)
 				});
 				$pd(e);
@@ -6931,13 +6931,24 @@ PostForm.prototype = {
 			if(aib.krau) {
 				this.form.removeAttribute('onsubmit');
 			}
-			this.form.onsubmit = function(e) {
-				$pd(e);
-				if(aib.krau) {
-					aib.addProgressTrack.click();
-				}
-				new html5Submit(this.form, this.subm, checkUpload);
-			}.bind(this);
+			setTimeout(function() {
+				this.form.onsubmit = function(e) {
+					$pd(e);
+					if(aib.krau) {
+						aib.addProgressTrack.click();
+					}
+					if(aib._2chru) {
+						doc.body.insertAdjacentHTML('beforeend', '<iframe class="ninja" id="csstest" src="/' +
+							brd + '/csstest.foo"></iframe>');
+						doc.body.lastChild.onload = function(e) {
+							$del(e.target);
+							new html5Submit(this.form, this.subm, checkUpload);
+						}.bind(this);
+						return;
+					}
+					new html5Submit(this.form, this.subm, checkUpload);
+				}.bind(this);
+			}.bind(this), 0);
 		} else if(Cfg['ajaxReply'] === 1) {
 			this.form.target = 'de-iframe-pform';
 			this.form.onsubmit = null;
