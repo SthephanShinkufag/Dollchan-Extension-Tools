@@ -11065,7 +11065,7 @@ function replaceString(txt) {
 	}
 	if (aib.fch || aib.krau) {
 		if (aib.fch) {
-			txt = txt.replace(/(?:<span>)?([^\s<>]+)<wbr>([^\s<>]+)(?:<\/span>)?/g, '$1$2');
+			txt = txt.replace(/<\/?wbr>/g, '');
 		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/.*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
