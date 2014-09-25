@@ -2117,7 +2117,7 @@ function getCfgPosts() {
 		} : null),
 		$New('label', null, [
 			inpTxt('updThrDelay', 4, null),
-			$txt(Lng.updThrDelay[lang])
+			$txt(Lng.cfg.updThrDelay[lang])
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			lBox('noErrInTitle', true, null),
@@ -2144,15 +2144,15 @@ function getCfgPosts() {
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				inpTxt('timeOffset', 3, null),
-				$txt(Lng.timeOffset[lang])
+				$txt(Lng.cfg.timeOffset[lang])
 			]),
 			$New('div', null, [
 				inpTxt('timePattern', 30, null),
-				$txt(Lng.timePattern[lang])
+				$txt(Lng.cfg.timePattern[lang])
 			]),
 			$New('div', null, [
 				inpTxt('timeRPattern', 30, null),
-				$txt(Lng.timeRPattern[lang])
+				$txt(Lng.cfg.timeRPattern[lang])
 			])
 		])
 	]);
@@ -2167,19 +2167,19 @@ function getCfgImages() {
 			inpTxt('zoomFactor', 6, function () {
 				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 			}),
-			$txt(Lng.zoomFactor[lang]),
+			$txt(Lng.cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
 			$New('div', null, [
 				inpTxt('webmVolume', 6, function () {
 					saveCfg('webmVolume', Math.min(+this.value, 100));
 				}),
-				$txt(Lng.webmVolume[lang])
+				$txt(Lng.cfg.webmVolume[lang])
 			]),
 			$New('div', null, [
 				inpTxt('minImgSize', 6, function () {
 					saveCfg('minImgSize', Math.max(+this.value, 1));
 				}),
-				$txt(Lng.minImgSize[lang])
+				$txt(Lng.cfg.minImgSize[lang])
 			])
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
@@ -2200,13 +2200,13 @@ function getCfgLinks() {
 				inpTxt('linksOver', 6, function () {
 					saveCfg('linksOver', +this.value | 0);
 				}),
-				$txt(Lng.linksOver[lang])
+				$txt(Lng.cfg.linksOver[lang])
 			]),
 			$New('div', null, [
 				inpTxt('linksOut', 6, function () {
 					saveCfg('linksOut', +this.value | 0);
 				}),
-				$txt(Lng.linksOut[lang])
+				$txt(Lng.cfg.linksOut[lang])
 			]),
 			lBox('markViewed', true, null),
 			lBox('strikeHidd', true, null),
@@ -2272,7 +2272,7 @@ function getCfgForm() {
 		])),
 		$if(pr.passw, $New('div', null, [
 			inpTxt('passwValue', 20, PostForm.setUserPassw),
-			$txt(Lng.userPassw[lang]),
+			$txt(Lng.cfg.userPassw[lang]),
 			$btn(Lng.change[lang], '', function () {
 				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
 				PostForm.setUserPassw();
@@ -2351,7 +2351,7 @@ function getCfgCommon() {
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			inpTxt('loadPages', 4, null),
-			$txt(Lng.loadPages[lang])
+			$txt(Lng.cfg.loadPages[lang])
 		]),
 		$if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [
 			lBox('updScript', true, null),
