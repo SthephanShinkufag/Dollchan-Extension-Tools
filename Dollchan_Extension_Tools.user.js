@@ -2116,7 +2116,7 @@ function getCfgPosts() {
 			}
 		} : null),
 		$New('label', null, [
-			inpTxt('updThrDelay', 4, null),
+			inpTxt('updThrDelay', 2, null),
 			$txt(Lng.cfg.updThrDelay[lang])
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
@@ -2143,15 +2143,15 @@ function getCfgPosts() {
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
-				inpTxt('timeOffset', 3, null),
+				inpTxt('timeOffset', 2, null),
 				$txt(Lng.cfg.timeOffset[lang])
 			]),
 			$New('div', null, [
-				inpTxt('timePattern', 30, null),
+				inpTxt('timePattern', 25, null),
 				$txt(Lng.cfg.timePattern[lang])
 			]),
 			$New('div', null, [
-				inpTxt('timeRPattern', 30, null),
+				inpTxt('timeRPattern', 25, null),
 				$txt(Lng.cfg.timeRPattern[lang])
 			])
 		])
@@ -2164,19 +2164,19 @@ function getCfgImages() {
 		$New('div', {'style': 'padding-left: 25px;'}, [
 			lBox('resizeImgs', true, null),
 			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
-			inpTxt('zoomFactor', 6, function () {
+			inpTxt('zoomFactor', 4, function () {
 				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 			}),
 			$txt(Lng.cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
 			$New('div', null, [
-				inpTxt('webmVolume', 6, function () {
+				inpTxt('webmVolume', 4, function () {
 					saveCfg('webmVolume', Math.min(+this.value, 100));
 				}),
 				$txt(Lng.cfg.webmVolume[lang])
 			]),
 			$New('div', null, [
-				inpTxt('minImgSize', 6, function () {
+				inpTxt('minImgSize', 4, function () {
 					saveCfg('minImgSize', Math.max(+this.value, 1));
 				}),
 				$txt(Lng.cfg.minImgSize[lang])
@@ -2197,13 +2197,13 @@ function getCfgLinks() {
 		optSel('linksNavig', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
-				inpTxt('linksOver', 6, function () {
+				inpTxt('linksOver', 4, function () {
 					saveCfg('linksOver', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOver[lang])
 			]),
 			$New('div', null, [
-				inpTxt('linksOut', 6, function () {
+				inpTxt('linksOut', 4, function () {
 					saveCfg('linksOut', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOut[lang])
@@ -2220,9 +2220,9 @@ function getCfgLinks() {
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
 				optSel('YTubeType', false, null),
-				inpTxt('YTubeWidth', 6, null),
+				inpTxt('YTubeWidth', 4, null),
 				$txt('×'),
-				inpTxt('YTubeHeigh', 6, null),
+				inpTxt('YTubeHeigh', 4, null),
 				$txt(' '),
 				lBox('YTubeHD', false, null)
 			]),
@@ -2271,7 +2271,7 @@ function getCfgForm() {
 			lBox('txtBtnsLoc', false, pr.addTextPanel.bind(pr))
 		])),
 		$if(pr.passw, $New('div', null, [
-			inpTxt('passwValue', 20, PostForm.setUserPassw),
+			inpTxt('passwValue', 15, PostForm.setUserPassw),
 			$txt(Lng.cfg.userPassw[lang]),
 			$btn(Lng.change[lang], '', function () {
 				$q('input[info="passwValue"]', doc).value = Math.round(Math.random() * 1e15).toString(32);
@@ -2279,7 +2279,7 @@ function getCfgForm() {
 			})
 		])),
 		$if(pr.name, $New('div', null, [
-			inpTxt('nameValue', 20, PostForm.setUserName),
+			inpTxt('nameValue', 15, PostForm.setUserName),
 			lBox('userName', false, PostForm.setUserName)
 		])),
 		$New('div', null, [
@@ -6000,17 +6000,18 @@ function scriptCSS() {
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { min-height: 304px; min-width: 371px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
+		.de-cfg-body { min-height: 304px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
 		.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\
 		.de-cfg-body input[type="button"], .de-cfg-body input[type="text"] { padding: 1px 2px !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
 		.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\
-		#de-cfg-btns { padding: 7px 2px 2px; font-size: 13px !important; }\
+		#de-cfg-btns { padding: 3px; font-size: 13px !important; }\
+		#de-cfg-btns input { padding: 0 3px; }\
 		#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\
 		#de-cfg-bar:lang(en) { background-color: #325f9e; }\
 		#de-cfg-bar:lang(de) { background-color: #777; }\
 		.de-cfg-depend { padding-left: 25px; }\
-		.de-cfg-tab { padding: 4px 5px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
+		.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\
 		.de-cfg-tab-back { display: table-cell !important; float: none !important; width:auto; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\
 		.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\
 		.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\
@@ -6025,7 +6026,7 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px !important; width: 340px; height: 180px; border: none !important; outline: none !important; }\
+		#de-spell-edit { padding: 2px !important; width: 325px; height: 180px; border: none !important; outline: none !important; }\
 		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';
