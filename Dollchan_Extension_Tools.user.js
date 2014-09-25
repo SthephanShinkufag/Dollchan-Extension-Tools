@@ -1,245 +1,253 @@
 // ==UserScript==
-// @name			Dollchan Extension Tools
-// @version			14.9.22.0
-// @namespace		http://www.freedollchan.org/scripts/*
-// @author			Sthephan Shinkufag @ FreeDollChan
-// @copyright		(C)2084, Bender Bending Rodriguez
-// @description		Doing some profit for imageboards
-// @icon			https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
-// @updateURL		https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
-// @run-at			document-start
-// @grant			GM_getValue
-// @grant			GM_setValue
-// @grant			GM_deleteValue
-// @grant			GM_openInTab
-// @grant			GM_xmlhttpRequest
-// @grant			unsafeWindow
-// @include			*
+// @name            Dollchan Extension Tools
+// @version         14.9.22.0
+// @namespace       http://www.freedollchan.org/scripts/*
+// @author          Sthephan Shinkufag @ FreeDollChan
+// @copyright       (C)2084, Bender Bending Rodriguez
+// @description     Doing some profit for imageboards
+// @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
+// @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
+// @run-at          document-start
+// @grant           GM_getValue
+// @grant           GM_setValue
+// @grant           GM_deleteValue
+// @grant           GM_openInTab
+// @grant           GM_xmlhttpRequest
+// @grant           unsafeWindow
+// @include         *
 // ==/UserScript==
+
 
 (function de_main_func(scriptStorage) {
 'use strict';
+
 var version = '14.9.22.0',
 defaultCfg = {
-	'disabled':		0,		// script enabled by default
-	'language':		0,		// script language [0=ru, 1=en]
-	'hideBySpell':	1,		// hide posts by spells
-	'spells':		'',		// user defined spells
-	'sortSpells':	0,		// sort spells when applying
-	'menuHiddBtn':	1,		// menu on hide button
-	'hideRefPsts':	0,		// hide post with references to hidden posts
-	'delHiddPost':	0,		// delete hidden posts
-	'ajaxUpdThr':	1,		// auto update threads
-	'updThrDelay':	60,		//    threads update interval in sec
-	'noErrInTitle': 0,		//    don't show error number in title except 404
-	'favIcoBlink':	0,		//    favicon blinking, if new posts detected
-	'markNewPosts': 1,		//    new posts marking on page focus
-	'desktNotif':	0,		//    desktop notifications, if new posts detected
-	'expandPosts':	2,		// expand shorted posts [0=off, 1=auto, 2=on click]
-	'postBtnsCSS':	2,		// post buttons style [0=text, 1=classic, 2=solid grey]
-	'noSpoilers':	1,		// open spoilers
-	'noPostNames':	0,		// hide post names
-	'noPostScrl':	1,		// no scroll in posts
-	'correctTime':	0,		// correct time in posts
-	'timeOffset':	'+0',	//    offset in hours
-	'timePattern':	'',		//    find pattern
-	'timeRPattern':	'',		//    replace pattern
-	'expandImgs':	2,		// expand images by click [0=off, 1=in post, 2=by center]
-	'resizeImgs':	1,		//    resize large images
-	'resizeDPI':	0,		//    honor dpi settings
-	'zoomFactor':	25,		//    zoom images by this factor on every wheel event
-	'webmControl':	1,		//    control bar fow webm files
-	'webmVolume':	100,	//    default volume for webm files
-	'minImgSize':	100,	//    minimal image's size
-	'maskImgs':		0,		// mask images
-	'preLoadImgs':	0,		// pre-load images
-	'findImgFile':	0,		//    detect built-in files in images
-	'openImgs':		0,		// open images in posts
-	'openGIFs':		0,		//    open only GIFs in posts
-	'imgSrcBtns':	1,		// add image search buttons
-	'linksNavig':	2,		// navigation by >>links [0=off, 1=no map, 2=+refmap]
-	'linksOver':	100,	//    delay appearance in ms
-	'linksOut':		1500,	//    delay disappearance in ms
-	'markViewed':	0,		//    mark viewed posts
-	'strikeHidd':	0,		//    strike >>links to hidden posts
-	'noNavigHidd':	0,		//    don't show previews for hidden posts
-	'crossLinks':	0,		// replace http: to >>/b/links
-	'insertNum':	1,		// insert >>link on postnumber click
-	'addMP3':		1,		// embed mp3 links
-	'addImgs':		0,		// embed links to images
-	'addYouTube':	3,		// embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
-	'YTubeType':	0,		//    player type [0=flash, 1=HTML5]
-	'YTubeWidth':	360,	//    player width
-	'YTubeHeigh':	270,	//    player height
-	'YTubeHD':		0,		//    hd video quality
-	'YTubeTitles':	0,		//    convert links to titles
-	'addVimeo':		1,		//    embed vimeo links
-	'ajaxReply':	2,		// posting with AJAX (0=no, 1=iframe, 2=HTML5)
-	'postSameImg':	1,		//    ability to post same images
-	'removeEXIF':	1,		//    remove EXIF data from JPEGs
-	'removeFName':	0,		//    remove file name
-	'sendErrNotif': 1,		//    inform about post send error if page is blurred
-	'scrAfterRep':	0,		//    scroll to the bottom after reply
-	'addPostForm':	2,		// postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
-	'favOnReply':	1,		// add thread to favorites on reply
-	'warnSubjTrip':	0,		// warn if subject field contains tripcode
-	'fileThumb':	1,		// file preview area instead of file button
-	'addSageBtn':	1,		// email field -> sage button
-	'saveSage':		1,		// remember sage
-	'sageReply':	0,		//    reply with sage
-	'captchaLang':	1,		// language input in captcha [0=off, 1=en, 2=ru]
-	'addTextBtns':	1,		// text format buttons [0=off, 1=graphics, 2=text, 3=usual]
-	'txtBtnsLoc':	0,		//    located at [0=top, 1=bottom]
-	'passwValue':	'',		// user password value
-	'userName':		0,		// user name
-	'nameValue':	'',		//    value
-	'noBoardRule':	1,		// hide board rules
-	'noGoto':		1,		// hide goto field
-	'noPassword':	1,		// hide password field
-	'scriptStyle':	0,		// script style [0=glass black, 1=glass blue, 2=solid grey]
-	'userCSS':		0,		// user style
-	'userCSSTxt':	'',		//    css text
-	'expandPanel':	0,		// show full main panel
-	'attachPanel':	1,		// attach main panel
-	'panelCounter':	1,		// posts/images counter in script panel
-	'rePageTitle':	1,		// replace page title in threads
-	'animation':	1,		// CSS3 animation in script
-	'closePopups':	0,		// auto-close popups
-	'keybNavig':	1,		// keyboard navigation
-	'loadPages':	1,		//    number of pages that are loaded on F5
-	'updScript':	1,		// check for script's update
-	'scrUpdIntrv':	1,		//    check interval in days (every val+1 day)
-	'turnOff':		0,		// enable script only for this site
-	'textaWidth':	500,	// textarea width
-	'textaHeight':	160		// textarea height
+	'disabled':         0,      // script enabled by default
+	'language':         0,      // script language [0=ru, 1=en]
+	'hideBySpell':      1,      // hide posts by spells
+	'spells':           '',     // user defined spells
+	'sortSpells':       0,      // sort spells when applying
+	'menuHiddBtn':      1,      // menu on hide button
+	'hideRefPsts':      0,      // hide post with references to hidden posts
+	'delHiddPost':      0,      // delete hidden posts
+	'ajaxUpdThr':       1,      // auto update threads
+	'updThrDelay':      60,     //    threads update interval in sec
+	'noErrInTitle':     0,      //    don't show error number in title except 404
+	'favIcoBlink':      0,      //    favicon blinking, if new posts detected
+	'markNewPosts':     1,      //    new posts marking on page focus
+	'desktNotif':       0,      //    desktop notifications, if new posts detected
+	'expandPosts':      2,      // expand shorted posts [0=off, 1=auto, 2=on click]
+	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
+	'noSpoilers':       1,      // open spoilers
+	'noPostNames':      0,      // hide post names
+	'noPostScrl':       1,      // no scroll in posts
+	'correctTime':      0,      // correct time in posts
+	'timeOffset':       '+0',   //    offset in hours
+	'timePattern':      '',     //    find pattern
+	'timeRPattern':     '',     //    replace pattern
+	'expandImgs':       2,      // expand images by click [0=off, 1=in post, 2=by center]
+	'resizeImgs':       1,      //    resize large images
+	'resizeDPI':        0,      //    honor dpi settings
+	'zoomFactor':       25,     //    zoom images by this factor on every wheel event
+	'webmControl':      1,      //    control bar fow webm files
+	'webmVolume':       100,    //    default volume for webm files
+	'minImgSize':       100,    //    minimal image's size
+	'maskImgs':         0,      // mask images
+	'preLoadImgs':      0,      // pre-load images
+	'findImgFile':      0,      //    detect built-in files in images
+	'openImgs':         0,      // open images in posts
+	'openGIFs':         0,      //    open only GIFs in posts
+	'imgSrcBtns':       1,      // add image search buttons
+	'linksNavig':       2,      // navigation by >>links [0=off, 1=no map, 2=+refmap]
+	'linksOver':        100,    //    delay appearance in ms
+	'linksOut':         1500,   //    delay disappearance in ms
+	'markViewed':       0,      //    mark viewed posts
+	'strikeHidd':       0,      //    strike >>links to hidden posts
+	'noNavigHidd':      0,      //    don't show previews for hidden posts
+	'crossLinks':       0,      // replace http: to >>/b/links
+	'insertNum':        1,      // insert >>link on postnumber click
+	'addMP3':           1,      // embed mp3 links
+	'addImgs':          0,      // embed links to images
+	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
+	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
+	'YTubeWidth':       360,    //    player width
+	'YTubeHeigh':       270,    //    player height
+	'YTubeHD':          0,      //    hd video quality
+	'YTubeTitles':      0,      //    convert links to titles
+	'addVimeo':         1,      //    embed vimeo links
+	'ajaxReply':        2,      // posting with AJAX (0=no, 1=iframe, 2=HTML5)
+	'postSameImg':      1,      //    ability to post same images
+	'removeEXIF':       1,      //    remove EXIF data from JPEGs
+	'removeFName':      0,      //    remove file name
+	'sendErrNotif':     1,      //    inform about post send error if page is blurred
+	'scrAfterRep':      0,      //    scroll to the bottom after reply
+	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
+	'favOnReply':       1,      // add thread to favorites on reply
+	'warnSubjTrip':     0,      // warn if subject field contains tripcode
+	'fileThumb':        1,      // file preview area instead of file button
+	'addSageBtn':       1,      // email field -> sage button
+	'saveSage':         1,      // remember sage
+	'sageReply':        0,      //    reply with sage
+	'captchaLang':      1,      // language input in captcha [0=off, 1=en, 2=ru]
+	'addTextBtns':      1,      // text format buttons [0=off, 1=graphics, 2=text, 3=usual]
+	'txtBtnsLoc':       0,      //    located at [0=top, 1=bottom]
+	'passwValue':       '',     // user password value
+	'userName':         0,      // user name
+	'nameValue':        '',     //    value
+	'noBoardRule':      1,      // hide board rules
+	'noGoto':           1,      // hide goto field
+	'noPassword':       1,      // hide password field
+	'scriptStyle':      0,      // script style [0=glass black, 1=glass blue, 2=solid grey]
+	'userCSS':          0,      // user style
+	'userCSSTxt':       '',     //    css text
+	'expandPanel':      0,      // show full main panel
+	'attachPanel':      1,      // attach main panel
+	'panelCounter':     1,      // posts/images counter in script panel
+	'rePageTitle':      1,      // replace page title in threads
+	'animation':        1,      // CSS3 animation in script
+	'closePopups':      0,      // auto-close popups
+	'keybNavig':        1,      // keyboard navigation
+	'loadPages':        1,      //    number of pages that are loaded on F5
+	'updScript':        1,      // check for script's update
+	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
+	'turnOff':          0,      // enable script only for this site
+	'textaWidth':       500,    // textarea width
+	'textaHeight':      160     // textarea height
 },
 
 Lng = {
 	cfg: {
-		'hideBySpell':	['Заклинания: ', 'Magic spells: '],
-		'sortSpells':	['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
-		'menuHiddBtn':	['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
-		'hideRefPsts':	['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
-		'delHiddPost':	['Удалять скрытые посты', 'Delete hidden posts'],
+		'hideBySpell':  ['Заклинания: ', 'Magic spells: '],
+		'sortSpells':   ['Сортировать спеллы и удалять дубликаты', 'Sort spells and delete duplicates'],
+		'menuHiddBtn':  ['Дополнительное меню кнопок скрытия ', 'Additional menu of hide buttons'],
+		'hideRefPsts':  ['Скрывать ответы на скрытые посты*', 'Hide replies to hidden posts*'],
+		'delHiddPost':  ['Удалять скрытые посты', 'Delete hidden posts'],
 
-		'ajaxUpdThr':	['AJAX обновление треда ', 'AJAX thread update '],
-		'updThrDelay':	[' (сек)', ' (sec)'],
-		'noErrInTitle':	['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
-		'favIcoBlink':	['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
-		'markNewPosts':	['Выделять новые посты при переключении на тред', 'Mark new posts on page focus'],
-		'desktNotif':	['Уведомления на рабочем столе', 'Desktop notifications'],
+		'ajaxUpdThr':   ['AJAX обновление треда ', 'AJAX thread update '],
+		'updThrDelay':  [' (сек)', ' (sec)'],
+		'noErrInTitle': ['Не показывать номер ошибки в заголовке', 'Don\'t show error number in title'],
+		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
+		'markNewPosts': ['Выделять новые посты при переключении на тред', 'Mark new posts on page focus'],
+		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
 		'expandPosts': {
-			sel:		[['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
-			txt:		['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
+			sel:        [['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
+			txt:        ['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
 		},
 		'postBtnsCSS': {
-			sel:		[['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
-			txt:		['Стиль кнопок постов*', 'Post buttons style*']
+			sel:        [['Text', 'Classic', 'Solid grey'], ['Text', 'Classic', 'Solid grey']],
+			txt:        ['Стиль кнопок постов*', 'Post buttons style*']
 		},
-		'noSpoilers':	['Открывать текстовые спойлеры', 'Open text spoilers'],
-		'noPostNames':	['Скрывать имена в постах', 'Hide names in posts'],
-		'noPostScrl':	['Без скролла в постах', 'No scroll in posts'],
-		'keybNavig':	['Навигация с помощью клавиатуры ', 'Navigation with keyboard '],
-		'loadPages':	[' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
-		'correctTime':	['Корректировать время в постах* ', 'Correct time in posts* '],
-		'timeOffset':	[' Разница во времени', ' Time difference'],
-		'timePattern':	[' Шаблон поиска', ' Find pattern'],
-		'timeRPattern':	[' Шаблон замены', ' Replace pattern'],
+		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
+		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
+		'noPostScrl':   ['Без скролла в постах', 'No scroll in posts'],
+		'keybNavig':    ['Навигация с помощью клавиатуры ', 'Navigation with keyboard '],
+		'loadPages':    [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
+		'correctTime':  ['Корректировать время в постах* ', 'Correct time in posts* '],
+		'timeOffset':   [' Разница во времени', ' Time difference'],
+		'timePattern':  [' Шаблон поиска', ' Find pattern'],
+		'timeRPattern': [' Шаблон замены', ' Replace pattern'],
 
 		'expandImgs': {
-			sel:		[['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
-			txt:		['раскрывать картинки по клику', 'expand images on click']
+			sel:        [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
+			txt:        ['раскрывать картинки по клику', 'expand images on click']
 		},
-		'resizeDPI':	['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
-		'resizeImgs':	['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
-		'zoomFactor':	[' Чувствительность зума картинок [1-100]', ' Sensibility of the images zoom [1-100]'],
-		'webmControl':	['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
-		'webmVolume':	[' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
-		'minImgSize':	[' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
-		'preLoadImgs':	['Предварительно загружать картинки*', 'Pre-load images*'],
-		'findImgFile':	['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
-		'openImgs':		['Скачивать полные версии картинок*', 'Download full version of images*'],
-		'openGIFs':		['Скачивать только GIFы*', 'Download GIFs only*'],
-		'imgSrcBtns':	['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
+		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
+		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
+		'zoomFactor':   [' Чувствительность зума картинок [1-100]', ' Sensibility of the images zoom [1-100]'],
+		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
+		'webmVolume':   [' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
+		'minImgSize':   [' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
+		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
+		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
+		'openImgs':     ['Скачивать полные версии картинок*', 'Download full version of images*'],
+		'openGIFs':     ['Скачивать только GIFы*', 'Download GIFs only*'],
+		'imgSrcBtns':   ['Добавлять кнопки для поиска картинок*', 'Add image search buttons*'],
 
 		'linksNavig': {
-			sel:		[['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
-			txt:		['навигация по >>ссылкам* ', 'navigation by >>links* ']
+			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
+			txt:        ['навигация по >>ссылкам* ', 'navigation by >>links* ']
 		},
-		'linksOver':	[' задержка появления (мс)', ' delay appearance (ms)'],
-		'linksOut':		[' задержка пропадания (мс)', ' delay disappearance (ms)'],
-		'markViewed':	['Отмечать просмотренные посты*', 'Mark viewed posts*'],
-		'strikeHidd':	['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
-		'noNavigHidd':	['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
-		'crossLinks':	['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
-		'insertNum':	['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		'addMP3':		['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
-		'addVimeo':		['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
-		'addImgs':		['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+		'linksOver':    [' задержка появления (мс)', ' delay appearance (ms)'],
+		'linksOut':     [' задержка пропадания (мс)', ' delay disappearance (ms)'],
+		'markViewed':   ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
+		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
+		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
+		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
+		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
+		'addMP3':       ['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
+		'addVimeo':     ['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
+		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
-			sel:		[['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'], ['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']],
-			txt:		['к YouTube-ссылкам* ', 'to YouTube-links* ']
+			sel:        [
+				['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'],
+				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
+			],
+			txt:        ['к YouTube-ссылкам* ', 'to YouTube-links* ']
 		},
 		'YTubeType': {
-			sel:		[['Flash', 'HTML5'], ['Flash', 'HTML5']],
-			txt:		['', '']
+			sel:        [['Flash', 'HTML5'], ['Flash', 'HTML5']],
+			txt:        ['', '']
 		},
-		'YTubeHD':		['HD ', 'HD '],
-		'YTubeTitles':	['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
+		'YTubeHD':      ['HD ', 'HD '],
+		'YTubeTitles':  ['Загружать названия к YouTube-ссылкам*', 'Load titles into YouTube-links*'],
 
-		'ajaxReply':	{
-			sel:		[['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
-			txt:		['AJAX отправка постов*', 'posting with AJAX*']
+		'ajaxReply': {
+			sel:        [['Откл.', 'Iframe', 'HTML5'], ['Disable', 'Iframe', 'HTML5']],
+			txt:        ['AJAX отправка постов*', 'posting with AJAX*']
 		},
-		'postSameImg':	['Возможность отправки одинаковых картинок', 'Ability to post same images'],
-		'removeEXIF':	['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
-		'removeFName':	['Удалять имя из файлов', 'Remove names from files'],
-		'sendErrNotif':	['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
-		'scrAfterRep':	['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
+		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
+		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
+		'removeFName':  ['Удалять имя из файлов', 'Remove names from files'],
+		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
+		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'addPostForm': {
-			sel:		[['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
-			txt:		['форма ответа в треде* ', 'reply form in thread* ']
+			sel:        [['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
+			txt:        ['форма ответа в треде* ', 'reply form in thread* ']
 		},
-		'favOnReply':	['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
-		'warnSubjTrip':	['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
-		'fileThumb':	['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
-		'addSageBtn':	['Кнопка Sage вместо поля "E-mail"* ', 'Sage button instead of "E-mail" field* '],
-		'saveSage':		['запоминать сажу', 'remember sage'],
+		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
+		'warnSubjTrip': ['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
+		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
+		'addSageBtn':   ['Кнопка Sage вместо поля "E-mail"* ', 'Sage button instead of "E-mail" field* '],
+		'saveSage':     ['запоминать сажу', 'remember sage'],
 		'captchaLang': {
-			sel:		[['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
-			txt:		['язык ввода капчи', 'language input in captcha']
+			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
+			txt:        ['язык ввода капчи', 'language input in captcha']
 		},
 		'addTextBtns': {
-			sel:		[['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
-			txt:		['кнопки форматирования текста ', 'text format buttons ']
+			sel:        [['Откл.', 'Графич.', 'Упрощ.', 'Стандарт.'], ['Disable', 'As images', 'As text', 'Standard']],
+			txt:        ['кнопки форматирования текста ', 'text format buttons ']
 		},
-		'txtBtnsLoc':	['внизу', 'at bottom'],
-		'userPassw':	[' Постоянный пароль ', ' Fixed password '],
-		'userName':		['Постоянное имя', 'Fixed name'],
-		'noBoardRule':	['правила', 'rules'],
-		'noGoto':		['поле goto', 'goto field'],
-		'noPassword':	['пароль', 'password'],
+		'txtBtnsLoc':   ['внизу', 'at bottom'],
+		'userPassw':    [' Постоянный пароль ', ' Fixed password '],
+		'userName':     ['Постоянное имя', 'Fixed name'],
+		'noBoardRule':  ['правила', 'rules'],
+		'noGoto':       ['поле goto', 'goto field'],
+		'noPassword':   ['пароль', 'password'],
 
 		'scriptStyle': {
-			sel:		[['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
-			txt:		['стиль скрипта', 'script style']
+			sel:        [['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
+			txt:        ['стиль скрипта', 'script style']
 		},
-		'userCSS':		['Пользовательский CSS ', 'User CSS '],
-		'attachPanel':	['Прикрепить главную панель', 'Attach main panel'],
-		'panelCounter':	['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
-		'rePageTitle':	['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
-		'animation':	['CSS3 анимация в скрипте', 'CSS3 animation in script'],
-		'closePopups':	['Автоматически закрывать уведомления', 'Close popups automatically'],
-		'updScript':	['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
-		'turnOff':		['Включать скрипт только на этом сайте', 'Enable script only on this site'],
+		'userCSS':      ['Пользовательский CSS ', 'User CSS '],
+		'attachPanel':  ['Прикрепить главную панель', 'Attach main panel'],
+		'panelCounter': ['Счетчик постов/картинок на главной панели', 'Counter of posts/images on main panel'],
+		'rePageTitle':  ['Название треда в заголовке вкладки*', 'Thread title in page tab*'],
+		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
+		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
+		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
+		'turnOff':      ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
 		'scrUpdIntrv': {
-			sel:		[['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'], ['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']],
-			txt:		['', '']
+			sel:        [
+				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
+				['Every day', 'Every 2 days', 'Every week', 'Every 2 week', 'Every month']
+			],
+			txt:        ['', '']
 		},
 
 		'language': {
-			sel:		[['Ru', 'En'], ['Ru', 'En']],
-			txt:		['', '']
+			sel:        [['Ru', 'En'], ['Ru', 'En']],
+			txt:        ['', '']
 		}
 	},
 
@@ -256,66 +264,69 @@ Lng = {
 	],
 
 	cfgTab: {
-		'filters':	['Фильтры', 'Filters'],
-		'posts':	['Посты', 'Posts'],
-		'images':	['Картинки', 'Images'],
-		'links':	['Ссылки', 'Links'],
-		'form':		['Форма', 'Form'],
-		'common':	['Общее', 'Common'],
-		'info':		['Инфо', 'Info']
+		'filters':      ['Фильтры', 'Filters'],
+		'posts':        ['Посты', 'Posts'],
+		'images':       ['Картинки', 'Images'],
+		'links':        ['Ссылки', 'Links'],
+		'form':         ['Форма', 'Form'],
+		'common':       ['Общее', 'Common'],
+		'info':         ['Инфо', 'Info']
 	},
 
 	panelBtn: {
-		'attach':	['Прикрепить/Открепить', 'Attach/Detach'],
-		'settings':	['Настройки', 'Settings'],
-		'hidden':	['Скрытое', 'Hidden'],
-		'favor':	['Избранное', 'Favorites'],
-		'video':	['Видео-ссылки', 'Video links'],
-		'refresh':	['Обновить', 'Refresh'],
-		'goback':	['Назад', 'Go back'],
-		'gonext':	['Следующая', 'Next'],
-		'goup':		['Наверх', 'To the top'],
-		'godown':	['В конец', 'To the bottom'],
-		'expimg':	['Раскрыть картинки', 'Expand images'],
-		'preimg':	['Предзагрузка картинок ([Ctrl+Click] только для новых постов)', 'Preload images ([Ctrl+Click] for new posts only)'],
-		'maskimg':	['Маскировать картинки', 'Mask images'],
-		'upd-on':	['Выключить автообновление треда', 'Disable thread autoupdate'],
-		'upd-off':	['Включить автообновление треда', 'Enable thread autoupdate'],
-		'audio-off':['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
-		'catalog':	['Каталог', 'Catalog'],
-		'counter':	['Постов/картинок в треде', 'Posts/Images in thread'],
-		'savethr':	['Сохранить на диск', 'Save to disk'],
-		'enable':	['Включить/выключить скрипт', 'Turn on/off the script']
+		'attach':       ['Прикрепить/Открепить', 'Attach/Detach'],
+		'settings':     ['Настройки', 'Settings'],
+		'hidden':       ['Скрытое', 'Hidden'],
+		'favor':        ['Избранное', 'Favorites'],
+		'video':        ['Видео-ссылки', 'Video links'],
+		'refresh':      ['Обновить', 'Refresh'],
+		'goback':       ['Назад', 'Go back'],
+		'gonext':       ['Следующая', 'Next'],
+		'goup':         ['Наверх', 'To the top'],
+		'godown':       ['В конец', 'To the bottom'],
+		'expimg':       ['Раскрыть картинки', 'Expand images'],
+		'preimg':       [
+			'Предзагрузка картинок ([Ctrl+Click] только для новых постов)',
+			'Preload images ([Ctrl+Click] for new posts only)'
+		],
+		'maskimg':      ['Маскировать картинки', 'Mask images'],
+		'upd-on':       ['Выключить автообновление треда', 'Disable thread autoupdate'],
+		'upd-off':      ['Включить автообновление треда', 'Enable thread autoupdate'],
+		'audio-off':    ['Звуковое оповещение о новых постах', 'Sound notification about new posts'],
+		'catalog':      ['Каталог', 'Catalog'],
+		'counter':      ['Постов/картинок в треде', 'Posts/Images in thread'],
+		'savethr':      ['Сохранить на диск', 'Save to disk'],
+		'enable':       ['Включить/выключить скрипт', 'Turn on/off the script']
 	},
 
-	selHiderMenu:	{
-		'sel':		['Скрывать выделенное', 'Hide selected text'],
-		'name':		['Скрывать имя', 'Hide name'],
-		'trip':		['Скрывать трип-код', 'Hide with trip-code'],
-		'img':		['Скрывать картинку', 'Hide with image'],
-		'ihash':	['Скрывать схожие картинки', 'Hide similar images'],
-		'text':		['Скрыть схожий текст', 'Hide similar text'],
-		'noimg':	['Скрывать без картинок', 'Hide without images'],
-		'notext':	['Скрывать без текста', 'Hide without text']
+	selHiderMenu: {
+		'sel':          ['Скрывать выделенное', 'Hide selected text'],
+		'name':         ['Скрывать имя', 'Hide name'],
+		'trip':         ['Скрывать трип-код', 'Hide with trip-code'],
+		'img':          ['Скрывать картинку', 'Hide with image'],
+		'ihash':        ['Скрывать схожие картинки', 'Hide similar images'],
+		'text':         ['Скрыть схожий текст', 'Hide similar text'],
+		'noimg':        ['Скрывать без картинок', 'Hide without images'],
+		'notext':       ['Скрывать без текста', 'Hide without text']
 	},
-	selExpandThr:	[
+	selExpandThr: [
 		['5 постов', '15 постов', '30 постов', '50 постов', '100 постов'],
 		['5 posts', '15 posts', '30 posts', '50 posts', '100 posts']
 	],
-	selAjaxPages:	[
+	selAjaxPages: [
 		['1 страница', '2 страницы', '3 страницы', '4 страницы', '5 страниц'],
 		['1 page', '2 pages', '3 pages', '4 pages', '5 pages']
 	],
-	selSaveThr:		[
+	selSaveThr: [
 		['Скачать весь тред', 'Скачать картинки'],
 		['Download thread', 'Download images']
 	],
-	selAudioNotif:	[
+	selAudioNotif: [
 		['Каждые 30 сек.', 'Каждую минуту', 'Каждые 2 мин.', 'Каждые 5 мин.'],
 		['Every 30 sec.', 'Every minute', 'Every 2 min.', 'Every 5 min.']
 	],
 
-	keyNavEdit:		[[
+	keyNavEdit: [[
 		'%l%i24 – предыдущая страница/картинка%/l',
 		'%l%i217 – следующая страница/картинка%/l',
 		'%l%i23 – скрыть текущий пост/тред%/l',
@@ -364,142 +375,148 @@ Lng = {
 		'%l%i216t – code%/l'
 	]],
 
-	month:			[
+	month: [
 		['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'],
 		['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 	],
-	fullMonth:			[
+	fullMonth: [
 		['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
 		['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 	],
-	week:			[
+	week: [
 		['Вск', 'Пнд', 'Втр', 'Срд', 'Чтв', 'Птн', 'Сбт'],
 		['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 	],
 
-	editor:			{
-		cfg:		['Редактирование настроек:', 'Edit settings:'],
-		hidden:		['Редактирование скрытых тредов:', 'Edit hidden threads:'],
-		favor:		['Редактирование избранного:', 'Edit favorites:'],
-		css:		['Редактирование CSS', 'Edit CSS']
+	editor: {
+		cfg:        ['Редактирование настроек:', 'Edit settings:'],
+		hidden:     ['Редактирование скрытых тредов:', 'Edit hidden threads:'],
+		favor:      ['Редактирование избранного:', 'Edit favorites:'],
+		css:        ['Редактирование CSS', 'Edit CSS']
 	},
 
-	newPost:		[
+	newPost: [
 		[' новый пост', ' новых поста', ' новых постов', '. Последний:'],
 		[' new post', ' new posts', ' new posts', '. Latest: ']
 	],
 
-	add:			['Добавить', 'Add'],
-	apply:			['Применить', 'Apply'],
-	clear:			['Очистить', 'Clear'],
-	refresh:		['Обновить', 'Refresh'],
-	load:			['Загрузить', 'Load'],
-	save:			['Сохранить', 'Save'],
-	edit:			['Правка', 'Edit'],
-	reset:			['Сброс', 'Reset'],
-	remove:			['Удалить', 'Remove'],
-	info:			['Инфо', 'Info'],
-	undo:			['Отмена', 'Undo'],
-	change:			['Сменить', 'Change'],
-	reply:			['Ответ', 'Reply'],
-	loading:		['Загрузка...', 'Loading...'],
-	checking:		['Проверка...', 'Checking...'],
-	deleting:		['Удаление...', 'Deleting...'],
-	error:			['Ошибка', 'Error'],
-	noConnect:		['Ошибка подключения', 'Connection failed'],
-	thrNotFound:	['Тред недоступен (№', 'Thread is unavailable (№'],
-	succDeleted:	['Успешно удалено!', 'Succesfully deleted!'],
-	errDelete:		['Не могу удалить:\n', 'Can\'t delete:\n'],
-	cTimeError:		['Неправильные настройки времени', 'Invalid time settings'],
-	noGlobalCfg:	['Глобальные настройки не найдены', 'Global config not found'],
-	postNotFound:	['Пост не найден', 'Post not found'],
-	dontShow:		['Скрыть: ', 'Hide: '],
-	checkNow:		['Проверить сейчас', 'Check now'],
-	updAvail:		['Доступно обновление!', 'Update available!'],
-	haveLatest:		['У вас стоит самая последняя версия!', 'You have latest version!'],
-	storage:		['Хранение: ', 'Storage: '],
-	thrViewed:		['Тредов просмотрено: ', 'Threads viewed: '],
-	thrCreated:		['Тредов создано: ', 'Threads created: '],
-	thrHidden:		['Тредов скрыто: ', 'Threads hidden: '],
-	postsSent:		['Постов отправлено: ', 'Posts sent: '],
-	total:			['Всего: ', 'Total: '],
-	debug:			['Отладка', 'Debug'],
-	infoDebug:		['Информация для отладки', 'Information for debugging'],
-	loadGlobal:		['Загрузить глобальные настройки', 'Load global settings'],
-	saveGlobal:		['Сохранить настройки как глобальные', 'Save settings as global'],
-	editInTxt:		['Правка в текстовом формате', 'Edit in text format'],
-	resetCfg:		['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
-	conReset:		['Данное действие удалит все ваши настройки и закладки. Продолжить?', 'This will delete all your preferences and favourites. Continue?'],
-	clrSelected:	['Удалить выделенные записи', 'Remove selected notes'],
-	saveChanges:	['Сохранить внесенные изменения', 'Save your changes'],
-	infoCount:		['Обновить счетчики постов', 'Refresh posts counters'],
-	infoPage:		['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
-	clrDeleted:		['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
-	oldPosts:		['Постов при последнем посещении', 'Posts at the last visit'],
-	newPosts:		['Количество новых постов', 'Number of new posts'],
-	thrPage:		['Тред на @странице', 'Thread on @page'],
-	findThrd:		['Найти/Загрузить тред', 'Find/Load thread'],
-	hiddenPosts:	['Скрытые посты на странице', 'Hidden posts on the page'],
-	hiddenThrds:	['Скрытые треды', 'Hidden threads'],
-	noHidPosts:		['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
-	noHidThrds:		['Нет скрытых тредов...', 'No hidden threads...'],
-	expandAll:		['Раскрыть все', 'Expand all'],
-	invalidData:	['Некорректный формат данных', 'Incorrect data format'],
-	favThrds:		['Избранные треды:', 'Favorite threads:'],
-	noFavThrds:		['Нет избранных тредов...', 'Favorites is empty...'],
-	noVideoLinks:	['Нет ссылок на видео...', 'No video links...'],
-	hideLnkList:	['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
-	prevVideo:		['Предыдущее видео', 'Previous video'],
-	nextVideo:		['Следующее видео', 'Next video'],
-	replyTo:		['Ответ в', 'Reply to'],
-	replies:		['Ответы:', 'Replies:'],
-	postsOmitted:	['Пропущено ответов: ', 'Posts omitted: '],
-	collapseThrd:	['Свернуть тред', 'Collapse thread'],
-	deleted:		['удалён', 'deleted'],
-	getNewPosts:	['Получить новые посты', 'Get new posts'],
-	page:			['Страница', 'Page'],
-	hiddenThrd:		['Скрытый тред:', 'Hidden thread:'],
-	makeThrd:		['Создать тред', 'Create thread'],
-	makeReply:		['Ответить', 'Make reply'],
-	hideForm:		['Скрыть форму', 'Hide form'],
-	search:			['Искать в ', 'Search in '],
-	wait:			['Ждите', 'Wait'],
-	noFile:			['Нет файла', 'No file'],
-	clickToAdd:		['Выберите, либо перетащите файл', 'Select or drag and drop file'],
-	removeFile:		['Удалить файл', 'Remove file'],
-	helpAddFile:	['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
-	downloadFile:	['Скачать содержащийся в картинке файл', 'Download existing file from image'],
-	fileCorrupt:	['Файл повреждён: ', 'File is corrupted: '],
-	subjHasTrip:	['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
-	loadImage:		['Загружаются картинки: ', 'Loading images: '],
-	loadFile:		['Загружаются файлы: ', 'Loading files: '],
-	cantLoad:		['Не могу загрузить ', 'Can\'t load '],
-	willSavePview:	['Будет сохранено превью', 'Thumbnail will be saved'],
-	loadErrors:		['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
-	errCorruptData:	['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
-	nextImg:		['Следующая картинка', 'Next image'],
-	prevImg:		['Предыдущая картинка', 'Previous image'],
-	togglePost:		['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
-	replyToPost:	['Ответить на пост', 'Reply to post'],
-	expandThrd:		['Раскрыть весь тред', 'Expand all thread'],
-	toggleFav:		['Добавить/Убрать Избранное', 'Add/Remove Favorites'],
-	attachPview:	['Закрепить превью', 'Attach preview'],
-	author:			['автор: ', 'author: '],
-	views:			['просмотров: ', 'views: '],
-	published:		['опубликовано: ', 'published: '],
+	add:            ['Добавить', 'Add'],
+	apply:          ['Применить', 'Apply'],
+	clear:          ['Очистить', 'Clear'],
+	refresh:        ['Обновить', 'Refresh'],
+	load:           ['Загрузить', 'Load'],
+	save:           ['Сохранить', 'Save'],
+	edit:           ['Правка', 'Edit'],
+	reset:          ['Сброс', 'Reset'],
+	remove:         ['Удалить', 'Remove'],
+	info:           ['Инфо', 'Info'],
+	undo:           ['Отмена', 'Undo'],
+	change:         ['Сменить', 'Change'],
+	reply:          ['Ответ', 'Reply'],
+	loading:        ['Загрузка...', 'Loading...'],
+	checking:       ['Проверка...', 'Checking...'],
+	deleting:       ['Удаление...', 'Deleting...'],
+	error:          ['Ошибка', 'Error'],
+	noConnect:      ['Ошибка подключения', 'Connection failed'],
+	thrNotFound:    ['Тред недоступен (№', 'Thread is unavailable (№'],
+	succDeleted:    ['Успешно удалено!', 'Succesfully deleted!'],
+	errDelete:      ['Не могу удалить:\n', 'Can\'t delete:\n'],
+	cTimeError:     ['Неправильные настройки времени', 'Invalid time settings'],
+	noGlobalCfg:    ['Глобальные настройки не найдены', 'Global config not found'],
+	postNotFound:   ['Пост не найден', 'Post not found'],
+	dontShow:       ['Скрыть: ', 'Hide: '],
+	checkNow:       ['Проверить сейчас', 'Check now'],
+	updAvail:       ['Доступно обновление!', 'Update available!'],
+	haveLatest:     ['У вас стоит самая последняя версия!', 'You have latest version!'],
+	storage:        ['Хранение: ', 'Storage: '],
+	thrViewed:      ['Тредов просмотрено: ', 'Threads viewed: '],
+	thrCreated:     ['Тредов создано: ', 'Threads created: '],
+	thrHidden:      ['Тредов скрыто: ', 'Threads hidden: '],
+	postsSent:      ['Постов отправлено: ', 'Posts sent: '],
+	total:          ['Всего: ', 'Total: '],
+	debug:          ['Отладка', 'Debug'],
+	infoDebug:      ['Информация для отладки', 'Information for debugging'],
+	loadGlobal:     ['Загрузить глобальные настройки', 'Load global settings'],
+	saveGlobal:     ['Сохранить настройки как глобальные', 'Save settings as global'],
+	editInTxt:      ['Правка в текстовом формате', 'Edit in text format'],
+	resetCfg:       ['Сбросить в настройки по умолчанию', 'Reset settings to defaults'],
+	conReset: [
+		'Данное действие удалит все ваши настройки и закладки. Продолжить?',
+		'This will delete all your preferences and favourites. Continue?'
+	],
+	clrSelected:    ['Удалить выделенные записи', 'Remove selected notes'],
+	saveChanges:    ['Сохранить внесенные изменения', 'Save your changes'],
+	infoCount:      ['Обновить счетчики постов', 'Refresh posts counters'],
+	infoPage:       ['Проверить актуальность тредов (до 5 страницы)', 'Check for threads actuality (up to 5 page)'],
+	clrDeleted:     ['Очистить недоступные (404) треды', 'Clear inaccessible (404) threads'],
+	oldPosts:       ['Постов при последнем посещении', 'Posts at the last visit'],
+	newPosts:       ['Количество новых постов', 'Number of new posts'],
+	thrPage:        ['Тред на @странице', 'Thread on @page'],
+	findThrd:       ['Найти/Загрузить тред', 'Find/Load thread'],
+	hiddenPosts:    ['Скрытые посты на странице', 'Hidden posts on the page'],
+	hiddenThrds:    ['Скрытые треды', 'Hidden threads'],
+	noHidPosts:     ['На этой странице нет скрытых постов...', 'No hidden posts on this page...'],
+	noHidThrds:     ['Нет скрытых тредов...', 'No hidden threads...'],
+	expandAll:      ['Раскрыть все', 'Expand all'],
+	invalidData:    ['Некорректный формат данных', 'Incorrect data format'],
+	favThrds:       ['Избранные треды:', 'Favorite threads:'],
+	noFavThrds:     ['Нет избранных тредов...', 'Favorites is empty...'],
+	noVideoLinks:   ['Нет ссылок на видео...', 'No video links...'],
+	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
+	prevVideo:      ['Предыдущее видео', 'Previous video'],
+	nextVideo:      ['Следующее видео', 'Next video'],
+	replyTo:        ['Ответ в', 'Reply to'],
+	replies:        ['Ответы:', 'Replies:'],
+	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: '],
+	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
+	deleted:        ['удалён', 'deleted'],
+	getNewPosts:    ['Получить новые посты', 'Get new posts'],
+	page:           ['Страница', 'Page'],
+	hiddenThrd:     ['Скрытый тред:', 'Hidden thread:'],
+	makeThrd:       ['Создать тред', 'Create thread'],
+	makeReply:      ['Ответить', 'Make reply'],
+	hideForm:       ['Скрыть форму', 'Hide form'],
+	search:         ['Искать в ', 'Search in '],
+	wait:           ['Ждите', 'Wait'],
+	noFile:         ['Нет файла', 'No file'],
+	clickToAdd:     ['Выберите, либо перетащите файл', 'Select or drag and drop file'],
+	removeFile:     ['Удалить файл', 'Remove file'],
+	helpAddFile:    ['Встроить .ogg, .rar, .zip или .7z в картинку', 'Pack .ogg, .rar, .zip or .7z into image'],
+	downloadFile:   ['Скачать содержащийся в картинке файл', 'Download existing file from image'],
+	fileCorrupt:    ['Файл повреждён: ', 'File is corrupted: '],
+	subjHasTrip:    ['Поле "Тема" содержит трипкод', '"Subject" field contains a tripcode'],
+	loadImage:      ['Загружаются картинки: ', 'Loading images: '],
+	loadFile:       ['Загружаются файлы: ', 'Loading files: '],
+	cantLoad:       ['Не могу загрузить ', 'Can\'t load '],
+	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved'],
+	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
+	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
+	nextImg:        ['Следующая картинка', 'Next image'],
+	prevImg:        ['Предыдущая картинка', 'Previous image'],
+	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
+	replyToPost:    ['Ответить на пост', 'Reply to post'],
+	expandThrd:     ['Раскрыть весь тред', 'Expand all thread'],
+	toggleFav:      ['Добавить/Убрать Избранное', 'Add/Remove Favorites'],
+	attachPview:    ['Закрепить превью', 'Attach preview'],
+	author:         ['автор: ', 'author: '],
+	views:          ['просмотров: ', 'views: '],
+	published:      ['опубликовано: ', 'published: '],
 
-	seSyntaxErr:	['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
-	seUnknown:		['неизвестный спелл: %s', 'unknown spell: %s'],
-	seMissOp:		['пропущен оператор', 'missing operator'],
-	seMissArg:		['пропущен аргумент спелла: %s', 'missing argument of spell: %s'],
-	seMissSpell:	['пропущен спелл', 'missing spell'],
-	seErrRegex:		['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
-	seUnexpChar:	['неожиданный символ: %s', 'unexpected character: %s'],
-	seMissClBkt:	['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
-	seRepsInParens:	['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
-	seOpInReps:		['недопустимо использовать оператор %s со спеллами #rep и #outrep', 'don\'t use operator %s with spells #rep & #outrep'],
-	seRow:			[' (строка ', ' (row '],
-	seCol:			[', столбец ', ', column ']
+	seSyntaxErr:    ['синтаксическая ошибка в аргументе спелла: %s', 'syntax error in argument of spell: %s'],
+	seUnknown:      ['неизвестный спелл: %s', 'unknown spell: %s'],
+	seMissOp:       ['пропущен оператор', 'missing operator'],
+	seMissArg:      ['пропущен аргумент спелла: %s', 'missing argument of spell: %s'],
+	seMissSpell:    ['пропущен спелл', 'missing spell'],
+	seErrRegex:     ['синтаксическая ошибка в регулярном выражении: %s', 'syntax error in regular expression: %s'],
+	seUnexpChar:    ['неожиданный символ: %s', 'unexpected character: %s'],
+	seMissClBkt:    ['пропущена закрывающаяся скобка', 'missing ) in parenthetical'],
+	seRepsInParens: ['спелл $s не должен располагаться в скобках', 'spell %s shouldn\'t be in parens'],
+	seOpInReps:     [
+		'недопустимо использовать оператор %s со спеллами #rep и #outrep',
+		'don\'t use operator %s with spells #rep & #outrep'
+	],
+	seRow:          [' (строка ', ' (row '],
+	seCol:          [', столбец ', ', column ']
 },
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
@@ -513,7 +530,7 @@ $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = function () {};
 
 //============================================================================================================
-//												UTILITIES
+//                                                UTILITIES
 //============================================================================================================
 
 function $Q(path, root) {
@@ -769,17 +786,25 @@ $tar.prototype = {
 		for (i = 0, nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
 			header[i] = filepath.charCodeAt(i) & 0xFF;
 		}
-		this._padSet(header, 100, '100777', 8);										// fileMode
-		this._padSet(header, 108, '0', 8);											// uid
-		this._padSet(header, 116, '0', 8);											// gid
-		this._padSet(header, 124, fileSize.toString(8), 13);						// fileSize
-		this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);	// mtime
-		this._padSet(header, 148, '        ', 8);									// checksum
-		header[156] = 0x30;															// type ('0')
+		// fileMode
+		this._padSet(header, 100, '100777', 8);
+		// uid
+		this._padSet(header, 108, '0', 8);
+		// gid
+		this._padSet(header, 116, '0', 8);
+		// fileSize
+		this._padSet(header, 124, fileSize.toString(8), 13);
+		// mtime
+		this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);
+		// checksum
+		this._padSet(header, 148, '        ', 8);
+		// type ('0')
+		header[156] = 0x30;
 		for (i = checksum = 0; i < 157; i++) {
 			checksum += header[i];
 		}
-		this._padSet(header, 148, checksum.toString(8), 8);							// checksum
+		// checksum
+		this._padSet(header, 148, checksum.toString(8), 8);
 		this._data.push(header);
 		this._data.push(input);
 		if ((i = Math.ceil(fileSize / 512) * 512 - fileSize) !== 0) {
@@ -899,7 +924,7 @@ function resizeImage(size, minSize, maxSize) {
 
 
 //============================================================================================================
-//											STORAGE & CONFIG
+//                                            STORAGE & CONFIG
 //============================================================================================================
 
 function getStored(id, Fn) {
@@ -1274,7 +1299,7 @@ function readViewedPosts() {
 }
 
 //============================================================================================================
-//												MAIN PANEL
+//                                                MAIN PANEL
 //============================================================================================================
 
 function pButton(id, href, hasHotkey) {
@@ -1885,7 +1910,7 @@ function showFavoriteTable(cont, data) {
 }
 
 //============================================================================================================
-//											SETTINGS WINDOW
+//                                            SETTINGS WINDOW
 //============================================================================================================
 
 function fixSettings() {
@@ -2488,7 +2513,7 @@ function addSettings(Set, id) {
 }
 
 //============================================================================================================
-//												MENUS & POPUPS
+//                                                MENUS & POPUPS
 //============================================================================================================
 
 function closeAlert(el) {
@@ -2645,7 +2670,7 @@ function addAudioNotifMenu(el) {
 }
 
 //============================================================================================================
-//											KEYBOARD NAVIGATION
+//                                            KEYBOARD NAVIGATION
 //============================================================================================================
 
 function KeyNavigation() {
@@ -3050,8 +3075,8 @@ function KeyEditListener(alertEl, keys, allKeys) {
 	}
 }
 // Browsers have different codes for these keys (see KeyNavigation.readKeys):
-//		Firefox - '-' - 173, '=' - 61, ';' - 59
-//		Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
+//     Firefox - '-' - 173, '=' - 61, ';' - 59
+//     Chrome/Opera: '-' - 189, '=' - 187, ';' - 186
 KeyEditListener.keyCodes = ['',,,,,,,,'Backspace','Tab',,,,'Enter',,,'Shift','Ctrl','Alt',
 	/* Pause/Break */,/* Caps Lock */,,,,,,,/* Escape */,,,,,'Space',/* Page Up */,
 	/* Page Down */,/* End */,/* Home */,'←','↑','→','↓',,,,,/* Insert */,/* Delete */,,'0','1','2',
@@ -3244,7 +3269,7 @@ KeyEditListener.prototype = {
 };
 
 //============================================================================================================
-//												FORM SUBMIT
+//                                                FORM SUBMIT
 //============================================================================================================
 
 function getSubmitError(dc) {
@@ -3669,7 +3694,7 @@ WebmParser = function (data) {
 }
 
 //============================================================================================================
-//											CONTENT FEATURES
+//                                            CONTENT FEATURES
 //============================================================================================================
 
 function initMessageFunctions() {
@@ -4072,7 +4097,7 @@ function loadDocFiles(imgOnly) {
 }
 
 //============================================================================================================
-//												TIME CORRECTION
+//                                                TIME CORRECTION
 //============================================================================================================
 
 function dateTime(pattern, rPattern, diff, dtLang, onRPat) {
@@ -4186,7 +4211,7 @@ dateTime.prototype = {
 };
 
 //============================================================================================================
-//													PLAYERS
+//                                                    PLAYERS
 //============================================================================================================
 
 YouTube = new function () {
@@ -4503,7 +4528,7 @@ function embedMP3Links(post) {
 }
 
 //============================================================================================================
-//													AJAX
+//                                                    AJAX
 //============================================================================================================
 
 function ajaxLoad(url, loadForm, Fn, errFn) {
@@ -4691,7 +4716,7 @@ function infoLoadErrors(eCode, eMsg, newPosts) {
 }
 
 //============================================================================================================
-//													SPELLS
+//                                                    SPELLS
 //============================================================================================================
 
 function Spells(read) {
@@ -5943,7 +5968,7 @@ function addSpell(type, arg, isNeg) {
 }
 
 //============================================================================================================
-//													STYLES
+//                                                    STYLES
 //============================================================================================================
 
 function getThemeLang() {
@@ -6317,7 +6342,7 @@ function updateCSS() {
 }
 
 //============================================================================================================
-//												SCRIPT UPDATING
+//                                                SCRIPT UPDATING
 //============================================================================================================
 
 function checkForUpdates(isForce, Fn) {
@@ -6379,7 +6404,7 @@ function checkForUpdates(isForce, Fn) {
 }
 
 //============================================================================================================
-//													POSTFORM
+//                                                    POSTFORM
 //============================================================================================================
 
 function PostForm(form, ignoreForm, init, dc) {
@@ -7085,7 +7110,7 @@ PostForm.prototype = {
 				tag + m[2] + tag) + m[3];
 		}
 		return [i === 1 && m[2].length === 0 && tag !== '^H' ? m[1].length + tag.length :
-		        rv.length - 1, rv.slice(1)];
+			rv.length - 1, rv.slice(1)];
 	}
 }
 
@@ -7336,7 +7361,7 @@ FileInput.prototype = {
 	}
 }
 //============================================================================================================
-//													IMAGES
+//                                                    IMAGES
 //============================================================================================================
 
 function genImgHash(data) {
@@ -8045,7 +8070,7 @@ function embedImagesLinks(el) {
 }
 
 //============================================================================================================
-//													POST
+//                                                    POST
 //============================================================================================================
 
 function Post(el, thr, num, count, isOp, prev) {
@@ -8991,7 +9016,7 @@ Post.prototype = {
 };
 
 //============================================================================================================
-//													PREVIEW
+//                                                    PREVIEW
 //============================================================================================================
 
 function Pview(parent, link, tNum, pNum) {
@@ -9439,7 +9464,7 @@ function updRefMap(post, add) {
 }
 
 //============================================================================================================
-//													THREAD
+//                                                    THREAD
 //============================================================================================================
 
 function Thread(el, prev) {
@@ -9889,7 +9914,7 @@ Thread.prototype = {
 };
 
 //============================================================================================================
-//													IMAGEBOARD
+//                                                    IMAGEBOARD
 //============================================================================================================
 
 function getImageBoard(checkDomains, checkOther) {
@@ -10722,7 +10747,7 @@ function getImageBoard(checkDomains, checkOther) {
 };
 
 //============================================================================================================
-//													BROWSER
+//                                                    BROWSER
 //============================================================================================================
 
 function getNavFuncs() {
@@ -10818,7 +10843,7 @@ function getNavFuncs() {
 }
 
 //============================================================================================================
-//												INITIALIZATION
+//                                                INITIALIZATION
 //============================================================================================================
 
 function Initialization(checkDomains) {
@@ -11426,7 +11451,7 @@ function initPage() {
 }
 
 //============================================================================================================
-//													MAIN
+//                                                    MAIN
 //============================================================================================================
 
 function addDelformStuff(isLog) {
