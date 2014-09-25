@@ -975,8 +975,9 @@ function delStored(id) {
 
 function getStoredObj(id, Fn) {
 	getStored(id, function (Fn, val) {
+		var data;
 		try {
-			var data = JSON.parse(val || '{}');
+			data = JSON.parse(val || '{}');
 		} finally {
 			Fn(data || {});
 		}
@@ -7684,7 +7685,7 @@ IAttachmentData.prototype = {
 		return val;
 	},
 	get isVideo() {
-		var val = /\.webm$/i.test(this.src) ||
+		var val = /\.webm(?:&|$)/i.test(this.src) ||
 			(this.src.startsWith('blob:') && this.el.hasAttribute('de-video'));
 		Object.defineProperty(this, 'isVideo', { value: val });
 		return val;
@@ -7698,7 +7699,7 @@ IAttachmentData.prototype = {
 		return dat[1];
 	},
 	get src() {
-		var val = this._getImageSrc();;
+		var val = this._getImageSrc();
 		Object.defineProperty(this, 'src', { value: val });
 		return val;
 	},
@@ -7772,11 +7773,13 @@ IAttachmentData.prototype = {
 		$after(el.parentNode, this._fullEl);
 	},
 	getFullObject: function () {
-		var obj;
+		var obj, src = this.src;
 		if (this.isVideo) {
+			if(aib.tiny) {
+				src = src.replace(/^.*?\?v=|&.*?$/g, '');
+			}
 			if (nav.canPlayWebm) {
-				obj = $add('<video style="width: 100%; height: 100%" src="' +
-					this.src +
+				obj = $add('<video style="width: 100%; height: 100%" src="' + src +
 					'" loop autoplay ' + (Cfg.webmControl ? 'controls ' : '') +
 					(Cfg.webmVolume === 0 ? 'muted ' : '') + '></video>');
 				if (Cfg.webmVolume !== 0) {
@@ -7794,8 +7797,7 @@ IAttachmentData.prototype = {
 					saveCfg('webmVolume', Math.round(this.volume * 100));
 				};
 			} else {
-				obj = $add('<object style="width: 100%; height: 100%" data="' +
-					this.src + '" type="video/quicktime">' +
+				obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="video/quicktime">' +
 					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
 					'<param name="controller" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
 					'<param name="autoplay" value="true" />' +
@@ -7804,8 +7806,7 @@ IAttachmentData.prototype = {
 					'<param name="wmode" value="transparent" /></object>');
 			}
 		} else {
-			obj = $add('<img style="width: 100%; height: 100%" src="' +
-				this.src + '" alt="' + this.src + '"></a>');
+			obj = $add('<img style="width: 100%; height: 100%" src="' + src + '" alt="' + src + '"></a>');
 			obj.onload = obj.onerror = function (e) {
 				if (this.naturalHeight + this.naturalWidth === 0 && !this.onceLoaded) {
 					this.src = this.src;
@@ -8889,9 +8890,7 @@ Post.prototype = {
 			if (!allImgs[el.previousSibling.firstElementChild.imgIdx].collapse(e)) {
 				return;
 			}
-		} else if (el.imgIdx === undefined || !(data = allImgs[el.imgIdx]) ||
-		          !(data.isImage || data.isVideo))
-		{
+		} else if (el.imgIdx === undefined || !(data = allImgs[el.imgIdx]) || !(data.isImage || data.isVideo)) {
 			return;
 		} else {
 			data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
