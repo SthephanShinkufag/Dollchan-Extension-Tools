@@ -175,12 +175,12 @@ Lng = {
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		'addMP3':       ['Добавлять плейер к mp3 ссылкам* ', 'Add player to mp3 links* '],
-		'addVimeo':     ['Добавлять плейер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
+		'addMP3':       ['Добавлять плеер к mp3 ссылкам* ', 'Add player to mp3 links* '],
+		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
 			sel:        [
-				['Ничего', 'Плейер по клику', 'Авто плейер', 'Превью+плейер', 'Только превью'],
+				['Ничего', 'плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
 				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
 			],
 			txt:        ['к YouTube-ссылкам* ', 'to YouTube-links* ']
@@ -208,7 +208,7 @@ Lng = {
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
-		'addSageBtn':   ['Кнопка Sage вместо поля "E-mail"* ', 'Sage button instead of "E-mail" field* '],
+		'addSageBtn':   ['Кнопка Sage вместо "E-mail"* ', 'Sage button instead of "E-mail"* '],
 		'saveSage':     ['запоминать сажу', 'remember sage'],
 		'captchaLang': {
 			sel:        [['Откл.', 'Eng', 'Rus'], ['Disable', 'Eng', 'Rus']],
@@ -1344,8 +1344,8 @@ function addPanel() {
 					(!TNum || localRun ? '' :
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.abu && (!aib.fch || aib.arch) ? '' :
-						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.abu ?
+					(!aib.mak && (!aib.fch || aib.arch) ? '' :
+						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
 					(!TNum && !aib.arch ? '' :
@@ -6339,11 +6339,6 @@ function updateCSS() {
 	if (Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
-	if (aib.abu || aib.toho) {
-		if (Cfg.addYouTube) {
-			x += 'div[id^="post_video"] { display: none !important; }';
-		}
-	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
@@ -6416,13 +6411,6 @@ function checkForUpdates(isForce, Fn) {
 
 function PostForm(form, ignoreForm, init, dc) {
 	this.oeForm = $q('form[name="oeform"], form[action*="paint"]', dc);
-	if (aib.abu && ($c('locked', form) || this.oeForm)) {
-		this.form = null;
-		if (this.oeForm) {
-			this._init();
-		}
-		return;
-	}
 	if (!ignoreForm && !form) {
 		if (this.oeForm) {
 			ajaxLoad(aib.getThrdUrl(brd, aib.getTNum(dForm)), false, function (dc, xhr) {
@@ -6687,15 +6675,6 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function (focus) {
 		var src, img;
-		if (aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
-			src = {'isCustom': true, 'focus': focus};
-			img.dispatchEvent(new CustomEvent('click', {
-				'bubbles': true,
-				'cancelable': true,
-				'detail': (nav.Firefox ? cloneInto(src, document.defaultView) : src)
-			}));
-			return;
-		}
 		if (aib.mak) {
 			aib.updateCaptcha(focus);
 		} else {
@@ -6816,7 +6795,7 @@ PostForm.prototype = {
 				$del(this.subm.nextSibling);
 			}
 		}
-		if (Cfg.addSageBtn && this.mail && !aib.mak) {
+		if (Cfg.addSageBtn && this.mail) {
 			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function (e) {
 				e.stopPropagation();
 				$pd(e);
@@ -6839,7 +6818,7 @@ PostForm.prototype = {
 			}
 		}
 		this.addTextPanel();
-		this.txta.style.cssText = 'padding: 0; resize: both; width: ' +
+		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: both; width: ' +
 			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
 		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
@@ -7075,7 +7054,7 @@ PostForm.prototype = {
 		if (aib.krau) {
 			return;
 		}
-		if (aib.abu || aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
+		if (aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
 			this.capTr.style.display = '';
 			return;
 		}
@@ -7775,7 +7754,7 @@ IAttachmentData.prototype = {
 	getFullObject: function () {
 		var obj, src = this.src;
 		if (this.isVideo) {
-			if(aib.tiny) {
+			if (aib.tiny) {
 				src = src.replace(/^.*?\?v=|&.*?$/g, '');
 			}
 			if (nav.canPlayWebm) {
@@ -10271,8 +10250,6 @@ function getImageBoard(checkDomains, checkOther) {
 		get 'syn-ch.com'() { return this['syn-ch.ru']; },
 		get 'syn-ch.org'() { return this['syn-ch.ru']; },
 		'touhouchan.org': [{
-			toho: { value: true },
-
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
 			isBB: { value: true }
@@ -10309,7 +10286,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.thread-nav, .ABU-refmap, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink::before { display: none !important; }\
+			cssEn: { value: '.thread-nav, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink:before, .box[onclick="ToggleSage()"] { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
@@ -10321,29 +10298,30 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function () {
 				$script('window.FormData = void 0;');
-				var el = $q('tr.images-area', doc.body);
-				if (el && (el = el.nextElementSibling) && !el.hasAttribute('class')) {
-					doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
-						'<div onclick="loadCaptcha();"></div>' +
-					'</div>');
-					this.updateCaptcha = function (el, focus) {
-						this.click();
-						el.style.display = '';
-						el = $id('captcha-value');
-						if (el) {
-							pr.cap = el;
-							el.tabIndex = 999;
-							if (focus) {
-								el.focus();
-							}
-						}
-					}.bind(doc.body.lastChild.firstChild, el);
-					el.addEventListener('click', function (e) {
-						if (e.target.tagName === 'IMG') {
-							this.updateCaptcha(true);
-						}
-					}.bind(this), true);
+				var el = $q('tr:not([class])', doc.body);
+				if (!el) {
+					return;
 				}
+				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
+					'<div onclick="loadCaptcha();"></div>' +
+				'</div>');
+				this.updateCaptcha = function (el, focus) {
+					this.click();
+					el.style.display = '';
+					el = $id('captcha-value');
+					if (el) {
+						pr.cap = el;
+						el.tabIndex = 999;
+						if (focus) {
+							el.focus();
+						}
+					}
+				}.bind(doc.body.lastChild.firstChild, el);
+				el.addEventListener('click', function (e) {
+					if (e.target.tagName === 'IMG') {
+						this.updateCaptcha(true);
+					}
+				}.bind(this), true);
 			} },
 			isBB: { value: true },
 			lastPage: { configurable: true, get: function () {
@@ -10353,57 +10331,6 @@ function getImageBoard(checkDomains, checkOther) {
 				return val;
 			} },
 			rLinkClick: { value: '' }
-		},
-		'#ABU_css, #ShowLakeSettings': {
-			abu: { value: true },
-			
-			qBan: { value: 'font[color="#C12267"]' },
-			qDForm: { value: '#posts-form, #posts_form, #delform' },
-			qOmitted: { value: '.mess_post, .omittedposts' },
-			qPostRedir: { value: null },
-			getImgWrap: { value: function (el) {
-				return el.parentNode.parentNode;
-			} },
-			getSage: { writable: true, value: function (post) {
-				if ($c('postertripid', dForm)) {
-					this.getSage = function (post) {
-						return !$c('postertripid', post);
-					};
-				} else {
-					this.getSage = Object.getPrototypeOf(this).getSage;
-				}
-				return this.getSage(post);
-			} },
-			cssEn: { value: '#ABU_alert_wait, .ABU_refmap, #captcha_div + font, #CommentToolbar, .postpanel, #usrFlds + tbody > tr:first-child, body > center { display: none !important; }\
-				.de-abtn { transition: none; }\
-				#de-txt-panel { font-size: 16px !important; }\
-				.reflink:before { content: none !important; }' },
-			formButtons: { get: function () {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
-				});
-			} },
-			init: { value: function () {
-				var cd = $id('captcha_div'),
-					img = cd && $t('img', cd);
-				if (img) {
-					cd.setAttribute('onclick', ['var el, i = 4,',
-						'isCustom = (typeof event.detail === "object") && event.detail.isCustom;',
-						"if (!isCustom && event.target.tagName !== 'IMG') {",
-							'return;',
-						'}',
-						'do {', img.getAttribute('onclick'), '} while (--i > 0 && !/<img|не нужно/i.test(this.innerHTML));',
-						"if (el = this.getElementsByTagName('img')[0]) {",
-							"el.removeAttribute('onclick');",
-							"if ((!isCustom || event.detail.focus) && (el = this.querySelector('input[type=\\'text\\']'))) {",
-								'el.focus();',
-							'}',
-						'}'
-					].join(''));
-					img.removeAttribute('onclick');
-				}
-			} },
-			isBB: { value: true }
 		},
 		'form[action*="futaba.php"]': {
 			futa: { value: true },
@@ -11051,12 +10978,6 @@ function parseDelform(node, thrds) {
 	lastThr = lThr;
 	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
-	if (aib.abu && TNum) {
-		lThr = firstThr.el;
-		while ((node = lThr.nextSibling) && node.tagName !== 'HR') {
-			$del(node);
-		}
-	}
 }
 
 function replaceString(txt) {
@@ -11437,11 +11358,6 @@ function initPage() {
 	}
 	if (TNum) {
 		if (Cfg.rePageTitle) {
-			if (aib.abu) {
-				window.addEventListener('load', function () {
-					doc.title = '/' + brd + ' - ' + firstThr.op.title;
-				}, false);
-			}
 			doc.title = '/' + brd + ' - ' + firstThr.op.title;
 		}
 		if (!localRun) {
