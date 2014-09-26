@@ -10263,7 +10263,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'post-title' },
 			qBan: { value: 'font[color="#C12267"]' }, // FIXME
-			qDForm: { value: '#posts-form, #posts_form, #delform' },
+			qDForm: { value: '#posts-form' },
 			qHide: { value: '.post-details ~ *' },
 			qImgLink: { value: '.file-attr > .desktop' },
 			qMsg: { value: '.post-message' },
@@ -10286,7 +10286,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.thread-nav, .media-expand-button, .postpanel, .rekl, .passcode-banner, .norm-reply, header > hr, .reflink:before, .box[onclick="ToggleSage()"] { display: none !important; }\
+			cssEn: { value: '.box[onclick="ToggleSage()"], header > hr, .media-expand-button, .norm-reply, .postpanel, .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
