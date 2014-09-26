@@ -198,7 +198,7 @@ Lng = {
 		},
 		'postSameImg':  ['Возможность отправки одинаковых картинок', 'Ability to post same images'],
 		'removeEXIF':   ['Удалять EXIF из JPEG ', 'Remove EXIF from JPEG '],
-		'removeFName':  ['Удалять имя из файлов', 'Remove names from files'],
+		'removeFName':  ['Удалять имя из файлов', 'Clear file names'],
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'addPostForm': {
@@ -11362,7 +11362,9 @@ function initPage() {
 		}
 		if (!localRun) {
 			firstThr.el.insertAdjacentHTML('afterend',
-				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]</div>');
+				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]' +
+				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
+				'</div>');
 			firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	} else if (needScroll) {
