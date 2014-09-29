@@ -1669,12 +1669,12 @@ function showContent(cont, id, name, remove, data) {
 					}
 					return;
 				case 'de-video-btn-prev':
-					node = this.ytLink.parentNode.parentNode,
-					(node.previousSibling || node.parentNode.lastChild).firstChild.firstChild.click();
+					node = this.ytLink.parentNode,
+					(node.previousSibling || node.parentNode.lastChild).firstChild.click();
 					break;
 				case 'de-video-btn-next':
-					node = this.ytLink.parentNode.parentNode,
-					(node.nextSibling || node.parentNode.firstChild).firstChild.firstChild.click();
+					node = this.ytLink.parentNode,
+					(node.nextSibling || node.parentNode.firstChild).firstChild.click();
 				}
 			}.bind(post);
 			post.msg.onclick = function (e) {
@@ -1720,8 +1720,8 @@ function showContent(cont, id, name, remove, data) {
 			temp = new YouTube();
 			for (i = 0; el = els[i++];) {
 				el = el.cloneNode(true);
-				post.msg.insertAdjacentHTML('beforeend', '<div class="de-entry"><div class="reply"></div></div>');
-				post.msg.lastChild.firstChild.appendChild(el);
+				post.msg.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply + '"></div>');
+				post.msg.lastChild.appendChild(el);
 				b = el.classList.contains('de-ytube');
 				el.ytInfo = el.href.match(b ? temp.ytReg : temp.vimReg);
 				if (i === 1) {
@@ -6026,7 +6026,7 @@ function scriptCSS() {
 		#de-spell-panel > a { padding: 0 4px; }\
 		#de-spell-div { display: table; }\
 		#de-spell-div > div { display: table-cell; vertical-align: top; }\
-		#de-spell-edit { padding: 2px !important; width: 325px; height: 180px; border: none !important; outline: none !important; }\
+		#de-spell-edit { padding: 2px !important; width: 325px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\
 		#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\
 		#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\
 		#de-spell-rowmeter:lang(de) { background-color: #777; }';
@@ -6226,9 +6226,9 @@ function scriptCSS() {
 		.de-content-block > input { margin: 0 4px; }\
 		#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-		.de-entry { float: none !important; width: 100%; margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
+		.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > a { text-decoration: none; border: none; }\
-		.de-entry > input { margin-right: 4px; }\
+		.de-entry > input { margin: 2px 4px; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-new:before { content: "+ "; }\
@@ -8261,7 +8261,7 @@ Post.prototype = {
 					} else if (Cfg.insertNum && pr.form && temp === this._pref &&
 						!/Reply|Ответ/.test(el.textContent))
 					{
-						if(TNum || pr.isQuick) {
+						if (TNum || pr.isQuick) {
 							pr.showQuickReply(this, this.num, true, false);
 						} else {
 							window.location = el.href.replace(/#i/, '#');
