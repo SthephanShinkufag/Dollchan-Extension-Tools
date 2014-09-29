@@ -10297,11 +10297,10 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.box[onclick="ToggleSage()"], header > hr, .media-expand-button, .norm-reply, .postpanel, .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
+			cssEn: { value: '.box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], .media-expand-button, .norm-reply, .postpanel, .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
-				#de-txt-panel { font-size: 16px !important; }\
-				.filesize { display: inline !important; }' },
+				#de-txt-panel { font-size: 16px !important; }' },
 			formButtons: { get: function () {
 				return Object.create(this._formButtons, {
 					tag: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] }
