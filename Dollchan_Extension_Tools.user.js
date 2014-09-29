@@ -3997,7 +3997,8 @@ function loadDocFiles(imgOnly) {
 				}
 				if (!imgOnly) {
 					el.classList.add('de-thumb');
-					el.src = this[3].href = $q(aib.qImgLink, aib.getImgWrap(this[3])).href =
+					el.src = this[3].href =
+						$q(aib.qImgLink, aib.getImgWrap(this[3])).href =
 						name = 'images/' + name;
 				}
 				tar.addFile(name, data);
@@ -4038,6 +4039,9 @@ function loadDocFiles(imgOnly) {
 		var lnk, url;
 		if (lnk = getAncestor(el, 'A')) {
 			url = lnk.href;
+			if (aib.tiny) {
+				url = url.replace(/^.*?\?v=|&.*?$/g, '');
+			}
 			Images_.queue.run([url, lnk.getAttribute('de-name') ||
 				url.substring(url.lastIndexOf("/") + 1), el, lnk]);
 		}
