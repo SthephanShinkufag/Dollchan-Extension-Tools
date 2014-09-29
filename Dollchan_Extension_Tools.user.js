@@ -1318,7 +1318,6 @@ function addPanel() {
 	var panel, evtObject, imgLen = $Q(aib.qThumbImages, dForm).length;
 	(pr && pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
-			'<div class="de-content"></div>' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none">') +
@@ -1353,7 +1352,7 @@ function addPanel() {
 							'">' + firstThr.pcount + '/' + imgLen + '</span></div>')
 				) +
 				'</ul>' +
-			'</div>' +
+			'</div><div class="de-content"></div>' +
 		(Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') +
 		'</div>'
 	);
@@ -1496,7 +1495,7 @@ function toggleContent(name, isUpd, data) {
 function addContentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click': function () {
-			var el, res = this.checked, i = 0, els = $Q('.de-entry > div > input', this.parentNode);
+			var el, res = this.checked, i = 0, els = $Q('.de-entry > input', this.parentNode);
 			for (; el = els[i++];) {
 				el.checked = res;
 			}
@@ -1584,10 +1583,10 @@ function showContent(cont, id, name, remove, data) {
 			if (!$isEmpty(hThr[b])) {
 				block = addContentBlock(cont, $new('b', {'text': '/' + b}, null));
 				for (tNum in hThr[b]) {
-					block.insertAdjacentHTML('beforeend', '<div class="de-entry" info="' + b + ';' +
-						tNum + '"><div class="' + aib.cReply + '"><input type="checkbox"><a href="' +
+					block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply +
+						'" info="' + b + ';' + tNum + '"><input type="checkbox"><a href="' +
 						aib.getThrdUrl(b, tNum) + '" target="_blank">№' + tNum + '</a> - ' +
-						hThr[b][tNum] + '</div></div>');
+						hThr[b][tNum] + '</div>');
 				}
 			}
 		}
@@ -1777,16 +1776,16 @@ function showFavoriteTable(cont, data) {
 				if (!i.url.startsWith('http')) {
 					i.url = (h === aib.host ? aib.prot + '//' : 'http://') + h + i.url;
 				}
-				block.insertAdjacentHTML('beforeend', '<div class="de-entry" de-host="' + h + '" de-board="' +
-					b + '" de-num="' + tNum + '" de-url="' + i.url + '"><div class="' + aib.cReply +
+				block.insertAdjacentHTML('beforeend', '<div class="de-entry ' + aib.cReply +
+					'" de-host="' + h + '" de-board="' + b + '" de-num="' + tNum + '" de-url="' + i.url +
 					'"><input type="checkbox"><span class="de-btn-expthr" title="' + Lng.findThrd[lang] +
 					'"></span><a href="' + i.url + '">№' + tNum + '</a><span class="de-fav-title"> - ' +
 					i.txt + '</span><span class="de-fav-inf-posts">[<span class="de-fav-inf-old" title="' +
 					Lng.oldPosts[lang] + '">' + i.cnt + '</span>] <span class="de-fav-inf-new" title="' +
 					Lng.newPosts[lang] + '"' + (i['new'] ? '>' : ' style="display: none;">') +
 					(i['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
-					Lng.thrPage[lang] + '"></span></span></div></div>');
-				block.lastChild.firstChild.firstChild.nextSibling.onclick = loadFavorThread;
+					Lng.thrPage[lang] + '"></span></span></div>');
+				block.lastChild.firstChild.nextSibling.onclick = loadFavorThread;
 			}
 		}
 	}
@@ -4593,7 +4592,7 @@ function getJsonPosts(url, Fn) {
 }
 
 function loadFavorThread() {
-	var post, el = this.parentNode.parentNode,
+	var post, el = this.parentNode,
 		ifrm = $t('iframe', el),
 		cont = $c('de-content', doc);
 	if (ifrm) {
@@ -5992,7 +5991,7 @@ function scriptCSS() {
 	// Settings window
 	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
 		.de-block { display: block; }\
-		#de-content-cfg > div { border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; overflow: hidden; }\
+		#de-content-cfg > div { border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\
 		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
@@ -6223,10 +6222,9 @@ function scriptCSS() {
 		.de-content-block > input { margin: 0 4px; }\
 		#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\
 		.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\
-		.de-entry { margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
-		.de-entry > :first-child { float: none !important; width: 100%; }\
-		.de-entry > div > a { text-decoration: none; border: none; }\
-		.de-entry > div > input { margin-right: 4px; }\
+		.de-entry { float: none !important; width: 100%; margin: 2px 0; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
+		.de-entry > a { text-decoration: none; border: none; }\
+		.de-entry > input { margin-right: 4px; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-new:before { content: "+ "; }\
@@ -6298,6 +6296,7 @@ function updateCSS() {
 	var x;
 	if (Cfg.attachPanel) {
 		x = '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
+		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
 		#de-panel { position: fixed; right: 0; bottom: 0; }'
 	} else {
 		x = '.de-content { clear: both; float: right; }\
