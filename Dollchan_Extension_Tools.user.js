@@ -8256,10 +8256,10 @@ Post.prototype = {
 					} else if (Cfg.insertNum && pr.form && temp === this._pref &&
 						!/Reply|Ответ/.test(el.textContent))
 					{
-						if(pr.isQuick) {
+						if(TNum || pr.isQuick) {
 							pr.showQuickReply(this, this.num, true);
 						} else {
-							window.location = el.href;
+							window.location = el.href.replace(/#i/, '#');
 						}
 						$pd(e);
 						e.stopPropagation();
