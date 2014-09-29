@@ -180,7 +180,7 @@ Lng = {
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
 			sel:        [
-				['Ничего', 'плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
+				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
 				['Nothing', 'On click player', 'Auto player', 'Preview+player', 'Only preview']
 			],
 			txt:        ['к YouTube-ссылкам* ', 'to YouTube-links* ']
@@ -1344,7 +1344,7 @@ function addPanel() {
 					(!TNum || localRun ? '' :
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.mak && (!aib.fch || aib.arch) ? '' :
+					(!aib.abu && !aib.mak && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
@@ -6335,6 +6335,11 @@ function updateCSS() {
 	if (Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
 	}
+	if (aib.abu) {
+		if (Cfg.addYouTube) {
+			x += 'div[id^="post_video"] { display: none !important; }';
+		}
+	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
 }
@@ -6671,6 +6676,15 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function (focus) {
 		var src, img;
+		if (aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
+			src = {'isCustom': true, 'focus': focus};
+				img.dispatchEvent(new CustomEvent('click', {
+					'bubbles': true,
+					'cancelable': true,
+					'detail': (nav.Firefox ? cloneInto(src, document.defaultView) : src)
+				}));
+			return;
+		}
 		if (aib.mak) {
 			aib.updateCaptcha(focus);
 		} else {
@@ -7050,7 +7064,7 @@ PostForm.prototype = {
 		if (aib.krau) {
 			return;
 		}
-		if (aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
+		if (aib.abu || aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
 			this.capTr.style.display = '';
 			return;
 		}
@@ -9906,7 +9920,6 @@ function getImageBoard(checkDomains, checkOther) {
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
 		get '2-chru.net'() { return this['2chru.net']; },
-		get '2ch.hk'() { return [ibEngines['section.posts']]; },
 		get '2-ch.su'() { return this['2--ch.ru']; },
 		'2--ch.ru': [{
 			tire: { value: true },
@@ -10325,6 +10338,57 @@ function getImageBoard(checkDomains, checkOther) {
 				return val;
 			} },
 			rLinkClick: { value: '' }
+		},
+		'#ABU_css, #ShowLakeSettings': {
+			abu: { value: true },
+
+			qBan: { value: 'font[color="#C12267"]' },
+			qDForm: { value: '#posts-form, #posts_form, #delform' },
+			qOmitted: { value: '.mess_post, .omittedposts' },
+			qPostRedir: { value: null },
+			getImgWrap: { value: function (el) {
+				return el.parentNode.parentNode;
+			} },
+			getSage: { writable: true, value: function (post) {
+				if ($c('postertripid', dForm)) {
+					this.getSage = function (post) {
+						return !$c('postertripid', post);
+					};
+				} else {
+					this.getSage = Object.getPrototypeOf(this).getSage;
+				}
+				return this.getSage(post);
+			} },
+			cssEn: { value: '#ABU_alert_wait, .ABU_refmap, #captcha_div + font, #CommentToolbar, .postpanel, #usrFlds + tbody > tr:first-child, body > center { display: none !important; }\
+				.de-abtn { transition: none; }\
+				#de-txt-panel { font-size: 16px !important; }\
+				.reflink:before { content: none !important; }' },
+			formButtons: { get: function () {
+				return Object.create(this._formButtons, {
+					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
+				});
+			} },
+			init: { value: function () {
+				var cd = $id('captcha_div'),
+				img = cd && $t('img', cd);
+				if (img) {
+					cd.setAttribute('onclick', ['var el, i = 4,',
+						 'isCustom = (typeof event.detail === "object") && event.detail.isCustom;',
+						 "if (!isCustom && event.target.tagName !== 'IMG') {",
+						 'return;',
+						 '}',
+						 'do {', img.getAttribute('onclick'), '} while (--i > 0 && !/<img|не нужно/i.test(this.innerHTML));',
+						 "if (el = this.getElementsByTagName('img')[0]) {",
+						 "el.removeAttribute('onclick');",
+						 "if ((!isCustom || event.detail.focus) && (el = this.querySelector('input[type=\\'text\\']'))) {",
+						 'el.focus();',
+						 '}',
+						 '}'
+					].join(''));
+					img.removeAttribute('onclick');
+				}
+			} },
+			isBB: { value: true }
 		},
 		'form[action*="futaba.php"]': {
 			futa: { value: true },
@@ -10973,6 +11037,12 @@ function parseDelform(node, thrds) {
 	lastThr = lThr;
 	node.setAttribute('de-form', '');
 	node.removeAttribute('id');
+	if (aib.abu && TNum) {
+		lThr = firstThr.el;
+		while ((node = lThr.nextSibling) && node.tagName !== 'HR') {
+			$del(node);
+		}
+	}
 }
 
 function replaceString(txt) {
