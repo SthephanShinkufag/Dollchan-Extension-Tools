@@ -10286,7 +10286,8 @@ function getImageBoard(checkDomains, checkOther) {
 			cssEn: { value: '.box[onclick="ToggleSage()"], header > hr, .media-expand-button, .norm-reply, .postpanel, .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
-				#de-txt-panel { font-size: 16px !important; }' },
+				#de-txt-panel { font-size: 16px !important; }\
+				.filesize { display: inline !important; }' },
 			formButtons: { get: function () {
 				return Object.create(this._formButtons, {
 					tag: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] }
