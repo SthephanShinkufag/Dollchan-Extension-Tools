@@ -331,7 +331,7 @@ Lng = {
 		'%l%i217 – следующая страница/картинка%/l',
 		'%l%i23 – скрыть текущий пост/тред%/l',
 		'%l%i33 – раскрыть текущий тред%/l',
-		'%l%i22 – быстрый ответ или создать тред%/l',
+		'%l%i22 – быстрый ответ%/l',
 		'%l%i25t – отправить пост%/l',
 		'%l%i21 – тред (на доске)/пост (в треде) ниже%/l',
 		'%l%i20 – тред (на доске)/пост (в треде) выше%/l',
@@ -354,7 +354,7 @@ Lng = {
 		'%l%i217 – next page/image%/l',
 		'%l%i23 – hide current post/thread%/l',
 		'%l%i33 – expand current thread%/l',
-		'%l%i22 – quick reply or create thread%/l',
+		'%l%i22 – quick reply%/l',
 		'%l%i25t – send post%/l',
 		'%l%i21 – thread (on board)/post (in thread) below%/l',
 		'%l%i20 – thread (on board)/post (in thread) above%/l',
@@ -2848,14 +2848,10 @@ KeyNavigation.prototype = {
 			switch (globIdx) {
 			case 2: // Reply or create thread
 				if (pr.form) {
-					if (!this.cPost && TNum && Cfg.addPostForm === 3) {
-						this.cPost = firstThr.op;
-					}
-					if (this.cPost) {
-						pr.showQuickReply(this.cPost, this.cPost.num, true);
-					} else {
-						pr.showMainReply(Cfg.addPostForm === 1, null);
-					}
+					post = this._getFirstVisPost(false, true) || firstThr.op;
+					this.cPost = post;
+					pr.showQuickReply(post, post.num, true);
+					post.select();
 				}
 				break;
 			case 3: // Hide selected thread/post
