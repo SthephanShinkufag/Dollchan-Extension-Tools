@@ -8244,9 +8244,13 @@ Post.prototype = {
 						$pd(e);
 						e.stopPropagation();
 					} else if (Cfg.insertNum && pr.form && temp === this._pref &&
-						!/Reply|Ответ/.test(el.textContent) && (pr.isQuick || aib.mak))
+						!/Reply|Ответ/.test(el.textContent))
 					{
-						pr.showQuickReply(this, this.num, true);
+						if(pr.isQuick) {
+							pr.showQuickReply(this, this.num, true);
+						} else {
+							window.location = el.href;
+						}
 						$pd(e);
 						e.stopPropagation();
 					}
