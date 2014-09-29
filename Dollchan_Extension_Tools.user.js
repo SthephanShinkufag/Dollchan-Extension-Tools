@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         14.9.29.0
+// @version         14.9.30.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (C)2084, Bender Bending Rodriguez
@@ -21,7 +21,7 @@
 (function de_main_func(scriptStorage) {
 'use strict';
 
-var version = '14.9.29.0',
+var version = '14.9.30.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
@@ -10297,7 +10297,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], .media-expand-button, .norm-reply, .postpanel, .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], .media-expand-button, .norm-reply, .postpanel, .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
