@@ -6972,7 +6972,7 @@ PostForm.prototype = {
 			c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
 		);
 		if (this.mail.type === 'text') {
-			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
+			this.mail.value = c ? 'sage' : aib.fch || aib._2chru ? 'noko' : '';
 		} else {
 			this.mail.checked = c;
 		}
@@ -10410,7 +10410,7 @@ function getImageBoard(checkDomains, checkOther) {
 				form, form table { margin: 0; }';
 			} }
 		},
-		'script[src*="kusaba"], form[action$="board.php"]': {
+		'script[src*="kusaba"]': {
 			kus: { value: true },
 			
 			cOPost: { value: 'postnode' },
@@ -10421,6 +10421,7 @@ function getImageBoard(checkDomains, checkOther) {
 			isBB: { value: true },
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' }
 		},
+		get 'form[action$="board.php"]'() { return this['script[src*="kusaba"]']; },
 		'link[href$="phutaba.css"]': {
 			cOPost: { value: 'thread_OP' },
 			cReply: { value: 'post' },
