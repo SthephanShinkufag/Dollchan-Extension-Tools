@@ -8244,16 +8244,9 @@ Post.prototype = {
 						$pd(e);
 						e.stopPropagation();
 					} else if (Cfg.insertNum && pr.form && temp === this._pref &&
-						!/Reply|Ответ/.test(el.textContent))
+						!/Reply|Ответ/.test(el.textContent) && (pr.isQuick || aib.mak))
 					{
-						if (TNum && Cfg.addPostForm > 1 && !pr.isQuick) {
-							pr.showQuickReply(this, this.num, true);
-						} else {
-							if (aib._420 && pr.txta.value === 'Comment') {
-								pr.txta.value = '';
-							}
-							$txtInsert(pr.txta, '>>' + this.num);
-						}
+						pr.showQuickReply(this, this.num, true);
 						$pd(e);
 						e.stopPropagation();
 					}
