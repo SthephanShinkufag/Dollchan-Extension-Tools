@@ -8261,13 +8261,15 @@ Post.prototype = {
 					} else if (Cfg.insertNum && pr.form && temp === this._pref &&
 						!/Reply|Ответ/.test(el.textContent))
 					{
-						if (TNum || pr.isQuick) {
+						$pd(e);
+						e.stopPropagation();
+						if (pr.isQuick || (TNum && pr.isHidden)) {
 							pr.showQuickReply(this, this.num, true, false);
+						} else if(TNum) {
+							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
 							window.location = el.href.replace(/#i/, '#');
 						}
-						$pd(e);
-						e.stopPropagation();
 					}
 				}
 				return;
