@@ -496,7 +496,8 @@ Lng = {
 	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
 	replyToPost:    ['Ответить на пост', 'Reply to post'],
 	expandThrd:     ['Раскрыть весь тред', 'Expand all thread'],
-	toggleFav:      ['Добавить/Убрать Избранное', 'Add/Remove Favorites'],
+	addFav:         ['Добавить тред в Избранное', 'Add thread to Favorites'],
+	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 	attachPview:    ['Закрепить превью', 'Attach preview'],
 	author:         ['автор: ', 'author: '],
 	views:          ['просмотров: ', 'views: '],
@@ -1246,7 +1247,7 @@ function readFavoritesPosts() {
 		}
 		for (thr = firstThr; thr; thr = thr.next) {
 			if ((num = thr.num) in temp) {
-				$c('de-btn-fav', thr.op.btns).className = 'de-btn-fav-sel';
+				thr.setFavBtn(true);
 				if (TNum) {
 					temp[num].cnt = thr.pcount;
 					temp[num]['new'] = 0;
@@ -1286,7 +1287,7 @@ function removeFavoriteEntry(fav, h, b, num, clearPage) {
 		}
 	}
 	if (clearPage && h === aib.host && b === brd && (num in pByNum)) {
-		($c('de-btn-fav-sel', pByNum[num].btns) || {}).className = 'de-btn-fav';
+		pByNum[num].thr.setFavBtn(false);
 	}
 }
 
@@ -2350,7 +2351,7 @@ function getCfgCommon() {
 			})
 		]),
 		$New('div', {'class': 'de-cfg-depend'}, [
-			inpTxt('loadPages', 4, null),
+			inpTxt('loadPages', 2, null),
 			$txt(Lng.cfg.loadPages[lang])
 		]),
 		$if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New('div', null, [
@@ -8094,7 +8095,7 @@ function Post(el, thr, num, count, isOp, prev) {
 		if (!TNum && !aib.arch) {
 			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
 		}
-		html += '<span class="de-btn-fav"></span>';
+		html += '<span class="de-btn-fav" title="' + Lng.addFav[lang] + '"></span>';
 	}
 	if (this.sage = aib.getSage(el)) {
 		html += '<span class="de-btn-sage" title="SAGE"></span>';
@@ -9673,10 +9674,15 @@ Thread.prototype = {
 		}
 		return info[1];
 	},
+	setFavBtn: function (state) {
+		var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
+		if(el) {
+			el.className = state ? 'de-btn-fav-sel' : 'de-btn-fav';
+			el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
+		}
+	},
 	setFavorState: function (val) {
-		var fav = 'de-btn-fav',
-			favSel = 'de-btn-fav-sel';
-		($c(val ? fav : favSel, this.op.btns) || {}).className = val ? favSel : fav;
+		this.setFavBtn(val);
 		getStoredObj('DESU_Favorites', function (fav) {
 			var h = aib.host,
 				b = brd,
