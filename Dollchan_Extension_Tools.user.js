@@ -10517,6 +10517,14 @@ function getImageBoard(checkDomains, checkOther) {
 			qImgLink: { value: '.filename > a' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			css: { value: '.content > hr, .de-parea > hr { display: none !important }' },
+			fixFileInputs: { value: function (el) {
+				var str = '><input name="file" type="file"></input></div>';
+				el.removeAttribute('onchange');
+				el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
+			} },
+			getFileWrap: { value: function (el) {
+				return el.parentNode;
+			} },
 			getImgWrap: { value: function (el) {
 				return el.parentNode.parentNode;
 			} },
@@ -10524,11 +10532,6 @@ function getImageBoard(checkDomains, checkOther) {
 				return !!$q('.sage', post);
 			} },
 			docExt: { value: '' },
-			formButtons: { get: function () {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] },
-				});
-			} },
 			isBB: { value: true },
 			res: { value: 'thread/' }
 		}
