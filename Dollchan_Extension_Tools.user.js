@@ -8884,7 +8884,7 @@ Post.prototype = {
 			}
 			this.kid = pv;
 			pv.parent = this;
-		} else {
+		} else if (!Cfg.noNavigHidd || !pByNum[pNum] || !pByNum[pNum].hidden) {
 			this.kid = new Pview(this, link, tNum, pNum);
 		}
 	},
@@ -9031,9 +9031,6 @@ Post.prototype = {
 
 function Pview(parent, link, tNum, pNum) {
 	var b, post = pByNum[pNum];
-	if (Cfg.noNavigHidd && post && post.hidden) {
-		return;
-	}
 	this.parent = parent;
 	this._link = link;
 	this.num = pNum;
