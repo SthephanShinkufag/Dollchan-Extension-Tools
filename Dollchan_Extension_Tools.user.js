@@ -940,9 +940,11 @@ function getStored(id, Fn) {
 	} else if (nav.isChromeStorage) {
 		chrome.storage.local.get(id, function (obj) {
 			if(Object.keys(obj).length) {
+				// console.log('Read local ' + id);
 				Fn(obj[id]);
 			} else {
 				chrome.storage.sync.get(id, function (obj) {
+					// console.log('Read sync ' + id);
 					Fn(obj[id]);
 				});
 			}
@@ -962,6 +964,7 @@ function setStored(id, value) {
 		obj[id] = value;
 		if(value.toString().length < 4095) {
 			chrome.storage.sync.set(obj, emptyFn);
+			chrome.storage.local.remove(id, emptyFn);
 		} else {
 			chrome.storage.local.set(obj, emptyFn);
 			chrome.storage.sync.remove(id, emptyFn);
