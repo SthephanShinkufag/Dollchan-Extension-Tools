@@ -938,8 +938,14 @@ function getStored(id, Fn) {
 	if (nav.isGM) {
 		Fn(GM_getValue(id));
 	} else if (nav.isChromeStorage) {
-		chrome.storage.sync.get(id, function (obj) {
-			Fn(obj[id]);
+		chrome.storage.local.get(id, function (obj) {
+			if(Object.keys(obj).length) {
+				Fn(obj[id]);
+			} else {
+				chrome.storage.sync.get(id, function (obj) {
+					Fn(obj[id]);
+				});
+			}
 		});
 	} else if (nav.isScriptStorage) {
 		Fn(scriptStorage.getItem(id));
@@ -954,7 +960,12 @@ function setStored(id, value) {
 	} else if (nav.isChromeStorage) {
 		var obj = {};
 		obj[id] = value;
-		chrome.storage.sync.set(obj, function () {});
+		if(value.toString().length < 4095) {
+			chrome.storage.sync.set(obj, emptyFn);
+		} else {
+			chrome.storage.local.set(obj, emptyFn);
+			chrome.storage.sync.remove(id, emptyFn);
+		}
 	} else if (nav.isScriptStorage) {
 		scriptStorage.setItem(id, value);
 	} else {
@@ -966,7 +977,7 @@ function delStored(id) {
 	if (nav.isGM) {
 		GM_deleteValue(id);
 	} else if (nav.isChromeStorage) {
-		chrome.storage.sync.remove(id, function () {});
+		chrome.storage.sync.remove(id, emptyFn);
 	} else if (nav.isScriptStorage) {
 		scriptStorage.removeItem(id);
 	} else {
