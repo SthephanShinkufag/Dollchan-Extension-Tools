@@ -10551,6 +10551,7 @@ function getImageBoard(checkDomains, checkOther) {
 		qHide: '.de-post-btns ~ *',
 		get qImgLink() {
 			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
+				'.' + this.cFileInfo + ' a[href$=".jpeg"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1), ' +
 				'.' + this.cFileInfo + ' a[href$=".webm"]:nth-of-type(1)';
