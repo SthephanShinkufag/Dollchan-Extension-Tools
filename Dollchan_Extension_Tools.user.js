@@ -7306,8 +7306,9 @@ FileInput.prototype = {
 	},
 	_changeFilesCount: function (val) {
 		if (aib.dobr) {
-			var el = this.form.fileTd.firstElementChild;
-			el.value = +el.value + val;
+			var el = this.form.fileTd.firstElementChild,
+				val = +el.value + val;
+			el.value = val < 1 ? 1 : val;
 		}
 	},
 	_onFileChange: function () {
