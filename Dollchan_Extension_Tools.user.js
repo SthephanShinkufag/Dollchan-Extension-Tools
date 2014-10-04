@@ -2864,7 +2864,7 @@ KeyNavigation.prototype = {
 				if (pr.form) {
 					post = this._getFirstVisPost(false, true) || firstThr.op;
 					this.cPost = post;
-					pr.showQuickReply(post, post.num, true, true);
+					pr.showQuickReply(post, post.num, true, false);
 					post.select();
 				}
 				break;
@@ -6614,7 +6614,7 @@ PostForm.prototype = {
 	get topCoord() {
 		return this.pForm.getBoundingClientRect().top;
 	},
-	showQuickReply: function (post, pNum, closeReply, isNewLine) {
+	showQuickReply: function (post, pNum, closeReply, isNumClick) {
 		var temp, tNum = post.tNum;
 		if (!this.isQuick) {
 			this.isQuick = true;
@@ -6658,10 +6658,14 @@ PostForm.prototype = {
 			this.txta.value = '';
 		}
 		temp = this.txta.value;
-		$txtInsert(this.txta, (isNewLine && temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') +
-			(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? ''
-				: '>>' + pNum + (isNewLine ? '\n' : '')) +
-			(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
+		if(!post.isOp || isNumClick) {
+			$txtInsert(this.txta, (!isNumClick && temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') +
+				(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? ''
+					: '>>' + pNum + (isNumClick ? '' : '\n')) +
+				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
+		} else {
+			this.txta.focus();
+		}
 		if (Cfg.addPostForm === 3) {
 			temp = $t('a', this.qArea.firstChild);
 			temp.href = aib.getThrdUrl(brd, tNum);
@@ -8280,7 +8284,7 @@ Post.prototype = {
 						$pd(e);
 						e.stopPropagation();
 						if (pr.isQuick || (TNum && pr.isHidden)) {
-							pr.showQuickReply(this, this.num, true, false);
+							pr.showQuickReply(this, this.num, false, true);
 						} else if(TNum) {
 							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
@@ -8315,7 +8319,7 @@ Post.prototype = {
 				this._menu = null;
 				return;
 			case 'de-btn-rep':
-				pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, true);
+				pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
 				return;
 			case 'de-btn-sage':
 				addSpell(9, '', false);
