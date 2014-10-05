@@ -11289,6 +11289,20 @@ function initThreadUpdater(title, enableUpdate) {
 		infoLoadErrors(eCode, eMsg, -1);
 		if (eCode !== 200 && eCode !== 304) {
 			lastECode = eCode;
+			if (Cfg.favIcoBlink && favHref && !favIntrv) {
+				favIntrv = setInterval(function () {
+					$del($q('link[rel="shortcut icon"]', doc.head));
+					doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' +
+						(!favNorm ? favHref : 'data:image/x-icon;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAM' +
+						'AAADt3eJSAAAAA3NCSVQICAjb4U/gAAAALVBMVEX////QRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQRDfQR' +
+						'DfQRDfQRDfQRDfQRDdiAd5MAAAAD3RSTlMAESIzRFVmd4iZu8zd7v9ufV8LAAAACXBIWXMAAAsSAAALEgH' +
+						'S3X78AAAAFXRFWHRDcmVhdGlvbiBUaW1lADEwLzIvMTOFMzGTAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGa' +
+						'XJld29ya3MgQ1M26LyyjAAAAH9JREFUCJljYEAAjbO3C0E067l37946ABlxLxWY6q4wMDDde+PAwPxGgYH' +
+						'j5bnLDAx1BQw8j3yBKvQ2MPA9YL53mIHvAJDB4PPOAMjgfsTA/O4wUIrjOQODzdt5CQyM9wwYmO+9EWBg8' +
+						'H2uwDTvMdBkFqAVbwxAlqmvOV2I5AYASFUrcXUe0gcAAAAASUVORK5CYII=') + '">');
+					favNorm = !favNorm;
+				}, 800);
+			}
 			if (!Cfg.noErrInTitle) {
 				updateTitle();
 			}
@@ -11378,6 +11392,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function onVis() {
 		if (Cfg.favIcoBlink && favHref) {
 			clearInterval(favIntrv);
+			favIntrv = 0;
 			favNorm = true;
 			$del($q('link[rel="shortcut icon"]', doc.head));
 			doc.head.insertAdjacentHTML('afterbegin', '<link rel="shortcut icon" href="' + favHref + '">');
