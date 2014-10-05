@@ -6150,7 +6150,7 @@ function scriptCSS() {
 
 	// Posts counter
 	x += '.de-post-counter:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
-		.de-post-deleted:after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }';
+		.de-post-deleted .de-post-btns:after { content: "' + Lng.deleted[lang] + '"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }';
 
 	// Text format buttons
 	x += '#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\
@@ -9579,7 +9579,7 @@ Thread.prototype = {
 			} else {
 				post.deleted = true;
 				post.btns.classList.remove('de-post-counter');
-				post.btns.classList.add('de-post-deleted');
+				post.wrap.classList.add('de-post-deleted');
 				($q('input[type="checkbox"]', post.el) || {}).disabled = true;
 			}
 			post = post.nextNotDeleted;
