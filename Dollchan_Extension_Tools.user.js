@@ -6846,7 +6846,7 @@ PostForm.prototype = {
 				getAncestor(this.mail, 'TR').style.display = 'none';
 				$after(this.name || this.subm, btn);
 			}
-			this._setSage();
+			setTimeout(this._setSage.bind(this), 0);
 			if (aib._2chru) {
 				while (btn.nextSibling) {
 					$del(btn.nextSibling);
@@ -7005,7 +7005,8 @@ PostForm.prototype = {
 	_setSage: function () {
 		var c = Cfg.sageReply;
 		$id('de-sagebtn').innerHTML = '&nbsp;' + (
-			c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
+			c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' :
+				'<span>(no&nbsp;sage)</span>'
 		);
 		if (this.mail.type === 'text') {
 			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
@@ -10313,7 +10314,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], .media-expand-button, .norm-reply, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
