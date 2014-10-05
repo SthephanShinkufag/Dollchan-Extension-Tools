@@ -939,7 +939,7 @@ function getStored(id, Fn) {
 		Fn(GM_getValue(id));
 	} else if (nav.isChromeStorage) {
 		chrome.storage.local.get(id, function (obj) {
-			if(Object.keys(obj).length) {
+			if (Object.keys(obj).length) {
 				// console.log('Read local ' + id);
 				Fn(obj[id]);
 			} else {
@@ -962,7 +962,7 @@ function setStored(id, value) {
 	} else if (nav.isChromeStorage) {
 		var obj = {};
 		obj[id] = value;
-		if(value.toString().length < 4095) {
+		if (value.toString().length < 4095) {
 			chrome.storage.sync.set(obj, emptyFn);
 			chrome.storage.local.remove(id, emptyFn);
 		} else {
@@ -6658,7 +6658,7 @@ PostForm.prototype = {
 			this.txta.value = '';
 		}
 		temp = this.txta.value;
-		if(!post.isOp || isNumClick) {
+		if (!post.isOp || isNumClick) {
 			$txtInsert(this.txta, (!isNumClick && temp !== '' && temp.slice(-1) !== '\n' ? '\n' : '') +
 				(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? ''
 					: '>>' + pNum + (isNumClick ? '' : '\n')) +
@@ -8287,7 +8287,7 @@ Post.prototype = {
 						e.stopPropagation();
 						if (pr.isQuick || (TNum && pr.isHidden)) {
 							pr.showQuickReply(this, this.num, false, true);
-						} else if(TNum) {
+						} else if (TNum) {
 							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
 							window.location = el.href.replace(/#i/, '#');
@@ -9694,7 +9694,7 @@ Thread.prototype = {
 	},
 	setFavBtn: function (state) {
 		var el = $c(state ? 'de-btn-fav' : 'de-btn-fav-sel', this.op.btns);
-		if(el) {
+		if (el) {
 			el.className = state ? 'de-btn-fav-sel' : 'de-btn-fav';
 			el.title = state ? Lng.delFav[lang] : Lng.addFav[lang];
 		}
@@ -10256,6 +10256,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: 'table[border="0"] > tbody > tr > td:nth-child(2) > a:last-of-type' },
 			css: { value: '#bodywrap3 > hr { display: none !important; }' }
 		}, 'script[src*="kusaba"]'],
+		'reptila.ch': [{
+			qMsg: { value: '.message' },
+		}, 'form[action*="imgboard.php?delete"]'],
 		'syn-ch.ru': [{
 			synch: { value: true },
 			
@@ -10544,11 +10547,11 @@ function getImageBoard(checkDomains, checkOther) {
 		qError: 'h1, h2, font[size="5"]',
 		qHide: '.de-post-btns ~ *',
 		get qImgLink() {
-			var val = '.' + this.cFileInfo + ' a[href$=".jpg"]:nth-of-type(1), ' +
-				'.' + this.cFileInfo + ' a[href$=".jpeg"]:nth-of-type(1), ' +
-				'.' + this.cFileInfo + ' a[href$=".png"]:nth-of-type(1), ' +
-				'.' + this.cFileInfo + ' a[href$=".gif"]:nth-of-type(1), ' +
-				'.' + this.cFileInfo + ' a[href$=".webm"]:nth-of-type(1)';
+			var val = '.' + this.cFileInfo + ' a[href$=".jpg"], ' +
+				'.' + this.cFileInfo + ' a[href$=".jpeg"], ' +
+				'.' + this.cFileInfo + ' a[href$=".png"], ' +
+				'.' + this.cFileInfo + ' a[href$=".gif"], ' +
+				'.' + this.cFileInfo + ' a[href$=".webm"]';
 			Object.defineProperty(this, 'qImgLink', { value: val });
 			return val;
 		},
