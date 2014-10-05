@@ -3334,7 +3334,7 @@ function checkUpload(dc) {
 		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
-	el = !aib.tiny && !aib.kus && !aib._55ch &&
+	el = !aib.tiny && !aib.kus &&
 		(aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
 	if (TNum) {
 		firstThr.clearPostsMarks();
@@ -6720,7 +6720,9 @@ PostForm.prototype = {
 				img.click();
 			} else if (img) {
 				src = img.getAttribute('src');
-				if (aib.kus || aib.tinyIb) {
+				if (aib.tire) {
+					src = '/' + brd + '/captcha.fpl?' + Math.random();
+				} else if (aib.kus || aib.tinyIb) {
 					src = src.replace(/\?[^?]+$|$/, (aib._410 ? '?board=' + brd + '&' : '?') + Math.random());
 				} else {
 					src = src.replace(/pl$/, 'pl?key=mainpage&amp;dummy=')
@@ -6839,7 +6841,7 @@ PostForm.prototype = {
 			el = getAncestor(this.mail, 'LABEL') || this.mail;
 			if (el.nextElementSibling || el.previousElementSibling) {
 				el.style.display = 'none';
-				$after(el, btn);
+				$after(this.subm, btn);
 			} else {
 				getAncestor(this.mail, 'TR').style.display = 'none';
 				$after(this.name || this.subm, btn);
@@ -7006,7 +7008,7 @@ PostForm.prototype = {
 			c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' : '<i>(no&nbsp;sage)</i>'
 		);
 		if (this.mail.type === 'text') {
-			this.mail.value = c ? 'sage' : aib.fch || aib._2chru ? 'noko' : '';
+			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
 		} else {
 			this.mail.checked = c;
 		}
@@ -10067,19 +10069,9 @@ function getImageBoard(checkDomains, checkOther) {
 			res: { value: 'thread/' },
 			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' }
 		}],
-		'55ch.org': [{
-			_55ch: { value: true },
-			
-			init: { value: function () {
-				$script('$ = function () {}');
-			} }
-		}, 'form[name*="postcontrols"]'],
 		'7chan.org': [{
 			init: { value: function () { return true; } }
 		}],
-		'belchan.org': [{
-			belch: { value: true }
-		}, 'script[src*="kusaba"]'],
 		'britfa.gs': [{
 			init: { value: function () { return true; } }
 		}],
@@ -10165,7 +10157,8 @@ function getImageBoard(checkDomains, checkOther) {
 		'inach.org': [{
 			qPostRedir: { value: 'input[name="fieldnoko"]' },
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
-			isBB: { value: true }
+			isBB: { value: true },
+			timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
 		}],
 		'krautchan.net': [{
 			krau: { value: true },
@@ -10244,6 +10237,7 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
 		'mlpg.co': [{
+			cOPost: { value: 'opContainer' },
 			getWrap: { value: function (el, isOp) {
 				return el.parentNode;
 			} },
@@ -10283,12 +10277,7 @@ function getImageBoard(checkDomains, checkOther) {
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		get 'syn-ch.com'() { return this['syn-ch.ru']; },
-		get 'syn-ch.org'() { return this['syn-ch.ru']; },
-		'touhouchan.org': [{
-			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
-			css: { value: 'span[id$="_display"], #bottom_lnks { display: none !important; }' },
-			isBB: { value: true }
-		}]
+		get 'syn-ch.org'() { return this['syn-ch.ru']; }
 	};
 
 	var ibEngines = {
