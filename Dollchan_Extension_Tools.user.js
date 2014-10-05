@@ -6279,6 +6279,10 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
+		#de-qarea-close { float: right; color: green; font: bold 20px arial; cursor: pointer; }\
+		.de-qarea-hanging { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
+		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
+		#de-qarea-target { font-weight: bold; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
@@ -6320,13 +6324,6 @@ function updateCSS() {
 	} else {
 		x = '.de-content { clear: both; float: right; }\
 		#de-panel { float: right; clear: both; }'
-	}
-	if (Cfg.addPostForm === 3) {
-		x += '#de-qarea { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
-			#de-qarea-target { font-weight: bold; }\
-			#de-qarea-close { float: right; color: green; font: bold 20px arial; cursor: pointer; }';
-	} else {
-		x += '#de-qarea { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }';
 	}
 	if (!Cfg.panelCounter) {
 		x += '#de-panel-info { display: none; }';
@@ -6775,7 +6772,8 @@ PostForm.prototype = {
 		this.pArea[1] = el.nextSibling;
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-		this.qArea = $add('<div id="de-qarea" class="' + aib.cReply + '" style="display: none;"></div>');
+		this.qArea = $add('<div style="display: none;" id="de-qarea" class="' + aib.cReply +
+			(Cfg.addPostForm === 3 ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		if (Cfg.addPostForm === 3) {
