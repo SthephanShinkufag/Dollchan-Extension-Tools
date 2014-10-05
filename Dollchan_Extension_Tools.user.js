@@ -2860,9 +2860,9 @@ KeyNavigation.prototype = {
 		} else {
 			globIdx = this.gKeys.indexOf(kc);
 			switch (globIdx) {
-			case 2: // Reply or create thread
+			case 2: // Quick reply
 				if (pr.form) {
-					post = this._getFirstVisPost(false, true) || firstThr.op;
+					post = this._getFirstVisPost(false, true).thr.op || firstThr.op;
 					this.cPost = post;
 					pr.showQuickReply(post, post.num, true, false);
 					post.select();
