@@ -2862,7 +2862,7 @@ KeyNavigation.prototype = {
 			switch (globIdx) {
 			case 2: // Quick reply
 				if (pr.form) {
-					post = this._getFirstVisPost(false, true) || firstThr.op;
+					post = this.cPost || this._getFirstVisPost(false, true) || firstThr.op;
 					this.cPost = post;
 					pr.showQuickReply(post, post.num, true, false);
 					post.select();
