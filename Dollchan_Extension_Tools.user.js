@@ -6919,7 +6919,7 @@ PostForm.prototype = {
 			}
 			if (this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
 				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
-					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version)[1];
+					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
 				if (!val.contains(temp)) {
 					val += temp;
 				}
@@ -10792,6 +10792,7 @@ function getNavFuncs() {
 		window.URL = window.webkitURL;
 	}
 	var ua = window.navigator.userAgent,
+		firefox = ua.contains('Gecko/'),
 		presto = window.opera ? +window.opera.version() : 0,
 		opera11 = presto ? presto < 12.1 : false,
 		webkit = ua.contains('WebKit/'),
@@ -10800,7 +10801,12 @@ function getNavFuncs() {
 		isGM = typeof GM_setValue === 'function' && 
 			(!chrome || !GM_setValue.toString().contains('not supported')),
 		isChromeStorage = window.chrome && !!window.chrome.storage,
-		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
+		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi'),
+		scriptInstall =
+			firefox ? (typeof Components !== 'undefined' && !!Components.interfaces.nsIFile ?
+				'Greasemonkey' : 'Scriptish') :
+			isChromeStorage ? 'Chrome extension' :
+			isGM ? 'Monkey' : 'Native userscript';
 	if (!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
 	}
@@ -10808,7 +10814,7 @@ function getNavFuncs() {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
 		},
-		Firefox: ua.contains('Gecko/'),
+		Firefox: firefox,
 		Opera11: opera11,
 		Presto: presto,
 		WebKit: webkit,
@@ -10818,6 +10824,7 @@ function getNavFuncs() {
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
 		isGlobal: isGM || isChromeStorage || isScriptStorage,
+		scriptInstall: scriptInstall,
 		cssFix: webkit ? '-webkit-' : opera11 ? '-o-' : '',
 		Anim: !opera11,
 		animName: webkit ? 'webkitAnimationName' : opera11 ? 'OAnimationName' : 'animationName',
