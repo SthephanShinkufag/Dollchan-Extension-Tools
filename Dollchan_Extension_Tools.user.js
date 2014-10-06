@@ -9575,7 +9575,7 @@ function getNavFuncs() {
 			return val;
 		},
 		get canPlayMP3() {
-			var val = !!new Audio().canPlayType('audio/mp3; codecs="mp3"');
+			var val = !!new Audio().canPlayType('audio/mpeg;');
 			Object.defineProperty(this, 'canPlayMP3', { value: val });
 			return val;
 		},
