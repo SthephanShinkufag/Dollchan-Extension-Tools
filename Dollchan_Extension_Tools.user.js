@@ -7234,7 +7234,8 @@ AttachmentViewer.prototype = {
 		dForm.appendChild(obj);
 	},
 	_remove: function (e) {
-		$del(this._obj);
+		this._obj.style.display = 'none';
+		setTimeout($del.bind(this._obj), 0);
 		if (e && this.data.inPview) {
 			this.data.sendCloseEvent(e, false);
 		}
