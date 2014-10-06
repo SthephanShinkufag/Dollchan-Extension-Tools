@@ -153,7 +153,7 @@ Lng = {
 			sel:        [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
 			txt:        ['раскрывать картинки по клику', 'expand images on click']
 		},
-		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам*', 'Add buttons for images navigation*'],
+		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам', 'Add buttons for images navigation'],
 		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
 		'minImgSize':   [' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
@@ -10644,7 +10644,7 @@ function replaceString(txt) {
 	}
 	if (aib.fch || aib.krau) {
 		if (aib.fch) {
-			txt = txt.replace(/<\/?wbr>/g, '');
+			txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '<\a');
 		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
