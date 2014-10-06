@@ -7154,6 +7154,7 @@ AttachmentViewer.prototype = {
 	_ar: 0,
 	_data: null,
 	_elStyle: null,
+	_fullEl: null,
 	_obj: null,
 	_oldL: 0,
 	_oldT: 0,
@@ -7173,9 +7174,8 @@ AttachmentViewer.prototype = {
 		Object.defineProperty(this, '_zoomFactor', { value: val });
 		return val;
 	},
-	_getHolder: function (data) {
+	_getHolder: function (el, data) {
 		var obj, html, size = data.computeFullSize(false),
-			el = data.getFullObject(),
 			screenWidth = Post.sizing.wWidth,
 			screenHeight = Post.sizing.wHeight;
 		this._ar = size[0] / size[1];
@@ -7215,10 +7215,12 @@ AttachmentViewer.prototype = {
 		return imgs[isForward ? data.idx + 1 : data.idx - 1]
 	},
 	_show: function (data) {
-		var obj = this._getHolder(data),
+		var el = data.getFullObject(),
+			obj = this._getHolder(el, data),
 			style = obj.style;
 		this._elStyle = style;
 		this.data = data;
+		this._fullEl = el;
 		this._obj = obj;
 		obj.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, true);
 		obj.addEventListener('mousedown', this, true);
@@ -7235,8 +7237,12 @@ AttachmentViewer.prototype = {
 		dForm.appendChild(obj);
 	},
 	_remove: function (e) {
+		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
+			this._fullEl.pause();
+			this._fullEl.src = '';
+		}
 		this._obj.style.display = 'none';
-		setTimeout($del.bind(this._obj), 0);
+		setTimeout($del, 0, this._obj);
 		if (e && this.data.inPview) {
 			this.data.sendCloseEvent(e, false);
 		}
