@@ -1797,7 +1797,8 @@ function showFavoriteTable(cont, data) {
 			}
 		}
 	}
-	cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b><hr>');
+	cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
+	cont.insertAdjacentHTML('beforeend', '<hr>');
 	cont.appendChild(addEditButton('favor', function (Fn) {
 		getStoredObj('DESU_Favorites', function (Fn, val) {
 			Fn(val, true, saveFavorites);
@@ -9441,7 +9442,7 @@ Thread.prototype = {
 				}
 				f.cnt = this.pcount;
 				f['new'] = 0;
-				saveFavorites(fav);
+				setStored('DESU_Favorites', JSON.stringify(fav));
 			}
 		}.bind(this));
 		if (saveSpells) {
