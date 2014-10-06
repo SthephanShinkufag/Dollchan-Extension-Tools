@@ -47,12 +47,13 @@ defaultCfg = {
 	'timePattern':      '',     //    find pattern
 	'timeRPattern':     '',     //    replace pattern
 	'expandImgs':       2,      // expand images by click [0=off, 1=in post, 2=by center]
-	'resizeImgs':       1,      //    resize large images
+	'imgNavBtns':       1,      //    add image navigation for full images
 	'resizeDPI':        0,      //    honor dpi settings
+	'resizeImgs':       1,      //    resize large images
+	'minImgSize':       100,    //    minimal image's size
 	'zoomFactor':       25,     //    zoom images by this factor on every wheel event
 	'webmControl':      1,      //    control bar fow webm files
 	'webmVolume':       100,    //    default volume for webm files
-	'minImgSize':       100,    //    minimal image's size
 	'maskImgs':         0,      // mask images
 	'preLoadImgs':      0,      // pre-load images
 	'findImgFile':      0,      //    detect built-in files in images
@@ -152,12 +153,13 @@ Lng = {
 			sel:        [['Откл.', 'В посте', 'По центру'], ['Disable', 'In post', 'By center']],
 			txt:        ['раскрывать картинки по клику', 'expand images on click']
 		},
+		'imgNavBtns':   ['Добавлять кнопки навигации по картинкам*', 'Add buttons for images navigation*'],
 		'resizeDPI':    ['Отображать картинки пиксель в пиксель', 'Don\'t upscale images on retina displays'],
 		'resizeImgs':   ['Уменьшать в экран большие картинки', 'Resize large images to fit screen'],
+		'minImgSize':   [' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
 		'zoomFactor':   [' Чувствительность зума картинок [1-100]', ' Sensibility of the images zoom [1-100]'],
 		'webmControl':  ['Показывать контрол-бар для webm-файлов', 'Show control bar for webm files'],
 		'webmVolume':   [' Громкость webm-файлов [0-100]', ' Default volume for webm files [0-100]'],
-		'minImgSize':   [' Минимальный размер картинок (px)', ' Minimal image\'s size (px)'],
 		'preLoadImgs':  ['Предварительно загружать картинки*', 'Pre-load images*'],
 		'findImgFile':  ['Распознавать встроенные файлы в картинках*', 'Detect built-in files in images*'],
 		'openImgs':     ['Скачивать полные версии картинок*', 'Download full version of images*'],
@@ -1931,23 +1933,21 @@ function fixSettings() {
 		}
 	}
 	toggleBox(Cfg.ajaxUpdThr, [
-		'input[info="noErrInTitle"]',
-		'input[info="favIcoBlink"]',
-		'input[info="markNewPosts"]',
-		'input[info="desktNotif"]'
+		'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
+		'input[info="markNewPosts"]', 'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg.expandImgs, [
-		'input[info="resizeDPI"]', 'input[info="resizeImgs"]', 'input[info="webmControl"]',
-		'input[info="webmVolume"]', 'input[info="minImgSize"]', 'input[info="zoomFactor"]'
+		 'input[info="resizeImgs"]', 'input[info="webmControl"]', 'input[info="webmVolume"]', 
+	]);
+	toggleBox(Cfg.expandImgs === 2, [
+		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]',
+		'input[info="minImgSize"]', 'input[info="zoomFactor"]'
 	]);
 	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 	toggleBox(Cfg.openImgs, ['input[info="openGIFs"]']);
 	toggleBox(Cfg.linksNavig, [
-		'input[info="linksOver"]',
-		'input[info="linksOut"]',
-		'input[info="markViewed"]',
-		'input[info="strikeHidd"]',
-		'input[info="noNavigHidd"]'
+		'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
+		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 	]);
 	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
 		'select[info="YTubeType"]', 'input[info="YTubeHD"]', 'input[info="addVimeo"]'
@@ -2165,8 +2165,15 @@ function getCfgImages() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-images'}, [
 		optSel('expandImgs', true, null),
 		$New('div', {'style': 'padding-left: 25px;'}, [
+			lBox('imgNavBtns', true, updateCSS),
 			lBox('resizeImgs', true, null),
 			$if(Post.sizing.dPxRatio > 1, lBox('resizeDPI', true, null)),
+			$New('div', null, [
+				inpTxt('minImgSize', 4, function () {
+					saveCfg('minImgSize', Math.max(+this.value, 1));
+				}),
+				$txt(Lng.cfg.minImgSize[lang])
+			]),
 			inpTxt('zoomFactor', 4, function () {
 				saveCfg('zoomFactor', Math.min(Math.max(+this.value, 1), 100));
 			}),
@@ -2177,12 +2184,6 @@ function getCfgImages() {
 					saveCfg('webmVolume', Math.min(+this.value, 100));
 				}),
 				$txt(Lng.cfg.webmVolume[lang])
-			]),
-			$New('div', null, [
-				inpTxt('minImgSize', 4, function () {
-					saveCfg('minImgSize', Math.max(+this.value, 1));
-				}),
-				$txt(Lng.cfg.minImgSize[lang])
 			])
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
@@ -11438,6 +11439,9 @@ function updateCSS() {
 	}
 	if (!Cfg.panelCounter) {
 		x += '#de-panel-info { display: none; }';
+	}
+	if (!Cfg.imgNavBtns) {
+		x += '#de-img-btn-next, #de-img-btn-prev { display: none; }';
 	}
 	if (Cfg.maskImgs) {
 		x += '.de-img-pre, .de-video-obj, .thumb, .ca_thumb, .fileThumb, img[src*="spoiler"], img[src*="thumb"], img[src^="blob"] { opacity: 0.07 !important; }\
