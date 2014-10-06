@@ -10723,7 +10723,7 @@ function initDelformAjax() {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, delay, checked404, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
+	var focused, delay, checked4XX, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
 		initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
 		disabledByUser = true,
 		inited = false,
@@ -10776,7 +10776,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function enable(startLoading) {
 		enabled = true;
-		checked404 = false;
+		checked4XX = false;
 		newPosts = 0;
 		delay = initDelay;
 		if (startLoading) {
@@ -10874,9 +10874,9 @@ function initThreadUpdater(title, enableUpdate) {
 			if (!Cfg.noErrInTitle) {
 				updateTitle();
 			}
-			if (eCode !== 0 && Math.floor(eCode / 500) === 0) {
-				if (eCode === 404 && !checked404) {
-					checked404 = true;
+			if (eCode !== 0 && eCode < 500) {
+				if (!checked4XX && (eCode === 404 || eCode === 400)) {
+					checked4XX = true;
 				} else {
 					updateTitle();
 					disable(false);
@@ -10892,7 +10892,7 @@ function initThreadUpdater(title, enableUpdate) {
 		if (lastECode !== 200) {
 			lastECode = 200;
 			setState('on');
-			checked404 = false;
+			checked4XX = false;
 			if ((focused || lPosts === 0) && !Cfg.noErrInTitle) {
 				updateTitle();
 			}
