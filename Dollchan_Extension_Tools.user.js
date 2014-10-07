@@ -7995,7 +7995,8 @@ Post.prototype = {
 		}
 		if (Cfg.linksNavig && el.tagName === 'A' && !el.lchecked) {
 			if (el.textContent.startsWith('>>')) {
-				el.classList.add('de-preflink');
+				// Don't use classList here, 'de-preflink ' should be first
+				el.className = 'de-preflink ' + el.className;
 				clearTimeout(Pview.delTO);
 				this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
 				$pd(e);
