@@ -493,6 +493,8 @@ Lng = {
 	willSavePview:  ['Будет сохранено превью', 'Thumbnail will be saved'],
 	loadErrors:     ['Во время загрузки произошли ошибки:', 'An error occurred during the loading:'],
 	errCorruptData: ['Ошибка: сервер отправил повреждённые данные', 'Error: server sent corrupted data'],
+	expImgInline:   ['[Click] открыть в посте, [Ctrl+Click] в центре', '[Click] expand in post, [Ctrl+Click] by center'],
+	expImgFull:     ['[Click] открыть в центре, [Ctrl+Click] в посте', '[Click] expand by center, [Ctrl+Click] in post'],
 	nextImg:        ['Следующая картинка', 'Next image'],
 	prevImg:        ['Предыдущая картинка', 'Previous image'],
 	togglePost:     ['Скрыть/Раскрыть пост', 'Hide/Unhide post'],
@@ -1938,11 +1940,9 @@ function fixSettings() {
 		'input[info="markNewPosts"]', 'input[info="desktNotif"]'
 	]);
 	toggleBox(Cfg.expandImgs, [
-		 'input[info="resizeImgs"]', 'input[info="webmControl"]', 'input[info="webmVolume"]', 
-	]);
-	toggleBox(Cfg.expandImgs === 2, [
-		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]',
-		'input[info="minImgSize"]', 'input[info="zoomFactor"]'
+		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
+		'input[info="minImgSize"]', 'input[info="zoomFactor"]',
+		'input[info="webmControl"]', 'input[info="webmVolume"]'
 	]);
 	toggleBox(Cfg.preLoadImgs, ['input[info="findImgFile"]']);
 	toggleBox(Cfg.openImgs, ['input[info="openGIFs"]']);
@@ -6025,9 +6025,9 @@ PostForm.prototype = {
 											this.innerHTML = 'можно постить';
 										} else {
 											this.innerHTML = 'неверная капча';
-											setTimeout(function () {
-												this.innerHTML = 'проверить капчу';
-											}.bind(this), 1000);
+											setTimeout(function (el) {
+												el.innerHTML = 'проверить капчу';
+											}, 1000, this);
 										}
 									}
 								}.bind(this)
@@ -7902,6 +7902,11 @@ Post.prototype = {
 				this._clickMenu(el);
 			}
 			return;
+		}
+		if (type === 'mouseover' && Cfg.expandImgs && !el.classList.contains('de-img-full') && this.allImages &&
+			el.imgIdx !== undefined && (temp = this.allImages[el.imgIdx]) && (temp.isImage || temp.isVideo))
+		{
+			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 		}
 		if (!this._hasEvents) {
 			this._hasEvents = true;
