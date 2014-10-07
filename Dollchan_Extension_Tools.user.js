@@ -2459,7 +2459,7 @@ function addEditButton(name, getDataFn) {
 
 function addSettings(Set, id) {
 	Set.appendChild($New('div', {'class': aib.cReply}, [
-		$new('div', {'id': 'de-cfg-head', 'text': 'Dollchan Extension Tools'}, null),
+		$new('div', {'class': 'de-cfg-head', 'text': 'Dollchan Extension Tools'}, null),
 		$New('div', {'id': 'de-cfg-bar'}, [
 			cfgTab('filters'),
 			cfgTab('posts'),
@@ -5908,10 +5908,11 @@ PostForm.prototype = {
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		if (Cfg.addPostForm === 3) {
-			this.qArea.appendChild(
-				$add('<span id="de-qarea-target">' + Lng.replyTo[lang] + ' <a class="de-abtn"></a></span>'));
-			this.qArea.appendChild(
-				$new('span', {'id': 'de-qarea-close', 'text': '\u2716'}, {'click': this.closeQReply.bind(this)}));
+			this.qArea.insertAdjacentHTML('beforeend',
+				'<div class="de-cfg-head"><span id="de-qarea-target">' + Lng.replyTo[lang] +
+				' <a class="de-abtn"></a></span><span id="de-qarea-close">\u2716</div>');
+			$id('de-qarea-close').onclick = this.closeQReply.bind(this);
+			this.qArea.lang = getThemeLang();
 		}
 		if (aib.tire) {
 			$each($Q('input[type="hidden"]', dForm), $del);
@@ -7237,7 +7238,7 @@ AttachmentViewer.prototype = {
 		dForm.appendChild(obj);
 	},
 	_remove: function (e) {
-		if(this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
+		if (this.data.isVideo && this._fullEl.tagName === 'VIDEO') {
 			this._fullEl.pause();
 			this._fullEl.src = '';
 		}
@@ -9992,7 +9993,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
@@ -11138,10 +11139,10 @@ function scriptCSS() {
 	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
 		.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\
-		#de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
-		#de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
-		#de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
-		#de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
+		.de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
+		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
+		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
 		.de-cfg-body { min-height: 304px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
 		.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\
 		.de-cfg-body input[type="button"], .de-cfg-body input[type="text"] { padding: 1px 2px !important; }\
@@ -11405,10 +11406,12 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-qarea-close { float: right; color: green; font: bold 20px arial; cursor: pointer; }\
-		.de-qarea-hanging { position: fixed; right: 0; bottom: 25px; z-index: 9990; padding: 3px; border: 1px solid gray; }\
+		#de-qarea-close { float: right; margin: -4px 4px 0 0; color: #fff; font: bold 16px arial; cursor: pointer; }\
+		.de-qarea-hanging { position: fixed; right: 0; bottom: 25px; z-index: 9990; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
 		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; }\
+		#de-qarea-target > a { color: #fff; }\
+		#de-qarea-target > a:hover { color: #ff6; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
