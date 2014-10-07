@@ -5912,6 +5912,40 @@ PostForm.prototype = {
 				'<div class="de-cfg-head"><span id="de-qarea-target">' + Lng.replyTo[lang] +
 				' <a class="de-abtn"></a></span><span id="de-qarea-close">\u2716</div>');
 			$id('de-qarea-close').onclick = this.closeQReply.bind(this);
+			this.qArea.firstChild.addEventListener('mousedown', {
+				_el: this.qArea,
+				_elStyle: this.qArea.style,
+				_oldX: 0,
+				_oldY: 0,
+				handleEvent: function (e) {
+					var curX = e.clientX,
+						curY = e.clientY;
+					switch (e.type) {
+					case 'mousedown':
+						this._oldX = curX;
+						this._oldY = curY;
+						doc.body.addEventListener('mousemove', this, false);
+						doc.body.addEventListener('mouseup', this, false);
+						$pd(e);
+						return;
+					case 'mousemove':
+						this._elStyle.right = '';
+						this._elStyle.bottom = '';
+						this._elStyle.left = (parseInt(this._elStyle.left || (Post.sizing.wWidth - this._el.offsetWidth), 10) + curX - this._oldX) + 'px';
+						this._elStyle.top = (parseInt(this._elStyle.top || (Post.sizing.wHeight - this._el.offsetHeight - 25), 10) + curY - this._oldY) + 'px';
+						this._oldX = curX;
+						this._oldY = curY;
+						return;
+					default: // mouseup
+						doc.body.removeEventListener('mousemove', this, false);
+						doc.body.removeEventListener('mouseup', this, false);
+						//saveCfg('qareaLeft', parseInt(this.elStyle.left, 10));
+						//saveCfg('qareaTop', parseInt(this.elStyle.top, 10));
+					}
+				}
+			}, false);
+			this.qArea.style.right = 0;
+			this.qArea.style.bottom = '25px';
 			this.qArea.lang = getThemeLang();
 		}
 		if (aib.tire) {
@@ -11407,7 +11441,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		#de-qarea-close { float: right; margin: -4px 4px 0 0; color: #fff; font: bold 16px arial; cursor: pointer; }\
-		.de-qarea-hanging { position: fixed; right: 0; bottom: 25px; z-index: 9990; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
+		.de-qarea-hanging { position: fixed; z-index: 9990; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
 		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; }\
 		#de-qarea-target > a { color: #fff; }\
