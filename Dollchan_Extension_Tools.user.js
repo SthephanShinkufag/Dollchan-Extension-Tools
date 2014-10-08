@@ -92,7 +92,7 @@ defaultCfg = {
 	'sageReply':        0,      //    reply with sage
 	'captchaLang':      1,      // language input in captcha [0=off, 1=en, 2=ru]
 	'addTextBtns':      1,      // text format buttons [0=off, 1=graphics, 2=text, 3=usual]
-	'txtBtnsLoc':       0,      //    located at [0=top, 1=bottom]
+	'txtBtnsLoc':       1,      //    located at [0=top, 1=bottom]
 	'passwValue':       '',     // user password value
 	'userName':         0,      // user name
 	'nameValue':        '',     //    value
@@ -113,8 +113,8 @@ defaultCfg = {
 	'updScript':        1,      // check for script's update
 	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
 	'turnOff':          0,      // enable script only for this site
-	'textaWidth':       500,    // textarea size
-	'textaHeight':      160,
+	'textaWidth':       300,    // textarea size
+	'textaHeight':      115,
 	'qreplyRight':      0,      // hanging quick reply position
 	'qreplyBottom':     25
 },
@@ -6027,7 +6027,7 @@ PostForm.prototype = {
 		}
 		this.addTextPanel();
 		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: both; width: ' +
-			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
+			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 0;';
 		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
 			if ((code === 33 || code === 34) && e.which === 0) {
@@ -10036,7 +10036,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
@@ -11450,7 +11450,7 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		#de-qarea-close { float: right; margin: -4px 4px 0 0; color: #fff; font: bold 16px arial; cursor: pointer; }\
-		.de-qarea-hanging { position: fixed; z-index: 9990; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
+		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
 		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; }\
 		#de-qarea-target > a { color: #fff; }\
