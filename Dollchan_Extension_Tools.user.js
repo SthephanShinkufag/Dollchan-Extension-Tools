@@ -11538,7 +11538,13 @@ function updateCSS() {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if (Cfg.noSpoilers) {
-		x += (aib.fch ? 's, s > a' : '.spoiler, .spoiler > a') + ' { background: #888 !important; color: #ccc !important; }';
+		if(aib.krau || aib.fch || aib._410) {
+			x += '.spoiler, s { color: #fff !important; opacity: .6; }\
+				.spoiler > a, s > a { color: #fff !important; }';
+		} else {
+			x += '.spoiler { color: inherit !important; opacity: .6; }\
+				.spoiler > a { color: inherit !important; }';
+		};
 	}
 	if (Cfg.noPostScrl) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
