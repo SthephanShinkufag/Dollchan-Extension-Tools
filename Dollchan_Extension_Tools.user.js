@@ -11538,7 +11538,7 @@ function updateCSS() {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if (Cfg.noSpoilers) {
-		x += '.spoiler' + (aib.fch ? ', s' : '') + ' { background: #888 !important; color: #ccc !important; }';
+		x += (aib.fch ? 's, s > a' : '.spoiler, .spoiler > a') + ' { background: #888 !important; color: #ccc !important; }';
 	}
 	if (Cfg.noPostScrl) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
