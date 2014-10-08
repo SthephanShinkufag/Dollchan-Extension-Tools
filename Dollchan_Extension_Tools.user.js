@@ -83,7 +83,8 @@ defaultCfg = {
 	'removeFName':      0,      //    remove file name
 	'sendErrNotif':     1,      //    inform about post send error if page is blurred
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
-	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden, 3=hanging]
+	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
+	'hangQReply':       1,      // quick reply type [0=inline, 1=hanging]
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
 	'fileThumb':        1,      // file preview area instead of file button
@@ -206,8 +207,8 @@ Lng = {
 		'sendErrNotif': ['Оповещать в заголовке об ошибке отправки поста', 'Inform in title about post send error'],
 		'scrAfterRep':  ['Перемещаться в конец треда после отправки', 'Scroll to the bottom after reply'],
 		'addPostForm': {
-			sel:        [['Сверху', 'Внизу', 'Скрытая', 'Отдельная'], ['At top', 'At bottom', 'Hidden', 'Hanging']],
-			txt:        ['форма ответа в треде* ', 'reply form in thread* ']
+			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
+			txt:        ['форма ответа в треде', 'reply form in thread']
 		},
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
@@ -2251,7 +2252,11 @@ function getCfgForm() {
 			])),
 			lBox('scrAfterRep', true, null)
 		])),
-		$if(pr.form, optSel('addPostForm', true, null)),
+		$if(pr.form, optSel('addPostForm', true, function() {
+			saveCfg('addPostForm', this.selectedIndex);
+			pr.isTopForm = Cfg.addPostForm !== 0;
+			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
+		})),
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		$if(pr.file && !nav.Presto, lBox('fileThumb', true, function () {
@@ -5798,11 +5803,9 @@ PostForm.prototype = {
 					(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
 		}
-		if (Cfg.addPostForm === 3) {
-			temp = $t('a', this.qArea.firstChild);
-			temp.href = aib.getThrdUrl(brd, tNum);
-			temp.textContent = '#' + tNum;
-		}
+		temp = $t('a', this.qArea.firstChild);
+		temp.href = aib.getThrdUrl(brd, tNum);
+		temp.textContent = '#' + tNum;
 		this.lastQuickPNum = pNum;
 	},
 	showMainReply: function (isTop, evt) {
@@ -5908,54 +5911,65 @@ PostForm.prototype = {
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
 		this.qArea = $add('<div style="display: none;" id="de-qarea" class="' + aib.cReply +
-			(Cfg.addPostForm === 3 ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
+			(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
-		if (Cfg.addPostForm === 3) {
-			el = this.qArea;
-			el.style.right = Cfg.qreplyRight + 'px';
-			el.style.bottom = Cfg.qreplyBottom + 'px';
-			el.lang = getThemeLang();
-			el.insertAdjacentHTML('beforeend',
-				'<div class="de-cfg-head"><span id="de-qarea-target">' + Lng.replyTo[lang] +
-				' <a class="de-abtn"></a></span><span id="de-qarea-close">\u2716</div>');
-			el = el.firstChild;
-			el.addEventListener('mousedown', {
-				_el: this.qArea,
-				_elStyle: this.qArea.style,
-				_oldX: 0,
-				_oldY: 0,
-				handleEvent: function (e) {
-					var right, bottom, curX = e.clientX,
-						curY = e.clientY;
-					switch (e.type) {
-					case 'mousedown':
-						this._oldX = curX;
-						this._oldY = curY;
-						doc.body.addEventListener('mousemove', this, false);
-						doc.body.addEventListener('mouseup', this, false);
-						$pd(e);
-						return;
-					case 'mousemove':
-						right = parseInt(this._elStyle.right, 10) - curX + this._oldX;
-						bottom = parseInt(this._elStyle.bottom, 10) - curY + this._oldY;
-						this._elStyle.right = (right < 0 ? 0 :
-							Math.min(right, Post.sizing.wWidth - this._el.offsetWidth)) + 'px';
-						this._elStyle.bottom = (bottom < 25 ? 25 :
-							Math.min(bottom, Post.sizing.wHeight - this._el.offsetHeight)) + 'px';
-						this._oldX = curX;
-						this._oldY = curY;
-						return;
-					default: // mouseup
-						doc.body.removeEventListener('mousemove', this, false);
-						doc.body.removeEventListener('mouseup', this, false);
-						saveCfg('qreplyRight', parseInt(this._elStyle.right, 10));
-						saveCfg('qreplyBottom', parseInt(this._elStyle.bottom, 10));
-					}
+		el = this.qArea;
+		el.style.right = Cfg.qreplyRight + 'px';
+		el.style.bottom = Cfg.qreplyBottom + 'px';
+		el.lang = getThemeLang();
+		el.insertAdjacentHTML('beforeend',
+			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '><span id="de-qarea-target">' +
+			Lng.replyTo[lang] + ' <a class="de-abtn"></a></span><span id="de-qarea-utils">' +
+			'<span id="de-qarea-toggle">\u2B1C</span><span id="de-qarea-close">\u2716</span></span></div>');
+		el = el.firstChild;
+		el.addEventListener('mousedown', {
+			_el: this.qArea,
+			_elStyle: this.qArea.style,
+			_oldX: 0,
+			_oldY: 0,
+			handleEvent: function (e) {
+				var right, bottom, curX = e.clientX,
+					curY = e.clientY;
+				switch (e.type) {
+				case 'mousedown':
+					this._oldX = curX;
+					this._oldY = curY;
+					doc.body.addEventListener('mousemove', this, false);
+					doc.body.addEventListener('mouseup', this, false);
+					$pd(e);
+					return;
+				case 'mousemove':
+					right = parseInt(this._elStyle.right, 10) - curX + this._oldX;
+					bottom = parseInt(this._elStyle.bottom, 10) - curY + this._oldY;
+					this._elStyle.right = (right < 0 ? 0 :
+						Math.min(right, Post.sizing.wWidth - this._el.offsetWidth)) + 'px';
+					this._elStyle.bottom = (bottom < 25 ? 25 :
+						Math.min(bottom, Post.sizing.wHeight - this._el.offsetHeight)) + 'px';
+					this._oldX = curX;
+					this._oldY = curY;
+					return;
+				default: // mouseup
+					doc.body.removeEventListener('mousemove', this, false);
+					doc.body.removeEventListener('mouseup', this, false);
+					saveCfg('qreplyRight', parseInt(this._elStyle.right, 10));
+					saveCfg('qreplyBottom', parseInt(this._elStyle.bottom, 10));
 				}
-			}, false);
-			el.lastChild.onclick = this.closeQReply.bind(this);
-		}
+			}
+		}, false);
+		el = el.lastChild;
+		el.firstChild.onclick = function() {
+			var node = this.qArea;
+			toggleCfg('hangQReply')
+			if(Cfg.hangQReply) {
+				node.className = aib.cReply + ' de-qarea-hanging';
+				node.firstChild.className = 'de-cfg-head';
+			} else {
+				node.className = aib.cReply + ' de-qarea-inline';
+				node.firstChild.removeAttribute('class');
+			}
+		}.bind(this);
+		el.lastChild.onclick = this.closeQReply.bind(this);
 		if (aib.tire) {
 			$each($Q('input[type="hidden"]', dForm), $del);
 			dForm.appendChild($c('userdelete', doc.body));
@@ -11182,7 +11196,7 @@ function scriptCSS() {
 	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
 		.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\
-		.de-cfg-head { padding: 4px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
+		.de-cfg-head { padding: 3px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
 		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
@@ -11449,12 +11463,14 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-qarea-close { float: right; margin: -4px 4px 0 0; color: #fff; font: bold 16px arial; cursor: pointer; }\
+		#de-qarea > .de-cfg-head { text-align: left; cursor: pointer; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
+		.de-qarea-hanging #de-qarea-target > a { color: #fff; }\
+		.de-qarea-hanging #de-qarea-target > a:hover, .de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
-		#de-qarea-target { font-weight: bold; }\
-		#de-qarea-target > a { color: #fff; }\
-		#de-qarea-target > a:hover { color: #ff6; }\
+		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
+		#de-qarea-utils { float: right; margin-top: -4px; font: bold 16px arial; cursor: pointer; }\
+		#de-qarea-utils > span { margin-right: 4px; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
