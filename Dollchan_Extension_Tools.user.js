@@ -7973,22 +7973,6 @@ Post.prototype = {
 			this._handleMouseEvents(e.relatedTarget, false);
 		}
 		switch (el.classList[0]) {
-		case 'de-reflink':
-		case 'de-preflink':
-			if (Cfg.linksNavig) {
-				if (isOutEvent) {
-					clearTimeout(this._linkDelay);
-					if (this.kid) {
-						this.kid.markToDel();
-					}
-				} else {
-					clearTimeout(Pview.delTO);
-					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
-				}
-				$pd(e);
-				e.stopPropagation();
-			}
-			return;
 		case 'de-btn-expthr':
 		case 'de-btn-hide':
 		case 'de-btn-hide-user':
@@ -8014,22 +7998,37 @@ Post.prototype = {
 				clearTimeout(this._menuDelay);
 			}
 			return;
-		}
-		if (Cfg.linksNavig && el.tagName === 'A' && !el.lchecked) {
-			if (el.textContent.startsWith('>>')) {
-				// Don't use classList here, 'de-preflink ' should be first
-				el.className = 'de-preflink ' + el.className;
-				clearTimeout(Pview.delTO);
-				this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
+		default:
+			if (!Cfg.linksNavig || el.tagName !== 'A' || el.lchecked) {
+				if (this.isPview && !isOutEvent) {
+					this._handleMouseEvents(e.relatedTarget, true);
+				}
+				return;
+			}
+			if (!el.textContent.startsWith('>>')) {
+				el.lchecked = true;
+				return;
+			}
+			// Don't use classList here, 'de-preflink ' should be first
+			el.className = 'de-preflink ' + el.className;
+			// fall through
+		case 'de-reflink':
+		case 'de-preflink':
+			if (Cfg.linksNavig) {
+				if (isOutEvent) {
+					clearTimeout(this._linkDelay);
+					if (this.kid) {
+						this.kid.markToDel();
+					} else if(Pview.top) {
+						Pview.top.markToDel();
+					}
+				} else {
+					clearTimeout(Pview.delTO);
+					this._linkDelay = setTimeout(this._addPview.bind(this, el), Cfg.linksOver);
+				}
 				$pd(e);
 				e.stopPropagation();
-			} else {
-				el.lchecked = true;
 			}
-			return;
-		}
-		if (this.isPview && !isOutEvent) {
-			this._handleMouseEvents(e.relatedTarget, true);
 		}
 	},
 	hideContent: function (hide) {
