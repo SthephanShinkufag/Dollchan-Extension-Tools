@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         14.9.30.0
+// @version         14.10.9.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (C)2084, Bender Bending Rodriguez
@@ -21,7 +21,7 @@
 (function de_main_func(scriptStorage) {
 'use strict';
 
-var version = '14.9.30.0',
+var version = '14.10.9.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
@@ -5923,7 +5923,7 @@ PostForm.prototype = {
 		el.insertAdjacentHTML('beforeend',
 			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '><span id="de-qarea-target">' +
 			Lng.replyTo[lang] + ' <a class="de-abtn"></a></span><span id="de-qarea-utils">' +
-			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2B1C</span>' +
+			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
 			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
 		el = el.firstChild;
 		el.addEventListener('mousedown', {
@@ -11474,7 +11474,7 @@ function scriptCSS() {
 		.de-qarea-hanging #de-qarea-target > a:hover, .de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
-		#de-qarea-utils { float: right; margin-top: -4px; font: bold 16px arial; cursor: pointer; }\
+		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
 		#de-qarea-utils > span { margin-right: 4px; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
@@ -11539,10 +11539,10 @@ function updateCSS() {
 	}
 	if (Cfg.noSpoilers) {
 		if(aib.krau || aib.fch || aib._410) {
-			x += '.spoiler, s { color: #fff !important; opacity: .6; }\
+			x += '.spoiler, s { color: #fff !important; opacity: .7; }\
 				.spoiler > a, s > a { color: #fff !important; }';
 		} else {
-			x += '.spoiler { color: inherit !important; opacity: .6; }\
+			x += '.spoiler { color: inherit !important; opacity: .7; }\
 				.spoiler > a { color: inherit !important; }';
 		};
 	}
