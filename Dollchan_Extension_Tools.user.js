@@ -8019,7 +8019,7 @@ Post.prototype = {
 					clearTimeout(this._linkDelay);
 					if (this.kid) {
 						this.kid.markToDel();
-					} else if(Pview.top) {
+					} else if(!this.isPview && Pview.top) {
 						Pview.top.markToDel();
 					}
 				} else {
