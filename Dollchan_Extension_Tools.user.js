@@ -113,8 +113,10 @@ defaultCfg = {
 	'updScript':        1,      // check for script's update
 	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
 	'turnOff':          0,      // enable script only for this site
-	'textaWidth':       500,    // textarea width
-	'textaHeight':      160     // textarea height
+	'textaWidth':       500,    // textarea size
+	'textaHeight':      160,
+	'qreplyRight':      0,      // hanging quick reply position
+	'qreplyBottom':     25
 },
 
 Lng = {
@@ -2304,7 +2306,9 @@ function getCfgCommon() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-common'}, [
 		optSel('scriptStyle', true, function () {
 			saveCfg('scriptStyle', this.selectedIndex);
-			$id('de-main').lang = getThemeLang();
+			var lang = getThemeLang();
+			$id('de-main').lang = lang;
+			$id('de-qarea').lang = lang;
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
@@ -3637,7 +3641,7 @@ function loadDocFiles(imgOnly) {
 				el.href = getAbsLink(el.href);
 			}
 			if (!el.classList.contains('de-preflink')) {
-				el.classList.add('de-preflink');
+				el.className = 'de-preflink ' + el.className;
 			}
 		});
 		$each($Q('.' + aib.cRPost, dc), function (post, i) {
@@ -5908,17 +5912,21 @@ PostForm.prototype = {
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		if (Cfg.addPostForm === 3) {
-			this.qArea.insertAdjacentHTML('beforeend',
+			el = this.qArea;
+			el.style.right = Cfg.qreplyRight + 'px';
+			el.style.bottom = Cfg.qreplyBottom + 'px';
+			el.lang = getThemeLang();
+			el.insertAdjacentHTML('beforeend',
 				'<div class="de-cfg-head"><span id="de-qarea-target">' + Lng.replyTo[lang] +
 				' <a class="de-abtn"></a></span><span id="de-qarea-close">\u2716</div>');
-			$id('de-qarea-close').onclick = this.closeQReply.bind(this);
-			this.qArea.firstChild.addEventListener('mousedown', {
+			el = el.firstChild;
+			el.addEventListener('mousedown', {
 				_el: this.qArea,
 				_elStyle: this.qArea.style,
 				_oldX: 0,
 				_oldY: 0,
 				handleEvent: function (e) {
-					var curX = e.clientX,
+					var right, bottom, curX = e.clientX,
 						curY = e.clientY;
 					switch (e.type) {
 					case 'mousedown':
@@ -5929,24 +5937,24 @@ PostForm.prototype = {
 						$pd(e);
 						return;
 					case 'mousemove':
-						this._elStyle.right = '';
-						this._elStyle.bottom = '';
-						this._elStyle.left = (parseInt(this._elStyle.left || (Post.sizing.wWidth - this._el.offsetWidth), 10) + curX - this._oldX) + 'px';
-						this._elStyle.top = (parseInt(this._elStyle.top || (Post.sizing.wHeight - this._el.offsetHeight - 25), 10) + curY - this._oldY) + 'px';
+						right = parseInt(this._elStyle.right, 10) - curX + this._oldX;
+						bottom = parseInt(this._elStyle.bottom, 10) - curY + this._oldY;
+						this._elStyle.right = (right < 0 ? 0 :
+							Math.min(right, Post.sizing.wWidth - this._el.offsetWidth)) + 'px';
+						this._elStyle.bottom = (bottom < 25 ? 25 :
+							Math.min(bottom, Post.sizing.wHeight - this._el.offsetHeight)) + 'px';
 						this._oldX = curX;
 						this._oldY = curY;
 						return;
 					default: // mouseup
 						doc.body.removeEventListener('mousemove', this, false);
 						doc.body.removeEventListener('mouseup', this, false);
-						//saveCfg('qareaLeft', parseInt(this.elStyle.left, 10));
-						//saveCfg('qareaTop', parseInt(this.elStyle.top, 10));
+						saveCfg('qreplyRight', parseInt(this._elStyle.right, 10));
+						saveCfg('qreplyBottom', parseInt(this._elStyle.bottom, 10));
 					}
 				}
 			}, false);
-			this.qArea.style.right = 0;
-			this.qArea.style.bottom = '25px';
-			this.qArea.lang = getThemeLang();
+			el.lastChild.onclick = this.closeQReply.bind(this);
 		}
 		if (aib.tire) {
 			$each($Q('input[type="hidden"]', dForm), $del);
@@ -10694,7 +10702,7 @@ function replaceString(txt) {
 	}
 	if (aib.fch || aib.krau) {
 		if (aib.fch) {
-			txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '<\a');
+			txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function (x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
