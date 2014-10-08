@@ -471,6 +471,8 @@ Lng = {
 	prevVideo:      ['Предыдущее видео', 'Previous video'],
 	nextVideo:      ['Следующее видео', 'Next video'],
 	replyTo:        ['Ответ в', 'Reply to'],
+	toggleQReply:   ['Поместить под пост / Открепить', 'Move under post / Unattach'],
+	closeQReply:    ['Закрыть форму', 'Close form'],
 	replies:        ['Ответы:', 'Replies:'],
 	postsOmitted:   ['Пропущено ответов: ', 'Posts omitted: '],
 	collapseThrd:   ['Свернуть тред', 'Collapse thread'],
@@ -5921,7 +5923,8 @@ PostForm.prototype = {
 		el.insertAdjacentHTML('beforeend',
 			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '><span id="de-qarea-target">' +
 			Lng.replyTo[lang] + ' <a class="de-abtn"></a></span><span id="de-qarea-utils">' +
-			'<span id="de-qarea-toggle">\u2B1C</span><span id="de-qarea-close">\u2716</span></span></div>');
+			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2B1C</span>' +
+			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
 		el = el.firstChild;
 		el.addEventListener('mousedown', {
 			_el: this.qArea,
@@ -5929,6 +5932,9 @@ PostForm.prototype = {
 			_oldX: 0,
 			_oldY: 0,
 			handleEvent: function (e) {
+				if(!Cfg.hangQReply) {
+					return;
+				}
 				var right, bottom, curX = e.clientX,
 					curY = e.clientY;
 				switch (e.type) {
