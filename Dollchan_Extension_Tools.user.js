@@ -470,7 +470,6 @@ Lng = {
 	hideLnkList:    ['Скрыть/Показать список ссылок', 'Hide/Unhide list of links'],
 	prevVideo:      ['Предыдущее видео', 'Previous video'],
 	nextVideo:      ['Следующее видео', 'Next video'],
-	replyTo:        ['Ответ в', 'Reply to'],
 	toggleQReply:   ['Поместить под пост / Открепить', 'Move under post / Unattach'],
 	closeQReply:    ['Закрыть форму', 'Close form'],
 	replies:        ['Ответы:', 'Replies:'],
@@ -1365,12 +1364,12 @@ function addPanel() {
 					(!aib.abu && !aib.mak && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
-					pButton('enable', '#', false) +
-					(!TNum && !aib.arch ? '' :
-						'<div id="de-panel-info"><span title="' + Lng.panelBtn.counter[lang] +
-							'">' + firstThr.pcount + '/' + imgLen + '</span></div>')
+					pButton('enable', '#', false)
 				) +
 				'</ul>' +
+				(!TNum && !aib.arch ? '' :
+					'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
+					firstThr.pcount + '/' + imgLen + '</span>') +
 			'</div><div class="de-content"></div>' +
 		(Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') +
 		'</div>'
@@ -5805,9 +5804,11 @@ PostForm.prototype = {
 					(this.lastQuickPNum === pNum && temp.contains('>>' + pNum) ? '' : '>>' + pNum + '\n')) +
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
 		}
-		temp = $t('a', this.qArea.firstChild);
-		temp.href = aib.getThrdUrl(brd, tNum);
-		temp.textContent = '#' + tNum;
+		temp = pByNum[pNum].thr.op.title;
+		if (temp.length > 30) {
+			temp = temp.substr(0, 30) + '\u2026';
+		}
+		this.qArea.firstChild.firstChild.textContent = temp;
 		this.lastQuickPNum = pNum;
 	},
 	showMainReply: function (isTop, evt) {
@@ -5920,9 +5921,8 @@ PostForm.prototype = {
 		el.style.right = Cfg.qreplyRight + 'px';
 		el.style.bottom = Cfg.qreplyBottom + 'px';
 		el.lang = getThemeLang();
-		el.insertAdjacentHTML('beforeend',
-			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '><span id="de-qarea-target">' +
-			Lng.replyTo[lang] + ' <a class="de-abtn"></a></span><span id="de-qarea-utils">' +
+		el.insertAdjacentHTML('beforeend', '<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') +
+			'><span id="de-qarea-target"></span><span id="de-qarea-utils">' +
 			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
 			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
 		el = el.firstChild;
@@ -5932,7 +5932,7 @@ PostForm.prototype = {
 			_oldX: 0,
 			_oldY: 0,
 			handleEvent: function (e) {
-				if(!Cfg.hangQReply) {
+				if (!Cfg.hangQReply) {
 					return;
 				}
 				var right, bottom, curX = e.clientX,
@@ -5967,7 +5967,7 @@ PostForm.prototype = {
 		el.firstChild.onclick = function() {
 			var node = this.qArea;
 			toggleCfg('hangQReply')
-			if(Cfg.hangQReply) {
+			if (Cfg.hangQReply) {
 				node.className = aib.cReply + ' de-qarea-hanging';
 				node.firstChild.className = 'de-cfg-head';
 			} else {
@@ -6300,7 +6300,7 @@ PostForm.prototype = {
 		}
 		img.title = Lng.refresh[lang];
 		img.alt = Lng.loading[lang];
-		img.style.cssText = 'display: block; border: none; cursor: pointer;';
+		img.style.cssText = 'vertical-align: bottom; border: none; cursor: pointer;';
 		img.onclick = this.refreshCapImg.bind(this, true);
 		if ((a = img.parentNode).tagName === 'A') {
 			$after(a, img);
@@ -8025,7 +8025,7 @@ Post.prototype = {
 					clearTimeout(this._linkDelay);
 					if (this.kid) {
 						this.kid.markToDel();
-					} else if(!this.isPview && Pview.top) {
+					} else if (!this.isPview && Pview.top) {
 						Pview.top.markToDel();
 					}
 				} else {
@@ -9139,7 +9139,7 @@ function Thread(el, prev) {
 	el.removeAttribute('id');
 	el.setAttribute('de-thread', null);
 	visPosts = Math.max(visPosts, len);
-	i=/\u043A\u0440\u044B\u043C|\u043D\u043E\u0432\u043E\u0440\u043E\u0441|[\u043B\u0434]\u043D\u0440/i;
+	i=/[^а-я]\u043A\u0440\u044B\u043C|\u043D\u043E\u0432\u043E\u0440\u043E\u0441|[\u043B\u0434]\u043D\u0440/i;
 	aib['m'+'ak']&&brd==='b'&&(i.test(this.op.text)||i.test(this.op.subj))&&$del(el);
 	this.el = el;
 	this.prev = prev;
@@ -11248,7 +11248,7 @@ function scriptCSS() {
 		#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 		#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\
 		#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#de-panel-info { display: inline-block; vertical-align: 6px; padding: 0 6px; margin: 0 0 0 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
+		#de-panel-info { vertical-align: 6px; padding: 3px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA';
 	x += gif ('#de-btn-logo', p + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	x += gif ('#de-btn-settings', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
@@ -11470,8 +11470,7 @@ function scriptCSS() {
 		.de-pview-link { font-weight: bold; }\
 		#de-qarea > .de-cfg-head { text-align: left; cursor: pointer; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
-		.de-qarea-hanging #de-qarea-target > a { color: #fff; }\
-		.de-qarea-hanging #de-qarea-target > a:hover, .de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
+		.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
@@ -11538,11 +11537,11 @@ function updateCSS() {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if (Cfg.noSpoilers) {
-		if(aib.krau || aib.fch || aib._410) {
-			x += '.spoiler, s { color: #fff !important; opacity: .7; }\
+		if (aib.krau || aib.fch || aib._410) {
+			x += '.spoiler, s { color: #fff !important; }\
 				.spoiler > a, s > a { color: #fff !important; }';
 		} else {
-			x += '.spoiler { color: inherit !important; opacity: .7; clear: left; }\
+			x += '.spoiler { color: inherit !important; }\
 				.spoiler > a { color: inherit !important; }';
 		};
 	}
