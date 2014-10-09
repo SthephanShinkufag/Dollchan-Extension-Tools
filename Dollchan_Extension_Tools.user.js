@@ -5921,8 +5921,9 @@ PostForm.prototype = {
 		el.style.right = Cfg.qreplyRight + 'px';
 		el.style.bottom = Cfg.qreplyBottom + 'px';
 		el.lang = getThemeLang();
-		el.insertAdjacentHTML('beforeend', '<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') +
-			'><span id="de-qarea-target"></span><span id="de-qarea-utils">' +
+		el.insertAdjacentHTML('beforeend',
+			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '><span id="de-qarea-target"' +
+			(Cfg.hangQReply ? '': ' style="display: none;"') + '></span><span id="de-qarea-utils">' +
 			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
 			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
 		el = el.firstChild;
@@ -5969,10 +5970,14 @@ PostForm.prototype = {
 			toggleCfg('hangQReply')
 			if (Cfg.hangQReply) {
 				node.className = aib.cReply + ' de-qarea-hanging';
-				node.firstChild.className = 'de-cfg-head';
+				node = node.firstChild;
+				node.className = 'de-cfg-head';
+				node.firstChild.style.display = '';
 			} else {
 				node.className = aib.cReply + ' de-qarea-inline';
-				node.firstChild.removeAttribute('class');
+				node = node.firstChild;
+				node.removeAttribute('class');
+				node.firstChild.style.display = 'none';
 				this.txta.focus();
 			}
 		}.bind(this);
