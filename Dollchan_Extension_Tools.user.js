@@ -5808,7 +5808,7 @@ PostForm.prototype = {
 		if (temp.length > 30) {
 			temp = temp.substr(0, 30) + '\u2026';
 		}
-		this.qArea.firstChild.firstChild.textContent = temp;
+		this.qArea.firstChild.firstChild.textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
 	},
 	showMainReply: function (isTop, evt) {
