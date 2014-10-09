@@ -1364,12 +1364,12 @@ function addPanel() {
 					(!aib.abu && !aib.mak && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
-					pButton('enable', '#', false)
+					pButton('enable', '#', false) +
+					(!TNum && !aib.arch ? '' :
+						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
+						firstThr.pcount + '/' + imgLen + '</span>')
 				) +
 				'</ul>' +
-				(!TNum && !aib.arch ? '' :
-					'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
-					firstThr.pcount + '/' + imgLen + '</span>') +
 			'</div><div class="de-content"></div>' +
 		(Cfg.disabled ? '' : '<div id="de-alert"></div><hr style="clear: both;">') +
 		'</div>'
@@ -9145,8 +9145,7 @@ function Thread(el, prev) {
 	el.removeAttribute('id');
 	el.setAttribute('de-thread', null);
 	visPosts = Math.max(visPosts, len);
-	i=/[^а-я]\u043A\u0440\u044B\u043C|\u043D\u043E\u0432\u043E\u0440\u043E\u0441|[\u043B\u0434]\u043D\u0440/i;
-	aib['m'+'ak']&&brd==='b'&&(i.test(this.op.text)||i.test(this.op.subj))&&$del(el);
+	aib.crimea && aib.crimea(this.op, el);
 	this.el = el;
 	this.prev = prev;
 	if (prev) {
@@ -10061,6 +10060,10 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
+			crimea: { value: function (op, el) {
+				brd === 'b' && (this.crimeaReg.test(op.text) || this.crimeaReg.test(op.subj)) && $del(el);
+			} },
+			crimeaReg: { value: /[^а-я]\u043A\u0440\u044B\u043C|\u043D\u043E\u0432\u043E\u0440\u043E\u0441|[\u043B\u0434]\u043D\u0440/i },
 			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
@@ -11254,7 +11257,7 @@ function scriptCSS() {
 		#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\
 		#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\
 		#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\
-		#de-panel-info { vertical-align: 6px; padding: 3px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
+		#de-panel-info { vertical-align: 6px; padding: 2px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }';
 	p = 'R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA';
 	x += gif ('#de-btn-logo', p + 'QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=');
 	x += gif ('#de-btn-settings', p + 'QAJAjI+pa+API0Mv1Ymz3hYuiQHHFYjcOZmlM3Jkw4aeAn7R/aL6zuu5VpH8aMJaKtZR2ZBEZnMJLM5kIqnP2csUAAA7');
