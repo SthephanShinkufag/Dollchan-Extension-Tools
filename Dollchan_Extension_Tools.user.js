@@ -5973,6 +5973,7 @@ PostForm.prototype = {
 			} else {
 				node.className = aib.cReply + ' de-qarea-inline';
 				node.firstChild.removeAttribute('class');
+				this.txta.focus();
 			}
 		}.bind(this);
 		el.lastChild.onclick = this.closeQReply.bind(this);
