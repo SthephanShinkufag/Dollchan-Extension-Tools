@@ -11542,7 +11542,7 @@ function updateCSS() {
 			x += '.spoiler, s { color: #fff !important; opacity: .7; }\
 				.spoiler > a, s > a { color: #fff !important; }';
 		} else {
-			x += '.spoiler { color: inherit !important; opacity: .7; }\
+			x += '.spoiler { color: inherit !important; opacity: .7; clear: left; }\
 				.spoiler > a { color: inherit !important; }';
 		};
 	}
