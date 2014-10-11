@@ -10076,7 +10076,28 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			init: { value: function () {
-				$script('window.FormData = void 0;');
+				$script('window.FormData = void 0;\
+				(function(){\
+					var oldjq = window.jQuery;\
+					var newjq = function() {\
+						var rv = oldjq.apply(this, arguments);\
+						id = arguments[0];\
+						if(id[1] === "d" && id[2] === "e" && id[3] === "-") {\
+							if(rv.length > 0) {\
+								for(var i = 0, len = rv.length; i < len; ++i) {\
+									delete rv[i];\
+								}\
+								rv.length = 0;\
+							}\
+						}\
+						return rv;\
+					};\
+					newjq.prototype = oldjq.prototype;\
+					for(var i in oldjq) {\
+						newjq[i] = oldjq[i];\
+					}\
+					window.$ = window.jQuery = newjq;\
+				})();');
 				doc.body.insertAdjacentHTML('afterbegin', '<div id="jcaptcha"></div>');
 				var el = $q('tr:not([class])', doc.body);
 				if (!el) {
