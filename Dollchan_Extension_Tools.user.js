@@ -17,6 +17,7 @@
 // @include         *
 // ==/UserScript==
 
+// Copyright (c) 2014 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
 
 (function de_main_func(scriptStorage) {
 'use strict';

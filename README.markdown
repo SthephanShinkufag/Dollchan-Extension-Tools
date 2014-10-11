@@ -16,3 +16,7 @@
 
 >
 **[http://www.freedollchan.org/scripts](http://www.freedollchan.org/scripts)**
+
+### License
+
+Copyright (c) 2014 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
