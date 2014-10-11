@@ -10076,6 +10076,7 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function () {
 				$script('window.FormData = void 0;');
+				doc.body.insertAdjacentHTML('afterbegin', '<form></form>');
 				var el = $q('tr:not([class])', doc.body);
 				if (!el) {
 					return;
