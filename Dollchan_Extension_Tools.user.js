@@ -10080,14 +10080,12 @@ function getImageBoard(checkDomains, checkOther) {
 				(function(){\
 					var oldjq = window.jQuery;\
 					var newjq = function() {\
-						var rv = oldjq.apply(this, arguments);\
-						id = arguments[0];\
-						if(id[1] === "d" && id[2] === "e" && id[3] === "-") {\
-							if(rv.length > 0) {\
-								for(var i = 0, len = rv.length; i < len; ++i) {\
-									delete rv[i];\
-								}\
-								rv.length = 0;\
+						var rv = oldjq.apply(this, arguments),\
+							id = arguments[0];\
+						for(var i = 0, len = rv.length; i < len; ++i) {\
+							if(rv[i].id.indexOf("de-") === 0 || rv[i].className.indexOf("de-") === 0) {\
+								delete rv[i];\
+								rv.length--;\
 							}\
 						}\
 						return rv;\
