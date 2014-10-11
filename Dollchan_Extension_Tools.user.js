@@ -6779,7 +6779,7 @@ html5Submit.prototype = {
 		var i, j, dE, tag, tgLen, xRes = 0,
 			yRes = 0,
 			resT = 0,
-			dv = new DataView(data, off),
+			dv = new nav.unsafeDataView(data, off),
 			le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 		if (dv.getUint16(2, le) !== 0x2A) {
 			return null;
@@ -6809,7 +6809,7 @@ html5Submit.prototype = {
 		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
 	clearImage: function (data, extraData, rand) {
-		var tmp, i, len, deep, val, lIdx, jpgDat, img = new Uint8Array(data),
+		var tmp, i, len, deep, val, lIdx, jpgDat, img = new nav.unsafeUint8Array(data),
 			rExif = !!Cfg.removeEXIF,
 			rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
 				[img, rand] : [img];
@@ -6823,7 +6823,7 @@ html5Submit.prototype = {
 					if (rExif) {
 						if (!jpgDat && deep === 1) {
 							if (img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
-								jpgDat = this.readExif (data, i + 10, (img[i + 2] << 8) + img[i + 3]);
+								jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
 							} else if (img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
 							          (img[i + 2] !== 0 || img[i + 3] >= 0x0E ||
 							          img[i + 15] !== 0xFF))
@@ -6856,7 +6856,7 @@ html5Submit.prototype = {
 			}
 			if (lIdx === 2) {
 				if (i !== len) {
-					rv[0] = new Uint8Array(data, 0, i);
+					rv[0] = new nav.unsafeUint8Array(data, 0, i);
 				}
 				return rv;
 			}
@@ -6877,7 +6877,7 @@ html5Submit.prototype = {
 				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			if (i !== len && (extraData || len - i <= 75)) {
-				rv[0] = new Uint8Array(data, 0, i);
+				rv[0] = new nav.unsafeUint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -6893,12 +6893,12 @@ WebmParser = function (data) {
 	var EBMLId = 0x1A45DFA3,
 		segmentId = 0x18538067,
 		voidId = 0xEC;
-	function WebmElement(data, dataLength, offset) {
+	function WebmElement(elData, dataLength, offset) {
 		var num, clz, id, size, headSize = 0;
 		if (offset + 4 >= dataLength) {
 			return;
 		}
-		num = data.getUint32(offset);
+		num = elData.getUint32(offset);
 		clz = Math.clz32(num);
 		if (clz > 3) {
 			this.error = true;
@@ -6911,7 +6911,7 @@ WebmParser = function (data) {
 			this.error = true;
 			return;
 		}
-		num = data.getUint32(offset);
+		num = elData.getUint32(offset);
 		clz = Math.clz32(num);
 		if (clz > 3) {
 			if ((num & (0xFFFFFFFF >>> (clz + 1))) !== 0) {
@@ -6924,7 +6924,7 @@ WebmParser = function (data) {
 			}
 			headSize += 4;
 			offset += 4;
-			num = data.getUint32(offset);
+			num = elData.getUint32(offset);
 			clz -= 4;
 		}
 		size = num >>> (8 * (3 - clz));
@@ -6934,7 +6934,7 @@ WebmParser = function (data) {
 			this.error = true;
 			return;
 		}
-		this.data = data;
+		this.data = elData;
 		this.offset = offset;
 		this.endOffset = offset + size;
 		this.id = id;
@@ -6947,8 +6947,8 @@ WebmParser = function (data) {
 	};
 
 	function Parser(data) {
-		var dv = new DataView(data),
-			len = data.byteLength,
+		var dv = new nav.unsafeDataView(data),
+			len = dv.byteLength,
 			el = new WebmElement(dv, len, 0),
 			offset = 0,
 			voids = [];
@@ -7000,7 +7000,7 @@ WebmParser = function (data) {
 				return null;
 			}
 			var len = this.segment.endOffset;
-			this.rv[0] = len === this.length ? this.data : new Uint8Array(this.data, 0, len);
+			this.rv[0] = new nav.unsafeUint8Array(this.data, 0, len);
 			return this.rv;
 		}
 	};
@@ -7196,7 +7196,7 @@ AttachmentViewer.prototype = {
 				width = d > 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
 				height = d > 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
 			if (d < 0) {
-				tmp = resizeImage([width, height, this._ar], Cfg.minImgSize, this._maxSize);
+				tmp = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
 				width = tmp[0];
 				height = tmp[1];
 			}
@@ -7233,6 +7233,7 @@ AttachmentViewer.prototype = {
 	_oldX: 0,
 	_oldY: 0,
 	_maxSize: null,
+	_minSize: 0,
 	_moved: false,
 	get _btns() {
 		var val = new ImgBtnsShowHider(this.navigate.bind(this, true), this.navigate.bind(this, false));
@@ -7247,12 +7248,21 @@ AttachmentViewer.prototype = {
 	_getHolder: function (el, data) {
 		var obj, html, size = data.computeFullSize(false),
 			screenWidth = Post.sizing.wWidth,
-			screenHeight = Post.sizing.wHeight;
-		this._ar = size[0] / size[1];
+			screenHeight = Post.sizing.wHeight,
+			minSize = Cfg.minImgSize,
+			ar = size[0] / size[1];
+		this._ar = ar;
 		this._curW = size[0];
 		this._curH = size[1];
+		if(minSize * ar > screenWidth) {
+			minSize = Math.floor(screenWidth / ar);
+		}
+		if(minSize / ar > screenHeight) {
+			minSize = Math.floor(screenHeight * ar);
+		}
+		this._minSize = minSize;
 		this._maxSize = !size[2] ? null :
-			Cfg.minImgSize > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
+			minSize > (size[2][2] > 1 ? size[2][0]: size[2][1]) ? size[2] : null;
 		this._oldL = (screenWidth - size[0]) / 2 - 1;
 		this._oldT = (screenHeight - size[1]) / 2 - 1;
 		html = '<div class="de-img-center" style="top:' + this._oldT + 'px; left:' +
@@ -9673,7 +9683,18 @@ function getNavFuncs() {
 				val = Function.prototype.call.bind(fun);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
 			return val;
-		}
+		},
+		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
+		get unsafeUint8Array() {
+			var val = this.Firefox ? unsafeWindow.Uint8Array : Uint8Array;
+			Object.defineProperty(this, 'unsafeUint8Array', { value: val });
+			return val;
+		},
+		get unsafeDataView() {
+			var val = this.Firefox ? unsafeWindow.DataView : DataView;
+			Object.defineProperty(this, 'unsafeDataView', { value: val });
+			return val;
+		},
 	};
 }
 
