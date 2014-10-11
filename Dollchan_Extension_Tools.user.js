@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         14.10.9.0
+// @version         14.10.11.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (C)2084, Bender Bending Rodriguez
@@ -22,7 +22,7 @@
 (function de_main_func(scriptStorage) {
 'use strict';
 
-var version = '14.10.9.0',
+var version = '14.10.11.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
@@ -1336,7 +1336,7 @@ function pButton(id, href, hasHotkey) {
 function addPanel() {
 	var panel, evtObject, imgLen = $Q(aib.qThumbImages, dForm).length;
 	(pr && pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
-		'<div id="de-main" lang="' + getThemeLang() + '">' +
+		'<div id="de-main-" lang="' + getThemeLang() + '">' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none">') +
@@ -2314,7 +2314,7 @@ function getCfgCommon() {
 		optSel('scriptStyle', true, function () {
 			saveCfg('scriptStyle', this.selectedIndex);
 			var lang = getThemeLang();
-			$id('de-main').lang = lang;
+			$id('de-main-').lang = lang;
 			$id('de-qarea').lang = lang;
 		}),
 		$New('div', null, [
@@ -2483,7 +2483,7 @@ function addSettings(Set, id) {
 		$New('div', {'id': 'de-cfg-btns'}, [
 			optSel('language', false, function () {
 				saveCfg('language', lang = this.selectedIndex);
-				$del($id('de-main'));
+				$del($id('de-main-'));
 				$del($id('de-css'));
 				$del($id('de-css-dynamic'));
 				scriptCSS();
@@ -3638,7 +3638,7 @@ function loadDocFiles(imgOnly) {
 	});
 	if (!imgOnly) {
 		files = [];
-		$each($Q('#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
+		$each($Q('#de-main, #de-main-, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
 			' link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function (el) {
 			var num, tc = el.textContent;
@@ -9146,7 +9146,6 @@ function Thread(el, prev) {
 	el.removeAttribute('id');
 	el.setAttribute('de-thread', null);
 	visPosts = Math.max(visPosts, len);
-	aib.crimea && aib.crimea(this.op, el);
 	this.el = el;
 	this.prev = prev;
 	if (prev) {
@@ -10061,10 +10060,6 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			crimea: { value: function (op, el) {
-				brd === 'b' && (this.crimeaReg.test(op.text) || this.crimeaReg.test(op.subj)) && $del(el);
-			} },
-			crimeaReg: { value: /[^а-я]\u043A\u0440\u044B\u043C|\u043D\u043E\u0432\u043E\u0440\u043E\u0441|[\u043B\u0434]\u043D\u0440/i },
 			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
@@ -10076,7 +10071,6 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			init: { value: function () {
-				return true;
 				$script('window.FormData = void 0;');
 				doc.body.insertAdjacentHTML('afterbegin', '<div id="jcaptcha"></div>');
 				var el = $q('tr:not([class])', doc.body);
@@ -11210,7 +11204,7 @@ function scriptCSS() {
 	}
 
 	// Settings window
-	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
+	x += '#de-main- { -moz-box-sizing: content-box; box-sizing: content-box; }\
 		.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\
 		.de-cfg-head { padding: 3px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
