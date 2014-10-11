@@ -6721,8 +6721,26 @@ function html5Submit(form, button, fn) {
 }
 html5Submit.prototype = {
 	append: function (el) {
-		var file, fName, idx, fr,
+		var file, fName, idx, fr, aName, i, len, name,
 			pre = '--' + this.boundary + '\r\nContent-Disposition: form-data; name="' + el.name + '"';
+		if(aib.allowedNames) {
+			name = el.name;
+			yoloCycle:
+			do {
+				for(i = 0, len = aib.allowedNames.length; i < len; ++i) {
+					aName = aib.allowedNames[i];
+					if(typeof aName === 'string') {
+						if(name === aName) {
+							break yoloCycle;
+						}
+					} else if(aName.test(name)) {
+						break yoloCycle;
+					}
+				}
+				console.log(name);
+				return;
+			} while(true);
+		}
 		if (el.type === 'file' && el.files.length > 0) {
 			file = el.files[0];
 			fName = file.name;
@@ -10076,26 +10094,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			init: { value: function () {
-				$script('window.FormData = void 0;\
-				(function(){\
-					var oldjq = window.jQuery;\
-					var newjq = function() {\
-						var rv = oldjq.apply(this, arguments),\
-							id = arguments[0];\
-						for(var i = 0, len = rv.length; i < len; ++i) {\
-							if(rv[i].id.indexOf("de-") === 0 || rv[i].className.indexOf("de-") === 0) {\
-								delete rv[i];\
-								rv.length--;\
-							}\
-						}\
-						return rv;\
-					};\
-					newjq.prototype = oldjq.prototype;\
-					for(var i in oldjq) {\
-						newjq[i] = oldjq[i];\
-					}\
-					window.$ = window.jQuery = newjq;\
-				})();');
+				$script('window.FormData = void 0;');
 				doc.body.insertAdjacentHTML('afterbegin', '<div id="jcaptcha"></div>');
 				var el = $q('tr:not([class])', doc.body);
 				if (!el) {
@@ -10129,6 +10128,10 @@ function getImageBoard(checkDomains, checkOther) {
 				Object.defineProperty(this, 'lastPage', { value: val });
 				return val;
 			} },
+			allowedNames: { value: ["task", "board", "thread", "usercode", "code", "email", "comment",
+				"sage", "water_mark", "mod_mark", "op_mark", "image1", "image2", "image3", "image4",
+				"captcha", "submit", /^captcha_value_id_\d\d$/]
+			},
 			rLinkClick: { value: '' }
 		},
 		'#ABU_css, #ShowLakeSettings': {
