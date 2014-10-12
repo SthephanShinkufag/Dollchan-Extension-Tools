@@ -9685,9 +9685,14 @@ function getNavFuncs() {
 			return val;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
-		getUnsafeUint8Array: function (data) {
-			var rv = new Uint8Array(data);
-			return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
+		getUnsafeUint8Array: function (data, i, len) {
+			var rv;
+			if(typeof i === 'undefined') {
+				rv = new Uint8Array(data);
+				return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
+			}
+			rv = new Uint8Array(data, i, len);
+			return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i, len);
 		},
 		getUnsafeDataView: function (data) {
 			var rv = new DataView(data);
