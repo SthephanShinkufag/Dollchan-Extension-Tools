@@ -6779,7 +6779,7 @@ html5Submit.prototype = {
 		var i, j, dE, tag, tgLen, xRes = 0,
 			yRes = 0,
 			resT = 0,
-			dv = new nav.unsafeDataView(data, off),
+			dv = nav.getUnsafeDataView(data, off),
 			le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 		if (dv.getUint16(2, le) !== 0x2A) {
 			return null;
@@ -6809,7 +6809,7 @@ html5Submit.prototype = {
 		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
 	},
 	clearImage: function (data, extraData, rand) {
-		var tmp, i, len, deep, val, lIdx, jpgDat, img = new nav.unsafeUint8Array(data),
+		var tmp, i, len, deep, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
 			rExif = !!Cfg.removeEXIF,
 			rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
 				[img, rand] : [img];
@@ -6856,7 +6856,7 @@ html5Submit.prototype = {
 			}
 			if (lIdx === 2) {
 				if (i !== len) {
-					rv[0] = new nav.unsafeUint8Array(data, 0, i);
+					rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 				}
 				return rv;
 			}
@@ -6877,7 +6877,7 @@ html5Submit.prototype = {
 				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 			i += 8;
 			if (i !== len && (extraData || len - i <= 75)) {
-				rv[0] = new nav.unsafeUint8Array(data, 0, i);
+				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -6947,7 +6947,7 @@ WebmParser = function (data) {
 	};
 
 	function Parser(data) {
-		var dv = new nav.unsafeDataView(data),
+		var dv = nav.getUnsafeDataView(data),
 			len = dv.byteLength,
 			el = new WebmElement(dv, len, 0),
 			offset = 0,
@@ -7000,7 +7000,7 @@ WebmParser = function (data) {
 				return null;
 			}
 			var len = this.segment.endOffset;
-			this.rv[0] = new nav.unsafeUint8Array(this.data, 0, len);
+			this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, len);
 			return this.rv;
 		}
 	};
@@ -9685,16 +9685,14 @@ function getNavFuncs() {
 			return val;
 		},
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
-		get unsafeUint8Array() {
-			var val = this.Firefox ? unsafeWindow.Uint8Array : Uint8Array;
-			Object.defineProperty(this, 'unsafeUint8Array', { value: val });
-			return val;
+		getUnsafeUint8Array: function (data) {
+			var rv = new Uint8Array(data);
+			return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
 		},
-		get unsafeDataView() {
-			var val = this.Firefox ? unsafeWindow.DataView : DataView;
-			Object.defineProperty(this, 'unsafeDataView', { value: val });
-			return val;
-		},
+		getUnsafeDataView: function (data) {
+			var rv = new DataView(data);
+			return rv instanceof DataView ? rv : new unsafeWindow.DataView(data);
+		}
 	};
 }
 
