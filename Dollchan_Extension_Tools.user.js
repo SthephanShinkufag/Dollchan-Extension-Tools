@@ -9694,9 +9694,9 @@ function getNavFuncs() {
 			rv = new Uint8Array(data, i, len);
 			return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i, len);
 		},
-		getUnsafeDataView: function (data) {
-			var rv = new DataView(data);
-			return rv instanceof DataView ? rv : new unsafeWindow.DataView(data);
+		getUnsafeDataView: function (data, offset) {
+			var rv = new DataView(data, offset || 0);
+			return rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }
@@ -10096,7 +10096,6 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function () {
 				$script('window.FormData = void 0;');
-				doc.body.insertAdjacentHTML('afterbegin', '<div id="jcaptcha"></div>');
 				var el = $q('tr:not([class])', doc.body);
 				if (!el) {
 					return;
