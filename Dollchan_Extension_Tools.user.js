@@ -1336,7 +1336,7 @@ function pButton(id, href, hasHotkey) {
 function addPanel() {
 	var panel, evtObject, imgLen = $Q(aib.qThumbImages, dForm).length;
 	(pr && pr.pArea[0] || dForm).insertAdjacentHTML('beforebegin',
-		'<div id="de-main-" lang="' + getThemeLang() + '">' +
+		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
 				'<ul id="de-panel-btns"' + (Cfg.expandPanel ? '>' : ' style="display: none">') +
@@ -2314,7 +2314,7 @@ function getCfgCommon() {
 		optSel('scriptStyle', true, function () {
 			saveCfg('scriptStyle', this.selectedIndex);
 			var lang = getThemeLang();
-			$id('de-main-').lang = lang;
+			$id('de-main').lang = lang;
 			$id('de-qarea').lang = lang;
 		}),
 		$New('div', null, [
@@ -2483,7 +2483,7 @@ function addSettings(Set, id) {
 		$New('div', {'id': 'de-cfg-btns'}, [
 			optSel('language', false, function () {
 				saveCfg('language', lang = this.selectedIndex);
-				$del($id('de-main-'));
+				$del($id('de-main'));
 				$del($id('de-css'));
 				$del($id('de-css-dynamic'));
 				scriptCSS();
@@ -3638,7 +3638,7 @@ function loadDocFiles(imgOnly) {
 	});
 	if (!imgOnly) {
 		files = [];
-		$each($Q('#de-main, #de-main-, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
+		$each($Q('#de-main, .de-parea, .de-post-btns, #de-qarea, .de-refmap, #de-updater-div, .de-video-obj,' +
 			' link[rel="alternate stylesheet"], script, ' + aib.qPostForm, dc), $del);
 		$each($T('a', dc), function (el) {
 			var num, tc = el.textContent;
@@ -11227,7 +11227,7 @@ function scriptCSS() {
 	}
 
 	// Settings window
-	x += '#de-main- { -moz-box-sizing: content-box; box-sizing: content-box; }\
+	x += '#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\
 		.de-block { display: block; }\
 		#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\
 		.de-cfg-head { padding: 3px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\
