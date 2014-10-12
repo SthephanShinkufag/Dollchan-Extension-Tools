@@ -10057,7 +10057,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function (el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], header > hr, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
