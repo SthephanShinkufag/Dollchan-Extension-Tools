@@ -10038,7 +10038,7 @@ function getImageBoard(checkDomains, checkOther) {
 	};
 
 	var ibEngines = {
-		'section.posts': {
+		'body.makaba': {
 			mak: { value: true },
 
 			cReply: { value: 'post reply' },
