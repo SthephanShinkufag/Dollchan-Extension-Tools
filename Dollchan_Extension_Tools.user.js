@@ -7248,6 +7248,9 @@ AttachmentViewer.prototype = {
 		return obj;
 	},
 	_handleWheelEvent: function(clientX, clientY, delta) {
+		if(delta === 0) {
+			return;
+		}
 		var tmp, oldW = this._curW,
 			oldH = this._curH,
 			width = delta < 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
