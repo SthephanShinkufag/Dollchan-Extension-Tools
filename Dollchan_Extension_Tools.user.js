@@ -242,7 +242,6 @@ Lng = {
 		'animation':    ['CSS3 анимация в скрипте', 'CSS3 animation in script'],
 		'closePopups':  ['Автоматически закрывать уведомления', 'Close popups automatically'],
 		'updScript':    ['Автоматически проверять обновления скрипта', 'Check for script update automatically'],
-		'turnOff':      ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
 		'scrUpdIntrv': {
 			sel:        [
 				['Каждый день', 'Каждые 2 дня', 'Каждую неделю', 'Каждые 2 недели', 'Каждый месяц'],
@@ -250,6 +249,8 @@ Lng = {
 			],
 			txt:        ['', '']
 		},
+		'excludeList':	['Список доменов, запрещающих запуск скрипта:', 'Domains list for preventing script launch:'],
+		'turnOff':      ['Включать скрипт только на этом сайте', 'Enable script only on this site'],
 
 		'language': {
 			sel:        [['Ru', 'En'], ['Ru', 'En']],
@@ -535,7 +536,7 @@ aib, nav, brd, TNum, pageNum, updater, hKeys, firstThr, lastThr, visPosts = 2, d
 YouTube, WebmParser, Logger,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-ajaxInterval, lang, quotetxt = '', liteMode, localRun, isExpImg, isPreImg, chromeCssUpd,
+ajaxInterval, lang, quotetxt = '', liteMode, localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = function () {};
 
@@ -2356,14 +2357,23 @@ function getCfgCommon() {
 				})
 			])
 		])),
-		$if(nav.isGlobal, lBox('turnOff', true, function () {
-			for (var dm in comCfg) {
-				if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-					comCfg[dm].disabled = Cfg.turnOff;
+		$if(nav.isGlobal, $New('div', null, [
+			$txt(Lng.cfg['excludeList'][lang]),
+			$new('input', {'type': 'text', 'id': 'de-exclude-edit', 'size': 45, 'style': 'display: block;',
+				'value': excludeList}, {
+				'keyup': function() {
+					setStored('DESU_Exclude', this.value);
 				}
-			}
-			setStored('DESU_Config', JSON.stringify(comCfg) || '');
-		}))
+			}),
+			lBox('turnOff', true, function () {
+				for (var dm in comCfg) {
+					if (dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+						comCfg[dm].disabled = Cfg.turnOff;
+					}
+				}
+				setStored('DESU_Config', JSON.stringify(comCfg) || '');
+			})
+		]))
 	]);
 }
 
@@ -11598,7 +11608,12 @@ function initScript(checkDomains) {
 		return;
 	}
 	new Logger().log('Init');
-	readCfg(doScript);
+	getStored('DESU_Exclude', function(str) {
+		if(!str || !str.contains(aib.dm)) {
+			excludeList = str;
+			readCfg(doScript);
+		}
+	});
 }
 
 function doScript() {
