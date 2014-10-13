@@ -7172,25 +7172,11 @@ AttachmentViewer.prototype = {
 				}
 			}
 			return;
-		default: // wheel event
-			var tmp, curX = e.clientX,
-				curY = e.clientY,
-				oldW = this._curW,
-				oldH = this._curH,
-				d = nav.Firefox ? -e.detail : nav.Presto ? e.wheelDelta : e.wheelDeltaY,
-				width = d > 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
-				height = d > 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
-			if (d < 0) {
-				tmp = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
-				width = tmp[0];
-				height = tmp[1];
-			}
-			this._curW = width;
-			this._curH = height;
-			this._elStyle.width = width + 'px';
-			this._elStyle.height = height + 'px';
-			this._elStyle.left = (this._oldL = parseInt(curX - (width/oldW) * (curX - this._oldL), 10)) + 'px';
-			this._elStyle.top = (this._oldT = parseInt(curY - (height/oldH) * (curY - this._oldT), 10)) + 'px';
+		case 'mousewheel':
+			this._handleWheelEvent(e.clientX, e.clientY,
+				-1/40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
+		default: // 'wheel' event
+			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 		}
 		$pd(e);
 	},
@@ -7261,6 +7247,23 @@ AttachmentViewer.prototype = {
 		}
 		return obj;
 	},
+	_handleWheelEvent: function(clientX, clientY, delta) {
+		var tmp, oldW = this._curW,
+			oldH = this._curH,
+			width = delta < 0 ? oldW * this._zoomFactor : oldW / this._zoomFactor,
+			height = delta < 0 ? oldH * this._zoomFactor : oldH / this._zoomFactor;
+		if (delta > 0) {
+			tmp = resizeImage([width, height, this._ar], this._minSize, this._maxSize);
+			width = tmp[0];
+			height = tmp[1];
+		}
+		this._curW = width;
+		this._curH = height;
+		this._elStyle.width = width + 'px';
+		this._elStyle.height = height + 'px';
+		this._elStyle.left = (this._oldL = parseInt(clientX - (width/oldW) * (clientX - this._oldL), 10)) + 'px';
+		this._elStyle.top = (this._oldT = parseInt(clientY - (height/oldH) * (clientY - this._oldT), 10)) + 'px';
+	},
 	_navigateHelper: function (data, isForward) {
 		var post = data.post,
 			imgs = post.allImages;
@@ -7287,7 +7290,11 @@ AttachmentViewer.prototype = {
 		this.data = data;
 		this._fullEl = el;
 		this._obj = obj;
-		obj.addEventListener(nav.Firefox ? 'DOMMouseScroll' : 'mousewheel', this, true);
+		if('onwheel' in obj) {
+			obj.addEventListener('wheel', this, true);
+		} else {
+			obj.addEventListener('mousewheel', this, true);
+		}
 		obj.addEventListener('mousedown', this, true);
 		obj.addEventListener('click', this, true);
 		if (data.inPview) {
