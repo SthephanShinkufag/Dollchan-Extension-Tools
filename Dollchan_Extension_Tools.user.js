@@ -7175,6 +7175,7 @@ AttachmentViewer.prototype = {
 		case 'mousewheel':
 			this._handleWheelEvent(e.clientX, e.clientY,
 				-1/40 * ('wheelDeltaY' in e ? e.wheelDeltaY : e.wheelDelta));
+			break;
 		default: // 'wheel' event
 			this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 		}
