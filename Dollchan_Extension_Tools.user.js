@@ -5909,9 +5909,8 @@ PostForm.prototype = {
 			el.style.left = Cfg.qreplyLeft + 'px';
 			el.style.top = Cfg.qreplyTop + 'px';
 		}
-		el.insertAdjacentHTML('beforeend',
-			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '><span id="de-qarea-target"' +
-			(Cfg.hangQReply ? '': ' style="display: none;"') + '></span><span id="de-qarea-utils">' +
+		el.insertAdjacentHTML('beforeend', '<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') +
+			'><span id="de-qarea-target"></span><span id="de-qarea-utils">' +
 			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
 			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
 		el = el.firstChild;
@@ -5978,12 +5977,10 @@ PostForm.prototype = {
 				node.className = aib.cReply + ' de-qarea-hanging';
 				node = node.firstChild;
 				node.className = 'de-cfg-head';
-				node.firstChild.style.display = '';
 			} else {
 				node.className = aib.cReply + ' de-qarea-inline';
 				node = node.firstChild;
 				node.removeAttribute('class');
-				node.firstChild.style.display = 'none';
 				this.txta.focus();
 			}
 		}.bind(this);
@@ -6322,7 +6319,7 @@ PostForm.prototype = {
 		}
 		img.title = Lng.refresh[lang];
 		img.alt = Lng.loading[lang];
-		img.style.cssText = 'vertical-align: bottom; border: none; cursor: pointer;';
+		img.style.cssText = 'vertical-align: text-bottom; border: none; cursor: pointer;';
 		img.onclick = this.refreshCapImg.bind(this, true);
 		if ((a = img.parentNode).tagName === 'A') {
 			$after(a, img);
@@ -11521,9 +11518,10 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-qarea > .de-cfg-head { text-align: left; cursor: pointer; }\
+		#de-qarea > div:first-child { text-align: center; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
-		.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
+		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
+		.de-qarea-hanging > .de-cfg-head > #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
