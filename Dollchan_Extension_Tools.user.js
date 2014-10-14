@@ -6053,7 +6053,7 @@ PostForm.prototype = {
 			}
 		}
 		this.addTextPanel();
-		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: both; width: ' +
+		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: none !important; width: ' +
 			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 0;';
 		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
