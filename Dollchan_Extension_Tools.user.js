@@ -2289,7 +2289,7 @@ function getCfgCommon() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			var lang = getThemeLang();
 			$id('de-main').lang = lang;
-			$id('de-qarea').lang = lang;
+			$id('de-qarea').firstChild.lang = lang;
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
@@ -5902,7 +5902,6 @@ PostForm.prototype = {
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.lang = getThemeLang();
 		if(Cfg.qreplyLeft === undefined) {
 			el.style.right = 0;
 			el.style.bottom = '25px';
@@ -5916,6 +5915,7 @@ PostForm.prototype = {
 			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
 			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
 		el = el.firstChild;
+		el.lang = getThemeLang();
 		el.addEventListener('mousedown', {
 			_el: this.qArea,
 			_elStyle: this.qArea.style,
@@ -11522,9 +11522,9 @@ function scriptCSS() {
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		#de-qarea > .de-cfg-head { text-align: left; cursor: pointer; }\
-		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
+		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
 		.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
-		.de-qarea-inline { float: none; clear: left; width: 100%; padding: 3px 0 3px 3px; margin: 2px 0; }\
+		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
 		#de-qarea-utils > span { margin-right: 4px; }\
