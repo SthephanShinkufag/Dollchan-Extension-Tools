@@ -6005,7 +6005,7 @@ PostForm.prototype = {
 			_elStyle: this.txta.style,
 			_qArea: this.qArea,
 			handleEvent: function (e) {
-				var cr;
+				var crTx, crQa, width, height, oldW, oldH, maxX, maxY;
 				switch (e.type) {
 				case 'mousedown':
 					doc.body.addEventListener('mousemove', this, false);
@@ -6013,9 +6013,24 @@ PostForm.prototype = {
 					$pd(e);
 					return;
 				case 'mousemove':
-					cr = this._el.getBoundingClientRect();
-					this._elStyle.width = (e.pageX - cr.left - window.pageXOffset) + 'px';
-					this._elStyle.height = (e.pageY - cr.top - window.pageYOffset) + 'px';
+					crTx = this._el.getBoundingClientRect();
+					width = e.pageX - crTx.left - window.pageXOffset;
+					height = e.pageY - crTx.top - window.pageYOffset;
+					if (Cfg.hangQReply) {
+						oldW = this._el.offsetWidth;
+						oldH = this._el.offsetHeight;
+						maxX = Post.sizing.wWidth;
+						maxY = Post.sizing.wHeight - 25;
+						crQa = this._qArea.getBoundingClientRect();
+						if(crQa.right + width - oldW > maxX - 20) {
+							width = oldW + maxX - crQa.right - 2;
+						}
+						if(crQa.bottom + height - oldH > maxY - 20) {
+							height = oldH + maxY - crQa.bottom - 2;
+						}
+					}
+					this._elStyle.width = width + 'px';
+					this._elStyle.height = height + 'px';
 					return;
 				default: // mouseup
 					doc.body.removeEventListener('mousemove', this, false);
