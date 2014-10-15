@@ -7745,19 +7745,22 @@ function embedImagesLinks(el) {
 // POSTS
 // ===========================================================================================================
 
-function Post(el, thr, num, count, isOp, prev) {
+function Post(el, thr, num, count, isOp, prev, isLight) {
 	var refEl, html;
 	this.count = count;
 	this.el = el;
 	this.isOp = isOp;
 	this.num = num;
-	this._pref = refEl = $q(aib.qRef, el);
-	this.prev = prev;
 	this.thr = thr;
-	this.ref = [];
+	this.prev = prev;
 	if (prev) {
 		prev.next = this;
 	}
+	if(isLight) {
+		return;
+	}
+	this._pref = refEl = $q(aib.qRef, el);
+	this.ref = [];
 	el.post = this;
 	html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
@@ -9138,11 +9141,7 @@ function updRefMap(post, add) {
 // THREADS
 // ===========================================================================================================
 
-function Thread(el, prev) {
-	if (aib._420 || aib.tiny) {
-		$after(el, el.lastChild);
-		$del($c('clear', el));
-	}
+function Thread(el, prev, isLight) {
 	var i, pEl, lastPost,
 		els = aib.getPosts(el),
 		len = els.length,
@@ -9150,21 +9149,28 @@ function Thread(el, prev) {
 		omt = TNum ? 1 : aib.getOmitted($q(aib.qOmitted, el), len);
 	this.num = num;
 	this.pcount = omt + len;
-	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
-		prev ? prev.last : null);
-	for (i = 0; i < len; i++) {
-		num = aib.getPNum(pEl = els[i]);
-		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost);
-	}
-	this.last = lastPost;
-	el.style.counterReset = 'de-cnt ' + omt;
-	el.removeAttribute('id');
-	el.setAttribute('de-thread', null);
-	visPosts = Math.max(visPosts, len);
 	this.el = el;
 	this.prev = prev;
 	if (prev) {
 		prev.next = this;
+	}
+	pByNum[num] = lastPost = this.op = el.post = new Post(aib.getOp(el), this, num, 0, true,
+		prev ? prev.last : null, isLight);
+	for (i = 0; i < len; i++) {
+		num = aib.getPNum(pEl = els[i]);
+		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost, isLight);
+	}
+	this.last = lastPost;
+	if(isLight) {
+		return;
+	}
+	el.style.counterReset = 'de-cnt ' + omt;
+	el.removeAttribute('id');
+	el.setAttribute('de-thread', null);
+	visPosts = Math.max(visPosts, len);
+	if (aib._420 || aib.tiny) {
+		$after(el, el.lastChild);
+		$del($c('clear', el));
 	}
 }
 Thread.clearPostsMark = function () {
@@ -10695,8 +10701,9 @@ function Initialization(checkDomains) {
 // DELFORM
 // ===========================================================================================================
 
-function DelForm(formEl) {
+function DelForm(formEl, isLight) {
 	this.el = formEl;
+	this.isLight = isLight;
 	this.tNums = [];
 	this.addFormContent(formEl, false);
 	formEl.setAttribute('de-form', '');
@@ -10725,6 +10732,7 @@ DelForm.doReplace = function (formEl) {
 DelForm.prototype = {
 	el: null,
 	firstThr: null,
+	isLight: false,
 	lastThr: null,
 	tNums: null,
 	addFormContent: function (formEl, append) {
@@ -10749,13 +10757,13 @@ DelForm.prototype = {
 				this.el.appendChild(formEl.firstChild);
 			}
 		}
-		thr = new Thread(threads[0], this.lastThr);
+		thr = new Thread(threads[0], this.lastThr, this.isLight);
 		if (this.firstThr === null) {
 			this.firstThr = thr;
 		}
 		for (i = 1; i < len; ++i) {
 			this.tNums.push(+thr.num);
-			thr = new Thread(threads[i], thr);
+			thr = new Thread(threads[i], thr, this.isLight);
 		}
 		this.tNums.push(+thr.num);
 		this.lastThr = thr;
@@ -11690,7 +11698,7 @@ function doScript(formEl) {
 	new Logger().log('Replace delform');
 	pByNum = Object.create(null);
 	try {
-		dForm = new DelForm(formEl);
+		dForm = new DelForm(formEl, false);
 	} catch(e) {
 		console.log('DELFORM ERROR:\n' + getPrettyErrorMessage(e));
 		doc.body.style.display = '';
