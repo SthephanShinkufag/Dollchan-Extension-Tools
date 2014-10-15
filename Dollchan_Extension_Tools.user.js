@@ -116,7 +116,9 @@ defaultCfg = {
 	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
 	'turnOff':          0,      // enable script only for this site
 	'textaWidth':       300,    // textarea size
-	'textaHeight':      115
+	'textaHeight':      115,
+	'qReplyX':          'right: 0',     // quick reply position
+	'qReplyY':          'bottom: 25px'  
 },
 
 Lng = {
@@ -405,6 +407,11 @@ Lng = {
 		[' new post', ' new posts', ' new posts', '. Latest: ']
 	],
 
+	comment:        ['Комментарий', 'Comment'],
+	name:           ['Имя', 'Name'],
+	subject:        ['Тема', 'Subject'],
+	email:          ['E-mail', 'E-mail'],
+	captcha:        ['Капча', 'Captcha'],
 	add:            ['Добавить', 'Add'],
 	apply:          ['Применить', 'Apply'],
 	clear:          ['Очистить', 'Clear'],
@@ -2262,6 +2269,7 @@ function getCfgForm() {
 			if (inp.empty) {
 				inp.hideInputs();
 			}
+			updateCSS();
 		})),
 		$if(!aib.mak && pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
@@ -5597,7 +5605,7 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
 	this.mail = $x(p + (
 			aib._410 ? '@name="sage"]' :
-			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
+			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nya2" or @name="nabiki" or @name="dont_bump")]'
 		), form);
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
@@ -5629,10 +5637,15 @@ PostForm.prototype = {
 	pForm: null,
 	pArea: [],
 	qArea: null,
-	get fileImageTD() {
-		var val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
-		val.innerHTML = '';
-		Object.defineProperty(this, 'fileImageTD', { value: val });
+	get fileArea() {
+		var val;
+		if(aib.multiFile) {
+			val = $parent(this.txta, 'TD').appendChild($add('<div id="de-file-area"></div>'));
+		} else {
+			val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
+			val.innerHTML = '';
+		}
+		Object.defineProperty(this, 'fileArea', { value: val });
 		return val;
 	},
 	get rarInput() {
@@ -5805,8 +5818,8 @@ PostForm.prototype = {
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
 		}
 		temp = pByNum[pNum].thr.op.title;
-		if (temp.length > 30) {
-			temp = temp.substr(0, 30) + '\u2026';
+		if (temp.length > 27) {
+			temp = temp.substr(0, 27) + '\u2026';
 		}
 		this.qArea.firstChild.firstChild.textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
@@ -5913,18 +5926,12 @@ PostForm.prototype = {
 		this.pArea[1] = el.nextSibling;
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-		this.qArea = $add('<div style="display: none;" id="de-qarea" class="' + aib.cReply +
+		this.qArea = $add('<div style="display: none; ' + Cfg.qReplyX + '; ' + Cfg.qReplyY +
+			';" id="de-qarea" class="' + aib.cReply +
 			(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		el = this.qArea;
-		if(Cfg.qreplyLeft === undefined) {
-			el.style.right = 0;
-			el.style.bottom = '25px';
-		} else {
-			el.style.left = Cfg.qreplyLeft + 'px';
-			el.style.top = Cfg.qreplyTop + 'px';
-		}
 		el.insertAdjacentHTML('beforeend', '<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') +
 			'><span id="de-qarea-target"></span><span id="de-qarea-utils">' +
 			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
@@ -5936,21 +5943,16 @@ PostForm.prototype = {
 			_elStyle: this.qArea.style,
 			_oldX: 0,
 			_oldY: 0,
+			_X: Cfg.qReplyX,
+			_Y: Cfg.qReplyY,
 			handleEvent: function (e) {
 				if (!Cfg.hangQReply) {
 					return;
 				}
-				var cr, left, top, maxX, maxY, curX = e.clientX,
+				var cr, x, y, maxX, maxY, curX = e.clientX,
 					curY = e.clientY;
 				switch (e.type) {
 				case 'mousedown':
-					if(Cfg.qreplyLeft === undefined) {
-						cr = this._el.getBoundingClientRect();
-						this._elStyle.left = cr.left + 'px';
-						this._elStyle.top = cr.top + 'px';
-						this._elStyle.right = '';
-						this._elStyle.bottom = '';
-					}
 					this._oldX = curX;
 					this._oldY = curY;
 					doc.body.addEventListener('mousemove', this, false);
@@ -5958,30 +5960,26 @@ PostForm.prototype = {
 					$pd(e);
 					return;
 				case 'mousemove':
-					left = parseInt(this._elStyle.left, 10) + curX - this._oldX;
-					top = parseInt(this._elStyle.top, 10) + curY - this._oldY;
 					maxX = Post.sizing.wWidth - this._el.offsetWidth;
 					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25;
-					if(left > maxX || curX > this._oldX && left > maxX - 20) {
-						left = maxX;
-					} else if(left < 0 || curX < this._oldX && left < 20) {
-						left = 0;
-					}
-					if(top > maxY || curY > this._oldY && top > maxY - 20) {
-						top = maxY;
-					} else if(top < 0 || curY < this._oldY && top < 20) {
-						top = 0;
-					}
-					this._elStyle.left = left + 'px';
-					this._elStyle.top = top + 'px';
+					cr = this._el.getBoundingClientRect();
+					x = cr.left + curX - this._oldX;
+					y = cr.top + curY - this._oldY;
+					this._X = x > maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
+						x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
+						'left: ' + x + 'px'
+					this._Y = y > maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
+						y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
+						'top: ' + y + 'px'
+					this._elStyle.cssText = this._X + '; ' + this._Y;
 					this._oldX = curX;
 					this._oldY = curY;
 					return;
 				default: // mouseup
 					doc.body.removeEventListener('mousemove', this, false);
 					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('qreplyLeft', parseInt(this._elStyle.left, 10));
-					saveCfg('qreplyTop', parseInt(this._elStyle.top, 10));
+					saveCfg('qReplyX', this._X);
+					saveCfg('qReplyY', this._Y);
 				}
 			}
 		}, false);
@@ -6008,6 +6006,15 @@ PostForm.prototype = {
 		}
 		if (!this.form || !this.txta) {
 			return;
+		}
+		if(this.subj) {
+			this.subj.placeholder = Lng.subject[lang];
+		}
+		if(this.mail) {
+			this.mail.placeholder = Lng.email[lang];
+		}
+		if(this.name) {
+			this.name.placeholder = Lng.name[lang];
 		}
 		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
@@ -6082,7 +6089,8 @@ PostForm.prototype = {
 		}
 		this.addTextPanel();
 		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: none !important; width: ' +
-			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 0;';
+			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 300px; min-height: 80px;';
+		this.txta.placeholder = Lng.comment[lang];
 		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
 			if ((code === 33 || code === 34) && e.which === 0) {
@@ -6291,6 +6299,7 @@ PostForm.prototype = {
 		}
 		this.capInited = true;
 		this.cap.autocomplete = 'off';
+		this.cap.placeholder = Lng.captcha[lang];
 		this.cap.onkeypress = (function () {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
@@ -6477,7 +6486,7 @@ FileInput.prototype = {
 		var imgTD;
 		if (Cfg.fileThumb) {
 			this.form.fileTd.parentNode.style.display = 'none';
-			imgTD = this.form.fileImageTD;
+			imgTD = this.form.fileArea;
 			imgTD.insertAdjacentHTML('beforeend', '<div class="de-file de-file-off"><div class="de-file-img">' +
 				'<div class="de-file-img" title="' + Lng.clickToAdd[lang] + '"></div></div></div>');
 			this.thumb = imgTD.lastChild;
@@ -9785,6 +9794,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			hasPicWrap: { value: true },
 			isBB: { value: true },
+			multiFile: { value: true },
 			ru: { value: true }
 		}],
 		'410chan.org': [{
@@ -9947,6 +9957,7 @@ function getImageBoard(checkDomains, checkOther) {
 					return true;
 				}
 			} },
+			multiFile: { value: true },
 			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
 			ru: { value: true },
 			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
@@ -10041,6 +10052,7 @@ function getImageBoard(checkDomains, checkOther) {
 				this.addProgressTrack = els[2];
 			} },
 			isBB: { value: true },
+			multiFile: { value: true },
 			rep: { value: true },
 			res: { value: 'thread-' },
 			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
@@ -10167,6 +10179,7 @@ function getImageBoard(checkDomains, checkOther) {
 				Object.defineProperty(this, 'lastPage', { value: val });
 				return val;
 			} },
+			multiFile: { value: true },
 			rLinkClick: { value: '' },
 			timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' }
 		},
@@ -10520,6 +10533,7 @@ function getImageBoard(checkDomains, checkOther) {
 			Object.defineProperty(this, 'lastPage', { value: val });
 			return val;
 		},
+		multiFile: false,
 		prot: prot,
 		get reCrossLinks() {
 			var val = new RegExp('>https?:\\/\\/[^\\/]*' + this.dm + '\\/([a-z0-9]+)\\/' +
@@ -11526,6 +11540,26 @@ function scriptCSS() {
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }';
+	
+	// File inputs
+	p = aib.multiFile ? 80 : 130;
+	x += '.de-file { display: inline-block; margin: 1px; height: ' + p + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
+		.de-file > .de-file-del { float: right; }\
+		.de-file > .de-file-rar { float: left; }\
+		.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\
+		.de-file > .de-file-utils { display: none; }\
+		.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
+		.de-file > div > div { display: table-cell; vertical-align: middle; }\
+		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -' + (p + 2) + 'px !important; vertical-align: top; width: ' + (p + 2) + 'px !important; height: ' + (p + 2) + 'px; border: none !important; cursor: pointer; }\
+		#de-file-area { border-spacing: 0; margin-top: 1px; width: 300px; min-width:100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\
+		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
+		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
+		.de-file-img > img, .de-file-img > video { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
+		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
+		.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
+		.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }';
+	x += gif ('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
+	x += gif ('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 
 	// Other
 	x += cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -11549,23 +11583,7 @@ function scriptCSS() {
 		.de-fav-inf-new:before { content: "+ "; }\
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-file { display: inline-block; margin: 1px; height: 130px; width: 130px; text-align: center; border: 1px dashed grey; }\
-		.de-file > .de-file-del { float: right; }\
-		.de-file > .de-file-rar { float: left; }\
-		.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\
-		.de-file > .de-file-utils { display: none; }\
-		.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\
-		.de-file > div > div { display: table-cell; vertical-align: middle; }\
-		.de-file + [type="file"] { opacity: 0; margin: 1px 0 0 -132px !important; vertical-align: top; width: 132px !important; height: 132px; border: none !important; cursor: pointer; }\
-		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
-		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
-		.de-file-img > img, .de-file-img > video { max-width: 126px; max-height: 126px; }\
-		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
-		.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
-		.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }';
-	x += gif ('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
-	x += gif ('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
-	x += '.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
+		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
 		.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
@@ -11579,6 +11597,7 @@ function scriptCSS() {
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
+		#de-qarea { min-width: 0; }\
 		#de-qarea > div:first-child { text-align: center; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
@@ -11667,6 +11686,9 @@ function updateCSS() {
 		if (Cfg.addYouTube) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
+	}
+	if(aib.multiFile || !Cfg.fileThumb) {
+		x += '#de-pform tr > td:first-child { display: none; }';
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
