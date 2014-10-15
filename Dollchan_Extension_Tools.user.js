@@ -746,51 +746,63 @@ function $queue(maxNum, Fn, endFn) {
 	while (maxNum--) {
 		this.freeSlots.push(maxNum);
 	}
-	this.completed = this.paused = false;
+	this.completed = this.paused = this.stopped = false;
 }
 $queue.prototype = {
 	run: function (data) {
-		if (this.paused || this.running === this.max) {
-			this.array.push(data);
-			this.length++;
-		} else {
-			this.fn(this.freeSlots.pop(), this.num++, data);
-			this.running++;
+		if (!this.stopped) {
+			if (this.paused || this.running === this.max) {
+				this.array.push(data);
+				this.length++;
+			} else {
+				this.fn(this.freeSlots.pop(), this.num++, data);
+				this.running++;
+			}
 		}
 	},
 	end: function (qIdx) {
-		if (!this.paused && this.index < this.length) {
-			this.fn(qIdx, this.num++, this.array[this.index++]);
-			return;
-		}
-		this.running--;
-		this.freeSlots.push(qIdx);
-		if (!this.paused && this.completed && this.running === 0) {
-			this.endFn();
+		if (!this.stopped) {
+			if (!this.paused && this.index < this.length) {
+				this.fn(qIdx, this.num++, this.array[this.index++]);
+				return;
+			}
+			this.running--;
+			this.freeSlots.push(qIdx);
+			if (!this.paused && this.completed && this.running === 0) {
+				this.endFn();
+			}
 		}
 	},
 	complete: function () {
-		if (this.index >= this.length && this.running === 0) {
-			this.endFn();
-		} else {
-			this.completed = true;
+		if (!this.stopped) {
+			if (this.index >= this.length && this.running === 0) {
+				this.endFn();
+			} else {
+				this.completed = true;
+			}
 		}
 	},
 	pause: function () {
 		this.paused = true;
 	},
 	'continue': function () {
-		this.paused = false;
-		if (this.index >= this.length) {
-			if (this.completed) {
-				this.endFn();
+		if (!this.stopped) {
+			this.paused = false;
+			if (this.index >= this.length) {
+				if (this.completed) {
+					this.endFn();
+				}
+				return;
 			}
-			return;
+			while (this.index < this.length && this.running !== this.max) {
+				this.fn(this.freeSlots.pop(), this.num++, this.array[this.index++]);
+				this.running++;
+			}
 		}
-		while (this.index < this.length && this.running !== this.max) {
-			this.fn(this.freeSlots.pop(), this.num++, this.array[this.index++]);
-			this.running++;
-		}
+	},
+	stop: function () {
+		this.stopped = true;
+		this.endFn();
 	}
 };
 
@@ -1832,36 +1844,41 @@ function showFavoriteTable(cont, data) {
 		});
 	}));
 	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], function () {
-		var els = $C('de-entry', doc),
-			i = 6,
-			loaded = 0;
+		var i, len, el, els = $C('de-entry', doc),
+			postsInfo = [];
 		$alert(Lng.loading[lang], 'load-pages', true);
-		while (i--) {
-			ajaxLoad(aib.getPageUrl(brd, i), true, function (idx, form, xhr) {
-				for (var inf, el, len = this.length, i = 0; i < len; ++i) {
-					el = this[i];
-					if (el.getAttribute('de-host') === aib.host && el.getAttribute('de-board') === brd) {
-						inf = $c('de-fav-inf-page', el);
-						if ((new RegExp('(?:№|No.|>)\\s*' + el.getAttribute('de-num') + '\\s*<'))
-							.test(form.innerHTML))
-						{
-							inf.innerHTML = '@' + idx;
-						} else if (loaded === 5 && !inf.textContent.contains('@')) {
-							inf.innerHTML = '@?';
-						}
+		for(i = 0, len = els.length; i < len; ++i) {
+			el = els[i];
+			if (el.getAttribute('de-host') === aib.host && el.getAttribute('de-board') === brd) {
+				postsInfo.push([el, el.getAttribute('de-num'), false]);
+			}
+		}
+		if(postsInfo.length === 0) {
+			closeAlert($id('de-alert-load-pages'));
+			return;
+		}
+		new PagesLoader(0, aib.lastPage + 1, function (postsInfo, pNum, formEl) {
+			var thr, tNum, i, len, pInfo, form = new DelForm(formEl, true);
+			for(thr = form.firstThr; thr; thr = thr.next) {
+				tNum = thr.num;
+				for(i = 0, len = postsInfo.length; i < len; ++i) {
+					pInfo = postsInfo[i];
+					if(pInfo[1] === tNum) {
+						$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + (pNum + 1);
+						pInfo[2] = true;
+						break;
 					}
 				}
-				if (loaded === 5) {
-					closeAlert($id('de-alert-load-pages'));
+			}
+		}.bind(null, postsInfo), function (pNum, eCode, eMsg) {}, function (postsInfo) {
+			for(var pInfo, i = 0, len = postsInfo.length; i < len; ++i) {
+				pInfo = postsInfo[i];
+				if(!pInfo[2]) {
+					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@?';
 				}
-				loaded++;
-			}.bind(els, i), function (eCode, eMsg, xhr) {
-				if (loaded === 5) {
-					closeAlert($id('de-alert-load-pages'));
-				}
-				loaded++;
-			});
-		}
+			}
+			closeAlert($id('de-alert-load-pages'));
+		}.bind(null, postsInfo));
 	}));
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function () {
 		var i, len, els, queue = new $queue(4, function (qIdx, num, el) {
@@ -4189,58 +4206,38 @@ function loadFavorThread() {
 		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;">');
 }
 
-function loadPages(count) {
-	var fun, i = pageNum,
+function PagesLoader(from, count, loadFn, errorFn, endFn) {
+	var queue, i = from,
 		len = Math.min(aib.lastPage + 1, i + count),
-		pages = [],
-		loaded = 1;
-	count = len - i;
-
-	function onLoadOrError(idx, eCodeOrForm, eMsgOrXhr, maybeXhr) {
-		if (typeof eCodeOrForm === 'number') {
-			pages[idx] = $add('<div><center style="font-size: 2em">' +
-				getErrorMessage(eCodeOrForm, eMsgOrXhr) + '</center><hr></div>');
-		} else {
-			pages[idx] = replacePost(eCodeOrForm);
-		}
-		if (loaded === count) {
-			var hasError = false;
-			for (var j in pages) {
-				if (!pages.hasOwnProperty(j)) {
-					continue;
-				}
-				if (j != pageNum) {
-					dForm.el.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
-						Lng.page[lang] + ' ' + j + '</center><hr>');
-				}
-				try {
-					dForm.addFormContent(pages[j], true);
-				} catch (e) {
-					$alert(getPrettyErrorMessage(e), 'load-pages', true);
-					hasError = true;
-					break;
-				}
-			}
-			if (!hasError) {
-				dForm.initAjax();
-				addDelformStuff(false);
-				readUserPosts();
-				readFavoritesPosts();
-				$each($Q('input[type="password"]', dForm.el), function (pEl) {
-					pr.dpass = pEl;
-					pEl.value = Cfg.passwValue;
-				});
-				if (hKeys) {
-					hKeys.clear(pageNum + count - 1);
-				}
-				closeAlert($id('de-alert-load-pages'));
-			}
-			dForm.show();
-			loaded = pages = count = null;
-		} else {
-			loaded++;
-		}
+		queue = new $queue(4, this.loadPage.bind(this), endFn);
+	this.queue = queue;
+	this.loadFn = loadFn;
+	this.errorFn = errorFn;
+	while (i < len) {
+		queue.run(i++);
 	}
+	queue.complete();
+}
+PagesLoader.prototype = {
+	loadPage: function(qIdx, num, pNum) {
+		var fun = this.onLoad.bind(this, qIdx, pNum);
+		ajaxLoad(aib.getPageUrl(brd, pNum), true, fun, fun);
+	},
+	onLoad: function (qIdx, pNum, eCodeOrForm, eMsgOrXhr, maybeXhr) {
+		if (typeof eCodeOrForm === 'number') {
+			this.errorFn(pNum, eCodeOrForm, eMsgOrXhr);
+		} else {
+			this.loadFn(pNum, eCodeOrForm);
+		}
+		this.queue.end(qIdx);
+	},
+	stopLoad: function () {
+		this.queue.stop();
+	}
+};
+
+function loadPages(count) {
+	var pages = [];
 	$alert(Lng.loading[lang], 'load-pages', true);
 	Pview.clearCache();
 	isExpImg = false;
@@ -4258,10 +4255,46 @@ function loadPages(count) {
 		}
 		pr.txta.value = '';
 	}
-	while (i < len) {
-		fun = onLoadOrError.bind(null, i);
-		ajaxLoad(aib.getPageUrl(brd, i++), true, fun, fun);
-	}
+	new PagesLoader(pageNum, count, function (pNum, formEl) {
+		pages[pNum] = replacePost(formEl);
+	}, function (pNum, eCode, eMsg) {
+		pages[pNum] = $add('<div><center style="font-size: 2em">' +
+				getErrorMessage(eCode, eMsg) + '</center><hr></div>');
+	}, function () {
+		var hasError = false;
+		for (var j in pages) {
+			if (!pages.hasOwnProperty(j)) {
+				continue;
+			}
+			if (j != pageNum) {
+				dForm.el.insertAdjacentHTML('beforeend', '<center style="font-size: 2em">' +
+					Lng.page[lang] + ' ' + j + '</center><hr>');
+			}
+			try {
+				dForm.addFormContent(pages[j], true);
+			} catch (e) {
+				$alert(getPrettyErrorMessage(e), 'load-pages', true);
+				hasError = true;
+				break;
+			}
+		}
+		if (!hasError) {
+			dForm.initAjax();
+			addDelformStuff(false);
+			readUserPosts();
+			readFavoritesPosts();
+			$each($Q('input[type="password"]', dForm.el), function (pEl) {
+				pr.dpass = pEl;
+				pEl.value = Cfg.passwValue;
+			});
+			if (hKeys) {
+				hKeys.clear(pageNum + count - 1);
+			}
+			closeAlert($id('de-alert-load-pages'));
+		}
+		pages = null;
+		dForm.show();
+	});
 }
 
 function infoLoadErrors(eCode, eMsg, newPosts) {
