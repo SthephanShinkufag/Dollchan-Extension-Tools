@@ -1864,8 +1864,9 @@ function showFavoriteTable(cont, data) {
 			closeAlert($id('de-alert-load-pages'));
 			return;
 		}
-		new PagesLoader(0, aib.lastPage + 1, function (postsInfo, pNum, formEl) {
-			var thr, tNum, i, len, pInfo, form = new DelForm(formEl, true);
+		new PagesLoader(0, aib.lastPage + 1, function (pNum, formEl) {
+			var thr, tNum, i, len, pInfo, needContinue = true,
+				form = new DelForm(formEl, true);
 			for(thr = form.firstThr; thr; thr = thr.next) {
 				tNum = thr.num;
 				for(i = 0, len = postsInfo.length; i < len; ++i) {
@@ -1877,7 +1878,13 @@ function showFavoriteTable(cont, data) {
 					}
 				}
 			}
-		}.bind(null, postsInfo), function (pNum, eCode, eMsg) {}, function (postsInfo) {
+			for(i = 0, len = postsInfo.length; i < len; ++i) {
+				if(!postsInfo[i][2]) {
+					return;
+				}
+			}
+			this.stop();
+		}, function (pNum, eCode, eMsg) {}, function () {
 			for(var pInfo, i = 0, len = postsInfo.length; i < len; ++i) {
 				pInfo = postsInfo[i];
 				if(!pInfo[2]) {
@@ -1885,7 +1892,8 @@ function showFavoriteTable(cont, data) {
 				}
 			}
 			closeAlert($id('de-alert-load-pages'));
-		}.bind(null, postsInfo));
+			postsInfo = null;
+		});
 	}));
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function () {
 		var i, len, els, queue = new $queue(4, function (qIdx, num, el) {
@@ -4233,13 +4241,13 @@ PagesLoader.prototype = {
 	},
 	onLoad: function (qIdx, pNum, eCodeOrForm, eMsgOrXhr, maybeXhr) {
 		if (typeof eCodeOrForm === 'number') {
-			this.errorFn(pNum, eCodeOrForm, eMsgOrXhr);
+			this.errorFn.call(this, pNum, eCodeOrForm, eMsgOrXhr);
 		} else {
-			this.loadFn(pNum, eCodeOrForm);
+			this.loadFn.call(this, pNum, eCodeOrForm);
 		}
 		this.queue.end(qIdx);
 	},
-	stopLoad: function () {
+	stop: function () {
 		this.queue.stop();
 	}
 };
