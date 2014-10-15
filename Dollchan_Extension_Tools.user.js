@@ -116,7 +116,9 @@ defaultCfg = {
 	'scrUpdIntrv':      1,      //    check interval in days (every val+1 day)
 	'turnOff':          0,      // enable script only for this site
 	'textaWidth':       300,    // textarea size
-	'textaHeight':      115
+	'textaHeight':      115,
+	'qReplyX':          'right: 0',     // quick reply position
+	'qReplyY':          'bottom: 25px'  
 },
 
 Lng = {
@@ -5908,18 +5910,12 @@ PostForm.prototype = {
 		this.pArea[1] = el.nextSibling;
 		this._pBtn[1] = this.pArea[1].firstChild;
 		this._pBtn[1].firstElementChild.onclick = this.showMainReply.bind(this, true);
-		this.qArea = $add('<div style="display: none;" id="de-qarea" class="' + aib.cReply +
+		this.qArea = $add('<div style="display: none; ' + Cfg.qReplyX + '; ' + Cfg.qReplyY +
+			';" id="de-qarea" class="' + aib.cReply +
 			(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		el = this.qArea;
-		if(Cfg.qreplyLeft === undefined) {
-			el.style.right = 0;
-			el.style.bottom = '25px';
-		} else {
-			el.style.left = Cfg.qreplyLeft + 'px';
-			el.style.top = Cfg.qreplyTop + 'px';
-		}
 		el.insertAdjacentHTML('beforeend', '<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') +
 			'><span id="de-qarea-target"></span><span id="de-qarea-utils">' +
 			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
@@ -5931,21 +5927,16 @@ PostForm.prototype = {
 			_elStyle: this.qArea.style,
 			_oldX: 0,
 			_oldY: 0,
+			_X: Cfg.qReplyX,
+			_Y: Cfg.qReplyY,
 			handleEvent: function (e) {
 				if (!Cfg.hangQReply) {
 					return;
 				}
-				var cr, left, top, maxX, maxY, curX = e.clientX,
+				var cr, x, y, maxX, maxY, curX = e.clientX,
 					curY = e.clientY;
 				switch (e.type) {
 				case 'mousedown':
-					if(Cfg.qreplyLeft === undefined) {
-						cr = this._el.getBoundingClientRect();
-						this._elStyle.left = cr.left + 'px';
-						this._elStyle.top = cr.top + 'px';
-						this._elStyle.right = '';
-						this._elStyle.bottom = '';
-					}
 					this._oldX = curX;
 					this._oldY = curY;
 					doc.body.addEventListener('mousemove', this, false);
@@ -5953,30 +5944,26 @@ PostForm.prototype = {
 					$pd(e);
 					return;
 				case 'mousemove':
-					left = parseInt(this._elStyle.left, 10) + curX - this._oldX;
-					top = parseInt(this._elStyle.top, 10) + curY - this._oldY;
 					maxX = Post.sizing.wWidth - this._el.offsetWidth;
 					maxY = Post.sizing.wHeight - this._el.offsetHeight - 25;
-					if(left > maxX || curX > this._oldX && left > maxX - 20) {
-						left = maxX;
-					} else if(left < 0 || curX < this._oldX && left < 20) {
-						left = 0;
-					}
-					if(top > maxY || curY > this._oldY && top > maxY - 20) {
-						top = maxY;
-					} else if(top < 0 || curY < this._oldY && top < 20) {
-						top = 0;
-					}
-					this._elStyle.left = left + 'px';
-					this._elStyle.top = top + 'px';
+					cr = this._el.getBoundingClientRect();
+					x = cr.left + curX - this._oldX;
+					y = cr.top + curY - this._oldY;
+					this._X = x > maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
+						x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
+						'left: ' + x + 'px'
+					this._Y = y > maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
+						y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
+						'top: ' + y + 'px'
+					this._elStyle.cssText = this._X + '; ' + this._Y;
 					this._oldX = curX;
 					this._oldY = curY;
 					return;
 				default: // mouseup
 					doc.body.removeEventListener('mousemove', this, false);
 					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('qreplyLeft', parseInt(this._elStyle.left, 10));
-					saveCfg('qreplyTop', parseInt(this._elStyle.top, 10));
+					saveCfg('qReplyX', this._X);
+					saveCfg('qReplyY', this._Y);
 				}
 			}
 		}, false);
