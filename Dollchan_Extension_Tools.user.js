@@ -1857,7 +1857,7 @@ function showFavoriteTable(cont, data) {
 		for(i = 0, len = els.length; i < len; ++i) {
 			el = els[i];
 			if (el.getAttribute('de-host') === aib.host && el.getAttribute('de-board') === brd) {
-				postsInfo.push([el, el.getAttribute('de-num'), false]);
+				postsInfo.push([el, +el.getAttribute('de-num'), false]);
 			}
 		}
 		if(postsInfo.length === 0) {
@@ -1865,17 +1865,18 @@ function showFavoriteTable(cont, data) {
 			return;
 		}
 		new PagesLoader(0, aib.lastPage + 1, function (pNum, formEl) {
-			var thr, tNum, i, len, pInfo, needContinue = true,
+			var i, len, pInfo, form, tNums;
+			try {
 				form = new DelForm(formEl, true);
-			for(thr = form.firstThr; thr; thr = thr.next) {
-				tNum = thr.num;
-				for(i = 0, len = postsInfo.length; i < len; ++i) {
-					pInfo = postsInfo[i];
-					if(pInfo[1] === tNum) {
-						$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + (pNum + 1);
-						pInfo[2] = true;
-						break;
-					}
+			} catch(e) {
+				return;
+			}
+			for(tNums = form.tNums, i = 0, len = postsInfo.length; i < len; ++i) {
+				pInfo = postsInfo[i];
+				if(tNums.indexOf(pInfo[1]) !== -1) {
+					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + (pNum + 1);
+					pInfo[2] = true;
+					break;
 				}
 			}
 			for(i = 0, len = postsInfo.length; i < len; ++i) {
