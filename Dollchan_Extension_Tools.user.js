@@ -405,6 +405,11 @@ Lng = {
 		[' new post', ' new posts', ' new posts', '. Latest: ']
 	],
 
+	comment:        ['Комментарий', 'Comment'],
+	name:           ['Имя', 'Name'],
+	subject:        ['Тема', 'Subject'],
+	email:          ['E-mail', 'E-mail'],
+	captcha:        ['Капча', 'Captcha'],
 	add:            ['Добавить', 'Add'],
 	apply:          ['Применить', 'Apply'],
 	clear:          ['Очистить', 'Clear'],
@@ -5581,7 +5586,7 @@ function PostForm(form, ignoreForm, init, dc) {
 	this.name = $x(p + '(@name="field1" or @name="name" or @name="internal_n" or @name="nya1" or @name="akane")]', form);
 	this.mail = $x(p + (
 			aib._410 ? '@name="sage"]' :
-			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nabiki" or @name="dont_bump")]'
+			'(@name="field2" or @name="em" or @name="sage" or @name="email" or @name="nya2" or @name="nabiki" or @name="dont_bump")]'
 		), form);
 	this.subj = $x(p + '(@name="field3" or @name="sub" or @name="subject" or @name="internal_s" or @name="nya3" or @name="kasumi")]', form);
 	this.video = $q('tr input[name="video"], tr input[name="embed"]', form);
@@ -5794,8 +5799,8 @@ PostForm.prototype = {
 				(quotetxt ? quotetxt.replace(/^\n|\n$/g, '').replace(/(^|\n)(.)/gm, '$1> $2') + '\n': ''));
 		}
 		temp = pByNum[pNum].thr.op.title;
-		if (temp.length > 30) {
-			temp = temp.substr(0, 30) + '\u2026';
+		if (temp.length > 27) {
+			temp = temp.substr(0, 27) + '\u2026';
 		}
 		this.qArea.firstChild.firstChild.textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
@@ -5998,6 +6003,15 @@ PostForm.prototype = {
 		if (!this.form || !this.txta) {
 			return;
 		}
+		if(this.subj) {
+			this.subj.placeholder = Lng.subject[lang];
+		}
+		if(this.mail) {
+			this.mail.placeholder = Lng.email[lang];
+		}
+		if(this.name) {
+			this.name.placeholder = Lng.name[lang];
+		}
 		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
@@ -6071,7 +6085,8 @@ PostForm.prototype = {
 		}
 		this.addTextPanel();
 		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: none !important; width: ' +
-			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 300px;';
+			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 300px; min-height: 80px;';
+		this.txta.placeholder = Lng.comment[lang];
 		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
 			if ((code === 33 || code === 34) && e.which === 0) {
@@ -6280,6 +6295,7 @@ PostForm.prototype = {
 		}
 		this.capInited = true;
 		this.cap.autocomplete = 'off';
+		this.cap.placeholder = Lng.captcha[lang];
 		this.cap.onkeypress = (function () {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
@@ -11477,7 +11493,7 @@ function scriptCSS() {
 		video { background: black; }';
 	
 	// File inputs
-	p = aib.multiFile ? 90 : 130;
+	p = aib.multiFile ? 80 : 130;
 	x += '.de-file { display: inline-block; margin: 1px; height: ' + p + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
 		.de-file > .de-file-del { float: right; }\
 		.de-file > .de-file-rar { float: left; }\
@@ -11529,9 +11545,11 @@ function scriptCSS() {
 		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
 		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
+		#de-pform tr > td:first-child { display: none; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
+		#de-qarea { min-width: 0; }\
 		#de-qarea > div:first-child { text-align: center; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
