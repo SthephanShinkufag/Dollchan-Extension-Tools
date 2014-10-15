@@ -2250,6 +2250,7 @@ function getCfgForm() {
 			if (inp.empty) {
 				inp.hideInputs();
 			}
+			updateCSS();
 		})),
 		$if(!aib.mak && pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
@@ -11545,7 +11546,6 @@ function scriptCSS() {
 		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
 		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
-		#de-pform tr > td:first-child { display: none; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
@@ -11638,6 +11638,9 @@ function updateCSS() {
 		if (Cfg.addYouTube) {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
+	}
+	if(aib.multiFile || !Cfg.fileThumb) {
+		x += '#de-pform tr > td:first-child { display: none; }';
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
