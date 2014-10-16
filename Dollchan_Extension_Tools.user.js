@@ -1860,7 +1860,7 @@ function showFavoriteTable(cont, data) {
 				postsInfo.push([el, +el.getAttribute('de-num'), false]);
 			}
 		}
-		if(postsInfo.length === 0) {
+		if (postsInfo.length === 0) {
 			closeAlert($id('de-alert-load-pages'));
 			return;
 		}
@@ -1873,14 +1873,14 @@ function showFavoriteTable(cont, data) {
 			}
 			for(tNums = form.tNums, i = 0, len = postsInfo.length; i < len; ++i) {
 				pInfo = postsInfo[i];
-				if(tNums.indexOf(pInfo[1]) !== -1) {
+				if (tNums.indexOf(pInfo[1]) !== -1) {
 					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + (pNum + 1);
 					pInfo[2] = true;
 					break;
 				}
 			}
 			for(i = 0, len = postsInfo.length; i < len; ++i) {
-				if(!postsInfo[i][2]) {
+				if (!postsInfo[i][2]) {
 					return;
 				}
 			}
@@ -1888,7 +1888,7 @@ function showFavoriteTable(cont, data) {
 		}, function (pNum, eCode, eMsg) {}, function () {
 			for(var pInfo, i = 0, len = postsInfo.length; i < len; ++i) {
 				pInfo = postsInfo[i];
-				if(!pInfo[2]) {
+				if (!pInfo[2]) {
 					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@?';
 				}
 			}
@@ -5648,7 +5648,7 @@ PostForm.prototype = {
 	qArea: null,
 	get fileArea() {
 		var val;
-		if(aib.multiFile) {
+		if (aib.multiFile) {
 			val = $parent(this.txta, 'TD').appendChild($add('<div id="de-file-area"></div>'));
 		} else {
 			val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
@@ -6026,13 +6026,13 @@ PostForm.prototype = {
 		if (!this.form || !this.txta) {
 			return;
 		}
-		if(this.subj) {
+		if (this.subj) {
 			this.subj.placeholder = Lng.subject[lang];
 		}
-		if(this.mail) {
+		if (this.mail) {
 			this.mail.placeholder = Lng.email[lang];
 		}
-		if(this.name) {
+		if (this.name) {
 			this.name.placeholder = Lng.name[lang];
 		}
 		aib.disableRedirection(this.form);
@@ -7418,10 +7418,10 @@ AttachmentViewer.prototype = {
 		this._ar = ar;
 		this._curW = size[0];
 		this._curH = size[1];
-		if(minSize * ar > screenWidth) {
+		if (minSize * ar > screenWidth) {
 			minSize = Math.floor(screenWidth / ar);
 		}
-		if(minSize / ar > screenHeight) {
+		if (minSize / ar > screenHeight) {
 			minSize = Math.floor(screenHeight * ar);
 		}
 		this._minSize = minSize;
@@ -7441,7 +7441,7 @@ AttachmentViewer.prototype = {
 		return obj;
 	},
 	_handleWheelEvent: function(clientX, clientY, delta) {
-		if(delta === 0) {
+		if (delta === 0) {
 			return;
 		}
 		var tmp, oldW = this._curW,
@@ -7486,7 +7486,7 @@ AttachmentViewer.prototype = {
 		this.data = data;
 		this._fullEl = el;
 		this._obj = obj;
-		if('onwheel' in obj) {
+		if ('onwheel' in obj) {
 			obj.addEventListener('wheel', this, true);
 		} else {
 			obj.addEventListener('mousewheel', this, true);
@@ -7938,7 +7938,7 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	if (prev) {
 		prev.next = this;
 	}
-	if(isLight) {
+	if (isLight) {
 		return;
 	}
 	this._pref = refEl = $q(aib.qRef, el);
@@ -9343,7 +9343,7 @@ function Thread(el, prev, isLight) {
 		pByNum[num] = lastPost = new Post(pEl, this, num, omt + i, false, lastPost, isLight);
 	}
 	this.last = lastPost;
-	if(isLight) {
+	if (isLight) {
 		return;
 	}
 	el.style.counterReset = 'de-cnt ' + omt;
@@ -9876,7 +9876,7 @@ function getNavFuncs() {
 		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
 		getUnsafeUint8Array: function (data, i, len) {
 			var rv;
-			if(typeof i === 'undefined') {
+			if (typeof i === 'undefined') {
 				rv = new Uint8Array(data);
 				return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
 			}
@@ -10287,7 +10287,11 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function () {
 				$script('window.FormData = void 0;');
-				var el = $q('tr:not([class])', doc.body);
+				var el = $q('td > .anoniconsselectlist', doc);
+				if (el) {
+					$q('.option-area > td:last-child', doc).appendChild(el);
+				}
+				el = $q('tr:not([class])', doc.body);
 				if (!el) {
 					return;
 				}
@@ -10936,10 +10940,10 @@ DelForm.prototype = {
 				len = threads.length;
 			}
 		}
-		if(len === 0) {
+		if (len === 0) {
 			return;
 		}
-		if(append) {
+		if (append) {
 			while(formEl.firstChild) {
 				this.el.appendChild(formEl.firstChild);
 			}
@@ -11837,7 +11841,7 @@ function updateCSS() {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
 	}
-	if(aib.multiFile || !Cfg.fileThumb) {
+	if (aib.multiFile || !Cfg.fileThumb) {
 		x += '#de-pform tr > td:first-child { display: none; }';
 	}
 	$id('de-css-dynamic').textContent = x;
@@ -11882,7 +11886,7 @@ function initScript(checkDomains) {
 	}
 	new Logger().log('Init');
 	getStored('DESU_Exclude', function(formEl, str) {
-		if(!str || !str.contains(aib.dm)) {
+		if (!str || !str.contains(aib.dm)) {
 			excludeList = str;
 			readCfg(doScript, formEl);
 		}
