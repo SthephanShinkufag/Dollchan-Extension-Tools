@@ -5805,7 +5805,7 @@ PostForm.prototype = {
 		if (temp.length > 27) {
 			temp = temp.substr(0, 27) + '\u2026';
 		}
-		this.qArea.firstChild.firstChild.textContent = temp || '#' + pNum;
+		$id('de-qarea-target').textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
 	},
 	showMainReply: function (isTop, evt) {
@@ -5879,7 +5879,7 @@ PostForm.prototype = {
 	},
 	setReply: function (quick, hide) {
 		if (quick) {
-			this.qArea.appendChild(this.pForm);
+			$before($id('de-qarea-res-right'), this.pForm);
 		} else {
 			$after(this.pArea[+this.isTopForm], this.qArea);
 			$after(this._pBtn[+this.isTopForm], this.pForm);
@@ -5916,12 +5916,21 @@ PostForm.prototype = {
 		this.isTopForm = Cfg.addPostForm !== 0;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		el = this.qArea;
-		el.insertAdjacentHTML('beforeend', '<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') +
-			'><span id="de-qarea-target"></span><span id="de-qarea-utils">' +
-			'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
-			'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span></span></div>');
-		el = el.firstChild;
+		el.insertAdjacentHTML('beforeend',
+			'<div id="de-qarea-res-top"></div>' +
+			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '>' +
+				'<span id="de-qarea-target"></span>' +
+				'<span id="de-qarea-utils">' +
+					'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
+					'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span>' +
+				'</span></div>' +
+			'<div id="de-qarea-res-left"></div>' +
+			'<div id="de-qarea-res-right"></div>' +
+			'<div id="de-qarea-res-bottom"></div>');
+		el = el.firstChild.nextSibling;
 		el.lang = getThemeLang();
+
+		// Quick reply movement
 		el.addEventListener('mousedown', {
 			_el: this.qArea,
 			_elStyle: this.qArea.style,
@@ -5949,12 +5958,12 @@ PostForm.prototype = {
 					cr = this._el.getBoundingClientRect();
 					x = cr.left + curX - this._oldX;
 					y = cr.top + curY - this._oldY;
-					this._X = x > maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
+					this._X = x >= maxX || curX > this._oldX && x > maxX - 20 ? 'right: 0' :
 						x < 0 || curX < this._oldX && x < 20 ? 'left: 0' :
-						'left: ' + x + 'px'
-					this._Y = y > maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
+						'left: ' + x + 'px';
+					this._Y = y >= maxY || curY > this._oldY && y > maxY - 20 ? 'bottom: 25px' :
 						y < 0 || curY < this._oldY && y < 20 ? 'top: 0' :
-						'top: ' + y + 'px'
+						'top: ' + y + 'px';
 					this._elStyle.cssText = this._X + '; ' + this._Y;
 					this._oldX = curX;
 					this._oldY = curY;
@@ -5967,17 +5976,18 @@ PostForm.prototype = {
 				}
 			}
 		}, false);
+
 		el = el.lastChild;
 		el.firstChild.onclick = function() {
 			var node = this.qArea;
 			toggleCfg('hangQReply')
 			if (Cfg.hangQReply) {
 				node.className = aib.cReply + ' de-qarea-hanging';
-				node = node.firstChild;
+				node = node.firstChild.nextSibling;
 				node.className = 'de-cfg-head';
 			} else {
 				node.className = aib.cReply + ' de-qarea-inline';
-				node = node.firstChild;
+				node = node.firstChild.nextSibling;
 				node.removeAttribute('class');
 				this.txta.focus();
 			}
@@ -6004,12 +6014,12 @@ PostForm.prototype = {
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		this.txta.insertAdjacentHTML('afterend', '<div id="de-txt-resizer"></div>');
+
+		// Textarea resizer
 		this.txta.nextSibling.addEventListener('mousedown', {
 			_el: this.txta,
 			_elStyle: this.txta.style,
-			_qArea: this.qArea,
 			handleEvent: function (e) {
-				var crTx, crQa, width, height, oldW, oldH, maxX, maxY;
 				switch (e.type) {
 				case 'mousedown':
 					doc.body.addEventListener('mousemove', this, false);
@@ -6017,24 +6027,9 @@ PostForm.prototype = {
 					$pd(e);
 					return;
 				case 'mousemove':
-					crTx = this._el.getBoundingClientRect();
-					width = e.pageX - crTx.left - window.pageXOffset;
-					height = e.pageY - crTx.top - window.pageYOffset;
-					if (Cfg.hangQReply) {
-						oldW = this._el.offsetWidth;
-						oldH = this._el.offsetHeight;
-						maxX = Post.sizing.wWidth;
-						maxY = Post.sizing.wHeight - 25;
-						crQa = this._qArea.getBoundingClientRect();
-						if(crQa.right + width - oldW > maxX - 20) {
-							width = oldW + maxX - crQa.right - 2;
-						}
-						if(crQa.bottom + height - oldH > maxY - 20) {
-							height = oldH + maxY - crQa.bottom - 2;
-						}
-					}
-					this._elStyle.width = width + 'px';
-					this._elStyle.height = height + 'px';
+					var cr = this._el.getBoundingClientRect();
+					this._elStyle.width = (e.clientX - cr.left) + 'px';
+					this._elStyle.height = (e.clientY - cr.top) + 'px';
 					return;
 				default: // mouseup
 					doc.body.removeEventListener('mousemove', this, false);
@@ -6044,6 +6039,142 @@ PostForm.prototype = {
 				}
 			}
 		}, false);
+
+		// Top resizer
+		el = this.qArea.firstChild;
+		el.addEventListener('mousedown', {
+			_el: this.qArea,
+			_elStyle: this.qArea.style,
+			_txStyle: this.txta.style,
+			handleEvent: function (e) {
+				var y, cr = this._el.getBoundingClientRect(),
+					top = cr.top,
+					bottom = cr.bottom;
+				switch (e.type) {
+				case 'mousedown':
+					this._elStyle.cssText = Cfg.qReplyX + '; bottom:' +
+						(Post.sizing.wHeight - bottom) + 'px';
+					doc.body.addEventListener('mousemove', this, false);
+					doc.body.addEventListener('mouseup', this, false);
+					$pd(e);
+					return;
+				case 'mousemove':
+					y = e.clientY;
+					this._txStyle.height = (parseInt(this._txStyle.height, 10) -
+						(y < 20 ? 0 : y) + top) + 'px';
+					return;
+				default: // mouseup
+					doc.body.removeEventListener('mousemove', this, false);
+					doc.body.removeEventListener('mouseup', this, false);
+					saveCfg('textaHeight', parseInt(this._txStyle.height, 10));
+					saveCfg('qReplyY', top < 1 ? 'top: 0' :
+						bottom > Post.sizing.wHeight - 26 ? 'bottom: 25px' : 'top: ' + top + 'px');
+					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
+				}
+			}
+		}, false);
+
+		// Left resizer
+		el = el.nextSibling.nextSibling;
+		el.addEventListener('mousedown', {
+			_el: this.qArea,
+			_elStyle: this.qArea.style,
+			_txStyle: this.txta.style,
+			handleEvent: function (e) {
+				var x, cr = this._el.getBoundingClientRect(),
+					left = cr.left,
+					right = cr.right;
+				switch (e.type) {
+				case 'mousedown':
+					this._elStyle.cssText = 'right:' + (Post.sizing.wWidth - right) + 'px; ' + Cfg.qReplyY;
+					doc.body.addEventListener('mousemove', this, false);
+					doc.body.addEventListener('mouseup', this, false);
+					$pd(e);
+					return;
+				case 'mousemove':
+					x = e.clientX;
+					this._txStyle.width = (parseInt(this._txStyle.width, 10) -
+						(x < 20 ? 0 : x) + left) + 'px';
+					return;
+				default: // mouseup
+					doc.body.removeEventListener('mousemove', this, false);
+					doc.body.removeEventListener('mouseup', this, false);
+					saveCfg('textaWidth', parseInt(this._txStyle.width, 10));
+					saveCfg('qReplyX', left < 1 ? 'left: 0' :
+						right > Post.sizing.wWidth - 1 ? 'right: 0' : 'left: ' + left + 'px');
+					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
+				}
+			}
+		}, false);
+
+		// Right resizer
+		el = el.nextSibling;
+		el.addEventListener('mousedown', {
+			_el: this.qArea,
+			_elStyle: this.qArea.style,
+			_txStyle: this.txta.style,
+			handleEvent: function (e) {
+				var x, maxX = Post.sizing.wWidth,
+					cr = this._el.getBoundingClientRect(),
+					left = cr.left,
+					right = cr.right;
+				switch (e.type) {
+				case 'mousedown':
+					this._elStyle.cssText = 'left:' + left + 'px; ' + Cfg.qReplyY;
+					doc.body.addEventListener('mousemove', this, false);
+					doc.body.addEventListener('mouseup', this, false);
+					$pd(e);
+					return;
+				case 'mousemove':
+					x = e.clientX;
+					this._txStyle.width = (parseInt(this._txStyle.width, 10) +
+						(x > maxX - 20 ? maxX : x) - right) + 'px';
+					return;
+				default: // mouseup
+					doc.body.removeEventListener('mousemove', this, false);
+					doc.body.removeEventListener('mouseup', this, false);
+					saveCfg('textaWidth', parseInt(this._txStyle.width, 10));
+					saveCfg('qReplyX', left < 1 ? 'left: 0' :
+						right > maxX - 1 ? 'right: 0' : 'left: ' + left + 'px');
+					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
+				}
+			}
+		}, false);
+
+		// Bottom resizer
+		el = el.nextSibling;
+		el.addEventListener('mousedown', {
+			_el: this.qArea,
+			_elStyle: this.qArea.style,
+			_txStyle: this.txta.style,
+			handleEvent: function (e) {
+				var y, maxY = Post.sizing.wHeight - 25,
+					cr = this._el.getBoundingClientRect(),
+					top = cr.top,
+					bottom = cr.bottom;
+				switch (e.type) {
+				case 'mousedown':
+					this._elStyle.cssText = Cfg.qReplyX + '; top:' + top + 'px';
+					doc.body.addEventListener('mousemove', this, false);
+					doc.body.addEventListener('mouseup', this, false);
+					$pd(e);
+					return;
+				case 'mousemove':
+					y = e.clientY;
+					this._txStyle.height = (parseInt(this._txStyle.height, 10) +
+						(y > maxY - 20 ? maxY : y) - bottom) + 'px';
+					return;
+				default: // mouseup
+					doc.body.removeEventListener('mousemove', this, false);
+					doc.body.removeEventListener('mouseup', this, false);
+					saveCfg('textaHeight', parseInt(this._txStyle.height, 10));
+					saveCfg('qReplyY', top < 1 ? 'top: 0' :
+						bottom > maxY - 1 ? 'bottom: 25px' : 'top: ' + top + 'px');
+					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
+				}
+			}
+		}, false);
+
 		if (aib.kus) {
 			while (this.subm.nextSibling) {
 				$del(this.subm.nextSibling);
@@ -6072,8 +6203,8 @@ PostForm.prototype = {
 			}
 		}
 		this.addTextPanel();
-		this.txta.style.cssText = 'display: inline-block; padding: 0; resize: none !important; width: ' +
-			Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px; min-width: 300px; min-height: 80px;';
+		this.txta.classList.add('de-txt-area');
+		this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
 		this.txta.placeholder = Lng.comment[lang];
 		this.txta.addEventListener('keypress', function (e) {
 			var code = e.charCode || e.keyCode;
@@ -11481,7 +11612,7 @@ function scriptCSS() {
 		video { background: black; }';
 	
 	// File inputs
-	p = aib.multiFile ? 80 : 130;
+	p = aib.multiFile ? 90 : 130;
 	x += '.de-file { display: inline-block; margin: 1px; height: ' + p + 'px; width: ' + p + 'px; text-align: center; border: 1px dashed grey; }\
 		.de-file > .de-file-del { float: right; }\
 		.de-file > .de-file-rar { float: left; }\
@@ -11499,6 +11630,31 @@ function scriptCSS() {
 		.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }';
 	x += gif ('.de-file-del', 'R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=');
 	x += gif ('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
+
+	// Post reply
+	x += '#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -1px -11px; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
+		.de-parea { text-align: center; }\
+		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
+		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
+		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
+		#de-pform { display: inline-block; vertical-align: middle; }\
+		#de-qarea { min-width: 0; }\
+		#de-qarea > div:first-child { text-align: center; }\
+		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
+		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
+		.de-qarea-hanging > .de-cfg-head > #de-qarea-utils > span:hover { color: #ff6; }\
+		.de-qarea-hanging #de-txt-resizer { display: none !important; }\
+		.de-qarea-hanging .de-txt-area { min-width: 100% !important; min-height: 100% !important; }\
+		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px 0 3px 3px; margin: 2px 0; }\
+		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
+		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
+		#de-qarea-utils > span { margin-right: 4px; }\
+		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
+		.de-txt-area { display: inline-block; padding: 0 !important; resize: none !important; min-width: 300px !important; min-height: 80px; }\
+		#de-qarea-res-top { height: 6px; margin-top: -6px; width: 100%; cursor: ns-resize; }\
+		#de-qarea-res-left { display: inline-block; height: 200px; margin-left: -6px; vertical-align: middle; width: 6px; cursor: ew-resize; }\
+		#de-qarea-res-right { display: inline-block; height: 200px; margin-right: -6px; vertical-align: middle; width: 6px; cursor: ew-resize; }\
+		#de-qarea-res-bottom { height: 6px; margin-bottom: -6px; width: 100%; cursor: ns-resize; }';
 
 	// Other
 	x += cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -11529,30 +11685,15 @@ function scriptCSS() {
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-opref::after { content: " [OP]"; }\
-		.de-parea { text-align: center; }\
-		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
-		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
-		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
-		#de-qarea { min-width: 0; }\
-		#de-qarea > div:first-child { text-align: center; }\
-		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
-		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
-		.de-qarea-hanging > .de-cfg-head > #de-qarea-utils > span:hover { color: #ff6; }\
-		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px 0 3px 3px; margin: 2px 0; }\
-		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
-		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
-		#de-qarea-utils > span { margin-right: 4px; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
-		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
 		.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -1px -11px; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
 		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
 		#de-updater-div { clear: left; margin-top: 10px; }\
 		.de-viewed { color: #888 !important; }\
