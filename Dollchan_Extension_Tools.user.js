@@ -11714,7 +11714,7 @@ function scriptCSS() {
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
 		.de-qarea-hanging > .de-cfg-head > #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-hanging #de-txt-resizer { display: none !important; }\
-		.de-qarea-hanging .de-txt-area { min-width: 100% !important; min-height: 100% !important; }\
+		.de-qarea-hanging .de-txt-area { min-width: 100% !important; min-height: 90px !important; }\
 		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px 0 3px 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
