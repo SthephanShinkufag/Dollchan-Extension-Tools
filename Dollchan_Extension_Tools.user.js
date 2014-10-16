@@ -5766,7 +5766,7 @@ PostForm.prototype = {
 	get isVisible() {
 		if (!this.isHidden && this.isTopForm && $q(':focus', this.pForm)) {
 			var cr = this.pForm.getBoundingClientRect();
-			return cr.bottom > 0 && cr.top < window.innerHeight;
+			return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
 		}
 		return false;
 	},
@@ -8014,7 +8014,7 @@ Post.sizing = {
 		return val;
 	},
 	get wHeight() {
-		var val = window.innerHeight;
+		var val = doc.documentElement.clientHeight;
 		if (!this._enabled) {
 			window.addEventListener('resize', this, false);
 			this._enabled = true;
@@ -8033,12 +8033,12 @@ Post.sizing = {
 		}
 		Object.defineProperties(this, {
 			'wWidth': { writable: true, configurable: true, value: val },
-			'wHeight': { writable: true, configurable: true, value: window.innerHeight }
+			'wHeight': { writable: true, configurable: true, value: doc.documentElement.clientHeight }
 		});
 		return val;
 	},
 	handleEvent: function () {
-		this.wHeight = window.innerHeight;
+		this.wHeight = doc.documentElement.clientHeight;
 		this.wWidth = doc.documentElement.clientWidth;
 	},
 
@@ -9216,7 +9216,7 @@ function setPviewPosition(link, pView, animFun) {
 		pView.style.cssText = lmw;
 	}
 	top = pView.offsetHeight;
-	isTop = top + cr.top + link.offsetHeight < window.innerHeight || cr.top - top < 5;
+	isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
 	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
 	pView.aLeft = isLeft;
 	pView.aTop = isTop;
@@ -11789,7 +11789,7 @@ function applyCSS(x) {
 }
 
 function updateCSS() {
-	var x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (window.innerHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
+	var x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
 	if (Cfg.attachPanel) {
 		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
 		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
