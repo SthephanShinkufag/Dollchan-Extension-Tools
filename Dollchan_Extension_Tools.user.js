@@ -2323,7 +2323,7 @@ function getCfgCommon() {
 			saveCfg('scriptStyle', this.selectedIndex);
 			var lang = getThemeLang();
 			$id('de-main').lang = lang;
-			$id('de-qarea').firstChild.lang = lang;
+			$id('de-qarea').firstChild.nextSibling.lang = lang;
 		}),
 		$New('div', null, [
 			lBox('userCSS', false, updateCSS),
@@ -5675,7 +5675,7 @@ PostForm.prototype = {
 			});
 		}
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
-		$after(Cfg.txtBtnsLoc ? $id('de-txt-resizer') || this.txta :
+		$after(Cfg.txtBtnsLoc ? $id('de-txta-resizer') || this.txta :
 			aib._420 ? $c('popup', this.form) : this.subm, tPanel);
 		for(html = '', i = 0, btns = aib.formButtons, len = btns.id.length; i < len; ++i) {
 			tag = btns.tag[i];
@@ -5904,7 +5904,7 @@ PostForm.prototype = {
 	},
 	setReply: function(quick, hide) {
 		if(quick) {
-			$before($id('de-qarea-res-right'), this.pForm);
+			$before($id('de-resizer-right'), this.pForm);
 		} else {
 			$after(this.pArea[+this.isTopForm], this.qArea);
 			$after(this._pBtn[+this.isTopForm], this.pForm);
@@ -5942,16 +5942,16 @@ PostForm.prototype = {
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		el = this.qArea;
 		el.insertAdjacentHTML('beforeend',
-			'<div id="de-qarea-res-top"></div>' +
+			'<div id="de-resizer-top"></div>' +
 			'<div' + (Cfg.hangQReply ? ' class="de-cfg-head"' : '') + '>' +
 				'<span id="de-qarea-target"></span>' +
 				'<span id="de-qarea-utils">' +
 					'<span id="de-qarea-toggle" title="' + Lng.toggleQReply[lang] + '">\u2750</span>' +
 					'<span id="de-qarea-close" title="' + Lng.closeQReply[lang] + '">\u2716</span>' +
 				'</span></div>' +
-			'<div id="de-qarea-res-left"></div>' +
-			'<div id="de-qarea-res-right"></div>' +
-			'<div id="de-qarea-res-bottom"></div>');
+			'<div id="de-resizer-left"></div>' +
+			'<div id="de-resizer-right"></div>' +
+			'<div id="de-resizer-bottom"></div>');
 		el = el.firstChild.nextSibling;
 		el.lang = getThemeLang();
 
@@ -6038,7 +6038,7 @@ PostForm.prototype = {
 		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
-		this.txta.insertAdjacentHTML('afterend', '<div id="de-txt-resizer"></div>');
+		this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
 
 		// Textarea resizer
 		this.txta.nextSibling.addEventListener('mousedown', {
@@ -6228,7 +6228,7 @@ PostForm.prototype = {
 			}
 		}
 		this.addTextPanel();
-		this.txta.classList.add('de-txt-area');
+		this.txta.classList.add('de-textarea');
 		this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
 		this.txta.placeholder = Lng.comment[lang];
 		this.txta.addEventListener('keypress', function(e) {
@@ -10275,7 +10275,7 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], .news, header > :not(.logo) + hr, .reply-label-wrapper > span:first-child, img[alt="webm file"], label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], .news, header > :not(.logo) + hr, .reply-label-wrapper > span:first-child, img[alt="webm file"], .kupi-passcode-suka, label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }' },
@@ -11706,29 +11706,30 @@ function scriptCSS() {
 	x += gif('.de-file-rar', 'R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==');
 
 	// Post reply
-	x += '#de-txt-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: 0 0 -1px -11px; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
+	x += '#de-txta-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: ' + (nav.Presto ? '-2px -10px' : '0 0 -1px -11px') + '; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\
 		.de-parea { text-align: center; }\
 		.de-parea-btn-close:after { content: "' + Lng.hideForm[lang] + '" }\
 		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
 		#de-pform { display: inline-block; vertical-align: middle; }\
-		#de-qarea { min-width: 0; }\
-		#de-qarea > div:first-child { text-align: center; }\
-		.de-qarea-hanging { position: fixed; z-index: 9990; margin: 0; padding: 0 !important; border: 1px solid gray; border-radius: 10px 10px 0 0; }\
+		#de-qarea { min-width: 0; border: none; }\
+		#de-qarea > div:nth-child(2) { text-align: center; }\
+		.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
-		.de-qarea-hanging > .de-cfg-head > #de-qarea-utils > span:hover { color: #ff6; }\
-		.de-qarea-hanging #de-txt-resizer { display: none !important; }\
-		.de-qarea-hanging .de-txt-area { min-width: 100% !important; min-height: 90px !important; }\
-		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px 0 3px 3px; margin: 2px 0; }\
+		.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
+		.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\
+		.de-qarea-hanging .de-textarea { min-width: 100% !important; min-height: 90px !important; }\
+		.de-qarea-hanging #de-txta-resizer { display: none !important; }\
+		.de-qarea-hanging #de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
+		.de-qarea-hanging #de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
+		.de-qarea-hanging #de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\
+		.de-qarea-hanging #de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
+		.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
 		#de-qarea-utils > span { margin-right: 4px; }\
 		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
-		.de-txt-area { display: inline-block; padding: 0 !important; resize: none !important; min-width: 300px !important; min-height: 80px; }\
-		#de-qarea-res-top { cursor: ns-resize; height: 6px; margin-top: -3px; position: absolute; width: 100%; }\
-		#de-qarea-res-left { bottom: 0; cursor: ew-resize; margin-left: -3px; position: absolute; top: 3px; width: 6px; }\
-		#de-qarea-res-right { bottom: 0; cursor: ew-resize; display: inline-block; margin-left: -3px; position: absolute; top: 3px; width: 6px; }\
-		#de-qarea-res-bottom { cursor: ns-resize; height: 6px; margin-top: -3px; position: absolute; width: 100%; }';
+		.de-textarea { display: inline-block; padding: 0 !important; resize: none !important; min-width: 300px !important; min-height: 80px; }';
 
 	// Other
 	x += cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -11842,7 +11843,7 @@ function updateCSS() {
 		}
 	}
 	if(aib.multiFile || !Cfg.fileThumb) {
-		x += '#de-pform tr > td:first-child { display: none; }';
+		x += '#de-pform tr > td:first-child, #de-pform tr > th:first-child { display: none; }';
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
