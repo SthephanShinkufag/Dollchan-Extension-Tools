@@ -6654,27 +6654,23 @@ function formResizer(el, dir, form) {
 }
 formResizer.prototype = {
 	handleEvent: function(e) {
-		var val, maxX = Post.sizing.wWidth,
-			maxY = Post.sizing.wHeight,
-			cr = this.qa.getBoundingClientRect(),
-			top = cr.top,
-			bottom = cr.bottom,
-			left = cr.left,
-			right = cr.right;;
+		var val, cr = this.qa.getBoundingClientRect(),
+			maxX = Post.sizing.wWidth,
+			maxY = Post.sizing.wHeight;
 		switch(e.type) {
 		case 'mousedown':
 			switch(this.dir) {
 			case 'top':
-				val = Cfg.qReplyX + '; bottom:' + (maxY - bottom) + 'px';
+				val = Cfg.qReplyX + '; bottom:' + (maxY - cr.bottom) + 'px';
 				break;
 			case 'bottom':
-				val = Cfg.qReplyX + '; top:' + top + 'px';
+				val = Cfg.qReplyX + '; top:' + cr.top + 'px';
 				break;
 			case 'left':
-				val = 'right:' + (maxX - right) + 'px; ' + Cfg.qReplyY;
+				val = 'right:' + (maxX - cr.right) + 'px; ' + Cfg.qReplyY;
 				break;
 			case 'right':
-				val = 'left:' + left + 'px; ' + Cfg.qReplyY;
+				val = 'left:' + cr.left + 'px; ' + Cfg.qReplyY;
 			}
 			this.qaStyle.cssText = val;
 			doc.body.addEventListener('mousemove', this, false);
@@ -6685,14 +6681,14 @@ formResizer.prototype = {
 			if(this.vertical) {
 				val = e.clientY;
 				this.txStyle.height = (parseInt(this.txStyle.height, 10) + (
-					this.dir === 'top' ? top - (val < 20 ? 0 : val) :
-						(val > maxY - 45 ? maxY - 25 : val) - bottom
+					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
 				)) + 'px';
 			} else {
 				val = e.clientX;
 				this.txStyle.width = (parseInt(this.txStyle.width, 10) + (
-					this.dir === 'left' ? left - (val < 20 ? 0 : val) :
-						(val > maxX - 20 ? maxX : val) - right
+					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+						(val > maxX - 20 ? maxX : val) - cr.right
 				)) + 'px';
 			}
 			return;
@@ -6701,12 +6697,12 @@ formResizer.prototype = {
 			doc.body.removeEventListener('mouseup', this, false);
 			if(this.vertical) {
 				saveCfg('textaHeight', parseInt(this.txStyle.height, 10));
-				saveCfg('qReplyY', top < 1 ? 'top: 0' :
-					bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + top + 'px');
+				saveCfg('qReplyY', cr.top < 1 ? 'top: 0' :
+					cr.bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + cr.top + 'px');
 			} else {
 				saveCfg('textaWidth', parseInt(this.txStyle.width, 10));
-				saveCfg('qReplyX', left < 1 ? 'left: 0' :
-					right > maxX - 1 ? 'right: 0' : 'left: ' + left + 'px');
+				saveCfg('qReplyX', cr.left < 1 ? 'left: 0' :
+					cr.right > maxX - 1 ? 'right: 0' : 'left: ' + cr.left + 'px');
 			}
 			this.qaStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
 		}
