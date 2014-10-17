@@ -408,9 +408,9 @@ Lng = {
 	],
 
 	name:           ['Имя', 'Name'],
-	subject:        ['Тема', 'Subject'],
-	email:          ['E-mail', 'E-mail'],
-	captcha:        ['Капча', 'Captcha'],
+	subj:           ['Тема', 'Subject'],
+	mail:           ['E-mail', 'E-mail'],
+	cap:            ['Капча', 'Captcha'],
 	video:          ['Видео', 'Video'],
 	add:            ['Добавить', 'Add'],
 	apply:          ['Применить', 'Apply'],
@@ -5919,11 +5919,11 @@ PostForm.prototype = {
 		this.updatePAreaBtns();
 	},
 	setPlaceholders: function() {
-		this._setPlaceholder(this.name, 'name');
-		this._setPlaceholder(this.subj, 'subject');
-		this._setPlaceholder(this.mail, 'email');
-		this._setPlaceholder(this.cap, 'captcha');
-		this._setPlaceholder(this.video, 'video');
+		this._setPlaceholder('name');
+		this._setPlaceholder('subj');
+		this._setPlaceholder('mail');
+		this._setPlaceholder('cap');
+		this._setPlaceholder('video');
 	},
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
@@ -5963,7 +5963,11 @@ PostForm.prototype = {
 			'<div id="de-resizer-left"></div>' +
 			'<div id="de-resizer-right"></div>' +
 			'<div id="de-resizer-bottom"></div>');
-		el = el.firstChild.nextSibling;
+		new formResizer(el = el.firstChild, 'top', this);
+		new formResizer(el = el.nextSibling.nextSibling, 'left', this);
+		new formResizer(el = el.nextSibling, 'right', this);
+		new formResizer(el = el.nextSibling, 'bottom', this);
+		el = this.qArea.firstChild.nextSibling;
 		el.lang = getThemeLang();
 
 		// Quick reply movement
@@ -6066,141 +6070,6 @@ PostForm.prototype = {
 					doc.body.removeEventListener('mouseup', this, false);
 					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
 					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
-				}
-			}
-		}, false);
-
-		// Top resizer
-		el = this.qArea.firstChild;
-		el.addEventListener('mousedown', {
-			_el: this.qArea,
-			_elStyle: this.qArea.style,
-			_txStyle: this.txta.style,
-			handleEvent: function(e) {
-				var y, cr = this._el.getBoundingClientRect(),
-					top = cr.top,
-					bottom = cr.bottom;
-				switch(e.type) {
-				case 'mousedown':
-					this._elStyle.cssText = Cfg.qReplyX + '; bottom:' +
-						(Post.sizing.wHeight - bottom) + 'px';
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
-					$pd(e);
-					return;
-				case 'mousemove':
-					y = e.clientY;
-					this._txStyle.height = (parseInt(this._txStyle.height, 10) -
-						(y < 20 ? 0 : y) + top) + 'px';
-					return;
-				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('textaHeight', parseInt(this._txStyle.height, 10));
-					saveCfg('qReplyY', top < 1 ? 'top: 0' :
-						bottom > Post.sizing.wHeight - 26 ? 'bottom: 25px' : 'top: ' + top + 'px');
-					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
-				}
-			}
-		}, false);
-
-		// Left resizer
-		el = el.nextSibling.nextSibling;
-		el.addEventListener('mousedown', {
-			_el: this.qArea,
-			_elStyle: this.qArea.style,
-			_txStyle: this.txta.style,
-			handleEvent: function(e) {
-				var x, cr = this._el.getBoundingClientRect(),
-					left = cr.left,
-					right = cr.right;
-				switch(e.type) {
-				case 'mousedown':
-					this._elStyle.cssText = 'right:' + (Post.sizing.wWidth - right) + 'px; ' + Cfg.qReplyY;
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
-					$pd(e);
-					return;
-				case 'mousemove':
-					x = e.clientX;
-					this._txStyle.width = (parseInt(this._txStyle.width, 10) -
-						(x < 20 ? 0 : x) + left) + 'px';
-					return;
-				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('textaWidth', parseInt(this._txStyle.width, 10));
-					saveCfg('qReplyX', left < 1 ? 'left: 0' :
-						right > Post.sizing.wWidth - 1 ? 'right: 0' : 'left: ' + left + 'px');
-					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
-				}
-			}
-		}, false);
-
-		// Right resizer
-		el = el.nextSibling;
-		el.addEventListener('mousedown', {
-			_el: this.qArea,
-			_elStyle: this.qArea.style,
-			_txStyle: this.txta.style,
-			handleEvent: function(e) {
-				var x, maxX = Post.sizing.wWidth,
-					cr = this._el.getBoundingClientRect(),
-					left = cr.left,
-					right = cr.right;
-				switch(e.type) {
-				case 'mousedown':
-					this._elStyle.cssText = 'left:' + left + 'px; ' + Cfg.qReplyY;
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
-					$pd(e);
-					return;
-				case 'mousemove':
-					x = e.clientX;
-					this._txStyle.width = (parseInt(this._txStyle.width, 10) +
-						(x > maxX - 20 ? maxX : x) - right) + 'px';
-					return;
-				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('textaWidth', parseInt(this._txStyle.width, 10));
-					saveCfg('qReplyX', left < 1 ? 'left: 0' :
-						right > maxX - 1 ? 'right: 0' : 'left: ' + left + 'px');
-					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
-				}
-			}
-		}, false);
-
-		// Bottom resizer
-		el = el.nextSibling;
-		el.addEventListener('mousedown', {
-			_el: this.qArea,
-			_elStyle: this.qArea.style,
-			_txStyle: this.txta.style,
-			handleEvent: function(e) {
-				var y, maxY = Post.sizing.wHeight - 25,
-					cr = this._el.getBoundingClientRect(),
-					top = cr.top,
-					bottom = cr.bottom;
-				switch(e.type) {
-				case 'mousedown':
-					this._elStyle.cssText = Cfg.qReplyX + '; top:' + top + 'px';
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
-					$pd(e);
-					return;
-				case 'mousemove':
-					y = e.clientY;
-					this._txStyle.height = (parseInt(this._txStyle.height, 10) +
-						(y > maxY - 20 ? maxY : y) - bottom) + 'px';
-					return;
-				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('textaHeight', parseInt(this._txStyle.height, 10));
-					saveCfg('qReplyY', top < 1 ? 'top: 0' :
-						bottom > maxY - 1 ? 'bottom: 25px' : 'top: ' + top + 'px');
-					this._elStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
 				}
 			}
 		}, false);
@@ -6496,7 +6365,8 @@ PostForm.prototype = {
 		}
 		this.capTr.style.display = '';
 	},
-	_setPlaceholder: function(el, val) {
+	_setPlaceholder: function(val) {
+		var el = this[val];
 		if(el) {
 			if(aib.multiFile || !Cfg.fileThumb) {
 				el.placeholder = Lng[val][lang];
@@ -6774,6 +6644,74 @@ FileInput.prototype = {
 	}
 }
 
+function formResizer(el, dir, form) {
+	this.dir = dir;
+	this.vertical = dir === 'top' || dir === 'bottom';
+	this.qa = form.qArea;
+	this.qaStyle = form.qArea.style;
+	this.txStyle = form.txta.style;
+	el.addEventListener('mousedown', this, false);
+}
+formResizer.prototype = {
+	handleEvent: function(e) {
+		var val, maxX = Post.sizing.wWidth,
+			maxY = Post.sizing.wHeight,
+			cr = this.qa.getBoundingClientRect(),
+			top = cr.top,
+			bottom = cr.bottom,
+			left = cr.left,
+			right = cr.right;;
+		switch(e.type) {
+		case 'mousedown':
+			switch(this.dir) {
+			case 'top':
+				val = Cfg.qReplyX + '; bottom:' + (maxY - bottom) + 'px';
+				break;
+			case 'bottom':
+				val = Cfg.qReplyX + '; top:' + top + 'px';
+				break;
+			case 'left':
+				val = 'right:' + (maxX - right) + 'px; ' + Cfg.qReplyY;
+				break;
+			case 'right':
+				val = 'left:' + left + 'px; ' + Cfg.qReplyY;
+			}
+			this.qaStyle.cssText = val;
+			doc.body.addEventListener('mousemove', this, false);
+			doc.body.addEventListener('mouseup', this, false);
+			$pd(e);
+			return;
+		case 'mousemove':
+			if(this.vertical) {
+				val = e.clientY;
+				this.txStyle.height = (parseInt(this.txStyle.height, 10) + (
+					this.dir === 'top' ? top - (val < 20 ? 0 : val) :
+						(val > maxY - 45 ? maxY - 25 : val) - bottom
+				)) + 'px';
+			} else {
+				val = e.clientX;
+				this.txStyle.width = (parseInt(this.txStyle.width, 10) + (
+					this.dir === 'left' ? left - (val < 20 ? 0 : val) :
+						(val > maxX - 20 ? maxX : val) - right
+				)) + 'px';
+			}
+			return;
+		default: // mouseup
+			doc.body.removeEventListener('mousemove', this, false);
+			doc.body.removeEventListener('mouseup', this, false);
+			if(this.vertical) {
+				saveCfg('textaHeight', parseInt(this.txStyle.height, 10));
+				saveCfg('qReplyY', top < 1 ? 'top: 0' :
+					bottom > maxY - 26 ? 'bottom: 25px' : 'top: ' + top + 'px');
+			} else {
+				saveCfg('textaWidth', parseInt(this.txStyle.width, 10));
+				saveCfg('qReplyX', left < 1 ? 'left: 0' :
+					right > maxX - 1 ? 'right: 0' : 'left: ' + left + 'px');
+			}
+			this.qaStyle.cssText = Cfg.qReplyX + '; ' + Cfg.qReplyY;
+		}
+	}
+}
 
 // SUBMIT
 // ===========================================================================================================
