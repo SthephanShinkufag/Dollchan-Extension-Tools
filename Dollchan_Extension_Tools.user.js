@@ -11808,7 +11808,7 @@ function applyCSS(x) {
 }
 
 function updateCSS() {
-	var x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
+	var p, x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
 	if(Cfg.attachPanel) {
 		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
 		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
@@ -11858,6 +11858,8 @@ function updateCSS() {
 	}
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		x += '#de-pform form > table > tbody > tr > td:first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
+	} else if(p = nav.Firefox ? '-moz-' : nav.Webkit ? '-webkit-input-' : '') {
+		x += '#de-pform input[type="text"]::' + p + 'placeholder, #de-pform textarea::' + p + 'placeholder { color: transparent; }'
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
