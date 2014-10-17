@@ -5963,10 +5963,10 @@ PostForm.prototype = {
 			'<div id="de-resizer-left"></div>' +
 			'<div id="de-resizer-right"></div>' +
 			'<div id="de-resizer-bottom"></div>');
-		new formResizer(el = el.firstChild, 'top', this);
-		new formResizer(el = el.nextSibling.nextSibling, 'left', this);
-		new formResizer(el = el.nextSibling, 'right', this);
-		new formResizer(el = el.nextSibling, 'bottom', this);
+		new FormResizer('top', el = el.firstChild, this);
+		new FormResizer('left', el = el.nextSibling.nextSibling, this);
+		new FormResizer('right', el = el.nextSibling, this);
+		new FormResizer('bottom', el = el.nextSibling, this);
 		el = this.qArea.firstChild.nextSibling;
 		el.lang = getThemeLang();
 
@@ -6644,7 +6644,7 @@ FileInput.prototype = {
 	}
 }
 
-function formResizer(el, dir, form) {
+function FormResizer(dir, el, form) {
 	this.dir = dir;
 	this.vertical = dir === 'top' || dir === 'bottom';
 	this.qa = form.qArea;
@@ -6652,7 +6652,7 @@ function formResizer(el, dir, form) {
 	this.txStyle = form.txta.style;
 	el.addEventListener('mousedown', this, false);
 }
-formResizer.prototype = {
+FormResizer.prototype = {
 	handleEvent: function(e) {
 		var val, cr = this.qa.getBoundingClientRect(),
 			maxX = Post.sizing.wWidth,
