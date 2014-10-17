@@ -407,7 +407,6 @@ Lng = {
 		[' new post', ' new posts', ' new posts', '. Latest: ']
 	],
 
-	comment:        ['Комментарий', 'Comment'],
 	name:           ['Имя', 'Name'],
 	subject:        ['Тема', 'Subject'],
 	email:          ['E-mail', 'E-mail'],
@@ -5920,7 +5919,6 @@ PostForm.prototype = {
 		this.updatePAreaBtns();
 	},
 	setPlaceholders: function() {
-		this._setPlaceholder(this.txta, 'comment');
 		this._setPlaceholder(this.name, 'name');
 		this._setPlaceholder(this.subj, 'subject');
 		this._setPlaceholder(this.mail, 'email');
