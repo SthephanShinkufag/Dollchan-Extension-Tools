@@ -412,6 +412,7 @@ Lng = {
 	subject:        ['Тема', 'Subject'],
 	email:          ['E-mail', 'E-mail'],
 	captcha:        ['Капча', 'Captcha'],
+	video:          ['Видео', 'Video'],
 	add:            ['Добавить', 'Add'],
 	apply:          ['Применить', 'Apply'],
 	clear:          ['Очистить', 'Clear'],
@@ -488,6 +489,7 @@ Lng = {
 	hiddenThrd:     ['Скрытый тред:', 'Hidden thread:'],
 	makeThrd:       ['Создать тред', 'Create thread'],
 	makeReply:      ['Ответить', 'Make reply'],
+	noSage:        ['Без сажи', 'No sage'],
 	hideForm:       ['Скрыть форму', 'Hide form'],
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
@@ -6035,6 +6037,9 @@ PostForm.prototype = {
 		if(this.name) {
 			this.name.placeholder = Lng.name[lang];
 		}
+		if(this.video) {
+			this.video.placeholder = Lng.video[lang];
+		}
 		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
@@ -6206,7 +6211,7 @@ PostForm.prototype = {
 			}
 		}
 		if(Cfg.addSageBtn && this.mail) {
-			btn = $new('span', {'id': 'de-sagebtn'}, {'click': function(e) {
+			btn = $new('span', {'id': 'de-sagebtn', 'class': 'de-btn-sage'}, {'click': function(e) {
 				e.stopPropagation();
 				$pd(e);
 				toggleCfg('sageReply');
@@ -6215,11 +6220,10 @@ PostForm.prototype = {
 			el = $parent(this.mail, 'LABEL') || this.mail;
 			if(el.nextElementSibling || el.previousElementSibling) {
 				el.style.display = 'none';
-				$after(this.subm, btn);
 			} else {
 				$parent(this.mail, 'TR').style.display = 'none';
-				$after(this.name || this.subm, btn);
 			}
+			$after(this.subm, btn);
 			setTimeout(this._setSage.bind(this), 0);
 			if(aib._2chru) {
 				while(btn.nextSibling) {
@@ -6378,11 +6382,10 @@ PostForm.prototype = {
 		}
 	},
 	_setSage: function() {
-		var c = Cfg.sageReply;
-		$id('de-sagebtn').innerHTML = '&nbsp;' + (
-			c ? '<span class="de-btn-sage"></span><b style="color: red;">SAGE</b>' :
-				'<span>(no&nbsp;sage)</span>'
-		);
+		var el = $id('de-sagebtn'),
+			c = Cfg.sageReply;
+		el.style.opacity = c ? '1' : '.3';
+		el.title = c ? 'SAGE!' : Lng.noSage[lang];
 		if(this.mail.type === 'text') {
 			this.mail.value = c ? 'sage' : aib.fch ? 'noko' : '';
 		} else {
@@ -9902,6 +9905,11 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
+		'0chanru.net': [{
+			qPostRedir: { value: 'input[name="redirecttothread"][value="1"]' },
+			css: { value: '#captcha_status, .content-background > hr, div[style="position: relative;"] { display: none !important; }' },
+			ru: { value: true }
+		}, 'script[src*="kusaba"]'],
 		'2chru.net': [{
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
@@ -9945,6 +9953,7 @@ function getImageBoard(checkDomains, checkOther) {
 				var el = $c('filetitle', post);
 				return el && el.textContent.contains('\u21E9');
 			} },
+			css: { value: '#resizer { display: none !important; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
@@ -10233,7 +10242,7 @@ function getImageBoard(checkDomains, checkOther) {
 				});
 			} },
 			init: { value: function() {
-				var val = '{"simpleNavbar":true,"textCountForm":true,"showInfo":true}';
+				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage.getItem('settings') !== val) {
 					locStorage.setItem('settings', val);
 					window.location.reload();
@@ -11006,16 +11015,16 @@ DelForm.prototype = {
 
 	_parseThreads: function(formEl) {
 		var el, i, len, node, threads = [],
-			fNodes = aProto.slice.call(form.childNodes),
+			fNodes = aProto.slice.call(formEl.childNodes),
 			cThr = doc.createElement('div');
 		for(i = 0, len = fNodes.length - 1; i < len; ++i) {
 			node = fNodes[i];
 			if(node.tagName === 'HR') {
-				form.insertBefore(cThr, node);
-				form.insertBefore(cThr.lastElementChild, node);
+				formEl.insertBefore(cThr, node);
+				formEl.insertBefore(cThr.lastElementChild, node);
 				el = cThr.lastElementChild;
 				if(el.tagName === 'BR') {
-					form.insertBefore(el, node);
+					formEl.insertBefore(el, node);
 				}
 				threads.push(cThr);
 				cThr = doc.createElement('div');
@@ -11024,7 +11033,7 @@ DelForm.prototype = {
 			}
 		}
 		cThr.appendChild(fNodes[i]);
-		form.appendChild(cThr);
+		formEl.appendChild(cThr);
 		return threads;
 	}
 };
@@ -11712,13 +11721,14 @@ function scriptCSS() {
 		.de-parea-btn-thrd:after { content: "' + Lng.makeThrd[lang] + '" }\
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
 		#de-pform { display: inline-block; vertical-align: middle; }\
-		#de-qarea { min-width: 0; border: none; }\
+		#de-pform > form { padding: 0; margin: 0; border: none; }\
+		#de-qarea { width: auto; min-width: 0; border: none; }\
 		#de-qarea > div:nth-child(2) { text-align: center; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
 		.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\
-		.de-qarea-hanging .de-textarea { min-width: 100% !important; min-height: 90px !important; }\
+		.de-qarea-hanging .de-textarea { min-width: 98% !important; min-height: 90px !important; transition: none !important; }\
 		.de-qarea-hanging #de-txta-resizer { display: none !important; }\
 		.de-qarea-hanging #de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
 		.de-qarea-hanging #de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
@@ -11728,8 +11738,8 @@ function scriptCSS() {
 		#de-qarea-target { font-weight: bold; margin-left: 4px; }\
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
 		#de-qarea-utils > span { margin-right: 4px; }\
-		#de-sagebtn { margin-right: 7px; cursor: pointer; }\
-		.de-textarea { display: inline-block; padding: 0 !important; resize: none !important; min-width: 300px !important; min-height: 80px; }';
+		#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
+		.de-textarea { display: inline-block; padding: 3px !important; resize: none !important; min-width: 300px !important; min-height: 80px; }';
 
 	// Other
 	x += cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
@@ -11842,8 +11852,8 @@ function updateCSS() {
 			x += 'div[id^="post_video"] { display: none !important; }';
 		}
 	}
-	if(aib.multiFile || !Cfg.fileThumb) {
-		x += '#de-pform > form > table > tbody > tr > td:first-child, #de-pform > form > table > tbody > tr > th:first-child { display: none; }';
+	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+		x += '#de-pform form > table > tbody > tr > td:first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
