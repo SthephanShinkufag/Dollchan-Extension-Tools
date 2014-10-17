@@ -11828,7 +11828,7 @@ function updateCSS() {
 		x += '.de-img-full { margin: 2px 5px; }';
 	}
 	if(Cfg.delHiddPost) {
-		x += '.de-thr-hid, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
+		x += '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
 	}
 	if(Cfg.noPostNames) {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
