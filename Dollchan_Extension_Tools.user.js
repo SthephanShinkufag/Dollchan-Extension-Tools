@@ -489,7 +489,7 @@ Lng = {
 	hiddenThrd:     ['Скрытый тред:', 'Hidden thread:'],
 	makeThrd:       ['Создать тред', 'Create thread'],
 	makeReply:      ['Ответить', 'Make reply'],
-	noSage:        ['Без сажи', 'No sage'],
+	noSage:         ['Без сажи', 'No sage'],
 	hideForm:       ['Скрыть форму', 'Hide form'],
 	search:         ['Искать в ', 'Search in '],
 	wait:           ['Ждите', 'Wait'],
@@ -10284,10 +10284,11 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], .news, header > :not(.logo) + hr, .reply-label-wrapper > span:first-child, img[alt="webm file"], .kupi-passcode-suka, label[for="name"], .media-expand-button, .norm-reply, .passcode-banner > hr, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
+			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .de-qarea-hanging .kupi-passcode-suka, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
-				#de-txt-panel { font-size: 16px !important; }' },
+				#de-txt-panel { font-size: 16px !important; }\
+				.mess-post { display: block; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] }
