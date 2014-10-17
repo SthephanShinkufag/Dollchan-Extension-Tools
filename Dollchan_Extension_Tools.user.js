@@ -2282,7 +2282,7 @@ function getCfgForm() {
 			}
 			updateCSS();
 		})),
-		$if(!aib.mak && pr.mail, $New('div', null, [
+		$if(!aib.iich && pr.mail, $New('div', null, [
 			lBox('addSageBtn', false, null),
 			lBox('saveSage', false, null)
 		])),
@@ -6210,7 +6210,7 @@ PostForm.prototype = {
 				$del(this.subm.nextSibling);
 			}
 		}
-		if(Cfg.addSageBtn && this.mail) {
+		if(!aib.iich && Cfg.addSageBtn && this.mail) {
 			btn = $new('span', {'id': 'de-sagebtn', 'class': 'de-btn-sage'}, {'click': function(e) {
 				e.stopPropagation();
 				$pd(e);
@@ -10119,6 +10119,9 @@ function getImageBoard(checkDomains, checkOther) {
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
 		get 'honokakawai.com'() { return this['2--ch.ru']; },
+		'iichan.hk': [{
+			iich: { value: true }
+		}],
 		'inach.org': [{
 			qPostRedir: { value: 'input[name="fieldnoko"]' },
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
