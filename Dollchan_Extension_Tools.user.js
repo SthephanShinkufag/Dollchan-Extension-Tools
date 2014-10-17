@@ -10435,7 +10435,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
-			qDForm: { value: 'form[name="postcontrols"]' },
+			qDForm: { value: 'form[name*="postcontrols"]' },
 			qHide: { value: '.intro ~ *'},
 			qImgLink: { value: 'p.fileinfo > a:first-of-type' },
 			qMsg: { value: '.body' },
