@@ -2280,6 +2280,9 @@ function getCfgForm() {
 			if(inp.empty) {
 				inp.hideInputs();
 			}
+			if(!aib.kus && !aib.multiFile) {
+				pr.setPlaceholders();
+			}
 			updateCSS();
 		})),
 		$if(!aib.iich && pr.mail, $New('div', null, [
@@ -5916,6 +5919,14 @@ PostForm.prototype = {
 		this.pForm.style.display = hide ? 'none' : '';
 		this.updatePAreaBtns();
 	},
+	setPlaceholders: function() {
+		this._setPlaceholder(this.txta, 'comment');
+		this._setPlaceholder(this.name, 'name');
+		this._setPlaceholder(this.subj, 'subject');
+		this._setPlaceholder(this.mail, 'email');
+		this._setPlaceholder(this.cap, 'captcha');
+		this._setPlaceholder(this.video, 'video');
+	},
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
 			rep = TNum ? 'reply' : 'thrd';
@@ -6028,17 +6039,8 @@ PostForm.prototype = {
 		if(!this.form || !this.txta) {
 			return;
 		}
-		if(this.subj) {
-			this.subj.placeholder = Lng.subject[lang];
-		}
-		if(this.mail) {
-			this.mail.placeholder = Lng.email[lang];
-		}
-		if(this.name) {
-			this.name.placeholder = Lng.name[lang];
-		}
-		if(this.video) {
-			this.video.placeholder = Lng.video[lang];
+		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+			this.setPlaceholders();
 		}
 		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
@@ -6234,7 +6236,6 @@ PostForm.prototype = {
 		this.addTextPanel();
 		this.txta.classList.add('de-textarea');
 		this.txta.style.cssText = 'width: ' + Cfg.textaWidth + 'px; height: ' + Cfg.textaHeight + 'px;';
-		this.txta.placeholder = Lng.comment[lang];
 		this.txta.addEventListener('keypress', function(e) {
 			var code = e.charCode || e.keyCode;
 			if((code === 33 || code === 34) && e.which === 0) {
@@ -6442,7 +6443,9 @@ PostForm.prototype = {
 		}
 		this.capInited = true;
 		this.cap.autocomplete = 'off';
-		this.cap.placeholder = Lng.captcha[lang];
+		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
+			this.cap.placeholder = Lng.captcha[lang];
+		}
 		this.cap.onkeypress = (function() {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
 				en = 'qwertyuiop[]asdfghjkl;\'zxcvbnm,.`';
@@ -6494,6 +6497,15 @@ PostForm.prototype = {
 			$del(a);
 		}
 		this.capTr.style.display = '';
+	},
+	_setPlaceholder: function(el, val) {
+		if(el) {
+			if(aib.multiFile || !Cfg.fileThumb) {
+				el.placeholder = Lng[val][lang];
+			} else {
+				el.removeAttribute('placeholder');
+			}
+		}
 	},
 	_wrapText: function(isBB, tag, text) {
 		var str, m;
@@ -11808,7 +11820,7 @@ function applyCSS(x) {
 }
 
 function updateCSS() {
-	var p, x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
+	var x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
 	if(Cfg.attachPanel) {
 		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
 		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
@@ -11858,8 +11870,6 @@ function updateCSS() {
 	}
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		x += '#de-pform form > table > tbody > tr > td:first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
-	} else if(p = nav.Firefox ? '-moz-' : nav.Webkit ? '-webkit-input-' : '') {
-		x += '#de-pform input[type="text"]::' + p + 'placeholder, #de-pform textarea::' + p + 'placeholder { color: transparent; }'
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
