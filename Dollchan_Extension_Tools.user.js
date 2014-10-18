@@ -9991,6 +9991,11 @@ function getImageBoard(checkDomains, checkOther) {
 		'7chan.org': [{
 			init: { value: function() { return true; } }
 		}],
+		'8chan.co': [{
+			init: { value: function() {
+				$script('multi_image();');
+			} }
+		}, 'form[name*="postcontrols"]'],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
