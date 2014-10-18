@@ -1327,9 +1327,9 @@ function pButton(id, href, hasHotkey) {
 		Lng.panelBtn[id][lang] +'" href="' + href + '"></a></li>';
 }
 
-function addPanel() {
-	var panel, evtObject, imgLen = $Q(aib.qThumbImages, dForm.el).length;
-	(pr && pr.pArea[0] || dForm.el).insertAdjacentHTML('beforebegin',
+function addPanel(formEl) {
+	var panel, evtObject, imgLen = $Q(aib.qThumbImages, formEl).length;
+	(pr && pr.pArea[0] || formEl).insertAdjacentHTML('beforebegin',
 		'<div id="de-main" lang="' + getThemeLang() + '">' +
 			'<div id="de-panel">' +
 				'<span id="de-btn-logo" title="' + Lng.panelBtn.attach[lang] + '"></span>' +
@@ -2508,7 +2508,7 @@ function addSettings(Set, id) {
 				$del($id('de-css'));
 				$del($id('de-css-dynamic'));
 				scriptCSS();
-				addPanel();
+				addPanel(dForm.el);
 				toggleContent('cfg', false);
 			}),
 			$New('div', {'style': 'float: right;'}, [
@@ -11500,7 +11500,9 @@ function scriptCSS() {
 	x += gif('#de-btn-upd-warn', 'R0lGODlhGQAZAJEAAP/0Qf' + p);
 
 	if(Cfg.disabled) {
-		applyCSS(x);
+		$css(x).id = 'de-css';
+		$css('').id = 'de-css-dynamic';
+		updateCSS();
 		return;
 	}
 
@@ -11740,11 +11742,6 @@ function scriptCSS() {
 			x = x.replace(/\(to bottom/g, '(top').replace(/\(to top/g, '(bottom');
 		}
 	}
-
-	applyCSS(x);
-}
-
-function applyCSS(x) {
 	$css(x).id = 'de-css';
 	$css('').id = 'de-css-dynamic';
 	$css('').id = 'de-css-user';
@@ -11752,7 +11749,7 @@ function applyCSS(x) {
 }
 
 function updateCSS() {
-	var x = '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
+	var x = '';
 	if(Cfg.attachPanel) {
 		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
 		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
@@ -11761,6 +11758,11 @@ function updateCSS() {
 		x += '.de-content { clear: both; float: right; }\
 		#de-panel { float: right; clear: both; }'
 	}
+	if(Cfg.disabled) {
+		$id('de-css-dynamic').textContent = x;
+		return;
+	}
+	x += '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
 	if(!Cfg.panelCounter) {
 		x += '#de-panel-info { display: none; }';
 	}
@@ -11855,7 +11857,7 @@ function initScript(checkDomains) {
 function doScript(formEl) {
 	new Logger().log('Config loading');
 	if(Cfg.disabled) {
-		addPanel();
+		addPanel(formEl);
 		scriptCSS();
 		return;
 	}
@@ -11883,7 +11885,7 @@ function doScript(formEl) {
 	if(!liteMode) {
 		initPage();
 		new Logger().log('Init page');
-		addPanel();
+		addPanel(formEl);
 		new Logger().log('Add panel');
 	}
 	initMessageFunctions();
