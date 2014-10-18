@@ -6311,7 +6311,7 @@ PostForm.prototype = {
 		this.capInited = true;
 		this.cap.autocomplete = 'off';
 		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
-			this.cap.placeholder = Lng.captcha[lang];
+			this.cap.placeholder = Lng.cap[lang];
 		}
 		this.cap.onkeypress = (function() {
 			var ru = 'йцукенгшщзхъфывапролджэячсмитьбюё',
