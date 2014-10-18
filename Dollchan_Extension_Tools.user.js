@@ -8077,6 +8077,11 @@ Post.prototype = {
 				}
 				return;
 			}
+			if(aib.mak && el.classList.contains('expand-large-comment')) {
+				this._getFull(el, false);
+				$pd(e);
+				e.stopPropagation();
+			}
 			switch(el.className) {
 			case 'de-btn-expthr':
 				this.thr.load(1, false, null);
@@ -8776,6 +8781,12 @@ Post.prototype = {
 			} else {
 				this.updateMsg($q('.alternate > div', this.el));
 			}
+			return;
+		}
+		if(aib.mak) {
+			$del(node.previousSibling);
+			node.previousSibling.style.display = '';
+			$del(node);
 			return;
 		}
 		if(!isInit) {
