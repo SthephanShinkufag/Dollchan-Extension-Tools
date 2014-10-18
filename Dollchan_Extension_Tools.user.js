@@ -9809,7 +9809,7 @@ function getNavFuncs() {
 			return url;
 		},
 		get hasWorker() {
-			var val = 'Worker' in (this.Firefox ? unsafeWindow : Window);
+			var val = !nav.Firefox && ('Worker' in window);
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
 		},
