@@ -10231,6 +10231,7 @@ function getImageBoard(checkDomains, checkOther) {
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }\
+				.images-area input { float: left; }\
 				.mess-post { display: block; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -10240,6 +10241,10 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				$script('window.FormData = void 0;');
+				$each($C('postform-image', doc), function(el) {
+					el.insertAdjacentHTML('afterend', '<div style="clear: both;"></div>');
+					el.nextSibling.appendChild(el);
+				});
 				var el = $q('td > .anoniconsselectlist', doc);
 				if(el) {
 					$q('.option-area > td:last-child', doc).appendChild(el);
