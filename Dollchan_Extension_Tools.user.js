@@ -5944,14 +5944,8 @@ PostForm.prototype = {
 			'<div id="de-resizer-left"></div>' +
 			'<div id="de-resizer-right"></div>' +
 			'<div id="de-resizer-bottom"></div>');
-		new FormResizer('top', el = el.firstChild, this);
-		new FormResizer('left', el = el.nextSibling.nextSibling, this);
-		new FormResizer('right', el = el.nextSibling, this);
-		new FormResizer('bottom', el = el.nextSibling, this);
-		el = this.qArea.firstChild.nextSibling;
+		el = el.firstChild.nextSibling;
 		el.lang = getThemeLang();
-
-		// Quick reply movement
 		el.addEventListener('mousedown', {
 			_el: this.qArea,
 			_elStyle: this.qArea.style,
@@ -5997,7 +5991,6 @@ PostForm.prototype = {
 				}
 			}
 		}, false);
-
 		el = el.lastChild;
 		el.firstChild.onclick = function() {
 			var node = this.qArea;
@@ -6022,6 +6015,10 @@ PostForm.prototype = {
 		if(!this.form || !this.txta) {
 			return;
 		}
+		new FormResizer('top', el = this.qArea.firstChild, this);
+		new FormResizer('left', el = el.nextSibling.nextSibling, this);
+		new FormResizer('right', el = el.nextSibling, this);
+		new FormResizer('bottom', el = el.nextSibling, this);
 		if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 			this.setPlaceholders();
 		}
@@ -6029,8 +6026,6 @@ PostForm.prototype = {
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
 		this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
-
-		// Textarea resizer
 		this.txta.nextSibling.addEventListener('mousedown', {
 			_el: this.txta,
 			_elStyle: this.txta.style,
@@ -6054,7 +6049,6 @@ PostForm.prototype = {
 				}
 			}
 		}, false);
-
 		if(aib.kus) {
 			while(this.subm.nextSibling) {
 				$del(this.subm.nextSibling);
