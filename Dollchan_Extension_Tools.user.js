@@ -875,29 +875,6 @@ $tar.prototype = {
 	}
 };
 
-function $workers(source, count) {
-	var i, wrk, wUrl;
-	if(nav.Firefox) {
-		wUrl = 'data:text/javascript,' + source;
-		wrk = unsafeWindow.Worker;
-	} else {
-		wUrl = window.URL.createObjectURL(new Blob([source], {'type': 'text/javascript'}));
-		this.url = wUrl;
-		wrk = Worker;
-	}
-	for(i = 0; i < count; ++i) {
-		this[i] = new wrk(wUrl);
-	}
-}
-$workers.prototype = {
-	url: null,
-	clear: function() {
-		if(this.url !== null) {
-			window.URL.revokeObjectURL(this.url);
-		}
-	}
-};
-
 function regQuote(str) {
 	return (str + '').replace(/([.?*+^$[\]\\(){}|\-])/g, '\\$1');
 }
@@ -3389,42 +3366,46 @@ function workerQueue(mReqs, wrkFn, errFn) {
 		this.run = this._runSync.bind(wrkFn);
 		return;
 	}
-	this.queue = new $queue(mReqs, this._createWrk.bind(this), null);
-	this.run = this._runWrk;
-	this.wrks = new $workers('self.onmessage = function(e) {\
+	var url = window.URL.createObjectURL(new Blob(['self.onmessage = function(e) {\
 		var info = (' + String(wrkFn) + ')(e.data[1]);\
 		if(info.data) {\
 			self.postMessage([e.data[0], info], [info.data]);\
 		} else {\
 			self.postMessage([e.data[0], info]);\
 		}\
-	}', mReqs);
-	this.errFn = errFn;
+	}'], {'type': 'text/javascript'}));
+	this._queue = new $queue(mReqs, this._createWrk.bind(this), null);
+	this._wrks = new Array(mReqs);
+	this._url = url;
+	this._errFn = errFn;
+	this.run = this._runWrk;
+	while(mReqs--) {
+		this._wrks.push(new Worker(url));
+	}
 }
 workerQueue.prototype = {
 	_runSync: function(data, transferObjs, Fn) {
 		Fn(this(data));
 	},
-	onMess: function(Fn, e) {
-		this.queue.end(e.data[0]);
+	_onMess: function(Fn, e) {
+		this._queue.end(e.data[0]);
 		Fn(e.data[1]);
 	},
-	onErr: function(qIdx, e) {
-		this.queue.end(qIdx);
-		this.errFn(e);
+	_onErr: function(qIdx, e) {
+		this._queue.end(qIdx);
+		this._errFn(e);
 	},
 	_runWrk: function(data, transObjs, Fn) {
-		this.queue.run([data, transObjs, this.onMess.bind(this, Fn)]);
+		this._queue.run([data, transObjs, this._onMess.bind(this, Fn)]);
 	},
 	_createWrk: function(qIdx, num, data) {
 		var w = this.wrks[qIdx];
 		w.onmessage = data[2];
-		w.onerror = this.onErr.bind(this, qIdx);
+		w.onerror = this._onErr.bind(this, qIdx);
 		w.postMessage([qIdx, data[0]], data[1]);
 	},
 	clear: function() {
-		this.wrks && this.wrks.clear();
-		this.wrks = null;
+		window.URL.revokeObjectURL(this._url);
 	}
 };
 
@@ -9809,7 +9790,12 @@ function getNavFuncs() {
 			return url;
 		},
 		get hasWorker() {
-			var val = !nav.Firefox && ('Worker' in window);
+			var val;
+			try {
+				val = 'Worker' in window;
+			} catch(e) {
+				val = false;
+			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
 		},
