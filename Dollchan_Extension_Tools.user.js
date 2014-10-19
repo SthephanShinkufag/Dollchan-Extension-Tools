@@ -3375,7 +3375,7 @@ function workerQueue(mReqs, wrkFn, errFn) {
 		}\
 	}'], {'type': 'text/javascript'}));
 	this._queue = new $queue(mReqs, this._createWrk.bind(this), null);
-	this._wrks = new Array(mReqs);
+	this._wrks = [];
 	this._url = url;
 	this._errFn = errFn;
 	this.run = this._runWrk;
@@ -3399,7 +3399,7 @@ workerQueue.prototype = {
 		this._queue.run([data, transObjs, this._onMess.bind(this, Fn)]);
 	},
 	_createWrk: function(qIdx, num, data) {
-		var w = this.wrks[qIdx];
+		var w = this._wrks[qIdx];
 		w.onmessage = data[2];
 		w.onerror = this._onErr.bind(this, qIdx);
 		w.postMessage([qIdx, data[0]], data[1]);
