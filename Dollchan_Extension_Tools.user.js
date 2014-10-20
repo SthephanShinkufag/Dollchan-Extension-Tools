@@ -6038,30 +6038,37 @@ PostForm.prototype = {
 		aib.disableRedirection(this.form);
 		this.form.style.display = 'inline-block';
 		this.form.style.textAlign = 'left';
-		this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
-		this.txta.nextSibling.addEventListener('mousedown', {
-			_el: this.txta,
-			_elStyle: this.txta.style,
-			handleEvent: function(e) {
-				switch(e.type) {
-				case 'mousedown':
-					doc.body.addEventListener('mousemove', this, false);
-					doc.body.addEventListener('mouseup', this, false);
-					$pd(e);
-					return;
-				case 'mousemove':
-					var cr = this._el.getBoundingClientRect();
-					this._elStyle.width = (e.clientX - cr.left) + 'px';
-					this._elStyle.height = (e.clientY - cr.top) + 'px';
-					return;
-				default: // mouseup
-					doc.body.removeEventListener('mousemove', this, false);
-					doc.body.removeEventListener('mouseup', this, false);
-					saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
-					saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
+		if(nav.Firefox) {
+			this.txta.addEventListener('mouseup', function () {
+			saveCfg('textaWidth', parseInt(this.style.width, 10));
+			saveCfg('textaHeight', parseInt(this.style.height, 10));
+			}, false);
+		} else {
+			this.txta.insertAdjacentHTML('afterend', '<div id="de-txta-resizer"></div>');
+			this.txta.nextSibling.addEventListener('mousedown', {
+				_el: this.txta,
+				_elStyle: this.txta.style,
+				handleEvent: function(e) {
+					switch(e.type) {
+					case 'mousedown':
+						doc.body.addEventListener('mousemove', this, false);
+						doc.body.addEventListener('mouseup', this, false);
+						$pd(e);
+						return;
+					case 'mousemove':
+						var cr = this._el.getBoundingClientRect();
+						this._elStyle.width = (e.clientX - cr.left) + 'px';
+						this._elStyle.height = (e.clientY - cr.top) + 'px';
+						return;
+					default: // mouseup
+						doc.body.removeEventListener('mousemove', this, false);
+						doc.body.removeEventListener('mouseup', this, false);
+						saveCfg('textaWidth', parseInt(this._elStyle.width, 10));
+						saveCfg('textaHeight', parseInt(this._elStyle.height, 10));
+					}
 				}
-			}
-		}, false);
+			}, false);
+		}
 		if(aib.kus) {
 			while(this.subm.nextSibling) {
 				$del(this.subm.nextSibling);
@@ -11694,7 +11701,7 @@ function scriptCSS() {
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
 		.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\
 		.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\
-		.de-qarea-hanging .de-textarea { min-width: 98% !important; min-height: 90px !important; transition: none !important; }\
+		.de-qarea-hanging .de-textarea { min-width: 98% !important; resize: none !important; }\
 		.de-qarea-hanging #de-txta-resizer { display: none !important; }\
 		.de-qarea-hanging #de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\
 		.de-qarea-hanging #de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\
@@ -11705,7 +11712,7 @@ function scriptCSS() {
 		#de-qarea-utils { float: right; margin-top: ' + (nav.Chrome ? -1 : -4) + 'px; font: normal 16px arial; cursor: pointer; }\
 		#de-qarea-utils > span { margin-right: 4px; }\
 		#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\
-		.de-textarea { display: inline-block; padding: 3px !important; resize: none !important; min-width: 300px !important; min-height: 80px; }';
+		.de-textarea { display: inline-block; padding: 3px !important; min-width: 300px !important; min-height: 90px !important; resize: both; transition: none !important; }';
 
 	// Other
 	x += cont('.de-wait', 'data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7');
