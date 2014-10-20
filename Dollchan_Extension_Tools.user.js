@@ -10958,7 +10958,7 @@ DelForm.prototype = {
 					pr.closeQReply();
 					$alert(Lng.deleting[lang], 'deleting', true);
 					new html5Submit(this.el, e.target, checkDelete);
-				};
+				}.bind(this);
 			}
 		} else if(Cfg.ajaxReply === 1) {
 			this.el.insertAdjacentHTML('beforeend',
