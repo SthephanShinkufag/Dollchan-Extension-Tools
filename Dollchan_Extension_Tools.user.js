@@ -70,6 +70,7 @@ defaultCfg = {
 	'crossLinks':       0,      // replace http: to >>/b/links
 	'insertNum':        1,      // insert >>link on postnumber click
 	'addMP3':           1,      // embed mp3 links
+	'addVocaroo':       0,      // embed Vocaroo links
 	'addImgs':          0,      // embed links to images
 	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
@@ -181,7 +182,8 @@ Lng = {
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		'addMP3':       ['Добавлять плеер к mp3 ссылкам* ', 'Add player to mp3 links* '],
+		'addMP3':       ['Добавлять плеер к mp3 ссылкам*', 'Add player to mp3 links*'],
+		'addVocaroo':   ['Добавлять плеер к Vocaroo ссылкам*', 'Add player to Vocaroo links*'],
 		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
@@ -2210,6 +2212,7 @@ function getCfgLinks() {
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
 		lBox('addMP3', true, null),
+		lBox('addVocaroo', true, null),
 		lBox('addImgs', true, null),
 		optSel('addYouTube', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
@@ -4099,28 +4102,38 @@ YouTube = new function() {
 	return YouTubeSingleton;
 };
 
-function embedMP3Links(post) {
+function embedMediaLinks(post) {
 	var el, link, src, i, els, len;
-	if(!Cfg.addMP3) {
-		return;
-	}
-	for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-		link = els[i];
-		if(link.target !== '_blank' && link.rel !== 'nofollow') {
-			continue;
-		}
-		src = link.href;
-		el = (post || aib.getPostEl(link).post).mp3Obj;
-		if(nav.canPlayMP3) {
-			if(!$q('audio[src="' + src + '"]', el)) {
-				el.insertAdjacentHTML('beforeend',
-					'<p><audio src="' + src + '" preload="none" controls></audio></p>');
-				link = el.lastChild.firstChild;
-				link.addEventListener('play', updater.addPlayingTag, false);
-				link.addEventListener('pause', updater.removePlayingTag, false);
+	if(Cfg.addMP3) {
+		for(i = 0, els = $Q('a[href*=".mp3"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+			link = els[i];
+			if(link.target !== '_blank' && link.rel !== 'nofollow') {
+				continue;
 			}
-		} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
-			el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+			src = link.href;
+			el = (post || aib.getPostEl(link).post).mp3Obj;
+			if(nav.canPlayMP3) {
+				if(!$q('audio[src="' + src + '"]', el)) {
+					el.insertAdjacentHTML('beforeend',
+						'<p><audio src="' + src + '" preload="none" controls></audio></p>');
+					link = el.lastChild.firstChild;
+					link.addEventListener('play', updater.addPlayingTag, false);
+					link.addEventListener('pause', updater.removePlayingTag, false);
+				}
+			} else if(!$q('object[FlashVars*="' + src + '"]', el)) {
+				el.insertAdjacentHTML('beforeend', '<object data="http://junglebook2007.narod.ru/audio/player.swf" type="application/x-shockwave-flash" wmode="transparent" width="220" height="16" FlashVars="playerID=1&amp;bg=0x808080&amp;leftbg=0xB3B3B3&amp;lefticon=0x000000&amp;rightbg=0x808080&amp;rightbghover=0x999999&amp;rightcon=0x000000&amp;righticonhover=0xffffff&amp;text=0xffffff&amp;slider=0x222222&amp;track=0xf5f5dc&amp;border=0x666666&amp;loader=0x7fc7ff&amp;loop=yes&amp;autostart=no&amp;soundFile=' + src + '"><br>');
+			}
+		}
+	}
+	if(Cfg.addVocaroo) {
+		for(i = 0, els = $Q('a[href*="vocaroo.com"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+			link = els[i];
+			src = link.href.split('\/').pop();
+			if(!(el = link.previousSibling) || el.className !== 'de-vocaroo') {
+				link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo"><embed' +
+					' width="148" height="44" wmode="transparent" type="application/x-shockwave-flash"' +
+					' src="//vocaroo.com/player.swf?playMediaID=' + src + '"></div>');
+			}
 		}
 	}
 }
@@ -6684,6 +6697,7 @@ FormResizer.prototype = {
 	}
 }
 
+
 // SUBMIT
 // ===========================================================================================================
 
@@ -7991,7 +8005,7 @@ Post.prototype = {
 	ytLinksLoading: 0,
 	addFuncs: function() {
 		updRefMap(this, true);
-		embedMP3Links(this);
+		embedMediaLinks(this);
 		if(Cfg.addImgs) {
 			embedImagesLinks(this.el);
 		}
@@ -8986,7 +9000,7 @@ Pview.prototype = Object.create(Post.prototype, {
 			}
 		} else {
 			this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
-			embedMP3Links(this);
+			embedMediaLinks(this);
 			new YouTube().parseLinks(this);
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
@@ -11643,7 +11657,8 @@ function scriptCSS() {
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
-		video { background: black; }';
+		video { background: black; }\
+		.de-vocaroo > embed { display: inline-block; }';
 	
 	// File inputs
 	p = aib.multiFile ? 90 : 130;
@@ -11817,8 +11832,8 @@ function updateCSS() {
 function addDelformStuff(isLog) {
 	preloadImages(null);
 	isLog && new Logger().log('Preload images');
-	embedMP3Links(null);
-	isLog && new Logger().log('MP3 links');
+	embedMediaLinks(null);
+	isLog && new Logger().log('MP3/Vocaroo links');
 	new YouTube().parseLinks(null);
 	isLog && new Logger().log('YouTube links');
 	if(Cfg.addImgs) {
