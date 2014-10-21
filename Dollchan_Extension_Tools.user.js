@@ -6529,6 +6529,7 @@ FileInput.prototype = {
 			this.thumb = this._mediaEl = null;
 		}
 		if(!update) {
+			this.el.classList.add('de-file-input');
 			this.el.addEventListener('change', this, false);
 		}
 	},
@@ -11681,6 +11682,7 @@ function scriptCSS() {
 		.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\
 		.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\
 		.de-file-img > img, .de-file-img > video { max-width: ' + (p - 4) + 'px; max-height: ' + (p - 4) + 'px; }\
+		.de-file-input { max-width: 300px; }\
 		.de-file-off > div > div:after { content: "' + Lng.noFile[lang] + '" }\
 		.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\
 		.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }';
