@@ -70,7 +70,7 @@ defaultCfg = {
 	'crossLinks':       0,      // replace http: to >>/b/links
 	'insertNum':        1,      // insert >>link on postnumber click
 	'addMP3':           1,      // embed mp3 links
-	'addVocaroo':       0,      // embed Vocaroo links
+	'addVocaroo':       1,      // embed Vocaroo links
 	'addImgs':          0,      // embed links to images
 	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
@@ -184,7 +184,7 @@ Lng = {
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
 		'addMP3':       ['Добавлять плеер к mp3 ссылкам*', 'Add player to mp3 links*'],
 		'addVocaroo':   ['Добавлять плеер к Vocaroo ссылкам*', 'Add player to Vocaroo links*'],
-		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам* ', 'Add player to Vimeo links* '],
+		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
 		'addYouTube': {
 			sel:        [
@@ -8667,7 +8667,7 @@ Post.prototype = {
 			'<a class="de-menu-item de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str;
 	},
 	_addPview: function(link) {
-		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,0])[1],
+		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostEl(link).post.tNum])[1],
 			pNum = (link.textContent.trim().match(/\d+$/) || [tNum])[0],
 			pv = this.isPview ? this.kid : Pview.top;
 		if(pv && pv.num === pNum) {
