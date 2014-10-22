@@ -10230,7 +10230,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qHide: { value: '.post-details ~ *' },
 			qImgLink: { value: '.file-attr > .desktop' },
 			qMsg: { value: '.post-message' },
-			qName: { value: '.ananimas' },
+			qName: { value: '.ananimas, .post-email' },
 			qOmitted: { value: '.mess-post' },
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
