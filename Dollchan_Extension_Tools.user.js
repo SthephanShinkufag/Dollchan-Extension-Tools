@@ -69,9 +69,10 @@ defaultCfg = {
 	'noNavigHidd':      0,      //    don't show previews for hidden posts
 	'crossLinks':       0,      // replace http: to >>/b/links
 	'insertNum':        1,      // insert >>link on postnumber click
+	'addOPLink':        0,      // insert >>link for reply to op-posts on board
+	'addImgs':          0,      // embed links to images
 	'addMP3':           1,      // embed mp3 links
 	'addVocaroo':       1,      // embed Vocaroo links
-	'addImgs':          0,      // embed links to images
 	'addYouTube':       3,      // embed YouTube links [0=off, 1=onclick, 2=player, 3=preview+player, 4=only preview]
 	'YTubeType':        0,      //    player type [0=flash, 1=HTML5]
 	'YTubeWidth':       360,    //    player width
@@ -87,7 +88,6 @@ defaultCfg = {
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
 	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
 	'hangQReply':       1,      // quick reply type [0=inline, 1=hanging]
-	'addOPLink':        0,      // insert >>link for reply to op-posts on board
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
 	'fileThumb':        1,      // file preview area instead of file button
@@ -184,10 +184,11 @@ Lng = {
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
-		'addMP3':       ['Добавлять плеер к mp3 ссылкам*', 'Add player to mp3 links*'],
-		'addVocaroo':   ['Добавлять плеер к Vocaroo ссылкам*', 'Add player to Vocaroo links*'],
-		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
+		'addOPLink':    ['Вставлять >>ссылку при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
+		'addMP3':       ['Плеер к mp3 ссылкам*', 'Player to mp3 links*'],
 		'addImgs':      ['Загружать картинки к jpg, png, gif ссылкам*', 'Load images to jpg, png, gif links*'],
+		'addVocaroo':   ['Плеер к Vocaroo ссылкам*', 'Player to Vocaroo links*'],
+		'addVimeo':     ['Добавлять плеер к Vimeo ссылкам*', 'Add player to Vimeo links*'],
 		'addYouTube': {
 			sel:        [
 				['Ничего', 'Плеер по клику', 'Авто плеер', 'Превью+плеер', 'Только превью'],
@@ -215,7 +216,6 @@ Lng = {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 			txt:        ['форма ответа в треде', 'reply form in thread']
 		},
-		'addOPLink':    ['Вставлять >>ссылку при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
@@ -2215,9 +2215,10 @@ function getCfgLinks() {
 		]),
 		lBox('crossLinks', true, null),
 		lBox('insertNum', true, null),
-		lBox('addMP3', true, null),
-		lBox('addVocaroo', true, null),
+		lBox('addOPLink', true, null),
 		lBox('addImgs', true, null),
+		lBox('addMP3', false, null),
+		lBox('addVocaroo', false, null),
 		optSel('addYouTube', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
@@ -2251,7 +2252,6 @@ function getCfgForm() {
 			pr.isTopForm = Cfg.addPostForm !== 0;
 			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
 		})),
-		lBox('addOPLink', true, null),
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		$if(pr.file && !nav.Presto, lBox('fileThumb', true, function() {
