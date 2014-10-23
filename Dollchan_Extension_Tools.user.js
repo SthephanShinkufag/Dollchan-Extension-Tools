@@ -5972,8 +5972,8 @@ PostForm.prototype = {
 			_elStyle: this.qArea.style,
 			_oldX: 0,
 			_oldY: 0,
-			_X: Cfg.qReplyX,
-			_Y: Cfg.qReplyY,
+			_X: 0,
+			_Y: 0,
 			handleEvent: function(e) {
 				if(!Cfg.hangQReply) {
 					return;
@@ -5984,6 +5984,8 @@ PostForm.prototype = {
 				case 'mousedown':
 					this._oldX = curX;
 					this._oldY = curY;
+					this._X = Cfg.qReplyX;
+					this._Y = Cfg.qReplyY;
 					doc.body.addEventListener('mousemove', this, false);
 					doc.body.addEventListener('mouseup', this, false);
 					$pd(e);
@@ -6668,16 +6670,16 @@ FormResizer.prototype = {
 		case 'mousedown':
 			switch(this.dir) {
 			case 'top':
-				val = Cfg.qReplyX + '; bottom:' + (maxY - cr.bottom) + 'px';
+				val = Cfg.qReplyX + '; bottom: ' + (maxY - cr.bottom) + 'px';
 				break;
 			case 'bottom':
-				val = Cfg.qReplyX + '; top:' + cr.top + 'px';
+				val = Cfg.qReplyX + '; top: ' + cr.top + 'px';
 				break;
 			case 'left':
-				val = 'right:' + (maxX - cr.right) + 'px; ' + Cfg.qReplyY;
+				val = 'right: ' + (maxX - cr.right) + 'px; ' + Cfg.qReplyY;
 				break;
 			case 'right':
-				val = 'left:' + cr.left + 'px; ' + Cfg.qReplyY;
+				val = 'left: ' + cr.left + 'px; ' + Cfg.qReplyY;
 			}
 			this.qaStyle.cssText = val;
 			doc.body.addEventListener('mousemove', this, false);
@@ -6687,16 +6689,18 @@ FormResizer.prototype = {
 		case 'mousemove':
 			if(this.vertical) {
 				val = e.clientY;
-				val = parseInt(this.txStyle.height, 10) + (
-					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
-						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom);
-				this.txStyle.height = (val > 90 ? val : 90) + 'px';
+				this.txStyle.height = Math.max(
+					parseInt(this.txStyle.height, 10) + (
+						this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
+							(val > maxY - 45 ? maxY - 25 : val) - cr.bottom
+				), 90) + 'px';
 			} else {
 				val = e.clientX;
-				val = parseInt(this.txStyle.width, 10) + (
-					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
-						(val > maxX - 20 ? maxX : val) - cr.right);
-				this.txStyle.width = (val > 300 ? val : 300) + 'px';
+				this.txStyle.width = Math.max(
+					parseInt(this.txStyle.width, 10) + (
+						this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
+							(val > maxX - 20 ? maxX : val) - cr.right
+				), 300) + 'px';
 			}
 			return;
 		default: // mouseup
