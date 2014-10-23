@@ -103,6 +103,7 @@ defaultCfg = {
 	'noBoardRule':      1,      // hide board rules
 	'noGoto':           1,      // hide goto field
 	'noPassword':       1,      // hide password field
+	'noName':           0,      // hide name field
 	'scriptStyle':      0,      // script style [0=glass black, 1=glass blue, 2=solid grey]
 	'userCSS':          0,      // user style
 	'userCSSTxt':       '',     //    css text
@@ -234,6 +235,7 @@ Lng = {
 		'noBoardRule':  ['правила', 'rules'],
 		'noGoto':       ['поле goto', 'goto field'],
 		'noPassword':   ['пароль', 'password'],
+		'noName':       ['имя', 'name'],
 
 		'scriptStyle': {
 			sel:        [['Glass black', 'Glass blue', 'Solid grey'], ['Glass black', 'Glass blue', 'Solid grey']],
@@ -2299,7 +2301,10 @@ function getCfgForm() {
 			})),
 			$if(pr.passw, lBox('noPassword', false, function() {
 				$disp(pr.passw.parentNode.parentNode);
-			}))
+			})),
+			$if(pr.name, lBox('noName', false, function() {
+				$disp(pr.name.parentNode.parentNode);
+			})),
 		])
 	]);
 }
@@ -6193,6 +6198,9 @@ PostForm.prototype = {
 		}
 		if(Cfg.noPassword && this.passw) {
 			$parent(this.passw, 'TR').style.display = 'none';
+		}
+		if(Cfg.noName && this.name) {
+			$parent(this.name, 'TR').style.display = 'none';
 		}
 		window.addEventListener('load', function() {
 			if(Cfg.userName && this.name) {
