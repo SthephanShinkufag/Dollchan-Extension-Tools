@@ -87,6 +87,7 @@ defaultCfg = {
 	'scrAfterRep':      0,      //    scroll to the bottom after reply
 	'addPostForm':      2,      // postform displayed [0=at top, 1=at bottom, 2=hidden]
 	'hangQReply':       1,      // quick reply type [0=inline, 1=hanging]
+	'addOPLink':        0,      // insert >>link for reply to op-posts on board
 	'favOnReply':       1,      // add thread to favorites on reply
 	'warnSubjTrip':     0,      // warn if subject field contains tripcode
 	'fileThumb':        1,      // file preview area instead of file button
@@ -213,6 +214,7 @@ Lng = {
 			sel:        [['Сверху', 'Внизу', 'Скрытая'], ['At top', 'At bottom', 'Hidden']],
 			txt:        ['форма ответа в треде', 'reply form in thread']
 		},
+		'addOPLink':    ['Вставлять >>ссылку при ответе на оп-пост на доске', 'Insert >>link for reply to op-posts on board'],
 		'favOnReply':   ['Добавлять тред в избранное при ответе', 'Add thread to favorites on reply'],
 		'warnSubjTrip': ['Предупреждать при наличии трип-кода в поле "Тема"', 'Warn if "Subject" field contains trip-code'],
 		'fileThumb':    ['Область превью картинок вместо кнопки "Файл"', 'File thumbnail area instead of "File" button'],
@@ -2247,6 +2249,7 @@ function getCfgForm() {
 			pr.isTopForm = Cfg.addPostForm !== 0;
 			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
 		})),
+		lBox('addOPLink', true, null),
 		lBox('favOnReply', true, null),
 		$if(pr.subj, lBox('warnSubjTrip', false, null)),
 		$if(pr.file && !nav.Presto, lBox('fileThumb', true, function() {
@@ -5815,7 +5818,7 @@ PostForm.prototype = {
 			this.txta.value = '';
 		}
 		temp = this.txta.value;
-		if(!TNum && post.isOp && !isNumClick) {
+		if(!Cfg.addOPLink && !TNum && post.isOp && !isNumClick) {
 			this.txta.focus();
 		} else {
 			$txtInsert(this.txta, (
@@ -11454,7 +11457,7 @@ function scriptCSS() {
 		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { min-height: 304px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
+		.de-cfg-body { min-height: 305px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
 		.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\
 		.de-cfg-body input[type="button"], .de-cfg-body input[type="text"] { padding: 1px 2px !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
