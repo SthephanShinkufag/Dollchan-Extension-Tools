@@ -6662,8 +6662,8 @@ function FormResizer(dir, el, form) {
 FormResizer.prototype = {
 	handleEvent: function(e) {
 		var val, cr = this.qa.getBoundingClientRect(),
-			maxX = Post.sizing.wWidth,
-			maxY = Post.sizing.wHeight;
+			maxX = doc.documentElement.clientWidth,
+			maxY = doc.documentElement.clientHeight;
 		switch(e.type) {
 		case 'mousedown':
 			switch(this.dir) {
