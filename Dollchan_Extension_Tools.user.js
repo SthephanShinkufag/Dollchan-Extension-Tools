@@ -6690,17 +6690,13 @@ FormResizer.prototype = {
 				val = parseInt(this.txStyle.height, 10) + (
 					this.dir === 'top' ? cr.top - (val < 20 ? 0 : val) :
 						(val > maxY - 45 ? maxY - 25 : val) - cr.bottom);
-				if(val > 90) {
-					this.txStyle.height = val + 'px';
-				}
+				this.txStyle.height = (val > 90 ? val : 90) + 'px';
 			} else {
 				val = e.clientX;
 				val = parseInt(this.txStyle.width, 10) + (
 					this.dir === 'left' ? cr.left - (val < 20 ? 0 : val) :
 						(val > maxX - 20 ? maxX : val) - cr.right);
-				if(val > 300) {
-					this.txStyle.width = val + 'px';
-				}
+				this.txStyle.width = (val > 300 ? val : 300) + 'px';
 			}
 			return;
 		default: // mouseup
