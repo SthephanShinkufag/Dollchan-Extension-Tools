@@ -6426,6 +6426,8 @@ FileInput.prototype = {
 		newEl = this.el.nextSibling;
 		newEl.obj = this;
 		newEl.addEventListener('change', this, false);
+		newEl.addEventListener('dragleave', this, false);
+		newEl.addEventListener('drop', this, false);
 		if(form.file === oldEl) {
 			form.file = newEl;
 		}
@@ -6463,7 +6465,7 @@ FileInput.prototype = {
 	},
 	handleEvent: function(e) {
 		switch(e.type) {
-		case 'change': this._onFileChange(); break;
+		case 'change': setTimeout(this._onFileChange.bind(this), 20); break;
 		case 'click':
 			if(e.target === this._delUtil) {
 				this.delUtils();
