@@ -2304,7 +2304,7 @@ function getCfgForm() {
 			})),
 			$if(pr.name, lBox('noName', false, function() {
 				$disp(pr.name.parentNode.parentNode);
-			})),
+			}))
 		])
 	]);
 }
@@ -6662,8 +6662,8 @@ function FormResizer(dir, el, form) {
 FormResizer.prototype = {
 	handleEvent: function(e) {
 		var val, cr = this.qa.getBoundingClientRect(),
-			maxX = doc.documentElement.clientWidth,
-			maxY = doc.documentElement.clientHeight;
+			maxX = nav.Chrome ? doc.documentElement.clientWidth : Post.sizing.wWidth,
+			maxY = nav.Chrome ? doc.documentElement.clientHeight : Post.sizing.wHeight;
 		switch(e.type) {
 		case 'mousedown':
 			switch(this.dir) {
