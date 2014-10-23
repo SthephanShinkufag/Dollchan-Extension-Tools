@@ -5655,7 +5655,8 @@ PostForm.prototype = {
 	get fileArea() {
 		var val;
 		if(aib.multiFile) {
-			val = $parent(this.txta, 'TD').appendChild($add('<div id="de-file-area"></div>'));
+			val = $add('<tr><td></td><td><div id="de-file-area"></div></td></tr>');
+			$after(this.fileTd.parentNode, val);
 		} else {
 			val = $t(aib.tiny ? 'th' : 'td', $parent(this.txta, 'TR'));
 			val.innerHTML = '';
