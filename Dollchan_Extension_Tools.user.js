@@ -521,6 +521,7 @@ Lng = {
 	addFav:         ['Добавить тред в Избранное', 'Add thread to Favorites'],
 	delFav:         ['Убрать тред из Избранного', 'Remove thread from Favorites'],
 	attachPview:    ['Закрепить превью', 'Attach preview'],
+	expandVideo:    ['Развернуть/Свернуть видео', 'Expand/Collapse video'],
 	author:         ['автор: ', 'author: '],
 	views:          ['просмотров: ', 'views: '],
 	published:      ['опубликовано: ', 'published: '],
@@ -3846,22 +3847,29 @@ YouTube = new function() {
 
 	function addPlayer(el, m, isYtube) {
 		var time, list, id = m[1],
-			wh = ' width="' + width + '" height="' + height + '">';
+			wh = ' width="' + width + '" height="' + height + '">',
+			sp = '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
 		if(isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 			list = m[0].match(/list=[^&#]+/);
-			el.innerHTML = '<iframe frameborder="0" allowfullscreen="1" src="' + aib.prot + '//www.youtube.com/embed/' +
+			el.innerHTML =
+				'<iframe frameborder="0" allowfullscreen="1" src="' + aib.prot + '//www.youtube.com/embed/' +
 				id + '?' + (el.parentNode.id === 'de-content-vid' ? 'enablejsapi=1&' : '') +
-				(isHD ? 'hd=1&' : '') + (list ? list[0] + '&' : '') + 'start=' + time + (videoType === 1 ?
-					'&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') + wh;
+				(isHD ? 'hd=1&' : '') + (list ? list[0] + '&' : '') + 'start=' + time +
+				(videoType === 1 ? '&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') +
+				wh + '</iframe>' + sp;
 		} else {
 			time = m[2] ? m[2] : '';
 			el.innerHTML = videoType === 1 ?
-				'<iframe src="' + aib.prot + '//player.vimeo.com/video/' + id + time +
-					'" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh :
+				'<iframe src="' + aib.prot + '//player.vimeo.com/video/' + id + time + '" frameborder="0" ' +
+					'webkitallowfullscreen mozallowfullscreen allowfullscreen' + wh + '</iframe>' + sp :
 				'<embed type="application/x-shockwave-flash" src="' + aib.prot + '//vimeo.com/moogaloop.swf' +
 					'?clip_id=' + id + time + '&server=vimeo.com&color=00adef&fullscreen=1" ' +
-					'allowscriptaccess="always" allowfullscreen="true"' + wh;
+					'allowscriptaccess="always" allowfullscreen="true"' + wh + '</embed>' + sp;
+		}
+		el.lastChild.onclick = function() {
+			var el = this.parentNode;
+			el.className = el.className === 'de-video-obj' ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 		}
 	}
 
@@ -4226,7 +4234,7 @@ function loadFavorThread() {
 	$alert(Lng.loading[lang], 'load-favthr', true);
 	el.insertAdjacentHTML('beforeend', '<iframe name="de-iframe-fav" id="de-iframe-fav" src="' +
 		$t('a', el).href + '" scrolling="no" style="display: block; border: none; width: ' +
-		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;">');
+		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"></iframe>');
 }
 
 function PagesLoader(from, count, loadFn, errorFn, endFn) {
@@ -10272,6 +10280,7 @@ function getImageBoard(checkDomains, checkOther) {
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.images-area input { float: left; }\
+				.images-single + .de-video-obj { display: inline-block; }\
 				.mess-post { display: block; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
@@ -11483,7 +11492,7 @@ function scriptCSS() {
 		.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\
 		.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\
 		.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\
-		.de-cfg-body { min-height: 305px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
+		.de-cfg-body { min-height: 307px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\
 		.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\
 		.de-cfg-body input[type="button"], .de-cfg-body input[type="text"] { padding: 1px 2px !important; }\
 		.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\
@@ -11692,6 +11701,8 @@ function scriptCSS() {
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
+		.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
+		.de-video-resizer:after { content: " \u2795"; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }\
