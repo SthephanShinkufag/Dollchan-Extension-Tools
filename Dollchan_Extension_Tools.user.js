@@ -10027,6 +10027,11 @@ function getImageBoard(checkDomains, checkOther) {
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
+		'diochan.com': [{
+			dio: { value: true },
+			
+			css: { value: '.resize { display: none !important; }' },
+		}, 'script[src*="kusaba"]'],
 		get 'dmirrgetyojz735v.onion'() { return this['2chru.net']; },
 		'dobrochan.com': [{
 			dobr: { value: true },
@@ -10211,6 +10216,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
+		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponychan.net': [{
 			pony: { value: true },
 			
@@ -11848,7 +11854,7 @@ function updateCSS() {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
 	}
 	if(Cfg.noSpoilers) {
-		if(aib.krau || aib.fch || aib._410) {
+		if(aib.krau || aib.fch || aib._410 || aib.dio) {
 			x += '.spoiler, s { color: #fff !important; }\
 				.spoiler > a, s > a { color: #fff !important; }';
 		} else {
