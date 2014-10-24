@@ -11035,6 +11035,9 @@ function replaceString(txt) {
 		if(aib.fch) {
 			txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
+		if(aib.krau) {
+			txt = txt.replace(/href="(#\d+)"/g, 'href="/' + brd + '/thread-' + TNum + '.html$1"');
+		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function(x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
 		});
@@ -11387,7 +11390,7 @@ function initPage() {
 			var hash = window.location.hash;
 			if(hash) {
 				window.location.hash = hash;
-			} else {
+			} else if(!TNum) {
 				window.scrollTo(0, 0);
 			}
 		}, 20);
