@@ -9813,7 +9813,7 @@ function getNavFuncs() {
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
 		isGlobal: isGM || isChromeStorage || isScriptStorage,
-		scriptInstall: (firefox ? (typeof Components !== 'undefined' && !!Components.interfaces.nsIFile ?
+		scriptInstall: (firefox ? (typeof Components !== 'undefined' && !!Components.interfaces.nsIIOService ?
 				'Greasemonkey' : 'Scriptish') :
 			isChromeStorage ? 'Chrome extension' :
 			isGM ? 'Monkey' : 'Native userscript'),
