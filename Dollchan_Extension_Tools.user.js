@@ -2249,7 +2249,7 @@ function getCfgForm() {
 		])),
 		$if(pr.form, optSel('addPostForm', true, function() {
 			saveCfg('addPostForm', this.selectedIndex);
-			pr.isTopForm = Cfg.addPostForm !== 0;
+			pr.isBottom = Cfg.addPostForm === 1;
 			pr.setReply(false, !TNum || Cfg.addPostForm > 1);
 		})),
 		lBox('favOnReply', true, null),
@@ -5647,7 +5647,7 @@ PostForm.prototype = {
 	fileObj: null,
 	isHidden: false,
 	isQuick: false,
-	isTopForm: false,
+	isBottom: false,
 	lastQuickPNum: -1,
 	pForm: null,
 	pArea: [],
@@ -5771,7 +5771,7 @@ PostForm.prototype = {
 		}
 	},
 	get isVisible() {
-		if(!this.isHidden && this.isTopForm && $q(':focus', this.pForm)) {
+		if(!this.isHidden && this.isBottom && $q(':focus', this.pForm)) {
 			var cr = this.pForm.getBoundingClientRect();
 			return cr.bottom > 0 && cr.top < doc.documentElement.clientHeight;
 		}
@@ -5785,7 +5785,7 @@ PostForm.prototype = {
 		if(!this.isQuick) {
 			this.isQuick = true;
 			this.setReply(true, false);
-			$t('a', this._pBtn[+this.isTopForm]).className =
+			$t('a', this._pBtn[+this.isBottom]).className =
 				'de-abtn de-parea-btn-' + (TNum ? 'reply' : 'thrd');
 			if(!TNum && !aib.kus && !aib.dobr && !aib.mak) {
 				if(this.oeForm) {
@@ -5840,14 +5840,14 @@ PostForm.prototype = {
 		$id('de-qarea-target').textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
 	},
-	showMainReply: function(isTop, evt) {
+	showMainReply: function(isBottom, evt) {
 		this.closeQReply();
-		if(this.isTopForm === isTop) {
+		if(this.isBottom === isBottom) {
 			this.pForm.style.display = this.isHidden ? '' : 'none';
 			this.isHidden = !this.isHidden;
 			this.updatePAreaBtns();
 		} else {
-			this.isTopForm = isTop;
+			this.isBottom = isBottom;
 			this.setReply(false, false);
 		}
 		if(evt) {
@@ -5913,8 +5913,8 @@ PostForm.prototype = {
 		if(quick) {
 			$before($id('de-resizer-right'), this.pForm);
 		} else {
-			$after(this.pArea[+this.isTopForm], this.qArea);
-			$after(this._pBtn[+this.isTopForm], this.pForm);
+			$after(this.pArea[+this.isBottom], this.qArea);
+			$after(this._pBtn[+this.isBottom], this.pForm);
 		}
 		this.isHidden = hide;
 		this.qArea.style.display = quick ? '' : 'none';
@@ -5931,8 +5931,8 @@ PostForm.prototype = {
 	updatePAreaBtns: function() {
 		var txt = 'de-abtn de-parea-btn-',
 			rep = TNum ? 'reply' : 'thrd';
-		$t('a', this._pBtn[+this.isTopForm]).className = txt + (this.pForm.style.display === '' ? 'close' : rep);
-		$t('a', this._pBtn[+!this.isTopForm]).className = txt + rep;
+		$t('a', this._pBtn[+this.isBottom]).className = txt + (this.pForm.style.display === '' ? 'close' : rep);
+		$t('a', this._pBtn[+!this.isBottom]).className = txt + rep;
 	},
 
 	_lastCapUpdate: 0,
@@ -5952,7 +5952,7 @@ PostForm.prototype = {
 		this.qArea = $add('<div style="display: none; ' + Cfg.qReplyX + '; ' + Cfg.qReplyY +
 			';" id="de-qarea" class="' + aib.cReply +
 			(Cfg.hangQReply ? ' de-qarea-hanging' : ' de-qarea-inline') + '"></div>');
-		this.isTopForm = Cfg.addPostForm !== 0;
+		this.isBottom = Cfg.addPostForm === 1;
 		this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		el = this.qArea;
 		el.insertAdjacentHTML('beforeend',
@@ -6190,7 +6190,7 @@ PostForm.prototype = {
 			if(this.isQuick) {
 				this.pForm.style.display = 'none';
 				this.qArea.style.display = 'none';
-				$after(this._pBtn[+this.isTopForm], this.pForm);
+				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
 		}.bind(this), false);
 		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
@@ -11381,8 +11381,16 @@ function initPage() {
 				'</div>');
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
-	} else if(needScroll) {
-		setTimeout(window.scrollTo, 20, 0, 0);
+	}
+	if(needScroll) {
+		setTimeout(function() {
+			var hash = window.location.hash;
+			if(hash) {
+				window.location.hash = hash;
+			} else {
+				window.scrollTo(0, 0);
+			}
+		}, 20);
 	}
 	updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
 }
