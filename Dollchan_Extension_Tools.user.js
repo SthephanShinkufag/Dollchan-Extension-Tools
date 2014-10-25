@@ -13,7 +13,6 @@
 // @grant           GM_deleteValue
 // @grant           GM_openInTab
 // @grant           GM_xmlhttpRequest
-// @grant           GM_info
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
