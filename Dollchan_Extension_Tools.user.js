@@ -13,6 +13,7 @@
 // @grant           GM_deleteValue
 // @grant           GM_openInTab
 // @grant           GM_xmlhttpRequest
+// @grant           GM_info
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
@@ -9785,7 +9786,7 @@ function getNavFuncs() {
 	if(!('URL' in window)) {
 		window.URL = window.webkitURL;
 	}
-	var ua = window.navigator.userAgent,
+	var scriptInstall, ua = window.navigator.userAgent,
 		firefox = ua.contains('Gecko/'),
 		presto = window.opera ? +window.opera.version() : 0,
 		opera11 = presto ? presto < 12.1 : false,
@@ -9798,6 +9799,15 @@ function getNavFuncs() {
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
+	}
+	if(firefox) {
+		try {
+			if(GM_info) {
+				scriptInstall = 'Greasemonkey';
+			}
+		} catch(e) {
+			scriptInstall = 'Scriptish';
+		}
 	}
 	return {
 		get ua() {
@@ -9813,8 +9823,7 @@ function getNavFuncs() {
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
 		isGlobal: isGM || isChromeStorage || isScriptStorage,
-		scriptInstall: (firefox ? (typeof Components !== 'undefined' && !!Components.interfaces.nsIIOService ?
-				'Greasemonkey' : 'Scriptish') :
+		scriptInstall: scriptInstall || (
 			isChromeStorage ? 'Chrome extension' :
 			isGM ? 'Monkey' : 'Native userscript'),
 		cssFix: webkit ? '-webkit-' : opera11 ? '-o-' : '',
