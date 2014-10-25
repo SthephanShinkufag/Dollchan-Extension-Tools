@@ -9786,7 +9786,7 @@ function getNavFuncs() {
 	if(!('URL' in window)) {
 		window.URL = window.webkitURL;
 	}
-	var scriptInstall, ua = window.navigator.userAgent,
+	var ua = window.navigator.userAgent,
 		firefox = ua.contains('Gecko/'),
 		presto = window.opera ? +window.opera.version() : 0,
 		opera11 = presto ? presto < 12.1 : false,
@@ -9799,15 +9799,6 @@ function getNavFuncs() {
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	if(!window.GM_xmlhttpRequest) {
 		window.GM_xmlhttpRequest = $xhr;
-	}
-	if(firefox) {
-		try {
-			if(GM_info) {
-				scriptInstall = 'Greasemonkey';
-			}
-		} catch(e) {
-			scriptInstall = 'Scriptish';
-		}
 	}
 	return {
 		get ua() {
@@ -9823,7 +9814,7 @@ function getNavFuncs() {
 		isChromeStorage: isChromeStorage,
 		isScriptStorage: isScriptStorage,
 		isGlobal: isGM || isChromeStorage || isScriptStorage,
-		scriptInstall: scriptInstall || (
+		scriptInstall: (firefox ? (typeof GM_info !== 'undefined' ? 'Greasemonkey' : 'Scriptish') :
 			isChromeStorage ? 'Chrome extension' :
 			isGM ? 'Monkey' : 'Native userscript'),
 		cssFix: webkit ? '-webkit-' : opera11 ? '-o-' : '',
