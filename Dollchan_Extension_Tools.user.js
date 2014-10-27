@@ -7480,7 +7480,7 @@ AttachmentViewer.prototype = {
 			this._fullEl.src = '';
 		}
 		this._obj.style.display = 'none';
-		setTimeout($del, 0, this._obj);
+		setTimeout($del, 100, this._obj);
 		if(e && this.data.inPview) {
 			this.data.sendCloseEvent(e, false);
 		}
