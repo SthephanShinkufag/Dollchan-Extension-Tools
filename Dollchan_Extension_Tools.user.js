@@ -11873,7 +11873,7 @@ function updateCSS() {
 		}
 	}
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
-		x += '#de-pform form > table > tbody > tr > td:first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
+		x += '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
 	}
 	$id('de-css-dynamic').textContent = x;
 	$id('de-css-user').textContent = Cfg.userCSS ? Cfg.userCSSTxt : '';
