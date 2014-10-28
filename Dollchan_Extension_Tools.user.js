@@ -8341,7 +8341,7 @@ Post.prototype = {
 		return val;
 	},
 	get posterName() {
-		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent : '';
+		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent.trim() : '';
 		Object.defineProperty(this, 'posterName', { value: val });
 		return val;
 	},
