@@ -2519,7 +2519,10 @@ function addSettings(Set, id) {
 					var i, obj = {},
 						com = comCfg[aib.dm];
 					for(i in com) {
-						if(com[i] !== defaultCfg[i] && i !== 'stats') {
+						if(i !== 'correctTime' && i !== 'timePattern' &&
+							i !== 'userCSS' && i !== 'userCSSTxt' &&
+							com[i] !== defaultCfg[i] && i !== 'stats')
+						{
 							obj[i] = com[i];
 						}
 					}
