@@ -11966,8 +11966,8 @@ function doScript(formEl) {
 	addDelformStuff(true);
 	readViewedPosts();
 	scriptCSS();
-	new Logger().log('Apply CSS');
 	doc.body.style.display = '';
+	new Logger().log('Apply CSS');
 	readPosts();
 	readUserPosts();
 	readFavoritesPosts();
