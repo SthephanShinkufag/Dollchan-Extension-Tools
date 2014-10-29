@@ -1641,7 +1641,8 @@ function showContent(cont, id, name, remove, data) {
 				'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] +
 				'">&#x25C0;</a> <a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] +
 				'">&#x25B2;</a> <a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] +
-				'">&#x25B6;</a></center><div id="de-video-list"></div>');
+				'">&#x25B6;</a></center><div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
+				'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px;"></div>');
 			post = {};
 			post.ytInfo = null;
 			post.ytObj = cont.firstChild;
@@ -11710,6 +11711,7 @@ function scriptCSS() {
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
 		.de-mp3, .de-video-obj { margin: 5px 20px; }\
 		.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
+		#de-video-list { padding: 0 0 4px; overflow: auto; }\
 		.de-video-resizer:after { content: " \u2795"; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
@@ -11835,7 +11837,6 @@ function updateCSS() {
 		$id('de-css-dynamic').textContent = x;
 		return;
 	}
-	x += '#de-video-list { padding: 0 0 4px; max-width: ' + (+Cfg.YTubeWidth + 40) + 'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px; overflow: auto; }';
 	if(!Cfg.panelCounter) {
 		x += '#de-panel-info { display: none; }';
 	}
@@ -11965,8 +11966,8 @@ function doScript(formEl) {
 	addDelformStuff(true);
 	readViewedPosts();
 	scriptCSS();
-	doc.body.style.display = '';
 	new Logger().log('Apply CSS');
+	doc.body.style.display = '';
 	readPosts();
 	readUserPosts();
 	readFavoritesPosts();
