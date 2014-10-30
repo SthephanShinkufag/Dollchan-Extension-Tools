@@ -2178,12 +2178,12 @@ function getCfgImages() {
 			}),
 			$txt(Lng.cfg.zoomFactor[lang]),
 			lBox('webmControl', true, null),
-			$New('div', null, [
+			$if(nav.canPlayWebm, $New('div', null, [
 				inpTxt('webmVolume', 4, function() {
 					saveCfg('webmVolume', Math.min(+this.value, 100));
 				}),
 				$txt(Lng.cfg.webmVolume[lang])
-			])
+			]))
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
 		$if(!nav.Presto, $New('div', {'class': 'de-cfg-depend'}, [
@@ -7623,7 +7623,6 @@ IAttachmentData.prototype = {
 					'<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
 					'<param name="loop" value="true" />' +
 					'<param name="autoplay" value="true" />' +
-					'<param name="mute" value="' + (Cfg.webmVolume === 0 ? 'true' : 'false') + '" />' +
 					'<param name="wmode" value="transparent" /></object>');
 			}
 		} else {
