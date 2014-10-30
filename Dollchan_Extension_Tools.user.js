@@ -11404,17 +11404,18 @@ function initPage() {
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	}
-	if(needScroll) {
-		setTimeout(function() {
-			var hash = window.location.hash;
-			if(hash) {
-				window.location.hash = hash;
-			} else if(!TNum) {
-				window.scrollTo(0, 0);
-			}
-		}, 20);
-	}
 	updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+}
+
+function scrollPage() {
+	var hash = window.location.hash,
+		val = hash && (val = window.location.hash.match(/#i?(\d+)$/)) &&
+			val[1] && pByNum[val] && pByNum[val].topCoord;
+	if(TNum && val) {
+		window.scrollTo(0, pageYOffset + val);
+	} else if(!TNum) {
+		window.scrollTo(0, 0);
+	}
 }
 
 function checkForUpdates(isForce, Fn) {
@@ -11972,6 +11973,9 @@ function doScript(formEl) {
 	readPosts();
 	readUserPosts();
 	readFavoritesPosts();
+	if(needScroll) {
+		scrollPage();
+	}
 	new Logger().log('Apply spells');
 	new Logger().finish();
 }
