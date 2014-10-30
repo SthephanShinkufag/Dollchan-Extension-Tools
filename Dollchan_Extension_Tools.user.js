@@ -8094,7 +8094,7 @@ Post.prototype = {
 						$pd(e);
 						e.stopPropagation();
 						if(pr.isQuick || (TNum && pr.isHidden)) {
-							pr.showQuickReply(this, this.num, false, true);
+							pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, false, true);
 						} else if(TNum) {
 							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
