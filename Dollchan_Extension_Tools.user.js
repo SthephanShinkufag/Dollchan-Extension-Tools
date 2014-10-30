@@ -11410,7 +11410,7 @@ function initPage() {
 function scrollPage() {
 	var hash = window.location.hash,
 		val = hash && (val = window.location.hash.match(/#i?(\d+)$/)) &&
-			val[1] && pByNum[val] && pByNum[val].topCoord;
+			(val = val[1]) && pByNum[val] && pByNum[val].topCoord;
 	if(TNum && val) {
 		window.scrollTo(0, pageYOffset + val);
 	} else if(!TNum) {
