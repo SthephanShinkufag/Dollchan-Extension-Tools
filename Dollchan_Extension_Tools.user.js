@@ -7619,11 +7619,11 @@ IAttachmentData.prototype = {
 				};
 			} else {
 				obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' +
-					'<param name="pluginurl" value="http://www.videolan.org/vlc/" />' +
-					'<param name="controller" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
+					'<param name="pluginspage" value="http://www.videolan.org/vlc/" />' +
+					'<param name="controls" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
+					'<param name="loop" value="true" />' +
 					'<param name="autoplay" value="true" />' +
-					'<param name="scale" value="tofit" />' +
-					'<param name="volume" value="' + Math.round(Cfg.webmVolume * 2.55) + '" />' +
+					'<param name="mute" value="' + (Cfg.webmVolume === 0 ? 'true' : 'false') + '" />' +
 					'<param name="wmode" value="transparent" /></object>');
 			}
 		} else {
