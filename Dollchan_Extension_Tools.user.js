@@ -10299,6 +10299,7 @@ function getImageBoard(checkDomains, checkOther) {
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				$script('window.FormData = void 0;');
+				$each($C('autorefresh', doc), $del);
 				$each($C('postform-image', doc), function(el) {
 					el.insertAdjacentHTML('afterend', '<div style="clear: both;"></div>');
 					el.nextSibling.appendChild(el);
