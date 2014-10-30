@@ -7618,8 +7618,8 @@ IAttachmentData.prototype = {
 					saveCfg('webmVolume', Math.round(this.volume * 100));
 				};
 			} else {
-				obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="video/quicktime">' +
-					'<param name="pluginurl" value="http://www.apple.com/quicktime/download/" />' +
+				obj = $add('<object style="width: 100%; height: 100%" data="' + src + '" type="application/x-vlc-plugin">' +
+					'<param name="pluginurl" value="http://www.videolan.org/vlc/" />' +
 					'<param name="controller" value="' + (Cfg.webmControl ? 'true' : 'false') + '" />' +
 					'<param name="autoplay" value="true" />' +
 					'<param name="scale" value="tofit" />' +
@@ -8071,6 +8071,7 @@ Post.prototype = {
 					this._clickImage(el, e);
 				}
 				return;
+			case 'OBJECT':
 			case 'VIDEO':
 				if(Cfg.expandImgs !== 0 && !(Cfg.webmControl && e.clientY >
 					(el.getBoundingClientRect().top + parseInt(el.style.height, 10) - 30)))
