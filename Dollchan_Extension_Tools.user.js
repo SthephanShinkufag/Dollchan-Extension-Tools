@@ -10796,6 +10796,11 @@ function Initialization(checkDomains) {
 	}
 	nav = getNavFuncs();
 
+	window.addEventListener('beforeunload', function(e) {
+		if(TNum) {
+			sesStorage['de-scroll-' + brd + TNum] = pageYOffset;
+		}
+	}, false);
 	window.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
@@ -11408,13 +11413,21 @@ function initPage() {
 }
 
 function scrollPage() {
-	var hash = window.location.hash,
-		val = hash && (val = window.location.hash.match(/#i?(\d+)$/)) &&
-			(val = val[1]) && pByNum[val] && pByNum[val].topCoord;
-	if(TNum && val) {
-		window.scrollTo(0, pageYOffset + val);
-	} else if(!TNum) {
+	if(!TNum) {
 		window.scrollTo(0, 0);
+		return;
+	}
+	var hash = window.location.hash,
+		val = hash && (val = hash.match(/#i?(\d+)$/)) &&
+			(val = val[1]) && pByNum[val] && pByNum[val].topCoord;
+	if(val) {
+		window.scrollTo(0, pageYOffset + val);
+		return;
+	}
+	val = sesStorage['de-scroll-' + brd + TNum];
+	if(val) {
+		window.scrollTo(0, val);
+		sesStorage.removeItem('de-scroll-' + brd + TNum);
 	}
 }
 
