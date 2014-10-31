@@ -2994,7 +2994,7 @@ HotKeys.prototype = {
 							post.thr.load(1, false, null);
 							post = post.thr.op;
 						}
-						scrollTo(0, pageYOffset + post.topCoord);
+						scrollTo(0, window.pageYOffset + post.topCoord);
 						if(this.cPost && this.cPost !== post) {
 							this.cPost.unselect();
 							this.cPost = post;
@@ -3023,7 +3023,7 @@ HotKeys.prototype = {
 
 	_getFirstVisPost: function(getThread, getFull) {
 		var post, tPost;
-		if(this.lastPageOffset !== pageYOffset) {
+		if(this.lastPageOffset !== window.pageYOffset) {
 			post = getThread ? dForm.firstThr : dForm.firstThr.op;
 			while(post.topCoord < 1) {
 				tPost = post.next;
@@ -3036,7 +3036,7 @@ HotKeys.prototype = {
 				this.cPost.unselect();
 			}
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-			this.lastPageOffset = pageYOffset;
+			this.lastPageOffset = window.pageYOffset;
 		}
 		return this.cPost;
 	},
@@ -3072,10 +3072,10 @@ HotKeys.prototype = {
 		if(toThread) {
 			next.el.scrollIntoView();
 		} else {
-			scrollTo(0, pageYOffset + next.el.getBoundingClientRect().top -
+			scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top -
 				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
-		this.lastPageOffset = pageYOffset;
+		this.lastPageOffset = window.pageYOffset;
 		next.select();
 		this.cPost = next;
 	}
@@ -4230,7 +4230,7 @@ function loadFavorThread() {
 		return;
 	}
 	if((post = pByNum[el.getAttribute('de-num')]) && !post.hidden) {
-		scrollTo(0, pageYOffset + post.el.getBoundingClientRect().top);
+		scrollTo(0, window.pageYOffset + post.el.getBoundingClientRect().top);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -6792,14 +6792,14 @@ function checkUpload(dc) {
 			dForm.firstThr.loadNewFromForm(el);
 			closeAlert($id('de-alert-upload'));
 			if(Cfg.scrAfterRep) {
-				scrollTo(0, pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+				scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 			}
 		} else {
 			dForm.firstThr.loadNew(function(eCode, eMsg, np, xhr) {
 				infoLoadErrors(eCode, eMsg, 0);
 				closeAlert($id('de-alert-upload'));
 				if(Cfg.scrAfterRep) {
-					scrollTo(0, pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
 			}, true);
 		}
@@ -7643,8 +7643,8 @@ IAttachmentData.prototype = {
 	sendCloseEvent: function(e, inPost) {
 		var pv = this.post,
 			cr = pv.el.getBoundingClientRect(),
-			x = e.pageX - pageXOffset,
-			y = e.pageY - pageYOffset;
+			x = e.pageX - window.pageXOffset,
+			y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 				if(pv = pv.parent) {
@@ -9474,7 +9474,7 @@ Thread.prototype = {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 		}
 		if(smartScroll) {
-			scrollTo(pageXOffset, pageYOffset - (nextCoord - this.next.topCoord));
+			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
@@ -9509,7 +9509,7 @@ Thread.prototype = {
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
 			info = this._parsePosts(aib.getPosts(form));
 		if(lastOffset !== null) {
-			scrollTo(pageXOffset, pageYOffset - (lastOffset - pr.topCoord));
+			scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
 		}
 		if(info[0] !== 0) {
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' +
@@ -10796,11 +10796,6 @@ function Initialization(checkDomains) {
 	}
 	nav = getNavFuncs();
 
-	window.addEventListener('beforeunload', function(e) {
-		if(TNum) {
-			sesStorage['de-scroll-' + brd + TNum] = pageYOffset;
-		}
-	}, false);
 	window.addEventListener('storage', function(e) {
 		var data, temp, post, val = e.newValue;
 		if(!val) {
@@ -10905,6 +10900,11 @@ function Initialization(checkDomains) {
 		if(!aib.hasOwnProperty('docExt') && url[4]) {
 			aib.docExt = url[4];
 		}
+	}
+	if(TNum) {
+		window.addEventListener('beforeunload', function(e) {
+			sesStorage['de-scroll-' + brd + TNum] = window.pageYOffset;
+		}, false);
 	}
 	dummy = doc.createElement('div');
 	return formEl;
@@ -11421,7 +11421,7 @@ function scrollPage() {
 		val = hash && (val = hash.match(/#i?(\d+)$/)) &&
 			(val = val[1]) && pByNum[val] && pByNum[val].topCoord;
 	if(val) {
-		window.scrollTo(0, pageYOffset + val);
+		window.scrollTo(0, window.pageYOffset + val);
 		return;
 	}
 	val = sesStorage['de-scroll-' + brd + TNum];
