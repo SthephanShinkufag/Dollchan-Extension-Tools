@@ -10027,6 +10027,21 @@ function getImageBoard(checkDomains, checkOther) {
 				$script('multi_image();');
 			} }
 		}, 'form[name*="postcontrols"]'],
+		'arhivach.org': [{
+			cReply: { value: 'post' },
+			cRPost: { value: 'post' },
+			qDForm: { value: 'body > .container-fluid' },
+			qMsg: { value: '.post_comment_body' },
+			qRef: { value: '.post_id' },
+			qThread: { value: '.thread_inner' },
+			getTNum: { value: function(op) {
+				return op.postid;
+			} },
+			css: { value: '.post_replies { display: none !important; }\
+				.post { overflow-x: auto !important; }' },
+			docExt: { value: '' },
+			res: { value: 'thread/' },
+		}],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
 		}],
