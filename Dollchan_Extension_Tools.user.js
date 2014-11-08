@@ -9800,7 +9800,7 @@ function getNavFuncs() {
 			(!chrome || !GM_setValue.toString().contains('not supported')),
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
-	if(!window.GM_xmlhttpRequest) {
+	if(typeof GM_xmlhttpRequest !== 'function') {
 		window.GM_xmlhttpRequest = $xhr;
 	}
 	return {
