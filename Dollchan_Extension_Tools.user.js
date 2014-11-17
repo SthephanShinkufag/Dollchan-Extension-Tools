@@ -10285,6 +10285,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
 			qTrunc: { value: null },
+			getFileWrap: { value: function(el) {
+				return el.parentNode;
+			} },
 			getImgParent: { value: function(el) {
 				var el = $parent(el, 'FIGURE'),
 					parent = el.parentNode;
@@ -10305,7 +10308,8 @@ function getImageBoard(checkDomains, checkOther) {
 				#de-txt-panel { font-size: 16px !important; }\
 				.images-area input { float: left; }\
 				.images-single + .de-video-obj { display: inline-block; }\
-				.mess-post { display: block; }' },
+				.mess-post { display: block; }\
+				.images-area input { float: none !important; display: inline !important; }' },
 			formButtons: { get: function() {
 				return Object.create(this._formButtons, {
 					tag: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] }
