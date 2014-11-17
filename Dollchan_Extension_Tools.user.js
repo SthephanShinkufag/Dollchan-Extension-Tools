@@ -10348,6 +10348,15 @@ function getImageBoard(checkDomains, checkOther) {
 					}
 				}.bind(this), true);
 			} },
+			fixFileInputs: { value: function(el) {
+				var i, len, node = $q('#postform .images-area', doc).lastElementChild,
+					str = '';
+				for(i = 0, len = 4; i < len; ++i) {
+					str += '<div' + (i === 0 ? '' : ' style="display: none;"') +
+						'><input type="file" name="image' +  (i + 1) + '"></input></div>';
+				}
+				node.innerHTML = str;
+			} },
 			isBB: { value: true },
 			lastPage: { configurable: true, get: function() {
 				var els = $Q('.pager > a:not([class])', doc),
