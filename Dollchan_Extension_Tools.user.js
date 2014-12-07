@@ -5913,11 +5913,9 @@ PostForm.prototype = {
 				img.src = src;
 			}
 		}
-		if(!aib.mak) {
-			this.cap.value = '';
-			if(focus) {
-				this.cap.focus();
-			}
+		this.cap.value = '';
+		if(focus) {
+			this.cap.focus();
 		}
 		if(this._lastCapUpdate) {
 			this._lastCapUpdate = Date.now();
