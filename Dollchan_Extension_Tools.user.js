@@ -6235,7 +6235,9 @@ PostForm.prototype = {
 				if(!aib.krau) {
 					this.capTr.style.display = 'none';
 				}
-				this.capTr.innerHTML = '';
+				if(!aib.mak) {
+					this.capTr.innerHTML = '';
+				}
 			}
 			this.cap = null;
 		}
@@ -6296,6 +6298,12 @@ PostForm.prototype = {
 		if(this.capInited) {
 			return;
 		}
+		if(aib.mak) {
+			aib.updateCaptcha(false);
+			pr.txta.tabIndex = 999;
+			this.capInited = true;
+			return;
+		}
 		this.capTr.innerHTML = html;
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
 		if(aib.fch) {
@@ -6310,12 +6318,6 @@ PostForm.prototype = {
 		}
 		if(aib.dvachnet) {
 			$script('get_captcha()');
-		}
-		if(aib.mak) {
-			aib.updateCaptcha(false);
-			pr.txta.tabIndex = 999;
-			this.capInited = true;
-			return;
 		}
 		setTimeout(this._captchaUpd.bind(this), 100);
 	},
@@ -10349,6 +10351,7 @@ function getImageBoard(checkDomains, checkOther) {
 				el.addEventListener('click', function(e) {
 					if(e.target.tagName === 'IMG') {
 						this.updateCaptcha(true);
+						e.stopPropagation();
 					}
 				}.bind(this), true);
 			} },
