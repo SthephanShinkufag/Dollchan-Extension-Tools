@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name            Dollchan Extension Tools
-// @version         14.10.23.0
+// @version         14.12.31.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
 // @copyright       (C)2084, Bender Bending Rodriguez
@@ -22,7 +22,7 @@
 (function de_main_func(scriptStorage) {
 'use strict';
 
-var version = '14.10.23.0',
+var version = '14.12.31.0',
 defaultCfg = {
 	'disabled':         0,      // script enabled by default
 	'language':         0,      // script language [0=ru, 1=en]
