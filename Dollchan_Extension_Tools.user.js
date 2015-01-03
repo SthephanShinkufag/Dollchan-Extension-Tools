@@ -6232,11 +6232,13 @@ PostForm.prototype = {
 				if(this.file) {
 					this.file.addEventListener('click', this._captchaInit.bind(this, this.capTr.innerHTML), false);
 				}
-				if(!aib.krau) {
-					this.capTr.style.display = 'none';
-				}
-				if(!aib.mak) {
-					this.capTr.innerHTML = '';
+				if(!aib.fch) {
+					if(!aib.krau) {
+						this.capTr.style.display = 'none';
+					}
+					if(!aib.mak) {
+						this.capTr.innerHTML = '';
+					}
 				}
 			}
 			this.cap = null;
@@ -6300,15 +6302,17 @@ PostForm.prototype = {
 		}
 		if(aib.mak) {
 			aib.updateCaptcha(false);
+		}
+		if(aib.fch) {
+			$script('initRecaptcha()');
+		}
+		if(aib.mak || aib.fch) {
 			pr.txta.tabIndex = 999;
 			this.capInited = true;
 			return;
 		}
 		this.capTr.innerHTML = html;
 		this.cap = $q('input[type="text"][name*="aptcha"]:not([name="recaptcha_challenge_field"])', this.capTr);
-		if(aib.fch) {
-			$script('loadRecaptcha()');
-		}
 		if(aib.tire) {
 			$script('show_captcha()');
 		}
