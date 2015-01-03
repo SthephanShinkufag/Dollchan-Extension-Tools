@@ -5888,7 +5888,9 @@ PostForm.prototype = {
 				}));
 			return;
 		}
-		if(aib.mak) {
+		if(aib.fch) {
+			$script('initRecaptcha()');
+		} if(aib.mak) {
 			aib.updateCaptcha(focus);
 		} else {
 			if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
@@ -5913,9 +5915,11 @@ PostForm.prototype = {
 				img.src = src;
 			}
 		}
-		this.cap.value = '';
-		if(focus) {
-			this.cap.focus();
+		if(this.cap) {
+			this.cap.value = '';
+			if(focus) {
+				this.cap.focus();
+			}
 		}
 		if(this._lastCapUpdate) {
 			this._lastCapUpdate = Date.now();
