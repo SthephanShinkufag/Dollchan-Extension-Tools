@@ -5890,7 +5890,7 @@ PostForm.prototype = {
 		}
 		if(aib.fch) {
 			$script('initRecaptcha()');
-		} if(aib.mak) {
+		} else if(aib.mak) {
 			aib.updateCaptcha(focus);
 		} else {
 			if(!this.cap || (aib.krau && !$q('input[name="captcha_name"]', this.form).hasAttribute('value'))) {
