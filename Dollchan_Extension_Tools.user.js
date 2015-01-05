@@ -10131,6 +10131,11 @@ function getImageBoard(checkDomains, checkOther) {
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
+		'hii.pm': [{
+			qPostRedir: { value: 'input[name="redirecttothread"][value="1"]' },
+			css: { value: '#captcha_status, .content-background > hr, div[style="position: relative;"] { display: none !important; }' },
+			ru: { value: true }
+		}, 'script[src*="kusaba"]'],
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
