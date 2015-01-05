@@ -10249,8 +10249,11 @@ function getImageBoard(checkDomains, checkOther) {
 			multiFile: { value: true },
 			thrid: { value: 'replythread' }
 		}],
-		get 'ponychan.ru'() { return this['ponyach.ru']; },
+		get 'ponyach.cf'() { return this['ponyach.ru']; },
+		get 'ponyach.ga'() { return this['ponyach.ru']; },
+		get 'ponyach.ml'() { return this['ponyach.ru']; },
 		get 'ponya.ch'() { return this['ponyach.ru']; },
+		get 'ponychan.ru'() { return this['ponyach.ru']; },
 		'ponychan.net': [{
 			pony: { value: true },
 			
