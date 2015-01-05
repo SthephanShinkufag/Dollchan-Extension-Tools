@@ -5806,14 +5806,9 @@ PostForm.prototype = {
 						tNum + '" name="oek_parent">');
 				}
 				if(this.form) {
-					$del($q('#thr_id, input[name="parent"]', this.form));
+					$del($q('input[name="' + aib.thrid + '"]', this.form));
 					this.form.insertAdjacentHTML('afterbegin',
-						'<input type="hidden" id="thr_id" value="' + tNum + '" name="' + (
-							aib.fch || aib.futa ? 'resto' :
-							aib.tiny ? 'thread' :
-							'parent'
-						) + '">'
-					);
+						'<input type="hidden" id="de_thrid" value="' + tNum + '" name="' + aib.thrid + '">');
 				}
 			}
 		} else if(closeReply && !quotetxt && post.wrap.nextElementSibling === this.qArea) {
@@ -5872,7 +5867,7 @@ PostForm.prototype = {
 			this.lastQuickPNum = -1;
 			if(!TNum) {
 				this._toggleQuickReply(0);
-				$del($id('thr_id'));
+				$del($id('de_thrid'));
 			}
 			this.setReply(false, !TNum || Cfg.addPostForm > 1);
 		}
@@ -6294,7 +6289,7 @@ PostForm.prototype = {
 			$q('input[name="oek_parent"], input[name="replyto"]', this.oeForm).value = tNum;
 		}
 		if(this.form) {
-			$q('#thr_id, input[name*="thread"]', this.form).value = tNum;
+			$q('#de_thrid, input[name*="thread"]', this.form).value = tNum;
 			if(aib.pony) {
 				$q('input[name="quickreply"]', this.form).value = tNum || '';
 			}
@@ -10027,7 +10022,8 @@ function getImageBoard(checkDomains, checkOther) {
 			rLinkClick: { value: '' },
 			rep: { value: true },
 			res: { value: 'thread/' },
-			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' }
+			timePattern: { value: 'nn+dd+yy+w+hh+ii-?s?s?' },
+			thrid: { value: 'resto' }
 		}],
 		'7chan.org': [{
 			init: { value: function() { return true; } }
@@ -10245,6 +10241,12 @@ function getImageBoard(checkDomains, checkOther) {
 			isBB: { value: true }
 		}, 'form[name*="postcontrols"]'],
 		get 'niuchan.org'() { return this['diochan.com']; },
+		'ponyach.ru': [{
+			multiFile: { value: true },
+			thrid: { value: 'replythread' }
+		}],
+		get 'ponychan.ru'() { return this['ponyach.ru']; },
+		get 'ponya.ch'() { return this['ponyach.ru']; },
 		'ponychan.net': [{
 			pony: { value: true },
 			
@@ -10466,7 +10468,8 @@ function getImageBoard(checkDomains, checkOther) {
 				.ftbl { width: auto; margin: 0; }\
 				.reply { background: #f0e0d6; }\
 				span { font-size: inherit; }' },
-			docExt: { value: '.htm' }
+			docExt: { value: '.htm' },
+			thrid: { value: 'resto' }
 		},
 		'form[action*="imgboard.php?delete"]': {
 			tinyIb: { value: true },
@@ -10510,7 +10513,8 @@ function getImageBoard(checkDomains, checkOther) {
 				div.post.reply { float: left; clear: left; display: block; }\
 				form, form table { margin: 0; }';
 			} },
-			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' }
+			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
+			thrid: { value: 'thread' }
 		},
 		'script[src*="kusaba"]': {
 			kus: { value: true },
@@ -10749,7 +10753,8 @@ function getImageBoard(checkDomains, checkOther) {
 		res: 'res/',
 		rLinkClick: 'onclick="highlight(this.textContent.substr(2))"',
 		ru: false,
-		timePattern: 'w+dd+m+yyyy+hh+ii+ss'
+		timePattern: 'w+dd+m+yyyy+hh+ii+ss',
+		thrid: 'parent'
 	};
 
 	localRun = prot === 'file:';
