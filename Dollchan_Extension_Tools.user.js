@@ -10128,6 +10128,7 @@ function getImageBoard(checkDomains, checkOther) {
 			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
 		}],
 		get 'dobrochan.org'() { return this['dobrochan.com']; },
+		get 'dobrochan.ru'() { return this['dobrochan.com']; },
 		'dva-ch.net': [{
 			dvachnet: { value: true },
 		}],
