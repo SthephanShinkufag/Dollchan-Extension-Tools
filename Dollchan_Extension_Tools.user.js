@@ -6973,7 +6973,7 @@ html5Submit.prototype = {
 								jpgDat = img.subarray(i + 11, i + 16);
 							}
 						}
-						if((img[i + 1] >> 4) === 0xE || img[i + 1] === 0xFE) {
+						if(((img[i + 1] >> 4) === 0xE && img[i + 1] !== 0xEE) || img[i + 1] === 0xFE) {
 							if(lIdx !== i) {
 								val.push(img.subarray(lIdx, i));
 							}
