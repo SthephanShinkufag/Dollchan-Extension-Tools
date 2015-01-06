@@ -1340,7 +1340,7 @@ function addPanel(formEl) {
 					(!TNum || localRun ? '' :
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.abu && !aib.mak && (!aib.fch || aib.arch) ? '' :
+					(!aib.mak && (!aib.fch || aib.arch) ? '' :
 						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
@@ -5874,15 +5874,6 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function(focus) {
 		var src, img;
-		if(aib.abu && (img = $id('captcha_div')) && img.hasAttribute('onclick')) {
-			src = {'isCustom': true, 'focus': focus};
-				img.dispatchEvent(new CustomEvent('click', {
-					'bubbles': true,
-					'cancelable': true,
-					'detail': (nav.Firefox ? cloneInto(src, document.defaultView) : src)
-				}));
-			return;
-		}
 		if(aib.mak || aib.fch) {
 			aib.updateCaptcha(focus);
 		} else {
@@ -6352,7 +6343,7 @@ PostForm.prototype = {
 		if(aib.krau) {
 			return;
 		}
-		if(aib.abu || aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
+		if(aib.dobr || aib.dvachnet || this.recap || !(img = $q('img', this.capTr))) {
 			this.capTr.style.display = '';
 			return;
 		}
@@ -9204,15 +9195,16 @@ function setPviewPosition(link, pView, animFun) {
 }
 
 function addRefMap(post, tUrl) {
-	var i, ref, len, bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
+	var i, el, len, bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
 		html = ['<div class="de-refmap">'];
-	for(i = 0, ref = post.ref, len = ref.length; i < len; ++i) {
-		html.push(bStr, ref[i], '" class="de-reflink">&gt;&gt;', ref[i],
+	for(i = 0, el = post.ref, len = el.length; i < len; ++i) {
+		html.push(bStr, el[i], '" class="de-reflink">&gt;&gt;', el[i],
 			'</a><span class="de-refcomma">, </span>');
 	}
 	html.push('</div>');
 	if(aib.dobr) {
-		post.msg.nextElementSibling.insertAdjacentHTML('beforeend', html.join(''));
+		el = post.msg.nextElementSibling;
+		el && el.insertAdjacentHTML('beforeend', html.join(''));
 	} else {
 		post.msg.insertAdjacentHTML('afterend', html.join(''));
 	}
@@ -10392,57 +10384,6 @@ function getImageBoard(checkDomains, checkOther) {
 			rLinkClick: { value: '' },
 			timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' }
 		},
-		'#ABU_css, #ShowLakeSettings': {
-			abu: { value: true },
-
-			qBan: { value: 'font[color="#C12267"]' },
-			qDForm: { value: '#posts-form, #posts_form, #delform' },
-			qOmitted: { value: '.mess_post, .omittedposts' },
-			qPostRedir: { value: null },
-			getImgWrap: { value: function(el) {
-				return el.parentNode.parentNode;
-			} },
-			getSage: { writable: true, value: function(post) {
-				if($c('postertripid', dForm.el)) {
-					this.getSage = function(post) {
-						return !$c('postertripid', post);
-					};
-				} else {
-					this.getSage = Object.getPrototypeOf(this).getSage;
-				}
-				return this.getSage(post);
-			} },
-			cssEn: { value: '#ABU_alert_wait, .ABU_refmap, #captcha_div + font, #CommentToolbar, .postpanel, #usrFlds + tbody > tr:first-child, body > center { display: none !important; }\
-				.de-abtn { transition: none; }\
-				#de-txt-panel { font-size: 16px !important; }\
-				.reflink:before { content: none !important; }' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sup', 'sub', 'q'] }
-				});
-			} },
-			init: { value: function() {
-				var cd = $id('captcha_div'),
-				img = cd && $t('img', cd);
-				if(img) {
-					cd.setAttribute('onclick', ['var el, i = 4,',
-						 'isCustom = (typeof event.detail === "object") && event.detail.isCustom;',
-						 "if(!isCustom && event.target.tagName !== 'IMG') {",
-						 'return;',
-						 '}',
-						 'do {', img.getAttribute('onclick'), '} while(--i > 0 && !/<img|не нужно/i.test(this.innerHTML));',
-						 "if(el = this.getElementsByTagName('img')[0]) {",
-						 "el.removeAttribute('onclick');",
-						 "if((!isCustom || event.detail.focus) && (el = this.querySelector('input[type=\\'text\\']'))) {",
-						 'el.focus();',
-						 '}',
-						 '}'
-					].join(''));
-					img.removeAttribute('onclick');
-				}
-			} },
-			isBB: { value: true }
-		},
 		'form[action*="futaba.php"]': {
 			futa: { value: true },
 			
@@ -11031,12 +10972,6 @@ DelForm.prototype = {
 		}
 		this.tNums.push(+thr.num);
 		this.lastThr = thr;
-		if(aib.abu && TNum) {
-			el = this.firstThr.el;
-			while((node = el.nextSibling) && node.tagName !== 'HR') {
-				$del(node);
-			}
-		}
 	},
 	clear: function() {
 		$each($Q('a[href^="blob:"]', this.el), function(a) {
@@ -11936,11 +11871,6 @@ function updateCSS() {
 	}
 	if(Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
-	}
-	if(aib.abu) {
-		if(Cfg.addYouTube) {
-			x += 'div[id^="post_video"] { display: none !important; }';
-		}
 	}
 	if(!aib.kus && (aib.multiFile || !Cfg.fileThumb)) {
 		x += '#de-pform form > table > tbody > tr > td:not([colspan]):first-child, #de-pform form > table > tbody > tr > th:first-child { display: none; }';
