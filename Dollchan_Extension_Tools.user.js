@@ -5682,7 +5682,9 @@ PostForm.prototype = {
 		return val;
 	},
 	addTextPanel: function() {
-		var i, len, tag, html, btns, tPanel = $id('de-txt-panel');
+		var i, len, html, btns, tPanel = $id('de-txt-panel'),
+			id = ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
+			val = ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'];
 		if(!Cfg.addTextBtns) {
 			$del(tPanel);
 			return;
@@ -5696,18 +5698,17 @@ PostForm.prototype = {
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-txta-resizer') || this.txta :
 			aib._420 ? $c('popup', this.form) : this.subm, tPanel);
-		for(html = '', i = 0, btns = aib.formButtons, len = btns.id.length; i < len; ++i) {
-			tag = btns.tag[i];
-			if(tag === '') {
+		for(html = '', i = 0, btns = aib.markupTags, len = btns.length; i < len; ++i) {
+			if(btns[i] === '') {
 				continue;
 			}
-			html += '<span id="de-btn-' + btns.id[i] + '" de-title="' + Lng.txtBtn[i][lang] +
-				'" de-tag="' + tag + '"' + (btns.bb[i] ? 'de-bb' : '') + '>' + (
+			html += '<span id="de-btn-' + id[i] + '" de-title="' + Lng.txtBtn[i][lang] +
+				'" de-tag="' + btns[i] + '">' + (
 					Cfg.addTextBtns === 2 ?
-						(i === 0 ? '[ ' : '') + '<a class="de-abtn" href="#">' + btns.val[i] +
-						'</a>' + (i === len - 1 ? ' ]' : ' / ') :
+						(html === '' ? '[ ' : '') + '<a class="de-abtn" href="#">' + val[i] + '</a>' + 
+						(i === len - 1 ? ' ]' : ' / ') :
 					Cfg.addTextBtns === 3 ?
-						'<input type="button" value="' + btns.val[i] + '" style="font-weight: bold;">' : ''
+						'<input type="button" value="' + val[i] + '" style="font-weight: bold;">' : ''
 				) + '</span>';
 		}
 		tPanel.innerHTML = html;
@@ -5770,8 +5771,7 @@ PostForm.prototype = {
 					.replace(/\n/gm, '\n> '));
 			} else {
 				scrtop = x.scrollTop;
-				val = this._wrapText(el.hasAttribute('de-bb'), el.getAttribute('de-tag'),
-					x.value.substring(start, end));
+				val = this._wrapText(aib.markupBB, el.getAttribute('de-tag'), x.value.substring(start, end));
 				len = start + val[0];
 				x.value = x.value.substr(0, start) + val[1] + x.value.substr(end);
 				x.setSelectionRange(len, len);
@@ -6171,7 +6171,7 @@ PostForm.prototype = {
 				val = spells.outReplace(val);
 			}
 			if(this.tNum && pByNum[this.tNum].subj === 'Dollchan Extension Tools') {
-				temp = '\n\n' + this._wrapText(aib.formButtons.bb[5], aib.formButtons.tag[5],
+				temp = '\n\n' + this._wrapText(aib.markupBB, aib.markupTags[5],
 					'-'.repeat(50) + '\n' + nav.ua + '\nv' + version + ' [' + nav.scriptInstall + ']')[1];
 				if(!val.contains(temp)) {
 					val += temp;
@@ -6378,9 +6378,9 @@ PostForm.prototype = {
 			}
 		}
 	},
-	_wrapText: function(isBB, tag, text) {
+	_wrapText: function(markupBB, tag, text) {
 		var str, m;
-		if(isBB) {
+		if(markupBB) {
 			if(text.contains('\n')) {
 				str = '[' + tag + ']' + text + '[/' + tag + ']';
 				return [str.length, str];
@@ -6391,8 +6391,7 @@ PostForm.prototype = {
 		}
 		for(var rv = '', i = 0, arr = text.split('\n'), len = arr.length; i < len; ++i) {
 			m = arr[i].match(/^(\s*)(.*?)(\s*)$/);
-			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) :
-				tag + m[2] + tag) + m[3];
+			rv += '\n' + m[1] + (tag === '^H' ? m[2] + '^H'.repeat(m[2].length) : tag + m[2] + tag) + m[3];
 		}
 		return [i === 1 && m[2].length === 0 && tag !== '^H' ? m[1].length + tag.length :
 			rv.length - 1, rv.slice(1)];
@@ -9874,11 +9873,6 @@ function getImageBoard(checkDomains, checkOther) {
 			ru: { value: true },
 			timePattern: { value: 'yyyy+nn+dd++w++hh+ii+ss' }
 		}],
-		'0chanru.net': [{
-			qPostRedir: { value: 'input[name="redirecttothread"][value="1"]' },
-			css: { value: '#captcha_status, .content-background > hr, div[style="position: relative;"] { display: none !important; }' },
-			ru: { value: true }
-		}, 'script[src*="kusaba"]'],
 		'2chru.net': [{
 			_2chru: { value: true }
 		}, 'form[action*="imgboard.php?delete"]'],
@@ -9910,7 +9904,7 @@ function getImageBoard(checkDomains, checkOther) {
 				el.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 			} },
 			hasPicWrap: { value: true },
-			isBB: { value: true },
+			markupBB: { value: true },
 			multiFile: { value: true },
 			ru: { value: true }
 		}],
@@ -9923,15 +9917,11 @@ function getImageBoard(checkDomains, checkOther) {
 				return el && el.textContent.contains('\u21E9');
 			} },
 			css: { value: '#resizer { display: none !important; }' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] }
-				});
-			} },
-			isBB: { value: false },
+			markupBB: { value: false },
+			markupTags: { value: ['**', '*', '__', '^^', '%%', '`', '', '', 'q'] },
 			timePattern: { value: 'dd+nn+yyyy++w++hh+ii+ss' }
 		}, 'script[src*="kusaba"]'],
-		'420chan.org': [{ // Posting doesn't work (antispam protection)
+		'420chan.org': [{
 			_420: { value: true },
 			
 			qBan: { value: '.ban' },
@@ -9946,12 +9936,8 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '#content > hr, .hidethread, .ignorebtn, .opqrbtn, .qrbtn, noscript { display: none !important; }\
 				.de-thr-hid { margin: 1em 0; }' },
 			docExt: { value: '.php' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
-				});
-			} },
-			isBB: { value: true }
+			markupBB: { value: true },
+			markupTags: { value: ['**', '*', '', '', '%', 'pre', '', '', 'q'] }
 		}],
 		'4chan.org': [{
 			fch: { value: true },
@@ -9991,12 +9977,6 @@ function getImageBoard(checkDomains, checkOther) {
 				textarea { margin-right: 0 !important; }' },
 			docExt: { value: '' },
 			firstPage: { value: 1 },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['**', '*', '__', '^H', 'spoiler', 'code', '', '', 'q'] },
-					bb: { value: [false, false, false, false, true, true, false, false, false] }
-				});
-			} },
 			init: { value: function() {
 				var el = $id('captchaFormPart');
 				if(!el) {
@@ -10010,6 +9990,8 @@ function getImageBoard(checkDomains, checkOther) {
 					el.style.display = '';
 				}.bind(doc.body.lastChild.firstChild, el);
 			} },
+			markupBB: { value: true },
+			markupTags: { value: ['', '', '', '', 'spoiler', '', '', '', 'q'] },
 			rLinkClick: { value: '' },
 			rep: { value: true },
 			res: { value: 'thread/' },
@@ -10132,7 +10114,6 @@ function getImageBoard(checkDomains, checkOther) {
 		'hiddenchan.i2p': [{
 			hid: { value: true }
 		}, 'script[src*="kusaba"]'],
-		get 'honokakawai.com'() { return this['2--ch.ru']; },
 		'iichan.hk': [{
 			iich: { value: true }
 		}],
@@ -10144,7 +10125,7 @@ function getImageBoard(checkDomains, checkOther) {
 					$id('captcha_field').innerHTML = 'Вам не нужно вводить капчу.';
 				}
 			} },
-			isBB: { value: true },
+			markupBB: { value: true },
 			timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
 		}],
 		'krautchan.net': [{
@@ -10200,11 +10181,6 @@ function getImageBoard(checkDomains, checkOther) {
 				node.innerHTML = str;
 				node.removeAttribute('id');
 			} },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
-				});
-			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				doc.body.insertAdjacentHTML('beforeend', '<div style="display: none;">' +
@@ -10217,7 +10193,8 @@ function getImageBoard(checkDomains, checkOther) {
 				this.initCaptcha = els[1];
 				this.addProgressTrack = els[2];
 			} },
-			isBB: { value: true },
+			markupBB: { value: true },
+			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
 			multiFile: { value: true },
 			rep: { value: true },
 			res: { value: 'thread-' },
@@ -10230,12 +10207,8 @@ function getImageBoard(checkDomains, checkOther) {
 				return el.parentNode;
 			} },
 			css: { value: '.image-hover, form > div[style="text-align: center;"], form > div[style="text-align: center;"] + hr { display: none !important; }' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] },
-				});
-			} },
-			isBB: { value: true }
+			markupBB: { value: true },
+			markupTags: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] }
 		}, 'form[name*="postcontrols"]'],
 		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponyach.ru': [{
@@ -10263,11 +10236,6 @@ function getImageBoard(checkDomains, checkOther) {
 			cFileInfo: { value: 'unimportant' },
 			css: { value: '.fa-sort, .image_id { display: none !important; }\
 				time:after { content: none; }' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] },
-				});
-			} },
 			init: { value: function() {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage.getItem('settings') !== val) {
@@ -10275,7 +10243,8 @@ function getImageBoard(checkDomains, checkOther) {
 					window.location.reload();
 				}
 			} },
-			isBB: { value: true }
+			markupBB: { value: true },
+			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'code', 'sub', 'sup', 'q'] }
 		}, 'form[name*="postcontrols"]'],
 		get 'syn-ch.com'() { return this['syn-ch.ru']; },
 		get 'syn-ch.org'() { return this['syn-ch.ru']; }
@@ -10322,11 +10291,6 @@ function getImageBoard(checkDomains, checkOther) {
 				.images-single + .de-video-obj { display: inline-block; }\
 				.mess-post { display: block; }\
 				.images-area input { float: none !important; display: inline !important; }' },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] }
-				});
-			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				$script('window.FormData = void 0;');
@@ -10373,13 +10337,14 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 				node.innerHTML = str;
 			} },
-			isBB: { value: true },
 			lastPage: { configurable: true, get: function() {
 				var els = $Q('.pager > a:not([class])', doc),
 					val = els ? els.length : 1;
 				Object.defineProperty(this, 'lastPage', { value: val });
 				return val;
 			} },
+			markupBB: { value: true },
+			markupTags: { value: ['B', 'I', 'U', 'S', 'SPOILER', 'CODE', 'SUP', 'SUB', 'q'] },
 			multiFile: { value: true },
 			rLinkClick: { value: '' },
 			timePattern: { value: 'dd+nn+yy+w+hh+ii+ss' }
@@ -10451,11 +10416,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return $q('input[type="checkbox"]', op).name.match(/\d+/)[0];
 			} },
 			firstPage: { value: 1 },
-			formButtons: { get: function() {
-				return Object.create(this._formButtons, {
-					tag: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
-				});
-			} },
+			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 			cssEn: { get: function() {
 				return '.banner, ' + (TNum ? '' : '.de-btn-rep, ') + '.mentioned, .post-hover { display: none !important; }\
 				div.post.reply { float: left; clear: left; display: block; }\
@@ -10472,7 +10433,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: null },
 			cssEn: { value: '.extrabtns, #newposts_get, .replymode, .ui-resizable-handle, blockquote + a { display: none !important; }\
 				.ui-wrapper { display: inline-block; width: auto !important; height: auto !important; padding: 0 !important; }' },
-			isBB: { value: true },
+			markupBB: { value: true },
 			rLinkClick: { value: 'onclick="highlight(this.textContent.substr(2), true)"' }
 		},
 		get 'form[action$="board.php"]'() { return this['script[src*="kusaba"]']; },
@@ -10505,7 +10466,7 @@ function getImageBoard(checkDomains, checkOther) {
 				el.removeAttribute('onchange');
 				el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 			} },
-			isBB: { value: true },
+			markupBB: { value: true },
 			res: { value: 'thread/' }
 		}
 	};
@@ -10659,23 +10620,14 @@ function getImageBoard(checkDomains, checkOther) {
 		docExt: '.html',
 		firstPage: 0,
 		fixFileInputs: emptyFn,
-		get _formButtons() {
-			var bb = this.isBB;
-			return {
-				id: ['bold', 'italic', 'under', 'strike', 'spoil', 'code', 'sup', 'sub', 'quote'],
-				val: ['B', 'i', 'U', 'S', '%', 'C', 'v', '^', '&gt;'],
-				tag: bb ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
-					['**', '*', '', '^H', '%%', '`', '', '', 'q'],
-				bb: [bb, bb, bb, bb, bb, bb, bb, bb, bb]
-			};
-		},
-		get formButtons() {
-			return this._formButtons;
+		markupBB: false,
+		get markupTags() {
+			return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
+				['**', '*', '', '^H', '%%', '`', '', '', 'q'];
 		},
 		hasPicWrap: false,
 		host: window.location.hostname,
 		init: null,
-		isBB: false,
 		get lastPage() {
 			var el = $q(this.qPages, doc),
 				val = el && +aProto.pop.call(el.textContent.match(/\d+/g) || []) || 0;
