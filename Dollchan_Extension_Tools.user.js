@@ -1642,7 +1642,7 @@ function showContent(cont, id, name, remove, data) {
 				'">&#x25C0;</a> <a class="de-abtn" id="de-video-btn-hide" href="#" title="' + Lng.hideLnkList[lang] +
 				'">&#x25B2;</a> <a class="de-abtn" id="de-video-btn-next" href="#" title="' + Lng.nextVideo[lang] +
 				'">&#x25B6;</a></center><div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
-				'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 100) + 'px;"></div>');
+				'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>');
 			post = {};
 			post.ytInfo = null;
 			post.ytObj = cont.firstChild;
@@ -3871,8 +3871,15 @@ YouTube = new function() {
 					'allowscriptaccess="always" allowfullscreen="true"' + wh + '</embed>' + sp;
 		}
 		el.lastChild.onclick = function() {
-			var el = this.parentNode;
-			el.className = el.className === 'de-video-obj' ? 'de-video-obj de-video-expanded' : 'de-video-obj';
+			var node = this.parentNode,
+				exp = node.className === 'de-video-obj';
+			node.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
+			if(node.parentNode.id === 'de-content-vid') {
+				node = node.nextSibling.nextSibling;
+				node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + 'px';
+				node.style.maxHeight =
+					(doc.documentElement.clientHeight - (exp ? 590 : +Cfg.YTubeHeigh + 110)) + 'px';
+			}
 		}
 	}
 
@@ -11645,10 +11652,10 @@ function scriptCSS() {
 		'#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\
 		#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\
 		#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\
-		.de-mp3, .de-video-obj { margin: 5px 20px; }\
+		.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; }\
 		.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\
-		#de-video-list { padding: 0 0 4px; overflow: auto; }\
-		.de-video-resizer:after { content: " \u2795"; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
+		#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\
+		.de-video-resizer:after { content: " \u2795"; margin-right: -15px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\
 		.de-video-title[de-time]:after { content: " [" attr(de-time) "]"; color: red; }\
 		td > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\
 		video { background: black; }\
@@ -11762,7 +11769,7 @@ function scriptCSS() {
 function updateCSS() {
 	var x = '';
 	if(Cfg.attachPanel) {
-		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 92%; overflow-x: visible; overflow-y: auto; }\
+		x += '.de-content { position: fixed; right: 0; bottom: 25px; z-index: 9999; max-height: 95%; overflow-x: visible; overflow-y: auto; }\
 		#de-content-fav, #de-content-hid { overflow-y: scroll; }\
 		#de-panel { position: fixed; right: 0; bottom: 0; }'
 	} else {
