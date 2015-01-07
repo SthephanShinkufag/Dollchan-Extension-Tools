@@ -10245,7 +10245,7 @@ function getImageBoard(checkDomains, checkOther) {
 
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'post-title' },
-			qBan: { value: 'font[color="#C12267"]' }, // FIXME
+			qBan: { value: '.pomyanem' },
 			qDForm: { value: '#posts-form' },
 			qHide: { value: '.post-details ~ *' },
 			qImgLink: { value: '.file-attr > .desktop' },
@@ -10410,7 +10410,7 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			rLinkClick: { value: 'onclick="highlightReply(this.textContent.substr(2))"' },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
-			thrid: { value: 'thread' },
+			thrid: { value: 'thread' }
 		},
 		'script[src*="kusaba"]': {
 			kus: { value: true },
