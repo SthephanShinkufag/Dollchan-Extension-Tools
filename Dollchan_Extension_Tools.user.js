@@ -10016,6 +10016,7 @@ function getImageBoard(checkDomains, checkOther) {
 				.post { overflow-x: auto !important; }' },
 			docExt: { value: '' },
 			res: { value: 'thread/' },
+			rLinkClick: { value: '' }
 		}],
 		'britfa.gs': [{
 			init: { value: function() { return true; } }
@@ -10088,7 +10089,7 @@ function getImageBoard(checkDomains, checkOther) {
 				}
 			} },
 			multiFile: { value: true },
-			rLinkClick: { value: 'onclick="Highlight(event, this.getAttribute(\'de-num\'))"' },
+			rLinkClick: { value: 'onclick="Highlight(event, this.textContent.substr(2))"' },
 			ru: { value: true },
 			timePattern: { value: 'dd+m+?+?+?+?+?+yyyy++w++hh+ii-?s?s?' }
 		}],
@@ -10186,7 +10187,7 @@ function getImageBoard(checkDomains, checkOther) {
 			multiFile: { value: true },
 			rep: { value: true },
 			res: { value: 'thread-' },
-			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2)))"' },
+			rLinkClick: { value: 'onclick="highlightPost(this.textContent.substr(2))"' },
 			timePattern: { value: 'yyyy+nn+dd+hh+ii+ss+--?-?-?-?-?' }
 		}],
 		'mlpg.co': [{
@@ -10407,8 +10408,9 @@ function getImageBoard(checkDomains, checkOther) {
 				div.post.reply { float: left; clear: left; display: block; }\
 				form, form table { margin: 0; }';
 			} },
+			rLinkClick: { value: 'onclick="highlightReply(this.textContent.substr(2))"' },
 			timePattern: { value: 'nn+dd+yy++w++hh+ii+ss' },
-			thrid: { value: 'thread' }
+			thrid: { value: 'thread' },
 		},
 		'script[src*="kusaba"]': {
 			kus: { value: true },
@@ -10450,7 +10452,8 @@ function getImageBoard(checkDomains, checkOther) {
 			} },
 			markupBB: { value: true },
 			multiFile: { value: true },
-			res: { value: 'thread/' }
+			res: { value: 'thread/' },
+			rLinkClick: { value: '' }
 		}
 	};
 
@@ -10600,11 +10603,6 @@ function getImageBoard(checkDomains, checkOther) {
 		docExt: '.html',
 		firstPage: 0,
 		fixFileInputs: emptyFn,
-		markupBB: false,
-		get markupTags() {
-			return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
-				['**', '*', '', '^H', '%%', '`', '', '', 'q'];
-		},
 		hasPicWrap: false,
 		host: window.location.hostname,
 		init: null,
@@ -10616,6 +10614,11 @@ function getImageBoard(checkDomains, checkOther) {
 			}
 			Object.defineProperty(this, 'lastPage', { value: val });
 			return val;
+		},
+		markupBB: false,
+		get markupTags() {
+			return this.markupBB ? ['b', 'i', 'u', 's', 'spoiler', 'code', '', '', 'q'] :
+				['**', '*', '', '^H', '%%', '`', '', '', 'q'];
 		},
 		multiFile: false,
 		prot: prot,
