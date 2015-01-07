@@ -3606,8 +3606,7 @@ function loadDocFiles(imgOnly) {
 				if(!imgOnly) {
 					el.classList.add('de-thumb');
 					el.src = this[3].href =
-						$q(aib.qImgLink, aib.getImgWrap(this[3])).href =
-						name = 'images/' + name;
+						$q(aib.qImgLink, aib.getImgWrap(this[3])).href = name = 'images/' + name;
 				}
 				tar.addFile(name, data);
 			} else if(data && data.length > 0) {
@@ -6550,7 +6549,7 @@ FileInput.prototype = {
 		return Cfg.fileThumb ? this.thumb.firstChild : this.el;
 	},
 	get _wrap() {
-		return aib.getFileWrap(this.el);
+		return aib.multiFile ? this.el.parentNode : this.el;
 	},
 	_addRarJpeg: function() {
 		var el = this.form.rarInput;
@@ -9885,9 +9884,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: null },
 			qTable: { value: 'table:not(.postfiles)' },
 			qThread: { value: '.threadz' },
-			getFileWrap: { value: function(el) {
-				return el.parentNode;
-			} },
 			getOmitted: { value: function(el, len) {
 				var txt;
 				return el && (txt = el.textContent) ? +(txt.match(/\d+/) || [0])[0] - len : 1;
@@ -10043,15 +10039,10 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '.pages > tbody > tr > td' },
 			qPostRedir: { value: 'select[name="goto"]' },
 			qTrunc: { value: '.abbrev > span:nth-last-child(2)' },
-			getFileWrap: { value: function(el) {
-				return el.parentNode;
-			} },
 			getImgLink: { value: function(img) {
 				var el = img.parentNode;
-				if(el.tagName === 'A') {
-					return el;
-				}
-				return $q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
+				return el.tagName === 'A' ? el :
+					$q('.fileinfo > a', img.previousElementSibling ? el : el.parentNode);
 			} },
 			getImgWrap: { value: function(el) {
 				return el.tagName === 'A' ? (el.previousElementSibling ? el : el.parentNode).parentNode :
@@ -10147,9 +10138,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qThread: { value: '.thread_body' },
 			qThumbImages: { value: 'img[id^="thumbnail_"]' },
 			qTrunc: { value: 'p[id^="post_truncated"]' },
-			getFileWrap: { value: function(el) {
-				return el.parentNode;
-			} },
 			getImgWrap: { value: function(el) {
 				return el.parentNode;
 			} },
@@ -10211,15 +10199,15 @@ function getImageBoard(checkDomains, checkOther) {
 			markupTags: { value: ['b', 'i', 'u', '-', 'spoiler', 'c', '', '', 'q'] }
 		}, 'form[name*="postcontrols"]'],
 		get 'niuchan.org'() { return this['diochan.com']; },
-		'ponyach.ru': [{
+		'ponya.ch': [{
 			multiFile: { value: true },
 			thrid: { value: 'replythread' }
 		}],
-		get 'ponyach.cf'() { return this['ponyach.ru']; },
-		get 'ponyach.ga'() { return this['ponyach.ru']; },
-		get 'ponyach.ml'() { return this['ponyach.ru']; },
-		get 'ponya.ch'() { return this['ponyach.ru']; },
-		get 'ponychan.ru'() { return this['ponyach.ru']; },
+		get 'ponyach.cf'() { return this['ponya.ch']; },
+		get 'ponyach.ga'() { return this['ponya.ch']; },
+		get 'ponyach.ml'() { return this['ponya.ch']; },
+		get 'ponyach.ru'() { return this['ponya.ch']; },
+		get 'ponychan.ru'() { return this['ponya.ch']; },
 		'ponychan.net': [{
 			pony: { value: true },
 			
@@ -10266,9 +10254,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
 			qTrunc: { value: null },
-			getFileWrap: { value: function(el) {
-				return el.parentNode;
-			} },
 			getImgParent: { value: function(el) {
 				var el = $parent(el, 'FIGURE'),
 					parent = el.parentNode;
@@ -10450,9 +10435,6 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '.pagelist > li:nth-last-child(2)' },
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
 			qTrunc: { value: '.tldr' },
-			getFileWrap: { value: function(el) {
-				return el.parentNode;
-			} },
 			getImgWrap: { value: function(el) {
 				return el.parentNode.parentNode;
 			} },
@@ -10467,6 +10449,7 @@ function getImageBoard(checkDomains, checkOther) {
 				el.parentNode.parentNode.innerHTML = '<div' + str + ('<div style="display: none;"' + str).repeat(3);
 			} },
 			markupBB: { value: true },
+			multiFile: { value: true },
 			res: { value: 'thread/' }
 		}
 	};
@@ -10517,9 +10500,6 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
-		getFileWrap: function(el) {
-			return el;
-		},
 		getImgLink: function(img) {
 			var el = img.parentNode;
 			return el.tagName === 'SPAN' ? el.parentNode : el;
