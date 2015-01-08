@@ -9244,7 +9244,7 @@ function genRefMap(posts, thrURL) {
 					post.hasRef = true;
 				}
 				if(opNums.indexOf(lNum) !== -1) {
-					links[i].classList.add('de-opref');
+					links[i].classList.add('de-ref-op');
 				}
 				if(thrURL) {
 					url = links[i].getAttribute('href');
@@ -9274,7 +9274,7 @@ function updRefMap(post, add) {
 					link.classList.add('de-ref-hid');
 				}
 				if(opNums.indexOf(lNum) !== -1) {
-					link.classList.add('de-opref');
+					link.classList.add('de-ref-op');
 				}
 				if(lPost.ref.indexOf(pNum) === -1) {
 					lPost.ref.push(pNum);
@@ -11003,7 +11003,7 @@ function replaceString(txt) {
 		if(aib.krau) {
 			txt = txt.replace(/href="(#\d+)"/g, 'href="/' + brd + '/thread-' + TNum + '.html$1"').
 				replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
-					'<a href="#$1" onclick="highlightPost($1)">&gt;&gt;$1</a>');
+					'<a class="de-ref-del" href="#$1" onclick="highlightPost($1)">&gt;&gt;$1</a>');
 		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function(x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
@@ -11750,11 +11750,12 @@ function scriptCSS() {
 		.de-new-post { ' + (nav.Presto ? 'border-left: 4px solid blue; border-right: 4px solid blue; }' : 'box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }') + '\
 		.de-omitted { color: grey; font-style: italic; }\
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
-		.de-opref::after { content: " [OP]"; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
 		.de-pview-link { font-weight: bold; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
+		.de-ref-op:after { content: " [OP]"; }\
+		.de-ref-del:after { content: " [del]"; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
 		.de-reflink { text-decoration: none; }\
