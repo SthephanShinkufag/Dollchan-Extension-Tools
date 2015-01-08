@@ -1139,7 +1139,8 @@ function readUserPosts() {
 		getStoredObj('DESU_Threads_' + aib.dm, function(val) {
 			hThr = val;
 			var uVis, vis, num, post, date = Date.now(),
-				update = false;
+				update = false,
+				spellsHide = Cfg.hideBySpell;
 			if(brd in bUVis) {
 				uVis = bUVis[brd];
 			} else {
@@ -1164,24 +1165,27 @@ function readUserPosts() {
 						post.btns.firstChild.className = 'de-btn-hide-user';
 						post.userToggled = true;
 					}
-				} else {
+					continue;
+				}
+				if(post.isOp) {
+					if(num in hThr[brd]) {
+						vis = '0';
+					} else if(vis === '0') {
+						vis = null;
+					}
+				} else if(spellsHide) {
 					vis = sVis[post.count];
-					if(post.isOp) {
-						if(num in hThr[brd]) {
-							vis = '0';
-						} else if(vis === '0') {
-							vis = null;
-						}
+				} else {
+					continue;
+				}
+				if(vis === '0') {
+					if(!post.hidden) {
+						post.setVisib(true);
+						post.hideRefs();
 					}
-					if(vis === '0') {
-						if(!post.hidden) {
-							post.setVisib(true);
-							post.hideRefs();
-						}
-						post.spellHidden = true;
-					} else if(vis !== '1') {
-						spells.check(post);
-					}
+					post.spellHidden = true;
+				} else if(vis !== '1') {
+					spells.check(post);
 				}
 			}
 			spells.end(savePosts);
@@ -3317,8 +3321,8 @@ function initMessageFunctions() {
 			}
 			return;
 		case 'B':
-			closeAlert($id('de-alert-load-favthr'));
 			$id('de-iframe-fav').style.height = data + 'px';
+			closeAlert($id('de-alert-load-favthr'));
 			return;
 		}
 	}, false);
@@ -5541,7 +5545,6 @@ SpellsInterpreter.prototype = {
 }
 
 function disableSpells() {
-	closeAlert($id('de-alert-help-err-spell'));
 	if(spells.enable) {
 		sVis = TNum ? '1'.repeat(dForm.firstThr.pcount).split('') : [];
 		for(var post = dForm.firstThr.op; post; post = post.next) {
@@ -5550,6 +5553,7 @@ function disableSpells() {
 			}
 		}
 	}
+	closeAlert($id('de-alert-help-err-spell'));
 }
 
 function toggleSpells() {
@@ -6777,17 +6781,17 @@ function checkUpload(dc) {
 		dForm.firstThr.clearPostsMarks();
 		if(el) {
 			dForm.firstThr.loadNewFromForm(el);
-			closeAlert($id('de-alert-upload'));
 			if(Cfg.scrAfterRep) {
 				scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 			}
+			closeAlert($id('de-alert-upload'));
 		} else {
 			dForm.firstThr.loadNew(function(eCode, eMsg, np, xhr) {
 				infoLoadErrors(eCode, eMsg, 0);
-				closeAlert($id('de-alert-upload'));
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
+				closeAlert($id('de-alert-upload'));
 			}, true);
 		}
 	} else {
@@ -11359,8 +11363,9 @@ function initPage() {
 function scrollPage() {
 	if(!TNum) {
 		window.scrollTo(0, 0);
-		return;
 	}
+	// FIXME: TOOO SLOW
+	return;
 	var hash = window.location.hash,
 		val = hash && (val = hash.match(/#i?(\d+)$/)) &&
 			(val = val[1]) && pByNum[val] && pByNum[val].topCoord;
