@@ -1803,7 +1803,7 @@ function showFavoriteTable(cont, data) {
 					b = el.getAttribute('de-board'),
 					num = el.getAttribute('de-num'),
 					f = fav[host][b][num];
-				if(host !== aib.host) {
+				if(host !== aib.host || f['err'] === 'Closed') {
 					queue.end(qIdx);
 					return;
 				}
@@ -1894,6 +1894,10 @@ function showFavoriteTable(cont, data) {
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 		var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
 			var node = $c('de-fav-inf-err', el);
+			if(node.textContent === 'Closed') {
+				queue.end(qIdx);
+				return;
+			}
 			node.classList.add('de-wait');
 			ajaxLoad(el.getAttribute('de-url'), false, function(form, xhr) {
 				this.classList.remove('de-wait');
