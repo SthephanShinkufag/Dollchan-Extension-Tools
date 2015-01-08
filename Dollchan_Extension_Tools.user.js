@@ -5880,6 +5880,9 @@ PostForm.prototype = {
 	},
 	refreshCapImg: function(focus) {
 		var src, img;
+		if(this._lastCapUpdate) {
+			this._lastCapUpdate = Date.now();
+		}
 		if(aib.mak || aib.fch) {
 			aib.updateCaptcha(focus);
 		} else {
@@ -5910,9 +5913,6 @@ PostForm.prototype = {
 			if(focus) {
 				this.cap.focus();
 			}
-		}
-		if(this._lastCapUpdate) {
-			this._lastCapUpdate = Date.now();
 		}
 	},
 	setReply: function(quick, hide) {
@@ -7727,14 +7727,13 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		this.post.hashImgsBusy++;
 		return null;
 	} },
-	info: { configurable: true, get: function() {
-		var el = $c(aib.cFileInfo, aib.getImgWrap(this.el.parentNode)),
-			val = el ? el.textContent : '';
-		Object.defineProperty(this, 'info', { value: val });
+	infoEl: { configurable: true, get: function() {
+		var val = $c(aib.cFileInfo, aib.getImgWrap(this.el.parentNode));
+		Object.defineProperty(this, 'infoEl', { value: val });
 		return val;
 	} },
 	weight: { configurable: true, get: function() {
-		var val = aib.getImgWeight(this.info);
+		var val = aib.getImgWeight(this.infoEl);
 		Object.defineProperty(this, 'weight', { value: val });
 		return val;
 	} },
@@ -7796,7 +7795,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		return val;
 	} },
 	_getImageSize: { value: function atGetImgSize() {
-		return aib.getImgSize(this.info);
+		return aib.getImgSize(this.infoEl);
 	} },
 	_getImageSrc: { value: function atGetImageSrc() {
 		return aib.getImgLink(this.el).href;
@@ -9962,6 +9961,20 @@ function getImageBoard(checkDomains, checkOther) {
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
+			getImgSize: { value: function(infoEl) {
+				if(infoEl) {
+					var sz = infoEl.lastChild.textContent.match(/(\d+)\s?[x×]\s?(\d+)/);
+					return [sz[1], sz[2]];
+				}
+				return [-1, -1];
+			} },
+			getImgWeight: { value: function(infoEl) {
+				if(infoEl) {
+					var w = infoEl.lastChild.textContent.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+					return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
+				}
+				return 0;
+			} },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 1 ? p : '');
 			} },
@@ -10517,16 +10530,19 @@ function getImageBoard(checkDomains, checkOther) {
 		getImgParent: function(el) {
 			return this.getImgWrap(el);
 		},
-		getImgSize: function(info) {
-			if(info) {
-				var sz = info.match(/(\d+)\s?[x×]\s?(\d+)/);
+		getImgSize: function(infoEl) {
+			if(infoEl) {
+				var sz = infoEl.textContent.match(/(\d+)\s?[x×]\s?(\d+)/);
 				return [sz[1], sz[2]];
 			}
 			return [-1, -1];
 		},
-		getImgWeight: function(info) {
-			var w = info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
-			return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
+		getImgWeight: function(infoEl) {
+			if(infoEl) {
+				var w = infoEl.textContent.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+				return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
+			}
+			return 0;
 		},
 		getImgWrap: function(el) {
 			var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
@@ -11600,15 +11616,12 @@ function scriptCSS() {
 	// Show/close animation
 	if(nav.Anim) {
 		x += '@keyframes de-open {\
-				0% { transform: translateY(-1500px); }\
-				40% { transform: translateY(30px); }\
-				70% { transform: translateY(-10px); }\
+				0% { transform: translateY(-100%); }\
 				100% { transform: translateY(0); }\
 			}\
 			@keyframes de-close {\
 				0% { transform: translateY(0); }\
-				20% { transform: translateY(20px); }\
-				100% { transform: translateY(-4000px); }\
+				100% { transform: translateY(-100%); }\
 			}\
 			@keyframes de-blink {\
 				0%, 100% { transform: translateX(0); }\
@@ -11627,8 +11640,8 @@ function scriptCSS() {
 			@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\
 			@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\
 			.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\
-			.de-open { animation: de-open .7s ease-out both; }\
-			.de-close { animation: de-close .7s ease-in both; }\
+			.de-open { animation: de-open .15s ease-out both; }\
+			.de-close { animation: de-close .15s ease-in both; }\
 			.de-blink { animation: de-blink .7s ease-in-out both; }\
 			.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\
 			.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\
