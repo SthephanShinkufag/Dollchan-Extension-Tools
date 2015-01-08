@@ -2440,7 +2440,7 @@ function getCfgInfo() {
 				'nav': nav,
 				'cfg': Cfg,
 				'sSpells': spells.list.split('\n'),
-				'oSpells': sesStorage['de-spells-' + brd + TNum],
+				'oSpells': sesStorage['de-spells-' + brd + (TNum || '')],
 				'perf': new Logger().get()
 			}, function(key, value) {
 				if(key in defaultCfg) {
@@ -4591,7 +4591,7 @@ Spells.prototype = {
 		var spells, data;
 		try {
 			spells = JSON.parse(Cfg.spells);
-			data = JSON.parse(sesStorage['de-spells-' + brd + TNum]);
+			data = JSON.parse(sesStorage['de-spells-' + brd + (TNum || '')]);
 		} catch(e) {}
 		if(data && spells && data[0] === spells[0]) {
 			this._data = spells;
@@ -4681,7 +4681,7 @@ Spells.prototype = {
 			reps = this._optimizeReps(data[2]),
 			outreps = this._optimizeReps(data[3]);
 		saveCfg('spells', JSON.stringify(data));
-		sesStorage['de-spells-' + brd + TNum] = JSON.stringify([data[0], spells, reps, outreps]);
+		sesStorage['de-spells-' + brd + (TNum || '')] = JSON.stringify([data[0], spells, reps, outreps]);
 		this._data = data;
 		this._list = '';
 		this.hash = data[0];
@@ -11001,7 +11001,9 @@ function replaceString(txt) {
 			txt = txt.replace(/<\/?wbr>/g, '').replace(/ \(OP\)<\/a/g, '</a');
 		}
 		if(aib.krau) {
-			txt = txt.replace(/href="(#\d+)"/g, 'href="/' + brd + '/thread-' + TNum + '.html$1"');
+			txt = txt.replace(/href="(#\d+)"/g, 'href="/' + brd + '/thread-' + TNum + '.html$1"').
+				replace(/<span class="invalidquotelink">&gt;&gt;(\d+)<\/span>/g,
+					'<a href="#$1" onclick="highlightPost($1)">&gt;&gt;$1</a>');
 		}
 		txt = txt.replace(/(^|>|\s|&gt;)(https*:\/\/[^"<>]*?)(<\/a>)?(?=$|<|\s)/ig, function(x, a, b, c) {
 			return c ? x : a + '<a href="' + b + '">' + b + '</a>';
