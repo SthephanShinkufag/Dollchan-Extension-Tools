@@ -11927,10 +11927,11 @@ function doScript(formEl) {
 	readPosts();
 	readUserPosts();
 	readFavoritesPosts();
+	new Logger().log('Apply spells');
 	if(needScroll) {
 		scrollPage();
 	}
-	new Logger().log('Apply spells');
+	new Logger().log('Scroll page');
 	new Logger().finish();
 }
 
