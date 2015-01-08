@@ -6733,6 +6733,13 @@ FormResizer.prototype = {
 function getSubmitError(dc) {
 	var i, els, el, err = '', form = $q(aib.qDForm, dc);
 	if(dc.body.hasChildNodes() && !form) {
+		if(aib.mak) {
+			try {
+				return Lng.error[lang] + ':\n' + JSON.parse(dc.body.innerHTML)['Reason'];
+			} catch(e) {
+				return Lng.error[lang] + '.';
+			}
+		}
 		for(i = 0, els = $Q(aib.qError, dc); el = els[i++];) {
 			err += el.innerHTML + '\n';
 		}
