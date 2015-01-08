@@ -1782,7 +1782,8 @@ function showFavoriteTable(cont, data) {
 					Lng.oldPosts[lang] + '">' + i.cnt + '</span>] <span class="de-fav-inf-new" title="' +
 					Lng.newPosts[lang] + '"' + (i['new'] ? '>' : ' style="display: none;">') +
 					(i['new'] || 0) + '</span> <span class="de-fav-inf-page" title="' +
-					Lng.thrPage[lang] + '"></span></span></div>');
+					Lng.thrPage[lang] + '"></span> <span class="de-fav-inf-err">' +
+					(i['err'] || '') + '</span></span></div>');
 				block.lastChild.firstChild.nextSibling.onclick = loadFavorThread;
 			}
 		}
@@ -1820,13 +1821,17 @@ function showFavoriteTable(cont, data) {
 						f['new'] = cnt;
 						update = true;
 					}
+					if($q(aib.qClosed, form)) {
+						f['err'] = this.nextElementSibling.nextElementSibling.textContent = 'Closed';
+					}
 					queue.end(qIdx);
 					f = qIdx = null;
 				}.bind(el), function(eCode, eMsg, xhr) {
-					this.textContent = getErrorMessage(eCode, eMsg);
 					this.classList.remove('de-wait');
+					f['err'] = this.nextElementSibling.nextElementSibling.textContent =
+						eMsg || Lng.noConnect[lang];
 					queue.end(qIdx);
-					qIdx = null;
+					f = qIdx = null;
 				}.bind(el));
 			}, function() {
 				if(update) {
@@ -1888,16 +1893,16 @@ function showFavoriteTable(cont, data) {
 	}));
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 		var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
-			var node = $c('de-fav-inf-page', el);
+			var node = $c('de-fav-inf-err', el);
 			node.classList.add('de-wait');
-			ajaxLoad(el.getAttribute('de-url'), false, function() {
+			ajaxLoad(el.getAttribute('de-url'), false, function(form, xhr) {
 				this.classList.remove('de-wait');
 				queue.end(qIdx);
 				qIdx = null;
 			}.bind(node), function(eCode, eMsg, xhr) {
 				if(eCode === 404) {
-					this.textContent = getErrorMessage(eCode, eMsg);
 					this.classList.remove('de-wait');
+					this.textContent = eMsg || Lng.noConnect[lang];
 					el.setAttribute('de-removed', '');
 				}
 				queue.end(qIdx);
@@ -9966,6 +9971,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'subject' },
 			qBan: { value: 'strong[style="color: red;"]' },
+			qClosed: { value: '.archivedIcon' },
 			qDelBut: { value: '.deleteform > input[type="submit"]' },
 			qError: { value: '#errmsg' },
 			qHide: { value: '.postInfo ~ *' },
@@ -10273,6 +10279,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cReply: { value: 'post reply' },
 			cSubj: { value: 'post-title' },
 			qBan: { value: '.pomyanem' },
+			qClosed: { value: '.sticky-img[src$="locked.png"]' },
 			qDForm: { value: '#posts-form' },
 			qHide: { value: '.post-details ~ *' },
 			qImgLink: { value: '.file-attr > .desktop' },
@@ -11739,10 +11746,11 @@ function scriptCSS() {
 		.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; ' + (nav.Presto ? 'white-space: nowrap; ' : '') + '}\
 		.de-entry > a { text-decoration: none; border: none; }\
 		.de-entry > input { margin: 2px 4px; }\
-		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
+		.de-fav-inf-err { color: #c33; font-size: 12px; }\
 		.de-fav-inf-new { color: #424f79; }\
 		.de-fav-inf-new:before { content: "+ "; }\
 		.de-fav-inf-old { color: #4f7942; }\
+		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
