@@ -1894,10 +1894,6 @@ function showFavoriteTable(cont, data) {
 	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], function() {
 		var i, len, els, queue = new $queue(4, function(qIdx, num, el) {
 			var node = $c('de-fav-inf-err', el);
-			if(node.textContent === 'Closed') {
-				queue.end(qIdx);
-				return;
-			}
 			node.classList.add('de-wait');
 			ajaxLoad(el.getAttribute('de-url'), false, function(form, xhr) {
 				this.classList.remove('de-wait');
