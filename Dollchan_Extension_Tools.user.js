@@ -7744,7 +7744,11 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		return val;
 	} },
 	weight: { configurable: true, get: function() {
-		var val = aib.getImgWeight(this.info);
+		var w, val = 0;
+		if(this.info) {
+			w = this.info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+			val = w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
+		}
 		Object.defineProperty(this, 'weight', { value: val });
 		return val;
 	} },
@@ -7806,7 +7810,11 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		return val;
 	} },
 	_getImageSize: { value: function atGetImgSize() {
-		return aib.getImgSize(this.info);
+		if(this.info) {
+			var sz = this.info.match(/(\d+)\s?[x×]\s?(\d+)/);
+			return [sz[1], sz[2]];
+		}
+		return [-1, -1];
 	} },
 	_getImageSrc: { value: function atGetImageSrc() {
 		return aib.getImgLink(this.el).href;
@@ -10534,20 +10542,6 @@ function getImageBoard(checkDomains, checkOther) {
 		},
 		getImgParent: function(el) {
 			return this.getImgWrap(el);
-		},
-		getImgSize: function(info) {
-			if(info) {
-				var sz = info.match(/(\d+)\s?[x×]\s?(\d+)/);
-				return [sz[1], sz[2]];
-			}
-			return [-1, -1];
-		},
-		getImgWeight: function(info) {
-			if(info) {
-				var w = info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
-				return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
-			}
-			return 0;
 		},
 		getImgWrap: function(el) {
 			var node = (el.tagName === 'SPAN' ? el.parentNode : el).parentNode;
