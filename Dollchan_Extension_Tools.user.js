@@ -6736,9 +6736,7 @@ function getSubmitError(dc) {
 		if(aib.mak) {
 			try {
 				return Lng.error[lang] + ':\n' + JSON.parse(dc.body.innerHTML)['Reason'];
-			} catch(e) {
-				return Lng.error[lang] + '.';
-			}
+			} catch(e) {}
 		}
 		for(i = 0, els = $Q(aib.qError, dc); el = els[i++];) {
 			err += el.innerHTML + '\n';
