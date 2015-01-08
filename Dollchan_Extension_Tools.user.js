@@ -7738,13 +7738,13 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		this.post.hashImgsBusy++;
 		return null;
 	} },
-	infoEl: { configurable: true, get: function() {
-		var val = $c(aib.cFileInfo, aib.getImgWrap(this.el.parentNode));
-		Object.defineProperty(this, 'infoEl', { value: val });
+	info: { configurable: true, get: function() {
+		var val = aib.getFileInfo(aib.getImgWrap(this.el.parentNode));
+		Object.defineProperty(this, 'info', { value: val });
 		return val;
 	} },
 	weight: { configurable: true, get: function() {
-		var val = aib.getImgWeight(this.infoEl);
+		var val = aib.getImgWeight(this.info);
 		Object.defineProperty(this, 'weight', { value: val });
 		return val;
 	} },
@@ -7806,7 +7806,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		return val;
 	} },
 	_getImageSize: { value: function atGetImgSize() {
-		return aib.getImgSize(this.infoEl);
+		return aib.getImgSize(this.info);
 	} },
 	_getImageSrc: { value: function atGetImageSrc() {
 		return aib.getImgLink(this.el).href;
@@ -9972,19 +9972,9 @@ function getImageBoard(checkDomains, checkOther) {
 			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
-			getImgSize: { value: function(infoEl) {
-				if(infoEl) {
-					var sz = infoEl.lastChild.textContent.match(/(\d+)\s?[x×]\s?(\d+)/);
-					return [sz[1], sz[2]];
-				}
-				return [-1, -1];
-			} },
-			getImgWeight: { value: function(infoEl) {
-				if(infoEl) {
-					var w = infoEl.lastChild.textContent.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
-					return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
-				}
-				return 0;
+			getFileInfo: { value: function(wrap) {
+				var el = $c(this.cFileInfo, wrap);
+				return el ? el.lastChild.textContent : ''
 			} },
 			getPageUrl: { value: function(b, p) {
 				return fixBrd(b) + (p > 1 ? p : '');
@@ -10534,6 +10524,10 @@ function getImageBoard(checkDomains, checkOther) {
 			return val;
 		},
 		qTrunc: '.abbrev, .abbr, .shortened',
+		getFileInfo: function(wrap) {
+			var el = $c(this.cFileInfo, wrap);
+			return el ? el.textContent : ''
+		},
 		getImgLink: function(img) {
 			var el = img.parentNode;
 			return el.tagName === 'SPAN' ? el.parentNode : el;
@@ -10541,16 +10535,16 @@ function getImageBoard(checkDomains, checkOther) {
 		getImgParent: function(el) {
 			return this.getImgWrap(el);
 		},
-		getImgSize: function(infoEl) {
-			if(infoEl) {
-				var sz = infoEl.textContent.match(/(\d+)\s?[x×]\s?(\d+)/);
+		getImgSize: function(info) {
+			if(info) {
+				var sz = info.match(/(\d+)\s?[x×]\s?(\d+)/);
 				return [sz[1], sz[2]];
 			}
 			return [-1, -1];
 		},
-		getImgWeight: function(infoEl) {
-			if(infoEl) {
-				var w = infoEl.textContent.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
+		getImgWeight: function(info) {
+			if(info) {
+				var w = info.match(/(\d+(?:[\.,]\d+)?)\s*([mkк])?i?[bб]/i);
 				return w[2] === 'M' ? (w[1] * 1e3) | 0 : !w[2] ? Math.round(w[1] / 1e3) : w[1];
 			}
 			return 0;
