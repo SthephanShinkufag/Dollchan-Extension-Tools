@@ -1090,6 +1090,9 @@ function readCfg(Fn, arg) {
 		if(TNum) {
 			Cfg.stats.view++;
 		}
+		if(aib.mak || aib.fch) {
+			Cfg.findImgFile = 0;
+		}
 		if(aib.dobr) {
 			aib.hDTFix = new dateTime(
 				'yyyy-nn-dd-hh-ii-ss',
@@ -2195,7 +2198,7 @@ function getCfgImages() {
 			]))
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
-		$if(!nav.Presto, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(!nav.Presto && !aib.mak && !aib.fch, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
 		])),
 		lBox('openImgs', true, null),
@@ -6621,7 +6624,7 @@ FileInput.prototype = {
 				this.next._wrap.style.display = '';
 			}
 		}
-		if(aib.fch || nav.Presto || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
+		if(nav.Presto || aib.fch || aib.mak || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
 			return;
 		}
 		if(this._rjUtil) {
