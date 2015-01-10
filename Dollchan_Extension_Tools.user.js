@@ -1826,6 +1826,7 @@ function showFavoriteTable(cont, data) {
 					}
 					if($q(aib.qClosed, form)) {
 						f['err'] = this.nextElementSibling.nextElementSibling.textContent = 'Closed';
+						update = true;
 					}
 					queue.end(qIdx);
 					f = qIdx = null;
@@ -1833,6 +1834,7 @@ function showFavoriteTable(cont, data) {
 					this.classList.remove('de-wait');
 					f['err'] = this.nextElementSibling.nextElementSibling.textContent =
 						eMsg || Lng.noConnect[lang];
+					update = true;
 					queue.end(qIdx);
 					f = qIdx = null;
 				}.bind(el));
@@ -10069,6 +10071,7 @@ function getImageBoard(checkDomains, checkOther) {
 			anchor: { value: '#i' },
 			cFileInfo: { value: 'fileinfo' },
 			cSubj: { value: 'replytitle' },
+			qClosed: { value: 'img[src="/images/locked.png"]' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.post-error, h2' },
 			qMsg: { value: '.postbody' },
@@ -10164,6 +10167,7 @@ function getImageBoard(checkDomains, checkOther) {
 			cRPost: { value: 'postreply' },
 			cSubj: { value: 'postsubject' },
 			qBan: { value: '.ban_mark' },
+			qClosed: { value: 'img[src="/images/locked.gif"]' },
 			qDForm: { value: 'form[action*="delete"]' },
 			qError: { value: '.message_text' },
 			qHide: { value: 'div:not(.postheader)' },
@@ -10418,6 +10422,7 @@ function getImageBoard(checkDomains, checkOther) {
 			
 			cFileInfo: { value: 'fileinfo' },
 			cReply: { value: 'post reply' },
+			qClosed: { value: '.fa-lock' },
 			cSubj: { value: 'subject' },
 			cTrip: { value: 'trip' },
 			qDForm: { value: 'form[name*="postcontrols"]' },
