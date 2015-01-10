@@ -9350,7 +9350,10 @@ function Thread(el, prev, isLight) {
 	el.setAttribute('de-thread', null);
 	visPosts = Math.max(visPosts, len);
 	if(aib._420 || aib.tiny) {
-		$after(el, el.lastChild);
+		pEl = el.lastChild;
+		if(pEl !== this.op.el) {
+			$after(el, pEl);
+		}
 		$del($c('clear', el));
 	}
 }
@@ -10589,7 +10592,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return fixBrd(b) + (p > 0 ? p + this.docExt : '');
 		},
 		getPostEl: function(el) {
-			while(el && !el.classList.contains(this.cRPost) && !el.hasAttribute('de-oppost') && !el.hasAttribute('de-thread')) {
+			while(el && !el.classList.contains(this.cRPost) && !el.hasAttribute('de-thread')) {
 				el = el.parentElement;
 			}
 			return el;
