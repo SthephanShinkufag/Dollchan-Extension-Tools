@@ -1330,7 +1330,7 @@ function addPanel(formEl) {
 					pButton('hidden', '#', true) +
 					pButton('favor', '#', true) +
 					(!Cfg.addYouTube ? '' : pButton('video', '#', false)) +
-					(aib.arch || localRun ? '' :
+					(localRun ? '' :
 						pButton('refresh', '#', false) +
 						(!TNum && (pageNum === aib.firstPage) ? '' :
 							pButton('goback', aib.getPageUrl(brd, pageNum - 1), true)) +
@@ -1343,15 +1343,15 @@ function addPanel(formEl) {
 						pButton('maskimg', '#', true) +
 						(nav.Presto || localRun ? '' : 
 							(Cfg.preLoadImgs ? '' : pButton('preimg', '#', false)) +
-							(!TNum && !aib.arch ? '' : pButton('savethr', '#', false)))) +
+							(!TNum ? '' : pButton('savethr', '#', false)))) +
 					(!TNum || localRun ? '' :
 						pButton(Cfg.ajaxUpdThr ? 'upd-on' : 'upd-off', '#', false) +
 						(nav.Safari ? '' : pButton('audio-off', '#', false))) +
-					(!aib.mak && (!aib.fch || aib.arch) ? '' :
+					(!aib.mak && !aib.tiny && !aib.fch ? '' :
 						pButton('catalog', aib.prot + '//' + aib.host + '/' + (aib.mak ?
 							'makaba/makaba.fcgi?task=catalog&board=' + brd : brd + '/catalog.html'), false)) +
 					pButton('enable', '#', false) +
-					(!TNum && !aib.arch ? '' :
+					(!TNum ? '' :
 						'<span id="de-panel-info" title="' + Lng.panelBtn.counter[lang] + '">' +
 						dForm.firstThr.pcount + '/' + imgLen + '</span>')
 				) +
@@ -7921,7 +7921,7 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	html = '<span class="de-post-btns' + (isOp ? '' : ' de-post-counter') +
 		'"><span class="de-btn-hide" de-menu="hide"></span><span class="de-btn-rep"></span>';
 	if(isOp) {
-		if(!TNum && !aib.arch) {
+		if(!TNum) {
 			html += '<span class="de-btn-expthr" de-menu="expand"></span>';
 		}
 		html += '<span class="de-btn-fav" title="' + Lng.addFav[lang] + '"></span>';
@@ -7929,7 +7929,6 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	if(this.sage = aib.getSage(el)) {
 		html += '<span class="de-btn-sage" title="SAGE"></span>';
 	}
-	// html += '<span class="de-btn-udolil" style="font-weight: bold; color: red; cursor: pointer;">[УДОЛИЛ!!11]</span>';
 	refEl.insertAdjacentHTML('afterend', html + '</span>');
 	this.btns = refEl.nextSibling;
 	if(Cfg.expandPosts === 1 && this.trunc) {
@@ -8144,9 +8143,6 @@ Post.prototype = {
 			case 'de-btn-stick-on':
 				el.className = this.sticked ? 'de-btn-stick' : 'de-btn-stick-on';
 				this.sticked = !this.sticked;
-				return;
-			case 'de-btn-udolil':
-				this.thr.deletePost(this, false, true);
 				return;
 			}
 			if(el.classList[0] === 'de-menu-item') {
@@ -9061,7 +9057,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		this.parent.kid = this;
 		el.addEventListener('mouseover', this, true);
 		el.addEventListener('mouseout', this, true);
-		(aib.arch ? doc.body : dForm.el).appendChild(el);
+		dForm.el.appendChild(el);
 		setPviewPosition(this._link, el, false);
 		if(Cfg.animation) {
 			nav.animEvent(el, function(node) {
