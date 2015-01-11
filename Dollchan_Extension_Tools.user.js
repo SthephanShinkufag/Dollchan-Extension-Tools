@@ -5857,6 +5857,8 @@ PostForm.prototype = {
 	},
 	showMainReply: function(isBottom, evt) {
 		this.closeQReply();
+		this.tNum = false;
+		this.refreshCapImg(false);
 		if(this.isBottom === isBottom) {
 			this.pForm.style.display = this.isHidden ? '' : 'none';
 			this.isHidden = !this.isHidden;
