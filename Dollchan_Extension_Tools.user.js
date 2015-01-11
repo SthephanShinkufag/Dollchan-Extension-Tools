@@ -6203,9 +6203,6 @@ PostForm.prototype = {
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
 		}.bind(this), false);
-		$each($Q('input[type="text"], input[type="file"]', this.form), function(node) {
-			node.size = 30;
-		});
 		if(Cfg.noGoto && this.gothr) {
 			this.gothr.style.display = 'none';
 		}
@@ -11733,6 +11730,7 @@ function scriptCSS() {
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
 		#de-pform { display: inline-block; vertical-align: middle; }\
 		#de-pform > form { padding: 0; margin: 0; border: none; }\
+		#de-pform input[type="text"], #de-pform input[type="file"] { width: 200px; }\
 		#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\
 		#de-qarea > div:nth-child(2) { text-align: center; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
