@@ -11735,7 +11735,7 @@ function scriptCSS() {
 		.de-parea-btn-reply:after { content: "' + Lng.makeReply[lang] + '" }\
 		#de-pform { display: inline-block; vertical-align: middle; }\
 		#de-pform > form { padding: 0; margin: 0; border: none; }\
-		#de-qarea { width: auto; min-width: 0; border: none; }\
+		#de-qarea { width: auto; min-width: 0; padding: 0 !important; border: none !important; }\
 		#de-qarea > div:nth-child(2) { text-align: center; }\
 		.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\
 		.de-qarea-hanging > .de-cfg-head { cursor: move; }\
