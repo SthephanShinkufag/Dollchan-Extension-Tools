@@ -5698,10 +5698,7 @@ PostForm.prototype = {
 			return;
 		}
 		if(!tPanel) {
-			tPanel = $new('span', {'id': 'de-txt-panel'}, {
-				'click': this,
-				'mouseover': this
-			});
+			tPanel = $new('span', {'id': 'de-txt-panel'}, {'click': this, 'mouseover': this});
 		}
 		tPanel.style.cssFloat = Cfg.txtBtnsLoc ? 'none' : 'right';
 		$after(Cfg.txtBtnsLoc ? $id('de-txta-resizer') || this.txta :
@@ -8699,7 +8696,7 @@ Post.prototype = {
 			pv = this.isPview ? this.kid : Pview.top;
 		if(pv && pv.num === pNum) {
 			Pview.del(pv.kid);
-			setPviewPosition(link, pv.el, Cfg.animation && animPVMove);
+			setPviewPosition(link, pv.el, Cfg.animation);
 			if(pv.parent.num !== this.num) {
 				$each($C('de-pview-link', pv.el), function(el) {
 					el.classList.remove('de-pview-link');
@@ -9161,8 +9158,34 @@ function PviewMoved() {
 	}
 }
 
-function animPVMove(pView, lmw, top, oldCSS) {
-	var uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
+function setPviewPosition(link, pView, isAnim) {
+	if(pView.link === link) {
+		return;
+	}
+	var isTop, top, oldCSS, uId, cr = link.getBoundingClientRect(),
+		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
+		offY = cr.top + window.pageYOffset,
+		bWidth = doc.documentElement.clientWidth,
+		isLeft = offX < bWidth / 2,
+		tmp = (isLeft ? offX : offX - Math.min(parseInt(pView.offsetWidth, 10), offX - 10)),
+		lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
+	if(isAnim) {
+		oldCSS = pView.style.cssText;
+		pView.style.cssText = 'opacity: 0; ' + lmw;
+	} else {
+		pView.style.cssText = lmw;
+	}
+	top = pView.offsetHeight;
+	isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
+	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
+	pView.link = link;
+	pView.aLeft = isLeft;
+	pView.aTop = isTop;
+	if(!isAnim) {
+		pView.style.top = top;
+		return;
+	}
+	uId = 'de-movecss-' + Math.round(Math.random() * 1e3);
 	$css('@' + nav.cssFix + 'keyframes ' + uId + ' {to { ' + lmw + ' top:' + top + '; }}').className =
 		'de-css-move';
 	if(pView.newPos) {
@@ -9175,37 +9198,6 @@ function animPVMove(pView, lmw, top, oldCSS) {
 	pView.addEventListener(nav.animEnd, PviewMoved, false);
 	pView.classList.add('de-pview-anim');
 	pView.style[nav.animName] = uId;
-}
-
-function setPviewPosition(link, pView, animFun) {
-	if(pView.link === link) {
-		return;
-	}
-	pView.link = link;
-	var isTop, top, oldCSS, cr = link.getBoundingClientRect(),
-		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
-		offY = cr.top + window.pageYOffset,
-		bWidth = doc.documentElement.clientWidth,
-		isLeft = offX < bWidth / 2,
-		tmp = (isLeft ? offX : offX -
-			Math.min(parseInt(pView.offsetWidth, 10), offX - 10)),
-		lmw = 'max-width:' + (bWidth - tmp - 10) + 'px; left:' + tmp + 'px;';
-	if(animFun) {
-		oldCSS = pView.style.cssText;
-		pView.style.cssText = 'opacity: 0; ' + lmw;
-	} else {
-		pView.style.cssText = lmw;
-	}
-	top = pView.offsetHeight;
-	isTop = top + cr.top + link.offsetHeight < doc.documentElement.clientHeight || cr.top - top < 5;
-	top = (isTop ? offY + link.offsetHeight : offY - top) + 'px';
-	pView.aLeft = isLeft;
-	pView.aTop = isTop;
-	if(animFun) {
-		animFun(pView, lmw, top, oldCSS);
-	} else {
-		pView.style.top = top;
-	}
 }
 
 function addRefMap(post, tUrl) {
