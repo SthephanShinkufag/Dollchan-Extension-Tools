@@ -10129,11 +10129,11 @@ function getImageBoard(checkDomains, checkOther) {
 		'inach.org': [{
 			qPostRedir: { value: 'input[name="fieldnoko"]' },
 			css: { value: '#postform > table > tbody > tr:first-child { display: none !important; }' },
-			init: { value: function() {
-				if(doc.cookie.contains('no_captcha_cook=1') && window.location.pathname.contains('res')) {
-					$id('captcha_field').innerHTML = 'Вам не нужно вводить капчу.';
-				}
-			} },
+			//init: { value: function() {
+			//	if(doc.cookie.contains('no_captcha_cook=1') && window.location.pathname.contains('res')) {
+			//		$id('captcha_field').innerHTML = 'Вам не нужно вводить капчу.';
+			//	}
+			//} },
 			markupBB: { value: true },
 			timePattern: { value: 'nn+dd+yyyy++w++hh+ii+ss' }
 		}],
