@@ -11372,10 +11372,10 @@ function initPage() {
 			doc.title = '/' + brd + ' - ' + dForm.firstThr.op.title;
 		}
 		if(!localRun) {
-			dForm.firstThr.el.insertAdjacentHTML('afterend',
-				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]' +
+			dForm.firstThr.el.insertAdjacentHTML('afterend', '<div id="de-updater-div">&gt;&gt; ' +
+				'[<a class="de-abtn" id="de-updater-btn" href="#"></a><span id="de-updater-count"></span>]' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
-				' <span id="de-updater-count"></span></div>');
+				'</div>');
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	}
@@ -11790,8 +11790,8 @@ function scriptCSS() {
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
-		#de-updater-div { clear: left; margin-top: 10px; }\
+		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + ': " }\
+		#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\
 		.de-viewed { color: #888 !important; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
