@@ -11108,7 +11108,7 @@ function initThreadUpdater(title, enableUpdate) {
 		if(enabled) {
 			clearTimeout(loadTO);
 			clearTimeout(countTO);
-			$id('de-updater-count').textContent = '';
+			$id('de-updater-count').style.display = 'none';
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11122,6 +11122,7 @@ function initThreadUpdater(title, enableUpdate) {
 		var el = $id('de-updater-count');
 		clearTimeout(countTO);
 		el.textContent = delay / 1000;
+		el.style.display = '';
 		countTO = setInterval(function() {
 			--this.textContent;
 		}.bind(el), 1000);
@@ -11790,7 +11791,8 @@ function scriptCSS() {
 		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
-		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + ': " }\
+		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
+		#de-updater-count:before { content: ": " }\
 		#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\
 		.de-viewed { color: #888 !important; }\
 		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
