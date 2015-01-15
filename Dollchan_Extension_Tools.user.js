@@ -11042,8 +11042,8 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, delay, checked4XX, loadTO, audioRep, currentXHR, audioEl, stateButton, hasAudio,
-		initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
+	var focused, delay, checked4XX, loadTO, countTO, audioRep, currentXHR, audioEl, stateButton,
+		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
@@ -11099,7 +11099,7 @@ function initThreadUpdater(title, enableUpdate) {
 		newPosts = 0;
 		delay = initDelay;
 		if(startLoading) {
-			loadTO = setTimeout(loadPostsFun, delay);
+			startTimers();
 		}
 	}
 
@@ -11107,6 +11107,8 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = byUser;
 		if(enabled) {
 			clearTimeout(loadTO);
+			clearTimeout(countTO);
+			$id('de-updater-count').textContent = '';
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11114,6 +11116,16 @@ function initThreadUpdater(title, enableUpdate) {
 				btn.id = 'de-btn-audio-off';
 			}
 		}
+	}
+
+	function startTimers() {
+		var el = $id('de-updater-count');
+		clearTimeout(countTO);
+		el.textContent = delay / 1000;
+		countTO = setInterval(function() {
+			--this.textContent;
+		}.bind(el), 1000);
+		loadTO = setTimeout(loadPostsFun, delay);
 	}
 
 	function toggleAudio(aRep) {
@@ -11160,6 +11172,7 @@ function initThreadUpdater(title, enableUpdate) {
 			enable(false);
 		} else {
 			clearTimeout(loadTO);
+			clearTimeout(countTO);
 			delay = initDelay;
 		}
 		loadPostsFun();
@@ -11204,7 +11217,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			setState('warn');
 			if(enabled) {
-				loadTO = setTimeout(loadPostsFun, delay);
+				startTimers();
 			}
 			return;
 		}
@@ -11261,7 +11274,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 		}
 		if(enabled) {
-			loadTO = setTimeout(loadPostsFun, delay);
+			startTimers();
 		}
 	}
 
@@ -11362,7 +11375,7 @@ function initPage() {
 			dForm.firstThr.el.insertAdjacentHTML('afterend',
 				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>]' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
-				'</div>');
+				' <span id="de-updater-count"></span></div>');
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	}
@@ -11890,7 +11903,7 @@ function initScript(checkDomains) {
 	new Logger().log('Init');
 	getStored('DESU_Exclude', function(formEl, str) {
 		if(!str || !str.contains(aib.dm)) {
-			excludeList = str;
+			excludeList = str || '';
 			readCfg(doScript, formEl);
 		}
 	}.bind(null, formEl));
