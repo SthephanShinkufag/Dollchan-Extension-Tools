@@ -38,6 +38,7 @@ defaultCfg = {
 	'favIcoBlink':      0,      //    favicon blinking, if new posts detected
 	'markNewPosts':     1,      //    new posts marking on page focus
 	'desktNotif':       0,      //    desktop notifications, if new posts detected
+	'updCount':         1,      //    show countdown for thread updater
 	'expandPosts':      2,      // expand shorted posts [0=off, 1=auto, 2=on click]
 	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
 	'noSpoilers':       1,      // open spoilers
@@ -138,6 +139,7 @@ Lng = {
 		'favIcoBlink':  ['Мигать фавиконом при новых постах', 'Favicon blinking on new posts'],
 		'markNewPosts': ['Выделять новые посты при переключении на тред', 'Mark new posts on page focus'],
 		'desktNotif':   ['Уведомления на рабочем столе', 'Desktop notifications'],
+		'updCount':     ['Обратный счетчик секунд до обновления', 'Show countdown to thread update'],
 		'expandPosts': {
 			sel:        [['Откл.', 'Авто', 'По клику'], ['Disable', 'Auto', 'On click']],
 			txt:        ['AJAX загрузка сокращенных постов*', 'AJAX upload of shorted posts*']
@@ -1949,7 +1951,7 @@ function fixSettings() {
 	}
 	toggleBox(Cfg.ajaxUpdThr, [
 		'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
-		'input[info="markNewPosts"]', 'input[info="desktNotif"]'
+		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="updCount"]'
 	]);
 	toggleBox(Cfg.expandImgs, [
 		'input[info="imgNavBtns"]', 'input[info="resizeDPI"]', 'input[info="resizeImgs"]',
@@ -2145,7 +2147,11 @@ function getCfgPosts() {
 				if(Cfg.desktNotif) {
 					Notification.requestPermission();
 				}
-			}))
+			})),
+			lBox('updCount', true, function() {
+				updater.disable();
+				updater.enable();
+			})
 		]),
 		optSel('expandPosts', true, null),
 		optSel('postBtnsCSS', true, null),
@@ -11120,12 +11126,16 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function startTimers() {
 		var el = $id('de-updater-count');
-		clearTimeout(countTO);
-		el.textContent = delay / 1000;
-		el.style.display = '';
-		countTO = setInterval(function() {
-			--this.textContent;
-		}.bind(el), 1000);
+		if(Cfg.updCount) {
+			clearTimeout(countTO);
+			el.textContent = delay / 1000;
+			el.style.display = '';
+			countTO = setInterval(function() {
+				--this.textContent;
+			}.bind(el), 1000);
+		} else {
+			el.style.display = 'none';
+		}
 		loadTO = setTimeout(loadPostsFun, delay);
 	}
 
