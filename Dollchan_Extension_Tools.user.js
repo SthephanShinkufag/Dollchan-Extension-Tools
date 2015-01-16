@@ -11055,7 +11055,8 @@ function initThreadUpdater(title, enableUpdate) {
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0,
-		aPlayers = 0;
+		aPlayers = 0,
+		countEl = $id('de-updater-count');
 	if(('hidden' in doc) || ('webkitHidden' in doc)) {
 		focused = !(doc.hidden || doc.webkitHidden);
 		doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
@@ -11114,7 +11115,7 @@ function initThreadUpdater(title, enableUpdate) {
 		if(enabled) {
 			clearTimeout(loadTO);
 			clearTimeout(countTO);
-			$id('de-updater-count').style.display = 'none';
+			countEl.style.display = 'none';
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11125,16 +11126,15 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function startTimers() {
-		var el = $id('de-updater-count');
 		if(Cfg.updCount) {
 			clearTimeout(countTO);
-			el.textContent = delay / 1000;
-			el.style.display = '';
+			countEl.textContent = delay / 1000;
+			countEl.style.display = '';
 			countTO = setInterval(function() {
-				--this.textContent;
-			}.bind(el), 1000);
+				--countEl.textContent;
+			}, 1000);
 		} else {
-			el.style.display = 'none';
+			countEl.style.display = 'none';
 		}
 		loadTO = setTimeout(loadPostsFun, delay);
 	}
