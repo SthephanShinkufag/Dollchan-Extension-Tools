@@ -41,7 +41,6 @@ defaultCfg = {
 	'postBtnsCSS':      2,      // post buttons style [0=text, 1=classic, 2=solid grey]
 	'noSpoilers':       1,      // open spoilers
 	'noPostNames':      0,      // hide post names
-	'noPostScrl':       1,      // no scroll in posts
 	'correctTime':      0,      // correct time in posts
 	'timeOffset':       '+0',   //    offset in hours
 	'timePattern':      '',     //    find pattern
@@ -148,7 +147,6 @@ Lng = {
 		},
 		'noSpoilers':   ['Открывать текстовые спойлеры', 'Open text spoilers'],
 		'noPostNames':  ['Скрывать имена в постах', 'Hide names in posts'],
-		'noPostScrl':   ['Без скролла в постах', 'No scroll in posts'],
 		'hotKeys':      ['Горячие клавиши ', 'Keyboard hotkeys '],
 		'loadPages':    [' Количество страниц, загружаемых по F5', ' Number of pages that are loaded on F5 '],
 		'correctTime':  ['Корректировать время в постах* ', 'Correct time in posts* '],
@@ -2155,7 +2153,6 @@ function getCfgPosts() {
 		optSel('postBtnsCSS', true, null),
 		lBox('noSpoilers', true, updateCSS),
 		lBox('noPostNames', true, updateCSS),
-		lBox('noPostScrl', true, updateCSS),
 		$New('div', null, [
 			lBox('correctTime', false, dateTime.toggleSettings),
 			$add('<a href="https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-' +
@@ -7933,8 +7930,10 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	}
 	refEl.insertAdjacentHTML('afterend', html + '</span>');
 	this.btns = refEl.nextSibling;
-	if(Cfg.expandPosts === 1 && this.trunc) {
-		this._getFull(this.trunc, true);
+	if(Cfg.expandPosts === 1) {
+		setTimeout(function() {
+			this.trunc && this._getFull(this.trunc, true);
+		}.bind(this), 0);
 	}
 	el.addEventListener('mouseover', this, true);
 }
@@ -8523,7 +8522,7 @@ Post.prototype = {
 	},
 	get trunc() {
 		var el = aib.qTrunc && $q(aib.qTrunc, this.el), val = null;
-		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полная версия/i.test(el.textContent)) {
+		if(el && /long|full comment|gekürzt|слишком|длинн|мног|полн/i.test(el.textContent)) {
 			val = el;
 		}
 		Object.defineProperty(this, 'trunc', { configurable: true, value: val });
@@ -10274,7 +10273,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.mess-post' },
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
-			qTrunc: { value: null },
+			qTrunc: { value: '.expand-large-comment' },
 			getImgParent: { value: function(el) {
 				var el = $parent(el, 'FIGURE'),
 					parent = el.parentNode;
@@ -11866,9 +11865,6 @@ function updateCSS() {
 			x += '.spoiler { color: inherit !important; }\
 				.spoiler > a { color: inherit !important; }';
 		};
-	}
-	if(Cfg.noPostScrl) {
-		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
 	}
 	if(Cfg.noBoardRule) {
 		x += (aib.futa ? '.chui' : '.rules, #rules, #rules_row') + ' { display: none; }';
