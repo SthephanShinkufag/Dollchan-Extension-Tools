@@ -3,7 +3,7 @@
 // @version         14.12.31.0
 // @namespace       http://www.freedollchan.org/scripts/*
 // @author          Sthephan Shinkufag @ FreeDollChan
-// @copyright       (C)2084, Bender Bending Rodriguez
+// @copyright       (c) 2014 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
 // @description     Doing some profit for imageboards
 // @icon            https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Icon.png
 // @updateURL       https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js
@@ -16,8 +16,6 @@
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
-
-// Copyright (c) 2014 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).
 
 (function de_main_func(scriptStorage) {
 'use strict';
@@ -11048,7 +11046,7 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, delay, checked4XX, loadTO, countTO, audioRep, currentXHR, audioEl, stateButton,
+	var focused, delay, checked4XX, loadTO, countIV, audioRep, currentXHR, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
 		disabledByUser = true,
 		inited = false,
@@ -11114,7 +11112,7 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = byUser;
 		if(enabled) {
 			clearTimeout(loadTO);
-			clearTimeout(countTO);
+			clearInterval(countIV);
 			countEl.style.display = 'none';
 			enabled = hasAudio = false;
 			setState('off');
@@ -11127,12 +11125,11 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function startTimers() {
 		if(Cfg.updCount) {
-			clearTimeout(countTO);
 			countEl.textContent = delay / 1000;
 			countEl.style.display = '';
-			countTO = setInterval(function() {
+			countIV = setInterval(function() {
 				--countEl.textContent;
-			}, 1000);
+			}, 1e3);
 		} else {
 			countEl.style.display = 'none';
 		}
@@ -11172,18 +11169,23 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function loadPostsFun() {
+		if(Cfg.updCount) {
+			clearInterval(countIV);
+			countEl.innerHTML = '<span class="de-wait"></span>';
+		}
 		currentXHR = dForm.firstThr.loadNew(onLoaded, true);
 	}
 
 	function forceLoadPosts() {
 		if(currentXHR) {
-			currentXHR.abort();
+			try {
+				currentXHR.abort();
+			} catch(e) {}
 		}
 		if(!enabled && !disabledByUser) {
 			enable(false);
 		} else {
 			clearTimeout(loadTO);
-			clearTimeout(countTO);
 			delay = initDelay;
 		}
 		loadPostsFun();
