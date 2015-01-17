@@ -4172,7 +4172,7 @@ function embedMediaLinks(post) {
 // ===========================================================================================================
 
 function ajaxLoad(url, loadForm, Fn, errFn) {
-	return GM_xmlhttpRequest({
+	var GmXhr = GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
@@ -4181,7 +4181,7 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 			}
 			if(xhr.status !== 200) {
 				if(errFn) {
-					errFn(xhr.status, xhr.statusText, this);
+					errFn(xhr.status, xhr.statusText, GmXhr);
 				}
 			} else if(Fn) {
 				do {
@@ -4189,18 +4189,19 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 					if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 						el = $DOM(text);
 						if(!loadForm || (el = $q(aib.qDForm, el))) {
-							Fn(el, this);
+							Fn(el, GmXhr);
 							break;
 						}
 					}
 					if(errFn) {
-						errFn(0, Lng.errCorruptData[lang], this);
+						errFn(0, Lng.errCorruptData[lang], GmXhr);
 					}
 				} while(false);
 			}
-			loadForm = Fn = errFn = null;
+			loadForm = Fn = errFn = GmXhr = null;
 		}
-	});;
+	});
+	return GmXhr;
 }
 
 function getJsonPosts(url, Fn) {
@@ -11200,7 +11201,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function onLoaded(eCode, eMsg, lPosts, xhr) {
-		if(currentXHR !== xhr && eCode === 0) { // Loading aborted
+		if(currentXHR !== xhr) { // Loading aborted
 			return;
 		}
 		currentXHR = null;
