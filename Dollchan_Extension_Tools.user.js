@@ -7930,10 +7930,8 @@ function Post(el, thr, num, count, isOp, prev, isLight) {
 	}
 	refEl.insertAdjacentHTML('afterend', html + '</span>');
 	this.btns = refEl.nextSibling;
-	if(Cfg.expandPosts === 1) {
-		setTimeout(function() {
-			this.trunc && this._getFull(this.trunc, true);
-		}.bind(this), 0);
+	if(Cfg.expandPosts === 1 && this.trunc) {
+		this._getFull(this.trunc, true);
 	}
 	el.addEventListener('mouseover', this, true);
 }
@@ -10273,7 +10271,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qOmitted: { value: '.mess-post' },
 			qPostRedir: { value: null },
 			qThumbImages: { value: '.preview' },
-			qTrunc: { value: '.expand-large-comment' },
+			qTrunc: { value: null },
 			getImgParent: { value: function(el) {
 				var el = $parent(el, 'FIGURE'),
 					parent = el.parentNode;
@@ -10288,14 +10286,18 @@ function getImageBoard(checkDomains, checkOther) {
 			getWrap: { value: function(el) {
 				return el.parentNode;
 			} },
-			cssEn: { value: '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .de-qarea-hanging .kupi-passcode-suka, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
+			cssEn: { get: function() {
+				return '.ABU-refmap, .box[onclick="ToggleSage()"], img[alt="webm file"], .de-qarea-hanging .kupi-passcode-suka, header > :not(.logo) + hr, .media-expand-button, .news, .norm-reply, .message-byte-len, .postform-hr, .postpanel > :not(img), .posts > hr, .reflink:before, .thread-nav, #ABU-alert-wait, #media-thumbnail { display: none !important; }\
 				.captcha-image > img { cursor: pointer; }\
 				.de-abtn { transition: none; }\
 				#de-txt-panel { font-size: 16px !important; }\
 				.images-area input { float: left; }\
 				.images-single + .de-video-obj { display: inline-block; }\
 				.mess-post { display: block; }\
-				.images-area input { float: none !important; display: inline !important; }' },
+				.images-area input { float: none !important; display: inline !important; }' +
+				(Cfg.expandPosts === 1 ? '.expand-large-comment, div[id^="shrinked-post"] { display: none !important; }\
+				div[id^="original-post"] { display: block !important; }' : '');
+			} },
 			hasPicWrap: { value: true },
 			init: { value: function() {
 				$script('window.FormData = void 0;');
