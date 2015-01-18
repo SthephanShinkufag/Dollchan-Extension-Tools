@@ -2107,15 +2107,7 @@ function getCfgFilters() {
 		lBox('hideRefPsts', true, null),
 		lBox('delHiddPost', true, function() {
 			$each($C('de-post-hide', dForm.el), function(el) {
-				var wrap = el.post.wrap,
-					hide = !wrap.classList.contains('de-hidden');
-				if(hide) {
-					wrap.insertAdjacentHTML('beforebegin',
-						'<span style="counter-increment: de-cnt 1;"></span>');
-				} else {
-					$del(wrap.previousSibling);
-				}
-				wrap.classList.toggle('de-hidden');
+				el.post.wrap.classList.toggle('de-hidden');
 			});
 			updateCSS();
 		})
@@ -8400,11 +8392,8 @@ Post.prototype = {
 		if(Cfg.delHiddPost) {
 			if(hide) {
 				this.wrap.classList.add('de-hidden');
-				this.wrap.insertAdjacentHTML('beforebegin',
-					'<span style="counter-increment: de-cnt 1;"></span>');
 			} else if(this.hidden) {
 				this.wrap.classList.remove('de-hidden');
-				$del(this.wrap.previousSibling);
 			}
 		} else {
 			if(!hide) {
@@ -11793,6 +11782,7 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
+		.de-hidden, .de-hidden > * { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
@@ -11814,7 +11804,7 @@ function scriptCSS() {
 		#de-updater-count:before { content: ": " }\
 		#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\
 		.de-viewed { color: #888 !important; }\
-		.de-hidden, small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
+		small[id^="rfmap"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\
 		form > hr { clear: both }\
 		' + aib.css + aib.cssEn + '.de-post-hide > ' + aib.qHide + ' { display: none !important; }';
 
