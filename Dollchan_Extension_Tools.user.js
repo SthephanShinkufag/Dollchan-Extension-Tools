@@ -2649,10 +2649,54 @@ function showMenu(el, html, inPanel, onclick) {
 function addMenu(e) {
 	e.target.odelay = setTimeout(function(el) {
 		switch(el.id) {
-		case 'de-btn-addspell': addSpellMenu(el); return;
-		case 'de-btn-refresh': addAjaxPagesMenu(el); return;
-		case 'de-btn-savethr': addSaveThreadMenu(el); return;
-		case 'de-btn-audio-off': addAudioNotifMenu(el); return;
+		case 'de-btn-addspell':
+			showMenu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
+				'<span class="de-menu-item">' + ('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
+					.split(',').join('</span><span class="de-menu-item">') +
+				'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
+				('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
+					.split(',').join('</span><span class="de-menu-item">') + '</span></div>', false,
+			function(el) {
+				var exp = el.textContent,
+					idx = Spells.names.indexOf(exp.substr(1));
+				$txtInsert($id('de-spell-edit'), exp + (
+					!TNum || exp === '#op' || exp === '#rep' || exp === '#outrep' ? '' :
+						'[' + brd + ',' + TNum + ']'
+				) + (Spells.needArg[idx] ? '(' : ''));
+			});
+			return;
+		case 'de-btn-refresh': 
+			showMenu(el, '<span class="de-menu-item">' +
+				Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
+			function(el) {
+				loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
+			});
+			return;
+		case 'de-btn-savethr':
+			showMenu(el, '<span class="de-menu-item">' +
+				Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true,
+			function(el) {
+				if(!$id('de-alert-savethr')) {
+					var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
+					if(Images_.preloading) {
+						$alert(Lng.loading[lang], 'savethr', true);
+						Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
+						Images_.progressId = 'savethr';
+					} else {
+						loadDocFiles(imgOnly);
+					}
+				}
+			});
+			return;
+		case 'de-btn-audio-off':
+			showMenu(el, '<span class="de-menu-item">' +
+				Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true,
+			function(el) {
+				var i = aProto.indexOf.call(el.parentNode.children, el);
+				updater.enable();
+				updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
+				$id('de-btn-audio-off').id = 'de-btn-audio-on';
+			});
 		}
 	}, Cfg.linksOver, e.target);
 }
@@ -2664,58 +2708,6 @@ function removeMenu(e) {
 	if(el && (!rt || (rt !== el && !el.contains(rt)))) {
 		el.odelay = setTimeout($del, 75, el);
 	}
-}
-
-function addSpellMenu(el) {
-	showMenu(el, '<div style="display: inline-block; border-right: 1px solid grey;">' +
-		'<span class="de-menu-item">' + ('#words,#exp,#exph,#imgn,#ihash,#subj,#name,#trip,#img,<br>')
-			.split(',').join('</span><span class="de-menu-item">') +
-		'</span></div><div style="display: inline-block;"><span class="de-menu-item">' +
-		('#sage,#op,#tlen,#all,#video,#vauthor,#num,#wipe,#rep,#outrep')
-			.split(',').join('</span><span class="de-menu-item">') + '</span></div>', false,
-	function(el) {
-		var exp = el.textContent,
-			idx = Spells.names.indexOf(exp.substr(1));
-		$txtInsert($id('de-spell-edit'), exp + (
-			TNum && exp !== '#op' && exp !== '#rep' && exp !== '#outrep' ? '[' + brd + ',' + TNum + ']' : ''
-		) + (Spells.needArg[idx] ? '(' : ''));
-	});
-}
-
-function addAjaxPagesMenu(el) {
-	showMenu(el, '<span class="de-menu-item">' +
-		Lng.selAjaxPages[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-	function(el) {
-		loadPages(aProto.indexOf.call(el.parentNode.children, el) + 1);
-	});
-}
-
-function addSaveThreadMenu(el) {
-	showMenu(el, '<span class="de-menu-item">' +
-		Lng.selSaveThr[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-	function(el) {
-		if(!$id('de-alert-savethr')) {
-			var imgOnly = !!aProto.indexOf.call(el.parentNode.children, el);
-			if(Images_.preloading) {
-				$alert(Lng.loading[lang], 'savethr', true);
-				Images_.afterpreload = loadDocFiles.bind(null, imgOnly);
-				Images_.progressId = 'savethr';
-			} else {
-				loadDocFiles(imgOnly);
-			}
-		}
-	});
-}
-
-function addAudioNotifMenu(el) {
-	showMenu(el, '<span class="de-menu-item">' +
-		Lng.selAudioNotif[lang].join('</span><span class="de-menu-item">') + '</span>', true,
-	function(el) {
-		var i = aProto.indexOf.call(el.parentNode.children, el);
-		updater.enable();
-		updater.toggleAudio(i === 0 ? 3e4 : i === 1 ? 6e4 : i === 2 ? 12e4 : 3e5);
-		$id('de-btn-audio-off').id = 'de-btn-audio-on';
-	});
 }
 
 
