@@ -11285,12 +11285,8 @@ function initThreadUpdater(title, enableUpdate) {
 							'tag': aib.dm + brd + TNum,
 							'icon': imgs.length === 0 ? favHref : imgs[0].src
 						});
-					notif.onshow = function() {
-						setTimeout(this.close.bind(this), 12e3);
-					};
-					notif.onclick = function() {
-						window.focus();
-					};
+					notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
+					notif.onclick = window.focus;
 					notif.onerror = function() {
 						window.focus();
 						requestNotifPermission();
@@ -11351,9 +11347,7 @@ function initThreadUpdater(title, enableUpdate) {
 		get focused() {
 			return focused;
 		},
-		forceLoad: function() {
-			forceLoadPosts(false);
-		},
+		forceLoad: forceLoadPosts.bind(null, false),
 		enable: function() {
 			if(!inited) {
 				init();
@@ -11364,9 +11358,7 @@ function initThreadUpdater(title, enableUpdate) {
 			}
 			setState('on');
 		},
-		disable: function() {
-			disable(true);
-		},
+		disable: disable.bind(null, true),
 		updateXHR: function(newXHR) {
 			currentXHR = newXHR;
 		},
