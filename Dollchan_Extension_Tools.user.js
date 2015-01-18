@@ -1458,7 +1458,7 @@ function addPanel(formEl) {
 				switch(e.target.id) {
 				case 'de-btn-refresh':
 				case 'de-btn-savethr':
-				case 'de-btn-audio-off': removeMenu(e); break;
+				case 'de-btn-audio-off': removeMenu(e);
 				}
 			}
 		}
@@ -1670,7 +1670,7 @@ function showContent(cont, id, name, remove, data) {
 				case 'de-video-btn-prev':
 					node = this.ytLink.parentNode,
 					(node.previousSibling || node.parentNode.lastChild).firstChild.click();
-					break;
+					return;
 				case 'de-video-btn-next':
 					node = this.ytLink.parentNode,
 					(node.nextSibling || node.parentNode.firstChild).firstChild.click();
@@ -3325,7 +3325,6 @@ function initMessageFunctions() {
 		case 'B':
 			$id('de-iframe-fav').style.height = data + 'px';
 			closeAlert($id('de-alert-load-favthr'));
-			return;
 		}
 	}, false);
 }
@@ -5755,7 +5754,7 @@ PostForm.prototype = {
 					case 'italic': x = 13; break;
 					case 'strike': x = 14; break;
 					case 'spoil': x = 15; break;
-					case 'code': x = 16; break;
+					case 'code': x = 16;
 					}
 				}
 				KeyEditListener.setTitle(el, x);
@@ -6457,7 +6456,7 @@ FileInput.prototype = {
 	},
 	handleEvent: function(e) {
 		switch(e.type) {
-		case 'change': setTimeout(this._onFileChange.bind(this), 20); break;
+		case 'change': setTimeout(this._onFileChange.bind(this), 20); return;
 		case 'click':
 			if(e.target === this._delUtil) {
 				this.delUtils();
@@ -6468,11 +6467,11 @@ FileInput.prototype = {
 			}
 			e.stopPropagation();
 			$pd(e);
-			break;
+			return;
 		case 'dragover':
 			this.thumb.classList.add('de-file-drag');
 			$after(this.thumb, this.el);
-			break;
+			return;
 		case 'dragleave':
 		case 'drop':
 			setTimeout(function() {
@@ -6484,8 +6483,8 @@ FileInput.prototype = {
 					this.place.appendChild(this.el);
 				}
 			}.bind(this), 10);
-			break;
-		case 'mouseover': this.thumb.classList.add('de-file-hover'); break;
+			return;
+		case 'mouseover': this.thumb.classList.add('de-file-hover'); return;
 		case 'mouseout': this.thumb.classList.remove('de-file-hover');
 		}
 	},
@@ -6664,17 +6663,10 @@ FormResizer.prototype = {
 		switch(e.type) {
 		case 'mousedown':
 			switch(this.dir) {
-			case 'top':
-				val = Cfg.qReplyX + '; bottom: ' + (maxY - cr.bottom) + 'px';
-				break;
-			case 'bottom':
-				val = Cfg.qReplyX + '; top: ' + cr.top + 'px';
-				break;
-			case 'left':
-				val = 'right: ' + (maxX - cr.right) + 'px; ' + Cfg.qReplyY;
-				break;
-			case 'right':
-				val = 'left: ' + cr.left + 'px; ' + Cfg.qReplyY;
+			case 'top': val = Cfg.qReplyX + '; bottom: ' + (maxY - cr.bottom) + 'px'; break;
+			case 'bottom': val = Cfg.qReplyX + '; top: ' + cr.top + 'px'; break;
+			case 'left': val = 'right: ' + (maxX - cr.right) + 'px; ' + Cfg.qReplyY; break;
+			case 'right': val = 'left: ' + cr.left + 'px; ' + Cfg.qReplyY;
 			}
 			this.qaStyle.cssText = val;
 			doc.body.addEventListener('mousemove', this, false);
@@ -7206,7 +7198,7 @@ ImgBtnsShowHider.prototype = {
 				this._oldY = curY;
 				this.show();
 			}
-			break;
+			return;
 		case 'mouseover':
 			if(!this.hasEvents) {
 				this.hasEvents = true;
@@ -7218,15 +7210,12 @@ ImgBtnsShowHider.prototype = {
 				KeyEditListener.setTitle(this._btns.firstChild, 17);
 				KeyEditListener.setTitle(this._btns.lastChild, 4);
 			}
-			break;
-		case 'mouseout':
-			this._setHideTmt();
-			break;
+			return;
+		case 'mouseout': this._setHideTmt(); return;
 		case 'click':
 			switch(e.target.parentNode.id) {
 			case 'de-img-btn-next': this._nextFn(); return;
-			case 'de-img-btn-prev': this._prevFn(); return;
-			default: return;
+			case 'de-img-btn-prev': this._prevFn();
 			}
 		}
 	},
@@ -8127,9 +8116,7 @@ Post.prototype = {
 			case 'de-btn-rep':
 				pr.showQuickReply(this.isPview ? this.getTopParent() : this, this.num, !this.isPview, false);
 				return;
-			case 'de-btn-sage':
-				addSpell(9, '', false);
-				return;
+			case 'de-btn-sage': addSpell(9, '', false); return;
 			case 'de-btn-stick':
 			case 'de-btn-stick-on':
 				el.className = this.sticked ? 'de-btn-stick' : 'de-btn-stick-on';
@@ -8156,8 +8143,7 @@ Post.prototype = {
 		switch(el.classList[0]) {
 		case 'de-btn-expthr':
 		case 'de-btn-hide':
-		case 'de-btn-hide-user':
-			this._addButtonTitle(el);
+		case 'de-btn-hide-user': this._addButtonTitle(el);
 		case 'de-btn-src':
 			if(isOutEvent) {
 				this._closeMenu(e.relatedTarget);
@@ -8589,15 +8575,9 @@ Post.prototype = {
 		el.hasTitle = true;
 		switch(el.className) {
 		case 'de-btn-hide':
-		case 'de-btn-hide-user':
-			el.title = Lng.togglePost[lang];
-			return;
-		case 'de-btn-expthr':
-			el.title = Lng.expandThrd[lang];
-			return;
-		case 'de-btn-rep':
-			el.title = Lng.replyToPost[lang];
-			return;
+		case 'de-btn-hide-user': el.title = Lng.togglePost[lang]; return;
+		case 'de-btn-expthr': el.title = Lng.expandThrd[lang]; return;
+		case 'de-btn-rep': el.title = Lng.replyToPost[lang];
 		}
 	},
 	_addMenu: function(el) {
@@ -8620,7 +8600,6 @@ Post.prototype = {
 			isLeft = true;
 			className += ' de-imgmenu';
 			html = this._addMenuImgSrc(el);
-			break;
 		}
 		doc.body.insertAdjacentHTML('beforeend', '<div class="' + className +
 			'" style="position: absolute; ' + (
@@ -8774,7 +8753,7 @@ Post.prototype = {
 			saveUserPosts(true);
 			return;
 		case 'spell-notext': addSpell(0x10B /* (#all & !#tlen) */, '', true); return;
-		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), false, null); return;
+		case 'thr-exp': this.thr.load(parseInt(el.textContent, 10), false, null);
 		}
 	},
 	_closeMenu: function(rt) {
@@ -10762,7 +10741,7 @@ function Initialization(checkDomains) {
 			return;
 		}
 		switch(e.key) {
-		case '__de-post': {
+		case '__de-post':
 			try {
 				data = JSON.parse(val);
 			} catch(e) {
@@ -10792,8 +10771,7 @@ function Initialization(checkDomains) {
 				}
 			}
 			break;
-		}
-		case '__de-threads': {
+		case '__de-threads':
 			try {
 				hThr = JSON.parse(val);
 			} catch(e) {
@@ -10804,8 +10782,7 @@ function Initialization(checkDomains) {
 			}
 			dForm.firstThr.updateHidden(hThr[brd]);
 			break;
-		}
-		case '__de-spells': {
+		case '__de-spells':
 			try {
 				data = JSON.parse(val);
 			} catch(e) {
@@ -10833,7 +10810,6 @@ function Initialization(checkDomains) {
 				spells.enable = false;
 			}
 			doc.body.style.display = '';
-		}
 		default: return;
 		}
 		toggleContent('hid', true);
