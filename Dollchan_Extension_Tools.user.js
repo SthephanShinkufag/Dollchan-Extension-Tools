@@ -10741,7 +10741,7 @@ function Initialization(checkDomains) {
 			return;
 		}
 		switch(e.key) {
-		case '__de-post':
+		case '__de-post': {
 			try {
 				data = JSON.parse(val);
 			} catch(e) {
@@ -10771,7 +10771,8 @@ function Initialization(checkDomains) {
 				}
 			}
 			break;
-		case '__de-threads':
+		}
+		case '__de-threads': {
 			try {
 				hThr = JSON.parse(val);
 			} catch(e) {
@@ -10782,7 +10783,8 @@ function Initialization(checkDomains) {
 			}
 			dForm.firstThr.updateHidden(hThr[brd]);
 			break;
-		case '__de-spells':
+		}
+		case '__de-spells': {
 			try {
 				data = JSON.parse(val);
 			} catch(e) {
@@ -10810,6 +10812,7 @@ function Initialization(checkDomains) {
 				spells.enable = false;
 			}
 			doc.body.style.display = '';
+		}
 		default: return;
 		}
 		toggleContent('hid', true);
