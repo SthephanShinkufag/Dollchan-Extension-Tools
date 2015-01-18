@@ -31,7 +31,7 @@ defaultCfg = {
 	'hideRefPsts':      0,      // hide post with references to hidden posts
 	'delHiddPost':      0,      // delete hidden posts
 	'ajaxUpdThr':       1,      // auto update threads
-	'updThrDelay':      60,     //    threads update interval in sec
+	'updThrDelay':      20,     //    threads update interval in sec
 	'noErrInTitle':     0,      //    don't show error number in title except 404
 	'favIcoBlink':      0,      //    favicon blinking, if new posts detected
 	'markNewPosts':     1,      //    new posts marking on page focus
@@ -2145,8 +2145,7 @@ function getCfgPosts() {
 				}
 			})),
 			lBox('updCount', true, function() {
-				updater.disable();
-				updater.enable();
+				updater.toggleCounter(Cfg.updCount);
 			})
 		]),
 		optSel('expandPosts', true, null),
@@ -11049,14 +11048,14 @@ function replacePost(el) {
 
 function initThreadUpdater(title, enableUpdate) {
 	var focused, delay, checked4XX, loadTO, countIV, audioRep, currentXHR, audioEl, stateButton,
-		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, enabled = false,
+		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl, countdownValue,
+		useCountdown, canFocusLoad, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
 		sendError = false,
 		newPosts = 0,
-		aPlayers = 0,
-		countEl = $id('de-updater-count');
+		aPlayers = 0;
 	if(('hidden' in doc) || ('webkitHidden' in doc)) {
 		focused = !(doc.hidden || doc.webkitHidden);
 		doc.addEventListener((nav.WebKit ? 'webkit' : '') + 'visibilitychange', function() {
@@ -11097,14 +11096,23 @@ function initThreadUpdater(title, enableUpdate) {
 		favIntrv = 0;
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
+		useCountdown = !!Cfg.updCount;
+		if(useCountdown) {
+			countEl = $id('de-updater-count');
+			countEl.style.display = '';
+		}
 		enable(true);
 	}
 
 	function enable(startLoading) {
 		enabled = true;
+		canFocusLoad = true;
 		checked4XX = false;
 		newPosts = 0;
 		delay = initDelay;
+		if(useCountdown) {
+			countEl.style.display = '';
+		}
 		if(startLoading) {
 			startTimers();
 		}
@@ -11114,8 +11122,10 @@ function initThreadUpdater(title, enableUpdate) {
 		disabledByUser = byUser;
 		if(enabled) {
 			clearTimeout(loadTO);
-			clearInterval(countIV);
-			countEl.style.display = 'none';
+			if(useCountdown) {
+				clearInterval(countIV);
+				countEl.style.display = 'none';
+			}
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11126,27 +11136,16 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function startTimers() {
-		if(Cfg.updCount) {
-			countEl.textContent = delay / 1000;
-			countEl.style.display = '';
+		if(useCountdown) {
+			countEl.textContent = countdownValue = delay / 1000;
 			countIV = setInterval(function() {
-				--countEl.textContent;
+				countdownValue--;
+				if(focused) {
+					countEl.textContent = countdownValue;
+				}
 			}, 1e3);
-		} else {
-			countEl.style.display = 'none';
 		}
 		loadTO = setTimeout(loadPostsFun, delay);
-	}
-
-	function toggleAudio(aRep) {
-		if(!audioEl) {
-			audioEl = $new('audio', {
-				'preload': 'auto',
-				'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
-			}, null);
-		}
-		audioRep = aRep;
-		return hasAudio = !hasAudio;
 	}
 
 	function audioNotif() {
@@ -11171,24 +11170,43 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function loadPostsFun() {
-		if(Cfg.updCount) {
+		if(useCountdown) {
 			clearInterval(countIV);
 			countEl.innerHTML = '<span class="de-wait"></span>';
 		}
 		currentXHR = dForm.firstThr.loadNew(onLoaded, true);
 	}
+	
+	function checkFocusLoad(isFocusLoad) {
+		if(isFocusLoad) {
+			if(!canFocusLoad) {
+				return false;
+			}
+			canFocusLoad = false;
+			setTimeout(function() {
+				canFocusLoad = true;
+			}, 1e4);
+		}
+		return true;
+	}
 
-	function forceLoadPosts() {
+	function forceLoadPosts(isFocusLoad) {
+		if(!enabled && !disabledByUser) {
+			enable(false);
+			if(!checkFocusLoad(isFocusLoad)) {
+				return;
+			}
+		} else {
+			if(!checkFocusLoad(isFocusLoad)) {
+				return;
+			}
+			clearTimeout(loadTO);
+			delay = initDelay;
+		}
 		if(currentXHR) {
 			try {
 				currentXHR.abort();
 			} catch(e) {}
-		}
-		if(!enabled && !disabledByUser) {
-			enable(false);
-		} else {
-			clearTimeout(loadTO);
-			delay = initDelay;
 		}
 		loadPostsFun();
 	}
@@ -11312,7 +11330,7 @@ function initThreadUpdater(title, enableUpdate) {
 		setTimeout(function() {
 			updateTitle();
 			if(enabled) {
-				forceLoadPosts();
+				forceLoadPosts(true);
 			}
 		}, 200);
 	}
@@ -11324,27 +11342,6 @@ function initThreadUpdater(title, enableUpdate) {
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
-	function addPlayingTag() {
-		aPlayers++;
-		if(aPlayers === 1) {
-			updateTitle();
-		}
-	}
-
-	function removePlayingTag() {
-		aPlayers = Math.max(aPlayers - 1, 0);
-		if(aPlayers === 0) {
-			updateTitle();
-		}
-	}
-
-	function sendErrNotif() {
-		if(Cfg.sendErrNotif && !focused) {
-			sendError = true;
-			updateTitle();
-		}
-	}
-
 	return {
 		get enabled() {
 			return enabled;
@@ -11352,7 +11349,9 @@ function initThreadUpdater(title, enableUpdate) {
 		get focused() {
 			return focused;
 		},
-		forceLoad: forceLoadPosts,
+		forceLoad: function() {
+			forceLoadPosts(false);
+		},
 		enable: function() {
 			if(!inited) {
 				init();
@@ -11369,10 +11368,48 @@ function initThreadUpdater(title, enableUpdate) {
 		updateXHR: function(newXHR) {
 			currentXHR = newXHR;
 		},
-		toggleAudio: toggleAudio,
-		addPlayingTag: addPlayingTag,
-		removePlayingTag: removePlayingTag,
-		sendErrNotif: sendErrNotif
+		toggleAudio: function(aRep) {
+			if(!audioEl) {
+				audioEl = $new('audio', {
+					'preload': 'auto',
+					'src': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/signal.ogg'
+				}, null);
+			}
+			audioRep = aRep;
+			return hasAudio = !hasAudio;
+		},
+		toggleCounter: function(enableCnt) {
+			if(enableCnt) {
+				if(!countEl) {
+					countEl = $id('de-updater-count');
+				}
+				countEl.style.display = '';
+				useCountdown = true;
+				forceLoadPosts(false);
+			} else {
+				countEl.style.display = 'none';
+				clearInterval(countIV);
+				useCountdown = false;
+			}
+		},
+		addPlayingTag: function() {
+			aPlayers++;
+			if(aPlayers === 1) {
+				updateTitle();
+			}
+		},
+		removePlayingTag: function() {
+			aPlayers = Math.max(aPlayers - 1, 0);
+			if(aPlayers === 0) {
+				updateTitle();
+			}
+		},
+		sendErrNotif: function() {
+			if(Cfg.sendErrNotif && !focused) {
+				sendError = true;
+				updateTitle();
+			}
+		}
 	};
 }
 
