@@ -4146,7 +4146,7 @@ function embedMediaLinks(post) {
 			if(!(el = link.previousSibling) || el.className !== 'de-vocaroo') {
 				link.insertAdjacentHTML('beforebegin', '<div class="de-vocaroo"><embed' +
 					' width="148" height="44" wmode="transparent" type="application/x-shockwave-flash"' +
-					' src="//vocaroo.com/player.swf?playMediaID=' + src + '"></div>');
+					' src="http://vocaroo.com/player.swf?playMediaID=' + src + '"></div>');
 			}
 		}
 	}
@@ -11782,7 +11782,7 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-hidden, .de-hidden > * { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; }\
+		.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
