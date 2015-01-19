@@ -1052,6 +1052,9 @@ function readCfg(Fn, arg) {
 		if(aib.tiny) {
 			Cfg.fileThumb = 0;
 		}
+		if(aib.prot !== 'http:') {
+			Cfg.addVocaroo = 0;
+		}
 		if(!('Notification' in window)) {
 			Cfg.desktNotif = 0;
 		}
@@ -2229,7 +2232,7 @@ function getCfgLinks() {
 		lBox('addOPLink', true, null),
 		lBox('addImgs', true, null),
 		lBox('addMP3', false, null),
-		lBox('addVocaroo', false, null),
+		$if(aib.prot === 'http:', lBox('addVocaroo', false, null)),
 		optSel('addYouTube', true, null),
 		$New('div', {'class': 'de-cfg-depend'}, [
 			$New('div', null, [
