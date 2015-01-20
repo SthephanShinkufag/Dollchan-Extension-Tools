@@ -1860,7 +1860,8 @@ function showFavoriteTable(cont, data) {
 		for(i = 0, len = els.length; i < len; ++i) {
 			el = els[i];
 			if(el.getAttribute('de-host') === aib.host && el.getAttribute('de-board') === brd) {
-				postsInfo.push([el, +el.getAttribute('de-num'), false]);
+				postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
+				el.classList.add('de-wait');
 			}
 		}
 		if(postsInfo.length === 0) {
@@ -1868,6 +1869,9 @@ function showFavoriteTable(cont, data) {
 			return;
 		}
 		new PagesLoader(0, aib.lastPage + 1, function(pNum, formEl) {
+			if(!postsInfo) {
+				return;
+			}
 			var i, len, pInfo, form, tNums;
 			try {
 				form = new DelForm(formEl, true);
@@ -1876,8 +1880,9 @@ function showFavoriteTable(cont, data) {
 			}
 			for(tNums = form.tNums, i = 0, len = postsInfo.length; i < len; ++i) {
 				pInfo = postsInfo[i];
-				if(tNums.indexOf(pInfo[1]) !== -1) {
-					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + pNum;
+				if(tNums.indexOf(pInfo[0]) !== -1) {
+					pInfo[1].classList.remove('de-wait');
+					pInfo[1].textContent = '@' + pNum;
 					pInfo[2] = true;
 					continue;
 				}
@@ -1892,7 +1897,8 @@ function showFavoriteTable(cont, data) {
 			for(var pInfo, i = 0, len = postsInfo.length; i < len; ++i) {
 				pInfo = postsInfo[i];
 				if(!pInfo[2]) {
-					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@?';
+					pInfo[1].classList.remove('de-wait');
+					pInfo[1].textContent = '@?';
 				}
 			}
 			closeAlert($id('de-alert-load-pages'));
