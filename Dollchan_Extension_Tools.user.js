@@ -1854,21 +1854,19 @@ function showFavoriteTable(cont, data) {
 		});
 	}));
 	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], function() {
-		var i, len, el, els = $C('de-entry', doc),
+		var i, el, els = $Q('.de-fav-current > .de-entry', doc),
+			len = els.length,
 			postsInfo = [];
-		$alert(Lng.loading[lang], 'load-pages', true);
-		for(i = 0, len = els.length; i < len; ++i) {
-			el = els[i];
-			if(el.getAttribute('de-host') === aib.host && el.getAttribute('de-board') === brd) {
-				postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
-				el.classList.add('de-wait');
-			}
-		}
-		if(postsInfo.length === 0) {
-			closeAlert($id('de-alert-load-pages'));
+		if(!len) {
 			return;
 		}
-		new PagesLoader(0, aib.lastPage + 1, function(pNum, formEl) {
+		$alert(Lng.loading[lang], 'load-pages', true);
+		for(i = 0; i < len; ++i) {
+			el = els[i];
+			postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
+			el.classList.add('de-wait');
+		}
+		new PagesLoader(0, (aib.lastPage || 10) + 1, function(pNum, formEl) {
 			if(!postsInfo) {
 				return;
 			}
@@ -4245,15 +4243,13 @@ function loadFavorThread() {
 		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"></iframe>');
 }
 
-function PagesLoader(from, count, loadFn, errorFn, endFn) {
-	var queue, i = from,
-		len = Math.min(aib.lastPage + 1, i + count),
-		queue = new $queue(2, this.loadPage.bind(this), endFn);
+function PagesLoader(from, len, loadFn, errorFn, endFn) {
+	var queue = new $queue(2, this.loadPage.bind(this), endFn);
 	this.queue = queue;
 	this.loadFn = loadFn;
 	this.errorFn = errorFn;
-	while(i < len) {
-		queue.run(i++);
+	while(from < len) {
+		queue.run(from++);
 	}
 	queue.complete();
 }
@@ -4294,7 +4290,7 @@ function loadPages(count) {
 		}
 		pr.txta.value = '';
 	}
-	new PagesLoader(pageNum, count, function(pNum, formEl) {
+	new PagesLoader(pageNum, Math.min(aib.lastPage + 1, pageNum + count), function(pNum, formEl) {
 		pages[pNum] = replacePost(formEl);
 	}, function(pNum, eCode, eMsg) {
 		pages[pNum] = $add('<div><center style="font-size: 2em">' +
