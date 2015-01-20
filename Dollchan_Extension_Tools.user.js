@@ -1877,9 +1877,9 @@ function showFavoriteTable(cont, data) {
 			for(tNums = form.tNums, i = 0, len = postsInfo.length; i < len; ++i) {
 				pInfo = postsInfo[i];
 				if(tNums.indexOf(pInfo[1]) !== -1) {
-					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + (pNum + 1);
+					$c('de-fav-inf-page', pInfo[0]).innerHTML = '@' + pNum;
 					pInfo[2] = true;
-					break;
+					continue;
 				}
 			}
 			for(i = 0, len = postsInfo.length; i < len; ++i) {
