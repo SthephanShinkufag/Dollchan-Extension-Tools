@@ -4248,7 +4248,7 @@ function loadFavorThread() {
 function PagesLoader(from, count, loadFn, errorFn, endFn) {
 	var queue, i = from,
 		len = Math.min(aib.lastPage + 1, i + count),
-		queue = new $queue(4, this.loadPage.bind(this), endFn);
+		queue = new $queue(2, this.loadPage.bind(this), endFn);
 	this.queue = queue;
 	this.loadFn = loadFn;
 	this.errorFn = errorFn;
