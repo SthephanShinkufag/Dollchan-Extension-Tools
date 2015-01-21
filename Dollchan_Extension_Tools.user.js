@@ -4197,7 +4197,7 @@ function ajaxLoad(url, loadForm, Fn, errFn) {
 }
 
 function getJsonPosts(url, Fn) {
-	GM_xmlhttpRequest({
+	var GmXhr = GM_xmlhttpRequest({
 		'method': 'GET',
 		'url': nav.fixLink(url),
 		'onreadystatechange': function(xhr) {
@@ -4210,16 +4210,17 @@ function getJsonPosts(url, Fn) {
 				try {
 					var json = JSON.parse(xhr.responseText);
 				} catch(e) {
-					Fn(1, e.toString(), null, this);
+					Fn(1, e.toString(), null, GmXhr);
 				} finally {
 					if(json) {
-						Fn(xhr.status, xhr.statusText, json, this);
+						Fn(xhr.status, xhr.statusText, json, GmXhr);
 					}
-					Fn = null;
+					Fn = GmXhr = null;
 				}
 			}
 		}
 	});
+	return GmXhr;
 }
 
 function loadFavorThread() {
