@@ -5658,6 +5658,7 @@ PostForm.setUserPassw = function() {
 };
 PostForm.prototype = {
 	fileObj: null,
+	filesCount: 0,
 	isHidden: false,
 	isQuick: false,
 	isBottom: false,
@@ -6575,10 +6576,10 @@ FileInput.prototype = {
 		el.click();
 	},
 	_changeFilesCount: function(val) {
+		val = this.form.filesCount + val;
+		this.form.filesCount = val < 1 ? 1 : val;
 		if(aib.dobr) {
-			var el = this.form.fileTd.firstElementChild,
-				val = +el.value + val;
-			el.value = val < 1 ? 1 : val;
+			this.form.fileTd.firstElementChild.value = this.form.filesCount + 1;
 		}
 	},
 	_onFileChange: function() {
@@ -6791,6 +6792,7 @@ function checkUpload(dc) {
 	}
 	pr.closeQReply();
 	pr.refreshCapImg(false);
+	pr.filesCount = 0;
 }
 
 function endDelete() {
