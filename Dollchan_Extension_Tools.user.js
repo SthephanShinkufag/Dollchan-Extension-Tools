@@ -4593,7 +4593,7 @@ Spells.prototype = {
 			return;
 		}
 		if(!spells) {
-			spells = this.parseText('#wipe(samelines,samewords,longwords,symbols,capslock,numbers,whitespace)');
+			spells = this.parseText('#wipe(samelines,samewords,longwords,symbols,numbers,whitespace)');
 		}
 		if(init) {
 			this.update(spells, false, false);
@@ -8861,8 +8861,7 @@ PostContent.prototype = {
 			.replace(/<[^>]+?>/g,'')
 			.replace(/&gt;/g, '>')
 			.replace(/&lt;/g, '<')
-			.replace(/&nbsp;/g, '\u00A0')
-			.trim();
+			.replace(/&nbsp;/g, '\u00A0');
 		Object.defineProperty(this, 'text', { value: val });
 		return val;
 	},
