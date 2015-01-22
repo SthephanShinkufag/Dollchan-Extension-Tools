@@ -4593,7 +4593,7 @@ Spells.prototype = {
 			return;
 		}
 		if(!spells) {
-			spells = this.parseText('#wipe(samelines,samewords,longwords,numbers,whitespace)');
+			spells = this.parseText('#wipe(samelines,samewords,longwords,symbols,capslock,numbers,whitespace)');
 		}
 		if(init) {
 			this.update(spells, false, false);
@@ -5236,7 +5236,7 @@ SpellsInterpreter.prototype = {
 			return this._getMsg(val[this._lastSpellIdx]);
 		}
 		if(type === 14) {
-			return (neg ? '!#wipe' : '#wipe') + (Spells._lastWipeMsg ? ': ' + Spells._lastWipeMsg : '');
+			return (neg ? '!#wipe' : '#wipe') + (this._wipeMsg ? ': ' + this._wipeMsg : '');
 		} else {
 			return Spells.decompileSpell(type, neg, val, spell[2]);
 		}
