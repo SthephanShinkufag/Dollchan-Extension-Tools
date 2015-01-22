@@ -8253,9 +8253,7 @@ Post.prototype = {
 		return null;
 	},
 	get html() {
-		var val = this.el.innerHTML;
-		Object.defineProperty(this, 'html', { configurable: true,  value: val });
-		return val;
+		return PostContent.get(this).html;
 	},
 	get images() {
 		var i, len, el, els = $Q(aib.qThumbImages, this.el),
@@ -8322,14 +8320,10 @@ Post.prototype = {
 		return val;
 	},
 	get posterName() {
-		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent.trim() : '';
-		Object.defineProperty(this, 'posterName', { value: val });
-		return val;
+		return PostContent.get(this).posterName;
 	},
 	get posterTrip() {
-		var pTrip = $c(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
-		Object.defineProperty(this, 'posterTrip', { value: val });
-		return val;
+		return PostContent.get(this).posterTrip;
 	},
 	select: function() {
 		if(this.isOp) {
@@ -8441,25 +8435,13 @@ Post.prototype = {
 		}
 	},
 	get subj() {
-		var subj = $c(aib.cSubj, this.el), val = subj ? subj.textContent : '';
-		Object.defineProperty(this, 'subj', { value: val });
-		return val;
+		return PostContent.get(this).subj;
 	},
 	get text() {
-		var val = this.msg.innerHTML
-			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
-			.replace(/<[^>]+?>/g,'')
-			.replace(/&gt;/g, '>')
-			.replace(/&lt;/g, '<')
-			.replace(/&nbsp;/g, '\u00A0')
-			.trim();
-		Object.defineProperty(this, 'text', { configurable: true, value: val });
-		return val;
+		return PostContent.get(this).text;
 	},
 	get title() {
-		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ')
-		Object.defineProperty(this, 'title', { value: val });
-		return val;
+		return PostContent.get(this).title;
 	},
 	get tNum() {
 		return this.thr.num;
@@ -8536,8 +8518,7 @@ Post.prototype = {
 			'msg': { configurable: true, value: newMsg },
 			'trunc': { configurable: true, value: null }
 		});
-		delete this.html;
-		delete this.text;
+		PostContent.remove(this);
 		new YouTube().updatePost(this, ytLinks, $Q('a[href*="youtu"]', newMsg), false);
 		if(ytExt) {
 			newMsg.appendChild(ytExt);
@@ -8823,6 +8804,72 @@ Post.prototype = {
 		} : function(el) {
 			el.classList.remove('de-ref-hid');
 		});
+	}
+};
+
+function PostContent(post) {
+	this.el = post.el;
+	this.post = post;
+}
+PostContent.data = {};
+PostContent.purgeTO = null;
+PostContent.get = function(post) {
+	var pNum = post.num,
+		rv = PostContent.data[pNum];
+	if(!rv) {
+		PostContent.data[pNum] = rv = new PostContent(post);
+	}
+	if(PostContent.purgeTO === null) {
+		PostContent.purgeTO = setTimeout(PostContent.purge, 6e4);
+	}
+	return rv;
+};
+PostContent.purge = function() {
+	if(PostContent.purgeTO !== null) {
+		clearTimeout(PostContent.purgeTO);
+		PostContent.purgeTO = null;
+	}
+	PostContent.data = {};
+};
+PostContent.remove = function(post) {
+	PostContent.data[post.num] = null;
+};
+PostContent.prototype = {
+	get html() {
+		var val = this.el.innerHTML;
+		Object.defineProperty(this, 'html', { value: val });
+		return val;
+	},
+	get posterName() {
+		var pName = $q(aib.qName, this.el), val = pName ? pName.textContent.trim() : '';
+		Object.defineProperty(this, 'posterName', { value: val });
+		return val;
+	},
+	get posterTrip() {
+		var pTrip = $c(aib.cTrip, this.el), val = pTrip ? pTrip.textContent : '';
+		Object.defineProperty(this, 'posterTrip', { value: val });
+		return val;
+	},
+	get subj() {
+		var subj = $c(aib.cSubj, this.el), val = subj ? subj.textContent : '';
+		Object.defineProperty(this, 'subj', { value: val });
+		return val;
+	},
+	get text() {
+		var val = this.post.msg.innerHTML
+			.replace(/<\/?(?:br|p|li)[^>]*?>/gi,'\n')
+			.replace(/<[^>]+?>/g,'')
+			.replace(/&gt;/g, '>')
+			.replace(/&lt;/g, '<')
+			.replace(/&nbsp;/g, '\u00A0')
+			.trim();
+		Object.defineProperty(this, 'text', { value: val });
+		return val;
+	},
+	get title() {
+		var val = this.subj || this.text.substring(0, 70).replace(/\s+/g, ' ')
+		Object.defineProperty(this, 'title', { value: val });
+		return val;
 	}
 };
 
@@ -11971,6 +12018,7 @@ function doScript(formEl) {
 	readPosts();
 	readUserPosts();
 	readFavoritesPosts();
+	setTimeout(PostContent.purge, 0);
 	new Logger().log('Apply spells');
 	if(needScroll) {
 		scrollPage();
