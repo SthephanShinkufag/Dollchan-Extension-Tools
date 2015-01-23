@@ -3671,8 +3671,8 @@ function loadDocFiles(imgOnly) {
 			} else {
 				el.href = getAbsLink(el.href);
 			}
-			if(!el.classList.contains('de-preflink')) {
-				el.className = 'de-preflink ' + el.className;
+			if(!el.classList.contains('de-link-pref')) {
+				el.className = 'de-link-pref ' + el.className;
 			}
 		});
 		$each($Q('.' + aib.cRPost, dc), function(post, i) {
@@ -8179,11 +8179,11 @@ Post.prototype = {
 				el.lchecked = true;
 				return;
 			}
-			// Don't use classList here, 'de-preflink ' should be first
-			el.className = 'de-preflink ' + el.className;
+			// Don't use classList here, 'de-link-pref ' should be first
+			el.className = 'de-link-pref ' + el.className;
 			// fall through
-		case 'de-reflink':
-		case 'de-preflink':
+		case 'de-link-ref':
+		case 'de-link-pref':
 			if(Cfg.linksNavig) {
 				if(isOutEvent) {
 					clearTimeout(this._linkDelay);
@@ -8653,8 +8653,8 @@ Post.prototype = {
 			Pview.del(pv.kid);
 			setPviewPosition(link, pv.el, Cfg.animation);
 			if(pv.parent.num !== this.num) {
-				$each($C('de-pview-link', pv.el), function(el) {
-					el.classList.remove('de-pview-link');
+				$each($C('de-link-pview', pv.el), function(el) {
+					el.classList.remove('de-link-pview');
 				});
 				pv._markLink(this.num);
 			}
@@ -8785,7 +8785,7 @@ Post.prototype = {
 	_markLink: function(pNum) {
 		$each($Q('a[href*="' + pNum + '"]', this.el), function(num, el) {
 			if(el.textContent === '>>' + num) {
-				el.classList.add('de-pview-link');
+				el.classList.add('de-link-pview');
 			}
 		}.bind(null, pNum));
 	},
@@ -8905,6 +8905,7 @@ Pview.del = function(pv) {
 	}
 	var el, vPost = Attachment.viewer && Attachment.viewer.data.post;
 	pv.parent.kid = null;
+	pv._link.classList.remove('de-link-parent');
 	if(!pv.parent.isPview) {
 		Pview.top = null;
 	}
@@ -8983,7 +8984,7 @@ Pview.prototype = Object.create(Post.prototype, {
 				post.msg.insertAdjacentHTML('afterend', '<div class="de-refmap"></div>');
 				rm = post.msg.nextSibling;
 			}
-			rm.insertAdjacentHTML('afterbegin', '<a class="de-reflink" href="' +
+			rm.insertAdjacentHTML('afterbegin', '<a class="de-link-ref" href="' +
 				aib.getThrdUrl(b, parent.tNum) + aib.anchor +
 				parentNum + '">&gt;&gt;' + (brd === b ? '' : '/' + brd + '/') + parentNum +
 				'</a><span class="de-refcomma">, </span>');
@@ -9012,6 +9013,8 @@ Pview.prototype = Object.create(Post.prototype, {
 			this._markLink(this.parent.num);
 		}
 		this._pref = $q(aib.qRef, el);
+		this._link.classList.add('de-link-parent');
+		$del($c('de-link-parent', el));
 		if(post.inited) {
 			this.btns = btns = $c('de-post-btns', el);
 			this.isOp = post.isOp;
@@ -9224,7 +9227,7 @@ function addRefMap(post, tUrl) {
 	var i, el, len, bStr = '<a ' + aib.rLinkClick + ' href="' + tUrl + aib.anchor,
 		html = ['<div class="de-refmap">'];
 	for(i = 0, el = post.ref, len = el.length; i < len; ++i) {
-		html.push(bStr, el[i], '" class="de-reflink">&gt;&gt;', el[i],
+		html.push(bStr, el[i], '" class="de-link-ref">&gt;&gt;', el[i],
 			'</a><span class="de-refcomma">, </span>');
 	}
 	html.push('</div>');
@@ -11837,6 +11840,9 @@ function scriptCSS() {
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; display: inline !important; }\
+		.de-link-parent { outline: 1px dotted; }\
+		.de-link-pview { font-weight: bold; }\
+		.de-link-ref { text-decoration: none; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
 		.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\
 		.de-menu-item:hover { background-color: #222; color: #fff; }\
@@ -11845,13 +11851,11 @@ function scriptCSS() {
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
-		.de-pview-link { font-weight: bold; }\
 		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-ref-op:after { content: " [OP]"; }\
 		.de-ref-del:after { content: " [del]"; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
 		.de-refmap:before { content: "' + Lng.replies[lang] + ' "; }\
-		.de-reflink { text-decoration: none; }\
 		.de-refcomma:last-child { display: none; }\
 		.de-selected, .de-error-key { ' + (nav.Presto ? 'border-left: 4px solid red; border-right: 4px solid red; }' : 'box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }') + '\
 		#de-updater-btn:after { content: "' + Lng.getNewPosts[lang] + '" }\
