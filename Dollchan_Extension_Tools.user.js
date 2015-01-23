@@ -11843,7 +11843,7 @@ function scriptCSS() {
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; display: inline !important; }\
-		.de-link-parent { outline: 1px dotted; }\
+		.de-link-parent { outline: 1px dotted !important; }\
 		.de-link-pview { font-weight: bold; }\
 		.de-link-ref { text-decoration: none; }\
 		.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\
