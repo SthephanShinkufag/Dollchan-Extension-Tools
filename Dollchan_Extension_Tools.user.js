@@ -9000,7 +9000,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 	} },
 	_showPost: { value: function pvShowPost(post) {
-		var btns, el = this.el = post.el.cloneNode(true),
+		var node, el = this.el = post.el.cloneNode(true),
 			pText = '<span class="de-btn-rep" title="' + Lng.replyToPost[lang] + '"></span>' +
 				(post.sage ? '<span class="de-btn-sage" title="SAGE"></span>' : '') +
 				'<span class="de-btn-stick" title="' + Lng.attachPview[lang] + '"></span>' +
@@ -9014,21 +9014,24 @@ Pview.prototype = Object.create(Post.prototype, {
 		}
 		this._pref = $q(aib.qRef, el);
 		this._link.classList.add('de-link-parent');
-		$del($c('de-link-parent', el));
 		if(post.inited) {
-			this.btns = btns = $c('de-post-btns', el);
+			this.btns = node = $c('de-post-btns', el);
 			this.isOp = post.isOp;
-			btns.classList.remove('de-post-counter');
+			node.classList.remove('de-post-counter');
 			if(post.hidden) {
-				btns.classList.add('de-post-hide');
+				node.classList.add('de-post-hide');
 			}
-			btns.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + 
+			node.innerHTML = '<span class="de-btn-hide' + (post.userToggled ? '-user' : '') + 
 				'" de-menu="hide" title="' + Lng.togglePost[lang] + '"></span>' + pText;
 			$each($Q((!TNum && post.isOp ? aib.qOmitted + ', ' : '') +
 				'.de-img-full, .de-after-fimg', el), $del);
 			$each($Q(aib.qThumbImages, el), function(el) {
 				el.parentNode.style.display = '';
 			});
+			if(node = $c('de-link-parent', el)) {
+				node.classList.remove('de-link-parent');
+			}
+			
 			if(post.hasYTube) {
 				if(post.ytInfo !== null) {
 					Object.defineProperty(this, 'ytObj', { value: $c('de-video-obj', el) });
