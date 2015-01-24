@@ -9990,7 +9990,7 @@ function getImageBoard(checkDomains, checkOther) {
 			qPages: { value: '.pagelist > .pages:not(.cataloglink) > a:last-of-type' },
 			qPostForm: { value: 'form[name="post"]' },
 			qPostRedir: { value: null },
-			qRef: { value: '.postInfo .postNum > a:nth-child(2)' },
+			qRef: { value: '.postInfo > .postNum' },
 			qTable: { value: '.replyContainer' },
 			qThumbImages: { value: '.fileThumb > img' },
 			getFileInfo: { value: function(wrap) {
