@@ -5841,7 +5841,7 @@ PostForm.prototype = {
 		}
 		temp = pByNum[pNum].thr.op.title;
 		if(temp.length > 27) {
-			temp = temp.substr(0, 27) + '\u2026';
+			temp = temp.substr(0, 30) + '\u2026';
 		}
 		$id('de-qarea-target').textContent = temp || '#' + pNum;
 		this.lastQuickPNum = pNum;
