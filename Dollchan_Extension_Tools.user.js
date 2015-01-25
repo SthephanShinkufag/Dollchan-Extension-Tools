@@ -4082,7 +4082,13 @@ YouTube = new function() {
 			for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
 				el = els[i];
 				if(m = el.href.match(this.ytReg)) {
-					addLink(post || aib.getPostEl(el).post, m, loader, el, true);
+					if(!post) {
+						if(!(post = aib.getPostEl(el))) {
+							continue;
+						}
+						post = post.post;
+					}
+					addLink(post, m, loader, el, true);
 				}
 			}
 			if(Cfg.addVimeo) {
