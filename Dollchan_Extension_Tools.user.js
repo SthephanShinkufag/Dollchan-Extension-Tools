@@ -11441,8 +11441,9 @@ function initPage() {
 			doc.title = '/' + brd + ' - ' + dForm.firstThr.op.title;
 		}
 		if(!localRun) {
-			dForm.firstThr.el.insertAdjacentHTML('afterend', '<div id="de-updater-div">&gt;&gt; ' +
-				'[<a class="de-abtn" id="de-updater-btn" href="#"></a><span id="de-updater-count"></span>]' +
+			dForm.firstThr.el.insertAdjacentHTML('afterend',
+				'<div id="de-updater-div">&gt;&gt; [<a class="de-abtn" id="de-updater-btn" href="#"></a>' +
+				'<span id="de-updater-count" style="display: none;"></span>]' +
 				(aib.mak ? '[<a class="de-abtn" href="#" onclick="UnbanShow();">Реквест разбана</a>]' : '') +
 				'</div>');
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
