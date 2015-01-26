@@ -4081,7 +4081,7 @@ YouTube = new function() {
 				videos = aib.fixVideo(this, post);
 			for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
 				el = els[i];
-				if(m = el.href.match(this.ytReg) && (post || (post = aib.getPostEl(el)) && (post = post.post))) {
+				if((m = el.href.match(this.ytReg)) && (post || (post = aib.getPostEl(el)) && (post = post.post))) {
 					addLink(post, m, loader, el, true);
 				}
 			}
