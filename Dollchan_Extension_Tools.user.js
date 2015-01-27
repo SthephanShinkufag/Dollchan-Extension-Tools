@@ -10039,6 +10039,11 @@ function getImageBoard(checkDomains, checkOther) {
 		'7chan.org': [{
 			init: { value: function() { return true; } }
 		}],
+		'8ch.net': [{
+			css: { value: '.fileinfo { width: 250px; }\
+				.multifile { width: auto !important; }\
+				.post-hide-link, .hide-thread-link { display: none !important; }' }
+		}, 'form[name*="postcontrols"]'],
 		'8chan.co': [{
 			init: { value: function() {
 				$script('multi_image();');
