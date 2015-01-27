@@ -10042,7 +10042,7 @@ function getImageBoard(checkDomains, checkOther) {
 		'8ch.net': [{
 			css: { value: '.fileinfo { width: 250px; }\
 				.multifile { width: auto !important; }\
-				.post-hide-link, .hide-thread-link { display: none !important; }' }
+				.post-hide-link { display: none !important; }' }
 		}, 'form[name*="postcontrols"]'],
 		'8chan.co': [{
 			init: { value: function() {
@@ -10464,7 +10464,7 @@ function getImageBoard(checkDomains, checkOther) {
 			firstPage: { value: 1 },
 			markupTags: { value: ["'''", "''", '__', '^H', '**', '`', '', '', 'q'] },
 			cssEn: { get: function() {
-				return '.banner, ' + (TNum ? '' : '.de-btn-rep, ') + '.mentioned, .post-hover { display: none !important; }\
+				return '.banner, ' + (TNum ? '' : '.de-btn-rep, ') + '.hide-thread-link, .mentioned, .post-hover { display: none !important; }\
 				div.post.reply { float: left; clear: left; display: block; }\
 				form, form table { margin: 0; }';
 			} },
