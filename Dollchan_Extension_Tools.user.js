@@ -10225,6 +10225,12 @@ function getImageBoard(checkDomains, checkOther) {
 				this.btnZeroLUTime = els[0];
 				this.initCaptcha = els[1];
 				this.addProgressTrack = els[2];
+				els = $q('select[name="applet"]', doc);
+				if(els) {
+					els.insertAdjacentHTML('afterend', '<br>');
+					els = els.nextElementSibling.nextElementSibling;
+					els.insertAdjacentHTML('afterend', '<br>');
+				}
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
