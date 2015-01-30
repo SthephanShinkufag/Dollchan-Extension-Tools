@@ -10203,7 +10203,9 @@ function getImageBoard(checkDomains, checkOther) {
 					div[id^="Wz"] { z-index: 10000 !important; }\
 					.de-thr-hid { margin-bottom: ' + (!TNum ? '7' : '2') + 'px; float: none !important; }\
 					.file_reply + .de-video-obj, .file_thread + .de-video-obj { margin: 5px 20px 5px 5px; float: left; }\
-					.de-video-obj + div { clear: left; }' },
+					.de-video-obj + div { clear: left; }\
+					form[action="/paint"] > select { width: 105px; }\
+					form[action="/paint"] > input[type="text"] { width: 24px !important; }' },
 			fixFileInputs: { value: function(el) {
 				var i, len, node = $id('files_parent'),
 					str = '';
@@ -10225,12 +10227,6 @@ function getImageBoard(checkDomains, checkOther) {
 				this.btnZeroLUTime = els[0];
 				this.initCaptcha = els[1];
 				this.addProgressTrack = els[2];
-				els = $q('select[name="applet"]', doc);
-				if(els) {
-					els.insertAdjacentHTML('afterend', '<br>');
-					els = els.nextElementSibling.nextElementSibling;
-					els.insertAdjacentHTML('afterend', '<br>');
-				}
 			} },
 			markupBB: { value: true },
 			markupTags: { value: ['b', 'i', 'u', 's', 'spoiler', 'aa', '', '', 'q'] },
