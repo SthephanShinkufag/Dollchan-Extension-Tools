@@ -9823,6 +9823,7 @@ function getNavFuncs() {
 			for(var i in b) {
 				a[i] = b[i];
 			}
+			return a;
 		};
 	}
 	if('toJSON' in aProto) {
@@ -9965,6 +9966,13 @@ function getImageBoard(checkDomains, checkOther) {
 			multiFile: { value: true },
 			ru: { value: true }
 		}],
+		get '2ch.hk'() { return [ibEngines['body.makaba']]; },
+		get '2ch.pm'() { return [ibEngines['body.makaba']]; },
+		get '2ch.re'() { return [ibEngines['body.makaba']]; },
+		get '2ch.tf'() { return [ibEngines['body.makaba']]; },
+		get '2ch.wf'() { return [ibEngines['body.makaba']]; },
+		get '2ch.yt'() { return [ibEngines['body.makaba']]; },
+		get '2-ch.so'() { return [ibEngines['body.makaba']]; },
 		'410chan.org': [{
 			_410: { value: true },
 
