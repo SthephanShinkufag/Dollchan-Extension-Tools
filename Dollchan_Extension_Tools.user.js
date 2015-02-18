@@ -451,7 +451,7 @@ Lng = {
 	thrCreated:     ['Тредов создано: ', 'Threads created: '],
 	thrHidden:      ['Тредов скрыто: ', 'Threads hidden: '],
 	postsSent:      ['Постов отправлено: ', 'Posts sent: '],
-	total:          ['Всего: ', 'Total: '],
+	total:          ['Всего', 'Total'],
 	debug:          ['Отладка', 'Debug'],
 	infoDebug:      ['Информация для отладки', 'Information for debugging'],
 	loadGlobal:     ['Загрузить глобальные настройки', 'Load global settings'],
@@ -701,7 +701,7 @@ function $isEmpty(obj) {
 }
 
 Logger = new function() {
-	var instance, oldTime, initTime, timeLog;
+	var instance, marks = [];
 	function LoggerSingleton() {
 		if(instance) {
 			return instance;
@@ -710,22 +710,38 @@ Logger = new function() {
 	}
 	LoggerSingleton.prototype = {
 		finish: function() {
-			timeLog.push(Lng.total[lang] + (Date.now() - initTime) + 'ms');
+			marks.push(['LoggerFinish', Date.now()]);
 		},
-		get: function() {
+		getData: function(full) {
+			var i, len, duration, lastExtra = 0,
+				timeLog = [];
+			for(i = 1, len = marks.length - 1; i < len; ++i) {
+				duration = marks[i][1] - marks[i - 1][1] + lastExtra;
+				if(full || duration > 1) {
+					lastExtra = 0;
+					timeLog.push([marks[i][0], duration]);
+				} else {
+					lastExtra = duration;
+				}
+			}
+			duration = marks[i][1] - marks[0][1];
+			timeLog.push([Lng.total[lang], duration]);
 			return timeLog;
 		},
+		getTable: function() {
+			var i, len, data = this.getData(false),
+				html = '<tbody>';
+			for(i = 0, len = data.length; i < len; ++i) {
+				html += '<tr><td>' +
+					data[i][0] + '</td><td style="text-align: right;">' + data[i][1] + 'ms</td></tr>';
+			}
+			return html + '</tbody>';
+		},
 		init: function() {
-			oldTime = initTime = Date.now();
-			timeLog = [];
+			marks.push(['LoggerInit', Date.now()]);
 		},
 		log: function realLog(text) {
-			var newTime = Date.now(),
-				time = newTime - oldTime;
-			if(time > 1) {
-				timeLog.push(text + ': ' + time + 'ms');
-				oldTime = newTime;
-			}
+			marks.push([text, Date.now()]);
 		}
 	};
 	return LoggerSingleton;
@@ -2434,8 +2450,8 @@ function getCfgInfo() {
 			Lng.thrCreated[lang] + Cfg.stats.op + '<br>' +
 			Lng.thrHidden[lang] + getHiddenThrCount() + '<br>' +
 			Lng.postsSent[lang] + Cfg.stats.reply + '</div>' +
-			'<div style="display: inline-block; padding-left: 7px; height: 230px; ' +
-			'border-left: 1px solid grey;">' + new Logger().get().join('<br>') + '</div></div>'),
+			'<table style="display: inline-block; padding-left: 7px; height: 230px; ' +
+			'border-left: 1px solid grey; overflow-y: auto; border-collapse: separate; border-spacing: 1px; width: 170px;">' + new Logger().getTable() + '</table></div>'),
 		$btn(Lng.debug[lang], Lng.infoDebug[lang], function() {
 			$alert(Lng.infoDebug[lang] +
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
@@ -2446,7 +2462,7 @@ function getCfgInfo() {
 				'cfg': Cfg,
 				'sSpells': spells.list.split('\n'),
 				'oSpells': sesStorage['de-spells-' + brd + (TNum || '')],
-				'perf': new Logger().get()
+				'perf': new Logger().getData(true)
 			}, function(key, value) {
 				if(key in defaultCfg) {
 					if(value === defaultCfg[key] || key === 'nameValue' || key === 'passwValue') {
@@ -11468,22 +11484,22 @@ function initPage() {
 }
 
 function scrollPage() {
-	if(!TNum && window.pageYOffset !== 0) {
+	var val, post, num, hash
+	if(!TNum && (!updater.focused || window.pageYOffset !== 0)) {
 		window.scrollTo(0, 0);
-	}
-	// FIXME: TOOO SLOW
-	return;
-	var hash = window.location.hash,
-		val = hash && (val = hash.match(/#i?(\d+)$/)) &&
-			(val = val[1]) && pByNum[val] && pByNum[val].topCoord;
-	if(val) {
-		window.scrollTo(0, window.pageYOffset + val);
 		return;
 	}
 	val = sesStorage['de-scroll-' + brd + TNum];
 	if(val) {
 		window.scrollTo(0, val);
 		sesStorage.removeItem('de-scroll-' + brd + TNum);
+		return;
+	}
+	hash = window.location.hash;
+	if(hash && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) &&
+	   (post = pByNum[num]))
+	{
+		post.scrollIntoView(true);
 	}
 }
 
