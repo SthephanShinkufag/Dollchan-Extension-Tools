@@ -6204,6 +6204,9 @@ PostForm.prototype = {
 				this.qArea.style.display = 'none';
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
+			if(TNum && Cfg.ajaxUpdThr) {
+				updater.disable();
+			}
 		}.bind(this), false);
 		if(Cfg.noGoto && this.gothr) {
 			this.gothr.style.display = 'none';
@@ -6746,6 +6749,9 @@ function checkUpload(dc) {
 		pr.form.action = pr.form.action.split('?')[0];
 		$id('postform_row_progress').style.display = 'none';
 		aib.btnZeroLUTime.click();
+	}
+	if(TNum && Cfg.ajaxUpdThr) {
+		updater.enable();
 	}
 	var el, err = getSubmitError(dc);
 	if(err) {
