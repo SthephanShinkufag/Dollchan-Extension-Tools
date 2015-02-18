@@ -11489,15 +11489,12 @@ function scrollPage() {
 		window.scrollTo(0, 0);
 		return;
 	}
-	val = sesStorage['de-scroll-' + brd + TNum];
+	val = +sesStorage['de-scroll-' + brd + TNum];
 	if(val) {
 		window.scrollTo(0, val);
 		sesStorage.removeItem('de-scroll-' + brd + TNum);
-		return;
-	}
-	hash = window.location.hash;
-	if(hash && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) &&
-	   (post = pByNum[num]))
+	} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
+	   (num = num[1]) && (post = pByNum[num]))
 	{
 		post.el.scrollIntoView(true);
 	}
