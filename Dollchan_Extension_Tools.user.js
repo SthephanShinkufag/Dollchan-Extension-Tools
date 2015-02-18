@@ -11485,8 +11485,10 @@ function initPage() {
 
 function scrollPage() {
 	var val, post, num, hash
-	if(!TNum && (!updater.focused || window.pageYOffset !== 0)) {
-		window.scrollTo(0, 0);
+	if(!TNum) {
+		if(!updater.focused || window.pageYOffset !== 0) {
+			window.scrollTo(0, 0);
+		}
 		return;
 	}
 	val = +sesStorage['de-scroll-' + brd + TNum];
