@@ -11499,7 +11499,7 @@ function scrollPage() {
 	if(hash && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) &&
 	   (post = pByNum[num]))
 	{
-		post.scrollIntoView(true);
+		post.el.scrollIntoView(true);
 	}
 }
 
