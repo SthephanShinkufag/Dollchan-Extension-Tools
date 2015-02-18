@@ -6204,9 +6204,7 @@ PostForm.prototype = {
 				this.qArea.style.display = 'none';
 				$after(this._pBtn[+this.isBottom], this.pForm);
 			}
-			if(TNum && Cfg.ajaxUpdThr) {
-				updater.disable();
-			}
+			updater.pause();
 		}.bind(this), false);
 		if(Cfg.noGoto && this.gothr) {
 			this.gothr.style.display = 'none';
@@ -6750,9 +6748,7 @@ function checkUpload(dc) {
 		$id('postform_row_progress').style.display = 'none';
 		aib.btnZeroLUTime.click();
 	}
-	if(TNum && Cfg.ajaxUpdThr) {
-		updater.enable();
-	}
+	updater['continue']();
 	var el, err = getSubmitError(dc);
 	if(err) {
 		if(pr.isQuick) {
@@ -11111,7 +11107,7 @@ function replacePost(el) {
 function initThreadUpdater(title, enableUpdate) {
 	var focused, delay, checked4XX, loadTO, countIV, audioRep, currentXHR, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl, countdownValue,
-		useCountdown, canFocusLoad, enabled = false,
+		useCountdown, canFocusLoad, paused, enabled = false,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
@@ -11167,9 +11163,8 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function enable(startLoading) {
-		enabled = true;
-		canFocusLoad = true;
-		checked4XX = false;
+		enabled = canFocusLoad = true;
+		checked4XX = paused = false;
 		newPosts = 0;
 		delay = initDelay;
 		if(useCountdown) {
@@ -11183,11 +11178,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			clearTimeout(loadTO);
-			if(useCountdown) {
-				clearInterval(countIV);
-				countEl.style.display = 'none';
-			}
+			stopTimers(true);
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11208,6 +11199,24 @@ function initThreadUpdater(title, enableUpdate) {
 			}, 1e3);
 		}
 		loadTO = setTimeout(loadPostsFun, delay);
+	}
+
+	function stopTimers(hideCountdown) {
+		clearTimeout(loadTO);
+		if(currentXHR) {
+			try {
+				currentXHR.abort();
+			} catch(e) {}
+			currentXHR = null;
+		}
+		if(useCountdown) {
+			clearInterval(countIV);
+			if(hideCountdown) {
+				countEl.style.display = 'none';
+			} else {
+				countEl.innerHTML = '<span class="de-wait"></span>';
+			}
+		}
 	}
 
 	function audioNotif() {
@@ -11232,10 +11241,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function loadPostsFun() {
-		if(useCountdown) {
-			clearInterval(countIV);
-			countEl.innerHTML = '<span class="de-wait"></span>';
-		}
+		stopTimers(false);
 		currentXHR = dForm.firstThr.loadNew(onLoaded, true);
 	}
 	
@@ -11262,13 +11268,7 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!checkFocusLoad(isFocusLoad)) {
 				return;
 			}
-			clearTimeout(loadTO);
 			delay = initDelay;
-		}
-		if(currentXHR) {
-			try {
-				currentXHR.abort();
-			} catch(e) {}
 		}
 		loadPostsFun();
 	}
@@ -11417,6 +11417,18 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 			setState('on');
+		},
+		pause: function() {
+			if(enabled && !paused) {
+				stopTimers(false);
+				paused = true;
+			}
+		},
+		'continue': function() {
+			if(enabled && paused) {
+				startTimers();
+				paused = false;
+			}
 		},
 		disable: disable.bind(null, true),
 		updateXHR: function(newXHR) {
