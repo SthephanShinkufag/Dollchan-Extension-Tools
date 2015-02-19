@@ -65,6 +65,7 @@ defaultCfg = {
 	'linksOut':         1500,   //    delay disappearance in ms
 	'markViewed':       0,      //    mark viewed posts
 	'strikeHidd':       0,      //    strike >>links to hidden posts
+	'removeHidd':       0,      //        remove from refmap
 	'noNavigHidd':      0,      //    don't show previews for hidden posts
 	'crossLinks':       0,      // replace http: to >>/b/links
 	'insertNum':        1,      // insert >>link on postnumber click
@@ -177,10 +178,11 @@ Lng = {
 			sel:        [['Откл.', 'Без карты', 'С картой'], ['Disable', 'No map', 'With map']],
 			txt:        ['навигация по >>ссылкам* ', 'navigation by >>links* ']
 		},
-		'linksOver':    [' задержка появления (мс)', ' delay appearance (ms)'],
-		'linksOut':     [' задержка пропадания (мс)', ' delay disappearance (ms)'],
+		'linksOver':    [' появление ', ' appearance '],
+		'linksOut':     [' пропадание (мс)', ' disappearance (ms)'],
 		'markViewed':   ['Отмечать просмотренные посты*', 'Mark viewed posts*'],
 		'strikeHidd':   ['Зачеркивать >>ссылки на скрытые посты', 'Strike >>links to hidden posts'],
+		'removeHidd':   ['Удалять из карты ответов', 'Remove from replies map'],
 		'noNavigHidd':  ['Не отображать превью для скрытых постов', 'Don\'t show previews for hidden posts'],
 		'crossLinks':   ['Преобразовывать http:// в >>/b/ссылки*', 'Replace http:// with >>/b/links*'],
 		'insertNum':    ['Вставлять >>ссылку по клику на №поста*', 'Insert >>link on №postnumber click*'],
@@ -1973,6 +1975,7 @@ function fixSettings() {
 		'input[info="linksOver"]', 'input[info="linksOut"]', 'input[info="markViewed"]',
 		'input[info="strikeHidd"]', 'input[info="noNavigHidd"]'
 	]);
+	toggleBox(Cfg.strikeHidd && Cfg.linksNavig === 2, ['input[info="removeHidd"]']);
 	toggleBox(Cfg.addYouTube && Cfg.addYouTube !== 4, [
 		'select[info="YTubeType"]', 'input[info="YTubeHD"]', 'input[info="addVimeo"]'
 	]);
@@ -2210,7 +2213,9 @@ function getCfgImages() {
 			lBox('findImgFile', true, null)
 		])),
 		lBox('openImgs', true, null),
-		$New('div', {'class': 'de-cfg-depend'}, [ lBox('openGIFs', false, null)]),
+		$New('div', {'class': 'de-cfg-depend'}, [
+			lBox('openGIFs', false, null)
+		]),
 		lBox('imgSrcBtns', true, null)
 	]);
 }
@@ -2223,16 +2228,17 @@ function getCfgLinks() {
 				inpTxt('linksOver', 4, function() {
 					saveCfg('linksOver', +this.value | 0);
 				}),
-				$txt(Lng.cfg.linksOver[lang])
-			]),
-			$New('div', null, [
-				inpTxt('linksOut', 4, function() {
+				$txt(Lng.cfg.linksOver[lang]),
+					inpTxt('linksOut', 4, function() {
 					saveCfg('linksOut', +this.value | 0);
 				}),
 				$txt(Lng.cfg.linksOut[lang])
 			]),
 			lBox('markViewed', true, null),
 			lBox('strikeHidd', true, null),
+			$New('div', {'class': 'de-cfg-depend'}, [
+				lBox('removeHidd', false, updateCSS)
+			]),
 			lBox('noNavigHidd', true, null)
 		]),
 		lBox('crossLinks', true, null),
@@ -8718,9 +8724,21 @@ Post.prototype = {
 			}
 		}
 		$each($Q('a[href*="#' + num + '"]', dForm.el), isHide ? function(el) {
-			el.classList.add('de-ref-hid');
+			el.classList.add('de-link-hid');
+			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+				var refmap = el.parentNode;
+				if(!$q('.de-link-ref:not(.de-link-hid)', refmap)) {
+					refmap.style.display = 'none';
+				}
+			}
 		} : function(el) {
-			el.classList.remove('de-ref-hid');
+			el.classList.remove('de-link-hid');
+			if(Cfg.removeHidd && el.classList.contains('de-link-ref')) {
+				var refmap = el.parentNode;
+				if($q('.de-link-ref:not(.de-link-hid)', refmap)) {
+					refmap.style.display = '';
+				}
+			}
 		});
 	}
 };
@@ -9278,7 +9296,7 @@ function updRefMap(post, add) {
 			}
 			if(add) {
 				if(strNums && strNums.lastIndexOf(lNum) !== -1) {
-					link.classList.add('de-ref-hid');
+					link.classList.add('de-link-hid');
 				}
 				if(opNums.indexOf(lNum) !== -1) {
 					link.classList.add('de-ref-op');
@@ -11864,6 +11882,7 @@ function scriptCSS() {
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
 		.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; display: inline !important; }\
+		.de-link-hid { text-decoration: line-through !important; }\
 		.de-link-parent { outline: 1px dotted !important; }\
 		.de-link-pview { font-weight: bold; }\
 		.de-link-ref { text-decoration: none; }\
@@ -11875,7 +11894,6 @@ function scriptCSS() {
 		.de-omitted:before { content: "' + Lng.postsOmitted[lang] + '"; }\
 		.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\
 		.de-pview-info { padding: 3px 6px !important; }\
-		.de-ref-hid { text-decoration: line-through !important; }\
 		.de-ref-op:after { content: " [OP]"; }\
 		.de-ref-del:after { content: " [del]"; }\
 		.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\
@@ -11931,6 +11949,9 @@ function updateCSS() {
 	}
 	if(Cfg.delHiddPost) {
 		x += '.de-thr-hid, .de-thr-hid + div + hr, .de-thr-hid + div + br, .de-thr-hid + div + br + hr { display: none; }';
+	}
+	if(Cfg.removeHidd) {
+		x += '.de-link-ref.de-link-hid, .de-link-ref.de-link-hid + .de-refcomma { display: none; }';
 	}
 	if(Cfg.noPostNames) {
 		x += aib.qName + ', .' + aib.cTrip + ' { display: none; }';
