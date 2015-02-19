@@ -10196,9 +10196,6 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '#captcha_status, .content-background > hr, div[style="position: relative;"] { display: none !important; }' },
 			ru: { value: true }
 		}, 'script[src*="kusaba"]'],
-		'hiddenchan.i2p': [{
-			hid: { value: true }
-		}, 'script[src*="kusaba"]'],
 		'iichan.hk': [{
 			iich: { value: true }
 		}],
