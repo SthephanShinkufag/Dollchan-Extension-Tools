@@ -11153,10 +11153,6 @@ function initThreadUpdater(title, enableUpdate) {
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 		useCountdown = !!Cfg.updCount;
-		if(useCountdown) {
-			countEl = $id('de-updater-count');
-			countEl.style.display = '';
-		}
 		enable(true);
 	}
 
@@ -11164,6 +11160,10 @@ function initThreadUpdater(title, enableUpdate) {
 		enabled = canFocusLoad = true;
 		paused = false;
 		newPosts = 0;
+		if(useCountdown) {
+			countEl = $id('de-updater-count');
+			countEl.style.display = '';
+		}
 		if(start) {
 			startLoading(true);
 		}
