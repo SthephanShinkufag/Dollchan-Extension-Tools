@@ -11173,7 +11173,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			stopLoading(byUser && !paused, true);
+			stopLoading(true);
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11187,10 +11187,8 @@ function initThreadUpdater(title, enableUpdate) {
 		[loadingTask] = spawn(loadingTaskGenerator, true)(useCountdown, firstSleep);
 	}
 
-	function stopLoading(stopGenerator, hideCountdown) {
-		if(stopGenerator) {
-			loadingTask['throw'](new StopLoadingError);
-		}
+	function stopLoading(hideCountdown) {
+		loadingTask.return();
 		if(useCountdown) {
 			if(hideCountdown) {
 				countEl.style.display = 'none';
@@ -11245,7 +11243,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 		}
-		stopLoading(enabled && !paused, false);
+		stopLoading(false);
 		startLoading(false);
 	}
 
@@ -11255,8 +11253,6 @@ function initThreadUpdater(title, enableUpdate) {
 			(!favNorm ? favHref : 'data:image/x-icon;base64,' + this) + '">');
 		favNorm = !favNorm;
 	}
-
-	function StopLoadingError() {}
 
 	function *loadingTaskGenerator(useCountdown, firstSleep) {
 		var countIv, countdownValue, checked4XX = false,
@@ -11270,10 +11266,6 @@ function initThreadUpdater(title, enableUpdate) {
 				let shouldExit = false;
 				try {
 					yield sleep(delay);
-				} catch(e) {
-					if(e instanceof StopLoadingError) {
-						return;
-					}
 				} finally {
 					clearInterval(countIv);
 				}
@@ -11285,9 +11277,6 @@ function initThreadUpdater(title, enableUpdate) {
 			try {
 				lPosts = yield dForm.firstThr.loadNew(true);
 			} catch(e) {
-				if(e instanceof StopLoadingError) {
-					return;
-				}
 				error = e;
 			}
 			infoLoadErrors(error, -1);
@@ -11414,7 +11403,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		pause() {
 			if(enabled && !paused) {
-				stopLoading(true, false);
+				stopLoading(false);
 				paused = true;
 			}
 		},
