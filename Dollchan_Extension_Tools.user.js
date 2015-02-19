@@ -7700,7 +7700,6 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		return val;
 	} },
 	getFollow: { value(isForward) {
-		console.log(this.post, this.post.images);
 		var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 		if(nImage) {
 			return nImage;
@@ -11173,7 +11172,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			stopLoading(true);
+			stopLoading(byUser && !paused, true);
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11187,8 +11186,10 @@ function initThreadUpdater(title, enableUpdate) {
 		[loadingTask] = spawn(loadingTaskGenerator, true)(useCountdown, firstSleep);
 	}
 
-	function stopLoading(hideCountdown) {
-		loadingTask.return();
+	function stopLoading(stopGenerator, hideCountdown) {
+		if(stopGenerator) {
+			loadingTask.return();
+		}
 		if(useCountdown) {
 			if(hideCountdown) {
 				countEl.style.display = 'none';
@@ -11243,7 +11244,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 		}
-		stopLoading(false);
+		stopLoading(enabled && !paused, false);
 		startLoading(false);
 	}
 
@@ -11403,7 +11404,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		pause() {
 			if(enabled && !paused) {
-				stopLoading(false);
+				stopLoading(true, false);
 				paused = true;
 			}
 		},
