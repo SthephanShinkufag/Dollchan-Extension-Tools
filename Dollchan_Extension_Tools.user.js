@@ -11155,7 +11155,7 @@ function initThreadUpdater(title, enableUpdate) {
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			stopLoading(true);
+			stopLoading(byUser && !paused, true);
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11169,8 +11169,10 @@ function initThreadUpdater(title, enableUpdate) {
 		[loadingTask] = spawn(loadingTaskGenerator, true)(useCountdown, firstSleep);
 	}
 
-	function stopLoading(hideCountdown) {
-		loadingTask['throw'](new StopLoadingError);
+	function stopLoading(stopGenerator, hideCountdown) {
+		if(stopGenerator) {
+			loadingTask['throw'](new StopLoadingError);
+		}
 		if(useCountdown) {
 			if(hideCountdown) {
 				countEl.style.display = 'none';
@@ -11225,7 +11227,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 		}
-		stopLoading(false);
+		stopLoading(enabled && !paused, false);
 		startLoading(false);
 	}
 
@@ -11394,7 +11396,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		pause() {
 			if(enabled && !paused) {
-				stopLoading(false);
+				stopLoading(true, false);
 				paused = true;
 			}
 		},
