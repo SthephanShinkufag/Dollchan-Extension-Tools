@@ -10929,9 +10929,12 @@ function Initialization(checkDomains) {
 		aib.docExt = '.html';
 	} else {
 		url = (window.location.pathname || '').match(new RegExp(
-			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res.slice(0, -1)) + ')?' +
-			'(?:[\\/-](\\d+|index|wakaba|futaba))?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
+			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' +
+			'(' + regQuote(aib.res) + ')?' +
+			'(\\d+|index|wakaba|futaba)?' +
+			'(\\.(?:[a-z]+))?(?:\\/|$)'
 		));
+		//console.log(url);
 		brd = url[1].replace(/\/$/, '');
 		TNum = url[2] ? url[3] :
 			aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
