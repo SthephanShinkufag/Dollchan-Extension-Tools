@@ -8375,10 +8375,8 @@ Post.prototype = {
 			if(!hide) {
 				this.setNote('');
 			}
-			if(hide) {
-				this._pref.onmouseover = this._pref.onmouseout =
-					e => this.hideContent(e.type === 'mouseout');
-			}
+			this._pref.onmouseover = this._pref.onmouseout = !hide ? null :
+				e => this.hideContent(e.type === 'mouseout');
 		}
 		this.hidden = hide;
 		this.hideContent(hide);
@@ -10947,8 +10945,10 @@ function Initialization(checkDomains) {
 		aib.docExt = '.html';
 	} else {
 		url = (window.location.pathname || '').match(new RegExp(
-			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' + '(' + regQuote(aib.res.slice(0, -1)) + ')?' +
-			'(?:[\\/-](\\d+|index|wakaba|futaba))?' + '(\\.(?:[a-z]+))?(?:\\/|$)'
+			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' +
+			'(' + regQuote(aib.res) + ')?' +
+			'(\\d+|index|wakaba|futaba)?' +
+			'(\\.(?:[a-z]+))?(?:\\/|$)'
 		));
 		brd = url[1].replace(/\/$/, '');
 		TNum = url[2] ? url[3] :
