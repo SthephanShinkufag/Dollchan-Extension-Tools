@@ -11270,6 +11270,9 @@ function initThreadUpdater(title, enableUpdate) {
 				} finally {
 					clearInterval(countIv);
 				}
+				if(useCountdown) {
+					countEl.innerHTML = '<span class="de-wait"></span>';
+				}
 			} else {
 				firstSleep = true;
 			}
