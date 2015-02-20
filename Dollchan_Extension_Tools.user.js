@@ -11518,22 +11518,24 @@ function initPage() {
 }
 
 function scrollPage() {
-	var val, post, num, hash
 	if(!TNum) {
 		if(!updater.focused || window.pageYOffset !== 0) {
 			window.scrollTo(0, 0);
 		}
 		return;
 	}
-	val = +sesStorage['de-scroll-' + brd + TNum];
-	if(val) {
-		window.scrollTo(0, val);
-		sesStorage.removeItem('de-scroll-' + brd + TNum);
-	} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
-	   (num = num[1]) && (post = pByNum[num]))
-	{
-		post.el.scrollIntoView(true);
-	}
+	setTimeout(function () {
+		var post, num, hash,
+			val = +sesStorage['de-scroll-' + brd + TNum];
+		if(val) {
+			window.scrollTo(0, val);
+			sesStorage.removeItem('de-scroll-' + brd + TNum);
+		} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
+		   (num = num[1]) && (post = pByNum[num]))
+		{
+			post.el.scrollIntoView(true);
+		}
+	}, 0);
 }
 
 function checkForUpdates(isForce, Fn) {
@@ -12088,17 +12090,17 @@ function doScript(formEl) {
 	addDelformStuff(true);
 	readViewedPosts();
 	scriptCSS();
-	doc.body.style.display = '';
 	new Logger().log('Apply CSS');
+	if(needScroll) {
+		scrollPage();
+	}
+	doc.body.style.display = '';
+	new Logger().log('Scroll page');
 	readPosts();
 	readUserPosts();
 	readFavoritesPosts();
 	setTimeout(PostContent.purge, 0);
 	new Logger().log('Apply spells');
-	if(needScroll) {
-		scrollPage();
-	}
-	new Logger().log('Scroll page');
 	new Logger().finish();
 }
 
