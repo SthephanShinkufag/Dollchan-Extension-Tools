@@ -750,7 +750,7 @@ Logger = new function() {
 	return LoggerSingleton;
 };
 
-function spawn(generatorFunc, returnGen = false) {
+function async(generatorFunc, returnGen = false) {
 	return function(...args) {
 		function continuer(verb, arg) {
 			var result;
@@ -771,6 +771,10 @@ function spawn(generatorFunc, returnGen = false) {
 		var rv = onFulfilled();
 		return returnGen ? [generator, rv] : rv;
 	};
+}
+
+function spawn(generatorFunc, ...args) {
+	return Promise.resolve(async(generatorFunc).apply(this, args));
 }
 
 function sleep(ms) {
@@ -1009,11 +1013,11 @@ function resizeImage(size, minSize, maxSize) {
 // STORAGE
 // ===========================================================================================================
 
-function getStored(id) {
-	return new Promise((resolve, reject) => {
-		if(nav.isGM) {
-			resolve(GM_getValue(id));
-		} else if(nav.isChromeStorage) {
+function *getStored(id) {
+	if(nav.isGM) {
+		return GM_getValue(id);
+	} else if(nav.isChromeStorage) {
+		return (yield new Promise((resolve, reject) => {
 			chrome.storage.local.get(id, function(obj) {
 				if(Object.keys(obj).length) {
 					resolve(obj[id]);
@@ -1023,12 +1027,12 @@ function getStored(id) {
 					});
 				}
 			});
-		} else if(nav.isScriptStorage) {
-			resolve(scriptStorage.getItem(id));
-		} else {
-			resolve(locStorage.getItem(id));
-		}
-	});
+		}));
+	} else if(nav.isScriptStorage) {
+		return scriptStorage.getItem(id);
+	} else {
+		return locStorage.getItem(id);
+	}
 }
 
 function setStored(id, value) {
@@ -1063,12 +1067,12 @@ function delStored(id) {
 	}
 }
 
-function getStoredObj(id) {
-	return getStored(id).then(data => JSON.parse(data || '{}') || {}, e => { throw e; })
+function *getStoredObj(id) {
+	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
 function saveComCfg(dm, obj) {
-	getStoredObj('DESU_Config').then(val => {
+	spawn(getStoredObj, 'DESU_Config').then(val => {
 		comCfg = val;
 		if(obj) {
 			comCfg[dm] = obj;
@@ -1086,89 +1090,91 @@ function saveCfg(id, val) {
 	}
 }
 
-function readCfg() {
-	return getStoredObj('DESU_Config').then(val => {
-		var obj;
-		comCfg = val;
-		if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
-			obj = nav.isGlobal ? comCfg.global || {} : {};
-			obj.captchaLang = aib.ru ? 2 : 1;
-			obj.correctTime = 0;
-		}
-		Cfg = Object.assign(Object.create(defaultCfg), obj);
-		if(!Cfg.timeOffset) {
-			Cfg.timeOffset = '+0';
-		}
-		if(!Cfg.timePattern) {
-			Cfg.timePattern = aib.timePattern;
-		}
-		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
-			Cfg.ajaxReply = 1;
-		}
-		if(aib.tiny) {
-			Cfg.fileThumb = 0;
-		}
-		if(aib.prot !== 'http:') {
-			Cfg.addVocaroo = 0;
-		}
-		if(!('Notification' in window)) {
-			Cfg.desktNotif = 0;
-		}
-		if(nav.Presto) {
-			if(nav.Opera11) {
-				if(!nav.isGM) {
-					Cfg.YTubeTitles = 0;
-				}
-				Cfg.animation = 0;
-			}
-			if(Cfg.YTubeType === 2) {
-				Cfg.YTubeType = 1;
-			}
-			Cfg.preLoadImgs = 0;
-			Cfg.findImgFile = 0;
+function *readCfg() {
+	var obj, val = yield* getStoredObj('DESU_Config');
+	comCfg = val;
+	if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
+		obj = nav.isGlobal ? comCfg.global || {} : {};
+		obj.captchaLang = aib.ru ? 2 : 1;
+		obj.correctTime = 0;
+	}
+	Cfg = Object.assign(Object.create(defaultCfg), obj);
+	if(!Cfg.timeOffset) {
+		Cfg.timeOffset = '+0';
+	}
+	if(!Cfg.timePattern) {
+		Cfg.timePattern = aib.timePattern;
+	}
+	if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+		Cfg.ajaxReply = 1;
+	}
+	if(aib.tiny) {
+		Cfg.fileThumb = 0;
+	}
+	if(aib.prot !== 'http:') {
+		Cfg.addVocaroo = 0;
+	}
+	if(!('Notification' in window)) {
+		Cfg.desktNotif = 0;
+	}
+	if(nav.Presto) {
+		if(nav.Opera11) {
 			if(!nav.isGM) {
-				Cfg.updScript = 0;
+				Cfg.YTubeTitles = 0;
 			}
-			Cfg.fileThumb = 0;
+			Cfg.animation = 0;
 		}
-		if(nav.isChromeStorage) {
+		if(Cfg.YTubeType === 2) {
+			Cfg.YTubeType = 1;
+		}
+		Cfg.preLoadImgs = 0;
+		Cfg.findImgFile = 0;
+		if(!nav.isGM) {
 			Cfg.updScript = 0;
 		}
-		if(Cfg.updThrDelay < 10) {
-			Cfg.updThrDelay = 10;
-		}
-		if(!Cfg.saveSage) {
-			Cfg.sageReply = 0;
-		}
-		if(!Cfg.passwValue) {
-			Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
-		}
-		if(!Cfg.stats) {
-			Cfg.stats = {'view': 0, 'op': 0, 'reply': 0};
-		}
-		if(TNum) {
-			Cfg.stats.view++;
-		}
-		if(aib.mak || aib.fch) {
-			Cfg.findImgFile = 0;
-		}
-		if(aib.synch) {
-			Cfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
-			Cfg.timeOffset = 4;
-			Cfg.correctTime = 1;
-		}
-		saveComCfg(aib.dm, Cfg);
-		lang = Cfg.language;
-		if(Cfg.correctTime) {
-			dTime = new dateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function(rp) {
-				saveCfg('timeRPattern', rp);
-			});
-		}
-	});
+		Cfg.fileThumb = 0;
+	}
+	if(nav.isChromeStorage) {
+		Cfg.updScript = 0;
+	}
+	if(Cfg.updThrDelay < 10) {
+		Cfg.updThrDelay = 10;
+	}
+	if(!Cfg.saveSage) {
+		Cfg.sageReply = 0;
+	}
+	if(!Cfg.passwValue) {
+		Cfg.passwValue = Math.round(Math.random() * 1e15).toString(32);
+	}
+	if(!Cfg.stats) {
+		Cfg.stats = {'view': 0, 'op': 0, 'reply': 0};
+	}
+	if(TNum) {
+		Cfg.stats.view++;
+	}
+	if(aib.mak || aib.fch) {
+		Cfg.findImgFile = 0;
+	}
+	if(aib.synch) {
+		Cfg.timePattern = 'w+dd+m+yyyy+hh+ii+ss';
+		Cfg.timeOffset = 4;
+		Cfg.correctTime = 1;
+	}
+	saveComCfg(aib.dm, Cfg);
+	lang = Cfg.language;
+	if(Cfg.correctTime) {
+		dTime = new dateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function(rp) {
+			saveCfg('timeRPattern', rp);
+		});
+	}
 }
 
 function toggleCfg(id) {
 	saveCfg(id, +!Cfg[id]);
+}
+
+function readFav() {
+	return spawn(getStoredObj, 'DESU_Favorites');
 }
 
 function readPosts() {
@@ -1185,65 +1191,64 @@ function readPosts() {
 	sVis = [];
 }
 
-function readUserPosts() {
-	Promise.all([getStoredObj('DESU_Posts_' + aib.dm), getStoredObj('DESU_Threads_' + aib.dm)]).then(values => {
-		[bUVis, hThr] = values;
-		var uVis, vis, post, date = Date.now(),
-			update = false,
-			spellsHide = Cfg.hideBySpell;
-		if(brd in bUVis) {
-			uVis = bUVis[brd];
-		} else {
-			uVis = bUVis[brd] = {};
-		}
-		if(!(brd in hThr)) {
-			hThr[brd] = {};
-		}
-		if(!dForm.firstThr) {
-			return;
-		}
-		for(post = dForm.firstThr.op; post; post = post.next) {
-			let num = post.num;
-			if(num in uVis) {
-				if(post.isOp) {
-					uVis[num][0] = +!(num in hThr[brd]);
-				}
-				if(uVis[num][0] === 0) {
-					post.setUserVisib(true, date, false);
-				} else {
-					uVis[num][1] = date;
-					post.btns.firstChild.className = 'de-btn-hide-user';
-					post.userToggled = true;
-				}
-				continue;
-			}
+function *readUserPosts() {
+	bUVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
+	hThr = yield* getStoredObj('DESU_Threads_' + aib.dm);
+	var uVis, vis, post, date = Date.now(),
+		update = false,
+		spellsHide = Cfg.hideBySpell;
+	if(brd in bUVis) {
+		uVis = bUVis[brd];
+	} else {
+		uVis = bUVis[brd] = {};
+	}
+	if(!(brd in hThr)) {
+		hThr[brd] = {};
+	}
+	if(!dForm.firstThr) {
+		return;
+	}
+	for(post = dForm.firstThr.op; post; post = post.next) {
+		let num = post.num;
+		if(num in uVis) {
 			if(post.isOp) {
-				if(num in hThr[brd]) {
-					vis = '0';
-				} else if(vis === '0') {
-					vis = null;
-				}
-			} else if(spellsHide) {
-				vis = sVis[post.count];
+				uVis[num][0] = +!(num in hThr[brd]);
+			}
+			if(uVis[num][0] === 0) {
+				post.setUserVisib(true, date, false);
 			} else {
-				continue;
+				uVis[num][1] = date;
+				post.btns.firstChild.className = 'de-btn-hide-user';
+				post.userToggled = true;
 			}
-			if(vis === '0') {
-				if(!post.hidden) {
-					post.setVisib(true);
-					post.hideRefs();
-				}
-				post.spellHidden = true;
-			} else if(vis !== '1') {
-				spells.check(post);
+			continue;
+		}
+		if(post.isOp) {
+			if(num in hThr[brd]) {
+				vis = '0';
+			} else if(vis === '0') {
+				vis = null;
 			}
+		} else if(spellsHide) {
+			vis = sVis[post.count];
+		} else {
+			continue;
 		}
-		spells.end(savePosts);
-		if(update) {
-			bUVis[brd] = uVis;
-			saveUserPosts(false);
+		if(vis === '0') {
+			if(!post.hidden) {
+				post.setVisib(true);
+				post.hideRefs();
+			}
+			post.spellHidden = true;
+		} else if(vis !== '1') {
+			spells.check(post);
 		}
-	});
+	}
+	spells.end(savePosts);
+	if(update) {
+		bUVis[brd] = uVis;
+		saveUserPosts(false);
+	}
 }
 
 function savePosts() {
@@ -1283,33 +1288,32 @@ function saveHiddenThreads(updContent) {
 	}
 }
 
-function readFavoritesPosts() {
-	getStoredObj('DESU_Favorites').then(fav => {
-		var thr, temp, num, update = false;
-		if(!(aib.host in fav)) {
-			return;
-		}
-		temp = fav[aib.host];
-		if(!(brd in temp)) {
-			return;
-		}
-		temp = temp[brd];
-		for(thr = dForm.firstThr; thr; thr = thr.next) {
-			if((num = thr.num) in temp) {
-				thr.setFavBtn(true);
-				if(TNum) {
-					temp[num].cnt = thr.pcount;
-					temp[num]['new'] = 0;
-				} else {
-					temp[num]['new'] = thr.pcount - temp[num].cnt;
-				}
-				update = true;
+function *readFavoritesPosts() {
+	var thr, temp, num, update = false,
+		fav = yield* getStoredObj('DESU_Favorites');
+	if(!(aib.host in fav)) {
+		return;
+	}
+	temp = fav[aib.host];
+	if(!(brd in temp)) {
+		return;
+	}
+	temp = temp[brd];
+	for(thr = dForm.firstThr; thr; thr = thr.next) {
+		if((num = thr.num) in temp) {
+			thr.setFavBtn(true);
+			if(TNum) {
+				temp[num].cnt = thr.pcount;
+				temp[num]['new'] = 0;
+			} else {
+				temp[num]['new'] = thr.pcount - temp[num].cnt;
 			}
+			update = true;
 		}
-		if(update) {
-			saveFavorites(fav);
-		}
-	});
+	}
+	if(update) {
+		saveFavorites(fav);
+	}
 }
 
 function saveFavorites(fav) {
@@ -1576,7 +1580,7 @@ function showContent(cont, id, name, remove, data) {
 			showFavoriteTable(cont, data);
 		} else {
 			// TODO: show load message
-			getStoredObj('DESU_Favorites').then(fav => {
+			readFav().then(fav => {
 				showFavoriteTable(cont, fav);
 			});
 		}
@@ -1651,7 +1655,7 @@ function showContent(cont, id, name, remove, data) {
 				locStorage.removeItem('__de-threads');
 			});
 		}));
-		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], spawn(function *() {
+		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function *() {
 			var i, len, els = $Q('.de-entry[info]', this.parentNode);
 			for(i = 0, len = els.length; i < len; ++i) {
 				let [board, tNum] = els[i].getAttribute('info').split(';');
@@ -1782,7 +1786,7 @@ function clearFavoriteTable() {
 	var els = $Q('.de-entry[de-removed]', doc),
 		len = els.length;
 	if(len > 0) {
-		getStoredObj('DESU_Favorites').then(fav => {
+		readFav().then(fav => {
 			for(var el, i = 0; i < len; ++i) {
 				el = els[i];
 				removeFavoriteEntry(fav, el.getAttribute('de-host'), el.getAttribute('de-board'),
@@ -1829,12 +1833,12 @@ function showFavoriteTable(cont, data) {
 	cont.insertAdjacentHTML('afterbegin', '<b>' + (Lng[block ? 'favThrds' : 'noFavThrds'][lang]) + '</b>');
 	cont.insertAdjacentHTML('beforeend', '<hr>');
 	cont.appendChild(addEditButton('favor', function(Fn) {
-		getStoredObj('DESU_Favorites').then(val => Fn(val, true, saveFavorites));
+		readFav().then(val => Fn(val, true, saveFavorites));
 	}));
-	cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], spawn(function *() {
+	cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function *() {
 		var i, len, els = $C('de-entry', doc),
 			update = false,
-			fav = yield getStoredObj('DESU_Favorites');
+			fav = yield* getStoredObj('DESU_Favorites');
 		for(i = 0, len = els.length; i < len; ++i) {
 			let form, el = els[i],
 				host = el.getAttribute('de-host'),
@@ -1875,7 +1879,7 @@ function showFavoriteTable(cont, data) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
 	})));
-	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], spawn(function *() {
+	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function *() {
 		var i, el, page, endPage, els = $Q('.de-fav-current > .de-entry', doc),
 			infoCount = els.length,
 			infoLoaded = 0,
@@ -1918,7 +1922,7 @@ function showFavoriteTable(cont, data) {
 		}
 		closeAlert($id('de-alert-load-pages'));
 	})));
-	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], spawn(function *() {
+	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function *() {
 		for(var i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 			let el = els[i],
 				node = $c('de-fav-inf-err', el);
@@ -2727,69 +2731,67 @@ function removeMenu(e) {
 // ===========================================================================================================
 
 function HotKeys() {
-	HotKeys.readKeys().then(keys => this._init(keys));
+	spawn(HotKeys.readKeys).then(keys => this._init(keys));
 }
 HotKeys.version = 6;
-HotKeys.readKeys = function() {
-	return getStored('DESU_keys').then(str => {
-		var tKeys, keys;
-		if(!str) {
+HotKeys.readKeys = function *() {
+	var tKeys, keys, str = yield* getStored('DESU_keys');
+	if(!str) {
+		return HotKeys.getDefaultKeys();
+	}
+	try {
+		keys = JSON.parse(str);
+	} finally {
+		if(!keys) {
 			return HotKeys.getDefaultKeys();
 		}
-		try {
-			keys = JSON.parse(str);
-		} finally {
-			if(!keys) {
-				return HotKeys.getDefaultKeys();
-			}
-			if(keys[0] !== HotKeys.version) {
-				tKeys = HotKeys.getDefaultKeys();
-				switch(keys[0]) {
-				case 1:
-					keys[2][11] = tKeys[2][11];
-					keys[4] = tKeys[4];
-				case 2:
-					keys[2][12] = tKeys[2][12];
-					keys[2][13] = tKeys[2][13];
-					keys[2][14] = tKeys[2][14];
-					keys[2][15] = tKeys[2][15];
-					keys[2][16] = tKeys[2][16];
-				case 3:
-					keys[2][17] = keys[3][3];
-					keys[3][3] = keys[3].splice(4, 1)[0];
-				case 4:
-				case 5:
-					if(keys[2][18]) {
-						delete keys[2][18];
-					}
+		if(keys[0] !== HotKeys.version) {
+			tKeys = HotKeys.getDefaultKeys();
+			switch(keys[0]) {
+			case 1:
+				keys[2][11] = tKeys[2][11];
+				keys[4] = tKeys[4];
+			case 2:
+				keys[2][12] = tKeys[2][12];
+				keys[2][13] = tKeys[2][13];
+				keys[2][14] = tKeys[2][14];
+				keys[2][15] = tKeys[2][15];
+				keys[2][16] = tKeys[2][16];
+			case 3:
+				keys[2][17] = keys[3][3];
+				keys[3][3] = keys[3].splice(4, 1)[0];
+			case 4:
+			case 5:
+				if(keys[2][18]) {
+					delete keys[2][18];
 				}
-				keys[0] = HotKeys.version;
-				setStored('DESU_keys', JSON.stringify(keys));
 			}
-			if(keys[1] ^ !!nav.Firefox) {
-				var mapFunc = nav.Firefox ? function mapFuncFF(key) {
-					switch(key) {
-					case 189: return 173;
-					case 187: return 61;
-					case 186: return 59;
-					default: return key;
-					}
-				} : function mapFuncNonFF(key) {
-					switch(key) {
-					case 173: return 189;
-					case 61: return 187;
-					case 59: return 186;
-					default: return key;
-					}
-				};
-				keys[1] = !!nav.Firefox;
-				keys[2] = keys[2].map(mapFunc);
-				keys[3] = keys[3].map(mapFunc);
-				setStored('DESU_keys', JSON.stringify(keys));
-			}
-			return keys;
+			keys[0] = HotKeys.version;
+			setStored('DESU_keys', JSON.stringify(keys));
 		}
-	});
+		if(keys[1] ^ !!nav.Firefox) {
+			var mapFunc = nav.Firefox ? function mapFuncFF(key) {
+				switch(key) {
+				case 189: return 173;
+				case 187: return 61;
+				case 186: return 59;
+				default: return key;
+				}
+			} : function mapFuncNonFF(key) {
+				switch(key) {
+				case 173: return 189;
+				case 61: return 187;
+				case 59: return 186;
+				default: return key;
+				}
+			};
+			keys[1] = !!nav.Firefox;
+			keys[2] = keys[2].map(mapFunc);
+			keys[3] = keys[3].map(mapFunc);
+			setStored('DESU_keys', JSON.stringify(keys));
+		}
+		return keys;
+	}
 };
 HotKeys.getDefaultKeys = function() {
 	var isFirefox = !!nav.Firefox;
@@ -3479,7 +3481,7 @@ function *downloadImgDataHelper(url, repeatOnError) {
 		if(e.status === 404 || !repeatOnError) {
 			return null;
 		} else {
-			return yield spawn(downloadImgDataHelper)(url, false);
+			return yield* downloadImgDataHelper(url, false);
 		}
 	} else if(isAb) {
 		return new Uint8Array(e.response);
@@ -3492,7 +3494,7 @@ function *downloadImgDataHelper(url, repeatOnError) {
 }
 
 function downloadImgData(url) {
-	return spawn(downloadImgDataHelper)(url, true);
+	return async(downloadImgDataHelper)(url, true);
 }
 
 function downloadObjInfo(obj) {
@@ -3525,7 +3527,7 @@ function preloadImages(post) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		});
 	if(isPreImg || Cfg.preLoadImgs) {
-		pool = new $pool(mReqs, spawn(function *(num, data) {
+		pool = new $pool(mReqs, async(function *(num, data) {
 			var [url, lnk, iType, nExp, el] = data,
 				imageData = yield downloadImgData(url);
 			if(data) {
@@ -3607,7 +3609,7 @@ function loadDocFiles(imgOnly) {
 		warnings = '',
 		tar = new $tar(),
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	Images_.pool = new $pool(4, spawn(function *(num, data) {
+	Images_.pool = new $pool(4, async(function *(num, data) {
 		var [url, name, el, link] = data,
 			safeName = name.replace(/[\\\/:*?"<>|]/g, '_'),
 			imgData = yield downloadImgData(url);
@@ -3891,7 +3893,7 @@ Videos._global = {
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 Videos._getTitleLoader = function() {
-	return new $pool(4, spawn(function *(num, data) {
+	return new $pool(4, async(function *(num, data) {
 		if(num % 30 === 0) {
 			return $pool.pause(3e3);
 		}
@@ -4258,7 +4260,7 @@ function loadFavorThread() {
 		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"></iframe>');
 }
 
-var loadPages = spawn(function *(count) {
+var loadPages = async(function *(count) {
 	var pages = [], hasError = false;
 	$alert(Lng.loading[lang], 'load-pages', true);
 	Pview.clearCache();
@@ -4300,8 +4302,8 @@ var loadPages = spawn(function *(count) {
 	if(!hasError) {
 		dForm.initAjax();
 		addDelformStuff(false);
-		readUserPosts();
-		readFavoritesPosts();
+		yield* readUserPosts();
+		yield* readFavoritesPosts();
 		$each($Q('input[type="password"]', dForm.el), function(pEl) {
 			pr.dpass = pEl;
 			pEl.value = Cfg.passwValue;
@@ -5263,7 +5265,7 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: spawn(function *() {
+	_ihash: async(function *() {
 		for(let image of this._post.images) {
 			let hash = image.hash !== null ? image.hash : yield image.getHash();
 			if(hash === val) {
@@ -9504,7 +9506,7 @@ Thread.prototype = {
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
-	loadNew: spawn(function *(useAPI) {
+	loadNew: async(function *(useAPI) {
 		if(aib.dobr && useAPI) {
 			let json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
 			if(!json) {
@@ -9544,7 +9546,7 @@ Thread.prototype = {
 	},
 	setFavorState(val) {
 		this.setFavBtn(val);
-		getStoredObj('DESU_Favorites').then(fav => {
+		readFav().then(fav => {
 			var h = aib.host,
 				b = brd,
 				num = this.num;
@@ -9713,7 +9715,7 @@ Thread.prototype = {
 			this.pcount = len + 1;
 			saveSpells = true;
 		}
-		getStoredObj('DESU_Favorites').then(fav => {
+		readFav().then(fav => {
 			var el, f, h = aib.host;
 			if(fav[h] && fav[h][brd] && (f = fav[h][brd][this.op.num])) {
 				if(el = $id('de-content-fav')) {
@@ -10155,7 +10157,7 @@ function getImageBoard(checkDomains, checkOther) {
 				if(window.location.pathname === '/settings') {
 					nav = getNavFuncs();
 					$q('input[type="button"]', doc).addEventListener('click', function() {
-						readCfg().then(() => saveCfg('__hanarating', $id('rating').value));
+						spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
 					}, false);
 					return true;
 				}
@@ -11183,7 +11185,7 @@ function initThreadUpdater(title, enableUpdate) {
 	}
 
 	function startLoading(firstSleep) {
-		[loadingTask] = spawn(loadingTaskGenerator, true)(useCountdown, firstSleep);
+		[loadingTask] = async(loadingTaskGenerator, true)(useCountdown, firstSleep);
 	}
 
 	function stopLoading(stopGenerator, hideCountdown) {
@@ -11485,22 +11487,24 @@ function initPage() {
 }
 
 function scrollPage() {
-	var val, post, num, hash
 	if(!TNum) {
 		if(!updater.focused || window.pageYOffset !== 0) {
 			window.scrollTo(0, 0);
 		}
 		return;
 	}
-	val = +sesStorage['de-scroll-' + brd + TNum];
-	if(val) {
-		window.scrollTo(0, val);
-		sesStorage.removeItem('de-scroll-' + brd + TNum);
-	} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
-	   (num = num[1]) && (post = pByNum[num]))
-	{
-		post.el.scrollIntoView(true);
-	}
+	setTimeout(function () {
+		var post, num, hash,
+			val = +sesStorage['de-scroll-' + brd + TNum];
+		if(val) {
+			window.scrollTo(0, val);
+			sesStorage.removeItem('de-scroll-' + brd + TNum);
+		} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
+		   (num = num[1]) && (post = pByNum[num]))
+		{
+			post.el.scrollIntoView(true);
+		}
+	}, 0);
 }
 
 function checkForUpdates(isForce, Fn) {
@@ -12008,12 +12012,12 @@ function *initScript(checkDomains) {
 		return;
 	}
 	new Logger().log('Init');
-	var str = yield getStored('DESU_Exclude');
+	var str = yield* getStored('DESU_Exclude');
 	if(str && str.contains(aib.dm)) {
 		return;
 	}
 	excludeList = str || '';
-	yield readCfg();
+	yield* readCfg();
 	new Logger().log('Config loading');
 	if(Cfg.disabled) {
 		addPanel(formEl);
@@ -12051,23 +12055,23 @@ function *initScript(checkDomains) {
 	addDelformStuff(true);
 	readViewedPosts();
 	scriptCSS();
-	doc.body.style.display = '';
 	new Logger().log('Apply CSS');
-	readPosts();
-	readUserPosts();
-	readFavoritesPosts();
-	setTimeout(PostContent.purge, 0);
-	new Logger().log('Apply spells');
 	if(needScroll) {
 		scrollPage();
 	}
+	doc.body.style.display = '';
 	new Logger().log('Scroll page');
+	readPosts();
+	yield* readUserPosts();
+	yield* readFavoritesPosts();
+	setTimeout(PostContent.purge, 0);
+	new Logger().log('Apply spells');
 	new Logger().finish();
 }
 
 if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	needScroll = false;
-	spawn(initScript)(true);
+	async(initScript)(true);
 } else {
 	aib = getImageBoard(true, false);
 	needScroll = true;
@@ -12075,7 +12079,7 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 		needScroll = false;
 		doc.removeEventListener(e.type, wheelFunc, false);
 	}, false);
-	doc.addEventListener('DOMContentLoaded', spawn(initScript.bind(null, false)), false);
+	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false)), false);
 }
 
 })(window.opera && window.opera.scriptStorage);
