@@ -8564,10 +8564,11 @@ Post.prototype = {
 					) + p + info[0] + '</a>';
 			});
 		}
-		return '<a class="de-menu-item de-imgmenu de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' +
+		return '<a class="de-menu-item de-imgmenu de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
+			'<a class="de-menu-item de-imgmenu de-src-yandex" href="http://yandex.ru/images/search?rpt=imageview&img_url=' + p + 'Yandex</a>' +
 			'<a class="de-menu-item de-imgmenu de-src-tineye" href="http://tineye.com/search/?url=' + p + 'TinEye</a>' +
-			'<a class="de-menu-item de-imgmenu de-src-google" href="http://google.com/searchbyimage?image_url=' + p + 'Google</a>' +
-			'<a class="de-menu-item de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' + str;
+			'<a class="de-menu-item de-imgmenu de-src-saucenao" href="http://saucenao.com/search.php?url=' + p + 'SauceNAO</a>' +
+			'<a class="de-menu-item de-imgmenu de-src-iqdb" href="http://iqdb.org/?url=' + p + 'IQDB</a>' + str;
 	},
 	_addPview(link) {
 		var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [,aib.getPostEl(link).post.tNum])[1],
@@ -10177,9 +10178,6 @@ function getImageBoard(checkDomains, checkOther) {
 			css: { value: '#captcha_status, .content-background > hr, div[style="position: relative;"] { display: none !important; }' },
 			ru: { value: true }
 		}, 'script[src*="kusaba"]'],
-		'hiddenchan.i2p': [{
-			hid: { value: true }
-		}, 'script[src*="kusaba"]'],
 		'iichan.hk': [{
 			iich: { value: true }
 		}],
@@ -11722,10 +11720,11 @@ function scriptCSS() {
 	}
 
 	// Search images buttons
-	x += cont('.de-src-google', 'https://google.com/favicon.ico');
-	x += cont('.de-src-tineye', 'https://tineye.com/favicon.ico');
-	x += cont('.de-src-iqdb', '//iqdb.org/favicon.ico');
-	x += cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico');
+	x += cont('.de-src-google', 'https://google.com/favicon.ico') +
+		cont('.de-src-yandex', 'https://yandex.ru/favicon.ico') +
+		cont('.de-src-tineye', 'https://tineye.com/favicon.ico') +
+		cont('.de-src-saucenao', 'https://saucenao.com/favicon.ico') +
+		cont('.de-src-iqdb', '//iqdb.org/favicon.ico');
 
 	// Posts counter
 	x += '.de-post-counter:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\
