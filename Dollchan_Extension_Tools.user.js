@@ -3852,7 +3852,7 @@ function loadYtubeTitle(id) {
 		'url': aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
 			'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
 		'onreadystatechange'(xhr) {
-			if(xhr.readyState !== 4) {
+			if(xhr.readyState === 4) {
 				resolve(xhr);
 			}
 		}
@@ -9786,32 +9786,6 @@ Thread.prototype = {
 // ===========================================================================================================
 
 function getNavFuncs() {
-	if(!('contains' in String.prototype)) {
-		String.prototype.contains = function(s) {
-			return this.indexOf(s) !== -1;
-		};
-		String.prototype.startsWith = function(s) {
-			return this.indexOf(s) === 0;
-		};
-	}
-	if(!('repeat' in String.prototype)) {
-		String.prototype.repeat = function(nTimes) {
-		  return new Array(nTimes + 1).join(this.valueOf());
-		};
-	}
-	if(!('clz32' in Math)) {
-		Math.clz32 = function(x) {
-			return x < 1 ? x === 0 ? 32 : 0 : 31 - ((Math.log(x) / Math.LN2) >> 0);
-		};
-	}
-	if(!('assign' in Object)) {
-		Object.assign = function(a, b) {
-			for(var i in b) {
-				a[i] = b[i];
-			}
-			return a;
-		};
-	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
