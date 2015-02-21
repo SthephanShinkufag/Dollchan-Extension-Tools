@@ -1579,7 +1579,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				if (tagName === "select") {
 					$each($Q("select > option, select > optgrout > option", field), function (option) {
-						if (option.selected && !FormDataShim.isDisabled(option)) {
+						if (option.selected && !isFormElDisabled(option)) {
 							formDataSet.push({
 								name: fixName(name),
 								value: option.value,

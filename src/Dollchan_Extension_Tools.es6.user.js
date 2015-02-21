@@ -1039,7 +1039,7 @@ function FormDataShim(form) {
 		}
 		if(tagName === 'select') {
 			$each($Q('select > option, select > optgrout > option', field), option => {
-				if(option.selected && !FormDataShim.isDisabled(option)) {
+				if(option.selected && !isFormElDisabled(option)) {
 					formDataSet.push({
 						name: fixName(name),
 						value: option.value,
