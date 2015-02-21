@@ -3623,7 +3623,7 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 }
 WorkerPool.prototype = {
 	run(data, transferObjs, fn) {
-		this._queue.run([data, transferObjs, fn]);
+		this._pool.run([data, transferObjs, fn]);
 	},
 	_createWorker(num, data) {
 		return new Promise((resolve, reject) => {
@@ -3736,11 +3736,11 @@ function preloadImages(post) {
 		pool = new TasksPool(mReqs, async(function *(num, data) {
 			var [url, lnk, iType, nExp, el] = data,
 				imageData = yield downloadImgData(url);
-			if(data) {
+			if(imageData) {
 				let fName = url.substring(url.lastIndexOf("/") + 1),
 					aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 				aEl.setAttribute('download', fName);
-				lnk.href = window.URL.createObjectURL(new Blob([data], {'type': iType}));
+				lnk.href = window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
 				lnk.setAttribute('de-name', fName);
 				if(iType === 'video/webm') {
 					el.setAttribute('de-video', '');
@@ -3749,7 +3749,7 @@ function preloadImages(post) {
 					el.src = lnk.href;
 				}
 				if(rjf) {
-					rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(null, aEl, fName));
+					rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
 				}
 			}
 			if(Images_.progressId) {
