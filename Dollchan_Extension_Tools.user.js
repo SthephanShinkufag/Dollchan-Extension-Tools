@@ -3791,7 +3791,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			};
 			return;
 		}
-		var url = window.URL.createObjectURL(new Blob(["self.onmessage = function(e) {\n\t\tvar info = (" + String(wrkFn) + ")(e.data[1]);\n\t\tif(info.data) {\n\t\t\tself.postMessage([e.data[0], info], [info.data]);\n\t\t} else {\n\t\t\tself.postMessage([e.data[0], info]);\n\t\t}\n\t}"], { type: "text/javascript" }));
+		var url = window.URL.createObjectURL(new Blob(["self.onmessage = function(e) {\n\t\tvar info = (" + String(wrkFn) + ")(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}"], { type: "text/javascript" }));
 		this._pool = new TasksPool(mReqs, this._createWorker.bind(this), null);
 		this._freeWorkers = [];
 		this._url = url;
@@ -3802,7 +3802,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 	WorkerPool.prototype = {
 		run: function run(data, transferObjs, fn) {
-			this._queue.run([data, transferObjs, fn]);
+			this._pool.run([data, transferObjs, fn]);
 		},
 		_createWorker: function _createWorker(num, data) {
 			var _this = this;
@@ -3813,7 +3813,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var transferObjs = _data[1];
 				var fn = _data[2];
 				w.onmessage = function (e) {
-					fn(e.data[1]);
+					fn(e.data);
 					_this._freeWorkers.push(w);
 					resolve();
 				};
@@ -3831,7 +3831,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	};
 
-	function addImgFileIcon(aEl, fName, info) {
+	function addImgFileIcon(aEl, fName, inf) {
 		var app,
 		    ext,
 		    type = info.type;
@@ -3852,7 +3852,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				app = "audio/mpeg";
 				ext = "mp3";
 			}
-			aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data).subarray(info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
+			aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
 		}
 	}
 
@@ -3907,10 +3907,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							return downloadImgData(url);
 						case 8:
 							imageData = context$3$0.sent;
-							if (data) {
+							if (imageData) {
 								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 								aEl.setAttribute("download", fName);
-								lnk.href = window.URL.createObjectURL(new Blob([data], { type: iType }));
+								lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
 								lnk.setAttribute("de-name", fName);
 								if (iType === "video/webm") {
 									el.setAttribute("de-video", "");
@@ -3919,7 +3919,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 									el.src = lnk.href;
 								}
 								if (rjf) {
-									rjf.run(data.buffer, [data.buffer], addImgFileIcon.bind(null, aEl, fName));
+									rjf.run(imageData.buffer, [imageData.buffer], addImgFileIcon.bind(null, aEl, fName));
 								}
 							}
 							if (Images_.progressId) {
@@ -10708,11 +10708,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			},
 			hasWorker: {
 				get: function () {
-					var val;
-					try {
-						val = "Worker" in window;
-					} catch (e) {
-						val = false;
+					var val = false;
+					if (!nav.Firefox) {
+						try {
+							val = "Worker" in window;
+						} catch (e) {}
 					}
 					Object.defineProperty(this, "hasWorker", { value: val });
 					return val;

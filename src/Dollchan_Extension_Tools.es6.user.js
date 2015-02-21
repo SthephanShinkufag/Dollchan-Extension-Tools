@@ -3606,11 +3606,11 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 		return;
 	}
 	var url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
-		var info = (${String(wrkFn)})(e.data[1]);
+		var info = (${String(wrkFn)})(e.data);
 		if(info.data) {
-			self.postMessage([e.data[0], info], [info.data]);
+			self.postMessage(info, [info.data]);
 		} else {
-			self.postMessage([e.data[0], info]);
+			self.postMessage(info);
 		}
 	}`], {'type': 'text/javascript'}));
 	this._pool = new TasksPool(mReqs, this._createWorker.bind(this), null);
@@ -3630,7 +3630,7 @@ WorkerPool.prototype = {
 			var w = this._freeWorkers.pop(),
 				[sendData, transferObjs, fn] = data;
 			w.onmessage = e => {
-				fn(e.data[1]);
+				fn(e.data);
 				this._freeWorkers.push(w);
 				resolve();
 			};
@@ -3648,7 +3648,7 @@ WorkerPool.prototype = {
 	}
 };
 
-function addImgFileIcon(aEl, fName, info) {
+function addImgFileIcon(aEl, fName, inf) {
 	var app, ext, type = info.type;
 	if(typeof type !== 'undefined') {
 		if(type === 2) {
@@ -3668,7 +3668,7 @@ function addImgFileIcon(aEl, fName, info) {
 			ext = 'mp3';
 		}
 		aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
-				new Blob([new Uint8Array(info.data).subarray(info.idx)], {'type': app})
+				new Blob([new Uint8Array(info.data, info.idx)], {'type': app})
 			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
 		);
@@ -10093,11 +10093,11 @@ function getNavFuncs() {
 			return url;
 		},
 		get hasWorker() {
-			var val;
-			try {
-				val = 'Worker' in window;
-			} catch(e) {
-				val = false;
+			var val = false;
+			if(!nav.Firefox) { // see https://github.com/greasemonkey/greasemonkey/issues/2034
+				try {
+					val = 'Worker' in window;
+				} catch(e) {}
 			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
