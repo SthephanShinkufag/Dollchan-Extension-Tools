@@ -9837,6 +9837,11 @@ Thread.prototype = {
 // ===========================================================================================================
 
 function getNavFuncs() {
+	if(!('contains' in String.prototype)) {
+		String.prototype.contains = function(s) {
+			return this.indexOf(s) !== -1;
+		};
+	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
