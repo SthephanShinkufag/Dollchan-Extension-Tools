@@ -10503,7 +10503,7 @@ function getImageBoard(checkDomains, checkOther) {
 				for(i = 0, els = $Q('.video-container, #ytplayer', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
 					el = els[i];
 					videos.push([post || this.getPostEl(el).post, el.id === 'ytplayer' ?
-						el.src.match(YouTube.ytReg) : ['', el.getAttribute('data-video')], true]);
+						el.src.match(Videos.ytReg) : ['', el.getAttribute('data-video')], true]);
 					$del(el);
 				}
 				return videos;
@@ -10621,12 +10621,12 @@ function getImageBoard(checkDomains, checkOther) {
 			for(i = 0, els = $Q('embed, object, iframe', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
 				let el = els[i],
 					src = el.src || el.data,
-					m = src.match(YouTube.ytReg);
+					m = src.match(Videos.ytReg);
 				if(m) {
 					videos.push([post || this.getPostEl(el).post, m, true]);
 					$del(el);
 				}
-				if(Cfg.addVimeo && (m = src.match(YouTube.vimReg))) {
+				if(Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
 					videos.push([post || this.getPostEl(el).post, m, false]);
 					$del(el);
 				}
