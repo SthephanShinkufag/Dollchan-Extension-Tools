@@ -1763,7 +1763,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	})();
 
 	function isFormElDisabled(el) {
-		switch (el.tagName) {
+		switch (el.tagName.toLowerCase()) {
 			case "button":
 			case "input":
 			case "select":

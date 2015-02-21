@@ -1183,7 +1183,7 @@ FormDataShim.prototype = {
 
 function isFormElDisabled(el) {
 	// https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
-	switch(el.tagName) {
+	switch(el.tagName.toLowerCase()) {
 	case 'button':
 	case 'input':
 	case 'select':
