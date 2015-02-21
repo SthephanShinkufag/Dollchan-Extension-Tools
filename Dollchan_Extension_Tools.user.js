@@ -3831,7 +3831,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	};
 
-	function addImgFileIcon(aEl, fName, inf) {
+	function addImgFileIcon(aEl, fName, info) {
 		var app,
 		    ext,
 		    type = info.type;

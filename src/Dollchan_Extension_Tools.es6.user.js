@@ -3648,7 +3648,7 @@ WorkerPool.prototype = {
 	}
 };
 
-function addImgFileIcon(aEl, fName, inf) {
+function addImgFileIcon(aEl, fName, info) {
 	var app, ext, type = info.type;
 	if(typeof type !== 'undefined') {
 		if(type === 2) {
