@@ -1009,6 +1009,197 @@ function resizeImage(size, minSize, maxSize) {
 	return size;
 }
 
+// https://xhr.spec.whatwg.org/#interface-formdata
+function FormDataShim(form) {
+	if(!form) {
+		this._entries = [];
+		return;
+	}
+	// https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
+	var controls = $Q('button, input, keygen, object, select, textarea', form);
+	var formDataSet = [];
+	var fixName = name => name ? name.replace(/[^\r]\n|\r[^\n]/g, name) : '';
+  constructSet:
+	for(let i = 0, len = controls.length; i < len; ++i) {
+		let field = controls[i];
+		let tagName = field.tagName.toLowerCase();
+		let type = field.getAttribute('type');
+		let name = field.getAttribute('name');
+		if($parent(field, 'datalist', form) ||
+		   isFormElDisabled(field) ||
+		   (tagName === 'button' && type !== 'submit') ||
+		   (tagName === 'input' && (
+		       (type === 'checkbox' && !field.checked) ||
+		       (type === 'radio' && !field.checked) ||
+		       (type === 'image' && !name)
+		   )) ||
+		   (tagName === 'object' && !(type in navigator.mimeTypes))
+		) {
+			continue;
+		}
+		if(tagName === 'select') {
+			$each($Q('select > option, select > optgrout > option', field), option => {
+				if(option.selected && !FormDataShim.isDisabled(option)) {
+					formDataSet.push({
+						name: fixName(name),
+						value: option.value,
+						type: type
+					});
+				}
+			});
+		} else if(tagName === 'input') {
+			switch(type) {
+			case 'image':
+				throw new Error('Not supported');
+				continue constructSet;
+			case 'checkbox':
+			case 'radio':
+				formDataSet.push({
+					name: fixName(name),
+					value: field.value || 'on',
+					type: type
+				});
+				continue constructSet;
+			case 'file':
+				if(field.files.length > 0) {
+					let files = field.files;
+					for(let i = 0, len = files.length; i < len; ++i) {
+						formDataSet.push({
+							name: name,
+							value: files[i],
+							type: type
+						});
+					}
+				} else {
+					formDataSet.push({
+						name: fixName(name),
+						value: '',
+						type: 'application/octet-stream'
+					});
+				}
+				continue constructSet;
+			}
+		}
+		if(tagName === 'object') {
+			throw new Error('Not supported');
+		} else if(type === 'textarea') {
+			formDataSet.push({
+				name: name || '',
+				value: field.value,
+				type: type
+			});
+		} else {
+			formDataSet.push({
+				name: fixName(name),
+				value: field.value,
+				type: type
+			});
+		}
+		let dirname = field.getAttribute('dirname');
+		if(dirname) {
+			let dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr';
+			formDataSet.push({
+				name: fixName(dirname),
+				value: dir,
+				type: 'direction'
+			});
+		}
+	}
+	this._entries = formDataSet;
+}
+FormDataShim.prototype = {
+	append(name, value, fileName) {
+		this._entries.push(this._create(name, value, fileName));
+	},
+	'delete'(name) {
+		this._entries = this._entries.filter(entry => entry.name !== name);
+	},
+	get(name) {
+		return (this._entries.find(entry => entry.name === name) || {}).value;
+	},
+	getAll(name) {
+		return this._entries.filter(entry => entry.name !== name)
+		                    .map(entry => entry.value);
+	},
+	set(name, value) {
+		var entry = this._create(name, value);
+		var idx = -1;
+		this._entries = this._entries.filter((entry, i) => {
+			if(entry.name === name) {
+				if(idx === -1) {
+					idx = i;
+				} else {
+					return true;
+				}
+			}
+			return false;
+		});
+		if(idx === -1) {
+			this._entries.push(entry);
+		} else {
+			this._entries[idx] = entry;
+		}
+	},
+	has(name) {
+		return !!this._entries.find(entry => entry.name === name);
+	},
+	*[Symbol.iterator]() {
+		for(let entry of this._entries) {
+			yield [entry.name, entry.value];
+		}
+	},
+	// Non standard
+	getSubmitData() {
+		var boundary = '---------------------------' + Math.round(Math.random() * 1e11);
+		var data = [];
+		for(let entry of this._entries) {
+			let {name, value, type} = entry;
+			data.push('--', boundary, '\r\nContent-Disposition: form-data; name="', name, '"');
+			if(type === 'file') {
+				data.push('; filename="', name, '"\r\nContent-type: ', value.type, '\r\n\r\n',
+						  value, '\r\n');
+			} else {
+				data.push('\r\n\r\n', value, '\r\n');
+			}
+		}
+		data.push('--', boundary, '--\r\n');
+		return [boundary, new Blob(data)];
+	},
+
+	_create(name, value, fileName) {
+		var type = '';
+		if((value instanceof Blob) && !(value instanceof File)) {
+			type = 'file';
+			value = new File([value], 'blob');
+		} else if(value instanceof File) {
+			type = 'file';
+			if(fileName) {
+				value = new File([value], fileName);
+			}
+		}
+		return {name: name, value: value, type: type};
+	}
+};
+
+function isFormElDisabled(el) {
+	// https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
+	switch(el.tagName) {
+	case 'button':
+	case 'input':
+	case 'select':
+	case 'textarea':
+		if(el.hasAttribute('disabled')) {
+			return true;
+		}
+		/* falls through */
+	default:
+		if(nav.matchesSelector(el, 'fieldset[disabled] > :not(legend):not(:first-of-type) *')) {
+			return true;
+		}
+	}
+	return false;
+}
+
 
 // STORAGE
 // ===========================================================================================================
@@ -6249,11 +6440,11 @@ PostForm.prototype = {
 							brd + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = e => {
 							$del(e.target);
-							new Html5Submit(this.form, this.subm, checkUpload);
+							async(html5Submit)(this.form, checkUpload);
 						};
 						return;
 					}
-					new Html5Submit(this.form, this.subm, checkUpload);
+					async(html5Submit)(this.form, checkUpload);
 				};
 			}, 0);
 		} else if(Cfg.ajaxReply === 1) {
@@ -6847,187 +7038,195 @@ function checkDelete(dc) {
 	}
 }
 
-function Html5Submit(form, button, fn) {
-	this.boundary = '---------------------------' + Math.round(Math.random() * 1e11);
-	this.data = [];
-	this.busy = 0;
-	this.error = false;
-	this.url = form.action;
-	this.fn = fn;
-	$each($Q('input:not([type="submit"]):not([type="button"]), textarea, select', form),
-		this.append.bind(this));
-	this.append(button);
-	this.submit();
-}
-Html5Submit.prototype = {
-	append(el) {
-		var file, fName, idx, fr,
-			pre = '--' + this.boundary + '\r\nContent-Disposition: form-data; name="' + el.name + '"';
-		if(el.type === 'file' && el.files.length > 0) {
-			file = el.files[0];
-			fName = file.name;
-			this.data.push(pre + '; filename="' + (
-				!Cfg.removeFName ? fName : ' ' + fName.substring(fName.lastIndexOf('.'))
-			) + '"\r\nContent-type: ' + file.type + '\r\n\r\n', null, '\r\n');
-			idx = this.data.length - 2;
-			if(!/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type)) {
-				this.data[idx] = file;
-				return;
-			}
-			fr = new FileReader();
-			fr.onload = function(name, e) {
-				var dat = this.clearImage(e.target.result, el.obj.imgFile,
-					Cfg.postSameImg && String(Math.round(Math.random() * 1e6)));
-				if(dat) {
-					this.data[idx] = new Blob(dat);
-					this.busy--;
-					this.submit();
-				} else {
-					this.error = true;
-					$alert(Lng.fileCorrupt[lang] + name, 'upload', false);
+function *html5Submit(form, fn) {
+	var fData;
+	if(nav.hasModernFormData) {
+		fData = new FormData(form);
+	} else {
+		fData = new FormDataShim(form);
+	}
+	let filesEls = $Q('input[type="file"]', form);
+	for(let i = 0, len = filesEls.length; i < len; ++i) {
+		let fileEl = filesEls[i];
+		if(!isFormElDisabled(fileEl)) {
+			let files = fileEl.files;
+			for(let i = 0, len = files.length; i < len; ++i) {
+				let file = files[i];
+				let name = file.name;
+				let changed = false;
+				if(Cfg.removeFName) {
+					file = new File(file, name.substring(name.lastIndexOf('.')));
+					changed = true;
 				}
-			}.bind(this, fName);
-			fr.readAsArrayBuffer(file);
-			this.busy++;
-		} else if((el.type !== 'checkbox' && el.type !== 'radio') || el.checked) {
-			this.data.push(pre + '\r\n\r\n' + el.value + '\r\n');
-		}
-	},
-	submit() {
-		if(this.error || this.busy !== 0) {
-			return;
-		}
-		this.data.push('--' + this.boundary + '--\r\n');
-		$xhr({
-			'method': 'POST',
-			'headers': {'Content-type': 'multipart/form-data; boundary=' + this.boundary},
-			'data': new Blob(this.data),
-			'url': nav.fixLink(this.url),
-			'onreadystatechange': xhr => {
-				if(xhr.readyState === 4) {
-					if(xhr.status === 200) {
-						this.fn($DOM(xhr.responseText));
-					} else {
-						$alert(xhr.status === 0 ? Lng.noConnect[lang] :
-							'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
+				if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type) &&
+				   (Cfg.postSameImg || Cfg.removeEXIF))
+				{
+					file = yield* cleanFile(fileEl, file);
+					if(!file) {
+						$alert(Lng.fileCorrupt[lang] + origName, 'upload', false);
+						return;
 					}
+					changed = true;
+				}
+				if(changed) {
+					fData.set(name, file);
 				}
 			}
-		});
-	},
-	readExif(data, off, len) {
-		var i, j, dE, tag, tgLen, xRes = 0,
-			yRes = 0,
-			resT = 0,
-			dv = nav.getUnsafeDataView(data, off),
-			le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
-		if(dv.getUint16(2, le) !== 0x2A) {
-			return null;
 		}
-		i = dv.getUint32(4, le);
-		if(i > len) {
-			return null;
-		}
-		for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-			if(tag === 0x0128) {
-				resT = dv.getUint16(dE + 8, le) - 1;
-			} else if(tag === 0x011A || tag === 0x011B) {
-				dE = dv.getUint32(dE + 8, le);
-				if(dE > len) {
-					return null;
-				}
-				if(tag === 0x11A) {
-					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+	}
+	let submitOpts = {
+		'method': 'POST',
+		'url': nav.fixLink(form.action),
+		'onreadystatechange'(xhr) {
+			if(xhr.readyState === 4) {
+				if(xhr.status === 200) {
+					fn($DOM(xhr.responseText));
 				} else {
-					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+					$alert(xhr.status === 0 ? Lng.noConnect[lang] :
+						'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
 				}
 			}
 		}
-		xRes = xRes || yRes;
-		yRes = yRes || xRes;
-		return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
-	},
-	clearImage(data, extraData, rand) {
-		var tmp, i, len, deep, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
-			rExif = !!Cfg.removeEXIF,
-			rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
-				[img, rand] : [img];
-		if(!Cfg.postSameImg && !rExif && !extraData) {
-			return rv;
-		}
-		// JPG
-		if(img[0] === 0xFF && img[1] === 0xD8) {
-			for(i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
-				if(img[i] === 0xFF) {
-					if(rExif) {
-						if(!jpgDat && deep === 1) {
-							if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
-								jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
-							} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
-							          (img[i + 2] !== 0 || img[i + 3] >= 0x0E ||
-							          img[i + 15] !== 0xFF))
-							{
-								jpgDat = img.subarray(i + 11, i + 16);
-							}
+	};
+	if(nav.hasModernFormData) {
+		submitOpts['data'] = fData;
+	} else {
+		let [boundary, data] = fData.getSubmitData();
+		submitOpts['headers'] = {'Content-type': 'multipart/form-data; boundary=' + boundary};
+		submitOpts['data'] = data;
+	}
+	$xhr(submitOpts);
+}
+
+function *cleanFile(fileEl, file) {
+	// Don't inline this function, because generators are too slow
+	var data = cleanFileHelper((yield readFileArrayBuffer(file)),
+                               fileEl.obj.imgFile,
+						       Cfg.postSameImg && String(Math.round(Math.random() * 1e6)));
+	return data ? new File(data, file.name) : null;
+}
+
+function readFileArrayBuffer(file) {
+	return new Promise((resolve, reject) => {
+		var fr = new FileReader();
+		fr.onload = (e) => resolve(e.target.result);
+		fr.readAsArrayBuffer(file);
+	});
+}
+
+function cleanFileHelper(data, extraData, rand) {
+	var tmp, i, len, deep, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
+		rExif = !!Cfg.removeEXIF,
+		rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
+			[img, rand] : [img];
+	if(!rand && !rExif && !extraData) {
+		return rv;
+	}
+	// JPG
+	if(img[0] === 0xFF && img[1] === 0xD8) {
+		for(i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len; ) {
+			if(img[i] === 0xFF) {
+				if(rExif) {
+					if(!jpgDat && deep === 1) {
+						if(img[i + 1] === 0xE1 && img[i + 4] === 0x45) {
+							jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
+						} else if(img[i + 1] === 0xE0 && img[i + 7] === 0x46 &&
+								  (img[i + 2] !== 0 || img[i + 3] >= 0x0E ||
+								  img[i + 15] !== 0xFF))
+						{
+							jpgDat = img.subarray(i + 11, i + 16);
 						}
-						if(((img[i + 1] >> 4) === 0xE && img[i + 1] !== 0xEE) || img[i + 1] === 0xFE) {
-							if(lIdx !== i) {
-								val.push(img.subarray(lIdx, i));
-							}
-							i += 2 + (img[i + 2] << 8) + img[i + 3];
-							lIdx = i;
-							continue;
+					}
+					if(((img[i + 1] >> 4) === 0xE && img[i + 1] !== 0xEE) || img[i + 1] === 0xFE) {
+						if(lIdx !== i) {
+							val.push(img.subarray(lIdx, i));
 						}
-					} else if(img[i + 1] === 0xD8) {
-						deep++;
-						i++;
+						i += 2 + (img[i + 2] << 8) + img[i + 3];
+						lIdx = i;
 						continue;
 					}
-					if(img[i + 1] === 0xD9 && --deep === 0) {
-						break;
-					}
+				} else if(img[i + 1] === 0xD8) {
+					deep++;
+					i++;
+					continue;
 				}
-				i++;
-			}
-			i += 2;
-			if(!extraData && len - i > 75) {
-				i = len;
-			}
-			if(lIdx === 2) {
-				if(i !== len) {
-					rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+				if(img[i + 1] === 0xD9 && --deep === 0) {
+					break;
 				}
-				return rv;
 			}
-			val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0E, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
-			val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
-			val.push(img.subarray(lIdx, i));
-			if(extraData) {
-				val.push(extraData);
-			}
-			if(rand) {
-				val.push(rand);
-			}
-			return val;
+			i++;
 		}
-		// PNG
-		if(img[0] === 0x89 && img[1] === 0x50) {
-			for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
-				img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
-			i += 8;
-			if(i !== len && (extraData || len - i <= 75)) {
+		i += 2;
+		if(!extraData && len - i > 75) {
+			i = len;
+		}
+		if(lIdx === 2) {
+			if(i !== len) {
 				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
 			return rv;
 		}
-		// WEBM
-		if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
-			return new WebmParser(data).addData(rand).getData();
+		val[0] = new Uint8Array([0xFF, 0xD8, 0xFF, 0xE0, 0, 0x0E, 0x4A, 0x46, 0x49, 0x46, 0, 1, 1]);
+		val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
+		val.push(img.subarray(lIdx, i));
+		if(extraData) {
+			val.push(extraData);
 		}
+		if(rand) {
+			val.push(rand);
+		}
+		return val;
+	}
+	// PNG
+	if(img[0] === 0x89 && img[1] === 0x50) {
+		for(i = 0, len = img.length - 7; i < len && (img[i] !== 0x49 ||
+			img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
+		i += 8;
+		if(i !== len && (extraData || len - i <= 75)) {
+			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+		}
+		return rv;
+	}
+	// WEBM
+	if(img[0] === 0x1a && img[1] === 0x45 && img[2] === 0xDF && img[3] === 0xA3) {
+		return new WebmParser(data).addData(rand).getData();
+	}
+	return null;
+}
+
+function readExif(data, off, len) {
+	var i, j, dE, tag, tgLen, xRes = 0,
+		yRes = 0,
+		resT = 0,
+		dv = nav.getUnsafeDataView(data, off),
+		le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
+	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
 	}
-};
+	i = dv.getUint32(4, le);
+	if(i > len) {
+		return null;
+	}
+	for(tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+		tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+		if(tag === 0x0128) {
+			resT = dv.getUint16(dE + 8, le) - 1;
+		} else if(tag === 0x011A || tag === 0x011B) {
+			dE = dv.getUint32(dE + 8, le);
+			if(dE > len) {
+				return null;
+			}
+			if(tag === 0x11A) {
+				xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+			} else {
+				yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+			}
+		}
+	}
+	xRes = xRes || yRes;
+	yRes = yRes || xRes;
+	return new Uint8Array([resT & 0xFF, xRes >> 8, xRes & 0xFF, yRes >> 8, yRes & 0xFF]);
+}
 
 WebmParser = function(data) {
 	var EBMLId = 0x1A45DFA3,
@@ -9913,6 +10112,11 @@ function getNavFuncs() {
 			Object.defineProperty(this, 'canPlayWebm', { value: val });
 			return val;
 		},
+		get hasModernFormData() {
+			var val = FormData && ('set' in new FormData());
+			Object.defineProperty(this, 'hasModernFormData', { value: val });
+			return val;
+		},
 		get matchesSelector() {
 			var dE = doc.documentElement,
 				fun = dE.matchesSelector || dE.mozMatchesSelector ||
@@ -11064,7 +11268,7 @@ DelForm.prototype = {
 					$pd(e);
 					pr.closeQReply();
 					$alert(Lng.deleting[lang], 'deleting', true);
-					new Html5Submit(this.el, e.target, checkDelete);
+					async(html5Submit)(this.el, checkDelete);
 				};
 			}
 		} else if(Cfg.ajaxReply === 1) {

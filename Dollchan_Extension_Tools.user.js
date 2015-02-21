@@ -405,6 +405,120 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, downloadImgDataHelper, this);
 	});
 
+	var html5Submit = regeneratorRuntime.mark(function html5Submit(form, fn) {
+		var fData, filesEls, i, _len, fileEl, files, _i, _len2, file, _name, changed, submitOpts, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
+		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					if (nav.hasModernFormData) {
+						fData = new FormData(form);
+					} else {
+						fData = new FormDataShim(form);
+					}
+					filesEls = $Q("input[type=\"file\"]", form);
+					i = 0, _len = filesEls.length;
+				case 3:
+					if (!(i < _len)) {
+						context$2$0.next = 27;
+						break;
+					}
+					fileEl = filesEls[i];
+					if (isFormElDisabled(fileEl)) {
+						context$2$0.next = 24;
+						break;
+					}
+					files = fileEl.files;
+					_i = 0, _len2 = files.length;
+				case 8:
+					if (!(_i < _len2)) {
+						context$2$0.next = 24;
+						break;
+					}
+					file = files[_i];
+					_name = file.name;
+					changed = false;
+					if (Cfg.removeFName) {
+						file = new File(file, _name.substring(_name.lastIndexOf(".")));
+						changed = true;
+					}
+					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
+						context$2$0.next = 20;
+						break;
+					}
+					return context$2$0.delegateYield(cleanFile(fileEl, file), "t21", 15);
+				case 15:
+					file = context$2$0.t21;
+					if (file) {
+						context$2$0.next = 19;
+						break;
+					}
+					$alert(Lng.fileCorrupt[lang] + origName, "upload", false);
+					return context$2$0.abrupt("return");
+				case 19:
+					changed = true;
+				case 20:
+					if (changed) {
+						fData.set(_name, file);
+					}
+				case 21:
+					++_i;
+					context$2$0.next = 8;
+					break;
+				case 24:
+					++i;
+					context$2$0.next = 3;
+					break;
+				case 27:
+					submitOpts = {
+						method: "POST",
+						url: nav.fixLink(form.action),
+						onreadystatechange: function onreadystatechange(xhr) {
+							if (xhr.readyState === 4) {
+								if (xhr.status === 200) {
+									fn($DOM(xhr.responseText));
+								} else {
+									$alert(xhr.status === 0 ? Lng.noConnect[lang] : "HTTP [" + xhr.status + "] " + xhr.statusText, "upload", false);
+								}
+							}
+						}
+					};
+					if (nav.hasModernFormData) {
+						submitOpts.data = fData;
+					} else {
+						_fData$getSubmitData = fData.getSubmitData();
+						_fData$getSubmitData2 = _slicedToArray(_fData$getSubmitData, 2);
+						boundary = _fData$getSubmitData2[0];
+						data = _fData$getSubmitData2[1];
+						submitOpts.headers = { "Content-type": "multipart/form-data; boundary=" + boundary };
+						submitOpts.data = data;
+					}
+					$xhr(submitOpts);
+				case 30:
+				case "end":
+					return context$2$0.stop();
+			}
+		}, html5Submit, this);
+	});
+
+	var cleanFile = regeneratorRuntime.mark(function cleanFile(fileEl, file) {
+		var data;
+		return regeneratorRuntime.wrap(function cleanFile$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					context$2$0.next = 2;
+					return readFileArrayBuffer(file);
+				case 2:
+					context$2$0.t22 = context$2$0.sent;
+					context$2$0.t23 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
+					data = cleanFileHelper(context$2$0.t22, fileEl.obj.imgFile, context$2$0.t23);
+					return context$2$0.abrupt("return", data ? new File(data, file.name) : null);
+				case 6:
+				case "end":
+					return context$2$0.stop();
+			}
+		}, cleanFile, this);
+	});
+
 	var initScript = regeneratorRuntime.mark(function initScript(checkDomains) {
 		var formEl, str;
 		return regeneratorRuntime.wrap(function initScript$(context$2$0) {
@@ -419,9 +533,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return");
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t26", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t29", 6);
 				case 6:
-					str = context$2$0.t26;
+					str = context$2$0.t29;
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
 						break;
@@ -429,7 +543,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return");
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t27", 11);
+					return context$2$0.delegateYield(readCfg(), "t30", 11);
 				case 11:
 					new Logger().log("Config loading");
 					if (!Cfg.disabled) {
@@ -452,8 +566,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					break;
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t28 = context$2$0["catch"](22);
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t28));
+					context$2$0.t31 = context$2$0["catch"](22);
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t31));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 				case 31:
@@ -482,9 +596,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					doc.body.style.display = "";
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t29", 47);
+					return context$2$0.delegateYield(readUserPosts(), "t32", 47);
 				case 47:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t30", 48);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t33", 48);
 				case 48:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log("Apply spells");
@@ -1440,6 +1554,230 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}
 		return size;
+	}
+
+
+	function FormDataShim(form) {
+		if (!form) {
+			this._entries = [];
+			return;
+		}
+
+		var controls = $Q("button, input, keygen, object, select, textarea", form);
+		var formDataSet = [];
+		var fixName = function (name) {
+			return name ? name.replace(/[^\r]\n|\r[^\n]/g, name) : "";
+		};
+		constructSet: for (var i = 0, _len = controls.length; i < _len; ++i) {
+			var _ret = (function (i, _len) {
+				var field = controls[i];
+				var tagName = field.tagName.toLowerCase();
+				var type = field.getAttribute("type");
+				var name = field.getAttribute("name");
+				if ($parent(field, "datalist", form) || isFormElDisabled(field) || tagName === "button" && type !== "submit" || tagName === "input" && (type === "checkbox" && !field.checked || type === "radio" && !field.checked || type === "image" && !name) || tagName === "object" && !(type in navigator.mimeTypes)) {
+					return "continue";
+				}
+				if (tagName === "select") {
+					$each($Q("select > option, select > optgrout > option", field), function (option) {
+						if (option.selected && !FormDataShim.isDisabled(option)) {
+							formDataSet.push({
+								name: fixName(name),
+								value: option.value,
+								type: type
+							});
+						}
+					});
+				} else if (tagName === "input") {
+					switch (type) {
+						case "image":
+							throw new Error("Not supported");
+							return "continue|constructSet";
+						case "checkbox":
+						case "radio":
+							formDataSet.push({
+								name: fixName(name),
+								value: field.value || "on",
+								type: type
+							});
+							return "continue|constructSet";
+						case "file":
+							if (field.files.length > 0) {
+								var files = field.files;
+								for (var _i = 0, _len2 = files.length; _i < _len2; ++_i) {
+									formDataSet.push({
+										name: name,
+										value: files[_i],
+										type: type
+									});
+								}
+							} else {
+								formDataSet.push({
+									name: fixName(name),
+									value: "",
+									type: "application/octet-stream"
+								});
+							}
+							return "continue|constructSet";
+					}
+				}
+				if (tagName === "object") {
+					throw new Error("Not supported");
+				} else if (type === "textarea") {
+					formDataSet.push({
+						name: name || "",
+						value: field.value,
+						type: type
+					});
+				} else {
+					formDataSet.push({
+						name: fixName(name),
+						value: field.value,
+						type: type
+					});
+				}
+				var dirname = field.getAttribute("dirname");
+				if (dirname) {
+					var dir = nav.matchesSelector(field, ":dir(rtl)") ? "rtl" : "ltr";
+					formDataSet.push({
+						name: fixName(dirname),
+						value: dir,
+						type: "direction"
+					});
+				}
+			})(i, _len);
+
+			switch (_ret) {
+				case "continue":
+					continue;
+				case "continue|constructSet":
+					continue constructSet;
+			}
+		}
+		this._entries = formDataSet;
+	}
+	FormDataShim.prototype = (function () {
+		var _FormDataShim$prototype = {
+			append: function append(name, value, fileName) {
+				this._entries.push(this._create(name, value, fileName));
+			},
+			"delete": function _delete(name) {
+				this._entries = this._entries.filter(function (entry) {
+					return entry.name !== name;
+				});
+			},
+			get: function get(name) {
+				return (this._entries.find(function (entry) {
+					return entry.name === name;
+				}) || {}).value;
+			},
+			getAll: function getAll(name) {
+				return this._entries.filter(function (entry) {
+					return entry.name !== name;
+				}).map(function (entry) {
+					return entry.value;
+				});
+			},
+			set: function set(name, value) {
+				var entry = this._create(name, value);
+				var idx = -1;
+				this._entries = this._entries.filter(function (entry, i) {
+					if (entry.name === name) {
+						if (idx === -1) {
+							idx = i;
+						} else {
+							return true;
+						}
+					}
+					return false;
+				});
+				if (idx === -1) {
+					this._entries.push(entry);
+				} else {
+					this._entries[idx] = entry;
+				}
+			},
+			has: function has(name) {
+				return !!this._entries.find(function (entry) {
+					return entry.name === name;
+				});
+			} };
+
+		_FormDataShim$prototype[Symbol.iterator] = regeneratorRuntime.mark(function callee$2$0() {
+			var _this = this;
+			var _iterator, _step, entry;
+			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+				while (1) switch (context$3$0.prev = context$3$0.next) {
+					case 0:
+						_iterator = _this._entries[Symbol.iterator]();
+					case 1:
+						if ((_step = _iterator.next()).done) {
+							context$3$0.next = 7;
+							break;
+						}
+						entry = _step.value;
+						context$3$0.next = 5;
+						return [entry.name, entry.value];
+					case 5:
+						context$3$0.next = 1;
+						break;
+					case 7:
+					case "end":
+						return context$3$0.stop();
+				}
+			}, callee$2$0, this);
+		});
+		_defineProperty(_FormDataShim$prototype, "getSubmitData", function getSubmitData() {
+			var boundary = "---------------------------" + Math.round(Math.random() * 100000000000);
+			var data = [];
+			for (var _iterator = this._entries[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+				var entry = _step.value;
+				var _name = entry.name;
+				var value = entry.value;
+				var type = entry.type;
+				data.push("--", boundary, "\r\nContent-Disposition: form-data; name=\"", _name, "\"");
+				if (type === "file") {
+					data.push("; filename=\"", _name, "\"\r\nContent-type: ", value.type, "\r\n\r\n", value, "\r\n");
+				} else {
+					data.push("\r\n\r\n", value, "\r\n");
+				}
+			}
+			data.push("--", boundary, "--\r\n");
+			return [boundary, new Blob(data)];
+		});
+
+		_defineProperty(_FormDataShim$prototype, "_create", function _create(name, value, fileName) {
+			var type = "";
+			if (value instanceof Blob && !(value instanceof File)) {
+				type = "file";
+				value = new File([value], "blob");
+			} else if (value instanceof File) {
+				type = "file";
+				if (fileName) {
+					value = new File([value], fileName);
+				}
+			}
+			return { name: name, value: value, type: type };
+		});
+
+		return _FormDataShim$prototype;
+	})();
+
+	function isFormElDisabled(el) {
+		switch (el.tagName) {
+			case "button":
+			case "input":
+			case "select":
+			case "textarea":
+				if (el.hasAttribute("disabled")) {
+					return true;
+				}
+
+			default:
+				if (nav.matchesSelector(el, "fieldset[disabled] > :not(legend):not(:first-of-type) *")) {
+					return true;
+				}
+		}
+		return false;
 	}
 
 
@@ -6380,11 +6718,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + brd + "/csstest.foo\"></iframe>");
 							doc.body.lastChild.onload = function (e) {
 								$del(e.target);
-								new Html5Submit(_this.form, _this.subm, checkUpload);
+								async(html5Submit)(_this.form, checkUpload);
 							};
 							return;
 						}
-						new Html5Submit(_this.form, _this.subm, checkUpload);
+						async(html5Submit)(_this.form, checkUpload);
 					};
 				}, 0);
 			} else if (Cfg.ajaxReply === 1) {
@@ -7048,193 +7386,136 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	}
 
-	function Html5Submit(form, button, fn) {
-		this.boundary = "---------------------------" + Math.round(Math.random() * 100000000000);
-		this.data = [];
-		this.busy = 0;
-		this.error = false;
-		this.url = form.action;
-		this.fn = fn;
-		$each($Q("input:not([type=\"submit\"]):not([type=\"button\"]), textarea, select", form), this.append.bind(this));
-		this.append(button);
-		this.submit();
+	function readFileArrayBuffer(file) {
+		return new Promise(function (resolve, reject) {
+			var fr = new FileReader();
+			fr.onload = function (e) {
+				return resolve(e.target.result);
+			};
+			fr.readAsArrayBuffer(file);
+		});
 	}
-	Html5Submit.prototype = {
-		append: function append(el) {
-			var file,
-			    fName,
-			    idx,
-			    fr,
-			    pre = "--" + this.boundary + "\r\nContent-Disposition: form-data; name=\"" + el.name + "\"";
-			if (el.type === "file" && el.files.length > 0) {
-				file = el.files[0];
-				fName = file.name;
-				this.data.push(pre + "; filename=\"" + (!Cfg.removeFName ? fName : " " + fName.substring(fName.lastIndexOf("."))) + "\"\r\nContent-type: " + file.type + "\r\n\r\n", null, "\r\n");
-				idx = this.data.length - 2;
-				if (!/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type)) {
-					this.data[idx] = file;
-					return;
-				}
-				fr = new FileReader();
-				fr.onload = (function (name, e) {
-					var dat = this.clearImage(e.target.result, el.obj.imgFile, Cfg.postSameImg && String(Math.round(Math.random() * 1000000)));
-					if (dat) {
-						this.data[idx] = new Blob(dat);
-						this.busy--;
-						this.submit();
-					} else {
-						this.error = true;
-						$alert(Lng.fileCorrupt[lang] + name, "upload", false);
-					}
-				}).bind(this, fName);
-				fr.readAsArrayBuffer(file);
-				this.busy++;
-			} else if (el.type !== "checkbox" && el.type !== "radio" || el.checked) {
-				this.data.push(pre + "\r\n\r\n" + el.value + "\r\n");
-			}
-		},
-		submit: function submit() {
-			var _this = this;
-			if (this.error || this.busy !== 0) {
-				return;
-			}
-			this.data.push("--" + this.boundary + "--\r\n");
-			$xhr({
-				method: "POST",
-				headers: { "Content-type": "multipart/form-data; boundary=" + this.boundary },
-				data: new Blob(this.data),
-				url: nav.fixLink(this.url),
-				onreadystatechange: function (xhr) {
-					if (xhr.readyState === 4) {
-						if (xhr.status === 200) {
-							_this.fn($DOM(xhr.responseText));
-						} else {
-							$alert(xhr.status === 0 ? Lng.noConnect[lang] : "HTTP [" + xhr.status + "] " + xhr.statusText, "upload", false);
-						}
-					}
-				}
-			});
-		},
-		readExif: function readExif(data, off, len) {
-			var i,
-			    j,
-			    dE,
-			    tag,
-			    tgLen,
-			    xRes = 0,
-			    yRes = 0,
-			    resT = 0,
-			    dv = nav.getUnsafeDataView(data, off),
-			    le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== "MM";
-			if (dv.getUint16(2, le) !== 42) {
-				return null;
-			}
-			i = dv.getUint32(4, le);
-			if (i > len) {
-				return null;
-			}
-			for (tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
-				tag = dv.getUint16(dE = i + 2 + 12 * j, le);
-				if (tag === 296) {
-					resT = dv.getUint16(dE + 8, le) - 1;
-				} else if (tag === 282 || tag === 283) {
-					dE = dv.getUint32(dE + 8, le);
-					if (dE > len) {
-						return null;
-					}
-					if (tag === 282) {
-						xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-					} else {
-						yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
-					}
-				}
-			}
-			xRes = xRes || yRes;
-			yRes = yRes || xRes;
-			return new Uint8Array([resT & 255, xRes >> 8, xRes & 255, yRes >> 8, yRes & 255]);
-		},
-		clearImage: function clearImage(data, extraData, rand) {
-			var tmp,
-			    i,
-			    len,
-			    deep,
-			    val,
-			    lIdx,
-			    jpgDat,
-			    img = nav.getUnsafeUint8Array(data),
-			    rExif = !!Cfg.removeEXIF,
-			    rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ? [img, rand] : [img];
-			if (!Cfg.postSameImg && !rExif && !extraData) {
-				return rv;
-			}
 
-			if (img[0] === 255 && img[1] === 216) {
-				for (i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
-					if (img[i] === 255) {
-						if (rExif) {
-							if (!jpgDat && deep === 1) {
-								if (img[i + 1] === 225 && img[i + 4] === 69) {
-									jpgDat = this.readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
-								} else if (img[i + 1] === 224 && img[i + 7] === 70 && (img[i + 2] !== 0 || img[i + 3] >= 14 || img[i + 15] !== 255)) {
-									jpgDat = img.subarray(i + 11, i + 16);
-								}
+	function cleanFileHelper(data, extraData, rand) {
+		var tmp,
+		    i,
+		    len,
+		    deep,
+		    val,
+		    lIdx,
+		    jpgDat,
+		    img = nav.getUnsafeUint8Array(data),
+		    rExif = !!Cfg.removeEXIF,
+		    rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ? [img, rand] : [img];
+		if (!rand && !rExif && !extraData) {
+			return rv;
+		}
+
+		if (img[0] === 255 && img[1] === 216) {
+			for (i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
+				if (img[i] === 255) {
+					if (rExif) {
+						if (!jpgDat && deep === 1) {
+							if (img[i + 1] === 225 && img[i + 4] === 69) {
+								jpgDat = readExif(data, i + 10, (img[i + 2] << 8) + img[i + 3]);
+							} else if (img[i + 1] === 224 && img[i + 7] === 70 && (img[i + 2] !== 0 || img[i + 3] >= 14 || img[i + 15] !== 255)) {
+								jpgDat = img.subarray(i + 11, i + 16);
 							}
-							if (img[i + 1] >> 4 === 14 && img[i + 1] !== 238 || img[i + 1] === 254) {
-								if (lIdx !== i) {
-									val.push(img.subarray(lIdx, i));
-								}
-								i += 2 + (img[i + 2] << 8) + img[i + 3];
-								lIdx = i;
-								continue;
+						}
+						if (img[i + 1] >> 4 === 14 && img[i + 1] !== 238 || img[i + 1] === 254) {
+							if (lIdx !== i) {
+								val.push(img.subarray(lIdx, i));
 							}
-						} else if (img[i + 1] === 216) {
-							deep++;
-							i++;
+							i += 2 + (img[i + 2] << 8) + img[i + 3];
+							lIdx = i;
 							continue;
 						}
-						if (img[i + 1] === 217 && --deep === 0) {
-							break;
-						}
+					} else if (img[i + 1] === 216) {
+						deep++;
+						i++;
+						continue;
 					}
-					i++;
-				}
-				i += 2;
-				if (!extraData && len - i > 75) {
-					i = len;
-				}
-				if (lIdx === 2) {
-					if (i !== len) {
-						rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+					if (img[i + 1] === 217 && --deep === 0) {
+						break;
 					}
-					return rv;
 				}
-				val[0] = new Uint8Array([255, 216, 255, 224, 0, 14, 74, 70, 73, 70, 0, 1, 1]);
-				val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
-				val.push(img.subarray(lIdx, i));
-				if (extraData) {
-					val.push(extraData);
-				}
-				if (rand) {
-					val.push(rand);
-				}
-				return val;
+				i++;
 			}
-
-			if (img[0] === 137 && img[1] === 80) {
-				for (i = 0, len = img.length - 7; i < len && (img[i] !== 73 || img[i + 1] !== 69 || img[i + 2] !== 78 || img[i + 3] !== 68); i++) {}
-				i += 8;
-				if (i !== len && (extraData || len - i <= 75)) {
+			i += 2;
+			if (!extraData && len - i > 75) {
+				i = len;
+			}
+			if (lIdx === 2) {
+				if (i !== len) {
 					rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 				}
 				return rv;
 			}
-
-			if (img[0] === 26 && img[1] === 69 && img[2] === 223 && img[3] === 163) {
-				return new WebmParser(data).addData(rand).getData();
+			val[0] = new Uint8Array([255, 216, 255, 224, 0, 14, 74, 70, 73, 70, 0, 1, 1]);
+			val[1] = jpgDat || new Uint8Array([0, 0, 1, 0, 1]);
+			val.push(img.subarray(lIdx, i));
+			if (extraData) {
+				val.push(extraData);
 			}
+			if (rand) {
+				val.push(rand);
+			}
+			return val;
+		}
+
+		if (img[0] === 137 && img[1] === 80) {
+			for (i = 0, len = img.length - 7; i < len && (img[i] !== 73 || img[i + 1] !== 69 || img[i + 2] !== 78 || img[i + 3] !== 68); i++) {}
+			i += 8;
+			if (i !== len && (extraData || len - i <= 75)) {
+				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+			}
+			return rv;
+		}
+
+		if (img[0] === 26 && img[1] === 69 && img[2] === 223 && img[3] === 163) {
+			return new WebmParser(data).addData(rand).getData();
+		}
+		return null;
+	}
+
+	function readExif(data, off, len) {
+		var i,
+		    j,
+		    dE,
+		    tag,
+		    tgLen,
+		    xRes = 0,
+		    yRes = 0,
+		    resT = 0,
+		    dv = nav.getUnsafeDataView(data, off),
+		    le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== "MM";
+		if (dv.getUint16(2, le) !== 42) {
 			return null;
 		}
-	};
+		i = dv.getUint32(4, le);
+		if (i > len) {
+			return null;
+		}
+		for (tgLen = dv.getUint16(i, le), j = 0; j < tgLen; j++) {
+			tag = dv.getUint16(dE = i + 2 + 12 * j, le);
+			if (tag === 296) {
+				resT = dv.getUint16(dE + 8, le) - 1;
+			} else if (tag === 282 || tag === 283) {
+				dE = dv.getUint32(dE + 8, le);
+				if (dE > len) {
+					return null;
+				}
+				if (tag === 282) {
+					xRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				} else {
+					yRes = Math.round(dv.getUint32(dE, le) / dv.getUint32(dE + 4, le));
+				}
+			}
+		}
+		xRes = xRes || yRes;
+		yRes = yRes || xRes;
+		return new Uint8Array([resT & 255, xRes >> 8, xRes & 255, yRes >> 8, yRes & 255]);
+	}
 
 	WebmParser = function (data) {
 		var EBMLId = 440786851,
@@ -9237,7 +9518,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this.data, "t21", 1);
+						return context$3$0.delegateYield(_this.data, "t24", 1);
 					case 1:
 					case "end":
 						return context$3$0.stop();
@@ -9294,9 +9575,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this._attachedImages, "t22", 1);
+						return context$3$0.delegateYield(_this._attachedImages, "t25", 1);
 					case 1:
-						return context$3$0.delegateYield(_this.data, "t23", 2);
+						return context$3$0.delegateYield(_this.data, "t26", 2);
 					case 2:
 					case "end":
 						return context$3$0.stop();
@@ -10028,8 +10309,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						context$2$0.next = 18;
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 					case 18:
-						context$2$0.t24 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t24));
+						context$2$0.t27 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t27));
 					case 20:
 					case "end":
 						return context$2$0.stop();
@@ -10452,6 +10733,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				get: function () {
 					var val = !!new Audio().canPlayType("video/webm; codecs=\"vp8,vorbis\"");
 					Object.defineProperty(this, "canPlayWebm", { value: val });
+					return val;
+				},
+				enumerable: true,
+				configurable: true
+			},
+			hasModernFormData: {
+				get: function () {
+					var val = FormData && "set" in new FormData();
+					Object.defineProperty(this, "hasModernFormData", { value: val });
 					return val;
 				},
 				enumerable: true,
@@ -11710,7 +12000,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						$pd(e);
 						pr.closeQReply();
 						$alert(Lng.deleting[lang], "deleting", true);
-						new Html5Submit(_this.el, e.target, checkDelete);
+						async(html5Submit)(_this.el, checkDelete);
 					};
 				}
 			} else if (Cfg.ajaxReply === 1) {
@@ -11837,8 +12127,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						break;
 					case 22:
 						context$3$0.prev = 22;
-						context$3$0.t25 = context$3$0["catch"](16);
-						_error = context$3$0.t25;
+						context$3$0.t28 = context$3$0["catch"](16);
+						_error = context$3$0.t28;
 					case 25:
 						infoLoadErrors(_error, -1);
 						isAjaxError = _error instanceof AjaxError;
