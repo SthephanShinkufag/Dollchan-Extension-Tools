@@ -1057,6 +1057,11 @@ function readCfg(Fn, arg) {
 		if(!Cfg.timePattern) {
 			Cfg.timePattern = aib.timePattern;
 		}
+		if(localRun) {
+			Cfg.ajaxUpdThr = 0;
+			Cfg.preLoadImgs = 0;
+			Cfg.openImgs = 0;
+		}
 		if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
 			Cfg.ajaxReply = 1;
 		}
@@ -1965,8 +1970,11 @@ function fixSettings() {
 			($q(arr[i], doc) || {}).disabled = nState;
 		}
 	}
+	toggleBox(!localRun, [
+		'input[info="ajaxUpdThr"]', 'input[info="preLoadImgs"]', 'input[info="openImgs"]'
+	]);
 	toggleBox(Cfg.ajaxUpdThr, [
-		'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
+		'input[info="updThrDelay"]', 'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
 		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="updCount"]'
 	]);
 	toggleBox(Cfg.expandImgs, [
@@ -11517,7 +11525,9 @@ function initPage() {
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	}
-	updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+	if(!localRun){
+		updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+	}
 }
 
 function scrollPage() {
@@ -12075,7 +12085,7 @@ function doScript(formEl) {
 		doc.body.style.display = '';
 		return;
 	}
-	dForm.initAjax();
+	!localRun && dForm.initAjax();
 	new Logger().log('Parse delform');
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
 	new Logger().log('Parse postform');
