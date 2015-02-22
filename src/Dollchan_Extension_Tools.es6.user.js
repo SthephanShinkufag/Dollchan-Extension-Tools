@@ -1171,7 +1171,7 @@ FormDataShim.prototype = {
 			let {name, value, type} = entry;
 			data.push('--', boundary, '\r\nContent-Disposition: form-data; name="', name, '"');
 			if(type === 'file') {
-				data.push('; filename="', name, '"\r\nContent-type: ', value.type, '\r\n\r\n',
+				data.push('; filename="', value.name, '"\r\nContent-type: ', value.type, '\r\n\r\n',
 						  value, '\r\n');
 			} else {
 				data.push('\r\n\r\n', value, '\r\n');

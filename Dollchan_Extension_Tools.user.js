@@ -3191,7 +3191,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var type = entry.type;
 				data.push("--", boundary, "\r\nContent-Disposition: form-data; name=\"", _name, "\"");
 				if (type === "file") {
-					data.push("; filename=\"", _name, "\"\r\nContent-type: ", value.type, "\r\n\r\n", value, "\r\n");
+					data.push("; filename=\"", value.name, "\"\r\nContent-type: ", value.type, "\r\n\r\n", value, "\r\n");
 				} else {
 					data.push("\r\n\r\n", value, "\r\n");
 				}
