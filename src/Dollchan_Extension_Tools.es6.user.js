@@ -781,23 +781,38 @@ function sleep(ms) {
 	return new Promise((resolve, reject) =>	setTimeout(() => resolve(), ms));
 }
 
-function $xhr(obj) {
-	var h, xhr = new XMLHttpRequest();
-	if(obj.onreadystatechange) {
-		xhr.onreadystatechange = obj.onreadystatechange.bind(window, xhr);
-	}
-	if(obj.onload) {
-		xhr.onload = obj.onload.bind(window, xhr);
-	}
-	xhr.open(obj.method, obj.url, true);
-	if(obj.responseType) {
-		xhr.responseType = obj.responseType;
-	}
-	for(h in obj.headers) {
-		xhr.setRequestHeader(h, obj.headers[h]);
-	}
-	xhr.send(obj.data || null);
-	return xhr;
+function $ajax(url, method = 'GET', extraParams = null, useNative = false) {
+	return new Promise((resolve, reject) => {
+		if(useNative || !(typeof GM_xmlhttpRequest === 'function')) {
+			let xhr = new XMLHttpRequest();
+			xhr.onload = e => resolve(e.target);
+			xhr.open(method, url, true);
+			if(extraParams) {
+				if(extraParams.responseType) {
+					xhr.responseType = extraParams.responseType;
+				}
+				let headers = extraParams.headers;
+				if(headers) {
+					for(let h in headers) {
+						if(headers.hasOwnProperty(h)) {
+							xhr.setRequestHeader(h, headers[h]);
+						}
+					}
+				}
+			}
+			xhr.send(extraParams && extraParams.data || null);
+		} else {
+			let obj = {
+				'method': method,
+				'url': url,
+				'onload': e => resolve(e)
+			};
+			if(extraParams) {
+				Object.assign(obj, extraParams);
+			}
+			GM_xmlhttpRequest(obj);
+		}
+	});
 }
 
 function TasksPool(tasksCount, taskFunc, endFn) {
@@ -1018,7 +1033,7 @@ function FormDataShim(form) {
 	// https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
 	var controls = $Q('button, input, keygen, object, select, textarea', form);
 	var formDataSet = [];
-	var fixName = name => name ? name.replace(/[^\r]\n|\r[^\n]/g, name) : '';
+	var fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
   constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
 		let field = controls[i];
@@ -1296,7 +1311,8 @@ function *readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+	if((!nav.canHTML5Post || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+		Lng['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
 	if(aib.tiny) {
@@ -2608,9 +2624,7 @@ function getCfgCommon() {
 				optSel('scrUpdIntrv', false, null),
 				$btn(Lng.checkNow[lang], '', function() {
 					$alert(Lng.loading[lang], 'updavail', true);
-					checkForUpdates(true, function(html) {
-						$alert(html, 'updavail', false);
-					});
+					checkForUpdates(true).then(html => $alert(html, 'updavail', false), emptyFn);
 				})
 			])
 		])),
@@ -3529,6 +3543,9 @@ KeyEditListener.prototype = {
 
 function initMessageFunctions() {
 	window.addEventListener('message', function(e) {
+		if(typeof e.data !== 'string') {
+			return;
+		}
 		var temp, data = e.data.substring(1);
 		switch(e.data[0]) {
 		case 'A':
@@ -3676,23 +3693,29 @@ function addImgFileIcon(aEl, fName, info) {
 }
 
 function *downloadImgDataHelper(url, repeatOnError) {
-	var isAb, e = yield downloadObjInfo({'method': 'GET', 'url': url});
-	if(!e) {
-		return null;
+	var xhr;
+	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
+		xhr = yield $ajax(url, 'GET', {overrideMimeType: 'text/plain; charset=x-user-defined'});
+	} else {
+		try {
+			xhr = yield $ajax(url, 'GET', {responseType: 'arraybuffer'}, true);
+		} catch(e) {
+			return null;
+		}
 	}
-	isAb = e.responseType === 'arraybuffer';
-	if(e.status === 0 && isAb) {
-		return new Uint8Array(e.response);
-	} else if(e.status !== 200) {
-		if(e.status === 404 || !repeatOnError) {
+	let isAb = xhr.responseType === 'arraybuffer';
+	if(xhr.status === 0 && isAb) {
+		return new Uint8Array(xhr.response);
+	} else if(xhr.status !== 200) {
+		if(xhr.status === 404 || !repeatOnError) {
 			return null;
 		} else {
 			return yield* downloadImgDataHelper(url, false);
 		}
 	} else if(isAb) {
-		return new Uint8Array(e.response);
+		return new Uint8Array(xhr.response);
 	} else {
-		for(let len, i = 0, txt = e.responseText, rv = new Uint8Array(len = txt.length); i < len; ++i) {
+		for(let len, i = 0, txt = xhr.responseText, rv = new Uint8Array(len = txt.length); i < len; ++i) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
@@ -3701,27 +3724,6 @@ function *downloadImgDataHelper(url, repeatOnError) {
 
 function downloadImgData(url) {
 	return async(downloadImgDataHelper)(url, true);
-}
-
-function downloadObjInfo(obj) {
-	return new Promise((resolve, reject) => {
-		obj['onreadystatechange'] = (e) => {
-			if(e.readyState === 4) {
-				resolve(e);
-			}
-		};
-		if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
-			obj.overrideMimeType = 'text/plain; charset=x-user-defined';
-			GM_xmlhttpRequest(obj);
-		} else {
-			obj.responseType = 'arraybuffer';
-			try {
-				$xhr(obj);
-			} catch(e) {
-				resolve(null);
-			}
-		}
-	});
 }
 
 function preloadImages(post) {
@@ -4056,33 +4058,6 @@ DateTime.prototype = {
 // PLAYER
 // ===========================================================================================================
 
-function loadYtubeTitle(id) {
-	return new Promise((resolve, reject) => GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
-			'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published',
-		'onreadystatechange'(xhr) {
-			if(xhr.readyState === 4) {
-				resolve(xhr);
-			}
-		}
-	}));
-}
-
-function getVimeoTitle(link, m) {
-	GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json',
-		'onload'(xhr) {
-			var json = JSON.parse(xhr.responseText)[0],
-				date = new RegExp (/(.*)\s(.*)?/).exec(json["upload_date"]);
-			link.textContent = json["title"];
-			link.title = Lng.author[lang] + json["user_name"] + ', ' +
-				Lng.views[lang] + json["stats_number_of_plays"] + ', ' + Lng.published[lang] + date[1];
-		}
-	});
-}
-
 function Videos(post, player = null, playerInfo = null) {
 	this.post = post;
 	this.vData = [];
@@ -4108,7 +4083,8 @@ Videos._getTitleLoader = function() {
 			return TasksPool.pause(3e3);
 		}
 		var entry, title, author, views, publ, vData, [link, videoObj, id] = data,
-			xhr = yield loadYtubeTitle(id);
+			xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
+				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published');
 		try {
 			if(xhr.status === 200) {
 				entry = JSON.parse(xhr.responseText).entry;
@@ -4259,7 +4235,14 @@ Videos.prototype = {
 			} else {
 				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 				if(!isYtube && Cfg.YTubeTitles) {
-					getVimeoTitle(link, m);
+					// FIXME: use tasks pool
+					$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json').then(xhr => {
+						var json = JSON.parse(xhr.responseText)[0],
+							date = new RegExp (/(.*)\s(.*)?/).exec(json["upload_date"]);
+						link.textContent = json["title"];
+						link.title = Lng.author[lang] + json["user_name"] + ', ' +
+							Lng.views[lang] + json["stats_number_of_plays"] + ', ' + Lng.published[lang] + date[1];
+					});
 				}
 			}
 		} else {
@@ -4347,12 +4330,10 @@ Videos.prototype = {
 		} else {
 			el.innerHTML = '<a href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-vimeo" src=""' + wh;
-			GM_xmlhttpRequest({
-				'method': 'GET',
-				'url': aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json',
-				'onload'(xhr) {
+			$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json').then(xhr => {
+				try {
 					el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
-				}
+				} catch(e) {}
 			});
 		}
 	}
@@ -4406,53 +4387,35 @@ function AjaxError(code, message) {
 AjaxError.Success = Object.freeze(new AjaxError(200, ''));
 
 function ajaxLoad(url, returnForm = true, parseDOM = true) {
-	return new Promise((resolve, reject) => GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': nav.fixLink(url),
-		'onreadystatechange'(xhr) {
-			if(xhr.readyState !== 4) {
-				return;
+	return $ajax(nav.fixLink(url)).then(xhr => {
+		if(xhr.status !== 200) {
+			throw new AjaxError(xhr.status, xhr.statusText);
+		} else if(parseDOM) {
+			var el, text = xhr.responseText;
+			if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
-			if(xhr.status !== 200) {
-				reject(new AjaxError(xhr.status, xhr.statusText));
-			} else if(parseDOM) {
-				var el, text = xhr.responseText;
-				if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
-					el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-				}
-				if(el) {
-					resolve(el);
-				} else {
-					reject(new AjaxError(0, Lng.errCorruptData[lang]));
-				}
+			if(el) {
+				return el;
 			} else {
-				resolve(null);
+				throw new AjaxError(0, Lng.errCorruptData[lang]);
 			}
+		} else {
+			return null;
 		}
-	}));
+	});
 }
 
 function getJsonPosts(url) {
-	return new Promise((resolve, reject) => GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': nav.fixLink(url),
-		'onreadystatechange'(xhr) {
-			if(xhr.readyState !== 4) {
-				return;
-			}
-			if(xhr.status === 304) {
-				resolve(null);
-			} else if(xhr.status === 200) {
-				try {
-					resolve(JSON.parse(xhr.responseText));
-				} catch(e) {
-					reject(e);
-				}
-			} else {
-				reject(new AjaxError(xht.status, xhr.message));
-			}
+	return $ajax(nav.fixLink(url)).then(xhr => {
+		if(xhr.status === 304) {
+			return null;
 		}
-	}));
+		if(xhr.status === 200) {
+			return JSON.parse(xhr.responseText);
+		}
+		throw new AjaxError(xht.status, xhr.message);
+	});
 }
 
 function loadFavorThread(node) {
@@ -4595,7 +4558,7 @@ Spells.decompileSpell = function(type, neg, val, scope) {
 				names.push(bits[bit]);
 			}
 		}
-		return spell + '(' + temp.join(',') + ')';
+		return spell + '(' + names.join(',') + ')';
 	}
 	// #num, #tlen
 	else if(type === 15 || type === 11) {
@@ -6322,42 +6285,36 @@ PostForm.prototype = {
 		this.subm.addEventListener('click', e => {
 			var temp, val = this.txta.value;
 			if(aib._2chru && !aib.reqCaptcha) {
-				GM_xmlhttpRequest({
-					'method': 'GET',
-					'url': '/' + brd + '/api/requires-captcha',
-					'onreadystatechange': xhr => {
-						if(xhr.readyState !== 4 || xhr.status !== 200) {
-							return;
-						}
-						aib.reqCaptcha = true;
-						if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
-							this.subm.click();
-							return;
-						}
-						$id('captcha_tr').style.display = 'table-row';
-						$id('captchaimage').src = '/' + brd + '/captcha?' + Math.random();
-						$after(this.cap, $new('span', {
-							'class': 'shortened',
-							'style': 'margin: 0px 0.5em;',
-							'text': 'проверить капчу'}, {
-							'click'() { GM_xmlhttpRequest({
-								'method': 'POST',
-								'url': '/' + brd + '/api/validate-captcha',
-								'onreadystatechange': str => {
-									if(str.readyState === 4 && str.status === 200) {
-										if(JSON.parse(str.responseText).status === 'ok') {
-											this.innerHTML = 'можно постить';
-										} else {
-											this.innerHTML = 'неверная капча';
-											setTimeout(el => {
-												this.innerHTML = 'проверить капчу';
-											}, 1000);
-										}
+				$ajax('/' + brd + '/api/requires-captcha').then(xhr => {
+					if(xhr.status !== 200) {
+						return;
+					}
+					aib.reqCaptcha = true;
+					if(JSON.parse(xhr.responseText)['requires-captcha'] !== '1') {
+						this.subm.click();
+						return;
+					}
+					$id('captcha_tr').style.display = 'table-row';
+					$id('captchaimage').src = '/' + brd + '/captcha?' + Math.random();
+					$after(this.cap, $new('span', {
+						'class': 'shortened',
+						'style': 'margin: 0px 0.5em;',
+						'text': 'проверить капчу'}, {
+						'click'() {
+							$ajax('/' + brd + '/api/validate-captcha', 'POST').then(xhr => {
+								if(xhr.status === 200) {
+									if(JSON.parse(xhr.responseText).status === 'ok') {
+										this.innerHTML = 'можно постить';
+									} else {
+										this.innerHTML = 'неверная капча';
+										setTimeout(el => {
+											this.innerHTML = 'проверить капчу';
+										}, 1000);
 									}
 								}
-							}); }
-						}));
-					}
+							});
+						}
+					}));
 				});
 				$pd(e);
 				return;
@@ -6440,11 +6397,11 @@ PostForm.prototype = {
 							brd + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = e => {
 							$del(e.target);
-							async(html5Submit)(this.form, checkUpload);
+							spawn(html5Submit, this.form).then(checkUpload, err => { throw err; });
 						};
 						return;
 					}
-					async(html5Submit)(this.form, checkUpload);
+					spawn(html5Submit, this.form).then(checkUpload, err => { throw err; });
 				};
 			}, 0);
 		} else if(Cfg.ajaxReply === 1) {
@@ -7038,7 +6995,7 @@ function checkDelete(dc) {
 	}
 }
 
-function *html5Submit(form, fn) {
+function *html5Submit(form) {
 	var fData;
 	if(nav.hasModernFormData) {
 		fData = new FormData(form);
@@ -7074,28 +7031,25 @@ function *html5Submit(form, fn) {
 			}
 		}
 	}
-	let submitOpts = {
-		'method': 'POST',
-		'url': nav.fixLink(form.action),
-		'onreadystatechange'(xhr) {
-			if(xhr.readyState === 4) {
-				if(xhr.status === 200) {
-					fn($DOM(xhr.responseText));
-				} else {
-					$alert(xhr.status === 0 ? Lng.noConnect[lang] :
-						'HTTP [' + xhr.status + '] ' + xhr.statusText, 'upload', false);
-				}
-			}
+	let xhr;
+	try {
+		if(nav.hasModernFormData) {
+			xhr = yield $ajax(nav.fixLink(form.action), 'POST', {data: fData}, true);
+		} else {
+			let [boundary, data] = fData.getSubmitData();
+			xhr = (yield $ajax(nav.fixLink(form.action), 'POST', {
+				'Content-type': 'multipart/form-data; boundary=' + boundary,
+				data: fData
+			}, true));
 		}
-	};
-	if(nav.hasModernFormData) {
-		submitOpts['data'] = fData;
-	} else {
-		let [boundary, data] = fData.getSubmitData();
-		submitOpts['headers'] = {'Content-type': 'multipart/form-data; boundary=' + boundary};
-		submitOpts['data'] = data;
+		if(xhr.status === 200) {
+			return $DOM(xhr.responseText);
+		} else {
+			throw new AjaxError(xhr.status, xhr.statusText);
+		}
+	} catch(e) {
+		$alert(getErrorMessage(e), 'upload', false);
 	}
-	$xhr(submitOpts);
 }
 
 function *cleanFile(fileEl, file) {
@@ -10040,6 +9994,27 @@ function getNavFuncs() {
 		String.prototype.contains = function(s) {
 			return this.indexOf(s) !== -1;
 		};
+		String.prototype.startsWith = function(s) {
+			return this.indexOf(s) === 0;
+		};
+	}
+	if(!('repeat' in String.prototype)) {
+		String.prototype.repeat = function(nTimes) {
+		  return new Array(nTimes + 1).join(this.valueOf());
+		};
+	}
+	if(!('clz32' in Math)) {
+		Math.clz32 = function(x) {
+			return x < 1 ? x === 0 ? 32 : 0 : 31 - ((Math.log(x) / Math.LN2) >> 0);
+		};
+	}
+	if(!('assign' in Object)) {
+		Object.assign = function(a, b) {
+			for(var i in b) {
+				a[i] = b[i];
+			}
+			return a;
+		};
 	}
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
@@ -10058,9 +10033,6 @@ function getNavFuncs() {
 			(!chrome || !GM_setValue.toString().contains('not supported')),
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
-	if(typeof GM_xmlhttpRequest !== 'function') {
-		window.GM_xmlhttpRequest = $xhr;
-	}
 	return {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');
@@ -10092,9 +10064,18 @@ function getNavFuncs() {
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
 		},
+		get canHTML5Post() {
+			var val = false;
+			try {
+				new File([''], '');
+				val = true;
+			} catch(e) {}
+			Object.defineProperty(this, 'canHTML5Post', { value: val });
+			return val;
+		},
 		get hasWorker() {
 			var val = false;
-			if(!nav.Firefox) { // see https://github.com/greasemonkey/greasemonkey/issues/2034
+			if(!this.Firefox) { // see https://github.com/greasemonkey/greasemonkey/issues/2034
 				try {
 					val = 'Worker' in window;
 				} catch(e) {}
@@ -11268,7 +11249,7 @@ DelForm.prototype = {
 					$pd(e);
 					pr.closeQReply();
 					$alert(Lng.deleting[lang], 'deleting', true);
-					async(html5Submit)(this.el, checkDelete);
+					spawn(html5Submit, this.el).then(checkDelete, err => { throw err; });
 				};
 			}
 		} else if(Cfg.ajaxReply === 1) {
@@ -11711,9 +11692,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 function initPage() {
 	if(Cfg.updScript) {
-		checkForUpdates(false, function(html) {
-			$alert(html, 'updavail', false);
-		});
+		checkForUpdates(false, html => $alert(html, 'updavail', false), emptyFn);
 	}
 	if(TNum) {
 		if(Cfg.rePageTitle) {
@@ -11752,29 +11731,26 @@ function scrollPage() {
 	}, 0);
 }
 
-function checkForUpdates(isForce, fn) {
-	var day, temp = Cfg.scrUpdIntrv;
-	if(!isForce) {
-		day = 2 * 1000 * 60 * 60 * 24;
-		switch(temp) {
-		case 0: temp = day; break;
-		case 1: temp = day * 2; break;
-		case 2: temp = day * 7; break;
-		case 3: temp = day * 14; break;
-		default: temp = day * 30;
-		}
-		if(Date.now() - +comCfg.lastUpd < temp) {
-			return;
-		}
-	}
-	GM_xmlhttpRequest({
-		'method': 'GET',
-		'url': 'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
-		'headers': {'Content-Type': 'text/plain'},
-		'onreadystatechange'(xhr) {
-			if(xhr.readyState !== 4) {
-				return;
+function checkForUpdates(isForce) {
+	return new Promise((resolve, reject) => {
+		var day, temp = Cfg.scrUpdIntrv;
+		if(!isForce) {
+			day = 2 * 1000 * 60 * 60 * 24;
+			switch(temp) {
+			case 0: temp = day; break;
+			case 1: temp = day * 2; break;
+			case 2: temp = day * 7; break;
+			case 3: temp = day * 14; break;
+			default: temp = day * 30;
 			}
+			if(Date.now() - +comCfg.lastUpd < temp) {
+				reject();
+			}
+		}
+		$ajax('https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
+			 'GET',
+			 {'Content-Type': 'text/plain'}
+		).then(xhr => {
 			if(xhr.status === 200) {
 				var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),
 					cVer = version.split('.'),
@@ -11783,7 +11759,7 @@ function checkForUpdates(isForce, fn) {
 					isUpd = false;
 				if(!dVer) {
 					if(isForce) {
-						fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>');
+						resolve('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>');
 					}
 					return;
 				}
@@ -11798,15 +11774,15 @@ function checkForUpdates(isForce, fn) {
 					i++;
 				}
 				if(isUpd) {
-					fn('<a style="color: blue; font-weight: bold;" href="https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js">' +
+					resolve('<a style="color: blue; font-weight: bold;" href="https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js">' +
 					Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
-					fn(Lng.haveLatest[lang]);
+					resolve(Lng.haveLatest[lang]);
 				}
 			} else if(isForce) {
-				fn('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>');
+				resolve('<div style="color: red; font-weigth: bold;">' + Lng.noConnect[lang] + '</div>');
 			}
-		}
+		});
 	});
 }
 

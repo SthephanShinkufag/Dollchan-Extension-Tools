@@ -16,9 +16,10 @@ var paths = {
 
 gulp.task('make', function() {
 	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-		.pipe(strip())
 		.pipe(babel())
-		.pipe(headerfooter.header('src/browser-polyfill.js'))
+		.pipe(headerfooter.header('src/regenerator-runtime.js'))
+		.pipe(headerfooter.header('src/core-js.custom.js'))
+		.pipe(strip())
 		.pipe(headerfooter.header('Dollchan_Extension_Tools.meta.js'))
 		.pipe(dest('', {basename: 'Dollchan_Extension_Tools.user.'}))
 		.pipe(gulp.dest('./'));

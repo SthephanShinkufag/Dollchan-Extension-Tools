@@ -16,9 +16,1406 @@
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){(function(global){"use strict";if(global._babelPolyfill){throw new Error("only one instance of babel/polyfill is allowed")}global._babelPolyfill=true;require("core-js/shim");require("regenerator-babel/runtime")}).call(this,typeof global!=="undefined"?global:typeof self!=="undefined"?self:typeof window!=="undefined"?window:{})},{"core-js/shim":2,"regenerator-babel/runtime":3}],2:[function(require,module,exports){!function(global,framework,undefined){"use strict";var OBJECT="Object",FUNCTION="Function",ARRAY="Array",STRING="String",NUMBER="Number",REGEXP="RegExp",DATE="Date",MAP="Map",SET="Set",WEAKMAP="WeakMap",WEAKSET="WeakSet",SYMBOL="Symbol",PROMISE="Promise",MATH="Math",ARGUMENTS="Arguments",PROTOTYPE="prototype",CONSTRUCTOR="constructor",TO_STRING="toString",TO_STRING_TAG=TO_STRING+"Tag",TO_LOCALE="toLocaleString",HAS_OWN="hasOwnProperty",FOR_EACH="forEach",ITERATOR="iterator",FF_ITERATOR="@@"+ITERATOR,PROCESS="process",CREATE_ELEMENT="createElement",Function=global[FUNCTION],Object=global[OBJECT],Array=global[ARRAY],String=global[STRING],Number=global[NUMBER],RegExp=global[REGEXP],Date=global[DATE],Map=global[MAP],Set=global[SET],WeakMap=global[WEAKMAP],WeakSet=global[WEAKSET],Symbol=global[SYMBOL],Math=global[MATH],TypeError=global.TypeError,RangeError=global.RangeError,setTimeout=global.setTimeout,setImmediate=global.setImmediate,clearImmediate=global.clearImmediate,parseInt=global.parseInt,isFinite=global.isFinite,process=global[PROCESS],nextTick=process&&process.nextTick,document=global.document,html=document&&document.documentElement,navigator=global.navigator,define=global.define,ArrayProto=Array[PROTOTYPE],ObjectProto=Object[PROTOTYPE],FunctionProto=Function[PROTOTYPE],Infinity=1/0,DOT=".",CONSOLE_METHODS="assert,clear,count,debug,dir,dirxml,error,exception,"+"group,groupCollapsed,groupEnd,info,isIndependentlyComposed,log,"+"markTimeline,profile,profileEnd,table,time,timeEnd,timeline,"+"timelineEnd,timeStamp,trace,warn";function isObject(it){return it!==null&&(typeof it=="object"||typeof it=="function")}function isFunction(it){return typeof it=="function"}var isNative=ctx(/./.test,/\[native code\]\s*\}\s*$/,1);var toString=ObjectProto[TO_STRING];function setToStringTag(it,tag,stat){if(it&&!has(it=stat?it:it[PROTOTYPE],SYMBOL_TAG))hidden(it,SYMBOL_TAG,tag)}function cof(it){return toString.call(it).slice(8,-1)}function classof(it){var O,T;return it==undefined?it===undefined?"Undefined":"Null":typeof(T=(O=Object(it))[SYMBOL_TAG])=="string"?T:cof(O)}var call=FunctionProto.call,apply=FunctionProto.apply,REFERENCE_GET;function part(){var fn=assertFunction(this),length=arguments.length,args=Array(length),i=0,_=path._,holder=false;while(length>i)if((args[i]=arguments[i++])===_)holder=true;return function(){var that=this,_length=arguments.length,i=0,j=0,_args;if(!holder&&!_length)return invoke(fn,args,that);_args=args.slice();if(holder)for(;length>i;i++)if(_args[i]===_)_args[i]=arguments[j++];while(_length>j)_args.push(arguments[j++]);return invoke(fn,_args,that)}}function ctx(fn,that,length){assertFunction(fn);if(~length&&that===undefined)return fn;switch(length){case 1:return function(a){return fn.call(that,a)};case 2:return function(a,b){return fn.call(that,a,b)};case 3:return function(a,b,c){return fn.call(that,a,b,c)}}return function(){return fn.apply(that,arguments)}}function invoke(fn,args,that){var un=that===undefined;switch(args.length|0){case 0:return un?fn():fn.call(that);case 1:return un?fn(args[0]):fn.call(that,args[0]);case 2:return un?fn(args[0],args[1]):fn.call(that,args[0],args[1]);case 3:return un?fn(args[0],args[1],args[2]):fn.call(that,args[0],args[1],args[2]);case 4:return un?fn(args[0],args[1],args[2],args[3]):fn.call(that,args[0],args[1],args[2],args[3]);case 5:return un?fn(args[0],args[1],args[2],args[3],args[4]):fn.call(that,args[0],args[1],args[2],args[3],args[4])}return fn.apply(that,args)}function construct(target,argumentsList){var proto=assertFunction(arguments.length<3?target:arguments[2])[PROTOTYPE],instance=create(isObject(proto)?proto:ObjectProto),result=apply.call(target,instance,argumentsList);return isObject(result)?result:instance}var create=Object.create,getPrototypeOf=Object.getPrototypeOf,setPrototypeOf=Object.setPrototypeOf,defineProperty=Object.defineProperty,defineProperties=Object.defineProperties,getOwnDescriptor=Object.getOwnPropertyDescriptor,getKeys=Object.keys,getNames=Object.getOwnPropertyNames,getSymbols=Object.getOwnPropertySymbols,isFrozen=Object.isFrozen,has=ctx(call,ObjectProto[HAS_OWN],2),ES5Object=Object,Dict;function toObject(it){return ES5Object(assertDefined(it))}function returnIt(it){return it}function returnThis(){return this}function get(object,key){if(has(object,key))return object[key]}function ownKeys(it){assertObject(it);return getSymbols?getNames(it).concat(getSymbols(it)):getNames(it)}var assign=Object.assign||function(target,source){var T=Object(assertDefined(target)),l=arguments.length,i=1;while(l>i){var S=ES5Object(arguments[i++]),keys=getKeys(S),length=keys.length,j=0,key;while(length>j)T[key=keys[j++]]=S[key]}return T};function keyOf(object,el){var O=toObject(object),keys=getKeys(O),length=keys.length,index=0,key;while(length>index)if(O[key=keys[index++]]===el)return key}function array(it){return String(it).split(",")}var push=ArrayProto.push,unshift=ArrayProto.unshift,slice=ArrayProto.slice,splice=ArrayProto.splice,indexOf=ArrayProto.indexOf,forEach=ArrayProto[FOR_EACH];function createArrayMethod(type){var isMap=type==1,isFilter=type==2,isSome=type==3,isEvery=type==4,isFindIndex=type==6,noholes=type==5||isFindIndex;return function(callbackfn){var O=Object(assertDefined(this)),that=arguments[1],self=ES5Object(O),f=ctx(callbackfn,that,3),length=toLength(self.length),index=0,result=isMap?Array(length):isFilter?[]:undefined,val,res;for(;length>index;index++)if(noholes||index in self){val=self[index];res=f(val,index,O);if(type){if(isMap)result[index]=res;else if(res)switch(type){case 3:return true;case 5:return val;case 6:return index;case 2:result.push(val)}else if(isEvery)return false}}return isFindIndex?-1:isSome||isEvery?isEvery:result}}function createArrayContains(isContains){return function(el){var O=toObject(this),length=toLength(O.length),index=toIndex(arguments[1],length);if(isContains&&el!=el){for(;length>index;index++)if(sameNaN(O[index]))return isContains||index}else for(;length>index;index++)if(isContains||index in O){if(O[index]===el)return isContains||index}return!isContains&&-1}}function generic(A,B){return typeof A=="function"?A:B}var MAX_SAFE_INTEGER=9007199254740991,pow=Math.pow,abs=Math.abs,ceil=Math.ceil,floor=Math.floor,max=Math.max,min=Math.min,random=Math.random,trunc=Math.trunc||function(it){return(it>0?floor:ceil)(it)};function sameNaN(number){return number!=number}function toInteger(it){return isNaN(it)?0:trunc(it)}function toLength(it){return it>0?min(toInteger(it),MAX_SAFE_INTEGER):0}function toIndex(index,length){var index=toInteger(index);return index<0?max(index+length,0):min(index,length)}function lz(num){return num>9?num:"0"+num}function createReplacer(regExp,replace,isStatic){var replacer=isObject(replace)?function(part){return replace[part]}:replace;return function(it){return String(isStatic?it:this).replace(regExp,replacer)}}function createPointAt(toString){return function(pos){var s=String(assertDefined(this)),i=toInteger(pos),l=s.length,a,b;if(i<0||i>=l)return toString?"":undefined;a=s.charCodeAt(i);return a<55296||a>56319||i+1===l||(b=s.charCodeAt(i+1))<56320||b>57343?toString?s.charAt(i):a:toString?s.slice(i,i+2):(a-55296<<10)+(b-56320)+65536}}var REDUCE_ERROR="Reduce of empty object with no initial value";function assert(condition,msg1,msg2){if(!condition)throw TypeError(msg2?msg1+msg2:msg1)}function assertDefined(it){if(it==undefined)throw TypeError("Function called on null or undefined");return it}function assertFunction(it){assert(isFunction(it),it," is not a function!");return it}function assertObject(it){assert(isObject(it),it," is not an object!");return it}function assertInstance(it,Constructor,name){assert(it instanceof Constructor,name,": use the 'new' operator!")}function descriptor(bitmap,value){return{enumerable:!(bitmap&1),configurable:!(bitmap&2),writable:!(bitmap&4),value:value}}function simpleSet(object,key,value){object[key]=value;return object}function createDefiner(bitmap){return DESC?function(object,key,value){return defineProperty(object,key,descriptor(bitmap,value))}:simpleSet}function uid(key){return SYMBOL+"("+key+")_"+(++sid+random())[TO_STRING](36)}function getWellKnownSymbol(name,setter){return Symbol&&Symbol[name]||(setter?Symbol:safeSymbol)(SYMBOL+DOT+name)}var DESC=!!function(){try{return defineProperty({},"a",{get:function(){return 2}}).a==2}catch(e){}}(),sid=0,hidden=createDefiner(1),set=Symbol?simpleSet:hidden,safeSymbol=Symbol||uid;function assignHidden(target,src){for(var key in src)hidden(target,key,src[key]);return target}var SYMBOL_UNSCOPABLES=getWellKnownSymbol("unscopables"),ArrayUnscopables=ArrayProto[SYMBOL_UNSCOPABLES]||{},SYMBOL_SPECIES=getWellKnownSymbol("species");function setSpecies(C){if(framework||!isNative(C))defineProperty(C,SYMBOL_SPECIES,{configurable:true,get:returnThis})}var SYMBOL_ITERATOR=getWellKnownSymbol(ITERATOR),SYMBOL_TAG=getWellKnownSymbol(TO_STRING_TAG),SUPPORT_FF_ITER=FF_ITERATOR in ArrayProto,ITER=safeSymbol("iter"),KEY=1,VALUE=2,Iterators={},IteratorPrototype={},NATIVE_ITERATORS=SYMBOL_ITERATOR in ArrayProto,BUGGY_ITERATORS="keys"in ArrayProto&&!("next"in[].keys());setIterator(IteratorPrototype,returnThis);function setIterator(O,value){hidden(O,SYMBOL_ITERATOR,value);SUPPORT_FF_ITER&&hidden(O,FF_ITERATOR,value)}function createIterator(Constructor,NAME,next,proto){Constructor[PROTOTYPE]=create(proto||IteratorPrototype,{next:descriptor(1,next)});setToStringTag(Constructor,NAME+" Iterator")}function defineIterator(Constructor,NAME,value,DEFAULT){var proto=Constructor[PROTOTYPE],iter=get(proto,SYMBOL_ITERATOR)||get(proto,FF_ITERATOR)||DEFAULT&&get(proto,DEFAULT)||value;if(framework){setIterator(proto,iter);if(iter!==value){var iterProto=getPrototypeOf(iter.call(new Constructor));setToStringTag(iterProto,NAME+" Iterator",true);has(proto,FF_ITERATOR)&&setIterator(iterProto,returnThis)}}Iterators[NAME]=iter;Iterators[NAME+" Iterator"]=returnThis;return iter}function defineStdIterators(Base,NAME,Constructor,next,DEFAULT,IS_SET){function createIter(kind){return function(){return new Constructor(this,kind)}}createIterator(Constructor,NAME,next);var entries=createIter(KEY+VALUE),values=createIter(VALUE);if(DEFAULT==VALUE)values=defineIterator(Base,NAME,values,"values");else entries=defineIterator(Base,NAME,entries,"entries");if(DEFAULT){$define(PROTO+FORCED*BUGGY_ITERATORS,NAME,{entries:entries,keys:IS_SET?values:createIter(KEY),values:values})}}function iterResult(done,value){return{value:value,done:!!done}}function isIterable(it){var O=Object(it),Symbol=global[SYMBOL],hasExt=(Symbol&&Symbol[ITERATOR]||FF_ITERATOR)in O;return hasExt||SYMBOL_ITERATOR in O||has(Iterators,classof(O))}function getIterator(it){var Symbol=global[SYMBOL],ext=it[Symbol&&Symbol[ITERATOR]||FF_ITERATOR],getIter=ext||it[SYMBOL_ITERATOR]||Iterators[classof(it)];return assertObject(getIter.call(it))}function stepCall(fn,value,entries){return entries?invoke(fn,value):fn(value)}function forOf(iterable,entries,fn,that){var iterator=getIterator(iterable),f=ctx(fn,that,entries?2:1),step;while(!(step=iterator.next()).done)if(stepCall(f,step.value,entries)===false)return}var NODE=cof(process)==PROCESS,core={},path=framework?global:core,old=global.core,exportGlobal,FORCED=1,GLOBAL=2,STATIC=4,PROTO=8,BIND=16,WRAP=32,SIMPLE=64;function $define(type,name,source){var key,own,out,exp,isGlobal=type&GLOBAL,target=isGlobal?global:type&STATIC?global[name]:(global[name]||ObjectProto)[PROTOTYPE],exports=isGlobal?core:core[name]||(core[name]={});if(isGlobal)source=name;for(key in source){own=!(type&FORCED)&&target&&key in target&&(!isFunction(target[key])||isNative(target[key]));out=(own?target:source)[key];if(!framework&&isGlobal&&!isFunction(target[key]))exp=source[key];else if(type&BIND&&own)exp=ctx(out,global);else if(type&WRAP&&!framework&&target[key]==out){exp=function(param){return this instanceof out?new out(param):out(param)};exp[PROTOTYPE]=out[PROTOTYPE]}else exp=type&PROTO&&isFunction(out)?ctx(call,out):out;if(framework&&target&&!own){if(isGlobal||type&SIMPLE)target[key]=out;else delete target[key]&&hidden(target,key,out)}if(exports[key]!=out)hidden(exports,key,exp)}}if(typeof module!="undefined"&&module.exports)module.exports=core;else if(isFunction(define)&&define.amd)define(function(){return core});else exportGlobal=true;if(exportGlobal||framework){core.noConflict=function(){global.core=old;return core};global.core=core}!function(TAG,SymbolRegistry,AllSymbols,setter){if(!isNative(Symbol)){Symbol=function(description){assert(!(this instanceof Symbol),SYMBOL+" is not a "+CONSTRUCTOR);var tag=uid(description),sym=set(create(Symbol[PROTOTYPE]),TAG,tag);AllSymbols[tag]=sym;DESC&&setter&&defineProperty(ObjectProto,tag,{configurable:true,set:function(value){hidden(this,tag,value)}});return sym};hidden(Symbol[PROTOTYPE],TO_STRING,function(){return this[TAG]})}$define(GLOBAL+WRAP,{Symbol:Symbol});var symbolStatics={"for":function(key){return has(SymbolRegistry,key+="")?SymbolRegistry[key]:SymbolRegistry[key]=Symbol(key)},iterator:SYMBOL_ITERATOR,keyFor:part.call(keyOf,SymbolRegistry),species:SYMBOL_SPECIES,toStringTag:SYMBOL_TAG=getWellKnownSymbol(TO_STRING_TAG,true),unscopables:SYMBOL_UNSCOPABLES,pure:safeSymbol,set:set,useSetter:function(){setter=true},useSimple:function(){setter=false}};forEach.call(array("hasInstance,isConcatSpreadable,match,replace,search,split,toPrimitive"),function(it){symbolStatics[it]=getWellKnownSymbol(it)});$define(STATIC,SYMBOL,symbolStatics);setToStringTag(Symbol,SYMBOL);$define(STATIC+FORCED*!isNative(Symbol),OBJECT,{getOwnPropertyNames:function(it){var names=getNames(toObject(it)),result=[],key,i=0;while(names.length>i)has(AllSymbols,key=names[i++])||result.push(key);return result},getOwnPropertySymbols:function(it){var names=getNames(toObject(it)),result=[],key,i=0;while(names.length>i)has(AllSymbols,key=names[i++])&&result.push(AllSymbols[key]);return result}})}(safeSymbol("tag"),{},{},true);!function(tmp){var objectStatic={assign:assign,is:function(x,y){return x===y?x!==0||1/x===1/y:x!=x&&y!=y}};"__proto__"in ObjectProto&&function(buggy,set){try{set=ctx(call,getOwnDescriptor(ObjectProto,"__proto__").set,2);set({},ArrayProto)}catch(e){buggy=true}objectStatic.setPrototypeOf=setPrototypeOf=setPrototypeOf||function(O,proto){assertObject(O);assert(proto===null||isObject(proto),proto,": can't set as prototype!");if(buggy)O.__proto__=proto;else set(O,proto);return O}}();$define(STATIC,OBJECT,objectStatic);if(framework){tmp[SYMBOL_TAG]=DOT;if(cof(tmp)!=DOT)hidden(ObjectProto,TO_STRING,function(){return"[object "+classof(this)+"]"})}setToStringTag(Math,MATH,true);setToStringTag(global.JSON,"JSON",true)}({});!function(){function wrapObjectMethod(key,MODE){var fn=Object[key],exp=core[OBJECT][key],f=0,o={};if(!exp||isNative(exp)){o[key]=MODE==1?function(it){return isObject(it)?fn(it):it}:MODE==2?function(it){return isObject(it)?fn(it):true}:MODE==3?function(it){return isObject(it)?fn(it):false}:MODE==4?function(it,key){return fn(toObject(it),key)}:function(it){return fn(toObject(it))};try{fn(DOT)}catch(e){f=1}$define(STATIC+FORCED*f,OBJECT,o)}}wrapObjectMethod("freeze",1);wrapObjectMethod("seal",1);wrapObjectMethod("preventExtensions",1);wrapObjectMethod("isFrozen",2);wrapObjectMethod("isSealed",2);wrapObjectMethod("isExtensible",3);wrapObjectMethod("getOwnPropertyDescriptor",4);wrapObjectMethod("getPrototypeOf");wrapObjectMethod("keys");wrapObjectMethod("getOwnPropertyNames")}();!function(NAME){NAME in FunctionProto||defineProperty(FunctionProto,NAME,{configurable:true,get:function(){var match=String(this).match(/^\s*function ([^ (]*)/),name=match?match[1]:"";has(this,NAME)||defineProperty(this,NAME,descriptor(5,name));return name},set:function(value){has(this,NAME)||defineProperty(this,NAME,descriptor(0,value))}})}("name");Number("0o1")&&Number("0b1")||function(_Number,NumberProto){function toNumber(it){if(isObject(it))it=toPrimitive(it);if(typeof it=="string"&&it.length>2&&it.charCodeAt(0)==48){var binary=false;switch(it.charCodeAt(1)){case 66:case 98:binary=true;case 79:case 111:return parseInt(it.slice(2),binary?2:8)}}return+it}function toPrimitive(it){var fn,val;if(isFunction(fn=it.valueOf)&&!isObject(val=fn.call(it)))return val;if(isFunction(fn=it[TO_STRING])&&!isObject(val=fn.call(it)))return val;throw TypeError("Can't convert object to number")}Number=function Number(it){return this instanceof Number?new _Number(toNumber(it)):toNumber(it)};forEach.call(DESC?getNames(_Number):array("MAX_VALUE,MIN_VALUE,NaN,NEGATIVE_INFINITY,POSITIVE_INFINITY"),function(key){key in Number||defineProperty(Number,key,getOwnDescriptor(_Number,key))});Number[PROTOTYPE]=NumberProto;NumberProto[CONSTRUCTOR]=Number;hidden(global,NUMBER,Number)}(Number,Number[PROTOTYPE]);!function(isInteger){$define(STATIC,NUMBER,{EPSILON:pow(2,-52),isFinite:function(it){return typeof it=="number"&&isFinite(it)},isInteger:isInteger,isNaN:sameNaN,isSafeInteger:function(number){return isInteger(number)&&abs(number)<=MAX_SAFE_INTEGER},MAX_SAFE_INTEGER:MAX_SAFE_INTEGER,MIN_SAFE_INTEGER:-MAX_SAFE_INTEGER,parseFloat:parseFloat,parseInt:parseInt})}(Number.isInteger||function(it){return!isObject(it)&&isFinite(it)&&floor(it)===it});!function(){var E=Math.E,exp=Math.exp,log=Math.log,sqrt=Math.sqrt,sign=Math.sign||function(x){return(x=+x)==0||x!=x?x:x<0?-1:1};function asinh(x){return!isFinite(x=+x)||x==0?x:x<0?-asinh(-x):log(x+sqrt(x*x+1))}function expm1(x){return(x=+x)==0?x:x>-1e-6&&x<1e-6?x+x*x/2:exp(x)-1}$define(STATIC,MATH,{acosh:function(x){return(x=+x)<1?NaN:isFinite(x)?log(x/E+sqrt(x+1)*sqrt(x-1)/E)+1:x},asinh:asinh,atanh:function(x){return(x=+x)==0?x:log((1+x)/(1-x))/2},cbrt:function(x){return sign(x=+x)*pow(abs(x),1/3)},clz32:function(x){return(x>>>=0)?32-x[TO_STRING](2).length:32},cosh:function(x){return(exp(x=+x)+exp(-x))/2},expm1:expm1,fround:function(x){return new Float32Array([x])[0]},hypot:function(value1,value2){var sum=0,len1=arguments.length,len2=len1,args=Array(len1),larg=-Infinity,arg;while(len1--){arg=args[len1]=+arguments[len1];if(arg==Infinity||arg==-Infinity)return Infinity;if(arg>larg)larg=arg}larg=arg||1;while(len2--)sum+=pow(args[len2]/larg,2);return larg*sqrt(sum)},imul:function(x,y){var UInt16=65535,xn=+x,yn=+y,xl=UInt16&xn,yl=UInt16&yn;return 0|xl*yl+((UInt16&xn>>>16)*yl+xl*(UInt16&yn>>>16)<<16>>>0)},log1p:function(x){return(x=+x)>-1e-8&&x<1e-8?x-x*x/2:log(1+x)},log10:function(x){return log(x)/Math.LN10},log2:function(x){return log(x)/Math.LN2},sign:sign,sinh:function(x){return abs(x=+x)<1?(expm1(x)-expm1(-x))/2:(exp(x-1)-exp(-x-1))*(E/2)},tanh:function(x){var a=expm1(x=+x),b=expm1(-x);return a==Infinity?1:b==Infinity?-1:(a-b)/(exp(x)+exp(-x))},trunc:trunc})}();!function(fromCharCode){function assertNotRegExp(it){if(cof(it)==REGEXP)throw TypeError()}$define(STATIC,STRING,{fromCodePoint:function(x){var res=[],len=arguments.length,i=0,code;while(len>i){code=+arguments[i++];if(toIndex(code,1114111)!==code)throw RangeError(code+" is not a valid code point");res.push(code<65536?fromCharCode(code):fromCharCode(((code-=65536)>>10)+55296,code%1024+56320))}return res.join("")},raw:function(callSite){var raw=toObject(callSite.raw),len=toLength(raw.length),sln=arguments.length,res=[],i=0;while(len>i){res.push(String(raw[i++]));if(i<sln)res.push(String(arguments[i]))}return res.join("")}});$define(PROTO,STRING,{codePointAt:createPointAt(false),endsWith:function(searchString){assertNotRegExp(searchString);var that=String(assertDefined(this)),endPosition=arguments[1],len=toLength(that.length),end=endPosition===undefined?len:min(toLength(endPosition),len);searchString+="";return that.slice(end-searchString.length,end)===searchString},includes:function(searchString){assertNotRegExp(searchString);return!!~String(assertDefined(this)).indexOf(searchString,arguments[1])},repeat:function(count){var str=String(assertDefined(this)),res="",n=toInteger(count);if(0>n||n==Infinity)throw RangeError("Count can't be negative");for(;n>0;(n>>>=1)&&(str+=str))if(n&1)res+=str;return res},startsWith:function(searchString){assertNotRegExp(searchString);var that=String(assertDefined(this)),index=toLength(min(arguments[1],that.length));searchString+="";return that.slice(index,index+searchString.length)===searchString}})}(String.fromCharCode);!function(){$define(STATIC,ARRAY,{from:function(arrayLike){var O=Object(assertDefined(arrayLike)),mapfn=arguments[1],mapping=mapfn!==undefined,f=mapping?ctx(mapfn,arguments[2],2):undefined,index=0,length,result,iter,step;if(isIterable(O))for(iter=getIterator(O),result=new(generic(this,Array));!(step=iter.next()).done;index++){result[index]=mapping?f(step.value,index):step.value}else for(result=new(generic(this,Array))(length=toLength(O.length));length>index;index++){result[index]=mapping?f(O[index],index):O[index]}result.length=index;return result},of:function(){var index=0,length=arguments.length,result=new(generic(this,Array))(length);while(length>index)result[index]=arguments[index++];result.length=length;return result}});$define(PROTO,ARRAY,{copyWithin:function(target,start){var O=Object(assertDefined(this)),len=toLength(O.length),to=toIndex(target,len),from=toIndex(start,len),end=arguments[2],fin=end===undefined?len:toIndex(end,len),count=min(fin-from,len-to),inc=1;if(from<to&&to<from+count){inc=-1;from=from+count-1;to=to+count-1}while(count-->0){if(from in O)O[to]=O[from];else delete O[to];to+=inc;from+=inc}return O},fill:function(value){var O=Object(assertDefined(this)),length=toLength(O.length),index=toIndex(arguments[1],length),end=arguments[2],endPos=end===undefined?length:toIndex(end,length);while(endPos>index)O[index++]=value;return O},find:createArrayMethod(5),findIndex:createArrayMethod(6)});if(framework){forEach.call(array("find,findIndex,fill,copyWithin,entries,keys,values"),function(it){ArrayUnscopables[it]=true});SYMBOL_UNSCOPABLES in ArrayProto||hidden(ArrayProto,SYMBOL_UNSCOPABLES,ArrayUnscopables)}setSpecies(Array)}();!function(at){defineStdIterators(Array,ARRAY,function(iterated,kind){set(this,ITER,{o:toObject(iterated),i:0,k:kind})},function(){var iter=this[ITER],O=iter.o,kind=iter.k,index=iter.i++;if(!O||index>=O.length){iter.o=undefined;return iterResult(1)}if(kind==KEY)return iterResult(0,index);if(kind==VALUE)return iterResult(0,O[index]);return iterResult(0,[index,O[index]])},VALUE);Iterators[ARGUMENTS]=Iterators[ARRAY];defineStdIterators(String,STRING,function(iterated){set(this,ITER,{o:String(iterated),i:0})},function(){var iter=this[ITER],O=iter.o,index=iter.i,point;if(index>=O.length)return iterResult(1);point=at.call(O,index);iter.i+=point.length;return iterResult(0,point)})}(createPointAt(true));!function(RegExpProto,_RegExp){function assertRegExpWrapper(fn){return function(){assert(cof(this)===REGEXP);return fn(this)}}if(DESC&&!function(){try{return RegExp(/a/g,"i")=="/a/i"}catch(e){}}()){RegExp=function RegExp(pattern,flags){return new _RegExp(cof(pattern)==REGEXP&&flags!==undefined?pattern.source:pattern,flags)};forEach.call(getNames(_RegExp),function(key){key in RegExp||defineProperty(RegExp,key,{configurable:true,get:function(){return _RegExp[key]},set:function(it){_RegExp[key]=it}})});RegExpProto[CONSTRUCTOR]=RegExp;RegExp[PROTOTYPE]=RegExpProto;hidden(global,REGEXP,RegExp)}if(/./g.flags!="g")defineProperty(RegExpProto,"flags",{configurable:true,get:assertRegExpWrapper(createReplacer(/^.*\/(\w*)$/,"$1",true))});forEach.call(array("sticky,unicode"),function(key){key in/./||defineProperty(RegExpProto,key,DESC?{configurable:true,get:assertRegExpWrapper(function(){return false})}:descriptor(5,false))});setSpecies(RegExp)}(RegExp[PROTOTYPE],RegExp);isFunction(setImmediate)&&isFunction(clearImmediate)||function(ONREADYSTATECHANGE){var postMessage=global.postMessage,addEventListener=global.addEventListener,MessageChannel=global.MessageChannel,counter=0,queue={},defer,channel,port;setImmediate=function(fn){var args=[],i=1;while(arguments.length>i)args.push(arguments[i++]);queue[++counter]=function(){invoke(isFunction(fn)?fn:Function(fn),args)};defer(counter);return counter};clearImmediate=function(id){delete queue[id]};function run(id){if(has(queue,id)){var fn=queue[id];delete queue[id];fn()}}function listner(event){run(event.data)}if(NODE){defer=function(id){nextTick(part.call(run,id))}}else if(addEventListener&&isFunction(postMessage)&&!global.importScripts){defer=function(id){postMessage(id,"*")};addEventListener("message",listner,false)}else if(isFunction(MessageChannel)){channel=new MessageChannel;port=channel.port2;channel.port1.onmessage=listner;defer=ctx(port.postMessage,port,1)}else if(document&&ONREADYSTATECHANGE in document[CREATE_ELEMENT]("script")){defer=function(id){html.appendChild(document[CREATE_ELEMENT]("script"))[ONREADYSTATECHANGE]=function(){html.removeChild(this);run(id)}}}else{defer=function(id){setTimeout(run,0,id)}}}("onreadystatechange");$define(GLOBAL+BIND,{setImmediate:setImmediate,clearImmediate:clearImmediate});!function(Promise,test){isFunction(Promise)&&isFunction(Promise.resolve)&&Promise.resolve(test=new Promise(function(){}))==test||function(asap,DEF){function isThenable(o){var then;if(isObject(o))then=o.then;return isFunction(then)?then:false}function notify(def){var chain=def.chain;chain.length&&asap(function(){var msg=def.msg,ok=def.state==1,i=0;while(chain.length>i)!function(react){var cb=ok?react.ok:react.fail,ret,then;try{if(cb){ret=cb===true?msg:cb(msg);if(ret===react.P){react.rej(TypeError(PROMISE+"-chain cycle"))}else if(then=isThenable(ret)){then.call(ret,react.res,react.rej)}else react.res(ret)}else react.rej(msg)}catch(err){react.rej(err)}}(chain[i++]);chain.length=0})}function resolve(msg){var def=this,then,wrapper;if(def.done)return;def.done=true;def=def.def||def;try{if(then=isThenable(msg)){wrapper={def:def,done:false};then.call(msg,ctx(resolve,wrapper,1),ctx(reject,wrapper,1))}else{def.msg=msg;def.state=1;notify(def)}}catch(err){reject.call(wrapper||{def:def,done:false},err)}}function reject(msg){var def=this;if(def.done)return;def.done=true;def=def.def||def;def.msg=msg;def.state=2;notify(def)}function getConstructor(C){var S=assertObject(C)[SYMBOL_SPECIES];return S!=undefined?S:C}Promise=function(executor){assertFunction(executor);assertInstance(this,Promise,PROMISE);var def={chain:[],state:0,done:false,msg:undefined};hidden(this,DEF,def);try{executor(ctx(resolve,def,1),ctx(reject,def,1))}catch(err){reject.call(def,err)}};assignHidden(Promise[PROTOTYPE],{then:function(onFulfilled,onRejected){var S=assertObject(assertObject(this)[CONSTRUCTOR])[SYMBOL_SPECIES];var react={ok:isFunction(onFulfilled)?onFulfilled:true,fail:isFunction(onRejected)?onRejected:false},P=react.P=new(S!=undefined?S:Promise)(function(resolve,reject){react.res=assertFunction(resolve);react.rej=assertFunction(reject)}),def=this[DEF];def.chain.push(react);def.state&&notify(def);return P},"catch":function(onRejected){return this.then(undefined,onRejected)}});assignHidden(Promise,{all:function(iterable){var Promise=getConstructor(this),values=[];return new Promise(function(resolve,reject){forOf(iterable,false,push,values);var remaining=values.length,results=Array(remaining);if(remaining)forEach.call(values,function(promise,index){Promise.resolve(promise).then(function(value){results[index]=value;--remaining||resolve(results)},reject)});else resolve(results)})},race:function(iterable){var Promise=getConstructor(this);return new Promise(function(resolve,reject){forOf(iterable,false,function(promise){Promise.resolve(promise).then(resolve,reject)})})},reject:function(r){return new(getConstructor(this))(function(resolve,reject){reject(r)})},resolve:function(x){return isObject(x)&&DEF in x&&getPrototypeOf(x)===this[PROTOTYPE]?x:new(getConstructor(this))(function(resolve,reject){resolve(x)})}})}(nextTick||setImmediate,safeSymbol("def"));setToStringTag(Promise,PROMISE);setSpecies(Promise);$define(GLOBAL+FORCED*!isNative(Promise),{Promise:Promise})}(global[PROMISE]);!function(){var UID=safeSymbol("uid"),O1=safeSymbol("O1"),WEAK=safeSymbol("weak"),LEAK=safeSymbol("leak"),LAST=safeSymbol("last"),FIRST=safeSymbol("first"),SIZE=DESC?safeSymbol("size"):"size",uid=0,tmp={};function getCollection(C,NAME,methods,commonMethods,isMap,isWeak){var ADDER=isMap?"set":"add",proto=C&&C[PROTOTYPE],O={};function initFromIterable(that,iterable){if(iterable!=undefined)forOf(iterable,isMap,that[ADDER],that);return that}function fixSVZ(key,chain){var method=proto[key];if(framework)proto[key]=function(a,b){var result=method.call(this,a===0?0:a,b);return chain?this:result}}if(!isNative(C)||!(isWeak||!BUGGY_ITERATORS&&has(proto,FOR_EACH)&&has(proto,"entries"))){C=isWeak?function(iterable){assertInstance(this,C,NAME);set(this,UID,uid++);initFromIterable(this,iterable)}:function(iterable){var that=this;assertInstance(that,C,NAME);set(that,O1,create(null));set(that,SIZE,0);set(that,LAST,undefined);set(that,FIRST,undefined);initFromIterable(that,iterable)};assignHidden(assignHidden(C[PROTOTYPE],methods),commonMethods);isWeak||defineProperty(C[PROTOTYPE],"size",{get:function(){return assertDefined(this[SIZE])}})}else{var Native=C,inst=new C,chain=inst[ADDER](isWeak?{}:-0,1),buggyZero;if(!NATIVE_ITERATORS||!C.length){C=function(iterable){assertInstance(this,C,NAME);return initFromIterable(new Native,iterable)};C[PROTOTYPE]=proto;if(framework)proto[CONSTRUCTOR]=C}isWeak||inst[FOR_EACH](function(val,key){buggyZero=1/key===-Infinity});if(buggyZero){fixSVZ("delete");fixSVZ("has");isMap&&fixSVZ("get")}if(buggyZero||chain!==inst)fixSVZ(ADDER,true)}setToStringTag(C,NAME);setSpecies(C);O[NAME]=C;$define(GLOBAL+WRAP+FORCED*!isNative(C),O);isWeak||defineStdIterators(C,NAME,function(iterated,kind){set(this,ITER,{o:iterated,k:kind})},function(){var iter=this[ITER],kind=iter.k,entry=iter.l;while(entry&&entry.r)entry=entry.p;if(!iter.o||!(iter.l=entry=entry?entry.n:iter.o[FIRST])){iter.o=undefined;return iterResult(1)}if(kind==KEY)return iterResult(0,entry.k);if(kind==VALUE)return iterResult(0,entry.v);return iterResult(0,[entry.k,entry.v])},isMap?KEY+VALUE:VALUE,!isMap);return C}function fastKey(it,create){if(!isObject(it))return(typeof it=="string"?"S":"P")+it;if(isFrozen(it))return"F";if(!has(it,UID)){if(!create)return"E";hidden(it,UID,++uid)}return"O"+it[UID]}function getEntry(that,key){var index=fastKey(key),entry;if(index!="F")return that[O1][index];for(entry=that[FIRST];entry;entry=entry.n){if(entry.k==key)return entry}}function def(that,key,value){var entry=getEntry(that,key),prev,index;if(entry)entry.v=value;else{that[LAST]=entry={i:index=fastKey(key,true),k:key,v:value,p:prev=that[LAST],n:undefined,r:false};if(!that[FIRST])that[FIRST]=entry;if(prev)prev.n=entry;that[SIZE]++;if(index!="F")that[O1][index]=entry}return that}var collectionMethods={clear:function(){for(var that=this,data=that[O1],entry=that[FIRST];entry;entry=entry.n){entry.r=true;if(entry.p)entry.p=entry.p.n=undefined;delete data[entry.i]}that[FIRST]=that[LAST]=undefined;that[SIZE]=0},"delete":function(key){var that=this,entry=getEntry(that,key);if(entry){var next=entry.n,prev=entry.p;delete that[O1][entry.i];entry.r=true;if(prev)prev.n=next;if(next)next.p=prev;if(that[FIRST]==entry)that[FIRST]=next;if(that[LAST]==entry)that[LAST]=prev;
+!function(global, framework, undefined){
+'use strict';
 
-that[SIZE]--}return!!entry},forEach:function(callbackfn){var f=ctx(callbackfn,arguments[1],3),entry;while(entry=entry?entry.n:this[FIRST]){f(entry.v,entry.k,this);while(entry&&entry.r)entry=entry.p}},has:function(key){return!!getEntry(this,key)}};Map=getCollection(Map,MAP,{get:function(key){var entry=getEntry(this,key);return entry&&entry.v},set:function(key,value){return def(this,key===0?0:key,value)}},collectionMethods,true);Set=getCollection(Set,SET,{add:function(value){return def(this,value=value===0?0:value,value)}},collectionMethods);function defWeak(that,key,value){if(isFrozen(assertObject(key)))leakStore(that).set(key,value);else{has(key,WEAK)||hidden(key,WEAK,{});key[WEAK][that[UID]]=value}return that}function leakStore(that){return that[LEAK]||hidden(that,LEAK,new Map)[LEAK]}var weakMethods={"delete":function(key){if(!isObject(key))return false;if(isFrozen(key))return leakStore(this)["delete"](key);return has(key,WEAK)&&has(key[WEAK],this[UID])&&delete key[WEAK][this[UID]]},has:function(key){if(!isObject(key))return false;if(isFrozen(key))return leakStore(this).has(key);return has(key,WEAK)&&has(key[WEAK],this[UID])}};WeakMap=getCollection(WeakMap,WEAKMAP,{get:function(key){if(isObject(key)){if(isFrozen(key))return leakStore(this).get(key);if(has(key,WEAK))return key[WEAK][this[UID]]}},set:function(key,value){return defWeak(this,key,value)}},weakMethods,true,true);if(framework&&(new WeakMap).set(Object.freeze(tmp),7).get(tmp)!=7){forEach.call(array("delete,has,get,set"),function(key){var method=WeakMap[PROTOTYPE][key];WeakMap[PROTOTYPE][key]=function(a,b){if(isObject(a)&&isFrozen(a)){var result=leakStore(this)[key](a,b);return key=="set"?this:result}return method.call(this,a,b)}})}WeakSet=getCollection(WeakSet,WEAKSET,{add:function(value){return defWeak(this,value,true)}},weakMethods,false,true)}();!function(){function Enumerate(iterated){var keys=[],key;for(key in iterated)keys.push(key);set(this,ITER,{o:iterated,a:keys,i:0})}createIterator(Enumerate,OBJECT,function(){var iter=this[ITER],keys=iter.a,key;do{if(iter.i>=keys.length)return iterResult(1)}while(!((key=keys[iter.i++])in iter.o));return iterResult(0,key)});function wrap(fn){return function(it){assertObject(it);try{return fn.apply(undefined,arguments),true}catch(e){return false}}}function reflectGet(target,propertyKey){var receiver=arguments.length<3?target:arguments[2],desc=getOwnDescriptor(assertObject(target),propertyKey),proto;if(desc)return has(desc,"value")?desc.value:desc.get===undefined?undefined:desc.get.call(receiver);return isObject(proto=getPrototypeOf(target))?reflectGet(proto,propertyKey,receiver):undefined}function reflectSet(target,propertyKey,V){var receiver=arguments.length<4?target:arguments[3],ownDesc=getOwnDescriptor(assertObject(target),propertyKey),existingDescriptor,proto;if(!ownDesc){if(isObject(proto=getPrototypeOf(target))){return reflectSet(proto,propertyKey,V,receiver)}ownDesc=descriptor(0)}if(has(ownDesc,"value")){if(ownDesc.writable===false||!isObject(receiver))return false;existingDescriptor=getOwnDescriptor(receiver,propertyKey)||descriptor(0);existingDescriptor.value=V;return defineProperty(receiver,propertyKey,existingDescriptor),true}return ownDesc.set===undefined?false:(ownDesc.set.call(receiver,V),true)}var isExtensible=Object.isExtensible||returnIt;var reflect={apply:ctx(call,apply,3),construct:construct,defineProperty:wrap(defineProperty),deleteProperty:function(target,propertyKey){var desc=getOwnDescriptor(assertObject(target),propertyKey);return desc&&!desc.configurable?false:delete target[propertyKey]},enumerate:function(target){return new Enumerate(assertObject(target))},get:reflectGet,getOwnPropertyDescriptor:function(target,propertyKey){return getOwnDescriptor(assertObject(target),propertyKey)},getPrototypeOf:function(target){return getPrototypeOf(assertObject(target))},has:function(target,propertyKey){return propertyKey in target},isExtensible:function(target){return!!isExtensible(assertObject(target))},ownKeys:ownKeys,preventExtensions:wrap(Object.preventExtensions||returnIt),set:reflectSet};if(setPrototypeOf)reflect.setPrototypeOf=function(target,proto){return setPrototypeOf(assertObject(target),proto),true};$define(GLOBAL,{Reflect:{}});$define(STATIC,"Reflect",reflect)}();!function(){$define(PROTO,ARRAY,{includes:createArrayContains(true)});$define(PROTO,STRING,{at:createPointAt(true)});function createObjectToArray(isEntries){return function(object){var O=toObject(object),keys=getKeys(object),length=keys.length,i=0,result=Array(length),key;if(isEntries)while(length>i)result[i]=[key=keys[i++],O[key]];else while(length>i)result[i]=O[keys[i++]];return result}}$define(STATIC,OBJECT,{values:createObjectToArray(false),entries:createObjectToArray(true)});$define(STATIC,REGEXP,{escape:createReplacer(/([\\\-[\]{}()*+?.,^$|])/g,"\\$1",true)})}();!function(REFERENCE){REFERENCE_GET=getWellKnownSymbol(REFERENCE+"Get",true);var REFERENCE_SET=getWellKnownSymbol(REFERENCE+SET,true),REFERENCE_DELETE=getWellKnownSymbol(REFERENCE+"Delete",true);$define(STATIC,SYMBOL,{referenceGet:REFERENCE_GET,referenceSet:REFERENCE_SET,referenceDelete:REFERENCE_DELETE});hidden(FunctionProto,REFERENCE_GET,returnThis);function setMapMethods(Constructor){if(Constructor){var MapProto=Constructor[PROTOTYPE];hidden(MapProto,REFERENCE_GET,MapProto.get);hidden(MapProto,REFERENCE_SET,MapProto.set);hidden(MapProto,REFERENCE_DELETE,MapProto["delete"])}}setMapMethods(Map);setMapMethods(WeakMap)}("reference");!function(arrayStatics){function setArrayStatics(keys,length){forEach.call(array(keys),function(key){if(key in ArrayProto)arrayStatics[key]=ctx(call,ArrayProto[key],length)})}setArrayStatics("pop,reverse,shift,keys,values,entries",1);setArrayStatics("indexOf,every,some,forEach,map,filter,find,findIndex,includes",3);setArrayStatics("join,slice,concat,push,splice,unshift,sort,lastIndexOf,"+"reduce,reduceRight,copyWithin,fill,turn");$define(STATIC,ARRAY,arrayStatics)}({});!function(NodeList){if(framework&&NodeList&&!(SYMBOL_ITERATOR in NodeList[PROTOTYPE])){hidden(NodeList[PROTOTYPE],SYMBOL_ITERATOR,Iterators[ARRAY])}Iterators.NodeList=Iterators[ARRAY]}(global.NodeList)}(typeof self!="undefined"&&self.Math===Math?self:Function("return this")(),true)},{}],3:[function(require,module,exports){(function(global){!function(global){"use strict";var hasOwn=Object.prototype.hasOwnProperty;var undefined;var iteratorSymbol=typeof Symbol==="function"&&Symbol.iterator||"@@iterator";var inModule=typeof module==="object";var runtime=global.regeneratorRuntime;if(runtime){if(inModule){module.exports=runtime}return}runtime=global.regeneratorRuntime=inModule?module.exports:{};function wrap(innerFn,outerFn,self,tryLocsList){return new Generator(innerFn,outerFn,self||null,tryLocsList||[])}runtime.wrap=wrap;function tryCatch(fn,obj,arg){try{return{type:"normal",arg:fn.call(obj,arg)}}catch(err){return{type:"throw",arg:err}}}var GenStateSuspendedStart="suspendedStart";var GenStateSuspendedYield="suspendedYield";var GenStateExecuting="executing";var GenStateCompleted="completed";var ContinueSentinel={};function GeneratorFunction(){}function GeneratorFunctionPrototype(){}var Gp=GeneratorFunctionPrototype.prototype=Generator.prototype;GeneratorFunction.prototype=Gp.constructor=GeneratorFunctionPrototype;GeneratorFunctionPrototype.constructor=GeneratorFunction;GeneratorFunction.displayName="GeneratorFunction";runtime.isGeneratorFunction=function(genFun){var ctor=typeof genFun==="function"&&genFun.constructor;return ctor?ctor===GeneratorFunction||(ctor.displayName||ctor.name)==="GeneratorFunction":false};runtime.mark=function(genFun){genFun.__proto__=GeneratorFunctionPrototype;genFun.prototype=Object.create(Gp);return genFun};runtime.async=function(innerFn,outerFn,self,tryLocsList){return new Promise(function(resolve,reject){var generator=wrap(innerFn,outerFn,self,tryLocsList);var callNext=step.bind(generator.next);var callThrow=step.bind(generator["throw"]);function step(arg){var record=tryCatch(this,null,arg);if(record.type==="throw"){reject(record.arg);return}var info=record.arg;if(info.done){resolve(info.value)}else{Promise.resolve(info.value).then(callNext,callThrow)}}callNext()})};function Generator(innerFn,outerFn,self,tryLocsList){var generator=outerFn?Object.create(outerFn.prototype):this;var context=new Context(tryLocsList);var state=GenStateSuspendedStart;function invoke(method,arg){if(state===GenStateExecuting){throw new Error("Generator is already running")}if(state===GenStateCompleted){return doneResult()}while(true){var delegate=context.delegate;if(delegate){var record=tryCatch(delegate.iterator[method],delegate.iterator,arg);if(record.type==="throw"){context.delegate=null;method="throw";arg=record.arg;continue}method="next";arg=undefined;var info=record.arg;if(info.done){context[delegate.resultName]=info.value;context.next=delegate.nextLoc}else{state=GenStateSuspendedYield;return info}context.delegate=null}if(method==="next"){if(state===GenStateSuspendedStart&&typeof arg!=="undefined"){throw new TypeError("attempt to send "+JSON.stringify(arg)+" to newborn generator")}if(state===GenStateSuspendedYield){context.sent=arg}else{delete context.sent}}else if(method==="throw"){if(state===GenStateSuspendedStart){state=GenStateCompleted;throw arg}if(context.dispatchException(arg)){method="next";arg=undefined}}else if(method==="return"){context.abrupt("return",arg)}state=GenStateExecuting;var record=tryCatch(innerFn,self,context);if(record.type==="normal"){state=context.done?GenStateCompleted:GenStateSuspendedYield;var info={value:record.arg,done:context.done};if(record.arg===ContinueSentinel){if(context.delegate&&method==="next"){arg=undefined}}else{return info}}else if(record.type==="throw"){state=GenStateCompleted;if(method==="next"){context.dispatchException(record.arg)}else{arg=record.arg}}}}generator.next=invoke.bind(generator,"next");generator["throw"]=invoke.bind(generator,"throw");generator["return"]=invoke.bind(generator,"return");return generator}Gp[iteratorSymbol]=function(){return this};Gp.toString=function(){return"[object Generator]"};function pushTryEntry(locs){var entry={tryLoc:locs[0]};if(1 in locs){entry.catchLoc=locs[1]}if(2 in locs){entry.finallyLoc=locs[2];entry.afterLoc=locs[3]}this.tryEntries.push(entry)}function resetTryEntry(entry){var record=entry.completion||{};record.type="normal";delete record.arg;entry.completion=record}function Context(tryLocsList){this.tryEntries=[{tryLoc:"root"}];tryLocsList.forEach(pushTryEntry,this);this.reset()}runtime.keys=function(object){var keys=[];for(var key in object){keys.push(key)}keys.reverse();return function next(){while(keys.length){var key=keys.pop();if(key in object){next.value=key;next.done=false;return next}}next.done=true;return next}};function values(iterable){if(iterable){var iteratorMethod=iterable[iteratorSymbol];if(iteratorMethod){return iteratorMethod.call(iterable)}if(typeof iterable.next==="function"){return iterable}if(!isNaN(iterable.length)){var i=-1,next=function next(){while(++i<iterable.length){if(hasOwn.call(iterable,i)){next.value=iterable[i];next.done=false;return next}}next.value=undefined;next.done=true;return next};return next.next=next}}return{next:doneResult}}runtime.values=values;function doneResult(){return{value:undefined,done:true}}Context.prototype={constructor:Context,reset:function(){this.prev=0;this.next=0;this.sent=undefined;this.done=false;this.delegate=null;this.tryEntries.forEach(resetTryEntry);for(var tempIndex=0,tempName;hasOwn.call(this,tempName="t"+tempIndex)||tempIndex<20;++tempIndex){this[tempName]=null}},stop:function(){this.done=true;var rootEntry=this.tryEntries[0];var rootRecord=rootEntry.completion;if(rootRecord.type==="throw"){throw rootRecord.arg}return this.rval},dispatchException:function(exception){if(this.done){throw exception}var context=this;function handle(loc,caught){record.type="throw";record.arg=exception;context.next=loc;return!!caught}for(var i=this.tryEntries.length-1;i>=0;--i){var entry=this.tryEntries[i];var record=entry.completion;if(entry.tryLoc==="root"){return handle("end")}if(entry.tryLoc<=this.prev){var hasCatch=hasOwn.call(entry,"catchLoc");var hasFinally=hasOwn.call(entry,"finallyLoc");if(hasCatch&&hasFinally){if(this.prev<entry.catchLoc){return handle(entry.catchLoc,true)}else if(this.prev<entry.finallyLoc){return handle(entry.finallyLoc)}}else if(hasCatch){if(this.prev<entry.catchLoc){return handle(entry.catchLoc,true)}}else if(hasFinally){if(this.prev<entry.finallyLoc){return handle(entry.finallyLoc)}}else{throw new Error("try statement without catch or finally")}}}},_findFinallyEntry:function(finallyLoc){for(var i=this.tryEntries.length-1;i>=0;--i){var entry=this.tryEntries[i];if(entry.tryLoc<=this.prev&&hasOwn.call(entry,"finallyLoc")&&(entry.finallyLoc===finallyLoc||this.prev<entry.finallyLoc)){return entry}}},abrupt:function(type,arg){var entry=this._findFinallyEntry();var record=entry?entry.completion:{};record.type=type;record.arg=arg;if(entry){this.next=entry.finallyLoc}else{this.complete(record)}return ContinueSentinel},complete:function(record,afterLoc){if(record.type==="throw"){throw record.arg}if(record.type==="break"||record.type==="continue"){this.next=record.arg}else if(record.type==="return"){this.rval=record.arg;this.next="end"}else if(record.type==="normal"&&afterLoc){this.next=afterLoc}return ContinueSentinel},finish:function(finallyLoc){var entry=this._findFinallyEntry(finallyLoc);return this.complete(entry.completion,entry.afterLoc)},"catch":function(tryLoc){for(var i=this.tryEntries.length-1;i>=0;--i){var entry=this.tryEntries[i];if(entry.tryLoc===tryLoc){var record=entry.completion;if(record.type==="throw"){var thrown=record.arg;resetTryEntry(entry)}return thrown}}throw new Error("illegal catch attempt")},delegateYield:function(iterable,resultName,nextLoc){this.delegate={iterator:values(iterable),resultName:resultName,nextLoc:nextLoc};return ContinueSentinel}}}(typeof global==="object"?global:typeof window==="object"?window:this)}).call(this,typeof global!=="undefined"?global:typeof self!=="undefined"?self:typeof window!=="undefined"?window:{})},{}]},{},[1]);"use strict";
+ 
+var OBJECT          = 'Object'
+  , FUNCTION        = 'Function'
+  , ARRAY           = 'Array'
+  , STRING          = 'String'
+  , NUMBER          = 'Number'
+  , REGEXP          = 'RegExp'
+  , DATE            = 'Date'
+  , MAP             = 'Map'
+  , SET             = 'Set'
+  , WEAKMAP         = 'WeakMap'
+  , WEAKSET         = 'WeakSet'
+  , SYMBOL          = 'Symbol'
+  , PROMISE         = 'Promise'
+  , MATH            = 'Math'
+  , ARGUMENTS       = 'Arguments'
+  , PROTOTYPE       = 'prototype'
+  , CONSTRUCTOR     = 'constructor'
+  , TO_STRING       = 'toString'
+  , TO_STRING_TAG   = TO_STRING + 'Tag'
+  , TO_LOCALE       = 'toLocaleString'
+  , HAS_OWN         = 'hasOwnProperty'
+  , FOR_EACH        = 'forEach'
+  , ITERATOR        = 'iterator'
+  , FF_ITERATOR     = '@@' + ITERATOR
+  , PROCESS         = 'process'
+  , CREATE_ELEMENT  = 'createElement'
+ 
+  , Function        = global[FUNCTION]
+  , Object          = global[OBJECT]
+  , Array           = global[ARRAY]
+  , String          = global[STRING]
+  , Number          = global[NUMBER]
+  , RegExp          = global[REGEXP]
+  , Date            = global[DATE]
+  , Map             = global[MAP]
+  , Set             = global[SET]
+  , WeakMap         = global[WEAKMAP]
+  , WeakSet         = global[WEAKSET]
+  , Symbol          = global[SYMBOL]
+  , Math            = global[MATH]
+  , TypeError       = global.TypeError
+  , RangeError      = global.RangeError
+  , setTimeout      = global.setTimeout
+  , setImmediate    = global.setImmediate
+  , clearImmediate  = global.clearImmediate
+  , parseInt        = global.parseInt
+  , isFinite        = global.isFinite
+  , process         = global[PROCESS]
+  , nextTick        = process && process.nextTick
+  , document        = global.document
+  , html            = document && document.documentElement
+  , navigator       = global.navigator
+  , define          = global.define
+  , ArrayProto      = Array[PROTOTYPE]
+  , ObjectProto     = Object[PROTOTYPE]
+  , FunctionProto   = Function[PROTOTYPE]
+  , Infinity        = 1 / 0
+  , DOT             = '.'
+ 
+  , CONSOLE_METHODS = 'assert,clear,count,debug,dir,dirxml,error,exception,' +
+      'group,groupCollapsed,groupEnd,info,isIndependentlyComposed,log,' +
+      'markTimeline,profile,profileEnd,table,time,timeEnd,timeline,' +
+      'timelineEnd,timeStamp,trace,warn';
+
+
+function isObject(it){
+  return it !== null && (typeof it == 'object' || typeof it == 'function');
+}
+function isFunction(it){
+  return typeof it == 'function';
+}
+
+var isNative = ctx(/./.test, /\[native code\]\s*\}\s*$/, 1);
+
+
+
+var toString = ObjectProto[TO_STRING];
+function setToStringTag(it, tag, stat){
+  if(it && !has(it = stat ? it : it[PROTOTYPE], SYMBOL_TAG))hidden(it, SYMBOL_TAG, tag);
+}
+function cof(it){
+  return toString.call(it).slice(8, -1);
+}
+function classof(it){
+  var O, T;
+  return it == undefined ? it === undefined ? 'Undefined' : 'Null'
+    : typeof (T = (O = Object(it))[SYMBOL_TAG]) == 'string' ? T : cof(O);
+}
+
+
+var call  = FunctionProto.call
+  , apply = FunctionProto.apply
+  , REFERENCE_GET;
+
+function part(){
+  var fn     = assertFunction(this)
+    , length = arguments.length
+    , args   = Array(length)
+    , i      = 0
+    , _      = path._
+    , holder = false;
+  while(length > i)if((args[i] = arguments[i++]) === _)holder = true;
+  return function(){
+    var that    = this
+      , _length = arguments.length
+      , i = 0, j = 0, _args;
+    if(!holder && !_length)return invoke(fn, args, that);
+    _args = args.slice();
+    if(holder)for(;length > i; i++)if(_args[i] === _)_args[i] = arguments[j++];
+    while(_length > j)_args.push(arguments[j++]);
+    return invoke(fn, _args, that);
+  }
+}
+
+function ctx(fn, that, length){
+  assertFunction(fn);
+  if(~length && that === undefined)return fn;
+  switch(length){
+    case 1: return function(a){
+      return fn.call(that, a);
+    }
+    case 2: return function(a, b){
+      return fn.call(that, a, b);
+    }
+    case 3: return function(a, b, c){
+      return fn.call(that, a, b, c);
+    }
+  } return function(){
+      return fn.apply(that, arguments);
+  }
+}
+
+
+function invoke(fn, args, that){
+  var un = that === undefined;
+  switch(args.length | 0){
+    case 0: return un ? fn()
+                      : fn.call(that);
+    case 1: return un ? fn(args[0])
+                      : fn.call(that, args[0]);
+    case 2: return un ? fn(args[0], args[1])
+                      : fn.call(that, args[0], args[1]);
+    case 3: return un ? fn(args[0], args[1], args[2])
+                      : fn.call(that, args[0], args[1], args[2]);
+    case 4: return un ? fn(args[0], args[1], args[2], args[3])
+                      : fn.call(that, args[0], args[1], args[2], args[3]);
+    case 5: return un ? fn(args[0], args[1], args[2], args[3], args[4])
+                      : fn.call(that, args[0], args[1], args[2], args[3], args[4]);
+  } return              fn.apply(that, args);
+}
+function construct(target, argumentsList ){
+  var proto    = assertFunction(arguments.length < 3 ? target : arguments[2])[PROTOTYPE]
+    , instance = create(isObject(proto) ? proto : ObjectProto)
+    , result   = apply.call(target, instance, argumentsList);
+  return isObject(result) ? result : instance;
+}
+
+
+var create           = Object.create
+  , getPrototypeOf   = Object.getPrototypeOf
+  , setPrototypeOf   = Object.setPrototypeOf
+  , defineProperty   = Object.defineProperty
+  , defineProperties = Object.defineProperties
+  , getOwnDescriptor = Object.getOwnPropertyDescriptor
+  , getKeys          = Object.keys
+  , getNames         = Object.getOwnPropertyNames
+  , getSymbols       = Object.getOwnPropertySymbols
+  , isFrozen         = Object.isFrozen
+  , has              = ctx(call, ObjectProto[HAS_OWN], 2)
+ 
+  , ES5Object        = Object
+  , Dict;
+function toObject(it){
+  return ES5Object(assertDefined(it));
+}
+function returnIt(it){
+  return it;
+}
+function returnThis(){
+  return this;
+}
+function get(object, key){
+  if(has(object, key))return object[key];
+}
+function ownKeys(it){
+  assertObject(it);
+  return getSymbols ? getNames(it).concat(getSymbols(it)) : getNames(it);
+}
+
+var assign = Object.assign || function(target, source){
+  var T = Object(assertDefined(target))
+    , l = arguments.length
+    , i = 1;
+  while(l > i){
+    var S      = ES5Object(arguments[i++])
+      , keys   = getKeys(S)
+      , length = keys.length
+      , j      = 0
+      , key;
+    while(length > j)T[key = keys[j++]] = S[key];
+  }
+  return T;
+}
+function keyOf(object, el){
+  var O      = toObject(object)
+    , keys   = getKeys(O)
+    , length = keys.length
+    , index  = 0
+    , key;
+  while(length > index)if(O[key = keys[index++]] === el)return key;
+}
+
+
+
+function array(it){
+  return String(it).split(',');
+}
+var push    = ArrayProto.push
+  , unshift = ArrayProto.unshift
+  , slice   = ArrayProto.slice
+  , splice  = ArrayProto.splice
+  , indexOf = ArrayProto.indexOf
+  , forEach = ArrayProto[FOR_EACH];
+
+function createArrayMethod(type){
+  var isMap       = type == 1
+    , isFilter    = type == 2
+    , isSome      = type == 3
+    , isEvery     = type == 4
+    , isFindIndex = type == 6
+    , noholes     = type == 5 || isFindIndex;
+  return function(callbackfn){
+    var O      = Object(assertDefined(this))
+      , that   = arguments[1]
+      , self   = ES5Object(O)
+      , f      = ctx(callbackfn, that, 3)
+      , length = toLength(self.length)
+      , index  = 0
+      , result = isMap ? Array(length) : isFilter ? [] : undefined
+      , val, res;
+    for(;length > index; index++)if(noholes || index in self){
+      val = self[index];
+      res = f(val, index, O);
+      if(type){
+        if(isMap)result[index] = res;            
+        else if(res)switch(type){
+          case 3: return true;                   
+          case 5: return val;                    
+          case 6: return index;                  
+          case 2: result.push(val);              
+        } else if(isEvery)return false;          
+      }
+    }
+    return isFindIndex ? -1 : isSome || isEvery ? isEvery : result;
+  }
+}
+function createArrayContains(isContains){
+  return function(el ){
+    var O      = toObject(this)
+      , length = toLength(O.length)
+      , index  = toIndex(arguments[1], length);
+    if(isContains && el != el){
+      for(;length > index; index++)if(sameNaN(O[index]))return isContains || index;
+    } else for(;length > index; index++)if(isContains || index in O){
+      if(O[index] === el)return isContains || index;
+    } return !isContains && -1;
+  }
+}
+function generic(A, B){
+ 
+  return typeof A == 'function' ? A : B;
+}
+
+
+var MAX_SAFE_INTEGER = 0x1fffffffffffff
+  , pow    = Math.pow
+  , abs    = Math.abs
+  , ceil   = Math.ceil
+  , floor  = Math.floor
+  , max    = Math.max
+  , min    = Math.min
+  , random = Math.random
+  , trunc  = Math.trunc || function(it){
+      return (it > 0 ? floor : ceil)(it);
+    }
+
+function sameNaN(number){
+  return number != number;
+}
+
+function toInteger(it){
+  return isNaN(it) ? 0 : trunc(it);
+}
+
+function toLength(it){
+  return it > 0 ? min(toInteger(it), MAX_SAFE_INTEGER) : 0;
+}
+function toIndex(index, length){
+  var index = toInteger(index);
+  return index < 0 ? max(index + length, 0) : min(index, length);
+}
+function lz(num){
+  return num > 9 ? num : '0' + num;
+}
+
+function createReplacer(regExp, replace, isStatic){
+  var replacer = isObject(replace) ? function(part){
+    return replace[part];
+  } : replace;
+  return function(it){
+    return String(isStatic ? it : this).replace(regExp, replacer);
+  }
+}
+function createPointAt(toString){
+  return function(pos){
+    var s = String(assertDefined(this))
+      , i = toInteger(pos)
+      , l = s.length
+      , a, b;
+    if(i < 0 || i >= l)return toString ? '' : undefined;
+    a = s.charCodeAt(i);
+    return a < 0xd800 || a > 0xdbff || i + 1 === l || (b = s.charCodeAt(i + 1)) < 0xdc00 || b > 0xdfff
+      ? toString ? s.charAt(i) : a
+      : toString ? s.slice(i, i + 2) : (a - 0xd800 << 10) + (b - 0xdc00) + 0x10000;
+  }
+}
+
+
+var REDUCE_ERROR = 'Reduce of empty object with no initial value';
+function assert(condition, msg1, msg2){
+  if(!condition)throw TypeError(msg2 ? msg1 + msg2 : msg1);
+}
+function assertDefined(it){
+  if(it == undefined)throw TypeError('Function called on null or undefined');
+  return it;
+}
+function assertFunction(it){
+  assert(isFunction(it), it, ' is not a function!');
+  return it;
+}
+function assertObject(it){
+  assert(isObject(it), it, ' is not an object!');
+  return it;
+}
+function assertInstance(it, Constructor, name){
+  assert(it instanceof Constructor, name, ": use the 'new' operator!");
+}
+
+
+function descriptor(bitmap, value){
+  return {
+    enumerable  : !(bitmap & 1),
+    configurable: !(bitmap & 2),
+    writable    : !(bitmap & 4),
+    value       : value
+  }
+}
+function simpleSet(object, key, value){
+  object[key] = value;
+  return object;
+}
+function createDefiner(bitmap){
+  return DESC ? function(object, key, value){
+    return defineProperty(object, key, descriptor(bitmap, value));
+  } : simpleSet;
+}
+function uid(key){
+  return SYMBOL + '(' + key + ')_' + (++sid + random())[TO_STRING](36);
+}
+function getWellKnownSymbol(name, setter){
+  return (Symbol && Symbol[name]) || (setter ? Symbol : safeSymbol)(SYMBOL + DOT + name);
+}
+
+var DESC = !!function(){
+      try {
+        return defineProperty({}, 'a', {get: function(){ return 2 }}).a == 2;
+      } catch(e){}
+    }()
+  , sid    = 0
+  , hidden = createDefiner(1)
+  , set    = Symbol ? simpleSet : hidden
+  , safeSymbol = Symbol || uid;
+function assignHidden(target, src){
+  for(var key in src)hidden(target, key, src[key]);
+  return target;
+}
+
+var SYMBOL_UNSCOPABLES = getWellKnownSymbol('unscopables')
+  , ArrayUnscopables   = ArrayProto[SYMBOL_UNSCOPABLES] || {}
+  , SYMBOL_SPECIES     = getWellKnownSymbol('species');
+function setSpecies(C){
+  if(framework || !isNative(C))defineProperty(C, SYMBOL_SPECIES, {
+    configurable: true,
+    get: returnThis
+  });
+}
+
+
+var SYMBOL_ITERATOR = getWellKnownSymbol(ITERATOR)
+  , SYMBOL_TAG      = getWellKnownSymbol(TO_STRING_TAG)
+  , SUPPORT_FF_ITER = FF_ITERATOR in ArrayProto
+  , ITER  = safeSymbol('iter')
+  , KEY   = 1
+  , VALUE = 2
+  , Iterators = {}
+  , IteratorPrototype = {}
+  , NATIVE_ITERATORS = SYMBOL_ITERATOR in ArrayProto
+   
+  , BUGGY_ITERATORS = 'keys' in ArrayProto && !('next' in [].keys());
+
+setIterator(IteratorPrototype, returnThis);
+function setIterator(O, value){
+  hidden(O, SYMBOL_ITERATOR, value);
+ 
+  SUPPORT_FF_ITER && hidden(O, FF_ITERATOR, value);
+}
+function createIterator(Constructor, NAME, next, proto){
+  Constructor[PROTOTYPE] = create(proto || IteratorPrototype, {next: descriptor(1, next)});
+  setToStringTag(Constructor, NAME + ' Iterator');
+}
+function defineIterator(Constructor, NAME, value, DEFAULT){
+  var proto = Constructor[PROTOTYPE]
+    , iter  = get(proto, SYMBOL_ITERATOR) || get(proto, FF_ITERATOR) || (DEFAULT && get(proto, DEFAULT)) || value;
+  if(framework){
+   
+    setIterator(proto, iter);
+    if(iter !== value){
+      var iterProto = getPrototypeOf(iter.call(new Constructor));
+     
+      setToStringTag(iterProto, NAME + ' Iterator', true);
+     
+      has(proto, FF_ITERATOR) && setIterator(iterProto, returnThis);
+    }
+  }
+ 
+  Iterators[NAME] = iter;
+ 
+  Iterators[NAME + ' Iterator'] = returnThis;
+  return iter;
+}
+function defineStdIterators(Base, NAME, Constructor, next, DEFAULT, IS_SET){
+  function createIter(kind){
+    return function(){
+      return new Constructor(this, kind);
+    }
+  }
+  createIterator(Constructor, NAME, next);
+  var entries = createIter(KEY+VALUE)
+    , values  = createIter(VALUE);
+  if(DEFAULT == VALUE)values = defineIterator(Base, NAME, values, 'values');
+  else entries = defineIterator(Base, NAME, entries, 'entries');
+  if(DEFAULT){
+    $define(PROTO + FORCED * BUGGY_ITERATORS, NAME, {
+      entries: entries,
+      keys: IS_SET ? values : createIter(KEY),
+      values: values
+    });
+  }
+}
+function iterResult(done, value){
+  return {value: value, done: !!done};
+}
+function isIterable(it){
+  var O      = Object(it)
+    , Symbol = global[SYMBOL]
+    , hasExt = (Symbol && Symbol[ITERATOR] || FF_ITERATOR) in O;
+  return hasExt || SYMBOL_ITERATOR in O || has(Iterators, classof(O));
+}
+function getIterator(it){
+  var Symbol  = global[SYMBOL]
+    , ext     = it[Symbol && Symbol[ITERATOR] || FF_ITERATOR]
+    , getIter = ext || it[SYMBOL_ITERATOR] || Iterators[classof(it)];
+  return assertObject(getIter.call(it));
+}
+function stepCall(fn, value, entries){
+  return entries ? invoke(fn, value) : fn(value);
+}
+function forOf(iterable, entries, fn, that){
+  var iterator = getIterator(iterable)
+    , f        = ctx(fn, that, entries ? 2 : 1)
+    , step;
+  while(!(step = iterator.next()).done)if(stepCall(f, step.value, entries) === false)return;
+}
+
+
+var NODE = cof(process) == PROCESS
+  , core = {}
+  , path = framework ? global : core
+  , old  = global.core
+  , exportGlobal
+ 
+  , FORCED = 1
+  , GLOBAL = 2
+  , STATIC = 4
+  , PROTO  = 8
+  , BIND   = 16
+  , WRAP   = 32
+  , SIMPLE = 64;
+function $define(type, name, source){
+  var key, own, out, exp
+    , isGlobal = type & GLOBAL
+    , target   = isGlobal ? global : (type & STATIC)
+        ? global[name] : (global[name] || ObjectProto)[PROTOTYPE]
+    , exports  = isGlobal ? core : core[name] || (core[name] = {});
+  if(isGlobal)source = name;
+  for(key in source){
+   
+    own = !(type & FORCED) && target && key in target
+      && (!isFunction(target[key]) || isNative(target[key]));
+   
+    out = (own ? target : source)[key];
+   
+    if(!framework && isGlobal && !isFunction(target[key]))exp = source[key];
+   
+    else if(type & BIND && own)exp = ctx(out, global);
+   
+    else if(type & WRAP && !framework && target[key] == out){
+      exp = function(param){
+        return this instanceof out ? new out(param) : out(param);
+      }
+      exp[PROTOTYPE] = out[PROTOTYPE];
+    } else exp = type & PROTO && isFunction(out) ? ctx(call, out) : out;
+   
+    if(framework && target && !own){
+      if(isGlobal || type & SIMPLE)target[key] = out;
+      else delete target[key] && hidden(target, key, out);
+    }
+   
+    if(exports[key] != out)hidden(exports, key, exp);
+  }
+}
+
+if(typeof module != 'undefined' && module.exports)module.exports = core;
+
+else if(isFunction(define) && define.amd)define(function(){return core});
+
+else exportGlobal = true;
+if(exportGlobal || framework){
+  core.noConflict = function(){
+    global.core = old;
+    return core;
+  }
+  global.core = core;
+}
+
+
+!function(TAG, SymbolRegistry, AllSymbols, setter){
+ 
+  if(!isNative(Symbol)){
+    Symbol = function(description){
+      assert(!(this instanceof Symbol), SYMBOL + ' is not a ' + CONSTRUCTOR);
+      var tag = uid(description)
+        , sym = set(create(Symbol[PROTOTYPE]), TAG, tag);
+      AllSymbols[tag] = sym;
+      DESC && setter && defineProperty(ObjectProto, tag, {
+        configurable: true,
+        set: function(value){
+          hidden(this, tag, value);
+        }
+      });
+      return sym;
+    }
+    hidden(Symbol[PROTOTYPE], TO_STRING, function(){
+      return this[TAG];
+    });
+  }
+  $define(GLOBAL + WRAP, {Symbol: Symbol});
+  
+  var symbolStatics = {
+   
+    'for': function(key){
+      return has(SymbolRegistry, key += '')
+        ? SymbolRegistry[key]
+        : SymbolRegistry[key] = Symbol(key);
+    },
+   
+    iterator: SYMBOL_ITERATOR,
+   
+    keyFor: part.call(keyOf, SymbolRegistry),
+   
+    species: SYMBOL_SPECIES,
+   
+    toStringTag: SYMBOL_TAG = getWellKnownSymbol(TO_STRING_TAG, true),
+   
+    unscopables: SYMBOL_UNSCOPABLES,
+    pure: safeSymbol,
+    set: set,
+    useSetter: function(){setter = true},
+    useSimple: function(){setter = false}
+  };
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  forEach.call(array('hasInstance,isConcatSpreadable,match,replace,search,split,toPrimitive'),
+    function(it){
+      symbolStatics[it] = getWellKnownSymbol(it);
+    }
+  );
+  $define(STATIC, SYMBOL, symbolStatics);
+  
+  setToStringTag(Symbol, SYMBOL);
+  
+  $define(STATIC + FORCED * !isNative(Symbol), OBJECT, {
+   
+    getOwnPropertyNames: function(it){
+      var names = getNames(toObject(it)), result = [], key, i = 0;
+      while(names.length > i)has(AllSymbols, key = names[i++]) || result.push(key);
+      return result;
+    },
+   
+    getOwnPropertySymbols: function(it){
+      var names = getNames(toObject(it)), result = [], key, i = 0;
+      while(names.length > i)has(AllSymbols, key = names[i++]) && result.push(AllSymbols[key]);
+      return result;
+    }
+  });
+}(safeSymbol('tag'), {}, {}, true);
+
+!function(at){
+ 
+ 
+ 
+ 
+  defineStdIterators(Array, ARRAY, function(iterated, kind){
+    set(this, ITER, {o: toObject(iterated), i: 0, k: kind});
+ 
+  }, function(){
+    var iter  = this[ITER]
+      , O     = iter.o
+      , kind  = iter.k
+      , index = iter.i++;
+    if(!O || index >= O.length){
+      iter.o = undefined;
+      return iterResult(1);
+    }
+    if(kind == KEY)  return iterResult(0, index);
+    if(kind == VALUE)return iterResult(0, O[index]);
+                     return iterResult(0, [index, O[index]]);
+  }, VALUE);
+  
+ 
+  Iterators[ARGUMENTS] = Iterators[ARRAY];
+  
+ 
+  defineStdIterators(String, STRING, function(iterated){
+    set(this, ITER, {o: String(iterated), i: 0});
+ 
+  }, function(){
+    var iter  = this[ITER]
+      , O     = iter.o
+      , index = iter.i
+      , point;
+    if(index >= O.length)return iterResult(1);
+    point = at.call(O, index);
+    iter.i += point.length;
+    return iterResult(0, point);
+  });
+}(createPointAt(true));
+
+
+
+isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATECHANGE){
+  var postMessage      = global.postMessage
+    , addEventListener = global.addEventListener
+    , MessageChannel   = global.MessageChannel
+    , counter          = 0
+    , queue            = {}
+    , defer, channel, port;
+  setImmediate = function(fn){
+    var args = [], i = 1;
+    while(arguments.length > i)args.push(arguments[i++]);
+    queue[++counter] = function(){
+      invoke(isFunction(fn) ? fn : Function(fn), args);
+    }
+    defer(counter);
+    return counter;
+  }
+  clearImmediate = function(id){
+    delete queue[id];
+  }
+  function run(id){
+    if(has(queue, id)){
+      var fn = queue[id];
+      delete queue[id];
+      fn();
+    }
+  }
+  function listner(event){
+    run(event.data);
+  }
+ 
+  if(NODE){
+    defer = function(id){
+      nextTick(part.call(run, id));
+    }
+ 
+ 
+  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
+    defer = function(id){
+      postMessage(id, '*');
+    }
+    addEventListener('message', listner, false);
+ 
+  } else if(isFunction(MessageChannel)){
+    channel = new MessageChannel;
+    port    = channel.port2;
+    channel.port1.onmessage = listner;
+    defer = ctx(port.postMessage, port, 1);
+ 
+  } else if(document && ONREADYSTATECHANGE in document[CREATE_ELEMENT]('script')){
+    defer = function(id){
+      html.appendChild(document[CREATE_ELEMENT]('script'))[ONREADYSTATECHANGE] = function(){
+        html.removeChild(this);
+        run(id);
+      }
+    }
+ 
+  } else {
+    defer = function(id){
+      setTimeout(run, 0, id);
+    }
+  }
+}('onreadystatechange');
+$define(GLOBAL + BIND, {
+  setImmediate:   setImmediate,
+  clearImmediate: clearImmediate
+});
+
+
+
+!function(Promise, test){
+  isFunction(Promise) && isFunction(Promise.resolve)
+  && Promise.resolve(test = new Promise(function(){})) == test
+  || function(asap, DEF){
+    function isThenable(o){
+      var then;
+      if(isObject(o))then = o.then;
+      return isFunction(then) ? then : false;
+    }
+    function notify(def){
+      var chain = def.chain;
+      chain.length && asap(function(){
+        var msg = def.msg
+          , ok  = def.state == 1
+          , i   = 0;
+        while(chain.length > i)!function(react){
+          var cb = ok ? react.ok : react.fail
+            , ret, then;
+          try {
+            if(cb){
+              ret = cb === true ? msg : cb(msg);
+              if(ret === react.P){
+                react.rej(TypeError(PROMISE + '-chain cycle'));
+              } else if(then = isThenable(ret)){
+                then.call(ret, react.res, react.rej);
+              } else react.res(ret);
+            } else react.rej(msg);
+          } catch(err){
+            react.rej(err);
+          }
+        }(chain[i++]);
+        chain.length = 0;
+      });
+    }
+    function resolve(msg){
+      var def = this
+        , then, wrapper;
+      if(def.done)return;
+      def.done = true;
+      def = def.def || def;
+      try {
+        if(then = isThenable(msg)){
+          wrapper = {def: def, done: false};
+          then.call(msg, ctx(resolve, wrapper, 1), ctx(reject, wrapper, 1));
+        } else {
+          def.msg = msg;
+          def.state = 1;
+          notify(def);
+        }
+      } catch(err){
+        reject.call(wrapper || {def: def, done: false}, err);
+      }
+    }
+    function reject(msg){
+      var def = this;
+      if(def.done)return;
+      def.done = true;
+      def = def.def || def;
+      def.msg = msg;
+      def.state = 2;
+      notify(def);
+    }
+    function getConstructor(C){
+      var S = assertObject(C)[SYMBOL_SPECIES];
+      return S != undefined ? S : C;
+    }
+   
+    Promise = function(executor){
+      assertFunction(executor);
+      assertInstance(this, Promise, PROMISE);
+      var def = {chain: [], state: 0, done: false, msg: undefined};
+      hidden(this, DEF, def);
+      try {
+        executor(ctx(resolve, def, 1), ctx(reject, def, 1));
+      } catch(err){
+        reject.call(def, err);
+      }
+    }
+    assignHidden(Promise[PROTOTYPE], {
+     
+      then: function(onFulfilled, onRejected){
+        var S = assertObject(assertObject(this)[CONSTRUCTOR])[SYMBOL_SPECIES];
+        var react = {
+          ok:   isFunction(onFulfilled) ? onFulfilled : true,
+          fail: isFunction(onRejected)  ? onRejected  : false
+        } , P = react.P = new (S != undefined ? S : Promise)(function(resolve, reject){
+          react.res = assertFunction(resolve);
+          react.rej = assertFunction(reject);
+        }), def = this[DEF];
+        def.chain.push(react);
+        def.state && notify(def);
+        return P;
+      },
+     
+      'catch': function(onRejected){
+        return this.then(undefined, onRejected);
+      }
+    });
+    assignHidden(Promise, {
+     
+      all: function(iterable){
+        var Promise = getConstructor(this)
+          , values  = [];
+        return new Promise(function(resolve, reject){
+          forOf(iterable, false, push, values);
+          var remaining = values.length
+            , results   = Array(remaining);
+          if(remaining)forEach.call(values, function(promise, index){
+            Promise.resolve(promise).then(function(value){
+              results[index] = value;
+              --remaining || resolve(results);
+            }, reject);
+          });
+          else resolve(results);
+        });
+      },
+     
+      race: function(iterable){
+        var Promise = getConstructor(this);
+        return new Promise(function(resolve, reject){
+          forOf(iterable, false, function(promise){
+            Promise.resolve(promise).then(resolve, reject);
+          });
+        });
+      },
+     
+      reject: function(r){
+        return new (getConstructor(this))(function(resolve, reject){
+          reject(r);
+        });
+      },
+     
+      resolve: function(x){
+        return isObject(x) && DEF in x && getPrototypeOf(x) === this[PROTOTYPE]
+          ? x : new (getConstructor(this))(function(resolve, reject){
+            resolve(x);
+          });
+      }
+    });
+  }(nextTick || setImmediate, safeSymbol('def'));
+  setToStringTag(Promise, PROMISE);
+  setSpecies(Promise);
+  $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
+}(global[PROMISE]);
+}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);!(function(global) {
+  "use strict";
+
+  var hasOwn = Object.prototype.hasOwnProperty;
+  var undefined;
+  var iteratorSymbol =
+    typeof Symbol === "function" && Symbol.iterator || "@@iterator";
+
+  var inModule = typeof module === "object";
+  var runtime = global.regeneratorRuntime;
+  if (runtime) {
+    if (inModule) {
+     
+     
+      module.exports = runtime;
+    }
+   
+   
+    return;
+  }
+
+ 
+ 
+  runtime = global.regeneratorRuntime = inModule ? module.exports : {};
+
+  function wrap(innerFn, outerFn, self, tryLocsList) {
+    return new Generator(innerFn, outerFn, self || null, tryLocsList || []);
+  }
+  runtime.wrap = wrap;
+
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+  function tryCatch(fn, obj, arg) {
+    try {
+      return { type: "normal", arg: fn.call(obj, arg) };
+    } catch (err) {
+      return { type: "throw", arg: err };
+    }
+  }
+
+  var GenStateSuspendedStart = "suspendedStart";
+  var GenStateSuspendedYield = "suspendedYield";
+  var GenStateExecuting = "executing";
+  var GenStateCompleted = "completed";
+
+ 
+ 
+  var ContinueSentinel = {};
+
+ 
+ 
+ 
+ 
+  function GeneratorFunction() {}
+  function GeneratorFunctionPrototype() {}
+
+  var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype;
+  GeneratorFunction.prototype = Gp.constructor = GeneratorFunctionPrototype;
+  GeneratorFunctionPrototype.constructor = GeneratorFunction;
+  GeneratorFunction.displayName = "GeneratorFunction";
+
+  runtime.isGeneratorFunction = function(genFun) {
+    var ctor = typeof genFun === "function" && genFun.constructor;
+    return ctor
+      ? ctor === GeneratorFunction ||
+       
+       
+        (ctor.displayName || ctor.name) === "GeneratorFunction"
+      : false;
+  };
+
+  runtime.mark = function(genFun) {
+    genFun.__proto__ = GeneratorFunctionPrototype;
+    genFun.prototype = Object.create(Gp);
+    return genFun;
+  };
+
+  runtime.async = function(innerFn, outerFn, self, tryLocsList) {
+    return new Promise(function(resolve, reject) {
+      var generator = wrap(innerFn, outerFn, self, tryLocsList);
+      var callNext = step.bind(generator.next);
+      var callThrow = step.bind(generator["throw"]);
+
+      function step(arg) {
+        var record = tryCatch(this, null, arg);
+        if (record.type === "throw") {
+          reject(record.arg);
+          return;
+        }
+
+        var info = record.arg;
+        if (info.done) {
+          resolve(info.value);
+        } else {
+          Promise.resolve(info.value).then(callNext, callThrow);
+        }
+      }
+
+      callNext();
+    });
+  };
+
+  function Generator(innerFn, outerFn, self, tryLocsList) {
+    var generator = outerFn ? Object.create(outerFn.prototype) : this;
+    var context = new Context(tryLocsList);
+    var state = GenStateSuspendedStart;
+
+    function invoke(method, arg) {
+      if (state === GenStateExecuting) {
+        throw new Error("Generator is already running");
+      }
+
+      if (state === GenStateCompleted) {
+       
+       
+        return doneResult();
+      }
+
+      while (true) {
+        var delegate = context.delegate;
+        if (delegate) {
+          var record = tryCatch(
+            delegate.iterator[method],
+            delegate.iterator,
+            arg
+          );
+
+          if (record.type === "throw") {
+            context.delegate = null;
+
+           
+           
+            method = "throw";
+            arg = record.arg;
+
+            continue;
+          }
+
+         
+         
+         
+          method = "next";
+          arg = undefined;
+
+          var info = record.arg;
+          if (info.done) {
+            context[delegate.resultName] = info.value;
+            context.next = delegate.nextLoc;
+          } else {
+            state = GenStateSuspendedYield;
+            return info;
+          }
+
+          context.delegate = null;
+        }
+
+        if (method === "next") {
+          if (state === GenStateSuspendedStart &&
+              typeof arg !== "undefined") {
+           
+            throw new TypeError(
+              "attempt to send " + JSON.stringify(arg) + " to newborn generator"
+            );
+          }
+
+          if (state === GenStateSuspendedYield) {
+            context.sent = arg;
+          } else {
+            delete context.sent;
+          }
+
+        } else if (method === "throw") {
+          if (state === GenStateSuspendedStart) {
+            state = GenStateCompleted;
+            throw arg;
+          }
+
+          if (context.dispatchException(arg)) {
+           
+           
+            method = "next";
+            arg = undefined;
+          }
+
+        } else if (method === "return") {
+          context.abrupt("return", arg);
+        }
+
+        state = GenStateExecuting;
+
+        var record = tryCatch(innerFn, self, context);
+        if (record.type === "normal") {
+         
+         
+          state = context.done
+            ? GenStateCompleted
+            : GenStateSuspendedYield;
+
+          var info = {
+            value: record.arg,
+            done: context.done
+          };
+
+          if (record.arg === ContinueSentinel) {
+            if (context.delegate && method === "next") {
+             
+             
+              arg = undefined;
+            }
+          } else {
+            return info;
+          }
+
+        } else if (record.type === "throw") {
+          state = GenStateCompleted;
+
+          if (method === "next") {
+            context.dispatchException(record.arg);
+          } else {
+            arg = record.arg;
+          }
+        }
+      }
+    }
+
+    generator.next = invoke.bind(generator, "next");
+    generator["throw"] = invoke.bind(generator, "throw");
+    generator["return"] = invoke.bind(generator, "return");
+
+    return generator;
+  }
+
+  Gp[iteratorSymbol] = function() {
+    return this;
+  };
+
+  Gp.toString = function() {
+    return "[object Generator]";
+  };
+
+  function pushTryEntry(locs) {
+    var entry = { tryLoc: locs[0] };
+
+    if (1 in locs) {
+      entry.catchLoc = locs[1];
+    }
+
+    if (2 in locs) {
+      entry.finallyLoc = locs[2];
+      entry.afterLoc = locs[3];
+    }
+
+    this.tryEntries.push(entry);
+  }
+
+  function resetTryEntry(entry) {
+    var record = entry.completion || {};
+    record.type = "normal";
+    delete record.arg;
+    entry.completion = record;
+  }
+
+  function Context(tryLocsList) {
+   
+   
+   
+    this.tryEntries = [{ tryLoc: "root" }];
+    tryLocsList.forEach(pushTryEntry, this);
+    this.reset();
+  }
+
+  runtime.keys = function(object) {
+    var keys = [];
+    for (var key in object) {
+      keys.push(key);
+    }
+    keys.reverse();
+
+   
+   
+    return function next() {
+      while (keys.length) {
+        var key = keys.pop();
+        if (key in object) {
+          next.value = key;
+          next.done = false;
+          return next;
+        }
+      }
+
+     
+     
+     
+      next.done = true;
+      return next;
+    };
+  };
+
+  function values(iterable) {
+    if (iterable) {
+      var iteratorMethod = iterable[iteratorSymbol];
+      if (iteratorMethod) {
+        return iteratorMethod.call(iterable);
+      }
+
+      if (typeof iterable.next === "function") {
+        return iterable;
+      }
+
+      if (!isNaN(iterable.length)) {
+        var i = -1, next = function next() {
+          while (++i < iterable.length) {
+            if (hasOwn.call(iterable, i)) {
+              next.value = iterable[i];
+              next.done = false;
+              return next;
+            }
+          }
+
+          next.value = undefined;
+          next.done = true;
+
+          return next;
+        };
+
+        return next.next = next;
+      }
+    }
+
+   
+    return { next: doneResult };
+  }
+  runtime.values = values;
+
+  function doneResult() {
+    return { value: undefined, done: true };
+  }
+
+  Context.prototype = {
+    constructor: Context,
+
+    reset: function() {
+      this.prev = 0;
+      this.next = 0;
+      this.sent = undefined;
+      this.done = false;
+      this.delegate = null;
+
+      this.tryEntries.forEach(resetTryEntry);
+
+     
+     
+      for (var tempIndex = 0, tempName;
+           hasOwn.call(this, tempName = "t" + tempIndex) || tempIndex < 20;
+           ++tempIndex) {
+        this[tempName] = null;
+      }
+    },
+
+    stop: function() {
+      this.done = true;
+
+      var rootEntry = this.tryEntries[0];
+      var rootRecord = rootEntry.completion;
+      if (rootRecord.type === "throw") {
+        throw rootRecord.arg;
+      }
+
+      return this.rval;
+    },
+
+    dispatchException: function(exception) {
+      if (this.done) {
+        throw exception;
+      }
+
+      var context = this;
+      function handle(loc, caught) {
+        record.type = "throw";
+        record.arg = exception;
+        context.next = loc;
+        return !!caught;
+      }
+
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        var record = entry.completion;
+
+        if (entry.tryLoc === "root") {
+         
+         
+         
+          return handle("end");
+        }
+
+        if (entry.tryLoc <= this.prev) {
+          var hasCatch = hasOwn.call(entry, "catchLoc");
+          var hasFinally = hasOwn.call(entry, "finallyLoc");
+
+          if (hasCatch && hasFinally) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            } else if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else if (hasCatch) {
+            if (this.prev < entry.catchLoc) {
+              return handle(entry.catchLoc, true);
+            }
+
+          } else if (hasFinally) {
+            if (this.prev < entry.finallyLoc) {
+              return handle(entry.finallyLoc);
+            }
+
+          } else {
+            throw new Error("try statement without catch or finally");
+          }
+        }
+      }
+    },
+
+    _findFinallyEntry: function(finallyLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc <= this.prev &&
+            hasOwn.call(entry, "finallyLoc") && (
+              entry.finallyLoc === finallyLoc ||
+              this.prev < entry.finallyLoc)) {
+          return entry;
+        }
+      }
+    },
+
+    abrupt: function(type, arg) {
+      var entry = this._findFinallyEntry();
+      var record = entry ? entry.completion : {};
+
+      record.type = type;
+      record.arg = arg;
+
+      if (entry) {
+        this.next = entry.finallyLoc;
+      } else {
+        this.complete(record);
+      }
+
+      return ContinueSentinel;
+    },
+
+    complete: function(record, afterLoc) {
+      if (record.type === "throw") {
+        throw record.arg;
+      }
+
+      if (record.type === "break" ||
+          record.type === "continue") {
+        this.next = record.arg;
+      } else if (record.type === "return") {
+        this.rval = record.arg;
+        this.next = "end";
+      } else if (record.type === "normal" && afterLoc) {
+        this.next = afterLoc;
+      }
+
+      return ContinueSentinel;
+    },
+
+    finish: function(finallyLoc) {
+      var entry = this._findFinallyEntry(finallyLoc);
+      return this.complete(entry.completion, entry.afterLoc);
+    },
+
+    "catch": function(tryLoc) {
+      for (var i = this.tryEntries.length - 1; i >= 0; --i) {
+        var entry = this.tryEntries[i];
+        if (entry.tryLoc === tryLoc) {
+          var record = entry.completion;
+          if (record.type === "throw") {
+            var thrown = record.arg;
+            resetTryEntry(entry);
+          }
+          return thrown;
+        }
+      }
+
+     
+     
+      throw new Error("illegal catch attempt");
+    },
+
+    delegateYield: function(iterable, resultName, nextLoc) {
+      this.delegate = {
+        iterator: values(iterable),
+        resultName: resultName,
+        nextLoc: nextLoc
+      };
+
+      return ContinueSentinel;
+    }
+  };
+})(
+ 
+ 
+ 
+  typeof global === "object" ? global :
+  typeof window === "object" ? window : this
+);
+"use strict";
 
 var _slicedToArray = function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { var _arr = []; for (var _iterator = arr[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) { _arr.push(_step.value); if (i && _arr.length === i) break; } return _arr; } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } };
 
@@ -46,7 +1443,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 (function de_main_func(scriptStorage) {
 	"use strict";
 
-	var getStored = regeneratorRuntime.mark(function getStored(id) {
+	var getStored = regeneratorRuntime.mark(
+
+
+
+
+
+	function getStored(id) {
 		return regeneratorRuntime.wrap(function getStored$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -138,7 +1541,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!Cfg.timePattern) {
 						Cfg.timePattern = aib.timePattern;
 					}
-					if ((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+					if ((!nav.canHTML5Post || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+						Lng.ajaxReply.sel.forEach(function (a) {
+							return a.splice(-1);
+						});
 						Cfg.ajaxReply = 1;
 					}
 					if (aib.tiny) {
@@ -350,63 +1756,76 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	});
 
 	var downloadImgDataHelper = regeneratorRuntime.mark(function downloadImgDataHelper(url, repeatOnError) {
-		var isAb, e, _len, i, txt, _rv;
+		var xhr, isAb, _len, i, txt, _rv;
 		return regeneratorRuntime.wrap(function downloadImgDataHelper$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					context$2$0.next = 2;
-					return downloadObjInfo({ method: "GET", url: url });
-				case 2:
-					e = context$2$0.sent;
-					if (e) {
-						context$2$0.next = 5;
+					if (!(aib.fch && nav.Firefox && !obj.url.startsWith("blob"))) {
+						context$2$0.next = 6;
 						break;
 					}
-					return context$2$0.abrupt("return", null);
-				case 5:
-					isAb = e.responseType === "arraybuffer";
-					if (!(e.status === 0 && isAb)) {
-						context$2$0.next = 10;
-						break;
-					}
-					return context$2$0.abrupt("return", new Uint8Array(e.response));
-				case 10:
-					if (!(e.status !== 200)) {
-						context$2$0.next = 19;
-						break;
-					}
-					if (!(e.status === 404 || !repeatOnError)) {
-						context$2$0.next = 15;
-						break;
-					}
+					context$2$0.next = 3;
+					return $ajax(url, "GET", { overrideMimeType: "text/plain; charset=x-user-defined" });
+				case 3:
+					xhr = context$2$0.sent;
+					context$2$0.next = 15;
+					break;
+				case 6:
+					context$2$0.prev = 6;
+					context$2$0.next = 9;
+					return $ajax(url, "GET", { responseType: "arraybuffer" }, true);
+				case 9:
+					xhr = context$2$0.sent;
+					context$2$0.next = 15;
+					break;
+				case 12:
+					context$2$0.prev = 12;
+					context$2$0.t14 = context$2$0["catch"](6);
 					return context$2$0.abrupt("return", null);
 				case 15:
-					return context$2$0.delegateYield(downloadImgDataHelper(url, false), "t14", 16);
-				case 16:
-					return context$2$0.abrupt("return", context$2$0.t14);
-				case 17:
-					context$2$0.next = 25;
-					break;
-				case 19:
-					if (!isAb) {
-						context$2$0.next = 23;
+					isAb = xhr.responseType === "arraybuffer";
+					if (!(xhr.status === 0 && isAb)) {
+						context$2$0.next = 20;
 						break;
 					}
-					return context$2$0.abrupt("return", new Uint8Array(e.response));
-				case 23:
-					for (_len = undefined, i = 0, txt = e.responseText, _rv = new Uint8Array(len = txt.length); i < _len; ++i) {
+					return context$2$0.abrupt("return", new Uint8Array(xhr.response));
+				case 20:
+					if (!(xhr.status !== 200)) {
+						context$2$0.next = 29;
+						break;
+					}
+					if (!(xhr.status === 404 || !repeatOnError)) {
+						context$2$0.next = 25;
+						break;
+					}
+					return context$2$0.abrupt("return", null);
+				case 25:
+					return context$2$0.delegateYield(downloadImgDataHelper(url, false), "t15", 26);
+				case 26:
+					return context$2$0.abrupt("return", context$2$0.t15);
+				case 27:
+					context$2$0.next = 35;
+					break;
+				case 29:
+					if (!isAb) {
+						context$2$0.next = 33;
+						break;
+					}
+					return context$2$0.abrupt("return", new Uint8Array(xhr.response));
+				case 33:
+					for (_len = undefined, i = 0, txt = xhr.responseText, _rv = new Uint8Array(len = txt.length); i < _len; ++i) {
 						_rv[i] = txt.charCodeAt(i) & 255;
 					}
 					return context$2$0.abrupt("return", rv);
-				case 25:
+				case 35:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, downloadImgDataHelper, this);
+		}, downloadImgDataHelper, this, [[6, 12]]);
 	});
 
-	var html5Submit = regeneratorRuntime.mark(function html5Submit(form, fn) {
-		var fData, filesEls, i, _len, fileEl, files, _i, _len2, file, _name, changed, submitOpts, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
+	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
+		var fData, filesEls, i, _len, fileEl, files, _i, _len2, file, _name, changed, xhr, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -445,9 +1864,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						context$2$0.next = 20;
 						break;
 					}
-					return context$2$0.delegateYield(cleanFile(fileEl, file), "t21", 15);
+					return context$2$0.delegateYield(cleanFile(fileEl, file), "t22", 15);
 				case 15:
-					file = context$2$0.t21;
+					file = context$2$0.t22;
 					if (file) {
 						context$2$0.next = 19;
 						break;
@@ -469,35 +1888,50 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 3;
 					break;
 				case 27:
-					submitOpts = {
-						method: "POST",
-						url: nav.fixLink(form.action),
-						onreadystatechange: function onreadystatechange(xhr) {
-							if (xhr.readyState === 4) {
-								if (xhr.status === 200) {
-									fn($DOM(xhr.responseText));
-								} else {
-									$alert(xhr.status === 0 ? Lng.noConnect[lang] : "HTTP [" + xhr.status + "] " + xhr.statusText, "upload", false);
-								}
-							}
-						}
-					};
-					if (nav.hasModernFormData) {
-						submitOpts.data = fData;
-					} else {
-						_fData$getSubmitData = fData.getSubmitData();
-						_fData$getSubmitData2 = _slicedToArray(_fData$getSubmitData, 2);
-						boundary = _fData$getSubmitData2[0];
-						data = _fData$getSubmitData2[1];
-						submitOpts.headers = { "Content-type": "multipart/form-data; boundary=" + boundary };
-						submitOpts.data = data;
+					xhr = undefined;
+					context$2$0.prev = 28;
+					if (!nav.hasModernFormData) {
+						context$2$0.next = 35;
+						break;
 					}
-					$xhr(submitOpts);
-				case 30:
+					context$2$0.next = 32;
+					return $ajax(nav.fixLink(form.action), "POST", { data: fData }, true);
+				case 32:
+					xhr = context$2$0.sent;
+					context$2$0.next = 42;
+					break;
+				case 35:
+					_fData$getSubmitData = fData.getSubmitData();
+					_fData$getSubmitData2 = _slicedToArray(_fData$getSubmitData, 2);
+					boundary = _fData$getSubmitData2[0];
+					data = _fData$getSubmitData2[1];
+					context$2$0.next = 41;
+					return $ajax(nav.fixLink(form.action), "POST", {
+						"Content-type": "multipart/form-data; boundary=" + boundary,
+						data: fData
+					}, true);
+				case 41:
+					xhr = context$2$0.sent;
+				case 42:
+					if (!(xhr.status === 200)) {
+						context$2$0.next = 46;
+						break;
+					}
+					return context$2$0.abrupt("return", $DOM(xhr.responseText));
+				case 46:
+					throw new AjaxError(xhr.status, xhr.statusText);
+				case 47:
+					context$2$0.next = 52;
+					break;
+				case 49:
+					context$2$0.prev = 49;
+					context$2$0.t23 = context$2$0["catch"](28);
+					$alert(getErrorMessage(context$2$0.t23), "upload", false);
+				case 52:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, html5Submit, this);
+		}, html5Submit, this, [[28, 49]]);
 	});
 
 	var cleanFile = regeneratorRuntime.mark(function cleanFile(fileEl, file) {
@@ -508,9 +1942,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 2;
 					return readFileArrayBuffer(file);
 				case 2:
-					context$2$0.t22 = context$2$0.sent;
-					context$2$0.t23 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
-					data = cleanFileHelper(context$2$0.t22, fileEl.obj.imgFile, context$2$0.t23);
+					context$2$0.t24 = context$2$0.sent;
+					context$2$0.t25 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
+					data = cleanFileHelper(context$2$0.t24, fileEl.obj.imgFile, context$2$0.t25);
 					return context$2$0.abrupt("return", data ? new File(data, file.name) : null);
 				case 6:
 				case "end":
@@ -533,9 +1967,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return");
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t29", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t31", 6);
 				case 6:
-					str = context$2$0.t29;
+					str = context$2$0.t31;
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
 						break;
@@ -543,7 +1977,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return");
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t30", 11);
+					return context$2$0.delegateYield(readCfg(), "t32", 11);
 				case 11:
 					new Logger().log("Config loading");
 					if (!Cfg.disabled) {
@@ -566,8 +2000,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					break;
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t31 = context$2$0["catch"](22);
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t31));
+					context$2$0.t33 = context$2$0["catch"](22);
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t33));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 				case 31:
@@ -596,9 +2030,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					doc.body.style.display = "";
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t32", 47);
+					return context$2$0.delegateYield(readUserPosts(), "t34", 47);
 				case 47:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t33", 48);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t35", 48);
 				case 48:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log("Apply spells");
@@ -1321,24 +2755,45 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		});
 	}
 
-	function $xhr(obj) {
-		var h,
-		    xhr = new XMLHttpRequest();
-		if (obj.onreadystatechange) {
-			xhr.onreadystatechange = obj.onreadystatechange.bind(window, xhr);
-		}
-		if (obj.onload) {
-			xhr.onload = obj.onload.bind(window, xhr);
-		}
-		xhr.open(obj.method, obj.url, true);
-		if (obj.responseType) {
-			xhr.responseType = obj.responseType;
-		}
-		for (h in obj.headers) {
-			xhr.setRequestHeader(h, obj.headers[h]);
-		}
-		xhr.send(obj.data || null);
-		return xhr;
+	function $ajax(url) {
+		var method = arguments[1] === undefined ? "GET" : arguments[1];
+		var extraParams = arguments[2] === undefined ? null : arguments[2];
+		var useNative = arguments[3] === undefined ? false : arguments[3];
+		return new Promise(function (resolve, reject) {
+			if (useNative || !(typeof GM_xmlhttpRequest === "function")) {
+				var xhr = new XMLHttpRequest();
+				xhr.onload = function (e) {
+					return resolve(e.target);
+				};
+				xhr.open(method, url, true);
+				if (extraParams) {
+					if (extraParams.responseType) {
+						xhr.responseType = extraParams.responseType;
+					}
+					var headers = extraParams.headers;
+					if (headers) {
+						for (var h in headers) {
+							if (headers.hasOwnProperty(h)) {
+								xhr.setRequestHeader(h, headers[h]);
+							}
+						}
+					}
+				}
+				xhr.send(extraParams && extraParams.data || null);
+			} else {
+				var _obj = {
+					method: method,
+					url: url,
+					onload: function (e) {
+						return resolve(e);
+					}
+				};
+				if (extraParams) {
+					Object.assign(_obj, extraParams);
+				}
+				GM_xmlhttpRequest(_obj);
+			}
+		});
 	}
 
 	function TasksPool(tasksCount, taskFunc, endFn) {
@@ -1446,24 +2901,24 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			for (i = 0, nameLen = Math.min(filepath.length, 100); i < nameLen; ++i) {
 				header[i] = filepath.charCodeAt(i) & 255;
 			}
-
+		
 			this._padSet(header, 100, "100777", 8);
-
+		
 			this._padSet(header, 108, "0", 8);
-
+		
 			this._padSet(header, 116, "0", 8);
-
+		
 			this._padSet(header, 124, fileSize.toString(8), 13);
-
+		
 			this._padSet(header, 136, Math.floor(Date.now() / 1000).toString(8), 12);
-
+		
 			this._padSet(header, 148, "        ", 8);
-
+		
 			header[156] = 48;
 			for (i = checksum = 0; i < 157; i++) {
 				checksum += header[i];
 			}
-
+		
 			this._padSet(header, 148, checksum.toString(8), 8);
 			this._data.push(header);
 			this._data.push(input);
@@ -1562,11 +3017,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this._entries = [];
 			return;
 		}
-
+	
 		var controls = $Q("button, input, keygen, object, select, textarea", form);
 		var formDataSet = [];
 		var fixName = function (name) {
-			return name ? name.replace(/[^\r]\n|\r[^\n]/g, name) : "";
+			return name ? name.replace(/([^\r])\n|\r([^\n])/g, "$1\r\n$2") : "";
 		};
 		constructSet: for (var i = 0, _len = controls.length; i < _len; ++i) {
 			var _ret = (function (i, _len) {
@@ -1763,6 +3218,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	})();
 
 	function isFormElDisabled(el) {
+	
 		switch (el.tagName.toLowerCase()) {
 			case "button":
 			case "input":
@@ -1771,18 +3227,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (el.hasAttribute("disabled")) {
 					return true;
 				}
-
-			default:
+						default:
 				if (nav.matchesSelector(el, "fieldset[disabled] > :not(legend):not(:first-of-type) *")) {
 					return true;
 				}
 		}
 		return false;
 	}
-
-
-
-
 
 	function setStored(id, value) {
 		if (nav.isGM) {
@@ -2053,13 +3504,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								if (TNum) {
 									return;
 								}
-
-							case "de-btn-savethr":
+														case "de-btn-savethr":
 							case "de-btn-audio-off":
 								addMenu(e);
 						}
 						return;
 					default:
+					
 						if (!Cfg.expandPanel && !this.attach) {
 							this.odelay = setTimeout(function (obj) {
 								obj.panel.lastChild.style.display = "none";
@@ -2136,6 +3587,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (data) {
 				showFavoriteTable(cont, data);
 			} else {
+			
 				readFav().then(function (fav) {
 					showFavoriteTable(cont, fav);
 				});
@@ -2165,6 +3617,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
 					cln.btn.parentNode.className = "de-post-btns";
 					cln.btn.onclick = (function () {
+					
 						this.hideContent(this.hidden = !this.hidden);
 					}).bind(cln);
 					if (!block) {
@@ -2860,9 +4313,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			});
 		})]), $New("div", { "class": "de-cfg-depend" }, [inpTxt("loadPages", 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New("div", null, [lBox("updScript", true, null), $New("div", { "class": "de-cfg-depend" }, [optSel("scrUpdIntrv", false, null), $btn(Lng.checkNow[lang], "", function () {
 			$alert(Lng.loading[lang], "updavail", true);
-			checkForUpdates(true, function (html) {
-				$alert(html, "updavail", false);
-			});
+			checkForUpdates(true).then(function (html) {
+				return $alert(html, "updavail", false);
+			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
 			value: excludeList }, {
 			keyup: function keyup() {
@@ -3160,19 +4613,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							case 1:
 								keys[2][11] = tKeys[2][11];
 								keys[4] = tKeys[4];
-
-							case 2:
+														case 2:
 								keys[2][12] = tKeys[2][12];
 								keys[2][13] = tKeys[2][13];
 								keys[2][14] = tKeys[2][14];
 								keys[2][15] = tKeys[2][15];
 								keys[2][16] = tKeys[2][16];
-
-							case 3:
+														case 3:
 								keys[2][17] = keys[3][3];
 								keys[3][3] = keys[3].splice(4, 1)[0];
-
-							case 4:
+														case 4:
 							case 5:
 								if (keys[2][18]) {
 									delete keys[2][18];
@@ -3219,9 +4669,32 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	});
 	HotKeys.getDefaultKeys = function () {
 		var isFirefox = !!nav.Firefox;
-		var globKeys = [75, 74, 82, 72, 4133, 49165, 16454, 16456, 80, 66, 16467, 73, 49218, 49225, 49236, 49232, 49219, 4135];
-		var nonThrKeys = [77, 78, 86, 69];
-		var thrKeys = [85];
+		var globKeys = [
+		75 ,
+		74 ,
+		82 ,
+		72 ,
+		4133 ,
+		49165 ,
+		16454 ,
+		16456 ,
+		80 ,
+		66 ,
+		16467 ,
+		73 ,
+		49218 ,
+		49225 ,
+		49236 ,
+		49232 ,
+		49219 ,
+		4135 		];
+		var nonThrKeys = [
+		77 ,
+		78 ,
+		86 ,
+		69 		];
+		var thrKeys = [
+		85 		];
 		return [HotKeys.version, isFirefox, globKeys, nonThrKeys, thrKeys];
 	};
 	HotKeys.prototype = {
@@ -3266,6 +4739,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    curTh = e.target.tagName,
 			    kc = e.keyCode | (e.ctrlKey ? 4096 : 0) | (e.shiftKey ? 8192 : 0) | (e.altKey ? 16384 : 0) | (curTh === "TEXTAREA" || curTh === "INPUT" && e.target.type === "text" ? 32768 : 0);
 			if (kc === 116 || kc === 32884) {
+			
 				if (TNum || $id("de-alert-load-pages")) {
 					return;
 				}
@@ -3275,6 +4749,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				loadPages(+Cfg.loadPages);
 			} else if (kc === 27) {
+			
 				if (Attachment.viewer) {
 					Attachment.viewer.close(null);
 					Attachment.viewer = null;
@@ -3289,11 +4764,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				this.lastPageOffset = 0;
 			} else if (kc === 32795) {
+			
 				e.target.blur();
 			} else {
 				globIdx = this.gKeys.indexOf(kc);
 				switch (globIdx) {
 					case 2:
+					
 						if (pr.form) {
 							post = this.cPost || this._getFirstVisPost(false, true) || dForm.firstThr.op;
 							this.cPost = post;
@@ -3302,6 +4779,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						break;
 					case 3:
+					
 						post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 						if (post) {
 							post.toggleUserVisib();
@@ -3309,6 +4787,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						break;
 					case 4:
+					
 						if (Attachment.viewer) {
 							Attachment.viewer.navigate(false);
 						} else if (TNum || pageNum !== aib.firstPage) {
@@ -3316,64 +4795,77 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						break;
 					case 5:
+					
 						if (e.target !== pr.txta && e.target !== pr.cap) {
 							return;
 						}
 						pr.subm.click();
 						break;
 					case 6:
+					
 						toggleContent("fav", false);
 						break;
 					case 7:
+					
 						toggleContent("hid", false);
 						break;
 					case 8:
+					
 						$disp($id("de-panel").lastChild);
 						break;
 					case 9:
+					
 						toggleCfg("maskImgs");
 						updateCSS();
 						break;
 					case 10:
+					
 						toggleContent("cfg", false);
 						break;
 					case 11:
+					
 						post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 						if (post) {
 							post.toggleImages(!post.imagesExpanded);
 						}
 						break;
 					case 12:
+					
 						if (e.target !== pr.txta) {
 							return;
 						}
 						$id("de-btn-bold").click();
 						break;
 					case 13:
+					
 						if (e.target !== pr.txta) {
 							return;
 						}
 						$id("de-btn-italic").click();
 						break;
 					case 14:
+					
 						if (e.target !== pr.txta) {
 							return;
 						}
 						$id("de-btn-strike").click();
 						break;
 					case 15:
+					
 						if (e.target !== pr.txta) {
 							return;
 						}
 						$id("de-btn-spoil").click();
 						break;
 					case 16:
+					
 						if (e.target !== pr.txta) {
 							return;
 						}
 						$id("de-btn-code").click();
 						break;
 					case 17:
+					
 						if (Attachment.viewer) {
 							Attachment.viewer.navigate(true);
 						} else if (!TNum && this.lastPage !== aib.lastPage) {
@@ -3384,6 +4876,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (TNum) {
 							idx = this.tKeys.indexOf(kc);
 							if (idx === 0) {
+							
 								Thread.loadNewPosts(null);
 								break;
 							}
@@ -3393,6 +4886,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (idx === -1) {
 							return;
 						} else if (idx === 2) {
+						
 							post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 							if (post) {
 								if (nav.Firefox) {
@@ -3403,6 +4897,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 							break;
 						} else if (idx === 3) {
+						
 							post = this._getFirstVisPost(false, true) || this._getNextVisPost(null, true, false);
 							if (post) {
 								if (post.thr.loadedOnce && post.thr.op.next.count === 1) {
@@ -3421,8 +4916,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 							break;
 						}
-
-					default:
+										default:
 						scrollToThread = !TNum && (globIdx === 0 || globIdx === 1);
 						this._scroll(this._getFirstVisPost(scrollToThread, false), globIdx === 0 || idx === 0, scrollToThread);
 				}
@@ -3617,6 +5111,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					key = e.keyCode;
 					if (key === 27 || key === 46) {
+					
 						this.cEl.value = "";
 						this.cKey = 0;
 						this.errorInput = false;
@@ -3719,6 +5214,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function initMessageFunctions() {
 		window.addEventListener("message", function (e) {
+			if (typeof e.data !== "string") {
+				return;
+			}
 			var temp,
 			    data = e.data.substring(1);
 			switch (e.data[0]) {
@@ -3743,21 +5241,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    j,
 		    dat = new Uint8Array(ab),
 		    len = dat.length;
-
-		if (dat[0] === 255 && dat[1] === 216) {
+				if (dat[0] === 255 && dat[1] === 216) {
 			for (i = 0, j = 0; i < len - 1; i++) {
 				if (dat[i] === 255) {
-					if (dat[i + 1] === 216) {
+										if (dat[i + 1] === 216) {
 						j++;
-					} else if (dat[i + 1] === 217 && --j === 0) {
+											} else if (dat[i + 1] === 217 && --j === 0) {
 						i += 2;
 						break;
 					}
 				}
 			}
-		} else if (dat[0] === 137 && dat[1] === 80) {
+					} else if (dat[0] === 137 && dat[1] === 80) {
 			for (i = 0; i < len - 7; i++) {
-				if (dat[i] === 73 && dat[i + 1] === 69 && dat[i + 2] === 78 && dat[i + 3] === 68) {
+								if (dat[i] === 73 && dat[i + 1] === 69 && dat[i + 2] === 78 && dat[i + 3] === 68) {
 					i += 8;
 					break;
 				}
@@ -3765,18 +5262,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		} else {
 			return {};
 		}
-
-		if (i !== len && len - i > 60) {
+				if (i !== len && len - i > 60) {
 			for (len = i + 90; i < len; i++) {
-				if (dat[i] === 55 && dat[i + 1] === 122 && dat[i + 2] === 188) {
+								if (dat[i] === 55 && dat[i + 1] === 122 && dat[i + 2] === 188) {
 					return { type: 0, idx: i, data: ab };
-				} else if (dat[i] === 80 && dat[i + 1] === 75 && dat[i + 2] === 3) {
+									} else if (dat[i] === 80 && dat[i + 1] === 75 && dat[i + 2] === 3) {
 					return { type: 1, idx: i, data: ab };
-				} else if (dat[i] === 82 && dat[i + 1] === 97 && dat[i + 2] === 114) {
+									} else if (dat[i] === 82 && dat[i + 1] === 97 && dat[i + 2] === 114) {
 					return { type: 2, idx: i, data: ab };
-				} else if (dat[i] === 79 && dat[i + 1] === 103 && dat[i + 2] === 103) {
+									} else if (dat[i] === 79 && dat[i + 1] === 103 && dat[i + 2] === 103) {
 					return { type: 3, idx: i, data: ab };
-				} else if (dat[i] === 73 && dat[i + 1] === 68 && dat[i + 2] === 51) {
+									} else if (dat[i] === 73 && dat[i + 1] === 68 && dat[i + 2] === 51) {
 					return { type: 4, idx: i, data: ab };
 				}
 			}
@@ -3858,27 +5354,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function downloadImgData(url) {
 		return async(downloadImgDataHelper)(url, true);
-	}
-
-	function downloadObjInfo(obj) {
-		return new Promise(function (resolve, reject) {
-			obj.onreadystatechange = function (e) {
-				if (e.readyState === 4) {
-					resolve(e);
-				}
-			};
-			if (aib.fch && nav.Firefox && !obj.url.startsWith("blob")) {
-				obj.overrideMimeType = "text/plain; charset=x-user-defined";
-				GM_xmlhttpRequest(obj);
-			} else {
-				obj.responseType = "arraybuffer";
-				try {
-					$xhr(obj);
-				} catch (e) {
-					resolve(null);
-				}
-			}
-		});
 	}
 
 	function preloadImages(post) {
@@ -4227,33 +5702,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 
-	function loadYtubeTitle(id) {
-		return new Promise(function (resolve, reject) {
-			return GM_xmlhttpRequest({
-				method: "GET",
-				url: aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published",
-				onreadystatechange: function onreadystatechange(xhr) {
-					if (xhr.readyState === 4) {
-						resolve(xhr);
-					}
-				}
-			});
-		});
-	}
-
-	function getVimeoTitle(link, m) {
-		GM_xmlhttpRequest({
-			method: "GET",
-			url: aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json",
-			onload: function onload(xhr) {
-				var json = JSON.parse(xhr.responseText)[0],
-				    date = new RegExp(/(.*)\s(.*)?/).exec(json.upload_date);
-				link.textContent = json.title;
-				link.title = Lng.author[lang] + json.user_name + ", " + Lng.views[lang] + json.stats_number_of_plays + ", " + Lng.published[lang] + date[1];
-			}
-		});
-	}
-
 	function Videos(post) {
 		var player = arguments[1] === undefined ? null : arguments[1];
 		var playerInfo = arguments[2] === undefined ? null : arguments[2];
@@ -4296,7 +5744,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						videoObj = _data[1];
 						id = _data[2];
 						context$3$0.next = 8;
-						return loadYtubeTitle(id);
+						return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published");
 					case 8:
 						xhr = context$3$0.sent;
 						context$3$0.prev = 9;
@@ -4448,7 +5896,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} else {
 					link.className = "de-video-link " + (isYtube ? "de-ytube" : "de-vimeo");
 					if (!isYtube && Cfg.YTubeTitles) {
-						getVimeoTitle(link, m);
+					
+						$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json").then(function (xhr) {
+							var json = JSON.parse(xhr.responseText)[0],
+							    date = new RegExp(/(.*)\s(.*)?/).exec(json.upload_date);
+							link.textContent = json.title;
+							link.title = Lng.author[lang] + json.user_name + ", " + Lng.views[lang] + json.stats_number_of_plays + ", " + Lng.published[lang] + date[1];
+						});
 					}
 				}
 			} else {
@@ -4528,12 +5982,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				el.innerHTML = "<a href=\"" + aib.prot + "//www.youtube.com/watch?v=" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-ytube\" src=\"https://i.ytimg.com/vi/" + m[1] + "/0.jpg\"" + wh;
 			} else {
 				el.innerHTML = "<a href=\"" + aib.prot + "//vimeo.com/" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-vimeo\" src=\"\"" + wh;
-				GM_xmlhttpRequest({
-					method: "GET",
-					url: aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json",
-					onload: function onload(xhr) {
+				$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json").then(function (xhr) {
+					try {
 						el.firstChild.firstChild.setAttribute("src", JSON.parse(xhr.responseText)[0].thumbnail_large);
-					}
+					} catch (e) {}
 				});
 			}
 		}
@@ -4596,57 +6048,35 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function ajaxLoad(url) {
 		var returnForm = arguments[1] === undefined ? true : arguments[1];
 		var parseDOM = arguments[2] === undefined ? true : arguments[2];
-		return new Promise(function (resolve, reject) {
-			return GM_xmlhttpRequest({
-				method: "GET",
-				url: nav.fixLink(url),
-				onreadystatechange: function onreadystatechange(xhr) {
-					if (xhr.readyState !== 4) {
-						return;
-					}
-					if (xhr.status !== 200) {
-						reject(new AjaxError(xhr.status, xhr.statusText));
-					} else if (parseDOM) {
-						var el,
-						    text = xhr.responseText;
-						if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
-							el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-						}
-						if (el) {
-							resolve(el);
-						} else {
-							reject(new AjaxError(0, Lng.errCorruptData[lang]));
-						}
-					} else {
-						resolve(null);
-					}
+		return $ajax(nav.fixLink(url)).then(function (xhr) {
+			if (xhr.status !== 200) {
+				throw new AjaxError(xhr.status, xhr.statusText);
+			} else if (parseDOM) {
+				var el,
+				    text = xhr.responseText;
+				if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+					el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 				}
-			});
+				if (el) {
+					return el;
+				} else {
+					throw new AjaxError(0, Lng.errCorruptData[lang]);
+				}
+			} else {
+				return null;
+			}
 		});
 	}
 
 	function getJsonPosts(url) {
-		return new Promise(function (resolve, reject) {
-			return GM_xmlhttpRequest({
-				method: "GET",
-				url: nav.fixLink(url),
-				onreadystatechange: function onreadystatechange(xhr) {
-					if (xhr.readyState !== 4) {
-						return;
-					}
-					if (xhr.status === 304) {
-						resolve(null);
-					} else if (xhr.status === 200) {
-						try {
-							resolve(JSON.parse(xhr.responseText));
-						} catch (e) {
-							reject(e);
-						}
-					} else {
-						reject(new AjaxError(xht.status, xhr.message));
-					}
-				}
-			});
+		return $ajax(nav.fixLink(url)).then(function (xhr) {
+			if (xhr.status === 304) {
+				return null;
+			}
+			if (xhr.status === 200) {
+				return JSON.parse(xhr.responseText);
+			}
+			throw new AjaxError(xht.status, xhr.message);
 		});
 	}
 
@@ -4704,14 +6134,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					context$2$0.next = 16;
 					return ajaxLoad(aib.getPageUrl(brd, pageNum));
 				case 16:
-					context$2$0.t15 = context$2$0.sent;
-					content = replacePost(context$2$0.t15);
+					context$2$0.t16 = context$2$0.sent;
+					content = replacePost(context$2$0.t16);
 					context$2$0.next = 23;
 					break;
 				case 20:
 					context$2$0.prev = 20;
-					context$2$0.t16 = context$2$0["catch"](13);
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t16) + "</center><hr></div>");
+					context$2$0.t17 = context$2$0["catch"](13);
+					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t17) + "</center><hr></div>");
 				case 23:
 					if (i != pageNum) {
 						dForm.el.insertAdjacentHTML("beforeend", "<center style=\"font-size: 2em\">" + Lng.page[lang] + " " + i + "</center><hr>");
@@ -4722,8 +6152,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					break;
 				case 28:
 					context$2$0.prev = 28;
-					context$2$0.t17 = context$2$0["catch"](24);
-					$alert(getPrettyErrorMessage(context$2$0.t17), "load-pages", true);
+					context$2$0.t18 = context$2$0["catch"](24);
+					$alert(getPrettyErrorMessage(context$2$0.t18), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 36);
 				case 33:
@@ -4737,9 +6167,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					dForm.initAjax();
 					addDelformStuff(false);
-					return context$2$0.delegateYield(readUserPosts(), "t18", 40);
+					return context$2$0.delegateYield(readUserPosts(), "t19", 40);
 				case 40:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t19", 41);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t20", 41);
 				case 41:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
 						pr.dpass = pEl;
@@ -4785,16 +6215,22 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	}
 	Spells.names = ["words", "exp", "exph", "imgn", "ihash", "subj", "name", "trip", "img", "sage", "op", "tlen", "all", "video", "wipe", "num", "vauthor"];
-	Spells.needArg = [true, true, true, true, true, false, true, false, false, false, false, false, false, false, false, true, true];
+	Spells.needArg = [
+	true, true, true, true, true,
+	false, true, false, false, false,
+	false, false, false, false, false,
+	true, true];
 	Spells.decompileSpell = function (type, neg, val, scope) {
 		var spell = (neg ? "!#" : "#") + Spells.names[type] + (scope ? "[" + scope[0] + (scope[1] ? "," + (scope[1] === -1 ? "" : scope[1]) : "") + "]" : "");
 		if (!val) {
 			return spell;
 		}
-
+	
 		if (type === 8) {
 			return spell + "(" + (val[0] === 2 ? ">" : val[0] === 1 ? "<" : "=") + (val[1] ? val[1][0] + (val[1][1] === val[1][0] ? "" : "-" + val[1][1]) : "") + (val[2] ? "@" + val[2][0] + (val[2][0] === val[2][1] ? "" : "-" + val[2][1]) + "x" + val[2][2] + (val[2][2] === val[2][3] ? "" : "-" + val[2][3]) : "") + ")";
-		} else if (type === 14) {
+		}
+	
+		else if (type === 14) {
 			if (val === 63) {
 				return spell;
 			}
@@ -4807,13 +6243,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					names.push(bits[bit]);
 				}
 			}
-			return spell + "(" + temp.join(",") + ")";
-		} else if (type === 15 || type === 11) {
+			return spell + "(" + names.join(",") + ")";
+		}
+	
+		else if (type === 15 || type === 11) {
 			var temp_ = undefined,
-			    _temp = val[1].length - 1;
-			if (_temp !== -1) {
-				for (temp_ = []; _temp >= 0; --_temp) {
-					temp_.push(val[1][_temp][0] + "-" + val[1][_temp][1]);
+			    temp = val[1].length - 1;
+			if (temp !== -1) {
+				for (temp_ = []; temp >= 0; --temp) {
+					temp_.push(val[1][temp][0] + "-" + val[1][temp][1]);
 				}
 				temp_.reverse();
 			}
@@ -4825,7 +6263,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				spell += temp_.join(",");
 			}
 			return spell + ")";
-		} else if (type === 0 || type === 6 || type === 7 || type === 16) {
+		}
+	
+		else if (type === 0 || type === 6 || type === 7 || type === 16) {
 			return spell + "(" + val.replace(/\)/g, "\\)") + ")";
 		} else {
 			return spell + "(" + String(val) + ")";
@@ -5067,6 +6507,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return null;
 		},
 		sort: function sort(sp) {
+		
 			for (var i = 0, _len = sp.length - 1; i < _len; i++) {
 				if (sp[i][0] > 512) {
 					var temp = [255, []];
@@ -5080,10 +6521,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			sp = sp.sort();
 			for (var i = 0, _len2 = sp.length - 1; i < _len2; i++) {
-				if (sp[i][0] === sp[i + 1][0] && sp[i][1] <= sp[i + 1][1] && sp[i][1] >= sp[i + 1][1] && (sp[i][2] === null || sp[i][2] === undefined || sp[i][2] <= sp[i + 1][2] && sp[i][2] >= sp[i + 1][2])) {
+			
+				if (sp[i][0] === sp[i + 1][0] && sp[i][1] <= sp[i + 1][1] && sp[i][1] >= sp[i + 1][1] && (sp[i][2] === null ||
+				sp[i][2] === undefined || sp[i][2] <= sp[i + 1][2] && sp[i][2] >= sp[i + 1][2])) {
+				
 					sp.splice(i + 1, 1);
 					i--;
 					_len2--;
+				
 				} else if (sp[i][0] === 255) {
 					sp.push(sp.splice(i, 1)[0]);
 					i--;
@@ -5251,8 +6696,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					case "\n":
 						this._line++;
 						this._col = 0;
-
-					case "\r":
+										case "\r":
 					case " ":
 						continue;
 					case "#":
@@ -5373,8 +6817,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (inParens) {
 							return [i, spells];
 						}
-
-					default:
+										default:
 						this._setError(Lng.seUnexpChar[lang], sList[i]);
 						return null;
 				}
@@ -5481,21 +6924,21 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return [str[0] === "(" ? i + 2 : i, [spellType, spellIdx === 14 ? 63 : "", scope]];
 			}
 			switch (spellIdx) {
-
+			
 				case 4:
 					m = str.match(/^\((\d+)\)/);
 					if (+m[1] === +m[1]) {
 						return [i + m[0].length, [spellType, +m[1], scope]];
 					}
 					break;
-
+			
 				case 8:
 					m = str.match(/^\(([><=])(?:(\d+(?:\.\d+)?)(?:-(\d+(?:\.\d+)?))?)?(?:@(\d+)(?:-(\d+))?x(\d+)(?:-(\d+))?)?\)/);
 					if (m && (m[2] || m[4])) {
 						return [i + m[0].length, [spellType, [m[1] === "=" ? 0 : m[1] === "<" ? 1 : 2, m[2] && [+m[2], m[3] ? +m[3] : +m[2]], m[4] && [+m[4], m[5] ? +m[5] : +m[4], +m[6], m[7] ? +m[7] : +m[6]]], scope]];
 					}
 					break;
-
+			
 				case 14:
 					m = str.match(/^\(([a-z, ]+)\)/);
 					if (m) {
@@ -5524,7 +6967,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 					}
 					break;
-
+			
 				case 11:
 				case 15:
 					m = str.match(/^\(([\d-, ]+)\)/);
@@ -5542,7 +6985,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return [i + m[0].length, [spellType, val, scope]];
 					}
 					break;
-
+			
 				case 1:
 				case 2:
 				case 3:
@@ -5553,7 +6996,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return [i + temp[0], [spellType, temp[1], scope]];
 					}
 					break;
-
+			
 				default:
 					temp = this._getText(str, true);
 					if (temp) {
@@ -5768,16 +7211,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							context$2$0.next = 7;
 							break;
 						}
-						context$2$0.t20 = image.hash;
+						context$2$0.t21 = image.hash;
 						context$2$0.next = 10;
 						break;
 					case 7:
 						context$2$0.next = 9;
 						return image.getHash();
 					case 9:
-						context$2$0.t20 = context$2$0.sent;
+						context$2$0.t21 = context$2$0.sent;
 					case 10:
-						hash = context$2$0.t20;
+						hash = context$2$0.t21;
 						if (!(hash === val)) {
 							context$2$0.next = 13;
 							break;
@@ -5885,7 +7328,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    casew,
 			    _txt,
 			    txt = this._post.text;
-
+		
 			if (val & 1) {
 				arr = txt.replace(/>/g, "").split(/\s*\n\s*/);
 				if ((len = arr.length) > 5) {
@@ -5903,7 +7346,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 				}
 			}
-
+		
 			if (val & 2) {
 				arr = txt.replace(/[\s\.\?\!,>]+/g, " ").toUpperCase().split(" ");
 				if ((len = arr.length) > 3) {
@@ -5931,7 +7374,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 				}
 			}
-
+		
 			if (val & 4) {
 				arr = txt.replace(/https*:\/\/.*?(\s|$)/g, "").replace(/[\s\.\?!,>:;-]+/g, " ").split(" ");
 				if (arr[0].length > 50 || (len = arr.length) > 1 && arr.join("").length / len > 10) {
@@ -5939,7 +7382,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return true;
 				}
 			}
-
+		
 			if (val & 8) {
 				_txt = txt.replace(/\s+/g, "");
 				if ((len = _txt.length) > 30 && (x = _txt.replace(/[0-9a-zа-я\.\?!,]/ig, "").length / len) > 0.4) {
@@ -5947,7 +7390,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return true;
 				}
 			}
-
+		
 			if (val & 16) {
 				arr = txt.replace(/[\s\.\?!;,-]+/g, " ").trim().split(" ");
 				if ((len = arr.length) > 4) {
@@ -5973,7 +7416,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 				}
 			}
-
+		
 			if (val & 32) {
 				_txt = txt.replace(/\s+/g, " ").replace(/>>\d+|https*:\/\/.*?(?: |$)/g, "");
 				if ((len = _txt.length) > 30 && (x = (len - _txt.replace(/\d/g, "").length) / len) > 0.4) {
@@ -5981,7 +7424,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return true;
 				}
 			}
-
+		
 			if (val & 64) {
 				if (/(?:\n\s*){5}/i.test(txt)) {
 					this._wipeMsg = "whitespace";
@@ -6484,6 +7927,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							this._oldY = curY;
 							return;
 						default:
+						
 							doc.body.removeEventListener("mousemove", this, false);
 							doc.body.removeEventListener("mouseup", this, false);
 							saveCfg("qReplyX", this._X);
@@ -6548,6 +7992,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								this._elStyle.height = e.clientY - cr.top + "px";
 								return;
 							default:
+							
 								doc.body.removeEventListener("mousemove", this, false);
 								doc.body.removeEventListener("mouseup", this, false);
 								saveCfg("textaWidth", parseInt(this._elStyle.width, 10));
@@ -6599,45 +8044,37 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var temp,
 				    val = _this.txta.value;
 				if (aib._2chru && !aib.reqCaptcha) {
-					GM_xmlhttpRequest({
-						method: "GET",
-						url: "/" + brd + "/api/requires-captcha",
-						onreadystatechange: function (xhr) {
-							if (xhr.readyState !== 4 || xhr.status !== 200) {
-								return;
-							}
-							aib.reqCaptcha = true;
-							if (JSON.parse(xhr.responseText)["requires-captcha"] !== "1") {
-								_this.subm.click();
-								return;
-							}
-							$id("captcha_tr").style.display = "table-row";
-							$id("captchaimage").src = "/" + brd + "/captcha?" + Math.random();
-							$after(_this.cap, $new("span", {
-								"class": "shortened",
-								style: "margin: 0px 0.5em;",
-								text: "проверить капчу" }, {
-								click: function click() {
-									var _this2 = this;
-									GM_xmlhttpRequest({
-										method: "POST",
-										url: "/" + brd + "/api/validate-captcha",
-										onreadystatechange: function (str) {
-											if (str.readyState === 4 && str.status === 200) {
-												if (JSON.parse(str.responseText).status === "ok") {
-													_this2.innerHTML = "можно постить";
-												} else {
-													_this2.innerHTML = "неверная капча";
-													setTimeout(function (el) {
-														_this2.innerHTML = "проверить капчу";
-													}, 1000);
-												}
-											}
-										}
-									});
-								}
-							}));
+					$ajax("/" + brd + "/api/requires-captcha").then(function (xhr) {
+						if (xhr.status !== 200) {
+							return;
 						}
+						aib.reqCaptcha = true;
+						if (JSON.parse(xhr.responseText)["requires-captcha"] !== "1") {
+							_this.subm.click();
+							return;
+						}
+						$id("captcha_tr").style.display = "table-row";
+						$id("captchaimage").src = "/" + brd + "/captcha?" + Math.random();
+						$after(_this.cap, $new("span", {
+							"class": "shortened",
+							style: "margin: 0px 0.5em;",
+							text: "проверить капчу" }, {
+							click: function click() {
+								var _this2 = this;
+								$ajax("/" + brd + "/api/validate-captcha", "POST").then(function (xhr) {
+									if (xhr.status === 200) {
+										if (JSON.parse(xhr.responseText).status === "ok") {
+											_this2.innerHTML = "можно постить";
+										} else {
+											_this2.innerHTML = "неверная капча";
+											setTimeout(function (el) {
+												_this2.innerHTML = "проверить капчу";
+											}, 1000);
+										}
+									}
+								});
+							}
+						}));
 					});
 					$pd(e);
 					return;
@@ -6718,11 +8155,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + brd + "/csstest.foo\"></iframe>");
 							doc.body.lastChild.onload = function (e) {
 								$del(e.target);
-								async(html5Submit)(_this.form, checkUpload);
+								spawn(html5Submit, _this.form).then(checkUpload, function (err) {
+									throw err;
+								});
 							};
 							return;
 						}
-						async(html5Submit)(_this.form, checkUpload);
+						spawn(html5Submit, _this.form).then(checkUpload, function (err) {
+							throw err;
+						});
 					};
 				}, 0);
 			} else if (Cfg.ajaxReply === 1) {
@@ -7225,6 +8666,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					return;
 				default:
+				
 					doc.body.removeEventListener("mousemove", this, false);
 					doc.body.removeEventListener("mouseup", this, false);
 					if (this.vertical) {
@@ -7410,7 +8852,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (!rand && !rExif && !extraData) {
 			return rv;
 		}
-
+	
 		if (img[0] === 255 && img[1] === 216) {
 			for (i = 2, deep = 1, len = img.length - 1, val = [null, null], lIdx = 2, jpgDat = null; i < len;) {
 				if (img[i] === 255) {
@@ -7462,7 +8904,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			return val;
 		}
-
+	
 		if (img[0] === 137 && img[1] === 80) {
 			for (i = 0, len = img.length - 7; i < len && (img[i] !== 73 || img[i + 1] !== 69 || img[i + 2] !== 78 || img[i + 3] !== 68); i++) {}
 			i += 8;
@@ -7471,7 +8913,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			return rv;
 		}
-
+	
 		if (img[0] === 26 && img[1] === 69 && img[2] === 223 && img[3] === 163) {
 			return new WebmParser(data).addData(rand).getData();
 		}
@@ -7814,8 +9256,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return;
 				case "mouseover":
 					isOverEvent = true;
-
-				case "mouseout":
+								case "mouseout":
 					temp = e.relatedTarget;
 					if (!temp || temp !== this._obj && !this._obj.contains(temp)) {
 						if (isOverEvent) {
@@ -7829,6 +9270,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this._handleWheelEvent(e.clientX, e.clientY, -1 / 40 * ("wheelDeltaY" in e ? e.wheelDeltaY : e.wheelDelta));
 					break;
 				default:
+				
 					this._handleWheelEvent(e.clientX, e.clientY, e.deltaY);
 			}
 			$pd(e);
@@ -8689,8 +10131,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case "de-btn-hide":
 				case "de-btn-hide-user":
 					this._addButtonTitle(el);
-
-				case "de-btn-src":
+								case "de-btn-src":
 					if (isOutEvent) {
 						this._closeMenu(e.relatedTarget);
 					} else {
@@ -8722,10 +10163,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						el.lchecked = true;
 						return;
 					}
-
+				
 					el.className = "de-link-pref " + el.className;
-
-				case "de-link-ref":
+								case "de-link-ref":
 				case "de-link-pref":
 					if (Cfg.linksNavig) {
 						if (isOutEvent) {
@@ -8856,6 +10296,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							case "mouseover":
 								_this.thr.el.style.display = "";return;
 							default:
+							
 								if (_this.hidden) {
 									_this.thr.el.style.display = "none";
 								}
@@ -9518,7 +10959,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this.data, "t24", 1);
+						return context$3$0.delegateYield(_this.data, "t26", 1);
 					case 1:
 					case "end":
 						return context$3$0.stop();
@@ -9575,9 +11016,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this._attachedImages, "t25", 1);
+						return context$3$0.delegateYield(_this._attachedImages, "t27", 1);
 					case 1:
-						return context$3$0.delegateYield(_this.data, "t26", 2);
+						return context$3$0.delegateYield(_this.data, "t28", 2);
 					case 2:
 					case "end":
 						return context$3$0.stop();
@@ -10309,8 +11750,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						context$2$0.next = 18;
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 					case 18:
-						context$2$0.t27 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t27));
+						context$2$0.t29 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t29));
 					case 20:
 					case "end":
 						return context$2$0.stop();
@@ -10638,6 +12079,27 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			String.prototype.contains = function (s) {
 				return this.indexOf(s) !== -1;
 			};
+			String.prototype.startsWith = function (s) {
+				return this.indexOf(s) === 0;
+			};
+		}
+		if (!("repeat" in String.prototype)) {
+			String.prototype.repeat = function (nTimes) {
+				return new Array(nTimes + 1).join(this.valueOf());
+			};
+		}
+		if (!("clz32" in Math)) {
+			Math.clz32 = function (x) {
+				return x < 1 ? x === 0 ? 32 : 0 : 31 - (Math.log(x) / Math.LN2 >> 0);
+			};
+		}
+		if (!("assign" in Object)) {
+			Object.assign = function (a, b) {
+				for (var i in b) {
+					a[i] = b[i];
+				}
+				return a;
+			};
 		}
 		if ("toJSON" in aProto) {
 			delete aProto.toJSON;
@@ -10655,9 +12117,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().contains("not supported")),
 		    isChromeStorage = window.chrome && !!window.chrome.storage,
 		    isScriptStorage = !!scriptStorage && !ua.contains("Opera Mobi");
-		if (typeof GM_xmlhttpRequest !== "function") {
-			window.GM_xmlhttpRequest = $xhr;
-		}
 		return Object.defineProperties({
 			Firefox: firefox,
 			Opera11: opera11,
@@ -10684,7 +12143,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			fixLink: safari ? getAbsLink : function fixLink(url) {
 				return url;
 			},
-
+		
 			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
 				var rv;
 				if (typeof i === "undefined") {
@@ -10706,10 +12165,24 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				enumerable: true,
 				configurable: true
 			},
+			canHTML5Post: {
+				get: function () {
+					var val = false;
+					try {
+						new File([""], "");
+						val = true;
+					} catch (e) {}
+					Object.defineProperty(this, "canHTML5Post", { value: val });
+					return val;
+				},
+				enumerable: true,
+				configurable: true
+			},
 			hasWorker: {
 				get: function () {
 					var val = false;
-					if (!nav.Firefox) {
+					if (!this.Firefox) {
+					
 						try {
 							val = "Worker" in window;
 						} catch (e) {}
@@ -11873,8 +13346,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 						doc.body.style.display = "";
 					})();
-
-				default:
+								default:
 					return;
 			}
 		}, false);
@@ -12000,7 +13472,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						$pd(e);
 						pr.closeQReply();
 						$alert(Lng.deleting[lang], "deleting", true);
-						async(html5Submit)(_this.el, checkDelete);
+						spawn(html5Submit, _this.el).then(checkDelete, function (err) {
+							throw err;
+						});
 					};
 				}
 			} else if (Cfg.ajaxReply === 1) {
@@ -12127,8 +13601,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						break;
 					case 22:
 						context$3$0.prev = 22;
-						context$3$0.t28 = context$3$0["catch"](16);
-						_error = context$3$0.t28;
+						context$3$0.t30 = context$3$0["catch"](16);
+						_error = context$3$0.t30;
 					case 25:
 						infoLoadErrors(_error, -1);
 						isAjaxError = _error instanceof AjaxError;
@@ -12503,8 +13977,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function initPage() {
 		if (Cfg.updScript) {
 			checkForUpdates(false, function (html) {
-				$alert(html, "updavail", false);
-			});
+				return $alert(html, "updavail", false);
+			}, emptyFn);
 		}
 		if (TNum) {
 			if (Cfg.rePageTitle) {
@@ -12539,35 +14013,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, 0);
 	}
 
-	function checkForUpdates(isForce, fn) {
-		var day,
-		    temp = Cfg.scrUpdIntrv;
-		if (!isForce) {
-			day = 2 * 1000 * 60 * 60 * 24;
-			switch (temp) {
-				case 0:
-					temp = day;break;
-				case 1:
-					temp = day * 2;break;
-				case 2:
-					temp = day * 7;break;
-				case 3:
-					temp = day * 14;break;
-				default:
-					temp = day * 30;
-			}
-			if (Date.now() - +comCfg.lastUpd < temp) {
-				return;
-			}
-		}
-		GM_xmlhttpRequest({
-			method: "GET",
-			url: "https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js",
-			headers: { "Content-Type": "text/plain" },
-			onreadystatechange: function onreadystatechange(xhr) {
-				if (xhr.readyState !== 4) {
-					return;
+	function checkForUpdates(isForce) {
+		return new Promise(function (resolve, reject) {
+			var day,
+			    temp = Cfg.scrUpdIntrv;
+			if (!isForce) {
+				day = 2 * 1000 * 60 * 60 * 24;
+				switch (temp) {
+					case 0:
+						temp = day;break;
+					case 1:
+						temp = day * 2;break;
+					case 2:
+						temp = day * 7;break;
+					case 3:
+						temp = day * 14;break;
+					default:
+						temp = day * 30;
 				}
+				if (Date.now() - +comCfg.lastUpd < temp) {
+					reject();
+				}
+			}
+			$ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", "GET", { "Content-Type": "text/plain" }).then(function (xhr) {
 				if (xhr.status === 200) {
 					var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split("."),
 					    cVer = version.split("."),
@@ -12576,7 +14044,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					    isUpd = false;
 					if (!dVer) {
 						if (isForce) {
-							fn("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
+							resolve("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
 						}
 						return;
 					}
@@ -12591,14 +14059,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						i++;
 					}
 					if (isUpd) {
-						fn("<a style=\"color: blue; font-weight: bold;\" href=\"https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>");
+						resolve("<a style=\"color: blue; font-weight: bold;\" href=\"https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js\">" + Lng.updAvail[lang] + "</a>");
 					} else if (isForce) {
-						fn(Lng.haveLatest[lang]);
+						resolve(Lng.haveLatest[lang]);
 					}
 				} else if (isForce) {
-					fn("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
+					resolve("<div style=\"color: red; font-weigth: bold;\">" + Lng.noConnect[lang] + "</div>");
 				}
-			}
+			});
 		});
 	}
 
@@ -12620,10 +14088,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return id + " { background: url(data:image/gif;base64," + src + ") no-repeat center !important; }";
 		}
 
-
+	
 		x += "#de-main { -moz-box-sizing: content-box; box-sizing: content-box; }\t\t.de-block { display: block; }\t\t#de-content-cfg > div { float: left; border-radius: 10px 10px 0 0; width: auto; min-width: 0; padding: 0; margin: 5px 20px; }\t\t.de-cfg-head { padding: 2px; border-radius: 10px 10px 0 0; color: #fff; text-align: center; font: bold 14px arial; cursor: default; }\t\t.de-cfg-head:lang(en), #de-panel:lang(en) { background: linear-gradient(to bottom, #4b90df, #3d77be 5px, #376cb0 7px, #295591 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #183d77 13px, #1f4485 18px, #264c90 20px, #325f9e 25px); }\t\t.de-cfg-head:lang(fr), #de-panel:lang(fr) { background: linear-gradient(to bottom, #7b849b, #616b86 2px, #3a414f 13px, rgba(0,0,0,0) 13px), linear-gradient(to bottom, rgba(0,0,0,0) 12px, #121212 13px, #1f2740 25px); }\t\t.de-cfg-head:lang(de), #de-panel:lang(de) { background: #777; }\t\t.de-cfg-body { min-height: 308px; min-width: 357px; padding: 11px 7px 7px; margin-top: -1px; font: 13px sans-serif !important;}\t\t.de-cfg-body input, .de-cfg-body label, .de-cfg-body select { width: auto; padding: 0 !important; margin: 1px 2px !important; }\t\t.de-cfg-body input[type=\"button\"], .de-cfg-body input[type=\"text\"] { padding: 1px 2px !important; }\t\t.de-cfg-body, #de-cfg-btns { border: 1px solid #183d77; border-top: none; }\t\t.de-cfg-body:lang(de), #de-cfg-btns:lang(de) { border-color: #444; }\t\t#de-cfg-btns { padding: 3px; font-size: 13px !important; }\t\t#de-cfg-btns input { padding: 0 3px; }\t\t#de-cfg-bar { width: 100%; display: table; background-color: #1f2740; margin: 0; padding: 0; }\t\t#de-cfg-bar:lang(en) { background-color: #325f9e; }\t\t#de-cfg-bar:lang(de) { background-color: #777; }\t\t.de-cfg-depend { padding-left: 25px; }\t\t.de-cfg-tab { padding: 4px 4px; border-radius: 4px 4px 0 0; font: bold 12px arial; text-align: center; cursor: default; }\t\t.de-cfg-tab-back { display: table-cell !important; float: none !important; width:auto; min-width: 0 !important; padding: 0 !important; box-shadow: none !important; border: 1px solid #183d77 !important; border-radius: 4px 4px 0 0 !important; opacity: 1; }\t\t.de-cfg-tab-back:lang(de) { border-color: #444 !important; }\t\t.de-cfg-tab-back:lang(fr) { border-color: #121421 !important; }\t\t.de-cfg-tab-back[selected=\"true\"] { border-bottom: none !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab { background-color: rgba(0,0,0,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:lang(fr) { background: linear-gradient(to bottom, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover { background-color: rgba(99,99,99,.2); }\t\t.de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(en), .de-cfg-tab-back[selected=\"false\"] > .de-cfg-tab:hover:lang(fr)  { background: linear-gradient(to top, rgba(132,132,132,.35) 0%, rgba(79,79,79,.35) 50%, rgba(40,40,40,.35) 50%, rgba(80,80,80,.35) 100%) !important; }\t\t.de-cfg-tab::" + (nav.Firefox ? "-moz-" : "") + "selection { background: transparent; }\t\t.de-cfg-unvis { display: none; }\t\t#de-spell-panel { float: right; }\t\t#de-spell-panel > a { padding: 0 4px; }\t\t#de-spell-div { display: table; }\t\t#de-spell-div > div { display: table-cell; vertical-align: top; }\t\t#de-spell-edit { padding: 2px !important; width: 325px; height: 180px; max-width: 100%; border: none !important; outline: none !important; }\t\t#de-spell-rowmeter { padding: 2px 3px 0 0; margin: 2px 0; overflow: hidden; width: 2em; height: 182px; text-align: right; color: #fff; font: 12px courier new; }\t\t#de-spell-rowmeter:lang(en), #de-spell-rowmeter:lang(fr) { background-color: #616b86; }\t\t#de-spell-rowmeter:lang(de) { background-color: #777; }";
 
-
+	
 		x += "#de-btn-logo { margin-right: 3px; cursor: pointer; }\t\t#de-panel { height: 25px; z-index: 9999; border-radius: 15px 0 0 0; cursor: default;}\t\t#de-panel-btns { display: inline-block; padding: 0 0 0 2px; margin: 0; height: 25px; border-left: 1px solid #8fbbed; }\t\t#de-panel-btns:lang(de), #de-panel-info:lang(de) { border-color: #ccc; }\t\t#de-panel-btns:lang(fr), #de-panel-info:lang(fr) { border-color: #616b86; }\t\t#de-panel-btns > li { margin: 0 1px; padding: 0; }\t\t#de-panel-btns > li, #de-panel-btns > li > a, #de-btn-logo { display: inline-block; width: 25px; height: 25px; }\t\t#de-panel-btns:lang(en) > li, #de-panel-btns:lang(fr) > li  { transition: all 0.3s ease; }\t\t#de-panel-btns:lang(en) > li:hover, #de-panel-btns:lang(fr) > li:hover { background-color: rgba(255,255,255,.15); box-shadow: 0 0 3px rgba(143,187,237,.5); }\t\t#de-panel-btns:lang(de) > li > a { border-radius: 5px; }\t\t#de-panel-btns:lang(de) > li > a:hover { width: 21px; height: 21px; border: 2px solid #444; }\t\t#de-panel-info { vertical-align: 6px; padding: " + (nav.Chrome ? 3 : 2) + "px 6px; margin-left: 2px; height: 25px; border-left: 1px solid #8fbbed; color: #fff; font: 18px serif; }";
 		p = "R0lGODlhGQAZAIAAAPDw8P///yH5BAEAAAEALAAAAAAZABkA";
 		x += gif("#de-btn-logo", p + "QAI5jI+pywEPWoIIRomz3tN6K30ixZXM+HCgtjpk1rbmTNc0erHvLOt4vvj1KqnD8FQ0HIPCpbIJtB0KADs=");
@@ -12656,7 +14124,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return;
 		}
 
-
+	
 		x += ".de-post-btns { margin-left: 4px; }\t\t.de-post-note { color: inherit; margin: 0 4px; vertical-align: 1px; font: italic bold 12px serif; }\t\t.de-thread-note { font-style: italic; }\t\t.de-btn-expthr, .de-btn-fav, .de-btn-fav-sel, .de-btn-hide, .de-btn-hide-user, .de-btn-rep, .de-btn-sage, .de-btn-src, .de-btn-stick, .de-btn-stick-on { transform:rotate(0deg); display: inline-block; margin: 0 4px -2px 0 !important; cursor: pointer; ";
 		if (Cfg.postBtnsCSS === 0) {
 			x += "color: #4F7942; font-size: 14px; }\t\t\t.de-post-hide .de-btn-hide:after { content: \"✚\"; }\t\t\t.de-post-hide .de-btn-hide-user:after { content: \"✚\"; }\t\t\t.de-btn-expthr:after { content: \"⇕\"; }\t\t\t.de-btn-fav:after { content: \"★\"; }\t\t\t.de-btn-fav-sel:after { content: \"[★]\"; }\t\t\t.de-btn-hide:after { content: \"✖\"; }\t\t\t.de-btn-hide-user:after { content: \"✖\"; color: red !important; }\t\t\t.de-btn-rep:after { content: \"▶\"; }\t\t\t.de-btn-sage:after { content: \"❎\"; }\t\t\t.de-btn-src:after { content: \"[S]\"; }\t\t\t.de-btn-stick:after { content: \"◻\"; }\t\t\t.de-btn-stick-on:after { content: \"◼\"; }";
@@ -12695,16 +14163,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			x += ".de-btn-rep { display: none; }";
 		}
 
-
+	
 		x += cont(".de-src-google", "https://google.com/favicon.ico");
 		x += cont(".de-src-tineye", "https://tineye.com/favicon.ico");
 		x += cont(".de-src-iqdb", "//iqdb.org/favicon.ico");
 		x += cont(".de-src-saucenao", "https://saucenao.com/favicon.ico");
 
-
+	
 		x += ".de-post-counter:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\t\t.de-post-deleted:after { content: \"" + Lng.deleted[lang] + "\"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }";
 
-
+	
 		x += "#de-txt-panel { display: block; height: 23px; font-weight: bold; cursor: pointer; }\t\t#de-txt-panel > span:empty { display: inline-block; width: 27px; height: 23px; }";
 		p = "R0lGODlhFwAWAJEAAPDw8GRkZAAAAP///yH5BAEAAAMALAAAAAAXABYAQAJ";
 		x += gif("#de-btn-bold:empty", p + "T3IKpq4YAoZgR0KqqnfzipIUikFWc6ZHBwbQtG4zyonW2Vkb2iYOo8Ps8ZLOV69gYEkU5yQ7YUzqhzmgsOLXWnlRIc9PleX06rnbJ/KITDqTLUAAAOw==");
@@ -12717,28 +14185,28 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		x += gif("#de-btn-sub:empty", p + "R3IKpq4YAgZiSxquujtOCvIUayAkVZEoRcjCu2wbivMw2WaYi7vVYYqMFYq/i8BEM4ZIrYOmpdD49m2VFd2oiUZTORWcNYT9SpnZrTjiML0MBADs=");
 		x += gif("#de-btn-quote:empty", p + "L3IKpq4YAYxRUSKguvRzkDkZfWFlicDCqmgYhuGjVO74zlnQlnL98uwqiHr5ODbDxHSE7Y490wxF90eUkepoysRxrMVaUJBzClaEAADs=");
 
-
+	
 		if (nav.Anim) {
 			x += "@keyframes de-open {\t\t\t\t0% { transform: translateY(-100%); }\t\t\t\t100% { transform: translateY(0); }\t\t\t}\t\t\t@keyframes de-close {\t\t\t\t0% { transform: translateY(0); }\t\t\t\t100% { transform: translateY(-100%); }\t\t\t}\t\t\t@keyframes de-blink {\t\t\t\t0%, 100% { transform: translateX(0); }\t\t\t\t10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }\t\t\t\t20%, 40%, 60%, 80% { transform: translateX(10px); }\t\t\t}\t\t\t@keyframes de-cfg-open { from { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t\t@keyframes de-cfg-close { to { transform: translate(0,50%) scaleY(0); opacity: 0; } }\t\t\t@keyframes de-post-open-tl { from { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-open-bl { from { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-open-tr { from { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-open-br { from { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-close-tl { to { transform: translate(-50%,-50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-close-bl { to { transform: translate(-50%,50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-close-tr { to { transform: translate(50%,-50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-close-br { to { transform: translate(50%,50%) scale(0); opacity: 0; } }\t\t\t@keyframes de-post-new { from { transform: translate(0,-50%) scaleY(0); opacity: 0; } }\t\t\t.de-pview-anim { animation-duration: .2s; animation-timing-function: ease-in-out; animation-fill-mode: both; }\t\t\t.de-open { animation: de-open .15s ease-out both; }\t\t\t.de-close { animation: de-close .15s ease-in both; }\t\t\t.de-blink { animation: de-blink .7s ease-in-out both; }\t\t\t.de-cfg-open { animation: de-cfg-open .2s ease-out backwards; }\t\t\t.de-cfg-close { animation: de-cfg-close .2s ease-in both; }\t\t\t.de-post-new { animation: de-post-new .2s ease-out both; }";
 		}
 
-
+	
 		x += cont(".de-video-link.de-ytube", "https://youtube.com/favicon.ico");
 		x += cont(".de-video-link.de-vimeo", "https://vimeo.com/favicon.ico");
 		x += cont(".de-img-arch", "data:image/gif;base64,R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==");
 		x += cont(".de-img-audio", "data:image/gif;base64,R0lGODlhEAAQAKIAAGya4wFLukKG4oq3802i7Bqy9P///wAAACH5BAEAAAYALAAAAAAQABAAQANBaLrcHsMN4QQYhE01OoCcQIyOYQGooKpV1GwNuAwAa9RkqTPpWqGj0YTSELg0RIYM+TjOkgba0sOaAEbGBW7HTQAAOw==");
 		x += ".de-current:after { content: \" ◆\"; }\t\t.de-img-arch, .de-img-audio { color: inherit; text-decoration: none; font-weight: bold; }\t\t.de-img-pre, .de-img-full { display: block; border: none; outline: none; cursor: pointer; }\t\t.de-img-pre { max-width: 200px; max-height: 200px; }\t\t.de-img-full { float: left; }\t\t.de-img-center { position: fixed; margin: 0 !important; z-index: 9999; background-color: #ccc; border: 1px solid black !important; -moz-box-sizing: content-box; box-sizing: content-box; }\t\t#de-img-btn-next > div, #de-img-btn-prev > div { height: 36px; width: 36px; }" + gif("#de-img-btn-next > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJPjI8JkO1vlpzS0YvzhUdX/nigR2ZgSJ6IqY5Uy5UwJK/l/eI6A9etP1N8grQhUbg5RlLKAJD4DAJ3uCX1isU4s6xZ9PR1iY7j5nZibixgBQA7") + gif("#de-img-btn-prev > div", "R0lGODlhIAAgAIAAAPDw8P///yH5BAEAAAEALAAAAAAgACAAQAJOjI8JkO24ooxPzYvzfJrWf3Rg2JUYVI4qea1g6zZmPLvmDeM6Y4mxU/v1eEKOpziUIA1BW+rXXEVVu6o1dQ1mNcnTckp7In3LAKyMchUAADs=") + "#de-img-btn-next, #de-img-btn-prev { position: fixed; top: 50%; z-index: 10000; margin-top: -8px; background-color: black; cursor: pointer; }\t\t#de-img-btn-next { right: 0; border-radius: 10px 0 0 10px; }\t\t#de-img-btn-prev { left: 0; border-radius: 0 10px 10px 0; }\t\t.de-mp3, .de-video-obj { margin: 5px 20px; white-space: nowrap; clear: both; }\t\t.de-video-expanded > embed, .de-video-expanded > iframe, .de-video-expanded > a > img { width: 848px; height: 480px; }\t\t#de-video-list { padding: 0 0 4px; overflow-y: scroll; }\t\t.de-video-resizer:after { content: \" ➕\"; margin-right: -15px; vertical-align: 8px; color: black; font-size: 12px; cursor: pointer; }\t\t.de-video-title[de-time]:after { content: \" [\" attr(de-time) \"]\"; color: red; }\t\ttd > a + .de-video-obj, td > img + .de-video-obj { display: inline-block; }\t\tvideo { background: black; }\t\t.de-vocaroo > embed { display: inline-block; }";
 
-
+	
 		p = aib.multiFile ? 90 : 130;
 		x += ".de-file { display: inline-block; margin: 1px; height: " + p + "px; width: " + p + "px; text-align: center; border: 1px dashed grey; }\t\t.de-file > .de-file-del { float: right; }\t\t.de-file > .de-file-rar { float: left; }\t\t.de-file > .de-file-rarmsg { float: left; padding: 0 4px 2px; color: #fff; background-color: rgba(55, 55, 55, 0.5); }\t\t.de-file > .de-file-utils { display: none; }\t\t.de-file > div { display: table; width: 100%; height: 100%; cursor: pointer; }\t\t.de-file > div > div { display: table-cell; vertical-align: middle; }\t\t.de-file + [type=\"file\"] { opacity: 0; margin: 1px 0 0 -" + (p + 2) + "px !important; vertical-align: top; width: " + (p + 2) + "px !important; height: " + (p + 2) + "px; border: none !important; cursor: pointer; }\t\t#de-file-area { border-spacing: 0; margin-top: 1px; width: 275px; min-width:100%; max-width: 100%; overflow-x: auto; overflow-y: hidden; white-space: nowrap; }\t\t.de-file-drag { background: rgba(88, 88, 88, 0.4); border: 1px solid grey; }\t\t.de-file-hover > .de-file-utils { display: block; position: relative; margin: -18px 2px; }\t\t.de-file-img > img, .de-file-img > video { max-width: " + (p - 4) + "px; max-height: " + (p - 4) + "px; }\t\t.de-file-input { max-width: 300px; }\t\t.de-file-off > div > div:after { content: \"" + Lng.noFile[lang] + "\" }\t\t.de-file-rarmsg { margin: 0 5px; font: bold 11px tahoma; cursor: default; }\t\t.de-file-del, .de-file-rar { display: inline-block; margin: 0 4px -3px; width: 16px; height: 16px; cursor: pointer; }";
 		x += gif(".de-file-del", "R0lGODlhEAAQALMOAP8zAMopAJMAAP/M//+DIP8pAP86Av9MDP9sFP9zHv9aC/9gFf9+HJsAAP///wAAACH5BAEAAA4ALAAAAAAQABAAAARU0MlJKw3B4hrGyFP3hQNBjE5nooLJMF/3msIkJAmCeDpeU4LFQkFUCH8VwWHJRHIM0CiIMwBYryhS4XotZDuFLUAg6LLC1l/5imykgW+gU0K22C0RADs=");
 		x += gif(".de-file-rar", "R0lGODlhEAAQALMAAF82SsxdwQMEP6+zzRA872NmZQesBylPHYBBHP///wAAAAAAAAAAAAAAAAAAAAAAACH5BAEAAAkALAAAAAAQABAAQARTMMlJaxqjiL2L51sGjCOCkGiBGWyLtC0KmPIoqUOg78i+ZwOCUOgpDIW3g3KJWC4t0ElBRqtdMr6AKRsA1qYy3JGgMR4xGpAAoRYkVDDWKx6NRgAAOw==");
 
-
+	
 		x += "#de-txta-resizer { display: inline-block !important; float: none !important; padding: 5px; margin: " + (nav.Presto ? "-2px -10px" : "0 0 -1px -11px") + "; vertical-align: bottom; border-bottom: 2px solid #666; border-right: 2px solid #666; cursor: se-resize; }\t\t.de-parea { text-align: center; }\t\t.de-parea-btn-close:after { content: \"" + Lng.hideForm[lang] + "\" }\t\t.de-parea-btn-thrd:after { content: \"" + Lng.makeThrd[lang] + "\" }\t\t.de-parea-btn-reply:after { content: \"" + Lng.makeReply[lang] + "\" }\t\t#de-pform { display: inline-block; vertical-align: middle; }\t\t#de-pform > form { padding: 0; margin: 0; border: none; }\t\t#de-pform input[type=\"text\"], #de-pform input[type=\"file\"] { width: 200px; }\t\t#de-qarea { width: auto !important; min-width: 0; padding: 0 !important; border: none !important; }\t\t#de-qarea > div:nth-child(2) { text-align: center; }\t\t.de-qarea-hanging { position: fixed; z-index: 9990; padding: 0 !important; margin: 0 !important; border-radius: 10px 10px 0 0; }\t\t.de-qarea-hanging > .de-cfg-head { cursor: move; }\t\t.de-qarea-hanging #de-qarea-utils > span:hover { color: #ff6; }\t\t.de-qarea-hanging > #de-pform { padding: 2px 2px 0 1px; border: 1px solid gray; }\t\t.de-qarea-hanging .de-textarea { min-width: 98% !important; resize: none !important; }\t\t.de-qarea-hanging #de-txta-resizer { display: none !important; }\t\t.de-qarea-hanging #de-resizer-bottom { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t\t.de-qarea-hanging #de-resizer-left { position: absolute; margin: -3px; bottom: 3px; top: 3px; width: 6px; cursor: ew-resize; }\t\t.de-qarea-hanging #de-resizer-right { position: absolute; margin: -3px; bottom: 3px; top: 3px; display: inline-block; width: 6px; cursor: ew-resize; }\t\t.de-qarea-hanging #de-resizer-top { position: absolute; margin: -3px; height: 6px; width: 100%; cursor: ns-resize; }\t\t.de-qarea-inline { float: none; clear: left; display: inline-block; width: auto; padding: 3px; margin: 2px 0; }\t\t#de-qarea-target { font-weight: bold; margin-left: 4px; }\t\t#de-qarea-utils { float: right; margin-top: " + (nav.Chrome ? -1 : -4) + "px; font: normal 16px arial; cursor: pointer; }\t\t#de-qarea-utils > span { margin-right: 4px; }\t\t#de-sagebtn { margin: 4px !important; vertical-align: top; cursor: pointer; }\t\t.de-textarea { display: inline-block; padding: 3px !important; min-width: 275px !important; min-height: 90px !important; resize: both; transition: none !important; }";
 
-
+	
 		x += cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7");
 		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:before { content: \"+ \"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\t\t.de-viewed { color: #888 !important; }\t\tsmall[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }\t\t" + aib.css + aib.cssEn + ".de-post-hide > " + aib.qHide + " { display: none !important; }";
 
@@ -12849,3 +14317,5 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false)), false);
 	}
 })(window.opera && window.opera.scriptStorage);
+
+                     
