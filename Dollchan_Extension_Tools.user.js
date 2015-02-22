@@ -1542,7 +1542,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						Cfg.timePattern = aib.timePattern;
 					}
 					if ((!nav.canHTML5Post || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
-						Lng.ajaxReply.sel.forEach(function (a) {
+						Lng.cfg.ajaxReply.sel.forEach(function (a) {
 							return a.splice(-1);
 						});
 						Cfg.ajaxReply = 1;
@@ -2723,6 +2723,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				try {
 					result = generator[verb](arg);
 				} catch (err) {
+					console.log("Generator throwed: ", err);
 					return Promise.reject(err);
 				}
 				if (result.done) {

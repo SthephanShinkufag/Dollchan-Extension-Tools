@@ -757,6 +757,7 @@ function async(generatorFunc, returnGen = false) {
 			try {
 				result = generator[verb](arg);
 			} catch (err) {
+				console.log('Generator throwed: ', err);
 				return Promise.reject(err);
 			}
 			if (result.done) {
@@ -1312,7 +1313,7 @@ function *readCfg() {
 		Cfg.timePattern = aib.timePattern;
 	}
 	if((!nav.canHTML5Post || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
-		Lng['ajaxReply'].sel.forEach(a => a.splice(-1));
+		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
 	if(aib.tiny) {
