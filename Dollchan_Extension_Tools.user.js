@@ -721,11 +721,11 @@ isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATEC
     }
  
  
-  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
+  } else if(global.addEventListener && isFunction(postMessage) && !global.importScripts){
     defer = function(id){
       postMessage(id, '*');
     }
-    addEventListener('message', listner, false);
+    global.addEventListener('message', listner, false);
  
   } else if(isFunction(MessageChannel)){
     channel = new MessageChannel;
@@ -1907,8 +1907,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					data = _fData$getSubmitData2[1];
 					context$2$0.next = 41;
 					return $ajax(nav.fixLink(form.action), "POST", {
-						"Content-type": "multipart/form-data; boundary=" + boundary,
-						data: fData
+						headers: { "Content-type": "multipart/form-data; boundary=" + boundary },
+						data: data
 					}, true);
 				case 41:
 					xhr = context$2$0.sent;
@@ -2883,6 +2883,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}, e.duration);
 					}
 				} else {
+					_this._end();
 					throw e;
 				}
 			});
@@ -8156,15 +8157,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							doc.body.insertAdjacentHTML("beforeend", "<iframe class=\"ninja\" id=\"csstest\" src=\"/" + brd + "/csstest.foo\"></iframe>");
 							doc.body.lastChild.onload = function (e) {
 								$del(e.target);
-								spawn(html5Submit, _this.form).then(checkUpload, function (err) {
-									throw err;
-								});
+								spawn(html5Submit, _this.form).then(checkUpload);
 							};
 							return;
 						}
-						spawn(html5Submit, _this.form).then(checkUpload, function (err) {
-							throw err;
-						});
+						spawn(html5Submit, _this.form).then(checkUpload);
 					};
 				}, 0);
 			} else if (Cfg.ajaxReply === 1) {
@@ -9134,7 +9131,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		this._btnsStyle = btns.style;
 		this._nextFn = nextFn;
 		this._prevFn = prevFn;
-		window.addEventListener("mousemove", this, false);
+		doc.defaultView.addEventListener("mousemove", this, false);
 		btns.addEventListener("mouseover", this, false);
 	}
 	ImgBtnsShowHider.prototype = {
@@ -13473,9 +13470,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						$pd(e);
 						pr.closeQReply();
 						$alert(Lng.deleting[lang], "deleting", true);
-						spawn(html5Submit, _this.el).then(checkDelete, function (err) {
-							throw err;
-						});
+						spawn(html5Submit, _this.el).then(checkDelete);
 					};
 				}
 			} else if (Cfg.ajaxReply === 1) {
@@ -13977,7 +13972,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function initPage() {
 		if (Cfg.updScript) {
-			checkForUpdates(false, function (html) {
+			checkForUpdates(false).then(function (html) {
 				return $alert(html, "updavail", false);
 			}, emptyFn);
 		}

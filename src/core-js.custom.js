@@ -733,11 +733,11 @@ isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATEC
     }
   // Modern browsers, skip implementation for WebWorkers
   // IE8 has postMessage, but it's sync & typeof its postMessage is object
-  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
+  } else if(global.addEventListener && isFunction(postMessage) && !global.importScripts){
     defer = function(id){
       postMessage(id, '*');
     }
-    addEventListener('message', listner, false);
+    global.addEventListener('message', listner, false);
   // WebWorkers
   } else if(isFunction(MessageChannel)){
     channel = new MessageChannel;

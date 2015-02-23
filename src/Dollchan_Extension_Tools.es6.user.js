@@ -898,6 +898,7 @@ TasksPool.prototype = {
 						setTimeout(() => this['continue'](), e.duration);
 					}
 				} else {
+					this._end()
 					throw e;
 				}
 			}
@@ -6398,11 +6399,11 @@ PostForm.prototype = {
 							brd + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = e => {
 							$del(e.target);
-							spawn(html5Submit, this.form).then(checkUpload, err => { throw err; });
+							spawn(html5Submit, this.form).then(checkUpload);
 						};
 						return;
 					}
-					spawn(html5Submit, this.form).then(checkUpload, err => { throw err; });
+					spawn(html5Submit, this.form).then(checkUpload);
 				};
 			}, 0);
 		} else if(Cfg.ajaxReply === 1) {
@@ -7039,8 +7040,8 @@ function *html5Submit(form) {
 		} else {
 			let [boundary, data] = fData.getSubmitData();
 			xhr = (yield $ajax(nav.fixLink(form.action), 'POST', {
-				'Content-type': 'multipart/form-data; boundary=' + boundary,
-				data: fData
+				headers: {'Content-type': 'multipart/form-data; boundary=' + boundary},
+				data: data
 			}, true));
 		}
 		if(xhr.status === 200) {
@@ -7351,7 +7352,7 @@ function ImgBtnsShowHider(nextFn, prevFn) {
 	this._btnsStyle = btns.style;
 	this._nextFn = nextFn;
 	this._prevFn = prevFn;
-	window.addEventListener('mousemove', this, false);
+	doc.defaultView.addEventListener('mousemove', this, false);
 	btns.addEventListener('mouseover', this, false);
 }
 ImgBtnsShowHider.prototype = {
@@ -11250,7 +11251,7 @@ DelForm.prototype = {
 					$pd(e);
 					pr.closeQReply();
 					$alert(Lng.deleting[lang], 'deleting', true);
-					spawn(html5Submit, this.el).then(checkDelete, err => { throw err; });
+					spawn(html5Submit, this.el).then(checkDelete);
 				};
 			}
 		} else if(Cfg.ajaxReply === 1) {
@@ -11693,7 +11694,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 function initPage() {
 	if(Cfg.updScript) {
-		checkForUpdates(false, html => $alert(html, 'updavail', false), emptyFn);
+		checkForUpdates(false).then(html => $alert(html, 'updavail', false), emptyFn);
 	}
 	if(TNum) {
 		if(Cfg.rePageTitle) {
