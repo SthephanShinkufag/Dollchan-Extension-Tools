@@ -5930,7 +5930,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		updatePost: function updatePost(oldLinks, newLinks, cloned) {
-			var loader = !cloned && Videos._getTitlesLoader;
+			var loader = !cloned && Videos._getTitlesLoader();
 			for (var i = 0, j = 0, _len = newLinks.length; i < _len; ++i) {
 				var el = newLinks[i],
 				    link = oldLinks[j];

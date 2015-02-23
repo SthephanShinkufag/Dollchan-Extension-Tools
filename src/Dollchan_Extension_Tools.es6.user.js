@@ -4275,7 +4275,7 @@ Videos.prototype = {
 		}
 	},
 	updatePost(oldLinks, newLinks, cloned) {
-		var loader = !cloned && Videos._getTitlesLoader;
+		var loader = !cloned && Videos._getTitlesLoader();
 		for(let i = 0, j = 0, len = newLinks.length; i < len; ++i) {
 			let el = newLinks[i],
 				link = oldLinks[j];
