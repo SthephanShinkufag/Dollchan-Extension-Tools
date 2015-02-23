@@ -1542,7 +1542,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!Cfg.timePattern) {
 						Cfg.timePattern = aib.timePattern;
 					}
-					if ((!nav.canHTML5Post || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+					if ((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
 						Lng.cfg.ajaxReply.sel.forEach(function (a) {
 							return a.splice(-1);
 						});
@@ -1826,7 +1826,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	});
 
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
-		var fData, filesEls, i, _len, fileEl, files, _i, _len2, file, _name, changed, xhr, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
+		var fData, filesEls, i, _len, fileEl, files, _len2, newFiles, _i, file, _name, changed, xhr, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
@@ -1839,19 +1839,21 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					i = 0, _len = filesEls.length;
 				case 3:
 					if (!(i < _len)) {
-						context$2$0.next = 27;
+						context$2$0.next = 30;
 						break;
 					}
 					fileEl = filesEls[i];
 					if (isFormElDisabled(fileEl)) {
-						context$2$0.next = 24;
+						context$2$0.next = 27;
 						break;
 					}
 					files = fileEl.files;
-					_i = 0, _len2 = files.length;
-				case 8:
+					_len2 = files.length;
+					newFiles = [];
+					_i = 0;
+				case 10:
 					if (!(_i < _len2)) {
-						context$2$0.next = 24;
+						context$2$0.next = 26;
 						break;
 					}
 					file = files[_i];
@@ -1862,77 +1864,91 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						changed = true;
 					}
 					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						context$2$0.next = 20;
+						context$2$0.next = 22;
 						break;
 					}
-					return context$2$0.delegateYield(cleanFile(fileEl, file), "t22", 15);
-				case 15:
+					return context$2$0.delegateYield(cleanFile(fileEl, file), "t22", 17);
+				case 17:
 					file = context$2$0.t22;
 					if (file) {
-						context$2$0.next = 19;
+						context$2$0.next = 21;
 						break;
 					}
 					$alert(Lng.fileCorrupt[lang] + origName, "upload", false);
 					return context$2$0.abrupt("return");
-				case 19:
-					changed = true;
-				case 20:
-					if (changed) {
-						fData.set(_name, file);
-					}
 				case 21:
+					changed = true;
+				case 22:
+					if (changed) {
+						newFiles.push(file);
+					}
+				case 23:
 					++_i;
-					context$2$0.next = 8;
+					context$2$0.next = 10;
 					break;
-				case 24:
+				case 26:
+					if (newFiles.length > 0) {
+						if (_len2 === 1) {
+							fData.set(fileEl.getAttribute("name"), newFiles[0]);
+						} else {
+							(function () {
+								var name = fileEl.getAttribute("name");
+								fData["delete"](name);
+								newFiles.forEach(function (file) {
+									return fData.append(name, file);
+								});
+							})();
+						}
+					}
+				case 27:
 					++i;
 					context$2$0.next = 3;
 					break;
-				case 27:
+				case 30:
 					xhr = undefined;
-					context$2$0.prev = 28;
+					context$2$0.prev = 31;
 					if (!nav.hasModernFormData) {
-						context$2$0.next = 35;
+						context$2$0.next = 38;
 						break;
 					}
-					context$2$0.next = 32;
+					context$2$0.next = 35;
 					return $ajax(nav.fixLink(form.action), "POST", { data: fData }, true);
-				case 32:
-					xhr = context$2$0.sent;
-					context$2$0.next = 42;
-					break;
 				case 35:
+					xhr = context$2$0.sent;
+					context$2$0.next = 45;
+					break;
+				case 38:
 					_fData$getSubmitData = fData.getSubmitData();
 					_fData$getSubmitData2 = _slicedToArray(_fData$getSubmitData, 2);
 					boundary = _fData$getSubmitData2[0];
 					data = _fData$getSubmitData2[1];
-					context$2$0.next = 41;
+					context$2$0.next = 44;
 					return $ajax(nav.fixLink(form.action), "POST", {
 						headers: { "Content-type": "multipart/form-data; boundary=" + boundary },
 						data: data
 					}, true);
-				case 41:
+				case 44:
 					xhr = context$2$0.sent;
-				case 42:
+				case 45:
 					if (!(xhr.status === 200)) {
-						context$2$0.next = 46;
+						context$2$0.next = 49;
 						break;
 					}
 					return context$2$0.abrupt("return", $DOM(xhr.responseText));
-				case 46:
-					throw new AjaxError(xhr.status, xhr.statusText);
-				case 47:
-					context$2$0.next = 52;
-					break;
 				case 49:
-					context$2$0.prev = 49;
-					context$2$0.t23 = context$2$0["catch"](28);
-					$alert(getErrorMessage(context$2$0.t23), "upload", false);
+					throw new AjaxError(xhr.status, xhr.statusText);
+				case 50:
+					context$2$0.next = 55;
+					break;
 				case 52:
+					context$2$0.prev = 52;
+					context$2$0.t23 = context$2$0["catch"](31);
+					$alert(getErrorMessage(context$2$0.t23), "upload", false);
+				case 55:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, html5Submit, this, [[28, 49]]);
+		}, html5Submit, this, [[31, 52]]);
 	});
 
 	var cleanFile = regeneratorRuntime.mark(function cleanFile(fileEl, file) {
@@ -3132,7 +3148,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			},
 			getAll: function getAll(name) {
 				return this._entries.filter(function (entry) {
-					return entry.name !== name;
+					return entry.name === name;
 				}).map(function (entry) {
 					return entry.value;
 				});
@@ -3145,10 +3161,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (idx === -1) {
 							idx = i;
 						} else {
-							return true;
+							return false;
 						}
 					}
-					return false;
+					return true;
 				});
 				if (idx === -1) {
 					this._entries.push(entry);
@@ -12140,6 +12156,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (!("URL" in window)) {
 			window.URL = window.webkitURL;
 		}
+		try {
+			new File([""], "");
+		} catch (e) {
+			window.File = function File(arr, name) {
+				var rv = new Blob(arr);
+				rv.name = name;
+				rv.lastModifiedDate = new Date();
+				rv.__proto__ = File.prototype;
+				return rv;
+			};
+			File.prototype = new Blob();
+		}
 		var ua = window.navigator.userAgent,
 		    firefox = ua.contains("Gecko/"),
 		    presto = window.opera ? +window.opera.version() : 0,
@@ -12194,19 +12222,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			ua: {
 				get: function () {
 					return navigator.userAgent + (this.Firefox ? " [" + navigator.buildID + "]" : "");
-				},
-				enumerable: true,
-				configurable: true
-			},
-			canHTML5Post: {
-				get: function () {
-					var val = false;
-					try {
-						new File([""], "");
-						val = true;
-					} catch (e) {}
-					Object.defineProperty(this, "canHTML5Post", { value: val });
-					return val;
 				},
 				enumerable: true,
 				configurable: true

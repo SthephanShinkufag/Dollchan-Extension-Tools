@@ -1135,7 +1135,7 @@ FormDataShim.prototype = {
 		return (this._entries.find(entry => entry.name === name) || {}).value;
 	},
 	getAll(name) {
-		return this._entries.filter(entry => entry.name !== name)
+		return this._entries.filter(entry => entry.name === name)
 		                    .map(entry => entry.value);
 	},
 	set(name, value) {
@@ -1146,10 +1146,10 @@ FormDataShim.prototype = {
 				if(idx === -1) {
 					idx = i;
 				} else {
-					return true;
+					return false;
 				}
 			}
-			return false;
+			return true;
 		});
 		if(idx === -1) {
 			this._entries.push(entry);
@@ -1313,7 +1313,7 @@ function *readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if((!nav.canHTML5Post || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+	if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
@@ -7030,7 +7030,9 @@ function *html5Submit(form) {
 		let fileEl = filesEls[i];
 		if(!isFormElDisabled(fileEl)) {
 			let files = fileEl.files;
-			for(let i = 0, len = files.length; i < len; ++i) {
+			let len = files.length;
+			let newFiles = [];
+			for(let i = 0; i < len; ++i) {
 				let file = files[i];
 				let name = file.name;
 				let changed = false;
@@ -7049,7 +7051,16 @@ function *html5Submit(form) {
 					changed = true;
 				}
 				if(changed) {
-					fData.set(name, file);
+					newFiles.push(file);
+				}
+			}
+			if(newFiles.length > 0) {
+				if(len === 1) {
+					fData.set(fileEl.getAttribute('name'), newFiles[0]);
+				} else {
+					let name = fileEl.getAttribute('name');
+					fData['delete'](name);
+					newFiles.forEach(file => fData.append(name, file));
 				}
 			}
 		}
@@ -10052,6 +10063,18 @@ function getNavFuncs() {
 	if(!('URL' in window)) {
 		window.URL = window.webkitURL;
 	}
+	try {
+		new File([''], '');
+	} catch(e) {
+		window.File = function File(arr, name) {
+			var rv = new Blob(arr);
+			rv.name = name;
+			rv.lastModifiedDate = new Date();
+			rv.__proto__ = File.prototype;
+			return rv;
+		};
+		File.prototype = new Blob;
+	}
 	var ua = window.navigator.userAgent,
 		firefox = ua.contains('Gecko/'),
 		presto = window.opera ? +window.opera.version() : 0,
@@ -10093,15 +10116,6 @@ function getNavFuncs() {
 		},
 		fixLink: safari ? getAbsLink : function fixLink(url) {
 			return url;
-		},
-		get canHTML5Post() {
-			var val = false;
-			try {
-				new File([''], '');
-				val = true;
-			} catch(e) {}
-			Object.defineProperty(this, 'canHTML5Post', { value: val });
-			return val;
 		},
 		get hasWorker() {
 			var val = false;
