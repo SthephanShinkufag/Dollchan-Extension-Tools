@@ -757,9 +757,7 @@ function async(generatorFunc, returnGen = false) {
 			try {
 				result = generator[verb](arg);
 			} catch (err) {
-				if(!(err instanceof AjaxError)) {
-					console.log('Generator throwed: ', err);
-				}
+				console.log('Generator throw: ', err);
 				return Promise.reject(err);
 			}
 			if (result.done) {
