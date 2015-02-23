@@ -757,7 +757,9 @@ function async(generatorFunc, returnGen = false) {
 			try {
 				result = generator[verb](arg);
 			} catch (err) {
-				console.log('Generator throwed: ', err);
+				if(!(err instanceof AjaxError)) {
+					console.log('Generator throwed: ', err);
+				}
 				return Promise.reject(err);
 			}
 			if (result.done) {
@@ -893,7 +895,7 @@ TasksPool.prototype = {
 			() => this._end(),
 			e => {
 				if(e instanceof TasksPool.PauseError) {
-					this.paused = true;
+					this.pause();
 					if(e.duration !== -1) {
 						setTimeout(() => this['continue'](), e.duration);
 					}
@@ -4064,7 +4066,7 @@ DateTime.prototype = {
 
 function Videos(post, player = null, playerInfo = null) {
 	this.post = post;
-	this.vData = [];
+	this.vData = [[], []];
 	if(player && playerInfo) {
 		Object.defineProperties(this, {
 			player: { value: player },
@@ -4074,48 +4076,18 @@ function Videos(post, player = null, playerInfo = null) {
 }
 Videos._global = {
 	get vData() {
-		var val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-ytube-data'] || '{}') : {};
+		var val;
+		try {
+			val = Cfg.YTubeTitles ? JSON.parse(sesStorage['de-videos-data'] || '[{}, {}]') : [{}, {}];
+		} catch(e) {
+			val = [{}, {}];
+		}
 		Object.defineProperty(this, 'vData', { value: val });
 		return val;
 	}
 };
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
-Videos._getTitleLoader = function() {
-	return new TasksPool(4, async(function *(num, data) {
-		if(num % 30 === 0) {
-			return TasksPool.pause(3e3);
-		}
-		var entry, title, author, views, publ, vData, [link, videoObj, id] = data,
-			xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
-				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published');
-		try {
-			if(xhr.status === 200) {
-				entry = JSON.parse(xhr.responseText).entry;
-				title = entry.title.$t;
-				author = entry.author[0].name.$t;
-				views = entry.yt$statistics.viewCount;
-				publ = entry.published.$t.substr(0, 10);
-			}
-		} finally {
-			if(title) {
-				link.textContent = title;
-				link.setAttribute('de-author', author);
-				link.classList.add('de-video-title');
-				link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views + ', ' +
-					Lng.published[lang] + publ;
-				Videos._global.vData[id] = vData = [title, author, views, publ];
-				videoObj.vData.push(vData);
-				if(videoObj.titleLoadFn) {
-					videoObj.titleLoadFn(vData);
-				}
-			}
-			yield sleep(250);
-		}
-	}), () => {
-		sesStorage['de-ytube-data'] = JSON.stringify(Videos._global.vData);
-	});
-};
 Videos.addPlayer = function(el, m, isYtube) {
 	var time, list, id = m[1],
 		wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '">',
@@ -4150,47 +4122,63 @@ Videos.addPlayer = function(el, m, isYtube) {
 		}
 	};
 };
-Videos.parseLinks = function(post) {
-	var i, els, len, loader = Cfg.YTubeTitles && Videos._getTitleLoader(),
-		videos = aib.fixVideo(post);
-	for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-		let el = els[i],
-			m = el.href.match(Videos.ytReg);
-		if(m) {
-			let mPost = post || (aib.getPostEl(el) || {}).post;
-			if(mPost) {
-				mPost.videos.addLink(m, loader, el, true);
+Videos._getTitlesLoader = function() {
+	return Cfg.YTubeTitles && new TasksPool(4, async(function *(num, info) {
+		var title, author, views, publ, [link, isYtube, videoObj, id] = info;
+		if(isYtube) {
+			let xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
+				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published')
+			if(xhr.status === 200) {
+				try {
+					let entry = JSON.parse(xhr.responseText).entry;
+					title = entry.title.$t;
+					author = entry.author[0].name.$t;
+					views = entry.yt$statistics.viewCount;
+					publ = entry.published.$t.substr(0, 10);
+				} catch(e) {}
+			}
+		} else {
+			let xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json');
+			if(xhr.status === 200) {
+				try {
+					let entry = JSON.parse(xhr.responseText)[0],
+						date = new RegExp (/(.*)\s(.*)?/).exec(entry["upload_date"]);
+					title = entry["title"];
+					author = entry["user_name"];
+					views = entry["stats_number_of_plays"];
+					publ = date[1];
+				} catch(e) {}
 			}
 		}
-	}
-	if(Cfg.addVimeo) {
-		for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-			let el = els[i],
-				m = el.href.match(Videos.vimReg);
-			if(m) {
-				let mPost = post || (aib.getPostEl(el) || {}).post;
-				if(mPost) {
-					mPost.videos.addLink(m, null, el, false);
-				}
+		if(title) {
+			link.textContent = title;
+			link.setAttribute('de-author', author);
+			link.classList.add('de-video-title');
+			link.title = Lng.author[lang] + author + ', ' + Lng.views[lang] + views + ', ' +
+				Lng.published[lang] + publ;
+			let data = [title, author, views, publ];
+			Videos._global.vData[isYtube ? 0 : 1][id] = data;
+			videoObj.vData[isYtube ? 0 : 1].push(data);
+			if(videoObj.titleLoadFn) {
+				videoObj.titleLoadFn(data);
 			}
 		}
-	}
-	for(i = 0, len = videos.length; i < len; ++i) {
-		let [pst, m, isYtube] = videos[i];
-		if(pst) {
-			pst.videos.addLink(m, loader, null, isYtube);
+		videoObj.loadedLinksCount++;
+		if(num % 30 === 0) {
+			return TasksPool.pause(3e3);
 		}
-	}
-	if(loader) {
-		loader.complete();
-	}
+		yield sleep(250);
+	}), () => {
+		sesStorage['de-videos-data'] = JSON.stringify(Videos._global.vData);
+	});
 };
 Videos.prototype = {
 	currentLink: null,
 	hasLinks: false,
 	playerInfo: null,
 	titleLoadFn: null,
-	ytLinksCount: 0,
+	linksCount: 0,
+	loadedLinksCount: 0,
 	get player() {
 		var val = aib.insertYtPlayer(this.post.msg, '<div class="de-video-obj"></div>');
 		Object.defineProperty(this, 'player', { value: val });
@@ -4199,9 +4187,7 @@ Videos.prototype = {
 	addLink(m, loader, link, isYtube) {
 		var msg, src, time, dataObj;
 		this.hasLinks = true;
-		if(isYtube) {
-			this.ytLinksCount++;
-		}
+		this.linksCount++;
 		if(this.playerInfo === null) {
 			if(Cfg.addYouTube === 2) {
 				this.addPlayer(m, isYtube);
@@ -4211,8 +4197,8 @@ Videos.prototype = {
 		} else if(!link && $q('.de-video-link[href*="' + m[1] + '"]', this.post.msg)) {
 			return;
 		}
-		if(loader && (dataObj = Videos._global.vData[m[1]])) {
-			this.vData.push(dataObj);
+		if(loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
+			this.vData[isYtube ? 0 : 1].push(dataObj);
 		}
 		if(m[4] || m[3] || m[2]) {
 			if(m[4] >= 60) {
@@ -4230,24 +4216,13 @@ Videos.prototype = {
 			if(time) {
 				link.setAttribute('de-time', time);
 			}
+			link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
 			if(dataObj) {
 				link.textContent = dataObj[0];
-				link.className = 'de-video-link de-ytube de-video-title';
+				link.classList.add('de-video-title');
 				link.setAttribute('de-author', dataObj[1]);
 				link.title = Lng.author[lang] + dataObj[1] + ', ' +
 					Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3];
-			} else {
-				link.className = 'de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo');
-				if(!isYtube && Cfg.YTubeTitles) {
-					// FIXME: use tasks pool
-					$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json').then(xhr => {
-						var json = JSON.parse(xhr.responseText)[0],
-							date = new RegExp (/(.*)\s(.*)?/).exec(json["upload_date"]);
-						link.textContent = json["title"];
-						link.title = Lng.author[lang] + json["user_name"] + ', ' +
-							Lng.views[lang] + json["stats_number_of_plays"] + ', ' + Lng.published[lang] + date[1];
-					});
-				}
 			}
 		} else {
 			src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
@@ -4265,7 +4240,7 @@ Videos.prototype = {
 		}
 		link.videoInfo = m;
 		if(loader && !dataObj) {
-			loader.run([link, this, m[1]]);
+			loader.run([link, isYtube, this, m[1]]);
 		}
 	},
 	addPlayer(m, isYtube) {
@@ -4300,7 +4275,7 @@ Videos.prototype = {
 		}
 	},
 	updatePost(oldLinks, newLinks, cloned) {
-		var loader = !cloned && loadTitles && this._getTitleLoader();
+		var loader = !cloned && Videos._getTitlesLoader;
 		for(let i = 0, j = 0, len = newLinks.length; i < len; ++i) {
 			let el = newLinks[i],
 				link = oldLinks[j];
@@ -4340,6 +4315,50 @@ Videos.prototype = {
 				} catch(e) {}
 			});
 		}
+	}
+};
+
+function VideosParser() {
+	this._loader = Videos._getTitlesLoader();
+}
+VideosParser.prototype = {
+	end() {
+		if(this._loader) {
+			this._loader.complete();
+		}
+	},
+	parse(post = null) {
+		var i, els, len, loader = this._loader,
+			videos = aib.fixVideo(post);
+		for(i = 0, els = $Q('a[href*="youtu"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+			let el = els[i],
+				m = el.href.match(Videos.ytReg);
+			if(m) {
+				let mPost = post || (aib.getPostEl(el) || {}).post;
+				if(mPost) {
+					mPost.videos.addLink(m, loader, el, true);
+				}
+			}
+		}
+		if(Cfg.addVimeo) {
+			for(i = 0, els = $Q('a[href*="vimeo.com"]', post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+				let el = els[i],
+					m = el.href.match(Videos.vimReg);
+				if(m) {
+					let mPost = post || (aib.getPostEl(el) || {}).post;
+					if(mPost) {
+						mPost.videos.addLink(m, loader, el, false);
+					}
+				}
+			}
+		}
+		for(i = 0, len = videos.length; i < len; ++i) {
+			let [pst, m, isYtube] = videos[i];
+			if(pst) {
+				pst.videos.addLink(m, loader, null, isYtube);
+			}
+		}
+		return this;
 	}
 };
 
@@ -5673,22 +5692,24 @@ SpellsInterpreter.prototype = {
 		if(!val) {
 			return !!videos.hasLinks;
 		}
-		if(videos.ytLinksCount === 0 || !Cfg.YTubeTitles) {
+		if(!videos.hasLinks || !Cfg.YTubeTitles) {
 			return false;
 		}
-		for(let data of videos.vData) {
-			if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
-				return true;
+		for(let siteData of videos.vData) {
+			for(let data of siteData) {
+				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
+					return true;
+				}
 			}
 		}
-		if(videos.ytLinksCount === videos.vData.length) {
+		if(videos.linksCount === videos.loadedLinksCount) {
 			return false;
 		}
 		return new Promise((resolve, reject) => {
 			videos.titleLoadFn = data => {
 				if(isAuthorSpell ? val === data[1] : val.test(data[0])) {
 					resolve(true);
-				} else if(videos.ytLinksCount === videos.vData.length) {
+				} else if(videos.linksCount === videos.loadedLinksCount) {
 					resolve(false);
 				} else {
 					return;
@@ -8640,17 +8661,17 @@ Post.prototype = {
 	},
 	updateMsg(newMsg) {
 		var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-			ytExt = $c('de-video-ext', origMsg),
-			ytLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
+			videoExt = $c('de-video-ext', origMsg),
+			videoLinks = $Q(':not(.de-video-ext) > .de-video-link', origMsg);
 		origMsg.parentNode.replaceChild(newMsg, origMsg);
 		Object.defineProperties(this, {
 			'msg': { configurable: true, value: newMsg },
 			'trunc': { configurable: true, value: null }
 		});
 		PostContent.remove(this);
-		this.videos.updatePost(ytLinks, $Q('a[href*="youtu"]', newMsg), false);
-		if(ytExt) {
-			newMsg.appendChild(ytExt);
+		this.videos.updatePost(videoLinks, $Q('a[href*="youtu"], a[href*="vimeo.com"]', newMsg), false);
+		if(videoExt) {
+			newMsg.appendChild(videoExt);
 		}
 		this.addFuncs();
 		spells.check(this);
@@ -9275,7 +9296,7 @@ Pview.prototype = Object.create(Post.prototype, {
 		} else {
 			this._pref.insertAdjacentHTML('afterend', '<span class="de-post-btns">' + pText + '</span');
 			embedMediaLinks(this);
-			Videos.parseLinks(this);
+			new VideosParser().parse(this).end();
 			if(Cfg.addImgs) {
 				embedImagesLinks(el);
 			}
@@ -9791,7 +9812,7 @@ Thread.prototype = {
 	},
 
 	_lastModified: '',
-	_addPost(parent, el, i, prev) {
+	_addPost(parent, el, i, vParser, prev) {
 		var post, num = aib.getPNum(el),
 			wrap = aib.getWrap(el, false);
 		el = replacePost(el);
@@ -9804,7 +9825,7 @@ Thread.prototype = {
 			});
 			post.el.classList.add('de-post-new');
 		}
-		Videos.parseLinks(post);
+		vParser.parse(post);
 		if(Cfg.imgSrcBtns) {
 			addImagesSearch(el);
 		}
@@ -9842,17 +9863,17 @@ Thread.prototype = {
 			}
 		}
 	},
-	_importPosts(last, newPosts, begin, end) {
+	_importPosts(last, newPosts, begin, end, vParser) {
 		var newCount, newVisCount, fragm = doc.createDocumentFragment();
 		newCount = newVisCount = end - begin;
 		for(; begin < end; ++begin) {
-			last = this._addPost(fragm, newPosts[begin], begin + 1, last);
+			last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
 			newVisCount -= spells.check(last);
 		}
 		return [newCount, newVisCount, fragm, last];
 	},
 	_parsePosts(nPosts) {
-		var i, cnt, firstChangedPost, res, temp, saveSpells = false,
+		var i, cnt, firstChangedPost, res, temp, vParser, saveSpells = false,
 			newPosts = 0,
 			newVisPosts = 0,
 			len = nPosts.length,
@@ -9861,6 +9882,7 @@ Thread.prototype = {
 		   (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)))
 		{
 			firstChangedPost = null;
+			vParser = new VideosParser();
 			post = this.op.nextNotDeleted;
 			for(i = post.count - 1; i < len && post; ) {
 				if(post.num !== aib.getPNum(nPosts[i])) {
@@ -9873,7 +9895,7 @@ Thread.prototype = {
 							cnt++;
 							i++;
 						} while(+aib.getPNum(nPosts[i]) < +post.num);
-						res = this._importPosts(post.prev, nPosts, i - cnt, i);
+						res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
 						newPosts += res[0];
 						this.pcount += res[0];
 						newVisPosts += res[1];
@@ -9911,7 +9933,8 @@ Thread.prototype = {
 			}
 		}
 		if(len + 1 > this.pcount) {
-			res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len);
+			vParser = vParser || new VideosParser();
+			res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
 			newPosts += res[0];
 			newVisPosts += res[1];
 			this.el.appendChild(res[2]);
@@ -9942,10 +9965,13 @@ Thread.prototype = {
 		if(saveSpells) {
 			spells.end(savePosts);
 		}
+		if(vParser) {
+			vParser.end();
+		}
 		return [newPosts, newVisPosts];
 	},
 	_processExpandThread(nPosts, num) {
-		var i, fragm, tPost, len, needRMUpdate, post = this.op.next,
+		var needRMUpdate, post = this.op.next,
 			vPosts = this.pcount === 1 ? 0 : this.last.count - post.count + 1;
 		if(vPosts > num) {
 			while(vPosts-- !== num) {
@@ -9955,13 +9981,15 @@ Thread.prototype = {
 			}
 			needRMUpdate = false;
 		} else if(vPosts < num) {
-			fragm = doc.createDocumentFragment();
-			tPost = this.op;
-			len = nPosts.length;
-			for(i = Math.max(0, len - num), len -= vPosts; i < len; ++i) {
-				tPost = this._addPost(fragm, nPosts[i], i + 1, tPost);
+			let fragm = doc.createDocumentFragment(),
+				tPost = this.op,
+				len = nPosts.length - vPosts,
+				vParser = new VideosParser();
+			for(let i = Math.max(0, len - num); i < len; ++i) {
+				tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
 				spells.check(tPost);
 			}
+			vParser.end();
 			$after(this.op.wrap, fragm);
 			tPost.next = post;
 			if(post) {
@@ -12211,7 +12239,7 @@ function addDelformStuff(isLog) {
 	isLog && new Logger().log('Preload images');
 	embedMediaLinks(null);
 	isLog && new Logger().log('Audio links');
-	Videos.parseLinks(null);
+	new VideosParser().parse(null).end();
 	isLog && new Logger().log('Video links');
 	if(Cfg.addImgs) {
 		embedImagesLinks(dForm.el);

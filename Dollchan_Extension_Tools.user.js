@@ -2726,7 +2726,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				try {
 					result = generator[verb](arg);
 				} catch (err) {
-					console.log("Generator throwed: ", err);
+					if (!(err instanceof AjaxError)) {
+						console.log("Generator throwed: ", err);
+					}
 					return Promise.reject(err);
 				}
 				if (result.done) {
@@ -2879,7 +2881,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return _this._end();
 			}, function (e) {
 				if (e instanceof TasksPool.PauseError) {
-					_this.paused = true;
+					_this.pause();
 					if (e.duration !== -1) {
 						setTimeout(function () {
 							return _this["continue"]();
@@ -5711,7 +5713,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		var player = arguments[1] === undefined ? null : arguments[1];
 		var playerInfo = arguments[2] === undefined ? null : arguments[2];
 		this.post = post;
-		this.vData = [];
+		this.vData = [[], []];
 		if (player && playerInfo) {
 			Object.defineProperties(this, {
 				player: { value: player },
@@ -5722,7 +5724,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	Videos._global = Object.defineProperties({}, {
 		vData: {
 			get: function () {
-				var val = Cfg.YTubeTitles ? JSON.parse(sesStorage["de-ytube-data"] || "{}") : {};
+				var val;
+				try {
+					val = Cfg.YTubeTitles ? JSON.parse(sesStorage["de-videos-data"] || "[{}, {}]") : [{}, {}];
+				} catch (e) {
+					val = [{}, {}];
+				}
 				Object.defineProperty(this, "vData", { value: val });
 				return val;
 			},
@@ -5732,60 +5739,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	});
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
-	Videos._getTitleLoader = function () {
-		return new TasksPool(4, async(regeneratorRuntime.mark(function callee$2$0(num, data) {
-			var entry, title, author, views, publ, vData, _data, link, videoObj, id, xhr;
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						if (!(num % 30 === 0)) {
-							context$3$0.next = 2;
-							break;
-						}
-						return context$3$0.abrupt("return", TasksPool.pause(3000));
-					case 2:
-						_data = _slicedToArray(data, 3);
-						link = _data[0];
-						videoObj = _data[1];
-						id = _data[2];
-						context$3$0.next = 8;
-						return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published");
-					case 8:
-						xhr = context$3$0.sent;
-						context$3$0.prev = 9;
-						if (xhr.status === 200) {
-							entry = JSON.parse(xhr.responseText).entry;
-							title = entry.title.$t;
-							author = entry.author[0].name.$t;
-							views = entry.yt$statistics.viewCount;
-							publ = entry.published.$t.substr(0, 10);
-						}
-					case 11:
-						context$3$0.prev = 11;
-						if (title) {
-							link.textContent = title;
-							link.setAttribute("de-author", author);
-							link.classList.add("de-video-title");
-							link.title = Lng.author[lang] + author + ", " + Lng.views[lang] + views + ", " + Lng.published[lang] + publ;
-							Videos._global.vData[id] = vData = [title, author, views, publ];
-							videoObj.vData.push(vData);
-							if (videoObj.titleLoadFn) {
-								videoObj.titleLoadFn(vData);
-							}
-						}
-						context$3$0.next = 15;
-						return sleep(250);
-					case 15:
-						return context$3$0.finish(11);
-					case 16:
-					case "end":
-						return context$3$0.stop();
-				}
-			}, callee$2$0, this, [[9,, 11, 16]]);
-		})), function () {
-			sesStorage["de-ytube-data"] = JSON.stringify(Videos._global.vData);
-		});
-	};
 	Videos.addPlayer = function (el, m, isYtube) {
 		var time,
 		    list,
@@ -5811,60 +5764,92 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		};
 	};
-	Videos.parseLinks = function (post) {
-		var i,
-		    els,
-		    len,
-		    loader = Cfg.YTubeTitles && Videos._getTitleLoader(),
-		    videos = aib.fixVideo(post);
-		for (i = 0, els = $Q("a[href*=\"youtu\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-			var el = els[i],
-			    m = el.href.match(Videos.ytReg);
-			if (m) {
-				var mPost = post || (aib.getPostEl(el) || {}).post;
-				if (mPost) {
-					mPost.videos.addLink(m, loader, el, true);
+	Videos._getTitlesLoader = function () {
+		return Cfg.YTubeTitles && new TasksPool(4, async(regeneratorRuntime.mark(function callee$2$0(num, info) {
+			var title, author, views, publ, _info, link, isYtube, videoObj, id, xhr, entry, date, data;
+			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
+				while (1) switch (context$3$0.prev = context$3$0.next) {
+					case 0:
+						_info = _slicedToArray(info, 4);
+						link = _info[0];
+						isYtube = _info[1];
+						videoObj = _info[2];
+						id = _info[3];
+						if (!isYtube) {
+							context$3$0.next = 12;
+							break;
+						}
+						context$3$0.next = 8;
+						return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published");
+					case 8:
+						xhr = context$3$0.sent;
+						if (xhr.status === 200) {
+							try {
+								entry = JSON.parse(xhr.responseText).entry;
+								title = entry.title.$t;
+								author = entry.author[0].name.$t;
+								views = entry.yt$statistics.viewCount;
+								publ = entry.published.$t.substr(0, 10);
+							} catch (e) {}
+						}
+						context$3$0.next = 16;
+						break;
+					case 12:
+						context$3$0.next = 14;
+						return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json");
+					case 14:
+						xhr = context$3$0.sent;
+						if (xhr.status === 200) {
+							try {
+								entry = JSON.parse(xhr.responseText)[0], date = new RegExp(/(.*)\s(.*)?/).exec(entry.upload_date);
+								title = entry.title;
+								author = entry.user_name;
+								views = entry.stats_number_of_plays;
+								publ = date[1];
+							} catch (e) {}
+						}
+					case 16:
+						if (title) {
+							link.textContent = title;
+							link.setAttribute("de-author", author);
+							link.classList.add("de-video-title");
+							link.title = Lng.author[lang] + author + ", " + Lng.views[lang] + views + ", " + Lng.published[lang] + publ;
+							data = [title, author, views, publ];
+							Videos._global.vData[isYtube ? 0 : 1][id] = data;
+							videoObj.vData[isYtube ? 0 : 1].push(data);
+							if (videoObj.titleLoadFn) {
+								videoObj.titleLoadFn(data);
+							}
+						}
+						videoObj.loadedLinksCount++;
+						if (!(num % 30 === 0)) {
+							context$3$0.next = 20;
+							break;
+						}
+						return context$3$0.abrupt("return", TasksPool.pause(3000));
+					case 20:
+						context$3$0.next = 22;
+						return sleep(250);
+					case 22:
+					case "end":
+						return context$3$0.stop();
 				}
-			}
-		}
-		if (Cfg.addVimeo) {
-			for (i = 0, els = $Q("a[href*=\"vimeo.com\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
-				var el = els[i],
-				    m = el.href.match(Videos.vimReg);
-				if (m) {
-					var mPost = post || (aib.getPostEl(el) || {}).post;
-					if (mPost) {
-						mPost.videos.addLink(m, null, el, false);
-					}
-				}
-			}
-		}
-		for (i = 0, len = videos.length; i < len; ++i) {
-			var _videos$i = _slicedToArray(videos[i], 3);
-
-			var pst = _videos$i[0];
-			var m = _videos$i[1];
-			var isYtube = _videos$i[2];
-			if (pst) {
-				pst.videos.addLink(m, loader, null, isYtube);
-			}
-		}
-		if (loader) {
-			loader.complete();
-		}
+			}, callee$2$0, this);
+		})), function () {
+			sesStorage["de-videos-data"] = JSON.stringify(Videos._global.vData);
+		});
 	};
 	Videos.prototype = Object.defineProperties({
 		currentLink: null,
 		hasLinks: false,
 		playerInfo: null,
 		titleLoadFn: null,
-		ytLinksCount: 0,
+		linksCount: 0,
+		loadedLinksCount: 0,
 		addLink: function addLink(m, loader, link, isYtube) {
 			var msg, src, time, dataObj;
 			this.hasLinks = true;
-			if (isYtube) {
-				this.ytLinksCount++;
-			}
+			this.linksCount++;
 			if (this.playerInfo === null) {
 				if (Cfg.addYouTube === 2) {
 					this.addPlayer(m, isYtube);
@@ -5874,8 +5859,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} else if (!link && $q(".de-video-link[href*=\"" + m[1] + "\"]", this.post.msg)) {
 				return;
 			}
-			if (loader && (dataObj = Videos._global.vData[m[1]])) {
-				this.vData.push(dataObj);
+			if (loader && (dataObj = Videos._global.vData[isYtube ? 0 : 1][m[1]])) {
+				this.vData[isYtube ? 0 : 1].push(dataObj);
 			}
 			if (m[4] || m[3] || m[2]) {
 				if (m[4] >= 60) {
@@ -5893,22 +5878,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (time) {
 					link.setAttribute("de-time", time);
 				}
+				link.className = "de-video-link " + (isYtube ? "de-ytube" : "de-vimeo");
 				if (dataObj) {
 					link.textContent = dataObj[0];
-					link.className = "de-video-link de-ytube de-video-title";
+					link.classList.add("de-video-title");
 					link.setAttribute("de-author", dataObj[1]);
 					link.title = Lng.author[lang] + dataObj[1] + ", " + Lng.views[lang] + dataObj[2] + ", " + Lng.published[lang] + dataObj[3];
-				} else {
-					link.className = "de-video-link " + (isYtube ? "de-ytube" : "de-vimeo");
-					if (!isYtube && Cfg.YTubeTitles) {
-					
-						$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json").then(function (xhr) {
-							var json = JSON.parse(xhr.responseText)[0],
-							    date = new RegExp(/(.*)\s(.*)?/).exec(json.upload_date);
-							link.textContent = json.title;
-							link.title = Lng.author[lang] + json.user_name + ", " + Lng.views[lang] + json.stats_number_of_plays + ", " + Lng.published[lang] + date[1];
-						});
-					}
 				}
 			} else {
 				src = isYtube ? aib.prot + "//www.youtube.com/watch?v=" + m[1] + (time ? "#t=" + time : "") : aib.prot + "//vimeo.com/" + m[1];
@@ -5920,7 +5895,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			link.videoInfo = m;
 			if (loader && !dataObj) {
-				loader.run([link, this, m[1]]);
+				loader.run([link, isYtube, this, m[1]]);
 			}
 		},
 		addPlayer: function addPlayer(m, isYtube) {
@@ -5955,7 +5930,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		updatePost: function updatePost(oldLinks, newLinks, cloned) {
-			var loader = !cloned && loadTitles && this._getTitleLoader();
+			var loader = !cloned && Videos._getTitlesLoader;
 			for (var i = 0, j = 0, _len = newLinks.length; i < _len; ++i) {
 				var el = newLinks[i],
 				    link = oldLinks[j];
@@ -5966,9 +5941,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					el.videoInfo = link.videoInfo;
 					j++;
 				} else {
-					var m = el.href.match(Videos.ytReg);
-					if (m) {
-						this.addLink(m, loader, el, true);
+					var _m = el.href.match(Videos.ytReg);
+					if (_m) {
+						this.addLink(_m, loader, el, true);
 						j++;
 					}
 				}
@@ -6005,6 +5980,58 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			configurable: true
 		}
 	});
+
+	function VideosParser() {
+		this._loader = Videos._getTitlesLoader();
+	}
+	VideosParser.prototype = {
+		end: function end() {
+			if (this._loader) {
+				this._loader.complete();
+			}
+		},
+		parse: function parse() {
+			var post = arguments[0] === undefined ? null : arguments[0];
+			var i,
+			    els,
+			    len,
+			    loader = this._loader,
+			    videos = aib.fixVideo(post);
+			for (i = 0, els = $Q("a[href*=\"youtu\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+				var el = els[i],
+				    _m = el.href.match(Videos.ytReg);
+				if (_m) {
+					var mPost = post || (aib.getPostEl(el) || {}).post;
+					if (mPost) {
+						mPost.videos.addLink(_m, loader, el, true);
+					}
+				}
+			}
+			if (Cfg.addVimeo) {
+				for (i = 0, els = $Q("a[href*=\"vimeo.com\"]", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
+					var el = els[i],
+					    _m2 = el.href.match(Videos.vimReg);
+					if (_m2) {
+						var mPost = post || (aib.getPostEl(el) || {}).post;
+						if (mPost) {
+							mPost.videos.addLink(_m2, loader, el, false);
+						}
+					}
+				}
+			}
+			for (i = 0, len = videos.length; i < len; ++i) {
+				var _videos$i = _slicedToArray(videos[i], 3);
+
+				var pst = _videos$i[0];
+				var _m3 = _videos$i[1];
+				var isYtube = _videos$i[2];
+				if (pst) {
+					pst.videos.addLink(_m3, loader, null, isYtube);
+				}
+			}
+			return this;
+		}
+	};
 
 	function embedMediaLinks(post) {
 		var el, link, src, i, els, len;
@@ -7463,23 +7490,26 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (!val) {
 				return !!videos.hasLinks;
 			}
-			if (videos.ytLinksCount === 0 || !Cfg.YTubeTitles) {
+			if (!videos.hasLinks || !Cfg.YTubeTitles) {
 				return false;
 			}
 			for (var _iterator = videos.vData[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-				var data = _step.value;
-				if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
-					return true;
+				var siteData = _step.value;
+				for (var _iterator2 = siteData[Symbol.iterator](), _step2; !(_step2 = _iterator2.next()).done;) {
+					var data = _step2.value;
+					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
+						return true;
+					}
 				}
 			}
-			if (videos.ytLinksCount === videos.vData.length) {
+			if (videos.linksCount === videos.loadedLinksCount) {
 				return false;
 			}
 			return new Promise(function (resolve, reject) {
 				videos.titleLoadFn = function (data) {
 					if (isAuthorSpell ? val === data[1] : val.test(data[0])) {
 						resolve(true);
-					} else if (videos.ytLinksCount === videos.vData.length) {
+					} else if (videos.linksCount === videos.loadedLinksCount) {
 						resolve(false);
 					} else {
 						return;
@@ -10402,17 +10432,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		updateMsg: function updateMsg(newMsg) {
 			var origMsg = aib.dobr ? this.msg.firstElementChild : this.msg,
-			    ytExt = $c("de-video-ext", origMsg),
-			    ytLinks = $Q(":not(.de-video-ext) > .de-video-link", origMsg);
+			    videoExt = $c("de-video-ext", origMsg),
+			    videoLinks = $Q(":not(.de-video-ext) > .de-video-link", origMsg);
 			origMsg.parentNode.replaceChild(newMsg, origMsg);
 			Object.defineProperties(this, {
 				msg: { configurable: true, value: newMsg },
 				trunc: { configurable: true, value: null }
 			});
 			PostContent.remove(this);
-			this.videos.updatePost(ytLinks, $Q("a[href*=\"youtu\"]", newMsg), false);
-			if (ytExt) {
-				newMsg.appendChild(ytExt);
+			this.videos.updatePost(videoLinks, $Q("a[href*=\"youtu\"], a[href*=\"vimeo.com\"]", newMsg), false);
+			if (videoExt) {
+				newMsg.appendChild(videoExt);
 			}
 			this.addFuncs();
 			spells.check(this);
@@ -11251,7 +11281,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				} else {
 					this._pref.insertAdjacentHTML("afterend", "<span class=\"de-post-btns\">" + pText + "</span");
 					embedMediaLinks(this);
-					Videos.parseLinks(this);
+					new VideosParser().parse(this).end();
 					if (Cfg.addImgs) {
 						embedImagesLinks(el);
 					}
@@ -11827,7 +11857,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 
 		_lastModified: "",
-		_addPost: function _addPost(parent, el, i, prev) {
+		_addPost: function _addPost(parent, el, i, vParser, prev) {
 			var post,
 			    num = aib.getPNum(el),
 			    wrap = aib.getWrap(el, false);
@@ -11841,7 +11871,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				});
 				post.el.classList.add("de-post-new");
 			}
-			Videos.parseLinks(post);
+			vParser.parse(post);
 			if (Cfg.imgSrcBtns) {
 				addImagesSearch(el);
 			}
@@ -11879,13 +11909,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			}
 		},
-		_importPosts: function _importPosts(last, newPosts, begin, end) {
+		_importPosts: function _importPosts(last, newPosts, begin, end, vParser) {
 			var newCount,
 			    newVisCount,
 			    fragm = doc.createDocumentFragment();
 			newCount = newVisCount = end - begin;
 			for (; begin < end; ++begin) {
-				last = this._addPost(fragm, newPosts[begin], begin + 1, last);
+				last = this._addPost(fragm, newPosts[begin], begin + 1, vParser, last);
 				newVisCount -= spells.check(last);
 			}
 			return [newCount, newVisCount, fragm, last];
@@ -11897,6 +11927,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    firstChangedPost,
 			    res,
 			    temp,
+			    vParser,
 			    saveSpells = false,
 			    newPosts = 0,
 			    newVisPosts = 0,
@@ -11904,6 +11935,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    post = this.lastNotDeleted;
 			if (aib.dobr || post.count !== 0 && (post.count > len || aib.getPNum(nPosts[post.count - 1]) !== post.num)) {
 				firstChangedPost = null;
+				vParser = new VideosParser();
 				post = this.op.nextNotDeleted;
 				for (i = post.count - 1; i < len && post;) {
 					if (post.num !== aib.getPNum(nPosts[i])) {
@@ -11916,7 +11948,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								cnt++;
 								i++;
 							} while (+aib.getPNum(nPosts[i]) < +post.num);
-							res = this._importPosts(post.prev, nPosts, i - cnt, i);
+							res = this._importPosts(post.prev, nPosts, i - cnt, i, vParser);
 							newPosts += res[0];
 							this.pcount += res[0];
 							newVisPosts += res[1];
@@ -11954,7 +11986,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			}
 			if (len + 1 > this.pcount) {
-				res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len);
+				vParser = vParser || new VideosParser();
+				res = this._importPosts(this.last, nPosts, this.lastNotDeleted.count, len, vParser);
 				newPosts += res[0];
 				newVisPosts += res[1];
 				this.el.appendChild(res[2]);
@@ -11984,14 +12017,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (saveSpells) {
 				spells.end(savePosts);
 			}
+			if (vParser) {
+				vParser.end();
+			}
 			return [newPosts, newVisPosts];
 		},
 		_processExpandThread: function _processExpandThread(nPosts, num) {
-			var i,
-			    fragm,
-			    tPost,
-			    len,
-			    needRMUpdate,
+			var needRMUpdate,
 			    post = this.op.next,
 			    vPosts = this.pcount === 1 ? 0 : this.last.count - post.count + 1;
 			if (vPosts > num) {
@@ -12002,20 +12034,22 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				needRMUpdate = false;
 			} else if (vPosts < num) {
-				fragm = doc.createDocumentFragment();
-				tPost = this.op;
-				len = nPosts.length;
-				for (i = Math.max(0, len - num), len -= vPosts; i < len; ++i) {
-					tPost = this._addPost(fragm, nPosts[i], i + 1, tPost);
+				var fragm = doc.createDocumentFragment(),
+				    tPost = this.op,
+				    _len = nPosts.length - vPosts,
+				    vParser = new VideosParser();
+				for (var i = Math.max(0, _len - num); i < _len; ++i) {
+					tPost = this._addPost(fragm, nPosts[i], i + 1, vParser, tPost);
 					spells.check(tPost);
 				}
+				vParser.end();
 				$after(this.op.wrap, fragm);
 				tPost.next = post;
 				if (post) {
 					post.prev = tPost;
 				}
 				needRMUpdate = true;
-				num = Math.min(len + vPosts, num);
+				num = Math.min(_len + vPosts, num);
 			} else {
 				return num <= visPosts;
 			}
@@ -12992,13 +13026,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				for (i = 0, els = $Q("embed, object, iframe", post ? post.el : dForm.el), len = els.length; i < len; ++i) {
 					var el = els[i],
 					    src = el.src || el.data,
-					    m = src.match(Videos.ytReg);
-					if (m) {
-						videos.push([post || this.getPostEl(el).post, m, true]);
+					    _m = src.match(Videos.ytReg);
+					if (_m) {
+						videos.push([post || this.getPostEl(el).post, _m, true]);
 						$del(el);
 					}
-					if (Cfg.addVimeo && (m = src.match(Videos.vimReg))) {
-						videos.push([post || this.getPostEl(el).post, m, false]);
+					if (Cfg.addVimeo && (_m = src.match(Videos.vimReg))) {
+						videos.push([post || this.getPostEl(el).post, _m, false]);
 						$del(el);
 					}
 				}
@@ -14284,7 +14318,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		isLog && new Logger().log("Preload images");
 		embedMediaLinks(null);
 		isLog && new Logger().log("Audio links");
-		Videos.parseLinks(null);
+		new VideosParser().parse(null).end();
 		isLog && new Logger().log("Video links");
 		if (Cfg.addImgs) {
 			embedImagesLinks(dForm.el);
