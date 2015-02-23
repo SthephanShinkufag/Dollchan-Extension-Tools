@@ -2005,7 +2005,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 				case 31:
-					dForm.initAjax();
+					if (!localRun) {
+						dForm.initAjax();
+					}
 					new Logger().log("Parse delform");
 					pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
 					new Logger().log("Parse postform");
@@ -4065,7 +4067,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				($q(arr[i], doc) || {}).disabled = nState;
 			}
 		}
-		toggleBox(Cfg.ajaxUpdThr, ["input[info=\"noErrInTitle\"]", "input[info=\"favIcoBlink\"]", "input[info=\"markNewPosts\"]", "input[info=\"desktNotif\"]", "input[info=\"updCount\"]"]);
+		toggleBox(Cfg.ajaxUpdThr, ["input[info=\"updThrDelay\"]", "input[info=\"noErrInTitle\"]", "input[info=\"favIcoBlink\"]", "input[info=\"markNewPosts\"]", "input[info=\"desktNotif\"]", "input[info=\"updCount\"]"]);
 		toggleBox(Cfg.expandImgs, ["input[info=\"imgNavBtns\"]", "input[info=\"resizeDPI\"]", "input[info=\"resizeImgs\"]", "input[info=\"minImgSize\"]", "input[info=\"zoomFactor\"]", "input[info=\"webmControl\"]", "input[info=\"webmVolume\"]"]);
 		toggleBox(Cfg.preLoadImgs, ["input[info=\"findImgFile\"]"]);
 		toggleBox(Cfg.openImgs, ["input[info=\"openGIFs\"]"]);
@@ -4201,7 +4203,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function getCfgPosts() {
-		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-posts" }, [lBox("ajaxUpdThr", false, TNum ? function () {
+		return $New("div", { "class": "de-cfg-unvis", id: "de-cfg-posts" }, [$if(!localRun, $New("div", null, [lBox("ajaxUpdThr", false, TNum ? function () {
 			if (Cfg.ajaxUpdThr) {
 				updater.enable();
 			} else {
@@ -4215,7 +4217,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		})), lBox("updCount", true, function () {
 			updater.toggleCounter(Cfg.updCount);
-		})]), optSel("expandPosts", true, null), optSel("postBtnsCSS", true, null), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("noPostScrl", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang])]), $New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
+		})])])), optSel("expandPosts", true, null), optSel("postBtnsCSS", true, null), lBox("noSpoilers", true, updateCSS), lBox("noPostNames", true, updateCSS), lBox("noPostScrl", true, updateCSS), $New("div", null, [lBox("correctTime", false, DateTime.toggleSettings), $add("<a href=\"https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/wiki/Settings-time-" + (lang ? "en" : "ru") + "\" class=\"de-abtn\" target=\"_blank\">[?]</a>")]), $New("div", { "class": "de-cfg-depend" }, [$New("div", null, [inpTxt("timeOffset", 2, null), $txt(Lng.cfg.timeOffset[lang])]), $New("div", null, [inpTxt("timePattern", 25, null), $txt(Lng.cfg.timePattern[lang])]), $New("div", null, [inpTxt("timeRPattern", 25, null), $txt(Lng.cfg.timeRPattern[lang])])])]);
 	}
 
 	function getCfgImages() {
@@ -13985,7 +13987,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				dForm.firstThr.el.nextSibling.addEventListener("click", Thread.loadNewPosts, false);
 			}
 		}
-		updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+		if (!localRun) {
+			updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+		}
 	}
 
 	function scrollPage() {

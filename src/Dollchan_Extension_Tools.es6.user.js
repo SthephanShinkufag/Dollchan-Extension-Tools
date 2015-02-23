@@ -2181,7 +2181,7 @@ function fixSettings() {
 		}
 	}
 	toggleBox(Cfg.ajaxUpdThr, [
-		'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
+		'input[info="updThrDelay"]', 'input[info="noErrInTitle"]', 'input[info="favIcoBlink"]',
 		'input[info="markNewPosts"]', 'input[info="desktNotif"]', 'input[info="updCount"]'
 	]);
 	toggleBox(Cfg.expandImgs, [
@@ -2353,32 +2353,34 @@ function getCfgFilters() {
 
 function getCfgPosts() {
 	return $New('div', {'class': 'de-cfg-unvis', 'id': 'de-cfg-posts'}, [
-		lBox('ajaxUpdThr', false, TNum ? function() {
-			if(Cfg.ajaxUpdThr) {
-				updater.enable();
-			} else {
-				updater.disable();
-			}
-		} : null),
-		$New('label', null, [
-			inpTxt('updThrDelay', 2, null),
-			$txt(Lng.cfg.updThrDelay[lang])
-		]),
-		$New('div', {'class': 'de-cfg-depend'}, [
-			lBox('noErrInTitle', true, null),
-			lBox('favIcoBlink', true, null),
-			lBox('markNewPosts', true, function() {
-				dForm.firstThr.clearPostsMarks();
-			}),
-			$if('Notification' in window, lBox('desktNotif', true, function() {
-				if(Cfg.desktNotif) {
-					Notification.requestPermission();
+		$if(!localRun, $New('div', null, [
+			lBox('ajaxUpdThr', false, TNum ? function() {
+				if(Cfg.ajaxUpdThr) {
+					updater.enable();
+				} else {
+					updater.disable();
 				}
-			})),
-			lBox('updCount', true, function() {
-				updater.toggleCounter(Cfg.updCount);
-			})
-		]),
+			} : null),
+			$New('label', null, [
+				inpTxt('updThrDelay', 2, null),
+				$txt(Lng.cfg.updThrDelay[lang])
+			]),
+			$New('div', {'class': 'de-cfg-depend'}, [
+				lBox('noErrInTitle', true, null),
+				lBox('favIcoBlink', true, null),
+				lBox('markNewPosts', true, function() {
+					dForm.firstThr.clearPostsMarks();
+				}),
+				$if('Notification' in window, lBox('desktNotif', true, function() {
+					if(Cfg.desktNotif) {
+						Notification.requestPermission();
+					}
+				})),
+				lBox('updCount', true, function() {
+					updater.toggleCounter(Cfg.updCount);
+				})
+			])
+		])),
 		optSel('expandPosts', true, null),
 		optSel('postBtnsCSS', true, null),
 		lBox('noSpoilers', true, updateCSS),
@@ -11709,7 +11711,9 @@ function initPage() {
 			dForm.firstThr.el.nextSibling.addEventListener('click', Thread.loadNewPosts, false);
 		}
 	}
-	updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+	if(!localRun){
+		updater = initThreadUpdater(doc.title, TNum && Cfg.ajaxUpdThr);
+	}
 }
 
 function scrollPage() {
@@ -12260,7 +12264,9 @@ function *initScript(checkDomains) {
 		doc.body.style.display = '';
 		return;
 	}
-	dForm.initAjax();
+	if(!localRun) {
+		dForm.initAjax();
+	}
 	new Logger().log('Parse delform');
 	pr = new PostForm($q(aib.qPostForm, doc), false, !liteMode, doc);
 	new Logger().log('Parse postform');
