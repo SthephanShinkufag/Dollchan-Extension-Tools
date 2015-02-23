@@ -5217,7 +5217,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function initMessageFunctions() {
-		window.addEventListener("message", function (e) {
+		doc.defaultView.addEventListener("message", function (e) {
 			if (typeof e.data !== "string") {
 				return;
 			}
@@ -9178,7 +9178,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		remove: function remove() {
 			$del(this._btns);
-			window.removeEventListener("mousemove", this, false);
+			doc.defaultView.removeEventListener("mousemove", this, false);
 			clearTimeout(this._hideTmt);
 		},
 		show: function show() {
@@ -9961,7 +9961,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				var val = doc.documentElement.clientHeight;
 				if (!this._enabled) {
-					window.addEventListener("resize", this, false);
+					doc.defaultView.addEventListener("resize", this, false);
 					this._enabled = true;
 				}
 				Object.defineProperties(this, {
@@ -9977,7 +9977,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				var val = doc.documentElement.clientWidth;
 				if (!this._enabled) {
-					window.addEventListener("resize", this, false);
+					doc.defaultView.addEventListener("resize", this, false);
 					this._enabled = true;
 				}
 				Object.defineProperties(this, {
@@ -13256,7 +13256,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		nav = getNavFuncs();
 
-		window.addEventListener("storage", function (e) {
+		doc.defaultView.addEventListener("storage", function (e) {
 			var data,
 			    temp,
 			    post,
@@ -13369,7 +13369,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		}
 		if (TNum) {
-			window.addEventListener("beforeunload", function (e) {
+			doc.defaultView.addEventListener("beforeunload", function (e) {
 				sesStorage["de-scroll-" + brd + TNum] = window.pageYOffset;
 			}, false);
 		}
@@ -13714,13 +13714,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}, false);
 		} else {
 			focused = false;
-			window.addEventListener("focus", onVis, false);
-			window.addEventListener("blur", function () {
+			doc.defaultView.addEventListener("focus", onVis, false);
+			doc.defaultView.addEventListener("blur", function () {
 				focused = false;
 				dForm.firstThr.clearPostsMarks();
 			}, false);
-			window.addEventListener("mousemove", function mouseMove() {
-				window.removeEventListener("mousemove", mouseMove, false);
+			doc.defaultView.addEventListener("mousemove", function mouseMove() {
+				doc.defaultView.removeEventListener("mousemove", mouseMove, false);
 				onVis();
 			}, false);
 		}
