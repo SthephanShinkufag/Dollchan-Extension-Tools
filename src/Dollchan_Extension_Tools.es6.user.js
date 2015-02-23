@@ -17,7 +17,7 @@
 // @include         *
 // ==/UserScript==
 
-(function de_main_func(scriptStorage) {
+(function de_main_func_inner(scriptStorage) {
 'use strict';
 
 var version = '15.1.28.0',
@@ -3856,7 +3856,7 @@ function loadDocFiles(imgOnly) {
 			dt = doc.doctype;
 			$t('head', dc).insertAdjacentHTML('beforeend',
 				'<script type="text/javascript" src="data/dollscript.js"></script>');
-			tar.addString('data/dollscript.js', '(' + String(de_main_func) + ')(null, true);');
+			tar.addString('data/dollscript.js', '(' + String(de_main_func_outer || de_main_func_inner) + ')(null, true);');
 			tar.addString(
 				name + '.html', '<!DOCTYPE ' + dt.name +
 				(dt.publicId ? ' PUBLIC "' + dt.publicId + '"' : dt.systemId ? ' SYSTEM' : '') +

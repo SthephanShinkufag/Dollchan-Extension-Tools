@@ -20,6 +20,8 @@ gulp.task('make', function() {
 		.pipe(headerfooter.header('src/regenerator-runtime.js'))
 		.pipe(headerfooter.header('src/core-js.custom.js'))
 		.pipe(strip())
+		.pipe(headerfooter.header('(function de_main_func_outer() {\n'))
+		.pipe(headerfooter.footer('})();'))
 		.pipe(headerfooter.header('Dollchan_Extension_Tools.meta.js'))
 		.pipe(dest('', {basename: 'Dollchan_Extension_Tools.user.'}))
 		.pipe(gulp.dest('./'));

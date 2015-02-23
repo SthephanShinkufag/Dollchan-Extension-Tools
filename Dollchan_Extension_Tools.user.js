@@ -16,6 +16,7 @@
 // @grant           unsafeWindow
 // @include         *
 // ==/UserScript==
+(function de_main_func_outer() {
 !function(global, framework, undefined){
 'use strict';
 
@@ -1440,7 +1441,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 
-(function de_main_func(scriptStorage) {
+(function de_main_func_inner(scriptStorage) {
 	"use strict";
 
 	var getStored = regeneratorRuntime.mark(
@@ -5525,7 +5526,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (!imgOnly) {
 				dt = doc.doctype;
 				$t("head", dc).insertAdjacentHTML("beforeend", "<script type=\"text/javascript\" src=\"data/dollscript.js\"></script>");
-				tar.addString("data/dollscript.js", "(" + String(de_main_func) + ")(null, true);");
+				tar.addString("data/dollscript.js", "(" + String(de_main_func_outer || de_main_func_inner) + ")(null, true);");
 				tar.addString(name + ".html", "<!DOCTYPE " + dt.name + (dt.publicId ? " PUBLIC \"" + dt.publicId + "\"" : dt.systemId ? " SYSTEM" : "") + (dt.systemId ? " \"" + dt.systemId + "\"" : "") + ">" + dc.outerHTML);
 			}
 			u = window.URL.createObjectURL(tar.get());
@@ -14318,4 +14319,4 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 })(window.opera && window.opera.scriptStorage);
 
-                     
+                     })();
