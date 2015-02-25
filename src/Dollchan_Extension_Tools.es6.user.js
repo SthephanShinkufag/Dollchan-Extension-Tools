@@ -1921,7 +1921,14 @@ function showVideosTable(cont) {
 		cont.innerHTML = '<b>' + Lng.noVideoLinks[lang] + '</b>';
 		return;
 	}
-	cont.innerHTML = '<div class="de-video-obj"></div>' +
+	if(!$id('de-ytube-api')) {
+		doc.head.appendChild($new('script', {
+			'id': 'de-ytube-api',
+			'type': 'text/javascript',
+			'src': aib.prot + '//www.youtube.com/player_api'
+		}, null));
+	}
+	cont.innerHTML = '<div de-disableautoplay class="de-video-obj"></div>' +
 		'<center>' +
 			'<a class="de-abtn" id="de-video-btn-prev" href="#" title="' + Lng.prevVideo[lang] + '">' +
 				'&#x25C0;' +
@@ -1936,6 +1943,41 @@ function showVideosTable(cont) {
 		'<div id="de-video-list" style="max-width: ' + (+Cfg.YTubeWidth + 40) +
 			'px; max-height: ' + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + 'px;"></div>';
 	let linkList = cont.lastChild;
+	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
+		(function() {
+			if('YT' in window && 'Player' in window.YT) {
+				onYouTubePlayerAPIReady();
+			} else {
+				window.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;
+			}
+			function onYouTubePlayerAPIReady() {
+				var el = document.querySelector('#de-content-vid > .de-video-obj');
+				window.de_addVideoEvents = addEvents.bind(el);
+				window.de_addVideoEvents();
+			}
+			function addEvents() {
+				var autoplay = true;
+				if(this.hasAttribute('de-disableautoplay')) {
+					autoplay = false;
+					this.removeAttribute('de-disableautoplay');
+				}
+				new YT.Player(this.firstChild, { events: {
+					'onError': gotoNextVideo,
+					'onReady': autoplay ? function(e) {
+						e.target.playVideo();
+					} : Function.prototype,
+					'onStateChange': function(e) {
+						if(e.data === 0) {
+							gotoNextVideo();
+						}
+					}
+				}});
+			}
+			function gotoNextVideo() {
+				document.getElementById("de-video-btn-next").click();
+			}
+		})();
+	`}));
 	cont.addEventListener('click', {
 		linkList: linkList,
 		listHidden: false,
@@ -1981,7 +2023,7 @@ function showVideosTable(cont) {
 				this.currentLink = el;
 				el.classList.add('de-current');
 				this.playerInfo = m;
-				Videos.addPlayer(this.player, m, el.classList.contains('de-ytube'));
+				Videos.addPlayer(this.player, m, el.classList.contains('de-ytube'), true);
 			}
 			$pd(e);
 		}
@@ -1995,6 +2037,7 @@ function showVideosTable(cont) {
 		if(i === 0) {
 			el.click();
 		}
+		el.setAttribute('onclick', 'window.de_addVideoEvents && window.de_addVideoEvents();');
 	}
 }
 
@@ -4086,7 +4129,7 @@ Videos._global = {
 };
 Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
-Videos.addPlayer = function(el, m, isYtube) {
+Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	var time, list, id = m[1],
 		wh = ' width="' + Cfg.YTubeWidth + '" height="' + Cfg.YTubeHeigh + '">',
 		sp = '<span class="de-video-resizer" title="' + Lng.expandVideo[lang] + '"></span>';
@@ -4095,7 +4138,7 @@ Videos.addPlayer = function(el, m, isYtube) {
 		list = m[0].match(/list=[^&#]+/);
 		el.innerHTML =
 			'<iframe frameborder="0" allowfullscreen="1" src="' + aib.prot + '//www.youtube.com/embed/' +
-			id + '?' + (el.parentNode.id === 'de-content-vid' ? 'enablejsapi=1&' : '') +
+			id + '?' + (enableJsapi ? 'enablejsapi=1&' : '') +
 			(Cfg.YTubeHD ? 'hd=1&' : '') + (list ? list[0] + '&' : '') + 'start=' + time +
 			(Cfg.YTubeType === 1 ? '&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') +
 			wh + '</iframe>' + sp;
@@ -4482,7 +4525,7 @@ var loadPages = async(function *(count) {
 	for(var i = pageNum, len = Math.min(aib.lastPage + 1, pageNum + count); i < len; ++i) {
 		let content;
 		try {
-			content = replacePost(yield ajaxLoad(aib.getPageUrl(brd, pageNum)));
+			content = replacePost(yield ajaxLoad(aib.getPageUrl(brd, i)));
 		} catch(e) {
 			content = $add('<div><center style="font-size: 2em">' +
 			               getErrorMessage(e) + '</center><hr></div>');

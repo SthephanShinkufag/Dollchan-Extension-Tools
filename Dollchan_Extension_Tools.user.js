@@ -3767,8 +3767,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			cont.innerHTML = "<b>" + Lng.noVideoLinks[lang] + "</b>";
 			return;
 		}
-		cont.innerHTML = "<div class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;" + "</a>" + "</center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
+		if (!$id("de-ytube-api")) {
+			doc.head.appendChild($new("script", {
+				id: "de-ytube-api",
+				type: "text/javascript",
+				src: aib.prot + "//www.youtube.com/player_api"
+			}, null));
+		}
+		cont.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;" + "</a>" + "</center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
 		var linkList = cont.lastChild;
+		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\tvar el = document.querySelector('#de-content-vid > .de-video-obj');\n\t\t\t\twindow.de_addVideoEvents = addEvents.bind(el);\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
 		cont.addEventListener("click", {
 			linkList: linkList,
 			listHidden: false,
@@ -3815,7 +3823,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.currentLink = el;
 					el.classList.add("de-current");
 					this.playerInfo = m;
-					Videos.addPlayer(this.player, m, el.classList.contains("de-ytube"));
+					Videos.addPlayer(this.player, m, el.classList.contains("de-ytube"), true);
 				}
 				$pd(e);
 			}
@@ -3829,6 +3837,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (i === 0) {
 				el.click();
 			}
+			el.setAttribute("onclick", "window.de_addVideoEvents && window.de_addVideoEvents();");
 		}
 	}
 
@@ -5754,6 +5763,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	Videos.ytReg = /^https?:\/\/(?:www\.|m\.)?youtu(?:be\.com\/(?:watch\?.*?v=|v\/|embed\/)|\.be\/)([a-zA-Z0-9-_]+).*?(?:t(?:ime)?=(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s?)?)?$/;
 	Videos.vimReg = /^https?:\/\/(?:www\.)?vimeo\.com\/(?:[^\?]+\?clip_id=|.*?\/)?(\d+).*?(#t=\d+)?$/;
 	Videos.addPlayer = function (el, m, isYtube) {
+		var enableJsapi = arguments[3] === undefined ? false : arguments[3];
 		var time,
 		    list,
 		    id = m[1],
@@ -5762,7 +5772,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (isYtube) {
 			time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 			list = m[0].match(/list=[^&#]+/);
-			el.innerHTML = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"" + aib.prot + "//www.youtube.com/embed/" + id + "?" + (el.parentNode.id === "de-content-vid" ? "enablejsapi=1&" : "") + (Cfg.YTubeHD ? "hd=1&" : "") + (list ? list[0] + "&" : "") + "start=" + time + (Cfg.YTubeType === 1 ? "&html5=1&rel=0\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>" + sp;
+			el.innerHTML = "<iframe frameborder=\"0\" allowfullscreen=\"1\" src=\"" + aib.prot + "//www.youtube.com/embed/" + id + "?" + (enableJsapi ? "enablejsapi=1&" : "") + (Cfg.YTubeHD ? "hd=1&" : "") + (list ? list[0] + "&" : "") + "start=" + time + (Cfg.YTubeType === 1 ? "&html5=1&rel=0\" type=\"text/html\"" : "\" type=\"application/x-shockwave-flash\"") + wh + "</iframe>" + sp;
 		} else {
 			time = m[2] ? m[2] : "";
 			el.innerHTML = Cfg.YTubeType === 1 ? "<iframe src=\"" + aib.prot + "//player.vimeo.com/video/" + id + time + "\" frameborder=\"0\" " + "webkitallowfullscreen mozallowfullscreen allowfullscreen" + wh + "</iframe>" + sp : "<embed type=\"application/x-shockwave-flash\" src=\"" + aib.prot + "//vimeo.com/moogaloop.swf" + "?clip_id=" + id + time + "&server=vimeo.com&color=00adef&fullscreen=1\" " + "allowscriptaccess=\"always\" allowfullscreen=\"true\"" + wh + "</embed>" + sp;
@@ -6178,7 +6188,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					content = undefined;
 					context$2$0.prev = 13;
 					context$2$0.next = 16;
-					return ajaxLoad(aib.getPageUrl(brd, pageNum));
+					return ajaxLoad(aib.getPageUrl(brd, i));
 				case 16:
 					context$2$0.t16 = context$2$0.sent;
 					content = replacePost(context$2$0.t16);
