@@ -4156,7 +4156,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 			exp = node.className === 'de-video-obj';
 		node.className = exp ? 'de-video-obj de-video-expanded' : 'de-video-obj';
 		if(node.parentNode.id === 'de-content-vid') {
-			node = node.nextSibling.nextSibling;
+			node = node.nextSibling.nextSibling.nextSibling;
 			node.style.maxWidth = (exp ? 888 : +Cfg.YTubeWidth + 40) + 'px';
 			node.style.maxHeight =
 				(doc.documentElement.clientHeight - (exp ? 590 : +Cfg.YTubeHeigh + 110)) + 'px';
