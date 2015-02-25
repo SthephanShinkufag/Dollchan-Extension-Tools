@@ -1,0 +1,23 @@
+{
+  "name": "Dollchan-Extension-Tools",
+  "version": "15.1.28.0",
+  "author": "Sthephan Shinkufag @ FreeDollChan",
+  "description": "Doing some profit for imageboards",
+  "homepage": "http://www.freedollchan.org/scripts/",
+  "devDependencies": {
+    "gulp": "^3.6.2",
+    "gulp-babel": "^4.0.0",
+    "gulp-jshint": "^1.5.5",
+	"gulp-headerfooter": "^1.0.3",
+	"gulp-dest": "^0.2.1",
+	"gulp-strip-comments": "^1.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools.git"
+  },
+  "license": "(c) 2015 Dollchan Extension Tools Team. See the LICENSE file for license rights and limitations (MIT).",
+  "bugs": {
+    "url": "https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/issues"
+  }
+}
