@@ -14052,9 +14052,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function scrollPage() {
 		if (!TNum) {
-			if (!updater.focused || window.pageYOffset !== 0) {
-				window.scrollTo(0, 0);
-			}
+			window.scrollTo(0, 0);
 			return;
 		}
 		setTimeout(function () {

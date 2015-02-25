@@ -11801,9 +11801,7 @@ function initPage() {
 
 function scrollPage() {
 	if(!TNum) {
-		if(!updater.focused || window.pageYOffset !== 0) {
-			window.scrollTo(0, 0);
-		}
+		window.scrollTo(0, 0);
 		return;
 	}
 	setTimeout(function () {
