@@ -11861,7 +11861,10 @@ function checkForUpdates(isForce) {
 					i++;
 				}
 				if(isUpd) {
-					resolve('<a style="color: blue; font-weight: bold;" href="https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.user.js">' +
+					resolve('<a style="color: blue; font-weight: bold;" href="' +
+						'https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/' +
+						(nav.Firefox && 'Promise' in window ? 'src/Dollchan_Extension_Tools.es6.user.js">' :
+							'Dollchan_Extension_Tools.user.js">') +
 					Lng.updAvail[lang] + '</a>');
 				} else if(isForce) {
 					resolve(Lng.haveLatest[lang]);
