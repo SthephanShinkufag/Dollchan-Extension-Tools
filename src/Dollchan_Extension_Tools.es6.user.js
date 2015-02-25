@@ -4137,7 +4137,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 		time = (m[2] ? m[2] * 3600 : 0) + (m[3] ? m[3] * 60 : 0) + (m[4] ? +m[4] : 0);
 		list = m[0].match(/list=[^&#]+/);
 		el.innerHTML =
-			'<iframe frameborder="0" allowfullscreen="1" src="' + aib.prot + '//www.youtube.com/embed/' +
+			'<iframe frameborder="0" allowfullscreen="1" src="https://www.youtube.com/embed/' +
 			id + '?' + (enableJsapi ? 'enablejsapi=1&' : '') +
 			(Cfg.YTubeHD ? 'hd=1&' : '') + (list ? list[0] + '&' : '') + 'start=' + time +
 			(Cfg.YTubeType === 1 ? '&html5=1&rel=0" type="text/html"' : '" type="application/x-shockwave-flash"') +
