@@ -5,6 +5,10 @@
 >
 **[GET CHROME EXTENSION](https://chrome.google.com/webstore/detail/dollchan-extension-tools/ipnoalfffblkaodfmipjjgkfbgcfadad)**
 
+Dollchan supports **ECMAScript 6**! (for Firefox 36 and higher)
+>
+**[GET ES6 SCRIPT](https://github.com/SthephanShinkufag/Dollchan-Extension-Tools/raw/master/src/Dollchan_Extension_Tools.es6.user.js)**
+
 ### Wiki
 
 >
