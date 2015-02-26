@@ -3762,15 +3762,17 @@ function *downloadImgDataHelper(url, repeatOnError) {
 	} else if(isAb) {
 		return new Uint8Array(xhr.response);
 	} else {
-		for(let len, i = 0, txt = xhr.responseText, rv = new Uint8Array(len = txt.length); i < len; ++i) {
+		let txt = xhr.responseText,
+			rv = new Uint8Array(txt.length);
+		for(let i = 0, len = txt.length; i < len; ++i) {
 			rv[i] = txt.charCodeAt(i) & 0xFF;
 		}
 		return rv;
 	}
 }
 
-function downloadImgData(url) {
-	return async(downloadImgDataHelper)(url, true);
+function *downloadImgData(url) {
+	return yield* downloadImgDataHelper(url, true);
 }
 
 function preloadImages(post) {
@@ -3784,7 +3786,7 @@ function preloadImages(post) {
 	if(isPreImg || Cfg.preLoadImgs) {
 		pool = new TasksPool(mReqs, async(function *(num, data) {
 			var [url, lnk, iType, nExp, el] = data,
-				imageData = yield downloadImgData(url);
+				imageData = yield* downloadImgData(url);
 			if(imageData) {
 				let fName = url.substring(url.lastIndexOf("/") + 1),
 					aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
@@ -3870,7 +3872,7 @@ function loadDocFiles(imgOnly) {
 	Images_.pool = new TasksPool(4, async(function *(num, data) {
 		var [url, name, el, link] = data,
 			safeName = name.replace(/[\\\/:*?"<>|]/g, '_'),
-			imgData = yield downloadImgData(url);
+			imgData = yield* downloadImgData(url);
 		progress.value = current;
 		counter.innerHTML = current;
 		current++;
@@ -4472,13 +4474,11 @@ function ajaxLoad(url, returnForm = true, parseDOM = true) {
 
 function getJsonPosts(url) {
 	return $ajax(nav.fixLink(url)).then(xhr => {
-		if(xhr.status === 304) {
-			return null;
+		switch(xhr.status) {
+		case 200: return JSON.parse(xhr.responseText);
+		case 304: return null;
+		default: throw new AjaxError(xht.status, xhr.message);
 		}
-		if(xhr.status === 200) {
-			return JSON.parse(xhr.responseText);
-		}
-		throw new AjaxError(xht.status, xhr.message);
 	});
 }
 
@@ -6996,7 +6996,7 @@ function checkUpload(dc) {
 			}
 			closeAlert($id('de-alert-upload'));
 		} else {
-			dForm.firstThr.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
+			spawn(dForm.firstThr.loadNew, true).then(() => AjaxError.Success, e => e).then(e => {
 				infoLoadErrors(e, 0);
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
@@ -7050,7 +7050,7 @@ function checkDelete(dc) {
 	}
 	if(TNum) {
 		dForm.firstThr.clearPostsMarks();
-		dForm.firstThr.loadNew(false).then(() => AjaxError.Success, e => e).then(e => {
+		spawn(dForm.firstThr.loadNew, false).then(() => AjaxError.Success, e => e).then(e => {
 			infoLoadErrors(e, 0);
 			endDelete();
 		}, false);
@@ -7992,7 +7992,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 					});
 				};
 				if(aib.fch) {
-					downloadImgData(this.el.src).then(data => {
+					spawn(downloadImgData, this.el.src).then(data => {
 						if(!data) {
 							this.hash = -1;
 							resolve(-1);
@@ -9783,7 +9783,7 @@ Thread.prototype = {
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
-	loadNew: async(function *(useAPI) {
+	loadNew: function *(useAPI) {
 		if(aib.dobr && useAPI) {
 			let json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
 			if(!json) {
@@ -9794,13 +9794,13 @@ Thread.prototype = {
 			}
 			if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
 				this._lastModified = json.last_modified;
-				return yield this.loadNew(false);
+				return yield* this.loadNew(false);
 			} else {
 				return 0;
 			}
 		}
 		return this.loadNewFromForm(yield ajaxLoad(aib.getThrdUrl(brd, TNum)));
-	}),
+	},
 	loadNewFromForm(form) {
 		this._checkBans(dForm.firstThr.op, form);
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
@@ -11503,7 +11503,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function stopLoading(stopGenerator, hideCountdown) {
 		if(stopGenerator) {
-			loadingTask.return();
+			loadingTask['throw'](new StopLoadingTaskError);
 		}
 		if(useCountdown) {
 			if(hideCountdown) {
@@ -11570,6 +11570,10 @@ function initThreadUpdater(title, enableUpdate) {
 		favNorm = !favNorm;
 	}
 
+	function StopLoadingTaskError() {
+		this.name = 'StopLoadingTaskError';
+	}
+
 	function *loadingTaskGenerator(useCountdown, firstSleep) {
 		var countIv, countdownValue, checked4XX = false,
 			delay = initDelay;
@@ -11579,9 +11583,12 @@ function initThreadUpdater(title, enableUpdate) {
 					countEl.textContent = countdownValue = delay / 1000;
 					countIv = setInterval(() => countEl.textContent = --countdownValue, 1e3);
 				}
-				let shouldExit = false;
 				try {
 					yield sleep(delay);
+				} catch(e) {
+					if(e instanceof StopLoadingTaskError) {
+						return;
+					}
 				} finally {
 					clearInterval(countIv);
 				}
@@ -11594,8 +11601,11 @@ function initThreadUpdater(title, enableUpdate) {
 			let error = AjaxError.Success,
 				lPosts = 0;
 			try {
-				lPosts = yield dForm.firstThr.loadNew(true);
+				lPosts = yield* dForm.firstThr.loadNew(true);
 			} catch(e) {
+				if(e instanceof StopLoadingTaskError) {
+					return;
+				}
 				error = e;
 			}
 			infoLoadErrors(error, -1);
