@@ -17,8 +17,11 @@
 // @include         *
 // ==/UserScript==
 (function de_main_func_outer() {
+
 !function(global, framework, undefined){
 'use strict';
+
+
 
  
 var OBJECT          = 'Object'
@@ -567,6 +570,8 @@ if(exportGlobal || framework){
 }
 
 
+
+
 !function(TAG, SymbolRegistry, AllSymbols, setter){
  
   if(!isNative(Symbol)){
@@ -643,6 +648,8 @@ if(exportGlobal || framework){
   });
 }(safeSymbol('tag'), {}, {}, true);
 
+
+
 !function(at){
  
  
@@ -683,6 +690,8 @@ if(exportGlobal || framework){
     return iterResult(0, point);
   });
 }(createPointAt(true));
+
+
 
 
 
@@ -752,6 +761,8 @@ $define(GLOBAL + BIND, {
   setImmediate:   setImmediate,
   clearImmediate: clearImmediate
 });
+
+
 
 
 
@@ -899,7 +910,9 @@ $define(GLOBAL + BIND, {
   setSpecies(Promise);
   $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
 }(global[PROMISE]);
-}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);!(function(global) {
+}(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
+
+!(function(global) {
   "use strict";
 
   var hasOwn = Object.prototype.hasOwnProperty;
@@ -10833,7 +10846,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					str += "<a class=\"de-src" + info[0] + (!info[1] ? "\" onclick=\"de_isearch(event, '" + info[0] + "')\" de-url=\"" : "\" href=\"" + info[1]) + p + info[0] + "</a>";
 				});
 			}
-			return "<a class=\"de-menu-item de-imgmenu de-src-iqdb\" href=\"http://iqdb.org/?url=" + p + "IQDB</a>" + "<a class=\"de-menu-item de-imgmenu de-src-tineye\" href=\"http://tineye.com/search/?url=" + p + "TinEye</a>" + "<a class=\"de-menu-item de-imgmenu de-src-google\" href=\"http://google.com/searchbyimage?image_url=" + p + "Google</a>" + "<a class=\"de-menu-item de-imgmenu de-src-saucenao\" href=\"http://saucenao.com/search.php?url=" + p + "SauceNAO</a>" + str;
+			return "<a class=\"de-menu-item de-imgmenu de-src-google\" href=\"http://google.com/searchbyimage?image_url=" + p + "Google</a>" + "<a class=\"de-menu-item de-imgmenu de-src-yandex\" href=\"http://yandex.ru/images/search?rpt=imageview&img_url=" + p + "Yandex</a>" + "<a class=\"de-menu-item de-imgmenu de-src-tineye\" href=\"http://tineye.com/search/?url=" + p + "TinEye</a>" + "<a class=\"de-menu-item de-imgmenu de-src-saucenao\" href=\"http://saucenao.com/search.php?url=" + p + "SauceNAO</a>" + "<a class=\"de-menu-item de-imgmenu de-src-iqdb\" href=\"http://iqdb.org/?url=" + p + "IQDB</a>" + str;
 		},
 		_addPview: function _addPview(link) {
 			var tNum = (link.pathname.match(/.+?\/[^\d]*(\d+)/) || [, aib.getPostEl(link).post.tNum])[1],
@@ -12822,9 +12835,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				css: { value: "#captcha_status, .content-background > hr, div[style=\"position: relative;\"] { display: none !important; }" },
 				ru: { value: true }
 			}, "script[src*=\"kusaba\"]"],
-			"hiddenchan.i2p": [{
-				hid: { value: true }
-			}, "script[src*=\"kusaba\"]"],
 			"iichan.hk": [{
 				iich: { value: true }
 			}],
@@ -14558,10 +14568,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 
 	
-		x += cont(".de-src-google", "https://google.com/favicon.ico");
-		x += cont(".de-src-tineye", "https://tineye.com/favicon.ico");
-		x += cont(".de-src-iqdb", "//iqdb.org/favicon.ico");
-		x += cont(".de-src-saucenao", "https://saucenao.com/favicon.ico");
+		x += cont(".de-src-google", "https://google.com/favicon.ico") + cont(".de-src-yandex", "https://yandex.ru/favicon.ico") + cont(".de-src-tineye", "https://tineye.com/favicon.ico") + cont(".de-src-saucenao", "https://saucenao.com/favicon.ico") + cont(".de-src-iqdb", "//iqdb.org/favicon.ico");
 
 	
 		x += ".de-post-counter:after { counter-increment: de-cnt 1; content: counter(de-cnt); margin-right: 4px; vertical-align: 1px; color: #4f7942; font: bold 11px tahoma; cursor: default; }\t\t.de-post-deleted:after { content: \"" + Lng.deleted[lang] + "\"; margin-right: 4px; vertical-align: 1px; color: #727579; font: bold 11px tahoma; cursor: default; }";
