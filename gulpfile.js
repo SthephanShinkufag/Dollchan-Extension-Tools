@@ -16,7 +16,7 @@ var paths = {
 
 gulp.task('make', function() {
 	return gulp.src('src/Dollchan_Extension_Tools.es6.user.js')
-		.pipe(babel())
+		.pipe(babel({ compact: false }))
 		.pipe(headerfooter.header('src/regenerator-runtime.js'))
 		.pipe(headerfooter.header('src/core-js.custom.js'))
 		.pipe(strip())
