@@ -1221,7 +1221,7 @@ function isFormElDisabled(el) {
 // STORAGE
 // ===========================================================================================================
 
-function *getStored(id) {
+function* getStored(id) {
 	if(nav.isGM) {
 		return GM_getValue(id);
 	} else if(nav.isChromeStorage) {
@@ -1275,7 +1275,7 @@ function delStored(id) {
 	}
 }
 
-function *getStoredObj(id) {
+function* getStoredObj(id) {
 	return JSON.parse((yield* getStored(id)) || '{}') || {};
 }
 
@@ -1298,7 +1298,7 @@ function saveCfg(id, val) {
 	}
 }
 
-function *readCfg() {
+function* readCfg() {
 	var obj, val = yield* getStoredObj('DESU_Config');
 	comCfg = val;
 	if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
@@ -1400,7 +1400,7 @@ function readPosts() {
 	sVis = [];
 }
 
-function *readUserPosts() {
+function* readUserPosts() {
 	bUVis = yield* getStoredObj('DESU_Posts_' + aib.dm);
 	hThr = yield* getStoredObj('DESU_Threads_' + aib.dm);
 	var uVis, vis, post, date = Date.now(),
@@ -1497,7 +1497,7 @@ function saveHiddenThreads(updContent) {
 	}
 }
 
-function *readFavoritesPosts() {
+function* readFavoritesPosts() {
 	var thr, temp, num, update = false,
 		fav = yield* getStoredObj('DESU_Favorites');
 	if(!(aib.host in fav)) {
@@ -1869,7 +1869,7 @@ function showContent(cont, id, name, remove, data) {
 				locStorage.removeItem('__de-threads');
 			});
 		}));
-		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function *() {
+		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 			var i, len, els = $Q('.de-entry[info]', this.parentNode);
 			for(i = 0, len = els.length; i < len; ++i) {
 				let [board, tNum] = els[i].getAttribute('info').split(';');
@@ -2094,7 +2094,7 @@ function showFavoriteTable(cont, data) {
 	cont.appendChild(addEditButton('favor', function(fn) {
 		readFav().then(val => fn(val, true, saveFavorites));
 	}));
-	cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function *() {
+	cont.appendChild($btn(Lng.refresh[lang], Lng.infoCount[lang], async(function* () {
 		var i, len, els = $C('de-entry', doc),
 			update = false,
 			fav = yield* getStoredObj('DESU_Favorites');
@@ -2138,7 +2138,7 @@ function showFavoriteTable(cont, data) {
 			setStored('DESU_Favorites', JSON.stringify(fav));
 		}
 	})));
-	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function *() {
+	cont.appendChild($btn(Lng.page[lang], Lng.infoPage[lang], async(function* () {
 		var i, el, page, endPage, els = $Q('.de-fav-current > .de-entry', doc),
 			infoCount = els.length,
 			infoLoaded = 0,
@@ -2181,7 +2181,7 @@ function showFavoriteTable(cont, data) {
 		}
 		closeAlert($id('de-alert-load-pages'));
 	})));
-	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function *() {
+	cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(function* () {
 		for(var i = 0, els = $C('de-entry', doc), len = els.length; i < len; ++i) {
 			let el = els[i],
 				node = $c('de-fav-inf-err', el);
@@ -2996,7 +2996,7 @@ function HotKeys() {
 	spawn(HotKeys.readKeys).then(keys => this._init(keys));
 }
 HotKeys.version = 6;
-HotKeys.readKeys = function *() {
+HotKeys.readKeys = function* () {
 	var tKeys, keys, str = yield* getStored('DESU_keys');
 	if(!str) {
 		return HotKeys.getDefaultKeys();
@@ -3739,7 +3739,7 @@ function addImgFileIcon(aEl, fName, info) {
 	}
 }
 
-function *downloadImgDataHelper(url, repeatOnError) {
+function* downloadImgDataHelper(url, repeatOnError) {
 	var xhr;
 	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
 		xhr = yield $ajax(url, 'GET', {overrideMimeType: 'text/plain; charset=x-user-defined'});
@@ -3771,7 +3771,7 @@ function *downloadImgDataHelper(url, repeatOnError) {
 	}
 }
 
-function *downloadImgData(url) {
+function* downloadImgData(url) {
 	return yield* downloadImgDataHelper(url, true);
 }
 
@@ -3784,7 +3784,7 @@ function preloadImages(post) {
 			console.error("FILE DETECTOR ERROR, line: " + e.lineno + " - " + e.message);
 		});
 	if(isPreImg || Cfg.preLoadImgs) {
-		pool = new TasksPool(mReqs, async(function *(num, data) {
+		pool = new TasksPool(mReqs, async(function* (num, data) {
 			var [url, lnk, iType, nExp, el] = data,
 				imageData = yield* downloadImgData(url);
 			if(imageData) {
@@ -3869,7 +3869,7 @@ function loadDocFiles(imgOnly) {
 		warnings = '',
 		tar = new TarBuilder(),
 		dc = imgOnly ? doc : doc.documentElement.cloneNode(true);
-	Images_.pool = new TasksPool(4, async(function *(num, data) {
+	Images_.pool = new TasksPool(4, async(function* (num, data) {
 		var [url, name, el, link] = data,
 			safeName = name.replace(/[\\\/:*?"<>|]/g, '_'),
 			imgData = yield* downloadImgData(url);
@@ -4166,7 +4166,7 @@ Videos.addPlayer = function(el, m, isYtube, enableJsapi = false) {
 	};
 };
 Videos._getTitlesLoader = function() {
-	return Cfg.YTubeTitles && new TasksPool(4, async(function *(num, info) {
+	return Cfg.YTubeTitles && new TasksPool(4, async(function* (num, info) {
 		var title, author, views, publ, [link, isYtube, videoObj, id] = info;
 		if(isYtube) {
 			let xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
@@ -4503,7 +4503,7 @@ function loadFavorThread(node) {
 		(doc.documentElement.clientWidth - 55) + 'px; height: 1px;"></iframe>');
 }
 
-var loadPages = async(function *(count) {
+var loadPages = async(function* (count) {
 	var pages = [], hasError = false;
 	$alert(Lng.loading[lang], 'load-pages', true);
 	Pview.clearCache();
@@ -5519,7 +5519,7 @@ SpellsInterpreter.prototype = {
 		}
 		return false;
 	},
-	_ihash: async(function *() {
+	_ihash: async(function* () {
 		for(let image of this._post.images) {
 			let hash = image.hash !== null ? image.hash : yield image.getHash();
 			if(hash === val) {
@@ -7061,7 +7061,7 @@ function checkDelete(dc) {
 	}
 }
 
-function *html5Submit(form) {
+function* html5Submit(form) {
 	var fData;
 	if(nav.hasModernFormData) {
 		fData = new FormData(form);
@@ -7129,7 +7129,7 @@ function *html5Submit(form) {
 	}
 }
 
-function *cleanFile(fileEl, file) {
+function* cleanFile(fileEl, file) {
 	// Don't inline this function, because generators are too slow
 	var data = cleanFileHelper((yield readFileArrayBuffer(file)),
                                fileEl.obj.imgFile,
@@ -9783,7 +9783,7 @@ Thread.prototype = {
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
-	loadNew: function *(useAPI) {
+	loadNew: function* (useAPI) {
 		if(aib.dobr && useAPI) {
 			let json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
 			if(!json) {
@@ -11574,7 +11574,7 @@ function initThreadUpdater(title, enableUpdate) {
 		this.name = 'StopLoadingTaskError';
 	}
 
-	function *loadingTaskGenerator(useCountdown, firstSleep) {
+	function* loadingTaskGenerator(useCountdown, firstSleep) {
 		var countIv, countdownValue, checked4XX = false,
 			delay = initDelay;
 		while(true) {
@@ -11842,6 +11842,7 @@ function checkForUpdates(isForce) {
 			}
 			if(Date.now() - +comCfg.lastUpd < temp) {
 				reject();
+				return;
 			}
 		}
 		$ajax('https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
@@ -12325,7 +12326,7 @@ function addDelformStuff(isLog) {
 	}
 }
 
-function *initScript(checkDomains) {
+function* initScript(checkDomains) {
 	new Logger().init();
 	var formEl = Initialization(checkDomains);
 	if(!formEl) {

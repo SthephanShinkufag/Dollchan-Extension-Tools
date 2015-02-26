@@ -14427,6 +14427,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				if (Date.now() - +comCfg.lastUpd < temp) {
 					reject();
+					return;
 				}
 			}
 			$ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", "GET", { "Content-Type": "text/plain" }).then(function (xhr) {
