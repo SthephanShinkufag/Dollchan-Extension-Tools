@@ -1795,7 +1795,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, readFavoritesPosts, this);
 	});
 	var downloadImgDataHelper = regeneratorRuntime.mark(function downloadImgDataHelper(url, repeatOnError) {
-		var xhr, isAb, _len, i, txt, _rv;
+		var xhr, isAb, txt, rv, i, _len;
 
 		return regeneratorRuntime.wrap(function downloadImgDataHelper$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
@@ -1858,7 +1858,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return", context$2$0.t15);
 
 				case 27:
-					context$2$0.next = 35;
+					context$2$0.next = 36;
 					break;
 
 				case 29:
@@ -1870,16 +1870,33 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return", new Uint8Array(xhr.response));
 
 				case 33:
-					for (_len = undefined, i = 0, txt = xhr.responseText, _rv = new Uint8Array(len = txt.length); i < _len; ++i) {
-						_rv[i] = txt.charCodeAt(i) & 255;
+					txt = xhr.responseText, rv = new Uint8Array(txt.length);
+
+					for (i = 0, _len = txt.length; i < _len; ++i) {
+						rv[i] = txt.charCodeAt(i) & 255;
 					}
 					return context$2$0.abrupt("return", rv);
 
-				case 35:
+				case 36:
 				case "end":
 					return context$2$0.stop();
 			}
 		}, downloadImgDataHelper, this, [[6, 12]]);
+	});
+	var downloadImgData = regeneratorRuntime.mark(function downloadImgData(url) {
+		return regeneratorRuntime.wrap(function downloadImgData$(context$2$0) {
+			while (1) switch (context$2$0.prev = context$2$0.next) {
+				case 0:
+					return context$2$0.delegateYield(downloadImgDataHelper(url, true), "t16", 1);
+
+				case 1:
+					return context$2$0.abrupt("return", context$2$0.t16);
+
+				case 2:
+				case "end":
+					return context$2$0.stop();
+			}
+		}, downloadImgData, this);
 	});
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
 		var fData, filesEls, i, _len, fileEl, files, _len2, newFiles, _i, file, _name, changed, xhr, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
@@ -1933,10 +1950,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						break;
 					}
 
-					return context$2$0.delegateYield(cleanFile(fileEl, file), "t22", 17);
+					return context$2$0.delegateYield(cleanFile(fileEl, file), "t25", 17);
 
 				case 17:
-					file = context$2$0.t22;
+					file = context$2$0.t25;
 
 					if (file) {
 						context$2$0.next = 21;
@@ -2027,9 +2044,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 52:
 					context$2$0.prev = 52;
-					context$2$0.t23 = context$2$0["catch"](31);
+					context$2$0.t26 = context$2$0["catch"](31);
 
-					$alert(getErrorMessage(context$2$0.t23), "upload", false);
+					$alert(getErrorMessage(context$2$0.t26), "upload", false);
 
 				case 55:
 				case "end":
@@ -2046,9 +2063,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return readFileArrayBuffer(file);
 
 				case 2:
-					context$2$0.t24 = context$2$0.sent;
-					context$2$0.t25 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
-					data = cleanFileHelper(context$2$0.t24, fileEl.obj.imgFile, context$2$0.t25);
+					context$2$0.t27 = context$2$0.sent;
+					context$2$0.t28 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
+					data = cleanFileHelper(context$2$0.t27, fileEl.obj.imgFile, context$2$0.t28);
 					return context$2$0.abrupt("return", data ? new File(data, file.name) : null);
 
 				case 6:
@@ -2074,10 +2091,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t31", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t37", 6);
 
 				case 6:
-					str = context$2$0.t31;
+					str = context$2$0.t37;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2088,7 +2105,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t32", 11);
+					return context$2$0.delegateYield(readCfg(), "t38", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2117,9 +2134,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t33 = context$2$0["catch"](22);
+					context$2$0.t39 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t33));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t39));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2151,10 +2168,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					doc.body.style.display = "";
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t34", 47);
+					return context$2$0.delegateYield(readUserPosts(), "t40", 47);
 
 				case 47:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t35", 48);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t41", 48);
 
 				case 48:
 					setTimeout(PostContent.purge, 0);
@@ -5559,10 +5576,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	}
 
-	function downloadImgData(url) {
-		return async(downloadImgDataHelper)(url, true);
-	}
-
 	function preloadImages(post) {
 		if (!Cfg.preLoadImgs && !Cfg.openImgs && !isPreImg) {
 			return;
@@ -5586,11 +5599,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							iType = _data[2];
 							nExp = _data[3];
 							el = _data[4];
-							context$3$0.next = 8;
-							return downloadImgData(url);
+							return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
 
-						case 8:
-							imageData = context$3$0.sent;
+						case 7:
+							imageData = context$3$0.t17;
 
 							if (imageData) {
 								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
@@ -5613,7 +5625,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							}
 							cImg++;
 
-						case 12:
+						case 11:
 						case "end":
 							return context$3$0.stop();
 					}
@@ -5697,11 +5709,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						el = _data[2];
 						link = _data[3];
 						safeName = name.replace(/[\\\/:*?"<>|]/g, "_");
-						context$3$0.next = 8;
-						return downloadImgData(url);
+						return context$3$0.delegateYield(downloadImgData(url), "t18", 7);
 
-					case 8:
-						imgData = context$3$0.sent;
+					case 7:
+						imgData = context$3$0.t18;
 
 						progress.value = current;
 						counter.innerHTML = current;
@@ -5724,7 +5735,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							$del(el);
 						}
 
-					case 13:
+					case 12:
 					case "end":
 						return context$3$0.stop();
 				}
@@ -6332,13 +6343,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function getJsonPosts(url) {
 		return $ajax(nav.fixLink(url)).then(function (xhr) {
-			if (xhr.status === 304) {
-				return null;
+			switch (xhr.status) {
+				case 200:
+					return JSON.parse(xhr.responseText);
+				case 304:
+					return null;
+				default:
+					throw new AjaxError(xht.status, xhr.message);
 			}
-			if (xhr.status === 200) {
-				return JSON.parse(xhr.responseText);
-			}
-			throw new AjaxError(xht.status, xhr.message);
 		});
 	}
 
@@ -6400,16 +6412,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return ajaxLoad(aib.getPageUrl(brd, i));
 
 				case 16:
-					context$2$0.t16 = context$2$0.sent;
-					content = replacePost(context$2$0.t16);
+					context$2$0.t19 = context$2$0.sent;
+					content = replacePost(context$2$0.t19);
 					context$2$0.next = 23;
 					break;
 
 				case 20:
 					context$2$0.prev = 20;
-					context$2$0.t17 = context$2$0["catch"](13);
+					context$2$0.t20 = context$2$0["catch"](13);
 
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t17) + "</center><hr></div>");
+					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t20) + "</center><hr></div>");
 
 				case 23:
 					if (i != pageNum) {
@@ -6423,9 +6435,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 28:
 					context$2$0.prev = 28;
-					context$2$0.t18 = context$2$0["catch"](24);
+					context$2$0.t21 = context$2$0["catch"](24);
 
-					$alert(getPrettyErrorMessage(context$2$0.t18), "load-pages", true);
+					$alert(getPrettyErrorMessage(context$2$0.t21), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 36);
 
@@ -6442,10 +6454,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					dForm.initAjax();
 					addDelformStuff(false);
-					return context$2$0.delegateYield(readUserPosts(), "t19", 40);
+					return context$2$0.delegateYield(readUserPosts(), "t22", 40);
 
 				case 40:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t20", 41);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t23", 41);
 
 				case 41:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
@@ -7497,7 +7509,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							break;
 						}
 
-						context$2$0.t21 = image.hash;
+						context$2$0.t24 = image.hash;
 						context$2$0.next = 10;
 						break;
 
@@ -7506,10 +7518,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return image.getHash();
 
 					case 9:
-						context$2$0.t21 = context$2$0.sent;
+						context$2$0.t24 = context$2$0.sent;
 
 					case 10:
-						hash = context$2$0.t21;
+						hash = context$2$0.t24;
 
 						if (!(hash === val)) {
 							context$2$0.next = 13;
@@ -9053,7 +9065,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				closeAlert($id("de-alert-upload"));
 			} else {
-				dForm.firstThr.loadNew(true).then(function () {
+				spawn(dForm.firstThr.loadNew, true).then(function () {
 					return AjaxError.Success;
 				}, function (e) {
 					return e;
@@ -9119,7 +9131,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (TNum) {
 			dForm.firstThr.clearPostsMarks();
-			dForm.firstThr.loadNew(false).then(function () {
+			spawn(dForm.firstThr.loadNew, false).then(function () {
 				return AjaxError.Success;
 			}, function (e) {
 				return e;
@@ -10044,7 +10056,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								});
 							};
 							if (aib.fch) {
-								downloadImgData(_this.el.src).then(function (data) {
+								spawn(downloadImgData, _this.el.src).then(function (data) {
 									if (!data) {
 										_this.hash = -1;
 										resolve(-1);
@@ -11268,7 +11280,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this.data, "t26", 1);
+						return context$3$0.delegateYield(_this.data, "t29", 1);
 
 					case 1:
 					case "end":
@@ -11327,10 +11339,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this._attachedImages, "t27", 1);
+						return context$3$0.delegateYield(_this._attachedImages, "t30", 1);
 
 					case 1:
-						return context$3$0.delegateYield(_this.data, "t28", 2);
+						return context$3$0.delegateYield(_this.data, "t31", 2);
 
 					case 2:
 					case "end":
@@ -12026,15 +12038,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			closeAlert($id("de-alert-load-thr"));
 		},
-		loadNew: async(regeneratorRuntime.mark(function callee$1$3(useAPI) {
+		loadNew: regeneratorRuntime.mark(function loadNew(useAPI) {
 			var _this = this;
 
 			var json;
-			return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
+			return regeneratorRuntime.wrap(function loadNew$(context$2$0) {
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
 						if (!(aib.dobr && useAPI)) {
-							context$2$0.next = 16;
+							context$2$0.next = 15;
 							break;
 						}
 
@@ -12061,34 +12073,33 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 8:
 						if (!(_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count)) {
-							context$2$0.next = 15;
+							context$2$0.next = 14;
 							break;
 						}
 
 						_this._lastModified = json.last_modified;
-						context$2$0.next = 12;
-						return _this.loadNew(false);
+						return context$2$0.delegateYield(_this.loadNew(false), "t32", 11);
 
-					case 12:
-						return context$2$0.abrupt("return", context$2$0.sent);
+					case 11:
+						return context$2$0.abrupt("return", context$2$0.t32);
 
-					case 15:
+					case 14:
 						return context$2$0.abrupt("return", 0);
 
-					case 16:
-						context$2$0.next = 18;
+					case 15:
+						context$2$0.next = 17;
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 
-					case 18:
-						context$2$0.t29 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t29));
+					case 17:
+						context$2$0.t33 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t33));
 
-					case 20:
+					case 19:
 					case "end":
 						return context$2$0.stop();
 				}
-			}, callee$1$3, this);
-		})),
+			}, loadNew, this);
+		}),
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(dForm.firstThr.op, form);
 			var lastOffset = pr.isVisible ? pr.topCoord : null;
@@ -13888,7 +13899,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function initThreadUpdater(title, enableUpdate) {
 		var loadingTaskGenerator = regeneratorRuntime.mark(function loadingTaskGenerator(useCountdown, firstSleep) {
-			var countIv, countdownValue, checked4XX, delay, shouldExit, _error, lPosts, isAjaxError, post, notif;
+			var countIv, countdownValue, checked4XX, delay, _error, lPosts, isAjaxError, post, notif;
 
 			return regeneratorRuntime.wrap(function loadingTaskGenerator$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
@@ -13897,12 +13908,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 1:
 						if (!true) {
-							context$3$0.next = 44;
+							context$3$0.next = 50;
 							break;
 						}
 
 						if (!firstSleep) {
-							context$3$0.next = 14;
+							context$3$0.next = 19;
 							break;
 						}
 
@@ -13912,45 +13923,66 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								return countEl.textContent = --countdownValue;
 							}, 1000);
 						}
-						shouldExit = false;
-						context$3$0.prev = 5;
-						context$3$0.next = 8;
+						context$3$0.prev = 4;
+						context$3$0.next = 7;
 						return sleep(delay);
 
-					case 8:
-						context$3$0.prev = 8;
+					case 7:
+						context$3$0.next = 13;
+						break;
+
+					case 9:
+						context$3$0.prev = 9;
+						context$3$0.t34 = context$3$0["catch"](4);
+
+						if (!(context$3$0.t34 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 13;
+							break;
+						}
+
+						return context$3$0.abrupt("return");
+
+					case 13:
+						context$3$0.prev = 13;
 
 						clearInterval(countIv);
-						return context$3$0.finish(8);
+						return context$3$0.finish(13);
 
-					case 11:
+					case 16:
 						if (useCountdown) {
 							countEl.innerHTML = "<span class=\"de-wait\"></span>";
 						}
-						context$3$0.next = 15;
+						context$3$0.next = 20;
 						break;
-
-					case 14:
-						firstSleep = true;
-
-					case 15:
-						_error = AjaxError.Success, lPosts = 0;
-						context$3$0.prev = 16;
-						context$3$0.next = 19;
-						return dForm.firstThr.loadNew(true);
 
 					case 19:
-						lPosts = context$3$0.sent;
-						context$3$0.next = 25;
+						firstSleep = true;
+
+					case 20:
+						_error = AjaxError.Success, lPosts = 0;
+						context$3$0.prev = 21;
+						return context$3$0.delegateYield(dForm.firstThr.loadNew(true), "t35", 23);
+
+					case 23:
+						lPosts = context$3$0.t35;
+						context$3$0.next = 31;
 						break;
 
-					case 22:
-						context$3$0.prev = 22;
-						context$3$0.t30 = context$3$0["catch"](16);
+					case 26:
+						context$3$0.prev = 26;
+						context$3$0.t36 = context$3$0["catch"](21);
 
-						_error = context$3$0.t30;
+						if (!(context$3$0.t36 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 30;
+							break;
+						}
 
-					case 25:
+						return context$3$0.abrupt("return");
+
+					case 30:
+						_error = context$3$0.t36;
+
+					case 31:
 						infoLoadErrors(_error, -1);
 						isAjaxError = _error instanceof AjaxError;
 
@@ -13959,7 +13991,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						if (!(!isAjaxError || _error.code !== 200 && _error.code !== 304)) {
-							context$3$0.next = 41;
+							context$3$0.next = 47;
 							break;
 						}
 
@@ -13972,29 +14004,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						if (!(lastECode !== 0 && lastECode < 500)) {
-							context$3$0.next = 39;
+							context$3$0.next = 45;
 							break;
 						}
 
 						if (!(!checked4XX && (lastECode === 404 || lastECode === 400))) {
-							context$3$0.next = 36;
+							context$3$0.next = 42;
 							break;
 						}
 
 						checked4XX = true;
-						context$3$0.next = 39;
+						context$3$0.next = 45;
 						break;
 
-					case 36:
+					case 42:
 						updateTitle();
 						disable(false);
 						return context$3$0.abrupt("return");
 
-					case 39:
+					case 45:
 						setState("warn");
 						return context$3$0.abrupt("continue", 1);
 
-					case 41:
+					case 47:
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14031,11 +14063,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						context$3$0.next = 1;
 						break;
 
-					case 44:
+					case 50:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, loadingTaskGenerator, this, [[5,, 8, 11], [16, 22]]);
+			}, loadingTaskGenerator, this, [[4, 9, 13, 16], [21, 26]]);
 		});
 
 		var focused,
@@ -14144,7 +14176,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 		function stopLoading(stopGenerator, hideCountdown) {
 			if (stopGenerator) {
-				loadingTask["return"]();
+				loadingTask["throw"](new StopLoadingTaskError());
 			}
 			if (useCountdown) {
 				if (hideCountdown) {
@@ -14208,6 +14240,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			$del($q("link[rel=\"shortcut icon\"]", doc.head));
 			doc.head.insertAdjacentHTML("afterbegin", "<link rel=\"shortcut icon\" href=\"" + (!favNorm ? favHref : "data:image/x-icon;base64," + this) + "\">");
 			favNorm = !favNorm;
+		}
+
+		function StopLoadingTaskError() {
+			this.name = "StopLoadingTaskError";
 		}
 
 		function setState(state) {
