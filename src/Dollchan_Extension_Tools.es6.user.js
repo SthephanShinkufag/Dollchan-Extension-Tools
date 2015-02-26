@@ -12267,11 +12267,11 @@ function updateCSS() {
 	if(Cfg.noSpoilers) {
 		if(aib.krau || aib.fch || aib._410 || aib.dio) {
 			x += '.spoiler, s { color: #fff !important; }\
-				.spoiler > a, s > a { color: #fff !important; }';
+				.spoiler > a, s > a:not(:hover) { color: #fff !important; }';
 		} else {
 			x += '.spoiler { color: inherit !important; }\
 				.spoiler > a { color: inherit !important; }';
-		};
+		}
 	}
 	if(Cfg.noPostScrl) {
 		x += 'blockquote, blockquote > p, .code_part { height: auto !important; max-height: 100% !important; overflow: visible !important; }';
