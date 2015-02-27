@@ -4270,13 +4270,13 @@ Videos.prototype = {
 		} else {
 			src = isYtube ? aib.prot + '//www.youtube.com/watch?v=' + m[1] + (time ? '#t=' + time : '')
 				: aib.prot + '//vimeo.com/' + m[1];
-			post.msg.insertAdjacentHTML('beforeend',
+			this.post.msg.insertAdjacentHTML('beforeend',
 				'<p class="de-video-ext"><a class="de-video-link ' + (isYtube ? 'de-ytube' : 'de-vimeo') +
 					(dataObj ? ' de-video-title" title="' + Lng.author[lang] + dataObj[1] + ', ' +
 						Lng.views[lang] + dataObj[2] + ', ' + Lng.published[lang] + dataObj[3] +
 						'" de-author="' + dataObj[1] : '') + (time ? '" de-time="' + time : '') +
 					'" href="' + src + '">' + (dataObj ? dataObj[0] : src) + '</a></p>');
-			link = post.msg.lastChild.firstChild;
+			link = this.post.msg.lastChild.firstChild;
 		}
 		if(this.playerInfo === null || this.playerInfo === m) {
 			this.currentLink = link;
@@ -6996,7 +6996,7 @@ function checkUpload(dc) {
 			}
 			closeAlert($id('de-alert-upload'));
 		} else {
-			spawn(dForm.firstThr.loadNew, true).then(() => AjaxError.Success, e => e).then(e => {
+			dForm.firstThr.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
 				infoLoadErrors(e, 0);
 				if(Cfg.scrAfterRep) {
 					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
@@ -7050,7 +7050,7 @@ function checkDelete(dc) {
 	}
 	if(TNum) {
 		dForm.firstThr.clearPostsMarks();
-		spawn(dForm.firstThr.loadNew, false).then(() => AjaxError.Success, e => e).then(e => {
+		dForm.firstThr.loadNew(false).then(() => AjaxError.Success, e => e).then(e => {
 			infoLoadErrors(e, 0);
 			endDelete();
 		}, false);
@@ -9784,7 +9784,7 @@ Thread.prototype = {
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
-	loadNew: function* (useAPI) {
+	loadNew: async(function* (useAPI) {
 		if(aib.dobr && useAPI) {
 			let json = yield getJsonPosts('/api/thread/' + brd + '/' + TNum + '.json');
 			if(!json) {
@@ -9795,13 +9795,13 @@ Thread.prototype = {
 			}
 			if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
 				this._lastModified = json.last_modified;
-				return yield* this.loadNew(false);
+				return yield this.loadNew(false);
 			} else {
 				return 0;
 			}
 		}
 		return this.loadNewFromForm(yield ajaxLoad(aib.getThrdUrl(brd, TNum)));
-	},
+	}),
 	loadNewFromForm(form) {
 		this._checkBans(dForm.firstThr.op, form);
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
@@ -11599,7 +11599,7 @@ function initThreadUpdater(title, enableUpdate) {
 			let error = AjaxError.Success,
 				lPosts = 0;
 			try {
-				lPosts = yield* dForm.firstThr.loadNew(true);
+				lPosts = yield dForm.firstThr.loadNew(true);
 			} catch(e) {
 				if(e instanceof StopLoadingTaskError) {
 					return;
@@ -12198,7 +12198,7 @@ function scriptCSS() {
 		.de-fav-inf-old { color: #4f7942; }\
 		.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\
 		.de-fav-title { margin-right: 15px; }\
-		.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; display: inline !important; }\
+		.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\
 		.de-link-hid { text-decoration: line-through !important; }\
 		.de-link-parent { outline: 1px dotted !important; }\
 		.de-link-pview { font-weight: bold; }\

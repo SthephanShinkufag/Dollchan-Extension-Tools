@@ -2104,10 +2104,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t37", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t35", 6);
 
 				case 6:
-					str = context$2$0.t37;
+					str = context$2$0.t35;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2118,7 +2118,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t38", 11);
+					return context$2$0.delegateYield(readCfg(), "t36", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2147,9 +2147,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t39 = context$2$0["catch"](22);
+					context$2$0.t37 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t39));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t37));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2181,10 +2181,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					doc.body.style.display = "";
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t40", 47);
+					return context$2$0.delegateYield(readUserPosts(), "t38", 47);
 
 				case 47:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t41", 48);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t39", 48);
 
 				case 48:
 					setTimeout(PostContent.purge, 0);
@@ -3767,11 +3767,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var block = null,
 				    els = $C("de-post-hide", dForm.el);
 				for (var i = 0, _len = els.length; i < _len; ++i) {
-					var _post = els[i];
-					if (_post.isOp) {
+					var post = els[i];
+					if (post.isOp) {
 						continue;
 					}
-					var cln = _post.cloneNode(true);
+					var cln = post.cloneNode(true);
 					cln.removeAttribute("id");
 					cln.style.display = "";
 					if (cln.classList.contains(aib.cRPost)) {
@@ -3779,7 +3779,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					} else {
 						cln.className = aib.cReply + " de-cloned-post";
 					}
-					cln.post = Object.create(cln.clone = _post.post);
+					cln.post = Object.create(cln.clone = post.post);
 					cln.post.el = cln;
 					cln.btn = $q(".de-btn-hide, .de-btn-hide-user", cln);
 					cln.btn.parentNode.className = "de-post-btns";
@@ -6139,8 +6139,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 			} else {
 				src = isYtube ? aib.prot + "//www.youtube.com/watch?v=" + m[1] + (time ? "#t=" + time : "") : aib.prot + "//vimeo.com/" + m[1];
-				post.msg.insertAdjacentHTML("beforeend", "<p class=\"de-video-ext\"><a class=\"de-video-link " + (isYtube ? "de-ytube" : "de-vimeo") + (dataObj ? " de-video-title\" title=\"" + Lng.author[lang] + dataObj[1] + ", " + Lng.views[lang] + dataObj[2] + ", " + Lng.published[lang] + dataObj[3] + "\" de-author=\"" + dataObj[1] : "") + (time ? "\" de-time=\"" + time : "") + "\" href=\"" + src + "\">" + (dataObj ? dataObj[0] : src) + "</a></p>");
-				link = post.msg.lastChild.firstChild;
+				this.post.msg.insertAdjacentHTML("beforeend", "<p class=\"de-video-ext\"><a class=\"de-video-link " + (isYtube ? "de-ytube" : "de-vimeo") + (dataObj ? " de-video-title\" title=\"" + Lng.author[lang] + dataObj[1] + ", " + Lng.views[lang] + dataObj[2] + ", " + Lng.published[lang] + dataObj[3] + "\" de-author=\"" + dataObj[1] : "") + (time ? "\" de-time=\"" + time : "") + "\" href=\"" + src + "\">" + (dataObj ? dataObj[0] : src) + "</a></p>");
+				link = this.post.msg.lastChild.firstChild;
 			}
 			if (this.playerInfo === null || this.playerInfo === m) {
 				this.currentLink = link;
@@ -9078,7 +9078,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				closeAlert($id("de-alert-upload"));
 			} else {
-				spawn(dForm.firstThr.loadNew, true).then(function () {
+				dForm.firstThr.loadNew(true).then(function () {
 					return AjaxError.Success;
 				}, function (e) {
 					return e;
@@ -9144,7 +9144,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (TNum) {
 			dForm.firstThr.clearPostsMarks();
-			spawn(dForm.firstThr.loadNew, false).then(function () {
+			dForm.firstThr.loadNew(false).then(function () {
 				return AjaxError.Success;
 			}, function (e) {
 				return e;
@@ -12051,15 +12051,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			closeAlert($id("de-alert-load-thr"));
 		},
-		loadNew: regeneratorRuntime.mark(function loadNew(useAPI) {
+		loadNew: async(regeneratorRuntime.mark(function callee$1$3(useAPI) {
 			var _this = this;
 
 			var json;
-			return regeneratorRuntime.wrap(function loadNew$(context$2$0) {
+			return regeneratorRuntime.wrap(function callee$1$3$(context$2$0) {
 				while (1) switch (context$2$0.prev = context$2$0.next) {
 					case 0:
 						if (!(aib.dobr && useAPI)) {
-							context$2$0.next = 15;
+							context$2$0.next = 16;
 							break;
 						}
 
@@ -12086,33 +12086,34 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 8:
 						if (!(_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count)) {
-							context$2$0.next = 14;
+							context$2$0.next = 15;
 							break;
 						}
 
 						_this._lastModified = json.last_modified;
-						return context$2$0.delegateYield(_this.loadNew(false), "t32", 11);
+						context$2$0.next = 12;
+						return _this.loadNew(false);
 
-					case 11:
-						return context$2$0.abrupt("return", context$2$0.t32);
-
-					case 14:
-						return context$2$0.abrupt("return", 0);
+					case 12:
+						return context$2$0.abrupt("return", context$2$0.sent);
 
 					case 15:
-						context$2$0.next = 17;
+						return context$2$0.abrupt("return", 0);
+
+					case 16:
+						context$2$0.next = 18;
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 
-					case 17:
-						context$2$0.t33 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t33));
+					case 18:
+						context$2$0.t32 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t32));
 
-					case 19:
+					case 20:
 					case "end":
 						return context$2$0.stop();
 				}
-			}, loadNew, this);
-		}),
+			}, callee$1$3, this);
+		})),
 		loadNewFromForm: function loadNewFromForm(form) {
 			this._checkBans(dForm.firstThr.op, form);
 			var lastOffset = pr.isVisible ? pr.topCoord : null;
@@ -13918,7 +13919,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 1:
 						if (!true) {
-							context$3$0.next = 50;
+							context$3$0.next = 51;
 							break;
 						}
 
@@ -13943,9 +13944,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 9:
 						context$3$0.prev = 9;
-						context$3$0.t34 = context$3$0["catch"](4);
+						context$3$0.t33 = context$3$0["catch"](4);
 
-						if (!(context$3$0.t34 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t33 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 13;
 							break;
 						}
@@ -13971,28 +13972,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					case 20:
 						_error = AjaxError.Success, lPosts = 0;
 						context$3$0.prev = 21;
-						return context$3$0.delegateYield(dForm.firstThr.loadNew(true), "t35", 23);
+						context$3$0.next = 24;
+						return dForm.firstThr.loadNew(true);
 
-					case 23:
-						lPosts = context$3$0.t35;
-						context$3$0.next = 31;
+					case 24:
+						lPosts = context$3$0.sent;
+						context$3$0.next = 32;
 						break;
 
-					case 26:
-						context$3$0.prev = 26;
-						context$3$0.t36 = context$3$0["catch"](21);
+					case 27:
+						context$3$0.prev = 27;
+						context$3$0.t34 = context$3$0["catch"](21);
 
-						if (!(context$3$0.t36 instanceof StopLoadingTaskError)) {
-							context$3$0.next = 30;
+						if (!(context$3$0.t34 instanceof StopLoadingTaskError)) {
+							context$3$0.next = 31;
 							break;
 						}
 
 						return context$3$0.abrupt("return");
 
-					case 30:
-						_error = context$3$0.t36;
-
 					case 31:
+						_error = context$3$0.t34;
+
+					case 32:
 						infoLoadErrors(_error, -1);
 						isAjaxError = _error instanceof AjaxError;
 
@@ -14001,7 +14003,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						if (!(!isAjaxError || _error.code !== 200 && _error.code !== 304)) {
-							context$3$0.next = 47;
+							context$3$0.next = 48;
 							break;
 						}
 
@@ -14014,29 +14016,29 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						if (!(lastECode !== 0 && lastECode < 500)) {
-							context$3$0.next = 45;
+							context$3$0.next = 46;
 							break;
 						}
 
 						if (!(!checked4XX && (lastECode === 404 || lastECode === 400))) {
-							context$3$0.next = 42;
+							context$3$0.next = 43;
 							break;
 						}
 
 						checked4XX = true;
-						context$3$0.next = 45;
+						context$3$0.next = 46;
 						break;
 
-					case 42:
+					case 43:
 						updateTitle();
 						disable(false);
 						return context$3$0.abrupt("return");
 
-					case 45:
+					case 46:
 						setState("warn");
 						return context$3$0.abrupt("continue", 1);
 
-					case 47:
+					case 48:
 						if (!focused) {
 							if (lPosts !== 0) {
 								if (Cfg.favIcoBlink && favHref && newPosts === 0) {
@@ -14073,11 +14075,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						context$3$0.next = 1;
 						break;
 
-					case 50:
+					case 51:
 					case "end":
 						return context$3$0.stop();
 				}
-			}, loadingTaskGenerator, this, [[4, 9, 13, 16], [21, 26]]);
+			}, loadingTaskGenerator, this, [[4, 9, 13, 16], [21, 27]]);
 		});
 
 		var focused,
@@ -14609,7 +14611,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	
 		x += cont(".de-wait", "data:image/gif;base64,R0lGODlhEAAQALMMAKqooJGOhp2bk7e1rZ2bkre1rJCPhqqon8PBudDOxXd1bISCef///wAAAAAAAAAAACH/C05FVFNDQVBFMi4wAwEAAAAh+QQFAAAMACwAAAAAEAAQAAAET5DJyYyhmAZ7sxQEs1nMsmACGJKmSaVEOLXnK1PuBADepCiMg/DQ+/2GRI8RKOxJfpTCIJNIYArS6aRajWYZCASDa41Ow+Fx2YMWOyfpTAQAIfkEBQAADAAsAAAAABAAEAAABE6QyckEoZgKe7MEQMUxhoEd6FFdQWlOqTq15SlT9VQM3rQsjMKO5/n9hANixgjc9SQ/CgKRUSgw0ynFapVmGYkEg3v1gsPibg8tfk7CnggAIfkEBQAADAAsAAAAABAAEAAABE2QycnOoZjaA/IsRWV1goCBoMiUJTW8A0XMBPZmM4Ug3hQEjN2uZygahDyP0RBMEpmTRCKzWGCkUkq1SsFOFQrG1tr9gsPc3jnco4A9EQAh+QQFAAAMACwAAAAAEAAQAAAETpDJyUqhmFqbJ0LMIA7McWDfF5LmAVApOLUvLFMmlSTdJAiM3a73+wl5HYKSEET2lBSFIhMIYKRSimFriGIZiwWD2/WCw+Jt7xxeU9qZCAAh+QQFAAAMACwAAAAAEAAQAAAETZDJyRCimFqbZ0rVxgwF9n3hSJbeSQ2rCWIkpSjddBzMfee7nQ/XCfJ+OQYAQFksMgQBxumkEKLSCfVpMDCugqyW2w18xZmuwZycdDsRACH5BAUAAAwALAAAAAAQABAAAARNkMnJUqKYWpunUtXGIAj2feFIlt5JrWybkdSydNNQMLaND7pC79YBFnY+HENHMRgyhwPGaQhQotGm00oQMLBSLYPQ9QIASrLAq5x0OxEAIfkEBQAADAAsAAAAABAAEAAABE2QycmUopham+da1cYkCfZ94UiW3kmtbJuRlGF0E4Iwto3rut6tA9wFAjiJjkIgZAYDTLNJgUIpgqyAcTgwCuACJssAdL3gpLmbpLAzEQA7");
-		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:before { content: \"+ \"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\t\t.de-viewed { color: #888 !important; }\t\tsmall[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }\t\t" + aib.css + aib.cssEn + ".de-post-hide > " + aib.qHide + " { display: none !important; }";
+		x += ".de-abtn { text-decoration: none !important; outline: none; }\t\t.de-after-fimg { clear: left; }\t\t#de-alert { position: fixed; right: 0; top: 0; z-index: 9999; font: 14px arial; cursor: default; }\t\t#de-alert > div { overflow: visible !important; float: right; clear: both; width: auto; min-width: 0pt; padding: 10px; margin: 1px; border: 1px solid grey; white-space: pre-wrap; }\t\t.de-alert-btn { display: inline-block; vertical-align: top; color: green; cursor: pointer; }\t\t.de-alert-btn:not(.de-wait) + div { margin-top: .15em; }\t\t.de-alert-msg { display: inline-block; }\t\t.de-content textarea { display: block; margin: 2px 0; font: 12px courier new; " + (nav.Presto ? "" : "resize: none !important; ") + "}\t\t.de-content-block > a { color: inherit; font-weight: bold; font-size: 14px; }\t\t.de-content-block > input { margin: 0 4px; }\t\t#de-content-fav, #de-content-hid, #de-content-vid { font-size: 16px; padding: 10px; border: 1px solid gray; border-radius: 8px; }\t\t.de-editor { display: block; font: 12px courier new; width: 619px; height: 337px; tab-size: 4; -moz-tab-size: 4; -o-tab-size: 4; }\t\t.de-entry { display: block !important; float: none !important; width: auto; max-width: 100% !important; margin: 2px 0 !important; padding: 0 !important; border: none; font-size: 14px; " + (nav.Presto ? "white-space: nowrap; " : "") + "}\t\t.de-entry > a { text-decoration: none; border: none; }\t\t.de-entry > input { margin: 2px 4px; }\t\t.de-fav-inf-err { color: #c33; font-size: 12px; }\t\t.de-fav-inf-new { color: #424f79; }\t\t.de-fav-inf-new:before { content: \"+ \"; }\t\t.de-fav-inf-old { color: #4f7942; }\t\t.de-fav-inf-posts { float: right; margin-right: 4px; font: bold 14px serif; cursor: default; }\t\t.de-fav-title { margin-right: 15px; }\t\t.de-hidden { float: left; overflow: hidden !important; margin: 0 !important; padding: 0 !important; border: none !important; width: 0 !important; height: 0 !important; display: inline !important; }\t\t.de-link-hid { text-decoration: line-through !important; }\t\t.de-link-parent { outline: 1px dotted !important; }\t\t.de-link-pview { font-weight: bold; }\t\t.de-link-ref { text-decoration: none; }\t\t.de-menu { padding: 0 !important; margin: 0 !important; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important;}\t\t.de-menu-item { display: block; padding: 3px 10px; color: inherit; text-decoration: none; font: 13px arial; white-space: nowrap; cursor: pointer; }\t\t.de-menu-item:hover { background-color: #222; color: #fff; }\t\t.de-new-post { " + (nav.Presto ? "border-left: 4px solid blue; border-right: 4px solid blue; }" : "box-shadow: 6px 0 2px -2px blue, -6px 0 2px -2px blue; }") + "\t\t.de-omitted { color: grey; font-style: italic; }\t\t.de-omitted:before { content: \"" + Lng.postsOmitted[lang] + "\"; }\t\t.de-pview { position: absolute; width: auto; min-width: 0; z-index: 9999; border: 1px solid grey !important; margin: 0 !important; display: block !important; }\t\t.de-pview-info { padding: 3px 6px !important; }\t\t.de-ref-op:after { content: \" [OP]\"; }\t\t.de-ref-del:after { content: \" [del]\"; }\t\t.de-refmap { margin: 10px 4px 4px 4px; font-size: 75%; font-style: italic; }\t\t.de-refmap:before { content: \"" + Lng.replies[lang] + " \"; }\t\t.de-refcomma:last-child { display: none; }\t\t.de-selected, .de-error-key { " + (nav.Presto ? "border-left: 4px solid red; border-right: 4px solid red; }" : "box-shadow: 6px 0 2px -2px red, -6px 0 2px -2px red; }") + "\t\t#de-updater-btn:after { content: \"" + Lng.getNewPosts[lang] + "\" }\t\t#de-updater-count:before { content: \": \" }\t\t#de-updater-div { clear: left; margin-top: 10px; cursor: pointer; }\t\t.de-viewed { color: #888 !important; }\t\tsmall[id^=\"rfmap\"], body > hr, .theader, .postarea, .thumbnailmsg { display: none !important; }\t\tform > hr { clear: both }\t\t" + aib.css + aib.cssEn + ".de-post-hide > " + aib.qHide + " { display: none !important; }";
 
 		if (!nav.Firefox) {
 			x = x.replace(/(transition|keyframes|transform|animation|linear-gradient)/g, nav.cssFix + "$1");
