@@ -9115,14 +9115,14 @@ PostImages.prototype = {
 };
 
 function PostAllImages(post) {
-	var els, imgs;
+	var els, imgs = [];
 	if(Cfg.addImgs) {
-		els = aProto.slice.call($C('de-img-pre', this.el));
+		els = aProto.slice.call($C('de-img-pre', post.el));
 		for(let i = 0, len = els.length; i < len; ++i) {
-			val.push(new EmbeddedImage(post, els[i], i));
+			imgs.push(new EmbeddedImage(post, els[i], i));
 		}
 	} else {
-		els = imgs = [];
+		els = imgs;
 	}
 	this.data = imgs;
 	this.els = els;
