@@ -10444,7 +10444,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} },
 		_getImageSize: { value: function value() {
 				if (this.info) {
-					var sz = this.info.match(/(\d+)\s?[x?]\s?(\d+)/);
+					var sz = this.info.match(/(\d+)\s?[x\u00D7]\s?(\d+)/);
 					return [sz[1], sz[2]];
 				}
 				return [-1, -1];
