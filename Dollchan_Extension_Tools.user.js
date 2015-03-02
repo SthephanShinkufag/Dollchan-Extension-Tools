@@ -2462,23 +2462,24 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					readViewedPosts();
 					scriptCSS();
 					new Logger().log("Apply CSS");
+					doc.body.style.display = "";
+					new Logger().log("Display page");
 					if (needScroll) {
 						scrollPage();
 					}
-					doc.body.style.display = "";
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t36", 47);
-
-				case 47:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t37", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t36", 48);
 
 				case 48:
+					return context$2$0.delegateYield(readFavoritesPosts(), "t37", 49);
+
+				case 49:
 					setTimeout(PostContent.purge, 0);
 					new Logger().log("Apply spells");
 					new Logger().finish();
 
-				case 51:
+				case 52:
 				case "end":
 					return context$2$0.stop();
 			}
@@ -3065,7 +3066,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function $del(el) {
 		if (el) {
-			el.parentNode.removeChild(el);
+			el.remove();
 		}
 	}
 
@@ -14647,7 +14648,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function scrollPage() {
 		if (!TNum) {
-			window.scrollTo(0, 0);
+			if (!updater.focused || window.pageYOffset !== 0) {
+				window.scrollTo(0, 0);
+			}
 			return;
 		}
 		setTimeout(function () {

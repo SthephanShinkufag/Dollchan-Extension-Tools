@@ -667,7 +667,7 @@ function $disp(el) {
 
 function $del(el) {
 	if(el) {
-		el.parentNode.removeChild(el);
+		el.remove();
 	}
 }
 
@@ -11788,7 +11788,9 @@ function initPage() {
 
 function scrollPage() {
 	if(!TNum) {
-		window.scrollTo(0, 0);
+		if(!updater.focused || window.pageYOffset !== 0) {
+			window.scrollTo(0, 0);
+		}
 		return;
 	}
 	setTimeout(function () {
@@ -12357,10 +12359,11 @@ function* initScript(checkDomains) {
 	readViewedPosts();
 	scriptCSS();
 	new Logger().log('Apply CSS');
+	doc.body.style.display = '';
+	new Logger().log('Display page');
 	if(needScroll) {
 		scrollPage();
 	}
-	doc.body.style.display = '';
 	new Logger().log('Scroll page');
 	readPosts();
 	yield* readUserPosts();
