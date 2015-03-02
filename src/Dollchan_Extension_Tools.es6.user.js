@@ -1313,7 +1313,7 @@ function* readCfg() {
 	if(!Cfg.timePattern) {
 		Cfg.timePattern = aib.timePattern;
 	}
-	if((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+	if((nav.Opera11 || aib.fch || aib.tiny || aib.ponya) && Cfg.ajaxReply === 2) {
 		Lng.cfg['ajaxReply'].sel.forEach(a => a.splice(-1));
 		Cfg.ajaxReply = 1;
 	}
@@ -1361,7 +1361,7 @@ function* readCfg() {
 	if(TNum) {
 		Cfg.stats.view++;
 	}
-	if(aib.mak || aib.fch) {
+	if(aib.fch) {
 		Cfg.findImgFile = 0;
 	}
 	if(aib.synch) {
@@ -2477,7 +2477,7 @@ function getCfgImages() {
 			]))
 		]),
 		$if(!nav.Presto, lBox('preLoadImgs', true, null)),
-		$if(!nav.Presto && !aib.mak && !aib.fch, $New('div', {'class': 'de-cfg-depend'}, [
+		$if(!nav.Presto && !aib.fch, $New('div', {'class': 'de-cfg-depend'}, [
 			lBox('findImgFile', true, null)
 		])),
 		lBox('openImgs', true, null),
@@ -6834,7 +6834,7 @@ FileInput.prototype = {
 				this.next._wrap.style.display = '';
 			}
 		}
-		if(nav.Presto || aib.fch || aib.mak || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
+		if(nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
 			return;
 		}
 		if(this._rjUtil) {
@@ -10548,6 +10548,8 @@ function getImageBoard(checkDomains, checkOther) {
 		}, 'form[name*="postcontrols"]'],
 		get 'niuchan.org'() { return this['diochan.com']; },
 		'ponya.ch': [{
+			ponya: { value: true },
+
 			multiFile: { value: true },
 			thrid: { value: 'replythread' }
 		}],
@@ -12250,7 +12252,7 @@ function updateCSS() {
 	if(Cfg.noSpoilers) {
 		if(aib.krau || aib.fch || aib._410 || aib.dio) {
 			x += '.spoiler, s { color: #fff !important; }\
-				.spoiler > a, s > a:not(:hover) { color: #fff !important; }';
+				.spoiler > a, s > a:not(:hover) { color: inherit !important; }';
 		} else {
 			x += '.spoiler { color: inherit !important; }\
 				.spoiler > a { color: inherit !important; }';

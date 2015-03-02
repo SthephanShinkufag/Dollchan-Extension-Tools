@@ -722,11 +722,11 @@ isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATEC
     }
  
  
-  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
+  } else if(global.addEventListener && isFunction(postMessage) && !global.importScripts){
     defer = function(id){
       postMessage(id, '*');
     }
-    addEventListener('message', listner, false);
+    global.addEventListener('message', listner, false);
  
   } else if(isFunction(MessageChannel)){
     channel = new MessageChannel;
@@ -1842,7 +1842,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (!Cfg.timePattern) {
 						Cfg.timePattern = aib.timePattern;
 					}
-					if ((nav.Opera11 || aib.fch || aib.tiny) && Cfg.ajaxReply === 2) {
+					if ((nav.Opera11 || aib.fch || aib.tiny || aib.ponya) && Cfg.ajaxReply === 2) {
 						Lng.cfg.ajaxReply.sel.forEach(function (a) {
 							return a.splice(-1);
 						});
@@ -1892,7 +1892,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (TNum) {
 						Cfg.stats.view++;
 					}
-					if (aib.mak || aib.fch) {
+					if (aib.fch) {
 						Cfg.findImgFile = 0;
 					}
 					if (aib.synch) {
@@ -4722,7 +4722,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			saveCfg("zoomFactor", Math.min(Math.max(+this.value, 1), 100));
 		}), $txt(Lng.cfg.zoomFactor[lang]), lBox("webmControl", true, null), $if(nav.canPlayWebm, $New("div", null, [inpTxt("webmVolume", 4, function () {
 			saveCfg("webmVolume", Math.min(+this.value, 100));
-		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.mak && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), lBox("openImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("openGIFs", false, null)]), lBox("imgSrcBtns", true, null)]);
+		}), $txt(Lng.cfg.webmVolume[lang])]))]), $if(!nav.Presto, lBox("preLoadImgs", true, null)), $if(!nav.Presto && !aib.fch, $New("div", { "class": "de-cfg-depend" }, [lBox("findImgFile", true, null)])), lBox("openImgs", true, null), $New("div", { "class": "de-cfg-depend" }, [lBox("openGIFs", false, null)]), lBox("imgSrcBtns", true, null)]);
 	}
 
 	function getCfgLinks() {
@@ -9183,7 +9183,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.next._wrap.style.display = "";
 				}
 			}
-			if (nav.Presto || aib.fch || aib.mak || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
+			if (nav.Presto || aib.fch || !/^image\/(?:png|jpeg)$/.test(this.el.files[0].type)) {
 				return;
 			}
 			if (this._rjUtil) {
@@ -13144,6 +13144,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				markupTags: { value: ["b", "i", "u", "-", "spoiler", "c", "", "", "q"] }
 			}, "form[name*=\"postcontrols\"]"],
 			"ponya.ch": [{
+				ponya: { value: true },
+
 				multiFile: { value: true },
 				thrid: { value: "replythread" }
 			}],
@@ -14884,7 +14886,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (Cfg.noSpoilers) {
 			if (aib.krau || aib.fch || aib._410 || aib.dio) {
-				x += ".spoiler, s { color: #fff !important; }\t\t\t\t.spoiler > a, s > a:not(:hover) { color: #fff !important; }";
+				x += ".spoiler, s { color: #fff !important; }\t\t\t\t.spoiler > a, s > a:not(:hover) { color: inherit !important; }";
 			} else {
 				x += ".spoiler { color: inherit !important; }\t\t\t\t.spoiler > a { color: inherit !important; }";
 			}
