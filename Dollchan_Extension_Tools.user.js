@@ -1741,7 +1741,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 
-(function de_main_func_inner(scriptStorage) {
+(function de_main_func_inner(global, scriptStorage) {
 	var getStored = regeneratorRuntime.mark(
 
 
@@ -1867,7 +1867,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					if (aib.prot !== "http:") {
 						Cfg.addVocaroo = 0;
 					}
-					if (!("Notification" in window)) {
+					if (!("Notification" in global)) {
 						Cfg.desktNotif = 0;
 					}
 					if (nav.Presto) {
@@ -2916,7 +2916,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		seRow: [" (строка ", " (row "],
 		seCol: [", столбец ", ", column "]
 	},
-	    doc = window.document,
+	    doc = global.document,
 	    aProto = Array.prototype,
 	    locStorage,
 	    sesStorage,
@@ -3090,7 +3090,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function $txtSelect() {
-		return (nav.Presto ? doc.getSelection() : window.getSelection()).toString();
+		return (nav.Presto ? doc.getSelection() : global.getSelection()).toString();
 	}
 
 	function $isEmpty(obj) {
@@ -3885,7 +3885,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							case "de-btn-video":
 								this.attach = toggleContent("vid", false);break;
 							case "de-btn-refresh":
-								window.location.reload();break;
+								global.location.reload();break;
 							case "de-btn-goup":
 								scrollTo(0, 0);break;
 							case "de-btn-godown":
@@ -3930,7 +3930,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								break;
 							case "de-btn-enable":
 								toggleCfg("disabled");
-								window.location.reload();
+								global.location.reload();
 								break;
 							default:
 								return;
@@ -4219,7 +4219,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		cont.innerHTML = "<div de-disableautoplay class=\"de-video-obj\"></div>" + "<center>" + "<a class=\"de-abtn\" id=\"de-video-btn-prev\" href=\"#\" title=\"" + Lng.prevVideo[lang] + "\">" + "&#x25C0;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-hide\" href=\"#\" title=\"" + Lng.hideLnkList[lang] + "\">" + "&#x25B2;" + "</a> " + "<a class=\"de-abtn\" id=\"de-video-btn-next\" href=\"#\" title=\"" + Lng.nextVideo[lang] + "\">" + "&#x25B6;" + "</a>" + "</center>" + "<div id=\"de-video-list\" style=\"max-width: " + (+Cfg.YTubeWidth + 40) + "px; max-height: " + (doc.documentElement.clientHeight - +Cfg.YTubeHeigh - 110) + "px;\"></div>";
 		var linkList = cont.lastChild;
-		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in window && 'Player' in window.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\twindow.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\tvar el = document.querySelector('#de-content-vid > .de-video-obj');\n\t\t\t\twindow.de_addVideoEvents = addEvents.bind(el);\n\t\t\t\twindow.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
+		$before(linkList, $new("script", { type: "text/javascript", text: "\n\t\t(function() {\n\t\t\tif('YT' in global && 'Player' in global.YT) {\n\t\t\t\tonYouTubePlayerAPIReady();\n\t\t\t} else {\n\t\t\t\tglobal.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;\n\t\t\t}\n\t\t\tfunction onYouTubePlayerAPIReady() {\n\t\t\t\tvar el = document.querySelector('#de-content-vid > .de-video-obj');\n\t\t\t\tglobal.de_addVideoEvents = addEvents.bind(el);\n\t\t\t\tglobal.de_addVideoEvents();\n\t\t\t}\n\t\t\tfunction addEvents() {\n\t\t\t\tvar autoplay = true;\n\t\t\t\tif(this.hasAttribute('de-disableautoplay')) {\n\t\t\t\t\tautoplay = false;\n\t\t\t\t\tthis.removeAttribute('de-disableautoplay');\n\t\t\t\t}\n\t\t\t\tnew YT.Player(this.firstChild, { events: {\n\t\t\t\t\t'onError': gotoNextVideo,\n\t\t\t\t\t'onReady': autoplay ? function(e) {\n\t\t\t\t\t\te.target.playVideo();\n\t\t\t\t\t} : Function.prototype,\n\t\t\t\t\t'onStateChange': function(e) {\n\t\t\t\t\t\tif(e.data === 0) {\n\t\t\t\t\t\t\tgotoNextVideo();\n\t\t\t\t\t\t}\n\t\t\t\t\t}\n\t\t\t\t}});\n\t\t\t}\n\t\t\tfunction gotoNextVideo() {\n\t\t\t\tdocument.getElementById(\"de-video-btn-next\").click();\n\t\t\t}\n\t\t})();\n\t" }));
 		cont.addEventListener("click", {
 			linkList: linkList,
 			listHidden: false,
@@ -4720,7 +4720,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		} : null), $New("label", null, [inpTxt("updThrDelay", 2, null), $txt(Lng.cfg.updThrDelay[lang])]), $New("div", { "class": "de-cfg-depend" }, [lBox("noErrInTitle", true, null), lBox("favIcoBlink", true, null), lBox("markNewPosts", true, function () {
 			dForm.firstThr.clearPostsMarks();
-		}), $if("Notification" in window, lBox("desktNotif", true, function () {
+		}), $if("Notification" in global, lBox("desktNotif", true, function () {
 			if (Cfg.desktNotif) {
 				Notification.requestPermission();
 			}
@@ -4860,7 +4860,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			$alert(Lng.infoDebug[lang] + ":<textarea readonly id=\"de-debug-info\" class=\"de-editor\"></textarea>", "help-debug", false);
 			$id("de-debug-info").value = JSON.stringify({
 				version: version,
-				location: String(window.location),
+				location: String(global.location),
 				nav: nav,
 				cfg: Cfg,
 				sSpells: spells.list.split("\n"),
@@ -4919,12 +4919,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}), $New("div", { style: "float: right;" }, [addEditButton("cfg", function (fn) {
 			fn(Cfg, true, function (data) {
 				saveComCfg(aib.dm, data);
-				window.location.reload();
+				global.location.reload();
 			});
 		}), $if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function () {
 			if ("global" in comCfg && !$isEmpty(comCfg.global)) {
 				saveComCfg(aib.dm, null);
-				window.location.reload();
+				global.location.reload();
 			} else {
 				$alert(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
 			}
@@ -4946,7 +4946,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				delStored("DESU_Posts_" + aib.dm);
 				delStored("DESU_Threads_" + aib.dm);
 				delStored("DESU_keys");
-				window.location.reload();
+				global.location.reload();
 			}
 		})]), $new("div", { style: "clear: both;" }, null)])]));
 		$q(".de-cfg-tab[info=\"" + (id || "filters") + "\"]", Set).click();
@@ -5015,9 +5015,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			y = "bottom: 25";
 		} else {
 			pos = "absolute";
-			y = "top: " + (window.pageYOffset + cr.bottom);
+			y = "top: " + (global.pageYOffset + cr.bottom);
 		}
-		doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + aib.cReply + " de-menu\" style=\"position: " + pos + "; right: " + (doc.documentElement.clientWidth - cr.right - window.pageXOffset) + "px; " + y + "px;\">" + html + "</div>");
+		doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + aib.cReply + " de-menu\" style=\"position: " + pos + "; right: " + (doc.documentElement.clientWidth - cr.right - global.pageXOffset) + "px; " + y + "px;\">" + html + "</div>");
 		menu = doc.body.lastChild;
 		menu.addEventListener("mouseover", function (e) {
 			clearTimeout(e.currentTarget.odelay);
@@ -5314,7 +5314,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (Attachment.viewer) {
 							Attachment.viewer.navigate(false);
 						} else if (TNum || pageNum !== aib.firstPage) {
-							window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+							global.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 						}
 						break;
 					case 5:
@@ -5392,7 +5392,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						if (Attachment.viewer) {
 							Attachment.viewer.navigate(true);
 						} else if (!TNum && this.lastPage !== aib.lastPage) {
-							window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+							global.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 						}
 						break;
 					case -1:
@@ -5415,7 +5415,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								if (nav.Firefox) {
 									GM_openInTab(aib.getThrdUrl(brd, post.tNum), false, true);
 								} else {
-									window.open(aib.getThrdUrl(brd, post.tNum), "_blank");
+									global.open(aib.getThrdUrl(brd, post.tNum), "_blank");
 								}
 							}
 							break;
@@ -5431,7 +5431,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 									post.thr.load(1, false);
 									post = post.thr.op;
 								}
-								scrollTo(0, window.pageYOffset + post.topCoord);
+								scrollTo(0, global.pageYOffset + post.topCoord);
 								if (this.cPost && this.cPost !== post) {
 									this.cPost.unselect();
 									this.cPost = post;
@@ -5459,7 +5459,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 		_getFirstVisPost: function _getFirstVisPost(getThread, getFull) {
 			var post, tPost;
-			if (this.lastPageOffset !== window.pageYOffset) {
+			if (this.lastPageOffset !== global.pageYOffset) {
 				post = getThread ? dForm.firstThr : dForm.firstThr.op;
 				while (post.topCoord < 1) {
 					tPost = post.next;
@@ -5472,7 +5472,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					this.cPost.unselect();
 				}
 				this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-				this.lastPageOffset = window.pageYOffset;
+				this.lastPageOffset = global.pageYOffset;
 			}
 			return this.cPost;
 		},
@@ -5496,7 +5496,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var next = this._getNextVisPost(post, toThread, toUp);
 			if (!next) {
 				if (!TNum && (toUp ? pageNum > aib.firstPage : this.lastPage < aib.lastPage)) {
-					window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
+					global.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
 				}
 				return;
 			}
@@ -5506,9 +5506,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (toThread) {
 				next.el.scrollIntoView();
 			} else {
-				scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top - Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
+				scrollTo(0, global.pageYOffset + next.el.getBoundingClientRect().top - Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 			}
-			this.lastPageOffset = window.pageYOffset;
+			this.lastPageOffset = global.pageYOffset;
 			next.select();
 			this.cPost = next;
 		}
@@ -5809,13 +5809,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			};
 			return;
 		}
-		var url = window.URL.createObjectURL(new Blob(["self.onmessage = function(e) {\n\t\tvar info = (" + String(wrkFn) + ")(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}"], { type: "text/javascript" }));
+		var url = global.URL.createObjectURL(new Blob(["self.onmessage = function(e) {\n\t\tvar info = (" + String(wrkFn) + ")(e.data);\n\t\tif(info.data) {\n\t\t\tself.postMessage(info, [info.data]);\n\t\t} else {\n\t\t\tself.postMessage(info);\n\t\t}\n\t}"], { type: "text/javascript" }));
 		this._pool = new TasksPool(mReqs, this._createWorker.bind(this), null);
 		this._freeWorkers = [];
 		this._url = url;
 		this._errFn = errFn;
 		while (mReqs--) {
-			this._freeWorkers.push(new Worker(url));
+			this._freeWorkers.push(new global.Worker(url));
 		}
 	}
 	WorkerPool.prototype = {
@@ -5847,7 +5847,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			});
 		},
 		clear: function clear() {
-			window.URL.revokeObjectURL(this._url);
+			global.URL.revokeObjectURL(this._url);
 			this._freeWorkers = [];
 		}
 	};
@@ -5873,7 +5873,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				app = "audio/mpeg";
 				ext = "mp3";
 			}
-			aEl.insertAdjacentHTML("afterend", "<a href=\"" + window.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
+			aEl.insertAdjacentHTML("afterend", "<a href=\"" + global.URL.createObjectURL(new Blob([new Uint8Array(info.data, info.idx)], { type: app })) + "\" class=\"de-img-" + (type > 2 ? "audio" : "arch") + "\" title=\"" + Lng.downloadFile[lang] + "\" download=\"" + fName.substring(0, fName.lastIndexOf(".")) + "." + ext + "\">." + ext + "</a>");
 		}
 	}
 
@@ -5909,7 +5909,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 
 								aEl.setAttribute("download", fName);
-								lnk.href = window.URL.createObjectURL(new Blob([imageData], { type: iType }));
+								lnk.href = global.URL.createObjectURL(new Blob([imageData], { type: iType }));
 								lnk.setAttribute("de-name", fName);
 								if (iType === "video/webm") {
 									el.setAttribute("de-video", "");
@@ -6052,12 +6052,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				tar.addString("data/dollscript.js", "(" + String(de_main_func_outer || de_main_func_inner) + ")(null, true);");
 				tar.addString(name + ".html", "<!DOCTYPE " + dt.name + (dt.publicId ? " PUBLIC \"" + dt.publicId + "\"" : dt.systemId ? " SYSTEM" : "") + (dt.systemId ? " \"" + dt.systemId + "\"" : "") + ">" + dc.outerHTML);
 			}
-			u = window.URL.createObjectURL(tar.get());
+			u = global.URL.createObjectURL(tar.get());
 			a = $new("a", { href: u, download: name + (imgOnly ? "-images.tar" : ".tar") }, null);
 			doc.body.appendChild(a);
 			a.click();
 			setTimeout(function (el, url) {
-				window.URL.revokeObjectURL(url);
+				global.URL.revokeObjectURL(url);
 				$del(el);
 			}, 0, a, u);
 			$del($id("de-alert-filesload"));
@@ -6668,7 +6668,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return;
 		}
 		if ((post = pByNum[el.getAttribute("de-num")]) && !post.hidden) {
-			scrollTo(0, window.pageYOffset + post.el.getBoundingClientRect().top);
+			scrollTo(0, global.pageYOffset + post.el.getBoundingClientRect().top);
 			return;
 		}
 		$del($id("de-iframe-fav"));
@@ -8666,7 +8666,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				var code = e.charCode || e.keyCode;
 				if ((code === 33 || code === 34) && e.which === 0) {
 					e.target.blur();
-					window.focus();
+					global.focus();
 				}
 			}, false);
 			if (!aib.tiny) {
@@ -8752,7 +8752,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (Cfg.noName && this.name) {
 				$parent(this.name, "TR").style.display = "none";
 			}
-			window.addEventListener("load", function () {
+			global.addEventListener("load", function () {
 				if (Cfg.userName && _this.name) {
 					setTimeout(PostForm.setUserName, 1000);
 				}
@@ -9028,7 +9028,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (Cfg.fileThumb) {
 				this.thumb.classList.add("de-file-off");
 				if (this._mediaEl) {
-					window.URL.revokeObjectURL(this._mediaEl.src);
+					global.URL.revokeObjectURL(this._mediaEl.src);
 					mParent = this._mediaEl.parentNode;
 					mParent.title = Lng.clickToAdd[lang];
 					$del(this._mediaEl);
@@ -9131,7 +9131,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				this._wrap.style.display = "";
 				this.form.fileTd.parentNode.style.display = "";
 				if (this._mediaE) {
-					window.URL.revokeObjectURL(this._mediaE.src);
+					global.URL.revokeObjectURL(this._mediaE.src);
 				}
 				$del(this.thumb);
 				this.thumb = this._mediaEl = null;
@@ -9231,10 +9231,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					thumb.title = file.name + ", " + (file.size / 1024).toFixed(2) + "KB";
 					thumb.insertAdjacentHTML("afterbegin", file.type === "video/webm" ? "<video class=\"de-file-img\" loop autoplay muted src=\"\"></video>" : "<img class=\"de-file-img\" src=\"\">");
 					_this._mediaEl = thumb = thumb.firstChild;
-					thumb.src = window.URL.createObjectURL(new Blob([e.target.result]));
+					thumb.src = global.URL.createObjectURL(new Blob([e.target.result]));
 					thumb = thumb.nextSibling;
 					if (thumb) {
-						window.URL.revokeObjectURL(thumb.src);
+						global.URL.revokeObjectURL(thumb.src);
 						$del(thumb);
 					}
 				};
@@ -9366,7 +9366,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		Cfg.stats[pr.tNum ? "reply" : "op"]++;
 		saveComCfg(aib.dm, Cfg);
 		if (!pr.tNum) {
-			window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
+			global.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 			return;
 		}
 		el = !aib.tiny && !aib.kus && (aib.qPostRedir === null || $q(aib.qPostRedir, dc)) ? $q(aib.qDForm, dc) : null;
@@ -9375,7 +9375,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (el) {
 				dForm.firstThr.loadNewFromForm(el);
 				if (Cfg.scrAfterRep) {
-					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+					scrollTo(0, global.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
 				closeAlert($id("de-alert-upload"));
 			} else {
@@ -9386,7 +9386,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}).then(function (e) {
 					infoLoadErrors(e, 0);
 					if (Cfg.scrAfterRep) {
-						scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+						scrollTo(0, global.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 					}
 					closeAlert($id("de-alert-upload"));
 				});
@@ -9478,7 +9478,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    val,
 		    lIdx,
 		    jpgDat,
-		    img = nav.getUnsafeUint8Array(data),
+		    img = new global.Uint8Array(data),
 		    rExif = !!Cfg.removeEXIF,
 		    rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ? [img, rand] : [img];
 		if (!rand && !rExif && !extraData) {
@@ -9521,7 +9521,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 			if (lIdx === 2) {
 				if (i !== len) {
-					rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+					rv[0] = new global.Uint8Array(data, 0, i);
 				}
 				return rv;
 			}
@@ -9541,7 +9541,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			for (i = 0, len = img.length - 7; i < len && (img[i] !== 73 || img[i + 1] !== 69 || img[i + 2] !== 78 || img[i + 3] !== 68); i++) {}
 			i += 8;
 			if (i !== len && (extraData || len - i <= 75)) {
-				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
+				rv[0] = new global.Uint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -9561,7 +9561,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    xRes = 0,
 		    yRes = 0,
 		    resT = 0,
-		    dv = nav.getUnsafeDataView(data, off),
+		    dv = new global.DataView(data, off),
 		    le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== "MM";
 		if (dv.getUint16(2, le) !== 42) {
 			return null;
@@ -9653,7 +9653,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		};
 
 		function Parser(data) {
-			var dv = nav.getUnsafeDataView(data),
+			var dv = new global.DataView(data),
 			    len = dv.byteLength,
 			    el = new WebmElement(dv, len, 0),
 			    offset = 0,
@@ -9706,7 +9706,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return null;
 				}
 				var len = this.segment.endOffset;
-				this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, len);
+				this.rv[0] = new global.Uint8Array(this.data, 0, len);
 				return this.rv;
 			}
 		};
@@ -10168,8 +10168,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		sendCloseEvent: function sendCloseEvent(e, inPost) {
 			var pv = this.post,
 			    cr = pv.el.getBoundingClientRect(),
-			    x = e.pageX - window.pageXOffset,
-			    y = e.pageY - window.pageYOffset;
+			    x = e.pageX - global.pageXOffset,
+			    y = e.pageY - global.pageYOffset;
 			if (!inPost) {
 				while (x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 					pv = pv.parent;
@@ -10262,10 +10262,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (val === -1) {
 					if (this.post.hidden) {
 						this.post.hideContent(false);
-						val = this.el.getBoundingClientRect().left + window.pageXOffset;
+						val = this.el.getBoundingClientRect().left + global.pageXOffset;
 						this.post.hideContent(true);
 					} else {
-						val = this.el.getBoundingClientRect().left + window.pageXOffset;
+						val = this.el.getBoundingClientRect().left + global.pageXOffset;
 					}
 					if (this._useCache) {
 						this._glob._offset = val;
@@ -10577,7 +10577,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}, {
 		dPxRatio: {
 			get: function () {
-				var val = window.devicePixelRatio || 1;
+				var val = global.devicePixelRatio || 1;
 				Object.defineProperty(this, "dPxRatio", { value: val });
 				return val;
 			},
@@ -10690,7 +10690,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								} else if (TNum) {
 									$txtInsert(pr.txta, ">>" + this.num);
 								} else {
-									window.location = el.href.replace(/#i/, "#");
+									global.location = el.href.replace(/#i/, "#");
 								}
 							}
 						}
@@ -11073,7 +11073,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    cr = el.getBoundingClientRect(),
 			    isLeft = false,
 			    className = "de-menu " + aib.cReply,
-			    xOffset = window.pageXOffset;
+			    xOffset = global.pageXOffset;
 			switch (el.getAttribute("de-menu")) {
 				case "hide":
 					if (!Cfg.menuHiddBtn) {
@@ -11089,7 +11089,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					className += " de-imgmenu";
 					html = this._addMenuImgSrc(el);
 			}
-			doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + className + "\" style=\"position: absolute; " + (isLeft ? "left: " + (cr.left + xOffset) : "right: " + (doc.documentElement.clientWidth - cr.right - xOffset)) + "px; top: " + (window.pageYOffset + cr.bottom) + "px;\">" + html + "</div>");
+			doc.body.insertAdjacentHTML("beforeend", "<div class=\"" + className + "\" style=\"position: absolute; " + (isLeft ? "left: " + (cr.left + xOffset) : "right: " + (doc.documentElement.clientWidth - cr.right - xOffset)) + "px; top: " + (global.pageYOffset + cr.bottom) + "px;\">" + html + "</div>");
 			if (this._menu) {
 				clearTimeout(this._menuDelay);
 				$del(this._menu);
@@ -11106,7 +11106,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    addItem = function addItem(name) {
 				str += "<span info=\"spell-" + name + "\" class=\"de-menu-item\">" + Lng.selHiderMenu[name][lang] + "</span>";
 			};
-			sel = nav.Presto ? doc.getSelection() : window.getSelection();
+			sel = nav.Presto ? doc.getSelection() : global.getSelection();
 			ssel = sel.toString();
 			if (ssel) {
 				this._selText = ssel;
@@ -11979,8 +11979,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    oldCSS,
 		    uId,
 		    cr = link.getBoundingClientRect(),
-		    offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
-		    offY = cr.top + window.pageYOffset,
+		    offX = cr.left + global.pageXOffset + link.offsetWidth / 2,
+		    offY = cr.top + global.pageYOffset,
 		    bWidth = doc.documentElement.clientWidth,
 		    isLeft = offX < bWidth / 2,
 		    tmp = isLeft ? offX : offX - Math.min(parseInt(pView.offsetWidth, 10), offX - 10),
@@ -12288,7 +12288,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				op.el.insertAdjacentHTML("afterend", "<div class=\"de-omitted\">" + nOmt + "</div>");
 			}
 			if (smartScroll) {
-				scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
+				scrollTo(global.pageXOffset, global.pageYOffset - (nextCoord - this.next.topCoord));
 			}
 			closeAlert($id("de-alert-load-thr"));
 		},
@@ -12366,7 +12366,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var newVisPosts = _parsePosts2[1];
 
 			if (lastOffset !== null) {
-				scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
+				scrollTo(global.pageXOffset, global.pageYOffset - (lastOffset - pr.topCoord));
 			}
 			if (newPosts !== 0) {
 				$id("de-panel-info").firstChild.textContent = this.pcount + "/" + $Q(aib.qThumbImages, dForm.el).length;
@@ -12708,13 +12708,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if ("toJSON" in aProto) {
 			delete aProto.toJSON;
 		}
-		if (!("URL" in window)) {
-			window.URL = window.webkitURL;
+		if (!("URL" in global)) {
+			global.URL = global.webkitURL;
 		}
 		try {
 			new File([""], "");
 		} catch (e) {
-			window.File = function File(arr, name) {
+			window.File = global.File = function File(arr, name) {
 				var rv = new Blob(arr);
 				rv.name = name;
 				rv.lastModifiedDate = new Date();
@@ -12723,15 +12723,15 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			};
 			File.prototype = new Blob();
 		}
-		var ua = window.navigator.userAgent,
+		var ua = global.navigator.userAgent,
 		    firefox = ua.contains("Gecko/"),
-		    presto = window.opera ? +window.opera.version() : 0,
+		    presto = global.opera ? +global.opera.version() : 0,
 		    opera11 = presto ? presto < 12.1 : false,
 		    webkit = ua.contains("WebKit/"),
 		    chrome = webkit && ua.contains("Chrome/"),
 		    safari = webkit && !chrome,
 		    isGM = false,
-		    isChromeStorage = window.chrome && !!window.chrome.storage,
+		    isChromeStorage = global.chrome && !!global.chrome.storage,
 		    isScriptStorage = !!scriptStorage && !ua.contains("Opera Mobi");
 		try {
 			isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().contains("not supported"));
@@ -12761,22 +12761,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			},
 			fixLink: safari ? getAbsLink : function fixLink(url) {
 				return url;
-			},
-		
-			getUnsafeUint8Array: function getUnsafeUint8Array(data, i, len) {
-				var rv;
-				if (typeof i === "undefined") {
-					rv = new Uint8Array(data);
-					return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
-				}
-				rv = new Uint8Array(data, i, len);
-				return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i, len);
-			},
-			getUnsafeDataView: function getUnsafeDataView(data, offset) {
-				var rv = new DataView(data, offset || 0);
-				return rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
-			}
-		}, {
+			} }, {
 			ua: {
 				get: function () {
 					return navigator.userAgent + (this.Firefox ? " [" + navigator.buildID + "]" : "");
@@ -12787,12 +12772,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			hasWorker: {
 				get: function () {
 					var val = false;
-					if (!this.Firefox) {
-					
-						try {
-							val = "Worker" in window;
-						} catch (e) {}
-					}
+					try {
+						val = "Worker" in global;
+					} catch (e) {}
 					Object.defineProperty(this, "hasWorker", { value: val });
 					return val;
 				},
@@ -12844,7 +12826,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 	function getImageBoard(checkDomains, checkOther) {
-		var prot = window.location.protocol;
+		var prot = global.location.protocol;
 		var ibDomains = Object.defineProperties({
 			"02ch.net": [{
 				qPostRedir: { value: "input[name=\"gb2\"][value=\"thread\"]" },
@@ -13058,7 +13040,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return val;
 					} },
 				init: { value: function value() {
-						if (window.location.pathname === "/settings") {
+						if (global.location.pathname === "/settings") {
 							nav = getNavFuncs();
 							$q("input[type=\"button\"]", doc).addEventListener("click", function () {
 								spawn(readCfg).then(function () {
@@ -13186,7 +13168,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						var val = "{\"simpleNavbar\":true,\"showInfo\":true}";
 						if (locStorage.getItem("settings") !== val) {
 							locStorage.setItem("settings", val);
-							window.location.reload();
+							global.location.reload();
 						}
 					} },
 				markupBB: { value: true },
@@ -13704,7 +13686,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			firstPage: 0,
 			fixFileInputs: emptyFn,
 			hasPicWrap: false,
-			host: window.location.hostname,
+			host: global.location.hostname,
 			init: null,
 			markupBB: false,
 			multiFile: false,
@@ -13785,7 +13767,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		localRun = prot === "file:";
 		var i,
 		    ibObj = null,
-		    dm = localRun ? (window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ""])[1] : window.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
+		    dm = localRun ? (global.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [, ""])[1] : global.location.hostname.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 		if (checkDomains) {
 			if (dm in ibDomains) {
 				ibObj = (function createBoard(info) {
@@ -13816,12 +13798,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function Initialization(checkDomains) {
 		var intrv, url, formEl;
-		if (/^(?:about|chrome|opera|res)/i.test(window.location)) {
+		if (/^(?:about|chrome|opera|res)/i.test(global.location)) {
 			return null;
 		}
 		try {
-			locStorage = window.localStorage;
-			sesStorage = window.sessionStorage;
+			locStorage = global.localStorage;
+			sesStorage = global.sessionStorage;
 			sesStorage["__de-test"] = 1;
 		} catch (e) {
 			if (typeof unsafeWindow !== "undefined") {
@@ -13833,18 +13815,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			console.log("WEBSTORAGE ERROR: please, enable webstorage!");
 			return null;
 		}
-		switch (window.name) {
+		switch (global.name) {
 			case "":
 				break;
 			case "de-iframe-pform":
 			case "de-iframe-dform":
-				$script("window.top.postMessage(\"A" + window.name + "\" + document.documentElement.outerHTML, \"*\");");
+				$script("window.top.postMessage(\"A" + global.name + "\" + document.documentElement.outerHTML, \"*\");");
 				return null;
 			case "de-iframe-fav":
 				intrv = setInterval(function () {
 					$script("window.top.postMessage(\"B" + (doc.body.offsetHeight + 5) + "\", \"*\");");
 				}, 1500);
-				window.addEventListener("load", setTimeout.bind(window, clearInterval, 30000, intrv), false);
+				global.addEventListener("load", setTimeout.bind(global, clearInterval, 30000, intrv), false);
 				liteMode = true;
 				pr = {};
 		}
@@ -13956,7 +13938,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, false);
 
 		if (localRun) {
-			url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+			url = global.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 			aib.prot = "http:";
 			aib.host = aib.dm;
 			brd = url ? url[1] : "";
@@ -13964,9 +13946,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			pageNum = 0;
 			aib.docExt = ".html";
 		} else {
-			url = (window.location.pathname || "").match(new RegExp("^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?" + "(" + regQuote(aib.res) + ")?" + "(\\d+|index|wakaba|futaba)?" + "(\\.(?:[a-z]+))?(?:\\/|$)"));
+			url = (global.location.pathname || "").match(new RegExp("^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?" + "(" + regQuote(aib.res) + ")?" + "(\\d+|index|wakaba|futaba)?" + "(\\.(?:[a-z]+))?(?:\\/|$)"));
 			brd = url[1].replace(/\/$/, "");
-			TNum = url[2] ? url[3] : aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] : false;
+			TNum = url[2] ? url[3] : aib.futa ? +(global.location.search.match(/\d+/) || [false])[0] : false;
 			pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
 			if (!aib.hasOwnProperty("docExt") && url[4]) {
 				aib.docExt = url[4];
@@ -13974,7 +13956,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 		if (TNum) {
 			doc.defaultView.addEventListener("beforeunload", function (e) {
-				sesStorage["de-scroll-" + brd + TNum] = window.pageYOffset;
+				sesStorage["de-scroll-" + brd + TNum] = global.pageYOffset;
 			}, false);
 		}
 		dummy = doc.createElement("div");
@@ -13996,7 +13978,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if (liteMode) {
 			doc.body.insertAdjacentHTML("afterbegin", formEl.outerHTML);
 			formEl = doc.body.firstChild;
-			window.addEventListener("load", (function (formEl) {
+			global.addEventListener("load", (function (formEl) {
 				while (formEl.nextSibling) {
 					$del(formEl.nextSibling);
 				}
@@ -14006,7 +13988,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			formEl.style.display = "none";
 			formEl.id = "de-dform-old";
 			formEl = formEl.previousSibling;
-			window.addEventListener("load", function () {
+			global.addEventListener("load", function () {
 				$del($id("de-dform-old"));
 			}, false);
 		}
@@ -14056,7 +14038,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		},
 		clear: function clear() {
 			$each($Q("a[href^=\"blob:\"]", this.el), function (a) {
-				window.URL.revokeObjectURL(a.href);
+				global.URL.revokeObjectURL(a.href);
 			});
 			this.firstThr = this.lastThr = null;
 			this.tNums = [];
@@ -14299,10 +14281,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 										icon: post.images.firstAttach || favHref
 									});
 
-									notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12000);
-									notif.onclick = window.focus;
+									notif.onshow = setTimeout.bind(null, notif.close.bind(notif), 12000);
+									notif.onclick = global.focus;
 									notif.onerror = function () {
-										window.focus();
+										global.focus();
 										requestNotifPermission();
 									};
 								}
@@ -14648,8 +14630,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function scrollPage() {
 		if (!TNum) {
-			if (!updater.focused || window.pageYOffset !== 0) {
-				window.scrollTo(0, 0);
+			if (!updater.focused || global.pageYOffset !== 0) {
+				global.scrollTo(0, 0);
 			}
 			return;
 		}
@@ -14659,9 +14641,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			    hash,
 			    val = +sesStorage["de-scroll-" + brd + TNum];
 			if (val) {
-				window.scrollTo(0, val);
+				global.scrollTo(0, val);
 				sesStorage.removeItem("de-scroll-" + brd + TNum);
-			} else if ((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
+			} else if ((hash = global.location.hash) && (num = hash.match(/#i?(\d+)$/)) && (num = num[1]) && (post = pByNum[num])) {
 				post.el.scrollIntoView(true);
 			}
 		}, 0);
@@ -14966,7 +14948,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, false);
 		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false)), false);
 	}
-})(window.opera && window.opera.scriptStorage);
+})(Function("return this")(), window.opera && window.opera.scriptStorage);
 
 
 
