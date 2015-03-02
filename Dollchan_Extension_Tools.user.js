@@ -3066,7 +3066,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function $del(el) {
 		if (el) {
-			el.remove();
+			el.parentNode.removeChild(el);
 		}
 	}
 

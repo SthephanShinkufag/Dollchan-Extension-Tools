@@ -667,7 +667,7 @@ function $disp(el) {
 
 function $del(el) {
 	if(el) {
-		el.remove();
+		el.parentNode.removeChild(el);
 	}
 }
 
