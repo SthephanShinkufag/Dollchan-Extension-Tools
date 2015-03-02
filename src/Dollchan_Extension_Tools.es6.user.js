@@ -5513,7 +5513,7 @@ SpellsInterpreter.prototype = {
 	},
 	_imgn(val) {
 		for(let image of this._post.images) {
-			if(val.test(image.info)) {
+			if((image instanceof Attachment) && val.test(image.info)) {
 				return true;
 			}
 		}
@@ -5521,6 +5521,9 @@ SpellsInterpreter.prototype = {
 	},
 	_ihash: async(function* () {
 		for(let image of this._post.images) {
+			if(!(image instanceof Attachment)) {
+				continue;
+			}
 			let hash = image.hash !== null ? image.hash : yield image.getHash();
 			if(hash === val) {
 				return true;
@@ -5544,9 +5547,12 @@ SpellsInterpreter.prototype = {
 		var temp, hide, images = this._post.images,
 			[compareRule, weightVals, sizeVals] = val;
 		if(!val) {
-			return images.contains;
+			return images.hasAttachments;
 		}
 		for(let image of images) {
+			if(!(image instanceof Attachment)) {
+				return;
+			}
 			if(weightVals) {
 				let w = image.weight;
 				switch(compareRule) {
@@ -7571,7 +7577,7 @@ AttachmentViewer.prototype = {
 		do {
 			data = data.getFollow(isForward);
 		} while(!data.isVideo && !data.isImage);
-		this.update(data, null);
+		this.update(data, true, null);
 	},
 	update(data, showButtons, e) {
 		this._remove(e);
@@ -7804,8 +7810,8 @@ IAttachmentData.prototype = {
 					post = post.getAdjacentVisPost(!isForward);
 				}
 			}
-			imgs = post.allImages;
-		} while(imgs.count === 0);
+			imgs = post.images;
+		} while(imgs.length === 0);
 		return isForward ? imgs.first : imgs.last;
 	},
 	getFullObject() {
@@ -7905,20 +7911,18 @@ IAttachmentData.prototype = {
 	}
 };
 
-function EmbeddedImage(post, el) {
+function EmbeddedImage(post, el, idx) {
 	this.post = post;
 	this.el = el;
+	this.idx = idx;
 }
 EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
 	getFollow: { value(isForward) {
-		let nImage = this.post.allImages.data[isForward ? this.idx + 1 : this.idx - 1];
+		let nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 		if(nImage) {
 			return nImage;
 		}
-		if(!isForward) {
-			return this.post.images.last || this.getFollowPost(false);
-		}
-		return this.getFollowPost(true);
+		return this.getFollowPost(isForward);
 	} },
 	_useCache: { value: false },
 	_getImageSize: { value() {
@@ -7934,9 +7938,10 @@ EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
 	} }
 });
 
-function Attachment(post, el) {
+function Attachment(post, el, idx) {
 	this.post = post;
 	this.el = el;
+	this.idx = idx;
 }
 Attachment.viewer = null;
 Attachment.prototype = Object.create(IAttachmentData.prototype, {
@@ -7976,10 +7981,7 @@ Attachment.prototype = Object.create(IAttachmentData.prototype, {
 		if(nImage) {
 			return nImage;
 		}
-		if(isForward) {
-			return this.post.allImages.data[0] || this.getFollowPost(true);
-		}
-		return this.getFollowPost(false);
+		return this.getFollowPost(isForward);
 	} },
 	getHash: { value() {
 		return new Promise((resolve, reject) => {
@@ -8347,7 +8349,7 @@ Post.prototype = {
 		if(type === 'mouseover' &&
 		   Cfg.expandImgs &&
 		   !el.classList.contains('de-img-full') &&
-		   (temp = this.allImages.findImageByEl(el)) &&
+		   (temp = this.images.getImageByEl(el)) &&
 		   (temp.isImage || temp.isVideo))
 		{
 			el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
@@ -8476,11 +8478,6 @@ Post.prototype = {
 	get images() {
 		var val = new PostImages(this);
 		Object.defineProperty(this, 'images', { value: val });
-		return val;
-	},
-	get allImages() {
-		var val = new PostAllImages(this);
-		Object.defineProperty(this, 'allImages', { value: val });
 		return val;
 	},
 	get mp3Obj() {
@@ -8650,7 +8647,7 @@ Post.prototype = {
 		return this.thr.num;
 	},
 	toggleImages(expand) {
-		for(let image of this.allImages) {
+		for(let image of this.images) {
 			if(image.isImage && (image.expanded ^ expand)) {
 				if(expand) {
 					image.expand(true, null);
@@ -8811,7 +8808,7 @@ Post.prototype = {
 		if(this.posterTrip) {
 			addItem('trip');
 		}
-		if(this.images.contains) {
+		if(this.images.hasAttachments) {
 			addItem('img');
 			addItem('ihash');
 		} else {
@@ -8866,10 +8863,10 @@ Post.prototype = {
 	_clickImage(el, e) {
 		var data;
 		if(el.classList.contains('de-img-full')) {
-			if(!this.allImages.findImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
+			if(!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
 				return;
 			}
-		} else if((data = this.allImages.findImageByEl(el)) &&
+		} else if((data = this.images.getImageByEl(el)) &&
 				  (data.isImage || data.isVideo))
 		{
 			data.expand((Cfg.expandImgs === 1) ^ e.ctrlKey, e);
@@ -8911,14 +8908,14 @@ Post.prototype = {
 		case 'spell-name': addSpell(6 /* #name */, this.posterName.replace(/\)/g, '\\)'), false); return;
 		case 'spell-trip': addSpell(7 /* #trip */, this.posterTrip.replace(/\)/g, '\\)'), false); return;
 		case 'spell-img':
-			var img = this.images.first,
+			var img = this.images.firstAttach,
 				w = img.weight,
 				wi = img.width,
 				h = img.height;
 			addSpell(8 /* #img */, [0, [w, w], [wi, wi, h, h]], false);
 			return;
 		case 'spell-ihash':
-			this.images.first.getHash(function(hash) {
+			this.images.firstAttach.getHash(function(hash) {
 				addSpell(4 /* #ihash */, hash, false);
 			});
 			return;
@@ -9085,19 +9082,44 @@ PostContent.prototype = {
 };
 
 function PostImages(post) {
-	var els = aProto.slice.call($Q(aib.qThumbImages, post.el)),
-		imgs = [];
-	for(let i = 0, len = els.length; i < len; ++i) {
-		imgs.push(new Attachment(post, els[i], i));
+	var els = $Q(aib.qThumbImages, post.el),
+		filesMap = new WeakMap(),
+		data = [],
+		hasAttachments = false,
+		idx = 0;
+	for(let i = 0, len = els.length; i < len; ++i, ++idx) {
+		let el = els[i];
+		let obj = new Attachment(post, el, idx);
+		filesMap.set(el, obj);
+		data.push(obj);
+		hasAttachments = true;
 	}
-	this.data = imgs;
-	this.els = els;
-	this.length = this.els.length;
-	this.contains = this.length !== 0;
+	if(Cfg.addImgs) {
+		els = aProto.slice.call($C('de-img-pre', post.el));
+		for(let i = 0, len = els.length; i < len; ++i, ++idx) {
+			let el = els[i];
+			let obj = new EmbeddedImage(post, el, idx);
+			filesMap.set(el, obj);
+			data.push(obj);
+		}
+	}
+	this.data = data;
+	this.length = data.length;
+	this.hasAttachments = hasAttachments;
+	this._map = filesMap;
 }
 PostImages.prototype = {
 	get first() {
 		return this.data[0];
+	},
+	get firstAttach() {
+		for(let i = 0; i < this.length; ++i) {
+			let obj = this.data[i];
+			if(obj instanceof Attachment) {
+				return obj;
+			}
+		}
+		return null;
 	},
 	get last() {
 		return this.data[this.length - 1];
@@ -9105,56 +9127,8 @@ PostImages.prototype = {
 	*[Symbol.iterator]() {
 		yield *this.data;
 	},
-	findImageByEl(el) {
-		var idx = this.els.indexOf(el);
-		if(idx === -1) {
-			return null;
-		}
-		return this.data[idx];
-	}
-};
-
-function PostAllImages(post) {
-	var els, imgs = [];
-	if(Cfg.addImgs) {
-		els = aProto.slice.call($C('de-img-pre', post.el));
-		for(let i = 0, len = els.length; i < len; ++i) {
-			imgs.push(new EmbeddedImage(post, els[i], i));
-		}
-	} else {
-		els = imgs;
-	}
-	this.data = imgs;
-	this.els = els;
-	this.length = els.length;
-	this.count = this.length + post.images.length;
-	this._attachedImages = post.images;
-}
-PostAllImages.prototype = {
-	*[Symbol.iterator]() {
-		yield *this._attachedImages;
-		yield *this.data;
-	},
-	findImageByEl(el) {
-		var image = this._attachedImages.findImageByEl(el);
-		if(image) {
-			return image;
-		}
-		let idx = this.els.indexOf(el);
-		if(idx < this.data.length) {
-			return this.data[idx];
-		}
-		for(image of this) {
-			if(this.data.length > idx) {
-				return image;
-			}
-		}
-	},
-	get first() {
-		return this._attachedImages.first || this._images[0];
-	},
-	get last() {
-		return this.length === 0 ? this._attachedImages.last : this.data[this.length - 1];
+	getImageByEl(el) {
+		return this._map.get(el);
 	}
 };
 
@@ -11655,7 +11629,7 @@ function initThreadUpdater(title, enableUpdate) {
 							{
 								'body': post.text.substring(0, 250).replace(/\s+/g, ' '),
 								'tag': aib.dm + brd + TNum,
-								'icon': post.images.first || favHref
+								'icon': post.images.firstAttach || favHref
 							});
 						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
 						notif.onclick = window.focus;

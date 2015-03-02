@@ -17,11 +17,8 @@
 // @include         *
 // ==/UserScript==
 (function de_main_func_outer() {
-
 !function(global, framework, undefined){
 'use strict';
-
-
 
  
 var OBJECT          = 'Object'
@@ -570,8 +567,6 @@ if(exportGlobal || framework){
 }
 
 
-
-
 !function(TAG, SymbolRegistry, AllSymbols, setter){
  
   if(!isNative(Symbol)){
@@ -648,8 +643,6 @@ if(exportGlobal || framework){
   });
 }(safeSymbol('tag'), {}, {}, true);
 
-
-
 !function(at){
  
  
@@ -693,8 +686,6 @@ if(exportGlobal || framework){
 
 
 
-
-
 isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATECHANGE){
   var postMessage      = global.postMessage
     , addEventListener = global.addEventListener
@@ -731,11 +722,11 @@ isFunction(setImmediate) && isFunction(clearImmediate) || function(ONREADYSTATEC
     }
  
  
-  } else if(global.addEventListener && isFunction(postMessage) && !global.importScripts){
+  } else if(addEventListener && isFunction(postMessage) && !global.importScripts){
     defer = function(id){
       postMessage(id, '*');
     }
-    global.addEventListener('message', listner, false);
+    addEventListener('message', listner, false);
  
   } else if(isFunction(MessageChannel)){
     channel = new MessageChannel;
@@ -761,8 +752,6 @@ $define(GLOBAL + BIND, {
   setImmediate:   setImmediate,
   clearImmediate: clearImmediate
 });
-
-
 
 
 
@@ -910,6 +899,291 @@ $define(GLOBAL + BIND, {
   setSpecies(Promise);
   $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
 }(global[PROMISE]);
+
+
+!function(){
+  var UID   = safeSymbol('uid')
+    , O1    = safeSymbol('O1')
+    , WEAK  = safeSymbol('weak')
+    , LEAK  = safeSymbol('leak')
+    , LAST  = safeSymbol('last')
+    , FIRST = safeSymbol('first')
+    , SIZE  = DESC ? safeSymbol('size') : 'size'
+    , uid   = 0
+    , tmp   = {};
+  
+  function getCollection(C, NAME, methods, commonMethods, isMap, isWeak){
+    var ADDER = isMap ? 'set' : 'add'
+      , proto = C && C[PROTOTYPE]
+      , O     = {};
+    function initFromIterable(that, iterable){
+      if(iterable != undefined)forOf(iterable, isMap, that[ADDER], that);
+      return that;
+    }
+    function fixSVZ(key, chain){
+      var method = proto[key];
+      if(framework)proto[key] = function(a, b){
+        var result = method.call(this, a === 0 ? 0 : a, b);
+        return chain ? this : result;
+      };
+    }
+    if(!isNative(C) || !(isWeak || (!BUGGY_ITERATORS && has(proto, FOR_EACH) && has(proto, 'entries')))){
+     
+      C = isWeak
+        ? function(iterable){
+            assertInstance(this, C, NAME);
+            set(this, UID, uid++);
+            initFromIterable(this, iterable);
+          }
+        : function(iterable){
+            var that = this;
+            assertInstance(that, C, NAME);
+            set(that, O1, create(null));
+            set(that, SIZE, 0);
+            set(that, LAST, undefined);
+            set(that, FIRST, undefined);
+            initFromIterable(that, iterable);
+          };
+      assignHidden(assignHidden(C[PROTOTYPE], methods), commonMethods);
+      isWeak || defineProperty(C[PROTOTYPE], 'size', {get: function(){
+        return assertDefined(this[SIZE]);
+      }});
+    } else {
+      var Native = C
+        , inst   = new C
+        , chain  = inst[ADDER](isWeak ? {} : -0, 1)
+        , buggyZero;
+     
+      if(!NATIVE_ITERATORS || !C.length){
+        C = function(iterable){
+          assertInstance(this, C, NAME);
+          return initFromIterable(new Native, iterable);
+        }
+        C[PROTOTYPE] = proto;
+        if(framework)proto[CONSTRUCTOR] = C;
+      }
+      isWeak || inst[FOR_EACH](function(val, key){
+        buggyZero = 1 / key === -Infinity;
+      });
+     
+      if(buggyZero){
+        fixSVZ('delete');
+        fixSVZ('has');
+        isMap && fixSVZ('get');
+      }
+     
+      if(buggyZero || chain !== inst)fixSVZ(ADDER, true);
+    }
+    setToStringTag(C, NAME);
+    setSpecies(C);
+    
+    O[NAME] = C;
+    $define(GLOBAL + WRAP + FORCED * !isNative(C), O);
+    
+   
+   
+    isWeak || defineStdIterators(C, NAME, function(iterated, kind){
+      set(this, ITER, {o: iterated, k: kind});
+    }, function(){
+      var iter  = this[ITER]
+        , kind  = iter.k
+        , entry = iter.l;
+     
+      while(entry && entry.r)entry = entry.p;
+     
+      if(!iter.o || !(iter.l = entry = entry ? entry.n : iter.o[FIRST])){
+       
+        iter.o = undefined;
+        return iterResult(1);
+      }
+     
+      if(kind == KEY)  return iterResult(0, entry.k);
+      if(kind == VALUE)return iterResult(0, entry.v);
+                       return iterResult(0, [entry.k, entry.v]);   
+    }, isMap ? KEY+VALUE : VALUE, !isMap);
+    
+    return C;
+  }
+  
+  function fastKey(it, create){
+   
+    if(!isObject(it))return (typeof it == 'string' ? 'S' : 'P') + it;
+   
+    if(isFrozen(it))return 'F';
+    if(!has(it, UID)){
+     
+      if(!create)return 'E';
+     
+      hidden(it, UID, ++uid);
+   
+    } return 'O' + it[UID];
+  }
+  function getEntry(that, key){
+   
+    var index = fastKey(key), entry;
+    if(index != 'F')return that[O1][index];
+   
+    for(entry = that[FIRST]; entry; entry = entry.n){
+      if(entry.k == key)return entry;
+    }
+  }
+  function def(that, key, value){
+    var entry = getEntry(that, key)
+      , prev, index;
+   
+    if(entry)entry.v = value;
+   
+    else {
+      that[LAST] = entry = {
+        i: index = fastKey(key, true),
+        k: key,                       
+        v: value,                     
+        p: prev = that[LAST],         
+        n: undefined,                 
+        r: false                      
+      };
+      if(!that[FIRST])that[FIRST] = entry;
+      if(prev)prev.n = entry;
+      that[SIZE]++;
+     
+      if(index != 'F')that[O1][index] = entry;
+    } return that;
+  }
+
+  var collectionMethods = {
+   
+   
+    clear: function(){
+      for(var that = this, data = that[O1], entry = that[FIRST]; entry; entry = entry.n){
+        entry.r = true;
+        if(entry.p)entry.p = entry.p.n = undefined;
+        delete data[entry.i];
+      }
+      that[FIRST] = that[LAST] = undefined;
+      that[SIZE] = 0;
+    },
+   
+   
+    'delete': function(key){
+      var that  = this
+        , entry = getEntry(that, key);
+      if(entry){
+        var next = entry.n
+          , prev = entry.p;
+        delete that[O1][entry.i];
+        entry.r = true;
+        if(prev)prev.n = next;
+        if(next)next.p = prev;
+        if(that[FIRST] == entry)that[FIRST] = next;
+        if(that[LAST] == entry)that[LAST] = prev;
+        that[SIZE]--;
+      } return !!entry;
+    },
+   
+   
+    forEach: function(callbackfn ){
+      var f = ctx(callbackfn, arguments[1], 3)
+        , entry;
+      while(entry = entry ? entry.n : this[FIRST]){
+        f(entry.v, entry.k, this);
+       
+        while(entry && entry.r)entry = entry.p;
+      }
+    },
+   
+   
+    has: function(key){
+      return !!getEntry(this, key);
+    }
+  }
+  
+ 
+  Map = getCollection(Map, MAP, {
+   
+    get: function(key){
+      var entry = getEntry(this, key);
+      return entry && entry.v;
+    },
+   
+    set: function(key, value){
+      return def(this, key === 0 ? 0 : key, value);
+    }
+  }, collectionMethods, true);
+  
+ 
+  Set = getCollection(Set, SET, {
+   
+    add: function(value){
+      return def(this, value = value === 0 ? 0 : value, value);
+    }
+  }, collectionMethods);
+  
+  function defWeak(that, key, value){
+    if(isFrozen(assertObject(key)))leakStore(that).set(key, value);
+    else {
+      has(key, WEAK) || hidden(key, WEAK, {});
+      key[WEAK][that[UID]] = value;
+    } return that;
+  }
+  function leakStore(that){
+    return that[LEAK] || hidden(that, LEAK, new Map)[LEAK];
+  }
+  
+  var weakMethods = {
+   
+   
+    'delete': function(key){
+      if(!isObject(key))return false;
+      if(isFrozen(key))return leakStore(this)['delete'](key);
+      return has(key, WEAK) && has(key[WEAK], this[UID]) && delete key[WEAK][this[UID]];
+    },
+   
+   
+    has: function(key){
+      if(!isObject(key))return false;
+      if(isFrozen(key))return leakStore(this).has(key);
+      return has(key, WEAK) && has(key[WEAK], this[UID]);
+    }
+  };
+  
+ 
+  WeakMap = getCollection(WeakMap, WEAKMAP, {
+   
+    get: function(key){
+      if(isObject(key)){
+        if(isFrozen(key))return leakStore(this).get(key);
+        if(has(key, WEAK))return key[WEAK][this[UID]];
+      }
+    },
+   
+    set: function(key, value){
+      return defWeak(this, key, value);
+    }
+  }, weakMethods, true, true);
+  
+ 
+  if(framework && new WeakMap().set(Object.freeze(tmp), 7).get(tmp) != 7){
+    forEach.call(array('delete,has,get,set'), function(key){
+      var method = WeakMap[PROTOTYPE][key];
+      WeakMap[PROTOTYPE][key] = function(a, b){
+       
+        if(isObject(a) && isFrozen(a)){
+          var result = leakStore(this)[key](a, b);
+          return key == 'set' ? this : result;
+       
+        } return method.call(this, a, b);
+      };
+    });
+  }
+  
+ 
+  WeakSet = getCollection(WeakSet, WEAKSET, {
+   
+    add: function(value){
+      return defWeak(this, value, true);
+    }
+  }, weakMethods, false, true);
+}();
 }(typeof self != 'undefined' && self.Math === Math ? self : Function('return this')(), true);
 
 !(function(global) {
@@ -2104,10 +2378,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t35", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t33", 6);
 
 				case 6:
-					str = context$2$0.t35;
+					str = context$2$0.t33;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2118,7 +2392,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t36", 11);
+					return context$2$0.delegateYield(readCfg(), "t34", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2147,9 +2421,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t37 = context$2$0["catch"](22);
+					context$2$0.t35 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t37));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t35));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2181,10 +2455,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					doc.body.style.display = "";
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t38", 47);
+					return context$2$0.delegateYield(readUserPosts(), "t36", 47);
 
 				case 47:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t39", 48);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t37", 48);
 
 				case 48:
 					setTimeout(PostContent.purge, 0);
@@ -7493,7 +7767,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			for (var _iterator = this._post.images[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
 				var image = _step.value;
 
-				if (val.test(image.info)) {
+				if (image instanceof Attachment && val.test(image.info)) {
 					return true;
 				}
 			}
@@ -7511,46 +7785,54 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 1:
 						if ((_step = _iterator.next()).done) {
-							context$2$0.next = 15;
+							context$2$0.next = 17;
 							break;
 						}
 
 						image = _step.value;
 
+						if (image instanceof Attachment) {
+							context$2$0.next = 5;
+							break;
+						}
+
+						return context$2$0.abrupt("continue", 15);
+
+					case 5:
 						if (!(image.hash !== null)) {
-							context$2$0.next = 7;
+							context$2$0.next = 9;
 							break;
 						}
 
 						context$2$0.t24 = image.hash;
-						context$2$0.next = 10;
+						context$2$0.next = 12;
 						break;
 
-					case 7:
-						context$2$0.next = 9;
+					case 9:
+						context$2$0.next = 11;
 						return image.getHash();
 
-					case 9:
+					case 11:
 						context$2$0.t24 = context$2$0.sent;
 
-					case 10:
+					case 12:
 						hash = context$2$0.t24;
 
 						if (!(hash === val)) {
-							context$2$0.next = 13;
+							context$2$0.next = 15;
 							break;
 						}
 
 						return context$2$0.abrupt("return", true);
 
-					case 13:
+					case 15:
 						context$2$0.next = 1;
 						break;
 
-					case 15:
+					case 17:
 						return context$2$0.abrupt("return", false);
 
-					case 16:
+					case 18:
 					case "end":
 						return context$2$0.stop();
 				}
@@ -7577,11 +7859,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var sizeVals = _val[2];
 
 			if (!val) {
-				return images.contains;
+				return images.hasAttachments;
 			}
 			for (var _iterator = images[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
 				var image = _step.value;
 
+				if (!(image instanceof Attachment)) {
+					return;
+				}
 				if (weightVals) {
 					var w = image.weight;
 					switch (compareRule) {
@@ -9610,7 +9895,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			do {
 				data = data.getFollow(isForward);
 			} while (!data.isVideo && !data.isImage);
-			this.update(data, null);
+			this.update(data, true, null);
 		},
 		update: function update(data, showButtons, e) {
 			this._remove(e);
@@ -9820,8 +10105,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						post = post.getAdjacentVisPost(!isForward);
 					}
 				}
-				imgs = post.allImages;
-			} while (imgs.count === 0);
+				imgs = post.images;
+			} while (imgs.length === 0);
 			return isForward ? imgs.first : imgs.last;
 		},
 		getFullObject: function getFullObject() {
@@ -9978,20 +10263,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}
 	});
 
-	function EmbeddedImage(post, el) {
+	function EmbeddedImage(post, el, idx) {
 		this.post = post;
 		this.el = el;
+		this.idx = idx;
 	}
 	EmbeddedImage.prototype = Object.create(IAttachmentData.prototype, {
 		getFollow: { value: function value(isForward) {
-				var nImage = this.post.allImages.data[isForward ? this.idx + 1 : this.idx - 1];
+				var nImage = this.post.images.data[isForward ? this.idx + 1 : this.idx - 1];
 				if (nImage) {
 					return nImage;
 				}
-				if (!isForward) {
-					return this.post.images.last || this.getFollowPost(false);
-				}
-				return this.getFollowPost(true);
+				return this.getFollowPost(isForward);
 			} },
 		_useCache: { value: false },
 		_getImageSize: { value: function value() {
@@ -10007,9 +10290,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} }
 	});
 
-	function Attachment(post, el) {
+	function Attachment(post, el, idx) {
 		this.post = post;
 		this.el = el;
+		this.idx = idx;
 	}
 	Attachment.viewer = null;
 	Attachment.prototype = Object.create(IAttachmentData.prototype, {
@@ -10050,10 +10334,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (nImage) {
 					return nImage;
 				}
-				if (isForward) {
-					return this.post.allImages.data[0] || this.getFollowPost(true);
-				}
-				return this.getFollowPost(false);
+				return this.getFollowPost(isForward);
 			} },
 		getHash: { value: function value() {
 				var _this = this;
@@ -10446,7 +10727,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				return;
 			}
-			if (type === "mouseover" && Cfg.expandImgs && !el.classList.contains("de-img-full") && (temp = this.allImages.findImageByEl(el)) && (temp.isImage || temp.isVideo)) {
+			if (type === "mouseover" && Cfg.expandImgs && !el.classList.contains("de-img-full") && (temp = this.images.getImageByEl(el)) && (temp.isImage || temp.isVideo)) {
 				el.title = Cfg.expandImgs === 1 ? Lng.expImgInline[lang] : Lng.expImgFull[lang];
 			}
 			if (!this._hasEvents) {
@@ -10680,7 +10961,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}
 		},
 		toggleImages: function toggleImages(expand) {
-			for (var _iterator = this.allImages[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
+			for (var _iterator = this.images[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
 				var image = _step.value;
 
 				if (image.isImage && image.expanded ^ expand) {
@@ -10822,7 +11103,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if (this.posterTrip) {
 				addItem("trip");
 			}
-			if (this.images.contains) {
+			if (this.images.hasAttachments) {
 				addItem("img");
 				addItem("ihash");
 			} else {
@@ -10870,10 +11151,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		_clickImage: function _clickImage(el, e) {
 			var data;
 			if (el.classList.contains("de-img-full")) {
-				if (!this.allImages.findImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
+				if (!this.images.getImageByEl(el.previousSibling.firstElementChild).collapse(e)) {
 					return;
 				}
-			} else if ((data = this.allImages.findImageByEl(el)) && (data.isImage || data.isVideo)) {
+			} else if ((data = this.images.getImageByEl(el)) && (data.isImage || data.isVideo)) {
 				data.expand(Cfg.expandImgs === 1 ^ e.ctrlKey, e);
 			} else {
 				return;
@@ -10911,14 +11192,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case "spell-trip":
 					addSpell(7, this.posterTrip.replace(/\)/g, "\\)"), false);return;
 				case "spell-img":
-					var img = this.images.first,
+					var img = this.images.firstAttach,
 					    w = img.weight,
 					    wi = img.width,
 					    h = img.height;
 					addSpell(8, [0, [w, w], [wi, wi, h, h]], false);
 					return;
 				case "spell-ihash":
-					this.images.first.getHash(function (hash) {
+					this.images.firstAttach.getHash(function (hash) {
 						addSpell(4, hash, false);
 					});
 					return;
@@ -11037,15 +11318,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			get: function () {
 				var val = new PostImages(this);
 				Object.defineProperty(this, "images", { value: val });
-				return val;
-			},
-			enumerable: true,
-			configurable: true
-		},
-		allImages: {
-			get: function () {
-				var val = new PostAllImages(this);
-				Object.defineProperty(this, "allImages", { value: val });
 				return val;
 			},
 			enumerable: true,
@@ -11275,15 +11547,31 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	});
 
 	function PostImages(post) {
-		var els = aProto.slice.call($Q(aib.qThumbImages, post.el)),
-		    imgs = [];
-		for (var i = 0, _len = els.length; i < _len; ++i) {
-			imgs.push(new Attachment(post, els[i], i));
+		var els = $Q(aib.qThumbImages, post.el),
+		    filesMap = new WeakMap(),
+		    data = [],
+		    hasAttachments = false,
+		    idx = 0;
+		for (var i = 0, _len = els.length; i < _len; ++i, ++idx) {
+			var el = els[i];
+			var _obj = new Attachment(post, el, idx);
+			filesMap.set(el, _obj);
+			data.push(_obj);
+			hasAttachments = true;
 		}
-		this.data = imgs;
-		this.els = els;
-		this.length = this.els.length;
-		this.contains = this.length !== 0;
+		if (Cfg.addImgs) {
+			els = aProto.slice.call($C("de-img-pre", post.el));
+			for (var i = 0, _len2 = els.length; i < _len2; ++i, ++idx) {
+				var el = els[i];
+				var _obj2 = new EmbeddedImage(post, el, idx);
+				filesMap.set(el, _obj2);
+				data.push(_obj2);
+			}
+		}
+		this.data = data;
+		this.length = data.length;
+		this.hasAttachments = hasAttachments;
+		this._map = filesMap;
 	}
 	PostImages.prototype = Object.defineProperties((function () {
 		var _Object$defineProperties = {};
@@ -11302,12 +11590,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}, callee$2$0, this);
 		});
 
-		_defineProperty(_Object$defineProperties, "findImageByEl", function findImageByEl(el) {
-			var idx = this.els.indexOf(el);
-			if (idx === -1) {
-				return null;
-			}
-			return this.data[idx];
+		_defineProperty(_Object$defineProperties, "getImageByEl", function getImageByEl(el) {
+			return this._map.get(el);
 		});
 
 		return _Object$defineProperties;
@@ -11319,81 +11603,22 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			enumerable: true,
 			configurable: true
 		},
-		last: {
+		firstAttach: {
 			get: function () {
-				return this.data[this.length - 1];
-			},
-			enumerable: true,
-			configurable: true
-		}
-	});
-
-	function PostAllImages(post) {
-		var els, imgs;
-		if (Cfg.addImgs) {
-			els = aProto.slice.call($C("de-img-pre", this.el));
-			for (var i = 0, _len = els.length; i < _len; ++i) {
-				val.push(new EmbeddedImage(post, els[i], i));
-			}
-		} else {
-			els = imgs = [];
-		}
-		this.data = imgs;
-		this.els = els;
-		this.length = els.length;
-		this.count = this.length + post.images.length;
-		this._attachedImages = post.images;
-	}
-	PostAllImages.prototype = Object.defineProperties((function () {
-		var _Object$defineProperties2 = {};
-		_Object$defineProperties2[Symbol.iterator] = regeneratorRuntime.mark(function callee$2$0() {
-			var _this = this;
-
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						return context$3$0.delegateYield(_this._attachedImages, "t30", 1);
-
-					case 1:
-						return context$3$0.delegateYield(_this.data, "t31", 2);
-
-					case 2:
-					case "end":
-						return context$3$0.stop();
+				for (var i = 0; i < this.length; ++i) {
+					var _obj = this.data[i];
+					if (_obj instanceof Attachment) {
+						return _obj;
+					}
 				}
-			}, callee$2$0, this);
-		});
-
-		_defineProperty(_Object$defineProperties2, "findImageByEl", function findImageByEl(el) {
-			var image = this._attachedImages.findImageByEl(el);
-			if (image) {
-				return image;
-			}
-			var idx = this.els.indexOf(el);
-			if (idx < this.data.length) {
-				return this.data[idx];
-			}
-			for (var _iterator = this[Symbol.iterator](), _step; !(_step = _iterator.next()).done;) {
-				image = _step.value;
-
-				if (this.data.length > idx) {
-					return image;
-				}
-			}
-		});
-
-		return _Object$defineProperties2;
-	})(), {
-		first: {
-			get: function () {
-				return this._attachedImages.first || this._images[0];
+				return null;
 			},
 			enumerable: true,
 			configurable: true
 		},
 		last: {
 			get: function () {
-				return this.length === 0 ? this._attachedImages.last : this.data[this.length - 1];
+				return this.data[this.length - 1];
 			},
 			enumerable: true,
 			configurable: true
@@ -12105,8 +12330,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 
 					case 18:
-						context$2$0.t32 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t32));
+						context$2$0.t30 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t30));
 
 					case 20:
 					case "end":
@@ -13944,9 +14169,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 9:
 						context$3$0.prev = 9;
-						context$3$0.t33 = context$3$0["catch"](4);
+						context$3$0.t31 = context$3$0["catch"](4);
 
-						if (!(context$3$0.t33 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t31 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 13;
 							break;
 						}
@@ -13982,9 +14207,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 27:
 						context$3$0.prev = 27;
-						context$3$0.t34 = context$3$0["catch"](21);
+						context$3$0.t32 = context$3$0["catch"](21);
 
-						if (!(context$3$0.t34 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t32 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 31;
 							break;
 						}
@@ -13992,7 +14217,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("return");
 
 					case 31:
-						_error = context$3$0.t34;
+						_error = context$3$0.t32;
 
 					case 32:
 						infoLoadErrors(_error, -1);
@@ -14050,7 +14275,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 									post = dForm.firstThr.last, notif = new Notification(aib.dm + "/" + brd + "/" + TNum + ": " + newPosts + Lng.newPost[lang][lang !== 0 ? +(newPosts !== 1) : newPosts % 10 > 4 || newPosts % 10 === 0 || (newPosts % 100 / 10 | 0) === 1 ? 2 : newPosts % 10 === 1 ? 0 : 1] + Lng.newPost[lang][3], {
 										body: post.text.substring(0, 250).replace(/\s+/g, " "),
 										tag: aib.dm + brd + TNum,
-										icon: post.images.first || favHref
+										icon: post.images.firstAttach || favHref
 									});
 
 									notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12000);
