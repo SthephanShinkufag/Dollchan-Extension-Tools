@@ -4769,7 +4769,7 @@ Spells.prototype = {
 					str += this._decompileRep(rep, false) + '\n';
 				});
 			}
-			if(reps) {
+			if(oreps) {
 				oreps.forEach(orep => {
 					str += this._decompileRep(orep, true) + '\n';
 				});
@@ -10100,10 +10100,13 @@ function getNavFuncs() {
 		webkit = ua.contains('WebKit/'),
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
-		isGM = typeof GM_setValue === 'function' && 
-			(!chrome || !GM_setValue.toString().contains('not supported')),
+		isGM = false,
 		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
+	try {
+		isGM = typeof GM_setValue === 'function' &&
+			(!chrome || !GM_setValue.toString().contains('not supported'));
+	} catch(e) {}
 	return {
 		get ua() {
 			return navigator.userAgent + (this.Firefox ? ' [' + navigator.buildID + ']' : '');

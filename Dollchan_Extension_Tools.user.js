@@ -17,8 +17,11 @@
 // @include         *
 // ==/UserScript==
 (function de_main_func_outer() {
+
 !function(global, framework, undefined){
 'use strict';
+
+
 
  
 var OBJECT          = 'Object'
@@ -567,6 +570,8 @@ if(exportGlobal || framework){
 }
 
 
+
+
 !function(TAG, SymbolRegistry, AllSymbols, setter){
  
   if(!isNative(Symbol)){
@@ -643,6 +648,8 @@ if(exportGlobal || framework){
   });
 }(safeSymbol('tag'), {}, {}, true);
 
+
+
 !function(at){
  
  
@@ -683,6 +690,8 @@ if(exportGlobal || framework){
     return iterResult(0, point);
   });
 }(createPointAt(true));
+
+
 
 
 
@@ -752,6 +761,8 @@ $define(GLOBAL + BIND, {
   setImmediate:   setImmediate,
   clearImmediate: clearImmediate
 });
+
+
 
 
 
@@ -899,6 +910,8 @@ $define(GLOBAL + BIND, {
   setSpecies(Promise);
   $define(GLOBAL + FORCED * !isNative(Promise), {Promise: Promise});
 }(global[PROMISE]);
+
+
 
 
 !function(){
@@ -6988,7 +7001,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						str += _this._decompileRep(rep, false) + "\n";
 					});
 				}
-				if (reps) {
+				if (oreps) {
 					oreps.forEach(function (orep) {
 						str += _this._decompileRep(orep, true) + "\n";
 					});
@@ -12714,9 +12727,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    webkit = ua.contains("WebKit/"),
 		    chrome = webkit && ua.contains("Chrome/"),
 		    safari = webkit && !chrome,
-		    isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().contains("not supported")),
+		    isGM = false,
 		    isChromeStorage = window.chrome && !!window.chrome.storage,
 		    isScriptStorage = !!scriptStorage && !ua.contains("Opera Mobi");
+		try {
+			isGM = typeof GM_setValue === "function" && (!chrome || !GM_setValue.toString().contains("not supported"));
+		} catch (e) {}
 		return Object.defineProperties({
 			Firefox: firefox,
 			Opera11: opera11,
