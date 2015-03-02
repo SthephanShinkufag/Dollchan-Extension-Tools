@@ -1945,15 +1945,15 @@ function showVideosTable(cont) {
 	let linkList = cont.lastChild;
 	$before(linkList, $new('script', {'type': 'text/javascript', 'text':`
 		(function() {
-			if('YT' in global && 'Player' in global.YT) {
+			if('YT' in window && 'Player' in window.YT) {
 				onYouTubePlayerAPIReady();
 			} else {
-				global.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;
+				window.onYouTubePlayerAPIReady = onYouTubePlayerAPIReady;
 			}
 			function onYouTubePlayerAPIReady() {
 				var el = document.querySelector('#de-content-vid > .de-video-obj');
-				global.de_addVideoEvents = addEvents.bind(el);
-				global.de_addVideoEvents();
+				window.de_addVideoEvents = addEvents.bind(el);
+				window.de_addVideoEvents();
 			}
 			function addEvents() {
 				var autoplay = true;
