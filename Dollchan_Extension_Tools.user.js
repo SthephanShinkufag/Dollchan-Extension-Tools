@@ -4015,8 +4015,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function addContentBlock(parent, title) {
 		return parent.appendChild($New("div", { "class": "de-content-block" }, [$new("input", { type: "checkbox" }, { click: function () {
+				var _this = this;
+
 				$each($Q(".de-entry > input", this.parentNode), function (el) {
-					return el.checked = res;
+					return el.checked = _this.checked;
 				});
 			} }), title]));
 	}

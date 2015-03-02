@@ -1759,7 +1759,7 @@ function toggleContent(name, isUpd, data) {
 function addContentBlock(parent, title) {
 	return parent.appendChild($New('div', {'class': 'de-content-block'}, [
 		$new('input', {'type': 'checkbox'}, {'click'() {
-			$each($Q('.de-entry > input', this.parentNode), el => el.checked = res);
+			$each($Q('.de-entry > input', this.parentNode), el => el.checked = this.checked);
 		}}),
 		title
 	]));
