@@ -4059,10 +4059,10 @@ DateTime.prototype = {
 		if(this.disabled || (!this.rPattern && !this.getRPattern(txt))) {
 			return txt;
 		}
-		return txt.replace(new RegExp(this.regex, 'g'), () => {
+		return txt.replace(new RegExp(this.regex, 'g'), (...args) => {
 			var i, a, t, second, minute, hour, day, month, year, dtime;
 			for(i = 1; i < 8; i++) {
-				a = arguments[i];
+				a = args[i];
 				switch(this.pattern[i - 1]) {
 				case 's': second = a; break;
 				case 'i': minute = a; break;

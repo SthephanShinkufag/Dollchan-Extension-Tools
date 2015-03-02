@@ -6193,15 +6193,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		fix: function fix(txt) {
 			var _this = this;
 
-			var _arguments = arguments;
-
 			if (this.disabled || !this.rPattern && !this.getRPattern(txt)) {
 				return txt;
 			}
 			return txt.replace(new RegExp(this.regex, "g"), function () {
+				for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+					args[_key] = arguments[_key];
+				}
+
 				var i, a, t, second, minute, hour, day, month, year, dtime;
 				for (i = 1; i < 8; i++) {
-					a = _arguments[i];
+					a = args[i];
 					switch (_this.pattern[i - 1]) {
 						case "s":
 							second = a;break;
