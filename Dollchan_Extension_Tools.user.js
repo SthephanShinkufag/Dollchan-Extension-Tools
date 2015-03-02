@@ -2241,7 +2241,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					changed = false;
 
 					if (Cfg.removeFName) {
-						file = new File(file, _name.substring(_name.lastIndexOf(".")));
+						file = new File([file], _name.substring(_name.lastIndexOf(".")));
 						changed = true;
 					}
 
@@ -6140,8 +6140,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			this.disabled = true;
 			return;
 		}
-		this.regex = pattern.replace(/(?:[sihdny]\?){2,}/g, function () {
-			return "(?:" + arguments[0].replace(/\?/g, "") + ")?";
+		this.regex = pattern.replace(/(?:[sihdny]\?){2,}/g, function (str) {
+			return "(?:" + str.replace(/\?/g, "") + ")?";
 		}).replace(/\-/g, "[^<]").replace(/\+/g, "[^0-9]").replace(/([sihdny]+)/g, "($1)").replace(/[sihdny]/g, "\\d").replace(/m|w/g, "([a-zA-Zа-яА-Я]+)");
 		this.pattern = pattern.replace(/[\?\-\+]+/g, "").replace(/([a-z])\1+/g, "$1");
 		this.diff = parseInt(diff, 10);
@@ -6201,7 +6201,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					args[_key] = arguments[_key];
 				}
 
-				var i, a, t, second, minute, hour, day, month, year, dtime;
+				var i, a, second, minute, hour, day, month, year, dtime;
 				for (i = 1; i < 8; i++) {
 					a = args[i];
 					switch (_this.pattern[i - 1]) {

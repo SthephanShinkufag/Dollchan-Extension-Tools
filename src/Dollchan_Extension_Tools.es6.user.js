@@ -3998,8 +3998,8 @@ function DateTime(pattern, rPattern, diff, dtLang, onRPat) {
 		return;
 	}
 	this.regex = pattern
-		.replace(/(?:[sihdny]\?){2,}/g, function() {
-			return '(?:' + arguments[0].replace(/\?/g, '') + ')?';
+		.replace(/(?:[sihdny]\?){2,}/g, function(str) {
+			return '(?:' + str.replace(/\?/g, '') + ')?';
 		})
 		.replace(/\-/g, '[^<]')
 		.replace(/\+/g, '[^0-9]')
@@ -4060,7 +4060,7 @@ DateTime.prototype = {
 			return txt;
 		}
 		return txt.replace(new RegExp(this.regex, 'g'), (...args) => {
-			var i, a, t, second, minute, hour, day, month, year, dtime;
+			var i, a, second, minute, hour, day, month, year, dtime;
 			for(i = 1; i < 8; i++) {
 				a = args[i];
 				switch(this.pattern[i - 1]) {
@@ -7086,7 +7086,7 @@ function* html5Submit(form) {
 				let name = file.name;
 				let changed = false;
 				if(Cfg.removeFName) {
-					file = new File(file, name.substring(name.lastIndexOf('.')));
+					file = new File([file], name.substring(name.lastIndexOf('.')));
 					changed = true;
 				}
 				if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type) &&
