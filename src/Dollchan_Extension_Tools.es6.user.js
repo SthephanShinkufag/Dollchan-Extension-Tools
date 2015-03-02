@@ -17,7 +17,7 @@
 // @include         *
 // ==/UserScript==
 
-(function de_main_func_inner(global, scriptStorage) {
+(function de_main_func_inner(scriptStorage) {
 'use strict';
 
 var version = '15.1.28.0',
@@ -546,7 +546,7 @@ Lng = {
 	seCol:          [', столбец ', ', column ']
 },
 
-doc = global.document, aProto = Array.prototype, locStorage, sesStorage,
+doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
 Cfg, comCfg, hThr, pByNum, sVis, bUVis, needScroll,
 aib, nav, brd, TNum, pageNum, updater, hKeys, visPosts = 2, dTime,
 WebmParser, Logger,
@@ -691,7 +691,7 @@ function $txtInsert(el, txt) {
 }
 
 function $txtSelect() {
-	return (nav.Presto ? doc.getSelection() : global.getSelection()).toString();
+	return (nav.Presto ? doc.getSelection() : window.getSelection()).toString();
 }
 
 function $isEmpty(obj) {
@@ -1323,7 +1323,7 @@ function* readCfg() {
 	if(aib.prot !== 'http:') {
 		Cfg.addVocaroo = 0;
 	}
-	if(!('Notification' in global)) {
+	if(!('Notification' in window)) {
 		Cfg.desktNotif = 0;
 	}
 	if(nav.Presto) {
@@ -1641,7 +1641,7 @@ function addPanel(formEl) {
 				case 'de-btn-hidden': this.attach = toggleContent('hid', false); break;
 				case 'de-btn-favor': this.attach = toggleContent('fav', false); break;
 				case 'de-btn-video': this.attach = toggleContent('vid', false); break;
-				case 'de-btn-refresh': global.location.reload(); break;
+				case 'de-btn-refresh': window.location.reload(); break;
 				case 'de-btn-goup': scrollTo(0, 0); break;
 				case 'de-btn-godown': scrollTo(0, doc.body.scrollHeight || doc.body.offsetHeight); break;
 				case 'de-btn-expimg':
@@ -1683,7 +1683,7 @@ function addPanel(formEl) {
 				case 'de-btn-savethr': break;
 				case 'de-btn-enable':
 					toggleCfg('disabled');
-					global.location.reload();
+					window.location.reload();
 					break;
 				default: return;
 				}
@@ -2414,7 +2414,7 @@ function getCfgPosts() {
 				lBox('markNewPosts', true, function() {
 					dForm.firstThr.clearPostsMarks();
 				}),
-				$if('Notification' in global, lBox('desktNotif', true, function() {
+				$if('Notification' in window, lBox('desktNotif', true, function() {
 					if(Cfg.desktNotif) {
 						Notification.requestPermission();
 					}
@@ -2724,7 +2724,7 @@ function getCfgInfo() {
 				':<textarea readonly id="de-debug-info" class="de-editor"></textarea>', 'help-debug', false);
 			$id('de-debug-info').value = JSON.stringify({
 				'version': version,
-				'location': String(global.location),
+				'location': String(window.location),
 				'nav': nav,
 				'cfg': Cfg,
 				'sSpells': spells.list.split('\n'),
@@ -2797,13 +2797,13 @@ function addSettings(Set, id) {
 				addEditButton('cfg', function(fn) {
 					fn(Cfg, true, function(data) {
 						saveComCfg(aib.dm, data);
-						global.location.reload();
+						window.location.reload();
 					});
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
 					if(('global' in comCfg) && !$isEmpty(comCfg.global)) {
 						saveComCfg(aib.dm, null);
-						global.location.reload();
+						window.location.reload();
 					} else {
 						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
 					}
@@ -2829,7 +2829,7 @@ function addSettings(Set, id) {
 						delStored('DESU_Posts_' + aib.dm);
 						delStored('DESU_Threads_' + aib.dm);
 						delStored('DESU_keys');
-						global.location.reload();
+						window.location.reload();
 					}
 				})
 			]),
@@ -2902,10 +2902,10 @@ function showMenu(el, html, inPanel, onclick) {
 		y = 'bottom: 25';
 	} else {
 		pos = 'absolute';
-		y = 'top: ' + (global.pageYOffset + cr.bottom);
+		y = 'top: ' + (window.pageYOffset + cr.bottom);
 	}
 	doc.body.insertAdjacentHTML('beforeend', '<div class="' + aib.cReply + ' de-menu" style="position: ' +
-		pos + '; right: ' + (doc.documentElement.clientWidth - cr.right - global.pageXOffset) +
+		pos + '; right: ' + (doc.documentElement.clientWidth - cr.right - window.pageXOffset) +
 		'px; ' + y + 'px;">' + html + '</div>');
 	menu = doc.body.lastChild;
 	menu.addEventListener('mouseover', function(e) {
@@ -3176,7 +3176,7 @@ HotKeys.prototype = {
 				if(Attachment.viewer) {
 					Attachment.viewer.navigate(false);
 				} else if(TNum || pageNum !== aib.firstPage) {
-					global.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
+					window.location.pathname = aib.getPageUrl(brd, TNum ? 0 : pageNum - 1);
 				}
 				break;
 			case 5: // Send post (txt)
@@ -3241,7 +3241,7 @@ HotKeys.prototype = {
 				if(Attachment.viewer) {
 					Attachment.viewer.navigate(true);
 				} else if(!TNum && this.lastPage !== aib.lastPage) {
-					global.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
+					window.location.pathname = aib.getPageUrl(brd, this.lastPage + 1);
 				}
 				break;
 			case -1:
@@ -3262,7 +3262,7 @@ HotKeys.prototype = {
 						if(nav.Firefox) {
 							GM_openInTab(aib.getThrdUrl(brd, post.tNum), false, true);
 						} else {
-							global.open(aib.getThrdUrl(brd, post.tNum), '_blank');
+							window.open(aib.getThrdUrl(brd, post.tNum), '_blank');
 						}
 					}
 					break;
@@ -3277,7 +3277,7 @@ HotKeys.prototype = {
 							post.thr.load(1, false);
 							post = post.thr.op;
 						}
-						scrollTo(0, global.pageYOffset + post.topCoord);
+						scrollTo(0, window.pageYOffset + post.topCoord);
 						if(this.cPost && this.cPost !== post) {
 							this.cPost.unselect();
 							this.cPost = post;
@@ -3307,7 +3307,7 @@ HotKeys.prototype = {
 
 	_getFirstVisPost(getThread, getFull) {
 		var post, tPost;
-		if(this.lastPageOffset !== global.pageYOffset) {
+		if(this.lastPageOffset !== window.pageYOffset) {
 			post = getThread ? dForm.firstThr : dForm.firstThr.op;
 			while(post.topCoord < 1) {
 				tPost = post.next;
@@ -3320,7 +3320,7 @@ HotKeys.prototype = {
 				this.cPost.unselect();
 			}
 			this.cPost = getThread ? getFull ? post.op : post.op.prev : getFull ? post : post.prev;
-			this.lastPageOffset = global.pageYOffset;
+			this.lastPageOffset = window.pageYOffset;
 		}
 		return this.cPost;
 	},
@@ -3346,7 +3346,7 @@ HotKeys.prototype = {
 		var next = this._getNextVisPost(post, toThread, toUp);
 		if(!next) {
 			if(!TNum && (toUp ? pageNum > aib.firstPage : this.lastPage < aib.lastPage)) {
-				global.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
+				window.location.pathname = aib.getPageUrl(brd, toUp ? pageNum - 1 : this.lastPage + 1);
 			}
 			return;
 		}
@@ -3356,10 +3356,10 @@ HotKeys.prototype = {
 		if(toThread) {
 			next.el.scrollIntoView();
 		} else {
-			scrollTo(0, global.pageYOffset + next.el.getBoundingClientRect().top -
+			scrollTo(0, window.pageYOffset + next.el.getBoundingClientRect().top -
 				Post.sizing.wHeight / 2 + next.el.clientHeight / 2);
 		}
-		this.lastPageOffset = global.pageYOffset;
+		this.lastPageOffset = window.pageYOffset;
 		next.select();
 		this.cPost = next;
 	}
@@ -3669,7 +3669,7 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 		this.run = (data, transferObjs, fn) => fn(wrkFn(data));
 		return;
 	}
-	var url = global.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
+	var url = window.URL.createObjectURL(new Blob([`self.onmessage = function(e) {
 		var info = (${String(wrkFn)})(e.data);
 		if(info.data) {
 			self.postMessage(info, [info.data]);
@@ -3682,7 +3682,7 @@ function WorkerPool(mReqs, wrkFn, errFn) {
 	this._url = url;
 	this._errFn = errFn;
 	while(mReqs--) {
-		this._freeWorkers.push(new global.Worker(url));
+		this._freeWorkers.push(new Worker(url));
 	}
 }
 WorkerPool.prototype = {
@@ -3707,7 +3707,7 @@ WorkerPool.prototype = {
 		});
 	},
 	clear() {
-		global.URL.revokeObjectURL(this._url);
+		window.URL.revokeObjectURL(this._url);
 		this._freeWorkers = [];
 	}
 };
@@ -3731,7 +3731,7 @@ function addImgFileIcon(aEl, fName, info) {
 			app = 'audio/mpeg';
 			ext = 'mp3';
 		}
-		aEl.insertAdjacentHTML('afterend', '<a href="' + global.URL.createObjectURL(
+		aEl.insertAdjacentHTML('afterend', '<a href="' + window.URL.createObjectURL(
 				new Blob([new Uint8Array(info.data, info.idx)], {'type': app})
 			) + '" class="de-img-' + (type > 2 ? 'audio' : 'arch') + '" title="' + Lng.downloadFile[lang] +
 			'" download="' + fName.substring(0, fName.lastIndexOf('.')) + '.' + ext + '">.' + ext + '</a>'
@@ -3791,7 +3791,7 @@ function preloadImages(post) {
 				let fName = url.substring(url.lastIndexOf("/") + 1),
 					aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
 				aEl.setAttribute('download', fName);
-				lnk.href = global.URL.createObjectURL(new Blob([imageData], {'type': iType}));
+				lnk.href = window.URL.createObjectURL(new Blob([imageData], {'type': iType}));
 				lnk.setAttribute('de-name', fName);
 				if(iType === 'video/webm') {
 					el.setAttribute('de-video', '');
@@ -3908,12 +3908,12 @@ function loadDocFiles(imgOnly) {
 				(dt.systemId ? ' "' + dt.systemId + '"' : '') + '>' + dc.outerHTML
 			);
 		}
-		u = global.URL.createObjectURL(tar.get());
+		u = window.URL.createObjectURL(tar.get());
 		a = $new('a', {'href': u, 'download': name + (imgOnly ? '-images.tar' : '.tar')}, null);
 		doc.body.appendChild(a);
 		a.click();
 		setTimeout(function(el, url) {
-			global.URL.revokeObjectURL(url);
+			window.URL.revokeObjectURL(url);
 			$del(el);
 		}, 0, a, u);
 		$del($id('de-alert-filesload'));
@@ -4492,7 +4492,7 @@ function loadFavorThread(node) {
 		return;
 	}
 	if((post = pByNum[el.getAttribute('de-num')]) && !post.hidden) {
-		scrollTo(0, global.pageYOffset + post.el.getBoundingClientRect().top);
+		scrollTo(0, window.pageYOffset + post.el.getBoundingClientRect().top);
 		return;
 	}
 	$del($id('de-iframe-fav'));
@@ -6348,7 +6348,7 @@ PostForm.prototype = {
 			var code = e.charCode || e.keyCode;
 			if((code === 33 || code === 34) && e.which === 0) {
 				e.target.blur();
-				global.focus();
+				window.focus();
 			}
 		}, false);
 		if(!aib.tiny) {
@@ -6432,7 +6432,7 @@ PostForm.prototype = {
 		if(Cfg.noName && this.name) {
 			$parent(this.name, 'TR').style.display = 'none';
 		}
-		global.addEventListener('load', () => {
+		window.addEventListener('load', () => {
 			if(Cfg.userName && this.name) {
 				setTimeout(PostForm.setUserName, 1e3);
 			}
@@ -6662,7 +6662,7 @@ FileInput.prototype = {
 		if(Cfg.fileThumb) {
 			this.thumb.classList.add('de-file-off');
 			if(this._mediaEl) {
-				global.URL.revokeObjectURL(this._mediaEl.src);
+				window.URL.revokeObjectURL(this._mediaEl.src);
 				mParent = this._mediaEl.parentNode;
 				mParent.title = Lng.clickToAdd[lang];
 				$del(this._mediaEl);
@@ -6760,7 +6760,7 @@ FileInput.prototype = {
 			this._wrap.style.display = '';
 			this.form.fileTd.parentNode.style.display = '';
 			if(this._mediaE) {
-				global.URL.revokeObjectURL(this._mediaE.src);
+				window.URL.revokeObjectURL(this._mediaE.src);
 			}
 			$del(this.thumb);
 			this.thumb = this._mediaEl = null;
@@ -6865,10 +6865,10 @@ FileInput.prototype = {
 					'<video class="de-file-img" loop autoplay muted src=""></video>' :
 					'<img class="de-file-img" src="">');
 				this._mediaEl = thumb = thumb.firstChild;
-				thumb.src = global.URL.createObjectURL(new Blob([e.target.result]));
+				thumb.src = window.URL.createObjectURL(new Blob([e.target.result]));
 				thumb = thumb.nextSibling;
 				if(thumb) {
-					global.URL.revokeObjectURL(thumb.src);
+					window.URL.revokeObjectURL(thumb.src);
 					$del(thumb);
 				}
 			};
@@ -6988,7 +6988,7 @@ function checkUpload(dc) {
 	Cfg.stats[pr.tNum ? 'reply' : 'op']++;
 	saveComCfg(aib.dm, Cfg);
 	if(!pr.tNum) {
-		global.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
+		window.location = aib.getThrdUrl(brd, aib.getTNum($q(aib.qDForm, dc)));
 		return;
 	}
 	el = !aib.tiny && !aib.kus &&
@@ -6998,14 +6998,14 @@ function checkUpload(dc) {
 		if(el) {
 			dForm.firstThr.loadNewFromForm(el);
 			if(Cfg.scrAfterRep) {
-				scrollTo(0, global.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+				scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 			}
 			closeAlert($id('de-alert-upload'));
 		} else {
 			dForm.firstThr.loadNew(true).then(() => AjaxError.Success, e => e).then(e => {
 				infoLoadErrors(e, 0);
 				if(Cfg.scrAfterRep) {
-					scrollTo(0, global.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
+					scrollTo(0, window.pageYOffset + dForm.firstThr.last.el.getBoundingClientRect().top);
 				}
 				closeAlert($id('de-alert-upload'));
 			});
@@ -7152,7 +7152,7 @@ function readFileArrayBuffer(file) {
 }
 
 function cleanFileHelper(data, extraData, rand) {
-	var tmp, i, len, deep, val, lIdx, jpgDat, img = new global.Uint8Array(data),
+	var tmp, i, len, deep, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
 		rExif = !!Cfg.removeEXIF,
 		rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
 			[img, rand] : [img];
@@ -7199,7 +7199,7 @@ function cleanFileHelper(data, extraData, rand) {
 		}
 		if(lIdx === 2) {
 			if(i !== len) {
-				rv[0] = new global.Uint8Array(data, 0, i);
+				rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 			}
 			return rv;
 		}
@@ -7220,7 +7220,7 @@ function cleanFileHelper(data, extraData, rand) {
 			img[i + 1] !== 0x45 || img[i + 2] !== 0x4E || img[i + 3] !== 0x44); i++) {}
 		i += 8;
 		if(i !== len && (extraData || len - i <= 75)) {
-			rv[0] = new global.Uint8Array(data, 0, i);
+			rv[0] = nav.getUnsafeUint8Array(data, 0, i);
 		}
 		return rv;
 	}
@@ -7235,7 +7235,7 @@ function readExif(data, off, len) {
 	var i, j, dE, tag, tgLen, xRes = 0,
 		yRes = 0,
 		resT = 0,
-		dv = new global.DataView(data, off),
+		dv = nav.getUnsafeDataView(data, off),
 		le = String.fromCharCode(dv.getUint8(0), dv.getUint8(1)) !== 'MM';
 	if(dv.getUint16(2, le) !== 0x2A) {
 		return null;
@@ -7323,7 +7323,7 @@ WebmParser = function(data) {
 	};
 
 	function Parser(data) {
-		var dv = new global.DataView(data),
+		var dv = nav.getUnsafeDataView(data),
 			len = dv.byteLength,
 			el = new WebmElement(dv, len, 0),
 			offset = 0,
@@ -7376,7 +7376,7 @@ WebmParser = function(data) {
 				return null;
 			}
 			var len = this.segment.endOffset;
-			this.rv[0] = new global.Uint8Array(this.data, 0, len);
+			this.rv[0] = nav.getUnsafeUint8Array(this.data, 0, len);
 			return this.rv;
 		}
 	};
@@ -7864,8 +7864,8 @@ IAttachmentData.prototype = {
 	sendCloseEvent(e, inPost) {
 		var pv = this.post,
 			cr = pv.el.getBoundingClientRect(),
-			x = e.pageX - global.pageXOffset,
-			y = e.pageY - global.pageYOffset;
+			x = e.pageX - window.pageXOffset,
+			y = e.pageY - window.pageYOffset;
 		if(!inPost) {
 			while(x > cr.right || x < cr.left || y > cr.bottom || y < cr.top) {
 				pv = pv.parent;
@@ -7897,10 +7897,10 @@ IAttachmentData.prototype = {
 		if(val === -1) {
 			if(this.post.hidden) {
 				this.post.hideContent(false);
-				val = this.el.getBoundingClientRect().left + global.pageXOffset;
+				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 				this.post.hideContent(true);
 			} else {
-				val = this.el.getBoundingClientRect().left + global.pageXOffset;
+				val = this.el.getBoundingClientRect().left + window.pageXOffset;
 			}
 			if(this._useCache) {
 				this._glob._offset = val;
@@ -8185,7 +8185,7 @@ Post.findSameText = function(oNum, oHid, oWords, date, post) {
 };
 Post.sizing = {
 	get dPxRatio() {
-		var val = global.devicePixelRatio || 1;
+		var val = window.devicePixelRatio || 1;
 		Object.defineProperty(this, 'dPxRatio', { value: val });
 		return val;
 	},
@@ -8296,7 +8296,7 @@ Post.prototype = {
 						} else if(TNum) {
 							$txtInsert(pr.txta, '>>' + this.num);
 						} else {
-							global.location = el.href.replace(/#i/, '#');
+							window.location = el.href.replace(/#i/, '#');
 						}
 					}
 				}
@@ -8759,7 +8759,7 @@ Post.prototype = {
 		var html, cr = el.getBoundingClientRect(),
 			isLeft = false,
 			className = 'de-menu ' + aib.cReply,
-			xOffset = global.pageXOffset;
+			xOffset = window.pageXOffset;
 		switch(el.getAttribute('de-menu')) {
 		case 'hide':
 			if(!Cfg.menuHiddBtn) {
@@ -8780,7 +8780,7 @@ Post.prototype = {
 			'" style="position: absolute; ' + (
 			isLeft ? 'left: ' + (cr.left + xOffset) :
 				'right: ' + (doc.documentElement.clientWidth - cr.right - xOffset)
-			) + 'px; top: ' + (global.pageYOffset + cr.bottom) + 'px;">' + html + '</div>');
+			) + 'px; top: ' + (window.pageYOffset + cr.bottom) + 'px;">' + html + '</div>');
 		if(this._menu) {
 			clearTimeout(this._menuDelay);
 			$del(this._menu);
@@ -8795,7 +8795,7 @@ Post.prototype = {
 			str += '<span info="spell-' + name + '" class="de-menu-item">' +
 				Lng.selHiderMenu[name][lang] + '</span>';
 		};
-		sel = nav.Presto ? doc.getSelection() : global.getSelection();
+		sel = nav.Presto ? doc.getSelection() : window.getSelection();
 		ssel = sel.toString();
 		if(ssel) {
 			this._selText = ssel;
@@ -9454,8 +9454,8 @@ function setPviewPosition(link, pView, isAnim) {
 		return;
 	}
 	var isTop, top, oldCSS, uId, cr = link.getBoundingClientRect(),
-		offX = cr.left + global.pageXOffset + link.offsetWidth / 2,
-		offY = cr.top + global.pageYOffset,
+		offX = cr.left + window.pageXOffset + link.offsetWidth / 2,
+		offY = cr.top + window.pageYOffset,
 		bWidth = doc.documentElement.clientWidth,
 		isLeft = offX < bWidth / 2,
 		tmp = (isLeft ? offX : offX - Math.min(parseInt(pView.offsetWidth, 10), offX - 10)),
@@ -9754,7 +9754,7 @@ Thread.prototype = {
 			op.el.insertAdjacentHTML('afterend', '<div class="de-omitted">' + nOmt + '</div>');
 		}
 		if(smartScroll) {
-			scrollTo(global.pageXOffset, global.pageYOffset - (nextCoord - this.next.topCoord));
+			scrollTo(window.pageXOffset, window.pageYOffset - (nextCoord - this.next.topCoord));
 		}
 		closeAlert($id('de-alert-load-thr'));
 	},
@@ -9781,7 +9781,7 @@ Thread.prototype = {
 		var lastOffset = pr.isVisible ? pr.topCoord : null,
 			[newPosts, newVisPosts] = this._parsePosts(aib.getPosts(form));
 		if(lastOffset !== null) {
-			scrollTo(global.pageXOffset, global.pageYOffset - (lastOffset - pr.topCoord));
+			scrollTo(window.pageXOffset, window.pageYOffset - (lastOffset - pr.topCoord));
 		}
 		if(newPosts !== 0) {
 			$id('de-panel-info').firstChild.textContent = this.pcount + '/' +
@@ -10078,13 +10078,13 @@ function getNavFuncs() {
 	if('toJSON' in aProto) {
 		delete aProto.toJSON;
 	}
-	if(!('URL' in global)) {
-		global.URL = global.webkitURL;
+	if(!('URL' in window)) {
+		window.URL = window.webkitURL;
 	}
 	try {
 		new File([''], '');
 	} catch(e) {
-		window.File = global.File = function File(arr, name) {
+		window.File = function File(arr, name) {
 			var rv = new Blob(arr);
 			rv.name = name;
 			rv.lastModifiedDate = new Date();
@@ -10093,15 +10093,15 @@ function getNavFuncs() {
 		};
 		File.prototype = new Blob;
 	}
-	var ua = global.navigator.userAgent,
+	var ua = window.navigator.userAgent,
 		firefox = ua.contains('Gecko/'),
-		presto = global.opera ? +global.opera.version() : 0,
+		presto = window.opera ? +window.opera.version() : 0,
 		opera11 = presto ? presto < 12.1 : false,
 		webkit = ua.contains('WebKit/'),
 		chrome = webkit && ua.contains('Chrome/'),
 		safari = webkit && !chrome,
 		isGM = false,
-		isChromeStorage = global.chrome && !!global.chrome.storage,
+		isChromeStorage = window.chrome && !!window.chrome.storage,
 		isScriptStorage = !!scriptStorage && !ua.contains('Opera Mobi');
 	try {
 		isGM = typeof GM_setValue === 'function' &&
@@ -10139,10 +10139,12 @@ function getNavFuncs() {
 			return url;
 		},
 		get hasWorker() {
-		var val = false;
-			try {
-				val = 'Worker' in global;
-			} catch(e) {}
+			var val = false;
+			if(!this.Firefox) { // see https://github.com/greasemonkey/greasemonkey/issues/2034
+				try {
+					val = 'Worker' in window;
+				} catch(e) {}
+			}
 			Object.defineProperty(this, 'hasWorker', { value: val });
 			return val;
 		},
@@ -10168,6 +10170,20 @@ function getNavFuncs() {
 				val = Function.prototype.call.bind(fun);
 			Object.defineProperty(this, 'matchesSelector', { value: val });
 			return val;
+		},
+		// See https://github.com/greasemonkey/greasemonkey/issues/2034 for more info
+		getUnsafeUint8Array(data, i, len) {
+			var rv;
+			if(typeof i === 'undefined') {
+				rv = new Uint8Array(data);
+				return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data);
+			}
+			rv = new Uint8Array(data, i, len);
+			return rv instanceof Uint8Array ? rv : new unsafeWindow.Uint8Array(data, i, len);
+		},
+		getUnsafeDataView(data, offset) {
+			var rv = new DataView(data, offset || 0);
+			return rv instanceof DataView ? rv : new unsafeWindow.DataView(data, offset || 0);
 		}
 	};
 }
@@ -10177,7 +10193,7 @@ function getNavFuncs() {
 // ===========================================================================================================
 
 function getImageBoard(checkDomains, checkOther) {
-	var prot = global.location.protocol;
+	var prot = window.location.protocol;
 	var ibDomains = {
 		'02ch.net': [{
 			qPostRedir: { value: 'input[name="gb2"][value="thread"]' },
@@ -10419,7 +10435,7 @@ function getImageBoard(checkDomains, checkOther) {
 				return val;
 			} },
 			init: { value() {
-				if(global.location.pathname === '/settings') {
+				if(window.location.pathname === '/settings') {
 					nav = getNavFuncs();
 					$q('input[type="button"]', doc).addEventListener('click', function() {
 						spawn(readCfg).then(() => saveCfg('__hanarating', $id('rating').value));
@@ -10565,7 +10581,7 @@ function getImageBoard(checkDomains, checkOther) {
 				var val = '{"simpleNavbar":true,"showInfo":true}';
 				if(locStorage.getItem('settings') !== val) {
 					locStorage.setItem('settings', val);
-					global.location.reload();
+					window.location.reload();
 				}
 			} },
 			markupBB: { value: true },
@@ -10965,7 +10981,7 @@ function getImageBoard(checkDomains, checkOther) {
 		firstPage: 0,
 		fixFileInputs: emptyFn,
 		hasPicWrap: false,
-		host: global.location.hostname,
+		host: window.location.hostname,
 		init: null,
 		get lastPage() {
 			var el = $q(this.qPages, doc),
@@ -11003,8 +11019,8 @@ function getImageBoard(checkDomains, checkOther) {
 
 	localRun = prot === 'file:';
 	var i, ibObj = null, dm = localRun ?
-		(global.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
-		global.location.hostname
+		(window.location.pathname.match(/\/([^-]+)-[^-]+-[^\.]+\.[a-z]+$/) || [,''])[1] :
+		window.location.hostname
 			.match(/(?:(?:[^.]+\.)(?=org\.|net\.|com\.))?[^.]+\.[^.]+$|^\d+\.\d+\.\d+\.\d+$|localhost/)[0];
 	if(checkDomains) {
 		if(dm in ibDomains) {
@@ -11041,12 +11057,12 @@ function getImageBoard(checkDomains, checkOther) {
 
 function Initialization(checkDomains) {
 	var intrv, url, formEl;
-	if(/^(?:about|chrome|opera|res)/i.test(global.location)) {
+	if(/^(?:about|chrome|opera|res)/i.test(window.location)) {
 		return null;
 	}
 	try {
-		locStorage = global.localStorage;
-		sesStorage = global.sessionStorage;
+		locStorage = window.localStorage;
+		sesStorage = window.sessionStorage;
 		sesStorage['__de-test'] = 1;
 	} catch(e) {
 		if(typeof unsafeWindow !== 'undefined') {
@@ -11058,17 +11074,17 @@ function Initialization(checkDomains) {
 		console.log('WEBSTORAGE ERROR: please, enable webstorage!');
 		return null;
 	}
-	switch(global.name) {
+	switch(window.name) {
 	case '': break;
 	case 'de-iframe-pform':
 	case 'de-iframe-dform':
-		$script('window.top.postMessage("A' + global.name + '" + document.documentElement.outerHTML, "*");');
+		$script('window.top.postMessage("A' + window.name + '" + document.documentElement.outerHTML, "*");');
 		return null;
 	case 'de-iframe-fav':
 		intrv = setInterval(function() {
 			$script('window.top.postMessage("B' + (doc.body.offsetHeight + 5) + '", "*");');
 		}, 1500);
-		global.addEventListener('load', setTimeout.bind(global, clearInterval, 3e4, intrv), false);
+		window.addEventListener('load', setTimeout.bind(window, clearInterval, 3e4, intrv), false);
 		liteMode = true;
 		pr = {};
 	}
@@ -11174,7 +11190,7 @@ function Initialization(checkDomains) {
 	}, false);
 
 	if(localRun) {
-		url = global.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
+		url = window.location.pathname.match(/\/[^-]+-([^-]+)-([^\.]+)\.[a-z]+$/);
 		aib.prot = 'http:';
 		aib.host = aib.dm;
 		brd = url ? url[1] : '';
@@ -11182,7 +11198,7 @@ function Initialization(checkDomains) {
 		pageNum = 0;
 		aib.docExt = '.html';
 	} else {
-		url = (global.location.pathname || '').match(new RegExp(
+		url = (window.location.pathname || '').match(new RegExp(
 			'^(?:\\/?([^\\.]*?(?:\\/[^\\/]*?)?)\\/?)?' +
 			'(' + regQuote(aib.res) + ')?' +
 			'(\\d+|index|wakaba|futaba)?' +
@@ -11190,7 +11206,7 @@ function Initialization(checkDomains) {
 		));
 		brd = url[1].replace(/\/$/, '');
 		TNum = url[2] ? url[3] :
-			aib.futa ? +(global.location.search.match(/\d+/) || [false])[0] :
+			aib.futa ? +(window.location.search.match(/\d+/) || [false])[0] :
 			false;
 		pageNum = url[3] && !TNum ? +url[3] || aib.firstPage : aib.firstPage;
 		if(!aib.hasOwnProperty('docExt') && url[4]) {
@@ -11199,7 +11215,7 @@ function Initialization(checkDomains) {
 	}
 	if(TNum) {
 		doc.defaultView.addEventListener('beforeunload', function(e) {
-			sesStorage['de-scroll-' + brd + TNum] = global.pageYOffset;
+			sesStorage['de-scroll-' + brd + TNum] = window.pageYOffset;
 		}, false);
 	}
 	dummy = doc.createElement('div');
@@ -11222,7 +11238,7 @@ DelForm.doReplace = function(formEl) {
 	if(liteMode) {
 		doc.body.insertAdjacentHTML('afterbegin', formEl.outerHTML);
 		formEl = doc.body.firstChild;
-		global.addEventListener('load', function(formEl) {
+		window.addEventListener('load', function(formEl) {
 			while(formEl.nextSibling) {
 				$del(formEl.nextSibling);
 			}
@@ -11232,7 +11248,7 @@ DelForm.doReplace = function(formEl) {
 		formEl.style.display = 'none';
 		formEl.id = 'de-dform-old';
 		formEl = formEl.previousSibling;
-		global.addEventListener('load', function() {
+		window.addEventListener('load', function() {
 			$del($id('de-dform-old'));
 		}, false);
 	}
@@ -11279,7 +11295,7 @@ DelForm.prototype = {
 	},
 	clear() {
 		$each($Q('a[href^="blob:"]', this.el), function(a) {
-			global.URL.revokeObjectURL(a.href);
+			window.URL.revokeObjectURL(a.href);
 		});
 		this.firstThr = this.lastThr = null;
 		this.tNums = [];
@@ -11620,10 +11636,10 @@ function initThreadUpdater(title, enableUpdate) {
 								'tag': aib.dm + brd + TNum,
 								'icon': post.images.firstAttach || favHref
 							});
-						notif.onshow = setTimeout.bind(null, notif.close.bind(notif), 12e3);
-						notif.onclick = global.focus;
+						notif.onshow = setTimeout.bind(window, notif.close.bind(notif), 12e3);
+						notif.onclick = window.focus;
 						notif.onerror = function() {
-							global.focus();
+							window.focus();
 							requestNotifPermission();
 						};
 					}
@@ -11772,8 +11788,8 @@ function initPage() {
 
 function scrollPage() {
 	if(!TNum) {
-		if(!updater.focused || global.pageYOffset !== 0) {
-			global.scrollTo(0, 0);
+		if(!updater.focused || window.pageYOffset !== 0) {
+			window.scrollTo(0, 0);
 		}
 		return;
 	}
@@ -11781,9 +11797,9 @@ function scrollPage() {
 		var post, num, hash,
 			val = +sesStorage['de-scroll-' + brd + TNum];
 		if(val) {
-			global.scrollTo(0, val);
+			window.scrollTo(0, val);
 			sesStorage.removeItem('de-scroll-' + brd + TNum);
-		} else if((hash = global.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
+		} else if((hash = window.location.hash) && (num = hash.match(/#i?(\d+)$/)) &&
 		   (num = num[1]) && (post = pByNum[num]))
 		{
 			post.el.scrollIntoView(true);
@@ -12370,4 +12386,4 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false)), false);
 }
 
-})(Function('return this')(), window.opera && window.opera.scriptStorage);
+})(window.opera && window.opera.scriptStorage);
