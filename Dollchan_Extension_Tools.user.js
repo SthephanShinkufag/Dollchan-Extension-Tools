@@ -13464,7 +13464,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				qPages: { value: ".pages > a:nth-last-of-type(2)" },
 				qPostForm: { value: "form[name=\"post\"]" },
 				qPostRedir: { value: null },
-				qRef: { value: ".post_no:nth-of-type(2)" },
+				qRef: { value: ".post_no + a" },
 				qTable: { value: ".post.reply" },
 				qTrunc: { value: ".toolong" },
 				fixVideo: { value: function value(post) {
