@@ -2152,7 +2152,7 @@ function showFavoriteTable(cont, data) {
 			postsInfo.push([+el.getAttribute('de-num'), el = $c('de-fav-inf-page', el), false]);
 			el.classList.add('de-wait');
 		}
-		for(page = 0, endPage = (aib.lastPage || 10) + 1; page < endPAge; ++page) {
+		for(page = 0, endPage = (aib.lastPage || 10) + 1; page < endPage; ++page) {
 			let form;
 			try {
 				form = new DelForm((yield ajaxLoad(aib.getPageUrl(brd, page))), true);

@@ -4440,7 +4440,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						page = 0, endPage = (aib.lastPage || 10) + 1;
 
 					case 6:
-						if (!(page < endPAge)) {
+						if (!(page < endPage)) {
 							context$3$0.next = 24;
 							break;
 						}
