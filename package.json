@@ -6,7 +6,7 @@
   "homepage": "http://www.freedollchan.org/scripts/",
   "devDependencies": {
     "gulp": "^3.6.2",
-    "gulp-babel": "^4.0.0",
+    "gulp-babel": "=4.0.0",
     "gulp-jshint": "^1.5.5",
 	"gulp-headerfooter": "^1.0.3",
 	"gulp-dest": "^0.2.1",
