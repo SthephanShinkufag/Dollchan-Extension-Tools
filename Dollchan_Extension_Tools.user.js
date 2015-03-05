@@ -14550,7 +14550,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    aPlayers = 0;
 		if ("hidden" in doc || "webkitHidden" in doc) {
 			focused = !(doc.hidden || doc.webkitHidden);
-			doc.addEventListener((nav.WebKit ? "webkit" : "") + "visibilitychange", function () {
+			doc.addEventListener((nav.Chrome ? "webkit" : "") + "visibilitychange", function () {
 				if (doc.hidden || doc.webkitHidden) {
 					focused = false;
 					if (dForm.firstThr) {
