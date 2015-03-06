@@ -3665,7 +3665,7 @@ function addImgFileIcon(aEl, fName, info) {
 
 function* downloadImgDataHelper(url, repeatOnError) {
 	var xhr;
-	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
+	if(aib.fch && nav.Firefox && !url.startsWith('blob')) {
 		xhr = yield $ajax(url, {overrideMimeType: 'text/plain; charset=x-user-defined'}, false);
 	} else {
 		try {

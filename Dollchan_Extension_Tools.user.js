@@ -2306,7 +2306,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function downloadImgDataHelper$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					if (!(aib.fch && nav.Firefox && !obj.url.startsWith("blob"))) {
+					if (!(aib.fch && nav.Firefox && !url.startsWith("blob"))) {
 						context$2$0.next = 6;
 						break;
 					}
@@ -3387,7 +3387,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				}
 				xhr.send(params && params.data || null);
 			} else {
-				var _obj = {
+				var obj = {
 					method: params && params.method || "GET",
 					url: nav.fixLink(url),
 					onload: function (e) {
@@ -3396,9 +3396,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				};
 				if (params) {
 					delete params.method;
-					Object.assign(_obj, params);
+					Object.assign(obj, params);
 				}
-				GM_xmlhttpRequest(_obj);
+				GM_xmlhttpRequest(obj);
 			}
 		});
 	}
@@ -11649,18 +11649,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    idx = 0;
 		for (var i = 0, _len = els.length; i < _len; ++i, ++idx) {
 			var el = els[i];
-			var _obj = new Attachment(post, el, idx);
-			filesMap.set(el, _obj);
-			data.push(_obj);
+			var obj = new Attachment(post, el, idx);
+			filesMap.set(el, obj);
+			data.push(obj);
 			hasAttachments = true;
 		}
 		if (Cfg.addImgs) {
 			els = aProto.slice.call($C("de-img-pre", post.el));
 			for (var i = 0, _len2 = els.length; i < _len2; ++i, ++idx) {
 				var el = els[i];
-				var _obj2 = new EmbeddedImage(post, el, idx);
-				filesMap.set(el, _obj2);
-				data.push(_obj2);
+				var obj = new EmbeddedImage(post, el, idx);
+				filesMap.set(el, obj);
+				data.push(obj);
 			}
 		}
 		this.data = data;
@@ -11701,9 +11701,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		firstAttach: {
 			get: function () {
 				for (var i = 0; i < this.length; ++i) {
-					var _obj = this.data[i];
-					if (_obj instanceof Attachment) {
-						return _obj;
+					var obj = this.data[i];
+					if (obj instanceof Attachment) {
+						return obj;
 					}
 				}
 				return null;
