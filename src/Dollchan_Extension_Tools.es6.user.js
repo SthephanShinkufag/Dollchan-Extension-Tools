@@ -2752,6 +2752,7 @@ function addSettings(Set, id) {
 								obj[i] = com[i];
 							}
 						}
+						val.global = obj;
 						setStored('DESU_Config', JSON.stringify(val));
 						toggleContent('cfg', true);
 					});

@@ -4890,6 +4890,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						obj[i] = com[i];
 					}
 				}
+				val.global = obj;
 				setStored("DESU_Config", JSON.stringify(val));
 				toggleContent("cfg", true);
 			});
