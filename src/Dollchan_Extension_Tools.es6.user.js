@@ -1028,9 +1028,8 @@ function resizeImage(size, minSize, maxSize) {
 }
 
 // https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
-function getFormElements(form) {
+function* getFormElements(form) {
 	var controls = $Q('button, input, keygen, object, select, textarea', form);
-	var formDataSet = [];
 	var fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
   constructSet:
 	for(let i = 0, len = controls.length; i < len; ++i) {
@@ -1050,82 +1049,82 @@ function getFormElements(form) {
 		) {
 			continue;
 		}
+		if(tagName === 'object') {
+			throw new Error('Not supported');
+		}
 		if(tagName === 'select') {
-			$each($Q('select > option, select > optgrout > option', field), option => {
+			let options = $Q('select > option, select > optgrout > option', field);
+			for(let i = 0, len = options.length; i < len; ++i) {
+				let option = options[i];
 				if(option.selected && !isFormElDisabled(option)) {
-					formDataSet.push({
+					yield {
 						el: field,
 						name: fixName(name),
 						value: option.value,
 						type: type
-					});
+					};
 				}
-			});
+			}
 		} else if(tagName === 'input') {
 			switch(type) {
-			case 'image':
-				throw new Error('Not supported');
-				continue constructSet;
+			case 'image': throw new Error('Not supported');
 			case 'checkbox':
 			case 'radio':
-				formDataSet.push({
+				yield {
 					el: field,
 					name: fixName(name),
 					value: field.value || 'on',
 					type: type
-				});
+				};
 				continue constructSet;
 			case 'file':
 				if(field.files.length > 0) {
 					let files = field.files;
 					for(let i = 0, len = files.length; i < len; ++i) {
-						formDataSet.push({
+						yield {
 							el: field,
 							name: name,
 							value: files[i],
 							type: type
-						});
+						};
 					}
 				} else {
-					formDataSet.push({
+					yield {
 						el: field,
 						name: fixName(name),
 						value: '',
 						type: 'application/octet-stream'
-					});
+					};
 				}
 				continue constructSet;
 			}
 		}
-		if(tagName === 'object') {
-			throw new Error('Not supported');
-		} else if(type === 'textarea') {
-			formDataSet.push({
+		if(type === 'textarea') {
+			yield {
 				el: field,
 				name: name || '',
 				value: field.value,
 				type: type
-			});
+			};
 		} else {
-			formDataSet.push({
+			yield {
 				el: field,
 				name: fixName(name),
 				value: field.value,
 				type: type
-			});
+			};
 		}
 		let dirname = field.getAttribute('dirname');
 		if(dirname) {
 			let dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr';
-			formDataSet.push({
+			yield {
 				el: field,
 				name: fixName(dirname),
 				value: dir,
 				type: 'direction'
-			});
+			};
 		}
 	}
-	return formDataSet;
 }
 
 function isFormElDisabled(el) {
