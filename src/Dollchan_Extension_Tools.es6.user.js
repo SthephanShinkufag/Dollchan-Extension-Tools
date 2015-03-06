@@ -1026,13 +1026,8 @@ function resizeImage(size, minSize, maxSize) {
 	return size;
 }
 
-// https://xhr.spec.whatwg.org/#interface-formdata
-function FormDataShim(form) {
-	if(!form) {
-		this._entries = [];
-		return;
-	}
-	// https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
+// https://html.spec.whatwg.org/multipage/forms.html#constructing-form-data-set
+function getFormElements(form) {
 	var controls = $Q('button, input, keygen, object, select, textarea', form);
 	var formDataSet = [];
 	var fixName = name => name ? name.replace(/([^\r])\n|\r([^\n])/g, '$1\r\n$2') : '';
@@ -1058,6 +1053,7 @@ function FormDataShim(form) {
 			$each($Q('select > option, select > optgrout > option', field), option => {
 				if(option.selected && !isFormElDisabled(option)) {
 					formDataSet.push({
+						el: field,
 						name: fixName(name),
 						value: option.value,
 						type: type
@@ -1072,6 +1068,7 @@ function FormDataShim(form) {
 			case 'checkbox':
 			case 'radio':
 				formDataSet.push({
+					el: field,
 					name: fixName(name),
 					value: field.value || 'on',
 					type: type
@@ -1082,6 +1079,7 @@ function FormDataShim(form) {
 					let files = field.files;
 					for(let i = 0, len = files.length; i < len; ++i) {
 						formDataSet.push({
+							el: field,
 							name: name,
 							value: files[i],
 							type: type
@@ -1089,6 +1087,7 @@ function FormDataShim(form) {
 					}
 				} else {
 					formDataSet.push({
+						el: field,
 						name: fixName(name),
 						value: '',
 						type: 'application/octet-stream'
@@ -1101,12 +1100,14 @@ function FormDataShim(form) {
 			throw new Error('Not supported');
 		} else if(type === 'textarea') {
 			formDataSet.push({
+				el: field,
 				name: name || '',
 				value: field.value,
 				type: type
 			});
 		} else {
 			formDataSet.push({
+				el: field,
 				name: fixName(name),
 				value: field.value,
 				type: type
@@ -1116,87 +1117,15 @@ function FormDataShim(form) {
 		if(dirname) {
 			let dir = nav.matchesSelector(field, ':dir(rtl)') ? 'rtl': 'ltr';
 			formDataSet.push({
+				el: field,
 				name: fixName(dirname),
 				value: dir,
 				type: 'direction'
 			});
 		}
 	}
-	this._entries = formDataSet;
+	return formDataSet;
 }
-FormDataShim.prototype = {
-	append(name, value, fileName) {
-		this._entries.push(this._create(name, value, fileName));
-	},
-	'delete'(name) {
-		this._entries = this._entries.filter(entry => entry.name !== name);
-	},
-	get(name) {
-		return (this._entries.find(entry => entry.name === name) || {}).value;
-	},
-	getAll(name) {
-		return this._entries.filter(entry => entry.name === name)
-		                    .map(entry => entry.value);
-	},
-	set(name, value) {
-		var entry = this._create(name, value);
-		var idx = -1;
-		this._entries = this._entries.filter((entry, i) => {
-			if(entry.name === name) {
-				if(idx === -1) {
-					idx = i;
-				} else {
-					return false;
-				}
-			}
-			return true;
-		});
-		if(idx === -1) {
-			this._entries.push(entry);
-		} else {
-			this._entries[idx] = entry;
-		}
-	},
-	has(name) {
-		return !!this._entries.find(entry => entry.name === name);
-	},
-	*[Symbol.iterator]() {
-		for(let entry of this._entries) {
-			yield [entry.name, entry.value];
-		}
-	},
-	// Non standard
-	getSubmitData() {
-		var boundary = '---------------------------' + Math.round(Math.random() * 1e11);
-		var data = [];
-		for(let entry of this._entries) {
-			let {name, value, type} = entry;
-			data.push('--', boundary, '\r\nContent-Disposition: form-data; name="', name, '"');
-			if(type === 'file') {
-				data.push('; filename="', value.name.replace(/"/g, '\\"'),
-				          '"\r\nContent-type: ', value.type, '\r\n\r\n', value, '\r\n');
-			} else {
-				data.push('\r\n\r\n', value, '\r\n');
-			}
-		}
-		data.push('--', boundary, '--\r\n');
-		return [boundary, new Blob(data)];
-	},
-
-	_create(name, value, fileName) {
-		var type = '';
-		if((value instanceof Blob) && !(value instanceof File)) {
-			type = 'file';
-			value = new File([value], 'blob');
-		} else if(value instanceof File) {
-			type = 'file';
-			if(fileName) {
-				value = new File([value], fileName);
-			}
-		}
-		return {name: name, value: value, type: type};
-	}
-};
 
 function isFormElDisabled(el) {
 	// https://html.spec.whatwg.org/multipage/forms.html#concept-fe-disabled
@@ -7068,68 +6997,30 @@ function checkDelete(dc) {
 }
 
 function* html5Submit(form) {
-	var fData;
-	if(nav.hasModernFormData) {
-		fData = new FormData(form);
-	} else {
-		fData = new FormDataShim(form);
-	}
-	let filesEls = $Q('input[type="file"]', form);
-	for(let i = 0, len = filesEls.length; i < len; ++i) {
-		let fileEl = filesEls[i];
-		if(!isFormElDisabled(fileEl)) {
-			let files = fileEl.files;
-			let len = files.length;
-			let newFiles = [];
-			for(let i = 0; i < len; ++i) {
-				let file = files[i];
-				let name = file.name;
-				let changed = false;
-				if(Cfg.removeFName) {
-					file = new File([file], name.substring(name.lastIndexOf('.')));
-					changed = true;
-				}
-				if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type) &&
-				   (Cfg.postSameImg || Cfg.removeEXIF))
-				{
-					file = yield* cleanFile(fileEl, file);
-					if(!file) {
-						$alert(Lng.fileCorrupt[lang] + origName, 'upload', false);
-						return;
-					}
-					changed = true;
-				}
-				if(changed) {
-					newFiles.push(file);
-				}
+	var formData = new FormData();
+	for(let {name, value, type, el} of getFormElements(form)) {
+		if(type === 'file') {
+			if(Cfg.removeFName) {
+				value = new File([value], value.name.substring(value.name.lastIndexOf('.')));
 			}
-			if(newFiles.length > 0) {
-				if(len === 1) {
-					fData.set(fileEl.getAttribute('name'), newFiles[0]);
-				} else {
-					let name = fileEl.getAttribute('name');
-					fData['delete'](name);
-					newFiles.forEach(file => fData.append(name, file));
+			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
+			   (Cfg.postSameImg || Cfg.removeEXIF))
+			{
+				value = yield* cleanFile(el, value);
+				if(!value) {
+					$alert(Lng.fileCorrupt[lang] + origName, 'upload', false);
+					return;
 				}
 			}
 		}
+		formData.append(name, value);
 	}
-	let xhr;
 	try {
-		if(nav.hasModernFormData) {
-			xhr = yield $ajax(nav.fixLink(form.action), 'POST', {data: fData}, true);
-		} else {
-			let [boundary, data] = fData.getSubmitData();
-			xhr = (yield $ajax(nav.fixLink(form.action), 'POST', {
-				headers: {'Content-type': 'multipart/form-data; boundary=' + boundary},
-				data: data
-			}, true));
-		}
-		if(xhr.status === 200) {
-			return $DOM(xhr.responseText);
-		} else {
+		let xhr = yield $ajax(nav.fixLink(form.action), 'POST', {data: formData}, true);
+		if(xhr.status !== 200) {
 			throw new AjaxError(xhr.status, xhr.statusText);
 		}
+		return $DOM(xhr.responseText);
 	} catch(e) {
 		$alert(getErrorMessage(e), 'upload', false);
 	}
@@ -10153,11 +10044,6 @@ function getNavFuncs() {
 		get canPlayWebm() {
 			var val = !!new Audio().canPlayType('video/webm; codecs="vp8,vorbis"');
 			Object.defineProperty(this, 'canPlayWebm', { value: val });
-			return val;
-		},
-		get hasModernFormData() {
-			var val = FormData && ('set' in new FormData());
-			Object.defineProperty(this, 'hasModernFormData', { value: val });
 			return val;
 		},
 		get matchesSelector() {

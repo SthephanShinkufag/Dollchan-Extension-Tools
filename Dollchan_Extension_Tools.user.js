@@ -1801,30 +1801,30 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function getStoredObj$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStored(id), "t3", 1);
+					return context$2$0.delegateYield(getStored(id), "t2", 1);
 
 				case 1:
-					context$2$0.t2 = context$2$0.t3;
+					context$2$0.t1 = context$2$0.t2;
 
-					if (context$2$0.t2) {
+					if (context$2$0.t1) {
 						context$2$0.next = 4;
 						break;
 					}
 
-					context$2$0.t2 = "{}";
+					context$2$0.t1 = "{}";
 
 				case 4:
-					context$2$0.t1 = JSON.parse(context$2$0.t2);
+					context$2$0.t0 = JSON.parse(context$2$0.t1);
 
-					if (context$2$0.t1) {
+					if (context$2$0.t0) {
 						context$2$0.next = 7;
 						break;
 					}
 
-					context$2$0.t1 = {};
+					context$2$0.t0 = {};
 
 				case 7:
-					return context$2$0.abrupt("return", context$2$0.t1);
+					return context$2$0.abrupt("return", context$2$0.t0);
 
 				case 8:
 				case "end":
@@ -1837,10 +1837,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function readCfg$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStoredObj("DESU_Config"), "t4", 1);
+					return context$2$0.delegateYield(getStoredObj("DESU_Config"), "t3", 1);
 
 				case 1:
-					val = context$2$0.t4;
+					val = context$2$0.t3;
 
 					comCfg = val;
 					if (!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
@@ -1932,14 +1932,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function readUserPosts$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t5", 1);
+					return context$2$0.delegateYield(getStoredObj("DESU_Posts_" + aib.dm), "t4", 1);
 
 				case 1:
-					bUVis = context$2$0.t5;
-					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t6", 3);
+					bUVis = context$2$0.t4;
+					return context$2$0.delegateYield(getStoredObj("DESU_Threads_" + aib.dm), "t5", 3);
 
 				case 3:
-					hThr = context$2$0.t6;
+					hThr = context$2$0.t5;
 					date = Date.now(), update = false, spellsHide = Cfg.hideBySpell;
 
 					if (brd in bUVis) {
@@ -2048,10 +2048,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
 					update = false;
-					return context$2$0.delegateYield(getStoredObj("DESU_Favorites"), "t7", 2);
+					return context$2$0.delegateYield(getStoredObj("DESU_Favorites"), "t6", 2);
 
 				case 2:
-					fav = context$2$0.t7;
+					fav = context$2$0.t6;
 
 					if (aib.host in fav) {
 						context$2$0.next = 5;
@@ -2125,7 +2125,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 12:
 					context$2$0.prev = 12;
-					context$2$0.t15 = context$2$0["catch"](6);
+					context$2$0.t14 = context$2$0["catch"](6);
 					return context$2$0.abrupt("return", null);
 
 				case 15:
@@ -2152,10 +2152,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return", null);
 
 				case 25:
-					return context$2$0.delegateYield(downloadImgDataHelper(url, false), "t16", 26);
+					return context$2$0.delegateYield(downloadImgDataHelper(url, false), "t15", 26);
 
 				case 26:
-					return context$2$0.abrupt("return", context$2$0.t16);
+					return context$2$0.abrupt("return", context$2$0.t15);
 
 				case 27:
 					context$2$0.next = 36;
@@ -2187,10 +2187,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function downloadImgData$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(downloadImgDataHelper(url, true), "t17", 1);
+					return context$2$0.delegateYield(downloadImgDataHelper(url, true), "t16", 1);
 
 				case 1:
-					return context$2$0.abrupt("return", context$2$0.t17);
+					return context$2$0.abrupt("return", context$2$0.t16);
 
 				case 2:
 				case "end":
@@ -2199,160 +2199,128 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, downloadImgData, this);
 	});
 	var html5Submit = regeneratorRuntime.mark(function html5Submit(form) {
-		var fData, filesEls, i, _len, fileEl, files, _len2, newFiles, _i, file, _name, changed, xhr, _fData$getSubmitData, _fData$getSubmitData2, boundary, data;
+		var formData, _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, _step$value, _name, value, type, el, xhr;
 
 		return regeneratorRuntime.wrap(function html5Submit$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					if (nav.hasModernFormData) {
-						fData = new FormData(form);
-					} else {
-						fData = new FormDataShim(form);
-					}
-					filesEls = $Q("input[type=\"file\"]", form);
-					i = 0, _len = filesEls.length;
+					formData = new FormData();
+					_iteratorNormalCompletion = true;
+					_didIteratorError = false;
+					_iteratorError = undefined;
+					context$2$0.prev = 4;
+					_iterator = getFormElements(form)[Symbol.iterator]();
 
-				case 3:
-					if (!(i < _len)) {
-						context$2$0.next = 30;
+				case 6:
+					if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
+						context$2$0.next = 24;
 						break;
 					}
 
-					fileEl = filesEls[i];
+					_step$value = _step.value;
+					_name = _step$value.name;
+					value = _step$value.value;
+					type = _step$value.type;
+					el = _step$value.el;
 
-					if (isFormElDisabled(fileEl)) {
-						context$2$0.next = 27;
+					if (!(type === "file")) {
+						context$2$0.next = 20;
 						break;
 					}
-
-					files = fileEl.files;
-					_len2 = files.length;
-					newFiles = [];
-					_i = 0;
-
-				case 10:
-					if (!(_i < _len2)) {
-						context$2$0.next = 26;
-						break;
-					}
-
-					file = files[_i];
-					_name = file.name;
-					changed = false;
 
 					if (Cfg.removeFName) {
-						file = new File([file], _name.substring(_name.lastIndexOf(".")));
-						changed = true;
+						value = new File([value], value.name.substring(value.name.lastIndexOf(".")));
 					}
 
-					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(file.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
-						context$2$0.next = 22;
+					if (!(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) && (Cfg.postSameImg || Cfg.removeEXIF))) {
+						context$2$0.next = 20;
 						break;
 					}
 
-					return context$2$0.delegateYield(cleanFile(fileEl, file), "t27", 17);
+					return context$2$0.delegateYield(cleanFile(el, value), "t26", 16);
 
-				case 17:
-					file = context$2$0.t27;
+				case 16:
+					value = context$2$0.t26;
 
-					if (file) {
-						context$2$0.next = 21;
+					if (value) {
+						context$2$0.next = 20;
 						break;
 					}
 
 					$alert(Lng.fileCorrupt[lang] + origName, "upload", false);
 					return context$2$0.abrupt("return");
 
+				case 20:
+					formData.append(_name, value);
+
 				case 21:
-					changed = true;
+					_iteratorNormalCompletion = true;
+					context$2$0.next = 6;
+					break;
 
-				case 22:
-					if (changed) {
-						newFiles.push(file);
-					}
-
-				case 23:
-					++_i;
-					context$2$0.next = 10;
+				case 24:
+					context$2$0.next = 30;
 					break;
 
 				case 26:
-					if (newFiles.length > 0) {
-						if (_len2 === 1) {
-							fData.set(fileEl.getAttribute("name"), newFiles[0]);
-						} else {
-							(function () {
-								var name = fileEl.getAttribute("name");
-								fData["delete"](name);
-								newFiles.forEach(function (file) {
-									return fData.append(name, file);
-								});
-							})();
-						}
-					}
-
-				case 27:
-					++i;
-					context$2$0.next = 3;
-					break;
+					context$2$0.prev = 26;
+					context$2$0.t27 = context$2$0["catch"](4);
+					_didIteratorError = true;
+					_iteratorError = context$2$0.t27;
 
 				case 30:
-					xhr = undefined;
+					context$2$0.prev = 30;
 					context$2$0.prev = 31;
 
-					if (!nav.hasModernFormData) {
-						context$2$0.next = 38;
+					if (!_iteratorNormalCompletion && _iterator["return"]) {
+						_iterator["return"]();
+					}
+
+				case 33:
+					context$2$0.prev = 33;
+
+					if (!_didIteratorError) {
+						context$2$0.next = 36;
 						break;
 					}
 
-					context$2$0.next = 35;
-					return $ajax(nav.fixLink(form.action), "POST", { data: fData }, true);
+					throw _iteratorError;
 
-				case 35:
-					xhr = context$2$0.sent;
-					context$2$0.next = 45;
-					break;
+				case 36:
+					return context$2$0.finish(33);
+
+				case 37:
+					return context$2$0.finish(30);
 
 				case 38:
-					_fData$getSubmitData = fData.getSubmitData();
-					_fData$getSubmitData2 = _slicedToArray(_fData$getSubmitData, 2);
-					boundary = _fData$getSubmitData2[0];
-					data = _fData$getSubmitData2[1];
-					context$2$0.next = 44;
-					return $ajax(nav.fixLink(form.action), "POST", {
-						headers: { "Content-type": "multipart/form-data; boundary=" + boundary },
-						data: data
-					}, true);
+					context$2$0.prev = 38;
+					context$2$0.next = 41;
+					return $ajax(nav.fixLink(form.action), "POST", { data: formData }, true);
 
-				case 44:
+				case 41:
 					xhr = context$2$0.sent;
 
-				case 45:
-					if (!(xhr.status === 200)) {
-						context$2$0.next = 49;
+					if (!(xhr.status !== 200)) {
+						context$2$0.next = 44;
 						break;
 					}
 
-					return context$2$0.abrupt("return", $DOM(xhr.responseText));
-
-				case 49:
 					throw new AjaxError(xhr.status, xhr.statusText);
 
-				case 50:
-					context$2$0.next = 55;
-					break;
+				case 44:
+					return context$2$0.abrupt("return", $DOM(xhr.responseText));
 
-				case 52:
-					context$2$0.prev = 52;
-					context$2$0.t28 = context$2$0["catch"](31);
+				case 47:
+					context$2$0.prev = 47;
+					context$2$0.t28 = context$2$0["catch"](38);
 
 					$alert(getErrorMessage(context$2$0.t28), "upload", false);
 
-				case 55:
+				case 50:
 				case "end":
 					return context$2$0.stop();
 			}
-		}, html5Submit, this, [[31, 52]]);
+		}, html5Submit, this, [[4, 26, 30, 38], [31,, 33, 37], [38, 47]]);
 	});
 	var cleanFile = regeneratorRuntime.mark(function cleanFile(fileEl, file) {
 		var data;
@@ -3461,12 +3429,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 
-	function FormDataShim(form) {
-		if (!form) {
-			this._entries = [];
-			return;
-		}
-	
+	function getFormElements(form) {
 		var controls = $Q("button, input, keygen, object, select, textarea", form);
 		var formDataSet = [];
 		var fixName = function (name) {
@@ -3485,6 +3448,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					$each($Q("select > option, select > optgrout > option", field), function (option) {
 						if (option.selected && !isFormElDisabled(option)) {
 							formDataSet.push({
+								el: field,
 								name: fixName(name),
 								value: option.value,
 								type: type
@@ -3499,6 +3463,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						case "checkbox":
 						case "radio":
 							formDataSet.push({
+								el: field,
 								name: fixName(name),
 								value: field.value || "on",
 								type: type
@@ -3509,6 +3474,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								var files = field.files;
 								for (var _i = 0, _len2 = files.length; _i < _len2; ++_i) {
 									formDataSet.push({
+										el: field,
 										name: name,
 										value: files[_i],
 										type: type
@@ -3516,6 +3482,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								}
 							} else {
 								formDataSet.push({
+									el: field,
 									name: fixName(name),
 									value: "",
 									type: "application/octet-stream"
@@ -3528,12 +3495,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					throw new Error("Not supported");
 				} else if (type === "textarea") {
 					formDataSet.push({
+						el: field,
 						name: name || "",
 						value: field.value,
 						type: type
 					});
 				} else {
 					formDataSet.push({
+						el: field,
 						name: fixName(name),
 						value: field.value,
 						type: type
@@ -3543,6 +3512,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (dirname) {
 					var dir = nav.matchesSelector(field, ":dir(rtl)") ? "rtl" : "ltr";
 					formDataSet.push({
+						el: field,
 						name: fixName(dirname),
 						value: dir,
 						type: "direction"
@@ -3557,180 +3527,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case "continue|constructSet":
 					continue constructSet;}
 		}
-		this._entries = formDataSet;
+		return formDataSet;
 	}
-	FormDataShim.prototype = (function () {
-		var _FormDataShim$prototype = {
-			append: function append(name, value, fileName) {
-				this._entries.push(this._create(name, value, fileName));
-			},
-			"delete": function (name) {
-				this._entries = this._entries.filter(function (entry) {
-					return entry.name !== name;
-				});
-			},
-			get: function get(name) {
-				return (this._entries.find(function (entry) {
-					return entry.name === name;
-				}) || {}).value;
-			},
-			getAll: function getAll(name) {
-				return this._entries.filter(function (entry) {
-					return entry.name === name;
-				}).map(function (entry) {
-					return entry.value;
-				});
-			},
-			set: function set(name, value) {
-				var entry = this._create(name, value);
-				var idx = -1;
-				this._entries = this._entries.filter(function (entry, i) {
-					if (entry.name === name) {
-						if (idx === -1) {
-							idx = i;
-						} else {
-							return false;
-						}
-					}
-					return true;
-				});
-				if (idx === -1) {
-					this._entries.push(entry);
-				} else {
-					this._entries[idx] = entry;
-				}
-			},
-			has: function has(name) {
-				return !!this._entries.find(function (entry) {
-					return entry.name === name;
-				});
-			} };
-		_FormDataShim$prototype[Symbol.iterator] = regeneratorRuntime.mark(function callee$2$0() {
-			var _this = this;
-
-			var _iteratorNormalCompletion, _didIteratorError, _iteratorError, _iterator, _step, entry;
-
-			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
-				while (1) switch (context$3$0.prev = context$3$0.next) {
-					case 0:
-						_iteratorNormalCompletion = true;
-						_didIteratorError = false;
-						_iteratorError = undefined;
-						context$3$0.prev = 3;
-						_iterator = _this._entries[Symbol.iterator]();
-
-					case 5:
-						if (_iteratorNormalCompletion = (_step = _iterator.next()).done) {
-							context$3$0.next = 12;
-							break;
-						}
-
-						entry = _step.value;
-						context$3$0.next = 9;
-						return [entry.name, entry.value];
-
-					case 9:
-						_iteratorNormalCompletion = true;
-						context$3$0.next = 5;
-						break;
-
-					case 12:
-						context$3$0.next = 18;
-						break;
-
-					case 14:
-						context$3$0.prev = 14;
-						context$3$0.t0 = context$3$0["catch"](3);
-						_didIteratorError = true;
-						_iteratorError = context$3$0.t0;
-
-					case 18:
-						context$3$0.prev = 18;
-						context$3$0.prev = 19;
-
-						if (!_iteratorNormalCompletion && _iterator["return"]) {
-							_iterator["return"]();
-						}
-
-					case 21:
-						context$3$0.prev = 21;
-
-						if (!_didIteratorError) {
-							context$3$0.next = 24;
-							break;
-						}
-
-						throw _iteratorError;
-
-					case 24:
-						return context$3$0.finish(21);
-
-					case 25:
-						return context$3$0.finish(18);
-
-					case 26:
-					case "end":
-						return context$3$0.stop();
-				}
-			}, callee$2$0, this, [[3, 14, 18, 26], [19,, 21, 25]]);
-		});
-
-		_defineProperty(_FormDataShim$prototype, "getSubmitData", function getSubmitData() {
-			var boundary = "---------------------------" + Math.round(Math.random() * 100000000000);
-			var data = [];
-			var _iteratorNormalCompletion = true;
-			var _didIteratorError = false;
-			var _iteratorError = undefined;
-
-			try {
-				for (var _iterator = this._entries[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-					var entry = _step.value;
-					var _name = entry.name;
-					var value = entry.value;
-					var type = entry.type;
-
-					data.push("--", boundary, "\r\nContent-Disposition: form-data; name=\"", _name, "\"");
-					if (type === "file") {
-						data.push("; filename=\"", value.name.replace(/"/g, "\\\""), "\"\r\nContent-type: ", value.type, "\r\n\r\n", value, "\r\n");
-					} else {
-						data.push("\r\n\r\n", value, "\r\n");
-					}
-				}
-			} catch (err) {
-				_didIteratorError = true;
-				_iteratorError = err;
-			} finally {
-				try {
-					if (!_iteratorNormalCompletion && _iterator["return"]) {
-						_iterator["return"]();
-					}
-				} finally {
-					if (_didIteratorError) {
-						throw _iteratorError;
-					}
-				}
-			}
-
-			data.push("--", boundary, "--\r\n");
-			return [boundary, new Blob(data)];
-		});
-
-		_defineProperty(_FormDataShim$prototype, "_create", function _create(name, value, fileName) {
-			var type = "";
-			if (value instanceof Blob && !(value instanceof File)) {
-				type = "file";
-				value = new File([value], "blob");
-			} else if (value instanceof File) {
-				type = "file";
-				if (fileName) {
-					value = new File([value], fileName);
-				}
-			}
-			return { name: name, value: value, type: type };
-		});
-
-		return _FormDataShim$prototype;
-	})();
 
 	function isFormElDisabled(el) {
 	
@@ -4213,9 +4011,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 							case 12:
 								context$4$0.prev = 12;
-								context$4$0.t8 = context$4$0["catch"](7);
+								context$4$0.t7 = context$4$0["catch"](7);
 
-								if (context$4$0.t8 instanceof AjaxError && context$4$0.t8.code === 404) {
+								if (context$4$0.t7 instanceof AjaxError && context$4$0.t7.code === 404) {
 									delete hThr[board][tNum];
 									saveHiddenThreads(true);
 								}
@@ -4398,10 +4196,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					case 0:
 						els = $C("de-entry", doc);
 						update = false;
-						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t9", 3);
+						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t8", 3);
 
 					case 3:
-						fav = context$3$0.t9;
+						fav = context$3$0.t8;
 						i = 0, len = els.length;
 
 					case 5:
@@ -4435,10 +4233,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 19:
 						context$3$0.prev = 19;
-						context$3$0.t10 = context$3$0["catch"](13);
+						context$3$0.t9 = context$3$0["catch"](13);
 
 						el.classList.remove("de-wait");
-						f.err = el.nextElementSibling.nextElementSibling.textContent = getErrorMessage(context$3$0.t10);
+						f.err = el.nextElementSibling.nextElementSibling.textContent = getErrorMessage(context$3$0.t9);
 						update = true;
 						return context$3$0.abrupt("continue", 30);
 
@@ -4510,14 +4308,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return ajaxLoad(aib.getPageUrl(brd, page));
 
 					case 11:
-						context$3$0.t11 = context$3$0.sent;
-						form = new DelForm(context$3$0.t11, true);
+						context$3$0.t10 = context$3$0.sent;
+						form = new DelForm(context$3$0.t10, true);
 						context$3$0.next = 18;
 						break;
 
 					case 15:
 						context$3$0.prev = 15;
-						context$3$0.t12 = context$3$0["catch"](8);
+						context$3$0.t11 = context$3$0["catch"](8);
 						return context$3$0.abrupt("continue", 21);
 
 					case 18:
@@ -4589,10 +4387,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 9:
 						context$3$0.prev = 9;
-						context$3$0.t13 = context$3$0["catch"](4);
+						context$3$0.t12 = context$3$0["catch"](4);
 
-						node.textContent = getErrorMessage(context$3$0.t13);
-						if (context$3$0.t13 instanceof AjaxError && context$3$0.t13.code === 404) {
+						node.textContent = getErrorMessage(context$3$0.t12);
+						if (context$3$0.t12 instanceof AjaxError && context$3$0.t12.code === 404) {
 							el.setAttribute("de-removed", "");
 						}
 
@@ -5161,10 +4959,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStored("DESU_keys"), "t14", 1);
+					return context$2$0.delegateYield(getStored("DESU_keys"), "t13", 1);
 
 				case 1:
-					str = context$2$0.t14;
+					str = context$2$0.t13;
 
 					if (str) {
 						context$2$0.next = 4;
@@ -5961,10 +5759,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							iType = _data[2];
 							nExp = _data[3];
 							el = _data[4];
-							return context$3$0.delegateYield(downloadImgData(url), "t18", 7);
+							return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
 
 						case 7:
-							imageData = context$3$0.t18;
+							imageData = context$3$0.t17;
 
 							if (imageData) {
 								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
@@ -6071,10 +5869,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						el = _data[2];
 						link = _data[3];
 						safeName = name.replace(/[\\\/:*?"<>|]/g, "_");
-						return context$3$0.delegateYield(downloadImgData(url), "t19", 7);
+						return context$3$0.delegateYield(downloadImgData(url), "t18", 7);
 
 					case 7:
-						imgData = context$3$0.t19;
+						imgData = context$3$0.t18;
 
 						progress.value = current;
 						counter.innerHTML = current;
@@ -6776,16 +6574,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return ajaxLoad(aib.getPageUrl(brd, i));
 
 				case 16:
-					context$2$0.t20 = context$2$0.sent;
-					content = replacePost(context$2$0.t20);
+					context$2$0.t19 = context$2$0.sent;
+					content = replacePost(context$2$0.t19);
 					context$2$0.next = 23;
 					break;
 
 				case 20:
 					context$2$0.prev = 20;
-					context$2$0.t21 = context$2$0["catch"](13);
+					context$2$0.t20 = context$2$0["catch"](13);
 
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t21) + "</center><hr></div>");
+					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t20) + "</center><hr></div>");
 
 				case 23:
 					if (i != pageNum) {
@@ -6799,9 +6597,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 28:
 					context$2$0.prev = 28;
-					context$2$0.t22 = context$2$0["catch"](24);
+					context$2$0.t21 = context$2$0["catch"](24);
 
-					$alert(getPrettyErrorMessage(context$2$0.t22), "load-pages", true);
+					$alert(getPrettyErrorMessage(context$2$0.t21), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 36);
 
@@ -6818,10 +6616,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					dForm.initAjax();
 					addDelformStuff(false);
-					return context$2$0.delegateYield(readUserPosts(), "t23", 40);
+					return context$2$0.delegateYield(readUserPosts(), "t22", 40);
 
 				case 40:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t24", 41);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t23", 41);
 
 				case 41:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
@@ -7905,7 +7703,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							break;
 						}
 
-						context$2$0.t25 = image.hash;
+						context$2$0.t24 = image.hash;
 						context$2$0.next = 16;
 						break;
 
@@ -7914,10 +7712,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return image.getHash();
 
 					case 15:
-						context$2$0.t25 = context$2$0.sent;
+						context$2$0.t24 = context$2$0.sent;
 
 					case 16:
-						hash = context$2$0.t25;
+						hash = context$2$0.t24;
 
 						if (!(hash === val)) {
 							context$2$0.next = 19;
@@ -7937,9 +7735,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 24:
 						context$2$0.prev = 24;
-						context$2$0.t26 = context$2$0["catch"](3);
+						context$2$0.t25 = context$2$0["catch"](3);
 						_didIteratorError = true;
-						_iteratorError = context$2$0.t26;
+						_iteratorError = context$2$0.t25;
 
 					case 28:
 						context$2$0.prev = 28;
@@ -13012,15 +12810,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				enumerable: true,
 				configurable: true
 			},
-			hasModernFormData: {
-				get: function () {
-					var val = FormData && "set" in new FormData();
-					Object.defineProperty(this, "hasModernFormData", { value: val });
-					return val;
-				},
-				enumerable: true,
-				configurable: true
-			},
 			matchesSelector: {
 				get: function () {
 					var dE = doc.documentElement,
@@ -15162,7 +14951,5 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false)), false);
 	}
 })(window.opera && window.opera.scriptStorage);
-
-
 
                      })();
