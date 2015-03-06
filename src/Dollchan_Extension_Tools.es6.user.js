@@ -6993,17 +6993,20 @@ function* html5Submit(form) {
 	var formData = new FormData();
 	for(let {name, value, type, el} of getFormElements(form)) {
 		if(type === 'file') {
+			let fileName = value.name;
 			if(Cfg.removeFName) {
-				value = new File([value], value.name.substring(value.name.lastIndexOf('.')));
+				value = new File([value], fileName.substring(fileName.lastIndexOf('.')));
 			}
 			if(/^image\/(?:png|jpeg)$|^video\/webm$/.test(value.type) &&
 			   (Cfg.postSameImg || Cfg.removeEXIF))
 			{
-				value = yield* cleanFile(el, value);
-				if(!value) {
-					$alert(Lng.fileCorrupt[lang] + origName, 'upload', false);
+				let data = cleanFile((yield readFileArrayBuffer(value)),
+                                     el.obj.imgFile);
+				if(!data) {
+					$alert(Lng.fileCorrupt[lang] + fileName, 'upload', false);
 					return;
 				}
+				value = new File(data, value.name)
 			}
 		}
 		formData.append(name, value);
@@ -7019,24 +7022,17 @@ function* html5Submit(form) {
 	}
 }
 
-function* cleanFile(fileEl, file) {
-	// Don't inline this function, because generators are too slow
-	var data = cleanFileHelper((yield readFileArrayBuffer(file)),
-                               fileEl.obj.imgFile,
-						       Cfg.postSameImg && String(Math.round(Math.random() * 1e6)));
-	return data ? new File(data, file.name) : null;
-}
-
 function readFileArrayBuffer(file) {
 	return new Promise((resolve, reject) => {
 		var fr = new FileReader();
-		fr.onload = (e) => resolve(e.target.result);
+		fr.onload = e => resolve(e.target.result);
 		fr.readAsArrayBuffer(file);
 	});
 }
 
-function cleanFileHelper(data, extraData, rand) {
+function cleanFile(data, extraData) {
 	var tmp, i, len, deep, val, lIdx, jpgDat, img = nav.getUnsafeUint8Array(data),
+		rand = Cfg.postSameImg && String(Math.round(Math.random() * 1e6)),
 		rExif = !!Cfg.removeEXIF,
 		rv = extraData ? rand ? [img, extraData, rand] : [img, extraData] : rand ?
 			[img, rand] : [img];
