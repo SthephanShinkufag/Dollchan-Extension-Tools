@@ -1741,7 +1741,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 
 
-(function de_main_func_inner(scriptStorage) {
+(function de_main_func_inner(scriptStorage, FormData) {
 	var getFormElements = regeneratorRuntime.mark(
 
 
@@ -6563,7 +6563,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		this.code = code;
 		this.message = message;
 	}
-	AjaxError.Success = Object.freeze(new AjaxError(200, ""));
+	AjaxError.Success = new AjaxError(200, "");
 
 	function ajaxLoad(url) {
 		var returnForm = arguments[1] === undefined ? true : arguments[1];
@@ -15030,6 +15030,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, false);
 		doc.addEventListener("DOMContentLoaded", async(initScript.bind(null, false)), false);
 	}
-})(window.opera && window.opera.scriptStorage);
+})(window.opera && window.opera.scriptStorage, window.FormData);
 
                      })();

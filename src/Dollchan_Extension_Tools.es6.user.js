@@ -17,7 +17,7 @@
 // @include         *
 // ==/UserScript==
 
-(function de_main_func_inner(scriptStorage) {
+(function de_main_func_inner(scriptStorage, FormData) {
 'use strict';
 
 var version = '15.1.28.0',
@@ -4374,7 +4374,7 @@ function AjaxError(code, message) {
 	this.code = code;
 	this.message = message;
 }
-AjaxError.Success = Object.freeze(new AjaxError(200, ''));
+AjaxError.Success = new AjaxError(200, '');
 
 function ajaxLoad(url, returnForm = true) {
 	return $ajax(url).then(xhr => {
@@ -12259,4 +12259,4 @@ if(doc.readyState === 'interactive' || doc.readyState === 'complete') {
 	doc.addEventListener('DOMContentLoaded', async(initScript.bind(null, false)), false);
 }
 
-})(window.opera && window.opera.scriptStorage);
+})(window.opera && window.opera.scriptStorage, window.FormData);
