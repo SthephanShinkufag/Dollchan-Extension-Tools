@@ -12906,9 +12906,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		if ("toJSON" in aProto) {
 			delete aProto.toJSON;
 		}
-		if (!("URL" in window)) {
-			window.URL = window.webkitURL;
-		}
 		try {
 			new File([""], "");
 		} catch (e) {
@@ -14548,10 +14545,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    sendError = false,
 		    newPosts = 0,
 		    aPlayers = 0;
-		if ("hidden" in doc || "webkitHidden" in doc) {
-			focused = !(doc.hidden || doc.webkitHidden);
-			doc.addEventListener((nav.Chrome ? "webkit" : "") + "visibilitychange", function () {
-				if (doc.hidden || doc.webkitHidden) {
+		if ("hidden" in doc) {
+			focused = !doc.hidden;
+			doc.addEventListener("visibilitychange", function () {
+				if (doc.hidden) {
 					focused = false;
 					if (dForm.firstThr) {
 						dForm.firstThr.clearPostsMarks();
