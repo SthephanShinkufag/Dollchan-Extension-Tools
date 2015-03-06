@@ -13734,7 +13734,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return !!a && /sage/i.test(a.href);
 			},
 			getThrdUrl: function getThrdUrl(b, tNum) {
-				return fixBrd(b) + this.res + tNum + this.docExt;
+				return this.prot + "//" + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 			},
 			getTNum: function getTNum(op) {
 				return $q("input[type=\"checkbox\"]", op).value;

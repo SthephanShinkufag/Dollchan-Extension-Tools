@@ -10815,7 +10815,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return !!a && /sage/i.test(a.href);
 		},
 		getThrdUrl(b, tNum) {
-			return fixBrd(b) + this.res + tNum + this.docExt;
+			return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
 		},
 		getTNum(op) {
 			return $q('input[type="checkbox"]', op).value;
