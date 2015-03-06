@@ -782,17 +782,17 @@ function sleep(ms) {
 	return new Promise((resolve, reject) =>	setTimeout(() => resolve(), ms));
 }
 
-function $ajax(url, method = 'GET', extraParams = null, useNative = false) {
+function $ajax(url, params = null, useNative = true) {
 	return new Promise((resolve, reject) => {
 		if(useNative || !(typeof GM_xmlhttpRequest === 'function')) {
 			let xhr = new XMLHttpRequest();
-			xhr.onload = e => resolve(e.target);
-			xhr.open(method, url, true);
-			if(extraParams) {
-				if(extraParams.responseType) {
-					xhr.responseType = extraParams.responseType;
+			xhr.onloadend = e => resolve(e.target);
+			xhr.open((params && params.method) || 'GET', url, true);
+			if(params) {
+				if(params.responseType) {
+					xhr.responseType = params.responseType;
 				}
-				let headers = extraParams.headers;
+				let headers = params.headers;
 				if(headers) {
 					for(let h in headers) {
 						if(headers.hasOwnProperty(h)) {
@@ -801,15 +801,16 @@ function $ajax(url, method = 'GET', extraParams = null, useNative = false) {
 					}
 				}
 			}
-			xhr.send(extraParams && extraParams.data || null);
+			xhr.send(params && params.data || null);
 		} else {
 			let obj = {
-				'method': method,
+				'method': (params && params.method) || 'GET',
 				'url': url,
-				'onload': e => resolve(e)
+				'onload'(e) { resolve(e) }
 			};
-			if(extraParams) {
-				Object.assign(obj, extraParams);
+			if(params) {
+				delete params.method;
+				Object.assign(obj, params);
 			}
 			GM_xmlhttpRequest(obj);
 		}
@@ -1802,13 +1803,10 @@ function showContent(cont, id, name, remove, data) {
 			var i, len, els = $Q('.de-entry[info]', this.parentNode);
 			for(i = 0, len = els.length; i < len; ++i) {
 				let [board, tNum] = els[i].getAttribute('info').split(';');
-				try {
-					yield ajaxLoad(aib.getThrdUrl(board, tNum), false, false);
-				} catch(e) {
-					if(e instanceof AjaxError && e.code === 404) {
-						delete hThr[board][tNum];
-						saveHiddenThreads(true);
-					}
+				let xhr = yield $ajax(aib.getThrdUrl(board, tNum));
+				if(xhr.status === 404) {
+					delete hThr[board][tNum];
+					saveHiddenThreads(true);
 				}
 			}
 		})));
@@ -2115,13 +2113,11 @@ function showFavoriteTable(cont, data) {
 			let el = els[i],
 				node = $c('de-fav-inf-err', el);
 			node.classList.add('de-wait');
-			try {
-				yield ajaxLoad(el.getAttribute('de-url'), false, false);
-			} catch(e) {
-				node.textContent = getErrorMessage(e);
-				if(e instanceof AjaxError && e.code === 404) {
-					el.setAttribute('de-removed', '');
-				}
+			let xhr = yield $ajax(el.getAttribute('de-url'), null, false);
+			switch(xhr.status) {
+			case 200: break;
+			case 404: el.setAttribute('de-removed', '');
+			default: node.textContent = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
 			}
 			node.classList.remove('de-wait');
 		}
@@ -3671,10 +3667,10 @@ function addImgFileIcon(aEl, fName, info) {
 function* downloadImgDataHelper(url, repeatOnError) {
 	var xhr;
 	if(aib.fch && nav.Firefox && !obj.url.startsWith('blob')) {
-		xhr = yield $ajax(url, 'GET', {overrideMimeType: 'text/plain; charset=x-user-defined'});
+		xhr = yield $ajax(url, {overrideMimeType: 'text/plain; charset=x-user-defined'}, false);
 	} else {
 		try {
-			xhr = yield $ajax(url, 'GET', {responseType: 'arraybuffer'}, true);
+			xhr = yield $ajax(url, {responseType: 'arraybuffer'});
 		} catch(e) {
 			return null;
 		}
@@ -4099,7 +4095,7 @@ Videos._getTitlesLoader = function() {
 		var title, author, views, publ, [link, isYtube, videoObj, id] = info;
 		if(isYtube) {
 			let xhr = yield $ajax(aib.prot + '//gdata.youtube.com/feeds/api/videos/' + id +
-				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published')
+				'?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published', null, false)
 			if(xhr.status === 200) {
 				try {
 					let entry = JSON.parse(xhr.responseText).entry;
@@ -4110,7 +4106,7 @@ Videos._getTitlesLoader = function() {
 				} catch(e) {}
 			}
 		} else {
-			let xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json');
+			let xhr = yield $ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false);
 			if(xhr.status === 200) {
 				try {
 					let entry = JSON.parse(xhr.responseText)[0],
@@ -4281,7 +4277,7 @@ Videos.prototype = {
 		} else {
 			el.innerHTML = '<a href="' + aib.prot + '//vimeo.com/' + m[1] + '" target="_blank">' +
 				'<img class="de-video-thumb de-vimeo" src=""' + wh;
-			$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json').then(xhr => {
+			$ajax(aib.prot + '//vimeo.com/api/v2/video/' + m[1] + '.json', null, false).then(xhr => {
 				try {
 					el.firstChild.firstChild.setAttribute('src', JSON.parse(xhr.responseText)[0].thumbnail_large);
 				} catch(e) {}
@@ -4381,22 +4377,19 @@ function AjaxError(code, message) {
 }
 AjaxError.Success = Object.freeze(new AjaxError(200, ''));
 
-function ajaxLoad(url, returnForm = true, parseDOM = true) {
+function ajaxLoad(url, returnForm = true) {
 	return $ajax(nav.fixLink(url)).then(xhr => {
 		if(xhr.status !== 200) {
 			throw new AjaxError(xhr.status, xhr.statusText);
-		} else if(parseDOM) {
-			var el, text = xhr.responseText;
-			if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
-				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-			}
-			if(el) {
-				return el;
-			} else {
-				throw new AjaxError(0, Lng.errCorruptData[lang]);
-			}
+		}
+		var el, text = xhr.responseText;
+		if((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+			el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+		}
+		if(el) {
+			return el;
 		} else {
-			return null;
+			throw new AjaxError(0, Lng.errCorruptData[lang]);
 		}
 	});
 }
@@ -6302,7 +6295,7 @@ PostForm.prototype = {
 						'style': 'margin: 0px 0.5em;',
 						'text': 'проверить капчу'}, {
 						'click'() {
-							$ajax('/' + brd + '/api/validate-captcha', 'POST').then(xhr => {
+							$ajax('/' + brd + '/api/validate-captcha', { method: 'POST' }).then(xhr => {
 								if(xhr.status === 200) {
 									if(JSON.parse(xhr.responseText).status === 'ok') {
 										this.innerHTML = 'можно постить';
@@ -7016,7 +7009,7 @@ function* html5Submit(form) {
 		formData.append(name, value);
 	}
 	try {
-		let xhr = yield $ajax(nav.fixLink(form.action), 'POST', {data: formData}, true);
+		let xhr = yield $ajax(nav.fixLink(form.action), { method: 'POST', data: formData});
 		if(xhr.status !== 200) {
 			throw new AjaxError(xhr.status, xhr.statusText);
 		}
@@ -10827,7 +10820,7 @@ function getImageBoard(checkDomains, checkOther) {
 			return !!a && /sage/i.test(a.href);
 		},
 		getThrdUrl(b, tNum) {
-			return this.prot + '//' + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+			return fixBrd(b) + this.res + tNum + this.docExt;
 		},
 		getTNum(op) {
 			return $q('input[type="checkbox"]', op).value;
@@ -11708,8 +11701,8 @@ function checkForUpdates(isForce) {
 			}
 		}
 		$ajax('https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js',
-			 'GET',
-			 {'Content-Type': 'text/plain'}
+			 {'Content-Type': 'text/plain'},
+			 false
 		).then(xhr => {
 			if(xhr.status === 200) {
 				var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split('.'),

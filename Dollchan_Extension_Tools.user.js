@@ -2106,7 +2106,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 
 					context$2$0.next = 3;
-					return $ajax(url, "GET", { overrideMimeType: "text/plain; charset=x-user-defined" });
+					return $ajax(url, { overrideMimeType: "text/plain; charset=x-user-defined" }, false);
 
 				case 3:
 					xhr = context$2$0.sent;
@@ -2116,7 +2116,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 6:
 					context$2$0.prev = 6;
 					context$2$0.next = 9;
-					return $ajax(url, "GET", { responseType: "arraybuffer" }, true);
+					return $ajax(url, { responseType: "arraybuffer" });
 
 				case 9:
 					xhr = context$2$0.sent;
@@ -2125,7 +2125,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 12:
 					context$2$0.prev = 12;
-					context$2$0.t14 = context$2$0["catch"](6);
+					context$2$0.t13 = context$2$0["catch"](6);
 					return context$2$0.abrupt("return", null);
 
 				case 15:
@@ -2152,10 +2152,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return context$2$0.abrupt("return", null);
 
 				case 25:
-					return context$2$0.delegateYield(downloadImgDataHelper(url, false), "t15", 26);
+					return context$2$0.delegateYield(downloadImgDataHelper(url, false), "t14", 26);
 
 				case 26:
-					return context$2$0.abrupt("return", context$2$0.t15);
+					return context$2$0.abrupt("return", context$2$0.t14);
 
 				case 27:
 					context$2$0.next = 36;
@@ -2187,10 +2187,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function downloadImgData$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(downloadImgDataHelper(url, true), "t16", 1);
+					return context$2$0.delegateYield(downloadImgDataHelper(url, true), "t15", 1);
 
 				case 1:
-					return context$2$0.abrupt("return", context$2$0.t16);
+					return context$2$0.abrupt("return", context$2$0.t15);
 
 				case 2:
 				case "end":
@@ -2237,10 +2237,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						break;
 					}
 
-					return context$2$0.delegateYield(cleanFile(el, value), "t26", 16);
+					return context$2$0.delegateYield(cleanFile(el, value), "t25", 16);
 
 				case 16:
-					value = context$2$0.t26;
+					value = context$2$0.t25;
 
 					if (value) {
 						context$2$0.next = 20;
@@ -2264,9 +2264,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t27 = context$2$0["catch"](4);
+					context$2$0.t26 = context$2$0["catch"](4);
 					_didIteratorError = true;
-					_iteratorError = context$2$0.t27;
+					_iteratorError = context$2$0.t26;
 
 				case 30:
 					context$2$0.prev = 30;
@@ -2295,7 +2295,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 38:
 					context$2$0.prev = 38;
 					context$2$0.next = 41;
-					return $ajax(nav.fixLink(form.action), "POST", { data: formData }, true);
+					return $ajax(nav.fixLink(form.action), { method: "POST", data: formData });
 
 				case 41:
 					xhr = context$2$0.sent;
@@ -2312,9 +2312,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 47:
 					context$2$0.prev = 47;
-					context$2$0.t28 = context$2$0["catch"](38);
+					context$2$0.t27 = context$2$0["catch"](38);
 
-					$alert(getErrorMessage(context$2$0.t28), "upload", false);
+					$alert(getErrorMessage(context$2$0.t27), "upload", false);
 
 				case 50:
 				case "end":
@@ -2331,9 +2331,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return readFileArrayBuffer(file);
 
 				case 2:
-					context$2$0.t29 = context$2$0.sent;
-					context$2$0.t30 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
-					data = cleanFileHelper(context$2$0.t29, fileEl.obj.imgFile, context$2$0.t30);
+					context$2$0.t28 = context$2$0.sent;
+					context$2$0.t29 = Cfg.postSameImg && String(Math.round(Math.random() * 1000000));
+					data = cleanFileHelper(context$2$0.t28, fileEl.obj.imgFile, context$2$0.t29);
 					return context$2$0.abrupt("return", data ? new File(data, file.name) : null);
 
 				case 6:
@@ -2359,10 +2359,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 4:
 					new Logger().log("Init");
-					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t35", 6);
+					return context$2$0.delegateYield(getStored("DESU_Exclude"), "t34", 6);
 
 				case 6:
-					str = context$2$0.t35;
+					str = context$2$0.t34;
 
 					if (!(str && str.contains(aib.dm))) {
 						context$2$0.next = 9;
@@ -2373,7 +2373,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 9:
 					excludeList = str || "";
-					return context$2$0.delegateYield(readCfg(), "t36", 11);
+					return context$2$0.delegateYield(readCfg(), "t35", 11);
 
 				case 11:
 					new Logger().log("Config loading");
@@ -2402,9 +2402,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 26:
 					context$2$0.prev = 26;
-					context$2$0.t37 = context$2$0["catch"](22);
+					context$2$0.t36 = context$2$0["catch"](22);
 
-					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t37));
+					console.log("DELFORM ERROR:\n" + getPrettyErrorMessage(context$2$0.t36));
 					doc.body.style.display = "";
 					return context$2$0.abrupt("return");
 
@@ -2437,10 +2437,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					new Logger().log("Scroll page");
 					readPosts();
-					return context$2$0.delegateYield(readUserPosts(), "t38", 48);
+					return context$2$0.delegateYield(readUserPosts(), "t37", 48);
 
 				case 48:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t39", 49);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t38", 49);
 
 				case 49:
 					setTimeout(PostContent.purge, 0);
@@ -3169,22 +3169,21 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function $ajax(url) {
-		var method = arguments[1] === undefined ? "GET" : arguments[1];
-		var extraParams = arguments[2] === undefined ? null : arguments[2];
-		var useNative = arguments[3] === undefined ? false : arguments[3];
+		var params = arguments[1] === undefined ? null : arguments[1];
+		var useNative = arguments[2] === undefined ? true : arguments[2];
 
 		return new Promise(function (resolve, reject) {
 			if (useNative || !(typeof GM_xmlhttpRequest === "function")) {
 				var xhr = new XMLHttpRequest();
-				xhr.onload = function (e) {
+				xhr.onloadend = function (e) {
 					return resolve(e.target);
 				};
-				xhr.open(method, url, true);
-				if (extraParams) {
-					if (extraParams.responseType) {
-						xhr.responseType = extraParams.responseType;
+				xhr.open(params && params.method || "GET", url, true);
+				if (params) {
+					if (params.responseType) {
+						xhr.responseType = params.responseType;
 					}
-					var headers = extraParams.headers;
+					var headers = params.headers;
 					if (headers) {
 						for (var h in headers) {
 							if (headers.hasOwnProperty(h)) {
@@ -3193,17 +3192,18 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 					}
 				}
-				xhr.send(extraParams && extraParams.data || null);
+				xhr.send(params && params.data || null);
 			} else {
 				var _obj = {
-					method: method,
+					method: params && params.method || "GET",
 					url: url,
 					onload: function (e) {
-						return resolve(e);
+						resolve(e);
 					}
 				};
-				if (extraParams) {
-					Object.assign(_obj, extraParams);
+				if (params) {
+					delete params.method;
+					Object.assign(_obj, params);
 				}
 				GM_xmlhttpRequest(_obj);
 			}
@@ -3983,7 +3983,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$3$0() {
 					var _this = this;
 
-					var i, len, els, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum;
+					var i, len, els, _els$i$getAttribute$split, _els$i$getAttribute$split2, board, tNum, xhr;
 
 					return regeneratorRuntime.wrap(function callee$3$0$(context$4$0) {
 						while (1) switch (context$4$0.prev = context$4$0.next) {
@@ -3993,7 +3993,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 							case 2:
 								if (!(i < len)) {
-									context$4$0.next = 18;
+									context$4$0.next = 14;
 									break;
 								}
 
@@ -4001,33 +4001,27 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								_els$i$getAttribute$split2 = _slicedToArray(_els$i$getAttribute$split, 2);
 								board = _els$i$getAttribute$split2[0];
 								tNum = _els$i$getAttribute$split2[1];
-								context$4$0.prev = 7;
-								context$4$0.next = 10;
-								return ajaxLoad(aib.getThrdUrl(board, tNum), false, false);
+								context$4$0.next = 9;
+								return $ajax(aib.getThrdUrl(board, tNum));
 
-							case 10:
-								context$4$0.next = 15;
-								break;
+							case 9:
+								xhr = context$4$0.sent;
 
-							case 12:
-								context$4$0.prev = 12;
-								context$4$0.t7 = context$4$0["catch"](7);
-
-								if (context$4$0.t7 instanceof AjaxError && context$4$0.t7.code === 404) {
+								if (xhr.status === 404) {
 									delete hThr[board][tNum];
 									saveHiddenThreads(true);
 								}
 
-							case 15:
+							case 11:
 								++i;
 								context$4$0.next = 2;
 								break;
 
-							case 18:
+							case 14:
 							case "end":
 								return context$4$0.stop();
 						}
-					}, callee$3$0, this, [[7, 12]]);
+					}, callee$3$0, this);
 				}))));
 				cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 					$each($Q(".de-entry[info]", this.parentNode), (function (date, el) {
@@ -4196,10 +4190,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					case 0:
 						els = $C("de-entry", doc);
 						update = false;
-						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t8", 3);
+						return context$3$0.delegateYield(getStoredObj("DESU_Favorites"), "t7", 3);
 
 					case 3:
-						fav = context$3$0.t8;
+						fav = context$3$0.t7;
 						i = 0, len = els.length;
 
 					case 5:
@@ -4233,10 +4227,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 19:
 						context$3$0.prev = 19;
-						context$3$0.t9 = context$3$0["catch"](13);
+						context$3$0.t8 = context$3$0["catch"](13);
 
 						el.classList.remove("de-wait");
-						f.err = el.nextElementSibling.nextElementSibling.textContent = getErrorMessage(context$3$0.t9);
+						f.err = el.nextElementSibling.nextElementSibling.textContent = getErrorMessage(context$3$0.t8);
 						update = true;
 						return context$3$0.abrupt("continue", 30);
 
@@ -4308,14 +4302,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return ajaxLoad(aib.getPageUrl(brd, page));
 
 					case 11:
-						context$3$0.t10 = context$3$0.sent;
-						form = new DelForm(context$3$0.t10, true);
+						context$3$0.t9 = context$3$0.sent;
+						form = new DelForm(context$3$0.t9, true);
 						context$3$0.next = 18;
 						break;
 
 					case 15:
 						context$3$0.prev = 15;
-						context$3$0.t11 = context$3$0["catch"](8);
+						context$3$0.t10 = context$3$0["catch"](8);
 						return context$3$0.abrupt("continue", 21);
 
 					case 18:
@@ -4362,7 +4356,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}, callee$2$1, this, [[8, 15]]);
 		}))));
 		cont.appendChild($btn(Lng.clear[lang], Lng.clrDeleted[lang], async(regeneratorRuntime.mark(function callee$2$2() {
-			var i, els, len, el, node;
+			var i, els, len, el, node, xhr;
 			return regeneratorRuntime.wrap(function callee$2$2$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
@@ -4377,22 +4371,23 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						el = els[i], node = $c("de-fav-inf-err", el);
 
 						node.classList.add("de-wait");
-						context$3$0.prev = 4;
-						context$3$0.next = 7;
-						return ajaxLoad(el.getAttribute("de-url"), false, false);
+						context$3$0.next = 6;
+						return $ajax(el.getAttribute("de-url"), null, false);
 
-					case 7:
-						context$3$0.next = 13;
+					case 6:
+						xhr = context$3$0.sent;
+						context$3$0.t11 = xhr.status;
+						context$3$0.next = context$3$0.t11 === 200 ? 10 : context$3$0.t11 === 404 ? 11 : 12;
 						break;
 
-					case 9:
-						context$3$0.prev = 9;
-						context$3$0.t12 = context$3$0["catch"](4);
+					case 10:
+						return context$3$0.abrupt("break", 13);
 
-						node.textContent = getErrorMessage(context$3$0.t12);
-						if (context$3$0.t12 instanceof AjaxError && context$3$0.t12.code === 404) {
-							el.setAttribute("de-removed", "");
-						}
+					case 11:
+						el.setAttribute("de-removed", "");
+
+					case 12:
+						node.textContent = getErrorMessage(new AjaxError(xhr.status, xhr.statusText));
 
 					case 13:
 						node.classList.remove("de-wait");
@@ -4409,7 +4404,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					case "end":
 						return context$3$0.stop();
 				}
-			}, callee$2$2, this, [[4, 9]]);
+			}, callee$2$2, this);
 		}))));
 		cont.appendChild($btn(Lng.remove[lang], Lng.clrSelected[lang], function () {
 			$each($C("de-entry", doc), function (el) {
@@ -4959,10 +4954,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		return regeneratorRuntime.wrap(function callee$1$0$(context$2$0) {
 			while (1) switch (context$2$0.prev = context$2$0.next) {
 				case 0:
-					return context$2$0.delegateYield(getStored("DESU_keys"), "t13", 1);
+					return context$2$0.delegateYield(getStored("DESU_keys"), "t12", 1);
 
 				case 1:
-					str = context$2$0.t13;
+					str = context$2$0.t12;
 
 					if (str) {
 						context$2$0.next = 4;
@@ -5759,10 +5754,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							iType = _data[2];
 							nExp = _data[3];
 							el = _data[4];
-							return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
+							return context$3$0.delegateYield(downloadImgData(url), "t16", 7);
 
 						case 7:
-							imageData = context$3$0.t17;
+							imageData = context$3$0.t16;
 
 							if (imageData) {
 								fName = url.substring(url.lastIndexOf("/") + 1), aEl = $q(aib.qImgLink, aib.getImgWrap(lnk));
@@ -5869,10 +5864,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						el = _data[2];
 						link = _data[3];
 						safeName = name.replace(/[\\\/:*?"<>|]/g, "_");
-						return context$3$0.delegateYield(downloadImgData(url), "t18", 7);
+						return context$3$0.delegateYield(downloadImgData(url), "t17", 7);
 
 					case 7:
-						imgData = context$3$0.t18;
+						imgData = context$3$0.t17;
 
 						progress.value = current;
 						counter.innerHTML = current;
@@ -6168,7 +6163,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 						context$3$0.next = 8;
-						return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published");
+						return $ajax(aib.prot + "//gdata.youtube.com/feeds/api/videos/" + id + "?alt=json&fields=title/text(),author/name,yt:statistics/@viewCount,published", null, false);
 
 					case 8:
 						xhr = context$3$0.sent;
@@ -6188,7 +6183,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 12:
 						context$3$0.next = 14;
-						return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json");
+						return $ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json", null, false);
 
 					case 14:
 						xhr = context$3$0.sent;
@@ -6363,7 +6358,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				el.innerHTML = "<a href=\"" + aib.prot + "//www.youtube.com/watch?v=" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-ytube\" src=\"https://i.ytimg.com/vi/" + m[1] + "/0.jpg\"" + wh;
 			} else {
 				el.innerHTML = "<a href=\"" + aib.prot + "//vimeo.com/" + m[1] + "\" target=\"_blank\">" + "<img class=\"de-video-thumb de-vimeo\" src=\"\"" + wh;
-				$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json").then(function (xhr) {
+				$ajax(aib.prot + "//vimeo.com/api/v2/video/" + m[1] + ".json", null, false).then(function (xhr) {
 					try {
 						el.firstChild.firstChild.setAttribute("src", JSON.parse(xhr.responseText)[0].thumbnail_large);
 					} catch (e) {}
@@ -6481,24 +6476,20 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function ajaxLoad(url) {
 		var returnForm = arguments[1] === undefined ? true : arguments[1];
-		var parseDOM = arguments[2] === undefined ? true : arguments[2];
 
 		return $ajax(nav.fixLink(url)).then(function (xhr) {
 			if (xhr.status !== 200) {
 				throw new AjaxError(xhr.status, xhr.statusText);
-			} else if (parseDOM) {
-				var el,
-				    text = xhr.responseText;
-				if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
-					el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
-				}
-				if (el) {
-					return el;
-				} else {
-					throw new AjaxError(0, Lng.errCorruptData[lang]);
-				}
+			}
+			var el,
+			    text = xhr.responseText;
+			if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
+				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
+			}
+			if (el) {
+				return el;
 			} else {
-				return null;
+				throw new AjaxError(0, Lng.errCorruptData[lang]);
 			}
 		});
 	}
@@ -6574,16 +6565,16 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return ajaxLoad(aib.getPageUrl(brd, i));
 
 				case 16:
-					context$2$0.t19 = context$2$0.sent;
-					content = replacePost(context$2$0.t19);
+					context$2$0.t18 = context$2$0.sent;
+					content = replacePost(context$2$0.t18);
 					context$2$0.next = 23;
 					break;
 
 				case 20:
 					context$2$0.prev = 20;
-					context$2$0.t20 = context$2$0["catch"](13);
+					context$2$0.t19 = context$2$0["catch"](13);
 
-					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t20) + "</center><hr></div>");
+					content = $add("<div><center style=\"font-size: 2em\">" + getErrorMessage(context$2$0.t19) + "</center><hr></div>");
 
 				case 23:
 					if (i != pageNum) {
@@ -6597,9 +6588,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 				case 28:
 					context$2$0.prev = 28;
-					context$2$0.t21 = context$2$0["catch"](24);
+					context$2$0.t20 = context$2$0["catch"](24);
 
-					$alert(getPrettyErrorMessage(context$2$0.t21), "load-pages", true);
+					$alert(getPrettyErrorMessage(context$2$0.t20), "load-pages", true);
 					hasError = true;
 					return context$2$0.abrupt("break", 36);
 
@@ -6616,10 +6607,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					dForm.initAjax();
 					addDelformStuff(false);
-					return context$2$0.delegateYield(readUserPosts(), "t22", 40);
+					return context$2$0.delegateYield(readUserPosts(), "t21", 40);
 
 				case 40:
-					return context$2$0.delegateYield(readFavoritesPosts(), "t23", 41);
+					return context$2$0.delegateYield(readFavoritesPosts(), "t22", 41);
 
 				case 41:
 					$each($Q("input[type=\"password\"]", dForm.el), function (pEl) {
@@ -7703,7 +7694,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							break;
 						}
 
-						context$2$0.t24 = image.hash;
+						context$2$0.t23 = image.hash;
 						context$2$0.next = 16;
 						break;
 
@@ -7712,10 +7703,10 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return image.getHash();
 
 					case 15:
-						context$2$0.t24 = context$2$0.sent;
+						context$2$0.t23 = context$2$0.sent;
 
 					case 16:
-						hash = context$2$0.t24;
+						hash = context$2$0.t23;
 
 						if (!(hash === val)) {
 							context$2$0.next = 19;
@@ -7735,9 +7726,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 24:
 						context$2$0.prev = 24;
-						context$2$0.t25 = context$2$0["catch"](3);
+						context$2$0.t24 = context$2$0["catch"](3);
 						_didIteratorError = true;
-						_iteratorError = context$2$0.t25;
+						_iteratorError = context$2$0.t24;
 
 					case 28:
 						context$2$0.prev = 28;
@@ -8670,7 +8661,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							click: function () {
 								var _this2 = this;
 
-								$ajax("/" + brd + "/api/validate-captcha", "POST").then(function (xhr) {
+								$ajax("/" + brd + "/api/validate-captcha", { method: "POST" }).then(function (xhr) {
 									if (xhr.status === 200) {
 										if (JSON.parse(xhr.responseText).status === "ok") {
 											_this2.innerHTML = "можно постить";
@@ -11593,7 +11584,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			return regeneratorRuntime.wrap(function callee$2$0$(context$3$0) {
 				while (1) switch (context$3$0.prev = context$3$0.next) {
 					case 0:
-						return context$3$0.delegateYield(_this.data, "t31", 1);
+						return context$3$0.delegateYield(_this.data, "t30", 1);
 
 					case 1:
 					case "end":
@@ -12342,8 +12333,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return ajaxLoad(aib.getThrdUrl(brd, TNum));
 
 					case 18:
-						context$2$0.t32 = context$2$0.sent;
-						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t32));
+						context$2$0.t31 = context$2$0.sent;
+						return context$2$0.abrupt("return", _this.loadNewFromForm(context$2$0.t31));
 
 					case 20:
 					case "end":
@@ -13651,7 +13642,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				return !!a && /sage/i.test(a.href);
 			},
 			getThrdUrl: function getThrdUrl(b, tNum) {
-				return this.prot + "//" + this.host + fixBrd(b) + this.res + tNum + this.docExt;
+				return fixBrd(b) + this.res + tNum + this.docExt;
 			},
 			getTNum: function getTNum(op) {
 				return $q("input[type=\"checkbox\"]", op).value;
@@ -14174,9 +14165,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 9:
 						context$3$0.prev = 9;
-						context$3$0.t33 = context$3$0["catch"](4);
+						context$3$0.t32 = context$3$0["catch"](4);
 
-						if (!(context$3$0.t33 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t32 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 13;
 							break;
 						}
@@ -14212,9 +14203,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 					case 27:
 						context$3$0.prev = 27;
-						context$3$0.t34 = context$3$0["catch"](21);
+						context$3$0.t33 = context$3$0["catch"](21);
 
-						if (!(context$3$0.t34 instanceof StopLoadingTaskError)) {
+						if (!(context$3$0.t33 instanceof StopLoadingTaskError)) {
 							context$3$0.next = 31;
 							break;
 						}
@@ -14222,7 +14213,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						return context$3$0.abrupt("return");
 
 					case 31:
-						_error = context$3$0.t34;
+						_error = context$3$0.t33;
 
 					case 32:
 						infoLoadErrors(_error, -1);
@@ -14674,7 +14665,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return;
 				}
 			}
-			$ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", "GET", { "Content-Type": "text/plain" }).then(function (xhr) {
+			$ajax("https://raw.github.com/SthephanShinkufag/Dollchan-Extension-Tools/master/Dollchan_Extension_Tools.meta.js", { "Content-Type": "text/plain" }, false).then(function (xhr) {
 				if (xhr.status === 200) {
 					var dVer = xhr.responseText.match(/@version\s+([0-9.]+)/)[1].split("."),
 					    cVer = version.split("."),
