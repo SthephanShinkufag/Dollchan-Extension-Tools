@@ -547,12 +547,12 @@ Lng = {
 },
 
 doc = window.document, aProto = Array.prototype, locStorage, sesStorage,
-Cfg, comCfg, hThr, pByNum, sVis, bUVis, needScroll,
+Cfg, hThr, pByNum, sVis, bUVis, needScroll,
 aib, nav, brd, TNum, pageNum, updater, hKeys, visPosts = 2, dTime,
 WebmParser, Logger,
 pr, dForm, dummy, spells,
 Images_ = {preloading: false, afterpreload: null, progressId: null, canvas: null},
-ajaxInterval, lang, quotetxt = '', liteMode, localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
+lang, quotetxt = '', liteMode, localRun, isExpImg, isPreImg, chromeCssUpd, excludeList,
 $each = Function.prototype.call.bind(aProto.forEach),
 emptyFn = Function.prototype;
 
@@ -1210,13 +1210,12 @@ function* getStoredObj(id) {
 
 function saveComCfg(dm, obj) {
 	spawn(getStoredObj, 'DESU_Config').then(val => {
-		comCfg = val;
 		if(obj) {
-			comCfg[dm] = obj;
+			val[dm] = obj;
 		} else {
-			delete comCfg[dm];
+			delete val[dm];
 		}
-		setStored('DESU_Config', JSON.stringify(comCfg));
+		setStored('DESU_Config', JSON.stringify(val));
 	});
 }
 
@@ -1229,9 +1228,8 @@ function saveCfg(id, val) {
 
 function* readCfg() {
 	var obj, val = yield* getStoredObj('DESU_Config');
-	comCfg = val;
-	if(!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
-		obj = nav.isGlobal ? comCfg.global || {} : {};
+	if(!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
+		obj = nav.isGlobal ? val.global || {} : {};
 		obj.captchaLang = aib.ru ? 2 : 1;
 		obj.correctTime = 0;
 	}
@@ -1298,12 +1296,15 @@ function* readCfg() {
 		Cfg.timeOffset = 4;
 		Cfg.correctTime = 1;
 	}
-	saveComCfg(aib.dm, Cfg);
+	setStored('DESU_Config', JSON.stringify(val));
 	lang = Cfg.language;
 	if(Cfg.correctTime) {
 		dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function(rp) {
 			saveCfg('timeRPattern', rp);
 		});
+	}
+	if(Cfg.updScript) {
+		checkForUpdates(false, val.lastUpd).then(html => $alert(html, 'updavail', false), emptyFn);
 	}
 }
 
@@ -2595,7 +2596,9 @@ function getCfgCommon() {
 				optSel('scrUpdIntrv', false, null),
 				$btn(Lng.checkNow[lang], '', function() {
 					$alert(Lng.loading[lang], 'updavail', true);
-					checkForUpdates(true).then(html => $alert(html, 'updavail', false), emptyFn);
+					spawn(getStoredObj, 'DESU_Config')
+						.then(val => checkForUpdates(true, val.lastUpd))
+						.then(html => $alert(html, 'updavail', false), emptyFn);
 				})
 			])
 		])),
@@ -2608,12 +2611,14 @@ function getCfgCommon() {
 				}
 			}),
 			lBox('turnOff', true, function() {
-				for(var dm in comCfg) {
-					if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
-						comCfg[dm].disabled = Cfg.turnOff;
+				spawn(getStoredObj, 'DESU_Config').then(val => {
+					for(var dm in val) {
+						if(dm !== aib.dm && dm !== 'global' && dm !== 'lastUpd') {
+							val[dm].disabled = Cfg.turnOff;
+						}
 					}
-				}
-				setStored('DESU_Config', JSON.stringify(comCfg) || '');
+					setStored('DESU_Config', JSON.stringify(val));
+				});
 			})
 		]))
 	]);
@@ -2725,26 +2730,31 @@ function addSettings(Set, id) {
 					});
 				}),
 				$if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function() {
-					if(('global' in comCfg) && !$isEmpty(comCfg.global)) {
-						saveComCfg(aib.dm, null);
-						window.location.reload();
-					} else {
-						$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
-					}
+					spawn(getStoredObj, 'DESU_Config').then(val => {
+						if(val && ('global' in val) && !$isEmpty(val.global)) {
+							delete val[aib.dm];
+							setStored('DESU_Config', JSON.stringify(val));
+							window.location.reload();
+						} else {
+							$alert(Lng.noGlobalCfg[lang], 'err-noglobalcfg', false);
+						}
+					});
 				})),
 				$if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function() {
-					var i, obj = {},
-						com = comCfg[aib.dm];
-					for(i in com) {
-						if(i !== 'correctTime' && i !== 'timePattern' &&
-							i !== 'userCSS' && i !== 'userCSSTxt' &&
-							com[i] !== defaultCfg[i] && i !== 'stats')
-						{
-							obj[i] = com[i];
+					spawn(getStoredObj, 'DESU_Config').then(val => {
+						var obj = {},
+							com = val[aib.dm];
+						for(let i in com) {
+							if(i !== 'correctTime' && i !== 'timePattern' &&
+								i !== 'userCSS' && i !== 'userCSSTxt' &&
+								com[i] !== defaultCfg[i] && i !== 'stats')
+							{
+								obj[i] = com[i];
+							}
 						}
-					}
-					saveComCfg('global', obj);
-					toggleContent('cfg', true);
+						setStored('DESU_Config', JSON.stringify(val));
+						toggleContent('cfg', true);
+					});
 				})),
 				$btn(Lng.reset[lang], Lng.resetCfg[lang], function() {
 					if(confirm(Lng.conReset[lang])) {
@@ -9006,7 +9016,7 @@ PostImages.prototype = {
 		return this.data[this.length - 1];
 	},
 	*[Symbol.iterator]() {
-		yield *this.data;
+		yield* this.data;
 	},
 	getImageByEl(el) {
 		return this._map.get(el);
@@ -11638,9 +11648,6 @@ function initThreadUpdater(title, enableUpdate) {
 }
 
 function initPage() {
-	if(Cfg.updScript) {
-		checkForUpdates(false).then(html => $alert(html, 'updavail', false), emptyFn);
-	}
 	if(TNum) {
 		if(Cfg.rePageTitle) {
 			doc.title = '/' + brd + ' - ' + dForm.firstThr.op.title;
@@ -11680,7 +11687,7 @@ function scrollPage() {
 	}, 0);
 }
 
-function checkForUpdates(isForce) {
+function checkForUpdates(isForce, lastUpdateTime) {
 	return new Promise((resolve, reject) => {
 		var day, temp = Cfg.scrUpdIntrv;
 		if(!isForce) {
@@ -11692,7 +11699,7 @@ function checkForUpdates(isForce) {
 			case 3: temp = day * 14; break;
 			default: temp = day * 30;
 			}
-			if(Date.now() - +comCfg.lastUpd < temp) {
+			if(Date.now() - +lastUpdateTime < temp) {
 				reject();
 				return;
 			}

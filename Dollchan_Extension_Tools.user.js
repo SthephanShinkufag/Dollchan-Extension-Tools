@@ -2048,9 +2048,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 1:
 					val = context$2$0.t4;
 
-					comCfg = val;
-					if (!(aib.dm in comCfg) || $isEmpty(obj = comCfg[aib.dm])) {
-						obj = nav.isGlobal ? comCfg.global || {} : {};
+					if (!(aib.dm in val) || $isEmpty(obj = val[aib.dm])) {
+						obj = nav.isGlobal ? val.global || {} : {};
 						obj.captchaLang = aib.ru ? 2 : 1;
 						obj.correctTime = 0;
 					}
@@ -2119,12 +2118,17 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						Cfg.timeOffset = 4;
 						Cfg.correctTime = 1;
 					}
-					saveComCfg(aib.dm, Cfg);
+					setStored("DESU_Config", JSON.stringify(val));
 					lang = Cfg.language;
 					if (Cfg.correctTime) {
 						dTime = new DateTime(Cfg.timePattern, Cfg.timeRPattern, Cfg.timeOffset, lang, function (rp) {
 							saveCfg("timeRPattern", rp);
 						});
+					}
+					if (Cfg.updScript) {
+						checkForUpdates(false, val.lastUpd).then(function (html) {
+							return $alert(html, "updavail", false);
+						}, emptyFn);
 					}
 
 				case 23:
@@ -3082,7 +3086,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	    locStorage,
 	    sesStorage,
 	    Cfg,
-	    comCfg,
 	    hThr,
 	    pByNum,
 	    sVis,
@@ -3104,7 +3107,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	    dummy,
 	    spells,
 	    Images_ = { preloading: false, afterpreload: null, progressId: null, canvas: null },
-	    ajaxInterval,
 	    lang,
 	    quotetxt = "",
 	    liteMode,
@@ -3673,13 +3675,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 	function saveComCfg(dm, obj) {
 		spawn(getStoredObj, "DESU_Config").then(function (val) {
-			comCfg = val;
 			if (obj) {
-				comCfg[dm] = obj;
+				val[dm] = obj;
 			} else {
-				delete comCfg[dm];
+				delete val[dm];
 			}
-			setStored("DESU_Config", JSON.stringify(comCfg));
+			setStored("DESU_Config", JSON.stringify(val));
 		});
 	}
 
@@ -4771,7 +4772,9 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			});
 		})]), $New("div", { "class": "de-cfg-depend" }, [inpTxt("loadPages", 2, null), $txt(Lng.cfg.loadPages[lang])]), $if(!nav.isChromeStorage && !nav.Presto || nav.isGM, $New("div", null, [lBox("updScript", true, null), $New("div", { "class": "de-cfg-depend" }, [optSel("scrUpdIntrv", false, null), $btn(Lng.checkNow[lang], "", function () {
 			$alert(Lng.loading[lang], "updavail", true);
-			checkForUpdates(true).then(function (html) {
+			spawn(getStoredObj, "DESU_Config").then(function (val) {
+				return checkForUpdates(true, val.lastUpd);
+			}).then(function (html) {
 				return $alert(html, "updavail", false);
 			}, emptyFn);
 		})])])), $if(nav.isGlobal, $New("div", null, [$txt(Lng.cfg.excludeList[lang]), $new("input", { type: "text", id: "de-exclude-edit", size: 45, style: "display: block;",
@@ -4780,12 +4783,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				setStored("DESU_Exclude", this.value);
 			}
 		}), lBox("turnOff", true, function () {
-			for (var dm in comCfg) {
-				if (dm !== aib.dm && dm !== "global" && dm !== "lastUpd") {
-					comCfg[dm].disabled = Cfg.turnOff;
+			spawn(getStoredObj, "DESU_Config").then(function (val) {
+				for (var dm in val) {
+					if (dm !== aib.dm && dm !== "global" && dm !== "lastUpd") {
+						val[dm].disabled = Cfg.turnOff;
+					}
 				}
-			}
-			setStored("DESU_Config", JSON.stringify(comCfg) || "");
+				setStored("DESU_Config", JSON.stringify(val));
+			});
 		})]))]);
 	}
 
@@ -4867,23 +4872,27 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				window.location.reload();
 			});
 		}), $if(nav.isGlobal, $btn(Lng.load[lang], Lng.loadGlobal[lang], function () {
-			if ("global" in comCfg && !$isEmpty(comCfg.global)) {
-				saveComCfg(aib.dm, null);
-				window.location.reload();
-			} else {
-				$alert(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
-			}
-		})), $if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function () {
-			var i,
-			    obj = {},
-			    com = comCfg[aib.dm];
-			for (i in com) {
-				if (i !== "correctTime" && i !== "timePattern" && i !== "userCSS" && i !== "userCSSTxt" && com[i] !== defaultCfg[i] && i !== "stats") {
-					obj[i] = com[i];
+			spawn(getStoredObj, "DESU_Config").then(function (val) {
+				if (val && "global" in val && !$isEmpty(val.global)) {
+					delete val[aib.dm];
+					setStored("DESU_Config", JSON.stringify(val));
+					window.location.reload();
+				} else {
+					$alert(Lng.noGlobalCfg[lang], "err-noglobalcfg", false);
 				}
-			}
-			saveComCfg("global", obj);
-			toggleContent("cfg", true);
+			});
+		})), $if(nav.isGlobal, $btn(Lng.save[lang], Lng.saveGlobal[lang], function () {
+			spawn(getStoredObj, "DESU_Config").then(function (val) {
+				var obj = {},
+				    com = val[aib.dm];
+				for (var i in com) {
+					if (i !== "correctTime" && i !== "timePattern" && i !== "userCSS" && i !== "userCSSTxt" && com[i] !== defaultCfg[i] && i !== "stats") {
+						obj[i] = com[i];
+					}
+				}
+				setStored("DESU_Config", JSON.stringify(val));
+				toggleContent("cfg", true);
+			});
 		})), $btn(Lng.reset[lang], Lng.resetCfg[lang], function () {
 			if (confirm(Lng.conReset[lang])) {
 				delStored("DESU_Config");
@@ -14691,11 +14700,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function initPage() {
-		if (Cfg.updScript) {
-			checkForUpdates(false).then(function (html) {
-				return $alert(html, "updavail", false);
-			}, emptyFn);
-		}
 		if (TNum) {
 			if (Cfg.rePageTitle) {
 				doc.title = "/" + brd + " - " + dForm.firstThr.op.title;
@@ -14731,7 +14735,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		}, 0);
 	}
 
-	function checkForUpdates(isForce) {
+	function checkForUpdates(isForce, lastUpdateTime) {
 		return new Promise(function (resolve, reject) {
 			var day,
 			    temp = Cfg.scrUpdIntrv;
@@ -14749,7 +14753,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					default:
 						temp = day * 30;
 				}
-				if (Date.now() - +comCfg.lastUpd < temp) {
+				if (Date.now() - +lastUpdateTime < temp) {
 					reject();
 					return;
 				}
