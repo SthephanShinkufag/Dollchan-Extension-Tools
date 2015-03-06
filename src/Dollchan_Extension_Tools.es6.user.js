@@ -805,7 +805,7 @@ function $ajax(url, params = null, useNative = true) {
 		} else {
 			let obj = {
 				'method': (params && params.method) || 'GET',
-				'url': url,
+				'url': nav.fixLink(url),
 				'onload'(e) { resolve(e) }
 			};
 			if(params) {
@@ -4378,7 +4378,7 @@ function AjaxError(code, message) {
 AjaxError.Success = Object.freeze(new AjaxError(200, ''));
 
 function ajaxLoad(url, returnForm = true) {
-	return $ajax(nav.fixLink(url)).then(xhr => {
+	return $ajax(url).then(xhr => {
 		if(xhr.status !== 200) {
 			throw new AjaxError(xhr.status, xhr.statusText);
 		}
@@ -4395,7 +4395,7 @@ function ajaxLoad(url, returnForm = true) {
 }
 
 function getJsonPosts(url) {
-	return $ajax(nav.fixLink(url)).then(xhr => {
+	return $ajax(url).then(xhr => {
 		switch(xhr.status) {
 		case 200: return JSON.parse(xhr.responseText);
 		case 304: return null;
@@ -7009,7 +7009,7 @@ function* html5Submit(form) {
 		formData.append(name, value);
 	}
 	try {
-		let xhr = yield $ajax(nav.fixLink(form.action), { method: 'POST', data: formData});
+		let xhr = yield $ajax(form.action, { method: 'POST', data: formData});
 		if(xhr.status !== 200) {
 			throw new AjaxError(xhr.status, xhr.statusText);
 		}

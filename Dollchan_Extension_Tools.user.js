@@ -2295,7 +2295,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 38:
 					context$2$0.prev = 38;
 					context$2$0.next = 41;
-					return $ajax(nav.fixLink(form.action), { method: "POST", data: formData });
+					return $ajax(form.action, { method: "POST", data: formData });
 
 				case 41:
 					xhr = context$2$0.sent;
@@ -3196,7 +3196,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			} else {
 				var _obj = {
 					method: params && params.method || "GET",
-					url: url,
+					url: nav.fixLink(url),
 					onload: function (e) {
 						resolve(e);
 					}
@@ -6477,7 +6477,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function ajaxLoad(url) {
 		var returnForm = arguments[1] === undefined ? true : arguments[1];
 
-		return $ajax(nav.fixLink(url)).then(function (xhr) {
+		return $ajax(url).then(function (xhr) {
 			if (xhr.status !== 200) {
 				throw new AjaxError(xhr.status, xhr.statusText);
 			}
@@ -6495,7 +6495,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function getJsonPosts(url) {
-		return $ajax(nav.fixLink(url)).then(function (xhr) {
+		return $ajax(url).then(function (xhr) {
 			switch (xhr.status) {
 				case 200:
 					return JSON.parse(xhr.responseText);
