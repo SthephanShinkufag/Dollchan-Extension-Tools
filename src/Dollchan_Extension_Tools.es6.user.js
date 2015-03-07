@@ -985,7 +985,7 @@ function getErrorMessage(e) {
 	if(isAjax) {
 		return e.code === 0 ? e.message || Lng.noConnect[lang] : 'HTTP [' + e.code + '] ' + e.message;
 	}
-	return Lng.internalError[lang] + getPrettyErrorMessage(e);
+	return typeof e === 'string' ? e : Lng.internalError[lang] + getPrettyErrorMessage(e);
 }
 
 function getPrettyErrorMessage(e) {
@@ -6406,11 +6406,13 @@ PostForm.prototype = {
 							brd + '/csstest.foo"></iframe>');
 						doc.body.lastChild.onload = e => {
 							$del(e.target);
-							spawn(html5Submit, this.form).then(checkUpload);
+							spawn(html5Submit, this.form)
+								.then(checkUpload, e => $alert(getErrorMessage(e), 'upload', false));
 						};
 						return;
 					}
-					spawn(html5Submit, this.form).then(checkUpload);
+					spawn(html5Submit, this.form)
+						.then(checkUpload, e => $alert(getErrorMessage(e), 'upload', false));
 				};
 			}, 0);
 		} else if(Cfg.ajaxReply === 1) {
@@ -7018,23 +7020,18 @@ function* html5Submit(form) {
 				let data = cleanFile((yield readFileArrayBuffer(value)),
                                      el.obj.imgFile);
 				if(!data) {
-					$alert(Lng.fileCorrupt[lang] + fileName, 'upload', false);
-					return;
+					return Promise.reject(Lng.fileCorrupt[lang] + fileName);
 				}
 				value = new File(data, value.name)
 			}
 		}
 		formData.append(name, value);
 	}
-	try {
-		let xhr = yield $ajax(form.action, { method: 'POST', data: formData});
-		if(xhr.status !== 200) {
-			throw new AjaxError(xhr.status, xhr.statusText);
-		}
+	let xhr = yield $ajax(form.action, { method: 'POST', data: formData});
+	if(xhr.status === 200) {
 		return $DOM(xhr.responseText);
-	} catch(e) {
-		$alert(getErrorMessage(e), 'upload', false);
 	}
+	return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 }
 
 function readFileArrayBuffer(file) {
@@ -11197,7 +11194,8 @@ DelForm.prototype = {
 					$pd(e);
 					pr.closeQReply();
 					$alert(Lng.deleting[lang], 'deleting', true);
-					spawn(html5Submit, this.el).then(checkDelete);
+					spawn(html5Submit, this.el)
+						.then(checkDelete, e => $alert(getErrorMessage(e), 'deleting', false));
 				};
 			}
 		} else if(Cfg.ajaxReply === 1) {
