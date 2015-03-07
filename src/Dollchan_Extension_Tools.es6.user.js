@@ -829,9 +829,6 @@ TasksPool.PauseError = function(duration) {
 	this.name = 'TasksPool.PauseError';
 	this.duration = duration;
 };
-TasksPool.pause = function(duration = -1) {
-	throw new TasksPool.PauseError(duration);
-};
 TasksPool.prototype = {
 	complete() {
 		if(!this.stopped) {
@@ -4150,7 +4147,7 @@ Videos._getTitlesLoader = function() {
 		}
 		videoObj.loadedLinksCount++;
 		if(num % 30 === 0) {
-			return TasksPool.pause(3e3);
+			return Promise.reject(new TasksPool.PauseError(3e3));
 		}
 		yield sleep(250);
 	}), () => {
@@ -7027,7 +7024,7 @@ function* html5Submit(form) {
 		}
 		formData.append(name, value);
 	}
-	let xhr = yield $ajax(form.action, { method: 'POST', data: formData});
+	let xhr = yield $ajax(form.action, {method: 'POST', data: formData});
 	if(xhr.status === 200) {
 		return $DOM(xhr.responseText);
 	}
@@ -9657,7 +9654,7 @@ Thread.prototype = {
 				return 0;
 			}
 			if(json.error) {
-				throw new AjaxError(0, json.message);
+				return Promise.reject(new AjaxError(0, json.message));
 			}
 			if(this._lastModified !== json.last_modified || this.pcount !== json.posts_count) {
 				this._lastModified = json.last_modified;

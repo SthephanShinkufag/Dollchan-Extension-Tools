@@ -3412,11 +3412,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		this.name = "TasksPool.PauseError";
 		this.duration = duration;
 	};
-	TasksPool.pause = function () {
-		var duration = arguments[0] === undefined ? -1 : arguments[0];
-
-		throw new TasksPool.PauseError(duration);
-	};
 	TasksPool.prototype = {
 		complete: function complete() {
 			if (!this.stopped) {
@@ -6318,7 +6313,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							break;
 						}
 
-						return context$3$0.abrupt("return", TasksPool.pause(3000));
+						return context$3$0.abrupt("return", Promise.reject(new TasksPool.PauseError(3000)));
 
 					case 20:
 						context$3$0.next = 22;
@@ -12406,7 +12401,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 							break;
 						}
 
-						throw new AjaxError(0, json.message);
+						return context$2$0.abrupt("return", Promise.reject(new AjaxError(0, json.message)));
 
 					case 8:
 						if (!(_this._lastModified !== json.last_modified || _this.pcount !== json.posts_count)) {
