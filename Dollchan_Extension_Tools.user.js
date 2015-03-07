@@ -4749,7 +4749,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			if ($id("de-alert-edit-hotkeys")) {
 				return;
 			}
-			HotKeys.readKeys().then(function (keys) {
+			spawn(HotKeys.readKeys).then(function (keys) {
 				var aEl,
 				    evtListener,
 				    temp = KeyEditListener.getEditMarkup(keys);

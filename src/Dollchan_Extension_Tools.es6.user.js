@@ -2577,7 +2577,7 @@ function getCfgCommon() {
 				if($id('de-alert-edit-hotkeys')) {
 					return;
 				}
-				HotKeys.readKeys().then(keys => {
+				spawn(HotKeys.readKeys).then(keys => {
 					var aEl, evtListener, temp = KeyEditListener.getEditMarkup(keys);
 					$alert(temp[1], 'edit-hotkeys', false);
 					aEl = $id('de-alert-edit-hotkeys');
