@@ -750,7 +750,7 @@ Logger = new function() {
 	return LoggerSingleton;
 };
 
-function async(generatorFunc, returnGen = false) {
+function async(generatorFunc) {
 	return function(...args) {
 		function continuer(verb, arg) {
 			var result;
@@ -769,8 +769,7 @@ function async(generatorFunc, returnGen = false) {
 		var generator = generatorFunc.apply(this, args);
 		var onFulfilled = continuer.bind(continuer, 'next');
 		var onRejected = continuer.bind(continuer, 'throw');
-		var rv = onFulfilled();
-		return returnGen ? [generator, rv] : rv;
+		return onFulfilled();
 	};
 }
 
@@ -11282,7 +11281,7 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, loadingTask, audioRep, audioEl, stateButton,
+	var focused, startLoad, stopLoad, audioRep, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl,
 		useCountdown, canFocusLoad, paused, enabled = false,
 		disabledByUser = true,
@@ -11291,39 +11290,6 @@ function initThreadUpdater(title, enableUpdate) {
 		sendError = false,
 		newPosts = 0,
 		aPlayers = 0;
-	if('hidden' in doc) {
-		focused = !doc.hidden;
-		doc.addEventListener('visibilitychange', function() {
-			if(doc.hidden) {
-				focused = false;
-				if(dForm.firstThr) {
-					dForm.firstThr.clearPostsMarks();
-				}
-			} else {
-				onVis();
-			}
-		}, false);
-	} else {
-		focused = false;
-		doc.defaultView.addEventListener('focus', onVis, false);
-		doc.defaultView.addEventListener('blur', function() {
-			focused = false;
-			dForm.firstThr.clearPostsMarks();
-		}, false);
-		doc.defaultView.addEventListener('mousemove', function mouseMove() {
-			doc.defaultView.removeEventListener('mousemove', mouseMove, false);
-			onVis();
-		}, false);
-	}
-	if(enableUpdate) {
-		init();
-	}
-	if(focused && Cfg.desktNotif && ('permission' in Notification)) {
-		switch(Notification.permission.toLowerCase()) {
-		case 'default': requestNotifPermission(); break;
-		case 'denied': saveCfg('desktNotif', 0);
-		}
-	}
 
 	function init() {
 		audioEl = null;
@@ -11339,43 +11305,28 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function enable(start) {
 		enabled = canFocusLoad = true;
-		paused = false;
+		paused = disabledByUser = false;
 		newPosts = 0;
 		if(useCountdown) {
 			countEl = $id('de-updater-count');
 			countEl.style.display = '';
 		}
 		if(start) {
-			startLoading(true);
+			startLoad(true);
 		}
 	}
 
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			stopLoading(byUser && !paused, true);
+			if(stopLoad) {
+				stopLoad(true);
+			}
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
 			if(btn) {
 				btn.id = 'de-btn-audio-off';
-			}
-		}
-	}
-
-	function startLoading(firstSleep) {
-		[loadingTask] = async(loadingTaskGenerator, true)(useCountdown, firstSleep);
-	}
-
-	function stopLoading(stopGenerator, hideCountdown) {
-		if(stopGenerator) {
-			loadingTask['throw'](new StopLoadingTaskError);
-		}
-		if(useCountdown) {
-			if(hideCountdown) {
-				countEl.style.display = 'none';
-			} else {
-				countEl.innerHTML = '<span class="de-wait"></span>';
 			}
 		}
 	}
@@ -11425,8 +11376,10 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 		}
-		stopLoading(enabled && !paused, false);
-		startLoading(false);
+		if(stopLoad) {
+			stopLoad(false);
+		}
+		startLoad(false);
 	}
 
 	function favIcoBlink() {
@@ -11440,17 +11393,31 @@ function initThreadUpdater(title, enableUpdate) {
 		this.name = 'StopLoadingTaskError';
 	}
 
-	function* loadingTaskGenerator(useCountdown, firstSleep) {
+	function stopLoadHelper(reject, hideCountdown) {
+		reject(new StopLoadingTaskError);
+		if(useCountdown) {
+			if(hideCountdown) {
+				countEl.style.display = 'none';
+			} else {
+				countEl.innerHTML = '<span class="de-wait"></span>';
+			}
+		}
+		stopLoad = null;
+	}
+
+	startLoad = async(function* (needSleep) {
 		var countIv, countdownValue, checked4XX = false,
-			delay = initDelay;
-		while(true) {
-			if(firstSleep) {
+			delay = initDelay,
+			repeadLoading = enabled,
+			stopToken = new Promise((resolve, reject) => stopLoad = stopLoadHelper.bind(null, reject));
+		do {
+			if(needSleep) {
 				if(useCountdown) {
 					countEl.textContent = countdownValue = delay / 1000;
 					countIv = setInterval(() => countEl.textContent = --countdownValue, 1e3);
 				}
 				try {
-					yield sleep(delay);
+					yield Promise.race([stopToken, sleep(delay)]);
 				} catch(e) {
 					if(e instanceof StopLoadingTaskError) {
 						return;
@@ -11462,12 +11429,12 @@ function initThreadUpdater(title, enableUpdate) {
 					countEl.innerHTML = '<span class="de-wait"></span>';
 				}
 			} else {
-				firstSleep = true;
+				needSleep = true;
 			}
 			let error = AjaxError.Success,
 				lPosts = 0;
 			try {
-				lPosts = yield dForm.firstThr.loadNew(true);
+				lPosts = yield Promise.race([stopToken, dForm.firstThr.loadNew(true)]);
 			} catch(e) {
 				if(e instanceof StopLoadingTaskError) {
 					return;
@@ -11544,8 +11511,9 @@ function initThreadUpdater(title, enableUpdate) {
 					delay = Math.min(delay + initDelay, 12e4);
 				}
 			}
-		}
-	}
+		} while(repeadLoading);
+		stopLoad = null;
+	});
 		
 	function setState(state) {
 		var btn = stateButton || (stateButton = $q('a[id^="de-btn-upd"]', doc));
@@ -11578,6 +11546,40 @@ function initThreadUpdater(title, enableUpdate) {
 			(newPosts === 0 ? '' : '[' + newPosts + '] ') + title;
 	}
 
+	if('hidden' in doc) {
+		focused = !doc.hidden;
+		doc.addEventListener('visibilitychange', function() {
+			if(doc.hidden) {
+				focused = false;
+				if(dForm.firstThr) {
+					dForm.firstThr.clearPostsMarks();
+				}
+			} else {
+				onVis();
+			}
+		}, false);
+	} else {
+		focused = false;
+		doc.defaultView.addEventListener('focus', onVis, false);
+		doc.defaultView.addEventListener('blur', function() {
+			focused = false;
+			dForm.firstThr.clearPostsMarks();
+		}, false);
+		doc.defaultView.addEventListener('mousemove', function mouseMove() {
+			doc.defaultView.removeEventListener('mousemove', mouseMove, false);
+			onVis();
+		}, false);
+	}
+	if(enableUpdate) {
+		init();
+	}
+	if(focused && Cfg.desktNotif && ('permission' in Notification)) {
+		switch(Notification.permission.toLowerCase()) {
+		case 'default': requestNotifPermission(); break;
+		case 'denied': saveCfg('desktNotif', 0);
+		}
+	}
+
 	return {
 		get enabled() {
 			return enabled;
@@ -11598,13 +11600,15 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		pause() {
 			if(enabled && !paused) {
-				stopLoading(true, false);
+				if(stopLoad) {
+					stopLoad(false);
+				}
 				paused = true;
 			}
 		},
 		'continue'() {
 			if(enabled && paused) {
-				startLoading();
+				startLoad(false);
 				paused = false;
 			}
 		},
