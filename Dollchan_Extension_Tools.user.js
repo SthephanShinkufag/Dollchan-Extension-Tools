@@ -7880,7 +7880,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			var _iteratorError = undefined;
 
 			try {
-				for (var _iterator = images.data[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+				for (var _iterator = images[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 					var image = _step.value;
 
 					if (!(image instanceof Attachment)) {
@@ -7888,12 +7888,13 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 					if (weightVals) {
 						var w = image.weight;
-						if (compareRule === 0) {
-							hide = w >= weightVals[0] && w <= weightVals[1];
-						} else if (compareRule === 1) {
-							hide = w < weightVals[0];
-						} else {
-							hide = w > weightVals[0];
+						switch (compareRule) {
+							case 0:
+								hide = w >= weightVals[0] && w <= weightVals[1];break;
+							case 1:
+								hide = w < weightVals[0];break;
+							case 2:
+								hide = w > weightVals[0];break;
 						}
 						if (!hide) {
 							continue;
@@ -7909,13 +7910,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 								if (w >= sizeVals[0] && w <= sizeVals[1] && h >= sizeVals[2] && h <= sizeVals[3]) {
 									return true;
 								}
-								if (_iterator["return"]) _iterator["return"]();
 								break;
 							case 1:
 								if (w < sizeVals[0] && h < sizeVals[3]) {
 									return true;
 								}
-								if (_iterator["return"]) _iterator["return"]();
 								break;
 							case 2:
 								if (w > sizeVals[0] && h > sizeVals[3]) {

@@ -5481,18 +5481,16 @@ SpellsInterpreter.prototype = {
 		if(!val) {
 			return images.hasAttachments;
 		}
-		for(let image of images.data) {
+		for(let image of images) {
 			if(!(image instanceof Attachment)) {
 				return;
 			}
 			if(weightVals) {
 				let w = image.weight;
-				if(compareRule === 0) {
-					hide = w >= weightVals[0] && w <= weightVals[1];
-				} else if(compareRule === 1) {
-					hide = w < weightVals[0];
-				} else {
-					hide = w > weightVals[0];
+				switch(compareRule) {
+				case 0: hide = w >= weightVals[0] && w <= weightVals[1]; break;
+				case 1: hide = w < weightVals[0]; break;
+				case 2: hide = w > weightVals[0]; break;
 				}
 				if(!hide) {
 					continue;
