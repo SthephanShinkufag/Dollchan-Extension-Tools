@@ -6585,18 +6585,14 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 		return $ajax(url).then(function (xhr) {
 			if (xhr.status !== 200) {
-				throw new AjaxError(xhr.status, xhr.statusText);
+				return Promise.reject(new AjaxError(xhr.status, xhr.statusText));
 			}
 			var el,
 			    text = xhr.responseText;
 			if ((aib.futa ? /<!--gz-->$/ : /<\/html?>[\s\n\r]*$/).test(text)) {
 				el = returnForm ? $q(aib.qDForm, $DOM(text)) : $DOM(text);
 			}
-			if (el) {
-				return el;
-			} else {
-				throw new AjaxError(0, Lng.errCorruptData[lang]);
-			}
+			return el ? el : Promise.reject(new AjaxError(0, Lng.errCorruptData[lang]));
 		});
 	}
 
@@ -6608,7 +6604,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				case 304:
 					return null;
 				default:
-					throw new AjaxError(xht.status, xhr.message);
+					return Promise.reject(AjaxError(xht.status, xhr.message));
 			}
 		});
 	}
