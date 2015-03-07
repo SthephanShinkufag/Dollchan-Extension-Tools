@@ -1402,7 +1402,7 @@ function savePosts() {
 }
 
 function saveUserPosts() {
-	getStored('DESU_Posts_' + aib.dm).then(str => {
+	spawn(getStored, 'DESU_Posts_' + aib.dm).then(str => {
 		var obj;
 		try {
 			obj = JSON.parse(str || '{}') || {};

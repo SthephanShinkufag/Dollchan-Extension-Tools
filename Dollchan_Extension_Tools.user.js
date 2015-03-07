@@ -3727,7 +3727,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	}
 
 	function saveUserPosts() {
-		getStored("DESU_Posts_" + aib.dm).then(function (str) {
+		spawn(getStored, "DESU_Posts_" + aib.dm).then(function (str) {
 			var obj;
 			try {
 				obj = JSON.parse(str || "{}") || {};
