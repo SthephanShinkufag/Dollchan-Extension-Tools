@@ -1422,6 +1422,7 @@ function saveUserPosts() {
 				}
 			}
 		}
+		obj[brd] = uVis;
 		setStored('DESU_Posts_' + aib.dm, JSON.stringify(obj));
 		toggleContent('hid', true);
 	});

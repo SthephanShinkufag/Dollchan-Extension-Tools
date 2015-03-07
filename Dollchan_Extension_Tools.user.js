@@ -3747,6 +3747,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					}
 				}
 			}
+			obj[brd] = uVis;
 			setStored("DESU_Posts_" + aib.dm, JSON.stringify(obj));
 			toggleContent("hid", true);
 		});
