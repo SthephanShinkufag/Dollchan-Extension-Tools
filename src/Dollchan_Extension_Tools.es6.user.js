@@ -11277,9 +11277,10 @@ function replacePost(el) {
 }
 
 function initThreadUpdater(title, enableUpdate) {
-	var focused, startLoad, stopLoad, audioRep, audioEl, stateButton,
+	var focused, startLoad, audioRep, audioEl, stateButton,
 		hasAudio, initDelay, favIntrv, favNorm, favHref, notifGranted, countEl,
 		useCountdown, canFocusLoad, paused, enabled = false,
+		stopLoad = emptyFn,
 		disabledByUser = true,
 		inited = false,
 		lastECode = 200,
@@ -11296,10 +11297,11 @@ function initThreadUpdater(title, enableUpdate) {
 		favNorm = notifGranted = inited = true;
 		favHref = ($q('head link[rel="shortcut icon"]', doc) || {}).href;
 		useCountdown = !!Cfg.updCount;
-		enable(true);
+		enable();
+		startLoad(true);
 	}
 
-	function enable(start) {
+	function enable() {
 		enabled = canFocusLoad = true;
 		paused = disabledByUser = false;
 		newPosts = 0;
@@ -11307,17 +11309,12 @@ function initThreadUpdater(title, enableUpdate) {
 			countEl = $id('de-updater-count');
 			countEl.style.display = '';
 		}
-		if(start) {
-			startLoad(true);
-		}
 	}
 
 	function disable(byUser) {
 		disabledByUser = byUser;
 		if(enabled) {
-			if(stopLoad) {
-				stopLoad(true);
-			}
+			stopLoad(true);
 			enabled = hasAudio = false;
 			setState('off');
 			var btn = $id('de-btn-audio-on');
@@ -11363,7 +11360,7 @@ function initThreadUpdater(title, enableUpdate) {
 
 	function forceLoadPosts(isFocusLoad) {
 		if(!enabled && !disabledByUser) {
-			enable(false);
+			enable();
 			if(!checkFocusLoad(isFocusLoad)) {
 				return;
 			}
@@ -11372,9 +11369,7 @@ function initThreadUpdater(title, enableUpdate) {
 				return;
 			}
 		}
-		if(stopLoad) {
-			stopLoad(false);
-		}
+		stopLoad(false);
 		startLoad(false);
 	}
 
@@ -11398,7 +11393,7 @@ function initThreadUpdater(title, enableUpdate) {
 				countEl.innerHTML = '<span class="de-wait"></span>';
 			}
 		}
-		stopLoad = null;
+		stopLoad = emptyFn;
 	}
 
 	startLoad = async(function* (needSleep) {
@@ -11508,7 +11503,7 @@ function initThreadUpdater(title, enableUpdate) {
 				}
 			}
 		} while(repeadLoading);
-		stopLoad = null;
+		stopLoad = emptyFn;
 	});
 		
 	function setState(state) {
@@ -11588,7 +11583,8 @@ function initThreadUpdater(title, enableUpdate) {
 			if(!inited) {
 				init();
 			} else if(!enabled) {
-				enable(true);
+				enable();
+				startLoad(true);
 			} else {
 				return;
 			}
@@ -11596,9 +11592,7 @@ function initThreadUpdater(title, enableUpdate) {
 		},
 		pause() {
 			if(enabled && !paused) {
-				if(stopLoad) {
-					stopLoad(false);
-				}
+				stopLoad(false);
 				paused = true;
 			}
 		},

@@ -14229,7 +14229,6 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 	function initThreadUpdater(title, enableUpdate) {
 		var focused,
 		    startLoad,
-		    stopLoad,
 		    audioRep,
 		    audioEl,
 		    stateButton,
@@ -14244,6 +14243,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 		    canFocusLoad,
 		    paused,
 		    enabled = false,
+		    stopLoad = emptyFn,
 		    disabledByUser = true,
 		    inited = false,
 		    lastECode = 200,
@@ -14260,10 +14260,11 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			favNorm = notifGranted = inited = true;
 			favHref = ($q("head link[rel=\"shortcut icon\"]", doc) || {}).href;
 			useCountdown = !!Cfg.updCount;
-			enable(true);
+			enable();
+			startLoad(true);
 		}
 
-		function enable(start) {
+		function enable() {
 			enabled = canFocusLoad = true;
 			paused = disabledByUser = false;
 			newPosts = 0;
@@ -14271,17 +14272,12 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				countEl = $id("de-updater-count");
 				countEl.style.display = "";
 			}
-			if (start) {
-				startLoad(true);
-			}
 		}
 
 		function disable(byUser) {
 			disabledByUser = byUser;
 			if (enabled) {
-				if (stopLoad) {
-					stopLoad(true);
-				}
+				stopLoad(true);
 				enabled = hasAudio = false;
 				setState("off");
 				var btn = $id("de-btn-audio-on");
@@ -14327,7 +14323,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 
 		function forceLoadPosts(isFocusLoad) {
 			if (!enabled && !disabledByUser) {
-				enable(false);
+				enable();
 				if (!checkFocusLoad(isFocusLoad)) {
 					return;
 				}
@@ -14336,9 +14332,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					return;
 				}
 			}
-			if (stopLoad) {
-				stopLoad(false);
-			}
+			stopLoad(false);
 			startLoad(false);
 		}
 
@@ -14361,7 +14355,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 					countEl.innerHTML = "<span class=\"de-wait\"></span>";
 				}
 			}
-			stopLoad = null;
+			stopLoad = emptyFn;
 		}
 
 		startLoad = async(regeneratorRuntime.mark(function callee$2$0(needSleep) {
@@ -14532,7 +14526,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 						}
 
 					case 49:
-						stopLoad = null;
+						stopLoad = emptyFn;
 
 					case 50:
 					case "end":
@@ -14621,7 +14615,8 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 				if (!inited) {
 					init();
 				} else if (!enabled) {
-					enable(true);
+					enable();
+					startLoad(true);
 				} else {
 					return;
 				}
@@ -14629,9 +14624,7 @@ var _defineProperty = function (obj, key, value) { return Object.defineProperty(
 			}),
 			pause: function pause() {
 				if (enabled && !paused) {
-					if (stopLoad) {
-						stopLoad(false);
-					}
+					stopLoad(false);
 					paused = true;
 				}
 			},
